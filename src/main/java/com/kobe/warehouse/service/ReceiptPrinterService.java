@@ -4,12 +4,11 @@ import com.kobe.warehouse.domain.User;
 import com.kobe.warehouse.service.receipt.service.AssuranceSaleReceiptService;
 import com.kobe.warehouse.service.receipt.service.CashSaleReceiptService;
 import com.kobe.warehouse.service.report.SaleReceiptService;
+import javax.print.PrintService;
+import javax.print.PrintServiceLookup;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
-
-import javax.print.PrintService;
-import javax.print.PrintServiceLookup;
 
 @Service
 public class ReceiptPrinterService {
@@ -20,7 +19,12 @@ public class ReceiptPrinterService {
     private final CashSaleReceiptService cashSaleReceiptService;
     private final AssuranceSaleReceiptService assuranceSaleReceiptService;
 
-    public ReceiptPrinterService(SaleReceiptService saleReceiptService, StorageService storageService, CashSaleReceiptService cashSaleReceiptService, AssuranceSaleReceiptService assuranceSaleReceiptService) {
+    public ReceiptPrinterService(
+        SaleReceiptService saleReceiptService,
+        StorageService storageService,
+        CashSaleReceiptService cashSaleReceiptService,
+        AssuranceSaleReceiptService assuranceSaleReceiptService
+    ) {
         this.saleReceiptService = saleReceiptService;
         this.storageService = storageService;
         this.cashSaleReceiptService = cashSaleReceiptService;
@@ -29,7 +33,7 @@ public class ReceiptPrinterService {
 
     public void printCashSale(Long saleId, boolean isEdit) {
         this.cashSaleReceiptService.printReceipt(null, saleId, isEdit);
-       /* Runnable runnableTask = () -> {
+        /* Runnable runnableTask = () -> {
             try (PDDocument document = Loader.loadPDF(Paths.get(saleReceiptService.printCashReceipt(saleId)).toFile())) {
                 PrinterJob printerJob = PrinterJob.getPrinterJob();
                 printerJob.setPrintService(findPrintService());
@@ -44,7 +48,7 @@ public class ReceiptPrinterService {
 
     public void printVoSale(Long saleId, boolean isEdit) {
         this.assuranceSaleReceiptService.printReceipt(null, saleId, isEdit);
-     /*   Runnable runnableTask = () -> {
+        /*   Runnable runnableTask = () -> {
             try (PDDocument document = Loader.loadPDF(Paths.get(saleReceiptService.printVoReceipt(saleId)).toFile())) {
                 PrinterJob printerJob = PrinterJob.getPrinterJob();
                 printerJob.setPrintService(findPrintService());
@@ -62,12 +66,9 @@ public class ReceiptPrinterService {
         User user = storageService.getUser();
         String printerName = null;
 
-
-
-            return PrintServiceLookup.lookupDefaultPrintService();
-
-
+        return PrintServiceLookup.lookupDefaultPrintService();
     }
+
     /*
     common size
   80*80
@@ -79,5 +80,4 @@ public class ReceiptPrinterService {
     public void printCashSale2(Long saleId, boolean isEdit) {
         this.assuranceSaleReceiptService.printReceipt(null, saleId, isEdit);
     }
-
 }

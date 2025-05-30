@@ -6,10 +6,8 @@ import com.fasterxml.jackson.datatype.jsr310.deser.LocalDateDeserializer;
 import com.fasterxml.jackson.datatype.jsr310.ser.LocalDateSerializer;
 import com.kobe.warehouse.domain.DailyStock;
 import com.kobe.warehouse.domain.ParcoursProduit;
-
 import com.kobe.warehouse.domain.enumeration.TypeProduit;
 import com.kobe.warehouse.service.produit_prix.dto.PrixReferenceDTO;
-
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -189,8 +187,6 @@ public class ProduitDTO {
         this.tvaTaux = tvaTaux;
         return this;
     }
-
-
 
     public ProduitDTO gammeLibelle(String gammeLibelle) {
         this.gammeLibelle = gammeLibelle;
@@ -641,8 +637,6 @@ public class ProduitDTO {
         this.totalQuantity = totalQuantity;
         return this;
     }
-
-
 
     public int getQtyReserve() {
         return qtyReserve;

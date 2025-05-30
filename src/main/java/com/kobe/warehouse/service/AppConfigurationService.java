@@ -88,7 +88,6 @@ public class AppConfigurationService {
     @Transactional(readOnly = true)
     @Cacheable(EntityConstant.APP_POS_PRINTER_WIDTH)
     public int getPrinterWidth() {
-
         return appConfigurationRepository
             .findById(EntityConstant.APP_POS_PRINTER_WIDTH)
             .map(AppConfiguration::getValue)

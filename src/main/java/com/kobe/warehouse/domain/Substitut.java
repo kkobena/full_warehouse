@@ -2,7 +2,6 @@ package com.kobe.warehouse.domain;
 
 import com.kobe.warehouse.domain.enumeration.TypeSubstitut;
 import jakarta.persistence.*;
-
 import java.io.Serial;
 import java.io.Serializable;
 import java.util.Objects;
@@ -13,13 +12,17 @@ public class Substitut implements Serializable {
 
     @Serial
     private static final long serialVersionUID = 1L;
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
+
     @ManyToOne(optional = false)
     private Produit produit;
+
     @ManyToOne(optional = false)
     private Produit substitut;
+
     @Enumerated(EnumType.STRING)
     @Column(name = "type_substitut", nullable = false)
     private TypeSubstitut type;

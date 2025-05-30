@@ -6,16 +6,15 @@ import com.kobe.warehouse.service.dto.HistoriqueProduitAchatMensuelle;
 import com.kobe.warehouse.service.dto.HistoriqueProduitAchats;
 import com.kobe.warehouse.service.dto.HistoriqueProduitAchatsSummary;
 import com.kobe.warehouse.service.dto.projection.LastDateProjection;
+import java.time.LocalDate;
+import java.util.List;
+import java.util.Optional;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
-
-import java.time.LocalDate;
-import java.util.List;
-import java.util.Optional;
 
 /**
  * Spring Data repository for the OrderLine entity.
@@ -38,8 +37,6 @@ public interface OrderLineRepository extends JpaRepository<OrderLine, Long> {
     int countByFournisseurProduitProduitIdAndCommandeOrderStatus(Long produitId, OrderStatut orderStatus);
 
     List<OrderLine> findAllByCommandeId(Long deliveryReceiptId);
-
-
 
     @Query(
         value = "SELECT MAX(o.updated_at) AS updatedAt FROM order_line o JOIN fournisseur_produit fp ON o.fournisseur_produit_id = fp.id JOIN commande d ON o.commande_id = d.id WHERE fp.produit_id = ?1 AND d.order_status=?2",

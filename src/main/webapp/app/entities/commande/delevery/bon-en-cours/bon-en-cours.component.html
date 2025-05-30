@@ -44,10 +44,10 @@
             type="button"
           />
         </td>
-        <td>{{ row.orderRefernce }}</td>
+        <td>{{ row.orderReference }}</td>
         <td>{{ row.createdAt | date: 'dd/MM/yyyy HH:mm:ss' }}</td>
         <td>{{ row.receiptDate | date: 'dd/MM/yyyy' }}</td>
-        <td>{{ row.receiptRefernce }}</td>
+        <td>{{ row.receiptReference }}</td>
 
         <td class="text-right">{{ row.receiptAmount | number }}</td>
         <td class="text-right">{{ row.taxAmount | number }}</td>
@@ -57,19 +57,25 @@
 
         <td class="text-right">
           <div class="btn-group">
+            <p-button
+              [routerLink]="['/commande', row.id, 'edit']"
+              severity="help"
+              [rounded]="true"
+              [text]="true"
+              tooltipPosition="left"
+              icon="pi pi-upload"
+              pTooltip="Faire l'entréé en  stock"
+            ></p-button>
 
-              <p-button
-                [routerLink]="['/commande', row.id, 'edit']"
-                severity="help"
-                [rounded]="true"
-                [text]="true"
-                tooltipPosition="left"
-                icon="pi pi-upload"
-                pTooltip="Faire l'entréé en  stock"
-              ></p-button>
-
-
-            <p-button text (click)="exportPdf(row)" [rounded]="true" icon="pi pi-file-pdf" tooltipPosition="left" pTooltip="Imprimer" severity="warn"></p-button>
+            <p-button
+              text
+              (click)="exportPdf(row)"
+              [rounded]="true"
+              icon="pi pi-file-pdf"
+              tooltipPosition="left"
+              pTooltip="Imprimer"
+              severity="warn"
+            ></p-button>
           </div>
         </td>
       </tr>
@@ -89,13 +95,8 @@
               <ng-template pTemplate="header">
                 <tr>
                   <th>#</th>
-                  <th >
-                    Code
-
-                  </th>
-                  <th >
-                    Libellé
-                  </th>
+                  <th>Code</th>
+                  <th>Libellé</th>
                   <th>Stock.Init</th>
                   <th>Stock.final</th>
                   <th>Qté.Livrée</th>

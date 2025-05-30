@@ -100,7 +100,8 @@ public class ProductStatServiceImpl implements ProductStatService {
         ProduitAuditingReportSevice produitAuditingReportSevice,
         FournisseurProduitRepository fournisseurProduitRepository,
         SalesLineRepository salesLineRepository,
-        HistoriqueVenteReportReportService historiqueVenteReportReportService, OrderLineRepository orderLineRepository
+        HistoriqueVenteReportReportService historiqueVenteReportReportService,
+        OrderLineRepository orderLineRepository
     ) {
         this.em = em;
         this.produitAuditingReportSevice = produitAuditingReportSevice;
@@ -174,7 +175,7 @@ public class ProductStatServiceImpl implements ProductStatService {
                 produitHistorique.produitId(),
                 produitHistorique.startDate(),
                 produitHistorique.endDate(),
-            OrderStatut.CLOSED.name(),
+                OrderStatut.CLOSED.name(),
                 pageable
             );
     }
@@ -210,7 +211,7 @@ public class ProductStatServiceImpl implements ProductStatService {
                 produitHistorique.produitId(),
                 produitHistorique.startDate(),
                 produitHistorique.endDate(),
-            OrderStatut.CLOSED.name()
+                OrderStatut.CLOSED.name()
             );
     }
 
@@ -429,7 +430,7 @@ public class ProductStatServiceImpl implements ProductStatService {
     }
 
     private ProduitAuditing buildProduitDeconditionAuditingFromTuple(Tuple tuple) {
-        TypeDeconditionnement typeDeconditionnement = TypeDeconditionnement.valueOf(tuple.get("type_deconditionnement",String.class));
+        TypeDeconditionnement typeDeconditionnement = TypeDeconditionnement.valueOf(tuple.get("type_deconditionnement", String.class));
         return new ProduitAuditing(
             AuditType.DECONDITIONNEMENT,
             tuple.get("qty_mvt", Integer.class),
@@ -445,7 +446,7 @@ public class ProductStatServiceImpl implements ProductStatService {
     }
 
     private ProduitAuditing buildProduitAjustementAuditingFromTuple(Tuple tuple) {
-        AjustType ajustType = AjustType.valueOf(tuple.get("type_ajust",String.class));
+        AjustType ajustType = AjustType.valueOf(tuple.get("type_ajust", String.class));
         return new ProduitAuditing(
             AuditType.AJUSTEMENT,
             tuple.get("qty_mvt", Integer.class),

@@ -20,15 +20,14 @@ import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 import jakarta.validation.constraints.NotNull;
-import org.hibernate.annotations.ColumnDefault;
-import org.hibernate.annotations.Comment;
-
 import java.io.Serial;
 import java.io.Serializable;
 import java.time.LocalDateTime;
 import java.util.HashSet;
 import java.util.Objects;
 import java.util.Set;
+import org.hibernate.annotations.ColumnDefault;
+import org.hibernate.annotations.Comment;
 
 /**
  * A Sales.
@@ -210,7 +209,6 @@ public class Sales implements Serializable, Cloneable {
     @Column(name = "differe", nullable = false, columnDefinition = "boolean default false")
     private boolean differe = false;
 
-
     @NotNull
     @Enumerated(EnumType.STRING)
     @Column(name = "ca", nullable = false, length = 30)
@@ -247,8 +245,6 @@ public class Sales implements Serializable, Cloneable {
     @ManyToOne(optional = false)
     @NotNull
     private WarehouseCalendar calendar;
-
-
 
     public Long getId() {
         return id;
@@ -604,8 +600,6 @@ public class Sales implements Serializable, Cloneable {
         this.differe = differe;
         return this;
     }
-
-
 
     public @NotNull CategorieChiffreAffaire getCategorieChiffreAffaire() {
         return categorieChiffreAffaire;

@@ -68,11 +68,10 @@ public final class ProduitBuilder {
         produit.setForme(formProduitFromId(produitDTO.getFormeId()));
         produit.addStockProduit(stockProduitFromProduitDTO(rayon.getStorage()));
         produit.addFournisseurProduit(fournisseurProduitFromDTO(produitDTO));
-        if (org.springframework.util.StringUtils.hasLength(produitDTO.getCategorie())){
+        if (org.springframework.util.StringUtils.hasLength(produitDTO.getCategorie())) {
             produit.setCategorie(CategorieABC.valueOf(produitDTO.getCategorie()));
         }
         produit.setDci(dciFromId(produitDTO.getDciId()));
-
 
         return produit;
     }
@@ -132,19 +131,20 @@ public final class ProduitBuilder {
         }
         return produitDTO;
     }
+
     private static void updateCategorieABC(ProduitDTO produitDTO, Produit produit) {
         if (produit.getCategorie() != null) {
             produitDTO.setCategorie(produit.getCategorie().name());
-
-
         }
     }
-private static  void updateDci(ProduitDTO produitDTO, Produit produit) {
+
+    private static void updateDci(ProduitDTO produitDTO, Produit produit) {
         Dci dci = produit.getDci();
         if (dci != null) {
             produitDTO.setDciId(dci.getId()).setDciLibelle(dci.getLibelle());
         }
     }
+
     private static ProduitDTO familleProduit(ProduitDTO produitDTO, Produit produit) {
         FamilleProduit familleProduit = produit.getFamille();
         if (familleProduit != null) {
@@ -217,8 +217,6 @@ private static  void updateDci(ProduitDTO produitDTO, Produit produit) {
         }
         return produitDTO;
     }
-
-
 
     private static void setFournisseurPrincipal(ProduitDTO produitDTO, Produit produit) {
         FournisseurProduitDTO fournisseurProduit = fromPrincipal(produit);
@@ -364,7 +362,8 @@ private static  void updateDci(ProduitDTO produitDTO, Produit produit) {
 
         return dto;
     }
-public static Dci dciFromId(Long id) {
+
+    public static Dci dciFromId(Long id) {
         if (id == null) {
             return null;
         }
@@ -372,6 +371,7 @@ public static Dci dciFromId(Long id) {
         entity.setId(id);
         return entity;
     }
+
     public static Tva tvaFromId(Long tvaId) {
         if (tvaId == null) {
             return null;
@@ -622,5 +622,4 @@ public static Dci dciFromId(Long id) {
         setUnitPrice(produitDTO);
         return produitDTO;
     }
-
 }

@@ -56,7 +56,7 @@ public class PaymentTransaction implements Serializable {
 
     @NotNull
     @Column(name = "created_at", nullable = false)
-    private LocalDateTime createdAt= LocalDateTime.now();
+    private LocalDateTime createdAt = LocalDateTime.now();
 
     @ManyToOne(optional = false)
     @JsonIgnoreProperties(value = "payments", allowSetters = true)
@@ -86,8 +86,10 @@ public class PaymentTransaction implements Serializable {
 
     @Column(name = "dtype", insertable = false, updatable = false)
     private String type;
+
     @ManyToOne
     private Banque banque;
+
     public Integer getExpectedAmount() {
         return expectedAmount;
     }

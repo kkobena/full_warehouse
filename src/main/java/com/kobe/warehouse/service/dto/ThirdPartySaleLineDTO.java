@@ -25,7 +25,8 @@ public class ThirdPartySaleLineDTO {
     private ThirdPartySaleStatut statut;
     private Integer montantRemise;
     private Integer montantNet;
-    private  PrioriteTiersPayant priorite;
+    private PrioriteTiersPayant priorite;
+
     public ThirdPartySaleLineDTO() {}
 
     public ThirdPartySaleLineDTO(ThirdPartySaleLine thirdPartySaleLine) {
@@ -45,7 +46,7 @@ public class ThirdPartySaleLineDTO {
         this.effectiveUpdateDate = thirdPartySaleLine.getEffectiveUpdateDate();
         this.taux = thirdPartySaleLine.getTaux();
         this.statut = thirdPartySaleLine.getStatut();
-        this.priorite= clientTiersPayant.getPriorite();
+        this.priorite = clientTiersPayant.getPriorite();
     }
 
     public Integer getMontantNet() {

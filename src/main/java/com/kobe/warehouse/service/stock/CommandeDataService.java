@@ -31,6 +31,4 @@ public interface CommandeDataService {
     Page<OrderLineDTO> filterCommandeLines(Long commandeId, Pageable pageable);
 
     Resource getRuptureCsv(String reference);
-
-
 }

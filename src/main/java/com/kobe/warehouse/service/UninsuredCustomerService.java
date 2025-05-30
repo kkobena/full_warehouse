@@ -83,7 +83,7 @@ public class UninsuredCustomerService {
     }
 
     public List<UninsuredCustomerDTO> fetch(String query) {
-        Specification<UninsuredCustomer> specification = Specification.where(uninsuredCustomerRepository.specialisation(Status.ENABLE));
+        Specification<UninsuredCustomer> specification = uninsuredCustomerRepository.specialisation(Status.ENABLE);
         if (StringUtils.isNotEmpty(query)) {
             query = query.toUpperCase() + "%";
             specification = specification.and(uninsuredCustomerRepository.specialisationQueryString(query));
@@ -96,9 +96,9 @@ public class UninsuredCustomerService {
     }
 
     public Optional<UninsuredCustomer> findOne(UninsuredCustomerDTO dto) {
-        Specification<UninsuredCustomer> specification = Specification.where(
+        Specification<UninsuredCustomer> specification =
             uninsuredCustomerRepository.specialisationCheckExist(dto.getFirstName(), dto.getLastName(), dto.getPhone())
-        );
+        ;
         return uninsuredCustomerRepository.findOne(specification);
     }
 

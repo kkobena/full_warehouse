@@ -35,18 +35,6 @@ import com.kobe.warehouse.service.stock.LotService;
 import com.kobe.warehouse.service.stock.StockEntryService;
 import com.kobe.warehouse.service.utils.FileUtil;
 import com.kobe.warehouse.service.utils.ServiceUtil;
-import org.apache.commons.csv.CSVFormat;
-import org.apache.commons.csv.CSVParser;
-import org.apache.commons.csv.CSVRecord;
-import org.apache.commons.lang3.BooleanUtils;
-import org.apache.commons.lang3.StringUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
-import org.springframework.util.CollectionUtils;
-import org.springframework.web.multipart.MultipartFile;
-
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
@@ -60,6 +48,17 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.function.BiPredicate;
 import java.util.function.Predicate;
+import org.apache.commons.csv.CSVFormat;
+import org.apache.commons.csv.CSVParser;
+import org.apache.commons.csv.CSVRecord;
+import org.apache.commons.lang3.BooleanUtils;
+import org.apache.commons.lang3.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.CollectionUtils;
+import org.springframework.web.multipart.MultipartFile;
 
 @Service
 @Transactional
@@ -78,14 +77,13 @@ public class StockEntryServiceImpl implements StockEntryService {
     private final FournisseurRepository fournisseurRepository;
     private final OrderLineService orderLineService;
 
-
     private final ImportationEchoueService importationEchoueService;
     private final TvaRepository tvaRepository;
     private final Predicate<OrderLine> isNotEntreeStockIsAuthorize = orderLine -> {
         if (Objects.nonNull(orderLine.getReceiptDate()) && Objects.nonNull(orderLine.getQuantityReceived())) {
             return (
                 (orderLine.getQuantityReceived() < orderLine.getQuantityRequested()) &&
-                    orderLine.getFournisseurProduit().getProduit().getCheckExpiryDate()
+                orderLine.getFournisseurProduit().getProduit().getCheckExpiryDate()
             );
         }
         return false;
@@ -97,18 +95,16 @@ public class StockEntryServiceImpl implements StockEntryService {
         return true;
     };
 
-
     private final Predicate<OrderLine> lotPredicate = orderLine -> {
         if (BooleanUtils.isTrue(orderLine.getFournisseurProduit().getProduit().getCheckExpiryDate())) {
             return (
                 !CollectionUtils.isEmpty(orderLine.getLots()) &&
-                    orderLine.getLots().stream().map(Lot::getExpiryDate).allMatch(Objects::nonNull) &&
-                    orderLine.getLots().stream().mapToInt(Lot::getQuantity).sum() >= orderLine.getQuantityReceived()
+                orderLine.getLots().stream().map(Lot::getExpiryDate).allMatch(Objects::nonNull) &&
+                orderLine.getLots().stream().mapToInt(Lot::getQuantity).sum() >= orderLine.getQuantityReceived()
             );
         }
         return true;
     };
-
 
     private final Predicate<OrderLine> cipNotSet = orderLine ->
         org.springframework.util.StringUtils.hasLength(orderLine.getFournisseurProduit().getCodeCip());
@@ -121,7 +117,8 @@ public class StockEntryServiceImpl implements StockEntryService {
 
     public StockEntryServiceImpl(
         CommandeRepository commandeRepository,
-        ProduitService produitService, ReferenceService referenceService,
+        ProduitService produitService,
+        ReferenceService referenceService,
         LotService lotService,
         StorageService storageService,
         FournisseurProduitService fournisseurProduitService,
@@ -146,7 +143,6 @@ public class StockEntryServiceImpl implements StockEntryService {
         this.importationEchoueService = importationEchoueService;
         this.tvaRepository = tvaRepository;
     }
-
 
     @Override
     public void finalizeSaisieEntreeStock(DeliveryReceiptLiteDTO deliveryReceiptLite) {
@@ -217,7 +213,7 @@ public class StockEntryServiceImpl implements StockEntryService {
         logsService.create(
             TransactionType.ENTREE_STOCK,
             "order.entry",
-            new Object[]{deliveryReceipt.getReceiptReference()},
+            new Object[] { deliveryReceipt.getReceiptReference() },
             deliveryReceipt.getId().toString()
         );
         deliveryReceipt.setOrderStatus(OrderStatut.CLOSED);
@@ -233,13 +229,12 @@ public class StockEntryServiceImpl implements StockEntryService {
         commande.setUpdatedAt(LocalDateTime.now());
         commande.setUser(storageService.getUser());
         commande.orderStatus(OrderStatut.RECEIVED);
-        commande.setReceiptReference(deliveryReceiptLite.getReceiptRefernce());
+        commande.setReceiptReference(deliveryReceiptLite.getReceiptReference());
         buildDeliveryReceipt(deliveryReceiptLite, commande);
-        List<OrderLine> orderLines= commande.getOrderLines();
+        List<OrderLine> orderLines = commande.getOrderLines();
         orderLines.forEach(this::updateReceivedQty);
-        this.orderLineService.saveAll( orderLines);
-        return  fromEntity(  commandeRepository.saveAndFlush(commande));
-
+        this.orderLineService.saveAll(orderLines);
+        return fromEntity(commandeRepository.saveAndFlush(commande));
     }
 
     @Override
@@ -329,8 +324,6 @@ public class StockEntryServiceImpl implements StockEntryService {
         return num;
     }
 
-
-
     private int getTotalStockQuantity(StockProduit stockProduit) {
         return stockProduit.getQtyStock() + (Objects.nonNull(stockProduit.getQtyUG()) ? stockProduit.getQtyStock() : 0);
     }
@@ -341,7 +334,7 @@ public class StockEntryServiceImpl implements StockEntryService {
         commande.setGrossAmount(deliveryReceiptLite.getReceiptAmount());
         commande.setDiscountAmount(0);
         commande.setTaxAmount(deliveryReceiptLite.getTaxAmount());
-        commande.setReceiptReference(deliveryReceiptLite.getReceiptRefernce());
+        commande.setReceiptReference(deliveryReceiptLite.getReceiptReference());
         commande.setHtAmount(deliveryReceiptLite.getReceiptAmount());
         return commande;
     }
@@ -353,12 +346,12 @@ public class StockEntryServiceImpl implements StockEntryService {
             .setReceiptAmount(commande.getGrossAmount())
             .setFinalAmount(commande.getFinalAmount())
             .setReceiptDate(commande.getReceiptDate())
-            .setReceiptRefernce(commande.getReceiptReference())
+            .setReceiptReference(commande.getReceiptReference())
             .setTaxAmount(commande.getTaxAmount());
     }
 
     private Commande importNewBon(UploadDeleiveryReceiptDTO uploadDeleiveryReceipt) {
-        DeliveryReceiptLiteDTO deliveryReceipt= uploadDeleiveryReceipt.getDeliveryReceipt();
+        DeliveryReceiptLiteDTO deliveryReceipt = uploadDeleiveryReceipt.getDeliveryReceipt();
         Commande commande = new Commande();
         commande.setType(TypeDeliveryReceipt.DIRECT);
         commande.setCreatedAt(LocalDateTime.now());
@@ -371,13 +364,12 @@ public class StockEntryServiceImpl implements StockEntryService {
         commande.setGrossAmount(deliveryReceipt.getReceiptAmount());
         commande.setDiscountAmount(0);
         commande.setTaxAmount(deliveryReceipt.getTaxAmount());
-        commande.setReceiptReference(deliveryReceipt.getReceiptRefernce());
+        commande.setReceiptReference(deliveryReceipt.getReceiptReference());
         commande.setHtAmount(ServiceUtil.computeHtaxe(commande.getGrossAmount(), commande.getTaxAmount()));
         // deliveryReceipt.setOrderReference(deliveryReceipt.getReceiptReference());
         commandeRepository.save(commande);
         return commande;
     }
-
 
     private Optional<OrderLine> findInMap(Map<Long, OrderLine> longOrderLineMap, Long fourniseurProduitId) {
         if (longOrderLineMap.containsKey(fourniseurProduitId)) {
@@ -447,22 +439,20 @@ public class StockEntryServiceImpl implements StockEntryService {
     ) {
         OrderLine orderLineNew =
             this.orderLineService.save(
-                buildDeliveryReceiptItemFromRecord(
-                    fournisseurProduit,
-                    quantityRequested,
-                    quantityReceived,
-                    orderCostAmount,
-                    orderUnitPrice,
-                    quantityUg,
-                    currentStock,
-                    taxAmount,
-                    deliveryReceipt
-                )
-            );
+                    buildDeliveryReceiptItemFromRecord(
+                        fournisseurProduit,
+                        quantityRequested,
+                        quantityReceived,
+                        orderCostAmount,
+                        orderUnitPrice,
+                        quantityUg,
+                        currentStock,
+                        taxAmount,
+                        deliveryReceipt
+                    )
+                );
         longOrderLineMap.put(fournisseurProduit.getId(), orderLineNew);
     }
-
-
 
     private CommandeResponseDTO uploadLaborexModelCSVFormat(
         Commande deliveryReceipt,
@@ -498,7 +488,7 @@ public class StockEntryServiceImpl implements StockEntryService {
                     );
                     if (fournisseurProduitOptional.isPresent()) {
                         FournisseurProduit fournisseurProduit = fournisseurProduitOptional.get();
-                    //    Tva tva = fournisseurProduit.getProduit().getTva();
+                        //    Tva tva = fournisseurProduit.getProduit().getTva();
                         int currentStock = orderLineService.produitTotalStockWithQantitUg(fournisseurProduit.getProduit());
 
                         findInMap(longOrderLineMap, fournisseurProduit.getId()).ifPresentOrElse(
@@ -948,12 +938,7 @@ public class StockEntryServiceImpl implements StockEntryService {
         return buildCommandeResponseDTO(commande, items, totalItemCount, succesCount);
     }
 
-    private CommandeResponseDTO buildCommandeResponseDTO(
-        Commande commande,
-        List<OrderItem> items,
-        int totalItemCount,
-        int succesCount
-    ) {
+    private CommandeResponseDTO buildCommandeResponseDTO(Commande commande, List<OrderItem> items, int totalItemCount, int succesCount) {
         return new CommandeResponseDTO()
             .setFailureCount(items.size())
             .setItems(items)
@@ -1003,7 +988,6 @@ public class StockEntryServiceImpl implements StockEntryService {
 
         orderLineService.save(orderLine);
     }
-
 
     private void updateFournisseurProduit(OrderLine orderLine, FournisseurProduit fournisseurProduit, Produit produit) {
         int montantAdditionel = produit.getTableau() != null ? produit.getTableau().getValue() : 0;

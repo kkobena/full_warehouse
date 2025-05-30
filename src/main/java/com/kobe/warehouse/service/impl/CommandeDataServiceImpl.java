@@ -177,8 +177,6 @@ public class CommandeDataServiceImpl implements CommandeDataService {
         return exportationCsvService.getRutureFileByOrderReference(reference);
     }
 
-
-
     private Resource getResource(String path) throws MalformedURLException {
         return new UrlResource(Paths.get(path).toUri());
     }

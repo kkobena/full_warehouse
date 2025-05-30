@@ -1,16 +1,16 @@
-import {inject, Injectable, signal, WritableSignal} from '@angular/core';
-import {HttpClient, HttpResponse} from '@angular/common/http';
-import {Observable} from 'rxjs';
-import {SERVER_API_URL} from 'app/app.constants';
-import {createRequestOptions} from 'app/shared/util/request-util';
-import {IDelivery} from '../../../shared/model/delevery.model';
-import {ICommandeResponse} from '../../../shared/model/commande-response.model';
-import {IDeliveryItem} from '../../../shared/model/delivery-item';
+import { inject, Injectable, signal, WritableSignal } from '@angular/core';
+import { HttpClient, HttpResponse } from '@angular/common/http';
+import { Observable } from 'rxjs';
+import { SERVER_API_URL } from 'app/app.constants';
+import { createRequestOptions } from 'app/shared/util/request-util';
+import { IDelivery } from '../../../shared/model/delevery.model';
+import { ICommandeResponse } from '../../../shared/model/commande-response.model';
+import { IDeliveryItem } from '../../../shared/model/delivery-item';
 
 type EntityResponseType = HttpResponse<IDelivery>;
 type EntityArrayResponseType = HttpResponse<IDelivery[]>;
 
-@Injectable({providedIn: 'root'})
+@Injectable({ providedIn: 'root' })
 export class DeliveryService {
   deliveryPreviousActiveNav: WritableSignal<string> = signal<string>('pending');
   private readonly http = inject(HttpClient);
@@ -25,29 +25,27 @@ export class DeliveryService {
   }
 
   find(id: number): Observable<EntityResponseType> {
-    return this.http
-      .get<IDelivery>(`${this.resourceUrl}/${id}`, {observe: 'response'});
+    return this.http.get<IDelivery>(`${this.resourceUrl}/${id}`, { observe: 'response' });
   }
 
   create(entity: IDelivery): Observable<EntityResponseType> {
-    return this.http.post<IDelivery>(this.resourceUrl2, entity, {observe: 'response'});
+    return this.http.post<IDelivery>(this.resourceUrl2, entity, { observe: 'response' });
   }
 
   finalizeSaisieEntreeStock(delivery: IDelivery): Observable<EntityResponseType> {
-    return this.http
-      .put<IDelivery>(this.resourceFinalyse, delivery, {observe: 'response'});
+    return this.http.put<IDelivery>(this.resourceFinalyse, delivery, { observe: 'response' });
   }
 
   update(entity: IDelivery): Observable<EntityResponseType> {
-    return this.http.put<IDelivery>(this.resourceUrl2, entity, {observe: 'response'});
+    return this.http.put<IDelivery>(this.resourceUrl2, entity, { observe: 'response' });
   }
 
   exportToCsv(entityId: number): Observable<Blob> {
-    return this.http.get(`${this.resourceUrl}/csv/${entityId}`, {responseType: 'blob'});
+    return this.http.get(`${this.resourceUrl}/csv/${entityId}`, { responseType: 'blob' });
   }
 
   exportToPdf(entityId: number): Observable<Blob> {
-    return this.http.get(`${this.resourceUrl}/pdf/${entityId}`, {responseType: 'blob'});
+    return this.http.get(`${this.resourceUrl}/pdf/${entityId}`, { responseType: 'blob' });
   }
 
   printEtiquette(id: number, req: any): Observable<Blob> {
@@ -60,12 +58,10 @@ export class DeliveryService {
 
   query(req?: any): Observable<EntityArrayResponseType> {
     const options = createRequestOptions(req);
-    return this.http
-      .get<IDelivery[]>(this.resourceUrl + '/list', {
-        params: options,
-        observe: 'response',
-      })
-      ;
+    return this.http.get<IDelivery[]>(this.resourceUrl + '/list', {
+      params: options,
+      observe: 'response',
+    });
   }
 
   uploadNew(data: any): Observable<HttpResponse<ICommandeResponse>> {

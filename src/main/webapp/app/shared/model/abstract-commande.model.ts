@@ -1,15 +1,14 @@
-import {Moment} from "moment/moment";
-import {OrderStatut} from "./enumerations/order-statut.model";
-import {IPaymentFournisseur} from "./payment-fournisseur.model";
-import {IMagasin} from "./magasin.model";
-import {IUser} from "../../core/user/user.model";
-import {IFournisseur} from "./fournisseur.model";
-import {AbstractOrderItem} from "./abstract-order-item.model";
+import { Moment } from 'moment/moment';
+import { OrderStatut } from './enumerations/order-statut.model';
+import { IPaymentFournisseur } from './payment-fournisseur.model';
+import { IMagasin } from './magasin.model';
+import { IUser } from '../../core/user/user.model';
+import { IFournisseur } from './fournisseur.model';
+import { AbstractOrderItem } from './abstract-order-item.model';
 
 export interface AbstractCommande {
   id?: number;
   fournisseurId?: number;
-  orderRefernce?: string;
   receiptDate?: string;
   discountAmount?: number;
   orderAmount?: number;
@@ -26,7 +25,7 @@ export interface AbstractCommande {
   user?: IUser;
   fournisseur?: IFournisseur;
   numberTransaction?: string;
-  receiptRefernce?: string;
+  receiptReference?: string;
   fournisseurLibelle?: string;
   orderReference?: string;
   itemSize?: number;

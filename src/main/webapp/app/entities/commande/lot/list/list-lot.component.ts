@@ -13,7 +13,7 @@ import { ConfirmDialogModule } from 'primeng/confirmdialog';
 import { ToastModule } from 'primeng/toast';
 import { TooltipModule } from 'primeng/tooltip';
 import { acceptButtonProps, rejectButtonProps } from '../../../../shared/util/modal-button-props';
-import {IOrderLine} from "../../../../shared/model/order-line.model";
+import { IOrderLine } from '../../../../shared/model/order-line.model';
 
 @Component({
   selector: 'jhi-list-lot',
@@ -43,9 +43,6 @@ export class ListLotComponent implements OnInit {
   private readonly messageService = inject(MessageService);
   private readonly dialogService = inject(DialogService);
   private readonly modalService = inject(ConfirmationService);
-
-
-
 
   ngOnInit(): void {
     this.deliveryItem = this.config.data.deliveryItem;

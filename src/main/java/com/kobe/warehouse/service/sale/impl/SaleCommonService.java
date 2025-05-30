@@ -43,7 +43,6 @@ public class SaleCommonService {
     private final PosteRepository posteRepository;
     private final AfficheurPosService afficheurPosService;
 
-
     public SaleCommonService(
         ReferenceService referenceService,
         WarehouseCalendarService warehouseCalendarService,
@@ -70,8 +69,6 @@ public class SaleCommonService {
         c.setSalesAmount((c.getSalesAmount() - oldSalesAmount) + amount);
         c.setNetAmount(c.getSalesAmount());
     }
-
-
 
     public void computeSaleLazyAmount(Sales c, SalesLine saleLine, SalesLine oldSaleLine) {
         if (oldSaleLine != null) {
@@ -196,7 +193,6 @@ public class SaleCommonService {
 
     public void computeSaleEagerAmountOnRemovingItem(Sales c, SalesLine saleLine) {
         c.setSalesAmount(c.getSalesAmount() - saleLine.getSalesAmount());
-
     }
 
     public void computeSaleLazyAmountOnRemovingItem(Sales c, SalesLine saleLine) {
@@ -370,7 +366,6 @@ public class SaleCommonService {
     }
 
     public int computeCmuAmount(SalesLine salesLine) {
-
         return salesLine.getRegularUnitPrice() * salesLine.getQuantityRequested();
     }
 
@@ -495,14 +490,15 @@ public class SaleCommonService {
     }
 
     private SalesLineService getSaleLineService(Sales sales) {
-      return this.saleLineServiceFactory.getService(getTypeVente(sales));
+        return this.saleLineServiceFactory.getService(getTypeVente(sales));
     }
-     private TypeVente getTypeVente(Sales sales) {
-         if (sales instanceof CashSale) {
-             return TypeVente.CashSale;
-         } else if (sales instanceof ThirdPartySales) {
-             return TypeVente.ThirdPartySales;
-         }
-         return null;
-     }
+
+    private TypeVente getTypeVente(Sales sales) {
+        if (sales instanceof CashSale) {
+            return TypeVente.CashSale;
+        } else if (sales instanceof ThirdPartySales) {
+            return TypeVente.ThirdPartySales;
+        }
+        return null;
+    }
 }

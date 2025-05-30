@@ -56,8 +56,6 @@ public class StockEntryDataResource {
         return Utils.printPDF(resource, request);
     }
 
-
-
     @GetMapping("/commandes/data/entree-stock/pdf/{id}")
     public ResponseEntity<Resource> getPdf(@PathVariable Long id, HttpServletRequest request) throws IOException {
         final Resource resource = stockEntryDataServicetryService.exportToPdf(id);

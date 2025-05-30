@@ -1,7 +1,6 @@
-
-import {ILot} from "./lot.model";
-import {ICommande} from "./commande.model";
-import {IProduit} from "./produit.model";
+import { ILot } from './lot.model';
+import { ICommande } from './commande.model';
+import { IProduit } from './produit.model';
 
 export interface AbstractOrderItem {
   id?: number;
@@ -38,7 +37,4 @@ export interface AbstractOrderItem {
   produitLibelle?: string;
   produitCip?: string;
   produitCodeEan?: string;
-
-
-
 }

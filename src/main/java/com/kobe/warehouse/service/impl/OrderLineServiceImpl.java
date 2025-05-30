@@ -15,16 +15,15 @@ import com.kobe.warehouse.service.OrderLineService;
 import com.kobe.warehouse.service.dto.FournisseurProduitDTO;
 import com.kobe.warehouse.service.dto.OrderLineDTO;
 import com.kobe.warehouse.service.errors.GenericError;
+import java.time.LocalDateTime;
+import java.util.List;
+import java.util.Optional;
+import java.util.Set;
 import org.apache.commons.lang3.ObjectUtils;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.util.Pair;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
-import java.time.LocalDateTime;
-import java.util.List;
-import java.util.Optional;
-import java.util.Set;
 
 @Service
 @Transactional
@@ -53,8 +52,7 @@ public class OrderLineServiceImpl implements OrderLineService {
     }
 
     @Override
-    public void updateOrderLine(OrderLine orderLine) {
-    }
+    public void updateOrderLine(OrderLine orderLine) {}
 
     @Override
     public OrderLine buildOrderLineFromOrderLineDTO(OrderLineDTO orderLineDTO) {
@@ -160,12 +158,10 @@ public class OrderLineServiceImpl implements OrderLineService {
     }
 
     @Override
-    public void removeProductState(List<Produit> produits, OrderStatut orderStatut) {
-    }
+    public void removeProductState(List<Produit> produits, OrderStatut orderStatut) {}
 
     @Override
-    public void rollbackProductState(List<Produit> produits) {
-    }
+    public void rollbackProductState(List<Produit> produits) {}
 
     @Override
     public int countByCommandeOrderStatusAndFournisseurProduitProduitId(OrderStatut orderStatut, Long produitId) {
@@ -194,7 +190,6 @@ public class OrderLineServiceImpl implements OrderLineService {
                 .setProduitId(produitId)
         );
     }
-
 
     @Override
     public Optional<OrderLine> findOneById(Long id) {
@@ -296,18 +291,23 @@ public class OrderLineServiceImpl implements OrderLineService {
     @Override
     public void changeFournisseurProduit(OrderLine orderLine, Long fournisseurId) {
         Produit produit = orderLine.getFournisseurProduit().getProduit();
-        this.fournisseurProduitService.findFirstByProduitIdAndFournisseurId(produit.getId(), fournisseurId)
-            .ifPresentOrElse(newFournisseurProduit -> {
-                orderLine.setFournisseurProduit(newFournisseurProduit);
-                orderLine.setProvisionalCode(false);
-                updateOrderLineAmount(orderLine, newFournisseurProduit);
-            }, () -> {
-
-                FournisseurProduit fournisseurProduit = createNewFromOne(produit.getFournisseurProduitPrincipal(), fournisseurId, produit.getId());
-                orderLine.setFournisseurProduit(fournisseurProduit);
-                orderLine.setProvisionalCode(true);
-                updateOrderLineAmount(orderLine, fournisseurProduit);
-            });
+        this.fournisseurProduitService.findFirstByProduitIdAndFournisseurId(produit.getId(), fournisseurId).ifPresentOrElse(
+                newFournisseurProduit -> {
+                    orderLine.setFournisseurProduit(newFournisseurProduit);
+                    orderLine.setProvisionalCode(false);
+                    updateOrderLineAmount(orderLine, newFournisseurProduit);
+                },
+                () -> {
+                    FournisseurProduit fournisseurProduit = createNewFromOne(
+                        produit.getFournisseurProduitPrincipal(),
+                        fournisseurId,
+                        produit.getId()
+                    );
+                    orderLine.setFournisseurProduit(fournisseurProduit);
+                    orderLine.setProvisionalCode(true);
+                    updateOrderLineAmount(orderLine, fournisseurProduit);
+                }
+            );
     }
 
     private void updateOrderLineAmount(OrderLine orderLine, FournisseurProduit fournisseurProduit) {

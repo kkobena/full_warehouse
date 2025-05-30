@@ -1,7 +1,5 @@
-<p-confirmDialog [baseZIndex]="10000" [style]="{ width: '40vw' }"
-                 key="comfirmDialog"></p-confirmDialog>
-<p-dialog [(visible)]="jsonDialog" [focusOnShow]="false" [modal]="true" [style]="{ width: '50vw' }"
-          header="Importer un fichier json">
+<p-confirmDialog [baseZIndex]="10000" [style]="{ width: '40vw' }" key="comfirmDialog"></p-confirmDialog>
+<p-dialog [(visible)]="jsonDialog" [focusOnShow]="false" [modal]="true" [style]="{ width: '50vw' }" header="Importer un fichier json">
   <div class="ui-g form-group">
     <p-fileupload
       (uploadHandler)="onUploadJson($event)"
@@ -15,24 +13,21 @@
     </p-fileupload>
   </div>
   <ng-template #footer>
-    <p-button (click)="cancel()" icon="pi pi-times" label="Annuler" raised="true" severity="danger"
-              type="button"></p-button>
+    <p-button (click)="cancel()" icon="pi pi-times" label="Annuler" raised="true" severity="danger" type="button"></p-button>
   </ng-template>
 </p-dialog>
 
-  @if (responseDialog) {
-    <div class="mb-2">
-      <span
-        [ngClass]="responsedto?.size === responsedto?.totalSize ? 'text-success fw-bold' : 'text-danger fw-bold'">{{
-          jsonFileUploadStatutProgress
-        }}</span>
-      <p-progressBar [value]="jsonFileUploadProgress"></p-progressBar>
-    </div>
-  }
+@if (responseDialog) {
+  <div class="mb-2">
+    <span [ngClass]="responsedto?.size === responsedto?.totalSize ? 'text-success fw-bold' : 'text-danger fw-bold'">{{
+      jsonFileUploadStatutProgress
+    }}</span>
+    <p-progressBar [value]="jsonFileUploadProgress"></p-progressBar>
+  </div>
+}
 
-  <ngx-spinner [fullScreen]="false" bdColor="rgba(255,255,255,0.5)" color="#f13151"
-               name="importation" size="medium" type="timer">
-  </ngx-spinner>
+<ngx-spinner [fullScreen]="false" bdColor="rgba(255,255,255,0.5)" color="#f13151" name="importation" size="medium" type="timer">
+</ngx-spinner>
 <p-panel header="Liste des tiers payants">
   <p-toolbar>
     <ng-template #start>
@@ -59,13 +54,10 @@
       </p-iconfield>
     </ng-template>
     <ng-template #end>
-      <p-button (click)="loadPage()" class="mr-1" icon="pi pi-search" label="Rechercher"
-                raised="true" severity="info"></p-button>
-      <p-button [hidden]="true" icon="pi pi-upload" label="Importation" raised="true"
-                severity="help"></p-button>
+      <p-button (click)="loadPage()" class="mr-1" icon="pi pi-search" label="Rechercher" raised="true" severity="info"></p-button>
+      <p-button [hidden]="true" icon="pi pi-upload" label="Importation" raised="true" severity="help"></p-button>
 
-      <p-splitbutton [model]="tiersPayantSplitbuttons" icon="pi pi-user-plus"
-                     label="Nouveau tiers-payant" raised="true" severity="success">
+      <p-splitbutton [model]="tiersPayantSplitbuttons" icon="pi pi-user-plus" label="Nouveau tiers-payant" raised="true" severity="success">
       </p-splitbutton>
     </ng-template>
   </p-toolbar>
@@ -76,7 +68,7 @@
       [lazy]="true"
       [loading]="loading"
       [paginator]="true"
-      [rowsPerPageOptions]="[ 10, 15, 20, 30, 50]"
+      [rowsPerPageOptions]="[10, 15, 20, 30, 50]"
       [rows]="itemsPerPage"
       [showCurrentPageReport]="true"
       [totalRecords]="totalItems"
@@ -155,7 +147,6 @@
                 type="button"
               >
               </p-button>
-
             </div>
           </td>
         </tr>
@@ -167,6 +158,3 @@
     </div>
   }
 </p-panel>
-
-
-

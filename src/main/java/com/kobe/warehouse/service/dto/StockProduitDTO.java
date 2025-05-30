@@ -8,7 +8,7 @@ import java.time.LocalDateTime;
 public class StockProduitDTO {
 
     private Long id;
-    private Integer qtyStock;
+    private int qtyStock;
     private int qtyVirtual;
     private int qtyUG;
     private Long storageId;
@@ -118,11 +118,11 @@ public class StockProduitDTO {
         return this;
     }
 
-    public Integer getQtyStock() {
+    public int getQtyStock() {
         return qtyStock;
     }
 
-    public StockProduitDTO setQtyStock(Integer qtyStock) {
+    public StockProduitDTO setQtyStock(int qtyStock) {
         this.qtyStock = qtyStock;
         return this;
     }

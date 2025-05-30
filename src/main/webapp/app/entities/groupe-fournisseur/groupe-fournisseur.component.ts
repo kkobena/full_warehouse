@@ -25,7 +25,7 @@ import { TextareaModule } from 'primeng/textarea';
 import { acceptButtonProps, rejectButtonProps } from '../../shared/util/modal-button-props';
 import { IconField } from 'primeng/iconfield';
 import { InputIcon } from 'primeng/inputicon';
-import {Panel} from "primeng/panel";
+import { Panel } from 'primeng/panel';
 
 @Component({
   selector: 'jhi-groupe-fournisseur',

@@ -1,13 +1,12 @@
 package com.kobe.warehouse.service.dto;
 
 import com.kobe.warehouse.domain.Lot;
+import com.kobe.warehouse.domain.OrderLine;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
-
-import com.kobe.warehouse.domain.OrderLine;
 import org.springframework.util.CollectionUtils;
 
 public class LotDTO {
@@ -16,7 +15,7 @@ public class LotDTO {
 
     private String numLot;
 
-    private String receiptRefernce;
+    private String receiptReference;
 
     private Long receiptItemId;
 
@@ -68,12 +67,12 @@ public class LotDTO {
         return this;
     }
 
-    public String getReceiptRefernce() {
-        return receiptRefernce;
+    public String getReceiptReference() {
+        return receiptReference;
     }
 
-    public LotDTO setReceiptRefernce(String receiptRefernce) {
-        this.receiptRefernce = receiptRefernce;
+    public LotDTO setReceiptReference(String receiptReference) {
+        this.receiptReference = receiptReference;
         return this;
     }
 

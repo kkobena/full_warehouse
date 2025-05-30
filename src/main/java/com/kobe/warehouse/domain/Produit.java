@@ -178,10 +178,11 @@ public class Produit implements Serializable {
     @Enumerated(EnumType.STRING)
     @Column(name = "status", nullable = false)
     private Status status = Status.ENABLE;
+
     @NotNull
     @Enumerated(EnumType.STRING)
     @Column(name = "categorie", nullable = false)
-    private CategorieABC categorie= CategorieABC.C;
+    private CategorieABC categorie = CategorieABC.C;
 
     @Column(name = "perime_at")
     private LocalDate perimeAt;
@@ -209,7 +210,7 @@ public class Produit implements Serializable {
   private List<ParcoursProduit> parcoursProduits = new ArrayList<>();*/
 
     @NotAudited
-    @OneToMany(mappedBy = "produit", fetch = FetchType.LAZY, cascade = { CascadeType.REMOVE },orphanRemoval = true)
+    @OneToMany(mappedBy = "produit", fetch = FetchType.LAZY, cascade = { CascadeType.REMOVE }, orphanRemoval = true)
     private List<DailyStock> dailyStocks = new ArrayList<>();
 
     @ManyToOne
@@ -274,7 +275,8 @@ public class Produit implements Serializable {
         this.categorie = categorie;
         return this;
     }
-/*
+
+    /*
     public List<ParcoursProduit> getParcoursProduits() {
     return parcoursProduits;
   }
@@ -283,7 +285,6 @@ public class Produit implements Serializable {
     this.parcoursProduits = parcoursProduits;
     return this;
   }*/
-
 
     public void setPrixReference(List<PrixReference> prixReference) {
         this.prixReference = prixReference;

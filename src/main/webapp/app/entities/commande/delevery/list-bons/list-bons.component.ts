@@ -93,7 +93,7 @@ export class ListBonsComponent implements OnInit {
     this.ref = this.dialogService.open(EtiquetteComponent, {
       data: { entity: delivery },
       width: '40%',
-      header: `IMPRIMER LES ETIQUETTES DU BON DE LIVRAISON [ ${delivery.receiptRefernce} ] `,
+      header: `IMPRIMER LES ETIQUETTES DU BON DE LIVRAISON [ ${delivery.receiptReference} ] `,
     });
   }
 

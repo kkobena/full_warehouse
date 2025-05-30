@@ -4,8 +4,10 @@ import java.math.BigDecimal;
 
 public interface StockProduitProjection {
     BigDecimal getTotalStock();
-  default   int getStock(){
+
+    default int getStock() {
         return getTotalStock().intValue();
     }
+
     long getProduitId();
 }

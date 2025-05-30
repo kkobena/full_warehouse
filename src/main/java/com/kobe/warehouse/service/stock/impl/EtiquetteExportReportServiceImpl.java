@@ -16,7 +16,6 @@ import com.kobe.warehouse.service.report.CommonReportService;
 import com.kobe.warehouse.service.report.Constant;
 import com.kobe.warehouse.service.utils.NumberUtil;
 import com.lowagie.text.DocumentException;
-
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -163,12 +162,10 @@ public class EtiquetteExportReportServiceImpl extends CommonReportService {
             .setLibelle(fournisseurProduit.getProduit().getLibelle());
     }
 
-
     private String generateBarcodeImage(String code) throws WriterException, IOException {
         BitMatrix matrix = new MultiFormatWriter().encode(code, BarcodeFormat.CODE_128, 200, 50);
         File tempFile = File.createTempFile("barcode-" + code, ".png");
         MatrixToImageWriter.writeToPath(matrix, "PNG", tempFile.toPath());
         return tempFile.getAbsolutePath();
     }
-
 }

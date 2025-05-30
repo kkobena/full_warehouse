@@ -55,7 +55,7 @@ public abstract class AbstractReglementService implements ReglementService {
     }
 
     protected CashRegister getCashRegister() {
-       return cashRegisterService.getCashRegister();
+        return cashRegisterService.getCashRegister();
     }
 
     protected InvoicePaymentItem buildInvoicePaymentItem(ThirdPartySaleLine thirdPartySaleLine, InvoicePayment invoicePayment, int amount) {
@@ -79,14 +79,13 @@ public abstract class AbstractReglementService implements ReglementService {
     }
 
     protected InvoicePayment buildInvoicePayment(FactureTiersPayant factureTiersPayant, ReglementParam reglementParam) {
-        InvoicePayment invoice = new InvoicePayment()
-            .setFactureTiersPayant(factureTiersPayant);
+        InvoicePayment invoice = new InvoicePayment().setFactureTiersPayant(factureTiersPayant);
         invoice
             .setCashRegister(getCashRegister())
             .setMontantVerse(reglementParam.getAmount())
             .setTransactionDate(Objects.requireNonNullElse(reglementParam.getPaymentDate(), LocalDate.now()));
         invoice.setPaymentMode(fromCode(reglementParam.getModePaimentCode()));
-        invoice .setBanque(buildBanque(reglementParam.getBanqueInfo()));
+        invoice.setBanque(buildBanque(reglementParam.getBanqueInfo()));
         return invoice;
     }
 

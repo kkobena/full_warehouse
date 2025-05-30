@@ -3,6 +3,7 @@ package com.kobe.warehouse.service.dci.dto;
 import com.kobe.warehouse.domain.Dci;
 
 public class DciDTO {
+
     private long id;
     private String code;
     private String libelle;

@@ -10,17 +10,16 @@ import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 import jakarta.persistence.UniqueConstraint;
 import jakarta.validation.constraints.NotNull;
-import org.hibernate.annotations.ColumnDefault;
-
 import java.io.Serial;
 import java.io.Serializable;
 import java.util.Objects;
+import org.hibernate.annotations.ColumnDefault;
 
 @Entity
 @Table(
     name = "printer",
-    uniqueConstraints = {@UniqueConstraint(columnNames = {"name"}),@UniqueConstraint(columnNames = {"name", "poste_id"})},
-    indexes = {@Index(columnList = "name", name = "name_index")}
+    uniqueConstraints = { @UniqueConstraint(columnNames = { "name" }), @UniqueConstraint(columnNames = { "name", "poste_id" }) },
+    indexes = { @Index(columnList = "name", name = "name_index") }
 )
 public class Printer implements Serializable {
 
@@ -34,6 +33,7 @@ public class Printer implements Serializable {
     @NotNull
     @Column(name = "name", nullable = false)
     private String name;
+
     @ColumnDefault("576")
     @NotNull
     @Column(name = "width", nullable = false)
@@ -44,10 +44,12 @@ public class Printer implements Serializable {
     private Integer length;
 
     private String address;
+
     @ColumnDefault("10")
     @NotNull
     @Column(name = "margin_left_and_right", nullable = false)
     private int marginLeftAndRight = 10;
+
     @ColumnDefault("15")
     @NotNull
     @Column(name = "margin_top", nullable = false)
@@ -82,7 +84,6 @@ public class Printer implements Serializable {
         this.address = address;
         return this;
     }
-
 
     public Integer getWidth() {
         return width;

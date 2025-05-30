@@ -25,7 +25,7 @@ import { FormsModule } from '@angular/forms';
 import { acceptButtonProps, rejectButtonProps } from '../../shared/util/modal-button-props';
 import { InputIcon } from 'primeng/inputicon';
 import { IconField } from 'primeng/iconfield';
-import {Panel} from "primeng/panel";
+import { Panel } from 'primeng/panel';
 
 @Component({
   selector: 'jhi-groupe-tiers-payant',

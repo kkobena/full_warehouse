@@ -1,4 +1,4 @@
-import {AfterViewInit, Component, ElementRef, inject, input, OnInit, viewChild} from '@angular/core';
+import {AfterViewInit, Component, ElementRef, inject, OnInit, viewChild} from '@angular/core';
 import {HttpResponse} from '@angular/common/http';
 
 import {ActivatedRoute, Router, RouterModule} from '@angular/router';
@@ -45,21 +45,19 @@ import {InputGroupAddon} from 'primeng/inputgroupaddon';
 import {IconField} from 'primeng/iconfield';
 import {InputIcon} from 'primeng/inputicon';
 import {SORT} from '../../shared/util/command-item-sort';
-import {IDelivery} from '../../shared/model/delevery.model';
 import {DeliveryModalComponent} from './delevery/form/delivery-modal.component';
 import {DeliveryService} from './delevery/delivery.service';
 import {OrderLineLotsComponent} from './lot/order-line-lots.component';
-import {AbstractCommande} from "../../shared/model/abstract-commande.model";
-import {ButtonGroup} from "primeng/buttongroup";
-import {Panel} from "primeng/panel";
-import {ListLotComponent} from "./lot/list/list-lot.component";
-import {FormLotComponent} from "./lot/form-lot.component";
-import {OrderStatut} from "../../shared/model/enumerations/order-statut.model";
-import {EtiquetteComponent} from "./delevery/etiquette/etiquette.component";
-import {FloatLabel} from "primeng/floatlabel";
-import {Params} from "../../shared/model/enumerations/params.model";
-import {ConfigurationService} from "../../shared/configuration.service";
-import {EditProduitComponent} from "./delevery/form/edit-produit/edit-produit.component";
+import {ButtonGroup} from 'primeng/buttongroup';
+import {Panel} from 'primeng/panel';
+import {ListLotComponent} from './lot/list/list-lot.component';
+import {FormLotComponent} from './lot/form-lot.component';
+import {OrderStatut} from '../../shared/model/enumerations/order-statut.model';
+import {EtiquetteComponent} from './delevery/etiquette/etiquette.component';
+import {FloatLabel} from 'primeng/floatlabel';
+import {Params} from '../../shared/model/enumerations/params.model';
+import {ConfigurationService} from '../../shared/configuration.service';
+import {EditProduitComponent} from './delevery/form/edit-produit/edit-produit.component';
 
 @Component({
   selector: 'jhi-commande-update',
@@ -93,11 +91,10 @@ import {EditProduitComponent} from "./delevery/form/edit-produit/edit-produit.co
     InputIcon,
     ButtonGroup,
     Panel,
-    FloatLabel
+    FloatLabel,
   ],
 })
 export class CommandeUpdateComponent implements OnInit, AfterViewInit {
-  abstractCommande = input<AbstractCommande>(null);
   protected readonly RECEIVED = OrderStatut.RECEIVED;
   protected isSaving = false;
   protected produits: IProduit[] = [];
@@ -141,7 +138,6 @@ export class CommandeUpdateComponent implements OnInit, AfterViewInit {
   private readonly activatedRoute = inject(ActivatedRoute);
 
   constructor() {
-
     this.selectedEl = [];
     this.filtres = [
       {label: "Prix d'achat differents", value: 'NOT_EQUAL'},
@@ -193,10 +189,8 @@ export class CommandeUpdateComponent implements OnInit, AfterViewInit {
   }
 
   ngOnInit(): void {
-
     this.activatedRoute.data.subscribe(({commande}) => {
       if (commande?.id) {
-
         this.commande = commande;
         this.orderLines = this.commande.orderLines;
         this.selectedProvider = this.commande.fournisseurId;
@@ -268,8 +262,6 @@ export class CommandeUpdateComponent implements OnInit, AfterViewInit {
       orderLine.freeQty = newfreeQty;
       this.subscribeUpdateOrderLineResponse(this.commandeService.updateQuantityUG(orderLine));
     }
-
-
   }
 
   protected onUpdateOrderCostAmount(orderLine: IOrderLine, event: any): void {
@@ -331,10 +323,6 @@ export class CommandeUpdateComponent implements OnInit, AfterViewInit {
   }
 
 
-  protected gotoEntreeStockComponent(delivery: IDelivery): void {
-    this.router.navigate(['/commande', delivery.id, 'stock-entry']);
-  }
-
   protected onCreateBon(): void {
     this.ref = this.dialogService.open(DeliveryModalComponent, {
       data: {commande: this.commande},
@@ -378,7 +366,6 @@ export class CommandeUpdateComponent implements OnInit, AfterViewInit {
     } else {
       this.focusPrdoduitBox();
     }
-
   }
 
   protected focusPrdoduitBox(): void {
@@ -475,20 +462,6 @@ export class CommandeUpdateComponent implements OnInit, AfterViewInit {
     });
   }
 
-  protected confirmStay(): void {
-    this.confirmationService.confirm({
-      message: ' Voullez-vous rester sur la page ?',
-      header: ' INFORMATION',
-      icon: 'pi pi-info-circle',
-      rejectButtonProps: rejectButtonProps(),
-      acceptButtonProps: acceptButtonProps(),
-      accept: () => this.resetAll(),
-      reject: () => {
-        this.previousState();
-      },
-      key: 'stayThere',
-    });
-  }
 
   protected cancel(): void {
     this.fileDialog = false;
@@ -563,12 +536,8 @@ export class CommandeUpdateComponent implements OnInit, AfterViewInit {
       this.produitSelected = null;
       this.focusPrdoduitBox();
     }
-
   }
 
-  private onSaveSuccess(): void {
-    this.isSaving = false;
-  }
 
   private onSaveOrderLineSuccess(commandeId: number): void {
     this.commandeService.find(commandeId).subscribe(res => {
@@ -578,9 +547,6 @@ export class CommandeUpdateComponent implements OnInit, AfterViewInit {
     });
   }
 
-  private onSaveError(): void {
-    this.isSaving = false;
-  }
 
   private onCommonError(error: any): void {
     if (error.error && error.error.status === 500) {
@@ -684,7 +650,6 @@ export class CommandeUpdateComponent implements OnInit, AfterViewInit {
     }
   }
 
-
   private onFinalize(): void {
     this.showsPinner('commandeEnCourspinner');
     this.deliveryService.finalizeSaisieEntreeStock(this.commande).subscribe({
@@ -715,21 +680,6 @@ export class CommandeUpdateComponent implements OnInit, AfterViewInit {
     });
   }
 
-  private printEtiquette(commande: ICommande): void {
-    this.ref = this.dialogService.open(EtiquetteComponent, {
-      data: {entity: commande},
-      width: '40%',
-      header: `IMPRIMER LES ETIQUETTES DU BON DE LIVRAISON [ ${commande.receiptRefernce} ] `,
-    });
-    this.ref.onDestroy.subscribe(() => {
-      this.commande = null;
-      this.previousState();
-    });
-    this.ref.onClose.subscribe(() => {
-      this.commande = null;
-      this.previousState();
-    });
-  }
 
   protected isLotActif(): void {
     const paramGestionLot = this.configurationService.getParamByKey(Params.APP_GESTION_LOT);
@@ -738,7 +688,7 @@ export class CommandeUpdateComponent implements OnInit, AfterViewInit {
     }
   }
 
-  editLigneInfos(orderLine: IOrderLine): void {
+  protected editLigneInfos(orderLine: IOrderLine): void {
     this.ref = this.dialogService.open(EditProduitComponent, {
       data: {deliveryItem: orderLine, delivery: this.commande},
       width: '70%',
@@ -748,12 +698,15 @@ export class CommandeUpdateComponent implements OnInit, AfterViewInit {
     //this.ref.onClose.subscribe(() => this.onFilterReceiptItems());
   }
 
+  protected showLotColumn(): boolean {
+    return this.showLotBtn || this.orderLines.some(orderLine => orderLine.lots.length > 0);
+  }
+
   private changeGrossiste(): void {
     this.commande.fournisseurId = this.selectedProvider;
     this.commandeService.changeGrossiste(this.commande).subscribe({
       next: () => {
         this.onSaveOrderLineSuccess(this.commande.id);
-
       },
       error: error => {
         this.onCommonError(error);
@@ -767,11 +720,15 @@ export class CommandeUpdateComponent implements OnInit, AfterViewInit {
       next: () => this.onSaveOrderLineSuccess(this.commande?.id),
       error: (err: any) => this.onCommonError(err),
     });
-
   }
 
   private isCommandeEnCours(): boolean {
-    return this.commande === null || this.commande.id === undefined || this.commande.id === null || this.commande.orderStatus === OrderStatut.REQUESTED;
+    return (
+      this.commande === null ||
+      this.commande.id === undefined ||
+      this.commande.id === null ||
+      this.commande.orderStatus === OrderStatut.REQUESTED
+    );
   }
 
   private isCommandeFinalisee(): boolean {
@@ -781,4 +738,21 @@ export class CommandeUpdateComponent implements OnInit, AfterViewInit {
   private isClosedCommande(): boolean {
     return this.commande && this.commande.orderStatus === OrderStatut.CLOSED;
   }
+
+  private printEtiquette(commande: ICommande): void {
+    this.ref = this.dialogService.open(EtiquetteComponent, {
+      data: {entity: commande},
+      width: '40%',
+      header: `IMPRIMER LES ETIQUETTES DU BON DE LIVRAISON [ ${commande.receiptReference} ] `,
+    });
+    this.ref.onDestroy.subscribe(() => {
+      this.commande = null;
+      this.previousState();
+    });
+    this.ref.onClose.subscribe(() => {
+      this.commande = null;
+      this.previousState();
+    });
+  }
+
 }

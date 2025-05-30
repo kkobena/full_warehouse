@@ -34,8 +34,8 @@ public class SpecificationBuilder<T> {
         for (int i = 1; i < conditions.size(); i++) {
             if (!conditions.get(i - 1).getOperator().equals(Condition.LogicalOperatorType.END)) {
                 finalSpecification = conditions.get(i - 1).getOperator().equals(Condition.LogicalOperatorType.OR)
-                    ? Specification.where(finalSpecification).or(specifications.get(i))
-                    : Specification.where(finalSpecification).and(specifications.get(i));
+                    ? finalSpecification.or(specifications.get(i))
+                    : finalSpecification.and(specifications.get(i));
             }
         }
         return finalSpecification;

@@ -1,18 +1,17 @@
 package com.kobe.warehouse.service.dto;
 
+import static java.util.Objects.nonNull;
+
 import com.kobe.warehouse.domain.FournisseurProduit;
 import com.kobe.warehouse.domain.OrderLine;
 import com.kobe.warehouse.domain.Produit;
 import com.kobe.warehouse.domain.Tableau;
 import com.kobe.warehouse.domain.Tva;
-import org.apache.commons.lang3.BooleanUtils;
-
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
-
-import static java.util.Objects.nonNull;
+import org.apache.commons.lang3.BooleanUtils;
 
 public class DeliveryReceiptItemDTO {
 
@@ -43,7 +42,6 @@ public class DeliveryReceiptItemDTO {
     private final Integer afterStock;
     private Long tvaId;
     private TvaDTO tva;
-
 
     public DeliveryReceiptItemDTO(OrderLine orderLine) {
         lots = new ArrayList<>();
@@ -79,8 +77,6 @@ public class DeliveryReceiptItemDTO {
         updated = orderLine.getUpdated();
         afterStock = orderLine.getFinalStock();
         quantityReceivedTmp = BooleanUtils.isFalse(updated) ? quantityRequested : quantityReceived;
-
-
     }
 
     public Long getId() {

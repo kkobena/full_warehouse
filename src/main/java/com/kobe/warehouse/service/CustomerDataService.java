@@ -88,7 +88,7 @@ public class CustomerDataService {
             pageable.getPageSize(),
             Sort.by(Sort.Direction.ASC, "firstName", "lastName")
         );
-        Specification<UninsuredCustomer> specification = Specification.where(uninsuredCustomerRepository.specialisation(status));
+        Specification<UninsuredCustomer> specification =uninsuredCustomerRepository.specialisation(status);
         if (StringUtils.hasLength(search)) {
             specification = uninsuredCustomerRepository.specialisationQueryString(search.toUpperCase() + "%");
         }

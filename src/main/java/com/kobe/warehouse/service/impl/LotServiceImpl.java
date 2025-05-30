@@ -20,10 +20,7 @@ public class LotServiceImpl implements LotService {
     private final LotRepository lotRepository;
     private final OrderLineService orderLineService;
 
-    public LotServiceImpl(
-        LotRepository lotRepository,
-        OrderLineService orderLineService
-    ) {
+    public LotServiceImpl(LotRepository lotRepository, OrderLineService orderLineService) {
         this.lotRepository = lotRepository;
         this.orderLineService = orderLineService;
     }
@@ -43,7 +40,7 @@ public class LotServiceImpl implements LotService {
     @Override
     public LotJsonValue addLot(LotJsonValue lot) {
         OrderLine orderLine = orderLineService.findOneById(lot.getLinkedId()).orElseThrow();
-       // orderLine.getLots().add(lot);
+        // orderLine.getLots().add(lot);
         orderLine.setUpdatedAt(LocalDateTime.now());
         orderLineService.save(orderLine);
         return lot;

@@ -16,14 +16,9 @@ public class EtatProduitServiceImpl implements EtatProduitService {
     private final SuggestionLineRepository suggestionLineRepository;
     private final OrderLineRepository orderLineRepository;
 
-
-    public EtatProduitServiceImpl(
-        SuggestionLineRepository suggestionLineRepository,
-        OrderLineRepository orderLineRepository
-    ) {
+    public EtatProduitServiceImpl(SuggestionLineRepository suggestionLineRepository, OrderLineRepository orderLineRepository) {
         this.suggestionLineRepository = suggestionLineRepository;
         this.orderLineRepository = orderLineRepository;
-
     }
 
     @Override
@@ -40,11 +35,8 @@ public class EtatProduitServiceImpl implements EtatProduitService {
     @Override
     public boolean canSuggere(Long idProduit) {
         int commandeCount = orderLineRepository.countByFournisseurProduitProduitIdAndCommandeOrderStatus(idProduit, OrderStatut.REQUESTED);
-        int entree = orderLineRepository.countByFournisseurProduitProduitIdAndCommandeOrderStatus(
-            idProduit,
-            OrderStatut.RECEIVED
-        );
-        return commandeCount == 0 && entree==0;
+        int entree = orderLineRepository.countByFournisseurProduitProduitIdAndCommandeOrderStatus(idProduit, OrderStatut.RECEIVED);
+        return commandeCount == 0 && entree == 0;
     }
 
     private EtatProduit buildEtatProduit(Long idProduit, int currentStock) {
@@ -53,10 +45,7 @@ public class EtatProduitServiceImpl implements EtatProduitService {
         boolean stockZero = currentStock == 0;
         int suggestionCount = suggestionLineRepository.countByFournisseurProduitProduitId(idProduit);
         int commandeCount = orderLineRepository.countByFournisseurProduitProduitIdAndCommandeOrderStatus(idProduit, OrderStatut.REQUESTED);
-        boolean entree = orderLineRepository.existsByFournisseurProduitProduitIdAndCommandeOrderStatus(
-            idProduit,
-            OrderStatut.RECEIVED
-        );
+        boolean entree = orderLineRepository.existsByFournisseurProduitProduitIdAndCommandeOrderStatus(idProduit, OrderStatut.RECEIVED);
         return new EtatProduit(
             stockPositif,
             stockNegatif,

@@ -30,14 +30,10 @@ public class InvoicePayment extends PaymentTransaction implements Serializable {
     @ManyToOne
     private InvoicePayment parent;
 
-
-
     private boolean grouped;
 
     @OneToMany(mappedBy = "parent", cascade = { CascadeType.PERSIST, CascadeType.REMOVE })
     private List<InvoicePayment> invoicePayments = new ArrayList<>();
-
-
 
     public FactureTiersPayant getFactureTiersPayant() {
         return factureTiersPayant;

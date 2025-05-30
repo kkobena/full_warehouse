@@ -8,7 +8,6 @@ import com.kobe.warehouse.service.dto.projection.ChiffreAffaire;
 import com.kobe.warehouse.service.financiel_transaction.dto.SaleInfo;
 import com.kobe.warehouse.service.reglement.differe.dto.ClientDiffere;
 import jakarta.persistence.criteria.CriteriaBuilder.In;
-
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.Optional;
@@ -48,6 +47,7 @@ public interface SalesRepository extends JpaSpecificationExecutor<Sales>, JpaRep
         "SELECT c.lastName AS lastName,c.firstName AS firsName,c.id AS id   FROM Sales o  JOIN o.customer c  WHERE o.differe AND o.statut='CLOSED' AND o.canceled =FALSE  GROUP BY c.id ORDER BY c.firstName,c.lastName"
     )
     Page<ClientDiffere> getClientDiffere(Pageable pageable);
+
     @Query(
         "SELECT SUM(o.restToPay)   FROM Sales o  JOIN o.customer c  WHERE o.differe AND o.statut='CLOSED' AND o.canceled =FALSE  AND c.id =:customerId"
     )

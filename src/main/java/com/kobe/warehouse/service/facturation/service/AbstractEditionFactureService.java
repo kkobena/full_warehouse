@@ -51,41 +51,35 @@ public abstract class AbstractEditionFactureService implements EditionService {
         return new FactureEditionResponse(dateCreation, false);
     }
 
-    protected abstract Specification<ThirdPartySaleLine> buildCriteria(
-        EditionSearchParams editionSearchParams);
+    protected abstract Specification<ThirdPartySaleLine> buildCriteria(EditionSearchParams editionSearchParams);
 
     protected List<ThirdPartySaleLine> getDatas(EditionSearchParams editionSearchParams) {
         return this.thirdPartySaleLineRepository.findAll(this.buildCriteria(editionSearchParams));
     }
 
-    protected Specification<ThirdPartySaleLine> buildFetchSpecification(
-        EditionSearchParams editionSearchParams) {
-        Specification<ThirdPartySaleLine> thirdPartySaleLineSpecification = Specification.where(
+    protected Specification<ThirdPartySaleLine> buildFetchSpecification(EditionSearchParams editionSearchParams) {
+        Specification<ThirdPartySaleLine> thirdPartySaleLineSpecification =
             this.thirdPartySaleLineRepository.canceledCriteria()
-        );
+        ;
         thirdPartySaleLineSpecification = thirdPartySaleLineSpecification.and(
             this.thirdPartySaleLineRepository.saleStatutsCriteria(Set.of(SalesStatut.CLOSED))
         );
         thirdPartySaleLineSpecification = thirdPartySaleLineSpecification.and(
-            this.thirdPartySaleLineRepository.periodeCriteria(editionSearchParams.startDate(),
-                editionSearchParams.endDate())
+            this.thirdPartySaleLineRepository.periodeCriteria(editionSearchParams.startDate(), editionSearchParams.endDate())
         );
         if (editionSearchParams.factureProvisoire()) {
             thirdPartySaleLineSpecification = thirdPartySaleLineSpecification.and(
                 this.thirdPartySaleLineRepository.factureProvisoireCriteria()
             );
         } else {
-            thirdPartySaleLineSpecification = thirdPartySaleLineSpecification.and(
-                this.thirdPartySaleLineRepository.notBilledCriteria());
+            thirdPartySaleLineSpecification = thirdPartySaleLineSpecification.and(this.thirdPartySaleLineRepository.notBilledCriteria());
         }
 
         return thirdPartySaleLineSpecification;
     }
 
-    protected Map<TiersPayant, List<ThirdPartySaleLine>> groupByTiersPayant(
-        List<ThirdPartySaleLine> thirdPartySaleLines) {
-        return thirdPartySaleLines.stream()
-            .collect(Collectors.groupingBy(t -> t.getClientTiersPayant().getTiersPayant()));
+    protected Map<TiersPayant, List<ThirdPartySaleLine>> groupByTiersPayant(List<ThirdPartySaleLine> thirdPartySaleLines) {
+        return thirdPartySaleLines.stream().collect(Collectors.groupingBy(t -> t.getClientTiersPayant().getTiersPayant()));
     }
 
     private void saveAll(EditionSearchParams editionSearchParams, LocalDateTime dateCreation) {
@@ -94,11 +88,9 @@ public abstract class AbstractEditionFactureService implements EditionService {
         AtomicInteger numero = new AtomicInteger(lastFactureNumero);
         List<ThirdPartySaleLine> thirdPartySaleLines = this.getDatas(editionSearchParams);
 
-        Map<TiersPayant, List<ThirdPartySaleLine>> groupByTiersPayant = this.groupByTiersPayant(
-            thirdPartySaleLines);
+        Map<TiersPayant, List<ThirdPartySaleLine>> groupByTiersPayant = this.groupByTiersPayant(thirdPartySaleLines);
         groupByTiersPayant.forEach((tiersPayant, saleLines) ->
-            this.buildAndSaveFacture(null, tiersPayant, saleLines, dateCreation, year,
-                numero.incrementAndGet(), editionSearchParams)
+            this.buildAndSaveFacture(null, tiersPayant, saleLines, dateCreation, year, numero.incrementAndGet(), editionSearchParams)
         );
     }
 
@@ -115,7 +107,6 @@ public abstract class AbstractEditionFactureService implements EditionService {
         int lastFactureNumero,
         EditionSearchParams editionSearchParams
     ) {
-
         FactureTiersPayant factureTiersPayant = new FactureTiersPayant()
             .setCreated(dateCreation)
             .setRemiseForfetaire(Objects.requireNonNullElse(tiersPayant.getRemiseForfaitaire(), 0))
@@ -129,8 +120,7 @@ public abstract class AbstractEditionFactureService implements EditionService {
             .setTiersPayant(tiersPayant)
             .setNumFacture(getFactureNumber(year, lastFactureNumero));
         if (factureGroup != null) {
-            factureTiersPayant.setGroupeFactureTiersPayant(
-                this.facturationRepository.saveAndFlush(factureGroup));
+            factureTiersPayant.setGroupeFactureTiersPayant(this.facturationRepository.saveAndFlush(factureGroup));
         }
         factureTiersPayant = this.facturationRepository.saveAndFlush(factureTiersPayant);
         for (ThirdPartySaleLine saleLine : saleLines) {

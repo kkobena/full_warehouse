@@ -40,8 +40,6 @@ public class Ajust implements Serializable {
     @Column(name = "commentaire")
     private String commentaire;
 
-
-
     @OneToMany(mappedBy = "ajust", cascade = { CascadeType.REMOVE })
     private List<Ajustement> ajustements = new ArrayList<>();
 
@@ -61,8 +59,6 @@ public class Ajust implements Serializable {
         this.ajustements = ajustements;
         return this;
     }
-
-
 
     public String getCommentaire() {
         return commentaire;

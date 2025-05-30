@@ -8,11 +8,10 @@ import com.kobe.warehouse.domain.SuggestionLine;
 import com.kobe.warehouse.domain.enumeration.OrderStatut;
 import com.kobe.warehouse.service.dto.OrderLineDTO;
 import com.kobe.warehouse.service.errors.GenericError;
-import org.springframework.data.util.Pair;
-
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
+import org.springframework.data.util.Pair;
 
 public interface OrderLineService {
     OrderLine createOrderLine(OrderLine orderLine);

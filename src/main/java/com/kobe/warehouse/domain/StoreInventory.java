@@ -91,8 +91,6 @@ public class StoreInventory implements Serializable {
     @Column(name = "gap_amount")
     private Integer gapAmount;
 
-
-
     public Long getId() {
         return id;
     }
@@ -208,8 +206,6 @@ public class StoreInventory implements Serializable {
         this.inventoryCategory = inventoryCategory;
         return this;
     }
-
-
 
     public Integer getGapCost() {
         return gapCost;

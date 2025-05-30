@@ -1,31 +1,29 @@
 <form (ngSubmit)="save()" [formGroup]="reglementForm">
   <div class="row">
-
-      <div class="mb-1 col-6">
-        <p-floatlabel variant="on">
-          <p-datePicker
-            [defaultDate]="maxDate"
-            [maxDate]="maxDate"
-            [showButtonBar]="true"
-            appendTo="body"
-            dateFormat="dd/mm/yy"
-            formControlName="paymentDate"
-            id="datePaiement"
-            selectOtherMonths="true"
-          />
-          <label for="datePaiement">Date</label>
-        </p-floatlabel>
-      </div>
     <div class="mb-1 col-6">
-      <p-button (click)="previousState()" icon="pi pi-arrow-left" label="Retour" raised="true" severity="secondary" type="button"> </p-button>
-  </div>
+      <p-floatlabel variant="on">
+        <p-datePicker
+          [defaultDate]="maxDate"
+          [maxDate]="maxDate"
+          [showButtonBar]="true"
+          appendTo="body"
+          dateFormat="dd/mm/yy"
+          formControlName="paymentDate"
+          id="datePaiement"
+          selectOtherMonths="true"
+        />
+        <label for="datePaiement">Date</label>
+      </p-floatlabel>
+    </div>
+    <div class="mb-1 col-6">
+      <p-button (click)="previousState()" icon="pi pi-arrow-left" label="Retour" raised="true" severity="secondary" type="button">
+      </p-button>
+    </div>
   </div>
 
   <div class="mb-1">
     <p-inputgroup>
-      <p-inputgroup-addon>
-        Mode de paiement
-      </p-inputgroup-addon>
+      <p-inputgroup-addon> Mode de paiement </p-inputgroup-addon>
       <p-select
         formControlName="modePaimentCode"
         [appendTo]="appendTo"
@@ -37,14 +35,13 @@
       ></p-select>
     </p-inputgroup>
   </div>
-  <div class=" mb-1">
+  <div class="mb-1">
     <p-inputgroup>
       <p-inputgroup-addon>
         <span>Montant</span>
       </p-inputgroup-addon>
-      <p-inputNumber   autocomplete="off"  formControlName="amount" id="amount" type="number" />
+      <p-inputNumber autocomplete="off" formControlName="amount" id="amount" type="number" />
     </p-inputgroup>
-
   </div>
   @if (showBanqueInfo) {
     <div formGroupName="banqueInfo">
@@ -53,18 +50,14 @@
       </p-divider>
       <div class="mb-1">
         <p-inputgroup>
-          <p-inputgroup-addon>
-            Nom<span style="color: red">*</span>
-          </p-inputgroup-addon>
-          <input pInputText autocomplete="off"  formControlName="nom" id="nom" />
+          <p-inputgroup-addon> Nom<span style="color: red">*</span> </p-inputgroup-addon>
+          <input pInputText autocomplete="off" formControlName="nom" id="nom" />
         </p-inputgroup>
-
-
       </div>
       @if (
         reglementForm.get('banqueInfo').get('nom')!.invalid &&
         (reglementForm.get('banqueInfo').get('nom')!.dirty || reglementForm.get('banqueInfo').get('nom')!.touched)
-        ) {
+      ) {
         <div>
           @if (reglementForm.get('banqueInfo').get('nom')?.errors?.required) {
             <small class="form-text text-danger" style="color: red"> Ce champ est obligatoire. </small>
@@ -75,18 +68,14 @@
       @if (reglementForm.get('modePaimentCode')!.value === CH) {
         <div class="mb-1">
           <p-inputgroup>
-            <p-inputgroup-addon>
-              Numéro<span style="color: red">*</span>
-            </p-inputgroup-addon>
-            <input pInputText autocomplete="off"  formControlName="code" id="code" />
+            <p-inputgroup-addon> Numéro<span style="color: red">*</span> </p-inputgroup-addon>
+            <input pInputText autocomplete="off" formControlName="code" id="code" />
           </p-inputgroup>
-
-
         </div>
         @if (
           reglementForm.get('banqueInfo').get('code')!.invalid &&
           (reglementForm.get('banqueInfo').get('code')!.dirty || reglementForm.get('banqueInfo').get('code')!.touched)
-          ) {
+        ) {
           <div>
             @if (reglementForm.get('banqueInfo').get('code')?.errors?.required) {
               <small class="form-text text-danger" style="color: red"> Ce champ est obligatoire. </small>
@@ -96,20 +85,22 @@
       }
 
       <div class="mb-1">
-
         <p-inputgroup>
-          <p-inputgroup-addon>
-            Bénéficiare
-          </p-inputgroup-addon>
+          <p-inputgroup-addon> Bénéficiare </p-inputgroup-addon>
           <input pInputText autocomplete="off" formControlName="beneficiaire" id="beneficiaire" />
         </p-inputgroup>
-
       </div>
     </div>
   }
 
   <div class="d-flex justify-content-end">
-    <p-button icon="pi pi-check" [loading]="isSaving()" label="{{btnLabel}}" severity="success" type="submit"  [disabled]="!valid || !validMontantSaisi() || isSaving()" />
+    <p-button
+      icon="pi pi-check"
+      [loading]="isSaving()"
+      label="{{ btnLabel }}"
+      severity="success"
+      type="submit"
+      [disabled]="!valid || !validMontantSaisi() || isSaving()"
+    />
   </div>
 </form>
-

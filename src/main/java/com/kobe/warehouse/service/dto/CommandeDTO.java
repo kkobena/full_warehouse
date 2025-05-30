@@ -1,7 +1,6 @@
 package com.kobe.warehouse.service.dto;
 
 import com.kobe.warehouse.domain.Commande;
-
 import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
@@ -11,8 +10,8 @@ public class CommandeDTO extends CommandeWrapperDTO {
     private List<OrderLineDTO> orderLines;
     private UserDTO user;
 
-
     public CommandeDTO() {
+        super();
     }
 
     public CommandeDTO(Commande commande) {
@@ -39,7 +38,6 @@ public class CommandeDTO extends CommandeWrapperDTO {
         return this;
     }
 
-
     public UserDTO getUser() {
         return user;
     }
@@ -48,6 +46,4 @@ public class CommandeDTO extends CommandeWrapperDTO {
         this.user = user;
         return this;
     }
-
-
 }

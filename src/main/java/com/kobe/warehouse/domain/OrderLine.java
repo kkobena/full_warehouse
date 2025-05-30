@@ -40,8 +40,9 @@ public class OrderLine implements Serializable, Cloneable {
     @Column(name = "init_stock", nullable = false, columnDefinition = "int(6) ")
     private Integer initStock;
 
-    @Column(name = "final_stock",  columnDefinition = "int(6) ")
-    private Integer   finalStock;
+    @Column(name = "final_stock", columnDefinition = "int(6) ")
+    private Integer finalStock;
+
     @NotNull
     @Column(name = "quantity_requested", nullable = false, columnDefinition = "int(6) ")
     private Integer quantityRequested;
@@ -80,7 +81,7 @@ public class OrderLine implements Serializable, Cloneable {
     private Commande commande;
 
     @NotNull
-    @Column(name = "order_unit_price", nullable = false,columnDefinition = "int(8) ")
+    @Column(name = "order_unit_price", nullable = false, columnDefinition = "int(8) ")
     private Integer orderUnitPrice; // prix uni commande
 
     @NotNull
@@ -88,7 +89,7 @@ public class OrderLine implements Serializable, Cloneable {
     private Integer orderCostAmount; // prix d'achat commande
 
     @Column(name = "free_qty", columnDefinition = "int(4) default '0'")
-    private int freeQty ;
+    private int freeQty;
 
     @ManyToOne(optional = false)
     @JsonIgnoreProperties(value = "orderLines", allowSetters = true)
@@ -102,8 +103,10 @@ public class OrderLine implements Serializable, Cloneable {
 
     @Column(name = "is_updated")
     private Boolean updated = Boolean.FALSE;
+
     @ManyToOne
     private Tva tva;
+
     @Column(name = "date_peremption")
     private LocalDate datePeremption;
 
@@ -180,16 +183,13 @@ public class OrderLine implements Serializable, Cloneable {
         this.discountAmount = discountAmount;
     }
 
-    public  Integer getOrderAmount() {
+    public Integer getOrderAmount() {
         return orderAmount;
     }
 
-
-    public  Integer getGrossAmount() {
+    public Integer getGrossAmount() {
         return grossAmount;
     }
-
-
 
     public Integer getNetAmount() {
         return netAmount;
@@ -232,7 +232,6 @@ public class OrderLine implements Serializable, Cloneable {
         return this;
     }
 
-
     public Commande getCommande() {
         return commande;
     }
@@ -250,8 +249,6 @@ public class OrderLine implements Serializable, Cloneable {
         return this;
     }
 
-
-
     public @NotNull Integer getOrderCostAmount() {
         return orderCostAmount;
     }
@@ -260,7 +257,6 @@ public class OrderLine implements Serializable, Cloneable {
         this.orderCostAmount = orderCostAmount;
         return this;
     }
-
 
     public int getFreeQty() {
         return freeQty;

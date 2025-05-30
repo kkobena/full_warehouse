@@ -19,6 +19,7 @@ public class DifferePayment extends PaymentTransaction implements Serializable {
 
     @Serial
     private static final long serialVersionUID = 1L;
+
     @ManyToOne
     private Customer differeCustomer;
 

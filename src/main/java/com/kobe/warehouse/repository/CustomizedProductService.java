@@ -133,8 +133,6 @@ public interface CustomizedProductService {
         return rayon;
     }
 
-
-
     default Tva tvaFromId(Long id) {
         if (id == null) {
             return null;

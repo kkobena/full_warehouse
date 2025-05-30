@@ -25,6 +25,7 @@ import { DatePicker } from 'primeng/datepicker';
 import { PrimeNG } from 'primeng/config';
 import { TranslateService } from '@ngx-translate/core';
 import { Subscription } from 'rxjs';
+import {DATE_FORMAT} from "../../../../../shared/constants/input.constants";
 
 type UploadDeleiveryReceipt = { model: string; fournisseurId: number; deliveryReceipt: IDelivery };
 type ModelFichier = { label: string; value: string };
@@ -75,7 +76,7 @@ export class ImportDeliveryFormComponent implements OnInit {
       nonNullable: true,
     }),
     deliveryReceipt: this.fb.group({
-      receiptRefernce: new FormControl<string | null>(null, {
+      receiptReference: new FormControl<string | null>(null, {
         validators: [Validators.required],
         nonNullable: true,
       }),
@@ -169,20 +170,18 @@ export class ImportDeliveryFormComponent implements OnInit {
 
   private createUploadDeleiveryReceipt(): UploadDeleiveryReceipt {
     const deliveryReceiptCtl = this.editForm.get('deliveryReceipt');
+    const receiptDate = this.editForm.get('receiptDate').value;
     return {
       model: this.editForm.get(['model']).value.value,
       fournisseurId: this.editForm.get(['fournisseur']).value.id,
       deliveryReceipt: {
-        receiptRefernce: deliveryReceiptCtl.get('receiptRefernce').value,
-        receiptFullDate: this.buildDate(deliveryReceiptCtl.get('receiptDate').value),
+        receiptReference: deliveryReceiptCtl.get('receiptReference').value,
+        receiptDate: receiptDate ? moment(receiptDate).format(DATE_FORMAT) : null,
         receiptAmount: deliveryReceiptCtl.get('receiptAmount').value,
         taxAmount: deliveryReceiptCtl.get('taxAmount').value,
       },
     };
   }
 
-  private buildDate(param: any): Moment {
-    const receiptDate = new Date(param);
-    return moment(receiptDate);
-  }
+
 }

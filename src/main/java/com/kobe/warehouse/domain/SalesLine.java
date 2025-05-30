@@ -3,7 +3,6 @@ package com.kobe.warehouse.domain;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
-
 import java.io.Serial;
 import java.io.Serializable;
 import java.time.LocalDateTime;
@@ -15,7 +14,7 @@ import java.util.Objects;
  * A SalesLine.
  */
 @Entity
-@Table(name = "sales_line", uniqueConstraints = {@UniqueConstraint(columnNames = {"produit_id", "sales_id"})})
+@Table(name = "sales_line", uniqueConstraints = { @UniqueConstraint(columnNames = { "produit_id", "sales_id" }) })
 public class SalesLine implements Serializable, Cloneable {
 
     @Serial
@@ -48,6 +47,7 @@ public class SalesLine implements Serializable, Cloneable {
     @NotNull
     @Column(name = "regular_unit_price", nullable = false, columnDefinition = "int default '0'")
     private Integer regularUnitPrice;
+
     @NotNull
     @Column(name = "discount_unit_price", nullable = false, columnDefinition = "int default '0'")
     private Integer discountUnitPrice = 0;
@@ -124,6 +124,7 @@ public class SalesLine implements Serializable, Cloneable {
 
     @Column(name = "tax_amount", nullable = false, columnDefinition = "int default '0'")
     private Integer taxAmount = 0;
+
     @OneToMany(mappedBy = "saleLine")
     private List<TiersPayantPrix> prixAssurances = new ArrayList<>();
 
@@ -169,7 +170,6 @@ public class SalesLine implements Serializable, Cloneable {
         this.quantityUg = quantityUg;
         return this;
     }
-
 
     public @NotNull Integer getQuantityAvoir() {
         return quantityAvoir;

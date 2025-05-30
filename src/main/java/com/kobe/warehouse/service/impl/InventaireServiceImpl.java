@@ -468,17 +468,17 @@ public class InventaireServiceImpl implements InventaireService {
         Root<StoreInventory> root
     ) {
         List<Predicate> predicates = new ArrayList<>();
-        if(!CollectionUtils.isEmpty(storeInventoryFilterRecord.inventoryCategories())){
+        if (!CollectionUtils.isEmpty(storeInventoryFilterRecord.inventoryCategories())) {
             In<InventoryCategory> inventoryCategoryIn = cb.in(root.get(StoreInventory_.inventoryCategory));
             storeInventoryFilterRecord.inventoryCategories().forEach(inventoryCategoryIn::value);
             predicates.add(inventoryCategoryIn);
         }
 
-        if(!CollectionUtils.isEmpty(storeInventoryFilterRecord.statuts())){
-           In<InventoryStatut> inventoryStatutIn = cb.in(root.get(StoreInventory_.statut));
-           storeInventoryFilterRecord.statuts().forEach(inventoryStatutIn::value);
-           predicates.add(inventoryStatutIn);
-       }
+        if (!CollectionUtils.isEmpty(storeInventoryFilterRecord.statuts())) {
+            In<InventoryStatut> inventoryStatutIn = cb.in(root.get(StoreInventory_.statut));
+            storeInventoryFilterRecord.statuts().forEach(inventoryStatutIn::value);
+            predicates.add(inventoryStatutIn);
+        }
         if (Objects.nonNull(storeInventoryFilterRecord.rayonId())) {
             predicates.add(cb.equal(root.get(StoreInventory_.rayon).get(Rayon_.id), storeInventoryFilterRecord.rayonId()));
         }

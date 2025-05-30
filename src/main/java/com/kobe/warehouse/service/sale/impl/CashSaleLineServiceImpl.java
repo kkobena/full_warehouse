@@ -13,17 +13,30 @@ import com.kobe.warehouse.service.stock.SuggestionProduitService;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-
-
 @Service
- @Transactional
-public class CashSaleLineServiceImpl  extends SalesLineServiceImpl {
+@Transactional
+public class CashSaleLineServiceImpl extends SalesLineServiceImpl {
 
-    public CashSaleLineServiceImpl(ProduitRepository produitRepository, SalesLineRepository salesLineRepository, StockProduitRepository stockProduitRepository, InventoryTransactionRepository inventoryTransactionRepository, LogsService logsService, SuggestionProduitService suggestionProduitService) {
-        super(produitRepository, salesLineRepository, stockProduitRepository, inventoryTransactionRepository, logsService, suggestionProduitService);
+    public CashSaleLineServiceImpl(
+        ProduitRepository produitRepository,
+        SalesLineRepository salesLineRepository,
+        StockProduitRepository stockProduitRepository,
+        InventoryTransactionRepository inventoryTransactionRepository,
+        LogsService logsService,
+        SuggestionProduitService suggestionProduitService
+    ) {
+        super(
+            produitRepository,
+            salesLineRepository,
+            stockProduitRepository,
+            inventoryTransactionRepository,
+            logsService,
+            suggestionProduitService
+        );
     }
+
     @Override
     public SalesLine createSaleLineFromDTO(SaleLineDTO dto, Long stockageId) {
-        return   super.setCommonSaleLine(dto, stockageId);
+        return super.setCommonSaleLine(dto, stockageId);
     }
 }

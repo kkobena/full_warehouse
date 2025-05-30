@@ -8,9 +8,8 @@ describe('GestionDifferesComponent', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [GestionDifferesComponent]
-    })
-    .compileComponents();
+      imports: [GestionDifferesComponent],
+    }).compileComponents();
 
     fixture = TestBed.createComponent(GestionDifferesComponent);
     component = fixture.componentInstance;

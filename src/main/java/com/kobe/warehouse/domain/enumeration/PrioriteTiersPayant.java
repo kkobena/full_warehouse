@@ -6,7 +6,6 @@ public enum PrioriteTiersPayant {
     R2(2, "C2"),
     R3(3, "C3");
 
-
     private final int value;
     private final String code;
 

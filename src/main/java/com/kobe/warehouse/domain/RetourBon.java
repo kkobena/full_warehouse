@@ -117,8 +117,6 @@ public class RetourBon implements Serializable {
         return this;
     }
 
-
-
     public List<ReponseRetourBon> getReponseRetourBons() {
         return reponseRetourBons;
     }

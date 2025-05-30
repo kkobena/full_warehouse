@@ -1,5 +1,7 @@
 package com.kobe.warehouse.repository;
 
+import static java.util.Objects.nonNull;
+
 import com.kobe.warehouse.domain.*;
 import com.kobe.warehouse.service.reglement.differe.dto.Differe;
 import com.kobe.warehouse.service.reglement.differe.dto.DiffereItem;
@@ -18,8 +20,6 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
-
-import static java.util.Objects.nonNull;
 
 @Repository
 @Transactional(readOnly = true)
@@ -58,7 +58,6 @@ public class CustomSalesRepositoryImpl implements CustomSalesRepository {
         if (nonNull(predicate)) {
             query.where(predicate);
         }
-
 
         TypedQuery<DiffereItem> typedQuery = entityManager.createQuery(query);
         if (pageable.isPaged()) {
@@ -99,7 +98,7 @@ public class CustomSalesRepositoryImpl implements CustomSalesRepository {
             );
 
         Predicate predicate = specification.toPredicate(root, query, cb);
-        if(nonNull(predicate)) {
+        if (nonNull(predicate)) {
             query.where(predicate);
         }
 
@@ -123,7 +122,7 @@ public class CustomSalesRepositoryImpl implements CustomSalesRepository {
         Root<Sales> root = countQuery.from(Sales.class);
         countQuery.select(cb.countDistinct(root.get(Sales_.customer)));
         Predicate predicate = specification.toPredicate(root, countQuery, cb);
-        if (nonNull(predicate)){
+        if (nonNull(predicate)) {
             countQuery.where(predicate);
         }
         return entityManager.createQuery(countQuery).getSingleResult();
@@ -135,10 +134,9 @@ public class CustomSalesRepositoryImpl implements CustomSalesRepository {
         Root<Sales> root = countQuery.from(Sales.class);
         countQuery.select(cb.count(root));
         Predicate predicate = specification.toPredicate(root, countQuery, cb);
-        if (nonNull(predicate)){
+        if (nonNull(predicate)) {
             countQuery.where(predicate);
         }
-
 
         return entityManager.createQuery(countQuery).getSingleResult();
     }
@@ -148,23 +146,22 @@ public class CustomSalesRepositoryImpl implements CustomSalesRepository {
         CriteriaBuilder cb = entityManager.getCriteriaBuilder();
         CriteriaQuery<DiffereSummary> query = cb.createQuery(DiffereSummary.class);
         Root<Sales> root = query.from(Sales.class);
-        query
-            .select(
-                cb.construct(
-                    DiffereSummary.class,
-                    cb.sumAsLong(root.get(Sales_.salesAmount)),
-                    cb.sumAsLong(root.get(Sales_.payrollAmount)),
-                    cb.sumAsLong(root.get(Sales_.restToPay))
-                )
-            );
+        query.select(
+            cb.construct(
+                DiffereSummary.class,
+                cb.sumAsLong(root.get(Sales_.salesAmount)),
+                cb.sumAsLong(root.get(Sales_.payrollAmount)),
+                cb.sumAsLong(root.get(Sales_.restToPay))
+            )
+        );
 
         Predicate predicate = specification.toPredicate(root, query, cb);
-        if(nonNull(predicate)) {
+        if (nonNull(predicate)) {
             query.where(predicate);
         }
 
         TypedQuery<DiffereSummary> typedQuery = entityManager.createQuery(query);
-       return typedQuery.getSingleResult();
+        return typedQuery.getSingleResult();
     }
 
     @Override
@@ -172,16 +169,10 @@ public class CustomSalesRepositoryImpl implements CustomSalesRepository {
         CriteriaBuilder cb = entityManager.getCriteriaBuilder();
         CriteriaQuery<Solde> query = cb.createQuery(Solde.class);
         Root<Sales> root = query.from(Sales.class);
-        query
-            .select(
-                cb.construct(
-                    Solde.class,
-                    cb.sumAsLong(root.get(Sales_.restToPay))
-                )
-            );
+        query.select(cb.construct(Solde.class, cb.sumAsLong(root.get(Sales_.restToPay))));
 
         Predicate predicate = specification.toPredicate(root, query, cb);
-        if(nonNull(predicate)) {
+        if (nonNull(predicate)) {
             query.where(predicate);
         }
 

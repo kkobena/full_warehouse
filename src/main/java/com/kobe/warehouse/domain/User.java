@@ -113,6 +113,7 @@ public class User extends AbstractAuditingEntity<Long> implements Serializable {
     @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true, mappedBy = "user")
     @Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
     private Set<PersistentToken> persistentTokens = new HashSet<>();
+
     @Pattern(regexp = Constants.NUMERIC_PATTERN)
     @Column(name = "action_authority_key")
     @JsonIgnore
@@ -225,8 +226,6 @@ public class User extends AbstractAuditingEntity<Long> implements Serializable {
         this.magasin = magasin;
         return this;
     }
-
-
 
     public Set<Authority> getAuthorities() {
         return authorities;

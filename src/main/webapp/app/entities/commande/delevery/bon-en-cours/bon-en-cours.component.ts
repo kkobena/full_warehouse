@@ -1,16 +1,16 @@
-import {Component, inject, input, OnInit} from '@angular/core';
-import {IDelivery} from '../../../../shared/model/delevery.model';
-import {ITEMS_PER_PAGE} from '../../../../shared/constants/pagination.constants';
-import {DynamicDialogModule, DynamicDialogRef} from 'primeng/dynamicdialog';
-import {RouterModule} from '@angular/router';
-import {NgxSpinnerModule, NgxSpinnerService} from 'ngx-spinner';
-import {DeliveryService} from '../delivery.service';
-import {HttpHeaders, HttpResponse} from '@angular/common/http';
-import {WarehouseCommonModule} from '../../../../shared/warehouse-common/warehouse-common.module';
-import {ButtonModule} from 'primeng/button';
-import {TableModule} from 'primeng/table';
-import {TooltipModule} from 'primeng/tooltip';
-import {CommandeService} from "../../commande.service";
+import { Component, inject, input, OnInit } from '@angular/core';
+import { IDelivery } from '../../../../shared/model/delevery.model';
+import { ITEMS_PER_PAGE } from '../../../../shared/constants/pagination.constants';
+import { DynamicDialogModule, DynamicDialogRef } from 'primeng/dynamicdialog';
+import { RouterModule } from '@angular/router';
+import { NgxSpinnerModule, NgxSpinnerService } from 'ngx-spinner';
+import { DeliveryService } from '../delivery.service';
+import { HttpHeaders, HttpResponse } from '@angular/common/http';
+import { WarehouseCommonModule } from '../../../../shared/warehouse-common/warehouse-common.module';
+import { ButtonModule } from 'primeng/button';
+import { TableModule } from 'primeng/table';
+import { TooltipModule } from 'primeng/tooltip';
+import { CommandeService } from '../../commande.service';
 
 export type ExpandMode = 'single' | 'multiple';
 

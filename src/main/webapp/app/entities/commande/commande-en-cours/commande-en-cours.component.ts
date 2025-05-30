@@ -1,32 +1,32 @@
-import {Component, inject, input, OnInit, output} from '@angular/core';
-import {ICommande} from '../../../shared/model/commande.model';
-import {IOrderLine} from '../../../shared/model/order-line.model';
-import {ITEMS_PER_PAGE} from '../../../shared/constants/pagination.constants';
-import {ConfirmationService, LazyLoadEvent} from 'primeng/api';
-import {DialogService, DynamicDialogModule, DynamicDialogRef} from 'primeng/dynamicdialog';
-import {CommandeService} from '../commande.service';
-import {ActivatedRoute, Router, RouterModule} from '@angular/router';
-import {NgbModal} from '@ng-bootstrap/ng-bootstrap';
-import {ErrorService} from '../../../shared/error.service';
-import {DeliveryService} from '../delevery/delivery.service';
-import {ProduitService} from '../../produit/produit.service';
-import {NgxSpinnerModule, NgxSpinnerService} from 'ngx-spinner';
-import {HttpHeaders, HttpResponse} from '@angular/common/http';
-import {saveAs} from 'file-saver';
-import {ICommandeResponse} from '../../../shared/model/commande-response.model';
-import {CommandeImportResponseDialogComponent} from '../commande-import-response-dialog.component';
-import {IResponseCommande} from '../../../shared/model/response-commande.model';
-import {CommandeEnCoursResponseDialogComponent} from '../commande-en-cours-response-dialog.component';
-import {IDelivery} from '../../../shared/model/delevery.model';
-import {DeliveryModalComponent} from '../delevery/form/delivery-modal.component';
-import {AlertInfoComponent} from '../../../shared/alert/alert-info.component';
-import {WarehouseCommonModule} from '../../../shared/warehouse-common/warehouse-common.module';
-import {ButtonModule} from 'primeng/button';
-import {TableModule} from 'primeng/table';
-import {RippleModule} from 'primeng/ripple';
-import {TooltipModule} from 'primeng/tooltip';
-import {acceptButtonProps, rejectButtonProps} from '../../../shared/util/modal-button-props';
-import {OrderStatut} from "../../../shared/model/enumerations/order-statut.model";
+import { Component, inject, input, OnInit, output } from '@angular/core';
+import { ICommande } from '../../../shared/model/commande.model';
+import { IOrderLine } from '../../../shared/model/order-line.model';
+import { ITEMS_PER_PAGE } from '../../../shared/constants/pagination.constants';
+import { ConfirmationService, LazyLoadEvent } from 'primeng/api';
+import { DialogService, DynamicDialogModule, DynamicDialogRef } from 'primeng/dynamicdialog';
+import { CommandeService } from '../commande.service';
+import { ActivatedRoute, Router, RouterModule } from '@angular/router';
+import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
+import { ErrorService } from '../../../shared/error.service';
+import { DeliveryService } from '../delevery/delivery.service';
+import { ProduitService } from '../../produit/produit.service';
+import { NgxSpinnerModule, NgxSpinnerService } from 'ngx-spinner';
+import { HttpHeaders, HttpResponse } from '@angular/common/http';
+import { saveAs } from 'file-saver';
+import { ICommandeResponse } from '../../../shared/model/commande-response.model';
+import { CommandeImportResponseDialogComponent } from '../commande-import-response-dialog.component';
+import { IResponseCommande } from '../../../shared/model/response-commande.model';
+import { CommandeEnCoursResponseDialogComponent } from '../commande-en-cours-response-dialog.component';
+import { IDelivery } from '../../../shared/model/delevery.model';
+import { DeliveryModalComponent } from '../delevery/form/delivery-modal.component';
+import { AlertInfoComponent } from '../../../shared/alert/alert-info.component';
+import { WarehouseCommonModule } from '../../../shared/warehouse-common/warehouse-common.module';
+import { ButtonModule } from 'primeng/button';
+import { TableModule } from 'primeng/table';
+import { RippleModule } from 'primeng/ripple';
+import { TooltipModule } from 'primeng/tooltip';
+import { acceptButtonProps, rejectButtonProps } from '../../../shared/util/modal-button-props';
+import { OrderStatut } from '../../../shared/model/enumerations/order-statut.model';
 
 export type ExpandMode = 'single' | 'multiple';
 
@@ -75,7 +75,6 @@ export class CommandeEnCoursComponent implements OnInit {
   private readonly router = inject(Router);
   private readonly modalService = inject(NgbModal);
   private readonly deliveryService = inject(DeliveryService);
-
 
   constructor() {
     this.rowExpandMode = 'single';
@@ -228,7 +227,6 @@ export class CommandeEnCoursComponent implements OnInit {
     modalRef.componentInstance.commande = this.commandeSelected;
   }
 
-
   removeAll(): void {
     this.commandeService.deleteSelectedCommandes(this.selections.map(e => e.id)).subscribe(() => {
       this.loadPage();
@@ -265,7 +263,7 @@ export class CommandeEnCoursComponent implements OnInit {
 
   onCreateBon(commande: ICommande): void {
     this.ref = this.dialogService.open(DeliveryModalComponent, {
-      data: {commande},
+      data: { commande },
       header: 'CREATION DU BON DE LIVRAISON',
       width: '40%',
     });

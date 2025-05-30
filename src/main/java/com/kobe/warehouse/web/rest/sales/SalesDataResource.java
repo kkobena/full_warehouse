@@ -125,22 +125,25 @@ public class SalesDataResource {
 
     @GetMapping("/sales/print/receipt/{id}")
     public ResponseEntity<Void> printCashReceipt(@PathVariable Long id) {
-        receiptPrinterService.printCashSale(id,false);
+        receiptPrinterService.printCashSale(id, false);
         return ResponseEntity.ok().build();
     }
+
     @GetMapping("/sales/re-print/receipt/{id}")
     public ResponseEntity<Void> rePrintCashReceipt(@PathVariable Long id) {
-        receiptPrinterService.printCashSale(id,true);
+        receiptPrinterService.printCashSale(id, true);
         return ResponseEntity.ok().build();
     }
+
     @GetMapping("/sales/assurance/print/receipt/{id}")
     public ResponseEntity<Void> printVoReceipt(@PathVariable Long id) {
-        receiptPrinterService.printVoSale(id,false);
+        receiptPrinterService.printVoSale(id, false);
         return ResponseEntity.ok().build();
     }
+
     @GetMapping("/sales/assurance/re-print/receipt/{id}")
     public ResponseEntity<Void> rePrintVoReceipt(@PathVariable Long id) {
-        receiptPrinterService.printVoSale(id,true);
+        receiptPrinterService.printVoSale(id, true);
         return ResponseEntity.ok().build();
     }
 }

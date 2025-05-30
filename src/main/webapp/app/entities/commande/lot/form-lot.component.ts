@@ -1,23 +1,23 @@
-import {HttpResponse} from '@angular/common/http';
-import {Component, inject, OnInit} from '@angular/core';
-import {FormBuilder, FormControl, FormsModule, ReactiveFormsModule, Validators} from '@angular/forms';
-import {MessageService} from 'primeng/api';
-import {DynamicDialogConfig, DynamicDialogModule, DynamicDialogRef} from 'primeng/dynamicdialog';
-import {Observable} from 'rxjs';
-import {ILot, Lot} from '../../../shared/model/lot.model';
-import {LotService} from './lot.service';
-import {DATE_FORMAT_YYYY_MM_DD} from '../../../shared/util/warehouse-util';
-import {WarehouseCommonModule} from '../../../shared/warehouse-common/warehouse-common.module';
-import {ButtonModule} from 'primeng/button';
-import {TooltipModule} from 'primeng/tooltip';
-import {ToastModule} from 'primeng/toast';
-import {RippleModule} from 'primeng/ripple';
-import {KeyFilterModule} from 'primeng/keyfilter';
-import {InputTextModule} from 'primeng/inputtext';
-import {TranslateService} from '@ngx-translate/core';
-import {PrimeNG} from 'primeng/config';
-import {DatePicker} from 'primeng/datepicker';
-import {AbstractOrderItem} from "../../../shared/model/abstract-order-item.model";
+import { HttpResponse } from '@angular/common/http';
+import { Component, inject, OnInit } from '@angular/core';
+import { FormBuilder, FormControl, FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
+import { MessageService } from 'primeng/api';
+import { DynamicDialogConfig, DynamicDialogModule, DynamicDialogRef } from 'primeng/dynamicdialog';
+import { Observable } from 'rxjs';
+import { ILot, Lot } from '../../../shared/model/lot.model';
+import { LotService } from './lot.service';
+import { DATE_FORMAT_YYYY_MM_DD } from '../../../shared/util/warehouse-util';
+import { WarehouseCommonModule } from '../../../shared/warehouse-common/warehouse-common.module';
+import { ButtonModule } from 'primeng/button';
+import { TooltipModule } from 'primeng/tooltip';
+import { ToastModule } from 'primeng/toast';
+import { RippleModule } from 'primeng/ripple';
+import { KeyFilterModule } from 'primeng/keyfilter';
+import { InputTextModule } from 'primeng/inputtext';
+import { TranslateService } from '@ngx-translate/core';
+import { PrimeNG } from 'primeng/config';
+import { DatePicker } from 'primeng/datepicker';
+import { AbstractOrderItem } from '../../../shared/model/abstract-order-item.model';
 
 @Component({
   selector: 'jhi-form-lot',
@@ -38,7 +38,7 @@ import {AbstractOrderItem} from "../../../shared/model/abstract-order-item.model
   ],
 })
 export class FormLotComponent implements OnInit {
-protected  ref = inject(DynamicDialogRef);
+  protected ref = inject(DynamicDialogRef);
   protected fb = inject(FormBuilder);
   protected isSaving = false;
   entity?: ILot;

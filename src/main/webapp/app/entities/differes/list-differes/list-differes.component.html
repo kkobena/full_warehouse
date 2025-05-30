@@ -30,7 +30,7 @@
         </p-select>
       </div>
 
-   <!--   <div class="pt-1 ml-1">
+      <!--   <div class="pt-1 ml-1">
         <p-floatlabel variant="on">
           <p-datePicker
             [(ngModel)]="modelStartDate"
@@ -61,15 +61,12 @@
         </p-floatlabel>
       </div>
 -->
-
     </div>
   </ng-template>
   <ng-template #end>
     <div>
-      <p-button (click)="onSerch()" [loading]="loadingBtn" [raised]="true" icon="pi pi-search"
-                label="Rechercher" severity="info" />
-      <p-button (click)="exportPdf()" [loading]="loadingPdf" [raised]="true" icon="pi pi-file-pdf"
-                label="Imprimer" severity="warn" />
+      <p-button (click)="onSerch()" [loading]="loadingBtn" [raised]="true" icon="pi pi-search" label="Rechercher" severity="info" />
+      <p-button (click)="exportPdf()" [loading]="loadingPdf" [raised]="true" icon="pi pi-file-pdf" label="Imprimer" severity="warn" />
     </div>
   </ng-template>
 </p-toolbar>
@@ -80,7 +77,7 @@
     [lazy]="true"
     [loading]="loading"
     [paginator]="true"
-    [rowsPerPageOptions]="[ 10, 15, 20, 30, 50]"
+    [rowsPerPageOptions]="[10, 15, 20, 30, 50]"
     [rows]="itemsPerPage"
     [showCurrentPageReport]="false"
     [totalRecords]="totalItems"
@@ -110,9 +107,9 @@
             type="button"
           />
         </td>
-        <td>{{ differe.firstName +' '+ differe.lastName }} </td>
+        <td>{{ differe.firstName + ' ' + differe.lastName }}</td>
         <td class="text-right amount-td-column">{{ differe.saleAmount | number }}</td>
-        <td class="text-right amount-td-column ">{{ differe.paidAmount | number }}</td>
+        <td class="text-right amount-td-column">{{ differe.paidAmount | number }}</td>
         <td class="text-right amount-td-column red-400">{{ differe.rest | number }}</td>
 
         <td>
@@ -139,56 +136,44 @@
       <tr>
         <td colspan="6">
           <p-card>
-
             <table class="table table-secondary table-striped-columns table-bordered">
               <thead>
-              <tr class="table-secondary">
-                <th colspan="6">
-                  Ventes
-                </th>
-              </tr>
-              <tr>
-                <th style="width: 2%">#</th>
-                <th>Date</th>
-                <th>Référence</th>
-                <th>Montant vente</th>
-                <th>Montant payé</th>
-                <th>Reste à payer</th>
-              </tr>
+                <tr class="table-secondary">
+                  <th colspan="6">Ventes</th>
+                </tr>
+                <tr>
+                  <th style="width: 2%">#</th>
+                  <th>Date</th>
+                  <th>Référence</th>
+                  <th>Montant vente</th>
+                  <th>Montant payé</th>
+                  <th>Reste à payer</th>
+                </tr>
               </thead>
               <tbody>
-                @for (differeItem of elRow.differeItems; track differeItem.saleId; let
-                  rowIndex = $index) {
+                @for (differeItem of elRow.differeItems; track differeItem.saleId; let rowIndex = $index) {
                   <tr>
                     <td style="text-align: left">{{ rowIndex + 1 }}</td>
                     <td>{{ differeItem.mvtDate | date: 'dd/MM/yy HH:mm' }}</td>
                     <td>{{ differeItem.reference }}</td>
-                    <td class="text-right  amount-td-column">{{ differeItem.amount | number }}</td>
-                    <td class="text-right  amount-td-column">{{ differeItem.paidAmount | number }}
-                    </td>
-                    <td
-                      class="text-right red-400  amount-td-column">{{ differeItem.restAmount | number }}
-                    </td>
-
+                    <td class="text-right amount-td-column">{{ differeItem.amount | number }}</td>
+                    <td class="text-right amount-td-column">{{ differeItem.paidAmount | number }}</td>
+                    <td class="text-right red-400 amount-td-column">{{ differeItem.restAmount | number }}</td>
                   </tr>
                 }
               </tbody>
             </table>
-
-
           </p-card>
-
-
         </td>
       </tr>
     </ng-template>
-    <ng-template  #footer>
+    <ng-template #footer>
       <tr>
         <td class="p-text-left" colspan="2" style="font-weight: 700">TOTAL GENERAL</td>
         <td class="amount-column text-right">{{ summary?.saleAmout | number }}</td>
-        <td class="amount-column text-right" >{{ summary?.paidAmount | number }}</td>
-        <td class="amount-column text-right red-400" >{{ summary?.rest | number }}</td>
-        <td ></td>
+        <td class="amount-column text-right">{{ summary?.paidAmount | number }}</td>
+        <td class="amount-column text-right red-400">{{ summary?.rest | number }}</td>
+        <td></td>
       </tr>
     </ng-template>
   </p-table>

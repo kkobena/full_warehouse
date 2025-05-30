@@ -3,7 +3,7 @@ export interface ILot {
   receiptItemId?: number;
   quantity?: number;
   numLot?: string;
-  receiptRefernce?: string;
+  receiptReference?: string;
   createdDate?: string;
   manufacturingDate?: string;
   expiryDate?: string;
@@ -20,7 +20,7 @@ export class Lot implements ILot {
     public receiptItemId?: number,
     public quantity?: number,
     public numLot?: string,
-    public receiptRefernce?: string,
+    public receiptReference?: string,
     public createdDate?: string,
     public manufacturingDate?: string,
     public expiryDate?: string,

@@ -6,7 +6,6 @@ import com.kobe.warehouse.service.StorageService;
 import com.kobe.warehouse.service.dto.ReportPeriode;
 import com.kobe.warehouse.service.errors.FileStorageException;
 import com.lowagie.text.DocumentException;
-
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileOutputStream;
@@ -254,11 +253,17 @@ public Response generatePdf() {
         return outputStream.toByteArray();
     }
 
-    protected ResponseEntity<byte[]> genererPdf(){
-
+    protected ResponseEntity<byte[]> genererPdf() {
         return ResponseEntity.ok()
-            .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename="+ this.getGenerateFileName()+"_"+LocalDateTime.now().format(DateTimeFormatter.ofPattern("dd_MM_yyyy_HH_mm_ss")) + ".pdf")
+            .header(
+                HttpHeaders.CONTENT_DISPOSITION,
+                "attachment; filename=" +
+                this.getGenerateFileName() +
+                "_" +
+                LocalDateTime.now().format(DateTimeFormatter.ofPattern("dd_MM_yyyy_HH_mm_ss")) +
+                ".pdf"
+            )
             .contentType(MediaType.APPLICATION_PDF)
-            .body( printByteArray());
+            .body(printByteArray());
     }
 }

@@ -6,7 +6,7 @@
       <ul class="list-group">
         <li class="list-group-item d-flex justify-content-between align-items-center">
           <span style="margin-right: 5px">Référence</span>
-          <span class="text-primary fw-bold">{{ commande.orderRefernce }}</span>
+          <span class="text-primary fw-bold">{{ commande.orderReference }}</span>
         </li>
         <li class="list-group-item d-flex justify-content-between align-items-center">
           <span style="margin-right: 5px">Grossiste</span>
@@ -56,12 +56,12 @@
       <div class="p-field p-col">
         <label class="col-auto col-form-label">Référence Bon<span style="font-weight: 900; color: red">*</span></label>
 
-        <input autocomplete="off" class="form-control" formControlName="receiptRefernce" name="receiptRefernce" pInputText type="text" />
+        <input autocomplete="off" class="form-control" formControlName="receiptReference" name="receiptReference" pInputText type="text" />
         @if (
-          editForm.get('receiptRefernce')!.invalid && (editForm.get('receiptRefernce')!.dirty || editForm.get('receiptRefernce')!.touched)
+          editForm.get('receiptReference')!.invalid && (editForm.get('receiptReference')!.dirty || editForm.get('receiptReference')!.touched)
         ) {
           <div>
-            @if (editForm.get('receiptRefernce')?.errors?.required) {
+            @if (editForm.get('receiptReference')?.errors?.required) {
               <small class="form-text text-danger" style="color: red"> Ce champ est obligatoire. </small>
             }
           </div>

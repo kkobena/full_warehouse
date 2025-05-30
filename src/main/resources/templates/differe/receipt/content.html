@@ -1,5 +1,4 @@
 <tbody>
-
   <tr>
     <td class="total-libelle"><span>MONTANT ATTENDU</span></td>
 
@@ -21,15 +20,14 @@
     <td class="total-libelle">REGLEMENT</td>
     <td th:text="${entity.libelleMode}"></td>
   </tr>
-<th:block th:if="${ #strings.equals(entity.mode,'CASH')}">
-  <tr>
-    <td>MONTANT VERSE</td>
-    <td class="total" th:text="${ entity.formattedMontantVerse }"></td>
-  </tr>
-  <tr>
-    <td>MONNAIE</td>
-    <td class="total" th:text="${ entity.monnaie }"></td>
-  </tr>
-</th:block>
-
+  <th:block th:if="${ #strings.equals(entity.mode,'CASH')}">
+    <tr>
+      <td>MONTANT VERSE</td>
+      <td class="total" th:text="${ entity.formattedMontantVerse }"></td>
+    </tr>
+    <tr>
+      <td>MONNAIE</td>
+      <td class="total" th:text="${ entity.monnaie }"></td>
+    </tr>
+  </th:block>
 </tbody>

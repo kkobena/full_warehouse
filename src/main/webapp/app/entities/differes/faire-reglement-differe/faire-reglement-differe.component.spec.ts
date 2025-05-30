@@ -8,9 +8,8 @@ describe('FaireReglementDiffereComponent', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [FaireReglementDiffereComponent]
-    })
-    .compileComponents();
+      imports: [FaireReglementDiffereComponent],
+    }).compileComponents();
 
     fixture = TestBed.createComponent(FaireReglementDiffereComponent);
     component = fixture.componentInstance;

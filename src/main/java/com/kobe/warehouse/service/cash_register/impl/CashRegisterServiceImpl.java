@@ -250,9 +250,9 @@ public class CashRegisterServiceImpl implements CashRegisterService {
 
     @Override
     public List<CashRegisterDTO> getConnectedUserNonClosedCashRegisters() {
-        Specification<CashRegister> cashRegisterSpecification = Specification.where(
+        Specification<CashRegister> cashRegisterSpecification =
             this.cashRegisterRepository.specialisation(Set.of(CashRegisterStatut.OPEN, CashRegisterStatut.PENDING))
-        );
+        ;
 
         cashRegisterSpecification = cashRegisterSpecification.and(
             this.cashRegisterRepository.specialisation(userService.getUser().getId())
@@ -280,9 +280,9 @@ public class CashRegisterServiceImpl implements CashRegisterService {
 
     @Override
     public boolean hasOpenCashRegister() {
-        Specification<CashRegister> cashRegisterSpecification = Specification.where(
+        Specification<CashRegister> cashRegisterSpecification =
             this.cashRegisterRepository.specialisation(Set.of(CashRegisterStatut.OPEN, CashRegisterStatut.PENDING))
-        );
+        ;
 
         cashRegisterSpecification = cashRegisterSpecification.and(
             this.cashRegisterRepository.specialisation(userService.getUser().getId())
@@ -292,9 +292,9 @@ public class CashRegisterServiceImpl implements CashRegisterService {
     }
 
     private Page<CashRegister> loadCashRegisters(FetchCashRegisterParams fetchCashRegisterParams, Pageable pageable) {
-        Specification<CashRegister> cashRegisterSpecification = Specification.where(
+        Specification<CashRegister> cashRegisterSpecification =
             this.cashRegisterRepository.specialisation(fetchCashRegisterParams.statuts())
-        );
+        ;
         if (Objects.nonNull(fetchCashRegisterParams.userId())) {
             cashRegisterSpecification = cashRegisterSpecification.and(
                 this.cashRegisterRepository.specialisation(fetchCashRegisterParams.userId())
@@ -346,6 +346,7 @@ public class CashRegisterServiceImpl implements CashRegisterService {
             return 0;
         }
     }
+
     @Override
     public CashRegister getCashRegister() {
         var user = userService.getUser();

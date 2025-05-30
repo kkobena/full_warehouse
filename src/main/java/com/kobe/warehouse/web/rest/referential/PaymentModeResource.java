@@ -23,11 +23,8 @@ public class PaymentModeResource {
         this.paymentModeService = paymentModeService;
     }
 
-
-
     @GetMapping("/payment-modes")
     public ResponseEntity<List<PaymentMode>> getAllPaymentModes() {
         return ResponseEntity.ok().body(this.paymentModeService.fetch());
     }
-
 }

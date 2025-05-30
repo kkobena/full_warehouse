@@ -3,8 +3,18 @@ package com.kobe.warehouse.service.reglement.differe.dto;
 import com.kobe.warehouse.domain.enumeration.ModePaimentCode;
 import com.kobe.warehouse.service.utils.NumberUtil;
 
-public record ReglementDiffereReceiptDTO(String userFirstName, String userLastName, String firstName, String lastName, int expectedAmount, int montantVerse, int paidAmount, String mode, String libelleMode, int solde) {
-
+public record ReglementDiffereReceiptDTO(
+    String userFirstName,
+    String userLastName,
+    String firstName,
+    String lastName,
+    int expectedAmount,
+    int montantVerse,
+    int paidAmount,
+    String mode,
+    String libelleMode,
+    int solde
+) {
     public String userfullName() {
         return String.format("%s.%s", userFirstName.charAt(0), userLastName);
     }
@@ -23,11 +33,10 @@ public record ReglementDiffereReceiptDTO(String userFirstName, String userLastNa
     public String formattedExpectedAmount() {
         return NumberUtil.formatToString(expectedAmount);
     }
-public String monnaie() {
-        if (ModePaimentCode.CASH.name().equals(mode) && montantVerse>expectedAmount){
-                  return NumberUtil.formatToString(montantVerse-expectedAmount);
-              }
-    return "";
+    public String monnaie() {
+        if (ModePaimentCode.CASH.name().equals(mode) && montantVerse > expectedAmount) {
+            return NumberUtil.formatToString(montantVerse - expectedAmount);
+        }
+        return "";
     }
-
 }

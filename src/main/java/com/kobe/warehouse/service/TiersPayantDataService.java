@@ -33,7 +33,7 @@ public class TiersPayantDataService implements TiersPayantMapper {
         Long groupeTiersPayantId,
         Pageable pageable
     ) {
-        Specification<TiersPayant> specification = Specification.where(this.tiersPayantRepository.specialisationStatut(statut));
+        Specification<TiersPayant> specification = this.tiersPayantRepository.specialisationStatut(statut);
         if (StringUtils.hasLength(search)) {
             specification = specification.and(this.tiersPayantRepository.specialisationQueryString(search + "%"));
         }

@@ -1,7 +1,6 @@
 package com.kobe.warehouse.repository;
 
 import com.kobe.warehouse.domain.*;
-
 import com.kobe.warehouse.service.reglement.differe.dto.CustomerReglementDiffereDTO;
 import com.kobe.warehouse.service.reglement.differe.dto.DifferePaymentSummary;
 import com.kobe.warehouse.service.reglement.differe.dto.DifferePaymentSummaryDTO;
@@ -12,16 +11,16 @@ import jakarta.persistence.criteria.CriteriaBuilder;
 import jakarta.persistence.criteria.CriteriaQuery;
 import jakarta.persistence.criteria.Predicate;
 import jakarta.persistence.criteria.Root;
+import java.util.List;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Repository;
 
-import java.util.List;
-
 @Repository
 public class DifferePaymentDataRepositoryImpl implements DifferePaymentDataRepository {
+
     private final EntityManager entityManager;
 
     public DifferePaymentDataRepositoryImpl(EntityManager entityManager) {
@@ -70,18 +69,13 @@ public class DifferePaymentDataRepositoryImpl implements DifferePaymentDataRepos
         Root<DifferePayment> root = query.from(DifferePayment.class);
 
         query
-            .select(
-                cb.construct(
-                    DifferePaymentSummary.class,
-                    cb.sumAsLong(root.get(DifferePayment_.paidAmount))
-                )
-            ).orderBy(cb.desc(root.get(DifferePayment_.createdAt)));
+            .select(cb.construct(DifferePaymentSummary.class, cb.sumAsLong(root.get(DifferePayment_.paidAmount))))
+            .orderBy(cb.desc(root.get(DifferePayment_.createdAt)));
 
         Predicate predicate = specification.toPredicate(root, query, cb);
         query.where(predicate);
 
         TypedQuery<DifferePaymentSummary> typedQuery = entityManager.createQuery(query);
-
 
         return typedQuery.getSingleResult();
     }
@@ -106,13 +100,13 @@ public class DifferePaymentDataRepositoryImpl implements DifferePaymentDataRepos
                     root.get(DifferePayment_.paymentMode).get(PaymentMode_.code),
                     root.get(DifferePayment_.paymentMode).get(PaymentMode_.libelle)
                 )
-            ).orderBy(cb.asc(root.get(DifferePayment_.createdAt)));
+            )
+            .orderBy(cb.asc(root.get(DifferePayment_.createdAt)));
 
         Predicate predicate = specification.toPredicate(root, query, cb);
         query.where(predicate);
 
         TypedQuery<ReglementDiffereDTO> typedQuery = entityManager.createQuery(query);
-
 
         return typedQuery.getResultList();
     }

@@ -1,13 +1,10 @@
 package com.kobe.warehouse.config;
 
-import static org.springframework.security.config.Customizer.withDefaults;
-import static org.springframework.security.web.util.matcher.AntPathRequestMatcher.antMatcher;
-
 import com.kobe.warehouse.security.AuthoritiesConstants;
 import com.kobe.warehouse.web.filter.SpaWebFilter;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
-import java.util.function.Supplier;
+import org.springframework.boot.autoconfigure.security.servlet.PathRequest;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.annotation.Order;
@@ -29,14 +26,13 @@ import org.springframework.security.web.csrf.CsrfTokenRequestAttributeHandler;
 import org.springframework.security.web.csrf.CsrfTokenRequestHandler;
 import org.springframework.security.web.csrf.XorCsrfTokenRequestAttributeHandler;
 import org.springframework.security.web.header.writers.ReferrerPolicyHeaderWriter;
-import org.springframework.security.web.servlet.util.matcher.MvcRequestMatcher;
-import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
-import org.springframework.security.web.util.matcher.NegatedRequestMatcher;
-import org.springframework.security.web.util.matcher.OrRequestMatcher;
 import org.springframework.util.StringUtils;
-import org.springframework.web.servlet.handler.HandlerMappingIntrospector;
 import tech.jhipster.config.JHipsterProperties;
 import tech.jhipster.web.filter.CookieCsrfFilter;
+
+import java.util.function.Supplier;
+
+import static org.springframework.security.config.Customizer.withDefaults;
 
 @Configuration
 @EnableMethodSecurity(securedEnabled = true)
@@ -51,13 +47,15 @@ public class SecurityConfiguration {
         this.jHipsterProperties = jHipsterProperties;
     }
 
+
     @Bean
     public PasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder();
     }
 
+
     @Bean
-    public SecurityFilterChain filterChain(HttpSecurity http, MvcRequestMatcher.Builder mvc) throws Exception {
+    public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         http
             .cors(withDefaults())
             .csrf(csrf ->
@@ -78,62 +76,31 @@ public class SecurityConfiguration {
                         )
                     )
             )
-            .securityMatcher(new NegatedRequestMatcher(new OrRequestMatcher(new AntPathRequestMatcher("/java-client/**"))))
-            .authorizeHttpRequests(authz ->
-                // prettier-ignore
-                    authz
-                        .requestMatchers(
-                            mvc.pattern("/index.html"),
-                            mvc.pattern("/*.js"),
-                            mvc.pattern("/*.txt"),
-                            mvc.pattern("/*.json"),
-                            mvc.pattern("/*.map"),
-                            mvc.pattern("/*.css"),
-                            mvc.pattern("/*.ttf"),
-                            mvc.pattern("/*.woff2"),
-                            mvc.pattern("/*.eot"),
-                            mvc.pattern("/*.woff"))
-                        .permitAll()
-                        .requestMatchers(
-                            mvc.pattern("/*.ico"),
-                            mvc.pattern("/*.png"),
-                            mvc.pattern("/*.svg"),
-                            mvc.pattern("/*.webapp"))
-                        .permitAll()
-                        .requestMatchers(mvc.pattern("/app/**"))
-                        .permitAll()
-                        .requestMatchers(mvc.pattern("/i18n/**"))
-                        .permitAll()
-                        .requestMatchers(mvc.pattern("/content/**"))
-                        .permitAll()
-                        .requestMatchers(mvc.pattern("/swagger-ui/**"))
-                        .permitAll()
-                        .requestMatchers(mvc.pattern("/api/authenticate"))
-                        .permitAll()
-                        .requestMatchers(mvc.pattern("/api/register"))
-                        .permitAll()
-                        .requestMatchers(mvc.pattern("/api/activate"))
-                        .permitAll()
-                        .requestMatchers(mvc.pattern("/api/account/reset-password/init"))
-                        .permitAll()
-                        .requestMatchers(mvc.pattern("/api/account/reset-password/finish"))
-                        .permitAll()
-                        .requestMatchers(mvc.pattern("/api/admin/**"))
-                        .hasAuthority(AuthoritiesConstants.ADMIN)
-                        .requestMatchers(mvc.pattern("/api/**"))
-                        .authenticated()
-                        .requestMatchers(mvc.pattern("/v3/api-docs/**"))
-                        .hasAuthority(AuthoritiesConstants.ADMIN)
-                        .requestMatchers(mvc.pattern("/management/health"))
-                        .permitAll()
-                        .requestMatchers(mvc.pattern("/management/health/**"))
-                        .permitAll()
-                        .requestMatchers(mvc.pattern("/management/info"))
-                        .permitAll()
-                        .requestMatchers(mvc.pattern("/management/prometheus"))
-                        .permitAll()
-                        .requestMatchers(mvc.pattern("/management/**"))
-                        .hasAuthority(AuthoritiesConstants.ADMIN)
+            .securityMatcher(request -> !request.getRequestURI().startsWith("/java-client/"))
+            .authorizeHttpRequests(authz -> authz
+                .requestMatchers(
+                    PathRequest.toStaticResources().atCommonLocations(),
+                    request -> request.getRequestURI().matches(".*\\.(js|txt|json|map|css|ttf|woff2|eot|woff|ico|png|svg|webapp)$"),
+                    request -> request.getRequestURI().startsWith("/app/"),
+                    request -> request.getRequestURI().startsWith("/i18n/"),
+                    request -> request.getRequestURI().startsWith("/content/"),
+                    request -> request.getRequestURI().startsWith("/swagger-ui/"),
+                    request -> request.getRequestURI().equals("/api/authenticate"),
+                    request -> request.getRequestURI().equals("/api/register"),
+                    request -> request.getRequestURI().equals("/api/activate"),
+                    request -> request.getRequestURI().equals("/api/account/reset-password/init"),
+                    request -> request.getRequestURI().equals("/api/account/reset-password/finish"),
+                    request -> request.getRequestURI().equals("/management/health"),
+                    request -> request.getRequestURI().startsWith("/management/health/"),
+                    request -> request.getRequestURI().equals("/management/info"),
+                    request -> request.getRequestURI().equals("/management/prometheus")
+                ).permitAll()
+                .requestMatchers(
+                    request -> request.getRequestURI().startsWith("/api/admin/"),
+                    request -> request.getRequestURI().startsWith("/v3/api-docs/"),
+                    request -> request.getRequestURI().startsWith("/management/")
+                ).hasAuthority(AuthoritiesConstants.ADMIN)
+                .requestMatchers(request -> request.getRequestURI().startsWith("/api/")).authenticated()
             )
             .rememberMe(rememberMe ->
                 rememberMe
@@ -141,10 +108,10 @@ public class SecurityConfiguration {
                     .rememberMeParameter("remember-me")
                     .key(jHipsterProperties.getSecurity().getRememberMe().getKey())
             )
-            .exceptionHandling(exceptionHanding ->
-                exceptionHanding.defaultAuthenticationEntryPointFor(
+            .exceptionHandling(exceptionHandling ->
+                exceptionHandling.defaultAuthenticationEntryPointFor(
                     new HttpStatusEntryPoint(HttpStatus.UNAUTHORIZED),
-                    new OrRequestMatcher(antMatcher("/api/**"))
+                    request -> request.getRequestURI().startsWith("/api/")
                 )
             )
             .formLogin(formLogin ->
@@ -156,15 +123,14 @@ public class SecurityConfiguration {
                     .permitAll()
             )
             .logout(logout ->
-                logout.logoutUrl("/api/logout").logoutSuccessHandler(new HttpStatusReturningLogoutSuccessHandler()).permitAll()
+                logout
+                    .logoutUrl("/api/logout")
+                    .logoutSuccessHandler(new HttpStatusReturningLogoutSuccessHandler())
+                    .permitAll()
             );
         return http.build();
     }
 
-    @Bean
-    MvcRequestMatcher.Builder mvc(HandlerMappingIntrospector introspector) {
-        return new MvcRequestMatcher.Builder(introspector);
-    }
 
     @Bean
     @Order(1)

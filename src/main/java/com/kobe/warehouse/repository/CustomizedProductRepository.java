@@ -50,15 +50,6 @@ import jakarta.persistence.criteria.JoinType;
 import jakarta.persistence.criteria.Predicate;
 import jakarta.persistence.criteria.Root;
 import jakarta.persistence.criteria.SetJoin;
-import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Objects;
-import java.util.Optional;
-import java.util.Set;
 import org.apache.commons.lang3.ObjectUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -68,6 +59,16 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
+
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Objects;
+import java.util.Optional;
+import java.util.Set;
 
 @Service
 @Transactional
@@ -95,7 +96,8 @@ public class CustomizedProductRepository implements CustomizedProductService {
         StorageService storageService,
         EtatProduitService etatProduitService,
         StoreInventoryLineRepository storeInventoryLineRepository,
-        SalesLineRepository salesLineRepository, OrderLineRepository orderLineRepository
+        SalesLineRepository salesLineRepository,
+        OrderLineRepository orderLineRepository
     ) {
         this.stockProduitRepository = stockProduitRepository;
         this.logsService = logsService;
@@ -168,10 +170,7 @@ public class CustomizedProductRepository implements CustomizedProductService {
     @Transactional(readOnly = true)
     public LocalDateTime lastOrder(ProduitCriteria produitCriteria) {
         return fromLastDateProjection(
-            orderLineRepository .findLastUpdatedAtByFournisseurProduitProduitId(
-                produitCriteria.getId(),
-                OrderStatut.CLOSED.name()
-            )
+            orderLineRepository.findLastUpdatedAtByFournisseurProduitProduitId(produitCriteria.getId(), OrderStatut.CLOSED.name())
         );
     }
 
@@ -221,7 +220,7 @@ public class CustomizedProductRepository implements CustomizedProductService {
             .orElseThrow();
 
         stockProduit.setUpdatedAt(LocalDateTime.now());
-        stockProduit.setQtyStock(stockProduit.getQtyStock() + stockIn);
+        stockProduit.setQtyStock(stockProduit.getQtyStock() + (stockIn + stockUg));
         stockProduit.setQtyUG(stockProduit.getQtyUG() + stockUg);
         stockProduit.setQtyVirtual(stockProduit.getQtyStock());
         return stockProduitRepository.save(stockProduit);
@@ -233,6 +232,10 @@ public class CustomizedProductRepository implements CustomizedProductService {
         if (StringUtils.hasLength(dto.getExpirationDate())) {
             produit.setPerimeAt(LocalDate.parse(dto.getExpirationDate(), DateTimeFormatter.ofPattern("dd/MM/yyyy")));
         }
+        if(StringUtils.hasLength(dto.getCodeEan())){
+            produit.setCodeEan(dto.getCodeEan());
+        }
+
         produit.setUpdatedAt(LocalDateTime.now());
         Set<RayonProduit> rayonProduits = rayonProduitRepository.findAllByProduitId(produit.getId());
         buildRayonProduits(produit, dto, rayonProduits);

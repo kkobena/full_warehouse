@@ -1,6 +1,5 @@
 package com.kobe.warehouse.domain;
 
-
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
@@ -10,24 +9,28 @@ import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 import jakarta.persistence.UniqueConstraint;
 import jakarta.validation.constraints.NotNull;
-
 import java.io.Serial;
 
 @Entity
-@Table(name = "sales_line_price", uniqueConstraints = {@UniqueConstraint(columnNames = {"reference_id", "sale_line_id"})})
+@Table(name = "sales_line_price", uniqueConstraints = { @UniqueConstraint(columnNames = { "reference_id", "sale_line_id" }) })
 public class TiersPayantPrix implements java.io.Serializable {
+
     @Serial
     private static final long serialVersionUID = 1L;
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
+
     @ManyToOne(optional = false)
     private PrixReference reference;
+
     @Column(name = "prix", nullable = false)
     private int prix;
+
     @Column(name = "montant", nullable = false)
     private int montant;
+
     @NotNull
     @ManyToOne(optional = false)
     private SalesLine saleLine;
@@ -39,8 +42,6 @@ public class TiersPayantPrix implements java.io.Serializable {
     public void setId(Long id) {
         this.id = id;
     }
-
-
 
     public PrixReference getReference() {
         return reference;

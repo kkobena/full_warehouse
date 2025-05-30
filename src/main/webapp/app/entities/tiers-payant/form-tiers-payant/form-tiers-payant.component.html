@@ -2,28 +2,22 @@
 <form (ngSubmit)="save()" [formGroup]="editForm" name="editForm" novalidate role="form">
   <div class="modal-body">
     <div [hidden]="!editForm.get('id')!.value" class="form-group">
-      <input class="form-control" formControlName="id" id="id" name="id" pInputText readonly
-             type="hidden" />
+      <input class="form-control" formControlName="id" id="id" name="id" pInputText readonly type="hidden" />
     </div>
     <div class="form-row">
       <div class="form-group col-md-4">
-        <label class="form-control-label" for="field_libelle">Nom abrégé </label> <span
-        style="font-weight: 900; color: red">*</span>
-        <input #name autocomplete="off" class="form-control" formControlName="name"
-               id="field_libelle" name="name" pInputText type="text" />
-        @if (editForm.get('name')!.invalid && (editForm.get('name')!.dirty || editForm.get(
-          'name')!.touched)) {
+        <label class="form-control-label" for="field_libelle">Nom abrégé </label> <span style="font-weight: 900; color: red">*</span>
+        <input #name autocomplete="off" class="form-control" formControlName="name" id="field_libelle" name="name" pInputText type="text" />
+        @if (editForm.get('name')!.invalid && (editForm.get('name')!.dirty || editForm.get('name')!.touched)) {
           <div>
             @if (editForm.get('name')?.errors?.required) {
-              <small class="form-text text-danger" jhiTranslate="entity.validation.required"> This
-                field is required. </small>
+              <small class="form-text text-danger" jhiTranslate="entity.validation.required"> This field is required. </small>
             }
           </div>
         }
       </div>
       <div class="form-group col-md-5">
-        <label class="form-control-label" for="field_fullName">Nom long <span
-          style="font-weight: 900; color: red">*</span> </label>
+        <label class="form-control-label" for="field_fullName">Nom long <span style="font-weight: 900; color: red">*</span> </label>
         <input
           autocomplete="off"
           class="form-control"
@@ -33,12 +27,10 @@
           pInputText
           type="text"
         />
-        @if (editForm.get('fullName')!.invalid && (editForm.get('fullName')!.dirty || editForm.get(
-          'fullName')!.touched)) {
+        @if (editForm.get('fullName')!.invalid && (editForm.get('fullName')!.dirty || editForm.get('fullName')!.touched)) {
           <div>
             @if (editForm.get('fullName')?.errors?.required) {
-              <small class="form-text text-danger" jhiTranslate="entity.validation.required"> This
-                field is required. </small>
+              <small class="form-text text-danger" jhiTranslate="entity.validation.required"> This field is required. </small>
             }
           </div>
         }
@@ -76,54 +68,27 @@
       </div>
 
       <div class="form-group col-md-4">
-        <label class="form-control-label" for="nbreBordereaux">Nombre maxi de bordereau par
-          facture</label>
-        <p-input-number
-          autocomplete="off"
-          formControlName="nbreBordereaux"
-          id="nbreBordereaux"
-          name="nbreBordereaux"
-
-        />
+        <label class="form-control-label" for="nbreBordereaux">Nombre maxi de bordereau par facture</label>
+        <p-input-number autocomplete="off" formControlName="nbreBordereaux" id="nbreBordereaux" name="nbreBordereaux" />
       </div>
       <div class="form-group col-md-4">
         <label class="form-control-label" for="montantMaxParFcture">Montant maxi par facture</label>
-        <p-input-number
-          autocomplete="off"
-          formControlName="montantMaxParFcture"
-          id="montantMaxParFcture"
-          name="montantMaxParFcture"
-        />
+        <p-input-number autocomplete="off" formControlName="montantMaxParFcture" id="montantMaxParFcture" name="montantMaxParFcture" />
       </div>
     </div>
     <div class="form-row">
       <div class="form-group col-md-4">
         <label class="form-control-label" for="remiseForfaitaire">Remise forfaitaire </label>
-        <p-input-number
-          autocomplete="off"
-          formControlName="remiseForfaitaire"
-          id="remiseForfaitaire"
-          name="remiseForfaitaire"
-
-        />
+        <p-input-number autocomplete="off" formControlName="remiseForfaitaire" id="remiseForfaitaire" name="remiseForfaitaire" />
       </div>
       <div class="form-group col-md-4">
         <label class="form-control-label" for="plafondConso">Plafond consommation </label>
-        <p-input-number
-          autocomplete="off"
-          formControlName="plafondConso"
-          id="plafondConso"
-          name="plafondConso"
-
-        />
+        <p-input-number autocomplete="off" formControlName="plafondConso" id="plafondConso" name="plafondConso" />
       </div>
       <div class="form-group col-md-4">
         <label class="form-control-label">Le plafond est-il absolu ?</label>
-        <p-toggleswitch class="form-control" formControlName="plafondAbsolu"
-                        inputId="plafondAbsolu"></p-toggleswitch>
+        <p-toggleswitch class="form-control" formControlName="plafondAbsolu" inputId="plafondAbsolu"></p-toggleswitch>
       </div>
-
-
     </div>
     <div class="form-row">
       <div class="form-group col-md-4">
@@ -142,7 +107,6 @@
         >
         </p-select>
       </div>
-
 
       @if (categorie !== 'DEPOT') {
         <div class="form-group col-md-4">
@@ -174,8 +138,7 @@
     @if (categorie === 'ASSURANCE') {
       <div class="form-row">
         <div class="form-group col-md-4">
-          <label class="form-control-label" for="plafondJournalierClient">Plafond de vente des
-            clients</label>
+          <label class="form-control-label" for="plafondJournalierClient">Plafond de vente des clients</label>
           <p-input-number
             autocomplete="off"
             formControlName="plafondJournalierClient"
@@ -184,26 +147,17 @@
           />
         </div>
         <div class="form-group col-md-4">
-          <label class="form-control-label" for="plafondConsoClient">Plafond consommation des
-            clients</label>
-          <p-input-number
-            autocomplete="off"
-            formControlName="plafondConsoClient"
-            id="plafondConsoClient"
-            name="plafondConsoClient"
-
-          />
+          <label class="form-control-label" for="plafondConsoClient">Plafond consommation des clients</label>
+          <p-input-number autocomplete="off" formControlName="plafondConsoClient" id="plafondConsoClient" name="plafondConsoClient" />
         </div>
         <div class="form-group col-md-4">
           <label class="form-control-label">Le plafond des clients est-il absolu ?</label>
           <!--                <p-inputSwitch class="form-control" formControlName="plafondAbsoluClient"-->
           <!--                               ></p-inputSwitch>-->
-          <p-toggleswitch class="form-control"
-                          formControlName="plafondAbsoluClient"></p-toggleswitch>
+          <p-toggleswitch class="form-control" formControlName="plafondAbsoluClient"></p-toggleswitch>
         </div>
       </div>
     }
-
   </div>
 
   <div class="modal-footer">

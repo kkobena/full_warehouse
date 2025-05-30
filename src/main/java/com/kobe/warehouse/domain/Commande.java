@@ -17,14 +17,13 @@ import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 import jakarta.persistence.UniqueConstraint;
 import jakarta.validation.constraints.NotNull;
-import org.hibernate.annotations.Comment;
-
 import java.io.Serial;
 import java.io.Serializable;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import org.hibernate.annotations.Comment;
 
 /**
  * A Commande.
@@ -32,7 +31,7 @@ import java.util.List;
 @Entity
 @Table(
     name = "commande",
-    uniqueConstraints = {@UniqueConstraint(columnNames = {"receipt_reference", "fournisseur_id"})},
+    uniqueConstraints = { @UniqueConstraint(columnNames = { "receipt_reference", "fournisseur_id" }) },
     indexes = {
         @Index(columnList = "order_status", name = "order_status_index"),
         @Index(columnList = "paiment_status", name = "receipt_paiment_status_index"),
@@ -69,6 +68,7 @@ public class Commande implements Serializable, Cloneable {
     @Comment("montant vente de la commande finalisée")
     @Column(name = "final_amount")
     private Integer finalAmount;
+
     @Comment("montant achat de la commande")
     @NotNull
     @Column(name = "gross_amount", nullable = false)
@@ -93,7 +93,7 @@ public class Commande implements Serializable, Cloneable {
     @Column(name = "order_status", length = 10)
     private OrderStatut orderStatus = OrderStatut.REQUESTED;
 
-    @OneToMany(mappedBy = "commande", cascade = {CascadeType.PERSIST, CascadeType.REMOVE})
+    @OneToMany(mappedBy = "commande", cascade = { CascadeType.PERSIST, CascadeType.REMOVE })
     private List<OrderLine> orderLines = new ArrayList<>();
 
     @NotNull
@@ -208,7 +208,6 @@ public class Commande implements Serializable, Cloneable {
         this.taxAmount = taxAmount;
     }
 
-
     public @NotNull LocalDateTime getCreatedAt() {
         return createdAt;
     }
@@ -258,10 +257,7 @@ public class Commande implements Serializable, Cloneable {
         return this;
     }
 
-    public Commande orderRefernce(String orderRefernce) {
-        this.orderReference = orderRefernce;
-        return this;
-    }
+
 
     public Commande discountAmount(Integer discountAmount) {
         this.discountAmount = discountAmount;

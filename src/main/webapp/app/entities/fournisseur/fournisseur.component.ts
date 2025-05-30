@@ -27,7 +27,7 @@ import { TooltipModule } from 'primeng/tooltip';
 import { acceptButtonProps, rejectButtonProps } from '../../shared/util/modal-button-props';
 import { IconFieldModule } from 'primeng/iconfield';
 import { InputIconModule } from 'primeng/inputicon';
-import {Panel} from "primeng/panel";
+import { Panel } from 'primeng/panel';
 
 @Component({
   selector: 'jhi-fournisseur',

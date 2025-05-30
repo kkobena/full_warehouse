@@ -6,13 +6,12 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
 import jakarta.validation.constraints.NotNull;
-import org.hibernate.annotations.ColumnDefault;
-import org.hibernate.annotations.Comment;
-
 import java.io.Serial;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
+import org.hibernate.annotations.ColumnDefault;
+import org.hibernate.annotations.Comment;
 
 @Entity
 public class ThirdPartySales extends Sales implements Serializable {
@@ -34,7 +33,6 @@ public class ThirdPartySales extends Sales implements Serializable {
 
     @OneToMany(mappedBy = "sale", orphanRemoval = true, cascade = { CascadeType.REMOVE, CascadeType.PERSIST })
     private List<ThirdPartySaleLine> thirdPartySaleLines = new ArrayList<>();
-
 
     public String getNumBon() {
         return numBon;

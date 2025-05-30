@@ -5,18 +5,17 @@ import { OrderStatut } from 'app/shared/model/enumerations/order-statut.model';
 import { IMagasin } from 'app/shared/model/magasin.model';
 import { IUser } from 'app/core/user/user.model';
 import { IFournisseur } from 'app/shared/model/fournisseur.model';
-import {AbstractCommande} from "./abstract-commande.model";
-import {AbstractOrderItem} from "./abstract-order-item.model";
+import { AbstractCommande } from './abstract-commande.model';
+import { AbstractOrderItem } from './abstract-order-item.model';
 
-export interface ICommande extends  AbstractCommande{
-
+export interface ICommande extends AbstractCommande {
+  orderReference?: string;
 }
 
-export class Commande  implements ICommande {
+export class Commande implements ICommande {
   constructor(
     public id?: number,
     public fournisseurId?: number,
-    public orderRefernce?: string,
     public receiptDate?: string,
     public discountAmount?: number,
     public orderAmount?: number,
@@ -32,10 +31,7 @@ export class Commande  implements ICommande {
     public user?: IUser,
     public lastUserEdit?: IUser,
     public fournisseur?: IFournisseur,
-    public receiptRefernce?: string,
     public itemSize?: number,
     public receiptAmount?: number,
-  ) {
-
-  }
+  ) {}
 }

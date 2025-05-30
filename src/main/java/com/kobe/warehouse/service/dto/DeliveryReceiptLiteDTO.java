@@ -10,13 +10,16 @@ public class DeliveryReceiptLiteDTO {
 
     @NotNull
     private Integer receiptAmount;
-    private String receiptRefernce;
+
+    private String receiptReference;
     private Integer htAmount;
+
     @NotNull
     private Integer taxAmount;
+
     private LocalDate receiptDate;
     private String orderReference;
-    private Integer finalAmount;//montant vente
+    private Integer finalAmount; //montant vente
 
     public Long getId() {
         return id;
@@ -54,14 +57,12 @@ public class DeliveryReceiptLiteDTO {
         return this;
     }
 
-
-
-    public String getReceiptRefernce() {
-        return receiptRefernce;
+    public String getReceiptReference() {
+        return receiptReference;
     }
 
-    public DeliveryReceiptLiteDTO setReceiptRefernce(String receiptRefernce) {
-        this.receiptRefernce = receiptRefernce;
+    public DeliveryReceiptLiteDTO setReceiptReference(String receiptReference) {
+        this.receiptReference = receiptReference;
         return this;
     }
 
@@ -91,6 +92,4 @@ public class DeliveryReceiptLiteDTO {
         this.orderReference = orderReference;
         return this;
     }
-
-
 }

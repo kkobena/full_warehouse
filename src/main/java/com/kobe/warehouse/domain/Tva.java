@@ -32,8 +32,6 @@ public class Tva implements Serializable {
     @Column(name = "taux", nullable = false, unique = true)
     private Integer taux = 0;
 
-
-
     public Long getId() {
         return id;
     }
@@ -55,9 +53,6 @@ public class Tva implements Serializable {
         this.taux = taux;
         return this;
     }
-
-
-
 
     @Override
     public boolean equals(Object o) {

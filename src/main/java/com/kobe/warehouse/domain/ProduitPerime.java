@@ -57,8 +57,6 @@ public class ProduitPerime implements Serializable {
     @Column(name = "after_stock", nullable = false)
     private int afterStock;
 
-
-
     public Long getId() {
         return id;
     }
@@ -143,6 +141,4 @@ public class ProduitPerime implements Serializable {
         this.afterStock = afterStock;
         return this;
     }
-
-
 }

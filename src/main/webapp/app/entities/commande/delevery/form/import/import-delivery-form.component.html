@@ -98,18 +98,18 @@
               <input
                 autocomplete="off"
                 class="form-control"
-                formControlName="receiptRefernce"
-                name="receiptRefernce"
+                formControlName="receiptReference"
+                name="receiptReference"
                 pInputText
                 type="text"
               />
               @if (
-                editForm.get('deliveryReceipt').get('receiptRefernce')!.invalid &&
-                (editForm.get('deliveryReceipt').get('receiptRefernce')!.dirty ||
-                  editForm.get('deliveryReceipt').get('receiptRefernce')!.touched)
+                editForm.get('deliveryReceipt').get('receiptReference')!.invalid &&
+                (editForm.get('deliveryReceipt').get('receiptReference')!.dirty ||
+                  editForm.get('deliveryReceipt').get('receiptReference')!.touched)
               ) {
                 <div>
-                  @if (editForm.get('deliveryReceipt').get('receiptRefernce')?.errors?.required) {
+                  @if (editForm.get('deliveryReceipt').get('receiptReference')?.errors?.required) {
                     <small class="form-text text-danger" style="color: red"> Ce champ est obligatoire. </small>
                   }
                 </div>

@@ -1,20 +1,20 @@
 package com.kobe.warehouse.service.dto;
 
+import static java.util.Objects.nonNull;
+
 import com.kobe.warehouse.domain.FournisseurProduit;
 import com.kobe.warehouse.domain.OrderLine;
 import com.kobe.warehouse.domain.Produit;
 import com.kobe.warehouse.domain.Tableau;
 import com.kobe.warehouse.domain.Tva;
-import org.apache.commons.lang3.BooleanUtils;
-
 import java.time.LocalDateTime;
 import java.util.HashSet;
 import java.util.Optional;
 import java.util.Set;
-
-import static java.util.Objects.nonNull;
+import org.apache.commons.lang3.BooleanUtils;
 
 public class OrderLineDTO {
+
     private Long tvaId;
     private TvaDTO tva;
     private int totalQuantity;
@@ -51,8 +51,7 @@ public class OrderLineDTO {
     private Boolean updated;
     private Integer afterStock;
 
-    public OrderLineDTO() {
-    }
+    public OrderLineDTO() {}
 
     public OrderLineDTO(OrderLine orderLine) {
         initStock = orderLine.getInitStock();
@@ -95,7 +94,6 @@ public class OrderLineDTO {
         updated = orderLine.getUpdated();
         afterStock = orderLine.getFinalStock();
         quantityReceivedTmp = BooleanUtils.isFalse(updated) ? quantityRequested : quantityReceived;
-
     }
 
     public Long getTvaId() {
@@ -386,8 +384,6 @@ public class OrderLineDTO {
         return this;
     }
 
-
-
     public Integer getQuantityReceivedTmp() {
         return quantityReceivedTmp;
     }
@@ -396,8 +392,6 @@ public class OrderLineDTO {
         this.quantityReceivedTmp = quantityReceivedTmp;
         return this;
     }
-
-
 
     public TvaDTO getTva() {
         return tva;

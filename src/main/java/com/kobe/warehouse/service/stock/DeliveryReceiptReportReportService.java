@@ -70,7 +70,7 @@ public class DeliveryReceiptReportReportService extends CommonReportService {
     public String print(Commande deliveryReceipt) {
         this.deliveryReceipt = deliveryReceipt;
         Magasin magasin = storageService.getUser().getMagasin();
-        List<OrderLine> receiptItems =getItems();
+        List<OrderLine> receiptItems = getItems();
         int itemSize = receiptItems.size();
         receiptItems.sort(Comparator.comparing(el -> el.getFournisseurProduit().getCodeCip()));
         templateFile = Constant.DELIVERY_TEMPLATE_FILE;

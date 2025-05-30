@@ -56,7 +56,7 @@ export class EtiquetteComponent implements OnInit {
     this.entityService.printEtiquette(this.entity.id, { startAt: this.startAt }).subscribe({
       next: (blod: Blob) => {
         this.spinner.hide();
-        saveAs(blod, this.entity.receiptRefernce + '_' + DATE_FORMAT_DD_MM_YYYY_HH_MM_SS());
+        saveAs(blod, this.entity.receiptReference + '_' + DATE_FORMAT_DD_MM_YYYY_HH_MM_SS());
         this.cancel();
       },
       error: () => {

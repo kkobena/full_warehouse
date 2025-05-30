@@ -3,64 +3,63 @@
 >
 <div class="container-fluid">
   <h4>Liste des ajustements</h4>
-    <p-toolbar class="ajustement-toolbar">
-      <ng-template #start>
-        <p-inputgroup class="mr-1">
-          <p-inputgroup-addon>Du</p-inputgroup-addon>
-          <p-datePicker
-            [(ngModel)]="fromDate"
-            [maxDate]="toDate"
-            [selectOtherMonths]="true"
-            [showButtonBar]="true"
-            dateFormat="dd/mm/yy"
-            showIcon="true"
-          >
-          </p-datePicker>
-        </p-inputgroup>
+  <p-toolbar class="ajustement-toolbar">
+    <ng-template #start>
+      <p-inputgroup class="mr-1">
+        <p-inputgroup-addon>Du</p-inputgroup-addon>
+        <p-datePicker
+          [(ngModel)]="fromDate"
+          [maxDate]="toDate"
+          [selectOtherMonths]="true"
+          [showButtonBar]="true"
+          dateFormat="dd/mm/yy"
+          showIcon="true"
+        >
+        </p-datePicker>
+      </p-inputgroup>
 
-        <p-inputgroup class="mr-1">
-          <p-inputgroup-addon>AU</p-inputgroup-addon>
-          <p-datePicker
-            [(ngModel)]="toDate"
-            [minDate]="fromDate"
-            [selectOtherMonths]="true"
-            [showButtonBar]="true"
-            [showIcon]="true"
-            dateFormat="dd/mm/yy"
-          ></p-datePicker>
-        </p-inputgroup>
+      <p-inputgroup class="mr-1">
+        <p-inputgroup-addon>AU</p-inputgroup-addon>
+        <p-datePicker
+          [(ngModel)]="toDate"
+          [minDate]="fromDate"
+          [selectOtherMonths]="true"
+          [showButtonBar]="true"
+          [showIcon]="true"
+          dateFormat="dd/mm/yy"
+        ></p-datePicker>
+      </p-inputgroup>
 
-        <p-inputgroup class="mr-1 ml-1">
-          <p-inputgroup-addon>Opérateurs</p-inputgroup-addon>
-          <p-select
-            (onChange)="onSelectUser()"
-            [(ngModel)]="userId"
-            [appendTo]="appendTo"
-            [dataKey]="'id'"
-            [options]="users"
-            optionLabel="abbrName"
-            optionValue="id"
-          ></p-select>
-        </p-inputgroup>
+      <p-inputgroup class="mr-1 ml-1">
+        <p-inputgroup-addon>Opérateurs</p-inputgroup-addon>
+        <p-select
+          (onChange)="onSelectUser()"
+          [(ngModel)]="userId"
+          [appendTo]="appendTo"
+          [dataKey]="'id'"
+          [options]="users"
+          optionLabel="abbrName"
+          optionValue="id"
+        ></p-select>
+      </p-inputgroup>
 
-        <p-iconfield>
-          <p-inputicon styleClass="pi pi-search" />
-          <input
-            (keyup.enter)="onSearch()"
-            [(ngModel)]="search"
-            class="toobar-input-search"
-            pInputText
-            placeholder="Recherge globale"
-            type="text"
-          />
-        </p-iconfield>
+      <p-iconfield>
+        <p-inputicon styleClass="pi pi-search" />
+        <input
+          (keyup.enter)="onSearch()"
+          [(ngModel)]="search"
+          class="toobar-input-search"
+          pInputText
+          placeholder="Recherge globale"
+          type="text"
+        />
+      </p-iconfield>
 
-        <p-button (click)="onSearch()" class="ml-1 mr-1" icon="pi pi-search" label="Rechercher" raised="true" severity="info"></p-button>
+      <p-button (click)="onSearch()" class="ml-1 mr-1" icon="pi pi-search" label="Rechercher" raised="true" severity="info"></p-button>
 
-        <p-button [routerLink]="['/ajustement', 'new']" icon="pi pi-plus" label="Nouveau" raised="true" severity="success"> </p-button>
-      </ng-template>
-    </p-toolbar>
+      <p-button [routerLink]="['/ajustement', 'new']" icon="pi pi-plus" label="Nouveau" raised="true" severity="success"> </p-button>
+    </ng-template>
+  </p-toolbar>
 
-    <jhi-list-ajustement></jhi-list-ajustement>
-  </div>
-
+  <jhi-list-ajustement></jhi-list-ajustement>
+</div>

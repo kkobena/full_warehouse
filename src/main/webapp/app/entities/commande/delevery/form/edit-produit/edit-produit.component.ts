@@ -1,29 +1,29 @@
-import {Component, inject, OnInit} from '@angular/core';
-import {FormsModule, ReactiveFormsModule, UntypedFormBuilder, Validators} from '@angular/forms';
-import {DialogService, DynamicDialogConfig, DynamicDialogModule, DynamicDialogRef} from 'primeng/dynamicdialog';
-import {ConfirmationService, MessageService} from 'primeng/api';
-import {FournisseurProduit, IFournisseurProduit} from '../../../../../shared/model/fournisseur-produit.model';
-import {HttpResponse} from '@angular/common/http';
-import {Observable} from 'rxjs';
-import {ProduitService} from '../../../../produit/produit.service';
-import {ErrorService} from '../../../../../shared/error.service';
-import {ITva} from '../../../../../shared/model/tva.model';
-import {IRayon} from '../../../../../shared/model/rayon.model';
-import {RayonService} from '../../../../rayon/rayon.service';
-import {TvaService} from '../../../../tva/tva.service';
-import {IProduit} from '../../../../../shared/model/produit.model';
-import {WarehouseCommonModule} from '../../../../../shared/warehouse-common/warehouse-common.module';
-import {ButtonModule} from 'primeng/button';
-import {RouterModule} from '@angular/router';
-import {RippleModule} from 'primeng/ripple';
-import {InputTextModule} from 'primeng/inputtext';
-import {DropdownModule} from 'primeng/dropdown';
-import {InputMaskModule} from 'primeng/inputmask';
-import {ToastModule} from 'primeng/toast';
-import {KeyFilterModule} from 'primeng/keyfilter';
-import {Select} from 'primeng/select';
-import {IOrderLine} from "../../../../../shared/model/order-line.model";
-import {ICommande} from "../../../../../shared/model/commande.model";
+import { Component, inject, OnInit } from '@angular/core';
+import { FormsModule, ReactiveFormsModule, UntypedFormBuilder, Validators } from '@angular/forms';
+import { DialogService, DynamicDialogConfig, DynamicDialogModule, DynamicDialogRef } from 'primeng/dynamicdialog';
+import { ConfirmationService, MessageService } from 'primeng/api';
+import { FournisseurProduit, IFournisseurProduit } from '../../../../../shared/model/fournisseur-produit.model';
+import { HttpResponse } from '@angular/common/http';
+import { Observable } from 'rxjs';
+import { ProduitService } from '../../../../produit/produit.service';
+import { ErrorService } from '../../../../../shared/error.service';
+import { ITva } from '../../../../../shared/model/tva.model';
+import { IRayon } from '../../../../../shared/model/rayon.model';
+import { RayonService } from '../../../../rayon/rayon.service';
+import { TvaService } from '../../../../tva/tva.service';
+import { IProduit } from '../../../../../shared/model/produit.model';
+import { WarehouseCommonModule } from '../../../../../shared/warehouse-common/warehouse-common.module';
+import { ButtonModule } from 'primeng/button';
+import { RouterModule } from '@angular/router';
+import { RippleModule } from 'primeng/ripple';
+import { InputTextModule } from 'primeng/inputtext';
+import { DropdownModule } from 'primeng/dropdown';
+import { InputMaskModule } from 'primeng/inputmask';
+import { ToastModule } from 'primeng/toast';
+import { KeyFilterModule } from 'primeng/keyfilter';
+import { Select } from 'primeng/select';
+import { IOrderLine } from '../../../../../shared/model/order-line.model';
+import { ICommande } from '../../../../../shared/model/commande.model';
 
 @Component({
   selector: 'jhi-edit-produit',
@@ -148,7 +148,7 @@ export class EditProduitComponent implements OnInit {
 
   protected onSaveSuccess(): void {
     this.isSaving = false;
-    this.ref.close({success: true});
+    this.ref.close({ success: true });
   }
 
   protected onSaveError(error: any): void {

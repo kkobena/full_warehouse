@@ -5,7 +5,6 @@
       <input class="form-control" formControlName="id" id="id" name="id" readonly type="hidden" />
     </div>
     <div class="form-row">
-    
       <div class="form-group col-md-6">
         <label class="form-control-label" for="field_codeCip">Code cip</label>
         <input
@@ -22,8 +21,7 @@
         @if (codeCip!.invalid && (codeCip!.dirty || codeCip!.touched)) {
           <div>
             @if (codeCip?.errors?.required) {
-              <small class="form-text text-danger" jhiTranslate="entity.validation.required"> This
-                field is required. </small>
+              <small class="form-text text-danger" jhiTranslate="entity.validation.required"> This field is required. </small>
             }
           </div>
         }
@@ -41,7 +39,6 @@
           pKeyFilter="int"
           type="text"
         />
-
       </div>
     </div>
     <div class="form-row">
@@ -61,8 +58,7 @@
         @if (prixAchat!.invalid && (prixAchat!.dirty || prixAchat!.touched)) {
           <div>
             @if (prixAchat?.errors?.required) {
-              <small class="form-text text-danger" jhiTranslate="entity.validation.required"> This
-                field is required. </small>
+              <small class="form-text text-danger" jhiTranslate="entity.validation.required"> This field is required. </small>
             }
           </div>
         }
@@ -83,8 +79,7 @@
         @if (prixUni!.invalid && (prixUni!.dirty || prixUni!.touched)) {
           <div>
             @if (prixUni?.errors?.required) {
-              <small class="form-text text-danger" jhiTranslate="entity.validation.required"> This
-                field is required. </small>
+              <small class="form-text text-danger" jhiTranslate="entity.validation.required"> This field is required. </small>
             }
           </div>
         }
@@ -134,19 +129,16 @@
           id="field_perimeAt"
           mask="99/99/9999"
           name="expirationDate"
-          placeholder="01/11/2020"
-          slotChar="dd/mm/yyyy"
+          slotChar="jj/mm/aaaa"
           styleClass="form-control"
         >
         </p-inputmask>
       </div>
     </div>
-
   </div>
 
   <div class="modal-footer">
-    <p-button (click)="cancel()" [raised]="true" class="p-mr-2" icon="pi pi-times" label="Annuler"
-              severity="danger" type="button">
+    <p-button (click)="cancel()" [raised]="true" class="p-mr-2" icon="pi pi-times" label="Annuler" severity="danger" type="button">
     </p-button>
 
     <p-button

@@ -15,15 +15,28 @@ import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @Transactional
-public class AssuranceSaleLineServiceImpl  extends SalesLineServiceImpl {
+public class AssuranceSaleLineServiceImpl extends SalesLineServiceImpl {
 
-    public AssuranceSaleLineServiceImpl(ProduitRepository produitRepository, SalesLineRepository salesLineRepository, StockProduitRepository stockProduitRepository, InventoryTransactionRepository inventoryTransactionRepository, LogsService logsService, SuggestionProduitService suggestionProduitService) {
-        super(produitRepository, salesLineRepository, stockProduitRepository, inventoryTransactionRepository, logsService, suggestionProduitService);
+    public AssuranceSaleLineServiceImpl(
+        ProduitRepository produitRepository,
+        SalesLineRepository salesLineRepository,
+        StockProduitRepository stockProduitRepository,
+        InventoryTransactionRepository inventoryTransactionRepository,
+        LogsService logsService,
+        SuggestionProduitService suggestionProduitService
+    ) {
+        super(
+            produitRepository,
+            salesLineRepository,
+            stockProduitRepository,
+            inventoryTransactionRepository,
+            logsService,
+            suggestionProduitService
+        );
     }
 
     @Override
     public SalesLine createSaleLineFromDTO(SaleLineDTO dto, Long stockageId) {
         return super.setCommonSaleLine(dto, stockageId);
-
     }
 }

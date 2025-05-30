@@ -1,13 +1,6 @@
-
 <div class="row reglement-dossier">
   <div class="reglement-dossier-table col-xl-8 col-sm-12 col-lg-9 col-md-9">
-    <p-table
-      [showGridlines]="true"
-      #differeTable
-      [globalFilterFields]="[ 'reference']"
-      [value]="differe.differeItems"
-      dataKey="saleId"
-    >
+    <p-table [showGridlines]="true" #differeTable [globalFilterFields]="['reference']" [value]="differe.differeItems" dataKey="saleId">
       <ng-template #caption>
         <div class="d-flex justify-content-between">
           <div class="p-2"><span class="text-xl font-bold">Dossiers</span></div>
@@ -49,16 +42,14 @@
           <td class="amount-column">
             {{ item.restAmount | number }}
           </td>
-
         </tr>
       </ng-template>
-      <ng-template  #footer>
+      <ng-template #footer>
         <tr>
-          <td class="p-text-left" colspan="3" style="font-weight: 700">TOTAL </td>
+          <td class="p-text-left" colspan="3" style="font-weight: 700">TOTAL</td>
           <td class="amount-column text-right">{{ differe?.saleAmount | number }}</td>
-          <td class="amount-column text-right" >{{ differe?.paidAmount | number }}</td>
-          <td class="amount-column text-right red-400" >{{ differe?.rest | number }}</td>
-
+          <td class="amount-column text-right">{{ differe?.paidAmount | number }}</td>
+          <td class="amount-column text-right red-400">{{ differe?.rest | number }}</td>
         </tr>
       </ng-template>
     </p-table>
@@ -68,7 +59,6 @@
       <ng-template #header>
         <div class="d-flex d-flex justify-content-between form-reglement-toolbar">
           <span>Formulaire réglement</span>
-
         </div>
       </ng-template>
 
@@ -82,11 +72,10 @@
     </p-fieldset>
     <p-fieldset [toggleable]="true" legend="Infos client">
       <ul class="list-group">
-
-          <li class="list-group-item d-flex justify-content-between align-items-center">
-            Client
-            <span>{{ differe.firstName +' '+differe.lastName }}</span>
-          </li>
+        <li class="list-group-item d-flex justify-content-between align-items-center">
+          Client
+          <span>{{ differe.firstName + ' ' + differe.lastName }}</span>
+        </li>
 
         <li class="list-group-item d-flex justify-content-between align-items-center">
           Total achat
@@ -101,7 +90,7 @@
           <span class="montant-payer montant red-400 font-bold">{{ differe.rest | number }}</span>
         </li>
         <li class="list-group-item d-flex justify-content-between align-items-center">
-         Nombre de dossiers
+          Nombre de dossiers
           <span class="montant-total montant text-primary">{{ differe.differeItems.length | number }}</span>
         </li>
 
@@ -113,9 +102,7 @@
         }
       </ul>
     </p-fieldset>
-
   </div>
 </div>
 
 <p-confirmDialog [baseZIndex]="10000" [style]="{ width: '40vw' }" key="printReceipt"> </p-confirmDialog>
-

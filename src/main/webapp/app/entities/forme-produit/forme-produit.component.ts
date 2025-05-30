@@ -18,7 +18,7 @@ import { ToolbarModule } from 'primeng/toolbar';
 import { TableModule } from 'primeng/table';
 import { TextareaModule } from 'primeng/textarea';
 import { acceptButtonProps, rejectButtonProps } from '../../shared/util/modal-button-props';
-import {Tooltip} from "primeng/tooltip";
+import { Tooltip } from 'primeng/tooltip';
 
 @Component({
   selector: 'jhi-forme-produit',

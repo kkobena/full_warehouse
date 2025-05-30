@@ -16,9 +16,9 @@ public class SaleLineServiceFactory {
     }
 
     public SalesLineService getService(TypeVente type) {
-        if (type== TypeVente.CashSale) {
+        if (type == TypeVente.CashSale) {
             return cashSaleLineService;
-        } else if (type== TypeVente.ThirdPartySales) {
+        } else if (type == TypeVente.ThirdPartySales) {
             return assuranceSaleLineService;
         }
         throw new IllegalArgumentException("Unknown service type: " + type);

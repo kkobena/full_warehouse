@@ -66,6 +66,7 @@ public abstract class SalesLineServiceImpl implements SalesLineService {
         this.logsService = logsService;
         this.suggestionProduitService = suggestionProduitService;
     }
+
     protected SalesLine setCommonSaleLine(SaleLineDTO dto, Long stockageId) {
         Produit produit = produitRepository.getReferenceById(dto.getProduitId());
         Tva tva = produit.getTva();
@@ -87,6 +88,7 @@ public abstract class SalesLineServiceImpl implements SalesLineService {
         processUg(salesLine, dto, stockageId);
         return salesLine;
     }
+
     @Override
     public Sales createSaleLine(SaleLineDTO saleLine, Sales sale, Long stockageId) throws StockException {
         SalesLine salesLine;
@@ -223,9 +225,6 @@ public abstract class SalesLineServiceImpl implements SalesLineService {
         salesLine.setSales(sales);
         return salesLineRepository.save(salesLine);
     }
-
-
-
 
     private void updateSalesLine(SalesLine salesLine, SaleLineDTO dto, Long stockageId) {
         salesLine.setUpdatedAt(LocalDateTime.now());

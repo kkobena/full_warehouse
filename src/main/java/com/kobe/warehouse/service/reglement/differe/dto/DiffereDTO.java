@@ -1,7 +1,6 @@
 package com.kobe.warehouse.service.reglement.differe.dto;
 
 import com.kobe.warehouse.service.utils.NumberUtil;
-
 import java.util.List;
 
 public record DiffereDTO(

@@ -2,15 +2,14 @@ package com.kobe.warehouse.service.dto;
 
 import com.kobe.warehouse.domain.Commande;
 import com.kobe.warehouse.domain.enumeration.OrderStatut;
-
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 
 public abstract class CommandeWrapperDTO {
 
     private Long id;
-    private String orderRefernce;
-    private String receiptRefernce;
+    private String orderreference;
+    private String receiptReference;
     private LocalDate receiptDate;
     private Integer discountAmount;
     private Integer orderAmount;
@@ -26,10 +25,13 @@ public abstract class CommandeWrapperDTO {
     private String sequenceBon;
     private FournisseurDTO fournisseur;
 
-    public CommandeWrapperDTO(Commande commande) {
+    protected CommandeWrapperDTO() {
+    }
+
+    protected CommandeWrapperDTO(Commande commande) {
         id = commande.getId();
-        orderRefernce = commande.getOrderReference();
-        receiptRefernce = commande.getReceiptReference();
+        orderreference = commande.getOrderReference();
+        receiptReference = commande.getReceiptReference();
         receiptDate = commande.getReceiptDate();
         discountAmount = commande.getDiscountAmount();
         orderAmount = commande.getOrderAmount();
@@ -40,11 +42,8 @@ public abstract class CommandeWrapperDTO {
         updatedAt = commande.getUpdatedAt();
         orderStatus = commande.getOrderStatus();
         receiptAmount = commande.getFinalAmount();
-
     }
 
-    public CommandeWrapperDTO() {
-    }
 
     public Long getId() {
         return id;
@@ -55,21 +54,21 @@ public abstract class CommandeWrapperDTO {
         return this;
     }
 
-    public String getOrderRefernce() {
-        return orderRefernce;
+    public String getOrderreference() {
+        return orderreference;
     }
 
-    public CommandeWrapperDTO setOrderRefernce(String orderRefernce) {
-        this.orderRefernce = orderRefernce;
+    public CommandeWrapperDTO setOrderreference(String orderreference) {
+        this.orderreference = orderreference;
         return this;
     }
 
-    public String getReceiptRefernce() {
-        return receiptRefernce;
+    public String getReceiptReference() {
+        return receiptReference;
     }
 
-    public CommandeWrapperDTO setReceiptRefernce(String receiptRefernce) {
-        this.receiptRefernce = receiptRefernce;
+    public CommandeWrapperDTO setReceiptReference(String receiptReference) {
+        this.receiptReference = receiptReference;
         return this;
     }
 

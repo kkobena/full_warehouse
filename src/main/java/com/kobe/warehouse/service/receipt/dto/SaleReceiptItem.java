@@ -1,6 +1,7 @@
 package com.kobe.warehouse.service.receipt.dto;
 
 public abstract class SaleReceiptItem extends AbstractItem {
+
     protected String produitName;
     protected String quantity;
     protected String unitPrice;

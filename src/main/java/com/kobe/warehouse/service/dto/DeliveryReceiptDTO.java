@@ -3,7 +3,6 @@ package com.kobe.warehouse.service.dto;
 import com.kobe.warehouse.domain.Commande;
 import com.kobe.warehouse.domain.Fournisseur;
 import com.kobe.warehouse.domain.User;
-
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.Comparator;
@@ -13,11 +12,11 @@ public class DeliveryReceiptDTO {
 
     private final Long id;
 
-    private final String receiptRefernce;
+    private final String receiptReference;
 
     private final LocalDate receiptDate;
 
-    private final int discountAmount ;
+    private final int discountAmount;
 
     private final Integer receiptAmount;
 
@@ -35,11 +34,10 @@ public class DeliveryReceiptDTO {
     private final List<DeliveryReceiptItemDTO> receiptItems;
     private final int itemSize;
 
-
     public DeliveryReceiptDTO(Commande commande) {
         id = commande.getId();
-        discountAmount= commande.getDiscountAmount();
-        receiptRefernce = commande.getReceiptReference();
+        discountAmount = commande.getDiscountAmount();
+        receiptReference = commande.getReceiptReference();
         receiptDate = commande.getReceiptDate();
         receiptAmount = commande.getGrossAmount();
         createdDate = commande.getCreatedAt();
@@ -60,16 +58,14 @@ public class DeliveryReceiptDTO {
             .sorted(Comparator.comparing(DeliveryReceiptItemDTO::getFournisseurProduitLibelle))
             .toList();
         itemSize = receiptItems.size();
-
     }
 
     public Long getId() {
         return id;
     }
 
-
-    public String getReceiptRefernce() {
-        return receiptRefernce;
+    public String getReceiptReference() {
+        return receiptReference;
     }
 
     public LocalDate getReceiptDate() {
@@ -96,8 +92,6 @@ public class DeliveryReceiptDTO {
         return createdUser;
     }
 
-
-
     public Long getFournisseurId() {
         return fournisseurId;
     }
@@ -121,6 +115,4 @@ public class DeliveryReceiptDTO {
     public int getItemSize() {
         return itemSize;
     }
-
-
 }

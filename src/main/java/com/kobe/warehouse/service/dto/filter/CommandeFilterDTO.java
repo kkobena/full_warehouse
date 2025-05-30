@@ -3,7 +3,6 @@ package com.kobe.warehouse.service.dto.filter;
 import com.kobe.warehouse.domain.enumeration.OrderStatut;
 import com.kobe.warehouse.service.dto.FilterCommaneEnCours;
 import com.kobe.warehouse.service.dto.Sort;
-
 import java.util.Set;
 
 public class CommandeFilterDTO {

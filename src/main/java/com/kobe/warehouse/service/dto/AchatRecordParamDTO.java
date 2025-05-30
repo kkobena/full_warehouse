@@ -1,7 +1,6 @@
 package com.kobe.warehouse.service.dto;
 
 import com.kobe.warehouse.domain.enumeration.OrderStatut;
-
 import java.util.Set;
 
 public class AchatRecordParamDTO extends VenteRecordParamDTO {

@@ -37,7 +37,16 @@
 
       <div class="form-group col-md-6">
         <label class="form-control-label" for="field_num">Numéro<span style="font-weight: 900; color: red">*</span> </label>
-        <input autocomplete="off" class="form-control" formControlName="num" id="field_num" name="num" pInputText type="text" pKeyFilter="alphanum" />
+        <input
+          autocomplete="off"
+          class="form-control"
+          formControlName="num"
+          id="field_num"
+          name="num"
+          pInputText
+          type="text"
+          pKeyFilter="alphanum"
+        />
         @if (editForm.get('num')!.invalid && (editForm.get('num')!.dirty || editForm.get('num')!.touched)) {
           <div>
             @if (editForm.get('num')?.errors?.required) {

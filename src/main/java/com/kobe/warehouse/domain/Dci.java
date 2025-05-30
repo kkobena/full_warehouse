@@ -15,7 +15,7 @@ import java.io.Serializable;
 @Entity
 @Table(
     name = "dci",
-    uniqueConstraints = { @UniqueConstraint(columnNames = { "code" }),@UniqueConstraint(columnNames = { "libelle" })  },
+    uniqueConstraints = { @UniqueConstraint(columnNames = { "code" }), @UniqueConstraint(columnNames = { "libelle" }) },
     indexes = { @Index(columnList = "libelle", name = "dci_libelle_index") }
 )
 public class Dci implements Serializable {

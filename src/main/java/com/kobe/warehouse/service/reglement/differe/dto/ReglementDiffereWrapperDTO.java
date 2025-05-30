@@ -1,13 +1,16 @@
 package com.kobe.warehouse.service.reglement.differe.dto;
 
-
 import com.kobe.warehouse.service.utils.NumberUtil;
-
 import java.util.List;
 
-public record ReglementDiffereWrapperDTO(Long id, String firstName, String lastName, long paidAmount, Long solde,
-                                         List<ReglementDiffereDTO> items) {
-
+public record ReglementDiffereWrapperDTO(
+    Long id,
+    String firstName,
+    String lastName,
+    long paidAmount,
+    Long solde,
+    List<ReglementDiffereDTO> items
+) {
     public String customerfullName() {
         return String.format("%s %s", firstName, lastName);
     }
@@ -22,5 +25,4 @@ public record ReglementDiffereWrapperDTO(Long id, String firstName, String lastN
         }
         return NumberUtil.formatToString(solde);
     }
-
 }

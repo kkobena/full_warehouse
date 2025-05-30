@@ -40,6 +40,7 @@ public class CustomerAccount implements Serializable {
     @NotNull
     @ManyToOne(optional = false, fetch = FetchType.LAZY)
     private UninsuredCustomer customer;
+
     @NotNull
     @Enumerated(EnumType.STRING)
     @Column(name = "account_type", nullable = false)

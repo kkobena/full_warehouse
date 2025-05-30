@@ -1,54 +1,47 @@
 <table class="main-table">
   <thead>
-
-  <tr>
-    <th style="width: 15%;">Date</th>
-    <th style="width: 15%;">Référence</th>
-    <th style="width: 25%;">Opérateur</th>
-    <th class="text-right" style="width: 15%;">Montant vente</th>
-    <th class="text-right" style="width: 15%;">Montant payé</th>
-    <th class="text-right" style="width: 15%;">Reste à payer</th>
-  </tr>
+    <tr>
+      <th style="width: 15%">Date</th>
+      <th style="width: 15%">Référence</th>
+      <th style="width: 25%">Opérateur</th>
+      <th class="text-right" style="width: 15%">Montant vente</th>
+      <th class="text-right" style="width: 15%">Montant payé</th>
+      <th class="text-right" style="width: 15%">Reste à payer</th>
+    </tr>
   </thead>
   <tbody>
-  <tr th:each="item : ${items}">
-    <td colspan="6" class="dt-table">
-      <table>
-
-        <tbody>
-        <tr th:each="it : ${item.differeItems}">
-          <td style="width: 15%;" th:text="${it.saleDate}"></td>
-          <td style="width: 15%;" th:text="${it.reference}"></td>
-          <td style="width: 25%;" th:text="${it.user}"></td>
-          <td style="width: 15%;" class="unit" th:text="${it.formattedSaleAmount}"></td>
-          <td style="width: 15%;" class="unit" th:text="${it.formattedPaidAmount}"></td>
-          <td style="width: 15%;" class="unit" th:text="${it.montantDiffere}"></td>
-
-        </tr>
-        </tbody>
-        <tfoot class="datatable-footer">
-        <tr class="tr-footer">
-          <td class="datatable-footer-total-label" colspan="3" th:text="${'TOTAL DE: '+item.customerfullName }"></td>
-          <td class="unit" th:text="${item.sale}"></td>
-          <td class="unit" th:text="${item.formattedPaidAmount}"></td>
-          <td class="unit" th:text="${item.formattedSolde}"></td>
-        </tr>
-        </tfoot>
-      </table>
-    </td>
-  </tr>
+    <tr th:each="item : ${items}">
+      <td colspan="6" class="dt-table">
+        <table>
+          <tbody>
+            <tr th:each="it : ${item.differeItems}">
+              <td style="width: 15%" th:text="${it.saleDate}"></td>
+              <td style="width: 15%" th:text="${it.reference}"></td>
+              <td style="width: 25%" th:text="${it.user}"></td>
+              <td style="width: 15%" class="unit" th:text="${it.formattedSaleAmount}"></td>
+              <td style="width: 15%" class="unit" th:text="${it.formattedPaidAmount}"></td>
+              <td style="width: 15%" class="unit" th:text="${it.montantDiffere}"></td>
+            </tr>
+          </tbody>
+          <tfoot class="datatable-footer">
+            <tr class="tr-footer">
+              <td class="datatable-footer-total-label" colspan="3" th:text="${'TOTAL DE: '+item.customerfullName }"></td>
+              <td class="unit" th:text="${item.sale}"></td>
+              <td class="unit" th:text="${item.formattedPaidAmount}"></td>
+              <td class="unit" th:text="${item.formattedSolde}"></td>
+            </tr>
+          </tfoot>
+        </table>
+      </td>
+    </tr>
   </tbody>
   <tfoot class="datatable-footer">
-  <tr class="tr-footer">
-    <td class="datatable-footer-total-label" colspan="3">TOTAL GENERAL</td>
-    <td class="unit" th:text="${reportSummary.saleAmoutToString}"></td>
-    <td class="unit" th:text="${reportSummary.paidAmountToString}"></td>
-    <td class="unit" th:text="${reportSummary.restToString}"></td>
-    <td></td>
-  </tr>
+    <tr class="tr-footer">
+      <td class="datatable-footer-total-label" colspan="3">TOTAL GENERAL</td>
+      <td class="unit" th:text="${reportSummary.saleAmoutToString}"></td>
+      <td class="unit" th:text="${reportSummary.paidAmountToString}"></td>
+      <td class="unit" th:text="${reportSummary.restToString}"></td>
+      <td></td>
+    </tr>
   </tfoot>
 </table>
-
-
-
-

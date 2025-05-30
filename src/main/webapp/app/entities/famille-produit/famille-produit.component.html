@@ -70,8 +70,10 @@
             <td>{{ elRow.libelle }}</td>
             <td>{{ elRow.categorieLibelle }}</td>
             <td style="text-align: right">
-              <p-button (click)="onEdit(elRow)" [rounded]="true" severity="success" pTooltip="Modifier" [text]="true" icon="pi pi-pencil"> </p-button>
-              <p-button (click)="delete(elRow)" [rounded]="true" severity="danger" icon="pi pi-trash" [text]="true" pTooltip="Supprimer"> </p-button>
+              <p-button (click)="onEdit(elRow)" [rounded]="true" severity="success" pTooltip="Modifier" [text]="true" icon="pi pi-pencil">
+              </p-button>
+              <p-button (click)="delete(elRow)" [rounded]="true" severity="danger" icon="pi pi-trash" [text]="true" pTooltip="Supprimer">
+              </p-button>
             </td>
           </tr>
         </ng-template>

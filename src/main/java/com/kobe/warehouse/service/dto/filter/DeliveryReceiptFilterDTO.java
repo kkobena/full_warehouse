@@ -1,7 +1,6 @@
 package com.kobe.warehouse.service.dto.filter;
 
 import com.kobe.warehouse.domain.enumeration.OrderStatut;
-
 import java.time.LocalDate;
 
 public class DeliveryReceiptFilterDTO {
@@ -16,7 +15,7 @@ public class DeliveryReceiptFilterDTO {
     private Long fournisseurId;
     private Long userId;
     private boolean all;
-    private OrderStatut statut ;
+    private OrderStatut statut;
 
     public LocalDate getFromDate() {
         return fromDate;

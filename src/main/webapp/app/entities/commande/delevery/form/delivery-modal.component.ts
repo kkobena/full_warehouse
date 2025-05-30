@@ -1,28 +1,28 @@
-import {HttpResponse} from '@angular/common/http';
-import {Component, inject, OnInit} from '@angular/core';
-import {FormBuilder, FormControl, FormsModule, ReactiveFormsModule, Validators} from '@angular/forms';
-import {MessageService} from 'primeng/api';
-import {DynamicDialogConfig, DynamicDialogModule, DynamicDialogRef} from 'primeng/dynamicdialog';
-import {Observable} from 'rxjs';
-import {Delivery, IDelivery} from '../../../../shared/model/delevery.model';
-import {ICommande} from '../../../../shared/model/commande.model';
-import {DeliveryService} from '../delivery.service';
-import moment, {Moment} from 'moment';
-import {DATE_FORMAT} from '../../../../shared/constants/input.constants';
-import {NgxSpinnerModule, NgxSpinnerService} from 'ngx-spinner';
-import {WarehouseCommonModule} from '../../../../shared/warehouse-common/warehouse-common.module';
-import {ButtonModule} from 'primeng/button';
-import {RouterModule} from '@angular/router';
-import {RippleModule} from 'primeng/ripple';
-import {TableModule} from 'primeng/table';
-import {TooltipModule} from 'primeng/tooltip';
-import {CardModule} from 'primeng/card';
-import {ToastModule} from 'primeng/toast';
-import {KeyFilterModule} from 'primeng/keyfilter';
-import {InputTextModule} from 'primeng/inputtext';
-import {TranslateService} from '@ngx-translate/core';
-import {PrimeNG} from 'primeng/config';
-import {DatePicker} from 'primeng/datepicker';
+import { HttpResponse } from '@angular/common/http';
+import { Component, inject, OnInit } from '@angular/core';
+import { FormBuilder, FormControl, FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
+import { MessageService } from 'primeng/api';
+import { DynamicDialogConfig, DynamicDialogModule, DynamicDialogRef } from 'primeng/dynamicdialog';
+import { Observable } from 'rxjs';
+import { Delivery, IDelivery } from '../../../../shared/model/delevery.model';
+import { ICommande } from '../../../../shared/model/commande.model';
+import { DeliveryService } from '../delivery.service';
+import moment, { Moment } from 'moment';
+import { DATE_FORMAT } from '../../../../shared/constants/input.constants';
+import { NgxSpinnerModule, NgxSpinnerService } from 'ngx-spinner';
+import { WarehouseCommonModule } from '../../../../shared/warehouse-common/warehouse-common.module';
+import { ButtonModule } from 'primeng/button';
+import { RouterModule } from '@angular/router';
+import { RippleModule } from 'primeng/ripple';
+import { TableModule } from 'primeng/table';
+import { TooltipModule } from 'primeng/tooltip';
+import { CardModule } from 'primeng/card';
+import { ToastModule } from 'primeng/toast';
+import { KeyFilterModule } from 'primeng/keyfilter';
+import { InputTextModule } from 'primeng/inputtext';
+import { TranslateService } from '@ngx-translate/core';
+import { PrimeNG } from 'primeng/config';
+import { DatePicker } from 'primeng/datepicker';
 
 @Component({
   selector: 'jhi-form-delivery',
@@ -55,7 +55,7 @@ export class DeliveryModalComponent implements OnInit {
   protected minDate = new Date();
   protected editForm = this.fb.group({
     id: new FormControl<number | null>(null, {}),
-    receiptRefernce: new FormControl<string | null>(null, {
+    receiptReference: new FormControl<string | null>(null, {
       validators: [Validators.required],
       nonNullable: true,
     }),
@@ -78,7 +78,6 @@ export class DeliveryModalComponent implements OnInit {
   private readonly spinner = inject(NgxSpinnerService);
   private readonly primeNGConfig = inject(PrimeNG);
   private readonly translate = inject(TranslateService);
-
 
   constructor() {
     this.translate.use('fr');
@@ -103,7 +102,7 @@ export class DeliveryModalComponent implements OnInit {
   updateForm(entity: ICommande): void {
     this.editForm.patchValue({
       id: entity.id,
-      receiptRefernce: entity.receiptRefernce,
+      receiptReference: entity.receiptReference,
       receiptAmount: entity.grossAmount,
       taxAmount: entity.taxAmount,
       receiptDate: entity.receiptDate ? new Date(moment(entity.receiptDate).format(DATE_FORMAT)) : null,
@@ -119,7 +118,6 @@ export class DeliveryModalComponent implements OnInit {
     } else {
       this.subscribeToSaveResponse(this.entityService.create(entity));
     }
-
   }
 
   cancel(): void {
@@ -153,11 +151,11 @@ export class DeliveryModalComponent implements OnInit {
     return {
       ...new Delivery(),
       id: this.commande.id,
-      receiptRefernce: this.editForm.get(['receiptRefernce']).value,
+      receiptReference: this.editForm.get(['receiptReference']).value,
       receiptDate: receiptDate ? moment(receiptDate).format(DATE_FORMAT) : null,
       receiptAmount: this.editForm.get(['receiptAmount']).value,
       taxAmount: this.editForm.get(['taxAmount']).value,
-      orderReference: this.commande.orderRefernce,
+      orderReference: this.commande.orderReference,
     };
   }
 

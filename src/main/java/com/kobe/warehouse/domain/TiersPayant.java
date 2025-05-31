@@ -24,6 +24,7 @@ import java.util.HashSet;
 import java.util.Objects;
 import java.util.Set;
 import org.hibernate.annotations.ColumnDefault;
+import org.hibernate.annotations.Comment;
 import org.hibernate.annotations.JdbcTypeCode;
 import org.hibernate.type.SqlTypes;
 
@@ -77,7 +78,7 @@ public class TiersPayant implements Serializable {
     @Column(name = "telephone_fixe", length = 15)
     private String telephoneFixe;
 
-    @Column(name = "email", length = 50)
+    @Column(name = "email", length = 100)
     private String email;
 
     @ColumnDefault("false")
@@ -133,6 +134,11 @@ public class TiersPayant implements Serializable {
     @ColumnDefault("false")
     @Column(name = "plafond_absolu_client")
     private boolean plafondAbsoluClient;
+
+    @Comment("Identifiant contribuable")
+    @Pattern(regexp = "^[a-zA-Z0-9]*$")
+    @Column(name = "ncc", length = 100)
+    private String ncc;
 
     @Transient
     private String modelFilePath;
@@ -385,6 +391,15 @@ public class TiersPayant implements Serializable {
     @Override
     public String toString() {
         return "TiersPayant{" + "fullName='" + fullName + '\'' + ", id=" + id + ", name='" + name + '\'' + '}';
+    }
+
+    public String getNcc() {
+        return ncc;
+    }
+
+    public TiersPayant setNcc(String ncc) {
+        this.ncc = ncc;
+        return this;
     }
 
     public String getModelFilePath() {

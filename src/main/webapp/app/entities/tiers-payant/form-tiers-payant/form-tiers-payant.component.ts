@@ -55,6 +55,7 @@ export class FormTiersPayantComponent implements OnInit, AfterViewInit {
     id: [],
     name: [null, [Validators.required]],
     fullName: [null, [Validators.required]],
+    ncc: [],
     groupeTiersPayantId: [],
     codeOrganisme: [],
     telephone: [],
@@ -162,6 +163,7 @@ export class FormTiersPayantComponent implements OnInit, AfterViewInit {
       plafondConsoClient: tiersPayant.plafondConsoClient,
       plafondJournalierClient: tiersPayant.plafondJournalierClient,
       plafondAbsoluClient: tiersPayant.plafondAbsoluClient,
+      ncc: tiersPayant.ncc,
     });
   }
 
@@ -186,6 +188,7 @@ export class FormTiersPayantComponent implements OnInit, AfterViewInit {
       plafondConsoClient: this.editForm.get(['plafondConsoClient']).value,
       plafondJournalierClient: this.editForm.get(['plafondJournalierClient']).value,
       plafondAbsoluClient: this.editForm.get(['plafondAbsoluClient']).value,
+      ncc: this.editForm.get(['ncc']).value,
     };
   }
 }

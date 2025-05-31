@@ -48,6 +48,7 @@ public class TiersPayantDto implements Serializable {
     private List<AssuredCustomerDTO> clients = new ArrayList<>();
     private Integer plafondJournalierClient;
     private Integer plafondConsoClient;
+    private String ncc;
 
     public TiersPayantDto() {}
 
@@ -344,6 +345,15 @@ public class TiersPayantDto implements Serializable {
     @Override
     public int hashCode() {
         return Objects.hash(id);
+    }
+
+    public String getNcc() {
+        return ncc;
+    }
+
+    public TiersPayantDto setNcc(String ncc) {
+        this.ncc = ncc;
+        return this;
     }
 
     public TiersPayantDto buildLite(TiersPayant tiersPayant) {

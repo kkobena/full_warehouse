@@ -37,10 +37,10 @@ public abstract class AbstractJava2DReceiptPrinterService implements Printable {
     protected static final int DEFAULT_LINE_HEIGHT = 12;
     protected static final int DEFAULT_FONT_SIZE = 9;
     protected static final int DEFAULT_MARGIN = 9;
-    protected static final int DEFAULT_WIDTH = ((int) ((8 / 2.54) * 72)) - DEFAULT_MARGIN * 2; //8cm soit 80mm
+    // protected static final int DEFAULT_WIDTH = ((int) ((8 / 2.54) * 72)) - DEFAULT_MARGIN * 2; //8cm soit 80mm
     protected static final Font BOLD_FONT = new Font("consolas", Font.BOLD, DEFAULT_FONT_SIZE);
     protected static final Font PLAIN_FONT = new Font("consolas", Font.PLAIN, DEFAULT_FONT_SIZE);
-
+    protected static final int DEFAULT_WIDTH = ((int) ((8 / 2.54) * 72)) - 18;
     private final AppConfigurationService appConfigurationService;
     private final PrinterRepository printerRepository;
     protected Magasin magasin;

@@ -34,6 +34,7 @@ export interface ITiersPayant {
   plafondJournalierClient?: number;
   plafondConsoClient?: number;
   plafondAbsoluClient?: boolean;
+  ncc?: string;
 }
 
 export class TiersPayant implements ITiersPayant {

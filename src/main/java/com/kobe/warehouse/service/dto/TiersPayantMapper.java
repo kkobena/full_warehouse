@@ -31,11 +31,13 @@ public interface TiersPayantMapper {
             .setTelephoneFixe(tiersPayant.getTelephoneFixe())
             .setToBeExclude(tiersPayant.isBeExclude())
             .setModelFacture(tiersPayant.getModelFacture())
+            .setNcc(tiersPayant.getNcc())
             .setStatut(tiersPayant.getStatut());
     }
 
     default TiersPayant entityFromDto(TiersPayantDto payantDto) {
         return new TiersPayant()
+            .setNcc(payantDto.getNcc())
             .setAdresse(payantDto.getAdresse())
             .setCategorie(payantDto.getCategorie())
             .setCodeOrganisme(payantDto.getCodeOrganisme())
@@ -70,6 +72,7 @@ public interface TiersPayantMapper {
 
     default TiersPayant entityFromDto(TiersPayantDto dto, TiersPayant tiersPayant) {
         return tiersPayant
+            .setNcc(dto.getNcc())
             .setAdresse(dto.getAdresse())
             .setCategorie(dto.getCategorie())
             .setCodeOrganisme(dto.getCodeOrganisme())

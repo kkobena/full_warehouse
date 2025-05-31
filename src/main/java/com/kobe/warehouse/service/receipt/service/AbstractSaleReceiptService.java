@@ -59,9 +59,11 @@ public abstract class AbstractSaleReceiptService extends AbstractJava2DReceiptPr
         int pageWidth = DEFAULT_WIDTH;
         int lineHeight = DEFAULT_LINE_HEIGHT;
         Paper paper = new Paper();
-        paper.setSize(pageWidth, pageHeight);
-        paper.setImageableArea(DEFAULT_MARGIN, lineHeight, pageWidth, pageHeight - (2 * lineHeight));
+        // paper.setSize(pageWidth, pageHeight);
+        //  paper.setImageableArea(DEFAULT_MARGIN, lineHeight, pageWidth, pageHeight - (2 * lineHeight));
+        paper.setImageableArea(DEFAULT_MARGIN, lineHeight, paper.getWidth(), paper.getHeight());
         pageFormat.setPaper(paper);
+        pageFormat.setOrientation(PageFormat.PORTRAIT);
         job.setPrintable(this, pageFormat);
         try {
             job.setCopies(getNumberOfCopies());
@@ -268,6 +270,7 @@ public abstract class AbstractSaleReceiptService extends AbstractJava2DReceiptPr
     }
 
     private int getPuRightMargin() {
-        return 150 + (DEFAULT_MARGIN * 2);
+        //return 150 + (DEFAULT_MARGIN * 2);
+        return 180 + DEFAULT_MARGIN;
     }
 }

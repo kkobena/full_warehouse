@@ -3,16 +3,14 @@ package com.kobe.warehouse.service.receipt.service;
 import com.kobe.warehouse.repository.PrinterRepository;
 import com.kobe.warehouse.service.AppConfigurationService;
 import com.kobe.warehouse.service.receipt.dto.AbstractItem;
-import java.awt.Graphics;
-import java.awt.Graphics2D;
-import java.awt.print.PageFormat;
-import java.awt.print.Paper;
-import java.awt.print.PrinterException;
-import java.awt.print.PrinterJob;
-import java.util.List;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
+
+import java.awt.*;
+import java.awt.print.PageFormat;
+import java.awt.print.PrinterException;
+import java.util.List;
 
 @Service
 public abstract class ReglementAbstractReceiptService extends AbstractJava2DReceiptPrinterService {
@@ -29,23 +27,7 @@ public abstract class ReglementAbstractReceiptService extends AbstractJava2DRece
 
     protected abstract int drawSummary(Graphics2D graphics2D, int width, int margin, int y, int lineHeight);
 
-    protected void print(String hostName) throws PrinterException {
-        PrinterJob job = getPrinterJob(hostName);
-        PageFormat pageFormat = job.defaultPage();
-        int pageWidth = DEFAULT_WIDTH;
-        int lineHeight = DEFAULT_LINE_HEIGHT;
-        Paper paper = new Paper();
-        paper.setSize(pageWidth, pageFormat.getImageableHeight());
-        paper.setImageableArea(DEFAULT_MARGIN, lineHeight, pageWidth, pageWidth - lineHeight);
-        pageFormat.setPaper(paper);
-        job.setPrintable(this, pageFormat);
-        try {
-            job.setCopies(getNumberOfCopies());
-            job.print();
-        } catch (PrinterException e) {
-            LOG.error("Error printing receipt: {}", e.getMessage());
-        }
-    }
+
 
     @Override
     protected int getNumberOfCopies() {

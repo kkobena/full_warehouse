@@ -142,8 +142,9 @@ public class AssuranceSaleReceiptService extends AbstractSaleReceiptService {
     @Override
     protected int drawSummary(Graphics2D graphics2D, int width, int y, int lineHeight) {
         int rightMargin = getRightMargin();
+
         graphics2D.setFont(PLAIN_FONT);
-        graphics2D.drawString(MONTANT_TTC, 0, y);
+        graphics2D.drawString(MONTANT_TTC, DEFAULT_MARGIN, y);
         //
         String amount = NumberUtil.formatToString(thirdPartySale.getSalesAmount());
         if (avoirCount > 0) {
@@ -155,26 +156,26 @@ public class AssuranceSaleReceiptService extends AbstractSaleReceiptService {
         graphics2D.drawString(amount, rightMargin - fontMetrics.stringWidth(amount), y);
         y += lineHeight;
         if (thirdPartySale.getDiscountAmount() != null && thirdPartySale.getDiscountAmount() > 0) {
-            graphics2D.drawString(REMISE, 0, y);
+            graphics2D.drawString(REMISE, DEFAULT_MARGIN, y);
             String discount = NumberUtil.formatToString(thirdPartySale.getDiscountAmount() * (-1));
             graphics2D.drawString(discount, rightMargin - fontMetrics.stringWidth(discount), y);
             y += lineHeight;
         }
         if (thirdPartySale.getTaxAmount() != null && thirdPartySale.getTaxAmount() > 0) {
-            graphics2D.drawString(TOTAL_TVA, 0, y);
+            graphics2D.drawString(TOTAL_TVA, DEFAULT_MARGIN, y);
             String tax = NumberUtil.formatToString(thirdPartySale.getTaxAmount());
             graphics2D.drawString(tax, rightMargin - fontMetrics.stringWidth(tax), y);
             y += lineHeight;
         }
         if (nonNull(thirdPartySale.getPartTiersPayant())) {
-            graphics2D.drawString("Part tiers payant", 0, y);
+            graphics2D.drawString("Part tiers payant", DEFAULT_MARGIN, y);
             String partTiersPayant = NumberUtil.formatToString(thirdPartySale.getPartTiersPayant());
             graphics2D.drawString(partTiersPayant, rightMargin - fontMetrics.stringWidth(partTiersPayant), y);
             y += lineHeight;
         }
         if (thirdPartySale.getAmountToBePaid() != null && thirdPartySale.getAmountToBePaid() > 0) {
             graphics2D.setFont(BOLD_FONT);
-            graphics2D.drawString("Reste à charge", 0, y);
+            graphics2D.drawString("Reste à charge", DEFAULT_MARGIN, y);
             fontMetrics = graphics2D.getFontMetrics(BOLD_FONT);
             String payroll = NumberUtil.formatToString(thirdPartySale.getAmountToBePaid());
             graphics2D.drawString(payroll, rightMargin - fontMetrics.stringWidth(payroll), y);

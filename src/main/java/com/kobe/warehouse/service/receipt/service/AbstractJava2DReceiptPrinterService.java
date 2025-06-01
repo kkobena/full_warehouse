@@ -6,10 +6,14 @@ import com.kobe.warehouse.repository.PrinterRepository;
 import com.kobe.warehouse.service.AppConfigurationService;
 import com.kobe.warehouse.service.receipt.dto.AbstractItem;
 import com.kobe.warehouse.service.receipt.dto.HeaderFooterItem;
-import java.awt.BasicStroke;
-import java.awt.Font;
-import java.awt.FontMetrics;
-import java.awt.Graphics2D;
+import org.springframework.stereotype.Service;
+import org.springframework.util.StringUtils;
+
+import javax.print.PrintService;
+import javax.print.PrintServiceLookup;
+import java.awt.*;
+import java.awt.print.PageFormat;
+import java.awt.print.Paper;
 import java.awt.print.Printable;
 import java.awt.print.PrinterException;
 import java.awt.print.PrinterJob;
@@ -18,10 +22,6 @@ import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.Objects;
-import javax.print.PrintService;
-import javax.print.PrintServiceLookup;
-import org.springframework.stereotype.Service;
-import org.springframework.util.StringUtils;
 
 @Service
 public abstract class AbstractJava2DReceiptPrinterService implements Printable {
@@ -37,10 +37,9 @@ public abstract class AbstractJava2DReceiptPrinterService implements Printable {
     protected static final int DEFAULT_LINE_HEIGHT = 12;
     protected static final int DEFAULT_FONT_SIZE = 9;
     protected static final int DEFAULT_MARGIN = 9;
-    // protected static final int DEFAULT_WIDTH = ((int) ((8 / 2.54) * 72)) - DEFAULT_MARGIN * 2; //8cm soit 80mm
     protected static final Font BOLD_FONT = new Font("consolas", Font.BOLD, DEFAULT_FONT_SIZE);
     protected static final Font PLAIN_FONT = new Font("consolas", Font.PLAIN, DEFAULT_FONT_SIZE);
-    protected static final int DEFAULT_WIDTH = ((int) ((8 / 2.54) * 72)) - 18;
+    protected static final int DEFAULT_WIDTH = ((int) ((8 / 2.54) * 72)) - (DEFAULT_MARGIN * 2); // 8cm soit 80mm
     private final AppConfigurationService appConfigurationService;
     private final PrinterRepository printerRepository;
     protected Magasin magasin;
@@ -49,6 +48,20 @@ public abstract class AbstractJava2DReceiptPrinterService implements Printable {
     protected AbstractJava2DReceiptPrinterService(AppConfigurationService appConfigurationService, PrinterRepository printerRepository) {
         this.appConfigurationService = appConfigurationService;
         this.printerRepository = printerRepository;
+    }
+
+
+    protected void print(String hostName) throws PrinterException {
+        PrinterJob job = getPrinterJob(hostName);
+        PageFormat pageFormat = job.defaultPage();
+        Paper paper = new Paper();
+        paper.setImageableArea(DEFAULT_MARGIN, DEFAULT_LINE_HEIGHT, paper.getWidth(), paper.getHeight());
+        pageFormat.setPaper(paper);
+        pageFormat.setOrientation(PageFormat.PORTRAIT);
+        job.setPrintable(this, pageFormat);
+        job.setCopies(getNumberOfCopies());
+        job.print();
+
     }
 
     protected abstract List<HeaderFooterItem> getHeaderItems();
@@ -83,6 +96,7 @@ public abstract class AbstractJava2DReceiptPrinterService implements Printable {
         int printWidth = DEFAULT_WIDTH;
         FontMetrics fontMetrics = graphics2D.getFontMetrics();
         int x = margin + (printWidth - fontMetrics.stringWidth(magasin.getName())) / 3;
+        y += lineHeight;
         graphics2D.drawString(magasin.getName(), x, y);
         y += lineHeight;
         graphics2D.setFont(PLAIN_FONT);
@@ -126,8 +140,7 @@ public abstract class AbstractJava2DReceiptPrinterService implements Printable {
 
     protected int drawLineSeparator(Graphics2D graphics2D, int margin, int y, int width) {
         graphics2D.setStroke(new BasicStroke(0.5f));
-        graphics2D.drawLine(0, y, width, y);
-        // graphics2D.drawLine(margin, y, (int) (width / 1.4), y);
+        graphics2D.drawLine(margin, y, width, y);
         y += 10;
         return y;
     }

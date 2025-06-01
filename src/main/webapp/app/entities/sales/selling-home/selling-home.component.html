@@ -96,14 +96,27 @@
               }
             </div>
             <div class="col-4">
-              <p-button
-                (click)="openPindingSide()"
-                [disabled]="currentSaleService.currentSale() || isPresale"
-                [raised]="true"
-                icon="pi pi-search"
-                label="Ventes en attente"
-                severity="info"
-              ></p-button>
+              @if (isLargeScreen){
+                <p-button
+                  (click)="openPindingSide()"
+                  [disabled]="currentSaleService.currentSale() || isPresale"
+                  [raised]="true"
+                  icon="pi pi-search"
+                  label="Ventes en attente"
+                  severity="info"
+                ></p-button>
+              } @else {
+                <p-button
+                  (click)="openPindingSide()"
+                  [disabled]="currentSaleService.currentSale() || isPresale"
+                  [raised]="true"
+                  icon="pi pi-search"
+                  pTooltip="Ventes en attente"
+                  severity="info"
+                  tooltipPosition="left"
+                ></p-button>
+              }
+
               <p-button (click)="previousState()" [raised]="true" icon="pi pi-arrow-left" label="Retour" severity="secondary"></p-button>
             </div>
           </div>

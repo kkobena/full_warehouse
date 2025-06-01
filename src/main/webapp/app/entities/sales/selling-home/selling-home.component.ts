@@ -1,67 +1,67 @@
-import { AfterViewInit, Component, effect, ElementRef, inject, OnDestroy, OnInit, viewChild } from '@angular/core';
-import { AutoComplete } from 'primeng/autocomplete';
-import { ButtonModule } from 'primeng/button';
-import { ConfirmDialogModule } from 'primeng/confirmdialog';
-import { DialogModule } from 'primeng/dialog';
-import { InputTextModule } from 'primeng/inputtext';
-import { ConfirmationService, MessageService } from 'primeng/api';
-import { DialogService, DynamicDialogRef } from 'primeng/dynamicdialog';
-import { WarehouseCommonModule } from '../../../shared/warehouse-common/warehouse-common.module';
-import { PreventeModalComponent } from '../prevente-modal/prevente-modal/prevente-modal.component';
-import { ActivatedRoute, Router, RouterModule } from '@angular/router';
-import { NgxSpinnerModule } from 'ngx-spinner';
-import { FormsModule } from '@angular/forms';
-import { PanelModule } from 'primeng/panel';
-import { TooltipModule } from 'primeng/tooltip';
-import { INatureVente } from '../../../shared/model/nature-vente.model';
-import { IUser } from '../../../core/user/user.model';
-import { ITypePrescription } from '../../../shared/model/prescription-vente.model';
-import { ICustomer } from '../../../shared/model/customer.model';
-import { IProduit } from '../../../shared/model/produit.model';
-import { GroupRemise, IRemise } from '../../../shared/model/remise.model';
-import { FinalyseSale, InputToFocus, ISales, SaveResponse, StockError } from '../../../shared/model/sales.model';
-import { ISalesLine, SalesLine } from '../../../shared/model/sales-line.model';
-import { PRODUIT_COMBO_MIN_LENGTH, PRODUIT_NOT_FOUND } from '../../../shared/constants/pagination.constants';
-import { Observable, Subscription } from 'rxjs';
-import { SalesService } from '../sales.service';
-import { CustomerService } from '../../customer/customer.service';
-import { ProduitService } from '../../produit/produit.service';
-import { NgbModal, NgbNavChangeEvent } from '@ng-bootstrap/ng-bootstrap';
-import { AccountService } from '../../../core/auth/account.service';
-import { ErrorService } from '../../../shared/error.service';
-import { DeconditionService } from '../../decondition/decondition.service';
-import { TranslateService } from '@ngx-translate/core';
-import { Decondition, IDecondition } from '../../../shared/model/decondition.model';
-import { HttpResponse } from '@angular/common/http';
-import { AlertInfoComponent } from '../../../shared/alert/alert-info.component';
-import { CardModule } from 'primeng/card';
-import { ComptantComponent } from './comptant/comptant.component';
-import { CustomerOverlayPanelComponent } from '../customer-overlay-panel/customer-overlay-panel.component';
-import { SelectedCustomerService } from '../service/selected-customer.service';
-import { CurrentSaleService } from '../service/current-sale.service';
-import { SelectModeReglementService } from '../service/select-mode-reglement.service';
-import { LastCurrencyGivenService } from '../service/last-currency-given.service';
-import { InputGroupModule } from 'primeng/inputgroup';
-import { SalesStatut } from '../../../shared/model/enumerations/sales-statut.model';
-import { AssuranceComponent } from './assurance/assurance.component';
-import { AssuranceDataComponent } from './assurance/assurance-data/assurance-data.component';
-import { TypePrescriptionService } from '../service/type-prescription.service';
-import { UserCaissierService } from '../service/user-caissier.service';
-import { UserVendeurService } from '../service/user-vendeur.service';
-import { SaleEvent, SaleEventManager } from '../service/sale-event-manager.service';
-import { VoSalesService } from '../service/vo-sales.service';
-import { HasAuthorityService } from '../service/has-authority.service';
-import { ToastModule } from 'primeng/toast';
-import { IClientTiersPayant } from '../../../shared/model/client-tiers-payant.model';
-import { BaseSaleService } from '../service/base-sale.service';
-import { CarnetComponent } from './carnet/carnet.component';
-import { Authority } from '../../../shared/constants/authority.constants';
-import { RemiseCacheService } from '../service/remise-cache.service';
-import { PrimeNG } from 'primeng/config';
-import { acceptButtonProps, rejectButtonProps } from '../../../shared/util/modal-button-props';
-import { Select } from 'primeng/select';
-import { InputGroupAddonModule } from 'primeng/inputgroupaddon';
-import { DrawerModule } from 'primeng/drawer';
+import {AfterViewInit, Component, effect, ElementRef, inject, OnDestroy, OnInit, viewChild} from '@angular/core';
+import {AutoComplete} from 'primeng/autocomplete';
+import {ButtonModule} from 'primeng/button';
+import {ConfirmDialogModule} from 'primeng/confirmdialog';
+import {DialogModule} from 'primeng/dialog';
+import {InputTextModule} from 'primeng/inputtext';
+import {ConfirmationService, MessageService} from 'primeng/api';
+import {DialogService, DynamicDialogRef} from 'primeng/dynamicdialog';
+import {WarehouseCommonModule} from '../../../shared/warehouse-common/warehouse-common.module';
+import {PreventeModalComponent} from '../prevente-modal/prevente-modal/prevente-modal.component';
+import {ActivatedRoute, Router, RouterModule} from '@angular/router';
+import {NgxSpinnerModule} from 'ngx-spinner';
+import {FormsModule} from '@angular/forms';
+import {PanelModule} from 'primeng/panel';
+import {TooltipModule} from 'primeng/tooltip';
+import {INatureVente} from '../../../shared/model/nature-vente.model';
+import {IUser} from '../../../core/user/user.model';
+import {ITypePrescription} from '../../../shared/model/prescription-vente.model';
+import {ICustomer} from '../../../shared/model/customer.model';
+import {IProduit} from '../../../shared/model/produit.model';
+import {GroupRemise, IRemise} from '../../../shared/model/remise.model';
+import {FinalyseSale, InputToFocus, ISales, SaveResponse, StockError} from '../../../shared/model/sales.model';
+import {ISalesLine, SalesLine} from '../../../shared/model/sales-line.model';
+import {PRODUIT_COMBO_MIN_LENGTH, PRODUIT_NOT_FOUND} from '../../../shared/constants/pagination.constants';
+import {Observable, Subscription} from 'rxjs';
+import {SalesService} from '../sales.service';
+import {CustomerService} from '../../customer/customer.service';
+import {ProduitService} from '../../produit/produit.service';
+import {NgbModal, NgbNavChangeEvent} from '@ng-bootstrap/ng-bootstrap';
+import {AccountService} from '../../../core/auth/account.service';
+import {ErrorService} from '../../../shared/error.service';
+import {DeconditionService} from '../../decondition/decondition.service';
+import {TranslateService} from '@ngx-translate/core';
+import {Decondition, IDecondition} from '../../../shared/model/decondition.model';
+import {HttpResponse} from '@angular/common/http';
+import {AlertInfoComponent} from '../../../shared/alert/alert-info.component';
+import {CardModule} from 'primeng/card';
+import {ComptantComponent} from './comptant/comptant.component';
+import {CustomerOverlayPanelComponent} from '../customer-overlay-panel/customer-overlay-panel.component';
+import {SelectedCustomerService} from '../service/selected-customer.service';
+import {CurrentSaleService} from '../service/current-sale.service';
+import {SelectModeReglementService} from '../service/select-mode-reglement.service';
+import {LastCurrencyGivenService} from '../service/last-currency-given.service';
+import {InputGroupModule} from 'primeng/inputgroup';
+import {SalesStatut} from '../../../shared/model/enumerations/sales-statut.model';
+import {AssuranceComponent} from './assurance/assurance.component';
+import {AssuranceDataComponent} from './assurance/assurance-data/assurance-data.component';
+import {TypePrescriptionService} from '../service/type-prescription.service';
+import {UserCaissierService} from '../service/user-caissier.service';
+import {UserVendeurService} from '../service/user-vendeur.service';
+import {SaleEvent, SaleEventManager} from '../service/sale-event-manager.service';
+import {VoSalesService} from '../service/vo-sales.service';
+import {HasAuthorityService} from '../service/has-authority.service';
+import {ToastModule} from 'primeng/toast';
+import {IClientTiersPayant} from '../../../shared/model/client-tiers-payant.model';
+import {BaseSaleService} from '../service/base-sale.service';
+import {CarnetComponent} from './carnet/carnet.component';
+import {Authority} from '../../../shared/constants/authority.constants';
+import {RemiseCacheService} from '../service/remise-cache.service';
+import {PrimeNG} from 'primeng/config';
+import {acceptButtonProps, rejectButtonProps} from '../../../shared/util/modal-button-props';
+import {Select} from 'primeng/select';
+import {InputGroupAddonModule} from 'primeng/inputgroupaddon';
+import {DrawerModule} from 'primeng/drawer';
 
 @Component({
   selector: 'jhi-selling-home',
@@ -106,6 +106,11 @@ export class SellingHomeComponent implements OnInit, AfterViewInit, OnDestroy {
   assuranceDataComponent = viewChild(AssuranceDataComponent);
   produitbox = viewChild<any>('produitbox');
   userBox = viewChild<any>('userBox');
+  accountService = inject(AccountService);
+  currentAccount = this.accountService.trackCurrentAccount();
+  remiseCacheService = inject(RemiseCacheService);
+  remises: GroupRemise[] = this.remiseCacheService.remises();
+  protected isLargeScreen = true;
   protected canForceStock: boolean;
   protected check = true; // mis pour le focus produit et dialogue button
   protected naturesVentes: INatureVente[] = [];
@@ -140,8 +145,6 @@ export class SellingHomeComponent implements OnInit, AfterViewInit, OnDestroy {
   protected userVendeurService = inject(UserVendeurService);
   private typePrescriptionService = inject(TypePrescriptionService);
   private userCaissierService = inject(UserCaissierService);
-  private accountService = inject(AccountService);
-  currentAccount = this.accountService.trackCurrentAccount();
   private hasAuthorityService = inject(HasAuthorityService);
   private messageService = inject(MessageService);
   private voSalesService = inject(VoSalesService);
@@ -160,8 +163,8 @@ export class SellingHomeComponent implements OnInit, AfterViewInit, OnDestroy {
   private decondtionService = inject(DeconditionService);
   private translate = inject(TranslateService);
   private primeNGConfig = inject(PrimeNG);
-  private remiseCacheService = inject(RemiseCacheService);
-  remises: GroupRemise[] = this.remiseCacheService.remises();
+
+
   private readonly responseEvent: Subscription;
   private readonly saveResponse: Subscription;
   private readonly inputBoxFocus: Subscription;
@@ -233,7 +236,8 @@ export class SellingHomeComponent implements OnInit, AfterViewInit, OnDestroy {
 
   onRemoveCustomer(): void {
     if (this.isComptant()) {
-      this.salesService.removeCustommerToCashSale(this.currentSaleService.currentSale().id).subscribe(() => {});
+      this.salesService.removeCustommerToCashSale(this.currentSaleService.currentSale().id).subscribe(() => {
+      });
     }
   }
 
@@ -289,19 +293,23 @@ export class SellingHomeComponent implements OnInit, AfterViewInit, OnDestroy {
   }
 
   ngOnInit(): void {
+    const width = window.innerWidth;
+    if (width < 1800) {
+      this.isLargeScreen = false;
+    }
     this.currentSaleService.setCurrentSale(null);
     this.selectedCustomerService.setCustomer(null);
-    this.userCaissier = { ...this.currentAccount() } as IUser;
+    this.userCaissier = {...this.currentAccount()} as IUser;
     this.userCaissierService.setCaissier(this.userCaissier);
 
     this.typePrescription = this.typePrescriptionService.typePrescriptionDefault();
 
-    this.activatedRoute.data.subscribe(({ sales, mode }) => {
+    this.activatedRoute.data.subscribe(({sales, mode}) => {
       if (sales.id) {
         if (sales.customer) {
           this.customerService
             .find(sales.customer.id)
-            .subscribe({ next: (resp: HttpResponse<ICustomer>) => this.selectedCustomerService.setCustomer(resp.body) });
+            .subscribe({next: (resp: HttpResponse<ICustomer>) => this.selectedCustomerService.setCustomer(resp.body)});
         }
         this.onLoadPrevente(sales, this.isEditionClosedSale(mode));
       }
@@ -392,7 +400,8 @@ export class SellingHomeComponent implements OnInit, AfterViewInit, OnDestroy {
     }
   }
 
-  onHideHideDialog(): void {}
+  onHideHideDialog(): void {
+  }
 
   cancelCommonDialog(): void {
     this.commonDialog = false;
@@ -740,7 +749,7 @@ export class SellingHomeComponent implements OnInit, AfterViewInit, OnDestroy {
               if (res.body.customer) {
                 this.customerService
                   .find(res.body.customer.id)
-                  .subscribe({ next: (resp: HttpResponse<ICustomer>) => this.selectedCustomerService.setCustomer(resp.body) });
+                  .subscribe({next: (resp: HttpResponse<ICustomer>) => this.selectedCustomerService.setCustomer(resp.body)});
               }
               this.onLoadPrevente(res.body, false);
             },
@@ -767,7 +776,7 @@ export class SellingHomeComponent implements OnInit, AfterViewInit, OnDestroy {
               if (res.body.customer) {
                 this.customerService
                   .find(res.body.customer.id)
-                  .subscribe({ next: (resp: HttpResponse<ICustomer>) => this.selectedCustomerService.setCustomer(resp.body) });
+                  .subscribe({next: (resp: HttpResponse<ICustomer>) => this.selectedCustomerService.setCustomer(resp.body)});
               }
               this.onLoadPrevente(res.body, false);
             },

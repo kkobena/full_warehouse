@@ -9,15 +9,15 @@ import com.kobe.warehouse.service.receipt.dto.CashSaleReceiptItem;
 import com.kobe.warehouse.service.receipt.dto.HeaderFooterItem;
 import com.kobe.warehouse.service.sale.SaleDataService;
 import com.kobe.warehouse.service.utils.NumberUtil;
-import java.awt.FontMetrics;
-import java.awt.Graphics2D;
-import java.awt.print.PrinterException;
-import java.util.ArrayList;
-import java.util.List;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
+
+import java.awt.*;
+import java.awt.print.PrinterException;
+import java.util.ArrayList;
+import java.util.List;
 
 @Service
 public class CashSaleReceiptService extends AbstractSaleReceiptService {
@@ -68,7 +68,7 @@ public class CashSaleReceiptService extends AbstractSaleReceiptService {
             UninsuredCustomerDTO customer = (UninsuredCustomerDTO) cashSale.getCustomer();
             headerItems.add(new HeaderFooterItem("Client: " + customer.getFullName(), 1, PLAIN_FONT));
             if (StringUtils.hasLength(customer.getPhone())) {
-                headerItems.add(new HeaderFooterItem("Tel: " + customer.getPhone(), 1, PLAIN_FONT));
+                headerItems.add(new HeaderFooterItem("Tél: " + customer.getPhone(), 1, PLAIN_FONT));
             }
         }
         headerItems.addAll(getOperateurInfos());
@@ -97,11 +97,10 @@ public class CashSaleReceiptService extends AbstractSaleReceiptService {
     protected int drawSummary(Graphics2D graphics2D, int width, int y, int lineHeight) {
         SaleDTO sale = getSale();
         int rightMargin = getRightMargin();
-        int margin = 0;
+        int margin = DEFAULT_MARGIN;
 
         graphics2D.setFont(PLAIN_FONT);
         graphics2D.drawString(MONTANT_TTC, margin, y);
-
         String amount = NumberUtil.formatToString(sale.getSalesAmount());
         if (avoirCount > 0) {
             graphics2D.setFont(BOLD_FONT);

@@ -14,20 +14,16 @@ import com.kobe.warehouse.service.receipt.dto.CashSaleReceiptItem;
 import com.kobe.warehouse.service.receipt.dto.HeaderFooterItem;
 import com.kobe.warehouse.service.receipt.dto.SaleReceiptItem;
 import com.kobe.warehouse.service.utils.NumberUtil;
-import java.awt.Font;
-import java.awt.FontMetrics;
-import java.awt.Graphics;
-import java.awt.Graphics2D;
-import java.awt.print.PageFormat;
-import java.awt.print.Paper;
-import java.awt.print.PrinterException;
-import java.awt.print.PrinterJob;
-import java.util.ArrayList;
-import java.util.List;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
+
+import java.awt.*;
+import java.awt.print.PageFormat;
+import java.awt.print.PrinterException;
+import java.util.ArrayList;
+import java.util.List;
 
 @Service
 public abstract class AbstractSaleReceiptService extends AbstractJava2DReceiptPrinterService {
@@ -44,7 +40,7 @@ public abstract class AbstractSaleReceiptService extends AbstractJava2DReceiptPr
     protected abstract int drawAssuanceInfo(Graphics2D graphics2D, int width, int margin, int y, int lineHeight);
 
     protected int getProductNameWidth() {
-        return 23;
+        return 22;
     }
 
     @Override
@@ -52,26 +48,6 @@ public abstract class AbstractSaleReceiptService extends AbstractJava2DReceiptPr
 
     protected abstract int drawSummary(Graphics2D graphics2D, int width, int y, int lineHeight);
 
-    protected void print(String hostName) throws PrinterException {
-        PrinterJob job = getPrinterJob(hostName);
-        PageFormat pageFormat = job.defaultPage();
-        int pageHeight = (int) pageFormat.getImageableHeight();
-        int pageWidth = DEFAULT_WIDTH;
-        int lineHeight = DEFAULT_LINE_HEIGHT;
-        Paper paper = new Paper();
-        // paper.setSize(pageWidth, pageHeight);
-        //  paper.setImageableArea(DEFAULT_MARGIN, lineHeight, pageWidth, pageHeight - (2 * lineHeight));
-        paper.setImageableArea(DEFAULT_MARGIN, lineHeight, paper.getWidth(), paper.getHeight());
-        pageFormat.setPaper(paper);
-        pageFormat.setOrientation(PageFormat.PORTRAIT);
-        job.setPrintable(this, pageFormat);
-        try {
-            job.setCopies(getNumberOfCopies());
-            job.print();
-        } catch (PrinterException e) {
-            LOG.error("Error printing receipt: {}", e.getMessage());
-        }
-    }
 
     protected List<HeaderFooterItem> getOperateurInfos() {
         SaleDTO sale = getSale();
@@ -79,11 +55,11 @@ public abstract class AbstractSaleReceiptService extends AbstractJava2DReceiptPr
         List<HeaderFooterItem> headerItems = new ArrayList<>();
         if (sale.getCassierId().compareTo(sale.getSellerId()) != 0) {
             headerItems.add(new HeaderFooterItem("Ticket: " + sale.getNumberTransaction(), 1, font));
-            headerItems.add(new HeaderFooterItem("Caissier: " + sale.getCassier().getAbbrName(), 1, font));
-            headerItems.add(new HeaderFooterItem("Vendeur: " + sale.getSeller().getAbbrName(), 1, font));
+            headerItems.add(new HeaderFooterItem("Caissier(re): " + sale.getCassier().getAbbrName(), 1, font));
+            headerItems.add(new HeaderFooterItem("Vendeur(se): " + sale.getSeller().getAbbrName(), 1, font));
         } else {
             headerItems.add(new HeaderFooterItem("Ticket: " + sale.getNumberTransaction(), 1, font));
-            headerItems.add(new HeaderFooterItem("Caissier: " + sale.getCassier().getAbbrName(), 1, font));
+            headerItems.add(new HeaderFooterItem("Caissier(re): " + sale.getCassier().getAbbrName(), 1, font));
         }
 
         return headerItems;
@@ -113,9 +89,9 @@ public abstract class AbstractSaleReceiptService extends AbstractJava2DReceiptPr
         graphics2D.setFont(font);
         //add quantity before product
         String pu = "Prix";
-        String total = "Total";
-        graphics2D.drawString("Qté", 0, y); //sur 3 chiffres 30pixels //40
-        graphics2D.drawString("Produit", 20, y); //90
+        String total = "Montant";
+        graphics2D.drawString("Qté", margin, y); //sur 3 chiffres 30pixels //40
+        graphics2D.drawString("Produit", 20 + margin, y); //90
         graphics2D.drawString(pu, getPuRightMargin() - fontMetrics.stringWidth(pu), y); //390 PU sur 6 chiffres 60pixels
         graphics2D.drawString(total, getRightMargin() - fontMetrics.stringWidth(total), y);
         y += 10;
@@ -141,9 +117,9 @@ public abstract class AbstractSaleReceiptService extends AbstractJava2DReceiptPr
         int endItemIndex = Math.min(sartItemIndex + maximumLinesPerPage, itemsSize);
         boolean isLastPage = pageIndex == totalPages - 1;
         int y = lineHeight;
-        y = drawCompagnyInfo(graphics2D, 0, y);
-        y = drawWelcomeMessage(graphics2D, 0, y);
-        y = drawHeader(graphics2D, 0, y, lineHeight);
+        y = drawCompagnyInfo(graphics2D, DEFAULT_MARGIN, y);
+        y = drawWelcomeMessage(graphics2D, DEFAULT_MARGIN, y);
+        y = drawHeader(graphics2D, DEFAULT_MARGIN, y, lineHeight);
         y = drawAssuanceInfo(graphics2D, width, margin, y, lineHeight);
         y = drawTableHeader(graphics2D, margin, y);
         y = drawLineSeparator(graphics2D, margin, y, width);
@@ -157,8 +133,8 @@ public abstract class AbstractSaleReceiptService extends AbstractJava2DReceiptPr
             String produitName = item.getProduitName();
             String unitPrice = item.getUnitPrice();
             String totalPrice = item.getTotalPrice();
-            graphics2D.drawString(quantity, 0, y);
-            graphics2D.drawString(produitName, 20, y);
+            graphics2D.drawString(quantity, DEFAULT_MARGIN, y);
+            graphics2D.drawString(produitName, 20 + DEFAULT_MARGIN, y);
             graphics2D.drawString(unitPrice, getPuRightMargin() - fontMetrics.stringWidth(unitPrice), y);
             graphics2D.drawString(totalPrice, getRightMargin() - fontMetrics.stringWidth(totalPrice), y);
             //check if is last item
@@ -178,8 +154,8 @@ public abstract class AbstractSaleReceiptService extends AbstractJava2DReceiptPr
             //  y = drawTaxeDetail(graphics2D, width, margin, y, lineHeight);
             y = drawFooter(graphics2D, margin, y, lineHeight);
             y = drawLineSeparator(graphics2D, margin, y, width);
-            y = drawDate(graphics2D, 0, y, lineHeight);
-            drawThanksMessage(graphics2D, 0, y);
+            y = drawDate(graphics2D, DEFAULT_MARGIN, y, lineHeight);
+            drawThanksMessage(graphics2D, DEFAULT_MARGIN, y);
         }
         return PAGE_EXISTS;
     }
@@ -231,12 +207,8 @@ public abstract class AbstractSaleReceiptService extends AbstractJava2DReceiptPr
         for (PaymentDTO payment : payments) {
             PaymentModeDTO paymentMode = payment.getPaymentMode();
             String libelle = paymentMode.getLibelle();
-            String amount = paymentMode.getCode().equals(ModePaimentCode.CASH.name())
-                ? NumberUtil.formatToString(payment.getMontantVerse())
-                : NumberUtil.formatToString(payment.getPaidAmount());
-
-            graphics2D.drawString(libelle, 0, y);
-
+            String amount = paymentMode.getCode().equals(ModePaimentCode.CASH.name()) ? NumberUtil.formatToString(payment.getMontantVerse()) : NumberUtil.formatToString(payment.getPaidAmount());
+            graphics2D.drawString(libelle, DEFAULT_MARGIN, y);
             graphics2D.drawString(amount, rightMargin - fontMetrics.stringWidth(amount), y);
             y += lineHeight;
         }
@@ -246,7 +218,7 @@ public abstract class AbstractSaleReceiptService extends AbstractJava2DReceiptPr
     protected int drawCashInfo(Graphics2D graphics2D, int y, int lineHeight) {
         if (getSale().getMontantRendu() != null && getSale().getMontantRendu() > 0) {
             int rightMargin = getRightMargin();
-            graphics2D.drawString(MONTANT_RENDU, 0, y);
+            graphics2D.drawString(MONTANT_RENDU, DEFAULT_MARGIN, y);
             FontMetrics fontMetrics = graphics2D.getFontMetrics();
             String amount = NumberUtil.formatToString(getSale().getMontantRendu());
             graphics2D.drawString(amount, rightMargin - fontMetrics.stringWidth(amount), y);
@@ -258,9 +230,8 @@ public abstract class AbstractSaleReceiptService extends AbstractJava2DReceiptPr
     protected int drawResteToPay(Graphics2D graphics2D, int y, int lineHeight) {
         if (getSale().getRestToPay() != null && getSale().getRestToPay() > 0) {
             int rightMargin = getRightMargin();
-
             graphics2D.setFont(BOLD_FONT);
-            graphics2D.drawString(RESTE_A_PAYER, 0, y);
+            graphics2D.drawString(RESTE_A_PAYER, DEFAULT_MARGIN, y);
             FontMetrics fontMetrics = graphics2D.getFontMetrics();
             String amount = NumberUtil.formatToString(getSale().getRestToPay());
             graphics2D.drawString(amount, rightMargin - fontMetrics.stringWidth(amount), y);
@@ -271,6 +242,6 @@ public abstract class AbstractSaleReceiptService extends AbstractJava2DReceiptPr
 
     private int getPuRightMargin() {
         //return 150 + (DEFAULT_MARGIN * 2);
-        return 180 + DEFAULT_MARGIN;
+        return 160 + DEFAULT_MARGIN;
     }
 }

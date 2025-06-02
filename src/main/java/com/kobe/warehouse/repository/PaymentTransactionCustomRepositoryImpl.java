@@ -16,6 +16,7 @@ import com.kobe.warehouse.domain.Sales_;
 import com.kobe.warehouse.domain.User_;
 import com.kobe.warehouse.service.financiel_transaction.dto.MvtCaisseProjection;
 import com.kobe.warehouse.service.financiel_transaction.dto.MvtCaisseSumProjection;
+import com.kobe.warehouse.service.tiketz.dto.TicketZProjection;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.TypedQuery;
 import jakarta.persistence.criteria.CriteriaBuilder;
@@ -126,6 +127,38 @@ public class PaymentTransactionCustomRepositoryImpl implements PaymentTransactio
         query.where(predicate);
 
         TypedQuery<MvtCaisseSumProjection> typedQuery = entityManager.createQuery(query);
+        return typedQuery.getResultList();
+    }
+
+    @Override
+    public List<TicketZProjection> fetchAllMvts(Specification<PaymentTransaction> specification) {
+        CriteriaBuilder cb = entityManager.getCriteriaBuilder();
+        CriteriaQuery<TicketZProjection> query = cb.createQuery(TicketZProjection.class);
+        Root<PaymentTransaction> root = query.from(PaymentTransaction.class);
+        query
+            .select(
+                cb.construct(
+                    TicketZProjection.class,
+                    root.get(PaymentTransaction_.paymentMode).get(PaymentMode_.code),
+                    root.get(PaymentTransaction_.paymentMode).get(PaymentMode_.libelle),
+                    root.get(PaymentTransaction_.cashRegister).get(CashRegister_.user).get(User_.id),
+                    root.get(PaymentTransaction_.cashRegister).get(CashRegister_.user).get(User_.firstName),
+                    root.get(PaymentTransaction_.cashRegister).get(CashRegister_.user).get(User_.lastName),
+                    cb.sumAsLong(root.get(PaymentTransaction_.paidAmount)),
+                    cb.sumAsLong(root.get(PaymentTransaction_.reelAmount)),
+                    root.get(PaymentTransaction_.credit)
+                )
+            )
+            .groupBy(
+                root.get(PaymentTransaction_.cashRegister).get(CashRegister_.user).get(User_.id),
+                root.get(PaymentTransaction_.cashRegister).get(CashRegister_.user).get(User_.id),
+                root.get(PaymentTransaction_.paymentMode).get(PaymentMode_.code)
+            );
+
+        Predicate predicate = specification.toPredicate(root, query, cb);
+        query.where(predicate);
+
+        TypedQuery<TicketZProjection> typedQuery = entityManager.createQuery(query);
         return typedQuery.getResultList();
     }
 }

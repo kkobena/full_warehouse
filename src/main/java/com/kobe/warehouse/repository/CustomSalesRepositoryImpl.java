@@ -2,11 +2,16 @@ package com.kobe.warehouse.repository;
 
 import static java.util.Objects.nonNull;
 
-import com.kobe.warehouse.domain.*;
+import com.kobe.warehouse.domain.CashRegister_;
+import com.kobe.warehouse.domain.Customer_;
+import com.kobe.warehouse.domain.Sales;
+import com.kobe.warehouse.domain.Sales_;
+import com.kobe.warehouse.domain.User_;
 import com.kobe.warehouse.service.reglement.differe.dto.Differe;
 import com.kobe.warehouse.service.reglement.differe.dto.DiffereItem;
 import com.kobe.warehouse.service.reglement.differe.dto.DiffereSummary;
 import com.kobe.warehouse.service.reglement.differe.dto.Solde;
+import com.kobe.warehouse.service.tiketz.dto.TicketZCreditProjection;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.TypedQuery;
 import jakarta.persistence.criteria.CriteriaBuilder;
@@ -178,5 +183,29 @@ public class CustomSalesRepositoryImpl implements CustomSalesRepository {
 
         TypedQuery<Solde> typedQuery = entityManager.createQuery(query);
         return typedQuery.getSingleResult();
+    }
+
+    @Override
+    public List<TicketZCreditProjection> getTicketZDifferes(Specification<Sales> specification) {
+        CriteriaBuilder cb = entityManager.getCriteriaBuilder();
+        CriteriaQuery<TicketZCreditProjection> query = cb.createQuery(TicketZCreditProjection.class);
+        Root<Sales> root = query.from(Sales.class);
+        query
+            .select(
+                cb.construct(
+                    TicketZCreditProjection.class,
+                    root.get(Sales_.caissier).get(User_.id),
+                    root.get(Sales_.caissier).get(User_.firstName),
+                    root.get(Sales_.caissier).get(User_.lastName),
+                    cb.sumAsLong(root.get(Sales_.restToPay))
+                )
+            )
+            .groupBy(root.get(Sales_.caissier).get(User_.id));
+
+        Predicate predicate = specification.toPredicate(root, query, cb);
+        query.where(predicate);
+
+        TypedQuery<TicketZCreditProjection> typedQuery = entityManager.createQuery(query);
+        return typedQuery.getResultList();
     }
 }

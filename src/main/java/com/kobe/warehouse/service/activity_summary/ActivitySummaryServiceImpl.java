@@ -3,9 +3,20 @@ package com.kobe.warehouse.service.activity_summary;
 import com.kobe.warehouse.domain.enumeration.ModePaimentCode;
 import com.kobe.warehouse.domain.enumeration.OrderStatut;
 import com.kobe.warehouse.domain.enumeration.SalesStatut;
-import com.kobe.warehouse.repository.*;
+import com.kobe.warehouse.repository.CommandeRepository;
+import com.kobe.warehouse.repository.InvoicePaymentRepository;
+import com.kobe.warehouse.repository.PaymentTransactionRepository;
+import com.kobe.warehouse.repository.SalePaymentRepository;
+import com.kobe.warehouse.repository.SalesRepository;
+import com.kobe.warehouse.repository.ThirdPartySaleLineRepository;
 import com.kobe.warehouse.service.dto.ChiffreAffaireDTO;
-import com.kobe.warehouse.service.dto.projection.*;
+import com.kobe.warehouse.service.dto.projection.AchatTiersPayant;
+import com.kobe.warehouse.service.dto.projection.ChiffreAffaire;
+import com.kobe.warehouse.service.dto.projection.ChiffreAffaireAchat;
+import com.kobe.warehouse.service.dto.projection.GroupeFournisseurAchat;
+import com.kobe.warehouse.service.dto.projection.MouvementCaisse;
+import com.kobe.warehouse.service.dto.projection.Recette;
+import com.kobe.warehouse.service.dto.projection.ReglementTiersPayants;
 import com.kobe.warehouse.service.dto.records.ActivitySummaryRecord;
 import com.kobe.warehouse.service.dto.records.ChiffreAffaireRecord;
 import com.kobe.warehouse.service.errors.ReportFileExportException;
@@ -27,7 +38,7 @@ public class ActivitySummaryServiceImpl implements ActivitySummaryService {
     private final InvoicePaymentRepository invoicePaymentRepository;
     private final CommandeRepository commandeRepository;
     private final PaymentTransactionRepository paymentTransactionRepository;
-    private final PaymentRepository paymentRepository;
+    private final SalePaymentRepository paymentRepository;
     private final SalesRepository salesRepository;
     private final ActivitySummaryReportService activitySummaryReportService;
 
@@ -36,7 +47,7 @@ public class ActivitySummaryServiceImpl implements ActivitySummaryService {
         InvoicePaymentRepository invoicePaymentRepository,
         CommandeRepository commandeRepository,
         PaymentTransactionRepository paymentTransactionRepository,
-        PaymentRepository paymentRepository,
+        SalePaymentRepository paymentRepository,
         SalesRepository salesRepository,
         ActivitySummaryReportService activitySummaryReportService
     ) {

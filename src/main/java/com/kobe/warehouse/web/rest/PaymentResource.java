@@ -1,7 +1,7 @@
 package com.kobe.warehouse.web.rest;
 
 import com.kobe.warehouse.domain.SalePayment;
-import com.kobe.warehouse.repository.PaymentRepository;
+import com.kobe.warehouse.repository.SalePaymentRepository;
 import com.kobe.warehouse.service.errors.BadRequestAlertException;
 import jakarta.validation.Valid;
 import java.net.URI;
@@ -39,12 +39,12 @@ public class PaymentResource {
 
     private static final String ENTITY_NAME = "payment";
     private final Logger log = LoggerFactory.getLogger(PaymentResource.class);
-    private final PaymentRepository paymentRepository;
+    private final SalePaymentRepository paymentRepository;
 
     @Value("${jhipster.clientApp.name}")
     private String applicationName;
 
-    public PaymentResource(PaymentRepository paymentRepository) {
+    public PaymentResource(SalePaymentRepository paymentRepository) {
         this.paymentRepository = paymentRepository;
     }
 

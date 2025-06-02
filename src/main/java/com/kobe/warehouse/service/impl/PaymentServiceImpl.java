@@ -9,7 +9,7 @@ import com.kobe.warehouse.domain.User;
 import com.kobe.warehouse.domain.enumeration.ModePaimentCode;
 import com.kobe.warehouse.domain.enumeration.TypeFinancialTransaction;
 import com.kobe.warehouse.repository.PaymentModeRepository;
-import com.kobe.warehouse.repository.PaymentRepository;
+import com.kobe.warehouse.repository.SalePaymentRepository;
 import com.kobe.warehouse.service.PaymentService;
 import com.kobe.warehouse.service.dto.PaymentDTO;
 import com.kobe.warehouse.service.dto.SaleDTO;
@@ -23,10 +23,10 @@ import org.springframework.util.CollectionUtils;
 @Service
 public class PaymentServiceImpl implements PaymentService {
 
-    private final PaymentRepository paymentRepository;
+    private final SalePaymentRepository paymentRepository;
     private final PaymentModeRepository paymentModeRepository;
 
-    public PaymentServiceImpl(PaymentRepository paymentRepository, PaymentModeRepository paymentModeRepository) {
+    public PaymentServiceImpl(SalePaymentRepository paymentRepository, PaymentModeRepository paymentModeRepository) {
         this.paymentRepository = paymentRepository;
         this.paymentModeRepository = paymentModeRepository;
     }

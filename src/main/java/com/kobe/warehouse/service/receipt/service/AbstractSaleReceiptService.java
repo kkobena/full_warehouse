@@ -14,16 +14,19 @@ import com.kobe.warehouse.service.receipt.dto.CashSaleReceiptItem;
 import com.kobe.warehouse.service.receipt.dto.HeaderFooterItem;
 import com.kobe.warehouse.service.receipt.dto.SaleReceiptItem;
 import com.kobe.warehouse.service.utils.NumberUtil;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.stereotype.Service;
-import org.springframework.util.CollectionUtils;
-
-import java.awt.*;
+import java.awt.Font;
+import java.awt.FontMetrics;
+import java.awt.Graphics;
+import java.awt.Graphics2D;
+import java.awt.RenderingHints;
 import java.awt.print.PageFormat;
 import java.awt.print.PrinterException;
 import java.util.ArrayList;
 import java.util.List;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.stereotype.Service;
+import org.springframework.util.CollectionUtils;
 
 @Service
 public abstract class AbstractSaleReceiptService extends AbstractJava2DReceiptPrinterService {
@@ -47,7 +50,6 @@ public abstract class AbstractSaleReceiptService extends AbstractJava2DReceiptPr
     protected abstract List<? extends SaleReceiptItem> getItems();
 
     protected abstract int drawSummary(Graphics2D graphics2D, int width, int y, int lineHeight);
-
 
     protected List<HeaderFooterItem> getOperateurInfos() {
         SaleDTO sale = getSale();
@@ -101,6 +103,7 @@ public abstract class AbstractSaleReceiptService extends AbstractJava2DReceiptPr
     @Override
     public int print(Graphics graphics, PageFormat pageFormat, int pageIndex) throws PrinterException {
         Graphics2D graphics2D = (Graphics2D) graphics;
+        graphics2D.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
         graphics2D.translate(pageFormat.getImageableX(), pageFormat.getImageableY());
         int width = DEFAULT_WIDTH; // 80mm in pixels, à parametrer
         int margin = DEFAULT_MARGIN; // margin in pixels
@@ -207,7 +210,9 @@ public abstract class AbstractSaleReceiptService extends AbstractJava2DReceiptPr
         for (PaymentDTO payment : payments) {
             PaymentModeDTO paymentMode = payment.getPaymentMode();
             String libelle = paymentMode.getLibelle();
-            String amount = paymentMode.getCode().equals(ModePaimentCode.CASH.name()) ? NumberUtil.formatToString(payment.getMontantVerse()) : NumberUtil.formatToString(payment.getPaidAmount());
+            String amount = paymentMode.getCode().equals(ModePaimentCode.CASH.name())
+                ? NumberUtil.formatToString(payment.getMontantVerse())
+                : NumberUtil.formatToString(payment.getPaidAmount());
             graphics2D.drawString(libelle, DEFAULT_MARGIN, y);
             graphics2D.drawString(amount, rightMargin - fontMetrics.stringWidth(amount), y);
             y += lineHeight;

@@ -1,11 +1,18 @@
 package com.kobe.warehouse.repository;
 
+import com.kobe.warehouse.domain.CashRegister_;
 import com.kobe.warehouse.domain.SalePayment;
+import com.kobe.warehouse.domain.SalePayment_;
+import com.kobe.warehouse.domain.User_;
 import com.kobe.warehouse.service.dto.projection.Recette;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
@@ -15,7 +22,8 @@ import org.springframework.stereotype.Repository;
  */
 @SuppressWarnings("unused")
 @Repository
-public interface PaymentRepository extends JpaRepository<SalePayment, Long> {
+public interface SalePaymentRepository
+    extends JpaRepository<SalePayment, Long>, JpaSpecificationExecutor<SalePayment>, SalePaymentCustomRepository {
     List<SalePayment> findAllBySaleId(Long id);
 
     Optional<List<SalePayment>> findBySaleId(Long id);
@@ -26,4 +34,15 @@ public interface PaymentRepository extends JpaRepository<SalePayment, Long> {
         nativeQuery = true
     )
     List<Recette> findRecettes(@Param("fromDate") LocalDate fromDate, @Param("toDate") LocalDate toDate);
+
+    default Specification<SalePayment> filterByCaissierId(Set<Long> caissierIds) {
+        if (caissierIds == null || caissierIds.isEmpty()) {
+            return null; // No filter applied
+        }
+        return (root, query, cb) -> root.get(SalePayment_.cashRegister).get(CashRegister_.user).get(User_.id).in(caissierIds);
+    }
+
+    default Specification<SalePayment> filterByPeriode(LocalDateTime fromDate, LocalDateTime toDate) {
+        return (root, _, cb) -> cb.between(root.get(SalePayment_.createdAt), fromDate, toDate);
+    }
 }

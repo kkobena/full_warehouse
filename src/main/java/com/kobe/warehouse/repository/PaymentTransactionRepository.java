@@ -88,4 +88,13 @@ public interface PaymentTransactionRepository
             return categorieChiffreAffaireIn;
         };
     }
+
+    default Specification<PaymentTransaction> filterByCaissierId(Set<Long> caissierIds) {
+        if (caissierIds == null || caissierIds.isEmpty()) {
+            return null; // No filter applied
+        }
+        return (root, query, cb) -> root.get(PaymentTransaction_.cashRegister).get(CashRegister_.user).get(User_.id).in(caissierIds);
+    }
+
+
 }

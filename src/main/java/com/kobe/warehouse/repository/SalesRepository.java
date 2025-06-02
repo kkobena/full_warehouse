@@ -3,6 +3,7 @@ package com.kobe.warehouse.repository;
 import com.kobe.warehouse.domain.Customer_;
 import com.kobe.warehouse.domain.Sales;
 import com.kobe.warehouse.domain.Sales_;
+import com.kobe.warehouse.domain.User_;
 import com.kobe.warehouse.domain.enumeration.PaymentStatus;
 import com.kobe.warehouse.service.dto.projection.ChiffreAffaire;
 import com.kobe.warehouse.service.financiel_transaction.dto.SaleInfo;
@@ -10,6 +11,7 @@ import com.kobe.warehouse.service.reglement.differe.dto.ClientDiffere;
 import jakarta.persistence.criteria.CriteriaBuilder.In;
 import java.math.BigDecimal;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.Optional;
 import java.util.Set;
 import org.springframework.data.domain.Page;
@@ -81,5 +83,16 @@ public interface SalesRepository extends JpaSpecificationExecutor<Sales>, JpaRep
             return null;
         }
         return (root, query, cb) -> cb.like(root.get(Sales_.numberTransaction), numberTransaction + "%");
+    }
+
+    default Specification<Sales> filterByCaissierId(Set<Long> caissierIds) {
+        if (caissierIds == null || caissierIds.isEmpty()) {
+            return null; // No filter applied
+        }
+        return (root, query, cb) -> root.get(Sales_.caissier).get(User_.id).in(caissierIds);
+    }
+
+    default Specification<Sales> filterByPeriode(LocalDateTime fromDate, LocalDateTime toDate) {
+        return (root, _, cb) -> cb.between(root.get(Sales_.updatedAt), fromDate, toDate);
     }
 }

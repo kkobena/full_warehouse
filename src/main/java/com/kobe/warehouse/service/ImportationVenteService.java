@@ -4,7 +4,7 @@ import com.kobe.warehouse.domain.CashSale;
 import com.kobe.warehouse.domain.SalePayment;
 import com.kobe.warehouse.domain.SalesLine;
 import com.kobe.warehouse.repository.CashSaleRepository;
-import com.kobe.warehouse.repository.PaymentRepository;
+import com.kobe.warehouse.repository.SalePaymentRepository;
 import com.kobe.warehouse.repository.SalesLineRepository;
 import com.kobe.warehouse.service.dto.CashSaleDTO;
 import com.kobe.warehouse.service.dto.MaxAndMinDate;
@@ -23,13 +23,11 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.web.client.RestTemplateBuilder;
-import org.springframework.context.annotation.Scope;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
-import org.springframework.stereotype.Service;
 import org.springframework.transaction.TransactionDefinition;
 import org.springframework.transaction.TransactionStatus;
 import org.springframework.transaction.support.TransactionCallbackWithoutResult;
@@ -46,7 +44,7 @@ public class ImportationVenteService {
     private final SalesLineService salesLineService;
     private final CashSaleRepository cashSaleRepository;
     private final SalesLineRepository salesLineRepository;
-    private final PaymentRepository paymentRepository;
+    private final SalePaymentRepository paymentRepository;
 
     @Value("${legacy-url}")
     private String legacyUrl;
@@ -57,7 +55,7 @@ public class ImportationVenteService {
         SaleService saleService,
         CashSaleRepository cashSaleRepository,
         SalesLineRepository salesLineRepository,
-        PaymentRepository paymentRepository,
+        SalePaymentRepository paymentRepository,
         SalesLineService salesLineService
     ) {
         this.transactionTemplate = transactionTemplate;

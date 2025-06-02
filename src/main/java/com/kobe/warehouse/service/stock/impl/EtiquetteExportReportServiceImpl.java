@@ -16,6 +16,16 @@ import com.kobe.warehouse.service.report.CommonReportService;
 import com.kobe.warehouse.service.report.Constant;
 import com.kobe.warehouse.service.utils.NumberUtil;
 import com.lowagie.text.DocumentException;
+import org.apache.commons.collections4.ListUtils;
+import org.apache.commons.lang3.StringUtils;
+import org.springframework.core.io.Resource;
+import org.springframework.stereotype.Service;
+import org.thymeleaf.context.Context;
+import org.thymeleaf.spring6.SpringTemplateEngine;
+import org.xhtmlrenderer.layout.SharedContext;
+import org.xhtmlrenderer.pdf.ITextRenderer;
+import org.xhtmlrenderer.pdf.ITextReplacedElementFactory;
+
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -27,15 +37,8 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import org.apache.commons.collections4.ListUtils;
-import org.apache.commons.lang3.StringUtils;
-import org.springframework.core.io.Resource;
-import org.springframework.stereotype.Service;
-import org.thymeleaf.context.Context;
-import org.thymeleaf.spring6.SpringTemplateEngine;
-import org.xhtmlrenderer.layout.SharedContext;
-import org.xhtmlrenderer.pdf.ITextRenderer;
-import org.xhtmlrenderer.pdf.ITextReplacedElementFactory;
+import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 
 @Service
 public class EtiquetteExportReportServiceImpl extends CommonReportService {
@@ -147,11 +150,14 @@ public class EtiquetteExportReportServiceImpl extends CommonReportService {
             return finalItems.stream().map(e -> buildEtiquetteDTO(e, date, rasionSociale)).toList();
         }
         etiquettes.addAll(finalItems.stream().map(e -> buildEtiquetteDTO(e, date, rasionSociale)).toList());
+
         return etiquettes;
     }
 
     private EtiquetteDTO buildEtiquetteDTO(OrderLine item, String date, String rasionSociale) {
         FournisseurProduit fournisseurProduit = item.getFournisseurProduit();
+        System.err.println(fournisseurProduit.getProduit().getLibelle().length());
+        String libelle = fournisseurProduit.getProduit().getLibelle();
 
         return new EtiquetteDTO()
             .setCode(fournisseurProduit.getCodeCip())
@@ -159,7 +165,7 @@ public class EtiquetteExportReportServiceImpl extends CommonReportService {
             .setPrint(true)
             .setDate(date)
             .setMagasin(rasionSociale)
-            .setLibelle(fournisseurProduit.getProduit().getLibelle());
+            .setLibelle(libelle);
     }
 
     private String generateBarcodeImage(String code) throws WriterException, IOException {

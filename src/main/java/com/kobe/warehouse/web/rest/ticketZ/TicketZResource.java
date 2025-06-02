@@ -25,7 +25,7 @@ public class TicketZResource {
         return ResponseEntity.ok().body(ticketZService.getTicketZ(param));
     }
 
-    @GetMapping
+    @GetMapping("/print")
     public ResponseEntity<Void> printReceipt(TicketZParam param) throws PrinterException {
         ticketZService.printTicketZ(null, param);
         return ResponseEntity.ok().build();

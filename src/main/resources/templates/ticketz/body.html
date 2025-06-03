@@ -1,0 +1,29 @@
+<div class="container-tr" th:each="partitions ,partitionsStat : ${items}"
+     th:with="countTr=${#lists.size(partitions)}">
+  <div class="container-tr-td" th:style="'width:' + ${100%countTr} + '%;'"
+       th:each="itm : ${partitions}">
+    <table class="etiquette-table" th:if="${itm.print}">
+      <tbody>
+      <tr>
+        <td class="text-left" colspan="2" th:text="${itm.magasin}"></td>
+      </tr>
+      <tr>
+        <td class="text-left" colspan="2" th:text="${itm.libelle}"></td>
+      </tr>
+      <tr>
+        <td colspan="2">
+          <div><img th:id="${itm.code}"/></div>
+          <div>
+            <p th:text="${itm.code}"></p>
+          </div>
+        </td>
+      </tr>
+      <tr>
+        <td class="text-left" th:text="${itm.date}"></td>
+        <td class="text-right" th:text="${itm.prix}"></td>
+      </tr>
+      </tbody>
+    </table>
+  </div>
+
+</div>

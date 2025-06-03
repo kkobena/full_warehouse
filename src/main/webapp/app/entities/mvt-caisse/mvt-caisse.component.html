@@ -2,7 +2,8 @@
   <div class="row mvts-caisse-gestion">
     <div class="col-2 col-md-2 col-sm-2">
       <p-card>
-        <div #nav="ngbNav" [(activeId)]="active" class="nav flex-column nav-pills" ngbNav orientation="vertical">
+        <div #nav="ngbNav" [(activeId)]="active" class="nav flex-column nav-pills" ngbNav
+             orientation="vertical">
           <ng-container ngbNavItem="mvt-caisse">
             <a class="flex-sm-fill nav-link" ngbNavLink>Mouvements de caisse</a>
             <ng-template ngbNavContent>
@@ -25,6 +26,13 @@
             <a class="flex-sm-fill nav-link" ngbNavLink>Tableau pharmacien</a>
             <ng-template ngbNavContent>
               <jhi-tableau-pharmacien></jhi-tableau-pharmacien>
+            </ng-template>
+          </ng-container>
+
+          <ng-container ngbNavItem="recapitulatif-caisse">
+            <a class="flex-sm-fill nav-link" ngbNavLink>Recapitulatif de caisse</a>
+            <ng-template ngbNavContent>
+              <jhi-recapitualtif-caisse></jhi-recapitualtif-caisse>
             </ng-template>
           </ng-container>
           <ng-container ngbNavItem="gestion-caisse">

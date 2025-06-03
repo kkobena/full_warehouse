@@ -12,6 +12,7 @@ import java.util.Optional;
 import org.springframework.core.io.Resource;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.http.ResponseEntity;
 
 public interface CommandeDataService {
     CommandeDTO findOneById(Long id);
@@ -31,4 +32,6 @@ public interface CommandeDataService {
     Page<OrderLineDTO> filterCommandeLines(Long commandeId, Pageable pageable);
 
     Resource getRuptureCsv(String reference);
+
+    ResponseEntity<byte[]> exportPdf(Long id);
 }

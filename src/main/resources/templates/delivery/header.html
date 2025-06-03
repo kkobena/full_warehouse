@@ -2,47 +2,51 @@
   <div class="row" style="padding-bottom: 0">
     <table style="padding: 0; margin: 0">
       <tbody>
-        <tr>
-          <td>
-            <div class="col-6 company-details">
-              <h2 class="name">
-                <span th:if="${magasin.name ne null}" th:text="${magasin.name}"></span>
-              </h2>
-              <div th:if="${magasin.phone ne null}">
-                <span th:text="${magasin.phone}"></span>
-              </div>
-              <div th:if="${magasin.address ne null}">
-                <span th:text="${magasin.address}"></span>
-              </div>
+      <tr>
+        <td>
+          <div class="col-6 company-details">
+            <h2 class="name">
+              <span th:if="${magasin.name ne null}" th:text="${magasin.name}"></span>
+            </h2>
+            <div th:if="${magasin.phone ne null}">
+              <span th:text="${magasin.phone}"></span>
             </div>
-          </td>
-          <td style="text-align: right; padding: 0">
-            <span style="text-align: right; font-weight: 600" th:text="${page_count}"></span>
-          </td>
-        </tr>
+            <div th:if="${magasin.address ne null}">
+              <span th:text="${magasin.address}"></span>
+            </div>
+          </div>
+        </td>
+        <td style="text-align: right; padding: 0">
+          <span style="text-align: right; font-weight: 600" th:text="${page_count}"></span>
+        </td>
+      </tr>
       </tbody>
     </table>
   </div>
-  <div class="row" style="padding-top: 0; padding-bottom: 0; margin: 0; padding-left: 10px; padding-right: 10px">
+  <div class="row"
+       style="padding-top: 0; padding-bottom: 0; margin: 0; padding-left: 10px; padding-right: 10px">
     <table style="margin: 0">
       <tbody>
-        <tr>
-          <td>FOURNISSEUR # <span class="fournisseur" th:text="${entity.fournisseur.libelle}"></span></td>
-          <td style="text-align: right">
+      <tr>
+        <td>FOURNISSEUR # <span class="fournisseur" th:text="${entity.fournisseur.libelle}"></span>
+        </td>
+        <td style="text-align: right">
             <span class="invoice-id invoice-details"
-              >BON #
+            >BON #
               <th:block th:text="${entity.receiptReference}"></th:block>
             </span>
-          </td>
-        </tr>
-        <tr>
-          <td>
-            <span th:if="${entity.fournisseur.phone ne null}" th:text="${entity.fournisseur.phone}"></span>
-          </td>
-          <td style="text-align: right">
-            <span th:text="${'DATE # '+  #temporals.format(entity.modifiedDate, 'dd/MM/yyyy HH:mm')}"></span>
-          </td>
-        </tr>
+        </td>
+      </tr>
+      <tr>
+        <td>
+          <span th:if="${entity.fournisseur.phone ne null}"
+                th:text="${entity.fournisseur.phone}"></span>
+        </td>
+        <td style="text-align: right">
+          <span
+            th:text="${'DATE # '+  #temporals.format(entity.updatedAt, 'dd/MM/yyyy HH:mm')}"></span>
+        </td>
+      </tr>
       </tbody>
     </table>
   </div>

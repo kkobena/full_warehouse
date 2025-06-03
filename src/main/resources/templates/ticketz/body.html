@@ -1,29 +1,36 @@
-<div class="container-tr" th:each="partitions ,partitionsStat : ${items}"
+<div class="container-tr" th:each="partitions  : ${items}"
      th:with="countTr=${#lists.size(partitions)}">
-  <div class="container-tr-td" th:style="'width:' + ${100%countTr} + '%;'"
-       th:each="itm : ${partitions}">
-    <table class="etiquette-table" th:if="${itm.print}">
+  <div class="container-tr-td" th:each="itm : ${partitions}"
+       th:style="'width:' + ${100%countTr} + '%;'">
+    <table class="etiquette-table">
+      <thead>
+      <tr>
+        <th colspan="2" th:text="${itm.userName}"></th>
+      </tr>
+      </thead>
       <tbody>
-      <tr>
-        <td class="text-left" colspan="2" th:text="${itm.magasin}"></td>
+      <tr th:each="data : ${itm.datas}">
+        <td class="text-left" th:text="${data.libelle}"></td>
+        <td class="unit" th:text="${data.montant}"></td>
       </tr>
-      <tr>
-        <td class="text-left" colspan="2" th:text="${itm.libelle}"></td>
-      </tr>
-      <tr>
-        <td colspan="2">
-          <div><img th:id="${itm.code}"/></div>
-          <div>
-            <p th:text="${itm.code}"></p>
-          </div>
-        </td>
-      </tr>
-      <tr>
-        <td class="text-left" th:text="${itm.date}"></td>
-        <td class="text-right" th:text="${itm.prix}"></td>
-      </tr>
+
       </tbody>
+      <tfoot>
+      <tr th:each="sum : ${itm.summary}">
+        <td class="text-left" th:text="${sum.libelle}"></td>
+        <td class="unit" th:text="${sum.montant}"></td>
+      </tr>
+      </tfoot>
     </table>
   </div>
 
 </div>
+<table class="ticketz-sumary">
+  <tbody>
+  <tr th:each="sumary  : ${reportSummary}">
+    <td class="text-left" th:text="${sumary.libelle}"></td>
+    <td class="unit" th:text="${sumary.montant}"></td>
+  </tr>
+
+  </tbody>
+</table>

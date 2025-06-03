@@ -46,10 +46,8 @@ import { FloatLabel } from 'primeng/floatlabel';
     FloatLabel,
   ],
   templateUrl: './gestion-caisse.component.html',
-  styles: ``,
 })
 export class GestionCaisseComponent implements OnInit, AfterViewInit {
-  entityService = inject(CashRegisterService);
   protected totalItems = 0;
   protected loading!: boolean;
   protected btnLoading = false;
@@ -66,11 +64,12 @@ export class GestionCaisseComponent implements OnInit, AfterViewInit {
   protected readonly OPEN = CashRegisterStatut.OPEN;
   protected readonly VALIDATED = CashRegisterStatut.VALIDATED;
   protected readonly CLOSED = CashRegisterStatut.CLOSED;
-  private primeNGConfig = inject(PrimeNG);
-  private translate = inject(TranslateService);
-  private userService = inject(UserService);
-  private mvtParamServiceService = inject(MvtParamServiceService);
-  private messageService = inject(MessageService);
+  private readonly primeNGConfig = inject(PrimeNG);
+  private readonly translate = inject(TranslateService);
+  private readonly userService = inject(UserService);
+  private readonly mvtParamServiceService = inject(MvtParamServiceService);
+  private readonly messageService = inject(MessageService);
+  private readonly entityService = inject(CashRegisterService);
 
   ngAfterViewInit(): void {
     this.translate.use('fr');

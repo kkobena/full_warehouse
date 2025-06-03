@@ -34,6 +34,7 @@ import java.util.Map;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.stream.Collectors;
 import org.springframework.data.jpa.domain.Specification;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
 
@@ -46,6 +47,7 @@ public class TicketZServiceImpl implements TicketZService {
     private final ThirdPartySaleRepository thirdPartySaleRepository;
     private final PaymentModeService paymentModeService;
     private final TicketZPrinterService ticketZPrinterService;
+    private final TicketZReportService ticketZReportService;
 
     public TicketZServiceImpl(
         SalePaymentRepository salePaymentRepository,
@@ -53,7 +55,8 @@ public class TicketZServiceImpl implements TicketZService {
         SalesRepository salesRepository,
         ThirdPartySaleRepository thirdPartySaleRepository,
         PaymentModeService paymentModeService,
-        TicketZPrinterService ticketZPrinterService
+        TicketZPrinterService ticketZPrinterService,
+        TicketZReportService ticketZReportService
     ) {
         this.salePaymentRepository = salePaymentRepository;
         this.paymentTransactionRepository = paymentTransactionRepository;
@@ -61,6 +64,7 @@ public class TicketZServiceImpl implements TicketZService {
         this.thirdPartySaleRepository = thirdPartySaleRepository;
         this.paymentModeService = paymentModeService;
         this.ticketZPrinterService = ticketZPrinterService;
+        this.ticketZReportService = ticketZReportService;
     }
 
     @Override
@@ -77,6 +81,11 @@ public class TicketZServiceImpl implements TicketZService {
                 (LocalDateTime) periode.key(),
                 (LocalDateTime) periode.value()
             );
+    }
+
+    @Override
+    public ResponseEntity<byte[]> generatePdf(TicketZParam param) {
+        return this.ticketZReportService.generatePdf(this.getTicketZ(param), getPeriode(param));
     }
 
     private TicketZ combineAll(TicketZParam param) {

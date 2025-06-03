@@ -1,4 +1,4 @@
-import { Injectable, inject } from '@angular/core';
+import { inject, Injectable } from '@angular/core';
 import { DashboardService } from '../../home/dashboard.service';
 import { Observable } from 'rxjs';
 import { VenteRecordParam } from '../model/vente-record-param.model';
@@ -11,15 +11,11 @@ import { HttpResponse } from '@angular/common/http';
   providedIn: 'root',
 })
 export class CharBuilderService {
-  private dashboardService = inject(DashboardService);
-
   protected documentStyle: CSSStyleDeclaration;
   protected textColor: string;
   protected textColorSecondary: string;
   protected surfaceBorder: string;
-
-  /** Inserted by Angular inject() migration for backwards compatibility */
-  constructor(...args: unknown[]);
+  private dashboardService = inject(DashboardService);
 
   constructor() {
     this.documentStyle = getComputedStyle(document.documentElement);

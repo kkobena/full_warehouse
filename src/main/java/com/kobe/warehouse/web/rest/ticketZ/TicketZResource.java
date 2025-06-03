@@ -30,4 +30,10 @@ public class TicketZResource {
         ticketZService.printTicketZ(null, param);
         return ResponseEntity.ok().build();
     }
+
+    @GetMapping("/pdf")
+    public ResponseEntity<byte[]> generatePdf(TicketZParam param) {
+
+        return ticketZService.generatePdf(param);
+    }
 }

@@ -1,4 +1,4 @@
-import { Injectable, inject } from '@angular/core';
+import { inject, Injectable } from '@angular/core';
 import { HttpClient, HttpResponse } from '@angular/common/http';
 import { CashRegister } from './model/cash-register.model';
 import { SERVER_API_URL } from '../../app.constants';
@@ -13,14 +13,8 @@ type EntityArrayResponseType = HttpResponse<CashRegister[]>;
   providedIn: 'root',
 })
 export class CashRegisterService {
-  protected http = inject(HttpClient);
-
-  public resourceUrl = SERVER_API_URL + 'api/cash-registers';
-
-  /** Inserted by Angular inject() migration for backwards compatibility */
-  constructor(...args: unknown[]);
-
-  constructor() {}
+  private readonly http = inject(HttpClient);
+  private readonly resourceUrl = SERVER_API_URL + 'api/cash-registers';
 
   find(id: number): Observable<EntityResponseType> {
     return this.http.get<CashRegister>(`${this.resourceUrl}/${id}`, { observe: 'response' });

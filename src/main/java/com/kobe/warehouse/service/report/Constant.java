@@ -65,6 +65,7 @@ public final class Constant {
     public static final String REGLEMENT_DIFFERE_RECEIPT_TEMPLATE_FILE = "differe/receipt/main";
     public static final String LIST_DIFFERE_PDF_TEMPLATE_FILE = "differe/pdf/list/main";
     public static final String REGLEMENT_DIFFERE_PDF_TEMPLATE_FILE = "differe/pdf/reglement/main";
+    public static final String TICKET_Z_TEMPLATE_FILE = "ticketz/main";
 
     private Constant() {}
 }

@@ -44,8 +44,8 @@ export class ListBonsComponent implements OnInit {
   protected totalItems = 0;
   protected ref?: DynamicDialogRef;
   protected selectedFilter = 'CLOSED';
-  private spinner = inject(NgxSpinnerService);
-  private dialogService = inject(DialogService);
+  private readonly spinner = inject(NgxSpinnerService);
+  private readonly dialogService = inject(DialogService);
 
   ngOnInit(): void {
     this.onSearch();

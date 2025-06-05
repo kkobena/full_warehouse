@@ -1,1 +1,98 @@
-<p>recapitualtif-caisse works!</p>
+<p-panel header="Recapitulatif de caisse">
+  <p-toolbar>
+    <ng-template #start>
+      <div class="d-flex justify-content-between">
+        <div>
+          <p-select (onChange)="onSelectedUsersChange()" [(ngModel)]="onlyVente" [options]="mvts"
+                    size="large"></p-select>
+        </div>
+        <div>
+          <p-multiSelect
+            #userControl
+            [(ngModel)]="selectedUsersId"
+            [fluid]="true"
+            [options]="users"
+            id="selectedUserId"
+            inputId="selectedUserId"
+            optionLabel="abbrName"
+            optionValue="id"
+            size="large"
+
+          ></p-multiSelect>
+        </div>
+
+
+        <div>
+          <p-floatlabel variant="on">
+            <p-datePicker
+              [(ngModel)]="fromDate"
+              [maxDate]="toDate"
+              [selectOtherMonths]="true"
+              [showButtonBar]="true"
+              dateFormat="dd/mm/yy"
+              id="toDate"
+            >
+            </p-datePicker>
+            <label for="toDate">Du</label>
+          </p-floatlabel>
+        </div>
+        <div>
+          <p-floatlabel variant="on">
+            <p-datePicker
+              [(ngModel)]="toDate"
+              [minDate]="fromDate"
+              [selectOtherMonths]="true"
+              [showButtonBar]="true"
+              dateFormat="dd/mm/yy"
+              id="toDate"
+              inputId="toDate"
+            ></p-datePicker>
+            <label for="toDate">Au</label>
+          </p-floatlabel>
+        </div>
+        <div>
+          <p-floatlabel variant="on">
+            <p-select [(ngModel)]="fromTime" [options]="hous" id="fromHour" size="large"></p-select>
+            <label for="fromHour">De</label>
+          </p-floatlabel>
+        </div>
+        <div>
+          <p-floatlabel variant="on">
+            <p-select [(ngModel)]="toTime" [options]="hous" id="toHour" size="large"></p-select>
+            <label for="hous">A</label>
+          </p-floatlabel>
+        </div>
+      </div>
+    </ng-template>
+    <ng-template #end>
+      <div class="d-flex justify-content-end">
+        <p-button
+          (onClick)="fetchTickets()"
+          icon="pi pi-file"
+          label="Rechercher"
+        ></p-button>
+        <p-button
+          (onClick)="fetchTickets()"
+          icon="pi pi-file"
+          label="Envoier par e-mail"
+        ></p-button>
+        <p-button
+          (onClick)="fetchTickets()"
+          icon="pi pi-file"
+          label="Envoier par sms"
+        ></p-button>
+        <p-button
+          (onClick)="exportToPdf()"
+          icon="pi pi-file"
+          label="Exporter"
+
+        ></p-button>
+        <p-button
+          (onClick)="printTickets()"
+          icon="pi pi-print"
+          label="Imprimer"
+        ></p-button>
+      </div>
+    </ng-template>
+  </p-toolbar>
+</p-panel>

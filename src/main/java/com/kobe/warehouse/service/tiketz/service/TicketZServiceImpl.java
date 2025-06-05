@@ -1,7 +1,5 @@
 package com.kobe.warehouse.service.tiketz.service;
 
-import static java.util.Objects.isNull;
-
 import com.kobe.warehouse.domain.PaymentMode;
 import com.kobe.warehouse.domain.PaymentTransaction;
 import com.kobe.warehouse.domain.SalePayment;
@@ -23,6 +21,11 @@ import com.kobe.warehouse.service.tiketz.dto.TicketZData;
 import com.kobe.warehouse.service.tiketz.dto.TicketZParam;
 import com.kobe.warehouse.service.tiketz.dto.TicketZProjection;
 import com.kobe.warehouse.service.tiketz.dto.TicketZRecap;
+import org.springframework.data.jpa.domain.Specification;
+import org.springframework.http.ResponseEntity;
+import org.springframework.stereotype.Service;
+import org.springframework.util.CollectionUtils;
+
 import java.awt.print.PrinterException;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
@@ -31,12 +34,11 @@ import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.stream.Collectors;
-import org.springframework.data.jpa.domain.Specification;
-import org.springframework.http.ResponseEntity;
-import org.springframework.stereotype.Service;
-import org.springframework.util.CollectionUtils;
+
+import static java.util.Objects.isNull;
 
 @Service
 public class TicketZServiceImpl implements TicketZService {
@@ -76,11 +78,11 @@ public class TicketZServiceImpl implements TicketZService {
     public void printTicketZ(String hostName, TicketZParam param) throws PrinterException {
         Pair periode = getPeriode(param);
         this.ticketZPrinterService.printTicketZ(
-                hostName,
-                getTicketZ(param),
-                (LocalDateTime) periode.key(),
-                (LocalDateTime) periode.value()
-            );
+            hostName,
+            getTicketZ(param),
+            (LocalDateTime) periode.key(),
+            (LocalDateTime) periode.value()
+        );
     }
 
     @Override
@@ -98,6 +100,7 @@ public class TicketZServiceImpl implements TicketZService {
     }
 
     private TicketZ combineCreditPerUser(List<TicketZProjection> ticketZProjections, List<TicketZCreditProjection> creditProjections) {
+        AtomicInteger userCount = new AtomicInteger(0);
         Map<Long, List<TicketZCreditProjection>> creditProjectionsMap = creditProjections
             .stream()
             .collect(Collectors.groupingBy(TicketZCreditProjection::userId));
@@ -110,6 +113,7 @@ public class TicketZServiceImpl implements TicketZService {
             .stream()
             .collect(Collectors.groupingBy(TicketZProjection::userId))
             .forEach((userId, data) -> {
+                userCount.incrementAndGet();
                 List<TicketZData> summaryMobile = new ArrayList<>(); //pour mobile
                 List<TicketZData> ticketZDataUser = new ArrayList<>();
                 TicketZProjection ticketZProjection = data.getFirst();
@@ -164,6 +168,7 @@ public class TicketZServiceImpl implements TicketZService {
         // Combine credit data
 
         creditProjectionsMap.forEach((userId, creditData) -> {
+            userCount.incrementAndGet();
             TicketZCreditProjection firstCredit = creditData.getFirst();
             String userName = String.format("%s. %s", firstCredit.firstName().charAt(0), firstCredit.lastName());
             long totalCredit = creditData.stream().mapToLong(TicketZCreditProjection::montant).sum();
@@ -178,10 +183,13 @@ public class TicketZServiceImpl implements TicketZService {
         // build summary
         List<TicketZData> summaryData = new ArrayList<>();
         List<PaymentMode> paymentModes = this.paymentModeService.fetch();
-        summary.forEach((modePaimentCode, tuple) -> {
-            String libelleMode = getModePaimentLibelle(modePaimentCode, paymentModes);
-            summaryData.add(new TicketZData(libelleMode, tuple.e1(), tuple.e2(), modePaimentCode.getSortOrder()));
-        });
+        if (userCount.get() > 1) {
+            summary.forEach((modePaimentCode, tuple) -> {
+                String libelleMode = getModePaimentLibelle(modePaimentCode, paymentModes);
+                summaryData.add(new TicketZData(libelleMode, tuple.e1(), tuple.e2(), modePaimentCode.getSortOrder()));
+            });
+        }
+
         if (montantMobileG.get() > 0) {
             summaryData.add(new TicketZData("Total Mobile", montantMobileG.get(), montantMobileG2.get(), 100));
         }

@@ -1,3 +1,5 @@
+<ngx-spinner [fullScreen]="false" bdColor="rgba(255,255,255,0.5)" color="#f13151" size="medium" type="timer"></ngx-spinner>
+
 <p-panel header="Recapitulatif de caisse">
   <p-toolbar>
     <ng-template #start>
@@ -8,7 +10,6 @@
         </div>
         <div>
           <p-multiSelect
-            #userControl
             [(ngModel)]="selectedUsersId"
             [fluid]="true"
             [options]="users"
@@ -70,28 +71,30 @@
           (onClick)="fetchTickets()"
           icon="pi pi-file"
           label="Rechercher"
+          severity="primary"
+          [raised]="true"
         ></p-button>
-        <p-button
-          (onClick)="fetchTickets()"
-          icon="pi pi-file"
-          label="Envoier par e-mail"
-        ></p-button>
-        <p-button
-          (onClick)="fetchTickets()"
-          icon="pi pi-file"
-          label="Envoier par sms"
-        ></p-button>
-        <p-button
-          (onClick)="exportToPdf()"
-          icon="pi pi-file"
-          label="Exporter"
 
-        ></p-button>
-        <p-button
-          (onClick)="printTickets()"
-          icon="pi pi-print"
-          label="Imprimer"
-        ></p-button>
+        <p-splitbutton
+          [model]="messageBtn"
+          icon="pi pi-telegram"
+          label="Envoié un message"
+          severity="info"
+          [raised]="true"
+        />
+
+
+
+        <p-splitbutton
+          [model]="exportMenus"
+          icon="pi pi-file-export"
+          label="Exporter"
+          severity="help"
+          [raised]="true"
+        ></p-splitbutton
+        >
+
+
       </div>
     </ng-template>
   </p-toolbar>

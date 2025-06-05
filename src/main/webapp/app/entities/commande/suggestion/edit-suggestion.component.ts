@@ -1,36 +1,41 @@
-import { Component, ElementRef, inject, input, OnInit, signal, viewChild } from '@angular/core';
-import { Suggestion } from './model/suggestion.model';
-import { SuggestionService } from './suggestion.service';
-import { ConfirmationService, LazyLoadEvent, MenuItem, PrimeIcons, PrimeTemplate } from 'primeng/api';
-import { HttpHeaders, HttpResponse } from '@angular/common/http';
-import { SuggestionLine } from './model/suggestion-line.model';
-import { APPEND_TO, ITEMS_PER_PAGE, PRODUIT_COMBO_MIN_LENGTH, PRODUIT_NOT_FOUND } from '../../../shared/constants/pagination.constants';
-import { acceptButtonProps, rejectButtonProps } from '../../../shared/util/modal-button-props';
-import { DialogService } from 'primeng/dynamicdialog';
-import { Button } from 'primeng/button';
-import { CommonModule } from '@angular/common';
-import { ActivatedRoute, Router, RouterModule } from '@angular/router';
-import { TableModule } from 'primeng/table';
-import { Tooltip } from 'primeng/tooltip';
-import { Keys } from '../../../shared/model/keys.model';
-import { NgxSpinnerModule, NgxSpinnerService } from 'ngx-spinner';
-import { ConfirmDialogModule } from 'primeng/confirmdialog';
-import { EtaProduitComponent } from '../../../shared/eta-produit/eta-produit.component';
-import { IconField } from 'primeng/iconfield';
-import { InputIcon } from 'primeng/inputicon';
-import { InputTextModule } from 'primeng/inputtext';
-import { ToolbarModule } from 'primeng/toolbar';
-import { SplitButton } from 'primeng/splitbutton';
-import { AutoComplete } from 'primeng/autocomplete';
-import { InputGroup } from 'primeng/inputgroup';
-import { InputGroupAddon } from 'primeng/inputgroupaddon';
-import { FormsModule, ReactiveFormsModule } from '@angular/forms';
-import { IProduit } from '../../../shared/model/produit.model';
-import { IFournisseur } from '../../../shared/model/fournisseur.model';
-import { saveAs } from 'file-saver';
-import { ProduitService } from '../../produit/produit.service';
-import { Observable } from 'rxjs';
-import { FloatLabelModule } from 'primeng/floatlabel';
+import {Component, ElementRef, inject, OnInit, signal, viewChild} from '@angular/core';
+import {Suggestion} from './model/suggestion.model';
+import {SuggestionService} from './suggestion.service';
+import {ConfirmationService, LazyLoadEvent, MenuItem, PrimeIcons, PrimeTemplate} from 'primeng/api';
+import {HttpHeaders, HttpResponse} from '@angular/common/http';
+import {SuggestionLine} from './model/suggestion-line.model';
+import {
+  APPEND_TO,
+  ITEMS_PER_PAGE,
+  PRODUIT_COMBO_MIN_LENGTH,
+  PRODUIT_NOT_FOUND
+} from '../../../shared/constants/pagination.constants';
+import {acceptButtonProps, rejectButtonProps} from '../../../shared/util/modal-button-props';
+import {DialogService} from 'primeng/dynamicdialog';
+import {Button} from 'primeng/button';
+import {CommonModule} from '@angular/common';
+import {ActivatedRoute, Router, RouterModule} from '@angular/router';
+import {TableModule} from 'primeng/table';
+import {Tooltip} from 'primeng/tooltip';
+import {Keys} from '../../../shared/model/keys.model';
+import {NgxSpinnerModule, NgxSpinnerService} from 'ngx-spinner';
+import {ConfirmDialogModule} from 'primeng/confirmdialog';
+import {EtaProduitComponent} from '../../../shared/eta-produit/eta-produit.component';
+import {IconField} from 'primeng/iconfield';
+import {InputIcon} from 'primeng/inputicon';
+import {InputTextModule} from 'primeng/inputtext';
+import {ToolbarModule} from 'primeng/toolbar';
+import {SplitButton} from 'primeng/splitbutton';
+import {AutoComplete} from 'primeng/autocomplete';
+import {InputGroup} from 'primeng/inputgroup';
+import {InputGroupAddon} from 'primeng/inputgroupaddon';
+import {FormsModule, ReactiveFormsModule} from '@angular/forms';
+import {IProduit} from '../../../shared/model/produit.model';
+import {IFournisseur} from '../../../shared/model/fournisseur.model';
+import {saveAs} from 'file-saver';
+import {ProduitService} from '../../produit/produit.service';
+import {Observable} from 'rxjs';
+import {FloatLabelModule} from 'primeng/floatlabel';
 
 @Component({
   selector: 'jhi-edit-suggestion',
@@ -101,7 +106,8 @@ export class EditSuggestionComponent implements OnInit {
       {
         label: 'Pdf',
         icon: PrimeIcons.FILE_PDF,
-        command: () => {},
+        command: () => {
+        },
       },
     ];
   }
@@ -155,6 +161,7 @@ export class EditSuggestionComponent implements OnInit {
   private onProduitSuccess(data: IProduit[] | null): void {
     this.produits = data || [];
   }
+
   commander(): void {
     this.spinner.show();
     this.suggestionService.commander(this.writableSignal()?.id).subscribe({
@@ -184,7 +191,7 @@ export class EditSuggestionComponent implements OnInit {
   }
 
   ngOnInit(): void {
-    this.activatedRoute.data.subscribe(({ suggestion }) => {
+    this.activatedRoute.data.subscribe(({suggestion}) => {
       this.writableSignal.set(suggestion);
       this.onSearch();
     });
@@ -229,6 +236,7 @@ export class EditSuggestionComponent implements OnInit {
       this.loadPage(0);
     }
   }
+
   onQuantityBoxAction(event: any): void {
     const qytMvt = Number(event.target.value);
     if (qytMvt <= 0) {
@@ -244,6 +252,7 @@ export class EditSuggestionComponent implements OnInit {
     }
     this.onAddOrderLine(qytMvt);
   }
+
   private createItem(produit: IProduit, quantity: number): SuggestionLine {
     return {
       ...new SuggestionLine(),
@@ -259,12 +268,14 @@ export class EditSuggestionComponent implements OnInit {
       );
     }
   }
+
   private subscribeToSaveLineResponse(result: Observable<HttpResponse<{}>>): void {
     result.subscribe({
       next: () => this.onSaveLineSuccess(),
       error: (err: any) => this.onCommonError(err),
     });
   }
+
   private updateProduitQtyBox(): void {
     if (this.quantityBox()) {
       this.quantityBox().nativeElement.value = 1;
@@ -280,9 +291,11 @@ export class EditSuggestionComponent implements OnInit {
       this.loadPage();
     });
   }
+
   gotoCommandeComponent(): void {
     this.router.navigate(['/commande']);
   }
+
   onUpdateQuantityRequested(item: SuggestionLine, event: any): void {
     const newQuantity = Number(event.target.value);
     if (newQuantity > 0) {
@@ -290,6 +303,7 @@ export class EditSuggestionComponent implements OnInit {
       this.subscribeToSaveLineResponse(this.suggestionService.updateQuantity(item));
     }
   }
+
   private onDelete(ids: Keys): void {
     this.spinner.show();
     this.suggestionService.deleteItem(ids).subscribe({
@@ -308,7 +322,8 @@ export class EditSuggestionComponent implements OnInit {
     });
   }
 
-  private onCommonError(error: any): void {}
+  private onCommonError(error: any): void {
+  }
 
   delete(id: number): void {
     this.confirmationService.confirm({

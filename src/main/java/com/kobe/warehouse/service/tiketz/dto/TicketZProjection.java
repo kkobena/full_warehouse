@@ -3,7 +3,7 @@ package com.kobe.warehouse.service.tiketz.dto;
 import com.kobe.warehouse.domain.enumeration.ModePaimentCode;
 
 public record TicketZProjection(
-    ModePaimentCode modePaimentCode,
+    String codeModePaiment,
     String libelle,
     Long userId,
     String firstName,
@@ -11,4 +11,8 @@ public record TicketZProjection(
     Long montant,
     Long montantReel,
     boolean credit
-) {}
+) {
+    public ModePaimentCode modePaimentCode(){
+        return ModePaimentCode.valueOf(codeModePaiment);
+    }
+}

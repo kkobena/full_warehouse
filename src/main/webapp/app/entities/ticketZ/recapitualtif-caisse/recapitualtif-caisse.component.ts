@@ -19,10 +19,24 @@ import {FormsModule} from '@angular/forms';
 import {MultiSelectModule} from 'primeng/multiselect';
 import {MenuItem} from "primeng/api";
 import {SplitButton} from "primeng/splitbutton";
+import { Tooltip } from 'primeng/tooltip';
 
 @Component({
   selector: 'jhi-recapitualtif-caisse',
-  imports: [CommonModule, Panel, Button, DatePicker, FloatLabel, Toolbar, FormsModule, MultiSelectModule, SelectModule, SplitButton, NgxSpinnerComponent],
+  imports: [
+    CommonModule,
+    Panel,
+    Button,
+    DatePicker,
+    FloatLabel,
+    Toolbar,
+    FormsModule,
+    MultiSelectModule,
+    SelectModule,
+    SplitButton,
+    NgxSpinnerComponent,
+    Tooltip,
+  ],
   templateUrl: './recapitualtif-caisse.component.html',
 })
 export class RecapitualtifCaisseComponent implements OnInit {
@@ -31,8 +45,8 @@ export class RecapitualtifCaisseComponent implements OnInit {
   protected fromTime = '00:00';
   protected toTime = '23:59';
   protected readonly mvts = [
-    {label: 'Les ventes uniquement', value: true},
-    {label: 'Tous les mouvemente', value: false},
+    { label: 'Les ventes uniquement', value: true },
+    { label: 'Tous les mouvemente', value: false },
   ];
   protected exportMenus: MenuItem[];
   protected messageBtn: MenuItem[];
@@ -64,7 +78,7 @@ export class RecapitualtifCaisseComponent implements OnInit {
       {
         label: 'Mail',
         icon: 'pi pi-inbox',
-        command: () => this.sentMail()  ,
+        command: () => this.sentMail(),
       },
       {
         label: 'SMS',
@@ -72,30 +86,25 @@ export class RecapitualtifCaisseComponent implements OnInit {
         command: () => this.sentSms(),
       },
     ];
-
-
-
-
   }
 
   loadAllUsers(): void {
     this.userService.query().subscribe((res: HttpResponse<IUser[]>) => {
       if (res.body) {
-        this.users = [{id: null, abbrName: 'TOUT'}];
+        this.users = [{ id: null, abbrName: 'TOUT' }];
         this.users = [...this.users, ...res.body];
       }
     });
   }
-private sentSms(): void {
+  private sentSms(): void {
     // Logique pour envoyer un SMS
     // Vous pouvez appeler un service pour envoyer le SMS ici
     console.log('SMS envoyé');
-}
+  }
   private sentMail(): void {
     // Logique pour envoyer un e-mail
     // Vous pouvez appeler un service pour envoyer l'e-mail ici
     console.log('E-mail envoyé');
-
   }
 
   protected exportToPdf(): void {
@@ -120,8 +129,6 @@ private sentSms(): void {
       error: () => this.spinner.hide(),
     });
   }
-
-
 
   protected onSelectedUsersChange(): void {
     if (this.selectedUsersId.length === 0) {

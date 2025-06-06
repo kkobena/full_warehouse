@@ -1,4 +1,5 @@
-<ngx-spinner [fullScreen]="false" bdColor="rgba(255,255,255,0.5)" color="#f13151" size="medium" type="timer"></ngx-spinner>
+<ngx-spinner [fullScreen]="false" bdColor="rgba(255,255,255,0.5)" color="#f13151" size="medium"
+             type="timer"></ngx-spinner>
 
 <p-panel header="Recapitulatif de caisse">
   <p-toolbar>
@@ -69,28 +70,31 @@
       <div class="d-flex justify-content-end">
         <p-button
           (onClick)="fetchTickets()"
+          [raised]="true"
           icon="pi pi-file"
           label="Rechercher"
           severity="primary"
-          [raised]="true"
         ></p-button>
 
         <p-splitbutton
           [model]="messageBtn"
-          icon="pi pi-telegram"
-          label="Envoié un message"
-          severity="info"
           [raised]="true"
+          icon="pi pi-telegram"
+          label="Message"
+          pTooltip="Envoie par mail ou SMS"
+          severity="info"
+          tooltipPosition="left"
         />
-
 
 
         <p-splitbutton
           [model]="exportMenus"
+          [raised]="true"
           icon="pi pi-file-export"
           label="Exporter"
+          pTooltip="Imprimer ou exporter en PDF"
           severity="help"
-          [raised]="true"
+          tooltipPosition="left"
         ></p-splitbutton
         >
 

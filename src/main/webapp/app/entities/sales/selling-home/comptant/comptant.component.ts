@@ -316,7 +316,7 @@ export class ComptantComponent {
 
       this.amountComputingComponent().computeMonnaie(amount);
     } else {
-      const inputAmount = Number(paymentModeControl.control.target.value);
+      const inputAmount = Number(paymentModeControl.control.target.value?.replace(/\D/g, '')) ;//Number(paymentModeControl.control.target.value);
       this.amountComputingComponent().computeMonnaie(inputAmount);
       this.modeReglementComponent().manageShowAddButton(inputAmount);
     }

@@ -23,6 +23,7 @@ import { CommonService } from './common.service';
   providers: [MessageService],
 })
 export class AssureFormStepComponent implements OnInit {
+
   entity?: ICustomer;
   active: number | undefined = 0;
   ref = inject(DynamicDialogRef);
@@ -32,9 +33,10 @@ export class AssureFormStepComponent implements OnInit {
   activeStep = 1;
   ayantDroitStepComponent = viewChild(AyantDroitStepComponent);
   assureStepComponent = viewChild(AssureStepComponent);
+  protected readonly commonService = inject(CommonService);
   protected items: MenuItem[];
   protected readonly assureFormStepService = inject(AssureFormStepService);
-  private readonly commonService = inject(CommonService);
+
   private readonly messageService = inject(MessageService);
   private readonly errorService = inject(ErrorService);
   private readonly customerService = inject(CustomerService);

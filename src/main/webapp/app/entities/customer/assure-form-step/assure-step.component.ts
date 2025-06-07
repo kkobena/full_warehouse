@@ -21,10 +21,13 @@ import { ComplementaireStepComponent } from './complementaire-step.component';
 import { FormTiersPayantComponent } from '../../tiers-payant/form-tiers-payant/form-tiers-payant.component';
 import { DialogService, DynamicDialogRef } from 'primeng/dynamicdialog';
 import { IClientTiersPayant } from '../../../shared/model/client-tiers-payant.model';
+import {DateNaissDirective} from "../../../shared/date-naiss.directive";
+import {CommonModule} from "@angular/common";
 
 @Component({
   selector: 'jhi-assure-step',
   imports: [
+    CommonModule,
     AutoCompleteModule,
     RadioButton,
     RadioButtonModule,
@@ -39,9 +42,10 @@ import { IClientTiersPayant } from '../../../shared/model/client-tiers-payant.mo
     TranslateDirective,
     CardModule,
     ComplementaireStepComponent,
+    DateNaissDirective
   ],
   templateUrl: './assure-step.component.html',
-  styles: ``,
+
 })
 export class AssureStepComponent implements OnInit, AfterViewInit {
   entity?: ICustomer;

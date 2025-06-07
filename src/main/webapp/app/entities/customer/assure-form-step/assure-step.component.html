@@ -2,11 +2,12 @@
   <ng-template pTemplate="content">
     <form [formGroup]="editForm" name="editForm">
       <div [hidden]="true" class="form-group">
-        <input class="form-control" formControlName="id" id="id" name="id" pInputText readonly type="hidden" />
+        <input class="form-control" formControlName="id" id="id" name="id" pInputText readonly type="hidden"/>
       </div>
       <div class="form-row">
         <div class="form-group col-md-3">
-          <label class="form-control-label" for="field_firstName">Nom </label> <span style="font-weight: 900; color: red">*</span>
+          <label class="form-control-label" for="field_firstName">Nom </label> <span
+          style="font-weight: 900; color: red">*</span>
           <input
             #firstName
             autocomplete="off"
@@ -20,13 +21,15 @@
           @if (editForm.get('firstName')!.invalid && (editForm.get('firstName')!.dirty || editForm.get('firstName')!.touched)) {
             <div>
               @if (editForm.get('firstName')?.errors?.required) {
-                <small class="form-text text-danger" jhiTranslate="entity.validation.required"> This field is required. </small>
+                <small class="form-text text-danger" jhiTranslate="entity.validation.required"> This field is
+                  required. </small>
               }
             </div>
           }
         </div>
         <div class="form-group col-md-5">
-          <label class="form-control-label" for="field_lastName">Prénom(s) <span style="font-weight: 900; color: red">*</span> </label>
+          <label class="form-control-label" for="field_lastName">Prénom(s) <span
+            style="font-weight: 900; color: red">*</span> </label>
           <input
             autocomplete="off"
             class="form-control"
@@ -39,13 +42,15 @@
           @if (editForm.get('lastName')!.invalid && (editForm.get('lastName')!.dirty || editForm.get('lastName')!.touched)) {
             <div>
               @if (editForm.get('lastName')?.errors?.required) {
-                <small class="form-text text-danger" jhiTranslate="entity.validation.required"> This field is required. </small>
+                <small class="form-text text-danger" jhiTranslate="entity.validation.required"> This field is
+                  required. </small>
               }
             </div>
           }
         </div>
         <div class="form-group col-md-4">
-          <label class="form-control-label" for="field_num">Numéro de sécurité <span style="font-weight: 900; color: red">*</span> </label>
+          <label class="form-control-label" for="field_num">Numéro de sécurité <span
+            style="font-weight: 900; color: red">*</span> </label>
           <input
             autocomplete="off"
             class="form-control"
@@ -59,7 +64,8 @@
           @if (editForm.get('num')!.invalid && (editForm.get('num')!.dirty || editForm.get('num')!.touched)) {
             <div>
               @if (editForm.get('num')?.errors?.required) {
-                <small class="form-text text-danger" jhiTranslate="entity.validation.required"> This field is required. </small>
+                <small class="form-text text-danger" jhiTranslate="entity.validation.required"> This field is
+                  required. </small>
               }
             </div>
           }
@@ -67,7 +73,8 @@
       </div>
       <div class="form-row">
         <div class="form-group col-md-3">
-          <label class="form-control-label" for="field_taux">Taux<span style="font-weight: 900; color: red">*</span></label>
+          <label class="form-control-label" for="field_taux">Taux<span
+            style="font-weight: 900; color: red">*</span></label>
           <input
             autocomplete="off"
             class="form-control"
@@ -81,13 +88,15 @@
           @if (editForm.get('taux')!.invalid && (editForm.get('taux')!.dirty || editForm.get('taux')!.touched)) {
             <div>
               @if (editForm.get('taux')?.errors?.required) {
-                <small class="form-text text-danger" jhiTranslate="entity.validation.required"> This field is required. </small>
+                <small class="form-text text-danger" jhiTranslate="entity.validation.required"> This field is
+                  required. </small>
               }
             </div>
           }
         </div>
         <div class="form-group col-md-6">
-          <label class="form-control-label" for="tiersPayantId">Tiers-payant<span style="font-weight: 900; color: red">*</span></label>
+          <label class="form-control-label" for="tiersPayantId">Tiers-payant<span
+            style="font-weight: 900; color: red">*</span></label>
 
           <p-autoComplete
             (completeMethod)="searchTiersPayant($event)"
@@ -109,7 +118,8 @@
           @if (editForm.get('tiersPayantId')!.invalid && (editForm.get('tiersPayantId')!.dirty || editForm.get('tiersPayantId')!.touched)) {
             <div>
               @if (editForm.get('tiersPayantId')?.errors?.required) {
-                <small class="form-text text-danger" jhiTranslate="entity.validation.required"> This field is required. </small>
+                <small class="form-text text-danger" jhiTranslate="entity.validation.required"> This field is
+                  required. </small>
               }
             </div>
           }
@@ -130,18 +140,25 @@
         </div>
       </div>
       <div class="form-row">
+        @let datNaiss = editForm.get('datNaiss');
         <div class="form-group col-md-4">
           <label class="form-control-label">Date de naissance</label>
-          <p-inputmask [style]="{ width: '100%' }" formControlName="datNaiss" inputId="datNaiss" slotChar="jj/mm/aaaa" />
-          <!--        <p-calendar [maxDate]="maxDate" [selectOtherMonths]="true"-->
-          <!--                    [showButtonBar]="true"-->
-          <!--                    appendTo="body" class="form-control form-date-input" formControlName="datNaiss"-->
-          <!--                    inputId="datNaiss"></p-calendar>-->
+          <input jhiDateNaiss pInputText  placeholder="jj/mm/aaaa" [style]="{ width: '100%' }" formControlName="datNaiss"
+                 />
+          @if (datNaiss!.invalid && (datNaiss!.dirty || datNaiss!.touched)) {
+            <div>
+              @let errors = datNaiss?.errors;
+              @if (errors?.invalidDate || errors?.outOfRange) {
+                <small class="form-text text-danger"> Veuillez saisir une date valide</small>
+              }
+            </div>
+          }
         </div>
 
         <div class="form-group col-md-4">
           <label class="form-control-label" for="email">E-mail</label>
-          <input autocomplete="off" class="form-control" formControlName="email" id="email" name="email" pInputText type="email" />
+          <input autocomplete="off" class="form-control" formControlName="email" id="email" name="email" pInputText
+                 type="email"/>
         </div>
 
         <div class="form-group col-md-4">
@@ -153,10 +170,8 @@
         </div>
       </div>
     </form>
-    @if (
-      (assureFormStepService.typeAssure() === 'ASSURANCE' || assureFormStepService.assure()?.typeTiersPayant === 'ASSURANCE') &&
-      editForm.valid
-    ) {
+    @if ((assureFormStepService.typeAssure() === 'ASSURANCE' || assureFormStepService.assure()?.typeTiersPayant === 'ASSURANCE') &&
+    editForm.valid) {
       <jhi-complementaire-step></jhi-complementaire-step>
     }
   </ng-template>

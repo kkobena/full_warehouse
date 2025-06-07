@@ -1,29 +1,39 @@
-import { AfterViewInit, Component, effect, ElementRef, inject, OnInit, signal, viewChild, WritableSignal } from '@angular/core';
-import { CustomerService } from '../../../../customer/customer.service';
-import { HttpResponse } from '@angular/common/http';
-import { ICustomer } from '../../../../../shared/model/customer.model';
-import { SelectedCustomerService } from '../../../service/selected-customer.service';
-import { AssuredCustomerListComponent } from '../../../assured-customer-list/assured-customer-list.component';
-import { DialogService, DynamicDialogRef } from 'primeng/dynamicdialog';
-import { ConfirmationService, MenuItem, MessageService } from 'primeng/api';
-import { FormsModule } from '@angular/forms';
-import { KeyFilterModule } from 'primeng/keyfilter';
-import { PanelModule } from 'primeng/panel';
-import { InputTextModule } from 'primeng/inputtext';
-import { DOCUMENT } from '@angular/common';
-import { IClientTiersPayant } from '../../../../../shared/model/client-tiers-payant.model';
-import { FormAyantDroitComponent } from '../../../../customer/form-ayant-droit/form-ayant-droit.component';
-import { SplitButtonModule } from 'primeng/splitbutton';
-import { AyantDroitCustomerListComponent } from '../../../ayant-droit-customer-list/ayant-droit-customer-list.component';
-import { ConfirmPopupModule } from 'primeng/confirmpopup';
-import { ConfirmDialogModule } from 'primeng/confirmdialog';
-import { CurrentSaleService } from '../../../service/current-sale.service';
-import { AssureFormStepComponent } from '../../../../customer/assure-form-step/assure-form-step.component';
-import { BaseSaleService } from '../../../service/base-sale.service';
-import { AddComplementaireComponent } from '../add-complementaire/add-complementaire.component';
-import { acceptButtonProps, rejectButtonProps } from '../../../../../shared/util/modal-button-props';
-import { IconField } from 'primeng/iconfield';
-import { InputIcon } from 'primeng/inputicon';
+import {
+  AfterViewInit,
+  Component,
+  effect,
+  ElementRef,
+  inject,
+  OnInit,
+  signal,
+  viewChild,
+  WritableSignal
+} from '@angular/core';
+import {CustomerService} from '../../../../customer/customer.service';
+import {HttpResponse} from '@angular/common/http';
+import {ICustomer} from '../../../../../shared/model/customer.model';
+import {SelectedCustomerService} from '../../../service/selected-customer.service';
+import {AssuredCustomerListComponent} from '../../../assured-customer-list/assured-customer-list.component';
+import {DialogService, DynamicDialogRef} from 'primeng/dynamicdialog';
+import {ConfirmationService, MenuItem, MessageService} from 'primeng/api';
+import {FormsModule} from '@angular/forms';
+import {KeyFilterModule} from 'primeng/keyfilter';
+import {PanelModule} from 'primeng/panel';
+import {InputTextModule} from 'primeng/inputtext';
+import {DOCUMENT} from '@angular/common';
+import {IClientTiersPayant} from '../../../../../shared/model/client-tiers-payant.model';
+import {FormAyantDroitComponent} from '../../../../customer/form-ayant-droit/form-ayant-droit.component';
+import {SplitButtonModule} from 'primeng/splitbutton';
+import {AyantDroitCustomerListComponent} from '../../../ayant-droit-customer-list/ayant-droit-customer-list.component';
+import {ConfirmPopupModule} from 'primeng/confirmpopup';
+import {ConfirmDialogModule} from 'primeng/confirmdialog';
+import {CurrentSaleService} from '../../../service/current-sale.service';
+import {AssureFormStepComponent} from '../../../../customer/assure-form-step/assure-form-step.component';
+import {BaseSaleService} from '../../../service/base-sale.service';
+import {AddComplementaireComponent} from '../add-complementaire/add-complementaire.component';
+import {acceptButtonProps, rejectButtonProps} from '../../../../../shared/util/modal-button-props';
+import {IconField} from 'primeng/iconfield';
+import {InputIcon} from 'primeng/inputicon';
 
 @Component({
   selector: 'jhi-assurance-data',
@@ -42,23 +52,22 @@ import { InputIcon } from 'primeng/inputicon';
   templateUrl: './assurance-data.component.html',
 })
 export class AssuranceDataComponent implements OnInit, AfterViewInit {
-  customerService = inject(CustomerService);
-  search: string = null;
-  selectedCustomerService = inject(SelectedCustomerService);
-  confirmationService = inject(ConfirmationService);
-  currentSaleService = inject(CurrentSaleService);
   searchInput = viewChild<ElementRef>('searchInput');
-  dialogService = inject(DialogService);
-  divClass = 'col-md-4 col-sm-4 col-4 bon';
-  divCustomer = 'col-md-4 col-sm-4 col-4';
-  ref: DynamicDialogRef;
-  ayantDroit: ICustomer | null = null;
-  selectedTiersPayants: WritableSignal<IClientTiersPayant[]> = signal<IClientTiersPayant[]>([]);
-  items: MenuItem[] | undefined;
-  messageService = inject(MessageService);
-  baseSaleService = inject(BaseSaleService);
-  private document = inject<Document>(DOCUMENT);
+  protected search: string = null;
+  protected readonly selectedCustomerService = inject(SelectedCustomerService);
+  protected divClass = 'col-md-4 col-sm-4 col-4 bon';
+  protected divCustomer = 'col-md-4 col-sm-4 col-4';
+  protected ref: DynamicDialogRef;
+  protected ayantDroit: ICustomer | null = null;
+  protected selectedTiersPayants: WritableSignal<IClientTiersPayant[]> = signal<IClientTiersPayant[]>([]);
+  protected items: MenuItem[] | undefined;
+  protected baseSaleService = inject(BaseSaleService);
+  protected readonly currentSaleService = inject(CurrentSaleService);
 
+  private readonly dialogService = inject(DialogService);
+  private readonly document = inject<Document>(DOCUMENT);
+  private readonly customerService = inject(CustomerService);
+  private readonly confirmationService = inject(ConfirmationService);
   constructor() {
     effect(() => {
       const assuredCustomer = this.selectedCustomerService.selectedCustomerSignal();
@@ -129,7 +138,7 @@ export class AssuranceDataComponent implements OnInit, AfterViewInit {
         .subscribe({
           next: (res: HttpResponse<ICustomer[]>) => {
             const assuredCustomers = res.body;
-            if (assuredCustomers && assuredCustomers.length > 0) {
+            if (assuredCustomers && assuredCustomers.length) {
               if (assuredCustomers.length === 1) {
                 this.selectedCustomerService.setCustomer(assuredCustomers[0]);
                 this.firstRefBonFocus();
@@ -142,14 +151,15 @@ export class AssuranceDataComponent implements OnInit, AfterViewInit {
               this.search = null;
             }
           },
-          error() {},
+          error() {
+          },
         });
     }
   }
 
   openAssuredCustomerListTable(): void {
     this.ref = this.dialogService.open(AssuredCustomerListComponent, {
-      data: { searchString: this.search },
+      data: {searchString: this.search},
       header: 'CLIENTS  ASSURES',
       width: '70%',
       closeOnEscape: false,
@@ -169,7 +179,7 @@ export class AssuranceDataComponent implements OnInit, AfterViewInit {
   addComplementaire(): void {
     const currentCustomer = this.selectedCustomerService.selectedCustomerSignal();
     this.ref = this.dialogService.open(AddComplementaireComponent, {
-      data: { tiersPayantsExisting: this.selectedTiersPayants(), assure: currentCustomer },
+      data: {tiersPayantsExisting: this.selectedTiersPayants(), assure: currentCustomer},
       header: 'AJOUTER UN TIERS PAYANT COMPLEMENTAIRE',
       width: '45%',
       closeOnEscape: false,
@@ -222,7 +232,7 @@ export class AssuranceDataComponent implements OnInit, AfterViewInit {
 
   addAssuredCustomer(): void {
     this.ref = this.dialogService.open(AssureFormStepComponent, {
-      data: { entity: null, typeAssure: this.currentSaleService.typeVo() },
+      data: {entity: null, typeAssure: this.currentSaleService.typeVo()},
       header: "FORMULAIRE D'AJOUT DE NOUVEAU DE CLIENT",
       width: '80%',
     });
@@ -253,7 +263,7 @@ export class AssuranceDataComponent implements OnInit, AfterViewInit {
   loadAyantDoits(): void {
     const currentCustomer = this.selectedCustomerService.selectedCustomerSignal();
     this.ref = this.dialogService.open(AyantDroitCustomerListComponent, {
-      data: { assure: currentCustomer },
+      data: {assure: currentCustomer},
       header: 'LISTE DES AYANTS DROITS DU CLIENT [' + currentCustomer.fullName + ']',
       width: '60%',
       closeOnEscape: false,

@@ -118,14 +118,22 @@
             }
           </div>
           <div class="form-group col-md-6">
+            @let datNaiss = editForm.get('datNaiss');
             <label class="form-control-label">Date de naissance</label>
-            <p-inputmask
+            <input jhiDateNaiss
               [style]="{ width: '100%' }"
               formControlName="datNaiss"
-              inputId="datNaiss"
-              mask="99/99/9999"
-              slotChar="dd/mm/yyyy"
+              id="datNaiss"
+              placeholder="jj/mm/aaaa"
             />
+            @if (datNaiss!.invalid && (datNaiss!.dirty || datNaiss!.touched)) {:!
+              <div>
+                @let errors = datNaiss?.errors;
+                @if (errors?.invalidDate || errors?.outOfRange) {
+                  <small class="form-text text-danger"> Veuillez saisir une date valide</small>
+                }
+              </div>
+            }
           </div>
         </div>
 

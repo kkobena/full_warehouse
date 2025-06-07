@@ -12,6 +12,7 @@ import { AssureFormStepService } from './assure-form-step.service';
 import { MessageService } from 'primeng/api';
 import { DATE_FORMAT_FROM_STRING_FR, FORMAT_ISO_DATE_TO_STRING_FR } from '../../../shared/util/warehouse-util';
 import { DividerModule } from 'primeng/divider';
+import {DateNaissDirective} from "../../../shared/date-naiss.directive";
 
 @Component({
   selector: 'jhi-ayant-droit-step',
@@ -25,6 +26,7 @@ import { DividerModule } from 'primeng/divider';
     TranslateDirective,
     CardModule,
     DividerModule,
+    DateNaissDirective,
   ],
   templateUrl: './ayant-droit-step.component.html',
   styles: ``,

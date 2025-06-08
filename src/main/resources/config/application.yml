@@ -41,7 +41,7 @@ spring:
     host: smtp.gmail.com
     port: 587
     username: "easyshopws@gmail.com"
-    password: "ndid bogp ywrv umkt" #"4Y8b)7{g,cMF2b"
+    password:
     protocol: smtp
     properties:
       mail:
@@ -202,8 +202,6 @@ portCom:
 legacy-url: http://localhost:9090/laborex
 mail:
   username: Warehouse
-  password: "4Y8b)7{g,cMF2b"
-  protocol: smtps
-  email: badoukobena@gmail.com
+  email:
 
 

@@ -3,13 +3,16 @@
     <span class="font-semibold text-xl">VENTES EN ATTENTES</span>
   </ng-template>
   <ng-template #content>
-    <jhi-prevente-modal (pendingSalesSidebarChange)="closeSideBar($event)" [user]="userCaissier"> </jhi-prevente-modal>
+    <jhi-prevente-modal (pendingSalesSidebarChange)="closeSideBar($event)"
+                        [user]="userCaissier"></jhi-prevente-modal>
   </ng-template>
 </p-drawer>
-<ngx-spinner [fullScreen]="false" bdColor="rgba(255,255,255,0.5)" color="#f13151" name="salespinner" size="medium" type="timer">
+<ngx-spinner [fullScreen]="false" bdColor="rgba(255,255,255,0.5)" color="#f13151" name="salespinner"
+             size="medium" type="timer">
 </ngx-spinner>
 
-<p-confirmDialog [baseZIndex]="10000" [style]="{ width: '40vw' }" key="deleteItem"> </p-confirmDialog>
+<p-confirmDialog [baseZIndex]="10000" [style]="{ width: '40vw' }"
+                 key="deleteItem"></p-confirmDialog>
 
 <p-dialog
   (onHide)="onHideHideDialog()"
@@ -25,7 +28,9 @@
   <i class="pi pi-exclamation-triangle" style="font-size: 2rem"></i>
   <span class="ml-3"><strong>Veuillez renseigner le numéro de bon</strong></span>
   <ng-template pTemplate="footer">
-    <p-button (click)="cancelCommonDialog()" data-dismiss="modal" severity="danger" type="button">Fermer </p-button>
+    <p-button (click)="cancelCommonDialog()" data-dismiss="modal" severity="danger" type="button">
+      Fermer
+    </p-button>
   </ng-template>
 </p-dialog>
 <div class="row selling">
@@ -56,13 +61,13 @@
             <ng-container ngbNavItem="assurance">
               <a class="flex-sm-fill nav-link" ngbNavLink>Assurance</a>
               <ng-template ngbNavContent>
-                <jhi-assurance [isPresale]="isPresale"> </jhi-assurance>
+                <jhi-assurance [isPresale]="isPresale"></jhi-assurance>
               </ng-template>
             </ng-container>
             <ng-container ngbNavItem="carnet">
               <a class="flex-sm-fill nav-link" ngbNavLink>Carnet</a>
               <ng-template ngbNavContent>
-                <jhi-carnet [isPresale]="isPresale"> </jhi-carnet>
+                <jhi-carnet [isPresale]="isPresale"></jhi-carnet>
               </ng-template>
             </ng-container>
           </div>
@@ -73,10 +78,11 @@
   <div class="col-md-10 col-sm-10 row sale-container">
     <p-panel [styleClass]="'sale-panel-header'">
       <ng-template pTemplate="header">
-        <div class="row sale-toolbar-first" style="padding-left: 10px; width: 100%; padding-right: 0">
+        <div class="row sale-toolbar-first"
+             style="padding-left: 10px; width: 100%; padding-right: 0">
           <div class="col-3" style="padding: 0">
             <p-inputgroup>
-              <p-inputgroup-addon> Vendeurs </p-inputgroup-addon>
+              <p-inputgroup-addon> Vendeurs</p-inputgroup-addon>
               <p-select
                 #userBox
                 (onChange)="onSelectUser()"
@@ -92,11 +98,12 @@
           <div class="col-9 row text-right" style="padding: 0">
             <div class="col-8">
               @if (active === 'comptant' && currentSaleService.currentSale()) {
-                <jhi-customer-overlay-panel (onCloseEvent)="onCustomerOverlay($event)"></jhi-customer-overlay-panel>
+                <jhi-customer-overlay-panel
+                  (onCloseEvent)="onCustomerOverlay($event)"></jhi-customer-overlay-panel>
               }
             </div>
             <div class="col-4">
-              @if (isLargeScreen){
+              @if (isLargeScreen) {
                 <p-button
                   (click)="openPindingSide()"
                   [disabled]="currentSaleService.currentSale() || isPresale"
@@ -117,7 +124,8 @@
                 ></p-button>
               }
 
-              <p-button (click)="previousState()" [raised]="true" icon="pi pi-arrow-left" label="Retour" severity="secondary"></p-button>
+              <p-button (click)="previousState()" [raised]="true" icon="pi pi-arrow-left"
+                        label="Retour" severity="secondary"></p-button>
             </div>
           </div>
         </div>
@@ -158,14 +166,17 @@
                         <div [style]="{ width: '100%' }">
                           <span style="width: 20%; display: inline-block">{{ item.codeCip }}</span
                           ><span> {{ item.libelle }}</span>
-                          <span class="float-right font-bold">{{ item.regularUnitPrice | number }}</span>
+                          <span
+                            class="float-right font-bold">{{ item.regularUnitPrice | number }}</span>
                         </div>
                       }
                       @if (item.totalQuantity <= 0) {
                         <div [style]="{ width: '100%' }">
-                          <span class="stockless" style="width: 20%; display: inline-block">{{ item.codeCip }}</span
+                          <span class="stockless"
+                                style="width: 20%; display: inline-block">{{ item.codeCip }}</span
                           ><span class="stockless"> {{ item.libelle }}</span>
-                          <span class="float-right stockless font-bold">{{ item.regularUnitPrice | number }}</span>
+                          <span
+                            class="float-right stockless font-bold">{{ item.regularUnitPrice | number }}</span>
                         </div>
                       }
                     </ng-template>
@@ -175,11 +186,13 @@
             </div>
             <div class="col-md-2">
               <p-inputgroup>
-                <p-inputgroup-addon> Qté </p-inputgroup-addon>
-                <input #quantyBox (keydown.enter)="onQuantityBoxAction($event)" [(ngModel)]="quantiteSaisie" pInputText type="number" />
+                <p-inputgroup-addon> Qté</p-inputgroup-addon>
+                <input #quantyBox (keydown.enter)="onQuantityBoxAction($event)"
+                       [(ngModel)]="quantiteSaisie" pInputText type="number" />
 
                 <p-inputgroup-addon>
-                  <p-button (click)="onQtyBntClickEvent()" icon="pi pi-plus" severity="success" type="button"></p-button>
+                  <p-button (click)="onQtyBntClickEvent()" icon="pi pi-plus" severity="success"
+                            type="button"></p-button>
                 </p-inputgroup-addon>
               </p-inputgroup>
             </div>
@@ -198,7 +211,8 @@
               <div class="col-md-3">
                 Rayons:
                 @for (rayon of produitSelected?.rayonProduits; track rayon.id) {
-                  <p-button badgeSeverity="contrast" label="Rayons" variant="outlined" [badge]="rayon.libelleRayon"></p-button>
+                  <p-button badgeSeverity="contrast" label="Rayons" variant="outlined"
+                            [badge]="rayon.libelleRayon"></p-button>
                 }
               </div>
             }
@@ -211,9 +225,7 @@
   </div>
 </div>
 
-<p-confirmDialog [baseZIndex]="10000" [style]="{ width: '40vw' }" appendTo="body" key="forcerStockDialog"> </p-confirmDialog>
+
 <p-toast position="center"></p-toast>
 
-<p-confirmDialog key="changeTab"> </p-confirmDialog>
-
-<p-confirmDialog key="venteSansBon"> </p-confirmDialog>
+<p-confirmDialog />

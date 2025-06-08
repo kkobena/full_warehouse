@@ -37,6 +37,21 @@ management:
 
 
 spring:
+  mail:
+    host: smtp.gmail.com
+    port: 587
+    username: "easyshopws@gmail.com"
+    password: "ndid bogp ywrv umkt" #"4Y8b)7{g,cMF2b"
+    protocol: smtp
+    properties:
+      mail:
+        smtp:
+          auth: true
+          starttls:
+            enable: true
+            required: true
+
+
   logging:
     level:
       org.hibernate.SQL: DEBUG
@@ -158,7 +173,7 @@ jhipster:
   #   allow-credentials: true
   #   max-age: 1800
   mail:
-    from: warehouse@localhost
+    from: easyshopws@gmail.com
   api-docs:
     default-include-pattern: /api/**
     management-include-pattern: /management/**
@@ -185,3 +200,10 @@ jhipster:
 # application:
 portCom:
 legacy-url: http://localhost:9090/laborex
+mail:
+  username: Warehouse
+  password: "4Y8b)7{g,cMF2b"
+  protocol: smtps
+  email: badoukobena@gmail.com
+
+

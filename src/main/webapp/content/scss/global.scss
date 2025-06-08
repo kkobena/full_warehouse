@@ -1869,16 +1869,44 @@ menu  de la vente
     }
   }
 }
+
 .montant-payer {
   font-size: 1.2rem;
 }
+
 .edit-table {
   td {
     padding: 0.2rem 0.2rem !important;
   }
 }
+
 jhi-commande-update {
   .p-panel-header {
     padding: 0.5rem 1.125rem !important;
+  }
+}
+
+jhi-recapitualtif-caisse {
+  .ticketz-container {
+    padding: 15px 8px !important;
+
+    .col-md-4, .col-lg-4, .col-sm-12, .col-xl-3 {
+      padding: 0 !important;
+
+      .p-card-body {
+        padding: 0.5rem !important;
+      }
+    }
+
+    .p-card-title {
+      font-size: 1.2rem;
+      font-weight: 700;
+      white-space: nowrap;
+    }
+
+    .badge {
+      font-size: 1.2rem;
+      font-weight: 700;
+    }
   }
 }

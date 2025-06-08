@@ -9,10 +9,8 @@ import { ToastModule } from 'primeng/toast';
 import TranslateDirective from '../../../shared/language/translate.directive';
 import { CardModule } from 'primeng/card';
 import { AssureFormStepService } from './assure-form-step.service';
-import { MessageService } from 'primeng/api';
-import { DATE_FORMAT_FROM_STRING_FR, FORMAT_ISO_DATE_TO_STRING_FR } from '../../../shared/util/warehouse-util';
 import { DividerModule } from 'primeng/divider';
-import {DateNaissDirective} from "../../../shared/date-naiss.directive";
+import { DateNaissDirective } from '../../../shared/date-naiss.directive';
 
 @Component({
   selector: 'jhi-ayant-droit-step',
@@ -29,17 +27,14 @@ import {DateNaissDirective} from "../../../shared/date-naiss.directive";
     DateNaissDirective,
   ],
   templateUrl: './ayant-droit-step.component.html',
-  styles: ``,
 })
 export class AyantDroitStepComponent implements OnInit {
-  private fb = inject(UntypedFormBuilder);
-
   assure?: ICustomer;
   ayantDroit: ICustomer;
   isSaving = false;
   isValid = true;
   assureFormStepService = inject(AssureFormStepService);
-  messageService = inject(MessageService);
+  fb = inject(UntypedFormBuilder);
   editForm = this.fb.group({
     id: [],
     firstName: [null, [Validators.required, Validators.min(1)]],
@@ -48,11 +43,6 @@ export class AyantDroitStepComponent implements OnInit {
     datNaiss: [],
     sexe: [],
   });
-
-  /** Inserted by Angular inject() migration for backwards compatibility */
-  constructor(...args: unknown[]);
-
-  constructor() {}
 
   ngOnInit(): void {
     const currentAssure = this.assureFormStepService.assure();
@@ -75,7 +65,7 @@ export class AyantDroitStepComponent implements OnInit {
       id: customer.id,
       firstName: customer.firstName,
       lastName: customer.lastName,
-      datNaiss: customer.datNaiss ? FORMAT_ISO_DATE_TO_STRING_FR(customer.datNaiss) : null,
+      datNaiss: customer.datNaiss,
       sexe: customer.sexe,
       numAyantDroit: customer.numAyantDroit,
     });
@@ -88,7 +78,7 @@ export class AyantDroitStepComponent implements OnInit {
       firstName: this.editForm.get(['firstName']).value,
       lastName: this.editForm.get(['lastName']).value,
       numAyantDroit: this.editForm.get(['numAyantDroit']).value,
-      datNaiss: DATE_FORMAT_FROM_STRING_FR(this.editForm.get(['datNaiss']).value),
+      datNaiss: this.editForm.get(['datNaiss']).value,
       sexe: this.editForm.get(['sexe']).value,
       type: 'ASSURE',
     };

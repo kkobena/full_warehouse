@@ -102,4 +102,54 @@
       </div>
     </ng-template>
   </p-toolbar>
+
+  <div class="ticketz-container row">
+    @let summary = ticketZ?.summaries || [];
+    @if (summary.length) {
+      <div class="col-3 summary">
+        <p-card class="recap-card" [header]="' RECAPITULATIF GÉNÉRAL'">
+          <ul class="list-group">
+            @for (item of summary; track item.libelle) {
+              <li class="list-group-item d-flex justify-content-between align-items-center">
+                {{ item.libelle }}
+                <span
+                  class="badge text-bg-secondary fw-bold rounded-pill">{{ item.value | number }}</span>
+              </li>
+            }
+
+
+          </ul>
+
+        </p-card>
+      </div>
+    }
+    <div [ngClass]="summary.length ? 'col-9 row' : 'col-12 row'">
+
+      @for (recap of ticketZ?.datas; track recap.userName) {
+        <div class="col  mb-1">
+          <p-card class="recap-card" [header]="'RECAPITULATIF DE: '+  recap.userName">
+            <ul class="list-group">
+              @for (item of recap.datas; track item.libelle) {
+                <li class="list-group-item d-flex justify-content-between align-items-center">
+                  {{ item.libelle }}
+                  <span
+                    class="badge text-bg-secondary fw-bold rounded-pill">{{ item.value | number }}</span>
+                </li>
+              }
+
+              @for (item of recap.summary; track item.libelle) {
+                <li
+                  class="list-group-item d-flex  justify-content-between align-items-center">
+                  <span class="font-bold">{{ item.libelle }}</span>
+                  <span
+                    class="badge text-bg-secondary fw-bold rounded-pill">{{ item.value | number }}</span>
+                </li>
+              }
+            </ul>
+
+          </p-card>
+        </div>
+      }
+    </div>
+  </div>
 </p-panel>

@@ -1,6 +1,14 @@
 package com.kobe.warehouse.service.sale.impl;
 
-import com.kobe.warehouse.domain.*;
+import com.kobe.warehouse.domain.CashRegister;
+import com.kobe.warehouse.domain.CashSale;
+import com.kobe.warehouse.domain.Remise;
+import com.kobe.warehouse.domain.RemiseClient;
+import com.kobe.warehouse.domain.RemiseProduit;
+import com.kobe.warehouse.domain.Sales;
+import com.kobe.warehouse.domain.SalesLine;
+import com.kobe.warehouse.domain.ThirdPartySales;
+import com.kobe.warehouse.domain.User;
 import com.kobe.warehouse.domain.enumeration.CodeRemise;
 import com.kobe.warehouse.domain.enumeration.PaymentStatus;
 import com.kobe.warehouse.domain.enumeration.SalesStatut;
@@ -363,10 +371,6 @@ public class SaleCommonService {
         if (dto.isAvoir()) {
             this.avoirService.save(c);
         }
-    }
-
-    public int computeCmuAmount(SalesLine salesLine) {
-        return salesLine.getRegularUnitPrice() * salesLine.getQuantityRequested();
     }
 
     public void editSale(Sales c, SaleDTO dto) throws SaleAlreadyCloseException {

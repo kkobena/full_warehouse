@@ -246,6 +246,8 @@ public Response generatePdf() {
         // Convertir en PDF
         ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
         ITextRenderer renderer = new ITextRenderer();
+
+        //  System.err.println(e);
         renderer.setDocumentFromString(this.getTemplateAsHtml());
         renderer.layout();
         renderer.createPDF(outputStream);

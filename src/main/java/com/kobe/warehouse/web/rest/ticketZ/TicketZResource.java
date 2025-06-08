@@ -19,7 +19,6 @@ public class TicketZResource {
         this.ticketZService = ticketZService;
     }
 
-
     @GetMapping
     public ResponseEntity<TicketZ> getTicketZ(TicketZParam param) {
         return ResponseEntity.ok().body(ticketZService.getTicketZ(param));
@@ -33,7 +32,12 @@ public class TicketZResource {
 
     @GetMapping("/pdf")
     public ResponseEntity<byte[]> generatePdf(TicketZParam param) {
-
         return ticketZService.generatePdf(param);
+    }
+
+    @GetMapping("/email")
+    public ResponseEntity<Void> sentToEmail(TicketZParam param) {
+        ticketZService.sentToEmail(param);
+        return ResponseEntity.ok().build();
     }
 }

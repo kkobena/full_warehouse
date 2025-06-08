@@ -1,6 +1,7 @@
 <div class="user-cashregister">
   @if (openCaisse || cashRegisters.length === 0) {
-    <p-card header="Ouverture de caisse" [style]="{ width: '20vw', marginLeft: 'auto', marginRight: 'auto', marginTop: '35px' }">
+    <p-card header="Ouverture de caisse"
+            [style]="{ width: '20vw', marginLeft: 'auto', marginRight: 'auto', marginTop: '35px' }">
       <form [formGroup]="editForm" (ngSubmit)="openCashRegister()">
         <div class="form-group">
           <label for="cashFundAmount">Fonds de caisse</label>
@@ -29,14 +30,17 @@
       </ng-template>
     </p-card>
   } @else if (cashRegisters.length === 1) {
-    <p-card header="Ma caisse en cours" [style]="{ width: '40vw', marginLeft: 'auto', marginRight: 'auto', marginTop: '35px' }">
+    <p-card header="Ma caisse en cours"
+            [style]="{ width: '40vw', marginLeft: 'auto', marginRight: 'auto', marginTop: '35px' }">
       <ul class="list-group">
         <li class="list-group-item d-flex justify-content-between align-items-center">
-          Fonds de caisse <span class="badge bg-primary rounded-pill">{{ cashRegisters[0]?.cashFund | number }}</span>
+          Fonds de caisse <span
+          class="badge bg-primary rounded-pill">{{ cashRegisters[0]?.cashFund | number }}</span>
         </li>
 
         <li class="list-group-item d-flex justify-content-between align-items-center">
-          Date d'ouverture <span class="badge bg-success rounded-pill">{{ cashRegisters[0]?.created | date: 'dd/MM/yyyy HH:mm' }}</span>
+          Date d'ouverture <span
+          class="badge bg-success rounded-pill">{{ cashRegisters[0]?.created | date: 'dd/MM/yyyy HH:mm' }}</span>
         </li>
 
         @if (cashRegisters[0].statut === OPEN) {
@@ -64,6 +68,7 @@
             label="Fermer la caisse"
             severity="primary"
             class="w-full"
+            icon="pi pi-wallet"
             styleClass="w-full"
           />
           <p-button
@@ -75,12 +80,15 @@
             styleClass="w-full"
           />
 
-          <p-button label="Retour" severity="secondary" (click)="previousState()" class="w-full" styleClass="w-full" />
+          <p-button icon="pi pi-arrow-left" label="Retour" severity="secondary"
+                    (click)="previousState()"
+                    class="w-full" styleClass="w-full" />
         </div>
       </ng-template>
     </p-card>
   } @else {
-    <p-panel header="Mes caisses en cours" [style]="{ width: '65vw', marginLeft: 'auto', marginRight: 'auto' }">
+    <p-panel header="Mes caisses en cours"
+             [style]="{ width: '65vw', marginLeft: 'auto', marginRight: 'auto' }">
       <!--      <ng-template pTemplate="header">-->
       <!--        <div class="row" style="width: 100%;padding: 0;">-->
       <!--          <h5 class="col-md-7" style="padding: 0;">Mes caisses en cours</h5>-->
@@ -95,7 +103,8 @@
       <!--        </div>-->
       <!--      </ng-template>-->
 
-      <p-table [value]="cashRegisters" [rows]="10" [paginator]="true" [rowsPerPageOptions]="[10, 15, 20]">
+      <p-table [value]="cashRegisters" [rows]="10" [paginator]="true"
+               [rowsPerPageOptions]="[10, 15, 20]">
         <ng-template pTemplate="header">
           <tr>
             <th>Date d'ouverture</th>
@@ -109,22 +118,23 @@
             <td>{{ cashRegister.created | date: 'dd/MM/yyyy HH:mm' }}</td>
             <td class="text-right text-900">{{ cashRegister.initAmount | number }}</td>
             @if (cashRegister.statut === 'OPEN' || cashRegister.statut === 'En cours') {
-              <td class="text-center"><span class="badge bg-success rounded-pill">En cours</span></td>
+              <td class="text-center"><span class="badge bg-success rounded-pill">En cours</span>
+              </td>
             } @else if (cashRegister.statut === 'CLOSED' || cashRegister.statut === 'Fermée') {
-              <td class="text-center"><span class="badge bg-secondary rounded-pill">Fermée</span></td>
+              <td class="text-center"><span class="badge bg-secondary rounded-pill">Fermée</span>
+              </td>
             } @else if (cashRegister.statut === 'PENDING' || cashRegister.statut === 'En attente') {
-              <td class="text-center"><span class="badge bg-warning rounded-pill">En attente</span></td>
+              <td class="text-center"><span class="badge bg-warning rounded-pill">En attente</span>
+              </td>
             } @else {
               <td class="text-center"><span class="badge bg-info rounded-pill">Validée</span></td>
             }
 
             <td class="text-right">
-              @if (
-                cashRegister.statut === 'OPEN' ||
-                cashRegister.statut === 'En cours' ||
-                cashRegister.statut === 'PENDING' ||
-                cashRegister.statut === 'En attente'
-              ) {
+              @if (cashRegister.statut === 'OPEN' ||
+              cashRegister.statut === 'En cours' ||
+              cashRegister.statut === 'PENDING' ||
+              cashRegister.statut === 'En attente') {
                 <button
                   [routerLink]="['/my-cash-register', cashRegister.id, 'billetage']"
                   label="Fermer"

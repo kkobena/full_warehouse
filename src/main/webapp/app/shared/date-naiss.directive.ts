@@ -1,13 +1,7 @@
-import {Directive, ElementRef, forwardRef, HostListener} from '@angular/core';
-import {
-  AbstractControl,
-  ControlValueAccessor,
-  NG_VALIDATORS,
-  NG_VALUE_ACCESSOR,
-  ValidationErrors,
-  Validator
-} from "@angular/forms";
-import dayjs from "dayjs/esm";
+import { Directive, ElementRef, forwardRef, HostListener, OnInit } from '@angular/core';
+import { AbstractControl, ControlValueAccessor, NG_VALIDATORS, NG_VALUE_ACCESSOR, ValidationErrors, Validator } from '@angular/forms';
+import dayjs from 'dayjs/esm';
+import { FORMAT_ISO_DATE_TO_STRING_FR } from './util/warehouse-util';
 
 @Directive({
   selector: '[jhiDateNaiss]',
@@ -15,7 +9,7 @@ import dayjs from "dayjs/esm";
     {
       provide: NG_VALUE_ACCESSOR,
       useExisting: forwardRef(() => DateNaissDirective),
-      multi: true
+      multi: true,
     },
     {
       provide: NG_VALIDATORS,
@@ -24,16 +18,17 @@ import dayjs from "dayjs/esm";
     },
   ],
 })
-export class DateNaissDirective implements ControlValueAccessor, Validator {
-  private onChange = (_: any) => {
-  };
-  private onTouched = () => {
-  };
+export class DateNaissDirective implements ControlValueAccessor, Validator, OnInit {
   private _disabled = false;
-  private onValidatorChange = () => {
-  };
+  private _value: string | null = null;
 
-  constructor(private el: ElementRef<HTMLInputElement>) {
+  constructor(private el: ElementRef<HTMLInputElement>) {}
+
+  ngOnInit(): void {
+    // Apply initial value if already set
+    if (this._value) {
+      this.writeValue(this._value);
+    }
   }
 
   @HostListener('input', ['$event'])
@@ -75,18 +70,12 @@ export class DateNaissDirective implements ControlValueAccessor, Validator {
 
   // Allow external value to populate input
   writeValue(value: string): void {
+    this._value = value;
     if (!value) {
       this.el.nativeElement.value = '';
       return;
     }
-
-    const date = new Date(value);
-    if (!isNaN(date.getTime())) {
-      const mm = String(date.getMonth() + 1).padStart(2, '0');
-      const dd = String(date.getDate()).padStart(2, '0');
-      const yyyy = date.getFullYear();
-      this.el.nativeElement.value = `${mm}/${dd}/${yyyy}`;
-    }
+    this.el.nativeElement.value = FORMAT_ISO_DATE_TO_STRING_FR(value);
   }
 
   registerOnChange(fn: any): void {
@@ -111,7 +100,7 @@ export class DateNaissDirective implements ControlValueAccessor, Validator {
     }
 
     if (!/^\d{2}\/\d{2}\/\d{4}$/.test(value)) {
-      return {invalidFormat: true};
+      return { invalidFormat: true };
     }
 
     const [ddStr, mmStr, yyyyStr] = value.split('/');
@@ -121,26 +110,32 @@ export class DateNaissDirective implements ControlValueAccessor, Validator {
     const yyyy = parseInt(yyyyStr, 10);
     // Check month and day ranges
     if (mm < 1 || mm > 12 || dd < 1 || dd > 31) {
-      return {invalidDate: true};
+      return { invalidDate: true };
     }
     if (mm === 2 && dd > 29) {
-      return {invalidDate: true};
+      return { invalidDate: true };
     }
 
     // Check actual date validity
     const date = dayjs(`${yyyyStr}-${mm}-${dd}`);
 
     if (!date.isValid()) {
-      return {invalidDate: true};
+      return { invalidDate: true };
     }
 
     // Optional: restrict year range
     if (yyyy < 1920 || yyyy > new Date().getFullYear()) {
-      return {outOfRange: true};
+      return { outOfRange: true };
     }
 
     return null;
   }
+
+  private onChange = (_: any) => {};
+
+  private onTouched = () => {};
+
+  private onValidatorChange = () => {};
 
   private toISODate(dateStr: string): string {
     const [dd, mm, yyyy] = dateStr.split('/');

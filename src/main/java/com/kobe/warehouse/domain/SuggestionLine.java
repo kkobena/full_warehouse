@@ -1,21 +1,25 @@
 package com.kobe.warehouse.domain;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-import jakarta.persistence.*;
-import jakarta.validation.constraints.Min;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.ManyToOne;
+import jakarta.persistence.Table;
+import jakarta.persistence.UniqueConstraint;
 import jakarta.validation.constraints.NotNull;
-import jakarta.validation.constraints.Positive;
 import java.io.Serial;
 import java.io.Serializable;
 import java.time.LocalDateTime;
-import org.hibernate.annotations.Formula;
 
 /**
  * A OrderLine.
  */
 @Entity
 @Table(name = "suggestion_line", uniqueConstraints = { @UniqueConstraint(columnNames = { "suggestion_id", "fournisseur_produit_id" }) })
-public class SuggestionLine implements Serializable, Cloneable {
+public class SuggestionLine implements Serializable {
 
     @Serial
     private static final long serialVersionUID = 1L;
@@ -33,7 +37,7 @@ public class SuggestionLine implements Serializable, Cloneable {
 
     @NotNull
     @Column(name = "updated_at", nullable = false)
-    private LocalDateTime updatedAt;
+    private LocalDateTime updatedAt = LocalDateTime.now();
 
     @ManyToOne(optional = false)
     @JsonIgnoreProperties(value = "suggestionLines", allowSetters = true)

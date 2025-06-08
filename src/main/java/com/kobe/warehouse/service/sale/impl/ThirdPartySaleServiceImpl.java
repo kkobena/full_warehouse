@@ -436,7 +436,6 @@ public class ThirdPartySaleServiceImpl extends SaleCommonService implements Thir
     @Transactional(noRollbackFor = { PlafondVenteException.class })
     public FinalyseSaleDTO save(ThirdPartySaleDTO dto)
         throws PaymentAmountException, SaleNotFoundCustomerException, ThirdPartySalesTiersPayantException {
-        User user = storageService.getUser();
         ThirdPartySales p = thirdPartySaleRepository.findOneWithEagerSalesLines(dto.getId()).orElseThrow();
         this.save(p, dto);
         p.setTvaEmbeded(buildTvaData(p.getSalesLines()));

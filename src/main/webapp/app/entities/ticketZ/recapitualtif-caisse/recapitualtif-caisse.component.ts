@@ -1,25 +1,26 @@
-import {Component, inject, OnInit} from '@angular/core';
-import {RecapitulatifCaisseService} from '../recapitulatif-caisse.service';
-import {TIMES} from '../../../shared/util/times';
-import {RecapParam} from '../model/recap-param.model';
-import {DATE_FORMAT_ISO_DATE} from '../../../shared/util/warehouse-util';
-import {NgxSpinnerComponent, NgxSpinnerService} from 'ngx-spinner';
-import {CommonModule} from '@angular/common';
-import {Ticket} from '../model/ticket.model';
-import {UserService} from '../../../core/user/user.service';
-import {IUser} from '../../../core/user/user.model';
-import {HttpResponse} from '@angular/common/http';
-import {Panel} from 'primeng/panel';
-import {Button} from 'primeng/button';
-import {DatePicker} from 'primeng/datepicker';
-import {FloatLabel} from 'primeng/floatlabel';
-import {SelectModule} from 'primeng/select';
-import {Toolbar} from 'primeng/toolbar';
-import {FormsModule} from '@angular/forms';
-import {MultiSelectModule} from 'primeng/multiselect';
-import {MenuItem} from "primeng/api";
-import {SplitButton} from "primeng/splitbutton";
+import { Component, inject, OnInit } from '@angular/core';
+import { RecapitulatifCaisseService } from '../recapitulatif-caisse.service';
+import { TIMES } from '../../../shared/util/times';
+import { RecapParam } from '../model/recap-param.model';
+import { DATE_FORMAT_ISO_DATE } from '../../../shared/util/warehouse-util';
+import { NgxSpinnerComponent, NgxSpinnerService } from 'ngx-spinner';
+import { CommonModule } from '@angular/common';
+import { Ticket } from '../model/ticket.model';
+import { UserService } from '../../../core/user/user.service';
+import { IUser } from '../../../core/user/user.model';
+import { HttpResponse } from '@angular/common/http';
+import { Panel } from 'primeng/panel';
+import { Button } from 'primeng/button';
+import { DatePicker } from 'primeng/datepicker';
+import { FloatLabel } from 'primeng/floatlabel';
+import { SelectModule } from 'primeng/select';
+import { Toolbar } from 'primeng/toolbar';
+import { FormsModule } from '@angular/forms';
+import { MultiSelectModule } from 'primeng/multiselect';
+import { MenuItem } from 'primeng/api';
+import { SplitButton } from 'primeng/splitbutton';
 import { Tooltip } from 'primeng/tooltip';
+import { Card } from 'primeng/card';
 
 @Component({
   selector: 'jhi-recapitualtif-caisse',
@@ -36,10 +37,12 @@ import { Tooltip } from 'primeng/tooltip';
     SplitButton,
     NgxSpinnerComponent,
     Tooltip,
+    Card,
   ],
   templateUrl: './recapitualtif-caisse.component.html',
 })
 export class RecapitualtifCaisseComponent implements OnInit {
+  // range15 = Array.from({ length: 5 }, (_, i) => i + 1);
   protected fromDate = new Date();
   protected toDate = new Date();
   protected fromTime = '00:00';
@@ -65,7 +68,7 @@ export class RecapitualtifCaisseComponent implements OnInit {
       {
         label: 'Imprimer',
         icon: 'pi pi-print',
-        command: () => this.fetchTickets(),
+        command: () => this.print(),
       },
       {
         label: 'PDF',
@@ -79,12 +82,12 @@ export class RecapitualtifCaisseComponent implements OnInit {
         label: 'Mail',
         icon: 'pi pi-inbox',
         command: () => this.sentMail(),
-      },
+      } /*,
       {
         label: 'SMS',
         icon: 'pi pi-send',
         command: () => this.sentSms(),
-      },
+      },*/,
     ];
   }
 
@@ -95,16 +98,6 @@ export class RecapitualtifCaisseComponent implements OnInit {
         this.users = [...this.users, ...res.body];
       }
     });
-  }
-  private sentSms(): void {
-    // Logique pour envoyer un SMS
-    // Vous pouvez appeler un service pour envoyer le SMS ici
-    console.log('SMS envoyé');
-  }
-  private sentMail(): void {
-    // Logique pour envoyer un e-mail
-    // Vous pouvez appeler un service pour envoyer l'e-mail ici
-    console.log('E-mail envoyé');
   }
 
   protected exportToPdf(): void {
@@ -134,6 +127,32 @@ export class RecapitualtifCaisseComponent implements OnInit {
     if (this.selectedUsersId.length === 0) {
       this.selectedUsersId = [null]; // Sélectionne l'option "TOUT" si aucune autre n'est sélectionnée
     }
+  }
+
+  private sentSms(): void {
+    // Logique pour envoyer un SMS
+    // Vous pouvez appeler un service pour envoyer le SMS ici
+    console.log('SMS envoyé');
+  }
+
+  private print(): void {
+    this.spinner.show();
+    this.recapitulatifCaisseService.print(this.buildParams()).subscribe({
+      next: () => {
+        this.spinner.hide();
+      },
+      error: () => this.spinner.hide(),
+    });
+  }
+
+  private sentMail(): void {
+    this.spinner.show();
+    this.recapitulatifCaisseService.sendMail(this.buildParams()).subscribe({
+      next: () => {
+        this.spinner.hide();
+      },
+      error: () => this.spinner.hide(),
+    });
   }
 
   private buildParams(): RecapParam {

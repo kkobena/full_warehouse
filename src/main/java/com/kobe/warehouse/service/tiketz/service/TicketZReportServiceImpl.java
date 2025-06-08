@@ -1,6 +1,7 @@
 package com.kobe.warehouse.service.tiketz.service;
 
 import com.kobe.warehouse.config.FileStorageProperties;
+import com.kobe.warehouse.service.MailService;
 import com.kobe.warehouse.service.StorageService;
 import com.kobe.warehouse.service.dto.Pair;
 import com.kobe.warehouse.service.report.CommonReportService;
@@ -20,16 +21,19 @@ import org.thymeleaf.spring6.SpringTemplateEngine;
 @Service
 public class TicketZReportServiceImpl extends CommonReportService implements TicketZReportService {
 
+    private final MailService mailService;
     private final SpringTemplateEngine templateEngine;
     private final Map<String, Object> variablesMap = new HashMap<>();
 
     public TicketZReportServiceImpl(
         FileStorageProperties fileStorageProperties,
         SpringTemplateEngine templateEngine,
-        StorageService storageService
+        StorageService storageService,
+        MailService mailService
     ) {
         super(fileStorageProperties, storageService);
         this.templateEngine = templateEngine;
+        this.mailService = mailService;
     }
 
     @Override
@@ -65,7 +69,14 @@ public class TicketZReportServiceImpl extends CommonReportService implements Tic
 
     @Override
     public ResponseEntity<byte[]> generatePdf(TicketZ ticket, Pair periode) {
-        this.getParameters().put(Constant.ITEMS, ListUtils.partition(ticket.datas(), 4));
+        buildContext(ticket, periode);
+        return super.genererPdf();
+    }
+
+    private void buildContext(TicketZ ticket, Pair periode) {
+        var items = ListUtils.partition(ticket.datas(), 3);
+        this.getParameters().put(Constant.ITEMS, items);
+        this.getParameters().put(Constant.TABLE_WIDTH, 100 / items.size());
         this.getParameters().put(Constant.REPORT_SUMMARY, ticket.summaries());
         this.getParameters()
             .put(
@@ -77,6 +88,11 @@ public class TicketZReportServiceImpl extends CommonReportService implements Tic
             );
 
         super.getCommonParameters();
-        return super.genererPdf();
+    }
+
+    @Override
+    public void sentToEmail(TicketZ ticket, Pair periode) {
+        buildContext(ticket, periode);
+        this.mailService.sendTicketZ(this.getTemplateAsHtml());
     }
 }

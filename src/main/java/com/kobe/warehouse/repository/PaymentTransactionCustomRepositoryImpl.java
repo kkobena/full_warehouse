@@ -151,8 +151,8 @@ public class PaymentTransactionCustomRepositoryImpl implements PaymentTransactio
             )
             .groupBy(
                 root.get(PaymentTransaction_.cashRegister).get(CashRegister_.user).get(User_.id),
-                root.get(PaymentTransaction_.cashRegister).get(CashRegister_.user).get(User_.id),
-                root.get(PaymentTransaction_.paymentMode).get(PaymentMode_.code)
+                root.get(PaymentTransaction_.paymentMode).get(PaymentMode_.code),
+                root.get(PaymentTransaction_.credit)
             );
 
         Predicate predicate = specification.toPredicate(root, query, cb);

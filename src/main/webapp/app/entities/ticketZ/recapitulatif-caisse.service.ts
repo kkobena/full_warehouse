@@ -30,4 +30,9 @@ export class RecapitulatifCaisseService {
     const options = createRequestOptions(req);
     return this.http.get(`${this.resourceUrl}/print`, { params: options, observe: 'response' });
   }
+
+  sendMail(req: RecapParam): Observable<HttpResponse<{}>> {
+    const options = createRequestOptions(req);
+    return this.http.get(`${this.resourceUrl}/email`, { params: options, observe: 'response' });
+  }
 }

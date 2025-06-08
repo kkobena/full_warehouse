@@ -1,5 +1,7 @@
 package com.kobe.warehouse.service.tiketz.service;
 
+import static java.util.Objects.isNull;
+
 import com.kobe.warehouse.domain.PaymentMode;
 import com.kobe.warehouse.domain.PaymentTransaction;
 import com.kobe.warehouse.domain.SalePayment;
@@ -21,11 +23,6 @@ import com.kobe.warehouse.service.tiketz.dto.TicketZData;
 import com.kobe.warehouse.service.tiketz.dto.TicketZParam;
 import com.kobe.warehouse.service.tiketz.dto.TicketZProjection;
 import com.kobe.warehouse.service.tiketz.dto.TicketZRecap;
-import org.springframework.data.jpa.domain.Specification;
-import org.springframework.http.ResponseEntity;
-import org.springframework.stereotype.Service;
-import org.springframework.util.CollectionUtils;
-
 import java.awt.print.PrinterException;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
@@ -37,8 +34,10 @@ import java.util.Map;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.stream.Collectors;
-
-import static java.util.Objects.isNull;
+import org.springframework.data.jpa.domain.Specification;
+import org.springframework.http.ResponseEntity;
+import org.springframework.stereotype.Service;
+import org.springframework.util.CollectionUtils;
 
 @Service
 public class TicketZServiceImpl implements TicketZService {
@@ -78,16 +77,21 @@ public class TicketZServiceImpl implements TicketZService {
     public void printTicketZ(String hostName, TicketZParam param) throws PrinterException {
         Pair periode = getPeriode(param);
         this.ticketZPrinterService.printTicketZ(
-            hostName,
-            getTicketZ(param),
-            (LocalDateTime) periode.key(),
-            (LocalDateTime) periode.value()
-        );
+                hostName,
+                getTicketZ(param),
+                (LocalDateTime) periode.key(),
+                (LocalDateTime) periode.value()
+            );
     }
 
     @Override
     public ResponseEntity<byte[]> generatePdf(TicketZParam param) {
         return this.ticketZReportService.generatePdf(this.getTicketZ(param), getPeriode(param));
+    }
+
+    @Override
+    public void sentToEmail(TicketZParam param) {
+        this.ticketZReportService.sentToEmail(this.getTicketZ(param), getPeriode(param));
     }
 
     private TicketZ combineAll(TicketZParam param) {
@@ -104,6 +108,7 @@ public class TicketZServiceImpl implements TicketZService {
         Map<Long, List<TicketZCreditProjection>> creditProjectionsMap = creditProjections
             .stream()
             .collect(Collectors.groupingBy(TicketZCreditProjection::userId));
+        AtomicInteger montantMobileCountG = new AtomicInteger(0);
         AtomicLong montantMobileG = new AtomicLong(0);
         AtomicLong montantMobileG2 = new AtomicLong(0);
         Map<ModePaimentCode, Tuple> summary = new HashMap<>();
@@ -120,6 +125,7 @@ public class TicketZServiceImpl implements TicketZService {
                 var userName = String.format("%s. %s", ticketZProjection.firstName().charAt(0), ticketZProjection.lastName());
                 AtomicLong montantMobile = new AtomicLong(0);
                 AtomicLong montantMobile2 = new AtomicLong(0);
+                AtomicInteger montantMobileCount = new AtomicInteger(0);
 
                 data
                     .stream()
@@ -137,6 +143,8 @@ public class TicketZServiceImpl implements TicketZService {
                                 montant1 += d.montantReel();
                             }
                             if (modePaimentCode.getPaymentGroup() == PaymentGroup.MOBILE) {
+                                montantMobileCount.incrementAndGet();
+                                montantMobileCountG.incrementAndGet();
                                 montantMobile.addAndGet(montant);
                                 montantMobile2.addAndGet(montant1);
                                 montantMobileG.addAndGet(montant);
@@ -150,9 +158,7 @@ public class TicketZServiceImpl implements TicketZService {
                         } else {
                             summary.put(modePaimentCode, new Tuple(montant, montant1, 0L));
                         }
-                        if (montantMobile.get() > 0) {
-                            summaryMobile.add(new TicketZData("Total Mobile", montantMobile.get(), montantMobile2.get(), 100));
-                        }
+
                         ticketZDataUser.add(new TicketZData(firstProjection.libelle(), montant, montant1, modePaimentCode.getSortOrder()));
                         List<TicketZCreditProjection> userCredit = creditProjectionsMap.remove(userId);
                         if (!CollectionUtils.isEmpty(userCredit)) {
@@ -161,6 +167,9 @@ public class TicketZServiceImpl implements TicketZService {
                             creditAmount.addAndGet(totalCredit);
                         }
                     });
+                if (montantMobileCount.get() > 1) {
+                    summaryMobile.add(new TicketZData("Total Mobile", montantMobile.get(), montantMobile2.get(), 100));
+                }
                 ticketZDataUser.sort(Comparator.comparing(TicketZData::sortOrder));
                 ticketZRecaps.add(new TicketZRecap(userId, userName, ticketZDataUser, summaryMobile));
             });
@@ -188,15 +197,16 @@ public class TicketZServiceImpl implements TicketZService {
                 String libelleMode = getModePaimentLibelle(modePaimentCode, paymentModes);
                 summaryData.add(new TicketZData(libelleMode, tuple.e1(), tuple.e2(), modePaimentCode.getSortOrder()));
             });
+
+            if (montantMobileCountG.get() > 1) {
+                summaryData.add(new TicketZData("Total Mobile", montantMobileG.get(), montantMobileG2.get(), 101));
+            }
+
+            if (creditAmount.get() > 0) {
+                summaryData.add(new TicketZData("Crédit(vno/vo)", creditAmount.get(), creditAmount.get(), 100));
+            }
         }
 
-        if (montantMobileG.get() > 0) {
-            summaryData.add(new TicketZData("Total Mobile", montantMobileG.get(), montantMobileG2.get(), 100));
-        }
-
-        if (creditAmount.get() > 0) {
-            summaryData.add(new TicketZData("Crédit(vno/vo)", creditAmount.get(), creditAmount.get(), 101));
-        }
         summaryData.sort(Comparator.comparing(TicketZData::sortOrder));
         ticketZRecaps.sort(Comparator.comparing(TicketZRecap::userName));
         return new TicketZ(summaryData, ticketZRecaps);

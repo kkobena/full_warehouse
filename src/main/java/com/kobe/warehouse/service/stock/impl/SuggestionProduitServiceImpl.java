@@ -40,6 +40,7 @@ import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.stream.Collectors;
 import org.apache.commons.csv.CSVFormat;
 import org.apache.commons.csv.CSVPrinter;
@@ -103,11 +104,12 @@ public class SuggestionProduitServiceImpl implements SuggestionProduitService {
     @Override
     public void suggerer(List<QuantitySuggestion> quantitySuggestions) {
         if (!CollectionUtils.isEmpty(quantitySuggestions)) {
+            AtomicBoolean suggestionExist = new AtomicBoolean(false);
             quantitySuggestions
                 .stream()
                 .collect(Collectors.groupingBy(e -> e.produit().getFournisseurProduitPrincipal().getFournisseur()))
                 .forEach((four, values) -> {
-                    Suggestion suggestion = getSuggestion(four);
+                    Suggestion suggestion = getSuggestion(four, suggestionExist);
                     values.forEach(quantitySuggestion -> {
                         StockProduit stockProduit = quantitySuggestion.stockProduit();
                         Produit produit = quantitySuggestion.produit();
@@ -122,7 +124,7 @@ public class SuggestionProduitServiceImpl implements SuggestionProduitService {
                             }
                             int currentStock = stockProduit.getTotalStockQuantity() - quantitySold;
                             if (currentStock <= produit.getQtySeuilMini()) {
-                                saveSuggestionLine(produit, stockProduit, fournisseurProduit, suggestion);
+                                saveSuggestionLine(produit, stockProduit, fournisseurProduit, suggestion, suggestionExist.get());
                             }
                         }
                     });
@@ -149,9 +151,7 @@ public class SuggestionProduitServiceImpl implements SuggestionProduitService {
         TypeSuggession typeSuggession,
         Pageable pageable
     ) {
-        Specification<Suggestion> specification =
-            suggestionRepository.filterByDate(appConfigurationService.findSuggestionRetention())
-        ;
+        Specification<Suggestion> specification = suggestionRepository.filterByDate(appConfigurationService.findSuggestionRetention());
         if (typeSuggession != null) {
             specification = specification.and(suggestionRepository.filterByType(typeSuggession));
         }
@@ -192,7 +192,7 @@ public class SuggestionProduitServiceImpl implements SuggestionProduitService {
                 StockProduit stockProduit = produit
                     .getStockProduits()
                     .stream()
-                    .filter(stock -> stock.getStorage().getId() == storage.getId())
+                    .filter(stock -> Objects.equals(stock.getStorage().getId(), storage.getId()))
                     .findFirst()
                     .orElse(new StockProduit());
                 int currentstock = 0;
@@ -339,13 +339,24 @@ public class SuggestionProduitServiceImpl implements SuggestionProduitService {
         return new UrlResource(Paths.get(exportToCsv(this.suggestionRepository.getReferenceById(id))).toUri());
     }
 
-    private Suggestion getSuggestion(Fournisseur fournisseur) {
+    private Suggestion getSuggestion(Fournisseur fournisseur, AtomicBoolean suggestionExist) {
         Magasin magasin = storageService.getConnectedUserMagasin();
-        Suggestion suggestion = suggestionRepository
-            .findByTypeSuggessionAndFournisseurIdAndMagasinId(TypeSuggession.AUTO, fournisseur.getId(), magasin.getId())
-            .orElse(
-                new Suggestion().setSuggessionReference(this.referenceService.buildSuggestionReference()).createdAt(LocalDateTime.now())
-            );
+        Suggestion suggestion;
+        Optional<Suggestion> suggestionOpt = suggestionRepository.findByTypeSuggessionAndFournisseurIdAndMagasinId(
+            TypeSuggession.AUTO,
+            fournisseur.getId(),
+            magasin.getId()
+        );
+        if (suggestionOpt.isPresent()) {
+            suggestionExist.set(true);
+            suggestion = suggestionOpt.get();
+        } else {
+            suggestionExist.set(false);
+            suggestion = new Suggestion()
+                .setSuggessionReference(this.referenceService.buildSuggestionReference())
+                .createdAt(LocalDateTime.now());
+        }
+
         suggestion.setFournisseur(fournisseur);
         suggestion.setUpdatedAt(LocalDateTime.now());
         suggestion.setTypeSuggession(TypeSuggession.AUTO);
@@ -371,29 +382,38 @@ public class SuggestionProduitServiceImpl implements SuggestionProduitService {
         Produit produit,
         StockProduit stockProduit,
         FournisseurProduit fournisseurProduit,
-        Suggestion suggestion
+        Suggestion suggestion,
+        boolean suggestionExist
     ) {
         this.suggestionLineRepository.findBySuggestionTypeSuggessionAndFournisseurProduitId(
                 TypeSuggession.AUTO,
                 fournisseurProduit.getId()
             ).ifPresentOrElse(
                 line -> updateLine(produit, stockProduit, line),
-                () -> buildLine(produit, stockProduit, fournisseurProduit, suggestion)
+                () -> buildLine(produit, stockProduit, fournisseurProduit, suggestion, suggestionExist)
             );
     }
 
-    private void buildLine(Produit produit, StockProduit stockProduit, FournisseurProduit fournisseurProduit, Suggestion suggestion) {
+    private void buildLine(
+        Produit produit,
+        StockProduit stockProduit,
+        FournisseurProduit fournisseurProduit,
+        Suggestion suggestion,
+        boolean suggestionExist
+    ) {
         SuggestionLine line = new SuggestionLine();
         line.setCreatedAt(LocalDateTime.now());
-        line.setUpdatedAt(line.getCreatedAt());
         line.setQuantity(computeQtyReappro(produit, stockProduit));
         line.setFournisseurProduit(fournisseurProduit);
         line.setSuggestion(suggestion);
+        if (suggestionExist) {
+            this.suggestionLineRepository.save(line);
+        }
+
         suggestion.getSuggestionLines().add(line);
     }
 
     private void updateLine(Produit produit, StockProduit stockProduit, SuggestionLine line) {
-        line.setUpdatedAt(LocalDateTime.now());
         line.setQuantity(computeQtyReappro(produit, stockProduit));
         this.suggestionLineRepository.save(line);
     }

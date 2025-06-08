@@ -11,6 +11,8 @@ public interface TicketZService {
     void printTicketZ(String hostName, TicketZParam param) throws PrinterException;
 
     ResponseEntity<byte[]> generatePdf(TicketZParam param);
+
     // sent to  email
+    void sentToEmail(TicketZParam param);
     // sent to sms
 }

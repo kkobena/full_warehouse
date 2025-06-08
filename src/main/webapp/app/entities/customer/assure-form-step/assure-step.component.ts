@@ -13,7 +13,6 @@ import { Customer, ICustomer } from '../../../shared/model/customer.model';
 import { ITiersPayant } from '../../../shared/model/tierspayant.model';
 import { TiersPayantService } from '../../tiers-payant/tierspayant.service';
 import { HttpResponse } from '@angular/common/http';
-import { DATE_FORMAT_FROM_STRING_FR, FORMAT_ISO_DATE_TO_STRING_FR } from '../../../shared/util/warehouse-util';
 import { CardModule } from 'primeng/card';
 import { AssureFormStepService } from './assure-form-step.service';
 import { CommonService } from './common.service';
@@ -21,8 +20,8 @@ import { ComplementaireStepComponent } from './complementaire-step.component';
 import { FormTiersPayantComponent } from '../../tiers-payant/form-tiers-payant/form-tiers-payant.component';
 import { DialogService, DynamicDialogRef } from 'primeng/dynamicdialog';
 import { IClientTiersPayant } from '../../../shared/model/client-tiers-payant.model';
-import {DateNaissDirective} from "../../../shared/date-naiss.directive";
-import {CommonModule} from "@angular/common";
+import { DateNaissDirective } from '../../../shared/date-naiss.directive';
+import { CommonModule } from '@angular/common';
 
 @Component({
   selector: 'jhi-assure-step',
@@ -42,10 +41,9 @@ import {CommonModule} from "@angular/common";
     TranslateDirective,
     CardModule,
     ComplementaireStepComponent,
-    DateNaissDirective
+    DateNaissDirective,
   ],
   templateUrl: './assure-step.component.html',
-
 })
 export class AssureStepComponent implements OnInit, AfterViewInit {
   entity?: ICustomer;
@@ -57,8 +55,7 @@ export class AssureStepComponent implements OnInit, AfterViewInit {
   tiersPayants: ITiersPayant[] = [];
   fb = inject(UntypedFormBuilder);
   commonService = inject(CommonService);
-  dialogService = inject(DialogService);
-  tiersPayantService = inject(TiersPayantService);
+
   assureFormStepService = inject(AssureFormStepService);
   firstName = viewChild.required<ElementRef>('firstName');
   complementaireStepComponent = viewChild(ComplementaireStepComponent);
@@ -76,8 +73,8 @@ export class AssureStepComponent implements OnInit, AfterViewInit {
     datNaiss: [],
     remiseId: [],
   });
-
-  constructor() {}
+  private readonly dialogService = inject(DialogService);
+  private readonly tiersPayantService = inject(TiersPayantService);
 
   ngOnInit(): void {
     const entity = this.assureFormStepService.assure();
@@ -137,7 +134,7 @@ export class AssureStepComponent implements OnInit, AfterViewInit {
       phone: this.editForm.get(['phone']).value,
       type: 'ASSURE',
       num: this.editForm.get(['num']).value,
-      datNaiss: DATE_FORMAT_FROM_STRING_FR(this.editForm.get(['datNaiss']).value),
+      datNaiss: this.editForm.get(['datNaiss']).value,
       sexe: this.editForm.get(['sexe']).value,
       tiersPayantId: this.editForm.get(['tiersPayantId']).value.id,
       taux: this.editForm.get(['taux']).value,
@@ -168,7 +165,7 @@ export class AssureStepComponent implements OnInit, AfterViewInit {
       email: customer.email,
       phone: customer.phone,
       num: customer.num,
-      datNaiss: customer.datNaiss ? FORMAT_ISO_DATE_TO_STRING_FR(customer.datNaiss) : null,
+      datNaiss: customer.datNaiss,
       sexe: customer.sexe,
       tiersPayantId: customer.tiersPayant,
       taux: customer.taux,

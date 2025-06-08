@@ -1,36 +1,49 @@
-<div class="container-tr" th:each="partitions  : ${items}"
-     th:with="countTr=${#lists.size(partitions)}">
-  <div class="container-tr-td" th:each="itm : ${partitions}"
-       th:style="'width:' + ${100%countTr} + '%;'">
-    <table class="etiquette-table">
-      <thead>
-      <tr>
-        <th colspan="2" th:text="${itm.userName}"></th>
-      </tr>
-      </thead>
-      <tbody>
-      <tr th:each="data : ${itm.datas}">
-        <td class="text-left" th:text="${data.libelle}"></td>
-        <td class="unit" th:text="${data.montant}"></td>
-      </tr>
+<div class="etiquete-container" th:each="partitions  : ${items}">
+  <table>
+    <tbody>
+    <tr>
+      <td class="per-user-data" style="padding:0 10px;" th:each="itm : ${partitions}">
+        <table class="etiquette-table">
+          <thead>
+          <tr>
+            <th colspan="2" th:text="${ 'RECAPITULATIF DE: ' +  itm.userName}"></th>
+          </tr>
+          </thead>
+          <tbody>
+          <tr th:each="data : ${itm.datas}">
+            <td class="text-left" th:text="${data.libelle}"></td>
+            <td class="unit dt-number-column" th:text="${data.montant}"></td>
+          </tr>
+          </tbody>
+          <tfoot>
+          <tr th:each="sum : ${itm.summary}">
+            <td class="text-left text-bold" th:text="${sum.libelle}"></td>
+            <td class="unit dt-number-column" th:text="${sum.montant}"></td>
+          </tr>
+          </tfoot>
+        </table>
+      </td>
+    </tr>
+    </tbody>
+  </table>
 
-      </tbody>
-      <tfoot>
-      <tr th:each="sum : ${itm.summary}">
-        <td class="text-left" th:text="${sum.libelle}"></td>
-        <td class="unit" th:text="${sum.montant}"></td>
-      </tr>
-      </tfoot>
-    </table>
-  </div>
 
 </div>
-<table class="ticketz-sumary">
-  <tbody>
-  <tr th:each="sumary  : ${reportSummary}">
-    <td class="text-left" th:text="${sumary.libelle}"></td>
-    <td class="unit" th:text="${sumary.montant}"></td>
-  </tr>
 
-  </tbody>
-</table>
+<div style="padding: 0 10px;" th:if="${!reportSummary.isEmpty()}">
+  <table class="ticketz-sumary">
+    <thead>
+    <tr>
+      <th colspan="2">RECAPITULATIF GENERAL</th>
+    </tr>
+    </thead>
+    <tbody>
+    <tr th:each="sumary  : ${reportSummary}">
+      <td class="text-left" th:text="${sumary.libelle}"></td>
+      <td class="unit dt-number-column" th:text="${sumary.montant}"></td>
+    </tr>
+
+    </tbody>
+  </table>
+</div>
+

@@ -6,4 +6,6 @@ import org.springframework.http.ResponseEntity;
 
 public interface TicketZReportService {
     ResponseEntity<byte[]> generatePdf(TicketZ ticket, Pair periode);
+
+    void sentToEmail(TicketZ ticket, Pair periode);
 }

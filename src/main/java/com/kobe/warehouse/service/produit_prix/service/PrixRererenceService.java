@@ -1,19 +1,19 @@
 package com.kobe.warehouse.service.produit_prix.service;
 
-import com.kobe.warehouse.domain.PrixReference;
+import com.kobe.warehouse.domain.OptionPrixProduit;
 import com.kobe.warehouse.service.produit_prix.dto.PrixReferenceDTO;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 
 public interface PrixRererenceService {
-    Optional<PrixReference> findOneActifByProduitIdAndTiersPayantId(Long produitId, Long tiersPayantId);
+    Optional<OptionPrixProduit> findOneActifByProduitIdAndTiersPayantId(Long produitId, Long tiersPayantId);
 
     Optional<PrixReferenceDTO> findActif(Long produitId, Long tiersPayantId);
 
     Optional<PrixReferenceDTO> findById(Long id);
 
-    List<PrixReference> findAllByProduitIdAndTiersPayantId(Long produitId, Long tiersPayantId);
+    List<OptionPrixProduit> findAllByProduitIdAndTiersPayantId(Long produitId, Long tiersPayantId);
 
     void add(PrixReferenceDTO dto);
 
@@ -25,9 +25,9 @@ public interface PrixRererenceService {
 
     List<PrixReferenceDTO> findAllByProduitId(Long produitId);
 
-    int getSaleLineUnitPrice(PrixReference prixReference, int incomingPrice);
+    int getSaleLineUnitPrice(OptionPrixProduit optionPrixProduit, int incomingPrice);
 
-    List<PrixReference> findByProduitIdAndTiersPayantIds(Long produitId, Set<Long> tiersPayantIds);
+    List<OptionPrixProduit> findByProduitIdAndTiersPayantIds(Long produitId, Set<Long> tiersPayantIds);
 
-    void save(PrixReference prixReference);
+    void save(OptionPrixProduit optionPrixProduit);
 }

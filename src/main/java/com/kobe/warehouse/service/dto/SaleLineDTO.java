@@ -4,6 +4,7 @@ import com.kobe.warehouse.domain.FournisseurProduit;
 import com.kobe.warehouse.domain.Produit;
 import com.kobe.warehouse.domain.SalesLine;
 import java.time.LocalDateTime;
+import java.util.List;
 
 public class SaleLineDTO {
 
@@ -33,6 +34,7 @@ public class SaleLineDTO {
     private LocalDateTime effectiveUpdateDate;
     private Integer taxValue;
     private boolean forceStock; // mis pour forcer le stock a la vente
+    private List<TiersPayantPrixRecord> tiersPayantPrixRecords;
 
     public SaleLineDTO() {}
 
@@ -59,6 +61,26 @@ public class SaleLineDTO {
         produitId = produit.getId();
         saleId = salesLine.getSales().getId();
         quantiyAvoir = salesLine.getQuantityAvoir();
+        tiersPayantPrixRecords = salesLine
+            .getPrixAssurances()
+            .stream()
+            .map(prix ->
+                new TiersPayantPrixRecord(
+                    prix.getPrix(),
+                    prix.getMontant(),
+                    prix.getOptionPrixProduit().getType(),
+                    prix.getOptionPrixProduit().getValeur()
+                )
+            )
+            .toList();
+    }
+
+    public List<TiersPayantPrixRecord> getTiersPayantPrixRecords() {
+        return tiersPayantPrixRecords;
+    }
+
+    public void setTiersPayantPrixRecords(List<TiersPayantPrixRecord> tiersPayantPrixRecords) {
+        this.tiersPayantPrixRecords = tiersPayantPrixRecords;
     }
 
     public Long getId() {

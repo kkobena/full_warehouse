@@ -17,10 +17,11 @@ import { TiersPayantService } from '../../tiers-payant/tierspayant.service';
 import { ProduitService } from '../../produit/produit.service';
 import { Toast } from 'primeng/toast';
 import { ToggleSwitch } from 'primeng/toggleswitch';
+import { InputText } from 'primeng/inputtext';
 
 @Component({
   selector: 'jhi-add-prix-form',
-  imports: [WarehouseCommonModule, ButtonModule, ReactiveFormsModule, Select, InputNumber, Toast, ToggleSwitch],
+  imports: [WarehouseCommonModule, ButtonModule, ReactiveFormsModule, Select, InputNumber, Toast, ToggleSwitch, InputText],
   providers: [MessageService],
   templateUrl: './add-prix-form.component.html',
 })

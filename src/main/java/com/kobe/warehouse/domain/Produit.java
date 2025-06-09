@@ -29,12 +29,10 @@ import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
-import org.hibernate.annotations.JdbcTypeCode;
 import org.hibernate.annotations.JoinFormula;
 import org.hibernate.envers.Audited;
 import org.hibernate.envers.NotAudited;
 import org.hibernate.envers.RelationTargetAuditMode;
-import org.hibernate.type.SqlTypes;
 
 /**
  * not an ignored comment
@@ -117,7 +115,7 @@ public class Produit implements Serializable {
 
     @NotAudited
     @OneToMany(mappedBy = "produit", fetch = FetchType.LAZY, cascade = { CascadeType.REMOVE })
-    private List<PrixReference> prixReference = new ArrayList<>();
+    private List<OptionPrixProduit> optionPrixProduit = new ArrayList<>();
 
     @NotNull
     @Column(name = "prix_mnp", nullable = false, columnDefinition = "int default '0'")
@@ -263,10 +261,6 @@ public class Produit implements Serializable {
         this.seuilDeconditionnement = seuilDeconditionnement;
     }
 
-    public List<PrixReference> getPrixReference() {
-        return prixReference;
-    }
-
     public CategorieABC getCategorie() {
         return categorie;
     }
@@ -286,8 +280,12 @@ public class Produit implements Serializable {
     return this;
   }*/
 
-    public void setPrixReference(List<PrixReference> prixReference) {
-        this.prixReference = prixReference;
+    public List<OptionPrixProduit> getOptionPrixProduit() {
+        return optionPrixProduit;
+    }
+
+    public void setOptionPrixProduit(List<OptionPrixProduit> optionPrixProduit) {
+        this.optionPrixProduit = optionPrixProduit;
     }
 
     public Dci getDci() {

@@ -1,6 +1,6 @@
 package com.kobe.warehouse.domain;
 
-import com.kobe.warehouse.domain.enumeration.PrixReferenceType;
+import com.kobe.warehouse.domain.enumeration.OptionPrixType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
@@ -12,7 +12,6 @@ import jakarta.persistence.Id;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 import jakarta.persistence.UniqueConstraint;
-import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotNull;
 import java.io.Serial;
 import java.io.Serializable;
@@ -28,7 +27,7 @@ import org.hibernate.annotations.ColumnDefault;
         @UniqueConstraint(columnNames = { "produit_id", "tiers_payant_id", "prix_type" }),
     }
 )
-public class PrixReference implements Serializable {
+public class OptionPrixProduit implements Serializable {
 
     @Serial
     private static final long serialVersionUID = 1L;
@@ -37,7 +36,6 @@ public class PrixReference implements Serializable {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Min(value = 5)
     private int valeur;
 
     @NotNull
@@ -53,7 +51,7 @@ public class PrixReference implements Serializable {
     @NotNull
     @Enumerated(EnumType.STRING)
     @Column(name = "prix_type", nullable = false)
-    private PrixReferenceType type;
+    private OptionPrixType type;
 
     @ColumnDefault(value = "now()")
     @Column(name = "created", nullable = false)
@@ -94,7 +92,7 @@ public class PrixReference implements Serializable {
         return id;
     }
 
-    public PrixReference setId(Long id) {
+    public OptionPrixProduit setId(Long id) {
         this.id = id;
         return this;
     }
@@ -103,7 +101,7 @@ public class PrixReference implements Serializable {
         return tiersPayant;
     }
 
-    public PrixReference setTiersPayant(TiersPayant tiersPayant) {
+    public OptionPrixProduit setTiersPayant(TiersPayant tiersPayant) {
         this.tiersPayant = tiersPayant;
         return this;
     }
@@ -112,7 +110,7 @@ public class PrixReference implements Serializable {
         return produit;
     }
 
-    public PrixReference setProduit(Produit produit) {
+    public OptionPrixProduit setProduit(Produit produit) {
         this.produit = produit;
         return this;
     }
@@ -121,16 +119,16 @@ public class PrixReference implements Serializable {
         return enabled;
     }
 
-    public PrixReference setEnabled(boolean enabled) {
+    public OptionPrixProduit setEnabled(boolean enabled) {
         this.enabled = enabled;
         return this;
     }
 
-    public PrixReferenceType getType() {
+    public OptionPrixType getType() {
         return type;
     }
 
-    public PrixReference setType(PrixReferenceType type) {
+    public OptionPrixProduit setType(OptionPrixType type) {
         this.type = type;
         return this;
     }
@@ -140,7 +138,7 @@ public class PrixReference implements Serializable {
         if (o == null || getClass() != o.getClass()) {
             return false;
         }
-        PrixReference that = (PrixReference) o;
+        OptionPrixProduit that = (OptionPrixProduit) o;
         return Objects.equals(id, that.id);
     }
 
@@ -158,7 +156,7 @@ public class PrixReference implements Serializable {
     }
 
     public float getTaux() {
-        if (type == PrixReferenceType.POURCENTAGE) {
+        if (type == OptionPrixType.POURCENTAGE) {
             return valeur / 100.0f;
         }
         return 0.0f;

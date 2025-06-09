@@ -3,7 +3,7 @@ package com.kobe.warehouse.service.sale.impl;
 import com.kobe.warehouse.domain.AssuredCustomer;
 import com.kobe.warehouse.domain.CashSale;
 import com.kobe.warehouse.domain.ClientTiersPayant;
-import com.kobe.warehouse.domain.PrixReference;
+import com.kobe.warehouse.domain.OptionPrixProduit;
 import com.kobe.warehouse.domain.Remise;
 import com.kobe.warehouse.domain.RemiseClient;
 import com.kobe.warehouse.domain.RemiseProduit;
@@ -391,7 +391,7 @@ public class ThirdPartySaleServiceImpl extends SaleCommonService implements Thir
         SalesLine salesLine = salesLineService.getOneById(saleLineDTO.getId());
         SalesLine oldsalesline = (SalesLine) salesLine.clone();
         salesLineService.updateItemRegularPrice(saleLineDTO, salesLine, storageService.getDefaultConnectedUserPointOfSaleStorage().getId());
-        computePrixReferenceUnitPrice(salesLine);
+        computeOptionPrix(salesLine);
         Sales sales = salesLine.getSales();
         ThirdPartySales thirdPartySales = (ThirdPartySales) sales;
         var message = computeThirdPartySaleAmounts(thirdPartySales, salesLine, oldsalesline);
@@ -617,17 +617,17 @@ public class ThirdPartySaleServiceImpl extends SaleCommonService implements Thir
     }
 
     private void computePrixReference(List<ClientTiersPayant> clientTiersPayants, SalesLine salesLine) {
-        List<PrixReference> prixReferences = prixRererenceService.findByProduitIdAndTiersPayantIds(
+        List<OptionPrixProduit> optionPrixProduits = prixRererenceService.findByProduitIdAndTiersPayantIds(
             salesLine.getProduit().getId(),
             clientTiersPayants.stream().map(c -> c.getTiersPayant().getId()).collect(Collectors.toSet())
         );
 
-        if (!CollectionUtils.isEmpty(prixReferences)) {
-            for (PrixReference prixReference : prixReferences) {
+        if (!CollectionUtils.isEmpty(optionPrixProduits)) {
+            for (OptionPrixProduit optionPrixProduit : optionPrixProduits) {
                 TiersPayantPrix tiersPayantPrix1 = new TiersPayantPrix();
-                tiersPayantPrix1.setReference(prixReference);
+                tiersPayantPrix1.setOptionPrixProduit(optionPrixProduit);
                 tiersPayantPrix1.setSaleLine(salesLine);
-                tiersPayantPrix1.setPrix(prixRererenceService.getSaleLineUnitPrice(prixReference, salesLine.getRegularUnitPrice()));
+                tiersPayantPrix1.setPrix(prixRererenceService.getSaleLineUnitPrice(optionPrixProduit, salesLine.getRegularUnitPrice()));
                 tiersPayantPrix1.setMontant(tiersPayantPrix1.getPrix() * salesLine.getQuantityRequested());
                 salesLine.getPrixAssurances().add(tiersPayantPrix1);
             }
@@ -699,6 +699,9 @@ public class ThirdPartySaleServiceImpl extends SaleCommonService implements Thir
             throw new GenericError("Veuillez ajouter un tierpayant ", "tierPayantNotFound");
         }
         clientTiersPayants.sort(Comparator.comparing(ClientTiersPayantDTO::getCategorie));
+        ClientTiersPayant clientTiersPayantPrincipal =
+            this.clientTiersPayantRepository.getReferenceById(tiersPayantsClts.getFirst().getId());
+        int totalAmountAssurance = getMontantAssurance(thirdPartySales, clientTiersPayantPrincipal.getTiersPayant());
         Map<Long, List<ClientTiersPayant>> tiersPayants = CollectionUtils.isEmpty(clientTiersPayants)
             ? this.clientTiersPayantRepository.findAllByIdIn(
                     clientTiersPayants.stream().map(ClientTiersPayantDTO::getId).collect(Collectors.toSet())
@@ -706,7 +709,7 @@ public class ThirdPartySaleServiceImpl extends SaleCommonService implements Thir
                 .stream()
                 .collect(Collectors.groupingBy(ClientTiersPayant::getId))
             : clttiersPayants.stream().collect(Collectors.groupingBy(ClientTiersPayant::getId));
-
+        boolean hasOptionPrixPourcentage = thirdPartySales.hasOptionPrixPourcentage();
         for (ClientTiersPayantDTO tp : clientTiersPayants) {
             if (checkIfNumBonIsAlReadyUse(tp.getNumBon(), tp.getId())) {
                 throw new NumBonAlreadyUseException(tp.getNumBon());
@@ -720,7 +723,9 @@ public class ThirdPartySaleServiceImpl extends SaleCommonService implements Thir
                 thirdPartySales,
                 isLast,
                 isPourcentageGreather100,
-                clientTiersPayant
+                clientTiersPayant,
+                totalAmountAssurance,
+                hasOptionPrixPourcentage
             );
             counter++;
         }
@@ -728,12 +733,15 @@ public class ThirdPartySaleServiceImpl extends SaleCommonService implements Thir
         return updateTiersPayantAmounts(thirdPartySales, sb, totalMontantTiersPayant);
     }
 
+    /*
+    montant calculé pour l'assurance, quand il n'y a pas de prix assurance, on prend le prix de reference tu tp principal
+     */
     private int getMontantAssurance(ThirdPartySales thirdPartySales, TiersPayant tiersPayant) {
         int amount = thirdPartySales
             .getSalesLines()
             .stream()
             .flatMap(e -> e.getPrixAssurances().stream())
-            .filter(pr -> pr.getReference().getTiersPayant().equals(tiersPayant))
+            .filter(pr -> pr.getOptionPrixProduit().getTiersPayant().equals(tiersPayant))
             .mapToInt(TiersPayantPrix::getMontant)
             .sum();
         return amount > 0 ? amount : thirdPartySales.getSalesAmount();
@@ -746,7 +754,9 @@ public class ThirdPartySaleServiceImpl extends SaleCommonService implements Thir
         ThirdPartySales thirdPartySales,
         boolean isLast,
         boolean isPourcentageGreather100,
-        ClientTiersPayant clientTiersPayant
+        ClientTiersPayant clientTiersPayant,
+        int totalAmountAssurance,
+        boolean hasOptionPrixPourcentage
     ) throws NumBonAlreadyUseException, PlafondVenteException {
         // si non null  nouvelle creation
         if (
@@ -757,9 +767,9 @@ public class ThirdPartySaleServiceImpl extends SaleCommonService implements Thir
         }
 
         TiersPayant tiersPayant = clientTiersPayant.getTiersPayant();
-        int totalAmount = getMontantAssurance(thirdPartySales, tiersPayant);
-        double montantTp = totalAmount * clientTiersPayant.getTauxValue();
-        int montantTiersPayant = (int) Math.ceil(montantTp);
+
+        double montantTp = hasOptionPrixPourcentage ? totalAmountAssurance : totalAmountAssurance * clientTiersPayant.getTauxValue();
+        int montantTiersPayant = hasOptionPrixPourcentage ? totalAmountAssurance : (int) Math.ceil(montantTp);
         int partTiersPayantnet = computeThirdPartyPart(clientTiersPayant, montantTiersPayant);
         if (montantTiersPayant != partTiersPayantnet) {
             sb
@@ -769,7 +779,7 @@ public class ThirdPartySaleServiceImpl extends SaleCommonService implements Thir
                 .append(" , car votre plafond est atteint \n");
         }
         if (isPourcentageGreather100 && isLast) {
-            int rest = totalAmount - totalMontantTiersPayant;
+            int rest = totalAmountAssurance - totalMontantTiersPayant;
             if (rest <= partTiersPayantnet) {
                 partTiersPayantnet = rest;
             }
@@ -778,7 +788,7 @@ public class ThirdPartySaleServiceImpl extends SaleCommonService implements Thir
         if (montantTiersPayant == partTiersPayantnet) {
             newTaux = clientTiersPayant.getTaux();
         } else {
-            newTaux = (int) Math.ceil(((double) partTiersPayantnet * 100) / totalAmount);
+            newTaux = (int) Math.ceil(((double) partTiersPayantnet * 100) / totalAmountAssurance);
         }
 
         ThirdPartySaleLine thirdPartySaleLine = Objects.nonNull(clientTiersPayantDTO)
@@ -813,7 +823,11 @@ public class ThirdPartySaleServiceImpl extends SaleCommonService implements Thir
         int pourcentageTotal = thirdPartySaleLines.stream().mapToInt(e -> e.getClientTiersPayant().getTaux()).sum();
         boolean isPourcentageGreather100 = pourcentageTotal >= 100;
         thirdPartySaleLines.sort(Comparator.comparing(e -> e.getClientTiersPayant().getPriorite().getValue()));
-
+        int totalAmountAssurance = getMontantAssurance(
+            thirdPartySales,
+            thirdPartySaleLines.getFirst().getClientTiersPayant().getTiersPayant()
+        );
+        boolean hasOptionPrixPourcentage = thirdPartySales.hasOptionPrixPourcentage();
         for (ThirdPartySaleLine tp : thirdPartySaleLines) {
             var isLast = counter == (tiersPayantSize - 1);
             ClientTiersPayant clientTiersPayant = tp.getClientTiersPayant();
@@ -824,7 +838,9 @@ public class ThirdPartySaleServiceImpl extends SaleCommonService implements Thir
                 thirdPartySales,
                 isLast,
                 isPourcentageGreather100,
-                clientTiersPayant
+                clientTiersPayant,
+                totalAmountAssurance,
+                hasOptionPrixPourcentage
             );
             counter++;
         }
@@ -1034,12 +1050,12 @@ public class ThirdPartySaleServiceImpl extends SaleCommonService implements Thir
         }
     }
 
-    private void computePrixReferenceUnitPrice(SalesLine salesLine) {
+    private void computeOptionPrix(SalesLine salesLine) {
         salesLine
             .getPrixAssurances()
             .forEach(prixAssurance -> {
                 prixAssurance.setPrix(
-                    prixRererenceService.getSaleLineUnitPrice(prixAssurance.getReference(), salesLine.getRegularUnitPrice())
+                    prixRererenceService.getSaleLineUnitPrice(prixAssurance.getOptionPrixProduit(), salesLine.getRegularUnitPrice())
                 );
                 prixAssurance.setMontant(prixAssurance.getPrix() * salesLine.getQuantityRequested());
                 this.tiersPayantPrixRepository.save(prixAssurance);

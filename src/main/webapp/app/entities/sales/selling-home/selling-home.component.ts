@@ -311,7 +311,7 @@ export class SellingHomeComponent implements OnInit, AfterViewInit, OnDestroy {
         }
         this.onLoadPrevente(sales, this.isEditionClosedSale(mode));
       }
-      this.loadProduits();
+      //  this.loadProduits();
     });
     this.activatedRoute.paramMap.subscribe(params => {
       if (params.has('isPresale')) {
@@ -628,7 +628,7 @@ export class SellingHomeComponent implements OnInit, AfterViewInit, OnDestroy {
       }
       this.currentSaleService.setCurrentSale(null);
       this.selectedCustomerService.setCustomer(null);
-      this.loadProduits();
+      //  this.loadProduits();
     }
   }
 
@@ -725,6 +725,7 @@ export class SellingHomeComponent implements OnInit, AfterViewInit, OnDestroy {
     if (this.assuranceDataComponent()) {
       this.assuranceDataComponent().reset();
     }
+    this.searchValue = '';
     this.selectModeReglementService.resetAllModeReglements();
     this.selectedCustomerService.setCustomer(null);
     this.typePrescription = this.typePrescriptionService.typePrescriptionDefault();
@@ -739,7 +740,7 @@ export class SellingHomeComponent implements OnInit, AfterViewInit, OnDestroy {
       this.active = 'comptant';
     }
     this.updateProduitQtyBox();
-    this.loadProduits();
+    // this.loadProduits();
   }
 
   onChangeCashSaleToVo(): void {

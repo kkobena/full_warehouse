@@ -3,16 +3,21 @@
   <div class="modal-header">
     <h4 class="modal-title">AJOUT DE PRIX DE REFERENCE SUR LE PRODUIT {{ produit?.libelle }}</h4>
 
-    <button (click)="cancel()" aria-hidden="true" class="close" data-dismiss="modal" type="button">&times;</button>
+    <button (click)="cancel()" aria-hidden="true" class="close" data-dismiss="modal" type="button">
+      &times;
+    </button>
   </div>
 
-  <div class="modal-body">
+  <div class="modal-body" style="padding: 15px;">
     <div [hidden]="true">
       <input formControlName="id" id="id" name="id" readonly type="hidden" />
     </div>
-    <div class="row mb-1">
-      <label class="col-sm-3 col-form-label" for="type">Option de prix <span class="red-400" style="font-weight: 900">*</span></label>
-      <div class="col-sm-9">
+
+    <div class="form-row">
+      <div class="form-group col">
+
+        <label class="form-control-label" for="type">Option de prix <span class="red-400"
+                                                                          style="font-weight: 900">*</span></label>
         <p-select
           [options]="pricesType"
           formControlName="type"
@@ -25,18 +30,20 @@
         @if (typePrix!.invalid && (typePrix!.dirty || typePrix!.touched)) {
           <div>
             @if (typePrix?.errors?.required) {
-              <small class="form-text text-danger" style="color: red"> Ce champ est obligatoire. </small>
+              <small class="form-text text-danger" style="color: red"> Ce champ est
+                obligatoire. </small>
             }
           </div>
         }
       </div>
     </div>
 
-    <div [hidden]="!isFromProduit" class="row mb-1">
-      <label class="col-sm-3 col-form-label" for="tiersPayantId"
+    <div [hidden]="!isFromProduit" class="form-row">
+      <div class="form-group col">
+
+        <label class="form-control-label" for="tiersPayantId"
         >Tiers payants <span class="red-400" style="font-weight: 900">*</span></label
-      >
-      <div class="col-sm-9">
+        >
         <p-select
           [options]="tiersPayants"
           formControlName="tiersPayantId"
@@ -49,16 +56,16 @@
         @if (tiersPayantId!.invalid && (tiersPayantId!.dirty || tiersPayantId!.touched)) {
           <div>
             @if (tiersPayantId?.errors?.required) {
-              <small class="form-text text-danger" style="color: red"> Ce champ est obligatoire. </small>
+              <small class="form-text text-danger" style="color: red"> Ce champ est
+                obligatoire. </small>
             }
           </div>
         }
       </div>
-    </div>
+      <div [hidden]="isFromProduit" class="form-row">
+        <label class="form-control-label" for="tiersPayantId">Produits <span class="red-400"
+                                                                             style="font-weight: 900">*</span></label>
 
-    <div [hidden]="isFromProduit" class="row mb-1">
-      <label class="col-sm-3 col-form-label" for="tiersPayantId">Produits <span class="red-400" style="font-weight: 900">*</span></label>
-      <div class="col-sm-9">
         <p-select
           [options]="produits"
           formControlName="produitId"
@@ -71,31 +78,39 @@
         @if (produitId!.invalid && (produitId!.dirty || produitId!.touched)) {
           <div>
             @if (produitId?.errors?.required) {
-              <small class="form-text text-danger" style="color: red"> Ce champ est obligatoire. </small>
+              <small class="form-text text-danger" style="color: red"> Ce champ est
+                obligatoire. </small>
             }
           </div>
-        }
-      </div>
+        }</div>
     </div>
 
-    <div class="row mb-1">
-      <label class="col-sm-3 col-form-label" for="valeur">{{ valeurLabel }}<span class="red-400" style="font-weight: 900">*</span></label>
-      <div class="col-sm-9">
-        <p-inputNumber autocomplete="off" formControlName="valeur" id="valeur" name="valeur"></p-inputNumber>
+
+    <div class="form-row">
+      <div class="form-group col">
+        <label class="form-control-label" for="valeur">{{ valeurLabel }}<span class="red-400"
+                                                                              style="font-weight: 900">*</span></label>
+
+        <p-inputNumber autocomplete="off" formControlName="valeur" id="valeur"
+                       name="valeur"></p-inputNumber>
         @let valeur = editForm.get('valeur');
         @if (valeur!.invalid && (valeur!.dirty || valeur!.touched)) {
           <div>
             @if (valeur?.errors?.required) {
-              <small class="form-text text-danger" style="color: red"> Ce champ est obligatoire. </small>
+              <small class="form-text text-danger" style="color: red"> Ce champ est
+                obligatoire. </small>
             }
           </div>
         }
       </div>
     </div>
-    <div class="row mb-1">
-      <label class="col-sm-3 col-form-label" for="enabled">Activer/Désactiver<span class="red-400" style="font-weight: 900">*</span></label>
-      <div class="col-sm-9">
-        <p-toggleswitch formControlName="enabled" />
+    <div class="form-row">
+      <div class="form-group col">
+        <label class="form-control-label" for="enabled" style="margin-right: 3rem;">Activer/Désactiver<span
+          class="red-400"
+          style="font-weight: 900">*</span></label>
+
+        <p-toggleswitch formControlName="enabled" styleClass="mt-3" />
       </div>
     </div>
   </div>
@@ -110,6 +125,7 @@
       severity="primary"
       type="submit"
     ></p-button>
-    <p-button (click)="cancel()" icon="pi pi-times" label="Annuler" raised="true" severity="danger" type="button"></p-button>
+    <p-button (click)="cancel()" icon="pi pi-times" label="Annuler" raised="true" severity="danger"
+              type="button"></p-button>
   </div>
 </form>

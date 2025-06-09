@@ -1,50 +1,40 @@
-import { Component, OnInit, inject } from '@angular/core';
+import { Component, inject, OnInit } from '@angular/core';
 import { FormsModule, ReactiveFormsModule, UntypedFormBuilder, Validators } from '@angular/forms';
 import { ProduitService } from './produit.service';
 import { IProduit, Produit } from '../../shared/model/produit.model';
-import { DATE_TIME_FORMAT } from '../../shared/constants/input.constants';
-import moment from 'moment';
 import { Observable } from 'rxjs';
 import { HttpResponse } from '@angular/common/http';
 import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
 import { TypeProduit } from '../../shared/model/enumerations/type-produit.model';
 import { WarehouseCommonModule } from '../../shared/warehouse-common/warehouse-common.module';
+import { InputText } from 'primeng/inputtext';
+import { InputNumber } from 'primeng/inputnumber';
+import { Button } from 'primeng/button';
 
 @Component({
   selector: 'jhi-detail-form-dialog',
   templateUrl: './detail-form-dialog.component.html',
-  imports: [WarehouseCommonModule, ReactiveFormsModule, FormsModule],
+  imports: [WarehouseCommonModule, ReactiveFormsModule, FormsModule, InputText, InputNumber, Button],
 })
 export class DetailFormDialogComponent implements OnInit {
-  private fb = inject(UntypedFormBuilder);
-  protected produitService = inject(ProduitService);
-  activeModal = inject(NgbActiveModal);
-
-  isSaving = false;
-  isValid = true;
   produit?: Produit;
   entity?: Produit;
-  editForm = this.fb.group({
+  protected activeModal = inject(NgbActiveModal);
+  protected isSaving = false;
+  protected isValid = true;
+  protected fb = inject(UntypedFormBuilder);
+  protected editForm = this.fb.group({
     id: [],
     libelle: [null, [Validators.required]],
     costAmount: [null, [Validators.required]],
     regularUnitPrice: [null, [Validators.required]],
-    createdAt: [],
   });
+  private readonly produitService = inject(ProduitService);
 
   ngOnInit(): void {
     if (this.entity !== null && this.entity !== undefined) {
       this.updateForm(this.entity);
-    } else {
-      this.updateFormWithParentData(this.produit);
     }
-  }
-
-  updateFormWithParentData(parent: IProduit): void {
-    this.editForm.patchValue({
-      costAmount: parent.itemCostAmount,
-      regularUnitPrice: parent.itemRegularUnitPrice,
-    });
   }
 
   updateForm(produit: IProduit): void {
@@ -53,7 +43,6 @@ export class DetailFormDialogComponent implements OnInit {
       libelle: produit.libelle,
       costAmount: produit.costAmount,
       regularUnitPrice: produit.regularUnitPrice,
-      createdAt: produit.createdAt ? produit.createdAt.format(DATE_TIME_FORMAT) : null,
     });
   }
 
@@ -95,7 +84,6 @@ export class DetailFormDialogComponent implements OnInit {
       libelle: this.editForm.get(['libelle']).value,
       costAmount: this.editForm.get(['costAmount']).value,
       regularUnitPrice: this.editForm.get(['regularUnitPrice']).value,
-      createdAt: this.editForm.get(['createdAt']).value ? moment(this.editForm.get(['createdAt']).value, DATE_TIME_FORMAT) : undefined,
       produitId: this.produit.id,
       typeProduit: TypeProduit.DETAIL,
       quantity: 0,

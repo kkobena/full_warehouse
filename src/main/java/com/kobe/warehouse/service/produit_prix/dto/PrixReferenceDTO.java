@@ -1,7 +1,7 @@
 package com.kobe.warehouse.service.produit_prix.dto;
 
-import com.kobe.warehouse.domain.PrixReference;
-import com.kobe.warehouse.domain.enumeration.PrixReferenceType;
+import com.kobe.warehouse.domain.OptionPrixProduit;
+import com.kobe.warehouse.domain.enumeration.OptionPrixType;
 import jakarta.validation.constraints.NotNull;
 
 public class PrixReferenceDTO {
@@ -13,7 +13,7 @@ public class PrixReferenceDTO {
     private Long produitId;
 
     @NotNull
-    private PrixReferenceType type;
+    private OptionPrixType type;
 
     private float taux;
     private String tiersPayantName;
@@ -21,13 +21,13 @@ public class PrixReferenceDTO {
     private String produitCode;
     private String typeLibelle;
 
-    public PrixReferenceDTO(PrixReference prixReference) {
-        this.valeur = prixReference.getValeur();
-        this.id = prixReference.getId();
-        this.enabled = prixReference.isEnabled();
-        this.type = prixReference.getType();
-        this.taux = prixReference.getTaux();
-        this.typeLibelle = prixReference.getType().getLibelle();
+    public PrixReferenceDTO(OptionPrixProduit optionPrixProduit) {
+        this.valeur = optionPrixProduit.getValeur();
+        this.id = optionPrixProduit.getId();
+        this.enabled = optionPrixProduit.isEnabled();
+        this.type = optionPrixProduit.getType();
+        this.taux = optionPrixProduit.getTaux();
+        this.typeLibelle = optionPrixProduit.getType().getLibelle();
     }
 
     public PrixReferenceDTO() {}
@@ -112,11 +112,11 @@ public class PrixReferenceDTO {
         this.produitId = produitId;
     }
 
-    public PrixReferenceType getType() {
+    public OptionPrixType getType() {
         return type;
     }
 
-    public void setType(PrixReferenceType type) {
+    public void setType(OptionPrixType type) {
         this.type = type;
     }
 

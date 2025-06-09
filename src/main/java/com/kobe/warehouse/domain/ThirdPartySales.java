@@ -1,17 +1,15 @@
 package com.kobe.warehouse.domain;
 
+import com.kobe.warehouse.domain.enumeration.OptionPrixType;
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
-import jakarta.validation.constraints.NotNull;
 import java.io.Serial;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
-import org.hibernate.annotations.ColumnDefault;
-import org.hibernate.annotations.Comment;
 
 @Entity
 public class ThirdPartySales extends Sales implements Serializable {
@@ -77,5 +75,12 @@ public class ThirdPartySales extends Sales implements Serializable {
     public ThirdPartySales setThirdPartySaleLines(List<ThirdPartySaleLine> thirdPartySaleLines) {
         this.thirdPartySaleLines = thirdPartySaleLines;
         return this;
+    }
+
+    public boolean hasOptionPrixPourcentage() {
+        return this.getSalesLines()
+            .stream()
+            .flatMap(e -> e.getPrixAssurances().stream())
+            .anyMatch(pr -> pr.getOptionPrixProduit().getType() == OptionPrixType.POURCENTAGE);
     }
 }

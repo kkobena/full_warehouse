@@ -11,4 +11,27 @@ public class AssuranceReceiptItem extends SaleReceiptItem {
     public void setTaux(String taux) {
         this.taux = taux;
     }
+
+    @Override
+    public String toString() {
+        return (
+            "AssuranceReceiptItem{" +
+            "taux='" +
+            taux +
+            '\'' +
+            ", produitName='" +
+            produitName +
+            '\'' +
+            ", quantity='" +
+            quantity +
+            '\'' +
+            ", totalPrice='" +
+            totalPrice +
+            '\'' +
+            ", unitPrice='" +
+            unitPrice +
+            '\'' +
+            '}'
+        );
+    }
 }

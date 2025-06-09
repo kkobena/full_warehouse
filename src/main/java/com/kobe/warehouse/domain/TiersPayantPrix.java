@@ -12,7 +12,7 @@ import jakarta.validation.constraints.NotNull;
 import java.io.Serial;
 
 @Entity
-@Table(name = "sales_line_price", uniqueConstraints = { @UniqueConstraint(columnNames = { "reference_id", "sale_line_id" }) })
+@Table(name = "sales_line_price", uniqueConstraints = { @UniqueConstraint(columnNames = { "option_prix_produit_id", "sale_line_id" }) })
 public class TiersPayantPrix implements java.io.Serializable {
 
     @Serial
@@ -23,7 +23,7 @@ public class TiersPayantPrix implements java.io.Serializable {
     private Long id;
 
     @ManyToOne(optional = false)
-    private PrixReference reference;
+    private OptionPrixProduit optionPrixProduit;
 
     @Column(name = "prix", nullable = false)
     private int prix;
@@ -43,12 +43,12 @@ public class TiersPayantPrix implements java.io.Serializable {
         this.id = id;
     }
 
-    public PrixReference getReference() {
-        return reference;
+    public OptionPrixProduit getOptionPrixProduit() {
+        return optionPrixProduit;
     }
 
-    public void setReference(PrixReference reference) {
-        this.reference = reference;
+    public void setOptionPrixProduit(OptionPrixProduit optionPrixProduit) {
+        this.optionPrixProduit = optionPrixProduit;
     }
 
     public int getPrix() {

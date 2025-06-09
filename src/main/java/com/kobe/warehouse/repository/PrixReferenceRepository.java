@@ -1,6 +1,6 @@
 package com.kobe.warehouse.repository;
 
-import com.kobe.warehouse.domain.PrixReference;
+import com.kobe.warehouse.domain.OptionPrixProduit;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
@@ -9,18 +9,18 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 
 @Repository
-public interface PrixReferenceRepository extends JpaRepository<PrixReference, Long> {
+public interface PrixReferenceRepository extends JpaRepository<OptionPrixProduit, Long> {
     @Query(
-        "select prixReference from PrixReference prixReference where prixReference.produit.id =:produitId and prixReference.tiersPayant.id =:tiersPayantId and prixReference.enabled = true"
+        "select prixReference from OptionPrixProduit prixReference where prixReference.produit.id =:produitId and prixReference.tiersPayant.id =:tiersPayantId and prixReference.enabled = true"
     )
-    Optional<PrixReference> findOneActifByProduitIdAndTiersPayantId(Long produitId, Long tiersPayantId);
+    Optional<OptionPrixProduit> findOneActifByProduitIdAndTiersPayantId(Long produitId, Long tiersPayantId);
 
-    List<PrixReference> findAllByProduitIdAndTiersPayantId(Long produitId, Long tiersPayantId);
+    List<OptionPrixProduit> findAllByProduitIdAndTiersPayantId(Long produitId, Long tiersPayantId);
 
     @Query(
-        "select prixReference from PrixReference prixReference where prixReference.produit.id =:produitId and prixReference.tiersPayant.id IN(:tiersPayantIds)  and prixReference.enabled = true"
+        "select prixReference from OptionPrixProduit prixReference where prixReference.produit.id =:produitId and prixReference.tiersPayant.id IN(:tiersPayantIds)  and prixReference.enabled = true"
     )
-    List<PrixReference> findByProduitIdAndTiersPayantIds(Long produitId, Set<Long> tiersPayantIds);
+    List<OptionPrixProduit> findByProduitIdAndTiersPayantIds(Long produitId, Set<Long> tiersPayantIds);
 
-    List<PrixReference> findAllByProduitId(Long produitId);
+    List<OptionPrixProduit> findAllByProduitId(Long produitId);
 }

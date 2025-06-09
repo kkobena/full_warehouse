@@ -3,13 +3,11 @@ package com.kobe.warehouse.service.receipt.service;
 import com.kobe.warehouse.domain.enumeration.ModePaimentCode;
 import com.kobe.warehouse.repository.PrinterRepository;
 import com.kobe.warehouse.service.AppConfigurationService;
-import com.kobe.warehouse.service.dto.CashSaleDTO;
 import com.kobe.warehouse.service.dto.PaymentDTO;
 import com.kobe.warehouse.service.dto.PaymentModeDTO;
 import com.kobe.warehouse.service.dto.SaleDTO;
 import com.kobe.warehouse.service.dto.SaleLineDTO;
 import com.kobe.warehouse.service.dto.TvaEmbeded;
-import com.kobe.warehouse.service.receipt.dto.AssuranceReceiptItem;
 import com.kobe.warehouse.service.receipt.dto.CashSaleReceiptItem;
 import com.kobe.warehouse.service.receipt.dto.HeaderFooterItem;
 import com.kobe.warehouse.service.receipt.dto.SaleReceiptItem;
@@ -68,13 +66,7 @@ public abstract class AbstractSaleReceiptService extends AbstractJava2DReceiptPr
     }
 
     protected SaleReceiptItem fromSaleLine(SaleLineDTO saleLineDTO) {
-        SaleReceiptItem item;
-        if (getSale() instanceof CashSaleDTO) {
-            item = new CashSaleReceiptItem();
-        } else {
-            item = new AssuranceReceiptItem();
-        }
-
+        CashSaleReceiptItem item = new CashSaleReceiptItem();
         int productNameWidth = getProductNameWidth();
         var produitName = saleLineDTO.getProduitLibelle();
         item.setProduitName(produitName.length() > productNameWidth ? produitName.substring(0, productNameWidth) : produitName);
@@ -132,14 +124,7 @@ public abstract class AbstractSaleReceiptService extends AbstractJava2DReceiptPr
 
         for (int i = sartItemIndex; i < endItemIndex; i++) {
             SaleReceiptItem item = getItems().get(i);
-            String quantity = item.getQuantity();
-            String produitName = item.getProduitName();
-            String unitPrice = item.getUnitPrice();
-            String totalPrice = item.getTotalPrice();
-            graphics2D.drawString(quantity, DEFAULT_MARGIN, y);
-            graphics2D.drawString(produitName, 20 + DEFAULT_MARGIN, y);
-            graphics2D.drawString(unitPrice, getPuRightMargin() - fontMetrics.stringWidth(unitPrice), y);
-            graphics2D.drawString(totalPrice, getRightMargin() - fontMetrics.stringWidth(totalPrice), y);
+            drawItem(graphics2D, y, fontMetrics, item);
             //check if is last item
             if (i == endItemIndex - 1) {
                 y += 10;
@@ -161,6 +146,17 @@ public abstract class AbstractSaleReceiptService extends AbstractJava2DReceiptPr
             drawThanksMessage(graphics2D, DEFAULT_MARGIN, y);
         }
         return PAGE_EXISTS;
+    }
+
+    protected void drawItem(Graphics2D graphics2D, int y, FontMetrics fontMetrics, SaleReceiptItem item) {
+        String quantity = item.getQuantity();
+        String produitName = item.getProduitName();
+        String unitPrice = item.getUnitPrice();
+        String totalPrice = item.getTotalPrice();
+        graphics2D.drawString(quantity, DEFAULT_MARGIN, y);
+        graphics2D.drawString(produitName, 20 + DEFAULT_MARGIN, y);
+        graphics2D.drawString(unitPrice, getPuRightMargin() - fontMetrics.stringWidth(unitPrice), y);
+        graphics2D.drawString(totalPrice, getRightMargin() - fontMetrics.stringWidth(totalPrice), y);
     }
 
     protected int drawTaxeDetail(Graphics2D graphics2D, int width, int margin, int y, int lineHeight) {
@@ -245,8 +241,7 @@ public abstract class AbstractSaleReceiptService extends AbstractJava2DReceiptPr
         return y;
     }
 
-    private int getPuRightMargin() {
-        //return 150 + (DEFAULT_MARGIN * 2);
+    protected int getPuRightMargin() {
         return 160 + DEFAULT_MARGIN;
     }
 }

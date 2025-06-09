@@ -1,9 +1,9 @@
 package com.kobe.warehouse.service.produit_prix.service;
 
-import com.kobe.warehouse.domain.PrixReference;
+import com.kobe.warehouse.domain.OptionPrixProduit;
 import com.kobe.warehouse.domain.Produit;
 import com.kobe.warehouse.domain.TiersPayant;
-import com.kobe.warehouse.domain.enumeration.PrixReferenceType;
+import com.kobe.warehouse.domain.enumeration.OptionPrixType;
 import com.kobe.warehouse.repository.PrixReferenceRepository;
 import com.kobe.warehouse.service.UserService;
 import com.kobe.warehouse.service.produit_prix.dto.PrixReferenceDTO;
@@ -26,13 +26,13 @@ public class PrixRererenceServiceImpl implements PrixRererenceService {
     }
 
     @Override
-    public List<PrixReference> findByProduitIdAndTiersPayantIds(Long produitId, Set<Long> tiersPayantIds) {
+    public List<OptionPrixProduit> findByProduitIdAndTiersPayantIds(Long produitId, Set<Long> tiersPayantIds) {
         return this.prixReferenceRepository.findByProduitIdAndTiersPayantIds(produitId, tiersPayantIds);
     }
 
     @Override
     @Transactional(readOnly = true)
-    public Optional<PrixReference> findOneActifByProduitIdAndTiersPayantId(Long produitId, Long tiersPayantId) {
+    public Optional<OptionPrixProduit> findOneActifByProduitIdAndTiersPayantId(Long produitId, Long tiersPayantId) {
         return this.prixReferenceRepository.findOneActifByProduitIdAndTiersPayantId(produitId, tiersPayantId);
     }
 
@@ -59,20 +59,20 @@ public class PrixRererenceServiceImpl implements PrixRererenceService {
 
     @Override
     @Transactional(readOnly = true)
-    public List<PrixReference> findAllByProduitIdAndTiersPayantId(Long produitId, Long tiersPayantId) {
+    public List<OptionPrixProduit> findAllByProduitIdAndTiersPayantId(Long produitId, Long tiersPayantId) {
         return this.prixReferenceRepository.findAllByProduitIdAndTiersPayantId(produitId, tiersPayantId);
     }
 
     @Override
     public void add(PrixReferenceDTO dto) {
-        PrixReference prixReference = new PrixReference();
-        prixReference.setProduit(new Produit().id(dto.getProduitId()));
-        prixReference.setTiersPayant(new TiersPayant().setId(dto.getTiersPayantId()));
-        prixReference.setValeur(dto.getValeur());
-        prixReference.setEnabled(dto.isEnabled());
-        prixReference.setType(dto.getType());
-        prixReference.setUser(this.userService.getUser());
-        this.prixReferenceRepository.save(prixReference);
+        OptionPrixProduit optionPrixProduit = new OptionPrixProduit();
+        optionPrixProduit.setProduit(new Produit().id(dto.getProduitId()));
+        optionPrixProduit.setTiersPayant(new TiersPayant().setId(dto.getTiersPayantId()));
+        optionPrixProduit.setValeur(dto.getValeur());
+        optionPrixProduit.setEnabled(dto.isEnabled());
+        optionPrixProduit.setType(dto.getType());
+        optionPrixProduit.setUser(this.userService.getUser());
+        this.prixReferenceRepository.save(optionPrixProduit);
     }
 
     @Override
@@ -98,11 +98,11 @@ public class PrixRererenceServiceImpl implements PrixRererenceService {
 
     @Override
     @Transactional(readOnly = true)
-    public int getSaleLineUnitPrice(PrixReference prixReference, int incomingPrice) {
+    public int getSaleLineUnitPrice(OptionPrixProduit prixReference, int incomingPrice) {
         if (prixReference == null) {
             return incomingPrice;
         }
-        if (prixReference.getType() == PrixReferenceType.POURCENTAGE) {
+        if (prixReference.getType() == OptionPrixType.POURCENTAGE) {
             return Math.round(incomingPrice * prixReference.getTaux());
         } else {
             return prixReference.getValeur();
@@ -110,8 +110,8 @@ public class PrixRererenceServiceImpl implements PrixRererenceService {
     }
 
     @Override
-    public void save(PrixReference prixReference) {
-        this.prixReferenceRepository.save(prixReference);
+    public void save(OptionPrixProduit optionPrixProduit) {
+        this.prixReferenceRepository.save(optionPrixProduit);
     }
 
     @Override
@@ -123,7 +123,7 @@ public class PrixRererenceServiceImpl implements PrixRererenceService {
                 dto.setId(prixReference.getId());
                 dto.setValeur(prixReference.getValeur());
                 dto.setEnabled(prixReference.isEnabled());
-                PrixReferenceType type = prixReference.getType();
+                OptionPrixType type = prixReference.getType();
                 dto.setTypeLibelle(type.getLibelle());
                 dto.setType(type);
                 TiersPayant tiersPayant = prixReference.getTiersPayant();

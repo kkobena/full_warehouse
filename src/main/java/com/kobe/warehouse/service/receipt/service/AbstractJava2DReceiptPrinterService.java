@@ -22,6 +22,8 @@ import java.util.List;
 import java.util.Objects;
 import javax.print.PrintService;
 import javax.print.PrintServiceLookup;
+import org.springframework.boot.context.event.ApplicationReadyEvent;
+import org.springframework.context.event.EventListener;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 
@@ -37,16 +39,17 @@ public abstract class AbstractJava2DReceiptPrinterService implements Printable {
     protected static final String TVA = "Taxes";
     protected static final String REGLEMENT = "Règlement";
     protected static final int DEFAULT_LINE_HEIGHT = 12;
-    protected static final int DEFAULT_FONT_SIZE = 9;
+    protected static final int DEFAULT_FONT_SIZE = 8;
     protected static final int DEFAULT_MARGIN = 9;
-    protected static final Font BOLD_FONT = new Font("consolas", Font.BOLD, DEFAULT_FONT_SIZE);
-    protected static final Font PLAIN_FONT = new Font("consolas", Font.PLAIN, DEFAULT_FONT_SIZE);
+    protected static final Font BOLD_FONT = new Font("Arial, sans-serif", Font.BOLD, DEFAULT_FONT_SIZE);
+    protected static final Font PLAIN_FONT = new Font("Arial, sans-serif", Font.PLAIN, DEFAULT_FONT_SIZE);
     protected static final int DEFAULT_WIDTH = ((int) ((8 / 2.54) * 72)) - (DEFAULT_MARGIN * 2); // 8cm soit 80mm
     //38 *21,2
     private final AppConfigurationService appConfigurationService;
     private final PrinterRepository printerRepository;
     protected Magasin magasin;
     protected Printer printer;
+    protected PrinterJob printerJob;
 
     protected AbstractJava2DReceiptPrinterService(AppConfigurationService appConfigurationService, PrinterRepository printerRepository) {
         this.appConfigurationService = appConfigurationService;
@@ -54,7 +57,7 @@ public abstract class AbstractJava2DReceiptPrinterService implements Printable {
     }
 
     protected void print(String hostName) throws PrinterException {
-        PrinterJob job = getPrinterJob(hostName);
+        PrinterJob job = StringUtils.hasLength(hostName) ? getPrinterJob(hostName) : printerJob;
         PageFormat pageFormat = job.defaultPage();
         Paper paper = new Paper();
         paper.setImageableArea(DEFAULT_MARGIN, DEFAULT_LINE_HEIGHT, paper.getWidth(), paper.getHeight());
@@ -150,7 +153,7 @@ public abstract class AbstractJava2DReceiptPrinterService implements Printable {
         graphics2D.setFont(PLAIN_FONT);
 
         graphics2D.drawString("Le " + LocalDate.now().format(DateTimeFormatter.ofPattern("dd/MM/yyyy")), x, y);
-        graphics2D.drawString("à " + LocalTime.now().format(DateTimeFormatter.ofPattern("HH:mm:ss")), x + 70, y);
+        graphics2D.drawString("à " + LocalTime.now().format(DateTimeFormatter.ofPattern("HH:mm:ss")), x + 55, y);
         y += lineHeight;
         return y;
     }
@@ -200,5 +203,17 @@ public abstract class AbstractJava2DReceiptPrinterService implements Printable {
 
     protected int getRightMargin() {
         return DEFAULT_WIDTH;
+    }
+
+    @EventListener(ApplicationReadyEvent.class)
+    protected void loadDriver() {
+        try {
+            PrintService selectedService = PrintServiceLookup.lookupDefaultPrintService();
+            printerJob = PrinterJob.getPrinterJob();
+            printerJob.setPrintService(selectedService);
+        } catch (Exception e) {
+            // Log the error or handle it as needed
+
+        }
     }
 }

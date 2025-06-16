@@ -76,4 +76,11 @@ values (37, 'sales', 'Menu journal des ventes', false, 27, 1, true, 'ALL');
 INSERT IGNORE INTO menu (id, name, libelle, racine, parent_id, enable, `ordre`, `type_menu`)
 values (38, 'user-management', 'Menu utilisateurs', false, 32, 1, true, 'ALL');
 
+INSERT IGNORE INTO menu (id, name, libelle, racine, parent_id, enable, `ordre`, `type_menu`)
+values (39, 'mobile_admin', 'Privilège pour toutes les fonctionnaliés de l\'Application mobile',
+        true, null, 1, true, 'MOBILE');
+
+INSERT IGNORE INTO menu (id, name, libelle, racine, parent_id, enable, `ordre`, `type_menu`)
+values (40, 'mobile_user', 'Privilège d\'utilisation l\'Application pour les utilisateurs',
+        true, null, 1, true, 'MOBILE');
 

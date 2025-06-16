@@ -1,19 +1,17 @@
-import {Directive, ElementRef, forwardRef, HostListener} from '@angular/core';
-import {ControlValueAccessor, NG_VALUE_ACCESSOR} from "@angular/forms";
+import { Directive, ElementRef, forwardRef, HostListener } from '@angular/core';
+import { ControlValueAccessor, NG_VALUE_ACCESSOR } from '@angular/forms';
+
 @Directive({
   selector: '[jhiFormatAmount]',
   providers: [
     {
       provide: NG_VALUE_ACCESSOR,
       useExisting: forwardRef(() => FormatAmountDirective),
-      multi: true
+      multi: true,
     },
   ],
 })
 export class FormatAmountDirective implements ControlValueAccessor {
-  private onChange = (value: any) => {};
-  private onTouched = () => {};
-
   constructor(private el: ElementRef<HTMLInputElement>) {}
 
   @HostListener('input', ['$event'])
@@ -21,7 +19,7 @@ export class FormatAmountDirective implements ControlValueAccessor {
     const input = event.target as HTMLInputElement;
     const previousCursor = input.selectionStart ?? input.value.length;
 
-    const raw =input.value;// this.parse(input.value);
+    const raw = input.value; // this.parse(input.value);
     const formatted = this.format(raw);
 
     this.el.nativeElement.value = formatted;
@@ -39,8 +37,7 @@ export class FormatAmountDirective implements ControlValueAccessor {
   }
 
   writeValue(value: any): void {
-    const formatted = this.format(value);
-    this.el.nativeElement.value = formatted;
+    this.el.nativeElement.value = this.format(value);
   }
 
   registerOnChange(fn: any): void {
@@ -51,12 +48,18 @@ export class FormatAmountDirective implements ControlValueAccessor {
     this.onTouched = fn;
   }
 
+  private onChange = (value: any) => {};
+
+  private onTouched = () => {};
+
   private parse(value: string): string {
     return value.replace(/\D/g, '');
   }
 
   private format(value: string | number): string {
-    if (!value) return '';
+    if (!value) {
+      return '';
+    }
     const raw = value.toString().replace(/\D/g, '');
     return raw.replace(/\B(?=(\d{3})+(?!\d))/g, ' ');
   }

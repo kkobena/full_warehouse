@@ -4,4 +4,5 @@ public enum TypeMenu {
     WEB,
     JAVA_CLIENT,
     ALL,
+    MOBILE,
 }

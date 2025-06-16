@@ -1,9 +1,12 @@
 package com.kobe.warehouse.config;
 
+import static org.springframework.security.config.Customizer.withDefaults;
+
 import com.kobe.warehouse.security.AuthoritiesConstants;
 import com.kobe.warehouse.web.filter.SpaWebFilter;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import java.util.function.Supplier;
 import org.springframework.boot.autoconfigure.security.servlet.PathRequest;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -30,10 +33,6 @@ import org.springframework.util.StringUtils;
 import tech.jhipster.config.JHipsterProperties;
 import tech.jhipster.web.filter.CookieCsrfFilter;
 
-import java.util.function.Supplier;
-
-import static org.springframework.security.config.Customizer.withDefaults;
-
 @Configuration
 @EnableMethodSecurity(securedEnabled = true)
 public class SecurityConfiguration {
@@ -47,12 +46,10 @@ public class SecurityConfiguration {
         this.jHipsterProperties = jHipsterProperties;
     }
 
-
     @Bean
     public PasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder();
     }
-
 
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
@@ -77,30 +74,35 @@ public class SecurityConfiguration {
                     )
             )
             .securityMatcher(request -> !request.getRequestURI().startsWith("/java-client/"))
-            .authorizeHttpRequests(authz -> authz
-                .requestMatchers(
-                    PathRequest.toStaticResources().atCommonLocations(),
-                    request -> request.getRequestURI().matches(".*\\.(js|txt|json|map|css|ttf|woff2|eot|woff|ico|png|svg|webapp)$"),
-                    request -> request.getRequestURI().startsWith("/app/"),
-                    request -> request.getRequestURI().startsWith("/i18n/"),
-                    request -> request.getRequestURI().startsWith("/content/"),
-                    request -> request.getRequestURI().startsWith("/swagger-ui/"),
-                    request -> request.getRequestURI().equals("/api/authenticate"),
-                    request -> request.getRequestURI().equals("/api/register"),
-                    request -> request.getRequestURI().equals("/api/activate"),
-                    request -> request.getRequestURI().equals("/api/account/reset-password/init"),
-                    request -> request.getRequestURI().equals("/api/account/reset-password/finish"),
-                    request -> request.getRequestURI().equals("/management/health"),
-                    request -> request.getRequestURI().startsWith("/management/health/"),
-                    request -> request.getRequestURI().equals("/management/info"),
-                    request -> request.getRequestURI().equals("/management/prometheus")
-                ).permitAll()
-                .requestMatchers(
-                    request -> request.getRequestURI().startsWith("/api/admin/"),
-                    request -> request.getRequestURI().startsWith("/v3/api-docs/"),
-                    request -> request.getRequestURI().startsWith("/management/")
-                ).hasAuthority(AuthoritiesConstants.ADMIN)
-                .requestMatchers(request -> request.getRequestURI().startsWith("/api/")).authenticated()
+            .authorizeHttpRequests(authz ->
+                authz
+                    .requestMatchers(
+                        PathRequest.toStaticResources().atCommonLocations(),
+                        request -> request.getRequestURI().matches(".*\\.(js|txt|json|map|css|ttf|woff2|eot|woff|ico|png|svg|webapp)$"),
+                        request -> request.getRequestURI().startsWith("/app/"),
+                        request -> request.getRequestURI().startsWith("/i18n/"),
+                        request -> request.getRequestURI().startsWith("/content/"),
+                        request -> request.getRequestURI().startsWith("/swagger-ui/"),
+                        request -> request.getRequestURI().equals("/api/authenticate"),
+                        request -> request.getRequestURI().equals("/api/register"),
+                        request -> request.getRequestURI().equals("/api/activate"),
+                        request -> request.getRequestURI().equals("/api/account/reset-password/init"),
+                        request -> request.getRequestURI().equals("/api/account/reset-password/finish"),
+                        request -> request.getRequestURI().equals("/management/health"),
+                        request -> request.getRequestURI().startsWith("/management/health/"),
+                        request -> request.getRequestURI().equals("/management/info"),
+                        request -> request.getRequestURI().equals("/api-user-account"),
+                        request -> request.getRequestURI().equals("/management/prometheus")
+                    )
+                    .permitAll()
+                    .requestMatchers(
+                        request -> request.getRequestURI().startsWith("/api/admin/"),
+                        request -> request.getRequestURI().startsWith("/v3/api-docs/"),
+                        request -> request.getRequestURI().startsWith("/management/")
+                    )
+                    .hasAuthority(AuthoritiesConstants.ADMIN)
+                    .requestMatchers(request -> request.getRequestURI().startsWith("/api/"))
+                    .authenticated()
             )
             .rememberMe(rememberMe ->
                 rememberMe
@@ -109,9 +111,8 @@ public class SecurityConfiguration {
                     .key(jHipsterProperties.getSecurity().getRememberMe().getKey())
             )
             .exceptionHandling(exceptionHandling ->
-                exceptionHandling.defaultAuthenticationEntryPointFor(
-                    new HttpStatusEntryPoint(HttpStatus.UNAUTHORIZED),
-                    request -> request.getRequestURI().startsWith("/api/")
+                exceptionHandling.defaultAuthenticationEntryPointFor(new HttpStatusEntryPoint(HttpStatus.UNAUTHORIZED), request ->
+                    request.getRequestURI().startsWith("/api/")
                 )
             )
             .formLogin(formLogin ->
@@ -123,14 +124,10 @@ public class SecurityConfiguration {
                     .permitAll()
             )
             .logout(logout ->
-                logout
-                    .logoutUrl("/api/logout")
-                    .logoutSuccessHandler(new HttpStatusReturningLogoutSuccessHandler())
-                    .permitAll()
+                logout.logoutUrl("/api/logout").logoutSuccessHandler(new HttpStatusReturningLogoutSuccessHandler()).permitAll()
             );
         return http.build();
     }
-
 
     @Bean
     @Order(1)
@@ -141,6 +138,18 @@ public class SecurityConfiguration {
             .securityMatchers(matchers -> matchers.requestMatchers("/java-client/**"))
             .authorizeHttpRequests(authorize -> authorize.anyRequest().authenticated())
             .httpBasic(withDefaults());
+        return http.build();
+    }
+
+    @Bean
+    @Order(3)
+    public SecurityFilterChain securityFilterChainMobile(HttpSecurity http) throws Exception {
+        http
+            .cors(AbstractHttpConfigurer::disable)
+            .csrf(AbstractHttpConfigurer::disable)
+            .securityMatchers(matchers -> matchers.requestMatchers("/api-user-account"))
+            .authorizeHttpRequests(authorize -> authorize.anyRequest().permitAll());
+
         return http.build();
     }
 

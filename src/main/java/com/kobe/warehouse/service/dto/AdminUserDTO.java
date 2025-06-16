@@ -65,6 +65,8 @@ public class AdminUserDTO implements Serializable {
     @Pattern(regexp = Constants.NUMERIC_PATTERN)
     private String actionAuthorityKey;
 
+    private String roleName;
+
     public AdminUserDTO() {
         // Empty constructor needed for Jackson.
     }
@@ -103,6 +105,35 @@ public class AdminUserDTO implements Serializable {
         this.fullName = String.format("%s %s", user.getFirstName(), user.getLastName());
         this.abbrName = String.format("%s. %s", user.getFirstName().charAt(0), user.getLastName());
         this.authorities = SecurityUtils.mergeAuthorities(authorities0);
+
+        for (String authority : this.authorities) {
+            if (SecurityUtils.isAdmin(authority)) {
+                this.roleName = Constants.PR_MOBILE_ADMIN;
+                break;
+            }
+            if (SecurityUtils.hasMobileAdminAccess(authority)) {
+                this.roleName = authority;
+                break;
+            }
+            if (SecurityUtils.hasUserMobileAccess(authority)) {
+                this.roleName = authority;
+                break;
+            }
+        }
+    }
+
+    private boolean isAdmin() {
+        return SecurityUtils.hasCurrentUserThisAuthority(Constants.ROLE_ADMIN);
+    }
+
+    private String getMobileProfile(String privilege) {
+        if (SecurityUtils.hasMobileAdminAccess(privilege)) {
+            return Constants.PR_MOBILE_ADMIN;
+        }
+        if (SecurityUtils.hasMobileAccess(privilege)) {
+            return Constants.PR_MOBILE_USER;
+        }
+        return null;
     }
 
     public @Size(min = 6, max = 6) String getActionAuthorityKey() {
@@ -112,6 +143,14 @@ public class AdminUserDTO implements Serializable {
     public AdminUserDTO setActionAuthorityKey(@Size(min = 6, max = 6) String actionAuthorityKey) {
         this.actionAuthorityKey = actionAuthorityKey;
         return this;
+    }
+
+    public String getRoleName() {
+        return roleName;
+    }
+
+    public void setRoleName(String roleName) {
+        this.roleName = roleName;
     }
 
     public Long getId() {

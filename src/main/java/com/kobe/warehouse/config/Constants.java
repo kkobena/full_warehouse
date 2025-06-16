@@ -20,5 +20,9 @@ public final class Constants {
     public static final String NUMERIC_PATTERN = "^[0-9]*$";
     public static final int REFERENCE_TYPE_SUGGESTION = 3;
 
+    public static final String PR_MOBILE_ADMIN = "mobile_admin";
+    public static final String PR_MOBILE_USER = "mobile_user";
+    public static final String ROLE_ADMIN = "ROLE_ADMIN";
+
     private Constants() {}
 }

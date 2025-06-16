@@ -8,4 +8,8 @@ public record AchatRecord(
     BigDecimal netAmount,
     BigDecimal taxAmount,
     Long achatCount
-) {}
+) {
+    public long ttcAmount() {
+        return receiptAmount.add(taxAmount).longValue();
+    }
+}

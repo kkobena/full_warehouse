@@ -1,5 +1,6 @@
 package com.kobe.warehouse.security;
 
+import com.kobe.warehouse.config.Constants;
 import com.kobe.warehouse.domain.Authority;
 import com.kobe.warehouse.domain.Menu;
 import java.util.Arrays;
@@ -106,5 +107,25 @@ public final class SecurityUtils {
         Set<String> authorities0 = new HashSet<>();
         authorities.forEach(authority -> authorities0.addAll(buildAuthorities(authority)));
         return authorities0;
+    }
+
+    public static boolean hasMobileAccess(String authority) {
+        return (
+            Constants.PR_MOBILE_ADMIN.equals(authority) ||
+            Constants.PR_MOBILE_USER.equals(authority) ||
+            Constants.ROLE_ADMIN.equals(authority)
+        );
+    }
+
+    public static boolean isAdmin(String authority) {
+        return Constants.ROLE_ADMIN.equals(authority);
+    }
+
+    public static boolean hasMobileAdminAccess(String authority) {
+        return Constants.PR_MOBILE_ADMIN.equals(authority);
+    }
+
+    public static boolean hasUserMobileAccess(String authority) {
+        return Constants.PR_MOBILE_USER.equals(authority);
     }
 }

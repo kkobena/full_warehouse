@@ -82,21 +82,6 @@ public class SaleDataService {
         this.thirdPartySaleLineRepository = thirdPartySaleLineRepository;
     }
 
-    public List<SaleDTO> customerPurchases(Long customerId) {
-        CriteriaBuilder cb = em.getCriteriaBuilder();
-        CriteriaQuery<Sales> cq = cb.createQuery(Sales.class);
-        Root<Sales> root = cq.from(Sales.class);
-        root.fetch("salesLines", JoinType.INNER);
-        root.fetch("payments", JoinType.LEFT);
-        cq.select(root).distinct(true).orderBy(cb.desc(root.get("updatedAt")));
-        List<Predicate> predicates = new ArrayList<>();
-        predicates.add(cb.equal(root.get("customer").get("id"), customerId));
-        predicates.add(cb.notEqual(root.get("statut"), SalesStatut.PENDING));
-        cq.where(cb.and(predicates.toArray(new Predicate[0])));
-        TypedQuery<Sales> q = em.createQuery(cq);
-        return q.getResultList().stream().map(this::buildSaleDTO).collect(Collectors.toList());
-    }
-
     public List<SaleDTO> customerPurchases(Long customerId, LocalDate fromDate, LocalDate toDate) {
         CriteriaBuilder cb = em.getCriteriaBuilder();
         CriteriaQuery<Sales> cq = cb.createQuery(Sales.class);
@@ -115,20 +100,6 @@ public class SaleDataService {
         cq.where(cb.and(predicates.toArray(new Predicate[0])));
         TypedQuery<Sales> q = em.createQuery(cq);
         return q.getResultList().stream().map(this::buildSaleDTO).collect(Collectors.toList());
-    }
-
-    public List<SaleDTO> customerPurchases(String query, LocalDate fromDate, LocalDate toDate) {
-        CriteriaBuilder cb = em.getCriteriaBuilder();
-        CriteriaQuery<Sales> cq = cb.createQuery(Sales.class);
-        Root<Sales> root = cq.from(Sales.class);
-        root.fetch("salesLines", JoinType.INNER);
-        root.fetch("payments", JoinType.LEFT);
-        cq.select(root).distinct(true).orderBy(cb.desc(root.get("updatedAt")));
-        List<Predicate> predicates = new ArrayList<>();
-        predicates(query, fromDate, toDate, predicates, cb, root);
-        cq.where(cb.and(predicates.toArray(new Predicate[0])));
-        TypedQuery<Sales> q = em.createQuery(cq);
-        return q.getResultList().stream().map(SaleDTO::new).collect(Collectors.toList());
     }
 
     public SaleDTO findOne(Long id) {
@@ -163,32 +134,6 @@ public class SaleDataService {
             case ThirdPartySales thirdPartySales -> new ThirdPartySaleDTO(thirdPartySales);
             default -> throw new RuntimeException("Not yet implemented");
         };
-    }
-
-    private void predicates(
-        String query,
-        LocalDate fromDate,
-        LocalDate toDate,
-        List<Predicate> predicates,
-        CriteriaBuilder cb,
-        Root<Sales> root
-    ) {
-        if (!StringUtils.isEmpty(query)) {
-            query = query.toUpperCase() + "%";
-            predicates.add(
-                cb.or(
-                    cb.like(cb.upper(root.get("customer").get("firstName")), query),
-                    cb.like(cb.upper(root.get("customer").get("lastName")), query)
-                )
-            );
-        }
-
-        predicates.add(cb.notEqual(root.get("statut"), SalesStatut.PENDING));
-        if (fromDate != null) {
-            predicates.add(
-                cb.between(cb.function("DATE", Date.class, root.get("updatedAt")), Date.valueOf(fromDate), Date.valueOf(toDate))
-            );
-        }
     }
 
     public SaleDTO fetchPurchaseBy(Long id) {

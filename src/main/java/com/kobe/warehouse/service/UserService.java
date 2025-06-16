@@ -10,6 +10,7 @@ import com.kobe.warehouse.repository.UserRepository;
 import com.kobe.warehouse.security.SecurityUtils;
 import com.kobe.warehouse.service.dto.AdminUserDTO;
 import com.kobe.warehouse.service.dto.UserDTO;
+import com.kobe.warehouse.web.rest.java_client.AuthParams;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
@@ -297,7 +298,24 @@ public class UserService {
     }
 
     public Optional<User> getUserByPwdOrSecurityKey(String input) {
-        var endoded = DigestUtils.sha256Hex(input);
-        return userRepository.findOneByActionAuthorityKey(endoded);
+        return userRepository.findOneByActionAuthorityKey(DigestUtils.sha256Hex(input));
+    }
+
+    @Transactional(readOnly = true)
+    public Optional<AdminUserDTO> getUsers(AuthParams authParams) {
+        return userRepository
+            .findOneWithAuthoritiesByLogin(authParams.username())
+            .filter(e -> passwordEncoder.matches(authParams.password(), e.getPassword()))
+            .map(user ->
+                new AdminUserDTO(
+                    user,
+                    user
+                        .getAuthorities()
+                        .stream()
+                        .map(authority -> authorityRepository.findOneByName(authority.getName()))
+                        .collect(Collectors.toSet())
+                )
+            )
+            .filter(e -> e.getAuthorities().stream().anyMatch(SecurityUtils::hasMobileAccess));
     }
 }

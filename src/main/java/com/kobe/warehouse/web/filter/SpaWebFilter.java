@@ -10,8 +10,8 @@ import org.springframework.web.filter.OncePerRequestFilter;
 public class SpaWebFilter extends OncePerRequestFilter {
 
     /**
-     * Forwards any unmapped paths (except those containing a period) to the client {@code
-     * index.html}.
+     * Forwards any unmapped paths (except those containing a period) to the client
+     * {@code index.html}.
      */
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
@@ -21,6 +21,7 @@ public class SpaWebFilter extends OncePerRequestFilter {
         if (
             !path.startsWith("/api") &&
             !path.startsWith("/java-client") &&
+            !path.startsWith("/api-user-account") &&
             !path.startsWith("/management") &&
             !path.startsWith("/v3/api-docs") &&
             !path.contains(".") &&

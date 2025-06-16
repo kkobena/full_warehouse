@@ -37,6 +37,8 @@ public interface UserRepository extends JpaRepository<User, Long>, JpaSpecificat
 
     Page<User> findAllByIdNotNullAndActivatedIsTrue(Pageable pageable);
 
+    boolean existsByLoginEqualsAndPasswordEquals(String login, String password);
+
     Optional<User> findOneByActionAuthorityKey(String actionAuthorityKey);
 
     default Specification<User> findspecialisation() {

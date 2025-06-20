@@ -12,6 +12,11 @@ import com.kobe.warehouse.service.financiel_transaction.dto.MvtParam;
 import com.kobe.warehouse.service.utils.DateUtil;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.Tuple;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.core.io.Resource;
+import org.springframework.stereotype.Service;
+
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.net.MalformedURLException;
@@ -22,10 +27,6 @@ import java.util.Map.Entry;
 import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.core.io.Resource;
-import org.springframework.stereotype.Service;
 
 @Service
 public class BalanceCaisseServiceImpl implements BalanceCaisseService {
@@ -275,7 +276,7 @@ public class BalanceCaisseServiceImpl implements BalanceCaisseService {
     }
 
     private List<Tuple> getMvt(MvtParam mvtParam) {
-        Set<CategorieChiffreAffaire> categorieChiffreAffaires = mvtParam.getCategorieChiffreAffaires();
+        Set<CategorieChiffreAffaire> categorieChiffreAffaires = Objects.requireNonNullElse(mvtParam.getCategorieChiffreAffaires(), Set.of());
 
         if (categorieChiffreAffaires.contains(CategorieChiffreAffaire.CALLEBASE) && categorieChiffreAffaires.size() > 1) {
             categorieChiffreAffaires = Set.of(CategorieChiffreAffaire.CALLEBASE);
@@ -386,8 +387,8 @@ public class BalanceCaisseServiceImpl implements BalanceCaisseService {
     @Override
     public Resource exportToPdf(MvtParam mvtParam) throws MalformedURLException {
         return this.balanceReportService.exportToPdf(
-                getBalanceCaisse(mvtParam),
-                new ReportPeriode(mvtParam.getFromDate(), mvtParam.getToDate())
-            );
+            getBalanceCaisse(mvtParam),
+            new ReportPeriode(mvtParam.getFromDate(), mvtParam.getToDate())
+        );
     }
 }

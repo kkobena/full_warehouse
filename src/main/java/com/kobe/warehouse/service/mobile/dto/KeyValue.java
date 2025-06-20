@@ -1,3 +1,3 @@
 package com.kobe.warehouse.service.mobile.dto;
 
-public record KeyValue(String code, String value) {}
+public record KeyValue(String libelle, String value) {}

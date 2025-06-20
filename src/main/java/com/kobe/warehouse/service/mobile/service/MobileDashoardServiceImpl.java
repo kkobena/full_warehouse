@@ -7,17 +7,20 @@ import com.kobe.warehouse.service.dto.records.VenteByTypeRecord;
 import com.kobe.warehouse.service.dto.records.VenteModePaimentRecord;
 import com.kobe.warehouse.service.dto.records.VenteRecord;
 import com.kobe.warehouse.service.dto.records.VenteRecordWrapper;
+import com.kobe.warehouse.service.mobile.dto.Balance;
 import com.kobe.warehouse.service.mobile.dto.Dashboard;
 import com.kobe.warehouse.service.mobile.dto.KeyValue;
 import com.kobe.warehouse.service.stat.AchatStatService;
 import com.kobe.warehouse.service.stat.SaleStatService;
 import com.kobe.warehouse.service.utils.NumberUtil;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Objects;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
+
+import java.math.BigDecimal;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Objects;
 
 @Service
 @Transactional(readOnly = true)
@@ -69,10 +72,11 @@ public class MobileDashoardServiceImpl implements MobileDashoardService {
         if (CollectionUtils.isEmpty(venteModePaimentRecords)) {
             return;
         }
-        List<KeyValue> modes = new ArrayList<>();
-        venteModePaimentRecords.forEach(venteByTypeRecord -> {
-            modes.add(new KeyValue(venteByTypeRecord.libelle(), NumberUtil.formatToString(venteByTypeRecord.paidAmount())));
-        });
+        List<Balance> modes = new ArrayList<>();
+        long total = venteModePaimentRecords.stream()
+            .map(VenteModePaimentRecord::paidAmount)
+            .reduce(BigDecimal.ZERO, BigDecimal::add).longValue();
+        venteModePaimentRecords.forEach(venteByTypeRecord -> modes.add(new Balance(venteByTypeRecord.libelle(), NumberUtil.formatToString(venteByTypeRecord.paidAmount()), ((venteByTypeRecord.paidAmount().longValue() * 100) / total) + "")));
         dashboard.setPaymentModes(modes);
     }
 

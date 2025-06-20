@@ -8,7 +8,7 @@ public class Dashboard {
     private List<KeyValue> netAmounts;
     private List<KeyValue> salesTypes;
     private List<KeyValue> counts;
-    private List<KeyValue> paymentModes;
+    private List<Balance> paymentModes;
     private List<KeyValue> commandes;
 
     public List<KeyValue> getCommandes() {
@@ -35,11 +35,11 @@ public class Dashboard {
         this.netAmounts = netAmounts;
     }
 
-    public List<KeyValue> getPaymentModes() {
+    public List<Balance> getPaymentModes() {
         return paymentModes;
     }
 
-    public void setPaymentModes(List<KeyValue> paymentModes) {
+    public void setPaymentModes(List<Balance> paymentModes) {
         this.paymentModes = paymentModes;
     }
 

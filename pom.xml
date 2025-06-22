@@ -83,9 +83,7 @@
                 <plugin>
                     <artifactId>maven-failsafe-plugin</artifactId>
                     <configuration>
-                        <!-- Due to spring-boot repackage, without adding this property test classes are not found
-                             See https://github.com/spring-projects/spring-boot/issues/6254 -->
-                        <!-- Force alphabetical order to have a reproducible build -->
+
                         <argLine>@{argLine} -Dspring.profiles.active=${profile.test}</argLine>
                         <classesDirectory>${project.build.outputDirectory}</classesDirectory>
                         <includes>

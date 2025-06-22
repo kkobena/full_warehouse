@@ -50,15 +50,6 @@ import jakarta.persistence.criteria.JoinType;
 import jakarta.persistence.criteria.Predicate;
 import jakarta.persistence.criteria.Root;
 import jakarta.persistence.criteria.SetJoin;
-import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Objects;
-import java.util.Optional;
-import java.util.Set;
 import org.apache.commons.lang3.ObjectUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -68,6 +59,16 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
+
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Objects;
+import java.util.Optional;
+import java.util.Set;
 
 @Service
 @Transactional
@@ -598,8 +599,11 @@ public class CustomizedProductRepository implements CustomizedProductService {
         List<Predicate> predicates = produitLitePredicate(cb, root, produitCriteria);
         cq.where(cb.and(predicates.toArray(new Predicate[0])));
         TypedQuery<Produit> q = em.createQuery(cq);
-        q.setFirstResult((int) pageable.getOffset());
-        q.setMaxResults(pageable.getPageSize());
+        if (pageable.isPaged()) {
+            q.setFirstResult((int) pageable.getOffset());
+            q.setMaxResults(pageable.getPageSize());
+        }
+
         return q
             .getResultList()
             .stream()

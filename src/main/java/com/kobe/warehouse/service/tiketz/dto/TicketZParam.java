@@ -11,4 +11,14 @@ public record TicketZParam(
     LocalDate toDate,
     LocalTime fromTime,
     LocalTime toTime
-) {}
+) {
+    public TicketZParam {
+
+        if (fromTime == null) {
+            fromTime = LocalTime.MIN;
+        }
+        if (toTime == null) {
+            toTime = LocalTime.MAX;
+        }
+    }
+}

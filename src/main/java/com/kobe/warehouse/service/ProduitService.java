@@ -58,7 +58,6 @@ public interface ProduitService {
 
     void update(ProduitDTO produitDTO);
 
-    Page<ProduitDTO> lite(ProduitCriteria produitCriteria, Pageable pageable);
 
     List<ProduitDTO> productsLiteList(ProduitCriteria produitCriteria, Pageable pageable);
 

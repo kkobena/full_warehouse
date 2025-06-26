@@ -248,22 +248,17 @@ public class CustomizedProductRepository implements CustomizedProductService {
     }
 
     @Override
-    public Page<ProduitDTO> lite(ProduitCriteria produitCriteria, Pageable pageable) {
-        long total = findAllCount(produitCriteria);
-        List<ProduitDTO> list = new ArrayList<>();
-        if (total > 0) {
-            CriteriaBuilder cb = em.getCriteriaBuilder();
-            CriteriaQuery<Produit> cq = cb.createQuery(Produit.class);
-            Root<Produit> root = cq.from(Produit.class);
-            cq.select(root).distinct(true).orderBy(cb.asc(root.get(Produit_.libelle)));
-            List<Predicate> predicates = produitPredicate(cb, root, produitCriteria);
-            cq.where(cb.and(predicates.toArray(new Predicate[0])));
-            TypedQuery<Produit> q = em.createQuery(cq);
-            q.setFirstResult((int) pageable.getOffset());
-            q.setMaxResults(pageable.getPageSize());
-            list = q.getResultList().stream().map(ProduitBuilder::fromProduitWithRequiredParentRelation).toList();
-        }
-        return new PageImpl<>(list, pageable, total);
+    public List<ProduitDTO> lite(ProduitCriteria produitCriteria) {
+        CriteriaBuilder cb = em.getCriteriaBuilder();
+        CriteriaQuery<Produit> cq = cb.createQuery(Produit.class);
+        Root<Produit> root = cq.from(Produit.class);
+        cq.select(root).distinct(true).orderBy(cb.asc(root.get(Produit_.libelle)));
+        List<Predicate> predicates = produitPredicate(cb, root, produitCriteria);
+        cq.where(cb.and(predicates.toArray(new Predicate[0])));
+        TypedQuery<Produit> q = em.createQuery(cq);
+
+        return q.getResultList().stream().map(ProduitBuilder::fromProduitWithRequiredParentRelation).toList();
+
     }
 
     @Override
@@ -302,39 +297,51 @@ public class CustomizedProductRepository implements CustomizedProductService {
     @Override
     @Transactional(readOnly = true)
     public Page<ProduitDTO> findAll(ProduitCriteria produitCriteria, Pageable pageable) throws Exception {
-        long total = findAllCount(produitCriteria);
-        List<ProduitDTO> list = new ArrayList<>();
+
+
         Magasin magasin = storageService.getConnectedUserMagasin();
         Storage userStorage = storageService.getDefaultConnectedUserPointOfSaleStorage();
         produitCriteria.setMagasinId(magasin.getId());
-        if (total > 0) {
-            CriteriaBuilder cb = em.getCriteriaBuilder();
-            CriteriaQuery<Produit> cq = cb.createQuery(Produit.class);
-            Root<Produit> root = cq.from(Produit.class);
-            cq.select(root).distinct(true).orderBy(cb.asc(root.get(Produit_.libelle)));
-            List<Predicate> predicates = produitPredicate(cb, root, produitCriteria);
-            cq.where(cb.and(predicates.toArray(new Predicate[0])));
-            TypedQuery<Produit> q = em.createQuery(cq);
+        long total = 0;
+        if (pageable.isPaged()) {
+            total = findAllCount(produitCriteria);
+        }
+
+        return new PageImpl<>(getProduits(produitCriteria, magasin, userStorage, pageable), pageable, total);
+    }
+
+    private List<ProduitDTO> getProduits(ProduitCriteria produitCriteria, Magasin magasin, Storage userStorage, Pageable pageable) {
+        List<ProduitDTO> list = new ArrayList<>();
+        CriteriaBuilder cb = em.getCriteriaBuilder();
+        CriteriaQuery<Produit> cq = cb.createQuery(Produit.class);
+        Root<Produit> root = cq.from(Produit.class);
+        cq.select(root).distinct(true).orderBy(cb.asc(root.get(Produit_.libelle)));
+        List<Predicate> predicates = produitPredicate(cb, root, produitCriteria);
+        cq.where(cb.and(predicates.toArray(new Predicate[0])));
+        TypedQuery<Produit> q = em.createQuery(cq);
+        if (pageable.isPaged()) {
             q.setFirstResult((int) pageable.getOffset());
             q.setMaxResults(pageable.getPageSize());
-            q
-                .getResultList()
-                .forEach(p -> {
-                    ProduitDTO dto = ProduitBuilder.buildFromProduit(
-                        p,
-                        magasin,
-                        p.getStockProduits().stream().filter(s -> s.getStorage().equals(userStorage)).findFirst().orElse(null)
-                    );
-                    produitCriteria.setId(p.getId());
-                    dto.setLastDateOfSale(lastSale(produitCriteria));
-                    dto.setLastInventoryDate(lastInventory(produitCriteria));
-                    dto.setLastOrderDate(lastOrder(produitCriteria));
-                    dto.setEtatProduit(this.etatProduitService.getEtatProduit(dto.getId(), dto.getTotalQuantity()));
-                    list.add(dto);
-                });
         }
-        return new PageImpl<>(list, pageable, total);
+
+        q
+            .getResultList()
+            .forEach(p -> {
+                ProduitDTO dto = ProduitBuilder.buildFromProduit(
+                    p,
+                    magasin,
+                    p.getStockProduits().stream().filter(s -> s.getStorage().equals(userStorage)).findFirst().orElse(null)
+                );
+                produitCriteria.setId(p.getId());
+                dto.setLastDateOfSale(lastSale(produitCriteria));
+                dto.setLastInventoryDate(lastInventory(produitCriteria));
+                dto.setLastOrderDate(lastOrder(produitCriteria));
+                dto.setEtatProduit(this.etatProduitService.getEtatProduit(dto.getId(), dto.getTotalQuantity()));
+                list.add(dto);
+            });
+        return list;
     }
+
 
     @Override
     public Optional<ProduitDTO> findOneById(Long produitId) {

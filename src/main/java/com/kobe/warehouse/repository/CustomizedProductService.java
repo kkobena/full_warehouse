@@ -153,7 +153,7 @@ public interface CustomizedProductService {
         return produit;
     }
 
-    Page<ProduitDTO> lite(ProduitCriteria produitCriteria, Pageable pageable);
+    List<ProduitDTO> lite(ProduitCriteria produitCriteria);
 
     List<ProduitDTO> productsLiteList(ProduitCriteria produitCriteria, Pageable pageable);
 }

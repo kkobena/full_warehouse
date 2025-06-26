@@ -168,15 +168,7 @@ public class ProduitServiceImpl implements ProduitService {
         }
     }
 
-    @Override
-    public Page<ProduitDTO> lite(ProduitCriteria produitCriteria, Pageable pageable) {
-        try {
-            return customizedProductService.lite(produitCriteria, pageable);
-        } catch (Exception e) {
-            log.error("Request lite  Produits : {}", e);
-            return Page.empty();
-        }
-    }
+
 
     @Override
     @Transactional(readOnly = true)

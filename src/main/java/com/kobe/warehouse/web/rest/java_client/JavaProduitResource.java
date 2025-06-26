@@ -21,11 +21,9 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping("/java-client")
 public class JavaProduitResource extends ProduitResourceProxy {
 
-    private final UserService userService;
-
-    public JavaProduitResource(ProduitService produitService, UserService userService) {
+    public JavaProduitResource(ProduitService produitService) {
         super(produitService);
-        this.userService = userService;
+
     }
 
     @GetMapping("/produits/lite")
@@ -42,7 +40,6 @@ public class JavaProduitResource extends ProduitResourceProxy {
         @RequestParam(required = false, name = "remisable") Boolean remisable,
         Pageable pageable
     ) {
-        userService.getUserConnectedWithAuthorities().orElseThrow(() -> new RuntimeException("User could not be found"));
         return super.getAllLite(
             new ProduitCriteria()
                 .setSearch(search)

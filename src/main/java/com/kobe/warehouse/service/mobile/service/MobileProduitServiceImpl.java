@@ -19,12 +19,10 @@ public class MobileProduitServiceImpl implements MobileProduitService {
 
     @Override
     public List<ProduitDTO> searchProduits(String searchTerm) {
-        List<ProduitDTO> produits = produitService.productsLiteList(
-            new ProduitCriteria().setSearch(searchTerm), Pageable.unpaged());
-        System.err.println("size of produits: " + produits.size());
+        List<ProduitDTO> produits = produitService.findAll(
+            new ProduitCriteria().setSearch(searchTerm), Pageable.unpaged()).getContent();
         return produits;
-       /* return  produitService.productsLiteList( new ProduitCriteria()
-            .setSearch(searchTerm), Pageable.unpaged());*/
+
     }
 
 

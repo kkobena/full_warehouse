@@ -17,10 +17,10 @@ import java.util.List;
 import static java.util.Objects.nonNull;
 
 @Service
-public class MobileCiasseRecapServiceImpl implements MobileCiasseRecapService {
+public class MobileCasseRecapServiceImpl implements MobileCasseRecapService {
     private final TicketZService ticketZService;
 
-    public MobileCiasseRecapServiceImpl(TicketZService ticketZService) {
+    public MobileCasseRecapServiceImpl(TicketZService ticketZService) {
         this.ticketZService = ticketZService;
     }
 

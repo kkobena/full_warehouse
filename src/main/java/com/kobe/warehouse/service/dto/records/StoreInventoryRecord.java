@@ -1,3 +1,3 @@
 package com.kobe.warehouse.service.dto.records;
 
-public record StoreInventoryRecord(Long id, Long storage, Long rayon, String inventoryCategory, Long famillyId) {}
+public record StoreInventoryRecord(Long id, Long storage, Long rayon, String inventoryCategory, Long famillyId,String description) {}

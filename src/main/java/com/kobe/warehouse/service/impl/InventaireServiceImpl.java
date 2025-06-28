@@ -19,9 +19,9 @@ import com.kobe.warehouse.repository.StoreInventoryRepository;
 import com.kobe.warehouse.service.InventaireService;
 import com.kobe.warehouse.service.StorageService;
 import com.kobe.warehouse.service.UserService;
-import com.kobe.warehouse.service.WarehouseCalendarService;
 import com.kobe.warehouse.service.dto.InventoryExportSummary;
 import com.kobe.warehouse.service.dto.InventoryExportWrapper;
+import com.kobe.warehouse.service.dto.RayonDTO;
 import com.kobe.warehouse.service.dto.StoreInventoryDTO;
 import com.kobe.warehouse.service.dto.StoreInventoryGroupExport;
 import com.kobe.warehouse.service.dto.StoreInventoryLineDTO;
@@ -38,7 +38,6 @@ import com.kobe.warehouse.service.dto.records.StoreInventorySummaryRecord;
 import com.kobe.warehouse.service.errors.InventoryException;
 import com.kobe.warehouse.service.report.InventoryReportReportService;
 import jakarta.persistence.EntityManager;
-import jakarta.persistence.PersistenceContext;
 import jakarta.persistence.Tuple;
 import jakarta.persistence.TypedQuery;
 import jakarta.persistence.criteria.CriteriaBuilder;
@@ -46,17 +45,9 @@ import jakarta.persistence.criteria.CriteriaBuilder.In;
 import jakarta.persistence.criteria.CriteriaQuery;
 import jakarta.persistence.criteria.Predicate;
 import jakarta.persistence.criteria.Root;
-import java.net.MalformedURLException;
-import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
-import java.util.Optional;
-import java.util.concurrent.atomic.AtomicInteger;
-import java.util.stream.Stream;
+import org.apache.commons.csv.CSVFormat;
+import org.apache.commons.csv.CSVParser;
+import org.apache.commons.csv.CSVRecord;
 import org.apache.commons.lang3.tuple.Triple;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -67,6 +58,24 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
+import org.springframework.web.multipart.MultipartFile;
+
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.net.MalformedURLException;
+import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+import java.util.Optional;
+import java.util.Set;
+import java.util.concurrent.atomic.AtomicInteger;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 @Service
 @Transactional
@@ -83,10 +92,8 @@ public class InventaireServiceImpl implements InventaireService {
     private final StockProduitRepository stockProduitRepository;
     private final RayonRepository rayonRepository;
     private final InventoryReportReportService inventoryReportService;
-    private final WarehouseCalendarService warehouseCalendarService;
 
-    @PersistenceContext
-    private EntityManager em;
+    private final EntityManager em;
 
     public InventaireServiceImpl(
         UserService userService,
@@ -96,7 +103,7 @@ public class InventaireServiceImpl implements InventaireService {
         StockProduitRepository stockProduitRepository,
         RayonRepository rayonRepository,
         InventoryReportReportService inventoryReportService,
-        WarehouseCalendarService warehouseCalendarService
+        EntityManager em
     ) {
         this.userService = userService;
         this.storeInventoryRepository = storeInventoryRepository;
@@ -105,7 +112,7 @@ public class InventaireServiceImpl implements InventaireService {
         this.stockProduitRepository = stockProduitRepository;
         this.rayonRepository = rayonRepository;
         this.inventoryReportService = inventoryReportService;
-        this.warehouseCalendarService = warehouseCalendarService;
+        this.em = em;
     }
 
     @Override
@@ -137,6 +144,57 @@ public class InventaireServiceImpl implements InventaireService {
     @Override
     public List<StoreInventoryGroupExport> getStoreInventoryToExport(StoreInventoryExportRecord filterRecord) {
         return buildStoreInventoryGroupExportsFromTuple(getAllByInventories(filterRecord), filterRecord);
+    }
+
+    @Override
+    public void importDetail(Long storeInventoryId, MultipartFile multipartFile) {
+        Map<String, Integer> codeCipQuantity = new HashMap<>();
+        try (
+            CSVParser parser = new CSVParser(
+                new InputStreamReader(multipartFile.getInputStream()),
+                CSVFormat.EXCEL.builder().setDelimiter(';').build()
+            )
+        ) {
+            for (CSVRecord record : parser) {
+                String code = record.get(0);
+                codeCipQuantity.put(code, Integer.parseInt(record.get(1)));
+
+            }
+            List<StoreInventoryLine> storeInventoryLines = this.storeInventoryLineRepository.findAllByCodeCip(codeCipQuantity.keySet());
+            storeInventoryLines.forEach(storeInventoryLine -> {
+                int quantity = getQtyByCodeCip(codeCipQuantity, storeInventoryLine.getProduit());
+                storeInventoryLine.setQuantityOnHand(quantity);
+                storeInventoryLine.setUpdated(true);
+                storeInventoryLine.setUpdatedAt(LocalDateTime.now());
+                //  this.storeInventoryLineRepository.saveAndFlush(storeInventoryLine);
+
+            });
+            this.storeInventoryLineRepository.saveAllAndFlush(storeInventoryLines);
+
+        } catch (IOException e) {
+            log.debug("{0}", e);
+        }
+    }
+
+    private int getQtyByCodeCip(Map<String, Integer> codeCipQuantity, Produit produit) {
+        Set<String> codes = produit.getFournisseurProduits().stream().map(FournisseurProduit::getCodeCip).collect(Collectors.toSet());
+        return codes.stream()
+            .map(codeCipQuantity::get)
+            .filter(Objects::nonNull)
+            .findFirst()
+            .orElse(0);
+    }
+
+    @Override
+    public void synchronizeStoreInventoryLine(List<StoreInventoryLineDTO> storeInventoryLines) {
+        if (!CollectionUtils.isEmpty(storeInventoryLines)) {
+            storeInventoryLines.forEach(storeInventoryLineDTO -> {
+                StoreInventoryLine storeInventoryLine = this.storeInventoryLineRepository.getReferenceById(storeInventoryLineDTO.getId());
+                updateStoreInventoryLine(storeInventoryLineDTO, storeInventoryLine);
+                this.storeInventoryLineRepository.saveAndFlush(storeInventoryLine);
+            });
+        }
+
     }
 
     private int closeItems(Long id) {
@@ -217,6 +275,23 @@ public class InventaireServiceImpl implements InventaireService {
             return Optional.empty();
         }
         return Optional.of(new StoreInventoryDTO(storeInventory));
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public List<StoreInventoryDTO> fetchActifs() {
+        return this.storeInventoryRepository.findActif()
+            .stream()
+            .map(StoreInventoryDTO::new)
+            .toList();
+    }
+
+    @Override
+    public List<RayonDTO> fetchRayonsByStoreInventoryId(Long storeInventoryId) {
+        return this.storeInventoryLineRepository.findAllRayons(storeInventoryId)
+            .stream()
+            .map(RayonDTO::new)
+            .toList();
     }
 
     @Override
@@ -422,6 +497,7 @@ public class InventaireServiceImpl implements InventaireService {
         storeInventory.setInventoryAmountBegin(0L);
         storeInventory.setInventoryValueCostBegin(0L);
         storeInventory.setInventoryValueCostAfter(0L);
+        storeInventory.setDescription(storeInventoryRecord.description());
         storeInventory.setGapAmount(0);
         storeInventory.setGapCost(0);
         if (Objects.isNull(storeInventoryRecord.storage())) {
@@ -443,18 +519,20 @@ public class InventaireServiceImpl implements InventaireService {
 
     private String buildInsertQuery(StoreInventory storeInventory, StoreInventoryRecord storeInventoryRecord) {
         return switch (storeInventory.getInventoryCategory()) {
-            case MAGASIN -> String.format(StoreInventoryLineFilterBuilder.SQL_ALL_INSERT_ALL, storeInventory.getId()).replace(
-                "{famille_close}",
-                ""
-            );
+            case MAGASIN ->
+                String.format(StoreInventoryLineFilterBuilder.SQL_ALL_INSERT_ALL, storeInventory.getId()).replace(
+                    "{famille_close}",
+                    ""
+                );
             case RAYON -> String.format(StoreInventoryLineFilterBuilder.SQL_ALL_INSERT, storeInventory.getId()) +
-            String.format(" AND r.id=%d ", storeInventory.getRayon().getId());
+                String.format(" AND r.id=%d ", storeInventory.getRayon().getId());
             case STORAGE -> String.format(StoreInventoryLineFilterBuilder.SQL_ALL_INSERT, storeInventory.getId()) +
-            String.format(" AND s.id=%d ", storeInventory.getStorage().getId());
-            case FAMILLY -> String.format(StoreInventoryLineFilterBuilder.SQL_ALL_INSERT_ALL, storeInventory.getId()).replace(
-                "{famille_close}",
-                String.format(" AND p.famille_id=%d", storeInventoryRecord.famillyId())
-            );
+                String.format(" AND s.id=%d ", storeInventory.getStorage().getId());
+            case FAMILLY ->
+                String.format(StoreInventoryLineFilterBuilder.SQL_ALL_INSERT_ALL, storeInventory.getId()).replace(
+                    "{famille_close}",
+                    String.format(" AND p.famille_id=%d", storeInventoryRecord.famillyId())
+                );
         };
     }
 
@@ -594,13 +672,13 @@ public class InventaireServiceImpl implements InventaireService {
     private void updateAll() {
         AtomicInteger atomicInteger = new AtomicInteger(5);
         this.storeInventoryLineRepository.findAllByStoreInventoryId(-1L).forEach(storeInventory -> {
-                StoreInventoryLineDTO dto = new StoreInventoryLineDTO();
-                dto.setId(storeInventory.getId());
-                dto.setQuantitySold(0);
-                dto.setQuantityInit(0);
-                dto.setProduitId(0L);
-                dto.setQuantityOnHand(atomicInteger.getAndIncrement());
-                updateQuantityOnHand(dto);
-            });
+            StoreInventoryLineDTO dto = new StoreInventoryLineDTO();
+            dto.setId(storeInventory.getId());
+            dto.setQuantitySold(0);
+            dto.setQuantityInit(0);
+            dto.setProduitId(0L);
+            dto.setQuantityOnHand(atomicInteger.getAndIncrement());
+            updateQuantityOnHand(dto);
+        });
     }
 }

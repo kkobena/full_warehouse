@@ -6,6 +6,7 @@ import com.kobe.warehouse.domain.enumeration.InventoryType;
 import java.io.Serial;
 import java.io.Serializable;
 import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
@@ -32,6 +33,7 @@ public class StoreInventoryDTO implements Serializable {
     private RayonDTO rayon;
     private int gapCost;
     private int gapAmount;
+    private String description;
 
     public StoreInventoryDTO() {}
 
@@ -59,6 +61,10 @@ public class StoreInventoryDTO implements Serializable {
         }
         if (Objects.nonNull(storeInventory.getGapAmount())) {
             this.gapAmount = storeInventory.getGapAmount();
+        }
+        this.description = storeInventory.getDescription();
+        if(Objects.isNull(storeInventory.getDescription())) {
+            this.description = "Inventaire du " + storeInventory.getCreatedAt().format(DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm"));
         }
     }
 
@@ -129,6 +135,15 @@ public class StoreInventoryDTO implements Serializable {
 
     public void setStoreInventoryLines(List<StoreInventoryLineDTO> storeInventoryLines) {
         this.storeInventoryLines = storeInventoryLines;
+    }
+
+    public String getDescription() {
+        return description;
+    }
+
+    public StoreInventoryDTO setDescription(String description) {
+        this.description = description;
+        return this;
     }
 
     public String getUserFullName() {

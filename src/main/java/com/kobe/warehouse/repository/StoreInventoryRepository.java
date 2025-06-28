@@ -6,6 +6,8 @@ import org.springframework.data.jpa.repository.*;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
+import java.util.List;
+
 /** Spring Data repository for the StoreInventory entity. */
 @SuppressWarnings("unused")
 @Repository
@@ -15,4 +17,9 @@ public interface StoreInventoryRepository extends JpaRepository<StoreInventory, 
         nativeQuery = true
     )
     StoreInventoryExport fetchOneToPrintById(@Param("id") Long id);
+
+    @Query("SELECT o FROM StoreInventory o WHERE o.statut <>'CLOSED' ORDER BY  o.createdAt DESC  ")
+    List<StoreInventory> findActif();
+
+
 }

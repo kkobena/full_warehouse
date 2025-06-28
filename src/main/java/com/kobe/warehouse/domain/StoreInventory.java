@@ -14,13 +14,16 @@ import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 import jakarta.validation.constraints.NotNull;
+
 import java.io.Serial;
 import java.io.Serializable;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
-/** A StoreInventory. */
+/**
+ * A StoreInventory.
+ */
 
 @Entity
 @Table(name = "store_inventory")
@@ -32,6 +35,10 @@ public class StoreInventory implements Serializable {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
+
+
+    @Column(name = "description")
+    private String description;
 
     @NotNull
     @Column(name = "inventory_value_cost_begin", nullable = false)
@@ -90,6 +97,15 @@ public class StoreInventory implements Serializable {
 
     @Column(name = "gap_amount")
     private Integer gapAmount;
+
+    public String getDescription() {
+        return description;
+    }
+
+    public StoreInventory setDescription(String description) {
+        this.description = description;
+        return this;
+    }
 
     public Long getId() {
         return id;
@@ -289,25 +305,25 @@ public class StoreInventory implements Serializable {
     }
 
     // prettier-ignore
-  @Override
-  public String toString() {
-    return "StoreInventory{"
-        + "id="
-        + getId()
-        + ", inventoryValueCostBegin="
-        + getInventoryValueCostBegin()
-        + ", inventoryAmountBegin="
-        + getInventoryAmountBegin()
-        + ", createdAt='"
-        + getCreatedAt()
-        + "'"
-        + ", updatedAt='"
-        + getUpdatedAt()
-        + "'"
-        + ", inventoryValueCostAfter="
-        + getInventoryValueCostAfter()
-        + ", inventoryAmountAfter="
-        + getInventoryAmountAfter()
-        + "}";
-  }
+    @Override
+    public String toString() {
+        return "StoreInventory{"
+            + "id="
+            + getId()
+            + ", inventoryValueCostBegin="
+            + getInventoryValueCostBegin()
+            + ", inventoryAmountBegin="
+            + getInventoryAmountBegin()
+            + ", createdAt='"
+            + getCreatedAt()
+            + "'"
+            + ", updatedAt='"
+            + getUpdatedAt()
+            + "'"
+            + ", inventoryValueCostAfter="
+            + getInventoryValueCostAfter()
+            + ", inventoryAmountAfter="
+            + getInventoryAmountAfter()
+            + "}";
+    }
 }

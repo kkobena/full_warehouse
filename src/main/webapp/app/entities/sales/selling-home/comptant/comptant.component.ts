@@ -154,7 +154,6 @@ export class ComptantComponent {
 
   finalyseSale(putsOnStandby = false): void {
     const entryAmount = this.getEntryAmount();
-    console.log('entryAmount ', entryAmount);
     this.currentSaleService.currentSale().payments = this.modeReglementComponent().buildPayment(entryAmount);
     this.currentSaleService.currentSale().type = 'VNO';
     this.currentSaleService.currentSale().avoir = this.baseSaleService.isAvoir();

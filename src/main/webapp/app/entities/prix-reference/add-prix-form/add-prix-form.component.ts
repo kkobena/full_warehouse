@@ -1,27 +1,26 @@
-import { AfterViewInit, Component, inject, OnInit } from '@angular/core';
-import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
-import { WarehouseCommonModule } from '../../../shared/warehouse-common/warehouse-common.module';
-import { ButtonModule } from 'primeng/button';
-import { IProduit } from '../../../shared/model/produit.model';
-import { FormBuilder, FormControl, ReactiveFormsModule, Validators } from '@angular/forms';
-import { PrixReference } from '../model/prix-reference.model';
-import { PrixReferenceService } from '../prix-reference.service';
-import { Observable } from 'rxjs';
-import { HttpResponse } from '@angular/common/http';
-import { MessageService } from 'primeng/api';
-import { ErrorService } from '../../../shared/error.service';
-import { Select } from 'primeng/select';
-import { ITiersPayant } from '../../../shared/model/tierspayant.model';
-import { InputNumber } from 'primeng/inputnumber';
-import { TiersPayantService } from '../../tiers-payant/tierspayant.service';
-import { ProduitService } from '../../produit/produit.service';
-import { Toast } from 'primeng/toast';
-import { ToggleSwitch } from 'primeng/toggleswitch';
-import { InputText } from 'primeng/inputtext';
+import {AfterViewInit, Component, inject, OnInit} from '@angular/core';
+import {NgbActiveModal} from '@ng-bootstrap/ng-bootstrap';
+import {WarehouseCommonModule} from '../../../shared/warehouse-common/warehouse-common.module';
+import {ButtonModule} from 'primeng/button';
+import {IProduit} from '../../../shared/model/produit.model';
+import {FormBuilder, FormControl, ReactiveFormsModule, Validators} from '@angular/forms';
+import {PrixReference} from '../model/prix-reference.model';
+import {PrixReferenceService} from '../prix-reference.service';
+import {Observable} from 'rxjs';
+import {HttpResponse} from '@angular/common/http';
+import {MessageService} from 'primeng/api';
+import {ErrorService} from '../../../shared/error.service';
+import {Select} from 'primeng/select';
+import {ITiersPayant} from '../../../shared/model/tierspayant.model';
+import {InputNumber} from 'primeng/inputnumber';
+import {TiersPayantService} from '../../tiers-payant/tierspayant.service';
+import {ProduitService} from '../../produit/produit.service';
+import {Toast} from 'primeng/toast';
+import {ToggleSwitch} from 'primeng/toggleswitch';
 
 @Component({
   selector: 'jhi-add-prix-form',
-  imports: [WarehouseCommonModule, ButtonModule, ReactiveFormsModule, Select, InputNumber, Toast, ToggleSwitch, InputText],
+  imports: [WarehouseCommonModule, ButtonModule, ReactiveFormsModule, Select, InputNumber, Toast, ToggleSwitch],
   providers: [MessageService],
   templateUrl: './add-prix-form.component.html',
 })
@@ -41,7 +40,7 @@ export class AddPrixFormComponent implements OnInit, AfterViewInit {
       code: 'RERERENCE',
       libelle: 'Prix de référence assurance',
     },
-    { code: 'POURCENTAGE', libelle: "Pourcentage appliqué par l'assureur" },
+    {code: 'POURCENTAGE', libelle: "Pourcentage appliqué par l'assureur"},
   ];
   protected editForm = this.fb.group({
     id: new FormControl<number | null>(null, {}),

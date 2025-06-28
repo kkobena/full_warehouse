@@ -1,6 +1,7 @@
 package com.kobe.warehouse.service;
 
 import com.kobe.warehouse.service.dto.InventoryExportWrapper;
+import com.kobe.warehouse.service.dto.RayonDTO;
 import com.kobe.warehouse.service.dto.StoreInventoryDTO;
 import com.kobe.warehouse.service.dto.StoreInventoryGroupExport;
 import com.kobe.warehouse.service.dto.StoreInventoryLineDTO;
@@ -13,14 +14,17 @@ import com.kobe.warehouse.service.dto.records.ItemsCountRecord;
 import com.kobe.warehouse.service.dto.records.StoreInventoryLineRecord;
 import com.kobe.warehouse.service.dto.records.StoreInventoryRecord;
 import com.kobe.warehouse.service.errors.InventoryException;
-import java.net.MalformedURLException;
-import java.util.List;
-import java.util.Objects;
-import java.util.Optional;
+import com.kobe.warehouse.service.mobile.dto.RayonInventaireDetail;
 import org.springframework.core.io.Resource;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.util.StringUtils;
+import org.springframework.web.multipart.MultipartFile;
+
+import java.net.MalformedURLException;
+import java.util.List;
+import java.util.Objects;
+import java.util.Optional;
 
 public interface InventaireService {
     Page<StoreInventoryLineRecord> getInventoryItems(StoreInventoryLineFilterRecord storeInventoryLineFilterRecord, Pageable pageable);
@@ -44,6 +48,16 @@ public interface InventaireService {
     Page<StoreInventoryDTO> storeInventoryList(StoreInventoryFilterRecord storeInventoryFilterRecord, Pageable pageable);
 
     Optional<StoreInventoryDTO> getProccessingStoreInventory(Long id);
+
+    List<StoreInventoryDTO> fetchActifs();
+    List<RayonDTO> fetchRayonsByStoreInventoryId(Long storeInventoryId);
+
+    void importDetail(Long storeInventoryId, MultipartFile multipartFile);
+    List<StoreInventoryLineDTO>  getAllItems(Long storeInventoryId);
+    RayonInventaireDetail getItemsByRayonId(Long storeInventoryId, Long rayonId);
+    void synchronizeStoreInventoryLine(
+        List<StoreInventoryLineDTO> storeInventoryLines
+    );
 
     default String buildBaseQuery(String baseQuery, StoreInventoryLineFilterRecord storeInventoryLineFilterRecord) {
         if (Objects.nonNull(storeInventoryLineFilterRecord.storageId()) || Objects.nonNull(storeInventoryLineFilterRecord.rayonId())) {

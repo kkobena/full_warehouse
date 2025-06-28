@@ -22,6 +22,7 @@ export interface IStoreInventory {
   inventoryCategory?: InventoryCategory;
   gapCost?: number;
   gapAmount?: number;
+  description?: string;
 }
 
 export class StoreInventory implements IStoreInventory {

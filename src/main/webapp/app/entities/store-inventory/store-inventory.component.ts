@@ -188,13 +188,7 @@ export class StoreInventoryComponent implements OnInit {
     return result;
   }
 
-  onFilterTextBoxChanged(event: any): void {
-    this.searchValue = event.target.value;
-    /*  if(this.produitSelected!==null && this.produitSelected!==undefined &&
-        Number(event.target.value)!==0){
 
-      }*/
-  }
 
   formatNumber(number: any): string {
     return Math.floor(number.value)

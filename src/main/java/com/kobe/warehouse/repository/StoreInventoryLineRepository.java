@@ -1,12 +1,15 @@
 package com.kobe.warehouse.repository;
 
+import com.kobe.warehouse.domain.Rayon;
 import com.kobe.warehouse.domain.StoreInventoryLine;
 import com.kobe.warehouse.service.dto.projection.LastDateProjection;
-import java.util.List;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.jpa.repository.query.Procedure;
 import org.springframework.stereotype.Repository;
+
+import java.util.List;
+import java.util.Set;
 
 /**
  * Spring Data repository for the StoreInventoryLine entity.
@@ -26,4 +29,10 @@ public interface StoreInventoryLineRepository extends JpaRepository<StoreInvento
         nativeQuery = true
     )
     LastDateProjection findLastUpdatedAtProduitId(Long produitId);
+
+    @Query(value = "SELECT o FROM StoreInventoryLine o JOIN o.produit p JOIN p.fournisseurProduits fp WHERE fp.codeCip IN :codeCips")
+    List<StoreInventoryLine> findAllByCodeCip(Set<String> codeCips);
+
+    @Query("SELECT DISTINCT rp.rayon FROM  StoreInventoryLine  s JOIN s.produit p JOIN p.rayonProduits rp WHERE s.storeInventory.id = ?1 ORDER BY rp.rayon.libelle")
+    List<Rayon> findAllRayons(Long storeInventoryId);
 }

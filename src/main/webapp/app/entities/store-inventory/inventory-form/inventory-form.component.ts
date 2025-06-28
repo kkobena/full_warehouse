@@ -1,4 +1,4 @@
-import { Component, OnInit, inject } from '@angular/core';
+import {Component, inject, OnInit} from '@angular/core';
 import {
   CATEGORY_INVENTORY,
   InventoryCategory,
@@ -6,27 +6,28 @@ import {
   IStoreInventory,
   StoreInventory,
 } from '../../../shared/model/store-inventory.model';
-import { FormBuilder, FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
-import { DynamicDialogConfig, DynamicDialogModule, DynamicDialogRef } from 'primeng/dynamicdialog';
-import { MessageService } from 'primeng/api';
-import { StoreInventoryService } from '../store-inventory.service';
-import { Observable } from 'rxjs';
-import { HttpResponse } from '@angular/common/http';
-import { StorageService } from '../../storage/storage.service';
-import { Storage } from '../../storage/storage.model';
-import { RayonService } from '../../rayon/rayon.service';
-import { IRayon, Rayon } from '../../../shared/model/rayon.model';
-import { APPEND_TO } from '../../../shared/constants/pagination.constants';
-import { NgxSpinnerModule, NgxSpinnerService } from 'ngx-spinner';
-import { WarehouseCommonModule } from '../../../shared/warehouse-common/warehouse-common.module';
-import { ConfirmDialogModule } from 'primeng/confirmdialog';
-import { ButtonModule } from 'primeng/button';
-import { RippleModule } from 'primeng/ripple';
-import { TooltipModule } from 'primeng/tooltip';
-import { ToastModule } from 'primeng/toast';
-import { TableModule } from 'primeng/table';
-import { RouterModule } from '@angular/router';
-import { Select } from 'primeng/select';
+import {FormBuilder, FormControl, FormGroup, ReactiveFormsModule, Validators} from '@angular/forms';
+import {DynamicDialogConfig, DynamicDialogModule, DynamicDialogRef} from 'primeng/dynamicdialog';
+import {MessageService} from 'primeng/api';
+import {StoreInventoryService} from '../store-inventory.service';
+import {Observable} from 'rxjs';
+import {HttpResponse} from '@angular/common/http';
+import {StorageService} from '../../storage/storage.service';
+import {Storage} from '../../storage/storage.model';
+import {RayonService} from '../../rayon/rayon.service';
+import {IRayon, Rayon} from '../../../shared/model/rayon.model';
+import {APPEND_TO} from '../../../shared/constants/pagination.constants';
+import {NgxSpinnerModule, NgxSpinnerService} from 'ngx-spinner';
+import {WarehouseCommonModule} from '../../../shared/warehouse-common/warehouse-common.module';
+import {ConfirmDialogModule} from 'primeng/confirmdialog';
+import {ButtonModule} from 'primeng/button';
+import {RippleModule} from 'primeng/ripple';
+import {TooltipModule} from 'primeng/tooltip';
+import {ToastModule} from 'primeng/toast';
+import {TableModule} from 'primeng/table';
+import {RouterModule} from '@angular/router';
+import {Select} from 'primeng/select';
+import {InputText} from "primeng/inputtext";
 
 @Component({
   selector: 'jhi-init-inventory',
@@ -44,6 +45,7 @@ import { Select } from 'primeng/select';
     DynamicDialogModule,
     ReactiveFormsModule,
     Select,
+    InputText,
   ],
 })
 export class InventoryFormComponent implements OnInit {
@@ -195,6 +197,11 @@ export class InventoryFormComponent implements OnInit {
   private initForm(): void {
     this.editForm = this.fb.group({
       id: new FormControl<number | null>(null, {}),
+      description: new FormControl<string | null>(null, {
+        validators: [Validators.required,Validators.maxLength(255)],
+        nonNullable: true,
+
+      }),
       inventoryCategory: new FormControl<InventoryCategory | null>(this.categories[0], {
         validators: [Validators.required],
         nonNullable: true,

@@ -184,10 +184,12 @@ public class InventaireServiceImpl implements InventaireService {
     }
 
     @Override
-    public RayonInventaireDetail getItemsByRayonId(Long storeInventoryId, Long rayonId) {
-        return new RayonInventaireDetail(rayonId,
-            storeInventoryLineRepository.findAllByStoreInventoryIdAndRayonId(storeInventoryId,
-                rayonId).stream().map(StoreInventoryLineDTO::new).toList());
+    public List<StoreInventoryLineDTO>  getItemsByRayonId(Long storeInventoryId, Long rayonId) {
+    return     storeInventoryLineRepository.findAllByStoreInventoryIdAndRayonId(storeInventoryId,
+            rayonId).stream().map(s->new StoreInventoryLineDTO(s).setRayonId(rayonId))
+            .toList();
+
+        
     }
 
     private int getQtyByCodeCip(Map<String, Integer> codeCipQuantity, Produit produit) {

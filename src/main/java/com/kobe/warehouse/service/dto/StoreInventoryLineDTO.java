@@ -24,6 +24,7 @@ public class StoreInventoryLineDTO implements Serializable {
     private Integer prixUni;
     private String produitCip;
     private String produitEan;
+    private long rayonId;
 
     public StoreInventoryLineDTO() {}
 
@@ -42,6 +43,15 @@ public class StoreInventoryLineDTO implements Serializable {
         this.quantitySold = storeInventoryLine.getQuantitySold();
         this.inventoryValueTotalCost = produit.getCostAmount() * storeInventoryLine.getQuantityOnHand();
         this.inventoryValueAmount = storeInventoryLine.getQuantityOnHand() * storeInventoryLine.getLastUnitPrice();
+    }
+
+    public long getRayonId() {
+        return rayonId;
+    }
+
+    public StoreInventoryLineDTO setRayonId(long rayonId) {
+        this.rayonId = rayonId;
+        return this;
     }
 
     public String getProduitCip() {

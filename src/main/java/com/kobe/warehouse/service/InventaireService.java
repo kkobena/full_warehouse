@@ -54,7 +54,7 @@ public interface InventaireService {
 
     void importDetail(Long storeInventoryId, MultipartFile multipartFile);
     List<StoreInventoryLineDTO>  getAllItems(Long storeInventoryId);
-    RayonInventaireDetail getItemsByRayonId(Long storeInventoryId, Long rayonId);
+    List<StoreInventoryLineDTO>  getItemsByRayonId(Long storeInventoryId, Long rayonId);
     void synchronizeStoreInventoryLine(
         List<StoreInventoryLineDTO> storeInventoryLines
     );

@@ -46,7 +46,7 @@ public class MobileInventoryResource {
     }
 
     @GetMapping("/rayons/{rayonId}/items/{id}")
-    public ResponseEntity<RayonInventaireDetail> getItemsByRayonId(@PathVariable("rayonId") Long rayonId, @PathVariable("id") Long id) {
+    public ResponseEntity<List<StoreInventoryLineDTO>> getItemsByRayonId(@PathVariable("rayonId") Long rayonId, @PathVariable("id") Long id) {
         return ResponseEntity.ok(inventaireService.getItemsByRayonId(id, rayonId));
     }
 

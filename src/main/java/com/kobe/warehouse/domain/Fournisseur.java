@@ -59,6 +59,9 @@ public class Fournisseur implements Serializable {
     @JsonIgnoreProperties(value = "fournisseurs", allowSetters = true)
     private GroupeFournisseur groupeFournisseur;
 
+    /*
+    Id de agence grossiste, utliser dans pharamaml RECEPTEUR (Id) DESTINATAIRE(Id_Societe)
+     */
     @Column(name = "identifiant_repartiteur")
     private String identifiantRepartiteur;
 

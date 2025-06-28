@@ -11,6 +11,7 @@ import java.io.Serial;
 import java.io.Serializable;
 import org.hibernate.annotations.Cache;
 import org.hibernate.annotations.CacheConcurrencyStrategy;
+import org.hibernate.validator.constraints.URL;
 
 /**
  * A GroupeFournisseur.
@@ -47,12 +48,58 @@ public class GroupeFournisseur implements Serializable {
     @Column(name = "odre", nullable = false)
     private Integer odre = 100;
 
+    /*
+   utilser dans pharmaMl code grossiste RECEPTEUR(code)
+   DESTINATAIRE(code_societe)
+     */
+
+    @Column(name = "code_recepteur_pharma_ml", length = 50)
+    private String codeRecepteurPharmaMl;
+
+    /*
+     Code de l'officine chez le grossiste dans EMETTEUR(id,Id_Client)
+     */
+
+    @Column(name = "code_office_pharma_ml", length = 50)
+    private String codeOfficePharmaMl;
+
+    @URL(message = "URL PharmaMl n'est pas valide")
+    @Column(name = "url_pharma_ml", length = 150)
+    private String urlPharmaMl;
+
     public Long getId() {
         return id;
     }
 
     public void setId(Long id) {
         this.id = id;
+    }
+
+    public String getCodeOfficePharmaMl() {
+        return codeOfficePharmaMl;
+    }
+
+    public GroupeFournisseur setCodeOfficePharmaMl(String codeOfficePharmaMl) {
+        this.codeOfficePharmaMl = codeOfficePharmaMl;
+        return this;
+    }
+
+    public String getCodeRecepteurPharmaMl() {
+        return codeRecepteurPharmaMl;
+    }
+
+    public GroupeFournisseur setCodeRecepteurPharmaMl(String codeRecepteurPharmaMl) {
+        this.codeRecepteurPharmaMl = codeRecepteurPharmaMl;
+        return this;
+    }
+
+    public String getUrlPharmaMl() {
+        return urlPharmaMl;
+    }
+
+    public GroupeFournisseur setUrlPharmaMl(String urlPharmaMl) {
+        this.urlPharmaMl = urlPharmaMl;
+        return this;
     }
 
     public String getLibelle() {

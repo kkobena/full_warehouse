@@ -61,6 +61,9 @@ public class GroupeFournisseurServiceImpl implements GroupeFournisseurService {
         log.debug("Request to save GroupeFournisseur : {}", groupeFournisseurDTO);
         GroupeFournisseur groupeFournisseur = new GroupeFournisseur()
             .id(groupeFournisseurDTO.getId())
+            .setCodeOfficePharmaMl(groupeFournisseurDTO.getCodeOfficePharmaMl())
+            .setCodeRecepteurPharmaMl(groupeFournisseurDTO.getCodeRecepteurPharmaMl())
+            .setUrlPharmaMl(groupeFournisseurDTO.getUrlPharmaMl())
             .libelle(groupeFournisseurDTO.getLibelle())
             .addresspostale(groupeFournisseurDTO.getAddresspostale())
             .email(groupeFournisseurDTO.getEmail())

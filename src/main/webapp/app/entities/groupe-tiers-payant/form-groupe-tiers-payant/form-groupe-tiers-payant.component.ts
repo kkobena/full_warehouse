@@ -1,4 +1,4 @@
-import { Component, OnInit, inject } from '@angular/core';
+import { Component, inject, OnInit } from '@angular/core';
 import { FormsModule, ReactiveFormsModule, UntypedFormBuilder, Validators } from '@angular/forms';
 import { GroupeTiersPayant, IGroupeTiersPayant } from 'app/shared/model/groupe-tierspayant.model';
 import { ErrorService } from 'app/shared/error.service';
@@ -35,19 +35,16 @@ import { TiersPayantService } from '../../tiers-payant/tierspayant.service';
   ],
 })
 export class FormGroupeTiersPayantComponent implements OnInit {
+  protected ref = inject(DynamicDialogRef);
+  protected config = inject(DynamicDialogConfig);
+  protected entity?: IGroupeTiersPayant;
+  protected ordreTrisFacture: OrdreTrisFacture[] = [];
+  protected isSaving = false;
+  protected isValid = true;
   protected errorService = inject(ErrorService);
-  private fb = inject(UntypedFormBuilder);
-  ref = inject(DynamicDialogRef);
-  config = inject(DynamicDialogConfig);
   protected groupeTiersPayantService = inject(GroupeTiersPayantService);
-  private messageService = inject(MessageService);
-  private tiersPayantService = inject(TiersPayantService);
-
-  entity?: IGroupeTiersPayant;
-  ordreTrisFacture: OrdreTrisFacture[] = [];
-  isSaving = false;
-  isValid = true;
-  editForm = this.fb.group({
+  private fb = inject(UntypedFormBuilder);
+  protected editForm = this.fb.group({
     id: [],
     name: [null, [Validators.required]],
     adresse: [],
@@ -55,11 +52,8 @@ export class FormGroupeTiersPayantComponent implements OnInit {
     telephoneFixe: [],
     ordreTrisFacture: [],
   });
-
-  /** Inserted by Angular inject() migration for backwards compatibility */
-  constructor(...args: unknown[]);
-
-  constructor() {}
+  private readonly messageService = inject(MessageService);
+  private readonly tiersPayantService = inject(TiersPayantService);
 
   ngOnInit(): void {
     this.entity = this.config.data.entity;

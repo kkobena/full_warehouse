@@ -1,12 +1,12 @@
-import { Component, OnInit, inject } from '@angular/core';
-import { FormsModule, ReactiveFormsModule, UntypedFormBuilder, Validators } from '@angular/forms';
-import { ActivatedRoute, Router, RouterModule } from '@angular/router';
+import { Component, inject, OnInit } from '@angular/core';
+import { FormsModule, ReactiveFormsModule } from '@angular/forms';
+import { Router, RouterModule } from '@angular/router';
 import { ConfirmationService, LazyLoadEvent, MessageService } from 'primeng/api';
 import { HttpHeaders, HttpResponse } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { GroupeFournisseurService } from './groupe-fournisseur.service';
 import { ITEMS_PER_PAGE } from '../../shared/constants/pagination.constants';
-import { GroupeFournisseur, IGroupeFournisseur } from '../../shared/model/groupe-fournisseur.model';
+import { IGroupeFournisseur } from '../../shared/model/groupe-fournisseur.model';
 import { IResponseDto } from '../../shared/util/response-dto';
 import { WarehouseCommonModule } from '../../shared/warehouse-common/warehouse-common.module';
 import { ButtonModule } from 'primeng/button';
@@ -26,11 +26,13 @@ import { acceptButtonProps, rejectButtonProps } from '../../shared/util/modal-bu
 import { IconField } from 'primeng/iconfield';
 import { InputIcon } from 'primeng/inputicon';
 import { Panel } from 'primeng/panel';
+import { DialogService, DynamicDialogRef } from 'primeng/dynamicdialog';
+import { FormGroupeFournisseurComponent } from './form/form-groupe-fournisseur.component';
 
 @Component({
   selector: 'jhi-groupe-fournisseur',
   templateUrl: './groupe-fournisseur.component.html',
-  providers: [MessageService, ConfirmationService],
+  providers: [MessageService, ConfirmationService, DialogService],
   imports: [
     WarehouseCommonModule,
     ButtonModule,
@@ -54,39 +56,23 @@ import { Panel } from 'primeng/panel';
   ],
 })
 export class GroupeFournisseurComponent implements OnInit {
-  protected entityService = inject(GroupeFournisseurService);
-  protected activatedRoute = inject(ActivatedRoute);
-  protected router = inject(Router);
-  private messageService = inject(MessageService);
-  protected modalService = inject(ConfirmationService);
-  private fb = inject(UntypedFormBuilder);
-
-  fileDialog?: boolean;
-  responsedto!: IResponseDto;
-  responseDialog?: boolean;
-  entites?: IGroupeFournisseur[];
-  totalItems = 0;
-  itemsPerPage = ITEMS_PER_PAGE;
-  page = 0;
-  selectedEl?: IGroupeFournisseur;
-  loading = false;
-  isSaving = false;
-  displayDialog?: boolean;
-
-  editForm = this.fb.group({
-    id: [],
-    libelle: [null, [Validators.required]],
-    addresspostale: [],
-    numFaxe: [],
-    email: [],
-    tel: [],
-    odre: [],
-  });
-
-  /** Inserted by Angular inject() migration for backwards compatibility */
-  constructor(...args: unknown[]);
-
-  constructor() {}
+  protected fileDialog?: boolean;
+  protected responsedto!: IResponseDto;
+  protected responseDialog?: boolean;
+  protected entites?: IGroupeFournisseur[];
+  protected totalItems = 0;
+  protected itemsPerPage = ITEMS_PER_PAGE;
+  protected page = 0;
+  protected selectedEl?: IGroupeFournisseur;
+  protected loading = false;
+  protected isSaving = false;
+  protected displayDialog?: boolean;
+  private readonly router = inject(Router);
+  private readonly modalService = inject(ConfirmationService);
+  private readonly messageService = inject(MessageService);
+  private readonly entityService = inject(GroupeFournisseurService);
+  private ref!: DynamicDialogRef;
+  private readonly dialogService = inject(DialogService);
 
   ngOnInit(): void {
     this.loadPage();
@@ -145,42 +131,22 @@ export class GroupeFournisseurComponent implements OnInit {
     });
   }
 
-  updateForm(entity: IGroupeFournisseur): void {
-    this.editForm.patchValue({
-      id: entity.id,
-      libelle: entity.libelle,
-      addresspostale: entity.addresspostale,
-      numFaxe: entity.numFaxe,
-      email: entity.email,
-      tel: entity.tel,
-      odre: entity.odre,
-    });
-  }
-
-  save(): void {
-    this.isSaving = true;
-    const entity = this.createFromForm();
-
-    if (entity.id !== undefined) {
-      this.subscribeToSaveResponse(this.entityService.update(entity));
-    } else {
-      this.subscribeToSaveResponse(this.entityService.create(entity));
-    }
-  }
-
   cancel(): void {
     this.displayDialog = false;
     this.fileDialog = false;
   }
 
-  addNewEntity(): void {
-    this.updateForm(new GroupeFournisseur());
-    this.displayDialog = true;
-  }
-
   onEdit(entity: IGroupeFournisseur): void {
-    this.updateForm(entity);
-    this.displayDialog = true;
+    this.ref = this.dialogService.open(FormGroupeFournisseurComponent, {
+      data: { entity: entity },
+      header: `FORMULAIRE DE MODIFICATION DE ${entity.libelle}`,
+      width: '50%',
+    });
+    this.ref.onClose.subscribe((resp: IGroupeFournisseur) => {
+      if (resp) {
+        this.loadPage();
+      }
+    });
   }
 
   delete(entity: IGroupeFournisseur): void {
@@ -195,6 +161,19 @@ export class GroupeFournisseurComponent implements OnInit {
 
   search(event: any): void {
     this.loadPage(0, event.target.value);
+  }
+
+  addNewEntity(): void {
+    this.ref = this.dialogService.open(FormGroupeFournisseurComponent, {
+      data: { entity: null },
+      header: 'FORMULAIRE DE CREATION DE GROUPE FOURNISSEUR ',
+      width: '50%',
+    });
+    this.ref.onClose.subscribe((resp: IGroupeFournisseur) => {
+      if (resp) {
+        this.loadPage(0);
+      }
+    });
   }
 
   showFileDialog(): void {
@@ -234,12 +213,6 @@ export class GroupeFournisseurComponent implements OnInit {
     this.loading = false;
   }
 
-  protected onSaveSuccess(): void {
-    this.isSaving = false;
-    this.displayDialog = false;
-    this.loadPage(0);
-  }
-
   protected onSaveError(): void {
     this.isSaving = false;
     this.messageService.add({
@@ -247,25 +220,5 @@ export class GroupeFournisseurComponent implements OnInit {
       summary: 'Enregistrement',
       detail: 'Opération effectuée avec succès',
     });
-  }
-
-  protected subscribeToSaveResponse(result: Observable<HttpResponse<IGroupeFournisseur>>): void {
-    result.subscribe({
-      next: () => this.onSaveSuccess(),
-      error: () => this.onSaveError(),
-    });
-  }
-
-  private createFromForm(): IGroupeFournisseur {
-    return {
-      ...new GroupeFournisseur(),
-      id: this.editForm.get(['id']).value,
-      libelle: this.editForm.get(['libelle']).value,
-      addresspostale: this.editForm.get(['addresspostale']).value,
-      numFaxe: this.editForm.get(['numFaxe']).value,
-      email: this.editForm.get(['email']).value,
-      tel: this.editForm.get(['tel']).value,
-      odre: this.editForm.get(['odre']).value,
-    };
   }
 }

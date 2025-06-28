@@ -3,13 +3,13 @@ package com.kobe.warehouse.repository;
 import com.kobe.warehouse.domain.Rayon;
 import com.kobe.warehouse.domain.StoreInventoryLine;
 import com.kobe.warehouse.service.dto.projection.LastDateProjection;
+import java.util.List;
+import java.util.Set;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.jpa.repository.query.Procedure;
+import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
-
-import java.util.List;
-import java.util.Set;
 
 /**
  * Spring Data repository for the StoreInventoryLine entity.
@@ -33,6 +33,16 @@ public interface StoreInventoryLineRepository extends JpaRepository<StoreInvento
     @Query(value = "SELECT o FROM StoreInventoryLine o JOIN o.produit p JOIN p.fournisseurProduits fp WHERE fp.codeCip IN :codeCips")
     List<StoreInventoryLine> findAllByCodeCip(Set<String> codeCips);
 
-    @Query("SELECT DISTINCT rp.rayon FROM  StoreInventoryLine  s JOIN s.produit p JOIN p.rayonProduits rp WHERE s.storeInventory.id = ?1 ORDER BY rp.rayon.libelle")
+    @Query(
+        "SELECT DISTINCT rp.rayon FROM  StoreInventoryLine  s JOIN s.produit p JOIN p.rayonProduits rp WHERE s.storeInventory.id = ?1 ORDER BY rp.rayon.libelle"
+    )
     List<Rayon> findAllRayons(Long storeInventoryId);
+
+    @Query(
+        "SELECT DISTINCT s FROM  StoreInventoryLine  s JOIN s.produit p JOIN p.rayonProduits rp WHERE s.storeInventory.id = :storeInventoryId AND rp.rayon.id=:rayonId ORDER BY rp.rayon.libelle"
+    )
+    List<StoreInventoryLine> findAllByStoreInventoryIdAndRayonId(
+        @Param("storeInventoryId") Long storeInventoryId,
+        @Param("rayonId") Long rayonId
+    );
 }

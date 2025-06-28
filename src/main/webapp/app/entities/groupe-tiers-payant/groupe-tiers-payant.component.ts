@@ -1,8 +1,8 @@
-import { Component, OnInit, inject } from '@angular/core';
+import { Component, inject, OnInit } from '@angular/core';
 import { IResponseDto } from 'app/shared/util/response-dto';
 import { ITEMS_PER_PAGE } from 'app/shared/constants/pagination.constants';
 import { IGroupeTiersPayant } from 'app/shared/model/groupe-tierspayant.model';
-import { ActivatedRoute, Router, RouterModule } from '@angular/router';
+import { RouterModule } from '@angular/router';
 import { ConfirmationService, MessageService } from 'primeng/api';
 import { GroupeTiersPayantService } from 'app/entities/groupe-tiers-payant/groupe-tierspayant.service';
 import { HttpResponse } from '@angular/common/http';
@@ -52,32 +52,24 @@ import { Panel } from 'primeng/panel';
   ],
 })
 export class GroupeTiersPayantComponent implements OnInit {
-  protected entityService = inject(GroupeTiersPayantService);
-  protected activatedRoute = inject(ActivatedRoute);
-  protected router = inject(Router);
-  private messageService = inject(MessageService);
-  private dialogService = inject(DialogService);
-  protected confirmationService = inject(ConfirmationService);
-  protected errorService = inject(ErrorService);
-
-  fileDialog?: boolean;
-  responsedto!: IResponseDto;
-  responseDialog?: boolean;
-  entites?: IGroupeTiersPayant[];
-  totalItems = 0;
-  itemsPerPage = ITEMS_PER_PAGE;
-  page = 0;
-  selectedEl?: IGroupeTiersPayant;
-  loading = false;
-  isSaving = false;
-  displayDialog?: boolean;
-  search = '';
-  ref!: DynamicDialogRef;
-
-  /** Inserted by Angular inject() migration for backwards compatibility */
-  constructor(...args: unknown[]);
-
-  constructor() {}
+  protected fileDialog?: boolean;
+  protected responsedto!: IResponseDto;
+  protected responseDialog?: boolean;
+  protected entites?: IGroupeTiersPayant[];
+  protected totalItems = 0;
+  protected itemsPerPage = ITEMS_PER_PAGE;
+  protected page = 0;
+  protected selectedEl?: IGroupeTiersPayant;
+  protected loading = false;
+  protected isSaving = false;
+  protected displayDialog?: boolean;
+  protected search = '';
+  private ref!: DynamicDialogRef;
+  private readonly entityService = inject(GroupeTiersPayantService);
+  private readonly messageService = inject(MessageService);
+  private readonly dialogService = inject(DialogService);
+  private readonly confirmationService = inject(ConfirmationService);
+  private readonly errorService = inject(ErrorService);
 
   ngOnInit(): void {
     this.load();

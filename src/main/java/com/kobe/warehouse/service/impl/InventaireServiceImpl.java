@@ -36,6 +36,7 @@ import com.kobe.warehouse.service.dto.records.StoreInventoryLineRecord;
 import com.kobe.warehouse.service.dto.records.StoreInventoryRecord;
 import com.kobe.warehouse.service.dto.records.StoreInventorySummaryRecord;
 import com.kobe.warehouse.service.errors.InventoryException;
+import com.kobe.warehouse.service.mobile.dto.RayonInventaireDetail;
 import com.kobe.warehouse.service.report.InventoryReportReportService;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.Tuple;
@@ -45,21 +46,6 @@ import jakarta.persistence.criteria.CriteriaBuilder.In;
 import jakarta.persistence.criteria.CriteriaQuery;
 import jakarta.persistence.criteria.Predicate;
 import jakarta.persistence.criteria.Root;
-import org.apache.commons.csv.CSVFormat;
-import org.apache.commons.csv.CSVParser;
-import org.apache.commons.csv.CSVRecord;
-import org.apache.commons.lang3.tuple.Triple;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.core.io.Resource;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageImpl;
-import org.springframework.data.domain.Pageable;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
-import org.springframework.util.CollectionUtils;
-import org.springframework.web.multipart.MultipartFile;
-
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.net.MalformedURLException;
@@ -76,6 +62,20 @@ import java.util.Set;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
+import org.apache.commons.csv.CSVFormat;
+import org.apache.commons.csv.CSVParser;
+import org.apache.commons.csv.CSVRecord;
+import org.apache.commons.lang3.tuple.Triple;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.core.io.Resource;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.Pageable;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.CollectionUtils;
+import org.springframework.web.multipart.MultipartFile;
 
 @Service
 @Transactional
@@ -174,6 +174,20 @@ public class InventaireServiceImpl implements InventaireService {
         } catch (IOException e) {
             log.debug("{0}", e);
         }
+    }
+
+    @Override
+    public List<StoreInventoryLineDTO> getAllItems(Long storeInventoryId) {
+        return storeInventoryLineRepository.findAllByStoreInventoryId(storeInventoryId).stream()
+            .map(StoreInventoryLineDTO::new).toList();
+
+    }
+
+    @Override
+    public RayonInventaireDetail getItemsByRayonId(Long storeInventoryId, Long rayonId) {
+        return new RayonInventaireDetail(rayonId,
+            storeInventoryLineRepository.findAllByStoreInventoryIdAndRayonId(storeInventoryId,
+                rayonId).stream().map(StoreInventoryLineDTO::new).toList());
     }
 
     private int getQtyByCodeCip(Map<String, Integer> codeCipQuantity, Produit produit) {

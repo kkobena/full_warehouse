@@ -1,10 +1,9 @@
 package com.kobe.warehouse.web.rest.java_client.mobile;
 
 import com.kobe.warehouse.service.InventaireService;
-import com.kobe.warehouse.service.dto.RayonDTO;
 import com.kobe.warehouse.service.dto.StoreInventoryDTO;
 import com.kobe.warehouse.service.dto.StoreInventoryLineDTO;
-import com.kobe.warehouse.service.mobile.dto.RayonInventaireDetail;
+import com.kobe.warehouse.service.mobile.dto.RayonRecord;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -30,12 +29,12 @@ public class MobileInventoryResource {
     }
 
     @GetMapping("/rayons/{id}")
-    public ResponseEntity<List<RayonDTO>> getRayons(@PathVariable Long id) {
+    public ResponseEntity<List<RayonRecord>> getRayons(@PathVariable Long id) {
         return ResponseEntity.ok(inventaireService.fetchRayonsByStoreInventoryId(id));
     }
 
     @PostMapping("/items/synchronize")
-    public ResponseEntity<List<RayonDTO>> synchronizeStoreInventoryLine(@RequestBody List<StoreInventoryLineDTO> storeInventoryLines) {
+    public ResponseEntity<Void> synchronizeStoreInventoryLine(@RequestBody List<StoreInventoryLineDTO> storeInventoryLines) {
         inventaireService.synchronizeStoreInventoryLine(storeInventoryLines);
         return ResponseEntity.accepted().build();
     }

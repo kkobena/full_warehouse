@@ -3,6 +3,8 @@ package com.kobe.warehouse.service.dto;
 import com.kobe.warehouse.domain.Produit;
 import com.kobe.warehouse.domain.StoreInventoryLine;
 import java.io.Serializable;
+import java.util.Objects;
+import java.util.Set;
 
 public class StoreInventoryLineDTO implements Serializable {
 
@@ -25,6 +27,7 @@ public class StoreInventoryLineDTO implements Serializable {
     private String produitCip;
     private String produitEan;
     private long rayonId;
+    private Set<String> produitCips;
 
     public StoreInventoryLineDTO() {}
 
@@ -41,8 +44,11 @@ public class StoreInventoryLineDTO implements Serializable {
         this.produitLibelle = produit.getLibelle();
         this.updated = storeInventoryLine.getUpdated();
         this.quantitySold = storeInventoryLine.getQuantitySold();
-        this.inventoryValueTotalCost = produit.getCostAmount() * storeInventoryLine.getQuantityOnHand();
-        this.inventoryValueAmount = storeInventoryLine.getQuantityOnHand() * storeInventoryLine.getLastUnitPrice();
+        if (Objects.nonNull(storeInventoryLine.getQuantityOnHand())) {
+            this.inventoryValueTotalCost = produit.getCostAmount() * storeInventoryLine.getQuantityOnHand();
+            this.inventoryValueAmount = storeInventoryLine.getQuantityOnHand() * storeInventoryLine.getLastUnitPrice();
+        }
+
     }
 
     public long getRayonId() {
@@ -104,6 +110,15 @@ public class StoreInventoryLineDTO implements Serializable {
 
     public StoreInventoryLineDTO setQuantitySold(Integer quantitySold) {
         this.quantitySold = quantitySold;
+        return this;
+    }
+
+    public Set<String> getProduitCips() {
+        return produitCips;
+    }
+
+    public StoreInventoryLineDTO setProduitCips(Set<String> produitCips) {
+        this.produitCips = produitCips;
         return this;
     }
 

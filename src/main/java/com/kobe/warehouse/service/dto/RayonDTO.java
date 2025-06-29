@@ -12,6 +12,7 @@ public class RayonDTO implements Serializable {
     private Long storageId;
     private boolean exclude;
     private String storageLibelle;
+    private  long inventoryId;
 
     public RayonDTO() {}
 
@@ -23,6 +24,15 @@ public class RayonDTO implements Serializable {
         this.storageId = storage.getId();
         this.storageLibelle = storage.getName();
         this.exclude = rayon.isExclude();
+    }
+
+    public long getInventoryId() {
+        return inventoryId;
+    }
+
+    public RayonDTO setInventoryId(long inventoryId) {
+        this.inventoryId = inventoryId;
+        return this;
     }
 
     public Long getId() {

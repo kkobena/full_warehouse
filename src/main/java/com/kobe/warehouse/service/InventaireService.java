@@ -1,7 +1,6 @@
 package com.kobe.warehouse.service;
 
 import com.kobe.warehouse.service.dto.InventoryExportWrapper;
-import com.kobe.warehouse.service.dto.RayonDTO;
 import com.kobe.warehouse.service.dto.StoreInventoryDTO;
 import com.kobe.warehouse.service.dto.StoreInventoryGroupExport;
 import com.kobe.warehouse.service.dto.StoreInventoryLineDTO;
@@ -14,7 +13,7 @@ import com.kobe.warehouse.service.dto.records.ItemsCountRecord;
 import com.kobe.warehouse.service.dto.records.StoreInventoryLineRecord;
 import com.kobe.warehouse.service.dto.records.StoreInventoryRecord;
 import com.kobe.warehouse.service.errors.InventoryException;
-import com.kobe.warehouse.service.mobile.dto.RayonInventaireDetail;
+import com.kobe.warehouse.service.mobile.dto.RayonRecord;
 import org.springframework.core.io.Resource;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -50,11 +49,15 @@ public interface InventaireService {
     Optional<StoreInventoryDTO> getProccessingStoreInventory(Long id);
 
     List<StoreInventoryDTO> fetchActifs();
-    List<RayonDTO> fetchRayonsByStoreInventoryId(Long storeInventoryId);
+
+    List<RayonRecord> fetchRayonsByStoreInventoryId(Long storeInventoryId);
 
     void importDetail(Long storeInventoryId, MultipartFile multipartFile);
-    List<StoreInventoryLineDTO>  getAllItems(Long storeInventoryId);
-    List<StoreInventoryLineDTO>  getItemsByRayonId(Long storeInventoryId, Long rayonId);
+
+    List<StoreInventoryLineDTO> getAllItems(Long storeInventoryId);
+
+    List<StoreInventoryLineDTO> getItemsByRayonId(Long storeInventoryId, Long rayonId);
+
     void synchronizeStoreInventoryLine(
         List<StoreInventoryLineDTO> storeInventoryLines
     );

@@ -5,6 +5,7 @@ import com.kobe.warehouse.domain.Produit;
 import com.kobe.warehouse.domain.Rayon;
 import com.kobe.warehouse.domain.Rayon_;
 import com.kobe.warehouse.domain.StockProduit;
+import com.kobe.warehouse.domain.Storage;
 import com.kobe.warehouse.domain.Storage_;
 import com.kobe.warehouse.domain.StoreInventory;
 import com.kobe.warehouse.domain.StoreInventoryLine;
@@ -21,7 +22,6 @@ import com.kobe.warehouse.service.StorageService;
 import com.kobe.warehouse.service.UserService;
 import com.kobe.warehouse.service.dto.InventoryExportSummary;
 import com.kobe.warehouse.service.dto.InventoryExportWrapper;
-import com.kobe.warehouse.service.dto.RayonDTO;
 import com.kobe.warehouse.service.dto.StoreInventoryDTO;
 import com.kobe.warehouse.service.dto.StoreInventoryGroupExport;
 import com.kobe.warehouse.service.dto.StoreInventoryLineDTO;
@@ -36,7 +36,7 @@ import com.kobe.warehouse.service.dto.records.StoreInventoryLineRecord;
 import com.kobe.warehouse.service.dto.records.StoreInventoryRecord;
 import com.kobe.warehouse.service.dto.records.StoreInventorySummaryRecord;
 import com.kobe.warehouse.service.errors.InventoryException;
-import com.kobe.warehouse.service.mobile.dto.RayonInventaireDetail;
+import com.kobe.warehouse.service.mobile.dto.RayonRecord;
 import com.kobe.warehouse.service.report.InventoryReportReportService;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.Tuple;
@@ -46,6 +46,21 @@ import jakarta.persistence.criteria.CriteriaBuilder.In;
 import jakarta.persistence.criteria.CriteriaQuery;
 import jakarta.persistence.criteria.Predicate;
 import jakarta.persistence.criteria.Root;
+import org.apache.commons.csv.CSVFormat;
+import org.apache.commons.csv.CSVParser;
+import org.apache.commons.csv.CSVRecord;
+import org.apache.commons.lang3.tuple.Triple;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.core.io.Resource;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.Pageable;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.CollectionUtils;
+import org.springframework.web.multipart.MultipartFile;
+
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.net.MalformedURLException;
@@ -62,20 +77,6 @@ import java.util.Set;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
-import org.apache.commons.csv.CSVFormat;
-import org.apache.commons.csv.CSVParser;
-import org.apache.commons.csv.CSVRecord;
-import org.apache.commons.lang3.tuple.Triple;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.core.io.Resource;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageImpl;
-import org.springframework.data.domain.Pageable;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
-import org.springframework.util.CollectionUtils;
-import org.springframework.web.multipart.MultipartFile;
 
 @Service
 @Transactional
@@ -142,6 +143,7 @@ public class InventaireServiceImpl implements InventaireService {
     }
 
     @Override
+    @Transactional(readOnly = true)
     public List<StoreInventoryGroupExport> getStoreInventoryToExport(StoreInventoryExportRecord filterRecord) {
         return buildStoreInventoryGroupExportsFromTuple(getAllByInventories(filterRecord), filterRecord);
     }
@@ -177,6 +179,7 @@ public class InventaireServiceImpl implements InventaireService {
     }
 
     @Override
+    @Transactional(readOnly = true)
     public List<StoreInventoryLineDTO> getAllItems(Long storeInventoryId) {
         return storeInventoryLineRepository.findAllByStoreInventoryId(storeInventoryId).stream()
             .map(StoreInventoryLineDTO::new).toList();
@@ -184,12 +187,22 @@ public class InventaireServiceImpl implements InventaireService {
     }
 
     @Override
-    public List<StoreInventoryLineDTO>  getItemsByRayonId(Long storeInventoryId, Long rayonId) {
-    return     storeInventoryLineRepository.findAllByStoreInventoryIdAndRayonId(storeInventoryId,
-            rayonId).stream().map(s->new StoreInventoryLineDTO(s).setRayonId(rayonId))
+    @Transactional(readOnly = true)
+    public List<StoreInventoryLineDTO> getItemsByRayonId(Long storeInventoryId, Long rayonId) {
+        return storeInventoryLineRepository.findAllByStoreInventoryIdAndRayonId(storeInventoryId,
+                rayonId).stream().map(s -> {
+                Produit produit = s.getProduit();
+                int stockProduit =produit.getStockProduits().stream().mapToInt(StockProduit::getQtyStock).sum();
+                Set<String> produitCips = produit.getFournisseurProduits().stream()
+                    .map(FournisseurProduit::getCodeCip)
+                    .collect(Collectors.toSet());
+                return new StoreInventoryLineDTO(s)
+                    .setQuantityInit(stockProduit)
+                    .setProduitCips(produitCips).setRayonId(rayonId);
+            })
             .toList();
 
-        
+
     }
 
     private int getQtyByCodeCip(Map<String, Integer> codeCipQuantity, Produit produit) {
@@ -238,7 +251,7 @@ public class InventaireServiceImpl implements InventaireService {
             Objects.nonNull(fournisseurProduit) ? fournisseurProduit.getPrixUni() : produit.getRegularUnitPrice()
         );
         storeInventoryLine.setQuantityOnHand(storeInventoryLineDTO.getQuantityOnHand());
-        storeInventoryLine.setQuantityInit(storeInventoryLineDTO.getQuantityInit());
+            storeInventoryLine.setQuantityInit(storeInventoryLineDTO.getQuantityInit());
         storeInventoryLine.setGap(storeInventoryLine.getQuantityOnHand() - storeInventoryLine.getQuantityInit());
     }
 
@@ -303,10 +316,13 @@ public class InventaireServiceImpl implements InventaireService {
     }
 
     @Override
-    public List<RayonDTO> fetchRayonsByStoreInventoryId(Long storeInventoryId) {
+    public List<RayonRecord> fetchRayonsByStoreInventoryId(Long storeInventoryId) {
         return this.storeInventoryLineRepository.findAllRayons(storeInventoryId)
             .stream()
-            .map(RayonDTO::new)
+            .map(rayon -> {
+                Storage storage = rayon.getStorage();
+                return new RayonRecord(rayon.getId(), rayon.getCode(), rayon.getLibelle(), storage.getId(), storage.getName(), storeInventoryId);
+            })
             .toList();
     }
 

@@ -1,26 +1,26 @@
-import { Component, OnInit, inject } from '@angular/core';
-import { IProduit } from '../../../shared/model/produit.model';
-import { FournisseurProduit, IFournisseurProduit } from '../../../shared/model/fournisseur-produit.model';
-import { ProduitService } from '../produit.service';
-import { ErrorService } from '../../../shared/error.service';
-import { FormsModule, ReactiveFormsModule, UntypedFormBuilder, Validators } from '@angular/forms';
+import {Component, inject, OnInit} from '@angular/core';
+import {IProduit} from '../../../shared/model/produit.model';
+import {FournisseurProduit, IFournisseurProduit} from '../../../shared/model/fournisseur-produit.model';
+import {ProduitService} from '../produit.service';
+import {ErrorService} from '../../../shared/error.service';
+import {FormsModule, ReactiveFormsModule, UntypedFormBuilder, Validators} from '@angular/forms';
 
-import { IFournisseur } from '../../../shared/model/fournisseur.model';
-import { FournisseurService } from '../../fournisseur/fournisseur.service';
-import { HttpResponse } from '@angular/common/http';
-import { Observable } from 'rxjs';
-import { ConfirmationService, MessageService } from 'primeng/api';
-import { DialogService, DynamicDialogConfig, DynamicDialogModule, DynamicDialogRef } from 'primeng/dynamicdialog';
-import { WarehouseCommonModule } from '../../../shared/warehouse-common/warehouse-common.module';
-import { ToastModule } from 'primeng/toast';
-import { InputTextModule } from 'primeng/inputtext';
-import { DropdownModule } from 'primeng/dropdown';
-import { ButtonModule } from 'primeng/button';
-import { RippleModule } from 'primeng/ripple';
-import { InputSwitchModule } from 'primeng/inputswitch';
-import { KeyFilterModule } from 'primeng/keyfilter';
-import { Select } from 'primeng/select';
-import { ToggleSwitch } from 'primeng/toggleswitch';
+import {IFournisseur} from '../../../shared/model/fournisseur.model';
+import {FournisseurService} from '../../fournisseur/fournisseur.service';
+import {HttpResponse} from '@angular/common/http';
+import {Observable} from 'rxjs';
+import {ConfirmationService, MessageService} from 'primeng/api';
+import {DialogService, DynamicDialogConfig, DynamicDialogModule, DynamicDialogRef} from 'primeng/dynamicdialog';
+import {WarehouseCommonModule} from '../../../shared/warehouse-common/warehouse-common.module';
+import {ToastModule} from 'primeng/toast';
+import {InputTextModule} from 'primeng/inputtext';
+import {DropdownModule} from 'primeng/dropdown';
+import {ButtonModule} from 'primeng/button';
+import {RippleModule} from 'primeng/ripple';
+import {InputSwitchModule} from 'primeng/inputswitch';
+import {KeyFilterModule} from 'primeng/keyfilter';
+import {Select} from 'primeng/select';
+import {ToggleSwitch} from 'primeng/toggleswitch';
 
 @Component({
   selector: 'jhi-form-produit-fournisseur',
@@ -43,13 +43,13 @@ import { ToggleSwitch } from 'primeng/toggleswitch';
   ],
 })
 export class FormProduitFournisseurComponent implements OnInit {
-  protected produitService = inject(ProduitService);
-  protected errorService = inject(ErrorService);
-  private fb = inject(UntypedFormBuilder);
-  ref = inject(DynamicDialogRef);
-  config = inject(DynamicDialogConfig);
-  protected fournisseurService = inject(FournisseurService);
-  private messageService = inject(MessageService);
+  protected fb = inject(UntypedFormBuilder);
+  private ref = inject(DynamicDialogRef);
+  private config = inject(DynamicDialogConfig);
+  private readonly produitService = inject(ProduitService);
+  private readonly  errorService = inject(ErrorService);
+  private readonly fournisseurService = inject(FournisseurService);
+  private readonly messageService = inject(MessageService);
 
   produit?: IProduit;
   entity?: IFournisseurProduit;
@@ -164,19 +164,19 @@ export class FormProduitFournisseurComponent implements OnInit {
     this.fournisseurSelectedId = event.value;
   }
 
-  protected subscribeToSaveResponse(result: Observable<HttpResponse<IFournisseurProduit>>): void {
+  private subscribeToSaveResponse(result: Observable<HttpResponse<IFournisseurProduit>>): void {
     result.subscribe({
       next: (res: HttpResponse<IFournisseurProduit>) => this.onSaveSuccess(res.body),
       error: error => this.onSaveError(error),
     });
   }
 
-  protected onSaveSuccess(produitFournisseur: IFournisseurProduit | null): void {
+  private onSaveSuccess(produitFournisseur: IFournisseurProduit | null): void {
     this.isSaving = false;
     this.ref.close(produitFournisseur);
   }
 
-  protected onSaveError(error: any): void {
+  private onSaveError(error: any): void {
     this.isSaving = false;
     if (error.error) {
       this.errorService.getErrorMessageTranslation(error.error.errorKey).subscribe(translatedErrorMessage => {
@@ -189,7 +189,7 @@ export class FormProduitFournisseurComponent implements OnInit {
     }
   }
 
-  protected createFrom(): IFournisseurProduit {
+  private createFrom(): IFournisseurProduit {
     return {
       ...new FournisseurProduit(),
       id: this.editForm.get(['id']).value,

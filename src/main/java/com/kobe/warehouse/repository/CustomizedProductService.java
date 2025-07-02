@@ -53,7 +53,6 @@ public interface CustomizedProductService {
 
     LocalDateTime lastSale(ProduitCriteria produitCriteria);
 
-    LocalDateTime lastInventory(ProduitCriteria produitCriteria);
 
     LocalDateTime lastOrder(ProduitCriteria produitCriteria);
 

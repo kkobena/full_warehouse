@@ -160,11 +160,7 @@ public class CustomizedProductRepository implements CustomizedProductService {
         );
     }
 
-    @Override
-    @Transactional(readOnly = true)
-    public LocalDateTime lastInventory(ProduitCriteria produitCriteria) {
-        return fromLastDateProjection(storeInventoryLineRepository.findLastUpdatedAtProduitId(produitCriteria.getId()));
-    }
+
 
     @Override
     @Transactional(readOnly = true)
@@ -334,7 +330,7 @@ public class CustomizedProductRepository implements CustomizedProductService {
                 );
                 produitCriteria.setId(p.getId());
                 dto.setLastDateOfSale(lastSale(produitCriteria));
-                dto.setLastInventoryDate(lastInventory(produitCriteria));
+                dto.setLastInventoryDate(!p.getHistoriqueProduitInventaires().isEmpty()?p.getHistoriqueProduitInventaires().getFirst().dateInventaire():null);
                 dto.setLastOrderDate(lastOrder(produitCriteria));
                 dto.setEtatProduit(this.etatProduitService.getEtatProduit(dto.getId(), dto.getTotalQuantity()));
                 list.add(dto);

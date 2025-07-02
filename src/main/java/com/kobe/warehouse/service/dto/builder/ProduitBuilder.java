@@ -1,6 +1,19 @@
 package com.kobe.warehouse.service.dto.builder;
 
-import com.kobe.warehouse.domain.*;
+import com.kobe.warehouse.domain.Dci;
+import com.kobe.warehouse.domain.FamilleProduit;
+import com.kobe.warehouse.domain.FormProduit;
+import com.kobe.warehouse.domain.Fournisseur;
+import com.kobe.warehouse.domain.FournisseurProduit;
+import com.kobe.warehouse.domain.GammeProduit;
+import com.kobe.warehouse.domain.Laboratoire;
+import com.kobe.warehouse.domain.Magasin;
+import com.kobe.warehouse.domain.Produit;
+import com.kobe.warehouse.domain.Rayon;
+import com.kobe.warehouse.domain.RayonProduit;
+import com.kobe.warehouse.domain.StockProduit;
+import com.kobe.warehouse.domain.Storage;
+import com.kobe.warehouse.domain.Tva;
 import com.kobe.warehouse.domain.enumeration.CategorieABC;
 import com.kobe.warehouse.domain.enumeration.CodeRemise;
 import com.kobe.warehouse.domain.enumeration.StorageType;
@@ -10,25 +23,25 @@ import com.kobe.warehouse.service.dto.ProduitDTO;
 import com.kobe.warehouse.service.dto.RayonProduitDTO;
 import com.kobe.warehouse.service.dto.StockProduitDTO;
 import com.kobe.warehouse.service.dto.TableauDTO;
-import com.kobe.warehouse.service.produit_prix.dto.PrixReferenceDTO;
 import com.kobe.warehouse.service.utils.NumberUtil;
+import org.apache.commons.lang3.StringUtils;
+import org.springframework.util.CollectionUtils;
+
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
-import java.util.Comparator;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
-import org.apache.commons.lang3.StringUtils;
-import org.springframework.util.CollectionUtils;
 
 public final class ProduitBuilder {
 
     private static final String PERIME_DATE_PATERN = "dd/MM/yyyy";
 
-    private ProduitBuilder() {}
+    private ProduitBuilder() {
+    }
 
     public static Produit fromDTO(ProduitDTO produitDTO, Rayon rayon) {
         Produit produit = new Produit();
@@ -262,6 +275,7 @@ public final class ProduitBuilder {
     public static ProduitDTO partialFromProduit(Produit produit) {
         Produit parent = produit.getParent();
         ProduitDTO produitDTO = new ProduitDTO()
+            .setHistoriqueProduitInventaires(produit.getHistoriqueProduitInventaires())
             .setId(produit.getId())
             .setRemiseCode(produit.getCodeRemise().getValue())
             .setLibelle(produit.getLibelle())
@@ -287,6 +301,10 @@ public final class ProduitBuilder {
         }
         produitDTO.setStatus(produit.getStatus().ordinal());
         produitDTO.displayStatut(produit.getStatus().name());
+        if (!CollectionUtils.isEmpty(produitDTO.getHistoriqueProduitInventaires())){
+            produitDTO.setLastInventoryDate(produitDTO.getHistoriqueProduitInventaires().getFirst().dateInventaire());
+        }
+
 
         return produitDTO;
     }
@@ -352,7 +370,8 @@ public final class ProduitBuilder {
                     .getRayon();
                 dto.setRayonId(rayon.getId());
                 dto.setRayonLibelle(rayon.getLibelle());
-            } catch (Exception _) {}
+            } catch (Exception _) {
+            }
         }
         dto.setCodeEan(produit.getCodeEan());
         FournisseurProduit fournisseurProduitPrincipal = produit.getFournisseurProduitPrincipal();

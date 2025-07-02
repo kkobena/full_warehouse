@@ -3,6 +3,8 @@ package com.kobe.warehouse.service;
 import com.kobe.warehouse.domain.Produit;
 import com.kobe.warehouse.domain.StockProduit;
 import com.kobe.warehouse.service.dto.*;
+
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
@@ -48,7 +50,6 @@ public interface ProduitService {
 
     LocalDateTime lastSale(ProduitCriteria produitCriteria);
 
-    LocalDateTime lastInventory(ProduitCriteria produitCriteria);
 
     LocalDateTime lastOrder(ProduitCriteria produitCriteria);
 
@@ -74,4 +75,6 @@ public interface ProduitService {
     }
 
     void updateFromCommande(ProduitDTO produitDTO, Produit produit);
+
+    void updatePeremption(Long produitId, LocalDate peremptionDate);
 }

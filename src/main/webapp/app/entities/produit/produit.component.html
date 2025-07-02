@@ -129,7 +129,7 @@
     <p-table [rowExpandMode]="rowExpandMode" [value]="produits" dataKey="id" styleClass="p-datatable-gridlines ">
       <ng-template pTemplate="header">
         <tr>
-          <th style="width: 3%"></th>
+          <th style="width:2rem"></th>
           <th style="width: 8%">Cip</th>
           <th style="width: 11%">Code EAN</th>
           <th style="width: 24%"><span jhiTranslate="warehouseApp.produit.libelle">Libelle</span></th>
@@ -215,7 +215,7 @@
 
               <p-button
                 (click)="addPrixReference(produit)"
-                severity="contrast"
+                severity="secondary"
                 [rounded]="true"
                 [text]="true"
                 tooltipPosition="left"
@@ -224,6 +224,21 @@
                 pTooltip="Ajouter des prix de référence"
               >
               </p-button>
+
+
+              <p-button
+                (click)="addPeremptionDate(produit)"
+                severity="help"
+                [rounded]="true"
+                [text]="true"
+                tooltipPosition="left"
+                type="button"
+                icon="pi pi-calendar-plus"
+                pTooltip="Modifier la date de péremption"
+              >
+              </p-button>
+
+
 
               @if (produit.deconditionnable && produit.produits?.length == 0) {
                 <p-button

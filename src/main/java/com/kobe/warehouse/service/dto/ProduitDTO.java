@@ -5,6 +5,7 @@ import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.fasterxml.jackson.datatype.jsr310.deser.LocalDateDeserializer;
 import com.fasterxml.jackson.datatype.jsr310.ser.LocalDateSerializer;
 import com.kobe.warehouse.domain.DailyStock;
+import com.kobe.warehouse.domain.HistoriqueProduitInventaire;
 import com.kobe.warehouse.domain.ParcoursProduit;
 import com.kobe.warehouse.domain.enumeration.TypeProduit;
 import com.kobe.warehouse.service.produit_prix.dto.PrixReferenceDTO;
@@ -92,6 +93,7 @@ public class ProduitDTO {
     private String dciLibelle;
     private String dciCode;
     private String categorie;
+    private List<HistoriqueProduitInventaire> historiqueProduitInventaires= new ArrayList<>();
 
     public String getRemiseCode() {
         return remiseCode;
@@ -795,6 +797,15 @@ public class ProduitDTO {
 
     public ProduitDTO setUnitPrice(int unitPrice) {
         this.unitPrice = unitPrice;
+        return this;
+    }
+
+    public List<HistoriqueProduitInventaire> getHistoriqueProduitInventaires() {
+        return historiqueProduitInventaires;
+    }
+
+    public ProduitDTO setHistoriqueProduitInventaires(List<HistoriqueProduitInventaire> historiqueProduitInventaires) {
+        this.historiqueProduitInventaires = historiqueProduitInventaires;
         return this;
     }
 }

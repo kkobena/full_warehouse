@@ -21,18 +21,23 @@ import jakarta.persistence.Table;
 import jakarta.persistence.UniqueConstraint;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotNull;
+import org.hibernate.annotations.JdbcTypeCode;
+import org.hibernate.annotations.JoinFormula;
+import org.hibernate.envers.Audited;
+import org.hibernate.envers.NotAudited;
+import org.hibernate.envers.RelationTargetAuditMode;
+import org.hibernate.type.SqlTypes;
+import org.springframework.util.CollectionUtils;
+
 import java.io.Serial;
 import java.io.Serializable;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
-import org.hibernate.annotations.JoinFormula;
-import org.hibernate.envers.Audited;
-import org.hibernate.envers.NotAudited;
-import org.hibernate.envers.RelationTargetAuditMode;
 
 /**
  * not an ignored comment
@@ -41,7 +46,7 @@ import org.hibernate.envers.RelationTargetAuditMode;
 @Entity
 @Table(
     name = "produit",
-    uniqueConstraints = { @UniqueConstraint(columnNames = { "libelle", "type_produit" }) },
+    uniqueConstraints = {@UniqueConstraint(columnNames = {"libelle", "type_produit"})},
     indexes = {
         @Index(columnList = "libelle ASC", name = "libelle_index"),
         @Index(columnList = "code_ean", name = "codeEan_index"),
@@ -114,7 +119,7 @@ public class Produit implements Serializable {
     private Integer itemRegularUnitPrice = 0;
 
     @NotAudited
-    @OneToMany(mappedBy = "produit", fetch = FetchType.LAZY, cascade = { CascadeType.REMOVE })
+    @OneToMany(mappedBy = "produit", fetch = FetchType.LAZY, cascade = {CascadeType.REMOVE})
     private List<OptionPrixProduit> optionPrixProduit = new ArrayList<>();
 
     @NotNull
@@ -131,11 +136,11 @@ public class Produit implements Serializable {
     private Produit parent;
 
     @NotAudited
-    @OneToMany(mappedBy = "parent", fetch = FetchType.EAGER, cascade = { CascadeType.REMOVE })
+    @OneToMany(mappedBy = "parent", fetch = FetchType.EAGER, cascade = {CascadeType.REMOVE})
     private List<Produit> produits = new ArrayList<>();
 
     @NotAudited
-    @OneToMany(mappedBy = "produit", fetch = FetchType.EAGER, cascade = { CascadeType.REMOVE })
+    @OneToMany(mappedBy = "produit", fetch = FetchType.EAGER, cascade = {CascadeType.REMOVE})
     private Set<StockProduit> stockProduits = new HashSet<>();
 
     @NotAudited
@@ -186,7 +191,7 @@ public class Produit implements Serializable {
     private LocalDate perimeAt;
 
     @NotAudited
-    @OneToMany(mappedBy = "produit", cascade = { CascadeType.PERSIST, CascadeType.MERGE, CascadeType.REMOVE })
+    @OneToMany(mappedBy = "produit", cascade = {CascadeType.PERSIST, CascadeType.MERGE, CascadeType.REMOVE})
     private Set<FournisseurProduit> fournisseurProduits = new HashSet<>();
 
     @NotAudited
@@ -200,15 +205,15 @@ public class Produit implements Serializable {
     private StockProduit stockProduitPointOfSale;
 
     @NotAudited
-    @OneToMany(mappedBy = "produit", fetch = FetchType.EAGER, cascade = { CascadeType.PERSIST, CascadeType.MERGE, CascadeType.REMOVE })
+    @OneToMany(mappedBy = "produit", fetch = FetchType.EAGER, cascade = {CascadeType.PERSIST, CascadeType.MERGE, CascadeType.REMOVE})
     private Set<RayonProduit> rayonProduits = new HashSet<>();
 
-    /* @Type(type = "json")
-  @Column(columnDefinition = "json", name = "parcours_json")
-  private List<ParcoursProduit> parcoursProduits = new ArrayList<>();*/
+    @JdbcTypeCode(SqlTypes.JSON)
+    @Column(columnDefinition = "json", name = "historique_inventaire")
+    private List<HistoriqueProduitInventaire> historiqueProduitInventaires = new ArrayList<>();
 
     @NotAudited
-    @OneToMany(mappedBy = "produit", fetch = FetchType.LAZY, cascade = { CascadeType.REMOVE }, orphanRemoval = true)
+    @OneToMany(mappedBy = "produit", fetch = FetchType.LAZY, cascade = {CascadeType.REMOVE}, orphanRemoval = true)
     private List<DailyStock> dailyStocks = new ArrayList<>();
 
     @ManyToOne
@@ -374,6 +379,19 @@ public class Produit implements Serializable {
 
     public Produit setCheckExpiryDate(Boolean checkExpiryDate) {
         this.checkExpiryDate = checkExpiryDate;
+        return this;
+    }
+
+    public List<HistoriqueProduitInventaire> getHistoriqueProduitInventaires() {
+        if (CollectionUtils.isEmpty(historiqueProduitInventaires)) {
+            historiqueProduitInventaires = new ArrayList<>();
+        }
+        historiqueProduitInventaires.sort(Comparator.comparing(HistoriqueProduitInventaire::dateInventaire, Comparator.reverseOrder()));
+        return historiqueProduitInventaires;
+    }
+
+    public Produit setHistoriqueProduitInventaires(List<HistoriqueProduitInventaire> historiqueProduitInventaires) {
+        this.historiqueProduitInventaires = historiqueProduitInventaires;
         return this;
     }
 

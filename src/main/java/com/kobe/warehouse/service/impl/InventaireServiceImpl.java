@@ -1,6 +1,8 @@
 package com.kobe.warehouse.service.impl;
 
 import com.kobe.warehouse.domain.FournisseurProduit;
+import com.kobe.warehouse.domain.HistoriqueInventaire;
+import com.kobe.warehouse.domain.HistoriqueProduitInventaire;
 import com.kobe.warehouse.domain.Produit;
 import com.kobe.warehouse.domain.Rayon;
 import com.kobe.warehouse.domain.Rayon_;
@@ -18,6 +20,7 @@ import com.kobe.warehouse.repository.StockProduitRepository;
 import com.kobe.warehouse.repository.StoreInventoryLineRepository;
 import com.kobe.warehouse.repository.StoreInventoryRepository;
 import com.kobe.warehouse.service.InventaireService;
+import com.kobe.warehouse.service.ProduitService;
 import com.kobe.warehouse.service.StorageService;
 import com.kobe.warehouse.service.UserService;
 import com.kobe.warehouse.service.dto.InventoryExportSummary;
@@ -31,11 +34,13 @@ import com.kobe.warehouse.service.dto.enumeration.InventoryExportSummaryEnum;
 import com.kobe.warehouse.service.dto.filter.StoreInventoryExportRecord;
 import com.kobe.warehouse.service.dto.filter.StoreInventoryFilterRecord;
 import com.kobe.warehouse.service.dto.filter.StoreInventoryLineFilterRecord;
+import com.kobe.warehouse.service.dto.projection.IdProjection;
 import com.kobe.warehouse.service.dto.records.ItemsCountRecord;
 import com.kobe.warehouse.service.dto.records.StoreInventoryLineRecord;
 import com.kobe.warehouse.service.dto.records.StoreInventoryRecord;
 import com.kobe.warehouse.service.dto.records.StoreInventorySummaryRecord;
 import com.kobe.warehouse.service.errors.InventoryException;
+import com.kobe.warehouse.service.historique_inventaire.HistoriqueInventaireService;
 import com.kobe.warehouse.service.mobile.dto.RayonRecord;
 import com.kobe.warehouse.service.report.InventoryReportReportService;
 import jakarta.persistence.EntityManager;
@@ -52,6 +57,8 @@ import org.apache.commons.csv.CSVRecord;
 import org.apache.commons.lang3.tuple.Triple;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.boot.context.event.ApplicationReadyEvent;
+import org.springframework.context.event.EventListener;
 import org.springframework.core.io.Resource;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
@@ -93,8 +100,9 @@ public class InventaireServiceImpl implements InventaireService {
     private final StockProduitRepository stockProduitRepository;
     private final RayonRepository rayonRepository;
     private final InventoryReportReportService inventoryReportService;
-
     private final EntityManager em;
+    private final ProduitService produitService;
+    private final HistoriqueInventaireService historiqueInventaireService;
 
     public InventaireServiceImpl(
         UserService userService,
@@ -104,7 +112,7 @@ public class InventaireServiceImpl implements InventaireService {
         StockProduitRepository stockProduitRepository,
         RayonRepository rayonRepository,
         InventoryReportReportService inventoryReportService,
-        EntityManager em
+        EntityManager em, ProduitService produitService, HistoriqueInventaireService historiqueInventaireService
     ) {
         this.userService = userService;
         this.storeInventoryRepository = storeInventoryRepository;
@@ -114,6 +122,8 @@ public class InventaireServiceImpl implements InventaireService {
         this.rayonRepository = rayonRepository;
         this.inventoryReportService = inventoryReportService;
         this.em = em;
+        this.produitService = produitService;
+        this.historiqueInventaireService = historiqueInventaireService;
     }
 
     @Override
@@ -137,9 +147,8 @@ public class InventaireServiceImpl implements InventaireService {
         storeInventory.setInventoryValueCostBegin(storeInventorySummaryRecord.costValueBegin().longValue());
         storeInventory.setGapCost(storeInventorySummaryRecord.gapCost().intValue());
         storeInventory.setGapAmount(storeInventorySummaryRecord.gapAmount().intValue());
-        int itemCount = closeItems(storeInventory.getId());
-        storeInventoryRepository.save(storeInventory);
-        return new ItemsCountRecord(itemCount);
+        this.historiqueInventaireService.save(new HistoriqueInventaire(storeInventoryRepository.save(storeInventory)));
+        return new ItemsCountRecord(closeItems(storeInventory.getId()));
     }
 
     @Override
@@ -192,7 +201,7 @@ public class InventaireServiceImpl implements InventaireService {
         return storeInventoryLineRepository.findAllByStoreInventoryIdAndRayonId(storeInventoryId,
                 rayonId).stream().map(s -> {
                 Produit produit = s.getProduit();
-                int stockProduit =produit.getStockProduits().stream().mapToInt(StockProduit::getQtyStock).sum();
+                int stockProduit = produit.getStockProduits().stream().mapToInt(StockProduit::getQtyStock).sum();
                 Set<String> produitCips = produit.getFournisseurProduits().stream()
                     .map(FournisseurProduit::getCodeCip)
                     .collect(Collectors.toSet());
@@ -251,8 +260,22 @@ public class InventaireServiceImpl implements InventaireService {
             Objects.nonNull(fournisseurProduit) ? fournisseurProduit.getPrixUni() : produit.getRegularUnitPrice()
         );
         storeInventoryLine.setQuantityOnHand(storeInventoryLineDTO.getQuantityOnHand());
-            storeInventoryLine.setQuantityInit(storeInventoryLineDTO.getQuantityInit());
+        storeInventoryLine.setQuantityInit(storeInventoryLineDTO.getQuantityInit());
         storeInventoryLine.setGap(storeInventoryLine.getQuantityOnHand() - storeInventoryLine.getQuantityInit());
+        saveHistoriqueProduit(produit, storeInventoryLine);
+    }
+
+    private void saveHistoriqueProduit(Produit produit, StoreInventoryLine storeInventoryLine) {
+        StoreInventory storeInventory = storeInventoryLine.getStoreInventory();
+
+        for (HistoriqueProduitInventaire historiqueProduitInventaire : produit.getHistoriqueProduitInventaires()) {
+            if (historiqueProduitInventaire.dateInventaire().isEqual(storeInventory.getCreatedAt())) {
+                produit.getHistoriqueProduitInventaires().remove(historiqueProduitInventaire);
+            }
+        }
+
+        produit.getHistoriqueProduitInventaires().add(new HistoriqueProduitInventaire(storeInventory.getCreatedAt(), storeInventoryLine.getQuantityOnHand(), storeInventoryLine.getQuantityInit(), storeInventory.getId()));
+        this.produitService.update(produit);
     }
 
     @Transactional(readOnly = true)
@@ -488,6 +511,7 @@ public class InventaireServiceImpl implements InventaireService {
 
     @Override
     public void remove(Long id) {
+        storeInventoryLineRepository.deleteAllByStoreInventoryId(id);
         storeInventoryRepository.deleteById(id);
     }
 
@@ -712,5 +736,18 @@ public class InventaireServiceImpl implements InventaireService {
             dto.setQuantityOnHand(atomicInteger.getAndIncrement());
             updateQuantityOnHand(dto);
         });
+    }
+
+    @EventListener(ApplicationReadyEvent.class)
+    public void clean() {
+
+        List<IdProjection> ids = this.storeInventoryRepository.findByStatutEquals(LocalDateTime.now().minusMonths(4));
+        if (!CollectionUtils.isEmpty(ids)) {
+            ids.stream().forEach(idProjection -> {
+                this.storeInventoryLineRepository.deleteAllByStoreInventoryId(idProjection.getId());
+                this.storeInventoryRepository.deleteById(idProjection.getId());
+            });
+
+        }
     }
 }

@@ -10,6 +10,8 @@ import com.kobe.warehouse.repository.RayonRepository;
 import com.kobe.warehouse.service.ProduitService;
 import com.kobe.warehouse.service.dto.*;
 import com.kobe.warehouse.service.dto.builder.ProduitBuilder;
+
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.Collections;
 import java.util.List;
@@ -121,7 +123,6 @@ public class ProduitServiceImpl implements ProduitService {
         if (produit.isPresent()) {
             dto = produit.get();
             dto.setLastDateOfSale(lastSale(produitCriteria));
-            dto.setLastInventoryDate(lastInventory(produitCriteria));
             dto.setLastOrderDate(lastOrder(produitCriteria));
         }
 
@@ -134,11 +135,6 @@ public class ProduitServiceImpl implements ProduitService {
         return customizedProductService.lastSale(produitCriteria);
     }
 
-    @Override
-    @Transactional(readOnly = true)
-    public LocalDateTime lastInventory(ProduitCriteria produitCriteria) {
-        return customizedProductService.lastInventory(produitCriteria);
-    }
 
     @Override
     @Transactional(readOnly = true)
@@ -204,6 +200,12 @@ public class ProduitServiceImpl implements ProduitService {
     @Override
     public void updateFromCommande(ProduitDTO produitDTO, Produit produit) {
         this.customizedProductService.updateFromCommande(produitDTO, produit);
+    }
+
+    @Override
+    public void updatePeremption(Long produitId, LocalDate peremptionDate) {
+        Produit produit = produitRepository.getReferenceById(produitId);
+        produit.setPerimeAt(peremptionDate);
     }
 
     private Storage getPointOfSale() {

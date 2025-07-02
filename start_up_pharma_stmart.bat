@@ -14,27 +14,27 @@ REM set "USER_TIMEZONE=UTC"
 
 REM --- Commande de lancement en arrière-plan ---
 start "" /b cmd /c ^
-    "%JAVA_HOME%\bin\java.exe" -jar "%~dp0warehouse.jar" ^
+    "%JAVA_HOME%\bin\java.exe" -jar "%~dp0pharmaSmart.jar" ^
     --server.port=8080 ^
     --spring.profiles.active=prod ^
     --spring.datasource.url=jdbc:mysql://%DB_HOST%:%DB_PORT%/%DB_NAME%?useLegacyDatetimeCode=false&serverTimezone=UTC&characterEncoding=UTF-8 ^
     --spring.datasource.username=%DB_USER% ^
     --spring.datasource.password=%DB_PASSWORD% ^
-    > "%~dp0warehouse_start_up.log" 2>&1
+    > "%~dp0pharma_smart_start_up.log" 2>&1
 
 REM --- Attendre 60 secondes que le processus démarre ---
 timeout /t 60 >nul
 
 REM --- Récupérer le PID du processus Java correspondant au jar ---
 for /f "skip=1 tokens=2 delims=," %%a in ('
-    wmic process where "CommandLine like '%%warehouse.jar%%'" get ProcessId /format:csv
+    wmic process where "CommandLine like '%%pharmaSmart.jar%%'" get ProcessId /format:csv
 ') do (
-    echo %%a > "%~dp0warehouse.pid"
+    echo %%a > "%~dp0pharmaSmart.pid"
     goto :pid_found
 )
 
 :pid_found
-echo Application démarrée. PID enregistré dans warehouse.pid
+echo Application démarrée. PID enregistré dans pharmaSmart.pid
 
 REM Récupérer le PID du processus Java (le plus récent)
 REM Clique droit sur start-app.bat → Créer un raccourci
@@ -43,7 +43,7 @@ REM Dans Exécuter, choisis Minimisé
 REM Double-clique sur le raccourci
 REM Planificateur de tâches (plus de contrôle)
 REM Ouvrir le planificateur de tâches (taskschd.msc)
-REM Nom : warehouse Launcher
+REM Nom : pharmaSmart Launcher
 REM Exécuter avec les autorisations maximales
 REM Onglet Déclencheurs :
 REM -Nouveau → Au démarrage de session

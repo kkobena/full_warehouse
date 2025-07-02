@@ -153,6 +153,7 @@ export class InventoryFormComponent implements OnInit {
       return {
         ...new StoreInventory(),
         id: this.editForm.get(['id']).value,
+        description: this.editForm.get(['description']).value,
         inventoryCategory,
       };
     }

@@ -120,7 +120,7 @@ public class AdminUserDTO implements Serializable {
                 break;
             }
         }
-      //  this.roleName = Constants.PR_MOBILE_USER;
+      // this.roleName = Constants.PR_MOBILE_USER;
     }
 
     private boolean isAdmin() {

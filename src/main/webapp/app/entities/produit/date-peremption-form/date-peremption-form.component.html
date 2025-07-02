@@ -1,0 +1,52 @@
+<p-toast position="center"></p-toast>
+<form (ngSubmit)="save()" [formGroup]="editForm" name="editForm" novalidate role="form">
+  <div class="modal-header">
+    <h5 class="modal-title">AJOUT DE LA DATE DE PEREMTION SUR LE PRODUIT {{ produit?.libelle }}</h5>
+
+    <button (click)="cancel()" aria-hidden="true" class="close" data-dismiss="modal" type="button">
+      &times;
+    </button>
+  </div>
+
+  <div class="modal-body" style="padding: 15px;">
+
+
+    <div class="form-row">
+      <div class="form-group col">
+        <label class="form-control-label" for="datePeremption">Date de péremption<span class="red-400" style="font-weight: 900">*</span></label>
+
+      @let datePeremption = editForm.get('datePeremption');
+        <input  [minDate]="minDate" [maxDate]="maxDate" jhiDateNaiss pInputText  placeholder="jj/mm/aaaa" class="form-control"  formControlName="datePeremption"
+        />
+        @if (datePeremption!.invalid && (datePeremption!.dirty || datePeremption!.touched)) {
+          <div>
+            @let errors = datePeremption?.errors;
+            @if (errors?.invalidDate || errors?.outOfRange) {
+              <small class="form-text text-danger"> Veuillez saisir une date valide</small>
+            }
+          </div>
+        }
+      </div>
+
+
+
+
+
+    </div>
+
+  </div>
+
+  <div class="modal-footer">
+    <p-button
+      [disabled]="editForm.invalid || isSaving"
+      class="mr-1"
+      icon="pi pi-check"
+      label="Enregistrer"
+      raised="true"
+      severity="primary"
+      type="submit"
+    ></p-button>
+    <p-button (click)="cancel()" icon="pi pi-times" label="Annuler" raised="true" severity="danger"
+              type="button"></p-button>
+  </div>
+</form>

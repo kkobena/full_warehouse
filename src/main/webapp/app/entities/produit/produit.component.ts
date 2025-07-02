@@ -52,6 +52,7 @@ import { IFamilleProduit } from '../../shared/model/famille-produit.model';
 import { IRayon } from '../../shared/model/rayon.model';
 import { ButtonGroup } from 'primeng/buttongroup';
 import { ListPrixReferenceComponent } from '../prix-reference/list-prix-reference/list-prix-reference.component';
+import {DatePeremptionFormComponent} from "./date-peremption-form/date-peremption-form.component";
 
 export type ExpandMode = 'single' | 'multiple';
 
@@ -131,8 +132,6 @@ export type ExpandMode = 'single' | 'multiple';
 })
 export class ProduitComponent implements OnInit {
   protected selectedFamille: number = null;
-  protected faCut = faCut;
-  protected faPlusCircle = faPlusCircle;
   protected produits!: IProduit[];
   protected selectedCriteria = 0;
   protected selectedRayon = 0;
@@ -406,7 +405,6 @@ export class ProduitComponent implements OnInit {
     const isChecked = e.checked;
     if (four) {
       this.produitService.updateDefaultFournisseur(four.id, isChecked).subscribe({
-        next: () => {},
         error: error => this.onActionError(four, error),
       });
     }
@@ -615,4 +613,24 @@ export class ProduitComponent implements OnInit {
       }
     }).subscribe();
   }
+
+  protected addPeremptionDate(produit: IProduit): void {
+    const modalRef = this.modalService.open(DatePeremptionFormComponent, {
+     // size: 'lg',
+      size: '40%',
+      scrollable: true,
+      backdrop: 'static',
+      centered: true,
+    });
+    modalRef.componentInstance.produit = produit;
+    modalRef.result.then(
+      () => {
+        this.loadPage();
+      },
+      () => {
+        this.loadPage();
+      },
+    );
+  }
+
 }

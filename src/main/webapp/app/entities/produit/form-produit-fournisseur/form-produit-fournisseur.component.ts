@@ -43,21 +43,14 @@ import {ToggleSwitch} from 'primeng/toggleswitch';
   ],
 })
 export class FormProduitFournisseurComponent implements OnInit {
-  protected fb = inject(UntypedFormBuilder);
-  private ref = inject(DynamicDialogRef);
-  private config = inject(DynamicDialogConfig);
-  private readonly produitService = inject(ProduitService);
-  private readonly  errorService = inject(ErrorService);
-  private readonly fournisseurService = inject(FournisseurService);
-  private readonly messageService = inject(MessageService);
-
   produit?: IProduit;
   entity?: IFournisseurProduit;
-  isSaving = false;
-  isValid = true;
-  fournisseurSelectedId!: number;
-  fournisseurs: IFournisseur[] = [];
-  editForm = this.fb.group({
+  protected fb = inject(UntypedFormBuilder);
+  protected isSaving = false;
+  protected isValid = true;
+  protected fournisseurSelectedId!: number;
+  protected fournisseurs: IFournisseur[] = [];
+  protected editForm = this.fb.group({
     id: [],
     prixUni: [null, [Validators.required, Validators.min(1)]],
     prixAchat: [null, [Validators.required, Validators.min(1)]],
@@ -65,6 +58,12 @@ export class FormProduitFournisseurComponent implements OnInit {
     fournisseurId: [null, [Validators.required]],
     principal: [null, [Validators.required]],
   });
+  private ref = inject(DynamicDialogRef);
+  private readonly config = inject(DynamicDialogConfig);
+  private readonly produitService = inject(ProduitService);
+  private readonly errorService = inject(ErrorService);
+  private readonly fournisseurService = inject(FournisseurService);
+  private readonly messageService = inject(MessageService);
 
   save(): void {
     this.isSaving = true;

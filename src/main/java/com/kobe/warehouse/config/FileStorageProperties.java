@@ -14,11 +14,18 @@ public class FileStorageProperties {
     @Value("${file.images}")
     private String imagesDir;
 
+    @Value("${file.pharmaml}")
+    private String pharmamlDir;
+
     public String getReportsDir() {
         return reportsDir;
     }
 
     public String getImagesDir() {
         return imagesDir;
+    }
+
+    public String getPharmamlDir() {
+        return pharmamlDir;
     }
 }

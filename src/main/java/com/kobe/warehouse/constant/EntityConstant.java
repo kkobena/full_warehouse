@@ -44,4 +44,7 @@ public final class EntityConstant {
     public static final String APP_POS_PRINTER_WIDTH = "APP_POS_PRINTER_WIDTH";
     public static final String APP_POS_PRINTER_MARGIN = "APP_POS_PRINTER_MARGIN";
     public static final String APP_POS_PRINTER_ITEM_COUNT_PER_PAGE = "APP_POS_PRINTER_ITEM_COUNT_PER_PAGE";
+    public static final String USER_MAGASIN = "USER_MAGASIN";
+    public static final String APP_NOMBRE_JOUR_AVANT_PEREMPTION = "APP_NOMBRE_JOUR_AVANT_PEREMPTION"; // nombre de jour avant la date de peremption pour la vente d'un produit,
+    public static final String APP_NOMBRE_JOUR_AVANT_PEREMPTION_ALERT = "APP_NOMBRE_JOUR_AVANT_PEREMPTION_ALERT"; // nombre de jour avant la date de peremption pour l'alerte d'un produit,
 }

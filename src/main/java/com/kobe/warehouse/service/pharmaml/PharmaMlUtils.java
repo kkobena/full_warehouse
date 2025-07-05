@@ -1,5 +1,6 @@
 package com.kobe.warehouse.service.pharmaml;
 
+import com.kobe.warehouse.service.pharmaml.dto.PharmaMLItemDTO;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
@@ -63,19 +64,29 @@ public class PharmaMlUtils {
     public static final String TYPE_CODIFICATION_CIP = "C1";
     public static final String TYPE_CODIFICATION_EAN13 = "C2";
     public static final String TYPE_CODIFICATION_LIBELLE_PRODUIT = "C3";
-    public static int NOMBRE_LIGNE_CODE = 0;
-    public static int NOMBRE_LIGNE_CLAIRE = 0;
     public static final String TYPE_TRAVAIL_INFOS_PRODUITS = "Q";
     public static final String RECEPTION_PRODUIT = "K";
-    /** les codes retour commande */
-    public static final int PRODUIT_INCONNU = 1;
+    /**
+     * les codes retour commande
+     */
+    public static final String NATURE_ACTION_RE = "RE";
+    public static final String VERSION_PROTOCLE_LIBELLE = "Version_Protocole";
+    public static final String VERSION_PROTOCLE_VALUE = "1.0.0.0";
+    public static final String ID_LOGICIEL_LIBELLE = "Id_Logiciel";
+    public static final String ID_LOGICIEL_VALUE = "Prestige";
+    public static final String VERSION_LOGICIEL_LIBELLE = "Id_Logiciel";
+    public static final String VERSION_LOGICIEL_VALUE = "2.0.0";
 
-    public static final int PRODUIT_PAS_EN_STOCK = 2;
-    public static final int PRODUIT_NE_SE_FAIT_PLUS = 3;
-    public static final int PRODUIT_MANQUE_FABRIQUANT = 4;
-    public static final int PRODUIT_MANQUE_RAYON = 5;
-    public static final int PRODUIT_RETIRE = 6;
-    public static final int PRODUIT_NON_AUTORISE = 7;
+    public static final String NATURE_PARTENAIRE_VALUE_OF = "OF";
+    public static final String NATURE_PARTENAIRE_VALUE_RE = "RE";
+    public static final String TYPE_CODIFICATION_CIP39 = "CIP39";
+    public static final String CODE_VALUE = "00";
+    public static final String ID_LIBELLE = "Id";
+    public static final String NATURE_ACTION_REQ_EMISSION = "REQ_EMISSION";
+    public static final String TYPE_CODIFICATION_EAN = "EAN13";
+    public static final String USAGE_VALUE = "P";
+    public static int NOMBRE_LIGNE_CODE = 0;
+    public static int NOMBRE_LIGNE_CLAIRE = 0;
 
     public static String buildRepartiteurLine(String idRepartiteur) {
         return R + idRepartiteur;

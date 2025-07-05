@@ -18,6 +18,8 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
+import org.hibernate.annotations.JdbcTypeCode;
+import org.hibernate.type.SqlTypes;
 
 /**
  * A SalesLine.
@@ -137,6 +139,10 @@ public class SalesLine implements Serializable, Cloneable {
     @OneToMany(mappedBy = "saleLine", cascade = { CascadeType.PERSIST, CascadeType.REMOVE })
     private List<TiersPayantPrix> prixAssurances = new ArrayList<>();
 
+    @JdbcTypeCode(SqlTypes.JSON)
+    @Column(columnDefinition = "json", name = "lots")
+    private List<LotSold> lots = new ArrayList<>();
+
     public Long getId() {
         return id;
     }
@@ -212,6 +218,18 @@ public class SalesLine implements Serializable, Cloneable {
 
     public void setDiscountUnitPrice(Integer discountUnitPrice) {
         this.discountUnitPrice = discountUnitPrice;
+    }
+
+    public List<LotSold> getLots() {
+        if (lots == null) {
+            lots = new ArrayList<>();
+        }
+        return lots;
+    }
+
+    public SalesLine setLots(List<LotSold> lots) {
+        this.lots = lots;
+        return this;
     }
 
     public @NotNull Integer getNetUnitPrice() {

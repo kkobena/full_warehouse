@@ -4,10 +4,8 @@ import com.kobe.warehouse.domain.Lot;
 import com.kobe.warehouse.domain.OrderLine;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
-import org.springframework.util.CollectionUtils;
 
 public class LotDTO {
 
@@ -42,9 +40,6 @@ public class LotDTO {
         createdDate = lot.getCreatedDate();
         manufacturingDate = lot.getManufacturingDate();
         expiryDate = lot.getExpiryDate();
-        lotSolds = !CollectionUtils.isEmpty(lot.getLotSolds())
-            ? lot.getLotSolds().stream().map(LotSoldDTO::new).toList()
-            : Collections.emptyList();
     }
 
     public LotDTO() {}

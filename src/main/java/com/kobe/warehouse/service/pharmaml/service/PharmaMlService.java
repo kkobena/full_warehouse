@@ -1,9 +1,11 @@
-package com.kobe.warehouse.service.pharmaml;
+package com.kobe.warehouse.service.pharmaml.service;
 
 import com.kobe.warehouse.service.dto.VerificationResponseCommandeDTO;
+import com.kobe.warehouse.service.pharmaml.dto.EnvoiParamsDTO;
+import com.kobe.warehouse.service.pharmaml.dto.PharmamlCommandeResponse;
 
 public interface PharmaMlService {
-    void envoiPharmaCommande(EnvoiParamsDTO envoiParamsDTO);
+    PharmamlCommandeResponse envoiPharmaCommande(EnvoiParamsDTO envoiParamsDTO);
 
     void envoiPharmaInfosProduit(String commandeId);
 

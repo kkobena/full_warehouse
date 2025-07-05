@@ -1,5 +1,6 @@
-package com.kobe.warehouse.service.pharmaml;
+package com.kobe.warehouse.service.pharmaml.dto;
 
+import com.kobe.warehouse.service.pharmaml.dto.enumeration.TypeCommande;
 import java.time.LocalDate;
 
 public class EnvoiParamsDTO {
@@ -7,8 +8,7 @@ public class EnvoiParamsDTO {
     private Long grossisteId;
     private Long commandeId;
     private LocalDate dateLivraisonSouhaitee;
-    private int typeCommande;
-    private String typeCommandeExecptionel;
+    private TypeCommande typeCommande;
     private String commentaire;
     private Long ruptureId;
 
@@ -30,21 +30,12 @@ public class EnvoiParamsDTO {
         return this;
     }
 
-    public int getTypeCommande() {
+    public TypeCommande getTypeCommande() {
         return typeCommande;
     }
 
-    public EnvoiParamsDTO setTypeCommande(int typeCommande) {
+    public EnvoiParamsDTO setTypeCommande(TypeCommande typeCommande) {
         this.typeCommande = typeCommande;
-        return this;
-    }
-
-    public String getTypeCommandeExecptionel() {
-        return typeCommandeExecptionel;
-    }
-
-    public EnvoiParamsDTO setTypeCommandeExecptionel(String typeCommandeExecptionel) {
-        this.typeCommandeExecptionel = typeCommandeExecptionel;
         return this;
     }
 

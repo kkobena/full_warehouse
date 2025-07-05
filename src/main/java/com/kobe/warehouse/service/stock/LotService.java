@@ -1,15 +1,11 @@
 package com.kobe.warehouse.service.stock;
 
-import com.kobe.warehouse.domain.OrderLine;
+import com.kobe.warehouse.domain.Lot;
+import com.kobe.warehouse.domain.LotSold;
 import com.kobe.warehouse.service.dto.LotDTO;
-import com.kobe.warehouse.service.dto.LotJsonValue;
-import java.util.Set;
+import java.util.List;
 
 public interface LotService {
-    void addLot(LotJsonValue lotJsonValue, OrderLine orderLine, String receiptRefernce);
-
-    LotJsonValue addLot(LotJsonValue lot);
-
     LotDTO addLot(LotDTO lot);
 
     LotDTO editLot(LotDTO lot);
@@ -18,5 +14,9 @@ public interface LotService {
 
     void remove(Long lotId);
 
-    void addLot(Set<LotJsonValue> lots, OrderLine orderLine);
+    List<Lot> findByProduitId(Long produitId);
+
+    List<Lot> findProduitLots(Long produitId);
+
+    void updateLots(List<LotSold> lots);
 }

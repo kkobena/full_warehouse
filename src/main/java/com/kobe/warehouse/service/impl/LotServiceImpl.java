@@ -1,14 +1,14 @@
 package com.kobe.warehouse.service.impl;
 
-import com.kobe.warehouse.domain.*;
+import com.kobe.warehouse.domain.Lot;
+import com.kobe.warehouse.domain.LotSold;
 import com.kobe.warehouse.repository.LotRepository;
-import com.kobe.warehouse.service.OrderLineService;
+import com.kobe.warehouse.service.AppConfigurationService;
 import com.kobe.warehouse.service.dto.LotDTO;
-import com.kobe.warehouse.service.dto.LotJsonValue;
 import com.kobe.warehouse.service.stock.LotService;
-import java.time.LocalDateTime;
+import java.time.LocalDate;
+import java.util.List;
 import java.util.Optional;
-import java.util.Set;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
@@ -18,32 +18,12 @@ import org.springframework.util.CollectionUtils;
 public class LotServiceImpl implements LotService {
 
     private final LotRepository lotRepository;
-    private final OrderLineService orderLineService;
+    private final AppConfigurationService appConfigurationService;
 
-    public LotServiceImpl(LotRepository lotRepository, OrderLineService orderLineService) {
+    public LotServiceImpl(LotRepository lotRepository, AppConfigurationService appConfigurationService) {
         this.lotRepository = lotRepository;
-        this.orderLineService = orderLineService;
-    }
 
-    @Override
-    public void addLot(LotJsonValue lotJsonValue, OrderLine orderLine, String receiptRefernce) {
-        Lot lot = new Lot();
-        lot.setNumLot(lotJsonValue.getNumLot());
-        lot.setCreatedDate(LocalDateTime.now());
-        lot.setExpiryDate(lotJsonValue.getExpiryDate());
-        lot.setManufacturingDate(lotJsonValue.getManufacturingDate());
-        lot.setQuantity(lotJsonValue.getQuantity() + lotJsonValue.getFreeQuantity());
-        lot.setFreeQty(lotJsonValue.getFreeQuantity());
-        lotRepository.save(lot);
-    }
-
-    @Override
-    public LotJsonValue addLot(LotJsonValue lot) {
-        OrderLine orderLine = orderLineService.findOneById(lot.getLinkedId()).orElseThrow();
-        // orderLine.getLots().add(lot);
-        orderLine.setUpdatedAt(LocalDateTime.now());
-        orderLineService.save(orderLine);
-        return lot;
+        this.appConfigurationService = appConfigurationService;
     }
 
     @Override
@@ -73,17 +53,27 @@ public class LotServiceImpl implements LotService {
     }
 
     @Override
-    public void addLot(Set<LotJsonValue> lots, OrderLine orderLine) {
+    @Transactional(readOnly = true)
+    public List<Lot> findByProduitId(Long produitId) {
+        return this.lotRepository.findByProduitId(
+                produitId,
+                LocalDate.now().minusDays(this.appConfigurationService.getNombreJourPeremption())
+            );
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public List<Lot> findProduitLots(Long produitId) {
+        return this.lotRepository.findByProduitId(produitId);
+    }
+
+    @Override
+    public void updateLots(List<LotSold> lots) {
         if (!CollectionUtils.isEmpty(lots)) {
-            lots.forEach(l -> {
-                Lot lot = new Lot();
-                lot.setNumLot(l.getNumLot());
-                lot.setCreatedDate(LocalDateTime.now());
-                lot.setExpiryDate(l.getExpiryDate());
-                lot.setManufacturingDate(l.getManufacturingDate());
-                lot.setQuantity(l.getQuantity() + l.getFreeQuantity());
-                lot.setFreeQty(l.getFreeQuantity());
-                lotRepository.save(lot);
+            lots.forEach(lot -> {
+                Lot entity = this.lotRepository.getReferenceById(lot.id());
+                entity.setQuantity(entity.getQuantity() - lot.quantity());
+                this.lotRepository.save(entity);
             });
         }
     }

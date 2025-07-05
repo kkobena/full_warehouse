@@ -1,13 +1,13 @@
-package com.kobe.warehouse.service.pharmaml;
+package com.kobe.warehouse.service.pharmaml.dto;
 
 import java.io.Serializable;
 
 public class PharmaMLItemDTO implements Serializable {
 
     private static final long serialVersionUID = 1L;
-    private String cip, ean, libelle;
     boolean livraisonPartielle, reliquats, livraisonEquivalente, livre = true;
     int quantite, prixUn, prixAchat, amount;
+    private String cip, ean, libelle;
     private String typeCodification;
     private int codeRetour;
 

@@ -8,6 +8,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
+import java.util.Objects;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -23,11 +24,13 @@ public class FileStorageService {
     private final Logger LOG = LoggerFactory.getLogger(FileStorageService.class);
     private final Path fileStorageLocation;
     private final Path fileImageStorageLocation;
+    private final Path filePharmamlStorageLocation;
 
     @Autowired
     public FileStorageService(FileStorageProperties fileStorageProperties) {
         this.fileStorageLocation = Paths.get(fileStorageProperties.getReportsDir()).toAbsolutePath().normalize();
         this.fileImageStorageLocation = Paths.get(fileStorageProperties.getImagesDir()).toAbsolutePath().normalize();
+        this.filePharmamlStorageLocation = Paths.get(fileStorageProperties.getPharmamlDir()).toAbsolutePath().normalize();
 
         try {
             Files.createDirectories(this.fileStorageLocation);
@@ -39,10 +42,15 @@ public class FileStorageService {
         } catch (IOException ex) {
             LOG.debug("Imposile de créer le repertoire ", ex);
         }
+        try {
+            Files.createDirectories(this.filePharmamlStorageLocation);
+        } catch (IOException ex) {
+            LOG.debug("Imposile de créer le repertoire ", ex);
+        }
     }
 
     public String storeFile(MultipartFile file) throws FileNotFoundException {
-        String fileName = StringUtils.cleanPath(file.getOriginalFilename());
+        String fileName = StringUtils.cleanPath(Objects.requireNonNull(file.getOriginalFilename()));
         try {
             // Check if the file's name contains invalid characters
             if (fileName.contains("..")) {
@@ -84,7 +92,7 @@ public class FileStorageService {
     }
 
     public String storeImage(MultipartFile file) throws FileNotFoundException {
-        String fileName = StringUtils.cleanPath(file.getOriginalFilename());
+        String fileName = StringUtils.cleanPath(Objects.requireNonNull(file.getOriginalFilename()));
         try {
             // Check if the file's name contains invalid characters
             if (fileName.contains("..")) {
@@ -99,5 +107,17 @@ public class FileStorageService {
         } catch (IOException ex) {
             throw new FileNotFoundException("Could not store file " + fileName + ". Please try again!");
         }
+    }
+
+    public Path getFileStorageLocation() {
+        return fileStorageLocation;
+    }
+
+    public Path getFileImageStorageLocation() {
+        return fileImageStorageLocation;
+    }
+
+    public Path getFilePharmamlStorageLocation() {
+        return filePharmamlStorageLocation;
     }
 }

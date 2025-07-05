@@ -160,4 +160,9 @@ public class FournisseurServiceImpl implements FournisseurService {
         }
         return new ResponseDTO().size(count.get());
     }
+
+    @Override
+    public Fournisseur findOneById(Long id) {
+        return this.fournisseurRepository.getReferenceById(id);
+    }
 }

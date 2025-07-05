@@ -67,6 +67,9 @@ public class GroupeFournisseur implements Serializable {
     @Column(name = "url_pharma_ml", length = 150)
     private String urlPharmaMl;
 
+    @Column(name = "id_recepteur_pharma_ml", length = 50)
+    private String idRecepteurPharmaMl; // Code de l'officine chez le grossiste dans EMETTEUR(id,Id_Client)
+
     public Long getId() {
         return id;
     }
@@ -81,6 +84,15 @@ public class GroupeFournisseur implements Serializable {
 
     public GroupeFournisseur setCodeOfficePharmaMl(String codeOfficePharmaMl) {
         this.codeOfficePharmaMl = codeOfficePharmaMl;
+        return this;
+    }
+
+    public String getIdRecepteurPharmaMl() {
+        return idRecepteurPharmaMl;
+    }
+
+    public GroupeFournisseur setIdRecepteurPharmaMl(String idRecepteurPharmaMl) {
+        this.idRecepteurPharmaMl = idRecepteurPharmaMl;
         return this;
     }
 

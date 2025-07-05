@@ -40,4 +40,6 @@ public interface FournisseurProduitRepository extends JpaRepository<FournisseurP
         nativeQuery = true
     )
     HistoriqueProduitInfo findHistoriqueProduitInfoByFournisseurIdAndProduitId(Long produitId);
+
+    List<FournisseurProduit> findByCodeCipContainingOrProduitCodeEanContaining(String codeCip, String codeEan);
 }

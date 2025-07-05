@@ -69,4 +69,6 @@ public interface OrderLineService {
     OrderLine buildOrderLine(SuggestionLine suggestionLine);
 
     void changeFournisseurProduit(OrderLine orderLine, Long fournisseurId);
+
+    void delete(OrderLine orderLine);
 }

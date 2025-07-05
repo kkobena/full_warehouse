@@ -34,7 +34,7 @@ spring:
   datasource:
     driver-class-name: com.mysql.cj.jdbc.Driver
     type: com.zaxxer.hikari.HikariDataSource
-    url: jdbc:mysql://localhost:33010/warehouse?useLegacyDatetimeCode=false&serverTimezone=${user.timezone}
+    url: jdbc:mysql://localhost:3306/warehouse?useLegacyDatetimeCode=false&serverTimezone=${user.timezone}
     #    username: warehouse
     #    password: warehouse2802
     username: warehouse
@@ -104,6 +104,8 @@ file:
     json: ./json
     csv: ./csv
     excel: ./excel
+  pharmaml: ./pharmaml
+
 
 # FNE FACTURE NORMALE ELECTRONIQUE
 
@@ -113,3 +115,5 @@ fne:
   # FNE API Key
   api-key: nSXimInFusKqICZaJ95QZvQT85FOZvHW
   pointOfSale:
+
+

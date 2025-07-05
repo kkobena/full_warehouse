@@ -115,7 +115,29 @@ public class AppConfigurationService {
             .orElse(40);
     }
 
+    @Transactional(readOnly = true)
+    @Cacheable(EntityConstant.USER_MAGASIN)
     public Magasin getMagasin() {
         return userService.getUser().getMagasin();
+    }
+
+    @Transactional(readOnly = true)
+    @Cacheable(EntityConstant.APP_NOMBRE_JOUR_AVANT_PEREMPTION_ALERT)
+    public int getNombreJourAlertPeremption() {
+        return appConfigurationRepository
+            .findById(EntityConstant.APP_NOMBRE_JOUR_AVANT_PEREMPTION_ALERT)
+            .map(AppConfiguration::getValue)
+            .map(Integer::parseInt)
+            .orElse(30);
+    }
+
+    @Transactional(readOnly = true)
+    @Cacheable(EntityConstant.APP_NOMBRE_JOUR_AVANT_PEREMPTION)
+    public int getNombreJourPeremption() {
+        return appConfigurationRepository
+            .findById(EntityConstant.APP_NOMBRE_JOUR_AVANT_PEREMPTION)
+            .map(AppConfiguration::getValue)
+            .map(Integer::parseInt)
+            .orElse(0);
     }
 }

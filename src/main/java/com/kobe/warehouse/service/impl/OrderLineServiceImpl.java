@@ -310,6 +310,11 @@ public class OrderLineServiceImpl implements OrderLineService {
             );
     }
 
+    @Override
+    public void delete(OrderLine orderLine) {
+        this.orderLineRepository.delete(orderLine);
+    }
+
     private void updateOrderLineAmount(OrderLine orderLine, FournisseurProduit fournisseurProduit) {
         orderLine.setOrderUnitPrice(fournisseurProduit.getPrixUni());
         orderLine.setOrderCostAmount(fournisseurProduit.getPrixAchat());

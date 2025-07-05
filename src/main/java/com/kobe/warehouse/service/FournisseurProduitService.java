@@ -242,4 +242,12 @@ public class FournisseurProduitService {
             }
         }
     }
+
+    public List<FournisseurProduit> findByCodeCipOrProduitcodeEan(String codeCip) {
+        return fournisseurProduitRepository.findByCodeCipContainingOrProduitCodeEanContaining(codeCip, codeCip);
+    }
+
+    public FournisseurProduit save(FournisseurProduit fournisseurProduit) {
+        return fournisseurProduitRepository.save(fournisseurProduit);
+    }
 }

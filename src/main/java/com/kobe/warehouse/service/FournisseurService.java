@@ -1,5 +1,6 @@
 package com.kobe.warehouse.service;
 
+import com.kobe.warehouse.domain.Fournisseur;
 import com.kobe.warehouse.service.dto.FournisseurDTO;
 import com.kobe.warehouse.service.dto.ResponseDTO;
 import java.io.InputStream;
@@ -43,4 +44,6 @@ public interface FournisseurService {
     void delete(Long id);
 
     ResponseDTO importation(InputStream inputStream);
+
+    Fournisseur findOneById(Long id);
 }

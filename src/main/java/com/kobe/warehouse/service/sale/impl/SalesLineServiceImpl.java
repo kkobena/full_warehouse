@@ -4,6 +4,7 @@ import com.kobe.warehouse.domain.CashSale;
 import com.kobe.warehouse.domain.FournisseurProduit;
 import com.kobe.warehouse.domain.GrilleRemise;
 import com.kobe.warehouse.domain.InventoryTransaction;
+import com.kobe.warehouse.domain.LotSold;
 import com.kobe.warehouse.domain.Produit;
 import com.kobe.warehouse.domain.Remise;
 import com.kobe.warehouse.domain.RemiseProduit;
@@ -25,6 +26,7 @@ import com.kobe.warehouse.service.dto.records.QuantitySuggestion;
 import com.kobe.warehouse.service.errors.DeconditionnementStockOut;
 import com.kobe.warehouse.service.errors.StockException;
 import com.kobe.warehouse.service.sale.SalesLineService;
+import com.kobe.warehouse.service.stock.LotService;
 import com.kobe.warehouse.service.stock.SuggestionProduitService;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -32,6 +34,7 @@ import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
+import java.util.concurrent.atomic.AtomicInteger;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.scheduling.annotation.Async;
@@ -50,6 +53,7 @@ public abstract class SalesLineServiceImpl implements SalesLineService {
     private final InventoryTransactionRepository inventoryTransactionRepository;
     private final LogsService logsService;
     private final SuggestionProduitService suggestionProduitService;
+    private final LotService lotService;
 
     public SalesLineServiceImpl(
         ProduitRepository produitRepository,
@@ -57,7 +61,7 @@ public abstract class SalesLineServiceImpl implements SalesLineService {
         StockProduitRepository stockProduitRepository,
         InventoryTransactionRepository inventoryTransactionRepository,
         LogsService logsService,
-        SuggestionProduitService suggestionProduitService
+        SuggestionProduitService suggestionProduitService, LotService lotService
     ) {
         this.produitRepository = produitRepository;
         this.salesLineRepository = salesLineRepository;
@@ -65,6 +69,7 @@ public abstract class SalesLineServiceImpl implements SalesLineService {
         this.inventoryTransactionRepository = inventoryTransactionRepository;
         this.logsService = logsService;
         this.suggestionProduitService = suggestionProduitService;
+        this.lotService = lotService;
     }
 
     protected SalesLine setCommonSaleLine(SaleLineDTO dto, Long stockageId) {
@@ -321,13 +326,38 @@ public abstract class SalesLineServiceImpl implements SalesLineService {
             salesLines.forEach(salesLine -> {
                 Produit p = salesLine.getProduit();
                 StockProduit stockProduit = stockProduitRepository.findOneByProduitIdAndStockageId(p.getId(), storageId);
+                updateSaleLineLotSold(salesLine);
                 save(salesLine, stockProduit, p);
+
                 quantitySuggestions.add(new QuantitySuggestion(salesLine.getQuantityRequested(), stockProduit, p));
             });
         }
         this.suggestionProduitService.suggerer(quantitySuggestions);
+
     }
 
+    private void updateSaleLineLotSold(SalesLine salesLine) {
+        final int quantitySold = salesLine.getQuantitySold();
+        AtomicInteger quantityToUpdate = new AtomicInteger(salesLine.getQuantitySold());
+        this.lotService.findByProduitId(salesLine.getProduit().getId()).forEach(lot -> {
+            if (quantityToUpdate.get() > 0) {
+                if (lot.getQuantity() >= quantitySold) {
+
+                    //long id, String numLot, int quantity
+                    salesLine.getLots()
+                        .add(new LotSold(lot.getId(), lot.getNumLot(), quantitySold));
+                    quantityToUpdate.addAndGet(-quantitySold);
+                } else {
+                    quantityToUpdate.addAndGet(-lot.getQuantity());
+                    salesLine.getLots()
+                        .add(new LotSold(lot.getId(), lot.getNumLot(), lot.getQuantity()));
+                }
+            }
+
+        });
+        this.lotService.updateLots(salesLine.getLots());
+
+    }
     private void save(SalesLine salesLine, StockProduit stockProduit, Produit p) {
         int quantityBefor = stockProduit.getTotalStockQuantity();
         int quantityAfter = quantityBefor - salesLine.getQuantityRequested();
@@ -423,4 +453,6 @@ public abstract class SalesLineServiceImpl implements SalesLineService {
         //    processProductDiscount(salesLine);
         salesLineRepository.save(salesLine);
     }
+
+
 }

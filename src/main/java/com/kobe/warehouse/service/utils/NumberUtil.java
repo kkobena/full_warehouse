@@ -8,6 +8,7 @@ import java.math.RoundingMode;
 import java.util.Locale;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.util.StringUtils;
 
 public final class NumberUtil {
 
@@ -58,6 +59,25 @@ public final class NumberUtil {
             return Integer.parseInt(value);
         } catch (NumberFormatException e) {
             return 0;
+        }
+    }
+
+    public static Integer doubleFromString(String doubleStringValue) {
+        if (!StringUtils.hasLength(doubleStringValue)) {
+            return null;
+        }
+
+        return (int) Double.parseDouble(doubleStringValue);
+    }
+
+    public static Integer intFromString(String intStringValue) {
+        if (!StringUtils.hasLength(intStringValue)) {
+            return null;
+        }
+        try {
+            return Integer.valueOf(intStringValue);
+        } catch (Exception e) {
+            return doubleFromString(intStringValue);
         }
     }
 

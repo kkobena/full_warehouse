@@ -1,14 +1,13 @@
 package com.kobe.warehouse.service.sale.impl;
 
-import com.kobe.warehouse.domain.Produit;
 import com.kobe.warehouse.domain.SalesLine;
-import com.kobe.warehouse.domain.Tva;
 import com.kobe.warehouse.repository.InventoryTransactionRepository;
 import com.kobe.warehouse.repository.ProduitRepository;
 import com.kobe.warehouse.repository.SalesLineRepository;
 import com.kobe.warehouse.repository.StockProduitRepository;
 import com.kobe.warehouse.service.LogsService;
 import com.kobe.warehouse.service.dto.SaleLineDTO;
+import com.kobe.warehouse.service.stock.LotService;
 import com.kobe.warehouse.service.stock.SuggestionProduitService;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -23,7 +22,8 @@ public class AssuranceSaleLineServiceImpl extends SalesLineServiceImpl {
         StockProduitRepository stockProduitRepository,
         InventoryTransactionRepository inventoryTransactionRepository,
         LogsService logsService,
-        SuggestionProduitService suggestionProduitService
+        SuggestionProduitService suggestionProduitService,
+        LotService lotService
     ) {
         super(
             produitRepository,
@@ -31,7 +31,8 @@ public class AssuranceSaleLineServiceImpl extends SalesLineServiceImpl {
             stockProduitRepository,
             inventoryTransactionRepository,
             logsService,
-            suggestionProduitService
+            suggestionProduitService,
+            lotService
         );
     }
 

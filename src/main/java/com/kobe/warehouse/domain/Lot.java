@@ -8,7 +8,6 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.Index;
 import jakarta.persistence.ManyToOne;
-import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 import jakarta.persistence.UniqueConstraint;
 import jakarta.validation.constraints.NotNull;
@@ -16,8 +15,6 @@ import java.io.Serial;
 import java.io.Serializable;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Objects;
 
 @Entity
@@ -58,9 +55,6 @@ public class Lot implements Serializable {
 
     @Column(name = "expiry_date")
     private LocalDate expiryDate;
-
-    @OneToMany(mappedBy = "lot")
-    private List<LotSold> lotSolds = new ArrayList<>();
 
     public int getFreeQty() {
         return freeQty;
@@ -131,15 +125,6 @@ public class Lot implements Serializable {
 
     public Lot setExpiryDate(LocalDate expiryDate) {
         this.expiryDate = expiryDate;
-        return this;
-    }
-
-    public List<LotSold> getLotSolds() {
-        return lotSolds;
-    }
-
-    public Lot setLotSolds(List<LotSold> lotSolds) {
-        this.lotSolds = lotSolds;
         return this;
     }
 

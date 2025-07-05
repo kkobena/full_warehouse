@@ -1,6 +1,5 @@
 package com.kobe.warehouse.service.dto;
 
-import com.kobe.warehouse.domain.LotSold;
 import java.time.LocalDateTime;
 
 public class LotSoldDTO {
@@ -14,13 +13,6 @@ public class LotSoldDTO {
     private Integer quantity;
 
     public LotSoldDTO() {}
-
-    public LotSoldDTO(LotSold lotSold) {
-        id = lotSold.getId();
-        createdDate = lotSold.getCreatedDate();
-        saleReference = lotSold.getSaleLine().getSales().getNumberTransaction();
-        quantity = lotSold.getQuantity();
-    }
 
     public Long getId() {
         return id;

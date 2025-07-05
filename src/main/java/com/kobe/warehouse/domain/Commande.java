@@ -23,6 +23,7 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import org.hibernate.annotations.ColumnDefault;
 import org.hibernate.annotations.Comment;
 
 /**
@@ -113,6 +114,17 @@ public class Commande implements Serializable, Cloneable {
     @ManyToOne(optional = false)
     @NotNull
     private Fournisseur fournisseur;
+
+    @ColumnDefault(value = "false")
+    private boolean hasBeenSubmittedToPharmaML;
+
+    public boolean isHasBeenSubmittedToPharmaML() {
+        return hasBeenSubmittedToPharmaML;
+    }
+
+    public void setHasBeenSubmittedToPharmaML(boolean hasBeenSubmittedToPharmaML) {
+        this.hasBeenSubmittedToPharmaML = hasBeenSubmittedToPharmaML;
+    }
 
     public Integer getFinalAmount() {
         return finalAmount;

@@ -92,7 +92,9 @@ public class SecurityConfiguration {
                         request -> request.getRequestURI().startsWith("/management/health/"),
                         request -> request.getRequestURI().equals("/management/info"),
                         request -> request.getRequestURI().equals("/api-user-account"),
-                        request -> request.getRequestURI().equals("/management/prometheus")
+                        request -> request.getRequestURI().equals("/management/prometheus"),
+                        //  request -> request.getRequestURI().equals("/"),
+                        request -> request.getRequestURI().equals("/index.html")
                     )
                     .permitAll()
                     .requestMatchers(
@@ -153,17 +155,6 @@ public class SecurityConfiguration {
         return http.build();
     }
 
-    /**
-     * Custom CSRF handler to provide BREACH protection.
-     *
-     * @see <a
-     * href="https://docs.spring.io/spring-security/reference/servlet/exploits/csrf.html#csrf-integration-javascript-spa">Spring
-     * Security Documentation - Integrating with CSRF Protection</a>
-     * @see <a href="https://github.com/jhipster/generator-jhipster/pull/25907">JHipster - use
-     * customized SpaCsrfTokenRequestHandler to handle CSRF token</a>
-     * @see <a href="https://stackoverflow.com/q/74447118/65681">CSRF protection not working with
-     * Spring Security 6</a>
-     */
     static final class SpaCsrfTokenRequestHandler implements CsrfTokenRequestHandler {
 
         private final CsrfTokenRequestHandler plain = new CsrfTokenRequestAttributeHandler();
@@ -183,21 +174,10 @@ public class SecurityConfiguration {
 
         @Override
         public String resolveCsrfTokenValue(HttpServletRequest request, CsrfToken csrfToken) {
-            /*
-             * If the request contains a request header, use CsrfTokenRequestAttributeHandler
-             * to resolve the CsrfToken. This applies when a single-page application includes
-             * the header value automatically, which was obtained via a cookie containing the
-             * raw CsrfToken.
-             */
             if (StringUtils.hasText(request.getHeader(csrfToken.getHeaderName()))) {
                 return this.plain.resolveCsrfTokenValue(request, csrfToken);
             }
-            /*
-             * In all other cases (e.g. if the request contains a request parameter), use
-             * XorCsrfTokenRequestAttributeHandler to resolve the CsrfToken. This applies
-             * when a server-side rendered form includes the _csrf request parameter as a
-             * hidden input.
-             */
+
             return this.xor.resolveCsrfTokenValue(request, csrfToken);
         }
     }

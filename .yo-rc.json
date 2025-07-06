@@ -24,7 +24,10 @@
     "entitySuffix": "",
     "jhiPrefix": "jhi",
     "jhipsterVersion": "8.9.0",
-    "languages": ["fr", "en"],
+    "languages": [
+      "fr",
+      "en"
+    ],
     "lastLiquibaseTimestamp": 1616265904000,
     "messageBroker": false,
     "nativeLanguage": "fr",
@@ -40,7 +43,7 @@
     "reactive": false,
     "rememberMeKey": "e6272562f8e92c219ee0e4fdf0820bdc06a1058f6e8ab97bc7b89d9d85558881306da57607f52c5bf545f38982946add9428",
     "searchEngine": false,
-    "serverPort": "9080",
+    "serverPort": "8080",
     "serviceDiscoveryType": false,
     "skipCheckLengthOfIdentifier": false,
     "skipClient": false,

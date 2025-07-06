@@ -1,5 +1,6 @@
-INSERT IGNORE INTO magasin (id, address, name, note, phone, registre, type_magasin)
-VALUES (1, '85 boulevard de l Europe, 69310', 'Warehouse', 'Bienvenue !', '+33652926383', '',
+INSERT IGNORE INTO magasin (id, address, full_name, name, note, phone, registre, type_magasin)
+VALUES (1, '85 boulevard de l Europe, 69310', 'Pharma Smart', 'Pharma Smart', 'Bienvenue !',
+        '+33652926383', '',
         'OFFICINE');
 
 INSERT IGNORE INTO authority (name, libelle)
@@ -140,7 +141,7 @@ VALUES (1, 'Comprimés'),
 
 INSERT IGNORE INTO `app_configuration` (`name`, `value`, `description`, `value_type`)
 VALUES ('APP_GESTION_STOCK', '0',
-        'Parametre qui permet la gestion du stock ; deux valeurs sont autorisées: 0 ==> pour un seul stockage et 1===> pour un stockage multiple',
+        'Ce paramètre détermine le mode de stockage utilisé. <br>0 : stockage unique (un seul emplacement).<br> 1 : stockage multiple (plusieurs emplacements possibles)',
         'BOOLEAN');
 INSERT IGNORE INTO `payment_mode` (`code`, `libelle`, `payment_group`, `ordre_tri`, `enable`)
 VALUES ('CASH', 'ESPECE', 'CASH', 1, true);
@@ -167,20 +168,20 @@ VALUES (3, 'SANS', 0, 'SANS EMPLACEMENT', 3);
 INSERT IGNORE INTO `app_configuration` (`name`, `value`, `description`, `value_type`)
 VALUES ('APP_QTY_MAX', '999', 'Quantité maximale à vendre ', 'NUMBER');
 INSERT
-    IGNORE
+  IGNORE
 INTO app_configuration(name, description, value, other_value, `value_type`)
 values ('APP_CASH_FUND', 'Ouverture automatique de la caisse du caissier', '0', null, 'BOOLEAN');
 INSERT
-    IGNORE
+  IGNORE
 INTO app_configuration(name, description, value, other_value, `value_type`)
 values ('APP_SANS_NUM_BON', 'Autorisation de vente sans numéro de bon', '0', null, 'BOOLEAN');
 INSERT
-    IGNORE
+  IGNORE
 INTO app_configuration(name, description, value, other_value, `value_type`)
 values ('APP_ENTREE_STOCK_SANS_EXPIRY_DATE',
         'Autorisation entrée stock sans control date péremption', '0', null, 'BOOLEAN');
 INSERT
-    IGNORE
+  IGNORE
 INTO warehouse_sequence(`name`, `increment`, `seq_value`)
 VALUES ('ENTREE_STOCK', 1, 1);
 
@@ -189,7 +190,7 @@ values ('APP_DAY_STOCK',
         'Nombre de jours par stock', '10', null, 'NUMBER');
 INSERT IGNORE INTO app_configuration(name, description, value, other_value, `value_type`)
 values ('APP_LAST_DAY_REAPPRO',
-        'Dernière date de mise à jour des seuils de réappro', null, null, 'DATE');
+        'Dernière date de mise à jour des seuils de réappro', '2000-01-01', null, 'DATE');
 
 INSERT IGNORE INTO app_configuration(name, description, value, other_value, `value_type`)
 values ('APP_LIMIT_NBR_DAY_REAPPRO',
@@ -197,6 +198,31 @@ values ('APP_LIMIT_NBR_DAY_REAPPRO',
 INSERT IGNORE INTO app_configuration(name, description, value, other_value, `value_type`)
 values ('APP_DENOMINATEUR_REAPPRO',
         'denominateur du calcul de réappro', '84', null, 'NUMBER');
+INSERT IGNORE INTO app_configuration(name, description, value, other_value, `value_type`)
+values ('APP_GESTION_LOT',
+        'Votre pharmacie gère les lots', '0', null, 'BOOLEAN');
+INSERT IGNORE INTO app_configuration(name, description, value, other_value, `value_type`)
+values ('APP_RESET_INVOICE_NUMBER',
+        'Votre pharmacie préfixe les numéro de facture par l\' année en cours', '0', null,
+        'BOOLEAN');
+
+INSERT IGNORE INTO app_configuration(name, description, value, other_value, `value_type`)
+values ('APP_SUGGESTION_RETENTION',
+        'Nombre de jours de conservation des suggestions dans votre pharamcie', '90', null,
+        'NUMBER');
+
+INSERT IGNORE INTO app_configuration(name, description, value, other_value, `value_type`)
+values ('APP_NOMBRE_JOUR_AVANT_PEREMPTION',
+        'Nombre de jours restants avant la date de péremption d\'un produit pour sa mise en vente',
+        '90', null,
+        'NUMBER');
+
+INSERT IGNORE INTO app_configuration(name, description, value, other_value, `value_type`)
+values ('APP_EXPIRY_ALERT_DAYS_BEFORE',
+        'Seuil de déclenchement d’alerte avant la date de péremption',
+        '30,7', null,
+        'LIST');
+
 INSERT IGNORE INTO authority (name, libelle)
 VALUES ('ROLE_VENDEUR', 'Vendeur');
 INSERT IGNORE INTO authority (name, libelle)
@@ -242,18 +268,18 @@ INSERT IGNORE INTO tableau(code, valeur)
 VALUES ('C', 0);
 
 INSERT IGNORE INTO user_authority
-(user_id, authority_name)
+  (user_id, authority_name)
 VALUES (3, 'ROLE_CAISSIER');
 INSERT IGNORE INTO user_authority
-(user_id, authority_name)
+  (user_id, authority_name)
 VALUES (3, 'ROLE_RESPONSABLE_COMMANDE');
 INSERT IGNORE INTO user_authority
-(user_id, authority_name)
+  (user_id, authority_name)
 VALUES (3, 'ROLE_USER');
 
 INSERT IGNORE INTO user_authority
-(user_id, authority_name)
+  (user_id, authority_name)
 VALUES (3, 'ROLE_VENDEUR');
 INSERT IGNORE INTO user_authority
-(user_id, authority_name)
+  (user_id, authority_name)
 VALUES (3, 'ROLE_ADMIN');

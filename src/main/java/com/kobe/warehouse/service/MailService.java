@@ -7,7 +7,6 @@ import java.nio.charset.StandardCharsets;
 import java.util.Locale;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.context.MessageSource;
 import org.springframework.mail.MailException;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.MimeMessageHelper;
@@ -30,12 +29,7 @@ public class MailService {
     private final SpringTemplateEngine templateEngine;
     private final MailProperties mailProperties;
 
-    public MailService(
-        JavaMailSender javaMailSender,
-        MessageSource messageSource,
-        SpringTemplateEngine templateEngine,
-        MailProperties mailProperties
-    ) {
+    public MailService(JavaMailSender javaMailSender, SpringTemplateEngine templateEngine, MailProperties mailProperties) {
         this.javaMailSender = javaMailSender;
         this.templateEngine = templateEngine;
         this.mailProperties = mailProperties;

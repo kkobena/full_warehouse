@@ -42,6 +42,20 @@ public class AppConfigurationService {
         return appConfigurationRepository.findById(EntityConstant.APP_GESTION_STOCK);
     }
 
+    @Transactional(readOnly = true)
+    @Cacheable(EntityConstant.APP_GESTION_LOT)
+    public Optional<Boolean> useLot() {
+        return appConfigurationRepository
+            .findById(EntityConstant.APP_GESTION_LOT)
+            .map(configuration -> {
+                try {
+                    return Integer.parseInt(configuration.getValue().trim()) == 1;
+                } catch (NumberFormatException e) {
+                    return false;
+                }
+            });
+    }
+
     @Transactional
     public void update(AppConfiguration appConfiguration) {
         appConfigurationRepository
@@ -122,10 +136,10 @@ public class AppConfigurationService {
     }
 
     @Transactional(readOnly = true)
-    @Cacheable(EntityConstant.APP_NOMBRE_JOUR_AVANT_PEREMPTION_ALERT)
+    @Cacheable(EntityConstant.APP_EXPIRY_ALERT_DAYS_BEFORE)
     public int getNombreJourAlertPeremption() {
         return appConfigurationRepository
-            .findById(EntityConstant.APP_NOMBRE_JOUR_AVANT_PEREMPTION_ALERT)
+            .findById(EntityConstant.APP_EXPIRY_ALERT_DAYS_BEFORE)
             .map(AppConfiguration::getValue)
             .map(Integer::parseInt)
             .orElse(30);
@@ -138,6 +152,6 @@ public class AppConfigurationService {
             .findById(EntityConstant.APP_NOMBRE_JOUR_AVANT_PEREMPTION)
             .map(AppConfiguration::getValue)
             .map(Integer::parseInt)
-            .orElse(0);
+            .orElse(7);
     }
 }

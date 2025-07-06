@@ -1,5 +1,5 @@
 {
-  "name": "PharmaSmart",
+  "name": "warehouse",
   "version": "0.0.1-SNAPSHOT",
   "private": true,
   "description": "Description for Warehouse",
@@ -65,7 +65,7 @@
     "webapp:test": "npm run test --"
   },
   "config": {
-    "backend_port": "9080",
+    "backend_port": "8080",
     "default_environment": "prod",
     "packaging": "jar"
   },

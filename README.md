@@ -361,7 +361,7 @@ WHERE s.lg_EMPLACEMENT_ID='1' AND f.str_STATUT='enable' AND f.bool_DECONDITIONNE
 npm install libphonenumber-js --save
 
 CREATE USER warehouse IDENTIFIED BY 'warehouse2802';
-GRANT ALL privileges ON `warehouse2802`.* TO `warehouse`;
+GRANT ALL privileges ON `warehouse`.* TO `warehouse`;
 ```
 
 SELECT SUM(s.sales_amount) AS montantTtc,SUM(s.discount_amount) AS montantRemise,SUM(s.ht_amount) AS

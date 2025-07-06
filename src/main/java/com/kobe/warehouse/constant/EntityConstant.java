@@ -37,14 +37,15 @@ public final class EntityConstant {
     public static final int APP_LIMIT_NBR_DAY_REAPPRO_DEFAULT_VALUE = 8;
     public static final int APP_DENOMINATEUR_REAPPRO_DEFAULT_VALUE = 84;
     public static final String CASH_CODE = "CASH";
-    public static final String APP_RESET_INVOICE_NUMBER = "APP_RESET_INVOICE_NUMBER";
+    public static final String APP_RESET_INVOICE_NUMBER = "APP_RESET_INVOICE_NUMBER"; // Reset invoice number at the beginning of each Year
     public static final String SANS_EMPLACEMENT_CODE = "SANS";
     public static final Long DEFAULT_TYPE_ETIQUETTES = 2L;
-    public static final String APP_SUGGESTION_RETENTION = "APP_SUGGESTION_RETENTION";
+    public static final String APP_SUGGESTION_RETENTION = "APP_SUGGESTION_RETENTION"; // nombre de jours de conservation des suggestions
     public static final String APP_POS_PRINTER_WIDTH = "APP_POS_PRINTER_WIDTH";
     public static final String APP_POS_PRINTER_MARGIN = "APP_POS_PRINTER_MARGIN";
     public static final String APP_POS_PRINTER_ITEM_COUNT_PER_PAGE = "APP_POS_PRINTER_ITEM_COUNT_PER_PAGE";
     public static final String USER_MAGASIN = "USER_MAGASIN";
     public static final String APP_NOMBRE_JOUR_AVANT_PEREMPTION = "APP_NOMBRE_JOUR_AVANT_PEREMPTION"; // nombre de jour avant la date de peremption pour la vente d'un produit,
-    public static final String APP_NOMBRE_JOUR_AVANT_PEREMPTION_ALERT = "APP_NOMBRE_JOUR_AVANT_PEREMPTION_ALERT"; // nombre de jour avant la date de peremption pour l'alerte d'un produit,
+    public static final String APP_EXPIRY_ALERT_DAYS_BEFORE = "APP_EXPIRY_ALERT_DAYS_BEFORE"; // nombre de jour avant la date de peremption pour l'alerte d'un produit,
+    public static final String APP_GESTION_LOT = "APP_GESTION_LOT"; // nombre de jour avant la date de peremption pour l'alerte d'un produit,
 }

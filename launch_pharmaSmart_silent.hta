@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Démarrage de PharmaSmart</title>
+  <meta charset="utf-8">
+  <hta:application
+    applicationname="PharmaSmartLauncher"
+    border="dialog"
+    scroll="no"
+    sysmenu="no"
+    singleinstance="yes"
+    showintaskbar="yes"
+    windowstate="normal"
+    maximizebutton="no"
+    minimizebutton="no"
+  />
+  <script language="VBScript">
+    Dim progressValue, WshShell, fso, currentDir, batPath, processLaunched
+
+    Sub Window_OnLoad
+      window.resizeTo 520, 320
+      progressValue = 0
+      processLaunched = False
+      Set fso = CreateObject("Scripting.FileSystemObject")
+      currentDir = fso.GetParentFolderName(window.location.pathname)
+      batPath = Chr(34) & currentDir & "\\start_up_pharma_stmart.bat" & Chr(34)
+
+      Set WshShell = CreateObject("WScript.Shell")
+      WshShell.Run batPath, 0, False
+      processLaunched = True
+
+      ProgressUpdate
+    End Sub
+
+    Sub ProgressUpdate
+      If progressValue < 100 Then
+        progressValue = progressValue + 5
+        document.all("progress").style.width = progressValue & "%"
+        document.all("label").innerText = "Chargement... " & progressValue & "%"
+        window.setTimeout "ProgressUpdate", 1000
+      Else
+        document.all("progress").style.width = "100%"
+        document.all("label").innerText = "PharmaSmart est lancé."
+        window.setTimeout "window.close", 1000
+      End If
+    End Sub
+
+    Sub CancelLaunch()
+      If processLaunched Then
+        MsgBox "Le processus PharmaSmart continue en arrière-plan." & vbCrLf & _
+               "Fermez-le manuellement si nécessaire.", 48, "Annulation"
+      End If
+      window.close
+    End Sub
+  </script>
+  <style>
+    body {
+      font-family: 'Segoe UI', Arial, sans-serif;
+      background: linear-gradient(135deg, #e3f0ff 0%, #f8fcff 100%);
+      padding: 0;
+      margin: 0;
+      width: 100%;
+      height: 100%;
+    }
+    .container {
+      background: #fff;
+      border-radius: 16px;
+      box-shadow: 0 8px 32px rgba(60,120,200,0.12), 0 1.5px 6px rgba(0,0,0,0.08);
+      max-width: 400px;
+      margin: 40px auto 0 auto;
+      padding: 32px 32px 24px 32px;
+      text-align: center;
+    }
+    .icon {
+      width: 48px;
+      height: 48px;
+      margin-bottom: 12px;
+      filter: drop-shadow(0 2px 6px #b3d1ff);
+    }
+    h3 {
+      margin: 0 0 18px 0;
+      color: #2a4d7a;
+      font-weight: 600;
+      letter-spacing: 0.5px;
+    }
+    #bar {
+      width: 100%;
+      height: 28px;
+      border-radius: 14px;
+      border: 1.5px solid #b3d1ff;
+      background: #f0f6ff;
+      margin: 18px 0 10px 0;
+      box-shadow: 0 1px 4px #e3f0ff;
+      overflow: hidden;
+    }
+    #progress {
+      height: 100%;
+      width: 0%;
+      background: linear-gradient(90deg, #4CAF50 0%, #2196F3 100%);
+      border-radius: 14px 0 0 14px;
+      transition: width 0.4s cubic-bezier(.4,2,.6,1);
+      box-shadow: 0 0 8px #b3e6b3;
+    }
+    #label {
+      font-size: 1.1em;
+      color: #2a4d7a;
+      margin-bottom: 10px;
+      letter-spacing: 0.2px;
+    }
+    button {
+      margin-top: 18px;
+      padding: 8px 28px;
+      background: linear-gradient(90deg, #2196F3 0%, #4CAF50 100%);
+      color: #fff;
+      border: none;
+      border-radius: 8px;
+      font-size: 1em;
+      font-weight: 500;
+      box-shadow: 0 2px 8px #b3d1ff;
+      cursor: pointer;
+      transition: background 0.2s;
+    }
+    button:hover {
+      background: linear-gradient(90deg, #4CAF50 0%, #2196F3 100%);
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <img class="icon" src="pill.png" alt="PharmaSmart"/>
+    <h3>Démarrage de PharmaSmart...</h3>
+    <div id="bar"><div id="progress"></div></div>
+    <p id="label">Chargement...</p>
+    <button onclick="CancelLaunch()">Annuler</button>
+  </div>
+</body>
+</html>

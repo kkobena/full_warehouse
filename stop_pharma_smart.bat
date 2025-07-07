@@ -1,20 +1,27 @@
+
 @echo off
-REM Vérifier que le fichier PID existe
-if not exist "%~dp0pharmaSmart.pid" (
-    echo Fichier pharmaSmart.pid introuvable. L'application ne semble pas être en cours d'execution.
+setlocal
+
+set "PID_FILE=%~dp0pharmaSmart.pid"
+if not exist "%PID_FILE%" (
+    echo Fichier PID introuvable.
     exit /b 1
 )
 
-REM Lire le PID depuis le fichier
-set /p PID=<"%~dp0pharmaSmart.pid"
-echo Tentative d'arret du processus avec PID %PID%
-
-REM Tuer le processus
-taskkill /PID %PID% /F
-
-if %errorlevel%==0 (
-    echo Application arretee avec succes.
-    del "%~dp0pharmaSmart.pid"
-) else (
-    echo Echec de l'arret de l'application. Verifiez si le PID est correct.
+set /p PID=<"%PID_FILE%"
+if "%PID%"=="" (
+    echo PID vide dans le fichier.
+    exit /b 1
 )
+
+REM --- Arrêter le processus ---
+taskkill /F /PID %PID%
+if %ERRORLEVEL%==0 (
+    echo Processus pharmaSmart.jar (PID %PID%) arrêté.
+    del "%PID_FILE%"
+) else (
+    echo Echec de l'arrêt du processus (PID %PID%).
+)
+
+endlocal
+exit /b

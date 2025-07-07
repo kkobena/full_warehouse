@@ -518,10 +518,7 @@
       <scope>provided</scope>
       <version>${mapstruct.version}</version>
     </dependency>
-    <!--   <dependency>
-           <artifactId>mariadb-java-client</artifactId>
-           <groupId>org.mariadb.jdbc</groupId>
-       </dependency>-->
+
     <dependency>
       <artifactId>mysql-connector-j</artifactId>
       <groupId>com.mysql</groupId>
@@ -558,7 +555,7 @@
     <artifactId>spring-boot-starter-parent</artifactId>
     <groupId>org.springframework.boot</groupId>
     <relativePath/>
-    <version>3.5.0</version>
+    <version>3.5.3</version>
     <!-- lookup parent from repository -->
   </parent>
 

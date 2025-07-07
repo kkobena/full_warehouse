@@ -106,4 +106,4 @@ fne:
   url: http://54.247.95.108/ws/external/invoices/sign
   # FNE API Key
   api-key: nSXimInFusKqICZaJ95QZvQT85FOZvHW
-  pointOfSale:
+  point-of-sale:

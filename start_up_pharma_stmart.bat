@@ -1,27 +1,31 @@
 @echo off
 REM --- Variables de connexion DB ---
-REM SET DB_USER=warehouse
-REM SET DB_PASSWORD=warehouse2802
 SET DB_HOST=localhost
 SET DB_PORT=3306
 SET DB_NAME=warehouse
 SET MAGASIN_EMAIL=badoukobena@gmail.com
+SET FNE_URL=
+SET FNE_KEY=
+SET FNE_POS=
 
 REM --- Chemin vers JRE local ---
 set "JAVA_HOME=%~dp0jre"
 
-REM --- Lancement de l'application Spring Boot en arrière-plan (détaché du terminal) ---
-start "PharmaSmart" /min "%JAVA_HOME%\bin\java.exe" ^
+REM --- Lancement de l'application Spring Boot en arrière-plan ---
+start "" /b "%JAVA_HOME%\bin\java.exe" ^
  -jar "%~dp0pharmaSmart.jar" ^
  --server.port=8080 ^
  --spring.profiles.active=prod ^
- --spring.datasource.url="jdbc:mysql://%DB_HOST%:%DB_PORT%/%DB_NAME%?useLegacyDatetimeCode=false&serverTimezone=UTC&characterEncoding=UTF-8" ^
-REM --spring.datasource.username=%DB_USER% ^
-REM --spring.datasource.password=%DB_PASSWORD% ^
---mail.email=
+ "--spring.datasource.url=jdbc:mysql://%DB_HOST%:%DB_PORT%/%DB_NAME%?useLegacyDatetimeCode=false&serverTimezone=UTC&characterEncoding=UTF-8" ^
+ --spring.flyway.enabled=true ^
+ --spring.flyway.schemas=%DB_NAME% ^
+ --mail.email="%MAGASIN_EMAIL%" ^
+ --fne.url="%FNE_URL%" ^
+ --fne.api-key="%FNE_KEY%" ^
+ --fne.point-of-sale="%FNE_POS%" ^
  >> "%~dp0pharma_smart_start_up.log" 2>&1
 
-REM --- Attendre 10 secondes pour laisser le temps au processus de démarrer ---
+REM --- Attendre 10 secondes pour laisser le temps au process de démarrer ---
 timeout /t 10 >nul
 
 REM --- Récupérer le PID du processus Java associé ---
@@ -36,9 +40,7 @@ if exist "%~dp0pharmaSmart.pid" (
 ) else (
     echo Erreur: impossible de trouver le processus Java.
 )
-
 exit /b
-
 
 REM Récupérer le PID du processus Java (le plus récent)
 REM Clique droit sur start-app.bat → Créer un raccourci

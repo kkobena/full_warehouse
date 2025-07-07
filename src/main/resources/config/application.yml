@@ -64,7 +64,7 @@ spring:
     schemas: warehouse
     community-db-support-enabled: true
     detect-encoding: true
-    baseline-description: 'initilize warehouse database'
+    baseline-description: 'initilize database'
     baseline-on-migrate: true
     table: warehouse_history
 
@@ -160,20 +160,6 @@ jhipster:
   clientApp:
     name: 'warehouseApp'
 
-  mail:
-    from: easyshopws@gmail.com
-  api-docs:
-    default-include-pattern: /api/**
-    management-include-pattern: /management/**
-    title: Warehouse API
-    description: Warehouse API documentation
-    version: 0.0.1
-    terms-of-service-url:
-    contact-name:
-    contact-url:
-    contact-email:
-    license: unlicensed
-    license-url:
   security:
     content-security-policy: "default-src 'self'; frame-src 'self' data:; script-src 'self' 'unsafe-inline' 'unsafe-eval' https://storage.googleapis.com; style-src 'self' https://fonts.googleapis.com 'unsafe-inline'; img-src 'self' data:; font-src 'self' https://fonts.gstatic.com data:"
 
@@ -181,7 +167,6 @@ jhipster:
 portCom:
 legacy-url: http://localhost:9090/laborex
 mail:
-  username: Warehouse
   email: badoukobena@gmail.com
 
 

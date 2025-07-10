@@ -386,3 +386,5 @@ WHERE p.categorie_ca IN ('CA') GROUP BY p.type_transaction ;
 SELECT SUM(d.net_amount) AS netAmount,SUM(d.tax_amount) AS taxAmount,SUM(d.receipt_amount) AS
 amountTtc
 FROM delivery_receipt d;
+-XX:+HeapDumpOnOutOfMemoryError
+-XX:HeapDumpPath=/path/to/dumps/heapdump.hprof

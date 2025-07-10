@@ -562,14 +562,15 @@
   <profiles>
 
     <profile>
-      <!--<activation>
+      <activation>
         <activeByDefault>true</activeByDefault>
-      </activation>-->
+      </activation>
       <dependencies>
         <dependency>
           <artifactId>spring-boot-devtools</artifactId>
           <groupId>org.springframework.boot</groupId>
           <optional>true</optional>
+          <scope>runtime</scope>
         </dependency>
       </dependencies>
 
@@ -593,9 +594,7 @@
     </profile>
 
     <profile>
-      <activation>
-        <activeByDefault>true</activeByDefault>
-      </activation>
+
       <build>
         <plugins>
           <plugin>
@@ -759,9 +758,9 @@
     <maven.compiler.target>${java.version}</maven.compiler.target>
     <maven.version>3.6.3</maven.version>
 
-    <node.version>v22.14.0</node.version>
+    <node.version>v24.4.0</node.version>
     <nohttp-checkstyle.version>0.0.11</nohttp-checkstyle.version>
-    <npm.version>10.9.2</npm.version>
+    <npm.version>11.0.0</npm.version>
     <profile.api-docs/>
     <profile.e2e/>
 
@@ -773,7 +772,7 @@
     <run.addResources>false</run.addResources>
     <sonar-maven-plugin.version>5.0.0.4389</sonar-maven-plugin.version>
     <spring-boot.version>${project.parent.version}</spring-boot.version>
-    <spring.profiles.active>prod</spring.profiles.active>
+    <spring.profiles.active>dev</spring.profiles.active>
     <springdoc-openapi-starter-webmvc-api.version>2.7.0
     </springdoc-openapi-starter-webmvc-api.version>
     <start-class>com.kobe.warehouse.WarehouseApp</start-class>

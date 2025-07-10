@@ -20,7 +20,7 @@ public class AfficheurPosServiceImpl implements AfficheurPosService {
     private static final Logger LOG = LoggerFactory.getLogger(AfficheurPosServiceImpl.class);
     private final StorageService storageService;
 
-    @Value("${portCom}")
+    @Value("${port-com}")
     private String portName;
 
     private SerialPort serialPort;

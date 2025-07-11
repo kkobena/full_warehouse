@@ -274,10 +274,15 @@
     <dependency>
       <artifactId>javase</artifactId>
       <groupId>com.google.zxing</groupId>
-      <version>3.5.3</version>
-    </dependency>
-    <dependency>
-      <artifactId>flyway-mysql</artifactId>
+        <version>3.5.3</version>
+      </dependency>
+    <!--  <dependency>
+        <groupId>com.alibaba</groupId>
+        <artifactId>easyexcel</artifactId>
+        <version>3.3.2</version>
+      </dependency> -->
+        <dependency>
+            <artifactId>flyway-mysql</artifactId>
       <groupId>org.flywaydb</groupId>
       <version>11.3.0</version>
     </dependency>

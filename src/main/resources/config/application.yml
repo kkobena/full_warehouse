@@ -6,11 +6,7 @@ spring:
     # Otherwise, it will be filled in by maven when building the JAR file
     # Either way, it can be overridden by `--spring.profiles.active` value passed in the commandline or `-Dspring.profiles.active` set in `JAVA_OPTS`
     active: '@spring.profiles.active@'
-    group:
-      dev:
-        - dev
-        # Uncomment to activate TLS for the dev profile
-        #- tls
+
   jmx:
     enabled: false
 
@@ -39,7 +35,7 @@ spring:
       hibernate.query.fail_on_pagination_over_collection_fetch: true
       hibernate.query.in_clause_parameter_padding: true
     hibernate:
-      ddl-auto: none
+      ddl-auto: update
       naming:
         physical-strategy: org.hibernate.boot.model.naming.CamelCaseToUnderscoresNamingStrategy
         implicit-strategy: org.springframework.boot.orm.jpa.hibernate.SpringImplicitNamingStrategy
@@ -64,7 +60,7 @@ spring:
     mode: HTML
 
   flyway:
-    enabled: true
+    enabled: false
     create-schemas: false
     driver-class-name: com.mysql.cj.jdbc.Driver
     password: warehouse2802

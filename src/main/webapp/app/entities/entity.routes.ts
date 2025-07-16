@@ -151,6 +151,11 @@ const routes: Routes = [
     data: { pageTitle: 'Gestion des différés' },
     loadChildren: () => import('./differes/differe.route'),
   },
+  {
+    path: 'gestion-peremption',
+    data: { pageTitle: 'warehouseApp.gestionPerimes.title' },
+    loadChildren: () => import('./gestion-peremption/gestion-peremtion.route'),
+  },
 ];
 
 export default routes;

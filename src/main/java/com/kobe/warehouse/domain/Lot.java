@@ -48,13 +48,22 @@ public class Lot implements Serializable {
 
     @NotNull
     @Column(name = "created_date", nullable = false)
-    private LocalDateTime createdDate = LocalDateTime.now();
+    private LocalDateTime createdDate;
+
+    @Column(name = "updated")
+    private LocalDateTime updated = LocalDateTime.now();
 
     @Column(name = "manufacturing_date")
     private LocalDate manufacturingDate;
 
     @Column(name = "expiry_date")
     private LocalDate expiryDate;
+
+    @NotNull
+    private Integer prixAchat;
+
+    @NotNull
+    private Integer prixUnit;
 
     public int getFreeQty() {
         return freeQty;
@@ -63,6 +72,14 @@ public class Lot implements Serializable {
     public Lot setFreeQty(int ugQuantityReceived) {
         this.freeQty = ugQuantityReceived;
         return this;
+    }
+
+    public LocalDateTime getUpdated() {
+        return updated;
+    }
+
+    public void setUpdated(LocalDateTime updated) {
+        this.updated = updated;
     }
 
     public Long getId() {
@@ -138,6 +155,22 @@ public class Lot implements Serializable {
         }
         Lot lot = (Lot) o;
         return id.equals(lot.id);
+    }
+
+    public Integer getPrixAchat() {
+        return prixAchat;
+    }
+
+    public void setPrixAchat(Integer prixAchat) {
+        this.prixAchat = prixAchat;
+    }
+
+    public Integer getPrixUnit() {
+        return prixUnit;
+    }
+
+    public void setPrixUnit(Integer prixUnit) {
+        this.prixUnit = prixUnit;
     }
 
     @Override

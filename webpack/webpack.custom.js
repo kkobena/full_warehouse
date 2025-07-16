@@ -23,7 +23,7 @@ module.exports = async (config, options, targetOptions) => {
     config.plugins.push(
       new WebpackNotifierPlugin({
         title: 'Warehouse',
-        contentImage: path.join(__dirname, 'logo-jhipster.png'),
+        contentImage: path.join(__dirname, 'logo.png'),
       }),
     );
   }

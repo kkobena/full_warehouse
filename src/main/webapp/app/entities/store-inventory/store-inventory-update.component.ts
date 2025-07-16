@@ -127,6 +127,7 @@ export class StoreInventoryUpdateComponent implements OnInit {
   protected activatedRoute = inject(ActivatedRoute);
   protected rayonService = inject(RayonService);
   protected modalService = inject(NgbModal);
+  protected readonly AG_GRID_LOCALE_FR = AG_GRID_LOCALE_FR;
   private storeInventoryService = inject(StoreInventoryService);
   private storageService = inject(StorageService);
   private errorService = inject(ErrorService);
@@ -460,10 +461,8 @@ export class StoreInventoryUpdateComponent implements OnInit {
   }
 
   private loadStorage(): void {
-    this.storageService.query().subscribe((res: HttpResponse<Storage[]>) => {
+    this.storageService.fetchUserStorages().subscribe((res: HttpResponse<Storage[]>) => {
       this.storages = res.body || [];
     });
   }
-
-  protected readonly AG_GRID_LOCALE_FR = AG_GRID_LOCALE_FR;
 }

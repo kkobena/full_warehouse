@@ -1,4 +1,4 @@
-import { Component, OnInit, inject, signal } from '@angular/core';
+import { Component, inject, OnInit, signal } from '@angular/core';
 import { Router, RouterModule } from '@angular/router';
 import { TranslateService } from '@ngx-translate/core';
 import { environment } from 'environments/environment';
@@ -18,6 +18,7 @@ import {
   faShoppingBag,
   faShoppingBasket,
   faStore,
+  faTimes,
   faUserTimes,
   faWarehouse,
 } from '@fortawesome/free-solid-svg-icons';
@@ -48,6 +49,7 @@ export default class NavbarComponent implements OnInit {
   protected menuStock: string[] = [];
   protected readonly faSackDollar = faSackDollar;
   protected faCoins = faCoins;
+  protected readonly faTimes = faTimes;
   private loginService = inject(LoginService);
   private translateService = inject(TranslateService);
   private stateStorageService = inject(StateStorageService);

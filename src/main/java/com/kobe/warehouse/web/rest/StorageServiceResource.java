@@ -6,6 +6,7 @@ import java.util.List;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
@@ -18,8 +19,13 @@ public class StorageServiceResource {
         this.storageService = storageService;
     }
 
-    @GetMapping("/storages")
+    @GetMapping("/storages/user-storages")
     public ResponseEntity<List<StorageDTO>> getAll() {
         return ResponseEntity.ok().body(this.storageService.fetchAllByConnectedUser());
+    }
+
+    @GetMapping("/storages")
+    public ResponseEntity<List<StorageDTO>> fetchAllByMagasin(@RequestParam(name = "magasinId", required = false) Long magasinId) {
+        return ResponseEntity.ok().body(this.storageService.fetchAllByMagasin(magasinId));
     }
 }

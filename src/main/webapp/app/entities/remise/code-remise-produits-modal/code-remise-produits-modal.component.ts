@@ -48,10 +48,7 @@ import { NgxSpinnerComponent, NgxSpinnerService } from 'ngx-spinner';
 })
 export class CodeRemiseProduitsModalComponent implements AfterViewInit {
   activeModal = inject(NgbActiveModal);
-  produitService = inject(ProduitService);
-  messageService = inject(MessageService);
-  entityService = inject(RemiseService);
-  rayonService = inject(RayonService);
+
   checkbox = viewChild<TableHeaderCheckbox>('checkbox');
   protected codeRemise: CodeRemise | null = null;
   protected selectedRayon: IRayon | null = null;
@@ -65,6 +62,10 @@ export class CodeRemiseProduitsModalComponent implements AfterViewInit {
   protected readonly itemsPerPage = ITEMS_PER_PAGE;
   protected search: string | null = null;
   private spinner = inject(NgxSpinnerService);
+  private readonly produitService = inject(ProduitService);
+  private readonly messageService = inject(MessageService);
+  private readonly entityService = inject(RemiseService);
+  private readonly rayonService = inject(RayonService);
 
   loadData(): void {
     if (this.selectedRayon || this.search) {

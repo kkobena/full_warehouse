@@ -1,5 +1,7 @@
-<ngx-spinner [fullScreen]="false" bdColor="rgba(255,255,255,0.5)" color="#f13151" size="medium" type="timer"></ngx-spinner>
-<p-confirmDialog [baseZIndex]="10000" [style]="{ width: '40vw' }" key="deleteSuggestion"> </p-confirmDialog>
+<ngx-spinner [fullScreen]="false" bdColor="rgba(255,255,255,0.5)" color="#f13151" size="medium"
+             type="timer"></ngx-spinner>
+<p-confirmDialog [baseZIndex]="10000" [style]="{ width: '40vw' }"
+                 key="deleteSuggestion"></p-confirmDialog>
 @if (suggestions && suggestions.length > 0) {
   <p-table
     (onLazyLoad)="lazyLoading($event)"
@@ -50,19 +52,21 @@
               icon="pi pi-pencil"
               [rounded]="true"
               pTooltip="Editer"
-              text
+              [text]="true"
             >
             </p-button>
-            <p-button [rounded]="true" text icon="pi pi-fast-forward" severity="info" type="button" pTooltip="Commander"></p-button>
+            <p-button [rounded]="true" [text]="true" icon="pi pi-fast-forward" severity="info"
+                      type="button" pTooltip="Commander"></p-button>
             <p-button
               (click)="sanitize(suggestion.id)"
               [rounded]="true"
               severity="warn"
               icon="pi pi-times"
               pTooltip="Supprimer les produits désactivés"
-              text
+              [text]="true"
             />
-            <p-button (click)="delete(suggestion.id)" [rounded]="true" severity="danger" icon="pi pi-trash" pTooltip="Supprimer" text />
+            <p-button (click)="delete(suggestion.id)" [rounded]="true" severity="danger"
+                      icon="pi pi-trash" pTooltip="Supprimer" [text]="true" />
           </div>
         </td>
       </tr>

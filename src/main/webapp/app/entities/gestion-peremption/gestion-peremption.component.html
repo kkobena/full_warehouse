@@ -1,0 +1,34 @@
+<div class="row produit-audit-transaction">
+  <div class="col-2 col-md-2 col-sm-2">
+    <p-card>
+      <div #nav="ngbNav" [(activeId)]="active" class="nav flex-column nav-pills" ngbNav
+           orientation="vertical">
+
+        <ng-container ngbNavItem="lot-perimes">
+          <a class="flex-sm-fill nav-link"
+             ngbNavLink>{{ 'warehouseApp.gestionPerimes.menu.produitPerimes' | translate }}
+          </a>
+          <ng-template ngbNavContent>
+            <jhi-lot-perimes></jhi-lot-perimes>
+          </ng-template>
+        </ng-container>
+        <p-divider layout="horizontal"></p-divider>
+        <ng-container ngbNavItem="lot-a-detruire">
+          <a class="flex-sm-fill nav-link"
+             ngbNavLink>{{ 'warehouseApp.gestionPerimes.menu.lotToDestroy' | translate }}</a>
+          <ng-template ngbNavContent>
+            <jhi-lot-a-detruire></jhi-lot-a-detruire>
+          </ng-template>
+        </ng-container>
+      </div>
+    </p-card>
+  </div>
+
+  <div class="col-10 col-md-10 col-sm-10 row">
+
+    <p-panel>
+      <ng-template #header></ng-template>
+      <div [ngbNavOutlet]="nav"></div>
+    </p-panel>
+  </div>
+</div>

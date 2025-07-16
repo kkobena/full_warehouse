@@ -1,18 +1,19 @@
-import { Injectable, inject } from '@angular/core';
+import { inject, Injectable } from '@angular/core';
 import { HttpClient, HttpResponse } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { SERVER_API_URL } from 'app/app.constants';
 import { ILot } from '../../../shared/model/lot.model';
 import { createRequestOptions } from '../../../shared/util/request-util';
+import { LotFilterParam, LotPerimes, LotPerimeValeurSum } from '../../gestion-peremption/model/lot-perimes';
 
 type EntityResponseType = HttpResponse<ILot>;
 type EntityArrayResponseType = HttpResponse<ILot[]>;
 
 @Injectable({ providedIn: 'root' })
 export class LotService {
-  protected http = inject(HttpClient);
+  private readonly http = inject(HttpClient);
 
-  public resourceUrl = SERVER_API_URL + 'api/lot';
+  private readonly resourceUrl = SERVER_API_URL + 'api/lot';
 
   create(lot: ILot): Observable<EntityResponseType> {
     return this.http.post<ILot>(this.resourceUrl + '/add-to-commande', lot, { observe: 'response' });
@@ -41,6 +42,22 @@ export class LotService {
   query(req?: any): Observable<EntityArrayResponseType> {
     const options = createRequestOptions(req);
     return this.http.get<ILot[]>(this.resourceUrl, {
+      params: options,
+      observe: 'response',
+    });
+  }
+
+  getSum(req?: LotFilterParam): Observable<HttpResponse<LotPerimeValeurSum>> {
+    const options = createRequestOptions(req);
+    return this.http.get<LotPerimeValeurSum>(this.resourceUrl + '/sum', {
+      params: options,
+      observe: 'response',
+    });
+  }
+
+  fetchLotPerimes(req?: LotFilterParam): Observable<HttpResponse<LotPerimes[]>> {
+    const options = createRequestOptions(req);
+    return this.http.get<LotPerimes[]>(this.resourceUrl, {
       params: options,
       observe: 'response',
     });

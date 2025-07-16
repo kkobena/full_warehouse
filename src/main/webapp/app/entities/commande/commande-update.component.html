@@ -64,8 +64,8 @@
         </ul>
       </div>
     } @else {
-      <div class="col-md-12 col-sm-12 col-lg-12 col-xl-12">
-        <p-toolbar styleClass="m-1">
+      <div class="col-md-12 col-sm-12 col-lg-12 col-xl-12 m-1">
+        <p-toolbar>
           <div [style]="{ width: '100%' }" class="d-flex justify-content-start">
             <div>
               <p-inputgroup>
@@ -92,6 +92,7 @@
 
                 <p-autoComplete
                   #produitbox
+                  [forceSelection]="true"
                   (completeMethod)="searchFn($event)"
                   (onSelect)="onSelect()"
                   [(ngModel)]="produitSelected"
@@ -105,7 +106,7 @@
                   class="form-control"
                   optionLabel="libelle"
                 >
-                  <ng-template let-item pTemplate="item">
+                  <ng-template let-item #item>
                     @if (item.totalQuantity > 0) {
                       <div [style]="{ width: '100%' }">
                         <span

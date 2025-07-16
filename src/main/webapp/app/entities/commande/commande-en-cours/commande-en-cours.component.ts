@@ -5,11 +5,9 @@ import { ITEMS_PER_PAGE } from '../../../shared/constants/pagination.constants';
 import { ConfirmationService, LazyLoadEvent } from 'primeng/api';
 import { DialogService, DynamicDialogModule, DynamicDialogRef } from 'primeng/dynamicdialog';
 import { CommandeService } from '../commande.service';
-import { ActivatedRoute, Router, RouterModule } from '@angular/router';
+import { Router, RouterModule } from '@angular/router';
 import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { ErrorService } from '../../../shared/error.service';
-import { DeliveryService } from '../delevery/delivery.service';
-import { ProduitService } from '../../produit/produit.service';
 import { NgxSpinnerModule, NgxSpinnerService } from 'ngx-spinner';
 import { HttpHeaders, HttpResponse } from '@angular/common/http';
 import { saveAs } from 'file-saver';
@@ -52,12 +50,10 @@ export class CommandeEnCoursComponent implements OnInit {
   protected commandes: ICommande[] = [];
   protected commandeSelected?: ICommande;
   protected totalItems = 0;
-  private readonly itemsPerPage = ITEMS_PER_PAGE;
   protected predicate!: string;
   protected ascending!: boolean;
   protected ngbPaginationPage = 1;
   protected index = 0;
-  private readonly rowExpandMode: ExpandMode;
   protected loading!: boolean;
   protected page = 0;
   protected selectedtypeSuggession = 'ALL';
@@ -65,6 +61,8 @@ export class CommandeEnCoursComponent implements OnInit {
   protected fileDialog = false;
   protected ref!: DynamicDialogRef;
   protected readonly REQUESTED = OrderStatut.REQUESTED;
+  private readonly itemsPerPage = ITEMS_PER_PAGE;
+  private readonly rowExpandMode: ExpandMode;
   private errorService = inject(ErrorService);
   private spinner = inject(NgxSpinnerService);
   private confirmationService = inject(ConfirmationService);
@@ -74,7 +72,6 @@ export class CommandeEnCoursComponent implements OnInit {
 
   private readonly router = inject(Router);
   private readonly modalService = inject(NgbModal);
-  private readonly deliveryService = inject(DeliveryService);
 
   constructor() {
     this.rowExpandMode = 'single';

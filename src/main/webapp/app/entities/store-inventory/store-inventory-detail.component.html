@@ -1,4 +1,5 @@
-<ngx-spinner [fullScreen]="false" bdColor="rgba(255,255,255,0.5)" color="#f13151" size="medium" type="timer"></ngx-spinner>
+<ngx-spinner [fullScreen]="false" bdColor="rgba(255,255,255,0.5)" color="#f13151" size="medium"
+             type="timer"></ngx-spinner>
 <div class="row justify-content-center">
   <div class="col-3">
     <div class="card">
@@ -11,7 +12,8 @@
           </li>
           <li class="list-group-item d-flex justify-content-between align-items-center">
             <span style="margin-right: 5px">Date</span>
-            <span class="text-primary fw-bold">{{ storeInventory?.createdAt | date: 'dd/MM/yyyy' }}</span>
+            <span
+              class="text-primary fw-bold">{{ storeInventory?.createdAt | date: 'dd/MM/yyyy' }}</span>
           </li>
           @if (storeInventory.inventoryCategory.name === 'RAYON') {
             <li class="list-group-item d-flex justify-content-between align-items-center">
@@ -22,19 +24,23 @@
 
           <li class="list-group-item d-flex justify-content-between align-items-center">
             Valeur Achat Avant
-            <span class="text-primary fw-bold">{{ storeInventory.inventoryValueCostBegin | number }}</span>
+            <span
+              class="text-primary fw-bold">{{ storeInventory.inventoryValueCostBegin | number }}</span>
           </li>
           <li class="list-group-item d-flex justify-content-between align-items-center">
             Valeur Achat Après
-            <span class="text-primary fw-bold">{{ storeInventory.inventoryValueCostAfter | number }}</span>
+            <span
+              class="text-primary fw-bold">{{ storeInventory.inventoryValueCostAfter | number }}</span>
           </li>
           <li class="list-group-item d-flex justify-content-between align-items-center">
             Valeur Vente Avent
-            <span class="text-primary fw-bold">{{ storeInventory.inventoryAmountBegin | number }}</span>
+            <span
+              class="text-primary fw-bold">{{ storeInventory.inventoryAmountBegin | number }}</span>
           </li>
           <li class="list-group-item d-flex justify-content-between align-items-center">
             Valeur Vente Après
-            <span class="text-primary fw-bold">{{ storeInventory.inventoryAmountAfter | number }}</span>
+            <span
+              class="text-primary fw-bold">{{ storeInventory.inventoryAmountAfter | number }}</span>
           </li>
           <li class="list-group-item d-flex justify-content-between align-items-center">
             Ecart Achat
@@ -74,6 +80,7 @@
             <label>Rayons</label>
             <p-autoComplete
               #rayonbox
+              [forceSelection]="true"
               (completeMethod)="searchFn($event)"
               (onClear)="onClear()"
               (onSelect)="onSelect()"
@@ -111,9 +118,11 @@
 
         <div class="row text-center" style="margin-top: 0.5rem">
           <span class="p-buttonset justify-content-center">
-            <p-button (click)="exportPdf()" icon="pi pi-file-pdf" label="Imprimer" raised="true" severity="warn" />
+            <p-button (click)="exportPdf()" icon="pi pi-file-pdf" label="Imprimer" raised="true"
+                      severity="warn" />
 
-            <p-button (click)="previousState()" icon="pi pi-arrow-left" label="Retour" raised="true" severity="secondary" />
+            <p-button (click)="previousState()" icon="pi pi-arrow-left" label="Retour" raised="true"
+                      severity="secondary" />
           </span>
         </div>
       </div>

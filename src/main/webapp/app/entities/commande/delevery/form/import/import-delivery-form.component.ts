@@ -6,7 +6,7 @@ import { MessageService } from 'primeng/api';
 import { NgxSpinnerModule, NgxSpinnerService } from 'ngx-spinner';
 import { IDelivery } from '../../../../../shared/model/delevery.model';
 import { IFournisseur } from '../../../../../shared/model/fournisseur.model';
-import moment, { Moment } from 'moment/moment';
+import moment from 'moment/moment';
 import { HttpResponse } from '@angular/common/http';
 import { FournisseurService } from '../../../../fournisseur/fournisseur.service';
 import { ICommandeResponse } from '../../../../../shared/model/commande-response.model';
@@ -25,7 +25,7 @@ import { DatePicker } from 'primeng/datepicker';
 import { PrimeNG } from 'primeng/config';
 import { TranslateService } from '@ngx-translate/core';
 import { Subscription } from 'rxjs';
-import {DATE_FORMAT} from "../../../../../shared/constants/input.constants";
+import { DATE_FORMAT } from '../../../../../shared/constants/input.constants';
 
 type UploadDeleiveryReceipt = { model: string; fournisseurId: number; deliveryReceipt: IDelivery };
 type ModelFichier = { label: string; value: string };
@@ -93,9 +93,9 @@ export class ImportDeliveryFormComponent implements OnInit {
       }),
     }),
   });
-  private messageService = inject(MessageService);
-  private fournisseurService = inject(FournisseurService);
-  private spinner = inject(NgxSpinnerService);
+  private readonly messageService = inject(MessageService);
+  private readonly fournisseurService = inject(FournisseurService);
+  private readonly spinner = inject(NgxSpinnerService);
 
   constructor() {
     this.translate.use('fr');
@@ -182,6 +182,4 @@ export class ImportDeliveryFormComponent implements OnInit {
       },
     };
   }
-
-
 }

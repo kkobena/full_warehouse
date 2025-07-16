@@ -1,9 +1,9 @@
 package com.kobe.warehouse.web.rest;
 
 import com.kobe.warehouse.domain.Magasin;
-import com.kobe.warehouse.repository.MagasinRepository;
 import com.kobe.warehouse.service.dto.MagasinDTO;
 import com.kobe.warehouse.service.errors.BadRequestAlertException;
+import com.kobe.warehouse.service.referential.magasin.MagasinService;
 import jakarta.validation.Valid;
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -13,7 +13,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.ResponseEntity;
-import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -30,18 +29,17 @@ import tech.jhipster.web.util.ResponseUtil;
  */
 @RestController
 @RequestMapping("/api")
-@Transactional
 public class MagasinResource {
 
     private static final String ENTITY_NAME = "magasin";
     private final Logger log = LoggerFactory.getLogger(MagasinResource.class);
-    private final MagasinRepository magasinRepository;
+    private final MagasinService magasinService;
 
     @Value("${jhipster.clientApp.name}")
     private String applicationName;
 
-    public MagasinResource(MagasinRepository magasinRepository) {
-        this.magasinRepository = magasinRepository;
+    public MagasinResource(MagasinService magasinService) {
+        this.magasinService = magasinService;
     }
 
     /**
@@ -58,7 +56,7 @@ public class MagasinResource {
         if (magasin.getId() != null) {
             throw new BadRequestAlertException("A new magasin cannot already have an ID", ENTITY_NAME, "idexists");
         }
-        Magasin result = magasinRepository.save(magasin);
+        Magasin result = magasinService.save(magasin);
         return ResponseEntity.created(new URI("/api/magasins/" + result.getId()))
             .headers(HeaderUtil.createEntityCreationAlert(applicationName, true, ENTITY_NAME, result.getId().toString()))
             .body(result);
@@ -78,7 +76,7 @@ public class MagasinResource {
         if (magasin.getId() == null) {
             throw new BadRequestAlertException("Invalid id", ENTITY_NAME, "idnull");
         }
-        Magasin result = magasinRepository.save(magasin);
+        Magasin result = magasinService.save(magasin);
         return ResponseEntity.ok()
             .headers(HeaderUtil.createEntityUpdateAlert(applicationName, true, ENTITY_NAME, magasin.getId().toString()))
             .body(result);
@@ -90,16 +88,11 @@ public class MagasinResource {
      * @return the {@link ResponseEntity} with status {@code 200 (OK)} and the list of magasins in
      * body.
      */
-    @GetMapping("/magasins")
-    public ResponseEntity<MagasinDTO> getAllMagasins() {
+    @GetMapping("/magasins/current-user-magasin")
+    public ResponseEntity<MagasinDTO> findOne() {
         log.debug("REST request to get all Magasins");
-        Optional<MagasinDTO> magasin;
-        List<MagasinDTO> magasins = magasinRepository.findAll().stream().map(MagasinDTO::new).toList();
-        if (!magasins.isEmpty()) {
-            magasin = Optional.of(magasins.getFirst());
-            return ResponseUtil.wrapOrNotFound(magasin);
-        }
-        return ResponseUtil.wrapOrNotFound(Optional.empty());
+
+        return ResponseUtil.wrapOrNotFound(Optional.ofNullable(magasinService.currentUserMagasin()));
     }
 
     /**
@@ -112,8 +105,8 @@ public class MagasinResource {
     @GetMapping("/magasins/{id}")
     public ResponseEntity<MagasinDTO> getMagasin(@PathVariable Long id) {
         log.debug("REST request to get Magasin : {}", id);
-        Optional<MagasinDTO> magasin = magasinRepository.findById(id).map(MagasinDTO::new);
-        return ResponseUtil.wrapOrNotFound(magasin);
+
+        return ResponseUtil.wrapOrNotFound(Optional.ofNullable(magasinService.findById(id)));
     }
 
     /**
@@ -125,9 +118,14 @@ public class MagasinResource {
     @DeleteMapping("/magasins/{id}")
     public ResponseEntity<Void> deleteMagasin(@PathVariable Long id) {
         log.debug("REST request to delete Magasin : {}", id);
-        magasinRepository.deleteById(id);
+        magasinService.delete(id);
         return ResponseEntity.noContent()
             .headers(HeaderUtil.createEntityDeletionAlert(applicationName, true, ENTITY_NAME, id.toString()))
             .build();
+    }
+
+    @GetMapping("/magasins")
+    public ResponseEntity<List<MagasinDTO>> getAllMagasins() {
+        return ResponseEntity.ok().body(magasinService.findAll());
     }
 }

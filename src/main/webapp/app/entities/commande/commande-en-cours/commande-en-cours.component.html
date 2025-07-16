@@ -63,12 +63,12 @@
               icon="pi pi-pencil"
               [rounded]="true"
               pTooltip="Editer"
-              text
+              [text]="true"
             >
             </p-button>
 
             <p-button
-              text
+              [text]="true"
               (click)="onShowFileDialog(commande)"
               [hidden]="true"
               [rounded]="true"
@@ -83,7 +83,7 @@
                        pTooltip="Envoi par Pharma-ML"></button>-->
 
             <p-button
-              text
+              [text]="true"
               (click)="exportCSV(commande)"
               icon="pi pi-file-excel"
               [rounded]="true"
@@ -91,9 +91,11 @@
               pTooltip="Exporter en CSV"
             />
 
-            <p-button text (click)="exportPdf(commande)" icon="pi pi-print" severity="secondary" [rounded]="true" pTooltip="Imprimer" />
+            <p-button [text]="true" (click)="exportPdf(commande)" icon="pi pi-print"
+                      severity="secondary" [rounded]="true" pTooltip="Imprimer" />
             @if (commande.orderStatus === REQUESTED) {
-              <p-button (click)="confirmDelete(commande)" [rounded]="true" severity="danger" icon="pi pi-trash" pTooltip="Supprimer" text />
+              <p-button (click)="confirmDelete(commande)" [rounded]="true" severity="danger"
+                        icon="pi pi-trash" pTooltip="Supprimer" [text]="true" />
             }
           </div>
         </td>
@@ -146,7 +148,10 @@
                 <td style="text-align: right">
                   {{ orderLine.quantityRequested | number }}
                 </td>
-                <td style="text-align: right">{{ orderLine.quantityRequested * orderLine.orderCostAmount | number }}</td>
+                <td style="text-align: right">{{
+                    orderLine.quantityRequested * orderLine.orderCostAmount | number
+                  }}
+                </td>
               </tr>
             </ng-template>
           </p-table>

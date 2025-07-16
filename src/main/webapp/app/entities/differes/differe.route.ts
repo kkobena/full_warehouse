@@ -26,6 +26,7 @@ export const DiffereResolve = (route: ActivatedRouteSnapshot): Observable<null |
   }
   return EMPTY;
 };
+
 const differeRoute: Routes = [
   {
     path: '',

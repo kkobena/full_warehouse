@@ -1,7 +1,8 @@
-<ngx-spinner [fullScreen]="true" bdColor="rgba(0, 0, 0, 0.8)" color="#fff" size="medium" type="timer"
-  ><p style="color: white">Traitement en cours...</p></ngx-spinner
+<ngx-spinner [fullScreen]="true" bdColor="rgba(0, 0, 0, 0.8)" color="#fff" size="medium"
+             type="timer"
+><p style="color: white">Traitement en cours...</p></ngx-spinner
 >
-<p-confirmDialog [baseZIndex]="10000" [style]="{ width: '40vw' }" key="saveAll"> </p-confirmDialog>
+<p-confirmDialog [baseZIndex]="10000" [style]="{ width: '40vw' }" key="saveAll"></p-confirmDialog>
 
 <p-toast position="center"></p-toast>
 
@@ -17,7 +18,8 @@
           </li>
           <li class="list-group-item d-flex justify-content-between align-items-center">
             <span style="margin-right: 5px">Date</span>
-            <span class="text-primary fw-bold">{{ storeInventory?.createdAt | date: 'dd/MM/yyyy' }}</span>
+            <span
+              class="text-primary fw-bold">{{ storeInventory?.createdAt | date: 'dd/MM/yyyy' }}</span>
           </li>
           @if (storeInventory.inventoryCategory.name === 'RAYON') {
             <li class="list-group-item d-flex justify-content-between align-items-center">
@@ -55,6 +57,7 @@
             <label>Rayons</label>
             <p-autoComplete
               #rayonbox
+              [forceSelection]="true"
               (completeMethod)="searchFn($event)"
               (onClear)="onClear()"
               (onSelect)="onSelect()"
@@ -93,10 +96,13 @@
 
         <div class="row" style="margin-top: 0.5rem">
           <span class="p-buttonset justify-content-center">
-            <p-button (click)="confirmClose()" icon="pi pi-lock" label="Clôtuer" raised="true" severity="success" type="button" />
-            <p-button (click)="exportPdf()" [raised]="true" icon="pi pi-file-pdf" label="Imprimer" severity="warn" type="button" />
+            <p-button (click)="confirmClose()" icon="pi pi-lock" label="Clôtuer" raised="true"
+                      severity="success" type="button" />
+            <p-button (click)="exportPdf()" [raised]="true" icon="pi pi-file-pdf" label="Imprimer"
+                      severity="warn" type="button" />
 
-            <p-button (click)="previousState()" [raised]="true" icon="pi pi-arrow-left" label="Retour" severity="secondary"></p-button>
+            <p-button (click)="previousState()" [raised]="true" icon="pi pi-arrow-left"
+                      label="Retour" severity="secondary"></p-button>
           </span>
         </div>
       </div>

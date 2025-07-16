@@ -1,21 +1,55 @@
 package com.kobe.warehouse.service.stock.dto;
 
+import com.alibaba.excel.annotation.ExcelIgnoreUnannotated;
+import com.alibaba.excel.annotation.ExcelProperty;
+
+@ExcelIgnoreUnannotated
 public class LotPerimeDTO {
 
+    private Long produitId;
+
+    private Long id;
+
+    @ExcelProperty("Numéro de lot")
     private String numLot;
 
+    @ExcelProperty("Fournisseur")
     private String founisseur;
+
+    @ExcelProperty("Nom du produit")
     private String produitName;
+
+    @ExcelProperty("Code du produit")
     private String produitCode;
+
+    @ExcelProperty("Date de péremption")
     private String datePeremption;
+
+    @ExcelProperty("Quantité")
     private int quantity;
+
+    @ExcelProperty("Prix d'achat")
     private int prixAchat;
+
+    @ExcelProperty("Prix de vente")
     private int prixVente;
+
+    @ExcelProperty("Prix total de vente")
     private int prixTotalVente;
+
+    @ExcelProperty("Prix total d'achat")
     private int prixTotaAchat;
+
+    @ExcelProperty("Statut de péremption")
     private String statutPerime;
+
+    @ExcelProperty("Nom du rayon")
     private String rayonName;
+
+    @ExcelProperty("Famille du produit")
     private String familleProduitName;
+
+    private PeremptionStatut peremptionStatut;
 
     public String getDatePeremption() {
         return datePeremption;
@@ -119,5 +153,29 @@ public class LotPerimeDTO {
 
     public void setStatutPerime(String statutPerime) {
         this.statutPerime = statutPerime;
+    }
+
+    public PeremptionStatut getPeremptionStatut() {
+        return peremptionStatut;
+    }
+
+    public void setPeremptionStatut(PeremptionStatut peremptionStatut) {
+        this.peremptionStatut = peremptionStatut;
+    }
+
+    public Long getProduitId() {
+        return produitId;
+    }
+
+    public void setProduitId(Long produitId) {
+        this.produitId = produitId;
+    }
+
+    public Long getId() {
+        return id;
+    }
+
+    public void setId(Long id) {
+        this.id = id;
     }
 }

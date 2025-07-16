@@ -4,7 +4,7 @@ import com.kobe.warehouse.domain.FournisseurProduit_;
 import com.kobe.warehouse.domain.Lot;
 import com.kobe.warehouse.domain.Lot_;
 import com.kobe.warehouse.domain.OrderLine_;
-import com.kobe.warehouse.service.stock.dto.LotPerimeValeurTotal;
+import com.kobe.warehouse.service.stock.dto.LotPerimeValeurSum;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.TypedQuery;
 import jakarta.persistence.criteria.CriteriaBuilder;
@@ -24,13 +24,13 @@ public class LotCustomRepositoryImpl implements LotCustomRepository {
     }
 
     @Override
-    public LotPerimeValeurTotal fetchPerimeSum(Specification<Lot> specification) {
+    public LotPerimeValeurSum fetchPerimeSum(Specification<Lot> specification) {
         CriteriaBuilder cb = entityManager.getCriteriaBuilder();
-        CriteriaQuery<LotPerimeValeurTotal> query = cb.createQuery(LotPerimeValeurTotal.class);
+        CriteriaQuery<LotPerimeValeurSum> query = cb.createQuery(LotPerimeValeurSum.class);
         Root<Lot> root = query.from(Lot.class);
         query.select(
             cb.construct(
-                LotPerimeValeurTotal.class,
+                LotPerimeValeurSum.class,
                 cb.sumAsLong(
                     cb.prod(
                         root.get(Lot_.quantity),
@@ -51,7 +51,7 @@ public class LotCustomRepositoryImpl implements LotCustomRepository {
         Predicate predicate = specification.toPredicate(root, query, cb);
         query.where(predicate);
 
-        TypedQuery<LotPerimeValeurTotal> typedQuery = entityManager.createQuery(query);
+        TypedQuery<LotPerimeValeurSum> typedQuery = entityManager.createQuery(query);
         return typedQuery.getSingleResult();
     }
 }

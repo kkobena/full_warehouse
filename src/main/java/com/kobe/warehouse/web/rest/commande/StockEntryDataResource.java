@@ -25,7 +25,7 @@ import tech.jhipster.web.util.ResponseUtil;
 
 @RestController
 @RequestMapping("/api")
-@Transactional
+@Transactional //TO DO : remove this annotation
 public class StockEntryDataResource {
 
     private final StockEntryDataService stockEntryDataServicetryService;

@@ -5,7 +5,7 @@ import com.kobe.warehouse.domain.LotSold;
 import com.kobe.warehouse.service.dto.LotDTO;
 import com.kobe.warehouse.service.stock.dto.LotFilterParam;
 import com.kobe.warehouse.service.stock.dto.LotPerimeDTO;
-import com.kobe.warehouse.service.stock.dto.LotPerimeValeurTotal;
+import com.kobe.warehouse.service.stock.dto.LotPerimeValeurSum;
 import java.util.List;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -27,5 +27,5 @@ public interface LotService {
 
     Page<LotPerimeDTO> findLotsPerimes(LotFilterParam lotFilterParam, Pageable pageable);
 
-    LotPerimeValeurTotal findPerimeSum(LotFilterParam lotFilterParam);
+    LotPerimeValeurSum findPerimeSum(LotFilterParam lotFilterParam);
 }

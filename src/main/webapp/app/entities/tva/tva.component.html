@@ -1,9 +1,10 @@
-<p-confirmDialog #cd [baseZIndex]="10000" [style]="{ width: '40vw' }"> </p-confirmDialog>
+<p-confirmDialog #cd [baseZIndex]="10000" [style]="{ width: '40vw' }"></p-confirmDialog>
 
 <div>
   <h2 id="page-heading">
     <span jhiTranslate="warehouseApp.tva.home.title">Liste des Tvas</span>
-    <button (click)="addNewEntity()" class="btn btn-primary float-right jh-create-entity" id="jh-create-entity">
+    <button (click)="addNewEntity()" class="btn btn-primary float-right jh-create-entity"
+            id="jh-create-entity">
       <fa-icon icon="plus"></fa-icon>
       <span> Nouvelle Tva </span>
     </button>
@@ -15,7 +16,7 @@
 
   @if (tvas?.length === 0) {
     <div class="alert alert-warning" id="no-result">
-      <span>Aucune tva trouvée</span>
+      <span>{{ 'global.messages.emptyData' | translate }}</span>
     </div>
   }
   @if (tvas && tvas.length > 0) {
@@ -78,12 +79,15 @@
             type="text"
           />
         </div>
-        @if (editForm.get('taux')!.invalid && (editForm.get('taux')!.dirty || editForm.get('taux')!.touched)) {
+        @if (editForm.get('taux')!.invalid && (editForm.get('taux')!.dirty || editForm.get(
+          'taux')!.touched)) {
           <div>
             @if (editForm.get('taux')?.errors?.required) {
-              <small class="form-text text-danger" style="color: red"> Ce champ est obligatoire. </small>
+              <small class="form-text text-danger" style="color: red"> Ce champ est
+                obligatoire. </small>
             }
-            <small [hidden]="!editForm.get('taux')?.errors?.number" class="form-text text-danger" style="color: red">
+            <small [hidden]="!editForm.get('taux')?.errors?.number" class="form-text text-danger"
+                   style="color: red">
               Ce champ doit être un nombre.
             </small>
           </div>
@@ -98,7 +102,8 @@
           severity="success"
           type="submit"
         ></p-button>
-        <p-button (click)="cancel()" class="p-mr-2" icon="pi pi-times" label="Annuler" severity="danger" type="button"></p-button>
+        <p-button (click)="cancel()" class="p-mr-2" icon="pi pi-times" label="Annuler"
+                  severity="danger" type="button"></p-button>
       </ng-template>
     </p-dialog>
   </form>

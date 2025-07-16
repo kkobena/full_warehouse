@@ -58,12 +58,12 @@ export class InventoryFormComponent implements OnInit {
   protected readonly appendTo = APPEND_TO;
   protected editForm: FormGroup;
   protected entity: IStoreInventory;
-  private fb = inject(FormBuilder);
-  private messageService = inject(MessageService);
-  private storeInventoryService = inject(StoreInventoryService);
-  private storageService = inject(StorageService);
-  private rayonService = inject(RayonService);
-  private spinner = inject(NgxSpinnerService);
+  protected fb = inject(FormBuilder);
+  private readonly messageService = inject(MessageService);
+  private readonly storeInventoryService = inject(StoreInventoryService);
+  private readonly storageService = inject(StorageService);
+  private readonly rayonService = inject(RayonService);
+  private readonly spinner = inject(NgxSpinnerService);
 
   ngOnInit(): void {
     this.initForm();
@@ -178,7 +178,7 @@ export class InventoryFormComponent implements OnInit {
   }
 
   private populate(): void {
-    this.storageService.query().subscribe((res: HttpResponse<Storage[]>) => {
+    this.storageService.fetchUserStorages().subscribe((res: HttpResponse<Storage[]>) => {
       this.storages = res.body || [];
     });
   }

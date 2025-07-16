@@ -10,17 +10,24 @@ import com.kobe.warehouse.domain.FournisseurProduit_;
 import com.kobe.warehouse.domain.Fournisseur_;
 import com.kobe.warehouse.domain.Lot;
 import com.kobe.warehouse.domain.Lot_;
+import com.kobe.warehouse.domain.Magasin_;
 import com.kobe.warehouse.domain.OrderLine;
 import com.kobe.warehouse.domain.OrderLine_;
 import com.kobe.warehouse.domain.Produit;
 import com.kobe.warehouse.domain.Produit_;
 import com.kobe.warehouse.domain.RayonProduit;
 import com.kobe.warehouse.domain.RayonProduit_;
+import com.kobe.warehouse.domain.StockProduit;
+import com.kobe.warehouse.domain.StockProduit_;
+import com.kobe.warehouse.domain.Storage_;
 import com.kobe.warehouse.domain.enumeration.Status;
 import com.kobe.warehouse.service.stock.dto.LotFilterParam;
 import jakarta.persistence.criteria.Join;
+import jakarta.persistence.criteria.JoinType;
+import jakarta.persistence.criteria.SetJoin;
 import java.time.LocalDate;
 import java.util.List;
+import java.util.Optional;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
@@ -33,6 +40,8 @@ public interface LotRepository extends JpaRepository<Lot, Long>, JpaSpecificatio
         "SELECT o FROM Lot o JOIN o.orderLine ord JOIN ord.fournisseurProduit fp WHERE fp.produit.id =:produitId AND o.expiryDate >:dateLimit  AND o.quantity > 0  ORDER BY o.expiryDate ASC"
     )
     List<Lot> findByProduitId(Long produitId, LocalDate dateLimit);
+
+    Optional<Lot> findByNumLot(String numLot);
 
     @Query(
         "SELECT o FROM Lot o JOIN o.orderLine ord JOIN ord.fournisseurProduit fp WHERE fp.produit.id =:produitId   AND o.quantity > 0  ORDER BY o.expiryDate ASC"
@@ -69,28 +78,24 @@ public interface LotRepository extends JpaRepository<Lot, Long>, JpaSpecificatio
         return (root, _, cb) -> cb.like(cb.upper(root.get(Lot_.numLot)), "%" + numLot.toLowerCase() + "%");
     }
 
-    default Specification<Lot> filterBySearhTerm(String searhTerm) {
-        if (!hasText(searhTerm)) {
+    default Specification<Lot> filterBySearchTerm(String searchTerm) {
+        if (!hasText(searchTerm)) {
             return null; // No filter if numLot is empty or null
         }
+        String search = searchTerm.trim().toUpperCase() + "%";
         return (root, _, cb) ->
             cb.or(
-                cb.like(cb.upper(root.get(Lot_.numLot)), "%" + searhTerm.toUpperCase() + "%"),
+                cb.like(cb.upper(root.get(Lot_.numLot)), search),
                 cb.like(
                     cb.upper(
                         root.get(Lot_.orderLine).get(OrderLine_.fournisseurProduit).get(FournisseurProduit_.produit).get(Produit_.libelle)
                     ),
-                    "%" + searhTerm.toUpperCase() + "%"
+                    search
                 ),
+                cb.like(root.get(Lot_.orderLine).get(OrderLine_.fournisseurProduit).get(FournisseurProduit_.codeCip), search),
                 cb.like(
-                    cb.upper(root.get(Lot_.orderLine).get(OrderLine_.fournisseurProduit).get(FournisseurProduit_.codeCip)),
-                    "%" + searhTerm.toUpperCase() + "%"
-                ),
-                cb.like(
-                    cb.upper(
-                        root.get(Lot_.orderLine).get(OrderLine_.fournisseurProduit).get(FournisseurProduit_.produit).get(Produit_.codeEan)
-                    ),
-                    "%" + searhTerm.toUpperCase() + "%"
+                    root.get(Lot_.orderLine).get(OrderLine_.fournisseurProduit).get(FournisseurProduit_.produit).get(Produit_.codeEan),
+                    search
                 )
             );
     }
@@ -158,6 +163,20 @@ public interface LotRepository extends JpaRepository<Lot, Long>, JpaSpecificatio
             );
     }
 
+    default Specification<Lot> filterByMagasinId(Long magasinId) {
+        if (isNull(magasinId)) {
+            return null; // No filter if id is null
+        }
+        return (root, query, cb) -> {
+            Join<Lot, OrderLine> orderLineJoin = root.join(Lot_.orderLine);
+            Join<OrderLine, FournisseurProduit> fournisseurProduitJoin = orderLineJoin.join(OrderLine_.fournisseurProduit);
+            Join<FournisseurProduit, Produit> produitJoin = fournisseurProduitJoin.join(FournisseurProduit_.produit);
+
+            SetJoin<Produit, StockProduit> st = produitJoin.joinSet(Produit_.STOCK_PRODUITS, JoinType.INNER);
+            return cb.equal(st.get(StockProduit_.storage).get(Storage_.magasin).get(Magasin_.id), magasinId);
+        };
+    }
+
     default Specification<Lot> buildCombinedSpecification(LotFilterParam param) {
         Specification<Lot> spec = filterProduitStatut();
         spec = add(spec, filterByStock());
@@ -165,7 +184,7 @@ public interface LotRepository extends JpaRepository<Lot, Long>, JpaSpecificatio
         spec = add(spec, filterByFournisseurId(param.getFournisseurId()));
         spec = add(spec, filterByRayonId(param.getRayonId()));
         spec = add(spec, filterByNumLot(param.getNumLot()));
-        spec = add(spec, filterBySearhTerm(param.getSearchTerm()));
+        spec = add(spec, filterBySearchTerm(param.getSearchTerm()));
         if (param.getDayCount() > 0) {
             spec = add(spec, filterByDayCount(param.getDayCount()));
         } else {
@@ -176,6 +195,7 @@ public interface LotRepository extends JpaRepository<Lot, Long>, JpaSpecificatio
             }
         }
         spec = add(spec, filterByFamilleProduitId(param.getFamilleProduitId()));
+        spec = add(spec, filterByMagasinId(param.getMagasinId()));
 
         return spec;
     }

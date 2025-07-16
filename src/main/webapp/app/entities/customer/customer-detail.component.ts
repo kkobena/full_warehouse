@@ -1,4 +1,4 @@
-import { Component, OnInit, inject } from '@angular/core';
+import { Component, inject, OnInit } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { ISales } from 'app/shared/model/sales.model';
 import { ISalesLine } from 'app/shared/model/sales-line.model';
@@ -155,11 +155,6 @@ import { WarehouseCommonModule } from '../../shared/warehouse-common/warehouse-c
   imports: [WarehouseCommonModule],
 })
 export class CustomerDetailComponent implements OnInit {
-  protected activatedRoute = inject(ActivatedRoute);
-  protected customerService = inject(CustomerService);
-  protected magasinService = inject(MagasinService);
-  protected salesService = inject(SalesService);
-
   customer: ICustomer | null = null;
   sales: ISales[] = [];
   selectedRowIndex?: number;
@@ -167,17 +162,16 @@ export class CustomerDetailComponent implements OnInit {
   saleSelected?: ISales;
   invoiceConent?: any;
   magasin?: IMagasin;
-
-  /** Inserted by Angular inject() migration for backwards compatibility */
-  constructor(...args: unknown[]);
-
-  constructor() {}
+  protected activatedRoute = inject(ActivatedRoute);
+  protected customerService = inject(CustomerService);
+  protected magasinService = inject(MagasinService);
+  protected salesService = inject(SalesService);
 
   ngOnInit(): void {
     this.activatedRoute.data.subscribe(({ customer }) => (this.customer = customer));
     this.loadSales();
     this.selectedRowIndex = 0;
-    this.magasinService.findPromise().then(magasin => {
+    this.magasinService.findCurrentUserMagasin().then(magasin => {
       this.magasin = magasin;
     });
   }

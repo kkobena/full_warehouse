@@ -34,13 +34,6 @@ public class StorageService {
         this.userRepository = userRepository;
     }
 
-    public Storage getDefaultMagasinPointOfSale() {
-        if (appConfigurationService.isMono()) {
-            return getDefaultMagasinMainStorage();
-        }
-        return storageRepository.getReferenceById(EntityConstant.POINT_of_STORAGE);
-    }
-
     public Storage getStorageByMagasinIdAndType(Long magasinId, StorageType storageType) {
         return storageRepository.findFirstByMagasinIdAndStorageType(magasinId, storageType);
     }
@@ -49,6 +42,7 @@ public class StorageService {
         return storageRepository.getReferenceById(id);
     }
 
+    @Cacheable(EntityConstant.DEFAULT_MAIN_STORAGE)
     public Storage getDefaultMagasinMainStorage() {
         return storageRepository.getReferenceById(EntityConstant.DEFAULT_STORAGE);
     }
@@ -100,6 +94,7 @@ public class StorageService {
         return this.storageRepository.findAllByMagasinId(magasinId).stream().map(StorageDTO::new).toList();
     }
 
+    @Cacheable(EntityConstant.USER_STORAGE__CACHE)
     public List<StorageDTO> fetchAllByConnectedUser() {
         return this.fetchAllByMagasin(this.getUser().getMagasin().getId());
     }

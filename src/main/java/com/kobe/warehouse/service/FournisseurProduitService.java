@@ -136,7 +136,7 @@ public class FournisseurProduitService {
     }
 
     public Optional<FournisseurProduit> findFirstByProduitIdAndFournisseurId(Long produitId, Long fournissieurId) {
-        return fournisseurProduitRepository.findFirstByProduitIdAndFournisseurId(produitId, fournissieurId);
+        return fournisseurProduitRepository.findOneByProduitIdAndFournisseurId(produitId, fournissieurId);
     }
 
     public void updateCip(String cip, FournisseurProduit fournisseurProduit) {

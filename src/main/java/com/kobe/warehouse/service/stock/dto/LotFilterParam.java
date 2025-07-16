@@ -13,6 +13,9 @@ public class LotFilterParam {
     private Long fournisseurId;
     private Long rayonId;
     private Long familleProduitId;
+    private Long magasinId;
+    private Long storageId;
+    private TypeFilter type;
 
     public int getDayCount() {
         return dayCount;
@@ -21,6 +24,14 @@ public class LotFilterParam {
     public LotFilterParam setDayCount(int dayCount) {
         this.dayCount = dayCount;
         return this;
+    }
+
+    public Long getStorageId() {
+        return storageId;
+    }
+
+    public void setStorageId(Long storageId) {
+        this.storageId = storageId;
     }
 
     public Long getFournisseurId() {
@@ -37,6 +48,14 @@ public class LotFilterParam {
 
     public void setFamilleProduitId(Long familleProduitId) {
         this.familleProduitId = familleProduitId;
+    }
+
+    public TypeFilter getType() {
+        return type;
+    }
+
+    public void setType(TypeFilter type) {
+        this.type = type;
     }
 
     public LocalDate getFromDate() {
@@ -85,5 +104,13 @@ public class LotFilterParam {
 
     public void setToDate(LocalDate toDate) {
         this.toDate = toDate;
+    }
+
+    public Long getMagasinId() {
+        return magasinId;
+    }
+
+    public void setMagasinId(Long magasinId) {
+        this.magasinId = magasinId;
     }
 }

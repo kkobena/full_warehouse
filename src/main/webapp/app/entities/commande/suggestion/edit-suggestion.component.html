@@ -1,6 +1,7 @@
-<ngx-spinner [fullScreen]="false" bdColor="rgba(255,255,255,0.5)" color="#f13151" size="medium" type="timer"></ngx-spinner>
+<ngx-spinner [fullScreen]="false" bdColor="rgba(255,255,255,0.5)" color="#f13151" size="medium"
+             type="timer"></ngx-spinner>
 
-<p-confirmDialog [baseZIndex]="10000" [style]="{ width: '40vw' }"> </p-confirmDialog>
+<p-confirmDialog [baseZIndex]="10000" [style]="{ width: '40vw' }"></p-confirmDialog>
 
 <div class="row">
   <div class="col-sm-12 col-sm-4 col-lg-3 col-xl-3 col-md-4">
@@ -21,7 +22,8 @@
           </li>
           <li class="list-group-item d-flex justify-content-between align-items-center">
             Date
-            <span class="badge text-bg-secondary fw-bold">{{ sug.updatedAt | date: 'dd/MM/yyyy HH:mm:ss' }}</span>
+            <span
+              class="badge text-bg-secondary fw-bold">{{ sug.updatedAt | date: 'dd/MM/yyyy HH:mm:ss' }}</span>
           </li>
           <li class="list-group-item d-flex justify-content-between align-items-center">
             Type de suggestion
@@ -29,15 +31,18 @@
           </li>
           <li class="list-group-item d-flex justify-content-between align-items-center">
             Nombre de produits
-            <span class="badge text-bg-primary fw-bold">{{ sug.suggestionAggregator?.itemsCount | number }}</span>
+            <span
+              class="badge text-bg-primary fw-bold">{{ sug.suggestionAggregator?.itemsCount | number }}</span>
           </li>
           <li class="list-group-item d-flex justify-content-between align-items-center">
             Valeur achat
-            <span class="badge text-bg-primary fw-bold">{{ sug.suggestionAggregator?.montantAchat | number }}</span>
+            <span
+              class="badge text-bg-primary fw-bold">{{ sug.suggestionAggregator?.montantAchat | number }}</span>
           </li>
           <li class="list-group-item d-flex justify-content-between align-items-center">
             Valeur vente
-            <span class="badge text-bg-primary fw-bold">{{ sug.suggestionAggregator?.montantVente | number }}</span>
+            <span
+              class="badge text-bg-primary fw-bold">{{ sug.suggestionAggregator?.montantVente | number }}</span>
           </li>
         </ul>
       </div>
@@ -47,7 +52,7 @@
     <p-toolbar>
       <div class="row" style="width: 100%; padding-right: 0">
         <div class="col-md-10 col-xl-9 col-lg-9 col-sm-10 d-flex justify-content-start">
-          <div style="padding: 0 2px 0 0" class="flex-grow-1">
+          <div class="flex-grow-1" style="padding: 0 2px 0 0">
             <p-floatlabel variant="on">
               <p-autoComplete
                 #produitbox
@@ -58,26 +63,30 @@
                 [dataKey]="'id'"
                 [dropdown]="true"
                 [emptyMessage]="PRODUIT_NOT_FOUND"
+                [forceSelection]="true"
                 [minLength]="PRODUIT_COMBO_MIN_LENGTH"
-                [showEmptyMessage]="true"
                 [showClear]="true"
+                [showEmptyMessage]="true"
                 [suggestions]="produits"
-                optionLabel="libelle"
                 id="produit"
+                optionLabel="libelle"
               >
-                <ng-template let-item pTemplate="item">
+                <ng-template #item let-item>
                   @if (item.totalQuantity > 0) {
                     <div [style]="{ width: '100%' }">
-                      <span style="width: 20%; display: inline-block">{{ item.fournisseurProduit?.codeCip }}</span
+                      <span
+                        style="width: 20%; display: inline-block">{{ item.fournisseurProduit?.codeCip }}</span
                       ><span> {{ item.libelle }}</span>
                       <span class="float-right">{{ item.regularUnitPrice | number }}</span>
                     </div>
                   }
                   @if (item.totalQuantity <= 0) {
                     <div [style]="{ width: '100%' }">
-                      <span class="stockless" style="width: 20%; display: inline-block">{{ item.fournisseurProduit?.codeCip }}</span
+                      <span class="stockless"
+                            style="width: 20%; display: inline-block">{{ item.fournisseurProduit?.codeCip }}</span
                       ><span class="stockless"> {{ item.libelle }}</span>
-                      <span class="float-right stockless">{{ item.regularUnitPrice | number }}</span>
+                      <span
+                        class="float-right stockless">{{ item.regularUnitPrice | number }}</span>
                     </div>
                   }
                 </ng-template>
@@ -89,10 +98,10 @@
             <p-inputgroup>
               <p-floatlabel variant="on">
                 <input
-                  id="quantite"
                   #quantityBox
                   (keydown.enter)="onQuantityBoxAction($event)"
                   [(ngModel)]="quantiteSaisie"
+                  id="quantite"
                   pInputText
                   type="number"
                 />
@@ -112,7 +121,8 @@
           </div>
         </div>
         <div class="col-md-2 col-xl-3 col-lg-3 col-sm-2 d-flex justify-content-end">
-          <p-button (onClick)="previousState()" severity="secondary" icon="pi pi-arrow-left" label="Retour" />
+          <p-button (onClick)="previousState()" icon="pi pi-arrow-left" label="Retour"
+                    severity="secondary" />
         </div>
       </div>
     </p-toolbar>
@@ -137,7 +147,8 @@
             <div>
               <p-iconfield>
                 <p-inputicon styleClass="pi pi-search" />
-                <input (keyup.enter)="onSearch($event.target.value)" pInputText placeholder="Taper pour rechercher" type="text" />
+                <input (keyup.enter)="onSearch($event.target.value)" pInputText
+                       placeholder="Taper pour rechercher" type="text" />
               </p-iconfield>
             </div>
             <div class="d-flex justify-content-end">
@@ -150,7 +161,8 @@
                 severity="primary"
                 type="button"
               ></p-button>
-              <p-button class="mr-1" [raised]="true" label="Exporter" severity="help" icon="pi pi-file-excel" (onClick)="exportCSV()" />
+              <p-button class="mr-1" [raised]="true" label="Exporter" severity="help"
+                        icon="pi pi-file-excel" (onClick)="exportCSV()" />
               <p-splitbutton
                 [hidden]="true"
                 class="mr-1"
@@ -200,15 +212,24 @@
         </ng-template>
         <ng-template let-suggestion pTemplate="body">
           <tr>
-            <td><jhi-eta-produit [isSuggestion]="true" [etatProduit]="suggestion.etatProduit"> </jhi-eta-produit></td>
+            <td>
+              <jhi-eta-produit [isSuggestion]="true"
+                               [etatProduit]="suggestion.etatProduit"></jhi-eta-produit>
+            </td>
             <td>{{ suggestion.fournisseurProduitCip }}</td>
             <td>{{ suggestion.fournisseurProduitLibelle }}</td>
             @if (suggestion.currentStock < 0) {
-              <td style="text-align: right" class="amount-column red-400">{{ suggestion.currentStock | number }}</td>
+              <td style="text-align: right"
+                  class="amount-column red-400">{{ suggestion.currentStock | number }}
+              </td>
             } @else if (suggestion.currentStock === 0) {
-              <td style="text-align: right" class="amount-column orange-400">{{ suggestion.currentStock | number }}</td>
+              <td style="text-align: right"
+                  class="amount-column orange-400">{{ suggestion.currentStock | number }}
+              </td>
             } @else {
-              <td style="text-align: right" class="amount-column">{{ suggestion.currentStock | number }}</td>
+              <td style="text-align: right"
+                  class="amount-column">{{ suggestion.currentStock | number }}
+              </td>
             }
             <td pEditableColumn style="text-align: right" class="amount-column">
               <p-cellEditor>
@@ -227,8 +248,12 @@
                 </ng-template>
               </p-cellEditor>
             </td>
-            <td style="text-align: right" class="amount-column">{{ suggestion.prixAchat | number }}</td>
-            <td style="text-align: right" class="amount-column">{{ suggestion.prixVente | number }}</td>
+            <td style="text-align: right"
+                class="amount-column">{{ suggestion.prixAchat | number }}
+            </td>
+            <td style="text-align: right"
+                class="amount-column">{{ suggestion.prixVente | number }}
+            </td>
             <td class="text-center">
               <p-tableCheckbox [value]="suggestion"></p-tableCheckbox>
             </td>
@@ -244,7 +269,8 @@
                 >
                 </p-button>
 
-                <p-button (click)="delete(suggestion.id)" [rounded]="true" severity="danger" icon="pi pi-trash" pTooltip="Supprimer" text />
+                <p-button (click)="delete(suggestion.id)" [rounded]="true" severity="danger"
+                          icon="pi pi-trash" pTooltip="Supprimer" text />
               </div>
             </td>
           </tr>

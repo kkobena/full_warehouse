@@ -1,5 +1,6 @@
 package com.kobe.warehouse.service.impl;
 
+import static com.kobe.warehouse.service.utils.ServiceUtil.buildPeremptionStatut;
 import static java.util.Objects.nonNull;
 
 import com.kobe.warehouse.domain.FamilleProduit;
@@ -17,7 +18,7 @@ import com.kobe.warehouse.service.dto.LotDTO;
 import com.kobe.warehouse.service.stock.LotService;
 import com.kobe.warehouse.service.stock.dto.LotFilterParam;
 import com.kobe.warehouse.service.stock.dto.LotPerimeDTO;
-import com.kobe.warehouse.service.stock.dto.LotPerimeValeurTotal;
+import com.kobe.warehouse.service.stock.dto.LotPerimeValeurSum;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
@@ -108,7 +109,7 @@ public class LotServiceImpl implements LotService {
     @Transactional(readOnly = true)
     public Page<LotPerimeDTO> findLotsPerimes(LotFilterParam lotFilterParam, Pageable pageable) {
         boolean useLot = this.appConfigurationService.useLot().orElse(false);
-
+        
         if (useLot) {
             return buildLotPerimePage(lotFilterParam, buildPageable(pageable, true));
         }
@@ -127,7 +128,7 @@ public class LotServiceImpl implements LotService {
 
     @Override
     @Transactional(readOnly = true)
-    public LotPerimeValeurTotal findPerimeSum(LotFilterParam lotFilterParam) {
+    public LotPerimeValeurSum findPerimeSum(LotFilterParam lotFilterParam) {
         boolean useLot = this.appConfigurationService.useLot().orElse(false);
         if (useLot) {
             return this.lotRepository.fetchPerimeSum(this.lotRepository.buildCombinedSpecification(lotFilterParam));
@@ -144,9 +145,12 @@ public class LotServiceImpl implements LotService {
                 FournisseurProduit fournisseurProduit = lot.getOrderLine().getFournisseurProduit();
                 Produit produit = fournisseurProduit.getProduit();
                 LotPerimeDTO lotPerime = new LotPerimeDTO();
+                lotPerime.setProduitId(produit.getId());
+                lotPerime.setId(lot.getId());
                 lotPerime.setNumLot(lot.getNumLot());
                 lotPerime.setQuantity(lot.getQuantity());
                 lotPerime.setDatePeremption(lot.getExpiryDate().format(dateFormatter));
+                lotPerime.setPeremptionStatut(buildPeremptionStatut(lot.getExpiryDate()));
                 buildCommon(lotPerime, produit, fournisseurProduit);
                 return lotPerime;
             });
@@ -157,8 +161,11 @@ public class LotServiceImpl implements LotService {
                 FournisseurProduit fournisseurProduit = produit.getFournisseurProduitPrincipal();
                 Set<StockProduit> stockProduits = produit.getStockProduits();
                 LotPerimeDTO lotPerime = new LotPerimeDTO();
+                lotPerime.setProduitId(produit.getId());
+                lotPerime.setId(produit.getId());
                 lotPerime.setQuantity(stockProduits.stream().mapToInt(StockProduit::getQtyStock).sum());
                 lotPerime.setDatePeremption(produit.getPerimeAt().format(dateFormatter));
+                lotPerime.setPeremptionStatut(buildPeremptionStatut(produit.getPerimeAt()));
                 buildCommon(lotPerime, produit, fournisseurProduit);
 
                 return lotPerime;

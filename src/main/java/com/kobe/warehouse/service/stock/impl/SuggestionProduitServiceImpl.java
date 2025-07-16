@@ -310,7 +310,7 @@ public class SuggestionProduitServiceImpl implements SuggestionProduitService {
                 () -> {
                     Fournisseur fournisseur = suggestion.getFournisseur();
                     FournisseurProduit fournisseurProduit = fournisseurProduitRepository
-                        .findFirstByProduitIdAndFournisseurId(suggestionLine.produitId(), fournisseur.getId())
+                        .findOneByProduitIdAndFournisseurId(suggestionLine.produitId(), fournisseur.getId())
                         .orElseThrow();
                     SuggestionLine line = new SuggestionLine();
                     line.setCreatedAt(LocalDateTime.now());

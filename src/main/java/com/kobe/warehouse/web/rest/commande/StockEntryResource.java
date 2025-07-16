@@ -28,7 +28,7 @@ import tech.jhipster.web.util.HeaderUtil;
 
 @RestController
 @RequestMapping("/api")
-@Transactional
+@Transactional //TO DO : remove this annotation
 public class StockEntryResource {
 
     private static final String ENTITY_NAME = "deliveryReceipt";

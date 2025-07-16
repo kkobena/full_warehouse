@@ -68,10 +68,10 @@ export class EditProduitComponent implements OnInit {
     expirationDate: [],
     //    principal: [],
   });
-  protected produitService = inject(ProduitService);
-  protected errorService = inject(ErrorService);
-  protected rayonService = inject(RayonService);
-  protected tvaService = inject(TvaService);
+  private readonly produitService = inject(ProduitService);
+  private readonly errorService = inject(ErrorService);
+  private readonly rayonService = inject(RayonService);
+  private readonly tvaService = inject(TvaService);
   private readonly ref = inject(DynamicDialogRef);
   private readonly config = inject(DynamicDialogConfig);
   private readonly messageService = inject(MessageService);

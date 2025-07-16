@@ -38,7 +38,7 @@
         targetFilterPlaceholder="Rechercher par libelle"
         targetHeader="Privillèges associés"
       >
-        <ng-template let-menu pTemplate="item">
+        <ng-template #item let-menu>
           <div class="flex flex-wrap p-2 align-items-center">
             <div class="flex-1 flex flex-column">
               <span class="font-bold">{{ menu.libelle }}</span>

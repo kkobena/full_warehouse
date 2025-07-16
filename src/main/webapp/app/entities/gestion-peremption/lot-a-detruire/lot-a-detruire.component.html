@@ -1,0 +1,302 @@
+<p-toast position="center"></p-toast>
+<p-confirmDialog />
+<div>
+  <p-toolbar>
+    <ng-template #start>
+      <div class="d-flex justify-content-between" style="width: 100%">
+
+        <p-select
+          (onChange)="onFilterChange()"
+          [(ngModel)]="selectedType"
+          [options]="types"
+          [style]="{'min-width': '100px'}"
+          class="mr-1"
+          optionLabel="label"
+        ></p-select>
+
+        <p-floatlabel>
+          <p-iconfield>
+            <p-inputicon styleClass="pi pi-search" />
+            <input
+              (keyup.enter)="onSearch()"
+              [(ngModel)]="searchTerm"
+              [style]="{'max-width': '200px'}"
+              class="mr-1"
+              id="searchTerm"
+              pInputText
+              type="text"
+            /></p-iconfield>
+          <label for="searchTerm">{{ 'warehouseApp.labels.searchPlaceholder' | translate }}</label>
+        </p-floatlabel>
+
+        <p-floatlabel>
+          <p-datePicker
+            [(ngModel)]="fromDate"
+            [iconDisplay]="'input'"
+            [showButtonBar]="true"
+            [style]="{'max-width': '160px'}"
+            class="mr-1"
+            dateFormat="dd/mm/yy"
+            id="dateDebut"
+            inputId="dateDebut"
+            selectOtherMonths="true"
+            showIcon="true"
+          ></p-datePicker
+          >
+          <label for="dateDebut">{{ 'warehouseApp.labels.du' | translate }}</label>
+        </p-floatlabel>
+        <p-floatlabel>
+          <p-datePicker
+            [(ngModel)]="toDate"
+            [iconDisplay]="'input'"
+            [showButtonBar]="true"
+            [style]="{'max-width': '160px'}"
+            class="mr-1"
+            dateFormat="dd/mm/yy"
+            id="dateFin"
+            inputId="dateFin"
+            selectOtherMonths="true"
+            showIcon="true"
+          ></p-datePicker>
+          <label for="dateFin">{{ 'warehouseApp.labels.au' | translate }}</label>
+        </p-floatlabel>
+        @if (!isMono) {
+          <p-floatlabel>
+            <p-select
+              [style]="{'min-width': '150px'}"
+              (onChange)="onMagasinChange()"
+              [(ngModel)]="selectedMagasin"
+              [options]="magasins"
+              [showClear]="true"
+              optionLabel="fullName"
+              id="magasins"
+              class="mr-1"
+            ></p-select>
+            <label for="magasins">{{ 'warehouseApp.labels.magasin' | translate }}</label>
+          </p-floatlabel>
+          <p-floatlabel>
+            <p-select
+              (onChange)="onStorageChange()"
+              [(ngModel)]="selectedStorage"
+              [options]="storages"
+              [style]="{'min-width': '150px'}"
+              id="storages"
+              [showClear]="true"
+              optionLabel="name"
+              class="mr-1"
+            ></p-select>
+            <label for="storages">{{ 'warehouseApp.labels.typeStockage' | translate }}</label>
+          </p-floatlabel>
+        }
+        <p-floatlabel>
+          <p-select
+            (onChange)="onSearch()"
+            [(ngModel)]="selectedRayon"
+            [options]="rayons"
+            [showClear]="true"
+            [style]="{'min-width': '200px'}"
+            class="mr-1"
+            filter="true"
+            id="rayons"
+            optionLabel="libelle"
+          ></p-select>
+          <label for="rayons">{{ 'warehouseApp.labels.rayons' | translate }}</label>
+        </p-floatlabel>
+        <p-floatlabel>
+          <p-select
+            (onChange)="onSearch()"
+            [(ngModel)]="selectedFournisseur"
+            [options]="fournisseurs"
+            [showClear]="true"
+            [style]="{'min-width': '200px'}"
+            filter="true"
+            id="fournisseurs"
+            optionLabel="libelle"
+          ></p-select>
+          <label for="fournisseurs">{{ 'warehouseApp.labels.fournisseurs' | translate }}</label>
+        </p-floatlabel>
+
+
+      </div>
+    </ng-template>
+    <ng-template #end>
+      <p-buttonGroup>
+        <p-button
+          (click)="onSearch()"
+          [raised]="true"
+          class="mr-1"
+          icon="pi pi-search"
+          label="{{'warehouseApp.buttons.search' | translate}}"
+          severity="info"
+          type="button"
+        ></p-button>
+        <p-splitbutton
+          [model]="exportMenus"
+          [raised]="true"
+          class="mr-1"
+          icon="pi pi-download"
+          label="{{'warehouseApp.buttons.export' | translate}}"
+          severity="help"
+        ></p-splitbutton>
+        @if (selectedItems?.length > 1) {
+          <p-button
+            (click)="onDestroyAll()"
+            [raised]="true"
+            icon="pi pi-trash"
+            label="{{'warehouseApp.buttons.removeAllStock' | translate}}"
+            severity="danger"
+            type="button"
+          ></p-button>
+        }
+
+      </p-buttonGroup>
+
+    </ng-template>
+  </p-toolbar>
+
+  <p-divider></p-divider>
+  @if (productToDestroySum) {
+    <div class="row g-4 mb-2">
+      <div class="col-12 col-md-6 col-lg-3">
+        <div class="card h-100 shadow-sm text-center border rounded-3 bg-danger-subtle ">
+          <div class="card-body">
+            <h5
+              class="card-title text-danger">{{ 'warehouseApp.gestionPerimes.labels.produitDetruits' | translate }}</h5>
+            <p class="card-text fs-3 fw-bold">{{ productToDestroySum.productCount | number }}</p>
+
+
+          </div>
+        </div>
+      </div>
+
+      <div class="col-12 col-md-6 col-lg-3">
+        <div class="card h-100 shadow-sm text-center border rounded-3 bg-danger-subtle ">
+          <div class="card-body">
+            <h5
+              class="card-title text-danger">{{ 'warehouseApp.gestionPerimes.labels.quantitesProduitDetruits' | translate }}</h5>
+            <p class="card-text fs-3 fw-bold">{{ productToDestroySum.quantity | number }}</p>
+          </div>
+        </div>
+      </div>
+
+
+      <div class="col-12 col-md-6 col-lg-3">
+        <div class="card h-100 shadow-sm text-center border rounded-3 bg-warning-subtle">
+          <div class="card-body">
+            <h5
+              class="card-title text-danger">{{ 'warehouseApp.gestionPerimes.labels.valeursAchat' | translate }}</h5>
+            <p class="card-text fs-3 fw-bold">{{ productToDestroySum.valeurAchat | number }}</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="col-12 col-md-6 col-lg-3">
+        <div class="card h-100 shadow-sm text-center border rounded-3 bg-warning-subtle">
+          <div class="card-body">
+            <h5
+              class="card-title text-danger">{{ 'warehouseApp.gestionPerimes.labels.valeursVente' | translate }}</h5>
+            <p class="card-text fs-3 fw-bold">{{ productToDestroySum.valeurVente | number }}</p>
+
+          </div>
+        </div>
+      </div>
+    </div>
+  }
+
+  @if (data && data.length) {
+    <div>
+      <p-table
+        (onLazyLoad)="lazyLoading($event)"
+        [lazy]="true"
+        [loading]="loading"
+        [paginator]="true"
+        [rowsPerPageOptions]="[ 10, 15, 20, 30, 50]"
+        [rows]="itemsPerPage"
+        [showCurrentPageReport]="false"
+        [totalRecords]="totalItems"
+        [value]="data"
+        dataKey="id"
+        [showGridlines]="true"
+        selectionMode="multiple"
+        [(selection)]="selectedItems"
+      >
+        <ng-template #header>
+          <tr>
+            <th>Libellé produit</th>
+            <th>Code produit</th>
+            <th>Numéro lot</th>
+            <th>Date de péremption</th>
+            <th>Quantité</th>
+            <th>Prix.Achat</th>
+            <th>Prix.vente</th>
+            <th>Statut</th>
+
+            <th>Fournisseur</th>
+
+            <th class="table-all-checkbos">
+              <p-tableHeaderCheckbox #checkbox></p-tableHeaderCheckbox>
+            </th>
+            <th></th>
+          </tr>
+        </ng-template>
+        <ng-template let-data #body>
+          <tr>
+            <td>
+              {{ data.produitName }}
+            </td>
+
+            <td>
+              {{ data.produitCode }}
+            </td>
+            <td>
+              {{ data.numLot }}
+            </td>
+            <td>
+              {{ data.datePeremption }}
+            </td>
+            <td class="text-right amount-column">
+              {{ data.quantity | number }}
+            </td>
+            <td class="text-right amount-column">{{ data.prixAchat | number }}</td>
+            <td class="text-right amount-column">{{ data.prixUni | number }}</td>
+            <td class="text-center">
+              <p-tag [value]="data.peremptionStatut.libelle"
+                     [severity]="getSeverity(data.peremptionStatut)" />
+            </td>
+
+            <td>
+              {{ data.founisseur }}
+            </td>
+
+            <td class="text-right">
+              @if (!data.destroyed) {
+                <div class="btn-group">
+
+                  <p-button (click)="confirmDestroyDialog(data.id)" [rounded]="true"
+                            severity="danger"
+                            icon="pi pi-trash"
+                            pTooltip="Détruire"></p-button>
+                </div>
+              } @else {
+                <p-tag
+                  [value]="'warehouseApp.gestionPerimes.labels.detruitsADateDu' | translate:{date:data.dateDestruction} " />
+              }
+
+            </td>
+          </tr>
+        </ng-template>
+
+      </p-table>
+
+
+    </div>
+  } @else {
+
+
+    <div class="alert alert-warning" id="no-result">
+      <span>{{ 'global.messages.emptyData' | translate }}</span>
+    </div>
+  }
+</div>
+<ngx-spinner [fullScreen]="true" bdColor="rgba(0, 0, 0, 0.8)" color="#fff" size="medium"
+             type="timer"><p style="color: white">Traitement en cours...</p></ngx-spinner>

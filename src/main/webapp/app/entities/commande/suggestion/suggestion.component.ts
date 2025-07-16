@@ -26,29 +26,28 @@ import { ConfirmDialogModule } from 'primeng/confirmdialog';
   templateUrl: './suggestion.component.html',
 })
 export class SuggestionComponent implements OnInit {
-  private readonly suggestionService = inject(SuggestionService);
-  protected suggestions: Suggestion[] = [];
-  private readonly errorService = inject(ErrorService);
-  private readonly spinner = inject(NgxSpinnerService);
-  private readonly confirmationService = inject(ConfirmationService);
-  private readonly modalService = inject(NgbModal);
   readonly search = input('');
   readonly selectionLength = output<number>();
-
+  readonly selectedtypeSuggession = input<string>('ALL');
+  readonly fournisseurId = input<number>(null);
+  protected suggestions: Suggestion[] = [];
   protected totalItems = 0;
   protected itemsPerPage = ITEMS_PER_PAGE;
   protected predicate = 'updatedAt';
   protected ascending!: boolean;
   protected ngbPaginationPage = 1;
   protected index = 0;
-  readonly selectedtypeSuggession = input<string>('ALL');
   protected rowExpandMode: ExpandMode;
   protected loading!: boolean;
   protected page = 0;
   protected selections: Suggestion[];
   protected fileDialog = false;
   protected ref!: DynamicDialogRef;
-  readonly fournisseurId = input<number>(null);
+  private readonly suggestionService = inject(SuggestionService);
+  private readonly errorService = inject(ErrorService);
+  private readonly spinner = inject(NgxSpinnerService);
+  private readonly confirmationService = inject(ConfirmationService);
+  private readonly modalService = inject(NgbModal);
 
   constructor() {
     this.rowExpandMode = 'single';
@@ -56,15 +55,6 @@ export class SuggestionComponent implements OnInit {
 
   ngOnInit(): void {
     this.onSearch();
-  }
-
-  private buildParameters(): any {
-    return {
-      sort: this.sort(),
-      search: this.search(),
-      fournisseurId: this.fournisseurId(),
-      typeSuggession: this.selectedtypeSuggession() ? this.selectedtypeSuggession() : null,
-    };
   }
 
   loadPage(page?: number): void {
@@ -80,21 +70,6 @@ export class SuggestionComponent implements OnInit {
         next: (res: HttpResponse<Suggestion[]>) => this.onSuccess(res.body, res.headers, pageToLoad),
         error: () => this.onError(),
       });
-  }
-
-  private onDelete(ids: Keys): void {
-    this.spinner.show();
-    this.suggestionService.delete(ids).subscribe({
-      next: () => {
-        this.selections = [];
-        this.spinner.hide();
-        this.loadPage();
-      },
-      error: error => {
-        this.spinner.hide();
-        this.onCommonError(error);
-      },
-    });
   }
 
   deleteAll(): void {
@@ -192,6 +167,30 @@ export class SuggestionComponent implements OnInit {
 
   protected onRowUnselect(): void {
     this.selectionLength.emit(this.selections.length);
+  }
+
+  private buildParameters(): any {
+    return {
+      sort: this.sort(),
+      search: this.search(),
+      fournisseurId: this.fournisseurId(),
+      typeSuggession: this.selectedtypeSuggession() ? this.selectedtypeSuggession() : null,
+    };
+  }
+
+  private onDelete(ids: Keys): void {
+    this.spinner.show();
+    this.suggestionService.delete(ids).subscribe({
+      next: () => {
+        this.selections = [];
+        this.spinner.hide();
+        this.loadPage();
+      },
+      error: error => {
+        this.spinner.hide();
+        this.onCommonError(error);
+      },
+    });
   }
 
   private onCommonError(error: any): void {

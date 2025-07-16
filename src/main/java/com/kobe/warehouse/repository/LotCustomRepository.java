@@ -1,9 +1,9 @@
 package com.kobe.warehouse.repository;
 
 import com.kobe.warehouse.domain.Lot;
-import com.kobe.warehouse.service.stock.dto.LotPerimeValeurTotal;
+import com.kobe.warehouse.service.stock.dto.LotPerimeValeurSum;
 import org.springframework.data.jpa.domain.Specification;
 
 public interface LotCustomRepository {
-    LotPerimeValeurTotal fetchPerimeSum(Specification<Lot> specification);
+    LotPerimeValeurSum fetchPerimeSum(Specification<Lot> specification);
 }

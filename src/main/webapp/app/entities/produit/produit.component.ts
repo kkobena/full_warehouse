@@ -7,7 +7,6 @@ import { IProduit } from 'app/shared/model/produit.model';
 import { ITEMS_PER_PAGE } from 'app/shared/constants/pagination.constants';
 import { ProduitService } from './produit.service';
 import { ProduitDeleteDialogComponent } from './produit-delete-dialog.component';
-import { faCut, faPlusCircle } from '@fortawesome/free-solid-svg-icons';
 import { DetailFormDialogComponent } from './detail-form-dialog.component';
 import { DeconditionDialogComponent } from './decondition.dialog.component';
 import { AlertInfoComponent } from '../../shared/alert/alert-info.component';
@@ -52,7 +51,7 @@ import { IFamilleProduit } from '../../shared/model/famille-produit.model';
 import { IRayon } from '../../shared/model/rayon.model';
 import { ButtonGroup } from 'primeng/buttongroup';
 import { ListPrixReferenceComponent } from '../prix-reference/list-prix-reference/list-prix-reference.component';
-import {DatePeremptionFormComponent} from "./date-peremption-form/date-peremption-form.component";
+import { DatePeremptionFormComponent } from './date-peremption-form/date-peremption-form.component';
 
 export type ExpandMode = 'single' | 'multiple';
 
@@ -506,6 +505,25 @@ export class ProduitComponent implements OnInit {
     );
   }
 
+  protected addPeremptionDate(produit: IProduit): void {
+    const modalRef = this.modalService.open(DatePeremptionFormComponent, {
+      // size: 'lg',
+      size: '40%',
+      scrollable: true,
+      backdrop: 'static',
+      centered: true,
+    });
+    modalRef.componentInstance.produit = produit;
+    modalRef.result.then(
+      () => {
+        this.loadPage();
+      },
+      () => {
+        this.loadPage();
+      },
+    );
+  }
+
   private onError(): void {
     this.ngbPaginationPage = this.page ?? 1;
   }
@@ -613,24 +631,4 @@ export class ProduitComponent implements OnInit {
       }
     }).subscribe();
   }
-
-  protected addPeremptionDate(produit: IProduit): void {
-    const modalRef = this.modalService.open(DatePeremptionFormComponent, {
-     // size: 'lg',
-      size: '40%',
-      scrollable: true,
-      backdrop: 'static',
-      centered: true,
-    });
-    modalRef.componentInstance.produit = produit;
-    modalRef.result.then(
-      () => {
-        this.loadPage();
-      },
-      () => {
-        this.loadPage();
-      },
-    );
-  }
-
 }

@@ -9,6 +9,7 @@ public final class EntityConstant {
     public static final String AUTRES_FOURNISSEURS = "AUTRES";
     public static final long SANS_EMPLACEMENT = 1L;
     public static final long DEFAULT_STORAGE = 1L;
+    public static final String DEFAULT_MAIN_STORAGE = "DEFAULT_MAIN_STORAGE";
     public static final long POINT_of_STORAGE = 2L;
     public static final long DEFAULT_MAGASIN = 1L;
     public static final String APP_GESTION_STOCK = "APP_GESTION_STOCK";
@@ -48,4 +49,5 @@ public final class EntityConstant {
     public static final String APP_NOMBRE_JOUR_AVANT_PEREMPTION = "APP_NOMBRE_JOUR_AVANT_PEREMPTION"; // nombre de jour avant la date de peremption pour la vente d'un produit,
     public static final String APP_EXPIRY_ALERT_DAYS_BEFORE = "APP_EXPIRY_ALERT_DAYS_BEFORE"; // nombre de jour avant la date de peremption pour l'alerte d'un produit,
     public static final String APP_GESTION_LOT = "APP_GESTION_LOT"; // nombre de jour avant la date de peremption pour l'alerte d'un produit,
+    public static final String USER_STORAGE__CACHE = "USER_STORAGE__CACHE";
 }

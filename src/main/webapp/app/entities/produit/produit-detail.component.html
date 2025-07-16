@@ -1,9 +1,11 @@
-<ngx-spinner [fullScreen]="false" bdColor="rgba(255,255,255,0.5)" color="#f13151" size="medium" type="timer"></ngx-spinner>
+<ngx-spinner [fullScreen]="false" bdColor="rgba(255,255,255,0.5)" color="#f13151" size="medium"
+             type="timer"></ngx-spinner>
 <p-panel>
   <ng-template pTemplate="header">
     @if (produit) {
       <span class="font-bold"
-        ><span class="mr-2">{{ produit?.libelle }}</span> <p-badge [value]="produit?.totalQuantity | number" severity="success"></p-badge
+      ><span class="mr-2">{{ produit?.libelle }}</span> <p-badge
+        [value]="produit?.totalQuantity | number" severity="success"></p-badge
       ></span>
     }
   </ng-template>
@@ -22,14 +24,15 @@
             [dataKey]="'id'"
             [dropdown]="true"
             [emptyMessage]="PRODUIT_NOT_FOUND"
+            [forceSelection]="true"
             [inputStyle]="{ width: '100%' }"
             [minLength]="PRODUIT_COMBO_MIN_LENGTH"
             [showEmptyMessage]="true"
             [style]="{ width: '100%' }"
             [suggestions]="produits"
-            field="libelle"
+            optionLabel="libelle"
           >
-            <ng-template let-item pTemplate="item">
+            <ng-template #item let-item>
               @if (item.totalQuantity > 0) {
                 <div>
                   <span style="width: 20%; display: inline-block">{{ item.codeCip }}</span
@@ -39,9 +42,11 @@
               }
               @if (item.totalQuantity <= 0) {
                 <div>
-                  <span class="stockless" style="width: 20%; display: inline-block">{{ item.codeCip }}</span
+                  <span class="stockless"
+                        style="width: 20%; display: inline-block">{{ item.codeCip }}</span
                   ><span class="stockless"> {{ item.libelle }}</span>
-                  <span class="float-right stockless font-bold">{{ item.regularUnitPrice | number }}</span>
+                  <span
+                    class="float-right stockless font-bold">{{ item.regularUnitPrice | number }}</span>
                 </div>
               }
             </ng-template>
@@ -71,14 +76,19 @@
         ></p-calendar>
       </div>
       <div class="p-toolbar-group-right">
-        <p-button (click)="loadPage()" icon="pi pi-search" label="Rechercher" styleClass="p-button-info"></p-button>
+        <p-button (click)="loadPage()" icon="pi pi-search" label="Rechercher"
+                  styleClass="p-button-info"></p-button>
 
-        <button (click)="exportPdf()" class="p-button-raised p-button-danger mr-1" pButton type="button">
-          <fa-icon icon="file-pdf"></fa-icon>&nbsp;<span jhiTranslate="entity.action.print">Imprimer</span>
+        <button (click)="exportPdf()" class="p-button-raised p-button-danger mr-1" pButton
+                type="button">
+          <fa-icon icon="file-pdf"></fa-icon>&nbsp;<span
+          jhiTranslate="entity.action.print">Imprimer</span>
         </button>
 
-        <button (click)="previousState()" class="p-button-raised p-button-secondary" pButton type="button">
-          <fa-icon icon="arrow-left"></fa-icon>&nbsp;<span jhiTranslate="entity.action.back">Back</span>
+        <button (click)="previousState()" class="p-button-raised p-button-secondary" pButton
+                type="button">
+          <fa-icon icon="arrow-left"></fa-icon>&nbsp;<span
+          jhiTranslate="entity.action.back">Back</span>
         </button>
       </div>
     </p-toolbar>

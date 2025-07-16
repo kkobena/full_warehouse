@@ -42,7 +42,8 @@
           type="text"
         />
         @if (searchSource) {
-          <span (click)="searchSource = ''; sourceFilter()" class="p-picklist-filter-icon pi pi-times"> </span>
+          <span (click)="searchSource = ''; sourceFilter()"
+                class="p-picklist-filter-icon pi pi-times"> </span>
         }
       </div>
     </ng-template>
@@ -57,12 +58,13 @@
           type="text"
         />
         @if (searchTarget) {
-          <span (click)="searchTarget = ''; targeFilter()" class="p-picklist-filter-icon pi pi-times"> </span>
+          <span (click)="searchTarget = ''; targeFilter()"
+                class="p-picklist-filter-icon pi pi-times"> </span>
         }
       </div>
     </ng-template>
 
-    <ng-template let-index="index" let-item pTemplate="item">
+    <ng-template #item let-index="index" let-item>
       <div>
         <span style="width: 18%; display: inline-block">{{ item.fournisseurProduit?.codeCip }}</span
         ><span> {{ item.libelle }}</span>

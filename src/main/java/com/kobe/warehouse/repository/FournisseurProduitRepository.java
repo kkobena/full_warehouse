@@ -31,7 +31,7 @@ public interface FournisseurProduitRepository extends JpaRepository<FournisseurP
     @Query("SELECT COUNT(o) FROM FournisseurProduit o WHERE  o.codeCip=?1 AND o.produit.id <> ?2")
     long countByCodeCipAndProduitId(String codeCip, Long produitId);
 
-    Optional<FournisseurProduit> findFirstByProduitIdAndFournisseurId(Long produitId, Long fournisseurId);
+    Optional<FournisseurProduit> findOneByProduitIdAndFournisseurId(Long produitId, Long fournisseurId);
 
     List<FournisseurProduit> findAllByFournisseurIdAndProduitParentIsNull(Long produitId, Pageable pageable);
 

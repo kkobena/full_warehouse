@@ -57,5 +57,6 @@ export enum Authority {
   EDITION_FACTURATION = 'edition-factures',
   GESTION_REGLEMENT_FACTURE = 'reglement-facture',
   GESTION_DIFFERE = 'gestion-differe',
+  GESTION_PERIMES = 'gestion-perimes',
   REMISE = 'remise',
 }

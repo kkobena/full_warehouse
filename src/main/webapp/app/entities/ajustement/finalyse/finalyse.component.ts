@@ -1,4 +1,4 @@
-import { Component, ElementRef, OnInit, viewChild, inject } from '@angular/core';
+import { Component, ElementRef, inject, OnInit, viewChild } from '@angular/core';
 import { AjustementService } from '../ajustement.service';
 import { IAjust } from '../../../shared/model/ajust.model';
 import { DynamicDialogConfig, DynamicDialogRef } from 'primeng/dynamicdialog';
@@ -20,27 +20,21 @@ import { TextareaModule } from 'primeng/textarea';
   imports: [WarehouseCommonModule, RouterModule, ToastModule, ButtonModule, FormsModule, ReactiveFormsModule, TextareaModule],
 })
 export class FinalyseComponent implements OnInit {
-  protected ajustementService = inject(AjustementService);
   ref = inject(DynamicDialogRef);
   config = inject(DynamicDialogConfig);
-  private fb = inject(FormBuilder);
-  private messageService = inject(MessageService);
-
   commentaire = viewChild.required<ElementRef>('commentaire');
+  protected ajustementService = inject(AjustementService);
   protected isSaving = false;
   protected entity?: IAjust;
+  protected readonly BLOCK_SPACE = BLOCK_SPACE;
+  private fb = inject(FormBuilder);
   protected editForm = this.fb.group({
     commentaire: new FormControl<string | null>(null, {
       validators: [Validators.required],
       nonNullable: true,
     }),
   });
-  protected readonly BLOCK_SPACE = BLOCK_SPACE;
-
-  /** Inserted by Angular inject() migration for backwards compatibility */
-  constructor(...args: unknown[]);
-
-  constructor() {}
+  private messageService = inject(MessageService);
 
   ngOnInit(): void {
     this.entity = this.config.data.entity;

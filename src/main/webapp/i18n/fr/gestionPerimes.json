@@ -1,0 +1,25 @@
+{
+  "warehouseApp": {
+    "gestionPerimes": {
+      "title": "Gestion Péremption",
+      "menu": {
+        "produitPerimes": "Produits périmés",
+        "lotToDestroy": "Produits détruits/A détruire"
+      },
+      "labels": {
+        "produitPerimes": "Nbre de produits périmés",
+        "produitDetruits": "Nbre de produits détruits",
+        "quantitesProduit": "Qté de produits périmés",
+        "quantitesProduitDetruits": "Qté de produits détruits",
+        "valeursPertes": "Valeur des pertes",
+        "valeursAchat": "Valeur  achat",
+        "valeursVente": "Valeur  vente",
+        "prochainesPerimes": "Prochaines péremptions {{date}}",
+        "detruitsADateDu": "Détruit le {{date}}",
+        "retours": "Retours fournisseur",
+        "quantiteSaisie": "Quantité",
+        "numLot": "Numéro de lot"
+      }
+    }
+  }
+}

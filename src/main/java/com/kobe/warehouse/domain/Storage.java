@@ -11,13 +11,14 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
+import jakarta.persistence.UniqueConstraint;
 import jakarta.validation.constraints.NotNull;
 import java.io.Serial;
 import java.io.Serializable;
 import java.util.Objects;
 
 @Entity
-@Table(name = "storage")
+@Table(name = "storage", uniqueConstraints = @UniqueConstraint(columnNames = { "storage_type", "magasin_id" }))
 @JsonIgnoreProperties(value = { "magasin" })
 public class Storage implements Serializable {
 
@@ -97,7 +98,6 @@ public class Storage implements Serializable {
 
     @Override
     public String toString() {
-        String sb = "Storage{" + "id=" + id + ", storageType=" + storageType + ", name='" + name + '\'' + ", magasin=" + magasin + '}';
-        return sb;
+        return "Storage{" + "id=" + id + ", storageType=" + storageType + ", name='" + name + '\'' + ", magasin=" + magasin + '}';
     }
 }

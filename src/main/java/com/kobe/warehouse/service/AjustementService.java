@@ -24,6 +24,8 @@ import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.function.BiPredicate;
+
+import com.kobe.warehouse.service.mvt_produit.service.InventoryTransactionService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
@@ -45,8 +47,8 @@ public class AjustementService extends FileResourceService {
     private final AjustRepository ajustRepository;
     private final StorageService storageService;
     private final StockProduitRepository stockProduitRepository;
-    private final WarehouseCalendarService warehouseCalendarService;
     private final LogsService logsService;
+    private final InventoryTransactionService inventoryTransactionService;
 
     private final BiPredicate<Ajustement, String> searchPredicate = (ajustement, s) -> {
         Produit produit = ajustement.getProduit();
@@ -61,8 +63,7 @@ public class AjustementService extends FileResourceService {
         AjustRepository ajustRepository,
         StorageService storageService,
         StockProduitRepository stockProduitRepository,
-        WarehouseCalendarService warehouseCalendarService,
-        LogsService logsService
+        LogsService logsService, InventoryTransactionService inventoryTransactionService
     ) {
         this.ajustementRepository = ajustementRepository;
         this.produitRepository = produitRepository;
@@ -70,8 +71,8 @@ public class AjustementService extends FileResourceService {
         this.ajustRepository = ajustRepository;
         this.storageService = storageService;
         this.stockProduitRepository = stockProduitRepository;
-        this.warehouseCalendarService = warehouseCalendarService;
         this.logsService = logsService;
+        this.inventoryTransactionService = inventoryTransactionService;
     }
 
     private User getUser() {
@@ -112,7 +113,9 @@ public class AjustementService extends FileResourceService {
             ajustType = AjustType.AJUSTEMENT_IN;
         }
         ajustement.setType(ajustType);
-        return ajustementRepository.save(ajustement);
+        ajustement= ajustementRepository.save(ajustement);
+        inventoryTransactionService.save(ajustement);
+        return  ajustement;
     }
 
     public void deleteAll(List<Long> ids) {

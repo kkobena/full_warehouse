@@ -42,6 +42,7 @@ import com.kobe.warehouse.service.dto.records.StoreInventorySummaryRecord;
 import com.kobe.warehouse.service.errors.InventoryException;
 import com.kobe.warehouse.service.historique_inventaire.HistoriqueInventaireService;
 import com.kobe.warehouse.service.mobile.dto.RayonRecord;
+import com.kobe.warehouse.service.mvt_produit.service.InventoryTransactionService;
 import com.kobe.warehouse.service.report.InventoryReportReportService;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.Tuple;
@@ -103,6 +104,7 @@ public class InventaireServiceImpl implements InventaireService {
     private final EntityManager em;
     private final ProduitService produitService;
     private final HistoriqueInventaireService historiqueInventaireService;
+    private final InventoryTransactionService inventoryTransactionService;
 
     public InventaireServiceImpl(
         UserService userService,
@@ -112,7 +114,7 @@ public class InventaireServiceImpl implements InventaireService {
         StockProduitRepository stockProduitRepository,
         RayonRepository rayonRepository,
         InventoryReportReportService inventoryReportService,
-        EntityManager em, ProduitService produitService, HistoriqueInventaireService historiqueInventaireService
+        EntityManager em, ProduitService produitService, HistoriqueInventaireService historiqueInventaireService, InventoryTransactionService inventoryTransactionService
     ) {
         this.userService = userService;
         this.storeInventoryRepository = storeInventoryRepository;
@@ -124,6 +126,7 @@ public class InventaireServiceImpl implements InventaireService {
         this.em = em;
         this.produitService = produitService;
         this.historiqueInventaireService = historiqueInventaireService;
+        this.inventoryTransactionService = inventoryTransactionService;
     }
 
     @Override
@@ -147,7 +150,9 @@ public class InventaireServiceImpl implements InventaireService {
         storeInventory.setInventoryValueCostBegin(storeInventorySummaryRecord.costValueBegin().longValue());
         storeInventory.setGapCost(storeInventorySummaryRecord.gapCost().intValue());
         storeInventory.setGapAmount(storeInventorySummaryRecord.gapAmount().intValue());
-        this.historiqueInventaireService.save(new HistoriqueInventaire(storeInventoryRepository.save(storeInventory)));
+        storeInventory=  storeInventoryRepository.save(storeInventory);
+        this.historiqueInventaireService.save(new HistoriqueInventaire(storeInventory));
+        storeInventory.getStoreInventoryLines().forEach(inventoryTransactionService::save);
         return new ItemsCountRecord(closeItems(storeInventory.getId()));
     }
 

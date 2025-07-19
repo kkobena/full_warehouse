@@ -1,10 +1,11 @@
 package com.kobe.warehouse.web.rest;
 
 import com.kobe.warehouse.domain.InventoryTransaction;
-import com.kobe.warehouse.service.InventoryTransactionService;
 import com.kobe.warehouse.service.dto.InventoryTransactionDTO;
 import java.util.List;
 import java.util.Optional;
+
+import com.kobe.warehouse.service.mvt_produit.service.InventoryTransactionService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.data.domain.Page;

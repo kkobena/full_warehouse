@@ -25,43 +25,6 @@ public interface InventoryTransactionRepository
     extends JpaRepository<InventoryTransaction, Long>, JpaSpecificationExecutor<InventoryTransaction> {
     List<InventoryTransaction> findByProduitId(Long produitId, Sort sort);
 
-    default InventoryTransaction buildInventoryTransaction(OrderLine orderLine, User user) {
-        InventoryTransaction inventoryTransaction = new InventoryTransaction();
-        inventoryTransaction.setCreatedAt(orderLine.getCreatedAt());
-        inventoryTransaction.setProduit(orderLine.getFournisseurProduit().getProduit());
-        inventoryTransaction.setUser(user);
-        inventoryTransaction.setQuantity(orderLine.getQuantityReceived());
-        inventoryTransaction.setTransactionType(TransactionType.COMMANDE);
-        return inventoryTransaction;
-    }
-
-    default InventoryTransaction buildInventoryTransaction(SalesLine salesLine, TransactionType transactionType, User user) {
-        InventoryTransaction inventoryTransaction = new InventoryTransaction();
-        inventoryTransaction.setCreatedAt(salesLine.getCreatedAt());
-        inventoryTransaction.setProduit(salesLine.getProduit());
-        inventoryTransaction.setUser(user);
-        inventoryTransaction.setMagasin(user.getMagasin());
-        inventoryTransaction.setQuantity(salesLine.getQuantityRequested());
-        inventoryTransaction.setCostAmount(salesLine.getCostAmount());
-        inventoryTransaction.setRegularUnitPrice(salesLine.getRegularUnitPrice());
-        inventoryTransaction.setTransactionType(transactionType);
-        inventoryTransaction.setSaleLine(salesLine);
-        return inventoryTransaction;
-    }
-
-    default InventoryTransaction buildInventoryTransaction(SalesLine salesLine, User user) {
-        InventoryTransaction inventoryTransaction = new InventoryTransaction();
-        inventoryTransaction.setCreatedAt(LocalDateTime.now());
-        inventoryTransaction.setProduit(salesLine.getProduit());
-        inventoryTransaction.setUser(user);
-        inventoryTransaction.setMagasin(user.getMagasin());
-        inventoryTransaction.setQuantity(salesLine.getQuantityRequested());
-        inventoryTransaction.setCostAmount(salesLine.getCostAmount());
-        inventoryTransaction.setRegularUnitPrice(salesLine.getRegularUnitPrice());
-        inventoryTransaction.setTransactionType(TransactionType.SALE);
-        inventoryTransaction.setSaleLine(salesLine);
-        return inventoryTransaction;
-    }
 
     @Query("SELECT coalesce(sum(e.quantity),0 ) from InventoryTransaction e WHERE e.transactionType=?1 AND e.produit.id=?2")
     Long quantitySold(TransactionType transactionType, Long produitId);

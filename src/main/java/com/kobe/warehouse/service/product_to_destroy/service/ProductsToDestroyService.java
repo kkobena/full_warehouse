@@ -18,6 +18,8 @@ public interface ProductsToDestroyService {
 
     void destroy(Keys keys);
 
+    void remove(Keys keys);
+
     /**
      * Ajout à partir d'un formulaire
      */
@@ -26,4 +28,7 @@ public interface ProductsToDestroyService {
     void closeLastEdition();
 
     void modifyProductQuantity(ProductToDestroyPayload productToDestroyPayload);
+
+    Page<ProductToDestroyDTO> findEditing(ProductToDestroyFilter produidToDestroyFilter, Pageable pageable);
+
 }

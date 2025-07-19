@@ -388,3 +388,8 @@ amountTtc
 FROM delivery_receipt d;
 -XX:+HeapDumpOnOutOfMemoryError
 -XX:HeapDumpPath=/path/to/dumps/heapdump.hprof
+<dependency>
+<groupId>org.docx4j</groupId>
+<artifactId>docx4j-ImportXHTML-core</artifactId>
+<version>11.5.3</version>
+</dependency>

@@ -1,11 +1,12 @@
 <p-toast position="center"></p-toast>
-<p-confirmDialog />
+<p-confirmDialog/>
 <div>
   <p-toolbar>
     <ng-template #start>
       <div class="d-flex justify-content-between" style="width: 100%">
 
         <p-select
+          size="large"
           (onChange)="onFilterChange()"
           [(ngModel)]="selectedType"
           [options]="types"
@@ -14,9 +15,9 @@
           optionLabel="label"
         ></p-select>
 
-        <p-floatlabel>
+        <p-floatlabel variant="on">
           <p-iconfield>
-            <p-inputicon styleClass="pi pi-search" />
+            <p-inputicon styleClass="pi pi-search"/>
             <input
               (keyup.enter)="onSearch()"
               [(ngModel)]="searchTerm"
@@ -29,40 +30,25 @@
           <label for="searchTerm">{{ 'warehouseApp.labels.searchPlaceholder' | translate }}</label>
         </p-floatlabel>
 
-        <p-floatlabel>
-          <p-datePicker
-            [(ngModel)]="fromDate"
-            [iconDisplay]="'input'"
-            [showButtonBar]="true"
-            [style]="{'max-width': '160px'}"
-            class="mr-1"
-            dateFormat="dd/mm/yy"
-            id="dateDebut"
-            inputId="dateDebut"
-            selectOtherMonths="true"
-            showIcon="true"
-          ></p-datePicker
-          >
-          <label for="dateDebut">{{ 'warehouseApp.labels.du' | translate }}</label>
-        </p-floatlabel>
-        <p-floatlabel>
-          <p-datePicker
-            [(ngModel)]="toDate"
-            [iconDisplay]="'input'"
-            [showButtonBar]="true"
-            [style]="{'max-width': '160px'}"
-            class="mr-1"
-            dateFormat="dd/mm/yy"
-            id="dateFin"
-            inputId="dateFin"
-            selectOtherMonths="true"
-            showIcon="true"
-          ></p-datePicker>
-          <label for="dateFin">{{ 'warehouseApp.labels.au' | translate }}</label>
-        </p-floatlabel>
+        <div class="mr-1">
+          <jhi-date-picker [(ngModel)]="fromDate"
+                           [style]="{'max-width': '160px'}"
+                           [label]="'warehouseApp.labels.du'" [id]="'dateDebut'"
+          ></jhi-date-picker>
+        </div>
+
+        <div class="mr-1">
+
+          <jhi-date-picker [(ngModel)]="toDate"
+                           [style]="{'max-width': '160px'}"
+                           [label]="'warehouseApp.labels.au'" [id]="'dateFin'"
+          ></jhi-date-picker>
+        </div>
+
         @if (!isMono) {
-          <p-floatlabel>
+          <p-floatlabel variant="on">
             <p-select
+              size="large"
               [style]="{'min-width': '150px'}"
               (onChange)="onMagasinChange()"
               [(ngModel)]="selectedMagasin"
@@ -74,8 +60,9 @@
             ></p-select>
             <label for="magasins">{{ 'warehouseApp.labels.magasin' | translate }}</label>
           </p-floatlabel>
-          <p-floatlabel>
+          <p-floatlabel variant="on">
             <p-select
+              size="large"
               (onChange)="onStorageChange()"
               [(ngModel)]="selectedStorage"
               [options]="storages"
@@ -90,6 +77,7 @@
         }
         <p-floatlabel>
           <p-select
+            size="large"
             (onChange)="onSearch()"
             [(ngModel)]="selectedRayon"
             [options]="rayons"
@@ -102,56 +90,55 @@
           ></p-select>
           <label for="rayons">{{ 'warehouseApp.labels.rayons' | translate }}</label>
         </p-floatlabel>
-        <p-floatlabel>
+        <p-floatlabel variant="on">
           <p-select
+            size="large"
             (onChange)="onSearch()"
             [(ngModel)]="selectedFournisseur"
             [options]="fournisseurs"
             [showClear]="true"
             [style]="{'min-width': '200px'}"
             filter="true"
+            class="mr-1"
             id="fournisseurs"
             optionLabel="libelle"
           ></p-select>
           <label for="fournisseurs">{{ 'warehouseApp.labels.fournisseurs' | translate }}</label>
         </p-floatlabel>
 
-
-      </div>
-    </ng-template>
-    <ng-template #end>
-      <p-buttonGroup>
-        <p-button
-          (click)="onSearch()"
-          [raised]="true"
-          class="mr-1"
-          icon="pi pi-search"
-          label="{{'warehouseApp.buttons.search' | translate}}"
-          severity="info"
-          type="button"
-        ></p-button>
-        <p-splitbutton
-          [model]="exportMenus"
-          [raised]="true"
-          class="mr-1"
-          icon="pi pi-download"
-          label="{{'warehouseApp.buttons.export' | translate}}"
-          severity="help"
-        ></p-splitbutton>
-        @if (selectedItems?.length > 1) {
+        <p-buttonGroup>
           <p-button
-            (click)="onDestroyAll()"
+            (click)="onSearch()"
             [raised]="true"
-            icon="pi pi-trash"
-            label="{{'warehouseApp.buttons.removeAllStock' | translate}}"
-            severity="danger"
+            class="mr-1"
+            icon="pi pi-search"
+            label="{{'warehouseApp.buttons.search' | translate}}"
+            severity="info"
             type="button"
           ></p-button>
-        }
+          <p-splitbutton
+            [model]="exportMenus"
+            [raised]="true"
+            class="mr-1"
+            icon="pi pi-download"
+            label="{{'warehouseApp.buttons.export' | translate}}"
+            severity="help"
+          ></p-splitbutton>
+          @if (selectedItems?.length > 1) {
+            <p-button
+              (click)="onDestroyAll()"
+              [raised]="true"
+              icon="pi pi-trash"
+              label="{{'warehouseApp.buttons.removeAllStock' | translate}}"
+              severity="danger"
+              type="button"
+            ></p-button>
+          }
 
-      </p-buttonGroup>
-
+        </p-buttonGroup>
+      </div>
     </ng-template>
+
   </p-toolbar>
 
   <p-divider></p-divider>
@@ -246,7 +233,7 @@
             </td>
 
             <td>
-              {{ data.produitCode }}
+              {{ data.produitCodeCip }}
             </td>
             <td>
               {{ data.numLot }}
@@ -261,11 +248,11 @@
             <td class="text-right amount-column">{{ data.prixUni | number }}</td>
             <td class="text-center">
               <p-tag [value]="data.peremptionStatut.libelle"
-                     [severity]="getSeverity(data.peremptionStatut)" />
+                     [severity]="getSeverity(data.peremptionStatut)"/>
             </td>
 
             <td>
-              {{ data.founisseur }}
+              {{ data.fournisseur }}
             </td>
 
             <td class="text-right">
@@ -279,7 +266,7 @@
                 </div>
               } @else {
                 <p-tag
-                  [value]="'warehouseApp.gestionPerimes.labels.detruitsADateDu' | translate:{date:data.dateDestruction} " />
+                  [value]="'warehouseApp.gestionPerimes.labels.detruitsADateDu' | translate:{date:data.dateDestruction} "/>
               }
 
             </td>
@@ -298,5 +285,3 @@
     </div>
   }
 </div>
-<ngx-spinner [fullScreen]="true" bdColor="rgba(0, 0, 0, 0.8)" color="#fff" size="medium"
-             type="timer"><p style="color: white">Traitement en cours...</p></ngx-spinner>

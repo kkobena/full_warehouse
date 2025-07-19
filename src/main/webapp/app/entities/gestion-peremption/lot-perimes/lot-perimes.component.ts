@@ -43,6 +43,9 @@ import { ProductsToDestroyPayload, ProductToDestroyPayload } from '../model/prod
 import { acceptButtonProps, rejectButtonProps } from '../../../shared/util/modal-button-props';
 import { NgxSpinnerModule, NgxSpinnerService } from 'ngx-spinner';
 import { Divider } from 'primeng/divider';
+import {RemoveButtonTextComponent} from "../../../shared/cta/remove-button-text.component";
+import {CtaComponent} from "../../../shared/cta/cta.component";
+import {DatePickerComponent} from "../../../shared/date-picker/date-picker.component";
 
 @Component({
   selector: 'jhi-lot-perimes',
@@ -66,10 +69,12 @@ import { Divider } from 'primeng/divider';
     DecimalPipe,
     TableModule,
     Tag,
-    Tooltip,
     ToastModule,
     NgxSpinnerModule,
     Divider,
+    RemoveButtonTextComponent,
+    CtaComponent,
+    DatePickerComponent,
   ],
   templateUrl: './lot-perimes.component.html',
 })
@@ -152,6 +157,7 @@ export class LotPerimesComponent implements OnInit, AfterViewInit {
         command: () => this.onExcel(),
       },
     ];
+    this.onSearch();
   }
 
   protected onMagasinChange(): void {
@@ -191,8 +197,14 @@ export class LotPerimesComponent implements OnInit, AfterViewInit {
   }
 
   protected getSum(): void {
-    this.lotService.getSum(this.buidParams()).subscribe(res => {
-      this.lotPerimeValeurSum = res.body;
+    this.lotService.getSum(this.buidParams()).subscribe({
+      next: (res: HttpResponse<LotPerimeValeurSum>) => {
+        this.lotPerimeValeurSum = res.body || null;
+      },
+      error: () => {
+        this.lotPerimeValeurSum = null;
+
+      },
     });
   }
 

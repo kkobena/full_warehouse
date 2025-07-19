@@ -24,7 +24,7 @@ public class ProductsToDestroy implements Serializable {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-
+    @NotNull
     private String numLot;
 
     @NotNull
@@ -39,12 +39,15 @@ public class ProductsToDestroy implements Serializable {
     @Column(name = "quantity", nullable = false, columnDefinition = "int(6) ")
     @Min(1)
     private int quantity;
+    @Column(name = "stock_initial", nullable = false, columnDefinition = "int(6) ")
+    @Min(1)
+    private int stockInitial;
 
     @NotNull
     private LocalDate datePeremption;
 
     private LocalDate dateDestuction;
-
+    @NotNull
     @ManyToOne(optional = false)
     private User user;
 
@@ -172,5 +175,14 @@ public class ProductsToDestroy implements Serializable {
 
     public void setMagasin(Magasin magasin) {
         this.magasin = magasin;
+    }
+
+    public int getStockInitial() {
+        return stockInitial;
+    }
+
+    public ProductsToDestroy setStockInitial(int stockInitial) {
+        this.stockInitial = stockInitial;
+        return this;
     }
 }

@@ -148,7 +148,7 @@ public interface ProduitRepository
         spec = add(spec, filterByFournisseurId(param.getFournisseurId()));
         spec = add(spec, filterByRayonId(param.getRayonId()));
         spec = add(spec, filterBySearhTerm(param.getSearchTerm()));
-        if (param.getDayCount() > 0) {
+        if (nonNull(param.getDayCount())) {
             spec = add(spec, filterByDayCount(param.getDayCount()));
         } else {
             if (nonNull(param.getFromDate()) && nonNull(param.getToDate())) {

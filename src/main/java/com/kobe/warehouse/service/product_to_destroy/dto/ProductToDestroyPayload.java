@@ -14,7 +14,8 @@ public record ProductToDestroyPayload(
     String numLot,
     boolean editing,
     Long magasinId,
-    Long id
+    Long id,
+    Integer stockInitial
 ) {
     public ProductToDestroyPayload {
         if (quantity < 1) {

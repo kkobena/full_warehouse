@@ -1,10 +1,5 @@
 package com.kobe.warehouse.service.product_to_destroy.service;
 
-import static com.kobe.warehouse.service.utils.ServiceUtil.buildPeremptionStatut;
-import static java.util.Objects.isNull;
-import static java.util.Objects.nonNull;
-import static org.springframework.util.StringUtils.hasText;
-
 import com.kobe.warehouse.domain.FournisseurProduit;
 import com.kobe.warehouse.domain.Lot;
 import com.kobe.warehouse.domain.Magasin;
@@ -23,17 +18,13 @@ import com.kobe.warehouse.service.StorageService;
 import com.kobe.warehouse.service.UserService;
 import com.kobe.warehouse.service.dto.records.Keys;
 import com.kobe.warehouse.service.errors.GenericError;
+import com.kobe.warehouse.service.mvt_produit.service.InventoryTransactionService;
 import com.kobe.warehouse.service.product_to_destroy.dto.ProductToDestroyDTO;
 import com.kobe.warehouse.service.product_to_destroy.dto.ProductToDestroyFilter;
 import com.kobe.warehouse.service.product_to_destroy.dto.ProductToDestroyPayload;
 import com.kobe.warehouse.service.product_to_destroy.dto.ProductToDestroySumDTO;
 import com.kobe.warehouse.service.product_to_destroy.dto.ProductsToDestroyPayload;
 import com.kobe.warehouse.service.utils.DateUtil;
-import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.util.List;
-import java.util.Map;
-import java.util.stream.Collectors;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -42,6 +33,17 @@ import org.springframework.data.domain.Sort.Direction;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
+
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
+
+import static com.kobe.warehouse.service.utils.ServiceUtil.buildPeremptionStatut;
+import static java.util.Objects.isNull;
+import static java.util.Objects.nonNull;
+import static org.springframework.util.StringUtils.hasText;
 
 @Service
 @Transactional(readOnly = true)
@@ -55,6 +57,7 @@ public class ProductsToDestroyServiceImpl implements ProductsToDestroyService {
     private final MagasinRepository magasinRepository;
     private final StockProduitRepository stockProduitRepository;
     private final ProduitRepository produitRepository;
+    private final InventoryTransactionService inventoryTransactionService;
 
     public ProductsToDestroyServiceImpl(
         ProductsToDestroyRepository productsToDestroyRepository,
@@ -64,7 +67,7 @@ public class ProductsToDestroyServiceImpl implements ProductsToDestroyService {
         StorageService storageService,
         MagasinRepository magasinRepository,
         StockProduitRepository stockProduitRepository,
-        ProduitRepository produitRepository
+        ProduitRepository produitRepository, InventoryTransactionService inventoryTransactionService
     ) {
         this.productsToDestroyRepository = productsToDestroyRepository;
         this.lotRepository = lotRepository;
@@ -74,6 +77,7 @@ public class ProductsToDestroyServiceImpl implements ProductsToDestroyService {
         this.magasinRepository = magasinRepository;
         this.stockProduitRepository = stockProduitRepository;
         this.produitRepository = produitRepository;
+        this.inventoryTransactionService = inventoryTransactionService;
     }
 
     @Override
@@ -103,9 +107,9 @@ public class ProductsToDestroyServiceImpl implements ProductsToDestroyService {
         } else {
             if (isNull(fournisseurProduit) && nonNull(productToDestroyPayload.fournisseurId())) {
                 fournisseurProduit = this.fournisseurRepository.findOneByProduitIdAndFournisseurId(
-                        productToDestroyPayload.produitId(),
-                        productToDestroyPayload.fournisseurId()
-                    ).orElse(null);
+                    productToDestroyPayload.produitId(),
+                    productToDestroyPayload.fournisseurId()
+                ).orElse(null);
             }
         }
         if (isNull(fournisseurProduit)) {
@@ -116,6 +120,8 @@ public class ProductsToDestroyServiceImpl implements ProductsToDestroyService {
             }
         }
         ProductsToDestroy productsToDestroy = new ProductsToDestroy();
+        productsToDestroy.setStockInitial(productToDestroyPayload.stockInitial());
+        productsToDestroy.setEditing(productToDestroyPayload.editing());
         productsToDestroy.setCreated(LocalDateTime.now());
         productsToDestroy.setUpdated(productsToDestroy.getCreated());
         productsToDestroy.setDestroyed(false);
@@ -135,8 +141,17 @@ public class ProductsToDestroyServiceImpl implements ProductsToDestroyService {
             productsToDestroy.setPrixUnit(fournisseurProduit.getPrixUni());
             //a revoir
             if (!productToDestroyPayload.editing()) {
-                product.setPerimeAt(null);
-                this.produitRepository.save(product);
+                List<StockProduit> stockProduits = findStockProduits(magasin.getId(), productsToDestroy.getFournisseurProduit().getProduit().getId());
+                productsToDestroy.setStockInitial(stockProduits.stream().mapToInt(StockProduit::getQtyStock).sum());
+
+               /* product.setPerimeAt(null);
+                this.produitRepository.save(product);*/
+            } else {
+                productsToDestroy.setDatePeremption(productToDestroyPayload.datePeremption());
+                productsToDestroy.setNumLot(productToDestroyPayload.numLot());
+                productsToDestroy.setStockInitial(productToDestroyPayload.stockInitial());
+
+
             }
         }
         productsToDestroy.setMagasin(magasin);
@@ -151,33 +166,19 @@ public class ProductsToDestroyServiceImpl implements ProductsToDestroyService {
             pageable = PageRequest.of(pageable.getPageNumber(), pageable.getPageSize(), sort);
         }
         return this.productsToDestroyRepository.findAll(
-                this.productsToDestroyRepository.buildCombinedSpecification(produidToDestroyFilter),
-                pageable
-            ).map(productToDestroy -> {
-                ProductToDestroyDTO productToDestroyDTO = new ProductToDestroyDTO();
-                productToDestroyDTO.setId(productToDestroy.getId());
-                productToDestroyDTO.setNumLot(productToDestroy.getNumLot());
-                productToDestroyDTO.setPrixAchat(productToDestroy.getPrixAchat());
-                productToDestroyDTO.setPrixUni(productToDestroy.getPrixUnit());
-                FournisseurProduit fournisseurProduit = productToDestroy.getFournisseurProduit();
-                productToDestroyDTO.setProduitCodeCip(fournisseurProduit.getCodeCip());
-                productToDestroyDTO.setProduitName(fournisseurProduit.getProduit().getLibelle());
-                productToDestroyDTO.setQuantity(productToDestroy.getQuantity());
-                productToDestroyDTO.setDatePeremption(DateUtil.format(productToDestroy.getDatePeremption()));
-                productToDestroyDTO.setDateDestruction(DateUtil.format(productToDestroy.getDateDestuction()));
-                productToDestroyDTO.setFournisseur(fournisseurProduit.getFournisseur().getLibelle());
-                productToDestroyDTO.setUpdatedDate(DateUtil.format(productToDestroy.getUpdated()));
-                productToDestroyDTO.setCreatedDate(DateUtil.format(productToDestroy.getCreated()));
-                productToDestroyDTO.setPeremptionStatut(buildPeremptionStatut(productToDestroy.getDatePeremption()));
-                User user = productToDestroy.getUser();
-                productToDestroyDTO.setUser(user.getFirstName().charAt(0) + ".".toUpperCase() + user.getLastName());
-                return productToDestroyDTO;
-            });
+            this.productsToDestroyRepository.buildCombinedSpecification(produidToDestroyFilter),
+            pageable
+        ).map(productToDestroy -> {
+            ProductToDestroyDTO productToDestroyDTO = buildProductToDestroy(productToDestroy);
+            User user = productToDestroy.getUser();
+            productToDestroyDTO.setUser(user.getFirstName().charAt(0) + ".".toUpperCase() + user.getLastName());
+            return productToDestroyDTO;
+        });
     }
 
     @Override
     public ProductToDestroySumDTO getSum(ProductToDestroyFilter produidToDestroyFilter) {
-        return this.productsToDestroyRepository.getSum(this.productsToDestroyRepository.buildCombinedSpecification(produidToDestroyFilter)); // todo to implement
+        return this.productsToDestroyRepository.getSum(this.productsToDestroyRepository.buildCombinedSpecification(produidToDestroyFilter));
     }
 
     @Override
@@ -195,27 +196,48 @@ public class ProductsToDestroyServiceImpl implements ProductsToDestroyService {
 
     @Override
     @Transactional
-    public void addProductQuantity(ProductToDestroyPayload productToDestroyPayload) {
-        Lot lot = this.lotRepository.findByNumLot(productToDestroyPayload.numLot()).orElse(null);
-        prevaliderLot(lot, productToDestroyPayload.quantity());
-        Magasin magasin;
-        if (isNull(productToDestroyPayload.magasinId())) {
-            magasin = storageService.getConnectedUserMagasin();
-        } else {
-            magasin = magasinRepository.getReferenceById(productToDestroyPayload.magasinId());
-        }
-        addProductQuantity(productToDestroyPayload, lot, magasin);
+    public void remove(Keys keys) {
+        this.productsToDestroyRepository.deleteAllById(keys.ids());
     }
 
     @Override
-    public void closeLastEdition() {
-        this.productsToDestroyRepository.findAllByEditingTrueAndCreatedEquals(true, LocalDate.now()).forEach(productsToDestroy -> {
-                updateStock(productsToDestroy);
-                productsToDestroy.setEditing(false);
-                Produit produit = productsToDestroy.getFournisseurProduit().getProduit();
-                produit.setPerimeAt(null);
-                this.produitRepository.save(produit);
+    @Transactional
+    public void addProductQuantity(ProductToDestroyPayload productToDestroyPayload) {
+        Lot lot = this.lotRepository.findByNumLot(productToDestroyPayload.numLot()).orElse(null);
+        this.productsToDestroyRepository.findByNumLotAndFournisseurProduitProduitId(productToDestroyPayload.numLot(), productToDestroyPayload.produitId()).ifPresentOrElse(productsToDestroy -> {
+                update(productsToDestroy, productToDestroyPayload, lot);
+            },
+            () -> {
+                prevaliderLot(lot, productToDestroyPayload.quantity());
+                Magasin magasin;
+                if (isNull(productToDestroyPayload.magasinId())) {
+                    magasin = storageService.getConnectedUserMagasin();
+                } else {
+                    magasin = magasinRepository.getReferenceById(productToDestroyPayload.magasinId());
+                }
+                addProductQuantity(productToDestroyPayload, lot, magasin);
             });
+
+
+    }
+
+    private void update(ProductsToDestroy productsToDestroy, ProductToDestroyPayload productToDestroyPayload, Lot lot) {
+        prevaliderLot(lot, productToDestroyPayload.quantity() + productsToDestroy.getQuantity());
+        productsToDestroy.setQuantity(productToDestroyPayload.quantity() + productsToDestroy.getQuantity());
+        productsToDestroy.setUpdated(LocalDateTime.now());
+    }
+
+    @Override
+    @Transactional
+    public void closeLastEdition() {
+        this.productsToDestroyRepository.findAllByEditingTrueAndCreatedEquals(LocalDate.now(), this.userService.getUser().getId()).forEach(productsToDestroy -> {
+            updateStock(productsToDestroy);
+            productsToDestroy.setEditing(false);
+            productsToDestroy.setUpdated(LocalDateTime.now());
+            inventoryTransactionService.save(productsToDestroy);
+            this.productsToDestroyRepository.save(productsToDestroy);
+
+        });
     }
 
     @Override
@@ -229,13 +251,27 @@ public class ProductsToDestroyServiceImpl implements ProductsToDestroyService {
         this.productsToDestroyRepository.save(productsToDestroy);
     }
 
+    @Override
+    public Page<ProductToDestroyDTO> findEditing(ProductToDestroyFilter produidToDestroyFilter, Pageable pageable) {
+        Sort sort = Sort.by(Direction.DESC, "updated");
+        pageable = PageRequest.of(pageable.getPageNumber(), pageable.getPageSize(), sort);
+        return this.productsToDestroyRepository.findAll(
+            this.productsToDestroyRepository.buildEditing(this.userService.getUser().getId(), produidToDestroyFilter.searchTerm()),
+            pageable
+        ).map(this::buildProductToDestroy);
+    }
+
+    private List<StockProduit> findStockProduits(Long magasinId, Long produitId) {
+        return this.stockProduitRepository.findStockProduitByStorageMagasinIdAndProduitId(
+            magasinId,
+            produitId
+        );
+    }
+
     private void updateStock(ProductsToDestroy productsToDestroy) {
         int quantity = productsToDestroy.getQuantity();
-        List<StockProduit> stockProduits =
-            this.stockProduitRepository.findStockProduitByStorageMagasinIdAndProduitId(
-                    productsToDestroy.getMagasin().getId(),
-                    productsToDestroy.getFournisseurProduit().getId()
-                );
+        List<StockProduit> stockProduits = findStockProduits(productsToDestroy.getMagasin().getId(), productsToDestroy.getFournisseurProduit().getProduit().getId());
+
         if (!stockProduits.isEmpty()) {
             Map<Boolean, List<StockProduit>> partiton = stockProduits
                 .stream()
@@ -282,10 +318,10 @@ public class ProductsToDestroyServiceImpl implements ProductsToDestroyService {
     private void updateLot(ProductsToDestroy productsToDestroy) {
         if (hasText(productsToDestroy.getNumLot())) {
             this.lotRepository.findByNumLot(productsToDestroy.getNumLot()).ifPresent(lot -> {
-                    lot.setQuantity(lot.getQuantity() - productsToDestroy.getQuantity());
-                    lot.setUpdated(LocalDateTime.now());
-                    this.lotRepository.save(lot);
-                });
+                lot.setQuantity(lot.getQuantity() - productsToDestroy.getQuantity());
+                lot.setUpdated(LocalDateTime.now());
+                this.lotRepository.save(lot);
+            });
         }
     }
 
@@ -301,5 +337,24 @@ public class ProductsToDestroyServiceImpl implements ProductsToDestroyService {
                 throw new GenericError("La quantité saisie est supérieure à la quantité disponible ");
             }
         }
+    }
+
+    private ProductToDestroyDTO buildProductToDestroy(ProductsToDestroy productToDestroy) {
+        ProductToDestroyDTO productToDestroyDTO = new ProductToDestroyDTO();
+        productToDestroyDTO.setId(productToDestroy.getId());
+        productToDestroyDTO.setNumLot(productToDestroy.getNumLot());
+        productToDestroyDTO.setPrixAchat(productToDestroy.getPrixAchat());
+        productToDestroyDTO.setPrixUni(productToDestroy.getPrixUnit());
+        FournisseurProduit fournisseurProduit = productToDestroy.getFournisseurProduit();
+        productToDestroyDTO.setProduitCodeCip(fournisseurProduit.getCodeCip());
+        productToDestroyDTO.setProduitName(fournisseurProduit.getProduit().getLibelle());
+        productToDestroyDTO.setQuantity(productToDestroy.getQuantity());
+        productToDestroyDTO.setDatePeremption(DateUtil.formatFr(productToDestroy.getDatePeremption()));
+        productToDestroyDTO.setDateDestruction(DateUtil.formatFr(productToDestroy.getDateDestuction()));
+        productToDestroyDTO.setFournisseur(fournisseurProduit.getFournisseur().getLibelle());
+        productToDestroyDTO.setUpdatedDate(DateUtil.format(productToDestroy.getUpdated()));
+        productToDestroyDTO.setCreatedDate(DateUtil.format(productToDestroy.getCreated()));
+        productToDestroyDTO.setPeremptionStatut(buildPeremptionStatut(productToDestroy.getDatePeremption()));
+        return productToDestroyDTO;
     }
 }

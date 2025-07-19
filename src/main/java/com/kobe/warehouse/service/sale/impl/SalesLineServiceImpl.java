@@ -3,7 +3,6 @@ package com.kobe.warehouse.service.sale.impl;
 import com.kobe.warehouse.domain.CashSale;
 import com.kobe.warehouse.domain.FournisseurProduit;
 import com.kobe.warehouse.domain.GrilleRemise;
-import com.kobe.warehouse.domain.InventoryTransaction;
 import com.kobe.warehouse.domain.LotSold;
 import com.kobe.warehouse.domain.Produit;
 import com.kobe.warehouse.domain.Remise;
@@ -16,7 +15,6 @@ import com.kobe.warehouse.domain.Tva;
 import com.kobe.warehouse.domain.User;
 import com.kobe.warehouse.domain.enumeration.CodeRemise;
 import com.kobe.warehouse.domain.enumeration.TransactionType;
-import com.kobe.warehouse.repository.InventoryTransactionRepository;
 import com.kobe.warehouse.repository.ProduitRepository;
 import com.kobe.warehouse.repository.SalesLineRepository;
 import com.kobe.warehouse.repository.StockProduitRepository;
@@ -25,6 +23,7 @@ import com.kobe.warehouse.service.dto.SaleLineDTO;
 import com.kobe.warehouse.service.dto.records.QuantitySuggestion;
 import com.kobe.warehouse.service.errors.DeconditionnementStockOut;
 import com.kobe.warehouse.service.errors.StockException;
+import com.kobe.warehouse.service.mvt_produit.service.InventoryTransactionService;
 import com.kobe.warehouse.service.sale.SalesLineService;
 import com.kobe.warehouse.service.stock.LotService;
 import com.kobe.warehouse.service.stock.SuggestionProduitService;
@@ -35,8 +34,7 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicInteger;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -46,30 +44,29 @@ import org.springframework.util.CollectionUtils;
 @Transactional
 public abstract class SalesLineServiceImpl implements SalesLineService {
 
-    private final Logger log = LoggerFactory.getLogger(SalesLineServiceImpl.class);
+
     private final ProduitRepository produitRepository;
     private final SalesLineRepository salesLineRepository;
     private final StockProduitRepository stockProduitRepository;
-    private final InventoryTransactionRepository inventoryTransactionRepository;
     private final LogsService logsService;
     private final SuggestionProduitService suggestionProduitService;
     private final LotService lotService;
+    private final InventoryTransactionService inventoryTransactionService;
 
     public SalesLineServiceImpl(
         ProduitRepository produitRepository,
         SalesLineRepository salesLineRepository,
         StockProduitRepository stockProduitRepository,
-        InventoryTransactionRepository inventoryTransactionRepository,
         LogsService logsService,
-        SuggestionProduitService suggestionProduitService, LotService lotService
+        SuggestionProduitService suggestionProduitService, LotService lotService, InventoryTransactionService inventoryTransactionService
     ) {
         this.produitRepository = produitRepository;
         this.salesLineRepository = salesLineRepository;
         this.stockProduitRepository = stockProduitRepository;
-        this.inventoryTransactionRepository = inventoryTransactionRepository;
         this.logsService = logsService;
         this.suggestionProduitService = suggestionProduitService;
         this.lotService = lotService;
+        this.inventoryTransactionService = inventoryTransactionService;
     }
 
     protected SalesLine setCommonSaleLine(SaleLineDTO dto, Long stockageId) {
@@ -282,14 +279,14 @@ public abstract class SalesLineServiceImpl implements SalesLineService {
 
     @Override
     public void createInventory(SalesLine salesLine, User user, Long storageId) {
-        InventoryTransaction inventoryTransaction = inventoryTransactionRepository.buildInventoryTransaction(salesLine, user);
+     //   InventoryTransaction inventoryTransaction = inventoryTransactionRepository.buildInventoryTransaction(salesLine, user);
         Produit p = salesLine.getProduit();
         StockProduit stockProduit = stockProduitRepository.findOneByProduitIdAndStockageId(p.getId(), storageId);
         int quantityBefor = stockProduit.getQtyStock() + stockProduit.getQtyUG();
         int quantityAfter = quantityBefor - salesLine.getQuantityRequested();
-        inventoryTransaction.setQuantityBefor(quantityBefor);
-        inventoryTransaction.setQuantityAfter(quantityAfter);
-        inventoryTransactionRepository.save(inventoryTransaction);
+    //    inventoryTransaction.setQuantityBefor(quantityBefor);
+     //   inventoryTransaction.setQuantityAfter(quantityAfter);
+      //  inventoryTransactionRepository.save(inventoryTransaction);
         if (quantityBefor < salesLine.getQuantityRequested()) {
             logsService.create(TransactionType.FORCE_STOCK, TransactionType.FORCE_STOCK.getValue(), salesLine.getId().toString());
         }
@@ -328,7 +325,7 @@ public abstract class SalesLineServiceImpl implements SalesLineService {
                 StockProduit stockProduit = stockProduitRepository.findOneByProduitIdAndStockageId(p.getId(), storageId);
                 updateSaleLineLotSold(salesLine);
                 save(salesLine, stockProduit, p);
-
+                this.inventoryTransactionService.save(salesLine);
                 quantitySuggestions.add(new QuantitySuggestion(salesLine.getQuantityRequested(), stockProduit, p));
             });
         }

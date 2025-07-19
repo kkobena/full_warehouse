@@ -105,8 +105,8 @@ public class SaleCommonService {
         c.setDiscountAmount(discountAmount);
         c.setDiscountAmountUg(discountAmountUg);
         c.setDiscountAmountHorsUg(discountAmountHorsUg);
-        if (c instanceof CashSale) {
-            processDiscountCash((CashSale) c, discountAmount);
+        if (c instanceof CashSale cashSale) {
+            processDiscountCash(cashSale, discountAmount);
         }
     }
 

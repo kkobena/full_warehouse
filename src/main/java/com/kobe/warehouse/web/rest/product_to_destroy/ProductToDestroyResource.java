@@ -8,7 +8,6 @@ import com.kobe.warehouse.service.product_to_destroy.dto.ProductToDestroySumDTO;
 import com.kobe.warehouse.service.product_to_destroy.dto.ProductsToDestroyPayload;
 import com.kobe.warehouse.service.product_to_destroy.service.ProductsToDestroyService;
 import jakarta.validation.Valid;
-import java.util.List;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpHeaders;
@@ -20,6 +19,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 import tech.jhipster.web.util.PaginationUtil;
+
+import java.util.List;
 
 @RestController
 @RequestMapping("/api/product-to-destroy")
@@ -40,6 +41,12 @@ public class ProductToDestroyResource {
     @GetMapping
     public ResponseEntity<List<ProductToDestroyDTO>> fetchAll(ProductToDestroyFilter productToDestroyFilter, Pageable pageable) {
         Page<ProductToDestroyDTO> page = productsToDestroyService.findAll(productToDestroyFilter, pageable);
+        HttpHeaders headers = PaginationUtil.generatePaginationHttpHeaders(ServletUriComponentsBuilder.fromCurrentRequest(), page);
+        return ResponseEntity.ok().headers(headers).body(page.getContent());
+    }
+    @GetMapping("/editing")
+    public ResponseEntity<List<ProductToDestroyDTO>> fetchForEdit(ProductToDestroyFilter productToDestroyFilter, Pageable pageable) {
+        Page<ProductToDestroyDTO> page = productsToDestroyService.findEditing(productToDestroyFilter, pageable);
         HttpHeaders headers = PaginationUtil.generatePaginationHttpHeaders(ServletUriComponentsBuilder.fromCurrentRequest(), page);
         return ResponseEntity.ok().headers(headers).body(page.getContent());
     }
@@ -71,5 +78,11 @@ public class ProductToDestroyResource {
     public ResponseEntity<Void> modifyProductQuantity(@Valid @RequestBody ProductToDestroyPayload payload) {
         productsToDestroyService.modifyProductQuantity(payload);
         return ResponseEntity.accepted().build();
+    }
+
+    @PostMapping("/delete")
+    public ResponseEntity<Void> deleteAll(@RequestBody Keys keys) {
+        productsToDestroyService.remove(keys);
+        return ResponseEntity.noContent().build();
     }
 }

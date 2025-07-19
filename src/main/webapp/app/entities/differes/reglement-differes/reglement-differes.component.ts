@@ -42,7 +42,6 @@ import { DatePicker } from 'primeng/datepicker';
   templateUrl: './reglement-differes.component.html',
 })
 export class ReglementDifferesComponent implements OnInit {
-  primngtranslate: Subscription;
   protected page = 0;
   protected totalItems = 0;
   protected loading!: boolean;
@@ -58,11 +57,11 @@ export class ReglementDifferesComponent implements OnInit {
   protected readonly itemsPerPage = ITEMS_PER_PAGE;
   protected readonly primeNGConfig = inject(PrimeNG);
   private readonly differeService = inject(DiffereService);
-  private translate = inject(TranslateService);
+  private readonly translate = inject(TranslateService);
 
   constructor() {
     this.translate.use('fr');
-    this.primngtranslate = this.translate.stream('primeng').subscribe(data => {
+     this.translate.stream('primeng').subscribe(data => {
       this.primeNGConfig.setTranslation(data);
     });
   }

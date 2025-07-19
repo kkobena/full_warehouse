@@ -1,4 +1,4 @@
-import { PeremptionStatut } from './peremption-statut';
+import {PeremptionStatut} from './peremption-statut';
 
 export class ProductToDestroy {
   id: number;
@@ -28,6 +28,7 @@ export class ProductToDestroyPayload {
   editing?: boolean;
   magasinId?: number;
   id?: number;
+  stockInitial?: number;
 }
 
 export class ProductsToDestroyPayload {
@@ -52,6 +53,7 @@ export class ProductToDestroyFilter {
   searchTerm?: string;
   storageId?: number;
   magasinId?: number;
+  editing?: boolean = false;
   page?: number;
   size?: number;
 }

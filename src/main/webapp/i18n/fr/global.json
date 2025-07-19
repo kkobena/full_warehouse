@@ -1,4 +1,34 @@
 {
+  "warehouseApp": {
+    "buttons": {
+      "save": "Enregister",
+      "cancel": "Annuler",
+      "delete": "Supprimer",
+      "deleteAll": "Tout supprimer",
+      "back": "Retour",
+      "edit": "Modifier",
+      "search": "Rechercher",
+      "export": "Exporter",
+      "add": "Ajouter",
+      "removeAllStock": "Tout retirer",
+      "closeAction": "Clôturer",
+      "retourFournisseur": "Faire un retour founisseur"
+    },
+    "labels": {
+      "du": "Du",
+      "au": "Au",
+      "filterBy": "Filtrer par",
+      "searchPlaceholder": "Taper pour recherche",
+      "operateur": "Opérateur",
+      "magasin": "Magasins",
+      "typeStockage": "Stockages",
+      "dayCount": "Nbre de jours",
+      "rayons": "Rayons",
+      "fournisseurs": "Fournisseurs",
+      "grossistes": "Grossistes",
+      "produits": "Taper le nom ou le code du produit"
+    }
+  },
   "global": {
     "title": "Pharma Smart",
     "browsehappy": "Vous utilisez un <strong>ancien</strong> navigateur. Veuillez <a href=\"http://browsehappy.com/?locale=fr\">mettre à jour votre navigateur</a> pour une meilleure expérience.",

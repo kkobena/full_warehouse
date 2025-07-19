@@ -7,6 +7,7 @@ import com.kobe.warehouse.repository.SalesLineRepository;
 import com.kobe.warehouse.repository.StockProduitRepository;
 import com.kobe.warehouse.service.LogsService;
 import com.kobe.warehouse.service.dto.SaleLineDTO;
+import com.kobe.warehouse.service.mvt_produit.service.InventoryTransactionService;
 import com.kobe.warehouse.service.stock.LotService;
 import com.kobe.warehouse.service.stock.SuggestionProduitService;
 import org.springframework.stereotype.Service;
@@ -20,19 +21,18 @@ public class AssuranceSaleLineServiceImpl extends SalesLineServiceImpl {
         ProduitRepository produitRepository,
         SalesLineRepository salesLineRepository,
         StockProduitRepository stockProduitRepository,
-        InventoryTransactionRepository inventoryTransactionRepository,
         LogsService logsService,
         SuggestionProduitService suggestionProduitService,
-        LotService lotService
+        LotService lotService,
+        InventoryTransactionService inventoryTransactionService
     ) {
         super(
             produitRepository,
             salesLineRepository,
             stockProduitRepository,
-            inventoryTransactionRepository,
             logsService,
             suggestionProduitService,
-            lotService
+            lotService,inventoryTransactionService
         );
     }
 

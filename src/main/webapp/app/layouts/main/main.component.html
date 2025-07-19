@@ -4,6 +4,14 @@
 
 <div class="container-fluid">
   <div class="card jh-card">
+    <p-confirmDialog
+      styleClass="ws-dialog"
+      [style]="{ width: '40vw' }"
+    ></p-confirmDialog>
+    <p-toast position="center"/>
+    <ngx-spinner [fullScreen]="true" bdColor="rgba(0, 0, 0, 0.8)" color="#fff" size="medium"
+                 type="timer"><p style="color: white">Traitement en cours...</p></ngx-spinner>
+
     <router-outlet></router-outlet>
   </div>
   <jhi-footer></jhi-footer>

@@ -14,7 +14,7 @@ public class LotPerimeDTO {
     private String numLot;
 
     @ExcelProperty("Fournisseur")
-    private String founisseur;
+    private String fournisseur;
 
     @ExcelProperty("Nom du produit")
     private String produitName;
@@ -67,12 +67,13 @@ public class LotPerimeDTO {
         this.familleProduitName = familleProduitName;
     }
 
-    public String getFounisseur() {
-        return founisseur;
+    public String getFournisseur() {
+        return fournisseur;
     }
 
-    public void setFounisseur(String founisseur) {
-        this.founisseur = founisseur;
+    public LotPerimeDTO setFournisseur(String fournisseur) {
+        this.fournisseur = fournisseur;
+        return this;
     }
 
     public String getNumLot() {

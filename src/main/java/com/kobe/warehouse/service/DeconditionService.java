@@ -2,7 +2,6 @@ package com.kobe.warehouse.service;
 
 import com.kobe.warehouse.domain.Decondition;
 import com.kobe.warehouse.domain.FournisseurProduit;
-import com.kobe.warehouse.domain.InventoryTransaction;
 import com.kobe.warehouse.domain.Produit;
 import com.kobe.warehouse.domain.StockProduit;
 import com.kobe.warehouse.domain.User;
@@ -14,14 +13,16 @@ import com.kobe.warehouse.repository.ProduitRepository;
 import com.kobe.warehouse.repository.StockProduitRepository;
 import com.kobe.warehouse.service.dto.DeconditionDTO;
 import com.kobe.warehouse.service.errors.StockException;
-import java.time.LocalDateTime;
-import java.util.Optional;
+import com.kobe.warehouse.service.mvt_produit.service.InventoryTransactionService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.time.LocalDateTime;
+import java.util.Optional;
 
 /**
  * Service Implementation for managing {@link Decondition}.
@@ -34,24 +35,24 @@ public class DeconditionService {
     private final DeconditionRepository deconditionRepository;
     private final ProduitRepository produitRepository;
     private final LogsService logsService;
-    private final InventoryTransactionRepository inventoryTransactionRepository;
     private final StockProduitRepository stockProduitRepository;
     private final StorageService storageService;
+    private final InventoryTransactionService inventoryTransactionService;
 
     public DeconditionService(
         DeconditionRepository deconditionRepository,
         ProduitRepository produitRepository,
         LogsService logsService,
-        InventoryTransactionRepository inventoryTransactionRepository,
         StockProduitRepository stockProduitRepository,
-        StorageService storageService
+        StorageService storageService, InventoryTransactionService inventoryTransactionService
     ) {
         this.deconditionRepository = deconditionRepository;
         this.produitRepository = produitRepository;
         this.logsService = logsService;
-        this.inventoryTransactionRepository = inventoryTransactionRepository;
         this.stockProduitRepository = stockProduitRepository;
         this.storageService = storageService;
+        this.inventoryTransactionService = inventoryTransactionService;
+
     }
 
     private Decondition createDecondition(
@@ -60,7 +61,6 @@ public class DeconditionService {
         int afterStock,
         int mvtQty,
         User user,
-        TransactionType transactionType,
         TypeDeconditionnement typeDeconditionnement
     ) {
         Decondition decondition = new Decondition();
@@ -71,7 +71,9 @@ public class DeconditionService {
         decondition.setStockAfter(afterStock);
         decondition.setUser(user);
         decondition.setTypeDeconditionnement(typeDeconditionnement);
-        return deconditionRepository.save(decondition);
+        decondition = deconditionRepository.save(decondition);
+        inventoryTransactionService.save(decondition);
+        return decondition;
     }
 
     //TODO a revoir pour optimisation des ug
@@ -87,7 +89,7 @@ public class DeconditionService {
             stockProduit.setQtyStock(stock - deconditionDTO.getQtyMvt());
             stockProduit.setQtyVirtual(stockProduit.getQtyStock());
             stockProduit.setUpdatedAt(LocalDateTime.now());
-            Produit detail = parent.getProduits().get(0);
+            Produit detail = parent.getProduits().getFirst();
             StockProduit stockDetail = stockProduitRepository.findOneByProduitIdAndStockageId(
                 detail.getId(),
                 storageService.getDefaultConnectedUserPointOfSaleStorage().getId()
@@ -107,7 +109,6 @@ public class DeconditionService {
                 stockProduit.getQtyStock(),
                 deconditionDTO.getQtyMvt(),
                 user,
-                TransactionType.DECONDTION_OUT,
                 TypeDeconditionnement.DECONDTION_OUT
             );
             Decondition decondition = createDecondition(
@@ -116,14 +117,13 @@ public class DeconditionService {
                 stockDetailFinal,
                 (deconditionDTO.getQtyMvt() * parent.getItemQty()),
                 user,
-                TransactionType.DECONDTION_IN,
                 TypeDeconditionnement.DECONDTION_IN
             );
             FournisseurProduit fournisseurProduitPrincipal = parent.getFournisseurProduitPrincipal();
             if (fournisseurProduitPrincipal != null) {
                 String desc = String.format(
                     "Déconditionnement du produit %s %s quantité initiale %d quantité déconditionnée %d quantité finale %d",
-                    fournisseurProduitPrincipal != null ? fournisseurProduitPrincipal.getCodeCip() : "",
+                    fournisseurProduitPrincipal.getCodeCip(),
                     parent.getLibelle(),
                     stock,
                     deconditionDTO.getQtyMvt(),
@@ -148,28 +148,6 @@ public class DeconditionService {
         }
     }
 
-    private void createInventory(
-        Decondition decondition,
-        TransactionType transactionType,
-        int quantityBefor,
-        int quantityFinal,
-        User user
-    ) {
-        Produit p = decondition.getProduit();
-        InventoryTransaction inventoryTransaction = new InventoryTransaction();
-        inventoryTransaction.setDecondition(decondition);
-        inventoryTransaction.setCreatedAt(LocalDateTime.now());
-        inventoryTransaction.setProduit(p);
-        inventoryTransaction.setUser(user);
-        inventoryTransaction.setMagasin(user.getMagasin());
-        inventoryTransaction.setQuantity(decondition.getQtyMvt());
-        inventoryTransaction.setTransactionType(transactionType);
-        inventoryTransaction.setQuantityBefor(quantityBefor);
-        inventoryTransaction.setQuantityAfter(quantityFinal);
-        inventoryTransaction.setRegularUnitPrice(p.getRegularUnitPrice());
-        inventoryTransaction.setCostAmount(p.getCostAmount());
-        inventoryTransactionRepository.save(inventoryTransaction);
-    }
 
     /**
      * Get all the deconditions.

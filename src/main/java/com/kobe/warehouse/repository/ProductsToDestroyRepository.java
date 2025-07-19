@@ -1,9 +1,5 @@
 package com.kobe.warehouse.repository;
 
-import static java.util.Objects.isNull;
-import static java.util.Objects.nonNull;
-import static org.springframework.util.StringUtils.hasText;
-
 import com.kobe.warehouse.domain.FournisseurProduit;
 import com.kobe.warehouse.domain.FournisseurProduit_;
 import com.kobe.warehouse.domain.Fournisseur_;
@@ -17,25 +13,33 @@ import com.kobe.warehouse.domain.RayonProduit_;
 import com.kobe.warehouse.domain.User_;
 import com.kobe.warehouse.service.product_to_destroy.dto.ProductToDestroyFilter;
 import jakarta.persistence.criteria.Join;
-import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.time.LocalTime;
-import java.util.List;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.LocalTime;
+import java.util.List;
+import java.util.Optional;
+
+import static java.util.Objects.isNull;
+import static java.util.Objects.nonNull;
+import static org.springframework.util.StringUtils.hasText;
+
 @Repository
 public interface ProductsToDestroyRepository
     extends
-        JpaRepository<ProductsToDestroy, Long>,
-        JpaSpecificationExecutor<ProductsToDestroy>,
-        SpecificationBuilder,
-        ProductsToDestroyCustomRepository {
-    @Query("SELECT o FROM ProductsToDestroy o WHERE o.editing =:editing AND FUNCTION('DATE',o.created) =:toDay")
-    List<ProductsToDestroy> findAllByEditingTrueAndCreatedEquals(boolean editing, LocalDate toDay);
+    JpaRepository<ProductsToDestroy, Long>,
+    JpaSpecificationExecutor<ProductsToDestroy>,
+    SpecificationBuilder,
+    ProductsToDestroyCustomRepository {
+    @Query("SELECT o FROM ProductsToDestroy o WHERE o.editing  AND FUNCTION('DATE',o.created) =:toDay AND o.user.id =:userId")
+    List<ProductsToDestroy> findAllByEditingTrueAndCreatedEquals( LocalDate toDay,Long userId);
+
+    Optional<ProductsToDestroy> findByNumLotAndFournisseurProduitProduitId(String numLot, Long produitId);
 
     default Specification<ProductsToDestroy> isDestroyed(Boolean destroyed) {
         if (nonNull(destroyed)) {
@@ -130,6 +134,15 @@ public interface ProductsToDestroyRepository
         }
         spec = add(spec, filterByMagasinId(filter.magasinId()));
 
+        return spec;
+    }
+
+    default Specification<ProductsToDestroy> buildEditing(Long userId, String searchTerm) {
+        Specification<ProductsToDestroy> spec = filterByUserId(userId);
+        spec = add(spec, filterBySearchTerm(searchTerm));
+        spec = add(spec, isEditing(true));
+        var now = LocalDate.now();
+        spec = add(spec, filterByDateRange(now, now));
         return spec;
     }
 }

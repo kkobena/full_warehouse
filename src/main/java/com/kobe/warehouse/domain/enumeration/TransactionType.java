@@ -26,7 +26,8 @@ public enum TransactionType {
     FORCE_STOCK("Vente en avoir"),
     MODIFICATION_PRIX_PRODUCT_A_LA_VENTE("Modification prix  produit à la vente"),
     ENTREE_STOCK("Entrée en stock"),
-    ACTIVATION_PRIVILEGE("Utilisation de la clé d'activation d'une action");
+    ACTIVATION_PRIVILEGE("Utilisation de la clé d'activation d'une action"),
+    RETRAIT_PERIME("Retrait de produit périmé");
 
     private final String value;
 

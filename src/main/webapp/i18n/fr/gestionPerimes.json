@@ -18,7 +18,8 @@
         "detruitsADateDu": "Détruit le {{date}}",
         "retours": "Retours fournisseur",
         "quantiteSaisie": "Quantité",
-        "numLot": "Numéro de lot"
+        "numLot": "Numéro de lot",
+        "datePeremption": "Date de péremption"
       }
     }
   }

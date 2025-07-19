@@ -10,9 +10,9 @@
           class="mr-1"
           optionLabel="label"
         ></p-select>
-        <p-floatlabel>
+        <p-floatlabel variant="on">
           <p-iconfield>
-            <p-inputicon styleClass="pi pi-search" />
+            <p-inputicon styleClass="pi pi-search"/>
             <input
               (keyup.enter)="onSearch()"
               [(ngModel)]="searchTerm"
@@ -24,9 +24,10 @@
             /></p-iconfield>
           <label for="searchTerm">{{ 'warehouseApp.labels.searchPlaceholder' | translate }}</label>
         </p-floatlabel>
-        <p-floatlabel>
+        <p-floatlabel variant="on">
 
           <input
+            autocomplete="off"
             (keyup.enter)="onSearch()"
             [(ngModel)]="dayCount"
             [style]="{'max-width': '120px'}"
@@ -38,39 +39,23 @@
           />
           <label for="dayCount">{{ 'warehouseApp.labels.dayCount' | translate }}</label>
         </p-floatlabel>
-        <p-floatlabel>
-          <p-datePicker
-            [(ngModel)]="fromDate"
-            [iconDisplay]="'input'"
-            [showButtonBar]="true"
-            [style]="{'max-width': '160px'}"
-            class="mr-1"
-            dateFormat="dd/mm/yy"
-            id="dateDebut"
-            inputId="dateDebut"
-            selectOtherMonths="true"
-            showIcon="true"
-          ></p-datePicker
-          >
-          <label for="dateDebut">{{ 'warehouseApp.labels.du' | translate }}</label>
-        </p-floatlabel>
-        <p-floatlabel>
-          <p-datePicker
-            [(ngModel)]="toDate"
-            [iconDisplay]="'input'"
-            [showButtonBar]="true"
-            [style]="{'max-width': '160px'}"
-            class="mr-1"
-            dateFormat="dd/mm/yy"
-            id="dateFin"
-            inputId="dateFin"
-            selectOtherMonths="true"
-            showIcon="true"
-          ></p-datePicker>
-          <label for="dateFin">{{ 'warehouseApp.labels.au' | translate }}</label>
-        </p-floatlabel>
+        <div class="mr-1">
+          <jhi-date-picker [(ngModel)]="fromDate"
+                           [style]="{'max-width': '160px'}"
+                           [label]="'warehouseApp.labels.du'" [id]="'dateDebut'"
+          ></jhi-date-picker>
+        </div>
+
+        <div class="mr-1">
+
+          <jhi-date-picker [(ngModel)]="toDate"
+                           [style]="{'max-width': '160px'}"
+                           [label]="'warehouseApp.labels.au'" [id]="'dateFin'"
+          ></jhi-date-picker>
+        </div>
+
         @if (!isMono) {
-          <p-floatlabel>
+          <p-floatlabel variant="on">
             <p-select
               [style]="{'min-width': '150px'}"
               (onChange)="onMagasinChange()"
@@ -83,7 +68,7 @@
             ></p-select>
             <label for="magasins">{{ 'warehouseApp.labels.magasin' | translate }}</label>
           </p-floatlabel>
-          <p-floatlabel>
+          <p-floatlabel variant="on">
             <p-select
               (onChange)="onStorageChange()"
               [(ngModel)]="selectedStorage"
@@ -97,7 +82,7 @@
             <label for="storages">{{ 'warehouseApp.labels.typeStockage' | translate }}</label>
           </p-floatlabel>
         }
-        <p-floatlabel>
+        <p-floatlabel variant="on">
           <p-select
             (onChange)="onSearch()"
             [(ngModel)]="selectedRayon"
@@ -106,13 +91,16 @@
             [style]="{'min-width': '200px'}"
             class="mr-1"
             filter="true"
+            size="large"
             id="rayons"
             optionLabel="libelle"
           ></p-select>
           <label for="rayons">{{ 'warehouseApp.labels.rayons' | translate }}</label>
         </p-floatlabel>
-        <p-floatlabel>
+        <p-floatlabel variant="on">
           <p-select
+            class="mr-1"
+            size="large"
             (onChange)="onSearch()"
             [(ngModel)]="selectedFournisseur"
             [options]="fournisseurs"
@@ -125,52 +113,49 @@
           <label for="fournisseurs">{{ 'warehouseApp.labels.fournisseurs' | translate }}</label>
         </p-floatlabel>
 
-
-      </div>
-    </ng-template>
-    <ng-template #end>
-      <p-buttonGroup>
-        <p-button
-          (click)="onSearch()"
-          [raised]="true"
-          class="mr-1"
-          icon="pi pi-search"
-          label="{{'warehouseApp.buttons.search' | translate}}"
-          severity="info"
-          type="button"
-        ></p-button>
-
-        <p-button
-          [raised]="true"
-          [routerLink]="['/gestion-peremption',  'edit']"
-          class="mr-1"
-          icon="pi pi-plus"
-          label="{{'warehouseApp.buttons.add' | translate}}"
-          severity="success"
-          type="button"
-        ></p-button>
-        <p-splitbutton
-          [model]="exportMenus"
-          [raised]="true"
-          class="mr-1"
-          icon="pi pi-download"
-          label="{{'warehouseApp.buttons.export' | translate}}"
-          severity="help"
-        ></p-splitbutton>
-        @if (selectedLotPerimes?.length > 1) {
+        <p-buttonGroup>
           <p-button
-            (click)="confirmAll()"
+            (click)="onSearch()"
             [raised]="true"
-            icon="pi pi-trash"
-            label="{{'warehouseApp.buttons.removeAllStock' | translate}}"
-            severity="danger"
+            class="mr-1"
+            icon="pi pi-search"
+            label="{{'warehouseApp.buttons.search' | translate}}"
+            severity="info"
             type="button"
           ></p-button>
-        }
 
-      </p-buttonGroup>
+          <p-button
+            [raised]="true"
+            [routerLink]="['/gestion-peremption',  'edit']"
+            class="mr-1"
+            icon="pi pi-plus"
+            label="{{'warehouseApp.buttons.add' | translate}}"
+            severity="success"
+            type="button"
+          ></p-button>
+          <p-splitbutton
+            [model]="exportMenus"
+            [raised]="true"
+            class="mr-1"
+            icon="pi pi-download"
+            label="{{'warehouseApp.buttons.export' | translate}}"
+            severity="help"
+          ></p-splitbutton>
+          @if (selectedLotPerimes?.length > 1) {
+            <p-button
+              (click)="confirmAll()"
+              [raised]="true"
+              icon="pi pi-trash"
+              label="{{'warehouseApp.buttons.removeAllStock' | translate}}"
+              severity="danger"
+              type="button"
+            ></p-button>
+          }
 
+        </p-buttonGroup>
+      </div>
     </ng-template>
+
   </p-toolbar>
 
   <p-divider></p-divider>
@@ -179,8 +164,6 @@
       <div class="col-12 col-md-6 col-lg-3">
         <div class="card h-100 shadow-sm text-center border rounded-3 bg-danger-subtle ">
           <div class="card-body">
-            <!--<h5 class="card-title text-danger">{{ 'warehouseApp.gestionPerimes.labels.produitPerimes' | translate }}</h5>-->
-            <!-- <p class="card-text fs-3 fw-bold">{{ lotPerimeValeurSum.count }}</p>-->
 
             <div class="d-flex justify-content-between">
             <span
@@ -192,8 +175,6 @@
               class="fw-medium fs-6 text-danger">{{ 'warehouseApp.gestionPerimes.labels.quantitesProduit' | translate }}</span>
               <span class="fw-bold fs-3">{{ lotPerimeValeurSum.quantite | number }}</span>
             </div>
-
-
           </div>
         </div>
       </div>
@@ -229,8 +210,6 @@
           </div>
         </div>
       </div>
-
-
       <div class="col-12 col-md-6 col-lg-3">
         <div class="card h-100 shadow-sm text-center border rounded-3 bg-success-subtle">
           <div class="card-body">
@@ -299,26 +278,22 @@
             <td class="text-right amount-column">{{ data.prixVente | number }}</td>
             <td class="text-center">
               <p-tag [value]="data.peremptionStatut.libelle"
-                     [severity]="getSeverity(data.peremptionStatut)" />
+                     [severity]="getSeverity(data.peremptionStatut)"/>
             </td>
             <td>
-              {{ data.founisseur }}
+              {{ data.fournisseur }}
             </td>
             <td>
               {{ data.rayonName }}
             </td>
-
+            <td class="text-center">
+              <p-tableCheckbox [value]="data"></p-tableCheckbox>
+            </td>
             <td class="text-right">
               <div class="btn-group">
-
-                <p-button (click)="confirmRetirerDialog(data)" [rounded]="true" severity="danger"
-                          icon="pi pi-trash"
-                          pTooltip="Retirer"></p-button>
-
-                <p-button [rounded]="true" severity="danger"
-                          icon="pi pi-reply"
-                          pTooltip="Faire retour founisseur"></p-button>
-
+                <jhi-remove-tex-button (click)="confirmRetirerDialog(data)"></jhi-remove-tex-button>
+                <jhi-cta severity="info" [tooltip]="'warehouseApp.buttons.retourFournisseur'" icon="pi pi-reply"
+                         [raised]="false" [isText]="true" (click)="confirmRetirerDialog(data)"></jhi-cta>
               </div>
             </td>
           </tr>
@@ -337,6 +312,6 @@
   }
 </div>
 <p-toast position="center"></p-toast>
-<p-confirmDialog />
+<p-confirmDialog/>
 <ngx-spinner [fullScreen]="true" bdColor="rgba(0, 0, 0, 0.8)" color="#fff" size="medium"
              type="timer"><p style="color: white">Traitement en cours...</p></ngx-spinner>

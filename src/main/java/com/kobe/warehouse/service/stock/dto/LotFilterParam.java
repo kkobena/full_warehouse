@@ -4,7 +4,7 @@ import java.time.LocalDate;
 
 public class LotFilterParam {
 
-    int dayCount;
+    private  Integer dayCount;
     private Long produitId;
     private String numLot;
     private String searchTerm;
@@ -17,11 +17,11 @@ public class LotFilterParam {
     private Long storageId;
     private TypeFilter type;
 
-    public int getDayCount() {
+    public Integer getDayCount() {
         return dayCount;
     }
 
-    public LotFilterParam setDayCount(int dayCount) {
+    public LotFilterParam setDayCount(Integer dayCount) {
         this.dayCount = dayCount;
         return this;
     }

@@ -30,6 +30,7 @@ import com.kobe.warehouse.service.dto.LotJsonValue;
 import com.kobe.warehouse.service.dto.OrderItem;
 import com.kobe.warehouse.service.dto.UploadDeleiveryReceiptDTO;
 import com.kobe.warehouse.service.errors.GenericError;
+import com.kobe.warehouse.service.mvt_produit.service.InventoryTransactionService;
 import com.kobe.warehouse.service.stock.ImportationEchoueService;
 import com.kobe.warehouse.service.stock.LotService;
 import com.kobe.warehouse.service.stock.StockEntryService;
@@ -78,7 +79,8 @@ public class StockEntryServiceImpl implements StockEntryService {
     private final OrderLineService orderLineService;
 
     private final ImportationEchoueService importationEchoueService;
-    private final TvaRepository tvaRepository;
+    private final InventoryTransactionService inventoryTransactionService;
+
     private final Predicate<OrderLine> isNotEntreeStockIsAuthorize = orderLine -> {
         if (Objects.nonNull(orderLine.getReceiptDate()) && Objects.nonNull(orderLine.getQuantityReceived())) {
             return (
@@ -126,8 +128,7 @@ public class StockEntryServiceImpl implements StockEntryService {
         WarehouseSequenceRepository warehouseSequenceRepository,
         FournisseurRepository fournisseurRepository,
         OrderLineService orderLineService,
-        ImportationEchoueService importationEchoueService,
-        TvaRepository tvaRepository
+        ImportationEchoueService importationEchoueService, InventoryTransactionService inventoryTransactionService
     ) {
         this.commandeRepository = commandeRepository;
         this.produitService = produitService;
@@ -141,7 +142,7 @@ public class StockEntryServiceImpl implements StockEntryService {
         this.fournisseurRepository = fournisseurRepository;
         this.orderLineService = orderLineService;
         this.importationEchoueService = importationEchoueService;
-        this.tvaRepository = tvaRepository;
+        this.inventoryTransactionService = inventoryTransactionService;
     }
 
     @Override
@@ -209,6 +210,7 @@ public class StockEntryServiceImpl implements StockEntryService {
                 );
                 produit.setUpdatedAt(LocalDateTime.now());
                 produitService.update(produit);
+                inventoryTransactionService.save(orderLine);
             });
         logsService.create(
             TransactionType.ENTREE_STOCK,

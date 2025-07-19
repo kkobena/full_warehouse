@@ -1,11 +1,11 @@
 package com.kobe.warehouse.domain;
 
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.kobe.warehouse.domain.enumeration.TransactionType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
+import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
@@ -58,8 +58,7 @@ public class InventoryTransaction implements Serializable {
     @Column(name = "quantity_after", nullable = false)
     private Integer quantityAfter;
 
-    @ManyToOne
-    @JsonIgnoreProperties(value = "inventoryTransactions", allowSetters = true)
+    @ManyToOne(optional = false, fetch = FetchType.LAZY)
     private Produit produit;
 
     @ManyToOne(optional = false)
@@ -74,109 +73,120 @@ public class InventoryTransaction implements Serializable {
     @Column(name = "regular_unit_price", nullable = false)
     private Integer regularUnitPrice;
 
-    @ManyToOne(optional = false)
+    @ManyToOne(optional = false,fetch = FetchType.LAZY)
     @NotNull
     private Magasin magasin;
 
-    @ManyToOne
-    private Ajustement ajustement;
 
-    @ManyToOne
-    private SalesLine saleLine;
+    private Long ajustement;
 
-    @ManyToOne
-    private OrderLine orderLine;
 
-    @ManyToOne
-    private RepartitionStockProduit repartitionStockProduit;
+    private Long saleLine;
 
-    @ManyToOne
-    private Decondition decondition;
 
-    @ManyToOne
-    private FournisseurProduit fournisseurProduit;
+    private Long orderLine;
+
+
+    private Long decondition;
+
+    private Long productsToDestroy;
+
+
+    private Long storeInventoryLine;
+
+    private Long retourBonItem;
 
     public Long getId() {
         return id;
     }
 
-    public void setId(Long id) {
+    public InventoryTransaction setId(Long id) {
         this.id = id;
+        return this;
     }
 
-    public @NotNull TransactionType getTransactionType() {
+    public TransactionType getTransactionType() {
         return transactionType;
     }
 
-    public void setTransactionType(TransactionType transactionType) {
+    public InventoryTransaction setTransactionType(TransactionType transactionType) {
         this.transactionType = transactionType;
+        return this;
     }
 
-    public @NotNull LocalDateTime getCreatedAt() {
+    public LocalDateTime getCreatedAt() {
         return createdAt;
     }
 
-    public void setCreatedAt(LocalDateTime createdAt) {
+    public InventoryTransaction setCreatedAt(LocalDateTime createdAt) {
         this.createdAt = createdAt;
+        return this;
     }
 
-    public @NotNull Integer getQuantity() {
+    public Integer getQuantity() {
         return quantity;
     }
 
-    public void setQuantity(Integer quantity) {
+    public InventoryTransaction setQuantity(Integer quantity) {
         this.quantity = quantity;
+        return this;
     }
 
-    public @NotNull Integer getQuantityBefor() {
+    public Integer getQuantityBefor() {
         return quantityBefor;
     }
 
-    public void setQuantityBefor(Integer quantityBefor) {
+    public InventoryTransaction setQuantityBefor(Integer quantityBefor) {
         this.quantityBefor = quantityBefor;
+        return this;
     }
 
-    public @NotNull Integer getQuantityAfter() {
+    public Integer getQuantityAfter() {
         return quantityAfter;
     }
 
-    public void setQuantityAfter(Integer quantityAfter) {
+    public InventoryTransaction setQuantityAfter(Integer quantityAfter) {
         this.quantityAfter = quantityAfter;
+        return this;
     }
 
     public Produit getProduit() {
         return produit;
     }
 
-    public void setProduit(Produit produit) {
+    public InventoryTransaction setProduit(Produit produit) {
         this.produit = produit;
+        return this;
     }
 
-    public @NotNull User getUser() {
+    public User getUser() {
         return user;
     }
 
-    public void setUser(User user) {
+    public InventoryTransaction setUser(User user) {
         this.user = user;
+        return this;
     }
 
-    public @NotNull Integer getCostAmount() {
+    public Integer getCostAmount() {
         return costAmount;
     }
 
-    public void setCostAmount(Integer costAmount) {
+    public InventoryTransaction setCostAmount(Integer costAmount) {
         this.costAmount = costAmount;
+        return this;
     }
 
-    public @NotNull Integer getRegularUnitPrice() {
+    public Integer getRegularUnitPrice() {
         return regularUnitPrice;
     }
 
-    public void setRegularUnitPrice(Integer regularUnitPrice) {
+    public InventoryTransaction setRegularUnitPrice(Integer regularUnitPrice) {
         this.regularUnitPrice = regularUnitPrice;
+        return this;
     }
 
-    public @NotNull Magasin getMagasin() {
+    public Magasin getMagasin() {
         return magasin;
     }
 
@@ -185,87 +195,66 @@ public class InventoryTransaction implements Serializable {
         return this;
     }
 
-    public Ajustement getAjustement() {
+    public Long getAjustement() {
         return ajustement;
     }
 
-    public InventoryTransaction setAjustement(Ajustement ajustement) {
+    public InventoryTransaction setAjustement(Long ajustement) {
         this.ajustement = ajustement;
         return this;
     }
 
-    public SalesLine getSaleLine() {
+    public Long getSaleLine() {
         return saleLine;
     }
 
-    public InventoryTransaction setSaleLine(SalesLine saleLine) {
+    public InventoryTransaction setSaleLine(Long saleLine) {
         this.saleLine = saleLine;
         return this;
     }
 
-    public OrderLine getOrderLine() {
+    public Long getOrderLine() {
         return orderLine;
     }
 
-    public InventoryTransaction setOrderLine(OrderLine orderLine) {
+    public InventoryTransaction setOrderLine(Long orderLine) {
         this.orderLine = orderLine;
         return this;
     }
 
-    public RepartitionStockProduit getRepartitionStockProduit() {
-        return repartitionStockProduit;
-    }
-
-    public InventoryTransaction setRepartitionStockProduit(RepartitionStockProduit repartitionStockProduit) {
-        this.repartitionStockProduit = repartitionStockProduit;
-        return this;
-    }
-
-    public Decondition getDecondition() {
+    public Long getDecondition() {
         return decondition;
     }
 
-    public InventoryTransaction setDecondition(Decondition decondition) {
+    public InventoryTransaction setDecondition(Long decondition) {
         this.decondition = decondition;
         return this;
     }
 
-    public FournisseurProduit getFournisseurProduit() {
-        return fournisseurProduit;
+    public Long getProductsToDestroy() {
+        return productsToDestroy;
     }
 
-    public InventoryTransaction setFournisseurProduit(FournisseurProduit fournisseurProduit) {
-        this.fournisseurProduit = fournisseurProduit;
+    public InventoryTransaction setProductsToDestroy(Long productsToDestroy) {
+        this.productsToDestroy = productsToDestroy;
         return this;
     }
 
-    public InventoryTransaction transactionType(TransactionType transactionType) {
-        this.transactionType = transactionType;
+    public Long getStoreInventoryLine() {
+        return storeInventoryLine;
+    }
+
+    public InventoryTransaction setStoreInventoryLine(Long storeInventoryLine) {
+        this.storeInventoryLine = storeInventoryLine;
         return this;
     }
 
-    public InventoryTransaction createdAt(LocalDateTime createdAt) {
-        this.createdAt = createdAt;
-        return this;
+    public Long getRetourBonItem() {
+        return retourBonItem;
     }
 
-    public InventoryTransaction quantity(Integer quantity) {
-        this.quantity = quantity;
-        return this;
-    }
-
-    public InventoryTransaction quantityBefor(Integer quantityBefor) {
-        this.quantityBefor = quantityBefor;
-        return this;
-    }
-
-    public InventoryTransaction quantityAfter(Integer quantityAfter) {
-        this.quantityAfter = quantityAfter;
-        return this;
-    }
-
-    public InventoryTransaction produit(Produit produit) {
-        this.produit = produit;
+    public InventoryTransaction setRetourBonItem(Long retourBonItem) {
+        this.retourBonItem = retourBonItem;
         return this;
     }
 

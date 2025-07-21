@@ -10,121 +10,123 @@ import com.kobe.warehouse.domain.Produit;
 import com.kobe.warehouse.domain.RetourBonItem;
 import com.kobe.warehouse.domain.SalesLine;
 import com.kobe.warehouse.domain.StoreInventoryLine;
-import com.kobe.warehouse.domain.enumeration.TransactionType;
+import com.kobe.warehouse.domain.enumeration.MouvementProduit;
 import com.kobe.warehouse.domain.enumeration.TypeDeconditionnement;
 
 public class InventoryTransactionBuilder {
+
     private InventoryTransaction inventoryTransaction;
 
     public InventoryTransactionBuilder(Object entity) {
         if (entity instanceof SalesLine salesLine) {
-            inventoryTransaction = new InventoryTransaction().setCreatedAt(salesLine.getUpdatedAt())
+            inventoryTransaction = new InventoryTransaction()
+                .setCreatedAt(salesLine.getUpdatedAt())
                 .setProduit(salesLine.getProduit())
-                .setTransactionType(TransactionType.SALE)
+                .setMouvementType(salesLine.getQuantitySold() < 0 ? MouvementProduit.CANCEL_SALE : MouvementProduit.SALE)
                 .setQuantity(salesLine.getQuantitySold())
                 .setQuantityBefor(salesLine.getInitStock())
                 .setQuantityAfter(salesLine.getAfterStock())
                 .setCostAmount(salesLine.getCostAmount())
-                .setSaleLine(salesLine.getId())
+                .setEntityId(salesLine.getId())
                 .setUser(salesLine.getSales().getUser())
                 .setMagasin(salesLine.getSales().getUser().getMagasin())
                 .setRegularUnitPrice(salesLine.getRegularUnitPrice());
         } else if (entity instanceof OrderLine orderLine) {
-            new InventoryTransaction().setCreatedAt(orderLine.getUpdatedAt())
+            inventoryTransaction = new InventoryTransaction()
+                .setCreatedAt(orderLine.getUpdatedAt())
                 .setProduit(orderLine.getFournisseurProduit().getProduit())
-                .setTransactionType(TransactionType.COMMANDE)
+                .setMouvementType(MouvementProduit.COMMANDE)
                 .setQuantity(orderLine.getQuantityReceived())
                 .setQuantityBefor(orderLine.getInitStock())
                 .setQuantityAfter(orderLine.getFinalStock())
                 .setCostAmount(orderLine.getOrderCostAmount())
-                .setOrderLine(orderLine.getId())
+                .setEntityId(orderLine.getId())
                 .setUser(orderLine.getCommande().getUser())
                 .setMagasin(orderLine.getCommande().getUser().getMagasin())
                 .setRegularUnitPrice(orderLine.getOrderUnitPrice());
         } else if (entity instanceof Ajustement ajustement) {
             Produit produit = ajustement.getProduit();
             FournisseurProduit fournisseurProduit = produit.getFournisseurProduitPrincipal();
-            new InventoryTransaction().setCreatedAt(ajustement.getDateMtv())
+            inventoryTransaction = new InventoryTransaction()
+                .setCreatedAt(ajustement.getDateMtv())
                 .setProduit(produit)
-                .setTransactionType(ajustement.getQtyMvt()> 0 ? TransactionType.AJUSTEMENT_IN : TransactionType.AJUSTEMENT_OUT)
+                .setMouvementType(ajustement.getQtyMvt() > 0 ? MouvementProduit.AJUSTEMENT_IN : MouvementProduit.AJUSTEMENT_OUT)
                 .setQuantity(ajustement.getQtyMvt())
                 .setQuantityBefor(ajustement.getStockBefore())
                 .setQuantityAfter(ajustement.getStockAfter())
                 .setCostAmount(fournisseurProduit.getPrixAchat())
-                .setAjustement(ajustement.getId())
+                .setEntityId(ajustement.getId())
                 .setUser(ajustement.getAjust().getUser())
                 .setMagasin(ajustement.getAjust().getUser().getMagasin())
                 .setRegularUnitPrice(fournisseurProduit.getPrixUni());
-        }
-
-        else if (entity instanceof Decondition decondition) {
+        } else if (entity instanceof Decondition decondition) {
             Produit produit = decondition.getProduit();
             FournisseurProduit fournisseurProduit = produit.getFournisseurProduitPrincipal();
-            new InventoryTransaction().setCreatedAt(decondition.getDateMtv())
+            inventoryTransaction = new InventoryTransaction()
+                .setCreatedAt(decondition.getDateMtv())
                 .setProduit(produit)
-                .setTransactionType(TypeDeconditionnement.DECONDTION_IN==decondition.getTypeDeconditionnement()  ? TransactionType.DECONDTION_IN : TransactionType.DECONDTION_OUT)
+                .setMouvementType(
+                    TypeDeconditionnement.DECONDTION_IN == decondition.getTypeDeconditionnement()
+                        ? MouvementProduit.DECONDTION_IN
+                        : MouvementProduit.DECONDTION_OUT
+                )
                 .setQuantity(decondition.getQtyMvt())
                 .setQuantityBefor(decondition.getStockBefore())
                 .setQuantityAfter(decondition.getStockAfter())
                 .setUser(decondition.getUser())
                 .setMagasin(decondition.getUser().getMagasin())
                 .setCostAmount(fournisseurProduit.getPrixAchat())
-                .setDecondition(decondition.getId())
+                .setEntityId(decondition.getId())
                 .setRegularUnitPrice(fournisseurProduit.getPrixUni());
-        }
-        else if (entity instanceof ProductsToDestroy productsToDestroy) {
+        } else if (entity instanceof ProductsToDestroy productsToDestroy) {
             FournisseurProduit fournisseurProduit = productsToDestroy.getFournisseurProduit();
             Produit produit = fournisseurProduit.getProduit();
-            new InventoryTransaction().setCreatedAt(productsToDestroy.getUpdated())
+            inventoryTransaction = new InventoryTransaction()
+                .setCreatedAt(productsToDestroy.getUpdated())
                 .setProduit(produit)
-                .setTransactionType(TransactionType.RETRAIT_PERIME)
+                .setMouvementType(MouvementProduit.RETRAIT_PERIME)
                 .setQuantity(productsToDestroy.getQuantity())
                 .setQuantityBefor(productsToDestroy.getStockInitial())
-                .setQuantityAfter(productsToDestroy.getStockInitial()- productsToDestroy.getQuantity())
+                .setQuantityAfter(productsToDestroy.getStockInitial() - productsToDestroy.getQuantity())
                 .setCostAmount(productsToDestroy.getPrixAchat())
-                .setProductsToDestroy(productsToDestroy.getId())
+                .setEntityId(productsToDestroy.getId())
                 .setUser(productsToDestroy.getUser())
                 .setMagasin(productsToDestroy.getMagasin())
                 .setRegularUnitPrice(productsToDestroy.getPrixUnit());
-        }
-        else if (entity instanceof StoreInventoryLine storeInventoryLine) {
+        } else if (entity instanceof StoreInventoryLine storeInventoryLine) {
             Produit produit = storeInventoryLine.getProduit();
             FournisseurProduit fournisseurProduit = produit.getFournisseurProduitPrincipal();
-            new InventoryTransaction().setCreatedAt(storeInventoryLine.getUpdatedAt())
+            inventoryTransaction = new InventoryTransaction()
+                .setCreatedAt(storeInventoryLine.getUpdatedAt())
                 .setProduit(produit)
-                .setTransactionType(TransactionType.INVENTAIRE)
+                .setMouvementType(MouvementProduit.INVENTAIRE)
                 .setQuantity(storeInventoryLine.getQuantityOnHand())
                 .setQuantityBefor(storeInventoryLine.getQuantityInit())
                 .setQuantityAfter(storeInventoryLine.getQuantityOnHand())
                 .setCostAmount(fournisseurProduit.getPrixAchat())
-                .setStoreInventoryLine(storeInventoryLine.getId())
+                .setEntityId(storeInventoryLine.getId())
                 .setUser(storeInventoryLine.getStoreInventory().getUser())
                 .setMagasin(storeInventoryLine.getStoreInventory().getUser().getMagasin())
                 .setRegularUnitPrice(fournisseurProduit.getPrixUni());
-        }
-        else if (entity instanceof RetourBonItem retourBonItem) {
-           OrderLine orderLine = retourBonItem.getOrderLine();
+        } else if (entity instanceof RetourBonItem retourBonItem) {
+            OrderLine orderLine = retourBonItem.getOrderLine();
             Produit produit = orderLine.getFournisseurProduit().getProduit();
-            new InventoryTransaction().setCreatedAt(retourBonItem.getDateMtv())
+            inventoryTransaction = new InventoryTransaction()
+                .setCreatedAt(retourBonItem.getDateMtv())
                 .setProduit(produit)
-                .setTransactionType(TransactionType.INVENTAIRE)
+                .setMouvementType(MouvementProduit.INVENTAIRE)
                 .setQuantity(retourBonItem.getQtyMvt())
                 .setQuantityBefor(retourBonItem.getInitStock())
                 .setQuantityAfter(retourBonItem.getAfterStock())
                 .setCostAmount(orderLine.getOrderCostAmount())
-                .setRetourBonItem(retourBonItem.getId())
+                .setEntityId(retourBonItem.getId())
                 .setUser(retourBonItem.getRetourBon().getUser())
                 .setMagasin(retourBonItem.getRetourBon().getUser().getMagasin())
                 .setRegularUnitPrice(orderLine.getOrderUnitPrice());
         }
-
     }
 
     public InventoryTransaction build() {
         return this.inventoryTransaction;
-
-
     }
-
-
 }

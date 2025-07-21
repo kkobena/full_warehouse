@@ -22,7 +22,7 @@ public class InventoryTransactionDTO {
         this.quantityBefor = inventoryTransaction.getQuantityBefor();
         this.quantityAfter = inventoryTransaction.getQuantityAfter();
         this.updatedAt = inventoryTransaction.getCreatedAt();
-        this.transactionType = inventoryTransaction.getTransactionType().getValue();
+        this.transactionType = inventoryTransaction.getMouvementType().getValue();
         this.produitLibelle = inventoryTransaction.getProduit().getLibelle();
         User user = inventoryTransaction.getUser();
         this.userFullName = user.getFirstName() + " " + user.getLastName();

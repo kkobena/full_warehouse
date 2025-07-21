@@ -17,13 +17,13 @@ import { DropdownModule } from 'primeng/dropdown';
 import { FormsModule } from '@angular/forms';
 import { InputTextModule } from 'primeng/inputtext';
 import { AjustementService } from './ajustement.service';
-import { DatePicker } from 'primeng/datepicker';
 import { Select } from 'primeng/select';
 import { APPEND_TO } from '../../shared/constants/pagination.constants';
 import { IconField } from 'primeng/iconfield';
 import { InputIcon } from 'primeng/inputicon';
-import { InputGroup } from 'primeng/inputgroup';
-import { InputGroupAddon } from 'primeng/inputgroupaddon';
+import { DatePickerComponent } from '../../shared/date-picker/date-picker.component';
+import { FloatLabel } from 'primeng/floatlabel';
+import { Panel } from 'primeng/panel';
 
 @Component({
   selector: 'jhi-ajustement',
@@ -42,43 +42,40 @@ import { InputGroupAddon } from 'primeng/inputgroupaddon';
 
     InputTextModule,
     ListAjustementComponent,
-    DatePicker,
     Select,
     IconField,
     InputIcon,
-    InputGroup,
-    InputGroupAddon,
+    DatePickerComponent,
+    FloatLabel,
+    Panel,
   ],
 })
 export class AjustementComponent implements OnInit {
-  protected userService = inject(UserService);
   translate = inject(TranslateService);
-  protected router = inject(Router);
-  protected activatedRoute = inject(ActivatedRoute);
-
   ajustementList = viewChild(ListAjustementComponent);
   ajustementService = inject(AjustementService);
+  protected userService = inject(UserService);
+  protected router = inject(Router);
+  protected activatedRoute = inject(ActivatedRoute);
   protected search = '';
   protected fromDate: Date = new Date();
   protected toDate: Date = new Date();
   protected users: IUser[] = [];
-  protected userId?: number | null = null;
+  protected user?: IUser | null = null;
   protected active = 'CLOSED';
   protected readonly appendTo = APPEND_TO;
 
   ngOnInit(): void {
+    this.user = { id: null, abbrName: 'TOUT' };
     this.loadAllUsers();
   }
 
   loadAllUsers(): void {
     this.userService.query().subscribe((res: HttpResponse<User[]>) => {
-      //  this.users.push({ id: null, fullName: 'TOUT' });
       if (res.body) {
         this.users = [{ id: null, abbrName: 'TOUT' }];
-
         this.users = [...this.users, ...res.body];
       }
-      // this.user = { id: null, fullName: 'TOUT' };
     });
   }
 
@@ -87,13 +84,12 @@ export class AjustementComponent implements OnInit {
       search: this.search,
       fromDate: this.fromDate,
       toDate: this.toDate,
-      userId: this.userId,
+      userId: this.user?.id,
     });
     this.ajustementList().onSearch();
   }
 
   protected onSelectUser(): void {
-    // this.userId = userControl.value;
     this.onSearch();
   }
 }

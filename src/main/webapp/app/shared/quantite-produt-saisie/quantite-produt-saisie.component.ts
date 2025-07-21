@@ -1,12 +1,12 @@
-import {Component, ElementRef, input, output, viewChild} from '@angular/core';
-import {FormsModule} from '@angular/forms';
-import {FloatLabelModule} from 'primeng/floatlabel';
-import {InputGroupModule} from 'primeng/inputgroup';
-import {InputGroupAddonModule} from 'primeng/inputgroupaddon';
-import {InputText} from 'primeng/inputtext';
-import {Button} from 'primeng/button';
-import {TranslatePipe} from '@ngx-translate/core';
-import {KeyFilterModule} from "primeng/keyfilter";
+import { Component, ElementRef, input, output, viewChild } from '@angular/core';
+import { FormsModule } from '@angular/forms';
+import { FloatLabelModule } from 'primeng/floatlabel';
+import { InputGroupModule } from 'primeng/inputgroup';
+import { InputGroupAddonModule } from 'primeng/inputgroupaddon';
+import { InputText } from 'primeng/inputtext';
+import { Button } from 'primeng/button';
+import { TranslatePipe } from '@ngx-translate/core';
+import { KeyFilterModule } from 'primeng/keyfilter';
 
 @Component({
   selector: 'jhi-quantite-produt-saisie',
@@ -29,25 +29,29 @@ import {KeyFilterModule} from "primeng/keyfilter";
           {{ 'warehouseApp.gestionPerimes.labels.quantiteSaisie' | translate }}
         </label>
         <p-inputgroup-addon>
-          <p-button
-            (click)="handleEnter()"
-            icon="pi pi-plus"
-            [disabled]="!enabledButton"
-            severity="primary"
-          ></p-button>
+          <p-button (click)="handleEnter()" icon="pi pi-plus" [disabled]="disabledButton()" severity="primary"></p-button>
         </p-inputgroup-addon>
       </p-inputgroup>
     </p-floatlabel>
-  `
+  `,
 })
 export class QuantiteProdutSaisieComponent {
   hasSelectedProduct = input<boolean>(false);
   isValid = input<boolean>(true);
+  disabledButton = input<boolean>(false);
   style = input<{}>();
   addQuantite = output<number>();
   enterPressed = output<void>();
-  protected quantite: number | null = null;
+  quantite: number | null = null;
   protected quantityBox = viewChild.required<ElementRef>('quantityBox');
+
+  get enabledButton(): boolean {
+    return this.quantite > 0;
+  }
+
+  get value(): number {
+    return this.quantite;
+  }
 
   focusProduitControl(): void {
     setTimeout(() => {
@@ -57,8 +61,8 @@ export class QuantiteProdutSaisieComponent {
     }, 50);
   }
 
-  get enabledButton(): boolean {
-    return this.quantite > 0;
+  reset(value?: number): void {
+    this.quantite = value || null;
   }
 
   protected onAdd(): void {
@@ -71,9 +75,4 @@ export class QuantiteProdutSaisieComponent {
   protected handleEnter(): void {
     this.onAdd();
   }
-
-reset(): void {
-  this.quantite = null;
-
-}
 }

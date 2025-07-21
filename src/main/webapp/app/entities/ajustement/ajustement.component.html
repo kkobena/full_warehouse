@@ -1,65 +1,65 @@
-<ngx-spinner [fullScreen]="true" bdColor="rgba(0, 0, 0, 0.8)" color="#fff" size="medium" type="timer"
-  ><p style="color: white">Traitement en cours...</p></ngx-spinner
->
 <div class="container-fluid">
-  <h4>Liste des ajustements</h4>
-  <p-toolbar class="ajustement-toolbar">
-    <ng-template #start>
-      <p-inputgroup class="mr-1">
-        <p-inputgroup-addon>Du</p-inputgroup-addon>
-        <p-datePicker
-          [(ngModel)]="fromDate"
-          [maxDate]="toDate"
-          [selectOtherMonths]="true"
-          [showButtonBar]="true"
-          dateFormat="dd/mm/yy"
-          showIcon="true"
-        >
-        </p-datePicker>
-      </p-inputgroup>
+  <p-panel header="Liste des ajustements">
+    <p-toolbar>
+      <ng-template #start>
+        <p-floatlabel variant="on">
+          <p-iconfield>
+            <p-inputicon styleClass="pi pi-search" />
+            <input
+              (keyup.enter)="onSearch()"
+              [(ngModel)]="search"
+              class="mr-1"
+              id="searchTerm"
+              pInputText
+              type="text"
+            /></p-iconfield>
+          <label for="searchTerm">{{ 'warehouseApp.labels.searchPlaceholder' | translate }}</label>
+        </p-floatlabel>
 
-      <p-inputgroup class="mr-1">
-        <p-inputgroup-addon>AU</p-inputgroup-addon>
-        <p-datePicker
-          [(ngModel)]="toDate"
-          [minDate]="fromDate"
-          [selectOtherMonths]="true"
-          [showButtonBar]="true"
-          [showIcon]="true"
-          dateFormat="dd/mm/yy"
-        ></p-datePicker>
-      </p-inputgroup>
+        <div class="mr-1">
+          <jhi-date-picker [(ngModel)]="fromDate"
+                           [id]="'dateDebut'"
+                           [label]="'warehouseApp.labels.du'"
+          ></jhi-date-picker>
+        </div>
 
-      <p-inputgroup class="mr-1 ml-1">
-        <p-inputgroup-addon>Opérateurs</p-inputgroup-addon>
-        <p-select
-          (onChange)="onSelectUser()"
-          [(ngModel)]="userId"
-          [appendTo]="appendTo"
-          [dataKey]="'id'"
-          [options]="users"
-          optionLabel="abbrName"
-          optionValue="id"
-        ></p-select>
-      </p-inputgroup>
+        <div class="mr-1">
 
-      <p-iconfield>
-        <p-inputicon styleClass="pi pi-search" />
-        <input
-          (keyup.enter)="onSearch()"
-          [(ngModel)]="search"
-          class="toobar-input-search"
-          pInputText
-          placeholder="Recherge globale"
-          type="text"
-        />
-      </p-iconfield>
+          <jhi-date-picker [(ngModel)]="toDate"
+                           [id]="'dateFin'"
+                           [label]="'warehouseApp.labels.au'"
+          ></jhi-date-picker>
+        </div>
 
-      <p-button (click)="onSearch()" class="ml-1 mr-1" icon="pi pi-search" label="Rechercher" raised="true" severity="info"></p-button>
 
-      <p-button [routerLink]="['/ajustement', 'new']" icon="pi pi-plus" label="Nouveau" raised="true" severity="success"> </p-button>
-    </ng-template>
-  </p-toolbar>
+        <p-floatlabel variant="on">
+          <p-select
+            (onChange)="onSelectUser()"
+            [(ngModel)]="user"
+            [appendTo]="appendTo"
+            [options]="users"
+            class="mr-1"
+            fluid="true"
+            id="users"
+            optionLabel="abbrName"
+            size="large"
+          ></p-select>
+          <label for="users">{{ 'warehouseApp.labels.operateur' | translate }}</label>
+        </p-floatlabel>
 
-  <jhi-list-ajustement></jhi-list-ajustement>
+
+      </ng-template>
+      <ng-template #end>
+        <p-button (click)="onSearch()" class="ml-1 mr-1" icon="pi pi-search" label="Rechercher"
+                  raised="true" severity="info"></p-button>
+
+        <p-button [routerLink]="['/ajustement', 'new']" icon="pi pi-plus" label="Nouveau"
+                  raised="true" severity="primary"></p-button>
+      </ng-template>
+    </p-toolbar>
+
+    <jhi-list-ajustement></jhi-list-ajustement>
+  </p-panel>
+
+
 </div>

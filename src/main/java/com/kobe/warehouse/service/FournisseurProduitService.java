@@ -127,12 +127,24 @@ public class FournisseurProduitService {
 
     public void updateDefaultFournisseur(long id, boolean isChecked) throws DefaultFournisseurException {
         FournisseurProduit fournisseurProduit = fournisseurProduitRepository.getReferenceById(id);
-        long count = fournisseurProduitRepository.principalAlreadyExiste(fournisseurProduit.getProduit().getId(), id);
-
-        if (isChecked && count > 0) {
-            throw new DefaultFournisseurException();
+        Long produitId = fournisseurProduit.getProduit().getId();
+        long count = fournisseurProduitRepository.principalAlreadyExiste(produitId);
+        long nbreFournisseurProduit = fournisseurProduitRepository.countByProduit(produitId);
+      
+        if (nbreFournisseurProduit == 1 && count == 1 && !isChecked) {
+            throw new GenericError("Il faut au moins un fournisseur principal", "principal");
         }
+        if (count == 1 && !isChecked) {
+            throw new GenericError("Il faut changer le fournisseur principal avant de le désactiver ", "principal");
+        }
+        if (count > 1 && isChecked) {
+            List<FournisseurProduit> all = fournisseurProduitRepository.findAllByAllPrincipal(produitId);
+            all.forEach(fournisseurProduit1 -> fournisseurProduit1.setPrincipal(false));
+            fournisseurProduitRepository.saveAll(all);
+        }
+
         fournisseurProduit.setPrincipal(isChecked);
+        fournisseurProduitRepository.saveAndFlush(fournisseurProduit);
     }
 
     public Optional<FournisseurProduit> findFirstByProduitIdAndFournisseurId(Long produitId, Long fournissieurId) {

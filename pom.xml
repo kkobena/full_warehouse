@@ -430,12 +430,23 @@
       <groupId>org.springframework.boot</groupId>
       <scope>test</scope>
     </dependency>
+    <!--<dependency>
+      <artifactId>jboss-threads</artifactId>
+      <groupId>org.jboss.threads</groupId>
+      <version>3.9.1</version>
+    </dependency>-->
     <dependency>
       <artifactId>spring-boot-starter-thymeleaf</artifactId>
       <groupId>org.springframework.boot</groupId>
     </dependency>
     <dependency>
       <artifactId>spring-boot-starter-undertow</artifactId>
+      <!--   <exclusions>
+           <exclusion>
+             <artifactId>jboss-threads</artifactId>
+             <groupId>org.jboss.threads</groupId>
+           </exclusion>
+         </exclusions>-->
       <groupId>org.springframework.boot</groupId>
     </dependency>
     <dependency>

@@ -1,24 +1,55 @@
 package com.kobe.warehouse.service.product_to_destroy.dto;
 
+import com.alibaba.excel.annotation.ExcelIgnoreUnannotated;
+import com.alibaba.excel.annotation.ExcelProperty;
 import com.kobe.warehouse.service.stock.dto.PeremptionStatut;
 
+@ExcelIgnoreUnannotated
 public class ProductToDestroyDTO {
 
     private Long id;
+
+    @ExcelProperty("Nom du produit")
     private String produitName;
+
+    @ExcelProperty("Code CIP")
     private String produitCodeCip;
+
+    @ExcelProperty("Lot")
     private String numLot;
+
+    @ExcelProperty("Qté")
     private int quantity;
+
+    @ExcelProperty("Date de péremption")
     private String datePeremption;
+
+    @ExcelProperty("Date de destruction")
     private String dateDestruction;
+
+    @ExcelProperty("Utilisateur")
     private String user;
+
+    @ExcelProperty("Date de création")
     private String createdDate;
+
+    @ExcelProperty("Date de modification")
     private String updatedDate;
+
+    @ExcelProperty("Fournisseur")
     private String fournisseur;
+
+    @ExcelProperty("Prix d'achat")
     private int prixAchat;
+
+    @ExcelProperty("Prix de vente")
     private int prixUni;
+
     private PeremptionStatut peremptionStatut;
+
+    @ExcelProperty("Stock déjà detruit")
     private boolean destroyed;
+
     private boolean editing;
 
     public String getCreatedDate() {

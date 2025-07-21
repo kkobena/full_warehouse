@@ -1,6 +1,6 @@
 package com.kobe.warehouse.domain;
 
-import com.kobe.warehouse.domain.enumeration.TransactionType;
+import com.kobe.warehouse.domain.enumeration.MouvementProduit;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
@@ -24,7 +24,7 @@ import java.time.LocalDateTime;
 @Table(
     name = "inventory_transaction",
     indexes = {
-        @Index(columnList = "transaction_type", name = "transaction_type_index"),
+        @Index(columnList = "mouvemen_type", name = "mouvemen_type_index"),
         @Index(columnList = "created_at", name = "createdAt_index"),
     }
 )
@@ -39,8 +39,8 @@ public class InventoryTransaction implements Serializable {
 
     @NotNull
     @Enumerated(EnumType.STRING)
-    @Column(name = "transaction_type", nullable = false)
-    private TransactionType transactionType;
+    @Column(name = "mouvemen_type", nullable = false)
+    private MouvementProduit mouvementType;
 
     @NotNull
     @Column(name = "created_at", nullable = false)
@@ -73,28 +73,12 @@ public class InventoryTransaction implements Serializable {
     @Column(name = "regular_unit_price", nullable = false)
     private Integer regularUnitPrice;
 
-    @ManyToOne(optional = false,fetch = FetchType.LAZY)
+    @ManyToOne(optional = false, fetch = FetchType.LAZY)
     @NotNull
     private Magasin magasin;
 
-
-    private Long ajustement;
-
-
-    private Long saleLine;
-
-
-    private Long orderLine;
-
-
-    private Long decondition;
-
-    private Long productsToDestroy;
-
-
-    private Long storeInventoryLine;
-
-    private Long retourBonItem;
+    @NotNull
+    private Long entityId;
 
     public Long getId() {
         return id;
@@ -105,12 +89,12 @@ public class InventoryTransaction implements Serializable {
         return this;
     }
 
-    public TransactionType getTransactionType() {
-        return transactionType;
+    public MouvementProduit getMouvementType() {
+        return mouvementType;
     }
 
-    public InventoryTransaction setTransactionType(TransactionType transactionType) {
-        this.transactionType = transactionType;
+    public InventoryTransaction setMouvementType(MouvementProduit transactionType) {
+        this.mouvementType = transactionType;
         return this;
     }
 
@@ -195,66 +179,12 @@ public class InventoryTransaction implements Serializable {
         return this;
     }
 
-    public Long getAjustement() {
-        return ajustement;
+    public Long getEntityId() {
+        return entityId;
     }
 
-    public InventoryTransaction setAjustement(Long ajustement) {
-        this.ajustement = ajustement;
-        return this;
-    }
-
-    public Long getSaleLine() {
-        return saleLine;
-    }
-
-    public InventoryTransaction setSaleLine(Long saleLine) {
-        this.saleLine = saleLine;
-        return this;
-    }
-
-    public Long getOrderLine() {
-        return orderLine;
-    }
-
-    public InventoryTransaction setOrderLine(Long orderLine) {
-        this.orderLine = orderLine;
-        return this;
-    }
-
-    public Long getDecondition() {
-        return decondition;
-    }
-
-    public InventoryTransaction setDecondition(Long decondition) {
-        this.decondition = decondition;
-        return this;
-    }
-
-    public Long getProductsToDestroy() {
-        return productsToDestroy;
-    }
-
-    public InventoryTransaction setProductsToDestroy(Long productsToDestroy) {
-        this.productsToDestroy = productsToDestroy;
-        return this;
-    }
-
-    public Long getStoreInventoryLine() {
-        return storeInventoryLine;
-    }
-
-    public InventoryTransaction setStoreInventoryLine(Long storeInventoryLine) {
-        this.storeInventoryLine = storeInventoryLine;
-        return this;
-    }
-
-    public Long getRetourBonItem() {
-        return retourBonItem;
-    }
-
-    public InventoryTransaction setRetourBonItem(Long retourBonItem) {
-        this.retourBonItem = retourBonItem;
+    public InventoryTransaction setEntityId(Long entityId) {
+        this.entityId = entityId;
         return this;
     }
 

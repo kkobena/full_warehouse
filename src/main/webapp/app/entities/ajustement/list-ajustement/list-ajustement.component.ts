@@ -1,4 +1,4 @@
-import { Component, OnInit, inject } from '@angular/core';
+import { Component, inject, OnInit } from '@angular/core';
 import { AjustementStatut } from '../../../shared/model/enumerations/ajustement-statut.model';
 import { IAjust } from '../../../shared/model/ajust.model';
 import { IAjustement } from '../../../shared/model/ajustement.model';
@@ -15,19 +15,18 @@ import { WarehouseCommonModule } from '../../../shared/warehouse-common/warehous
 import { ButtonModule } from 'primeng/button';
 import { TableModule } from 'primeng/table';
 import { TooltipModule } from 'primeng/tooltip';
+import { Card } from 'primeng/card';
 
 @Component({
   selector: 'jhi-list-ajustement',
   templateUrl: './list-ajustement.component.html',
-  imports: [WarehouseCommonModule, ButtonModule, TableModule, TooltipModule],
+  imports: [WarehouseCommonModule, ButtonModule, TableModule, TooltipModule, Card],
 })
 export class ListAjustementComponent implements OnInit {
-  protected userService = inject(UserService);
   translate = inject(TranslateService);
+  protected userService = inject(UserService);
   protected ajustementService = inject(AjustementService);
   protected router = inject(Router);
-  private spinner = inject(NgxSpinnerService);
-
   protected ajustementStatut: AjustementStatut = AjustementStatut.CLOSED;
   protected rowData: IAjust[] = [];
   protected totalItems = 0;
@@ -37,6 +36,7 @@ export class ListAjustementComponent implements OnInit {
   protected ascending!: boolean;
   protected ngbPaginationPage = 1;
   protected ajustements?: IAjustement[];
+  private spinner = inject(NgxSpinnerService);
 
   /** Inserted by Angular inject() migration for backwards compatibility */
   constructor(...args: unknown[]);

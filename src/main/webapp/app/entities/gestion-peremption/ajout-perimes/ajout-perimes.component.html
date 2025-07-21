@@ -5,46 +5,51 @@
       <div class="flex-grow-1 d-flex justify-content-between">
         <div class="mr-1 flex-grow-1">
           <jhi-produit-autocomplete #produitComponent
-                                    [pageSize]="PRODUIT_COMBO_RESULT_SIZE"
-                                    [includeDetails]="includeDetail"
+                                    (selectedProduit)="onSelect($event)"
                                     [(ngModel)]="produitSelected"
-                                    (selectedProduit)="onSelect($event)">
+                                    [includeDetails]="includeDetail"
+                                    [pageSize]="PRODUIT_COMBO_RESULT_SIZE">
           </jhi-produit-autocomplete>
         </div>
         <div class="mr-1">
           <p-floatlabel variant="on">
             <input
-              autocomplete="off"
               #numLot
-              id="numLot"
-              pInputText
               (keyup.enter)="onNumLot($event)"
               [disabled]="!produitSelected"
+              autocomplete="off"
+              id="numLot"
+              pInputText
               pKeyFilter="alphanum"
               type="text"
             />
-            <label for="numLot">{{ 'warehouseApp.gestionPerimes.labels.numLot' | translate }}</label>
+            <label
+              for="numLot">{{ 'warehouseApp.gestionPerimes.labels.numLot' | translate }}</label>
           </p-floatlabel>
         </div>
         <div>
-          <jhi-date-picker (onSelect)="onDatePerementionChange($event)" [disabled]="numLotIsEmpty"
-                           [style]="{'max-width': '175px'}"
-                           [label]="'warehouseApp.gestionPerimes.labels.datePeremption'" [id]="'datePeremtion'"
-                           #datePeremention></jhi-date-picker>
+          <jhi-date-picker #datePeremention (onSelect)="onDatePerementionChange($event)"
+                           [disabled]="numLotIsEmpty"
+                           [id]="'datePeremtion'"
+                           [label]="'warehouseApp.gestionPerimes.labels.datePeremption'"
+                           [style]="{'max-width': '175px'}"></jhi-date-picker>
         </div>
         <div class="mr-1">
-          <jhi-quantite-produt-saisie [style]="{'max-width': '160px'}" [isValid]="canAddQuantity" #produitQteCmpt
-                                      (addQuantite)="addQuantity($event)">
+          <jhi-quantite-produt-saisie #produitQteCmpt (addQuantite)="addQuantity($event)"
+                                      [disabledButton]="disableButton"
+                                      [isValid]="canAddQuantity"
+                                      [style]="{'max-width': '160px'}">
           </jhi-quantite-produt-saisie>
 
         </div>
       </div>
       <div>
         <p-buttonGroup>
-          <jhi-cta class="mr-1" [disabled]="data.length==0 || isSaving" (click)="onClose()"
+          <jhi-cta (click)="onClose()" [disabled]="data.length==0 || isSaving"
+                   [label]="'warehouseApp.buttons.closeAction'"
+                   class="mr-1"
                    icon="pi pi-lock"
                    severity="info"
-                   [label]="'warehouseApp.buttons.closeAction'"
           ></jhi-cta>
           <jhi-back-button></jhi-back-button>
         </p-buttonGroup>
@@ -52,96 +57,98 @@
     </div>
   </p-toolbar>
 
-    <div>
-      <p-table
-        (onLazyLoad)="lazyLoading($event)"
-        [lazy]="true"
-        [loading]="loading"
-        [paginator]="true"
-        [rowsPerPageOptions]="[ 10, 15, 20, 30, 50]"
-        [rows]="itemsPerPage"
-        [showCurrentPageReport]="false"
-        [totalRecords]="totalItems"
-        [value]="data"
-        dataKey="id"
-        [showGridlines]="true"
-      >
-        <ng-template #caption>
-          <p-iconfield>
-            <p-inputicon styleClass="pi pi-search"/>
-            <input [(ngModel)]="searchTerm" (input)="onSearch()" pInputText placeholder="Rechercher..." type="text"/>
-          </p-iconfield>
+  <div>
+    <p-table
+      (onLazyLoad)="lazyLoading($event)"
+      [lazy]="true"
+      [loading]="loading"
+      [paginator]="true"
+      [rowsPerPageOptions]="[ 10, 15, 20, 30, 50]"
+      [rows]="itemsPerPage"
+      [showCurrentPageReport]="false"
+      [showGridlines]="true"
+      [totalRecords]="totalItems"
+      [value]="data"
+      dataKey="id"
+    >
+      <ng-template #caption>
+        <p-iconfield>
+          <p-inputicon styleClass="pi pi-search" />
+          <input (input)="onSearch()" [(ngModel)]="searchTerm" pInputText
+                 placeholder="Rechercher..." type="text" />
+        </p-iconfield>
 
-        </ng-template>
-        <ng-template #header>
-          <tr>
-            <th>Libellé produit</th>
-            <th>Code produit</th>
-            <th>Numéro lot</th>
-            <th>Date de péremption</th>
-            <th>Quantité</th>
-            <th>Prix.Achat</th>
-            <th>Prix.vente</th>
-            <th>Statut</th>
-            <th>Fournisseur</th>
-            <th></th>
-          </tr>
-        </ng-template>
-        <ng-template let-data #body>
-          <tr>
-            <td>
-              {{ data.produitName }}
-            </td>
+      </ng-template>
+      <ng-template #header>
+        <tr>
+          <th>Libellé produit</th>
+          <th>Code produit</th>
+          <th>Numéro lot</th>
+          <th>Date de péremption</th>
+          <th>Quantité</th>
+          <th>Prix.Achat</th>
+          <th>Prix.vente</th>
+          <th>Statut</th>
+          <th>Fournisseur</th>
+          <th></th>
+        </tr>
+      </ng-template>
+      <ng-template #body let-data>
+        <tr>
+          <td>
+            {{ data.produitName }}
+          </td>
 
-            <td>
-              {{ data.produitCodeCip }}
-            </td>
-            <td>
-              {{ data.numLot }}
-            </td>
-            <td>
-              {{ data.datePeremption }}
-            </td>
-            <td [pEditableColumn]="data.quantity" pEditableColumnField="quantity" class="amount-column text-right">
-              <p-cellEditor>
-                <ng-template #input>
-                  <input  #quantityInput
-                         autocomplete="off"
-                         (focus)="$event.target.select()"
-                         (keydown.enter)="modifyProductQuantity(data, quantityInput.value)"
-                         pInputText
-                         [(ngModel)]="data.quantity"
-                         required
-                         fluid
-                         type="number"
-                  />
-                </ng-template>
-                <ng-template #output>
-                  {{ data.quantity | number }}
-                </ng-template>
-              </p-cellEditor>
-            </td>
+          <td>
+            {{ data.produitCodeCip }}
+          </td>
+          <td>
+            {{ data.numLot }}
+          </td>
+          <td>
+            {{ data.datePeremption }}
+          </td>
+          <td [pEditableColumn]="data.quantity" class="amount-column text-right"
+              pEditableColumnField="quantity">
+            <p-cellEditor>
+              <ng-template #input>
+                <input #quantityInput
+                       (focus)="$event.target.select()"
+                       (keydown.enter)="modifyProductQuantity(data, quantityInput.value)"
+                       [(ngModel)]="data.quantity"
+                       autocomplete="off"
+                       fluid="true"
+                       pInputText
+                       required
+                       type="number"
+                />
+              </ng-template>
+              <ng-template #output>
+                {{ data.quantity | number }}
+              </ng-template>
+            </p-cellEditor>
+          </td>
 
-            <td class="text-right amount-column">{{ data.prixAchat | number }}</td>
-            <td class="text-right amount-column">{{ data.prixUni | number }}</td>
-            <td class="text-center">
-              <p-tag [value]="data.peremptionStatut.libelle"
-                     [severity]="getSeverity(data.peremptionStatut)"/>
-            </td>
+          <td class="text-right amount-column">{{ data.prixAchat | number }}</td>
+          <td class="text-right amount-column">{{ data.prixUni | number }}</td>
+          <td class="text-center">
+            <p-tag [severity]="getSeverity(data.peremptionStatut)"
+                   [value]="data.peremptionStatut.libelle" />
+          </td>
 
-            <td>
-              {{ data.fournisseur }}
-            </td>
+          <td>
+            {{ data.fournisseur }}
+          </td>
 
-            <td class="text-right">
-              <jhi-remove-tex-button (click)="onRemoveItem(data)"></jhi-remove-tex-button>
-            </td>
-          </tr>
-        </ng-template>
+          <td class="text-right">
+            <jhi-remove-tex-button (click)="onRemoveItem(data)"></jhi-remove-tex-button>
+          </td>
+        </tr>
+      </ng-template>
 
-      </p-table>
+    </p-table>
 
-    </div>
+  </div>
 
 </div>
 <jhi-confirm-dialog #confirmDialog></jhi-confirm-dialog>

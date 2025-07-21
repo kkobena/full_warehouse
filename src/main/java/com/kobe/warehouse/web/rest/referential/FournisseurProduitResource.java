@@ -65,7 +65,7 @@ public class FournisseurProduitResource {
     public ResponseEntity<Void> updateDefaultFournisseur(@PathVariable("id") Long id, @PathVariable("checked") Boolean checked) {
         log.debug("REST request to delete FournisseurProduit : {}", id);
         fournisseurProduitService.updateDefaultFournisseur(id, checked);
-        return ResponseEntity.ok().headers(HeaderUtil.createEntityDeletionAlert(applicationName, true, ENTITY_NAME, id.toString())).build();
+        return ResponseEntity.accepted().build();
     }
 
     @GetMapping("/fournisseur-produits/{id}")

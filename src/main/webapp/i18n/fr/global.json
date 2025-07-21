@@ -26,7 +26,8 @@
       "rayons": "Rayons",
       "fournisseurs": "Fournisseurs",
       "grossistes": "Grossistes",
-      "produits": "Taper le nom ou le code du produit"
+      "produits": "Taper le nom ou le code du produit",
+      "motifsAjustement": "Motifs d'ajustement"
     }
   },
   "global": {

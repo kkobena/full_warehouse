@@ -26,6 +26,7 @@ import com.kobe.warehouse.domain.Tableau_;
 import com.kobe.warehouse.domain.Tva;
 import com.kobe.warehouse.domain.Tva_;
 import com.kobe.warehouse.domain.enumeration.CodeRemise;
+import com.kobe.warehouse.domain.enumeration.MouvementProduit;
 import com.kobe.warehouse.domain.enumeration.OrderStatut;
 import com.kobe.warehouse.domain.enumeration.SalesStatut;
 import com.kobe.warehouse.domain.enumeration.StorageType;
@@ -40,8 +41,8 @@ import com.kobe.warehouse.service.dto.ProduitDTO;
 import com.kobe.warehouse.service.dto.StockProduitDTO;
 import com.kobe.warehouse.service.dto.builder.ProduitBuilder;
 import com.kobe.warehouse.service.dto.projection.LastDateProjection;
+import com.kobe.warehouse.service.mvt_produit.service.InventoryTransactionService;
 import jakarta.persistence.EntityManager;
-import jakarta.persistence.PersistenceContext;
 import jakarta.persistence.TypedQuery;
 import jakarta.persistence.criteria.CriteriaBuilder;
 import jakarta.persistence.criteria.CriteriaQuery;
@@ -50,16 +51,6 @@ import jakarta.persistence.criteria.JoinType;
 import jakarta.persistence.criteria.Predicate;
 import jakarta.persistence.criteria.Root;
 import jakarta.persistence.criteria.SetJoin;
-import org.apache.commons.lang3.ObjectUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageImpl;
-import org.springframework.data.domain.Pageable;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
-import org.springframework.util.StringUtils;
-
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
@@ -69,6 +60,15 @@ import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
+import org.apache.commons.lang3.ObjectUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.Pageable;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.StringUtils;
 
 @Service
 @Transactional
@@ -81,12 +81,10 @@ public class CustomizedProductRepository implements CustomizedProductService {
     private final RayonProduitRepository rayonProduitRepository;
     private final StorageService storageService;
     private final EtatProduitService etatProduitService;
-    private final StoreInventoryLineRepository storeInventoryLineRepository;
     private final SalesLineRepository salesLineRepository;
     private final OrderLineRepository orderLineRepository;
-
-    @PersistenceContext
-    private EntityManager em;
+    private final InventoryTransactionService inventoryTransactionService;
+    private final EntityManager em;
 
     public CustomizedProductRepository(
         StockProduitRepository stockProduitRepository,
@@ -95,9 +93,10 @@ public class CustomizedProductRepository implements CustomizedProductService {
         RayonProduitRepository rayonProduitRepository,
         StorageService storageService,
         EtatProduitService etatProduitService,
-        StoreInventoryLineRepository storeInventoryLineRepository,
         SalesLineRepository salesLineRepository,
-        OrderLineRepository orderLineRepository
+        OrderLineRepository orderLineRepository,
+        InventoryTransactionService inventoryTransactionService,
+        EntityManager em
     ) {
         this.stockProduitRepository = stockProduitRepository;
         this.logsService = logsService;
@@ -105,9 +104,10 @@ public class CustomizedProductRepository implements CustomizedProductService {
         this.rayonProduitRepository = rayonProduitRepository;
         this.storageService = storageService;
         this.etatProduitService = etatProduitService;
-        this.storeInventoryLineRepository = storeInventoryLineRepository;
         this.salesLineRepository = salesLineRepository;
         this.orderLineRepository = orderLineRepository;
+        this.inventoryTransactionService = inventoryTransactionService;
+        this.em = em;
     }
 
     @Override
@@ -159,8 +159,6 @@ public class CustomizedProductRepository implements CustomizedProductService {
             salesLineRepository.findLastUpdatedAtByProduitIdAndSalesStatut(produitCriteria.getId(), SalesStatut.CLOSED.name())
         );
     }
-
-
 
     @Override
     @Transactional(readOnly = true)
@@ -254,7 +252,6 @@ public class CustomizedProductRepository implements CustomizedProductService {
         TypedQuery<Produit> q = em.createQuery(cq);
 
         return q.getResultList().stream().map(ProduitBuilder::fromProduitWithRequiredParentRelation).toList();
-
     }
 
     @Override
@@ -293,8 +290,6 @@ public class CustomizedProductRepository implements CustomizedProductService {
     @Override
     @Transactional(readOnly = true)
     public Page<ProduitDTO> findAll(ProduitCriteria produitCriteria, Pageable pageable) throws Exception {
-
-
         Magasin magasin = storageService.getConnectedUserMagasin();
         Storage userStorage = storageService.getDefaultConnectedUserPointOfSaleStorage();
         produitCriteria.setMagasinId(magasin.getId());
@@ -330,14 +325,15 @@ public class CustomizedProductRepository implements CustomizedProductService {
                 );
                 produitCriteria.setId(p.getId());
                 dto.setLastDateOfSale(lastSale(produitCriteria));
-                dto.setLastInventoryDate(!p.getHistoriqueProduitInventaires().isEmpty()?p.getHistoriqueProduitInventaires().getFirst().dateInventaire():null);
+                dto.setLastInventoryDate(
+                    inventoryTransactionService.fetchLastDateByTypeAndProduitId(MouvementProduit.INVENTAIRE, p.getId())
+                );
                 dto.setLastOrderDate(lastOrder(produitCriteria));
                 dto.setEtatProduit(this.etatProduitService.getEtatProduit(dto.getId(), dto.getTotalQuantity()));
                 list.add(dto);
             });
         return list;
     }
-
 
     @Override
     public Optional<ProduitDTO> findOneById(Long produitId) {

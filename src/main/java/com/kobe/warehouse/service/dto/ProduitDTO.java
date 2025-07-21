@@ -78,6 +78,7 @@ public class ProduitDTO {
     @JsonSerialize(using = LocalDateSerializer.class)
     private LocalDate perimeAt;
 
+    private String codeEanLaboratoire;
     private int status;
     private String displayStatut;
     private int saleOfPointStock;
@@ -93,7 +94,7 @@ public class ProduitDTO {
     private String dciLibelle;
     private String dciCode;
     private String categorie;
-    private List<HistoriqueProduitInventaire> historiqueProduitInventaires= new ArrayList<>();
+    private List<HistoriqueProduitInventaire> historiqueProduitInventaires = new ArrayList<>();
 
     public String getRemiseCode() {
         return remiseCode;
@@ -181,6 +182,15 @@ public class ProduitDTO {
 
     public ProduitDTO tvaId(Long tvaId) {
         this.tvaId = tvaId;
+        return this;
+    }
+
+    public String getCodeEanLaboratoire() {
+        return codeEanLaboratoire;
+    }
+
+    public ProduitDTO setCodeEanLaboratoire(String codeEanLaboratoire) {
+        this.codeEanLaboratoire = codeEanLaboratoire;
         return this;
     }
 
@@ -490,8 +500,6 @@ public class ProduitDTO {
     public void setFormeLibelle(String formeLibelle) {
         this.formeLibelle = formeLibelle;
     }
-
-
 
     public Long getFamilleId() {
         return familleId;

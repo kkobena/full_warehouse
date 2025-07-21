@@ -1,17 +1,21 @@
 <p-toast position="center"></p-toast>
-<p-dialog [(visible)]="onErrorOccur" [focusOnShow]="false" [modal]="true" [style]="{ width: '50vw' }" header="Message">
+<p-dialog [(visible)]="onErrorOccur" [focusOnShow]="false" [modal]="true"
+          [style]="{ width: '50vw' }" header="Message">
   <p>
     <jhi-alert-error></jhi-alert-error>
   </p>
   <p-footer>
-    <p-button (click)="cancel()" icon="pi pi-times" label="Annuler" pButton raised="true" severity="danger" type="button"></p-button>
+    <p-button (click)="cancel()" icon="pi pi-times" label="Annuler" pButton raised="true"
+              severity="danger" type="button"></p-button>
   </p-footer>
 </p-dialog>
 
 <p-confirmDialog [baseZIndex]="10000" [style]="{ width: '40vw' }"></p-confirmDialog>
-<p-confirmDialog [baseZIndex]="10000" [style]="{ width: '50vw' }" key="deleteFournisseur"></p-confirmDialog>
+<p-confirmDialog [baseZIndex]="10000" [style]="{ width: '50vw' }"
+                 key="deleteFournisseur"></p-confirmDialog>
 
-<p-dialog [(visible)]="jsonDialog" [focusOnShow]="false" [modal]="true" [style]="{ width: '50vw' }" header="Importer un fichier json">
+<p-dialog [(visible)]="jsonDialog" [focusOnShow]="false" [modal]="true" [style]="{ width: '50vw' }"
+          header="Importer un fichier json">
   <div class="ui-g form-group">
     <p-fileupload
       (uploadHandler)="onUploadJson($event)"
@@ -38,14 +42,15 @@
   </ng-template>
 </p-dialog>
 
-<p-dialog [(visible)]="responseDialog" [focusOnShow]="false" [modal]="true" [style]="{ width: '500px' }" header="Message">
+<p-dialog [(visible)]="responseDialog" [focusOnShow]="false" [modal]="true"
+          [style]="{ width: '500px' }" header="Message">
   @if (responsedto?.rejectFileUrl) {
     <div class="alert-warning">
       <h4>Veuillez cliquer sur le lien pour télécharger les lignes rejetées</h4>
     </div>
     <h4>
       <p-button [link]="true" (click)="onClickLink()"
-        >Cliquer pour télécharger le fichier des produits qui ne sont pas pris en compte
+      >Cliquer pour télécharger le fichier des produits qui ne sont pas pris en compte
       </p-button>
     </h4>
   } @else {
@@ -99,7 +104,8 @@
         <div>
           <p-iconfield>
             <p-inputicon styleClass="pi pi-search" />
-            <input (keyup.enter)="onSearch($event)" pInputText placeholder="Taper pour rechercher" type="text" />
+            <input (keyup.enter)="onSearch($event)" pInputText placeholder="Taper pour rechercher"
+                   type="text" />
           </p-iconfield>
         </div>
       </div>
@@ -126,17 +132,22 @@
     </ng-template>
   </p-toolbar>
   @if (produits && produits.length > 0) {
-    <p-table [rowExpandMode]="rowExpandMode" [value]="produits" dataKey="id" styleClass="p-datatable-gridlines ">
+    <p-table [rowExpandMode]="rowExpandMode" [value]="produits" dataKey="id"
+             styleClass="p-datatable-gridlines ">
       <ng-template pTemplate="header">
         <tr>
           <th style="width:2rem"></th>
           <th style="width: 8%">Cip</th>
           <th style="width: 11%">Code EAN</th>
-          <th style="width: 24%"><span jhiTranslate="warehouseApp.produit.libelle">Libelle</span></th>
-          <th style="text-align: right; width: 6%"><span jhiTranslate="warehouseApp.produit.quantity">Quantity</span></th>
+          <th style="width: 24%"><span jhiTranslate="warehouseApp.produit.libelle">Libelle</span>
+          </th>
+          <th style="text-align: right; width: 6%"><span
+            jhiTranslate="warehouseApp.produit.quantity">Quantity</span></th>
 
-          <th style="text-align: right; width: 8%"><span jhiTranslate="warehouseApp.produit.costAmount">Prix achat </span></th>
-          <th style="text-align: right; width: 8%"><span jhiTranslate="warehouseApp.produit.regularUnitPrice">Regular Unit Price</span></th>
+          <th style="text-align: right; width: 8%"><span
+            jhiTranslate="warehouseApp.produit.costAmount">Prix achat </span></th>
+          <th style="text-align: right; width: 8%"><span
+            jhiTranslate="warehouseApp.produit.regularUnitPrice">Regular Unit Price</span></th>
           <th style="text-align: right; width: 6%">Qté.Reap</th>
           <th style="text-align: right; width: 6%">Qté Mini</th>
           <th style="width: 7%; text-align: center">Status</th>
@@ -158,11 +169,17 @@
           <td>{{ produit.codeEan }}</td>
           <td>{{ produit.libelle }}</td>
           @if (produit.totalQuantity < 0) {
-            <td style="text-align: right" class="amount-column red-400">{{ produit.totalQuantity | number }}</td>
+            <td style="text-align: right"
+                class="amount-column red-400">{{ produit.totalQuantity | number }}
+            </td>
           } @else if (produit.totalQuantity === 0) {
-            <td style="text-align: right" class="amount-column orange-400">{{ produit.totalQuantity | number }}</td>
+            <td style="text-align: right"
+                class="amount-column orange-400">{{ produit.totalQuantity | number }}
+            </td>
           } @else {
-            <td style="text-align: right" class="amount-column">{{ produit.totalQuantity | number }}</td>
+            <td style="text-align: right"
+                class="amount-column">{{ produit.totalQuantity | number }}
+            </td>
           }
 
           <td style="text-align: right">{{ produit.costAmount | number }}</td>
@@ -170,7 +187,8 @@
           <td style="text-align: right">{{ produit.qtyAppro | number }}</td>
           <td style="text-align: right">{{ produit.qtySeuilMini | number }}</td>
           <td>
-            <jhi-eta-produit [etatProduit]="produit.etatProduit" [showLabel]="false"></jhi-eta-produit>
+            <jhi-eta-produit [etatProduit]="produit.etatProduit"
+                             [showLabel]="false"></jhi-eta-produit>
           </td>
           <td class="text-right">
             <p-buttonGroup>
@@ -291,45 +309,52 @@
                   <div class="card-body">
                     <table class="invoice-table table table-striped">
                       <tbody>
-                        <tr>
-                          <td class="firstColumn">PMP</td>
-                          <td class="secondColumn">{{ elRow?.prixMnp | number }}</td>
-                          <td class="firstColumn">Gamme</td>
-                          <td class="secondColumn">{{ elRow?.gammeLibelle }}</td>
-                        </tr>
+                      <tr>
+                        <td class="firstColumn">PMP</td>
+                        <td class="secondColumn">{{ elRow?.prixMnp | number }}</td>
+                        <td class="firstColumn">Gamme</td>
+                        <td class="secondColumn">{{ elRow?.gammeLibelle }}</td>
+                      </tr>
 
-                        <tr>
-                          <td class="firstColumn">Date dernière vente</td>
-                          <td class="secondColumn">{{ elRow?.lastDateOfSale | date: 'dd/MM/yyyy HH:mm' }}</td>
-                          <td class="firstColumn">Date dernière entrée en stock</td>
-                          <td class="secondColumn">{{ elRow?.lastOrderDate | date: 'dd/MM/yyyy HH:mm' }}</td>
-                        </tr>
+                      <tr>
+                        <td class="firstColumn">Date dernière vente</td>
+                        <td
+                          class="secondColumn">{{ elRow?.lastDateOfSale | date: 'dd/MM/yyyy HH:mm' }}
+                        </td>
+                        <td class="firstColumn">Date dernière entrée en stock</td>
+                        <td
+                          class="secondColumn">{{ elRow?.lastOrderDate | date: 'dd/MM/yyyy HH:mm' }}
+                        </td>
+                      </tr>
 
-                        <tr>
-                          <td class="firstColumn">Date de création</td>
-                          <td class="secondColumn">{{ elRow?.createdAt | date: 'dd/MM/yyyy HH:mm' }}</td>
-                          <td class="firstColumn">Date dernière inventaire</td>
-                          <td class="secondColumn">{{ elRow?.lastInventoryDate | date: 'dd/MM/yyyy HH:mm' }}</td>
-                        </tr>
-                        <tr>
-                          <td class="firstColumn">Date péremption</td>
-                          <td class="secondColumn">{{ elRow?.expirationDate  }}</td>
-                          <td class="firstColumn">Tva</td>
-                          <td class="secondColumn">{{ elRow?.tvaTaux }}</td>
-                        </tr>
-                        <tr>
-                          <td class="firstColumn">Quantité détail</td>
-                          <td class="secondColumn">{{ elRow?.itemQty }}</td>
+                      <tr>
+                        <td class="firstColumn">Date de création</td>
+                        <td class="secondColumn">{{ elRow?.createdAt | date: 'dd/MM/yyyy HH:mm' }}
+                        </td>
+                        <td class="firstColumn">Date dernière inventaire</td>
+                        <td
+                          class="secondColumn">{{ elRow?.lastInventoryDate | date: 'dd/MM/yyyy HH:mm' }}
+                        </td>
+                      </tr>
+                      <tr>
+                        <td class="firstColumn">Date péremption</td>
+                        <td class="secondColumn">{{ elRow?.expirationDate }}</td>
+                        <td class="firstColumn">Tva</td>
+                        <td class="secondColumn">{{ elRow?.tvaTaux }}</td>
+                      </tr>
+                      <tr>
+                        <td class="firstColumn">Quantité détail</td>
+                        <td class="secondColumn">{{ elRow?.itemQty }}</td>
 
-                          <td class="firstColumn">Forme</td>
-                          <td class="secondColumn">{{ elRow?.formeLibelle }}</td>
-                        </tr>
-                        <tr>
-                          <td class="firstColumn">Famille</td>
-                          <td class="secondColumn">{{ elRow?.familleLibelle }}</td>
-                          <td class="firstColumn">Laboratoire</td>
-                          <td class="secondColumn">{{ elRow?.laboratoireLibelle }}</td>
-                        </tr>
+                        <td class="firstColumn">Forme</td>
+                        <td class="secondColumn">{{ elRow?.formeLibelle }}</td>
+                      </tr>
+                      <tr>
+                        <td class="firstColumn">Famille</td>
+                        <td class="secondColumn">{{ elRow?.familleLibelle }}</td>
+                        <td class="firstColumn">Laboratoire</td>
+                        <td class="secondColumn">{{ elRow?.laboratoireLibelle }}</td>
+                      </tr>
                       </tbody>
                     </table>
                   </div>
@@ -340,25 +365,25 @@
                   <div class="card-body">
                     <table class="table table-striped">
                       <thead>
-                        <tr>
-                          <th style="width: 15%">Code rayon</th>
-                          <th style="width: 45%">Libelle rayon</th>
-                          @if (!isMono) {
-                            <th style="width: 30%">Stockage</th>
-                          }
-                          @if (!isMono) {
-                            <th style="width: 10%; text-align: right">
-                              <button
-                                [text]="true"
-                                rounded="true"
-                                pButtonIcon="pi pi-plus"
-                                pButton
-                                severity="primary"
-                                pTooltip="Ajouter un rayon"
-                              ></button>
-                            </th>
-                          }
-                        </tr>
+                      <tr>
+                        <th style="width: 15%">Code rayon</th>
+                        <th style="width: 45%">Libelle rayon</th>
+                        @if (!isMono) {
+                          <th style="width: 30%">Stockage</th>
+                        }
+                        @if (!isMono) {
+                          <th style="width: 10%; text-align: right">
+                            <button
+                              [text]="true"
+                              rounded="true"
+                              pButtonIcon="pi pi-plus"
+                              pButton
+                              severity="primary"
+                              pTooltip="Ajouter un rayon"
+                            ></button>
+                          </th>
+                        }
+                      </tr>
                       </thead>
                       <tbody>
                         @for (rayon of elRow?.rayonProduits; track rayon; let i = $index) {
@@ -397,13 +422,14 @@
                       <h5 class="card-title">Repartition du stock</h5>
                       <table class="table table-striped">
                         <thead>
-                          <tr>
-                            <th style="width: 60%">Stockage</th>
-                            <th style="width: 10%">Stock</th>
-                            <th pTooltip="Repartir le stock" style="text-align: right; width: 30%">
-                              <button pButtonIcon="pi pi-plus" severity="primary" [rounded]="true" [text]="true" pButton></button>
-                            </th>
-                          </tr>
+                        <tr>
+                          <th style="width: 60%">Stockage</th>
+                          <th style="width: 10%">Stock</th>
+                          <th pTooltip="Repartir le stock" style="text-align: right; width: 30%">
+                            <button pButtonIcon="pi pi-plus" severity="primary" [rounded]="true"
+                                    [text]="true" pButton></button>
+                          </th>
+                        </tr>
                         </thead>
                         <tbody>
                           @for (stock of elRow?.stockProduits; track stock; let i = $index) {
@@ -419,7 +445,8 @@
                                   [text]="true"
                                   pButton
                                 ></button>
-                                <button pButtonIcon="pi pi-trash" [text]="true" severity="danger" [rounded]="true" pButton></button>
+                                <button pButtonIcon="pi pi-trash" [text]="true" severity="danger"
+                                        [rounded]="true" pButton></button>
                               </td>
                             </tr>
                           }
@@ -433,22 +460,22 @@
                     <h5 class="card-title bg-info text-white">Gestion des grossistes du produit</h5>
                     <table class="table table-striped">
                       <thead>
-                        <tr>
-                          <th style="width: 30%">Grossiste</th>
-                          <th style="width: 15%">Cip</th>
-                          <th style="width: 12%">Prix.A</th>
-                          <th style="width: 12%">Prix.U</th>
-                          <th style="width: 31%; text-align: right">
-                            <p-button
-                              (click)="addFournisseur(elRow)"
-                              severity="info"
-                              [rounded]="true"
-                              [text]="true"
-                              icon="pi pi-plus"
-                              pTooltip="Ajouter un fournisseur"
-                            ></p-button>
-                          </th>
-                        </tr>
+                      <tr>
+                        <th style="width: 30%">Grossiste</th>
+                        <th style="width: 15%">Cip</th>
+                        <th style="width: 12%">Prix.A</th>
+                        <th style="width: 12%">Prix.U</th>
+                        <th style="width: 31%; text-align: right">
+                          <p-button
+                            (click)="addFournisseur(elRow)"
+                            severity="info"
+                            [rounded]="true"
+                            [text]="true"
+                            icon="pi pi-plus"
+                            pTooltip="Ajouter un fournisseur"
+                          ></p-button>
+                        </th>
+                      </tr>
                       </thead>
                       <tbody>
                         @for (four of elRow?.fournisseurProduits; track four; let i = $index) {
@@ -458,10 +485,10 @@
                             <td>{{ four.prixAchat | number }}</td>
                             <td>{{ four.prixUni | number }}</td>
                             <td style="text-align: right">
-                              <p-toggleswitch
-                                (onChange)="onChangeDefaultProduitFournisseur($event, four)"
-                                [(ngModel)]="four.principal"
-                                pTooltip="Changer en fournisseur principal"
+                              <p-toggleswitch [disabled]="four.principal"
+                                              (onChange)="onChangeDefaultProduitFournisseur($event, four)"
+                                              [(ngModel)]="four.principal"
+                                              [pTooltip]="getToolTip(four)"
                               >
                               </p-toggleswitch>
                               <p-button

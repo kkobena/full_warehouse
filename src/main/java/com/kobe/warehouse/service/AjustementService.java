@@ -18,14 +18,13 @@ import com.kobe.warehouse.repository.UserRepository;
 import com.kobe.warehouse.security.SecurityUtils;
 import com.kobe.warehouse.service.dto.AjustDTO;
 import com.kobe.warehouse.service.dto.AjustementDTO;
+import com.kobe.warehouse.service.mvt_produit.service.InventoryTransactionService;
 import java.time.LocalDateTime;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.function.BiPredicate;
-
-import com.kobe.warehouse.service.mvt_produit.service.InventoryTransactionService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
@@ -63,7 +62,8 @@ public class AjustementService extends FileResourceService {
         AjustRepository ajustRepository,
         StorageService storageService,
         StockProduitRepository stockProduitRepository,
-        LogsService logsService, InventoryTransactionService inventoryTransactionService
+        LogsService logsService,
+        InventoryTransactionService inventoryTransactionService
     ) {
         this.ajustementRepository = ajustementRepository;
         this.produitRepository = produitRepository;
@@ -94,7 +94,7 @@ public class AjustementService extends FileResourceService {
         return new AjustDTO(ajust);
     }
 
-    private Ajustement create(AjustementDTO ajustementDTO, Ajust ajust) {
+    private void create(AjustementDTO ajustementDTO, Ajust ajust) {
         Produit produit = produitRepository.getReferenceById(ajustementDTO.getProduitId());
         int stock = stockProduitRepository
             .findStockProduitByStorageIdAndProduitId(ajust.getStorage().getId(), ajustementDTO.getProduitId())
@@ -113,9 +113,7 @@ public class AjustementService extends FileResourceService {
             ajustType = AjustType.AJUSTEMENT_IN;
         }
         ajustement.setType(ajustType);
-        ajustement= ajustementRepository.save(ajustement);
-        inventoryTransactionService.save(ajustement);
-        return  ajustement;
+        ajustementRepository.save(ajustement);
     }
 
     public void deleteAll(List<Long> ids) {
@@ -171,7 +169,7 @@ public class AjustementService extends FileResourceService {
             p.setQtyStock(p.getQtyStock() + ajustement.getQtyMvt());
             p.setQtyVirtual(p.getQtyStock());
             ajustement.setStockAfter(p.getQtyStock());
-            this.ajustementRepository.save(ajustement);
+            ajustement = this.ajustementRepository.save(ajustement);
             stockProduitRepository.save(p);
             FournisseurProduit fournisseurProduitPrincipal = produit.getFournisseurProduitPrincipal();
             String desc = String.format(
@@ -182,6 +180,7 @@ public class AjustementService extends FileResourceService {
                 ajustement.getQtyMvt(),
                 p.getQtyStock()
             );
+            inventoryTransactionService.save(ajustement);
             logsService.create(transactionType, desc, ajustement.getId().toString());
         }
     }

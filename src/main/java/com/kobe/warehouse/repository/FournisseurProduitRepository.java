@@ -14,8 +14,11 @@ public interface FournisseurProduitRepository extends JpaRepository<FournisseurP
     @Query("SELECT o FROM FournisseurProduit o WHERE o.principal=TRUE AND o.produit.id=?1")
     FournisseurProduit findFirstByPrincipalIsTrueAndProduitId(Long produitId);
 
-    @Query("SELECT COUNT(o) FROM FournisseurProduit o WHERE o.principal=TRUE AND o.produit.id=?1 AND o.id<> ?2")
-    long principalAlreadyExiste(Long produitId, Long produitFournisseurId);
+    @Query("SELECT o FROM FournisseurProduit o WHERE o.principal=TRUE AND o.produit.id=?1 ")
+    List<FournisseurProduit> findAllByAllPrincipal(Long produitId);
+
+    @Query("SELECT COUNT(o) FROM FournisseurProduit o WHERE o.principal=TRUE AND o.produit.id=?1")
+    long principalAlreadyExiste(Long produitId);
 
     @Query("SELECT COUNT(o) FROM FournisseurProduit o WHERE  o.produit.id=?1 AND o.fournisseur.id = ?2")
     long countFournisseurProduitByProduitIdAndFournisseurId(Long produitId, Long produitFournisseurId);
@@ -30,6 +33,9 @@ public interface FournisseurProduitRepository extends JpaRepository<FournisseurP
 
     @Query("SELECT COUNT(o) FROM FournisseurProduit o WHERE  o.codeCip=?1 AND o.produit.id <> ?2")
     long countByCodeCipAndProduitId(String codeCip, Long produitId);
+
+    @Query("SELECT COUNT(o) FROM FournisseurProduit o WHERE  o.produit.id=?1")
+    long countByProduit(Long produitId);
 
     Optional<FournisseurProduit> findOneByProduitIdAndFournisseurId(Long produitId, Long fournisseurId);
 

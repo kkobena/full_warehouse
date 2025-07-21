@@ -35,7 +35,7 @@ public class InventoryTransactionSpec implements Specification<InventoryTransact
 
         if (Objects.nonNull(this.inventoryTransactionFilter.getType()) && this.inventoryTransactionFilter.getType() != -1) {
             TransactionType transactionType = TransactionType.values()[this.inventoryTransactionFilter.getType()];
-            predicates.add(criteriaBuilder.equal(root.get(InventoryTransaction_.transactionType), transactionType));
+            predicates.add(criteriaBuilder.equal(root.get(InventoryTransaction_.mouvementType), transactionType));
         }
         if (Objects.nonNull(this.inventoryTransactionFilter.getProduitId())) {
             predicates.add(

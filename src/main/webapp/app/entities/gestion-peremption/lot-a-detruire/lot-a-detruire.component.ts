@@ -1,53 +1,56 @@
-import {AfterViewInit, Component, inject, OnInit, viewChild} from '@angular/core';
-import {ProductToDestroyService} from '../product-to-destroy.service';
-import {ITEMS_PER_PAGE} from '../../../shared/constants/pagination.constants';
-import {ConfirmationService, LazyLoadEvent, MenuItem, MessageService} from 'primeng/api';
-import {HttpHeaders, HttpResponse} from '@angular/common/http';
-import {DATE_FORMAT_ISO_DATE} from '../../../shared/util/warehouse-util';
-import {ProductToDestroy, ProductToDestroyFilter, ProductToDestroySum} from '../model/product-to-destroy';
-import {TableHeaderCheckbox, TableModule} from 'primeng/table';
-import {Toast} from 'primeng/toast';
-import {ConfirmDialog} from 'primeng/confirmdialog';
-import {acceptButtonProps, rejectButtonProps} from '../../../shared/util/modal-button-props';
-import {PrimeNG} from 'primeng/config';
-import {TranslatePipe, TranslateService} from '@ngx-translate/core';
-import {IMagasin} from '../../../shared/model/magasin.model';
-import {Storage} from '../../storage/storage.model';
-import {IFournisseur} from '../../../shared/model/fournisseur.model';
-import {IRayon} from '../../../shared/model/rayon.model';
-import {Button} from 'primeng/button';
-import {ButtonGroup} from 'primeng/buttongroup';
-import {DatePicker} from 'primeng/datepicker';
-import {Divider} from 'primeng/divider';
-import {FloatLabel} from 'primeng/floatlabel';
-import {IconField} from 'primeng/iconfield';
-import {InputIcon} from 'primeng/inputicon';
-import {InputText} from 'primeng/inputtext';
-import {FormsModule, ReactiveFormsModule} from '@angular/forms';
-import {Select} from 'primeng/select';
-import {SplitButton} from 'primeng/splitbutton';
-import {Toolbar} from 'primeng/toolbar';
-import {Params} from '../../../shared/model/enumerations/params.model';
-import {ConfigurationService} from '../../../shared/configuration.service';
-import {FournisseurService} from '../../fournisseur/fournisseur.service';
-import {RayonService} from '../../rayon/rayon.service';
-import {MagasinService} from '../../magasin/magasin.service';
-import {StorageService} from '../../storage/storage.service';
-import {DecimalPipe} from '@angular/common';
-import {Tag} from 'primeng/tag';
-import {Tooltip} from 'primeng/tooltip';
-import {PeremptionStatut} from '../model/peremption-statut';
-import {SpinerService} from "../../../shared/spiner.service";
-import {DatePickerComponent} from "../../../shared/date-picker/date-picker.component";
+import { AfterViewInit, Component, inject, OnInit, viewChild } from '@angular/core';
+import { ProductToDestroyService } from '../product-to-destroy.service';
+import { ITEMS_PER_PAGE } from '../../../shared/constants/pagination.constants';
+import { LazyLoadEvent, MenuItem } from 'primeng/api';
+import { HttpHeaders, HttpResponse } from '@angular/common/http';
+import { DATE_FORMAT_ISO_DATE } from '../../../shared/util/warehouse-util';
+import {
+  ProductToDestroy,
+  ProductToDestroyFilter,
+  ProductToDestroySum
+} from '../model/product-to-destroy';
+import { TableHeaderCheckbox, TableModule } from 'primeng/table';
+import { PrimeNG } from 'primeng/config';
+import { TranslatePipe, TranslateService } from '@ngx-translate/core';
+import { IMagasin } from '../../../shared/model/magasin.model';
+import { Storage } from '../../storage/storage.model';
+import { IFournisseur } from '../../../shared/model/fournisseur.model';
+import { IRayon } from '../../../shared/model/rayon.model';
+import { Button } from 'primeng/button';
+import { ButtonGroup } from 'primeng/buttongroup';
+import { Divider } from 'primeng/divider';
+import { FloatLabel } from 'primeng/floatlabel';
+import { IconField } from 'primeng/iconfield';
+import { InputIcon } from 'primeng/inputicon';
+import { InputText } from 'primeng/inputtext';
+import { FormsModule, ReactiveFormsModule } from '@angular/forms';
+import { Select } from 'primeng/select';
+import { SplitButton } from 'primeng/splitbutton';
+import { Toolbar } from 'primeng/toolbar';
+import { Params } from '../../../shared/model/enumerations/params.model';
+import { ConfigurationService } from '../../../shared/configuration.service';
+import { FournisseurService } from '../../fournisseur/fournisseur.service';
+import { RayonService } from '../../rayon/rayon.service';
+import { MagasinService } from '../../magasin/magasin.service';
+import { StorageService } from '../../storage/storage.service';
+import { DecimalPipe } from '@angular/common';
+import { Tag } from 'primeng/tag';
+import { Tooltip } from 'primeng/tooltip';
+import { PeremptionStatut } from '../model/peremption-statut';
+import { SpinerService } from '../../../shared/spiner.service';
+import { DatePickerComponent } from '../../../shared/date-picker/date-picker.component';
+import { saveAs } from 'file-saver';
+import { extractFileName2 } from '../../../shared/util/file-utils';
+import {
+  ConfirmDialogComponent
+} from '../../../shared/dialog/confirm-dialog/confirm-dialog.component';
+import { ToastAlertComponent } from '../../../shared/toast-alert/toast-alert.component';
 
 @Component({
   selector: 'jhi-lot-a-detruire',
   imports: [
-    Toast,
-    ConfirmDialog,
     Button,
     ButtonGroup,
-    DatePicker,
     Divider,
     FloatLabel,
     IconField,
@@ -64,10 +67,11 @@ import {DatePickerComponent} from "../../../shared/date-picker/date-picker.compo
     Tag,
     Tooltip,
     DatePickerComponent,
-
+    ConfirmDialogComponent,
+    ToastAlertComponent,
   ],
   templateUrl: './lot-a-detruire.component.html',
-  providers: [ConfirmationService, MessageService],
+  providers: [],
 })
 export class LotADetruireComponent implements OnInit, AfterViewInit {
   protected checkbox = viewChild<TableHeaderCheckbox>('checkbox');
@@ -111,8 +115,6 @@ export class LotADetruireComponent implements OnInit, AfterViewInit {
   ];
   protected selectedType: any = null;
   private readonly productToDestroyService = inject(ProductToDestroyService);
-  private readonly messageService = inject(MessageService);
-  private readonly modalService = inject(ConfirmationService);
   private readonly primeNGConfig = inject(PrimeNG);
   private readonly translate = inject(TranslateService);
   private readonly configurationService = inject(ConfigurationService);
@@ -121,6 +123,8 @@ export class LotADetruireComponent implements OnInit, AfterViewInit {
   private readonly magasinSrevice = inject(MagasinService);
   private readonly storageService = inject(StorageService);
   private readonly spinner = inject(SpinerService);
+  private readonly confimDialog = viewChild.required<ConfirmDialogComponent>('confirmDialog');
+  private readonly alert = viewChild.required<ToastAlertComponent>('alert');
 
   ngAfterViewInit(): void {
     this.translate.use('fr');
@@ -133,7 +137,7 @@ export class LotADetruireComponent implements OnInit, AfterViewInit {
     this.selectedType = this.types[2];
     this.findConfigStock();
     this.fetchFournisseur();
-    this.getSum();
+
     this.exportMenus = [
       {
         label: 'PDF',
@@ -143,9 +147,16 @@ export class LotADetruireComponent implements OnInit, AfterViewInit {
       {
         label: 'Excel',
         icon: 'pi pi-file-excel',
-        command: () => this.onExcel(),
+        command: () => this.onExport('EXCEL'),
+      },
+      {
+        label: 'Csv',
+        icon: 'pi pi-file-export',
+        command: () => this.onExport('CSV'),
       },
     ];
+    this.onSearch();
+    this.getSum();
   }
 
   protected getSeverity(status: PeremptionStatut) {
@@ -158,16 +169,15 @@ export class LotADetruireComponent implements OnInit, AfterViewInit {
   }
 
   protected confirmDestroyDialog(id: number): void {
-    this.modalService.confirm({
-      message: 'Voulez-vous detruire le stock de ce produit ?',
-      header: 'Confirmation',
-      rejectButtonProps: rejectButtonProps(),
-      acceptButtonProps: acceptButtonProps(),
-      icon: 'pi pi-exclamation-triangle',
-      accept: () => {
+    this.confimDialog().onConfirm(
+      () => {
         this.destroy(id);
       },
-    });
+      'Confirmation',
+      'Êtes-vous sûr de vouloir détruire ce stock ?',
+      null,
+      () => {},
+    );
   }
 
   protected onStorageChange(): void {
@@ -213,20 +223,19 @@ export class LotADetruireComponent implements OnInit, AfterViewInit {
   }
 
   protected onDestroyAll(): void {
-    this.modalService.confirm({
-      message: 'Voulez-vous detruire tous les stocks de ces produits ?',
-      header: 'Confirmation',
-      rejectButtonProps: rejectButtonProps(),
-      acceptButtonProps: acceptButtonProps(),
-      icon: 'pi pi-exclamation-triangle',
-      accept: () => {
+    this.confimDialog().onConfirm(
+      () => {
         this.destroyAll();
       },
-    });
+      'Confirmation',
+      'Voulez-vous detruire tous les stocks de ces produits ?',
+      null,
+      () => {},
+    );
   }
 
   private fetchStorages(): void {
-    this.storageService.fetchStorages({magasinId: this.selectedMagasin?.id}).subscribe((res: HttpResponse<Storage[]>) => {
+    this.storageService.fetchStorages({ magasinId: this.selectedMagasin?.id }).subscribe((res: HttpResponse<Storage[]>) => {
       this.storages = res.body || [];
     });
   }
@@ -284,10 +293,24 @@ export class LotADetruireComponent implements OnInit, AfterViewInit {
     });
   }
 
-  private onPrint(): void {
-  }
+  private onPrint(): void {}
 
-  private onExcel(): void {
+  private onExport(format: string): void {
+    this.spinner.show();
+    this.productToDestroyService.export(format, this.buidParams()).subscribe({
+      next: resp => {
+        this.spinner.hide();
+        const blob = resp.body;
+        saveAs(blob, extractFileName2(resp.headers.get('Content-disposition'), format, 'produits_a_detruire'));
+      },
+      error: () => {
+        this.spinner.hide();
+        this.alert().showError('Une erreur est survenue');
+      },
+      complete: () => {
+        this.spinner.hide();
+      },
+    });
   }
 
   private destroyAll(): void {
@@ -312,6 +335,7 @@ export class LotADetruireComponent implements OnInit, AfterViewInit {
       magasinId: this.selectedMagasin?.id,
       destroyed: this.selectedType?.value,
       storageId: this.selectedStorage?.id,
+      editing: false,
     };
   }
 
@@ -327,11 +351,7 @@ export class LotADetruireComponent implements OnInit, AfterViewInit {
     this.spinner.hide();
     this.ngbPaginationPage = this.page ?? 1;
     this.loading = false;
-    this.messageService.add({
-      severity: 'error',
-      summary: 'Erreur',
-      detail: 'Une erreur est survenue',
-    });
+    this.alert().showError('Une erreur est survenue');
   }
 
   private loadPage(page?: number): void {

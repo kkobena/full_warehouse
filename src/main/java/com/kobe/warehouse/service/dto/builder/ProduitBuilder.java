@@ -24,9 +24,6 @@ import com.kobe.warehouse.service.dto.RayonProduitDTO;
 import com.kobe.warehouse.service.dto.StockProduitDTO;
 import com.kobe.warehouse.service.dto.TableauDTO;
 import com.kobe.warehouse.service.utils.NumberUtil;
-import org.apache.commons.lang3.StringUtils;
-import org.springframework.util.CollectionUtils;
-
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
@@ -35,18 +32,20 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
+import org.apache.commons.lang3.StringUtils;
+import org.springframework.util.CollectionUtils;
 
 public final class ProduitBuilder {
 
     private static final String PERIME_DATE_PATERN = "dd/MM/yyyy";
 
-    private ProduitBuilder() {
-    }
+    private ProduitBuilder() {}
 
     public static Produit fromDTO(ProduitDTO produitDTO, Rayon rayon) {
         Produit produit = new Produit();
         produit.setRayonProduits(Set.of(new RayonProduit().setProduit(produit).setRayon(rayon)));
         produit.setLibelle(produitDTO.getLibelle().trim().toUpperCase());
+        produit.setCodeEanLaboratoire(produitDTO.getCodeEanLaboratoire());
         produit.setNetUnitPrice(produitDTO.getRegularUnitPrice());
         produit.setTypeProduit(TypeProduit.PACKAGE);
         produit.setCreatedAt(LocalDateTime.now());
@@ -275,8 +274,8 @@ public final class ProduitBuilder {
     public static ProduitDTO partialFromProduit(Produit produit) {
         Produit parent = produit.getParent();
         ProduitDTO produitDTO = new ProduitDTO()
-            .setHistoriqueProduitInventaires(produit.getHistoriqueProduitInventaires())
             .setId(produit.getId())
+            .setCodeEanLaboratoire(produit.getCodeEanLaboratoire())
             .setRemiseCode(produit.getCodeRemise().getValue())
             .setLibelle(produit.getLibelle())
             .setTypeProduit(produit.getTypeProduit())
@@ -301,10 +300,9 @@ public final class ProduitBuilder {
         }
         produitDTO.setStatus(produit.getStatus().ordinal());
         produitDTO.displayStatut(produit.getStatus().name());
-        if (!CollectionUtils.isEmpty(produitDTO.getHistoriqueProduitInventaires())){
+        if (!CollectionUtils.isEmpty(produitDTO.getHistoriqueProduitInventaires())) {
             produitDTO.setLastInventoryDate(produitDTO.getHistoriqueProduitInventaires().getFirst().dateInventaire());
         }
-
 
         return produitDTO;
     }
@@ -370,8 +368,7 @@ public final class ProduitBuilder {
                     .getRayon();
                 dto.setRayonId(rayon.getId());
                 dto.setRayonLibelle(rayon.getLibelle());
-            } catch (Exception _) {
-            }
+            } catch (Exception _) {}
         }
         dto.setCodeEan(produit.getCodeEan());
         FournisseurProduit fournisseurProduitPrincipal = produit.getFournisseurProduitPrincipal();

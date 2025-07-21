@@ -1,18 +1,20 @@
 package com.kobe.warehouse.service.mvt_produit.service;
 
 import com.kobe.warehouse.domain.InventoryTransaction;
+import com.kobe.warehouse.domain.enumeration.MouvementProduit;
 import com.kobe.warehouse.domain.enumeration.TransactionType;
 import com.kobe.warehouse.repository.InventoryTransactionRepository;
 import com.kobe.warehouse.service.criteria.InventoryTransactionSpec;
 import com.kobe.warehouse.service.dto.InventoryTransactionDTO;
 import com.kobe.warehouse.service.dto.filter.InventoryTransactionFilterDTO;
+import com.kobe.warehouse.service.dto.projection.LastDateProjection;
 import com.kobe.warehouse.service.mvt_produit.builder.InventoryTransactionBuilder;
+import java.time.LocalDateTime;
+import java.util.Optional;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
-import java.util.Optional;
 
 @Service
 @Transactional
@@ -58,5 +60,12 @@ public class InventoryTransactionServiceIml implements InventoryTransactionServi
         );
 
         return inventoryTransactionRepository.findAll(this.inventoryTransactionSpec, pageable).map(InventoryTransactionDTO::new);
+    }
+
+    @Override
+    public LocalDateTime fetchLastDateByTypeAndProduitId(MouvementProduit type, Long produitId) {
+        return inventoryTransactionRepository.fetchLastDateByTypeAndProduitId(type,
+            produitId).map(
+            LastDateProjection::getUpdatedAt).orElse(null);
     }
 }

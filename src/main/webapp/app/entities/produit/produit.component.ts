@@ -20,7 +20,9 @@ import { Statut } from '../../shared/model/enumerations/statut.model';
 import { TypeProduit } from '../../shared/model/enumerations/type-produit.model';
 import { IFournisseurProduit } from '../../shared/model/fournisseur-produit.model';
 import { ErrorService } from '../../shared/error.service';
-import { FormProduitFournisseurComponent } from './form-produit-fournisseur/form-produit-fournisseur.component';
+import {
+  FormProduitFournisseurComponent
+} from './form-produit-fournisseur/form-produit-fournisseur.component';
 import { ConfigurationService } from '../../shared/configuration.service';
 import { IConfiguration } from '../../shared/model/configuration.model';
 import { Params } from '../../shared/model/enumerations/params.model';
@@ -50,7 +52,9 @@ import { EtaProduitComponent } from '../../shared/eta-produit/eta-produit.compon
 import { IFamilleProduit } from '../../shared/model/famille-produit.model';
 import { IRayon } from '../../shared/model/rayon.model';
 import { ButtonGroup } from 'primeng/buttongroup';
-import { ListPrixReferenceComponent } from '../prix-reference/list-prix-reference/list-prix-reference.component';
+import {
+  ListPrixReferenceComponent
+} from '../prix-reference/list-prix-reference/list-prix-reference.component';
 import { DatePeremptionFormComponent } from './date-peremption-form/date-peremption-form.component';
 
 export type ExpandMode = 'single' | 'multiple';
@@ -400,7 +404,7 @@ export class ProduitComponent implements OnInit {
     this.loadPage(0);
   }
 
-  onChangeDefaultProduitFournisseur(e: any, four: IFournisseurProduit): void {
+  protected onChangeDefaultProduitFournisseur(e: any, four: IFournisseurProduit): void {
     const isChecked = e.checked;
     if (four) {
       this.produitService.updateDefaultFournisseur(four.id, isChecked).subscribe({
@@ -409,7 +413,11 @@ export class ProduitComponent implements OnInit {
     }
   }
 
-  onDeleteProduitFournisseur(four: IFournisseurProduit, produit: IProduit): void {
+  protected getToolTip(four: IFournisseurProduit): string {
+    return four.principal ? "L'Actuel fournisseur principal" : 'Changer en fournisseur principal';
+  }
+
+  protected onDeleteProduitFournisseur(four: IFournisseurProduit, produit: IProduit): void {
     if (four) {
       this.produitService.deleteFournisseur(four.id).subscribe({
         next() {
@@ -422,7 +430,7 @@ export class ProduitComponent implements OnInit {
     }
   }
 
-  addFournisseur(produit: IProduit): void {
+  protected addFournisseur(produit: IProduit): void {
     this.ref = this.dialogService.open(FormProduitFournisseurComponent, {
       data: {
         produit,
@@ -437,7 +445,7 @@ export class ProduitComponent implements OnInit {
     });
   }
 
-  editFournisseur(produit: IProduit, fournisseurProduit: IFournisseurProduit | null): void {
+  protected editFournisseur(produit: IProduit, fournisseurProduit: IFournisseurProduit | null): void {
     this.ref = this.dialogService.open(FormProduitFournisseurComponent, {
       data: {
         produit,
@@ -457,7 +465,7 @@ export class ProduitComponent implements OnInit {
     });
   }
 
-  confirmDeleteProduitFournisseur(four: IFournisseurProduit, produit: IProduit): void {
+  protected confirmDeleteProduitFournisseur(four: IFournisseurProduit, produit: IProduit): void {
     this.confirmationService.confirm({
       message: ' Voullez-vous detacher ce fournisseur de ce produit ?',
       header: 'Retrait de fournisseur ',
@@ -470,14 +478,14 @@ export class ProduitComponent implements OnInit {
     });
   }
 
-  findConfigStock(): void {
+  protected findConfigStock(): void {
     const stockParam = this.configurationService.getParamByKey(Params.APP_GESTION_STOCK);
     if (stockParam) {
       this.isMono = Number(stockParam.value) === 0;
     }
   }
 
-  onClickLink(): void {
+  protected onClickLink(): void {
     this.produitService.getRejectCsv(this.responsedto.rejectFileUrl).subscribe({
       next: blod => {
         saveAs(new Blob([blod], { type: 'text/csv' }), this.responsedto.rejectFileUrl);

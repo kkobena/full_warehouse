@@ -3,38 +3,38 @@ import { AjustementService } from '../ajustement.service';
 import { IAjust } from '../../../shared/model/ajust.model';
 import { DynamicDialogConfig, DynamicDialogRef } from 'primeng/dynamicdialog';
 import { FormBuilder, FormControl, FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
-import { MessageService } from 'primeng/api';
 import { Observable } from 'rxjs';
 import { HttpResponse } from '@angular/common/http';
-import { BLOCK_SPACE } from '../../../shared/util/warehouse-util';
 import { WarehouseCommonModule } from '../../../shared/warehouse-common/warehouse-common.module';
 import { RouterModule } from '@angular/router';
 import { ButtonModule } from 'primeng/button';
-import { ToastModule } from 'primeng/toast';
 import { TextareaModule } from 'primeng/textarea';
+import { SpinerService } from '../../../shared/spiner.service';
+import { ToastAlertComponent } from '../../../shared/toast-alert/toast-alert.component';
 
 @Component({
   selector: 'jhi-finalyse',
   templateUrl: './finalyse.component.html',
-  providers: [MessageService],
-  imports: [WarehouseCommonModule, RouterModule, ToastModule, ButtonModule, FormsModule, ReactiveFormsModule, TextareaModule],
+
+  imports: [WarehouseCommonModule, RouterModule, ButtonModule, FormsModule, ReactiveFormsModule, TextareaModule, ToastAlertComponent],
 })
 export class FinalyseComponent implements OnInit {
   ref = inject(DynamicDialogRef);
   config = inject(DynamicDialogConfig);
-  commentaire = viewChild.required<ElementRef>('commentaire');
-  protected ajustementService = inject(AjustementService);
   protected isSaving = false;
   protected entity?: IAjust;
-  protected readonly BLOCK_SPACE = BLOCK_SPACE;
-  private fb = inject(FormBuilder);
+
+  protected fb = inject(FormBuilder);
   protected editForm = this.fb.group({
     commentaire: new FormControl<string | null>(null, {
       validators: [Validators.required],
       nonNullable: true,
     }),
   });
-  private messageService = inject(MessageService);
+  private commentaire = viewChild.required<ElementRef>('commentaire');
+  private readonly ajustementService = inject(AjustementService);
+  private readonly spinner = inject(SpinerService);
+  private alert = viewChild.required<ToastAlertComponent>('alert');
 
   ngOnInit(): void {
     this.entity = this.config.data.entity;
@@ -43,6 +43,7 @@ export class FinalyseComponent implements OnInit {
 
   save(): void {
     this.isSaving = true;
+    this.spinner.show();
     this.subscribeToSaveResponse(this.ajustementService.saveAjustement(this.createFromForm()));
   }
 
@@ -58,16 +59,14 @@ export class FinalyseComponent implements OnInit {
   }
 
   protected onSaveSuccess(): void {
+    this.spinner.hide();
     this.ref.close();
   }
 
   protected onSaveError(): void {
     this.isSaving = false;
-    this.messageService.add({
-      severity: 'error',
-      summary: 'Erreur',
-      detail: 'Enregistrement a échoué',
-    });
+    this.spinner.hide();
+    this.alert().showError("Erreur d'enregistrement", "Erreur d'enregistrement");
   }
 
   private createFromForm(): IAjust {

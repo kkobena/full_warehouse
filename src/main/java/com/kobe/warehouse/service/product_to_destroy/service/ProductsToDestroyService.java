@@ -1,11 +1,14 @@
 package com.kobe.warehouse.service.product_to_destroy.service;
 
 import com.kobe.warehouse.service.dto.records.Keys;
+import com.kobe.warehouse.service.excel.model.ExportFormat;
 import com.kobe.warehouse.service.product_to_destroy.dto.ProductToDestroyDTO;
 import com.kobe.warehouse.service.product_to_destroy.dto.ProductToDestroyFilter;
 import com.kobe.warehouse.service.product_to_destroy.dto.ProductToDestroyPayload;
 import com.kobe.warehouse.service.product_to_destroy.dto.ProductToDestroySumDTO;
 import com.kobe.warehouse.service.product_to_destroy.dto.ProductsToDestroyPayload;
+import jakarta.servlet.http.HttpServletResponse;
+import java.io.IOException;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
@@ -31,4 +34,5 @@ public interface ProductsToDestroyService {
 
     Page<ProductToDestroyDTO> findEditing(ProductToDestroyFilter produidToDestroyFilter, Pageable pageable);
 
+    void export(HttpServletResponse response, ExportFormat type, ProductToDestroyFilter produidToDestroyFilter) throws IOException;
 }

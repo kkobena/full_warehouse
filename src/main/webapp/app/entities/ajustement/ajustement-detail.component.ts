@@ -1,8 +1,6 @@
-import { AfterViewInit, Component, ElementRef, OnInit, viewChild, inject } from '@angular/core';
-import { ActivatedRoute } from '@angular/router';
+import { AfterViewInit, Component, inject, OnInit, viewChild } from '@angular/core';
 import { Ajustement, IAjustement } from 'app/shared/model/ajustement.model';
 import { IProduit } from '../../shared/model/produit.model';
-import { ProduitService } from '../produit/produit.service';
 import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { AjustementService } from './ajustement.service';
 import { Observable } from 'rxjs';
@@ -10,14 +8,17 @@ import { HttpResponse } from '@angular/common/http';
 import { IMotifAjustement } from '../../shared/model/motif-ajustement.model';
 import { ModifAjustementService } from '../modif-ajustement/motif-ajustement.service';
 import { Ajust, IAjust } from '../../shared/model/ajust.model';
-import { APPEND_TO, PRODUIT_COMBO_MIN_LENGTH, PRODUIT_NOT_FOUND } from '../../shared/constants/pagination.constants';
-import { ConfirmationService } from 'primeng/api';
+import {
+  APPEND_TO,
+  PRODUIT_COMBO_MIN_LENGTH,
+  PRODUIT_COMBO_RESULT_SIZE,
+  PRODUIT_NOT_FOUND
+} from '../../shared/constants/pagination.constants';
 import { DialogService, DynamicDialogModule, DynamicDialogRef } from 'primeng/dynamicdialog';
 import { AlertInfoComponent } from '../../shared/alert/alert-info.component';
 import { ErrorService } from '../../shared/error.service';
 import { FinalyseComponent } from './finalyse/finalyse.component';
 import { WarehouseCommonModule } from '../../shared/warehouse-common/warehouse-common.module';
-import { ConfirmDialogModule } from 'primeng/confirmdialog';
 import { ToolbarModule } from 'primeng/toolbar';
 import { ButtonModule } from 'primeng/button';
 import { AutoCompleteModule } from 'primeng/autocomplete';
@@ -28,12 +29,25 @@ import { BadgeModule } from 'primeng/badge';
 import { TableModule } from 'primeng/table';
 import { RippleModule } from 'primeng/ripple';
 import { TooltipModule } from 'primeng/tooltip';
-import { acceptButtonProps, rejectButtonProps, rejectWarningButtonProps } from '../../shared/util/modal-button-props';
 import { Select } from 'primeng/select';
-import { InputGroup } from 'primeng/inputgroup';
-import { InputGroupAddon } from 'primeng/inputgroupaddon';
 import { IconField } from 'primeng/iconfield';
 import { InputIcon } from 'primeng/inputicon';
+import {
+  ConfirmDialogComponent
+} from '../../shared/dialog/confirm-dialog/confirm-dialog.component';
+import { ToastAlertComponent } from '../../shared/toast-alert/toast-alert.component';
+import { FloatLabel } from 'primeng/floatlabel';
+import {
+  ProduitAutocompleteComponent
+} from '../../shared/produit-autocomplete/produit-autocomplete.component';
+import {
+  QuantiteProdutSaisieComponent
+} from '../../shared/quantite-produt-saisie/quantite-produt-saisie.component';
+import { TagModule } from 'primeng/tag';
+import { ButtonGroup } from 'primeng/buttongroup';
+import { CtaComponent } from '../../shared/cta/cta.component';
+import { BackButtonComponent } from '../../shared/cta/back-button.component';
+import { RemoveButtonTextComponent } from '../../shared/cta/remove-button.component';
 
 @Component({
   selector: 'jhi-ajustement-detail',
@@ -42,7 +56,6 @@ import { InputIcon } from 'primeng/inputicon';
     WarehouseCommonModule,
     CardModule,
     FormsModule,
-    ConfirmDialogModule,
     DynamicDialogModule,
     ToolbarModule,
     ButtonModule,
@@ -53,40 +66,47 @@ import { InputIcon } from 'primeng/inputicon';
     RippleModule,
     TooltipModule,
     Select,
-    InputGroup,
-    InputGroupAddon,
     IconField,
     InputIcon,
+    ConfirmDialogComponent,
+    ToastAlertComponent,
+    FloatLabel,
+    ProduitAutocompleteComponent,
+    QuantiteProdutSaisieComponent,
+    TagModule,
+    ButtonGroup,
+    CtaComponent,
+    BackButtonComponent,
+    RemoveButtonTextComponent,
   ],
-  providers: [ConfirmationService, DialogService],
+  providers: [DialogService],
 })
 export class AjustementDetailComponent implements OnInit, AfterViewInit {
-  readonly comment = viewChild<ElementRef>('comment');
-  quantityBox = viewChild.required<ElementRef>('quantityBox');
   protected ajustement: IAjust | null = null;
   protected produitSelected!: IProduit | null;
-  protected motifSelected!: number | null;
+  protected motifSelected!: IMotifAjustement | null;
   protected isSaving = false;
-  protected produits: IProduit[] = [];
   protected motifs: IMotifAjustement[] = [];
   protected items: IAjustement[] = [];
   protected search: string;
+  protected readonly includeDetails = true;
   protected context: any;
-  protected produitbox = viewChild.required<any>('produitbox');
   protected motif = viewChild.required<Select>('motif');
   protected readonly PRODUIT_COMBO_MIN_LENGTH = PRODUIT_COMBO_MIN_LENGTH;
   protected readonly APPEND_TO = APPEND_TO;
   protected readonly PRODUIT_NOT_FOUND = PRODUIT_NOT_FOUND;
-  protected selectedEl: IAjustement[];
+  protected selectedEl: IAjustement[] = [];
   protected ref?: DynamicDialogRef;
   protected readonly appendTo = APPEND_TO;
-  private readonly activatedRoute = inject(ActivatedRoute);
-  private readonly produitService = inject(ProduitService);
+  protected readonly PRODUIT_COMBO_RESULT_SIZE = PRODUIT_COMBO_RESULT_SIZE;
+  private produitComponent = viewChild.required<ProduitAutocompleteComponent>('produitComponent');
+  private confimDialog = viewChild.required<ConfirmDialogComponent>('confirmDialog');
+  private produitQteCmpt = viewChild.required<QuantiteProdutSaisieComponent>('produitQteCmpt');
+  private alert = viewChild.required<ToastAlertComponent>('alert');
   private readonly modalService = inject(NgbModal);
   private readonly errorService = inject(ErrorService);
   private readonly ajustementService = inject(AjustementService);
   private readonly modifAjustementService = inject(ModifAjustementService);
-  private readonly confirmationService = inject(ConfirmationService);
   private readonly dialogService = inject(DialogService);
 
   constructor() {
@@ -94,32 +114,27 @@ export class AjustementDetailComponent implements OnInit, AfterViewInit {
     this.selectedEl = [];
   }
 
+  protected get canAddQuantity(): boolean {
+    return this.motifValue && !!this.produitSelected;
+  }
+
+  protected get motifValue(): string | null {
+    return this.motif()?.value || null;
+  }
+
+  protected get disabledButton(): boolean {
+    return isNaN(this.produitQteCmpt().value);
+  }
+
   ngOnInit(): void {
-    this.activatedRoute.data.subscribe(({ ajustement }) => {
-      if (ajustement.id) {
-        this.ajustement = ajustement;
-        this.items = ajustement.ajustements;
-      }
-    });
+    /* this.activatedRoute.data.subscribe(({ ajustement }) => {
+       if (ajustement.id) {
+         this.ajustement = ajustement;
+         this.items = ajustement.ajustements;
+       }
+     });*/
 
-    this.loadProduits();
     this.loadMotifs('');
-  }
-
-  previousState(): void {
-    window.history.back();
-  }
-
-  confirmGoBack(): void {
-    this.confirmationService.confirm({
-      message: ' Vous aller être rediriger à la parge précedente  ?',
-      header: ' REDIRECTION',
-      icon: 'pi pi-warning-circle',
-      rejectButtonProps: rejectButtonProps(),
-      acceptButtonProps: acceptButtonProps(),
-      accept: () => this.previousState(),
-      key: 'redirect',
-    });
   }
 
   deleteSelectedItems(): void {
@@ -131,96 +146,46 @@ export class AjustementDetailComponent implements OnInit, AfterViewInit {
   }
 
   confirmDeleteItem(item: IAjustement): void {
-    this.confirmationService.confirm({
-      message: ' Voullez-vous supprimer cette ligne ?',
-      header: 'SUPPRESSION  ',
-      icon: 'pi pi-info-circle',
-      rejectButtonProps: rejectButtonProps(),
-      acceptButtonProps: acceptButtonProps(),
-      accept: () => this.removeLine(item),
-      reject: () => {
-        this.focusPrdoduitBox();
-      },
-      key: 'deleteItem',
-    });
-  }
-
-  showWarningMessage(): void {
-    this.confirmationService.confirm({
-      message: ' Vous devez selectionner le motif',
-      header: 'MOTIF AJUSTEMENT  ',
-      icon: 'pi pi-times-circle',
-      acceptVisible: false,
-      rejectButtonProps: rejectWarningButtonProps(),
-      key: 'warningMessage',
-    });
+    this.confimDialog().onConfirm(
+      () => this.removeLine(item),
+      'SUPPRESSION',
+      'Voullez-vous supprimer cette ligne ?',
+      null,
+      () => this.focusPrdoduitBox(),
+    );
   }
 
   confirmDeleteItems(): void {
-    this.confirmationService.confirm({
-      message: ' Voullez-vous supprimer toutes les lignes  ?',
-      header: 'SUPPRESSION  ',
-      icon: 'pi pi-info-circle',
-      rejectButtonProps: rejectButtonProps(),
-      acceptButtonProps: acceptButtonProps(),
-      accept: () => this.deleteSelectedItems(),
-      reject: () => {
-        this.focusPrdoduitBox();
-      },
-      key: 'deleteItem',
-    });
+    this.confimDialog().onConfirm(
+      () => this.deleteSelectedItems(),
+      'SUPPRESSION',
+      'Voullez-vous supprimer toutes les lignes ?',
+      null,
+      () => this.focusPrdoduitBox(),
+    );
   }
 
   onUpdateQuantity(ajustement: IAjustement, event: any): void {
-    const newQuantityRequested = Number(event.target.value);
-    ajustement.qtyMvt = newQuantityRequested;
+    ajustement.qtyMvt = Number(event.target.value);
     this.subscribeAddItemResponse(this.ajustementService.updateItem(ajustement));
   }
 
   ngAfterViewInit(): void {
-    this.motif().focus();
-  }
-
-  protected onQuantityBoxAction(event: any): void {
-    const qytMvt = Number(event.target.value);
-    this.onAddItem(qytMvt);
-  }
-
-  protected onQuantity(): void {
-    const qytMvt = Number(this.quantityBox().nativeElement.value);
-    if (qytMvt <= 0) {
-      return;
-    }
-    this.onAddItem(qytMvt);
+    this.fosusMotifControl();
   }
 
   protected onAddItem(qytMvt: number): void {
     if (this.produitSelected) {
-      if (!this.motifSelected) {
-        this.showWarningMessage();
+      if (this.ajustement?.id) {
+        this.subscribeAddItemResponse(this.ajustementService.addItem(this.createItem(this.produitSelected, qytMvt)));
       } else {
-        if (this.ajustement?.id) {
-          this.subscribeAddItemResponse(this.ajustementService.addItem(this.createItem(this.produitSelected, qytMvt)));
-        } else {
-          this.subscribeCreateNewResponse(this.ajustementService.create(this.createAjustement(this.produitSelected, qytMvt)));
-        }
+        this.subscribeCreateNewResponse(this.ajustementService.create(this.createAjustement(this.produitSelected, qytMvt)));
       }
     }
   }
 
   protected loadAll(ajsut: number | null): void {
     this.ajustementService.query({ ajustementId: ajsut }).subscribe((res: HttpResponse<IAjustement[]>) => (this.items = res.body || []));
-  }
-
-  protected loadProduits(query?: string): void {
-    this.produitService
-      .queryLite({
-        page: 0,
-        size: 10,
-        withdetail: true,
-        search: query,
-      })
-      .subscribe((res: HttpResponse<IProduit[]>) => this.onProduitSuccess(res.body));
   }
 
   protected loadMotifs(query?: string): void {
@@ -243,16 +208,17 @@ export class AjustementDetailComponent implements OnInit, AfterViewInit {
     this.ref.onClose.subscribe(() => this.onSaveFinalyseSuccess());
   }
 
-  protected onSelect(): void {
+  protected onSelectProduct(selectedProduit?: IProduit): void {
+    this.produitSelected = selectedProduit || null;
     this.setQuantityBoxFocused();
-  }
-
-  protected searchFn(event: any): void {
-    this.loadProduits(event.query);
   }
 
   protected onSelectMotif(): void {
     this.focusPrdoduitBox();
+  }
+
+  protected addQuantity(qte: number): void {
+    this.onAddItem(qte);
   }
 
   protected removeLine(ajustement: IAjustement): void {
@@ -269,20 +235,14 @@ export class AjustementDetailComponent implements OnInit, AfterViewInit {
     this.ajustementService.query(query).subscribe((res: HttpResponse<IAjustement[]>) => (this.items = res.body || []));
   }
 
-  protected onProduitSuccess(data: IProduit[] | null): void {
-    this.produits = data || [];
-  }
-
-  protected subscribeToFinalyseResponse(result: Observable<HttpResponse<{}>>): void {
-    result.subscribe({
-      next: () => this.onSaveFinalyseSuccess(),
-      error: (err: any) => this.onSaveError(err),
-    });
-  }
-
   protected onSaveFinalyseSuccess(): void {
     this.isSaving = false;
-    this.previousState();
+    this.ajustement = null;
+    this.selectedEl = [];
+    this.items = [];
+    this.produitSelected = null;
+    this.motifSelected = null;
+    this.alert().showInfo('Ajustement finalisé avec succès');
   }
 
   protected onMotifSuccess(data: IMotifAjustement[] | null): void {
@@ -298,7 +258,7 @@ export class AjustementDetailComponent implements OnInit, AfterViewInit {
 
   protected subscribeAddItemResponse(result: Observable<HttpResponse<{}>>): void {
     result.subscribe({
-      next: (res: HttpResponse<{}>) => this.onSaveSuccess(),
+      next: () => this.onSaveSuccess(),
       error: (err: any) => this.onSaveError(err),
     });
   }
@@ -319,12 +279,8 @@ export class AjustementDetailComponent implements OnInit, AfterViewInit {
     }
     this.loadAll(this.ajustement.id);
     this.produitSelected = null;
-    this.quantityBox().nativeElement.value = 1;
+    this.produitQteCmpt().reset();
     this.focusPrdoduitBox();
-  }
-
-  protected refresh(): void {
-    this.subscribeToSaveResponse(this.ajustementService.find(this.ajustement.id));
   }
 
   protected subscribeToSaveResponse(result: Observable<HttpResponse<IAjust>>): void {
@@ -363,10 +319,7 @@ export class AjustementDetailComponent implements OnInit, AfterViewInit {
   }
 
   private focusPrdoduitBox(): void {
-    setTimeout(() => {
-      this.produitbox().inputEL.nativeElement.focus();
-      this.produitbox().inputEL.nativeElement.select();
-    }, 50);
+    this.produitComponent().getFocus();
   }
 
   private createAjustement(produit: IProduit, quantity: number): IAjust {
@@ -382,16 +335,17 @@ export class AjustementDetailComponent implements OnInit, AfterViewInit {
       produitId: produit.id,
       qtyMvt: quantity,
       ajustId: this.ajustement?.id,
-      motifAjustementId: this.motifSelected,
+      motifAjustementId: this.motifSelected?.id,
     };
   }
 
   private setQuantityBoxFocused(): void {
+    this.produitQteCmpt().focusProduitControl();
+  }
+
+  private fosusMotifControl(): void {
     setTimeout(() => {
-      const el = this.quantityBox().nativeElement;
-      el.focus();
-      el.value = 1;
-      el.select();
+      this.motif().focus();
     }, 100);
   }
 }

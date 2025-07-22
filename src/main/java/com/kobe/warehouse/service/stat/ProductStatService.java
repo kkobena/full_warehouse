@@ -14,18 +14,22 @@ import com.kobe.warehouse.service.dto.builder.ProductStatQueryBuilder;
 import com.kobe.warehouse.service.dto.builder.QueryBuilderConstant;
 import com.kobe.warehouse.service.dto.produit.ProduitAuditingParam;
 import com.kobe.warehouse.service.dto.produit.ProduitAuditingState;
+import com.kobe.warehouse.service.dto.produit.ProduitAuditingSum;
 import com.kobe.warehouse.service.dto.records.ProductStatParetoRecord;
 import com.kobe.warehouse.service.dto.records.ProductStatRecord;
-import java.net.MalformedURLException;
-import java.util.List;
-import java.util.Objects;
 import org.springframework.core.io.Resource;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.util.StringUtils;
 
+import java.net.MalformedURLException;
+import java.util.List;
+import java.util.Objects;
+
 public interface ProductStatService extends CommonStatService {
-    List<ProduitAuditingState> fetchProduitDailyTransaction(ProduitAuditingParam produitAuditingParam);
+    Page<ProduitAuditingState> fetchProduitDailyTransaction(ProduitAuditingParam produitAuditingParam, Pageable pageable);
+
+    List<ProduitAuditingSum> fetchProduitDailyTransactionSum(ProduitAuditingParam produitAuditingParam);
 
     List<ProductStatRecord> fetchProductStat(ProduitRecordParamDTO produitRecordParam);
 
@@ -52,9 +56,9 @@ public interface ProductStatService extends CommonStatService {
 
     default String buildPrduduitQuery(ProduitRecordParamDTO produitRecordParam) {
         String query = ProductStatQueryBuilder.PRODUIT_QUERY.replace(
-            QueryBuilderConstant.LIKE_STATEMENT,
-            buildLikeStatement(produitRecordParam)
-        )
+                QueryBuilderConstant.LIKE_STATEMENT,
+                buildLikeStatement(produitRecordParam)
+            )
             .replace(QueryBuilderConstant.ORDER_BY_STATEMENT, buildOrderByStatement(produitRecordParam))
             .replace(QueryBuilderConstant.LIMIT_STATEMENT, buildLimitStatement(produitRecordParam));
         return buildQuery(query, produitRecordParam);

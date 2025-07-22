@@ -1,5 +1,5 @@
-<p-table [scrollable]="true" [value]="entites" styleClass="p-datatable-gridlines">
-  <ng-template pTemplate="header">
+<p-table [scrollable]="true" [value]="entites"  [showGridlines]="true">
+  <ng-template #header>
     <tr>
       <th rowspan="2">Date</th>
       <th rowspan="2">Qté.init</th>
@@ -21,7 +21,7 @@
       <th>Qté.annullée</th>
     </tr>
   </ng-template>
-  <ng-template let-columns="columns" let-elRow pTemplate="body">
+  <ng-template let-columns="columns" let-elRow #body>
     <tr [pEditableRow]="elRow" [pSelectableRow]="elRow">
       <td class="text-center">{{ elRow.mvtDate | date: 'dd/MM/yyyy' }}</td>
       <td class="text-right">{{ elRow.initStock | number }}</td>
@@ -39,7 +39,7 @@
       <td class="text-right">{{ elRow.afterStock | number }}</td>
     </tr>
   </ng-template>
-  <ng-template pTemplate="footer">
+  <ng-template #footer>
     @if (entites && entites.length > 0) {
       <tr>
         <td colspan="2">TOTAUX</td>
@@ -74,7 +74,7 @@
       </tr>
     }
   </ng-template>
-  <ng-template let-columns pTemplate="emptymessage">
+  <ng-template let-columns #emptymessage>
     <tr>
       <td [attr.colspan]="14">Aucune donnée trouvée</td>
     </tr>

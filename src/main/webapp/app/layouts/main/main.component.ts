@@ -16,7 +16,7 @@ import {NgxSpinnerComponent, NgxSpinnerModule} from "ngx-spinner";
   selector: 'jhi-main',
   templateUrl: './main.component.html',
   providers: [AppPageTitleStrategy, ConfirmationService, MessageService],
-  imports: [RouterOutlet, FooterComponent, NgxSpinnerModule, ConfirmDialogModule, ToastModule, NgxSpinnerComponent],
+  imports: [RouterOutlet,  NgxSpinnerModule, ConfirmDialogModule, ToastModule, NgxSpinnerComponent],
 })
 export default class MainComponent implements OnInit {
   private readonly renderer: Renderer2;

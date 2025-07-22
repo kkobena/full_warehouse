@@ -12,6 +12,7 @@ import jakarta.persistence.Id;
 import jakarta.persistence.Index;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
+import jakarta.persistence.UniqueConstraint;
 import jakarta.validation.constraints.NotNull;
 import java.io.Serial;
 import java.io.Serializable;
@@ -23,6 +24,7 @@ import java.time.LocalDateTime;
 @Entity
 @Table(
     name = "inventory_transaction",
+    uniqueConstraints = { @UniqueConstraint(columnNames = { "entity_id", "produit_id" }) },
     indexes = {
         @Index(columnList = "mouvemen_type", name = "mouvemen_type_index"),
         @Index(columnList = "created_at", name = "createdAt_index"),
@@ -78,6 +80,7 @@ public class InventoryTransaction implements Serializable {
     private Magasin magasin;
 
     @NotNull
+    @Column(name = "entity_id", nullable = false)
     private Long entityId;
 
     public Long getId() {

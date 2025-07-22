@@ -26,15 +26,15 @@ import org.springframework.util.StringUtils;
 @Repository
 @Transactional
 public class CustomizedRayonRepository implements CustomizedRayonService {
+    private final EntityManager em;
+    private final StorageService storageService;
+    private final RayonRepository rayonRepository;
 
-    @PersistenceContext
-    private EntityManager em;
-
-    @Autowired
-    private StorageService storageService;
-
-    @Autowired
-    private RayonRepository rayonRepository;
+    public CustomizedRayonRepository(EntityManager em, StorageService storageService, RayonRepository rayonRepository) {
+        this.em = em;
+        this.storageService = storageService;
+        this.rayonRepository = rayonRepository;
+    }
 
     @Override
     @Transactional(readOnly = true)

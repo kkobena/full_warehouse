@@ -22,7 +22,7 @@ import org.springframework.stereotype.Repository;
 @SuppressWarnings("unused")
 @Repository
 public interface InventoryTransactionRepository
-    extends JpaRepository<InventoryTransaction, Long>, JpaSpecificationExecutor<InventoryTransaction> {
+    extends JpaRepository<InventoryTransaction, Long>, JpaSpecificationExecutor<InventoryTransaction>,InventoryTransactionCustomRepository {
     List<InventoryTransaction> findByProduitId(Long produitId, Sort sort);
 
     @Query("SELECT coalesce(max(e.createdAt),null) AS updatedAt from InventoryTransaction e WHERE e.mouvementType=?1 AND e.produit.id=?2")
@@ -49,5 +49,23 @@ public interface InventoryTransactionRepository
 
     default Specification<InventoryTransaction> specialisationTypeTransaction(TransactionType typeTransaction) {
         return (root, query, cb) -> cb.equal(root.get(InventoryTransaction_.mouvementType), typeTransaction);
+    }
+
+    default Specification<InventoryTransaction> combineSpecifications(
+        Long produitId,
+        LocalDateTime startDate,
+        LocalDateTime endDate
+
+    ) {
+        Specification<InventoryTransaction>  specification = specialisationProduitId(produitId);
+        if (startDate != null && endDate != null) {
+            specification = specification.and(specialisationDateMvt(startDate, endDate));
+        } else if (startDate != null) {
+            specification = specification.and(specialisationDateGreaterThanOrEqualTo(startDate));
+        } else if (endDate != null) {
+            specification = specification.and(specialisationDateLessThanOrEqualTo(endDate));
+        }
+
+        return specification;
     }
 }

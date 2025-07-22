@@ -45,7 +45,7 @@ public interface OrderLineRepository extends JpaRepository<OrderLine, Long> {
     LastDateProjection findLastUpdatedAtByFournisseurProduitProduitId(Long produitId, String receiptStatut);
 
     @Query(
-        value = "SELECT o.updated_at AS mvtDate,d.receipt_reference AS reference,o.quantity_received AS quantite,o.cost_amount AS prixAchat,u.first_name AS firstName,u.last_name AS lastName FROM order_line o JOIN fournisseur_produit fp ON o.fournisseur_produit_id = fp.id JOIN commande d ON o.commande_id = d.id JOIN user u ON d.user_id = u.id WHERE fp.produit_id =:produitId AND d.order_status=:statut AND DATE(o.updated_at) BETWEEN :startDate AND :endDate ORDER BY o.updated_at DESC ",
+        value = "SELECT o.updated_at AS mvtDate,d.receipt_reference AS reference,o.quantity_received AS quantite,o.order_cost_amount AS prixAchat,u.first_name AS firstName,u.last_name AS lastName FROM order_line o JOIN fournisseur_produit fp ON o.fournisseur_produit_id = fp.id JOIN commande d ON o.commande_id = d.id JOIN user u ON d.user_id = u.id WHERE fp.produit_id =:produitId AND d.order_status=:statut AND DATE(o.updated_at) BETWEEN :startDate AND :endDate ORDER BY o.updated_at DESC ",
         nativeQuery = true
     )
     Page<HistoriqueProduitAchats> getHistoriqueAchat(
@@ -68,7 +68,7 @@ public interface OrderLineRepository extends JpaRepository<OrderLine, Long> {
     );
 
     @Query(
-        value = "SELECT SUM(o.quantity_received) AS quantite,SUM(o.cost_amount*o.quantity_received) AS montantAchat  FROM order_line o JOIN fournisseur_produit fp ON o.fournisseur_produit_id = fp.id JOIN commande d ON o.commande_id = d.id WHERE fp.produit_id =:produitId AND d.order_status=:statut AND DATE(o.updated_at) BETWEEN :startDate AND :endDate",
+        value = "SELECT SUM(o.quantity_received) AS quantite,SUM(o.order_cost_amount*o.quantity_received) AS montantAchat  FROM order_line o JOIN fournisseur_produit fp ON o.fournisseur_produit_id = fp.id JOIN commande d ON o.commande_id = d.id WHERE fp.produit_id =:produitId AND d.order_status=:statut AND DATE(o.updated_at) BETWEEN :startDate AND :endDate",
         nativeQuery = true
     )
     HistoriqueProduitAchatsSummary getHistoriqueAchatSummary(

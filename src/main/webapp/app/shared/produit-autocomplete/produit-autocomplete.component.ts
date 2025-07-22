@@ -43,7 +43,7 @@ export class ProduitAutocompleteComponent implements ControlValueAccessor, OnDes
     effect(() => {
       const selected = this._produitSelected();
       this.onChange(selected);
-      // this.produitbox().hide();
+      this.produitbox().hide();
     });
     this.searchSubscription = this.searchTrigger$.pipe(debounceTime(300)).subscribe(search => this.loadProduits(search));
     // this.searchTrigger$.pipe(debounceTime(300)).subscribe(search => this.loadProduits(search));
@@ -96,6 +96,7 @@ export class ProduitAutocompleteComponent implements ControlValueAccessor, OnDes
     this.selectProduit.set(selected);
     this.selectedProduit.emit(selected);
     this.onTouched();
+
   }
 
   onNgModelChange(value: IProduit | null): void {

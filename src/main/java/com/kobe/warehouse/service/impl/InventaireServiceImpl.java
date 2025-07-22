@@ -153,7 +153,7 @@ public class InventaireServiceImpl implements InventaireService {
         storeInventory.setGapAmount(storeInventorySummaryRecord.gapAmount().intValue());
         storeInventory = storeInventoryRepository.save(storeInventory);
         this.historiqueInventaireService.save(new HistoriqueInventaire(storeInventory));
-        storeInventory.getStoreInventoryLines().forEach(inventoryTransactionService::save);
+      //  storeInventory.getStoreInventoryLines().forEach(inventoryTransactionService::save); fait dans procCloseInventory
         return new ItemsCountRecord(closeItems(storeInventory.getId()));
     }
 

@@ -1,10 +1,10 @@
-import { inject, Injectable } from '@angular/core';
-import { HttpClient, HttpResponse } from '@angular/common/http';
-import { Observable } from 'rxjs';
+import {inject, Injectable} from '@angular/core';
+import {HttpClient, HttpResponse} from '@angular/common/http';
+import {Observable} from 'rxjs';
 
-import { SERVER_API_URL } from 'app/app.constants';
-import { createRequestOptions } from 'app/shared/util/request-util';
-import { VenteRecordParam } from '../../../shared/model/vente-record-param.model';
+import {SERVER_API_URL} from 'app/app.constants';
+import {createRequestOptions} from 'app/shared/util/request-util';
+import {VenteRecordParam} from '../../../shared/model/vente-record-param.model';
 import {
   HistoriqueProduitAchats,
   HistoriqueProduitAchatsSummary,
@@ -14,10 +14,10 @@ import {
   HistoriqueProduitVenteSummary,
   ProductStatRecord,
   ProduitAuditingParam,
-  ProduitAuditingState,
+  ProduitAuditingState, ProduitAuditingSum,
 } from '../../../shared/model/produit-record.model';
 
-@Injectable({ providedIn: 'root' })
+@Injectable({providedIn: 'root'})
 export class ProduitStatService {
   private readonly resourceUrl = SERVER_API_URL + 'api/produits/stat';
   private readonly http = inject(HttpClient);
@@ -46,8 +46,16 @@ export class ProduitStatService {
     });
   }
 
+  fetchTransactionsSum(produitAuditingParam: ProduitAuditingParam): Observable<HttpResponse<ProduitAuditingSum[]>> {
+    const options = createRequestOptions(produitAuditingParam);
+    return this.http.get<ProduitAuditingSum[]>(`${this.resourceUrl}/transactions/sum`, {
+      params: options,
+      observe: 'response',
+    });
+  }
+
   exportToPdf(produitAuditingParam: ProduitAuditingParam): Observable<Blob> {
-    return this.http.post(`${this.resourceUrl}/transactions/pdf`, produitAuditingParam, { responseType: 'blob' });
+    return this.http.post(`${this.resourceUrl}/transactions/pdf`, produitAuditingParam, {responseType: 'blob'});
   }
 
   getProduitHistoriqueVente(produitAuditingParam: any): Observable<HttpResponse<HistoriqueProduitVente[]>> {

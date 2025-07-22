@@ -166,8 +166,10 @@ public class ProductsToDestroyServiceImpl implements ProductsToDestroyService {
     @Override
     public Page<ProductToDestroyDTO> findAll(ProductToDestroyFilter produidToDestroyFilter, Pageable pageable) {
         Sort sort = Sort.by(Direction.DESC, "created");
-        if (pageable.isPaged()) {
+        if (nonNull(pageable)&&pageable.isPaged()) {
             pageable = PageRequest.of(pageable.getPageNumber(), pageable.getPageSize(), sort);
+        }else {
+            pageable = Pageable.unpaged(sort);
         }
         return this.productsToDestroyRepository.findAll(
                 this.productsToDestroyRepository.buildCombinedSpecification(produidToDestroyFilter),

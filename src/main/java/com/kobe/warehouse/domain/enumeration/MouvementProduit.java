@@ -16,7 +16,9 @@ public enum MouvementProduit {
     MOUVEMENT_STOCK_IN("Déplacement de stock entrant"),
     MOUVEMENT_STOCK_OUT("Déplacement de stock sortant"),
     ENTREE_STOCK("Entrée en stock"),
-    RETRAIT_PERIME("Retrait de produit périmé");
+    RETRAIT_PERIME("Retrait de produit périmé"),
+    RETOUR_DEPOT("Retour de dépôt"),
+    RETOUR_FOURNISSEUR("Retour fournisseur");
 
     private final String value;
 

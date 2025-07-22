@@ -9,9 +9,12 @@ import com.kobe.warehouse.domain.ProductsToDestroy;
 import com.kobe.warehouse.domain.Produit;
 import com.kobe.warehouse.domain.RetourBonItem;
 import com.kobe.warehouse.domain.SalesLine;
+import com.kobe.warehouse.domain.StoreInventory;
 import com.kobe.warehouse.domain.StoreInventoryLine;
+import com.kobe.warehouse.domain.User;
 import com.kobe.warehouse.domain.enumeration.MouvementProduit;
 import com.kobe.warehouse.domain.enumeration.TypeDeconditionnement;
+import org.mapstruct.control.MappingControl;
 
 public class InventoryTransactionBuilder {
 
@@ -93,21 +96,6 @@ public class InventoryTransactionBuilder {
                 .setUser(productsToDestroy.getUser())
                 .setMagasin(productsToDestroy.getMagasin())
                 .setRegularUnitPrice(productsToDestroy.getPrixUnit());
-        } else if (entity instanceof StoreInventoryLine storeInventoryLine) {
-            Produit produit = storeInventoryLine.getProduit();
-            FournisseurProduit fournisseurProduit = produit.getFournisseurProduitPrincipal();
-            inventoryTransaction = new InventoryTransaction()
-                .setCreatedAt(storeInventoryLine.getUpdatedAt())
-                .setProduit(produit)
-                .setMouvementType(MouvementProduit.INVENTAIRE)
-                .setQuantity(storeInventoryLine.getQuantityOnHand())
-                .setQuantityBefor(storeInventoryLine.getQuantityInit())
-                .setQuantityAfter(storeInventoryLine.getQuantityOnHand())
-                .setCostAmount(fournisseurProduit.getPrixAchat())
-                .setEntityId(storeInventoryLine.getId())
-                .setUser(storeInventoryLine.getStoreInventory().getUser())
-                .setMagasin(storeInventoryLine.getStoreInventory().getUser().getMagasin())
-                .setRegularUnitPrice(fournisseurProduit.getPrixUni());
         } else if (entity instanceof RetourBonItem retourBonItem) {
             OrderLine orderLine = retourBonItem.getOrderLine();
             Produit produit = orderLine.getFournisseurProduit().getProduit();
@@ -123,6 +111,22 @@ public class InventoryTransactionBuilder {
                 .setUser(retourBonItem.getRetourBon().getUser())
                 .setMagasin(retourBonItem.getRetourBon().getUser().getMagasin())
                 .setRegularUnitPrice(orderLine.getOrderUnitPrice());
+        }else if (entity instanceof StoreInventoryLine storeInventoryLine) {
+            Produit produit = storeInventoryLine.getProduit();
+            StoreInventory storeInventory= storeInventoryLine.getStoreInventory();
+            User user=storeInventory.getUser();
+            inventoryTransaction = new InventoryTransaction()
+                .setCreatedAt(storeInventoryLine.getUpdatedAt())
+                .setProduit(produit)
+                .setMouvementType(MouvementProduit.INVENTAIRE)
+                .setQuantity(storeInventoryLine.getQuantityOnHand())
+                .setQuantityBefor(storeInventoryLine.getQuantityInit())
+                .setQuantityAfter(storeInventoryLine.getQuantityOnHand())
+                .setCostAmount(storeInventoryLine.getInventoryValueCost())
+                .setEntityId(storeInventoryLine.getId())
+                .setUser(user)
+                .setMagasin(user.getMagasin())
+                .setRegularUnitPrice(storeInventoryLine.getLastUnitPrice());
         }
     }
 

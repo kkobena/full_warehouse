@@ -1,4 +1,5 @@
 import dayjs from 'dayjs';
+import {MouvementProduit} from "./enumerations/mouvement-produit.model";
 
 export class ProductStatRecord {
   id?: number;
@@ -43,6 +44,8 @@ export class ProduitAuditingParam {
   produitId?: number;
   fromDate?: string;
   toDate?: string;
+  page?: number;
+  size?: number;
 }
 
 export class HistoriqueProduitDonneesMensuelles {
@@ -52,33 +55,21 @@ export class HistoriqueProduitDonneesMensuelles {
 
 export class HistoriqueProduitVente {
   mvtDate: Date;
-
   reference: string;
-
   quantite: number;
-
   prixUnitaire: number;
-
   montantNet: number;
-
   montantRemise: number;
-
   montantTtc: number;
-
   montantTva: number;
-
   montantHt: number;
-
   user: string;
 }
 
 export class HistoriqueProduitAchats {
   mvtDate: Date;
-
   reference: string;
-
   quantite: number;
-
   prixAchat: number;
   montantAchat: number;
   user: string;
@@ -86,7 +77,6 @@ export class HistoriqueProduitAchats {
 
 export class HistoriqueProduitAchatsSummary {
   quantite: number;
-
   montantAchat: number;
 }
 
@@ -101,4 +91,9 @@ export class HistoriqueProduitVenteSummary {
 
 export class HistoriqueProduitVenteMensuelleSummary {
   quantite: number;
+}
+
+export class ProduitAuditingSum {
+  mouvementProduitType: MouvementProduit;
+  quantity: number;
 }

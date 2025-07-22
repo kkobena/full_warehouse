@@ -100,7 +100,6 @@ export class LotPerimesComponent implements OnInit, AfterViewInit {
   protected readonly itemsPerPage = ITEMS_PER_PAGE;
   protected page!: number;
   protected loading!: boolean;
-  protected ngbPaginationPage = 1;
   protected totalItems = 0;
   protected types: any[] = [
     {
@@ -274,15 +273,12 @@ export class LotPerimesComponent implements OnInit, AfterViewInit {
 
   private onSuccess(data: LotPerimes[] | null, headers: HttpHeaders, page: number): void {
     this.totalItems = Number(headers.get('X-Total-Count'));
-
     this.page = page;
     this.data = data || [];
-    this.ngbPaginationPage = this.page;
     this.loading = false;
   }
 
   private onError(): void {
-    this.ngbPaginationPage = this.page ?? 1;
     this.loading = false;
     this.spinner.hide();
   }

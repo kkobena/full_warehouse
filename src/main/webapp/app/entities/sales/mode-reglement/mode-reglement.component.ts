@@ -280,7 +280,6 @@ export class ModeReglementComponent implements OnInit {
 
   private getInputs(): Element[] {
     const inputs = this.document.querySelectorAll('.payment-mode-input');
-
     return Array.from(inputs);
   }
 

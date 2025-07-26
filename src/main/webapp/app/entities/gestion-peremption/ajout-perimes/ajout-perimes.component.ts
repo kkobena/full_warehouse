@@ -80,15 +80,14 @@ export class AjoutPerimesComponent implements OnInit {
   protected data: ProductToDestroy[] = [];
   protected produitSelected?: IProduit | null = null;
   protected searchTerm?: string;
-  protected produitQteCmpt = viewChild.required<QuantiteProdutSaisieComponent>('produitQteCmpt');
   protected datePeremention = viewChild.required<DatePickerComponent>('datePeremention');
   protected numLotCmpt = viewChild.required<ElementRef>('numLot');
   protected isSaving = false;
-
+  private produitQteCmpt = viewChild.required<QuantiteProdutSaisieComponent>('produitQteCmpt');
   private produitComponent = viewChild.required<ProduitAutocompleteComponent>('produitComponent');
   private confimDialog = viewChild.required<ConfirmDialogComponent>('confirmDialog');
   private alert = viewChild.required<ToastAlertComponent>('alert');
-  private spinner = inject(SpinerService);
+  private readonly spinner = inject(SpinerService);
 
   private readonly productToDestroyService = inject(ProductToDestroyService);
 

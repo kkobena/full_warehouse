@@ -1,5 +1,3 @@
-<ngx-spinner [fullScreen]="false" bdColor="rgba(255,255,255,0.5)" color="#f13151" name="salespinner" size="medium" type="timer">
-</ngx-spinner>
 
 <p-divider></p-divider>
 @if (currentSaleService.currentSale()) {
@@ -17,7 +15,7 @@
 
     <div class="col-12 col-lg-3 col-sm-12 col-md-12 col-xl-3 mb-1 sale-montant-block">
       <ul class="list-group mt-1">
-        <jhi-amount-computing [entryAmount]="entryAmount"> </jhi-amount-computing>
+        <jhi-amount-computing [entryAmount]="entryAmount()"> </jhi-amount-computing>
 
         <li class="list-group-item">
           <p-button [raised]="true" (click)="onCompleteSale()" icon="pi pi-check" label="Terminer" severity="success"></p-button>
@@ -42,4 +40,4 @@
   }
 }
 
-<p-confirmDialog [baseZIndex]="10000" [style]="{ width: '40vw' }" appendTo="body" key="differeConfirmDialog"> </p-confirmDialog>
+<jhi-confirm-dialog #confirmDialog></jhi-confirm-dialog>

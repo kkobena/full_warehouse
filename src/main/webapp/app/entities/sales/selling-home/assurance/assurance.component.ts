@@ -12,10 +12,11 @@ import { NgxSpinnerModule } from 'ngx-spinner';
 import { FormsModule } from '@angular/forms';
 import { ProductTableComponent } from '../product-table/product-table.component';
 import { BaseSaleComponent } from '../base-sale/base-sale.component';
+import {ConfirmDialogComponent} from "../../../../shared/dialog/confirm-dialog/confirm-dialog.component";
 
 @Component({
   selector: 'jhi-assurance',
-  providers: [ConfirmationService, DialogService],
+  providers: [ DialogService],
   imports: [
     ConfirmDialogModule,
     AmountComputingComponent,
@@ -27,6 +28,7 @@ import { BaseSaleComponent } from '../base-sale/base-sale.component';
     FormsModule,
     ProductTableComponent,
     ModeReglementComponent,
+    ConfirmDialogComponent,
   ],
   templateUrl: '../base-sale/base-sale.component.html',
 })

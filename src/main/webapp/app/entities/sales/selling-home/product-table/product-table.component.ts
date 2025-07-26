@@ -1,29 +1,26 @@
-import { Component, effect, ElementRef, inject, viewChild, output } from '@angular/core';
-import { TableModule } from 'primeng/table';
-import { ISalesLine } from '../../../../shared/model/sales-line.model';
-import { WarehouseCommonModule } from '../../../../shared/warehouse-common/warehouse-common.module';
-import { InputTextModule } from 'primeng/inputtext';
-import { ButtonModule } from 'primeng/button';
-import { RippleModule } from 'primeng/ripple';
-import { TooltipModule } from 'primeng/tooltip';
-import { AlertInfoComponent } from '../../../../shared/alert/alert-info.component';
-import { NgbAlertModule, NgbModal } from '@ng-bootstrap/ng-bootstrap';
-import { ConfirmDialogModule } from 'primeng/confirmdialog';
-import { ConfirmationService } from 'primeng/api';
-import { CurrentSaleService } from '../../service/current-sale.service';
-import { ISales } from '../../../../shared/model/sales.model';
-import { HasAuthorityService } from '../../service/has-authority.service';
-import { BaseSaleService } from '../../service/base-sale.service';
-import { Authority } from '../../../../shared/constants/authority.constants';
-import { SplitButtonModule } from 'primeng/splitbutton';
-import { RemiseCacheService } from '../../service/remise-cache.service';
-import { IRemise, Remise } from '../../../../shared/model/remise.model';
-import { NgSelectModule } from '@ng-select/ng-select';
-import { FormsModule } from '@angular/forms';
-import { acceptButtonProps, rejectButtonProps } from '../../../../shared/util/modal-button-props';
-import { InputGroupAddonModule } from 'primeng/inputgroupaddon';
-import { InputGroupModule } from 'primeng/inputgroup';
-import { Select } from 'primeng/select';
+import {Component, effect, inject, output, viewChild} from '@angular/core';
+import {TableModule} from 'primeng/table';
+import {ISalesLine} from '../../../../shared/model/sales-line.model';
+import {WarehouseCommonModule} from '../../../../shared/warehouse-common/warehouse-common.module';
+import {InputTextModule} from 'primeng/inputtext';
+import {ButtonModule} from 'primeng/button';
+import {RippleModule} from 'primeng/ripple';
+import {TooltipModule} from 'primeng/tooltip';
+import {NgbAlertModule, NgbModal} from '@ng-bootstrap/ng-bootstrap';
+import {CurrentSaleService} from '../../service/current-sale.service';
+import {ISales} from '../../../../shared/model/sales.model';
+import {HasAuthorityService} from '../../service/has-authority.service';
+import {BaseSaleService} from '../../service/base-sale.service';
+import {Authority} from '../../../../shared/constants/authority.constants';
+import {SplitButtonModule} from 'primeng/splitbutton';
+import {RemiseCacheService} from '../../service/remise-cache.service';
+import {IRemise, Remise} from '../../../../shared/model/remise.model';
+import {FormsModule} from '@angular/forms';
+import {InputGroupAddonModule} from 'primeng/inputgroupaddon';
+import {InputGroupModule} from 'primeng/inputgroup';
+import {Select} from 'primeng/select';
+import {ConfirmDialogComponent} from "../../../../shared/dialog/confirm-dialog/confirm-dialog.component";
+import {showCommonError} from "../sale-helper";
 
 @Component({
   selector: 'jhi-product-table',
@@ -34,17 +31,15 @@ import { Select } from 'primeng/select';
     ButtonModule,
     RippleModule,
     TooltipModule,
-    ConfirmDialogModule,
     SplitButtonModule,
     NgbAlertModule,
-    NgSelectModule,
     FormsModule,
     InputGroupAddonModule,
     InputGroupModule,
     Select,
+    ConfirmDialogComponent,
   ],
   templateUrl: './product-table.component.html',
-  styleUrls: ['./product-table.component.scss'],
 })
 export class ProductTableComponent {
   sale: ISales;
@@ -53,18 +48,18 @@ export class ProductTableComponent {
   readonly deleteItemEvent = output<ISalesLine>();
   readonly itemQtyRequestedEvent = output<ISalesLine>();
   readonly addRemiseEvent = output<Remise>();
-  forcerStockBtn = viewChild<ElementRef>('forcerStockBtn');
-  hasAuthorityService = inject(HasAuthorityService);
   canModifiePrice: boolean;
   baseSaleService = inject(BaseSaleService);
   currentSaleService = inject(CurrentSaleService);
-  confirmationService = inject(ConfirmationService);
   remiseCacheService = inject(RemiseCacheService);
-  modalService = inject(NgbModal);
+
   protected typeAlert = 'success';
   protected canApplyDiscount = true;
   protected selectedRemise: any;
   private readonly canRemoveItem: boolean;
+  private readonly confimDialog = viewChild.required<ConfirmDialogComponent>('confirmDialog');
+  private readonly hasAuthorityService = inject(HasAuthorityService);
+  private readonly modalService = inject(NgbModal);
 
   constructor() {
     this.canApplyDiscount = this.hasAuthorityService.hasAuthorities(Authority.PR_AJOUTER_REMISE_VENTE);
@@ -120,12 +115,7 @@ export class ProductTableComponent {
   }
 
   openInfoDialog(message: string, infoClass: string): void {
-    const modalRef = this.modalService.open(AlertInfoComponent, {
-      backdrop: 'static',
-      centered: true,
-    });
-    modalRef.componentInstance.message = message;
-    modalRef.componentInstance.infoClass = infoClass;
+    showCommonError(this.modalService, message, infoClass);
   }
 
   updateItemQtyRequested(salesLine: ISalesLine, event: any): void {
@@ -151,18 +141,8 @@ export class ProductTableComponent {
 
   onDeleteItem(item: ISalesLine): void {
     if (this.canRemoveItem) {
-      this.confirmationService.confirm({
-        message: ' Voullez-vous supprimer  ce produit ?',
-        header: 'SUPPRESSION DE PRODUIT ',
-        icon: 'pi pi-info-circle',
-        rejectButtonProps: rejectButtonProps(),
-        acceptButtonProps: acceptButtonProps(),
-        accept: () => this.deleteItemEvent.emit(item),
-        reject: () => {
-          this.deleteItemEvent.emit(null);
-        },
-        key: 'deleteItem',
-      });
+      this.confimDialog().onConfirm(() => this.deleteItemEvent.emit(item), 'Supprimer Produit', ' Voullez-vous supprimer  ce produit ?', null, () => this.deleteItemEvent.emit(null));
+
     } else {
       this.deleteItemEvent.emit(item);
     }
@@ -177,16 +157,6 @@ export class ProductTableComponent {
   }
 
   private onUpdateConfirmForceStock(salesLine: ISalesLine, message: string): void {
-    this.confirmationService.confirm({
-      message,
-      header: 'FORCER LE STOCK ',
-      icon: 'pi pi-info-circle',
-      rejectButtonProps: rejectButtonProps(),
-      acceptButtonProps: acceptButtonProps(),
-      accept: () => this.itemQtyRequestedEvent.emit(salesLine),
-      reject: () => this.itemQtyRequestedEvent.emit(null),
-      key: 'forcerStock',
-    });
-    this.forcerStockBtn().nativeElement.focus();
+    this.confimDialog().onConfirm(() => this.itemQtyRequestedEvent.emit(salesLine), 'Forcer le stock', message, null, () => this.itemQtyRequestedEvent.emit(null));
   }
 }

@@ -1,41 +1,40 @@
-import { Component, inject, input, viewChild } from '@angular/core';
-import { ModeReglementComponent } from '../../mode-reglement/mode-reglement.component';
-import { AmountComputingComponent } from '../comptant/amount-computing/amount-computing.component';
-import { SelectedCustomerService } from '../../service/selected-customer.service';
-import { TypePrescriptionService } from '../../service/type-prescription.service';
-import { UserCaissierService } from '../../service/user-caissier.service';
-import { UserVendeurService } from '../../service/user-vendeur.service';
-import { SelectModeReglementService } from '../../service/select-mode-reglement.service';
-import { VoSalesService } from '../../service/vo-sales.service';
-import { CurrentSaleService } from '../../service/current-sale.service';
-import { RouterModule } from '@angular/router';
-import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
-import { ConfirmationService } from 'primeng/api';
-import { DialogService, DynamicDialogRef } from 'primeng/dynamicdialog';
-import { BaseSaleService } from '../../service/base-sale.service';
-import { IPayment } from '../../../../shared/model/payment.model';
-import { IRemise } from '../../../../shared/model/remise.model';
-import { ISalesLine } from '../../../../shared/model/sales-line.model';
-import { HttpResponse } from '@angular/common/http';
-import { FinalyseSale, ISales } from '../../../../shared/model/sales.model';
-import { Observable } from 'rxjs';
-import { IClientTiersPayant } from '../../../../shared/model/client-tiers-payant.model';
-import { IPaymentMode, PaymentModeControl } from '../../../../shared/model/payment-mode.model';
-import { ButtonModule } from 'primeng/button';
-import { ConfirmDialogModule } from 'primeng/confirmdialog';
-import { DividerModule } from 'primeng/divider';
-import { WarehouseCommonModule } from '../../../../shared/warehouse-common/warehouse-common.module';
-import { NgxSpinnerModule } from 'ngx-spinner';
-import { FormsModule } from '@angular/forms';
-import { ProductTableComponent } from '../product-table/product-table.component';
-import { Authority } from '../../../../shared/constants/authority.constants';
-import { HasAuthorityService } from '../../service/has-authority.service';
-import { FormActionAutorisationComponent } from '../../form-action-autorisation/form-action-autorisation.component';
-import { acceptButtonProps, rejectButtonProps } from '../../../../shared/util/modal-button-props';
+import {Component, computed, inject, input, signal, viewChild} from '@angular/core';
+import {ModeReglementComponent} from '../../mode-reglement/mode-reglement.component';
+import {AmountComputingComponent} from '../comptant/amount-computing/amount-computing.component';
+import {SelectedCustomerService} from '../../service/selected-customer.service';
+import {TypePrescriptionService} from '../../service/type-prescription.service';
+import {UserCaissierService} from '../../service/user-caissier.service';
+import {UserVendeurService} from '../../service/user-vendeur.service';
+import {SelectModeReglementService} from '../../service/select-mode-reglement.service';
+import {VoSalesService} from '../../service/vo-sales.service';
+import {CurrentSaleService} from '../../service/current-sale.service';
+import {RouterModule} from '@angular/router';
+import {NgbModal} from '@ng-bootstrap/ng-bootstrap';
+import {DialogService, DynamicDialogRef} from 'primeng/dynamicdialog';
+import {BaseSaleService} from '../../service/base-sale.service';
+import {IPayment} from '../../../../shared/model/payment.model';
+import {IRemise} from '../../../../shared/model/remise.model';
+import {ISalesLine} from '../../../../shared/model/sales-line.model';
+import {HttpResponse} from '@angular/common/http';
+import {FinalyseSale, ISales} from '../../../../shared/model/sales.model';
+import {Observable} from 'rxjs';
+import {IClientTiersPayant} from '../../../../shared/model/client-tiers-payant.model';
+import {IPaymentMode, PaymentModeControl} from '../../../../shared/model/payment-mode.model';
+import {ButtonModule} from 'primeng/button';
+import {ConfirmDialogModule} from 'primeng/confirmdialog';
+import {DividerModule} from 'primeng/divider';
+import {WarehouseCommonModule} from '../../../../shared/warehouse-common/warehouse-common.module';
+import {FormsModule} from '@angular/forms';
+import {ProductTableComponent} from '../product-table/product-table.component';
+import {Authority} from '../../../../shared/constants/authority.constants';
+import {HasAuthorityService} from '../../service/has-authority.service';
+import {FormActionAutorisationComponent} from '../../form-action-autorisation/form-action-autorisation.component';
+import {ConfirmDialogComponent} from "../../../../shared/dialog/confirm-dialog/confirm-dialog.component";
+import {SpinerService} from "../../../../shared/spiner.service";
 
 @Component({
   templateUrl: './base-sale.component.html',
-  providers: [ConfirmationService, DialogService],
+  providers: [DialogService],
   imports: [
     ConfirmDialogModule,
     WarehouseCommonModule,
@@ -45,8 +44,8 @@ import { acceptButtonProps, rejectButtonProps } from '../../../../shared/util/mo
     AmountComputingComponent,
     DividerModule,
     RouterModule,
-    NgxSpinnerModule,
     ButtonModule,
+    ConfirmDialogComponent,
   ],
 })
 export class BaseSaleComponent {
@@ -57,7 +56,7 @@ export class BaseSaleComponent {
   CASH = 'CASH';
   currentSaleService = inject(CurrentSaleService);
   selectedCustomerService = inject(SelectedCustomerService);
-  protected entryAmount?: number | null = null;
+  //protected entryAmount?: number | null = null;
   protected payments: IPayment[] = [];
   protected ref: DynamicDialogRef;
   protected remise?: IRemise | null;
@@ -67,18 +66,34 @@ export class BaseSaleComponent {
   private userVendeurService = inject(UserVendeurService);
   private selectModeReglementService = inject(SelectModeReglementService);
   private salesService = inject(VoSalesService);
-  private modalService = inject(NgbModal);
-  private confirmationService = inject(ConfirmationService);
+  private readonly modalService = inject(NgbModal);
   private baseSaleService = inject(BaseSaleService);
-  private hasAuthorityService = inject(HasAuthorityService);
-  private readonly canRemoveItem: boolean;
-  private readonly canApplyDiscount: boolean;
+  readonly hasAuthorityService = inject(HasAuthorityService);
 
-  constructor() {
-    this.canRemoveItem = this.hasAuthorityService.hasAuthorities(Authority.PR_SUPPRIME_PRODUIT_VENTE);
-    this.canApplyDiscount = this.hasAuthorityService.hasAuthorities(Authority.PR_AJOUTER_REMISE_VENTE);
-  }
+  private readonly confimDialog = viewChild.required<ConfirmDialogComponent>('confirmDialog');
+  private readonly spinner = inject(SpinerService);
+  readonly canRemoveItem = signal(this.hasAuthorityService.hasAuthorities(Authority.PR_SUPPRIME_PRODUIT_VENTE));
+  readonly canApplyDiscount = signal(this.hasAuthorityService.hasAuthorities(Authority.PR_AJOUTER_REMISE_VENTE));
+  readonly entryAmount = computed(() => this.modeReglementComponent()?.getInputSum() || 0);
 
+  readonly isValidDiffere = computed(() => {
+    const sale =  this.currentSaleService.currentSale();
+    return sale?.differe;
+  });
+  /*
+  readonly montantRendu = computed(() => {
+    const sale = this.currentSaleService.currentSale();
+    if (!sale) return 0;
+    return (sale.montantVerse || 0) - (sale.amountToBePaid || 0);
+  });*/
+ /* constructor() {
+    effect(() => {
+      const sale =  this.currentSaleService.currentSale();
+      if (sale) {
+
+      }
+    });
+  }*/
   manageAmountDiv(): void {
     this.modeReglementComponent().manageAmountDiv();
   }
@@ -86,7 +101,7 @@ export class BaseSaleComponent {
   manageCashPaymentMode(paymentModeControl: PaymentModeControl): void {
     const modes = this.selectModeReglementService.modeReglements();
     if (modes.length >= this.baseSaleService.maxModePayementNumber()) {
-      const amount = this.getEntryAmount();
+      const amount = this.entryAmount();
       modes.find((e: IPaymentMode) => e.code !== paymentModeControl.control.target.id).amount =
         this.currentSaleService.currentSale().amountToBePaid - paymentModeControl.paymentMode.amount;
 
@@ -99,8 +114,8 @@ export class BaseSaleComponent {
   }
 
   finalyseSale(putsOnStandby = false): void {
-    const entryAmount = this.getEntryAmount();
-    this.currentSaleService.currentSale().payments = this.modeReglementComponent().buildPayment(entryAmount);
+
+    this.currentSaleService.currentSale().payments = this.modeReglementComponent().buildPayment(this.entryAmount());
     this.currentSaleService.currentSale().type = 'VO';
     this.currentSaleService.currentSale().avoir = this.baseSaleService.isAvoir();
     this.computExtraInfo();
@@ -123,9 +138,9 @@ export class BaseSaleComponent {
     this.baseSaleService.onCompleteSale();
   }
 
-  isValidDiffere(): boolean {
-    return this.currentSaleService.currentSale().differe /* && !this.sale.customerId*/;
-  }
+/*  isValidDiffere(): boolean {
+    return this.currentSaleService.currentSale().differe /!* && !this.sale.customerId*!/;
+  }*/
 
   onLoadPrevente(): void {
     this.modeReglementComponent().buildPreventeReglementInput();
@@ -134,9 +149,7 @@ export class BaseSaleComponent {
     }, 50);
   }
 
-  getEntryAmount(): number {
-    return this.modeReglementComponent().getInputSum() || 0;
-  }
+
 
   computExtraInfo(): void {
     this.currentSaleService.currentSale().commentaire = this.modeReglementComponent().commentaire || null;
@@ -145,7 +158,7 @@ export class BaseSaleComponent {
   save(): void {
     this.isSaving = true;
     if (this.currentSaleService.currentSale().amountToBePaid > 0) {
-      const entryAmount = this.getEntryAmount();
+      const entryAmount = this.entryAmount();
       const restToPay = this.currentSaleService.currentSale().amountToBePaid - entryAmount;
       this.currentSaleService.currentSale().montantVerse = this.baseSaleService.getCashAmount(entryAmount);
       if (restToPay > 0 && !this.isValidDiffere()) {
@@ -160,37 +173,27 @@ export class BaseSaleComponent {
   }
 
   differeConfirmDialog(): void {
-    this.confirmationService.confirm({
-      message: 'Voullez-vous regler le reste en différé ?',
-      header: 'Vente différé',
-      icon: 'pi pi-info-circle',
-      rejectButtonProps: rejectButtonProps(),
-      acceptButtonProps: acceptButtonProps(),
-      accept: () => {
-        this.currentSaleService.currentSale().differe = true;
-        this.finalyseSale();
-      },
-      reject() {},
-      key: 'differeConfirmDialog',
-    });
+    this.confimDialog().onConfirm(() => {
+      this.currentSaleService.currentSale().differe = true;
+      this.finalyseSale();
+    }, 'Vente différé', 'Voullez-vous regler le reste en différé ?', null, () => {
+    })
+
   }
 
   saveSale(): void {
     const sale = this.currentSaleService.currentSale();
-    const entryAmount = this.getEntryAmount();
+    const entryAmount = this.entryAmount();
     const restToPay = sale.amountToBePaid - entryAmount;
-    if (restToPay <= 0) {
-      sale.payrollAmount = sale.amountToBePaid;
-      sale.restToPay = 0;
-    } else {
-      sale.payrollAmount = entryAmount;
-      sale.restToPay = restToPay;
-    }
+    sale.payrollAmount = Math.min(entryAmount, sale.amountToBePaid);
+    sale.restToPay = Math.max(restToPay, 0);
     sale.montantRendu = sale.montantVerse - sale.amountToBePaid;
+    this.spinner.show();
     this.subscribeToFinalyseResponse(this.salesService.save(sale));
   }
 
   putCurrentSaleOnHold(): void {
+    this.spinner.show();
     this.subscribeToPutOnHoldResponse(this.salesService.putCurrentOnStandBy(this.currentSaleService.currentSale()));
   }
 
@@ -211,10 +214,12 @@ export class BaseSaleComponent {
   }
 
   onAddProduit(salesLine: ISalesLine): void {
+    this.spinner.show();
     this.subscribeToSaveLineResponse(this.salesService.addItem(salesLine));
   }
 
   removeLine(salesLine: ISalesLine): void {
+    this.spinner.show();
     this.removeItem(salesLine.id);
   }
 
@@ -234,7 +239,7 @@ export class BaseSaleComponent {
 
   confirmDeleteItem(item: ISalesLine): void {
     if (item) {
-      if (this.canRemoveItem) {
+      if (this.canRemoveItem()) {
         this.removeLine(item);
       } else {
         this.openActionAutorisationDialog(Authority.PR_SUPPRIME_PRODUIT_VENTE, item);
@@ -245,6 +250,7 @@ export class BaseSaleComponent {
   }
 
   updateItemQtyRequested(salesLine: ISalesLine): void {
+    this.spinner.show();
     this.processQtyRequested(salesLine);
   }
 
@@ -255,6 +261,7 @@ export class BaseSaleComponent {
       error: (err: any) => this.baseSaleService.onSaveError(err, sale),
       complete: () => {
         this.isSaving = false;
+        this.spinner.hide();
       },
     });
   }
@@ -269,6 +276,7 @@ export class BaseSaleComponent {
       error: (err: any) => this.baseSaleService.onSaveError(err, this.currentSaleService.currentSale()),
       complete: () => {
         this.isSaving = false;
+        this.spinner.hide();
       },
     });
   }
@@ -327,7 +335,7 @@ export class BaseSaleComponent {
   }
 
   onAddRemise(remise: IRemise): void {
-    if (this.canApplyDiscount) {
+    if (this.canApplyDiscount()) {
       this.addRemise(remise);
     } else {
       if (remise) {
@@ -346,6 +354,7 @@ export class BaseSaleComponent {
       error: error => this.baseSaleService.onError(error),
       complete: () => {
         this.isSaving = false;
+        this.spinner.hide();
       },
     });
   }
@@ -356,6 +365,7 @@ export class BaseSaleComponent {
       error: err => this.baseSaleService.onFinalyseError(err),
       complete: () => {
         this.isSaving = false;
+        this.spinner.hide();
       },
     });
   }
@@ -366,6 +376,7 @@ export class BaseSaleComponent {
       error: err => this.baseSaleService.onFinalyseError(err),
       complete: () => {
         this.isSaving = false;
+        this.spinner.hide();
       },
     });
   }
@@ -376,6 +387,7 @@ export class BaseSaleComponent {
       error: (err: any) => this.baseSaleService.onSaveError(err, this.currentSaleService.currentSale()),
       complete: () => {
         this.isSaving = false;
+        this.spinner.hide();
       },
     });
   }
@@ -387,6 +399,7 @@ export class BaseSaleComponent {
       error: (err: any) => this.baseSaleService.onSaveError(err, sale),
       complete: () => {
         this.isSaving = false;
+        this.spinner.hide();
       },
     });
   }
@@ -398,6 +411,7 @@ export class BaseSaleComponent {
       error: (err: any) => this.baseSaleService.onSaveError(err, sale),
       complete: () => {
         this.isSaving = false;
+        this.spinner.hide();
       },
     });
   }
@@ -407,7 +421,7 @@ export class BaseSaleComponent {
     this.salesService.updateItemQtyRequested(salesLine).subscribe({
       next: () => this.subscribeToSaveResponse(this.salesService.find(sale.id)),
       error: (err: any) => {
-        if (err.error?.errorKey === 'stock' || err.error?.errorKey === 'stockChInsufisant') {
+        if (['stock', 'stockChInsufisant'].includes(err.error?.errorKey)) {
           this.baseSaleService.onStockError(err, salesLine);
         } else {
           this.baseSaleService.onSaveError(err, sale);
@@ -415,6 +429,7 @@ export class BaseSaleComponent {
       },
       complete: () => {
         this.isSaving = false;
+        this.spinner.hide();
       },
     });
   }

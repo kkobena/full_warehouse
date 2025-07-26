@@ -15,7 +15,7 @@ import {ICustomer} from '../../../../../shared/model/customer.model';
 import {SelectedCustomerService} from '../../../service/selected-customer.service';
 import {AssuredCustomerListComponent} from '../../../assured-customer-list/assured-customer-list.component';
 import {DialogService, DynamicDialogRef} from 'primeng/dynamicdialog';
-import {ConfirmationService, MenuItem, MessageService} from 'primeng/api';
+import {MenuItem} from 'primeng/api';
 import {FormsModule} from '@angular/forms';
 import {KeyFilterModule} from 'primeng/keyfilter';
 import {PanelModule} from 'primeng/panel';
@@ -26,18 +26,17 @@ import {FormAyantDroitComponent} from '../../../../customer/form-ayant-droit/for
 import {SplitButtonModule} from 'primeng/splitbutton';
 import {AyantDroitCustomerListComponent} from '../../../ayant-droit-customer-list/ayant-droit-customer-list.component';
 import {ConfirmPopupModule} from 'primeng/confirmpopup';
-import {ConfirmDialogModule} from 'primeng/confirmdialog';
 import {CurrentSaleService} from '../../../service/current-sale.service';
 import {AssureFormStepComponent} from '../../../../customer/assure-form-step/assure-form-step.component';
 import {BaseSaleService} from '../../../service/base-sale.service';
 import {AddComplementaireComponent} from '../add-complementaire/add-complementaire.component';
-import {acceptButtonProps, rejectButtonProps} from '../../../../../shared/util/modal-button-props';
 import {IconField} from 'primeng/iconfield';
 import {InputIcon} from 'primeng/inputicon';
+import {ConfirmDialogComponent} from "../../../../../shared/dialog/confirm-dialog/confirm-dialog.component";
 
 @Component({
   selector: 'jhi-assurance-data',
-  providers: [ConfirmationService, DialogService, MessageService],
+  providers: [DialogService],
   imports: [
     FormsModule,
     KeyFilterModule,
@@ -45,9 +44,10 @@ import {InputIcon} from 'primeng/inputicon';
     InputTextModule,
     SplitButtonModule,
     ConfirmPopupModule,
-    ConfirmDialogModule,
     IconField,
     InputIcon,
+    ConfirmDialogComponent,
+
   ],
   templateUrl: './assurance-data.component.html',
 })
@@ -55,19 +55,19 @@ export class AssuranceDataComponent implements OnInit, AfterViewInit {
   searchInput = viewChild<ElementRef>('searchInput');
   protected search: string = null;
   protected readonly selectedCustomerService = inject(SelectedCustomerService);
-  protected divClass = 'col-md-4 col-sm-4 col-4 bon';
-  protected divCustomer = 'col-md-4 col-sm-4 col-4';
   protected ref: DynamicDialogRef;
   protected ayantDroit: ICustomer | null = null;
   protected selectedTiersPayants: WritableSignal<IClientTiersPayant[]> = signal<IClientTiersPayant[]>([]);
   protected items: MenuItem[] | undefined;
   protected baseSaleService = inject(BaseSaleService);
   protected readonly currentSaleService = inject(CurrentSaleService);
-
+  protected divClass = signal('col-md-4 col-sm-4 col-4 bon');
+  protected divCustomer = signal('col-md-4 col-sm-4 col-4');
   private readonly dialogService = inject(DialogService);
   private readonly document = inject<Document>(DOCUMENT);
   private readonly customerService = inject(CustomerService);
-  private readonly confirmationService = inject(ConfirmationService);
+  private readonly confimDialog = viewChild.required<ConfirmDialogComponent>('confirmDialog');
+
   constructor() {
     effect(() => {
       const assuredCustomer = this.selectedCustomerService.selectedCustomerSignal();
@@ -85,17 +85,10 @@ export class AssuranceDataComponent implements OnInit, AfterViewInit {
           }
         }
       }
-      const tpSize = this.selectedTiersPayants().length || 0;
-      if (tpSize === 2) {
-        this.divClass = 'col-md-3 col-sm-3 col-3 bon';
-        this.divCustomer = 'col-md-3 col-sm-3 col-3';
-      } else if (tpSize > 2) {
-        this.divClass = 'col-md-2 col-sm-2 col-2 bon';
-        this.divCustomer = 'col-md-3 col-sm-3 col-3';
-      } else {
-        this.divClass = 'col-md-4 col-sm-4 col-4 bon';
-        this.divCustomer = 'col-md-4 col-sm-4 col-4';
-      }
+
+      const count = this.selectedTiersPayants().length;
+      this.divClass.set(count === 2 ? 'col-md-3 col-sm-3 col-3 bon' : count > 2 ? 'col-md-2 col-sm-2 col-2 bon' : 'col-md-4 col-sm-4 col-4 bon');
+      this.divCustomer.set(count >= 2 ? 'col-md-3 col-sm-3 col-3' : 'col-md-4 col-sm-4 col-4');
     });
   }
 
@@ -196,22 +189,16 @@ export class AssuranceDataComponent implements OnInit, AfterViewInit {
   }
 
   removeTiersPayant(tiersPayant: IClientTiersPayant): void {
-    this.confirmationService.confirm({
-      message: 'Etes-vous sûr de vouloir supprimer ce tiers payant?',
-      header: 'Supprimer tiers payant',
-      icon: 'pi pi-info-circle',
-      rejectButtonProps: rejectButtonProps(),
-      acceptButtonProps: acceptButtonProps(),
-      accept: () => {
+    this.confimDialog().onConfirm(() => {
         if (this.currentSaleService.currentSale()) {
           this.baseSaleService.onRemoveThirdPartySaleLineToSalesSuccess(tiersPayant.id);
           this.selectedTiersPayants.set(this.selectedTiersPayants().filter(tp => tp.id !== tiersPayant.id));
         } else {
           this.selectedTiersPayants.set(this.selectedTiersPayants().filter(tp => tp.id !== tiersPayant.id));
         }
-      },
-      key: 'deleteTiersPayant',
-    });
+      }, 'Supprimer tiers payant', 'Etes-vous sûr de vouloir supprimer ce tiers payant?', null
+    );
+
   }
 
   editAssuredCustomer(): void {
@@ -293,15 +280,9 @@ export class AssuranceDataComponent implements OnInit, AfterViewInit {
   }
 
   onChangeCustomerClick(): void {
-    this.confirmationService.confirm({
-      message: 'Etes-vous sûr de vouloir changer le client?',
-      header: 'Changer le client',
-      icon: 'pi pi-info-circle',
-      rejectButtonProps: rejectButtonProps(),
-      acceptButtonProps: acceptButtonProps(),
-      accept: () => this.openAssuredCustomerListTable(),
-      key: 'changeCustomer',
-    });
+    this.confimDialog().onConfirm(() => this.openAssuredCustomerListTable(), 'Changer le client', 'Etes-vous sûr de vouloir changer le client?', null
+    );
+
   }
 
   reset(): void {

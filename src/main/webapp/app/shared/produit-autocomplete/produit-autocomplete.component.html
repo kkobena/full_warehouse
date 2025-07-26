@@ -17,6 +17,7 @@
     [autofocus]="autofocus()"
     [style]="style()"
     [inputStyle]="inputStyle()"
+    (onKeyUp)="onKeyDown($event)"
     id="produits"
     optionLabel="libelle"
   >

@@ -17,6 +17,7 @@
         "title": "Ventes"
       },
       "discountAmount": "Montant remise",
+      "vendeurs": "Vendeurs",
       "numberTransaction": "Numéro",
       "salesAmount": "Montant",
       "grossAmount": "Montant brut",
@@ -28,7 +29,22 @@
       "updatedAt": "Modifiée le",
       "salesLine": "Détails",
       "customer": "Client",
-      "dateDimension": "Date Dimension"
+      "dateDimension": "Date Dimension",
+      "numeroBonMaquant": "Veuillez saisir le numéro de bon pour tous les tiers payants",
+      "numeroBonMaquantHeader": "Numéro de bon manquant",
+      "venteSansBon": "Voullez-vous continuer la vente sans numéro de bon ?",
+      "venteSansBonHeader": "Vente sans numéro de bon",
+      "emptyClient": "Veuillez selectionner un client",
+      "deconditionnementMessage": "Stock détail insuffisant . Voullez-vous faire un déconditionnement ?",
+      "deconditionnementHeader": "Décondtionnement",
+      "quantityGreatherMax": "La quantité saisie est supérieure à maximale à vendre",
+      "quantityGreatherMaxCanContinue": "La quantité saisie est supérieure à maximale à vendre. Voullez-vous continuer ?",
+      "quantityGreatherThanStock": "La quantité saisie est supérieure à la quantité stock du produit. Voullez-vous continuer ?",
+      "forcerStockHeader": "Force le stock",
+      "modificationTypeVente": "Modification du type de vente",
+      "modificationTypeToComptant": "La vente sera mise en attente. Voulez-vous continuer ?",
+      "modificationTypeToVo": "La vente sera transformée en vente assurance. Voulez-vous continuer ?",
+      "stockInsuffisant": "La quantité saisie est supérieure à la quantité stock du produit"
     }
   }
 }

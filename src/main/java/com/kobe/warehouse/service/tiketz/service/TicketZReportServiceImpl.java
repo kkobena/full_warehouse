@@ -7,8 +7,6 @@ import com.kobe.warehouse.service.dto.Pair;
 import com.kobe.warehouse.service.report.CommonReportService;
 import com.kobe.warehouse.service.report.Constant;
 import com.kobe.warehouse.service.tiketz.dto.TicketZ;
-import com.kobe.warehouse.service.utils.DateUtil;
-import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -78,15 +76,8 @@ public class TicketZReportServiceImpl extends CommonReportService implements Tic
         this.getParameters().put(Constant.ITEMS, items);
         this.getParameters().put(Constant.TABLE_WIDTH, 100 / items.size());
         this.getParameters().put(Constant.REPORT_SUMMARY, ticket.summaries());
-        this.getParameters()
-            .put(
-                Constant.REPORT_TITLE,
-                "RECAPITULATIF DE CAISSE DU " +
-                DateUtil.format((LocalDateTime) periode.key()) +
-                " AU " +
-                DateUtil.format((LocalDateTime) periode.value())
-            );
 
+        super.buildTitle("RECAPITULATIF DE CAISSE DU ", periode);
         super.getCommonParameters();
     }
 

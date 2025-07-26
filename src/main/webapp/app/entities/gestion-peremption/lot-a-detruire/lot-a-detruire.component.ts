@@ -4,11 +4,7 @@ import { ITEMS_PER_PAGE } from '../../../shared/constants/pagination.constants';
 import { LazyLoadEvent, MenuItem } from 'primeng/api';
 import { HttpHeaders, HttpResponse } from '@angular/common/http';
 import { DATE_FORMAT_ISO_DATE } from '../../../shared/util/warehouse-util';
-import {
-  ProductToDestroy,
-  ProductToDestroyFilter,
-  ProductToDestroySum
-} from '../model/product-to-destroy';
+import { ProductToDestroy, ProductToDestroyFilter, ProductToDestroySum } from '../model/product-to-destroy';
 import { TableHeaderCheckbox, TableModule } from 'primeng/table';
 import { PrimeNG } from 'primeng/config';
 import { TranslatePipe, TranslateService } from '@ngx-translate/core';
@@ -41,9 +37,7 @@ import { SpinerService } from '../../../shared/spiner.service';
 import { DatePickerComponent } from '../../../shared/date-picker/date-picker.component';
 import { saveAs } from 'file-saver';
 import { extractFileName2 } from '../../../shared/util/file-utils';
-import {
-  ConfirmDialogComponent
-} from '../../../shared/dialog/confirm-dialog/confirm-dialog.component';
+import { ConfirmDialogComponent } from '../../../shared/dialog/confirm-dialog/confirm-dialog.component';
 import { ToastAlertComponent } from '../../../shared/toast-alert/toast-alert.component';
 
 @Component({
@@ -142,7 +136,7 @@ export class LotADetruireComponent implements OnInit, AfterViewInit {
       {
         label: 'PDF',
         icon: 'pi pi-file-pdf',
-        command: () => this.onPrint(),
+        command: () => this.exportPdf(),
       },
       {
         label: 'Excel',
@@ -293,7 +287,16 @@ export class LotADetruireComponent implements OnInit, AfterViewInit {
     });
   }
 
-  private onPrint(): void {}
+  private exportPdf(): void {
+    this.spinner.show();
+    this.productToDestroyService.exportToPdf(this.buidParams()).subscribe({
+      next: blod => {
+        this.spinner.hide();
+        window.open(URL.createObjectURL(blod));
+      },
+      error: () => this.spinner.hide(),
+    });
+  }
 
   private onExport(format: string): void {
     this.spinner.show();

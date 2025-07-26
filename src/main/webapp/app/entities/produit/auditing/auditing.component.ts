@@ -1,26 +1,20 @@
-import {Component, inject, OnInit} from '@angular/core';
-import {WarehouseCommonModule} from '../../../shared/warehouse-common/warehouse-common.module';
-import {ButtonModule} from 'primeng/button';
-import {RippleModule} from 'primeng/ripple';
-import {FormsModule} from '@angular/forms';
-import {PanelModule} from 'primeng/panel';
-import {TableModule} from 'primeng/table';
-import {BadgeModule} from 'primeng/badge';
-import {DividerModule} from 'primeng/divider';
-import {NgxSpinnerModule} from 'ngx-spinner';
-import {
-  ProduitAuditingParam,
-  ProduitAuditingState,
-  ProduitAuditingSum
-} from '../../../shared/model/produit-record.model';
-import {HttpHeaders, HttpResponse} from '@angular/common/http';
-import {DATE_FORMAT_DD_MM_YYYY_HH_MM_SS} from '../../../shared/util/warehouse-util';
-import {ProduitStatService} from '../stat/produit-stat.service';
-import {ProduitAuditingParamService} from '../transaction/produit-auditing-param.service';
-import {LotPerimes} from "../../gestion-peremption/model/lot-perimes";
-import {ITEMS_PER_PAGE} from "../../../shared/constants/pagination.constants";
-import {LazyLoadEvent} from "primeng/api";
-import {MouvementProduit} from "../../../shared/model/enumerations/mouvement-produit.model";
+import { Component, inject, OnInit } from '@angular/core';
+import { WarehouseCommonModule } from '../../../shared/warehouse-common/warehouse-common.module';
+import { ButtonModule } from 'primeng/button';
+import { RippleModule } from 'primeng/ripple';
+import { FormsModule } from '@angular/forms';
+import { PanelModule } from 'primeng/panel';
+import { TableModule } from 'primeng/table';
+import { BadgeModule } from 'primeng/badge';
+import { DividerModule } from 'primeng/divider';
+import { NgxSpinnerModule } from 'ngx-spinner';
+import { ProduitAuditingParam, ProduitAuditingState, ProduitAuditingSum } from '../../../shared/model/produit-record.model';
+import { HttpHeaders, HttpResponse } from '@angular/common/http';
+import { ProduitStatService } from '../stat/produit-stat.service';
+import { ProduitAuditingParamService } from '../transaction/produit-auditing-param.service';
+import { ITEMS_PER_PAGE } from '../../../shared/constants/pagination.constants';
+import { LazyLoadEvent } from 'primeng/api';
+import { MouvementProduit } from '../../../shared/model/enumerations/mouvement-produit.model';
 
 @Component({
   selector: 'jhi-auditing',
@@ -57,6 +51,7 @@ export class AuditingComponent implements OnInit {
   protected totalItems = 0;
   private readonly produitStatService = inject(ProduitStatService);
   private readonly produitAuditingParamService = inject(ProduitAuditingParamService);
+
   ngOnInit(): void {
     const param = this.produitAuditingParamService.produitAuditingParam;
     if (param && param.produitId) {
@@ -67,7 +62,7 @@ export class AuditingComponent implements OnInit {
 
   load(): void {
     this.loadPage();
-   this.fetchSum();
+    this.fetchSum();
   }
 
   fetchSum(): void {
@@ -77,23 +72,22 @@ export class AuditingComponent implements OnInit {
         this.computeTotaux();
       },
       error: () => {
-        this.summaries= [];
-      }
+        this.summaries = [];
+      },
     });
   }
 
   exportPdf(): void {
     this.produitStatService.exportToPdf(this.buidParams()).subscribe({
       next: blod => {
-        const fileName = DATE_FORMAT_DD_MM_YYYY_HH_MM_SS();
+        // const fileName = DATE_FORMAT_DD_MM_YYYY_HH_MM_SS();
         // saveAs(blod, 'suivi_mvt_article_' + fileName);
         const blobUrl = URL.createObjectURL(blod);
         window.open(blobUrl);
-
-      }
-
+      },
     });
   }
+
   protected lazyLoading(event: LazyLoadEvent): void {
     if (event) {
       this.page = event.first / event.rows;
@@ -102,20 +96,18 @@ export class AuditingComponent implements OnInit {
         .fetchTransactions({
           page: this.page,
           size: event.rows,
-          ...this.buidParams()
+          ...this.buidParams(),
         })
         .subscribe({
           next: (res: HttpResponse<ProduitAuditingState[]>) => this.onSuccess(res.body, res.headers, this.page),
-          error: (err) => this.onError(err)
+          error: err => this.onError(err),
         });
     }
   }
-  private onError(eror: any): void {
 
-  }
+  private onError(eror: any): void {}
 
   private onSuccessPage(data: ProduitAuditingState[] | null): void {
-
     this.entites = data || [];
     this.computeTotaux();
   }
@@ -133,13 +125,14 @@ export class AuditingComponent implements OnInit {
       .fetchTransactions({
         page: pageToLoad - 1,
         size: this.itemsPerPage,
-        ...this.buidParams()
+        ...this.buidParams(),
       })
       .subscribe({
         next: (res: HttpResponse<ProduitAuditingState[]>) => this.onSuccess(res.body, res.headers, pageToLoad),
-        error: (err) => this.onError(err),
+        error: err => this.onError(err),
       });
   }
+
   private buidParams(): ProduitAuditingParam {
     const param = this.produitAuditingParamService.produitAuditingParam;
     return {
@@ -147,9 +140,10 @@ export class AuditingComponent implements OnInit {
       fromDate: param.fromDate,
       toDate: param.toDate,
       page: this.page,
-      size: this.itemsPerPage
+      size: this.itemsPerPage,
     };
   }
+
   private resetTotaux(): void {
     this.saleQuantity = null;
     this.deleveryQuantity = null;
@@ -187,9 +181,5 @@ export class AuditingComponent implements OnInit {
     this.retourDepot = retourDepotSum ? retourDepotSum.quantity : null;
     const storeInventorySum = this.summaries.find(sum => sum.mouvementProduitType === MouvementProduit.INVENTAIRE);
     this.storeInventoryQuantity = storeInventorySum ? storeInventorySum.quantity : null;
-
-
-
   }
-
 }

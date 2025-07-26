@@ -3,9 +3,12 @@ package com.kobe.warehouse.service.report;
 import com.kobe.warehouse.config.FileStorageProperties;
 import com.kobe.warehouse.domain.Magasin;
 import com.kobe.warehouse.service.StorageService;
+import com.kobe.warehouse.service.dto.Pair;
 import com.kobe.warehouse.service.dto.ReportPeriode;
 import com.kobe.warehouse.service.errors.FileStorageException;
+import com.kobe.warehouse.service.utils.DateUtil;
 import com.lowagie.text.DocumentException;
+import jakarta.validation.constraints.NotNull;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileOutputStream;
@@ -15,6 +18,7 @@ import java.net.MalformedURLException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
@@ -267,5 +271,29 @@ public Response generatePdf() {
             )
             .contentType(MediaType.APPLICATION_PDF)
             .body(printByteArray());
+    }
+
+    protected void buildTitle(String title, Pair periode) {
+        this.getParameters().put(Constant.REPORT_TITLE, buildTitle(title, buildPeriode(periode)));
+    }
+
+    protected void setTitle(String title, String periode) {
+        this.getParameters().put(Constant.REPORT_TITLE, buildTitle(title, periode));
+    }
+
+    private String buildTitle(String title, String periode) {
+        return String.format("%s %s", title, periode);
+    }
+
+    protected String buildPeriode(@NotNull Pair periode) {
+        return DateUtil.format((LocalDateTime) periode.key()) + " au " + DateUtil.format((LocalDateTime) periode.value());
+    }
+
+    protected String buildPeriode(@NotNull LocalDate from, @NotNull LocalDate to) {
+        return DateUtil.format(from) + " au " + DateUtil.format(to);
+    }
+
+    protected String buildPeriode(@NotNull LocalDateTime from, @NotNull LocalDateTime to) {
+        return DateUtil.format(from) + " au " + DateUtil.format(to);
     }
 }

@@ -44,6 +44,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.domain.Sort.Direction;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
@@ -61,6 +62,7 @@ public class ProductsToDestroyServiceImpl implements ProductsToDestroyService {
     private final StockProduitRepository stockProduitRepository;
     private final ProduitRepository produitRepository;
     private final InventoryTransactionService inventoryTransactionService;
+    private final ProductToDestroyReportService productToDestroyReportService;
 
     public ProductsToDestroyServiceImpl(
         ProductsToDestroyRepository productsToDestroyRepository,
@@ -71,7 +73,8 @@ public class ProductsToDestroyServiceImpl implements ProductsToDestroyService {
         MagasinRepository magasinRepository,
         StockProduitRepository stockProduitRepository,
         ProduitRepository produitRepository,
-        InventoryTransactionService inventoryTransactionService
+        InventoryTransactionService inventoryTransactionService,
+        ProductToDestroyReportService productToDestroyReportService
     ) {
         this.productsToDestroyRepository = productsToDestroyRepository;
         this.lotRepository = lotRepository;
@@ -82,6 +85,7 @@ public class ProductsToDestroyServiceImpl implements ProductsToDestroyService {
         this.stockProduitRepository = stockProduitRepository;
         this.produitRepository = produitRepository;
         this.inventoryTransactionService = inventoryTransactionService;
+        this.productToDestroyReportService = productToDestroyReportService;
     }
 
     @Override
@@ -166,9 +170,9 @@ public class ProductsToDestroyServiceImpl implements ProductsToDestroyService {
     @Override
     public Page<ProductToDestroyDTO> findAll(ProductToDestroyFilter produidToDestroyFilter, Pageable pageable) {
         Sort sort = Sort.by(Direction.DESC, "created");
-        if (nonNull(pageable)&&pageable.isPaged()) {
+        if (nonNull(pageable) && pageable.isPaged()) {
             pageable = PageRequest.of(pageable.getPageNumber(), pageable.getPageSize(), sort);
-        }else {
+        } else {
             pageable = Pageable.unpaged(sort);
         }
         return this.productsToDestroyRepository.findAll(
@@ -281,6 +285,16 @@ public class ProductsToDestroyServiceImpl implements ProductsToDestroyService {
             ProductToDestroyDTO.class,
             this.findAll(produidToDestroyFilter, Pageable.unpaged()).getContent()
         );
+    }
+
+    @Override
+    public ResponseEntity<byte[]> generatePdf(ProductToDestroyFilter produidToDestroyFilter) {
+        return this.productToDestroyReportService.generatePdf(
+                this.findAll(produidToDestroyFilter, Pageable.unpaged()).getContent(),
+                this.getSum(produidToDestroyFilter),
+                produidToDestroyFilter.fromDate(),
+                produidToDestroyFilter.toDate()
+            );
     }
 
     private List<StockProduit> findStockProduits(Long magasinId, Long produitId) {

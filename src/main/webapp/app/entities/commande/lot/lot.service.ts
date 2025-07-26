@@ -47,7 +47,7 @@ export class LotService {
     });
   }
 
-  getSum(req?: LotFilterParam): Observable<HttpResponse<LotPerimeValeurSum>> {
+  getSum(req: LotFilterParam): Observable<HttpResponse<LotPerimeValeurSum>> {
     const options = createRequestOptions(req);
     return this.http.get<LotPerimeValeurSum>(this.resourceUrl + '/sum', {
       params: options,
@@ -55,11 +55,28 @@ export class LotService {
     });
   }
 
-  fetchLotPerimes(req?: LotFilterParam): Observable<HttpResponse<LotPerimes[]>> {
+  fetchLotPerimes(req: LotFilterParam): Observable<HttpResponse<LotPerimes[]>> {
     const options = createRequestOptions(req);
     return this.http.get<LotPerimes[]>(this.resourceUrl, {
       params: options,
       observe: 'response',
+    });
+  }
+
+  export(format: string, req: LotFilterParam): Observable<HttpResponse<Blob>> {
+    const options = createRequestOptions(req);
+    return this.http.get(`${this.resourceUrl}/export/${format}`, {
+      params: options,
+      observe: 'response',
+      responseType: 'blob',
+    });
+  }
+
+  exportToPdf(req: LotFilterParam): Observable<Blob> {
+    const options = createRequestOptions(req);
+    return this.http.get(`${this.resourceUrl}/pdf`, {
+      params: options,
+      responseType: 'blob',
     });
   }
 }

@@ -70,6 +70,14 @@ export class ProductToDestroyService {
     return this.http.get(this.resourceUrl + '/close', { observe: 'response' });
   }
 
+  exportToPdf(req: ProductToDestroyFilter): Observable<Blob> {
+    const options = createRequestOptions(req);
+    return this.http.get(`${this.resourceUrl}/pdf`, {
+      params: options,
+      responseType: 'blob',
+    });
+  }
+
   export(format: string, req?: ProductToDestroyFilter): Observable<HttpResponse<Blob>> {
     const options = createRequestOptions(req);
     return this.http.get(`${this.resourceUrl}/export/${format}`, {

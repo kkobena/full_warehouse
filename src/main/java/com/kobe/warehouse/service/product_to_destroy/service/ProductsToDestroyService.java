@@ -11,6 +11,7 @@ import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.http.ResponseEntity;
 
 public interface ProductsToDestroyService {
     void addLotQuantities(ProductsToDestroyPayload productToDestroyPayload);
@@ -35,4 +36,6 @@ public interface ProductsToDestroyService {
     Page<ProductToDestroyDTO> findEditing(ProductToDestroyFilter produidToDestroyFilter, Pageable pageable);
 
     void export(HttpServletResponse response, ExportFormat type, ProductToDestroyFilter produidToDestroyFilter) throws IOException;
+
+    ResponseEntity<byte[]> generatePdf(ProductToDestroyFilter produidToDestroyFilter);
 }

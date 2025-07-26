@@ -98,4 +98,9 @@ public class ProductToDestroyResource {
         productsToDestroyService.remove(keys);
         return ResponseEntity.noContent().build();
     }
+
+    @GetMapping("/pdf")
+    public ResponseEntity<byte[]> generatePdf(ProductToDestroyFilter productToDestroyFilter) {
+        return productsToDestroyService.generatePdf(productToDestroyFilter);
+    }
 }

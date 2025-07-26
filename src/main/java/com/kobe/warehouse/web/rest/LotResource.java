@@ -1,11 +1,14 @@
 package com.kobe.warehouse.web.rest;
 
 import com.kobe.warehouse.service.dto.LotDTO;
+import com.kobe.warehouse.service.excel.model.ExportFormat;
 import com.kobe.warehouse.service.stock.LotService;
 import com.kobe.warehouse.service.stock.dto.LotFilterParam;
 import com.kobe.warehouse.service.stock.dto.LotPerimeDTO;
 import com.kobe.warehouse.service.stock.dto.LotPerimeValeurSum;
+import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
+import java.io.IOException;
 import java.util.List;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -60,16 +63,25 @@ public class LotResource {
     }
 
     @GetMapping("/lot")
-    public ResponseEntity<List<LotPerimeDTO>> fetchAll(
-        LotFilterParam lotFilterParam, Pageable pageable) {
+    public ResponseEntity<List<LotPerimeDTO>> fetchAll(LotFilterParam lotFilterParam, Pageable pageable) {
         Page<LotPerimeDTO> page = lotService.findLotsPerimes(lotFilterParam, pageable);
-        HttpHeaders headers = PaginationUtil.generatePaginationHttpHeaders(
-            ServletUriComponentsBuilder.fromCurrentRequest(), page);
+        HttpHeaders headers = PaginationUtil.generatePaginationHttpHeaders(ServletUriComponentsBuilder.fromCurrentRequest(), page);
         return ResponseEntity.ok().headers(headers).body(page.getContent());
     }
 
     @GetMapping("/lot/sum")
     public ResponseEntity<LotPerimeValeurSum> fetchSum(LotFilterParam lotFilterParam) {
         return ResponseEntity.ok().body(lotService.findPerimeSum(lotFilterParam));
+    }
+
+    @GetMapping("/lot/pdf")
+    public ResponseEntity<byte[]> generatePdf(LotFilterParam lotFilterParam) {
+        return lotService.generatePdf(lotFilterParam);
+    }
+
+    @GetMapping("/lot/export/{format}")
+    public void export(@PathVariable("format") ExportFormat type, HttpServletResponse response, LotFilterParam lotFilterParam)
+        throws IOException {
+        lotService.export(response, type, lotFilterParam);
     }
 }

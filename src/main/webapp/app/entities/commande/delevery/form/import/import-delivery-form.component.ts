@@ -169,16 +169,15 @@ export class ImportDeliveryFormComponent implements OnInit {
   }
 
   private createUploadDeleiveryReceipt(): UploadDeleiveryReceipt {
-    const deliveryReceiptCtl = this.editForm.get('deliveryReceipt');
-    const receiptDate = this.editForm.get('receiptDate').value;
+    const deliveryReceiptForm = this.editForm.get('deliveryReceipt') as any;
     return {
-      model: this.editForm.get(['model']).value.value,
-      fournisseurId: this.editForm.get(['fournisseur']).value.id,
+      model: this.editForm.get('model')?.value?.value,
+      fournisseurId: this.editForm.get('fournisseur')?.value?.id,
       deliveryReceipt: {
-        receiptReference: deliveryReceiptCtl.get('receiptReference').value,
-        receiptDate: receiptDate ? moment(receiptDate).format(DATE_FORMAT) : null,
-        receiptAmount: deliveryReceiptCtl.get('receiptAmount').value,
-        taxAmount: deliveryReceiptCtl.get('taxAmount').value,
+        receiptReference: deliveryReceiptForm.get('receiptReference')?.value,
+        receiptDate: deliveryReceiptForm.get('receiptDate')?.value ? moment(deliveryReceiptForm.get('receiptDate')?.value).format(DATE_FORMAT) : null,
+        receiptAmount: deliveryReceiptForm.get('receiptAmount')?.value,
+        taxAmount: deliveryReceiptForm.get('taxAmount')?.value,
       },
     };
   }

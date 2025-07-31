@@ -1,4 +1,4 @@
-import { Component, OnInit, inject } from '@angular/core';
+import { Component, inject, OnInit } from '@angular/core';
 import { ConfirmationService } from 'primeng/api';
 import { DialogService, DynamicDialogConfig, DynamicDialogRef } from 'primeng/dynamicdialog';
 import { IFournisseur } from '../../shared/model/fournisseur.model';
@@ -23,14 +23,8 @@ import { Button } from 'primeng/button';
   imports: [WarehouseCommonModule, FormsModule, NgxSpinnerModule, FileUploadModule, Select, Button],
 })
 export class ImportationNewCommandeComponent implements OnInit {
-  protected commandeService = inject(CommandeService);
   ref = inject(DynamicDialogRef);
   config = inject(DynamicDialogConfig);
-  protected fournisseurService = inject(FournisseurService);
-  private spinner = inject(NgxSpinnerService);
-  protected modalService = inject(NgbModal);
-  private errorService = inject(ErrorService);
-
   isSaving = false;
   fournisseurSelectedId!: number;
   fournisseurs: IFournisseur[] = [];
@@ -39,9 +33,11 @@ export class ImportationNewCommandeComponent implements OnInit {
   file: any;
   appendTo = 'body';
   commandeResponse!: ICommandeResponse | null;
-
-  /** Inserted by Angular inject() migration for backwards compatibility */
-  constructor(...args: unknown[]);
+  protected commandeService = inject(CommandeService);
+  protected fournisseurService = inject(FournisseurService);
+  protected modalService = inject(NgbModal);
+  private spinner = inject(NgxSpinnerService);
+  private errorService = inject(ErrorService);
 
   constructor() {
     this.models = [

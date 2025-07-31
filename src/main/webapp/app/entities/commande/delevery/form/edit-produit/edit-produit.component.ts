@@ -5,6 +5,7 @@ import { ConfirmationService, MessageService } from 'primeng/api';
 import { FournisseurProduit, IFournisseurProduit } from '../../../../../shared/model/fournisseur-produit.model';
 import { HttpResponse } from '@angular/common/http';
 import { Observable } from 'rxjs';
+import { finalize } from 'rxjs/operators';
 import { ProduitService } from '../../../../produit/produit.service';
 import { ErrorService } from '../../../../../shared/error.service';
 import { ITva } from '../../../../../shared/model/tva.model';
@@ -124,15 +125,11 @@ export class EditProduitComponent implements OnInit {
   }
 
   handlePrixAchatInput(event: any): void {
-    const value = Number(event.target.value);
-    const unitPrice = Number(this.editForm.get(['prixUni']).value);
-    this.isValid = value < unitPrice;
+    this.validatePrices(Number(event.target.value), Number(this.editForm.get(['prixUni']).value));
   }
 
   handlePrixUnitaireInput(event: any): void {
-    const value = Number(event.target.value);
-    const costAmount = Number(this.editForm.get(['prixAchat']).value);
-    this.isValid = costAmount < value;
+    this.validatePrices(Number(this.editForm.get(['prixAchat']).value), Number(event.target.value));
   }
 
   cancel(): void {
@@ -140,43 +137,35 @@ export class EditProduitComponent implements OnInit {
   }
 
   protected subscribeToSaveResponse(result: Observable<HttpResponse<{}>>): void {
-    result.subscribe({
+    result.pipe(finalize(() => (this.isSaving = false))).subscribe({
       next: () => this.onSaveSuccess(),
       error: error => this.onSaveError(error),
     });
   }
 
   protected onSaveSuccess(): void {
-    this.isSaving = false;
     this.ref.close({ success: true });
   }
 
   protected onSaveError(error: any): void {
-    this.isSaving = false;
+    let errorMessage = "Erreur d'enregistrement";
     if (error.error?.errorKey) {
       this.errorService.getErrorMessageTranslation(error.error?.errorKey).subscribe({
         next: translatedErrorMessage => {
-          this.messageService.add({
-            severity: 'error',
-            summary: 'Erreur',
-            detail: translatedErrorMessage,
-          });
+          errorMessage = translatedErrorMessage;
         },
         error: () => {
-          this.messageService.add({
-            severity: 'error',
-            summary: 'Erreur',
-            detail: error.error.detail,
-          });
+          errorMessage = error.error.detail;
         },
       });
-    } else {
-      this.messageService.add({
-        severity: 'error',
-        summary: 'Erreur',
-        detail: error.error.detail,
-      });
+    } else if (error.error?.detail) {
+      errorMessage = error.error.detail;
     }
+    this.messageService.add({
+      severity: 'error',
+      summary: 'Erreur',
+      detail: errorMessage,
+    });
   }
 
   protected createFromForm(): IFournisseurProduit {
@@ -198,4 +187,9 @@ export class EditProduitComponent implements OnInit {
       },
     };
   }
+
+  private validatePrices(prixAchat: number, prixUni: number): void {
+    this.isValid = prixAchat < prixUni;
+  }
 }
+

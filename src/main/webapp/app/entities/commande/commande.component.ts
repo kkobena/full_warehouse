@@ -210,22 +210,23 @@ export class CommandeComponent implements OnInit {
   }
 
   openImportResponseDialogComponent(responseCommande: ICommandeResponse): void {
-    const modalRef = this.modalService.open(CommandeImportResponseDialogComponent, {
-      size: 'xl',
-      scrollable: true,
-      backdrop: 'static',
-    });
-    modalRef.componentInstance.responseCommande = responseCommande;
+    this.openCommandeResponseDialog(CommandeImportResponseDialogComponent, responseCommande);
   }
 
   openImporterReponseCommandeDialog(responseCommande: IResponseCommande): void {
-    const modalRef = this.modalService.open(CommandeEnCoursResponseDialogComponent, {
+    this.openCommandeResponseDialog(CommandeEnCoursResponseDialogComponent, responseCommande, this.commandeSelected);
+  }
+
+  private openCommandeResponseDialog(component: any, responseCommande: any, commande?: ICommande): void {
+    const modalRef = this.modalService.open(component, {
       size: 'xl',
       scrollable: true,
       backdrop: 'static',
     });
     modalRef.componentInstance.responseCommande = responseCommande;
-    modalRef.componentInstance.commande = this.commandeSelected;
+    if (commande) {
+      modalRef.componentInstance.commande = commande;
+    }
   }
 
   onShowNewCommandeDialog(): void {

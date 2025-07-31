@@ -1,4 +1,4 @@
-import { Component, inject, input, OnInit } from '@angular/core';
+import { Component, inject, input, OnDestroy, OnInit } from '@angular/core';
 import { IDelivery } from '../../../../shared/model/delevery.model';
 import { ITEMS_PER_PAGE } from '../../../../shared/constants/pagination.constants';
 import { DynamicDialogModule, DynamicDialogRef } from 'primeng/dynamicdialog';
@@ -11,6 +11,8 @@ import { ButtonModule } from 'primeng/button';
 import { TableModule } from 'primeng/table';
 import { TooltipModule } from 'primeng/tooltip';
 import { CommandeService } from '../../commande.service';
+import { Subject } from 'rxjs';
+import { takeUntil } from 'rxjs/operators';
 
 export type ExpandMode = 'single' | 'multiple';
 
@@ -19,9 +21,9 @@ export type ExpandMode = 'single' | 'multiple';
   templateUrl: './bon-en-cours.component.html',
   imports: [WarehouseCommonModule, ButtonModule, TableModule, NgxSpinnerModule, RouterModule, DynamicDialogModule, TooltipModule],
 })
-export class BonEnCoursComponent implements OnInit {
-  protected readonly itemsPerPage = ITEMS_PER_PAGE;
+export class BonEnCoursComponent implements OnInit, OnDestroy {
   search = input<string>('');
+  protected readonly itemsPerPage = ITEMS_PER_PAGE;
   protected deliveries: IDelivery[] = [];
   protected readonly rowExpandMode: ExpandMode = 'single';
   protected loading!: boolean;
@@ -34,9 +36,15 @@ export class BonEnCoursComponent implements OnInit {
   private readonly commandeService = inject(CommandeService);
   private readonly spinner = inject(NgxSpinnerService);
   private readonly entityService = inject(DeliveryService);
+  private destroy$ = new Subject<void>();
 
   ngOnInit(): void {
     this.onSearch();
+  }
+
+  ngOnDestroy(): void {
+    this.destroy$.next();
+    this.destroy$.complete();
   }
 
   onRowExpand(event: any): void {
@@ -69,26 +77,22 @@ export class BonEnCoursComponent implements OnInit {
 
   exportPdf(delivery: IDelivery): void {
     this.spinner.show();
-    this.entityService.exportToPdf(delivery.id).subscribe({
-      next: blod => {
-        this.spinner.hide();
-        const blobUrl = URL.createObjectURL(blod);
-        window.open(blobUrl);
-      },
-      error: () => this.spinner.hide(),
-    });
+    this.entityService
+      .exportToPdf(delivery.id)
+      .pipe(takeUntil(this.destroy$))
+      .subscribe({
+        next: blod => {
+          this.spinner.hide();
+          const blobUrl = URL.createObjectURL(blod);
+          window.open(blobUrl);
+        },
+        error: () => this.spinner.hide(),
+      });
   }
 
   protected onSuccess(data: IDelivery[] | null, headers: HttpHeaders, page: number): void {
     this.totalItems = Number(headers.get('X-Total-Count'));
     this.page = page;
-    /*  this.router.navigate(['/gestion-entree'], {
-      queryParams: {
-        page: this.page,
-        size: this.itemsPerPage,
-        search: this.search,
-      },
-    });*/
     this.deliveries = data || [];
     this.loading = false;
   }

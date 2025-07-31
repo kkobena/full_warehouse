@@ -21,15 +21,12 @@ import java.awt.print.PageFormat;
 import java.awt.print.PrinterException;
 import java.util.ArrayList;
 import java.util.List;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
 
 @Service
 public abstract class AbstractSaleReceiptService extends AbstractJava2DReceiptPrinterService {
 
-    private static final Logger LOG = LoggerFactory.getLogger(AbstractSaleReceiptService.class);
     protected int avoirCount;
 
     protected AbstractSaleReceiptService(AppConfigurationService appConfigurationService, PrinterRepository printerRepository) {
@@ -53,15 +50,11 @@ public abstract class AbstractSaleReceiptService extends AbstractJava2DReceiptPr
         SaleDTO sale = getSale();
         Font font = PLAIN_FONT;
         List<HeaderFooterItem> headerItems = new ArrayList<>();
+        headerItems.add(new HeaderFooterItem("Ticket: " + sale.getNumberTransaction(), 1, font));
+        headerItems.add(new HeaderFooterItem("Caissier(re): " + sale.getCassier().getAbbrName(), 1, font));
         if (sale.getCassierId().compareTo(sale.getSellerId()) != 0) {
-            headerItems.add(new HeaderFooterItem("Ticket: " + sale.getNumberTransaction(), 1, font));
-            headerItems.add(new HeaderFooterItem("Caissier(re): " + sale.getCassier().getAbbrName(), 1, font));
             headerItems.add(new HeaderFooterItem("Vendeur(se): " + sale.getSeller().getAbbrName(), 1, font));
-        } else {
-            headerItems.add(new HeaderFooterItem("Ticket: " + sale.getNumberTransaction(), 1, font));
-            headerItems.add(new HeaderFooterItem("Caissier(re): " + sale.getCassier().getAbbrName(), 1, font));
         }
-
         return headerItems;
     }
 
@@ -97,8 +90,6 @@ public abstract class AbstractSaleReceiptService extends AbstractJava2DReceiptPr
         Graphics2D graphics2D = (Graphics2D) graphics;
         graphics2D.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
         graphics2D.translate(pageFormat.getImageableX(), pageFormat.getImageableY());
-        int width = DEFAULT_WIDTH; // 80mm in pixels, à parametrer
-        int margin = DEFAULT_MARGIN; // margin in pixels
 
         int lineHeight = DEFAULT_LINE_HEIGHT;
         int maximumLinesPerPage = getMaximumLinesPerPage();
@@ -112,51 +103,21 @@ public abstract class AbstractSaleReceiptService extends AbstractJava2DReceiptPr
         int endItemIndex = Math.min(sartItemIndex + maximumLinesPerPage, itemsSize);
         boolean isLastPage = pageIndex == totalPages - 1;
         int y = lineHeight;
-        y = drawCompagnyInfo(graphics2D, DEFAULT_MARGIN, y);
-        y = drawWelcomeMessage(graphics2D, DEFAULT_MARGIN, y);
-        y = drawHeader(graphics2D, DEFAULT_MARGIN, y, lineHeight);
-        y = drawAssuanceInfo(graphics2D, width, margin, y, lineHeight);
-        y = drawTableHeader(graphics2D, margin, y);
-        y = drawLineSeparator(graphics2D, margin, y, width);
-        Font font = PLAIN_FONT;
-        graphics2D.setFont(font);
-        FontMetrics fontMetrics = graphics2D.getFontMetrics(font);
 
-        for (int i = sartItemIndex; i < endItemIndex; i++) {
-            SaleReceiptItem item = getItems().get(i);
-            drawItem(graphics2D, y, fontMetrics, item);
-            //check if is last item
-            if (i == endItemIndex - 1) {
-                y += 10;
-            } else {
-                y += lineHeight;
-            }
-        }
-        //derniere page
+        y = drawReceiptHeader(graphics2D, y, lineHeight);
+        y = drawReceiptItems(graphics2D, y, sartItemIndex, endItemIndex, lineHeight);
+
         if (isLastPage) {
-            y = drawLineSeparator(graphics2D, margin, y, width);
-            y = drawSummary(graphics2D, width, y, lineHeight);
-            y = drawReglement(graphics2D, width, margin, y, lineHeight);
-            y = drawCashInfo(graphics2D, y, lineHeight);
-            y = drawResteToPay(graphics2D, y, lineHeight);
-            //  y = drawTaxeDetail(graphics2D, width, margin, y, lineHeight);
-            y = drawFooter(graphics2D, margin, y, lineHeight);
-            y = drawLineSeparator(graphics2D, margin, y, width);
-            y = drawDate(graphics2D, DEFAULT_MARGIN, y, lineHeight);
-            drawThanksMessage(graphics2D, DEFAULT_MARGIN, y);
+            y = drawReceiptSummary(graphics2D, y, lineHeight);
         }
         return PAGE_EXISTS;
     }
 
     protected void drawItem(Graphics2D graphics2D, int y, FontMetrics fontMetrics, SaleReceiptItem item) {
-        String quantity = item.getQuantity();
-        String produitName = item.getProduitName();
-        String unitPrice = item.getUnitPrice();
-        String totalPrice = item.getTotalPrice();
-        graphics2D.drawString(quantity, DEFAULT_MARGIN, y);
-        graphics2D.drawString(produitName, 20 + DEFAULT_MARGIN, y);
-        graphics2D.drawString(unitPrice, getPuRightMargin() - fontMetrics.stringWidth(unitPrice), y);
-        graphics2D.drawString(totalPrice, getRightMargin() - fontMetrics.stringWidth(totalPrice), y);
+        graphics2D.drawString(item.getQuantity(), DEFAULT_MARGIN, y);
+        graphics2D.drawString(item.getProduitName(), 20 + DEFAULT_MARGIN, y);
+        graphics2D.drawString(item.getUnitPrice(), getPuRightMargin() - fontMetrics.stringWidth(item.getUnitPrice()), y);
+        graphics2D.drawString(item.getTotalPrice(), getRightMargin() - fontMetrics.stringWidth(item.getTotalPrice()), y);
     }
 
     protected int drawTaxeDetail(Graphics2D graphics2D, int width, int margin, int y, int lineHeight) {
@@ -168,13 +129,7 @@ public abstract class AbstractSaleReceiptService extends AbstractJava2DReceiptPr
         int rightMargin = getRightMargin();
         graphics2D.setFont(bodyFont);
         FontMetrics fontMetrics;
-        String tva = TVA;
-        underlineText(graphics2D, tva, width, margin, y);
-        y += 10;
-        drawAndCenterText(graphics2D, tva, width, margin, y);
-        y += 5;
-        underlineText(graphics2D, tva, width, margin, y);
-        y += 10;
+        y = drawSectionHeader(graphics2D, TVA, width, margin, y);
 
         for (TvaEmbeded tvaEmbeded : tvaEmbededs) {
             graphics2D.setFont(bodyFont);
@@ -196,13 +151,8 @@ public abstract class AbstractSaleReceiptService extends AbstractJava2DReceiptPr
         int rightMargin = getRightMargin();
         graphics2D.setFont(PLAIN_FONT);
         FontMetrics fontMetrics = graphics2D.getFontMetrics(PLAIN_FONT);
-        /*  String reglement = REGLEMENT;
-        underlineText(graphics2D, reglement, width, margin, y);
-        y += 10;
-        drawAndCenterText(graphics2D, reglement, width, margin, y);
-        y += 5;
-        underlineText(graphics2D, reglement, width, margin, y);
-        y += 10;*/
+        y = drawSectionHeader(graphics2D, REGLEMENT, width, margin, y);
+
         for (PaymentDTO payment : payments) {
             PaymentModeDTO paymentMode = payment.getPaymentMode();
             String libelle = paymentMode.getLibelle();
@@ -243,5 +193,59 @@ public abstract class AbstractSaleReceiptService extends AbstractJava2DReceiptPr
 
     protected int getPuRightMargin() {
         return 160 + DEFAULT_MARGIN;
+    }
+
+    private int drawReceiptHeader(Graphics2D graphics2D, int y, int lineHeight) {
+        int width = DEFAULT_WIDTH;
+        int margin = DEFAULT_MARGIN;
+        y = drawCompagnyInfo(graphics2D, DEFAULT_MARGIN, y);
+        y = drawWelcomeMessage(graphics2D, DEFAULT_MARGIN, y);
+        y = drawHeader(graphics2D, DEFAULT_MARGIN, y, lineHeight);
+        y = drawAssuanceInfo(graphics2D, width, margin, y, lineHeight);
+        y = drawTableHeader(graphics2D, margin, y);
+        y = drawLineSeparator(graphics2D, margin, y, width);
+        return y;
+    }
+
+    private int drawReceiptItems(Graphics2D graphics2D, int y, int sartItemIndex, int endItemIndex, int lineHeight) {
+        Font font = PLAIN_FONT;
+        graphics2D.setFont(font);
+        FontMetrics fontMetrics = graphics2D.getFontMetrics(font);
+        for (int i = sartItemIndex; i < endItemIndex; i++) {
+            SaleReceiptItem item = getItems().get(i);
+            drawItem(graphics2D, y, fontMetrics, item);
+            if (i == endItemIndex - 1) {
+                y += 10;
+            } else {
+                y += lineHeight;
+            }
+        }
+        return y;
+    }
+
+    private int drawReceiptSummary(Graphics2D graphics2D, int y, int lineHeight) {
+        int width = DEFAULT_WIDTH;
+        int margin = DEFAULT_MARGIN;
+        y = drawLineSeparator(graphics2D, margin, y, width);
+        y = drawSummary(graphics2D, width, y, lineHeight);
+        y = drawReglement(graphics2D, width, margin, y, lineHeight);
+        y = drawCashInfo(graphics2D, y, lineHeight);
+        y = drawResteToPay(graphics2D, y, lineHeight);
+        y = drawTaxeDetail(graphics2D, width, margin, y, lineHeight);
+        y = drawFooter(graphics2D, margin, y, lineHeight);
+        y = drawLineSeparator(graphics2D, margin, y, width);
+        y = drawDate(graphics2D, DEFAULT_MARGIN, y, lineHeight);
+        drawThanksMessage(graphics2D, DEFAULT_MARGIN, y);
+        return y;
+    }
+
+    private int drawSectionHeader(Graphics2D graphics2D, String title, int width, int margin, int y) {
+        underlineText(graphics2D, title, width, margin, y);
+        y += 10;
+        drawAndCenterText(graphics2D, title, width, margin, y);
+        y += 5;
+        underlineText(graphics2D, title, width, margin, y);
+        y += 10;
+        return y;
     }
 }

@@ -32,12 +32,14 @@ export class ReceiptStatusComponent implements ICellRendererAngularComp, OnChang
       receiptItem.produitCip.length === 0 ||
       receiptItem.orderCostAmount !== receiptItem.costAmount ||
       (receiptItem.updated && receiptItem.quantityReceived !== receiptItem.quantityRequested);
+
     if (mustBeUpdate) {
       return 'progress-bar bg-warning';
-    } else if (receiptItem.updated || !mustBeUpdate) {
+    } else if (receiptItem.updated) {
       return 'progress-bar bg-success';
+    } else {
+      return 'progress-bar bg-secondary';
     }
-    return 'progress-bar bg-secondary';
   }
 
   ngOnChanges(changes: SimpleChanges): void {}

@@ -4,10 +4,11 @@ import { FormBuilder, FormControl, FormsModule, ReactiveFormsModule, Validators 
 import { MessageService } from 'primeng/api';
 import { DynamicDialogConfig, DynamicDialogModule, DynamicDialogRef } from 'primeng/dynamicdialog';
 import { Observable } from 'rxjs';
+import { finalize } from 'rxjs/operators';
 import { Delivery, IDelivery } from '../../../../shared/model/delevery.model';
 import { ICommande } from '../../../../shared/model/commande.model';
 import { DeliveryService } from '../delivery.service';
-import moment, { Moment } from 'moment';
+import moment from 'moment';
 import { DATE_FORMAT } from '../../../../shared/constants/input.constants';
 import { NgxSpinnerModule, NgxSpinnerService } from 'ngx-spinner';
 import { WarehouseCommonModule } from '../../../../shared/warehouse-common/warehouse-common.module';
@@ -67,7 +68,7 @@ export class DeliveryModalComponent implements OnInit {
       nonNullable: true,
     }),
     taxAmount: new FormControl<number | null>(null, {
-      validators: [Validators.required, Validators.min(0)],
+      validators: [Validators.min(0), Validators.required],
       nonNullable: true,
     }),
   });
@@ -125,11 +126,17 @@ export class DeliveryModalComponent implements OnInit {
   }
 
   protected subscribeToSaveResponse(result: Observable<HttpResponse<IDelivery>>): void {
-    result.subscribe({
-      next: (res: HttpResponse<IDelivery>) => this.onSaveSuccess(res.body),
-      error: () => this.onSaveError(),
-      complete: () => this.spinner.hide(),
-    });
+    result
+      .pipe(
+        finalize(() => {
+          this.spinner.hide();
+          this.isSaving = false;
+        }),
+      )
+      .subscribe({
+        next: (res: HttpResponse<IDelivery>) => this.onSaveSuccess(res.body),
+        error: () => this.onSaveError(),
+      });
   }
 
   protected onSaveSuccess(response: IDelivery | null): void {
@@ -137,8 +144,6 @@ export class DeliveryModalComponent implements OnInit {
   }
 
   protected onSaveError(): void {
-    this.spinner.hide();
-    this.isSaving = false;
     this.messageService.add({
       severity: 'error',
       summary: 'Erreur',
@@ -147,20 +152,14 @@ export class DeliveryModalComponent implements OnInit {
   }
 
   private createFrom(): IDelivery {
-    const receiptDate = this.editForm.get('receiptDate').value;
     return {
       ...new Delivery(),
       id: this.commande.id,
       receiptReference: this.editForm.get(['receiptReference']).value,
-      receiptDate: receiptDate ? moment(receiptDate).format(DATE_FORMAT) : null,
+      receiptDate: this.editForm.get('receiptDate').value ? moment(this.editForm.get('receiptDate').value).format(DATE_FORMAT) : null,
       receiptAmount: this.editForm.get(['receiptAmount']).value,
       taxAmount: this.editForm.get(['taxAmount']).value,
       orderReference: this.commande.orderReference,
     };
-  }
-
-  private buildDate(param: any): Moment {
-    const receiptDate = new Date(param);
-    return moment(receiptDate);
   }
 }

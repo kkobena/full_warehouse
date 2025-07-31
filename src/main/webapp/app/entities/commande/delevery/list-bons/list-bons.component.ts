@@ -53,18 +53,7 @@ export class ListBonsComponent implements OnInit {
 
   loadPage(page?: number): void {
     const pageToLoad: number = page || this.page;
-    this.loading = true;
-    this.entityService
-      .query({
-        page: pageToLoad,
-        size: this.itemsPerPage,
-        search: this.search(),
-        statut: this.selectedFilter,
-      })
-      .subscribe({
-        next: (res: HttpResponse<IDelivery[]>) => this.onSuccess(res.body, res.headers, pageToLoad),
-        error: () => this.onError(),
-      });
+    this.fetchDeliveries(pageToLoad, this.itemsPerPage);
   }
 
   onSearch(): void {
@@ -74,19 +63,24 @@ export class ListBonsComponent implements OnInit {
   lazyLoading(event: LazyLoadEvent): void {
     if (event) {
       this.page = event.first / event.rows;
-      this.loading = true;
-      this.entityService
-        .query({
-          page: this.page,
-          size: event.rows,
-          search: this.search(),
-          statut: this.selectedFilter,
-        })
-        .subscribe({
-          next: (res: HttpResponse<IDelivery[]>) => this.onSuccess(res.body, res.headers, this.page),
-          error: () => this.onError(),
-        });
+      this.itemsPerPage = event.rows;
+      this.fetchDeliveries(this.page, this.itemsPerPage);
     }
+  }
+
+  private fetchDeliveries(page: number, size: number): void {
+    this.loading = true;
+    this.entityService
+      .query({
+        page,
+        size,
+        search: this.search(),
+        statut: this.selectedFilter,
+      })
+      .subscribe({
+        next: (res: HttpResponse<IDelivery[]>) => this.onSuccess(res.body, res.headers, page),
+        error: () => this.onError(),
+      });
   }
 
   printEtiquette(delivery: IDelivery): void {

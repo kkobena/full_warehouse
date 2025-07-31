@@ -353,11 +353,7 @@ export class CommandeUpdateComponent implements OnInit, AfterViewInit {
   }
 
   protected onSelect(): void {
-    setTimeout(() => {
-      const el = this.quantityBox().nativeElement;
-      el.focus();
-      el.select();
-    }, 50);
+    this.focusAndSelectElement(this.quantityBox().nativeElement, 50);
   }
 
   protected onProviderSelect(): void {
@@ -369,10 +365,16 @@ export class CommandeUpdateComponent implements OnInit, AfterViewInit {
   }
 
   protected focusPrdoduitBox(): void {
+    this.focusAndSelectElement(this.produitbox().inputEL.nativeElement, 50);
+  }
+
+  private focusAndSelectElement(element: any, delay: number): void {
     setTimeout(() => {
-      this.produitbox().inputEL.nativeElement.focus();
-      this.produitbox().inputEL.nativeElement.select();
-    }, 50);
+      if (element) {
+        element.focus();
+        element.select();
+      }
+    }, delay);
   }
 
   protected loadProduits(): void {

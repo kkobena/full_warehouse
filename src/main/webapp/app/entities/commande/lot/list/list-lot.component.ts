@@ -1,4 +1,4 @@
-import { Component, OnInit, inject } from '@angular/core';
+import { Component, inject, OnDestroy, OnInit } from '@angular/core';
 import { ConfirmationService, MessageService } from 'primeng/api';
 import { DialogService, DynamicDialogConfig, DynamicDialogModule, DynamicDialogRef } from 'primeng/dynamicdialog';
 import { ILot } from '../../../../shared/model/lot.model';
@@ -14,6 +14,8 @@ import { ToastModule } from 'primeng/toast';
 import { TooltipModule } from 'primeng/tooltip';
 import { acceptButtonProps, rejectButtonProps } from '../../../../shared/util/modal-button-props';
 import { IOrderLine } from '../../../../shared/model/order-line.model';
+import { Subject } from 'rxjs';
+import { takeUntil } from 'rxjs/operators';
 
 @Component({
   selector: 'jhi-list-lot',
@@ -30,7 +32,7 @@ import { IOrderLine } from '../../../../shared/model/order-line.model';
     ConfirmDialogModule,
   ],
 })
-export class ListLotComponent implements OnInit {
+export class ListLotComponent implements OnInit, OnDestroy {
   lots: ILot[] = [];
   selectedEl!: ILot;
   deliveryItem?: IOrderLine;
@@ -43,6 +45,7 @@ export class ListLotComponent implements OnInit {
   private readonly messageService = inject(MessageService);
   private readonly dialogService = inject(DialogService);
   private readonly modalService = inject(ConfirmationService);
+  private destroy$ = new Subject<void>();
 
   ngOnInit(): void {
     this.deliveryItem = this.config.data.deliveryItem;
@@ -51,25 +54,17 @@ export class ListLotComponent implements OnInit {
     this.showAddBtn();
   }
 
+  ngOnDestroy(): void {
+    this.destroy$.next();
+    this.destroy$.complete();
+  }
+
   showAddBtn(): void {
-    const quantityReceived = this.deliveryItem.quantityReceived || this.deliveryItem.quantityRequested;
-    this.showUgAddNewBtn = this.getLotQunatity() < quantityReceived;
+    this.showUgAddNewBtn = this.getLotQunatity() < (this.deliveryItem.quantityReceived || this.deliveryItem.quantityRequested);
   }
 
   edit(lot: ILot): void {
-    this.ref = this.dialogService.open(FormLotComponent, {
-      data: { entity: lot, deliveryItem: this.deliveryItem, commandeId: this.commandeId },
-      width: '40%',
-      header: 'Modification du lot ' + lot.numLot,
-    });
-    this.ref.onClose.subscribe((updateLot: ILot) => {
-      if (updateLot) {
-        this.removeLotFromLotsArray(lot);
-        this.lots.push(updateLot);
-        this.deliveryItem.lots = this.lots;
-        this.showAddBtn();
-      }
-    });
+    this.openLotForm(lot, 'Modification du lot ' + lot.numLot);
   }
 
   delete(lot: ILot): void {
@@ -77,18 +72,7 @@ export class ListLotComponent implements OnInit {
   }
 
   add(): void {
-    this.ref = this.dialogService.open(FormLotComponent, {
-      data: { entity: null, deliveryItem: this.deliveryItem, commandeId: this.commandeId },
-      width: '40%',
-      header: 'Ajout de lot',
-    });
-    this.ref.onClose.subscribe((entity: ILot) => {
-      if (entity) {
-        this.lots.push(entity);
-        this.deliveryItem.lots = this.lots;
-        this.showAddBtn();
-      }
-    });
+    this.openLotForm(null, 'Ajout de lot');
   }
 
   cancel(): void {
@@ -115,7 +99,7 @@ export class ListLotComponent implements OnInit {
       rejectButtonProps: rejectButtonProps(),
       acceptButtonProps: acceptButtonProps(),
       accept: () => {
-        this.entityService.remove(lot.id).subscribe({
+        this.entityService.remove(lot.id).pipe(takeUntil(this.destroy$)).subscribe({
           next: () => {
             this.removeLotFromLotsArray(lot);
           },
@@ -130,5 +114,23 @@ export class ListLotComponent implements OnInit {
     this.lots = newLots;
     this.deliveryItem.lots = newLots;
     this.showAddBtn();
+  }
+
+  private openLotForm(entity: ILot | null, header: string): void {
+    this.ref = this.dialogService.open(FormLotComponent, {
+      data: { entity, deliveryItem: this.deliveryItem, commandeId: this.commandeId },
+      width: '40%',
+      header,
+    });
+    this.ref.onClose.subscribe((updateLot: ILot) => {
+      if (updateLot) {
+        if (entity) {
+          this.removeLotFromLotsArray(entity);
+        }
+        this.lots.push(updateLot);
+        this.deliveryItem.lots = this.lots;
+        this.showAddBtn();
+      }
+    });
   }
 }

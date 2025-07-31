@@ -1,8 +1,6 @@
-import { AfterViewInit, Component, ElementRef, inject, OnInit, viewChild } from '@angular/core';
+import { AfterViewInit, Component, ElementRef, inject, viewChild } from '@angular/core';
 import { ClientTiersPayant, IClientTiersPayant } from '../../../../../shared/model/client-tiers-payant.model';
 import { ICustomer } from '../../../../../shared/model/customer.model';
-import { DynamicDialogConfig, DynamicDialogRef } from 'primeng/dynamicdialog';
-import { CustomerService } from '../../../../customer/customer.service';
 import { FormBuilder, FormControl, ReactiveFormsModule, Validators } from '@angular/forms';
 import { InputMaskModule } from 'primeng/inputmask';
 import { InputTextModule } from 'primeng/inputtext';
@@ -11,6 +9,8 @@ import { RadioButtonModule } from 'primeng/radiobutton';
 import { ToastModule } from 'primeng/toast';
 import { ButtonModule } from 'primeng/button';
 import { DecimalPipe } from '@angular/common';
+import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
+import { Select, SelectModule } from 'primeng/select';
 
 @Component({
   selector: 'jhi-add-complementaire',
@@ -23,23 +23,22 @@ import { DecimalPipe } from '@angular/common';
     ToastModule,
     ButtonModule,
     DecimalPipe,
+    SelectModule,
   ],
   templateUrl: './add-complementaire.component.html',
-  styles: ``,
 })
-export class AddComplementaireComponent implements OnInit, AfterViewInit {
-  private fb = inject(FormBuilder);
-  ref = inject(DynamicDialogRef);
-  config = inject(DynamicDialogConfig);
-
-  tiersPayant = viewChild.required<ElementRef>('tiersPayant');
+export class AddComplementaireComponent implements AfterViewInit {
+  tiersPayant = viewChild.required<Select>('tiersPayant');
   numBon = viewChild.required<ElementRef>('numBon');
   assure?: ICustomer | null;
   isSaving = false;
   isValid = true;
   tiersPayantsExisting: IClientTiersPayant[] = [];
-  customerService = inject(CustomerService);
-  editForm = this.fb.group({
+  tiersPayants: IClientTiersPayant[] = [];
+
+  protected selectedTiersPayant: IClientTiersPayant | null = null;
+  protected fb = inject(FormBuilder);
+  protected editForm = this.fb.group({
     id: new FormControl<number | null>(null, {
       validators: [Validators.required],
       nonNullable: true,
@@ -60,44 +59,41 @@ export class AddComplementaireComponent implements OnInit, AfterViewInit {
     tiersPayantFullName: new FormControl<string | null>(null),
     num: new FormControl<string | null>(null),
   });
-  protected selectedTiersPayant: IClientTiersPayant | null = null;
 
-  getTiersPayants(): IClientTiersPayant[] {
-    if (this.tiersPayantsExisting && this.tiersPayantsExisting.length > 0) {
-      return this.assure.tiersPayants.filter(e => !this.tiersPayantsExisting.some(i => i.id === e.id));
-    }
-    return this.assure.tiersPayants;
-  }
-
-  ngOnInit(): void {
-    this.assure = this.config.data.assure;
-    this.tiersPayantsExisting = this.config.data.tiersPayantsExisting;
-  }
+  private readonly activeModal = inject(NgbActiveModal);
 
   ngAfterViewInit(): void {
     setTimeout(() => {
-      this.tiersPayant().nativeElement.focus();
-    }, 30);
+      this.tiersPayant().focus();
+    }, 100);
   }
 
   cancel(): void {
-    this.ref.close();
+    this.activeModal.dismiss();
   }
 
   save(): void {
     this.isSaving = true;
-    const tiersPayant = this.createFromForm();
-    this.ref.close(tiersPayant);
+    this.activeModal.close(this.createFromForm());
   }
 
   onSelect(evt: any): void {
     this.selectedTiersPayant = this.assure.tiersPayants.find(e => e.id === Number(evt.value));
-    // this.selectedTiersPayant = tiersPayant;
     if (this.selectedTiersPayant) {
       this.updateForm(this.selectedTiersPayant);
-      this.numBon().nativeElement.focus();
+      setTimeout(() => {
+        this.numBon().nativeElement.focus();
+      }, 50);
     } else {
       this.editForm.reset();
+    }
+  }
+
+  protected getTiersPayants(): IClientTiersPayant[] {
+    if (this.tiersPayantsExisting && this.tiersPayantsExisting.length > 0) {
+      return this.assure.tiersPayants.filter(e => !this.tiersPayantsExisting.some(i => i.id === e.id));
+    } else {
+      return this.assure.tiersPayants;
     }
   }
 

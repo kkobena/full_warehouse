@@ -927,11 +927,7 @@ public class CommandServiceImpl implements CommandService {
     }
 
     private VerificationResponseCommandeDTO verificationCommandeCsv(MultipartFile multipartFile, Commande commande) {
-        Set<OrderLine> orderLinesToRemove = new HashSet<>();
-        Set<OrderLine> orderLinesToSave = new HashSet<>();
-        List<VerificationResponseCommandeDTO.Item> items = new ArrayList<>();
-        List<VerificationResponseCommandeDTO.Item> extraItems = new ArrayList<>();
-        VerificationResponseCommandeDTO verificationResponseCommandeDTO = new VerificationResponseCommandeDTO();
+        List<Pair<String, Integer>> records = new ArrayList<>();
         try (
             CSVParser parser = new CSVParser(
                 new InputStreamReader(multipartFile.getInputStream()),
@@ -941,12 +937,25 @@ public class CommandServiceImpl implements CommandService {
             for (CSVRecord record : parser) {
                 String code = record.get(0);
                 int quantityReceived = Integer.parseInt(record.get(3));
-                proccessFileRecord(commande, code, items, extraItems, quantityReceived, orderLinesToSave, orderLinesToRemove);
+                records.add(Pair.of(code, quantityReceived));
             }
-            updateResponseCommandeEnCours(commande, orderLinesToSave, orderLinesToRemove);
+            return processVerificationFileContent(commande, records);
         } catch (IOException e) {
             log.debug("{0}", e);
         }
+        return new VerificationResponseCommandeDTO();
+    }
+
+    private VerificationResponseCommandeDTO processVerificationFileContent(Commande commande, List<Pair<String, Integer>> records) {
+        Set<OrderLine> orderLinesToRemove = new HashSet<>();
+        Set<OrderLine> orderLinesToSave = new HashSet<>();
+        List<VerificationResponseCommandeDTO.Item> items = new ArrayList<>();
+        List<VerificationResponseCommandeDTO.Item> extraItems = new ArrayList<>();
+        VerificationResponseCommandeDTO verificationResponseCommandeDTO = new VerificationResponseCommandeDTO();
+        for (Pair<String, Integer> record : records) {
+            proccessFileRecord(commande, record.getFirst(), items, extraItems, record.getSecond(), orderLinesToSave, orderLinesToRemove);
+        }
+        updateResponseCommandeEnCours(commande, orderLinesToSave, orderLinesToRemove);
         verificationResponseCommandeDTO.setItems(items).setExtraItems(extraItems);
         return verificationResponseCommandeDTO;
     }
@@ -995,12 +1004,7 @@ public class CommandServiceImpl implements CommandService {
     }
 
     private VerificationResponseCommandeDTO verificationCommandeExcel(MultipartFile multipartFile, Commande commande) {
-        Set<OrderLine> orderLinesToRemove = new HashSet<>();
-        Set<OrderLine> orderLinesToSave = new HashSet<>();
-        List<VerificationResponseCommandeDTO.Item> items = new ArrayList<>();
-        List<VerificationResponseCommandeDTO.Item> extraItems = new ArrayList<>();
-        VerificationResponseCommandeDTO verificationResponseCommandeDTO = new VerificationResponseCommandeDTO();
-
+        List<Pair<String, Integer>> records = new ArrayList<>();
         try (Workbook workbook = WorkbookFactory.create(multipartFile.getInputStream())) {
             for (Sheet sheet : workbook) {
                 for (Row row : sheet) {
@@ -1020,14 +1024,14 @@ public class CommandServiceImpl implements CommandService {
                             break;
                     }
                     int quantityReceived = (int) qtyquantityReceivedCell.getNumericCellValue();
-                    proccessFileRecord(commande, code, items, extraItems, quantityReceived, orderLinesToSave, orderLinesToRemove);
+                    records.add(Pair.of(code, quantityReceived));
                 }
             }
-            updateResponseCommandeEnCours(commande, orderLinesToSave, orderLinesToRemove);
+            return processVerificationFileContent(commande, records);
         } catch (IOException e) {
             log.debug("{0}", e);
         }
-        return verificationResponseCommandeDTO.setItems(items).setExtraItems(extraItems);
+        return new VerificationResponseCommandeDTO();
     }
 
     private void saveOrderLines(Set<OrderLine> orderLines) {
@@ -1286,7 +1290,7 @@ public class CommandServiceImpl implements CommandService {
         }
     }
 
-    private Commande buildNew(Suggestion suggestion) {
+    private void buildNew(Suggestion suggestion) {
         User user = storageService.getUser();
         Commande commande = new Commande();
 
@@ -1307,7 +1311,7 @@ public class CommandServiceImpl implements CommandService {
                 updateCommandeAmount(commande, orderLine);
                 commande.getOrderLines().add(orderLine);
             });
-        return commandeRepository.save(commande);
+        commandeRepository.save(commande);
     }
 
     @Override

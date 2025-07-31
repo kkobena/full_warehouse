@@ -1,4 +1,4 @@
-import { Component, OnInit, inject } from '@angular/core';
+import { Component, inject, OnInit } from '@angular/core';
 import { HttpHeaders, HttpResponse } from '@angular/common/http';
 import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
 
@@ -20,18 +20,14 @@ import { RouterModule } from '@angular/router';
   imports: [WarehouseCommonModule, PanelModule, ButtonModule, RouterModule],
 })
 export class CategorieComponent implements OnInit {
-  protected categorieService = inject(CategorieService);
-  protected modalService = inject(NgbModal);
-
   categories: ICategorie[];
   itemsPerPage: number;
   links: any;
   page: number;
   predicate: string;
   ascending: boolean;
-
-  /** Inserted by Angular inject() migration for backwards compatibility */
-  constructor(...args: unknown[]);
+  protected categorieService = inject(CategorieService);
+  protected modalService = inject(NgbModal);
 
   constructor() {
     this.categories = [];
@@ -45,6 +41,7 @@ export class CategorieComponent implements OnInit {
   }
 
   loadAll(): void {
+    this.reset();
     this.categorieService
       .query({
         sort: this.sort(),
@@ -65,16 +62,11 @@ export class CategorieComponent implements OnInit {
 
   ngOnInit(): void {
     this.loadAll();
-    this.registerChangeInCategories();
   }
 
   trackId(index: number, item: ICategorie): number {
     // eslint-disable-next-line @typescript-eslint/no-unnecessary-type-assertion
     return item.id!;
-  }
-
-  registerChangeInCategories(): void {
-    this.reset();
   }
 
   delete(categorie: ICategorie): void {
@@ -94,12 +86,6 @@ export class CategorieComponent implements OnInit {
   }
 
   protected paginateCategories(data: ICategorie[] | null, headers: HttpHeaders): void {
-    const headersLink = headers.get('link');
-    // this.links = this.parseLinks.parse(headersLink ? headersLink : '');
-    if (data) {
-      for (let i = 0; i < data.length; i++) {
-        this.categories.push(data[i]);
-      }
-    }
+    this.categories = data || [];
   }
 }

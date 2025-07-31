@@ -21,455 +21,499 @@
     <div [ngbCollapse]="isNavbarCollapsed()" class="navbar-collapse collapse" id="navbarResponsive">
       <ul class="navbar-nav ms-auto">
         @if (account() !== null) {
-          <li
-            *jhiHasAnyAuthority="['gestion-courant', 'ROLE_ADMIN']"
-            [routerLinkActiveOptions]="{ exact: true }"
-            class="nav-item dropdown pointer"
-            display="dynamic"
-            ngbDropdown
-            routerLinkActive="active"
-          >
-            <a class="nav-link dropdown-toggle" href="javascript:void(0);"
-               id="gestion-courante-menu" ngbDropdownToggle>
+          @if (hasAnyAuthority(
+            ['gestion-courant', 'ROLE_ADMIN', 'ROLE_CAISSIER', 'ROLE_VENDEUR', 'sales'])) {
+            @if (hasAnyAuthority(['ROLE_ADMIN', 'ROLE_CAISSIER', 'sales'])) {
+              <li>
+                <a class="navbar-brand logo" routerLink="/sales/false/new"
+                   routerLinkActive="active">
+                <span>
+                <fa-icon [icon]="basketShoppingPlus"></fa-icon>
+                <span>Nouvelle vente</span>
+              </span>
+                </a>
+              </li>
+            } @else {
+              <li>
+                <a class="navbar-brand logo" routerLink="/sales/true/new" routerLinkActive="active">
+                <span>
+                <fa-icon [icon]="basketShoppingPlus"></fa-icon>
+                <span>Nouvelle pré-vente</span>
+              </span>
+                </a>
+              </li>
+            }
+
+            <li
+              [routerLinkActiveOptions]="{ exact: true }"
+              class="nav-item dropdown pointer"
+              display="dynamic"
+              ngbDropdown
+              routerLinkActive="active"
+            >
+              <a class="nav-link dropdown-toggle" href="javascript:void(0);"
+                 id="gestion-courante-menu" ngbDropdownToggle>
               <span>
                 <fa-icon icon="th-list"></fa-icon>
                 <span jhiTranslate="global.menu.menuGestionCourrante">Gestion courante</span>
               </span>
-            </a>
-            <ul aria-labelledby="entity-menu" class="dropdown-menu" ngbDropdownMenu>
-              <li *jhiHasAnyAuthority="['sales', 'ROLE_ADMIN']">
-                <a
-                  (click)="collapseNavbar()"
-                  [routerLinkActiveOptions]="{ exact: true }"
-                  class="dropdown-item"
-                  routerLink="/sales"
-                  routerLinkActive="active"
-                >
-                  <fa-icon [fixedWidth]="true" [icon]="faShoppingBag"></fa-icon>
+              </a>
+              <ul aria-labelledby="entity-menu" class="dropdown-menu" ngbDropdownMenu>
+                <li>
+                  <a
+                    (click)="collapseNavbar()"
+                    [routerLinkActiveOptions]="{ exact: true }"
+                    class="dropdown-item"
+                    routerLink="/sales"
+                    routerLinkActive="active"
+                  >
+                    <fa-icon [fixedWidth]="true" [icon]="faShoppingBag"></fa-icon>
 
-                  <span jhiTranslate="global.menu.entities.sales">Gestion des ventes</span>
-                </a>
-              </li>
-              <li
-                *jhiHasAnyAuthority="['payment', 'ROLE_ADMIN', 'mvt-caisse', 'tableau-pharmacien']">
-                <a
-                  (click)="collapseNavbar()"
-                  [routerLinkActiveOptions]="{ exact: true }"
-                  class="dropdown-item"
-                  routerLink="/mvt-caisse"
-                  routerLinkActive="active"
-                >
-                  <fa-icon [fixedWidth]="true" [icon]="faCoins"></fa-icon>
-                  <span jhiTranslate="global.menu.mvtCaisse">Mouvements de caisse</span>
-                </a>
-              </li>
-            </ul>
-          </li>
-          <li
-            *jhiHasAnyAuthority="['gestion-stock', 'ROLE_ADMIN']"
-            [routerLinkActiveOptions]="{ exact: true }"
-            class="nav-item dropdown pointer"
-            display="dynamic"
-            ngbDropdown
-            routerLinkActive="active"
-          >
-            <a class="nav-link dropdown-toggle" href="javascript:void(0);" ngbDropdownToggle>
+                    <span jhiTranslate="global.menu.entities.sales">Gestion des ventes</span>
+                  </a>
+                </li>
+                @if (hasAnyAuthority(
+                  ['payment', 'ROLE_ADMIN', 'mvt-caisse', 'tableau-pharmacien'])) {
+                  <li>
+                    <a
+                      (click)="collapseNavbar()"
+                      [routerLinkActiveOptions]="{ exact: true }"
+                      class="dropdown-item"
+                      routerLink="/mvt-caisse"
+                      routerLinkActive="active"
+                    >
+                      <fa-icon [fixedWidth]="true" [icon]="faCoins"></fa-icon>
+                      <span jhiTranslate="global.menu.mvtCaisse">Mouvements de caisse</span>
+                    </a>
+                  </li>
+                }
+
+              </ul>
+            </li>
+          }
+
+          @if (hasAnyAuthority(
+            ['gestion-stock', 'ROLE_ADMIN', 'commande', 'ROLE_RESPONSABLE_COMMANDE'])) {
+            <li
+              [routerLinkActiveOptions]="{ exact: true }"
+              class="nav-item dropdown pointer"
+              display="dynamic"
+              ngbDropdown
+              routerLinkActive="active"
+            >
+              <a class="nav-link dropdown-toggle" href="javascript:void(0);" ngbDropdownToggle>
               <span>
                 <fa-icon [icon]="faWarehouse"></fa-icon>
                 <span jhiTranslate="global.menu.menuGestionStock">Gestion stock</span>
               </span>
-            </a>
-            <ul aria-labelledby="entity-menu" class="dropdown-menu" ngbDropdownMenu>
-              <li *jhiHasAnyAuthority="['commande', 'ROLE_ADMIN']">
-                <a
-                  (click)="collapseNavbar()"
-                  [routerLinkActiveOptions]="{ exact: true }"
-                  class="dropdown-item"
-                  routerLink="/commande"
-                  routerLinkActive="active"
-                >
-                  <fa-icon [fixedWidth]="true" [icon]="faShippingFast"></fa-icon>
-                  <span jhiTranslate="global.menu.entities.commande">Commande</span>
-                </a>
-              </li>
-              <li *jhiHasAnyAuthority="['produit', 'ROLE_ADMIN']">
-                <a
-                  (click)="collapseNavbar()"
-                  [routerLinkActiveOptions]="{ exact: true }"
-                  class="dropdown-item"
-                  routerLink="/produit"
-                  routerLinkActive="active"
-                >
-                  <fa-icon [fixedWidth]="true" [icon]="faShoppingBag"></fa-icon>
-                  <span jhiTranslate="global.menu.entities.produit">Produit</span>
-                </a>
-              </li>
-              <li *jhiHasAnyAuthority="['produit', 'inventory-transaction', 'ROLE_ADMIN']">
-                <a
-                  (click)="collapseNavbar()"
-                  [routerLinkActiveOptions]="{ exact: true }"
-                  class="dropdown-item"
-                  routerLink="/produit/transaction"
-                  routerLinkActive="active"
-                >
-                  <fa-icon [fixedWidth]="true" icon="eye"></fa-icon>
-                  <span jhiTranslate="global.menu.entities.inventoryTransaction">Inventory Transaction</span>
-                </a>
-              </li>
+              </a>
+              <ul aria-labelledby="entity-menu" class="dropdown-menu" ngbDropdownMenu>
+                <li>
+                  <a
+                    (click)="collapseNavbar()"
+                    [routerLinkActiveOptions]="{ exact: true }"
+                    class="dropdown-item"
+                    routerLink="/commande"
+                    routerLinkActive="active"
+                  >
+                    <fa-icon [fixedWidth]="true" [icon]="faShippingFast"></fa-icon>
+                    <span jhiTranslate="global.menu.entities.commande">Commande</span>
+                  </a>
+                </li>
+                <li>
+                  <a
+                    (click)="collapseNavbar()"
+                    [routerLinkActiveOptions]="{ exact: true }"
+                    class="dropdown-item"
+                    routerLink="/produit"
+                    routerLinkActive="active"
+                  >
+                    <fa-icon [fixedWidth]="true" [icon]="faShoppingBag"></fa-icon>
+                    <span jhiTranslate="global.menu.entities.produit">Produit</span>
+                  </a>
+                </li>
+                <li>
+                  <a
+                    (click)="collapseNavbar()"
+                    [routerLinkActiveOptions]="{ exact: true }"
+                    class="dropdown-item"
+                    routerLink="/produit/transaction"
+                    routerLinkActive="active"
+                  >
+                    <fa-icon [fixedWidth]="true" icon="eye"></fa-icon>
+                    <span jhiTranslate="global.menu.entities.inventoryTransaction">Inventory Transaction</span>
+                  </a>
+                </li>
 
-              <li *jhiHasAnyAuthority="['produit', 'ROLE_ADMIN']">
-                <a
-                  (click)="collapseNavbar()"
-                  [routerLinkActiveOptions]="{ exact: true }"
-                  class="dropdown-item"
-                  routerLink="/gestion-peremption"
-                  routerLinkActive="active"
-                >
-                  <fa-icon [fixedWidth]="true" [icon]="faTimes"></fa-icon>
-                  <span>{{ 'warehouseApp.gestionPerimes.title' | translate }}</span>
-                </a>
-              </li>
+                <li>
+                  <a
+                    (click)="collapseNavbar()"
+                    [routerLinkActiveOptions]="{ exact: true }"
+                    class="dropdown-item"
+                    routerLink="/gestion-peremption"
+                    routerLinkActive="active"
+                  >
+                    <fa-icon [fixedWidth]="true" [icon]="faTimes"></fa-icon>
+                    <span>{{ 'warehouseApp.gestionPerimes.title' | translate }}</span>
+                  </a>
+                </li>
 
 
-              <li *jhiHasAnyAuthority="['ajustement', 'ROLE_ADMIN']">
-                <a
-                  (click)="collapseNavbar()"
-                  [routerLinkActiveOptions]="{ exact: true }"
-                  class="dropdown-item"
-                  routerLink="/ajustement"
-                  routerLinkActive="active"
-                >
-                  <fa-icon [fixedWidth]="true" icon="list"></fa-icon>
-                  <span>Ajustement</span>
-                </a>
-              </li>
-              <li *jhiHasAnyAuthority="['store-inventory', 'ROLE_ADMIN']">
-                <a
-                  (click)="collapseNavbar()"
-                  [routerLinkActiveOptions]="{ exact: true }"
-                  class="dropdown-item"
-                  routerLink="/store-inventory"
-                  routerLinkActive="active"
-                >
-                  <fa-icon [fixedWidth]="true" [icon]="faShoppingBasket"></fa-icon>
-                  <span jhiTranslate="global.menu.entities.storeInventory">Store Inventory</span>
-                </a>
-              </li>
-            </ul>
-          </li>
-          <li
-            *jhiHasAnyAuthority="['referentiel', 'ROLE_ADMIN']"
-            [routerLinkActiveOptions]="{ exact: true }"
-            class="nav-item dropdown pointer"
-            display="dynamic"
-            ngbDropdown
-            routerLinkActive="active"
-          >
-            <a class="nav-link dropdown-toggle" href="javascript:void(0);" ngbDropdownToggle>
+                <li>
+                  <a
+                    (click)="collapseNavbar()"
+                    [routerLinkActiveOptions]="{ exact: true }"
+                    class="dropdown-item"
+                    routerLink="/ajustement"
+                    routerLinkActive="active"
+                  >
+                    <fa-icon [fixedWidth]="true" icon="list"></fa-icon>
+                    <span>Ajustement</span>
+                  </a>
+                </li>
+                @if (hasAnyAuthority(['store-inventory', 'ROLE_ADMIN'])) {
+                  <li>
+                    <a
+                      (click)="collapseNavbar()"
+                      [routerLinkActiveOptions]="{ exact: true }"
+                      class="dropdown-item"
+                      routerLink="/store-inventory"
+                      routerLinkActive="active"
+                    >
+                      <fa-icon [fixedWidth]="true" [icon]="faShoppingBasket"></fa-icon>
+                      <span
+                        jhiTranslate="global.menu.entities.storeInventory">Store Inventory</span>
+                    </a>
+                  </li>
+                }
+
+              </ul>
+            </li>
+          }
+          @if (hasAnyAuthority(['referentiel', 'ROLE_ADMIN'])) {
+            <li
+
+              [routerLinkActiveOptions]="{ exact: true }"
+              class="nav-item dropdown pointer"
+              display="dynamic"
+              ngbDropdown
+              routerLinkActive="active"
+            >
+              <a class="nav-link dropdown-toggle" href="javascript:void(0);" ngbDropdownToggle>
               <span>
                 <i class="pi pi-palette"></i>
                 <span jhiTranslate="global.menu.referentiel"> Referenciel </span>
               </span>
-            </a>
-            <ul aria-labelledby="entity-menu" class="dropdown-menu" ngbDropdownMenu>
-              <li *jhiHasAnyAuthority="['referentiel', 'rayon', 'ROLE_ADMIN']">
-                <a
-                  (click)="collapseNavbar()"
-                  [routerLinkActiveOptions]="{ exact: true }"
-                  class="dropdown-item"
-                  routerLink="/rayon"
-                  routerLinkActive="active"
-                >
-                  <i class="pi pi-book"></i>
-                  <span jhiTranslate="global.menu.entities.rayon">Rayons</span>
-                </a>
-              </li>
-              <li *jhiHasAnyAuthority="['referentiel', 'remises', 'ROLE_ADMIN']">
-                <a
-                  (click)="collapseNavbar()"
-                  [routerLinkActiveOptions]="{ exact: true }"
-                  class="dropdown-item"
-                  routerLink="/remises"
-                  routerLinkActive="active"
-                >
-                  <i class="pi pi-book"></i>
-                  <span jhiTranslate="global.menu.entities.remise">Remises</span>
-                </a>
-              </li>
-              <li *jhiHasAnyAuthority="['referentiel', 'tableaux', 'ROLE_ADMIN']">
-                <a
-                  (click)="collapseNavbar()"
-                  [routerLinkActiveOptions]="{ exact: true }"
-                  class="dropdown-item"
-                  routerLink="/tableaux"
-                  routerLinkActive="active"
-                >
-                  <i class="pi pi-book"></i>
-                  <span jhiTranslate="global.menu.entities.tableau">Tableaux</span>
-                </a>
-              </li>
-              <li *jhiHasAnyAuthority="['referentiel', 'fournisseur', 'ROLE_ADMIN']">
-                <a
-                  (click)="collapseNavbar()"
-                  [routerLinkActiveOptions]="{ exact: true }"
-                  class="dropdown-item"
-                  routerLink="/fournisseur"
-                  routerLinkActive="active"
-                >
-                  <i class="pi pi-link"></i>
-                  <span jhiTranslate="global.menu.entities.fournisseur">Fournisseurs</span>
-                </a>
-              </li>
-              <li *jhiHasAnyAuthority="['referentiel', 'groupe-fournisseur', 'ROLE_ADMIN']">
-                <a
-                  (click)="collapseNavbar()"
-                  [routerLinkActiveOptions]="{ exact: true }"
-                  class="dropdown-item"
-                  routerLink="/groupe-fournisseur"
-                  routerLinkActive="active"
-                >
-                  <i class="pi pi-home"></i>
-                  <span
-                    jhiTranslate="global.menu.entities.groupeFournisseur">Groupe fournisseurs</span>
-                </a>
-              </li>
-              <li *jhiHasAnyAuthority="['tva', 'referentiel', 'ROLE_ADMIN']">
-                <a
-                  (click)="collapseNavbar()"
-                  [routerLinkActiveOptions]="{ exact: true }"
-                  class="dropdown-item"
-                  routerLink="/tva"
-                  routerLinkActive="active"
-                >
-                  <i class="pi pi-dollar"></i>
-                  <span jhiTranslate="global.menu.entities.tva">Tva</span>
-                </a>
-              </li>
-              <li *jhiHasAnyAuthority="['forme-produit', 'referentiel', 'ROLE_ADMIN']">
-                <a
-                  (click)="collapseNavbar()"
-                  [routerLinkActiveOptions]="{ exact: true }"
-                  class="dropdown-item"
-                  routerLink="/forme-produit"
-                  routerLinkActive="active"
-                >
-                  <i class="pi pi-ban"></i>
-                  <span jhiTranslate="global.menu.entities.formeProduit">Forme de produit</span>
-                </a>
-              </li>
-              <li *jhiHasAnyAuthority="['famille-produit', 'referentiel', 'ROLE_ADMIN']">
-                <a
-                  (click)="collapseNavbar()"
-                  [routerLinkActiveOptions]="{ exact: true }"
-                  class="dropdown-item"
-                  routerLink="/famille-produit"
-                  routerLinkActive="active"
-                >
-                  <i class="pi pi-globe"></i>
-                  <span jhiTranslate="global.menu.entities.familleProduit">Famille de produit</span>
-                </a>
-              </li>
-              <li *jhiHasAnyAuthority="['categorie', 'referentiel', 'ROLE_ADMIN']">
-                <a
-                  (click)="collapseNavbar()"
-                  [routerLinkActiveOptions]="{ exact: true }"
-                  class="dropdown-item"
-                  routerLink="/categorie"
-                  routerLinkActive="active"
-                >
-                  <i class="pi pi-slack"></i>
-                  <span jhiTranslate="global.menu.entities.categorie">Catégorie de produit</span>
-                </a>
-              </li>
+              </a>
+              <ul aria-labelledby="entity-menu" class="dropdown-menu" ngbDropdownMenu>
+                <li>
+                  <a
+                    (click)="collapseNavbar()"
+                    [routerLinkActiveOptions]="{ exact: true }"
+                    class="dropdown-item"
+                    routerLink="/rayon"
+                    routerLinkActive="active"
+                  >
+                    <i class="pi pi-book"></i>
+                    <span jhiTranslate="global.menu.entities.rayon">Rayons</span>
+                  </a>
+                </li>
+                <li>
+                  <a
+                    (click)="collapseNavbar()"
+                    [routerLinkActiveOptions]="{ exact: true }"
+                    class="dropdown-item"
+                    routerLink="/remises"
+                    routerLinkActive="active"
+                  >
+                    <i class="pi pi-book"></i>
+                    <span jhiTranslate="global.menu.entities.remise">Remises</span>
+                  </a>
+                </li>
+                <li>
+                  <a
+                    (click)="collapseNavbar()"
+                    [routerLinkActiveOptions]="{ exact: true }"
+                    class="dropdown-item"
+                    routerLink="/tableaux"
+                    routerLinkActive="active"
+                  >
+                    <i class="pi pi-book"></i>
+                    <span jhiTranslate="global.menu.entities.tableau">Tableaux</span>
+                  </a>
+                </li>
+                <li>
+                  <a
+                    (click)="collapseNavbar()"
+                    [routerLinkActiveOptions]="{ exact: true }"
+                    class="dropdown-item"
+                    routerLink="/fournisseur"
+                    routerLinkActive="active"
+                  >
+                    <i class="pi pi-link"></i>
+                    <span jhiTranslate="global.menu.entities.fournisseur">Fournisseurs</span>
+                  </a>
+                </li>
+                <li>
+                  <a
+                    (click)="collapseNavbar()"
+                    [routerLinkActiveOptions]="{ exact: true }"
+                    class="dropdown-item"
+                    routerLink="/groupe-fournisseur"
+                    routerLinkActive="active"
+                  >
+                    <i class="pi pi-home"></i>
+                    <span
+                      jhiTranslate="global.menu.entities.groupeFournisseur">Groupe fournisseurs</span>
+                  </a>
+                </li>
+                <li>
+                  <a
+                    (click)="collapseNavbar()"
+                    [routerLinkActiveOptions]="{ exact: true }"
+                    class="dropdown-item"
+                    routerLink="/tva"
+                    routerLinkActive="active"
+                  >
+                    <i class="pi pi-dollar"></i>
+                    <span jhiTranslate="global.menu.entities.tva">Tva</span>
+                  </a>
+                </li>
+                <li>
+                  <a
+                    (click)="collapseNavbar()"
+                    [routerLinkActiveOptions]="{ exact: true }"
+                    class="dropdown-item"
+                    routerLink="/forme-produit"
+                    routerLinkActive="active"
+                  >
+                    <i class="pi pi-ban"></i>
+                    <span jhiTranslate="global.menu.entities.formeProduit">Forme de produit</span>
+                  </a>
+                </li>
+                <li>
+                  <a
+                    (click)="collapseNavbar()"
+                    [routerLinkActiveOptions]="{ exact: true }"
+                    class="dropdown-item"
+                    routerLink="/famille-produit"
+                    routerLinkActive="active"
+                  >
+                    <i class="pi pi-globe"></i>
+                    <span
+                      jhiTranslate="global.menu.entities.familleProduit">Famille de produit</span>
+                  </a>
+                </li>
+                <li>
+                  <a
+                    (click)="collapseNavbar()"
+                    [routerLinkActiveOptions]="{ exact: true }"
+                    class="dropdown-item"
+                    routerLink="/categorie"
+                    routerLinkActive="active"
+                  >
+                    <i class="pi pi-slack"></i>
+                    <span jhiTranslate="global.menu.entities.categorie">Catégorie de produit</span>
+                  </a>
+                </li>
 
-              <li *jhiHasAnyAuthority="['referentiel', 'gamme-produit', 'ROLE_ADMIN']">
-                <a
-                  (click)="collapseNavbar()"
-                  [routerLinkActiveOptions]="{ exact: true }"
-                  class="dropdown-item"
-                  routerLink="/gamme-produit"
-                  routerLinkActive="active"
-                >
-                  <i class="pi pi-map-marker"></i>
-                  <span jhiTranslate="global.menu.gammeProduit">Gamme de produit</span>
-                </a>
-              </li>
+                <li>
+                  <a
+                    (click)="collapseNavbar()"
+                    [routerLinkActiveOptions]="{ exact: true }"
+                    class="dropdown-item"
+                    routerLink="/gamme-produit"
+                    routerLinkActive="active"
+                  >
+                    <i class="pi pi-map-marker"></i>
+                    <span jhiTranslate="global.menu.gammeProduit">Gamme de produit</span>
+                  </a>
+                </li>
 
-              <li *jhiHasAnyAuthority="['referentiel', 'laboratoire', 'ROLE_ADMIN']">
-                <a
-                  (click)="collapseNavbar()"
-                  [routerLinkActiveOptions]="{ exact: true }"
-                  class="dropdown-item"
-                  routerLink="/laboratoire"
-                  routerLinkActive="active"
-                >
-                  <i class="pi pi-map"></i>
-                  <span jhiTranslate="global.menu.laboratoire">Laboratoire</span>
-                </a>
-              </li>
+                <li>
+                  <a
+                    (click)="collapseNavbar()"
+                    [routerLinkActiveOptions]="{ exact: true }"
+                    class="dropdown-item"
+                    routerLink="/laboratoire"
+                    routerLinkActive="active"
+                  >
+                    <i class="pi pi-map"></i>
+                    <span jhiTranslate="global.menu.laboratoire">Laboratoire</span>
+                  </a>
+                </li>
 
-              <li *jhiHasAnyAuthority="['motif-ajustement', 'referentiel', 'ROLE_ADMIN']">
-                <a
-                  (click)="collapseNavbar()"
-                  [routerLinkActiveOptions]="{ exact: true }"
-                  class="dropdown-item"
-                  routerLink="/motif-ajustement"
-                  routerLinkActive="active"
-                >
-                  <i class="pi pi-map"></i>
-                  <span jhiTranslate="global.menu.motifAjustement">Motif ajustement</span>
-                </a>
-              </li>
+                <li>
+                  <a
+                    (click)="collapseNavbar()"
+                    [routerLinkActiveOptions]="{ exact: true }"
+                    class="dropdown-item"
+                    routerLink="/motif-ajustement"
+                    routerLinkActive="active"
+                  >
+                    <i class="pi pi-map"></i>
+                    <span jhiTranslate="global.menu.motifAjustement">Motif ajustement</span>
+                  </a>
+                </li>
 
-              <li *jhiHasAnyAuthority="['parametre', 'referentiel', 'ROLE_ADMIN']">
-                <a
-                  (click)="collapseNavbar()"
-                  [routerLinkActiveOptions]="{ exact: true }"
-                  class="dropdown-item"
-                  routerLink="/parametre"
-                  routerLinkActive="active"
-                >
-                  <i class="pi pi-cog"></i>
-                  <span>Paramétrage</span>
-                </a>
-              </li>
-            </ul>
-          </li>
-          <li
-            *jhiHasAnyAuthority="['groupe-tiers-payant', 'tiers-payant', 'ROLE_ADMIN', 'gestion-facturation']"
-            [routerLinkActiveOptions]="{ exact: true }"
-            class="nav-item dropdown pointer"
-            display="dynamic"
-            ngbDropdown
-            routerLinkActive="active"
-          >
-            <a class="nav-link dropdown-toggle" href="javascript:void(0);" ngbDropdownToggle>
+                <li>
+                  <a
+                    (click)="collapseNavbar()"
+                    [routerLinkActiveOptions]="{ exact: true }"
+                    class="dropdown-item"
+                    routerLink="/parametre"
+                    routerLinkActive="active"
+                  >
+                    <i class="pi pi-cog"></i>
+                    <span>Paramétrage</span>
+                  </a>
+                </li>
+              </ul>
+            </li>
+          }
+          @if (hasAnyAuthority(['ROLE_ADMIN', 'gestion-facturation'])) {
+            <li
+              [routerLinkActiveOptions]="{ exact: true }"
+              class="nav-item dropdown pointer"
+              display="dynamic"
+              ngbDropdown
+              routerLinkActive="active"
+            >
+              <a class="nav-link dropdown-toggle" href="javascript:void(0);" ngbDropdownToggle>
               <span>
                 <i class="pi pi-wallet"></i>
                 <span>Facturations</span>
               </span>
-            </a>
-            <ul aria-labelledby="entity-menu" class="dropdown-menu" ngbDropdownMenu>
-              <li>
-                <a
-                  (click)="collapseNavbar()"
-                  [routerLinkActiveOptions]="{ exact: true }"
-                  class="dropdown-item"
-                  routerLink="/edition-factures"
-                  routerLinkActive="active"
-                >
-                  <i class="pi pi-credit-card"></i>
-                  <span>Gestion des factures</span>
-                </a>
-              </li>
-              <li>
-                <a
-                  (click)="collapseNavbar()"
-                  [routerLinkActiveOptions]="{ exact: true }"
-                  class="dropdown-item"
-                  routerLink="/reglement-facture"
-                  routerLinkActive="active"
-                >
-                  <i class="pi pi-money-bill"></i>
-                  <span>Réglement de facture</span>
-                </a>
-              </li>
-              <li>
-                <a
-                  (click)="collapseNavbar()"
-                  [routerLinkActiveOptions]="{ exact: true }"
-                  class="dropdown-item"
-                  routerLink="/gestion-differe"
-                  routerLinkActive="active"
-                >
-                  <i class="pi pi-money-bill"></i>
-                  <span>Gestion des différés</span>
-                </a>
-              </li>
-              <li>
-                <a
-                  (click)="collapseNavbar()"
-                  [routerLinkActiveOptions]="{ exact: true }"
-                  class="dropdown-item"
-                  routerLink="/groupe-tiers-payant"
-                  routerLinkActive="active"
-                >
-                  <i class="pi pi-book"></i>
-                  <span
-                    jhiTranslate="global.menu.entities.groupeTiersPayant">Groupe tiers-payants</span>
-                </a>
-              </li>
-              <li>
-                <a
-                  (click)="collapseNavbar()"
-                  [routerLinkActiveOptions]="{ exact: true }"
-                  class="dropdown-item"
-                  routerLink="/tiers-payant"
-                  routerLinkActive="active"
-                >
-                  <i class="pi pi-link"></i>
-                  <span jhiTranslate="global.menu.entities.tiersPayant">Tiers-payants</span>
-                </a>
-              </li>
-              <li>
-                <a
-                  (click)="collapseNavbar()"
-                  [routerLinkActiveOptions]="{ exact: true }"
-                  class="dropdown-item"
-                  routerLink="/customer"
-                  routerLinkActive="active"
-                >
-                  <i class="pi pi-users"></i>
-                  <span>Clients</span>
-                </a>
-              </li>
-            </ul>
-          </li>
-          <li
-            *jhiHasAnyAuthority="'ROLE_ADMIN'"
-            [routerLinkActiveOptions]="{ exact: true }"
-            class="nav-item dropdown pointer"
-            display="dynamic"
-            ngbDropdown
-            routerLinkActive="active"
-          >
-            <a class="nav-link dropdown-toggle" data-cy="adminMenu" href="javascript:void(0);"
-               id="admin-menu" ngbDropdownToggle>
+              </a>
+              <ul aria-labelledby="entity-menu" class="dropdown-menu" ngbDropdownMenu>
+                <li>
+                  <a
+                    (click)="collapseNavbar()"
+                    [routerLinkActiveOptions]="{ exact: true }"
+                    class="dropdown-item"
+                    routerLink="/edition-factures"
+                    routerLinkActive="active"
+                  >
+                    <i class="pi pi-credit-card"></i>
+                    <span>Gestion des factures</span>
+                  </a>
+                </li>
+                <li>
+                  <a
+                    (click)="collapseNavbar()"
+                    [routerLinkActiveOptions]="{ exact: true }"
+                    class="dropdown-item"
+                    routerLink="/reglement-facture"
+                    routerLinkActive="active"
+                  >
+                    <i class="pi pi-money-bill"></i>
+                    <span>Réglement de facture</span>
+                  </a>
+                </li>
+                <li>
+                  <a
+                    (click)="collapseNavbar()"
+                    [routerLinkActiveOptions]="{ exact: true }"
+                    class="dropdown-item"
+                    routerLink="/gestion-differe"
+                    routerLinkActive="active"
+                  >
+                    <i class="pi pi-money-bill"></i>
+                    <span>Gestion des différés</span>
+                  </a>
+                </li>
+                <li>
+                  <a
+                    (click)="collapseNavbar()"
+                    [routerLinkActiveOptions]="{ exact: true }"
+                    class="dropdown-item"
+                    routerLink="/groupe-tiers-payant"
+                    routerLinkActive="active"
+                  >
+                    <i class="pi pi-book"></i>
+                    <span
+                      jhiTranslate="global.menu.entities.groupeTiersPayant">Groupe tiers-payants</span>
+                  </a>
+                </li>
+                <li>
+                  <a
+                    (click)="collapseNavbar()"
+                    [routerLinkActiveOptions]="{ exact: true }"
+                    class="dropdown-item"
+                    routerLink="/tiers-payant"
+                    routerLinkActive="active"
+                  >
+                    <i class="pi pi-link"></i>
+                    <span jhiTranslate="global.menu.entities.tiersPayant">Tiers-payants</span>
+                  </a>
+                </li>
+                <li>
+                  <a
+                    (click)="collapseNavbar()"
+                    [routerLinkActiveOptions]="{ exact: true }"
+                    class="dropdown-item"
+                    routerLink="/customer"
+                    routerLinkActive="active"
+                  >
+                    <i class="pi pi-users"></i>
+                    <span>Clients</span>
+                  </a>
+                </li>
+              </ul>
+            </li>
+          }
+          @if (hasAnyAuthority(['ROLE_ADMIN'])) {
+            <li
+              [routerLinkActiveOptions]="{ exact: true }"
+              class="nav-item dropdown pointer"
+              display="dynamic"
+              ngbDropdown
+              routerLinkActive="active"
+            >
+              <a class="nav-link dropdown-toggle" data-cy="adminMenu" href="javascript:void(0);"
+                 id="admin-menu" ngbDropdownToggle>
               <span>
                 <fa-icon icon="users-cog"></fa-icon>
                 <span jhiTranslate="global.menu.admin.main">Administration</span>
               </span>
-            </a>
-            <ul aria-labelledby="admin-menu" class="dropdown-menu" ngbDropdownMenu>
-              <li>
-                <a
-                  (click)="collapseNavbar()"
-                  [routerLinkActiveOptions]="{ exact: true }"
-                  class="dropdown-item"
-                  routerLink="/magasin"
-                  routerLinkActive="active"
-                >
-                  <fa-icon [fixedWidth]="true" [icon]="faStore"></fa-icon>
-                  <span jhiTranslate="global.menu.entities.magasin">Infos magasin</span>
-                </a>
-              </li>
-              <li>
-                <a (click)="collapseNavbar()" class="dropdown-item"
-                   routerLink="/admin/user-management" routerLinkActive="active">
-                  <fa-icon [fixedWidth]="true" icon="users"></fa-icon>
-                  <span
-                    jhiTranslate="global.menu.admin.userManagement">Gestion des utilisateurs</span>
-                </a>
-              </li>
-              <li>
-                <a (click)="collapseNavbar()" class="dropdown-item" routerLink="/menu"
-                   routerLinkActive="active">
-                  <fa-icon [fixedWidth]="true" icon="gears"></fa-icon>
-                  <span jhiTranslate="global.menu.entities.menu">Rôles et autorisations</span>
-                </a>
-              </li>
-            </ul>
-          </li>
+              </a>
+              <ul aria-labelledby="admin-menu" class="dropdown-menu" ngbDropdownMenu>
+                @if (hasAnyAuthority(['ROLE_ADMIN', 'magasin'])) {
+                  <li>
+                    <a
+                      (click)="collapseNavbar()"
+                      [routerLinkActiveOptions]="{ exact: true }"
+                      class="dropdown-item"
+                      routerLink="/magasin"
+                      routerLinkActive="active"
+                    >
+                      <fa-icon [fixedWidth]="true" [icon]="faStore"></fa-icon>
+                      <span jhiTranslate="global.menu.entities.magasin">Infos magasin</span>
+                    </a>
+                  </li>
+                }
+                @if (hasAnyAuthority(['ROLE_ADMIN', 'admin', 'user-management'])) {
+                  <li>
+                    <a (click)="collapseNavbar()" class="dropdown-item"
+                       routerLink="/admin/user-management" routerLinkActive="active">
+                      <fa-icon [fixedWidth]="true" icon="users"></fa-icon>
+                      <span
+                        jhiTranslate="global.menu.admin.userManagement">Gestion des utilisateurs</span>
+                    </a>
+                  </li>
+
+                  <li>
+                    <a (click)="collapseNavbar()" class="dropdown-item" routerLink="/menu"
+                       routerLinkActive="active">
+                      <fa-icon [fixedWidth]="true" icon="gears"></fa-icon>
+                      <span jhiTranslate="global.menu.entities.menu">Rôles et autorisations</span>
+                    </a>
+                  </li>
+                }
+              </ul>
+            </li>
+          }
+
         }
         <li
           [routerLinkActiveOptions]="{ exact: true }"

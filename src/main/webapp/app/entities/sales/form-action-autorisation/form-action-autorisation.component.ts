@@ -1,4 +1,4 @@
-import { AfterViewInit, Component, ElementRef, inject, viewChild } from '@angular/core';
+import { AfterViewInit, Component, inject, viewChild } from '@angular/core';
 import { WarehouseCommonModule } from '../../../shared/warehouse-common/warehouse-common.module';
 import { FormsModule, ReactiveFormsModule, UntypedFormBuilder, Validators } from '@angular/forms';
 import { NgbActiveModal, NgbModal } from '@ng-bootstrap/ng-bootstrap';
@@ -10,10 +10,13 @@ import { Observable } from 'rxjs';
 import { HttpResponse } from '@angular/common/http';
 import { AlertInfoComponent } from '../../../shared/alert/alert-info.component';
 import { ErrorService } from '../../../shared/error.service';
+import { Button } from 'primeng/button';
+import { TextareaModule } from 'primeng/textarea';
+import { Password, PasswordModule } from 'primeng/password';
 
 @Component({
   selector: 'jhi-form-action-autorisation',
-  imports: [WarehouseCommonModule, FormsModule, ReactiveFormsModule],
+  imports: [WarehouseCommonModule, FormsModule, ReactiveFormsModule, Button, TextareaModule, PasswordModule],
   templateUrl: './form-action-autorisation.component.html',
   styles: ``,
 })
@@ -26,14 +29,13 @@ export class FormActionAutorisationComponent implements AfterViewInit {
   fb = inject(UntypedFormBuilder);
   modalService = inject(NgbModal);
   errorService = inject(ErrorService);
-  isSaving = false;
-  isValid = true;
-  actionAuthorityKey = viewChild.required<ElementRef>('actionAuthorityKey');
-
+  actionAuthorityKey = viewChild.required<Password>('actionAuthorityKey');
   editForm = this.fb.group({
-    actionAuthorityKey: [null, [Validators.required]],
+    actionAuthorityKey: ['', [Validators.required]],
     commentaire: [null],
   });
+  protected isSaving = false;
+  protected isValid = true;
 
   cancel(): void {
     this.activeModal.dismiss();
@@ -70,7 +72,7 @@ export class FormActionAutorisationComponent implements AfterViewInit {
 
   ngAfterViewInit(): void {
     setTimeout(() => {
-      this.actionAuthorityKey().nativeElement.focus();
+      this.actionAuthorityKey().el.nativeElement.focus();
     }, 50);
   }
 

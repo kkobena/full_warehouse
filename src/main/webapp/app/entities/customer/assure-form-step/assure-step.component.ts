@@ -17,11 +17,12 @@ import { CardModule } from 'primeng/card';
 import { AssureFormStepService } from './assure-form-step.service';
 import { CommonService } from './common.service';
 import { ComplementaireStepComponent } from './complementaire-step.component';
-import { FormTiersPayantComponent } from '../../tiers-payant/form-tiers-payant/form-tiers-payant.component';
-import { DialogService, DynamicDialogRef } from 'primeng/dynamicdialog';
 import { IClientTiersPayant } from '../../../shared/model/client-tiers-payant.model';
 import { DateNaissDirective } from '../../../shared/date-naiss.directive';
 import { CommonModule } from '@angular/common';
+import { showCommonModal } from '../../sales/selling-home/sale-helper';
+import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
+import { FormTiersPayantComponent } from '../../tiers-payant/form-tiers-payant/form-tiers-payant.component';
 
 @Component({
   selector: 'jhi-assure-step',
@@ -46,19 +47,18 @@ import { CommonModule } from '@angular/common';
   templateUrl: './assure-step.component.html',
 })
 export class AssureStepComponent implements OnInit, AfterViewInit {
+  header: string | null = null;
   entity?: ICustomer;
-  ref!: DynamicDialogRef;
   isSaving = false;
   isValid = true;
   minLength = 2;
   tiersPayant!: ITiersPayant | null;
   tiersPayants: ITiersPayant[] = [];
-  fb = inject(UntypedFormBuilder);
   commonService = inject(CommonService);
-
   assureFormStepService = inject(AssureFormStepService);
   firstName = viewChild.required<ElementRef>('firstName');
-  complementaireStepComponent = viewChild(ComplementaireStepComponent);
+  complementaireStepComponent = viewChild<ComplementaireStepComponent>('complementaireStep');
+  fb = inject(UntypedFormBuilder);
   editForm = this.fb.group({
     id: [],
     firstName: [null, [Validators.required]],
@@ -73,8 +73,8 @@ export class AssureStepComponent implements OnInit, AfterViewInit {
     datNaiss: [],
     remiseId: [],
   });
-  private readonly dialogService = inject(DialogService);
-  private readonly tiersPayantService = inject(TiersPayantService);
+  readonly tiersPayantService = inject(TiersPayantService);
+  readonly modalService = inject(NgbModal);
 
   ngOnInit(): void {
     const entity = this.assureFormStepService.assure();
@@ -90,7 +90,7 @@ export class AssureStepComponent implements OnInit, AfterViewInit {
       if (this.complementaireStepComponent()) {
         this.complementaireStepComponent().initForm(entity);
       }
-    }, 30);
+    }, 100);
   }
 
   searchTiersPayant(event: any): void {
@@ -144,17 +144,23 @@ export class AssureStepComponent implements OnInit, AfterViewInit {
   }
 
   addTiersPayantAssurance(): void {
-    this.ref = this.dialogService.open(FormTiersPayantComponent, {
-      data: { entity: null, type: this.assureFormStepService.typeAssure() },
-      header: 'FORMULAIRE DE CREATION DE TIERS-PAYANT',
-      width: '80%',
-    });
-    this.ref.onClose.subscribe((tiersPayant: ITiersPayant) => {
-      if (tiersPayant) {
-        this.tiersPayants.push(tiersPayant);
-        this.editForm.patchValue({ tiersPayantId: tiersPayant });
-      }
-    });
+    showCommonModal(
+      this.modalService,
+      FormTiersPayantComponent,
+      {
+        entity: null,
+        categorie: this.assureFormStepService.typeAssure(),
+        header: 'FORMULAIRE DE CREATION DE TIERS-PAYANT',
+      },
+      (resp: ITiersPayant) => {
+        if (resp) {
+          this.tiersPayants.push(resp);
+          this.editForm.patchValue({ tiersPayantId: resp });
+        }
+      },
+      'xl',
+      'modal-dialog-80',
+    );
   }
 
   protected updateForm(customer: ICustomer): void {

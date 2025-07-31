@@ -1,15 +1,15 @@
 // Enum to manage sale types
-import {IClientTiersPayant} from "../../../shared/model/client-tiers-payant.model";
-import {TranslateService} from "@ngx-translate/core";
-import {ICustomer} from "../../../shared/model/customer.model";
-import {ISales} from "../../../shared/model/sales.model";
-import {NgbModal} from "@ng-bootstrap/ng-bootstrap";
-import {AlertInfoComponent} from "../../../shared/alert/alert-info.component";
+import { IClientTiersPayant } from '../../../shared/model/client-tiers-payant.model';
+import { TranslateService } from '@ngx-translate/core';
+import { ICustomer } from '../../../shared/model/customer.model';
+import { ISales } from '../../../shared/model/sales.model';
+import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
+import { AlertInfoComponent } from '../../../shared/alert/alert-info.component';
 
 export enum SaleType {
   COMPTANT = 'comptant',
   CARNET = 'carnet',
-  ASSURANCE = 'assurance'
+  ASSURANCE = 'assurance',
 }
 
 // Helper function to check if numBon is empty
@@ -38,12 +38,15 @@ export function assignCustomerToSale(sale: ISales, customer: ICustomer): void {
 export function isVoSaleType(active: string): boolean {
   return active === SaleType.ASSURANCE || active === SaleType.CARNET;
 }
-export function  isVno(type: string): boolean {
+
+export function isVno(type: string): boolean {
   return type === 'VNO';
 }
-export function  isVo(type: string): boolean {
+
+export function isVo(type: string): boolean {
   return type === 'VO';
 }
+
 // Determines the active tab based on sale type and nature
 export function getActiveTab(sale: ISales): SaleType {
   if (sale?.type === 'VNO') {
@@ -76,4 +79,27 @@ export function showCommonError(modalService: NgbModal, message: string, infoCla
   });
   modalRef.componentInstance.message = message;
   modalRef.componentInstance.infoClass = infoClass;
+}
+
+export function showCommonModal<T>(
+  modalService: NgbModal,
+  component: new (...args: any[]) => T,
+  componentInputs: Partial<T>,
+  onClose?: (reason: any) => void,
+  size?: string,
+  modalDialogClass?: string,
+  onDismiss?: (dismis: any) => void,
+): void {
+  const modalRef = modalService.open(component, {
+    backdrop: 'static',
+    centered: true,
+    size: size || 'lg',
+    modalDialogClass,
+  });
+
+  Object.assign(modalRef.componentInstance, componentInputs);
+
+  if (onClose || onDismiss) {
+    modalRef.result.then(onClose, onDismiss);
+  }
 }

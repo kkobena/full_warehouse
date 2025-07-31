@@ -10,7 +10,9 @@ import { ICustomer } from 'app/shared/model/customer.model';
 import { ITEMS_PER_PAGE } from 'app/shared/constants/pagination.constants';
 import { CustomerService } from './customer.service';
 import { ConfirmationService, LazyLoadEvent, MenuItem, MessageService } from 'primeng/api';
-import { UninsuredCustomerFormComponent } from './uninsured-customer-form/uninsured-customer-form.component';
+import {
+  UninsuredCustomerFormComponent
+} from './uninsured-customer-form/uninsured-customer-form.component';
 import { DialogService, DynamicDialogRef } from 'primeng/dynamicdialog';
 import { TranslateService } from '@ngx-translate/core';
 import { FormAyantDroitComponent } from './form-ayant-droit/form-ayant-droit.component';
@@ -29,7 +31,9 @@ import { DropdownModule } from 'primeng/dropdown';
 import { DividerModule } from 'primeng/divider';
 import { SplitButtonModule } from 'primeng/splitbutton';
 import { TooltipModule } from 'primeng/tooltip';
-import { CustomerTiersPayantComponent } from './customer-tiers-payant/customer-tiers-payant.component';
+import {
+  CustomerTiersPayantComponent
+} from './customer-tiers-payant/customer-tiers-payant.component';
 import { IClientTiersPayant } from '../../shared/model/client-tiers-payant.model';
 import { AssureFormStepComponent } from './assure-form-step/assure-form-step.component';
 import { PrimeNG } from 'primeng/config';
@@ -38,6 +42,7 @@ import { Select } from 'primeng/select';
 import { IconField } from 'primeng/iconfield';
 import { InputIcon } from 'primeng/inputicon';
 import { Panel } from 'primeng/panel';
+import { showCommonModal } from '../sales/selling-home/sale-helper';
 
 @Component({
   selector: 'jhi-customer',
@@ -239,6 +244,23 @@ export class CustomerComponent implements OnInit {
   }
 
   addAssureCustomer(typeAssure: string): void {
+    showCommonModal(
+      this.modalService,
+      AssureFormStepComponent,
+      {
+        entity: null,
+        typeAssure,
+        header: 'FORMULAIRE DE CREATION DE CLIENT ',
+      },
+      (resp: ICustomer) => {
+        if (resp) {
+          this.loadPage();
+        }
+      },
+    );
+
+    /*
+
     this.ref = this.dialogService.open(AssureFormStepComponent, {
       data: { entity: null, typeAssure },
       header: 'FORMULAIRE DE CREATION DE CLIENT ',
@@ -250,22 +272,23 @@ export class CustomerComponent implements OnInit {
       if (resp) {
         this.loadPage();
       }
-    });
+    });*/
   }
 
   editAssureCustomer(customer: ICustomer): void {
-    this.ref = this.dialogService.open(AssureFormStepComponent, {
-      data: { entity: customer },
-      header: `FORMULAIRE DE MODIFICATION DE CLIENT  [ ${customer.fullName}  ]`,
-      width: '85%',
-      closeOnEscape: false,
-      maximizable: true,
-    });
-    this.ref.onClose.subscribe((resp: ICustomer) => {
-      if (resp) {
-        this.loadPage();
-      }
-    });
+    showCommonModal(
+      this.modalService,
+      AssureFormStepComponent,
+      {
+        entity: customer,
+        header: `FORMULAIRE DE MODIFICATION DE CLIENT  [ ${customer.fullName}  ]`,
+      },
+      (resp: ICustomer) => {
+        if (resp) {
+          this.loadPage();
+        }
+      },
+    );
   }
 
   addUninsuredCustomer(): void {

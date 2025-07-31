@@ -1,13 +1,15 @@
 <div class="row inventory">
-  <div class="col-2 col-md-2 col-sm-2">
+  <div class="col-xl-2 col-lg-2 col-md-2 col-sm-2">
     <p-card>
-      <div #nav="ngbNav" [(activeId)]="active" class="nav flex-column nav-pills" ngbNav orientation="vertical">
+      <div #nav="ngbNav" [(activeId)]="active" class="nav flex-column nav-pills" ngbNav
+           orientation="vertical">
         <ng-container ngbNavItem="CREATE">
           <a class="flex-sm-fill nav-link" ngbNavLink>En cours</a>
           <ng-template ngbNavContent>
             <jhi-en-cours [inventoryCategories]="inventoryCategories" [user]="user"></jhi-en-cours>
           </ng-template>
         </ng-container>
+        <p-divider layout="horizontal"></p-divider>
         <ng-container ngbNavItem="CLOSED">
           <a class="flex-sm-fill nav-link" ngbNavLink>Cloturés</a>
           <ng-template ngbNavContent>
@@ -18,12 +20,13 @@
     </p-card>
   </div>
 
-  <div class="col-10 col-md-10 col-sm-10 row">
+  <div class="col-xl-10 col-lg-10 col-md-10 col-sm-10 row">
     <p-toolbar>
       <ng-template #start>
         <p-inputgroup [hidden]="true">
           <p-inputgroup-addon>Opérateurs</p-inputgroup-addon>
-          <p-select (onChange)="onSelectUser()" [(ngModel)]="user" [options]="users" [showClear]="true" optionLabel="fullName"></p-select>
+          <p-select (onChange)="onSelectUser()" [(ngModel)]="user" [options]="users"
+                    [showClear]="true" optionLabel="fullName"></p-select>
         </p-inputgroup>
         <p-inputgroup>
           <p-inputgroup-addon>Types</p-inputgroup-addon>
@@ -39,9 +42,11 @@
         </p-inputgroup>
       </ng-template>
       <ng-template #end>
-        <p-button (click)="onSearch()" class="mr-1" icon="pi pi-search" label="Rechercher" raised="true" severity="info"></p-button>
+        <p-button (click)="onSearch()" class="mr-1" icon="pi pi-search" label="Rechercher"
+                  raised="true" severity="info"></p-button>
 
-        <p-button (click)="onCreateNew()" icon="pi pi-plus" label="Nouveau" raised="true" severity="success"> </p-button>
+        <p-button (click)="onCreateNew()" icon="pi pi-plus" label="Nouveau" raised="true"
+                  severity="success"></p-button>
       </ng-template>
     </p-toolbar>
 

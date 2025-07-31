@@ -1,17 +1,13 @@
 import { Component, inject, OnInit, signal } from '@angular/core';
 import { Router, RouterModule } from '@angular/router';
-import { TranslateService } from '@ngx-translate/core';
 import { environment } from 'environments/environment';
-import { StateStorageService } from 'app/core/auth/state-storage.service';
-import HasAnyAuthorityDirective from 'app/shared/auth/has-any-authority.directive';
-import { LANGUAGES } from 'app/config/language.constants';
 import { AccountService } from 'app/core/auth/account.service';
 import { LoginService } from 'app/login/login.service';
-import { ProfileService } from 'app/layouts/profiles/profile.service';
 import { EntityNavbarItems } from 'app/entities/entity-navbar-items';
 import NavbarItem from './navbar-item.model';
 import { WarehouseCommonModule } from '../../shared/warehouse-common/warehouse-common.module';
 import {
+  faBasketShopping,
   faCoins,
   faSackDollar,
   faShippingFast,
@@ -19,7 +15,6 @@ import {
   faShoppingBasket,
   faStore,
   faTimes,
-  faUserTimes,
   faWarehouse,
 } from '@fortawesome/free-solid-svg-icons';
 
@@ -27,33 +22,27 @@ import {
   selector: 'jhi-navbar',
   templateUrl: './navbar.component.html',
   styleUrl: './navbar.component.scss',
-  imports: [RouterModule, WarehouseCommonModule, HasAnyAuthorityDirective],
+  imports: [RouterModule, WarehouseCommonModule],
 })
 export default class NavbarComponent implements OnInit {
-  inProduction?: boolean;
-  isNavbarCollapsed = signal(true);
-  languages = LANGUAGES;
-  openAPIEnabled?: boolean;
-  version = '';
-  account = inject(AccountService).trackCurrentAccount();
-  entitiesNavbarItems: NavbarItem[] = [];
+  protected isNavbarCollapsed = signal(true);
+  protected version = '';
+  protected account = inject(AccountService).trackCurrentAccount();
+  protected entitiesNavbarItems: NavbarItem[] = [];
 
   // protected entitiesNavbarItems: any[] = [];
-  protected readonly faUserTimes = faUserTimes;
-  protected readonly hideLanguage?: boolean = true;
+
   protected readonly faWarehouse = faWarehouse;
   protected readonly faShoppingBag = faShoppingBag;
   protected readonly faShippingFast = faShippingFast;
   protected readonly faShoppingBasket = faShoppingBasket;
   protected readonly faStore = faStore;
+  protected readonly basketShoppingPlus = faBasketShopping;
   protected menuStock: string[] = [];
   protected readonly faSackDollar = faSackDollar;
   protected faCoins = faCoins;
   protected readonly faTimes = faTimes;
   private loginService = inject(LoginService);
-  private translateService = inject(TranslateService);
-  private stateStorageService = inject(StateStorageService);
-  private profileService = inject(ProfileService);
   private router = inject(Router);
 
   constructor() {
@@ -72,30 +61,32 @@ export default class NavbarComponent implements OnInit {
       });*/
   }
 
-  changeLanguage(languageKey: string): void {
-    this.stateStorageService.storeLocale(languageKey);
-    this.translateService.use(languageKey);
-  }
-
-  collapseNavbar(): void {
+  protected collapseNavbar(): void {
     this.isNavbarCollapsed.set(true);
   }
 
-  login(): void {
+  protected login(): void {
     this.router.navigate(['/login']);
   }
 
-  logout(): void {
+  protected logout(): void {
     this.collapseNavbar();
     this.loginService.logout();
     this.router.navigate(['']);
   }
 
-  isAuthenticated(): boolean {
-    return this.account() !== null;
+  protected toggleNavbar(): void {
+    this.isNavbarCollapsed.update(isNavbarCollapsed => !isNavbarCollapsed);
   }
 
-  toggleNavbar(): void {
-    this.isNavbarCollapsed.update(isNavbarCollapsed => !isNavbarCollapsed);
+  protected hasAnyAuthority(authorities: string[] | string): boolean {
+    const userIdentity = this.account();
+    if (!userIdentity) {
+      return false;
+    }
+    if (!Array.isArray(authorities)) {
+      authorities = [authorities];
+    }
+    return userIdentity.authorities.some((authority: string) => authorities.includes(authority));
   }
 }

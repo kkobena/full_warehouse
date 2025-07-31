@@ -1,4 +1,4 @@
-import { Injectable, inject } from '@angular/core';
+import { inject, Injectable } from '@angular/core';
 import { HttpClient, HttpResponse } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { map } from 'rxjs/operators';
@@ -16,9 +16,8 @@ type EntityArrayResponseType = HttpResponse<ISales[]>;
 
 @Injectable({ providedIn: 'root' })
 export class SalesService {
-  protected http = inject(HttpClient);
-
   public resourceUrl = SERVER_API_URL + 'api/sales';
+  protected http = inject(HttpClient);
 
   createComptant(sales: ISales): Observable<EntityResponseType> {
     const copy = this.convertDateFromClient(sales);
@@ -29,6 +28,13 @@ export class SalesService {
 
   authorizeAction(utilisationCleSecurite: UtilisationCleSecurite): Observable<HttpResponse<{}>> {
     return this.http.post(this.resourceUrl + '/comptant/authorize-action', utilisationCleSecurite, { observe: 'response' });
+  }
+
+  updateDate(sales: ISales): Observable<EntityResponseType> {
+    const copy = this.convertDateFromClient(sales);
+    return this.http
+      .put<ISales>(this.resourceUrl + '/assurance/date', copy, { observe: 'response' })
+      .pipe(map((res: EntityResponseType) => this.convertDateFromServer(res)));
   }
 
   updateComptant(sales: ISales): Observable<EntityResponseType> {
@@ -85,9 +91,11 @@ export class SalesService {
   printReceipt(id: number): Observable<{}> {
     return this.http.get(`${this.resourceUrl}/print/receipt/${id}`, { observe: 'response' });
   }
+
   rePrintReceipt(id: number): Observable<{}> {
     return this.http.get(`${this.resourceUrl}/re-print/receipt/${id}`, { observe: 'response' });
   }
+
   addItemComptant(salesLine: ISalesLine): Observable<HttpResponse<ISalesLine>> {
     const copy = this.convertItemDateFromClient(salesLine);
     return this.http
@@ -176,14 +184,14 @@ export class SalesService {
     return this.http.put(this.resourceUrl + '/comptant/add-remise', key, { observe: 'response' });
   }
 
-  protected convertDateFromClient(sales: ISales): ISales {
+  private convertDateFromClient(sales: ISales): ISales {
     return Object.assign({}, sales, {
       createdAt: sales.createdAt && sales.createdAt.isValid() ? sales.createdAt.toJSON() : undefined,
       updatedAt: sales.updatedAt && sales.updatedAt.isValid() ? sales.updatedAt.toJSON() : undefined,
     });
   }
 
-  protected convertDateFromServer(res: EntityResponseType): EntityResponseType {
+  private convertDateFromServer(res: EntityResponseType): EntityResponseType {
     if (res.body) {
       res.body.createdAt = res.body.createdAt ? moment(res.body.createdAt) : undefined;
       res.body.updatedAt = res.body.updatedAt ? moment(res.body.updatedAt) : undefined;
@@ -191,7 +199,7 @@ export class SalesService {
     return res;
   }
 
-  protected convertDateArrayFromServer(res: EntityArrayResponseType): EntityArrayResponseType {
+  private convertDateArrayFromServer(res: EntityArrayResponseType): EntityArrayResponseType {
     if (res.body) {
       res.body.forEach((sales: ISales) => {
         sales.createdAt = sales.createdAt ? moment(sales.createdAt) : undefined;
@@ -201,7 +209,7 @@ export class SalesService {
     return res;
   }
 
-  protected convertItemDateFromClient(salesLine: ISalesLine): ISalesLine {
+  private convertItemDateFromClient(salesLine: ISalesLine): ISalesLine {
     const copy: ISalesLine = Object.assign({}, salesLine, {
       createdAt: salesLine.createdAt && salesLine.createdAt.isValid() ? salesLine.createdAt.toJSON() : undefined,
       updatedAt: salesLine.updatedAt && salesLine.updatedAt.isValid() ? salesLine.updatedAt.toJSON() : undefined,
@@ -209,7 +217,7 @@ export class SalesService {
     return copy;
   }
 
-  protected convertItemDateFromServer(res: HttpResponse<ISalesLine>): HttpResponse<ISalesLine> {
+  private convertItemDateFromServer(res: HttpResponse<ISalesLine>): HttpResponse<ISalesLine> {
     if (res.body) {
       res.body.createdAt = res.body.createdAt ? moment(res.body.createdAt) : undefined;
       res.body.updatedAt = res.body.updatedAt ? moment(res.body.updatedAt) : undefined;

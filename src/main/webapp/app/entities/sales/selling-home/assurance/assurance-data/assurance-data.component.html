@@ -3,15 +3,18 @@
     <div class="row assurance-data">
       <div class="col-2 col-md-2 col-lg-2">
         @if (selectedCustomerService.selectedCustomerSignal() && currentSaleService.currentSale()) {
-          <button (click)="onChangeCustomerClick()" type="button" class="btn btn-link btn-sm text-danger">
-            <span style="font-weight: 700"> <i class="pi pi-user-minus"></i>&nbsp; Changer de client</span>
-          </button>
+          <p-button [variant]="'text'" raised="true" (click)="onChangeCustomerClick()"
+                    severity="danger"
+                    icon="pi pi-user-edit" label="Changer de client"
+          >
+          </p-button>
         } @else {
           <p-iconfield>
             <p-inputicon styleClass="pi pi-search" />
             <input
               [style]="{ width: '98%' }"
               pInputText
+              autocomplete="off"
               #searchInput
               (keydown.enter)="load()"
               [(ngModel)]="search"
@@ -25,27 +28,26 @@
         <div class="col-10 col-md-10 col-lg-10 row">
           <div [class]="divCustomer()">
             <ul class="list-group list-group-flush">
-              <li class="list-group-item d-flex justify-content-between align-items-center bg-success bg-opacity-10">
+              <li
+                class="list-group-item d-flex justify-content-between align-items-center bg-primary-subtle">
                 <span>Assuré</span>
-                <button
-                  type="button"
-                  class="btn btn-link btn-sm"
-                  style="--bs-btn-padding-y: 0; --bs-btn-padding-x: 0"
-                  (click)="editAssuredCustomer()"
-                >
-                  <span><i class="pi pi-user-edit"></i>&nbsp;Editer</span>
-                </button>
+                <p-button [variant]="'text'" raised="true" severity="info"
+                          size="small" icon="pi pi-user-edit" label="Editer"
+
+                          (click)="editAssuredCustomer()"
+                />
               </li>
               <li class="list-group-item d-flex justify-content-between align-items-center">
                 Nom/Prénom(s)
                 <span class="badge bg-secondary"
-                  >{{ selectedCustomerService.selectedCustomerSignal().firstName }}
+                >{{ selectedCustomerService.selectedCustomerSignal().firstName }}
                   {{ selectedCustomerService.selectedCustomerSignal().lastName }}</span
                 >
               </li>
               <li class="list-group-item d-flex justify-content-between align-items-center">
                 Matricule
-                <span class="badge bg-secondary">{{ selectedCustomerService.selectedCustomerSignal().num }}</span>
+                <span
+                  class="badge bg-secondary">{{ selectedCustomerService.selectedCustomerSignal().num }}</span>
               </li>
             </ul>
           </div>
@@ -59,21 +61,20 @@
                   >
                     <span>Ayant droit</span>
                     @if (ayantDroit.id === selectedCustomerService.selectedCustomerSignal().id) {
-                      <button
-                        type="button"
-                        class="btn btn-link"
-                        style="--bs-btn-padding-y: 0; --bs-btn-padding-x: 0"
-                        (click)="loadAyantDoits()"
-                      >
-                        <span><i class="pi pi-user-edit"></i>&nbsp;Remplacer</span>
-                      </button>
+                      <p-button [variant]="'text'" raised="true" icon="pi pi-users"
+                                label="Remplacer" size="small"
+                                (click)="loadAyantDoits()"
+                      />
+
                     } @else {
-                      <p-splitbutton label="Gérer" icon="pi pi-user-edit" size="small" [model]="items" text severity="info" />
+                      <p-splitbutton label="Gérer" icon="pi pi-user-edit" size="small"
+                                     [model]="items" [text]="true" severity="info" />
                     }
                   </li>
                   <li class="list-group-item d-flex justify-content-between align-items-center">
                     Nom/Prénom(s)
-                    <span class="badge bg-secondary">{{ ayantDroit.firstName }} {{ ayantDroit.lastName }}</span>
+                    <span
+                      class="badge bg-secondary">{{ ayantDroit.firstName }} {{ ayantDroit.lastName }}</span>
                   </li>
                   <li class="list-group-item d-flex justify-content-between align-items-center">
                     Matricule
@@ -83,46 +84,60 @@
               </div>
             }
           }
-
-          @if (selectedTiersPayants()) {
-            @for (tp of selectedTiersPayants(); track tp.id; let i = $index) {
-              <div [class]="divClass()">
-                <div class="row" style="margin-bottom: 5px">
-                  <div class="col-9">
-                    @if (i === 0) {
-                      RO: <span>{{ tp.tiersPayantFullName }}</span>
-                    } @else {
-                      RC{{ i }}: <span>{{ tp.tiersPayantFullName }}</span>
-                    }
-                  </div>
-                  <div class="col-3">
-                    Taux: <span>{{ tp.taux }}%</span>
-                  </div>
+          @for (tp of selectedTiersPayants(); track tp.id; let i = $index) {
+            <div [class]="divClass()">
+              <div class="row" style="margin-bottom: 5px">
+                <div class="col-9">
+                  @if (i === 0) {
+                    RO: <span>{{ tp.tiersPayantFullName }}</span>
+                  } @else {
+                    RC{{ i }}: <span>{{ tp.tiersPayantFullName }}</span>
+                  }
                 </div>
-                <div class="input-group tp-input-container">
-                  <input type="hidden" name="taux" />
-                  <span class="input-group-text">Bon</span>
-                  <input
-                    type="text"
-                    class="form-control tiersPayant-input border border-primary"
-                    id="{{ tp.id }}-{{ tp.taux }}-{{ tp.categorie }}"
-                    [value]="tp.numBon"
-                    autocomplete="off"
-                    pKeyFilter="alphanum"
-                  />
-                  @if (selectedTiersPayants().length > 1) {
-                    <button class="btn btn-danger" type="button" (click)="removeTiersPayant(tp)"><i class="pi pi-trash"></i></button>
-                  }
-                  @if (
-                    selectedTiersPayants().length < selectedCustomerService.selectedCustomerSignal().tiersPayants.length &&
-                    currentSaleService.typeVo() === 'ASSURANCE'
-                  ) {
-                    <button class="btn btn-primary" type="button" (click)="addComplementaire()"><i class="pi pi-plus"></i></button>
-                  }
+                <div class="col-3">
+                  Taux: <span>{{ tp.taux }}%</span>
                 </div>
               </div>
-            }
+              <div class="tp-input-container">
+                <p-inputgroup>
+                  <p-inputgroup-addon>Bon</p-inputgroup-addon>
+                  <input
+                    pInputText
+                    type="text"
+                    #tpInput
+                    class="tiersPayant-input"
+                    id="bon-{{ tp.id }}"
+                    name="bon-{{ i }}"
+                    [(ngModel)]="tp.numBon"
+                    (keydown.enter)="onBonEnter(tp)"
+                    autocomplete="off"
+                    pKeyFilter="alphanum"
+                    [fluid]="true"
+                  />
+                  @if (selectedTiersPayants().length > 1) {
+                    <p-inputgroup-addon>
+                      <p-button icon="pi pi-trash" severity="danger" type="button"
+                                pTooltip="Supprimer ce tiers payant"
+                                (click)="removeTiersPayant(tp)">
+                      </p-button>
+                    </p-inputgroup-addon>
+                  }
+                </p-inputgroup>
+              </div>
+            </div>
           }
+          @if (selectedCustomerService.selectedCustomerSignal() && selectedTiersPayants().length
+          < selectedCustomerService.selectedCustomerSignal().tiersPayants.length
+          && currentSaleService.typeVo() === 'ASSURANCE') {
+            <div class="mt-2 d-flex justify-content-end">
+              <p-button icon="pi pi-plus"
+                        pTooltip="Ajouter un tiers payant complémentaire"
+                        severity="primary" type="button"
+                        (click)="addComplementaire()">
+              </p-button>
+            </div>
+          }
+
         </div>
       }
     </div>

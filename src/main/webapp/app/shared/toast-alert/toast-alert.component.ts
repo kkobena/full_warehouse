@@ -1,16 +1,15 @@
-import {Component, inject} from '@angular/core';
-import {MessageService} from "primeng/api";
+import { Component, inject } from '@angular/core';
+import { MessageService } from 'primeng/api';
 
-export  type Severity = 'primary' | 'secondary' | 'success' | 'info' | 'warn' | 'danger' | 'help';
+export type Severity = 'primary' | 'secondary' | 'success' | 'info' | 'warn' | 'danger' | 'help';
 
 @Component({
   selector: 'jhi-toast-alert',
-  template: `
-  `
+  providers: [MessageService],
+  template: ``,
 })
 export class ToastAlertComponent {
   private readonly messageService = inject(MessageService);
-
 
   show(title: string, message: string, severity: Severity): void {
     this.messageService.add({
@@ -24,9 +23,10 @@ export class ToastAlertComponent {
     this.messageService.add({
       severity: 'error',
       summary: title || 'Error',
-      detail: message || 'Une erreur s\'est produite.',
+      detail: message || "Une erreur s'est produite.",
     });
   }
+
   showInfo(message: string, title?: string): void {
     this.messageService.add({
       severity: 'info',
@@ -34,6 +34,7 @@ export class ToastAlertComponent {
       detail: message,
     });
   }
+
   showWarn(message: string, title?: string): void {
     this.messageService.add({
       severity: 'warn',

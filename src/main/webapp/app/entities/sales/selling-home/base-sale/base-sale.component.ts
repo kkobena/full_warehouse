@@ -1,42 +1,38 @@
-import {Component, computed, inject, input, signal, viewChild} from '@angular/core';
-import {ModeReglementComponent} from '../../mode-reglement/mode-reglement.component';
-import {AmountComputingComponent} from '../comptant/amount-computing/amount-computing.component';
-import {SelectedCustomerService} from '../../service/selected-customer.service';
-import {TypePrescriptionService} from '../../service/type-prescription.service';
-import {UserCaissierService} from '../../service/user-caissier.service';
-import {UserVendeurService} from '../../service/user-vendeur.service';
-import {SelectModeReglementService} from '../../service/select-mode-reglement.service';
-import {VoSalesService} from '../../service/vo-sales.service';
-import {CurrentSaleService} from '../../service/current-sale.service';
-import {RouterModule} from '@angular/router';
-import {NgbModal} from '@ng-bootstrap/ng-bootstrap';
-import {DialogService, DynamicDialogRef} from 'primeng/dynamicdialog';
-import {BaseSaleService} from '../../service/base-sale.service';
-import {IPayment} from '../../../../shared/model/payment.model';
-import {IRemise} from '../../../../shared/model/remise.model';
-import {ISalesLine} from '../../../../shared/model/sales-line.model';
-import {HttpResponse} from '@angular/common/http';
-import {FinalyseSale, ISales} from '../../../../shared/model/sales.model';
-import {Observable} from 'rxjs';
-import {IClientTiersPayant} from '../../../../shared/model/client-tiers-payant.model';
-import {IPaymentMode, PaymentModeControl} from '../../../../shared/model/payment-mode.model';
-import {ButtonModule} from 'primeng/button';
-import {ConfirmDialogModule} from 'primeng/confirmdialog';
-import {DividerModule} from 'primeng/divider';
-import {WarehouseCommonModule} from '../../../../shared/warehouse-common/warehouse-common.module';
-import {FormsModule} from '@angular/forms';
-import {ProductTableComponent} from '../product-table/product-table.component';
-import {Authority} from '../../../../shared/constants/authority.constants';
-import {HasAuthorityService} from '../../service/has-authority.service';
-import {FormActionAutorisationComponent} from '../../form-action-autorisation/form-action-autorisation.component';
-import {ConfirmDialogComponent} from "../../../../shared/dialog/confirm-dialog/confirm-dialog.component";
-import {SpinerService} from "../../../../shared/spiner.service";
+import { Component, inject, input, signal, viewChild } from '@angular/core';
+import { ModeReglementComponent } from '../../mode-reglement/mode-reglement.component';
+import { AmountComputingComponent } from '../comptant/amount-computing/amount-computing.component';
+import { SelectedCustomerService } from '../../service/selected-customer.service';
+import { TypePrescriptionService } from '../../service/type-prescription.service';
+import { UserCaissierService } from '../../service/user-caissier.service';
+import { UserVendeurService } from '../../service/user-vendeur.service';
+import { SelectModeReglementService } from '../../service/select-mode-reglement.service';
+import { VoSalesService } from '../../service/vo-sales.service';
+import { CurrentSaleService } from '../../service/current-sale.service';
+import { RouterModule } from '@angular/router';
+import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
+import { BaseSaleService } from '../../service/base-sale.service';
+import { IPayment } from '../../../../shared/model/payment.model';
+import { IRemise } from '../../../../shared/model/remise.model';
+import { ISalesLine } from '../../../../shared/model/sales-line.model';
+import { HttpResponse } from '@angular/common/http';
+import { FinalyseSale, ISales } from '../../../../shared/model/sales.model';
+import { Observable } from 'rxjs';
+import { IClientTiersPayant } from '../../../../shared/model/client-tiers-payant.model';
+import { IPaymentMode, PaymentModeControl } from '../../../../shared/model/payment-mode.model';
+import { ButtonModule } from 'primeng/button';
+import { DividerModule } from 'primeng/divider';
+import { WarehouseCommonModule } from '../../../../shared/warehouse-common/warehouse-common.module';
+import { FormsModule } from '@angular/forms';
+import { ProductTableComponent } from '../product-table/product-table.component';
+import { Authority } from '../../../../shared/constants/authority.constants';
+import { HasAuthorityService } from '../../service/has-authority.service';
+import { FormActionAutorisationComponent } from '../../form-action-autorisation/form-action-autorisation.component';
+import { ConfirmDialogComponent } from '../../../../shared/dialog/confirm-dialog/confirm-dialog.component';
+import { SpinerService } from '../../../../shared/spiner.service';
 
 @Component({
   templateUrl: './base-sale.component.html',
-  providers: [DialogService],
   imports: [
-    ConfirmDialogModule,
     WarehouseCommonModule,
     FormsModule,
     ProductTableComponent,
@@ -49,16 +45,18 @@ import {SpinerService} from "../../../../shared/spiner.service";
   ],
 })
 export class BaseSaleComponent {
-  modeReglementComponent = viewChild(ModeReglementComponent);
-  amountComputingComponent = viewChild(AmountComputingComponent);
+  modeReglementComponent = viewChild<ModeReglementComponent>('modeReglement');
+  amountComputingComponent = viewChild<AmountComputingComponent>('amountComputing');
   readonly isPresale = input(false);
   appendTo = 'body';
   CASH = 'CASH';
   currentSaleService = inject(CurrentSaleService);
   selectedCustomerService = inject(SelectedCustomerService);
-  //protected entryAmount?: number | null = null;
+  readonly hasAuthorityService = inject(HasAuthorityService);
+  readonly canRemoveItem = signal(this.hasAuthorityService.hasAuthorities(Authority.PR_SUPPRIME_PRODUIT_VENTE));
+  readonly canApplyDiscount = signal(this.hasAuthorityService.hasAuthorities(Authority.PR_AJOUTER_REMISE_VENTE));
+
   protected payments: IPayment[] = [];
-  protected ref: DynamicDialogRef;
   protected remise?: IRemise | null;
   protected isSaving = false;
   private typePrescriptionService = inject(TypePrescriptionService);
@@ -68,40 +66,25 @@ export class BaseSaleComponent {
   private salesService = inject(VoSalesService);
   private readonly modalService = inject(NgbModal);
   private baseSaleService = inject(BaseSaleService);
-  readonly hasAuthorityService = inject(HasAuthorityService);
-
   private readonly confimDialog = viewChild.required<ConfirmDialogComponent>('confirmDialog');
   private readonly spinner = inject(SpinerService);
-  readonly canRemoveItem = signal(this.hasAuthorityService.hasAuthorities(Authority.PR_SUPPRIME_PRODUIT_VENTE));
-  readonly canApplyDiscount = signal(this.hasAuthorityService.hasAuthorities(Authority.PR_AJOUTER_REMISE_VENTE));
-  readonly entryAmount = computed(() => this.modeReglementComponent()?.getInputSum() || 0);
 
-  readonly isValidDiffere = computed(() => {
-    const sale =  this.currentSaleService.currentSale();
-    return sale?.differe;
-  });
-  /*
-  readonly montantRendu = computed(() => {
-    const sale = this.currentSaleService.currentSale();
-    if (!sale) return 0;
-    return (sale.montantVerse || 0) - (sale.amountToBePaid || 0);
-  });*/
- /* constructor() {
-    effect(() => {
-      const sale =  this.currentSaleService.currentSale();
-      if (sale) {
+  protected get isValidDiffere(): boolean {
+    return this.currentSaleService.currentSale()?.differe;
+  }
 
-      }
-    });
-  }*/
+  protected get entryAmount(): number {
+    return this.modeReglementComponent()?.getInputSum() || 0;
+  }
+
   manageAmountDiv(): void {
-    this.modeReglementComponent().manageAmountDiv();
+    this.modeReglementComponent()?.manageAmountDiv();
   }
 
   manageCashPaymentMode(paymentModeControl: PaymentModeControl): void {
     const modes = this.selectModeReglementService.modeReglements();
     if (modes.length >= this.baseSaleService.maxModePayementNumber()) {
-      const amount = this.entryAmount();
+      const amount = this.entryAmount;
       modes.find((e: IPaymentMode) => e.code !== paymentModeControl.control.target.id).amount =
         this.currentSaleService.currentSale().amountToBePaid - paymentModeControl.paymentMode.amount;
 
@@ -114,8 +97,7 @@ export class BaseSaleComponent {
   }
 
   finalyseSale(putsOnStandby = false): void {
-
-    this.currentSaleService.currentSale().payments = this.modeReglementComponent().buildPayment(this.entryAmount());
+    this.currentSaleService.currentSale().payments = this.modeReglementComponent().buildPayment(this.entryAmount);
     this.currentSaleService.currentSale().type = 'VO';
     this.currentSaleService.currentSale().avoir = this.baseSaleService.isAvoir();
     this.computExtraInfo();
@@ -138,9 +120,9 @@ export class BaseSaleComponent {
     this.baseSaleService.onCompleteSale();
   }
 
-/*  isValidDiffere(): boolean {
-    return this.currentSaleService.currentSale().differe /!* && !this.sale.customerId*!/;
-  }*/
+  /*  isValidDiffere(): boolean {
+      return this.currentSaleService.currentSale().differe /!* && !this.sale.customerId*!/;
+    }*/
 
   onLoadPrevente(): void {
     this.modeReglementComponent().buildPreventeReglementInput();
@@ -149,8 +131,6 @@ export class BaseSaleComponent {
     }, 50);
   }
 
-
-
   computExtraInfo(): void {
     this.currentSaleService.currentSale().commentaire = this.modeReglementComponent().commentaire || null;
   }
@@ -158,10 +138,10 @@ export class BaseSaleComponent {
   save(): void {
     this.isSaving = true;
     if (this.currentSaleService.currentSale().amountToBePaid > 0) {
-      const entryAmount = this.entryAmount();
+      const entryAmount = this.entryAmount;
       const restToPay = this.currentSaleService.currentSale().amountToBePaid - entryAmount;
       this.currentSaleService.currentSale().montantVerse = this.baseSaleService.getCashAmount(entryAmount);
-      if (restToPay > 0 && !this.isValidDiffere()) {
+      if (restToPay > 0 && !this.isValidDiffere) {
         this.differeConfirmDialog();
       } else {
         this.finalyseSale();
@@ -173,17 +153,21 @@ export class BaseSaleComponent {
   }
 
   differeConfirmDialog(): void {
-    this.confimDialog().onConfirm(() => {
-      this.currentSaleService.currentSale().differe = true;
-      this.finalyseSale();
-    }, 'Vente différé', 'Voullez-vous regler le reste en différé ?', null, () => {
-    })
-
+    this.confimDialog().onConfirm(
+      () => {
+        this.currentSaleService.currentSale().differe = true;
+        this.finalyseSale();
+      },
+      'Vente différé',
+      'Voullez-vous regler le reste en différé ?',
+      null,
+      () => {},
+    );
   }
 
   saveSale(): void {
     const sale = this.currentSaleService.currentSale();
-    const entryAmount = this.entryAmount();
+    const entryAmount = this.entryAmount;
     const restToPay = sale.amountToBePaid - entryAmount;
     sale.payrollAmount = Math.min(entryAmount, sale.amountToBePaid);
     sale.restToPay = Math.max(restToPay, 0);

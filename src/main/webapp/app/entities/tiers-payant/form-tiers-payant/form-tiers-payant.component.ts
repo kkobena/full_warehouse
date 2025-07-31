@@ -1,10 +1,11 @@
 import { AfterViewInit, Component, ElementRef, inject, OnInit, viewChild } from '@angular/core';
 import { FormsModule, ReactiveFormsModule, UntypedFormBuilder, Validators } from '@angular/forms';
 import { ErrorService } from 'app/shared/error.service';
-import { DialogService, DynamicDialogConfig, DynamicDialogModule, DynamicDialogRef } from 'primeng/dynamicdialog';
-import { ConfirmationService, MessageService } from 'primeng/api';
+import { DynamicDialogModule } from 'primeng/dynamicdialog';
 import { TiersPayantService } from 'app/entities/tiers-payant/tierspayant.service';
-import { GroupeTiersPayantService } from 'app/entities/groupe-tiers-payant/groupe-tierspayant.service';
+import {
+  GroupeTiersPayantService
+} from 'app/entities/groupe-tiers-payant/groupe-tierspayant.service';
 import { ITiersPayant, ModelFacture, TiersPayant } from 'app/shared/model/tierspayant.model';
 import { IGroupeTiersPayant } from 'app/shared/model/groupe-tierspayant.model';
 import { HttpResponse } from '@angular/common/http';
@@ -20,11 +21,12 @@ import { AutoCompleteModule } from 'primeng/autocomplete';
 import { Select } from 'primeng/select';
 import { ToggleSwitch } from 'primeng/toggleswitch';
 import { InputNumber } from 'primeng/inputnumber';
+import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
+import { ToastAlertComponent } from '../../../shared/toast-alert/toast-alert.component';
 
 @Component({
   selector: 'jhi-form-tiers-payant',
   templateUrl: './form-tiers-payant.component.html',
-  providers: [MessageService, DialogService, ConfirmationService],
   imports: [
     WarehouseCommonModule,
     FormsModule,
@@ -40,13 +42,15 @@ import { InputNumber } from 'primeng/inputnumber';
     Select,
     ToggleSwitch,
     InputNumber,
+    ToastAlertComponent,
   ],
 })
 export class FormTiersPayantComponent implements OnInit, AfterViewInit {
+  entity?: ITiersPayant;
+  header?: string;
+  categorie?: string | null = null;
   protected fb = inject(UntypedFormBuilder);
   protected name = viewChild.required<ElementRef>('name');
-  protected entity?: ITiersPayant;
-  protected categorie?: string | null = null;
   protected isSaving = false;
   protected isValid = true;
   protected groupeTiersPayants: IGroupeTiersPayant[] = [];
@@ -72,16 +76,12 @@ export class FormTiersPayantComponent implements OnInit, AfterViewInit {
     plafondAbsoluClient: [],
   });
   private readonly errorService = inject(ErrorService);
-
-  private readonly ref = inject(DynamicDialogRef);
-  private readonly config = inject(DynamicDialogConfig);
   private readonly tiersPayantService = inject(TiersPayantService);
   private readonly groupeTiersPayantService = inject(GroupeTiersPayantService);
-  private readonly messageService = inject(MessageService);
+  private readonly activeModal = inject(NgbActiveModal);
+  private readonly alert = viewChild.required<ToastAlertComponent>('alert');
 
   ngOnInit(): void {
-    this.entity = this.config.data.entity;
-    this.categorie = this.config.data.type;
     if (this.entity) {
       this.updateForm(this.entity);
     }
@@ -94,7 +94,7 @@ export class FormTiersPayantComponent implements OnInit, AfterViewInit {
   ngAfterViewInit(): void {
     setTimeout(() => {
       this.name().nativeElement.focus();
-    }, 30);
+    }, 100);
   }
 
   async populate(): Promise<IGroupeTiersPayant[]> {
@@ -108,7 +108,7 @@ export class FormTiersPayantComponent implements OnInit, AfterViewInit {
   }
 
   cancel(): void {
-    this.ref.close();
+    this.activeModal.dismiss();
   }
 
   save(): void {
@@ -130,16 +130,12 @@ export class FormTiersPayantComponent implements OnInit, AfterViewInit {
 
   protected onSaveSuccess(tiersPayant: ITiersPayant | null): void {
     this.isSaving = false;
-    this.ref.close(tiersPayant);
+    this.activeModal.close(tiersPayant);
   }
 
   protected onSaveError(error: any): void {
     this.isSaving = false;
-    this.messageService.add({
-      severity: 'error',
-      summary: 'Erreur',
-      detail: this.errorService.getErrorMessage(error),
-    });
+    this.alert().showError(this.errorService.getErrorMessage(error));
   }
 
   private updateForm(tiersPayant: ITiersPayant): void {

@@ -59,4 +59,5 @@ export enum Authority {
   GESTION_DIFFERE = 'gestion-differe',
   GESTION_PERIMES = 'gestion-perimes',
   REMISE = 'remise',
+  HOME_DASHBOARD = 'HOME_DASHBOARD',
 }

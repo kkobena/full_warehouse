@@ -1,5 +1,5 @@
 <div class="row produit-audit-transaction">
-  <div class="col-2 col-md-2 col-sm-2">
+  <div class="col-lg-2 col-xl-2 col-md-2 col-sm-2">
     <p-card>
       <div #nav="ngbNav" [(activeId)]="active" class="nav flex-column nav-pills" ngbNav
            orientation="vertical">
@@ -9,12 +9,14 @@
             <jhi-auditing></jhi-auditing>
           </ng-template>
         </ng-container>
+
         <ng-container ngbNavItem="sales">
           <a class="flex-sm-fill nav-link" ngbNavLink>Historique des ventes</a>
           <ng-template ngbNavContent>
             <jhi-stat-sales></jhi-stat-sales>
           </ng-template>
         </ng-container>
+        <p-divider layout="horizontal"></p-divider>
         <ng-container ngbNavItem="commande">
           <a class="flex-sm-fill nav-link" ngbNavLink>Historique des commandes</a>
           <ng-template ngbNavContent>
@@ -25,7 +27,7 @@
     </p-card>
   </div>
 
-  <div class="col-10 col-md-10 col-sm-10 row produit-audit-toolbar">
+  <div class="col-lg-10 col-xl-10 col-md-10 col-sm-10 row produit-audit-toolbar">
     <p-toolbar>
       <div class=" d-flex justify-content-between " style="width: 100%">
         <div class="flex-grow-1 d-flex justify-content-between">
@@ -43,19 +45,19 @@
             <jhi-date-picker #dateDebut
                              [disabled]="false"
                              [id]="'du'"
-                             [max]="toDate"
                              [label]="'warehouseApp.labels.du'"
+                             [max]="toDate"
             ></jhi-date-picker>
           </div>
 
           <div class="mr-1">
             <jhi-date-picker #dateFin
-                             [disabled]="false"
-                             [id]="'au'"
                              (onSelect)="updateParam()"
                              [defaultDate]="defaultDate"
-                             [min]="fromDate"
+                             [disabled]="false"
+                             [id]="'au'"
                              [label]="'warehouseApp.labels.au'"
+                             [min]="fromDate"
             ></jhi-date-picker>
           </div>
 
@@ -66,7 +68,7 @@
             @if (produit) {
               <div class="mr-1">
                 <p-button [badge]="produit?.totalQuantity | number" badgeSeverity="contrast"
-                          label="Stock" [raised]="true"/>
+                          label="Stock" [raised]="true" />
               </div>
             }
 

@@ -1,32 +1,33 @@
 <p-toolbar>
-  <ng-template #start>
-    <div class="d-flex justify-content-between">
-      <div class="mr-1">
-        <p-inputgroup>
-          <p-inputgroup-addon>
-            Vendeurs
-            <!--<i class="pi pi-user"></i>-->
-          </p-inputgroup-addon>
-          <p-select
-            (onChange)="onSelectUser()"
-            [(ngModel)]="userSeller"
-            [appendTo]="appendTo"
-            [autofocus]="true"
-            [dataKey]="'id'"
-            [options]="this.userVendeurService.vendeurs()"
-            optionLabel="abbrName"
-          ></p-select>
-        </p-inputgroup>
-      </div>
-
-      <div>
-        <p-iconfield>
-          <p-inputicon styleClass="pi pi-search" />
-          <input (keyup.enter)="onSearch($event)" pInputText placeholder="Taper pour rechercher" type="text" />
-        </p-iconfield>
-      </div>
+  <div [style]="{ 'width': '90%' }" class="d-flex justify-content-between">
+    <div class="mr-1">
+      <p-inputgroup>
+        <p-inputgroup-addon>
+          Vendeurs
+        </p-inputgroup-addon>
+        <p-select
+          (onChange)="onSelectUser()"
+          [(ngModel)]="userSeller"
+          [appendTo]="appendTo"
+          [autofocus]="true"
+          [dataKey]="'id'"
+          [options]="this.userVendeurService.vendeurs()"
+          optionLabel="abbrName"
+          size="large"
+        ></p-select>
+      </p-inputgroup>
     </div>
-  </ng-template>
+
+    <div class="flex-grow-1">
+      <p-iconfield>
+        <p-inputicon styleClass="pi pi-search" />
+        <input (keyup.enter)="onSearch($event)" [style]="{ 'width': '95%' }" pInputText
+               placeholder="Taper pour rechercher"
+               type="text" />
+      </p-iconfield>
+    </div>
+  </div>
+
 </p-toolbar>
 
 <p-divider></p-divider>
@@ -48,8 +49,10 @@
       <th style="width: 15%">Vendeur</th>
     </tr>
   </ng-template>
-  <ng-template let-columns="columns" let-expanded="expanded" let-rowIndex="rowIndex" let-sale pTemplate="body">
-    <tr (click)="onSelect(sale)" (dblclick)="onDbleSelect(sale)" [ngClass]="{ active: selectedRowIndex == sale.id }">
+  <ng-template #body let-columns="columns" let-expanded="expanded" let-rowIndex="rowIndex"
+               let-sale>
+    <tr (click)="onSelect(sale)" (dblclick)="onDbleSelect(sale)"
+        [ngClass]="{ active: selectedRowIndex == sale.id }">
       <td>
         <p-button
           [icon]="expanded ? 'pi pi-chevron-down' : 'pi pi-chevron-right'"
@@ -82,7 +85,7 @@
               dataKey="id"
               selectionMode="single"
             >
-              <ng-template pTemplate="header">
+              <ng-template #header>
                 <tr>
                   <th style="width: 5%">#</th>
                   <th style="width: 10%">CODE</th>
@@ -93,15 +96,18 @@
                   <th style="width: 10%">TOTAL</th>
                 </tr>
               </ng-template>
-              <ng-template let-rowIndex="rowIndex" let-saleLine pTemplate="body">
-                <tr [ngClass]="{ 'table-danger': saleLine.quantitySold < saleLine.quantityRequested }">
+              <ng-template #body let-rowIndex="rowIndex" let-saleLine>
+                <tr
+                  [ngClass]="{ 'table-danger': saleLine.quantitySold < saleLine.quantityRequested }">
                   <td style="text-align: left">{{ rowIndex + 1 }}</td>
                   <td>{{ saleLine.code }}</td>
                   <td>{{ saleLine.produitLibelle }}</td>
                   <td class="text-right">{{ saleLine.quantityRequested | number }}</td>
                   <td class="text-right">{{ saleLine.quantitySold | number }}</td>
                   <td class="text-right">{{ saleLine.regularUnitPrice | number }}</td>
-                  <td style="text-align: right; font-weight: bold">{{ saleLine.salesAmount | number }}</td>
+                  <td
+                    style="text-align: right; font-weight: bold">{{ saleLine.salesAmount | number }}
+                  </td>
                 </tr>
               </ng-template>
             </p-table>

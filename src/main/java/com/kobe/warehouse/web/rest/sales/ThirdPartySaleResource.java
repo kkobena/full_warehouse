@@ -229,4 +229,10 @@ public class ThirdPartySaleResource {
         saleService.processDiscount(keyValue);
         return ResponseEntity.accepted().build();
     }
+
+    @PutMapping("/sales/assurance/date")
+    public ResponseEntity<Void> updateDate(@Valid @RequestBody ThirdPartySaleDTO sale) {
+        saleService.updateDate(sale);
+        return ResponseEntity.accepted().build();
+    }
 }

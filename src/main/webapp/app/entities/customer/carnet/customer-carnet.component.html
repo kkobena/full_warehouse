@@ -1,0 +1,202 @@
+<div class="modal-header">
+  <h4 class="modal-title">{{ header }}</h4>
+
+  <button (click)="cancel()" class="close" data-dismiss="modal" type="button">
+    &times;
+  </button>
+</div>
+
+<form (ngSubmit)="save()" [formGroup]="editForm" name="editForm">
+  <div class="modal-body" style="padding: 15px;">
+    <div [hidden]="true" class="form-group">
+      <input class="form-control" formControlName="id" id="id" name="id" pInputText readonly
+             type="hidden" />
+    </div>
+    <div class="form-row">
+      <div class="form-group col-md-3">
+        <label class="form-control-label" for="field_firstName">Nom </label> <span
+        style="font-weight: 900; color: red">*</span>
+        <input
+          #firstName
+          autocomplete="off"
+          class="form-control"
+          formControlName="firstName"
+          id="field_firstName"
+          name="firstName"
+          pInputText
+          type="text"
+        />
+        @if (editForm.get('firstName')!.invalid && (editForm.get('firstName')!.dirty
+          || editForm.get('firstName')!.touched)) {
+          <div>
+            @if (editForm.get('firstName')?.errors?.required) {
+              <small class="form-text text-danger" jhiTranslate="entity.validation.required"> This
+                field is
+                required. </small>
+            }
+          </div>
+        }
+      </div>
+      <div class="form-group col-md-5">
+        <label class="form-control-label" for="field_lastName">Prénom(s) <span
+          style="font-weight: 900; color: red">*</span> </label>
+        <input
+          autocomplete="off"
+          class="form-control"
+          formControlName="lastName"
+          id="field_lastName"
+          name="lastName"
+          pInputText
+          type="text"
+        />
+        @if (editForm.get('lastName')!.invalid && (editForm.get('lastName')!.dirty
+          || editForm.get('lastName')!.touched)) {
+          <div>
+            @if (editForm.get('lastName')?.errors?.required) {
+              <small class="form-text text-danger" jhiTranslate="entity.validation.required"> This
+                field is
+                required. </small>
+            }
+          </div>
+        }
+      </div>
+      <div class="form-group col-md-4">
+        <label class="form-control-label" for="field_num">Numéro de sécurité <span
+          style="font-weight: 900; color: red">*</span> </label>
+        <input
+          autocomplete="off"
+          class="form-control"
+          formControlName="num"
+          id="field_num"
+          name="num"
+          pInputText
+          pKeyFilter="alphanum"
+          type="text"
+        />
+        @if (editForm.get('num')!.invalid && (editForm.get('num')!.dirty || editForm.get(
+          'num')!.touched)) {
+          <div>
+            @if (editForm.get('num')?.errors?.required) {
+              <small class="form-text text-danger" jhiTranslate="entity.validation.required"> This
+                field is
+                required. </small>
+            }
+          </div>
+        }
+      </div>
+    </div>
+    <div class="form-row">
+      <div class="form-group col-md-3">
+        <label class="form-control-label" for="field_taux">Taux<span
+          style="font-weight: 900; color: red">*</span></label>
+        <input
+          autocomplete="off"
+          class="form-control"
+          formControlName="taux"
+          id="field_taux"
+          name="taux"
+          pInputText
+          pKeyFilter="int"
+          type="text"
+        />
+        @if (editForm.get('taux')!.invalid && (editForm.get('taux')!.dirty || editForm.get(
+          'taux')!.touched)) {
+          <div>
+            @if (editForm.get('taux')?.errors?.required) {
+              <small class="form-text text-danger" jhiTranslate="entity.validation.required"> This
+                field is
+                required. </small>
+            }
+          </div>
+        }
+      </div>
+      <div class="form-group col-md-6">
+        <label class="form-control-label" for="tiersPayantId">Tiers-payant<span
+          style="font-weight: 900; color: red">*</span></label>
+
+        <p-autoComplete
+          (completeMethod)="searchTiersPayant($event)"
+          (onSelect)="onSelectTiersPayant($event)"
+          [dropdown]="true"
+          [forceSelection]="true"
+          [inputStyle]="{ width: '100%' }"
+          [minLength]="PRODUIT_COMBO_MIN_LENGTH"
+          [style]="{ width: '100%' }"
+          [suggestions]="tiersPayants"
+          formControlName="tiersPayantId"
+          id="tiersPayantId"
+          optionLabel="fullName"
+          placeholder="Taper pour rechercher"
+        >
+        </p-autoComplete>
+
+        @if (editForm.get('tiersPayantId')!.invalid && (editForm.get('tiersPayantId')!.dirty
+          || editForm.get('tiersPayantId')!.touched)) {
+          <div>
+            @if (editForm.get('tiersPayantId')?.errors?.required) {
+              <small class="form-text text-danger" jhiTranslate="entity.validation.required"> This
+                field is
+                required. </small>
+            }
+          </div>
+        }
+      </div>
+
+      <div class="form-group col-md-3">
+        <label class="form-control-label" for="field_phone">Téléphone</label>
+        <input
+          autocomplete="off"
+          class="form-control"
+          formControlName="phone"
+          id="field_phone"
+          name="phone"
+          pInputText
+          pKeyFilter="int"
+          type="text"
+        />
+      </div>
+    </div>
+    <div class="form-row">
+      @let datNaiss = editForm.get('datNaiss');
+      <div class="form-group col-md-4">
+        <label class="form-control-label">Date de naissance</label>
+        <input [style]="{ width: '100%' }" formControlName="datNaiss" jhiDateNaiss pInputText
+               placeholder="jj/mm/aaaa"
+        />
+        @if (datNaiss!.invalid && (datNaiss!.dirty || datNaiss!.touched)) {
+          <div>
+            @let errors = datNaiss?.errors;
+            @if (errors?.invalidDate || errors?.outOfRange) {
+              <small class="form-text text-danger"> Veuillez saisir une date valide</small>
+            }
+          </div>
+        }
+      </div>
+
+      <div class="form-group col-md-4">
+        <label class="form-control-label" for="email">E-mail</label>
+        <input autocomplete="off" class="form-control" formControlName="email" id="email"
+               name="email" pInputText
+               type="email" />
+      </div>
+
+      <div class="form-group col-md-4">
+        <h5 class="form-control-label">Sexe</h5>
+        <p-radioButton formControlName="sexe" id="masculin" inputId="masculin" name="sexe"
+                       value="M"></p-radioButton>
+        <label class="ml-2" for="masculin">Masculin</label>
+        <p-radioButton formControlName="sexe" id="feminin" inputId="feminin" name="sexe"
+                       value="F"></p-radioButton>
+        <label class="ml-2" for="feminin">Feminin</label>
+      </div>
+    </div>
+  </div>
+  <div class="modal-footer" style="padding: 15px;">
+    <p-button (click)="cancel()" data-dismiss="modal" icon="pi pi-times" label="Annuler"
+              severity="secondary" type="button" />
+
+    <p-button [disabled]="editForm.invalid || isSaving " icon="pi pi-check"
+              label="Enregistrer" severity="primary" type="submit" />
+  </div>
+</form>
+<jhi-toast-alert #alert></jhi-toast-alert>

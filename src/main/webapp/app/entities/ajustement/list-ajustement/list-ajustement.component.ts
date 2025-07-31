@@ -49,8 +49,8 @@ export class ListAjustementComponent implements OnInit {
 
   sort(): string[] {
     const result = [this.predicate + ',' + (this.ascending ? 'asc' : 'desc')];
-    if (this.predicate !== 'dateMtv') {
-      result.push('dateMtv');
+    if (this.predicate !== 'id') {
+      result.push('id');
     }
     return result;
   }

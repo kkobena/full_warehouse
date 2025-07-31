@@ -11,6 +11,7 @@ import { ButtonModule } from 'primeng/button';
 import { TextareaModule } from 'primeng/textarea';
 import { SpinerService } from '../../../shared/spiner.service';
 import { ToastAlertComponent } from '../../../shared/toast-alert/toast-alert.component';
+import { finalize } from 'rxjs/operators';
 
 @Component({
   selector: 'jhi-finalyse',
@@ -52,20 +53,18 @@ export class FinalyseComponent implements OnInit {
   }
 
   protected subscribeToSaveResponse(result: Observable<HttpResponse<{}>>): void {
-    result.subscribe({
+    result.pipe(finalize(() => this.spinner.hide())).subscribe({
       next: () => this.onSaveSuccess(),
       error: () => this.onSaveError(),
     });
   }
 
   protected onSaveSuccess(): void {
-    this.spinner.hide();
     this.ref.close();
   }
 
   protected onSaveError(): void {
     this.isSaving = false;
-    this.spinner.hide();
     this.alert().showError("Erreur d'enregistrement", "Erreur d'enregistrement");
   }
 

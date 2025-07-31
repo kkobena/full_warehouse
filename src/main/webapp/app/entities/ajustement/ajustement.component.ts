@@ -39,7 +39,6 @@ import { Panel } from 'primeng/panel';
     ToolbarModule,
     RouterModule,
     FormsModule,
-
     InputTextModule,
     ListAjustementComponent,
     Select,

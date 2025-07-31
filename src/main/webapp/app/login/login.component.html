@@ -1,49 +1,59 @@
 <div>
   <div class="d-flex justify-content-center" style="padding-top: 2rem">
     <div class="col-lg-4 col-md-5 col-sm-8">
-      <p-card header="Authentification">
-        <h1 data-cy="loginTitle" jhiTranslate="login.title">Authentification</h1>
+      <p-card>
+        <h1 data-cy="loginTitle">Formulaire de connexion</h1>
         @if (authenticationError()) {
-          <div class="alert alert-danger" data-cy="loginError" jhiTranslate="login.messages.error.authentication">
-            <strong>Erreur d&apos;authentification !</strong> Veuillez vérifier vos identifiants de connexion.
+          <div class="alert alert-danger" data-cy="loginError"
+               jhiTranslate="login.messages.error.authentication">
+            <strong>Erreur de connexion !</strong> Veuillez vérifier vos identifiants de connexion.
           </div>
         }
         <form (ngSubmit)="login()" [formGroup]="loginForm" class="form">
           <div class="mb-3">
-            <label class="username-label" for="username" jhiTranslate="global.form.username.label">Nom d&apos;utilisateur</label>
-            <input
-              #username
-              class="form-control"
-              data-cy="username"
-              formControlName="username"
-              id="username"
-              name="username"
-              placeholder="{{ 'global.form.username.placeholder' | translate }}"
-              type="text"
+            <label class="username-label" for="username" jhiTranslate="global.form.username.label">Nom
+              d&apos;utilisateur</label>
+            <input #username
+                   [fluid]="true"
+                   autocomplete="off" data-cy="username"
+                   formControlName="username"
+                   id="username"
+                   name="username"
+                   pInputText
+                   placeholder="{{ 'global.form.username.placeholder' | translate }}"
+                   type="text"
             />
           </div>
 
           <div class="mb-3">
             <label for="password" jhiTranslate="login.form.password">Mot de passe</label>
-            <input
-              class="form-control"
+            <p-password
+              [feedback]="false"
+              [fluid]="true"
+              [toggleMask]="true"
+              autocomplete="off"
               data-cy="password"
               formControlName="password"
               id="password"
-              name="password"
               placeholder="{{ 'login.form.password.placeholder' | translate }}"
               type="password"
             />
           </div>
 
           <div class="form-check">
-            <label class="form-check-label" for="rememberMe">
-              <input class="form-check-input" formControlName="rememberMe" id="rememberMe" name="rememberMe" type="checkbox" />
-              <span jhiTranslate="login.form.rememberme">Garder la session ouverte</span>
-            </label>
+
+            <p-toggleswitch formControlName="rememberMe" id="rememberMe"
+                            name="rememberMe" />
+            <label for="rememberMe" style="position:relative;top:-8px !important">Garder la session
+              ouverte</label>
+
+          </div>
+          <div class="text-right">
+            <p-button data-cy="submit" icon="pi pi-sign-in" label="Se connecter" severity="primary"
+                      type="submit" />
           </div>
 
-          <button class="btn btn-primary" data-cy="submit" jhiTranslate="login.form.button" type="submit">Connexion</button>
+
         </form>
       </p-card>
     </div>

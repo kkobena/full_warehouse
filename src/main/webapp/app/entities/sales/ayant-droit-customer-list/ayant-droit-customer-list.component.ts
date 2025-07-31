@@ -1,6 +1,6 @@
-import { Component, OnInit, inject } from '@angular/core';
+import { Component, inject, OnInit } from '@angular/core';
 
-import { DynamicDialogConfig, DynamicDialogModule, DynamicDialogRef } from 'primeng/dynamicdialog';
+import { DynamicDialogModule } from 'primeng/dynamicdialog';
 import { Customer, ICustomer } from 'app/shared/model/customer.model';
 import { CustomerService } from 'app/entities/customer/customer.service';
 import { WarehouseCommonModule } from '../../../shared/warehouse-common/warehouse-common.module';
@@ -11,6 +11,7 @@ import { InputTextModule } from 'primeng/inputtext';
 import { RippleModule } from 'primeng/ripple';
 import { TableModule } from 'primeng/table';
 import { ToolbarModule } from 'primeng/toolbar';
+import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
 
 @Component({
   selector: 'jhi-ayant-droit-customer-list',
@@ -28,15 +29,13 @@ import { ToolbarModule } from 'primeng/toolbar';
   ],
 })
 export class AyantDroitCustomerListComponent implements OnInit {
-  ref = inject(DynamicDialogRef);
-  config = inject(DynamicDialogConfig);
-  protected customerService = inject(CustomerService);
-
   customers: ICustomer[] = [];
   assure?: ICustomer | null;
+  header: string;
+  private readonly customerService = inject(CustomerService);
+  private readonly activeModal = inject(NgbActiveModal);
 
   ngOnInit(): void {
-    this.assure = this.config.data.assure;
     this.loadCustomers();
   }
 
@@ -45,11 +44,11 @@ export class AyantDroitCustomerListComponent implements OnInit {
   }
 
   onSelect(customer: ICustomer): void {
-    this.ref.close(customer);
+    this.activeModal.close(customer);
   }
 
   cancel(): void {
-    this.ref.close();
+    this.activeModal.dismiss();
   }
 
   loadCustomers(): void {
@@ -57,6 +56,6 @@ export class AyantDroitCustomerListComponent implements OnInit {
   }
 
   addAyantDroit(): void {
-    this.ref.close(new Customer());
+    this.activeModal.close(new Customer());
   }
 }

@@ -34,7 +34,6 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicInteger;
-
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -43,7 +42,6 @@ import org.springframework.util.CollectionUtils;
 @Service
 @Transactional
 public abstract class SalesLineServiceImpl implements SalesLineService {
-
 
     private final ProduitRepository produitRepository;
     private final SalesLineRepository salesLineRepository;
@@ -58,7 +56,9 @@ public abstract class SalesLineServiceImpl implements SalesLineService {
         SalesLineRepository salesLineRepository,
         StockProduitRepository stockProduitRepository,
         LogsService logsService,
-        SuggestionProduitService suggestionProduitService, LotService lotService, InventoryTransactionService inventoryTransactionService
+        SuggestionProduitService suggestionProduitService,
+        LotService lotService,
+        InventoryTransactionService inventoryTransactionService
     ) {
         this.produitRepository = produitRepository;
         this.salesLineRepository = salesLineRepository;
@@ -279,14 +279,14 @@ public abstract class SalesLineServiceImpl implements SalesLineService {
 
     @Override
     public void createInventory(SalesLine salesLine, User user, Long storageId) {
-     //   InventoryTransaction inventoryTransaction = inventoryTransactionRepository.buildInventoryTransaction(salesLine, user);
+        //   InventoryTransaction inventoryTransaction = inventoryTransactionRepository.buildInventoryTransaction(salesLine, user);
         Produit p = salesLine.getProduit();
         StockProduit stockProduit = stockProduitRepository.findOneByProduitIdAndStockageId(p.getId(), storageId);
         int quantityBefor = stockProduit.getQtyStock() + stockProduit.getQtyUG();
         int quantityAfter = quantityBefor - salesLine.getQuantityRequested();
-    //    inventoryTransaction.setQuantityBefor(quantityBefor);
-     //   inventoryTransaction.setQuantityAfter(quantityAfter);
-      //  inventoryTransactionRepository.save(inventoryTransaction);
+        //    inventoryTransaction.setQuantityBefor(quantityBefor);
+        //   inventoryTransaction.setQuantityAfter(quantityAfter);
+        //  inventoryTransactionRepository.save(inventoryTransaction);
         if (quantityBefor < salesLine.getQuantityRequested()) {
             logsService.create(TransactionType.FORCE_STOCK, TransactionType.FORCE_STOCK.getValue(), salesLine.getId().toString());
         }
@@ -330,31 +330,26 @@ public abstract class SalesLineServiceImpl implements SalesLineService {
             });
         }
         this.suggestionProduitService.suggerer(quantitySuggestions);
-
     }
 
     private void updateSaleLineLotSold(SalesLine salesLine) {
-        final int quantitySold = salesLine.getQuantitySold();
+        int quantitySold = salesLine.getQuantitySold();
         AtomicInteger quantityToUpdate = new AtomicInteger(salesLine.getQuantitySold());
         this.lotService.findByProduitId(salesLine.getProduit().getId()).forEach(lot -> {
-            if (quantityToUpdate.get() > 0) {
-                if (lot.getQuantity() >= quantitySold) {
-
-                    //long id, String numLot, int quantity
-                    salesLine.getLots()
-                        .add(new LotSold(lot.getId(), lot.getNumLot(), quantitySold));
-                    quantityToUpdate.addAndGet(-quantitySold);
-                } else {
-                    quantityToUpdate.addAndGet(-lot.getQuantity());
-                    salesLine.getLots()
-                        .add(new LotSold(lot.getId(), lot.getNumLot(), lot.getQuantity()));
+                if (quantityToUpdate.get() > 0) {
+                    if (lot.getQuantity() >= quantitySold) {
+                        //long id, String numLot, int quantity
+                        salesLine.getLots().add(new LotSold(lot.getId(), lot.getNumLot(), quantitySold));
+                        quantityToUpdate.addAndGet(-quantitySold);
+                    } else {
+                        quantityToUpdate.addAndGet(-lot.getQuantity());
+                        salesLine.getLots().add(new LotSold(lot.getId(), lot.getNumLot(), lot.getQuantity()));
+                    }
                 }
-            }
-
-        });
+            });
         this.lotService.updateLots(salesLine.getLots());
-
     }
+
     private void save(SalesLine salesLine, StockProduit stockProduit, Produit p) {
         int quantityBefor = stockProduit.getTotalStockQuantity();
         int quantityAfter = quantityBefor - salesLine.getQuantityRequested();
@@ -450,6 +445,4 @@ public abstract class SalesLineServiceImpl implements SalesLineService {
         //    processProductDiscount(salesLine);
         salesLineRepository.save(salesLine);
     }
-
-
 }

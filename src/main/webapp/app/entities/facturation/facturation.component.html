@@ -2,13 +2,15 @@
   <div class="row entree-stock-gestion">
     <div class="col-xl-2 col-lg-2 col-md-2 col-sm-2">
       <p-card>
-        <div #nav="ngbNav" [(activeId)]="active" class="nav flex-column nav-pills" ngbNav orientation="vertical">
+        <div #nav="ngbNav" [(activeId)]="active" class="nav flex-column nav-pills" ngbNav
+             orientation="vertical">
           <ng-container ngbNavItem="factures">
             <a class="flex-sm-fill nav-link" ngbNavLink>Les factures</a>
             <ng-template ngbNavContent>
               <jhi-factures></jhi-factures>
             </ng-template>
           </ng-container>
+          <p-divider layout="horizontal"></p-divider>
           <ng-container ngbNavItem="edition-facture">
             <a class="flex-sm-fill nav-link" ngbNavLink>Edition de facture</a>
             <ng-template ngbNavContent>

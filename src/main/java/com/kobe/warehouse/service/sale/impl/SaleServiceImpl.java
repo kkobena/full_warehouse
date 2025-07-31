@@ -264,23 +264,15 @@ public class SaleServiceImpl extends SaleCommonService implements SaleService {
             salesLine,
             storageService.getDefaultConnectedUserPointOfSaleStorage().getId()
         );
-        CashSale sales = (CashSale) salesLine.getSales();
-        //   this.proccessDiscount(sales);
-        upddateCashSaleAmounts(sales, salesLine, oldSalesLine);
-        cashSaleRepository.saveAndFlush(sales);
-        this.displayNet(sales.getNetAmount());
-        return new SaleLineDTO(salesLine);
+        return finalizeSaleLineUpdate(salesLine, oldSalesLine);
     }
 
     @Override
     public SaleLineDTO updateItemQuantitySold(SaleLineDTO saleLineDTO) {
         SalesLine salesLine = salesLineService.getOneById(saleLineDTO.getId());
+        SalesLine oldSalesLine = (SalesLine) salesLine.clone();
         salesLineService.updateItemQuantitySold(salesLine, saleLineDTO, storageService.getDefaultConnectedUserPointOfSaleStorage().getId());
-        CashSale sales = (CashSale) salesLine.getSales();
-        this.proccessDiscount(sales);
-        cashSaleRepository.saveAndFlush(sales);
-        this.displayNet(sales.getNetAmount());
-        return new SaleLineDTO(salesLine);
+        return finalizeSaleLineUpdate(salesLine, oldSalesLine);
     }
 
     @Override
@@ -288,9 +280,13 @@ public class SaleServiceImpl extends SaleCommonService implements SaleService {
         SalesLine salesLine = salesLineService.getOneById(saleLineDTO.getId());
         SalesLine oldSalesLine = (SalesLine) salesLine.clone();
         salesLineService.updateItemRegularPrice(saleLineDTO, salesLine, storageService.getDefaultConnectedUserPointOfSaleStorage().getId());
-        Sales sales = salesLine.getSales();
-        upddateCashSaleAmounts((CashSale) sales, salesLine, oldSalesLine);
-        salesRepository.saveAndFlush(sales);
+        return finalizeSaleLineUpdate(salesLine, oldSalesLine);
+    }
+
+    private SaleLineDTO finalizeSaleLineUpdate(SalesLine salesLine, SalesLine oldSalesLine) {
+        CashSale sales = (CashSale) salesLine.getSales();
+        upddateCashSaleAmounts(sales, salesLine, oldSalesLine);
+        cashSaleRepository.saveAndFlush(sales);
         this.displayNet(sales.getNetAmount());
         return new SaleLineDTO(salesLine);
     }

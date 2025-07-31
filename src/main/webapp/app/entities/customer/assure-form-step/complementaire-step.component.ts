@@ -1,4 +1,4 @@
-import { Component, inject } from '@angular/core';
+import { Component, inject, viewChild } from '@angular/core';
 import { FormArray, ReactiveFormsModule, UntypedFormBuilder, Validators } from '@angular/forms';
 import { DropdownModule } from 'primeng/dropdown';
 import { ButtonModule } from 'primeng/button';
@@ -13,18 +13,22 @@ import { IClientTiersPayant } from '../../../shared/model/client-tiers-payant.mo
 import { CustomerService } from '../customer.service';
 import { ToastModule } from 'primeng/toast';
 import { CardModule } from 'primeng/card';
-import { ConfirmationService, MessageService } from 'primeng/api';
 import { ErrorService } from '../../../shared/error.service';
 import { ConfirmDialogModule } from 'primeng/confirmdialog';
 import { ICustomer } from '../../../shared/model/customer.model';
-import { FormTiersPayantComponent } from '../../tiers-payant/form-tiers-payant/form-tiers-payant.component';
-import { DialogService, DynamicDialogRef } from 'primeng/dynamicdialog';
-import { acceptButtonProps, rejectButtonProps } from '../../../shared/util/modal-button-props';
+import {
+  FormTiersPayantComponent
+} from '../../tiers-payant/form-tiers-payant/form-tiers-payant.component';
 import { Select } from 'primeng/select';
+import { showCommonModal } from '../../sales/selling-home/sale-helper';
+import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
+import {
+  ConfirmDialogComponent
+} from '../../../shared/dialog/confirm-dialog/confirm-dialog.component';
+import { ToastAlertComponent } from '../../../shared/toast-alert/toast-alert.component';
 
 @Component({
   selector: 'jhi-complementaire-step',
-  providers: [MessageService, ConfirmationService],
   imports: [
     ReactiveFormsModule,
     DropdownModule,
@@ -36,33 +40,32 @@ import { Select } from 'primeng/select';
     ConfirmDialogModule,
     ButtonModule,
     Select,
+    ConfirmDialogComponent,
+    ToastAlertComponent,
   ],
   templateUrl: './complementaire-step.component.html',
-  styles: ``,
 })
 export class ComplementaireStepComponent {
-  fb = inject(UntypedFormBuilder);
-
-  catgories = [
+  assureFormStepService = inject(AssureFormStepService);
+  customerService = inject(CustomerService);
+  tiersPayant!: ITiersPayant | null;
+  tiersPayants: ITiersPayant[] = [];
+  validSize = true;
+  protected fb = inject(UntypedFormBuilder);
+  protected catgories = [
     { label: 'RC1', value: 1 },
     { label: 'RC2', value: 2 },
     { label: 'RC3', value: 3 },
   ];
-  minLength = 3;
-  tiersPayant!: ITiersPayant | null;
-  tiersPayants: ITiersPayant[] = [];
-  validSize = true;
-  editForm = this.fb.group({
+  protected minLength = 3;
+  protected editForm = this.fb.group({
     tiersPayants: this.fb.array([]),
   });
-  tiersPayantService = inject(TiersPayantService);
-  assureFormStepService = inject(AssureFormStepService);
-  customerService = inject(CustomerService);
-  messageService = inject(MessageService);
-  errorService = inject(ErrorService);
-  confirmationService = inject(ConfirmationService);
-  dialogService = inject(DialogService);
-  ref!: DynamicDialogRef;
+  private readonly confimDialog = viewChild.required<ConfirmDialogComponent>('confirmDialog');
+  private readonly alert = viewChild.required<ToastAlertComponent>('alert');
+  private readonly tiersPayantService = inject(TiersPayantService);
+  private readonly modalService = inject(NgbModal);
+  private readonly errorService = inject(ErrorService);
 
   get editFormGroups(): FormArray {
     return this.editForm.get('tiersPayants') as FormArray;
@@ -109,17 +112,23 @@ export class ComplementaireStepComponent {
   }
 
   addTiersPayantAssurance(index: number): void {
-    this.ref = this.dialogService.open(FormTiersPayantComponent, {
-      data: { entity: null, type: this.assureFormStepService.typeAssure() },
-      header: 'FORMULAIRE DE CREATION DE TIERS-PAYANT',
-      width: '80%',
-    });
-    this.ref.onClose.subscribe((tiersPayant: ITiersPayant) => {
-      if (tiersPayant) {
-        this.tiersPayants.push(tiersPayant);
-        this.convertFormAsFormArray().at(index).patchValue({ tiersPayant });
-      }
-    });
+    showCommonModal(
+      this.modalService,
+      FormTiersPayantComponent,
+      {
+        entity: null,
+        categorie: this.assureFormStepService.typeAssure(),
+        header: 'FORMULAIRE DE CREATION DE TIERS-PAYANT',
+      },
+      (resp: ITiersPayant) => {
+        if (resp) {
+          this.tiersPayants.push(resp);
+          this.convertFormAsFormArray().at(index).patchValue({ resp });
+        }
+      },
+      'xl',
+      'modal-dialog-80',
+    );
   }
 
   searchTiersPayant(event: any): void {
@@ -198,24 +207,10 @@ export class ComplementaireStepComponent {
   }
 
   onSaveError(error: any): void {
-    this.messageService.add({
-      severity: 'error',
-      summary: 'Erreur',
-      detail: this.errorService.getErrorMessage(error),
-    });
+    this.alert().showError(this.errorService.getErrorMessage(error));
   }
 
   confirmRemove(index: number): void {
-    this.confirmationService.confirm({
-      message: 'Voulez-vous vraiment ce complémentaire ?',
-      header: 'Suppression',
-      icon: 'pi pi-info-circle',
-      rejectButtonProps: rejectButtonProps(),
-      acceptButtonProps: acceptButtonProps(),
-      accept: () => {
-        this.removeTiersPayant(index);
-      },
-      key: 'deletecomplementaire',
-    });
+    this.confimDialog().onConfirm(() => this.removeTiersPayant(index), 'Suppression', 'Voulez-vous vraiment ce complémentaire ?');
   }
 }

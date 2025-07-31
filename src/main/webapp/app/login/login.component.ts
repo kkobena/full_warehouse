@@ -1,4 +1,4 @@
-import { AfterViewInit, Component, ElementRef, OnInit, inject, signal, viewChild } from '@angular/core';
+import { AfterViewInit, Component, ElementRef, inject, OnInit, signal, viewChild } from '@angular/core';
 import { FormControl, FormGroup, FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Router, RouterModule } from '@angular/router';
 import { LoginService } from 'app/login/login.service';
@@ -7,10 +7,24 @@ import { CardModule } from 'primeng/card';
 import { ButtonModule } from 'primeng/button';
 import { RippleModule } from 'primeng/ripple';
 import { WarehouseCommonModule } from '../shared/warehouse-common/warehouse-common.module';
+import { InputTextModule } from 'primeng/inputtext';
+import { Password } from 'primeng/password';
+import { ToggleSwitchModule } from 'primeng/toggleswitch';
 
 @Component({
   selector: 'jhi-login',
-  imports: [WarehouseCommonModule, FormsModule, ReactiveFormsModule, RouterModule, CardModule, ButtonModule, RippleModule],
+  imports: [
+    WarehouseCommonModule,
+    InputTextModule,
+    FormsModule,
+    ReactiveFormsModule,
+    RouterModule,
+    CardModule,
+    ButtonModule,
+    RippleModule,
+    Password,
+    ToggleSwitchModule,
+  ],
   templateUrl: './login.component.html',
 })
 export default class LoginComponent implements OnInit, AfterViewInit {
@@ -29,7 +43,6 @@ export default class LoginComponent implements OnInit, AfterViewInit {
   private readonly router = inject(Router);
 
   ngOnInit(): void {
-    // if already authenticated then navigate to home page
     this.accountService.identity().subscribe(() => {
       if (this.accountService.isAuthenticated()) {
         this.router.navigate(['']);
@@ -38,7 +51,9 @@ export default class LoginComponent implements OnInit, AfterViewInit {
   }
 
   ngAfterViewInit(): void {
-    this.username().nativeElement.focus();
+    setTimeout(() => {
+      this.username().nativeElement.focus();
+    }, 100);
   }
 
   login(): void {
@@ -46,7 +61,6 @@ export default class LoginComponent implements OnInit, AfterViewInit {
       next: () => {
         this.authenticationError.set(false);
         if (!this.router.getCurrentNavigation()) {
-          // There were no routing during login (eg from navigationToStoredUrl)
           this.router.navigate(['']);
         }
       },

@@ -334,7 +334,14 @@ public class SaleCommonService {
         if (c.getStatut() == SalesStatut.CLOSED) {
             throw new SaleAlreadyCloseException();
         }
+        finalizeSale(c, dto);
+    }
 
+    public void editSale(Sales c, SaleDTO dto) {
+        finalizeSale(c, dto);
+    }
+
+    private void finalizeSale(Sales c, SaleDTO dto) {
         User user = storageService.getUser();
         c.setUser(user);
         CashRegister cashRegister = cashRegisterService.getLastOpiningUserCashRegisterByUser(user);
@@ -367,44 +374,6 @@ public class SaleCommonService {
             c.setPaymentStatus(PaymentStatus.IMPAYE);
         }
         c.setRestToPay(c.getRestToPay() < 0 ? 0 : c.getRestToPay());
-        this.buildReference(c);
-        if (dto.isAvoir()) {
-            this.avoirService.save(c);
-        }
-    }
-
-    public void editSale(Sales c, SaleDTO dto) throws SaleAlreadyCloseException {
-        User user = storageService.getUser();
-        c.setUser(user);
-        CashRegister cashRegister = cashRegisterService.getLastOpiningUserCashRegisterByUser(user);
-        if (Objects.isNull(cashRegister)) {
-            cashRegister = cashRegisterService.openCashRegister(user, user);
-        }
-        c.setCalendar(this.warehouseCalendarService.initCalendar());
-        c.setCashRegister(cashRegister);
-        Long id = storageService.getDefaultConnectedUserPointOfSaleStorage().getId();
-        getSaleLineService(c).save(c.getSalesLines(), user, id);
-        c.setStatut(SalesStatut.CLOSED);
-        c.setDiffere(dto.isDiffere());
-        c.setLastUserEdit(storageService.getUser());
-        c.setCommentaire(dto.getCommentaire());
-        if (!c.isDiffere() && dto.getPayrollAmount() < dto.getAmountToBePaid()) {
-            throw new PaymentAmountException();
-        }
-        if (c.isDiffere() && c.getCustomer() == null) {
-            throw new SaleNotFoundCustomerException();
-        }
-        c.setPayrollAmount(dto.getPayrollAmount());
-        this.posteRepository.findFirstByAddress(dto.getCaisseEndNum()).ifPresent(c::setLastCaisse);
-        c.setRestToPay(dto.getRestToPay());
-        c.setUpdatedAt(LocalDateTime.now());
-        c.setMonnaie(dto.getMontantRendu());
-        c.setEffectiveUpdateDate(c.getUpdatedAt());
-        if (c.getRestToPay() == 0) {
-            c.setPaymentStatus(PaymentStatus.PAYE);
-        } else {
-            c.setPaymentStatus(PaymentStatus.IMPAYE);
-        }
         this.buildReference(c);
         if (dto.isAvoir()) {
             this.avoirService.save(c);

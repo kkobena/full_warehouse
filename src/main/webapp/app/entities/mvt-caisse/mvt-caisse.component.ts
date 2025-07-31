@@ -20,6 +20,7 @@ import { TaxeReportComponent } from './taxe-report/taxe-report.component';
 import { GestionCaisseComponent } from './gestion-caisse/gestion-caisse.component';
 import { ActivitySummaryComponent } from '../raport-gestion/activity-summary/activity-summary.component';
 import { RecapitualtifCaisseComponent } from '../ticketZ/recapitualtif-caisse/recapitualtif-caisse.component';
+import { Divider } from 'primeng/divider';
 
 @Component({
   selector: 'jhi-mvt-caisse',
@@ -43,6 +44,7 @@ import { RecapitualtifCaisseComponent } from '../ticketZ/recapitualtif-caisse/re
     GestionCaisseComponent,
     ActivitySummaryComponent,
     RecapitualtifCaisseComponent,
+    Divider,
   ],
   templateUrl: './mvt-caisse.component.html',
 })

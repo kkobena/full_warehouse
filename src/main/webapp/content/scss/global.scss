@@ -1915,6 +1915,27 @@ jhi-recapitualtif-caisse {
     }
   }
 }
-.p-inputgroupaddon{
+
+.p-inputgroupaddon {
   align-items: normal !important;
+}
+
+
+.p-autocomplete-list-container .p-focus {
+  font-weight: 600 !important;
+  background-color: var(--bs-info-bg-subtle) !important;
+}
+
+.modal-dialog-80 {
+
+  max-width: 80%;
+  width: 80%;
+
+}
+
+.modal-dialog-70 {
+
+  max-width: 70%;
+  width: 70%;
+
 }

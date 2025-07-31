@@ -27,6 +27,7 @@ import { CloturesComponent } from './clotures/clotures.component';
 import { Select } from 'primeng/select';
 import { InputGroup } from 'primeng/inputgroup';
 import { InputGroupAddon } from 'primeng/inputgroupaddon';
+import { Divider } from 'primeng/divider';
 
 @Component({
   selector: 'jhi-store-inventory',
@@ -63,6 +64,7 @@ import { InputGroupAddon } from 'primeng/inputgroupaddon';
     Select,
     InputGroup,
     InputGroupAddon,
+    Divider,
   ],
 })
 export class StoreInventoryComponent implements OnInit {
@@ -187,8 +189,6 @@ export class StoreInventoryComponent implements OnInit {
     }
     return result;
   }
-
-
 
   formatNumber(number: any): string {
     return Math.floor(number.value)

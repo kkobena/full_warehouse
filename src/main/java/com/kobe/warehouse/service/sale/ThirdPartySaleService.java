@@ -58,6 +58,8 @@ public interface ThirdPartySaleService {
 
     ResponseDTO putThirdPartySaleOnHold(ThirdPartySaleDTO dto);
 
+    void updateDate(ThirdPartySaleDTO dto);
+
     FinalyseSaleDTO save(ThirdPartySaleDTO dto)
         throws PaymentAmountException, SaleNotFoundCustomerException, ThirdPartySalesTiersPayantException, PlafondVenteException;
 

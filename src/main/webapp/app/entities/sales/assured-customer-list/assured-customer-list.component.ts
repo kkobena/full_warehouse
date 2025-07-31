@@ -1,6 +1,5 @@
-import { Component, inject, OnInit } from '@angular/core';
-import { ConfirmationService, LazyLoadEvent, MessageService } from 'primeng/api';
-import { DialogService, DynamicDialogConfig, DynamicDialogModule, DynamicDialogRef } from 'primeng/dynamicdialog';
+import { Component, inject } from '@angular/core';
+import { LazyLoadEvent } from 'primeng/api';
 import { ICustomer } from '../../../shared/model/customer.model';
 import { CustomerService } from '../../customer/customer.service';
 import { WarehouseCommonModule } from '../../../shared/warehouse-common/warehouse-common.module';
@@ -16,11 +15,11 @@ import { CurrentSaleService } from '../service/current-sale.service';
 import { ISales } from '../../../shared/model/sales.model';
 import { IconField } from 'primeng/iconfield';
 import { InputIcon } from 'primeng/inputicon';
+import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
 
 @Component({
   selector: 'jhi-assured-customer-list',
   templateUrl: './assured-customer-list.component.html',
-  providers: [MessageService, DialogService, ConfirmationService],
   imports: [
     WarehouseCommonModule,
     FormsModule,
@@ -28,40 +27,34 @@ import { InputIcon } from 'primeng/inputicon';
     ButtonModule,
     InputTextModule,
     RippleModule,
-    DynamicDialogModule,
     TableModule,
     IconField,
     InputIcon,
   ],
 })
-export class AssuredCustomerListComponent implements OnInit {
+export class AssuredCustomerListComponent {
   customers: ICustomer[] = [];
   searchString?: string | null = '';
-  itemsPerPage = ITEMS_PER_PAGE;
-  page!: number;
-  ngbPaginationPage = 1;
-  totalItems = 0;
-  currentSaleService = inject(CurrentSaleService);
-  customerService = inject(CustomerService);
-  dialogService = inject(DialogService);
-  loading!: boolean;
-  private ref = inject(DynamicDialogRef);
-  private config = inject(DynamicDialogConfig);
+  headerLibelle: string;
+  protected itemsPerPage = ITEMS_PER_PAGE;
+  protected page!: number;
+  protected ngbPaginationPage = 1;
+  protected totalItems = 0;
+  protected loading!: boolean;
+  private readonly currentSaleService = inject(CurrentSaleService);
+  private readonly customerService = inject(CustomerService);
+  private readonly activeModal = inject(NgbActiveModal);
 
-  ngOnInit(): void {
-    this.searchString = this.config.data.searchString;
-  }
-
-  onDbleClick(customer: ICustomer): void {
+  protected onDbleClick(customer: ICustomer): void {
     this.onSelect(customer);
   }
 
-  onSelect(customer: ICustomer): void {
-    this.ref.close(customer);
+  protected onSelect(customer: ICustomer): void {
+    this.activeModal.close(customer);
   }
 
-  cancel(): void {
-    this.ref.close();
+  protected cancel(): void {
+    this.activeModal.dismiss();
   }
 
   /*  addAssureCustomer(): void {
@@ -79,7 +72,7 @@ export class AssuredCustomerListComponent implements OnInit {
      });
    } */
 
-  loadPage(page?: number): void {
+  protected loadPage(page?: number): void {
     const pageToLoad: number = page || this.page || 1;
     this.customerService
       .queryAssuredCustomer({
@@ -94,7 +87,7 @@ export class AssuredCustomerListComponent implements OnInit {
       });
   }
 
-  lazyLoading(event: LazyLoadEvent): void {
+  protected lazyLoading(event: LazyLoadEvent): void {
     if (event) {
       this.page = event.first / event.rows;
       this.loading = true;

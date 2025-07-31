@@ -1,9 +1,8 @@
 import { Component, inject, OnInit, viewChild } from '@angular/core';
 import { StepsModule } from 'primeng/steps';
-import { MenuItem, MessageService } from 'primeng/api';
+import { MenuItem } from 'primeng/api';
 import { ICustomer } from '../../../shared/model/customer.model';
 import { AssureFormStepService } from './assure-form-step.service';
-import { DynamicDialogConfig, DynamicDialogRef } from 'primeng/dynamicdialog';
 import { StepperModule } from 'primeng/stepper';
 import { WarehouseCommonModule } from '../../../shared/warehouse-common/warehouse-common.module';
 import { Button } from 'primeng/button';
@@ -15,38 +14,41 @@ import { Observable } from 'rxjs';
 import { HttpResponse } from '@angular/common/http';
 import { CustomerService } from '../customer.service';
 import { CommonService } from './common.service';
+import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
+import { ToastAlertComponent } from '../../../shared/toast-alert/toast-alert.component';
 
 @Component({
   selector: 'jhi-assure-form-step',
-  imports: [WarehouseCommonModule, StepsModule, StepperModule, Button, ToastModule, AssureStepComponent, AyantDroitStepComponent],
+  imports: [
+    WarehouseCommonModule,
+    StepsModule,
+    StepperModule,
+    Button,
+    ToastModule,
+    AssureStepComponent,
+    AyantDroitStepComponent,
+    ToastAlertComponent,
+  ],
   templateUrl: './assure-form-step.component.html',
-  providers: [MessageService],
 })
 export class AssureFormStepComponent implements OnInit {
-
+  header: string;
   entity?: ICustomer;
   active: number | undefined = 0;
-  ref = inject(DynamicDialogRef);
-  config = inject(DynamicDialogConfig);
   isSaving = false;
   typeAssure: string | undefined;
   activeStep = 1;
-  ayantDroitStepComponent = viewChild(AyantDroitStepComponent);
-  assureStepComponent = viewChild(AssureStepComponent);
+  ayantDroitStepComponent = viewChild<AyantDroitStepComponent>('ayantDroitStep');
+  assureStepComponent = viewChild<AssureStepComponent>('assureStep');
   protected readonly commonService = inject(CommonService);
   protected items: MenuItem[];
   protected readonly assureFormStepService = inject(AssureFormStepService);
-
-  private readonly messageService = inject(MessageService);
+  private readonly activeModal = inject(NgbActiveModal);
   private readonly errorService = inject(ErrorService);
   private readonly customerService = inject(CustomerService);
-
-  constructor() {}
+  private readonly alert = viewChild.required<ToastAlertComponent>('alert');
 
   ngOnInit(): void {
-    this.entity = this.config.data.entity;
-
-    this.typeAssure = this.config.data.typeAssure;
     this.commonService.categorieTiersPayant.set(this.typeAssure);
     this.commonService.categorie.set(this.typeAssure);
     this.assureFormStepService.setTypeAssure(this.typeAssure);
@@ -92,16 +94,12 @@ export class AssureFormStepComponent implements OnInit {
   }
 
   cancel(): void {
-    this.ref.close();
+    this.activeModal.dismiss();
   }
 
   onSaveError(error: any): void {
     this.isSaving = false;
-    this.messageService.add({
-      severity: 'error',
-      summary: 'Erreur',
-      detail: this.errorService.getErrorMessage(error),
-    });
+    this.alert().showError(this.errorService.getErrorMessage(error));
   }
 
   save(): void {
@@ -116,16 +114,18 @@ export class AssureFormStepComponent implements OnInit {
     }
   }
 
-  subscribeToSaveResponse(result: Observable<HttpResponse<ICustomer>>): void {
+  private subscribeToSaveResponse(result: Observable<HttpResponse<ICustomer>>): void {
+    console.warn('subscribeToSaveResponse');
     result.subscribe({
       next: (res: HttpResponse<ICustomer>) => this.onSaveSuccess(res.body),
       error: (error: any) => this.onSaveError(error),
     });
   }
 
-  onSaveSuccess(customer: ICustomer | null): void {
+  private onSaveSuccess(customer: ICustomer | null): void {
     this.isSaving = false;
-    this.assureFormStepService.setAssure(null);
-    this.ref.close(customer);
+    this.alert().showInfo('sisdisufisuf');
+    // this.assureFormStepService.setAssure(null);
+    this.activeModal.close(customer);
   }
 }

@@ -1,4 +1,10 @@
-<p-toast position="center"></p-toast>
+<div class="modal-header">
+  <h4 class="modal-title">{{ header }}</h4>
+
+  <button (click)="cancel()" class="close" data-dismiss="modal" type="button">
+    &times;
+  </button>
+</div>
 
 <form (ngSubmit)="save()" [formGroup]="editForm" name="editForm" novalidate role="form">
   <div class="modal-body">
@@ -20,10 +26,12 @@
           pInputText
           type="text"
         />
-        @if (editForm.get('firstName')!.invalid && (editForm.get('firstName')!.dirty || editForm.get('firstName')!.touched)) {
+        @if (editForm.get('firstName')!.invalid && (editForm.get('firstName')!.dirty
+          || editForm.get('firstName')!.touched)) {
           <div>
             @if (editForm.get('firstName')?.errors?.required) {
-              <small class="form-text text-danger" jhiTranslate="entity.validation.required"> This field is required. </small>
+              <small class="form-text text-danger" jhiTranslate="entity.validation.required"> This
+                field is required. </small>
             }
           </div>
         }
@@ -42,10 +50,12 @@
           pInputText
           type="text"
         />
-        @if (editForm.get('lastName')!.invalid && (editForm.get('lastName')!.dirty || editForm.get('lastName')!.touched)) {
+        @if (editForm.get('lastName')!.invalid && (editForm.get('lastName')!.dirty || editForm.get(
+          'lastName')!.touched)) {
           <div>
             @if (editForm.get('lastName')?.errors?.required) {
-              <small class="form-text text-danger" jhiTranslate="entity.validation.required"> This field is required. </small>
+              <small class="form-text text-danger" jhiTranslate="entity.validation.required"> This
+                field is required. </small>
             }
           </div>
         }
@@ -64,10 +74,12 @@
           pKeyFilter="alphanum"
           type="text"
         />
-        @if (editForm.get('numAyantDroit')!.invalid && (editForm.get('numAyantDroit')!.dirty || editForm.get('numAyantDroit')!.touched)) {
+        @if (editForm.get('numAyantDroit')!.invalid && (editForm.get('numAyantDroit')!.dirty
+          || editForm.get('numAyantDroit')!.touched)) {
           <div>
             @if (editForm.get('numAyantDroit')?.errors?.required) {
-              <small class="form-text text-danger" jhiTranslate="entity.validation.required"> This field is required. </small>
+              <small class="form-text text-danger" jhiTranslate="entity.validation.required"> This
+                field is required. </small>
             }
           </div>
         }
@@ -76,15 +88,18 @@
     <div class="form-row">
       <div class="form-group col">
         <label class="form-control-label">Date de naissance</label>
-        <p-inputmask [style]="{ width: '100%' }" formControlName="datNaiss" inputId="datNaiss" mask="99/99/9999" slotChar="jj/mm/aaaa" />
+        <p-inputmask [style]="{ width: '100%' }" formControlName="datNaiss" inputId="datNaiss"
+                     mask="99/99/9999" slotChar="jj/mm/aaaa" />
       </div>
     </div>
     <div class="form-row">
       <div class="form-group col">
         <h5 class="form-control-label">Sexe</h5>
-        <p-radioButton formControlName="sexe" id="masculin" inputId="masculin" name="sexe" value="M"></p-radioButton>
+        <p-radioButton formControlName="sexe" id="masculin" inputId="masculin" name="sexe"
+                       value="M"></p-radioButton>
         <label class="ml-2" for="masculin">Masculin</label>
-        <p-radioButton formControlName="sexe" id="Feminin" inputId="Feminin" name="sexe" value="F"></p-radioButton>
+        <p-radioButton formControlName="sexe" id="Feminin" inputId="Feminin" name="sexe"
+                       value="F"></p-radioButton>
         <label class="ml-2" for="Feminin">Feminin</label>
       </div>
     </div>
@@ -111,3 +126,4 @@
     ></p-button>
   </div>
 </form>
+<jhi-toast-alert #alert></jhi-toast-alert>

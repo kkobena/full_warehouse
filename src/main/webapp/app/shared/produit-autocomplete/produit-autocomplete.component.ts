@@ -47,7 +47,6 @@ export class ProduitAutocompleteComponent implements ControlValueAccessor, OnDes
       this.produitbox().hide();
     });
     this.searchSubscription = this.searchTrigger$.pipe(debounceTime(300)).subscribe(search => this.loadProduits(search));
-
   }
 
   private _produitSelected = signal<IProduit | null>(null);
@@ -97,14 +96,14 @@ export class ProduitAutocompleteComponent implements ControlValueAccessor, OnDes
     this.selectProduit.set(selected);
     this.selectedProduit.emit(selected);
     this.onTouched();
-
   }
-onKeyDown(event: KeyboardEvent): void {
-    if( event.key === 'Enter' && this.produitSelected=== null) {
-      this.onKeyEnter.emit(true);
 
+  onKeyDown(event: KeyboardEvent): void {
+    if (event.key === 'Enter' && this.produitSelected === null) {
+      this.onKeyEnter.emit(true);
     }
-}
+  }
+
   onNgModelChange(value: IProduit | null): void {
     this.produitSelected = value;
   }

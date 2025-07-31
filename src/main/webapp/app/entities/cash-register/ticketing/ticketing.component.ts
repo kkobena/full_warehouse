@@ -114,39 +114,31 @@ export class TicketingComponent implements OnInit, AfterViewInit {
   }
 
   protected save(): void {
-    if (this.totalAmount === 0) {
-      this.confirmationService.confirm({
-        message: 'Le montant total doit être supérieur à <b>0</b>. Etes-vous sûr de vouloir continuer ?',
-        header: 'Confirmation',
-        icon: 'pi pi-exclamation-triangle',
-        acceptButtonStyleClass: 'p-button-danger',
-        rejectButtonStyleClass: 'p-button-text ',
-        accept: () => {
-          this.doTicketing();
-        },
-        reject: () => {
-          this.numberOf10ThousandInput().nativeElement.focus();
-        },
-      });
-    } else {
-      this.confirmationService.confirm({
-        message: `le montant total est de <span class="font-size-lg badge rounded-pill bg-secondary"><b> ${formatNumber(
+    const message = this.totalAmount === 0
+        ? 'Le montant total doit être supérieur à <b>0</b>. Etes-vous sûr de vouloir continuer ?'
+        : `le montant total est de <span class="font-size-lg badge rounded-pill bg-secondary"><b> ${formatNumber(
           this.totalAmount,
-        )}  </b></span> . Etes-vous sûr de vouloir continuer ?`,
-        header: 'Confirmation',
-        icon: 'pi pi-exclamation-triangle',
-        acceptButtonStyleClass: 'p-button-danger',
-        rejectButtonStyleClass: 'p-button-text ',
-        rejectLabel: 'Non',
-        acceptLabel: 'Oui',
-        accept: () => {
-          this.doTicketing();
-        },
-        reject: () => {
-          this.numberOf10ThousandInput().nativeElement.focus();
-        },
-      });
-    }
+        )}  </b></span> . Etes-vous sûr de vouloir continuer ?`;
+
+    this.confirmTicketing(message);
+  }
+
+  private confirmTicketing(message: string): void {
+    this.confirmationService.confirm({
+      message,
+      header: 'Confirmation',
+      icon: 'pi pi-exclamation-triangle',
+      acceptButtonStyleClass: 'p-button-danger',
+      rejectButtonStyleClass: 'p-button-text ',
+      rejectLabel: 'Non',
+      acceptLabel: 'Oui',
+      accept: () => {
+        this.doTicketing();
+      },
+      reject: () => {
+        this.numberOf10ThousandInput().nativeElement.focus();
+      },
+    });
   }
 
   private doTicketing(): void {

@@ -34,6 +34,9 @@ import { InputGroupAddonModule } from 'primeng/inputgroupaddon';
 import { DatePickerModule } from 'primeng/datepicker';
 import { FloatLabel } from 'primeng/floatlabel';
 import { TIMES } from '../../shared/util/times';
+import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
+import { showCommonModal } from './selling-home/sale-helper';
+import { SaleUpdateDateModalComponent } from './sale-update-date-modal/sale-update-date-modal.component';
 
 @Component({
   selector: 'jhi-sales',
@@ -131,6 +134,8 @@ export class SalesComponent implements OnInit, AfterViewInit {
   private readonly confirmationService = inject(ConfirmationService);
   private readonly userService = inject(UserService);
 
+  private readonly modalService = inject(NgbModal);
+
   constructor() {
     this.translate.use('fr');
     this.translate.stream('primeng').subscribe(data => {
@@ -142,8 +147,26 @@ export class SalesComponent implements OnInit, AfterViewInit {
         label: 'Fiche à partir csv',
         icon: 'pi pi-file-pdf',
         command: () => console.error('print all record'),
-      },
+      } /*,
+      {
+        label: 'Modifier la date',
+        icon: 'pi pi-calendar-plus',
+        command: () => this.editSaleUpdatedDate(),
+      },*/,
     ];
+  }
+
+  editSaleUpdatedDate(sale: ISales): void {
+    if (sale) {
+      showCommonModal(this.modalService, SaleUpdateDateModalComponent, { sale }, (updatedSale: ISales) => {
+        if (updatedSale) {
+          // const index = this.sales.findIndex(s => s.id === updatedSale.id);
+          /* if (index !== -1) {
+             this.sales[index] = updatedSale;
+           }*/
+        }
+      });
+    }
   }
 
   ngOnInit(): void {
@@ -152,8 +175,8 @@ export class SalesComponent implements OnInit, AfterViewInit {
       this.isLargeScreen = false;
     }
 
-    this.canEdit = this.hasAuthorityService.hasAuthorities(Authority.PR_MODIFICATION_VENTE);
-    this.canCancel = this.hasAuthorityService.hasAuthorities(Authority.PR_ANNULATION_VENTE);
+    this.canEdit = !this.hasAuthorityService.hasAuthorities(Authority.PR_MODIFICATION_VENTE);
+    this.canCancel = !this.hasAuthorityService.hasAuthorities(Authority.PR_ANNULATION_VENTE);
 
     this.loadAllUsers();
     const lastPram = this.saleToolBarService.toolBarParam();
@@ -190,48 +213,15 @@ export class SalesComponent implements OnInit, AfterViewInit {
 
   loadPage(page?: number): void {
     const pageToLoad: number = page || this.page;
-    this.loading = true;
-    this.salesService
-      .query({
-        page: pageToLoad,
-        size: this.itemsPerPage,
-        search: this.search,
-        type: this.typeVenteSelected,
-        fromDate: this.fromDate ? moment(this.fromDate).format('yyyy-MM-DD') : null,
-        toDate: this.toDate ? moment(this.toDate).format('yyyy-MM-DD') : null,
-        fromHour: this.fromHour,
-        toHour: this.toHour,
-        global: this.global,
-        userId: this.selectedUserId,
-      })
-      .subscribe({
-        next: (res: HttpResponse<ISales[]>) => this.onSuccess(res.body, res.headers, pageToLoad),
-        error: () => this.onError(),
-      });
+    this.fetchSales(pageToLoad, this.itemsPerPage);
     this.updateParam();
   }
 
   lazyLoading(event: LazyLoadEvent): void {
     if (event) {
       this.page = event.first / event.rows;
-      this.loading = true;
-      this.salesService
-        .query({
-          page: this.page,
-          size: event.rows,
-          search: this.search,
-          type: this.typeVenteSelected,
-          fromDate: this.fromDate ? moment(this.fromDate).format('yyyy-MM-DD') : null,
-          toDate: this.toDate ? moment(this.toDate).format('yyyy-MM-DD') : null,
-          fromHour: this.fromHour,
-          toHour: this.toHour,
-          global: this.global,
-          userId: this.selectedUserId,
-        })
-        .subscribe({
-          next: (res: HttpResponse<ISales[]>) => this.onSuccess(res.body, res.headers, this.page),
-          error: () => this.onError(),
-        });
+      this.itemsPerPage = event.rows;
+      this.fetchSales(this.page, this.itemsPerPage);
     }
   }
 
@@ -307,6 +297,27 @@ export class SalesComponent implements OnInit, AfterViewInit {
 
   protected onError(): void {
     this.loading = false;
+  }
+
+  private fetchSales(page: number, size: number): void {
+    this.loading = true;
+    this.salesService
+      .query({
+        page,
+        size,
+        search: this.search,
+        type: this.typeVenteSelected,
+        fromDate: this.fromDate ? moment(this.fromDate).format('yyyy-MM-DD') : null,
+        toDate: this.toDate ? moment(this.toDate).format('yyyy-MM-DD') : null,
+        fromHour: this.fromHour,
+        toHour: this.toHour,
+        global: this.global,
+        userId: this.selectedUserId,
+      })
+      .subscribe({
+        next: (res: HttpResponse<ISales[]>) => this.onSuccess(res.body, res.headers, page),
+        error: () => this.onError(),
+      });
   }
 
   private updateParam(): void {

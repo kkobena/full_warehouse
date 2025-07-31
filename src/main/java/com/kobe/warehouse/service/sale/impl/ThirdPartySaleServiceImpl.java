@@ -71,8 +71,6 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
@@ -82,7 +80,6 @@ import org.springframework.util.StringUtils;
 @Transactional
 public class ThirdPartySaleServiceImpl extends SaleCommonService implements ThirdPartySaleService {
 
-    private final Logger log = LoggerFactory.getLogger(ThirdPartySaleServiceImpl.class);
     private final ThirdPartySaleLineRepository thirdPartySaleLineRepository;
     private final ClientTiersPayantRepository clientTiersPayantRepository;
     private final TiersPayantRepository tiersPayantRepository;
@@ -438,23 +435,31 @@ public class ThirdPartySaleServiceImpl extends SaleCommonService implements Thir
         throws PaymentAmountException, SaleNotFoundCustomerException, ThirdPartySalesTiersPayantException {
         ThirdPartySales p = thirdPartySaleRepository.findOneWithEagerSalesLines(dto.getId()).orElseThrow();
         this.save(p, dto);
+        FinalyseSaleDTO response = finalizeSaleProcess(p, dto);
+        displayMonnaie(dto.getMontantRendu());
+        return response;
+    }
+
+    private FinalyseSaleDTO finalizeSaleProcess(ThirdPartySales p, ThirdPartySaleDTO dto) {
         p.setTvaEmbeded(buildTvaData(p.getSalesLines()));
         paymentService.buildPaymentFromFromPaymentDTO(p, dto);
-
         List<ThirdPartySaleLine> thirdPartySaleLines = findAllBySaleId(p.getId());
         if (thirdPartySaleLines.isEmpty() && dto.getTiersPayants().isEmpty()) {
             throw new ThirdPartySalesTiersPayantException();
         }
+        Map<Long, String> numBonMap = dto
+            .getTiersPayants()
+            .stream()
+            .collect(Collectors.toMap(ClientTiersPayantDTO::getId, ClientTiersPayantDTO::getNumBon, (a, b) -> b));
+
         thirdPartySaleLines.forEach(thirdPartySaleLine -> {
-            for (ClientTiersPayantDTO clientTiersPayantDTO : dto.getTiersPayants()) {
-                ClientTiersPayant clientTiersPayant = thirdPartySaleLine.getClientTiersPayant();
-                if (clientTiersPayant.getId().compareTo(clientTiersPayantDTO.getId()) == 0) {
-                    if (checkIfNumBonIsAlReadyUse(clientTiersPayantDTO.getNumBon(), thirdPartySaleLine.getId())) {
-                        throw new NumBonAlreadyUseException(clientTiersPayantDTO.getNumBon());
-                    }
-                    thirdPartySaleLine.setNumBon(clientTiersPayantDTO.getNumBon());
-                    thirdPartySaleLineRepository.save(thirdPartySaleLine);
+            ClientTiersPayant clientTiersPayant = thirdPartySaleLine.getClientTiersPayant();
+            String numBon = numBonMap.get(clientTiersPayant.getId());
+            if (numBon != null) {
+                if (checkIfNumBonIsAlReadyUse(numBon, clientTiersPayant.getId())) {
+                    throw new NumBonAlreadyUseException(numBon);
                 }
+                thirdPartySaleLine.setNumBon(numBon);
             }
             updateClientTiersPayantAccount(thirdPartySaleLine);
             updateTiersPayantAccount(thirdPartySaleLine);
@@ -464,7 +469,6 @@ public class ThirdPartySaleServiceImpl extends SaleCommonService implements Thir
             .min(Comparator.comparing(e -> e.getClientTiersPayant().getPriorite().getValue()))
             .ifPresent(o -> p.setNumBon(o.getNumBon()));
         thirdPartySaleRepository.save(p);
-        displayMonnaie(dto.getMontantRendu());
         return new FinalyseSaleDTO(p.getId(), true);
     }
 
@@ -477,6 +481,23 @@ public class ThirdPartySaleServiceImpl extends SaleCommonService implements Thir
         thirdPartySaleRepository.save(thirdPartySales);
         response.setSuccess(true);
         return response;
+    }
+
+    @Override
+    @Transactional
+    public void updateDate(ThirdPartySaleDTO dto) {
+        this.thirdPartySaleRepository.findById(dto.getId()).ifPresent(sales -> {
+                sales.setCreatedAt(dto.getUpdatedAt());
+                sales.setUpdatedAt(sales.getCreatedAt());
+                sales
+                    .getThirdPartySaleLines()
+                    .forEach(thirdPartySaleLine -> {
+                        thirdPartySaleLine.setUpdated(sales.getUpdatedAt());
+                        thirdPartySaleLine.setCreated(sales.getUpdatedAt());
+                        thirdPartySaleLineRepository.save(thirdPartySaleLine);
+                    });
+                thirdPartySaleRepository.save(sales);
+            });
     }
 
     @Override

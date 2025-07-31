@@ -1,5 +1,5 @@
 <div class="row">
-  <div class="col-1 col-md-2 col-sm-2 sale-menu">
+  <div class="col-xl-2 col-lg-2 col-md-2 col-sm-2 sale-menu">
     <p-card>
       <div
         #nav="ngbNav"
@@ -15,12 +15,14 @@
             <jhi-sales></jhi-sales>
           </ng-template>
         </ng-container>
+        <p-divider layout="horizontal"></p-divider>
         <ng-container ngbNavItem="vente-en-cours">
           <a class="flex-sm-fill nav-link" ngbNavLink>Ventes en cours</a>
           <ng-template ngbNavContent>
             <jhi-vente-en-cours></jhi-vente-en-cours>
           </ng-template>
         </ng-container>
+        <p-divider layout="horizontal"></p-divider>
         <ng-container ngbNavItem="presale">
           <a class="flex-sm-fill nav-link" ngbNavLink>Pré-ventes</a>
           <ng-template ngbNavContent>
@@ -31,7 +33,7 @@
     </p-card>
   </div>
 
-  <div class="col-11 col-md-10 col-sm-10 row sale-container">
+  <div class="col-xl-10 col-lg-10 col-md-10 col-sm-10 row sale-container">
     <div [ngbNavOutlet]="nav"></div>
   </div>
 </div>

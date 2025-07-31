@@ -1,3 +1,12 @@
+<div class="modal-header">
+  <h4 class="modal-title">{{ headerLibelle }}</h4>
+
+  <button (click)="cancel()" class="close" data-dismiss="modal" type="button">
+    &times;
+  </button>
+</div>
+
+
 <div class="modal-body">
   <p-table
     (onLazyLoad)="lazyLoading($event)"
@@ -13,15 +22,16 @@
     dataKey="id"
     selectionMode="single"
   >
-    <ng-template pTemplate="caption">
+    <ng-template #caption>
       <div class="d-flex justify-content-between">
         <p-iconfield>
           <p-inputicon styleClass="pi pi-search" />
-          <input (input)="loadPage()" [(ngModel)]="searchString" pInputText placeholder="TAPEZ POUR FILTRER" type="text" />
+          <input (input)="loadPage()" [(ngModel)]="searchString" pInputText
+                 placeholder="TAPEZ POUR FILTRER" type="text" />
         </p-iconfield>
       </div>
     </ng-template>
-    <ng-template pTemplate="header">
+    <ng-template #header>
       <tr>
         <th style="width: 3%">#</th>
         <th style="width: 7%">CODE</th>
@@ -32,7 +42,7 @@
         <th style="width: 5%"></th>
       </tr>
     </ng-template>
-    <ng-template let-customer let-rowIndex="rowIndex" pTemplate="body">
+    <ng-template #body let-customer let-rowIndex="rowIndex">
       <tr (dblclick)="onDbleClick(customer)" style="cursor: pointer">
         <td style="text-align: left">{{ rowIndex + 1 }}</td>
         <td>{{ customer.code }}</td>
@@ -67,7 +77,7 @@
 </div>
 
 <div class="modal-footer">
-  <button (click)="cancel()" class="btn btn-danger" data-dismiss="modal" type="button">
-    <fa-icon icon="ban"></fa-icon>&nbsp;<span>Fermer</span>
-  </button>
+  <p-button (click)="cancel()" data-dismiss="modal" icon="pi pi-times" label="Fermer"
+            severity="secondary" type="button" />
+
 </div>

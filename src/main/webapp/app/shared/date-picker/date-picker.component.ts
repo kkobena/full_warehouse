@@ -117,8 +117,6 @@ export class DatePickerComponent implements ControlValueAccessor {
   getFocus(): void {
     setTimeout(() => {
       this.datePicker().el.nativeElement.focus();
-      //  console.log(el, 'el');
-      //  el.focus();
     }, 100);
   }
 

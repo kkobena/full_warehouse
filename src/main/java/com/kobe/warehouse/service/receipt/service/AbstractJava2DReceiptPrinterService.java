@@ -57,7 +57,7 @@ public abstract class AbstractJava2DReceiptPrinterService implements Printable {
     }
 
     protected void print(String hostName) throws PrinterException {
-        PrinterJob job = StringUtils.hasLength(hostName) ? getPrinterJob(hostName) : printerJob;
+        PrinterJob job = getPrinterJob(hostName);
         PageFormat pageFormat = job.defaultPage();
         Paper paper = new Paper();
         paper.setImageableArea(DEFAULT_MARGIN, DEFAULT_LINE_HEIGHT, paper.getWidth(), paper.getHeight());
@@ -105,21 +105,11 @@ public abstract class AbstractJava2DReceiptPrinterService implements Printable {
         y += lineHeight;
         graphics2D.setFont(PLAIN_FONT);
         fontMetrics = graphics2D.getFontMetrics(font);
-        if (Objects.nonNull(magasin.getAddress()) && !magasin.getAddress().isBlank()) {
-            x = margin + (printWidth - fontMetrics.stringWidth(magasin.getAddress())) / 3;
-            graphics2D.drawString(magasin.getAddress(), x, y);
-            y += lineHeight;
-        }
-        if (Objects.nonNull(magasin.getEmail()) && !magasin.getEmail().isBlank()) {
-            x = margin + (printWidth - fontMetrics.stringWidth(magasin.getEmail())) / 3;
-            graphics2D.drawString(magasin.getEmail(), x, y);
-            y += lineHeight;
-        }
-        if (Objects.nonNull(magasin.getPhone()) && !magasin.getPhone().isBlank()) {
-            x = margin + (printWidth - fontMetrics.stringWidth(magasin.getPhone())) / 3;
-            graphics2D.drawString(magasin.getPhone(), x, y);
-            y += lineHeight;
-        }
+
+        y = drawMagasinInfoLine(graphics2D, magasin.getAddress(), margin, y, lineHeight, printWidth, fontMetrics);
+        y = drawMagasinInfoLine(graphics2D, magasin.getEmail(), margin, y, lineHeight, printWidth, fontMetrics);
+        y = drawMagasinInfoLine(graphics2D, magasin.getPhone(), margin, y, lineHeight, printWidth, fontMetrics);
+
         y += lineHeight;
         return y;
     }
@@ -169,18 +159,7 @@ public abstract class AbstractJava2DReceiptPrinterService implements Printable {
         String printerName = StringUtils.hasLength(hostName)
             ? printerRepository.findByPosteName(hostName).map(Printer::getName).orElse(null)
             : null;
-        PrintService selectedService = null;
-        if (StringUtils.hasLength(printerName)) {
-            PrintService[] printServices = PrintServiceLookup.lookupPrintServices(null, null);
-            for (PrintService printService : printServices) {
-                if (printService.getName().equalsIgnoreCase(printerName)) {
-                    selectedService = printService;
-                    break;
-                }
-            }
-        } else {
-            selectedService = PrintServiceLookup.lookupDefaultPrintService();
-        }
+        PrintService selectedService = getPrintService(printerName);
         PrinterJob printerJob = PrinterJob.getPrinterJob();
         printerJob.setPrintService(selectedService);
         return printerJob;
@@ -205,15 +184,37 @@ public abstract class AbstractJava2DReceiptPrinterService implements Printable {
         return DEFAULT_WIDTH;
     }
 
+    protected PrintService getPrintService(String printerName) {
+        if (StringUtils.hasLength(printerName)) {
+            for (PrintService printService : PrintServiceLookup.lookupPrintServices(null, null)) {
+                if (printService.getName().equalsIgnoreCase(printerName)) {
+                    return printService;
+                }
+            }
+        }
+        return PrintServiceLookup.lookupDefaultPrintService();
+    }
+
+    private int drawMagasinInfoLine(
+        Graphics2D graphics2D,
+        String text,
+        int margin,
+        int y,
+        int lineHeight,
+        int printWidth,
+        FontMetrics fontMetrics
+    ) {
+        if (Objects.nonNull(text) && !text.isBlank()) {
+            int x = margin + (printWidth - fontMetrics.stringWidth(text)) / 3;
+            graphics2D.drawString(text, x, y);
+            y += lineHeight;
+        }
+        return y;
+    }
+
     @EventListener(ApplicationReadyEvent.class)
     protected void loadDriver() {
-        try {
-            PrintService selectedService = PrintServiceLookup.lookupDefaultPrintService();
-            printerJob = PrinterJob.getPrinterJob();
-            printerJob.setPrintService(selectedService);
-        } catch (Exception e) {
-            // Log the error or handle it as needed
-
-        }
+        // This method is intentionally left empty as it's not used.
+        // The printerJob is initialized in the constructor or getPrinterJob method.
     }
 }

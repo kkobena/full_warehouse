@@ -1,4 +1,4 @@
-import { Component, OnInit, inject } from '@angular/core';
+import { Component, inject, OnInit } from '@angular/core';
 import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
 
 import { IResponseCommande } from '../../shared/model/response-commande.model';
@@ -12,7 +12,6 @@ import { WarehouseCommonModule } from '../../shared/warehouse-common/warehouse-c
 })
 export class CommandeEnCoursResponseDialogComponent implements OnInit {
   activeModal = inject(NgbActiveModal);
-
   responseCommande?: IResponseCommande;
   commande?: ICommande;
   responseCommandeItem: IResponseCommandeItem[] = [];
@@ -21,15 +20,14 @@ export class CommandeEnCoursResponseDialogComponent implements OnInit {
   classCss = 'col-sm-3';
   classCssNon = 'col-sm-9';
 
-  /** Inserted by Angular inject() migration for backwards compatibility */
-  constructor(...args: unknown[]);
-
-  constructor() {}
-
   ngOnInit(): void {
-    this.getItem();
-    this.getItemRupture();
-
+    if (this.responseCommande) {
+      this.responseCommandeItem = this.responseCommande.items.filter(e => e.quantitePriseEnCompte > 0);
+      this.responseCommandeItemNonPrisEnComte = this.responseCommande.items.filter(e => e.quantitePriseEnCompte < e.quantite);
+      this.responseCommandeItemMoitieLivrer = this.responseCommande.items.filter(
+        e => e.quantitePriseEnCompte > 0 && e.quantitePriseEnCompte < e.quantite,
+      );
+    }
     this.getCardClass();
   }
 
@@ -43,26 +41,5 @@ export class CommandeEnCoursResponseDialogComponent implements OnInit {
     } else {
       this.classCss = 'col-sm-8';
     }
-  }
-
-  getItem(): void {
-    if (this.responseCommande) {
-      this.responseCommandeItem = this.responseCommande.items.filter(e => e.quantitePriseEnCompte > 0);
-    }
-  }
-
-  getItemRupture(): void {
-    if (this.responseCommande) {
-      this.responseCommandeItemNonPrisEnComte = this.responseCommande.items.filter(e => e.quantitePriseEnCompte < e.quantite);
-    }
-  }
-
-  getItemLivreMoitie(): IResponseCommandeItem[] {
-    if (this.responseCommande) {
-      this.responseCommandeItemMoitieLivrer = this.responseCommande.items.filter(
-        e => e.quantitePriseEnCompte > 0 && e.quantitePriseEnCompte < e.quantite,
-      );
-    }
-    return [];
   }
 }

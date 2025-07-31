@@ -7,136 +7,139 @@
                         [user]="userCaissier"></jhi-prevente-modal>
   </ng-template>
 </p-drawer>
-
-<div class="row selling">
-  <div class="col-md-2 col-sm-2 selling-menu">
-    <div>
-      <p-panel header="Sélectionner le type de vente" styleClass="menu-panel">
-        <p-card>
-          <div
-            #nav="ngbNav"
-            (navChange)="onNavChange($event)"
-            [(activeId)]="active"
-            class="nav flex-column nav-pills"
-            ngbNav
-            orientation="vertical"
-          >
-            <ng-container ngbNavItem="comptant">
-              <a class="flex-sm-fill nav-link" ngbNavLink>Comptant</a>
-              <ng-template ngbNavContent>
-                <jhi-comptant
-                  (inputToFocusEvent)="getControlToFocus($event)"
-                  (responseEvent)="onFinalyse($event)"
-                  (saveResponse)="onSave($event)"
-                  [isPresale]="isPresale"
-                >
-                </jhi-comptant>
-              </ng-template>
-            </ng-container>
-            <ng-container ngbNavItem="assurance">
-              <a class="flex-sm-fill nav-link" ngbNavLink>Assurance</a>
-              <ng-template ngbNavContent>
-                <jhi-assurance [isPresale]="isPresale"></jhi-assurance>
-              </ng-template>
-            </ng-container>
-            <ng-container ngbNavItem="carnet">
-              <a class="flex-sm-fill nav-link" ngbNavLink>Carnet</a>
-              <ng-template ngbNavContent>
-                <jhi-carnet [isPresale]="isPresale"></jhi-carnet>
-              </ng-template>
-            </ng-container>
-          </div>
-        </p-card>
-      </p-panel>
+<div class="container-fluid selling">
+  <div class="row ">
+    <div class="col-lg-2 col-xl-2 col-md-2 col-sm-2">
+      <div>
+        <p-panel header="Sélectionner le type de vente" styleClass="menu-panel">
+          <p-card>
+            <div
+              #nav="ngbNav"
+              (navChange)="onNavChange($event)"
+              [(activeId)]="active"
+              class="nav flex-column nav-pills"
+              ngbNav
+              orientation="vertical"
+            >
+              <ng-container ngbNavItem="comptant">
+                <a class="flex-sm-fill nav-link" ngbNavLink>Comptant</a>
+                <ng-template ngbNavContent>
+                  <jhi-comptant
+                    (inputToFocusEvent)="getControlToFocus($event)"
+                    (responseEvent)="onFinalyse($event)"
+                    (saveResponse)="onSave($event)"
+                    [isPresale]="isPresale"
+                  >
+                  </jhi-comptant>
+                </ng-template>
+              </ng-container>
+              <p-divider layout="horizontal"></p-divider>
+              <ng-container ngbNavItem="assurance">
+                <a class="flex-sm-fill nav-link" ngbNavLink>Assurance</a>
+                <ng-template ngbNavContent>
+                  <jhi-assurance [isPresale]="isPresale"></jhi-assurance>
+                </ng-template>
+              </ng-container>
+              <p-divider layout="horizontal"></p-divider>
+              <ng-container ngbNavItem="carnet">
+                <a class="flex-sm-fill nav-link" ngbNavLink>Carnet</a>
+                <ng-template ngbNavContent>
+                  <jhi-carnet [isPresale]="isPresale"></jhi-carnet>
+                </ng-template>
+              </ng-container>
+            </div>
+          </p-card>
+        </p-panel>
+      </div>
     </div>
-  </div>
-  <div class="col-md-10 col-sm-10 row sale-container">
-    <p-panel [styleClass]="'sale-panel-header'">
-      <ng-template #header>
-        <div class="row sale-toolbar-first"
-             style="padding-left: 10px; width: 100%; padding-right: 0">
-          <div class="col-3" style="padding: 0">
-            <p-floatlabel variant="on">
-              <p-select
-                #userBox
-                (onChange)="onSelectUser()"
-                [(ngModel)]="userSeller"
-                [appendTo]="appendTo"
-                [autofocus]="true"
-                size="large"
-                id="vendeurs"
-                [dataKey]="'id'"
-                [options]="this.userVendeurService.vendeurs()"
-                optionLabel="abbrName"
-              ></p-select>
+    <div class="col-lg-10 col-xl-10   col-md-10 col-sm-10  sale-container">
+      <p-panel [styleClass]="'sale-panel-header'">
+        <ng-template #header>
+          <div class="row sale-toolbar-first mt-1"
+               style="padding-left: 10px; width: 100%; padding-right: 0">
+            <div class="col-3" style="padding: 0">
+              <p-floatlabel variant="on">
+                <p-select
+                  #userBox
+                  (onChange)="onSelectUser()"
+                  [(ngModel)]="userSeller"
+                  [appendTo]="appendTo"
+                  [autofocus]="true"
+                  [dataKey]="'id'"
+                  [fluid]="true"
+                  [options]="this.userVendeurService.vendeurs()"
+                  id="vendeurs"
+                  optionLabel="abbrName"
+                  size="large"
+                ></p-select>
 
-              <label for="vendeurs">{{ 'warehouseApp.sales.vendeurs' | translate }}</label>
-            </p-floatlabel>
-          </div>
-          <div class="col-9 row text-right" style="padding: 0">
-            <div class="col-8">
-              @if (active === 'comptant' && currentSaleService.currentSale()) {
-                <jhi-customer-overlay-panel
-                  (onCloseEvent)="onCustomerOverlay($event)"></jhi-customer-overlay-panel>
-              }
+                <label for="vendeurs">{{ 'warehouseApp.sales.vendeurs' | translate }}</label>
+              </p-floatlabel>
             </div>
-            <div class="col-4">
-              @if (isLargeScreen) {
-                <p-button
-                  (click)="openPindingSide()"
-                  [disabled]="currentSaleService.currentSale() || isPresale"
-                  [raised]="true"
-                  icon="pi pi-search"
-                  label="Ventes en attente"
-                  severity="info"
-                ></p-button>
-              } @else {
-                <p-button
-                  (click)="openPindingSide()"
-                  [disabled]="currentSaleService.currentSale() || isPresale"
-                  [raised]="true"
-                  icon="pi pi-search"
-                  pTooltip="Ventes en attente"
-                  severity="info"
-                  tooltipPosition="left"
-                ></p-button>
-              }
-
-              <p-button (click)="previousState()" [raised]="true" icon="pi pi-arrow-left"
-                        label="Retour" severity="secondary"></p-button>
-            </div>
-          </div>
-        </div>
-      </ng-template>
-
-      <ng-template #content>
-        <div class="sale-body">
-          @if (active === 'assurance' || active === 'carnet') {
-            <jhi-assurance-data></jhi-assurance-data>
-          }
-
-          <div class="row mt-sm-1">
-            <div class="col-md-6 sale-product-div d-flex justify-content-between">
-              <div class="flex-grow-1 mr-1">
-                <jhi-produit-autocomplete #produitbox
-                                          (selectedProduit)="onSelectProduct($event)"
-                                          [(ngModel)]="produitSelected"
-                                          [autofocus]="true"
-                                          (onKeyEnter)="onSaveKeyDown($event)"
-                                          [includeDetails]="true"
-                                          [pageSize]="PRODUIT_COMBO_RESULT_SIZE">
-                </jhi-produit-autocomplete>
+            <div class="col-9 row text-right" style="padding: 0">
+              <div class="col-8">
+                @if (active === 'comptant' && currentSaleService.currentSale()) {
+                  <jhi-customer-overlay-panel
+                    (onCloseEvent)="onCustomerOverlay($event)"></jhi-customer-overlay-panel>
+                }
               </div>
-              <div>
-                <jhi-quantite-produt-saisie #produitQteCmpt (addQuantite)="addQuantity($event)"
-                                            [disabledButton]="disableButton"
-                                            [isValid]="!!produitSelected"
-                                            [style]="{'max-width': '160px'}">
-                </jhi-quantite-produt-saisie>
+              <div class="col-4">
+                @if (isLargeScreen) {
+                  <p-button
+                    (click)="openPindingSide()"
+                    [disabled]="currentSaleService.currentSale() || isPresale"
+                    [raised]="true"
+                    icon="pi pi-search"
+                    label="Ventes en attente"
+                    severity="info"
+                  ></p-button>
+                } @else {
+                  <p-button
+                    (click)="openPindingSide()"
+                    [disabled]="currentSaleService.currentSale() || isPresale"
+                    [raised]="true"
+                    icon="pi pi-search"
+                    pTooltip="Ventes en attente"
+                    severity="info"
+                    tooltipPosition="left"
+                  ></p-button>
+                }
+
+                <p-button (click)="previousState()" [raised]="true" icon="pi pi-arrow-left"
+                          label="Retour" severity="secondary"></p-button>
+              </div>
+            </div>
+          </div>
+        </ng-template>
+
+        <ng-template #content>
+          <div class="sale-body">
+            @if (active === 'assurance' || active === 'carnet') {
+              <jhi-assurance-data (focusProduct)="onFocusProduct()"></jhi-assurance-data>
+            }
+
+            <div class="row mt-sm-1">
+              <div class="col-md-6 sale-product-div d-flex justify-content-between">
+                <div class="flex-grow-1 mr-1">
+                  <jhi-produit-autocomplete #produitbox
+                                            (onKeyEnter)="onSaveKeyDown($event)"
+                                            (selectedProduit)="onSelectProduct($event)"
+                                            [(ngModel)]="produitSelected"
+                                            [autofocus]="true"
+                                            [includeDetails]="true"
+                                            [pageSize]="PRODUIT_COMBO_RESULT_SIZE">
+                  </jhi-produit-autocomplete>
+                </div>
+                <div>
+                  <jhi-quantite-produt-saisie #produitQteCmpt (addQuantite)="addQuantity($event)"
+                                              [disabledButton]="disableButton"
+                                              [isValid]="!!produitSelected"
+                                              [style]="{'max-width': '160px'}">
+                  </jhi-quantite-produt-saisie>
+
+                </div>
 
               </div>
-
-            </div>
 
               @if (showStock) {
                 <div class="col-md-1">
@@ -154,14 +157,16 @@
                             [badge]="rayon.libelleRayon"></p-button>
                 }
               </div>
-          </div>
+            </div>
 
-          <div [ngbNavOutlet]="nav" class="row sale-tab-container"></div>
-        </div>
-      </ng-template>
-    </p-panel>
+            <div [ngbNavOutlet]="nav" class="row sale-tab-container"></div>
+          </div>
+        </ng-template>
+      </p-panel>
+    </div>
   </div>
 </div>
+
 
 <jhi-confirm-dialog #confirmDialog></jhi-confirm-dialog>
 <jhi-toast-alert #alert></jhi-toast-alert>

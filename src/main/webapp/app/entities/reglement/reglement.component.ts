@@ -8,6 +8,7 @@ import { FormsModule } from '@angular/forms';
 import { WarehouseCommonModule } from '../../shared/warehouse-common/warehouse-common.module';
 import { ActivatedRoute } from '@angular/router';
 import { ReglementFactureDossier } from './model/reglement-facture-dossier.model';
+import { Divider } from 'primeng/divider';
 
 @Component({
   selector: 'jhi-reglement',
@@ -23,6 +24,7 @@ import { ReglementFactureDossier } from './model/reglement-facture-dossier.model
     NgbNavLinkBase,
     PanelModule,
     FormsModule,
+    Divider,
   ],
   templateUrl: './reglement.component.html',
   styleUrl: './reglement.component.scss',

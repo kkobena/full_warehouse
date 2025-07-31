@@ -1,4 +1,4 @@
-import { Component, OnInit, inject } from '@angular/core';
+import { Component, inject, OnInit } from '@angular/core';
 import { HttpResponse } from '@angular/common/http';
 
 import { FormsModule, ReactiveFormsModule, UntypedFormBuilder, Validators } from '@angular/forms';
@@ -8,6 +8,7 @@ import { Observable } from 'rxjs';
 import { Categorie, ICategorie } from 'app/shared/model/categorie.model';
 import { CategorieService } from './categorie.service';
 import { WarehouseCommonModule } from '../../shared/warehouse-common/warehouse-common.module';
+import { finalize } from 'rxjs/operators';
 
 @Component({
   selector: 'jhi-categorie-update',
@@ -15,21 +16,14 @@ import { WarehouseCommonModule } from '../../shared/warehouse-common/warehouse-c
   imports: [WarehouseCommonModule, FormsModule, ReactiveFormsModule],
 })
 export class CategorieUpdateComponent implements OnInit {
+  isSaving = false;
   protected categorieService = inject(CategorieService);
   protected activatedRoute = inject(ActivatedRoute);
   private fb = inject(UntypedFormBuilder);
-
-  isSaving = false;
-
   editForm = this.fb.group({
     id: [],
     libelle: [null, [Validators.required]],
   });
-
-  /** Inserted by Angular inject() migration for backwards compatibility */
-  constructor(...args: unknown[]);
-
-  constructor() {}
 
   ngOnInit(): void {
     this.activatedRoute.data.subscribe(({ categorie }) => {
@@ -59,19 +53,18 @@ export class CategorieUpdateComponent implements OnInit {
   }
 
   protected subscribeToSaveResponse(result: Observable<HttpResponse<ICategorie>>): void {
-    result.subscribe({
+    result.pipe(finalize(() => (this.isSaving = false))).subscribe({
       next: () => this.onSaveSuccess(),
       error: () => this.onSaveError(),
     });
   }
 
   protected onSaveSuccess(): void {
-    this.isSaving = false;
     this.previousState();
   }
 
   protected onSaveError(): void {
-    this.isSaving = false;
+    // Api for inheritance.
   }
 
   private createFromForm(): ICategorie {

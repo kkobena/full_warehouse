@@ -1,10 +1,8 @@
-import { AfterViewInit, Component, ElementRef, OnInit, viewChild, inject } from '@angular/core';
+import { AfterViewInit, Component, ElementRef, inject, OnInit, viewChild } from '@angular/core';
 import { Customer, ICustomer } from 'app/shared/model/customer.model';
 import { FormsModule, ReactiveFormsModule, UntypedFormBuilder, Validators } from '@angular/forms';
 import { ErrorService } from 'app/shared/error.service';
-import { DialogService, DynamicDialogConfig, DynamicDialogRef } from 'primeng/dynamicdialog';
 import { CustomerService } from 'app/entities/customer/customer.service';
-import { ConfirmationService, MessageService } from 'primeng/api';
 import { Observable } from 'rxjs';
 import { HttpResponse } from '@angular/common/http';
 import { WarehouseCommonModule } from '../../../shared/warehouse-common/warehouse-common.module';
@@ -17,11 +15,12 @@ import { CalendarModule } from 'primeng/calendar';
 import { KeyFilterModule } from 'primeng/keyfilter';
 import { InputMaskModule } from 'primeng/inputmask';
 import { DATE_FORMAT_FROM_STRING_FR, FORMAT_ISO_DATE_TO_STRING_FR } from '../../../shared/util/warehouse-util';
+import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
+import { ToastAlertComponent } from '../../../shared/toast-alert/toast-alert.component';
 
 @Component({
   selector: 'jhi-form-ayant-droit',
   templateUrl: './form-ayant-droit.component.html',
-  providers: [MessageService, DialogService, ConfirmationService],
   imports: [
     WarehouseCommonModule,
     ToastModule,
@@ -34,22 +33,18 @@ import { DATE_FORMAT_FROM_STRING_FR, FORMAT_ISO_DATE_TO_STRING_FR } from '../../
     CalendarModule,
     KeyFilterModule,
     InputMaskModule,
+    ToastAlertComponent,
   ],
 })
 export class FormAyantDroitComponent implements OnInit, AfterViewInit {
-  protected errorService = inject(ErrorService);
-  private fb = inject(UntypedFormBuilder);
-  ref = inject(DynamicDialogRef);
-  config = inject(DynamicDialogConfig);
-  protected customerService = inject(CustomerService);
-  private messageService = inject(MessageService);
-
-  firstName = viewChild.required<ElementRef>('firstName');
+  header: string;
   entity?: ICustomer;
   assure?: ICustomer;
-  isSaving = false;
-  isValid = true;
-  editForm = this.fb.group({
+  protected firstName = viewChild.required<ElementRef>('firstName');
+  protected fb = inject(UntypedFormBuilder);
+  protected isSaving = false;
+  protected isValid = true;
+  protected editForm = this.fb.group({
     id: [],
     firstName: [null, [Validators.required, Validators.min(1)]],
     lastName: [null, [Validators.required, Validators.min(1)]],
@@ -57,15 +52,12 @@ export class FormAyantDroitComponent implements OnInit, AfterViewInit {
     datNaiss: [],
     sexe: [],
   });
-
-  /** Inserted by Angular inject() migration for backwards compatibility */
-  constructor(...args: unknown[]);
-
-  constructor() {}
+  private readonly errorService = inject(ErrorService);
+  private readonly customerService = inject(CustomerService);
+  private readonly activeModal = inject(NgbActiveModal);
+  private readonly alert = viewChild.required<ToastAlertComponent>('alert');
 
   ngOnInit(): void {
-    this.entity = this.config.data.entity;
-    this.assure = this.config.data.assure;
     if (this.entity) {
       this.updateForm(this.entity);
     }
@@ -86,7 +78,6 @@ export class FormAyantDroitComponent implements OnInit, AfterViewInit {
       id: customer.id,
       firstName: customer.firstName,
       lastName: customer.lastName,
-      //   datNaiss: customer.datNaiss ? new Date(moment(customer.datNaiss).format('yyyy-MM-DD')) : null,
       datNaiss: customer.datNaiss ? FORMAT_ISO_DATE_TO_STRING_FR(customer.datNaiss) : null,
       sexe: customer.sexe,
       numAyantDroit: customer.numAyantDroit,
@@ -94,13 +85,13 @@ export class FormAyantDroitComponent implements OnInit, AfterViewInit {
   }
 
   cancel(): void {
-    this.ref.close();
+    this.activeModal.dismiss();
   }
 
   ngAfterViewInit(): void {
     setTimeout(() => {
       this.firstName().nativeElement.focus();
-    }, 30);
+    }, 100);
   }
 
   protected createFromForm(): ICustomer {
@@ -126,25 +117,17 @@ export class FormAyantDroitComponent implements OnInit, AfterViewInit {
 
   protected onSaveSuccess(customer: ICustomer | null): void {
     this.isSaving = false;
-    this.ref.close(customer);
+    this.activeModal.close(customer);
   }
 
   protected onSaveError(error: any): void {
     this.isSaving = false;
     if (error.error?.errorKey) {
       this.errorService.getErrorMessageTranslation(error.error.errorKey).subscribe(translatedErrorMessage => {
-        this.messageService.add({
-          severity: 'error',
-          summary: 'Erreur',
-          detail: translatedErrorMessage,
-        });
+        this.alert().showError(translatedErrorMessage);
       });
     } else {
-      this.messageService.add({
-        severity: 'error',
-        summary: 'Erreur',
-        detail: 'Erreur interne du serveur.',
-      });
+      this.alert().showError('Erreur interne du serveur.');
     }
   }
 }

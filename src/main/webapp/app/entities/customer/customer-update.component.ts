@@ -1,9 +1,10 @@
-import { Component, OnInit, inject } from '@angular/core';
+import { Component, OnDestroy, OnInit, inject } from '@angular/core';
 import { HttpResponse } from '@angular/common/http';
 
 import { FormsModule, ReactiveFormsModule, UntypedFormBuilder, Validators } from '@angular/forms';
 import { ActivatedRoute } from '@angular/router';
-import { Observable } from 'rxjs';
+import { Observable, Subject } from 'rxjs';
+import { finalize, takeUntil } from 'rxjs/operators';
 import moment from 'moment';
 import { DATE_TIME_FORMAT } from 'app/shared/constants/input.constants';
 
@@ -18,7 +19,7 @@ import { WarehouseCommonModule } from '../../shared/warehouse-common/warehouse-c
   templateUrl: './customer-update.component.html',
   imports: [WarehouseCommonModule, FormsModule, ReactiveFormsModule],
 })
-export class CustomerUpdateComponent implements OnInit {
+export class CustomerUpdateComponent implements OnInit, OnDestroy {
   protected customerService = inject(CustomerService);
   protected produitService = inject(ProduitService);
   protected activatedRoute = inject(ActivatedRoute);
@@ -35,6 +36,7 @@ export class CustomerUpdateComponent implements OnInit {
     createdAt: [],
     produits: [],
   });
+  private destroy$ = new Subject<void>();
 
   /** Inserted by Angular inject() migration for backwards compatibility */
   constructor(...args: unknown[]);
@@ -42,7 +44,7 @@ export class CustomerUpdateComponent implements OnInit {
   constructor() {}
 
   ngOnInit(): void {
-    this.activatedRoute.data.subscribe(({ customer }) => {
+    this.activatedRoute.data.pipe(takeUntil(this.destroy$)).subscribe(({ customer }) => {
       if (!customer.id) {
         const today = moment().startOf('day');
         customer.createdAt = today;
@@ -51,8 +53,13 @@ export class CustomerUpdateComponent implements OnInit {
 
       this.updateForm(customer);
 
-      this.produitService.query().subscribe((res: HttpResponse<IProduit[]>) => (this.produits = res.body || []));
+      this.produitService.query().pipe(takeUntil(this.destroy$)).subscribe((res: HttpResponse<IProduit[]>) => (this.produits = res.body || []));
     });
+  }
+
+  ngOnDestroy(): void {
+    this.destroy$.next();
+    this.destroy$.complete();
   }
 
   updateForm(customer: ICustomer): void {
@@ -97,31 +104,30 @@ export class CustomerUpdateComponent implements OnInit {
   }
 
   protected subscribeToSaveResponse(result: Observable<HttpResponse<ICustomer>>): void {
-    result.subscribe(
+    result.pipe(finalize(() => (this.isSaving = false))).subscribe(
       () => this.onSaveSuccess(),
       () => this.onSaveError(),
     );
   }
 
   protected onSaveSuccess(): void {
-    this.isSaving = false;
     this.previousState();
   }
 
   protected onSaveError(): void {
-    this.isSaving = false;
+    // Api for inheritance.
   }
 
   private createFromForm(): ICustomer {
     return {
       ...new Customer(),
-      id: this.editForm.get(['id']).value,
-      firstName: this.editForm.get(['firstName']).value,
-      lastName: this.editForm.get(['lastName']).value,
-      phone: this.editForm.get(['phone']).value,
-      email: this.editForm.get(['email']).value,
-      createdAt: this.editForm.get(['createdAt']).value ? moment(this.editForm.get(['createdAt']).value, DATE_TIME_FORMAT) : undefined,
-      produits: this.editForm.get(['produits']).value,
+      id: this.editForm.get('id')?.value,
+      firstName: this.editForm.get('firstName')?.value,
+      lastName: this.editForm.get('lastName')?.value,
+      phone: this.editForm.get('phone')?.value,
+      email: this.editForm.get('email')?.value,
+      createdAt: this.editForm.get('createdAt')?.value ? moment(this.editForm.get('createdAt')?.value, DATE_TIME_FORMAT) : undefined,
+      produits: this.editForm.get('produits')?.value,
     };
   }
 }

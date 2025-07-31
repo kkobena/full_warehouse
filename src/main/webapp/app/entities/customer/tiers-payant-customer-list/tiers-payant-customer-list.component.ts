@@ -1,4 +1,4 @@
-import { Component, inject, OnInit } from '@angular/core';
+import { Component, inject, OnDestroy, OnInit } from '@angular/core';
 import { ICustomer } from 'app/shared/model/customer.model';
 import { DynamicDialogConfig, DynamicDialogRef } from 'primeng/dynamicdialog';
 import { CustomerService } from 'app/entities/customer/customer.service';
@@ -12,6 +12,8 @@ import { ToolbarModule } from 'primeng/toolbar';
 import { TableModule } from 'primeng/table';
 import { IconField } from 'primeng/iconfield';
 import { InputIcon } from 'primeng/inputicon';
+import { Subject } from 'rxjs';
+import { takeUntil } from 'rxjs/operators';
 
 @Component({
   selector: 'jhi-tiers-payant-customer-list',
@@ -28,13 +30,14 @@ import { InputIcon } from 'primeng/inputicon';
     InputIcon,
   ],
 })
-export class TiersPayantCustomerListComponent implements OnInit {
+export class TiersPayantCustomerListComponent implements OnInit, OnDestroy {
   ref = inject(DynamicDialogRef);
   config = inject(DynamicDialogConfig);
   tiersPayants: IClientTiersPayant[] = [];
   assure?: ICustomer | null;
   tiersPayantsExisting: IClientTiersPayant[] = [];
   protected customerService = inject(CustomerService);
+  private destroy$ = new Subject<void>();
 
   /** Inserted by Angular inject() migration for backwards compatibility */
   constructor(...args: unknown[]);
@@ -45,6 +48,11 @@ export class TiersPayantCustomerListComponent implements OnInit {
     this.assure = this.config.data.assure;
     this.tiersPayantsExisting = this.config.data.tiersPayants;
     this.load();
+  }
+
+  ngOnDestroy(): void {
+    this.destroy$.next();
+    this.destroy$.complete();
   }
 
   onDbleClick(tiersPayant: IClientTiersPayant): void {
@@ -60,7 +68,7 @@ export class TiersPayantCustomerListComponent implements OnInit {
   }
 
   load(): void {
-    this.customerService.fetchCustomersTiersPayant(this.assure.id).subscribe(res => {
+    this.customerService.fetchCustomersTiersPayant(this.assure.id).pipe(takeUntil(this.destroy$)).subscribe(res => {
       if (res.body) {
         if (this.tiersPayantsExisting && this.tiersPayantsExisting.length > 0) {
           this.tiersPayants = res.body.filter(e => !this.tiersPayantsExisting.some(i => i.id === e.id));

@@ -18,6 +18,7 @@ public class ThirdPartySaleLineDTO {
     private Long tiersPayantId;
     private String customerFullName;
     private String tiersPayantFullName;
+    private String name;
     private LocalDateTime created;
     private LocalDateTime updated;
     private LocalDateTime effectiveUpdateDate;
@@ -41,6 +42,7 @@ public class ThirdPartySaleLineDTO {
         this.tiersPayantId = tiersPayant.getId();
         this.customerFullName = String.format("%s %s", assuredCustomer.getFirstName(), assuredCustomer.getLastName());
         this.tiersPayantFullName = tiersPayant.getFullName();
+        this.name = tiersPayant.getName();
         this.created = thirdPartySaleLine.getCreated();
         this.updated = thirdPartySaleLine.getUpdated();
         this.effectiveUpdateDate = thirdPartySaleLine.getEffectiveUpdateDate();
@@ -55,6 +57,15 @@ public class ThirdPartySaleLineDTO {
 
     public ThirdPartySaleLineDTO setMontantNet(Integer montantNet) {
         this.montantNet = montantNet;
+        return this;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public ThirdPartySaleLineDTO setName(String name) {
+        this.name = name;
         return this;
     }
 

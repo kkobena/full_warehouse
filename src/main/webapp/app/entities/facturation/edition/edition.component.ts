@@ -1,4 +1,4 @@
-import { Component, inject, OnInit } from '@angular/core';
+import { Component, inject, OnDestroy, OnInit } from '@angular/core';
 import { WarehouseCommonModule } from '../../../shared/warehouse-common/warehouse-common.module';
 import { FactureService } from '../facture.service';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
@@ -30,7 +30,7 @@ import { IconField } from 'primeng/iconfield';
 import { InputIcon } from 'primeng/inputicon';
 import { TranslateService } from '@ngx-translate/core';
 import { PrimeNG } from 'primeng/config';
-import { Subscription } from 'rxjs';
+import { Subject, Subscription } from 'rxjs';
 import { DatePicker } from 'primeng/datepicker';
 
 @Component({
@@ -56,7 +56,7 @@ import { DatePicker } from 'primeng/datepicker';
   templateUrl: './edition.component.html',
   styles: ``,
 })
-export class EditionComponent implements OnInit {
+export class EditionComponent implements OnInit, OnDestroy {
   protected readonly translate = inject(TranslateService);
   protected readonly primeNGConfig = inject(PrimeNG);
   protected readonly errorService = inject(ErrorService);
@@ -93,6 +93,8 @@ export class EditionComponent implements OnInit {
   protected loading!: boolean;
   protected exporting = false;
   private primngtranslate: Subscription;
+  private destroy$ = new Subject<void>();
+
   constructor() {
     this.translate.use('fr');
     this.primngtranslate = this.translate.stream('primeng').subscribe(data => {
@@ -103,6 +105,12 @@ export class EditionComponent implements OnInit {
   ngOnInit(): void {
     this.loadGroupTiersPayant();
     this.loadTiersPayants();
+  }
+
+  ngOnDestroy(): void {
+    this.primngtranslate.unsubscribe();
+    this.destroy$.next();
+    this.destroy$.complete();
   }
 
   searchTiersPayant(event: any): void {

@@ -1,4 +1,4 @@
-import { AfterViewInit, Component, ElementRef, inject, OnInit, viewChild } from '@angular/core';
+import { AfterViewInit, Component, ElementRef, inject, OnDestroy, OnInit, viewChild } from '@angular/core';
 import { AutoCompleteModule } from 'primeng/autocomplete';
 import { DividerModule } from 'primeng/divider';
 import { DropdownModule } from 'primeng/dropdown';
@@ -23,6 +23,8 @@ import { CommonModule } from '@angular/common';
 import { showCommonModal } from '../../sales/selling-home/sale-helper';
 import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { FormTiersPayantComponent } from '../../tiers-payant/form-tiers-payant/form-tiers-payant.component';
+import { Subject } from 'rxjs';
+import { takeUntil } from 'rxjs/operators';
 
 @Component({
   selector: 'jhi-assure-step',
@@ -46,7 +48,7 @@ import { FormTiersPayantComponent } from '../../tiers-payant/form-tiers-payant/f
   ],
   templateUrl: './assure-step.component.html',
 })
-export class AssureStepComponent implements OnInit, AfterViewInit {
+export class AssureStepComponent implements OnInit, AfterViewInit, OnDestroy {
   header: string | null = null;
   entity?: ICustomer;
   isSaving = false;
@@ -75,6 +77,7 @@ export class AssureStepComponent implements OnInit, AfterViewInit {
   });
   readonly tiersPayantService = inject(TiersPayantService);
   readonly modalService = inject(NgbModal);
+  private destroy$ = new Subject<void>();
 
   ngOnInit(): void {
     const entity = this.assureFormStepService.assure();
@@ -83,14 +86,13 @@ export class AssureStepComponent implements OnInit, AfterViewInit {
     }
   }
 
+  ngOnDestroy(): void {
+    this.destroy$.next();
+    this.destroy$.complete();
+  }
+
   ngAfterViewInit(): void {
-    setTimeout(() => {
-      this.firstName().nativeElement.focus();
-      const entity = this.assureFormStepService.assure();
-      if (this.complementaireStepComponent()) {
-        this.complementaireStepComponent().initForm(entity);
-      }
-    }, 100);
+    this.focusAndInitComplementaire(this.firstName().nativeElement, this.assureFormStepService.assure());
   }
 
   searchTiersPayant(event: any): void {
@@ -106,7 +108,7 @@ export class AssureStepComponent implements OnInit, AfterViewInit {
         size: 10,
         type: this.commonService.categorie(),
         search: query,
-      })
+      }).pipe(takeUntil(this.destroy$))
       .subscribe((res: HttpResponse<ITiersPayant[]>) => {
         this.tiersPayants = res.body!;
         if (this.tiersPayants.length === 0) {
@@ -125,20 +127,21 @@ export class AssureStepComponent implements OnInit, AfterViewInit {
   }
 
   createFromForm(): ICustomer {
+    const formValue = this.editForm.value;
     return {
       ...new Customer(),
-      id: this.editForm.get(['id']).value,
-      firstName: this.editForm.get(['firstName']).value,
-      lastName: this.editForm.get(['lastName']).value,
-      email: this.editForm.get(['email']).value,
-      phone: this.editForm.get(['phone']).value,
+      id: formValue.id,
+      firstName: formValue.firstName,
+      lastName: formValue.lastName,
+      email: formValue.email,
+      phone: formValue.phone,
       type: 'ASSURE',
-      num: this.editForm.get(['num']).value,
-      datNaiss: this.editForm.get(['datNaiss']).value,
-      sexe: this.editForm.get(['sexe']).value,
-      tiersPayantId: this.editForm.get(['tiersPayantId']).value.id,
-      taux: this.editForm.get(['taux']).value,
-      tiersPayant: this.editForm.get(['tiersPayantId']).value,
+      num: formValue.num,
+      datNaiss: formValue.datNaiss,
+      sexe: formValue.sexe,
+      tiersPayantId: formValue.tiersPayantId?.id,
+      taux: formValue.taux,
+      tiersPayant: formValue.tiersPayantId,
       tiersPayants: this.buildComplementaires(),
     };
   }
@@ -183,5 +186,16 @@ export class AssureStepComponent implements OnInit, AfterViewInit {
       return this.complementaireStepComponent().createFromForm();
     }
     return [];
+  }
+
+  private focusAndInitComplementaire(element: any, entity: ICustomer | null): void {
+    setTimeout(() => {
+      if (element) {
+        element.focus();
+      }
+      if (this.complementaireStepComponent()) {
+        this.complementaireStepComponent().initForm(entity);
+      }
+    }, 100);
   }
 }

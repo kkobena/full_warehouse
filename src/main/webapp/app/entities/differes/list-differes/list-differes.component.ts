@@ -1,4 +1,4 @@
-import { Component, inject, OnInit } from '@angular/core';
+import { Component, inject, OnDestroy, OnInit } from '@angular/core';
 import { Button } from 'primeng/button';
 import { FormsModule } from '@angular/forms';
 import { Toolbar } from 'primeng/toolbar';
@@ -18,7 +18,8 @@ import { RouterModule } from '@angular/router';
 import { CardModule } from 'primeng/card';
 import { Tag } from 'primeng/tag';
 import { TranslateService } from '@ngx-translate/core';
-import { Subscription } from 'rxjs';
+import { Subject, Subscription } from 'rxjs';
+import { takeUntil } from 'rxjs/operators';
 import { DiffereSummary } from '../model/differe-summary.model';
 
 @Component({
@@ -26,7 +27,7 @@ import { DiffereSummary } from '../model/differe-summary.model';
   imports: [Button, FormsModule, Toolbar, CommonModule, SelectModule, CardModule, TableModule, Tooltip, RouterModule, Tag],
   templateUrl: './list-differes.component.html',
 })
-export class ListDifferesComponent implements OnInit {
+export class ListDifferesComponent implements OnInit, OnDestroy {
   primngtranslate: Subscription;
   protected page = 0;
   protected totalItems = 0;
@@ -54,6 +55,7 @@ export class ListDifferesComponent implements OnInit {
   protected readonly primeNGConfig = inject(PrimeNG);
   private readonly differeService = inject(DiffereService);
   private translate = inject(TranslateService);
+  private destroy$ = new Subject<void>();
 
   constructor() {
     this.translate.use('fr');
@@ -74,18 +76,16 @@ export class ListDifferesComponent implements OnInit {
     this.onSerch();
   }
 
-  onChange(event: any): void {
-    this.customerId = event.value;
-    this.onSerch();
+  ngOnDestroy(): void {
+    this.primngtranslate.unsubscribe();
+    this.destroy$.next();
+    this.destroy$.complete();
   }
 
-  onStatutChange(event: any): void {
-    this.statut = event.value;
-    this.onSerch();
-  }
+  
   protected exportPdf(): void {
     this.loadingPdf = true;
-    this.differeService.exportListToPdf(this.buildQueryParams()).subscribe({
+    this.differeService.exportListToPdf(this.buildQueryParams()).pipe(takeUntil(this.destroy$)).subscribe({
       next: (blob: Blob) => {
         this.loadingPdf = false;
         const blobUrl = URL.createObjectURL(blob);
@@ -106,7 +106,7 @@ export class ListDifferesComponent implements OnInit {
           page: this.page,
           size: event.rows,
           ...this.buildQueryParams(),
-        })
+        }).pipe(takeUntil(this.destroy$))
         .subscribe({
           next: (res: HttpResponse<Differe[]>) => this.onSuccess(res.body, res.headers, this.page),
           error: () => {
@@ -126,7 +126,7 @@ export class ListDifferesComponent implements OnInit {
         page: pageToLoad,
         size: this.itemsPerPage,
         ...this.buildQueryParams(),
-      })
+      }).pipe(takeUntil(this.destroy$))
       .subscribe({
         next: (res: HttpResponse<Differe[]>) => this.onSuccess(res.body, res.headers, pageToLoad),
         error: () => {
@@ -142,7 +142,7 @@ export class ListDifferesComponent implements OnInit {
   }
 
   private fetchClients(): void {
-    this.differeService.findClients().subscribe({
+    this.differeService.findClients().pipe(takeUntil(this.destroy$)).subscribe({
       next: res => {
         this.clients = res.body;
       },
@@ -184,7 +184,7 @@ export class ListDifferesComponent implements OnInit {
   }
 
   private loadDiffereSummary(): void {
-    this.differeService.getDiffereSummary(this.buildQueryParams()).subscribe({
+    this.differeService.getDiffereSummary(this.buildQueryParams()).pipe(takeUntil(this.destroy$)).subscribe({
       next: (res: HttpResponse<DiffereSummary>) => {
         this.summary = res.body;
       },

@@ -1,4 +1,4 @@
-import { Component, inject, OnInit } from '@angular/core';
+import { Component, inject, OnDestroy, OnInit } from '@angular/core';
 import { Button } from 'primeng/button';
 import { CardModule } from 'primeng/card';
 import { CommonModule } from '@angular/common';
@@ -10,7 +10,8 @@ import { Toolbar } from 'primeng/toolbar';
 import { Tooltip } from 'primeng/tooltip';
 import { FormsModule } from '@angular/forms';
 import { RouterModule } from '@angular/router';
-import { Subscription } from 'rxjs';
+import { Subject } from 'rxjs';
+import { takeUntil } from 'rxjs/operators';
 import { ClientDiffere } from '../model/client-differe.model';
 import { ITEMS_PER_PAGE } from '../../../shared/constants/pagination.constants';
 import { PrimeNG } from 'primeng/config';
@@ -21,7 +22,7 @@ import { ReglementDiffereSummary } from '../model/reglement-differe-summary.mode
 import { ReglementDiffere } from '../model/reglement-differe.model';
 import { DATE_FORMAT_ISO_DATE } from '../../../shared/util/warehouse-util';
 import { FloatLabel } from 'primeng/floatlabel';
-import { DatePicker } from 'primeng/datepicker';
+import { DatePickerModule } from 'primeng/datepicker';
 
 @Component({
   selector: 'jhi-reglement-differes',
@@ -37,11 +38,11 @@ import { DatePicker } from 'primeng/datepicker';
     RouterModule,
     Tag,
     FloatLabel,
-    DatePicker,
+    DatePickerModule,
   ],
   templateUrl: './reglement-differes.component.html',
 })
-export class ReglementDifferesComponent implements OnInit {
+export class ReglementDifferesComponent implements OnInit, OnDestroy {
   protected page = 0;
   protected totalItems = 0;
   protected loading!: boolean;
@@ -58,12 +59,16 @@ export class ReglementDifferesComponent implements OnInit {
   protected readonly primeNGConfig = inject(PrimeNG);
   private readonly differeService = inject(DiffereService);
   private readonly translate = inject(TranslateService);
+  private destroy$ = new Subject<void>();
 
   constructor() {
     this.translate.use('fr');
-     this.translate.stream('primeng').subscribe(data => {
-      this.primeNGConfig.setTranslation(data);
-    });
+    this.translate
+      .stream('primeng')
+      .pipe(takeUntil(this.destroy$))
+      .subscribe(data => {
+        this.primeNGConfig.setTranslation(data);
+      });
   }
 
   ngOnInit(): void {
@@ -76,6 +81,11 @@ export class ReglementDifferesComponent implements OnInit {
     this.onSerch();
   }
 
+  ngOnDestroy(): void {
+    this.destroy$.next();
+    this.destroy$.complete();
+  }
+
   onChange(event: any): void {
     this.customerId = event.value;
     this.onSerch();
@@ -83,16 +93,19 @@ export class ReglementDifferesComponent implements OnInit {
 
   protected exportPdf(): void {
     this.loadingPdf = true;
-    this.differeService.exportReglementsToPdf(this.buildQueryParams()).subscribe({
-      next: (blob: Blob) => {
-        this.loadingPdf = false;
-        const blobUrl = URL.createObjectURL(blob);
-        window.open(blobUrl);
-      },
-      error: () => {
-        this.loadingPdf = false;
-      },
-    });
+    this.differeService
+      .exportReglementsToPdf(this.buildQueryParams())
+      .pipe(takeUntil(this.destroy$))
+      .subscribe({
+        next: (blob: Blob) => {
+          this.loadingPdf = false;
+          const blobUrl = URL.createObjectURL(blob);
+          window.open(blobUrl);
+        },
+        error: () => {
+          this.loadingPdf = false;
+        },
+      });
   }
 
   protected lazyLoading(event: LazyLoadEvent): void {
@@ -106,6 +119,7 @@ export class ReglementDifferesComponent implements OnInit {
           size: event.rows,
           ...this.buildQueryParams(),
         })
+        .pipe(takeUntil(this.destroy$))
         .subscribe({
           next: (res: HttpResponse<ReglementDiffere[]>) => this.onSuccess(res.body, res.headers, this.page),
           error: () => {
@@ -126,6 +140,7 @@ export class ReglementDifferesComponent implements OnInit {
         size: this.itemsPerPage,
         ...this.buildQueryParams(),
       })
+      .pipe(takeUntil(this.destroy$))
       .subscribe({
         next: (res: HttpResponse<ReglementDiffere[]>) => this.onSuccess(res.body, res.headers, pageToLoad),
         error: () => {
@@ -141,14 +156,17 @@ export class ReglementDifferesComponent implements OnInit {
   }
 
   private fetchClients(): void {
-    this.differeService.findClients().subscribe({
-      next: res => {
-        this.clients = res.body;
-      },
-      error: () => {
-        this.clients = [];
-      },
-    });
+    this.differeService
+      .findClients()
+      .pipe(takeUntil(this.destroy$))
+      .subscribe({
+        next: res => {
+          this.clients = res.body;
+        },
+        error: () => {
+          this.clients = [];
+        },
+      });
   }
 
   private onSuccess(data: ReglementDiffere[] | null, headers: HttpHeaders, page: number): void {
@@ -180,13 +198,16 @@ export class ReglementDifferesComponent implements OnInit {
   }
 
   private loadDiffereSummary(): void {
-    this.differeService.getReglementDiffereSummary(this.buildQueryParams()).subscribe({
-      next: (res: HttpResponse<ReglementDiffereSummary>) => {
-        this.summary = res.body;
-      },
-      error: () => {
-        this.summary = null;
-      },
-    });
+    this.differeService
+      .getReglementDiffereSummary(this.buildQueryParams())
+      .pipe(takeUntil(this.destroy$))
+      .subscribe({
+        next: (res: HttpResponse<ReglementDiffereSummary>) => {
+          this.summary = res.body;
+        },
+        error: () => {
+          this.summary = null;
+        },
+      });
   }
 }

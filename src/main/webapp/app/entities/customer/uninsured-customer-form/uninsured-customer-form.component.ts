@@ -1,11 +1,12 @@
-import { AfterViewInit, Component, ElementRef, inject, OnInit, viewChild } from '@angular/core';
+import { AfterViewInit, Component, ElementRef, inject, OnDestroy, OnInit, viewChild } from '@angular/core';
 import { ConfirmationService, MessageService } from 'primeng/api';
 import { DialogService, DynamicDialogConfig, DynamicDialogRef } from 'primeng/dynamicdialog';
 import { Customer, ICustomer } from 'app/shared/model/customer.model';
 import { ErrorService } from 'app/shared/error.service';
 import { FormsModule, ReactiveFormsModule, UntypedFormBuilder, Validators } from '@angular/forms';
 import { CustomerService } from 'app/entities/customer/customer.service';
-import { Observable } from 'rxjs';
+import { Observable, Subject } from 'rxjs';
+import { finalize, takeUntil } from 'rxjs/operators';
 import { HttpResponse } from '@angular/common/http';
 import { WarehouseCommonModule } from '../../../shared/warehouse-common/warehouse-common.module';
 import { ButtonModule } from 'primeng/button';
@@ -29,7 +30,7 @@ import { KeyFilterModule } from 'primeng/keyfilter';
     KeyFilterModule,
   ],
 })
-export class UninsuredCustomerFormComponent implements OnInit, AfterViewInit {
+export class UninsuredCustomerFormComponent implements OnInit, AfterViewInit, OnDestroy {
   ref = inject(DynamicDialogRef);
   config = inject(DynamicDialogConfig);
   entity?: ICustomer;
@@ -47,12 +48,18 @@ export class UninsuredCustomerFormComponent implements OnInit, AfterViewInit {
     email: [],
   });
   private readonly messageService = inject(MessageService);
+  private destroy$ = new Subject<void>();
 
   ngOnInit(): void {
     this.entity = this.config.data.entity;
     if (this.entity) {
       this.updateForm(this.entity);
     }
+  }
+
+  ngOnDestroy(): void {
+    this.destroy$.next();
+    this.destroy$.complete();
   }
 
   ngAfterViewInit(): void {
@@ -87,36 +94,37 @@ export class UninsuredCustomerFormComponent implements OnInit, AfterViewInit {
   }
 
   private createFromForm(): ICustomer {
+    const formValue = this.editForm.value;
     return {
       ...new Customer(),
-      id: this.editForm.get(['id']).value,
-      firstName: this.editForm.get(['firstName']).value,
-      lastName: this.editForm.get(['lastName']).value,
-      email: this.editForm.get(['email']).value,
-      phone: this.editForm.get(['phone']).value,
+      id: formValue.id,
+      firstName: formValue.firstName,
+      lastName: formValue.lastName,
+      email: formValue.email,
+      phone: formValue.phone,
       type: 'STANDARD',
     };
   }
 
   private subscribeToSaveResponse(result: Observable<HttpResponse<ICustomer>>): void {
-    result.subscribe({
+    result.pipe(finalize(() => (this.isSaving = false)), takeUntil(this.destroy$)).subscribe({
       next: (res: HttpResponse<ICustomer>) => this.onSaveSuccess(res.body),
       error: (error: any) => this.onSaveError(error),
     });
   }
 
   private onSaveSuccess(customer: ICustomer | null): void {
-    this.isSaving = false;
     this.ref.close(customer);
   }
 
   private onSaveError(error: any): void {
-    this.isSaving = false;
     if (error.error?.errorKey) {
-      this.messageService.add({
-        severity: 'error',
-        summary: 'Erreur',
-        detail: this.errorService.getErrorMessage(error),
+      this.errorService.getErrorMessageTranslation(error.error.errorKey).pipe(takeUntil(this.destroy$)).subscribe(translatedErrorMessage => {
+        this.messageService.add({
+          severity: 'error',
+          summary: 'Erreur',
+          detail: translatedErrorMessage,
+        });
       });
     } else {
       this.messageService.add({

@@ -1,4 +1,4 @@
-import { Component, inject, OnInit, viewChild } from '@angular/core';
+import { Component, inject, OnDestroy, OnInit, viewChild } from '@angular/core';
 import { StepsModule } from 'primeng/steps';
 import { MenuItem } from 'primeng/api';
 import { ICustomer } from '../../../shared/model/customer.model';
@@ -10,7 +10,8 @@ import { ToastModule } from 'primeng/toast';
 import { AssureStepComponent } from './assure-step.component';
 import { AyantDroitStepComponent } from './ayant-droit-step.component';
 import { ErrorService } from '../../../shared/error.service';
-import { Observable } from 'rxjs';
+import { Observable, Subject } from 'rxjs';
+import { finalize, takeUntil } from 'rxjs/operators';
 import { HttpResponse } from '@angular/common/http';
 import { CustomerService } from '../customer.service';
 import { CommonService } from './common.service';
@@ -31,7 +32,7 @@ import { ToastAlertComponent } from '../../../shared/toast-alert/toast-alert.com
   ],
   templateUrl: './assure-form-step.component.html',
 })
-export class AssureFormStepComponent implements OnInit {
+export class AssureFormStepComponent implements OnInit, OnDestroy {
   header: string;
   entity?: ICustomer;
   active: number | undefined = 0;
@@ -47,27 +48,25 @@ export class AssureFormStepComponent implements OnInit {
   private readonly errorService = inject(ErrorService);
   private readonly customerService = inject(CustomerService);
   private readonly alert = viewChild.required<ToastAlertComponent>('alert');
+  private destroy$ = new Subject<void>();
 
   ngOnInit(): void {
     this.commonService.categorieTiersPayant.set(this.typeAssure);
     this.commonService.categorie.set(this.typeAssure);
     this.assureFormStepService.setTypeAssure(this.typeAssure);
     this.assureFormStepService.setAssure(this.entity);
-    if (this.entity) {
-      this.assureFormStepService.setEdition(true);
-    } else {
-      this.assureFormStepService.setEdition(false);
-    }
+    this.assureFormStepService.setEdition(!!this.entity);
+  }
+
+  ngOnDestroy(): void {
+    this.destroy$.next();
+    this.destroy$.complete();
   }
 
   onCompleteAssure(): void {
-    if (this.assureStepComponent()) {
-      this.currentCustomerState();
-    }
-    if (!this.assureFormStepService.isEdition()) {
-      if (this.ayantDroitStepComponent()) {
-        this.ayantDroitStepComponent().saveFormState();
-      }
+    this.currentCustomerState();
+    if (!this.assureFormStepService.isEdition() && this.ayantDroitStepComponent()) {
+      this.ayantDroitStepComponent().saveFormState();
     }
   }
 
@@ -79,18 +78,15 @@ export class AssureFormStepComponent implements OnInit {
   currentCustomerState(): void {
     const currentAssure = this.assureFormStepService.assure();
     const ayantDroits = currentAssure ? currentAssure.ayantDroits : [];
-    // const complementaires = currentAssure?.tiersPayants;
     this.assureFormStepService.setAssure({
       ...this.assureStepComponent().createFromForm(),
       ayantDroits,
-      // tiersPayants: complementaires,
     });
   }
 
   onGoAyantDroit(index: number): void {
     this.currentCustomerState();
     this.activeStep = index;
-    //  nextCallback.emit();
   }
 
   cancel(): void {
@@ -98,7 +94,6 @@ export class AssureFormStepComponent implements OnInit {
   }
 
   onSaveError(error: any): void {
-    this.isSaving = false;
     this.alert().showError(this.errorService.getErrorMessage(error));
   }
 
@@ -115,17 +110,18 @@ export class AssureFormStepComponent implements OnInit {
   }
 
   private subscribeToSaveResponse(result: Observable<HttpResponse<ICustomer>>): void {
-    console.warn('subscribeToSaveResponse');
-    result.subscribe({
-      next: (res: HttpResponse<ICustomer>) => this.onSaveSuccess(res.body),
-      error: (error: any) => this.onSaveError(error),
-    });
+    result
+      .pipe(
+        finalize(() => (this.isSaving = false)),
+        takeUntil(this.destroy$),
+      )
+      .subscribe({
+        next: (res: HttpResponse<ICustomer>) => this.onSaveSuccess(res.body),
+        error: (error: any) => this.onSaveError(error),
+      });
   }
 
   private onSaveSuccess(customer: ICustomer | null): void {
-    this.isSaving = false;
-    this.alert().showInfo('sisdisufisuf');
-    // this.assureFormStepService.setAssure(null);
     this.activeModal.close(customer);
   }
 }

@@ -1,4 +1,4 @@
-import { Component, inject, OnInit } from '@angular/core';
+import { Component, inject, OnDestroy, OnInit } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { ISales } from 'app/shared/model/sales.model';
 import { ISalesLine } from 'app/shared/model/sales-line.model';
@@ -9,6 +9,8 @@ import { MagasinService } from '../magasin/magasin.service';
 import { IMagasin } from 'app/shared/model/magasin.model';
 import { SalesService } from '../sales/sales.service';
 import { WarehouseCommonModule } from '../../shared/warehouse-common/warehouse-common.module';
+import { Subject } from 'rxjs';
+import { takeUntil } from 'rxjs/operators';
 
 @Component({
   selector: 'jhi-customer-detail',
@@ -154,7 +156,7 @@ import { WarehouseCommonModule } from '../../shared/warehouse-common/warehouse-c
   templateUrl: './customer-detail.component.html',
   imports: [WarehouseCommonModule],
 })
-export class CustomerDetailComponent implements OnInit {
+export class CustomerDetailComponent implements OnInit, OnDestroy {
   customer: ICustomer | null = null;
   sales: ISales[] = [];
   selectedRowIndex?: number;
@@ -166,6 +168,7 @@ export class CustomerDetailComponent implements OnInit {
   protected customerService = inject(CustomerService);
   protected magasinService = inject(MagasinService);
   protected salesService = inject(SalesService);
+  private destroy$ = new Subject<void>();
 
   ngOnInit(): void {
     this.activatedRoute.data.subscribe(({ customer }) => (this.customer = customer));
@@ -174,6 +177,11 @@ export class CustomerDetailComponent implements OnInit {
     this.magasinService.findCurrentUserMagasin().then(magasin => {
       this.magasin = magasin;
     });
+  }
+
+  ngOnDestroy(): void {
+    this.destroy$.next();
+    this.destroy$.complete();
   }
 
   previousState(): void {
@@ -185,6 +193,7 @@ export class CustomerDetailComponent implements OnInit {
       .purchases({
         customerId: this.customer.id,
       })
+      .pipe(takeUntil(this.destroy$))
       .subscribe(
         (res: HttpResponse<ICustomer[]>) => this.onSuccess(res.body),
         () => this.onError(),
@@ -203,7 +212,7 @@ export class CustomerDetailComponent implements OnInit {
 
   print(): void {
     if (this.saleSelected !== null && this.saleSelected !== undefined) {
-      this.salesService.print(this.saleSelected.id).subscribe(blod => {
+      this.salesService.print(this.saleSelected.id).pipe(takeUntil(this.destroy$)).subscribe(blod => {
         const blobUrl = URL.createObjectURL(blod);
         window.open(blobUrl);
       });

@@ -1,9 +1,10 @@
-import { AfterViewInit, Component, ElementRef, inject, OnInit, viewChild } from '@angular/core';
+import { AfterViewInit, Component, ElementRef, inject, OnDestroy, OnInit, viewChild } from '@angular/core';
 import { Customer, ICustomer } from 'app/shared/model/customer.model';
 import { FormsModule, ReactiveFormsModule, UntypedFormBuilder, Validators } from '@angular/forms';
 import { ErrorService } from 'app/shared/error.service';
 import { CustomerService } from 'app/entities/customer/customer.service';
-import { Observable } from 'rxjs';
+import { Observable, Subject } from 'rxjs';
+import { finalize, takeUntil } from 'rxjs/operators';
 import { HttpResponse } from '@angular/common/http';
 import { WarehouseCommonModule } from '../../../shared/warehouse-common/warehouse-common.module';
 import { ToastModule } from 'primeng/toast';
@@ -36,7 +37,7 @@ import { ToastAlertComponent } from '../../../shared/toast-alert/toast-alert.com
     ToastAlertComponent,
   ],
 })
-export class FormAyantDroitComponent implements OnInit, AfterViewInit {
+export class FormAyantDroitComponent implements OnInit, AfterViewInit, OnDestroy {
   header: string;
   entity?: ICustomer;
   assure?: ICustomer;
@@ -56,11 +57,17 @@ export class FormAyantDroitComponent implements OnInit, AfterViewInit {
   private readonly customerService = inject(CustomerService);
   private readonly activeModal = inject(NgbActiveModal);
   private readonly alert = viewChild.required<ToastAlertComponent>('alert');
+  private destroy$ = new Subject<void>();
 
   ngOnInit(): void {
     if (this.entity) {
       this.updateForm(this.entity);
     }
+  }
+
+  ngOnDestroy(): void {
+    this.destroy$.next();
+    this.destroy$.complete();
   }
 
   save(): void {
@@ -95,35 +102,34 @@ export class FormAyantDroitComponent implements OnInit, AfterViewInit {
   }
 
   protected createFromForm(): ICustomer {
+    const formValue = this.editForm.value;
     return {
       ...new Customer(),
-      id: this.editForm.get(['id']).value,
-      firstName: this.editForm.get(['firstName']).value,
-      lastName: this.editForm.get(['lastName']).value,
-      numAyantDroit: this.editForm.get(['numAyantDroit']).value,
-      datNaiss: DATE_FORMAT_FROM_STRING_FR(this.editForm.get(['datNaiss']).value),
-      sexe: this.editForm.get(['sexe']).value,
+      id: formValue.id,
+      firstName: formValue.firstName,
+      lastName: formValue.lastName,
+      numAyantDroit: formValue.numAyantDroit,
+      datNaiss: DATE_FORMAT_FROM_STRING_FR(formValue.datNaiss),
+      sexe: formValue.sexe,
       type: 'ASSURE',
       assureId: this.assure.id,
     };
   }
 
   protected subscribeToSaveResponse(result: Observable<HttpResponse<ICustomer>>): void {
-    result.subscribe({
+    result.pipe(finalize(() => (this.isSaving = false)), takeUntil(this.destroy$)).subscribe({
       next: res => this.onSaveSuccess(res.body),
       error: error => this.onSaveError(error),
     });
   }
 
   protected onSaveSuccess(customer: ICustomer | null): void {
-    this.isSaving = false;
     this.activeModal.close(customer);
   }
 
   protected onSaveError(error: any): void {
-    this.isSaving = false;
     if (error.error?.errorKey) {
-      this.errorService.getErrorMessageTranslation(error.error.errorKey).subscribe(translatedErrorMessage => {
+      this.errorService.getErrorMessageTranslation(error.error.errorKey).pipe(takeUntil(this.destroy$)).subscribe(translatedErrorMessage => {
         this.alert().showError(translatedErrorMessage);
       });
     } else {

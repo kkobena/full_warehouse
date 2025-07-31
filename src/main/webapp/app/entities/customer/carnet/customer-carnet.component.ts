@@ -1,4 +1,4 @@
-import { AfterViewInit, Component, ElementRef, inject, OnInit, viewChild } from '@angular/core';
+import { AfterViewInit, Component, ElementRef, inject, OnDestroy, OnInit, viewChild } from '@angular/core';
 import { ReactiveFormsModule, UntypedFormBuilder, Validators } from '@angular/forms';
 import { AutoCompleteModule } from 'primeng/autocomplete';
 import { DateNaissDirective } from '../../../shared/date-naiss.directive';
@@ -19,7 +19,8 @@ import { NgbActiveModal, NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { HttpResponse } from '@angular/common/http';
 import { showCommonModal } from '../../sales/selling-home/sale-helper';
 import { FormTiersPayantComponent } from '../../tiers-payant/form-tiers-payant/form-tiers-payant.component';
-import { Observable } from 'rxjs';
+import { Observable, Subject } from 'rxjs';
+import { finalize, takeUntil } from 'rxjs/operators';
 import { ErrorService } from '../../../shared/error.service';
 import { CustomerService } from '../customer.service';
 import { Button } from 'primeng/button';
@@ -49,7 +50,7 @@ import { ToastAlertComponent } from '../../../shared/toast-alert/toast-alert.com
   ],
   templateUrl: './customer-carnet.component.html',
 })
-export class CustomerCarnetComponent implements OnInit, AfterViewInit {
+export class CustomerCarnetComponent implements OnInit, AfterViewInit, OnDestroy {
   header: string | null = null;
   entity?: ICustomer;
   categorie: string | null = null;
@@ -80,6 +81,7 @@ export class CustomerCarnetComponent implements OnInit, AfterViewInit {
   private readonly errorService = inject(ErrorService);
   private readonly modalService = inject(NgbModal);
   private readonly tiersPayantService = inject(TiersPayantService);
+  private destroy$ = new Subject<void>();
 
   cancel(): void {
     this.activeModal.dismiss();
@@ -89,6 +91,11 @@ export class CustomerCarnetComponent implements OnInit, AfterViewInit {
     if (this.entity) {
       this.updateForm(this.entity);
     }
+  }
+
+  ngOnDestroy(): void {
+    this.destroy$.next();
+    this.destroy$.complete();
   }
 
   ngAfterViewInit(): void {
@@ -147,7 +154,7 @@ export class CustomerCarnetComponent implements OnInit, AfterViewInit {
         size: 10,
         type: this.categorie,
         search: query,
-      })
+      }).pipe(takeUntil(this.destroy$))
       .subscribe((res: HttpResponse<ITiersPayant[]>) => {
         this.tiersPayants = res.body!;
         if (this.tiersPayants.length === 0) {
@@ -167,17 +174,17 @@ export class CustomerCarnetComponent implements OnInit, AfterViewInit {
   protected createFromForm(): ICustomer {
     return {
       ...new Customer(),
-      id: this.editForm.get(['id']).value,
-      firstName: this.editForm.get(['firstName']).value,
-      lastName: this.editForm.get(['lastName']).value,
-      email: this.editForm.get(['email']).value,
-      phone: this.editForm.get(['phone']).value,
+      id: this.editForm.get('id')?.value,
+      firstName: this.editForm.get('firstName')?.value,
+      lastName: this.editForm.get('lastName')?.value,
+      email: this.editForm.get('email')?.value,
+      phone: this.editForm.get('phone')?.value,
       type: 'ASSURE',
-      num: this.editForm.get(['num']).value,
-      datNaiss: this.editForm.get(['datNaiss']).value,
-      sexe: this.editForm.get(['sexe']).value,
-      tiersPayantId: this.editForm.get(['tiersPayantId']).value.id,
-      taux: this.editForm.get(['taux']).value,
+      num: this.editForm.get('num')?.value,
+      datNaiss: this.editForm.get('datNaiss')?.value,
+      sexe: this.editForm.get('sexe')?.value,
+      tiersPayantId: this.editForm.get('tiersPayantId')?.value?.id,
+      taux: this.editForm.get('taux')?.value,
     };
   }
 
@@ -197,7 +204,7 @@ export class CustomerCarnetComponent implements OnInit, AfterViewInit {
   }
 
   private subscribeToSaveResponse(result: Observable<HttpResponse<ICustomer>>): void {
-    result.subscribe({
+    result.pipe(finalize(() => (this.isSaving = false))).subscribe({
       next: (res: HttpResponse<ICustomer>) => this.onSaveSuccess(res.body),
       error: (error: any) => this.onSaveError(error),
     });
@@ -205,7 +212,6 @@ export class CustomerCarnetComponent implements OnInit, AfterViewInit {
 
   private onSaveSuccess(customer: ICustomer | null): void {
     this.alert().showInfo('Client ajouté avec succès');
-    this.isSaving = false;
     this.activeModal.close(customer);
   }
 }

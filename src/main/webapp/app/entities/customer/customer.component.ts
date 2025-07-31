@@ -1,7 +1,8 @@
-import { Component, inject, OnInit } from '@angular/core';
+import { Component, inject, OnDestroy, OnInit } from '@angular/core';
 import { HttpHeaders, HttpResponse } from '@angular/common/http';
 import { ActivatedRoute, Data, ParamMap, Router, RouterLink } from '@angular/router';
-import { combineLatest, Observable, Subscription } from 'rxjs';
+import { combineLatest, Observable, Subject } from 'rxjs';
+import { finalize, takeUntil } from 'rxjs/operators';
 
 import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
 
@@ -10,10 +11,8 @@ import { ICustomer } from 'app/shared/model/customer.model';
 import { ITEMS_PER_PAGE } from 'app/shared/constants/pagination.constants';
 import { CustomerService } from './customer.service';
 import { ConfirmationService, LazyLoadEvent, MenuItem, MessageService } from 'primeng/api';
-import {
-  UninsuredCustomerFormComponent
-} from './uninsured-customer-form/uninsured-customer-form.component';
-import { DialogService, DynamicDialogRef } from 'primeng/dynamicdialog';
+import { UninsuredCustomerFormComponent } from './uninsured-customer-form/uninsured-customer-form.component';
+import { DialogService } from 'primeng/dynamicdialog';
 import { TranslateService } from '@ngx-translate/core';
 import { FormAyantDroitComponent } from './form-ayant-droit/form-ayant-droit.component';
 import { NgxSpinnerModule, NgxSpinnerService } from 'ngx-spinner';
@@ -25,15 +24,11 @@ import { InputTextModule } from 'primeng/inputtext';
 import { TableModule } from 'primeng/table';
 import { DialogModule } from 'primeng/dialog';
 import { FileUploadModule } from 'primeng/fileupload';
-import { ConfirmDialogModule } from 'primeng/confirmdialog';
 import { ToolbarModule } from 'primeng/toolbar';
 import { DropdownModule } from 'primeng/dropdown';
-import { DividerModule } from 'primeng/divider';
 import { SplitButtonModule } from 'primeng/splitbutton';
 import { TooltipModule } from 'primeng/tooltip';
-import {
-  CustomerTiersPayantComponent
-} from './customer-tiers-payant/customer-tiers-payant.component';
+import { CustomerTiersPayantComponent } from './customer-tiers-payant/customer-tiers-payant.component';
 import { IClientTiersPayant } from '../../shared/model/client-tiers-payant.model';
 import { AssureFormStepComponent } from './assure-form-step/assure-form-step.component';
 import { PrimeNG } from 'primeng/config';
@@ -42,7 +37,8 @@ import { Select } from 'primeng/select';
 import { IconField } from 'primeng/iconfield';
 import { InputIcon } from 'primeng/inputicon';
 import { Panel } from 'primeng/panel';
-import { showCommonModal } from '../sales/selling-home/sale-helper';
+import { DividerModule } from 'primeng/divider';
+import { ConfirmDialogModule } from 'primeng/confirmdialog';
 
 @Component({
   selector: 'jhi-customer',
@@ -71,7 +67,7 @@ import { showCommonModal } from '../sales/selling-home/sale-helper';
     Panel,
   ],
 })
-export class CustomerComponent implements OnInit {
+export class CustomerComponent implements OnInit, OnDestroy {
   translate = inject(TranslateService);
   primeNGConfig = inject(PrimeNG);
   customers?: ICustomer[];
@@ -91,8 +87,6 @@ export class CustomerComponent implements OnInit {
   loading!: boolean;
   ngbPaginationPage = 1;
   newCustomerbuttons: MenuItem[];
-  ref!: DynamicDialogRef;
-  primngtranslate: Subscription;
   displayTiersPayantAction = true;
   jsonDialog = false;
   responseDialog = false;
@@ -101,13 +95,14 @@ export class CustomerComponent implements OnInit {
   protected router = inject(Router);
   protected modalService = inject(NgbModal);
   protected confirmationService = inject(ConfirmationService);
+  private destroy$ = new Subject<void>();
   private dialogService = inject(DialogService);
   private spinner = inject(NgxSpinnerService);
   private messageService = inject(MessageService);
 
   constructor() {
     this.translate.use('fr');
-    this.primngtranslate = this.translate.stream('primeng').subscribe(data => {
+    this.translate.stream('primeng').subscribe(data => {
       this.primeNGConfig.setTranslation(data);
     });
 
@@ -135,6 +130,11 @@ export class CustomerComponent implements OnInit {
     ];
   }
 
+  ngOnDestroy(): void {
+    this.destroy$.next();
+    this.destroy$.complete();
+  }
+
   onSearch(): void {
     this.loadPage();
   }
@@ -154,6 +154,7 @@ export class CustomerComponent implements OnInit {
         search: this.search,
         status: this.statutSelected,
       })
+      .pipe(takeUntil(this.destroy$))
       .subscribe({
         next: (res: HttpResponse<ICustomer[]>) => this.onSuccess(res.body, res.headers, pageToLoad, dontNavigate),
         error: () => this.onError(),
@@ -173,6 +174,7 @@ export class CustomerComponent implements OnInit {
           search: this.search,
           status: this.statutSelected,
         })
+        .pipe(takeUntil(this.destroy$))
         .subscribe({
           next: (res: HttpResponse<ICustomer[]>) => this.onSuccess(res.body, res.headers, this.page, false),
           error: () => this.onError(),
@@ -194,15 +196,19 @@ export class CustomerComponent implements OnInit {
   }
 
   delete(customer: ICustomer): void {
-    this.customerService.delete(customer.id).subscribe(() => this.loadPage());
+    this.handleServiceCall(this.customerService.delete(customer.id), () => this.loadPage(), 'delete-customer-spinner');
   }
 
   deleteAssuredCustomer(customer: ICustomer): void {
-    this.customerService.deleteAssuredCustomer(customer.id).subscribe(() => this.loadPage());
+    this.handleServiceCall(
+      this.customerService.deleteAssuredCustomer(customer.id),
+      () => this.loadPage(),
+      'delete-assured-customer-spinner',
+    );
   }
 
   lock(customer: ICustomer): void {
-    this.customerService.lock(customer.id).subscribe(() => this.loadPage());
+    this.handleServiceCall(this.customerService.lock(customer.id), () => this.loadPage(), 'lock-customer-spinner');
   }
 
   confirmRemove(customer: ICustomer): void {
@@ -244,105 +250,64 @@ export class CustomerComponent implements OnInit {
   }
 
   addAssureCustomer(typeAssure: string): void {
-    showCommonModal(
-      this.modalService,
-      AssureFormStepComponent,
-      {
-        entity: null,
-        typeAssure,
-        header: 'FORMULAIRE DE CREATION DE CLIENT ',
-      },
-      (resp: ICustomer) => {
-        if (resp) {
-          this.loadPage();
-        }
-      },
-    );
-
-    /*
-
-    this.ref = this.dialogService.open(AssureFormStepComponent, {
-      data: { entity: null, typeAssure },
+    this.openCustomerModal(AssureFormStepComponent, {
+      entity: null,
+      typeAssure,
       header: 'FORMULAIRE DE CREATION DE CLIENT ',
-      width: '85%',
-      closeOnEscape: false,
-      maximizable: true,
     });
-    this.ref.onClose.subscribe((resp: ICustomer) => {
-      if (resp) {
-        this.loadPage();
-      }
-    });*/
   }
 
   editAssureCustomer(customer: ICustomer): void {
-    showCommonModal(
-      this.modalService,
-      AssureFormStepComponent,
+    this.openCustomerModal(AssureFormStepComponent, {
+      entity: customer,
+      header: `FORMULAIRE DE MODIFICATION DE CLIENT  [ ${customer.fullName}  ]`,
+    });
+  }
+
+  addUninsuredCustomer(): void {
+    this.openCustomerModal(
+      UninsuredCustomerFormComponent,
+      {
+        entity: null,
+        header: 'FORMULAIRE DE CREATION DE CLIENT ',
+      },
+      '50%',
+    );
+  }
+
+  editUninsuredCustomer(customer: ICustomer): void {
+    this.openCustomerModal(
+      UninsuredCustomerFormComponent,
       {
         entity: customer,
         header: `FORMULAIRE DE MODIFICATION DE CLIENT  [ ${customer.fullName}  ]`,
       },
-      (resp: ICustomer) => {
-        if (resp) {
-          this.loadPage();
-        }
-      },
+      '50%',
     );
   }
 
-  addUninsuredCustomer(): void {
-    this.ref = this.dialogService.open(UninsuredCustomerFormComponent, {
-      data: { entity: null },
-      header: 'FORMULAIRE DE CREATION DE CLIENT ',
-      width: '50%',
-    });
-    this.ref.onClose.subscribe((resp: ICustomer) => {
-      if (resp) {
-        this.loadPage();
-      }
-    });
-  }
-
-  editUninsuredCustomer(customer: ICustomer): void {
-    this.ref = this.dialogService.open(UninsuredCustomerFormComponent, {
-      data: { entity: customer },
-      header: `FORMULAIRE DE MODIFICATION DE CLIENT  [ ${customer.fullName}  ]`,
-      width: '50%',
-    });
-    this.ref.onClose.subscribe((resp: ICustomer) => {
-      if (resp) {
-        this.loadPage();
-      }
-    });
-  }
-
   addAyantDroit(customer: ICustomer): void {
-    this.ref = this.dialogService.open(FormAyantDroitComponent, {
-      data: { entity: null, assure: customer },
-      header: "FORMULAIRE D'AJOUT D'AYANT DROIT ",
-      width: '50%',
-      closeOnEscape: false,
-    });
-    this.ref.onClose.subscribe((resp: ICustomer) => {
-      if (resp) {
-        this.loadPage();
-      }
-    });
+    this.openCustomerModal(
+      FormAyantDroitComponent,
+      {
+        entity: null,
+        assure: customer,
+      },
+      '50%',
+      "FORMULAIRE D'AJOUT D'AYANT DROIT ",
+    );
   }
 
   editAyantDroit(customer: ICustomer, ayantDroit: ICustomer): void {
-    this.ref = this.dialogService.open(FormAyantDroitComponent, {
-      data: { entity: ayantDroit, assure: customer },
-      header: `FORMULAIRE DE MODIFICATION D'AYANT DROIT [ ${ayantDroit.fullName}  ]`,
-      width: '50%',
-      closeOnEscape: false,
-    });
-    this.ref.onClose.subscribe((resp: ICustomer) => {
-      if (resp) {
-        this.loadPage();
-      }
-    });
+    this.openCustomerModal(
+      FormAyantDroitComponent,
+      {
+        entity: ayantDroit,
+        assure: customer,
+      },
+      '50%',
+      `FORMULAIRE DE MODIFICATION D'AYANT DROIT [ ${ayantDroit.fullName}  ]`,
+    );
   }
 
   confirmRemoveAyantDroit(ayantDroit: ICustomer): void {
@@ -361,35 +326,24 @@ export class CustomerComponent implements OnInit {
     const formData: FormData = new FormData();
     const file = event.files[0];
     formData.append('importjson', file, file.name);
-    this.spinner.show('importation');
     this.jsonDialog = false;
-    this.uploadJsonDataResponse(this.customerService.uploadJsonData(formData));
+    this.handleServiceCall(this.customerService.uploadJsonData(formData), () => this.onPocesJsonSuccess(), 'importation');
   }
 
   onAddNewTiersPayant(customer: ICustomer): void {
-    this.ref = this.dialogService.open(CustomerTiersPayantComponent, {
-      data: { customer },
-      header: "FORMULAIRE D'AJOUT DE TIERS PAYANT ",
-      width: '50%',
-    });
-    this.ref.onClose.subscribe((resp: ICustomer) => {
-      if (resp) {
-        this.loadPage();
-      }
-    });
+    this.openCustomerModal(CustomerTiersPayantComponent, { customer }, '50%', "FORMULAIRE D'AJOUT DE TIERS PAYANT ");
   }
 
   onEditTiersPayant(customer: ICustomer, clientTiersPayant: IClientTiersPayant): void {
-    this.ref = this.dialogService.open(CustomerTiersPayantComponent, {
-      data: { entity: clientTiersPayant, customer },
-      header: 'FORMULAIRE DE MODIFICATION DE TIERS PAYANT [ ' + clientTiersPayant.tiersPayantName + ' ]',
-      width: '50%',
-    });
-    this.ref.onClose.subscribe((resp: ICustomer) => {
-      if (resp) {
-        this.loadPage();
-      }
-    });
+    this.openCustomerModal(
+      CustomerTiersPayantComponent,
+      {
+        entity: clientTiersPayant,
+        customer,
+      },
+      '50%',
+      'FORMULAIRE DE MODIFICATION DE TIERS PAYANT [ ' + clientTiersPayant.tiersPayantName + ' ]',
+    );
   }
 
   onRemoveTiersPayant(clientTiersPayant: IClientTiersPayant): void {
@@ -400,14 +354,18 @@ export class CustomerComponent implements OnInit {
       acceptButtonProps: acceptButtonProps(),
       icon: 'pi pi-info-circle',
       accept: () => {
-        this.customerService.deleteTiersPayant(clientTiersPayant.id).subscribe(() => this.loadPage());
+        this.handleServiceCall(
+          this.customerService.deleteTiersPayant(clientTiersPayant.id),
+          () => this.loadPage(),
+          'delete-tiers-payant-spinner',
+        );
       },
       key: 'deleteTiersPayant',
     });
   }
 
   protected uploadJsonDataResponse(result: Observable<HttpResponse<void>>): void {
-    result.subscribe({
+    result.pipe(finalize(() => this.spinner.hide('importation'))).subscribe({
       next: () => this.onPocesJsonSuccess(),
       error: () => this.onImportError(),
     });
@@ -440,7 +398,9 @@ export class CustomerComponent implements OnInit {
         this.ascending = ascending;
         this.loadPage(pageNumber, true);
       }
-    }).subscribe();
+    })
+      .pipe(takeUntil(this.destroy$))
+      .subscribe();
   }
 
   protected onSuccess(data: ICustomer[] | null, headers: HttpHeaders, page: number, navigate: boolean): void {
@@ -467,5 +427,40 @@ export class CustomerComponent implements OnInit {
 
   protected displayTiersPayantAddBtn(customer: ICustomer): boolean {
     return customer.typeTiersPayant === 'ASSURANCE' && customer.tiersPayants && customer.tiersPayants.length < 4;
+  }
+
+  private handleServiceCall(observable: Observable<any>, successCallback: () => void, spinnerName: string): void {
+    this.spinner.show(spinnerName);
+    observable.pipe(takeUntil(this.destroy$)).subscribe({
+      next: () => {
+        this.spinner.hide(spinnerName);
+        successCallback();
+      },
+      error: error => {
+        this.spinner.hide(spinnerName);
+        this.messageService.add({
+          severity: 'error',
+          summary: 'Erreur',
+          detail: error.error?.errorKey ? this.translate.instant(error.error.errorKey) : error.error?.title || 'Erreur interne du serveur.',
+        });
+      },
+    });
+  }
+
+  private openCustomerModal(component: any, data: any, width?: string, header?: string): void {
+    this.dialogService
+      .open(component, {
+        data,
+        header,
+        width: width || '85%',
+        closeOnEscape: false,
+        maximizable: true,
+      })
+      .onClose.pipe(takeUntil(this.destroy$))
+      .subscribe((resp: ICustomer) => {
+        if (resp) {
+          this.loadPage();
+        }
+      });
   }
 }

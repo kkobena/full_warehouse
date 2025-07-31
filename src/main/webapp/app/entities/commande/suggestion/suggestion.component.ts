@@ -1,4 +1,4 @@
-import { Component, inject, input, OnInit, output } from '@angular/core';
+import { Component, inject, input, OnDestroy, OnInit, output } from '@angular/core';
 import { SuggestionService } from './suggestion.service';
 import { Suggestion } from './model/suggestion.model';
 import { RouterModule } from '@angular/router';
@@ -18,6 +18,8 @@ import { TableModule } from 'primeng/table';
 import { Tooltip } from 'primeng/tooltip';
 import { CommonModule } from '@angular/common';
 import { ConfirmDialogModule } from 'primeng/confirmdialog';
+import { Observable, Subject } from 'rxjs';
+import { takeUntil } from 'rxjs/operators';
 
 @Component({
   selector: 'jhi-suggestion',
@@ -25,7 +27,7 @@ import { ConfirmDialogModule } from 'primeng/confirmdialog';
   imports: [Button, CommonModule, RouterModule, PrimeTemplate, TableModule, Tooltip, NgxSpinnerModule, ConfirmDialogModule],
   templateUrl: './suggestion.component.html',
 })
-export class SuggestionComponent implements OnInit {
+export class SuggestionComponent implements OnInit, OnDestroy {
   readonly search = input('');
   readonly selectionLength = output<number>();
   readonly selectedtypeSuggession = input<string>('ALL');
@@ -43,6 +45,7 @@ export class SuggestionComponent implements OnInit {
   protected selections: Suggestion[];
   protected fileDialog = false;
   protected ref!: DynamicDialogRef;
+  private destroy$ = new Subject<void>();
   private readonly suggestionService = inject(SuggestionService);
   private readonly errorService = inject(ErrorService);
   private readonly spinner = inject(NgxSpinnerService);
@@ -51,6 +54,11 @@ export class SuggestionComponent implements OnInit {
 
   constructor() {
     this.rowExpandMode = 'single';
+  }
+
+  ngOnDestroy(): void {
+    this.destroy$.next();
+    this.destroy$.complete();
   }
 
   ngOnInit(): void {
@@ -95,11 +103,7 @@ export class SuggestionComponent implements OnInit {
   }
 
   sort(): string[] {
-    const result = [this.predicate + ',' + (this.ascending ? 'asc' : 'desc')];
-    if (this.predicate !== 'updatedAt') {
-      result.push('updatedAt');
-    }
-    return result;
+    return [this.predicate + ',' + (this.ascending ? 'asc' : 'desc'), 'updatedAt'];
   }
 
   fusionner(): void {
@@ -113,18 +117,14 @@ export class SuggestionComponent implements OnInit {
     if (!isSameProvider) {
       this.openInfoDialog('Veillez sélectionner des suggestion du même grossiste', 'alert alert-info');
     } else {
-      this.spinner.show();
-      this.suggestionService.fusionner(keys).subscribe({
-        next: () => {
-          this.spinner.hide();
+      this.handleServiceCall(
+        this.suggestionService.fusionner(keys),
+        () => {
           this.selections = [];
           this.loadPage();
         },
-        error: error => {
-          this.spinner.hide();
-          this.onCommonError(error);
-        },
-      });
+        'fusionner-spinner',
+      );
     }
   }
 
@@ -197,12 +197,15 @@ export class SuggestionComponent implements OnInit {
     if (error.error && error.error.status === 500) {
       this.openInfoDialog('Erreur applicative', 'alert alert-danger');
     } else {
-      this.errorService.getErrorMessageTranslation(error.error.errorKey).subscribe({
-        next: translatedErrorMessage => {
-          this.openInfoDialog(translatedErrorMessage, 'alert alert-danger');
-        },
-        error: () => this.openInfoDialog(error.error.title, 'alert alert-danger'),
-      });
+      this.errorService
+        .getErrorMessageTranslation(error.error.errorKey)
+        .pipe(takeUntil(this.destroy$))
+        .subscribe({
+          next: translatedErrorMessage => {
+            this.openInfoDialog(translatedErrorMessage, 'alert alert-danger');
+          },
+          error: () => this.openInfoDialog(error.error.title, 'alert alert-danger'),
+        });
     }
   }
 
@@ -224,5 +227,19 @@ export class SuggestionComponent implements OnInit {
 
   private onError(): void {
     this.ngbPaginationPage = this.page ?? 1;
+  }
+
+  private handleServiceCall(observable: Observable<any>, successCallback: () => void, spinnerName: string): void {
+    this.spinner.show(spinnerName);
+    observable.pipe(takeUntil(this.destroy$)).subscribe({
+      next: () => {
+        this.spinner.hide(spinnerName);
+        successCallback();
+      },
+      error: error => {
+        this.spinner.hide(spinnerName);
+        this.onCommonError(error);
+      },
+    });
   }
 }

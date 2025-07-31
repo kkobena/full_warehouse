@@ -72,14 +72,15 @@ export class AyantDroitStepComponent implements OnInit {
   }
 
   createFromForm(): ICustomer {
+    const formValue = this.editForm.value;
     return {
       ...new Customer(),
-      id: this.editForm.get(['id']).value,
-      firstName: this.editForm.get(['firstName']).value,
-      lastName: this.editForm.get(['lastName']).value,
-      numAyantDroit: this.editForm.get(['numAyantDroit']).value,
-      datNaiss: this.editForm.get(['datNaiss']).value,
-      sexe: this.editForm.get(['sexe']).value,
+      id: formValue.id,
+      firstName: formValue.firstName,
+      lastName: formValue.lastName,
+      numAyantDroit: formValue.numAyantDroit,
+      datNaiss: formValue.datNaiss,
+      sexe: formValue.sexe,
       type: 'ASSURE',
     };
   }
@@ -89,25 +90,18 @@ export class AyantDroitStepComponent implements OnInit {
   }
 
   isValidForm(): boolean {
-    const ayantDroits = this.createFromForm();
-    const formIsSet: boolean = ayantDroits.firstName !== null && ayantDroits.lastName !== null && ayantDroits.numAyantDroit !== null;
-    const formNotSet: boolean = ayantDroits.firstName === null && ayantDroits.lastName === null && ayantDroits.numAyantDroit === null;
-    const firstNameIsEmpty: boolean = ayantDroits.firstName === '' && ayantDroits.lastName === null && ayantDroits.numAyantDroit === null;
-    const lastNameAnFirstNameIsEmpty: boolean =
-      ayantDroits.firstName === '' && ayantDroits.lastName === '' && ayantDroits.numAyantDroit === null;
-    const lastNameIsEmpty: boolean = ayantDroits.firstName === null && ayantDroits.lastName === '' && ayantDroits.numAyantDroit === null;
-    const allEmpty: boolean = ayantDroits.firstName === '' && ayantDroits.lastName === '' && ayantDroits.numAyantDroit === '';
-    const numAyantDroitEmpty: boolean = ayantDroits.firstName === null && ayantDroits.lastName === null && ayantDroits.numAyantDroit === '';
-    return formNotSet || formIsSet || firstNameIsEmpty || lastNameAnFirstNameIsEmpty || allEmpty || lastNameIsEmpty || numAyantDroitEmpty;
+    const formValue = this.editForm.value;
+    const hasAnyValue = formValue.firstName || formValue.lastName || formValue.numAyantDroit;
+    const allEmpty = !formValue.firstName && !formValue.lastName && !formValue.numAyantDroit;
+
+    return allEmpty || (hasAnyValue && this.editForm.valid);
   }
 
   saveFormState(): void {
     const currentAssure = this.assureFormStepService.assure();
-    const isValideForm = this.editForm.valid;
-    if (isValideForm) {
+    if (this.editForm.valid) {
       const ayantDroits = this.createFromForm();
       currentAssure.ayantDroits = [ayantDroits];
-      // const complementaires = currentAssure?.tiersPayants;
       this.assureFormStepService.setAssure(currentAssure);
     }
   }

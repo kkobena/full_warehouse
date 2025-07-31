@@ -1,4 +1,4 @@
-import { Component, inject, viewChild } from '@angular/core';
+import { Component, inject, OnDestroy, viewChild } from '@angular/core';
 import { FormArray, ReactiveFormsModule, UntypedFormBuilder, Validators } from '@angular/forms';
 import { DropdownModule } from 'primeng/dropdown';
 import { ButtonModule } from 'primeng/button';
@@ -26,6 +26,8 @@ import {
   ConfirmDialogComponent
 } from '../../../shared/dialog/confirm-dialog/confirm-dialog.component';
 import { ToastAlertComponent } from '../../../shared/toast-alert/toast-alert.component';
+import { Subject } from 'rxjs';
+import { takeUntil } from 'rxjs/operators';
 
 @Component({
   selector: 'jhi-complementaire-step',
@@ -45,7 +47,7 @@ import { ToastAlertComponent } from '../../../shared/toast-alert/toast-alert.com
   ],
   templateUrl: './complementaire-step.component.html',
 })
-export class ComplementaireStepComponent {
+export class ComplementaireStepComponent implements OnDestroy {
   assureFormStepService = inject(AssureFormStepService);
   customerService = inject(CustomerService);
   tiersPayant!: ITiersPayant | null;
@@ -66,6 +68,12 @@ export class ComplementaireStepComponent {
   private readonly tiersPayantService = inject(TiersPayantService);
   private readonly modalService = inject(NgbModal);
   private readonly errorService = inject(ErrorService);
+  private destroy$ = new Subject<void>();
+
+  ngOnDestroy(): void {
+    this.destroy$.next();
+    this.destroy$.complete();
+  }
 
   get editFormGroups(): FormArray {
     return this.editForm.get('tiersPayants') as FormArray;
@@ -143,7 +151,7 @@ export class ComplementaireStepComponent {
         size: 10,
         type: 'ASSURANCE',
         search: query,
-      })
+      }).pipe(takeUntil(this.destroy$))
       .subscribe((res: HttpResponse<ITiersPayant[]>) => {
         this.tiersPayants = res.body!;
         if (this.tiersPayants.length === 0) {
@@ -153,7 +161,8 @@ export class ComplementaireStepComponent {
   }
 
   createFromForm(): IClientTiersPayant[] {
-    return this.editForm.get(['tiersPayants']).value.flatMap((tiersPayant: any) => [
+    const formValue = this.editForm.value;
+    return formValue.tiersPayants.flatMap((tiersPayant: any) => [
       {
         id: tiersPayant.id,
         taux: tiersPayant.taux,
@@ -193,7 +202,7 @@ export class ComplementaireStepComponent {
     const tiersPayants = this.convertFormAsFormArray();
     const tiersPayant = tiersPayants.at(index).value as IClientTiersPayant;
     if (tiersPayant.id) {
-      this.customerService.deleteTiersPayant(tiersPayant.id).subscribe({
+      this.customerService.deleteTiersPayant(tiersPayant.id).pipe(takeUntil(this.destroy$)).subscribe({
         next: () => {
           tiersPayants.removeAt(index);
           this.validateTiersPayantSize();

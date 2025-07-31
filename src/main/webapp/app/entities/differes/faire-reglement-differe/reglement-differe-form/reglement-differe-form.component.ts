@@ -1,5 +1,4 @@
-import { AfterViewInit, Component, computed, inject, input, output, signal } from '@angular/core';
-import { DatePicker } from 'primeng/datepicker';
+import { AfterViewInit, Component, computed, inject, input, OnDestroy, output, signal } from '@angular/core';
 import { Divider } from 'primeng/divider';
 import { AbstractControl, FormBuilder, FormControl, FormGroup, FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
 import { TranslateService } from '@ngx-translate/core';
@@ -18,11 +17,13 @@ import { FloatLabel } from 'primeng/floatlabel';
 import { Select } from 'primeng/select';
 import { InputText } from 'primeng/inputtext';
 import { Button } from 'primeng/button';
+import { Subject } from 'rxjs';
+import { takeUntil } from 'rxjs/operators';
+import { DatePicker } from 'primeng/datepicker';
 
 @Component({
   selector: 'jhi-reglement-differe-form',
   imports: [
-    DatePicker,
     Divider,
     FormsModule,
     ReactiveFormsModule,
@@ -33,10 +34,11 @@ import { Button } from 'primeng/button';
     Select,
     InputText,
     Button,
+    DatePicker,
   ],
   templateUrl: './reglement-differe-form.component.html',
 })
-export class ReglementDiffereFormComponent implements AfterViewInit {
+export class ReglementDiffereFormComponent implements AfterViewInit, OnDestroy {
   readonly CASH = 'CASH';
   readonly CH = 'CH';
   readonly VIR = 'VIREMENT';
@@ -82,6 +84,7 @@ export class ReglementDiffereFormComponent implements AfterViewInit {
     }),
   });
   private readonly modeService = inject(ModePaymentService);
+  private destroy$ = new Subject<void>();
 
   get banqueInfo(): FormGroup {
     return this.reglementForm.get('banqueInfo') as FormGroup;
@@ -124,52 +127,68 @@ export class ReglementDiffereFormComponent implements AfterViewInit {
 
   ngAfterViewInit() {
     this.translate.use('fr');
-    this.translate.stream('primeng').subscribe(data => {
-      this.primeNGConfig.setTranslation(data);
-    });
+    this.translate
+      .stream('primeng')
+      .pipe(takeUntil(this.destroy$))
+      .subscribe(data => {
+        this.primeNGConfig.setTranslation(data);
+      });
 
-    this.modeService.query().subscribe((res: HttpResponse<IPaymentMode[]>) => {
-      if (res.body) {
-        this.paymentModes = res.body;
-        this.setDefaultModeReglement();
-      }
-    });
-    this.reglementForm.get('amount').valueChanges.subscribe(value => {
-      this.montantSaisi.set(value);
+    this.modeService
+      .query()
+      .pipe(takeUntil(this.destroy$))
+      .subscribe((res: HttpResponse<IPaymentMode[]>) => {
+        if (res.body) {
+          this.paymentModes = res.body;
+          this.setDefaultModeReglement();
+        }
+      });
+    this.reglementForm
+      .get('amount')
+      ?.valueChanges.pipe(takeUntil(this.destroy$))
+      .subscribe(value => {
+        this.montantSaisi.set(value);
 
-      const m = value - this.differe().rest;
-      if (m < 0) {
-        this.rendu.emit(0);
-      } else {
-        this.rendu.emit(m);
-      }
-    });
+        const m = value - this.differe().rest;
+        if (m < 0) {
+          this.rendu.emit(0);
+        } else {
+          this.rendu.emit(m);
+        }
+      });
     setTimeout(() => {
-      this.reglementForm.get('amount').setValue(this.initTotalAmount);
+      this.reglementForm.get('amount')?.setValue(this.initTotalAmount);
     }, 30);
 
-    this.reglementForm.get('modePaimentCode').valueChanges.subscribe(value => {
-      this.reglementForm.get('amount').setValue(this.defaultDefautInputAmountValue);
-      if (this.showBanqueInfo) {
-        this.banqueInfo.get('nom').setValidators([Validators.required]);
-        this.banqueInfo.get('nom').updateValueAndValidity();
-        if (value === this.CH) {
-          this.banqueInfo.get('code').setValidators([Validators.required]);
-          this.banqueInfo.get('code').updateValueAndValidity();
+    this.reglementForm
+      .get('modePaimentCode')
+      ?.valueChanges.pipe(takeUntil(this.destroy$))
+      .subscribe(value => {
+        this.reglementForm.get('amount')?.setValue(this.defaultDefautInputAmountValue);
+        if (this.showBanqueInfo) {
+          this.banqueInfo.get('nom')?.setValidators([Validators.required]);
+          this.banqueInfo.get('nom')?.updateValueAndValidity();
+          if (value === this.CH) {
+            this.banqueInfo.get('code')?.setValidators([Validators.required]);
+            this.banqueInfo.get('code')?.updateValueAndValidity();
+          } else {
+            this.banqueInfo.get('code')?.clearValidators();
+            this.banqueInfo.get('code')?.updateValueAndValidity();
+          }
         } else {
-          this.banqueInfo.get('code').clearValidators();
-          this.banqueInfo.get('code').updateValueAndValidity();
+          this.banqueInfo.reset();
+          this.banqueInfo.get('nom')?.clearValidators();
+          this.banqueInfo.get('nom')?.updateValueAndValidity();
+          this.banqueInfo.get('code')?.clearValidators();
+          this.banqueInfo.get('code')?.updateValueAndValidity();
         }
-      } else {
-        this.banqueInfo.reset();
-        this.banqueInfo.get('nom').clearValidators();
-        this.banqueInfo.get('nom').updateValueAndValidity();
-        this.banqueInfo.get('code').clearValidators();
-        this.banqueInfo.get('code').updateValueAndValidity();
-      }
-      //  this.rendu.emit(this.monnaie());
-    });
-    this.reglementForm.get('paymentDate').setValue(this.maxDate);
+      });
+    this.reglementForm.get('paymentDate')?.setValue(this.maxDate);
+  }
+
+  ngOnDestroy(): void {
+    this.destroy$.next();
+    this.destroy$.complete();
   }
 
   reset(): void {
@@ -186,17 +205,16 @@ export class ReglementDiffereFormComponent implements AfterViewInit {
   }
 
   private setDefaultModeReglement(): void {
-    this.reglementForm.get('modePaimentCode').setValue(this.paymentModes.find(mode => mode.code === this.CASH).code);
+    this.reglementForm.get('modePaimentCode')?.setValue(this.paymentModes.find(mode => mode.code === this.CASH)?.code);
   }
 
   private createFromForm(): NewReglementDiffere {
-    const paymentDate = this.reglementForm.get('paymentDate').value;
-
+    const formValue = this.reglementForm.value;
     return {
-      amount: this.reglementForm.get('amount').value,
-      paimentMode: this.reglementForm.get('modePaimentCode').value,
-      banqueInfo: this.showBanqueInfo ? this.banqueInfo.getRawValue() : null,
-      paymentDate: paymentDate ? moment(paymentDate).format(DATE_FORMAT) : null,
+      amount: formValue.amount,
+      paimentMode: formValue.modePaimentCode,
+      banqueInfo: this.showBanqueInfo ? formValue.banqueInfo : null,
+      paymentDate: formValue.paymentDate ? moment(formValue.paymentDate).format(DATE_FORMAT) : null,
       expectedAmount: this.initTotalAmount,
       customerId: this.differe()?.customerId,
       saleIds: this.differe()?.differeItems.map(e => e.saleId),

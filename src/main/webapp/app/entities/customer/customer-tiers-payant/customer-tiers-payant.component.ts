@@ -1,4 +1,4 @@
-import { Component, OnInit, inject } from '@angular/core';
+import { Component, inject, OnDestroy, OnInit } from '@angular/core';
 import { FormsModule, ReactiveFormsModule, UntypedFormBuilder, Validators } from '@angular/forms';
 import { ErrorService } from '../../../shared/error.service';
 import { DialogService, DynamicDialogConfig, DynamicDialogRef } from 'primeng/dynamicdialog';
@@ -20,12 +20,13 @@ import { KeyFilterModule } from 'primeng/keyfilter';
 import { InputMaskModule } from 'primeng/inputmask';
 import { ClientTiersPayant, IClientTiersPayant } from '../../../shared/model/client-tiers-payant.model';
 import { ICustomer } from '../../../shared/model/customer.model';
-import { Observable } from 'rxjs';
-import { HttpResponse } from '@angular/common/http';
+import { Observable, Subject } from 'rxjs';
+import { finalize, takeUntil } from 'rxjs/operators';
 import { ITiersPayant } from '../../../shared/model/tierspayant.model';
 import { ToggleSwitch } from 'primeng/toggleswitch';
 import { TiersPayantService } from '../../tiers-payant/tierspayant.service';
 import { CustomerService } from '../customer.service';
+import { HttpResponse } from '@angular/common/http';
 
 @Component({
   selector: 'jhi-customer-tiers-payant',
@@ -52,7 +53,7 @@ import { CustomerService } from '../customer.service';
   ],
   templateUrl: './customer-tiers-payant.component.html',
 })
-export class CustomerTiersPayantComponent implements OnInit {
+export class CustomerTiersPayantComponent implements OnInit, OnDestroy {
   protected errorService = inject(ErrorService);
   protected fb = inject(UntypedFormBuilder);
   protected ref = inject(DynamicDialogRef);
@@ -76,6 +77,7 @@ export class CustomerTiersPayantComponent implements OnInit {
   private readonly messageService = inject(MessageService);
   private readonly tiersPayantService = inject(TiersPayantService);
   private readonly customerService = inject(CustomerService);
+  private destroy$ = new Subject<void>();
 
   ngOnInit(): void {
     this.entity = this.config.data.entity;
@@ -83,6 +85,11 @@ export class CustomerTiersPayantComponent implements OnInit {
     if (this.entity) {
       this.updateForm(this.entity);
     }
+  }
+
+  ngOnDestroy(): void {
+    this.destroy$.next();
+    this.destroy$.complete();
   }
 
   save(): void {
@@ -112,7 +119,13 @@ export class CustomerTiersPayantComponent implements OnInit {
         type: 'ASSURANCE',
         search: query,
       })
-      .subscribe((res: HttpResponse<ITiersPayant[]>) => (this.tiersPayants = res.body!));
+      .pipe(takeUntil(this.destroy$))
+      .subscribe((res: HttpResponse<ITiersPayant[]>) => {
+        this.tiersPayants = res.body!;
+        if (this.tiersPayants.length === 0) {
+          this.tiersPayants.push({ id: null, fullName: 'Ajouter un nouveau tiers-payant' });
+        }
+      });
   }
 
   protected updateForm(clientTiersPayant: IClientTiersPayant): void {
@@ -131,19 +144,19 @@ export class CustomerTiersPayantComponent implements OnInit {
     return {
       ...new ClientTiersPayant(),
       customerId: this.customer.id,
-      id: this.editForm.get(['id']).value,
-      num: this.editForm.get(['num']).value,
-      tiersPayantId: this.editForm.get(['tiersPayant']).value.id,
-      plafondConso: this.editForm.get(['plafondConso']).value,
-      plafondJournalier: this.editForm.get(['plafondJournalier']).value,
-      plafondAbsolu: this.editForm.get(['plafondAbsolu']).value,
-      taux: this.editForm.get(['taux']).value,
+      id: this.editForm.get('id')?.value,
+      num: this.editForm.get('num')?.value,
+      tiersPayantId: this.editForm.get('tiersPayant')?.value?.id,
+      plafondConso: this.editForm.get('plafondConso')?.value,
+      plafondJournalier: this.editForm.get('plafondJournalier')?.value,
+      plafondAbsolu: this.editForm.get('plafondAbsolu')?.value,
+      taux: this.editForm.get('taux')?.value,
       priorite: this.computePriorite(),
     };
   }
 
   protected subscribeToSaveResponse(result: Observable<HttpResponse<ICustomer>>): void {
-    result.subscribe({
+    result.pipe(finalize(() => (this.isSaving = false))).subscribe({
       next: (res: HttpResponse<ICustomer>) => this.onSaveSuccess(res.body),
       error: (error: any) => this.onSaveError(error),
     });
@@ -155,15 +168,17 @@ export class CustomerTiersPayantComponent implements OnInit {
   }
 
   protected onSaveError(error: any): void {
-    this.isSaving = false;
     if (error.error?.errorKey) {
-      this.errorService.getErrorMessageTranslation(error.error.errorKey).subscribe(translatedErrorMessage => {
-        this.messageService.add({
-          severity: 'error',
-          summary: 'Erreur',
-          detail: translatedErrorMessage,
+      this.errorService
+        .getErrorMessageTranslation(error.error.errorKey)
+        .pipe(takeUntil(this.destroy$))
+        .subscribe(translatedErrorMessage => {
+          this.messageService.add({
+            severity: 'error',
+            summary: 'Erreur',
+            detail: translatedErrorMessage,
+          });
         });
-      });
     } else {
       this.messageService.add({
         severity: 'error',
@@ -174,9 +189,6 @@ export class CustomerTiersPayantComponent implements OnInit {
   }
 
   private computePriorite(): number {
-    if (this.customer.tiersPayants.length > 0) {
-      return this.customer.tiersPayants.length++;
-    }
-    return 0;
+    return this.customer.tiersPayants.length > 0 ? this.customer.tiersPayants.length : 0;
   }
 }

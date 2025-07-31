@@ -141,10 +141,6 @@ public class AssuranceSaleReceiptService extends AbstractSaleReceiptService {
     @Override
     public List<HeaderFooterItem> getFooterItems() {
         return List.of();
-        /* List<HeaderFooterItem> headerItems = new ArrayList<>();
-        Font font = getBodyFont();
-        headerItems.add(new HeaderFooterItem("Montants exprimés en FCFA", 1, font));
-        return headerItems;*/
     }
 
     @Override
@@ -154,11 +150,7 @@ public class AssuranceSaleReceiptService extends AbstractSaleReceiptService {
         FontMetrics fontMetrics;
         for (ThirdPartySaleLineDTO thirdPartySaleLine : thirdPartySale.getThirdPartySaleLines()) {
             graphics2D.setFont(PLAIN_FONT);
-            graphics2D.drawString(
-                thirdPartySaleLine.getPriorite().getCode().concat(": " + thirdPartySaleLine.getTiersPayantFullName()),
-                margin,
-                y
-            );
+            graphics2D.drawString(thirdPartySaleLine.getPriorite().getCode().concat(": " + thirdPartySaleLine.getName()), margin, y);
             if (!hasPrixOption) {
                 drawAndCenterText(graphics2D, thirdPartySaleLine.getTaux() + "%", width, margin, y);
             }

@@ -1,5 +1,4 @@
-import { Component, inject, OnInit, viewChild } from '@angular/core';
-import { Button } from 'primeng/button';
+import { Component, inject, OnDestroy, OnInit, viewChild } from '@angular/core';
 import { ConfirmDialog } from 'primeng/confirmdialog';
 import { CommonModule, DatePipe, DecimalPipe } from '@angular/common';
 import { Fieldset } from 'primeng/fieldset';
@@ -17,6 +16,8 @@ import { ReglementDiffereFormComponent } from './reglement-differe-form/reglemen
 import { DiffereService } from '../differe.service';
 import { NewReglementDiffere } from '../model/new-reglement-differe.model';
 import { ActivatedRoute } from '@angular/router';
+import { Subject } from 'rxjs';
+import { finalize, takeUntil } from 'rxjs/operators';
 
 @Component({
   selector: 'jhi-faire-reglement-differe',
@@ -36,7 +37,7 @@ import { ActivatedRoute } from '@angular/router';
   ],
   templateUrl: './faire-reglement-differe.component.html',
 })
-export class FaireReglementDiffereComponent implements OnInit {
+export class FaireReglementDiffereComponent implements OnInit, OnDestroy {
   protected differe: Differe | null = null;
   protected reglementFormComponent = viewChild(ReglementDiffereFormComponent);
   protected isSaving = false;
@@ -47,6 +48,7 @@ export class FaireReglementDiffereComponent implements OnInit {
   private readonly errorService = inject(ErrorService);
   private readonly differeService = inject(DiffereService);
   private readonly activatedRoute = inject(ActivatedRoute);
+  private destroy$ = new Subject<void>();
 
   onError(error: any): void {
     this.isSaving = false;
@@ -63,27 +65,40 @@ export class FaireReglementDiffereComponent implements OnInit {
   }
 
   ngOnInit(): void {
-    this.activatedRoute.data.subscribe(({ differe }) => {
+    this.activatedRoute.data.pipe(takeUntil(this.destroy$)).subscribe(({ differe }) => {
       this.differe = differe;
     });
   }
+
+  ngOnDestroy(): void {
+    this.destroy$.next();
+    this.destroy$.complete();
+  }
+
+  previousState(): void {
+    window.history.back();
+  }
+
   protected onMonnaieChange(montant: number): void {
     this.monnaie = montant;
   }
+
   protected onSaveReglement(params: NewReglementDiffere): void {
     this.isSaving = true;
-    this.differeService.doReglement(params).subscribe({
-      next: res => {
-        this.isSaving = false;
-        if (res.body) {
-          this.onPrintReceipt(res.body.idReglement);
-        }
-      },
-      error: err => this.onError(err),
-    });
-  }
-  previousState(): void {
-    window.history.back();
+    this.differeService
+      .doReglement(params)
+      .pipe(
+        finalize(() => (this.isSaving = false)),
+        takeUntil(this.destroy$),
+      )
+      .subscribe({
+        next: res => {
+          if (res.body) {
+            this.onPrintReceipt(res.body.idReglement);
+          }
+        },
+        error: err => this.onError(err),
+      });
   }
 
   private onPrintReceipt(id: number): void {
@@ -94,7 +109,7 @@ export class FaireReglementDiffereComponent implements OnInit {
       rejectButtonProps: rejectButtonProps(),
       acceptButtonProps: acceptButtonProps(),
       accept: () => {
-        this.differeService.printReceipt(id).subscribe();
+        this.differeService.printReceipt(id).pipe(takeUntil(this.destroy$)).subscribe();
         this.reset();
       },
       reject: () => this.reset(),

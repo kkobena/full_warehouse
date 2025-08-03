@@ -142,6 +142,7 @@ export class SellingHomeComponent implements OnInit, AfterViewInit, OnDestroy {
   currentAccount = this.accountService.trackCurrentAccount();
   remiseCacheService = inject(RemiseCacheService);
   remises: GroupRemise[] = this.remiseCacheService.remises();
+  protected canFocusLastModeInput = false;
   protected isLargeScreen = true;
   protected canForceStock: boolean;
   protected check = true; // mis pour le focus produit et dialogue button
@@ -703,14 +704,7 @@ export class SellingHomeComponent implements OnInit, AfterViewInit, OnDestroy {
     }
   }
 
-  ngOnDestroy(): void {
-    /*  [
-        this.responseEvent,
-        this.saveResponse,
-        this.inputBoxFocus,
-        this.onCompleteSale,
-      ].forEach(sub => this.saleEventManager.destroy(sub));*/
-  }
+  ngOnDestroy(): void {}
 
   onNavChange(evt: NgbNavChangeEvent): void {
     const currentSale = this.currentSaleService.currentSale();

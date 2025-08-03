@@ -1,5 +1,12 @@
+<div class="modal-header">
+  <h4 class="modal-title">{{ header }}</h4>
+  <button (click)="cancel()" aria-hidden="true" class="close" data-dismiss="modal" type="button">
+    &times;
+  </button>
+</div>
+
 <div class="modal-body">
-  <jhi-customer-data-table (closeModalEvent)="onSelectClose($event)"> </jhi-customer-data-table>
+  <jhi-customer-data-table (closeModalEvent)="onSelectClose($event)"></jhi-customer-data-table>
 </div>
 
 <div class="modal-footer">

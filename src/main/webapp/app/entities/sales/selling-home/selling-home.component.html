@@ -28,6 +28,7 @@
                     (inputToFocusEvent)="getControlToFocus($event)"
                     (responseEvent)="onFinalyse($event)"
                     (saveResponse)="onSave($event)"
+                    [canFocusLastModeInput]="canFocusLastModeInput"
                     [isPresale]="isPresale"
                   >
                   </jhi-comptant>
@@ -115,7 +116,7 @@
         <ng-template #content>
           <div class="sale-body">
             @if (active === 'assurance' || active === 'carnet') {
-              <jhi-assurance-data (focusProduct)="onFocusProduct()"></jhi-assurance-data>
+              <jhi-assurance-data></jhi-assurance-data>
             }
 
             <div class="row mt-sm-1">

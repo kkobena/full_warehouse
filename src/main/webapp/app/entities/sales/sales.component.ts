@@ -2,9 +2,9 @@ import { AfterViewInit, Component, inject, OnInit, viewChild } from '@angular/co
 import { Router, RouterModule } from '@angular/router';
 import { ISales } from 'app/shared/model/sales.model';
 import { SalesService } from './sales.service';
-import { ConfirmationService, LazyLoadEvent, MenuItem } from 'primeng/api';
+import { LazyLoadEvent, MenuItem } from 'primeng/api';
 import { TranslateService } from '@ngx-translate/core';
-import moment from 'moment';
+import { DatePipe } from '@angular/common';
 import { IUser } from '../../core/user/user.model';
 import { HttpHeaders, HttpResponse } from '@angular/common/http';
 import { UserService } from '../../core/user/user.service';
@@ -27,7 +27,6 @@ import { HasAuthorityService } from './service/has-authority.service';
 import { SaleToolBarService } from './service/sale-tool-bar.service';
 import { Authority } from '../../shared/constants/authority.constants';
 import { PrimeNG } from 'primeng/config';
-import { acceptButtonProps, rejectButtonProps } from '../../shared/util/modal-button-props';
 import { Select } from 'primeng/select';
 import { InputGroupModule } from 'primeng/inputgroup';
 import { InputGroupAddonModule } from 'primeng/inputgroupaddon';
@@ -37,47 +36,14 @@ import { TIMES } from '../../shared/util/times';
 import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { showCommonModal } from './selling-home/sale-helper';
 import { SaleUpdateDateModalComponent } from './sale-update-date-modal/sale-update-date-modal.component';
+import { debounceTime, Subject } from 'rxjs';
+import { ConfirmDialogComponent } from '../../shared/dialog/confirm-dialog/confirm-dialog.component';
 
 @Component({
   selector: 'jhi-sales',
-  styles: [
-    `
-      .table tr:hover {
-        cursor: pointer;
-      }
-
-      .p-datatable td {
-        font-size: 0.6rem;
-      }
-
-      .table tr th {
-        font-size: 0.9rem;
-      }
-
-      .secondColumn {
-        color: blue;
-        text-align: right;
-      }
-
-      .invoice-table tr {
-        border-bottom: 1px solid #dee2e6;
-      }
-
-      .invoice-table td:first-child {
-        text-align: left;
-      }
-
-      .invoice-table td {
-        padding: 0.1rem;
-      }
-
-      .invoice-table {
-        color: #2d2d2d !important;
-      }
-    `,
-  ],
+  styleUrls: ['./sales.component.scss'],
   templateUrl: './sales.component.html',
-  providers: [ConfirmationService],
+  providers: [DatePipe],
   imports: [
     WarehouseCommonModule,
     RouterModule,
@@ -98,6 +64,7 @@ import { SaleUpdateDateModalComponent } from './sale-update-date-modal/sale-upda
     InputGroupAddonModule,
     DatePickerModule,
     FloatLabel,
+    ConfirmDialogComponent,
   ],
 })
 export class SalesComponent implements OnInit, AfterViewInit {
@@ -115,7 +82,6 @@ export class SalesComponent implements OnInit, AfterViewInit {
   protected selectedUserId: number | null;
   protected search = '';
   protected global = true;
-  protected showBtnDele: boolean;
   protected fromDate: Date = new Date();
   protected toDate: Date = new Date();
   protected isLargeScreen = true;
@@ -131,41 +97,39 @@ export class SalesComponent implements OnInit, AfterViewInit {
   private readonly assuranceSalesService = inject(VoSalesService);
   private readonly salesService = inject(SalesService);
   private readonly router = inject(Router);
-  private readonly confirmationService = inject(ConfirmationService);
   private readonly userService = inject(UserService);
-
   private readonly modalService = inject(NgbModal);
+  private readonly datePipe = inject(DatePipe);
+  private searchSubject = new Subject<void>();
+  private readonly confimDialog = viewChild.required<ConfirmDialogComponent>('confirmDialog');
 
   constructor() {
     this.translate.use('fr');
     this.translate.stream('primeng').subscribe(data => {
       this.primeNGConfig.setTranslation(data);
     });
-    this.showBtnDele = false;
     this.splitbuttons = [
       {
         label: 'Fiche à partir csv',
         icon: 'pi pi-file-pdf',
         command: () => console.error('print all record'),
-      } /*,
-      {
-        label: 'Modifier la date',
-        icon: 'pi pi-calendar-plus',
-        command: () => this.editSaleUpdatedDate(),
-      },*/,
+      },
     ];
   }
 
   editSaleUpdatedDate(sale: ISales): void {
     if (sale) {
-      showCommonModal(this.modalService, SaleUpdateDateModalComponent, { sale }, (updatedSale: ISales) => {
-        if (updatedSale) {
-          // const index = this.sales.findIndex(s => s.id === updatedSale.id);
-          /* if (index !== -1) {
-             this.sales[index] = updatedSale;
-           }*/
-        }
-      });
+      showCommonModal(
+        this.modalService,
+        SaleUpdateDateModalComponent,
+        { sale },
+        (updatedSale: ISales) => {
+          if (updatedSale) {
+            this.loadPage();
+          }
+        },
+        '45%',
+      );
     }
   }
 
@@ -191,6 +155,10 @@ export class SalesComponent implements OnInit, AfterViewInit {
       this.selectedUserId = lastPram.selectedUserId || null;
     }
     this.loadPage();
+
+    this.searchSubject.pipe(debounceTime(300)).subscribe(() => {
+      this.loadPage();
+    });
   }
 
   loadAllUsers(): void {
@@ -202,13 +170,13 @@ export class SalesComponent implements OnInit, AfterViewInit {
     });
   }
 
-  onSelectUser(evt: any): void {
+  onSelectUser(evt: { value: number | null }): void {
     this.selectedUserId = evt.value;
-    this.loadPage();
+    this.searchSubject.next();
   }
 
   onTypeVenteChange(): void {
-    this.loadPage();
+    this.searchSubject.next();
   }
 
   loadPage(page?: number): void {
@@ -226,7 +194,7 @@ export class SalesComponent implements OnInit, AfterViewInit {
   }
 
   onSearch(): void {
-    this.loadPage();
+    this.searchSubject.next();
   }
 
   delete(sale: ISales): void {
@@ -240,15 +208,7 @@ export class SalesComponent implements OnInit, AfterViewInit {
   }
 
   confirmRemove(sale: ISales): void {
-    this.confirmationService.confirm({
-      message: 'Voulez-vous vraiment annuler cette vente ?',
-      header: 'ANNULATION DE VENTE',
-      icon: 'pi pi-info-circle',
-      rejectButtonProps: rejectButtonProps(),
-      acceptButtonProps: acceptButtonProps(),
-      accept: () => this.delete(sale),
-      key: 'deleteVente',
-    });
+    this.confimDialog().onConfirm(() => this.delete(sale), 'ANNULATION DE VENTE', 'Voulez-vous vraiment annuler cette vente ?');
   }
 
   print(sales: ISales): void {
@@ -277,20 +237,20 @@ export class SalesComponent implements OnInit, AfterViewInit {
   protected onSuccess(data: ISales[] | null, headers: HttpHeaders, page: number): void {
     this.totalItems = Number(headers.get('X-Total-Count'));
     this.page = page;
-    this.router.navigate(['/sales'], {
-      queryParams: {
-        page: this.page,
-        size: this.itemsPerPage,
-        search: this.search,
-        type: this.typeVenteSelected,
-        fromDate: this.fromDate ? moment(this.fromDate).format('yyyy-MM-DD') : null,
-        toDate: this.toDate ? moment(this.toDate).format('yyyy-MM-DD') : null,
-        fromHour: this.fromHour,
-        toHour: this.toHour,
-        global: this.global,
-        userId: this.selectedUserId,
-      },
-    });
+    const queryParams = {
+      page: this.page,
+      size: this.itemsPerPage,
+      search: this.search,
+      type: this.typeVenteSelected,
+      fromDate: this.fromDate ? this.datePipe.transform(this.fromDate, 'yyyy-MM-dd') : null,
+      toDate: this.toDate ? this.datePipe.transform(this.toDate, 'yyyy-MM-dd') : null,
+      fromHour: this.fromHour,
+      toHour: this.toHour,
+      global: this.global,
+      userId: this.selectedUserId,
+    };
+
+    this.router.navigate(['/sales'], { queryParams });
     this.sales = data || [];
     this.loading = false;
   }
@@ -307,8 +267,8 @@ export class SalesComponent implements OnInit, AfterViewInit {
         size,
         search: this.search,
         type: this.typeVenteSelected,
-        fromDate: this.fromDate ? moment(this.fromDate).format('yyyy-MM-DD') : null,
-        toDate: this.toDate ? moment(this.toDate).format('yyyy-MM-DD') : null,
+        fromDate: this.fromDate ? this.datePipe.transform(this.fromDate, 'yyyy-MM-dd') : null,
+        toDate: this.toDate ? this.datePipe.transform(this.toDate, 'yyyy-MM-dd') : null,
         fromHour: this.fromHour,
         toHour: this.toHour,
         global: this.global,

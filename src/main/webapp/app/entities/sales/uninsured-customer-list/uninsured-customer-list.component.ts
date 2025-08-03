@@ -1,5 +1,5 @@
 import { Component, inject } from '@angular/core';
-import { DialogService, DynamicDialogModule, DynamicDialogRef } from 'primeng/dynamicdialog';
+import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
 import { WarehouseCommonModule } from '../../../shared/warehouse-common/warehouse-common.module';
 import { FormsModule } from '@angular/forms';
 import { TooltipModule } from 'primeng/tooltip';
@@ -12,7 +12,6 @@ import { CustomerDataTableComponent } from './customer-data-table.component';
 @Component({
   selector: 'jhi-uninsured-customer-list',
   templateUrl: './uninsured-customer-list.component.html',
-  providers: [DialogService],
   imports: [
     WarehouseCommonModule,
     FormsModule,
@@ -20,19 +19,19 @@ import { CustomerDataTableComponent } from './customer-data-table.component';
     ButtonModule,
     InputTextModule,
     RippleModule,
-    DynamicDialogModule,
     TableModule,
     CustomerDataTableComponent,
   ],
 })
 export class UninsuredCustomerListComponent {
-  ref = inject(DynamicDialogRef);
+  header: string = null;
+  private readonly activeModal = inject(NgbActiveModal);
 
   onSelectClose(event: any): void {
-    this.ref.close(event);
+    this.activeModal.close(event);
   }
 
   cancel(): void {
-    this.ref.destroy();
+    this.activeModal.dismiss();
   }
 }

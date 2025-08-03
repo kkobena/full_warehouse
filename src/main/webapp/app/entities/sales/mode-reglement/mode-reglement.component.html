@@ -1,6 +1,7 @@
 <div class="row sale-bottom-card">
   @if (showModeReglementCard()) {
-    <div [ngClass]="currentSaleService.currentSale()?.amountToBePaid > 0 ? 'card col-md-7' : 'card col-md-10'">
+    <div
+      [ngClass]="currentSaleService.currentSale()?.amountToBePaid > 0 ? 'card col-md-7' : 'card col-md-10'">
       <div class="card-header sale-card-header">Mode règlement</div>
 
       <div class="card-body sale-card">
@@ -8,17 +9,20 @@
           @if (currentSaleService.currentSale()?.type === 'VO' && baseSaleService.hasSansBon()) {
             <span>
               <label>Vente sans bon?</label>
-              <p-toggleswitch inputId="sansBon" (onChange)="onSansBonChange($event)"> </p-toggleswitch
-            ></span>
+              <p-toggleswitch inputId="sansBon"
+                              (onChange)="onSansBonChange($event)"> </p-toggleswitch
+              ></span>
           }
 
           <span>
             <label>Imprimer le ticket de caisse ?</label>
-            <p-toggleswitch inputId="printTicket" (onChange)="onPrintReceiptChange($event)"> </p-toggleswitch>
+            <p-toggleswitch inputId="printTicket"
+                            (onChange)="onPrintReceiptChange($event)"> </p-toggleswitch>
           </span>
           <span>
             <label>Imprimer la facture?</label>
-            <p-toggleswitch (onChange)="onPrintInvoiceChange($event)" inputId="printInvoice"> </p-toggleswitch>
+            <p-toggleswitch (onChange)="onPrintInvoiceChange($event)"
+                            inputId="printInvoice"> </p-toggleswitch>
           </span>
         </div>
         @if (currentSaleService.currentSale()?.amountToBePaid > 0) {
@@ -29,18 +33,18 @@
                   <p-inputgroup-addon [style]="{ padding: '0' }">
                     <span class="{{ modePay.styleBtnClass }}"></span>
                   </p-inputgroup-addon>
-                  <input
-                    autocomplete="off"
-                    autofocus
-                    (input)="manageCashPaymentMode($event, modePay)"
-                    (keydown.enter)="save()"
-                    size="large"
-                    [(ngModel)]="modePay.amount"
-                    [id]="modePay.code"
-                    [pKeyFilter]="'int'"
-                    [readOnly]="modePay.isReadonly"
-                    class="payment-mode-input"
-                    pInputText
+                  <input #paymentModeInput
+                         autocomplete="off"
+                         autofocus
+                         (input)="manageCashPaymentMode($event, modePay)"
+                         (keydown.enter)="save()"
+                         size="large"
+                         [(ngModel)]="modePay.amount"
+                         [id]="modePay.code"
+                         [pKeyFilter]="'int'"
+                         [readOnly]="modePay.isReadonly"
+                         class="payment-mode-input"
+                         pInputText
                   />
                   @if (isShowAddBtn()) {
                     <p-inputgroup-addon [style]="{ padding: '0' }">
@@ -73,30 +77,31 @@
       </div>
     </div>
     <!-- TODO revoir la gestion des info diffiere ou paiment par cb/virement/cheque ajouter un modal pour la saisie des info banque ou client differe: afficher plain text sur l'ecran de vente avec option de modification -->
-    @if (manageShowInfosBancaire || isDiffere()) {
+    @if (manageShowInfosBancaire() || isDiffere()) {
       <div class="card col-md-5">
         <div class="card-header sale-card-header">Informations complementaires</div>
         <div class="card-body sale-card">
           @if (isDiffere()) {
             <div class="p-inputgroup mt-1">
               <span class="p-inputgroup-addon">Commentaire</span>
-              <input #commentaireInput [(ngModel)]="commentaire" pInputText type="text" [autofocus]="true" (keydown.enter)="save()" />
+              <input #commentaireInput [(ngModel)]="commentaire" pInputText type="text"
+                     [autofocus]="true" (keydown.enter)="save()" />
             </div>
           }
 
-          @if (manageShowInfosBancaire) {
+          @if (manageShowInfosBancaire()) {
             <div class="mt-1">
               <p-inputgroup class="mb-1">
-                <p-inputgroup-addon> Référence </p-inputgroup-addon>
+                <p-inputgroup-addon> Référence</p-inputgroup-addon>
                 <input #referenceInput [(ngModel)]="referenceBancaire" pInputText type="text" />
               </p-inputgroup>
 
               <p-inputgroup class="mb-1">
-                <p-inputgroup-addon> Banque </p-inputgroup-addon>
+                <p-inputgroup-addon> Banque</p-inputgroup-addon>
                 <input #banqueInput [(ngModel)]="banque" pInputText type="text" />
               </p-inputgroup>
               <p-inputgroup class="mb-1">
-                <p-inputgroup-addon> Lieux </p-inputgroup-addon>
+                <p-inputgroup-addon> Lieux</p-inputgroup-addon>
                 <input #lieuxInput [(ngModel)]="lieux" pInputText type="text" />
               </p-inputgroup>
             </div>

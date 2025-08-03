@@ -1,15 +1,9 @@
-// Final version of handleSaleEvents to avoid Injector injection error
-import { effect, inject } from '@angular/core';
+import { effect } from '@angular/core';
 
-import {SaleEventSignal} from "./sale-event";
+import { SaleEventSignal } from './sale-event';
 
-export function handleSaleEvents(
-  eventManager: SaleEventSignal,
-  names: string | string[],
-  callback: (event: any) => void
-): void {
+export function handleSaleEvents(eventManager: SaleEventSignal, names: string | string[], callback: (event: any) => void): void {
   const filtered = eventManager.filterEvents(names);
-  // effect must be called in an injection context, so this must be invoked inside component constructor or lifecycle
   effect(() => {
     const events = filtered();
     if (events.length > 0) {

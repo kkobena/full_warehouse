@@ -24,10 +24,9 @@ import java.time.LocalDateTime;
 @Entity
 @Table(
     name = "inventory_transaction",
-    uniqueConstraints = { @UniqueConstraint(columnNames = { "entity_id", "produit_id" }) },
+    uniqueConstraints = { @UniqueConstraint(columnNames = { "entity_id", "produit_id", "mouvemen_type" }) },
     indexes = {
-        @Index(columnList = "mouvemen_type", name = "mouvemen_type_index"),
-        @Index(columnList = "created_at", name = "createdAt_index"),
+        @Index(columnList = "mouvemen_type", name = "mouvemen_type_index"), @Index(columnList = "created_at", name = "createdAt_index"),
     }
 )
 public class InventoryTransaction implements Serializable {

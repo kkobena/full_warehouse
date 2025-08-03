@@ -2,9 +2,11 @@ package com.kobe.warehouse.service.impl;
 
 import com.kobe.warehouse.domain.User;
 import com.kobe.warehouse.domain.UtilisationCleSecurite;
+import com.kobe.warehouse.domain.enumeration.TransactionType;
 import com.kobe.warehouse.repository.AuthorityPrivilegeRepository;
 import com.kobe.warehouse.repository.PrivilegeRepository;
 import com.kobe.warehouse.repository.UtilisationCleSecuriteRepository;
+import com.kobe.warehouse.service.LogsService;
 import com.kobe.warehouse.service.UserService;
 import com.kobe.warehouse.service.UtilisationCleSecuriteService;
 import com.kobe.warehouse.service.dto.UtilisationCleSecuriteDTO;
@@ -20,18 +22,21 @@ public class UtilisationCleSecuriteServiceImpl implements UtilisationCleSecurite
     private final UtilisationCleSecuriteRepository utilisationCleSecuriteRepository;
     private final PrivilegeRepository privilegeRepository;
     private final UserService userService;
+    private final LogsService logService;
 
     // private Function<String, String> passwordEncoder = (password) -> password;
     public UtilisationCleSecuriteServiceImpl(
         AuthorityPrivilegeRepository authorityPrivilegeRepository,
         UtilisationCleSecuriteRepository utilisationCleSecuriteRepository,
         PrivilegeRepository privilegeRepository,
-        UserService userService
+        UserService userService,
+        LogsService logService
     ) {
         this.authorityPrivilegeRepository = authorityPrivilegeRepository;
         this.utilisationCleSecuriteRepository = utilisationCleSecuriteRepository;
         this.privilegeRepository = privilegeRepository;
         this.userService = userService;
+        this.logService = logService;
     }
 
     @Override
@@ -51,7 +56,12 @@ public class UtilisationCleSecuriteServiceImpl implements UtilisationCleSecurite
             .setEntityId(utilisationCleSecuriteDTO.getEntityId())
             .setCommentaire(utilisationCleSecuriteDTO.getCommentaire())
             .setEntityName(utilisationCleSecuriteDTO.getEntityName());
-        this.utilisationCleSecuriteRepository.save(utilisationCleSecurite);
+        utilisationCleSecurite = this.utilisationCleSecuriteRepository.save(utilisationCleSecurite);
+        this.logService.create(
+                TransactionType.ACTIVATION_PRIVILEGE,
+                utilisationCleSecuriteDTO.getCommentaire(),
+                utilisationCleSecurite.getId().toString()
+            );
     }
 
     @Override

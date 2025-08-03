@@ -38,7 +38,7 @@ export class SalesHomeComponent implements OnInit {
     }
   }
 
-  onNavChange(evt: NgbNavChangeEvent): void {
+  protected onNavChange(evt: NgbNavChangeEvent): void {
     this.active = evt.nextId;
     const lastParam = this.saleToolBarService.toolBarParam();
     this.saleToolBarService.updateToolBarParam({ ...lastParam, activeTab: this.active });

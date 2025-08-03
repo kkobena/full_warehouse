@@ -84,7 +84,8 @@
               </div>
             }
           }
-          @for (tp of selectedTiersPayants(); track tp.id; let i = $index) {
+          @let tiersPs = selectedTiersPayants() || [];
+          @for (tp of tiersPs; track tp.id; let i = $index) {
             <div [class]="divClass()">
               <div class="row" style="margin-bottom: 5px">
                 <div class="col-9">
@@ -114,7 +115,7 @@
                     pKeyFilter="alphanum"
                     [fluid]="true"
                   />
-                  @if (selectedTiersPayants().length > 1) {
+                  @if (tiersPs.length > 1) {
                     <p-inputgroup-addon>
                       <p-button icon="pi pi-trash" severity="danger" type="button"
                                 pTooltip="Supprimer ce tiers payant"
@@ -126,7 +127,7 @@
               </div>
             </div>
           }
-          @if (selectedCustomerService.selectedCustomerSignal() && selectedTiersPayants().length
+          @if (selectedCustomerService.selectedCustomerSignal() && tiersPs.length
           < selectedCustomerService.selectedCustomerSignal().tiersPayants.length
           && currentSaleService.typeVo() === 'ASSURANCE') {
             <div class="mt-2 d-flex justify-content-end">

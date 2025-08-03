@@ -74,7 +74,7 @@ public abstract class AbstractSaleReceiptService extends AbstractJava2DReceiptPr
         Font font = BOLD_FONT;
         FontMetrics fontMetrics = graphics2D.getFontMetrics(font);
         graphics2D.setFont(font);
-        //add quantity before product
+
         String pu = "Prix";
         String total = "Montant";
         graphics2D.drawString("Qté", margin, y); //sur 3 chiffres 30pixels //40

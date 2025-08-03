@@ -18,24 +18,23 @@ import { Password, PasswordModule } from 'primeng/password';
   selector: 'jhi-form-action-autorisation',
   imports: [WarehouseCommonModule, FormsModule, ReactiveFormsModule, Button, TextareaModule, PasswordModule],
   templateUrl: './form-action-autorisation.component.html',
-  styles: ``,
 })
 export class FormActionAutorisationComponent implements AfterViewInit {
   entity: ISales;
   privilege: string;
-  activeModal = inject(NgbActiveModal);
-  voSalesService = inject(VoSalesService);
-  salesService = inject(SalesService);
-  fb = inject(UntypedFormBuilder);
-  modalService = inject(NgbModal);
-  errorService = inject(ErrorService);
-  actionAuthorityKey = viewChild.required<Password>('actionAuthorityKey');
-  editForm = this.fb.group({
+  protected fb = inject(UntypedFormBuilder);
+  protected actionAuthorityKey = viewChild.required<Password>('actionAuthorityKey');
+  protected editForm = this.fb.group({
     actionAuthorityKey: ['', [Validators.required]],
     commentaire: [null],
   });
   protected isSaving = false;
   protected isValid = true;
+  private readonly activeModal = inject(NgbActiveModal);
+  private readonly voSalesService = inject(VoSalesService);
+  private readonly salesService = inject(SalesService);
+  private readonly modalService = inject(NgbModal);
+  private readonly errorService = inject(ErrorService);
 
   cancel(): void {
     this.activeModal.dismiss();
@@ -73,7 +72,7 @@ export class FormActionAutorisationComponent implements AfterViewInit {
   ngAfterViewInit(): void {
     setTimeout(() => {
       this.actionAuthorityKey().el.nativeElement.focus();
-    }, 50);
+    }, 100);
   }
 
   protected createFrom(): UtilisationCleSecurite {

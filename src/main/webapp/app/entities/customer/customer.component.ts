@@ -11,7 +11,9 @@ import { ICustomer } from 'app/shared/model/customer.model';
 import { ITEMS_PER_PAGE } from 'app/shared/constants/pagination.constants';
 import { CustomerService } from './customer.service';
 import { ConfirmationService, LazyLoadEvent, MenuItem, MessageService } from 'primeng/api';
-import { UninsuredCustomerFormComponent } from './uninsured-customer-form/uninsured-customer-form.component';
+import {
+  UninsuredCustomerFormComponent
+} from './uninsured-customer-form/uninsured-customer-form.component';
 import { DialogService } from 'primeng/dynamicdialog';
 import { TranslateService } from '@ngx-translate/core';
 import { FormAyantDroitComponent } from './form-ayant-droit/form-ayant-droit.component';
@@ -28,7 +30,9 @@ import { ToolbarModule } from 'primeng/toolbar';
 import { DropdownModule } from 'primeng/dropdown';
 import { SplitButtonModule } from 'primeng/splitbutton';
 import { TooltipModule } from 'primeng/tooltip';
-import { CustomerTiersPayantComponent } from './customer-tiers-payant/customer-tiers-payant.component';
+import {
+  CustomerTiersPayantComponent
+} from './customer-tiers-payant/customer-tiers-payant.component';
 import { IClientTiersPayant } from '../../shared/model/client-tiers-payant.model';
 import { AssureFormStepComponent } from './assure-form-step/assure-form-step.component';
 import { PrimeNG } from 'primeng/config';
@@ -39,6 +43,7 @@ import { InputIcon } from 'primeng/inputicon';
 import { Panel } from 'primeng/panel';
 import { DividerModule } from 'primeng/divider';
 import { ConfirmDialogModule } from 'primeng/confirmdialog';
+import { CustomerCarnetComponent } from './carnet/customer-carnet.component';
 
 @Component({
   selector: 'jhi-customer',
@@ -115,12 +120,12 @@ export class CustomerComponent implements OnInit, OnDestroy {
       {
         label: 'Carnet',
         icon: 'pi pi-user-plus',
-        command: () => this.addAssureCustomer('CARNET'),
+        command: () => this.addCarnet('CARNET'),
       },
       {
         label: 'Dépôt',
         icon: 'pi pi-user-plus',
-        command: () => this.addAssureCustomer('DEPOT'),
+        command: () => this.addCarnet('DEPOT'),
       },
       {
         label: 'Standard',
@@ -247,6 +252,14 @@ export class CustomerComponent implements OnInit, OnDestroy {
       result.push('id');
     }
     return result;
+  }
+
+  addCarnet(categorie: string): void {
+    this.openCustomerModal(CustomerCarnetComponent, {
+      entity: null,
+      categorie: categorie,
+      header: `FORMULAIRE DE CREATION DE CLIENT [ ${categorie} ]`,
+    });
   }
 
   addAssureCustomer(typeAssure: string): void {

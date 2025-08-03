@@ -1,4 +1,6 @@
 <p-toast position="center"></p-toast>
+<div class="modal-header">
+  <h4 class="modal-title">{{ header }}</h4></div>
 
 <form (ngSubmit)="save()" [formGroup]="editForm" name="editForm" novalidate>
   <div class="modal-body">
@@ -19,10 +21,12 @@
           pInputText
           type="text"
         />
-        @if (editForm.get('firstName')!.invalid && (editForm.get('firstName')!.dirty || editForm.get('firstName')!.touched)) {
+        @if (editForm.get('firstName')!.invalid && (editForm.get('firstName')!.dirty
+          || editForm.get('firstName')!.touched)) {
           <div>
             @if (editForm.get('firstName')?.errors?.required) {
-              <small class="form-text text-danger" jhiTranslate="entity.validation.required"> This field is required. </small>
+              <small class="form-text text-danger" jhiTranslate="entity.validation.required"> This
+                field is required. </small>
             }
           </div>
         }
@@ -41,10 +45,12 @@
           pInputText
           type="text"
         />
-        @if (editForm.get('lastName')!.invalid && (editForm.get('lastName')!.dirty || editForm.get('lastName')!.touched)) {
+        @if (editForm.get('lastName')!.invalid && (editForm.get('lastName')!.dirty || editForm.get(
+          'lastName')!.touched)) {
           <div>
             @if (editForm.get('lastName')?.errors?.required) {
-              <small class="form-text text-danger" jhiTranslate="entity.validation.required"> This field is required. </small>
+              <small class="form-text text-danger" jhiTranslate="entity.validation.required"> This
+                field is required. </small>
             }
           </div>
         }
@@ -64,10 +70,12 @@
           type="text"
         />
 
-        @if (editForm.get('phone')!.invalid && (editForm.get('phone')!.dirty || editForm.get('phone')!.touched)) {
+        @if (editForm.get('phone')!.invalid && (editForm.get('phone')!.dirty || editForm.get(
+          'phone')!.touched)) {
           <div>
             @if (editForm.get('phone')?.errors?.required) {
-              <small class="form-text text-danger" jhiTranslate="entity.validation.required"> This field is required. </small>
+              <small class="form-text text-danger" jhiTranslate="entity.validation.required"> This
+                field is required. </small>
             }
           </div>
         }
@@ -76,7 +84,8 @@
     <div class="form-row">
       <div class="form-group col">
         <label class="form-control-label" for="field_email">E-mail</label>
-        <input autocomplete="off" class="form-control" formControlName="email" id="field_email" name="email" pInputText type="email" />
+        <input autocomplete="off" class="form-control" formControlName="email" id="field_email"
+               name="email" pInputText type="email" />
       </div>
     </div>
   </div>

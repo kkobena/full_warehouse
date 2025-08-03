@@ -1,4 +1,16 @@
-import { Component, ElementRef, inject, input, OnInit, output, signal, viewChild } from '@angular/core';
+import {
+  Component,
+  computed,
+  effect,
+  ElementRef,
+  inject,
+  input,
+  OnInit,
+  output,
+  signal,
+  viewChild,
+  viewChildren
+} from '@angular/core';
 import { WarehouseCommonModule } from '../../../shared/warehouse-common/warehouse-common.module';
 import { KeyFilterModule } from 'primeng/keyfilter';
 import { InputTextModule } from 'primeng/inputtext';
@@ -6,16 +18,18 @@ import { ButtonModule } from 'primeng/button';
 import { RippleModule } from 'primeng/ripple';
 import { FormsModule } from '@angular/forms';
 import { IPaymentMode, PaymentModeControl } from '../../../shared/model/payment-mode.model';
-import { DOCUMENT } from '@angular/common';
 import { CurrentSaleService } from '../service/current-sale.service';
 import { SelectModeReglementService } from '../service/select-mode-reglement.service';
-import { CustomerDataTableComponent } from '../uninsured-customer-list/customer-data-table.component';
+import {
+  CustomerDataTableComponent
+} from '../uninsured-customer-list/customer-data-table.component';
 import { BaseSaleService } from '../service/base-sale.service';
 import { IPayment, Payment } from '../../../shared/model/payment.model';
 import { PopoverModule } from 'primeng/popover';
 import { ToggleSwitch } from 'primeng/toggleswitch';
 import { InputGroupAddonModule } from 'primeng/inputgroupaddon';
 import { InputGroupModule } from 'primeng/inputgroup';
+import { PaymentModeCode } from '../../../shared/payment-mode';
 
 @Component({
   selector: 'jhi-mode-reglement',
@@ -40,43 +54,40 @@ export class ModeReglementComponent implements OnInit {
   readonly onSaveEvent = output<boolean>();
   readonly onCloseEvent = output<boolean>();
   readonly isDiffere = input<boolean>(true);
-  commentaire: string = null;
-  referenceBancaire: string = null;
-  banque: string = null;
-  lieux: string = null;
-  readonly CASH = 'CASH';
-  readonly COMPTANT = 'COMPTANT';
-  readonly CARNET = 'CARNET';
-  readonly ASSURANCE = 'ASSURANCE';
-  readonly OM = 'OM';
-  readonly CB = 'CB';
-  readonly CH = 'CH';
-  readonly VIREMENT = 'VIREMENT';
-  readonly WAVE = 'WAVE';
-  readonly MOOV = 'MOOV';
-  readonly MTN = 'MTN';
+  commentaire: string | null = null;
+  referenceBancaire: string | null = null;
+  banque: string | null = null;
+  lieux: string | null = null;
   reglementsModes: IPaymentMode[];
   commentaireInput = viewChild<ElementRef>('commentaireInput');
   addOverlayPanel = viewChild<any>('addOverlayPanel');
   removeOverlayPanel = viewChild<any>('removeOverlayPanel');
+  paymentModeInputs = viewChildren<ElementRef<HTMLInputElement>>('paymentModeInput');
+  isShowAddBtn = signal(false);
+  forceFocus = signal(false);
   currentSaleService = inject(CurrentSaleService);
   baseSaleService = inject(BaseSaleService);
   selectModeReglementService = inject(SelectModeReglementService);
-  isShowAddBtn = signal(false);
-  protected printTicket = true;
-  protected sansBon = false;
+  readonly bankRelatedModes = [PaymentModeCode.CB, PaymentModeCode.VIREMENT, PaymentModeCode.CH];
+  readonly manageShowInfosBancaire = computed(() =>
+    this.selectModeReglementService.modeReglements()?.some(element => this.bankRelatedModes.includes(element?.code as PaymentModeCode)),
+  );
   protected printInvoice = false;
-  protected paymentModeToChange: IPaymentMode | null;
+  protected paymentModeToChange: IPaymentMode | null = null;
   protected isSmallScreen = false;
-  private document = inject<Document>(DOCUMENT);
-  private readonly modes = [this.CB, this.VIREMENT, this.CH];
+  private lastModesCount = 0;
 
   constructor() {
     this.updateAvailableMode();
-  }
-
-  get manageShowInfosBancaire(): boolean {
-    return this.selectModeReglementService.modeReglements()?.some((element: IPaymentMode) => this.modes.includes(element?.code));
+    effect(() => {
+      const currentModes = this.selectModeReglementService.modeReglements();
+      const newCount = currentModes.length;
+      if (newCount > 0 && newCount > this.lastModesCount) {
+        console.warn('focus last input', newCount);
+        this.focusLastAddInput();
+      }
+      this.lastModesCount = newCount;
+    });
   }
 
   ngOnInit(): void {
@@ -107,14 +118,11 @@ export class ModeReglementComponent implements OnInit {
       this.onModeBtnClick(old);
       this.removeOverlayPanel().toggle(evt);
     } else {
-      const mds = this.selectModeReglementService.modeReglements();
-      const modeToRemove = mds.find((el: IPaymentMode) => el.code === old.code);
+      const modeToRemove = this.selectModeReglementService.modeReglements().find(el => el.code === old.code);
       if (modeToRemove) {
         this.selectModeReglementService.remove(modeToRemove);
         this.updateAvailableMode();
-        setTimeout(() => {
-          this.manageShowAddButton(this.getInputSum());
-        }, 30);
+        this.manageShowAddButton(this.getInputSum());
       }
     }
   }
@@ -128,11 +136,11 @@ export class ModeReglementComponent implements OnInit {
   }
 
   buildPreventeReglementInput(): void {
-    this.selectModeReglementService.paymentModes.forEach((mode: IPaymentMode) => {
+    this.selectModeReglementService.paymentModes.forEach(mode => {
       const el = this.currentSaleService.currentSale().payments.find(payment => payment.paymentMode.code === mode.code);
       if (el) {
         mode.amount = el.paidAmount;
-        if (mode.code === this.CASH && el.montantVerse) {
+        if (mode.code === PaymentModeCode.CASH && el.montantVerse) {
           mode.amount = el.montantVerse;
           this.currentSaleService.currentSale().montantVerse = el.montantVerse;
         }
@@ -152,40 +160,34 @@ export class ModeReglementComponent implements OnInit {
     this.selectModeReglementService.selectCashModePayment();
   }
 
-  getInputAtIndex(index: number | null): HTMLInputElement {
-    const modeInputs = this.getInputElement();
-    const indexAt = index === 0 ? index : modeInputs.length - 1;
-    if (modeInputs && modeInputs.length > 0) {
-      return modeInputs[indexAt];
-    }
-    return null;
-  }
-
   onAddPaymentMode(newMode: IPaymentMode): void {
     const oldModes = this.selectModeReglementService.modeReglements();
     if (oldModes.length < this.baseSaleService.maxModePayementNumber()) {
-      oldModes[oldModes.length++] = newMode;
-      this.selectModeReglementService.setModePayments(oldModes);
+      this.forceFocus.set(true);
+      this.selectModeReglementService.setModePayments([...oldModes, newMode]);
       this.updateAvailableMode();
       this.addOverlayPanel().hide();
-      setTimeout(() => {
-        this.focusLastAddInput();
-      }, 50);
     }
     this.isShowAddBtn.set(this.selectModeReglementService.modeReglements().length < this.baseSaleService.maxModePayementNumber());
   }
 
   focusLastAddInput(): void {
-    const input = this.getInputAtIndex(null);
-    if (input) {
-      input.focus();
-      const secondInputDefaultAmount =
-        this.currentSaleService.currentSale().amountToBePaid -
-        this.selectModeReglementService.modeReglements().find((e: IPaymentMode) => e.code !== input.id).amount;
-      input.value = String(secondInputDefaultAmount);
-      setTimeout(() => {
-        input.select();
-      }, 50);
+    const inputs = this.paymentModeInputs();
+    const lastInput = inputs[inputs.length - 1]?.nativeElement;
+    if (lastInput) {
+      lastInput.focus();
+      const amountOfOtherModes = this.selectModeReglementService
+        .modeReglements()
+        .filter(e => e.code !== lastInput.id)
+        .reduce((acc, e) => acc + (e.amount || 0), 0);
+
+      const newAmount = this.currentSaleService.currentSale().amountToBePaid - amountOfOtherModes;
+      const mode = this.selectModeReglementService.modeReglements().find(e => e.code === lastInput.id);
+      if (mode) {
+        mode.amount = newAmount;
+      }
+      lastInput.value = String(newAmount);
+      setTimeout(() => lastInput.select(), 50);
     }
   }
 
@@ -196,40 +198,34 @@ export class ModeReglementComponent implements OnInit {
 
   changePaimentMode(newPaymentMode: IPaymentMode): void {
     const oldModes = this.selectModeReglementService.modeReglements();
-    const oldIndex = oldModes.findIndex((el: IPaymentMode) => (el.code = this.paymentModeToChange.code));
-    oldModes[oldIndex] = newPaymentMode;
-    this.selectModeReglementService.setModePayments(oldModes);
-    this.updateAvailableMode();
-    setTimeout(() => {
-      this.manageAmountDiv();
-    }, 20);
+    const oldIndex = oldModes.findIndex(el => el.code === this.paymentModeToChange?.code);
+    if (oldIndex !== -1) {
+      const updatedModes = [...oldModes];
+      updatedModes[oldIndex] = newPaymentMode;
+      this.selectModeReglementService.setModePayments(updatedModes);
+      this.updateAvailableMode();
+      setTimeout(() => this.manageAmountDiv(), 100);
+    }
   }
 
   manageAmountDiv(): void {
-    const input = this.getInputAtIndex(0);
-    if (input) {
-      this.selectModeReglementService.modeReglements().find((e: IPaymentMode) => e.code === input.id).amount =
-        this.currentSaleService.currentSale().amountToBePaid;
-      input.focus();
-      setTimeout(() => {
-        input.select();
-      }, 20);
+    const firstInput = this.paymentModeInputs()[0]?.nativeElement;
+    if (firstInput) {
+      const mode = this.selectModeReglementService.modeReglements().find(e => e.code === firstInput.id);
+      if (mode) {
+        mode.amount = this.currentSaleService.currentSale().amountToBePaid;
+      }
+      firstInput.focus();
+      setTimeout(() => firstInput.select(), 100);
     }
   }
 
   commentaireInputGetFocus(): void {
-    setTimeout(() => {
-      this.commentaireInput().nativeElement.focus();
-    }, 20);
+    setTimeout(() => this.commentaireInput()?.nativeElement.focus(), 20);
   }
 
   getInputSum(): number {
-    const inputs = this.getInputElement();
-    let sum = 0;
-    inputs.forEach((input: HTMLInputElement) => {
-      sum += Number(input.value);
-    });
-    return sum;
+    return this.selectModeReglementService.modeReglements().reduce((sum, mode) => sum + (mode.amount || 0), 0);
   }
 
   onSansBonChange(evt: any): void {
@@ -245,18 +241,10 @@ export class ModeReglementComponent implements OnInit {
   }
 
   buildPayment(entryAmount: number): IPayment[] {
-    const payments: IPayment[] = [];
-    this.selectModeReglementService.modeReglements().forEach((mode: IPaymentMode) => {
-      const input: HTMLInputElement = this.getInputElement().find((e: HTMLInputElement) => e.id === mode.code);
-      if (input) {
-        const amount = Number(input.value);
-        if (amount > 0) {
-          payments.push(this.buildModePayment(mode, amount, entryAmount));
-        }
-      }
-    });
-
-    return payments;
+    return this.selectModeReglementService
+      .modeReglements()
+      .filter(mode => (mode.amount || 0) > 0)
+      .map(mode => this.buildModePayment(mode, mode.amount, entryAmount));
   }
 
   protected onClose(op: any): void {
@@ -269,22 +257,16 @@ export class ModeReglementComponent implements OnInit {
   }
 
   private setFirstInputFocused(): void {
-    const input = this.getInputAtIndex(0);
-    if (input) {
-      input.focus();
-      setTimeout(() => {
-        input.select();
-      }, 50);
+    if (!this.forceFocus()) {
+      return;
     }
-  }
-
-  private getInputs(): Element[] {
-    const inputs = this.document.querySelectorAll('.payment-mode-input');
-    return Array.from(inputs);
-  }
-
-  private getInputElement(): HTMLInputElement[] {
-    return this.getInputs() as HTMLInputElement[];
+    queueMicrotask(() => {
+      const firstInput = this.paymentModeInputs()[0]?.nativeElement;
+      if (firstInput) {
+        firstInput.focus();
+        setTimeout(() => firstInput.select(), 50);
+      }
+    });
   }
 
   private buildModePayment(mode: IPaymentMode, inputAmount: number, entryAmount: number): Payment {

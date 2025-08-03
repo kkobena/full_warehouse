@@ -8,40 +8,30 @@ import {
   signal,
   viewChild,
   viewChildren,
-  WritableSignal
+  WritableSignal,
 } from '@angular/core';
 import { CustomerService } from '../../../../customer/customer.service';
 import { HttpResponse } from '@angular/common/http';
 import { ICustomer } from '../../../../../shared/model/customer.model';
 import { SelectedCustomerService } from '../../../service/selected-customer.service';
-import {
-  AssuredCustomerListComponent
-} from '../../../assured-customer-list/assured-customer-list.component';
+import { AssuredCustomerListComponent } from '../../../assured-customer-list/assured-customer-list.component';
 import { MenuItem } from 'primeng/api';
 import { FormsModule } from '@angular/forms';
 import { KeyFilterModule } from 'primeng/keyfilter';
 import { PanelModule } from 'primeng/panel';
 import { InputTextModule } from 'primeng/inputtext';
 import { IClientTiersPayant } from '../../../../../shared/model/client-tiers-payant.model';
-import {
-  FormAyantDroitComponent
-} from '../../../../customer/form-ayant-droit/form-ayant-droit.component';
+import { FormAyantDroitComponent } from '../../../../customer/form-ayant-droit/form-ayant-droit.component';
 import { SplitButtonModule } from 'primeng/splitbutton';
-import {
-  AyantDroitCustomerListComponent
-} from '../../../ayant-droit-customer-list/ayant-droit-customer-list.component';
+import { AyantDroitCustomerListComponent } from '../../../ayant-droit-customer-list/ayant-droit-customer-list.component';
 import { ConfirmPopupModule } from 'primeng/confirmpopup';
 import { CurrentSaleService } from '../../../service/current-sale.service';
-import {
-  AssureFormStepComponent
-} from '../../../../customer/assure-form-step/assure-form-step.component';
+import { AssureFormStepComponent } from '../../../../customer/assure-form-step/assure-form-step.component';
 import { BaseSaleService } from '../../../service/base-sale.service';
 import { AddComplementaireComponent } from '../add-complementaire/add-complementaire.component';
 import { IconField } from 'primeng/iconfield';
 import { InputIcon } from 'primeng/inputicon';
-import {
-  ConfirmDialogComponent
-} from '../../../../../shared/dialog/confirm-dialog/confirm-dialog.component';
+import { ConfirmDialogComponent } from '../../../../../shared/dialog/confirm-dialog/confirm-dialog.component';
 import { InputGroupModule } from 'primeng/inputgroup';
 import { InputGroupAddonModule } from 'primeng/inputgroupaddon';
 import { Button } from 'primeng/button';
@@ -116,35 +106,6 @@ export class AssuranceDataComponent implements OnInit, AfterViewInit {
       if (this.currentSaleService.typeVo()) {
         this.ayantDroit = currSale.ayantDroit || currSale.customer;
       }
-    }
-  }
-
-  load(): void {
-    if (this.search) {
-      this.customerService
-        .queryAssuredCustomer({
-          search: this.search,
-          size: 2,
-          typeTiersPayant: this.currentSaleService.typeVo(),
-        })
-        .subscribe({
-          next: (res: HttpResponse<ICustomer[]>) => {
-            const assuredCustomers = res.body;
-            if (assuredCustomers && assuredCustomers.length) {
-              if (assuredCustomers.length === 1) {
-                this.selectedCustomerService.setCustomer(assuredCustomers[0]);
-                this.firstRefBonFocus();
-              } else {
-                this.openAssuredCustomerListTable();
-              }
-              this.search = null;
-            } else {
-              this.addAssuredCustomer();
-              this.search = null;
-            }
-          },
-          error() {},
-        });
     }
   }
 
@@ -232,28 +193,9 @@ export class AssuranceDataComponent implements OnInit, AfterViewInit {
           this.setCustomer(resp);
         },
         'xl',
-        'modal-dialog-70'
+        'modal-dialog-70',
       );
     }
-  }
-
-  private openAssuredCustomerForm(customer: ICustomer | null): void {
-    const isEdit = !!customer;
-    const header = isEdit ? 'FORMULAIRE DE MODIFICATION DE CLIENT' : "FORMULAIRE D'AJOUT DE NOUVEAU DE CLIENT";
-    showCommonModal(
-      this.modalService,
-      AssureFormStepComponent,
-      {
-        entity: customer,
-        typeAssure: this.currentSaleService.typeVo(),
-        header: header,
-      },
-      (resp: ICustomer) => {
-        this.setCustomer(resp);
-      },
-      'xl',
-      'modal-dialog-80'
-    );
   }
 
   addAyantDroit(ayantDroit: ICustomer): void {
@@ -278,25 +220,7 @@ export class AssuranceDataComponent implements OnInit, AfterViewInit {
           }
         }
       },
-      'xl'
-    );
-  }
-
-  private openAyantDroitForm(ayantDroit: ICustomer): void {
-    showCommonModal(
-      this.modalService,
-      FormAyantDroitComponent,
-      {
-        entity: ayantDroit,
-        assure: this.selectedCustomerService.selectedCustomerSignal(),
-        header: 'FORMULAIRE DE MODIFICATION ',
-      },
-      (resp: ICustomer) => {
-        if (resp) {
-          this.ayantDroit = resp;
-        }
-      },
-      'xl'
+      'xl',
     );
   }
 
@@ -326,6 +250,72 @@ export class AssuranceDataComponent implements OnInit, AfterViewInit {
     } else {
       // this.focusProduct.emit();
     }
+  }
+
+  protected load(): void {
+    if (this.search) {
+      this.customerService
+        .queryAssuredCustomer({
+          search: this.search,
+          size: 2,
+          typeTiersPayant: this.currentSaleService.typeVo(),
+        })
+        .subscribe({
+          next: (res: HttpResponse<ICustomer[]>) => {
+            const assuredCustomers = res.body;
+            if (assuredCustomers && assuredCustomers.length) {
+              if (assuredCustomers.length === 1) {
+                this.selectedCustomerService.setCustomer(assuredCustomers[0]);
+                this.firstRefBonFocus();
+              } else {
+                this.openAssuredCustomerListTable();
+              }
+              this.search = null;
+            } else {
+              this.addAssuredCustomer();
+              this.search = null;
+            }
+          },
+          error() {},
+        });
+    }
+  }
+
+  private openAssuredCustomerForm(customer: ICustomer | null): void {
+    const isEdit = !!customer;
+    const header = isEdit ? 'FORMULAIRE DE MODIFICATION DE CLIENT' : "FORMULAIRE D'AJOUT DE NOUVEAU DE CLIENT";
+    showCommonModal(
+      this.modalService,
+      AssureFormStepComponent,
+      {
+        entity: customer,
+        typeAssure: this.currentSaleService.typeVo(),
+        header: header,
+      },
+      (resp: ICustomer) => {
+        this.setCustomer(resp);
+      },
+      'xl',
+      'modal-dialog-80',
+    );
+  }
+
+  private openAyantDroitForm(ayantDroit: ICustomer): void {
+    showCommonModal(
+      this.modalService,
+      FormAyantDroitComponent,
+      {
+        entity: ayantDroit,
+        assure: this.selectedCustomerService.selectedCustomerSignal(),
+        header: 'FORMULAIRE DE MODIFICATION ',
+      },
+      (resp: ICustomer) => {
+        if (resp) {
+          this.ayantDroit = resp;
+        }
+      },
+      'xl',
+    );
   }
 
   private updateTiersPayantsOnCustomerChange(): void {

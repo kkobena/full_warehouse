@@ -15,10 +15,8 @@ export class AmountComputingComponent {
   derniere monnaie
    */
 
-  currentSaleService = inject(CurrentSaleService);
-  lastCurrencyGivenService = inject(LastCurrencyGivenService);
-
-  constructor() {}
+  protected currentSaleService = inject(CurrentSaleService);
+  protected lastCurrencyGivenService = inject(LastCurrencyGivenService);
 
   computeMonnaie(amount: number | null): void {
     const thatentryAmount = amount || this.entryAmount();

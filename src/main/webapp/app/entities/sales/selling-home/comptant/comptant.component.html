@@ -32,9 +32,11 @@
     </div>
   </div>
   <jhi-mode-reglement #modeReglement
+
                       [isDiffere]="currentSaleService.currentSale()?.differe"
                       (paymentModeControlEvent)="manageCashPaymentMode($event)"
                       (onSaveEvent)="onKeyDown($event)"
+
   ></jhi-mode-reglement>
 }
 

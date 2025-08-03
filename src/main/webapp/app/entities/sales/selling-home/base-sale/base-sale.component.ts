@@ -120,10 +120,6 @@ export class BaseSaleComponent {
     this.baseSaleService.onCompleteSale();
   }
 
-  /*  isValidDiffere(): boolean {
-      return this.currentSaleService.currentSale().differe /!* && !this.sale.customerId*!/;
-    }*/
-
   onLoadPrevente(): void {
     this.modeReglementComponent().buildPreventeReglementInput();
     setTimeout(() => {

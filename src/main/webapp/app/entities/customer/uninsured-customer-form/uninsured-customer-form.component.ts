@@ -1,6 +1,13 @@
-import { AfterViewInit, Component, ElementRef, inject, OnDestroy, OnInit, viewChild } from '@angular/core';
-import { ConfirmationService, MessageService } from 'primeng/api';
-import { DialogService, DynamicDialogConfig, DynamicDialogRef } from 'primeng/dynamicdialog';
+import {
+  AfterViewInit,
+  Component,
+  ElementRef,
+  inject,
+  OnDestroy,
+  OnInit,
+  viewChild
+} from '@angular/core';
+import { MessageService } from 'primeng/api';
 import { Customer, ICustomer } from 'app/shared/model/customer.model';
 import { ErrorService } from 'app/shared/error.service';
 import { FormsModule, ReactiveFormsModule, UntypedFormBuilder, Validators } from '@angular/forms';
@@ -14,11 +21,12 @@ import { RippleModule } from 'primeng/ripple';
 import { InputTextModule } from 'primeng/inputtext';
 import { ToastModule } from 'primeng/toast';
 import { KeyFilterModule } from 'primeng/keyfilter';
+import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
 
 @Component({
   selector: 'jhi-uninsured-customer-form',
   templateUrl: './uninsured-customer-form.component.html',
-  providers: [MessageService, DialogService, ConfirmationService],
+  providers: [MessageService],
   imports: [
     WarehouseCommonModule,
     FormsModule,
@@ -31,16 +39,13 @@ import { KeyFilterModule } from 'primeng/keyfilter';
   ],
 })
 export class UninsuredCustomerFormComponent implements OnInit, AfterViewInit, OnDestroy {
-  ref = inject(DynamicDialogRef);
-  config = inject(DynamicDialogConfig);
+  header: string | null = null;
   entity?: ICustomer;
-  isSaving = false;
-  isValid = true;
-  firstName = viewChild.required<ElementRef>('firstName');
-  private readonly errorService = inject(ErrorService);
-  private readonly customerService = inject(CustomerService);
-  private fb = inject(UntypedFormBuilder);
-  editForm = this.fb.group({
+  protected isSaving = false;
+  protected isValid = true;
+  protected firstName = viewChild.required<ElementRef>('firstName');
+  protected fb = inject(UntypedFormBuilder);
+  protected editForm = this.fb.group({
     id: [],
     firstName: [null, [Validators.required, Validators.min(1)]],
     lastName: [null, [Validators.required, Validators.min(1)]],
@@ -49,9 +54,11 @@ export class UninsuredCustomerFormComponent implements OnInit, AfterViewInit, On
   });
   private readonly messageService = inject(MessageService);
   private destroy$ = new Subject<void>();
+  private readonly errorService = inject(ErrorService);
+  private readonly customerService = inject(CustomerService);
+  private readonly activeModal = inject(NgbActiveModal);
 
   ngOnInit(): void {
-    this.entity = this.config.data.entity;
     if (this.entity) {
       this.updateForm(this.entity);
     }
@@ -90,7 +97,7 @@ export class UninsuredCustomerFormComponent implements OnInit, AfterViewInit, On
   }
 
   cancel(): void {
-    this.ref.close();
+    this.activeModal.dismiss();
   }
 
   private createFromForm(): ICustomer {
@@ -107,25 +114,33 @@ export class UninsuredCustomerFormComponent implements OnInit, AfterViewInit, On
   }
 
   private subscribeToSaveResponse(result: Observable<HttpResponse<ICustomer>>): void {
-    result.pipe(finalize(() => (this.isSaving = false)), takeUntil(this.destroy$)).subscribe({
-      next: (res: HttpResponse<ICustomer>) => this.onSaveSuccess(res.body),
-      error: (error: any) => this.onSaveError(error),
-    });
+    result
+      .pipe(
+        finalize(() => (this.isSaving = false)),
+        takeUntil(this.destroy$),
+      )
+      .subscribe({
+        next: (res: HttpResponse<ICustomer>) => this.onSaveSuccess(res.body),
+        error: (error: any) => this.onSaveError(error),
+      });
   }
 
   private onSaveSuccess(customer: ICustomer | null): void {
-    this.ref.close(customer);
+    this.activeModal.close(customer);
   }
 
   private onSaveError(error: any): void {
     if (error.error?.errorKey) {
-      this.errorService.getErrorMessageTranslation(error.error.errorKey).pipe(takeUntil(this.destroy$)).subscribe(translatedErrorMessage => {
-        this.messageService.add({
-          severity: 'error',
-          summary: 'Erreur',
-          detail: translatedErrorMessage,
+      this.errorService
+        .getErrorMessageTranslation(error.error.errorKey)
+        .pipe(takeUntil(this.destroy$))
+        .subscribe(translatedErrorMessage => {
+          this.messageService.add({
+            severity: 'error',
+            summary: 'Erreur',
+            detail: translatedErrorMessage,
+          });
         });
-      });
     } else {
       this.messageService.add({
         severity: 'error',

@@ -18,6 +18,7 @@ import com.kobe.warehouse.domain.enumeration.NatureVente;
 import com.kobe.warehouse.domain.enumeration.OrigineVente;
 import com.kobe.warehouse.domain.enumeration.SalesStatut;
 import com.kobe.warehouse.domain.enumeration.ThirdPartySaleStatut;
+import com.kobe.warehouse.domain.enumeration.TransactionType;
 import com.kobe.warehouse.domain.enumeration.TypeVente;
 import com.kobe.warehouse.repository.AssuredCustomerRepository;
 import com.kobe.warehouse.repository.CashSaleRepository;
@@ -29,6 +30,7 @@ import com.kobe.warehouse.repository.ThirdPartySaleRepository;
 import com.kobe.warehouse.repository.TiersPayantPrixRepository;
 import com.kobe.warehouse.repository.TiersPayantRepository;
 import com.kobe.warehouse.repository.UserRepository;
+import com.kobe.warehouse.service.LogsService;
 import com.kobe.warehouse.service.PaymentService;
 import com.kobe.warehouse.service.ReferenceService;
 import com.kobe.warehouse.service.StorageService;
@@ -93,6 +95,7 @@ public class ThirdPartySaleServiceImpl extends SaleCommonService implements Thir
     private final RemiseRepository remiseRepository;
     private final PrixRererenceService prixRererenceService;
     private final TiersPayantPrixRepository tiersPayantPrixRepository;
+    private final LogsService logService;
     private final DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern("yyyyMM").withZone(ZoneId.systemDefault());
 
     public ThirdPartySaleServiceImpl(
@@ -115,7 +118,8 @@ public class ThirdPartySaleServiceImpl extends SaleCommonService implements Thir
         RemiseRepository remiseRepository,
         AfficheurPosService afficheurPosService,
         PrixRererenceService prixRererenceService,
-        TiersPayantPrixRepository tiersPayantPrixRepository
+        TiersPayantPrixRepository tiersPayantPrixRepository,
+        LogsService logService
     ) {
         super(
             referenceService,
@@ -141,6 +145,7 @@ public class ThirdPartySaleServiceImpl extends SaleCommonService implements Thir
         this.remiseRepository = remiseRepository;
         this.prixRererenceService = prixRererenceService;
         this.tiersPayantPrixRepository = tiersPayantPrixRepository;
+        this.logService = logService;
     }
 
     @Override
@@ -487,6 +492,13 @@ public class ThirdPartySaleServiceImpl extends SaleCommonService implements Thir
     @Transactional
     public void updateDate(ThirdPartySaleDTO dto) {
         this.thirdPartySaleRepository.findById(dto.getId()).ifPresent(sales -> {
+                this.logService.create(
+                        TransactionType.MODIFICATION_DATE_DE_VENTE,
+                        TransactionType.MODIFICATION_DATE_DE_VENTE.getValue(),
+                        sales.getId().toString(),
+                        sales.getUpdatedAt().toString(),
+                        dto.getUpdatedAt().toString()
+                    );
                 sales.setCreatedAt(dto.getUpdatedAt());
                 sales.setUpdatedAt(sales.getCreatedAt());
                 sales

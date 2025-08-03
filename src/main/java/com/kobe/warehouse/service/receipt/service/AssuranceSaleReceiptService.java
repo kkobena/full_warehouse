@@ -150,9 +150,14 @@ public class AssuranceSaleReceiptService extends AbstractSaleReceiptService {
         FontMetrics fontMetrics;
         for (ThirdPartySaleLineDTO thirdPartySaleLine : thirdPartySale.getThirdPartySaleLines()) {
             graphics2D.setFont(PLAIN_FONT);
-            graphics2D.drawString(thirdPartySaleLine.getPriorite().getCode().concat(": " + thirdPartySaleLine.getName()), margin, y);
+            graphics2D.drawString(
+                thirdPartySaleLine.getPriorite().getCode().concat(": " + getTiersPayantName(thirdPartySaleLine.getName())),
+                margin,
+                y
+            );
+
             if (!hasPrixOption) {
-                drawAndCenterText(graphics2D, thirdPartySaleLine.getTaux() + "%", width, margin, y);
+                drawAndCenterText(graphics2D, thirdPartySaleLine.getTaux() + "%", width, getPuRightMargin() + 100, y);
             }
 
             graphics2D.setFont(BOLD_FONT);
@@ -290,5 +295,12 @@ public class AssuranceSaleReceiptService extends AbstractSaleReceiptService {
             y += lineHeight;
         }
         return y;
+    }
+
+    private String getTiersPayantName(String name) {
+        if (name.length() < 28) {
+            return name;
+        }
+        return name.substring(0, 28);
     }
 }

@@ -1,15 +1,15 @@
-import {effect, inject, Injectable, signal, WritableSignal} from '@angular/core';
-import {CurrentSaleService} from './current-sale.service';
-import {IPaymentMode} from '../../../shared/model/payment-mode.model';
-import {SelectModeReglementService} from './select-mode-reglement.service';
-import {FinalyseSale, InputToFocus, ISales, Sales, SaveResponse, StockError} from '../../../shared/model/sales.model';
-import {ISalesLine} from '../../../shared/model/sales-line.model';
-import {VoSalesService} from './vo-sales.service';
-import {ConfigurationService} from '../../../shared/configuration.service';
-import {IClientTiersPayant} from '../../../shared/model/client-tiers-payant.model';
-import {Observable} from 'rxjs';
-import {HttpResponse} from '@angular/common/http';
-import {SaleEventSignal} from "../selling-home/sale-event";
+import { effect, inject, Injectable, signal, WritableSignal } from '@angular/core';
+import { CurrentSaleService } from './current-sale.service';
+import { IPaymentMode } from '../../../shared/model/payment-mode.model';
+import { SelectModeReglementService } from './select-mode-reglement.service';
+import { FinalyseSale, InputToFocus, ISales, Sales, SaveResponse, StockError } from '../../../shared/model/sales.model';
+import { ISalesLine } from '../../../shared/model/sales-line.model';
+import { VoSalesService } from './vo-sales.service';
+import { ConfigurationService } from '../../../shared/configuration.service';
+import { IClientTiersPayant } from '../../../shared/model/client-tiers-payant.model';
+import { Observable } from 'rxjs';
+import { HttpResponse } from '@angular/common/http';
+import { SaleEventSignal } from '../selling-home/sale-event';
 
 @Injectable({
   providedIn: 'root',
@@ -24,19 +24,9 @@ export class BaseSaleService {
   selectModeReglementService = inject(SelectModeReglementService);
   entryAmount: number;
   readonly CASH = 'CASH';
-  // private readonly saleEventManager = inject(SaleEventManager);
   private readonly saleEventManager = inject(SaleEventSignal);
 
   constructor() {
-    /*   if (this.hasSansBon() === null) {
-         this.hasSaleWithoutBon();
-       }
-       if (this.quantityMax() === null) {
-         this.getMaxToSale();
-       }
-        if (this.maxModePayementNumber() === null) {
-          this.getMaxModePaymentNumber();
-        }*/
     effect(() => this.hasSaleWithoutBon());
     effect(() => this.getMaxToSale());
   }
@@ -118,7 +108,6 @@ export class BaseSaleService {
   }
 
   onSaveError(err: any, sale?: ISales): void {
-
     if (err.status === 412) {
       const errorPayload = err.error?.payload as ISales;
       this.currentSaleService.setCurrentSale(errorPayload);
@@ -182,21 +171,21 @@ export class BaseSaleService {
   getMaxToSale(): void {
     this.configurationService.find('APP_QTY_MAX').subscribe({
       next: res => this.quantityMax.set(Number(res.body?.value ?? 10000)),
-      error: () => this.quantityMax.set(10000)
+      error: () => this.quantityMax.set(10000),
     });
   }
 
   hasSaleWithoutBon(): void {
     this.configurationService.find('APP_SANS_NUM_BON').subscribe({
       next: res => this.hasSansBon.set(Number(res.body?.value) === 1),
-      error: () => this.hasSansBon.set(false)
+      error: () => this.hasSansBon.set(false),
     });
   }
 
   getMaxModePaymentNumber(): void {
     this.configurationService.find('APP_MODE_REGL_NUMBER').subscribe({
       next: res => this.maxModePayementNumber.set(Number(res.body?.value ?? 2)),
-      error: () => this.maxModePayementNumber.set(2)
+      error: () => this.maxModePayementNumber.set(2),
     });
   }
 

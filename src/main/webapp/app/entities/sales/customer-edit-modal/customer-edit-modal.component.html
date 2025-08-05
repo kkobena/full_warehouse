@@ -1,0 +1,207 @@
+<form (ngSubmit)="save()" [formGroup]="editForm" name="editForm" novalidate role="form">
+  <div class="modal-header">
+    <h4 class="modal-title" id="myCustomerLabel">Modification client</h4>
+    <button (click)="cancel()" aria-hidden="true" class="btn-close" data-dismiss="modal"
+            type="button"></button>
+  </div>
+  <div class="modal-body">
+    <p-card class="sale-info-card">
+      <ng-template #header>
+        <div style="padding-left: 1rem;padding-top: 1rem;"><p class="fw-semibold">
+          <span>Vente N°</span> <span
+          class="fw-bold badge text-bg-secondary rounded-pill">{{ sale.numberTransaction }} </span>
+        </p></div>
+
+      </ng-template>
+      <div class="row">
+        <div class="col-lg-4 col-xl-4 col-sm-6 col-md-3">
+          <span class="fw-semibold">Date : </span>
+          <span
+            class="fw-bold badge text-bg-secondary rounded-pill">{{ sale.updatedAt | date: 'dd/MM/yyyy HH:mm' }}</span>
+        </div>
+        <div class="col-lg-4 col-xl-4 col-sm-6 col-md-3 mt-1">
+          <span class="fw-semibold">Montant : </span> <span
+          class="fw-bold badge text-bg-secondary rounded-pill">{{ sale.salesAmount | number }}</span>
+        </div>
+        <div class="col-lg-4 col-xl-4 col-sm-6 col-md-3 mt-1">
+          <span class="fw-semibold">Caissier : </span>
+          <span
+            class="fw-bold badge text-bg-secondary rounded-pill">{{ sale.cassier?.abbrName }} </span>
+        </div>
+        <div class="col-lg-4 col-xl-4 col-sm-6 col-md-3 mt-1">
+          <span class="fw-semibold">Part T.P : </span> <span
+          class="fw-bold  badge text-bg-secondary rounded-pill">{{ sale.partTiersPayant | number }}</span>
+        </div>
+        <div class="col-lg-4 col-xl-4 col-sm-6 col-md-3 mt-1">
+          <span class="fw-semibold">Part Assuré : </span> <span
+          class="fw-bold badge text-bg-secondary rounded-pill">{{ sale.partAssure | number }}</span>
+        </div>
+      </div>
+    </p-card>
+    <div class="row mt-2">
+      <div class="col-6">
+        <p-card>
+          <ng-template #header>
+            <div class="d-flex justify-content-between align-items-center p-2">
+              <span class="fw-bold">Assuré principal</span>
+              <p-button [rounded]="true" icon="pi pi-user-edit" size="small"
+                        type="button"></p-button>
+            </div>
+          </ng-template>
+          <div formGroupName="customer">
+            <div class="mb-2">
+              <label class="form-label" for="field_num">N° Matricule</label>
+              <input autocomplete="off" class="form-control" data-cy="num" formControlName="num"
+                     id="field_num"
+                     name="num"
+                     pInputText
+                     pKeyFilter="alphanum"
+                     type="text" />
+            </div>
+            <div class="mb-2">
+              <label class="form-label" for="field_firstName">Prénom</label>
+              <input autocomplete="off"
+                     class="form-control"
+                     data-cy="firstName"
+                     formControlName="firstName"
+                     id="field_firstName"
+                     name="firstName"
+                     pInputText
+                     type="text"
+              />
+            </div>
+            <div class="mb-2">
+              <label class="form-label" for="field_lastName">Nom</label>
+              <input autocomplete="off"
+                     class="form-control"
+                     data-cy="lastName"
+                     formControlName="lastName"
+                     id="field_lastName"
+                     name="lastName"
+                     pInputText
+                     type="text"
+              />
+            </div>
+            <div class="mb-2">
+              <label class="form-label" for="field_phone">Téléphone</label>
+              <input autocomplete="off"
+                     class="form-control"
+                     data-cy="phone"
+                     formControlName="phone"
+                     id="field_phone"
+                     name="phone"
+                     pInputText
+                     pKeyFilter="int"
+                     type="text"
+              />
+            </div>
+          </div>
+        </p-card>
+      </div>
+
+      <div class="col-6">
+        <p-card>
+          <ng-template #header>
+            <div class="d-flex justify-content-between align-items-center p-2">
+              <span class="fw-bold">Ayant droit</span>
+              <p-button [rounded]="true" icon="pi pi-user-edit" size="small"
+                        type="button"></p-button>
+            </div>
+          </ng-template> @if (ayantDroit && customer.id !== ayantDroit.id) {
+          <div formGroupName="ayantDroit">
+            <div class="mb-2">
+              <label class="form-label" for="field_ayantdroit_num">N° Matricule</label>
+              <input pInputText
+                     type="text"
+                     class="form-control"
+                     name="ayantdroit_num"
+                     id="field_ayantdroit_num"
+                     data-cy="ayantdroit_num"
+                     autocomplete="off"
+                     pKeyFilter="alphanum"
+                     formControlName="num"
+              />
+            </div>
+            <div class="mb-2">
+              <label class="form-label" for="field_ayantdroit_firstName">Prénom</label>
+              <input pInputText
+                     type="text"
+                     class="form-control"
+                     name="ayantdroit_firstName"
+                     id="field_ayantdroit_firstName"
+                     data-cy="ayantdroit_firstName"
+                     formControlName="firstName"
+              />
+            </div>
+            <div class="mb-2">
+              <label class="form-label" for="field_ayantdroit_lastName">Nom</label>
+              <input pInputText
+                     type="text"
+                     class="form-control"
+                     name="ayantdroit_lastName"
+                     id="field_ayantdroit_lastName"
+                     data-cy="ayantdroit_lastName"
+                     formControlName="lastName"
+              />
+            </div>
+          </div>
+        }
+        </p-card>
+      </div>
+
+    </div>
+    @if (thirdPartySaleLines?.length > 0) {
+      <div class="mt-2">
+        <div class="row" formArrayName="thirdPartySaleLines">
+          @for (group of thirdPartySaleLinesFomArray.controls; track group; let i = $index) {
+            <div class="col-6 mt-2" [formGroupName]="i">
+              <p-card>
+                <ng-template #header>
+                  <div class="d-flex justify-content-between align-items-center p-2">
+                    <span class="fw-bold">{{ group.value.tiersPayantFullName }}</span>
+                    <p-button type="button" icon="pi pi-pencil" size="small"
+                              [rounded]="true"></p-button>
+                  </div>
+                </ng-template>
+                <div class="row">
+                  <div class="col-6">
+                    <span class="fw-semibold">Taux : </span>
+                    <span
+                      class="fw-bold badge text-bg-secondary rounded-pill">{{ group.value.taux | number }}</span>
+                  </div>
+                  <div class="col-6">
+                    <span class="fw-semibold">Montant : </span> <span
+                    class="fw-bold badge text-bg-secondary rounded-pill">{{ group.value.montant | number }}</span>
+                  </div>
+
+
+                </div>
+                <div class="mb-3">
+                  <label class="form-label">Bon</label>
+                  <input pInputText type="text" autocomplete="off"
+                         pKeyFilter="alphanum" formControlName="numBon" class="form-control" />
+                </div>
+
+              </p-card>
+            </div>
+          }
+        </div>
+      </div>
+    }
+  </div>
+  <div class="modal-footer">
+    <p-button (click)="cancel()" data-dismiss="modal" icon="pi pi-times" label="Annuler"
+              severity="secondary" type="button">
+    </p-button>
+    <p-button [disabled]="editForm.invalid || isSaving"
+              data-cy="entityCreateSaveButton"
+              icon="pi pi-save"
+              id="save-entity"
+              label="Sauvegarder"
+              severity="primary"
+              type="submit"
+    >
+
+    </p-button>
+  </div>
+</form>

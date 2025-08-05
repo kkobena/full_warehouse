@@ -1,5 +1,6 @@
 import { inject, Injectable } from '@angular/core';
-import { Observable, Subject } from 'rxjs';
+import { EMPTY, Observable, Subject, throwError } from 'rxjs';
+import { catchError, finalize, switchMap, tap } from 'rxjs/operators';
 import { HttpResponse } from '@angular/common/http';
 import { FinalyseSale, ISales, Sales, SaveResponse } from '../../../../shared/model/sales.model';
 import { ISalesLine } from '../../../../shared/model/sales-line.model';
@@ -46,165 +47,87 @@ export class ComptantFacadeService {
   }
 
   finalizeSale(putsOnStandby: boolean, entryAmount: number, commentaire: string, avoir: boolean, payments: any): void {
-    this.currentSaleService.currentSale().payments = payments;
-    this.currentSaleService.currentSale().type = 'VNO';
-    this.currentSaleService.currentSale().avoir = avoir;
-    this.currentSaleService.currentSale().commentaire = commentaire;
+    const currentSale = this.currentSaleService.currentSale();
+    currentSale.payments = payments;
+    currentSale.type = 'VNO';
+    currentSale.avoir = avoir;
+    currentSale.commentaire = commentaire;
 
-    if (this.currentSaleService.currentSale().avoir && !this.currentSaleService.currentSale().customerId) {
+    if (currentSale.avoir && !currentSale.customerId) {
       this.openUninsuredCustomerSubject.next({ isVenteDefferee: false, putsOnStandby });
       return;
     }
 
     if (putsOnStandby) {
-      this.spinner.show();
       this.putCurrentCashSaleOnHold();
     } else {
       this.saveCashSale(entryAmount);
     }
   }
 
-  computExtraInfo(commentaire: string): void {
-    this.currentSaleService.currentSale().commentaire = commentaire;
-  }
-
-  openUninsuredCustomer(isVenteDefferee: boolean, putsOnStandby: boolean): void {
-    this.openUninsuredCustomerSubject.next({ isVenteDefferee, putsOnStandby });
-  }
-
-  saveCashSale(entryAmount: number): void {
-    this.spinner.show();
-    const currentSale = this.currentSaleService.currentSale();
-    this.updateSaleAmounts(currentSale, entryAmount);
-    this.subscribeToFinalyseResponse(this.salesService.saveCash(currentSale));
-  }
-
-  putCurrentCashSaleOnHold(): void {
-    this.subscribeToPutOnHoldResponse(this.salesService.putCurrentCashSaleOnStandBy(this.currentSaleService.currentSale()));
-  }
-
   createComptant(salesLine: ISalesLine): void {
     this.spinner.show();
-    this.subscribeToCreateSaleComptantResponse(this.salesService.createComptant(this.createSaleComptant(salesLine)));
-  }
-
-  addItemToSale(salesLine: ISalesLine): void {
-    this.spinner.show();
-    this.subscribeToSaveLineResponse(this.salesService.addItemComptant(salesLine));
-  }
-
-  removeItemFromSale(id: number): void {
-    this.spinner.show();
-    const sale = this.currentSaleService.currentSale();
-    this.salesService.deleteItem(id).subscribe({
-      next: () => this.subscribeToSaveResponse(this.salesService.find(sale.id)),
-      error: (err: any) => this.onSaveSaveError(err, sale),
-      complete: () => this.spinner.hide(),
-    });
-  }
-
-  updateItemQtyRequested(salesLine: ISalesLine): void {
-    this.spinner.show();
-    const sale = this.currentSaleService.currentSale();
-    this.salesService.updateItemQtyRequested(salesLine).subscribe({
-      next: () => this.subscribeToSaveResponse(this.salesService.find(sale.id)),
-      error: (err: any) => this.onSaveSaveError(err, sale, salesLine),
-      complete: () => this.spinner.hide(),
-    });
-  }
-
-  updateItemQtySold(salesLine: ISalesLine): void {
-    this.spinner.show();
-    const sale = this.currentSaleService.currentSale();
-    this.salesService.updateItemQtySold(salesLine).subscribe({
-      next: () => this.subscribeToSaveResponse(this.salesService.find(sale.id)),
-      error: (err: any) => this.onSaveSaveError(err, sale),
-      complete: () => this.spinner.hide(),
-    });
-  }
-
-  updateItemPrice(salesLine: ISalesLine): void {
-    this.spinner.show();
-    const sale = this.currentSaleService.currentSale();
-    this.salesService.updateItemPrice(salesLine).subscribe({
-      next: () => this.subscribeToSaveResponse(this.salesService.find(sale.id)),
-      error: (err: any) => this.onSaveSaveError(err, sale),
-      complete: () => this.spinner.hide(),
-    });
-  }
-
-  addRemise(remise: IRemise): void {
-    this.spinner.show();
     this.salesService
-      .addRemise({
-        key: this.currentSaleService.currentSale()?.id,
-        value: remise.id,
-      })
+      .createComptant(this.createSaleComptant(salesLine))
+      .pipe(finalize(() => this.spinner.hide()))
       .subscribe({
-        next: () => this.subscribeToSaveResponse(this.salesService.find(this.currentSaleService.currentSale().id)),
-        error: (err: any) => this.onSaveError(err),
-        complete: () => this.spinner.hide(),
+        next: (res: HttpResponse<ISales>) => this.onSaleComptantResponseSuccess(res.body),
+        error: error => this.onSaveSaveError(error, this.currentSaleService.currentSale()),
       });
   }
 
-  removeRemise(): void {
-    this.spinner.show();
-    this.salesService.removeRemiseFromCashSale(this.currentSaleService.currentSale().id).subscribe({
-      next: () => this.subscribeToSaveResponse(this.salesService.find(this.currentSaleService.currentSale().id)),
-      error: (err: any) => this.onSaveError(err),
-      complete: () => this.spinner.hide(),
-    });
+  addItemToSale(salesLine: ISalesLine): void {
+    this.handleSaleUpdate(this.salesService.addItemComptant(salesLine).pipe(switchMap(res => this.salesService.find(res.body.saleId))));
+  }
+
+  removeItemFromSale(id: number): void {
+    const sale = this.currentSaleService.currentSale();
+    this.handleSaleUpdate(this.salesService.deleteItem(id).pipe(switchMap(() => this.salesService.find(sale.id))));
+  }
+
+  updateItemQtyRequested(salesLine: ISalesLine): void {
+    const sale = this.currentSaleService.currentSale();
+    this.handleSaleUpdate(
+      this.salesService.updateItemQtyRequested(salesLine).pipe(switchMap(() => this.salesService.find(sale.id))),
+      salesLine,
+    );
+  }
+
+  updateItemQtySold(salesLine: ISalesLine): void {
+    const sale = this.currentSaleService.currentSale();
+    this.handleSaleUpdate(this.salesService.updateItemQtySold(salesLine).pipe(switchMap(() => this.salesService.find(sale.id))));
+  }
+
+  updateItemPrice(salesLine: ISalesLine): void {
+    const sale = this.currentSaleService.currentSale();
+    this.handleSaleUpdate(this.salesService.updateItemPrice(salesLine).pipe(switchMap(() => this.salesService.find(sale.id))));
+  }
+
+  updateRemise(remise?: IRemise): void {
+    const sale = this.currentSaleService.currentSale();
+    const action$ = remise
+      ? this.salesService.addRemise({ key: sale.id, value: remise.id })
+      : this.salesService.removeRemiseFromCashSale(sale.id);
+    this.handleSaleUpdate(action$.pipe(switchMap(() => this.salesService.find(sale.id))));
   }
 
   printInvoice(saleId: number): void {
     this.spinner.show();
-    this.salesService.printInvoice(saleId).subscribe({
-      next: blod => {
-        const blobUrl = URL.createObjectURL(blod);
+    this.salesService
+      .printInvoice(saleId)
+      .pipe(finalize(() => this.spinner.hide()))
+      .subscribe(blob => {
+        const blobUrl = URL.createObjectURL(blob);
         window.open(blobUrl);
-      },
-      complete: () => this.spinner.hide(),
-    });
+      });
   }
 
   printReceipt(saleId: number): void {
     this.spinner.show();
-    this.salesService.printReceipt(saleId).subscribe({
-      complete: () => this.spinner.hide(),
-    });
-  }
-
-  getCashAmount(modes: any[], cashCode: string): number {
-    let cashInput;
-    if (modes.length > 0) {
-      cashInput = modes.find((input: any) => input.code === cashCode);
-      if (cashInput) {
-        return cashInput.amount;
-      }
-      return 0;
-    } else {
-      cashInput = modes[0];
-      if (cashInput.code === cashCode) {
-        return cashInput.amount;
-      }
-      return 0;
-    }
-  }
-
-  private subscribeToSaveLineResponse(result: Observable<HttpResponse<ISalesLine>>): void {
-    result.subscribe({
-      next: (res: HttpResponse<ISalesLine>) => this.subscribeToSaveResponse(this.salesService.find(res.body.saleId)),
-      error: err => this.onSaveSaveError(err, this.currentSaleService.currentSale()),
-      complete: () => this.spinner.hide(),
-    });
-  }
-
-  private subscribeToSaveResponse(result: Observable<HttpResponse<ISales>>): void {
-    result.subscribe({
-      next: (res: HttpResponse<ISales>) => this.onSaveSuccess(res.body),
-      error: error => this.onSaveError(error),
-      complete: () => this.spinner.hide(),
-    });
+    this.salesService
+      .printReceipt(saleId)
+      .pipe(finalize(() => this.spinner.hide()))
+      .subscribe();
   }
 
   private onSaveSuccess(sale: ISales | null): void {
@@ -221,22 +144,6 @@ export class ComptantFacadeService {
     this.currentSaleService.setCurrentSale(sale);
   }
 
-  private subscribeToFinalyseResponse(result: Observable<HttpResponse<FinalyseSale>>): void {
-    result.subscribe({
-      next: (res: HttpResponse<FinalyseSale>) => this.onFinalyseSuccess(res.body),
-      error: err => this.onFinalyseError(err),
-      complete: () => this.spinner.hide(),
-    });
-  }
-
-  private subscribeToPutOnHoldResponse(result: Observable<HttpResponse<FinalyseSale>>): void {
-    result.subscribe({
-      next: (res: HttpResponse<FinalyseSale>) => this.onFinalyseSuccess(res.body, true),
-      error: err => this.onFinalyseError(err),
-      complete: () => this.spinner.hide(),
-    });
-  }
-
   private onFinalyseSuccess(response: FinalyseSale | null, putOnStandBy = false): void {
     this.finalyseSaleSubject.next({ saleId: response.saleId, success: true, putOnStandBy });
   }
@@ -245,17 +152,40 @@ export class ComptantFacadeService {
     this.finalyseSaleSubject.next({ error: err, success: false });
   }
 
-  private subscribeToCreateSaleComptantResponse(result: Observable<HttpResponse<ISales>>): void {
-    result.subscribe({
-      next: (res: HttpResponse<ISales>) => this.onSaleComptantResponseSuccess(res.body),
-      error: error => this.onSaveSaveError(error, this.currentSaleService.currentSale()),
-      complete: () => this.spinner.hide(),
-    });
-  }
-
   private onSaleComptantResponseSuccess(sale: ISales | null): void {
     this.currentSaleService.setCurrentSale(sale);
     this.saveResponseSubject.next({ success: true });
+  }
+
+  private saveCashSale(entryAmount: number): void {
+    this.spinner.show();
+    const currentSale = this.currentSaleService.currentSale();
+    this.updateSaleAmounts(currentSale, entryAmount);
+    this.salesService
+      .saveCash(currentSale)
+      .pipe(finalize(() => this.spinner.hide()))
+      .subscribe({
+        next: (res: HttpResponse<FinalyseSale>) => this.onFinalyseSuccess(res.body),
+        error: err => this.onFinalyseError(err),
+      });
+  }
+
+  private putCurrentCashSaleOnHold(): void {
+    this.salesService
+      .putCurrentCashSaleOnStandBy(this.currentSaleService.currentSale())
+      .pipe(finalize(() => this.spinner.hide()))
+      .subscribe({
+        next: (res: HttpResponse<FinalyseSale>) => this.onFinalyseSuccess(res.body, true),
+        error: err => this.onFinalyseError(err),
+      });
+  }
+
+  private handleSaleUpdate(observable: Observable<HttpResponse<ISales>>, payload: any = null): void {
+    this.spinner.show();
+    observable.pipe(finalize(() => this.spinner.hide())).subscribe({
+      next: (res: HttpResponse<ISales>) => this.onSaveSuccess(res.body),
+      error: err => this.onSaveSaveError(err, this.currentSaleService.currentSale(), payload),
+    });
   }
 
   private updateSaleAmounts(sale: ISales, entryAmount: number): void {

@@ -183,6 +183,7 @@
               >
               </p-button>
               @if (canEdit && (sale.natureVente === 'ASSURANCE' || sale.natureVente === 'CARNET')) {
+
                 <p-button
                   [routerLink]="['/sales', sale.id, false, 'edit']"
                   [rounded]="true"
@@ -191,6 +192,16 @@
                   size="small"
                   icon="pi pi-pencil"
                   pTooltip="Editer"
+                >
+                </p-button>
+                <p-button
+                  (click)="onEditCustomer(sale)"
+                  [rounded]="true"
+                  severity="help"
+                  [text]="true"
+                  size="small"
+                  icon="pi pi-user-edit"
+                  pTooltip="Modifier les informations du client"
                 >
                 </p-button>
                 <p-button

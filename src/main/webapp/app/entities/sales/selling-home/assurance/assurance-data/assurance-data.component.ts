@@ -1,10 +1,11 @@
 import {
   AfterViewInit,
   Component,
-  effect,
+  computed,
   ElementRef,
   inject,
   OnInit,
+  Signal,
   signal,
   viewChild,
   viewChildren,
@@ -64,22 +65,35 @@ export class AssuranceDataComponent implements OnInit, AfterViewInit {
   protected search: string = null;
   protected readonly selectedCustomerService = inject(SelectedCustomerService);
   protected ayantDroit: ICustomer | null = null;
-  protected selectedTiersPayants: WritableSignal<IClientTiersPayant[]> = signal<IClientTiersPayant[]>([]);
   protected items: MenuItem[] | undefined;
   protected baseSaleService = inject(BaseSaleService);
   protected readonly currentSaleService = inject(CurrentSaleService);
-  protected divClass = signal('col-md-4 col-sm-4 col-4 bon mr-1');
-  protected divCustomer = signal('col-md-4 col-sm-4 col-4');
   private readonly customerService = inject(CustomerService);
   private readonly confimDialog = viewChild.required<ConfirmDialogComponent>('confirmDialog');
   private readonly modalService = inject(NgbModal);
   private bonInputs = viewChildren<ElementRef>('tpInput');
 
+  protected selectedTiersPayants: WritableSignal<IClientTiersPayant[]> = signal<IClientTiersPayant[]>([]);
+  protected divClass: Signal<string> = computed(() => {
+    const count = this.selectedTiersPayants().length;
+    return count === 2 ? 'col-md-3 col-sm-3 col-3 bon' : count > 2 ? 'col-md-2 col-sm-2 col-2 bon' : 'col-md-4 col-sm-4 col-4 bon';
+  });
+  protected divCustomer: Signal<string> = computed(() => {
+    return this.selectedTiersPayants().length >= 2 ? 'col-md-3 col-sm-3 col-3' : 'col-md-4 col-sm-4 col-4';
+  });
+
   constructor() {
-    effect(() => {
-      this.updateTiersPayantsOnCustomerChange();
-      this.updateLayoutClasses();
-    });
+    const assuredCustomer = this.selectedCustomerService.selectedCustomerSignal();
+    if (assuredCustomer && !this.currentSaleService.isEdit()) {
+      const saleType = this.currentSaleService.typeVo();
+      if (saleType === 'ASSURANCE') {
+        this.selectedTiersPayants.set(assuredCustomer.tiersPayants || []);
+        this.ayantDroit =
+          assuredCustomer.ayantDroits?.find(ad => ad.id === assuredCustomer.id || ad.num === assuredCustomer.num) || assuredCustomer;
+      } else if (saleType === 'CARNET' && assuredCustomer.tiersPayants?.length) {
+        this.selectedTiersPayants.set([assuredCustomer.tiersPayants[0]]);
+      }
+    }
   }
 
   ngOnInit(): void {
@@ -147,7 +161,6 @@ export class AssuranceDataComponent implements OnInit, AfterViewInit {
             this.baseSaleService.onAddThirdPartySale(this.currentSaleService.currentSale()?.id, resp);
           }
           this.selectedTiersPayants.set([...this.selectedTiersPayants(), resp]);
-          this.bonInputFocusOnAddTiersPayant(null);
           this.bonInputFocusOnAddTiersPayant(null);
         }
       },
@@ -316,33 +329,6 @@ export class AssuranceDataComponent implements OnInit, AfterViewInit {
       },
       'xl',
     );
-  }
-
-  private updateTiersPayantsOnCustomerChange(): void {
-    const assuredCustomer = this.selectedCustomerService.selectedCustomerSignal();
-
-    if (!assuredCustomer || this.currentSaleService.isEdit()) {
-      return;
-    }
-
-    const saleType = this.currentSaleService.typeVo();
-    if (saleType === 'ASSURANCE') {
-      this.selectedTiersPayants.set(assuredCustomer.tiersPayants || []);
-      this.ayantDroit =
-        assuredCustomer.ayantDroits?.find(ad => ad.id === assuredCustomer.id || ad.num === assuredCustomer.num) || assuredCustomer;
-    } else if (saleType === 'CARNET' && assuredCustomer.tiersPayants?.length) {
-      this.selectedTiersPayants.set([assuredCustomer.tiersPayants[0]]);
-    }
-  }
-
-  private updateLayoutClasses(): void {
-    const count = this.selectedTiersPayants().length;
-    const bonClass =
-      count === 2 ? 'col-md-3 col-sm-3 col-3 bon' : count > 2 ? 'col-md-2 col-sm-2 col-2 bon' : 'col-md-4 col-sm-4 col-4 bon';
-    const customerClass = count >= 2 ? 'col-md-3 col-sm-3 col-3' : 'col-md-4 col-sm-4 col-4';
-
-    this.divClass.set(bonClass);
-    this.divCustomer.set(customerClass);
   }
 
   private setCustomer(cust: ICustomer): void {

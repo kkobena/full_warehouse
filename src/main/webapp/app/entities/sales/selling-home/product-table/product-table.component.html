@@ -1,4 +1,4 @@
-@if (sale) {
+@if (sale()) {
   <p-table
     #produitTable
     [globalFilterFields]="['code', 'produitLibelle']"
@@ -6,7 +6,7 @@
     [rowsPerPageOptions]="[5, 8, 10, 20]"
     [rows]="5"
     [showCurrentPageReport]="true"
-    [value]="sale.salesLines"
+    [value]="sale().salesLines"
     currentPageReportTemplate="Affichage de {first} à {last} sur {totalRecords} produits"
     dataKey="id"
     selectionMode="single"
@@ -30,7 +30,7 @@
           @if (currentSaleService.currentSale()?.remise) {
             <ngb-alert [type]="typeAlert" [dismissible]="false">
               <b>
-                Remise appliquée: <span class="taux-remise"> {{ remiseTaux }} </span></b
+                Remise appliquée: <span class="taux-remise"> {{ remiseTaux() }} </span></b
               >
             </ngb-alert>
           }
@@ -148,7 +148,7 @@
       </tr>
     </ng-template>
     <ng-template #footer>
-      @if (sale.salesLines.length > 0) {
+      @if (sale().salesLines.length > 0) {
         <tr>
           <td class="p-text-left" colspan="3">TOTAUX</td>
           <td class="amount-column" style="text-align: right">{{ totalQtyProduit() | number }}</td>

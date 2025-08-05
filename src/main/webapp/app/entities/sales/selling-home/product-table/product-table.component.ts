@@ -1,26 +1,26 @@
-import {Component, effect, inject, output, viewChild} from '@angular/core';
-import {TableModule} from 'primeng/table';
-import {ISalesLine} from '../../../../shared/model/sales-line.model';
-import {WarehouseCommonModule} from '../../../../shared/warehouse-common/warehouse-common.module';
-import {InputTextModule} from 'primeng/inputtext';
-import {ButtonModule} from 'primeng/button';
-import {RippleModule} from 'primeng/ripple';
-import {TooltipModule} from 'primeng/tooltip';
-import {NgbAlertModule, NgbModal} from '@ng-bootstrap/ng-bootstrap';
-import {CurrentSaleService} from '../../service/current-sale.service';
-import {ISales} from '../../../../shared/model/sales.model';
-import {HasAuthorityService} from '../../service/has-authority.service';
-import {BaseSaleService} from '../../service/base-sale.service';
-import {Authority} from '../../../../shared/constants/authority.constants';
-import {SplitButtonModule} from 'primeng/splitbutton';
-import {RemiseCacheService} from '../../service/remise-cache.service';
-import {IRemise, Remise} from '../../../../shared/model/remise.model';
-import {FormsModule} from '@angular/forms';
-import {InputGroupAddonModule} from 'primeng/inputgroupaddon';
-import {InputGroupModule} from 'primeng/inputgroup';
-import {Select} from 'primeng/select';
-import {ConfirmDialogComponent} from "../../../../shared/dialog/confirm-dialog/confirm-dialog.component";
-import {showCommonError} from "../sale-helper";
+import { Component, computed, inject, output, Signal, viewChild } from '@angular/core';
+import { TableModule } from 'primeng/table';
+import { ISalesLine } from '../../../../shared/model/sales-line.model';
+import { WarehouseCommonModule } from '../../../../shared/warehouse-common/warehouse-common.module';
+import { InputTextModule } from 'primeng/inputtext';
+import { ButtonModule } from 'primeng/button';
+import { RippleModule } from 'primeng/ripple';
+import { TooltipModule } from 'primeng/tooltip';
+import { NgbAlertModule, NgbModal } from '@ng-bootstrap/ng-bootstrap';
+import { CurrentSaleService } from '../../service/current-sale.service';
+import { ISales } from '../../../../shared/model/sales.model';
+import { HasAuthorityService } from '../../service/has-authority.service';
+import { BaseSaleService } from '../../service/base-sale.service';
+import { Authority } from '../../../../shared/constants/authority.constants';
+import { SplitButtonModule } from 'primeng/splitbutton';
+import { RemiseCacheService } from '../../service/remise-cache.service';
+import { IRemise, Remise } from '../../../../shared/model/remise.model';
+import { FormsModule } from '@angular/forms';
+import { InputGroupAddonModule } from 'primeng/inputgroupaddon';
+import { InputGroupModule } from 'primeng/inputgroup';
+import { Select } from 'primeng/select';
+import { ConfirmDialogComponent } from '../../../../shared/dialog/confirm-dialog/confirm-dialog.component';
+import { showCommonError } from '../sale-helper';
 
 @Component({
   selector: 'jhi-product-table',
@@ -42,7 +42,6 @@ import {showCommonError} from "../sale-helper";
   templateUrl: './product-table.component.html',
 })
 export class ProductTableComponent {
-  sale: ISales;
   readonly itemQtySoldEvent = output<ISalesLine>();
   readonly itemPriceEvent = output<ISalesLine>();
   readonly deleteItemEvent = output<ISalesLine>();
@@ -61,42 +60,30 @@ export class ProductTableComponent {
   private readonly hasAuthorityService = inject(HasAuthorityService);
   private readonly modalService = inject(NgbModal);
 
-  constructor() {
-    this.canApplyDiscount = this.hasAuthorityService.hasAuthorities(Authority.PR_AJOUTER_REMISE_VENTE);
-    this.canModifiePrice = this.hasAuthorityService.hasAuthorities(Authority.PR_MODIFIER_PRIX);
-    this.canRemoveItem = this.hasAuthorityService.hasAuthorities(Authority.PR_SUPPRIME_PRODUIT_VENTE);
-
-    effect(() => {
-      this.sale = this.currentSaleService.currentSale();
-    });
-  }
-
-  get remiseTaux(): string {
-    if (this.currentSaleService.currentSale().remise) {
-      const sale = this.currentSaleService.currentSale();
-      const remise = sale.remise;
+  sale: Signal<ISales> = this.currentSaleService.currentSale;
+  totalQtyProduit: Signal<number> = computed(() => this.sale().salesLines.reduce((sum, current) => sum + current.quantityRequested, 0));
+  totalQtyServi: Signal<number> = computed(() => this.sale().salesLines.reduce((sum, current) => sum + current.quantitySold, 0));
+  totalTtc: Signal<number> = computed(() => this.sale().salesLines.reduce((sum, current) => sum + current.salesAmount, 0));
+  remiseTaux: Signal<string> = computed(() => {
+    const currentSale = this.sale();
+    if (currentSale.remise) {
+      const remise = currentSale.remise;
       if (remise.type === 'remiseProduit') {
-        return this.getTaux(remise, sale.type);
+        return this.getTaux(remise, currentSale.type);
       }
       return remise.remiseValue + ' %';
     }
     return '';
+  });
+
+  constructor() {
+    this.canApplyDiscount = this.hasAuthorityService.hasAuthorities(Authority.PR_AJOUTER_REMISE_VENTE);
+    this.canModifiePrice = this.hasAuthorityService.hasAuthorities(Authority.PR_MODIFIER_PRIX);
+    this.canRemoveItem = this.hasAuthorityService.hasAuthorities(Authority.PR_SUPPRIME_PRODUIT_VENTE);
   }
 
   onSelectRemise(): void {
     this.addRemiseEvent.emit(this.selectedRemise);
-  }
-
-  totalQtyProduit(): number {
-    return this.currentSaleService.currentSale().salesLines.reduce((sum, current) => sum + current.quantityRequested, 0);
-  }
-
-  totalQtyServi(): number {
-    return this.currentSaleService.currentSale().salesLines.reduce((sum, current) => sum + current.quantitySold, 0);
-  }
-
-  totalTtc(): number {
-    return this.currentSaleService.currentSale().salesLines.reduce((sum, current) => sum + current.salesAmount, 0);
   }
 
   updateItemQtySold(salesLine: ISalesLine, event: any): void {
@@ -141,8 +128,13 @@ export class ProductTableComponent {
 
   onDeleteItem(item: ISalesLine): void {
     if (this.canRemoveItem) {
-      this.confimDialog().onConfirm(() => this.deleteItemEvent.emit(item), 'Supprimer Produit', ' Voullez-vous supprimer  ce produit ?', null, () => this.deleteItemEvent.emit(null));
-
+      this.confimDialog().onConfirm(
+        () => this.deleteItemEvent.emit(item),
+        'Supprimer Produit',
+        ' Voullez-vous supprimer  ce produit ?',
+        null,
+        () => this.deleteItemEvent.emit(null),
+      );
     } else {
       this.deleteItemEvent.emit(item);
     }
@@ -157,6 +149,12 @@ export class ProductTableComponent {
   }
 
   private onUpdateConfirmForceStock(salesLine: ISalesLine, message: string): void {
-    this.confimDialog().onConfirm(() => this.itemQtyRequestedEvent.emit(salesLine), 'Forcer le stock', message, null, () => this.itemQtyRequestedEvent.emit(null));
+    this.confimDialog().onConfirm(
+      () => this.itemQtyRequestedEvent.emit(salesLine),
+      'Forcer le stock',
+      message,
+      null,
+      () => this.itemQtyRequestedEvent.emit(null),
+    );
   }
 }

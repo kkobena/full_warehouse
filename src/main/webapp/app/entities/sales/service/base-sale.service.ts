@@ -1,4 +1,4 @@
-import { effect, inject, Injectable, signal, WritableSignal } from '@angular/core';
+import { computed, effect, inject, Injectable, signal, WritableSignal } from '@angular/core';
 import { CurrentSaleService } from './current-sale.service';
 import { IPaymentMode } from '../../../shared/model/payment-mode.model';
 import { SelectModeReglementService } from './select-mode-reglement.service';
@@ -7,7 +7,7 @@ import { ISalesLine } from '../../../shared/model/sales-line.model';
 import { VoSalesService } from './vo-sales.service';
 import { ConfigurationService } from '../../../shared/configuration.service';
 import { IClientTiersPayant } from '../../../shared/model/client-tiers-payant.model';
-import { Observable } from 'rxjs';
+import { Observable, switchMap } from 'rxjs';
 import { HttpResponse } from '@angular/common/http';
 import { SaleEventSignal } from '../selling-home/sale-event';
 
@@ -21,6 +21,11 @@ export class BaseSaleService {
   salesService = inject(VoSalesService);
   configurationService = inject(ConfigurationService);
   currentSaleService = inject(CurrentSaleService);
+  totalQtyProduit = computed(() =>
+    this.currentSaleService.currentSale().salesLines.reduce((sum, current) => sum + current.quantityRequested, 0),
+  );
+  totalQtyServi = computed(() => this.currentSaleService.currentSale().salesLines.reduce((sum, current) => sum + current.quantitySold, 0));
+
   selectModeReglementService = inject(SelectModeReglementService);
   entryAmount: number;
   readonly CASH = 'CASH';
@@ -55,15 +60,7 @@ export class BaseSaleService {
   }
 
   isAvoir(): boolean {
-    return this.getTotalQtyProduit() - this.getTotalQtyServi() != 0;
-  }
-
-  getTotalQtyProduit(): number {
-    return this.currentSaleService.currentSale().salesLines.reduce((sum, current) => sum + current.quantityRequested, 0);
-  }
-
-  getTotalQtyServi(): number {
-    return this.currentSaleService.currentSale().salesLines.reduce((sum, current) => sum + current.quantitySold, 0);
+    return this.totalQtyProduit() - this.totalQtyServi() != 0;
   }
 
   getCashAmount(entryAmount: number): number {
@@ -194,16 +191,12 @@ export class BaseSaleService {
   }
 
   private onSaveResponse(result: Observable<HttpResponse<ISales>>): void {
-    result.subscribe({
-      next: () => {
-        this.salesService.findForEdit(this.currentSaleService.currentSale().id).subscribe({
-          next: res => {
-            this.currentSaleService.setCurrentSale(res.body);
-            this.saleEventManager.broadcast({
-              name: 'saveResponse',
-              content: new SaveResponse(true),
-            });
-          },
+    result.pipe(switchMap(() => this.salesService.findForEdit(this.currentSaleService.currentSale().id))).subscribe({
+      next: res => {
+        this.currentSaleService.setCurrentSale(res.body);
+        this.saleEventManager.broadcast({
+          name: 'saveResponse',
+          content: new SaveResponse(true),
         });
       },
       error: err => {

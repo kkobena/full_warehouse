@@ -35,9 +35,14 @@ import { FloatLabel } from 'primeng/floatlabel';
 import { TIMES } from '../../shared/util/times';
 import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { showCommonModal } from './selling-home/sale-helper';
-import { SaleUpdateDateModalComponent } from './sale-update-date-modal/sale-update-date-modal.component';
+import {
+  SaleUpdateDateModalComponent
+} from './sale-update-date-modal/sale-update-date-modal.component';
 import { debounceTime, Subject } from 'rxjs';
-import { ConfirmDialogComponent } from '../../shared/dialog/confirm-dialog/confirm-dialog.component';
+import {
+  ConfirmDialogComponent
+} from '../../shared/dialog/confirm-dialog/confirm-dialog.component';
+import { CustomerEditModalComponent } from './customer-edit-modal/customer-edit-modal.component';
 
 @Component({
   selector: 'jhi-sales',
@@ -92,6 +97,7 @@ export class SalesComponent implements OnInit, AfterViewInit {
   protected hasAuthorityService = inject(HasAuthorityService);
   protected saleToolBarService = inject(SaleToolBarService);
   protected userControl = viewChild<Select>('userControl');
+  protected actions: MenuItem[] | undefined;
   private readonly translate = inject(TranslateService);
   private readonly primeNGConfig = inject(PrimeNG);
   private readonly assuranceSalesService = inject(VoSalesService);
@@ -159,6 +165,25 @@ export class SalesComponent implements OnInit, AfterViewInit {
     this.searchSubject.pipe(debounceTime(300)).subscribe(() => {
       this.loadPage();
     });
+    this.actions = [
+      {
+        label: 'Options',
+        items: [
+          {
+            label: 'Modifier la vente',
+            icon: 'pi pi-pencil',
+          },
+          {
+            label: 'Modifier la date de vente',
+            icon: 'pi pi-calendar-plus',
+          },
+          {
+            label: 'Modifier les informations du client',
+            icon: 'pi pi-user-edit',
+          },
+        ],
+      },
+    ];
   }
 
   loadAllUsers(): void {
@@ -175,17 +200,38 @@ export class SalesComponent implements OnInit, AfterViewInit {
     this.searchSubject.next();
   }
 
-  onTypeVenteChange(): void {
+  ngAfterViewInit(): void {
+    this.userControl().value = this.selectedUserId;
+  }
+
+  protected onTypeVenteChange(): void {
     this.searchSubject.next();
   }
 
-  loadPage(page?: number): void {
+  protected onEditCustomer(currSale: ISales): void {
+    showCommonModal(
+      this.modalService,
+      CustomerEditModalComponent,
+      {
+        sale: currSale,
+      },
+      (resp: ISales) => {
+        if (resp) {
+          currSale = resp;
+        }
+      },
+      'xl' /*,
+      'modal-dialog-80',*/,
+    );
+  }
+
+  protected loadPage(page?: number): void {
     const pageToLoad: number = page || this.page;
     this.fetchSales(pageToLoad, this.itemsPerPage);
     this.updateParam();
   }
 
-  lazyLoading(event: LazyLoadEvent): void {
+  protected lazyLoading(event: LazyLoadEvent): void {
     if (event) {
       this.page = event.first / event.rows;
       this.itemsPerPage = event.rows;
@@ -193,11 +239,11 @@ export class SalesComponent implements OnInit, AfterViewInit {
     }
   }
 
-  onSearch(): void {
+  protected onSearch(): void {
     this.searchSubject.next();
   }
 
-  delete(sale: ISales): void {
+  protected delete(sale: ISales): void {
     if (sale) {
       if (sale.categorie === 'VNO') {
         this.salesService.cancelComptant(sale.id).subscribe(() => this.loadPage());
@@ -207,18 +253,18 @@ export class SalesComponent implements OnInit, AfterViewInit {
     }
   }
 
-  confirmRemove(sale: ISales): void {
+  protected confirmRemove(sale: ISales): void {
     this.confimDialog().onConfirm(() => this.delete(sale), 'ANNULATION DE VENTE', 'Voulez-vous vraiment annuler cette vente ?');
   }
 
-  print(sales: ISales): void {
+  protected print(sales: ISales): void {
     this.salesService.printInvoice(sales.id).subscribe(blod => {
       const blobUrl = URL.createObjectURL(blod);
       window.open(blobUrl);
     });
   }
 
-  printSale(sale: ISales): void {
+  protected printSale(sale: ISales): void {
     if (sale.categorie === 'VNO') {
       this.salesService.rePrintReceipt(sale.id).subscribe();
     } else {
@@ -226,12 +272,8 @@ export class SalesComponent implements OnInit, AfterViewInit {
     }
   }
 
-  suggerer(sales: ISales): void {
+  protected suggerer(sales: ISales): void {
     console.log(sales);
-  }
-
-  ngAfterViewInit(): void {
-    this.userControl().value = this.selectedUserId;
   }
 
   protected onSuccess(data: ISales[] | null, headers: HttpHeaders, page: number): void {

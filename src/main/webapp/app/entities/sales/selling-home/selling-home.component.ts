@@ -1,12 +1,6 @@
-import {
-  AfterViewInit,
-  Component,
-  effect,
-  inject,
-  OnDestroy,
-  OnInit,
-  viewChild
-} from '@angular/core';
+import { isPlatformBrowser } from '@angular/common';
+import { AfterViewInit, Component, DestroyRef, effect, inject, OnInit, PLATFORM_ID, viewChild } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { ButtonModule } from 'primeng/button';
 import { InputTextModule } from 'primeng/inputtext';
 import { WarehouseCommonModule } from '../../../shared/warehouse-common/warehouse-common.module';
@@ -21,18 +15,9 @@ import { ITypePrescription } from '../../../shared/model/prescription-vente.mode
 import { ICustomer } from '../../../shared/model/customer.model';
 import { IProduit } from '../../../shared/model/produit.model';
 import { GroupRemise, IRemise } from '../../../shared/model/remise.model';
-import {
-  FinalyseSale,
-  InputToFocus,
-  ISales,
-  SaveResponse,
-  StockError
-} from '../../../shared/model/sales.model';
+import { FinalyseSale, InputToFocus, ISales, SaveResponse, StockError } from '../../../shared/model/sales.model';
 import { ISalesLine, SalesLine } from '../../../shared/model/sales-line.model';
-import {
-  PRODUIT_COMBO_MIN_LENGTH,
-  PRODUIT_COMBO_RESULT_SIZE
-} from '../../../shared/constants/pagination.constants';
+import { PRODUIT_COMBO_MIN_LENGTH, PRODUIT_COMBO_RESULT_SIZE } from '../../../shared/constants/pagination.constants';
 import { Observable } from 'rxjs';
 import { SalesService } from '../sales.service';
 import { CustomerService } from '../../customer/customer.service';
@@ -46,9 +31,7 @@ import { Decondition, IDecondition } from '../../../shared/model/decondition.mod
 import { HttpResponse } from '@angular/common/http';
 import { CardModule } from 'primeng/card';
 import { ComptantComponent } from './comptant/comptant.component';
-import {
-  CustomerOverlayPanelComponent
-} from '../customer-overlay-panel/customer-overlay-panel.component';
+import { CustomerOverlayPanelComponent } from '../customer-overlay-panel/customer-overlay-panel.component';
 import { SelectedCustomerService } from '../service/selected-customer.service';
 import { CurrentSaleService } from '../service/current-sale.service';
 import { SelectModeReglementService } from '../service/select-mode-reglement.service';
@@ -70,17 +53,11 @@ import { RemiseCacheService } from '../service/remise-cache.service';
 import { Select } from 'primeng/select';
 import { InputGroupAddonModule } from 'primeng/inputgroupaddon';
 import { DrawerModule } from 'primeng/drawer';
-import {
-  ConfirmDialogComponent
-} from '../../../shared/dialog/confirm-dialog/confirm-dialog.component';
+import { ConfirmDialogComponent } from '../../../shared/dialog/confirm-dialog/confirm-dialog.component';
 import { ToastAlertComponent } from '../../../shared/toast-alert/toast-alert.component';
 import { FloatLabel } from 'primeng/floatlabel';
-import {
-  ProduitAutocompleteComponent
-} from '../../../shared/produit-autocomplete/produit-autocomplete.component';
-import {
-  QuantiteProdutSaisieComponent
-} from '../../../shared/quantite-produt-saisie/quantite-produt-saisie.component';
+import { ProduitAutocompleteComponent } from '../../../shared/produit-autocomplete/produit-autocomplete.component';
+import { QuantiteProdutSaisieComponent } from '../../../shared/quantite-produt-saisie/quantite-produt-saisie.component';
 import {
   assignCustomerToSale,
   getActiveTab,
@@ -91,7 +68,7 @@ import {
   isVo,
   SaleType,
   showCommonError,
-  translateSalesLabel
+  translateSalesLabel,
 } from './sale-helper';
 import { SaleEventSignal } from './sale-event';
 import { handleSaleEvents } from './sale-event-helper';
@@ -128,7 +105,7 @@ import { Divider } from 'primeng/divider';
   ],
   templateUrl: './selling-home.component.html',
 })
-export class SellingHomeComponent implements OnInit, AfterViewInit, OnDestroy {
+export class SellingHomeComponent implements OnInit, AfterViewInit {
   readonly minLength = PRODUIT_COMBO_MIN_LENGTH;
   readonly COMPTANT = 'COMPTANT';
   readonly CARNET = 'CARNET';
@@ -194,6 +171,8 @@ export class SellingHomeComponent implements OnInit, AfterViewInit, OnDestroy {
   private readonly quantyBox = viewChild.required<QuantiteProdutSaisieComponent>('produitQteCmpt');
   private readonly produitbox = viewChild.required<ProduitAutocompleteComponent>('produitbox');
   private readonly saleEventManager = inject(SaleEventSignal);
+  private readonly destroyRef = inject(DestroyRef);
+  private readonly platformId = inject(PLATFORM_ID);
 
   constructor() {
     this.canForceStock = this.hasAuthorityService.hasAuthorities(Authority.PR_FORCE_STOCK);
@@ -281,17 +260,18 @@ export class SellingHomeComponent implements OnInit, AfterViewInit, OnDestroy {
 
     this.typePrescription = this.typePrescriptionService.typePrescriptionDefault();
 
-    this.activatedRoute.data.subscribe(({ sales, mode }) => {
+    this.activatedRoute.data.pipe(takeUntilDestroyed(this.destroyRef)).subscribe(({ sales, mode }) => {
       if (sales.id) {
         if (sales.customer) {
           this.customerService
             .find(sales.customer.id)
+            .pipe(takeUntilDestroyed(this.destroyRef))
             .subscribe({ next: (resp: HttpResponse<ICustomer>) => this.selectedCustomerService.setCustomer(resp.body) });
         }
         this.onLoadPrevente(sales, isEditMode(mode));
       }
     });
-    this.activatedRoute.paramMap.subscribe(params => {
+    this.activatedRoute.paramMap.pipe(takeUntilDestroyed(this.destroyRef)).subscribe(params => {
       if (params.has('isPresale')) {
         this.isPresale = params.get('isPresale') === 'true';
       }
@@ -704,8 +684,6 @@ export class SellingHomeComponent implements OnInit, AfterViewInit, OnDestroy {
     }
   }
 
-  ngOnDestroy(): void {}
-
   onNavChange(evt: NgbNavChangeEvent): void {
     const currentSale = this.currentSaleService.currentSale();
     // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
@@ -799,21 +777,39 @@ export class SellingHomeComponent implements OnInit, AfterViewInit, OnDestroy {
   };
 
   private initCustomerEffect(): void {
-    effect(() => {
-      const customer = this.selectedCustomerService.selectedCustomerSignal();
-      const sale = this.currentSaleService.currentSale();
-      if (customer && sale) {
-        if (isVno(sale?.type)) {
+    if (isPlatformBrowser(this.platformId)) {
+      // Effect for handling customer changes in cash sales (VNO)
+      effect(() => {
+        const customer = this.selectedCustomerService.selectedCustomerSignal();
+        const sale = this.currentSaleService.currentSale();
+
+        if (!sale || !isVno(sale.type)) {
+          return;
+        }
+
+        if (customer && !sale.customerId) {
           this.onAddCustommer();
-        } else if (!sale.customerId && this.currentSaleService.voFromCashSale()) {
+        } else if (!customer && sale.customerId) {
+          this.onRemoveCustomer();
+        }
+      });
+
+      // Effect for handling customer changes in credit/carnet sales (VO)
+      effect(() => {
+        const customer = this.selectedCustomerService.selectedCustomerSignal();
+        const sale = this.currentSaleService.currentSale();
+
+        if (!customer || !sale || !isVo(sale.categorie)) {
+          return;
+        }
+
+        if (!sale.customerId && this.currentSaleService.voFromCashSale()) {
           this.updateTransformedSales();
-        } else if (sale.customerId !== customer.id) {
+        } else if (sale.customerId && sale.customerId !== customer.id) {
           this.changeCustomer();
         }
-      } else if (isVno(sale?.type) && sale.customerId) {
-        this.onRemoveCustomer();
-      }
-    });
+      });
+    }
   }
 
   private isCartnet(): boolean {
@@ -979,7 +975,7 @@ export class SellingHomeComponent implements OnInit, AfterViewInit, OnDestroy {
   }
 
   private loadPrevente(): void {
-    setTimeout(() => {
+    queueMicrotask(() => {
       if (this.isComptant()) {
         this.comptantComponent().onLoadPrevente();
       } else if (this.isVoSale()) {
@@ -989,7 +985,7 @@ export class SellingHomeComponent implements OnInit, AfterViewInit, OnDestroy {
           this.carnetComponent().onLoadPrevente();
         }
       }
-    }, 60);
+    });
   }
 
   private createDecondition(qtyDeconditione: number, produitId: number): IDecondition {

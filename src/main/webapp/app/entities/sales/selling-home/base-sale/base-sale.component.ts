@@ -1,4 +1,4 @@
-import { Component, inject, input, signal, viewChild } from '@angular/core';
+import { Component, computed, inject, input, signal, viewChild } from '@angular/core';
 import { ModeReglementComponent } from '../../mode-reglement/mode-reglement.component';
 import { AmountComputingComponent } from '../comptant/amount-computing/amount-computing.component';
 import { SelectedCustomerService } from '../../service/selected-customer.service';
@@ -16,7 +16,7 @@ import { IRemise } from '../../../../shared/model/remise.model';
 import { ISalesLine } from '../../../../shared/model/sales-line.model';
 import { HttpResponse } from '@angular/common/http';
 import { FinalyseSale, ISales } from '../../../../shared/model/sales.model';
-import { Observable } from 'rxjs';
+import { finalize, switchMap } from 'rxjs/operators';
 import { IClientTiersPayant } from '../../../../shared/model/client-tiers-payant.model';
 import { IPaymentMode, PaymentModeControl } from '../../../../shared/model/payment-mode.model';
 import { ButtonModule } from 'primeng/button';
@@ -55,6 +55,7 @@ export class BaseSaleComponent {
   readonly hasAuthorityService = inject(HasAuthorityService);
   readonly canRemoveItem = signal(this.hasAuthorityService.hasAuthorities(Authority.PR_SUPPRIME_PRODUIT_VENTE));
   readonly canApplyDiscount = signal(this.hasAuthorityService.hasAuthorities(Authority.PR_AJOUTER_REMISE_VENTE));
+  readonly isValidDiffere = computed(() => this.currentSaleService.currentSale()?.differe);
 
   protected payments: IPayment[] = [];
   protected remise?: IRemise | null;
@@ -68,10 +69,6 @@ export class BaseSaleComponent {
   private baseSaleService = inject(BaseSaleService);
   private readonly confimDialog = viewChild.required<ConfirmDialogComponent>('confirmDialog');
   private readonly spinner = inject(SpinerService);
-
-  protected get isValidDiffere(): boolean {
-    return this.currentSaleService.currentSale()?.differe;
-  }
 
   protected get entryAmount(): number {
     return this.modeReglementComponent()?.getInputSum() || 0;
@@ -137,7 +134,7 @@ export class BaseSaleComponent {
       const entryAmount = this.entryAmount;
       const restToPay = this.currentSaleService.currentSale().amountToBePaid - entryAmount;
       this.currentSaleService.currentSale().montantVerse = this.baseSaleService.getCashAmount(entryAmount);
-      if (restToPay > 0 && !this.isValidDiffere) {
+      if (restToPay > 0 && !this.isValidDiffere()) {
         this.differeConfirmDialog();
       } else {
         this.finalyseSale();
@@ -169,17 +166,33 @@ export class BaseSaleComponent {
     sale.restToPay = Math.max(restToPay, 0);
     sale.montantRendu = sale.montantVerse - sale.amountToBePaid;
     this.spinner.show();
-    this.subscribeToFinalyseResponse(this.salesService.save(sale));
+    this.isSaving = true;
+    this.salesService
+      .save(sale)
+      .pipe(finalize(() => (this.isSaving = false)))
+      .subscribe({
+        next: (res: HttpResponse<FinalyseSale>) => this.baseSaleService.onFinalyseSuccess(res.body),
+        error: err => this.baseSaleService.onFinalyseError(err),
+      });
   }
 
   putCurrentSaleOnHold(): void {
     this.spinner.show();
-    this.subscribeToPutOnHoldResponse(this.salesService.putCurrentOnStandBy(this.currentSaleService.currentSale()));
+    this.isSaving = true;
+    this.salesService
+      .putCurrentOnStandBy(this.currentSaleService.currentSale())
+      .pipe(finalize(() => (this.isSaving = false)))
+      .subscribe({
+        next: (res: HttpResponse<FinalyseSale>) => this.baseSaleService.onFinalyseSuccess(res.body, true),
+        error: err => this.baseSaleService.onFinalyseError(err),
+      });
   }
 
   create(salesLine: ISalesLine, tiersPayants: IClientTiersPayant[]): void {
-    this.subscribeToCreateSaleResponse(
-      this.salesService.create(
+    this.spinner.show();
+    this.isSaving = true;
+    this.salesService
+      .create(
         this.baseSaleService.createSale(
           salesLine,
           tiersPayants,
@@ -189,18 +202,49 @@ export class BaseSaleComponent {
           this.selectedCustomerService.selectedCustomerSignal().id,
           this.currentSaleService.typeVo(),
         ),
-      ),
-    );
+      )
+      .pipe(finalize(() => (this.isSaving = false)))
+      .subscribe({
+        next: (res: HttpResponse<ISales>) => this.baseSaleService.onSaleResponseSuccess(res.body),
+        error: (err: any) => this.baseSaleService.onSaveError(err, this.currentSaleService.currentSale()),
+      });
   }
 
   onAddProduit(salesLine: ISalesLine): void {
     this.spinner.show();
-    this.subscribeToSaveLineResponse(this.salesService.addItem(salesLine));
+    this.isSaving = true;
+    this.salesService
+      .addItem(salesLine)
+      .pipe(
+        switchMap((res: HttpResponse<ISalesLine>) => this.salesService.find(res.body.saleId)),
+        finalize(() => {
+          this.isSaving = false;
+          this.spinner.hide();
+        }),
+      )
+      .subscribe({
+        next: (res: HttpResponse<ISales>) => this.baseSaleService.onSaveSuccess(res.body),
+        error: (err: any) => this.baseSaleService.onSaveError(err, this.currentSaleService.currentSale()),
+      });
   }
 
   removeLine(salesLine: ISalesLine): void {
     this.spinner.show();
-    this.removeItem(salesLine.id);
+    this.isSaving = true;
+    const sale = this.currentSaleService.currentSale();
+    this.salesService
+      .deleteItem(salesLine.id)
+      .pipe(
+        switchMap(() => this.salesService.find(sale.id)),
+        finalize(() => {
+          this.isSaving = false;
+          this.spinner.hide();
+        }),
+      )
+      .subscribe({
+        next: (res: HttpResponse<ISales>) => this.baseSaleService.onSaveSuccess(res.body),
+        error: (err: any) => this.baseSaleService.onSaveError(err, sale),
+      });
   }
 
   openActionAutorisationDialog(privilege: string, entityToProccess: any): void {
@@ -231,34 +275,65 @@ export class BaseSaleComponent {
 
   updateItemQtyRequested(salesLine: ISalesLine): void {
     this.spinner.show();
-    this.processQtyRequested(salesLine);
+    this.isSaving = true;
+    const sale = this.currentSaleService.currentSale();
+    this.salesService
+      .updateItemQtyRequested(salesLine)
+      .pipe(
+        switchMap(() => this.salesService.find(sale.id)),
+        finalize(() => {
+          this.isSaving = false;
+          this.spinner.hide();
+        }),
+      )
+      .subscribe({
+        next: (res: HttpResponse<ISales>) => this.baseSaleService.onSaveSuccess(res.body),
+        error: (err: any) => {
+          if (['stock', 'stockChInsufisant'].includes(err.error?.errorKey)) {
+            this.baseSaleService.onStockError(err, salesLine);
+          } else {
+            this.baseSaleService.onSaveError(err, sale);
+          }
+        },
+      });
   }
 
   updateItemQtySold(salesLine: ISalesLine): void {
+    this.spinner.show();
+    this.isSaving = true;
     const sale = this.currentSaleService.currentSale();
-    this.salesService.updateItemQtySold(salesLine).subscribe({
-      next: () => this.subscribeToSaveResponse(this.salesService.find(sale.id)),
-      error: (err: any) => this.baseSaleService.onSaveError(err, sale),
-      complete: () => {
-        this.isSaving = false;
-        this.spinner.hide();
-      },
-    });
+    this.salesService
+      .updateItemQtySold(salesLine)
+      .pipe(
+        switchMap(() => this.salesService.find(sale.id)),
+        finalize(() => {
+          this.isSaving = false;
+          this.spinner.hide();
+        }),
+      )
+      .subscribe({
+        next: (res: HttpResponse<ISales>) => this.baseSaleService.onSaveSuccess(res.body),
+        error: (err: any) => this.baseSaleService.onSaveError(err, sale),
+      });
   }
 
   updateItemPrice(salesLine: ISalesLine): void {
-    this.processItemPrice(salesLine);
-  }
-
-  subscribeToSaveLineResponse(result: Observable<HttpResponse<ISalesLine>>): void {
-    result.subscribe({
-      next: (res: HttpResponse<ISalesLine>) => this.subscribeToSaveResponse(this.salesService.find(res.body.saleId)),
-      error: (err: any) => this.baseSaleService.onSaveError(err, this.currentSaleService.currentSale()),
-      complete: () => {
-        this.isSaving = false;
-        this.spinner.hide();
-      },
-    });
+    this.spinner.show();
+    this.isSaving = true;
+    const sale = this.currentSaleService.currentSale();
+    this.salesService
+      .updateItemPrice(salesLine)
+      .pipe(
+        switchMap(() => this.salesService.find(sale.id)),
+        finalize(() => {
+          this.isSaving = false;
+          this.spinner.hide();
+        }),
+      )
+      .subscribe({
+        next: (res: HttpResponse<ISales>) => this.baseSaleService.onSaveSuccess(res.body),
+        error: (err: any) => this.baseSaleService.onSaveError(err, sale),
+      });
   }
 
   printInvoice(): void {
@@ -294,123 +369,33 @@ export class BaseSaleComponent {
   }
 
   addRemise(remise: IRemise): void {
-    if (remise) {
-      this.salesService
-        .addRemise({
-          key: this.currentSaleService.currentSale().id,
-          value: remise.id,
-        })
-        .subscribe({
-          next: () => this.subscribeToSaveResponse(this.salesService.find(this.currentSaleService.currentSale().id)),
-          error: (err: any) => this.baseSaleService.onSaveError(err, this.currentSaleService.currentSale()),
-        });
-    } else {
-      if (this.currentSaleService.currentSale().remise) {
-        this.salesService.removeRemiseFromCashSale(this.currentSaleService.currentSale().id).subscribe({
-          next: () => this.subscribeToSaveResponse(this.salesService.find(this.currentSaleService.currentSale().id)),
-          error: (err: any) => this.baseSaleService.onSaveError(err, this.currentSaleService.currentSale()),
-        });
-      }
-    }
+    const sale = this.currentSaleService.currentSale();
+    const action$ = remise
+      ? this.salesService.addRemise({ key: sale.id, value: remise.id })
+      : this.salesService.removeRemiseFromCashSale(sale.id);
+
+    action$
+      .pipe(
+        switchMap(() => this.salesService.find(sale.id)),
+        finalize(() => {
+          this.isSaving = false;
+          this.spinner.hide();
+        }),
+      )
+      .subscribe({
+        next: (res: HttpResponse<ISales>) => this.baseSaleService.onSaveSuccess(res.body),
+        error: (err: any) => this.baseSaleService.onSaveError(err, sale),
+      });
   }
 
   onAddRemise(remise: IRemise): void {
     if (this.canApplyDiscount()) {
       this.addRemise(remise);
     } else {
-      if (remise) {
+      if (remise || this.currentSaleService.currentSale().remise) {
         this.onAddRmiseOpenActionAutorisationDialog(remise);
-      } else {
-        if (this.currentSaleService.currentSale().remise) {
-          this.onAddRmiseOpenActionAutorisationDialog(remise);
-        }
       }
     }
   }
-
-  protected subscribeToSaveResponse(result: Observable<HttpResponse<ISales>>): void {
-    result.subscribe({
-      next: (res: HttpResponse<ISales>) => this.baseSaleService.onSaveSuccess(res.body),
-      error: error => this.baseSaleService.onError(error),
-      complete: () => {
-        this.isSaving = false;
-        this.spinner.hide();
-      },
-    });
-  }
-
-  protected subscribeToFinalyseResponse(result: Observable<HttpResponse<FinalyseSale>>): void {
-    result.subscribe({
-      next: (res: HttpResponse<FinalyseSale>) => this.baseSaleService.onFinalyseSuccess(res.body),
-      error: err => this.baseSaleService.onFinalyseError(err),
-      complete: () => {
-        this.isSaving = false;
-        this.spinner.hide();
-      },
-    });
-  }
-
-  protected subscribeToPutOnHoldResponse(result: Observable<HttpResponse<FinalyseSale>>): void {
-    result.subscribe({
-      next: (res: HttpResponse<FinalyseSale>) => this.baseSaleService.onFinalyseSuccess(res.body, true),
-      error: err => this.baseSaleService.onFinalyseError(err),
-      complete: () => {
-        this.isSaving = false;
-        this.spinner.hide();
-      },
-    });
-  }
-
-  protected subscribeToCreateSaleResponse(result: Observable<HttpResponse<ISales>>): void {
-    result.subscribe({
-      next: (res: HttpResponse<ISales>) => this.baseSaleService.onSaleResponseSuccess(res.body),
-      error: (err: any) => this.baseSaleService.onSaveError(err, this.currentSaleService.currentSale()),
-      complete: () => {
-        this.isSaving = false;
-        this.spinner.hide();
-      },
-    });
-  }
-
-  private processItemPrice(salesLine: ISalesLine): void {
-    const sale = this.currentSaleService.currentSale();
-    this.salesService.updateItemPrice(salesLine).subscribe({
-      next: () => this.subscribeToSaveResponse(this.salesService.find(sale.id)),
-      error: (err: any) => this.baseSaleService.onSaveError(err, sale),
-      complete: () => {
-        this.isSaving = false;
-        this.spinner.hide();
-      },
-    });
-  }
-
-  private removeItem(id: number): void {
-    const sale = this.currentSaleService.currentSale();
-    this.salesService.deleteItem(id).subscribe({
-      next: () => this.subscribeToSaveResponse(this.salesService.find(sale.id)),
-      error: (err: any) => this.baseSaleService.onSaveError(err, sale),
-      complete: () => {
-        this.isSaving = false;
-        this.spinner.hide();
-      },
-    });
-  }
-
-  private processQtyRequested(salesLine: ISalesLine): void {
-    const sale = this.currentSaleService.currentSale();
-    this.salesService.updateItemQtyRequested(salesLine).subscribe({
-      next: () => this.subscribeToSaveResponse(this.salesService.find(sale.id)),
-      error: (err: any) => {
-        if (['stock', 'stockChInsufisant'].includes(err.error?.errorKey)) {
-          this.baseSaleService.onStockError(err, salesLine);
-        } else {
-          this.baseSaleService.onSaveError(err, sale);
-        }
-      },
-      complete: () => {
-        this.isSaving = false;
-        this.spinner.hide();
-      },
-    });
-  }
 }
+

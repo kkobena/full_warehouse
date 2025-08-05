@@ -1,4 +1,4 @@
-import { Component, inject, input, output, signal, viewChild } from '@angular/core';
+import { Component, computed, inject, input, output, signal, viewChild } from '@angular/core';
 import { ButtonModule } from 'primeng/button';
 import { DividerModule } from 'primeng/divider';
 
@@ -24,6 +24,7 @@ import { SelectedCustomerService } from '../../service/selected-customer.service
 import { SelectModeReglementService } from '../../service/select-mode-reglement.service';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { UninsuredCustomerListComponent } from '../../uninsured-customer-list/uninsured-customer-list.component';
+import { take } from 'rxjs/operators';
 
 @Component({
   selector: 'jhi-comptant',
@@ -69,6 +70,8 @@ export class ComptantComponent {
   private readonly baseSaleService = inject(BaseSaleService);
   private readonly selectedCustomerService = inject(SelectedCustomerService);
   private readonly selectModeReglementService = inject(SelectModeReglementService);
+  readonly entryAmount = computed(() => this.modeReglementComponent()?.getInputSum() || 0);
+  readonly isValidDiffere = computed(() => this.currentSaleService.currentSale()?.differe);
 
   constructor() {
     this.facade.saveResponse$.pipe(takeUntilDestroyed()).subscribe(res => {
@@ -100,25 +103,18 @@ export class ComptantComponent {
     });
   }
 
-  protected get entryAmount(): number {
-    return this.modeReglementComponent()?.getInputSum() || 0;
-  }
-
-  protected get isValidDiffere(): boolean {
-    return this.currentSaleService.currentSale()?.differe;
-  }
-
   manageAmountDiv(): void {
     this.modeReglementComponent().manageAmountDiv();
   }
 
   finalyseSale(putsOnStandby = false): void {
+    const entryAmount = this.entryAmount();
     this.facade.finalizeSale(
       putsOnStandby,
-      this.entryAmount,
+      entryAmount,
       this.modeReglementComponent().commentaire,
       this.baseSaleService.isAvoir(),
-      this.modeReglementComponent().buildPayment(this.entryAmount),
+      this.modeReglementComponent().buildPayment(entryAmount),
     );
   }
 
@@ -131,12 +127,10 @@ export class ComptantComponent {
   }
 
   save(): void {
-    const restToPay = this.currentSaleService.currentSale().amountToBePaid - this.entryAmount;
-    this.currentSaleService.currentSale().montantVerse = this.facade.getCashAmount(
-      this.selectModeReglementService.modeReglements(),
-      this.CASH,
-    );
-    if (restToPay > 0 && !this.isValidDiffere) {
+    const entryAmount = this.entryAmount();
+    const restToPay = this.currentSaleService.currentSale().amountToBePaid - entryAmount;
+    this.currentSaleService.currentSale().montantVerse = this.baseSaleService.getCashAmount(entryAmount);
+    if (restToPay > 0 && !this.isValidDiffere()) {
       this.confimDialog().onConfirm(() => this.facade.confirmDiffereSale(), 'Vente différé', 'Voullez-vous regler le reste en différé ?');
     } else {
       this.finalyseSale();
@@ -162,7 +156,7 @@ export class ComptantComponent {
     });
     modalRef.componentInstance.entity = this.currentSaleService.currentSale();
     modalRef.componentInstance.privilege = privilege;
-    modalRef.closed.subscribe(reason => {
+    modalRef.closed.pipe(take(1)).subscribe(reason => {
       if (reason === true) {
         this.removeLine(entityToProccess);
       }
@@ -204,7 +198,7 @@ export class ComptantComponent {
   manageCashPaymentMode(paymentModeControl: PaymentModeControl): void {
     const modes = this.selectModeReglementService.modeReglements();
     if (modes.length >= this.baseSaleService.maxModePayementNumber()) {
-      const amount = this.entryAmount;
+      const amount = this.entryAmount();
       modes.find((e: IPaymentMode) => e.code !== paymentModeControl.control.target.id).amount =
         this.currentSaleService.currentSale().amountToBePaid - paymentModeControl.paymentMode.amount;
 
@@ -235,7 +229,7 @@ export class ComptantComponent {
     });
     modalRef.componentInstance.entity = this.currentSaleService.currentSale();
     modalRef.componentInstance.privilege = Authority.PR_AJOUTER_REMISE_VENTE;
-    modalRef.closed.subscribe(reason => {
+    modalRef.closed.pipe(take(1)).subscribe(reason => {
       if (reason === true) {
         this.addRemise(remise);
       }
@@ -257,12 +251,7 @@ export class ComptantComponent {
   }
 
   addRemise(remise: IRemise): void {
-    if (remise) {
-      this.facade.addRemise(remise);
-    } else {
-      if (this.currentSaleService.currentSale().remise) {
-        this.facade.removeRemise();
-      }
-    }
+    this.facade.updateRemise(remise);
+
   }
 }

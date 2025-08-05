@@ -49,6 +49,7 @@ export interface ISales {
   tiersPayants?: IClientTiersPayant[];
   thirdPartySaleLines?: IThirdPartySaleLine[];
   partTiersPayant?: number;
+  partAssure?: number;
   sansBon?: boolean;
   commentaire?: string;
   avoir?: boolean;

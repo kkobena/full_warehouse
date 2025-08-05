@@ -316,12 +316,12 @@
     <dependency>
       <artifactId>flyway-mysql</artifactId>
       <groupId>org.flywaydb</groupId>
-      <version>11.3.0</version>
+      <version>11.10.5</version>
     </dependency>
     <dependency>
       <artifactId>libphonenumber</artifactId>
       <groupId>com.googlecode.libphonenumber</groupId>
-      <version>8.13.47</version>
+      <version>9.0.11</version>
     </dependency>
 
 
@@ -529,6 +529,7 @@
     <dependency>
       <artifactId>commons-lang3</artifactId>
       <groupId>org.apache.commons</groupId>
+      <version>3.18.0</version>
     </dependency>
     <dependency>
       <artifactId>jaxb-runtime</artifactId>
@@ -603,7 +604,7 @@
     <artifactId>spring-boot-starter-parent</artifactId>
     <groupId>org.springframework.boot</groupId>
     <relativePath/>
-    <version>3.5.3</version>
+    <version>3.5.4</version>
     <!-- lookup parent from repository -->
   </parent>
 
@@ -819,7 +820,8 @@
     <properties-maven-plugin.version>1.2.1</properties-maven-plugin.version>
     <run.addResources>false</run.addResources>
     <sonar-maven-plugin.version>5.0.0.4389</sonar-maven-plugin.version>
-    <spring-boot.version>${project.parent.version}</spring-boot.version>
+
+    <spring-boot.version>3.5.4</spring-boot.version>
     <spring.profiles.active>dev</spring.profiles.active>
     <springdoc-openapi-starter-webmvc-api.version>2.7.0
     </springdoc-openapi-starter-webmvc-api.version>
@@ -833,6 +835,5 @@
       <url>https://repo.maven.apache.org/maven2/</url>
     </repository>
   </repositories>
-  <version>0.2.1</version>
-  <!--  <version>0.2.2-SNAPSHOT</version>-->
+  <version>0.2.2-SNAPSHOT</version>
 </project>

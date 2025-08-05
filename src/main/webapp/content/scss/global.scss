@@ -16,22 +16,18 @@ h4 {
 }
 
 .justify-content-center {
-  //background: #f7f7f7;
   margin: 0;
 }
 
-body,
-.jh-card {
-  background: #eff3f8;
+body {
+  background: rgba(179, 241, 237, 0.25);
 }
+
 
 .home-ca {
-  background: #eff3f8;
+  background: transparent;
 }
 
-/*.jh-card {
-  background: #f7f7f7;
-}*/
 
 a:hover {
   /* make sure browsers use the pointer cursor for anchors, even with no href */
@@ -1297,67 +1293,6 @@ menu  de la vente
     padding: 0.4rem 0.5rem;
     background-color: #f7f7f7;
   }
-
-  .mvts-caisse-gestion {
-    padding: 0;
-
-    .tab-content {
-      padding: 0;
-    }
-
-    .col-md-10:first-child {
-      margin-right: 0;
-      margin-left: 0;
-      padding-right: 0;
-      padding-left: 0;
-
-      .tab-pane {
-        padding: 0;
-        background-color: #f7f;
-      }
-    }
-
-    .col-10:first-child {
-      margin-left: 0;
-      margin-right: 0;
-      padding-right: 0;
-      padding-left: 0;
-
-      .tab-pane {
-        padding: 0;
-        background-color: #f7f;
-      }
-    }
-
-    .col-2:first-child {
-      margin-right: 0;
-    }
-
-    .mvt-caisse {
-      .p-toolbar {
-        margin: 0;
-      }
-
-      .container {
-        margin-left: 0px;
-
-        .p-card {
-          padding: 0;
-          margin: 0;
-        }
-
-        .p-card-body {
-          padding: 0;
-          margin: 0;
-        }
-
-        .p-card-content {
-          padding: 0;
-          margin: 0;
-        }
-      }
-    }
-  }
 }
 
 .p-card-header-h3 {
@@ -1537,7 +1472,7 @@ menu  de la vente
 }
 
 .sale-tab-container {
-  background-color: #eff3f8;
+  /*background-color: #eff3f8;*/
   padding: 0;
   margin: 0.3rem 0;
 }
@@ -1548,7 +1483,7 @@ menu  de la vente
 }
 
 .sale-body {
-  background-color: #eff3f8;
+  /*background-color: #eff3f8;*/
 }
 
 .inline-flex {
@@ -1560,7 +1495,7 @@ menu  de la vente
 
   .p-stepper {
     .card-body {
-      background-color: #eff3f8;
+      /*background-color: #eff3f8;*/
     }
 
     .p-stepper-header {
@@ -1568,24 +1503,24 @@ menu  de la vente
     }
 
     .p-stepper-panels {
-      background-color: #eff3f8;
+      /*background-color: #eff3f8;*/
       padding: 0;
       color: #333333;
 
       .p-card {
         padding: 0;
         margin: 0;
-        background-color: #eff3f8;
+        /*background-color: #eff3f8;*/
 
         .p-card-body {
           margin: 0;
-          background-color: #eff3f8;
+          /*background-color: #eff3f8;*/
           padding: 0.4rem;
 
           .p-card-content {
             padding: 0.4rem;
             margin: 0;
-            background-color: #eff3f8;
+            /*background-color: #eff3f8;*/
           }
         }
       }
@@ -1814,7 +1749,7 @@ menu  de la vente
 }
 
 .sale-montant-block {
-  background-color: #eff3f8;
+  /*background-color: #eff3f8;*/
 
   .list-group-item {
     padding: 0.25rem 0.25rem;
@@ -1938,4 +1873,13 @@ jhi-recapitualtif-caisse {
   max-width: 70%;
   width: 70%;
 
+}
+
+
+.p-panel {
+  background-color: transparent;
+}
+
+.jh-card {
+  background-color: transparent;
 }

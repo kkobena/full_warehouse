@@ -5,7 +5,6 @@ import { InputMaskModule } from 'primeng/inputmask';
 import { InputTextModule } from 'primeng/inputtext';
 import { KeyFilterModule } from 'primeng/keyfilter';
 import { RadioButtonModule } from 'primeng/radiobutton';
-import { ToastModule } from 'primeng/toast';
 import TranslateDirective from '../../../shared/language/translate.directive';
 import { CardModule } from 'primeng/card';
 import { AssureFormStepService } from './assure-form-step.service';
@@ -14,13 +13,13 @@ import { DateNaissDirective } from '../../../shared/date-naiss.directive';
 
 @Component({
   selector: 'jhi-ayant-droit-step',
+
   imports: [
     InputMaskModule,
     InputTextModule,
     KeyFilterModule,
     RadioButtonModule,
     ReactiveFormsModule,
-    ToastModule,
     TranslateDirective,
     CardModule,
     DividerModule,

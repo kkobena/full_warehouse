@@ -187,9 +187,7 @@
 
     </form>
 
-    @if ((assureFormStepService.typeAssure() === 'ASSURANCE'
-      || assureFormStepService.assure()?.typeTiersPayant === 'ASSURANCE') &&
-    editForm.valid) {
+    @if (editForm.valid) {
       <jhi-complementaire-step #complementaireStep></jhi-complementaire-step>
     }
   </ng-template>

@@ -11,23 +11,18 @@ import { TiersPayantService } from '../../tiers-payant/tierspayant.service';
 import { AssureFormStepService } from './assure-form-step.service';
 import { IClientTiersPayant } from '../../../shared/model/client-tiers-payant.model';
 import { CustomerService } from '../customer.service';
-import { ToastModule } from 'primeng/toast';
 import { CardModule } from 'primeng/card';
 import { ErrorService } from '../../../shared/error.service';
-import { ConfirmDialogModule } from 'primeng/confirmdialog';
 import { ICustomer } from '../../../shared/model/customer.model';
-import {
-  FormTiersPayantComponent
-} from '../../tiers-payant/form-tiers-payant/form-tiers-payant.component';
+import { FormTiersPayantComponent } from '../../tiers-payant/form-tiers-payant/form-tiers-payant.component';
 import { Select } from 'primeng/select';
 import { showCommonModal } from '../../sales/selling-home/sale-helper';
 import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
-import {
-  ConfirmDialogComponent
-} from '../../../shared/dialog/confirm-dialog/confirm-dialog.component';
+import { ConfirmDialogComponent } from '../../../shared/dialog/confirm-dialog/confirm-dialog.component';
 import { ToastAlertComponent } from '../../../shared/toast-alert/toast-alert.component';
 import { Subject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
+import { Tooltip } from 'primeng/tooltip';
 
 @Component({
   selector: 'jhi-complementaire-step',
@@ -37,13 +32,12 @@ import { takeUntil } from 'rxjs/operators';
     KeyFilterModule,
     InputTextModule,
     AutoCompleteModule,
-    ToastModule,
     CardModule,
-    ConfirmDialogModule,
     ButtonModule,
     Select,
     ConfirmDialogComponent,
     ToastAlertComponent,
+    Tooltip,
   ],
   templateUrl: './complementaire-step.component.html',
 })
@@ -70,13 +64,13 @@ export class ComplementaireStepComponent implements OnDestroy {
   private readonly errorService = inject(ErrorService);
   private destroy$ = new Subject<void>();
 
+  get editFormGroups(): FormArray {
+    return this.editForm.get('tiersPayants') as FormArray;
+  }
+
   ngOnDestroy(): void {
     this.destroy$.next();
     this.destroy$.complete();
-  }
-
-  get editFormGroups(): FormArray {
-    return this.editForm.get('tiersPayants') as FormArray;
   }
 
   initForm(current: ICustomer): void {
@@ -151,7 +145,8 @@ export class ComplementaireStepComponent implements OnDestroy {
         size: 10,
         type: 'ASSURANCE',
         search: query,
-      }).pipe(takeUntil(this.destroy$))
+      })
+      .pipe(takeUntil(this.destroy$))
       .subscribe((res: HttpResponse<ITiersPayant[]>) => {
         this.tiersPayants = res.body!;
         if (this.tiersPayants.length === 0) {
@@ -202,13 +197,16 @@ export class ComplementaireStepComponent implements OnDestroy {
     const tiersPayants = this.convertFormAsFormArray();
     const tiersPayant = tiersPayants.at(index).value as IClientTiersPayant;
     if (tiersPayant.id) {
-      this.customerService.deleteTiersPayant(tiersPayant.id).pipe(takeUntil(this.destroy$)).subscribe({
-        next: () => {
-          tiersPayants.removeAt(index);
-          this.validateTiersPayantSize();
-        },
-        error: err => this.onSaveError(err),
-      });
+      this.customerService
+        .deleteTiersPayant(tiersPayant.id)
+        .pipe(takeUntil(this.destroy$))
+        .subscribe({
+          next: () => {
+            tiersPayants.removeAt(index);
+            this.validateTiersPayantSize();
+          },
+          error: err => this.onSaveError(err),
+        });
     } else {
       tiersPayants.removeAt(index);
       this.validateTiersPayantSize();

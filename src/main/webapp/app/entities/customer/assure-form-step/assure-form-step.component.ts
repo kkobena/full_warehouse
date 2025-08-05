@@ -1,6 +1,6 @@
 import { Component, inject, OnDestroy, OnInit, viewChild } from '@angular/core';
 import { StepsModule } from 'primeng/steps';
-import { MenuItem } from 'primeng/api';
+import { ConfirmationService, MenuItem, MessageService } from 'primeng/api';
 import { ICustomer } from '../../../shared/model/customer.model';
 import { AssureFormStepService } from './assure-form-step.service';
 import { StepperModule } from 'primeng/stepper';
@@ -17,9 +17,11 @@ import { CustomerService } from '../customer.service';
 import { CommonService } from './common.service';
 import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
 import { ToastAlertComponent } from '../../../shared/toast-alert/toast-alert.component';
+import { Card } from 'primeng/card';
 
 @Component({
   selector: 'jhi-assure-form-step',
+  providers: [ConfirmationService],
   imports: [
     WarehouseCommonModule,
     StepsModule,
@@ -29,8 +31,10 @@ import { ToastAlertComponent } from '../../../shared/toast-alert/toast-alert.com
     AssureStepComponent,
     AyantDroitStepComponent,
     ToastAlertComponent,
+    Card,
   ],
   templateUrl: './assure-form-step.component.html',
+  styleUrls: ['./assured-form-step-component.scss'],
 })
 export class AssureFormStepComponent implements OnInit, OnDestroy {
   header: string;

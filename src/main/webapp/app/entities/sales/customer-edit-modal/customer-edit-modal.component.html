@@ -7,7 +7,7 @@
   <div class="modal-body">
     <p-card class="sale-info-card">
       <ng-template #header>
-        <div style="padding-left: 1rem;padding-top: 1rem;"><p class="fw-semibold">
+        <div style="padding-left: 1rem;padding-top: 1rem;padding-bottom: 0;"><p class="fw-semibold">
           <span>Vente N°</span> <span
           class="fw-bold badge text-bg-secondary rounded-pill">{{ sale.numberTransaction }} </span>
         </p></div>
@@ -20,21 +20,22 @@
             class="fw-bold badge text-bg-secondary rounded-pill">{{ sale.updatedAt | date: 'dd/MM/yyyy HH:mm' }}</span>
         </div>
         <div class="col-lg-4 col-xl-4 col-sm-6 col-md-3 mt-1">
-          <span class="fw-semibold">Montant : </span> <span
-          class="fw-bold badge text-bg-secondary rounded-pill">{{ sale.salesAmount | number }}</span>
-        </div>
-        <div class="col-lg-4 col-xl-4 col-sm-6 col-md-3 mt-1">
           <span class="fw-semibold">Caissier : </span>
           <span
             class="fw-bold badge text-bg-secondary rounded-pill">{{ sale.cassier?.abbrName }} </span>
         </div>
         <div class="col-lg-4 col-xl-4 col-sm-6 col-md-3 mt-1">
+          <span class="fw-semibold">Montant : </span> <span
+          class="fw-bold badge text-bg-primary rounded-pill">{{ sale.salesAmount | number }}</span>
+        </div>
+
+        <div class="col-lg-4 col-xl-4 col-sm-6 col-md-3 mt-1">
           <span class="fw-semibold">Part T.P : </span> <span
-          class="fw-bold  badge text-bg-secondary rounded-pill">{{ sale.partTiersPayant | number }}</span>
+          class="fw-bold  badge text-bg-primary rounded-pill">{{ sale.partTiersPayant | number }}</span>
         </div>
         <div class="col-lg-4 col-xl-4 col-sm-6 col-md-3 mt-1">
           <span class="fw-semibold">Part Assuré : </span> <span
-          class="fw-bold badge text-bg-secondary rounded-pill">{{ sale.partAssure | number }}</span>
+          class="fw-bold badge text-bg-primary rounded-pill">{{ sale.partAssure | number }}</span>
         </div>
       </div>
     </p-card>
@@ -167,11 +168,11 @@
                   <div class="col-6">
                     <span class="fw-semibold">Taux : </span>
                     <span
-                      class="fw-bold badge text-bg-secondary rounded-pill">{{ group.value.taux | number }}</span>
+                      class="fw-bold badge text-bg-primary rounded-pill">{{ group.value.taux | number }}</span>
                   </div>
                   <div class="col-6">
                     <span class="fw-semibold">Montant : </span> <span
-                    class="fw-bold badge text-bg-secondary rounded-pill">{{ group.value.montant | number }}</span>
+                    class="fw-bold badge text-bg-primary rounded-pill">{{ group.value.montant | number }}</span>
                   </div>
 
 
@@ -179,7 +180,8 @@
                 <div class="mb-3">
                   <label class="form-label">Bon</label>
                   <input pInputText type="text" autocomplete="off"
-                         pKeyFilter="alphanum" formControlName="numBon" class="form-control" />
+                         pKeyFilter="alphanum" required formControlName="numBon"
+                         class="form-control" />
                 </div>
 
               </p-card>
@@ -205,3 +207,5 @@
     </p-button>
   </div>
 </form>
+
+<p-toast position="center" />

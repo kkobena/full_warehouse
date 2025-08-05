@@ -18,10 +18,12 @@ import { InputMaskModule } from 'primeng/inputmask';
 import { DATE_FORMAT_FROM_STRING_FR, FORMAT_ISO_DATE_TO_STRING_FR } from '../../../shared/util/warehouse-util';
 import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
 import { ToastAlertComponent } from '../../../shared/toast-alert/toast-alert.component';
+import { Card } from 'primeng/card';
 
 @Component({
   selector: 'jhi-form-ayant-droit',
   templateUrl: './form-ayant-droit.component.html',
+  styleUrls: ['./form-ayant-droit-component.scss'],
   imports: [
     WarehouseCommonModule,
     ToastModule,
@@ -35,6 +37,7 @@ import { ToastAlertComponent } from '../../../shared/toast-alert/toast-alert.com
     KeyFilterModule,
     InputMaskModule,
     ToastAlertComponent,
+    Card,
   ],
 })
 export class FormAyantDroitComponent implements OnInit, AfterViewInit, OnDestroy {
@@ -117,10 +120,15 @@ export class FormAyantDroitComponent implements OnInit, AfterViewInit, OnDestroy
   }
 
   protected subscribeToSaveResponse(result: Observable<HttpResponse<ICustomer>>): void {
-    result.pipe(finalize(() => (this.isSaving = false)), takeUntil(this.destroy$)).subscribe({
-      next: res => this.onSaveSuccess(res.body),
-      error: error => this.onSaveError(error),
-    });
+    result
+      .pipe(
+        finalize(() => (this.isSaving = false)),
+        takeUntil(this.destroy$),
+      )
+      .subscribe({
+        next: res => this.onSaveSuccess(res.body),
+        error: error => this.onSaveError(error),
+      });
   }
 
   protected onSaveSuccess(customer: ICustomer | null): void {
@@ -129,9 +137,12 @@ export class FormAyantDroitComponent implements OnInit, AfterViewInit, OnDestroy
 
   protected onSaveError(error: any): void {
     if (error.error?.errorKey) {
-      this.errorService.getErrorMessageTranslation(error.error.errorKey).pipe(takeUntil(this.destroy$)).subscribe(translatedErrorMessage => {
-        this.alert().showError(translatedErrorMessage);
-      });
+      this.errorService
+        .getErrorMessageTranslation(error.error.errorKey)
+        .pipe(takeUntil(this.destroy$))
+        .subscribe(translatedErrorMessage => {
+          this.alert().showError(translatedErrorMessage);
+        });
     } else {
       this.alert().showError('Erreur interne du serveur.');
     }

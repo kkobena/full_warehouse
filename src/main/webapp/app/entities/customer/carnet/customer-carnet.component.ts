@@ -49,6 +49,7 @@ import { ToastAlertComponent } from '../../../shared/toast-alert/toast-alert.com
     ToastAlertComponent,
   ],
   templateUrl: './customer-carnet.component.html',
+  styleUrls: ['./customer-carnet-component.scss'],
 })
 export class CustomerCarnetComponent implements OnInit, AfterViewInit, OnDestroy {
   header: string | null = null;
@@ -154,7 +155,8 @@ export class CustomerCarnetComponent implements OnInit, AfterViewInit, OnDestroy
         size: 10,
         type: this.categorie,
         search: query,
-      }).pipe(takeUntil(this.destroy$))
+      })
+      .pipe(takeUntil(this.destroy$))
       .subscribe((res: HttpResponse<ITiersPayant[]>) => {
         this.tiersPayants = res.body!;
         if (this.tiersPayants.length === 0) {

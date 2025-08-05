@@ -1,12 +1,4 @@
-import {
-  AfterViewInit,
-  Component,
-  ElementRef,
-  inject,
-  OnDestroy,
-  OnInit,
-  viewChild
-} from '@angular/core';
+import { AfterViewInit, Component, ElementRef, inject, OnDestroy, OnInit, viewChild } from '@angular/core';
 import { MessageService } from 'primeng/api';
 import { Customer, ICustomer } from 'app/shared/model/customer.model';
 import { ErrorService } from 'app/shared/error.service';
@@ -22,10 +14,12 @@ import { InputTextModule } from 'primeng/inputtext';
 import { ToastModule } from 'primeng/toast';
 import { KeyFilterModule } from 'primeng/keyfilter';
 import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
+import { Card } from 'primeng/card';
 
 @Component({
   selector: 'jhi-uninsured-customer-form',
   templateUrl: './uninsured-customer-form.component.html',
+  styleUrls: ['./uninsured-customer-component.scss'],
   providers: [MessageService],
   imports: [
     WarehouseCommonModule,
@@ -36,6 +30,7 @@ import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
     RippleModule,
     InputTextModule,
     KeyFilterModule,
+    Card,
   ],
 })
 export class UninsuredCustomerFormComponent implements OnInit, AfterViewInit, OnDestroy {
@@ -131,16 +126,11 @@ export class UninsuredCustomerFormComponent implements OnInit, AfterViewInit, On
 
   private onSaveError(error: any): void {
     if (error.error?.errorKey) {
-      this.errorService
-        .getErrorMessageTranslation(error.error.errorKey)
-        .pipe(takeUntil(this.destroy$))
-        .subscribe(translatedErrorMessage => {
-          this.messageService.add({
-            severity: 'error',
-            summary: 'Erreur',
-            detail: translatedErrorMessage,
-          });
-        });
+      this.messageService.add({
+        severity: 'error',
+        summary: 'Erreur',
+        detail: this.errorService.getErrorMessage(error),
+      });
     } else {
       this.messageService.add({
         severity: 'error',

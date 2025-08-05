@@ -1,16 +1,17 @@
-<p-card styleClass="complementaires-form">
-  <ng-template pTemplate="title">
+<p-card>
+  <ng-template #header>
     <div class="d-flex justify-content-between">
-      <span>Formulaire complémentaires</span>
+      <span class="fw-bold">Info complémentaires</span>
       @if (validSize) {
         <span>
-          <p-button (click)="addTiersPayant()" severity="info" size="small" [rounded]="true"
+          <p-button (click)="addTiersPayant()" pTooltip="Ajouter un tiers payant" severity="info"
+                    size="small" [rounded]="true"
                     icon="pi pi-plus" type="button"></p-button>
         </span>
       }
     </div>
   </ng-template>
-  <ng-template pTemplate="content">
+  <ng-template #content>
     <form [formGroup]="editForm" name="editForm">
       <div class="row">
         @for (tiersPayant of editFormGroups.controls; track i; let i = $index) {
@@ -22,6 +23,7 @@
                   severity="danger"
                   icon="pi pi-times"
                   size="small"
+                  pTooltip="Supprimer"
                   [rounded]="true"
                   type="button"
                 ></p-button>
@@ -40,7 +42,6 @@
                       [minLength]="minLength"
                       [style]="{ width: '100%' }"
                       [suggestions]="tiersPayants"
-                      appendTo="body"
                       formControlName="tiersPayant"
                       name="tiersPayant"
                       [dropdown]="true"

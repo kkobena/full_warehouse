@@ -23,10 +23,12 @@ import { ToggleSwitch } from 'primeng/toggleswitch';
 import { InputNumber } from 'primeng/inputnumber';
 import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
 import { ToastAlertComponent } from '../../../shared/toast-alert/toast-alert.component';
+import { Card } from 'primeng/card';
 
 @Component({
   selector: 'jhi-form-tiers-payant',
   templateUrl: './form-tiers-payant.component.html',
+  styleUrls: ['./form-tiers-payant-component.scss'],
   imports: [
     WarehouseCommonModule,
     FormsModule,
@@ -43,6 +45,7 @@ import { ToastAlertComponent } from '../../../shared/toast-alert/toast-alert.com
     ToggleSwitch,
     InputNumber,
     ToastAlertComponent,
+    Card,
   ],
 })
 export class FormTiersPayantComponent implements OnInit, AfterViewInit {

@@ -1,152 +1,114 @@
-<p-toast position="center"></p-toast>
-<div class="bg-light">
-  <!--  @if (assureFormStepService.assure()?.ayantDroits?.length > 0) {-->
-  <!--    <p-card>-->
-  <!--      <ng-template pTemplate="title">Ayants droits de l'assuré</ng-template>-->
-  <!--      <ng-template pTemplate="content">-->
-  <!--        <div class="table-responsive mb-2">-->
-  <!--          <table class="table table-striped table-bordered table-hover mb-2">-->
-  <!--            <thead>-->
-  <!--            <tr>-->
-  <!--              <th style="width:3%">-->
-  <!--                #-->
-  <!--              </th>-->
-  <!--              <th>Nom</th>-->
-  <!--              <th>Prénom(s)</th>-->
-  <!--              <th>Matricule</th>-->
-  <!--              <th>Date de naissance</th>-->
-  <!--              <th style="width:8%">Actions</th>-->
-  <!--            </tr>-->
-  <!--            </thead>-->
-  <!--            <tbody>-->
-  <!--              @for (ayantDroit of assureFormStepService.assure()?.ayantDroits; track ayantDroit.id; let i = $index) {-->
-  <!--                <tr (dblclick)="onDbleClick(ayantDroit)" style="cursor: pointer;">-->
-  <!--                  <td style="text-align: left;">{{ i + 1 }}</td>-->
-  <!--                  <td>{{ ayantDroit.firstName }}</td>-->
-  <!--                  <td>{{ ayantDroit.lastName }}</td>-->
-  <!--                  <td>{{ ayantDroit.num }}</td>-->
-  <!--                  <td>{{ ayantDroit.datNaiss | date :'dd/MM/yyyy' }}</td>-->
-  <!--                  <td class="text-center">-->
-  <!--                    <button type="button" class="btn  btn-warning btn-sm"-->
-  <!--                            (click)="onSelect(ayantDroit)">-->
-  <!--                      <i class="pi pi-pencil"></i>-->
-  <!--                    </button>-->
-  <!--                  </td>-->
-  <!--                </tr>-->
-  <!--              }-->
-  <!--            </tbody>-->
-  <!--          </table>-->
-  <!--        </div>-->
-  <!--      </ng-template>-->
+<p-card>
+  <ng-template #content>
+    <form [formGroup]="editForm" name="editForm">
+      <div [hidden]="true" class="form-group">
+        <input class="form-control" formControlName="id" id="id" name="id" readonly
+               type="hidden" />
+      </div>
 
-  <!--    </p-card>-->
-  <!--    <p-divider></p-divider>-->
-  <!--  }-->
-
-  <p-card>
-    <ng-template pTemplate="title"> Formulaire ayant-droit</ng-template>
-    <ng-template pTemplate="content">
-      <form [formGroup]="editForm" name="editForm">
-        <div [hidden]="true" class="form-group">
-          <input class="form-control" formControlName="id" id="id" name="id" readonly type="hidden" />
+      <div class="form-row">
+        <div class="form-group col-md-6">
+          <label class="form-control-label" for="field_firstName">Nom</label>
+          <input
+            #firstName
+            autocomplete="off"
+            autofocus
+            class="form-control"
+            formControlName="firstName"
+            id="field_firstName"
+            name="firstName"
+            pInputText
+            type="text"
+          />
+          @if (editForm.get('firstName')!.invalid && (editForm.get('firstName')!.dirty
+            || editForm.get('firstName')!.touched)) {
+            <div>
+              @if (editForm.get('firstName')?.errors?.required) {
+                <small class="form-text text-danger" jhiTranslate="entity.validation.required">
+                  This field is required. </small>
+              }
+            </div>
+          }
         </div>
-
-        <div class="form-row">
-          <div class="form-group col-md-6">
-            <label class="form-control-label" for="field_firstName">Nom</label>
-            <input
-              #firstName
-              autocomplete="off"
-              autofocus
-              class="form-control"
-              formControlName="firstName"
-              id="field_firstName"
-              name="firstName"
-              pInputText
-              type="text"
-            />
-            @if (editForm.get('firstName')!.invalid && (editForm.get('firstName')!.dirty || editForm.get('firstName')!.touched)) {
-              <div>
-                @if (editForm.get('firstName')?.errors?.required) {
-                  <small class="form-text text-danger" jhiTranslate="entity.validation.required"> This field is required. </small>
-                }
-              </div>
-            }
-          </div>
-          <div class="form-group col-md-6">
-            <label class="form-control-label" for="field_lastName">Prénom(s)</label>
-            <input
-              autocomplete="off"
-              class="form-control"
-              formControlName="lastName"
-              id="field_lastName"
-              name="lastName"
-              pInputText
-              type="text"
-            />
-            @if (editForm.get('lastName')!.invalid && (editForm.get('lastName')!.dirty || editForm.get('lastName')!.touched)) {
-              <div>
-                @if (editForm.get('lastName')?.errors?.required) {
-                  <small class="form-text text-danger" jhiTranslate="entity.validation.required"> This field is required. </small>
-                }
-              </div>
-            }
-          </div>
+        <div class="form-group col-md-6">
+          <label class="form-control-label" for="field_lastName">Prénom(s)</label>
+          <input
+            autocomplete="off"
+            class="form-control"
+            formControlName="lastName"
+            id="field_lastName"
+            name="lastName"
+            pInputText
+            type="text"
+          />
+          @if (editForm.get('lastName')!.invalid && (editForm.get('lastName')!.dirty
+            || editForm.get('lastName')!.touched)) {
+            <div>
+              @if (editForm.get('lastName')?.errors?.required) {
+                <small class="form-text text-danger" jhiTranslate="entity.validation.required">
+                  This field is required. </small>
+              }
+            </div>
+          }
         </div>
+      </div>
 
-        <div class="form-row">
-          <div class="form-group col-md-6">
-            <label class="form-control-label" for="field_numAyantDroit">Numéro assuré</label>
-            <input
-              autocomplete="off"
-              class="form-control"
-              formControlName="numAyantDroit"
-              id="field_numAyantDroit"
-              name="numAyantDroit"
-              pInputText
-              pKeyFilter="alphanum"
-              type="text"
-            />
-            @if (
-              editForm.get('numAyantDroit')!.invalid && (editForm.get('numAyantDroit')!.dirty || editForm.get('numAyantDroit')!.touched)
-            ) {
-              <div>
-                @if (editForm.get('numAyantDroit')?.errors?.required) {
-                  <small class="form-text text-danger" jhiTranslate="entity.validation.required"> This field is required. </small>
-                }
-              </div>
-            }
-          </div>
-          <div class="form-group col-md-6">
-            @let datNaiss = editForm.get('datNaiss');
-            <label class="form-control-label">Date de naissance</label>
-            <input jhiDateNaiss
-              [style]="{ width: '100%' }"
-              formControlName="datNaiss"
-              id="datNaiss"
-              placeholder="jj/mm/aaaa"
-            />
-            @if (datNaiss!.invalid && (datNaiss!.dirty || datNaiss!.touched)) {:!
-              <div>
-                @let errors = datNaiss?.errors;
-                @if (errors?.invalidDate || errors?.outOfRange) {
-                  <small class="form-text text-danger"> Veuillez saisir une date valide</small>
-                }
-              </div>
-            }
-          </div>
+      <div class="form-row">
+        <div class="form-group col-md-6">
+          <label class="form-control-label" for="field_numAyantDroit">Numéro assuré</label>
+          <input
+            autocomplete="off"
+            class="form-control"
+            formControlName="numAyantDroit"
+            id="field_numAyantDroit"
+            name="numAyantDroit"
+            pInputText
+            pKeyFilter="alphanum"
+            type="text"
+          />
+          @if (editForm.get('numAyantDroit')!.invalid && (editForm.get('numAyantDroit')!.dirty
+            || editForm.get('numAyantDroit')!.touched)) {
+            <div>
+              @if (editForm.get('numAyantDroit')?.errors?.required) {
+                <small class="form-text text-danger" jhiTranslate="entity.validation.required">
+                  This field is required. </small>
+              }
+            </div>
+          }
         </div>
+        <div class="form-group col-md-6">
+          @let datNaiss = editForm.get('datNaiss');
+          <label class="form-control-label">Date de naissance</label>
+          <input [style]="{ width: '100%' }"
+                 formControlName="datNaiss"
+                 id="datNaiss"
+                 jhiDateNaiss pInputText
+                 placeholder="jj/mm/aaaa"
+          />
+          @if (datNaiss!.invalid && (datNaiss!.dirty || datNaiss!.touched)) {
+            :!
+            <div>
+              @let errors = datNaiss?.errors;
+              @if (errors?.invalidDate || errors?.outOfRange) {
+                <small class="form-text text-danger"> Veuillez saisir une date valide</small>
+              }
+            </div>
+          }
+        </div>
+      </div>
 
-        <div class="form-row">
-          <div class="form-group col">
-            <h5 class="form-control-label">Sexe</h5>
-            <p-radioButton formControlName="sexe" id="masculin" inputId="masculin" name="sexe" value="M"></p-radioButton>
-            <label class="ml-2" for="masculin">Masculin</label>
-            <p-radioButton formControlName="sexe" id="feminin" inputId="feminin" name="sexe" value="F"></p-radioButton>
-            <label class="ml-2" for="feminin">Feminin</label>
-          </div>
+      <div class="form-row">
+        <div class="form-group col">
+          <h5 class="form-control-label">Sexe</h5>
+          <p-radioButton formControlName="sexe" id="masculin" inputId="masculin" name="sexe"
+                         value="M"></p-radioButton>
+          <label class="ml-2" for="masculin">Masculin</label>
+          <p-radioButton formControlName="sexe" id="feminin" inputId="feminin" name="sexe"
+                         value="F"></p-radioButton>
+          <label class="ml-2" for="feminin">Feminin</label>
         </div>
-      </form>
-    </ng-template>
-  </p-card>
-</div>
+      </div>
+    </form>
+  </ng-template>
+</p-card>
+

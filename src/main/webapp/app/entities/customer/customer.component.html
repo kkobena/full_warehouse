@@ -1,4 +1,5 @@
-<p-dialog [(visible)]="jsonDialog" [focusOnShow]="false" [modal]="true" [style]="{ width: '50vw' }" header="Importer un fichier json">
+<p-dialog [(visible)]="jsonDialog" [focusOnShow]="false" [modal]="true" [style]="{ width: '50vw' }"
+          header="Importer un fichier json">
   <div class="ui-g form-group">
     <p-fileupload
       (uploadHandler)="onUploadJson($event)"
@@ -12,15 +13,12 @@
     </p-fileupload>
   </div>
   <ng-template #footer>
-    <p-button (click)="cancel()" [raised]="true" class="mr-2" icon="pi pi-times" label="Annuler" severity="danger" type="button"></p-button>
+    <p-button (click)="cancel()" [raised]="true" class="mr-2" icon="pi pi-times" label="Annuler"
+              severity="danger" type="button"></p-button>
   </ng-template>
 </p-dialog>
 
-<p-confirmDialog [baseZIndex]="10000" [style]="{ width: '40vw' }" key="deleteCustomer"> </p-confirmDialog>
-<p-confirmDialog [baseZIndex]="10000" [style]="{ width: '40vw' }" key="desactiverCustomer"> </p-confirmDialog>
-<p-confirmDialog [baseZIndex]="10000" [style]="{ width: '40vw' }" key="deleteTiersPayant"> </p-confirmDialog>
-<ngx-spinner [fullScreen]="false" bdColor="rgba(255,255,255,0.5)" color="#f13151" name="importation" size="medium" type="timer">
-</ngx-spinner>
+
 <p-panel header="Liste des clients">
   <p-toolbar>
     <ng-template #start>
@@ -47,11 +45,13 @@
       <p-divider layout="vertical"></p-divider>
       <p-iconfield>
         <p-inputicon styleClass="pi pi-search" />
-        <input (keyup.enter)="onSearch()" [(ngModel)]="search" pInputText placeholder="Taper pour rechercher" type="text" />
+        <input (keyup.enter)="onSearch()" [(ngModel)]="search" pInputText
+               placeholder="Taper pour rechercher" type="text" />
       </p-iconfield>
     </ng-template>
     <ng-template #end>
-      <p-button (click)="loadPage()" class="mr-1" icon="pi pi-search" label="Rechercher" raised="true" severity="info"></p-button>
+      <p-button (click)="loadPage()" class="mr-1" icon="pi pi-search" label="Rechercher"
+                raised="true" severity="info"></p-button>
 
       <p-splitbutton
         [model]="newCustomerbuttons"
@@ -198,22 +198,28 @@
             @if (customer.type === 'ASSURE') {
               <div class="row">
                 <div class="card col-md-5 mr-2">
-                  <div class="card-header bg-primary text-white">INFORMATIONS COMPLEMENTAIRES DU CLIENTS</div>
+                  <div class="card-header bg-primary text-white">INFORMATIONS COMPLEMENTAIRES DU
+                    CLIENTS
+                  </div>
                   <div class="card-body">
                     <table class="invoice-table table table-striped">
                       <tbody>
-                        <tr>
-                          <td class="firstColumn">Date de naissance</td>
-                          <td class="secondColumn">{{ customer?.datNaiss | date: 'dd/MM/yyyy' }}</td>
-                          <td class="firstColumn">Date de création</td>
-                          <td class="secondColumn">{{ customer?.createdAt | date: 'dd/MM/yyyy HH:mm' }}</td>
-                        </tr>
-                        <tr>
-                          <td class="firstColumn">Dernière modification</td>
-                          <td class="secondColumn">{{ customer?.updatedAt | date: 'dd/MM/yyyy HH:mm' }}</td>
-                          <td class="firstColumn">Sexe</td>
-                          <td class="secondColumn">{{ customer?.sexe }}</td>
-                        </tr>
+                      <tr>
+                        <td class="firstColumn">Date de naissance</td>
+                        <td class="secondColumn">{{ customer?.datNaiss | date: 'dd/MM/yyyy' }}</td>
+                        <td class="firstColumn">Date de création</td>
+                        <td
+                          class="secondColumn">{{ customer?.createdAt | date: 'dd/MM/yyyy HH:mm' }}
+                        </td>
+                      </tr>
+                      <tr>
+                        <td class="firstColumn">Dernière modification</td>
+                        <td
+                          class="secondColumn">{{ customer?.updatedAt | date: 'dd/MM/yyyy HH:mm' }}
+                        </td>
+                        <td class="firstColumn">Sexe</td>
+                        <td class="secondColumn">{{ customer?.sexe }}</td>
+                      </tr>
                       </tbody>
                     </table>
                   </div>
@@ -226,22 +232,22 @@
                       <div class="card-body">
                         <table class="table table-striped">
                           <thead>
-                            <tr>
-                              <th style="width: 40%">Nom et prenom(s)</th>
-                              <th style="width: 20%">N° Sécu</th>
-                              <th style="width: 17%">Date de naissance</th>
-                              <th style="width: 8%">Sexe</th>
-                              <th style="width: 15%; text-align: right">
-                                <p-button
-                                  (click)="addAyantDroit(customer)"
-                                  [text]="true"
-                                  severity="info"
-                                  [rounded]="true"
-                                  icon="pi pi-plus"
-                                  pTooltip="Ajouter un ayant droit"
-                                ></p-button>
-                              </th>
-                            </tr>
+                          <tr>
+                            <th style="width: 40%">Nom et prenom(s)</th>
+                            <th style="width: 20%">N° Sécu</th>
+                            <th style="width: 17%">Date de naissance</th>
+                            <th style="width: 8%">Sexe</th>
+                            <th style="width: 15%; text-align: right">
+                              <p-button
+                                (click)="addAyantDroit(customer)"
+                                [text]="true"
+                                severity="info"
+                                [rounded]="true"
+                                icon="pi pi-plus"
+                                pTooltip="Ajouter un ayant droit"
+                              ></p-button>
+                            </th>
+                          </tr>
                           </thead>
                           <tbody>
                             @for (ayantDroit of customer.ayantDroits; track ayantDroit?.id) {
@@ -285,30 +291,31 @@
                     <div class="card-body">
                       <table class="table table-striped">
                         <thead>
-                          <tr>
-                            <th style="width: 28%">Tiers-payant</th>
-                            <th style="width: 14%">N° Sécu</th>
-                            <th style="width: 7%">Taux</th>
-                            <th style="width: 8%">Catégorie</th>
-                            <th style="width: 13%">Plafond encours</th>
-                            <th style="width: 13%">Plafond vente</th>
-                            <!--                                            <th style="width:8%;">Plafond absolu ?</th>-->
-                            @if (displayTiersPayantAddBtn(customer)) {
-                              <th style="width: 11%; text-align: right">
-                                <p-button
-                                  (click)="onAddNewTiersPayant(customer)"
-                                  severity="info"
-                                  [rounded]="true"
-                                  [text]="true"
-                                  icon="pi pi-plus"
-                                  pTooltip="Ajouter un tiers-payant"
-                                ></p-button>
-                              </th>
-                            }
-                          </tr>
+                        <tr>
+                          <th style="width: 28%">Tiers-payant</th>
+                          <th style="width: 14%">N° Sécu</th>
+                          <th style="width: 7%">Taux</th>
+                          <th style="width: 8%">Catégorie</th>
+                          <th style="width: 13%">Plafond encours</th>
+                          <th style="width: 13%">Plafond vente</th>
+                          <!--                                            <th style="width:8%;">Plafond absolu ?</th>-->
+                          @if (displayTiersPayantAddBtn(customer)) {
+                            <th style="width: 11%; text-align: right">
+                              <p-button
+                                (click)="onAddNewTiersPayant(customer)"
+                                severity="info"
+                                [rounded]="true"
+                                [text]="true"
+                                icon="pi pi-plus"
+                                pTooltip="Ajouter un tiers-payant"
+                              ></p-button>
+                            </th>
+                          }
+                        </tr>
                         </thead>
                         <tbody>
-                          @for (tierspayant of customer.tiersPayants; track tierspayant?.id; let i = $index) {
+                          @for (tierspayant of customer.tiersPayants; track tierspayant?.id; let
+                            i = $index) {
                             <tr>
                               <td>{{ tierspayant?.tiersPayantFullName }}</td>
                               <td>{{ tierspayant?.num }}</td>
@@ -329,7 +336,8 @@
                                       [text]="true"
                                       pTooltip="Editer les infos du tierspayant"
                                     ></p-button>
-                                    @if (customer.typeTiersPayant === 'ASSURANCE' && customer.tiersPayants.length > 1) {
+                                    @if (customer.typeTiersPayant === 'ASSURANCE'
+                                    && customer.tiersPayants.length > 1) {
                                       <p-button
                                         class="p-mb-3"
                                         icon="pi pi-trash"
@@ -353,22 +361,28 @@
               </div>
             } @else {
               <div class="card">
-                <div class="card-header bg-primary text-white">INFORMATIONS COMPLEMENTAIRES DU CLIENTS</div>
+                <div class="card-header bg-primary text-white">INFORMATIONS COMPLEMENTAIRES DU
+                  CLIENTS
+                </div>
                 <div class="card-body">
                   <table class="invoice-table table table-striped">
                     <tbody>
-                      <tr>
-                        <td class="firstColumn">Date de naissance</td>
-                        <td class="secondColumn">{{ customer?.datNaiss | date: 'dd/MM/yyyy' }}</td>
-                        <td class="firstColumn">Date de création</td>
-                        <td class="secondColumn">{{ customer?.createdAt | date: 'dd/MM/yyyy HH:mm' }}</td>
-                      </tr>
-                      <tr>
-                        <td class="firstColumn">Dernière modification</td>
-                        <td class="secondColumn">{{ customer?.updatedAt | date: 'dd/MM/yyyy HH:mm' }}</td>
-                        <td class="firstColumn">Sexe</td>
-                        <td class="secondColumn">{{ customer?.sexe }}</td>
-                      </tr>
+                    <tr>
+                      <td class="firstColumn">Date de naissance</td>
+                      <td class="secondColumn">{{ customer?.datNaiss | date: 'dd/MM/yyyy' }}</td>
+                      <td class="firstColumn">Date de création</td>
+                      <td
+                        class="secondColumn">{{ customer?.createdAt | date: 'dd/MM/yyyy HH:mm' }}
+                      </td>
+                    </tr>
+                    <tr>
+                      <td class="firstColumn">Dernière modification</td>
+                      <td
+                        class="secondColumn">{{ customer?.updatedAt | date: 'dd/MM/yyyy HH:mm' }}
+                      </td>
+                      <td class="firstColumn">Sexe</td>
+                      <td class="secondColumn">{{ customer?.sexe }}</td>
+                    </tr>
                     </tbody>
                   </table>
                 </div>
@@ -384,3 +398,5 @@
     </div>
   }
 </p-panel>
+<jhi-confirm-dialog #confirmDialog></jhi-confirm-dialog>
+

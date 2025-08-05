@@ -1,21 +1,19 @@
-import { Component, OnInit, inject } from '@angular/core';
+import { Component, inject, OnInit, viewChild } from '@angular/core';
 import { TiersPayantService } from './tierspayant.service';
 import { Observable } from 'rxjs';
 import { HttpHeaders, HttpResponse } from '@angular/common/http';
 import { IResponseDto } from '../../shared/util/response-dto';
-import { ConfirmationService, LazyLoadEvent, MenuItem, MessageService } from 'primeng/api';
-import { DialogService, DynamicDialogModule, DynamicDialogRef } from 'primeng/dynamicdialog';
-import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
+import { LazyLoadEvent, MenuItem, MessageService } from 'primeng/api';
+import { DynamicDialogModule } from 'primeng/dynamicdialog';
+import { NgbActiveModal, NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { ITEMS_PER_PAGE } from '../../shared/constants/pagination.constants';
 import { ITiersPayant } from '../../shared/model/tierspayant.model';
-import { ActivatedRoute, Router, RouterModule } from '@angular/router';
-import { NgxSpinnerModule, NgxSpinnerService } from 'ngx-spinner';
+import { Router, RouterModule } from '@angular/router';
 import { FormTiersPayantComponent } from './form-tiers-payant/form-tiers-payant.component';
 import { ErrorService } from '../../shared/error.service';
 import { WarehouseCommonModule } from '../../shared/warehouse-common/warehouse-common.module';
 import { ButtonModule } from 'primeng/button';
 import { RippleModule } from 'primeng/ripple';
-import { ConfirmDialogModule } from 'primeng/confirmdialog';
 import { DropdownModule } from 'primeng/dropdown';
 import { FileUploadModule } from 'primeng/fileupload';
 import { ToolbarModule } from 'primeng/toolbar';
@@ -26,21 +24,22 @@ import { FormsModule } from '@angular/forms';
 import { DialogModule } from 'primeng/dialog';
 import { SplitButtonModule } from 'primeng/splitbutton';
 import { ProgressBarModule } from 'primeng/progressbar';
-import { acceptButtonProps, rejectButtonProps } from '../../shared/util/modal-button-props';
 import { Select } from 'primeng/select';
 import { IconField } from 'primeng/iconfield';
 import { InputIcon } from 'primeng/inputicon';
 import { Panel } from 'primeng/panel';
+import { showCommonModal } from '../sales/selling-home/sale-helper';
+import { ConfirmDialogComponent } from '../../shared/dialog/confirm-dialog/confirm-dialog.component';
+import { SpinerService } from '../../shared/spiner.service';
 
 @Component({
   selector: 'jhi-tiers-payant',
   templateUrl: './tiers-payant.component.html',
-  providers: [MessageService, DialogService, ConfirmationService, NgbActiveModal],
+  providers: [MessageService, NgbActiveModal],
   imports: [
     WarehouseCommonModule,
     ButtonModule,
     RippleModule,
-    ConfirmDialogModule,
     DropdownModule,
     FileUploadModule,
     ToolbarModule,
@@ -52,45 +51,41 @@ import { Panel } from 'primeng/panel';
     FormsModule,
     DialogModule,
     SplitButtonModule,
-    NgxSpinnerModule,
     ProgressBarModule,
     Select,
     IconField,
     InputIcon,
     Panel,
+    ConfirmDialogComponent,
   ],
 })
 export class TiersPayantComponent implements OnInit {
-  protected entityService = inject(TiersPayantService);
-  private messageService = inject(MessageService);
-  protected activatedRoute = inject(ActivatedRoute);
-  private dialogService = inject(DialogService);
-  protected errorService = inject(ErrorService);
-  protected confirmationService = inject(ConfirmationService);
-  protected router = inject(Router);
-  private spinner = inject(NgxSpinnerService);
-
-  tiersPayants?: ITiersPayant[] = [];
-  jsonDialog = false;
-  responseDialog = false;
-  onErrorOccur = false;
-  responsedto!: IResponseDto;
-  isSaving = false;
-  jsonFileUploadProgress = 0;
-  jsonFileUploadStatutProgress = 'Importation des tiers-payant en cours...';
-
-  itemsPerPage = ITEMS_PER_PAGE;
-  page!: number;
-  predicate!: string;
-  ascending!: boolean;
-  ngbPaginationPage = 1;
-  totalItems = 0;
-  loading!: boolean;
-  ref!: DynamicDialogRef;
-  type: string[] = ['TOUT', 'ASSURANCE', 'CARNET', 'DEPOT'];
-  typeSelected = 'TOUT';
-  search = '';
-  tiersPayantSplitbuttons: MenuItem[];
+  protected tiersPayants?: ITiersPayant[] = [];
+  protected jsonDialog = false;
+  protected responseDialog = false;
+  protected onErrorOccur = false;
+  protected responsedto!: IResponseDto;
+  protected isSaving = false;
+  protected jsonFileUploadProgress = 0;
+  protected jsonFileUploadStatutProgress = 'Importation des tiers-payant en cours...';
+  protected itemsPerPage = ITEMS_PER_PAGE;
+  protected page!: number;
+  protected predicate!: string;
+  protected ascending!: boolean;
+  protected ngbPaginationPage = 1;
+  protected totalItems = 0;
+  protected loading!: boolean;
+  protected type: string[] = ['TOUT', 'ASSURANCE', 'CARNET', 'DEPOT'];
+  protected typeSelected = 'TOUT';
+  protected search = '';
+  protected tiersPayantSplitbuttons: MenuItem[];
+  private readonly entityService = inject(TiersPayantService);
+  private readonly errorService = inject(ErrorService);
+  private readonly router = inject(Router);
+  private readonly messageService = inject(MessageService);
+  private readonly modalService = inject(NgbModal);
+  private readonly spinner = inject(SpinerService);
+  private readonly confimDialog = viewChild.required<ConfirmDialogComponent>('confirmDialog');
   constructor() {
     this.tiersPayantSplitbuttons = [
       {
@@ -120,7 +115,7 @@ export class TiersPayantComponent implements OnInit {
     const formData: FormData = new FormData();
     const file = event.files[0];
     formData.append('importjson', file, file.name);
-    this.spinner.show('importation');
+    this.spinner.show();
     this.jsonDialog = false;
     this.uploadJsonDataResponse(this.entityService.uploadJsonData(formData));
   }
@@ -165,75 +160,87 @@ export class TiersPayantComponent implements OnInit {
   }
 
   addTiersPayantAssurance(): void {
-    this.ref = this.dialogService.open(FormTiersPayantComponent, {
-      data: { entity: null, type: 'ASSURANCE' },
-      header: 'FORMULAIRE DE CREATION DE TIERS-PAYANT ASSURANCE',
-      width: '80%',
-      maximizable: true,
-    });
-    this.ref.onClose.subscribe(() => {
-      this.loadPage();
-    });
+    showCommonModal(
+      this.modalService,
+      FormTiersPayantComponent,
+      {
+        entity: null,
+        categorie: 'ASSURANCE',
+        header: 'FORMULAIRE DE CREATION DE TIERS-PAYANT ASSURANCE',
+      },
+      () => {
+        this.loadPage();
+      },
+      'xl',
+      'modal-dialog-70',
+    );
   }
 
   addCarnet(): void {
-    this.ref = this.dialogService.open(FormTiersPayantComponent, {
-      data: { entity: null, type: 'CARNET' },
-      header: 'FORMULAIRE DE CREATION DE TIERS-PAYANT CARNET',
-      width: '80%',
-      maximizable: true,
-    });
-    this.ref.onClose.subscribe(() => {
-      this.loadPage();
-    });
+    showCommonModal(
+      this.modalService,
+      FormTiersPayantComponent,
+      {
+        entity: null,
+        categorie: 'CARNET',
+        header: 'FORMULAIRE DE CREATION DE TIERS-PAYANT CARNET',
+      },
+      () => {
+        this.loadPage();
+      },
+      'xl',
+      'modal-dialog-70',
+    );
   }
 
   addDepot(): void {
-    this.ref = this.dialogService.open(FormTiersPayantComponent, {
-      data: { entity: null, type: 'DEPOT' },
-      header: 'FORMULAIRE DE CREATION DE COMME DEPOT',
-      width: '80%',
-      maximizable: true,
-    });
-    this.ref.onClose.subscribe(() => {
-      this.loadPage();
-    });
+    showCommonModal(
+      this.modalService,
+      FormTiersPayantComponent,
+      {
+        entity: null,
+        categorie: 'DEPOT',
+        header: 'FORMULAIRE DE CREATION DE COMME DEPOT',
+      },
+      () => {
+        this.loadPage();
+      },
+      'xl',
+      'modal-dialog-70',
+    );
   }
 
   editTiersPayant(tiersPayant: ITiersPayant): void {
-    this.ref = this.dialogService.open(FormTiersPayantComponent, {
-      data: { entity: tiersPayant, type: tiersPayant.categorie },
-      header: `MODIFICATION DU TIERS-PAYANT [ ${tiersPayant.fullName}  ]`,
-      width: '80%',
-      maximizable: true,
-    });
-    this.ref.onClose.subscribe(() => {
-      this.loadPage();
-    });
+    showCommonModal(
+      this.modalService,
+      FormTiersPayantComponent,
+      {
+        entity: tiersPayant,
+        categorie: tiersPayant.categorie,
+        header: `MODIFICATION DU TIERS-PAYANT [ ${tiersPayant.fullName}  ]`,
+      },
+      () => {
+        this.loadPage();
+      },
+      'xl',
+      'modal-dialog-70',
+    );
   }
 
   confirmRemove(tiersPayant: ITiersPayant): void {
-    this.confirmationService.confirm({
-      message: 'Voulez-vous vraiment supprimer ce tiers-payant ?',
-      header: 'SUPPRESSION DE TIERS-PAYANT',
-      icon: 'pi pi-info-circle',
-      rejectButtonProps: rejectButtonProps(),
-      acceptButtonProps: acceptButtonProps(),
-      accept: () => this.onDelete(tiersPayant),
-      key: 'comfirmDialog',
-    });
+    this.confimDialog().onConfirm(
+      () => this.onDelete(tiersPayant),
+      'SUPPRESSION DE TIERS-PAYANT',
+      'Voulez-vous vraiment supprimer ce tiers-payant ?',
+    );
   }
 
   confirmDesactivation(tiersPayant: ITiersPayant): void {
-    this.confirmationService.confirm({
-      message: 'Voulez-vous vraiment désativer ce tiers-payant ?',
-      header: 'DESACTIVATION DE TIERS-PAYANT',
-      icon: 'pi pi-info-circle',
-      rejectButtonProps: rejectButtonProps(),
-      acceptButtonProps: acceptButtonProps(),
-      accept: () => this.onDesable(tiersPayant),
-      key: 'comfirmDialog',
-    });
+    this.confimDialog().onConfirm(
+      () => this.onDesable(tiersPayant),
+      'DESACTIVATION DE TIERS-PAYANT',
+      'Voulez-vous vraiment désativer ce tiers-payant ?',
+    );
   }
 
   onDelete(tiersPayant: ITiersPayant): void {
@@ -261,7 +268,7 @@ export class TiersPayantComponent implements OnInit {
 
   protected onImportError(): void {
     this.isSaving = false;
-    this.spinner.hide('importation');
+    this.spinner.hide();
     this.messageService.add({
       severity: 'error',
       summary: 'Erreur',
@@ -278,7 +285,7 @@ export class TiersPayantComponent implements OnInit {
 
   protected onPocesJsonSuccess(): void {
     this.jsonDialog = false;
-    this.spinner.hide('importation');
+    this.spinner.hide();
     this.loadPage();
   }
 

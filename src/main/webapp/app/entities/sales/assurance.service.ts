@@ -1,4 +1,4 @@
-import { Injectable, inject } from '@angular/core';
+import { inject, Injectable } from '@angular/core';
 import { HttpClient, HttpResponse } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { map } from 'rxjs/operators';
@@ -10,15 +10,15 @@ import { ISales } from 'app/shared/model/sales.model';
 import { ISalesLine } from '../../shared/model/sales-line.model';
 import { IResponseDto } from '../../shared/util/response-dto';
 import { IClientTiersPayant } from '../../shared/model/client-tiers-payant.model';
+import { UpdateSale } from './customer-edit-modal/update-sale.model';
 
 type EntityResponseType = HttpResponse<ISales>;
 type EntityArrayResponseType = HttpResponse<ISales[]>;
 
 @Injectable({ providedIn: 'root' })
 export class AssuranceService {
-  protected http = inject(HttpClient);
-
-  public resourceUrl = SERVER_API_URL + 'api/sales';
+  private readonly http = inject(HttpClient);
+  private readonly resourceUrl = SERVER_API_URL + 'api/sales';
 
   create(sales: ISales): Observable<EntityResponseType> {
     const copy = this.convertDateFromClient(sales);
@@ -27,10 +27,9 @@ export class AssuranceService {
       .pipe(map((res: EntityResponseType) => this.convertDateFromServer(res)));
   }
 
-  update(sales: ISales): Observable<EntityResponseType> {
-    const copy = this.convertDateFromClient(sales);
+  update(updateSale: UpdateSale): Observable<EntityResponseType> {
     return this.http
-      .put<ISales>(`${this.resourceUrl}/assurance`, copy, { observe: 'response' })
+      .put<ISales>(`${this.resourceUrl}/assurance`, updateSale, { observe: 'response' })
       .pipe(map((res: EntityResponseType) => this.convertDateFromServer(res)));
   }
 

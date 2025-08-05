@@ -1,8 +1,7 @@
 import { Component, inject, OnDestroy, OnInit } from '@angular/core';
 import { FormsModule, ReactiveFormsModule, UntypedFormBuilder, Validators } from '@angular/forms';
 import { ErrorService } from '../../../shared/error.service';
-import { DialogService, DynamicDialogConfig, DynamicDialogRef } from 'primeng/dynamicdialog';
-import { ConfirmationService, MessageService } from 'primeng/api';
+import { MessageService } from 'primeng/api';
 import { WarehouseCommonModule } from '../../../shared/warehouse-common/warehouse-common.module';
 import { ToastModule } from 'primeng/toast';
 import { NgSelectModule } from '@ng-select/ng-select';
@@ -27,10 +26,12 @@ import { ToggleSwitch } from 'primeng/toggleswitch';
 import { TiersPayantService } from '../../tiers-payant/tierspayant.service';
 import { CustomerService } from '../customer.service';
 import { HttpResponse } from '@angular/common/http';
+import { Card } from 'primeng/card';
+import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
 
 @Component({
   selector: 'jhi-customer-tiers-payant',
-  providers: [MessageService, DialogService, ConfirmationService],
+  providers: [MessageService],
   imports: [
     WarehouseCommonModule,
     ToastModule,
@@ -50,13 +51,17 @@ import { HttpResponse } from '@angular/common/http';
     KeyFilterModule,
     InputMaskModule,
     ToggleSwitch,
+    Card,
   ],
   templateUrl: './customer-tiers-payant.component.html',
+  styleUrls: ['./customer-tiers-payant-component.scss'],
 })
 export class CustomerTiersPayantComponent implements OnInit, OnDestroy {
-  protected errorService = inject(ErrorService);
+  header: string = '';
+  entity: IClientTiersPayant | null = null;
+  customer: ICustomer | null = null;
+
   protected fb = inject(UntypedFormBuilder);
-  protected ref = inject(DynamicDialogRef);
   protected minLength = 3;
   protected editForm = this.fb.group({
     id: [],
@@ -67,21 +72,17 @@ export class CustomerTiersPayantComponent implements OnInit, OnDestroy {
     plafondJournalier: [],
     plafondAbsolu: [],
   });
-  protected entity: IClientTiersPayant | null = null;
-  protected customer: ICustomer | null = null;
   protected isSaving = false;
   protected isValid = true;
   protected tiersPayants: ITiersPayant[] = [];
-
-  private readonly config = inject(DynamicDialogConfig);
+  private readonly errorService = inject(ErrorService);
   private readonly messageService = inject(MessageService);
   private readonly tiersPayantService = inject(TiersPayantService);
   private readonly customerService = inject(CustomerService);
+  private readonly activeModal = inject(NgbActiveModal);
   private destroy$ = new Subject<void>();
 
   ngOnInit(): void {
-    this.entity = this.config.data.entity;
-    this.customer = this.config.data.customer;
     if (this.entity) {
       this.updateForm(this.entity);
     }
@@ -103,7 +104,7 @@ export class CustomerTiersPayantComponent implements OnInit, OnDestroy {
   }
 
   cancel(): void {
-    this.ref.close();
+    this.activeModal.dismiss();
   }
 
   searchTiersPayant(event: any): void {
@@ -164,7 +165,7 @@ export class CustomerTiersPayantComponent implements OnInit, OnDestroy {
 
   protected onSaveSuccess(iCustomer: ICustomer | null): void {
     this.isSaving = false;
-    this.ref.close(iCustomer);
+    this.activeModal.close(iCustomer);
   }
 
   protected onSaveError(error: any): void {

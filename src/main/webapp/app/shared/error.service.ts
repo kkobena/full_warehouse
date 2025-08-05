@@ -17,7 +17,7 @@ export class ErrorService {
 
   getErrorMessage(error: any): string {
     const status = error?.status;
-    if (status !== 500) {
+    if (status < 405) {
       return error?.error?.message || 'Erreur interne du serveur.';
     }
     return 'Erreur interne du serveur.';

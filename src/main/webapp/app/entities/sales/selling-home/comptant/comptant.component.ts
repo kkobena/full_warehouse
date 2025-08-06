@@ -25,6 +25,7 @@ import { SelectModeReglementService } from '../../service/select-mode-reglement.
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { UninsuredCustomerListComponent } from '../../uninsured-customer-list/uninsured-customer-list.component';
 import { take } from 'rxjs/operators';
+import { Card } from 'primeng/card';
 
 @Component({
   selector: 'jhi-comptant',
@@ -45,6 +46,7 @@ import { take } from 'rxjs/operators';
     AmountComputingComponent,
     ModeReglementComponent,
     ConfirmDialogComponent,
+    Card,
   ],
   templateUrl: './comptant.component.html',
 })
@@ -252,6 +254,5 @@ export class ComptantComponent {
 
   addRemise(remise: IRemise): void {
     this.facade.updateRemise(remise);
-
   }
 }

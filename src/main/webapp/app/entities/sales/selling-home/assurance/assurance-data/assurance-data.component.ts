@@ -59,6 +59,7 @@ import { CustomerCarnetComponent } from '../../../../customer/carnet/customer-ca
     TooltipModule,
   ],
   templateUrl: './assurance-data.component.html',
+  styleUrls: ['./assurance-data.component.scss'],
 })
 export class AssuranceDataComponent implements OnInit, AfterViewInit {
   searchInput = viewChild<ElementRef>('searchInput');
@@ -68,19 +69,20 @@ export class AssuranceDataComponent implements OnInit, AfterViewInit {
   protected items: MenuItem[] | undefined;
   protected baseSaleService = inject(BaseSaleService);
   protected readonly currentSaleService = inject(CurrentSaleService);
-  private readonly customerService = inject(CustomerService);
-  private readonly confimDialog = viewChild.required<ConfirmDialogComponent>('confirmDialog');
-  private readonly modalService = inject(NgbModal);
-  private bonInputs = viewChildren<ElementRef>('tpInput');
-
   protected selectedTiersPayants: WritableSignal<IClientTiersPayant[]> = signal<IClientTiersPayant[]>([]);
   protected divClass: Signal<string> = computed(() => {
     const count = this.selectedTiersPayants().length;
     return count === 2 ? 'col-md-3 col-sm-3 col-3 bon' : count > 2 ? 'col-md-2 col-sm-2 col-2 bon' : 'col-md-4 col-sm-4 col-4 bon';
   });
   protected divCustomer: Signal<string> = computed(() => {
-    return this.selectedTiersPayants().length >= 2 ? 'col-md-3 col-sm-3 col-3' : 'col-md-4 col-sm-4 col-4';
+    return this.selectedTiersPayants().length >= 2
+      ? 'col-md-3 col-sm-3 col-lg-3 col-xl-3 col-sm-12 '
+      : 'col-md-4 col-sm-4 col-xl-4 col-sm-12';
   });
+  private readonly customerService = inject(CustomerService);
+  private readonly confimDialog = viewChild.required<ConfirmDialogComponent>('confirmDialog');
+  private readonly modalService = inject(NgbModal);
+  private bonInputs = viewChildren<ElementRef>('tpInput');
 
   constructor() {
     const assuredCustomer = this.selectedCustomerService.selectedCustomerSignal();
@@ -99,8 +101,8 @@ export class AssuranceDataComponent implements OnInit, AfterViewInit {
   ngOnInit(): void {
     this.items = [
       {
-        icon: 'pi pi-pencil',
-        label: 'Modifier',
+        icon: this.ayantDroit ? 'pi pi-pencil' : 'pi pi-plus',
+        label: this.ayantDroit ? 'Modifier' : 'Nouveau',
         command: () => {
           this.addAyantDroit(this.ayantDroit);
         },
@@ -266,19 +268,28 @@ export class AssuranceDataComponent implements OnInit, AfterViewInit {
   }
 
   protected load(): void {
+    const saleType = this.currentSaleService.typeVo();
     if (this.search) {
       this.customerService
         .queryAssuredCustomer({
           search: this.search,
           size: 2,
-          typeTiersPayant: this.currentSaleService.typeVo(),
+          typeTiersPayant: saleType,
         })
         .subscribe({
           next: (res: HttpResponse<ICustomer[]>) => {
             const assuredCustomers = res.body;
             if (assuredCustomers && assuredCustomers.length) {
               if (assuredCustomers.length === 1) {
-                this.selectedCustomerService.setCustomer(assuredCustomers[0]);
+                const assuredCustomer = assuredCustomers[0];
+                this.selectedCustomerService.setCustomer(assuredCustomer);
+                if (saleType === 'ASSURANCE') {
+                  this.selectedTiersPayants.set(assuredCustomer.tiersPayants || []);
+                  /*  this.ayantDroit =
+                    assuredCustomer.ayantDroits?.find(ad => ad.id === assuredCustomer.id || ad.num === assuredCustomer.num) || assuredCustomer;*/
+                } else if (saleType === 'CARNET' && assuredCustomer.tiersPayants?.length) {
+                  this.selectedTiersPayants.set([assuredCustomer.tiersPayants[0]]);
+                }
                 this.firstRefBonFocus();
               } else {
                 this.openAssuredCustomerListTable();

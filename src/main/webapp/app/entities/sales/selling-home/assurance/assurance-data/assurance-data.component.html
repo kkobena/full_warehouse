@@ -1,148 +1,152 @@
-<div class="assurance-data-main-contanier">
-  <p-panel>
-    <div class="row assurance-data">
-      <div class="col-2 col-md-2 col-lg-2">
-        @if (selectedCustomerService.selectedCustomerSignal() && currentSaleService.currentSale()) {
-          <p-button [variant]="'text'" raised="true" (click)="onChangeCustomerClick()"
-                    severity="danger"
-                    icon="pi pi-user-edit" label="Changer de client"
-          >
-          </p-button>
-        } @else {
-          <p-iconfield>
-            <p-inputicon styleClass="pi pi-search" />
-            <input
-              [style]="{ width: '98%' }"
-              pInputText
-              autocomplete="off"
-              #searchInput
-              (keydown.enter)="load()"
-              [(ngModel)]="search"
-              placeholder="Rechercher client"
-              type="text"
-            />
-          </p-iconfield>
-        }
-      </div>
-      @if (selectedCustomerService.selectedCustomerSignal()) {
-        <div class="col-10 col-md-10 col-lg-10 row">
-          <div [class]="divCustomer()">
-            <ul class="list-group list-group-flush">
-              <li
-                class="list-group-item d-flex justify-content-between align-items-center bg-primary-subtle">
-                <span>Assuré</span>
-                <p-button [variant]="'text'" raised="true" severity="info"
-                          size="small" icon="pi pi-user-edit" label="Editer"
+<div [style]="{ width: '100%'}" class="row">
+  <div class="col-xl-2 col-lg-2 col-md-2 col-sm-12 ">
+    @if (selectedCustomerService.selectedCustomerSignal() && currentSaleService.currentSale()) {
+      <p-button [variant]="'text'" raised="true" (click)="onChangeCustomerClick()"
+                severity="danger"
+                icon="pi pi-user-edit" label="Changer de client"
+      >
+      </p-button>
+    } @else {
+      <p-iconfield>
+        <p-inputicon styleClass="pi pi-search" />
+        <input
+          [style]="{ width: '98%' }"
+          pInputText
+          autocomplete="off"
+          #searchInput
+          (keydown.enter)="load()"
+          [(ngModel)]="search"
+          placeholder="Rechercher client"
+          type="text"
+        />
+      </p-iconfield>
+    }
+  </div>
+  @if (selectedCustomerService.selectedCustomerSignal()) {
+    <div class="col-xl-10 col-lg-10 col-md-10 col-sm-12 row">
+      <div [class]="divCustomer()">
+        <ul class="list-group list-group-flush">
+          <li
+            class="list-group-item d-flex justify-content-between align-items-center bg-primary-subtle">
+            <span>Assuré</span>
+            <p-button [variant]="'text'" raised="true" severity="info"
+                      size="small" icon="pi pi-user-edit" label="Editer"
 
-                          (click)="editAssuredCustomer()"
+                      (click)="editAssuredCustomer()"
+            />
+          </li>
+          <li class="list-group-item d-flex justify-content-between align-items-center">
+            Nom/Prénom(s)
+            <span class="badge bg-secondary"
+            >{{ selectedCustomerService.selectedCustomerSignal().firstName }}
+              {{ selectedCustomerService.selectedCustomerSignal().lastName }}</span
+            >
+          </li>
+          <li class="list-group-item d-flex justify-content-between align-items-center">
+            Matricule
+            <span
+              class="badge bg-secondary">{{ selectedCustomerService.selectedCustomerSignal().num }}</span>
+          </li>
+        </ul>
+      </div>
+      @if (currentSaleService.typeVo() === 'ASSURANCE') {
+
+        <div [class]="divCustomer()">
+          <ul class="list-group list-group-flush">
+            <li
+              class="list-group-item d-flex justify-content-between align-items-center list-group-title bg-success bg-opacity-10"
+              aria-current="true"
+            >
+              <span>Ayant droit</span>
+              @if (ayantDroit?.id === selectedCustomerService.selectedCustomerSignal().id) {
+                <p-button [variant]="'text'" raised="true" icon="pi pi-users"
+                          label="Remplacer" size="small"
+                          (click)="loadAyantDoits()"
                 />
-              </li>
+
+              } @else {
+                <p-splitbutton label="Gérer" icon="pi pi-user-edit" size="small"
+                               [model]="items" [text]="true" severity="info" />
+              }
+            </li>
+            @if (ayantDroit) {
               <li class="list-group-item d-flex justify-content-between align-items-center">
                 Nom/Prénom(s)
-                <span class="badge bg-secondary"
-                >{{ selectedCustomerService.selectedCustomerSignal().firstName }}
-                  {{ selectedCustomerService.selectedCustomerSignal().lastName }}</span
-                >
+                <span
+                  class="badge bg-secondary">{{ ayantDroit.firstName }} {{ ayantDroit.lastName }}</span>
               </li>
               <li class="list-group-item d-flex justify-content-between align-items-center">
                 Matricule
-                <span
-                  class="badge bg-secondary">{{ selectedCustomerService.selectedCustomerSignal().num }}</span>
+                <span class="badge bg-secondary">{{ ayantDroit.num }}</span>
               </li>
-            </ul>
-          </div>
-          @if (currentSaleService.typeVo() === 'ASSURANCE') {
-            @if (ayantDroit) {
-              <div [class]="divCustomer()">
-                <ul class="list-group list-group-flush">
-                  <li
-                    class="list-group-item d-flex justify-content-between align-items-center list-group-title bg-success bg-opacity-10"
-                    aria-current="true"
-                  >
-                    <span>Ayant droit</span>
-                    @if (ayantDroit.id === selectedCustomerService.selectedCustomerSignal().id) {
-                      <p-button [variant]="'text'" raised="true" icon="pi pi-users"
-                                label="Remplacer" size="small"
-                                (click)="loadAyantDoits()"
-                      />
-
-                    } @else {
-                      <p-splitbutton label="Gérer" icon="pi pi-user-edit" size="small"
-                                     [model]="items" [text]="true" severity="info" />
-                    }
-                  </li>
-                  <li class="list-group-item d-flex justify-content-between align-items-center">
-                    Nom/Prénom(s)
-                    <span
-                      class="badge bg-secondary">{{ ayantDroit.firstName }} {{ ayantDroit.lastName }}</span>
-                  </li>
-                  <li class="list-group-item d-flex justify-content-between align-items-center">
-                    Matricule
-                    <span class="badge bg-secondary">{{ ayantDroit.num }}</span>
-                  </li>
-                </ul>
-              </div>
             }
-          }
-          @let tiersPs = selectedTiersPayants() || [];
-          @for (tp of tiersPs; track tp.id; let i = $index) {
-            <div [class]="divClass()">
-              <div class="row" style="margin-bottom: 5px">
-                <div class="col-9">
-                  @if (i === 0) {
-                    RO: <span>{{ tp.tiersPayantFullName }}</span>
-                  } @else {
-                    RC{{ i }}: <span>{{ tp.tiersPayantFullName }}</span>
-                  }
-                </div>
-                <div class="col-3">
-                  Taux: <span>{{ tp.taux }}%</span>
-                </div>
-              </div>
-              <div class="tp-input-container">
-                <p-inputgroup>
-                  <p-inputgroup-addon>Bon</p-inputgroup-addon>
-                  <input
-                    pInputText
-                    type="text"
-                    #tpInput
-                    class="tiersPayant-input"
-                    id="bon-{{ tp.id }}"
-                    name="bon-{{ i }}"
-                    [(ngModel)]="tp.numBon"
-                    (keydown.enter)="onBonEnter(tp)"
-                    autocomplete="off"
-                    pKeyFilter="alphanum"
-                    [fluid]="true"
-                  />
-                  @if (tiersPs.length > 1) {
-                    <p-inputgroup-addon>
-                      <p-button icon="pi pi-trash" severity="danger" type="button"
-                                pTooltip="Supprimer ce tiers payant"
-                                (click)="removeTiersPayant(tp)">
-                      </p-button>
-                    </p-inputgroup-addon>
-                  }
-                </p-inputgroup>
-              </div>
-            </div>
-          }
-          @if (selectedCustomerService.selectedCustomerSignal() && tiersPs.length
-          < selectedCustomerService.selectedCustomerSignal().tiersPayants.length
-          && currentSaleService.typeVo() === 'ASSURANCE') {
-            <div class="mt-2 d-flex justify-content-end">
-              <p-button icon="pi pi-plus"
-                        pTooltip="Ajouter un tiers payant complémentaire"
-                        severity="primary" type="button"
-                        (click)="addComplementaire()">
-              </p-button>
-            </div>
-          }
 
+          </ul>
+        </div>
+
+      }
+
+      @for (tp of selectedTiersPayants(); track tp.id; let i = $index) {
+        <div [class]="divClass()">
+          <div class="row">
+            <div class="col-8 fw-medium text-nowrap">
+              @if (i === 0) {
+                RO: <span>{{ tp.tiersPayantName }}</span>
+              } @else {
+                RC{{ i }}: <span>{{ tp.tiersPayantName }}</span>
+              }
+            </div>
+            <div class="col-4 fw-medium text-end">
+              Taux: <span>{{ tp.taux }}%</span>
+            </div>
+          </div>
+          <div class="tp-input-container">
+            <p-inputgroup>
+              <p-inputgroup-addon>Bon</p-inputgroup-addon>
+              <input
+                pInputText
+                type="text"
+                #tpInput
+                class="tiersPayant-input"
+                id="bon-{{ tp.id }}"
+                name="bon-{{ i }}"
+                [(ngModel)]="tp.numBon"
+                (keydown.enter)="onBonEnter(tp)"
+                autocomplete="off"
+                pKeyFilter="alphanum"
+                [fluid]="true"
+              />
+              @if (selectedTiersPayants().length > 1) {
+                <p-inputgroup-addon>
+                  <p-button icon="pi pi-trash" severity="danger" type="button"
+                            pTooltip="Supprimer ce tiers payant"
+                            (click)="removeTiersPayant(tp)">
+                  </p-button>
+                </p-inputgroup-addon>
+              }
+              @if (selectedCustomerService.selectedCustomerSignal() && selectedTiersPayants().length
+              < selectedCustomerService.selectedCustomerSignal().tiersPayants.length
+              && currentSaleService.typeVo() === 'ASSURANCE') {
+                <p-inputgroup-addon>
+                  <p-button icon="pi pi-plus"
+                            pTooltip="Ajouter un tiers payant complémentaire"
+                            severity="primary" type="button"
+                            (click)="addComplementaire()">
+                  </p-button>
+                </p-inputgroup-addon>
+              }
+
+
+            </p-inputgroup>
+          </div>
         </div>
       }
+
+
     </div>
-  </p-panel>
+  }
+
+
 </div>
 <jhi-confirm-dialog #confirmDialog></jhi-confirm-dialog>
 

@@ -1,0 +1,30 @@
+:host {
+  width: 100%;
+  background: transparent;
+
+  .p-card {
+    background: transparent;
+
+    .p-card-content {
+      background: transparent;
+    }
+  }
+
+  .bon {
+    padding-left: 0.25rem !important;
+
+    .row {
+      padding-left: 0.5rem !important;
+
+      .col-8 {
+        padding: 0 !important;
+      }
+
+      .col-4 {
+
+        padding-left: 0 !important;
+        padding-right: 0.5rem;
+      }
+    }
+  }
+}

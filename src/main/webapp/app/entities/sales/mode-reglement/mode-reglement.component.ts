@@ -30,6 +30,7 @@ import { ToggleSwitch } from 'primeng/toggleswitch';
 import { InputGroupAddonModule } from 'primeng/inputgroupaddon';
 import { InputGroupModule } from 'primeng/inputgroup';
 import { PaymentModeCode } from '../../../shared/payment-mode';
+import { Card } from 'primeng/card';
 
 @Component({
   selector: 'jhi-mode-reglement',
@@ -45,6 +46,7 @@ import { PaymentModeCode } from '../../../shared/payment-mode';
     ToggleSwitch,
     InputGroupAddonModule,
     InputGroupModule,
+    Card,
   ],
   templateUrl: './mode-reglement.component.html',
 })

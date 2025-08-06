@@ -73,6 +73,7 @@ import {
 import { SaleEventSignal } from './sale-event';
 import { handleSaleEvents } from './sale-event-helper';
 import { Divider } from 'primeng/divider';
+import { Toolbar } from 'primeng/toolbar';
 
 @Component({
   selector: 'jhi-selling-home',
@@ -102,6 +103,7 @@ import { Divider } from 'primeng/divider';
     ProduitAutocompleteComponent,
     QuantiteProdutSaisieComponent,
     Divider,
+    Toolbar,
   ],
   templateUrl: './selling-home.component.html',
 })

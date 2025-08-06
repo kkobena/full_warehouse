@@ -29,6 +29,7 @@ import { HasAuthorityService } from '../../service/has-authority.service';
 import { FormActionAutorisationComponent } from '../../form-action-autorisation/form-action-autorisation.component';
 import { ConfirmDialogComponent } from '../../../../shared/dialog/confirm-dialog/confirm-dialog.component';
 import { SpinerService } from '../../../../shared/spiner.service';
+import { Card } from 'primeng/card';
 
 @Component({
   templateUrl: './base-sale.component.html',
@@ -42,6 +43,7 @@ import { SpinerService } from '../../../../shared/spiner.service';
     RouterModule,
     ButtonModule,
     ConfirmDialogComponent,
+    Card,
   ],
 })
 export class BaseSaleComponent {

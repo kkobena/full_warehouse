@@ -1,0 +1,43 @@
+.selling {
+  .p-panel {
+    .p-panel-content {
+      padding: 0;
+    }
+  }
+
+  .nav-pills {
+    .nav-link {
+      padding: 0.75rem 1.25rem;
+      border-radius: 0;
+      color: var(--primary-color);
+      font-weight: 500;
+
+      &.active {
+        background-color: var(--primary-color);
+        color: var(--primary-color-text);
+      }
+    }
+  }
+
+  .sale-panel-header {
+    .p-panel-content {
+      padding: 1rem;
+    }
+  }
+
+  .p-toolbar {
+    padding: 0.5rem 1rem;
+    background-color: transparent;
+    border: none;
+  }
+
+  .p-inputgroup {
+    .p-autocomplete {
+      flex-grow: 1;
+    }
+  }
+
+  .p-tag {
+    margin-right: 0.5rem;
+  }
+}

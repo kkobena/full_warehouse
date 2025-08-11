@@ -6,4 +6,6 @@ export class UpdateSale {
   customer: ICustomer;
   ayantDroit?: ICustomer;
   thirdPartySaleLines?: IThirdPartySaleLine[];
+  initialValue: any;
+  finalValue: any;
 }

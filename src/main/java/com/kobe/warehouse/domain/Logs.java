@@ -55,10 +55,10 @@ public class Logs implements Serializable {
     @Column(name = "indentity_key", nullable = false)
     private String indentityKey;
 
-    @Column(name = "old_object")
+    @Column(name = "old_object", columnDefinition = "TEXT")
     private String oldObject;
 
-    @Column(name = "new_object")
+    @Column(name = "new_object", columnDefinition = "TEXT")
     private String newObject;
 
     public Long getId() {

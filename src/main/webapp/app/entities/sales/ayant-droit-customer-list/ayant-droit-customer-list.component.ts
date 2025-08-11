@@ -12,10 +12,12 @@ import { RippleModule } from 'primeng/ripple';
 import { TableModule } from 'primeng/table';
 import { ToolbarModule } from 'primeng/toolbar';
 import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
+import { Card } from 'primeng/card';
 
 @Component({
   selector: 'jhi-ayant-droit-customer-list',
   templateUrl: './ayant-droit-customer-list.component.html',
+  styleUrls: ['./ayant-droit-customer-list.component.scss'],
   imports: [
     WarehouseCommonModule,
     FormsModule,
@@ -26,6 +28,7 @@ import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
     DynamicDialogModule,
     TableModule,
     ToolbarModule,
+    Card,
   ],
 })
 export class AyantDroitCustomerListComponent implements OnInit {

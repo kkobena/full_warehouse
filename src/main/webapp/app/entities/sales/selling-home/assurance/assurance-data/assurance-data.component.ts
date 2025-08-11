@@ -131,7 +131,7 @@ export class AssuranceDataComponent implements OnInit, AfterViewInit {
       AssuredCustomerListComponent,
       {
         searchString: this.search,
-        headerLibelle: 'CLIENTS  ASSURES',
+        headerLibelle: 'CLIENTS ASSURES',
       },
       (resp: ICustomer) => {
         if (resp) {
@@ -148,7 +148,25 @@ export class AssuranceDataComponent implements OnInit, AfterViewInit {
     this.searchInput().nativeElement.focus();
   }
 
-  addComplementaire(): void {
+  buildIClientTiersPayantFromInputs(): IClientTiersPayant[] {
+    return this.selectedTiersPayants();
+  }
+
+  onChangeCustomerClick(): void {
+    this.confimDialog().onConfirm(
+      () => this.openAssuredCustomerListTable(),
+      'Changer le client',
+      'Etes-vous sûr de vouloir changer le client?',
+      null,
+    );
+  }
+
+  reset(): void {
+    this.selectedTiersPayants.set([]);
+    this.ayantDroit = null;
+  }
+
+  protected addComplementaire(): void {
     const currentCustomer = this.selectedCustomerService.selectedCustomerSignal();
     showCommonModal(
       this.modalService,
@@ -170,7 +188,7 @@ export class AssuranceDataComponent implements OnInit, AfterViewInit {
     );
   }
 
-  removeTiersPayant(tiersPayant: IClientTiersPayant): void {
+  protected removeTiersPayant(tiersPayant: IClientTiersPayant): void {
     const currentTp = this.selectedTiersPayants();
     const updatedTp = currentTp.filter(tp => tp.id !== tiersPayant.id);
     this.confimDialog().onConfirm(
@@ -188,11 +206,11 @@ export class AssuranceDataComponent implements OnInit, AfterViewInit {
     );
   }
 
-  editAssuredCustomer(): void {
+  protected editAssuredCustomer(): void {
     this.openAssuredCustomerForm(this.selectedCustomerService.selectedCustomerSignal());
   }
 
-  addAssuredCustomer(): void {
+  protected addAssuredCustomer(): void {
     if (this.currentSaleService.typeVo() === 'ASSURANCE') {
       this.openAssuredCustomerForm(null);
     } else if (this.currentSaleService.typeVo() === 'CARNET') {
@@ -213,11 +231,11 @@ export class AssuranceDataComponent implements OnInit, AfterViewInit {
     }
   }
 
-  addAyantDroit(ayantDroit: ICustomer): void {
+  protected addAyantDroit(ayantDroit: ICustomer): void {
     this.openAyantDroitForm(ayantDroit);
   }
 
-  loadAyantDoits(): void {
+  protected loadAyantDoits(): void {
     const currentCustomer = this.selectedCustomerService.selectedCustomerSignal();
     showCommonModal(
       this.modalService,
@@ -239,25 +257,7 @@ export class AssuranceDataComponent implements OnInit, AfterViewInit {
     );
   }
 
-  buildIClientTiersPayantFromInputs(): IClientTiersPayant[] {
-    return this.selectedTiersPayants();
-  }
-
-  onChangeCustomerClick(): void {
-    this.confimDialog().onConfirm(
-      () => this.openAssuredCustomerListTable(),
-      'Changer le client',
-      'Etes-vous sûr de vouloir changer le client?',
-      null,
-    );
-  }
-
-  reset(): void {
-    this.selectedTiersPayants.set([]);
-    this.ayantDroit = null;
-  }
-
-  onBonEnter(tp: IClientTiersPayant): void {
+  protected onBonEnter(tp: IClientTiersPayant): void {
     const tiersPayants = this.selectedTiersPayants();
     const currentIndex = tiersPayants.findIndex(item => item.id === tp.id);
     if (currentIndex < tiersPayants.length - 1) {

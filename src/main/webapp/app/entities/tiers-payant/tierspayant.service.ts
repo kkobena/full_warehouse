@@ -1,4 +1,4 @@
-import { Injectable, inject } from '@angular/core';
+import { inject, Injectable } from '@angular/core';
 import { HttpClient, HttpResponse } from '@angular/common/http';
 import { Observable } from 'rxjs';
 
@@ -12,9 +12,9 @@ type EntityArrayResponseType = HttpResponse<ITiersPayant[]>;
 
 @Injectable({ providedIn: 'root' })
 export class TiersPayantService {
-  protected http = inject(HttpClient);
+  private readonly http = inject(HttpClient);
 
-  public resourceUrl = SERVER_API_URL + 'api/tiers-payants';
+  private readonly resourceUrl = SERVER_API_URL + 'api/tiers-payants';
 
   create(tiersPayant: ITiersPayant): Observable<EntityResponseType> {
     return this.http.post<ITiersPayant>(this.resourceUrl, tiersPayant, { observe: 'response' });

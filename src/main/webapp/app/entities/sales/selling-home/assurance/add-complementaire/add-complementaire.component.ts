@@ -11,6 +11,7 @@ import { ButtonModule } from 'primeng/button';
 import { DecimalPipe } from '@angular/common';
 import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
 import { Select, SelectModule } from 'primeng/select';
+import { Card } from 'primeng/card';
 
 @Component({
   selector: 'jhi-add-complementaire',
@@ -24,8 +25,10 @@ import { Select, SelectModule } from 'primeng/select';
     ButtonModule,
     DecimalPipe,
     SelectModule,
+    Card,
   ],
   templateUrl: './add-complementaire.component.html',
+  styleUrls: ['./add-complementaire.component.scss'],
 })
 export class AddComplementaireComponent implements AfterViewInit {
   tiersPayant = viewChild.required<Select>('tiersPayant');

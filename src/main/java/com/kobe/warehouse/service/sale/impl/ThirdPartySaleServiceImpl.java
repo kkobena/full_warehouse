@@ -1,5 +1,11 @@
 package com.kobe.warehouse.service.sale.impl;
 
+import static java.util.Objects.isNull;
+import static java.util.Objects.nonNull;
+
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.kobe.warehouse.Util;
 import com.kobe.warehouse.domain.AssuredCustomer;
 import com.kobe.warehouse.domain.CashSale;
 import com.kobe.warehouse.domain.ClientTiersPayant;
@@ -16,6 +22,7 @@ import com.kobe.warehouse.domain.TiersPayantPrix;
 import com.kobe.warehouse.domain.User;
 import com.kobe.warehouse.domain.enumeration.NatureVente;
 import com.kobe.warehouse.domain.enumeration.OrigineVente;
+import com.kobe.warehouse.domain.enumeration.PrioriteTiersPayant;
 import com.kobe.warehouse.domain.enumeration.SalesStatut;
 import com.kobe.warehouse.domain.enumeration.ThirdPartySaleStatut;
 import com.kobe.warehouse.domain.enumeration.TransactionType;
@@ -37,15 +44,18 @@ import com.kobe.warehouse.service.StorageService;
 import com.kobe.warehouse.service.UtilisationCleSecuriteService;
 import com.kobe.warehouse.service.WarehouseCalendarService;
 import com.kobe.warehouse.service.cash_register.CashRegisterService;
+import com.kobe.warehouse.service.dto.AssuredCustomerDTO;
 import com.kobe.warehouse.service.dto.ClientTiersPayantDTO;
 import com.kobe.warehouse.service.dto.Consommation;
 import com.kobe.warehouse.service.dto.KeyValue;
 import com.kobe.warehouse.service.dto.ResponseDTO;
 import com.kobe.warehouse.service.dto.SaleLineDTO;
 import com.kobe.warehouse.service.dto.ThirdPartySaleDTO;
+import com.kobe.warehouse.service.dto.ThirdPartySaleLineDTO;
 import com.kobe.warehouse.service.dto.UtilisationCleSecuriteDTO;
 import com.kobe.warehouse.service.errors.DeconditionnementStockOut;
 import com.kobe.warehouse.service.errors.GenericError;
+import com.kobe.warehouse.service.errors.InvalidPhoneNumberException;
 import com.kobe.warehouse.service.errors.NumBonAlreadyUseException;
 import com.kobe.warehouse.service.errors.PaymentAmountException;
 import com.kobe.warehouse.service.errors.PlafondVenteException;
@@ -58,6 +68,7 @@ import com.kobe.warehouse.service.sale.AvoirService;
 import com.kobe.warehouse.service.sale.SalesLineService;
 import com.kobe.warehouse.service.sale.ThirdPartySaleService;
 import com.kobe.warehouse.service.sale.dto.FinalyseSaleDTO;
+import com.kobe.warehouse.service.sale.dto.UpdateSale;
 import com.kobe.warehouse.service.utils.AfficheurPosService;
 import com.kobe.warehouse.service.utils.NumberUtil;
 import java.time.LocalDate;
@@ -1045,6 +1056,92 @@ public class ThirdPartySaleServiceImpl extends SaleCommonService implements Thir
         ThirdPartySales thirdPartySales = thirdPartySaleRepository.getReferenceById(keyValue.key());
         remiseRepository.findById(keyValue.value()).ifPresent(remise -> processDiscount(thirdPartySales, remise));
         this.displayNet(thirdPartySales.getPartAssure());
+    }
+
+    @Override
+    public void updateCustomerInformation(UpdateSale updateSale) throws InvalidPhoneNumberException, GenericError, JsonProcessingException {
+        ThirdPartySales thirdPartySales = thirdPartySaleRepository.getReferenceById(updateSale.id());
+        AssuredCustomer assuredCustomer = (AssuredCustomer) thirdPartySales.getCustomer();
+
+        AssuredCustomer ayantDroit = thirdPartySales.getAyantDroit();
+        List<ThirdPartySaleLine> thirdPartySaleLines = thirdPartySales.getThirdPartySaleLines();
+        Set<ThirdPartySaleLineDTO> thirdPartySaleLineNews = updateSale.thirdPartySaleLines();
+        if (thirdPartySaleLines.stream().anyMatch(e -> nonNull(e.getFactureTiersPayant()))) {
+            throw new GenericError("La vente est déjà facturée");
+        }
+        int oldTaux = thirdPartySaleLines.stream().mapToInt(ThirdPartySaleLine::getTaux).sum();
+        int newTaux = thirdPartySaleLineNews.stream().mapToInt(ThirdPartySaleLineDTO::getTaux).sum();
+        if (oldTaux != newTaux) {
+            throw new GenericError(String.format("Les taux sont différents:  Ancien taux : %d ,  Nouveau taux:%d", oldTaux, newTaux));
+        }
+
+        if (!isSameCustomer(assuredCustomer, updateSale.customer())) {
+            assuredCustomer = this.assuredCustomerRepository.getReferenceById(updateSale.customer().getId());
+            thirdPartySales.setCustomer(assuredCustomer);
+        }
+        updateAssuredCustomer(assuredCustomer, updateSale.customer());
+        if (nonNull(ayantDroit) && nonNull(updateSale.ayantDroit())) {
+            if (!isSameCustomer(ayantDroit, updateSale.ayantDroit())) {
+                ayantDroit = this.assuredCustomerRepository.getReferenceById(updateSale.ayantDroit().getId());
+                thirdPartySales.setAyantDroit(ayantDroit);
+            }
+            updateAssuredCustomer(ayantDroit, updateSale.ayantDroit());
+        }
+        thirdPartySaleLines.forEach(thirdPartySaleLine -> {
+            ThirdPartySaleLineDTO thirdPartySaleLineDTO = thirdPartySaleLineNews
+                .stream()
+                .filter(e -> e.getId().equals(thirdPartySaleLine.getId()))
+                .findFirst()
+                .orElseThrow(() -> new GenericError("La ligne n'existe pas"));
+            updateThirdPartySaleLine(thirdPartySaleLine, updateSale.customer(), thirdPartySaleLineDTO);
+        });
+        ObjectMapper objectMapper = new ObjectMapper();
+        this.logService.create(
+                TransactionType.MODIFICATION_INFO_CLIENT,
+                TransactionType.MODIFICATION_INFO_CLIENT.getValue(),
+                thirdPartySales.getId().toString(),
+                objectMapper.writeValueAsString(updateSale.initialValue()),
+                objectMapper.writeValueAsString(updateSale.finalValue())
+            );
+    }
+
+    private void updateThirdPartySaleLine(
+        ThirdPartySaleLine thirdPartySaleLine,
+        AssuredCustomerDTO assuredCustomerDTO,
+        ThirdPartySaleLineDTO thirdPartySaleLineDTO
+    ) {
+        ClientTiersPayant clientTiersPayant = thirdPartySaleLine.getClientTiersPayant();
+
+        if (clientTiersPayant.getId().compareTo(thirdPartySaleLineDTO.getClientTiersPayantId()) != 0) {
+            clientTiersPayant = clientTiersPayantRepository.getReferenceById(thirdPartySaleLineDTO.getClientTiersPayantId());
+            thirdPartySaleLine.setClientTiersPayant(clientTiersPayant);
+        }
+        thirdPartySaleLine.setNumBon(thirdPartySaleLineDTO.getNumBon());
+        if (clientTiersPayant.getPriorite() == PrioriteTiersPayant.R0 && !clientTiersPayant.getNum().equals(assuredCustomerDTO.getNum())) {
+            clientTiersPayant.setNum(assuredCustomerDTO.getNum());
+            clientTiersPayantRepository.save(clientTiersPayant);
+        }
+    }
+
+    private void updateAssuredCustomer(AssuredCustomer assuredCustomer, AssuredCustomerDTO customer) throws InvalidPhoneNumberException {
+        if (isNull(customer)) return;
+
+        assuredCustomer.setFirstName(customer.getFirstName());
+        assuredCustomer.setLastName(customer.getLastName());
+        if (StringUtils.hasText(customer.getPhone())) {
+            if (!Util.isValidPhoneNumber(customer.getPhone())) {
+                throw new InvalidPhoneNumberException();
+            }
+            assuredCustomer.setPhone(customer.getPhone());
+        }
+        if (StringUtils.hasLength(customer.getNumAyantDroit())) {
+            assuredCustomer.setNumAyantDroit(customer.getNumAyantDroit());
+        }
+        this.assuredCustomerRepository.save(assuredCustomer);
+    }
+
+    private boolean isSameCustomer(AssuredCustomer assuredCustomer, AssuredCustomerDTO customer) {
+        return assuredCustomer.getId().compareTo(customer.getId()) == 0;
     }
 
     private void processDiscount(ThirdPartySales thirdPartySales, Remise remise) {

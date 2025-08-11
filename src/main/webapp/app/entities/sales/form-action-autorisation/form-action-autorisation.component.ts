@@ -1,4 +1,4 @@
-import { AfterViewInit, Component, inject, viewChild } from '@angular/core';
+import { Component, inject, viewChild } from '@angular/core';
 import { WarehouseCommonModule } from '../../../shared/warehouse-common/warehouse-common.module';
 import { FormsModule, ReactiveFormsModule, UntypedFormBuilder, Validators } from '@angular/forms';
 import { NgbActiveModal, NgbModal } from '@ng-bootstrap/ng-bootstrap';
@@ -13,13 +13,15 @@ import { ErrorService } from '../../../shared/error.service';
 import { Button } from 'primeng/button';
 import { TextareaModule } from 'primeng/textarea';
 import { Password, PasswordModule } from 'primeng/password';
+import { Card } from 'primeng/card';
 
 @Component({
   selector: 'jhi-form-action-autorisation',
-  imports: [WarehouseCommonModule, FormsModule, ReactiveFormsModule, Button, TextareaModule, PasswordModule],
+  imports: [WarehouseCommonModule, FormsModule, ReactiveFormsModule, Button, TextareaModule, PasswordModule, Card],
   templateUrl: './form-action-autorisation.component.html',
+  styleUrls: ['./form-action-autorisation.component.scss'],
 })
-export class FormActionAutorisationComponent implements AfterViewInit {
+export class FormActionAutorisationComponent {
   entity: ISales;
   privilege: string;
   protected fb = inject(UntypedFormBuilder);
@@ -67,12 +69,6 @@ export class FormActionAutorisationComponent implements AfterViewInit {
     });
     modalRef.componentInstance.message = message;
     modalRef.componentInstance.infoClass = infoClass;
-  }
-
-  ngAfterViewInit(): void {
-    setTimeout(() => {
-      this.actionAuthorityKey().el.nativeElement.focus();
-    }, 100);
   }
 
   protected createFrom(): UtilisationCleSecurite {

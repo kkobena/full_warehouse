@@ -27,10 +27,8 @@ export class AssuranceService {
       .pipe(map((res: EntityResponseType) => this.convertDateFromServer(res)));
   }
 
-  update(updateSale: UpdateSale): Observable<EntityResponseType> {
-    return this.http
-      .put<ISales>(`${this.resourceUrl}/assurance`, updateSale, { observe: 'response' })
-      .pipe(map((res: EntityResponseType) => this.convertDateFromServer(res)));
+  updateCustomerInformation(updateSale: UpdateSale): Observable<HttpResponse<{}>> {
+    return this.http.put<{}>(`${this.resourceUrl}/assurance/update-customer-information`, updateSale, { observe: 'response' });
   }
 
   close(sales: ISales): Observable<EntityResponseType> {

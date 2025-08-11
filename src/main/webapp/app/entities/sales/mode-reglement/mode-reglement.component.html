@@ -12,19 +12,20 @@
             @if (currentSaleService.currentSale()?.type === 'VO' && baseSaleService.hasSansBon()) {
               <span>
               <label>Vente sans bon?</label>
-              <p-toggleswitch inputId="sansBon"
+              <p-toggleswitch inputId="sansBon" [(ngModel)]="isVenteSansBon"
                               (onChange)="onSansBonChange($event)"> </p-toggleswitch
               ></span>
             }
 
             <span>
             <label>Imprimer le ticket de caisse ?</label>
-            <p-toggleswitch inputId="printTicket"
+            <p-toggleswitch inputId="printTicket" [(ngModel)]="printReceipt"
+
                             (onChange)="onPrintReceiptChange($event)"> </p-toggleswitch>
           </span>
             <span>
             <label>Imprimer la facture?</label>
-            <p-toggleswitch (onChange)="onPrintInvoiceChange($event)"
+            <p-toggleswitch [(ngModel)]="printInvoice" (onChange)="onPrintInvoiceChange($event)"
                             inputId="printInvoice"> </p-toggleswitch>
           </span>
           </div>

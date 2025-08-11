@@ -1,12 +1,14 @@
 import { Component, inject } from '@angular/core';
 import { MessageService } from 'primeng/api';
+import { Toast } from 'primeng/toast';
 
 export type Severity = 'primary' | 'secondary' | 'success' | 'info' | 'warn' | 'danger' | 'help';
 
 @Component({
   selector: 'jhi-toast-alert',
   providers: [MessageService],
-  template: ``,
+  template: ` <p-toast position="center" />`,
+  imports: [Toast],
 })
 export class ToastAlertComponent {
   private readonly messageService = inject(MessageService);

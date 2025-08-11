@@ -25,9 +25,7 @@ import { ProduitService } from '../../produit/produit.service';
 import { NgbModal, NgbNavChangeEvent } from '@ng-bootstrap/ng-bootstrap';
 import { AccountService } from '../../../core/auth/account.service';
 import { ErrorService } from '../../../shared/error.service';
-import { DeconditionService } from '../../decondition/decondition.service';
 import { TranslateService } from '@ngx-translate/core';
-import { Decondition, IDecondition } from '../../../shared/model/decondition.model';
 import { HttpResponse } from '@angular/common/http';
 import { CardModule } from 'primeng/card';
 import { ComptantComponent } from './comptant/comptant.component';
@@ -73,6 +71,9 @@ import {
 import { SaleEventSignal } from './sale-event';
 import { handleSaleEvents } from './sale-event-helper';
 import { Divider } from 'primeng/divider';
+import { DeconditionnementService } from '../validator/deconditionnement.service';
+import { ForceStockService } from '../validator/force-stock.service';
+import { SaleStockValidator } from '../validator/sale-stock-validator.service';
 import { Toolbar } from 'primeng/toolbar';
 
 @Component({
@@ -165,7 +166,6 @@ export class SellingHomeComponent implements OnInit, AfterViewInit {
   private router = inject(Router);
   private modalService = inject(NgbModal);
   private errorService = inject(ErrorService);
-  private decondtionService = inject(DeconditionService);
   private readonly translate = inject(TranslateService);
   private quantityMessage = '';
   private readonly confimDialog = viewChild.required<ConfirmDialogComponent>('confirmDialog');
@@ -175,6 +175,9 @@ export class SellingHomeComponent implements OnInit, AfterViewInit {
   private readonly saleEventManager = inject(SaleEventSignal);
   private readonly destroyRef = inject(DestroyRef);
   private readonly platformId = inject(PLATFORM_ID);
+  private readonly saleStockValidator = inject(SaleStockValidator);
+  private readonly deconditionnementService = inject(DeconditionnementService);
+  private readonly forceStockService = inject(ForceStockService);
 
   constructor() {
     this.canForceStock = this.hasAuthorityService.hasAuthorities(Authority.PR_FORCE_STOCK);
@@ -358,42 +361,13 @@ export class SellingHomeComponent implements OnInit, AfterViewInit {
   }
 
   onAddNewQty(qytMvt: number): void {
-    if (qytMvt <= 0) {
-      return;
-    }
     const qtyMaxToSel = this.baseSaleService.quantityMax();
     const qtyAlreadyRequested = this.totalItemQty() + qytMvt;
-    if (this.produitSelected.totalQuantity < qtyAlreadyRequested) {
-      if (this.canForceStock && qytMvt > qtyMaxToSel) {
-        this.confirmForceStock(qytMvt, this.translateLabel('quantityGreatherMaxCanContinue'));
-      } else if (this.canForceStock && qytMvt <= qtyMaxToSel) {
-        if (this.produitSelected.produitId) {
-          // s il  boite ch
-          this.produitService.find(this.produitSelected.produitId).subscribe(res => {
-            const prod = res.body;
-            if (prod && prod.totalQuantity > 0) {
-              // si quantite CH
-              this.confirmDeconditionnement(null, prod, qytMvt);
-            } else {
-              this.showError(this.quantityMessage);
-            }
-          });
-        } else {
-          this.confirmForceStock(qytMvt, this.translateLabel('quantityGreatherThanStock'));
-        }
-      } else {
-        this.showError(this.quantityMessage);
-      }
+    const validation = this.saleStockValidator.validate(this.produitSelected, qytMvt, qtyAlreadyRequested, this.canForceStock, qtyMaxToSel);
+    if (validation.isValid) {
+      this.onAddProduit(qytMvt);
     } else {
-      if (qytMvt >= qtyMaxToSel) {
-        if (this.canForceStock) {
-          this.confirmForceStock(qytMvt, this.translateLabel('quantityGreatherMaxCanContinue'));
-        } else {
-          this.showError(this.translateLabel('quantityGreatherMax'));
-        }
-      } else {
-        this.onAddProduit(qytMvt);
-      }
+      this.handleInvalidStock(validation.reason, qytMvt);
     }
   }
 
@@ -507,60 +481,6 @@ export class SellingHomeComponent implements OnInit, AfterViewInit {
 
   openInfoDialog(message: string): void {
     showCommonError(this.modalService, message);
-  }
-
-  confirmDeconditionnement(item: ISalesLine | null, produit: IProduit, qytMvt: number): void {
-    this.confimDialog().onConfirm(
-      () => {
-        const qtyDetail = produit.itemQty;
-        if (qtyDetail) {
-          const qtyDecondtionner = Math.round(qytMvt / qtyDetail);
-          this.decondtionService.create(this.createDecondition(qtyDecondtionner, produit.id)).subscribe({
-            next: () => {
-              if (item) {
-                this.processQtyRequested(item);
-              } else {
-                this.onAddProduit(qytMvt);
-              }
-            },
-            error: error => {
-              if (error.error && error.error.status === 500) {
-                this.openInfoDialog('Erreur applicative');
-              } else {
-                this.openInfoDialog(this.errorService.getErrorMessage(error));
-              }
-            },
-          });
-        }
-      },
-      this.translateLabel('deconditionnementHeader'),
-      this.translateLabel('deconditionnementMessage'),
-      null,
-      () => {
-        this.check = true;
-        this.updateProduitQtyBox();
-      },
-    );
-  }
-
-  onUpdateConfirmForceStock(salesLine: ISalesLine, message: string): void {
-    this.confimDialog().onConfirm(
-      () => {
-        this.processQtyRequested(salesLine);
-      },
-      this.translateLabel('forcerStockHeader'),
-      message,
-      null,
-      () => {
-        this.check = true;
-        if (this.isComptant()) {
-          this.subscribeToSaveResponse(this.salesService.find(this.currentSaleService.currentSale().id));
-        } else if (this.isVoSale()) {
-          this.subscribeToSaveResponse(this.voSalesService.find(this.currentSaleService.currentSale().id));
-        }
-        this.updateProduitQtyBox();
-      },
-    );
   }
 
   resetAll(): void {
@@ -748,6 +668,46 @@ export class SellingHomeComponent implements OnInit, AfterViewInit {
     }
   }
 
+  private handleInvalidStock(reason: string, qytMvt: number): void {
+    switch (reason) {
+      case 'forceStockAndQuantityExceedsMax':
+        this.forceStockService.handleForceStock(
+          qytMvt,
+          this.translateLabel('quantityGreatherMaxCanContinue'),
+          this.confimDialog(),
+          this.onAddProduit.bind(this),
+          this.updateProduitQtyBox.bind(this),
+        );
+        break;
+      case 'deconditionnement':
+        this.deconditionnementService.handleDeconditionnement(
+          qytMvt,
+          this.produitSelected,
+          this.confimDialog(),
+          null,
+          this.onAddProduit.bind(this),
+          this.processQtyRequested.bind(this),
+          this.updateProduitQtyBox.bind(this),
+        );
+        break;
+      case 'forceStock':
+        this.forceStockService.handleForceStock(
+          qytMvt,
+          this.translateLabel('quantityGreatherThanStock'),
+          this.confimDialog(),
+          this.onAddProduit.bind(this),
+          this.updateProduitQtyBox.bind(this),
+        );
+        break;
+      case 'stockInsuffisant':
+        this.showError(this.quantityMessage);
+        break;
+      case 'quantityExceedsMax':
+        this.showError(this.translateLabel('quantityGreatherMax'));
+        break;
+    }
+  }
+
   private handleResponseEvent = (response: SaleEvent<unknown>): void => {
     if (response.content instanceof FinalyseSale) {
       this.onFinalyse(response.content);
@@ -902,7 +862,13 @@ export class SellingHomeComponent implements OnInit, AfterViewInit {
       if (error.error.errorKey === 'stock') {
         if (this.canForceStock) {
           salesLine.forceStock = true;
-          this.onUpdateConfirmForceStock(salesLine, this.translateLabel('quantityGreatherThanStock'));
+          this.forceStockService.onUpdateConfirmForceStock(
+            salesLine,
+            this.translateLabel('quantityGreatherThanStock'),
+            this.confimDialog(),
+            this.processQtyRequested.bind(this),
+            this.updateProduitQtyBox.bind(this),
+          );
         } else {
           this.openInfoDialog(this.errorService.getErrorMessage(error));
           if (this.isComptant()) {
@@ -916,7 +882,15 @@ export class SellingHomeComponent implements OnInit, AfterViewInit {
           const prod = res.body;
           if (prod && prod.totalQuantity > 0) {
             // si quantite CH
-            this.confirmDeconditionnement(salesLine, prod, salesLine.quantityRequested);
+            this.deconditionnementService.handleDeconditionnement(
+              salesLine.quantityRequested,
+              prod,
+              this.confimDialog(),
+              salesLine,
+              this.onAddProduit.bind(this),
+              this.processQtyRequested.bind(this),
+              this.updateProduitQtyBox.bind(this),
+            );
           } else {
             this.openInfoDialog(this.translateLabel('stockInsuffisant'));
           }
@@ -990,14 +964,6 @@ export class SellingHomeComponent implements OnInit, AfterViewInit {
     });
   }
 
-  private createDecondition(qtyDeconditione: number, produitId: number): IDecondition {
-    return {
-      ...new Decondition(),
-      qtyMvt: qtyDeconditione,
-      produitId,
-    };
-  }
-
   private createSalesLine(produit: IProduit, quantityRequested: number): ISalesLine {
     return {
       ...new SalesLine(),
@@ -1020,21 +986,6 @@ export class SellingHomeComponent implements OnInit, AfterViewInit {
         this.carnetComponent().printInvoice();
       }
     }
-  }
-
-  private confirmForceStock(qytMvt: number, message: string): void {
-    this.confimDialog().onConfirm(
-      () => {
-        this.onAddProduit(qytMvt);
-      },
-      this.translateLabel('forcerStockHeader'),
-      message,
-      null,
-      () => {
-        this.check = true;
-        this.updateProduitQtyBox();
-      },
-    );
   }
 
   private translateLabel(label: string): string {

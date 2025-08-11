@@ -65,7 +65,6 @@ export class CustomerDataTableComponent {
           this.selectedCustomerService.setCustomer(resp);
         }
       },
-      '50%',
     );
   }
 }

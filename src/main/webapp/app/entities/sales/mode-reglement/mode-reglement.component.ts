@@ -1,16 +1,4 @@
-import {
-  Component,
-  computed,
-  effect,
-  ElementRef,
-  inject,
-  input,
-  OnInit,
-  output,
-  signal,
-  viewChild,
-  viewChildren
-} from '@angular/core';
+import { Component, computed, effect, ElementRef, inject, input, OnInit, output, signal, viewChild, viewChildren } from '@angular/core';
 import { WarehouseCommonModule } from '../../../shared/warehouse-common/warehouse-common.module';
 import { KeyFilterModule } from 'primeng/keyfilter';
 import { InputTextModule } from 'primeng/inputtext';
@@ -20,9 +8,7 @@ import { FormsModule } from '@angular/forms';
 import { IPaymentMode, PaymentModeControl } from '../../../shared/model/payment-mode.model';
 import { CurrentSaleService } from '../service/current-sale.service';
 import { SelectModeReglementService } from '../service/select-mode-reglement.service';
-import {
-  CustomerDataTableComponent
-} from '../uninsured-customer-list/customer-data-table.component';
+import { CustomerDataTableComponent } from '../uninsured-customer-list/customer-data-table.component';
 import { BaseSaleService } from '../service/base-sale.service';
 import { IPayment, Payment } from '../../../shared/model/payment.model';
 import { PopoverModule } from 'primeng/popover';
@@ -67,16 +53,19 @@ export class ModeReglementComponent implements OnInit {
   paymentModeInputs = viewChildren<ElementRef<HTMLInputElement>>('paymentModeInput');
   isShowAddBtn = signal(false);
   forceFocus = signal(false);
-  currentSaleService = inject(CurrentSaleService);
-  baseSaleService = inject(BaseSaleService);
-  selectModeReglementService = inject(SelectModeReglementService);
   readonly bankRelatedModes = [PaymentModeCode.CB, PaymentModeCode.VIREMENT, PaymentModeCode.CH];
+  protected readonly currentSaleService = inject(CurrentSaleService);
+  protected readonly baseSaleService = inject(BaseSaleService);
+  protected readonly selectModeReglementService = inject(SelectModeReglementService);
   readonly manageShowInfosBancaire = computed(() =>
     this.selectModeReglementService.modeReglements()?.some(element => this.bankRelatedModes.includes(element?.code as PaymentModeCode)),
   );
-  protected printInvoice = false;
+
   protected paymentModeToChange: IPaymentMode | null = null;
   protected isSmallScreen = false;
+  protected printReceipt: boolean = this.currentSaleService.printReceipt();
+  protected printInvoice: boolean = this.currentSaleService.printInvoice();
+  protected isVenteSansBon: boolean = this.currentSaleService.isVenteSansBon();
   private lastModesCount = 0;
 
   constructor() {
@@ -85,7 +74,6 @@ export class ModeReglementComponent implements OnInit {
       const currentModes = this.selectModeReglementService.modeReglements();
       const newCount = currentModes.length;
       if (newCount > 0 && newCount > this.lastModesCount) {
-        console.warn('focus last input', newCount);
         this.focusLastAddInput();
       }
       this.lastModesCount = newCount;

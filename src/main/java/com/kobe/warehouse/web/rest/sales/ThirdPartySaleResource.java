@@ -1,5 +1,6 @@
 package com.kobe.warehouse.web.rest.sales;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.kobe.warehouse.domain.Sales;
 import com.kobe.warehouse.domain.enumeration.NatureVente;
 import com.kobe.warehouse.service.dto.ClientTiersPayantDTO;
@@ -12,6 +13,7 @@ import com.kobe.warehouse.service.errors.BadRequestAlertException;
 import com.kobe.warehouse.service.errors.PlafondVenteException;
 import com.kobe.warehouse.service.sale.ThirdPartySaleService;
 import com.kobe.warehouse.service.sale.dto.FinalyseSaleDTO;
+import com.kobe.warehouse.service.sale.dto.UpdateSale;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import java.net.URI;
@@ -233,6 +235,12 @@ public class ThirdPartySaleResource {
     @PutMapping("/sales/assurance/date")
     public ResponseEntity<Void> updateDate(@Valid @RequestBody ThirdPartySaleDTO sale) {
         saleService.updateDate(sale);
+        return ResponseEntity.accepted().build();
+    }
+
+    @PutMapping("/sales/assurance/update-customer-information")
+    public ResponseEntity<Void> updateCustomerInformation(@Valid @RequestBody UpdateSale updateSale) throws JsonProcessingException {
+        saleService.updateCustomerInformation(updateSale);
         return ResponseEntity.accepted().build();
     }
 }

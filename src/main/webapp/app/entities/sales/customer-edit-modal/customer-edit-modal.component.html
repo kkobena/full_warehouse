@@ -45,7 +45,8 @@
           <ng-template #header>
             <div class="d-flex justify-content-between align-items-center p-2">
               <span class="fw-bold">Assuré principal</span>
-              <p-button [rounded]="true" icon="pi pi-user-edit" size="small"
+              <p-button (click)="openAssuredCustomerListTable()" [raised]="true" [rounded]="true"
+                        icon="pi pi-user-edit" size="small"
                         type="button"></p-button>
             </div>
           </ng-template>
@@ -60,18 +61,6 @@
                      type="text" />
             </div>
             <div class="mb-2">
-              <label class="form-label" for="field_firstName">Prénom</label>
-              <input autocomplete="off"
-                     class="form-control"
-                     data-cy="firstName"
-                     formControlName="firstName"
-                     id="field_firstName"
-                     name="firstName"
-                     pInputText
-                     type="text"
-              />
-            </div>
-            <div class="mb-2">
               <label class="form-label" for="field_lastName">Nom</label>
               <input autocomplete="off"
                      class="form-control"
@@ -83,6 +72,19 @@
                      type="text"
               />
             </div>
+            <div class="mb-2">
+              <label class="form-label" for="field_firstName">Prénom</label>
+              <input autocomplete="off"
+                     class="form-control"
+                     data-cy="firstName"
+                     formControlName="firstName"
+                     id="field_firstName"
+                     name="firstName"
+                     pInputText
+                     type="text"
+              />
+            </div>
+
             <div class="mb-2">
               <label class="form-label" for="field_phone">Téléphone</label>
               <input autocomplete="off"
@@ -105,7 +107,8 @@
           <ng-template #header>
             <div class="d-flex justify-content-between align-items-center p-2">
               <span class="fw-bold">Ayant droit</span>
-              <p-button [rounded]="true" icon="pi pi-user-edit" size="small"
+              <p-button (click)="loadAyantDoits()" [raised]="true" [rounded]="true"
+                        icon="pi pi-user-edit" size="small"
                         type="button"></p-button>
             </div>
           </ng-template> @if (ayantDroit && customer.id !== ayantDroit.id) {
@@ -123,17 +126,7 @@
                      formControlName="num"
               />
             </div>
-            <div class="mb-2">
-              <label class="form-label" for="field_ayantdroit_firstName">Prénom</label>
-              <input pInputText
-                     type="text"
-                     class="form-control"
-                     name="ayantdroit_firstName"
-                     id="field_ayantdroit_firstName"
-                     data-cy="ayantdroit_firstName"
-                     formControlName="firstName"
-              />
-            </div>
+
             <div class="mb-2">
               <label class="form-label" for="field_ayantdroit_lastName">Nom</label>
               <input pInputText
@@ -143,6 +136,17 @@
                      id="field_ayantdroit_lastName"
                      data-cy="ayantdroit_lastName"
                      formControlName="lastName"
+              />
+            </div>
+            <div class="mb-2">
+              <label class="form-label" for="field_ayantdroit_firstName">Prénom</label>
+              <input pInputText
+                     type="text"
+                     class="form-control"
+                     name="ayantdroit_firstName"
+                     id="field_ayantdroit_firstName"
+                     data-cy="ayantdroit_firstName"
+                     formControlName="firstName"
               />
             </div>
           </div>
@@ -160,7 +164,9 @@
                 <ng-template #header>
                   <div class="d-flex justify-content-between align-items-center p-2">
                     <span class="fw-bold">{{ group.value.tiersPayantFullName }}</span>
-                    <p-button type="button" icon="pi pi-pencil" size="small"
+                    <p-button [raised]="true" (click)="onChangeTierPayant(i)" type="button"
+                              icon="pi pi-pencil"
+                              size="small"
                               [rounded]="true"></p-button>
                   </div>
                 </ng-template>
@@ -193,13 +199,15 @@
   </div>
   <div class="modal-footer">
     <p-button (click)="cancel()" data-dismiss="modal" icon="pi pi-times" label="Annuler"
+              raised="true"
               severity="secondary" type="button">
     </p-button>
-    <p-button [disabled]="editForm.invalid || isSaving"
+    <p-button [disabled]="editForm.invalid || isSaving || !hasFormChanged()"
               data-cy="entityCreateSaveButton"
               icon="pi pi-save"
               id="save-entity"
               label="Sauvegarder"
+              raised="true"
               severity="primary"
               type="submit"
     >
@@ -208,4 +216,4 @@
   </div>
 </form>
 
-<p-toast position="center" />
+<jhi-toast-alert #alert></jhi-toast-alert>

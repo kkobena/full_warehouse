@@ -7,15 +7,14 @@ import { AccountService } from 'app/core/auth/account.service';
 import { AppPageTitleStrategy } from 'app/app-page-title-strategy';
 import '@angular/common/locales/global/fr';
 import { ConfirmDialogModule } from 'primeng/confirmdialog';
-import { ConfirmationService, MessageService } from 'primeng/api';
-import { ToastModule } from 'primeng/toast';
+import { ConfirmationService } from 'primeng/api';
 import { NgxSpinnerComponent, NgxSpinnerModule } from 'ngx-spinner';
 
 @Component({
   selector: 'jhi-main',
   templateUrl: './main.component.html',
-  providers: [AppPageTitleStrategy, ConfirmationService, MessageService],
-  imports: [RouterOutlet, NgxSpinnerModule, ConfirmDialogModule, ToastModule, NgxSpinnerComponent],
+  providers: [AppPageTitleStrategy, ConfirmationService],
+  imports: [RouterOutlet, NgxSpinnerModule, ConfirmDialogModule, NgxSpinnerComponent],
 })
 export default class MainComponent implements OnInit {
   private readonly renderer: Renderer2;

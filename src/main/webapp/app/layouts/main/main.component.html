@@ -5,15 +5,16 @@
 <div class="container-fluid">
   <div class="card jh-card">
     <p-confirmDialog
-      styleClass="ws-dialog"
       [style]="{ width: '40vw' }"
+      styleClass="ws-dialog"
     ></p-confirmDialog>
-    <p-toast position="center"/>
 
-    <ngx-spinner [fullScreen]="false" bdColor="rgba(255,255,255,0.5)" color="#f13151" name="salespinner"
+
+    <ngx-spinner [fullScreen]="false" bdColor="rgba(255,255,255,0.5)" color="#f13151"
+                 name="salespinner"
                  size="medium" type="timer">Traitement en cours...
     </ngx-spinner>
     <router-outlet></router-outlet>
   </div>
- <!-- <jhi-footer></jhi-footer>-->
+  <!-- <jhi-footer></jhi-footer>-->
 </div>

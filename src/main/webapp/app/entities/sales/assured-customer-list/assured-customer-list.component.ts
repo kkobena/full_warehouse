@@ -16,10 +16,12 @@ import { ISales } from '../../../shared/model/sales.model';
 import { IconField } from 'primeng/iconfield';
 import { InputIcon } from 'primeng/inputicon';
 import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
+import { Card } from 'primeng/card';
 
 @Component({
   selector: 'jhi-assured-customer-list',
   templateUrl: './assured-customer-list.component.html',
+  styleUrls: ['./assured-customer-list.component.scss'],
   imports: [
     WarehouseCommonModule,
     FormsModule,
@@ -30,6 +32,7 @@ import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
     TableModule,
     IconField,
     InputIcon,
+    Card,
   ],
 })
 export class AssuredCustomerListComponent {

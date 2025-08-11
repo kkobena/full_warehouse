@@ -67,7 +67,7 @@ export class UninsuredCustomerFormComponent implements OnInit, AfterViewInit, On
   ngAfterViewInit(): void {
     setTimeout(() => {
       this.firstName().nativeElement.focus();
-    }, 30);
+    }, 100);
   }
 
   save(): void {

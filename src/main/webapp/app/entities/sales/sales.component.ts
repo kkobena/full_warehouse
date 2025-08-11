@@ -35,13 +35,9 @@ import { FloatLabel } from 'primeng/floatlabel';
 import { TIMES } from '../../shared/util/times';
 import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { showCommonModal } from './selling-home/sale-helper';
-import {
-  SaleUpdateDateModalComponent
-} from './sale-update-date-modal/sale-update-date-modal.component';
+import { SaleUpdateDateModalComponent } from './sale-update-date-modal/sale-update-date-modal.component';
 import { debounceTime, Subject } from 'rxjs';
-import {
-  ConfirmDialogComponent
-} from '../../shared/dialog/confirm-dialog/confirm-dialog.component';
+import { ConfirmDialogComponent } from '../../shared/dialog/confirm-dialog/confirm-dialog.component';
 import { CustomerEditModalComponent } from './customer-edit-modal/customer-edit-modal.component';
 
 @Component({
@@ -215,13 +211,10 @@ export class SalesComponent implements OnInit, AfterViewInit {
       {
         sale: currSale,
       },
-      (resp: ISales) => {
-        if (resp) {
-          currSale = resp;
-        }
+      () => {
+        this.loadPage();
       },
-      'xl' /*,
-      'modal-dialog-80',*/,
+      'xl',
     );
   }
 

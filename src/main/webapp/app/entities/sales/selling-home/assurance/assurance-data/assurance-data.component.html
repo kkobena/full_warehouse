@@ -10,6 +10,7 @@
       <p-iconfield>
         <p-inputicon styleClass="pi pi-search" />
         <input
+          class="form-control-lg"
           [style]="{ width: '98%' }"
           pInputText
           autocomplete="off"
@@ -91,13 +92,14 @@
           <div class="row">
             <div class="col-8 fw-medium text-nowrap">
               @if (i === 0) {
-                RO: <span>{{ tp.tiersPayantName }}</span>
+                <span class="fw-semibold">RO:</span> <span>{{ tp.tiersPayantName }}</span>
               } @else {
-                RC{{ i }}: <span>{{ tp.tiersPayantName }}</span>
+                <span class="fw-semibold">RC{{ i }}:</span>
+                <span>{{ tp.tiersPayantName }}</span>
               }
             </div>
             <div class="col-4 fw-medium text-end">
-              Taux: <span>{{ tp.taux }}%</span>
+              Taux: <span class="red-400 fw-semibold">{{ tp.taux }}%</span>
             </div>
           </div>
           <div class="tp-input-container">

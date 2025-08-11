@@ -1,6 +1,6 @@
 package com.kobe.warehouse.service.sale;
 
-import com.kobe.warehouse.domain.SalesLine;
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.kobe.warehouse.domain.ThirdPartySaleLine;
 import com.kobe.warehouse.domain.ThirdPartySales;
 import com.kobe.warehouse.domain.enumeration.NatureVente;
@@ -12,6 +12,7 @@ import com.kobe.warehouse.service.dto.ThirdPartySaleDTO;
 import com.kobe.warehouse.service.dto.UtilisationCleSecuriteDTO;
 import com.kobe.warehouse.service.errors.DeconditionnementStockOut;
 import com.kobe.warehouse.service.errors.GenericError;
+import com.kobe.warehouse.service.errors.InvalidPhoneNumberException;
 import com.kobe.warehouse.service.errors.NumBonAlreadyUseException;
 import com.kobe.warehouse.service.errors.PaymentAmountException;
 import com.kobe.warehouse.service.errors.PlafondVenteException;
@@ -20,9 +21,9 @@ import com.kobe.warehouse.service.errors.SaleNotFoundCustomerException;
 import com.kobe.warehouse.service.errors.StockException;
 import com.kobe.warehouse.service.errors.ThirdPartySalesTiersPayantException;
 import com.kobe.warehouse.service.sale.dto.FinalyseSaleDTO;
+import com.kobe.warehouse.service.sale.dto.UpdateSale;
 import jakarta.validation.constraints.NotNull;
 import java.util.List;
-import java.util.Set;
 
 public interface ThirdPartySaleService {
     ThirdPartySaleLine clone(ThirdPartySaleLine original, ThirdPartySales copy);
@@ -40,8 +41,6 @@ public interface ThirdPartySaleService {
     default int buildConsommationId(@NotNull String s) {
         return Integer.parseInt(s);
     }
-
-    String buildTvaData(Set<SalesLine> salesLines);
 
     SaleLineDTO createOrUpdateSaleLine(SaleLineDTO dto) throws PlafondVenteException;
 
@@ -84,4 +83,6 @@ public interface ThirdPartySaleService {
     void authorizeAction(UtilisationCleSecuriteDTO utilisationCleSecuriteDTO) throws PrivilegeException;
 
     void processDiscount(KeyValue keyValue);
+
+    void updateCustomerInformation(UpdateSale updateSale) throws InvalidPhoneNumberException, GenericError, JsonProcessingException;
 }

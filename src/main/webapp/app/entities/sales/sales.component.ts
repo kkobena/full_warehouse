@@ -39,6 +39,7 @@ import { SaleUpdateDateModalComponent } from './sale-update-date-modal/sale-upda
 import { debounceTime, Subject } from 'rxjs';
 import { ConfirmDialogComponent } from '../../shared/dialog/confirm-dialog/confirm-dialog.component';
 import { CustomerEditModalComponent } from './customer-edit-modal/customer-edit-modal.component';
+import { Card } from 'primeng/card';
 
 @Component({
   selector: 'jhi-sales',
@@ -66,6 +67,7 @@ import { CustomerEditModalComponent } from './customer-edit-modal/customer-edit-
     DatePickerModule,
     FloatLabel,
     ConfirmDialogComponent,
+    Card,
   ],
 })
 export class SalesComponent implements OnInit, AfterViewInit {
@@ -141,8 +143,8 @@ export class SalesComponent implements OnInit, AfterViewInit {
       this.isLargeScreen = false;
     }
 
-    this.canEdit = !this.hasAuthorityService.hasAuthorities(Authority.PR_MODIFICATION_VENTE);
-    this.canCancel = !this.hasAuthorityService.hasAuthorities(Authority.PR_ANNULATION_VENTE);
+    this.canEdit = this.hasAuthorityService.hasAuthorities(Authority.PR_MODIFICATION_VENTE);
+    this.canCancel = this.hasAuthorityService.hasAuthorities(Authority.PR_ANNULATION_VENTE);
 
     this.loadAllUsers();
     const lastPram = this.saleToolBarService.toolBarParam();

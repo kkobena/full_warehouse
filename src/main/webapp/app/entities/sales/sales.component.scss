@@ -1,33 +1,10 @@
+@import '../../shared/scss/modal-theme';
 
-.table tr:hover {
-  cursor: pointer;
+:host {
+  @include modal-theme;
+
+  .td-detail {
+    background: rgba(179, 241, 237, 0.25);
+  }
 }
 
-.p-datatable td {
-  font-size: 0.6rem;
-}
-
-.table tr th {
-  font-size: 0.9rem;
-}
-
-.secondColumn {
-  color: blue;
-  text-align: right;
-}
-
-.invoice-table tr {
-  border-bottom: 1px solid #dee2e6;
-}
-
-.invoice-table td:first-child {
-  text-align: left;
-}
-
-.invoice-table td {
-  padding: 0.1rem;
-}
-
-.invoice-table {
-  color: #2d2d2d !important;
-}

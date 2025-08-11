@@ -1,7 +1,7 @@
 @if (account() !== null) {
   @if (isAdmin()) {
-    <div>
-      <div class="row home-ca">
+    <div class="container-fluid">
+      <div class="row">
         <div class="col-lg-2 col-xl-2 col-md-2 col-sm-2">
           <p-card>
             <div #nav="ngbNav" [(activeId)]="active" class="nav flex-column nav-pills" ngbNav
@@ -58,9 +58,9 @@
         </div>
 
         <div class="col-lg-10 col-xl-10 col-md-10 col-sm-10 container-home">
-          <p-card>
-            <div [ngbNavOutlet]="nav"></div>
-          </p-card>
+
+          <div [ngbNavOutlet]="nav"></div>
+
         </div>
       </div>
     </div>

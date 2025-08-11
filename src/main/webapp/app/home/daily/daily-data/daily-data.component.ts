@@ -24,12 +24,13 @@ import { WarehouseCommonModule } from '../../../shared/warehouse-common/warehous
 import { DropdownModule } from 'primeng/dropdown';
 import { TableModule } from 'primeng/table';
 import { FormsModule } from '@angular/forms';
+import { Card } from 'primeng/card';
 
 @Component({
   selector: 'jhi-daily-data',
   templateUrl: './daily-data.component.html',
   styleUrls: ['./daily-data.component.scss'],
-  imports: [WarehouseCommonModule, DropdownModule, TableModule, FormsModule],
+  imports: [WarehouseCommonModule, DropdownModule, TableModule, FormsModule, Card],
 })
 export class DailyDataComponent implements OnInit {
   protected faShoppingBasket = faShoppingBasket;

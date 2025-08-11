@@ -267,144 +267,148 @@
       </ng-template>
       <ng-template let-elRow #expandedrow>
         <tr>
-          <td colspan="9">
+          <td colspan="10" class="pt-2 pb-2 td-detail">
             @if (elRow.categorie === 'VNO') {
-              <div class="card">
+              <p-card>
                 <div class="card-header bg-info text-white">LISTES DES PRODUITS</div>
-                <div class="card-body">
-                  <p-table
-                    [paginator]="true"
-                    [rowsPerPageOptions]="[10, 15, 20, 30, 50]"
-                    [rows]="10"
-                    [showCurrentPageReport]="true"
-                    [value]="elRow.salesLines"
-                    currentPageReportTemplate="Affichage de {first} à {last} sur {totalRecords} produits"
-                    dataKey="id"
-                    selectionMode="single"
-                    styleClass="p-datatable-striped rowexpansion-table"
-                  >
-                    <ng-template pTemplate="header">
-                      <tr>
-                        <th style="width: 5%">#</th>
-                        <th style="width: 10%">CODE</th>
-                        <th style="width: 44%">LIBELLE</th>
-                        <th style="width: 8%">QTE.D</th>
-                        <th style="width: 8%">QTE.S</th>
-                        <th style="width: 9%">PU</th>
-                        <th style="width: 10%">TOTAL</th>
-                      </tr>
-                    </ng-template>
-                    <ng-template let-rowIndex="rowIndex" let-saleLine pTemplate="body">
-                      <tr
-                        [ngClass]="{ 'table-danger': saleLine.quantitySold < saleLine.quantityRequested }">
-                        <td style="text-align: left">{{ rowIndex + 1 }}</td>
-                        <td>{{ saleLine.code }}</td>
-                        <td>{{ saleLine.produitLibelle }}</td>
-                        <td class="text-right">{{ saleLine.quantityRequested | number }}</td>
-                        <td class="text-right">{{ saleLine.quantitySold | number }}</td>
-                        <td class="text-right">{{ saleLine.regularUnitPrice | number }}</td>
-                        <td
-                          style="text-align: right; font-weight: bold">{{ saleLine.salesAmount | number }}
-                        </td>
-                      </tr>
-                    </ng-template>
-                  </p-table>
-                </div>
-              </div>
+
+                <p-table
+                  [paginator]="true"
+                  [rowsPerPageOptions]="[10, 15, 20, 30, 50]"
+                  [rows]="10"
+                  [showCurrentPageReport]="true"
+                  [value]="elRow.salesLines"
+                  currentPageReportTemplate="Affichage de {first} à {last} sur {totalRecords} produits"
+                  dataKey="id"
+                  selectionMode="single"
+                  styleClass="p-datatable-striped rowexpansion-table"
+                >
+                  <ng-template #header>
+                    <tr>
+                      <th style="width: 5%">#</th>
+                      <th style="width: 10%">CODE</th>
+                      <th style="width: 44%">LIBELLE</th>
+                      <th style="width: 8%">QTE.D</th>
+                      <th style="width: 8%">QTE.S</th>
+                      <th style="width: 9%">PU</th>
+                      <th style="width: 10%">TOTAL</th>
+                    </tr>
+                  </ng-template>
+                  <ng-template let-rowIndex="rowIndex" let-saleLine #body>
+                    <tr
+                      [ngClass]="{ 'table-danger': saleLine.quantitySold < saleLine.quantityRequested }">
+                      <td style="text-align: left">{{ rowIndex + 1 }}</td>
+                      <td>{{ saleLine.code }}</td>
+                      <td>{{ saleLine.produitLibelle }}</td>
+                      <td class="text-right">{{ saleLine.quantityRequested | number }}</td>
+                      <td class="text-right">{{ saleLine.quantitySold | number }}</td>
+                      <td class="text-right">{{ saleLine.regularUnitPrice | number }}</td>
+                      <td
+                        style="text-align: right; font-weight: bold">{{ saleLine.salesAmount | number }}
+                      </td>
+                    </tr>
+                  </ng-template>
+                </p-table>
+
+              </p-card>
             } @else {
               <div class="row">
                 <div class="col-6 vo-item">
-                  <div class="card-header bg-info text-white">LISTES DES PRODUITS</div>
-                  <p-table
-                    [paginator]="true"
-                    [rowsPerPageOptions]="[10, 15, 20, 30, 50]"
-                    [rows]="10"
-                    [showCurrentPageReport]="true"
-                    [value]="elRow.salesLines"
-                    currentPageReportTemplate="Affichage de {first} à {last} sur {totalRecords} produits"
-                    dataKey="id"
-                    selectionMode="single"
-                    styleClass="p-datatable-striped rowexpansion-table"
-                  >
-                    <ng-template pTemplate="header">
-                      <tr>
-                        <th style="width: 3%">#</th>
-                        <th style="width: 12%">CODE</th>
-                        <th style="width: 42%">LIBELLE</th>
-                        <th style="width: 9%">QTE.D</th>
-                        <th style="width: 9%">QTE.S</th>
-                        <th style="width: 9%">PU</th>
-                        <th style="width: 10%">TOTAL</th>
-                      </tr>
-                    </ng-template>
-                    <ng-template let-rowIndex="rowIndex" let-saleLine pTemplate="body">
-                      <tr
-                        [ngClass]="{ 'table-danger': saleLine.quantitySold < saleLine.quantityRequested }">
-                        <td style="text-align: left">{{ rowIndex + 1 }}</td>
-                        <td>{{ saleLine.code }}</td>
-                        <td>{{ saleLine.produitLibelle }}</td>
-                        <td class="text-right">{{ saleLine.quantityRequested | number }}</td>
-                        <td class="text-right">{{ saleLine.quantitySold | number }}</td>
-                        <td class="text-right">{{ saleLine.regularUnitPrice | number }}</td>
-                        <td
-                          style="text-align: right; font-weight: bold">{{ saleLine.salesAmount | number }}
-                        </td>
-                      </tr>
-                    </ng-template>
-                  </p-table>
+                  <p-card>
+                    <div class="card-header bg-info text-white">LISTES DES PRODUITS</div>
+                    <p-table
+                      [paginator]="true"
+                      [rowsPerPageOptions]="[10, 15, 20, 30, 50]"
+                      [rows]="10"
+                      [showCurrentPageReport]="true"
+                      [value]="elRow.salesLines"
+                      currentPageReportTemplate="Affichage de {first} à {last} sur {totalRecords} produits"
+                      dataKey="id"
+                      selectionMode="single"
+                      styleClass="p-datatable-striped rowexpansion-table"
+                    >
+                      <ng-template #header>
+                        <tr>
+                          <th style="width: 3%">#</th>
+                          <th style="width: 12%">CODE</th>
+                          <th style="width: 42%">LIBELLE</th>
+                          <th style="width: 9%">QTE.D</th>
+                          <th style="width: 9%">QTE.S</th>
+                          <th style="width: 9%">PU</th>
+                          <th style="width: 10%">TOTAL</th>
+                        </tr>
+                      </ng-template>
+                      <ng-template let-rowIndex="rowIndex" let-saleLine #body>
+                        <tr
+                          [ngClass]="{ 'table-danger': saleLine.quantitySold < saleLine.quantityRequested }">
+                          <td style="text-align: left">{{ rowIndex + 1 }}</td>
+                          <td>{{ saleLine.code }}</td>
+                          <td>{{ saleLine.produitLibelle }}</td>
+                          <td class="text-right">{{ saleLine.quantityRequested | number }}</td>
+                          <td class="text-right">{{ saleLine.quantitySold | number }}</td>
+                          <td class="text-right">{{ saleLine.regularUnitPrice | number }}</td>
+                          <td
+                            style="text-align: right; font-weight: bold">{{ saleLine.salesAmount | number }}
+                          </td>
+                        </tr>
+                      </ng-template>
+                    </p-table>
+                  </p-card>
                 </div>
 
                 <div class="col-6 vo-item">
-                  <div class="card-header bg-warning text-white">INFOS COMPLEMENTAIRES</div>
-                  <table class="table table-bordered">
-                    <tbody>
-                    <tr>
-                      <td class="firstColumn">MONTANT ASSURE</td>
-                      <td class="secondColumn">{{ elRow?.partAssure | number }}</td>
+                  <p-card>
+                    <div class="card-header bg-warning text-white">INFOS COMPLEMENTAIRES</div>
+                    <table class="table table-bordered">
+                      <tbody>
+                      <tr>
+                        <td class="firstColumn">MONTANT ASSURE</td>
+                        <td class="secondColumn">{{ elRow?.partAssure | number }}</td>
 
-                      <td class="firstColumn">MONTANT ASSURANCE</td>
-                      <td class="secondColumn">{{ elRow?.partTiersPayant | number }}</td>
-                    </tr>
+                        <td class="firstColumn">MONTANT ASSURANCE</td>
+                        <td class="secondColumn">{{ elRow?.partTiersPayant | number }}</td>
+                      </tr>
 
-                    <tr>
-                      <td class="firstColumn">MONTANT TTC</td>
-                      <td class="secondColumn">{{ elRow?.salesAmount }}</td>
-                      <td class="firstColumn">MONTANT HT</td>
-                      <td class="secondColumn">{{ elRow?.htAmount | number }}</td>
-                    </tr>
+                      <tr>
+                        <td class="firstColumn">MONTANT TTC</td>
+                        <td class="secondColumn">{{ elRow?.salesAmount }}</td>
+                        <td class="firstColumn">MONTANT HT</td>
+                        <td class="secondColumn">{{ elRow?.htAmount | number }}</td>
+                      </tr>
 
-                    <tr>
-                      <td class="firstColumn">MONTANT TAXE</td>
-                      <td class="secondColumn">{{ elRow?.taxAmount | number }}</td>
-                      <td class="firstColumn">REMISE</td>
-                      <td class="secondColumn">{{ elRow?.discountAmount | number }}</td>
-                    </tr>
-                    <tr>
-                      <td class="firstColumn">MONTANT A PAYER</td>
-                      <td class="secondColumn">{{ elRow?.amountToBePaid | number }}</td>
-                      <td class="firstColumn">RESTE A PAYER</td>
-                      <td class="secondColumn">{{ elRow?.restToPay }}</td>
-                    </tr>
-                      @for (tp of elRow?.thirdPartySaleLines; track tp; let i = $index) {
-                        <tr>
-                          <td class="firstColumn">
-                            {{ tp?.tiersPayantFullName }}
-                          </td>
-                          <td class="secondColumn">{{ tp?.taux + '%' }}</td>
-                          <td class="firstColumn">MONTANT</td>
-                          <td class="secondColumn">{{ tp?.montant | number }}</td>
-                        </tr>
-                      }
-                      @for (payment of elRow?.payments; track payment; let i = $index) {
-                        <tr>
-                          <td class="firstColumn" colspan="3">
-                            {{ payment?.paymentMode?.libelle }}
-                          </td>
-                          <td class="secondColumn">{{ payment?.paidAmount | number }}</td>
-                        </tr>
-                      }
-                    </tbody>
-                  </table>
+                      <tr>
+                        <td class="firstColumn">MONTANT TAXE</td>
+                        <td class="secondColumn">{{ elRow?.taxAmount | number }}</td>
+                        <td class="firstColumn">REMISE</td>
+                        <td class="secondColumn">{{ elRow?.discountAmount | number }}</td>
+                      </tr>
+                      <tr>
+                        <td class="firstColumn">MONTANT A PAYER</td>
+                        <td class="secondColumn">{{ elRow?.amountToBePaid | number }}</td>
+                        <td class="firstColumn">RESTE A PAYER</td>
+                        <td class="secondColumn">{{ elRow?.restToPay }}</td>
+                      </tr>
+                        @for (tp of elRow?.thirdPartySaleLines; track tp; let i = $index) {
+                          <tr>
+                            <td class="firstColumn">
+                              {{ tp?.tiersPayantFullName }}
+                            </td>
+                            <td class="secondColumn">{{ tp?.taux + '%' }}</td>
+                            <td class="firstColumn">MONTANT</td>
+                            <td class="secondColumn">{{ tp?.montant | number }}</td>
+                          </tr>
+                        }
+                        @for (payment of elRow?.payments; track payment; let i = $index) {
+                          <tr>
+                            <td class="firstColumn" colspan="3">
+                              {{ payment?.paymentMode?.libelle }}
+                            </td>
+                            <td class="secondColumn">{{ payment?.paidAmount | number }}</td>
+                          </tr>
+                        }
+                      </tbody>
+                    </table>
+                  </p-card>
                 </div>
               </div>
             }

@@ -17,17 +17,17 @@
               ></span>
             }
 
-            <span>
-            <label>Imprimer le ticket de caisse ?</label>
-            <p-toggleswitch inputId="printTicket" [(ngModel)]="printReceipt"
+            <!-- <span>
+             <label>Imprimer le ticket de caisse ?</label>
+             <p-toggleswitch inputId="printTicket" [(ngModel)]="printReceipt"
 
-                            (onChange)="onPrintReceiptChange($event)"> </p-toggleswitch>
-          </span>
-            <span>
-            <label>Imprimer la facture?</label>
-            <p-toggleswitch [(ngModel)]="printInvoice" (onChange)="onPrintInvoiceChange($event)"
-                            inputId="printInvoice"> </p-toggleswitch>
-          </span>
+                             (onChange)="onPrintReceiptChange($event)"> </p-toggleswitch>
+           </span>
+             <span>
+             <label>Imprimer la facture?</label>
+             <p-toggleswitch [(ngModel)]="printInvoice" (onChange)="onPrintInvoiceChange($event)"
+                             inputId="printInvoice"> </p-toggleswitch>
+           </span>-->
           </div>
           @if (currentSaleService.currentSale()?.amountToBePaid > 0) {
             <div class="row ws-mode-reglement" style="margin-top: 0.5rem">

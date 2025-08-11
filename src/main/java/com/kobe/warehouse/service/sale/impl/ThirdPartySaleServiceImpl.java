@@ -1095,6 +1095,8 @@ public class ThirdPartySaleServiceImpl extends SaleCommonService implements Thir
                 .orElseThrow(() -> new GenericError("La ligne n'existe pas"));
             updateThirdPartySaleLine(thirdPartySaleLine, updateSale.customer(), thirdPartySaleLineDTO);
         });
+        thirdPartySales.setLastUserEdit(this.storageService.getUser());
+        thirdPartySaleRepository.save(thirdPartySales);
         ObjectMapper objectMapper = new ObjectMapper();
         this.logService.create(
                 TransactionType.MODIFICATION_INFO_CLIENT,

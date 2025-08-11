@@ -1,5 +1,5 @@
 import { HttpResponse } from '@angular/common/http';
-import { Component, OnInit, inject } from '@angular/core';
+import { Component, inject, OnInit } from '@angular/core';
 import { FormBuilder, FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
 import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
 import { ICustomer } from 'app/shared/model/customer.model';
@@ -11,27 +11,30 @@ import { SalesLineService } from '../sales-line/sales-line.service';
 import { SalesService } from './sales.service';
 import { TypeProduit } from '../../shared/model/enumerations/type-produit.model';
 import { WarehouseCommonModule } from '../../shared/warehouse-common/warehouse-common.module';
+import { InputText } from 'primeng/inputtext';
+import { Button } from 'primeng/button';
+import { Card } from 'primeng/card';
 
 @Component({
   selector: 'jhi-pack-dialogue',
   templateUrl: './pack-dialogue.component.html',
-  imports: [WarehouseCommonModule, FormsModule, ReactiveFormsModule],
+  styleUrls: ['./pack-dialogue.component.scss'],
+  imports: [WarehouseCommonModule, FormsModule, ReactiveFormsModule, InputText, Button, Card],
 })
 export class PackDialogueComponent implements OnInit {
   activeModal = inject(NgbActiveModal);
-  private fb = inject(FormBuilder);
-  private salesService = inject(SalesService);
-  private saleItemService = inject(SalesLineService);
-
   produit?: IProduit;
   isSaving = false;
   sale?: ISales;
   customer?: ICustomer;
   detail = TypeProduit.DETAIL;
   isNotValid = false;
+  private fb = inject(FormBuilder);
   editForm = this.fb.group({
     quantitySold: [null, [Validators.required, Validators.min(1)]],
   });
+  private salesService = inject(SalesService);
+  private saleItemService = inject(SalesLineService);
 
   ngOnInit(): void {}
 

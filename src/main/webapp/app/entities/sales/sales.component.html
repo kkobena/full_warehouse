@@ -2,11 +2,11 @@
   <p-toolbar>
     <ng-template #start>
       <div class="d-flex justify-content-between">
-        <div>
+        <div class="mr-1">
           <p-select (onChange)="onTypeVenteChange()" [(ngModel)]="typeVenteSelected"
                     [options]="typeVentes" size="large"></p-select>
         </div>
-        <div>
+        <div class="mr-1">
           <p-select
             #userControl
             [(ngModel)]="selectedUserId"
@@ -16,10 +16,11 @@
             optionLabel="abbrName"
             optionValue="id"
             size="large"
+
           ></p-select>
         </div>
 
-        <div>
+        <div class="mr-1">
           <p-inputgroup>
             <input (keyup.enter)="onSearch()" pInputText placeholder="Taper pour rechercher"
                    type="text" />
@@ -30,7 +31,7 @@
           </p-inputgroup>
         </div>
 
-        <div>
+        <div class="mr-1">
           <p-floatlabel variant="on">
             <p-datePicker
               [(ngModel)]="fromDate"
@@ -44,7 +45,7 @@
             <label for="toDate">Du</label>
           </p-floatlabel>
         </div>
-        <div>
+        <div class="mr-1">
           <p-floatlabel variant="on">
             <p-datePicker
               [(ngModel)]="toDate"
@@ -58,13 +59,13 @@
             <label for="toDate">Au</label>
           </p-floatlabel>
         </div>
-        <div>
+        <div class="mr-1">
           <p-floatlabel variant="on">
             <p-select [(ngModel)]="fromHour" [options]="hous" id="fromHour" size="large"></p-select>
             <label for="fromHour">De</label>
           </p-floatlabel>
         </div>
-        <div>
+        <div class="mr-1">
           <p-floatlabel variant="on">
             <p-select [(ngModel)]="toHour" [options]="hous" id="toHour" size="large"></p-select>
             <label for="hous">A</label>
@@ -76,7 +77,8 @@
       <div class="sale d-flex">
         @if (isLargeScreen) {
           <div>
-            <p-button [raised]="true" (click)="loadPage()" severity="info" icon="pi pi-search"
+            <p-button class="mr-1" [raised]="true" (click)="loadPage()" severity="info"
+                      icon="pi pi-search"
                       label="Rechercher"></p-button>
 
             <p-button [routerLink]="['/sales', false, 'new']" icon="pi pi-plus"
@@ -84,13 +86,13 @@
             </p-button>
           </div>
         } @else {
-          <p-button
-            (click)="loadPage()"
-            icon="pi pi-search"
-            pTooltip="Rechercher"
-            raised="true"
-            severity="info"
-            tooltipPosition="top"
+          <p-button class="mr-1"
+                    (click)="loadPage()"
+                    icon="pi pi-search"
+                    pTooltip="Rechercher"
+                    raised="true"
+                    severity="info"
+                    tooltipPosition="top"
           ></p-button>
           &nbsp;
             <!--   <p-splitbutton [model]="splitbuttons" icon="pi pi-upload"

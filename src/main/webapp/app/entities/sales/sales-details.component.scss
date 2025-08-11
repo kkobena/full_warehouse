@@ -1,0 +1,7 @@
+@import '../../shared/scss/modal-theme';
+
+:host {
+  @include modal-theme;
+
+}
+

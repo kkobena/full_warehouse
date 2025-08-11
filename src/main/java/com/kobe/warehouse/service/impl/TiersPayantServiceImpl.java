@@ -1,5 +1,6 @@
 package com.kobe.warehouse.service.impl;
 
+import com.kobe.warehouse.domain.ThirdPartySaleLine;
 import com.kobe.warehouse.domain.TiersPayant;
 import com.kobe.warehouse.domain.enumeration.ModelFacture;
 import com.kobe.warehouse.domain.enumeration.OrdreTrisFacture;
@@ -13,45 +14,50 @@ import com.kobe.warehouse.service.StorageService;
 import com.kobe.warehouse.service.TiersPayantService;
 import com.kobe.warehouse.service.dto.Pair;
 import com.kobe.warehouse.service.dto.TiersPayantDto;
+import com.kobe.warehouse.service.dto.VenteRecordParamDTO;
 import com.kobe.warehouse.service.dto.projection.AchatTiersPayant;
 import com.kobe.warehouse.service.dto.projection.ReglementTiersPayants;
 import com.kobe.warehouse.service.errors.GenericError;
+import com.kobe.warehouse.service.stat.CommonStatService;
+import com.kobe.warehouse.service.tiers_payant.TiersPayantAchat;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.Set;
 import java.util.stream.Stream;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @Transactional
-public class TiersPayantServiceImpl implements TiersPayantService {
+public class TiersPayantServiceImpl implements TiersPayantService, CommonStatService {
 
     private final Logger log = LoggerFactory.getLogger(TiersPayantServiceImpl.class);
     private final TiersPayantRepository tiersPayantRepository;
     private final StorageService storageService;
     private final ClientTiersPayantRepository clientTiersPayantRepository;
-    private final ThirdPartySaleLineRepository thirdPartySaleRepository;
+    private final ThirdPartySaleLineRepository thirdPartySaleLineRepository;
     private final InvoicePaymentRepository invoicePaymentRepository;
 
     public TiersPayantServiceImpl(
         TiersPayantRepository tiersPayantRepository,
         StorageService storageService,
         ClientTiersPayantRepository clientTiersPayantRepository,
-        ThirdPartySaleLineRepository thirdPartySaleRepository,
+        ThirdPartySaleLineRepository thirdPartySaleLineRepository,
         InvoicePaymentRepository invoicePaymentRepository
     ) {
         this.tiersPayantRepository = tiersPayantRepository;
         this.storageService = storageService;
         this.clientTiersPayantRepository = clientTiersPayantRepository;
-        this.thirdPartySaleRepository = thirdPartySaleRepository;
+        this.thirdPartySaleLineRepository = thirdPartySaleLineRepository;
         this.invoicePaymentRepository = invoicePaymentRepository;
     }
 
@@ -143,11 +149,28 @@ public class TiersPayantServiceImpl implements TiersPayantService {
 
     @Override
     public Page<AchatTiersPayant> fetchAchatTiersPayant(LocalDate fromDate, LocalDate toDate, String search, Pageable pageable) {
-        return this.thirdPartySaleRepository.fetchAchatTiersPayant(fromDate, toDate, search, SalesStatut.CLOSED, pageable);
+        return this.thirdPartySaleLineRepository.fetchAchatTiersPayant(fromDate, toDate, search, SalesStatut.CLOSED, pageable);
     }
 
     @Override
     public Page<ReglementTiersPayants> findReglementTierspayant(LocalDate fromDate, LocalDate toDate, String search, Pageable pageable) {
         return this.invoicePaymentRepository.findReglementTierspayant(fromDate, toDate, search, pageable);
+    }
+
+    @Override
+    public List<TiersPayantAchat> fetchAchatTiersPayant(VenteRecordParamDTO venteRecordParam) {
+        return this.thirdPartySaleLineRepository.fetchAchatTiersPayant(
+                buildThirdPartySaleLineSpecification(venteRecordParam),
+                Pageable.ofSize(venteRecordParam.getLimit())
+            );
+    }
+
+    private Specification<ThirdPartySaleLine> buildThirdPartySaleLineSpecification(VenteRecordParamDTO venteRecordParam) {
+        org.apache.commons.lang3.tuple.Pair<LocalDate, LocalDate> periode = buildPeriode(venteRecordParam);
+        Specification<ThirdPartySaleLine> specification =
+            this.thirdPartySaleLineRepository.periodeCriteria(periode.getLeft(), periode.getRight());
+        specification = specification.and(this.thirdPartySaleLineRepository.canceledCriteria());
+        specification = specification.and(this.thirdPartySaleLineRepository.saleStatutsCriteria(Set.of(SalesStatut.CLOSED)));
+        return specification;
     }
 }

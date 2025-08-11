@@ -29,7 +29,7 @@ import org.springframework.stereotype.Repository;
 
 @Repository
 public interface ThirdPartySaleLineRepository
-    extends JpaRepository<ThirdPartySaleLine, Long>, JpaSpecificationExecutor<ThirdPartySaleLine> {
+    extends JpaRepository<ThirdPartySaleLine, Long>, JpaSpecificationExecutor<ThirdPartySaleLine>, ThirdPartySaleLineCustomRepository {
     long countByClientTiersPayantId(Long clientTiersPayantId);
 
     List<ThirdPartySaleLine> findAllBySaleId(Long saleId);

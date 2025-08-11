@@ -11,14 +11,13 @@ import jakarta.persistence.criteria.CriteriaQuery;
 import jakarta.persistence.criteria.Expression;
 import jakarta.persistence.criteria.Predicate;
 import jakarta.persistence.criteria.Root;
+import java.time.LocalDate;
+import java.util.List;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Repository;
-
-import java.time.LocalDate;
-import java.util.List;
 
 @Repository
 public class InventoryTransactionCustomRepositoryImpl implements InventoryTransactionCustomRepository {
@@ -34,7 +33,7 @@ public class InventoryTransactionCustomRepositoryImpl implements InventoryTransa
         CriteriaQuery<ProduitAuditingState> query = cb.createQuery(ProduitAuditingState.class);
         Root<InventoryTransaction> root = query.from(InventoryTransaction.class);
         Expression<LocalDate> dateExpr = cb.function("DATE", LocalDate.class, root.get(InventoryTransaction_.createdAt));
-        //LocalDateTime mvtDate, Integer initStock, Integer quantity, Integer afterStock
+
         query
             .select(
                 cb.construct(

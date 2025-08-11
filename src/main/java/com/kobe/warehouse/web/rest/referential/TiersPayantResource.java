@@ -10,7 +10,9 @@ import com.kobe.warehouse.service.TiersPayantService;
 import com.kobe.warehouse.service.dto.Pair;
 import com.kobe.warehouse.service.dto.ResponseDTO;
 import com.kobe.warehouse.service.dto.TiersPayantDto;
+import com.kobe.warehouse.service.dto.VenteRecordParamDTO;
 import com.kobe.warehouse.service.errors.BadRequestAlertException;
+import com.kobe.warehouse.service.tiers_payant.TiersPayantAchat;
 import jakarta.validation.Valid;
 import java.io.IOException;
 import java.net.URISyntaxException;
@@ -132,5 +134,10 @@ public class TiersPayantResource {
     @GetMapping("/tiers-payants/order-tris-facture")
     public ResponseEntity<List<Pair>> getOrdreTrisFacture() {
         return ResponseEntity.ok().body(this.tiersPayantService.getOrdreTrisFacture());
+    }
+
+    @GetMapping("/tiers-payants/achats-summary")
+    public ResponseEntity<List<TiersPayantAchat>> fetchAchatTiersPayant(@Valid VenteRecordParamDTO venteRecordParam) {
+        return ResponseEntity.ok().body(this.tiersPayantService.fetchAchatTiersPayant(venteRecordParam));
     }
 }

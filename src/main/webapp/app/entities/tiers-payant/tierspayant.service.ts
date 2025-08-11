@@ -6,6 +6,7 @@ import { SERVER_API_URL } from 'app/app.constants';
 import { createRequestOptions } from 'app/shared/util/request-util';
 import { IResponseDto } from 'app/shared/util/response-dto';
 import { ITiersPayant, ModelFacture, OrdreTrisFacture } from '../../shared/model/tierspayant.model';
+import { TiersPayantAchat } from './model/tiers-payant-achat.model';
 
 type EntityResponseType = HttpResponse<ITiersPayant>;
 type EntityArrayResponseType = HttpResponse<ITiersPayant[]>;
@@ -62,5 +63,10 @@ export class TiersPayantService {
     return this.http.get<OrdreTrisFacture[]>(this.resourceUrl + '/order-tris-facture', {
       observe: 'response',
     });
+  }
+
+  fetchAchatTiersPayant(req?: any): Observable<HttpResponse<TiersPayantAchat[]>> {
+    const options = createRequestOptions(req);
+    return this.http.get<TiersPayantAchat[]>(this.resourceUrl + '/achats-summary', { params: options, observe: 'response' });
   }
 }

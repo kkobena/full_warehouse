@@ -1,4 +1,4 @@
-import { Injectable, inject } from '@angular/core';
+import { inject, Injectable } from '@angular/core';
 import { SERVER_API_URL } from '../app.constants';
 import { HttpClient, HttpResponse } from '@angular/common/http';
 import { Observable } from 'rxjs';
@@ -12,9 +12,8 @@ import { AchatRecord } from '../shared/model/achat-record.model';
   providedIn: 'root',
 })
 export class DashboardService {
-  protected http = inject(HttpClient);
-
-  public resourceUrl = SERVER_API_URL + 'api/dashboard';
+  private readonly http = inject(HttpClient);
+  private readonly resourceUrl = SERVER_API_URL + 'api/dashboard';
 
   fetchCa(venteRecordParam: VenteRecordParam): Observable<HttpResponse<VenteRecordWrapper>> {
     const options = createRequestOptions(venteRecordParam);

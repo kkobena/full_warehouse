@@ -1,6 +1,19 @@
+<div class="row mb-1">
+  <div class="col-12 d-flex justify-content-end">
+    <p-toggleButton
+
+      [(ngModel)]="showGraphs"
+      [style]="{ 'min-width': '10rem' }"
+      offIcon="pi pi-table"
+      offLabel="Vue Tabulaire"
+      onIcon="pi pi-chart-bar"
+      onLabel="Vue Graphique"
+    ></p-toggleButton>
+  </div>
+</div>
 <div class="row">
   <!-- Card 1: Total Montant Global -->
-  <div class="col-xl-3 col-md-6 mb-4">
+  <div class="col-xl-3 col-md-6 mb-2">
     <div class="card h-100 border-start border-primary border-4">
       <div class="card-body">
         <div class="d-flex align-items-center">
@@ -35,7 +48,7 @@
   </div>
 
   <!-- Card 2: Total en Net -->
-  <div class="col-xl-3 col-md-6 mb-4">
+  <div class="col-xl-3 col-md-6 mb-2">
     <div class="card h-100 border-start border-danger border-4">
       <div class="card-body">
         <div class="d-flex align-items-center">
@@ -67,7 +80,7 @@
   </div>
 
   <!-- Card 3: Chiffres d'affaires par type -->
-  <div class="col-xl-3 col-md-6 mb-4">
+  <div class="col-xl-3 col-md-6 mb-2">
     <div class="card h-100 border-start border-success border-4">
       <div class="card-body">
         <div class="d-flex align-items-center">
@@ -97,16 +110,15 @@
             <span
               class="badge bg-secondary-subtle text-secondary fw-semibold ">{{ canceled?.salesAmount | number }}
               ({{ canceled?.saleCount | number }})
-          </span>
+            </span>
           }
-
         </div>
       </div>
     </div>
   </div>
 
   <!-- Card 4: Total Achats -->
-  <div class="col-xl-3 col-md-6 mb-4">
+  <div class="col-xl-3 col-md-6 mb-2">
     <div class="card h-100 border-start border-warning border-4">
       <div class="card-body">
         <div class="d-flex align-items-center">
@@ -142,7 +154,7 @@
 
 <div class="row">
   <!-- Card 5: Total par mode reglement -->
-  <div class="col-xl-6 col-md-6 mb-4">
+  <div class="col-xl-6 col-md-6 mb-2">
     <div class="card h-100">
       <div class="card-header d-flex justify-content-between align-items-center bg-light">
         <h5 class="card-title mb-0">
@@ -150,48 +162,59 @@
           Total par mode de règlement
         </h5>
       </div>
-      <div class="card-body">
-        <ul class="list-group list-group-flush">
-          @for (mode of venteModePaiments; track mode) {
-            <li class="list-group-item d-flex justify-content-between align-items-center">
-              {{ mode.libelle }}
-              <span
-                class="fw-semibold text-primary fw-semibold fs-6">{{ mode?.paidAmount | number }}</span>
-            </li>
-          }
-        </ul>
+      <div class="card-body py-4">
+        @if (!showGraphs) {
+          <ul class="list-group list-group-flush">
+            @for (mode of venteModePaiments; track mode) {
+              <li class="list-group-item d-flex justify-content-between align-items-center px-0">
+                {{ mode.libelle }}
+                <span class="fw-semibold text-primary fs-6">{{ mode?.paidAmount | number }}</span>
+              </li>
+            }
+          </ul>
+        } @else {
+          <div class="d-flex justify-content-center align-items-center h-100">
+            <p-chart type="pie" [data]="modePaimentChartData" [options]="modePaimentChartOptions"
+                     height="300"></p-chart>
+          </div>
+        }
       </div>
     </div>
   </div>
   <!-- Card 6: Ventes par tiers-payant -->
-  <div class="col-xl-6 col-md-6 mb-4">
+  <div class="col-xl-6 col-md-6 mb-2">
     <div class="card h-100">
       <div class="card-header d-flex justify-content-between align-items-center bg-light">
         <h5 class="card-title mb-0">
           <fa-icon [icon]="faChartPie" class="text-success"></fa-icon>
           Ventes par tiers-payant
         </h5>
-        <p-dropdown (onChange)="onTopTiersPayantChange()" [(ngModel)]="TOP_MAX_TP"
-                    [options]="tops" optionLabel="label"></p-dropdown>
+        <p-dropdown (onChange)="onTopTiersPayantChange()" [(ngModel)]="TOP_MAX_TP" [options]="tops"
+                    optionLabel="label"></p-dropdown>
       </div>
-      <div class="card-body">
-        <ul class="list-group list-group-flush">
-          @for (tp of tiersPayantAchat; track tp) {
-            <li class="list-group-item d-flex justify-content-between align-items-center">
-              {{ tp.tiersPayantName }}
-              <span
-                class="fw-semibold text-success fw-semibold fs-6">{{ tp?.montantTtc | number }}</span>
-            </li>
-          }
-        </ul>
+      <div class="card-body py-4">
+        @if (!showGraphs) {
+          <ul class="list-group list-group-flush">
+            @for (tp of tiersPayantAchat; track tp) {
+              <li class="list-group-item d-flex justify-content-between align-items-center px-0">
+                {{ tp.tiersPayantName }}
+                <span class="fw-semibold text-success fs-6">{{ tp?.montantTtc | number }}</span>
+              </li>
+            }
+          </ul>
+        } @else {
+          <div class="d-flex justify-content-center align-items-center h-100">
+            <p-chart type="doughnut" [data]="tiersPayantChartData"
+                     [options]="tiersPayantChartOptions" height="300"></p-chart>
+          </div>
+        }
       </div>
     </div>
   </div>
 </div>
 
-
 <div class="row">
-  <div class="col-lg-6 mb-4">
+  <div class="col-lg-6 mb-2">
     <div class="card h-100">
       <div class="card-header d-flex justify-content-between align-items-center bg-light">
         <h5 class="card-title mb-0">
@@ -202,35 +225,42 @@
                     [options]="tops" optionLabel="label"></p-dropdown>
       </div>
       <div class="card-body p-0">
-        <p-table [scrollable]="true" [value]="rowQuantity" scrollHeight="400px"
-                 styleClass="p-table-striped">
-          <ng-template #header>
-            <tr>
-              <th>Libellé</th>
-              <th class="text-end">Montant</th>
-              <th class="text-end">Quantité</th>
-            </tr>
-          </ng-template>
-          <ng-template let-produit pTemplate="body">
-            <tr>
-              <td>{{ produit.libelle }}</td>
-              <td class="text-end">{{ produit.htAmount | number }}</td>
-              <td class="text-end fw-bold text-primary">{{ produit.quantitySold | number }}</td>
-            </tr>
-          </ng-template>
-          <ng-template #footer>
-            <tr>
-              <td class="fw-bold">Total</td>
-              <td class="text-end fw-bold">{{ totalAmountTopQuantity | number }}</td>
-              <td class="text-end fw-bold">{{ totalQuantityToQuantity | number }}</td>
-            </tr>
-          </ng-template>
-        </p-table>
+        @if (!showGraphs) {
+          <p-table [scrollable]="true" [value]="rowQuantity" scrollHeight="400px"
+                   styleClass="p-table-striped">
+            <ng-template #header>
+              <tr>
+                <th>Libellé</th>
+                <th class="text-end">Montant</th>
+                <th class="text-end">Quantité</th>
+              </tr>
+            </ng-template>
+            <ng-template #body let-produit>
+              <tr>
+                <td>{{ produit.libelle }}</td>
+                <td class="text-end">{{ produit.htAmount | number }}</td>
+                <td class="text-end fw-bold text-primary">{{ produit.quantitySold | number }}</td>
+              </tr>
+            </ng-template>
+            <ng-template #footer>
+              <tr>
+                <td class="fw-bold">Total</td>
+                <td class="text-end fw-bold">{{ totalAmountTopQuantity | number }}</td>
+                <td class="text-end fw-bold">{{ totalQuantityToQuantity | number }}</td>
+              </tr>
+            </ng-template>
+          </p-table>
+        } @else {
+          <div class="p-3">
+            <p-chart type="bar" [data]="quantityChartData" [options]="quantityChartOptions"
+                     height="400px"></p-chart>
+          </div>
+        }
       </div>
     </div>
   </div>
 
-  <div class="col-lg-6 mb-4">
+  <div class="col-lg-6 mb-2">
     <div class="card h-100">
       <div class="card-header d-flex justify-content-between align-items-center bg-light">
         <h5 class="card-title mb-0">
@@ -241,37 +271,44 @@
                     optionLabel="label"></p-dropdown>
       </div>
       <div class="card-body p-0">
-        <p-table [scrollable]="true" [value]="rowAmount" scrollHeight="400px"
-                 styleClass="p-table-striped">
-          <ng-template pTemplate="header">
-            <tr>
-              <th>Libellé</th>
-              <th class="text-end">Quantité</th>
-              <th class="text-end">Montant</th>
-            </tr>
-          </ng-template>
-          <ng-template #body let-produit>
-            <tr>
-              <td>{{ produit.libelle }}</td>
-              <td class="text-end">{{ produit.quantitySold | number }}</td>
-              <td class="text-end fw-bold text-warning">{{ produit.htAmount | number }}</td>
-            </tr>
-          </ng-template>
-          <ng-template #footer>
-            <tr>
-              <td class="fw-bold">Total</td>
-              <td class="text-end fw-bold">{{ totalQuantityTopAmount | number }}</td>
-              <td class="text-end fw-bold">{{ totalAmountTopAmount | number }}</td>
-            </tr>
-          </ng-template>
-        </p-table>
+        @if (!showGraphs) {
+          <p-table [scrollable]="true" [value]="rowAmount" scrollHeight="400px"
+                   styleClass="p-table-striped">
+            <ng-template #header>
+              <tr>
+                <th>Libellé</th>
+                <th class="text-end">Quantité</th>
+                <th class="text-end">Montant</th>
+              </tr>
+            </ng-template>
+            <ng-template #body let-produit>
+              <tr>
+                <td>{{ produit.libelle }}</td>
+                <td class="text-end">{{ produit.quantitySold | number }}</td>
+                <td class="text-end fw-bold text-warning">{{ produit.htAmount | number }}</td>
+              </tr>
+            </ng-template>
+            <ng-template #footer>
+              <tr>
+                <td class="fw-bold">Total</td>
+                <td class="text-end fw-bold">{{ totalQuantityTopAmount | number }}</td>
+                <td class="text-end fw-bold">{{ totalAmountTopAmount | number }}</td>
+              </tr>
+            </ng-template>
+          </p-table>
+        } @else {
+          <div class="p-3">
+            <p-chart type="bar" [data]="amountChartData" [options]="amountChartOptions"
+                     height="400px"></p-chart>
+          </div>
+        }
       </div>
     </div>
   </div>
 </div>
 
 <div class="row">
-  <div class="col-12">
+  <div class="col-12 mb-2">
     <div class="card h-100">
       <div class="card-header d-flex justify-content-between align-items-center bg-light">
         <h5 class="card-title mb-0">
@@ -280,38 +317,44 @@
         </h5>
       </div>
       <div class="card-body p-0">
-        <p-table [scrollable]="true" [value]="row20x80" scrollHeight="400px"
-                 styleClass="p-table-striped">
-          <ng-template #header>
-            <tr>
-              <th>Libellé</th>
-              <th class="text-end">Quantité</th>
-              <th class="text-end">% Qté</th>
-              <th class="text-end">Montant</th>
-              <th class="text-end">% Montant</th>
-            </tr>
-          </ng-template>
-          <ng-template #body let-produit>
-            <tr>
-              <td>{{ produit.libelle }}</td>
-              <td class="text-end">{{ produit.quantitySold | number }}</td>
-              <td class="text-end fw-bold text-info">{{ produit.quantityAvg }}</td>
-              <td class="text-end">{{ produit.htAmount | number }}</td>
-              <td class="text-end fw-bold text-info">{{ produit.amountAvg }}</td>
-            </tr>
-          </ng-template>
-          <ng-template #footer>
-            <tr>
-              <td class="fw-bold">Total</td>
-              <td class="text-end fw-bold">{{ totalQuantity20x80 | number }}</td>
-              <td class="text-end fw-bold">{{ totalQuantityAvg | number }}</td>
-              <td class="text-end fw-bold">{{ totalAmount20x80 | number }}</td>
-              <td class="text-end fw-bold">{{ totalAmountAvg | number }}</td>
-            </tr>
-          </ng-template>
-        </p-table>
+        @if (!showGraphs) {
+          <p-table [scrollable]="true" [value]="row20x80" scrollHeight="400px"
+                   styleClass="p-table-striped">
+            <ng-template #header>
+              <tr>
+                <th>Libellé</th>
+                <th class="text-end">Quantité</th>
+                <th class="text-end">% Qté</th>
+                <th class="text-end">Montant</th>
+                <th class="text-end">% Montant</th>
+              </tr>
+            </ng-template>
+            <ng-template #body let-produit>
+              <tr>
+                <td>{{ produit.libelle }}</td>
+                <td class="text-end">{{ produit.quantitySold | number }}</td>
+                <td class="text-end fw-bold text-info">{{ produit.quantityAvg }}</td>
+                <td class="text-end">{{ produit.htAmount | number }}</td>
+                <td class="text-end fw-bold text-info">{{ produit.amountAvg }}</td>
+              </tr>
+            </ng-template>
+            <ng-template #footer>
+              <tr>
+                <td class="fw-bold">Total</td>
+                <td class="text-end fw-bold">{{ totalQuantity20x80 | number }}</td>
+                <td class="text-end fw-bold">{{ totalQuantityAvg | number }}</td>
+                <td class="text-end fw-bold">{{ totalAmount20x80 | number }}</td>
+                <td class="text-end fw-bold">{{ totalAmountAvg | number }}</td>
+              </tr>
+            </ng-template>
+          </p-table>
+        } @else {
+          <div class="p-3">
+            <p-chart type="bar" [data]="twentyEightyChartData" [options]="twentyEightyChartOptions"
+                     height="400px"></p-chart>
+          </div>
+        }
       </div>
     </div>
   </div>
 </div>
-

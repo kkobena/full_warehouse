@@ -6,12 +6,14 @@ import { FormsModule } from '@angular/forms';
 import { CommonModule, DecimalPipe } from '@angular/common';
 import { FaIconComponent } from '@fortawesome/angular-fontawesome';
 import { HomeBaseComponent } from '../../home-base/home-base.component';
+import { ChartModule } from 'primeng/chart';
+import { ToggleButtonModule } from 'primeng/togglebutton';
 
 @Component({
   selector: 'jhi-yearly-data',
   templateUrl: '../../home-base/home-base.component.html',
   styleUrls: ['../../home-base/home-base.component.scss'],
-  imports: [CommonModule, FormsModule, DecimalPipe, DropdownModule, TableModule, FaIconComponent],
+  imports: [CommonModule, FormsModule, DecimalPipe, DropdownModule, TableModule, FaIconComponent, ChartModule, ToggleButtonModule],
 })
 export class YearlyDataComponent extends HomeBaseComponent {
   protected dashboardPeriode: CaPeriodeFilter | null = null;

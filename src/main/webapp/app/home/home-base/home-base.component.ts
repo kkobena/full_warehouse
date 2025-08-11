@@ -11,7 +11,6 @@ import {
   faShippingFast,
   faShoppingBasket,
 } from '@fortawesome/free-solid-svg-icons';
-
 import { TableModule } from 'primeng/table';
 import { VenteByTypeRecord, VenteModePaimentRecord, VenteRecord, VenteRecordWrapper } from '../../shared/model/vente-record.model';
 import { ProductStatRecord } from '../../shared/model/produit-record.model';
@@ -22,12 +21,14 @@ import { DashboardService } from '../dashboard.service';
 import { ProduitStatService } from '../../entities/produit/stat/produit-stat.service';
 import { TypeCa } from '../../shared/model/enumerations/type-ca.model';
 import { OrderBy } from '../../shared/model/enumerations/type-vente.model';
-import { forkJoin, Observable } from 'rxjs';
-import { HttpResponse } from '@angular/common/http';
+import { forkJoin } from 'rxjs';
 import { FaIconComponent } from '@fortawesome/angular-fontawesome';
 import { FormsModule } from '@angular/forms';
 import { TiersPayantService } from '../../entities/tiers-payant/tierspayant.service';
 import { TiersPayantAchat } from '../../entities/tiers-payant/model/tiers-payant-achat.model';
+import { ChartModule } from 'primeng/chart';
+import { ToggleButtonModule } from 'primeng/togglebutton';
+import { backgroundColor, hoverBackgroundColor, surfaceBorder, textColor, textColorSecondary } from '../../shared/chart-color-helper';
 
 interface TopSelection {
   label: string;
@@ -36,7 +37,7 @@ interface TopSelection {
 
 @Component({
   selector: 'jhi-home-base',
-  imports: [CommonModule, FormsModule, DecimalPipe, DropdownModule, TableModule, FaIconComponent],
+  imports: [CommonModule, FormsModule, DecimalPipe, DropdownModule, TableModule, FaIconComponent, ChartModule, ToggleButtonModule],
   templateUrl: './home-base.component.html',
   styleUrl: './home-base.component.scss',
 })
@@ -50,6 +51,7 @@ export class HomeBaseComponent implements OnInit {
   protected readonly faChartPie = faChartPie;
   protected readonly faCreditCard = faCreditCard;
   protected readonly tops: TopSelection[] = TOPS;
+
   protected venteRecord: VenteRecord | null = null;
   protected canceled: VenteRecord | null = null;
   protected rowQuantity: ProductStatRecord[] = [];
@@ -63,18 +65,36 @@ export class HomeBaseComponent implements OnInit {
   protected TOP_MAX_QUANTITY: TopSelection;
   protected TOP_MAX_AMOUNT: TopSelection;
   protected TOP_MAX_TP: TopSelection;
-  protected totalAmountTopQuantity: number;
-  protected totalQuantityToQuantity: number;
-  protected totalAmountTopAmount: number;
-  protected totalQuantityTopAmount: number;
-  protected totalAmount20x80: number;
-  protected totalQuantityAvg: number;
-  protected totalAmountAvg: number;
-  protected totalQuantity20x80: number;
+  protected totalAmountTopQuantity = 0;
+  protected totalQuantityToQuantity = 0;
+  protected totalAmountTopAmount = 0;
+  protected totalQuantityTopAmount = 0;
+  protected totalAmount20x80 = 0;
+  protected totalQuantityAvg = 0;
+  protected totalAmountAvg = 0;
+  protected totalQuantity20x80 = 0;
   protected tiersPayantAchat: TiersPayantAchat[] = [];
+
+  protected showGraphs = false;
+  protected quantityChartData: any;
+  protected quantityChartOptions: any;
+  protected amountChartData: any;
+  protected amountChartOptions: any;
+  protected twentyEightyChartData: any;
+  protected twentyEightyChartOptions: any;
+  protected modePaimentChartData: any;
+  protected modePaimentChartOptions: any;
+  protected tiersPayantChartData: any;
+  protected tiersPayantChartOptions: any;
+
   private readonly dashboardService = inject(DashboardService);
   private readonly produitStatService = inject(ProduitStatService);
   private readonly tiersPayantService = inject(TiersPayantService);
+
+  private documentStyle: CSSStyleDeclaration;
+  private textColor: string;
+  private textColorSecondary: string;
+  private surfaceBorder: string;
 
   constructor() {
     this.TOP_MAX_QUANTITY = this.tops[1];
@@ -83,6 +103,7 @@ export class HomeBaseComponent implements OnInit {
   }
 
   ngOnInit(): void {
+    this.initializeChartStyles();
     this.loadDashboardData();
   }
 
@@ -116,7 +137,7 @@ export class HomeBaseComponent implements OnInit {
       }),
       tiersPayantAchat: this.tiersPayantService.fetchAchatTiersPayant({
         dashboardPeriode: this.dashboardPeriode,
-        limit: this.TOP_MAX_QUANTITY?.value,
+        limit: this.TOP_MAX_TP?.value,
       }),
     };
 
@@ -130,6 +151,7 @@ export class HomeBaseComponent implements OnInit {
         this.onFetchPoduitAmountSuccess(data.produitAmount.body);
         this.onFetch20x80Success(data.twentyEighty.body);
         this.onFetchTiersPayantSuccess(data.tiersPayantAchat.body);
+        this.buildAllCharts();
       },
       error: err => {
         console.error('Error loading dashboard data', err);
@@ -138,35 +160,45 @@ export class HomeBaseComponent implements OnInit {
   }
 
   protected onTopQuantityChange(): void {
-    this.subscribeToFetchPoduitCaResponse(
-      this.produitStatService.fetchPoduitCa({
+    this.produitStatService
+      .fetchPoduitCa({
         dashboardPeriode: this.dashboardPeriode,
         order: OrderBy.QUANTITY_SOLD,
         limit: this.TOP_MAX_QUANTITY?.value,
-      }),
-    );
+      })
+      .subscribe(res => {
+        this.onFetchPoduitCaSuccess(res.body);
+        this.buildQuantityChart();
+      });
   }
 
   protected onTopAmountChange(): void {
-    this.subscribeToFetchPoduitAmountResponse(
-      this.produitStatService.fetchPoduitCa({
+    this.produitStatService
+      .fetchPoduitCa({
         dashboardPeriode: this.dashboardPeriode,
         order: OrderBy.AMOUNT,
         limit: this.TOP_MAX_AMOUNT?.value,
-      }),
-    );
+      })
+      .subscribe(res => {
+        this.onFetchPoduitAmountSuccess(res.body);
+        this.buildAmountChart();
+      });
   }
 
   protected onTopTiersPayantChange(): void {
-    this.subscribeToFetchTiersPayantAchatResponse(
-      this.tiersPayantService.fetchAchatTiersPayant({
+    this.tiersPayantService
+      .fetchAchatTiersPayant({
         dashboardPeriode: this.dashboardPeriode,
-        limit: this.TOP_MAX_QUANTITY?.value,
-      }),
-    );
+        limit: this.TOP_MAX_TP?.value,
+      })
+      .subscribe(res => {
+        this.onFetchTiersPayantSuccess(res.body);
+        this.buildTiersPayantChart();
+      });
   }
 
   private onCaSuccess(ca: VenteRecordWrapper | null): void {
+    if (!ca) return;
     this.venteRecord = ca.close;
     this.canceled = ca.canceled;
   }
@@ -176,16 +208,19 @@ export class HomeBaseComponent implements OnInit {
   }
 
   private onCaByTypeVenteSuccess(venteByTypeRecords: VenteByTypeRecord[] | null): void {
-    this.vno = venteByTypeRecords?.find((e: VenteByTypeRecord) => e.typeVente === 'VNO')?.venteRecord;
-    this.assurance = venteByTypeRecords?.find((e: VenteByTypeRecord) => e.typeVente === 'VO')?.venteRecord;
+    if (!venteByTypeRecords) return;
+    this.vno = venteByTypeRecords.find(e => e.typeVente === 'VNO')?.venteRecord;
+    this.assurance = venteByTypeRecords.find(e => e.typeVente === 'VO')?.venteRecord;
   }
 
   private onGetCaByModePaimentSuccess(venteModePaimentRecords: VenteModePaimentRecord[] | []): void {
     this.venteModePaiments = venteModePaimentRecords;
   }
+
   private onFetchTiersPayantSuccess(tps: TiersPayantAchat[] | []): void {
     this.tiersPayantAchat = tps;
   }
+
   private onFetchPoduitCaSuccess(productStatRecords: ProductStatRecord[] | []): void {
     this.rowQuantity = productStatRecords;
     this.computeAmountTopQuantity();
@@ -199,17 +234,6 @@ export class HomeBaseComponent implements OnInit {
   private onFetch20x80Success(productStatRecords: ProductStatRecord[] | []): void {
     this.row20x80 = productStatRecords;
     this.computeAmountrow20x80();
-  }
-
-  private subscribeToFetchPoduitCaResponse(result: Observable<HttpResponse<ProductStatRecord[]>>): void {
-    result.subscribe((res: HttpResponse<ProductStatRecord[]>) => this.onFetchPoduitCaSuccess(res.body));
-  }
-  private subscribeToFetchTiersPayantAchatResponse(result: Observable<HttpResponse<TiersPayantAchat[]>>): void {
-    result.subscribe((res: HttpResponse<TiersPayantAchat[]>) => this.onFetchTiersPayantSuccess(res.body));
-  }
-
-  private subscribeToFetchPoduitAmountResponse(result: Observable<HttpResponse<ProductStatRecord[]>>): void {
-    result.subscribe((res: HttpResponse<ProductStatRecord[]>) => this.onFetchPoduitAmountSuccess(res.body));
   }
 
   private computeAmountTopQuantity(): void {
@@ -227,5 +251,148 @@ export class HomeBaseComponent implements OnInit {
     this.totalQuantity20x80 = this.row20x80.reduce((sum, p) => sum + p.quantitySold, 0);
     this.totalQuantityAvg = this.row20x80.reduce((sum, p) => sum + p.quantityAvg, 0);
     this.totalAmountAvg = this.row20x80.reduce((sum, p) => sum + p.amountAvg, 0);
+  }
+
+  private initializeChartStyles(): void {
+    this.documentStyle = getComputedStyle(document.documentElement);
+    this.textColor = textColor(this.documentStyle);
+    this.textColorSecondary = textColorSecondary(this.documentStyle);
+    this.surfaceBorder = surfaceBorder(this.documentStyle);
+  }
+
+  private buildAllCharts(): void {
+    this.buildQuantityChart();
+    this.buildAmountChart();
+    this.build2080Chart();
+    this.buildModePaimentChart();
+    this.buildTiersPayantChart();
+  }
+
+  private buildQuantityChart(): void {
+    this.quantityChartData = {
+      labels: this.rowQuantity.map(p => p.libelle.slice(0, 20)), // Truncate labels
+      datasets: [
+        {
+          type: 'bar',
+          label: 'Quantité vendue',
+          backgroundColor: this.documentStyle.getPropertyValue('--p-primary-200'),
+          data: this.rowQuantity.map(p => p.quantitySold),
+        },
+      ],
+    };
+    this.quantityChartOptions = this.getCommonChartOptions();
+  }
+
+  private buildAmountChart(): void {
+    this.amountChartData = {
+      labels: this.rowAmount.map(p => p.libelle.slice(0, 20)),
+      datasets: [
+        {
+          type: 'bar',
+          label: 'Montant HT',
+          backgroundColor: this.documentStyle.getPropertyValue('--p-blue-200'),
+          data: this.rowAmount.map(p => p.htAmount),
+        },
+      ],
+    };
+    this.amountChartOptions = this.getCommonChartOptions();
+  }
+
+  private build2080Chart(): void {
+    this.twentyEightyChartData = {
+      labels: this.row20x80.map(p => p.libelle.slice(0, 20)),
+      datasets: [
+        {
+          type: 'line',
+          label: '% Montant',
+          borderColor: this.documentStyle.getPropertyValue('--p-cyan-300'),
+          tension: 0.4,
+          data: this.row20x80.map(p => p.amountAvg),
+        },
+        {
+          type: 'bar',
+          label: 'Montant HT',
+          backgroundColor: this.documentStyle.getPropertyValue('--p-orange-300'),
+          data: this.row20x80.map(p => p.htAmount),
+        },
+      ],
+    };
+    this.twentyEightyChartOptions = this.getCommonChartOptions();
+  }
+
+  private buildModePaimentChart(): void {
+    this.modePaimentChartData = {
+      labels: this.venteModePaiments.map(p => p.libelle),
+      datasets: [
+        {
+          data: this.venteModePaiments.map(p => p.paidAmount),
+          backgroundColor: backgroundColor(this.documentStyle),
+          hoverBackgroundColor: hoverBackgroundColor(this.documentStyle),
+        },
+      ],
+    };
+    this.modePaimentChartOptions = this.getCommonPieChartOptions();
+  }
+
+  private buildTiersPayantChart(): void {
+    const bgs = backgroundColor(this.documentStyle);
+    const hovers = hoverBackgroundColor(this.documentStyle);
+    this.tiersPayantChartData = {
+      labels: this.tiersPayantAchat.map(p => p.tiersPayantName),
+      datasets: [
+        {
+          data: this.tiersPayantAchat.map(p => p.montantTtc),
+          backgroundColor: bgs.reverse(),
+          hoverBackgroundColor: hovers.reverse(),
+        },
+      ],
+    };
+    this.tiersPayantChartOptions = this.getCommonPieChartOptions();
+  }
+
+  private getCommonChartOptions(): any {
+    return {
+      maintainAspectRatio: false,
+      aspectRatio: 0.8,
+      plugins: {
+        legend: {
+          labels: {
+            color: this.textColor,
+          },
+        },
+      },
+      scales: {
+        y: {
+          ticks: {
+            color: this.textColorSecondary,
+          },
+          grid: {
+            color: this.surfaceBorder,
+          },
+        },
+        x: {
+          ticks: {
+            color: this.textColorSecondary,
+          },
+          grid: {
+            color: this.surfaceBorder,
+          },
+        },
+      },
+    };
+  }
+
+  private getCommonPieChartOptions(): any {
+    return {
+      plugins: {
+        legend: {
+          position: 'bottom',
+          labels: {
+            color: this.textColor,
+            usePointStyle: true,
+          },
+        },
+      },
+    };
   }
 }

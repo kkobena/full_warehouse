@@ -6,7 +6,6 @@ import { AccountService } from 'app/core/auth/account.service';
 import { Account } from 'app/core/auth/account.model';
 import { WarehouseCommonModule } from '../shared/warehouse-common/warehouse-common.module';
 import { CardModule } from 'primeng/card';
-import { HomeGrapheComponent } from './home-graphe/home-graphe.component';
 import { HalfyearlyDataComponent } from './halfyearly/halfyearly-data/halfyearly-data.component';
 import { YearlyDataComponent } from './yearly/yearly-data/yearly-data.component';
 import { MonthlyDataComponent } from './monthly/monthly-data/monthly-data.component';
@@ -23,7 +22,6 @@ import { Authority } from '../shared/constants/authority.constants';
     WarehouseCommonModule,
     RouterModule,
     CardModule,
-    HomeGrapheComponent,
     HalfyearlyDataComponent,
     YearlyDataComponent,
     MonthlyDataComponent,

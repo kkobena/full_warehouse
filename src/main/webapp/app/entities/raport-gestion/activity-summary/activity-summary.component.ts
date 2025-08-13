@@ -18,10 +18,11 @@ import { IconField } from 'primeng/iconfield';
 import { InputIcon } from 'primeng/inputicon';
 import { InputText } from 'primeng/inputtext';
 import { TableModule } from 'primeng/table';
+import { Card } from 'primeng/card';
 
 @Component({
   selector: 'jhi-activity-summary',
-  imports: [CommonModule, Toolbar, DatePicker, FloatLabel, FormsModule, Button, IconField, InputIcon, InputText, TableModule],
+  imports: [CommonModule, Toolbar, DatePicker, FloatLabel, FormsModule, Button, IconField, InputIcon, InputText, TableModule, Card],
   templateUrl: './activity-summary.component.html',
   styleUrl: './activity-summary.component.scss',
 })

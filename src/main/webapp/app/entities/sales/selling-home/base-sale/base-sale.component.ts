@@ -121,9 +121,6 @@ export class BaseSaleComponent {
 
   onLoadPrevente(): void {
     this.modeReglementComponent().buildPreventeReglementInput();
-    setTimeout(() => {
-      this.baseSaleService.setInputBoxFocus('produitBox');
-    }, 50);
   }
 
   computExtraInfo(): void {
@@ -400,4 +397,3 @@ export class BaseSaleComponent {
     }
   }
 }
-

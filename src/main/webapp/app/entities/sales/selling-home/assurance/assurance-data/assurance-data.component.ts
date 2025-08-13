@@ -86,16 +86,7 @@ export class AssuranceDataComponent implements OnInit, AfterViewInit {
 
   constructor() {
     const assuredCustomer = this.selectedCustomerService.selectedCustomerSignal();
-    if (assuredCustomer && !this.currentSaleService.isEdit()) {
-      const saleType = this.currentSaleService.typeVo();
-      if (saleType === 'ASSURANCE') {
-        this.selectedTiersPayants.set(assuredCustomer.tiersPayants || []);
-        this.ayantDroit =
-          assuredCustomer.ayantDroits?.find(ad => ad.id === assuredCustomer.id || ad.num === assuredCustomer.num) || assuredCustomer;
-      } else if (saleType === 'CARNET' && assuredCustomer.tiersPayants?.length) {
-        this.selectedTiersPayants.set([assuredCustomer.tiersPayants[0]]);
-      }
-    }
+    this.handleCustomer(assuredCustomer);
   }
 
   ngOnInit(): void {
@@ -136,6 +127,7 @@ export class AssuranceDataComponent implements OnInit, AfterViewInit {
       (resp: ICustomer) => {
         if (resp) {
           this.selectedCustomerService.setCustomer(resp);
+          this.handleCustomer(resp);
           this.firstRefBonFocus();
         }
       },
@@ -145,7 +137,7 @@ export class AssuranceDataComponent implements OnInit, AfterViewInit {
   }
 
   ngAfterViewInit(): void {
-    this.searchInput().nativeElement.focus();
+    this.searchInput()?.nativeElement.focus();
   }
 
   buildIClientTiersPayantFromInputs(): IClientTiersPayant[] {
@@ -365,5 +357,18 @@ export class AssuranceDataComponent implements OnInit, AfterViewInit {
         input.nativeElement.select();
       }
     }, 100);
+  }
+
+  private handleCustomer(assuredCustomer: ICustomer): void {
+    if (assuredCustomer && !this.currentSaleService.isEdit()) {
+      const saleType = this.currentSaleService.typeVo();
+      if (saleType === 'ASSURANCE') {
+        this.selectedTiersPayants.set(assuredCustomer.tiersPayants || []);
+        this.ayantDroit =
+          assuredCustomer.ayantDroits?.find(ad => ad.id === assuredCustomer.id || ad.num === assuredCustomer.num) || assuredCustomer;
+      } else if (saleType === 'CARNET' && assuredCustomer.tiersPayants?.length) {
+        this.selectedTiersPayants.set([assuredCustomer.tiersPayants[0]]);
+      }
+    }
   }
 }

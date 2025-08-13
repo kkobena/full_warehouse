@@ -37,7 +37,6 @@ import { Card } from 'primeng/card';
   templateUrl: './mode-reglement.component.html',
 })
 export class ModeReglementComponent implements OnInit {
-  readonly showModeReglementCard = input<boolean>(true);
   readonly paymentModeControlEvent = output<PaymentModeControl>();
   readonly onSaveEvent = output<boolean>();
   readonly onCloseEvent = output<boolean>();
@@ -55,12 +54,13 @@ export class ModeReglementComponent implements OnInit {
   forceFocus = signal(false);
   readonly bankRelatedModes = [PaymentModeCode.CB, PaymentModeCode.VIREMENT, PaymentModeCode.CH];
   protected readonly currentSaleService = inject(CurrentSaleService);
+  readonly showModeReglementCard = computed(() => this.currentSaleService.currentSale()?.amountToBePaid > 0);
   protected readonly baseSaleService = inject(BaseSaleService);
   protected readonly selectModeReglementService = inject(SelectModeReglementService);
   readonly manageShowInfosBancaire = computed(() =>
     this.selectModeReglementService.modeReglements()?.some(element => this.bankRelatedModes.includes(element?.code as PaymentModeCode)),
   );
-
+  //currentSaleService.currentSale()?.amountToBePaid
   protected paymentModeToChange: IPaymentMode | null = null;
   protected isSmallScreen = false;
   protected printReceipt: boolean = this.currentSaleService.printReceipt();
@@ -138,7 +138,7 @@ export class ModeReglementComponent implements OnInit {
         this.updateAvailableMode();
       }
     });
-    this.setFirstInputFocused();
+    this.focusPaymentInput();
   }
 
   buildReglementInput(): void {
@@ -250,15 +250,17 @@ export class ModeReglementComponent implements OnInit {
     if (!this.forceFocus()) {
       return;
     }
+    this.focusPaymentInput();
+  }
+  private focusPaymentInput(): void {
     queueMicrotask(() => {
       const firstInput = this.paymentModeInputs()[0]?.nativeElement;
       if (firstInput) {
         firstInput.focus();
-        setTimeout(() => firstInput.select(), 50);
+        setTimeout(() => firstInput.select(), 100);
       }
     });
   }
-
   private buildModePayment(mode: IPaymentMode, inputAmount: number, entryAmount: number): Payment {
     const amount =
       entryAmount > this.currentSaleService.currentSale().amountToBePaid

@@ -313,13 +313,23 @@ public class ThirdPartySaleServiceImpl extends SaleCommonService implements Thir
         return thirdPartySaleLineRepository.findAllBySaleId(saleId);
     }
 
-    private boolean checkIfNumBonIsAlReadyUse(String numBon, Long clientTiersPayantId) {
+    private boolean checkIfNumBonIsAlReadyUse(String numBon, Long clientTiersPayantId, Long currentSaleId) {
         if (!StringUtils.hasLength(numBon)) {
             return false;
         }
-        return (
+        if (isNull(currentSaleId)) return (
             thirdPartySaleLineRepository.countThirdPartySaleLineByNumBonAndClientTiersPayantId(
                 numBon,
+                clientTiersPayantId,
+                SalesStatut.CLOSED
+            ) >
+            0
+        );
+
+        return (
+            thirdPartySaleLineRepository.countThirdPartySaleLineByNumBonAndClientTiersPayantIdAndSaleId(
+                numBon,
+                currentSaleId,
                 clientTiersPayantId,
                 SalesStatut.CLOSED
             ) >
@@ -472,7 +482,7 @@ public class ThirdPartySaleServiceImpl extends SaleCommonService implements Thir
             ClientTiersPayant clientTiersPayant = thirdPartySaleLine.getClientTiersPayant();
             String numBon = numBonMap.get(clientTiersPayant.getId());
             if (numBon != null) {
-                if (checkIfNumBonIsAlReadyUse(numBon, clientTiersPayant.getId())) {
+                if (checkIfNumBonIsAlReadyUse(numBon, clientTiersPayant.getId(), p.getId())) {
                     throw new NumBonAlreadyUseException(numBon);
                 }
                 thirdPartySaleLine.setNumBon(numBon);
@@ -551,7 +561,7 @@ public class ThirdPartySaleServiceImpl extends SaleCommonService implements Thir
         throws GenericError, NumBonAlreadyUseException, PlafondVenteException {
         ClientTiersPayant clientTiersPayant = clientTiersPayantRepository.getReferenceById(dto.getId());
         ThirdPartySales thirdPartySales = thirdPartySaleRepository.getReferenceById(saleId);
-        if (checkIfNumBonIsAlReadyUse(dto.getNumBon(), clientTiersPayant.getId())) {
+        if (checkIfNumBonIsAlReadyUse(dto.getNumBon(), clientTiersPayant.getId(), null)) {
             throw new NumBonAlreadyUseException(dto.getNumBon());
         }
         ThirdPartySaleLine thirdPartySaleLine = createThirdPartySaleLine(dto, clientTiersPayant, 0);
@@ -755,7 +765,7 @@ public class ThirdPartySaleServiceImpl extends SaleCommonService implements Thir
             : clttiersPayants.stream().collect(Collectors.groupingBy(ClientTiersPayant::getId));
         boolean hasOptionPrixPourcentage = thirdPartySales.hasOptionPrixPourcentage();
         for (ClientTiersPayantDTO tp : clientTiersPayants) {
-            if (checkIfNumBonIsAlReadyUse(tp.getNumBon(), tp.getId())) {
+            if (checkIfNumBonIsAlReadyUse(tp.getNumBon(), tp.getId(), thirdPartySales.getId())) {
                 throw new NumBonAlreadyUseException(tp.getNumBon());
             }
             var isLast = counter == (tiersPayantSize - 1);
@@ -805,7 +815,7 @@ public class ThirdPartySaleServiceImpl extends SaleCommonService implements Thir
         // si non null  nouvelle creation
         if (
             Objects.nonNull(clientTiersPayantDTO) &&
-            checkIfNumBonIsAlReadyUse(clientTiersPayantDTO.getNumBon(), clientTiersPayantDTO.getId())
+            checkIfNumBonIsAlReadyUse(clientTiersPayantDTO.getNumBon(), clientTiersPayantDTO.getId(), thirdPartySales.getId())
         ) {
             throw new NumBonAlreadyUseException(clientTiersPayantDTO.getNumBon());
         }
@@ -1028,7 +1038,7 @@ public class ThirdPartySaleServiceImpl extends SaleCommonService implements Thir
             for (ClientTiersPayantDTO clientTiersPayantDTO : dto.getTiersPayants()) {
                 ClientTiersPayant clientTiersPayant = thirdPartySaleLine.getClientTiersPayant();
                 if (clientTiersPayant.getId().compareTo(clientTiersPayantDTO.getId()) == 0) {
-                    if (checkIfNumBonIsAlReadyUse(clientTiersPayantDTO.getNumBon(), thirdPartySaleLine.getId())) {
+                    if (checkIfNumBonIsAlReadyUse(clientTiersPayantDTO.getNumBon(), thirdPartySaleLine.getId(), p.getId())) {
                         throw new NumBonAlreadyUseException(clientTiersPayantDTO.getNumBon());
                     }
                     thirdPartySaleLine.setNumBon(clientTiersPayantDTO.getNumBon());

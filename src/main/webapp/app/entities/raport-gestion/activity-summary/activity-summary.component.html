@@ -4,14 +4,14 @@
       <div class="pt-1 ml-1">
         <p-floatlabel variant="on">
           <p-datePicker
-            dateFormat="dd/mm/yy"
-            [iconDisplay]="'input'"
-            id="du"
             [(ngModel)]="fromDate"
-            [showIcon]="true"
-            inputId="du"
+            [iconDisplay]="'input'"
             [selectOtherMonths]="true"
             [showButtonBar]="true"
+            [showIcon]="true"
+            dateFormat="dd/mm/yy"
+            id="du"
+            inputId="du"
           />
           <label for="du">Date début</label>
         </p-floatlabel>
@@ -19,14 +19,14 @@
       <div class="pt-1 ml-1">
         <p-floatlabel variant="on">
           <p-datePicker
-            dateFormat="dd/mm/yy"
-            [iconDisplay]="'input'"
-            id="au"
             [(ngModel)]="toDate"
-            [showIcon]="true"
-            inputId="du"
+            [iconDisplay]="'input'"
             [selectOtherMonths]="true"
             [showButtonBar]="true"
+            [showIcon]="true"
+            dateFormat="dd/mm/yy"
+            id="au"
+            inputId="du"
           />
           <label for="au">Date fin</label>
         </p-floatlabel>
@@ -34,8 +34,10 @@
     </ng-template>
     <ng-template #end>
       <div class="pt-1 ml-1">
-        <p-button (click)="loadAll()" [loading]="loadingBtn()" [raised]="true" icon="pi pi-search" label="Rechercher" severity="info" />
-        <p-button (click)="printAll()" [loading]="loadingPdf" [raised]="true" icon="pi pi-file-pdf" label="Imprimer" severity="warn" />
+        <p-button (click)="loadAll()" [loading]="loadingBtn()" [raised]="true" icon="pi pi-search"
+                  label="Rechercher" severity="info" />
+        <p-button (click)="printAll()" [loading]="loadingPdf" [raised]="true" icon="pi pi-file-pdf"
+                  label="Imprimer" severity="warn" />
       </div>
     </ng-template>
   </p-toolbar>
@@ -44,81 +46,93 @@
       @let ca = chiffreAffaire.chiffreAffaire;
       @if (ca) {
         <div class="col">
-          <div class="card">
-            <div class="card-header">Chiffre d'affaires</div>
+          <p-card>
+            <div class="card-header fw-bold">Chiffre d'affaires</div>
             <ul class="list-group list-group-flush">
               <li class="list-group-item d-flex justify-content-between align-items-center">
                 <span>Montant Ttc</span>
-                <span class="list-group-item-right">{{ ca.montantTtc | number }}</span>
+                <span class="list-group-item-right fw-semibold">{{ ca.montantTtc | number }}</span>
               </li>
               <li class="list-group-item d-flex justify-content-between align-items-center">
                 <span>Montant Tva</span>
-                <span class="list-group-item-right">{{ ca.montantTva | number }}</span>
+                <span class="list-group-item-right fw-semibold ">{{ ca.montantTva | number }}</span>
               </li>
               <li class="list-group-item d-flex justify-content-between align-items-center">
                 <span>Montant Ht</span>
-                <span class="list-group-item-right">{{ ca.montantHt | number }}</span>
+                <span class="list-group-item-right fw-semibold">{{ ca.montantHt | number }}</span>
               </li>
               <li class="list-group-item d-flex justify-content-between align-items-center">
                 <span>Montant remise</span>
-                <span class="list-group-item-right">{{ ca.montantRemise | number }}</span>
+                <span
+                  class="list-group-item-right fw-semibold">{{ ca.montantRemise | number }}</span>
               </li>
               <li class="list-group-item d-flex justify-content-between align-items-center">
                 <span>Montant net</span>
-                <span class="list-group-item-right">{{ ca.montantNet | number }}</span>
+                <span class="list-group-item-right fw-semibold">{{ ca.montantNet | number }}</span>
               </li>
               <li class="list-group-item d-flex justify-content-between align-items-center">
                 <span>Montant espèce</span>
-                <span class="list-group-item-right">{{ ca.montantEspece | number }}</span>
+                <span
+                  class="list-group-item-right fw-semibold">{{ ca.montantEspece | number }}</span>
               </li>
               <li class="list-group-item d-flex justify-content-between align-items-center">
                 <span>Montant autres règlement</span>
-                <span class="list-group-item-right">{{ ca.montantAutreModePaiement | number }}</span>
+                <span
+                  class="list-group-item-right fw-semibold">{{ ca.montantAutreModePaiement | number }}</span>
               </li>
               <li class="list-group-item d-flex justify-content-between align-items-center">
                 <span>Montant crédit</span>
-                <span class="list-group-item-right">{{ ca.montantCredit | number }}</span>
+                <span
+                  class="list-group-item-right fw-semibold">{{ ca.montantCredit | number }}</span>
               </li>
               <li class="list-group-item d-flex justify-content-between align-items-center">
                 <span>Marge</span>
-                <span class="list-group-item-right">{{ ca.marge | number }}</span>
+                <span class="list-group-item-right fw-semibold">{{ ca.marge | number }}</span>
               </li>
             </ul>
-          </div>
+          </p-card>
+
         </div>
       }
       @let achat = chiffreAffaire.achats;
       @if (achat) {
         <div class="col">
-          <div class="card">
-            <div class="card-header">Total des achats</div>
+          <p-card>
+
+            <div class="card-header fw-bold">Total des achats</div>
             <ul class="list-group list-group-flush">
               <li class="list-group-item d-flex justify-content-between align-items-center">
                 <span>Montant Ttc</span>
-                <span class="list-group-item-right">{{ achat.montantTtc | number }}</span>
+                <span
+                  class="list-group-item-right fw-semibold">{{ achat.montantTtc | number }}</span>
               </li>
               <li class="list-group-item d-flex justify-content-between align-items-center">
                 <span>Montant Tva</span>
-                <span class="list-group-item-right">{{ achat.montantTva | number }}</span>
+                <span
+                  class="list-group-item-right fw-semibold">{{ achat.montantTva | number }}</span>
               </li>
               <li class="list-group-item d-flex justify-content-between align-items-center">
                 <span>Montant Ht</span>
-                <span class="list-group-item-right">{{ achat.montantHt | number }}</span>
+                <span
+                  class="list-group-item-right fw-semibold">{{ achat.montantHt | number }}</span>
               </li>
             </ul>
-          </div>
+
+          </p-card>
         </div>
       }
       @let recettes = chiffreAffaire.recettes;
       @if (recettes) {
         <div class="col">
-          <div class="card">
-            <div class="card-header">Recettes</div>
+          <p-card>
+
+            <div class="card-header fw-bold">Recettes</div>
             <ul class="list-group list-group-flush">
               @for (recette of recettes; track $index) {
                 <li class="list-group-item d-flex justify-content-between align-items-center">
                   <span>{{ recette.modePaimentLibelle }}</span>
-                  <span class="list-group-item-right">{{ recette.montantReel | number }}</span>
+                  <span
+                    class="list-group-item-right fw-semibold">{{ recette.montantReel | number }}</span>
                 </li>
               }
             </ul>
@@ -128,24 +142,26 @@
                 <ul class="list-group list-group-flush">
                   <li class="list-group-item d-flex justify-content-between align-items-center">
                     <span>Total</span>
-                    <span class="list-group-item-right">{{ total | number }}</span>
+                    <span class="list-group-item-right fw-semibold">{{ total | number }}</span>
                   </li>
                 </ul>
               </div>
             }
-          </div>
+
+          </p-card>
         </div>
       }
       @let mvts = chiffreAffaire.mouvementCaisses;
       @if (mvts) {
         <div class="col">
-          <div class="card">
-            <div class="card-header">Mouvements de caisse</div>
+          <p-card>
+
+            <div class="card-header fw-bold">Mouvements de caisse</div>
             <ul class="list-group list-group-flush">
               @for (mvt of mvts; track $index) {
                 <li class="list-group-item d-flex justify-content-between align-items-center">
                   <span>{{ mvt.libelle }}</span>
-                  <span class="list-group-item-right">{{ mvt.montant | number }}</span>
+                  <span class="list-group-item-right fw-semibold">{{ mvt.montant | number }}</span>
                 </li>
               }
             </ul>
@@ -155,12 +171,13 @@
                 <ul class="list-group list-group-flush">
                   <li class="list-group-item d-flex justify-content-between align-items-center">
                     <span>Total</span>
-                    <span class="list-group-item-right">{{ totalMvts | number }}</span>
+                    <span class="list-group-item-right fw-semibold">{{ totalMvts | number }}</span>
                   </li>
                 </ul>
               </div>
             }
-          </div>
+
+          </p-card>
         </div>
       }
     </div>
@@ -168,8 +185,9 @@
 
   @if (groupeFournisseurAchats && groupeFournisseurAchats.length) {
     <div class="row">
-      <div class="card">
-        <div class="card-header">Achats par groupe fournisseur</div>
+      <p-card>
+
+        <div class="card-header fw-bold">Achats par groupe fournisseur</div>
         <p-table
           #tbGroupeFournisseur
           [globalFilterFields]="['libelle']"
@@ -197,13 +215,15 @@
             </tr>
           </ng-template>
         </p-table>
-      </div>
+
+      </p-card>
     </div>
   }
   @if (reglementTiersPayants && reglementTiersPayants.length) {
     <div class="row">
-      <div class="card">
-        <div class="card-header">Règlements tiers payants</div>
+      <p-card>
+
+        <div class="card-header fw-bold">Règlements tiers payants</div>
         <div class="card-body">
           <div class="table-responsive">
             <p-table
@@ -253,14 +273,16 @@
             </p-table>
           </div>
         </div>
-      </div>
+
+      </p-card>
     </div>
   }
 
   @if (achatTiersPayant && achatTiersPayant.length) {
     <div class="row">
-      <div class="card">
-        <div class="card-header">Crédits accordés</div>
+      <p-card>
+
+        <div class="card-header fw-bold">Crédits accordés</div>
         <div class="card-body">
           <div class="table-responsive">
             <p-table
@@ -308,7 +330,8 @@
             </p-table>
           </div>
         </div>
-      </div>
+
+      </p-card>
     </div>
   }
 </div>

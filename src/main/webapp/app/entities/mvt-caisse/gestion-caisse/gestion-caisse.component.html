@@ -54,14 +54,14 @@
           tooltipPosition="top"
         ></p-button
         >&nbsp;
-        <p-button
-          (click)="onPrint()"
-          [loading]="btnLoading"
-          icon="pi pi-print"
-          label="Imprimer"
-          pTooltip="Imprimer"
-          severity="warn"
-          tooltipPosition="top"
+        <p-button (click)="onPrint()"
+                  [hidden]="true"
+                  [loading]="btnLoading"
+                  icon="pi pi-print"
+                  label="Imprimer"
+                  pTooltip="Imprimer"
+                  severity="warn"
+                  tooltipPosition="top"
         />
       </div>
     </div>
@@ -107,7 +107,8 @@
               <td class="text-right amount-column">{{ mvtCaisse.cashAmount | number }}</td>
               <td class="text-right amount-column">{{ mvtCaisse.estimateAmount | number }}</td>
               <td class="text-right amount-column">{{ mvtCaisse.mobileAmount | number }}</td>
-              <td class="text-right amount-column">{{ mvtCaisse.ticketing?.totalAmount | number }}</td>
+              <td class="text-right amount-column">{{ mvtCaisse.ticketing?.totalAmount | number }}
+              </td>
               @if (mvtCaisse.gap > 0) {
                 <td class="text-right text-success amount-column">{{ mvtCaisse.gap | number }}</td>
               } @else if (mvtCaisse.gap === 0) {
@@ -115,7 +116,9 @@
               } @else {
                 <td class="text-right text-danger amount-column">{{ mvtCaisse.gap | number }}</td>
               }
-              <td class="text-right text-danger amount-column">{{ mvtCaisse.canceledAmount | number }}</td>
+              <td
+                class="text-right text-danger amount-column">{{ mvtCaisse.canceledAmount | number }}
+              </td>
               <td class="text-center">
                 @if (mvtCaisse.statut === OPEN) {
                   <p-tag icon="pi pi-lock-open" severity="warn" value="Ouvert" />
@@ -126,10 +129,12 @@
                 }
               </td>
               <td class="text-right">
-                <div class="btn-group">
+                <div [hidden]="true" class="btn-group">
                   @if (mvtCaisse.statut !== OPEN) {
-                    <p-button [rounded]="true" severity="success" icon="pi pi-thumbs-up-fill" pTooltip="Valider"> </p-button>
-                    <p-button [rounded]="true" severity="secondary" icon="pi pi-print" pTooltip="Imprimer"> </p-button>
+                    <p-button [rounded]="true" severity="success" icon="pi pi-thumbs-up-fill"
+                              pTooltip="Valider"></p-button>
+                    <p-button [rounded]="true" severity="secondary" icon="pi pi-print"
+                              pTooltip="Imprimer"></p-button>
                   }
                 </div>
               </td>

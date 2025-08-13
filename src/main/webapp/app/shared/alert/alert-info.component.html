@@ -1,13 +1,16 @@
 <div class="modal-header">
   <h5 class="modal-title">Information</h5>
-  <button (click)="cancel()" class="close" type="button">&times;</button>
+  <button (click)="cancel()" class="btn-close" type="button">&times;</button>
 </div>
-<div class="modal-body">
-  <div [class]="infoClass">
-    <strong>{{ message }}</strong>
-  </div>
+<div class="modal-body" style="padding: 15px;">
+  <p-card>
+    <div [class]="infoClass">
+      <span class="fs-3 fw-semibold">{{ message }}</span>
+    </div>
+  </p-card>
+
 </div>
 <div class="modal-footer">
-  <button (click)="cancel()" class="btn btn-danger" type="button">Fermer
-  </button>
+  <p-button (click)="cancel()" icon="pi pi-times" label="Fermer" severity="secondary" type="button">
+  </p-button>
 </div>

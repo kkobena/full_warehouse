@@ -1,6 +1,5 @@
 import { Component, inject, OnInit } from '@angular/core';
 import { CommonModule, DecimalPipe } from '@angular/common';
-import { DropdownModule } from 'primeng/dropdown';
 import {
   faChartArea,
   faChartBar,
@@ -29,6 +28,9 @@ import { TiersPayantAchat } from '../../entities/tiers-payant/model/tiers-payant
 import { ChartModule } from 'primeng/chart';
 import { ToggleButtonModule } from 'primeng/togglebutton';
 import { backgroundColor, hoverBackgroundColor, surfaceBorder, textColor, textColorSecondary } from '../../shared/chart-color-helper';
+import { ToggleStateService } from './toggle-state.service';
+import { ToggleButtonChangeEvent } from 'primeng/togglebutton/togglebutton.interface';
+import { SelectModule } from 'primeng/select';
 
 interface TopSelection {
   label: string;
@@ -37,7 +39,7 @@ interface TopSelection {
 
 @Component({
   selector: 'jhi-home-base',
-  imports: [CommonModule, FormsModule, DecimalPipe, DropdownModule, TableModule, FaIconComponent, ChartModule, ToggleButtonModule],
+  imports: [CommonModule, FormsModule, DecimalPipe, TableModule, FaIconComponent, ChartModule, ToggleButtonModule, SelectModule],
   templateUrl: './home-base.component.html',
   styleUrl: './home-base.component.scss',
 })
@@ -74,7 +76,7 @@ export class HomeBaseComponent implements OnInit {
   protected totalAmountAvg = 0;
   protected totalQuantity20x80 = 0;
   protected tiersPayantAchat: TiersPayantAchat[] = [];
-
+  protected readonly toggleStateService = inject(ToggleStateService);
   protected showGraphs = false;
   protected quantityChartData: any;
   protected quantityChartOptions: any;
@@ -107,7 +109,7 @@ export class HomeBaseComponent implements OnInit {
     this.loadDashboardData();
   }
 
-  loadDashboardData(): void {
+  protected loadDashboardData(): void {
     const sources = {
       ca: this.dashboardService.fetchCa({
         categorieChiffreAffaire: TypeCa.CA,
@@ -184,7 +186,9 @@ export class HomeBaseComponent implements OnInit {
         this.buildAmountChart();
       });
   }
-
+  protected onToggleChange(evt: ToggleButtonChangeEvent): void {
+    this.toggleStateService.update(evt.checked);
+  }
   protected onTopTiersPayantChange(): void {
     this.tiersPayantService
       .fetchAchatTiersPayant({
@@ -332,6 +336,7 @@ export class HomeBaseComponent implements OnInit {
       ],
     };
     this.modePaimentChartOptions = this.getCommonPieChartOptions();
+    console.log(this.modePaimentChartData);
   }
 
   private buildTiersPayantChart(): void {

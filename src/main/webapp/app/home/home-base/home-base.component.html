@@ -1,7 +1,7 @@
 <div class="row mb-1">
   <div class="col-12 d-flex justify-content-end">
     <p-toggleButton
-
+      (onChange)="onToggleChange($event)"
       [(ngModel)]="showGraphs"
       [style]="{ 'min-width': '10rem' }"
       offIcon="pi pi-table"
@@ -165,7 +165,7 @@
       <div class="card-body py-4">
         @if (!showGraphs) {
           <ul class="list-group list-group-flush">
-            @for (mode of venteModePaiments; track mode) {
+            @for (mode of venteModePaiments; track mode.libelle) {
               <li class="list-group-item d-flex justify-content-between align-items-center px-0">
                 {{ mode.libelle }}
                 <span class="fw-semibold text-primary fs-6">{{ mode?.paidAmount | number }}</span>
@@ -173,6 +173,7 @@
             }
           </ul>
         } @else {
+
           <div class="d-flex justify-content-center align-items-center h-100">
             <p-chart type="pie" [data]="modePaimentChartData" [options]="modePaimentChartOptions"
                      height="300"></p-chart>
@@ -189,13 +190,13 @@
           <fa-icon [icon]="faChartPie" class="text-success"></fa-icon>
           Ventes par tiers-payant
         </h5>
-        <p-dropdown (onChange)="onTopTiersPayantChange()" [(ngModel)]="TOP_MAX_TP" [options]="tops"
-                    optionLabel="label"></p-dropdown>
+        <p-select (onChange)="onTopTiersPayantChange()" [(ngModel)]="TOP_MAX_TP" [options]="tops"
+                  optionLabel="label"></p-select>
       </div>
       <div class="card-body py-4">
         @if (!showGraphs) {
           <ul class="list-group list-group-flush">
-            @for (tp of tiersPayantAchat; track tp) {
+            @for (tp of tiersPayantAchat; track tp.tiersPayantName) {
               <li class="list-group-item d-flex justify-content-between align-items-center px-0">
                 {{ tp.tiersPayantName }}
                 <span class="fw-semibold text-success fs-6">{{ tp?.montantTtc | number }}</span>
@@ -221,8 +222,8 @@
           <fa-icon [icon]="faChartArea" class="text-primary"></fa-icon>
           Meilleures ventes en quantité
         </h5>
-        <p-dropdown (onChange)="onTopQuantityChange()" [(ngModel)]="TOP_MAX_QUANTITY"
-                    [options]="tops" optionLabel="label"></p-dropdown>
+        <p-select (onChange)="onTopQuantityChange()" [(ngModel)]="TOP_MAX_QUANTITY"
+                  [options]="tops" optionLabel="label"></p-select>
       </div>
       <div class="card-body p-0">
         @if (!showGraphs) {
@@ -267,8 +268,8 @@
           <fa-icon [icon]="faChartBar" class="text-warning"></fa-icon>
           Meilleures ventes en valeur
         </h5>
-        <p-dropdown (onChange)="onTopAmountChange()" [(ngModel)]="TOP_MAX_AMOUNT" [options]="tops"
-                    optionLabel="label"></p-dropdown>
+        <p-select (onChange)="onTopAmountChange()" [(ngModel)]="TOP_MAX_AMOUNT" [options]="tops"
+                  optionLabel="label"></p-select>
       </div>
       <div class="card-body p-0">
         @if (!showGraphs) {

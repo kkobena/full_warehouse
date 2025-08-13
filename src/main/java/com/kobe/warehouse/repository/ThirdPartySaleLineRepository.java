@@ -44,6 +44,16 @@ public interface ThirdPartySaleLineRepository
     );
 
     @Query(
+        value = "SELECT  count(o) FROM ThirdPartySaleLine o WHERE o.numBon=:numBon AND o.clientTiersPayant.id=:clientTiersPayantId AND o.sale.statut=:statut AND o.sale.id <>:saleId "
+    )
+    long countThirdPartySaleLineByNumBonAndClientTiersPayantIdAndSaleId(
+        @Param("numBon") String numBon,
+        @Param("clientTiersPayantId") Long saleId,
+        @Param("saleId") Long clientTiersPayantId,
+        @Param("statut") SalesStatut statut
+    );
+
+    @Query(
         value = "SELECT  SUM(s.montant)-SUM(s.montant_regle) AS montantAttendu FROM third_party_sale_line s WHERE s.facture_tiers_payant_id=:factureTiersPayantId",
         nativeQuery = true
     )

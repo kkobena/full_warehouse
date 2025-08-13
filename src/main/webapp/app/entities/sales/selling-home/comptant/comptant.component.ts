@@ -60,9 +60,11 @@ export class ComptantComponent {
   canFocusLastModeInput = input(false);
   modeReglementComponent = viewChild<ModeReglementComponent>('modeReglement');
   amountComputingComponent = viewChild<AmountComputingComponent>('amountComputing');
+  // readonly entryAmount = computed(() => this.modeReglementComponent()?.getInputSum() || 0);
   protected remise?: IRemise | null;
   protected event: any;
   protected readonly currentSaleService = inject(CurrentSaleService);
+  readonly isValidDiffere = computed(() => this.currentSaleService.currentSale()?.differe);
   protected readonly hasAuthorityService = inject(HasAuthorityService);
   readonly canRemoveItem = signal(this.hasAuthorityService.hasAuthorities(Authority.PR_SUPPRIME_PRODUIT_VENTE));
   readonly canApplyDiscount = signal(this.hasAuthorityService.hasAuthorities(Authority.PR_AJOUTER_REMISE_VENTE));
@@ -72,8 +74,6 @@ export class ComptantComponent {
   private readonly baseSaleService = inject(BaseSaleService);
   private readonly selectedCustomerService = inject(SelectedCustomerService);
   private readonly selectModeReglementService = inject(SelectModeReglementService);
-  readonly entryAmount = computed(() => this.modeReglementComponent()?.getInputSum() || 0);
-  readonly isValidDiffere = computed(() => this.currentSaleService.currentSale()?.differe);
 
   constructor() {
     this.facade.saveResponse$.pipe(takeUntilDestroyed()).subscribe(res => {
@@ -105,12 +105,16 @@ export class ComptantComponent {
     });
   }
 
+  protected get entryAmount(): number {
+    return this.modeReglementComponent()?.getInputSum() || 0;
+  }
+
   manageAmountDiv(): void {
     this.modeReglementComponent().manageAmountDiv();
   }
 
   finalyseSale(putsOnStandby = false): void {
-    const entryAmount = this.entryAmount();
+    const entryAmount = this.entryAmount;
     this.facade.finalizeSale(
       putsOnStandby,
       entryAmount,
@@ -129,10 +133,10 @@ export class ComptantComponent {
   }
 
   save(): void {
-    const entryAmount = this.entryAmount();
+    const entryAmount = this.entryAmount;
     const restToPay = this.currentSaleService.currentSale().amountToBePaid - entryAmount;
     this.currentSaleService.currentSale().montantVerse = this.baseSaleService.getCashAmount(entryAmount);
-    if (restToPay > 0 && !this.isValidDiffere()) {
+    if (restToPay > 0 && this.isValidDiffere()) {
       this.confimDialog().onConfirm(() => this.facade.confirmDiffereSale(), 'Vente différé', 'Voullez-vous regler le reste en différé ?');
     } else {
       this.finalyseSale();
@@ -200,7 +204,7 @@ export class ComptantComponent {
   manageCashPaymentMode(paymentModeControl: PaymentModeControl): void {
     const modes = this.selectModeReglementService.modeReglements();
     if (modes.length >= this.baseSaleService.maxModePayementNumber()) {
-      const amount = this.entryAmount();
+      const amount = this.entryAmount;
       modes.find((e: IPaymentMode) => e.code !== paymentModeControl.control.target.id).amount =
         this.currentSaleService.currentSale().amountToBePaid - paymentModeControl.paymentMode.amount;
 
@@ -213,7 +217,7 @@ export class ComptantComponent {
   }
 
   onLoadPrevente(): void {
-    this.modeReglementComponent().buildPreventeReglementInput();
+    this.modeReglementComponent()?.buildPreventeReglementInput();
   }
 
   print(sale: ISales | null): void {

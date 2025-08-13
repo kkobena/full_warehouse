@@ -1,6 +1,6 @@
 import { inject, Injectable } from '@angular/core';
-import { EMPTY, Observable, Subject, throwError } from 'rxjs';
-import { catchError, finalize, switchMap, tap } from 'rxjs/operators';
+import { Observable, Subject } from 'rxjs';
+import { finalize, switchMap } from 'rxjs/operators';
 import { HttpResponse } from '@angular/common/http';
 import { FinalyseSale, ISales, Sales, SaveResponse } from '../../../../shared/model/sales.model';
 import { ISalesLine } from '../../../../shared/model/sales-line.model';
@@ -42,7 +42,13 @@ export class ComptantFacadeService {
     if (!this.currentSaleService.currentSale().customerId) {
       this.openUninsuredCustomerSubject.next({ isVenteDefferee: true, putsOnStandby: false });
     } else {
-      this.finalizeSale(false, 0, this.currentSaleService.currentSale().commentaire, this.currentSaleService.currentSale().avoir, this.currentSaleService.currentSale().payments);
+      this.finalizeSale(
+        false,
+        0,
+        this.currentSaleService.currentSale().commentaire,
+        this.currentSaleService.currentSale().avoir,
+        this.currentSaleService.currentSale().payments,
+      );
     }
   }
 
@@ -158,6 +164,7 @@ export class ComptantFacadeService {
   }
 
   private saveCashSale(entryAmount: number): void {
+    console.warn('entrypoint', entryAmount);
     this.spinner.show();
     const currentSale = this.currentSaleService.currentSale();
     this.updateSaleAmounts(currentSale, entryAmount);

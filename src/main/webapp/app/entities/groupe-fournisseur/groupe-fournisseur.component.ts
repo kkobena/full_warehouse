@@ -1,7 +1,7 @@
-import { Component, inject, OnInit } from '@angular/core';
+import { Component, inject, OnInit, viewChild } from '@angular/core';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
-import { Router, RouterModule } from '@angular/router';
-import { ConfirmationService, LazyLoadEvent, MessageService } from 'primeng/api';
+import { RouterModule } from '@angular/router';
+import { LazyLoadEvent } from 'primeng/api';
 import { HttpHeaders, HttpResponse } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { GroupeFournisseurService } from './groupe-fournisseur.service';
@@ -11,10 +11,6 @@ import { IResponseDto } from '../../shared/util/response-dto';
 import { WarehouseCommonModule } from '../../shared/warehouse-common/warehouse-common.module';
 import { ButtonModule } from 'primeng/button';
 import { RippleModule } from 'primeng/ripple';
-import { ConfirmDialogModule } from 'primeng/confirmdialog';
-import { ToastModule } from 'primeng/toast';
-import { DialogModule } from 'primeng/dialog';
-import { FileUploadModule } from 'primeng/fileupload';
 import { ToolbarModule } from 'primeng/toolbar';
 import { TableModule } from 'primeng/table';
 
@@ -22,25 +18,25 @@ import { InputTextModule } from 'primeng/inputtext';
 import { KeyFilterModule } from 'primeng/keyfilter';
 import { TooltipModule } from 'primeng/tooltip';
 import { TextareaModule } from 'primeng/textarea';
-import { acceptButtonProps, rejectButtonProps } from '../../shared/util/modal-button-props';
 import { IconField } from 'primeng/iconfield';
 import { InputIcon } from 'primeng/inputicon';
 import { Panel } from 'primeng/panel';
-import { DialogService, DynamicDialogRef } from 'primeng/dynamicdialog';
 import { FormGroupeFournisseurComponent } from './form/form-groupe-fournisseur.component';
+import { ConfirmDialogComponent } from '../../shared/dialog/confirm-dialog/confirm-dialog.component';
+import { ToastAlertComponent } from '../../shared/toast-alert/toast-alert.component';
+import { showCommonModal } from '../sales/selling-home/sale-helper';
+import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
+import { FileUploadDialogComponent } from '../groupe-tiers-payant/file-upload-dialog/file-upload-dialog.component';
+import { SpinerService } from '../../shared/spiner.service';
+import { finalize } from 'rxjs/operators';
 
 @Component({
   selector: 'jhi-groupe-fournisseur',
   templateUrl: './groupe-fournisseur.component.html',
-  providers: [MessageService, ConfirmationService, DialogService],
   imports: [
     WarehouseCommonModule,
     ButtonModule,
     RippleModule,
-    ConfirmDialogModule,
-    ToastModule,
-    DialogModule,
-    FileUploadModule,
     ToolbarModule,
     TableModule,
     RouterModule,
@@ -53,39 +49,30 @@ import { FormGroupeFournisseurComponent } from './form/form-groupe-fournisseur.c
     IconField,
     InputIcon,
     Panel,
+    ConfirmDialogComponent,
+    ToastAlertComponent,
   ],
 })
 export class GroupeFournisseurComponent implements OnInit {
-  protected fileDialog?: boolean;
   protected responsedto!: IResponseDto;
   protected responseDialog?: boolean;
   protected entites?: IGroupeFournisseur[];
   protected totalItems = 0;
   protected itemsPerPage = ITEMS_PER_PAGE;
   protected page = 0;
-  protected selectedEl?: IGroupeFournisseur;
   protected loading = false;
   protected isSaving = false;
   protected displayDialog?: boolean;
-  private readonly router = inject(Router);
-  private readonly modalService = inject(ConfirmationService);
-  private readonly messageService = inject(MessageService);
   private readonly entityService = inject(GroupeFournisseurService);
-  private ref!: DynamicDialogRef;
-  private readonly dialogService = inject(DialogService);
-
+  private readonly confimDialog = viewChild.required<ConfirmDialogComponent>('confirmDialog');
+  private readonly alert = viewChild.required<ToastAlertComponent>('alert');
+  private readonly modalService = inject(NgbModal);
+  private readonly spinner = inject(SpinerService);
   ngOnInit(): void {
     this.loadPage();
   }
 
-  onUpload(event: any): void {
-    const formData: FormData = new FormData();
-    const file = event.files[0];
-    formData.append('importcsv', file, file.name);
-    this.uploadFileResponse(this.entityService.uploadFile(formData));
-  }
-
-  loadPage(page?: number, search?: string): void {
+  protected loadPage(page?: number, search?: string): void {
     const pageToLoad: number = page || this.page;
     const query: string = search || '';
     this.loading = true;
@@ -101,7 +88,7 @@ export class GroupeFournisseurComponent implements OnInit {
       });
   }
 
-  lazyLoading(event: LazyLoadEvent): void {
+  protected lazyLoading(event: LazyLoadEvent): void {
     this.page = event.first / event.rows;
     this.loading = true;
     this.entityService
@@ -116,109 +103,103 @@ export class GroupeFournisseurComponent implements OnInit {
       });
   }
 
-  confirmDialog(id: number): void {
-    this.modalService.confirm({
-      message: 'Voulez-vous supprimer cet enregistrement ?',
-      header: 'Confirmation',
-      icon: 'pi pi-exclamation-triangle',
-      rejectButtonProps: rejectButtonProps(),
-      acceptButtonProps: acceptButtonProps(),
-      accept: () => {
+  protected confirmDialog(id: number): void {
+    this.confimDialog().onConfirm(
+      () => {
         this.entityService.delete(id).subscribe(() => {
           this.loadPage(0);
         });
       },
-    });
+      'Confirmation',
+      'Êtes-vous sûr de vouloir supprimer cet groupe .',
+    );
   }
 
-  cancel(): void {
-    this.displayDialog = false;
-    this.fileDialog = false;
-  }
-
-  onEdit(entity: IGroupeFournisseur): void {
-    this.ref = this.dialogService.open(FormGroupeFournisseurComponent, {
-      data: { entity: entity },
-      header: `FORMULAIRE DE MODIFICATION DE ${entity.libelle}`,
-      width: '50%',
-    });
-    this.ref.onClose.subscribe((resp: IGroupeFournisseur) => {
-      if (resp) {
+  protected onEdit(entity: IGroupeFournisseur): void {
+    showCommonModal(
+      this.modalService,
+      FormGroupeFournisseurComponent,
+      {
+        entity: entity,
+        header: `FORMULAIRE DE MODIFICATION DE ${entity.libelle}`,
+      },
+      () => {
         this.loadPage();
-      }
-    });
+      },
+      'xl',
+    );
   }
 
-  delete(entity: IGroupeFournisseur): void {
+  protected delete(entity: IGroupeFournisseur): void {
     if (entity && entity.id) {
       this.confirmDelete(entity.id);
     }
   }
 
-  confirmDelete(id: number): void {
+  protected confirmDelete(id: number): void {
     this.confirmDialog(id);
   }
 
-  search(event: any): void {
+  protected search(event: any): void {
     this.loadPage(0, event.target.value);
   }
 
-  addNewEntity(): void {
-    this.ref = this.dialogService.open(FormGroupeFournisseurComponent, {
-      data: { entity: null },
-      header: 'FORMULAIRE DE CREATION DE GROUPE FOURNISSEUR ',
-      width: '50%',
-    });
-    this.ref.onClose.subscribe((resp: IGroupeFournisseur) => {
-      if (resp) {
+  protected addNewEntity(): void {
+    showCommonModal(
+      this.modalService,
+      FormGroupeFournisseurComponent,
+      {
+        entity: null,
+        header: 'FORMULAIRE DE CREATION DE GROUPE FOURNISSEUR ',
+      },
+      () => {
         this.loadPage(0);
-      }
-    });
+      },
+      'xl',
+    );
   }
 
-  showFileDialog(): void {
-    this.fileDialog = true;
+  protected showFileDialog(): void {
+    showCommonModal(
+      this.modalService,
+      FileUploadDialogComponent,
+      {},
+      result => {
+        this.spinner.show();
+        this.uploadFileResponse(this.entityService.uploadFile(result));
+      },
+      'xl',
+    );
   }
 
-  protected uploadFileResponse(result: Observable<HttpResponse<IResponseDto>>): void {
-    result.subscribe({
+  private uploadFileResponse(result: Observable<HttpResponse<IResponseDto>>): void {
+    result.pipe(finalize(() => this.spinner.hide())).subscribe({
       next: (res: HttpResponse<IResponseDto>) => this.onPocesCsvSuccess(res.body),
       error: () => this.onSaveError(),
     });
   }
 
-  protected onPocesCsvSuccess(responseDto: IResponseDto | null): void {
+  private onPocesCsvSuccess(responseDto: IResponseDto | null): void {
     if (responseDto) {
       this.responsedto = responseDto;
     }
     this.responseDialog = true;
-    this.fileDialog = false;
     this.loadPage(0);
   }
 
-  protected onSuccess(data: IGroupeFournisseur[] | null, headers: HttpHeaders, page: number): void {
+  private onSuccess(data: IGroupeFournisseur[] | null, headers: HttpHeaders, page: number): void {
     this.totalItems = Number(headers.get('X-Total-Count'));
     this.page = page;
-    this.router.navigate(['/groupe-fournisseur'], {
-      queryParams: {
-        page: this.page,
-        size: this.itemsPerPage,
-      },
-    });
     this.entites = data || [];
     this.loading = false;
   }
 
-  protected onError(): void {
+  private onError(): void {
     this.loading = false;
   }
 
-  protected onSaveError(): void {
+  private onSaveError(): void {
     this.isSaving = false;
-    this.messageService.add({
-      severity: 'info',
-      summary: 'Enregistrement',
-      detail: 'Opération effectuée avec succès',
-    });
+    this.alert().showInfo();
   }
 }

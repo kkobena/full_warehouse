@@ -1,19 +1,16 @@
-import { Component, inject, OnInit } from '@angular/core';
+import { Component, computed, inject, signal, viewChild } from '@angular/core';
 import { IResponseDto } from 'app/shared/util/response-dto';
-import { ITEMS_PER_PAGE } from 'app/shared/constants/pagination.constants';
 import { IGroupeTiersPayant } from 'app/shared/model/groupe-tierspayant.model';
 import { RouterModule } from '@angular/router';
-import { ConfirmationService, MessageService } from 'primeng/api';
 import { GroupeTiersPayantService } from 'app/entities/groupe-tiers-payant/groupe-tierspayant.service';
-import { HttpResponse } from '@angular/common/http';
-import { DialogService, DynamicDialogModule, DynamicDialogRef } from 'primeng/dynamicdialog';
+import { HttpErrorResponse, HttpResponse } from '@angular/common/http';
+import { DynamicDialogModule } from 'primeng/dynamicdialog';
 import { FormGroupeTiersPayantComponent } from 'app/entities/groupe-tiers-payant/form-groupe-tiers-payant/form-groupe-tiers-payant.component';
 import { ErrorService } from 'app/shared/error.service';
 import { Observable } from 'rxjs';
 import { WarehouseCommonModule } from '../../shared/warehouse-common/warehouse-common.module';
 import { ButtonModule } from 'primeng/button';
 import { RippleModule } from 'primeng/ripple';
-import { ConfirmDialogModule } from 'primeng/confirmdialog';
 import { ToastModule } from 'primeng/toast';
 import { DialogModule } from 'primeng/dialog';
 import { FileUploadModule } from 'primeng/fileupload';
@@ -22,20 +19,25 @@ import { TableModule } from 'primeng/table';
 import { InputTextModule } from 'primeng/inputtext';
 import { TooltipModule } from 'primeng/tooltip';
 import { FormsModule } from '@angular/forms';
-import { acceptButtonProps, rejectButtonProps } from '../../shared/util/modal-button-props';
-import { InputIcon } from 'primeng/inputicon';
-import { IconField } from 'primeng/iconfield';
-import { Panel } from 'primeng/panel';
+import { InputIconModule } from 'primeng/inputicon';
+import { IconFieldModule } from 'primeng/iconfield';
+import { PanelModule } from 'primeng/panel';
+import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
+import { showCommonModal } from '../sales/selling-home/sale-helper';
+import { ConfirmDialogComponent } from '../../shared/dialog/confirm-dialog/confirm-dialog.component';
+import { ToastAlertComponent } from '../../shared/toast-alert/toast-alert.component';
+import { toObservable, toSignal } from '@angular/core/rxjs-interop';
+import { finalize, switchMap } from 'rxjs/operators';
+import { FileUploadDialogComponent } from './file-upload-dialog/file-upload-dialog.component';
+import { SpinerService } from '../../shared/spiner.service';
 
 @Component({
   selector: 'jhi-groupe-tiers-payant',
   templateUrl: './groupe-tiers-payant.component.html',
-  providers: [MessageService, ConfirmationService, DialogService],
   imports: [
     WarehouseCommonModule,
     ButtonModule,
     RippleModule,
-    ConfirmDialogModule,
     ToastModule,
     DialogModule,
     FileUploadModule,
@@ -46,144 +48,108 @@ import { Panel } from 'primeng/panel';
     TooltipModule,
     DynamicDialogModule,
     FormsModule,
-    InputIcon,
-    IconField,
-    Panel,
+    InputIconModule,
+    IconFieldModule,
+    PanelModule,
+    ToastAlertComponent,
+    ConfirmDialogComponent,
   ],
 })
-export class GroupeTiersPayantComponent implements OnInit {
-  protected fileDialog?: boolean;
-  protected responsedto!: IResponseDto;
-  protected responseDialog?: boolean;
-  protected entites?: IGroupeTiersPayant[];
-  protected totalItems = 0;
-  protected itemsPerPage = ITEMS_PER_PAGE;
-  protected page = 0;
-  protected selectedEl?: IGroupeTiersPayant;
-  protected loading = false;
-  protected isSaving = false;
-  protected displayDialog?: boolean;
-  protected search = '';
-  private ref!: DynamicDialogRef;
+export class GroupeTiersPayantComponent {
+  protected readonly search = signal('');
+  protected readonly responsedto = signal<IResponseDto | null>(null);
+  private readonly modalService = inject(NgbModal);
   private readonly entityService = inject(GroupeTiersPayantService);
-  private readonly messageService = inject(MessageService);
-  private readonly dialogService = inject(DialogService);
-  private readonly confirmationService = inject(ConfirmationService);
   private readonly errorService = inject(ErrorService);
+  private readonly confimDialog = viewChild.required<ConfirmDialogComponent>('confirmDialog');
+  private readonly alert = viewChild.required<ToastAlertComponent>('alert');
+  private readonly reload = signal(0);
 
-  ngOnInit(): void {
-    this.load();
-  }
+  private readonly groupTiersPayantResult = toSignal(
+    toObservable(this.reload).pipe(switchMap(() => this.entityService.query({ search: this.search() }))),
+  );
 
-  load(): void {
-    this.entityService
-      .query({
-        search: this.search,
-      })
-      .subscribe((res: HttpResponse<IGroupeTiersPayant[]>) => this.onSuccess(res.body));
-  }
-
+  protected readonly entites = computed(() => this.groupTiersPayantResult()?.body ?? []);
+  protected readonly loading = computed(() => !this.groupTiersPayantResult());
+  private readonly spinner = inject(SpinerService);
   onSearch(): void {
-    this.load();
+    this.reload.set(this.reload() + 1);
   }
 
   addGroupeTiersPayant(): void {
-    this.ref = this.dialogService.open(FormGroupeTiersPayantComponent, {
-      data: { entity: null },
-      header: 'FORMULAIRE DE CREATION DE GROUPE TIERS-PAYANT ',
-      width: '50%',
-    });
-    this.ref.onClose.subscribe((resp: IGroupeTiersPayant) => {
-      if (resp) {
-        this.load();
-      }
-    });
+    showCommonModal(
+      this.modalService,
+      FormGroupeTiersPayantComponent,
+      {
+        entity: null,
+        header: 'FORMULAIRE DE CREATION DE GROUPE TIERS-PAYANT ',
+      },
+      () => {
+        this.reload.set(this.reload() + 1);
+        this.alert().showInfo('Groupe tiers-payant créé avec succès');
+      },
+      'xl',
+    );
   }
 
   showFileDialog(): void {
-    this.fileDialog = true;
+    showCommonModal(
+      this.modalService,
+      FileUploadDialogComponent,
+      {},
+      result => {
+        this.spinner.show();
+        this.uploadFileResponse(this.entityService.uploadFile(result));
+      },
+      'xl',
+    );
   }
 
   editGroupeTiersPayant(groupeTiersPyant: IGroupeTiersPayant): void {
-    this.ref = this.dialogService.open(FormGroupeTiersPayantComponent, {
-      data: { entity: groupeTiersPyant },
-      header: 'FORMULAIRE DE MODIFICATION DE GROUPE TIERS-PAYANT ',
-      width: '50%',
-    });
-    this.ref.onClose.subscribe((resp: IGroupeTiersPayant) => {
-      if (resp) {
-        this.load();
-      }
-    });
+    showCommonModal(
+      this.modalService,
+      FormGroupeTiersPayantComponent,
+      {
+        entity: groupeTiersPyant,
+        header: 'FORMULAIRE DE MODIFICATION DE GROUPE TIERS-PAYANT ',
+      },
+      () => {
+        this.reload.set(this.reload() + 1);
+        this.alert().showInfo('Groupe tiers-payant mis à jour avec succès');
+      },
+      'xl',
+    );
   }
 
   delete(groupeTiersPyant: IGroupeTiersPayant): void {
-    this.entityService.delete(groupeTiersPyant.id).subscribe(
-      () => this.load(),
-      err => this.onSaveError(err),
-    );
-  }
-
-  onConfirmDelete(groupeTiersPyant: IGroupeTiersPayant): void {
-    this.confirmationService.confirm({
-      message: 'Voulez-vous vraiment supprimer ce groupe ?',
-      header: 'SUPPRESSION',
-      icon: 'pi pi-info-circle',
-      rejectButtonProps: rejectButtonProps(),
-      acceptButtonProps: acceptButtonProps(),
-      accept: () => this.delete(groupeTiersPyant),
-      key: 'deleteGroupe',
+    this.entityService.delete(groupeTiersPyant.id).subscribe({
+      next: () => {
+        this.reload.set(this.reload() + 1);
+        this.alert().showInfo('Groupe tiers-payant supprimé avec succès');
+      },
+      error: err => this.onSaveError(err),
     });
   }
 
-  cancel(): void {
-    this.displayDialog = false;
-    this.fileDialog = false;
+  onConfirmDelete(groupeTiersPyant: IGroupeTiersPayant): void {
+    this.confimDialog().onConfirm(() => this.delete(groupeTiersPyant), 'Suppression', 'Êtes-vous sûr de vouloir supprimer ce groupe ?');
   }
 
-  onUpload(event: any): void {
-    const formData: FormData = new FormData();
-    const file = event.files[0];
-    formData.append('importcsv', file, file.name);
-    this.uploadFileResponse(this.entityService.uploadFile(formData));
+  private uploadFileResponse(result: Observable<HttpResponse<IResponseDto>>): void {
+    result.pipe(finalize(() => this.spinner.hide())).subscribe({
+      next: res => this.onPocesCsvSuccess(res.body),
+      error: err => this.onSaveError(err),
+    });
   }
 
-  protected uploadFileResponse(result: Observable<HttpResponse<IResponseDto>>): void {
-    result.subscribe(
-      (res: HttpResponse<IResponseDto>) => this.onPocesCsvSuccess(res.body),
-      err => this.onSaveError(err),
-    );
-  }
-
-  protected onPocesCsvSuccess(responseDto: IResponseDto | null): void {
+  private onPocesCsvSuccess(responseDto: IResponseDto | null): void {
     if (responseDto) {
-      this.responsedto = responseDto;
+      this.responsedto.set(responseDto);
     }
-    this.responseDialog = true;
-    this.fileDialog = false;
-    this.load();
+    this.reload.set(this.reload() + 1);
   }
 
-  protected onSuccess(data: IGroupeTiersPayant[] | null): void {
-    this.entites = data || [];
-  }
-
-  protected onSaveError(error: any): void {
-    this.isSaving = false;
-    if (error.error?.errorKey) {
-      this.errorService.getErrorMessageTranslation(error.error.errorKey).subscribe(translatedErrorMessage => {
-        this.messageService.add({
-          severity: 'error',
-          summary: 'Erreur',
-          detail: translatedErrorMessage,
-        });
-      });
-    } else {
-      this.messageService.add({
-        severity: 'error',
-        summary: 'Erreur',
-        detail: 'Erreur interne du serveur.',
-      });
-    }
+  private onSaveError(error: HttpErrorResponse): void {
+    this.alert().showError(this.errorService.getErrorMessage(error));
   }
 }

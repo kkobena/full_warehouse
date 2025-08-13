@@ -81,11 +81,10 @@ public class GroupeFournisseurResource {
      * groupeFournisseurDTO, or with status {@code 400 (Bad Request)} if the groupeFournisseurDTO is
      * not valid, or with status {@code 500 (Internal Server Error)} if the groupeFournisseurDTO
      * couldn't be updated.
-     * @throws URISyntaxException if the Location URI syntax is incorrect.
+
      */
     @PutMapping("/groupe-fournisseurs")
-    public ResponseEntity<GroupeFournisseurDTO> updateGroupeFournisseur(@Valid @RequestBody GroupeFournisseurDTO groupeFournisseurDTO)
-        throws URISyntaxException {
+    public ResponseEntity<GroupeFournisseurDTO> updateGroupeFournisseur(@Valid @RequestBody GroupeFournisseurDTO groupeFournisseurDTO) {
         log.debug("REST request to update GroupeFournisseur : {}", groupeFournisseurDTO);
         if (groupeFournisseurDTO.getId() == null) {
             throw new BadRequestAlertException("Invalid id", ENTITY_NAME, "idnull");

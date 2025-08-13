@@ -1,24 +1,6 @@
-<p-toast position="center"></p-toast>
-<p-confirmDialog [baseZIndex]="10000" [style]="{ width: '40vw' }"></p-confirmDialog>
-<p-dialog [(visible)]="fileDialog" [focusOnShow]="false" [modal]="true" [style]="{ width: '50vw' }"
-          header="Importer un fichier">
-  <div class="ui-g form-group">
-    <p-fileupload
-      (uploadHandler)="onUpload($event)"
-      [customUpload]="true"
-      accept=".txt,.csv,.xls,.xlsx"
-      cancelLabel="Annuler"
-      chooseLabel="Importer un fichier"
-      name="importcsv"
-      uploadLabel="Enrégistrer"
-    >
-    </p-fileupload>
-  </div>
-  <ng-template #footer>
-    <p-button (click)="cancel()" class="p-mr-2" icon="pi pi-times" label="Annuler" raised="true"
-              severity="danger" type="button"></p-button>
-  </ng-template>
-</p-dialog>
+<jhi-confirm-dialog #confirmDialog></jhi-confirm-dialog>
+<jhi-toast-alert #alert></jhi-toast-alert>
+
 <p-panel header="Menu groupe fournisseurs">
   <p-toolbar>
     <div class="p-toolbar-group-left p-md-7">
@@ -42,10 +24,9 @@
                 severity="success" type="button"></p-button>
     </div>
   </p-toolbar>
-  @if (entites && entites.length > 0) {
+  @if (entites && entites?.length > 0) {
     <p-table
       (onLazyLoad)="lazyLoading($event)"
-      [(selection)]="selectedEl"
       [lazy]="true"
       [loading]="loading"
       [paginator]="true"
@@ -56,7 +37,7 @@
       selectionMode="single"
       styleClass="ui-table-cars"
     >
-      <ng-template pTemplate="header">
+      <ng-template #header>
         <tr>
           <th scope="col"><span>Libellé</span></th>
           <th scope="col"><span>Code postale</span></th>
@@ -70,7 +51,7 @@
           <th scope="col"></th>
         </tr>
       </ng-template>
-      <ng-template let-columns="columns" let-elRow pTemplate="body">
+      <ng-template let-columns="columns" let-elRow #body>
         <tr [pEditableRow]="elRow" [pSelectableRow]="elRow">
           <td>{{ elRow.libelle }}</td>
           <td>{{ elRow.addresspostale }}</td>

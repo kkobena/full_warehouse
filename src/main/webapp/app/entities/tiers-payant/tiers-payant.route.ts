@@ -6,7 +6,7 @@ import { UserRouteAccessService } from 'app/core/auth/user-route-access.service'
 export const tiersPayantRoute: Routes = [
   {
     path: '',
-    loadComponent: () => import('./tiers-payant.component').then(m => m.TiersPayantComponent),
+    loadComponent: () => import('./tiers-payant-home.component').then(m => m.TiersPayantHomeComponent),
     data: {
       authorities: [Authority.ADMIN, Authority.TIERS_PAYANT],
     },

@@ -1,20 +1,20 @@
-<p-panel header="Gestion des différés" styleClass="main-panel">
-  <div class="row entree-stock-gestion">
+<div class="container-fluid">
+  <div class="row">
     <div class="col-xl-2 col-lg-2 col-md-2 col-sm-4">
       <p-card>
         <div #nav="ngbNav" [(activeId)]="active" class="nav flex-column nav-pills" ngbNav
              orientation="vertical">
-          <ng-container ngbNavItem="liste">
-            <a class="flex-sm-fill nav-link" ngbNavLink>Les différés</a>
+          <ng-container ngbNavItem="tiers-payant">
+            <a class="flex-sm-fill nav-link" ngbNavLink>Tiers payants</a>
             <ng-template ngbNavContent>
-              <jhi-list-differes></jhi-list-differes>
+              <jhi-tiers-payant></jhi-tiers-payant>
             </ng-template>
           </ng-container>
           <p-divider layout="horizontal"></p-divider>
-          <ng-container ngbNavItem="faire-reglement">
-            <a class="flex-sm-fill nav-link" ngbNavLink>Règlements différés</a>
+          <ng-container ngbNavItem="groupe-tiers-payant">
+            <a class="flex-sm-fill nav-link" ngbNavLink>Groupe de tiers payants</a>
             <ng-template ngbNavContent>
-              <jhi-reglement-differes></jhi-reglement-differes>
+              <jhi-groupe-tiers-payant></jhi-groupe-tiers-payant>
             </ng-template>
           </ng-container>
         </div>
@@ -24,4 +24,4 @@
       <div [ngbNavOutlet]="nav"></div>
     </div>
   </div>
-</p-panel>
+</div>

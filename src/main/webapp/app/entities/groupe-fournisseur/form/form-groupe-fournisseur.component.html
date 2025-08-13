@@ -1,142 +1,153 @@
-<p-toast position="center"></p-toast>
-<!-- formulaire de creation et d edition-->
+<div class="modal-header">
+  <h4 class="modal-title">{{ header }}</h4>
+  <button (click)="cancel()" class="btn-close" data-dismiss="modal" type="button">
+    &times;
+  </button>
+</div>
 <form (ngSubmit)="save()" [formGroup]="editForm" name="editForm" novalidate role="form">
   <div class="modal-body">
-
-    <div [hidden]="!editForm.get('id')!.value" class="form-group">
-      <input class="form-control" formControlName="id" id="id" name="id" readonly type="hidden" />
-    </div>
-    <div class="ui-g form-group">
-      <label for="field_libelle">Libellé</label>
-      <div class="ui-g-12" style="margin-bottom: 10px">
-        <input
-          autocomplete="off"
-          class="form-control"
-          formControlName="libelle"
-          id="field_libelle"
-          name="libelle"
-          pInputText
-          style="width: 100%"
-        />
+    <p-card>
+      <div [hidden]="!editForm.get('id')!.value" class="form-group">
+        <input class="form-control" formControlName="id" id="id" name="id" readonly type="hidden" />
       </div>
-
-      @let libelle = editForm.get('libelle');
-      @if (libelle!.invalid && (libelle!.dirty || libelle!.touched)) {
-        <div>
-          @if (libelle?.errors?.required) {
-            <small class="form-text text-danger" style="color: red"> Ce champ est
-              obligatoire. </small>
-          }
+      <div class="ui-g form-group">
+        <label for="field_libelle">Libellé</label>
+        <div class="ui-g-12" style="margin-bottom: 10px">
+          <input #libelleInput
+                 autocomplete="off"
+                 class="form-control"
+                 formControlName="libelle"
+                 id="field_libelle"
+                 name="libelle"
+                 pInputText
+                 style="width: 100%"
+          />
         </div>
-      }
+
+        @let libelle = editForm.get('libelle');
+        @if (libelle!.invalid && (libelle!.dirty || libelle!.touched)) {
+          <div>
+            @if (libelle?.errors?.required) {
+              <small class="form-text text-danger" style="color: red"> Ce champ est
+                obligatoire. </small>
+            }
+          </div>
+        }
 
 
-    </div>
+      </div>
 
-    <div class="ui-g form-group">
-      <label for="field_urlPharmaMl">Url PharmaMl</label>
-      <div class="ui-g-12">
-        <input
-          [pKeyFilter]="blockSpace"
-          autocomplete="off"
-          formControlName="urlPharmaMl"
-          id="field_urlPharmaMl"
-          name="urlPharmaMl"
-          pInputText
-          style="width: 100%"
-          type="text"
-        />
+      <div class="ui-g form-group">
+        <label for="field_urlPharmaMl">Url PharmaMl</label>
+        <div class="ui-g-12">
+          <input
+            [pKeyFilter]="blockSpace"
+            autocomplete="off"
+            formControlName="urlPharmaMl"
+            id="field_urlPharmaMl"
+            name="urlPharmaMl"
+            pInputText
+            style="width: 100%"
+            type="text"
+          />
+        </div>
       </div>
-    </div>
 
-    <div class="ui-g form-group">
-      <label for="field_codeOfficePharmaMl">Code officine PharmaMl</label>
-      <div class="ui-g-12">
-        <input
-          [pKeyFilter]="blockSpace"
-          autocomplete="off"
-          formControlName="codeOfficePharmaMl"
-          id="field_codeOfficePharmaMl"
-          name="codeOfficePharmaMl"
-          pInputText
-          style="width: 100%"
-          type="text"
-        />
+      <div class="ui-g form-group">
+        <label for="field_codeOfficePharmaMl">Code officine PharmaMl</label>
+        <div class="ui-g-12">
+          <input
+            [pKeyFilter]="blockSpace"
+            autocomplete="off"
+            formControlName="codeOfficePharmaMl"
+            id="field_codeOfficePharmaMl"
+            name="codeOfficePharmaMl"
+            pInputText
+            style="width: 100%"
+            type="text"
+          />
+        </div>
       </div>
-    </div>
 
-    <div class="ui-g form-group">
-      <label for="field_codeRecepteurPharmaMl">Code recepteur PharmaMl</label>
-      <div class="ui-g-12">
-        <input
-          [pKeyFilter]="blockSpace"
-          autocomplete="off"
-          formControlName="codeRecepteurPharmaMl"
-          id="field_codeRecepteurPharmaMl"
-          name="codeRecepteurPharmaMl"
-          pInputText
-          style="width: 100%"
-          type="text"
-        />
+      <div class="ui-g form-group">
+        <label for="field_codeRecepteurPharmaMl">Code recepteur PharmaMl</label>
+        <div class="ui-g-12">
+          <input
+            [pKeyFilter]="blockSpace"
+            autocomplete="off"
+            formControlName="codeRecepteurPharmaMl"
+            id="field_codeRecepteurPharmaMl"
+            name="codeRecepteurPharmaMl"
+            pInputText
+            style="width: 100%"
+            type="text"
+          />
+        </div>
       </div>
-    </div>
-    <div class="ui-g form-group">
-      <label for="field_odre">Orde de priorité</label>
-      <div class="ui-g-12">
-        <input
-          autocomplete="off"
-          formControlName="odre"
-          id="field_odre"
-          name="odre"
-          pInputText
-          pKeyFilter="int"
-          style="width: 100%"
-          type="text"
-        />
+      <div class="ui-g form-group">
+        <label for="field_odre">Orde de priorité</label>
+        <div class="ui-g-12">
+          <input
+            autocomplete="off"
+            formControlName="odre"
+            id="field_odre"
+            name="odre"
+            pInputText
+            pKeyFilter="int"
+            style="width: 100%"
+            type="text"
+          />
+        </div>
       </div>
-    </div>
-    <div class="ui-g form-group">
-      <label for="field_tel">Téléphone</label>
-      <div class="ui-g-12">
-        <input
-          autocomplete="off"
-          formControlName="tel"
-          id="field_tel"
-          name="tel"
-          pInputText
-          pKeyFilter="int"
-          style="width: 100%"
-          type="text"
-        />
+      <div class="ui-g form-group">
+        <label for="field_tel">Téléphone</label>
+        <div class="ui-g-12">
+          <input
+            autocomplete="off"
+            formControlName="tel"
+            id="field_tel"
+            name="tel"
+            pInputText
+            pKeyFilter="int"
+            style="width: 100%"
+            type="text"
+          />
+        </div>
       </div>
-    </div>
-    <div class="ui-g form-group">
-      <label for="field_addresspostale">Adresse postale</label>
-      <div class="ui-g-12">
-        <input
-          autocomplete="off"
-          formControlName="addresspostale"
-          id="field_addresspostale"
-          name="addresspostale"
-          pInputText
-          style="width: 100%"
-          type="text"
-        />
+      <div class="ui-g form-group">
+        <label for="field_addresspostale">Adresse postale</label>
+        <div class="ui-g-12">
+          <input
+            autocomplete="off"
+            formControlName="addresspostale"
+            id="field_addresspostale"
+            name="addresspostale"
+            pInputText
+            style="width: 100%"
+            type="text"
+          />
+        </div>
       </div>
-    </div>
+    </p-card>
+
   </div>
   <div class="modal-footer">
     <p-button
       (click)="save()"
       [disabled]="editForm.invalid || isSaving"
-      class="p-mr-2"
+      [raised]="true"
+      class="mr-2"
       icon="pi pi-check"
       label="Enregistrer"
-      severity="success"
+      severity="primary"
       type="submit"
     ></p-button>
-    <p-button (click)="cancel()" class="p-mr-2" icon="pi pi-times" label="Annuler" severity="danger"
+    <p-button (click)="cancel()" [raised]="true" icon="pi pi-times" label="Annuler"
+              severity="secondary"
               type="button"></p-button>
+
+
   </div>
 
 </form>
+<jhi-toast-alert #alert></jhi-toast-alert>

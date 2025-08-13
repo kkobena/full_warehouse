@@ -1,49 +1,47 @@
-import { Component, inject, OnInit } from '@angular/core';
+import { AfterViewInit, Component, ElementRef, inject, OnInit, viewChild } from '@angular/core';
 import { FormsModule, ReactiveFormsModule, UntypedFormBuilder, Validators } from '@angular/forms';
 import { GroupeTiersPayant, IGroupeTiersPayant } from 'app/shared/model/groupe-tierspayant.model';
 import { ErrorService } from 'app/shared/error.service';
-import { DynamicDialogConfig, DynamicDialogModule, DynamicDialogRef } from 'primeng/dynamicdialog';
-import { ConfirmationService, MessageService } from 'primeng/api';
 import { GroupeTiersPayantService } from 'app/entities/groupe-tiers-payant/groupe-tierspayant.service';
 import { Observable } from 'rxjs';
 import { HttpResponse } from '@angular/common/http';
 import { WarehouseCommonModule } from '../../../shared/warehouse-common/warehouse-common.module';
-import { ToastModule } from 'primeng/toast';
-import { DropdownModule } from 'primeng/dropdown';
 import { ButtonModule } from 'primeng/button';
 import { InputTextModule } from 'primeng/inputtext';
 import { RippleModule } from 'primeng/ripple';
 import { KeyFilterModule } from 'primeng/keyfilter';
 import { OrdreTrisFacture } from '../../../shared/model/tierspayant.model';
 import { TiersPayantService } from '../../tiers-payant/tierspayant.service';
+import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
+import { ToastAlertComponent } from '../../../shared/toast-alert/toast-alert.component';
+import { Card } from 'primeng/card';
+import { Select } from 'primeng/select';
 
 @Component({
   selector: 'jhi-form-groupe-tiers-payant',
   templateUrl: './form-groupe-tiers-payant.component.html',
-  providers: [MessageService, ConfirmationService],
+  styleUrls: ['./form-groupe-tiers-payant.component.scss'],
   imports: [
     WarehouseCommonModule,
     FormsModule,
     ReactiveFormsModule,
-    ToastModule,
-    DropdownModule,
     ButtonModule,
     InputTextModule,
     RippleModule,
     KeyFilterModule,
-    DynamicDialogModule,
+    ToastAlertComponent,
+    Card,
+    Select,
   ],
 })
-export class FormGroupeTiersPayantComponent implements OnInit {
-  protected ref = inject(DynamicDialogRef);
-  protected config = inject(DynamicDialogConfig);
-  protected entity?: IGroupeTiersPayant;
+export class FormGroupeTiersPayantComponent implements OnInit, AfterViewInit {
+  header: string = '';
+  entity?: IGroupeTiersPayant;
   protected ordreTrisFacture: OrdreTrisFacture[] = [];
   protected isSaving = false;
   protected isValid = true;
-  protected errorService = inject(ErrorService);
-  protected groupeTiersPayantService = inject(GroupeTiersPayantService);
-  private fb = inject(UntypedFormBuilder);
+  protected fb = inject(UntypedFormBuilder);
+  protected name = viewChild.required<ElementRef>('name');
   protected editForm = this.fb.group({
     id: [],
     name: [null, [Validators.required]],
@@ -52,17 +50,23 @@ export class FormGroupeTiersPayantComponent implements OnInit {
     telephoneFixe: [],
     ordreTrisFacture: [],
   });
-  private readonly messageService = inject(MessageService);
+  private readonly errorService = inject(ErrorService);
+  private readonly groupeTiersPayantService = inject(GroupeTiersPayantService);
   private readonly tiersPayantService = inject(TiersPayantService);
-
+  private readonly activeModal = inject(NgbActiveModal);
+  private readonly alert = viewChild.required<ToastAlertComponent>('alert');
   ngOnInit(): void {
-    this.entity = this.config.data.entity;
     if (this.entity) {
       this.updateForm(this.entity);
     }
     this.loadOrdreTrisFacture();
   }
 
+  ngAfterViewInit(): void {
+    setTimeout(() => {
+      this.name().nativeElement.focus();
+    }, 100);
+  }
   loadOrdreTrisFacture(): void {
     this.tiersPayantService.getOrdreTrisFacture().subscribe(res => {
       this.ordreTrisFacture = res.body || [];
@@ -81,7 +85,7 @@ export class FormGroupeTiersPayantComponent implements OnInit {
   }
 
   cancel(): void {
-    this.ref.close();
+    this.activeModal.dismiss();
   }
 
   save(): void {
@@ -115,15 +119,12 @@ export class FormGroupeTiersPayantComponent implements OnInit {
 
   protected onSaveSuccess(groupeTiersPayant: IGroupeTiersPayant | null): void {
     this.isSaving = false;
-    this.ref.close(groupeTiersPayant);
+    this.alert().showInfo('Opération effectuée avec succès');
+    this.activeModal.close(groupeTiersPayant);
   }
 
   protected onSaveError(error: any): void {
     this.isSaving = false;
-    this.messageService.add({
-      severity: 'error',
-      summary: 'Erreur',
-      detail: this.errorService.getErrorMessage(error),
-    });
+    this.alert().showError(this.errorService.getErrorMessage(error));
   }
 }

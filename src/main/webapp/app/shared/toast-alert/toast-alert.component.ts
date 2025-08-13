@@ -29,11 +29,11 @@ export class ToastAlertComponent {
     });
   }
 
-  showInfo(message: string, title?: string): void {
+  showInfo(message?: string, title?: string): void {
     this.messageService.add({
       severity: 'info',
       summary: title || 'Information',
-      detail: message,
+      detail: message || 'Opération effectuée avec succès',
     });
   }
 

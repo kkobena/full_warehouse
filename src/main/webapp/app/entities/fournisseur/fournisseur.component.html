@@ -1,50 +1,32 @@
-<p-toast position="center"></p-toast>
-<p-confirmDialog [baseZIndex]="10000" [style]="{ width: '40vw' }"> </p-confirmDialog>
-<p-dialog [(visible)]="fileDialog" [focusOnShow]="false" [modal]="true" [style]="{ width: '50vw' }" header="Importer un fichier">
-  <div class="ui-g form-group">
-    <p-fileupload
-      (uploadHandler)="onUpload($event)"
-      [customUpload]="true"
-      accept=".txt,.csv,.xls,.xlsx"
-      cancelLabel="Annuler"
-      cancelStyleClass="p-button-danger"
-      chooseLabel="Importer un fichier"
-      name="importcsv"
-      uploadLabel="Enrégistrer"
-      uploadStyleClass="p-button-info"
-    >
-    </p-fileupload>
-  </div>
-  <ng-template #footer>
-    <p-button (click)="cancel()" [raised]="true" icon="pi pi-times" label="Annuler" severity="danger" type="button"></p-button>
-  </ng-template>
-</p-dialog>
-<p-panel header="Menu grossistes">
+<jhi-confirm-dialog #confirmDialog></jhi-confirm-dialog>
+<jhi-toast-alert #alert></jhi-toast-alert>
+<p-panel header="Menu fournisseurs">
   <p-toolbar>
     <div class="p-toolbar-group-left p-md-7">
       <p-icon-field>
         <p-inputicon styleClass="pi pi-search" />
-        <input (keyup.enter)="search($event)" pInputText placeholder="Taper pour rechercher" style="width: 98%" type="text" />
+        <input (keyup.enter)="search($event)" pInputText placeholder="Taper pour rechercher"
+               style="width: 98%" type="text" />
       </p-icon-field>
     </div>
     <div class="p-toolbar-group-right">
-      <p-button
-        (click)="showFileDialog()"
-        [raised]="true"
-        class="mr-2"
-        icon="pi pi-upload"
-        label="Importer"
-        severity="help"
-        type="button"
+      <p-button (click)="showFileDialog()"
+
+                [raised]="true"
+                class="mr-2"
+                icon="pi pi-upload"
+                label="Importer"
+                severity="help"
+                type="button"
       ></p-button>
-      <p-button (click)="addNewEntity()" [raised]="true" icon="pi pi-check" label="Nouveau" severity="success" type="button"></p-button>
+      <p-button (click)="addNewEntity()" [raised]="true" icon="pi pi-check" label="Nouveau"
+                severity="success" type="button"></p-button>
     </div>
   </p-toolbar>
 
-  @if (entites && entites.length > 0) {
+  @if (entites && entites?.length > 0) {
     <p-table
       (onLazyLoad)="lazyLoading($event)"
-      [(selection)]="selectedEl"
       [lazy]="true"
       [loading]="loading"
       [paginator]="true"
@@ -56,7 +38,7 @@
       selectionMode="single"
       styleClass="ui-table-cars"
     >
-      <ng-template pTemplate="header">
+      <ng-template #header>
         <tr>
           <th scope="col" style="width: 5%"><span>Code</span></th>
           <th scope="col" style="width: 28%"><span>Libellé</span></th>
@@ -68,7 +50,7 @@
           <th scope="col" style="width: 8%"></th>
         </tr>
       </ng-template>
-      <ng-template let-columns="columns" let-elRow pTemplate="body">
+      <ng-template let-columns="columns" let-elRow #body>
         <tr [pEditableRow]="elRow" [pSelectableRow]="elRow">
           <td>{{ elRow.code }}</td>
           <td>{{ elRow.libelle }}</td>
@@ -108,142 +90,4 @@
   }
 </p-panel>
 
-<!-- formulaire de creation et d edition-->
-<form (ngSubmit)="save()" [formGroup]="editForm" name="editForm" novalidate role="form">
-  <p-dialog
-    [(visible)]="displayDialog"
-    [focusOnShow]="false"
-    [modal]="true"
-    [style]="{ width: '650px' }"
-    header="Créer ou éditer un grossiste"
-  >
-    <p-toast [style]="{ marginTop: '30px' }" position="top-center"></p-toast>
-    <ngx-spinner [fullScreen]="false" bdColor="rgba(255,255,255,0.5)" color="#f13151" size="medium" type="timer"> </ngx-spinner>
 
-    <ng-template #content>
-      <div [hidden]="!editForm.get('id')!.value" class="form-group">
-        <input class="form-control" formControlName="id" id="id" name="id" readonly type="hidden" />
-      </div>
-      <div class="ui-g form-group">
-        <label for="field_libelle">Libellé</label>
-        <div class="ui-g-12">
-          <input
-            autocomplete="off"
-            class="form-control"
-            formControlName="libelle"
-            id="field_libelle"
-            name="libelle"
-            pInputText
-            style="width: 100%"
-          />
-        </div>
-        @let libelle = editForm.get('libelle');
-        @if (libelle!.invalid && (libelle!.dirty || libelle!.touched)) {
-          <div>
-            @if (libelle?.errors?.required) {
-              <small class="form-text text-danger" style="color: red"> Ce champ est obligatoire. </small>
-            }
-          </div>
-        }
-      </div>
-      <div class="form-row">
-        <div class="form-group col-md-5">
-          <label for="field_code">Code</label>
-          <div class="ui-g-12">
-            <input
-              autocomplete="off"
-              class="form-control"
-              formControlName="code"
-              id="field_code"
-              name="code"
-              pKeyFilter="alphanum"
-              pInputText
-              style="width: 100%"
-              type="text"
-            />
-          </div>
-          @let code = editForm.get('code');
-          @if (code!.invalid && (code!.dirty || code!.touched)) {
-            <div>
-              @if (code?.errors?.required) {
-                <small class="form-text text-danger" style="color: red"> Ce champ est obligatoire. </small>
-              }
-            </div>
-          }
-        </div>
-        <div class="form-group col-md-7">
-          <label for="field_groupeFournisseur">Groupe</label>
-          <div class="ui-g-12" style="margin-bottom: 10px">
-            <p-dropdown
-              [options]="groupes"
-              [style]="{ width: '100%' }"
-              appendTo="body"
-              formControlName="groupeFournisseurId"
-              id="field_groupeFournisseur"
-              name="groupeFournisseurId"
-              placeholder="Séléctionner un groupe "
-            >
-            </p-dropdown>
-          </div>
-        </div>
-      </div>
-      <div class="form-row">
-        <div class="form-group col-md-6">
-          <label for="field_mobile">Mobile</label>
-          <div class="ui-g-12" style="margin-bottom: 10px">
-            <input
-              autocomplete="off"
-              formControlName="mobile"
-              id="field_mobile"
-              name="mobile"
-              pInputText
-              pKeyFilter="int"
-              style="width: 100%"
-              type="text"
-            />
-          </div>
-        </div>
-        <div class="form-group col-md-6">
-          <label for="field_tel">Téléphone</label>
-          <div class="ui-g-12" style="margin-bottom: 10px">
-            <input
-              autocomplete="off"
-              formControlName="phone"
-              id="field_tel"
-              name="phone"
-              pInputText
-              pKeyFilter="int"
-              style="width: 100%"
-              type="text"
-            />
-          </div>
-        </div>
-      </div>
-      <div class="ui-g form-group">
-        <label for="field_addresspostale">Adresse postale</label>
-        <div class="ui-g-12" style="margin-bottom: 10px">
-          <input
-            autocomplete="off"
-            formControlName="addresspostale"
-            id="field_addresspostale"
-            name="addresspostale"
-            pInputText
-            style="width: 100%"
-            type="text"
-          />
-        </div>
-      </div>
-    </ng-template>
-    <ng-template #footer>
-      <p-button
-        [disabled]="editForm.invalid || isSaving"
-        class="p-mr-2"
-        icon="pi pi-check"
-        label="Enregistrer"
-        severity="success"
-        type="submit"
-      ></p-button>
-      <p-button (click)="cancel()" class="p-mr-2" icon="pi pi-times" label="Annuler" severity="danger" type="button"></p-button>
-    </ng-template>
-  </p-dialog>
-</form>

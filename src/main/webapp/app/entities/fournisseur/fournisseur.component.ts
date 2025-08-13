@@ -1,110 +1,75 @@
-import { Component, OnInit, ViewEncapsulation, inject } from '@angular/core';
-import { FormsModule, ReactiveFormsModule, UntypedFormBuilder, Validators } from '@angular/forms';
+import { Component, inject, OnInit, viewChild } from '@angular/core';
+import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { FournisseurService } from './fournisseur.service';
-import { ActivatedRoute, Router, RouterModule } from '@angular/router';
-import { ConfirmationService, LazyLoadEvent, MessageService, SelectItem } from 'primeng/api';
-import { HttpHeaders, HttpResponse } from '@angular/common/http';
-import { Observable } from 'rxjs';
+import { RouterModule } from '@angular/router';
+import { LazyLoadEvent, SelectItem } from 'primeng/api';
+import { HttpErrorResponse, HttpHeaders, HttpResponse } from '@angular/common/http';
+
 import { GroupeFournisseurService } from '../groupe-fournisseur/groupe-fournisseur.service';
-import { NgxSpinnerModule, NgxSpinnerService } from 'ngx-spinner';
 import { IResponseDto } from '../../shared/util/response-dto';
-import { Fournisseur, IFournisseur } from '../../shared/model/fournisseur.model';
+import { IFournisseur } from '../../shared/model/fournisseur.model';
 import { ITEMS_PER_PAGE } from '../../shared/constants/pagination.constants';
 import { IGroupeFournisseur } from '../../shared/model/groupe-fournisseur.model';
 import { WarehouseCommonModule } from '../../shared/warehouse-common/warehouse-common.module';
 import { ButtonModule } from 'primeng/button';
 import { RippleModule } from 'primeng/ripple';
-import { ConfirmDialogModule } from 'primeng/confirmdialog';
-import { ToastModule } from 'primeng/toast';
-import { DialogModule } from 'primeng/dialog';
-import { FileUploadModule } from 'primeng/fileupload';
 import { ToolbarModule } from 'primeng/toolbar';
 import { TableModule } from 'primeng/table';
 import { InputTextModule } from 'primeng/inputtext';
-import { DropdownModule } from 'primeng/dropdown';
 import { KeyFilterModule } from 'primeng/keyfilter';
 import { TooltipModule } from 'primeng/tooltip';
-import { acceptButtonProps, rejectButtonProps } from '../../shared/util/modal-button-props';
+
 import { IconFieldModule } from 'primeng/iconfield';
 import { InputIconModule } from 'primeng/inputicon';
 import { Panel } from 'primeng/panel';
+import { ConfirmDialogComponent } from '../../shared/dialog/confirm-dialog/confirm-dialog.component';
+import { showCommonModal } from '../sales/selling-home/sale-helper';
+import { FournisseurUpdateComponent } from './fournisseur-update.component';
+import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
+import { ToastAlertComponent } from '../../shared/toast-alert/toast-alert.component';
+import { FileUploadDialogComponent } from '../groupe-tiers-payant/file-upload-dialog/file-upload-dialog.component';
+import { SpinerService } from '../../shared/spiner.service';
+import { Observable } from 'rxjs';
+import { finalize } from 'rxjs/operators';
+import { ErrorService } from '../../shared/error.service';
 
 @Component({
   selector: 'jhi-fournisseur',
   templateUrl: './fournisseur.component.html',
-  styles: [
-    `
-      body .ui-inputtext {
-        width: 100% !important;
-      }
-
-      body .ui-dropdown {
-        width: 100% !important;
-      }
-    `,
-  ],
-  providers: [MessageService, ConfirmationService],
-  encapsulation: ViewEncapsulation.None,
   imports: [
     WarehouseCommonModule,
     ButtonModule,
     RippleModule,
-    ConfirmDialogModule,
-    ToastModule,
-    DialogModule,
-    FileUploadModule,
     ToolbarModule,
     TableModule,
     RouterModule,
-    NgxSpinnerModule,
     FormsModule,
     ReactiveFormsModule,
     InputTextModule,
-    DropdownModule,
     KeyFilterModule,
     TooltipModule,
     IconFieldModule,
     InputIconModule,
     Panel,
+    ConfirmDialogComponent,
+    ToastAlertComponent,
   ],
 })
 export class FournisseurComponent implements OnInit {
-  protected entityService = inject(FournisseurService);
-  protected activatedRoute = inject(ActivatedRoute);
-  protected router = inject(Router);
-  protected modalService = inject(ConfirmationService);
-  private fb = inject(UntypedFormBuilder);
-  protected groupeFournisseurService = inject(GroupeFournisseurService);
-  private spinner = inject(NgxSpinnerService);
-  private messageService = inject(MessageService);
-
-  fileDialog?: boolean;
-  responseDialog?: boolean;
-  responsedto!: IResponseDto;
-  entites?: IFournisseur[];
-  totalItems = 0;
-  itemsPerPage = ITEMS_PER_PAGE;
-  page = 0;
-  selectedEl?: IFournisseur;
-  loading = false;
-  isSaving = false;
-  displayDialog?: boolean;
-  groupes: SelectItem[] = [];
-  editForm = this.fb.group({
-    id: [],
-    code: [null, [Validators.required]],
-    libelle: [null, [Validators.required]],
-    addresspostale: [],
-    phone: [],
-    mobile: [],
-    groupeFournisseurId: [],
-  });
-
-  /** Inserted by Angular inject() migration for backwards compatibility */
-  constructor(...args: unknown[]);
-
-  constructor() {}
-
+  protected responsedto!: IResponseDto;
+  protected entites: IFournisseur[] = [];
+  protected totalItems = 0;
+  protected itemsPerPage = ITEMS_PER_PAGE;
+  protected page = 0;
+  protected loading = false;
+  protected groupes: SelectItem[] = [];
+  private readonly entityService = inject(FournisseurService);
+  private readonly groupeFournisseurService = inject(GroupeFournisseurService);
+  private readonly confimDialog = viewChild.required<ConfirmDialogComponent>('confirmDialog');
+  private readonly alert = viewChild.required<ToastAlertComponent>('alert');
+  private readonly modalService = inject(NgbModal);
+  private readonly spinner = inject(SpinerService);
+  private readonly errorService = inject(ErrorService);
   ngOnInit(): void {
     this.loadPage();
     this.groupeFournisseurService
@@ -120,7 +85,7 @@ export class FournisseurComponent implements OnInit {
       });
   }
 
-  loadPage(page?: number, search?: string): void {
+  protected loadPage(page?: number, search?: string): void {
     const pageToLoad: number = page || this.page;
     const query: string = search || '';
     this.loading = true;
@@ -132,188 +97,108 @@ export class FournisseurComponent implements OnInit {
       })
       .subscribe({
         next: (res: HttpResponse<IFournisseur[]>) => this.onSuccess(res.body, res.headers, pageToLoad),
-        error: () => this.onError(),
+        error: err => this.onError(err),
       });
   }
 
-  lazyLoading(event: LazyLoadEvent): void {
+  protected lazyLoading(event: LazyLoadEvent): void {
     this.page = event.first / event.rows;
     this.loading = true;
     this.entityService
       .query({
         page: this.page,
         size: event.rows,
-        search: '',
       })
       .subscribe({
         next: (res: HttpResponse<IFournisseur[]>) => this.onSuccess(res.body, res.headers, this.page),
-        error: () => this.onError(),
+        error: err => this.onError(err),
       });
   }
 
-  confirmDialog(id: number): void {
-    this.modalService.confirm({
-      message: 'Voulez-vous supprimer cet enregistrement ?',
-      header: 'Confirmation',
-      icon: 'pi pi-exclamation-triangle',
-      rejectButtonProps: rejectButtonProps(),
-      acceptButtonProps: acceptButtonProps(),
-      accept: () => {
-        this.entityService.delete(id).subscribe(() => {
-          this.loadPage(0);
+  protected confirmDialog(id: number): void {
+    this.confimDialog().onConfirm(
+      () => {
+        this.entityService.delete(id).subscribe({
+          next: () => {
+            this.loadPage(0);
+          },
+          error: err => this.onError(err),
         });
       },
-    });
+      'Confirmation',
+      'Êtes-vous sûr de vouloir supprimer cet fournisseur ?',
+    );
   }
 
-  updateForm(entity: IFournisseur): void {
-    this.editForm.patchValue({
-      id: entity.id,
-      code: entity.code,
-      libelle: entity.libelle,
-      groupeFournisseurId: entity.groupeFournisseurId,
-      addresspostale: entity.addressePostal,
-      phone: entity.phone,
-      mobile: entity.mobile,
-    });
+  protected addNewEntity(): void {
+    showCommonModal(
+      this.modalService,
+      FournisseurUpdateComponent,
+      { fournisseur: null, header: 'Ajout de nouveau fournisseur' },
+      () => {
+        this.loadPage();
+      },
+      'xl',
+    );
   }
 
-  save(): void {
-    this.isSaving = true;
-    this.spinner.show();
-    const entity = this.createFromForm();
-    if (entity.id !== undefined) {
-      this.subscribeToSaveResponse(this.entityService.update(entity));
-    } else {
-      this.subscribeToSaveResponse(this.entityService.create(entity));
-    }
+  protected onEdit(entity: IFournisseur): void {
+    showCommonModal(
+      this.modalService,
+      FournisseurUpdateComponent,
+      { fournisseur: entity, header: `Modification du fournisseur [ ${entity.libelle} ]` },
+      () => {
+        this.loadPage();
+      },
+      'xl',
+    );
   }
 
-  cancel(): void {
-    this.displayDialog = false;
-    this.fileDialog = false;
-    this.spinner.hide();
-  }
-
-  addNewEntity(): void {
-    this.updateForm(new Fournisseur());
-    this.displayDialog = true;
-  }
-
-  onEdit(entity: IFournisseur): void {
-    this.updateForm(entity);
-    this.displayDialog = true;
-  }
-
-  delete(entity: IFournisseur): void {
+  protected delete(entity: IFournisseur): void {
     if (entity && entity.id) {
       this.confirmDelete(entity.id);
     }
   }
 
-  confirmDelete(id: number): void {
+  protected confirmDelete(id: number): void {
     this.confirmDialog(id);
   }
 
-  trackById(index: number, item: IGroupeFournisseur): any {
-    return item.id;
-  }
-
-  onFilterTable(event: any): void {
-    if (event.key === 'Enter') {
-      this.loadPage(0, event.target.value);
-    }
-  }
-
-  search(event: any): void {
+  protected search(event: any): void {
     this.loadPage(0, event.target.value);
   }
 
-  showFileDialog(): void {
-    this.fileDialog = true;
+  protected showFileDialog(): void {
+    showCommonModal(
+      this.modalService,
+      FileUploadDialogComponent,
+      {},
+      result => {
+        this.spinner.show();
+        this.uploadFileResponse(this.entityService.uploadFile(result));
+      },
+      'xl',
+    );
   }
 
-  onUpload(event: any): void {
-    const formData: FormData = new FormData();
-    const file = event.files[0];
-    formData.append('importcsv', file, file.name);
-    this.uploadFileResponse(this.entityService.uploadFile(formData));
+  private uploadFileResponse(result: Observable<HttpResponse<IResponseDto>>): void {
+    result.pipe(finalize(() => this.spinner.hide())).subscribe({
+      next: (res: HttpResponse<IResponseDto>) => {
+        this.alert().showInfo('Fichier importé avec succès');
+      },
+      error: err => this.onError(err),
+    });
   }
 
-  protected onSuccess(data: IFournisseur[] | null, headers: HttpHeaders, page: number): void {
+  private onSuccess(data: IFournisseur[] | null, headers: HttpHeaders, page: number): void {
     this.totalItems = Number(headers.get('X-Total-Count'));
     this.page = page;
-    this.router.navigate(['/fournisseur'], {
-      queryParams: {
-        page: this.page,
-        size: this.itemsPerPage,
-      },
-    });
     this.entites = data || [];
     this.loading = false;
   }
 
-  protected onError(): void {
+  private onError(error: HttpErrorResponse): void {
     this.loading = false;
-  }
-
-  protected onSaveSuccess(): void {
-    this.isSaving = false;
-    this.displayDialog = false;
-    this.loadPage(0);
-    this.spinner.hide();
-    this.messageService.add({
-      severity: 'success',
-      summary: 'Success',
-      detail: 'Enregistrement effectué avec success',
-    });
-  }
-
-  protected onSaveError(): void {
-    this.isSaving = false;
-    this.spinner.hide();
-    this.messageService.add({
-      severity: 'error',
-      summary: 'Erreur',
-      detail: 'Enregistrement a échoué',
-    });
-  }
-
-  protected subscribeToSaveResponse(result: Observable<HttpResponse<IFournisseur>>): void {
-    result.subscribe({
-      next: () => this.onSaveSuccess(),
-      error: () => this.onSaveError(),
-    });
-  }
-
-  protected uploadFileResponse(result: Observable<HttpResponse<IResponseDto>>): void {
-    result.subscribe({
-      next: res => this.onPocesCsvSuccess(res.body),
-      error: () => this.onError(),
-    });
-  }
-
-  protected onPocesCsvSuccess(responseDto: IResponseDto | null): void {
-    if (responseDto) {
-      this.responsedto = responseDto;
-    }
-    this.responseDialog = true;
-    this.fileDialog = false;
-    this.loadPage(0);
-  }
-
-  private createFromForm(): IFournisseur {
-    return {
-      ...new Fournisseur(),
-      id: this.editForm.get(['id']).value,
-      code: this.editForm.get(['code']).value,
-      libelle: this.editForm.get(['libelle']).value,
-      groupeFournisseurId: this.editForm.get(['groupeFournisseurId']).value,
-      addressePostal: this.editForm.get(['addresspostale']).value,
-      // numFaxe: this.editForm.get(['numFaxe'])!.value,
-      phone: this.editForm.get(['phone']).value,
-      mobile: this.editForm.get(['mobile']).value,
-      // site: this.editForm.get(['site'])!.value
-    };
+    this.alert().showError(this.errorService.getErrorMessage(error));
   }
 }

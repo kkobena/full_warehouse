@@ -5,7 +5,7 @@ import { UserRouteAccessService } from 'app/core/auth/user-route-access.service'
 const fournisseurRoute: Routes = [
   {
     path: '',
-    loadComponent: () => import('./fournisseur.component').then(m => m.FournisseurComponent),
+    loadComponent: () => import('./fournisseur-home.component').then(m => m.FournisseurHomeComponent),
     data: {
       authorities: [Authority.ADMIN, Authority.FOURNISSEUR],
       defaultSort: 'id,asc',

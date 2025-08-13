@@ -1,38 +1,15 @@
-<p-confirmDialog [baseZIndex]="10000" [style]="{ width: '40vw' }" key="deleteGroupe"> </p-confirmDialog>
-<p-dialog [(visible)]="fileDialog" [focusOnShow]="false" [modal]="true" [style]="{ width: '50vw' }" header="Importer un fichier">
-  <div class="ui-g form-group">
-    <p-fileupload
-      (uploadHandler)="onUpload($event)"
-      [customUpload]="true"
-      accept=".txt,.csv,.xls,.xlsx"
-      cancelLabel="Annuler"
-      cancelStyleClass="p-button-danger"
-      chooseLabel="Importer un fichier"
-      name="importcsv"
-      uploadLabel="Enrégistrer"
-      uploadStyleClass="p-button-info"
-    >
-    </p-fileupload>
-  </div>
-  <ng-template #footer>
-    <p-button (click)="cancel()" icon="pi pi-times" label="Annuler" raised="true" severity="danger" type="button"></p-button>
-  </ng-template>
-</p-dialog>
-<p-dialog [(visible)]="responseDialog" [focusOnShow]="false" [modal]="true" [style]="{ width: '500px' }" header="Message">
-  <div class="ui-g form-group">
-    <p>
-      Le nombre de lignes insérées <span style="font-weight: 900; margin-left: 10px"> {{ responsedto?.size }}</span>
-    </p>
-  </div>
-</p-dialog>
-<p-panel header="Menu groupe tiers payant">
+<jhi-confirm-dialog #confirmDialog></jhi-confirm-dialog>
+<jhi-toast-alert #alert></jhi-toast-alert>
+
+<p-panel header="Menu groupe de tiers payant">
   <p-toolbar>
     <ng-template #start>
       <p-iconfield>
         <p-inputicon styleClass="pi pi-search" />
         <input
           (keyup.enter)="onSearch()"
-          [(ngModel)]="search"
+          (ngModelChange)="search.set($event)"
+          [ngModel]="search()"
           pInputText
           placeholder="Taper pour rechercher"
           style="width: 98%"
@@ -61,53 +38,55 @@
     </ng-template>
   </p-toolbar>
 
-  @if (entites && entites.length > 0) {
-    <p-table [paginator]="true" [rows]="10" [value]="entites" styleClass="mt-2">
-      <ng-template pTemplate="header">
-        <tr>
-          <th scope="col"><span>Libellé</span></th>
-          <th scope="col"><span>Ordre de tris</span></th>
-          <th scope="col"><span>Adresse</span></th>
-          <th scope="col"><span>Téléphone</span></th>
-          <th scope="col"><span>Téléphone fixe</span></th>
-          <th scope="col"></th>
-        </tr>
-      </ng-template>
-      <ng-template let-columns="columns" let-groupeTiersPayant pTemplate="body">
-        <tr [pSelectableRow]="selectedEl">
-          <td>{{ groupeTiersPayant.name }}</td>
-          <td>{{ groupeTiersPayant.ordreTrisFacture }}</td>
-          <td>{{ groupeTiersPayant.adresse }}</td>
-          <td>{{ groupeTiersPayant.telephone }}</td>
-          <td>{{ groupeTiersPayant.telephoneFixe }}</td>
+  <div class="mt-2">
+    @if (entites() && entites()?.length > 0) {
+      <p-table [paginator]="true" [rows]="20" [value]="entites()">
+        <ng-template #header>
+          <tr>
+            <th scope="col"><span>Libellé</span></th>
+            <th scope="col"><span>Ordre de tris</span></th>
+            <th scope="col"><span>Adresse</span></th>
+            <th scope="col"><span>Téléphone</span></th>
+            <th scope="col"><span>Téléphone fixe</span></th>
+            <th scope="col"></th>
+          </tr>
+        </ng-template>
+        <ng-template let-columns="columns" let-groupeTiersPayant #body>
+          <tr>
+            <td>{{ groupeTiersPayant.name }}</td>
+            <td>{{ groupeTiersPayant.ordreTrisFacture }}</td>
+            <td>{{ groupeTiersPayant.adresse }}</td>
+            <td>{{ groupeTiersPayant.telephone }}</td>
+            <td>{{ groupeTiersPayant.telephoneFixe }}</td>
 
-          <td style="text-align: center">
-            <p-button
-              severity="success"
-              (click)="editGroupeTiersPayant(groupeTiersPayant)"
-              class="p-mr-2"
-              icon="pi pi-pencil"
-              [rounded]="true"
-              [text]="true"
-              pTooltip="Modifier"
-              type="button"
-            ></p-button>
-            <p-button
-              (click)="onConfirmDelete(groupeTiersPayant)"
-              severity="danger"
-              icon="pi pi-trash"
-              [text]="true"
-              [rounded]="true"
-              pTooltip="Supprimer"
-              type="button"
-            ></p-button>
-          </td>
-        </tr>
-      </ng-template>
-    </p-table>
-  } @else {
-    <div class="alert alert-warning mt-2" id="no-result">
-      <span>Aucune donnée trouvée</span>
-    </div>
-  }
+            <td style="text-align: center">
+              <p-button
+                severity="success"
+                (click)="editGroupeTiersPayant(groupeTiersPayant)"
+                class="p-mr-2"
+                icon="pi pi-pencil"
+                [rounded]="true"
+                [text]="true"
+                pTooltip="Modifier"
+                type="button"
+              ></p-button>
+              <p-button
+                (click)="onConfirmDelete(groupeTiersPayant)"
+                severity="danger"
+                icon="pi pi-trash"
+                [text]="true"
+                [rounded]="true"
+                pTooltip="Supprimer"
+                type="button"
+              ></p-button>
+            </td>
+          </tr>
+        </ng-template>
+      </p-table>
+    } @else {
+      <div class="alert alert-warning mt-2" id="no-result">
+        <span>Aucune donnée trouvée</span>
+      </div>
+    }
+  </div>
 </p-panel>

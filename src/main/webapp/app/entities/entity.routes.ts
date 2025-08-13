@@ -44,16 +44,7 @@ const routes: Routes = [
     data: { pageTitle: 'warehouseApp.gammeProduit.home.title' },
     loadChildren: () => import('./gamme-produit/gamme-produit.route'),
   },
-  {
-    path: 'groupe-fournisseur',
-    data: { pageTitle: 'warehouseApp.groupeFournisseur.home.title' },
-    loadChildren: () => import('./groupe-fournisseur/groupe-fournisseur.route'),
-  },
-  {
-    path: 'groupe-tiers-payant',
-    data: { pageTitle: 'warehouseApp.groupeTiersPayant.home.title' },
-    loadChildren: () => import('./groupe-tiers-payant/groupe-tiers-payant.route'),
-  },
+
   {
     path: 'inventory-transaction',
     data: { pageTitle: 'warehouseApp.inventoryTransaction.home.title' },

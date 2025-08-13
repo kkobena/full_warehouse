@@ -1,0 +1,131 @@
+<jhi-toast-alert #alert></jhi-toast-alert>
+<div class="modal-header">
+  <h4 class="modal-title">{{ header }}</h4>
+  <button (click)="cancel()" class="btn-close" data-dismiss="modal" type="button">
+    &times;
+  </button>
+</div>
+<form (ngSubmit)="save()" [formGroup]="editForm" name="editForm" novalidate role="form">
+
+  <div class="modal-body">
+    <p-card>
+      <div [hidden]="!editForm.get('id')!.value" class="form-group">
+        <input class="form-control" formControlName="id" id="id" name="id" readonly type="hidden" />
+      </div>
+      <div class="ui-g form-group">
+        <label for="field_libelle">Libellé</label>
+        <div class="ui-g-12">
+          <input
+            autocomplete="off"
+            class="form-control"
+            formControlName="libelle"
+            id="field_libelle"
+            name="libelle"
+            pInputText
+            style="width: 100%"
+          />
+        </div>
+        @let libelle = editForm.get('libelle');
+        @if (libelle!.invalid && (libelle!.dirty || libelle!.touched)) {
+          <div>
+            @if (libelle?.errors?.required) {
+              <small class="form-text text-danger" style="color: red"> Ce champ est
+                obligatoire. </small>
+            }
+          </div>
+        }
+      </div>
+      <div class="form-row">
+        <div class="form-group col-md-5">
+          <label for="field_code">Code</label>
+          <div class="ui-g-12">
+            <input
+              autocomplete="off"
+              class="form-control"
+              formControlName="code"
+              id="field_code"
+              name="code"
+              pInputText
+              pKeyFilter="alphanum"
+              style="width: 100%"
+              type="text"
+            />
+          </div>
+          @let code = editForm.get('code');
+          @if (code!.invalid && (code!.dirty || code!.touched)) {
+            <div>
+              @if (code?.errors?.required) {
+                <small class="form-text text-danger" style="color: red"> Ce champ est
+                  obligatoire. </small>
+              }
+            </div>
+          }
+        </div>
+        <div class="form-group col-md-7">
+          <label for="field_groupeFournisseur">Groupe</label>
+          <div class="ui-g-12" style="margin-bottom: 10px">
+            <p-select
+              [options]="groupes"
+              [style]="{ width: '100%' }"
+              formControlName="groupeFournisseurId"
+              id="field_groupeFournisseur"
+              name="groupeFournisseurId"
+              optionLabel="libelle"
+              optionValue="id"
+              placeholder="Séléctionner un groupe "
+              size="large"
+            >
+            </p-select>
+          </div>
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="form-group col-md-6">
+          <label for="field_mobile">Mobile</label>
+          <div class="ui-g-12" style="margin-bottom: 10px">
+            <input
+              autocomplete="off"
+              formControlName="mobile"
+              id="field_mobile"
+              name="mobile"
+              pInputText
+              pKeyFilter="int"
+              style="width: 100%"
+              type="text"
+            />
+          </div>
+        </div>
+
+      </div>
+      <div class="ui-g form-group">
+        <label for="field_addresspostale">Adresse postale</label>
+        <div class="ui-g-12" style="margin-bottom: 10px">
+          <input
+            autocomplete="off"
+            formControlName="addresspostale"
+            id="field_addresspostale"
+            name="addresspostale"
+            pInputText
+            style="width: 100%"
+            type="text"
+          />
+        </div>
+      </div>
+    </p-card>
+  </div>
+
+  <div class="modal-footer">
+    <p-button (click)="cancel()" class="p-mr-2" icon="pi pi-times" label="Annuler"
+              severity="secondary" type="button"></p-button>
+    <p-button
+      [disabled]="editForm.invalid || isSaving"
+      class="p-mr-2"
+      icon="pi pi-check"
+      label="Enregistrer"
+      severity="success"
+      type="submit"
+    ></p-button>
+
+  </div>
+
+</form>

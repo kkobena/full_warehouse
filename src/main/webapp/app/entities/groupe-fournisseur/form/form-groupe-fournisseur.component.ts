@@ -1,20 +1,19 @@
-import { Component, inject, OnInit } from '@angular/core';
-import { DynamicDialogConfig, DynamicDialogModule, DynamicDialogRef } from 'primeng/dynamicdialog';
+import { AfterViewInit, Component, ElementRef, inject, OnInit, viewChild } from '@angular/core';
 
 import { ErrorService } from '../../../shared/error.service';
 import { FormsModule, ReactiveFormsModule, UntypedFormBuilder, Validators } from '@angular/forms';
-import { MessageService } from 'primeng/api';
 import { Observable } from 'rxjs';
 import { HttpResponse } from '@angular/common/http';
 import { GroupeFournisseur, IGroupeFournisseur } from '../../../shared/model/groupe-fournisseur.model';
 import { GroupeFournisseurService } from '../groupe-fournisseur.service';
 import { WarehouseCommonModule } from '../../../shared/warehouse-common/warehouse-common.module';
-import { ToastModule } from 'primeng/toast';
-import { DropdownModule } from 'primeng/dropdown';
 import { ButtonModule } from 'primeng/button';
 import { InputTextModule } from 'primeng/inputtext';
 import { RippleModule } from 'primeng/ripple';
 import { KeyFilterModule } from 'primeng/keyfilter';
+import { Card } from 'primeng/card';
+import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
+import { ToastAlertComponent } from '../../../shared/toast-alert/toast-alert.component';
 
 @Component({
   selector: 'jhi-form-groupe-fournisseur',
@@ -22,24 +21,24 @@ import { KeyFilterModule } from 'primeng/keyfilter';
     WarehouseCommonModule,
     FormsModule,
     ReactiveFormsModule,
-    ToastModule,
-    DropdownModule,
     ButtonModule,
     InputTextModule,
     RippleModule,
     KeyFilterModule,
-    DynamicDialogModule,
+    Card,
+    ToastAlertComponent,
   ],
   templateUrl: './form-groupe-fournisseur.component.html',
+  styleUrls: ['./form-groupe-fournisseur.component.scss'],
 })
-export class FormGroupeFournisseurComponent implements OnInit {
-  protected ref = inject(DynamicDialogRef);
-  protected config = inject(DynamicDialogConfig);
-  protected entity?: IGroupeFournisseur;
+export class FormGroupeFournisseurComponent implements OnInit, AfterViewInit {
+  header: string = '';
+  entity?: IGroupeFournisseur;
   protected blockSpace: RegExp = /[^s]/;
   protected isSaving = false;
   protected isValid = true;
   protected fb = inject(UntypedFormBuilder);
+
   protected editForm = this.fb.group({
     id: [],
     libelle: [null, [Validators.required]],
@@ -52,19 +51,23 @@ export class FormGroupeFournisseurComponent implements OnInit {
     codeOfficePharmaMl: [],
     urlPharmaMl: [],
   });
-  private readonly messageService = inject(MessageService);
   private readonly errorService = inject(ErrorService);
   private readonly entityService = inject(GroupeFournisseurService);
-
+  private readonly activeModal = inject(NgbActiveModal);
+  private readonly alert = viewChild.required<ToastAlertComponent>('alert');
+  private libelleInput = viewChild.required<ElementRef>('libelleInput');
   ngOnInit(): void {
-    this.entity = this.config.data.entity;
     if (this.entity) {
       this.updateForm(this.entity);
     }
   }
-
+  ngAfterViewInit(): void {
+    setTimeout(() => {
+      this.libelleInput().nativeElement.focus();
+    }, 100);
+  }
   cancel(): void {
-    this.ref.close();
+    this.activeModal.dismiss();
   }
 
   save(): void {
@@ -87,7 +90,7 @@ export class FormGroupeFournisseurComponent implements OnInit {
 
   private onSaveSuccess(entity: IGroupeFournisseur | null): void {
     this.isSaving = false;
-    this.ref.close(entity);
+    this.activeModal.close(entity);
   }
 
   private updateForm(entity: IGroupeFournisseur): void {
@@ -107,11 +110,7 @@ export class FormGroupeFournisseurComponent implements OnInit {
 
   private onSaveError(error: any): void {
     this.isSaving = false;
-    this.messageService.add({
-      severity: 'error',
-      summary: 'Erreur',
-      detail: this.errorService.getErrorMessage(error),
-    });
+    this.alert().showError(this.errorService.getErrorMessage(error));
   }
 
   private createFromForm(): IGroupeFournisseur {

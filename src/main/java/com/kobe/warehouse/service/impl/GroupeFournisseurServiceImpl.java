@@ -85,7 +85,7 @@ public class GroupeFournisseurServiceImpl implements GroupeFournisseurService {
     public Page<GroupeFournisseurDTO> findAll(String search, Pageable pageable) {
         log.debug("Request to get all GroupeFournisseurs");
         Pageable page = PageRequest.of(pageable.getPageNumber(), pageable.getPageSize(), Sort.by(Sort.Direction.ASC, "libelle"));
-        if (!StringUtils.hasLength(search)) {
+        if (StringUtils.hasLength(search)) {
             SpecificationBuilder<GroupeFournisseur> builder = new SpecificationBuilder<>();
             Specification<GroupeFournisseur> spec = builder
                 .with(new String[] { "libelle" }, search + "%", Condition.OperationType.LIKE, Condition.LogicalOperatorType.END)

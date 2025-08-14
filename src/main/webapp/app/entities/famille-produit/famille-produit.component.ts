@@ -1,41 +1,39 @@
-import { Component, OnInit, inject } from '@angular/core';
+import { Component, inject, OnInit, viewChild } from '@angular/core';
 import { FamilleProduitService } from './famille-produit.service';
-import { ActivatedRoute, Router, RouterModule } from '@angular/router';
-import { ConfirmationService, LazyLoadEvent, MessageService } from 'primeng/api';
-import { HttpHeaders, HttpResponse } from '@angular/common/http';
+import { RouterModule } from '@angular/router';
+import { LazyLoadEvent } from 'primeng/api';
+import { HttpErrorResponse, HttpHeaders, HttpResponse } from '@angular/common/http';
 import { Observable } from 'rxjs';
-import { DialogService, DynamicDialogRef } from 'primeng/dynamicdialog';
 import { FormFamilleComponent } from './form-famille/form-famille.component';
 import { IResponseDto } from '../../shared/util/response-dto';
 import { IFamilleProduit } from '../../shared/model/famille-produit.model';
 import { ITEMS_PER_PAGE } from '../../shared/constants/pagination.constants';
 import { WarehouseCommonModule } from '../../shared/warehouse-common/warehouse-common.module';
-import { ConfirmDialogModule } from 'primeng/confirmdialog';
-import { ToastModule } from 'primeng/toast';
-import { DialogModule } from 'primeng/dialog';
-import { FileUploadModule } from 'primeng/fileupload';
 import { ToolbarModule } from 'primeng/toolbar';
 import { TableModule } from 'primeng/table';
 import { ButtonModule } from 'primeng/button';
 import { RippleModule } from 'primeng/ripple';
 import { InputTextModule } from 'primeng/inputtext';
-import { acceptButtonProps, rejectButtonProps } from '../../shared/util/modal-button-props';
 import { Tooltip } from 'primeng/tooltip';
 import { InputIcon } from 'primeng/inputicon';
 import { IconField } from 'primeng/iconfield';
+import { ToastAlertComponent } from '../../shared/toast-alert/toast-alert.component';
+import { ConfirmDialogComponent } from '../../shared/dialog/confirm-dialog/confirm-dialog.component';
+import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
+import { showCommonModal } from '../sales/selling-home/sale-helper';
+import { ErrorService } from '../../shared/error.service';
+import { FileUploadDialogComponent } from '../groupe-tiers-payant/file-upload-dialog/file-upload-dialog.component';
+import { SpinerService } from '../../shared/spiner.service';
+import { finalize } from 'rxjs/operators';
+import { Panel } from 'primeng/panel';
 
 @Component({
   selector: 'jhi-famille-produit',
   templateUrl: './famille-produit.component.html',
-  providers: [MessageService, DialogService, ConfirmationService],
   imports: [
     WarehouseCommonModule,
     ButtonModule,
     RippleModule,
-    ConfirmDialogModule,
-    ToastModule,
-    DialogModule,
-    FileUploadModule,
     ToolbarModule,
     TableModule,
     RouterModule,
@@ -43,39 +41,27 @@ import { IconField } from 'primeng/iconfield';
     Tooltip,
     InputIcon,
     IconField,
+    ToastAlertComponent,
+    ConfirmDialogComponent,
+    Panel,
   ],
 })
 export class FamilleProduitComponent implements OnInit {
-  protected entityService = inject(FamilleProduitService);
-  protected activatedRoute = inject(ActivatedRoute);
-  protected router = inject(Router);
-  private messageService = inject(MessageService);
-  private dialogService = inject(DialogService);
-  protected modalService = inject(ConfirmationService);
-
-  fileDialog?: boolean;
-  ref?: DynamicDialogRef;
   responsedto!: IResponseDto;
-  responseDialog?: boolean;
   entites?: IFamilleProduit[];
   totalItems = 0;
   itemsPerPage = ITEMS_PER_PAGE;
   page = 0;
   loading!: boolean;
-  selectedEl?: IFamilleProduit;
   isSaving = false;
-  customUpload = true;
-  displayDialog?: boolean;
-
-  /** Inserted by Angular inject() migration for backwards compatibility */
-  constructor(...args: unknown[]);
-
-  constructor() {}
-
+  private readonly entityService = inject(FamilleProduitService);
+  private readonly confimDialog = viewChild.required<ConfirmDialogComponent>('confirmDialog');
+  private readonly alert = viewChild.required<ToastAlertComponent>('alert');
+  private readonly modalService = inject(NgbModal);
+  private readonly errorService = inject(ErrorService);
+  private readonly spinner = inject(SpinerService);
   ngOnInit(): void {
-    this.activatedRoute.data.subscribe(() => {
-      this.loadPage();
-    });
+    this.loadPage();
   }
 
   loadPage(page?: number, search?: string): void {
@@ -90,7 +76,7 @@ export class FamilleProduitComponent implements OnInit {
       })
       .subscribe({
         next: (res: HttpResponse<IFamilleProduit[]>) => this.onSuccess(res.body, res.headers, pageToLoad),
-        error: () => this.onError(),
+        error: err => this.onError(err),
       });
   }
 
@@ -105,28 +91,20 @@ export class FamilleProduitComponent implements OnInit {
       })
       .subscribe({
         next: (res: HttpResponse<IFamilleProduit[]>) => this.onSuccess(res.body, res.headers, this.page),
-        error: () => this.onError(),
+        error: err => this.onError(err),
       });
   }
 
   confirmDialog(id: number): void {
-    this.modalService.confirm({
-      message: 'Voulez-vous supprimer cet enregistrement ?',
-      header: 'Confirmation',
-      icon: 'pi pi-exclamation-triangle',
-      rejectButtonProps: rejectButtonProps(),
-      acceptButtonProps: acceptButtonProps(),
-      accept: () => {
+    this.confimDialog().onConfirm(
+      () => {
         this.entityService.delete(id).subscribe(() => {
           this.loadPage(0);
         });
       },
-    });
-  }
-
-  cancel(): void {
-    this.displayDialog = false;
-    this.fileDialog = false;
+      'Suppression',
+      'Êtes-vous sûr de vouloir supprimer ?',
+    );
   }
 
   delete(entity: IFamilleProduit): void {
@@ -137,85 +115,81 @@ export class FamilleProduitComponent implements OnInit {
     this.confirmDialog(id);
   }
 
-  onUpload(event: any): void {
-    const formData: FormData = new FormData();
-    const file = event.files[0];
-    formData.append('importcsv', file, file.name);
-    this.uploadFileResponse(this.entityService.uploadFile(formData));
-  }
-
   search(event: any): void {
     this.loadPage(0, event.target.value);
   }
 
   showFileDialog(): void {
-    this.fileDialog = true;
+    showCommonModal(
+      this.modalService,
+      FileUploadDialogComponent,
+      {},
+      result => {
+        this.spinner.show();
+        this.uploadFileResponse(this.entityService.uploadFile(result));
+      },
+      'xl',
+    );
   }
 
   addNewEntity(): void {
-    this.ref = this.dialogService.open(FormFamilleComponent, {
-      data: { familleProduit: null },
-      width: '40%',
-      header: "Ajout d'une nouvelle famille de produit",
-    });
-    this.ref.onClose.subscribe((entity: IFamilleProduit) => {
-      if (entity) {
+    showCommonModal(
+      this.modalService,
+      FormFamilleComponent,
+      {
+        familleProduit: null,
+        header: "Ajout d'une nouvelle famille de produit",
+      },
+      () => {
         this.loadPage(0);
-      }
-    });
+      },
+      'xl',
+    );
   }
 
   onEdit(entity: IFamilleProduit): void {
-    this.ref = this.dialogService.open(FormFamilleComponent, {
-      data: { familleProduit: entity },
-      width: '40%',
-      header: 'Modification de ' + entity.libelle,
-    });
-    this.ref.onClose.subscribe((e: IFamilleProduit) => {
-      if (e) {
+    showCommonModal(
+      this.modalService,
+      FormFamilleComponent,
+      {
+        familleProduit: entity,
+        header: 'Modification de ' + entity.libelle,
+      },
+      () => {
         this.loadPage(0);
-      }
-    });
+      },
+      'xl',
+    );
   }
 
-  protected onSaveError(): void {
-    this.messageService.add({
-      severity: 'error',
-      summary: 'Erreur',
-      detail: "L'opération a échouée",
-    });
+  protected onSaveError(error: HttpErrorResponse): void {
+    this.alert().showError(this.errorService.getErrorMessage(error));
+    this.showFileDialog();
   }
 
   protected uploadFileResponse(result: Observable<HttpResponse<IResponseDto>>): void {
-    result.subscribe({
+    result.pipe(finalize(() => this.spinner.hide())).subscribe({
       next: (res: HttpResponse<IResponseDto>) => this.onPocesCsvSuccess(res.body),
-      error: () => this.onSaveError(),
+      error: err => this.onSaveError(err),
     });
-  }
-
-  protected onPocesCsvSuccess(responseDto: IResponseDto | null): void {
-    if (responseDto) {
-      this.responsedto = responseDto;
-      this.responseDialog = true;
-      this.fileDialog = false;
-      this.loadPage(0);
-    }
   }
 
   protected onSuccess(data: IFamilleProduit[] | null, headers: HttpHeaders, page: number): void {
     this.totalItems = Number(headers.get('X-Total-Count'));
     this.page = page;
-    this.router.navigate(['/famille-produit'], {
-      queryParams: {
-        page: this.page,
-        size: this.itemsPerPage,
-      },
-    });
     this.entites = data || [];
     this.loading = false;
   }
 
-  protected onError(): void {
+  protected onError(error: HttpErrorResponse): void {
     this.loading = false;
+    this.alert().showError(this.errorService.getErrorMessage(error));
+  }
+
+  private onPocesCsvSuccess(responseDto: IResponseDto | null): void {
+    if (responseDto) {
+      this.responsedto = responseDto;
+      this.loadPage(0);
+    }
   }
 }

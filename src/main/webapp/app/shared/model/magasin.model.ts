@@ -24,6 +24,7 @@ export class Magasin implements IMagasin {
 export interface IStorage {
   id?: number;
   name?: string;
+  storageType?: string;
   magasin?: IMagasin;
 }
 

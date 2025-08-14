@@ -1,16 +1,11 @@
 import { AfterViewInit, Component, inject, viewChild } from '@angular/core';
-import { ConfirmationService, LazyLoadEvent, MessageService } from 'primeng/api';
+import { LazyLoadEvent } from 'primeng/api';
 import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
 import { ProduitService } from '../../produit/produit.service';
 import { RemiseService } from '../remise.service';
-import { ToastModule } from 'primeng/toast';
-import { DialogModule } from 'primeng/dialog';
-import { DropdownModule } from 'primeng/dropdown';
-import { FormsModule, ReactiveFormsModule } from '@angular/forms';
+import { FormsModule } from '@angular/forms';
 import { InputTextModule } from 'primeng/inputtext';
-import { KeyFilterModule } from 'primeng/keyfilter';
-import { StyleClassModule } from 'primeng/styleclass';
-import { HttpHeaders, HttpResponse } from '@angular/common/http';
+import { HttpErrorResponse, HttpHeaders, HttpResponse } from '@angular/common/http';
 import { IProduit } from '../../../shared/model/produit.model';
 import { IRayon } from '../../../shared/model/rayon.model';
 import { CodeRemise } from '../../../shared/model/remise.model';
@@ -21,34 +16,30 @@ import { ToolbarModule } from 'primeng/toolbar';
 import { TableHeaderCheckbox, TableModule } from 'primeng/table';
 import { TooltipModule } from 'primeng/tooltip';
 import { ITEMS_PER_PAGE } from '../../../shared/constants/pagination.constants';
-import { NgSelectModule } from '@ng-select/ng-select';
-import { NgxSpinnerComponent, NgxSpinnerService } from 'ngx-spinner';
+import { SpinerService } from '../../../shared/spiner.service';
+import { ToastAlertComponent } from '../../../shared/toast-alert/toast-alert.component';
+import { Select } from 'primeng/select';
+import { Card } from 'primeng/card';
+import { ErrorService } from '../../../shared/error.service';
 
 @Component({
   selector: 'jhi-code-remise-produits-modal',
-  providers: [MessageService, ConfirmationService],
   imports: [
-    ToastModule,
-    DialogModule,
-    DropdownModule,
     FormsModule,
     InputTextModule,
-    KeyFilterModule,
-    ReactiveFormsModule,
-    StyleClassModule,
     TagModule,
     ToolbarModule,
     TableModule,
     TooltipModule,
-    NgSelectModule,
-    NgxSpinnerComponent,
     ButtonModule,
+    ToastAlertComponent,
+    Select,
+    Card,
   ],
   templateUrl: './code-remise-produits-modal.component.html',
+  styleUrls: ['../../common-modal.component.scss'],
 })
 export class CodeRemiseProduitsModalComponent implements AfterViewInit {
-  activeModal = inject(NgbActiveModal);
-
   checkbox = viewChild<TableHeaderCheckbox>('checkbox');
   protected codeRemise: CodeRemise | null = null;
   protected selectedRayon: IRayon | null = null;
@@ -61,12 +52,13 @@ export class CodeRemiseProduitsModalComponent implements AfterViewInit {
   protected loading!: boolean;
   protected readonly itemsPerPage = ITEMS_PER_PAGE;
   protected search: string | null = null;
-  private spinner = inject(NgxSpinnerService);
+  private readonly activeModal = inject(NgbActiveModal);
+  private spinner = inject(SpinerService);
   private readonly produitService = inject(ProduitService);
-  private readonly messageService = inject(MessageService);
   private readonly entityService = inject(RemiseService);
   private readonly rayonService = inject(RayonService);
-
+  private readonly alert = viewChild.required<ToastAlertComponent>('alert');
+  private readonly errorService = inject(ErrorService);
   loadData(): void {
     if (this.selectedRayon || this.search) {
       const pageToLoad: number = this.page;
@@ -80,7 +72,7 @@ export class CodeRemiseProduitsModalComponent implements AfterViewInit {
         })
         .subscribe({
           next: (res: HttpResponse<IProduit[]>) => this.onSuccess(res.body, res.headers, pageToLoad),
-          error: () => this.onError(),
+          error: err => this.onSaveError(err),
         });
     } else {
       this.produits = [];
@@ -108,10 +100,6 @@ export class CodeRemiseProduitsModalComponent implements AfterViewInit {
       });
   }
 
-  protected onError(): void {
-    this.loading = false;
-  }
-
   protected lazyLoading(event: LazyLoadEvent): void {
     if ((this.selectedRayon || this.search) && event) {
       this.page = event.first / event.rows;
@@ -125,7 +113,7 @@ export class CodeRemiseProduitsModalComponent implements AfterViewInit {
         })
         .subscribe({
           next: (res: HttpResponse<IProduit[]>) => this.onSuccess(res.body, res.headers, this.page),
-          error: () => this.onError(),
+          error: err => this.onSaveError(err),
         });
     }
   }
@@ -139,18 +127,16 @@ export class CodeRemiseProduitsModalComponent implements AfterViewInit {
         this.spinner.hide();
         this.activeModal.close();
       },
-      error: () => {
-        this.isSaving = false;
-        this.spinner.hide();
-        this.messageService.add({
-          severity: 'error',
-          summary: 'Erreur',
-          detail: "Une erreur est survenue lors de l'enregistrement",
-        });
+      error: error => {
+        this.onSaveError(error);
       },
     });
   }
-
+  private onSaveError(error: HttpErrorResponse): void {
+    this.isSaving = false;
+    this.spinner.hide();
+    this.alert().showError(this.errorService.getErrorMessage(error));
+  }
   private onSuccess(data: IProduit[] | null, headers: HttpHeaders, page: number): void {
     this.totalItems = Number(headers.get('X-Total-Count'));
     this.page = page;

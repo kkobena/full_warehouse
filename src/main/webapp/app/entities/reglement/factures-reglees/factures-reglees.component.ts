@@ -222,7 +222,7 @@ export class FacturesRegleesComponent implements AfterViewInit {
       backdrop: 'static',
       size: 'xl',
       centered: true,
-      animation: true,
+
       modalDialogClass: 'facture-modal-dialog',
     });
     modalRef.componentInstance.reglement = reglement;
@@ -233,7 +233,7 @@ export class FacturesRegleesComponent implements AfterViewInit {
       backdrop: 'static',
       size: 'xl',
       centered: true,
-      animation: true,
+
       modalDialogClass: 'facture-modal-dialog',
     });
     modalRef.componentInstance.reglement = reglement;

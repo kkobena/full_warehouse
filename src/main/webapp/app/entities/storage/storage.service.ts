@@ -13,8 +13,8 @@ type EntityArrayResponseType = HttpResponse<Storage[]>;
   providedIn: 'root',
 })
 export class StorageService {
-  public resourceUrl = SERVER_API_URL + 'api/storages';
-  protected http = inject(HttpClient);
+  private readonly resourceUrl = SERVER_API_URL + 'api/storages';
+  private readonly http = inject(HttpClient);
 
   find(id: number): Observable<EntityResponseType> {
     return this.http.get<Storage>(`${this.resourceUrl}/${id}`, { observe: 'response' });

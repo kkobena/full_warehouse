@@ -1,9 +1,7 @@
 import { AfterViewInit, Component, ElementRef, inject, viewChild } from '@angular/core';
 import { ButtonModule } from 'primeng/button';
 import { ToastModule } from 'primeng/toast';
-import { NgbActiveModal, NgbModal } from '@ng-bootstrap/ng-bootstrap';
-import { ProduitService } from '../../produit/produit.service';
-import { ConfirmationService, MessageService } from 'primeng/api';
+import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
 import { DialogModule } from 'primeng/dialog';
 import { DropdownModule } from 'primeng/dropdown';
 import { FormBuilder, FormControl, FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
@@ -13,11 +11,13 @@ import { StyleClassModule } from 'primeng/styleclass';
 import { IRemise, Remise } from '../../../shared/model/remise.model';
 import { RemiseService } from '../remise.service';
 import { Observable } from 'rxjs';
-import { HttpResponse } from '@angular/common/http';
+import { HttpErrorResponse, HttpResponse } from '@angular/common/http';
+import { ToastAlertComponent } from '../../../shared/toast-alert/toast-alert.component';
+import { Card } from 'primeng/card';
+import { ErrorService } from '../../../shared/error.service';
 
 @Component({
   selector: 'jhi-remise-client-form-modal',
-  providers: [MessageService, ConfirmationService],
   imports: [
     ToastModule,
     DialogModule,
@@ -28,18 +28,17 @@ import { HttpResponse } from '@angular/common/http';
     ReactiveFormsModule,
     StyleClassModule,
     ButtonModule,
+    ToastAlertComponent,
+    Card,
   ],
   templateUrl: './remise-client-form-modal.component.html',
+  styleUrls: ['../../common-modal.component.scss'],
 })
 export class RemiseClientFormModalComponent implements AfterViewInit {
-  modalService = inject(NgbModal);
-  activeModal = inject(NgbActiveModal);
-  produitService = inject(ProduitService);
-  messageService = inject(MessageService);
-  entityService = inject(RemiseService);
   remiseValue = viewChild.required<ElementRef>('remiseValue');
-  fb = inject(FormBuilder);
-  editForm = this.fb.group({
+  entity: IRemise | null = null;
+  protected fb = inject(FormBuilder);
+  protected editForm = this.fb.group({
     id: new FormControl<number | null>(null),
     valeur: new FormControl<string | null>(null, {
       validators: [Validators.required],
@@ -50,10 +49,12 @@ export class RemiseClientFormModalComponent implements AfterViewInit {
       nonNullable: true,
     }),
   });
-  entity: IRemise | null = null;
   protected isSaving = false;
   protected title: string | null = null;
-
+  private readonly activeModal = inject(NgbActiveModal);
+  private readonly entityService = inject(RemiseService);
+  private readonly alert = viewChild.required<ToastAlertComponent>('alert');
+  private readonly errorService = inject(ErrorService);
   cancel(): void {
     this.activeModal.dismiss();
   }
@@ -87,7 +88,7 @@ export class RemiseClientFormModalComponent implements AfterViewInit {
   protected subscribeToSaveResponse(result: Observable<HttpResponse<IRemise>>): void {
     result.subscribe({
       next: () => this.onSaveSuccess(),
-      error: () => this.onSaveError(),
+      error: err => this.onSaveError(err),
     });
   }
 
@@ -96,13 +97,9 @@ export class RemiseClientFormModalComponent implements AfterViewInit {
     this.activeModal.close();
   }
 
-  private onSaveError(): void {
+  private onSaveError(error: HttpErrorResponse): void {
     this.isSaving = false;
-    this.messageService.add({
-      severity: 'error',
-      summary: 'Erreur',
-      detail: "L'enregistrement n'a pas été effectué!",
-    });
+    this.alert().showError(this.errorService.getErrorMessage(error));
   }
 
   private createFromForm(): IRemise {

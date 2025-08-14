@@ -1,8 +1,6 @@
-import { Component, inject, OnInit } from '@angular/core';
+import { Component, inject, OnInit, viewChild } from '@angular/core';
 import { FormsModule } from '@angular/forms';
-import { ToastModule } from 'primeng/toast';
 import { ButtonModule } from 'primeng/button';
-import { ConfirmDialogModule } from 'primeng/confirmdialog';
 import { TableModule } from 'primeng/table';
 import { ToolbarModule } from 'primeng/toolbar';
 import { TooltipModule } from 'primeng/tooltip';
@@ -10,31 +8,39 @@ import { IResponseDto } from '../../../shared/util/response-dto';
 import { IRemise } from '../../../shared/model/remise.model';
 import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { RemiseService } from '../remise.service';
-import { ActivatedRoute, Router } from '@angular/router';
-import { ConfirmationService, MessageService } from 'primeng/api';
-import { HttpResponse } from '@angular/common/http';
+import { HttpErrorResponse, HttpResponse } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { RemiseProduitFormModalComponent } from '../remise-produit-form-modal/remise-produit-form-modal.component';
-import { acceptButtonProps, rejectButtonProps } from '../../../shared/util/modal-button-props';
 import { ToggleSwitch } from 'primeng/toggleswitch';
+import { ConfirmDialogComponent } from '../../../shared/dialog/confirm-dialog/confirm-dialog.component';
+import { ToastAlertComponent } from '../../../shared/toast-alert/toast-alert.component';
+import { Panel } from 'primeng/panel';
+import { ErrorService } from '../../../shared/error.service';
 
 @Component({
   selector: 'jhi-remise-produits',
-  providers: [MessageService, ConfirmationService],
-  imports: [FormsModule, ToastModule, ConfirmDialogModule, TableModule, ToolbarModule, TooltipModule, ButtonModule, ToggleSwitch],
+  imports: [
+    FormsModule,
+    TableModule,
+    ToolbarModule,
+    TooltipModule,
+    ButtonModule,
+    ToggleSwitch,
+    ConfirmDialogComponent,
+    ToastAlertComponent,
+    Panel,
+  ],
   templateUrl: './remise-produits.component.html',
 })
 export class RemiseProduitsComponent implements OnInit {
-  responsedto!: IResponseDto;
-  entites?: IRemise[];
-  loading = false;
-  ngModalService = inject(NgbModal);
-  entityService = inject(RemiseService);
-  activatedRoute = inject(ActivatedRoute);
-  router = inject(Router);
-  messageService = inject(MessageService);
-  modalService = inject(ConfirmationService);
-
+  protected responsedto!: IResponseDto;
+  protected entites?: IRemise[];
+  protected loading = false;
+  private readonly ngModalService = inject(NgbModal);
+  private readonly entityService = inject(RemiseService);
+  private readonly confimDialog = viewChild.required<ConfirmDialogComponent>('confirmDialog');
+  private readonly alert = viewChild.required<ToastAlertComponent>('alert');
+  private readonly errorService = inject(ErrorService);
   loadPage(): void {
     this.loading = true;
     this.entityService.query({ typeRemise: 'PRODUIT' }).subscribe({
@@ -48,18 +54,15 @@ export class RemiseProduitsComponent implements OnInit {
   }
 
   confirmDialog(id: number): void {
-    this.modalService.confirm({
-      message: 'Voulez-vous supprimer cet enregistrement ?',
-      header: 'Confirmation',
-      icon: 'pi pi-exclamation-triangle',
-      rejectButtonProps: rejectButtonProps(),
-      acceptButtonProps: acceptButtonProps(),
-      accept: () => {
+    this.confimDialog().onConfirm(
+      () => {
         this.entityService.delete(id).subscribe(() => {
           this.loadPage();
         });
       },
-    });
+      'Confirmation',
+      'Voulez-vous supprimer cet enregistrement ?',
+    );
   }
 
   onOpenRemiseForm(remise?: IRemise): void {
@@ -67,11 +70,10 @@ export class RemiseProduitsComponent implements OnInit {
       backdrop: 'static',
       size: 'lg',
       centered: true,
-      animation: true,
     });
     modalRef.componentInstance.entity = remise;
-    modalRef.componentInstance.title = remise.id ? 'Modifier la remise' : 'Ajouter une remise produit';
-    modalRef.closed.subscribe(r => {
+    modalRef.componentInstance.title = remise?.id ? 'Modifier la remise' : 'Ajouter une remise produit';
+    modalRef.result.then(r => {
       this.loadPage();
     });
   }
@@ -91,7 +93,7 @@ export class RemiseProduitsComponent implements OnInit {
   }
 
   protected getVnoTaux(entity: IRemise): string {
-    const taut = entity.grilles.filter(grille => grille.grilleType === 'VNO')[0]?.remiseValue;
+    const taut = entity.grilles?.filter(grille => grille.grilleType === 'VNO')[0]?.remiseValue;
     if (taut) {
       return taut + ' %';
     }
@@ -99,7 +101,7 @@ export class RemiseProduitsComponent implements OnInit {
   }
 
   protected getVoTaux(entity: IRemise): string {
-    const taut = entity.grilles.filter(grille => grille.grilleType === 'VO')[0]?.remiseValue;
+    const taut = entity.grilles?.filter(grille => grille.grilleType === 'VO')[0]?.remiseValue;
     if (taut) {
       return taut + ' %';
     }
@@ -124,19 +126,15 @@ export class RemiseProduitsComponent implements OnInit {
     this.loadPage();
   }
 
-  private onSaveError(): void {
-    this.messageService.add({
-      severity: 'error',
-      summary: 'Erreur',
-      detail: "L'enregistrement n'a pas été effectué!",
-    });
+  private onSaveError(error: HttpErrorResponse): void {
+    this.alert().showError(this.errorService.getErrorMessage(error));
     this.loadPage();
   }
 
   private subscribeToSaveResponse(result: Observable<HttpResponse<IRemise>>): void {
     result.subscribe({
       next: () => this.onSaveSuccess(),
-      error: () => this.onSaveError(),
+      error: err => this.onSaveError(err),
     });
   }
 }

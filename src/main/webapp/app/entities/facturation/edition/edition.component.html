@@ -13,31 +13,32 @@
           <label class="form-label" for="startDate">Date de début</label>
 
           <p-datePicker
-            [selectOtherMonths]="true"
-            [showIcon]="true"
-            [showButtonBar]="true"
-            id="startDate"
             [(ngModel)]="modelStartDate"
-            inputId="startDate"
+            [selectOtherMonths]="true"
+            [showButtonBar]="true"
+            [showIcon]="true"
             dateFormat="dd/mm/yy"
+            id="startDate"
+            inputId="startDate"
           />
         </div>
         <div class="mb-3">
           <label class="form-label" for="endDate">Date de fin</label>
           <p-datePicker
-            [selectOtherMonths]="true"
-            [showIcon]="true"
-            [showButtonBar]="true"
-            id="endDate"
             [(ngModel)]="modelEndDate"
-            inputId="endDate"
+            [selectOtherMonths]="true"
+            [showButtonBar]="true"
+            [showIcon]="true"
             dateFormat="dd/mm/yy"
+            id="endDate"
+            inputId="endDate"
           />
         </div>
 
         <div class="mb-3">
           <label class="form-label" for="endDate">Sélectionner le mode d'édition</label>
-          <select (change)="onModeEditionChange()" [(ngModel)]="modeEdition" class="form-select" id="modeEdition">
+          <select (change)="onModeEditionChange()" [(ngModel)]="modeEdition" class="form-select"
+                  id="modeEdition">
             <option selected value="ALL"></option>
             @for (mode of modeEditions; track mode.code) {
               <option [ngValue]="mode.code">{{ mode.value }}</option>
@@ -100,7 +101,8 @@
       </div>
       <div class="card-footer">
         <div class="d-flex align-items-center justify-content-center">
-          <p-button (click)="onSearch()" [loading]="searching" [raised]="true" icon="pi pi-search" label="Rechercher" severity="info" />
+          <p-button (click)="onSearch()" [loading]="searching" [raised]="true" icon="pi pi-search"
+                    label="Rechercher" severity="info" />
         </div>
       </div>
     </div>
@@ -121,10 +123,11 @@
       >
         <ng-template #caption>
           <div class="d-flex align-items-end justify-content-end">
-            <p-button (click)="onEdit()" [loading]="editing" [raised]="true" icon="pi pi-check" label="Editer" severity="success" />
+            <p-button (click)="onEdit()" [loading]="editing" [raised]="true" icon="pi pi-check"
+                      label="Editer" severity="success" />
           </div>
         </ng-template>
-        <ng-template pTemplate="header">
+        <ng-template #header>
           <tr>
             <th>Tiers-payant</th>
             <th>Nombre de dossiers</th>
@@ -137,7 +140,7 @@
           </tr>
         </ng-template>
 
-        <ng-template let-data pTemplate="body">
+        <ng-template let-data#body>
           <tr>
             <td>
               {{ data.name }}
@@ -173,13 +176,15 @@
           <div class="d-flex align-items-center justify-content-between">
             <p-iconfield>
               <p-inputicon styleClass="pi pi-search" />
-              <input (input)="bonDt.filterGlobal($event.target.value, 'contains')" pInputText placeholder="Rechercher..." type="text" />
+              <input (input)="bonDt.filterGlobal($event.target.value, 'contains')" pInputText
+                     placeholder="Rechercher..." type="text" />
             </p-iconfield>
 
-            <p-button (click)="onEdit()" [loading]="editing" [raised]="true" icon="pi pi-check" label="Editer" severity="success" />
+            <p-button (click)="onEdit()" [loading]="editing" [raised]="true" icon="pi pi-check"
+                      label="Editer" severity="success" />
           </div>
         </ng-template>
-        <ng-template pTemplate="header">
+        <ng-template #header>
           <tr>
             <th>Clients</th>
             <th>Date</th>
@@ -191,7 +196,7 @@
             </th>
           </tr>
         </ng-template>
-        <ng-template let-dossier pTemplate="body">
+        <ng-template let-dossier #body>
           <tr>
             <td>{{ dossier.assuredCustomer.firstName }} {{ dossier.assuredCustomer.lastName }}</td>
             <td>
@@ -213,4 +218,5 @@
     }
   </div>
 </div>
-<p-confirmDialog [baseZIndex]="10000" [style]="{ width: '40vw' }" key="printialog"> </p-confirmDialog>
+<p-confirmDialog [baseZIndex]="10000" [style]="{ width: '40vw' }"
+                 key="printialog"></p-confirmDialog>

@@ -1,82 +1,84 @@
+<jhi-toast-alert #alert></jhi-toast-alert>
 <div class="modal-header">
-  <h4 class="modal-title">{{ title }}</h4>
+  <h4 class="modal-title">{{ header }}</h4>
 
   <button (click)="cancel()" aria-hidden="true" class="btn-close" data-dismiss="modal"
           type="button">&times;
   </button>
 </div>
+<!-- formulaire de creation et d edition-->
 <form (ngSubmit)="save()" [formGroup]="editForm" name="editForm" novalidate role="form">
   <div class="modal-body">
-    <!-- formulaire de creation et d edition-->
-
     <p-card>
       <div [hidden]="!editForm.get('id')!.value" class="form-group">
         <input class="form-control" formControlName="id" id="id" name="id" readonly type="hidden" />
       </div>
-
       <div class="ui-g form-group">
-        <label for="remiseValue">Taux</label>
-        <div class="ui-g-12">
-          <input #remiseValue
-                 autocomplete="off"
-                 class="form-control"
-                 formControlName="remiseValue"
-                 id="remiseValue"
-                 name="remiseValue"
-                 pInputText
-                 type="number"
-          />
+        <label for="code">Code tableau</label>
+        <div class="ui-g-12" style="margin-bottom: 10px">
+          <input [autofocus]="true" autocomplete="off" class="form-control" formControlName="code"
+                 id="code"
+                 name="code" pInputText style="width: 100%" />
         </div>
-        @if (editForm.get('remiseValue')!.invalid && (editForm.get('remiseValue')!.dirty
-          || editForm.get('remiseValue')!.touched)) {
+        @if (editForm.get('code')!.invalid && (editForm.get('code')!.dirty || editForm.get(
+          'code')!.touched)) {
           <div>
-            @if (editForm.get('remiseValue')?.errors?.required) {
+            @if (editForm.get('code')?.errors?.required) {
               <small class="form-text text-danger" style="color: red"> Ce champ est
                 obligatoire. </small>
             }
           </div>
         }
       </div>
-
       <div class="ui-g form-group">
-        <label for="valeur">Description</label>
+        <label for="field_value">Montant tableau</label>
         <div class="ui-g-12">
-          <input autocomplete="off" class="form-control" formControlName="valeur" id="valeur"
-                 name="valeur"
-                 pInputText type="text" />
+          <input
+            autocomplete="off"
+            formControlName="value"
+            id="field_value"
+            name="value"
+            pInputText
+            pKeyFilter="int"
+            style="width: 100%"
+            type="text"
+          />
         </div>
-        @if (editForm.get('valeur')!.invalid && (editForm.get('valeur')!.dirty || editForm.get(
-          'valeur')!.touched)) {
-          @if (editForm.get('valeur')?.errors?.required) {
-            <div>
+        @if (editForm.get('value')!.invalid && (editForm.get('value')!.dirty || editForm.get(
+          'value')!.touched)) {
+          <div>
+            @if (editForm.get('value')?.errors?.required) {
               <small class="form-text text-danger" style="color: red"> Ce champ est
                 obligatoire. </small>
-            </div>
-          }
+            }
+          </div>
         }
       </div>
     </p-card>
-  </div>
 
+
+  </div>
   <div class="modal-footer">
     <p-button
       (click)="cancel()"
-      [raised]="true"
       class="p-mr-2"
       icon="pi pi-times"
       label="Annuler"
+      raised="true"
       severity="secondary"
       type="button"
     ></p-button>
     <p-button
       [disabled]="editForm.invalid || isSaving"
-      [raised]="true"
       class="p-mr-2"
       icon="pi pi-check"
       label="Enregistrer"
+      raised="true"
       severity="primary"
       type="submit"
     ></p-button>
+
+
   </div>
+
 </form>
-<jhi-toast-alert #alert></jhi-toast-alert>

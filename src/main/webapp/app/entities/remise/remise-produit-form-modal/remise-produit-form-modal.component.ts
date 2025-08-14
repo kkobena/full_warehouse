@@ -2,31 +2,29 @@ import { AfterViewInit, Component, ElementRef, inject, OnInit, viewChild } from 
 import { ButtonModule } from 'primeng/button';
 import { FormBuilder, FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { ToastModule } from 'primeng/toast';
-import { NgbActiveModal, NgbModal } from '@ng-bootstrap/ng-bootstrap';
-import { ProduitService } from '../../produit/produit.service';
-import { ConfirmationService, MessageService } from 'primeng/api';
+import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
 import { RemiseService } from '../remise.service';
 import { CodeRemise, GrilleRemise, IRemise, Remise } from '../../../shared/model/remise.model';
 import { Observable } from 'rxjs';
-import { HttpResponse } from '@angular/common/http';
+import { HttpErrorResponse, HttpResponse } from '@angular/common/http';
 import { MessagesModule } from 'primeng/messages';
+import { ToastAlertComponent } from '../../../shared/toast-alert/toast-alert.component';
+import { ErrorService } from '../../../shared/error.service';
+import { Card } from 'primeng/card';
+import { InputText } from 'primeng/inputtext';
+import { Select } from 'primeng/select';
 
 @Component({
   selector: 'jhi-remise-produit-form-modal',
-  providers: [MessageService, ConfirmationService],
-  imports: [ReactiveFormsModule, ToastModule, MessagesModule, ButtonModule],
+
+  imports: [ReactiveFormsModule, ToastModule, MessagesModule, ButtonModule, ToastAlertComponent, Card, InputText, Select],
   templateUrl: './remise-produit-form-modal.component.html',
-  styles: ``,
+  styleUrls: ['../../common-modal.component.scss'],
 })
 export class RemiseProduitFormModalComponent implements OnInit, AfterViewInit {
-  modalService = inject(NgbModal);
-  activeModal = inject(NgbActiveModal);
-  produitService = inject(ProduitService);
-  messageService = inject(MessageService);
-  entityService = inject(RemiseService);
   libelle = viewChild.required<ElementRef>('libelle');
-  fb = inject(FormBuilder);
-  editForm = this.fb.group({
+  protected fb = inject(FormBuilder);
+  protected editForm = this.fb.group({
     id: new FormControl<number | null>(null),
     valeur: new FormControl<string | null>(null, {
       validators: [Validators.required],
@@ -59,10 +57,16 @@ export class RemiseProduitFormModalComponent implements OnInit, AfterViewInit {
       }),
     }),
   });
-  entity: IRemise | null = null;
+  protected entity: IRemise | null = null;
   protected isSaving = false;
   protected title: string | null = null;
   protected remisesCodes: CodeRemise[] = [];
+
+  private readonly activeModal = inject(NgbActiveModal);
+
+  private readonly entityService = inject(RemiseService);
+  private readonly alert = viewChild.required<ToastAlertComponent>('alert');
+  private readonly errorService = inject(ErrorService);
 
   get grilleVno(): FormGroup {
     return this.editForm.get('vno') as FormGroup;
@@ -74,31 +78,6 @@ export class RemiseProduitFormModalComponent implements OnInit, AfterViewInit {
 
   get isValid(): boolean {
     return this.editForm.get('vno').get('remiseValue').value > 0 || this.editForm.get('vo').get('remiseValue').value > 0;
-  }
-
-  cancel(): void {
-    this.activeModal.dismiss();
-  }
-
-  save(): void {
-    this.isSaving = true;
-    const entity = this.createFromForm();
-
-    if (entity.id) {
-      this.subscribeToSaveResponse(this.entityService.update(entity));
-    } else {
-      this.subscribeToSaveResponse(this.entityService.create(entity));
-    }
-  }
-
-  updateForm(entity: IRemise): void {
-    this.editForm.patchValue({
-      id: entity.id,
-      valeur: entity.valeur,
-      codeRemise: entity.grilles.length ? entity.grilles[0].codeRemise.value : null,
-      vo: this.buildGrille(entity.grilles.find(grille => grille.grilleType === 'VO')),
-      vno: this.buildGrille(entity.grilles.find(grille => grille.grilleType === 'VNO')),
-    });
   }
 
   ngAfterViewInit(): void {
@@ -113,7 +92,10 @@ export class RemiseProduitFormModalComponent implements OnInit, AfterViewInit {
       this.updateForm(this.entity);
       this.editForm.get('codeRemise').disable();
     }
-    this.libelle().nativeElement.focus();
+
+    setTimeout(() => {
+      this.libelle().nativeElement.focus();
+    }, 100);
   }
 
   ngOnInit(): void {
@@ -124,10 +106,35 @@ export class RemiseProduitFormModalComponent implements OnInit, AfterViewInit {
     }
   }
 
-  protected subscribeToSaveResponse(result: Observable<HttpResponse<IRemise>>): void {
+  protected cancel(): void {
+    this.activeModal.dismiss();
+  }
+
+  protected save(): void {
+    this.isSaving = true;
+    const entity = this.createFromForm();
+
+    if (entity.id) {
+      this.subscribeToSaveResponse(this.entityService.update(entity));
+    } else {
+      this.subscribeToSaveResponse(this.entityService.create(entity));
+    }
+  }
+
+  protected updateForm(entity: IRemise): void {
+    this.editForm.patchValue({
+      id: entity.id,
+      valeur: entity.valeur,
+      codeRemise: entity.grilles.length ? entity.grilles[0].codeRemise.value : null,
+      vo: this.buildGrille(entity.grilles.find(grille => grille.grilleType === 'VO')),
+      vno: this.buildGrille(entity.grilles.find(grille => grille.grilleType === 'VNO')),
+    });
+  }
+
+  private subscribeToSaveResponse(result: Observable<HttpResponse<IRemise>>): void {
     result.subscribe({
       next: () => this.onSaveSuccess(),
-      error: () => this.onSaveError(),
+      error: err => this.onSaveError(err),
     });
   }
 
@@ -170,13 +177,9 @@ export class RemiseProduitFormModalComponent implements OnInit, AfterViewInit {
     this.activeModal.close();
   }
 
-  private onSaveError(): void {
+  private onSaveError(error: HttpErrorResponse): void {
     this.isSaving = false;
-    this.messageService.add({
-      severity: 'error',
-      summary: 'Erreur',
-      detail: "L'enregistrement n'a pas été effectué!",
-    });
+    this.alert().showError(this.errorService.getErrorMessage(error));
   }
 
   private addGrille(codeRemise: CodeRemise): void {

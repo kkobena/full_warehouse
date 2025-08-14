@@ -1,4 +1,4 @@
-import { Component, OnInit, inject } from '@angular/core';
+import { Component, inject, OnInit } from '@angular/core';
 import { ProduitService } from '../../produit/produit.service';
 import { TableauProduitService } from '../tableau-produit.service';
 import { IProduit } from '../../../shared/model/produit.model';
@@ -11,25 +11,23 @@ import { ButtonModule } from 'primeng/button';
 import { InputTextModule } from 'primeng/inputtext';
 import { PickListModule } from 'primeng/picklist';
 import { ToolbarModule } from 'primeng/toolbar';
-import { DividerModule } from 'primeng/divider';
 
 @Component({
   selector: 'jhi-produit-associes',
   templateUrl: './produit-associes.component.html',
-  imports: [WarehouseCommonModule, FormsModule, PickListModule, ToolbarModule, ButtonModule, InputTextModule, ButtonModule, DividerModule],
+  imports: [WarehouseCommonModule, FormsModule, PickListModule, ToolbarModule, ButtonModule, InputTextModule, ButtonModule],
 })
 export class ProduitAssociesComponent implements OnInit {
-  protected produitService = inject(ProduitService);
-  private tableauProduitService = inject(TableauProduitService);
-  protected activatedRoute = inject(ActivatedRoute);
-
-  produitsSource: IProduit[] = [];
-  produitsTarget: IProduit[] = [];
-  statut = 'ENABLE';
-  searchSource: string;
-  searchTarget: string;
-  tableau: ITableau;
+  protected produitsSource: IProduit[] = [];
+  protected produitsTarget: IProduit[] = [];
+  protected statut = 'ENABLE';
+  protected searchSource: string;
+  protected searchTarget: string;
+  protected tableau: ITableau;
   protected scrollHeight = 'calc(100vh - 350px)';
+  private readonly produitService = inject(ProduitService);
+  private readonly tableauProduitService = inject(TableauProduitService);
+  private readonly activatedRoute = inject(ActivatedRoute);
 
   ngOnInit(): void {
     this.activatedRoute.data.subscribe(({ tableau }) => {
@@ -39,11 +37,11 @@ export class ProduitAssociesComponent implements OnInit {
     this.fetchTarget();
   }
 
-  fetchTarget(): void {
+  protected fetchTarget(): void {
     this.produitService
       .queryLite({
         page: 0,
-        size: 50,
+        size: 300,
         search: this.searchTarget || '',
         status: this.statut,
         tableauId: this.tableau.id,
@@ -51,15 +49,15 @@ export class ProduitAssociesComponent implements OnInit {
       .subscribe({ next: (res: HttpResponse<IProduit[]>) => (this.produitsTarget = res.body) });
   }
 
-  previousState(): void {
+  protected previousState(): void {
     window.history.back();
   }
 
-  fetchSource(): void {
+  protected fetchSource(): void {
     this.produitService
       .queryLite({
         page: 0,
-        size: 50,
+        size: 300,
         search: this.searchSource || '',
         status: this.statut,
         tableauNot: this.tableau.id,
@@ -67,35 +65,35 @@ export class ProduitAssociesComponent implements OnInit {
       .subscribe((res: HttpResponse<IProduit[]>) => (this.produitsSource = res.body));
   }
 
-  trackId(index: number, item: IProduit): number {
+  protected trackId(index: number, item: IProduit): number {
     return item.id;
   }
 
-  moveToTarget(event: any): void {
+  protected moveToTarget(event: any): void {
     const ids = event.items.map((el: any) => el.id);
     this.tableauProduitService.associer(this.tableau.id, ids).subscribe(() => this.fetchTarget());
   }
 
-  moveToSource(event: any): void {
+  protected moveToSource(event: any): void {
     const ids = event.items.map((el: any) => el.id);
     this.tableauProduitService.dissocier(ids).subscribe(() => this.fetchSource());
   }
 
-  moveAllToTarget(event: any): void {
+  protected moveAllToTarget(event: any): void {
     const ids = event.items.map((el: any) => el.id);
     this.tableauProduitService.associer(this.tableau.id, ids).subscribe(() => this.fetchTarget());
   }
 
-  moveAllToSource(event: any): void {
+  protected moveAllToSource(event: any): void {
     const ids = event.items.map((el: any) => el.id);
     this.tableauProduitService.dissocier(ids).subscribe(() => this.fetchSource());
   }
 
-  sourceFilter(): void {
+  protected onSourceFilter(): void {
     this.fetchSource();
   }
 
-  targeFilter(): void {
+  protected onTargetFilter(): void {
     this.fetchTarget();
   }
 }

@@ -4,21 +4,19 @@ import { CodeRemise, IRemise } from '../../../shared/model/remise.model';
 import { HttpResponse } from '@angular/common/http';
 import { FaIconComponent } from '@fortawesome/angular-fontawesome';
 import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
-import { ConfirmationService, MessageService } from 'primeng/api';
+
 import { CodeRemiseProduitsModalComponent } from '../code-remise-produits-modal/code-remise-produits-modal.component';
 
 @Component({
   selector: 'jhi-code-remise-produit',
-  providers: [MessageService, ConfirmationService],
+
   imports: [FaIconComponent],
   templateUrl: './code-remise-produit.component.html',
 })
 export class CodeRemiseProduitComponent implements OnInit {
-  entityService = inject(RemiseService);
   entites?: CodeRemise[];
-  ngModalService = inject(NgbModal);
-  messageService = inject(MessageService);
-  modalService = inject(ConfirmationService);
+  private readonly entityService = inject(RemiseService);
+  private readonly ngModalService = inject(NgbModal);
 
   load(): void {
     this.entityService.queryFullCodes().subscribe({
@@ -33,11 +31,12 @@ export class CodeRemiseProduitComponent implements OnInit {
       backdrop: 'static',
       size: 'xl',
       centered: true,
-      animation: true,
     });
     modalRef.componentInstance.codeRemise = codeRemise;
 
-    modalRef.closed.subscribe(r => {});
+    modalRef.closed.subscribe(r => {
+      this.load();
+    });
   }
 
   ngOnInit(): void {
@@ -45,7 +44,7 @@ export class CodeRemiseProduitComponent implements OnInit {
   }
 
   protected getVnoTaux(entity: IRemise): string {
-    const taut = entity.grilles.filter(grille => grille.grilleType === 'VNO')[0]?.remiseValue;
+    const taut = entity?.grilles.filter(grille => grille.grilleType === 'VNO')[0]?.remiseValue;
     if (taut) {
       return taut + ' %';
     }
@@ -53,7 +52,7 @@ export class CodeRemiseProduitComponent implements OnInit {
   }
 
   protected getVoTaux(entity: IRemise): string {
-    const taut = entity.grilles.filter(grille => grille.grilleType === 'VO')[0]?.remiseValue;
+    const taut = entity?.grilles.filter(grille => grille.grilleType === 'VO')[0]?.remiseValue;
     if (taut) {
       return taut + ' %';
     }

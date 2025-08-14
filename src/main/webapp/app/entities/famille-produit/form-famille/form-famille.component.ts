@@ -1,66 +1,50 @@
 import { HttpResponse } from '@angular/common/http';
-import { Component, OnInit, inject } from '@angular/core';
+import { Component, inject, OnInit, viewChild } from '@angular/core';
 import { FormsModule, ReactiveFormsModule, UntypedFormBuilder, Validators } from '@angular/forms';
-import { MessageService, SelectItem } from 'primeng/api';
-import { DynamicDialogConfig, DynamicDialogRef } from 'primeng/dynamicdialog';
 import { Observable } from 'rxjs';
 import { FamilleProduitService } from '../famille-produit.service';
 import { FamilleProduit, IFamilleProduit } from '../../../shared/model/famille-produit.model';
 import { CategorieService } from '../../categorie/categorie.service';
-import { WarehouseCommonModule } from '../../../shared/warehouse-common/warehouse-common.module';
-import { ToastModule } from 'primeng/toast';
-import { DropdownModule } from 'primeng/dropdown';
 import { ButtonModule } from 'primeng/button';
 import { InputTextModule } from 'primeng/inputtext';
 import { RippleModule } from 'primeng/ripple';
 import { ICategorie } from '../../../shared/model/categorie.model';
+import { CommonModule } from '@angular/common';
+import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
+import { ToastAlertComponent } from '../../../shared/toast-alert/toast-alert.component';
+import { Select } from 'primeng/select';
+import { Card } from 'primeng/card';
 
 @Component({
   selector: 'jhi-form-famille',
   templateUrl: './form-famille.component.html',
-  imports: [
-    WarehouseCommonModule,
-    FormsModule,
-    ReactiveFormsModule,
-    ToastModule,
-    DropdownModule,
-    ButtonModule,
-    InputTextModule,
-    RippleModule,
-  ],
+  styleUrls: ['../../common-modal.component.scss'],
+  imports: [CommonModule, FormsModule, ReactiveFormsModule, ButtonModule, InputTextModule, RippleModule, ToastAlertComponent, Select, Card],
 })
 export class FormFamilleComponent implements OnInit {
-  protected entityService = inject(FamilleProduitService);
-  ref = inject(DynamicDialogRef);
-  config = inject(DynamicDialogConfig);
-  private fb = inject(UntypedFormBuilder);
-  private messageService = inject(MessageService);
-  protected categorieProduitService = inject(CategorieService);
-
-  isSaving = false;
   familleProduit?: IFamilleProduit;
-  categorieproduits: SelectItem[] = [];
-  editForm = this.fb.group({
+  header: string = '';
+  protected isSaving = false;
+  protected categorieproduits: ICategorie[] = [];
+  protected fb = inject(UntypedFormBuilder);
+  protected editForm = this.fb.group({
     id: [],
     code: [null, [Validators.required]],
     libelle: [null, [Validators.required]],
     categorieId: [null, [Validators.required]],
   });
-
-  /** Inserted by Angular inject() migration for backwards compatibility */
-  constructor(...args: unknown[]);
-
-  constructor() {}
-
+  protected categorieProduitService = inject(CategorieService);
+  private readonly entityService = inject(FamilleProduitService);
+  private readonly activeModal = inject(NgbActiveModal);
+  private readonly alert = viewChild.required<ToastAlertComponent>('alert');
   ngOnInit(): void {
-    this.familleProduit = this.config.data.familleProduit;
     this.populateAssurrance();
     if (this.familleProduit) {
       this.updateForm(this.familleProduit);
     }
   }
 
-  updateForm(entity: IFamilleProduit): void {
+  protected updateForm(entity: IFamilleProduit): void {
     this.editForm.patchValue({
       id: entity.id,
       code: entity.code,
@@ -69,20 +53,15 @@ export class FormFamilleComponent implements OnInit {
     });
   }
 
-  populateAssurrance(): void {
+  protected populateAssurrance(): void {
     this.categorieProduitService.query({ search: '' }).subscribe({
       next: (res: HttpResponse<ICategorie[]>) => {
-        this.categorieproduits = res.body.map((item: ICategorie) => {
-          return {
-            label: item.libelle,
-            value: item.id,
-          };
-        });
+        this.categorieproduits = res.body;
       },
     });
   }
 
-  save(): void {
+  protected save(): void {
     this.isSaving = true;
     const entity = this.createFromForm();
     if (entity.id !== undefined && entity.id !== null) {
@@ -92,33 +71,24 @@ export class FormFamilleComponent implements OnInit {
     }
   }
 
-  cancel(): void {
-    this.ref.destroy();
+  protected cancel(): void {
+    this.activeModal.dismiss();
   }
 
-  protected subscribeToSaveResponse(result: Observable<HttpResponse<IFamilleProduit>>): void {
+  protected onSaveError(): void {
+    this.isSaving = false;
+    this.alert().showError();
+  }
+
+  private subscribeToSaveResponse(result: Observable<HttpResponse<IFamilleProduit>>): void {
     result.subscribe({
       next: (res: HttpResponse<IFamilleProduit>) => this.onSaveSuccess(res.body),
       error: () => this.onSaveError(),
     });
   }
 
-  protected onSaveSuccess(response: IFamilleProduit | null): void {
-    this.messageService.add({
-      severity: 'info',
-      summary: 'Information',
-      detail: 'Enregistrement effectué avec succès',
-    });
-    this.ref.close(response);
-  }
-
-  protected onSaveError(): void {
-    this.isSaving = false;
-    this.messageService.add({
-      severity: 'error',
-      summary: 'Erreur',
-      detail: 'Enregistrement a échoué',
-    });
+  private onSaveSuccess(response: IFamilleProduit | null): void {
+    this.activeModal.close(response);
   }
 
   private createFromForm(): IFamilleProduit {

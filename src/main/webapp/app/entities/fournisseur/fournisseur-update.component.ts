@@ -1,4 +1,4 @@
-import { Component, inject, OnInit, viewChild } from '@angular/core';
+import { AfterViewInit, Component, ElementRef, inject, OnInit, viewChild } from '@angular/core';
 import { FormsModule, ReactiveFormsModule, UntypedFormBuilder, Validators } from '@angular/forms';
 import { FournisseurService } from './fournisseur.service';
 import { HttpErrorResponse, HttpResponse } from '@angular/common/http';
@@ -36,7 +36,7 @@ import { GroupeFournisseurService } from '../groupe-fournisseur/groupe-fournisse
     Card,
   ],
 })
-export class FournisseurUpdateComponent implements OnInit {
+export class FournisseurUpdateComponent implements OnInit, AfterViewInit {
   fournisseur?: IFournisseur;
   groupes: IGroupeFournisseur[] = [];
   header: string = '';
@@ -56,13 +56,18 @@ export class FournisseurUpdateComponent implements OnInit {
   private readonly alert = viewChild.required<ToastAlertComponent>('alert');
   private readonly errorService = inject(ErrorService);
   private readonly groupeFournisseurService = inject(GroupeFournisseurService);
+  private libelleInput = viewChild.required<ElementRef>('libelleInput');
   ngOnInit(): void {
     this.fetchGroupFournisseur();
     if (this.fournisseur) {
       this.updateForm(this.fournisseur);
     }
   }
-
+  ngAfterViewInit(): void {
+    setTimeout(() => {
+      this.libelleInput().nativeElement.focus();
+    }, 100);
+  }
   protected updateForm(entity: IFournisseur): void {
     this.editForm.patchValue({
       id: entity.id,

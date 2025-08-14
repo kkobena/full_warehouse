@@ -4,10 +4,12 @@ import com.kobe.warehouse.domain.Magasin;
 import com.kobe.warehouse.repository.MagasinRepository;
 import com.kobe.warehouse.service.UserService;
 import com.kobe.warehouse.service.dto.MagasinDTO;
+import jakarta.transaction.Transactional;
 import java.util.List;
 import org.springframework.stereotype.Service;
 
 @Service
+@Transactional
 public class MagasinServiceImpl implements MagasinService {
 
     private final MagasinRepository magasinRepository;

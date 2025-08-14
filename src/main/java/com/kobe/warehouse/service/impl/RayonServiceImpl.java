@@ -1,5 +1,7 @@
 package com.kobe.warehouse.service.impl;
 
+import static com.kobe.warehouse.constant.EntityConstant.SANS_EMPLACEMENT_CODE;
+
 import com.kobe.warehouse.domain.Rayon;
 import com.kobe.warehouse.domain.Storage;
 import com.kobe.warehouse.repository.CustomizedRayonService;
@@ -71,11 +73,6 @@ public class RayonServiceImpl implements RayonService {
     @Override
     @Transactional(readOnly = true)
     public Page<RayonDTO> findAll(Long storageId, String query, Pageable pageable) {
-        log.debug("Request to get all Rayons");
-        if (storageId == null || storageId == 0) {
-            storageId = storageService.getDefaultConnectedUserMainStorage().getId();
-        }
-
         return customizedRayonService.listRayonsByStorageId(storageId, query, pageable);
     }
 
@@ -144,6 +141,9 @@ public class RayonServiceImpl implements RayonService {
         Storage storage = storageService.getOne(storageId);
         for (RayonDTO rayonDTO : rayonIds) {
             Rayon rayon = customizedRayonService.buildRayonFromRayonDTO(rayonDTO);
+            if (rayon.getCode().equals(SANS_EMPLACEMENT_CODE)) {
+                continue;
+            }
             rayon.setStorage(storage);
             rayonRepository.save(rayon);
             count++;

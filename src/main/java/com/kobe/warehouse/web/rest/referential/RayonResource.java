@@ -152,7 +152,7 @@ public class RayonResource {
     public ResponseEntity<ResponseDTO> clonerRayons(
         @PathVariable(name = "storageId", required = false) Long storageId,
         @RequestBody List<RayonDTO> rayonIds
-    ) throws URISyntaxException, IOException {
+    ) {
         ResponseDTO responseDTO = rayonService.cloner(rayonIds, storageId);
         return ResponseUtil.wrapOrNotFound(Optional.of(responseDTO));
     }

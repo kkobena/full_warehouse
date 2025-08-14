@@ -30,7 +30,7 @@ import { IconField } from 'primeng/iconfield';
 import { InputIcon } from 'primeng/inputicon';
 import { TranslateService } from '@ngx-translate/core';
 import { PrimeNG } from 'primeng/config';
-import { Subject, Subscription } from 'rxjs';
+import { Subject } from 'rxjs';
 import { DatePicker } from 'primeng/datepicker';
 
 @Component({
@@ -54,7 +54,6 @@ import { DatePicker } from 'primeng/datepicker';
     DatePicker,
   ],
   templateUrl: './edition.component.html',
-  styles: ``,
 })
 export class EditionComponent implements OnInit, OnDestroy {
   protected readonly translate = inject(TranslateService);
@@ -92,12 +91,12 @@ export class EditionComponent implements OnInit, OnDestroy {
   protected editing = false;
   protected loading!: boolean;
   protected exporting = false;
-  private primngtranslate: Subscription;
+
   private destroy$ = new Subject<void>();
 
   constructor() {
     this.translate.use('fr');
-    this.primngtranslate = this.translate.stream('primeng').subscribe(data => {
+    this.translate.stream('primeng').subscribe(data => {
       this.primeNGConfig.setTranslation(data);
     });
   }
@@ -108,7 +107,6 @@ export class EditionComponent implements OnInit, OnDestroy {
   }
 
   ngOnDestroy(): void {
-    this.primngtranslate.unsubscribe();
     this.destroy$.next();
     this.destroy$.complete();
   }

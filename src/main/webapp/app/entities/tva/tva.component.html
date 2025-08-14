@@ -1,110 +1,53 @@
-<p-confirmDialog #cd [baseZIndex]="10000" [style]="{ width: '40vw' }"></p-confirmDialog>
-
-<div>
-  <h2 id="page-heading">
-    <span jhiTranslate="warehouseApp.tva.home.title">Liste des Tvas</span>
-    <button (click)="addNewEntity()" class="btn btn-primary float-right jh-create-entity"
-            id="jh-create-entity">
-      <fa-icon icon="plus"></fa-icon>
-      <span> Nouvelle Tva </span>
-    </button>
-  </h2>
-
-  <jhi-alert-error></jhi-alert-error>
-
-  <jhi-alert></jhi-alert>
-
-  @if (tvas?.length === 0) {
-    <div class="alert alert-warning" id="no-result">
-      <span>{{ 'global.messages.emptyData' | translate }}</span>
-    </div>
-  }
-  @if (tvas && tvas.length > 0) {
-    <p-table
-      (onLazyLoad)="lazyLoading($event)"
-      [(selection)]="selectedTva"
-      [lazy]="true"
-      [loading]="loading"
-      [paginator]="true"
-      [rows]="itemsPerPage"
-      [totalRecords]="totalItems"
-      [value]="tvas"
-      dataKey="id"
-      selectionMode="single"
-      styleClass="ui-table-cars"
-    >
-      <ng-template pTemplate="header">
-        <tr>
-          <th scope="col"><span>Taux</span></th>
-          <th scope="col"></th>
-        </tr>
-      </ng-template>
-      <ng-template let-columns="columns" let-tva pTemplate="body">
-        <tr [pEditableRow]="tva" [pSelectableRow]="tva">
-          <td>{{ tva.taux }}</td>
-          <td style="text-align: center">
-            <button (click)="delete(tva)" class="btn btn-danger btn-sm" type="submit">
-              <fa-icon icon="times"></fa-icon>
-            </button>
-          </td>
-        </tr>
-      </ng-template>
-    </p-table>
-  }
-
-  <!-- formulaire de creation et d edition-->
-  <form (ngSubmit)="save()" [formGroup]="editForm" name="editForm" novalidate role="form">
-    <p-dialog
-      [(visible)]="displayDialog"
-      [focusOnShow]="false"
-      [modal]="true"
-      [style]="{ width: '400px' }"
-      header="Créer ou éditer une Tva"
-    >
-      <div [hidden]="!editForm.get('id')!.value" class="form-group">
-        <input class="form-control" formControlName="id" id="id" name="id" readonly type="hidden" />
-      </div>
-      <div class="ui-g form-group">
-        <label for="field_taux">Taux tva</label>
-        <div class="ui-g-12" style="margin-bottom: 10px">
-          <input
-            autocomplete="off"
-            class="form-control"
-            formControlName="taux"
-            id="field_taux"
-            name="taux"
-            pInputText
-            pKeyFilter="int"
-            style="width: 100%"
-            type="text"
-          />
+<jhi-confirm-dialog #confirmDialog></jhi-confirm-dialog>
+<div class="container">
+  <div class="justify-content-center">
+    <p-panel header="Liste des Tvas">
+      <p-toolbar>
+        <div class="p-toolbar-group-left"></div>
+        <div class="p-toolbar-group-right">
+          <p-button (click)="addNewEntity()" icon="pi pi-plus" label="Nouvelle Tva" raised="true"
+                    severity="success" type="button"></p-button>
         </div>
-        @if (editForm.get('taux')!.invalid && (editForm.get('taux')!.dirty || editForm.get(
-          'taux')!.touched)) {
-          <div>
-            @if (editForm.get('taux')?.errors?.required) {
-              <small class="form-text text-danger" style="color: red"> Ce champ est
-                obligatoire. </small>
-            }
-            <small [hidden]="!editForm.get('taux')?.errors?.number" class="form-text text-danger"
-                   style="color: red">
-              Ce champ doit être un nombre.
-            </small>
+      </p-toolbar>
+
+      <div class="mt-2">
+        @if (tvas && tvas.length > 0) {
+          <p-table
+            [(selection)]="selectedTva"
+            [loading]="loading"
+            [value]="tvas"
+            dataKey="id"
+            selectionMode="single"
+            styleClass="ui-table-cars"
+          >
+            <ng-template #header>
+              <tr>
+                <th scope="col"><span>Taux</span></th>
+                <th scope="col"></th>
+              </tr>
+            </ng-template>
+            <ng-template let-columns="columns" let-tva #body>
+              <tr [pSelectableRow]="tva">
+                <td>{{ tva.taux }}</td>
+                <td style="text-align: center">
+                  <p-button (click)="delete(tva)" severity="danger" icon="pi pi-trash"
+                            [rounded]="true" [text]="true" pTooltip="Supprimer"
+                            type="button"></p-button>
+                </td>
+              </tr>
+            </ng-template>
+          </p-table>
+        } @else {
+          <div class="alert alert-warning" id="no-result">
+            <span>{{ 'global.messages.emptyData' | translate }}</span>
           </div>
         }
       </div>
-      <ng-template #footer>
-        <p-button
-          [disabled]="editForm.invalid || isSaving"
-          class="p-mr-2"
-          icon="pi pi-check"
-          label="Enregistrer"
-          severity="success"
-          type="submit"
-        ></p-button>
-        <p-button (click)="cancel()" class="p-mr-2" icon="pi pi-times" label="Annuler"
-                  severity="danger" type="button"></p-button>
-      </ng-template>
-    </p-dialog>
-  </form>
+    </p-panel>
+
+  </div>
+</div>
+<div>
+
+
 </div>

@@ -1,76 +1,99 @@
-<div class="modal-header" xmlns="http://www.w3.org/1999/html">
-  <h6 class="modal-title">{{ title }}</h6>
+<div class="modal-header">
+  <h4 class="modal-title">{{ title }}</h4>
 
-  <button (click)="cancel()" aria-hidden="true" class="close" data-dismiss="modal" type="button">&times;</button>
+  <button (click)="cancel()" aria-hidden="true" class="btn-close" data-dismiss="modal"
+          type="button">&times;
+  </button>
 </div>
 <form (ngSubmit)="save()" [formGroup]="editForm" name="editForm" novalidate role="form">
-  <div class="modal-body" style="padding-left: 15px; padding-right: 15px">
-    <input class="form-control" formControlName="id" id="id" name="id" readonly type="hidden" />
+  <div class="modal-body">
+    <p-card>
+      <input class="form-control" formControlName="id" id="id" name="id" readonly type="hidden" />
 
-    <div class="ui-g form-group">
-      <label for="valeur">Description</label>
-      <div class="ui-g-12">
-        <input #libelle autocomplete="off" class="form-control" formControlName="valeur" id="valeur" name="valeur" type="text" />
+      <div class="ui-g form-group">
+        <label for="valeur">Description</label>
+        <div class="ui-g-12">
+          <input #libelle autocomplete="off" class="form-control" formControlName="valeur"
+                 id="valeur"
+                 name="valeur"
+                 pInputText type="text" />
+        </div>
+        @if (editForm.get('valeur')!.invalid && (editForm.get('valeur')!.dirty || editForm.get(
+          'valeur')!.touched)) {
+          @if (editForm.get('valeur')?.errors?.required) {
+            <div>
+              <small class="form-text text-danger" style="color: red"> Ce champ est
+                obligatoire. </small>
+            </div>
+          }
+        }
       </div>
-      @if (editForm.get('valeur')!.invalid && (editForm.get('valeur')!.dirty || editForm.get('valeur')!.touched)) {
-        @if (editForm.get('valeur')?.errors?.required) {
+      <div class="ui-g form-group">
+        @if (entity) {
+          <label for="codeRemise">Code remise associé</label>
+        } @else {
+          <label for="codeRemise">Selectionner le code remise</label>
+        }
+        <div class="ui-g-12">
+          <p-select
+            [fluid]="true"
+            [options]="remisesCodes"
+            formControlName="codeRemise"
+            id="codeRemise"
+            optionLabel="value"
+            optionValue="value"
+            size="large"
+          >
+
+          </p-select>
+
+
+        </div>
+        @if (editForm.get('codeRemise')!.invalid && (editForm.get('codeRemise')!.dirty
+          || editForm.get('codeRemise')!.touched)) {
           <div>
-            <small class="form-text text-danger" style="color: red"> Ce champ est obligatoire. </small>
+            @if (editForm.get('codeRemise')?.errors?.required) {
+              <small class="form-text text-danger" style="color: red"> Ce champ est
+                obligatoire. </small>
+            }
           </div>
         }
-      }
-    </div>
-    <div class="ui-g form-group">
-      @if (entity) {
-        <label for="codeRemise">Code remise associé</label>
-      } @else {
-        <label for="codeRemise">Selectionner le code remise</label>
-      }
-      <div class="ui-g-12">
-        <select class="form-select" formControlName="codeRemise" id="codeRemise">
-          @for (mode of remisesCodes; track mode.value) {
-            <option [ngValue]="mode.value">{{ mode.value }}</option>
-          }
-        </select>
       </div>
-      @if (editForm.get('codeRemise')!.invalid && (editForm.get('codeRemise')!.dirty || editForm.get('codeRemise')!.touched)) {
-        <div>
-          @if (editForm.get('codeRemise')?.errors?.required) {
-            <small class="form-text text-danger" style="color: red"> Ce champ est obligatoire. </small>
-          }
-        </div>
+      @if (editForm.get('codeRemise').value) {
+        <ng-container formGroupName="vno">
+          <input class="form-control" formControlName="id" name="id" readonly type="hidden" />
+          <input class="form-control" formControlName="code" name="code" readonly type="hidden" />
+
+          <div class="ui-g form-group">
+            <div class="ui-g-12">
+              <div class="alert alert-primary" role="alert">
+                <strong><b>Taux de remise pour les ventes VNO </b></strong>
+              </div>
+
+              <input pInputText autocomplete="off" class="form-control"
+                     formControlName="remiseValue"
+                     name="remiseValue" type="number" />
+            </div>
+          </div>
+        </ng-container>
+        <ng-container formGroupName="vo">
+          <input class="form-control" formControlName="id" name="id" readonly type="hidden" />
+          <input class="form-control" formControlName="code" name="code" readonly type="hidden" />
+
+          <div class="ui-g form-group">
+            <div class="ui-g-12">
+              <div class="alert alert-warning" role="alert">
+                <strong><b>Taux de remise pour les ventes VO</b></strong>
+              </div>
+
+              <input pInputText autocomplete="off" class="form-control"
+                     formControlName="remiseValue"
+                     name="remiseValue" type="number" />
+            </div>
+          </div>
+        </ng-container>
       }
-    </div>
-    @if (editForm.get('codeRemise').value) {
-      <ng-container formGroupName="vno">
-        <input class="form-control" formControlName="id" name="id" readonly type="hidden" />
-        <input class="form-control" formControlName="code" name="code" readonly type="hidden" />
-
-        <div class="ui-g form-group">
-          <div class="ui-g-12">
-            <div class="alert alert-primary" role="alert">
-              <strong><b>Taux de remise pour les ventes VNO </b></strong>
-            </div>
-
-            <input autocomplete="off" class="form-control" formControlName="remiseValue" name="remiseValue" type="number" />
-          </div>
-        </div>
-      </ng-container>
-      <ng-container formGroupName="vo">
-        <input class="form-control" formControlName="id" name="id" readonly type="hidden" />
-        <input class="form-control" formControlName="code" name="code" readonly type="hidden" />
-
-        <div class="ui-g form-group">
-          <div class="ui-g-12">
-            <div class="alert alert-warning" role="alert">
-              <strong><b>Taux de remise pour les ventes VO</b></strong>
-            </div>
-
-            <input autocomplete="off" class="form-control" formControlName="remiseValue" name="remiseValue" type="number" />
-          </div>
-        </div>
-      </ng-container>
-    }
+    </p-card>
   </div>
 
   <div class="modal-footer">
@@ -80,7 +103,7 @@
       class="p-mr-2"
       icon="pi pi-times"
       label="Annuler"
-      severity="danger"
+      severity="secondary"
       type="button"
     ></p-button>
     <p-button
@@ -89,9 +112,9 @@
       class="p-mr-2"
       icon="pi pi-check"
       label="Enregistrer"
-      severity="success"
+      severity="primary"
       type="submit"
     ></p-button>
   </div>
 </form>
-<p-toast position="center"></p-toast>
+<jhi-toast-alert #alert></jhi-toast-alert>

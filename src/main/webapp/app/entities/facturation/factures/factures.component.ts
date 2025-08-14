@@ -264,7 +264,6 @@ export class FacturesComponent implements OnInit, AfterViewInit {
       backdrop: 'static',
       size: 'xl',
       centered: true,
-      animation: true,
       modalDialogClass: 'facture-modal-dialog',
     });
     modalRef.componentInstance.facture = facture;
@@ -275,7 +274,6 @@ export class FacturesComponent implements OnInit, AfterViewInit {
       backdrop: 'static',
       size: 'xl',
       centered: true,
-      animation: true,
       modalDialogClass: 'facture-modal-dialog',
     });
     modalRef.componentInstance.facture = facture;

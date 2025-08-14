@@ -1,0 +1,84 @@
+<div class="modal-header">
+  <h4 class="modal-title">Cloner les rayons sélectionnés</h4>
+  <button (click)="cancel()" aria-label="Close" class="btn-close" type="button">
+    <span aria-hidden="true">&times;</span>
+  </button>
+</div>
+<form (ngSubmit)="save()" [formGroup]="editForm" name="editForm" novalidate role="form">
+  <div class="modal-body">
+    <p-card>
+      <div class="p-fluid p-formgrid p-grid">
+        <div class="p-field p-col">
+          <label class="col-auto col-form-label">Magasin<span
+            style="font-weight: 900; color: red">*</span></label>
+
+          <p-select
+            [fluid]="true"
+            [options]="magasins"
+            formControlName="magasinId"
+            id="magasinId"
+            name="magasinId"
+            optionLabel="fullName"
+            optionValue="id"
+            placeholder="Séléctionner le magasin "
+            size="large"
+          >
+          </p-select>
+          @if (editForm.get('magasinId')!.invalid && (editForm.get('magasinId')!.dirty
+            || editForm.get('magasinId')!.touched)) {
+            <div>
+              @if (editForm.get('magasinId')?.errors?.required) {
+                <small class="form-text text-danger" style="color: red"> Ce champ est
+                  obligatoire. </small>
+              }
+            </div>
+          }
+        </div>
+      </div>
+      <div class="p-fluid p-formgrid p-grid">
+        <div class="p-field p-col">
+          <label class="col-auto col-form-label">Emplacement<span
+            style="font-weight: 900; color: red">*</span></label>
+
+          <p-select
+            [fluid]="true"
+            [options]="storages"
+            formControlName="storageId"
+            id="storageId"
+            name="storageId"
+            optionLabel="storageType"
+            optionValue="id"
+            placeholder="Séléctionner l'emplacement "
+            size="large"
+          >
+          </p-select>
+          @if (editForm.get('storageId')!.invalid && (editForm.get('storageId')!.dirty
+            || editForm.get('storageId')!.touched)) {
+            <div>
+              @if (editForm.get('storageId')?.errors?.required) {
+                <small class="form-text text-danger" style="color: red"> Ce champ est
+                  obligatoire. </small>
+              }
+            </div>
+          }
+        </div>
+      </div>
+    </p-card>
+
+  </div>
+  <div class="modal-footer">
+    <p-button (click)="cancel()" class="mr-2" icon="pi pi-times" label="Annuler" raised="true"
+              severity="secondary"
+              type="button"></p-button>
+    <p-button
+      [disabled]="editForm.invalid || isSaving || rayons?.length === 0"
+      icon="pi pi-check"
+      label="Enregistrer"
+      raised="true"
+      severity="primary"
+      type="submit"
+    ></p-button>
+  </div>
+</form>
+
+<jhi-toast-alert #alert></jhi-toast-alert>

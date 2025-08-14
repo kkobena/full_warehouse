@@ -7,6 +7,7 @@ export interface IRayon {
   code?: string;
   libelle?: string;
   storageLibelle?: string;
+  storageType?: string;
   storageId?: number;
   exclude?: boolean;
 }

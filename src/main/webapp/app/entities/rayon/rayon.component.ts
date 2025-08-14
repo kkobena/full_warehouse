@@ -1,113 +1,102 @@
-import { HttpHeaders, HttpResponse } from '@angular/common/http';
-import { Component, inject, OnInit } from '@angular/core';
-import { ActivatedRoute, Router, RouterModule } from '@angular/router';
-import { ConfirmationService, LazyLoadEvent, MessageService } from 'primeng/api';
-import { DialogService, DynamicDialogModule, DynamicDialogRef } from 'primeng/dynamicdialog';
-import { Observable } from 'rxjs';
+import { HttpErrorResponse, HttpHeaders, HttpResponse } from '@angular/common/http';
+import { Component, inject, OnDestroy, OnInit, viewChild } from '@angular/core';
+import { RouterModule } from '@angular/router';
+import { LazyLoadEvent } from 'primeng/api';
+import { Observable, Subject } from 'rxjs';
 import { FormRayonComponent } from './form-rayon/form-rayon.component';
 import { RayonService } from './rayon.service';
 import { IResponseDto } from '../../shared/util/response-dto';
 import { ITEMS_PER_PAGE } from '../../shared/constants/pagination.constants';
 import { IRayon } from '../../shared/model/rayon.model';
-import { IMagasin } from '../../shared/model/magasin.model';
+import { IMagasin, IStorage } from '../../shared/model/magasin.model';
 import { WarehouseCommonModule } from '../../shared/warehouse-common/warehouse-common.module';
 import { ButtonModule } from 'primeng/button';
-import { RippleModule } from 'primeng/ripple';
-import { ConfirmDialogModule } from 'primeng/confirmdialog';
-import { ToastModule } from 'primeng/toast';
-import { FileUploadModule } from 'primeng/fileupload';
 import { ToolbarModule } from 'primeng/toolbar';
 import { TableModule } from 'primeng/table';
 import { InputTextModule } from 'primeng/inputtext';
 import { TooltipModule } from 'primeng/tooltip';
-import { FormsModule } from '@angular/forms';
-import { DropdownModule } from 'primeng/dropdown';
-import { DialogModule } from 'primeng/dialog';
-import { acceptButtonProps, rejectButtonProps } from '../../shared/util/modal-button-props';
+import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { IconField } from 'primeng/iconfield';
 import { InputIcon } from 'primeng/inputicon';
+import { ConfirmDialogComponent } from '../../shared/dialog/confirm-dialog/confirm-dialog.component';
+import { ToastAlertComponent } from '../../shared/toast-alert/toast-alert.component';
+import { Panel } from 'primeng/panel';
+import { Select } from 'primeng/select';
+import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
+import { ErrorService } from '../../shared/error.service';
+import { SpinerService } from '../../shared/spiner.service';
+import { showCommonModal } from '../sales/selling-home/sale-helper';
+import { FileUploadDialogComponent } from '../groupe-tiers-payant/file-upload-dialog/file-upload-dialog.component';
+import { finalize, takeUntil } from 'rxjs/operators';
+import { CloneFormComponent } from './clone-form/clone-form.component';
+import { MagasinService } from '../magasin/magasin.service';
+import { StorageService } from '../storage/storage.service';
+import { Storage } from '../storage/storage.model';
 
 @Component({
   selector: 'jhi-rayon',
   templateUrl: './rayon.component.html',
   styleUrls: ['./rayon.component.scss'],
-  providers: [MessageService, DialogService, ConfirmationService],
   imports: [
     WarehouseCommonModule,
     ButtonModule,
-    RippleModule,
-    ConfirmDialogModule,
-    ToastModule,
-    DropdownModule,
-    FileUploadModule,
     ToolbarModule,
     TableModule,
     RouterModule,
     InputTextModule,
     TooltipModule,
-    DynamicDialogModule,
     FormsModule,
-    DialogModule,
     IconField,
     InputIcon,
+    ConfirmDialogComponent,
+    ToastAlertComponent,
+    Panel,
+    Select,
+    ReactiveFormsModule,
   ],
 })
-export class RayonComponent implements OnInit {
-  magasin?: IMagasin;
-  clone?: IMagasin;
-  magasins: IMagasin[];
-  displayDialog?: boolean;
-  fileDialog?: boolean;
-  responseDialog?: boolean;
-  dialogueClone?: boolean;
-  responsedto?: IResponseDto;
-  ref?: DynamicDialogRef;
-  loading?: boolean;
-  entites: IRayon[];
-  totalItems = 0;
-  itemsPerPage = ITEMS_PER_PAGE;
-  page = 0;
-  ngbPaginationPage = 1;
-  customUpload = true;
-  selectedEl: IRayon[];
-  multipleSite = false;
-  protected entityService = inject(RayonService);
-  protected activatedRoute = inject(ActivatedRoute);
-  protected router = inject(Router);
-  protected modalService = inject(ConfirmationService);
-  protected dialogService = inject(DialogService);
-  protected messageService = inject(MessageService);
-
-  constructor() {
-    this.magasins = [];
-    this.selectedEl = [];
-    this.entites = [];
-  }
-
+export class RayonComponent implements OnInit, OnDestroy {
+  protected magasin?: IMagasin;
+  protected storage?: IStorage;
+  protected magasins: IMagasin[] = [];
+  protected storages: IStorage[] = [];
+  protected displayDialog?: boolean;
+  protected fileDialog?: boolean;
+  protected responseDialog?: boolean;
+  protected dialogueClone?: boolean;
+  protected responsedto?: IResponseDto;
+  protected loading?: boolean;
+  protected entites: IRayon[] = [];
+  protected totalItems = 0;
+  protected itemsPerPage = ITEMS_PER_PAGE;
+  protected page = 0;
+  protected ngbPaginationPage = 1;
+  protected customUpload = true;
+  protected selectedEl: IRayon[] = [];
+  private readonly entityService = inject(RayonService);
+  private readonly confimDialog = viewChild.required<ConfirmDialogComponent>('confirmDialog');
+  private readonly alert = viewChild.required<ToastAlertComponent>('alert');
+  private readonly modalService = inject(NgbModal);
+  private readonly errorService = inject(ErrorService);
+  private readonly spinner = inject(SpinerService);
+  private readonly magasinService = inject(MagasinService);
+  private readonly storageService = inject(StorageService);
+  private destroy$ = new Subject<void>();
   ngOnInit(): void {
-    this.findUserMagasin();
-    this.loadPage(0);
+    this.fetchCurrentUserMagasin();
   }
 
-  onUpload(event: any): void {
-    const formData: FormData = new FormData();
-    const file = event.files[0];
-    formData.append('importcsv', file, file.name);
-    this.uploadFileResponse(this.entityService.uploadRayonFile(formData));
+  ngOnDestroy(): void {
+    this.destroy$.next();
+    this.destroy$.complete();
   }
 
-  cancel(): void {
-    this.displayDialog = false;
-    this.fileDialog = false;
-  }
-
-  onChange(event: any): void {
-    this.magasin = event.value;
+  protected onChange(): void {
     this.selectedEl = [];
     this.loadPage(0);
   }
 
-  loadPage(page?: number, search?: string): void {
+  protected loadPage(page?: number, search?: string): void {
     // const pageToLoad: number = page || this.page;
     const pageToLoad: number = page || this.page || 1;
     const query: string = search || '';
@@ -117,14 +106,15 @@ export class RayonComponent implements OnInit {
         page: pageToLoad - 1,
         size: ITEMS_PER_PAGE,
         search: query,
+        storageId: this.storage?.id,
       })
       .subscribe({
         next: (res: HttpResponse<IRayon[]>) => this.onSuccess(res.body, res.headers, pageToLoad),
-        error: () => this.onError(),
+        error: err => this.onError(err),
       });
   }
 
-  lazyLoading(event: LazyLoadEvent): void {
+  protected lazyLoading(event: LazyLoadEvent): void {
     if (event) {
       this.page = event.first / event.rows;
       this.loading = true;
@@ -133,103 +123,128 @@ export class RayonComponent implements OnInit {
           page: this.page,
           size: event.rows,
           search: '',
-          magasinId: this.magasin?.id,
+          storageId: this.storage?.id,
         })
         .subscribe({
           next: (res: HttpResponse<IRayon[]>) => this.onSuccess(res.body, res.headers, this.page),
-          error: () => this.onError(),
+          error: err => this.onError(err),
         });
     }
   }
 
-  showFileDialog(): void {
-    this.fileDialog = true;
-  }
-
-  addNewEntity(): void {
-    this.ref = this.dialogService.open(FormRayonComponent, {
-      data: { entity: null, magasin: this.magasin },
-      width: '50%',
-      header: 'Ajouter un nouveau rayon',
-    });
-    this.ref.onClose.subscribe((entity: IRayon) => {
-      if (entity) {
+  protected onClone(): void {
+    showCommonModal(
+      this.modalService,
+      CloneFormComponent,
+      {
+        rayons: this.selectedEl,
+      },
+      () => {
         this.loadPage(0);
-      }
-    });
+      },
+      'xl',
+    );
   }
 
-  onEdit(entity: IRayon): void {
-    this.ref = this.dialogService.open(FormRayonComponent, {
-      data: entity,
-      width: '50%',
-      header: 'Modification de ' + entity.libelle,
-    });
+  protected showFileDialog(): void {
+    showCommonModal(
+      this.modalService,
+      FileUploadDialogComponent,
+      {},
+      result => {
+        this.spinner.show();
+        this.uploadFileResponse(this.entityService.uploadRayonFile(result));
+      },
+      'xl',
+    );
+  }
 
-    this.ref.onClose.subscribe((e: IRayon) => {
-      if (e) {
+  protected addNewEntity(): void {
+    showCommonModal(
+      this.modalService,
+      FormRayonComponent,
+      {
+        entity: null,
+        magasin: this.magasin,
+        header: 'Ajouter un nouveau rayon',
+      },
+      () => {
         this.loadPage(0);
-      }
-    });
+      },
+      'xl',
+    );
   }
 
-  delete(entity: IRayon): void {
+  protected onEdit(entity: IRayon): void {
+    showCommonModal(
+      this.modalService,
+      FormRayonComponent,
+      {
+        entity: entity,
+        magasin: this.magasin,
+        header: 'Modification de ' + entity.libelle,
+      },
+      () => {
+        this.loadPage(0);
+      },
+      'xl',
+    );
+  }
+
+  protected delete(entity: IRayon): void {
     if (entity.id) {
       this.confirmDelete(entity.id);
     }
   }
 
-  confirmDelete(id: number): void {
+  protected confirmDelete(id: number): void {
     this.confirmDialog(id);
   }
 
-  confirmDialog(id: number): void {
-    this.modalService.confirm({
-      message: 'Voulez-vous supprimer cet enregistrement ?',
-      header: 'Confirmation',
-      icon: 'pi pi-exclamation-triangle',
-      rejectButtonProps: rejectButtonProps(),
-      acceptButtonProps: acceptButtonProps(),
-      accept: () => {
+  protected confirmDialog(id: number): void {
+    this.confimDialog().onConfirm(
+      () => {
         this.entityService.delete(id).subscribe(() => {
           this.loadPage(0);
         });
       },
-    });
+      'Suppression',
+      'Êtes-vous sûr de vouloir supprimer ?',
+    );
   }
 
-  search(event: any): void {
+  protected search(event: any): void {
     this.loadPage(0, event.target.value);
   }
 
-  onCloneChange(event: any): void {
-    if (this.clone.id === this.magasin.id) {
-      this.clone = undefined;
-      this.messageService.add({
-        severity: 'error',
-        summary: 'Avertissement',
-        detail: 'Le point de stockage de destination doit être différent',
-      });
-    } else {
-      this.clone = event.value;
-    }
-  }
-
-  clonerRayon(): void {
-    //  const rayons = this.selectedEl.map(e => e.id);
-    if (this.selectedEl && this.clone) {
-      this.uploadFileResponse(this.entityService.cloner(this.selectedEl, this.clone.id));
-    }
-  }
-
-  protected uploadFileResponse(result: Observable<HttpResponse<IResponseDto>>): void {
-    result.subscribe({
-      next: (res: HttpResponse<IResponseDto>) => this.onPocesCsvSuccess(res.body),
-      error: () => this.onSaveError(),
+  protected fetchCurrentUserMagasin(): void {
+    this.magasinService.findCurrentUserMagasin().then(magasin => {
+      this.magasin = magasin;
+      this.findMagsinStorage(magasin.id);
     });
   }
 
-  protected onPocesCsvSuccess(responseDto: IResponseDto | null): void {
+  private findMagsinStorage(magasinId: number): void {
+    this.storageService
+      .fetchStorages({
+        magasinId,
+      })
+      .pipe(takeUntil(this.destroy$))
+      .subscribe((res: HttpResponse<Storage[]>) => {
+        this.storages = res.body;
+        this.storage = this.storages.find(s => s.storageType === 'Stockage principal');
+        this.loadPage(0);
+      });
+  }
+
+  private uploadFileResponse(result: Observable<HttpResponse<IResponseDto>>): void {
+    result.pipe(finalize(() => this.spinner.hide())).subscribe({
+      next: (res: HttpResponse<IResponseDto>) => this.onPocesCsvSuccess(res.body),
+      error: err => this.onSaveError(err),
+    });
+  }
+
+  private onPocesCsvSuccess(responseDto: IResponseDto | null): void {
     if (responseDto) {
       this.responsedto = responseDto;
     }
@@ -239,9 +254,11 @@ export class RayonComponent implements OnInit {
     this.loadPage(0);
   }
 
-  protected onSaveError(): void {}
+  private onSaveError(error: HttpErrorResponse): void {
+    this.alert().showError(this.errorService.getErrorMessage(error));
+  }
 
-  protected onSuccess(data: IRayon[] | null, headers: HttpHeaders, page: number): void {
+  private onSuccess(data: IRayon[] | null, headers: HttpHeaders, page: number): void {
     this.totalItems = Number(headers.get('X-Total-Count'));
     this.page = page;
     this.ngbPaginationPage = this.page;
@@ -249,15 +266,9 @@ export class RayonComponent implements OnInit {
     this.loading = false;
   }
 
-  private onError(): void {
+  private onError(error: HttpErrorResponse): void {
     this.ngbPaginationPage = this.page ?? 1;
     this.loading = false;
-  }
-
-  private findUserMagasin(): void {
-    /*  this.magasinService.findConnectedUserStockages().then(magasin => {
-        this.magasins = magasin;
-
-      });*/
+    this.alert().showError(this.errorService.getErrorMessage(error));
   }
 }

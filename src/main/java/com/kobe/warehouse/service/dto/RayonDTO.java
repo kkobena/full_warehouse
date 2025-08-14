@@ -12,7 +12,8 @@ public class RayonDTO implements Serializable {
     private Long storageId;
     private boolean exclude;
     private String storageLibelle;
-    private  long inventoryId;
+    private String storageType;
+    private long inventoryId;
 
     public RayonDTO() {}
 
@@ -21,6 +22,7 @@ public class RayonDTO implements Serializable {
         this.code = rayon.getCode();
         this.libelle = rayon.getLibelle();
         Storage storage = rayon.getStorage();
+        this.storageType = storage.getStorageType().getValue();
         this.storageId = storage.getId();
         this.storageLibelle = storage.getName();
         this.exclude = rayon.isExclude();
@@ -32,6 +34,15 @@ public class RayonDTO implements Serializable {
 
     public RayonDTO setInventoryId(long inventoryId) {
         this.inventoryId = inventoryId;
+        return this;
+    }
+
+    public String getStorageType() {
+        return storageType;
+    }
+
+    public RayonDTO setStorageType(String storageType) {
+        this.storageType = storageType;
         return this;
     }
 

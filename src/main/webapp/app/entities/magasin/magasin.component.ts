@@ -4,7 +4,6 @@ import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
 
 import { IMagasin } from 'app/shared/model/magasin.model';
 import { MagasinService } from './magasin.service';
-import { MagasinDeleteDialogComponent } from './magasin-delete-dialog.component';
 import { WarehouseCommonModule } from '../../shared/warehouse-common/warehouse-common.module';
 import { PanelModule } from 'primeng/panel';
 import { RouterModule } from '@angular/router';
@@ -18,34 +17,21 @@ import { RippleModule } from 'primeng/ripple';
 })
 export class MagasinComponent implements OnInit {
   magasin?: IMagasin;
-  protected magasinService = inject(MagasinService);
-  protected modalService = inject(NgbModal);
-
-  loadAll(): void {
-    this.magasinService.findCurrentUserMagasin().then(magasin => {
-      this.magasin = magasin;
-    });
-  }
+  private readonly magasinService = inject(MagasinService);
+  private readonly modalService = inject(NgbModal);
 
   ngOnInit(): void {
     this.loadAll();
     this.registerChangeInMagasins();
   }
 
-  trackId(index: number, item: IMagasin): number {
-    // eslint-disable-next-line @typescript-eslint/no-unnecessary-type-assertion
-    return item.id!;
-  }
-
-  registerChangeInMagasins(): void {
-    this.loadAll();
-  }
-
-  delete(magasin: IMagasin): void {
-    const modalRef = this.modalService.open(MagasinDeleteDialogComponent, {
-      size: 'lg',
-      backdrop: 'static',
+  protected loadAll(): void {
+    this.magasinService.findCurrentUserMagasin().then(magasin => {
+      this.magasin = magasin;
     });
-    modalRef.componentInstance.magasin = magasin;
+  }
+
+  protected registerChangeInMagasins(): void {
+    this.loadAll();
   }
 }

@@ -25,10 +25,9 @@ public interface CustomizedRayonService {
         return dto;
     }
 
-    default Rayon buildRayonFromRayonDTO(RayonDTO dto, Rayon rayon) {
+    default void buildRayonFromRayonDTO(RayonDTO dto, Rayon rayon) {
         rayon.setCode(dto.getCode());
         rayon.setLibelle(dto.getLibelle());
-        return rayon;
     }
 
     default Rayon buildRayonFromRayonDTO(RayonDTO dto) {
@@ -51,13 +50,5 @@ public interface CustomizedRayonService {
         Storage storage = new Storage();
         storage.setId(id);
         return storage;
-    }
-
-    default Rayon cloner(Rayon rayon) {
-        Rayon dto = new Rayon();
-        dto.setCode(rayon.getCode());
-        dto.setLibelle(rayon.getLibelle());
-        dto.setExclude(rayon.isExclude());
-        return dto;
     }
 }

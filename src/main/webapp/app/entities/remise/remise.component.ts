@@ -1,70 +1,52 @@
-import { Component, inject, OnInit } from '@angular/core';
-import { ConfirmationService, MessageService } from 'primeng/api';
-import { WarehouseCommonModule } from '../../shared/warehouse-common/warehouse-common.module';
-import { FormsModule } from '@angular/forms';
-import { ConfirmDialogModule } from 'primeng/confirmdialog';
-import { DialogModule } from 'primeng/dialog';
+import { Component, inject, OnInit, viewChild } from '@angular/core';
 import { ToolbarModule } from 'primeng/toolbar';
 import { ButtonModule } from 'primeng/button';
-import { InputTextModule } from 'primeng/inputtext';
-import { RippleModule } from 'primeng/ripple';
-import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 import { TableModule } from 'primeng/table';
 import { TooltipModule } from 'primeng/tooltip';
-import { KeyFilterModule } from 'primeng/keyfilter';
-import { ToastModule } from 'primeng/toast';
 import { IResponseDto } from '../../shared/util/response-dto';
-import { HttpResponse } from '@angular/common/http';
+import { HttpErrorResponse, HttpResponse } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { IRemise } from '../../shared/model/remise.model';
 import { RemiseService } from './remise.service';
-import { DropdownModule } from 'primeng/dropdown';
-import { CalendarModule } from 'primeng/calendar';
 import { InputSwitchModule } from 'primeng/inputswitch';
-import { StyleClassModule } from 'primeng/styleclass';
 import { RemiseClientFormModalComponent } from './remise-client-form-modal/remise-client-form-modal.component';
 import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
-import { acceptButtonProps, rejectButtonProps } from '../../shared/util/modal-button-props';
+import { ConfirmDialogComponent } from '../../shared/dialog/confirm-dialog/confirm-dialog.component';
+import { ToastAlertComponent } from '../../shared/toast-alert/toast-alert.component';
+import { Panel } from 'primeng/panel';
+import { ErrorService } from '../../shared/error.service';
+import { FormsModule } from '@angular/forms';
 
 @Component({
   selector: 'jhi-remise',
-  providers: [MessageService, ConfirmationService],
   imports: [
-    WarehouseCommonModule,
-    FormsModule,
-    ConfirmDialogModule,
-    DialogModule,
     ToolbarModule,
+    FormsModule,
     ButtonModule,
-    InputTextModule,
-    RippleModule,
-    RouterModule,
     TableModule,
     TooltipModule,
-    KeyFilterModule,
-    ToastModule,
-    DropdownModule,
-    CalendarModule,
     InputSwitchModule,
-    StyleClassModule,
+    ConfirmDialogComponent,
+    ToastAlertComponent,
+    Panel,
   ],
   templateUrl: './remise.component.html',
 })
 export class RemiseComponent implements OnInit {
-  responsedto!: IResponseDto;
-  entites?: IRemise[];
-  loading = false;
+  protected responsedto!: IResponseDto;
+  protected entites?: IRemise[];
+  protected loading = false;
+  private readonly ngModalService = inject(NgbModal);
+  private readonly entityService = inject(RemiseService);
+  private readonly confimDialog = viewChild.required<ConfirmDialogComponent>('confirmDialog');
+  private readonly alert = viewChild.required<ToastAlertComponent>('alert');
+  private readonly errorService = inject(ErrorService);
 
-  // types: RemiseType[] = [RemiseType.remiseProduit, RemiseType.remiseClient];
+  ngOnInit(): void {
+    this.loadPage();
+  }
 
-  ngModalService = inject(NgbModal);
-  entityService = inject(RemiseService);
-  activatedRoute = inject(ActivatedRoute);
-  router = inject(Router);
-  messageService = inject(MessageService);
-  modalService = inject(ConfirmationService);
-
-  loadPage(): void {
+  protected loadPage(): void {
     this.loading = true;
     this.entityService.query({ typeRemise: 'CLIENT' }).subscribe({
       next: (res: HttpResponse<IRemise[]>) => this.onSuccess(res.body),
@@ -72,50 +54,38 @@ export class RemiseComponent implements OnInit {
     });
   }
 
-  lazyLoading(): void {
-    this.loadPage();
-  }
-
-  confirmDialog(id: number): void {
-    this.modalService.confirm({
-      message: 'Voulez-vous supprimer cet enregistrement ?',
-      header: 'Confirmation',
-      icon: 'pi pi-exclamation-triangle',
-      rejectButtonProps: rejectButtonProps(),
-      acceptButtonProps: acceptButtonProps(),
-      accept: () => {
+  protected confirmDialog(id: number): void {
+    this.confimDialog().onConfirm(
+      () => {
         this.entityService.delete(id).subscribe(() => {
           this.loadPage();
         });
       },
-    });
+      'Confirmation',
+      'Voulez-vous supprimer cet enregistrement ?',
+    );
   }
 
-  onOpenRemiseClientForm(remise?: IRemise): void {
+  protected onOpenRemiseClientForm(remise?: IRemise): void {
     const modalRef = this.ngModalService.open(RemiseClientFormModalComponent, {
       backdrop: 'static',
       size: 'lg',
       centered: true,
-      animation: true,
     });
     modalRef.componentInstance.entity = remise;
-    modalRef.componentInstance.title = remise.id ? 'Modifier la remise' : 'Ajouter une remise client';
+    modalRef.componentInstance.title = remise?.id ? 'Modifier la remise' : 'Ajouter une remise client';
     modalRef.closed.subscribe(r => {
       this.loadPage();
     });
   }
 
-  delete(entity: IRemise): void {
+  protected delete(entity: IRemise): void {
     if (entity && entity.id) {
       this.confirmDelete(entity.id);
     }
   }
 
-  ngOnInit(): void {
-    this.loadPage();
-  }
-
-  confirmDelete(id: number): void {
+  protected confirmDelete(id: number): void {
     this.confirmDialog(id);
   }
 
@@ -137,19 +107,15 @@ export class RemiseComponent implements OnInit {
     this.loadPage();
   }
 
-  private onSaveError(): void {
-    this.messageService.add({
-      severity: 'error',
-      summary: 'Erreur',
-      detail: "L'enregistrement n'a pas été effectué!",
-    });
+  private onSaveError(error: HttpErrorResponse): void {
+    this.alert().showError(this.errorService.getErrorMessage(error));
     this.loadPage();
   }
 
   private subscribeToSaveResponse(result: Observable<HttpResponse<IRemise>>): void {
     result.subscribe({
       next: () => this.onSaveSuccess(),
-      error: () => this.onSaveError(),
+      error: err => this.onSaveError(err),
     });
   }
 }

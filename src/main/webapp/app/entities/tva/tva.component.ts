@@ -1,96 +1,35 @@
-import { Component, OnInit, inject } from '@angular/core';
-import { Observable } from 'rxjs';
-import { ITEMS_PER_PAGE } from '../../shared/constants/pagination.constants';
-import { ConfirmationService, LazyLoadEvent } from 'primeng/api';
+import { Component, inject, OnInit, viewChild } from '@angular/core';
 import { TvaService } from './tva.service';
-import { ActivatedRoute, Router, RouterModule } from '@angular/router';
-import { HttpHeaders, HttpResponse } from '@angular/common/http';
-import { FormsModule, ReactiveFormsModule, UntypedFormBuilder, Validators } from '@angular/forms';
-import { ITva, Tva } from '../../shared/model/tva.model';
-import { WarehouseCommonModule } from '../../shared/warehouse-common/warehouse-common.module';
-import { ConfirmDialogModule } from 'primeng/confirmdialog';
-import { DialogModule } from 'primeng/dialog';
+import { HttpResponse } from '@angular/common/http';
+import { ITva } from '../../shared/model/tva.model';
 import { ButtonModule } from 'primeng/button';
-import { InputTextModule } from 'primeng/inputtext';
-import { RippleModule } from 'primeng/ripple';
 import { TableModule } from 'primeng/table';
-import { KeyFilterModule } from 'primeng/keyfilter';
-import { acceptButtonProps, rejectButtonProps } from '../../shared/util/modal-button-props';
+import { ConfirmDialogComponent } from '../../shared/dialog/confirm-dialog/confirm-dialog.component';
+import { Panel } from 'primeng/panel';
+import { Toolbar } from 'primeng/toolbar';
+import { Tooltip } from 'primeng/tooltip';
+import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
+import { showCommonModal } from '../sales/selling-home/sale-helper';
+import { FormTvaComponent } from './form-tva/form-tva.component';
+import { CommonModule } from '@angular/common';
 
 @Component({
   selector: 'jhi-tva',
   templateUrl: './tva.component.html',
-  providers: [ConfirmationService],
-  imports: [
-    WarehouseCommonModule,
-    FormsModule,
-    ConfirmDialogModule,
-    DialogModule,
-    ReactiveFormsModule,
-    ButtonModule,
-    InputTextModule,
-    RippleModule,
-    RouterModule,
-    TableModule,
-    KeyFilterModule,
-  ],
+  imports: [CommonModule, ButtonModule, TableModule, Panel, Toolbar, Tooltip, ConfirmDialogComponent],
 })
 export class TvaComponent implements OnInit {
-  protected tvaService = inject(TvaService);
-  protected activatedRoute = inject(ActivatedRoute);
-  protected router = inject(Router);
-  protected modalService = inject(ConfirmationService);
-  private fb = inject(UntypedFormBuilder);
-
-  tvas?: ITva[];
-  totalItems = 0;
-  itemsPerPage = ITEMS_PER_PAGE;
-  page = 0;
-  predicate!: string;
-  ascending!: boolean;
-  selectedTva?: ITva;
-  loading!: boolean;
-  isSaving = false;
-  displayDialog?: boolean;
-  editForm = this.fb.group({
-    id: [],
-    taux: [null, [Validators.required]],
-  });
-
-  loadPage(page?: number): void {
-    const pageToLoad: number = page || this.page;
-    this.loading = true;
-    this.tvaService
-      .query({
-        page: pageToLoad,
-        size: this.itemsPerPage,
-      })
-      .subscribe({
-        next: (res: HttpResponse<ITva[]>) => this.onSuccess(res.body, res.headers, pageToLoad),
-        error: () => this.onError(),
-      });
-  }
-
-  lazyLoading(event: LazyLoadEvent): void {
-    if (event) {
-      this.page = event.first / event.rows;
-      this.loading = true;
-      this.tvaService
-        .query({
-          page: this.page,
-          size: event.rows,
-        })
-        .subscribe({
-          next: (res: HttpResponse<ITva[]>) => this.onSuccess(res.body, res.headers, this.page),
-          error: () => this.onError(),
-        });
-    }
-  }
+  protected tvas?: ITva[];
+  protected selectedTva?: ITva;
+  protected loading!: boolean;
+  protected isSaving = false;
+  protected displayDialog?: boolean;
+  private readonly tvaService = inject(TvaService);
+  private readonly modalService = inject(NgbModal);
+  private readonly confimDialog = viewChild.required<ConfirmDialogComponent>('confirmDialog');
 
   ngOnInit(): void {
-    this.activatedRoute.data.subscribe(() => {
-      this.loadPage();
-    });
+    this.loadPage();
   }
 
   delete(tva: ITva): void {
@@ -99,94 +38,54 @@ export class TvaComponent implements OnInit {
     }
   }
 
-  sort(): string[] {
-    const result = [this.predicate + ',' + (this.ascending ? 'asc' : 'desc')];
-    if (this.predicate !== 'id') {
-      result.push('id');
-    }
-    return result;
-  }
-
   confirmDelete(id: number): void {
     this.confirmDialog(id);
   }
 
   confirmDialog(id: number): void {
-    this.modalService.confirm({
-      message: 'Voulez-vous supprimer cet enregistrement ?',
-      header: 'Confirmation',
-      rejectButtonProps: rejectButtonProps(),
-      acceptButtonProps: acceptButtonProps(),
-      icon: 'pi pi-exclamation-triangle',
-      accept: () => {
+    this.confimDialog().onConfirm(
+      () => {
         this.tvaService.delete(id).subscribe(() => {
-          this.loadPage(0);
+          this.loadPage();
         });
       },
-    });
+      'Confirmation',
+      'Voulez-vous supprimer cet enregistrement ?',
+    );
   }
 
-  updateForm(tva: ITva): void {
-    this.editForm.patchValue({
-      id: tva.id,
-      taux: tva.taux,
-    });
+  protected loadPage(): void {
+    this.loading = true;
+    this.tvaService
+      .query({
+        page: 0,
+        size: 100,
+      })
+      .subscribe({
+        next: (res: HttpResponse<ITva[]>) => this.onSuccess(res.body),
+        error: () => this.onError(),
+      });
   }
 
-  save(): void {
-    this.isSaving = true;
-    const tva = this.createFromForm();
-    this.subscribeToSaveResponse(this.tvaService.create(tva));
-  }
-
-  cancel(): void {
-    this.displayDialog = false;
-  }
-
-  addNewEntity(): void {
-    this.updateForm(new Tva());
-    this.displayDialog = true;
-  }
-
-  protected onSuccess(data: ITva[] | null, headers: HttpHeaders, page: number): void {
-    this.totalItems = Number(headers.get('X-Total-Count'));
-    this.page = page;
-    this.router.navigate(['/tva'], {
-      queryParams: {
-        page: this.page,
-        size: this.itemsPerPage,
+  protected addNewEntity(): void {
+    showCommonModal(
+      this.modalService,
+      FormTvaComponent,
+      {
+        header: 'Ajouter un taux tva',
       },
-    });
+      () => {
+        this.loadPage();
+      },
+      'sm',
+    );
+  }
+  private onSuccess(data: ITva[] | null): void {
     this.tvas = data || [];
     this.loading = false;
   }
 
-  protected onError(): void {
+  private onError(): void {
     this.loading = false;
-  }
-
-  protected onSaveSuccess(): void {
-    this.isSaving = false;
-    this.displayDialog = false;
-    this.loadPage(0);
-  }
-
-  protected onSaveError(): void {
-    this.isSaving = false;
-  }
-
-  protected subscribeToSaveResponse(result: Observable<HttpResponse<ITva>>): void {
-    result.subscribe({
-      next: () => this.onSaveSuccess(),
-      error: () => this.onSaveError(),
-    });
-  }
-
-  private createFromForm(): ITva {
-    return {
-      ...new Tva(),
-      id: this.editForm.get(['id']).value,
-      taux: this.editForm.get(['taux']).value,
-    };
   }
 }

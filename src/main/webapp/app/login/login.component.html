@@ -1,8 +1,8 @@
-<div>
-  <div class="d-flex justify-content-center" style="padding-top: 2rem">
-    <div class="col-lg-4 col-md-5 col-sm-8">
+<div class="container">
+  <div class="row justify-content-center">
+    <div class="col-lg-7 col-md-8 col-sm-12 col-xl-5 col-xxl-4 mt-5">
       <p-card>
-        <h1 data-cy="loginTitle">Formulaire de connexion</h1>
+        <h4 class="fw-semibold">Authentification</h4>
         @if (authenticationError()) {
           <div class="alert alert-danger" data-cy="loginError"
                jhiTranslate="login.messages.error.authentication">

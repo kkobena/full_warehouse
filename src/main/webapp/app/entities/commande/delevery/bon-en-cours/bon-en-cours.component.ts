@@ -1,9 +1,7 @@
 import { Component, inject, input, OnDestroy, OnInit } from '@angular/core';
 import { IDelivery } from '../../../../shared/model/delevery.model';
 import { ITEMS_PER_PAGE } from '../../../../shared/constants/pagination.constants';
-import { DynamicDialogModule, DynamicDialogRef } from 'primeng/dynamicdialog';
 import { RouterModule } from '@angular/router';
-import { NgxSpinnerModule, NgxSpinnerService } from 'ngx-spinner';
 import { DeliveryService } from '../delivery.service';
 import { HttpHeaders, HttpResponse } from '@angular/common/http';
 import { WarehouseCommonModule } from '../../../../shared/warehouse-common/warehouse-common.module';
@@ -13,13 +11,14 @@ import { TooltipModule } from 'primeng/tooltip';
 import { CommandeService } from '../../commande.service';
 import { Subject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
+import { SpinerService } from '../../../../shared/spiner.service';
 
 export type ExpandMode = 'single' | 'multiple';
 
 @Component({
   selector: 'jhi-bon-en-cours',
   templateUrl: './bon-en-cours.component.html',
-  imports: [WarehouseCommonModule, ButtonModule, TableModule, NgxSpinnerModule, RouterModule, DynamicDialogModule, TooltipModule],
+  imports: [WarehouseCommonModule, ButtonModule, TableModule, RouterModule, TooltipModule]
 })
 export class BonEnCoursComponent implements OnInit, OnDestroy {
   search = input<string>('');
@@ -31,10 +30,9 @@ export class BonEnCoursComponent implements OnInit, OnDestroy {
   protected page = 0;
   protected ngbPaginationPage = 1;
   protected totalItems = 0;
-  protected ref?: DynamicDialogRef;
   protected readonly selectedFilter = 'RECEIVED';
   private readonly commandeService = inject(CommandeService);
-  private readonly spinner = inject(NgxSpinnerService);
+  private readonly spinner = inject(SpinerService);
   private readonly entityService = inject(DeliveryService);
   private destroy$ = new Subject<void>();
 
@@ -63,11 +61,11 @@ export class BonEnCoursComponent implements OnInit, OnDestroy {
         page: pageToLoad,
         size: this.itemsPerPage,
         search: this.search(),
-        orderStatuts: [this.selectedFilter],
+        orderStatuts: [this.selectedFilter]
       })
       .subscribe({
         next: (res: HttpResponse<IDelivery[]>) => this.onSuccess(res.body, res.headers, pageToLoad),
-        error: () => this.onError(),
+        error: () => this.onError()
       });
   }
 
@@ -86,7 +84,7 @@ export class BonEnCoursComponent implements OnInit, OnDestroy {
           const blobUrl = URL.createObjectURL(blod);
           window.open(blobUrl);
         },
-        error: () => this.spinner.hide(),
+        error: () => this.spinner.hide()
       });
   }
 

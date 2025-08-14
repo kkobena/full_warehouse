@@ -1,62 +1,60 @@
-<ngx-spinner
-  [fullScreen]="false"
-  bdColor="rgba(255,255,255,0.5)"
-  color="#f13151"
-  name="upload-commande-spinner"
-  size="medium"
-  type="timer"
-></ngx-spinner>
-
+<div class="modal-header">
+  <h4 class="modal-title">{{ header }}</h4>
+  <button (click)="cancel()" aria-label="Close" class="btn-close" type="button">
+    <span aria-hidden="true">&times;</span>
+  </button>
+</div>
 <div class="modal-body">
-  <div class="form-row">
-    <div class="form-group col">
-      <label class="form-control-label">Fournisseurs</label>
-      <p-select
-        [(ngModel)]="fournisseurSelectedId"
-        [appendTo]="appendTo"
-        [filter]="true"
-        [options]="fournisseurs"
-        [style]="{ width: '100%' }"
-        optionLabel="libelle"
-        optionValue="id"
-        placeholder="Séléctionner un fournisseur "
-      >
-      </p-select>
-    </div>
-  </div>
-  <div class="form-row">
-    <div class="form-group col">
-      <label class="form-control-label">Model de fichier</label>
-      <p-select
-        [(ngModel)]="modelSelected"
-        [appendTo]="appendTo"
-        [filter]="false"
-        [options]="models"
-        [style]="{ width: '100%' }"
-        optionLabel="label"
-        optionValue="value"
-        placeholder="Séléctionner un model de fichier "
-      >
-      </p-select>
-    </div>
-  </div>
-  <div class="form-row">
-    <p-fileupload
-      #fileUpload
-      (uploadHandler)="uploadHandler($event, fileUpload)"
-      [auto]="true"
-      [customUpload]="true"
-      [showCancelButton]="true"
-      accept=".csv,.txt"
-      chooseLabel="Importer un fichier"
-      mode="basic"
-    >
-    </p-fileupload>
-  </div>
+ <p-card>
+   <div class="form-row">
+     <div class="form-group col">
+       <label class="form-control-label">Fournisseurs</label>
+       <p-select
+         [(ngModel)]="fournisseurSelectedId"
+         [filter]="true"
+         [options]="fournisseurs"
+         [style]="{ width: '100%' }"
+         optionLabel="libelle"
+         optionValue="id"
+         placeholder="Séléctionner un fournisseur "
+       >
+       </p-select>
+     </div>
+   </div>
+   <div class="form-row">
+     <div class="form-group col">
+       <label class="form-control-label">Model de fichier</label>
+       <p-select
+         [(ngModel)]="modelSelected"
+         [filter]="false"
+         [options]="models"
+         [style]="{ width: '100%' }"
+         optionLabel="label"
+         optionValue="value"
+         placeholder="Séléctionner un model de fichier "
+       >
+       </p-select>
+     </div>
+   </div>
+   <div class="form-row">
+     <p-fileupload
+       #fileUpload
+       (uploadHandler)="uploadHandler($event, fileUpload)"
+       [auto]="true"
+       [customUpload]="true"
+       [showCancelButton]="true"
+       accept=".csv,.txt"
+       chooseLabel="Importer un fichier"
+       mode="basic"
+     >
+     </p-fileupload>
+   </div>
+ </p-card>
 </div>
 
 <div class="modal-footer">
-  <p-button (click)="cancel()" data-dismiss="modal" icon="pi pi-times" label="Annuler" raised="true" severity="danger" type="button">
+  <p-button class="mr-2" (click)="cancel()" data-dismiss="modal" icon="pi pi-times" label="Annuler" raised="true"
+            severity="secondary" type="button">
   </p-button>
 
   <p-button
@@ -66,7 +64,8 @@
     id="save-entity"
     label="Enregister"
     raised="true"
-    severity="success"
+    severity="primary"
   >
   </p-button>
 </div>
+<jhi-toast-alert #alert></jhi-toast-alert>

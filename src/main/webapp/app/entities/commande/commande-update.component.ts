@@ -1,77 +1,72 @@
-import {AfterViewInit, Component, ElementRef, inject, OnInit, viewChild} from '@angular/core';
-import {HttpResponse} from '@angular/common/http';
+import { AfterViewInit, Component, ElementRef, inject, OnInit, viewChild } from '@angular/core';
+import { HttpResponse } from '@angular/common/http';
 
-import {ActivatedRoute, Router, RouterModule} from '@angular/router';
-import {Observable} from 'rxjs';
-import {Commande, ICommande} from 'app/shared/model/commande.model';
-import {CommandeService} from './commande.service';
-import {ProduitService} from '../produit/produit.service';
-import {IProduit} from 'app/shared/model/produit.model';
-import {NgbModal} from '@ng-bootstrap/ng-bootstrap';
-import {AlertInfoComponent} from 'app/shared/alert/alert-info.component';
-import {IFournisseur} from '../../shared/model/fournisseur.model';
-import {FournisseurService} from '../fournisseur/fournisseur.service';
-import {IOrderLine, OrderLine} from '../../shared/model/order-line.model';
-import {ConfirmationService, MenuItem, MessageService} from 'primeng/api';
-import {ErrorService} from '../../shared/error.service';
-import {DialogService, DynamicDialogRef} from 'primeng/dynamicdialog';
-import {saveAs} from 'file-saver';
-import {NgxSpinnerModule, NgxSpinnerService} from 'ngx-spinner';
-import {IResponseCommande} from '../../shared/model/response-commande.model';
-import {CommandeEnCoursResponseDialogComponent} from './commande-en-cours-response-dialog.component';
-import {APPEND_TO, PRODUIT_COMBO_MIN_LENGTH, PRODUIT_NOT_FOUND} from '../../shared/constants/pagination.constants';
-import {WarehouseCommonModule} from '../../shared/warehouse-common/warehouse-common.module';
-import {FormsModule} from '@angular/forms';
-import {ButtonModule} from 'primeng/button';
-import {RippleModule} from 'primeng/ripple';
-import {ConfirmDialogModule} from 'primeng/confirmdialog';
-import {InputTextModule} from 'primeng/inputtext';
-import {TagModule} from 'primeng/tag';
-import {TableModule} from 'primeng/table';
-import {SplitButtonModule} from 'primeng/splitbutton';
-import {AutoCompleteModule} from 'primeng/autocomplete';
-import {FileUploadModule} from 'primeng/fileupload';
-import {DropdownModule} from 'primeng/dropdown';
-import {DialogModule} from 'primeng/dialog';
-import {ToolbarModule} from 'primeng/toolbar';
-import {TooltipModule} from 'primeng/tooltip';
-import {NgSelectModule} from '@ng-select/ng-select';
-import {ToastModule} from 'primeng/toast';
-import {CommandCommonService} from './command-common.service';
-import {acceptButtonProps, rejectButtonProps} from '../../shared/util/modal-button-props';
-import {Select} from 'primeng/select';
-import {InputGroup} from 'primeng/inputgroup';
-import {InputGroupAddon} from 'primeng/inputgroupaddon';
-import {IconField} from 'primeng/iconfield';
-import {InputIcon} from 'primeng/inputicon';
-import {SORT} from '../../shared/util/command-item-sort';
-import {DeliveryModalComponent} from './delevery/form/delivery-modal.component';
-import {DeliveryService} from './delevery/delivery.service';
-import {OrderLineLotsComponent} from './lot/order-line-lots.component';
-import {ButtonGroup} from 'primeng/buttongroup';
-import {Panel} from 'primeng/panel';
-import {ListLotComponent} from './lot/list/list-lot.component';
-import {FormLotComponent} from './lot/form-lot.component';
-import {OrderStatut} from '../../shared/model/enumerations/order-statut.model';
-import {EtiquetteComponent} from './delevery/etiquette/etiquette.component';
-import {FloatLabel} from 'primeng/floatlabel';
-import {Params} from '../../shared/model/enumerations/params.model';
-import {ConfigurationService} from '../../shared/configuration.service';
-import {EditProduitComponent} from './delevery/form/edit-produit/edit-produit.component';
+import { ActivatedRoute, Router, RouterModule } from '@angular/router';
+import { Observable } from 'rxjs';
+import { Commande, ICommande } from 'app/shared/model/commande.model';
+import { CommandeService } from './commande.service';
+import { ProduitService } from '../produit/produit.service';
+import { IProduit } from 'app/shared/model/produit.model';
+import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
+import { AlertInfoComponent } from 'app/shared/alert/alert-info.component';
+import { IFournisseur } from '../../shared/model/fournisseur.model';
+import { FournisseurService } from '../fournisseur/fournisseur.service';
+import { IOrderLine, OrderLine } from '../../shared/model/order-line.model';
+import { MenuItem } from 'primeng/api';
+import { ErrorService } from '../../shared/error.service';
+import { saveAs } from 'file-saver';
+import { IResponseCommande } from '../../shared/model/response-commande.model';
+import { CommandeEnCoursResponseDialogComponent } from './commande-en-cours-response-dialog.component';
+import { APPEND_TO, PRODUIT_COMBO_MIN_LENGTH, PRODUIT_NOT_FOUND } from '../../shared/constants/pagination.constants';
+import { WarehouseCommonModule } from '../../shared/warehouse-common/warehouse-common.module';
+import { FormsModule } from '@angular/forms';
+import { ButtonModule } from 'primeng/button';
+import { RippleModule } from 'primeng/ripple';
+import { InputTextModule } from 'primeng/inputtext';
+import { TagModule } from 'primeng/tag';
+import { TableModule } from 'primeng/table';
+import { SplitButtonModule } from 'primeng/splitbutton';
+import { AutoCompleteModule } from 'primeng/autocomplete';
+import { FileUploadModule } from 'primeng/fileupload';
+import { ToolbarModule } from 'primeng/toolbar';
+import { TooltipModule } from 'primeng/tooltip';
+import { NgSelectModule } from '@ng-select/ng-select';
+import { CommandCommonService } from './command-common.service';
+import { SelectModule } from 'primeng/select';
+import { InputGroup } from 'primeng/inputgroup';
+import { InputGroupAddon } from 'primeng/inputgroupaddon';
+import { IconField } from 'primeng/iconfield';
+import { InputIcon } from 'primeng/inputicon';
+import { SORT } from '../../shared/util/command-item-sort';
+import { DeliveryModalComponent } from './delevery/form/delivery-modal.component';
+import { DeliveryService } from './delevery/delivery.service';
+import { OrderLineLotsComponent } from './lot/order-line-lots.component';
+import { ButtonGroup } from 'primeng/buttongroup';
+import { Panel } from 'primeng/panel';
+import { ListLotComponent } from './lot/list/list-lot.component';
+import { FormLotComponent } from './lot/form-lot.component';
+import { OrderStatut } from '../../shared/model/enumerations/order-statut.model';
+import { EtiquetteComponent } from './delevery/etiquette/etiquette.component';
+import { FloatLabel } from 'primeng/floatlabel';
+import { Params } from '../../shared/model/enumerations/params.model';
+import { ConfigurationService } from '../../shared/configuration.service';
+import { EditProduitComponent } from './delevery/form/edit-produit/edit-produit.component';
+import { showCommonModal } from '../sales/selling-home/sale-helper';
+import { ConfirmDialogComponent } from '../../shared/dialog/confirm-dialog/confirm-dialog.component';
+import { ToastAlertComponent } from '../../shared/toast-alert/toast-alert.component';
+import { SpinerService } from '../../shared/spiner.service';
+import { FileResponseModalComponent } from './file-response-modal/file-response-modal.component';
 
 @Component({
   selector: 'jhi-commande-update',
 
   templateUrl: './commande-update.component.html',
-  providers: [ConfirmationService, DialogService, MessageService],
   imports: [
     WarehouseCommonModule,
     FormsModule,
     NgSelectModule,
     ButtonModule,
     RippleModule,
-    NgxSpinnerModule,
-    ConfirmDialogModule,
     InputTextModule,
     TagModule,
     TableModule,
@@ -79,12 +74,9 @@ import {EditProduitComponent} from './delevery/form/edit-produit/edit-produit.co
     SplitButtonModule,
     AutoCompleteModule,
     FileUploadModule,
-    DropdownModule,
-    DialogModule,
     ToolbarModule,
     TooltipModule,
-    ToastModule,
-    Select,
+    SelectModule,
     InputGroup,
     InputGroupAddon,
     IconField,
@@ -92,7 +84,9 @@ import {EditProduitComponent} from './delevery/form/edit-produit/edit-produit.co
     ButtonGroup,
     Panel,
     FloatLabel,
-  ],
+    ConfirmDialogComponent,
+    ToastAlertComponent
+  ]
 })
 export class CommandeUpdateComponent implements OnInit, AfterViewInit {
   protected readonly RECEIVED = OrderStatut.RECEIVED;
@@ -119,65 +113,63 @@ export class CommandeUpdateComponent implements OnInit, AfterViewInit {
   protected readonly sorts = SORT;
   protected readonly PRODUIT_NOT_FOUND = PRODUIT_NOT_FOUND;
   protected readonly PRODUIT_COMBO_MIN_LENGTH = PRODUIT_COMBO_MIN_LENGTH;
-  protected ref!: DynamicDialogRef;
   protected readonly APPEND_TO = APPEND_TO;
   protected showLotBtn = false;
   private readonly commandeService = inject(CommandeService);
   private readonly produitService = inject(ProduitService);
   private readonly modalService = inject(NgbModal);
   private readonly fournisseurService = inject(FournisseurService);
-  private readonly confirmationService = inject(ConfirmationService);
   private readonly errorService = inject(ErrorService);
-  private readonly spinner = inject(NgxSpinnerService);
-  private readonly messageService = inject(MessageService);
+  private readonly spinner = inject(SpinerService);
   private readonly deliveryService = inject(DeliveryService);
   private readonly commandCommonService = inject(CommandCommonService);
-  private readonly dialogService = inject(DialogService);
   private readonly router = inject(Router);
   private readonly configurationService = inject(ConfigurationService);
   private readonly activatedRoute = inject(ActivatedRoute);
+  private readonly confimDialog = viewChild.required<ConfirmDialogComponent>('confirmDialog');
+  private readonly alert = viewChild.required<ToastAlertComponent>('alert');
 
   constructor() {
     this.selectedEl = [];
     this.filtres = [
-      {label: "Prix d'achat differents", value: 'NOT_EQUAL'},
-      {label: 'Code cip  à mettre à jour', value: 'PROVISOL_CIP'},
-      {label: 'Tous', value: 'ALL'},
+      { label: 'Prix d\'achat differents', value: 'NOT_EQUAL' },
+      { label: 'Code cip  à mettre à jour', value: 'PROVISOL_CIP' },
+      { label: 'Tous', value: 'ALL' }
     ];
     this.commandebuttons = [
       {
         label: 'IMPORTER REPONSE',
         icon: 'pi pi-upload',
-        command: () => (this.fileDialog = true),
+        command: () => (this.fileDialog = true)
       },
       {
         label: 'EXTRANET',
-        icon: 'pi pi-wifi',
+        icon: 'pi pi-wifi'
       },
       {
         label: 'PHARMA-ML',
-        icon: 'pi pi-desktop',
-      },
+        icon: 'pi pi-desktop'
+      }
     ];
 
     this.exportbuttons = [
       {
         label: 'PDF',
         icon: 'pi pi-file-pdf',
-        command: () => this.exportPdf(),
+        command: () => this.exportPdf()
       },
       {
         label: 'CSV',
         icon: 'pi pi-file-excel',
-        command: () => this.exportCSV(),
-      },
+        command: () => this.exportCSV()
+      }
     ];
   }
 
   protected onShowLots(orderLine: IOrderLine): void {
     const modalRef = this.modalService.open(OrderLineLotsComponent, {
       backdrop: 'static',
-      size: 'lg',
+      size: 'lg'
     });
     modalRef.componentInstance.lots = orderLine.lots;
     modalRef.componentInstance.produitLibelle = orderLine?.produitLibelle;
@@ -189,7 +181,7 @@ export class CommandeUpdateComponent implements OnInit, AfterViewInit {
   }
 
   ngOnInit(): void {
-    this.activatedRoute.data.subscribe(({commande}) => {
+    this.activatedRoute.data.subscribe(({ commande }) => {
       if (commande?.id) {
         this.commande = commande;
         this.orderLines = this.commande.orderLines;
@@ -237,7 +229,7 @@ export class CommandeUpdateComponent implements OnInit, AfterViewInit {
       if (this.selectedProvider) {
         if (this.commande?.id !== undefined) {
           this.subscribeToSaveOrderLineResponse(
-            this.commandeService.createOrUpdateOrderLine(this.createOrderLine(this.produitSelected, qytMvt)),
+            this.commandeService.createOrUpdateOrderLine(this.createOrderLine(this.produitSelected, qytMvt))
           );
         } else {
           this.subscribeToSaveOrderLineResponse(this.commandeService.create(this.createCommande(this.produitSelected, qytMvt)));
@@ -324,16 +316,21 @@ export class CommandeUpdateComponent implements OnInit, AfterViewInit {
 
 
   protected onCreateBon(): void {
-    this.ref = this.dialogService.open(DeliveryModalComponent, {
-      data: {commande: this.commande},
-      header: 'CREATION DU BON DE LIVRAISON',
-      width: '40%',
-    });
-    this.ref.onClose.subscribe((commande: ICommande) => {
-      if (commande) {
-        this.reloadCommande();
-      }
-    });
+    showCommonModal(
+      this.modalService,
+      DeliveryModalComponent,
+      {
+        commande: this.commande,
+        header: 'CREATION DU BON DE LIVRAISON'
+      },
+      (commande) => {
+        if (commande) {
+          this.reloadCommande();
+        }
+      },
+      'lg'
+    );
+
   }
 
   private reloadCommande(): void {
@@ -383,7 +380,7 @@ export class CommandeUpdateComponent implements OnInit, AfterViewInit {
         page: 0,
         size: 5,
         withdetail: false,
-        search: this.searchValue,
+        search: this.searchValue
       })
       .subscribe((res: HttpResponse<any[]>) => this.onProduitSuccess(res.body));
   }
@@ -393,7 +390,7 @@ export class CommandeUpdateComponent implements OnInit, AfterViewInit {
       commandeId: this.commande.id,
       search: this.search,
       filterCommaneEnCours: this.selectedFilter,
-      orderBy: this.tris,
+      orderBy: this.tris
     };
     this.commandeService.filterCommandeLines(query).subscribe(res => {
       this.orderLines = res.body!;
@@ -405,7 +402,7 @@ export class CommandeUpdateComponent implements OnInit, AfterViewInit {
   }
 
   openDialog(message: string): void {
-    const modalRef = this.modalService.open(AlertInfoComponent, {backdrop: 'static'});
+    const modalRef = this.modalService.open(AlertInfoComponent, { backdrop: 'static' });
     modalRef.componentInstance.message = message;
   }
 
@@ -415,11 +412,11 @@ export class CommandeUpdateComponent implements OnInit, AfterViewInit {
       .query({
         page: 0,
         size: 9999,
-        search: query,
+        search: query
       })
       .subscribe({
         next: (res: HttpResponse<IFournisseur[]>) => (this.fournisseurs = res.body!),
-        error: () => this.onError(),
+        error: () => this.onError()
       });
   }
 
@@ -435,66 +432,44 @@ export class CommandeUpdateComponent implements OnInit, AfterViewInit {
   }
 
   protected confirmDeleteAll(): void {
-    this.confirmationService.confirm({
-      message: ' Voullez-vous supprimer supprimer toutes les lignes ?',
-      header: 'SUPPRESSION ',
-      icon: 'pi pi-info-circle',
-      rejectButtonProps: rejectButtonProps(),
-      acceptButtonProps: acceptButtonProps(),
-      accept: () => this.deleteSelectedOrderLine(),
-      reject: () => {
-        this.updateProduitQtyBox();
-      },
-      key: 'deleteAll',
-    });
+    this.confimDialog().onConfirm(() => this.deleteSelectedOrderLine(), 'Suppression', 'Voullez-vous supprimer toutes les lignes ?', null, () => this.updateProduitQtyBox());
+
   }
 
   protected confirmDeleteItem(item: IOrderLine): void {
-    this.confirmationService.confirm({
-      message: ' Voullez-vous supprimer de la commande  ce produit ?',
-      header: 'SUPPRESSION DE PRODUIT ',
-      icon: 'pi pi-info-circle',
-      rejectButtonProps: rejectButtonProps(),
-      acceptButtonProps: acceptButtonProps(),
-      accept: () => this.onDeleteOrderLineById(item),
-      reject: () => {
-        this.updateProduitQtyBox();
-      },
-      key: 'deleteItem',
-    });
+    this.confimDialog().onConfirm(() => this.onDeleteOrderLineById(item), 'Suppression', 'Voullez-vous supprimer de la commande  ce produit ?', null, () => this.updateProduitQtyBox());
   }
 
 
   protected cancel(): void {
-    this.fileDialog = false;
+    this.onImporterReponseCommande();
   }
 
-  protected onImporterReponseCommande(event: any): void {
-    const formData: FormData = new FormData();
-    const file = event.files[0];
-    formData.append('commande', file, file.name);
+  protected onImporterReponseCommande(): void {
 
-    this.showsPinner('commandeEnCourspinner');
-    this.commandeService.importerReponseCommande(this.commande.id, formData).subscribe({
-      next: res => {
-        this.hidePinner('commandeEnCourspinner');
-        this.refreshCommande();
-        this.cancel();
-        this.openImporterReponseCommandeDialog(res.body);
+    showCommonModal(
+      this.modalService,
+      FileResponseModalComponent,
+      {
+        commandeSelected:this.commande,
+        header: 'IMPORTER REPONSE'
       },
-      error: error => {
-        this.hidePinner('commandeEnCourspinner');
+      (responseCommande: IResponseCommande) => {
+        if (responseCommande) {
+          this.refreshCommande();
+          this.openImporterReponseCommandeDialog(responseCommande);
+        }
+      },
+      'lg'
+    );
 
-        this.onCommonError(error);
-      },
-    });
   }
 
   protected openImporterReponseCommandeDialog(responseCommande: IResponseCommande): void {
     const modalRef = this.modalService.open(CommandeEnCoursResponseDialogComponent, {
       size: 'xl',
       scrollable: true,
-      backdrop: 'static',
+      backdrop: 'static'
     });
     modalRef.componentInstance.responseCommande = responseCommande;
     modalRef.componentInstance.commande = this.commande;
@@ -551,16 +526,7 @@ export class CommandeUpdateComponent implements OnInit, AfterViewInit {
 
 
   private onCommonError(error: any): void {
-    if (error.error && error.error.status === 500) {
-      this.openInfoDialog('Erreur applicative', 'error', 'Erreur');
-    } else {
-      this.errorService.getErrorMessageTranslation(error.error.errorKey).subscribe({
-        next: translatedErrorMessage => {
-          this.openInfoDialog(translatedErrorMessage, 'error', 'Erreur');
-        },
-        error: () => this.openInfoDialog(this.errorService.getErrorMessage(error), 'error', 'Erreur'),
-      });
-    }
+    this.openInfoDialog(this.errorService.getErrorMessage(error), 'error', 'Erreur');
   }
 
   private onProduitSuccess(data: IProduit[] | null): void {
@@ -573,18 +539,12 @@ export class CommandeUpdateComponent implements OnInit, AfterViewInit {
   private subscribeToSaveOrderLineResponse(result: Observable<HttpResponse<ICommande>>): void {
     result.subscribe({
       next: (res: HttpResponse<ICommande>) => this.onSaveOrderLineSuccess(res.body?.id),
-      error: (err: any) => this.onCommonError(err),
+      error: (err: any) => this.onCommonError(err)
     });
   }
 
-  private openInfoDialog(message: string, severity: string, summary: string): void {
-    // const modalRef = this.modalService.open(AlertInfoComponent, {
-    //   backdrop: 'static',
-    //   centered: true,
-    // });
-    // modalRef.componentInstance.message = message;
-    // modalRef.componentInstance.infoClass = infoClass;
-    this.messageService.add({severity, summary, detail: message});
+  private openInfoDialog(message: string, severity: any, summary: string): void {
+    this.alert().show(summary, message, severity);
   }
 
   private createOrderLine(produit: IProduit, quantityRequested: number): IOrderLine {
@@ -597,9 +557,9 @@ export class CommandeUpdateComponent implements OnInit, AfterViewInit {
           ? this.commande
           : {
             ...new Commande(),
-            fournisseurId: this.selectedProvider,
+            fournisseurId: this.selectedProvider
           },
-      quantityRequested,
+      quantityRequested
     };
   }
 
@@ -607,79 +567,81 @@ export class CommandeUpdateComponent implements OnInit, AfterViewInit {
     return {
       ...new Commande(),
       fournisseurId: this.selectedProvider,
-      orderLines: [this.createOrderLine(produit, quantityRequested)],
+      orderLines: [this.createOrderLine(produit, quantityRequested)]
     };
   }
 
-  private showsPinner(spinnerName: string): void {
-    this.spinner.show(spinnerName);
+  private showsPinner(): void {
+    this.spinner.show();
   }
 
-  private hidePinner(spinnerName: string): void {
-    this.spinner.hide(spinnerName);
+  private hidePinner(): void {
+    this.spinner.hide();
   }
 
   protected onAddLot(deliveryItem: IOrderLine): void {
     const quantityReceived = deliveryItem.quantityReceived || deliveryItem.quantityRequested;
     if (quantityReceived > 1 || deliveryItem.lots.length > 0) {
-      this.ref = this.dialogService.open(ListLotComponent, {
-        data: {deliveryItem},
-        width: '60%',
-        header: `GESTION DE LOTS DE LA LIGNE ${deliveryItem.produitLibelle} [${deliveryItem.produitCip}]`,
-      });
+
+      showCommonModal(
+        this.modalService,
+        ListLotComponent,
+        {
+          deliveryItem,
+          header: `GESTION DE LOTS DE LA LIGNE ${deliveryItem.produitLibelle} [${deliveryItem.produitCip}]`
+        },
+        (result) => {
+          console.log(result);
+        },
+        'lg'
+      );
+
+
     } else {
-      this.ref = this.dialogService.open(FormLotComponent, {
-        data: {entity: null, deliveryItem},
-        width: '40%',
-        header: 'Ajout de lot',
-      });
+
+      showCommonModal(
+        this.modalService,
+        FormLotComponent,
+        {
+          entity: null,
+          deliveryItem,
+          header: 'Ajout de lot'
+        },
+        (result) => {
+          console.log(result);
+        },
+        'lg'
+      );
     }
     // this.ref.onClose.subscribe(() => this.onFilterReceiptItems());
   }
 
   protected onConfirmFinalize(): void {
     if (this.isCommandeFinalisee()) {
-      this.confirmationService.confirm({
-        message: "Voullez-vous faire l'entrée en stock ?",
-        header: 'FINALISATION DE LA COMMANDE',
-        icon: 'pi pi-info-circle',
-        rejectButtonProps: rejectButtonProps(),
-        acceptButtonProps: acceptButtonProps(),
-        accept: () => this.onFinalize(),
-
-        key: 'stayThere',
-      });
+      this.confimDialog().onConfirm(() => this.onFinalize(), 'Finalisation de la commande', 'Voullez-vous faire l\'entrée en stock ?');
     }
   }
 
   private onFinalize(): void {
-    this.showsPinner('commandeEnCourspinner');
+    this.showsPinner();
     this.deliveryService.finalizeSaisieEntreeStock(this.commande).subscribe({
       next: () => {
-        this.hidePinner('commandeEnCourspinner');
+        this.hidePinner();
         this.confirmPrintTicket(this.commande);
       },
       error: error => {
         this.onCommonError(error);
-        this.hidePinner('commandeEnCourspinner');
-      },
+        this.hidePinner();
+      }
     });
   }
 
   protected confirmPrintTicket(commande: ICommande): void {
-    this.confirmationService.confirm({
-      message: ' Voullez-vous imprimer les étiquettes ?',
-      header: 'IMPRESSION',
-      icon: 'pi pi-info-circle',
-      rejectButtonProps: rejectButtonProps(),
-      acceptButtonProps: acceptButtonProps(),
-      accept: () => this.printEtiquette(commande),
-      reject: () => {
-        this.commande = null;
-        this.previousState();
-      },
-      key: 'stayThere',
+    this.confimDialog().onConfirm(() => this.printEtiquette(commande), 'Impression', 'Voullez-vous imprimer les étiquettes ?', null, () => {
+      this.commande = null;
+      this.previousState();
     });
+
   }
 
 
@@ -691,13 +653,18 @@ export class CommandeUpdateComponent implements OnInit, AfterViewInit {
   }
 
   protected editLigneInfos(orderLine: IOrderLine): void {
-    this.ref = this.dialogService.open(EditProduitComponent, {
-      data: {deliveryItem: orderLine, delivery: this.commande},
-      width: '70%',
-      header: `EDITION DU PRODUIT ${orderLine.produitLibelle} [${orderLine.produitCip}]`,
-    });
-
-    //this.ref.onClose.subscribe(() => this.onFilterReceiptItems());
+    showCommonModal(
+      this.modalService,
+      EditProduitComponent,
+      {
+        deliveryItem: orderLine, delivery: this.commande,
+        header: `EDITION DU PRODUIT ${orderLine.produitLibelle} [${orderLine.produitCip}]`
+      },
+      (result) => {
+        console.log(result);
+      },
+      'xl'
+    );
   }
 
   protected showLotColumn(): boolean {
@@ -713,14 +680,14 @@ export class CommandeUpdateComponent implements OnInit, AfterViewInit {
       error: error => {
         this.onCommonError(error);
         this.onSaveOrderLineSuccess(this.commande.id);
-      },
+      }
     });
   }
 
   private subscribeUpdateOrderLineResponse(result: Observable<HttpResponse<{}>>): void {
     result.subscribe({
       next: () => this.onSaveOrderLineSuccess(this.commande?.id),
-      error: (err: any) => this.onCommonError(err),
+      error: (err: any) => this.onCommonError(err)
     });
   }
 
@@ -742,19 +709,27 @@ export class CommandeUpdateComponent implements OnInit, AfterViewInit {
   }
 
   private printEtiquette(commande: ICommande): void {
-    this.ref = this.dialogService.open(EtiquetteComponent, {
-      data: {entity: commande},
-      width: '40%',
-      header: `IMPRIMER LES ETIQUETTES DU BON DE LIVRAISON [ ${commande.receiptReference} ] `,
-    });
-    this.ref.onDestroy.subscribe(() => {
-      this.commande = null;
-      this.previousState();
-    });
-    this.ref.onClose.subscribe(() => {
-      this.commande = null;
-      this.previousState();
-    });
+
+
+    showCommonModal(
+      this.modalService,
+      EtiquetteComponent,
+      {
+        entity: commande,
+        header: `IMPRIMER LES ETIQUETTES DU BON DE LIVRAISON [ ${commande.receiptReference} ] `
+      },
+      () => {
+        this.commande = null;
+        this.previousState();
+      },
+      'lg', null,
+      () => {
+        this.commande = null;
+        this.previousState();
+      }
+    );
+
+
   }
 
 }

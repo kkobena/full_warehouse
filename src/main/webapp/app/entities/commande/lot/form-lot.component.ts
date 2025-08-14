@@ -1,8 +1,6 @@
-import { HttpResponse } from '@angular/common/http';
-import { Component, inject, OnInit } from '@angular/core';
+import { HttpErrorResponse, HttpResponse } from '@angular/common/http';
+import { Component, inject, OnInit, viewChild } from '@angular/core';
 import { FormBuilder, FormControl, FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
-import { MessageService } from 'primeng/api';
-import { DynamicDialogConfig, DynamicDialogModule, DynamicDialogRef } from 'primeng/dynamicdialog';
 import { Observable } from 'rxjs';
 import { ILot, Lot } from '../../../shared/model/lot.model';
 import { LotService } from './lot.service';
@@ -10,35 +8,36 @@ import { DATE_FORMAT_YYYY_MM_DD } from '../../../shared/util/warehouse-util';
 import { WarehouseCommonModule } from '../../../shared/warehouse-common/warehouse-common.module';
 import { ButtonModule } from 'primeng/button';
 import { TooltipModule } from 'primeng/tooltip';
-import { ToastModule } from 'primeng/toast';
-import { RippleModule } from 'primeng/ripple';
 import { KeyFilterModule } from 'primeng/keyfilter';
 import { InputTextModule } from 'primeng/inputtext';
 import { TranslateService } from '@ngx-translate/core';
 import { PrimeNG } from 'primeng/config';
 import { DatePicker } from 'primeng/datepicker';
 import { AbstractOrderItem } from '../../../shared/model/abstract-order-item.model';
+import { ToastAlertComponent } from '../../../shared/toast-alert/toast-alert.component';
+import { ErrorService } from '../../../shared/error.service';
+import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
+import { Card } from 'primeng/card';
 
 @Component({
   selector: 'jhi-form-lot',
   templateUrl: './form-lot.component.html',
-  providers: [MessageService],
+  styleUrls: ['../../common-modal.component.scss'],
   imports: [
     WarehouseCommonModule,
     ButtonModule,
     TooltipModule,
-    ToastModule,
-    RippleModule,
-    DynamicDialogModule,
     FormsModule,
     ReactiveFormsModule,
     KeyFilterModule,
     InputTextModule,
     DatePicker,
-  ],
+    ToastAlertComponent,
+    Card
+  ]
 })
 export class FormLotComponent implements OnInit {
-  protected ref = inject(DynamicDialogRef);
+  header = 'Ajout de lot';
   protected fb = inject(FormBuilder);
   protected isSaving = false;
   entity?: ILot;
@@ -52,26 +51,27 @@ export class FormLotComponent implements OnInit {
     id: new FormControl<number | null>(null, {}),
     numLot: new FormControl<string | null>(null, {
       validators: [Validators.required],
-      nonNullable: true,
+      nonNullable: true
     }),
     expiryDate: new FormControl<Date | null>(null, {
-      validators: [Validators.required],
+      validators: [Validators.required]
     }),
     ugQuantityReceived: new FormControl<number | null>(null, {
-      validators: [Validators.min(0)],
+      validators: [Validators.min(0)]
     }),
     quantityReceived: new FormControl<number | null>(null, {
       validators: [Validators.required, Validators.min(0)],
-      nonNullable: true,
+      nonNullable: true
     }),
 
-    manufacturingDate: new FormControl<Date | null>(null),
+    manufacturingDate: new FormControl<Date | null>(null)
   });
-  private readonly config = inject(DynamicDialogConfig);
   private readonly primeNGConfig = inject(PrimeNG);
   private readonly translate = inject(TranslateService);
   private readonly entityService = inject(LotService);
-  private messageService = inject(MessageService);
+  private readonly alert = viewChild.required<ToastAlertComponent>('alert');
+  private readonly errorService = inject(ErrorService);
+  private readonly activeModal = inject(NgbActiveModal);
 
   constructor() {
     this.translate.use('fr');
@@ -83,9 +83,6 @@ export class FormLotComponent implements OnInit {
   ngOnInit(): void {
     this.maxDate = new Date();
     this.minDate = new Date();
-    this.entity = this.config.data.entity;
-    this.deliveryItem = this.config.data.deliveryItem;
-    this.commandeId = this.config.data.commandeId;
     this.showUgControl = Number(this.deliveryItem.freeQty) > 0 || this.getLotUgQuantity() < Number(this.deliveryItem.freeQty);
 
     if (this.entity) {
@@ -106,7 +103,7 @@ export class FormLotComponent implements OnInit {
       quantityReceived: entity.quantityReceived,
       expiryDate: entity.expiryDate ? new Date(entity.expiryDate) : null,
       manufacturingDate: entity.manufacturingDate ? new Date(entity.manufacturingDate) : null,
-      ugQuantityReceived: entity.ugQuantityReceived,
+      ugQuantityReceived: entity.ugQuantityReceived
     });
   }
 
@@ -121,18 +118,15 @@ export class FormLotComponent implements OnInit {
   }
 
   cancel(): void {
-    this.ref.destroy();
+    this.activeModal.dismiss();
   }
 
   onValidateQuantity(event: any): void {
     const quantity = Number(event.target.value);
     const maxQuantity = this.getValidLotQuantity();
     if (quantity > maxQuantity) {
-      this.messageService.add({
-        severity: 'error',
-        summary: 'ERROR DE VALIDATION',
-        detail: `La quantité saisie ne peut être supérieure à ${maxQuantity}`,
-      });
+
+      this.alert().showError(`La quantité saisie ne peut être supérieure à ${maxQuantity}`);
     }
   }
 
@@ -140,11 +134,7 @@ export class FormLotComponent implements OnInit {
     const numLot = event.target.value;
     this.numLotAlreadyExist = this.deliveryItem.lots.some(lot => lot.numLot === numLot && lot.id !== this.entity.id);
     if (this.numLotAlreadyExist) {
-      this.messageService.add({
-        severity: 'error',
-        summary: 'ERROR DE VALIDATION',
-        detail: `Le numero de lot [ ${numLot} ] est déjà enregistré pour cette ligne de commande`,
-      });
+      this.alert().showError(`Le numero de lot [ ${numLot} ] est déjà enregistré pour cette ligne de commande`);
     }
   }
 
@@ -152,32 +142,25 @@ export class FormLotComponent implements OnInit {
     const quantity = Number(event.target.value);
     const maxQuantity = this.getValidLotUgQuantity();
     if (quantity > maxQuantity) {
-      this.messageService.add({
-        severity: 'error',
-        summary: 'ERROR DE VALIDATION',
-        detail: `La quantité ug saisie ne peut être supérieure à ${maxQuantity}`,
-      });
+
+      this.alert().showError(`La quantité ug saisie ne peut être supérieure à ${maxQuantity}`);
     }
   }
 
   protected subscribeToSaveResponse(result: Observable<HttpResponse<ILot>>): void {
     result.subscribe({
       next: (res: HttpResponse<ILot>) => this.onSaveSuccess(res.body),
-      error: () => this.onSaveError(),
+      error: (err) => this.onSaveError(err)
     });
   }
 
   protected onSaveSuccess(response: ILot | null): void {
-    this.ref.close(response);
+    this.activeModal.close(response);
   }
 
-  protected onSaveError(): void {
+  protected onSaveError(err: HttpErrorResponse): void {
     this.isSaving = false;
-    this.messageService.add({
-      severity: 'error',
-      summary: 'Erreur',
-      detail: 'Enregistrement a échoué',
-    });
+    this.alert().showError(this.errorService.getErrorMessage(err));
   }
 
   private createFromForm(): ILot {
@@ -193,7 +176,7 @@ export class FormLotComponent implements OnInit {
         : null,
       quantityReceived: this.editForm.get(['quantityReceived']).value,
       ugQuantityReceived: this.editForm.get(['ugQuantityReceived']).value,
-      receiptItemId: this.deliveryItem?.id,
+      receiptItemId: this.deliveryItem?.id
     };
   }
 

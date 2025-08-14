@@ -1,56 +1,54 @@
-import { Component, inject, OnDestroy, OnInit } from '@angular/core';
-import { ConfirmationService, MessageService } from 'primeng/api';
-import { DialogService, DynamicDialogConfig, DynamicDialogModule, DynamicDialogRef } from 'primeng/dynamicdialog';
+import { Component, inject, OnDestroy, OnInit, viewChild } from '@angular/core';
 import { ILot } from '../../../../shared/model/lot.model';
 import { LotService } from '../lot.service';
 import { FormLotComponent } from '../form-lot.component';
-import { IDeliveryItem } from '../../../../shared/model/delivery-item';
 import { WarehouseCommonModule } from '../../../../shared/warehouse-common/warehouse-common.module';
 import { ButtonModule } from 'primeng/button';
 import { TableModule } from 'primeng/table';
-import { RippleModule } from 'primeng/ripple';
-import { ConfirmDialogModule } from 'primeng/confirmdialog';
-import { ToastModule } from 'primeng/toast';
 import { TooltipModule } from 'primeng/tooltip';
-import { acceptButtonProps, rejectButtonProps } from '../../../../shared/util/modal-button-props';
 import { IOrderLine } from '../../../../shared/model/order-line.model';
 import { Subject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
+import { ConfirmDialogComponent } from '../../../../shared/dialog/confirm-dialog/confirm-dialog.component';
+import { ToastAlertComponent } from '../../../../shared/toast-alert/toast-alert.component';
+import { NgbActiveModal, NgbModal } from '@ng-bootstrap/ng-bootstrap';
+import { ErrorService } from '../../../../shared/error.service';
+import { HttpErrorResponse } from '@angular/common/http';
+import { showCommonModal } from '../../../sales/selling-home/sale-helper';
+import { Card } from 'primeng/card';
 
 @Component({
   selector: 'jhi-list-lot',
   templateUrl: './list-lot.component.html',
-  providers: [MessageService, DialogService, ConfirmationService],
+  styleUrls: ['../../../common-modal.component.scss'],
+
   imports: [
     WarehouseCommonModule,
     ButtonModule,
     TooltipModule,
-    ToastModule,
     TableModule,
-    RippleModule,
-    DynamicDialogModule,
-    ConfirmDialogModule,
-  ],
+    ConfirmDialogComponent,
+    ToastAlertComponent,
+    Card
+  ]
 })
 export class ListLotComponent implements OnInit, OnDestroy {
   lots: ILot[] = [];
+  header = 'Liste des lots';
   selectedEl!: ILot;
   deliveryItem?: IOrderLine;
   commandeId?: number;
   showUgAddNewBtn = true;
-  ref = inject(DynamicDialogRef);
-  ref2 = inject(DynamicDialogRef);
-  config = inject(DynamicDialogConfig);
   private readonly entityService = inject(LotService);
-  private readonly messageService = inject(MessageService);
-  private readonly dialogService = inject(DialogService);
-  private readonly modalService = inject(ConfirmationService);
   private destroy$ = new Subject<void>();
+  private readonly modalService = inject(NgbModal);
+  private readonly alert = viewChild.required<ToastAlertComponent>('alert');
+  private readonly errorService = inject(ErrorService);
+  private readonly activeModal = inject(NgbActiveModal);
+  private readonly confimDialog = viewChild.required<ConfirmDialogComponent>('confirmDialog');
 
   ngOnInit(): void {
-    this.deliveryItem = this.config.data.deliveryItem;
     this.lots = this.deliveryItem.lots;
-    this.commandeId = this.config.data.commandeId;
     this.showAddBtn();
   }
 
@@ -76,15 +74,11 @@ export class ListLotComponent implements OnInit, OnDestroy {
   }
 
   cancel(): void {
-    this.ref2.destroy();
+    this.activeModal.dismiss();
   }
 
-  protected onSaveError(err: any): void {
-    this.messageService.add({
-      severity: 'error',
-      summary: 'Erreur',
-      detail: err,
-    });
+  protected onSaveError(err: HttpErrorResponse): void {
+    this.alert().showError(this.errorService.getErrorMessage(err));
   }
 
   private getLotQunatity(): number {
@@ -92,21 +86,15 @@ export class ListLotComponent implements OnInit, OnDestroy {
   }
 
   private confirmDialog(lot: ILot): void {
-    this.modalService.confirm({
-      message: 'Voulez-vous supprimer ce lot ?',
-      header: 'Confirmation',
-      icon: 'pi pi-exclamation-triangle',
-      rejectButtonProps: rejectButtonProps(),
-      acceptButtonProps: acceptButtonProps(),
-      accept: () => {
-        this.entityService.remove(lot.id).pipe(takeUntil(this.destroy$)).subscribe({
-          next: () => {
-            this.removeLotFromLotsArray(lot);
-          },
-          error: err => this.onSaveError(err),
-        });
-      },
-    });
+    this.confimDialog().onConfirm(() => {
+      this.entityService.remove(lot.id).pipe(takeUntil(this.destroy$)).subscribe({
+        next: () => {
+          this.removeLotFromLotsArray(lot);
+        },
+        error: err => this.onSaveError(err)
+      });
+    }, 'Suppression', 'Voullez-vous supprimer ce lot ?');
+
   }
 
   private removeLotFromLotsArray(lot: ILot): void {
@@ -117,20 +105,26 @@ export class ListLotComponent implements OnInit, OnDestroy {
   }
 
   private openLotForm(entity: ILot | null, header: string): void {
-    this.ref = this.dialogService.open(FormLotComponent, {
-      data: { entity, deliveryItem: this.deliveryItem, commandeId: this.commandeId },
-      width: '40%',
-      header,
-    });
-    this.ref.onClose.subscribe((updateLot: ILot) => {
-      if (updateLot) {
-        if (entity) {
-          this.removeLotFromLotsArray(entity);
+    showCommonModal(
+      this.modalService,
+      FormLotComponent,
+      {
+        entity,
+        deliveryItem: this.deliveryItem,
+        header,
+        commandeId: this.commandeId
+      },
+      (updateLot) => {
+        if (updateLot) {
+          if (entity) {
+            this.removeLotFromLotsArray(entity);
+          }
+          this.lots.push(updateLot);
+          this.deliveryItem.lots = this.lots;
+          this.showAddBtn();
         }
-        this.lots.push(updateLot);
-        this.deliveryItem.lots = this.lots;
-        this.showAddBtn();
-      }
-    });
+      },
+      'lg'
+    );
   }
 }

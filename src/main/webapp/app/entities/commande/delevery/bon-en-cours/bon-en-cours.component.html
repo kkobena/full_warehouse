@@ -15,7 +15,7 @@
     selectionMode="multiple"
     styleClass="p-datatable-gridlines mt-2"
   >
-    <ng-template pTemplate="header">
+    <ng-template #header>
       <tr>
         <th style="width: 1%"></th>
         <th style="width: 6%">#</th>
@@ -33,7 +33,7 @@
         <th style="width: 7%"></th>
       </tr>
     </ng-template>
-    <ng-template let-expanded="expanded" let-row pTemplate="body">
+    <ng-template let-expanded="expanded" let-row #body>
       <tr>
         <td>
           <p-button
@@ -92,7 +92,7 @@
               [value]="item.orderLines"
               currentPageReportTemplate="Affichage de {first} à {last} sur {totalRecords} elements"
             >
-              <ng-template pTemplate="header">
+              <ng-template #header>
                 <tr>
                   <th>#</th>
                   <th>Code</th>
@@ -104,7 +104,7 @@
                   <th>Prix.Vente</th>
                 </tr>
               </ng-template>
-              <ng-template let-receiptItem let-rowIndex="rowIndex" pTemplate="body">
+              <ng-template let-receiptItem let-rowIndex="rowIndex" #body>
                 <tr>
                   <td style="text-align: left">{{ rowIndex + 1 }}</td>
                   <td>{{ receiptItem.produitCodeEan || receiptItem.produitCip }}</td>

@@ -1,0 +1,29 @@
+<div class="modal-header">
+  <h4 class="modal-title">{{ header }}</h4>
+  <button (click)="cancel()" aria-label="Close" class="btn-close" type="button">
+    <span aria-hidden="true">&times;</span>
+  </button>
+</div>
+<div class="modal-body">
+  <p-card>
+    <div class="ui-g form-group">
+      <p-fileupload
+        (uploadHandler)="onImporterReponseCommande($event)"
+        [customUpload]="true"
+        accept=".csv,.xls,.xlsx"
+        cancelLabel="Annuler"
+        chooseLabel="Importer un fichier"
+        name="importcsv"
+        uploadLabel="Enrégistrer"
+      >
+      </p-fileupload>
+    </div>
+  </p-card>
+</div>
+
+<div class="modal-footer">
+
+    <p-button (click)="cancel()" class="mr-2" icon="pi pi-times" label="Fermer" raised="true" severity="secondary" type="button"></p-button>
+
+
+</div>

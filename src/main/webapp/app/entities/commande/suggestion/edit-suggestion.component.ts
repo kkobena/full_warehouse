@@ -36,6 +36,8 @@ import {saveAs} from 'file-saver';
 import {ProduitService} from '../../produit/produit.service';
 import {Observable} from 'rxjs';
 import {FloatLabelModule} from 'primeng/floatlabel';
+import { ConfirmDialogComponent } from '../../../shared/dialog/confirm-dialog/confirm-dialog.component';
+import { SpinerService } from '../../../shared/spiner.service';
 
 @Component({
   selector: 'jhi-edit-suggestion',
@@ -60,15 +62,14 @@ import {FloatLabelModule} from 'primeng/floatlabel';
     ReactiveFormsModule,
     FormsModule,
     FloatLabelModule,
+    ConfirmDialogComponent
   ],
   templateUrl: './edit-suggestion.component.html',
-  providers: [ConfirmationService, DialogService],
+
   styles: ``,
 })
 export class EditSuggestionComponent implements OnInit {
   private readonly suggestionService = inject(SuggestionService);
-  private readonly confirmationService = inject(ConfirmationService);
-  private readonly spinner = inject(NgxSpinnerService);
   private readonly produitService = inject(ProduitService);
   private readonly activatedRoute = inject(ActivatedRoute);
   private readonly router = inject(Router);
@@ -84,7 +85,6 @@ export class EditSuggestionComponent implements OnInit {
   protected ngbPaginationPage = 1;
   protected splitbuttons: MenuItem[];
   produitSelected?: IProduit | null = null;
-  selectedProvider?: number | null = null;
   fournisseurs: IFournisseur[] = [];
   produits: IProduit[] = [];
   quantiteSaisie = 1;
@@ -92,7 +92,8 @@ export class EditSuggestionComponent implements OnInit {
   //fournisseurBox = viewChild.required<any>('fournisseurBox');
   produitbox = viewChild.required<any>('produitbox');
   protected writableSignal = signal<Suggestion>(null);
-
+  private readonly confimDialog = viewChild.required<ConfirmDialogComponent>('confirmDialog');
+  private readonly spinner = inject(SpinerService);
   constructor() {
     this.splitbuttons = [
       {
@@ -198,17 +199,11 @@ export class EditSuggestionComponent implements OnInit {
   }
 
   deleteAll(): void {
-    this.confirmationService.confirm({
-      message: ' Voullez-vous supprimer toutes les lignes ?',
-      header: ' SUPPRESSION',
-      icon: 'pi pi-info-circle',
-      rejectButtonProps: rejectButtonProps(),
-      acceptButtonProps: acceptButtonProps(),
-      accept: () =>
-        this.onDelete({
-          ids: this.selections.map(suggestion => suggestion.id),
-        }),
-    });
+
+    this.confimDialog().onConfirm(() =>
+      this.onDelete({
+        ids: this.selections.map(suggestion => suggestion.id),
+      }),'Suppression', 'Êtes-vous sûr de vouloir supprimer ?')
   }
 
   previousState(): void {
@@ -326,17 +321,10 @@ export class EditSuggestionComponent implements OnInit {
   }
 
   delete(id: number): void {
-    this.confirmationService.confirm({
-      message: ' Voullez-vous supprimer cete suggestions  ?',
-      header: ' SUPPRESSION',
-      icon: 'pi pi-info-circle',
-      rejectButtonProps: rejectButtonProps(),
-      acceptButtonProps: acceptButtonProps(),
-      accept: () =>
-        this.onDelete({
-          ids: [id],
-        }),
-    });
+    this.confimDialog().onConfirm(() =>
+      this.onDelete({
+        ids: [id],
+      }),'Suppression', 'Êtes-vous sûr de vouloir supprimer ?');
   }
 
   protected lazyLoading(event: LazyLoadEvent): void {

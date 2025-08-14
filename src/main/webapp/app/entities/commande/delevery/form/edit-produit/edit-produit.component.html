@@ -1,144 +1,153 @@
-<p-toast position="center"></p-toast>
+<jhi-toast-alert #alert></jhi-toast-alert>
+<div class="modal-header">
+  <h4 class="modal-title">{{ header }}</h4>
+  <button (click)="cancel()" aria-label="Close" class="btn-close" type="button">
+    <span aria-hidden="true">&times;</span>
+  </button>
+</div>
+
 <form (ngSubmit)="save()" [formGroup]="editForm" name="editForm" novalidate role="form">
   <div class="modal-body">
-    <div [hidden]="true" class="form-group">
-      <input class="form-control" formControlName="id" id="id" name="id" readonly type="hidden" />
-    </div>
-    <div class="form-row">
-      <div class="form-group col-md-6">
-        <label class="form-control-label" for="field_codeCip">Code cip</label>
-        <input
-          [pKeyFilter]="'int'"
-          autocomplete="off"
-          class="form-control"
-          formControlName="codeCip"
-          id="field_codeCip"
-          name="codeCip"
-          pInputText
-          type="text"
-        />
-        @let codeCip = editForm.get('codeCip');
-        @if (codeCip!.invalid && (codeCip!.dirty || codeCip!.touched)) {
-          <div>
-            @if (codeCip?.errors?.required) {
-              <small class="form-text text-danger" jhiTranslate="entity.validation.required"> This field is required. </small>
-            }
-          </div>
-        }
+    <p-card>
+      <div [hidden]="true" class="form-group">
+        <input class="form-control" formControlName="id" id="id" name="id" readonly type="hidden" />
       </div>
+      <div class="form-row">
+        <div class="form-group col-md-6">
+          <label class="form-control-label" for="field_codeCip">Code cip</label>
+          <input
+            [pKeyFilter]="'int'"
+            autocomplete="off"
+            class="form-control"
+            formControlName="codeCip"
+            id="field_codeCip"
+            name="codeCip"
+            pInputText
+            type="text"
+          />
+          @let codeCip = editForm.get('codeCip');
+          @if (codeCip!.invalid && (codeCip!.dirty || codeCip!.touched)) {
+            <div>
+              @if (codeCip?.errors?.required) {
+                <small class="form-text text-danger" jhiTranslate="entity.validation.required"> This field is required. </small>
+              }
+            </div>
+          }
+        </div>
 
-      <div class="form-group col-md-6">
-        <label class="form-control-label" for="field_codeEan">Code Ean </label>
-        <input
-          autocomplete="off"
-          class="form-control"
-          formControlName="codeEan"
-          id="field_codeEan"
-          name="codeEan"
-          pInputText
-          pKeyFilter="int"
-          type="text"
-        />
+        <div class="form-group col-md-6">
+          <label class="form-control-label" for="field_codeEan">Code Ean </label>
+          <input
+            autocomplete="off"
+            class="form-control"
+            formControlName="codeEan"
+            id="field_codeEan"
+            name="codeEan"
+            pInputText
+            pKeyFilter="int"
+            type="text"
+          />
+        </div>
       </div>
-    </div>
-    <div class="form-row">
-      <div class="form-group col-md-4">
-        <label class="form-control-label" for="field_prixAchat">Prix achat</label>
-        <input
-          (keyup)="handlePrixAchatInput($event)"
-          autocomplete="off"
-          class="form-control"
-          formControlName="prixAchat"
-          id="field_prixAchat"
-          name="prixAchat"
-          pKeyFilter="int"
-          type="number"
-        />
-        @let prixAchat = editForm.get('prixAchat');
-        @if (prixAchat!.invalid && (prixAchat!.dirty || prixAchat!.touched)) {
-          <div>
-            @if (prixAchat?.errors?.required) {
-              <small class="form-text text-danger" jhiTranslate="entity.validation.required"> This field is required. </small>
-            }
-          </div>
-        }
+      <div class="form-row">
+        <div class="form-group col-md-4">
+          <label class="form-control-label" for="field_prixAchat">Prix achat</label>
+          <input
+            (keyup)="handlePrixAchatInput($event)"
+            autocomplete="off"
+            class="form-control"
+            formControlName="prixAchat"
+            id="field_prixAchat"
+            name="prixAchat"
+            pKeyFilter="int"
+            type="number"
+          />
+          @let prixAchat = editForm.get('prixAchat');
+          @if (prixAchat!.invalid && (prixAchat!.dirty || prixAchat!.touched)) {
+            <div>
+              @if (prixAchat?.errors?.required) {
+                <small class="form-text text-danger" jhiTranslate="entity.validation.required"> This field is required. </small>
+              }
+            </div>
+          }
+        </div>
+        <div class="form-group col-md-4">
+          <label class="form-control-label" for="field_prixUni">Prix unitaire</label>
+          <input
+            (keyup)="handlePrixUnitaireInput($event)"
+            autocomplete="off"
+            class="form-control"
+            formControlName="prixUni"
+            id="field_prixUni"
+            name="prixAchat"
+            pKeyFilter="int"
+            type="number"
+          />
+          @let prixUni = editForm.get('prixUni');
+          @if (prixUni!.invalid && (prixUni!.dirty || prixUni!.touched)) {
+            <div>
+              @if (prixUni?.errors?.required) {
+                <small class="form-text text-danger" jhiTranslate="entity.validation.required"> This field is required. </small>
+              }
+            </div>
+          }
+        </div>
+        <div class="form-group col-md-4">
+          <label class="form-control-label" for="tvaId">Tva</label>
+          <p-select
+            [filter]="false"
+            [options]="tvas"
+            [style]="{ width: '100%' }"
+            appendTo="body"
+            formControlName="tvaId"
+            id="tvaId"
+            name="tvaId"
+            optionLabel="tva"
+            optionValue="id"
+            placeholder="Sélectionner une Tva"
+          >
+          </p-select>
+        </div>
       </div>
-      <div class="form-group col-md-4">
-        <label class="form-control-label" for="field_prixUni">Prix unitaire</label>
-        <input
-          (keyup)="handlePrixUnitaireInput($event)"
-          autocomplete="off"
-          class="form-control"
-          formControlName="prixUni"
-          id="field_prixUni"
-          name="prixAchat"
-          pKeyFilter="int"
-          type="number"
-        />
-        @let prixUni = editForm.get('prixUni');
-        @if (prixUni!.invalid && (prixUni!.dirty || prixUni!.touched)) {
-          <div>
-            @if (prixUni?.errors?.required) {
-              <small class="form-text text-danger" jhiTranslate="entity.validation.required"> This field is required. </small>
-            }
-          </div>
-        }
-      </div>
-      <div class="form-group col-md-4">
-        <label class="form-control-label" for="tvaId">Tva</label>
-        <p-select
-          [filter]="false"
-          [options]="tvas"
-          [style]="{ width: '100%' }"
-          appendTo="body"
-          formControlName="tvaId"
-          id="tvaId"
-          name="tvaId"
-          optionLabel="tva"
-          optionValue="id"
-          placeholder="Sélectionner une Tva"
-        >
-        </p-select>
-      </div>
-    </div>
-    <div class="form-row">
-      <div class="form-group col-md-6">
-        <label class="form-control-label" for="rayonId">Rayon</label>
-        <p-select
-          [filter]="true"
-          [options]="rayons"
-          [style]="{ width: '100%' }"
-          [virtualScroll]="false"
-          appendTo="body"
-          filterBy="libelle"
-          formControlName="rayonId"
-          id="rayonId"
-          name="rayonId"
-          optionLabel="libelle"
-          optionValue="id"
-          placeholder="Sélectionner un rayon"
-        >
-        </p-select>
-      </div>
+      <div class="form-row">
+        <div class="form-group col-md-6">
+          <label class="form-control-label" for="rayonId">Rayon</label>
+          <p-select
+            [filter]="true"
+            [options]="rayons"
+            [style]="{ width: '100%' }"
+            [virtualScroll]="false"
+            appendTo="body"
+            filterBy="libelle"
+            formControlName="rayonId"
+            id="rayonId"
+            name="rayonId"
+            optionLabel="libelle"
+            optionValue="id"
+            placeholder="Sélectionner un rayon"
+          >
+          </p-select>
+        </div>
 
-      <div class="form-group col-md-6">
-        <label class="form-control-label" for="field_perimeAt">Date de péremption</label>
-        <p-inputmask
-          autocomplete="off"
-          formControlName="expirationDate"
-          id="field_perimeAt"
-          mask="99/99/9999"
-          name="expirationDate"
-          slotChar="jj/mm/aaaa"
-          styleClass="form-control"
-        >
-        </p-inputmask>
+        <div class="form-group col-md-6">
+          <label class="form-control-label" for="field_perimeAt">Date de péremption</label>
+          <p-inputmask
+            autocomplete="off"
+            formControlName="expirationDate"
+            id="field_perimeAt"
+            mask="99/99/9999"
+            name="expirationDate"
+            slotChar="jj/mm/aaaa"
+            styleClass="form-control"
+          >
+          </p-inputmask>
+        </div>
       </div>
-    </div>
+    </p-card>
   </div>
 
   <div class="modal-footer">
-    <p-button (click)="cancel()" [raised]="true" class="p-mr-2" icon="pi pi-times" label="Annuler" severity="danger" type="button">
+    <p-button class="mr-2" (click)="cancel()" [raised]="true" class="p-mr-2" icon="pi pi-times" label="Annuler" severity="secondary" type="button">
     </p-button>
 
     <p-button
@@ -147,7 +156,7 @@
       class="mr-2"
       icon="pi pi-check"
       label="Enregistrer"
-      severity="success"
+      severity="primary"
       type="submit"
     >
     </p-button>

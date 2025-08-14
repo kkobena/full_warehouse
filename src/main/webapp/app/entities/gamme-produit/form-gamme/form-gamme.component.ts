@@ -4,7 +4,6 @@ import { FormsModule, ReactiveFormsModule, UntypedFormBuilder, Validators } from
 import { Observable } from 'rxjs';
 import { GammeProduitService } from '../gamme-produit.service';
 import { GammeProduit, IGammeProduit } from '../../../shared/model/gamme-produit.model';
-import { ToastModule } from 'primeng/toast';
 import { DropdownModule } from 'primeng/dropdown';
 import { ButtonModule } from 'primeng/button';
 import { InputTextModule } from 'primeng/inputtext';
@@ -31,7 +30,7 @@ import { KeyFilter } from 'primeng/keyfilter';
     KeyFilter
   ]
 })
-export class FormGammeComponent implements OnInit,AfterViewInit{
+export class FormGammeComponent implements OnInit, AfterViewInit {
 
   header: string = '';
   gamme: IGammeProduit | null = null;
@@ -53,11 +52,13 @@ export class FormGammeComponent implements OnInit,AfterViewInit{
       this.updateForm(this.gamme);
     }
   }
+
   ngAfterViewInit(): void {
     setTimeout(() => {
       this.libelle().nativeElement.focus();
     }, 100);
   }
+
   protected save(): void {
     this.isSaving = true;
     const entity = this.createFromForm();

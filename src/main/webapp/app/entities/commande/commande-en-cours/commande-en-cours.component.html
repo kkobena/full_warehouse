@@ -1,3 +1,5 @@
+<jhi-confirm-dialog #confirmDialog></jhi-confirm-dialog>
+
 @if (commandes && commandes.length > 0) {
   <p-table
     (onLazyLoad)="lazyLoading($event)"
@@ -18,7 +20,7 @@
     selectionMode="multiple"
     styleClass="p-datatable-striped mt-2"
   >
-    <ng-template pTemplate="header">
+    <ng-template #header >
       <tr>
         <th style="width: 3%"></th>
         <th style="width: 12%">Date</th>
@@ -34,7 +36,7 @@
         <th style="width: 20%"></th>
       </tr>
     </ng-template>
-    <ng-template let-commande let-expanded="expanded" pTemplate="body">
+    <ng-template let-commande let-expanded="expanded"  #body>
       <tr>
         <td>
           <p-button
@@ -114,7 +116,7 @@
             responsiveLayout="scroll"
             styleClass="p-datatable-striped rowexpansion-table"
           >
-            <ng-template pTemplate="header">
+            <ng-template #header>
               <tr>
                 <th style="width: 3%">#</th>
                 <th style="width: 8%">CODE</th>
@@ -128,7 +130,7 @@
                 <th style="width: 7%">TOTAL.ACHAT</th>
               </tr>
             </ng-template>
-            <ng-template let-orderLine let-rowIndex="rowIndex" pTemplate="body">
+            <ng-template let-orderLine let-rowIndex="rowIndex" #body>
               <tr [ngClass]="orderLineTableColor(orderLine)">
                 <td style="text-align: left">{{ rowIndex + 1 }}</td>
                 <td>{{ orderLine.produitCip }}</td>

@@ -1,8 +1,6 @@
-import { HttpResponse } from '@angular/common/http';
-import { Component, inject, OnInit } from '@angular/core';
+import { HttpErrorResponse, HttpResponse } from '@angular/common/http';
+import { Component, inject, OnInit, viewChild } from '@angular/core';
 import { FormBuilder, FormControl, FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
-import { MessageService } from 'primeng/api';
-import { DynamicDialogConfig, DynamicDialogModule, DynamicDialogRef } from 'primeng/dynamicdialog';
 import { Observable } from 'rxjs';
 import { finalize } from 'rxjs/operators';
 import { Delivery, IDelivery } from '../../../../shared/model/delevery.model';
@@ -10,44 +8,43 @@ import { ICommande } from '../../../../shared/model/commande.model';
 import { DeliveryService } from '../delivery.service';
 import moment from 'moment';
 import { DATE_FORMAT } from '../../../../shared/constants/input.constants';
-import { NgxSpinnerModule, NgxSpinnerService } from 'ngx-spinner';
 import { WarehouseCommonModule } from '../../../../shared/warehouse-common/warehouse-common.module';
 import { ButtonModule } from 'primeng/button';
 import { RouterModule } from '@angular/router';
-import { RippleModule } from 'primeng/ripple';
 import { TableModule } from 'primeng/table';
 import { TooltipModule } from 'primeng/tooltip';
 import { CardModule } from 'primeng/card';
-import { ToastModule } from 'primeng/toast';
 import { KeyFilterModule } from 'primeng/keyfilter';
 import { InputTextModule } from 'primeng/inputtext';
 import { TranslateService } from '@ngx-translate/core';
 import { PrimeNG } from 'primeng/config';
 import { DatePicker } from 'primeng/datepicker';
+import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
+import { SpinerService } from '../../../../shared/spiner.service';
+import { ToastAlertComponent } from '../../../../shared/toast-alert/toast-alert.component';
+import { ErrorService } from '../../../../shared/error.service';
 
 @Component({
   selector: 'jhi-form-delivery',
   templateUrl: './delivery-modal.component.html',
-  providers: [MessageService],
+  styleUrls: ['../../../common-modal.component.scss'],
   imports: [
     WarehouseCommonModule,
     ButtonModule,
     RouterModule,
-    RippleModule,
-    DynamicDialogModule,
     TableModule,
-    NgxSpinnerModule,
     TooltipModule,
     FormsModule,
     ReactiveFormsModule,
     CardModule,
-    ToastModule,
     KeyFilterModule,
     InputTextModule,
     DatePicker,
-  ],
+    ToastAlertComponent
+  ]
 })
 export class DeliveryModalComponent implements OnInit {
+  header = '';
   commande: ICommande;
   isEdit: boolean = false;
   protected isSaving = false;
@@ -58,27 +55,27 @@ export class DeliveryModalComponent implements OnInit {
     id: new FormControl<number | null>(null, {}),
     receiptReference: new FormControl<string | null>(null, {
       validators: [Validators.required],
-      nonNullable: true,
+      nonNullable: true
     }),
     receiptDate: new FormControl<Date | null>(null, {
-      validators: [Validators.required],
+      validators: [Validators.required]
     }),
     receiptAmount: new FormControl<number | null>(null, {
       validators: [Validators.min(0), Validators.required],
-      nonNullable: true,
+      nonNullable: true
     }),
     taxAmount: new FormControl<number | null>(null, {
       validators: [Validators.min(0), Validators.required],
-      nonNullable: true,
-    }),
+      nonNullable: true
+    })
   });
   private readonly entityService = inject(DeliveryService);
-  private readonly ref = inject(DynamicDialogRef);
-  private readonly config = inject(DynamicDialogConfig);
-  private readonly messageService = inject(MessageService);
-  private readonly spinner = inject(NgxSpinnerService);
   private readonly primeNGConfig = inject(PrimeNG);
   private readonly translate = inject(TranslateService);
+  private readonly activeModal = inject(NgbActiveModal);
+  private readonly spinner = inject(SpinerService);
+  private readonly alert = viewChild.required<ToastAlertComponent>('alert');
+  private readonly errorService = inject(ErrorService);
 
   constructor() {
     this.translate.use('fr');
@@ -89,8 +86,6 @@ export class DeliveryModalComponent implements OnInit {
 
   ngOnInit(): void {
     this.maxDate = new Date();
-
-    this.commande = this.config.data.commande;
     this.updateForm(this.commande);
 
     this.minDate = new Date(moment(this.commande.createdAt).format(DATE_FORMAT));
@@ -106,7 +101,7 @@ export class DeliveryModalComponent implements OnInit {
       receiptReference: entity.receiptReference,
       receiptAmount: entity.grossAmount,
       taxAmount: entity.taxAmount,
-      receiptDate: entity.receiptDate ? new Date(moment(entity.receiptDate).format(DATE_FORMAT)) : null,
+      receiptDate: entity.receiptDate ? new Date(moment(entity.receiptDate).format(DATE_FORMAT)) : null
     });
   }
 
@@ -122,7 +117,7 @@ export class DeliveryModalComponent implements OnInit {
   }
 
   cancel(): void {
-    this.ref.destroy();
+    this.activeModal.dismiss();
   }
 
   protected subscribeToSaveResponse(result: Observable<HttpResponse<IDelivery>>): void {
@@ -131,24 +126,20 @@ export class DeliveryModalComponent implements OnInit {
         finalize(() => {
           this.spinner.hide();
           this.isSaving = false;
-        }),
+        })
       )
       .subscribe({
         next: (res: HttpResponse<IDelivery>) => this.onSaveSuccess(res.body),
-        error: () => this.onSaveError(),
+        error: (err) => this.onSaveError(err)
       });
   }
 
-  protected onSaveSuccess(response: IDelivery | null): void {
-    this.ref.close(response);
+  private onSaveSuccess(response: IDelivery | null): void {
+    this.activeModal.close(response);
   }
 
-  protected onSaveError(): void {
-    this.messageService.add({
-      severity: 'error',
-      summary: 'Erreur',
-      detail: 'Enregistrement a échoué',
-    });
+  private onSaveError(err: HttpErrorResponse): void {
+    this.alert().showError(this.errorService.getErrorMessage(err));
   }
 
   private createFrom(): IDelivery {
@@ -159,7 +150,7 @@ export class DeliveryModalComponent implements OnInit {
       receiptDate: this.editForm.get('receiptDate').value ? moment(this.editForm.get('receiptDate').value).format(DATE_FORMAT) : null,
       receiptAmount: this.editForm.get(['receiptAmount']).value,
       taxAmount: this.editForm.get(['taxAmount']).value,
-      orderReference: this.commande.orderReference,
+      orderReference: this.commande.orderReference
     };
   }
 }

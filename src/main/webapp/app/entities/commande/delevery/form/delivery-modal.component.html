@@ -1,144 +1,145 @@
-<p-toast position="center"></p-toast>
-<ngx-spinner [fullScreen]="false" bdColor="rgba(255,255,255,0.5)" color="#f13151" size="medium" type="timer"></ngx-spinner>
-@if (commande) {
-  <p-card styleClass="form-delivery">
-    <ng-template pTemplate="content">
-      <ul class="list-group">
-        <li class="list-group-item d-flex justify-content-between align-items-center">
-          <span style="margin-right: 5px">Référence</span>
-          <span class="text-primary fw-bold">{{ commande.orderReference }}</span>
-        </li>
-        <li class="list-group-item d-flex justify-content-between align-items-center">
-          <span style="margin-right: 5px">Grossiste</span>
-          <span class="text-primary fw-bold">{{ commande.fournisseur?.libelle }}</span>
-        </li>
-        <li class="list-group-item d-flex justify-content-between align-items-center">
-          Valeur Achat
-          <span class="text-primary fw-bold">{{ commande.grossAmount | number }}</span>
-        </li>
-        <li class="list-group-item d-flex justify-content-between align-items-center">
-          Valeur Vente
-          <span class="text-primary fw-bold">{{ commande.orderAmount | number }}</span>
-        </li>
-      </ul>
-    </ng-template>
-  </p-card>
-}
-
-<p-card header="Infromation bon de livraison" styleClass="form-delivery">
-  <form [formGroup]="editForm" name="editForm" novalidate role="form">
-    <input class="form-control" formControlName="id" id="id" name="id" readonly type="hidden" />
-    <div class="p-col-12">
-      <div class="p-fluid p-formgrid p-grid">
-        <div class="p-field p-col">
-          <label class="col-auto col-form-label">Date de livraison<span style="font-weight: 900; color: red">*</span></label>
-          <p-datePicker
-            [maxDate]="maxDate"
-            [selectOtherMonths]="true"
-            [showButtonBar]="true"
-            [showIcon]="true"
-            appendTo="body"
-            class="form-control"
-            dateFormat="dd/mm/yy"
-            formControlName="receiptDate"
-            name="receiptDate"
-          ></p-datePicker>
-          @if (editForm.get('receiptDate')!.invalid && (editForm.get('receiptDate')!.dirty || editForm.get('receiptDate')!.touched)) {
-            <div>
-              @if (editForm.get('receiptDate')?.errors?.required) {
-                <small class="form-text text-danger" style="color: red"> Ce champ est obligatoire. </small>
-              }
-            </div>
-          }
-        </div>
-      </div>
-
-      <div class="p-field p-col">
-        <label class="col-auto col-form-label">Référence Bon<span style="font-weight: 900; color: red">*</span></label>
-
-        <input autocomplete="off" class="form-control" formControlName="receiptReference" name="receiptReference" pInputText type="text" />
-        @if (
-          editForm.get('receiptReference')!.invalid && (editForm.get('receiptReference')!.dirty || editForm.get('receiptReference')!.touched)
-        ) {
-          <div>
-            @if (editForm.get('receiptReference')?.errors?.required) {
-              <small class="form-text text-danger" style="color: red"> Ce champ est obligatoire. </small>
+<jhi-toast-alert #alert></jhi-toast-alert>
+<div class="modal-header">
+  <h4 class="modal-title">{{ header }}</h4>
+  <button (click)="cancel()" aria-label="Close" class="btn-close" type="button">
+    <span aria-hidden="true">&times;</span>
+  </button>
+</div>
+<form (ngSubmit)="save()"  [formGroup]="editForm" name="editForm" novalidate role="form">
+  <div class="modal-body">
+    @if (commande) {
+      <p-card header="Infromation commande initiale">
+        <ul class="list-group">
+          <li class="list-group-item d-flex justify-content-between align-items-center">
+            <span style="margin-right: 5px">Référence</span>
+            <span class="text-primary fw-bold">{{ commande.orderReference }}</span>
+          </li>
+          <li class="list-group-item d-flex justify-content-between align-items-center">
+            <span style="margin-right: 5px">Grossiste</span>
+            <span class="text-primary fw-bold">{{ commande.fournisseur?.libelle }}</span>
+          </li>
+          <li class="list-group-item d-flex justify-content-between align-items-center">
+            Valeur Achat
+            <span class="text-primary fw-bold">{{ commande.grossAmount | number }}</span>
+          </li>
+          <li class="list-group-item d-flex justify-content-between align-items-center">
+            Valeur Vente
+            <span class="text-primary fw-bold">{{ commande.orderAmount | number }}</span>
+          </li>
+        </ul>
+      </p-card>
+    }
+    <p-card header="Infromation bon de livraison">
+      <input class="form-control" formControlName="id" id="id" name="id" readonly type="hidden" />
+      <div class="p-col-12">
+        <div class="p-fluid p-formgrid p-grid">
+          <div class="p-field p-col">
+            <label class="col-auto col-form-label">Date de livraison<span style="font-weight: 900; color: red">*</span></label>
+            <p-datePicker
+              [maxDate]="maxDate"
+              [selectOtherMonths]="true"
+              [showButtonBar]="true"
+              [showIcon]="true"
+              appendTo="body"
+              class="form-control"
+              dateFormat="dd/mm/yy"
+              formControlName="receiptDate"
+              name="receiptDate"
+            ></p-datePicker>
+            @if (editForm.get('receiptDate')!.invalid && (editForm.get('receiptDate')!.dirty || editForm.get('receiptDate')!.touched)) {
+              <div>
+                @if (editForm.get('receiptDate')?.errors?.required) {
+                  <small class="form-text text-danger" style="color: red"> Ce champ est obligatoire. </small>
+                }
+              </div>
             }
           </div>
-        }
-      </div>
-      <div class="form-row">
-        <div class="p-field col-md-6">
-          <label class="col-auto col-form-label">Montant HT<span style="font-weight: 900; color: red">*</span></label>
+        </div>
 
-          <input
-            [pKeyFilter]="'int'"
-            autocomplete="off"
-            class="form-control"
-            formControlName="receiptAmount"
-            name="receiptAmount"
-            pInputText
-            type="text"
-          />
-          @if (editForm.get('receiptAmount')!.invalid && (editForm.get('receiptAmount')!.dirty || editForm.get('receiptAmount')!.touched)) {
+        <div class="p-field p-col">
+          <label class="col-auto col-form-label">Référence Bon<span
+            style="font-weight: 900; color: red">*</span></label>
+
+          <input autocomplete="off" class="form-control" formControlName="receiptReference" name="receiptReference"
+                 pInputText type="text" />
+          @if (editForm.get('receiptReference')!.invalid && (editForm.get('receiptReference')!.dirty || editForm.get('receiptReference')!.touched)) {
             <div>
-              @if (editForm.get('receiptAmount')?.errors?.required) {
+              @if (editForm.get('receiptReference')?.errors?.required) {
                 <small class="form-text text-danger" style="color: red"> Ce champ est obligatoire. </small>
               }
             </div>
           }
         </div>
+        <div class="form-row">
+          <div class="p-field col-md-6">
+            <label class="col-auto col-form-label">Montant HT<span style="font-weight: 900; color: red">*</span></label>
 
-        <div class="p-field col-md-6">
-          <label class="col-auto col-form-label">Montant Taxe<span style="font-weight: 900; color: red">*</span></label>
+            <input
+              [pKeyFilter]="'int'"
+              autocomplete="off"
+              class="form-control"
+              formControlName="receiptAmount"
+              name="receiptAmount"
+              pInputText
+              type="text"
+            />
+            @if (editForm.get('receiptAmount')!.invalid && (editForm.get('receiptAmount')!.dirty || editForm.get('receiptAmount')!.touched)) {
+              <div>
+                @if (editForm.get('receiptAmount')?.errors?.required) {
+                  <small class="form-text text-danger" style="color: red"> Ce champ est obligatoire. </small>
+                }
+              </div>
+            }
+          </div>
 
-          <input
-            [pKeyFilter]="'int'"
-            autocomplete="off"
-            class="form-control"
-            formControlName="taxAmount"
-            name="taxAmount"
-            pInputText
-            type="text"
-          />
-          @if (editForm.get('taxAmount')!.invalid && (editForm.get('taxAmount')!.dirty || editForm.get('taxAmount')!.touched)) {
-            <div>
-              @if (editForm.get('taxAmount')?.errors?.required) {
-                <small class="form-text text-danger" style="color: red"> Ce champ est obligatoire. </small>
-              }
-            </div>
-          }
+          <div class="p-field col-md-6">
+            <label class="col-auto col-form-label">Montant Taxe<span
+              style="font-weight: 900; color: red">*</span></label>
+
+            <input
+              [pKeyFilter]="'int'"
+              autocomplete="off"
+              class="form-control"
+              formControlName="taxAmount"
+              name="taxAmount"
+              pInputText
+              type="text"
+            />
+            @if (editForm.get('taxAmount')!.invalid && (editForm.get('taxAmount')!.dirty || editForm.get('taxAmount')!.touched)) {
+              <div>
+                @if (editForm.get('taxAmount')?.errors?.required) {
+                  <small class="form-text text-danger" style="color: red"> Ce champ est obligatoire. </small>
+                }
+              </div>
+            }
+          </div>
         </div>
+
+        <!--  <div class="p-field p-col" hidden="true">
+            <label class="col-auto col-form-label">Séquence Bon</label>
+
+            <input autocomplete="off" class="form-control"
+                   formControlName="sequenceBon" name="sequenceBon" pInputText type="text" />
+
+          </div>-->
       </div>
+    </p-card>
+  </div>
 
-      <!--  <div class="p-field p-col" hidden="true">
-          <label class="col-auto col-form-label">Séquence Bon</label>
+  <div class="modal-footer">
+    <p-button class="mr-2" (click)="cancel()" data-dismiss="modal" icon="pi pi-times" label="Annuler" raised="true"
+              severity="secondary" type="button">
+    </p-button>
 
-          <input autocomplete="off" class="form-control"
-                 formControlName="sequenceBon" name="sequenceBon" pInputText type="text" />
-
-        </div>-->
-    </div>
-  </form>
-  <ng-template #footer>
     <p-button
-      (click)="save()"
-      [disabled]="editForm.invalid || isSaving"
-      [raised]="true"
-      class="mr-2"
-      icon="pi pi-check"
-      label="Enregistrer"
-      severity="success"
       type="submit"
-    ></p-button>
-    <p-button
-      (click)="cancel()"
-      [raised]="true"
-      class="p-mr-2"
-      icon="pi pi-times"
-      label="Annuler"
-      severity="danger"
-      type="button"
-    ></p-button>
-  </ng-template>
-</p-card>
+      [disabled]="editForm.invalid || isSaving"
+      icon="pi pi-check"
+      id="save-entity"
+      label="Enregister"
+      raised="true"
+      severity="primary"
+    >
+    </p-button>
+  </div>
+</form>

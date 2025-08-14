@@ -1,7 +1,5 @@
-<ngx-spinner [fullScreen]="false" bdColor="rgba(255,255,255,0.5)" color="#f13151" size="medium"
-             type="timer"></ngx-spinner>
-<p-confirmDialog [baseZIndex]="10000" [style]="{ width: '40vw' }"
-                 key="deleteSuggestion"></p-confirmDialog>
+<jhi-confirm-dialog #confirmDialog></jhi-confirm-dialog>
+
 @if (suggestions && suggestions.length > 0) {
   <p-table
     (onLazyLoad)="lazyLoading($event)"
@@ -21,7 +19,7 @@
     selectionMode="multiple"
     styleClass="p-datatable-striped mt-2"
   >
-    <ng-template pTemplate="header">
+    <ng-template #header>
       <tr>
         <th>Type</th>
         <th>Fournisseur</th>
@@ -34,7 +32,7 @@
         <th style="width: 20%"></th>
       </tr>
     </ng-template>
-    <ng-template let-suggestion pTemplate="body">
+    <ng-template let-suggestion #body>
       <tr>
         <td>{{ suggestion.typeSuggession }}</td>
         <td>{{ suggestion.fournisseurLibelle }}</td>

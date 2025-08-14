@@ -1,9 +1,9 @@
-import { Component, inject, OnInit } from '@angular/core';
+import { Component, inject, OnInit, viewChild } from '@angular/core';
 import { FormsModule, ReactiveFormsModule, UntypedFormBuilder, Validators } from '@angular/forms';
 import { DialogService, DynamicDialogConfig, DynamicDialogModule, DynamicDialogRef } from 'primeng/dynamicdialog';
 import { ConfirmationService, MessageService } from 'primeng/api';
 import { FournisseurProduit, IFournisseurProduit } from '../../../../../shared/model/fournisseur-produit.model';
-import { HttpResponse } from '@angular/common/http';
+import { HttpErrorResponse, HttpResponse } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { finalize } from 'rxjs/operators';
 import { ProduitService } from '../../../../produit/produit.service';
@@ -25,33 +25,33 @@ import { KeyFilterModule } from 'primeng/keyfilter';
 import { Select } from 'primeng/select';
 import { IOrderLine } from '../../../../../shared/model/order-line.model';
 import { ICommande } from '../../../../../shared/model/commande.model';
+import { ToastAlertComponent } from '../../../../../shared/toast-alert/toast-alert.component';
+import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
+import { Card } from 'primeng/card';
 
 @Component({
   selector: 'jhi-edit-produit',
   templateUrl: './edit-produit.component.html',
-  providers: [MessageService, DialogService, ConfirmationService],
+  styleUrls: ['../../../common-modal.component.scss'],
   imports: [
     WarehouseCommonModule,
     ButtonModule,
     RouterModule,
-    RippleModule,
-    DynamicDialogModule,
     FormsModule,
     ReactiveFormsModule,
     InputTextModule,
-    DropdownModule,
-    ToastModule,
     KeyFilterModule,
     InputMaskModule,
     Select,
-  ],
+    ToastAlertComponent,
+    Card
+  ]
 })
 export class EditProduitComponent implements OnInit {
   deliveryItem: IOrderLine | null;
   delivery: ICommande | null;
+  header: string | null= null;
   protected fb = inject(UntypedFormBuilder);
-  protected appendTo = 'body';
-
   protected tvas: ITva[] = [];
   protected rayons: IRayon[] = [];
   protected isSaving = false;
@@ -70,21 +70,18 @@ export class EditProduitComponent implements OnInit {
     //    principal: [],
   });
   private readonly produitService = inject(ProduitService);
-  private readonly errorService = inject(ErrorService);
   private readonly rayonService = inject(RayonService);
   private readonly tvaService = inject(TvaService);
-  private readonly ref = inject(DynamicDialogRef);
-  private readonly config = inject(DynamicDialogConfig);
-  private readonly messageService = inject(MessageService);
-
+  private readonly alert = viewChild.required<ToastAlertComponent>('alert');
+  private readonly errorService = inject(ErrorService);
+  private readonly activeModal = inject(NgbActiveModal);
   save(): void {
     this.isSaving = true;
     this.subscribeToSaveResponse(this.produitService.updateProduitFournisseurFromCommande(this.createFromForm()));
   }
 
   ngOnInit(): void {
-    this.deliveryItem = this.config.data.deliveryItem;
-    this.delivery = this.config.data.delivery;
+
     this.produitService.findFournisseurProduit(this.deliveryItem.fournisseurProduitId).subscribe({
       next: (res: HttpResponse<IFournisseurProduit>) => {
         this.fournisseurPrduit = res.body;
@@ -95,7 +92,7 @@ export class EditProduitComponent implements OnInit {
     });
   }
 
-  updateForm(produitFournisseur: IFournisseurProduit): void {
+protected  updateForm(produitFournisseur: IFournisseurProduit): void {
     const initialFormData = this.deliveryItem;
     this.editForm.patchValue({
       id: produitFournisseur.id,
@@ -110,7 +107,7 @@ export class EditProduitComponent implements OnInit {
     });
   }
 
-  populate(): void {
+ protected populate(): void {
     this.tvaService.query().subscribe((res: HttpResponse<ITva[]>) => {
       this.tvas = res.body || [];
     });
@@ -124,51 +121,34 @@ export class EditProduitComponent implements OnInit {
       });
   }
 
-  handlePrixAchatInput(event: any): void {
+ protected handlePrixAchatInput(event: any): void {
     this.validatePrices(Number(event.target.value), Number(this.editForm.get(['prixUni']).value));
   }
 
-  handlePrixUnitaireInput(event: any): void {
+  protected handlePrixUnitaireInput(event: any): void {
     this.validatePrices(Number(this.editForm.get(['prixAchat']).value), Number(event.target.value));
   }
 
   cancel(): void {
-    this.ref.close();
+    this.activeModal.close();
   }
 
-  protected subscribeToSaveResponse(result: Observable<HttpResponse<{}>>): void {
+  private subscribeToSaveResponse(result: Observable<HttpResponse<{}>>): void {
     result.pipe(finalize(() => (this.isSaving = false))).subscribe({
       next: () => this.onSaveSuccess(),
       error: error => this.onSaveError(error),
     });
   }
 
-  protected onSaveSuccess(): void {
-    this.ref.close({ success: true });
+  private onSaveSuccess(): void {
+    this.activeModal.close({ success: true });
   }
 
-  protected onSaveError(error: any): void {
-    let errorMessage = "Erreur d'enregistrement";
-    if (error.error?.errorKey) {
-      this.errorService.getErrorMessageTranslation(error.error?.errorKey).subscribe({
-        next: translatedErrorMessage => {
-          errorMessage = translatedErrorMessage;
-        },
-        error: () => {
-          errorMessage = error.error.detail;
-        },
-      });
-    } else if (error.error?.detail) {
-      errorMessage = error.error.detail;
-    }
-    this.messageService.add({
-      severity: 'error',
-      summary: 'Erreur',
-      detail: errorMessage,
-    });
+  private onSaveError(error: HttpErrorResponse): void {
+    this.alert().showError( this.errorService.getErrorMessage(error));
   }
 
-  protected createFromForm(): IFournisseurProduit {
+  private createFromForm(): IFournisseurProduit {
     return {
       ...new FournisseurProduit(),
       id: this.editForm.get(['id']).value,

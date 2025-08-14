@@ -1,30 +1,23 @@
-import { Component, inject, input, OnInit, output } from '@angular/core';
+import { Component, inject, input, OnInit, output, viewChild } from '@angular/core';
 import { ICommande } from '../../../shared/model/commande.model';
 import { IOrderLine } from '../../../shared/model/order-line.model';
 import { ITEMS_PER_PAGE } from '../../../shared/constants/pagination.constants';
-import { ConfirmationService, LazyLoadEvent } from 'primeng/api';
-import { DialogService, DynamicDialogModule, DynamicDialogRef } from 'primeng/dynamicdialog';
+import { LazyLoadEvent } from 'primeng/api';
 import { CommandeService } from '../commande.service';
 import { Router, RouterModule } from '@angular/router';
 import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { ErrorService } from '../../../shared/error.service';
-import { NgxSpinnerModule, NgxSpinnerService } from 'ngx-spinner';
 import { HttpHeaders, HttpResponse } from '@angular/common/http';
 import { saveAs } from 'file-saver';
-import { ICommandeResponse } from '../../../shared/model/commande-response.model';
-import { CommandeImportResponseDialogComponent } from '../commande-import-response-dialog.component';
-import { IResponseCommande } from '../../../shared/model/response-commande.model';
-import { CommandeEnCoursResponseDialogComponent } from '../commande-en-cours-response-dialog.component';
-import { IDelivery } from '../../../shared/model/delevery.model';
-import { DeliveryModalComponent } from '../delevery/form/delivery-modal.component';
 import { AlertInfoComponent } from '../../../shared/alert/alert-info.component';
 import { WarehouseCommonModule } from '../../../shared/warehouse-common/warehouse-common.module';
 import { ButtonModule } from 'primeng/button';
 import { TableModule } from 'primeng/table';
-import { RippleModule } from 'primeng/ripple';
 import { TooltipModule } from 'primeng/tooltip';
-import { acceptButtonProps, rejectButtonProps } from '../../../shared/util/modal-button-props';
 import { OrderStatut } from '../../../shared/model/enumerations/order-statut.model';
+import { SpinerService } from '../../../shared/spiner.service';
+import { finalize } from 'rxjs/operators';
+import { ConfirmDialogComponent } from '../../../shared/dialog/confirm-dialog/confirm-dialog.component';
 
 export type ExpandMode = 'single' | 'multiple';
 
@@ -35,18 +28,15 @@ export type ExpandMode = 'single' | 'multiple';
     WarehouseCommonModule,
     ButtonModule,
     TableModule,
-    NgxSpinnerModule,
     RouterModule,
-    RippleModule,
-    DynamicDialogModule,
     TooltipModule,
-  ],
+    ConfirmDialogComponent
+  ]
 })
 export class CommandeEnCoursComponent implements OnInit {
   readonly search = input('');
   readonly searchCommande = input('');
   readonly selectionLength = output<number>();
-
   protected commandes: ICommande[] = [];
   protected commandeSelected?: ICommande;
   protected totalItems = 0;
@@ -58,18 +48,14 @@ export class CommandeEnCoursComponent implements OnInit {
   protected page = 0;
   protected selectedtypeSuggession = 'ALL';
   protected selections: ICommande[];
-  protected fileDialog = false;
-  protected ref!: DynamicDialogRef;
   protected readonly REQUESTED = OrderStatut.REQUESTED;
-  private readonly itemsPerPage = ITEMS_PER_PAGE;
-  private readonly rowExpandMode: ExpandMode;
+  readonly itemsPerPage = ITEMS_PER_PAGE;
+  readonly rowExpandMode: ExpandMode;
   private errorService = inject(ErrorService);
-  private spinner = inject(NgxSpinnerService);
-  private confirmationService = inject(ConfirmationService);
-  private dialogService = inject(DialogService);
+  private spinner = inject(SpinerService);
   private readonly selectedFilters = ['REQUESTED'];
   private readonly commandeService = inject(CommandeService);
-
+  private readonly confimDialog = viewChild.required<ConfirmDialogComponent>('confirmDialog');
   private readonly router = inject(Router);
   private readonly modalService = inject(NgbModal);
 
@@ -91,25 +77,23 @@ export class CommandeEnCoursComponent implements OnInit {
         search: this.search(),
         searchCommande: this.searchCommande(),
         orderStatuts: this.selectedFilters,
-        typeSuggession: this.selectedtypeSuggession !== 'ALL' ? this.selectedtypeSuggession : undefined,
+        typeSuggession: this.selectedtypeSuggession !== 'ALL' ? this.selectedtypeSuggession : undefined
       })
       .subscribe({
         next: (res: HttpResponse<ICommande[]>) => this.onSuccess(res.body, res.headers, pageToLoad),
-        error: () => this.onError(),
+        error: () => this.onError()
       });
   }
 
   deleteCommande(commandeId: number): void {
-    this.spinner.show('gestion-commande-spinner');
-    this.commandeService.delete(commandeId).subscribe({
+    this.spinner.show();
+    this.commandeService.delete(commandeId).pipe(finalize(() => this.spinner.hide())).subscribe({
       next: () => {
         this.loadPage();
-        this.spinner.hide('gestion-commande-spinner');
       },
       error: error => {
         this.onCommonError(error);
-        this.spinner.hide('gestion-commande-spinner');
-      },
+      }
     });
   }
 
@@ -160,69 +144,26 @@ export class CommandeEnCoursComponent implements OnInit {
     if (!isSameProvider) {
       this.openInfoDialog('Veillez sélectionner des commandes du même grossiste', 'alert alert-info');
     } else {
-      this.spinner.show('gestion-commande-spinner');
+      this.spinner.show();
       this.commandeService.fusionner(ids).subscribe({
         next: () => {
           this.selections = [];
           this.loadPage();
-          this.spinner.hide('gestion-commande-spinner');
+          this.spinner.hide();
         },
         error: error => {
           this.onCommonError(error);
-          this.spinner.hide('gestion-commande-spinner');
-        },
+          this.spinner.hide();
+        }
       });
     }
   }
 
-  cancel(): void {
-    this.fileDialog = false;
-  }
 
   onShowFileDialog(commande: ICommande): void {
-    this.fileDialog = true;
     this.commandeSelected = commande;
   }
 
-  onImporterReponseCommande(event: any): void {
-    const formData: FormData = new FormData();
-    const file = event.files[0];
-    formData.append('commande', file, file.name);
-    this.spinner.show('gestion-commande-spinner');
-    this.commandeService.importerReponseCommande(this.commandeSelected.id, formData).subscribe({
-      next: res => {
-        this.cancel();
-        this.spinner.hide('gestion-commande-spinner');
-        this.commandeService.fetchOrderLinesByCommandeId(this.commandeSelected.id).subscribe(ress => {
-          this.commandeSelected.orderLines = ress.body!;
-        });
-        this.openImporterReponseCommandeDialog(res.body);
-      },
-      error: error => {
-        this.spinner.hide('gestion-commande-spinner');
-        this.onCommonError(error);
-      },
-    });
-  }
-
-  openImportResponseDialogComponent(responseCommande: ICommandeResponse): void {
-    const modalRef = this.modalService.open(CommandeImportResponseDialogComponent, {
-      size: 'xl',
-      scrollable: true,
-      backdrop: 'static',
-    });
-    modalRef.componentInstance.responseCommande = responseCommande;
-  }
-
-  openImporterReponseCommandeDialog(responseCommande: IResponseCommande): void {
-    const modalRef = this.modalService.open(CommandeEnCoursResponseDialogComponent, {
-      size: 'xl',
-      scrollable: true,
-      backdrop: 'static',
-    });
-    modalRef.componentInstance.responseCommande = responseCommande;
-    modalRef.componentInstance.commande = this.commandeSelected;
-  }
 
   removeAll(): void {
     this.commandeService.deleteSelectedCommandes(this.selections.map(e => e.id)).subscribe(() => {
@@ -232,44 +173,9 @@ export class CommandeEnCoursComponent implements OnInit {
   }
 
   confirmDelete(commande: ICommande): void {
-    this.confirmationService.confirm({
-      message: ' Voullez-vous supprimer cette commande  ?',
-      header: ' SUPPRESSION',
-      icon: 'pi pi-info-circle',
-      rejectButtonProps: rejectButtonProps(),
-      acceptButtonProps: acceptButtonProps(),
-      accept: () => this.deleteCommande(commande.id),
-      key: 'deleteCommande',
-    });
+    this.confimDialog().onConfirm(() => this.deleteCommande(commande.id), 'Suppression', 'Êtes-vous sûre de vouloir supprimer ?');
   }
 
-  gotoEntreeStockComponent(delivery: IDelivery): void {
-    this.router.navigate(['/commande', delivery.id, 'stock-entry']);
-  }
-
-  onPasserEnCours(commande: ICommande): void {
-    this.commandeService.closeCommandeEnCours(commande.id).subscribe({
-      next: () => {
-        this.loadPage();
-      },
-      error: error => {
-        this.onCommonError(error);
-      },
-    });
-  }
-
-  onCreateBon(commande: ICommande): void {
-    this.ref = this.dialogService.open(DeliveryModalComponent, {
-      data: { commande },
-      header: 'CREATION DU BON DE LIVRAISON',
-      width: '40%',
-    });
-    this.ref.onClose.subscribe((delivery: IDelivery) => {
-      if (delivery) {
-        this.gotoEntreeStockComponent(delivery);
-      }
-    });
-  }
 
   onSearch(): void {
     if (this.index == 0) {
@@ -288,11 +194,11 @@ export class CommandeEnCoursComponent implements OnInit {
           search: this.search(),
           searchCommande: this.searchCommande(),
           orderStatuts: this.selectedFilters,
-          typeSuggession: this.selectedtypeSuggession !== 'ALL' ? this.selectedtypeSuggession : undefined,
+          typeSuggession: this.selectedtypeSuggession !== 'ALL' ? this.selectedtypeSuggession : undefined
         })
         .subscribe({
           next: (res: HttpResponse<ICommande[]>) => this.onSuccess(res.body, res.headers, this.page),
-          error: () => this.onError(),
+          error: () => this.onError()
         });
     }
   }
@@ -309,23 +215,14 @@ export class CommandeEnCoursComponent implements OnInit {
     this.selectionLength.emit(this.selections.length);
   }
 
-  protected onCommonError(error: any): void {
-    if (error.error && error.error.status === 500) {
-      this.openInfoDialog('Erreur applicative', 'alert alert-danger');
-    } else {
-      this.errorService.getErrorMessageTranslation(error.error.errorKey).subscribe({
-        next: translatedErrorMessage => {
-          this.openInfoDialog(translatedErrorMessage, 'alert alert-danger');
-        },
-        error: () => this.openInfoDialog(error.error.title, 'alert alert-danger'),
-      });
-    }
+  private onCommonError(error: any): void {
+    this.openInfoDialog(this.errorService.getErrorMessage(error), 'alert alert-danger');
   }
 
   protected openInfoDialog(message: string, infoClass: string): void {
     const modalRef = this.modalService.open(AlertInfoComponent, {
       backdrop: 'static',
-      centered: true,
+      centered: true
     });
     modalRef.componentInstance.message = message;
     modalRef.componentInstance.infoClass = infoClass;
@@ -340,8 +237,8 @@ export class CommandeEnCoursComponent implements OnInit {
         size: this.itemsPerPage,
         search: this.search(),
         orderStatuts: this.selectedFilters,
-        typeSuggession: this.selectedtypeSuggession !== 'ALL' ? this.selectedtypeSuggession : undefined,
-      },
+        typeSuggession: this.selectedtypeSuggession !== 'ALL' ? this.selectedtypeSuggession : undefined
+      }
     });
 
     this.commandes = data || [];

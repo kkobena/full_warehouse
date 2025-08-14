@@ -1,43 +1,43 @@
-import { Component, inject, OnInit } from '@angular/core';
-import { ConfirmationService } from 'primeng/api';
-import { DialogService, DynamicDialogConfig, DynamicDialogRef } from 'primeng/dynamicdialog';
+import { Component, inject, OnInit, viewChild } from '@angular/core';
 import { IFournisseur } from '../../shared/model/fournisseur.model';
 import { CommandeService } from './commande.service';
 import { FournisseurService } from '../fournisseur/fournisseur.service';
-import { NgxSpinnerModule, NgxSpinnerService } from 'ngx-spinner';
-import { AlertInfoComponent } from '../../shared/alert/alert-info.component';
-import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
+import { NgbActiveModal, NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { ErrorService } from '../../shared/error.service';
 import { ICommandeResponse } from '../../shared/model/commande-response.model';
-import { HttpResponse } from '@angular/common/http';
+import { HttpErrorResponse, HttpResponse } from '@angular/common/http';
 import { WarehouseCommonModule } from '../../shared/warehouse-common/warehouse-common.module';
 import { FormsModule } from '@angular/forms';
 import { FileUploadModule } from 'primeng/fileupload';
 import { Select } from 'primeng/select';
 import { Button } from 'primeng/button';
+import { SpinerService } from '../../shared/spiner.service';
+import { finalize } from 'rxjs/operators';
+import { ToastAlertComponent } from '../../shared/toast-alert/toast-alert.component';
+import { Card } from 'primeng/card';
 
 @Component({
   selector: 'jhi-importation-new-commande',
   templateUrl: './importation-new-commande.component.html',
-  providers: [DialogService, ConfirmationService],
-  imports: [WarehouseCommonModule, FormsModule, NgxSpinnerModule, FileUploadModule, Select, Button],
+  styleUrls: ['../common-modal.component.scss'],
+  imports: [WarehouseCommonModule, FormsModule, FileUploadModule, Select, Button, ToastAlertComponent, Card]
 })
 export class ImportationNewCommandeComponent implements OnInit {
-  ref = inject(DynamicDialogRef);
-  config = inject(DynamicDialogConfig);
-  isSaving = false;
+  header: string = '';
+  protected isSaving = false;
   fournisseurSelectedId!: number;
   fournisseurs: IFournisseur[] = [];
   modelSelected!: string;
   models: any[];
   file: any;
-  appendTo = 'body';
   commandeResponse!: ICommandeResponse | null;
-  protected commandeService = inject(CommandeService);
-  protected fournisseurService = inject(FournisseurService);
-  protected modalService = inject(NgbModal);
-  private spinner = inject(NgxSpinnerService);
-  private errorService = inject(ErrorService);
+  private readonly commandeService = inject(CommandeService);
+  private readonly fournisseurService = inject(FournisseurService);
+  protected readonly modalService = inject(NgbModal);
+  private readonly spinner = inject(SpinerService);
+  private readonly alert = viewChild.required<ToastAlertComponent>('alert');
+  private readonly errorService = inject(ErrorService);
+  private readonly activeModal = inject(NgbActiveModal);
 
   constructor() {
     this.models = [
@@ -46,7 +46,7 @@ export class ImportationNewCommandeComponent implements OnInit {
       { label: 'DPCI', value: 'DPCI' },
       { label: 'TEDIS', value: 'TEDIS' },
       { label: 'Cip  quantité', value: 'CIP_QTE' },
-      { label: 'Cip quantité prix achat', value: 'CIP_QTE_PA' },
+      { label: 'Cip quantité prix achat', value: 'CIP_QTE_PA' }
     ];
   }
 
@@ -54,66 +54,51 @@ export class ImportationNewCommandeComponent implements OnInit {
     this.populate();
   }
 
-  save(): void {
+  protected save(): void {
     this.isSaving = true;
     const formData: FormData = new FormData();
     const file = this.file;
 
     formData.append('commande', file, file.name);
-    this.spinner.show('upload-commande-spinner');
-    this.commandeService.uploadNewCommande(this.fournisseurSelectedId, this.modelSelected, formData).subscribe({
-      next: res => {
+    this.spinner.show();
+    this.commandeService.uploadNewCommande(this.fournisseurSelectedId, this.modelSelected, formData)
+      .pipe(finalize(() => {
+        this.spinner.hide();
         this.isSaving = false;
-        this.spinner.hide('upload-commande-spinner');
-        this.commandeResponse = res.body;
-        this.cancel();
-      },
-      error: error => {
-        this.spinner.hide('upload-commande-spinner');
-        this.isSaving = false;
-        this.onCommonError(error);
-      },
-    });
+      }))
+      .subscribe({
+        next: res => {
+          this.commandeResponse = res.body;
+          this.cancel();
+        },
+        error: error => {
+          this.onCommonError(error);
+        }
+      });
   }
 
-  uploadHandler(event: any, fileUpload: any): void {
+  protected uploadHandler(event: any, fileUpload: any): void {
     this.file = event.files[0];
     fileUpload.clear();
   }
 
-  cancel(): void {
-    this.ref.close(this.commandeResponse);
+  protected cancel(): void {
+    this.activeModal.dismiss();
   }
 
-  isValidForm(): boolean {
+  protected isValidForm(): boolean {
     return !!this.file && !!this.modelSelected && !!this.fournisseurSelectedId;
   }
 
-  populate(): void {
+  private populate(): void {
     this.fournisseurService.query({ size: 99999 }).subscribe((res: HttpResponse<IFournisseur[]>) => {
       this.fournisseurs = res.body || [];
     });
   }
 
-  protected onCommonError(error: any): void {
-    if (error.error && error.error.status === 500) {
-      this.openInfoDialog('Erreur applicative', 'alert alert-danger');
-    } else {
-      this.errorService.getErrorMessageTranslation(error.error.errorKey).subscribe({
-        next: translatedErrorMessage => {
-          this.openInfoDialog(translatedErrorMessage, 'alert alert-danger');
-        },
-        error: () => this.openInfoDialog(error.error.title, 'alert alert-danger'),
-      });
-    }
+  private onCommonError(error: HttpErrorResponse): void {
+    this.alert().showError(this.errorService.getErrorMessage(error));
   }
 
-  protected openInfoDialog(message: string, infoClass: string): void {
-    const modalRef = this.modalService.open(AlertInfoComponent, {
-      backdrop: 'static',
-      centered: true,
-    });
-    modalRef.componentInstance.message = message;
-    modalRef.componentInstance.infoClass = infoClass;
-  }
+
 }

@@ -1,21 +1,30 @@
-<ngx-spinner [fullScreen]="true" bdColor="rgba(0, 0, 0, 0.8)" color="#fff" size="medium" type="timer"
-  ><p style="color: white">Traitement en cours...</p></ngx-spinner
->
-<div class="p-col-6">
-  <div class="p-fluid p-formgrid p-grid">
-    <div class="p-field p-col">
-      <label class="col-auto col-form-label">Quantité<span style="font-weight: 900; color: red">*</span></label>
-      <input [(ngModel)]="startAt" [pKeyFilter]="'int'" autocomplete="off" class="form-control" pInputText type="text" />
-      @if (startAt === 0 || startAt > 64) {
-        <div>
-          <small class="form-text text-danger" style="color: red"> Le nombre saisi doit être compris entre 0 et 64 </small>
-        </div>
-      }
-    </div>
-  </div>
+<div class="modal-header">
+  <h4 class="modal-title">{{ header }}</h4>
+  <button (click)="cancel()" aria-label="Close" class="btn-close" type="button">
+    <span aria-hidden="true">&times;</span>
+  </button>
 </div>
-<div class="mt-2" style="float: right">
-  <p-button (click)="cancel()" class="p-mr-2" icon="pi pi-times" label="Annuler" raised="true" severity="danger" type="button"></p-button>
+<div class="modal-body">
+  <p-card>
+    <div class="p-fluid p-formgrid p-grid">
+      <div class="p-field p-col">
+        <label class="col-auto col-form-label">Quantité<span style="font-weight: 900; color: red">*</span></label>
+        <input #startInput [(ngModel)]="startAt" [pKeyFilter]="'int'" autocomplete="off" class="form-control" pInputText
+               type="text" />
+        @if (startAt === 0 || startAt > 64) {
+          <div>
+            <small class="form-text text-danger" style="color: red"> Le nombre saisi doit être compris entre 0 et
+              64 </small>
+          </div>
+        }
+      </div>
+    </div>
+  </p-card>
+</div>
+
+<div class="modal-footer">
+  <p-button (click)="cancel()" class="p-mr-2" icon="pi pi-times" label="Annuler" raised="true" severity="secondary"
+            type="button"></p-button>
   <p-button
     (click)="save()"
     [disabled]="isSaving || startAt === 0 || startAt > 64"

@@ -1,15 +1,12 @@
-import { Component, inject, input, OnDestroy, OnInit, output } from '@angular/core';
+import { Component, inject, input, OnDestroy, OnInit, output, viewChild } from '@angular/core';
 import { SuggestionService } from './suggestion.service';
 import { Suggestion } from './model/suggestion.model';
 import { RouterModule } from '@angular/router';
 import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { ErrorService } from '../../../shared/error.service';
-import { NgxSpinnerModule, NgxSpinnerService } from 'ngx-spinner';
-import { ConfirmationService, LazyLoadEvent, PrimeTemplate } from 'primeng/api';
-import { DialogService, DynamicDialogRef } from 'primeng/dynamicdialog';
+import { LazyLoadEvent } from 'primeng/api';
 import { ITEMS_PER_PAGE } from '../../../shared/constants/pagination.constants';
 import { HttpHeaders, HttpResponse } from '@angular/common/http';
-import { acceptButtonProps, rejectButtonProps } from '../../../shared/util/modal-button-props';
 import { AlertInfoComponent } from '../../../shared/alert/alert-info.component';
 import { ExpandMode } from '../commande-en-cours/commande-en-cours.component';
 import { Keys } from '../../../shared/model/keys.model';
@@ -17,15 +14,15 @@ import { Button } from 'primeng/button';
 import { TableModule } from 'primeng/table';
 import { Tooltip } from 'primeng/tooltip';
 import { CommonModule } from '@angular/common';
-import { ConfirmDialogModule } from 'primeng/confirmdialog';
 import { Observable, Subject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
+import { ConfirmDialogComponent } from '../../../shared/dialog/confirm-dialog/confirm-dialog.component';
+import { SpinerService } from '../../../shared/spiner.service';
 
 @Component({
   selector: 'jhi-suggestion',
-  providers: [ConfirmationService, DialogService],
-  imports: [Button, CommonModule, RouterModule, PrimeTemplate, TableModule, Tooltip, NgxSpinnerModule, ConfirmDialogModule],
-  templateUrl: './suggestion.component.html',
+  imports: [Button, CommonModule, RouterModule, TableModule, Tooltip, ConfirmDialogComponent],
+  templateUrl: './suggestion.component.html'
 })
 export class SuggestionComponent implements OnInit, OnDestroy {
   readonly search = input('');
@@ -43,15 +40,13 @@ export class SuggestionComponent implements OnInit, OnDestroy {
   protected loading!: boolean;
   protected page = 0;
   protected selections: Suggestion[];
-  protected fileDialog = false;
-  protected ref!: DynamicDialogRef;
   private destroy$ = new Subject<void>();
   private readonly suggestionService = inject(SuggestionService);
   private readonly errorService = inject(ErrorService);
-  private readonly spinner = inject(NgxSpinnerService);
-  private readonly confirmationService = inject(ConfirmationService);
-  private readonly modalService = inject(NgbModal);
 
+  private readonly modalService = inject(NgbModal);
+  private readonly confimDialog = viewChild.required<ConfirmDialogComponent>('confirmDialog');
+  private readonly spinner = inject(SpinerService);
   constructor() {
     this.rowExpandMode = 'single';
   }
@@ -72,11 +67,11 @@ export class SuggestionComponent implements OnInit, OnDestroy {
       .query({
         page: pageToLoad,
         size: this.itemsPerPage,
-        ...this.buildParameters(),
+        ...this.buildParameters()
       })
       .subscribe({
         next: (res: HttpResponse<Suggestion[]>) => this.onSuccess(res.body, res.headers, pageToLoad),
-        error: () => this.onError(),
+        error: () => this.onError()
       });
   }
 
@@ -88,18 +83,11 @@ export class SuggestionComponent implements OnInit, OnDestroy {
   }
 
   delete(suggestionId: number): void {
-    this.confirmationService.confirm({
-      message: ' Voullez-vous supprimer cette suggestions ?',
-      header: ' SUPPRESSION',
-      icon: 'pi pi-info-circle',
-      rejectButtonProps: rejectButtonProps(),
-      acceptButtonProps: acceptButtonProps(),
-      accept: () =>
-        this.onDelete({
-          ids: [suggestionId],
-        }),
-      key: 'deleteSuggestion',
-    });
+
+    this.confimDialog().onConfirm(() =>
+      this.onDelete({
+        ids: [suggestionId]
+      }), 'Suppression', 'Êtes-vous sûr de vouloir supprimer ?');
   }
 
   sort(): string[] {
@@ -123,7 +111,7 @@ export class SuggestionComponent implements OnInit, OnDestroy {
           this.selections = [];
           this.loadPage();
         },
-        'fusionner-spinner',
+        'fusionner-spinner'
       );
     }
   }
@@ -148,11 +136,11 @@ export class SuggestionComponent implements OnInit, OnDestroy {
         .query({
           page: this.page,
           size: event.rows,
-          ...this.buildParameters(),
+          ...this.buildParameters()
         })
         .subscribe({
           next: (res: HttpResponse<Suggestion[]>) => this.onSuccess(res.body, res.headers, this.page),
-          error: () => this.onError(),
+          error: () => this.onError()
         });
     }
   }
@@ -174,7 +162,7 @@ export class SuggestionComponent implements OnInit, OnDestroy {
       sort: this.sort(),
       search: this.search(),
       fournisseurId: this.fournisseurId(),
-      typeSuggession: this.selectedtypeSuggession() ? this.selectedtypeSuggession() : null,
+      typeSuggession: this.selectedtypeSuggession() ? this.selectedtypeSuggession() : null
     };
   }
 
@@ -189,7 +177,7 @@ export class SuggestionComponent implements OnInit, OnDestroy {
       error: error => {
         this.spinner.hide();
         this.onCommonError(error);
-      },
+      }
     });
   }
 
@@ -204,7 +192,7 @@ export class SuggestionComponent implements OnInit, OnDestroy {
           next: translatedErrorMessage => {
             this.openInfoDialog(translatedErrorMessage, 'alert alert-danger');
           },
-          error: () => this.openInfoDialog(error.error.title, 'alert alert-danger'),
+          error: () => this.openInfoDialog(error.error.title, 'alert alert-danger')
         });
     }
   }
@@ -212,7 +200,7 @@ export class SuggestionComponent implements OnInit, OnDestroy {
   private openInfoDialog(message: string, infoClass: string): void {
     const modalRef = this.modalService.open(AlertInfoComponent, {
       backdrop: 'static',
-      centered: true,
+      centered: true
     });
     modalRef.componentInstance.message = message;
     modalRef.componentInstance.infoClass = infoClass;
@@ -230,16 +218,16 @@ export class SuggestionComponent implements OnInit, OnDestroy {
   }
 
   private handleServiceCall(observable: Observable<any>, successCallback: () => void, spinnerName: string): void {
-    this.spinner.show(spinnerName);
+    this.spinner.show();
     observable.pipe(takeUntil(this.destroy$)).subscribe({
       next: () => {
-        this.spinner.hide(spinnerName);
+        this.spinner.hide();
         successCallback();
       },
       error: error => {
-        this.spinner.hide(spinnerName);
+        this.spinner.hide();
         this.onCommonError(error);
-      },
+      }
     });
   }
 }

@@ -1,9 +1,7 @@
 import { Component, inject, input, OnInit } from '@angular/core';
 import { IDelivery } from '../../../../shared/model/delevery.model';
 import { ITEMS_PER_PAGE } from '../../../../shared/constants/pagination.constants';
-import { DialogService, DynamicDialogModule, DynamicDialogRef } from 'primeng/dynamicdialog';
-import { Router, RouterModule } from '@angular/router';
-import { NgxSpinnerModule, NgxSpinnerService } from 'ngx-spinner';
+import { RouterModule } from '@angular/router';
 import { DeliveryService } from '../delivery.service';
 import { HttpHeaders, HttpResponse } from '@angular/common/http';
 import { LazyLoadEvent } from 'primeng/api';
@@ -13,6 +11,9 @@ import { ButtonModule } from 'primeng/button';
 import { RippleModule } from 'primeng/ripple';
 import { TableModule } from 'primeng/table';
 import { TooltipModule } from 'primeng/tooltip';
+import { SpinerService } from '../../../../shared/spiner.service';
+import { showCommonModal } from '../../../sales/selling-home/sale-helper';
+import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
 
 export type ExpandMode = 'single' | 'multiple';
 
@@ -24,16 +25,13 @@ export type ExpandMode = 'single' | 'multiple';
     ButtonModule,
     RouterModule,
     RippleModule,
-    DynamicDialogModule,
     TableModule,
-    NgxSpinnerModule,
-    TooltipModule,
-  ],
+    TooltipModule
+  ]
 })
 export class ListBonsComponent implements OnInit {
   readonly search = input('');
-  protected router = inject(Router);
-  protected entityService = inject(DeliveryService);
+  private readonly entityService = inject(DeliveryService);
   protected deliveries: IDelivery[] = [];
   protected rowExpandMode: ExpandMode = 'single';
   protected loading!: boolean;
@@ -42,10 +40,9 @@ export class ListBonsComponent implements OnInit {
   protected page = 0;
   protected ngbPaginationPage = 1;
   protected totalItems = 0;
-  protected ref?: DynamicDialogRef;
   protected selectedFilter = 'CLOSED';
-  private readonly spinner = inject(NgxSpinnerService);
-  private readonly dialogService = inject(DialogService);
+  private readonly spinner = inject(SpinerService);
+  private readonly modalService = inject(NgbModal);
 
   ngOnInit(): void {
     this.onSearch();
@@ -75,20 +72,27 @@ export class ListBonsComponent implements OnInit {
         page,
         size,
         search: this.search(),
-        statut: this.selectedFilter,
+        statut: this.selectedFilter
       })
       .subscribe({
         next: (res: HttpResponse<IDelivery[]>) => this.onSuccess(res.body, res.headers, page),
-        error: () => this.onError(),
+        error: () => this.onError()
       });
   }
 
   printEtiquette(delivery: IDelivery): void {
-    this.ref = this.dialogService.open(EtiquetteComponent, {
-      data: { entity: delivery },
-      width: '40%',
-      header: `IMPRIMER LES ETIQUETTES DU BON DE LIVRAISON [ ${delivery.receiptReference} ] `,
-    });
+    showCommonModal(
+      this.modalService,
+      EtiquetteComponent,
+      {
+        entity: delivery,
+        header: `IMPRIMER LES ETIQUETTES DU BON DE LIVRAISON [ ${delivery.receiptReference} ] `
+      },
+      () => {
+
+      },
+      'lg'
+    );
   }
 
   exportPdf(delivery: IDelivery): void {
@@ -99,20 +103,13 @@ export class ListBonsComponent implements OnInit {
         const blobUrl = URL.createObjectURL(blod);
         window.open(blobUrl);
       },
-      error: () => this.spinner.hide(),
+      error: () => this.spinner.hide()
     });
   }
 
   protected onSuccess(data: IDelivery[] | null, headers: HttpHeaders, page: number): void {
     this.totalItems = Number(headers.get('X-Total-Count'));
     this.page = page;
-    /* this.router.navigate(['/gestion-entree'], {
-      queryParams: {
-        page: this.page,
-        size: this.itemsPerPage,
-        search: this.search(),
-      },
-    });*/
     this.deliveries = data || [];
     this.loading = false;
   }

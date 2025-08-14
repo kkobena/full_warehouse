@@ -1,6 +1,7 @@
-<div class="row justify-content-center">
+<div class="container">
+<div class="justify-content-center">
   @if (magasin) {
-    <div class="col-8 magasin-detail">
+    <div class="magasin-detail">
       <p-panel header="Informations du magasin">
         <dl class="row-md jh-entity-details">
           <dt><span jhiTranslate="warehouseApp.magasin.name">Name</span></dt>
@@ -32,17 +33,18 @@
             <span>{{ magasin.welcomeMessage }}</span>
           </dd>
         </dl>
-        <button
-          [routerLink]="['/magasin', magasin.id, 'edit']"
-          class="p-button-raised p-button-success"
-          icon="pi pi-pencil"
-          pButton
-          type="button"
-        >
-          &nbsp;&nbsp;
-          <span jhiTranslate="entity.action.edit">Edit</span>
-        </button>
+        <div class="text-end">
+          <p-button raised="true"
+                    [routerLink]="['/magasin', magasin.id, 'edit']"
+                    severity="primary"
+                    icon="pi pi-pencil" label="Modifier"
+          >
+
+          </p-button>
+        </div>
+
       </p-panel>
     </div>
   }
+</div>
 </div>

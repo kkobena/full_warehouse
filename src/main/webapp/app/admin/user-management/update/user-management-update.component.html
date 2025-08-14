@@ -1,5 +1,6 @@
-<div class="d-flex justify-content-center">
-  <div class="col-8">
+
+<div class="container">
+  <div class="justify-content-center">
     <p-panel
       header="Créer ou éditer un
           utilisateur"
@@ -14,7 +15,7 @@
 
         <div class="mb-3">
           <label class="form-label" for="field_login" jhiTranslate="userManagement.login">Login</label>
-          <input class="form-control" formControlName="login" id="field_login" name="login" pInputText type="text" />
+          <input autocomplete="off" class="form-control" formControlName="login" id="field_login" name="login" pInputText type="text" />
 
           @if (editForm.get('login')!.invalid && (editForm.get('login')!.dirty || editForm.get('login')!.touched)) {
             <div>
@@ -24,13 +25,13 @@
 
               @if (editForm.get('login')?.errors?.maxlength) {
                 <small class="form-text text-danger" jhiTranslate="entity.validation.maxlength" [translateValues]="{ max: '50' }"
-                  >Ce champ doit faire moins de 50 caractères.</small
+                >Ce champ doit faire moins de 50 caractères.</small
                 >
               }
 
               @if (editForm.get('login')?.errors?.pattern) {
                 <small class="form-text text-danger" jhiTranslate="entity.validation.patternLogin"
-                  >Ce champ ne peut contenir que des lettres, des chiffres ou des adresses e-mail.</small
+                >Ce champ ne peut contenir que des lettres, des chiffres ou des adresses e-mail.</small
                 >
               }
             </div>
@@ -38,13 +39,13 @@
         </div>
         <div class="mb-3">
           <label class="form-label" for="field_firstName" jhiTranslate="userManagement.firstName">Prénom</label>
-          <input class="form-control" formControlName="firstName" id="field_firstName" name="firstName" pInputText type="text" />
+          <input autocomplete="off" class="form-control" formControlName="firstName" id="field_firstName" name="firstName" pInputText type="text" />
 
           @if (editForm.get('firstName')!.invalid && (editForm.get('firstName')!.dirty || editForm.get('firstName')!.touched)) {
             <div>
               @if (editForm.get('firstName')?.errors?.maxlength) {
                 <small class="form-text text-danger" jhiTranslate="entity.validation.maxlength" [translateValues]="{ max: '50' }"
-                  >Ce champ doit faire moins de 50 caractères.</small
+                >Ce champ doit faire moins de 50 caractères.</small
                 >
               }
             </div>
@@ -53,13 +54,13 @@
 
         <div class="mb-3">
           <label class="form-label" for="field_lastName" jhiTranslate="userManagement.lastName">Nom</label>
-          <input class="form-control" formControlName="lastName" id="field_lastName" name="lastName" pInputText type="text" />
+          <input autocomplete="off" class="form-control" formControlName="lastName" id="field_lastName" name="lastName" pInputText type="text" />
 
           @if (editForm.get('lastName')!.invalid && (editForm.get('lastName')!.dirty || editForm.get('lastName')!.touched)) {
             <div>
               @if (editForm.get('lastName')?.errors?.maxlength) {
                 <small class="form-text text-danger" jhiTranslate="entity.validation.maxlength" [translateValues]="{ max: '50' }"
-                  >Ce champ doit faire moins de 50 caractères.</small
+                >Ce champ doit faire moins de 50 caractères.</small
                 >
               }
             </div>
@@ -76,7 +77,7 @@
         </div>
         <div class="mb-3">
           <label class="form-label" for="field_email" jhiTranslate="userManagement.email">Email</label>
-          <input class="form-control" formControlName="email" id="field_email" name="email" pInputText type="email" />
+          <input autocomplete="off"  class="form-control" formControlName="email" id="field_email" name="email" pInputText type="email" />
 
           @if (editForm.get('email')!.invalid && (editForm.get('email')!.dirty || editForm.get('email')!.touched)) {
             <div>
@@ -86,36 +87,38 @@
 
               @if (editForm.get('email')?.errors?.maxlength) {
                 <small class="form-text text-danger" jhiTranslate="entity.validation.maxlength" [translateValues]="{ max: '100' }"
-                  >Ce champ doit faire moins de 100 caractères.</small
+                >Ce champ doit faire moins de 100 caractères.</small
                 >
               }
 
               @if (editForm.get('email')?.errors?.minlength) {
                 <small class="form-text text-danger" jhiTranslate="entity.validation.minlength" [translateValues]="{ min: '5' }"
-                  >Ce champ doit faire au minimum 5 caractères.</small
+                >Ce champ doit faire au minimum 5 caractères.</small
                 >
               }
 
               @if (editForm.get('email')?.errors?.email) {
                 <small class="form-text text-danger" jhiTranslate="global.messages.validate.email.invalid"
-                  >Votre email n&apos;est pas valide.</small
+                >Votre email n&apos;est pas valide.</small
                 >
               }
             </div>
           }
         </div>
-        <p-button (click)="previousState()" icon="pi pi-ban" label="Annuler" raised="true" severity="danger" type="button"> </p-button>
+       <div class="text-end">
+         <p-button (click)="previousState()"  class="mr-2" icon="pi pi-ban" label="Annuler" raised="true" severity="secondary" type="button"> </p-button>
 
-        <p-button
-          [disabled]="editForm.invalid || isSaving()"
-          icon="pi pi-save"
-          label="Enregister"
-          raised="true"
-          severity="success"
-          type="submit"
-        >
-        </p-button>
+         <p-button
+           [disabled]="editForm.invalid || isSaving()"
+           icon="pi pi-save"
+           label="Enregister"
+           raised="true"
+           severity="primary"
+           type="submit"
+         >
+         </p-button>
+       </div>
       </form>
     </p-panel>
-  </div>
-</div>
+  </div></div>
+

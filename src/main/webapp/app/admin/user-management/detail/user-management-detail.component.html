@@ -1,64 +1,70 @@
-<div class="col-xl-6 col-sm-8 col-md-7 justify-content-end" style="margin-bottom: 0.5rem">
-  <div class="col-12 text-right">
-    <button class="btn btn-info btn-sm" routerLink="../../" type="submit">
-      <fa-icon icon="arrow-left"></fa-icon>&nbsp;<span jhiTranslate="entity.action.back">Retour</span>
-    </button>
-  </div>
-</div>
+<div class="container">
+  <div class="justify-content-center">
+    <p-panel>
+      <ng-template #header>
+        <h3>Utilisateur   <span class="badge bg-info fs-5  fw-semibold">{{ user()!.login }}</span></h3>
+      </ng-template>
+      <p-toolbar>
+        <div class="p-toolbar-group-left p-md-7">
+        </div>
+        <div class="p-toolbar-group-right">
 
-<div class="d-flex justify-content-center">
-  <div class="col-xl-6 col-sm-8 col-md-7 card">
-    @if (user()) {
-      <div class="card-body">
-        <h2>
-          <span jhiTranslate="userManagement.detail.title">Utilisateur</span>
-          [<strong>{{ user()!.login }}</strong
-          >]
-        </h2>
+          <p-button routerLink="../../"  icon="pi pi-arrow-left" label="Retour" raised="true" severity="secondary" type="button"></p-button>
+        </div>
+      </p-toolbar>
 
-        <dl class="row-md jh-entity-details">
-          <dt><span jhiTranslate="userManagement.login">Login</span></dt>
-          <dd>
-            <span>{{ user()!.login }}</span>
-            @if (user()!.activated) {
-              <span class="badge bg-success" jhiTranslate="userManagement.activated">Activé</span>
-            } @else {
-              <span class="badge bg-danger" jhiTranslate="userManagement.deactivated">Désactivé</span>
-            }
-          </dd>
-
-          <dt><span jhiTranslate="userManagement.firstName">Prénom</span></dt>
-          <dd>{{ user()!.firstName }}</dd>
-
-          <dt><span jhiTranslate="userManagement.lastName">Nom</span></dt>
-          <dd>{{ user()!.lastName }}</dd>
-
-          <dt><span jhiTranslate="userManagement.email">Email</span></dt>
-          <dd>{{ user()!.email }}</dd>
-          <dt><span jhiTranslate="userManagement.createdBy">Créé par</span></dt>
-          <dd>{{ user()!.createdBy }}</dd>
-
-          <dt><span jhiTranslate="userManagement.createdDate">Créé le</span></dt>
-          <dd>{{ user()!.createdDate | date: 'dd/MM/yy HH:mm' }}</dd>
-
-          <dt><span jhiTranslate="userManagement.lastModifiedBy">Modifié par</span></dt>
-          <dd>{{ user()!.lastModifiedBy }}</dd>
-
-          <dt><span jhiTranslate="userManagement.lastModifiedDate">Modifié le</span></dt>
-          <dd>{{ user()!.lastModifiedDate | date: 'dd/MM/yy HH:mm' }}</dd>
-
-          <dt><span jhiTranslate="userManagement.profiles">Droits</span></dt>
-          <dd>
-            <ul class="list-unstyled">
-              @for (authority of user()!.authorities; track $index) {
-                <li>
-                  <span class="badge bg-info">{{ authority }}</span>
-                </li>
+      @if (user()) {
+        <div class="mt-2">
+          <dl class="row-md jh-entity-details">
+            <dt><span jhiTranslate="userManagement.login">Login</span></dt>
+            <dd>
+              <span>{{ user()!.login }}</span>
+              @if (user()!.activated) {
+                <span class="badge bg-success ms-3 fw-semibold" jhiTranslate="userManagement.activated">Activé</span>
+              } @else {
+                <span class="badge bg-danger ms-3 fw-semibold" jhiTranslate="userManagement.deactivated">Désactivé</span>
               }
-            </ul>
-          </dd>
-        </dl>
-      </div>
-    }
-  </div>
-</div>
+            </dd>
+
+            <dt><span jhiTranslate="userManagement.firstName">Prénom</span></dt>
+            <dd>{{ user()!.firstName }}</dd>
+
+            <dt><span jhiTranslate="userManagement.lastName">Nom</span></dt>
+            <dd>{{ user()!.lastName }}</dd>
+
+            <dt><span jhiTranslate="userManagement.email">Email</span></dt>
+            <dd>{{ user()!.email }}</dd>
+            <dt><span jhiTranslate="userManagement.createdBy">Créé par</span></dt>
+            <dd>{{ user()!.createdBy }}</dd>
+
+            <dt><span jhiTranslate="userManagement.createdDate">Créé le</span></dt>
+            <dd>{{ user()!.createdDate | date: 'dd/MM/yy HH:mm' }}</dd>
+
+            <dt><span jhiTranslate="userManagement.lastModifiedBy">Modifié par</span></dt>
+            <dd>{{ user()!.lastModifiedBy }}</dd>
+
+            <dt><span jhiTranslate="userManagement.lastModifiedDate">Modifié le</span></dt>
+            <dd>{{ user()!.lastModifiedDate | date: 'dd/MM/yy HH:mm' }}</dd>
+
+            <dt><span jhiTranslate="userManagement.profiles">Droits</span></dt>
+            <dd>
+              <ul class="list-unstyled">
+                @for (authority of user()!.authorities; track $index) {
+                  <li>
+                    <span class="badge bg-info">{{ authority }}</span>
+                  </li>
+                }
+              </ul>
+            </dd>
+          </dl>
+        </div>
+      }
+    </p-panel>
+
+  </div></div>
+
+
+
+
+
+

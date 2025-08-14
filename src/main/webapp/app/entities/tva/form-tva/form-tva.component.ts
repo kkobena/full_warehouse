@@ -20,7 +20,7 @@ import { ITva, Tva } from '../../../shared/model/tva.model';
 })
 export class FormTvaComponent implements OnInit, AfterViewInit {
   header: string = '';
-  taux = viewChild.required<ElementRef>('taux');
+ private readonly  taux = viewChild.required<ElementRef>('taux');
   protected fb = inject(FormBuilder);
   protected editForm = this.fb.group({
     id: new FormControl<number | null>(null, {}),

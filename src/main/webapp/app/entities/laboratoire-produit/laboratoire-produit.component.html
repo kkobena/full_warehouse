@@ -1,88 +1,75 @@
-<p-toast position="center"></p-toast>
-<p-confirmDialog [baseZIndex]="10000" [style]="{ width: '40vw' }"> </p-confirmDialog>
-<p-dialog [(visible)]="fileDialog" [focusOnShow]="false" [modal]="true" [style]="{ width: '50vw' }" header="Importer un fichier">
-  <div class="ui-g form-group">
-    <p-fileupload
-      (uploadHandler)="onUpload($event)"
-      [customUpload]="true"
-      accept=".txt,.csv,.xls,.xlsx"
-      cancelLabel="Annuler"
-      cancelStyleClass="p-button-danger"
-      chooseLabel="Importer un fichier"
-      name="importcsv"
-      uploadLabel="Enrégistrer"
-      uploadStyleClass="p-button-info"
-    >
-    </p-fileupload>
-  </div>
-  <ng-template #footer>
-    <p-button (click)="cancel()" class="p-mr-2" icon="pi pi-times" label="Annuler" raised="true" severity="danger" type="button"></p-button>
-  </ng-template>
-</p-dialog>
-<div class="row justify-content-center">
-  <div class="col-xl-8 col-lg-8 col-md-8 col-sm-12">
-    <h3>Liste des laboratoires de produit</h3>
-    <p-toolbar>
-      <div class="p-toolbar-group-left p-md-7">
-        <p-iconfield>
-          <p-inputicon styleClass="pi pi-search" />
-          <input (keyup.enter)="search($event)" pInputText placeholder="Taper pour rechercher" style="width: 100%" type="text" />
-        </p-iconfield>
-      </div>
-      <div class="p-toolbar-group-right">
-        <p-button
-          (click)="showFileDialog()"
-          class="mr-2"
-          icon="pi pi-upload"
-          label="Importer"
-          raised="true"
-          severity="help"
-          type="button"
-        ></p-button>
-        <p-button (click)="addNewEntity()" icon="pi pi-check" label="Nouveau" raised="true" severity="success" type="button"></p-button>
-      </div>
-    </p-toolbar>
-    <p-table
-      #dt
-      (onLazyLoad)="lazyLoading($event)"
-      [(selection)]="selectedEl"
-      [lazy]="true"
-      [loading]="loading"
-      [paginator]="true"
-      [rows]="itemsPerPage"
-      [totalRecords]="totalItems"
-      [value]="entites"
-      dataKey="id"
-      selectionMode="single"
-      styleClass="ui-table-cars"
-    >
-      <ng-template pTemplate="header">
-        <tr>
-          <th scope="col"><span>Libellé</span></th>
-          <th scope="col"></th>
-        </tr>
+<div class="container">
+  <div class=" justify-content-center">
+    <p-panel>
+      <ng-template #header>
+        <h3>Liste des laboratoires de produit</h3>
       </ng-template>
-      <ng-template let-columns="columns" let-elRow pTemplate="body">
-        <tr [pEditableRow]="elRow" [pSelectableRow]="elRow">
-          <td>{{ elRow.libelle }}</td>
-          <td style="text-align: right">
+      <ng-template #content>
+        <p-toolbar>
+          <div class="p-toolbar-group-left p-md-7">
+            <p-iconfield>
+              <p-inputicon styleClass="pi pi-search" />
+              <input (keyup.enter)="search($event)" pInputText placeholder="Taper pour rechercher" style="width: 100%" type="text" />
+            </p-iconfield>
+          </div>
+          <div class="p-toolbar-group-right">
             <p-button
-              (click)="onEdit(elRow)"
+              (click)="showFileDialog()"
               class="mr-2"
-              icon="pi pi-pencil"
-              pTooltip="Editer"
-              rounded="true"
-              severity="success"
+              icon="pi pi-upload"
+              label="Importer"
+              raised="true"
+              severity="help"
+              type="button"
             ></p-button>
-            <p-button (click)="delete(elRow)" icon="pi pi-trash" pTooltip="Supprimer" rounded="true" severity="danger"></p-button>
-          </td>
-        </tr>
+            <p-button (click)="addNewEntity()" icon="pi pi-check" label="Nouveau" raised="true" severity="success" type="button"></p-button>
+          </div>
+        </p-toolbar>
+        <div class="mt-2">
+          <p-table
+            #dt
+            (onLazyLoad)="lazyLoading($event)"
+            [lazy]="true"
+            [loading]="loading"
+            [paginator]="true"
+            [rows]="itemsPerPage"
+            [totalRecords]="totalItems"
+            [value]="entites"
+            dataKey="id"
+            selectionMode="single"
+          >
+            <ng-template #header>
+              <tr>
+                <th scope="col"><span>Libellé</span></th>
+                <th scope="col"></th>
+              </tr>
+            </ng-template>
+            <ng-template let-columns="columns" let-elRow #body>
+              <tr  [pSelectableRow]="elRow">
+                <td>{{ elRow.libelle }}</td>
+                <td style="text-align: right">
+                  <p-button
+                    (click)="onEdit(elRow)"
+                    class="mr-2"
+                    [text]="true"
+                    icon="pi pi-pencil"
+                    pTooltip="Editer"
+                    rounded="true"
+                    severity="primary"
+                  ></p-button>
+                  <p-button [text]="true" (click)="delete(elRow)" icon="pi pi-trash" pTooltip="Supprimer" rounded="true" severity="danger"></p-button>
+                </td>
+              </tr>
+            </ng-template>
+            <ng-template let-columns #emptymessage>
+              <tr>
+                <td [attr.colspan]="2">Aucune donnée trouvée</td>
+              </tr>
+            </ng-template>
+          </p-table>
+        </div>
       </ng-template>
-      <ng-template let-columns pTemplate="emptymessage">
-        <tr>
-          <td [attr.colspan]="2">Aucune donnée trouvée</td>
-        </tr>
-      </ng-template>
-    </p-table>
-  </div>
-</div>
+    </p-panel>
+  </div></div>
+<jhi-toast-alert #alert></jhi-toast-alert>
+<jhi-confirm-dialog #confirmDialog></jhi-confirm-dialog>

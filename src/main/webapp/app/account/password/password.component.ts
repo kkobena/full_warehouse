@@ -7,10 +7,16 @@ import { AccountService } from 'app/core/auth/account.service';
 import { Account } from 'app/core/auth/account.model';
 import { PasswordService } from './password.service';
 import PasswordStrengthBarComponent from './password-strength-bar/password-strength-bar.component';
+import { Panel } from 'primeng/panel';
+import { InputText } from 'primeng/inputtext';
+import { Password, PasswordModule } from 'primeng/password';
+import { PrimeNG } from 'primeng/config';
+import { TranslateService } from '@ngx-translate/core';
+import { Button } from 'primeng/button';
 
 @Component({
   selector: 'jhi-password',
-  imports: [SharedModule, FormsModule, ReactiveFormsModule, PasswordStrengthBarComponent],
+  imports: [SharedModule, FormsModule, ReactiveFormsModule, PasswordStrengthBarComponent, Panel, PasswordModule, Button],
   templateUrl: './password.component.html',
 })
 export default class PasswordComponent implements OnInit {
@@ -32,12 +38,19 @@ export default class PasswordComponent implements OnInit {
 
   private readonly passwordService = inject(PasswordService);
   private readonly accountService = inject(AccountService);
-
+  private readonly primeNGConfig = inject(PrimeNG);
+  private readonly translate = inject(TranslateService);
+  constructor() {
+    this.translate.use('fr');
+    this.translate.stream('primeng').subscribe(data => {
+      this.primeNGConfig.setTranslation(data);
+    });
+  }
   ngOnInit(): void {
     this.account$ = this.accountService.identity();
   }
 
-  changePassword(): void {
+  protected changePassword(): void {
     this.error.set(false);
     this.success.set(false);
     this.doNotMatch.set(false);

@@ -1,5 +1,5 @@
-import { Component, OnInit, inject } from '@angular/core';
-import { HttpResponse } from '@angular/common/http';
+import { Component, inject, OnInit, viewChild } from '@angular/core';
+import { HttpErrorResponse, HttpResponse } from '@angular/common/http';
 
 import { ReactiveFormsModule, UntypedFormBuilder, Validators } from '@angular/forms';
 import { ActivatedRoute, RouterModule } from '@angular/router';
@@ -7,24 +7,20 @@ import { Observable } from 'rxjs';
 
 import { IMagasin, Magasin } from 'app/shared/model/magasin.model';
 import { MagasinService } from './magasin.service';
-import { WarehouseCommonModule } from '../../shared/warehouse-common/warehouse-common.module';
 import { PanelModule } from 'primeng/panel';
 import { ButtonModule } from 'primeng/button';
-import { RippleModule } from 'primeng/ripple';
+import { ToastAlertComponent } from '../../shared/toast-alert/toast-alert.component';
+import { ErrorService } from '../../shared/error.service';
 
 @Component({
   selector: 'jhi-magasin-update',
   templateUrl: './magasin-update.component.html',
-  imports: [WarehouseCommonModule, PanelModule, RouterModule, ReactiveFormsModule, ButtonModule, RippleModule],
+  imports: [PanelModule, RouterModule, ReactiveFormsModule, ButtonModule, ToastAlertComponent]
 })
 export class MagasinUpdateComponent implements OnInit {
-  protected magasinService = inject(MagasinService);
-  protected activatedRoute = inject(ActivatedRoute);
-  private fb = inject(UntypedFormBuilder);
-
-  isSaving = false;
-
-  editForm = this.fb.group({
+  protected fb = inject(UntypedFormBuilder);
+  protected isSaving = false;
+  protected editForm = this.fb.group({
     id: [],
     name: [null, [Validators.required]],
     fullName: [null, [Validators.required]],
@@ -32,8 +28,12 @@ export class MagasinUpdateComponent implements OnInit {
     address: [],
     note: [],
     registre: [],
-    welcomeMessage: [],
+    welcomeMessage: []
   });
+  private readonly magasinService = inject(MagasinService);
+  private readonly activatedRoute = inject(ActivatedRoute);
+  private readonly alert = viewChild.required<ToastAlertComponent>('alert');
+  private readonly errorService = inject(ErrorService);
 
   ngOnInit(): void {
     this.activatedRoute.data.subscribe(({ magasin }) => {
@@ -41,7 +41,7 @@ export class MagasinUpdateComponent implements OnInit {
     });
   }
 
-  updateForm(magasin: IMagasin): void {
+  protected updateForm(magasin: IMagasin): void {
     this.editForm.patchValue({
       id: magasin.id,
       name: magasin.name,
@@ -50,15 +50,15 @@ export class MagasinUpdateComponent implements OnInit {
       address: magasin.address,
       note: magasin.note,
       registre: magasin.registre,
-      welcomeMessage: magasin.welcomeMessage,
+      welcomeMessage: magasin.welcomeMessage
     });
   }
 
-  previousState(): void {
+  protected previousState(): void {
     window.history.back();
   }
 
-  save(): void {
+  protected save(): void {
     this.isSaving = true;
     const magasin = this.createFromForm();
     if (magasin.id !== undefined) {
@@ -68,20 +68,21 @@ export class MagasinUpdateComponent implements OnInit {
     }
   }
 
-  protected subscribeToSaveResponse(result: Observable<HttpResponse<IMagasin>>): void {
+  private subscribeToSaveResponse(result: Observable<HttpResponse<IMagasin>>): void {
     result.subscribe({
       next: () => this.onSaveSuccess(),
-      error: () => this.onSaveError(),
+      error: (err) => this.onSaveError(err)
     });
   }
 
-  protected onSaveSuccess(): void {
+  private onSaveSuccess(): void {
     this.isSaving = false;
     this.previousState();
   }
 
-  protected onSaveError(): void {
+  private onSaveError(error: HttpErrorResponse): void {
     this.isSaving = false;
+    this.alert().showError(this.errorService.getErrorMessage(error));
   }
 
   private createFromForm(): IMagasin {
@@ -94,7 +95,7 @@ export class MagasinUpdateComponent implements OnInit {
       address: this.editForm.get(['address']).value,
       note: this.editForm.get(['note']).value,
       registre: this.editForm.get(['registre']).value,
-      welcomeMessage: this.editForm.get(['welcomeMessage']).value,
+      welcomeMessage: this.editForm.get(['welcomeMessage']).value
     };
   }
 }

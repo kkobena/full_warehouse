@@ -1,9 +1,8 @@
 import { HttpErrorResponse, HttpResponse } from '@angular/common/http';
-import { AfterViewInit, Component, ElementRef, inject, OnInit, viewChild } from '@angular/core';
+import { Component, inject, OnInit, viewChild } from '@angular/core';
 import { FormsModule, ReactiveFormsModule, UntypedFormBuilder, Validators } from '@angular/forms';
 import { Observable } from 'rxjs';
-import { LaboratoireProduitService } from '../laboratoire-produit.service';
-import { ILaboratoire, Laboratoire } from '../../../shared/model/laboratoire.model';
+import { ILaboratoire } from '../../../shared/model/laboratoire.model';
 import { ButtonModule } from 'primeng/button';
 import { InputTextModule } from 'primeng/inputtext';
 import { ToastAlertComponent } from '../../../shared/toast-alert/toast-alert.component';
@@ -11,10 +10,15 @@ import { Card } from 'primeng/card';
 import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
 import { ErrorService } from '../../../shared/error.service';
 import { finalize } from 'rxjs/operators';
+import { IConfiguration } from '../../../shared/model/configuration.model';
+import { ConfigurationService } from '../../../shared/configuration.service';
+import { Checkbox } from 'primeng/checkbox';
+import { Textarea } from 'primeng/textarea';
+import { KeyFilter } from 'primeng/keyfilter';
 
 @Component({
   selector: 'jhi-form-laboratoire',
-  templateUrl: './form-laboratoire.component.html',
+  templateUrl: './form-paramettre.component.html',
   styleUrls: ['../../common-modal.component.scss'],
   imports: [
     FormsModule,
@@ -22,52 +26,49 @@ import { finalize } from 'rxjs/operators';
     ButtonModule,
     InputTextModule,
     ToastAlertComponent,
-    Card
+    Card,
+    Checkbox,
+    Textarea,
+    KeyFilter
   ]
 })
-export class FormLaboratoireComponent implements OnInit, AfterViewInit {
+export class FormParamettreComponent implements OnInit {
   header = '';
-  laboratoire: ILaboratoire | null = null;
+  entity: IConfiguration | null = null;
   protected fb = inject(UntypedFormBuilder);
   protected isSaving = false;
   protected editForm = this.fb.group({
-    id: [],
-    libelle: [null, [Validators.required]]
+    name: [Validators.required],
+    description: [null, [Validators.required]],
+    value: [null, [Validators.required]]
   });
-  private readonly entityService = inject(LaboratoireProduitService);
   private readonly activeModal = inject(NgbActiveModal);
   private readonly alert = viewChild.required<ToastAlertComponent>('alert');
   private readonly errorService = inject(ErrorService);
-  private readonly libelle = viewChild.required<ElementRef>('libelle');
+  private readonly configurationService = inject(ConfigurationService);
 
   ngOnInit(): void {
-    if (this.laboratoire) {
-      this.updateForm(this.laboratoire);
-    }
+
+    this.updateForm(this.entity);
+
   }
 
-  ngAfterViewInit(): void {
-    setTimeout(() => {
-      this.libelle().nativeElement.focus();
-    }, 100);
-  }
 
-  protected updateForm(entity: ILaboratoire): void {
+  protected updateForm(entity: IConfiguration): void {
+    const value = entity.valueType === 'BOOLEAN' ? entity.value === '1' : entity.value;
     this.editForm.patchValue({
-      id: entity.id,
-      libelle: entity.libelle
+      value,
+      name: entity.name,
+      description: entity.description
     });
   }
 
   protected save(): void {
     this.isSaving = true;
     const entity = this.createFromForm();
-    if (entity.id !== undefined && entity.id !== null) {
-      this.subscribeToSaveResponse(this.entityService.update(entity));
-    } else {
-      this.subscribeToSaveResponse(this.entityService.create(entity));
-    }
+    this.subscribeToSaveResponse(this.configurationService.update(entity));
   }
+
 
   protected cancel(): void {
     this.activeModal.dismiss();
@@ -89,11 +90,11 @@ export class FormLaboratoireComponent implements OnInit, AfterViewInit {
     this.alert().showError(this.errorService.getErrorMessage(error));
   }
 
-  private createFromForm(): ILaboratoire {
+  private createFromForm(): IConfiguration {
     return {
-      ...new Laboratoire(),
-      id: this.editForm.get(['id']).value,
-      libelle: this.editForm.get(['libelle']).value
+      ...this.entity,
+      description: this.editForm.get(['description']).value,
+      value: this.editForm.get(['value']).value
     };
   }
 }

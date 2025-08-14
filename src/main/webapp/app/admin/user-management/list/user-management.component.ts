@@ -17,6 +17,11 @@ import { WarehouseCommonModule } from '../../../shared/warehouse-common/warehous
 import { ButtonModule } from 'primeng/button';
 import { RippleModule } from 'primeng/ripple';
 import { PanelModule } from 'primeng/panel';
+import { IconField } from 'primeng/iconfield';
+import { InputIcon } from 'primeng/inputicon';
+import { InputText } from 'primeng/inputtext';
+import { Toolbar } from 'primeng/toolbar';
+import { Tooltip } from 'primeng/tooltip';
 
 @Component({
   selector: 'jhi-user-mgmt',
@@ -28,10 +33,13 @@ import { PanelModule } from 'primeng/panel';
     PanelModule,
     RouterModule,
     SharedModule,
-    SortDirective,
-    SortByDirective,
     ItemCountComponent,
-  ],
+    IconField,
+    InputIcon,
+    InputText,
+    Toolbar,
+    Tooltip
+  ]
 })
 export default class UserManagementComponent implements OnInit {
   currentAccount = inject(AccountService).trackCurrentAccount();
@@ -58,6 +66,10 @@ export default class UserManagementComponent implements OnInit {
 
   trackIdentity(item: User): number {
     return item.id;
+  }
+  search(event: Event): void {
+    const query = (event.target as HTMLInputElement).value;
+
   }
 
   deleteUser(user: User): void {

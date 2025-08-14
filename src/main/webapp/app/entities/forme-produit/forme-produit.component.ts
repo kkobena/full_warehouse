@@ -1,204 +1,151 @@
-import { Component, OnInit, inject } from '@angular/core';
-import { FormsModule, ReactiveFormsModule, UntypedFormBuilder, Validators } from '@angular/forms';
-import { ActivatedRoute, Router, RouterModule } from '@angular/router';
-import { ConfirmationService, LazyLoadEvent } from 'primeng/api';
+import { Component, inject, OnInit, viewChild } from '@angular/core';
+import { LazyLoadEvent } from 'primeng/api';
 import { HttpHeaders, HttpResponse } from '@angular/common/http';
-import { Observable } from 'rxjs';
 import { FormeProduitService } from './forme-produit.service';
 import { ITEMS_PER_PAGE } from '../../shared/constants/pagination.constants';
-import { FormProduit, IFormProduit } from '../../shared/model/form-produit.model';
-import { WarehouseCommonModule } from '../../shared/warehouse-common/warehouse-common.module';
+import { IFormProduit } from '../../shared/model/form-produit.model';
 import { ButtonModule } from 'primeng/button';
-import { RippleModule } from 'primeng/ripple';
-import { ConfirmDialogModule } from 'primeng/confirmdialog';
-import { ToastModule } from 'primeng/toast';
-import { DialogModule } from 'primeng/dialog';
-import { FileUploadModule } from 'primeng/fileupload';
 import { ToolbarModule } from 'primeng/toolbar';
 import { TableModule } from 'primeng/table';
-import { TextareaModule } from 'primeng/textarea';
-import { acceptButtonProps, rejectButtonProps } from '../../shared/util/modal-button-props';
 import { Tooltip } from 'primeng/tooltip';
+import { ConfirmDialogComponent } from '../../shared/dialog/confirm-dialog/confirm-dialog.component';
+import { Panel } from 'primeng/panel';
+import { IconField } from 'primeng/iconfield';
+import { InputIcon } from 'primeng/inputicon';
+import { InputText } from 'primeng/inputtext';
+import { showCommonModal } from '../sales/selling-home/sale-helper';
+import { FormFormeProduitComponent } from './form-forme-produit/form-forme-produit.component';
+import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
 
 @Component({
   selector: 'jhi-forme-produit',
   templateUrl: './forme-produit.component.html',
-  providers: [ConfirmationService],
   imports: [
-    WarehouseCommonModule,
     ButtonModule,
-    RippleModule,
-    ConfirmDialogModule,
-    ToastModule,
-    DialogModule,
-    FileUploadModule,
     ToolbarModule,
     TableModule,
-    RouterModule,
-    FormsModule,
-    ReactiveFormsModule,
-    TextareaModule,
     Tooltip,
-  ],
+    ConfirmDialogComponent,
+    Panel,
+    IconField,
+    InputIcon,
+    InputText
+  ]
 })
 export class FormeProduitComponent implements OnInit {
-  protected entityService = inject(FormeProduitService);
-  protected activatedRoute = inject(ActivatedRoute);
-  protected router = inject(Router);
-  protected modalService = inject(ConfirmationService);
-  private fb = inject(UntypedFormBuilder);
+  protected entites?: IFormProduit[];
+  protected totalItems = 0;
+  protected itemsPerPage = ITEMS_PER_PAGE;
+  protected page = 0;
+  protected loading!: boolean;
 
-  entites?: IFormProduit[];
-  totalItems = 0;
-  itemsPerPage = ITEMS_PER_PAGE;
-  page = 0;
-  selectedEl?: IFormProduit;
-  loading!: boolean;
-  isSaving = false;
-  displayDialog?: boolean;
-
-  editForm = this.fb.group({
-    id: [],
-    libelle: [null, [Validators.required]],
-  });
-
-  /** Inserted by Angular inject() migration for backwards compatibility */
-  constructor(...args: unknown[]);
-
-  constructor() {}
+  private readonly modalService = inject(NgbModal);
+  private readonly entityService = inject(FormeProduitService);
+  private readonly confimDialog = viewChild.required<ConfirmDialogComponent>('confirmDialog');
 
   ngOnInit(): void {
-    this.activatedRoute.data.subscribe(() => {
-      this.loadPage();
-    });
+    this.loadPage();
   }
 
-  loadPage(page?: number): void {
+  protected search(event: any): void {
+    this.loadPage(0, event.target.value);
+  }
+
+  protected loadPage(page?: number, search?: string): void {
     const pageToLoad: number = page || this.page;
     this.loading = true;
     this.entityService
       .query({
         page: pageToLoad,
         size: this.itemsPerPage,
+        search: search || null
       })
       .subscribe({
         next: (res: HttpResponse<IFormProduit[]>) => this.onSuccess(res.body, res.headers, pageToLoad),
-        error: () => this.onError(),
+        error: () => this.onError()
       });
   }
 
-  lazyLoading(event: LazyLoadEvent): void {
+  protected lazyLoading(event: LazyLoadEvent): void {
     if (event) {
       this.page = event.first / event.rows;
       this.loading = true;
       this.entityService
         .query({
           page: this.page,
-          size: event.rows,
+          size: event.rows
         })
         .subscribe({
           next: (res: HttpResponse<IFormProduit[]>) => this.onSuccess(res.body, res.headers, this.page),
-          error: () => this.onError(),
+          error: () => this.onError()
         });
     }
   }
 
-  confirmDialog(id: number): void {
-    this.modalService.confirm({
-      message: 'Voulez-vous supprimer cet enregistrement ?',
-      header: 'Confirmation',
-      icon: 'pi pi-exclamation-triangle',
-      rejectButtonProps: rejectButtonProps(),
-      acceptButtonProps: acceptButtonProps(),
-      accept: () => {
+  protected confirmDialog(id: number): void {
+    this.confimDialog().onConfirm(
+      () => {
         this.entityService.delete(id).subscribe(() => {
           this.loadPage(0);
         });
       },
-    });
+      'Suppression',
+      'Êtes-vous sûr de vouloir supprimer ?'
+    );
+
   }
 
-  updateForm(entity: IFormProduit): void {
-    this.editForm.patchValue({
-      id: entity.id,
-      libelle: entity.libelle,
-    });
+
+  protected addNewEntity(): void {
+    showCommonModal(
+      this.modalService,
+      FormFormeProduitComponent,
+      {
+        entity: null,
+        header: 'Ajout d\'une nouvelle forme de produit'
+      },
+      () => {
+        this.loadPage(0);
+      },
+      'lg'
+    );
   }
 
-  save(): void {
-    this.isSaving = true;
-    const entity = this.createFromForm();
-
-    if (entity.id !== undefined) {
-      this.subscribeToSaveResponse(this.entityService.update(entity));
-    } else {
-      this.subscribeToSaveResponse(this.entityService.create(entity));
-    }
+  protected onEdit(entity: IFormProduit): void {
+    showCommonModal(
+      this.modalService,
+      FormFormeProduitComponent,
+      {
+        entity: entity,
+        header: 'Modification de ' + entity.libelle
+      },
+      () => {
+        this.loadPage(0);
+      },
+      'lg'
+    );
   }
 
-  cancel(): void {
-    this.displayDialog = false;
-  }
-
-  addNewEntity(): void {
-    this.updateForm(new FormProduit());
-    this.displayDialog = true;
-  }
-
-  onEdit(entity: IFormProduit): void {
-    this.updateForm(entity);
-    this.displayDialog = true;
-  }
-
-  delete(entity: IFormProduit): void {
+  protected delete(entity: IFormProduit): void {
     if (entity) {
       this.confirmDelete(entity.id);
     }
   }
 
-  confirmDelete(id: number): void {
+  protected confirmDelete(id: number): void {
     this.confirmDialog(id);
   }
 
-  protected onSuccess(data: IFormProduit[] | null, headers: HttpHeaders, page: number): void {
+  private onSuccess(data: IFormProduit[] | null, headers: HttpHeaders, page: number): void {
     this.totalItems = Number(headers.get('X-Total-Count'));
     this.page = page;
-    this.router.navigate(['/forme-produit'], {
-      queryParams: {
-        page: this.page,
-        size: this.itemsPerPage,
-      },
-    });
     this.entites = data || [];
     this.loading = false;
   }
 
-  protected onError(): void {
+  private onError(): void {
     this.loading = false;
   }
 
-  protected onSaveSuccess(): void {
-    this.isSaving = false;
-    this.displayDialog = false;
-    this.loadPage(0);
-  }
 
-  protected onSaveError(): void {
-    this.isSaving = false;
-  }
-
-  protected subscribeToSaveResponse(result: Observable<HttpResponse<IFormProduit>>): void {
-    result.subscribe({
-      next: () => this.onSaveSuccess(),
-      error: () => this.onSaveError(),
-    });
-  }
-
-  private createFromForm(): IFormProduit {
-    return {
-      ...new FormProduit(),
-      id: this.editForm.get(['id']).value,
-      libelle: this.editForm.get(['libelle']).value,
-    };
-  }
 }

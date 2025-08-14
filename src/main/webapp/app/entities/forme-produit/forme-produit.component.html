@@ -1,110 +1,67 @@
-<p-confirmDialog [baseZIndex]="10000" [style]="{ width: '40vw' }"> </p-confirmDialog>
-<div class="justify-content-center row">
-  <div class="card col-lg-7 col-xl-7 col-md-8 col-sm-11">
-    <h2 id="page-heading">
-      <span jhiTranslate="warehouseApp.formeProduit.home.title">Liste des formes de produit</span>
-      <p-button
-        (click)="addNewEntity()"
-        class="float-right jh-create-entity"
-        icon="pi pi-plus"
-        id="jh-create-entity"
-        label="Nouvelle forme de produit"
-      >
-      </p-button>
-    </h2>
+<div class="container">
+  <div class="justify-content-center">
+    <p-panel>
+      <ng-template #header>
+        <h3>Formes de produits</h3>
+      </ng-template>
+      <ng-template #content>
+        <p-toolbar>
+          <ng-template #start>
+            <p-iconfield>
+              <p-inputicon styleClass="pi pi-search" />
+              <input (keyup.enter)="search($event)" pInputText placeholder="Taper pour rechercher"
+                     style="width: 98%" type="text" />
+            </p-iconfield>
+          </ng-template>
+          <ng-template #end>
+            <p-button (click)="addNewEntity()" [raised]="true" class="mr-2" icon="pi pi-check"
+                      label="Nouveau"
+                      severity="primary" type="button"></p-button>
 
-    <jhi-alert-error></jhi-alert-error>
 
-    <jhi-alert></jhi-alert>
-
-    @if (entites && entites.length > 0) {
-      <p-table
-        (onLazyLoad)="lazyLoading($event)"
-        [(selection)]="selectedEl"
-        [lazy]="true"
-        [loading]="loading"
-        [paginator]="true"
-        [rows]="itemsPerPage"
-        [totalRecords]="totalItems"
-        [value]="entites"
-        dataKey="id"
-        selectionMode="single"
-        styleClass="ui-table-cars"
-      >
-        <ng-template pTemplate="header">
-          <tr>
-            <th scope="col"><span>Libellé</span></th>
-            <th scope="col"></th>
-          </tr>
-        </ng-template>
-        <ng-template let-columns="columns" let-elRow pTemplate="body">
-          <tr [pEditableRow]="elRow" [pSelectableRow]="elRow">
-            <td>{{ elRow.libelle }}</td>
-            <td class="text-right">
-              <p-button (click)="onEdit(elRow)" [rounded]="true" [text]="true" severity="success" pTooltip="Modifier" icon="pi pi-pencil">
-              </p-button>
-
-              <p-button (click)="delete(elRow)" [rounded]="true" [text]="true" severity="danger" pTooltip="Supprimer" icon="pi pi-trash">
-              </p-button>
-            </td>
-          </tr>
-        </ng-template>
-      </p-table>
-    } @else {
-      <div class="alert alert-warning" id="no-result">
-        <span>Aucune donnée trouvée</span>
-      </div>
-    }
-  </div>
-</div>
-
-<!-- formulaire de creation et d edition-->
-<form (ngSubmit)="save()" [formGroup]="editForm" name="editForm" novalidate role="form">
-  <p-dialog
-    [(visible)]="displayDialog"
-    [focusOnShow]="false"
-    [modal]="true"
-    [style]="{ width: '400px' }"
-    header="Créer ou éditer une de produit"
+          </ng-template>
+        </p-toolbar>
+<div class="mt-2">   @if (entites && entites?.length > 0) {
+  <p-table
+    (onLazyLoad)="lazyLoading($event)"
+    [lazy]="true"
+    [loading]="loading"
+    [paginator]="true"
+    [rows]="itemsPerPage"
+    [totalRecords]="totalItems"
+    [value]="entites"
+    dataKey="id"
+    selectionMode="single"
   >
-    <div [hidden]="!editForm.get('id')!.value" class="form-group">
-      <input class="form-control" formControlName="id" id="id" name="id" readonly type="hidden" />
-    </div>
-    <jhi-alert-error></jhi-alert-error>
-
-    <div class="p-fluid p-formgrid p-grid">
-      <label for="field_libelle">Libellé</label>
-      <div class="p-field p-col" style="margin-bottom: 10px">
-        <textarea class="form-control" formControlName="libelle" id="field_libelle" name="libelle" pTextarea style="width: 100%">
-        </textarea>
-      </div>
-      @if (editForm.get('libelle')!.invalid && (editForm.get('libelle')!.dirty || editForm.get('libelle')!.touched)) {
-        <div>
-          @if (editForm.get('libelle')?.errors?.required) {
-            <small class="form-text text-danger" style="color: red"> Ce champ est obligatoire. </small>
-          }
-        </div>
-      }
-    </div>
-
-    <ng-template #footer>
-      <p-button
-        [disabled]="editForm.invalid || isSaving"
-        [raised]="true"
-        icon="pi pi-check"
-        label="Enregistrer"
-        severity="success"
-        type="submit"
-      ></p-button>
-      <p-button
-        (click)="cancel()"
-        [raised]="true"
-        class="p-mr-2"
-        icon="pi pi-times"
-        label="Annuler"
-        severity="danger"
-        type="button"
-      ></p-button>
+    <ng-template #header>
+      <tr>
+        <th scope="col"><span>Libellé</span></th>
+        <th scope="col"></th>
+      </tr>
     </ng-template>
-  </p-dialog>
-</form>
+    <ng-template let-columns="columns" let-elRow #body>
+      <tr  [pSelectableRow]="elRow">
+        <td>{{ elRow.libelle }}</td>
+        <td class="text-right">
+          <p-button (click)="onEdit(elRow)" [rounded]="true" [text]="true" severity="success" pTooltip="Modifier" icon="pi pi-pencil">
+          </p-button>
+
+          <p-button (click)="delete(elRow)" [rounded]="true" [text]="true" severity="danger" pTooltip="Supprimer" icon="pi pi-trash">
+          </p-button>
+        </td>
+      </tr>
+    </ng-template>
+  </p-table>
+} @else {
+  <div class="alert alert-warning" id="no-result">
+    <span>Aucune donnée trouvée</span>
+  </div>
+}</div>
+
+
+      </ng-template>
+    </p-panel>
+  </div>
+
+</div>
+<jhi-confirm-dialog #confirmDialog></jhi-confirm-dialog>

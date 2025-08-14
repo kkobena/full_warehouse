@@ -6,19 +6,22 @@ import { IMagasin } from 'app/shared/model/magasin.model';
 import { MagasinService } from './magasin.service';
 import { WarehouseCommonModule } from '../../shared/warehouse-common/warehouse-common.module';
 import { PanelModule } from 'primeng/panel';
-import { RouterModule } from '@angular/router';
+import { RouterLink, RouterModule } from '@angular/router';
 import { ButtonModule } from 'primeng/button';
 import { RippleModule } from 'primeng/ripple';
+import { Card } from 'primeng/card';
+import { CommonModule } from '@angular/common';
+import { TranslatePipe } from '@ngx-translate/core';
 
 @Component({
   selector: 'jhi-magasin',
   templateUrl: './magasin.component.html',
-  imports: [WarehouseCommonModule, PanelModule, RouterModule, ButtonModule, RippleModule],
+  imports: [CommonModule, PanelModule, ButtonModule, Card, TranslatePipe, RouterLink]
 })
 export class MagasinComponent implements OnInit {
   magasin?: IMagasin;
   private readonly magasinService = inject(MagasinService);
-  private readonly modalService = inject(NgbModal);
+
 
   ngOnInit(): void {
     this.loadAll();

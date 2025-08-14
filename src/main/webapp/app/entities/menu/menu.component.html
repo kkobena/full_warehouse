@@ -1,7 +1,7 @@
-<div class="col-lg-9 col-xl-9 col-md-10 col-sm-10 d-flex row justify-content-center" style="margin: auto">
-  <div>
-    <p-panel>
-      <ng-template pTemplate="header">
+<div class="container">
+  <div class="justify-content-center">
+    <p-panel >
+      <ng-template #header>
         <div class="float-right" style="width: 100%">
           <span jhiTranslate="warehouseApp.menu.home.title">Menus</span>
           <p-button
@@ -16,24 +16,21 @@
         </div>
       </ng-template>
 
-      <jhi-alert-error></jhi-alert-error>
-
-      <jhi-alert></jhi-alert>
 
       <p-table [paginator]="false" [value]="authorities" dataKey="id" styleClass="p-datatable-striped">
-        <ng-template pTemplate="header">
+        <ng-template #header>
           <tr>
             <th style="width: 20%">Nom</th>
             <th>Description</th>
             <th style="width: 15%"></th>
           </tr>
         </ng-template>
-        <ng-template let-row let-rowIndex="rowIndex" pTemplate="body">
+        <ng-template let-row let-rowIndex="rowIndex" #body>
           <tr>
             <td>{{ row.name }}</td>
             <td [pEditableColumn]="row.libelle" pEditableColumn pEditableColumnField="libelle">
               <p-cellEditor>
-                <ng-template pTemplate="input">
+                <ng-template #input>
                   <input
                     (keydown.enter)="onEdit(row, $event)"
                     [ngModel]="row.libelle"
@@ -43,7 +40,7 @@
                     type="text"
                   />
                 </ng-template>
-                <ng-template pTemplate="output">
+                <ng-template #output>
                   {{ row.libelle }}
                 </ng-template>
               </p-cellEditor>
@@ -53,11 +50,11 @@
               <div class="btn-group">
                 <p-button
                   [routerLink]="['/menu', row.name, 'view']"
-                  class="p-mr-1"
+                  class="mr-2"
                   icon="pi pi-box"
                   pTooltip="Gérer les privilèges"
                   rounded="true"
-                  severity="info"
+                  severity="help"
                   type="button"
                 ></p-button>
                 @if (isNotPredefined(row)) {
@@ -78,4 +75,6 @@
     </p-panel>
   </div>
 </div>
+
+
 <p-toast position="center"></p-toast>

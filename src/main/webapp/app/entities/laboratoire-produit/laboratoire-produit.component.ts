@@ -1,10 +1,10 @@
-import { Component, OnInit, ViewEncapsulation, inject } from '@angular/core';
+import { Component, inject, OnInit, viewChild } from '@angular/core';
 import { ActivatedRoute, Router, RouterModule } from '@angular/router';
-import { ConfirmationService, LazyLoadEvent, MessageService } from 'primeng/api';
-import { HttpHeaders, HttpResponse } from '@angular/common/http';
+import { LazyLoadEvent } from 'primeng/api';
+import { HttpErrorResponse, HttpHeaders, HttpResponse } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { LaboratoireProduitService } from './laboratoire-produit.service';
-import { DialogService, DynamicDialogModule, DynamicDialogRef } from 'primeng/dynamicdialog';
+import { DynamicDialogModule } from 'primeng/dynamicdialog';
 import { FormLaboratoireComponent } from './form-laboratoire/form-laboratoire.component';
 import { IResponseDto } from '../../shared/util/response-dto';
 import { ILaboratoire } from '../../shared/model/laboratoire.model';
@@ -23,66 +23,54 @@ import { FormsModule } from '@angular/forms';
 import { DialogModule } from 'primeng/dialog';
 import { IconField } from 'primeng/iconfield';
 import { InputIcon } from 'primeng/inputicon';
-import { acceptButtonProps, rejectButtonProps } from '../../shared/util/modal-button-props';
+import { Panel } from 'primeng/panel';
+import { ConfirmDialogComponent } from '../../shared/dialog/confirm-dialog/confirm-dialog.component';
+import { showCommonModal } from '../sales/selling-home/sale-helper';
+import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
+import { SpinerService } from '../../shared/spiner.service';
+import { FileUploadDialogComponent } from '../groupe-tiers-payant/file-upload-dialog/file-upload-dialog.component';
+import { finalize } from 'rxjs/operators';
+import { ToastAlertComponent } from '../../shared/toast-alert/toast-alert.component';
+import { ErrorService } from '../../shared/error.service';
 
 @Component({
   selector: 'jhi-laboratoire-produit',
   templateUrl: './laboratoire-produit.component.html',
-  styles: [
-    `
-      body .ui-inputtext {
-        width: 100% !important;
-      }
-    `,
-  ],
-  providers: [MessageService, DialogService, ConfirmationService],
-  encapsulation: ViewEncapsulation.None,
   imports: [
-    WarehouseCommonModule,
-    DialogModule,
     ButtonModule,
-    RippleModule,
-    ConfirmDialogModule,
-    ToastModule,
-    FileUploadModule,
     ToolbarModule,
     TableModule,
     RouterModule,
     InputTextModule,
     TooltipModule,
-    DynamicDialogModule,
     FormsModule,
     IconField,
     InputIcon,
-  ],
+    Panel,
+    ConfirmDialogComponent,
+    ToastAlertComponent
+  ]
 })
 export class LaboratoireProduitComponent implements OnInit {
-  protected entityService = inject(LaboratoireProduitService);
-  protected activatedRoute = inject(ActivatedRoute);
-  protected router = inject(Router);
-  private dialogService = inject(DialogService);
-  protected modalService = inject(ConfirmationService);
-
-  fileDialog = false;
-  ref?: DynamicDialogRef;
-  responsedto!: IResponseDto;
-  responseDialog = false;
-  entites: ILaboratoire[] = [];
-  totalItems = 0;
-  itemsPerPage = ITEMS_PER_PAGE;
-  page = 0;
-  selectedEl?: ILaboratoire;
-  loading = false;
-  isSaving = false;
-  displayDialog = false;
+  protected responsedto!: IResponseDto;
+  protected entites: ILaboratoire[] = [];
+  protected totalItems = 0;
+  protected itemsPerPage = ITEMS_PER_PAGE;
+  protected page = 0;
+  protected loading = false;
+  private readonly confimDialog = viewChild.required<ConfirmDialogComponent>('confirmDialog');
+  private readonly modalService = inject(NgbModal);
+  private readonly spinner = inject(SpinerService);
+  private readonly alert = viewChild.required<ToastAlertComponent>('alert');
+  private readonly errorService = inject(ErrorService);
+  private readonly entityService = inject(LaboratoireProduitService);
 
   ngOnInit(): void {
-    this.activatedRoute.data.subscribe(() => {
-      this.loadPage();
-    });
+    this.loadPage();
+
   }
 
-  loadPage(page?: number, search?: string): void {
+  protected loadPage(page?: number, search?: string): void {
     const pageToLoad: number = page || this.page;
     const query: string = search || '';
     this.loading = true;
@@ -90,139 +78,122 @@ export class LaboratoireProduitComponent implements OnInit {
       .query({
         page: pageToLoad,
         size: this.itemsPerPage,
-        search: query,
+        search: query
       })
       .subscribe({
         next: (res: HttpResponse<ILaboratoire[]>) => this.onSuccess(res.body, res.headers, pageToLoad),
-        error: () => this.onError(),
+        error: (err) => this.onError(err)
       });
   }
 
-  lazyLoading(event: LazyLoadEvent): void {
+  protected lazyLoading(event: LazyLoadEvent): void {
     this.page = event.first / event.rows;
     this.loading = true;
     this.entityService
       .query({
         page: this.page,
-        size: event.rows,
+        size: event.rows
       })
       .subscribe({
         next: (res: HttpResponse<ILaboratoire[]>) => this.onSuccess(res.body, res.headers, this.page),
-        error: () => this.onError(),
+        error: (err) => this.onError(err)
       });
   }
 
-  confirmDialog(id: number): void {
-    this.modalService.confirm({
-      message: 'Voulez-vous supprimer cet enregistrement ?',
-      header: 'Confirmation',
-      icon: 'pi pi-exclamation-triangle',
-      rejectButtonProps: rejectButtonProps(),
-      acceptButtonProps: acceptButtonProps(),
-      accept: () => {
+  private confirmDialog(id: number): void {
+    this.confimDialog().onConfirm(
+      () => {
         this.entityService.delete(id).subscribe(() => {
           this.loadPage(0);
         });
       },
-    });
+      'Suppression',
+      'Êtes-vous sûr de vouloir supprimer ?'
+    );
   }
 
-  cancel(): void {
-    this.displayDialog = false;
-    this.fileDialog = false;
+
+  protected delete(entity: ILaboratoire): void {
+    this.confirmDialog(entity.id);
   }
 
-  delete(entity: ILaboratoire): void {
-    this.confirmDelete(entity.id);
-  }
 
-  confirmDelete(id: number): void {
-    this.confirmDialog(id);
-  }
 
-  onUpload(event: any): void {
-    const formData: FormData = new FormData();
-    const file = event.files[0];
-    formData.append('importcsv', file, file.name);
-    this.uploadFileResponse(this.entityService.uploadFile(formData));
-  }
-
-  search(event: any): void {
+  protected search(event: any): void {
     this.loadPage(0, event.target.value);
   }
 
-  showFileDialog(): void {
-    this.fileDialog = true;
+  protected showFileDialog(): void {
+    showCommonModal(
+      this.modalService,
+      FileUploadDialogComponent,
+      {},
+      result => {
+        this.spinner.show();
+        this.uploadFileResponse(this.entityService.uploadFile(result));
+      },
+      'lg'
+    );
   }
 
-  addNewEntity(): void {
-    this.ref = this.dialogService.open(FormLaboratoireComponent, {
-      data: { laboratoire: null },
-      width: '40%',
-
-      header: "Ajout d'un nouveau laboratoire",
-    });
-    this.ref.onClose.subscribe((entity: ILaboratoire) => {
-      if (entity) {
+  protected addNewEntity(): void {
+    showCommonModal(
+      this.modalService,
+      FormLaboratoireComponent,
+      {
+        laboratoire: null,
+        header: 'Ajout d\'un nouveau laboratoire'
+      },
+      () => {
         this.loadPage(0);
-      }
-    });
+      },
+      'lg'
+    );
   }
 
-  onEdit(entity: ILaboratoire): void {
-    this.ref = this.dialogService.open(FormLaboratoireComponent, {
-      data: { laboratoire: entity },
-      width: '40%',
-      header: 'Modification de ' + entity.libelle,
-    });
-    this.ref.onClose.subscribe((e: ILaboratoire) => {
-      if (e) {
+  protected onEdit(entity: ILaboratoire): void {
+    showCommonModal(
+      this.modalService,
+      FormLaboratoireComponent,
+      {
+        laboratoire: entity,
+        header: 'Modification de ' + entity.libelle
+      },
+      () => {
         this.loadPage(0);
-      }
-    });
+      },
+      'lg'
+    );
   }
 
-  protected onSuccess(data: ILaboratoire[] | null, headers: HttpHeaders, page: number): void {
+  private onSuccess(data: ILaboratoire[] | null, headers: HttpHeaders, page: number): void {
     this.totalItems = Number(headers.get('X-Total-Count'));
     this.page = page;
-    this.router.navigate(['/laboratoire'], {
-      queryParams: {
-        page: this.page,
-        size: this.itemsPerPage,
-      },
-    });
     this.entites = data || [];
     this.loading = false;
   }
 
-  protected onError(): void {
+  private onError(error: HttpErrorResponse): void {
     this.loading = false;
+    this.alert().showError(this.errorService.getErrorMessage(error));
   }
 
-  protected onSaveSuccess(): void {
-    this.isSaving = false;
-    this.displayDialog = false;
-    this.loadPage(0);
+
+  private onSaveError(error: HttpErrorResponse): void {
+    this.alert().showError(this.errorService.getErrorMessage(error));
   }
 
-  protected onSaveError(): void {
-    this.isSaving = false;
-  }
-
-  protected uploadFileResponse(result: Observable<HttpResponse<IResponseDto>>): void {
-    result.subscribe({
+  private uploadFileResponse(result: Observable<HttpResponse<IResponseDto>>): void {
+    result.pipe(finalize(() => this.spinner.hide())).subscribe({
       next: (res: HttpResponse<IResponseDto>) => this.onPocesCsvSuccess(res.body),
-      error: () => this.onSaveError(),
+      error: (err) => this.onSaveError(err)
     });
   }
 
-  protected onPocesCsvSuccess(responseDto: IResponseDto | null): void {
+  private onPocesCsvSuccess(responseDto: IResponseDto | null): void {
     if (responseDto) {
       this.responsedto = responseDto;
     }
-
-    this.responseDialog = true;
-    this.fileDialog = false;
     this.loadPage(0);
   }
 }

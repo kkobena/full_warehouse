@@ -71,7 +71,6 @@ export class RayonComponent implements OnInit, OnDestroy {
   protected itemsPerPage = ITEMS_PER_PAGE;
   protected page = 0;
   protected ngbPaginationPage = 1;
-  protected customUpload = true;
   protected selectedEl: IRayon[] = [];
   private readonly entityService = inject(RayonService);
   private readonly confimDialog = viewChild.required<ConfirmDialogComponent>('confirmDialog');
@@ -155,7 +154,7 @@ export class RayonComponent implements OnInit, OnDestroy {
         this.spinner.show();
         this.uploadFileResponse(this.entityService.uploadRayonFile(result));
       },
-      'xl',
+      'lg',
     );
   }
 

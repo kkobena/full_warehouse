@@ -1,5 +1,5 @@
 import { Component, inject, OnInit, viewChild } from '@angular/core';
-import { NgbActiveModal, NgbModal } from '@ng-bootstrap/ng-bootstrap';
+import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { InputTextModule } from 'primeng/inputtext';
 import { PanelModule } from 'primeng/panel';
@@ -7,20 +7,22 @@ import { TableModule } from 'primeng/table';
 import { FileUpload, FileUploadModule } from 'primeng/fileupload';
 import { ProduitService } from '../produit.service';
 import { Observable } from 'rxjs';
-import { HttpResponse } from '@angular/common/http';
+import { HttpErrorResponse, HttpResponse } from '@angular/common/http';
 import { IResponseDto } from '../../../shared/util/response-dto';
-import { ConfirmationService, MessageService } from 'primeng/api';
 import { ToastModule } from 'primeng/toast';
-import { Dropdown, DropdownModule } from 'primeng/dropdown';
 import { IFournisseur } from '../../../shared/model/fournisseur.model';
 import { FournisseurService } from '../../fournisseur/fournisseur.service';
-import { NgxSpinnerModule, NgxSpinnerService } from 'ngx-spinner';
+import { NgxSpinnerModule } from 'ngx-spinner';
 import { ButtonModule } from 'primeng/button';
 import { Select } from 'primeng/select';
+import { Card } from 'primeng/card';
+import { ToastAlertComponent } from '../../../shared/toast-alert/toast-alert.component';
+import { SpinerService } from '../../../shared/spiner.service';
+import { ErrorService } from '../../../shared/error.service';
+import { finalize } from 'rxjs/operators';
 
 @Component({
   selector: 'jhi-import-produit-modal',
-  providers: [MessageService, ConfirmationService],
   imports: [
     FormsModule,
     ReactiveFormsModule,
@@ -29,28 +31,29 @@ import { Select } from 'primeng/select';
     TableModule,
     FileUploadModule,
     ToastModule,
-    DropdownModule,
     NgxSpinnerModule,
     ButtonModule,
     Select,
+    Card,
+    ToastAlertComponent
   ],
   templateUrl: './import-produit-modal.component.html',
-  styles: ``,
+  styleUrls: ['../../common-modal.component.scss']
 })
 export class ImportProduitModalComponent implements OnInit {
   type: string | null = null;
-  modalService = inject(NgbModal);
-  activeModal = inject(NgbActiveModal);
-  produitService = inject(ProduitService);
-  messageService = inject(MessageService);
   fileUpload = viewChild.required<FileUpload>('fileUpload');
-  fournisseur = viewChild<Dropdown>('fournisseur');
+  fournisseur = viewChild<Select>('fournisseur');
   fournisseurService = inject(FournisseurService);
   protected isSaving = false;
   protected title: string | null = null;
   protected fournisseurs: IFournisseur[] = [];
   protected accept = '.csv';
-  private spinner = inject(NgxSpinnerService);
+  private readonly alert = viewChild.required<ToastAlertComponent>('alert');
+  private readonly spinner = inject(SpinerService);
+  private readonly errorService = inject(ErrorService);
+  private readonly activeModal = inject(NgbActiveModal);
+  private readonly produitService = inject(ProduitService);
 
   get isFileUploadValid(): boolean {
     return this.fileUpload().hasFiles() && !this.isSaving && this.fournisseur().value;
@@ -79,7 +82,7 @@ export class ImportProduitModalComponent implements OnInit {
     this.fournisseurService
       .query({
         page: 0,
-        size: 9999,
+        size: 9999
       })
       .subscribe((res: HttpResponse<IFournisseur[]>) => {
         this.fournisseurs = res.body || [];
@@ -93,12 +96,12 @@ export class ImportProduitModalComponent implements OnInit {
       [
         JSON.stringify({
           typeImportation: this.type,
-          fournisseurId: this.fournisseur().value,
-        }),
+          fournisseurId: this.fournisseur().value
+        })
       ],
       {
-        type: 'application/json',
-      },
+        type: 'application/json'
+      }
     );
     formData.append('data', body);
     formData.append('fichier', file, file.name);
@@ -106,25 +109,23 @@ export class ImportProduitModalComponent implements OnInit {
   }
 
   private uploadFileResponse(result: Observable<HttpResponse<IResponseDto>>): void {
-    result.subscribe({
+    result.pipe(finalize(() => {
+      this.spinner.hide();
+      this.isSaving = false;
+    })).subscribe({
       next: (res: HttpResponse<IResponseDto>) => this.onPocesCsvSuccess(res.body),
-      error: () => this.onSaveError(),
+      error: (err) => this.onSaveError(err)
     });
   }
 
   private onPocesCsvSuccess(responseDto: IResponseDto | null): void {
-    this.spinner.hide();
-    this.isSaving = false;
+
     this.activeModal.close(responseDto);
   }
 
-  private onSaveError(): void {
+  private onSaveError(error: HttpErrorResponse): void {
     this.spinner.hide();
     this.isSaving = false;
-    this.messageService.add({
-      severity: 'error',
-      summary: 'Erreur',
-      detail: 'Enregistrement a échoué',
-    });
+    this.alert().showError(this.errorService.getErrorMessage(error));
   }
 }

@@ -1,7 +1,5 @@
 import { Component, inject, OnInit, viewChild } from '@angular/core';
 import { FormsModule, ReactiveFormsModule, UntypedFormBuilder, Validators } from '@angular/forms';
-import { DialogService, DynamicDialogConfig, DynamicDialogModule, DynamicDialogRef } from 'primeng/dynamicdialog';
-import { ConfirmationService, MessageService } from 'primeng/api';
 import { FournisseurProduit, IFournisseurProduit } from '../../../../../shared/model/fournisseur-produit.model';
 import { HttpErrorResponse, HttpResponse } from '@angular/common/http';
 import { Observable } from 'rxjs';
@@ -16,11 +14,8 @@ import { IProduit } from '../../../../../shared/model/produit.model';
 import { WarehouseCommonModule } from '../../../../../shared/warehouse-common/warehouse-common.module';
 import { ButtonModule } from 'primeng/button';
 import { RouterModule } from '@angular/router';
-import { RippleModule } from 'primeng/ripple';
 import { InputTextModule } from 'primeng/inputtext';
-import { DropdownModule } from 'primeng/dropdown';
 import { InputMaskModule } from 'primeng/inputmask';
-import { ToastModule } from 'primeng/toast';
 import { KeyFilterModule } from 'primeng/keyfilter';
 import { Select } from 'primeng/select';
 import { IOrderLine } from '../../../../../shared/model/order-line.model';
@@ -32,7 +27,7 @@ import { Card } from 'primeng/card';
 @Component({
   selector: 'jhi-edit-produit',
   templateUrl: './edit-produit.component.html',
-  styleUrls: ['../../../common-modal.component.scss'],
+  styleUrls: ['../../../../common-modal.component.scss'],
   imports: [
     WarehouseCommonModule,
     ButtonModule,
@@ -50,7 +45,7 @@ import { Card } from 'primeng/card';
 export class EditProduitComponent implements OnInit {
   deliveryItem: IOrderLine | null;
   delivery: ICommande | null;
-  header: string | null= null;
+  header: string | null = null;
   protected fb = inject(UntypedFormBuilder);
   protected tvas: ITva[] = [];
   protected rayons: IRayon[] = [];
@@ -66,7 +61,7 @@ export class EditProduitComponent implements OnInit {
     prixAchat: [null, [Validators.required]],
     prixUni: [null, [Validators.required]],
     codeEan: [],
-    expirationDate: [],
+    expirationDate: []
     //    principal: [],
   });
   private readonly produitService = inject(ProduitService);
@@ -75,6 +70,7 @@ export class EditProduitComponent implements OnInit {
   private readonly alert = viewChild.required<ToastAlertComponent>('alert');
   private readonly errorService = inject(ErrorService);
   private readonly activeModal = inject(NgbActiveModal);
+
   save(): void {
     this.isSaving = true;
     this.subscribeToSaveResponse(this.produitService.updateProduitFournisseurFromCommande(this.createFromForm()));
@@ -88,11 +84,11 @@ export class EditProduitComponent implements OnInit {
         this.produit = this.fournisseurPrduit.produit;
         this.updateForm(this.fournisseurPrduit);
         this.populate();
-      },
+      }
     });
   }
 
-protected  updateForm(produitFournisseur: IFournisseurProduit): void {
+  protected updateForm(produitFournisseur: IFournisseurProduit): void {
     const initialFormData = this.deliveryItem;
     this.editForm.patchValue({
       id: produitFournisseur.id,
@@ -103,25 +99,25 @@ protected  updateForm(produitFournisseur: IFournisseurProduit): void {
       codeEan: this.produit.codeEan,
       expirationDate: this.produit.expirationDate,
       tvaId: this.produit.tvaId,
-      rayonId: this.produit.rayonId,
+      rayonId: this.produit.rayonId
     });
   }
 
- protected populate(): void {
+  protected populate(): void {
     this.tvaService.query().subscribe((res: HttpResponse<ITva[]>) => {
       this.tvas = res.body || [];
     });
     this.rayonService
       .query({
         page: 0,
-        size: 9999,
+        size: 9999
       })
       .subscribe((res: HttpResponse<IRayon[]>) => {
         this.rayons = res.body || [];
       });
   }
 
- protected handlePrixAchatInput(event: any): void {
+  protected handlePrixAchatInput(event: any): void {
     this.validatePrices(Number(event.target.value), Number(this.editForm.get(['prixUni']).value));
   }
 
@@ -136,7 +132,7 @@ protected  updateForm(produitFournisseur: IFournisseurProduit): void {
   private subscribeToSaveResponse(result: Observable<HttpResponse<{}>>): void {
     result.pipe(finalize(() => (this.isSaving = false))).subscribe({
       next: () => this.onSaveSuccess(),
-      error: error => this.onSaveError(error),
+      error: error => this.onSaveError(error)
     });
   }
 
@@ -145,7 +141,7 @@ protected  updateForm(produitFournisseur: IFournisseurProduit): void {
   }
 
   private onSaveError(error: HttpErrorResponse): void {
-    this.alert().showError( this.errorService.getErrorMessage(error));
+    this.alert().showError(this.errorService.getErrorMessage(error));
   }
 
   private createFromForm(): IFournisseurProduit {
@@ -163,8 +159,8 @@ protected  updateForm(produitFournisseur: IFournisseurProduit): void {
         expirationDate: this.editForm.get(['expirationDate']).value,
         tvaId: this.editForm.get(['tvaId']).value,
         rayonId: this.editForm.get(['rayonId']).value,
-        id: this.produit.id,
-      },
+        id: this.produit.id
+      }
     };
   }
 

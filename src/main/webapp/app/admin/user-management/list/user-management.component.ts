@@ -1,11 +1,11 @@
-import { Component, OnInit, inject, signal } from '@angular/core';
+import { Component, inject, OnInit, signal } from '@angular/core';
 import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 import { HttpHeaders, HttpResponse } from '@angular/common/http';
 import { combineLatest } from 'rxjs';
 import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
 
 import SharedModule from 'app/shared/shared.module';
-import { SortByDirective, SortDirective, SortService, SortState, sortStateSignal } from 'app/shared/sort';
+import { SortService, SortState, sortStateSignal } from 'app/shared/sort';
 import { ITEMS_PER_PAGE } from 'app/config/pagination.constants';
 import { SORT } from 'app/config/navigation.constants';
 import { ItemCountComponent } from 'app/shared/pagination';
@@ -17,9 +17,6 @@ import { WarehouseCommonModule } from '../../../shared/warehouse-common/warehous
 import { ButtonModule } from 'primeng/button';
 import { RippleModule } from 'primeng/ripple';
 import { PanelModule } from 'primeng/panel';
-import { IconField } from 'primeng/iconfield';
-import { InputIcon } from 'primeng/inputicon';
-import { InputText } from 'primeng/inputtext';
 import { Toolbar } from 'primeng/toolbar';
 import { Tooltip } from 'primeng/tooltip';
 
@@ -34,9 +31,6 @@ import { Tooltip } from 'primeng/tooltip';
     RouterModule,
     SharedModule,
     ItemCountComponent,
-    IconField,
-    InputIcon,
-    InputText,
     Toolbar,
     Tooltip
   ]
@@ -67,6 +61,7 @@ export default class UserManagementComponent implements OnInit {
   trackIdentity(item: User): number {
     return item.id;
   }
+
   search(event: Event): void {
     const query = (event.target as HTMLInputElement).value;
 
@@ -89,14 +84,14 @@ export default class UserManagementComponent implements OnInit {
       .query({
         page: this.page - 1,
         size: this.itemsPerPage,
-        sort: this.sortService.buildSortParam(this.sortState(), 'id'),
+        sort: this.sortService.buildSortParam(this.sortState(), 'id')
       })
       .subscribe({
         next: (res: HttpResponse<User[]>) => {
           this.isLoading.set(false);
           this.onSuccess(res.body, res.headers);
         },
-        error: () => this.isLoading.set(false),
+        error: () => this.isLoading.set(false)
       });
   }
 
@@ -105,8 +100,8 @@ export default class UserManagementComponent implements OnInit {
       relativeTo: this.activatedRoute.parent,
       queryParams: {
         page: this.page,
-        sort: this.sortService.buildSortParam(sortState ?? this.sortState()),
-      },
+        sort: this.sortService.buildSortParam(sortState ?? this.sortState())
+      }
     });
   }
 

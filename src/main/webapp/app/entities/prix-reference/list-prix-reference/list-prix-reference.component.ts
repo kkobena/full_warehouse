@@ -1,33 +1,32 @@
-import { Component, inject, OnInit } from '@angular/core';
+import { Component, inject, OnInit, viewChild } from '@angular/core';
 import { IProduit } from '../../../shared/model/produit.model';
 import { ITiersPayant } from '../../../shared/model/tierspayant.model';
 import { NgbActiveModal, NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { PrixReferenceService } from '../prix-reference.service';
 import { PrixReference } from '../model/prix-reference.model';
-import { acceptButtonProps, rejectButtonProps } from '../../../shared/util/modal-button-props';
-import { ConfirmationService } from 'primeng/api';
 import { CommonModule } from '@angular/common';
 import { AddPrixFormComponent } from '../add-prix-form/add-prix-form.component';
 import { Button } from 'primeng/button';
 import { Tooltip } from 'primeng/tooltip';
-import { ConfirmDialog } from 'primeng/confirmdialog';
+import { ConfirmDialogComponent } from '../../../shared/dialog/confirm-dialog/confirm-dialog.component';
+import { Card } from 'primeng/card';
+import { showCommonModal } from '../../sales/selling-home/sale-helper';
 
 @Component({
   selector: 'jhi-list-prix-reference',
-  imports: [CommonModule, Button, Tooltip, ConfirmDialog],
+  imports: [CommonModule, Button, Tooltip, ConfirmDialogComponent, Card],
   templateUrl: './list-prix-reference.component.html',
-  providers: [ConfirmationService],
+  styleUrls: ['../../common-modal.component.scss']
 })
 export class ListPrixReferenceComponent implements OnInit {
   produit: IProduit | null = null;
   tiersPayant: ITiersPayant | null = null;
   isFromProduit = true;
-
   protected prixReferences: PrixReference[] = [];
   private readonly activeModal = inject(NgbActiveModal);
   private readonly entityService = inject(PrixReferenceService);
   private readonly modalService = inject(NgbModal);
-  private confirmationService = inject(ConfirmationService);
+  private readonly confimDialog = viewChild.required<ConfirmDialogComponent>('confirmDialog');
 
   constructor() {
     this.load();
@@ -61,68 +60,48 @@ export class ListPrixReferenceComponent implements OnInit {
   }
 
   protected onConfirmDelete(prixReference: PrixReference): void {
-    this.confirmationService.confirm({
-      message: 'Voulez-vous vraiment supprimer cette ligne ?',
-      header: 'SUPPRESSION',
-      icon: 'pi pi-info-circle',
-      rejectButtonProps: rejectButtonProps(),
-      acceptButtonProps: acceptButtonProps(),
-      accept: () => this.onDelete(prixReference),
-    });
+
+    this.confimDialog().onConfirm(() => this.onDelete(prixReference), 'Suppression', 'Voulez-vous vraiment supprimer cette ligne ?');
   }
 
   protected onCancel(prixReference: PrixReference): void {
     const message = prixReference.enabled ? 'Voulez-vous vraiment désactver cette ligne ?' : 'Voulez-vous vraiment activer cette ligne ?';
-    this.confirmationService.confirm({
-      message: message,
-      header: 'ACTIVATION/DESACTIVATION',
-      icon: 'pi pi-info-circle',
-      rejectButtonProps: rejectButtonProps(),
-      acceptButtonProps: acceptButtonProps(),
-      accept: () => {
-        prixReference.enabled = !prixReference.enabled;
-        this.entityService.update(prixReference).subscribe(() => {
-          this.load();
-        });
-      },
-    });
+    this.confimDialog().onConfirm(() => {
+      prixReference.enabled = !prixReference.enabled;
+      this.entityService.update(prixReference).subscribe(() => {
+        this.load();
+      });
+    }, 'Activation/Désactivation', message);
+
   }
 
   protected onAddNew(): void {
-    const modalRef = this.modalService.open(AddPrixFormComponent, {
-      size: 'lg',
-      backdrop: 'static',
-    });
-    modalRef.componentInstance.isFromProduit = this.isFromProduit;
-    modalRef.componentInstance.produit = this.produit;
-    modalRef.componentInstance.tiersPayant = this.tiersPayant;
-    modalRef.result.then(
-      () => {
-        this.load();
-      },
-      () => {
-        this.load();
-      },
-    );
+    this.showModal();
   }
 
   protected onEdit(prixReference: PrixReference): void {
-    const modalRef = this.modalService.open(AddPrixFormComponent, {
-      size: 'lg',
-      backdrop: 'static',
-      centered: true,
-    });
-    modalRef.componentInstance.isFromProduit = this.isFromProduit;
-    modalRef.componentInstance.produit = this.produit;
-    modalRef.componentInstance.tiersPayant = this.tiersPayant;
-    modalRef.componentInstance.entity = prixReference;
-    modalRef.result.then(
-      () => {
-        this.load();
+    this.showModal(prixReference);
+
+
+  }
+
+  private showModal(entity?: PrixReference): void {
+    showCommonModal(
+      this.modalService,
+      AddPrixFormComponent,
+      {
+        isFromProduit: this.isFromProduit,
+        produit: this.produit,
+        tiersPayant: this.tiersPayant,
+        entity: entity ? entity : null
       },
       () => {
         this.load();
       },
+      'lg', null,
+      () => {
+        this.load();
+      }
     );
   }
 

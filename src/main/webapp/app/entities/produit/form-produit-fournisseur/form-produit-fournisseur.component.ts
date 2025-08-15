@@ -1,48 +1,48 @@
-import {Component, inject, OnInit} from '@angular/core';
-import {IProduit} from '../../../shared/model/produit.model';
-import {FournisseurProduit, IFournisseurProduit} from '../../../shared/model/fournisseur-produit.model';
-import {ProduitService} from '../produit.service';
-import {ErrorService} from '../../../shared/error.service';
-import {FormsModule, ReactiveFormsModule, UntypedFormBuilder, Validators} from '@angular/forms';
+import { AfterViewInit, Component, ElementRef, inject, OnInit, viewChild } from '@angular/core';
+import { IProduit } from '../../../shared/model/produit.model';
+import { FournisseurProduit, IFournisseurProduit } from '../../../shared/model/fournisseur-produit.model';
+import { ProduitService } from '../produit.service';
+import { ErrorService } from '../../../shared/error.service';
+import { FormsModule, ReactiveFormsModule, UntypedFormBuilder, Validators } from '@angular/forms';
 
-import {IFournisseur} from '../../../shared/model/fournisseur.model';
-import {FournisseurService} from '../../fournisseur/fournisseur.service';
-import {HttpResponse} from '@angular/common/http';
-import {Observable} from 'rxjs';
-import {ConfirmationService, MessageService} from 'primeng/api';
-import {DialogService, DynamicDialogConfig, DynamicDialogModule, DynamicDialogRef} from 'primeng/dynamicdialog';
-import {WarehouseCommonModule} from '../../../shared/warehouse-common/warehouse-common.module';
-import {ToastModule} from 'primeng/toast';
-import {InputTextModule} from 'primeng/inputtext';
-import {DropdownModule} from 'primeng/dropdown';
-import {ButtonModule} from 'primeng/button';
-import {RippleModule} from 'primeng/ripple';
-import {InputSwitchModule} from 'primeng/inputswitch';
-import {KeyFilterModule} from 'primeng/keyfilter';
-import {Select} from 'primeng/select';
-import {ToggleSwitch} from 'primeng/toggleswitch';
+import { IFournisseur } from '../../../shared/model/fournisseur.model';
+import { FournisseurService } from '../../fournisseur/fournisseur.service';
+import { HttpErrorResponse, HttpResponse } from '@angular/common/http';
+import { Observable } from 'rxjs';
+import { InputTextModule } from 'primeng/inputtext';
+import { ButtonModule } from 'primeng/button';
+import { RippleModule } from 'primeng/ripple';
+import { InputSwitchModule } from 'primeng/inputswitch';
+import { KeyFilterModule } from 'primeng/keyfilter';
+import { Select } from 'primeng/select';
+import { ToggleSwitch } from 'primeng/toggleswitch';
+import { CommonModule } from '@angular/common';
+import { Card } from 'primeng/card';
+import { ToastAlertComponent } from '../../../shared/toast-alert/toast-alert.component';
+import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
+import { finalize } from 'rxjs/operators';
 
 @Component({
   selector: 'jhi-form-produit-fournisseur',
   templateUrl: './form-produit-fournisseur.component.html',
-  providers: [MessageService, DialogService, ConfirmationService],
+  styleUrls: ['../../common-modal.component.scss'],
   imports: [
-    WarehouseCommonModule,
+    CommonModule,
     FormsModule,
     ReactiveFormsModule,
-    ToastModule,
     InputTextModule,
-    DropdownModule,
     ButtonModule,
     RippleModule,
     InputSwitchModule,
     KeyFilterModule,
-    DynamicDialogModule,
     Select,
     ToggleSwitch,
-  ],
+    Card,
+    ToastAlertComponent
+  ]
 })
-export class FormProduitFournisseurComponent implements OnInit {
+export class FormProduitFournisseurComponent implements OnInit,AfterViewInit {
+  header: string = '';
   produit?: IProduit;
   entity?: IFournisseurProduit;
   protected fb = inject(UntypedFormBuilder);
@@ -56,15 +56,14 @@ export class FormProduitFournisseurComponent implements OnInit {
     prixAchat: [null, [Validators.required, Validators.min(1)]],
     codeCip: [null, [Validators.required, Validators.minLength(6), Validators.maxLength(8)]],
     fournisseurId: [null, [Validators.required]],
-    principal: [null, [Validators.required]],
+    principal: [null, [Validators.required]]
   });
-  private ref = inject(DynamicDialogRef);
-  private readonly config = inject(DynamicDialogConfig);
   private readonly produitService = inject(ProduitService);
   private readonly errorService = inject(ErrorService);
   private readonly fournisseurService = inject(FournisseurService);
-  private readonly messageService = inject(MessageService);
-
+  private readonly alert = viewChild.required<ToastAlertComponent>('alert');
+  private fournisseurSelect = viewChild.required<Select>('fournisseurSelect');
+  private readonly activeModal = inject(NgbActiveModal);
   save(): void {
     this.isSaving = true;
     const produitFournisseur = this.createFrom();
@@ -76,9 +75,6 @@ export class FormProduitFournisseurComponent implements OnInit {
   }
 
   ngOnInit(): void {
-    this.produit = this.config.data.produit;
-    this.entity = this.config.data.entity;
-
     if (this.entity) {
       this.updateForm(this.entity);
       if (this.entity.fournisseurId) {
@@ -95,7 +91,11 @@ export class FormProduitFournisseurComponent implements OnInit {
       this.editForm.get('principal').setValue(false);
     }
   }
-
+  ngAfterViewInit(): void {
+    setTimeout(() => {
+      this.fournisseurSelect().el.nativeElement.focus();
+    }, 100);
+  }
   hasPrincipal(): boolean {
     if (this.isEmpty()) {
       return false;
@@ -122,12 +122,12 @@ export class FormProduitFournisseurComponent implements OnInit {
       prixAchat: produitFournisseur.prixAchat,
       codeCip: produitFournisseur.codeCip,
       fournisseurId: produitFournisseur.fournisseurId,
-      produitId: this.produit.id,
+      produitId: this.produit.id
     });
   }
 
   cancel(): void {
-    this.ref.close();
+    this.activeModal.dismiss();
   }
 
   populate(): void {
@@ -135,7 +135,7 @@ export class FormProduitFournisseurComponent implements OnInit {
       this.fournisseurService
         .query({
           page: 0,
-          size: 9999,
+          size: 9999
         })
         .subscribe((res: HttpResponse<IFournisseur[]>) => {
           this.fournisseurs = res.body || [];
@@ -164,28 +164,20 @@ export class FormProduitFournisseurComponent implements OnInit {
   }
 
   private subscribeToSaveResponse(result: Observable<HttpResponse<IFournisseurProduit>>): void {
-    result.subscribe({
+    result.pipe(finalize(() => (this.isSaving = false))).subscribe({
       next: (res: HttpResponse<IFournisseurProduit>) => this.onSaveSuccess(res.body),
-      error: error => this.onSaveError(error),
+      error: error => this.onSaveError(error)
     });
   }
 
   private onSaveSuccess(produitFournisseur: IFournisseurProduit | null): void {
-    this.isSaving = false;
-    this.ref.close(produitFournisseur);
+
+    this.activeModal.close(produitFournisseur);
   }
 
-  private onSaveError(error: any): void {
-    this.isSaving = false;
-    if (error.error) {
-      this.errorService.getErrorMessageTranslation(error.error.errorKey).subscribe(translatedErrorMessage => {
-        this.messageService.add({
-          severity: 'error',
-          summary: 'Erreur',
-          detail: translatedErrorMessage,
-        });
-      });
-    }
+  private onSaveError(error: HttpErrorResponse): void {
+
+    this.alert().showError(this.errorService.getErrorMessage(error));
   }
 
   private createFrom(): IFournisseurProduit {
@@ -197,7 +189,7 @@ export class FormProduitFournisseurComponent implements OnInit {
       codeCip: this.editForm.get(['codeCip']).value,
       fournisseurId: this.editForm.get(['fournisseurId']).value,
       principal: this.editForm.get(['principal']).value,
-      produitId: this.produit.id,
+      produitId: this.produit.id
     };
   }
 }

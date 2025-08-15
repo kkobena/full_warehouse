@@ -4,6 +4,7 @@ import { acceptButtonProps, rejectButtonProps, rejectWarningButtonProps } from '
 
 @Component({
   selector: 'jhi-confirm-dialog',
+  providers: [ConfirmationService],
   template: '',
 })
 export class ConfirmDialogComponent {

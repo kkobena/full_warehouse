@@ -1,8 +1,8 @@
-import { Component, inject, OnInit } from '@angular/core';
-import { HttpHeaders, HttpResponse } from '@angular/common/http';
+import { Component, inject, OnInit, viewChild } from '@angular/core';
+import { HttpErrorResponse, HttpHeaders, HttpResponse } from '@angular/common/http';
 import { ActivatedRoute, Data, ParamMap, Router, RouterModule } from '@angular/router';
 import { combineLatest, Observable } from 'rxjs';
-import { NgbActiveModal, NgbModal } from '@ng-bootstrap/ng-bootstrap';
+import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { IProduit } from 'app/shared/model/produit.model';
 import { ITEMS_PER_PAGE } from 'app/shared/constants/pagination.constants';
 import { ProduitService } from './produit.service';
@@ -11,8 +11,7 @@ import { DetailFormDialogComponent } from './detail-form-dialog.component';
 import { DeconditionDialogComponent } from './decondition.dialog.component';
 import { AlertInfoComponent } from '../../shared/alert/alert-info.component';
 import { IResponseDto } from '../../shared/util/response-dto';
-import { ConfirmationService, MenuItem, MessageService, SelectItem } from 'primeng/api';
-import { DialogService, DynamicDialogRef } from 'primeng/dynamicdialog';
+import { MenuItem, SelectItem } from 'primeng/api';
 import { IProduitCriteria, ProduitCriteria } from '../../shared/model/produit-criteria.model';
 import { RayonService } from '../rayon/rayon.service';
 import { FamilleProduitService } from '../famille-produit/famille-produit.service';
@@ -25,24 +24,18 @@ import { ConfigurationService } from '../../shared/configuration.service';
 import { IConfiguration } from '../../shared/model/configuration.model';
 import { Params } from '../../shared/model/enumerations/params.model';
 import { WarehouseCommonModule } from '../../shared/warehouse-common/warehouse-common.module';
-import { ConfirmDialogModule } from 'primeng/confirmdialog';
 import { ToastModule } from 'primeng/toast';
-import { DialogModule } from 'primeng/dialog';
 import { ButtonModule } from 'primeng/button';
-import { RippleModule } from 'primeng/ripple';
 import { TooltipModule } from 'primeng/tooltip';
 import { FileUploadModule } from 'primeng/fileupload';
 import { FormsModule } from '@angular/forms';
 import { ToolbarModule } from 'primeng/toolbar';
-import { DropdownModule } from 'primeng/dropdown';
 import { SplitButtonModule } from 'primeng/splitbutton';
 import { TableModule } from 'primeng/table';
 import { InputSwitchModule } from 'primeng/inputswitch';
 import { InputTextModule } from 'primeng/inputtext';
 import { ImportProduitModalComponent } from './import-produit-modal/import-produit-modal.component';
-import { saveAs } from 'file-saver';
-import { acceptButtonProps, rejectButtonProps } from '../../shared/util/modal-button-props';
-import { Select } from 'primeng/select';
+import { SelectModule } from 'primeng/select';
 import { IconField } from 'primeng/iconfield';
 import { InputIcon } from 'primeng/inputicon';
 import { ToggleSwitch } from 'primeng/toggleswitch';
@@ -52,12 +45,22 @@ import { IRayon } from '../../shared/model/rayon.model';
 import { ButtonGroup } from 'primeng/buttongroup';
 import { ListPrixReferenceComponent } from '../prix-reference/list-prix-reference/list-prix-reference.component';
 import { DatePeremptionFormComponent } from './date-peremption-form/date-peremption-form.component';
+import { ToastAlertComponent } from '../../shared/toast-alert/toast-alert.component';
+import { ConfirmDialogComponent } from '../../shared/dialog/confirm-dialog/confirm-dialog.component';
+import { showCommonModal } from '../sales/selling-home/sale-helper';
+import { finalize } from 'rxjs/operators';
+import { FileUploadDialogComponent } from '../groupe-tiers-payant/file-upload-dialog/file-upload-dialog.component';
+import { SpinerService } from '../../shared/spiner.service';
+import {
+  ImportProduitReponseModalComponent
+} from './import-produit-reponse-modal/import-produit-reponse-modal.component';
+import { Panel } from 'primeng/panel';
 
 export type ExpandMode = 'single' | 'multiple';
 
 @Component({
   selector: 'jhi-produit',
-  styles: [
+  /*styles: [
     `
       .p-datatable td {
         font-size: 0.6rem;
@@ -100,34 +103,32 @@ export type ExpandMode = 'single' | 'multiple';
       table .number {
         text-align: right !important;
       }
-    `,
-  ],
+    `
+  ],*/
   templateUrl: './produit.component.html',
-  providers: [MessageService, DialogService, ConfirmationService, NgbActiveModal],
   imports: [
     WarehouseCommonModule,
     FormsModule,
-    DropdownModule,
     SplitButtonModule,
     TableModule,
     ToolbarModule,
     FileUploadModule,
     RouterModule,
-    ConfirmDialogModule,
     ToastModule,
-    DialogModule,
     ButtonModule,
-    RippleModule,
     TooltipModule,
     InputSwitchModule,
     InputTextModule,
-    Select,
+    SelectModule,
     IconField,
     InputIcon,
     ToggleSwitch,
     EtaProduitComponent,
     ButtonGroup,
-  ],
+    ToastAlertComponent,
+    ConfirmDialogComponent,
+    Panel
+  ]
 })
 export class ProduitComponent implements OnInit {
   protected selectedFamille: number = null;
@@ -148,14 +149,12 @@ export class ProduitComponent implements OnInit {
   protected detail = TypeProduit.DETAIL;
   protected fileDialog = false;
   protected jsonDialog = false;
-  protected responseDialog = false;
   protected displayDialog = false;
   protected responsedto!: IResponseDto;
   protected isSaving = false;
   protected splitbuttons: MenuItem[];
   protected criteria: IProduitCriteria;
   protected onErrorOccur = false;
-  protected ref!: DynamicDialogRef;
   protected configuration?: IConfiguration | null;
   protected isMono = true;
   protected rowExpandMode: ExpandMode = 'single';
@@ -164,13 +163,13 @@ export class ProduitComponent implements OnInit {
   private readonly activatedRoute = inject(ActivatedRoute);
   private readonly router = inject(Router);
   private readonly modalService = inject(NgbModal);
-  private readonly confirmationService = inject(ConfirmationService);
-  private readonly dialogService = inject(DialogService);
-  private readonly messageService = inject(MessageService);
   private readonly rayonService = inject(RayonService);
   private readonly familleService = inject(FamilleProduitService);
   private readonly errorService = inject(ErrorService);
   private readonly configurationService = inject(ConfigurationService);
+  private readonly confimDialog = viewChild.required<ConfirmDialogComponent>('confirmDialog');
+  private readonly alert = viewChild.required<ToastAlertComponent>('alert');
+  private readonly spinner = inject(SpinerService);
 
   constructor() {
     this.criteria = new ProduitCriteria();
@@ -182,7 +181,7 @@ export class ProduitComponent implements OnInit {
         command: () => {
           this.typeImportation = 'NOUVELLE_INSTALLATION';
           this.onOpenImportDialog();
-        },
+        }
       },
       {
         label: 'Basculement',
@@ -190,7 +189,7 @@ export class ProduitComponent implements OnInit {
         command: () => {
           this.typeImportation = 'BASCULEMENT';
           this.onOpenImportDialog();
-        },
+        }
       },
       {
         label: 'Basculement de perstige',
@@ -198,15 +197,15 @@ export class ProduitComponent implements OnInit {
         command: () => {
           this.typeImportation = 'BASCULEMENT_PRESTIGE';
           this.onOpenImportDialog();
-        },
-      },
+        }
+      }
     ];
     this.filtesProduits = [
       { label: 'Produits actifs', value: 0 },
       { label: 'Produits désactifs', value: 1 },
       { label: 'Déconditionnables', value: 2 },
       { label: 'Déconditionnés', value: 3 },
-      { label: 'Tous', value: 10 },
+      { label: 'Tous', value: 10 }
     ];
 
     this.search = '';
@@ -217,35 +216,44 @@ export class ProduitComponent implements OnInit {
     const modalRef = this.modalService.open(ImportProduitModalComponent, {
       backdrop: 'static',
       size: 'lg',
-      centered: true,
+      centered: true
     });
     modalRef.componentInstance.type = this.typeImportation;
     modalRef.closed.subscribe(reason => {
       if (reason) {
-        this.responsedto = reason;
-        this.responseDialog = true;
+        this.showResponse(reason);
         this.loadPage(0);
       }
     });
+  }
+
+  private showResponse(responsedto: IResponseDto): void {
+    showCommonModal(
+      this.modalService,
+      ImportProduitReponseModalComponent,
+      { responsedto },
+      () => {},
+      'lg'
+    );
   }
 
   populate(): void {
     this.familleService.query({ search: '' }).subscribe({
       next: res => {
         this.familles = res.body;
-      },
+      }
     });
 
     this.rayonService
       .query({
         search: '',
         page: 0,
-        size: 9999,
+        size: 9999
       })
       .subscribe({
         next: rayonsResponse => {
           this.rayons = rayonsResponse.body;
-        },
+        }
       });
   }
 
@@ -273,11 +281,11 @@ export class ProduitComponent implements OnInit {
         deconditionne: this.criteria.deconditionne,
         deconditionnable: this.criteria.deconditionnable,
         status: statut,
-        familleId: this.criteria.familleId,
+        familleId: this.criteria.familleId
       })
       .subscribe({
         next: (res: HttpResponse<IProduit[]>) => this.onSuccess(res.body, res.headers, pageToLoad, !dontNavigate),
-        error: () => this.onError(),
+        error: () => this.onError()
       });
   }
 
@@ -294,7 +302,7 @@ export class ProduitComponent implements OnInit {
   delete(produit: IProduit): void {
     const modalRef = this.modalService.open(ProduitDeleteDialogComponent, {
       size: 'lg',
-      backdrop: 'static',
+      backdrop: 'static'
     });
     modalRef.componentInstance.produit = produit;
   }
@@ -311,7 +319,7 @@ export class ProduitComponent implements OnInit {
     const modalRef = this.modalService.open(DetailFormDialogComponent, {
       size: 'lg',
       backdrop: 'static',
-      centered: true,
+      centered: true
     });
     modalRef.componentInstance.produit = produit;
   }
@@ -320,7 +328,7 @@ export class ProduitComponent implements OnInit {
     const modalRef = this.modalService.open(DetailFormDialogComponent, {
       size: 'lg',
       backdrop: 'static',
-      centered: true,
+      centered: true
     });
     modalRef.componentInstance.entity = produit;
   }
@@ -328,7 +336,7 @@ export class ProduitComponent implements OnInit {
   openInfoDialog(message: string, infoClass: string): void {
     const modalRef = this.modalService.open(AlertInfoComponent, {
       backdrop: 'static',
-      centered: true,
+      centered: true
     });
     modalRef.componentInstance.message = message;
     modalRef.componentInstance.infoClass = infoClass;
@@ -336,12 +344,12 @@ export class ProduitComponent implements OnInit {
 
   decondition(produit: IProduit): void {
     if (produit.produits.length === 0) {
-      this.openInfoDialog("Le produit n'a pas de détail. Vous devriez en ajouter d'abord", 'alert alert-info');
+      this.openInfoDialog('Le produit n\'a pas de détail. Vous devriez en ajouter d\'abord', 'alert alert-info');
     } else {
       const modalRef = this.modalService.open(DeconditionDialogComponent, {
         size: '60%',
         backdrop: 'static',
-        centered: true,
+        centered: true
       });
       modalRef.componentInstance.produit = produit;
     }
@@ -369,12 +377,19 @@ export class ProduitComponent implements OnInit {
     this.loadPage(0);
   }
 
-  onUploadJson(event: any): void {
-    const formData: FormData = new FormData();
-    const file = event.files[0];
-    formData.append('importjson', file, file.name);
-    this.uploadJsonDataResponse(this.produitService.uploadJsonData(formData));
+  protected onImportJsonFile(): void {
+    showCommonModal(
+      this.modalService,
+      FileUploadDialogComponent,
+      { accept: '.json' },
+      (result) => {
+        this.spinner.show();
+        this.uploadJsonDataResponse(this.produitService.uploadJsonData(result));
+      },
+      'lg'
+    );
   }
+
 
   filtreClik(): void {
     if (this.selectedCriteria === 2) {
@@ -403,13 +418,13 @@ export class ProduitComponent implements OnInit {
     const isChecked = e.checked;
     if (four) {
       this.produitService.updateDefaultFournisseur(four.id, isChecked).subscribe({
-        error: error => this.onActionError(four, error),
+        error: error => this.onActionError(four, error)
       });
     }
   }
 
   protected getToolTip(four: IFournisseurProduit): string {
-    return four.principal ? "L'Actuel fournisseur principal" : 'Changer en fournisseur principal';
+    return four.principal ? 'L\'Actuel fournisseur principal' : 'Changer en fournisseur principal';
   }
 
   protected onDeleteProduitFournisseur(four: IFournisseurProduit, produit: IProduit): void {
@@ -420,57 +435,49 @@ export class ProduitComponent implements OnInit {
             produit.fournisseurProduits = produit.fournisseurProduits.filter(e => e.id !== four.id);
           }
         },
-        error: error => this.onCommonError(error),
+        error: error => this.onCommonError(error)
       });
     }
   }
 
   protected addFournisseur(produit: IProduit): void {
-    this.ref = this.dialogService.open(FormProduitFournisseurComponent, {
-      data: {
+    showCommonModal(
+      this.modalService,
+      FormProduitFournisseurComponent,
+      {
         produit,
+        header: 'Ajouter un fournisseur au produit ' + produit.libelle
       },
-      header: 'Ajouter un fournisseur au produit ' + produit.libelle,
-      width: '40%',
-    });
-    this.ref.onClose.subscribe((resp: IFournisseurProduit) => {
-      if (resp) {
+      (resp) => {
         produit.fournisseurProduits.push(resp);
-      }
-    });
+      },
+      'lg'
+    );
   }
 
   protected editFournisseur(produit: IProduit, fournisseurProduit: IFournisseurProduit | null): void {
-    this.ref = this.dialogService.open(FormProduitFournisseurComponent, {
-      data: {
-        produit,
+
+    showCommonModal(
+      this.modalService,
+      FormProduitFournisseurComponent,
+      {
         entity: fournisseurProduit,
+        produit,
+        header: 'Modification du produit ' + produit.libelle
       },
-      header: 'Modification du produit ' + produit.libelle,
-      width: '40%',
-    });
-    this.ref.onClose.subscribe((resp: IFournisseurProduit) => {
-      if (resp) {
+      (resp) => {
         const newFours = produit.fournisseurProduits.filter(e => e.id !== resp.id);
         if (newFours) {
           newFours.push(resp);
           produit.fournisseurProduits = newFours;
         }
-      }
-    });
+      },
+      'lg'
+    );
   }
 
   protected confirmDeleteProduitFournisseur(four: IFournisseurProduit, produit: IProduit): void {
-    this.confirmationService.confirm({
-      message: ' Voullez-vous detacher ce fournisseur de ce produit ?',
-      header: 'Retrait de fournisseur ',
-      icon: 'pi pi-info-circle',
-      rejectButtonProps: rejectButtonProps(),
-      acceptButtonProps: acceptButtonProps(),
-      accept: () => {
-        this.onDeleteProduitFournisseur(four, produit);
-      },
-    });
+    this.confimDialog().onConfirm(() => this.onDeleteProduitFournisseur(four, produit), 'Retrait de fournisseur', ' Voullez-vous detacher ce fournisseur de ce produit ?');
   }
 
   protected findConfigStock(): void {
@@ -480,21 +487,13 @@ export class ProduitComponent implements OnInit {
     }
   }
 
-  protected onClickLink(): void {
-    this.produitService.getRejectCsv(this.responsedto.rejectFileUrl).subscribe({
-      next: blod => {
-        saveAs(new Blob([blod], { type: 'text/csv' }), this.responsedto.rejectFileUrl);
-        this.responseDialog = false;
-      },
-    });
-  }
 
   protected addPrixReference(produit: IProduit): void {
     const modalRef = this.modalService.open(ListPrixReferenceComponent, {
       size: 'xl',
       scrollable: true,
       backdrop: 'static',
-      centered: true,
+      centered: true
     });
     modalRef.componentInstance.isFromProduit = true;
     modalRef.componentInstance.produit = produit;
@@ -504,17 +503,15 @@ export class ProduitComponent implements OnInit {
       },
       () => {
         this.loadPage();
-      },
+      }
     );
   }
 
   protected addPeremptionDate(produit: IProduit): void {
     const modalRef = this.modalService.open(DatePeremptionFormComponent, {
-      // size: 'lg',
-      size: '40%',
-      scrollable: true,
+      size: 'lg',
       backdrop: 'static',
-      centered: true,
+      centered: true
     });
     modalRef.componentInstance.produit = produit;
     modalRef.result.then(
@@ -523,7 +520,7 @@ export class ProduitComponent implements OnInit {
       },
       () => {
         this.loadPage();
-      },
+      }
     );
   }
 
@@ -531,75 +528,48 @@ export class ProduitComponent implements OnInit {
     this.ngbPaginationPage = this.page ?? 1;
   }
 
-  private onSaveError(): void {
-    this.isSaving = false;
-    this.messageService.add({
-      severity: 'error',
-      summary: 'Erreur',
-      detail: 'Enregistrement a échoué',
-    });
+  private onSaveError(error: HttpErrorResponse): void {
+    this.alert().showError(this.errorService.getErrorMessage(error));
   }
 
-  private onActionError(el: IFournisseurProduit, error: any): void {
-    if (error.error) {
-      this.errorService.getErrorMessageTranslation(error.error.errorKey).subscribe({
-        next: translatedErrorMessage => {
-          this.messageService.add({
-            severity: 'error',
-            summary: 'Erreur',
-            detail: translatedErrorMessage,
-          });
-        },
-        error: () => {
-          this.onErrorOccur = true;
-        },
-      });
-    }
+  private onActionError(el: IFournisseurProduit, error: HttpErrorResponse): void {
     el.principal = false;
+    this.onCommonError(error);
   }
 
-  private onCommonError(error: any): void {
-    if (error.error) {
-      this.errorService.getErrorMessageTranslation(error.error.errorKey).subscribe({
-        next: translatedErrorMessage => {
-          this.messageService.add({
-            severity: 'error',
-            summary: 'Erreur',
-            detail: translatedErrorMessage,
-          });
-        },
-        error: () => {
-          this.messageService.add({ severity: 'error', summary: 'Erreur', detail: error.title });
-        },
-      });
-    }
+  private onCommonError(error: HttpErrorResponse): void {
+    this.alert().showError(this.errorService.getErrorMessage(error));
   }
 
   private uploadJsonDataResponse(result: Observable<HttpResponse<void>>): void {
-    result.subscribe({
+    result.pipe(finalize(() => {
+      this.spinner.hide();
+      this.isSaving = false;
+    })).subscribe({
       next: () => this.onPocesJsonSuccess(),
-      error: () => this.onSaveError(),
+      error: (err) => this.onSaveError(err)
     });
   }
 
   private onPocesJsonSuccess(): void {
-    this.jsonDialog = false;
-    this.responseDialog = true;
+
     const interval = setInterval(() => {
       this.produitService.findImortation().subscribe({
         next: res => {
           if (res.body) {
             this.responsedto = res.body;
             if (this.responsedto.completed) {
-              setTimeout(() => {}, 5000);
+              setTimeout(() => {
+              }, 5000);
               clearInterval(interval);
             }
           }
         },
         error() {
-          setTimeout(() => {}, 5000);
+          setTimeout(() => {
+          }, 5000);
           clearInterval(interval);
-        },
+        }
       });
     }, 10000);
   }
@@ -612,8 +582,8 @@ export class ProduitComponent implements OnInit {
         queryParams: {
           page: this.page,
           size: this.itemsPerPage,
-          sort: this.predicate + ',' + (this.ascending ? 'asc' : 'desc'),
-        },
+          sort: this.predicate + ',' + (this.ascending ? 'asc' : 'desc')
+        }
       });
     }
     this.produits = data || [];

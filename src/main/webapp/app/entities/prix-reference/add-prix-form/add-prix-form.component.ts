@@ -1,28 +1,28 @@
-import {AfterViewInit, Component, inject, OnInit} from '@angular/core';
-import {NgbActiveModal} from '@ng-bootstrap/ng-bootstrap';
-import {WarehouseCommonModule} from '../../../shared/warehouse-common/warehouse-common.module';
-import {ButtonModule} from 'primeng/button';
-import {IProduit} from '../../../shared/model/produit.model';
-import {FormBuilder, FormControl, ReactiveFormsModule, Validators} from '@angular/forms';
-import {PrixReference} from '../model/prix-reference.model';
-import {PrixReferenceService} from '../prix-reference.service';
-import {Observable} from 'rxjs';
-import {HttpResponse} from '@angular/common/http';
-import {MessageService} from 'primeng/api';
-import {ErrorService} from '../../../shared/error.service';
-import {Select} from 'primeng/select';
-import {ITiersPayant} from '../../../shared/model/tierspayant.model';
-import {InputNumber} from 'primeng/inputnumber';
-import {TiersPayantService} from '../../tiers-payant/tierspayant.service';
-import {ProduitService} from '../../produit/produit.service';
-import {Toast} from 'primeng/toast';
-import {ToggleSwitch} from 'primeng/toggleswitch';
+import { AfterViewInit, Component, inject, OnInit, viewChild } from '@angular/core';
+import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
+import { ButtonModule } from 'primeng/button';
+import { IProduit } from '../../../shared/model/produit.model';
+import { FormBuilder, FormControl, ReactiveFormsModule, Validators } from '@angular/forms';
+import { PrixReference } from '../model/prix-reference.model';
+import { PrixReferenceService } from '../prix-reference.service';
+import { Observable } from 'rxjs';
+import { HttpErrorResponse, HttpResponse } from '@angular/common/http';
+import { ErrorService } from '../../../shared/error.service';
+import { Select } from 'primeng/select';
+import { ITiersPayant } from '../../../shared/model/tierspayant.model';
+import { InputNumber } from 'primeng/inputnumber';
+import { TiersPayantService } from '../../tiers-payant/tierspayant.service';
+import { ProduitService } from '../../produit/produit.service';
+import { ToggleSwitch } from 'primeng/toggleswitch';
+import { Card } from 'primeng/card';
+import { ToastAlertComponent } from '../../../shared/toast-alert/toast-alert.component';
+import { finalize } from 'rxjs/operators';
 
 @Component({
   selector: 'jhi-add-prix-form',
-  imports: [WarehouseCommonModule, ButtonModule, ReactiveFormsModule, Select, InputNumber, Toast, ToggleSwitch],
-  providers: [MessageService],
+  imports: [ButtonModule, ReactiveFormsModule, Select, InputNumber, ToggleSwitch, Card, ToastAlertComponent],
   templateUrl: './add-prix-form.component.html',
+   styleUrls: ['../../common-modal.component.scss']
 })
 export class AddPrixFormComponent implements OnInit, AfterViewInit {
   produit: IProduit | null = null;
@@ -38,34 +38,34 @@ export class AddPrixFormComponent implements OnInit, AfterViewInit {
   protected pricesType: any[] = [
     {
       code: 'RERERENCE',
-      libelle: 'Prix de référence assurance',
+      libelle: 'Prix de référence assurance'
     },
-    {code: 'POURCENTAGE', libelle: "Pourcentage appliqué par l'assureur"},
+    { code: 'POURCENTAGE', libelle: 'Pourcentage appliqué par l\'assureur' }
   ];
   protected editForm = this.fb.group({
     id: new FormControl<number | null>(null, {}),
     valeur: new FormControl<number | null>(null, {
       validators: [Validators.required, Validators.min(5), Validators.max(1000000)],
-      nonNullable: true,
+      nonNullable: true
     }),
     tiersPayantId: new FormControl<number | null>(null, {}),
     produitId: new FormControl<number | null>(null, {}),
     type: new FormControl<string | null>(null, {
       validators: [Validators.required],
-      nonNullable: true,
+      nonNullable: true
     }),
     enabled: new FormControl<boolean | null>(true, {
       validators: [Validators.required],
-      nonNullable: true,
-    }),
+      nonNullable: true
+    })
   });
 
   private readonly activeModal = inject(NgbActiveModal);
   private readonly entityService = inject(PrixReferenceService);
-  private readonly messageService = inject(MessageService);
   private readonly errorService = inject(ErrorService);
   private readonly tiersPayantService = inject(TiersPayantService);
   private readonly produitService = inject(ProduitService);
+  private readonly alert = viewChild.required<ToastAlertComponent>('alert');
 
   ngOnInit(): void {
     if (this.isFromProduit) {
@@ -124,7 +124,7 @@ export class AddPrixFormComponent implements OnInit, AfterViewInit {
       tiersPayantId: entity.tiersPayantId,
       valeur: entity.valeur,
       produitId: entity.produitId,
-      enabled: entity.enabled,
+      enabled: entity.enabled
     });
   }
 
@@ -136,29 +136,23 @@ export class AddPrixFormComponent implements OnInit, AfterViewInit {
       tiersPayantId: this.editForm.get(['tiersPayantId']).value,
       produitId: this.editForm.get(['produitId']).value,
       type: this.editForm.get(['type']).value,
-      valeur: this.editForm.get(['valeur']).value,
+      valeur: this.editForm.get(['valeur']).value
     };
   }
 
   private subscribeToSaveResponse(result: Observable<HttpResponse<{}>>): void {
-    result.subscribe({
+    result.pipe(finalize(() => this.isSaving = false)).subscribe({
       next: () => this.onSaveSuccess(),
-      error: (err: any) => this.onSaveError(err),
+      error: (err: any) => this.onSaveError(err)
     });
   }
 
   private onSaveSuccess(): void {
-    this.isSaving = false;
     this.cancel();
   }
 
-  private onSaveError(err: any): void {
-    this.isSaving = false;
-    this.messageService.add({
-      severity: 'error',
-      summary: 'Erreur',
-      detail: this.errorService.getErrorMessage(err),
-    });
+  private onSaveError(err: HttpErrorResponse): void {
+    this.alert().showError(this.errorService.getErrorMessage(err));
   }
 
   private getTiersPayants(): void {
@@ -166,19 +160,15 @@ export class AddPrixFormComponent implements OnInit, AfterViewInit {
       .query({
         page: 0,
         size: 9999,
-        sort: ['fullName,asc'],
+        sort: ['fullName,asc']
       })
       .subscribe({
         next: (res: HttpResponse<ITiersPayant[]>) => {
           this.tiersPayants = res.body || [];
         },
-        error: () => {
-          this.messageService.add({
-            severity: 'error',
-            summary: 'Erreur',
-            detail: 'Erreur lors de la récupération des tiers payants',
-          });
-        },
+        error: (err) => {
+          this.alert().showError(this.errorService.getErrorMessage(err));
+        }
       });
   }
 
@@ -187,19 +177,15 @@ export class AddPrixFormComponent implements OnInit, AfterViewInit {
       .query({
         page: 0,
         size: 99999,
-        sort: ['libelle,asc'],
+        sort: ['libelle,asc']
       })
       .subscribe({
         next: (res: HttpResponse<IProduit[]>) => {
           this.produits = res.body || [];
         },
-        error: () => {
-          this.messageService.add({
-            severity: 'error',
-            summary: 'Erreur',
-            detail: 'Erreur lors de la récupération des produits',
-          });
-        },
+        error: (err) => {
+          this.alert().showError(this.errorService.getErrorMessage(err));
+        }
       });
   }
 }

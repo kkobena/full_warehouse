@@ -59,7 +59,6 @@ import { FileResponseModalComponent } from './file-response-modal/file-response-
 
 @Component({
   selector: 'jhi-commande-update',
-
   templateUrl: './commande-update.component.html',
   imports: [
     WarehouseCommonModule,

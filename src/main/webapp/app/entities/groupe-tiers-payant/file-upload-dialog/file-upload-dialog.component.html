@@ -10,7 +10,7 @@
       <p-fileupload
         (uploadHandler)="onUpload($event)"
         [customUpload]="true"
-        accept=".txt,.csv,.xls,.xlsx"
+        [accept]="accept"
         cancelLabel="Annuler"
         cancelStyleClass="p-button-danger"
         chooseLabel="Importer un fichier"

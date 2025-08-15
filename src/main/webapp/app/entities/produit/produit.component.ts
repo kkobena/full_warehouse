@@ -6,7 +6,6 @@ import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { IProduit } from 'app/shared/model/produit.model';
 import { ITEMS_PER_PAGE } from 'app/shared/constants/pagination.constants';
 import { ProduitService } from './produit.service';
-import { ProduitDeleteDialogComponent } from './produit-delete-dialog.component';
 import { DetailFormDialogComponent } from './detail-form-dialog.component';
 import { DeconditionDialogComponent } from './decondition.dialog.component';
 import { AlertInfoComponent } from '../../shared/alert/alert-info.component';
@@ -55,56 +54,81 @@ import {
   ImportProduitReponseModalComponent
 } from './import-produit-reponse-modal/import-produit-reponse-modal.component';
 import { Panel } from 'primeng/panel';
+import { CardModule } from 'primeng/card';
 
 export type ExpandMode = 'single' | 'multiple';
 
 @Component({
   selector: 'jhi-produit',
-  /*styles: [
+  styles: [
     `
-      .p-datatable td {
-        font-size: 0.6rem;
+      .expanded-content {
+        background-color: #f8f9fa;
       }
 
-      .table tr th {
-        font-size: 0.9rem;
+      :host ::ng-deep .p-card .info-title {
+        background-color: var(--p-sky-400);
+
       }
 
-      .btn-sm,
-      .btn-group-sm > .btn {
-        font-size: 1rem;
+      :host ::ng-deep .p-card .warn-title {
+        background-color: var(--p-orange-400);
+
       }
 
-      .secondColumn {
-        color: blue;
+      :host ::ng-deep .p-card .secondary-title {
+        background-color: var(--p-purple-400);
+
       }
 
-      .invoice-table {
-        width: 100%;
-        border-collapse: collapse;
+      :host ::ng-deep .p-card .primary-title {
+        background-color: var(--p-primary-color);
+
+
       }
 
-      .invoice-table tr {
-        border-bottom: 1px solid #dee2e6;
+      :host ::ng-deep .p-card .p-card-title .card-title {
+        color: #ffffff;
+        padding: 0.5rem;
+        margin: -1.25rem -1.25rem 1.25rem -1.25rem;
+        border-top-left-radius: var(--border-radius);
+        border-top-right-radius: var(--border-radius);
       }
 
-      .invoice-table td:first-child {
-        text-align: left;
+      .card-title {
+        font-size: 1.2rem;
+        font-weight: 600;
+        display: flex;
+        align-items: center;
       }
 
-      .invoice-table td {
-        padding: 0.1rem;
+      .field {
+        display: flex;
+        flex-direction: row;
+        justify-content: space-between;
+        align-items: center;
+        padding: 0.5rem 0;
+        border-bottom: 1px solid #dfe7ef;
       }
 
-      .p-datatable .p-datatable-header {
-        text-align: center;
+      .field:last-child {
+        border-bottom: none;
       }
 
-      table .number {
-        text-align: right !important;
+      .field label {
+        font-weight: 600;
+        color: #6c757d;
       }
+
+      .field span {
+        color: #495057;
+        text-align: right;
+        font-weight: 600;
+      }
+
+
     `
-  ],*/
+  ],
   templateUrl: './produit.component.html',
   imports: [
     WarehouseCommonModule,
@@ -127,7 +151,8 @@ export type ExpandMode = 'single' | 'multiple';
     ButtonGroup,
     ToastAlertComponent,
     ConfirmDialogComponent,
-    Panel
+    Panel,
+    CardModule
   ]
 })
 export class ProduitComponent implements OnInit {
@@ -232,7 +257,8 @@ export class ProduitComponent implements OnInit {
       this.modalService,
       ImportProduitReponseModalComponent,
       { responsedto },
-      () => {},
+      () => {
+      },
       'lg'
     );
   }
@@ -299,12 +325,14 @@ export class ProduitComponent implements OnInit {
     this.loadPage();
   }
 
-  delete(produit: IProduit): void {
-    const modalRef = this.modalService.open(ProduitDeleteDialogComponent, {
-      size: 'lg',
-      backdrop: 'static'
+  confirmDelete(produit: IProduit): void {
+    this.confimDialog().onConfirm(() => this.delete(produit), 'Suppression', 'Voulez-vous supprimer ce produit ?');
+  }
+
+  private delete(produit: IProduit): void {
+    this.produitService.delete(produit.id).subscribe(() => {
+      this.loadPage();
     });
-    modalRef.componentInstance.produit = produit;
   }
 
   sort(): string[] {
@@ -477,6 +505,7 @@ export class ProduitComponent implements OnInit {
   }
 
   protected confirmDeleteProduitFournisseur(four: IFournisseurProduit, produit: IProduit): void {
+    console.log(four);
     this.confimDialog().onConfirm(() => this.onDeleteProduitFournisseur(four, produit), 'Retrait de fournisseur', ' Voullez-vous detacher ce fournisseur de ce produit ?');
   }
 

@@ -227,7 +227,7 @@
 
                   <p-button
                     tooltipPosition="left"
-                    (click)="delete(produit)"
+                    (click)="confirmDelete(produit)"
                     severity="danger"
                     [rounded]="true"
                     [text]="true"
@@ -242,90 +242,102 @@
           <ng-template let-elRow #expandedrow>
             <tr>
               <td colspan="11">
-                <div class="row">
-                  <div class="row col-md-6">
-                    <div class="card col-md-12">
-                      <div class="card-header bg-info text-white">INFORMATIONS GENERALES</div>
-                      <div class="card-body">
-                        <table class="invoice-table table table-striped">
-                          <tbody>
-                          <tr>
-                            <td class="firstColumn">PMP</td>
-                            <td class="secondColumn text-end">{{ elRow?.prixMnp | number }}</td>
-                            <td class="firstColumn">Gamme</td>
-                            <td class="secondColumn text-end">{{ elRow?.gammeLibelle }}</td>
-                          </tr>
-
-                          <tr>
-                            <td class="firstColumn">Date dernière vente</td>
-                            <td
-                              class="secondColumn text-end">{{ elRow?.lastDateOfSale | date: 'dd/MM/yyyy HH:mm' }}
-                            </td>
-                            <td class="firstColumn">Date dernière entrée en stock</td>
-                            <td
-                              class="secondColumn text-end">{{ elRow?.lastOrderDate | date: 'dd/MM/yyyy HH:mm' }}
-                            </td>
-                          </tr>
-
-                          <tr>
-                            <td class="firstColumn">Date de création</td>
-                            <td class="secondColumn text-end">{{ elRow?.createdAt | date: 'dd/MM/yyyy HH:mm' }}
-                            </td>
-                            <td class="firstColumn">Date dernière inventaire</td>
-                            <td
-                              class="secondColumn text-end">{{ elRow?.lastInventoryDate | date: 'dd/MM/yyyy HH:mm' }}
-                            </td>
-                          </tr>
-                          <tr>
-                            <td class="firstColumn">Date péremption</td>
-                            <td class="secondColumn text-end">{{ elRow?.expirationDate }}</td>
-                            <td class="firstColumn">Tva</td>
-                            <td class="secondColumn text-end">{{ elRow?.tvaTaux }}</td>
-                          </tr>
-                          <tr>
-                            <td class="firstColumn">Quantité détail</td>
-                            <td class="secondColumn text-end">{{ elRow?.itemQty }}</td>
-
-                            <td class="firstColumn">Forme</td>
-                            <td class="secondColumn text-end">{{ elRow?.formeLibelle }}</td>
-                          </tr>
-                          <tr>
-                            <td class="firstColumn">Famille</td>
-                            <td class="secondColumn text-end">{{ elRow?.familleLibelle }}</td>
-                            <td class="firstColumn">Laboratoire</td>
-                            <td class="secondColumn text-end">{{ elRow?.laboratoireLibelle }}</td>
-                          </tr>
-                          </tbody>
-                        </table>
-                      </div>
+                <div class="p-3  expanded-content">
+                  <div class="row">
+                    <div class="mb-3 col-md-12 col-sm-12 col-lg-6 col-xl-4 col-xxl-4">
+                      <p-card >
+                        <ng-template #title>
+                          <div class="card-title pharma-smart-card-title primary-title ">
+                            <i class="pi pi-info-circle mr-2"></i>
+                            Informations Générales
+                          </div>
+                        </ng-template>
+                        <div class="grid">
+                          <div class="col-12">
+                            <div class="field">
+                              <label>PMP</label>
+                              <span>{{ elRow?.prixMnp | number }}</span>
+                            </div>
+                            <div class="field">
+                              <label>Date dernière vente</label>
+                              <span>{{ elRow?.lastDateOfSale | date: 'dd/MM/yyyy HH:mm' }}</span>
+                            </div>
+                            <div class="field">
+                              <label>Date de création</label>
+                              <span>{{ elRow?.createdAt | date: 'dd/MM/yyyy HH:mm' }}</span>
+                            </div>
+                            <div class="field">
+                              <label>Date péremption</label>
+                              <span>{{ elRow?.expirationDate }}</span>
+                            </div>
+                            <div class="field">
+                              <label>Gamme</label>
+                              <span>{{ elRow?.gammeLibelle }}</span>
+                            </div>
+                            <div class="field">
+                              <label>Date dernière entrée en stock</label>
+                              <span>{{ elRow?.lastOrderDate | date: 'dd/MM/yyyy HH:mm' }}</span>
+                            </div>
+                            <div class="field">
+                              <label>Date dernière inventaire</label>
+                              <span>{{ elRow?.lastInventoryDate | date: 'dd/MM/yyyy HH:mm' }}</span>
+                            </div>
+                            <div class="field">
+                              <label>Tva</label>
+                              <span>{{ elRow?.tvaTaux }}</span>
+                            </div>
+                            <div class="field">
+                              <label>Quantité détail</label>
+                              <span>{{ elRow?.itemQty }}</span>
+                            </div>
+                            <div class="field">
+                              <label>Famille</label>
+                              <span>{{ elRow?.familleLibelle }}</span>
+                            </div>
+                            <div class="field">
+                              <label>Forme</label>
+                              <span>{{ elRow?.formeLibelle }}</span>
+                            </div>
+                            <div class="field">
+                              <label>Laboratoire</label>
+                              <span>{{ elRow?.laboratoireLibelle }}</span>
+                            </div>
+                          </div>
+                        </div>
+                      </p-card>
                     </div>
 
-                    <div class="card col-md-12 mt-1">
-                      <div class="card-header bg-warning text-white">GESTION DES RAYONS</div>
-                      <div class="card-body">
-                        <table class="table table-striped">
-                          <thead>
-                          <tr>
-                            <th style="width: 15%">Code rayon</th>
-                            <th style="width: 45%">Libelle rayon</th>
-                            @if (!isMono) {
-                              <th style="width: 30%">Stockage</th>
-                            }
-                            @if (!isMono) {
-                              <th style="width: 10%; text-align: right">
-                                <p-button
-                                  [text]="true"
-                                  rounded="true"
-                                  icon="pi pi-plus"
-                                  severity="primary"
-                                  pTooltip="Ajouter un rayon"
-                                ></p-button>
-                              </th>
-                            }
-                          </tr>
-                          </thead>
-                          <tbody>
-                            @for (rayon of elRow?.rayonProduits; track rayon; let i = $index) {
+                    <div class="col-md-6 col-sm-12 col-lg-6 col-xl-8 col-xxl-8 row">
+                      <div class="mb-3 col-md-6 col-sm-12 col-lg-6 col-xl-6 col-xxl-6">
+                        <p-card>
+                          <ng-template #title>
+                            <div class="card-title warn-title">
+                              <i class="pi pi-sitemap mr-2"></i>
+                              Gestion des Rayons
+                            </div>
+                          </ng-template>
+                          <p-table [value]="elRow?.rayonProduits" >
+                            <ng-template #header>
+                              <tr>
+                                <th>Code rayon</th>
+                                <th>Libelle rayon</th>
+                                @if (!isMono) {
+                                  <th>Stockage</th>
+                                }
+                                @if (!isMono) {
+                                  <th style="text-align: right">
+                                    <p-button
+                                      [text]="true"
+                                      rounded="true"
+                                      icon="pi pi-plus"
+                                      severity="primary"
+                                      pTooltip="Ajouter un rayon"
+                                    ></p-button>
+                                  </th>
+                                }
+                              </tr>
+                            </ng-template>
+                            <ng-template #body let-rayon>
                               <tr>
                                 <td>{{ rayon.codeRayon }}</td>
                                 <td>{{ rayon.libelleRayon }}</td>
@@ -333,12 +345,11 @@
                                   <td>{{ rayon.libelleStorage }}</td>
                                 }
                                 @if (!isMono) {
-                                  <td>
+                                  <td style="text-align: right">
                                     <p-button
                                       class="mb-2"
                                       [text]="true"
                                       icon="pi pi-trash"
-
                                       [rounded]="true"
                                       severity="danger"
                                       pTooltip="Supprimer"
@@ -346,78 +357,45 @@
                                   </td>
                                 }
                               </tr>
-                            }
-                          </tbody>
-                        </table>
+                            </ng-template>
+                            <ng-template #emptymessage>
+                              <tr>
+                                <td [attr.colspan]="!isMono ? 4 : 2">Aucun rayon.</td>
+                              </tr>
+                            </ng-template>
+                          </p-table>
+                        </p-card>
                       </div>
-                    </div>
-                  </div>
+                      <div class="mb-3 col-md-6 col-sm-12 col-lg-6 col-xl-6 col-xxl-6">
+                        <p-card>
+                          <ng-template #title>
+                            <div class="card-title info-title">
+                              <i class="pi pi-cog mr-2"></i>
+                              Liste des fournisseurs
+                            </div>
 
-                  <div class="card col-md-6 ml-1">
-                    <div class="card-header bg-success text-white">INFORMATIONS COMPLEMENTAIRES</div>
-                    <div class="card-body">
-                      @if (!isMono) {
-                        <div>
-                          <h5 class="card-title">Repartition du stock</h5>
-                          <table class="table table-striped">
-                            <thead>
-                            <tr>
-                              <th style="width: 60%">Stockage</th>
-                              <th style="width: 10%">Stock</th>
-                              <th pTooltip="Repartir le stock" style="text-align: right; width: 30%">
-                                <p-button icon="pi pi-plus" severity="primary" [rounded]="true"
-                                        [text]="true" ></p-button>
-                              </th>
-                            </tr>
-                            </thead>
-                            <tbody>
-                              @for (stock of elRow?.stockProduits; track stock; let i = $index) {
-                                <tr>
-                                  <td>{{ stock.storageName }}</td>
-                                  <td>{{ stock.qtyStock | number }}</td>
-                                  <td style="text-align: right">
-                                    <p-button
-                                      class="mr-2"
-                                      icon="pi pi-pencil"
-                                      severity="success"
-                                      [rounded]="true"
-                                      [text]="true"
-
-                                    ></p-button>
-                                    <p-button icon="pi pi-trash" [text]="true" severity="danger"
-                                            [rounded]="true" ></p-button>
-                                  </td>
-                                </tr>
-                              }
-                            </tbody>
-                          </table>
-                        </div>
-                      }
-
-                      <hr />
-                      <div class="mt-1">
-                        <h5 class="card-title bg-info text-white">Gestion des grossistes du produit</h5>
-                        <table class="table table-striped">
-                          <thead>
-                          <tr>
-                            <th style="width: 30%">Grossiste</th>
-                            <th style="width: 15%">Cip</th>
-                            <th style="width: 12%">Prix.A</th>
-                            <th style="width: 12%">Prix.U</th>
-                            <th style="width: 31%; text-align: right">
-                              <p-button
-                                (click)="addFournisseur(elRow)"
-                                severity="info"
-                                [rounded]="true"
-                                [text]="true"
-                                icon="pi pi-plus"
-                                pTooltip="Ajouter un fournisseur"
-                              ></p-button>
-                            </th>
-                          </tr>
-                          </thead>
-                          <tbody>
-                            @for (four of elRow?.fournisseurProduits; track four; let i = $index) {
+                          </ng-template>
+                          <p-table [value]="elRow?.fournisseurProduits" >
+                            <ng-template #header>
+                              <tr>
+                                <th>Grossiste</th>
+                                <th>Cip</th>
+                                <th>Prix.A</th>
+                                <th>Prix.U</th>
+                                <th style="text-align: right">
+                                  <p-button
+                                    (click)="addFournisseur(elRow)"
+                                    severity="info"
+                                    size="small"
+                                    [rounded]="true"
+                                    [text]="true"
+                                    icon="pi pi-plus"
+                                    pTooltip="Ajouter un fournisseur"
+                                  ></p-button>
+                                </th>
+                              </tr>
+                            </ng-template>
+                            <ng-template #body let-four>
                               <tr>
                                 <td>{{ four.fournisseurLibelle }}</td>
                                 <td>{{ four.codeCip }}</td>
@@ -434,27 +412,83 @@
                                     (click)="editFournisseur(elRow, four)"
                                     [rounded]="true"
                                     [text]="true"
+                                    size="small"
                                     severity="success"
-                                    class="p-mr-2 p-ml-2 p-mb-3"
+                                    class="p-mr-2 p-ml-2"
                                     icon="pi pi-pencil"
                                     pTooltip="Editer"
                                   ></p-button>
                                   <p-button
                                     (click)="confirmDeleteProduitFournisseur(four, elRow)"
-                                    class="p-mb-3"
                                     icon="pi pi-trash"
                                     severity="danger"
+                                    size="small"
                                     [rounded]="true"
                                     [text]="true"
                                     pTooltip="Supprimer"
                                   ></p-button>
                                 </td>
                               </tr>
-                            }
-                          </tbody>
-                        </table>
+                            </ng-template>
+                            <ng-template #emptymessage>
+                              <tr>
+                                <td colspan="5">Aucun fournisseur.</td>
+                              </tr>
+                            </ng-template>
+                          </p-table>
+                        </p-card>
                       </div>
+
+                      @if (!isMono) {
+                        <div class=" col-md-6 col-sm-12 col-lg-6 col-xl-6 col-xxl-6">
+                          <p-card>
+                            <ng-template #title>
+                              <div class="card-title secondary-title">
+                                <i class="pi pi-cog mr-2"></i>
+                                Répartition du stock
+                              </div>
+
+                            </ng-template>
+                            <p-table [value]="elRow?.stockProduits" >
+
+                              <ng-template #header>
+                                <tr>
+                                  <th>Stockage</th>
+                                  <th>Stock</th>
+                                  <th style="text-align: right">
+                                    <p-button size="small" icon="pi pi-plus" severity="primary" [rounded]="true"
+                                              [text]="true" pTooltip="Repartir le stock"></p-button>
+                                  </th>
+                                </tr>
+                              </ng-template>
+                              <ng-template #body let-stock>
+                                <tr>
+                                  <td>{{ stock.storageName }}</td>
+                                  <td>{{ stock.qtyStock | number }}</td>
+                                  <td style="text-align: right">
+                                    <p-button
+                                      class="mr-2"
+                                      icon="pi pi-pencil"
+                                      severity="success"
+                                      [rounded]="true"
+                                      [text]="true"
+                                    ></p-button>
+                                    <p-button icon="pi pi-trash" [text]="true" severity="danger"
+                                              [rounded]="true" ></p-button>
+                                  </td>
+                                </tr>
+                              </ng-template>
+                              <ng-template #emptymessage>
+                                <tr>
+                                  <td colspan="3">Aucun stock.</td>
+                                </tr>
+                              </ng-template>
+                            </p-table>
+                          </p-card>
+                        </div>
+                      }
                     </div>
+
                   </div>
                 </div>
               </td>

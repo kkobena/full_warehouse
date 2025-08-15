@@ -21,7 +21,7 @@ export function backgroundColor(documentStyle: CSSStyleDeclaration): string[] {
     documentStyle.getPropertyValue('--p-red-400'),
 
     documentStyle.getPropertyValue('--p-cyan-400'),
-    documentStyle.getPropertyValue('--p-green-400'),
+    documentStyle.getPropertyValue('--p---p-primary-color-400'),
     documentStyle.getPropertyValue('--p-amber-400'),
     documentStyle.getPropertyValue('--p-violet-400'),
     documentStyle.getPropertyValue('--p-yellow-400'),

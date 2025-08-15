@@ -4,8 +4,7 @@ import { acceptButtonProps, rejectButtonProps, rejectWarningButtonProps } from '
 
 @Component({
   selector: 'jhi-confirm-dialog',
-  providers: [ConfirmationService],
-  template: '',
+  template: ''
 })
 export class ConfirmDialogComponent {
   message = input<string>();
@@ -33,7 +32,7 @@ export class ConfirmDialogComponent {
         if (rejectHandler) {
           rejectHandler();
         }
-      },
+      }
     });
     setTimeout(() => {
       this.accept?.focus();
@@ -48,7 +47,7 @@ export class ConfirmDialogComponent {
       acceptVisible: false,
       rejectButtonProps: rejectWarningButtonProps(),
       defaultFocus: 'accept',
-      reject: () => rejectHandler(),
+      reject: () => rejectHandler()
     });
     setTimeout(() => {
       this.accept?.focus();

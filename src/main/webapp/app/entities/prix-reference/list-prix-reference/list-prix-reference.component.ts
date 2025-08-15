@@ -11,10 +11,12 @@ import { Tooltip } from 'primeng/tooltip';
 import { ConfirmDialogComponent } from '../../../shared/dialog/confirm-dialog/confirm-dialog.component';
 import { Card } from 'primeng/card';
 import { showCommonModal } from '../../sales/selling-home/sale-helper';
+import { ConfirmationService } from 'primeng/api';
 
 @Component({
   selector: 'jhi-list-prix-reference',
   imports: [CommonModule, Button, Tooltip, ConfirmDialogComponent, Card],
+  providers: [ConfirmationService],
   templateUrl: './list-prix-reference.component.html',
   styleUrls: ['../../common-modal.component.scss']
 })

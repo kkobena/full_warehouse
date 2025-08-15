@@ -18,6 +18,7 @@ h4 {
 .justify-content-center {
   margin: 0;
 }
+
 body,
 :host {
   background: url('/content/images/pharmabg.png') no-repeat center center fixed;
@@ -29,12 +30,9 @@ body,
 }
 
 body {
- // background-color: rgba(179, 241, 237, 0.25);
+  // background-color: rgba(179, 241, 237, 0.25);
 
 }
-
-
-
 
 
 a:hover {
@@ -945,7 +943,6 @@ li .icon-holder .icon i {
 }
 
 
-
 .mr-1 {
   margin-right: 0.2rem !important;
 }
@@ -1098,8 +1095,6 @@ li .icon-holder .icon i {
 .p-button-icon-only {
   padding: 0.45rem 1rem;
 }
-
-
 
 
 .customer-overlay-panel {
@@ -1759,14 +1754,37 @@ jhi-recapitualtif-caisse {
 
 
 .p-panel {
- // background-color: transparent;
+  // background-color: transparent;
 }
-.main{
+
+.main {
   background-color: transparent;
   //background-color: rgba(179, 241, 237, 0.25);
   padding: 0 !important;
-  .card-body{
+
+  .card-body {
     background-color: transparent;
     padding: 0 !important;
   }
+}
+
+.pharma-smart-primary-text {
+  color: #6c757d;
+}
+
+.pharma-smart-secondary-text {
+  color: #495057;
+}
+
+.pharma-smart-content {
+  background-color: #f8f9fa;
+}
+
+.p-dialog-header {
+  background-color: var(--p-primary-color);
+  color: #ffffff;
+  padding: 0.5rem !important;
+  border-top-left-radius: var(--p-dialog-border-radius);
+  border-top-right-radius: var(--p-dialog-border-radius);
+
 }

@@ -9,6 +9,7 @@ import { WarehouseCommonModule } from '../../../../shared/warehouse-common/wareh
 import { FormsModule } from '@angular/forms';
 import { BaseSaleComponent } from '../base-sale/base-sale.component';
 import { ConfirmDialogComponent } from '../../../../shared/dialog/confirm-dialog/confirm-dialog.component';
+import { CardModule } from 'primeng/card';
 
 @Component({
   selector: 'jhi-carnet',
@@ -23,6 +24,7 @@ import { ConfirmDialogComponent } from '../../../../shared/dialog/confirm-dialog
     ProductTableComponent,
     ModeReglementComponent,
     ConfirmDialogComponent,
+    CardModule
   ],
   templateUrl: '../base-sale/base-sale.component.html',
 })

@@ -127,9 +127,9 @@
       currentPageReportTemplate="Affichage de {first} à {last} sur {totalRecords} ventes"
       dataKey="id"
       selectionMode="single"
-      styleClass="p-datatable-striped mt-2"
+
     >
-      <ng-template pTemplate="header">
+      <ng-template #header>
         <tr>
           <th style="width: 3%"></th>
           <th style="width: 12%">Date</th>
@@ -267,151 +267,180 @@
       </ng-template>
       <ng-template let-elRow #expandedrow>
         <tr>
-          <td colspan="10" class="pt-2 pb-2 td-detail">
-            @if (elRow.categorie === 'VNO') {
-              <p-card>
-                <div class="card-header bg-info text-white">LISTES DES PRODUITS</div>
-
-                <p-table
-                  [paginator]="true"
-                  [rowsPerPageOptions]="[10, 15, 20, 30, 50]"
-                  [rows]="10"
-                  [showCurrentPageReport]="true"
-                  [value]="elRow.salesLines"
-                  currentPageReportTemplate="Affichage de {first} à {last} sur {totalRecords} produits"
-                  dataKey="id"
-                  selectionMode="single"
-                  styleClass="p-datatable-striped rowexpansion-table"
-                >
-                  <ng-template #header>
-                    <tr>
-                      <th style="width: 5%">#</th>
-                      <th style="width: 10%">CODE</th>
-                      <th style="width: 44%">LIBELLE</th>
-                      <th style="width: 8%">QTE.D</th>
-                      <th style="width: 8%">QTE.S</th>
-                      <th style="width: 9%">PU</th>
-                      <th style="width: 10%">TOTAL</th>
-                    </tr>
+          <td colspan="10">
+            <div class="p-3  expanded-content pharma-smart">
+              @if (elRow.categorie === 'VNO') {
+                <p-card>
+                  <ng-template #title>
+                    <div class="card-title primary-title">
+                      <i class="pi pi-cog mr-2"></i>
+                      Liste des produits
+                    </div>
                   </ng-template>
-                  <ng-template let-rowIndex="rowIndex" let-saleLine #body>
-                    <tr
-                      [ngClass]="{ 'table-danger': saleLine.quantitySold < saleLine.quantityRequested }">
-                      <td style="text-align: left">{{ rowIndex + 1 }}</td>
-                      <td>{{ saleLine.code }}</td>
-                      <td>{{ saleLine.produitLibelle }}</td>
-                      <td class="text-right">{{ saleLine.quantityRequested | number }}</td>
-                      <td class="text-right">{{ saleLine.quantitySold | number }}</td>
-                      <td class="text-right">{{ saleLine.regularUnitPrice | number }}</td>
-                      <td
-                        style="text-align: right; font-weight: bold">{{ saleLine.salesAmount | number }}
-                      </td>
-                    </tr>
-                  </ng-template>
-                </p-table>
+                  <p-table
+                    [paginator]="true"
+                    [rowsPerPageOptions]="[10, 15, 20, 30, 50]"
+                    [rows]="10"
+                    [showCurrentPageReport]="true"
+                    [value]="elRow.salesLines"
+                    currentPageReportTemplate="Affichage de {first} à {last} sur {totalRecords} produits"
+                    dataKey="id"
+                    selectionMode="single"
+                    styleClass="p-datatable-striped rowexpansion-table"
+                  >
+                    <ng-template #header>
+                      <tr>
+                        <th style="width: 5%">#</th>
+                        <th style="width: 10%">CODE</th>
+                        <th style="width: 44%">LIBELLE</th>
+                        <th style="width: 8%">QTE.D</th>
+                        <th style="width: 8%">QTE.S</th>
+                        <th style="width: 9%">PU</th>
+                        <th style="width: 10%">TOTAL</th>
+                      </tr>
+                    </ng-template>
+                    <ng-template let-rowIndex="rowIndex" let-saleLine #body>
+                      <tr
+                        [ngClass]="{ 'table-danger': saleLine.quantitySold < saleLine.quantityRequested }">
+                        <td style="text-align: left">{{ rowIndex + 1 }}</td>
+                        <td>{{ saleLine.code }}</td>
+                        <td>{{ saleLine.produitLibelle }}</td>
+                        <td class="text-right">{{ saleLine.quantityRequested | number }}</td>
+                        <td class="text-right">{{ saleLine.quantitySold | number }}</td>
+                        <td class="text-right">{{ saleLine.regularUnitPrice | number }}</td>
+                        <td
+                          style="text-align: right; font-weight: bold">{{ saleLine.salesAmount | number }}
+                        </td>
+                      </tr>
+                    </ng-template>
+                  </p-table>
 
-              </p-card>
-            } @else {
-              <div class="row">
-                <div class="col-6 vo-item">
-                  <p-card>
-                    <div class="card-header bg-info text-white">LISTES DES PRODUITS</div>
-                    <p-table
-                      [paginator]="true"
-                      [rowsPerPageOptions]="[10, 15, 20, 30, 50]"
-                      [rows]="10"
-                      [showCurrentPageReport]="true"
-                      [value]="elRow.salesLines"
-                      currentPageReportTemplate="Affichage de {first} à {last} sur {totalRecords} produits"
-                      dataKey="id"
-                      selectionMode="single"
-                      styleClass="p-datatable-striped rowexpansion-table"
-                    >
-                      <ng-template #header>
-                        <tr>
-                          <th style="width: 3%">#</th>
-                          <th style="width: 12%">CODE</th>
-                          <th style="width: 42%">LIBELLE</th>
-                          <th style="width: 9%">QTE.D</th>
-                          <th style="width: 9%">QTE.S</th>
-                          <th style="width: 9%">PU</th>
-                          <th style="width: 10%">TOTAL</th>
-                        </tr>
+                </p-card>
+              } @else {
+                <div class="row">
+                  <div class="mb-3 col-md-12 col-sm-12 col-lg-12 col-xl-5 col-xxl-6">
+                    <p-card>
+                      <ng-template #title>
+                        <div class="card-title primary-title">
+                          <i class="pi pi-info-circle mr-2"></i>
+                          Informations Générales
+                        </div>
                       </ng-template>
-                      <ng-template let-rowIndex="rowIndex" let-saleLine #body>
-                        <tr
-                          [ngClass]="{ 'table-danger': saleLine.quantitySold < saleLine.quantityRequested }">
-                          <td style="text-align: left">{{ rowIndex + 1 }}</td>
-                          <td>{{ saleLine.code }}</td>
-                          <td>{{ saleLine.produitLibelle }}</td>
-                          <td class="text-right">{{ saleLine.quantityRequested | number }}</td>
-                          <td class="text-right">{{ saleLine.quantitySold | number }}</td>
-                          <td class="text-right">{{ saleLine.regularUnitPrice | number }}</td>
-                          <td
-                            style="text-align: right; font-weight: bold">{{ saleLine.salesAmount | number }}
-                          </td>
-                        </tr>
+                      <div class="grid">
+                        <div class="col-12">
+                          <div class="field">
+                            <label>MONTANT TTC</label>
+                            <span>{{ elRow?.salesAmount | number }}</span>
+                          </div>
+
+                          <div class="field">
+                            <label>MONTANT HT</label>
+                            <span>{{ elRow?.htAmount | number }}</span>
+                          </div>
+
+                          <div class="field">
+                            <label>MONTANT TAXE</label>
+                            <span>{{ elRow?.taxAmount | number }}</span>
+                          </div>
+                          <div class="field">
+                            <label>MONTANT ASSURE</label>
+                            <span>{{ elRow?.partAssure | number }}</span>
+                          </div>
+                          <div class="field">
+                            <label>MONTANT ASSURANCE</label>
+                            <span>{{ elRow?.partTiersPayant | number }}</span>
+                          </div>
+                          @if (elRow?.discountAmount > 0) {
+                            <div class="field">
+                              <label>REMISE</label>
+                              <span>{{ elRow?.discountAmount | number }}</span>
+                            </div>
+                          }
+
+
+                          <div class="field">
+                            <label>RESTE A PAYER</label>
+                            <span>{{ elRow?.restToPay | number }}</span>
+                          </div>
+
+                          @for (tp of elRow?.thirdPartySaleLines; track tp) {
+                            <div class="field">
+                              <label>{{ tp?.tiersPayantFullName }}</label>
+                              <span>{{ tp?.taux + '%' }}</span>
+                            </div>
+                            <div class="field">
+                              <label>MONTANT {{ tp?.tiersPayantFullName }}</label>
+                              <span>{{ tp?.montant | number }}</span>
+                            </div>
+
+                          }
+                          @for (payment of elRow?.payments; track payment) {
+                            <div class="field">
+                              <label> {{ payment?.paymentMode?.libelle }}</label>
+                              <span>{{ payment?.paidAmount | number }}</span>
+                            </div>
+
+                          }
+
+
+                        </div>
+                      </div>
+
+                    </p-card>
+                  </div>
+                  <div class="col-md-12 col-sm-12 col-lg-12 col-xl-7 col-xxl-6">
+                    <p-card>
+                      <ng-template #title>
+                        <div class="card-title info-title">
+                          <i class="pi pi-cog mr-2"></i>
+                          Liste des produits
+                        </div>
                       </ng-template>
-                    </p-table>
-                  </p-card>
-                </div>
+                      <p-table
+                        [paginator]="true"
+                        [rowsPerPageOptions]="[10, 15, 20, 30, 50]"
+                        [rows]="10"
+                        [showCurrentPageReport]="true"
+                        [value]="elRow.salesLines"
+                        currentPageReportTemplate="Affichage de {first} à {last} sur {totalRecords} produits"
+                        dataKey="id"
+                        selectionMode="single"
 
-                <div class="col-6 vo-item">
-                  <p-card>
-                    <div class="card-header bg-warning text-white">INFOS COMPLEMENTAIRES</div>
-                    <table class="table table-bordered">
-                      <tbody>
-                      <tr>
-                        <td class="firstColumn">MONTANT ASSURE</td>
-                        <td class="secondColumn">{{ elRow?.partAssure | number }}</td>
-
-                        <td class="firstColumn">MONTANT ASSURANCE</td>
-                        <td class="secondColumn">{{ elRow?.partTiersPayant | number }}</td>
-                      </tr>
-
-                      <tr>
-                        <td class="firstColumn">MONTANT TTC</td>
-                        <td class="secondColumn">{{ elRow?.salesAmount }}</td>
-                        <td class="firstColumn">MONTANT HT</td>
-                        <td class="secondColumn">{{ elRow?.htAmount | number }}</td>
-                      </tr>
-
-                      <tr>
-                        <td class="firstColumn">MONTANT TAXE</td>
-                        <td class="secondColumn">{{ elRow?.taxAmount | number }}</td>
-                        <td class="firstColumn">REMISE</td>
-                        <td class="secondColumn">{{ elRow?.discountAmount | number }}</td>
-                      </tr>
-                      <tr>
-                        <td class="firstColumn">MONTANT A PAYER</td>
-                        <td class="secondColumn">{{ elRow?.amountToBePaid | number }}</td>
-                        <td class="firstColumn">RESTE A PAYER</td>
-                        <td class="secondColumn">{{ elRow?.restToPay }}</td>
-                      </tr>
-                        @for (tp of elRow?.thirdPartySaleLines; track tp; let i = $index) {
+                      >
+                        <ng-template #header>
                           <tr>
-                            <td class="firstColumn">
-                              {{ tp?.tiersPayantFullName }}
-                            </td>
-                            <td class="secondColumn">{{ tp?.taux + '%' }}</td>
-                            <td class="firstColumn">MONTANT</td>
-                            <td class="secondColumn">{{ tp?.montant | number }}</td>
+                            <th style="width: 3%">#</th>
+                            <th style="width: 12%">CODE</th>
+                            <th style="width: 42%">LIBELLE</th>
+                            <th style="width: 9%">QTE.D</th>
+                            <th style="width: 9%">QTE.S</th>
+                            <th style="width: 9%">PU</th>
+                            <th style="width: 10%">TOTAL</th>
                           </tr>
-                        }
-                        @for (payment of elRow?.payments; track payment; let i = $index) {
-                          <tr>
-                            <td class="firstColumn" colspan="3">
-                              {{ payment?.paymentMode?.libelle }}
+                        </ng-template>
+                        <ng-template let-rowIndex="rowIndex" let-saleLine #body>
+                          <tr
+                            [ngClass]="{ 'table-danger': saleLine.quantitySold < saleLine.quantityRequested }">
+                            <td style="text-align: left">{{ rowIndex + 1 }}</td>
+                            <td>{{ saleLine.code }}</td>
+                            <td>{{ saleLine.produitLibelle }}</td>
+                            <td class="text-right">{{ saleLine.quantityRequested | number }}</td>
+                            <td class="text-right">{{ saleLine.quantitySold | number }}</td>
+                            <td class="text-right">{{ saleLine.regularUnitPrice | number }}</td>
+                            <td
+                              style="text-align: right; font-weight: bold">{{ saleLine.salesAmount | number }}
                             </td>
-                            <td class="secondColumn">{{ payment?.paidAmount | number }}</td>
                           </tr>
-                        }
-                      </tbody>
-                    </table>
-                  </p-card>
+                        </ng-template>
+                      </p-table>
+                    </p-card>
+                  </div>
+
+
                 </div>
-              </div>
-            }
+              }
+            </div>
+
           </td>
         </tr>
       </ng-template>

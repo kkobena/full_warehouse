@@ -9,9 +9,15 @@
 </p-drawer>
 <div class="container-fluid">
   <div class="row ">
-    <div class="col-lg-2 col-xl-2 col-md-2 col-sm-4">
+    <div class="col-lg-2 col-xl-2 col-md-2 col-xxl-2 col-sm-4 pharma-smart">
 
-      <p-card header="Sélectionner le type de vente">
+      <p-card>
+        <ng-template #title>
+          <div class="card-title secondary-title">
+            <i class="pi pi-cog mr-2"></i>
+            Les types de vente
+          </div>
+        </ng-template>
         <div
           #nav="ngbNav"
           (navChange)="onNavChange($event)"
@@ -52,7 +58,7 @@
 
 
     </div>
-    <div class="col-lg-10 col-xl-10   col-md-10 col-sm-8 ">
+    <div class="pharma-smart-content pt-1 pb-3 col-lg-10 col-xl-10 col-xxl-10  col-md-10 col-sm-8 ">
       <p-toolbar styleClass="mb-1">
         <div [style]="{ width: '100%'}" class="row ">
           <div class="col-3 ">
@@ -158,7 +164,7 @@
           </div>
         </div>
       </p-toolbar>
-      <div [ngbNavOutlet]="nav" class="row"></div>
+      <div [ngbNavOutlet]="nav" ></div>
 
     </div>
   </div>

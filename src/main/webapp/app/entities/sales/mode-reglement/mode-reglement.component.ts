@@ -35,6 +35,24 @@ import { Card } from 'primeng/card';
     Card,
   ],
   templateUrl: './mode-reglement.component.html',
+  styles: [
+    `
+      :host ::ng-deep .p-card .p-card-title .card-title {
+        color: #ffffff;
+        padding: 0.5rem;
+        margin: -1.25rem -1.25rem 1.25rem -1.25rem;
+        border-top-left-radius: var(--border-radius);
+        border-top-right-radius: var(--border-radius);
+      }
+
+      .card-title {
+        font-size: 1.2rem;
+        font-weight: 600;
+        display: flex;
+        align-items: center;
+      }
+    `
+  ]
 })
 export class ModeReglementComponent implements OnInit {
   readonly paymentModeControlEvent = output<PaymentModeControl>();
@@ -215,7 +233,7 @@ export class ModeReglementComponent implements OnInit {
   }
 
   getInputSum(): number {
-    return this.selectModeReglementService.modeReglements().reduce((sum, mode) => sum + (mode.amount || 0), 0);
+    return this.selectModeReglementService.modeReglements()?.reduce((sum, mode) => sum + (mode.amount || 0), 0);
   }
 
   onSansBonChange(evt: any): void {

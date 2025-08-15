@@ -1,42 +1,48 @@
 @if (currentSaleService.currentSale()) {
-  <li class="list-group-item">
-    <span class="h6">Total</span>
-    <span class="float-right sale-amount text-success">{{ currentSaleService.currentSale().salesAmount | number }} </span>
-  </li>
+  <div class="field">
+    <label>Total</label>
+    <span class="sale-amount text-success ">{{ currentSaleService.currentSale().salesAmount | number }}</span>
+  </div>
+
   @if (currentSaleService.currentSale().taxAmount! > 0) {
-    <li class="list-group-item">
-      <span class="h6">Tva</span><span class="float-right sale-amount">{{ currentSaleService.currentSale().taxAmount! | number }} </span>
-    </li>
+
+    <div class="field">
+      <label>Tva</label>
+      <span class="sale-amount ">{{ currentSaleService.currentSale().taxAmount | number }}</span>
+    </div>
   }
   @if (currentSaleService.currentSale().discountAmount! > 0) {
-    <li class="list-group-item">
-      <span class="h6">Remise</span
-      ><span class="float-right sale-amount">{{ currentSaleService.currentSale().discountAmount | number }} </span>
-    </li>
+    <div class="field">
+      <label>Remise</label>
+      <span class="sale-amount ">{{ currentSaleService.currentSale().discountAmount | number }}</span>
+    </div>
   }
   @if (currentSaleService.currentSale()?.natureVente !== 'COMPTANT') {
-    <li class="list-group-item">
-      <span class="h6">Part assurance</span
-      ><span class="float-right sale-amount text-danger">{{ currentSaleService.currentSale().partTiersPayant | number }} </span>
-    </li>
+    <div class="field">
+      <label>Part assurance</label>
+      <span class="sale-amount ">{{ currentSaleService.currentSale().partTiersPayant | number }}</span>
+    </div>
   }
 
-  <li class="list-group-item">
-    <span class="h6">Montant à payer</span
-    ><span class="float-right sale-amount text-danger">{{ currentSaleService.currentSale().amountToBePaid | number }} </span>
-  </li>
+
+  <div class="field">
+    <label>Montant à payer</label>
+    <span class="sale-amount text-danger">{{ currentSaleService.currentSale().amountToBePaid | number }}</span>
+  </div>
 }
 
 @if (currentSaleService.currentSale()) {
   @if (currentSaleService.currentSale().amountToBePaid! > 0) {
-    <li class="list-group-item">
-      <span class="h6">Monnaie</span><span class="float-right sale-amount text-info">{{ monnaie | number }} </span>
-    </li>
+
+    <div class="field">
+      <label>Monnaie</label>
+      <span class="sale-amount text-info">{{ monnaie | number }}</span>
+    </div>
   }
 }
 @if (this.lastCurrencyGivenService.lastCurrency() > 0) {
-  <li class="list-group-item">
-    <span class="h6">Dernière monnaie</span
-    ><span class="float-right sale-amount text-secondary">{{ this.lastCurrencyGivenService.lastCurrency() | number }} </span>
-  </li>
+  <div class="field">
+    <label>Dernière monnaie</label>
+    <span class="sale-amount text-danger">{{ lastCurrencyGivenService.lastCurrency() | number }}</span>
+  </div>
 }

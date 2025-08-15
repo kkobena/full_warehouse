@@ -16,23 +16,25 @@
 
     <div class=" col-lg-3 col-sm-12 col-md-12 col-xl-3 mb-1 sale-montant-block">
       <p-card>
-        <ul class="list-group mt-1">
-          <jhi-amount-computing #amountComputing
-                                [entryAmount]="entryAmount"></jhi-amount-computing>
+        <div class="grid">
+          <div class="col-12">
+            <jhi-amount-computing #amountComputing
+                                  [entryAmount]="entryAmount"></jhi-amount-computing>
+          </div>
+          <div class="col-12 d-flex justify-content-center">
+              <p-button class="mr-1"  [raised]="true" (click)="save()" icon="pi pi-check" label="Terminer"
+                         severity="success"></p-button>
+              <p-button
+                [raised]="true"
+                (click)="putCurrentSaleOnStandBy()"
+                icon="pi pi-times"
+                label="En attente"
+                severity="secondary"
+              ></p-button>
 
-          <li class="list-group-item">
-            <p-button [raised]="true" (click)="save()" icon="pi pi-check" label="Terminer"
-                      severity="success"></p-button>
+          </div>
+        </div>
 
-            <p-button
-              [raised]="true"
-              (click)="putCurrentSaleOnStandBy()"
-              icon="pi pi-times"
-              label="En attente"
-              severity="secondary"
-            ></p-button>
-          </li>
-        </ul>
       </p-card>
     </div>
   </div>

@@ -1,4 +1,4 @@
-import { Component, inject, OnInit } from '@angular/core';
+import { Component, inject, OnInit, viewChild } from '@angular/core';
 import { ConfirmationService } from 'primeng/api';
 import { ISales } from '../../../shared/model/sales.model';
 import { SalesService } from '../sales.service';
@@ -15,15 +15,16 @@ import { acceptButtonProps, rejectButtonProps } from '../../../shared/util/modal
 import { Select } from 'primeng/select';
 import { IconField } from 'primeng/iconfield';
 import { InputIcon } from 'primeng/inputicon';
+import { ConfirmDialogComponent } from '../../../shared/dialog/confirm-dialog/confirm-dialog.component';
+import { Card } from 'primeng/card';
 
 @Component({
   selector: 'jhi-vente-en-cours',
   templateUrl: './vente-en-cours.component.html',
-  providers: [ConfirmationService],
+  styleUrls: ['../sales.component.scss'],
   imports: [
     WarehouseCommonModule,
     RouterModule,
-    ConfirmDialogModule,
     FormsModule,
     TooltipModule,
     ButtonModule,
@@ -33,16 +34,17 @@ import { InputIcon } from 'primeng/inputicon';
     Select,
     IconField,
     InputIcon,
-  ],
+    ConfirmDialogComponent,
+    Card
+  ]
 })
 export class VenteEnCoursComponent implements OnInit {
   typeVentes: string[] = ['TOUT', 'VNO', 'VO'];
   typeVenteSelected = '';
   sales: ISales[] = [];
   search = '';
-  protected salesService = inject(SalesService);
-  protected confirmationService = inject(ConfirmationService);
-
+  private readonly  salesService = inject(SalesService);
+  private readonly confimDialog = viewChild.required<ConfirmDialogComponent>('confirmDialog');
   ngOnInit(): void {
     this.typeVenteSelected = 'TOUT';
     this.loadPreventes();
@@ -74,14 +76,6 @@ export class VenteEnCoursComponent implements OnInit {
   }
 
   confirmRemove(sale: ISales): void {
-    this.confirmationService.confirm({
-      message: 'Voulez-vous vraiment supprimer cette pré-vente ?',
-      header: 'SUPPRESSION DE PRE-VENTE',
-      icon: 'pi pi-info-circle',
-      rejectButtonProps: rejectButtonProps(),
-      acceptButtonProps: acceptButtonProps(),
-      accept: () => this.deletePrevente(sale),
-      key: 'deletePrevente',
-    });
+    this.confimDialog().onConfirm(() => this.deletePrevente(sale), 'Suppression de pré-vente', 'Voulez-vous supprimer cette pré-vente ?');
   }
 }

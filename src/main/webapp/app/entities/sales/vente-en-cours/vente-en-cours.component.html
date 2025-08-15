@@ -1,4 +1,5 @@
-<p-confirmDialog [baseZIndex]="10000" [style]="{ width: '40vw' }" key="deletePrevente"></p-confirmDialog>
+
+
 <div class="container-fluid">
   <p-toolbar>
     <ng-template #start>
@@ -49,10 +50,8 @@
     [value]="sales"
     currentPageReportTemplate="Affichage de {first} à {last} sur {totalRecords} ventes"
     dataKey="id"
-    selectionMode="single"
-    styleClass="p-datatable-gridlines mt-2"
   >
-    <ng-template pTemplate="header">
+    <ng-template #header>
       <tr>
         <th style="width: 3%"></th>
         <th style="width: 6%">Type</th>
@@ -118,10 +117,15 @@
     </ng-template>
     <ng-template #expandedrow let-elRow>
       <tr>
-        <td colspan="8">
-          <div class="card">
-            <div class="card-header bg-info text-white">LISTES DES PRODUITS</div>
-            <div class="card-body">
+        <td colspan="9">
+          <div class="p-3  expanded-content pharma-smart">
+            <p-card>
+              <ng-template #title>
+                <div class="card-title primary-title">
+                  <i class="pi pi-cog mr-2"></i>
+                  Liste des produits
+                </div>
+              </ng-template>
               <p-table
                 [paginator]="true"
                 [rowsPerPageOptions]="[10, 15, 20, 30, 50]"
@@ -155,10 +159,12 @@
                   </tr>
                 </ng-template>
               </p-table>
-            </div>
+            </p-card>
+
           </div>
         </td>
       </tr>
     </ng-template>
   </p-table>
 </div>
+<jhi-confirm-dialog #confirmDialog></jhi-confirm-dialog>

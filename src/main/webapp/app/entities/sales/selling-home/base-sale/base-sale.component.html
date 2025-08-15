@@ -1,7 +1,7 @@
-<p-divider></p-divider>
+
 @if (currentSaleService.currentSale()) {
   <div class="row">
-    <div class=" col-lg-9 col-sm-12 col-md-12 col-xl-9 sale-products-table mb-1">
+      <div class=" col-lg-9 col-sm-12 col-md-12 col-xl-9 sale-products-table mb-1">
       <p-card>
         <jhi-product-table
           (deleteItemEvent)="confirmDeleteItem($event)"
@@ -16,13 +16,14 @@
 
     <div class=" col-lg-3 col-sm-12 col-md-12 col-xl-3 mb-1 sale-montant-block">
       <p-card>
-        <ul class="list-group mt-1">
-          <jhi-amount-computing #amountComputing [entryAmount]="entryAmount"></jhi-amount-computing>
-
-          <li class="list-group-item">
-            <p-button [raised]="true" (click)="onCompleteSale()" icon="pi pi-check" label="Terminer"
+        <div class="grid">
+          <div class="col-12">
+            <jhi-amount-computing #amountComputing
+                                  [entryAmount]="entryAmount"></jhi-amount-computing>
+          </div>
+          <div class="col-12 d-flex justify-content-center">
+            <p-button class="mr-1"  [raised]="true" (click)="save()" icon="pi pi-check" label="Terminer"
                       severity="success"></p-button>
-
             <p-button
               [raised]="true"
               (click)="putCurrentSaleOnStandBy()"
@@ -30,8 +31,9 @@
               label="En attente"
               severity="secondary"
             ></p-button>
-          </li>
-        </ul>
+
+          </div>
+        </div>
       </p-card>
     </div>
   </div>

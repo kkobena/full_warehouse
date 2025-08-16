@@ -26,7 +26,7 @@ import {
   faHome,
   faHospitalUser,
   faList,
-  faLock,
+  faLock, faPalette,
   faPause,
   faPencilAlt,
   faPlus,
@@ -50,8 +50,9 @@ import {
   faUserPlus,
   faUsers,
   faUserTimes,
-  faWrench,
+  faWrench
 } from '@fortawesome/free-solid-svg-icons';
+
 
 export const fontAwesomeIcons = [
   faUser,
@@ -107,4 +108,5 @@ export const fontAwesomeIcons = [
   faPause,
   faCopy,
   faSackDollar,
+  faPalette
 ];

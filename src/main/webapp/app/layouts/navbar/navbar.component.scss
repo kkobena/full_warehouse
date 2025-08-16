@@ -47,3 +47,10 @@ Logo styles
   background: url('/content/images/logo.png') no-repeat center center;
   background-size: contain;
 }
+
+:host {
+  display: block;
+  position: sticky;
+  top: 0;
+  z-index: 1020;
+}

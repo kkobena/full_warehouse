@@ -8,6 +8,8 @@ import { ApplicationConfigService } from 'app/core/config/application-config.ser
 import { fontAwesomeIcons } from './config/font-awesome-icons';
 import MainComponent from './layouts/main/main.component';
 
+import { ThemeService } from 'app/core/theme/theme.service';
+
 @Component({
   selector: 'jhi-app',
   template: '<jhi-main></jhi-main>',
@@ -17,11 +19,13 @@ export default class AppComponent {
   private readonly applicationConfigService = inject(ApplicationConfigService);
   private readonly iconLibrary = inject(FaIconLibrary);
   private readonly dpConfig = inject(NgbDatepickerConfig);
+  private readonly themeService = inject(ThemeService);
 
   constructor() {
     this.applicationConfigService.setEndpointPrefix(SERVER_API_URL);
     registerLocaleData(locale);
     this.iconLibrary.addIcons(...fontAwesomeIcons);
     this.dpConfig.minDate = { year: dayjs().subtract(100, 'year').year(), month: 1, day: 1 };
+    this.themeService.loadCurrentTheme();
   }
 }

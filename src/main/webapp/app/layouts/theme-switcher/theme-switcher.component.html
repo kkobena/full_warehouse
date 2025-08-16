@@ -1,0 +1,26 @@
+<div ngbDropdown class="nav-item dropdown pointer">
+  <a
+    ngbDropdownToggle
+    class="nav-link dropdown-toggle"
+    href="javascript:void(0);"
+    id="theme-menu"
+  >
+    <span>
+      <fa-icon [icon]="faPalette"></fa-icon>
+      <span>Theme</span>
+    </span>
+  </a>
+  <div ngbDropdownMenu aria-labelledby="theme-menu" class="dropdown-menu">
+
+    @for (theme of themes; track theme.name){
+      <button
+        (click)="changeTheme(theme.name)"
+        class="dropdown-item"
+        [class.active]="selectedTheme === theme.name"
+      >
+        {{ theme.name }}
+      </button>
+    }
+
+  </div>
+</div>

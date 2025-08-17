@@ -5,6 +5,7 @@ import com.kobe.warehouse.service.dto.SaleDTO;
 import com.kobe.warehouse.service.report.SaleReceiptService;
 import com.kobe.warehouse.service.sale.SaleDataService;
 import com.kobe.warehouse.web.rest.Utils;
+import com.kobe.warehouse.web.util.PaginationUtil;
 import jakarta.servlet.http.HttpServletRequest;
 import java.io.IOException;
 import java.time.LocalDate;
@@ -24,7 +25,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
-import tech.jhipster.web.util.PaginationUtil;
 
 @RestController
 @RequestMapping("/api")
@@ -36,7 +36,7 @@ public class SalesDataResource {
     private final ReceiptPrinterService receiptPrinterService;
     private final SaleReceiptService saleReceiptService;
 
-    @Value("${jhipster.clientApp.name}")
+    @Value("${pharma-smart.clientApp.name}")
     private String applicationName;
 
     public SalesDataResource(

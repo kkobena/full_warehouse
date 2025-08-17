@@ -1,6 +1,5 @@
 package com.kobe.warehouse.domain;
 
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.kobe.warehouse.domain.enumeration.CategorieChiffreAffaire;
 import com.kobe.warehouse.domain.enumeration.TypeFinancialTransaction;
 import jakarta.persistence.Column;
@@ -15,6 +14,7 @@ import jakarta.persistence.Id;
 import jakarta.persistence.Index;
 import jakarta.persistence.Inheritance;
 import jakarta.persistence.InheritanceType;
+import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 import jakarta.validation.constraints.NotNull;
@@ -59,11 +59,12 @@ public class PaymentTransaction implements Serializable {
     private LocalDateTime createdAt = LocalDateTime.now();
 
     @ManyToOne(optional = false)
-    @JsonIgnoreProperties(value = "payments", allowSetters = true)
+    @JoinColumn(name = "payment_mode_code", referencedColumnName = "code")
     private PaymentMode paymentMode;
 
     @NotNull
     @ManyToOne(optional = false)
+    @JoinColumn(name = "cash_register_id", referencedColumnName = "id")
     private CashRegister cashRegister;
 
     @NotNull

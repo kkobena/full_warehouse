@@ -1,5 +1,6 @@
 package com.kobe.warehouse.service;
 
+import com.kobe.warehouse.config.LogProperties;
 import com.kobe.warehouse.config.audit.AuditEventConverter;
 import com.kobe.warehouse.repository.PersistenceAuditEventRepository;
 import java.time.Instant;
@@ -13,7 +14,6 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import tech.jhipster.config.JHipsterProperties;
 
 /**
  * Service for managing audit events.
@@ -26,7 +26,7 @@ public class AuditEventService {
 
     private final Logger log = LoggerFactory.getLogger(AuditEventService.class);
 
-    private final JHipsterProperties jHipsterProperties;
+    private final LogProperties logProperties;
 
     private final PersistenceAuditEventRepository persistenceAuditEventRepository;
 
@@ -35,11 +35,11 @@ public class AuditEventService {
     public AuditEventService(
         PersistenceAuditEventRepository persistenceAuditEventRepository,
         AuditEventConverter auditEventConverter,
-        JHipsterProperties jhipsterProperties
+        LogProperties logProperties
     ) {
         this.persistenceAuditEventRepository = persistenceAuditEventRepository;
         this.auditEventConverter = auditEventConverter;
-        this.jHipsterProperties = jhipsterProperties;
+        this.logProperties = logProperties;
     }
 
     /**
@@ -50,7 +50,7 @@ public class AuditEventService {
     @Scheduled(cron = "0 0 12 * * ?")
     public void removeOldAuditEvents() {
         persistenceAuditEventRepository
-            .findByAuditEventDateBefore(Instant.now().minus(jHipsterProperties.getAuditEvents().getRetentionPeriod(), ChronoUnit.DAYS))
+            .findByAuditEventDateBefore(Instant.now().minus(logProperties.getAuditEvents().getRetentionPeriod(), ChronoUnit.DAYS))
             .forEach(auditEvent -> {
                 log.debug("Deleting audit data {}", auditEvent);
                 persistenceAuditEventRepository.delete(auditEvent);

@@ -8,6 +8,7 @@ import com.kobe.warehouse.service.errors.InvalidPasswordException;
 import com.kobe.warehouse.service.utils.AfficheurPosService;
 import com.kobe.warehouse.web.rest.proxy.AccountResourcesProxy;
 import com.kobe.warehouse.web.rest.vm.KeyAndPasswordVM;
+import com.kobe.warehouse.web.util.ResponseUtil;
 import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -15,7 +16,6 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
-import tech.jhipster.web.util.ResponseUtil;
 
 /**
  * REST controller for managing the current user's account.

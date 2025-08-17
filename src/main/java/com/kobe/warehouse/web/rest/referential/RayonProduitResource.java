@@ -3,6 +3,7 @@ package com.kobe.warehouse.web.rest.referential;
 import com.kobe.warehouse.service.RayonProduitService;
 import com.kobe.warehouse.service.dto.RayonProduitDTO;
 import com.kobe.warehouse.service.errors.BadRequestAlertException;
+import com.kobe.warehouse.web.util.HeaderUtil;
 import jakarta.validation.Valid;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -14,7 +15,6 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
-import tech.jhipster.web.util.HeaderUtil;
 
 @RestController
 @RequestMapping("/api")
@@ -24,7 +24,7 @@ public class RayonProduitResource {
     private final Logger log = LoggerFactory.getLogger(RayonProduitResource.class);
     private final RayonProduitService rayonProduitService;
 
-    @Value("${jhipster.clientApp.name}")
+    @Value("${pharma-smart.clientApp.name}")
     private String applicationName;
 
     public RayonProduitResource(RayonProduitService rayonProduitService) {

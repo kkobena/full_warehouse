@@ -5,6 +5,8 @@ import com.kobe.warehouse.domain.Menu;
 import com.kobe.warehouse.repository.MenuRepository;
 import com.kobe.warehouse.service.UserService;
 import com.kobe.warehouse.service.errors.BadRequestAlertException;
+import com.kobe.warehouse.web.util.HeaderUtil;
+import com.kobe.warehouse.web.util.ResponseUtil;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.List;
@@ -15,8 +17,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.ResponseEntity;
-import tech.jhipster.web.util.HeaderUtil;
-import tech.jhipster.web.util.ResponseUtil;
 
 public class MenuResourceProxy {
 
@@ -25,7 +25,7 @@ public class MenuResourceProxy {
     private final MenuRepository menuRepository;
     private final UserService userService;
 
-    @Value("${jhipster.clientApp.name}")
+    @Value("${pharma-smart.clientApp.name}")
     private String applicationName;
 
     public MenuResourceProxy(MenuRepository menuRepository, UserService userService) {

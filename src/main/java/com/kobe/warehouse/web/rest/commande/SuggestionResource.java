@@ -7,6 +7,8 @@ import com.kobe.warehouse.service.dto.SuggestionProjection;
 import com.kobe.warehouse.service.dto.records.Keys;
 import com.kobe.warehouse.service.stock.SuggestionProduitService;
 import com.kobe.warehouse.web.rest.Utils;
+import com.kobe.warehouse.web.util.PaginationUtil;
+import com.kobe.warehouse.web.util.ResponseUtil;
 import jakarta.servlet.http.HttpServletRequest;
 import java.io.IOException;
 import java.util.List;
@@ -17,8 +19,6 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
-import tech.jhipster.web.util.PaginationUtil;
-import tech.jhipster.web.util.ResponseUtil;
 
 @RestController
 @RequestMapping("/api/suggestions")

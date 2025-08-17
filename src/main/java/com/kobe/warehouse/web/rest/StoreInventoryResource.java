@@ -6,6 +6,9 @@ import com.kobe.warehouse.service.dto.filter.StoreInventoryExportRecord;
 import com.kobe.warehouse.service.dto.filter.StoreInventoryFilterRecord;
 import com.kobe.warehouse.service.dto.records.ItemsCountRecord;
 import com.kobe.warehouse.service.dto.records.StoreInventoryRecord;
+import com.kobe.warehouse.web.util.HeaderUtil;
+import com.kobe.warehouse.web.util.PaginationUtil;
+import com.kobe.warehouse.web.util.ResponseUtil;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import java.net.MalformedURLException;
@@ -21,9 +24,6 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
-import tech.jhipster.web.util.HeaderUtil;
-import tech.jhipster.web.util.PaginationUtil;
-import tech.jhipster.web.util.ResponseUtil;
 
 /** REST controller for managing {@link com.kobe.warehouse.domain.StoreInventory}. */
 @RestController
@@ -34,7 +34,7 @@ public class StoreInventoryResource {
     private final Logger log = LoggerFactory.getLogger(StoreInventoryResource.class);
     private final InventaireService inventaireService;
 
-    @Value("${jhipster.clientApp.name}")
+    @Value("${pharma-smart.clientApp.name}")
     private String applicationName;
 
     public StoreInventoryResource(InventaireService inventaireService) {

@@ -4,6 +4,8 @@ import com.kobe.warehouse.service.dto.DeliveryReceiptDTO;
 import com.kobe.warehouse.service.dto.filter.DeliveryReceiptFilterDTO;
 import com.kobe.warehouse.service.stock.StockEntryDataService;
 import com.kobe.warehouse.web.rest.Utils;
+import com.kobe.warehouse.web.util.PaginationUtil;
+import com.kobe.warehouse.web.util.ResponseUtil;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import java.io.IOException;
@@ -20,8 +22,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
-import tech.jhipster.web.util.PaginationUtil;
-import tech.jhipster.web.util.ResponseUtil;
 
 @RestController
 @RequestMapping("/api")

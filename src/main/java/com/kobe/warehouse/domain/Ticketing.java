@@ -5,6 +5,7 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
 import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
 import jakarta.validation.constraints.NotNull;
@@ -44,6 +45,7 @@ public class Ticketing implements Serializable {
 
     @OneToOne(optional = false)
     @NotNull
+    @JoinColumn(name = "cash_register_id", referencedColumnName = "id")
     private CashRegister cashRegister;
 
     public Long getId() {

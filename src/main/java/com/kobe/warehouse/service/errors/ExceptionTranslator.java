@@ -2,6 +2,10 @@ package com.kobe.warehouse.service.errors;
 
 import static org.springframework.core.annotation.AnnotatedElementUtils.findMergedAnnotation;
 
+import com.kobe.warehouse.config.ConfigConstants;
+import com.kobe.warehouse.web.rest.errors.ProblemDetailWithCause;
+import com.kobe.warehouse.web.rest.errors.ProblemDetailWithCause.ProblemDetailWithCauseBuilder;
+import com.kobe.warehouse.web.util.HeaderUtil;
 import jakarta.servlet.http.HttpServletRequest;
 import java.net.URI;
 import java.util.Arrays;
@@ -31,10 +35,6 @@ import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.context.request.NativeWebRequest;
 import org.springframework.web.context.request.WebRequest;
 import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExceptionHandler;
-import tech.jhipster.config.JHipsterConstants;
-import tech.jhipster.web.rest.errors.ProblemDetailWithCause;
-import tech.jhipster.web.rest.errors.ProblemDetailWithCause.ProblemDetailWithCauseBuilder;
-import tech.jhipster.web.util.HeaderUtil;
 
 /**
  * Controller advice to translate the server side exceptions to client-friendly json structures. The
@@ -50,7 +50,7 @@ public class ExceptionTranslator extends ResponseEntityExceptionHandler {
     private static final boolean CASUAL_CHAIN_ENABLED = false;
     private final Environment env;
 
-    @Value("${jhipster.clientApp.name}")
+    @Value("${pharma-smart.clientApp.name}")
     private String applicationName;
 
     public ExceptionTranslator(Environment env) {
@@ -216,7 +216,7 @@ public class ExceptionTranslator extends ResponseEntityExceptionHandler {
 
     private String getCustomizedErrorDetails(Throwable err) {
         Collection<String> activeProfiles = Arrays.asList(env.getActiveProfiles());
-        if (activeProfiles.contains(JHipsterConstants.SPRING_PROFILE_PRODUCTION)) {
+        if (activeProfiles.contains(ConfigConstants.SPRING_PROFILE_PRODUCTION)) {
             if (err instanceof HttpMessageConversionException) {
                 return "Unable to convert http message";
             }

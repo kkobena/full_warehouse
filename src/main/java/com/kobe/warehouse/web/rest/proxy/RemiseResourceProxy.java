@@ -7,6 +7,7 @@ import com.kobe.warehouse.service.dto.RemiseProduitsDTO;
 import com.kobe.warehouse.service.dto.TypeRemise;
 import com.kobe.warehouse.service.errors.BadRequestAlertException;
 import com.kobe.warehouse.service.remise.RemiseService;
+import com.kobe.warehouse.web.util.ResponseUtil;
 import jakarta.validation.Valid;
 import java.net.URISyntaxException;
 import java.util.List;
@@ -19,7 +20,6 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestParam;
-import tech.jhipster.web.util.ResponseUtil;
 
 /**
  * REST controller for managing {@link com.kobe.warehouse.domain.Remise}.

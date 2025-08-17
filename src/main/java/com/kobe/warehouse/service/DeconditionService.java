@@ -8,21 +8,19 @@ import com.kobe.warehouse.domain.User;
 import com.kobe.warehouse.domain.enumeration.TransactionType;
 import com.kobe.warehouse.domain.enumeration.TypeDeconditionnement;
 import com.kobe.warehouse.repository.DeconditionRepository;
-import com.kobe.warehouse.repository.InventoryTransactionRepository;
 import com.kobe.warehouse.repository.ProduitRepository;
 import com.kobe.warehouse.repository.StockProduitRepository;
 import com.kobe.warehouse.service.dto.DeconditionDTO;
 import com.kobe.warehouse.service.errors.StockException;
 import com.kobe.warehouse.service.mvt_produit.service.InventoryTransactionService;
+import java.time.LocalDateTime;
+import java.util.Optional;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
-import java.time.LocalDateTime;
-import java.util.Optional;
 
 /**
  * Service Implementation for managing {@link Decondition}.
@@ -44,7 +42,8 @@ public class DeconditionService {
         ProduitRepository produitRepository,
         LogsService logsService,
         StockProduitRepository stockProduitRepository,
-        StorageService storageService, InventoryTransactionService inventoryTransactionService
+        StorageService storageService,
+        InventoryTransactionService inventoryTransactionService
     ) {
         this.deconditionRepository = deconditionRepository;
         this.produitRepository = produitRepository;
@@ -52,7 +51,6 @@ public class DeconditionService {
         this.stockProduitRepository = stockProduitRepository;
         this.storageService = storageService;
         this.inventoryTransactionService = inventoryTransactionService;
-
     }
 
     private Decondition createDecondition(
@@ -148,7 +146,6 @@ public class DeconditionService {
         }
     }
 
-
     /**
      * Get all the deconditions.
      *
@@ -156,9 +153,9 @@ public class DeconditionService {
      * @return the list of entities.
      */
     @Transactional(readOnly = true)
-    public Page<Decondition> findAll(Pageable pageable) {
+    public Page<DeconditionDTO> findAll(Pageable pageable) {
         log.debug("Request to get all Deconditions");
-        return deconditionRepository.findAll(pageable);
+        return deconditionRepository.findAll(pageable).map(DeconditionDTO::new);
     }
 
     /**

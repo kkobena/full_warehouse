@@ -7,6 +7,7 @@ import com.kobe.warehouse.service.dto.CommandeResponseDTO;
 import com.kobe.warehouse.service.dto.OrderLineDTO;
 import com.kobe.warehouse.service.dto.VerificationResponseCommandeDTO;
 import com.kobe.warehouse.service.stock.CommandService;
+import com.kobe.warehouse.web.util.HeaderUtil;
 import jakarta.validation.Valid;
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -22,7 +23,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestPart;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
-import tech.jhipster.web.util.HeaderUtil;
 
 /**
  * REST controller for managing {@link com.kobe.warehouse.domain.Commande}.
@@ -35,7 +35,7 @@ public class CommandeResource {
 
     private final CommandService commandService;
 
-    @Value("${jhipster.clientApp.name}")
+    @Value("${pharma-smart.clientApp.name}")
     private String applicationName;
 
     public CommandeResource(CommandService commandService) {

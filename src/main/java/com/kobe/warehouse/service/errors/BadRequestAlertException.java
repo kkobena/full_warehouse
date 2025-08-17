@@ -1,11 +1,11 @@
 package com.kobe.warehouse.service.errors;
 
+import com.kobe.warehouse.web.rest.errors.ProblemDetailWithCause;
+import com.kobe.warehouse.web.rest.errors.ProblemDetailWithCause.ProblemDetailWithCauseBuilder;
 import java.io.Serial;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.HttpStatusCode;
 import org.springframework.web.ErrorResponseException;
-import tech.jhipster.web.rest.errors.ProblemDetailWithCause;
-import tech.jhipster.web.rest.errors.ProblemDetailWithCause.ProblemDetailWithCauseBuilder;
 
 public class BadRequestAlertException extends ErrorResponseException {
 

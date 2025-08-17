@@ -2,6 +2,7 @@ package com.kobe.warehouse.web.rest.proxy;
 
 import com.kobe.warehouse.service.UserService;
 import com.kobe.warehouse.service.dto.UserDTO;
+import com.kobe.warehouse.web.util.PaginationUtil;
 import java.util.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -12,7 +13,6 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
-import tech.jhipster.web.util.PaginationUtil;
 
 public class PublicUserResourceProxy {
 

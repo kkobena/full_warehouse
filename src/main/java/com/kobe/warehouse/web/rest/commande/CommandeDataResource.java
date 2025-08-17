@@ -11,6 +11,8 @@ import com.kobe.warehouse.service.dto.Sort;
 import com.kobe.warehouse.service.dto.filter.CommandeFilterDTO;
 import com.kobe.warehouse.service.stock.CommandeDataService;
 import com.kobe.warehouse.web.rest.Utils;
+import com.kobe.warehouse.web.util.PaginationUtil;
+import com.kobe.warehouse.web.util.ResponseUtil;
 import jakarta.servlet.http.HttpServletRequest;
 import java.io.IOException;
 import java.util.List;
@@ -30,8 +32,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
-import tech.jhipster.web.util.PaginationUtil;
-import tech.jhipster.web.util.ResponseUtil;
 
 /** REST controller for managing {@link Commande}. */
 @RestController

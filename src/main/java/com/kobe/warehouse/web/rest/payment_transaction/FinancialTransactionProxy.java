@@ -12,6 +12,8 @@ import com.kobe.warehouse.service.financiel_transaction.FinancialTransactionServ
 import com.kobe.warehouse.service.financiel_transaction.dto.MvtCaisseDTO;
 import com.kobe.warehouse.service.financiel_transaction.dto.MvtCaisseWrapper;
 import com.kobe.warehouse.web.rest.Utils;
+import com.kobe.warehouse.web.util.PaginationUtil;
+import com.kobe.warehouse.web.util.ResponseUtil;
 import jakarta.servlet.http.HttpServletRequest;
 import java.io.IOException;
 import java.net.URISyntaxException;
@@ -28,8 +30,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
-import tech.jhipster.web.util.PaginationUtil;
-import tech.jhipster.web.util.ResponseUtil;
 
 public class FinancialTransactionProxy {
 

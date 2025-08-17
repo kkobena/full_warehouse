@@ -9,7 +9,6 @@ logging:
     org.hibernate.SQL: DEBUG
     org.hibernate.type.descriptor.sql.BasicBinder: DEBUG
     ROOT: DEBUG
-    tech.jhipster: OFF
     com.kobe.warehouse: DEBUG
     javax:
       management:
@@ -21,9 +20,6 @@ spring:
     add-properties: true
     restart:
       enabled: true
-
-
-
   servlet:
     multipart:
       max-file-size: 10MB
@@ -37,7 +33,7 @@ spring:
   datasource:
     driver-class-name: com.mysql.cj.jdbc.Driver
     type: com.zaxxer.hikari.HikariDataSource
-    url: jdbc:mysql://localhost:33010/warehouse?useLegacyDatetimeCode=false&serverTimezone=${user.timezone}
+    url: jdbc:mysql://localhost:3306/warehouse?useLegacyDatetimeCode=false&serverTimezone=${user.timezone}
     #    username: warehouse
     #    password: warehouse2802
     username: warehouse
@@ -52,20 +48,13 @@ spring:
         useServerPrepStmts: true
         driverClassName: com.mysql.cj.jdbc.Driver
 
-
-
 server:
   port: 9080
   # make sure requests the proxy uri instead of the server one
   forward-headers-strategy: native
 
-# ===================================================================
-# JHipster specific properties
-#
-# Full reference is available at: https://www.jhipster.tech/common-application-properties/
-# ===================================================================
 
-jhipster:
+pharma-smart-log:
   # CORS is only enabled by default with the "dev" profile
   cors:
     # Allow Ionic for JHipster by default (* no longer allowed in Spring Boot 2.4+)
@@ -74,7 +63,7 @@ jhipster:
 
     allowed-methods: '*'
     allowed-headers: '*'
-    exposed-headers: 'Link,X-Total-Count,X-${jhipster.clientApp.name}-alert,X-${jhipster.clientApp.name}-error,X-${jhipster.clientApp.name}-params'
+    exposed-headers: 'Link,X-Total-Count,X-${pharma-smart.clientApp.name}-alert,X-${pharma-smart.clientApp.name}-error,X-${pharma-smart.clientApp.name}-params'
     allow-credentials: true
     max-age: 1800
   security:
@@ -95,8 +84,6 @@ jhipster:
 # to have type-safe configuration, like in the JHipsterProperties above
 #
 # More documentation is available at:
-# https://www.jhipster.tech/common-application-properties/
-# ===================================================================
 
 # application:
 file:

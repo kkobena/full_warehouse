@@ -7,7 +7,6 @@ import org.springframework.http.CacheControl;
 import org.springframework.web.servlet.config.annotation.ResourceHandlerRegistration;
 import org.springframework.web.servlet.config.annotation.ResourceHandlerRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
-import tech.jhipster.config.JHipsterProperties;
 
 @Configuration
 @Profile({ ConfigConstants.SPRING_PROFILE_PRODUCTION })
@@ -26,10 +25,10 @@ public class StaticResourcesWebConfiguration implements WebMvcConfigurer {
         "*.woff",
     };
 
-    private final JHipsterProperties jhipsterProperties;
+    private final LogProperties logProperties;
 
-    public StaticResourcesWebConfiguration(JHipsterProperties jHipsterProperties) {
-        this.jhipsterProperties = jHipsterProperties;
+    public StaticResourcesWebConfiguration(LogProperties logProperties) {
+        this.logProperties = logProperties;
     }
 
     @Override
@@ -51,6 +50,6 @@ public class StaticResourcesWebConfiguration implements WebMvcConfigurer {
     }
 
     private int getJHipsterHttpCacheProperty() {
-        return jhipsterProperties.getHttp().getCache().getTimeToLiveInDays();
+        return logProperties.getHttp().getCache().getTimeToLiveInDays();
     }
 }

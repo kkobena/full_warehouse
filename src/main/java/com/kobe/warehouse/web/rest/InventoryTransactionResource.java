@@ -2,10 +2,11 @@ package com.kobe.warehouse.web.rest;
 
 import com.kobe.warehouse.domain.InventoryTransaction;
 import com.kobe.warehouse.service.dto.InventoryTransactionDTO;
+import com.kobe.warehouse.service.mvt_produit.service.InventoryTransactionService;
+import com.kobe.warehouse.web.util.PaginationUtil;
+import com.kobe.warehouse.web.util.ResponseUtil;
 import java.util.List;
 import java.util.Optional;
-
-import com.kobe.warehouse.service.mvt_produit.service.InventoryTransactionService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.data.domain.Page;
@@ -15,8 +16,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
-import tech.jhipster.web.util.PaginationUtil;
-import tech.jhipster.web.util.ResponseUtil;
 
 /** REST controller for managing {@link com.kobe.warehouse.domain.InventoryTransaction}. */
 @RestController

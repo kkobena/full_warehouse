@@ -14,6 +14,7 @@ import com.kobe.warehouse.service.errors.PlafondVenteException;
 import com.kobe.warehouse.service.sale.ThirdPartySaleService;
 import com.kobe.warehouse.service.sale.dto.FinalyseSaleDTO;
 import com.kobe.warehouse.service.sale.dto.UpdateSale;
+import com.kobe.warehouse.web.util.HeaderUtil;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import java.net.URI;
@@ -32,7 +33,6 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
-import tech.jhipster.web.util.HeaderUtil;
 
 /**
  * REST controller for managing {@link Sales}.
@@ -46,7 +46,7 @@ public class ThirdPartySaleResource {
     private final Logger log = LoggerFactory.getLogger(ThirdPartySaleResource.class);
     private final ThirdPartySaleService saleService;
 
-    @Value("${jhipster.clientApp.name}")
+    @Value("${pharma-smart.clientApp.name}")
     private String applicationName;
 
     public ThirdPartySaleResource(ThirdPartySaleService saleService) {

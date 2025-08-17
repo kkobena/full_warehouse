@@ -2,6 +2,7 @@ package com.kobe.warehouse.web.rest.proxy;
 
 import com.kobe.warehouse.domain.AppConfiguration;
 import com.kobe.warehouse.service.AppConfigurationService;
+import com.kobe.warehouse.web.util.ResponseUtil;
 import jakarta.validation.Valid;
 import java.util.List;
 import java.util.Optional;
@@ -12,7 +13,6 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestParam;
-import tech.jhipster.web.util.ResponseUtil;
 
 /**
  * REST controller for managing {@link com.kobe.warehouse.domain.Ajustement}.

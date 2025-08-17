@@ -4,6 +4,7 @@ import com.kobe.warehouse.service.AuthorityService;
 import com.kobe.warehouse.service.dto.AuthorityDTO;
 import com.kobe.warehouse.service.dto.PrivillegesDTO;
 import com.kobe.warehouse.service.dto.PrivillegesWrapperDTO;
+import com.kobe.warehouse.web.util.HeaderUtil;
 import jakarta.validation.Valid;
 import java.util.List;
 import org.springframework.beans.factory.annotation.Value;
@@ -17,7 +18,6 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
-import tech.jhipster.web.util.HeaderUtil;
 
 @RestController
 @RequestMapping("/api")
@@ -25,7 +25,7 @@ public class AuthorityResource {
 
     private final AuthorityService authorityService;
 
-    @Value("${jhipster.clientApp.name}")
+    @Value("${pharma-smart.clientApp.name}")
     private String applicationName;
 
     public AuthorityResource(AuthorityService authorityService) {

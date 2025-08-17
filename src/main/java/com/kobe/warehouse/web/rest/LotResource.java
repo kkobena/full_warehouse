@@ -6,6 +6,7 @@ import com.kobe.warehouse.service.stock.LotService;
 import com.kobe.warehouse.service.stock.dto.LotFilterParam;
 import com.kobe.warehouse.service.stock.dto.LotPerimeDTO;
 import com.kobe.warehouse.service.stock.dto.LotPerimeValeurSum;
+import com.kobe.warehouse.web.util.PaginationUtil;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
 import java.io.IOException;
@@ -23,7 +24,6 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
-import tech.jhipster.web.util.PaginationUtil;
 
 @RestController
 @RequestMapping("/api")

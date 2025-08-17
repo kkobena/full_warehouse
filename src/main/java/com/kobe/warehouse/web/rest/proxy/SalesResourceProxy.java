@@ -7,6 +7,7 @@ import com.kobe.warehouse.service.dto.SaleLineDTO;
 import com.kobe.warehouse.service.errors.BadRequestAlertException;
 import com.kobe.warehouse.service.sale.SaleService;
 import com.kobe.warehouse.service.sale.dto.FinalyseSaleDTO;
+import com.kobe.warehouse.web.util.HeaderUtil;
 import jakarta.servlet.http.HttpServletRequest;
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -15,7 +16,6 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.ResponseEntity;
 import org.springframework.transaction.annotation.Transactional;
-import tech.jhipster.web.util.HeaderUtil;
 
 @Transactional
 public class SalesResourceProxy {
@@ -24,7 +24,7 @@ public class SalesResourceProxy {
     private final Logger log = LoggerFactory.getLogger(SalesResourceProxy.class);
     private final SaleService saleService;
 
-    @Value("${jhipster.clientApp.name}")
+    @Value("${pharma-smart.clientApp.name}")
     private String applicationName;
 
     public SalesResourceProxy(SaleService saleService) {

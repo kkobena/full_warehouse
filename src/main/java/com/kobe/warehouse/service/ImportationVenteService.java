@@ -22,7 +22,6 @@ import java.util.concurrent.TimeUnit;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.boot.web.client.RestTemplateBuilder;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
@@ -51,7 +50,7 @@ public class ImportationVenteService {
 
     public ImportationVenteService(
         TransactionTemplate transactionTemplate,
-        RestTemplateBuilder restTemplateBuilder,
+        RestTemplate restTemplate,
         SaleService saleService,
         CashSaleRepository cashSaleRepository,
         SalesLineRepository salesLineRepository,
@@ -59,7 +58,8 @@ public class ImportationVenteService {
         SalesLineService salesLineService
     ) {
         this.transactionTemplate = transactionTemplate;
-        restTemplate = restTemplateBuilder.build();
+        this.restTemplate = restTemplate;
+
         this.saleService = saleService;
         this.cashSaleRepository = cashSaleRepository;
         this.salesLineRepository = salesLineRepository;
@@ -85,7 +85,7 @@ public class ImportationVenteService {
         try {
             HttpHeaders headers = new HttpHeaders();
             headers.set(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON_VALUE);
-            UriComponentsBuilder builder = UriComponentsBuilder.fromHttpUrl(legacyUrl + "/api/v1//whareouse-vno")
+            UriComponentsBuilder builder = UriComponentsBuilder.fromUriString(legacyUrl + "/api/v1//whareouse-vno")
                 .queryParam("dtStart", date)
                 .queryParam("dtEnd", date);
             HttpEntity<?> entity = new HttpEntity<>(headers);

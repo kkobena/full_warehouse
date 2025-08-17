@@ -2,6 +2,7 @@ package com.kobe.warehouse.web.rest.proxy;
 
 import com.kobe.warehouse.service.dto.SaleDTO;
 import com.kobe.warehouse.service.sale.SaleDataService;
+import com.kobe.warehouse.web.util.PaginationUtil;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
@@ -12,7 +13,6 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
-import tech.jhipster.web.util.PaginationUtil;
 
 public class SalesDataResourceProxy {
 

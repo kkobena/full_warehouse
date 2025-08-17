@@ -3,6 +3,9 @@ package com.kobe.warehouse.web.rest;
 import com.kobe.warehouse.domain.SalePayment;
 import com.kobe.warehouse.repository.SalePaymentRepository;
 import com.kobe.warehouse.service.errors.BadRequestAlertException;
+import com.kobe.warehouse.web.util.HeaderUtil;
+import com.kobe.warehouse.web.util.PaginationUtil;
+import com.kobe.warehouse.web.util.ResponseUtil;
 import jakarta.validation.Valid;
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -25,9 +28,6 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
-import tech.jhipster.web.util.HeaderUtil;
-import tech.jhipster.web.util.PaginationUtil;
-import tech.jhipster.web.util.ResponseUtil;
 
 /**
  * REST controller for managing {@link SalePayment}.
@@ -41,7 +41,7 @@ public class PaymentResource {
     private final Logger log = LoggerFactory.getLogger(PaymentResource.class);
     private final SalePaymentRepository paymentRepository;
 
-    @Value("${jhipster.clientApp.name}")
+    @Value("${pharma-smart.clientApp.name}")
     private String applicationName;
 
     public PaymentResource(SalePaymentRepository paymentRepository) {

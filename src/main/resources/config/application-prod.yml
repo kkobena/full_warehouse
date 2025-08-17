@@ -13,7 +13,7 @@
 logging:
   level:
     ROOT: DEBUG
-    tech.jhipster: OFF
+
     com.kobe.warehouse: TRACE
     javax:
       management:
@@ -68,7 +68,7 @@ server:
     min-response-size: 1024
 
 
-jhipster:
+pharma-smart-log:
   http:
     cache: # Used by the CachingHttpHeadersFilter
       timeToLiveInDays: 1461

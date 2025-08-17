@@ -12,11 +12,12 @@ import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { showCommonModal } from '../sales/selling-home/sale-helper';
 import { FormTvaComponent } from './form-tva/form-tva.component';
 import { CommonModule } from '@angular/common';
+import { TranslatePipe } from '@ngx-translate/core';
 
 @Component({
   selector: 'jhi-tva',
   templateUrl: './tva.component.html',
-  imports: [CommonModule, ButtonModule, TableModule, Panel, Toolbar, Tooltip, ConfirmDialogComponent],
+  imports: [CommonModule, ButtonModule, TableModule, Panel, Toolbar, Tooltip, ConfirmDialogComponent, TranslatePipe],
 })
 export class TvaComponent implements OnInit {
   protected tvas?: ITva[];

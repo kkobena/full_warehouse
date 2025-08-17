@@ -1,8 +1,8 @@
 package com.kobe.warehouse.web.rest;
 
-import com.kobe.warehouse.domain.Decondition;
 import com.kobe.warehouse.service.DeconditionService;
 import com.kobe.warehouse.service.dto.DeconditionDTO;
+import com.kobe.warehouse.web.util.PaginationUtil;
 import jakarta.validation.Valid;
 import java.net.URISyntaxException;
 import java.util.List;
@@ -19,7 +19,6 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
-import tech.jhipster.web.util.PaginationUtil;
 
 /** REST controller for managing {@link com.kobe.warehouse.domain.Decondition}. */
 @RestController
@@ -30,7 +29,7 @@ public class DeconditionResource {
     private final Logger log = LoggerFactory.getLogger(DeconditionResource.class);
     private final DeconditionService deconditionService;
 
-    @Value("${jhipster.clientApp.name}")
+    @Value("${pharma-smart.clientApp.name}")
     private String applicationName;
 
     public DeconditionResource(DeconditionService deconditionService) {
@@ -46,7 +45,7 @@ public class DeconditionResource {
      * @throws URISyntaxException if the Location URI syntax is incorrect.
      */
     @PostMapping("/deconditions")
-    public ResponseEntity<?> createDecondition(@Valid @RequestBody DeconditionDTO decondition) throws Exception {
+    public ResponseEntity<Void> createDecondition(@Valid @RequestBody DeconditionDTO decondition) throws Exception {
         log.debug("REST request to save Decondition : {}", decondition);
         deconditionService.save(decondition);
         return ResponseEntity.ok().build();
@@ -60,9 +59,9 @@ public class DeconditionResource {
      *     body.
      */
     @GetMapping("/deconditions")
-    public ResponseEntity<List<Decondition>> getAllDeconditions(Pageable pageable) {
+    public ResponseEntity<List<DeconditionDTO>> getAllDeconditions(Pageable pageable) {
         log.debug("REST request to get a page of Deconditions");
-        Page<Decondition> page = deconditionService.findAll(pageable);
+        Page<DeconditionDTO> page = deconditionService.findAll(pageable);
         HttpHeaders headers = PaginationUtil.generatePaginationHttpHeaders(ServletUriComponentsBuilder.fromCurrentRequest(), page);
         return ResponseEntity.ok().headers(headers).body(page.getContent());
     }

@@ -5,6 +5,9 @@ import com.kobe.warehouse.service.AjustementService;
 import com.kobe.warehouse.service.dto.AjustDTO;
 import com.kobe.warehouse.service.dto.AjustementDTO;
 import com.kobe.warehouse.service.dto.filter.AjustementFilterRecord;
+import com.kobe.warehouse.web.util.HeaderUtil;
+import com.kobe.warehouse.web.util.PaginationUtil;
+import com.kobe.warehouse.web.util.ResponseUtil;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import java.io.IOException;
@@ -28,9 +31,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
-import tech.jhipster.web.util.HeaderUtil;
-import tech.jhipster.web.util.PaginationUtil;
-import tech.jhipster.web.util.ResponseUtil;
 
 /** REST controller for managing {@link com.kobe.warehouse.domain.Ajustement}. */
 @RestController
@@ -41,7 +41,7 @@ public class AjustementResource {
     private final AjustService ajustService;
     private final AjustementService ajustementService;
 
-    @Value("${jhipster.clientApp.name}")
+    @Value("${pharma-smart.clientApp.name}")
     private String applicationName;
 
     public AjustementResource(AjustService ajustService, AjustementService ajustementService) {

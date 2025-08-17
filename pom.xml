@@ -61,8 +61,9 @@
                 <version>${mapstruct.version}</version>
               </path>
               <path>
-                <artifactId>hibernate-jpamodelgen</artifactId>
+                <artifactId>hibernate-processor</artifactId>
                 <groupId>org.hibernate.orm</groupId>
+                <version>${hibernate.version}</version>
               </path>
               <path>
                 <artifactId>jaxb-runtime</artifactId>
@@ -348,6 +349,7 @@
     <dependency>
       <artifactId>hibernate-envers</artifactId>
       <groupId>org.hibernate.orm</groupId>
+      <version>${hibernate.version}</version>
     </dependency>
     <dependency>
       <artifactId>flying-saucer-pdf</artifactId>
@@ -387,11 +389,17 @@
       <version>3.0.2</version>
     </dependency>
 
-    <dependency>
-      <artifactId>jhipster-framework</artifactId>
-      <groupId>tech.jhipster</groupId>
-      <version>${jhipster-framework.version}</version>
-    </dependency>
+    <!--    <dependency>-->
+    <!--      <artifactId>jhipster-framework</artifactId>-->
+    <!--      <exclusions>-->
+    <!--        <exclusion>-->
+    <!--          <artifactId>liquibase-core</artifactId>-->
+    <!--          <groupId>org.liquibase</groupId>-->
+    <!--        </exclusion>-->
+    <!--      </exclusions>-->
+    <!--      <groupId>tech.jhipster</groupId>-->
+    <!--      <version>${jhipster-framework.version}</version>-->
+    <!--    </dependency>-->
     <dependency>
       <artifactId>spring-boot-configuration-processor</artifactId>
       <groupId>org.springframework.boot</groupId>
@@ -482,14 +490,14 @@
       <groupId>org.springdoc</groupId>
       <version>${springdoc-openapi-starter-webmvc-api.version}</version>
     </dependency>
-    <dependency>
-      <artifactId>jackson-datatype-hibernate6</artifactId>
-      <groupId>com.fasterxml.jackson.datatype</groupId>
-    </dependency>
-    <dependency>
-      <artifactId>jackson-datatype-hppc</artifactId>
-      <groupId>com.fasterxml.jackson.datatype</groupId>
-    </dependency>
+    <!-- <dependency>
+       <artifactId>jackson-datatype-hibernate6</artifactId>
+       <groupId>com.fasterxml.jackson.datatype</groupId>
+     </dependency>-->
+    <!-- <dependency>
+       <artifactId>jackson-datatype-hppc</artifactId>
+       <groupId>com.fasterxml.jackson.datatype</groupId>
+     </dependency>-->
     <dependency>
       <artifactId>jackson-datatype-jsr310</artifactId>
       <groupId>com.fasterxml.jackson.datatype</groupId>
@@ -544,16 +552,17 @@
     <dependency>
       <artifactId>hibernate-core</artifactId>
       <groupId>org.hibernate.orm</groupId>
-      <scope>provided</scope>
+      <version>${hibernate.version}</version>
     </dependency>
     <dependency>
-      <artifactId>hibernate-jpamodelgen</artifactId>
+      <artifactId>hibernate-processor</artifactId>
       <groupId>org.hibernate.orm</groupId>
-      <scope>provided</scope>
+      <version>7.1.0.Final</version>
     </dependency>
     <dependency>
       <artifactId>hibernate-validator</artifactId>
       <groupId>org.hibernate.validator</groupId>
+      <version>${hibernate-validator.version}</version>
     </dependency>
 
     <dependency>
@@ -604,7 +613,8 @@
     <artifactId>spring-boot-starter-parent</artifactId>
     <groupId>org.springframework.boot</groupId>
     <relativePath/>
-    <version>3.5.4</version>
+    <version>4.0.0-M1</version>
+
     <!-- lookup parent from repository -->
   </parent>
 
@@ -635,7 +645,7 @@
           <version>${mapstruct.version}</version>
         </dependency>
         <dependency>
-          <artifactId>hibernate-jpamodelgen</artifactId>
+          <artifactId>hibernate-processor</artifactId>
           <groupId>org.hibernate.orm</groupId>
         </dependency>
       </dependencies>
@@ -784,11 +794,13 @@
     <frontend-maven-plugin.version>1.15.1</frontend-maven-plugin.version>
     <git-commit-id-maven-plugin.version>8.0.2</git-commit-id-maven-plugin.version>
 
+    <hibernate-validator.version>9.0.1.Final</hibernate-validator.version>
+    <hibernate.version>7.1.0.Final</hibernate.version>
     <java.version>24</java.version>
+
     <jhipster-framework.version>8.9.0</jhipster-framework.version>
 
     <lifecycle-mapping.version>1.0.0</lifecycle-mapping.version>
-
     <mapstruct.version>1.6.3</mapstruct.version>
     <maven-antrun-plugin.version>3.1.0</maven-antrun-plugin.version>
     <maven-checkstyle-plugin.version>3.6.0</maven-checkstyle-plugin.version>
@@ -805,23 +817,22 @@
     <maven.build.timestamp.format>yyyyMMddHHmmss</maven.build.timestamp.format>
     <maven.compiler.source>${java.version}</maven.compiler.source>
     <maven.compiler.target>${java.version}</maven.compiler.target>
-    <maven.version>3.6.3</maven.version>
 
+    <maven.version>3.6.3</maven.version>
     <node.version>v24.4.0</node.version>
     <nohttp-checkstyle.version>0.0.11</nohttp-checkstyle.version>
     <npm.version>11.0.0</npm.version>
     <profile.api-docs/>
-    <profile.e2e/>
 
+    <profile.e2e/>
     <profile.test/>
     <profile.tls/>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
     <properties-maven-plugin.version>1.2.1</properties-maven-plugin.version>
     <run.addResources>false</run.addResources>
-    <sonar-maven-plugin.version>5.0.0.4389</sonar-maven-plugin.version>
 
-    <spring-boot.version>3.5.4</spring-boot.version>
+    <sonar-maven-plugin.version>5.0.0.4389</sonar-maven-plugin.version>
     <spring.profiles.active>dev</spring.profiles.active>
     <springdoc-openapi-starter-webmvc-api.version>2.7.0
     </springdoc-openapi-starter-webmvc-api.version>

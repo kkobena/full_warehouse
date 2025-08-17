@@ -3,6 +3,8 @@ package com.kobe.warehouse.web.rest.referential;
 import com.kobe.warehouse.domain.MotifRetourProduit;
 import com.kobe.warehouse.repository.MotifRetourProduitRepository;
 import com.kobe.warehouse.service.errors.BadRequestAlertException;
+import com.kobe.warehouse.web.util.HeaderUtil;
+import com.kobe.warehouse.web.util.PaginationUtil;
 import jakarta.validation.Valid;
 import java.util.List;
 import org.springframework.beans.factory.annotation.Value;
@@ -20,8 +22,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
-import tech.jhipster.web.util.HeaderUtil;
-import tech.jhipster.web.util.PaginationUtil;
 
 @RestController
 @RequestMapping("/api")
@@ -30,7 +30,7 @@ public class MotifRetourProduitRessource {
     private static final String ENTITY_NAME = "motifRetourProduit";
     private final MotifRetourProduitRepository motifRetourProduitRepository;
 
-    @Value("${jhipster.clientApp.name}")
+    @Value("${pharma-smart.clientApp.name}")
     private String applicationName;
 
     public MotifRetourProduitRessource(MotifRetourProduitRepository motifRetourProduitRepository) {

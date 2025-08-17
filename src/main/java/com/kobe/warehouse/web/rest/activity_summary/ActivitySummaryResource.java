@@ -2,10 +2,14 @@ package com.kobe.warehouse.web.rest.activity_summary;
 
 import com.kobe.warehouse.service.activity_summary.ActivitySummaryService;
 import com.kobe.warehouse.service.dto.ChiffreAffaireDTO;
-import com.kobe.warehouse.service.dto.projection.*;
+import com.kobe.warehouse.service.dto.projection.AchatTiersPayant;
+import com.kobe.warehouse.service.dto.projection.GroupeFournisseurAchat;
+import com.kobe.warehouse.service.dto.projection.MouvementCaisse;
+import com.kobe.warehouse.service.dto.projection.Recette;
+import com.kobe.warehouse.service.dto.projection.ReglementTiersPayants;
 import com.kobe.warehouse.service.errors.ReportFileExportException;
-import com.kobe.warehouse.service.reglement.dto.InvoicePaymentParam;
 import com.kobe.warehouse.web.rest.Utils;
+import com.kobe.warehouse.web.util.PaginationUtil;
 import jakarta.servlet.http.HttpServletRequest;
 import java.time.LocalDate;
 import java.util.List;
@@ -19,7 +23,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
-import tech.jhipster.web.util.PaginationUtil;
 
 @RestController
 @RequestMapping("/api/activity-summary")

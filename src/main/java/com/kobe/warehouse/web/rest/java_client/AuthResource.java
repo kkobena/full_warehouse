@@ -2,13 +2,13 @@ package com.kobe.warehouse.web.rest.java_client;
 
 import com.kobe.warehouse.service.UserService;
 import com.kobe.warehouse.service.dto.AdminUserDTO;
+import com.kobe.warehouse.web.util.ResponseUtil;
 import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
-import tech.jhipster.web.util.ResponseUtil;
 
 @RestController
 @RequestMapping("/api-user-account")

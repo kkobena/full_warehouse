@@ -13,6 +13,9 @@ import com.kobe.warehouse.service.dto.TiersPayantDto;
 import com.kobe.warehouse.service.dto.VenteRecordParamDTO;
 import com.kobe.warehouse.service.errors.BadRequestAlertException;
 import com.kobe.warehouse.service.tiers_payant.TiersPayantAchat;
+import com.kobe.warehouse.web.util.HeaderUtil;
+import com.kobe.warehouse.web.util.PaginationUtil;
+import com.kobe.warehouse.web.util.ResponseUtil;
 import jakarta.validation.Valid;
 import java.io.IOException;
 import java.net.URISyntaxException;
@@ -35,9 +38,6 @@ import org.springframework.web.bind.annotation.RequestPart;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
-import tech.jhipster.web.util.HeaderUtil;
-import tech.jhipster.web.util.PaginationUtil;
-import tech.jhipster.web.util.ResponseUtil;
 
 @RestController
 @RequestMapping("/api")
@@ -48,7 +48,7 @@ public class TiersPayantResource {
     private final TiersPayantDataService tiersPayantDataService;
     private final TiersPayantService tiersPayantService;
 
-    @Value("${jhipster.clientApp.name}")
+    @Value("${pharma-smart.clientApp.name}")
     private String applicationName;
 
     public TiersPayantResource(

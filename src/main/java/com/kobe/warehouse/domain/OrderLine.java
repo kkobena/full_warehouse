@@ -6,6 +6,7 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
@@ -92,7 +93,7 @@ public class OrderLine implements Serializable, Cloneable {
     private int freeQty;
 
     @ManyToOne(optional = false)
-    @JsonIgnoreProperties(value = "orderLines", allowSetters = true)
+    @JoinColumn(name = "fournisseur_produit_id", referencedColumnName = "id")
     private FournisseurProduit fournisseurProduit;
 
     @Column(name = "provisional_code")
@@ -116,14 +117,6 @@ public class OrderLine implements Serializable, Cloneable {
 
     public void setFinalStock(Integer finalStock) {
         this.finalStock = finalStock;
-    }
-
-    public void setOrderAmount(Integer orderAmount) {
-        this.orderAmount = orderAmount;
-    }
-
-    public void setGrossAmount(Integer grossAmount) {
-        this.grossAmount = grossAmount;
     }
 
     public LocalDate getDatePeremption() {
@@ -187,8 +180,16 @@ public class OrderLine implements Serializable, Cloneable {
         return orderAmount;
     }
 
+    public void setOrderAmount(Integer orderAmount) {
+        this.orderAmount = orderAmount;
+    }
+
     public Integer getGrossAmount() {
         return grossAmount;
+    }
+
+    public void setGrossAmount(Integer grossAmount) {
+        this.grossAmount = grossAmount;
     }
 
     public Integer getNetAmount() {

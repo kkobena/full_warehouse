@@ -5,6 +5,8 @@ import com.kobe.warehouse.domain.GroupeTiersPayant;
 import com.kobe.warehouse.service.GroupeTiersPayantService;
 import com.kobe.warehouse.service.dto.ResponseDTO;
 import com.kobe.warehouse.service.errors.BadRequestAlertException;
+import com.kobe.warehouse.web.util.HeaderUtil;
+import com.kobe.warehouse.web.util.ResponseUtil;
 import jakarta.validation.Valid;
 import java.io.IOException;
 import java.net.URI;
@@ -27,8 +29,6 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RequestPart;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
-import tech.jhipster.web.util.HeaderUtil;
-import tech.jhipster.web.util.ResponseUtil;
 
 /**
  * REST controller for managing {@link Categorie}.
@@ -42,7 +42,7 @@ public class GroupeTiersPayantResource {
     private final Logger log = LoggerFactory.getLogger(GroupeTiersPayantResource.class);
     private final GroupeTiersPayantService groupeTiersPayantService;
 
-    @Value("${jhipster.clientApp.name}")
+    @Value("${pharma-smart.clientApp.name}")
     private String applicationName;
 
     public GroupeTiersPayantResource(GroupeTiersPayantService groupeTiersPayantService) {

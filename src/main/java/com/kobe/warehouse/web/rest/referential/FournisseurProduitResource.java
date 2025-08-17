@@ -3,6 +3,8 @@ package com.kobe.warehouse.web.rest.referential;
 import com.kobe.warehouse.service.FournisseurProduitService;
 import com.kobe.warehouse.service.dto.FournisseurProduitDTO;
 import com.kobe.warehouse.service.errors.BadRequestAlertException;
+import com.kobe.warehouse.web.util.HeaderUtil;
+import com.kobe.warehouse.web.util.ResponseUtil;
 import jakarta.validation.Valid;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -16,8 +18,6 @@ import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
-import tech.jhipster.web.util.HeaderUtil;
-import tech.jhipster.web.util.ResponseUtil;
 
 @RestController
 @RequestMapping("/api")
@@ -27,7 +27,7 @@ public class FournisseurProduitResource {
     private final Logger log = LoggerFactory.getLogger(FournisseurProduitResource.class);
     private final FournisseurProduitService fournisseurProduitService;
 
-    @Value("${jhipster.clientApp.name}")
+    @Value("${pharma-smart.clientApp.name}")
     private String applicationName;
 
     public FournisseurProduitResource(FournisseurProduitService fournisseurProduitService) {

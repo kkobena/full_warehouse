@@ -2,6 +2,7 @@ package com.kobe.warehouse.web.rest.dci;
 
 import com.kobe.warehouse.service.dci.dto.DciDTO;
 import com.kobe.warehouse.service.dci.service.DciService;
+import com.kobe.warehouse.web.util.PaginationUtil;
 import java.util.List;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -9,7 +10,6 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
-import tech.jhipster.web.util.PaginationUtil;
 
 @RestController
 @RequestMapping("/api/dci")

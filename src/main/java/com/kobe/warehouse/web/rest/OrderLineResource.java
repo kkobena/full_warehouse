@@ -3,6 +3,7 @@ package com.kobe.warehouse.web.rest;
 import com.kobe.warehouse.domain.OrderLine;
 import com.kobe.warehouse.repository.OrderLineRepository;
 import com.kobe.warehouse.service.errors.BadRequestAlertException;
+import com.kobe.warehouse.web.util.HeaderUtil;
 import jakarta.validation.Valid;
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -19,7 +20,6 @@ import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
-import tech.jhipster.web.util.HeaderUtil;
 
 /**
  * REST controller for managing {@link com.kobe.warehouse.domain.OrderLine}.
@@ -33,7 +33,7 @@ public class OrderLineResource {
     private final Logger log = LoggerFactory.getLogger(OrderLineResource.class);
     private final OrderLineRepository orderLineRepository;
 
-    @Value("${jhipster.clientApp.name}")
+    @Value("${pharma-smart.clientApp.name}")
     private String applicationName;
 
     public OrderLineResource(OrderLineRepository orderLineRepository) {

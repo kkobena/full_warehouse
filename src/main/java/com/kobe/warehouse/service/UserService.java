@@ -7,6 +7,7 @@ import com.kobe.warehouse.domain.User;
 import com.kobe.warehouse.repository.AuthorityRepository;
 import com.kobe.warehouse.repository.PersistentTokenRepository;
 import com.kobe.warehouse.repository.UserRepository;
+import com.kobe.warehouse.security.RandomUtil;
 import com.kobe.warehouse.security.SecurityUtils;
 import com.kobe.warehouse.service.dto.AdminUserDTO;
 import com.kobe.warehouse.service.dto.UserDTO;
@@ -27,7 +28,6 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
-import tech.jhipster.security.RandomUtil;
 
 /**
  * Service class for managing users.

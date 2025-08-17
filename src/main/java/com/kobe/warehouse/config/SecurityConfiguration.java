@@ -7,7 +7,7 @@ import com.kobe.warehouse.web.filter.SpaWebFilter;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import java.util.function.Supplier;
-import org.springframework.boot.autoconfigure.security.servlet.PathRequest;
+import org.springframework.boot.security.autoconfigure.servlet.PathRequest;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.annotation.Order;
@@ -30,20 +30,18 @@ import org.springframework.security.web.csrf.CsrfTokenRequestHandler;
 import org.springframework.security.web.csrf.XorCsrfTokenRequestAttributeHandler;
 import org.springframework.security.web.header.writers.ReferrerPolicyHeaderWriter;
 import org.springframework.util.StringUtils;
-import tech.jhipster.config.JHipsterProperties;
-import tech.jhipster.web.filter.CookieCsrfFilter;
 
 @Configuration
 @EnableMethodSecurity(securedEnabled = true)
 public class SecurityConfiguration {
 
-    private final JHipsterProperties jHipsterProperties;
+    private final LogProperties logProperties;
 
     private final RememberMeServices rememberMeServices;
 
-    public SecurityConfiguration(RememberMeServices rememberMeServices, JHipsterProperties jHipsterProperties) {
+    public SecurityConfiguration(RememberMeServices rememberMeServices, LogProperties logProperties) {
         this.rememberMeServices = rememberMeServices;
-        this.jHipsterProperties = jHipsterProperties;
+        this.logProperties = logProperties;
     }
 
     @Bean
@@ -64,7 +62,7 @@ public class SecurityConfiguration {
             .addFilterAfter(new CookieCsrfFilter(), BasicAuthenticationFilter.class)
             .headers(headers ->
                 headers
-                    .contentSecurityPolicy(csp -> csp.policyDirectives(jHipsterProperties.getSecurity().getContentSecurityPolicy()))
+                    .contentSecurityPolicy(csp -> csp.policyDirectives(logProperties.getSecurity().getContentSecurityPolicy()))
                     .frameOptions(FrameOptionsConfig::sameOrigin)
                     .referrerPolicy(referrer -> referrer.policy(ReferrerPolicyHeaderWriter.ReferrerPolicy.STRICT_ORIGIN_WHEN_CROSS_ORIGIN))
                     .permissionsPolicyHeader(permissions ->
@@ -110,7 +108,7 @@ public class SecurityConfiguration {
                 rememberMe
                     .rememberMeServices(rememberMeServices)
                     .rememberMeParameter("remember-me")
-                    .key(jHipsterProperties.getSecurity().getRememberMe().getKey())
+                    .key(logProperties.getSecurity().getRememberMe().getKey())
             )
             .exceptionHandling(exceptionHandling ->
                 exceptionHandling.defaultAuthenticationEntryPointFor(new HttpStatusEntryPoint(HttpStatus.UNAUTHORIZED), request ->

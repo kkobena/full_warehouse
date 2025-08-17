@@ -14,6 +14,9 @@ import com.kobe.warehouse.service.dto.SaleDTO;
 import com.kobe.warehouse.service.dto.UninsuredCustomerDTO;
 import com.kobe.warehouse.service.errors.BadRequestAlertException;
 import com.kobe.warehouse.service.sale.SaleDataService;
+import com.kobe.warehouse.web.util.HeaderUtil;
+import com.kobe.warehouse.web.util.PaginationUtil;
+import com.kobe.warehouse.web.util.ResponseUtil;
 import jakarta.validation.Valid;
 import java.io.IOException;
 import java.net.URI;
@@ -38,9 +41,6 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RequestPart;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
-import tech.jhipster.web.util.HeaderUtil;
-import tech.jhipster.web.util.PaginationUtil;
-import tech.jhipster.web.util.ResponseUtil;
 
 /**
  * REST controller for managing {@link com.kobe.warehouse.domain.Customer}.
@@ -55,7 +55,7 @@ public class CustomerResourceProxy {
     private final ImportationCustomer importationCustomer;
     private final AssuredCustomerService assuredCustomerService;
 
-    @Value("${jhipster.clientApp.name}")
+    @Value("${pharma-smart.clientApp.name}")
     private String applicationName;
 
     public CustomerResourceProxy(

@@ -8,6 +8,7 @@ import com.kobe.warehouse.service.dto.OrderLineDTO;
 import com.kobe.warehouse.service.dto.UploadDeleiveryReceiptDTO;
 import com.kobe.warehouse.service.stock.CommandService;
 import com.kobe.warehouse.service.stock.StockEntryService;
+import com.kobe.warehouse.web.util.HeaderUtil;
 import jakarta.validation.Valid;
 import java.io.IOException;
 import java.net.URI;
@@ -24,7 +25,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestPart;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
-import tech.jhipster.web.util.HeaderUtil;
 
 @RestController
 @RequestMapping("/api")
@@ -35,7 +35,7 @@ public class StockEntryResource {
     private final StockEntryService stockEntryService;
     private final CommandService commandService;
 
-    @Value("${jhipster.clientApp.name}")
+    @Value("${pharma-smart.clientApp.name}")
     private String applicationName;
 
     public StockEntryResource(StockEntryService stockEntryService, CommandService commandService) {

@@ -10,7 +10,14 @@ import com.kobe.warehouse.service.dto.ProduitCriteria;
 import com.kobe.warehouse.service.dto.ProduitDTO;
 import com.kobe.warehouse.service.errors.BadRequestAlertException;
 import com.kobe.warehouse.web.rest.proxy.ProduitResourceProxy;
+import com.kobe.warehouse.web.util.HeaderUtil;
+import com.kobe.warehouse.web.util.PaginationUtil;
+import com.kobe.warehouse.web.util.ResponseUtil;
 import jakarta.validation.Valid;
+import java.net.URISyntaxException;
+import java.time.LocalDate;
+import java.util.List;
+import java.util.Optional;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
@@ -29,14 +36,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
-import tech.jhipster.web.util.HeaderUtil;
-import tech.jhipster.web.util.PaginationUtil;
-import tech.jhipster.web.util.ResponseUtil;
-
-import java.net.URISyntaxException;
-import java.time.LocalDate;
-import java.util.List;
-import java.util.Optional;
 
 /**
  * REST controller for managing {@link com.kobe.warehouse.domain.Produit}.
@@ -52,7 +51,7 @@ public class ProduitResource extends ProduitResourceProxy {
     private final ProduitService produitService;
     private final ProductActivityService productActivityService;
 
-    @Value("${jhipster.clientApp.name}")
+    @Value("${pharma-smart.clientApp.name}")
     private String applicationName;
 
     public ProduitResource(

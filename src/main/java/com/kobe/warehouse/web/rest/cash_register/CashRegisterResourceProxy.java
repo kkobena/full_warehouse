@@ -6,6 +6,8 @@ import com.kobe.warehouse.service.cash_register.TicketingService;
 import com.kobe.warehouse.service.cash_register.dto.CashRegisterDTO;
 import com.kobe.warehouse.service.cash_register.dto.FetchCashRegisterParams;
 import com.kobe.warehouse.service.cash_register.dto.TicketingDTO;
+import com.kobe.warehouse.web.util.PaginationUtil;
+import com.kobe.warehouse.web.util.ResponseUtil;
 import jakarta.validation.Valid;
 import java.time.LocalDate;
 import java.util.List;
@@ -21,8 +23,6 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
-import tech.jhipster.web.util.PaginationUtil;
-import tech.jhipster.web.util.ResponseUtil;
 
 public class CashRegisterResourceProxy {
 

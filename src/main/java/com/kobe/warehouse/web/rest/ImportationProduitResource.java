@@ -6,6 +6,7 @@ import com.kobe.warehouse.domain.enumeration.ImportationType;
 import com.kobe.warehouse.service.ImportationProduitService;
 import com.kobe.warehouse.service.dto.InstallationDataDTO;
 import com.kobe.warehouse.service.dto.ResponseDTO;
+import com.kobe.warehouse.web.util.ResponseUtil;
 import jakarta.servlet.http.HttpServletRequest;
 import java.io.IOException;
 import java.net.URISyntaxException;
@@ -20,7 +21,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestPart;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
-import tech.jhipster.web.util.ResponseUtil;
 
 @RestController
 @RequestMapping("/api/importation")

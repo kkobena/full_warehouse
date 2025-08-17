@@ -4,6 +4,7 @@ import com.kobe.warehouse.service.AssuredCustomerService;
 import com.kobe.warehouse.service.dto.AssuredCustomerDTO;
 import com.kobe.warehouse.service.dto.ClientTiersPayantDTO;
 import com.kobe.warehouse.service.errors.BadRequestAlertException;
+import com.kobe.warehouse.web.util.HeaderUtil;
 import jakarta.validation.Valid;
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -16,7 +17,6 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
-import tech.jhipster.web.util.HeaderUtil;
 
 public class AssuredCustomerResourceProxy {
 
@@ -24,7 +24,7 @@ public class AssuredCustomerResourceProxy {
     private final Logger log = LoggerFactory.getLogger(AssuredCustomerResourceProxy.class);
     private final AssuredCustomerService assuredCustomerService;
 
-    @Value("${jhipster.clientApp.name}")
+    @Value("${pharma-smart.clientApp.name}")
     private String applicationName;
 
     public AssuredCustomerResourceProxy(AssuredCustomerService assuredCustomerService) {

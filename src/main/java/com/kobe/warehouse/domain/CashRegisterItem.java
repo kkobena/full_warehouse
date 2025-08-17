@@ -8,6 +8,7 @@ import jakarta.persistence.Enumerated;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 import jakarta.persistence.UniqueConstraint;
@@ -31,12 +32,14 @@ public class CashRegisterItem implements Serializable {
 
     @ManyToOne(optional = false)
     @NotNull
+    @JoinColumn(name = "cash_register_id", referencedColumnName = "id")
     private CashRegister cashRegister;
 
     private Long amount;
 
     @ManyToOne(optional = false)
     @NotNull
+    @JoinColumn(name = "payment_mode_code", referencedColumnName = "code")
     private PaymentMode paymentMode;
 
     @NotNull

@@ -2,9 +2,7 @@ spring:
   application:
     name: warehouse
   profiles:
-    # The commented value for `active` can be replaced with valid Spring profiles to load.
-    # Otherwise, it will be filled in by maven when building the JAR file
-    # Either way, it can be overridden by `--spring.profiles.active` value passed in the commandline or `-Dspring.profiles.active` set in `JAVA_OPTS`
+
     active: '@spring.profiles.active@'
 
   jmx:
@@ -21,6 +19,7 @@ spring:
       hibernate:
         format_sql: false
         generate_statistics: true
+        dialect: org.hibernate.dialect.MariaDBDialect
       hibernate.jdbc.time_zone: UTC
       hibernate.timezone.default_storage: NORMALIZE
       hibernate.id.new_generator_mappings: true
@@ -34,11 +33,12 @@ spring:
       hibernate.order_updates: true
       hibernate.query.fail_on_pagination_over_collection_fetch: true
       hibernate.query.in_clause_parameter_padding: true
+
     hibernate:
       ddl-auto: update
       naming:
-        physical-strategy: org.hibernate.boot.model.naming.CamelCaseToUnderscoresNamingStrategy
-        implicit-strategy: org.springframework.boot.orm.jpa.hibernate.SpringImplicitNamingStrategy
+        physical-strategy: org.hibernate.boot.model.naming.PhysicalNamingStrategyStandardImpl
+        implicit-strategy: org.hibernate.boot.model.naming.ImplicitNamingStrategyJpaCompliantImpl
     show-sql: false
 
   messages:
@@ -137,13 +137,8 @@ info:
   # Comma separated list of profiles that will trigger the ribbon to show
   display-ribbon-on-profiles: 'dev'
 
-# ===================================================================
-# JHipster specific properties
-#
-# Full reference is available at: https://www.jhipster.tech/common-application-properties/
-# ===================================================================
 
-jhipster:
+pharma-smart:
   clientApp:
     name: 'warehouseApp'
 

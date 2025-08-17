@@ -1,0 +1,56 @@
+A TRAITER
+
+CAS 2- 
+si un produit est remboursé dans un cas complementaire a un prix inferieur a celui du RO 
+exemple: 
+UN PRODUIT EST REMBOURSé A 3500 CHEZ MUGEFCI ET REMBOURSé A 2000 CHEZ MUPEMENET
+
+LE CALCUL DOIT SE FAIRE SUR LE PRIX LE MOINS CHER ET LA DIFFERENCE ENTRE LE PRIX LE MOINS CHER ET LE PRIX DE LA PHARMACIE (PRIX NORMAL) SERA AJOUTé SUR LE NET A PAYER
+
+
+
+CAS-3: “TAUX DE REMBOURSEMENT ET PRIX DE REFERENCE”
+
+SI UNE VENTE A 3 PRODUITS ET CLIENT A 80%
+
+UN PRODUIT 70%, 2E PRODUIT 80%, ET 3E PRODUIT 80%
+
+SI L’UTILISATEUR RENSEIGNE CELUI DE 70% SANS TOUCHER LES AUTRES PRODUITS, APPLIQUER LE TAUX DU CLIENT SUR LES 2 PRODUITS ET FAIRE LE CALCUL
+
+*RAPPELER LE PRIX SUR L’ECRAN D’AJOUT DE TAUX ET PRIX (si on choisi la 3 option)
+
+Qd tu ajoutes un autre tiers payant en complementaire il met tout à 100%
+
+
+CAS-4
+une vente de 3 produits et remboursé par taux(70%,70% et 80%) et qu'on a un tp complementaire 20%
+les 20% sont appliqués selon les taux produits deja present sur le RO
+dc le client paye 10%+10%+0%  parce que (70du premier produit +20=90, 70 du deuxieme produit +20=90 et 80 du 3e produit+20 =100)
+
+CAS-5
+Prix assurance reference superieur prix pharmacie
+permettre la validation
+il arrive des cas ou l'assurance n'a pas mis a jour son prix et ce prix est superieur au prix pharmacie
+constat: on ne peut pas saisir de prix superieur au prix machine
+
+CAS 6:
+il existe des assurances qui:
+sont complementaire et rembourse des produits selon si le client souscrit a la formule normale ou formule confort
+formule normale: 80% client paye 20%
+formule confort: 100% le client ne paye rien
+
+si ce produit est remboursé a 80% alors que le RO est à 70% pour ce meme produit le client paye 10% restant puisque (70+20)
+
+exemple 3 produits : 1er produit 70%, 2e produit 80%, 3e produit 70%
+Mugefci est complementaire a la mupemenet
+
+si le client a souscris a mupemenet confort on aura le produit a 100% donc la 2e assurance prend tout
+si le client n'a pas souscrit a mupemenet confort qu'il est simple alors le produit sera remboursé a 20% du coup on aura mugefci 70+ mupemenet 20%
+
+
+**
+Quand on modifie le type de cas, de prix reference ou taux en prix et taux la reorganisation des champs peut poser probleme dans la saisie 
+le champ taux prend la place du champ prix
+
+** si possible
+ajouter une colonne prix et une colonne taux sur la fiche des produits ajoutés si et seulement si on est en vente a credit avec taux ou prix ref

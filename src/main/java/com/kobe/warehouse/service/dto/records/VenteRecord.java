@@ -1,5 +1,6 @@
 package com.kobe.warehouse.service.dto.records;
 
+import com.kobe.warehouse.domain.enumeration.SalesStatut;
 import java.math.BigDecimal;
 
 public record VenteRecord(
@@ -27,5 +28,7 @@ public record VenteRecord(
     BigDecimal paidAmount,
     BigDecimal realNetAmount,
     Long saleCount,
-    double panierMoyen
+    double panierMoyen,
+    String type,
+    SalesStatut statut
 ) {}

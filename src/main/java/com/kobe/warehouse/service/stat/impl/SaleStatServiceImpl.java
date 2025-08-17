@@ -1,6 +1,8 @@
 package com.kobe.warehouse.service.stat.impl;
 
+import com.kobe.warehouse.domain.Sales;
 import com.kobe.warehouse.domain.enumeration.SalesStatut;
+import com.kobe.warehouse.repository.SalesRepository;
 import com.kobe.warehouse.service.dto.VenteRecordParamDTO;
 import com.kobe.warehouse.service.dto.builder.QueryBuilderConstant;
 import com.kobe.warehouse.service.dto.builder.VenteStatQueryBuilder;
@@ -19,6 +21,7 @@ import java.util.Objects;
 import org.apache.commons.lang3.tuple.Pair;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
@@ -29,9 +32,11 @@ public class SaleStatServiceImpl implements SaleStatService {
 
     private final Logger LOG = LoggerFactory.getLogger(SaleStatServiceImpl.class);
     private final EntityManager em;
+    private final SalesRepository salesRepository;
 
-    public SaleStatServiceImpl(EntityManager em) {
+    public SaleStatServiceImpl(EntityManager em, SalesRepository salesRepository) {
         this.em = em;
+        this.salesRepository = salesRepository;
     }
 
     private VenteRecord getCaByPeriode(VenteRecordParamDTO venteRecordParamDTO, Pair<LocalDate, LocalDate> periode) {
@@ -178,5 +183,16 @@ public class SaleStatServiceImpl implements SaleStatService {
             return list.stream().map(VenteStatQueryBuilder::buildModePaiment).toList();
         }
         return Collections.emptyList();
+    }
+
+    private VenteRecord fetchVenteRecord(VenteRecordParamDTO venteRecordParam) {
+        Pair<LocalDate, LocalDate> periode = getPeriode(venteRecordParam);
+        Specification<Sales> specification = this.salesRepository.between(periode.getLeft(), periode.getRight());
+        if (venteRecordParam.isDiffereOnly()) {
+            specification = specification.and(this.salesRepository.isDiffere());
+        }
+        if (venteRecordParam.isCanceled()) {
+            specification = specification.and(this.salesRepository.hasStatut(List.of(SalesStatut.CANCELED)));
+        }
     }
 }

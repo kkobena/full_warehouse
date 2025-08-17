@@ -55,6 +55,9 @@ public class Sales implements Serializable, Cloneable {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @Column(name = "dtype", insertable = false, updatable = false)
+    private String type;
+
     @NotNull
     @Column(name = "number_transaction", nullable = false)
     private String numberTransaction;
@@ -141,110 +144,92 @@ public class Sales implements Serializable, Cloneable {
 
     @OneToMany(mappedBy = "sales")
     private Set<SalesLine> salesLines = new HashSet<>();
-
+    @OneToMany(mappedBy = "sale")
+    private Set<SalePayment> salePayments = new HashSet<>();
     @ManyToOne
     private Remise remise;
-
     @NotNull
     @ManyToOne(optional = false)
     private User user;
-
     @NotNull
     @ManyToOne(optional = false)
     private User seller;
-
     @NotNull
     @ManyToOne(optional = false)
     private User caissier;
-
     @OneToMany(mappedBy = "sale")
     private Set<SalePayment> payments = new HashSet<>();
-
     @ManyToOne(optional = false)
     @NotNull
     private Magasin magasin;
-
     @ManyToOne
     private Sales canceledSale;
-
     @ManyToOne(optional = false)
     @NotNull
     private User lastUserEdit;
-
     @NotNull
     @Column(name = "effective_update_date", nullable = false)
     private LocalDateTime effectiveUpdateDate = LocalDateTime.now();
-
     @Column(name = "to_ignore", nullable = false, columnDefinition = "boolean default false")
     private boolean toIgnore = false;
-
     @Column(name = "copy", nullable = false, columnDefinition = "boolean default false")
     private Boolean copy = false;
-
     @Column(name = "imported", nullable = false, columnDefinition = "boolean default false")
     private boolean imported = false;
-
     @NotNull
     @Enumerated(EnumType.STRING)
     @Column(name = "payment_status", nullable = false, length = 15)
     private PaymentStatus paymentStatus;
-
     @NotNull
     @Enumerated(EnumType.STRING)
     @Column(name = "nature_vente", nullable = false, length = 15)
     private NatureVente natureVente;
-
     @NotNull
     @Enumerated(EnumType.STRING)
     @Column(name = "origine_vente", nullable = false)
     private OrigineVente origineVente;
-
     @NotNull
     @Enumerated(EnumType.STRING)
     @Column(name = "type_prescription", nullable = false, length = 15)
     private TypePrescription typePrescription;
-
     @NotNull
     @Column(name = "differe", nullable = false, columnDefinition = "boolean default false")
     private boolean differe = false;
-
     @NotNull
     @Enumerated(EnumType.STRING)
     @Column(name = "ca", nullable = false, length = 30)
     private CategorieChiffreAffaire categorieChiffreAffaire = CategorieChiffreAffaire.CA;
-
     @ManyToOne
     private Poste caisse;
-
     @ManyToOne
     private Poste lastCaisse;
-
     @ManyToOne
     private Customer customer;
-
     @Column(name = "canceled", nullable = false, columnDefinition = "boolean default false")
     private Boolean canceled = false;
-
     @Column(length = 100)
     private String tvaEmbeded;
-
     @Column(name = "commentaire")
     private String commentaire;
-
     @NotNull
     @Column(name = "monnaie", nullable = false, columnDefinition = "int default '0'")
     private Integer monnaie = 0;
-
     @ManyToOne
     private Avoir avoir;
-
     @ManyToOne
     @JoinColumn(name = "cash_register_id", referencedColumnName = "id")
     private CashRegister cashRegister;
-
     @ManyToOne(optional = false)
     @NotNull
     private WarehouseCalendar calendar;
+
+    public Set<SalePayment> getSalePayments() {
+        return salePayments;
+    }
+
+    public void setSalePayments(Set<SalePayment> salePayments) {
+        this.salePayments = salePayments;
+    }
 
     public Long getId() {
         return id;
@@ -483,6 +468,14 @@ public class Sales implements Serializable, Cloneable {
     public Sales setCaissier(User caissier) {
         this.caissier = caissier;
         return this;
+    }
+
+    public String getType() {
+        return type;
+    }
+
+    public void setType(String type) {
+        this.type = type;
     }
 
     public Set<SalePayment> getPayments() {

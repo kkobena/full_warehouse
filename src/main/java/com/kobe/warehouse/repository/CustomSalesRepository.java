@@ -1,6 +1,11 @@
 package com.kobe.warehouse.repository;
 
 import com.kobe.warehouse.domain.Sales;
+import com.kobe.warehouse.service.dto.enumeration.StatGroupBy;
+import com.kobe.warehouse.service.dto.records.VenteByTypeRecord;
+import com.kobe.warehouse.service.dto.records.VenteModePaimentRecord;
+import com.kobe.warehouse.service.dto.records.VentePeriodeRecord;
+import com.kobe.warehouse.service.dto.records.VenteRecord;
 import com.kobe.warehouse.service.reglement.differe.dto.Differe;
 import com.kobe.warehouse.service.reglement.differe.dto.DiffereItem;
 import com.kobe.warehouse.service.reglement.differe.dto.DiffereSummary;
@@ -21,4 +26,9 @@ public interface CustomSalesRepository {
     Solde getSolde(Specification<Sales> specification);
 
     List<TicketZCreditProjection> getTicketZDifferes(Specification<Sales> specification);
+
+    VenteRecord fetchVenteRecord(Specification<Sales> specification);
+    List<VentePeriodeRecord> fetchVentePeriodeRecords(Specification<Sales> specification, StatGroupBy statGroupBy);
+    List<VenteByTypeRecord> fetchVenteByTypeRecords(Specification<Sales> specification);
+    List<VenteModePaimentRecord> fetchVenteModePaimentRecords(Specification<Sales> specification);
 }

@@ -3,8 +3,11 @@ package com.kobe.warehouse.repository;
 import com.kobe.warehouse.domain.Customer_;
 import com.kobe.warehouse.domain.Sales;
 import com.kobe.warehouse.domain.Sales_;
+import com.kobe.warehouse.domain.User;
 import com.kobe.warehouse.domain.User_;
 import com.kobe.warehouse.domain.enumeration.PaymentStatus;
+import com.kobe.warehouse.domain.enumeration.SalesStatut;
+import com.kobe.warehouse.domain.enumeration.TypeVente;
 import com.kobe.warehouse.service.dto.projection.ChiffreAffaire;
 import com.kobe.warehouse.service.financiel_transaction.dto.SaleInfo;
 import com.kobe.warehouse.service.reglement.differe.dto.ClientDiffere;
@@ -12,6 +15,7 @@ import jakarta.persistence.criteria.CriteriaBuilder.In;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.EnumSet;
 import java.util.Optional;
 import java.util.Set;
 import org.springframework.data.domain.Page;
@@ -94,5 +98,33 @@ public interface SalesRepository extends JpaSpecificationExecutor<Sales>, JpaRep
 
     default Specification<Sales> filterByPeriode(LocalDateTime fromDate, LocalDateTime toDate) {
         return (root, _, cb) -> cb.between(root.get(Sales_.updatedAt), fromDate, toDate);
+    }
+
+    default Specification<Sales> between(LocalDate fromDate, LocalDate toDate) {
+        return (root, query, cb) -> cb.between(cb.function("date", LocalDate.class, root.get(Sales_.updatedAt)), fromDate, toDate);
+    }
+
+    default Specification<Sales> hasStatut(EnumSet<SalesStatut> statut) {
+        return (root, query, cb) -> root.get(Sales_.statut).in(statut);
+    }
+
+    default Specification<Sales> notImported() {
+        return (root, query, cb) -> cb.equal(root.get(Sales_.imported), false);
+    }
+
+    default Specification<Sales> hasType(TypeVente typeVente) {
+        return (root, query, cb) -> cb.equal(root.get(Sales_.type), typeVente.name());
+    }
+
+    default Specification<Sales> hasCaissier(User caissier) {
+        return (root, query, cb) -> cb.equal(root.get(Sales_.caissier), caissier);
+    }
+
+    default Specification<Sales> hasVendeur(User vendeur) {
+        return (root, query, cb) -> cb.equal(root.get(Sales_.seller), vendeur);
+    }
+
+    default Specification<Sales> isDiffere() {
+        return (root, query, cb) -> cb.isNull(root.get(Sales_.differe));
     }
 }

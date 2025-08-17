@@ -1,22 +1,11 @@
 package com.kobe.warehouse.domain;
 
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-import com.kobe.warehouse.domain.enumeration.SalesStatut;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
-import jakarta.persistence.EnumType;
-import jakarta.persistence.Enumerated;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
-import jakarta.persistence.Index;
 import jakarta.persistence.ManyToOne;
-import jakarta.persistence.Table;
 import jakarta.validation.constraints.NotNull;
-import jakarta.validation.constraints.Size;
 import java.io.Serial;
 import java.io.Serializable;
-import java.time.LocalDateTime;
 
 @Entity
 public class SalePayment extends PaymentTransaction implements Serializable, Cloneable {
@@ -26,7 +15,6 @@ public class SalePayment extends PaymentTransaction implements Serializable, Clo
 
     @NotNull
     @ManyToOne
-    @JsonIgnoreProperties(value = "payments", allowSetters = true)
     private Sales sale;
 
     @NotNull

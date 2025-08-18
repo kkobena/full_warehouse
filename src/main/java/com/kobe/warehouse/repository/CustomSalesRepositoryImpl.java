@@ -1,7 +1,5 @@
 package com.kobe.warehouse.repository;
 
-import static java.util.Objects.nonNull;
-
 import com.kobe.warehouse.domain.CashRegister_;
 import com.kobe.warehouse.domain.Customer_;
 import com.kobe.warehouse.domain.SalePayment;
@@ -31,20 +29,13 @@ import jakarta.persistence.criteria.CompoundSelection;
 import jakarta.persistence.criteria.CriteriaBuilder;
 import jakarta.persistence.criteria.CriteriaQuery;
 import jakarta.persistence.criteria.Expression;
-import jakarta.persistence.criteria.Join;
 import jakarta.persistence.criteria.Path;
 import jakarta.persistence.criteria.Predicate;
 import jakarta.persistence.criteria.Root;
 import jakarta.persistence.criteria.Selection;
 import jakarta.persistence.criteria.SetJoin;
-import java.math.BigDecimal;
-import java.time.LocalDate;
-import java.time.Month;
-import java.time.Year;
-import java.time.format.DateTimeFormatter;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Objects;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
@@ -53,14 +44,26 @@ import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
 
+import java.math.BigDecimal;
+import java.time.LocalDate;
+import java.time.Month;
+import java.time.Year;
+import java.time.format.DateTimeFormatter;
+import java.util.List;
+
+import static java.util.Objects.isNull;
+import static java.util.Objects.nonNull;
+
 @Repository
 @Transactional(readOnly = true)
 public class CustomSalesRepositoryImpl implements CustomSalesRepository {
 
+    private static final Logger LOG = LoggerFactory.getLogger(CustomSalesRepositoryImpl.class);
     private final EntityManager entityManager;
 
     public CustomSalesRepositoryImpl(EntityManager entityManager) {
         this.entityManager = entityManager;
+
     }
 
     @Override
@@ -242,62 +245,59 @@ public class CustomSalesRepositoryImpl implements CustomSalesRepository {
         CriteriaQuery<VenteRecord> cq = cb.createQuery(VenteRecord.class);
         Root<Sales> root = cq.from(Sales.class);
         SetJoin<Sales, SalePayment> payments = root.joinSet(Sales_.PAYMENTS);
-        cq.select(buildVenteRecord(root, payments, cb));
+        cq.select(buildVenteRecord(root, payments, cb, null));
+
         cq.where(specification.toPredicate(root, cq, cb));
         return entityManager.createQuery(cq).getSingleResult();
     }
 
+    private List<VenteRecord> fetch(Specification<Sales> specification, StatGroupBy statGroupBy) {
+        CriteriaBuilder cb = entityManager.getCriteriaBuilder();
+        CriteriaQuery<VenteRecord> cq = cb.createQuery(VenteRecord.class);
+        Root<Sales> root = cq.from(Sales.class);
+        SetJoin<Sales, SalePayment> payments = root.joinSet(Sales_.PAYMENTS);
+        Expression<?> groupingExpression = getGroupingExpression(root, statGroupBy);
+        cq.select(buildVenteRecord(root, payments, cb, groupingExpression)).groupBy(groupingExpression, root.get(Sales_.statut))
+            .orderBy(cb.desc(groupingExpression));
+        cq.where(specification.toPredicate(root, cq, cb));
+        return entityManager.createQuery(cq).getResultList();
+    }
+
+    private List<VenteRecord> fetch(Specification<Sales> specification) {
+        CriteriaBuilder cb = entityManager.getCriteriaBuilder();
+        CriteriaQuery<VenteRecord> cq = cb.createQuery(VenteRecord.class);
+        Root<Sales> root = cq.from(Sales.class);
+        SetJoin<Sales, SalePayment> payments = root.joinSet(Sales_.PAYMENTS);
+        Expression<String> groupingExpression = root.get(Sales_.type);
+        cq.select(buildVenteRecord(root, payments, cb, groupingExpression)).groupBy(groupingExpression, root.get(Sales_.statut))
+            .orderBy(cb.desc(groupingExpression));
+        cq.where(specification.toPredicate(root, cq, cb));
+        return entityManager.createQuery(cq).getResultList();
+    }
+
     @Override
     public List<VentePeriodeRecord> fetchVentePeriodeRecords(Specification<Sales> specification, StatGroupBy statGroupBy) {
-        CriteriaBuilder cb = entityManager.getCriteriaBuilder();
-        CriteriaQuery<Tuple> cq = cb.createTupleQuery();
-        Root<Sales> root = cq.from(Sales.class);
-        Expression<?> mvtDate = getGroupingExpression(root, statGroupBy);
-        List<Selection<?>> selections = new ArrayList<>(buildSelection(root, cb));
-        selections.add(mvtDate.alias("mvtDate"));
-        selections.add(root.get("statut").alias("statut"));
-        cq.multiselect(selections);
-        cq.where(specification.toPredicate(root, cq, cb));
-        cq.groupBy(mvtDate, root.get("statut"));
-        cq.orderBy(cb.asc(mvtDate));
-        List<Tuple> tuples = entityManager.createQuery(cq).getResultList();
-        return tuples.stream().map(tuple -> buildVentePeriodeRecord(tuple, statGroupBy)).toList();
+        try {
+            return fetch(specification, statGroupBy).stream().map(venteRecord -> new VentePeriodeRecord(buildMvtDate(venteRecord, statGroupBy), venteRecord.statut().name(), venteRecord)).toList();
+        } catch (Exception e) {
+            LOG.error(null, e);
+            return List.of();
+        }
+
     }
 
     @Override
     public List<VenteByTypeRecord> fetchVenteByTypeRecords(Specification<Sales> specification) {
-        CriteriaBuilder cb = entityManager.getCriteriaBuilder();
-        CriteriaQuery<Tuple> cq = cb.createTupleQuery();
-        Root<Sales> root = cq.from(Sales.class);
-        List<Selection<?>> selections = new ArrayList<>(buildSelection(root, cb));
-        selections.add(root.get("dtype").alias("type_vente"));
-        cq.multiselect(selections);
-        cq.where(specification.toPredicate(root, cq, cb));
-        cq.groupBy(root.get("dtype"));
-        List<Tuple> tuples = entityManager.createQuery(cq).getResultList();
-        return tuples.stream().map(this::buildVenteByTypeRecord).toList();
+        try {
+            return fetch(specification).stream().map(venteRecord -> new VenteByTypeRecord(  venteRecord.type(), venteRecord)).toList();
+        } catch (Exception e) {
+            LOG.error(null, e);
+            return List.of();
+        }
     }
 
-    @Override
-    public List<VenteModePaimentRecord> fetchVenteModePaimentRecords(Specification<Sales> specification) {
-        CriteriaBuilder cb = entityManager.getCriteriaBuilder();
-        CriteriaQuery<Tuple> cq = cb.createTupleQuery();
-        Root<Sales> root = cq.from(Sales.class);
-        Join<Object, Object> payment = root.join("paymentTransactions");
-        Join<Object, Object> paymentMode = payment.join("paymentMode");
-        cq.multiselect(
-            payment.get("paymentMode").get("code").alias("payment_mode_code"),
-            paymentMode.get("libelle").alias("libelle"),
-            cb.sum(payment.get("reelAmount")).alias("real_net_amount"),
-            cb.sum(payment.get("paidAmount")).alias("paid_amount")
-        );
-        cq.where(specification.toPredicate(root, cq, cb));
-        cq.groupBy(payment.get("paymentMode").get("code"), paymentMode.get("libelle"));
-        List<Tuple> tuples = entityManager.createQuery(cq).getResultList();
-        return tuples.stream().map(this::buildModePaiment).toList();
-    }
 
-    private CompoundSelection<VenteRecord> buildVenteRecord(Root<Sales> root, SetJoin<Sales, SalePayment> payments, CriteriaBuilder cb) {
+    private Selection<VenteRecord> buildVenteRecord( Root<Sales> root, SetJoin<Sales, SalePayment> payments, CriteriaBuilder cb, Expression<?> groupingExpression) {
         Path<ThirdPartySales> thirdPartySalesPath = cb.treat(root, ThirdPartySales.class);
         return cb.construct(
             VenteRecord.class,
@@ -307,6 +307,7 @@ public class CustomSalesRepositoryImpl implements CustomSalesRepository {
             cb.sum(root.get(Sales_.costAmount)),
             cb.diff(cb.sum(root.get(Sales_.htAmount)), cb.sum(root.get(Sales_.costAmount))),
             cb.sum(root.get(Sales_.amountToBeTakenIntoAccount)),
+            cb.sum(root.get(Sales_.netAmount)),
             cb.sum(root.get(Sales_.htAmount)),
             cb.sum(thirdPartySalesPath.get(ThirdPartySales_.partAssure)),
             cb.sum(thirdPartySalesPath.get(ThirdPartySales_.partTiersPayant)),
@@ -323,110 +324,15 @@ public class CustomSalesRepositoryImpl implements CustomSalesRepository {
             cb.sum(root.get(Sales_.montantnetUg)),
             cb.sum(payments.get(SalePayment_.paidAmount)),
             cb.sum(payments.get(SalePayment_.reelAmount)),
+            cb.count(root),
             cb.quot(cb.sum(root.get(Sales_.htAmount)), cb.count(root)),
             root.get(Sales_.type),
-            root.get(Sales_.statut)
+            root.get(Sales_.statut),
+            nonNull(groupingExpression) ? groupingExpression.cast(String.class) : root.get(Sales_.type).cast(String.class)
         );
     }
 
-    private List<Selection<?>> buildSelection(Root<Sales> root, CriteriaBuilder cb) {
-        return List.of(
-            cb.sum(root.get("salesAmount")).alias("sales_amount"),
-            cb.quot(cb.sum(root.get("htAmount")), cb.count(root)).alias("panierMoyen"),
-            cb.sum(root.get("amountToBePaid")).alias("amount_to_be_paid"),
-            cb.sum(root.get("discountAmount")).alias("discount_amount"),
-            cb.sum(root.get("costAmount")).alias("cost_amount"),
-            cb.diff(cb.sum(root.get("htAmount")), cb.sum(root.get("costAmount"))).alias("marge"),
-            cb.sum(root.get("amountToBeTakenIntoAccount")).alias("amount_to_be_taken_into_account"),
-            cb.sum(root.get("netAmount")).alias("net_amount"),
-            cb.sum(root.get("htAmount")).alias("ht_amount"),
-            cb.sum(root.get("partAssure")).alias("part_assure"),
-            cb.sum(root.get("partTiersPayant")).alias("part_tiers_payant"),
-            cb.sum(root.get("taxAmount")).alias("tax_amount"),
-            cb.sum(root.get("restToPay")).alias("rest_to_pay"),
-            cb.sum(root.get("htAmountUg")).alias("ht_amount_ug"),
-            cb.sum(root.get("discountAmountHorsUg")).alias("discount_amount_hors_ug"),
-            cb.sum(root.get("discountAmountUg")).alias("discount_amount_ug"),
-            cb.sum(root.get("netUgAmount")).alias("net_ug_amount"),
-            cb.sum(root.get("margeUg")).alias("marge_ug"),
-            cb.sum(root.get("montantTtcUg")).alias("montant_ttc_ug"),
-            cb.sum(root.get("payrollAmount")).alias("payroll_amount"),
-            cb.sum(root.get("montantTvaUg")).alias("montant_tva_ug"),
-            cb.sum(root.get("montantNetUg")).alias("montant_net_ug"),
-            cb.sum(root.get("paidAmount")).alias("paid_amount"),
-            cb.sum(root.get("realNetAmount")).alias("real_net_amount"),
-            cb.count(root).alias("sale_count")
-        );
-    }
 
-    private VenteRecord buildVenteRecord(Tuple tuple) {
-        if (Objects.isNull(tuple.get("sales_amount", BigDecimal.class))) {
-            return null;
-        }
-        return new VenteRecord(
-            tuple.get("sales_amount", BigDecimal.class),
-            tuple.get("amount_to_be_paid", BigDecimal.class),
-            tuple.get("discount_amount", BigDecimal.class),
-            tuple.get("cost_amount", BigDecimal.class),
-            tuple.get("marge", BigDecimal.class),
-            tuple.get("amount_to_be_taken_into_account", BigDecimal.class),
-            tuple.get("net_amount", BigDecimal.class),
-            tuple.get("ht_amount", BigDecimal.class),
-            tuple.get("part_assure", BigDecimal.class),
-            tuple.get("part_tiers_payant", BigDecimal.class),
-            tuple.get("tax_amount", BigDecimal.class),
-            tuple.get("rest_to_pay", BigDecimal.class),
-            tuple.get("ht_amount_ug", BigDecimal.class),
-            tuple.get("discount_amount_hors_ug", BigDecimal.class),
-            tuple.get("discount_amount_ug", BigDecimal.class),
-            tuple.get("net_ug_amount", BigDecimal.class),
-            tuple.get("marge_ug", BigDecimal.class),
-            tuple.get("montant_ttc_ug", BigDecimal.class),
-            tuple.get("payroll_amount", BigDecimal.class),
-            tuple.get("montant_tva_ug", BigDecimal.class),
-            tuple.get("montant_net_ug", BigDecimal.class),
-            tuple.get("paid_amount", BigDecimal.class),
-            tuple.get("real_net_amount", BigDecimal.class),
-            tuple.get("sale_count", Long.class),
-            tuple.get("panierMoyen", Double.class) != null ? tuple.get("panierMoyen", Double.class) : 0.0,
-            "",
-            null
-        );
-    }
-
-    private VenteByTypeRecord buildVenteByTypeRecord(Tuple tuple) {
-        TypeVenteDTO typeVenteDTO = fromTypeVente(tuple.get("type_vente", String.class));
-        if (Objects.isNull(typeVenteDTO)) {
-            return null;
-        }
-
-        return new VenteByTypeRecord(typeVenteDTO.getValue(), buildVenteRecord(tuple));
-    }
-
-    private VentePeriodeRecord buildVentePeriodeRecord(Tuple tuple, StatGroupBy statGroupBy) {
-        String statut = tuple.get("statut", String.class);
-
-        if (Objects.isNull(statut)) {
-            return null;
-        }
-
-        return new VentePeriodeRecord(buildMvtDate(tuple, statGroupBy), statut, buildVenteRecord(tuple));
-    }
-
-    private VenteModePaimentRecord buildModePaiment(Tuple tuple) {
-        String paymentModeCode = tuple.get("payment_mode_code", String.class);
-
-        if (Objects.isNull(paymentModeCode)) {
-            return null;
-        }
-
-        return new VenteModePaimentRecord(
-            paymentModeCode,
-            tuple.get("libelle", String.class),
-            tuple.get("real_net_amount", BigDecimal.class),
-            tuple.get("paid_amount", BigDecimal.class)
-        );
-    }
 
     private TypeVenteDTO fromTypeVente(String typeVente) {
         if (StringUtils.hasLength(typeVente)) {
@@ -439,21 +345,28 @@ public class CustomSalesRepositoryImpl implements CustomSalesRepository {
         return null;
     }
 
-    private String buildMvtDate(Tuple tuple, StatGroupBy statGroupBy) {
+    private String buildMvtDate(VenteRecord venteRecord, StatGroupBy statGroupBy) {
+        if (isNull(statGroupBy)) {
+            return null;
+        }
+        var group = venteRecord.group().toString();
         return switch (statGroupBy) {
-            case DAY -> LocalDate.parse(tuple.get("mvtDate", String.class)).format(DateTimeFormatter.ofPattern("dd/MM/yyyy"));
-            case MONTH -> DateUtil.getMonthFromMonth(Month.of(tuple.get("mvtDate", Integer.class)));
-            case YEAR -> Year.of(tuple.get("mvtDate", Integer.class)).toString();
-            case HOUR -> tuple.get("mvtDate", Integer.class).toString();
+            case DAY -> LocalDate.parse(group).format(DateTimeFormatter.ofPattern("dd/MM/yyyy"));
+            case MONTH -> DateUtil.getMonthFromMonth(Month.of(Integer.parseInt(group)));
+            case YEAR -> Year.of(Integer.parseInt(group)).toString();
+            case HOUR -> group;
         };
     }
 
     private Expression<?> getGroupingExpression(Root<Sales> root, StatGroupBy statGroupBy) {
         return switch (statGroupBy) {
-            case DAY -> entityManager.getCriteriaBuilder().function("date", LocalDate.class, root.get(Sales_.updatedAt));
-            case MONTH -> entityManager.getCriteriaBuilder().function("month", Integer.class, root.get(Sales_.updatedAt));
+            case DAY ->
+                entityManager.getCriteriaBuilder().function("date", LocalDate.class, root.get(Sales_.updatedAt));
+            case MONTH ->
+                entityManager.getCriteriaBuilder().function("month", Integer.class, root.get(Sales_.updatedAt));
             case YEAR -> entityManager.getCriteriaBuilder().function("year", Integer.class, root.get(Sales_.updatedAt));
             case HOUR -> entityManager.getCriteriaBuilder().function("hour", Integer.class, root.get(Sales_.updatedAt));
+            case null -> null;
         };
     }
 }

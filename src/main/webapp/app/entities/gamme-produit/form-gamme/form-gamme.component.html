@@ -1,6 +1,6 @@
 <jhi-toast-alert #alert></jhi-toast-alert>
 <div class="modal-header">
-  <h4 class="modal-title">{{header}}</h4>
+  <h4 class="modal-title">{{ header }}</h4>
   <button (click)="cancel()" aria-label="Close" class="btn-close" type="button">
     <span aria-hidden="true">&times;</span>
   </button>
@@ -16,7 +16,8 @@
         <div class="p-fluid p-formgrid p-grid">
           <div class="p-field p-col">
             <label class="col-auto col-form-label">Libllé<span style="font-weight: 900; color: red">* </span></label>
-            <input #libelle autocomplete="off" class="form-control" formControlName="libelle" name="libelle" pInputText type="text" />
+            <input #libelle autocomplete="off" class="form-control" formControlName="libelle" name="libelle" pInputText
+                   type="text" />
             @if (editForm.get('libelle')!.invalid && (editForm.get('libelle')!.dirty || editForm.get('libelle')!.touched)) {
               <div>
                 @if (editForm.get('libelle')?.errors?.required) {
@@ -30,7 +31,8 @@
         <div class="p-fluid p-formgrid p-grid">
           <div class="p-field p-col">
             <label class="col-auto col-form-label">Code</label>
-            <input pKeyFilter="alphanum"  autocomplete="off" class="form-control" formControlName="code" name="code" pInputText type="text" />
+            <input pKeyFilter="alphanum" autocomplete="off" class="form-control" formControlName="code" name="code"
+                   pInputText type="text" />
           </div>
         </div>
       </div>
@@ -38,8 +40,9 @@
   </div>
 
 
-  <div  class="modal-footer">
-    <p-button (click)="cancel()" class="mr-2" icon="pi pi-times" label="Annuler" raised="true" severity="secondary" type="button"></p-button>
+  <div class="modal-footer">
+    <p-button (click)="cancel()" class="mr-2" icon="pi pi-times" label="Annuler" raised="true" severity="secondary"
+              type="button"></p-button>
     <p-button
       [disabled]="editForm.invalid || isSaving"
       icon="pi pi-check"

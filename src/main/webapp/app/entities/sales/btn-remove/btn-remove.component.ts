@@ -9,10 +9,11 @@ import { ICellRendererAngularComp } from 'ag-grid-angular';
     <button type="submit" (click)="btnClickedHandler()" class="btn btn-danger btn-sm">
       <fa-icon icon="times"></fa-icon>
     </button>
-  `,
+  `
 })
 export class BtnRemoveComponent implements ICellRendererAngularComp {
   params!: any;
+
   refresh(): boolean {
     return false;
   }

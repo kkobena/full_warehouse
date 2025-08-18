@@ -19,7 +19,7 @@ import { Select } from 'primeng/select';
 
   imports: [ReactiveFormsModule, ToastModule, MessagesModule, ButtonModule, ToastAlertComponent, Card, InputText, Select],
   templateUrl: './remise-produit-form-modal.component.html',
-  styleUrls: ['../../common-modal.component.scss'],
+  styleUrls: ['../../common-modal.component.scss']
 })
 export class RemiseProduitFormModalComponent implements OnInit, AfterViewInit {
   libelle = viewChild.required<ElementRef>('libelle');
@@ -28,34 +28,34 @@ export class RemiseProduitFormModalComponent implements OnInit, AfterViewInit {
     id: new FormControl<number | null>(null),
     valeur: new FormControl<string | null>(null, {
       validators: [Validators.required],
-      nonNullable: true,
+      nonNullable: true
     }),
     codeRemise: new FormControl<string | null>(null, {
       validators: [Validators.required],
-      nonNullable: true,
+      nonNullable: true
     }),
 
     vno: this.fb.group({
       id: new FormControl<number | null>(null),
       code: new FormControl<string | null>(null, {
         validators: [Validators.required],
-        nonNullable: true,
+        nonNullable: true
       }),
       remiseValue: new FormControl<number | null>(null, {
-        validators: [Validators.min(0)],
-      }),
+        validators: [Validators.min(0)]
+      })
     }),
 
     vo: this.fb.group({
       id: new FormControl<number | null>(null),
       code: new FormControl<string | null>(null, {
         validators: [Validators.required],
-        nonNullable: true,
+        nonNullable: true
       }),
       remiseValue: new FormControl<number | null>(null, {
-        validators: [Validators.min(0)],
-      }),
-    }),
+        validators: [Validators.min(0)]
+      })
+    })
   });
   protected entity: IRemise | null = null;
   protected isSaving = false;
@@ -127,14 +127,14 @@ export class RemiseProduitFormModalComponent implements OnInit, AfterViewInit {
       valeur: entity.valeur,
       codeRemise: entity.grilles.length ? entity.grilles[0].codeRemise.value : null,
       vo: this.buildGrille(entity.grilles.find(grille => grille.grilleType === 'VO')),
-      vno: this.buildGrille(entity.grilles.find(grille => grille.grilleType === 'VNO')),
+      vno: this.buildGrille(entity.grilles.find(grille => grille.grilleType === 'VNO'))
     });
   }
 
   private subscribeToSaveResponse(result: Observable<HttpResponse<IRemise>>): void {
     result.subscribe({
       next: () => this.onSaveSuccess(),
-      error: err => this.onSaveError(err),
+      error: err => this.onSaveError(err)
     });
   }
 
@@ -142,7 +142,7 @@ export class RemiseProduitFormModalComponent implements OnInit, AfterViewInit {
     return {
       id: grille.id,
       code: grille.code,
-      remiseValue: grille.remiseValue,
+      remiseValue: grille.remiseValue
     };
   }
 
@@ -167,7 +167,7 @@ export class RemiseProduitFormModalComponent implements OnInit, AfterViewInit {
           const grillesRemises = res.body || [];
           resolve(grillesRemises);
         },
-        error: err => reject(err),
+        error: err => reject(err)
       });
     });
   }
@@ -194,14 +194,14 @@ export class RemiseProduitFormModalComponent implements OnInit, AfterViewInit {
       id: this.editForm.get('vno').get('id').value,
       code: this.editForm.get('vno').get('code').value,
       remiseValue: this.editForm.get('vno').get('remiseValue').value || 0,
-      grilleType: 'VNO',
+      grilleType: 'VNO'
     });
 
     grilles.push({
       id: this.editForm.get('vo').get('id').value,
       code: this.editForm.get('vo').get('code').value,
       remiseValue: this.editForm.get('vo').get('remiseValue').value || 0,
-      grilleType: 'VO',
+      grilleType: 'VO'
     });
 
     return grilles;
@@ -213,7 +213,7 @@ export class RemiseProduitFormModalComponent implements OnInit, AfterViewInit {
       id: this.editForm.get(['id']).value,
       valeur: this.editForm.get(['valeur']).value,
       type: 'remiseProduit',
-      grilles: this.buildGrilles(),
+      grilles: this.buildGrilles()
     };
   }
 }

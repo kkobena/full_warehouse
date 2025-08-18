@@ -3,10 +3,17 @@ package com.kobe.warehouse.repository;
 import com.kobe.warehouse.domain.CashRegister_;
 import com.kobe.warehouse.domain.SalePayment;
 import com.kobe.warehouse.domain.SalePayment_;
+import com.kobe.warehouse.domain.Sales;
+import com.kobe.warehouse.domain.Sales_;
+import com.kobe.warehouse.domain.User;
 import com.kobe.warehouse.domain.User_;
+import com.kobe.warehouse.domain.enumeration.CategorieChiffreAffaire;
+import com.kobe.warehouse.domain.enumeration.SalesStatut;
+import com.kobe.warehouse.domain.enumeration.TypeVente;
 import com.kobe.warehouse.service.dto.projection.Recette;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.EnumSet;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
@@ -44,5 +51,38 @@ public interface SalePaymentRepository
 
     default Specification<SalePayment> filterByPeriode(LocalDateTime fromDate, LocalDateTime toDate) {
         return (root, _, cb) -> cb.between(root.get(SalePayment_.createdAt), fromDate, toDate);
+    }
+
+
+    default Specification<SalePayment> between(LocalDate fromDate, LocalDate toDate) {
+        return (root, query, cb) -> cb.between(cb.function("date", LocalDate.class, root.get(SalePayment_.sale).get(Sales_.updatedAt)), fromDate, toDate);
+    }
+
+    default Specification<SalePayment> hasStatut(EnumSet<SalesStatut> statut) {
+        return (root, query, cb) ->  root.get(SalePayment_.sale).get(Sales_.statut).in(statut);
+    }
+
+    default Specification<SalePayment> notImported() {
+        return (root, query, cb) -> cb.equal( root.get(SalePayment_.sale).get(Sales_.imported), false);
+    }
+
+    default Specification<SalePayment> hasType(TypeVente typeVente) {
+        return (root, query, cb) -> cb.equal( root.get(SalePayment_.sale).get(Sales_.type), typeVente.name());
+    }
+
+    default Specification<SalePayment> hasCaissier(User caissier) {
+        return (root, query, cb) -> cb.equal( root.get(SalePayment_.sale).get(Sales_.caissier), caissier);
+    }
+
+    default Specification<SalePayment> hasVendeur(User vendeur) {
+        return (root, query, cb) -> cb.equal( root.get(SalePayment_.sale).get(Sales_.seller), vendeur);
+    }
+
+    default Specification<SalePayment> isDiffere() {
+        return (root, query, cb) -> cb.isNull( root.get(SalePayment_.sale).get(Sales_.differe));
+    }
+
+    default Specification<SalePayment> hasCategorieCa(EnumSet<CategorieChiffreAffaire> categorieChiffreAffaires) {
+        return (root, query, cb) ->  root.get(SalePayment_.sale).get(Sales_.categorieChiffreAffaire).in(categorieChiffreAffaires);
     }
 }

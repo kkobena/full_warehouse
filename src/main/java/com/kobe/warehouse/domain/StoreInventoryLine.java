@@ -6,6 +6,7 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 import jakarta.persistence.UniqueConstraint;
@@ -44,7 +45,7 @@ public class StoreInventoryLine implements Serializable {
     private Integer inventoryValueCost;
 
     @ManyToOne(optional = false)
-    @JsonIgnoreProperties(value = "storeInventoryLines", allowSetters = true)
+    @JoinColumn(name = "store_inventory_id", referencedColumnName = "id")
     private StoreInventory storeInventory;
 
     @NotNull
@@ -52,7 +53,6 @@ public class StoreInventoryLine implements Serializable {
     private LocalDateTime updatedAt = LocalDateTime.now();
 
     @ManyToOne(optional = false)
-    @JsonIgnoreProperties(value = "storeInventoryLines", allowSetters = true)
     private Produit produit;
 
     @NotNull

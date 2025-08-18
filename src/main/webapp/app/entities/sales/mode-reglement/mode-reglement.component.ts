@@ -1,4 +1,16 @@
-import { Component, computed, effect, ElementRef, inject, input, OnInit, output, signal, viewChild, viewChildren } from '@angular/core';
+import {
+  Component,
+  computed,
+  effect,
+  ElementRef,
+  inject,
+  input,
+  OnInit,
+  output,
+  signal,
+  viewChild,
+  viewChildren
+} from '@angular/core';
 import { WarehouseCommonModule } from '../../../shared/warehouse-common/warehouse-common.module';
 import { KeyFilterModule } from 'primeng/keyfilter';
 import { InputTextModule } from 'primeng/inputtext';
@@ -32,7 +44,7 @@ import { Card } from 'primeng/card';
     ToggleSwitch,
     InputGroupAddonModule,
     InputGroupModule,
-    Card,
+    Card
   ],
   templateUrl: './mode-reglement.component.html',
   styles: [
@@ -76,7 +88,7 @@ export class ModeReglementComponent implements OnInit {
   protected readonly baseSaleService = inject(BaseSaleService);
   protected readonly selectModeReglementService = inject(SelectModeReglementService);
   readonly manageShowInfosBancaire = computed(() =>
-    this.selectModeReglementService.modeReglements()?.some(element => this.bankRelatedModes.includes(element?.code as PaymentModeCode)),
+    this.selectModeReglementService.modeReglements()?.some(element => this.bankRelatedModes.includes(element?.code as PaymentModeCode))
   );
   //currentSaleService.currentSale()?.amountToBePaid
   protected paymentModeToChange: IPaymentMode | null = null;
@@ -138,8 +150,8 @@ export class ModeReglementComponent implements OnInit {
   manageShowAddButton(inputAmount: number): void {
     this.isShowAddBtn.set(
       this.selectModeReglementService.modeReglements().length < this.baseSaleService.maxModePayementNumber() &&
-        inputAmount > 0 &&
-        inputAmount < this.currentSaleService.currentSale().amountToBePaid,
+      inputAmount > 0 &&
+      inputAmount < this.currentSaleService.currentSale().amountToBePaid
     );
   }
 
@@ -270,6 +282,7 @@ export class ModeReglementComponent implements OnInit {
     }
     this.focusPaymentInput();
   }
+
   private focusPaymentInput(): void {
     queueMicrotask(() => {
       const firstInput = this.paymentModeInputs()[0]?.nativeElement;
@@ -279,6 +292,7 @@ export class ModeReglementComponent implements OnInit {
       }
     });
   }
+
   private buildModePayment(mode: IPaymentMode, inputAmount: number, entryAmount: number): Payment {
     const amount =
       entryAmount > this.currentSaleService.currentSale().amountToBePaid
@@ -289,7 +303,7 @@ export class ModeReglementComponent implements OnInit {
       paidAmount: amount,
       netAmount: amount,
       paymentMode: mode,
-      montantVerse: inputAmount,
+      montantVerse: inputAmount
     };
   }
 }

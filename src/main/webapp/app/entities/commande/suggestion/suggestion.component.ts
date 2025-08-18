@@ -47,6 +47,7 @@ export class SuggestionComponent implements OnInit, OnDestroy {
   private readonly modalService = inject(NgbModal);
   private readonly confimDialog = viewChild.required<ConfirmDialogComponent>('confirmDialog');
   private readonly spinner = inject(SpinerService);
+
   constructor() {
     this.rowExpandMode = 'single';
   }

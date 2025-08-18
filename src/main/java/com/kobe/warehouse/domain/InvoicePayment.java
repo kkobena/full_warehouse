@@ -2,6 +2,7 @@ package com.kobe.warehouse.domain;
 
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Entity;
+import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
 import jakarta.validation.constraints.NotNull;
@@ -22,6 +23,7 @@ public class InvoicePayment extends PaymentTransaction implements Serializable {
 
     @NotNull
     @ManyToOne
+    @JoinColumn(name = "facture_tiersPayant_id", referencedColumnName = "id")
     private FactureTiersPayant factureTiersPayant;
 
     @OneToMany(mappedBy = "invoicePayment", cascade = { CascadeType.PERSIST, CascadeType.REMOVE })

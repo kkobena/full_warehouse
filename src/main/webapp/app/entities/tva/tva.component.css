@@ -28,13 +28,16 @@
   .car-item {
     text-align: center;
   }
+
   .index-col {
     display: none;
   }
+
   .image-col {
     display: none;
   }
 }
+
 @keyframes pulse {
   0% {
     background-color: rgba(165, 165, 165, 0.1);

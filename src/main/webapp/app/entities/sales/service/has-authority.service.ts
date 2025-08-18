@@ -2,7 +2,7 @@ import { inject, Injectable } from '@angular/core';
 import { AccountService } from '../../../core/auth/account.service';
 
 @Injectable({
-  providedIn: 'root',
+  providedIn: 'root'
 })
 export class HasAuthorityService {
   private accountService = inject(AccountService);

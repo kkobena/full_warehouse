@@ -1,7 +1,8 @@
 @if (authority) {
   <form name="deleteForm" (ngSubmit)="confirmDelete(authority.name!)">
     <div class="modal-header">
-      <h4 class="modal-title" data-cy="authorityDeleteDialogHeading" jhiTranslate="entity.delete.title">Confirmation de suppression</h4>
+      <h4 class="modal-title" data-cy="authorityDeleteDialogHeading" jhiTranslate="entity.delete.title">Confirmation de
+        suppression</h4>
     </div>
 
     <div class="modal-body">
@@ -20,7 +21,8 @@
         <fa-icon icon="ban"></fa-icon>&nbsp;<span jhiTranslate="entity.action.cancel">Annuler</span>
       </button>
 
-      <button id="jhi-confirm-delete-authority" data-cy="entityConfirmDeleteButton" type="submit" class="btn btn-danger">
+      <button id="jhi-confirm-delete-authority" data-cy="entityConfirmDeleteButton" type="submit"
+              class="btn btn-danger">
         <fa-icon icon="times"></fa-icon>&nbsp;<span jhiTranslate="entity.action.delete">Supprimer</span>
       </button>
     </div>

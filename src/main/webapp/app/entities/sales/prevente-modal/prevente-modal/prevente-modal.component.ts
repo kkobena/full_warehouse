@@ -45,8 +45,8 @@ import { UserVendeurService } from '../../service/user-vendeur.service';
     InputIcon,
     InputGroup,
     InputGroupAddon,
-    Select,
-  ],
+    Select
+  ]
 })
 export class PreventeModalComponent implements OnInit {
   readonly user = input<IUser>();
@@ -87,7 +87,7 @@ export class PreventeModalComponent implements OnInit {
       .queryPrevente({
         search: this.search,
         type: this.typeVenteSelected,
-        userId: this.userSignal().id,
+        userId: this.userSignal().id
       })
       .subscribe(res => {
         this.preventes = res.body ?? [];

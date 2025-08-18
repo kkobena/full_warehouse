@@ -1,7 +1,13 @@
 import { Component, computed, inject, input, OnInit, output, signal, viewChild } from '@angular/core';
 import { DossierFactureProjection, ReglementFactureDossier } from '../model/reglement-facture-dossier.model';
 import { TableHeaderCheckbox, TableModule } from 'primeng/table';
-import { LigneSelectionnes, ModeEditionReglement, ReglementParams, ResponseReglement, SelectedFacture } from '../model/reglement.model';
+import {
+  LigneSelectionnes,
+  ModeEditionReglement,
+  ReglementParams,
+  ResponseReglement,
+  SelectedFacture
+} from '../model/reglement.model';
 import { ButtonModule } from 'primeng/button';
 import { DossierReglementInfoComponent } from '../dossier-reglement-info/dossier-reglement-info.component';
 import { FieldsetModule } from 'primeng/fieldset';
@@ -46,9 +52,9 @@ import { InputIcon } from 'primeng/inputicon';
     FactuesModalComponent,
     Drawer,
     IconField,
-    InputIcon,
+    InputIcon
   ],
-  templateUrl: './faire-groupe-reglement.component.html',
+  templateUrl: './faire-groupe-reglement.component.html'
 })
 export class FaireGroupeReglementComponent implements OnInit {
   readonly reglementFactureDossiers = input<ReglementFactureDossier[]>([]);
@@ -80,9 +86,11 @@ export class FaireGroupeReglementComponent implements OnInit {
       this.dossierFactureProjectionWritable.set(this.dossierFactureProjection());
     }
   }
+
   get drawerWidth(): {} {
     return window.innerWidth <= 1280 ? { width: '85vw' } : { width: '70vw' };
   }
+
   openSideBar(): void {
     this.showSidebar = true;
   }
@@ -90,7 +98,7 @@ export class FaireGroupeReglementComponent implements OnInit {
   openInfoDialog(message: string, infoClass: string): void {
     const modalRef = this.modalService.open(AlertInfoComponent, {
       backdrop: 'static',
-      centered: true,
+      centered: true
     });
     modalRef.componentInstance.message = message;
     modalRef.componentInstance.infoClass = infoClass;
@@ -135,7 +143,7 @@ export class FaireGroupeReglementComponent implements OnInit {
           this.onPrintReceipt(res.body);
         }
       },
-      error: err => this.onError(err),
+      error: err => this.onError(err)
     });
   }
 
@@ -155,7 +163,7 @@ export class FaireGroupeReglementComponent implements OnInit {
         this.reset(response);
       },
       reject: () => this.reset(response),
-      key: 'printReceipt',
+      key: 'printReceipt'
     });
   }
 
@@ -167,7 +175,7 @@ export class FaireGroupeReglementComponent implements OnInit {
     return {
       ...params,
       mode: this.getModeEditionReglement(),
-      ligneSelectionnes: this.buildLigneSelectionnes(),
+      ligneSelectionnes: this.buildLigneSelectionnes()
     };
   }
 
@@ -182,7 +190,7 @@ export class FaireGroupeReglementComponent implements OnInit {
           id: d.id,
           montantAttendu: d.montantTotal - d.montantPaye,
           montantVerse: d.montantVerse,
-          montantFacture: this.dossierFactureProjectionWritable().montantTotal,
+          montantFacture: this.dossierFactureProjectionWritable().montantTotal
         };
       });
     }
@@ -206,7 +214,7 @@ export class FaireGroupeReglementComponent implements OnInit {
     this.factureService
       .findDossierReglement(id, 'groupes', {
         page: 0,
-        size: 999999,
+        size: 999999
       })
       .subscribe({
         next: (res: HttpResponse<ReglementFactureDossier[]>) => {
@@ -215,14 +223,14 @@ export class FaireGroupeReglementComponent implements OnInit {
         error: () => {
           this.reglementFactureDossiersWritable.set([]);
           this.dossierFactureProjectionWritable.set(null);
-        },
+        }
       });
   }
 
   private fetchFacture(): void {
     this.factureService
       .findDossierFactureProjection(this.dossierFactureProjectionWritable().id, {
-        isGroup: true,
+        isGroup: true
       })
       .subscribe(res => {
         this.dossierFactureProjectionWritable.set(res.body);

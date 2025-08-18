@@ -9,6 +9,7 @@ export class NewReglementDiffere {
   banqueInfo: Banque;
   paymentDate: string;
 }
+
 export class ReglementDiffereResponse {
   idReglement: number;
 }

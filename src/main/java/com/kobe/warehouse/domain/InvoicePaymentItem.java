@@ -5,6 +5,7 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 import jakarta.validation.constraints.NotNull;
@@ -37,10 +38,12 @@ public class InvoicePaymentItem implements Serializable {
 
     @NotNull
     @ManyToOne(optional = false)
+    @JoinColumn(name = "third_party_sale_line_id", referencedColumnName = "id")
     private ThirdPartySaleLine thirdPartySaleLine;
 
     @ManyToOne(optional = false)
     @NotNull
+    @JoinColumn(name = "invoice_payment_id", referencedColumnName = "id")
     private InvoicePayment invoicePayment;
 
     public @NotNull ThirdPartySaleLine getThirdPartySaleLine() {

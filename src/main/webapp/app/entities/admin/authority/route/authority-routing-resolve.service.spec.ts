@@ -1,6 +1,6 @@
 import { TestBed } from '@angular/core/testing';
 import { HttpResponse, provideHttpClient } from '@angular/common/http';
-import { ActivatedRoute, ActivatedRouteSnapshot, Router, convertToParamMap } from '@angular/router';
+import { ActivatedRoute, ActivatedRouteSnapshot, convertToParamMap, Router } from '@angular/router';
 import { of } from 'rxjs';
 
 import { IAuthority } from '../authority.model';
@@ -22,11 +22,11 @@ describe('Authority routing resolve service', () => {
           provide: ActivatedRoute,
           useValue: {
             snapshot: {
-              paramMap: convertToParamMap({}),
-            },
-          },
-        },
-      ],
+              paramMap: convertToParamMap({})
+            }
+          }
+        }
+      ]
     });
     mockRouter = TestBed.inject(Router);
     jest.spyOn(mockRouter, 'navigate').mockImplementation(() => Promise.resolve(true));
@@ -46,7 +46,7 @@ describe('Authority routing resolve service', () => {
         authorityResolve(mockActivatedRouteSnapshot).subscribe({
           next(result) {
             resultAuthority = result;
-          },
+          }
         });
       });
 
@@ -65,7 +65,7 @@ describe('Authority routing resolve service', () => {
         authorityResolve(mockActivatedRouteSnapshot).subscribe({
           next(result) {
             resultAuthority = result;
-          },
+          }
         });
       });
 
@@ -84,7 +84,7 @@ describe('Authority routing resolve service', () => {
         authorityResolve(mockActivatedRouteSnapshot).subscribe({
           next(result) {
             resultAuthority = result;
-          },
+          }
         });
       });
 

@@ -1,4 +1,4 @@
-import { Injectable, inject } from '@angular/core';
+import { inject, Injectable } from '@angular/core';
 import { HttpClient, HttpResponse } from '@angular/common/http';
 import { SERVER_API_URL } from '../../app.constants';
 import { firstValueFrom, Observable } from 'rxjs';
@@ -9,7 +9,7 @@ type EntityResponseType = HttpResponse<ITva>;
 type EntityArrayResponseType = HttpResponse<ITva[]>;
 
 @Injectable({
-  providedIn: 'root',
+  providedIn: 'root'
 })
 export class TvaService {
   protected http = inject(HttpClient);

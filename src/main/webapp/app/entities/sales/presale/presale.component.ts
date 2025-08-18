@@ -1,4 +1,4 @@
-import { Component, OnInit, inject } from '@angular/core';
+import { Component, inject, OnInit } from '@angular/core';
 import { ISales } from '../../../shared/model/sales.model';
 import { SalesService } from '../sales.service';
 import { ConfirmationService } from 'primeng/api';
@@ -33,8 +33,8 @@ import { Select } from 'primeng/select';
     ToolbarModule,
     IconField,
     InputIcon,
-    Select,
-  ],
+    Select
+  ]
 })
 export class PresaleComponent implements OnInit {
   protected salesService = inject(SalesService);
@@ -58,7 +58,7 @@ export class PresaleComponent implements OnInit {
     this.salesService
       .queryPrevente({
         search: this.search,
-        type: this.typeVenteSelected,
+        type: this.typeVenteSelected
       })
       .subscribe(res => {
         this.sales = res.body ?? [];
@@ -81,7 +81,7 @@ export class PresaleComponent implements OnInit {
       header: 'SUPPRESSION DE PRE-VENTE',
       icon: 'pi pi-info-circle',
       accept: () => this.deletePrevente(sale),
-      key: 'deletePrevente',
+      key: 'deletePrevente'
     });
   }
 }

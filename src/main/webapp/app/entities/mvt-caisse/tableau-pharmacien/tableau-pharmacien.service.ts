@@ -7,7 +7,7 @@ import { TableauPharmacienWrapper } from './tableau-pharmacien.model';
 import { IGroupeFournisseur } from '../../../shared/model/groupe-fournisseur.model';
 
 @Injectable({
-  providedIn: 'root',
+  providedIn: 'root'
 })
 export class TableauPharmacienService {
   public resourceUrl = SERVER_API_URL + 'api/';
@@ -17,7 +17,7 @@ export class TableauPharmacienService {
     const options = createRequestOptions(req);
     return this.http.get<TableauPharmacienWrapper>(this.resourceUrl + 'tableau-pharmacien', {
       params: options,
-      observe: 'response',
+      observe: 'response'
     });
   }
 
@@ -25,7 +25,7 @@ export class TableauPharmacienService {
     const options = createRequestOptions(req);
     return this.http.get(`${this.resourceUrl}/tableau-pharmacien/pdf`, {
       params: options,
-      responseType: 'blob',
+      responseType: 'blob'
     });
   }
 
@@ -33,7 +33,7 @@ export class TableauPharmacienService {
     const options = createRequestOptions(req);
     return this.http.get<IGroupeFournisseur[]>(this.resourceUrl + 'top-groupe-fournisseurs', {
       params: options,
-      observe: 'response',
+      observe: 'response'
     });
   }
 
@@ -42,7 +42,7 @@ export class TableauPharmacienService {
     return this.http.get(`${this.resourceUrl}/tableau-pharmacien/excel`, {
       params: options,
       observe: 'response',
-      responseType: 'blob',
+      responseType: 'blob'
     });
   }
 }

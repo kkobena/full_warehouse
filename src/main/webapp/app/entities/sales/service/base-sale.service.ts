@@ -12,7 +12,7 @@ import { HttpResponse } from '@angular/common/http';
 import { SaleEventSignal } from '../selling-home/sale-event';
 
 @Injectable({
-  providedIn: 'root',
+  providedIn: 'root'
 })
 export class BaseSaleService {
   quantityMax: WritableSignal<number> = signal<number>(null);
@@ -22,7 +22,7 @@ export class BaseSaleService {
   configurationService = inject(ConfigurationService);
   currentSaleService = inject(CurrentSaleService);
   totalQtyProduit = computed(() =>
-    this.currentSaleService.currentSale().salesLines.reduce((sum, current) => sum + current.quantityRequested, 0),
+    this.currentSaleService.currentSale().salesLines.reduce((sum, current) => sum + current.quantityRequested, 0)
   );
   totalQtyServi = computed(() => this.currentSaleService.currentSale().salesLines.reduce((sum, current) => sum + current.quantitySold, 0));
 
@@ -43,7 +43,7 @@ export class BaseSaleService {
     cassierId: number,
     sellerId: number,
     customerId: number,
-    natureVente: string,
+    natureVente: string
   ): ISales {
     return {
       ...new Sales(),
@@ -55,7 +55,7 @@ export class BaseSaleService {
       sellerId,
       type: 'VO',
       categorie: 'VO',
-      tiersPayants,
+      tiersPayants
     };
   }
 
@@ -85,14 +85,14 @@ export class BaseSaleService {
   setInputBoxFocus(input: string): void {
     this.saleEventManager.broadcast({
       name: 'inputBoxFocus',
-      content: new InputToFocus(input),
+      content: new InputToFocus(input)
     });
   }
 
   onError(err: any): void {
     this.saleEventManager.broadcast({
       name: 'saveResponse',
-      content: new SaveResponse(false, err),
+      content: new SaveResponse(false, err)
     });
   }
 
@@ -100,7 +100,7 @@ export class BaseSaleService {
     this.currentSaleService.setCurrentSale(sale);
     this.saleEventManager.broadcast({
       name: 'saveResponse',
-      content: new SaveResponse(true),
+      content: new SaveResponse(true)
     });
   }
 
@@ -113,28 +113,28 @@ export class BaseSaleService {
     }
     this.saleEventManager.broadcast({
       name: 'saveResponse',
-      content: new SaveResponse(false, err),
+      content: new SaveResponse(false, err)
     });
   }
 
   onCompleteSale(): void {
     this.saleEventManager.broadcast({
       name: 'completeSale',
-      content: 'save',
+      content: 'save'
     });
   }
 
   onStandby(): void {
     this.saleEventManager.broadcast({
       name: 'completeSale',
-      content: 'standby',
+      content: 'standby'
     });
   }
 
   onFinalyseSuccess(response: FinalyseSale | null, putOnStandBy = false): void {
     this.saleEventManager.broadcast({
       name: 'responseEvent',
-      content: new FinalyseSale(true, null, response.saleId, putOnStandBy),
+      content: new FinalyseSale(true, null, response.saleId, putOnStandBy)
     });
   }
 
@@ -142,7 +142,7 @@ export class BaseSaleService {
     this.currentSaleService.setCurrentSale(sale);
     this.saleEventManager.broadcast({
       name: 'saveResponse',
-      content: new SaveResponse(true),
+      content: new SaveResponse(true)
     });
   }
 
@@ -150,14 +150,14 @@ export class BaseSaleService {
     this.saleEventManager.broadcast({
       name: 'responseEvent',
       // content: new SaveResponse(false, err),
-      content: new FinalyseSale(false, err),
+      content: new FinalyseSale(false, err)
     });
   }
 
   onStockError(err: any, saleLine: ISalesLine): void {
     this.saleEventManager.broadcast({
       name: 'saveResponse',
-      content: new StockError(err, saleLine),
+      content: new StockError(err, saleLine)
     });
   }
 
@@ -168,21 +168,21 @@ export class BaseSaleService {
   getMaxToSale(): void {
     this.configurationService.find('APP_QTY_MAX').subscribe({
       next: res => this.quantityMax.set(Number(res.body?.value ?? 10000)),
-      error: () => this.quantityMax.set(10000),
+      error: () => this.quantityMax.set(10000)
     });
   }
 
   hasSaleWithoutBon(): void {
     this.configurationService.find('APP_SANS_NUM_BON').subscribe({
       next: res => this.hasSansBon.set(Number(res.body?.value) === 1),
-      error: () => this.hasSansBon.set(false),
+      error: () => this.hasSansBon.set(false)
     });
   }
 
   getMaxModePaymentNumber(): void {
     this.configurationService.find('APP_MODE_REGL_NUMBER').subscribe({
       next: res => this.maxModePayementNumber.set(Number(res.body?.value ?? 2)),
-      error: () => this.maxModePayementNumber.set(2),
+      error: () => this.maxModePayementNumber.set(2)
     });
   }
 
@@ -196,15 +196,15 @@ export class BaseSaleService {
         this.currentSaleService.setCurrentSale(res.body);
         this.saleEventManager.broadcast({
           name: 'saveResponse',
-          content: new SaveResponse(true),
+          content: new SaveResponse(true)
         });
       },
       error: err => {
         this.saleEventManager.broadcast({
           name: 'saveResponse',
-          content: new SaveResponse(false, err),
+          content: new SaveResponse(false, err)
         });
-      },
+      }
     });
   }
 }

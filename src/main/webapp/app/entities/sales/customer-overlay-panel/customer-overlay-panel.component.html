@@ -6,7 +6,8 @@
       </ng-template>
     </p-popover>
     @if (customer) {
-      <p-button (click)="remove()" pTooltip="Supprimer" icon="pi pi-user" severity="danger" size="small" styleClass="customer"></p-button>
+      <p-button (click)="remove()" pTooltip="Supprimer" icon="pi pi-user" severity="danger" size="small"
+                styleClass="customer"></p-button>
     } @else {
       <p-button
         (click)="op.toggle($event)"

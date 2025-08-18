@@ -6,7 +6,7 @@ import { LastCurrencyGivenService } from '../../../service/last-currency-given.s
 @Component({
   selector: 'jhi-amount-computing',
   imports: [WarehouseCommonModule],
-  templateUrl: './amount-computing.component.html',
+  templateUrl: './amount-computing.component.html'
 })
 export class AmountComputingComponent {
   entryAmount = input<number>(0);

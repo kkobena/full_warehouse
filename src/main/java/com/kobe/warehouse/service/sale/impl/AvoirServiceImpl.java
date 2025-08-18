@@ -24,7 +24,6 @@ public class AvoirServiceImpl implements AvoirService {
 
     private Avoir build(Sales sales) {
         Avoir avoir = new Avoir();
-        avoir.setCalendar(sales.getCalendar());
         avoir.setUser(sales.getUser());
         sales.getSalesLines().forEach(salesLine -> buildLigneAvoir(salesLine, avoir));
         sales.setAvoir(avoir);

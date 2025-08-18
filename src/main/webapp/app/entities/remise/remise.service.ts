@@ -1,4 +1,4 @@
-import { Injectable, inject } from '@angular/core';
+import { inject, Injectable } from '@angular/core';
 import { SERVER_API_URL } from '../../app.constants';
 import { HttpClient, HttpResponse } from '@angular/common/http';
 import { CodeRemise, GrilleRemise, IRemise } from '../../shared/model/remise.model';
@@ -9,7 +9,7 @@ type EntityResponseType = HttpResponse<IRemise>;
 type EntityArrayResponseType = HttpResponse<IRemise[]>;
 
 @Injectable({
-  providedIn: 'root',
+  providedIn: 'root'
 })
 export class RemiseService {
   protected http = inject(HttpClient);

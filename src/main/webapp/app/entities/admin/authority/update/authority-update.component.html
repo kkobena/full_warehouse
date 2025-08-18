@@ -26,11 +26,13 @@
           @if (editForm.get('name')!.invalid && (editForm.get('name')!.dirty || editForm.get('name')!.touched)) {
             <div>
               @if (editForm.get('name')?.errors?.required) {
-                <small class="form-text text-danger" jhiTranslate="entity.validation.required">Ce champ est obligatoire.</small>
+                <small class="form-text text-danger" jhiTranslate="entity.validation.required">Ce champ est
+                  obligatoire.</small>
               }
               @if (editForm.get('name')?.errors?.maxlength) {
-                <small class="form-text text-danger" jhiTranslate="entity.validation.maxlength" [translateValues]="{ max: '50' }"
-                  >Ce champ doit faire moins de 50 caractères.</small
+                <small class="form-text text-danger" jhiTranslate="entity.validation.maxlength"
+                       [translateValues]="{ max: '50' }"
+                >Ce champ doit faire moins de 50 caractères.</small
                 >
               }
             </div>
@@ -39,7 +41,8 @@
       </div>
 
       <div>
-        <button type="button" id="cancel-save" data-cy="entityCreateCancelButton" class="btn btn-secondary" (click)="previousState()">
+        <button type="button" id="cancel-save" data-cy="entityCreateCancelButton" class="btn btn-secondary"
+                (click)="previousState()">
           <fa-icon icon="ban"></fa-icon>&nbsp;<span jhiTranslate="entity.action.cancel">Annuler</span>
         </button>
 

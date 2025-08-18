@@ -52,9 +52,9 @@ import { FloatLabel } from 'primeng/floatlabel';
     ToastModule,
     DatePicker,
     Select,
-    FloatLabel,
+    FloatLabel
   ],
-  templateUrl: './visualisation-mvt-caisse.component.html',
+  templateUrl: './visualisation-mvt-caisse.component.html'
 })
 export class VisualisationMvtCaisseComponent implements OnInit, AfterViewInit {
   protected mvtCaisses: MvtCaisse[] = [];
@@ -81,7 +81,7 @@ export class VisualisationMvtCaisseComponent implements OnInit, AfterViewInit {
     TypeFinancialTransaction.REGLEMENT_DIFFERE,
     TypeFinancialTransaction.REGLEMENT_TIERS_PAYANT,
     TypeFinancialTransaction.CASH_SALE,
-    TypeFinancialTransaction.CREDIT_SALE,
+    TypeFinancialTransaction.CREDIT_SALE
   ];
   protected selectedTypes: TypeFinancialTransaction[] = [];
   protected paymentModes: IPaymentMode[] = [];
@@ -132,14 +132,14 @@ export class VisualisationMvtCaisseComponent implements OnInit, AfterViewInit {
       .findAllMvts({
         page: pageToLoad,
         size: this.itemsPerPage,
-        ...this.buildParams(),
+        ...this.buildParams()
       })
       .subscribe({
         next: (res: HttpResponse<MvtCaisse[]>) => this.onSuccess(res.body, res.headers, pageToLoad),
         error: () => this.onError(),
         complete: () => {
           this.btnLoading = false;
-        },
+        }
       });
   }
 
@@ -159,11 +159,11 @@ export class VisualisationMvtCaisseComponent implements OnInit, AfterViewInit {
         .findAllMvts({
           page: this.page,
           size: event.rows,
-          ...this.buildParams(),
+          ...this.buildParams()
         })
         .subscribe({
           next: (res: HttpResponse<MvtCaisse[]>) => this.onSuccess(res.body, res.headers, this.page),
-          error: () => this.onError(),
+          error: () => this.onError()
         });
     }
   }
@@ -187,20 +187,20 @@ export class VisualisationMvtCaisseComponent implements OnInit, AfterViewInit {
         this.messageService.add({
           severity: 'error',
           summary: 'Error',
-          detail: 'Une erreur est survenue',
+          detail: 'Une erreur est survenue'
         });
       },
       complete: () => {
         this.btnLoading = false;
-      },
+      }
     });
   }
 
   protected addNew(): void {
     this.ref = this.dialogService.open(FormTransactionComponent, {
       data: { entity: null },
-      header: "FORMULAIRE D'AJOUT DE MOUVEMENT DE CAISSE",
-      width: '50%',
+      header: 'FORMULAIRE D\'AJOUT DE MOUVEMENT DE CAISSE',
+      width: '50%'
     });
     this.ref.onClose.subscribe(() => {
       this.onSearch();
@@ -231,7 +231,7 @@ export class VisualisationMvtCaisseComponent implements OnInit, AfterViewInit {
       typeFinancialTransactions: this.selectedTypes?.map(type => getTypeName(type)),
       paymentModes: this.selectedModes?.map(mode => mode.code),
       userId: this.selectedUser?.id,
-      order: this.order,
+      order: this.order
     };
   }
 
@@ -260,7 +260,7 @@ export class VisualisationMvtCaisseComponent implements OnInit, AfterViewInit {
       toDate: this.toDate,
       selectedTypes: this.selectedTypes,
       paymentModes: this.selectedModes,
-      selectedUser: this.selectedUser,
+      selectedUser: this.selectedUser
     };
     this.mvtParamServiceService.setMvtCaisseParam(param);
   }

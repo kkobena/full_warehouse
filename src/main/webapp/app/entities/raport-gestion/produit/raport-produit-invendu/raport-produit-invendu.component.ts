@@ -4,6 +4,7 @@ import { Component } from '@angular/core';
   selector: 'jhi-raport-produit-invendu',
   imports: [],
   templateUrl: './raport-produit-invendu.component.html',
-  styleUrl: './raport-produit-invendu.component.scss',
+  styleUrl: './raport-produit-invendu.component.scss'
 })
-export class RaportProduitInvenduComponent {}
+export class RaportProduitInvenduComponent {
+}

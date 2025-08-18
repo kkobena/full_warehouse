@@ -4,7 +4,7 @@ import { ITEMS_PER_PAGE } from '../../../../shared/constants/pagination.constant
 import {
   HistoriqueProduitAchatsSummary,
   HistoriqueProduitDonneesMensuelles,
-  ProduitAuditingParam,
+  ProduitAuditingParam
 } from '../../../../shared/model/produit-record.model';
 import { ProduitStatService } from '../../stat/produit-stat.service';
 import { ProduitAuditingParamService } from '../../transaction/produit-auditing-param.service';
@@ -17,7 +17,7 @@ import { TableModule } from 'primeng/table';
   selector: 'jhi-yearly-delevery-produit-historique',
   imports: [CommonModule, PrimeTemplate, TableModule],
   templateUrl: './yearly-delevery-produit-historique.component.html',
-  styles: ``,
+  styles: ``
 })
 export class YearlyDeleveryProduitHistoriqueComponent implements OnInit {
   protected readonly JANUARY = MonthEnum.JANUARY;
@@ -57,10 +57,10 @@ export class YearlyDeleveryProduitHistoriqueComponent implements OnInit {
       .getProduitHistoriqueAchatMensuelle({
         page: pageToLoad,
         size: this.itemsPerPage,
-        ...produitAuditingParam,
+        ...produitAuditingParam
       })
       .subscribe({
-        next: (res: HttpResponse<HistoriqueProduitDonneesMensuelles[]>) => this.onSuccess(res.body, res.headers, pageToLoad),
+        next: (res: HttpResponse<HistoriqueProduitDonneesMensuelles[]>) => this.onSuccess(res.body, res.headers, pageToLoad)
       });
   }
 
@@ -72,10 +72,10 @@ export class YearlyDeleveryProduitHistoriqueComponent implements OnInit {
         .getProduitHistoriqueAchatMensuelle({
           page: this.page,
           size: event.rows,
-          ...this.produitAuditingParamService.produitAuditingParam,
+          ...this.produitAuditingParamService.produitAuditingParam
         })
         .subscribe({
-          next: (res: HttpResponse<HistoriqueProduitDonneesMensuelles[]>) => this.onSuccess(res.body, res.headers, this.page),
+          next: (res: HttpResponse<HistoriqueProduitDonneesMensuelles[]>) => this.onSuccess(res.body, res.headers, this.page)
         });
     }
   }
@@ -85,7 +85,7 @@ export class YearlyDeleveryProduitHistoriqueComponent implements OnInit {
       next: blod => {
         const blobUrl = URL.createObjectURL(blod);
         window.open(blobUrl);
-      },
+      }
     });
   }
 
@@ -93,7 +93,7 @@ export class YearlyDeleveryProduitHistoriqueComponent implements OnInit {
     this.produitStatService.getHistoriqueAchatSummary(produitAuditingParam).subscribe({
       next: res => {
         this.summary = res.body;
-      },
+      }
     });
   }
 

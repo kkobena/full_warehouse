@@ -1,6 +1,10 @@
 import { Component, inject, OnInit } from '@angular/core';
 import { ProduitStatService } from '../../stat/produit-stat.service';
-import { HistoriqueProduitVente, HistoriqueProduitVenteSummary, ProduitAuditingParam } from '../../../../shared/model/produit-record.model';
+import {
+  HistoriqueProduitVente,
+  HistoriqueProduitVenteSummary,
+  ProduitAuditingParam
+} from '../../../../shared/model/produit-record.model';
 import { ProduitAuditingParamService } from '../../transaction/produit-auditing-param.service';
 import { ITEMS_PER_PAGE } from '../../../../shared/constants/pagination.constants';
 import { HttpHeaders, HttpResponse } from '@angular/common/http';
@@ -11,7 +15,7 @@ import { TableModule } from 'primeng/table';
 @Component({
   selector: 'jhi-daily-sale-produit-historique',
   imports: [CommonModule, DatePipe, PrimeTemplate, TableModule],
-  templateUrl: './daily-sale-produit-historique.component.html',
+  templateUrl: './daily-sale-produit-historique.component.html'
 })
 export class DailySaleProduitHistoriqueComponent implements OnInit {
   protected totalItems = 0;
@@ -39,10 +43,10 @@ export class DailySaleProduitHistoriqueComponent implements OnInit {
       .getProduitHistoriqueVente({
         page: pageToLoad,
         size: this.itemsPerPage,
-        ...produitAuditingParam,
+        ...produitAuditingParam
       })
       .subscribe({
-        next: (res: HttpResponse<HistoriqueProduitVente[]>) => this.onSuccess(res.body, res.headers, pageToLoad),
+        next: (res: HttpResponse<HistoriqueProduitVente[]>) => this.onSuccess(res.body, res.headers, pageToLoad)
       });
   }
 
@@ -54,10 +58,10 @@ export class DailySaleProduitHistoriqueComponent implements OnInit {
         .getProduitHistoriqueVente({
           page: this.page,
           size: event.rows,
-          ...this.produitAuditingParamService.produitAuditingParam,
+          ...this.produitAuditingParamService.produitAuditingParam
         })
         .subscribe({
-          next: (res: HttpResponse<HistoriqueProduitVente[]>) => this.onSuccess(res.body, res.headers, this.page),
+          next: (res: HttpResponse<HistoriqueProduitVente[]>) => this.onSuccess(res.body, res.headers, this.page)
         });
     }
   }
@@ -67,7 +71,7 @@ export class DailySaleProduitHistoriqueComponent implements OnInit {
       next: blod => {
         const blobUrl = URL.createObjectURL(blod);
         window.open(blobUrl);
-      },
+      }
     });
   }
 
@@ -75,7 +79,7 @@ export class DailySaleProduitHistoriqueComponent implements OnInit {
     this.produitStatService.getHistoriqueVenteSummary(produitAuditingParam).subscribe({
       next: res => {
         this.summary = res.body;
-      },
+      }
     });
   }
 

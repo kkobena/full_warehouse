@@ -4,6 +4,7 @@ import com.kobe.warehouse.domain.enumeration.OptionPrixType;
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
 import java.io.Serial;
@@ -21,6 +22,7 @@ public class ThirdPartySales extends Sales implements Serializable {
     private String numBon;
 
     @ManyToOne
+    @JoinColumn(name = "ayant_droit_id", referencedColumnName = "id")
     private AssuredCustomer ayantDroit;
 
     @Column(name = "part_assure", columnDefinition = "int default '0'")

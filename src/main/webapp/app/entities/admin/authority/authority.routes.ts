@@ -8,32 +8,32 @@ const authorityRoute: Routes = [
     path: '',
     loadComponent: () => import('./list/authority.component').then(m => m.AuthorityComponent),
     data: {
-      authorities: ['ROLE_ADMIN'],
+      authorities: ['ROLE_ADMIN']
     },
-    canActivate: [UserRouteAccessService],
+    canActivate: [UserRouteAccessService]
   },
   {
     path: ':name/view',
     loadComponent: () => import('./detail/authority-detail.component').then(m => m.AuthorityDetailComponent),
     resolve: {
-      authority: AuthorityResolve,
+      authority: AuthorityResolve
     },
     data: {
-      authorities: ['ROLE_ADMIN'],
+      authorities: ['ROLE_ADMIN']
     },
-    canActivate: [UserRouteAccessService],
+    canActivate: [UserRouteAccessService]
   },
   {
     path: 'new',
     loadComponent: () => import('./update/authority-update.component').then(m => m.AuthorityUpdateComponent),
     resolve: {
-      authority: AuthorityResolve,
+      authority: AuthorityResolve
     },
     data: {
-      authorities: ['ROLE_ADMIN'],
+      authorities: ['ROLE_ADMIN']
     },
-    canActivate: [UserRouteAccessService],
-  },
+    canActivate: [UserRouteAccessService]
+  }
 ];
 
 export default authorityRoute;

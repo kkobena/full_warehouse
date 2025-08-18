@@ -22,10 +22,10 @@ import { CodeRemiseProduitComponent } from '../code-remise-produit/code-remise-p
     FormsModule,
     RemiseComponent,
     RemiseProduitsComponent,
-    CodeRemiseProduitComponent,
+    CodeRemiseProduitComponent
   ],
   templateUrl: './remise-nav.component.html',
-  styles: ``,
+  styles: ``
 })
 export class RemiseNavComponent {
   protected active = 'remise-produit';

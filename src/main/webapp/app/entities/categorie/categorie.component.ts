@@ -17,7 +17,7 @@ import { RouterModule } from '@angular/router';
 @Component({
   selector: 'jhi-categorie',
   templateUrl: './categorie.component.html',
-  imports: [WarehouseCommonModule, PanelModule, ButtonModule, RouterModule],
+  imports: [WarehouseCommonModule, PanelModule, ButtonModule, RouterModule]
 })
 export class CategorieComponent implements OnInit {
   categories: ICategorie[];
@@ -34,7 +34,7 @@ export class CategorieComponent implements OnInit {
     this.itemsPerPage = ITEMS_PER_PAGE;
     this.page = 0;
     this.links = {
-      last: 0,
+      last: 0
     };
     this.predicate = 'id';
     this.ascending = true;
@@ -44,7 +44,7 @@ export class CategorieComponent implements OnInit {
     this.reset();
     this.categorieService
       .query({
-        sort: this.sort(),
+        sort: this.sort()
       })
       .subscribe((res: HttpResponse<ICategorie[]>) => this.paginateCategories(res.body, res.headers));
   }
@@ -72,7 +72,7 @@ export class CategorieComponent implements OnInit {
   delete(categorie: ICategorie): void {
     const modalRef = this.modalService.open(CategorieDeleteDialogComponent, {
       size: 'lg',
-      backdrop: 'static',
+      backdrop: 'static'
     });
     modalRef.componentInstance.categorie = categorie;
   }

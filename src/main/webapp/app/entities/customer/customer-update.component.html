@@ -1,7 +1,8 @@
 <div class="row justify-content-center">
   <div class="col-8 card">
     <form (ngSubmit)="save()" [formGroup]="editForm" name="editForm" novalidate>
-      <h2 id="jhi-customer-heading" jhiTranslate="warehouseApp.customer.home.createOrEditLabel">Create or edit a Customer</h2>
+      <h2 id="jhi-customer-heading" jhiTranslate="warehouseApp.customer.home.createOrEditLabel">Create or edit a
+        Customer</h2>
 
       <div>
         <jhi-alert-error></jhi-alert-error>
@@ -22,24 +23,29 @@
 
       <div class="form-row">
         <div class="form-group col-md-6">
-          <label class="form-control-label" for="field_firstName" jhiTranslate="warehouseApp.customer.firstName">First Name</label>
-          <input autocomplete="off" class="form-control" formControlName="firstName" id="field_firstName" name="firstName" type="text" />
+          <label class="form-control-label" for="field_firstName" jhiTranslate="warehouseApp.customer.firstName">First
+            Name</label>
+          <input autocomplete="off" class="form-control" formControlName="firstName" id="field_firstName"
+                 name="firstName" type="text" />
           @if (editForm.get('firstName')!.invalid && (editForm.get('firstName')!.dirty || editForm.get('firstName')!.touched)) {
             <div>
               @if (editForm.get('firstName')?.errors?.required) {
-                <small class="form-text text-danger" jhiTranslate="entity.validation.required"> This field is required. </small>
+                <small class="form-text text-danger" jhiTranslate="entity.validation.required"> This field is
+                  required. </small>
               }
             </div>
           }
         </div>
 
         <div class="form-group col-md-6">
-          <label class="form-control-label" for="field_lastName" jhiTranslate="warehouseApp.customer.lastName">Last Name</label>
+          <label class="form-control-label" for="field_lastName" jhiTranslate="warehouseApp.customer.lastName">Last
+            Name</label>
           <input class="form-control" formControlName="lastName" id="field_lastName" name="lastName" type="text" />
           @if (editForm.get('lastName')!.invalid && (editForm.get('lastName')!.dirty || editForm.get('lastName')!.touched)) {
             <div>
               @if (editForm.get('lastName')?.errors?.required) {
-                <small class="form-text text-danger" jhiTranslate="entity.validation.required"> This field is required. </small>
+                <small class="form-text text-danger" jhiTranslate="entity.validation.required"> This field is
+                  required. </small>
               }
             </div>
           }
@@ -48,12 +54,14 @@
       <div class="form-row">
         <div class="form-group col-md-6">
           <label class="form-control-label" for="field_phone" jhiTranslate="warehouseApp.customer.phone">Phone</label>
-          <input autocomplete="off" class="form-control" formControlName="phone" id="field_phone" name="phone" type="text" />
+          <input autocomplete="off" class="form-control" formControlName="phone" id="field_phone" name="phone"
+                 type="text" />
 
           @if (editForm.get('phone')!.invalid && (editForm.get('phone')!.dirty || editForm.get('phone')!.touched)) {
             <div>
               @if (editForm.get('phone')?.errors?.required) {
-                <small class="form-text text-danger" jhiTranslate="entity.validation.required"> This field is required. </small>
+                <small class="form-text text-danger" jhiTranslate="entity.validation.required"> This field is
+                  required. </small>
               }
             </div>
           }
@@ -61,7 +69,8 @@
 
         <div class="form-group col-md-6">
           <label class="form-control-label" for="field_email" jhiTranslate="warehouseApp.customer.email">Email</label>
-          <input autocomplete="off" class="form-control" formControlName="email" id="field_email" name="email" type="text" />
+          <input autocomplete="off" class="form-control" formControlName="email" id="field_email" name="email"
+                 type="text" />
         </div>
       </div>
 
@@ -69,7 +78,9 @@
         <label for="field_produits" jhiTranslate="warehouseApp.customer.produits">Produits</label>
         <select class="form-control" formControlName="produits" id="field_produits" multiple name="produits">
           @for (produitOption of produits; track produitOption.id) {
-            <option [ngValue]="getSelected(editForm.get('produits')!.value, produitOption)">{{ produitOption.libelle }}</option>
+            <option
+              [ngValue]="getSelected(editForm.get('produits')!.value, produitOption)">{{ produitOption.libelle }}
+            </option>
           }
         </select>
       </div>

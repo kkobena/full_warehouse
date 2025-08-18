@@ -1,4 +1,4 @@
-import { ChangeDetectorRef, Component, OnInit, inject } from '@angular/core';
+import { ChangeDetectorRef, Component, inject, OnInit } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 
 import { IAuthority } from '../../shared/model/authority.model';
@@ -16,7 +16,7 @@ import { TagModule } from 'primeng/tag';
 @Component({
   selector: 'jhi-menu-detail',
   templateUrl: './menu-detail.component.html',
-  imports: [WarehouseCommonModule, TagModule, PickListModule, ButtonModule, RippleModule, PanelModule, Toolbar],
+  imports: [WarehouseCommonModule, TagModule, PickListModule, ButtonModule, RippleModule, PanelModule, Toolbar]
 })
 export class MenuDetailComponent implements OnInit {
   protected privillegeService = inject(PrivillegeService);
@@ -71,7 +71,7 @@ export class MenuDetailComponent implements OnInit {
     this.privillegeService.update(this.entity).subscribe({
       error: () => {
         this.loadAll();
-      },
+      }
     });
   }
 }

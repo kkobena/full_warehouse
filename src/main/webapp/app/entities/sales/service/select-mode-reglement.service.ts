@@ -1,10 +1,10 @@
-import { Injectable, signal, WritableSignal, inject } from '@angular/core';
+import { inject, Injectable, signal, WritableSignal } from '@angular/core';
 import { IPaymentMode } from '../../../shared/model/payment-mode.model';
 import { ModePaymentService } from '../../mode-payments/mode-payment.service';
 import { HttpResponse } from '@angular/common/http';
 
 @Injectable({
-  providedIn: 'root',
+  providedIn: 'root'
 })
 export class SelectModeReglementService {
   private modePaymentService = inject(ModePaymentService);

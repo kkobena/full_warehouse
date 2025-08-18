@@ -1,4 +1,4 @@
-import { Component, OnInit, inject } from '@angular/core';
+import { Component, inject, OnInit } from '@angular/core';
 import { HttpResponse } from '@angular/common/http';
 import { ActivatedRoute, Router } from '@angular/router';
 
@@ -10,7 +10,13 @@ import moment from 'moment';
 import { DD_MM_YYYY_HH_MM } from 'app/shared/constants/input.constants';
 import { WarehouseCommonModule } from '../../shared/warehouse-common/warehouse-common.module';
 import { AgGridAngular } from 'ag-grid-angular';
-import { AllCommunityModule, ClientSideRowModelModule, ModuleRegistry, provideGlobalGridOptions, themeAlpine } from 'ag-grid-community';
+import {
+  AllCommunityModule,
+  ClientSideRowModelModule,
+  ModuleRegistry,
+  provideGlobalGridOptions,
+  themeAlpine
+} from 'ag-grid-community';
 
 ModuleRegistry.registerModules([AllCommunityModule, ClientSideRowModelModule]);
 provideGlobalGridOptions({ theme: themeAlpine });
@@ -31,10 +37,10 @@ provideGlobalGridOptions({ theme: themeAlpine });
         height: 500px;
         min-height: 400px;
       }
-    `,
+    `
   ],
   templateUrl: './inventory-transaction.component.html',
-  imports: [WarehouseCommonModule, AgGridAngular],
+  imports: [WarehouseCommonModule, AgGridAngular]
 })
 export class InventoryTransactionComponent implements OnInit {
   protected inventoryTransactionService = inject(InventoryTransactionService);
@@ -60,45 +66,45 @@ export class InventoryTransactionComponent implements OnInit {
         headerName: 'Article',
         field: 'produitLibelle',
         sortable: true,
-        flex: 1.5,
+        flex: 1.5
       },
       {
         headerName: 'Date mouvement',
         field: 'updatedAt',
         sortable: true,
         flex: 0.6,
-        valueFormatter: this.formatDate,
+        valueFormatter: this.formatDate
       },
       {
         headerName: 'Type mouvement',
         field: 'transactionType',
         sortable: true,
-        flex: 0.5,
+        flex: 0.5
       },
       {
         headerName: 'Quantité mouvement',
         field: 'quantity',
         flex: 0.6,
-        type: ['rightAligned', 'numericColumn'],
+        type: ['rightAligned', 'numericColumn']
       },
       {
         headerName: 'Quantité avant',
         flex: 0.5,
         field: 'quantityBefor',
-        type: ['rightAligned', 'numericColumn'],
+        type: ['rightAligned', 'numericColumn']
       },
       {
         headerName: 'Quantité après',
         flex: 0.5,
         field: 'quantityAfter',
-        type: ['rightAligned', 'numericColumn'],
+        type: ['rightAligned', 'numericColumn']
       },
       {
         headerName: 'Opérateur',
         field: 'userFullName',
         sortable: true,
-        flex: 1,
-      },
+        flex: 1
+      }
     ];
   }
 
@@ -109,7 +115,7 @@ export class InventoryTransactionComponent implements OnInit {
   loadPage(): void {
     this.inventoryTransactionService.query().subscribe({
       next: (res: HttpResponse<IInventoryTransaction[]>) => this.onSuccess(res.body),
-      error: () => this.onError(),
+      error: () => this.onError()
     });
   }
 

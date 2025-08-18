@@ -1,7 +1,6 @@
-
 @if (currentSaleService.currentSale()) {
   <div class="row">
-      <div class=" col-lg-9 col-sm-12 col-md-12 col-xl-9 sale-products-table mb-1">
+    <div class=" col-lg-9 col-sm-12 col-md-12 col-xl-9 sale-products-table mb-1">
       <p-card>
         <jhi-product-table
           (deleteItemEvent)="confirmDeleteItem($event)"
@@ -22,7 +21,7 @@
                                   [entryAmount]="entryAmount"></jhi-amount-computing>
           </div>
           <div class="col-12 d-flex justify-content-center">
-            <p-button class="mr-1"  [raised]="true" (click)="save()" icon="pi pi-check" label="Terminer"
+            <p-button class="mr-1" [raised]="true" (click)="save()" icon="pi pi-check" label="Terminer"
                       severity="success"></p-button>
             <p-button
               [raised]="true"

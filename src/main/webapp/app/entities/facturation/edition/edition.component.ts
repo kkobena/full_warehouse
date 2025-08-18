@@ -51,9 +51,9 @@ import { DatePicker } from 'primeng/datepicker';
     ToggleSwitch,
     IconField,
     InputIcon,
-    DatePicker,
+    DatePicker
   ],
-  templateUrl: './edition.component.html',
+  templateUrl: './edition.component.html'
 })
 export class EditionComponent implements OnInit, OnDestroy {
   protected readonly translate = inject(TranslateService);
@@ -125,7 +125,7 @@ export class EditionComponent implements OnInit, OnDestroy {
       .query({
         page: 0,
         search: query,
-        size: 10,
+        size: 10
       })
       .subscribe((res: HttpResponse<IGroupeTiersPayant[]>) => {
         this.groupeTiersPayants = res.body || [];
@@ -138,12 +138,12 @@ export class EditionComponent implements OnInit, OnDestroy {
       .query({
         page: 0,
         search: query,
-        size: 10,
+        size: 10
       })
       .subscribe({
         next: (res: HttpResponse<ITiersPayant[]>) => {
           this.tiersPayants = res.body || [];
-        },
+        }
       });
   }
 
@@ -169,7 +169,7 @@ export class EditionComponent implements OnInit, OnDestroy {
         }
       },
       complete: () => (this.editing = false),
-      error: (error: any) => this.onError(error),
+      error: (error: any) => this.onError(error)
     });
   }
 
@@ -182,7 +182,7 @@ export class EditionComponent implements OnInit, OnDestroy {
   openInfoDialog(message: string, infoClass: string): void {
     const modalRef = this.modalService.open(AlertInfoComponent, {
       backdrop: 'static',
-      centered: true,
+      centered: true
     });
     modalRef.componentInstance.message = message;
     modalRef.componentInstance.infoClass = infoClass;
@@ -195,12 +195,12 @@ export class EditionComponent implements OnInit, OnDestroy {
       .queryBons({
         page: pageToLoad,
         size: this.itemsPerPage,
-        ...this.buildSearchParams(),
+        ...this.buildSearchParams()
       })
       .subscribe({
         next: (res: HttpResponse<DossierFacture[]>) => this.onSearchBonSuccess(res.body, res.headers, pageToLoad),
         complete: () => (this.searching = false),
-        error: () => (this.searching = false),
+        error: () => (this.searching = false)
       });
   }
 
@@ -212,7 +212,7 @@ export class EditionComponent implements OnInit, OnDestroy {
       .queryEditionData({
         page: pageToLoad,
         size: this.itemsPerPage,
-        ...this.buildSearchParams(),
+        ...this.buildSearchParams()
       })
       .subscribe({
         next: (res: HttpResponse<TiersPayantDossierFacture[]>) => this.onSearchSuccess(res.body, res.headers, pageToLoad),
@@ -223,7 +223,7 @@ export class EditionComponent implements OnInit, OnDestroy {
         error: () => {
           this.loading = false;
           this.searching = false;
-        },
+        }
       });
   }
 
@@ -235,7 +235,7 @@ export class EditionComponent implements OnInit, OnDestroy {
         .queryEditionData({
           page: this.pageTp,
           size: event.rows,
-          ...this.buildSearchParams(),
+          ...this.buildSearchParams()
         })
         .subscribe({
           next: (res: HttpResponse<TiersPayantDossierFacture[]>) => this.onSearchSuccess(res.body, res.headers, this.pageTp),
@@ -246,7 +246,7 @@ export class EditionComponent implements OnInit, OnDestroy {
           complete: () => {
             this.loading = false;
             this.searching = false;
-          },
+          }
         });
     }
   }
@@ -281,7 +281,7 @@ export class EditionComponent implements OnInit, OnDestroy {
       all: this.all,
       categorieTiersPayants: [this.typeTiersPayant],
       factureProvisoire: this.factureProvisoire,
-      modeEdition: this.modeEdition ? this.modeEdition : 'ALL',
+      modeEdition: this.modeEdition ? this.modeEdition : 'ALL'
     };
   }
 
@@ -296,7 +296,7 @@ export class EditionComponent implements OnInit, OnDestroy {
     }
     return {
       ...this.buildSearchParams(),
-      ids: selectedIds,
+      ids: selectedIds
     };
   }
 
@@ -319,14 +319,14 @@ export class EditionComponent implements OnInit, OnDestroy {
           error: (err: any) => {
             this.exporting = false;
             this.openInfoDialog(this.errorService.getErrorMessage(err), 'alert alert-danger');
-          },
+          }
         });
         this.resetForm();
       },
       reject: () => {
         this.resetForm();
       },
-      key: 'printialog',
+      key: 'printialog'
     });
   }
 }

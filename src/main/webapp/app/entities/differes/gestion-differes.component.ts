@@ -22,10 +22,10 @@ import { Divider } from 'primeng/divider';
     FormsModule,
     ListDifferesComponent,
     ReglementDifferesComponent,
-    Divider,
+    Divider
   ],
   templateUrl: './gestion-differes.component.html',
-  styles: ``,
+  styles: ``
 })
 export class GestionDifferesComponent {
   protected active = 'liste';

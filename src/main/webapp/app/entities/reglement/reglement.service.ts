@@ -1,4 +1,4 @@
-import { Injectable, inject } from '@angular/core';
+import { inject, Injectable } from '@angular/core';
 import { SERVER_API_URL } from '../../app.constants';
 import { HttpClient, HttpResponse } from '@angular/common/http';
 import { Observable } from 'rxjs';
@@ -10,7 +10,7 @@ type EntityResponseType = HttpResponse<Reglement>;
 type EntityArrayResponseType = HttpResponse<Reglement[]>;
 
 @Injectable({
-  providedIn: 'root',
+  providedIn: 'root'
 })
 export class ReglementService {
   protected http = inject(HttpClient);
@@ -29,7 +29,7 @@ export class ReglementService {
     const options = createRequestOptions(req);
     return this.http.get<Reglement[]>(this.resourceUrl, {
       params: options,
-      observe: 'response',
+      observe: 'response'
     });
   }
 

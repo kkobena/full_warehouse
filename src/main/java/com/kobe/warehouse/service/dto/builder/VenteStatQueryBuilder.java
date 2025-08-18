@@ -37,74 +37,10 @@ public final class VenteStatQueryBuilder {
 
     private VenteStatQueryBuilder() {}
 
-    public static VenteRecord buildVenteRecord(Tuple tuple) {
-        if (Objects.isNull(tuple.get("sales_amount", BigDecimal.class))) {
-            return null;
-        }
-        return new VenteRecord(
-            tuple.get("sales_amount", BigDecimal.class),
-            tuple.get("amount_to_be_paid", BigDecimal.class),
-            tuple.get("discount_amount", BigDecimal.class),
-            tuple.get("cost_amount", BigDecimal.class),
-            tuple.get("marge", BigDecimal.class),
-            tuple.get("amount_to_be_taken_into_account", BigDecimal.class),
-            tuple.get("net_amount", BigDecimal.class),
-            tuple.get("ht_amount", BigDecimal.class),
-            tuple.get("part_assure", BigDecimal.class),
-            tuple.get("part_tiers_payant", BigDecimal.class),
-            tuple.get("tax_amount", BigDecimal.class),
-            tuple.get("rest_to_pay", BigDecimal.class),
-            tuple.get("ht_amount_ug", BigDecimal.class),
-            tuple.get("discount_amount_hors_ug", BigDecimal.class),
-            tuple.get("discount_amount_ug", BigDecimal.class),
-            tuple.get("net_ug_amount", BigDecimal.class),
-            tuple.get("marge_ug", BigDecimal.class),
-            tuple.get("montant_ttc_ug", BigDecimal.class),
-            tuple.get("payroll_amount", BigDecimal.class),
-            tuple.get("montant_tva_ug", BigDecimal.class),
-            tuple.get("montant_net_ug", BigDecimal.class),
-            tuple.get("paid_amount", BigDecimal.class),
-            tuple.get("real_net_amount", BigDecimal.class),
-            tuple.get("sale_count", Long.class),
-            tuple.get("panierMoyen", BigDecimal.class).round(new MathContext(2, RoundingMode.HALF_UP)).doubleValue(),
-            "",
-            null
-        );
-    }
 
-    public static VenteByTypeRecord buildVenteByTypeRecord(Tuple tuple) {
-        TypeVenteDTO typeVenteDTO = VenteStatQueryBuilder.fromTypeVente(tuple.get("type_vente", String.class));
-        if (Objects.isNull(typeVenteDTO)) {
-            return null;
-        }
 
-        return new VenteByTypeRecord(typeVenteDTO.getValue(), VenteStatQueryBuilder.buildVenteRecord(tuple));
-    }
 
-    public static VentePeriodeRecord buildVentePeriodeRecord(Tuple tuple, StatGroupBy statGroupBy) {
-        String statut = tuple.get("statut", String.class);
 
-        if (Objects.isNull(statut)) {
-            return null;
-        }
-
-        return new VentePeriodeRecord(buildMvtDate(tuple, statGroupBy), statut, VenteStatQueryBuilder.buildVenteRecord(tuple));
-    }
-
-    public static VenteModePaimentRecord buildModePaiment(Tuple tuple) {
-        String paymentModeCode = tuple.get("payment_mode_code", String.class);
-
-        if (Objects.isNull(paymentModeCode)) {
-            return null;
-        }
-
-        return new VenteModePaimentRecord(
-            paymentModeCode,
-            tuple.get("libelle", String.class),
-            tuple.get("real_net_amount", BigDecimal.class),
-            tuple.get("paid_amount", BigDecimal.class)
-        );
-    }
 
     private static TypeVenteDTO fromTypeVente(String typeVente) {
         if (StringUtils.hasLength(typeVente)) {

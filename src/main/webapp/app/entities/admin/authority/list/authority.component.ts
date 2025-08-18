@@ -14,7 +14,7 @@ import { AuthorityDeleteDialogComponent } from '../delete/authority-delete-dialo
 @Component({
   selector: 'jhi-authority',
   templateUrl: './authority.component.html',
-  imports: [RouterModule, FormsModule, SharedModule, SortDirective, SortByDirective],
+  imports: [RouterModule, FormsModule, SharedModule, SortDirective, SortByDirective]
 })
 export class AuthorityComponent implements OnInit {
   subscription: Subscription | null = null;
@@ -40,7 +40,7 @@ export class AuthorityComponent implements OnInit {
           if (!this.authorities || this.authorities.length === 0) {
             this.load();
           }
-        }),
+        })
       )
       .subscribe();
   }
@@ -48,14 +48,14 @@ export class AuthorityComponent implements OnInit {
   delete(authority: IAuthority): void {
     const modalRef = this.modalService.open(AuthorityDeleteDialogComponent, {
       size: 'lg',
-      backdrop: 'static',
+      backdrop: 'static'
     });
     modalRef.componentInstance.authority = authority;
     // unsubscribe not needed because closed completes on modal close
     modalRef.closed
       .pipe(
         filter(reason => reason === ITEM_DELETED_EVENT),
-        tap(() => this.load()),
+        tap(() => this.load())
       )
       .subscribe();
   }
@@ -64,7 +64,7 @@ export class AuthorityComponent implements OnInit {
     this.queryBackend().subscribe({
       next: (res: EntityArrayResponseType) => {
         this.onResponseSuccess(res);
-      },
+      }
     });
   }
 
@@ -93,20 +93,20 @@ export class AuthorityComponent implements OnInit {
   protected queryBackend(): Observable<EntityArrayResponseType> {
     this.isLoading = true;
     const queryObject: any = {
-      sort: this.sortService.buildSortParam(this.sortState()),
+      sort: this.sortService.buildSortParam(this.sortState())
     };
     return this.authorityService.query(queryObject).pipe(tap(() => (this.isLoading = false)));
   }
 
   protected handleNavigation(sortState: SortState): void {
     const queryParamsObj = {
-      sort: this.sortService.buildSortParam(sortState),
+      sort: this.sortService.buildSortParam(sortState)
     };
 
     this.ngZone.run(() => {
       this.router.navigate(['./'], {
         relativeTo: this.activatedRoute,
-        queryParams: queryParamsObj,
+        queryParams: queryParamsObj
       });
     });
   }

@@ -1,5 +1,13 @@
-import { AfterViewInit, Component, computed, inject, signal, input, output } from '@angular/core';
-import { AbstractControl, FormBuilder, FormControl, FormGroup, FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
+import { AfterViewInit, Component, computed, inject, input, output, signal } from '@angular/core';
+import {
+  AbstractControl,
+  FormBuilder,
+  FormControl,
+  FormGroup,
+  FormsModule,
+  ReactiveFormsModule,
+  Validators
+} from '@angular/forms';
 import { DossierFactureProjection } from '../model/reglement-facture-dossier.model';
 import { ModeEditionReglement, ReglementParams } from '../model/reglement.model';
 import { IPaymentMode } from '../../../shared/model/payment-mode.model';
@@ -17,7 +25,7 @@ import { DatePicker } from 'primeng/datepicker';
 @Component({
   selector: 'jhi-reglement-form',
   imports: [FormsModule, ReactiveFormsModule, DividerModule, FaIconComponent, DatePicker],
-  templateUrl: './reglement-form.component.html',
+  templateUrl: './reglement-form.component.html'
 })
 export class ReglementFormComponent implements AfterViewInit {
   readonly CASH = 'CASH';
@@ -60,30 +68,30 @@ export class ReglementFormComponent implements AfterViewInit {
   reglementForm = this.fb.group({
     amount: new FormControl<number | null>(null, {
       validators: [Validators.required],
-      nonNullable: true,
+      nonNullable: true
     }),
 
     modePaimentCode: new FormControl<string | null>(null, {
       validators: [Validators.required],
-      nonNullable: true,
+      nonNullable: true
     }),
     partialPayment: new FormControl<boolean | null>(true, {
       validators: [Validators.required],
-      nonNullable: true,
+      nonNullable: true
     }),
     paymentDate: new FormControl<Date | null>(null, {}),
 
     banqueInfo: this.fb.group({
       nom: new FormControl<string | null>(null, {
         validators: [Validators.required],
-        nonNullable: true,
+        nonNullable: true
       }),
       code: new FormControl<string | null>(null, {
         validators: [Validators.required],
-        nonNullable: true,
+        nonNullable: true
       }),
-      beneficiaire: new FormControl<string | null>(null, {}),
-    }),
+      beneficiaire: new FormControl<string | null>(null, {})
+    })
   });
   private modeService = inject(ModePaymentService);
 
@@ -235,7 +243,7 @@ export class ReglementFormComponent implements AfterViewInit {
       paymentDate: paymentDate ? moment(paymentDate).format(DATE_FORMAT) : null,
       totalAmount: this.initTotalAmount,
       id: this.facture().id,
-      montantFacture: this.facture().montantTotal,
+      montantFacture: this.facture().montantTotal
     };
   }
 }

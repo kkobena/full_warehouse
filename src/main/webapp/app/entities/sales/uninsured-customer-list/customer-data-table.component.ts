@@ -9,7 +9,9 @@ import { TooltipModule } from 'primeng/tooltip';
 import { WarehouseCommonModule } from '../../../shared/warehouse-common/warehouse-common.module';
 import { ICustomer } from '../../../shared/model/customer.model';
 import { CustomerService } from '../../customer/customer.service';
-import { UninsuredCustomerFormComponent } from '../../customer/uninsured-customer-form/uninsured-customer-form.component';
+import {
+  UninsuredCustomerFormComponent
+} from '../../customer/uninsured-customer-form/uninsured-customer-form.component';
 import { SelectedCustomerService } from '../service/selected-customer.service';
 import { IconField } from 'primeng/iconfield';
 import { InputIcon } from 'primeng/inputicon';
@@ -29,9 +31,9 @@ import { showCommonModal } from '../selling-home/sale-helper';
     WarehouseCommonModule,
     FormsModule,
     IconField,
-    InputIcon,
+    InputIcon
   ],
-  templateUrl: './customer-data-table.component.html',
+  templateUrl: './customer-data-table.component.html'
 })
 export class CustomerDataTableComponent {
   customers: ICustomer[] = [];
@@ -49,7 +51,7 @@ export class CustomerDataTableComponent {
   protected loadCustomers(): void {
     this.customerService
       .queryUninsuredCustomers({
-        search: this.searchString,
+        search: this.searchString
       })
       .subscribe(res => (this.customers = res.body!));
   }
@@ -59,12 +61,12 @@ export class CustomerDataTableComponent {
     showCommonModal(
       this.modalService,
       UninsuredCustomerFormComponent,
-      { header: "FORMULAIRE D'AJOUT DE NOUVEAU DE CLIENT ", entity: null },
+      { header: 'FORMULAIRE D\'AJOUT DE NOUVEAU DE CLIENT ', entity: null },
       (resp: ICustomer) => {
         if (resp) {
           this.selectedCustomerService.setCustomer(resp);
         }
-      },
+      }
     );
   }
 }

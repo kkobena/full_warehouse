@@ -3,9 +3,7 @@ import { FormsModule, ReactiveFormsModule, UntypedFormBuilder, Validators } from
 import { ErrorService } from 'app/shared/error.service';
 import { DynamicDialogModule } from 'primeng/dynamicdialog';
 import { TiersPayantService } from 'app/entities/tiers-payant/tierspayant.service';
-import {
-  GroupeTiersPayantService
-} from 'app/entities/groupe-tiers-payant/groupe-tierspayant.service';
+import { GroupeTiersPayantService } from 'app/entities/groupe-tiers-payant/groupe-tierspayant.service';
 import { ITiersPayant, ModelFacture, TiersPayant } from 'app/shared/model/tierspayant.model';
 import { IGroupeTiersPayant } from 'app/shared/model/groupe-tierspayant.model';
 import { HttpResponse } from '@angular/common/http';
@@ -45,8 +43,8 @@ import { Card } from 'primeng/card';
     ToggleSwitch,
     InputNumber,
     ToastAlertComponent,
-    Card,
-  ],
+    Card
+  ]
 })
 export class FormTiersPayantComponent implements OnInit, AfterViewInit {
   entity?: ITiersPayant;
@@ -76,7 +74,7 @@ export class FormTiersPayantComponent implements OnInit, AfterViewInit {
     toBeExclude: [],
     plafondConsoClient: [],
     plafondJournalierClient: [],
-    plafondAbsoluClient: [],
+    plafondAbsoluClient: []
   });
   private readonly errorService = inject(ErrorService);
   private readonly tiersPayantService = inject(TiersPayantService);
@@ -127,7 +125,7 @@ export class FormTiersPayantComponent implements OnInit, AfterViewInit {
   protected subscribeToSaveResponse(result: Observable<HttpResponse<ITiersPayant>>): void {
     result.subscribe({
       next: (res: HttpResponse<ITiersPayant>) => this.onSaveSuccess(res.body),
-      error: (res: any) => this.onSaveError(res),
+      error: (res: any) => this.onSaveError(res)
     });
   }
 
@@ -162,7 +160,7 @@ export class FormTiersPayantComponent implements OnInit, AfterViewInit {
       plafondConsoClient: tiersPayant.plafondConsoClient,
       plafondJournalierClient: tiersPayant.plafondJournalierClient,
       plafondAbsoluClient: tiersPayant.plafondAbsoluClient,
-      ncc: tiersPayant.ncc,
+      ncc: tiersPayant.ncc
     });
   }
 
@@ -187,7 +185,7 @@ export class FormTiersPayantComponent implements OnInit, AfterViewInit {
       plafondConsoClient: this.editForm.get(['plafondConsoClient']).value,
       plafondJournalierClient: this.editForm.get(['plafondJournalierClient']).value,
       plafondAbsoluClient: this.editForm.get(['plafondAbsoluClient']).value,
-      ncc: this.editForm.get(['ncc']).value,
+      ncc: this.editForm.get(['ncc']).value
     };
   }
 }

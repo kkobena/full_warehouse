@@ -72,9 +72,9 @@ public class MobileDashoardServiceImpl implements MobileDashoardService {
             return;
         }
         List<ListItem> modes = new ArrayList<>();
-        long total = venteModePaimentRecords.stream()
+        int total = venteModePaimentRecords.stream()
             .map(VenteModePaimentRecord::paidAmount)
-            .reduce(BigDecimal.ZERO, BigDecimal::add).longValue();
+            .reduce(0, Integer::sum);
         venteModePaimentRecords.forEach(venteByTypeRecord -> modes.add(new ListItem(venteByTypeRecord.libelle(), NumberUtil.formatToString(venteByTypeRecord.paidAmount()), BigDecimal.valueOf(((venteByTypeRecord.paidAmount().doubleValue() * 100) / total)).round(new MathContext(2, RoundingMode.HALF_UP)).doubleValue() + "")));
         dashboard.setPaymentModes(modes);
     }

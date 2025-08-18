@@ -20,7 +20,7 @@ export const CategorieResolve = (route: ActivatedRouteSnapshot): Observable<null
             inject(Router).navigate(['404']);
             return EMPTY;
           }
-        }),
+        })
       );
   }
   return of(new CashRegister());
@@ -32,19 +32,19 @@ const userCahsRoutes: Routes = [
     /*    data: {
          authorities: [Authority.USER],
        }, */
-    canActivate: [UserRouteAccessService],
+    canActivate: [UserRouteAccessService]
   },
   {
     path: ':id/billetage',
     loadComponent: () => import('../ticketing/ticketing.component').then(m => m.TicketingComponent),
     resolve: {
-      cashRegister: CategorieResolve,
+      cashRegister: CategorieResolve
     },
     data: {
       /*  authorities: [Authority.USER], */
-      pageTitle: 'Billetage',
+      pageTitle: 'Billetage'
     },
-    canActivate: [UserRouteAccessService],
-  },
+    canActivate: [UserRouteAccessService]
+  }
 ];
 export default userCahsRoutes;

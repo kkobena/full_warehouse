@@ -31,8 +31,8 @@ import { Authority } from '../../shared/constants/authority.constants';
     InputTextModule,
     TooltipModule,
     FormsModule,
-    PanelModule,
-  ],
+    PanelModule
+  ]
 })
 export class MenuComponent implements OnInit {
   protected authorities?: IAuthority[];
@@ -43,7 +43,7 @@ export class MenuComponent implements OnInit {
     Authority.USER,
     Authority.ROLE_CAISSIER,
     Authority.ROLE_VENDEUR,
-    Authority.ROLE_RESPONSABLE_COMMANDE,
+    Authority.ROLE_RESPONSABLE_COMMANDE
   ];
 
   loadAll(): void {
@@ -57,7 +57,7 @@ export class MenuComponent implements OnInit {
   delete(authority: IAuthority): void {
     const modalRef = this.modalService.open(MenuDeleteDialogComponent, {
       size: 'lg',
-      backdrop: 'static',
+      backdrop: 'static'
     });
     modalRef.componentInstance.authority = authority;
     modalRef.closed.subscribe({ complete: () => this.loadAll() });
@@ -69,7 +69,7 @@ export class MenuComponent implements OnInit {
       authority.libelle = libelle;
       this.privillegeService.create(authority).subscribe({
         next: () => this.loadAll(),
-        error: () => this.loadAll(),
+        error: () => this.loadAll()
       });
     }
   }

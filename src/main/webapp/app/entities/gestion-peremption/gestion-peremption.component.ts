@@ -22,10 +22,10 @@ import { WarehouseCommonModule } from '../../shared/warehouse-common/warehouse-c
     LotPerimesComponent,
     LotADetruireComponent,
     Divider,
-    WarehouseCommonModule,
+    WarehouseCommonModule
   ],
   templateUrl: './gestion-peremption.component.html',
-  styles: ``,
+  styles: ``
 })
 export class GestionPeremptionComponent {
   protected active = 'lot-perimes';

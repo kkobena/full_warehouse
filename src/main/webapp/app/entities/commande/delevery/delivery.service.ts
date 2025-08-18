@@ -52,7 +52,7 @@ export class DeliveryService {
     const options = createRequestOptions(req);
     return this.http.get(`${this.resourceUrl}/etiquettes/${id}`, {
       params: options,
-      responseType: 'blob',
+      responseType: 'blob'
     });
   }
 
@@ -60,13 +60,13 @@ export class DeliveryService {
     const options = createRequestOptions(req);
     return this.http.get<IDelivery[]>(this.resourceUrl + '/list', {
       params: options,
-      observe: 'response',
+      observe: 'response'
     });
   }
 
   uploadNew(data: any): Observable<HttpResponse<ICommandeResponse>> {
     return this.http.post<ICommandeResponse>(`${this.resourceUrlTransac}/upload-new`, data, {
-      observe: 'response',
+      observe: 'response'
     });
   }
 
@@ -74,7 +74,7 @@ export class DeliveryService {
     const options = createRequestOptions(req);
     return this.http.get<IDeliveryItem[]>(`${this.resourceUrl}/filter-items`, {
       params: options,
-      observe: 'response',
+      observe: 'response'
     });
   }
 
@@ -83,8 +83,8 @@ export class DeliveryService {
       this.resourceUrlTransac + '/update-order-line-quantity-received',
       this.resetdatePeremption(deliveryItem),
       {
-        observe: 'response',
-      },
+        observe: 'response'
+      }
     );
   }
 
@@ -93,20 +93,20 @@ export class DeliveryService {
       this.resourceUrlTransac + '/update-order-line-quantity-ug',
       this.resetdatePeremption(deliveryItem),
       {
-        observe: 'response',
-      },
+        observe: 'response'
+      }
     );
   }
 
   updateCip(deliveryItem: IDeliveryItem): Observable<HttpResponse<{}>> {
     return this.http.put<IDeliveryItem>(this.resourceUrlTransac + '//update-provisional-cip', this.resetdatePeremption(deliveryItem), {
-      observe: 'response',
+      observe: 'response'
     });
   }
 
   updateOrderUnitPriceOnStockEntry(deliveryItem: IDeliveryItem): Observable<{}> {
     return this.http.put<IDeliveryItem>(this.resourceUrlTransac + '/update-order-line-unit-price', this.resetdatePeremption(deliveryItem), {
-      observe: 'response',
+      observe: 'response'
     });
   }
 
@@ -115,8 +115,8 @@ export class DeliveryService {
       this.resourceUrlTransac + '/update-order-line-cost-amount',
       this.resetdatePeremption(deliveryItem),
       {
-        observe: 'response',
-      },
+        observe: 'response'
+      }
     );
   }
 
@@ -125,14 +125,14 @@ export class DeliveryService {
       this.resourceUrlTransac + '/update-order-line-date-peremption',
       this.resetdatePeremption(deliveryItem),
       {
-        observe: 'response',
-      },
+        observe: 'response'
+      }
     );
   }
 
   updateTva(deliveryItem: IDeliveryItem): Observable<{}> {
     return this.http.put<IDeliveryItem>(this.resourceUrlTransac + '/update-order-line-tva', this.resetdatePeremption(deliveryItem), {
-      observe: 'response',
+      observe: 'response'
     });
   }
 

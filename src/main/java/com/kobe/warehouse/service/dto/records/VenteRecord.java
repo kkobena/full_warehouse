@@ -1,34 +1,37 @@
 package com.kobe.warehouse.service.dto.records;
 
 import com.kobe.warehouse.domain.enumeration.SalesStatut;
-import java.math.BigDecimal;
+
+import java.lang.Integer;
+
 
 public record VenteRecord(
-    BigDecimal salesAmount,
-    BigDecimal amountToBePaid,
-    BigDecimal discountAmount,
-    BigDecimal costAmount,
-    BigDecimal marge,
-    BigDecimal amountToBeTakenIntoAccount,
-    BigDecimal netAmount,
-    BigDecimal htAmount,
-    BigDecimal partAssure,
-    BigDecimal partTiersPayant,
-    BigDecimal taxAmount,
-    BigDecimal restToPay,
-    BigDecimal htAmountUg,
-    BigDecimal discountAmountHorsUg,
-    BigDecimal discountAmountUg,
-    BigDecimal netUgAmount,
-    BigDecimal margeUg,
-    BigDecimal montantttcUg,
-    BigDecimal payrollAmount,
-    BigDecimal montantTvaUg,
-    BigDecimal montantnetUg,
-    BigDecimal paidAmount,
-    BigDecimal realNetAmount,
+    Integer salesAmount,
+    Integer amountToBePaid,
+    Integer discountAmount,
+    Integer costAmount,
+    Integer marge,
+    Integer amountToBeTakenIntoAccount,
+    Integer netAmount,
+    Integer htAmount,
+    Integer partAssure,
+    Integer partTiersPayant,
+    Integer taxAmount,
+    Integer restToPay,
+    Integer htAmountUg,
+    Integer discountAmountHorsUg,
+    Integer discountAmountUg,
+    Integer netUgAmount,
+    Integer margeUg,
+    Integer montantttcUg,
+    Integer payrollAmount,
+    Integer montantTvaUg,
+    Integer montantnetUg,
+    Integer paidAmount,
+    Integer realNetAmount,
     Long saleCount,
-    double panierMoyen,
+    Long panierMoyen,
     String type,
-    SalesStatut statut
+    SalesStatut statut,
+    String group
 ) {}

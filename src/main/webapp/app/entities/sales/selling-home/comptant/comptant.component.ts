@@ -34,7 +34,7 @@ import { Card } from 'primeng/card';
       .table tr:hover {
         cursor: pointer;
       }
-    `,
+    `
   ],
   imports: [
     WarehouseCommonModule,
@@ -46,9 +46,9 @@ import { Card } from 'primeng/card';
     AmountComputingComponent,
     ModeReglementComponent,
     ConfirmDialogComponent,
-    Card,
+    Card
   ],
-  templateUrl: './comptant.component.html',
+  templateUrl: './comptant.component.html'
 })
 export class ComptantComponent {
   readonly isPresale = input(false);
@@ -89,7 +89,7 @@ export class ComptantComponent {
       const modalRef = this.modalService.open(UninsuredCustomerListComponent, {
         size: '60%',
         backdrop: 'static',
-        centered: true,
+        centered: true
       });
       modalRef.componentInstance.header = 'CLIENTS NON ASSURES';
       modalRef.result.then(() => {
@@ -120,7 +120,7 @@ export class ComptantComponent {
       entryAmount,
       this.modeReglementComponent().commentaire,
       this.baseSaleService.isAvoir(),
-      this.modeReglementComponent().buildPayment(entryAmount),
+      this.modeReglementComponent().buildPayment(entryAmount)
     );
   }
 
@@ -158,7 +158,7 @@ export class ComptantComponent {
   openActionAutorisationDialog(privilege: string, entityToProccess: any): void {
     const modalRef = this.modalService.open(FormActionAutorisationComponent, {
       backdrop: 'static',
-      centered: true,
+      centered: true
     });
     modalRef.componentInstance.entity = this.currentSaleService.currentSale();
     modalRef.componentInstance.privilege = privilege;
@@ -231,7 +231,7 @@ export class ComptantComponent {
   onAddRmiseOpenActionAutorisationDialog(remise: IRemise): void {
     const modalRef = this.modalService.open(FormActionAutorisationComponent, {
       backdrop: 'static',
-      centered: true,
+      centered: true
     });
     modalRef.componentInstance.entity = this.currentSaleService.currentSale();
     modalRef.componentInstance.privilege = Authority.PR_AJOUTER_REMISE_VENTE;

@@ -9,9 +9,9 @@ const tvaRoute: Routes = [
     loadComponent: () => import('./tva.component').then(m => m.TvaComponent),
     data: {
       authorities: [Authority.ADMIN, Authority.TVA],
-      defaultSort: 'id,asc',
+      defaultSort: 'id,asc'
     },
-    canActivate: [UserRouteAccessService],
-  },
+    canActivate: [UserRouteAccessService]
+  }
 ];
 export default tvaRoute;

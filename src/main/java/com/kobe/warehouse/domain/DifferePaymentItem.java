@@ -35,6 +35,7 @@ public class DifferePaymentItem implements Serializable {
 
     @ManyToOne(optional = false)
     @NotNull
+    @JoinColumn(name = "differe_payment_id", referencedColumnName = "id")
     private DifferePayment differePayment;
 
     public Long getId() {

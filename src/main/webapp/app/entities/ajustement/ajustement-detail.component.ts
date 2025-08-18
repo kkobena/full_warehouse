@@ -32,17 +32,11 @@ import { TooltipModule } from 'primeng/tooltip';
 import { Select } from 'primeng/select';
 import { IconField } from 'primeng/iconfield';
 import { InputIcon } from 'primeng/inputicon';
-import {
-  ConfirmDialogComponent
-} from '../../shared/dialog/confirm-dialog/confirm-dialog.component';
+import { ConfirmDialogComponent } from '../../shared/dialog/confirm-dialog/confirm-dialog.component';
 import { ToastAlertComponent } from '../../shared/toast-alert/toast-alert.component';
 import { FloatLabel } from 'primeng/floatlabel';
-import {
-  ProduitAutocompleteComponent
-} from '../../shared/produit-autocomplete/produit-autocomplete.component';
-import {
-  QuantiteProdutSaisieComponent
-} from '../../shared/quantite-produt-saisie/quantite-produt-saisie.component';
+import { ProduitAutocompleteComponent } from '../../shared/produit-autocomplete/produit-autocomplete.component';
+import { QuantiteProdutSaisieComponent } from '../../shared/quantite-produt-saisie/quantite-produt-saisie.component';
 import { TagModule } from 'primeng/tag';
 import { ButtonGroup } from 'primeng/buttongroup';
 import { CtaComponent } from '../../shared/cta/cta.component';
@@ -77,9 +71,9 @@ import { RemoveButtonTextComponent } from '../../shared/cta/remove-button.compon
     ButtonGroup,
     CtaComponent,
     BackButtonComponent,
-    RemoveButtonTextComponent,
+    RemoveButtonTextComponent
   ],
-  providers: [DialogService],
+  providers: [DialogService]
 })
 export class AjustementDetailComponent implements OnInit, AfterViewInit {
   protected ajustement: IAjust | null = null;
@@ -151,7 +145,7 @@ export class AjustementDetailComponent implements OnInit, AfterViewInit {
       'SUPPRESSION',
       'Voullez-vous supprimer cette ligne ?',
       null,
-      () => this.focusPrdoduitBox(),
+      () => this.focusPrdoduitBox()
     );
   }
 
@@ -161,7 +155,7 @@ export class AjustementDetailComponent implements OnInit, AfterViewInit {
       'SUPPRESSION',
       'Voullez-vous supprimer toutes les lignes ?',
       null,
-      () => this.focusPrdoduitBox(),
+      () => this.focusPrdoduitBox()
     );
   }
 
@@ -193,7 +187,7 @@ export class AjustementDetailComponent implements OnInit, AfterViewInit {
       .query({
         page: 0,
         size: 9999,
-        search: query,
+        search: query
       })
       .subscribe((res: HttpResponse<IMotifAjustement[]>) => this.onMotifSuccess(res.body));
   }
@@ -203,7 +197,7 @@ export class AjustementDetailComponent implements OnInit, AfterViewInit {
       data: { entity: this.ajustement },
       width: '40%',
       height: '350',
-      header: "Finalisation de l'ajustement",
+      header: 'Finalisation de l\'ajustement'
     });
     this.ref.onClose.subscribe(() => this.onSaveFinalyseSuccess());
   }
@@ -230,7 +224,7 @@ export class AjustementDetailComponent implements OnInit, AfterViewInit {
   protected onFilterItems(): void {
     const query = {
       ajustementId: this.ajustement.id,
-      search: this.search,
+      search: this.search
     };
     this.ajustementService.query(query).subscribe((res: HttpResponse<IAjustement[]>) => (this.items = res.body || []));
   }
@@ -252,14 +246,14 @@ export class AjustementDetailComponent implements OnInit, AfterViewInit {
   protected subscribeCreateNewResponse(result: Observable<HttpResponse<IAjust>>): void {
     result.subscribe({
       next: (res: HttpResponse<IAjust>) => this.onSaveSuccess(res.body),
-      error: (err: any) => this.onSaveError(err),
+      error: (err: any) => this.onSaveError(err)
     });
   }
 
   protected subscribeAddItemResponse(result: Observable<HttpResponse<{}>>): void {
     result.subscribe({
       next: () => this.onSaveSuccess(),
-      error: (err: any) => this.onSaveError(err),
+      error: (err: any) => this.onSaveError(err)
     });
   }
 
@@ -286,7 +280,7 @@ export class AjustementDetailComponent implements OnInit, AfterViewInit {
   protected subscribeToSaveResponse(result: Observable<HttpResponse<IAjust>>): void {
     result.subscribe({
       next: (res: HttpResponse<IAjust>) => this.onUpdateLineSuccess(res.body),
-      error: () => this.onSaveLineError(),
+      error: () => this.onSaveLineError()
     });
   }
 
@@ -294,12 +288,13 @@ export class AjustementDetailComponent implements OnInit, AfterViewInit {
     this.items = ajsut.ajustements;
   }
 
-  protected onSaveLineError(): void {}
+  protected onSaveLineError(): void {
+  }
 
   private openInfoDialog(message: string, infoClass: string): void {
     const modalRef = this.modalService.open(AlertInfoComponent, {
       backdrop: 'static',
-      centered: true,
+      centered: true
     });
     modalRef.componentInstance.message = message;
     modalRef.componentInstance.infoClass = infoClass;
@@ -313,7 +308,7 @@ export class AjustementDetailComponent implements OnInit, AfterViewInit {
         next: translatedErrorMessage => {
           this.openInfoDialog(translatedErrorMessage, 'alert alert-danger');
         },
-        error: () => this.openInfoDialog(error.error.title, 'alert alert-danger'),
+        error: () => this.openInfoDialog(error.error.title, 'alert alert-danger')
       });
     }
   }
@@ -325,7 +320,7 @@ export class AjustementDetailComponent implements OnInit, AfterViewInit {
   private createAjustement(produit: IProduit, quantity: number): IAjust {
     return {
       ...new Ajust(),
-      ajustements: [this.createItem(produit, quantity)],
+      ajustements: [this.createItem(produit, quantity)]
     };
   }
 
@@ -335,7 +330,7 @@ export class AjustementDetailComponent implements OnInit, AfterViewInit {
       produitId: produit.id,
       qtyMvt: quantity,
       ajustId: this.ajustement?.id,
-      motifAjustementId: this.motifSelected?.id,
+      motifAjustementId: this.motifSelected?.id
     };
   }
 

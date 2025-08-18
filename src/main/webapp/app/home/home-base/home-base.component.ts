@@ -213,8 +213,8 @@ export class HomeBaseComponent implements OnInit {
 
   private onCaByTypeVenteSuccess(venteByTypeRecords: VenteByTypeRecord[] | null): void {
     if (!venteByTypeRecords) return;
-    this.vno = venteByTypeRecords.find(e => e.typeVente === 'VNO')?.venteRecord;
-    this.assurance = venteByTypeRecords.find(e => e.typeVente === 'VO')?.venteRecord;
+    this.vno = venteByTypeRecords.find(e => e.typeVente === 'CashSale')?.venteRecord;
+    this.assurance = venteByTypeRecords.find(e => e.typeVente === 'ThirdPartySales')?.venteRecord;
   }
 
   private onGetCaByModePaimentSuccess(venteModePaimentRecords: VenteModePaimentRecord[] | []): void {

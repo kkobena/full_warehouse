@@ -33,8 +33,8 @@ import { GroupeFournisseurService } from '../groupe-fournisseur/groupe-fournisse
     TooltipModule,
     ToastAlertComponent,
     Select,
-    Card,
-  ],
+    Card
+  ]
 })
 export class FournisseurUpdateComponent implements OnInit, AfterViewInit {
   fournisseur?: IFournisseur;
@@ -49,7 +49,7 @@ export class FournisseurUpdateComponent implements OnInit, AfterViewInit {
     addresspostale: [],
     phone: [],
     mobile: [],
-    groupeFournisseurId: [],
+    groupeFournisseurId: []
   });
   private readonly entityService = inject(FournisseurService);
   private readonly activeModal = inject(NgbActiveModal);
@@ -57,17 +57,20 @@ export class FournisseurUpdateComponent implements OnInit, AfterViewInit {
   private readonly errorService = inject(ErrorService);
   private readonly groupeFournisseurService = inject(GroupeFournisseurService);
   private libelleInput = viewChild.required<ElementRef>('libelleInput');
+
   ngOnInit(): void {
     this.fetchGroupFournisseur();
     if (this.fournisseur) {
       this.updateForm(this.fournisseur);
     }
   }
+
   ngAfterViewInit(): void {
     setTimeout(() => {
       this.libelleInput().nativeElement.focus();
     }, 100);
   }
+
   protected updateForm(entity: IFournisseur): void {
     this.editForm.patchValue({
       id: entity.id,
@@ -76,7 +79,7 @@ export class FournisseurUpdateComponent implements OnInit, AfterViewInit {
       groupeFournisseurId: entity.groupeFournisseurId,
       addresspostale: entity.addressePostal,
       phone: entity.phone,
-      mobile: entity.mobile,
+      mobile: entity.mobile
     });
   }
 
@@ -107,7 +110,7 @@ export class FournisseurUpdateComponent implements OnInit, AfterViewInit {
   private subscribeToSaveResponse(result: Observable<HttpResponse<IFournisseur>>): void {
     result.subscribe({
       next: () => this.onSaveSuccess(),
-      error: err => this.onSaveError(err),
+      error: err => this.onSaveError(err)
     });
   }
 
@@ -120,7 +123,7 @@ export class FournisseurUpdateComponent implements OnInit, AfterViewInit {
       groupeFournisseurId: this.editForm.get(['groupeFournisseurId'])!.value,
       addressePostal: this.editForm.get(['addresspostale'])!.value,
       phone: this.editForm.get(['phone'])!.value,
-      mobile: this.editForm.get(['mobile'])!.value,
+      mobile: this.editForm.get(['mobile'])!.value
     };
   }
 
@@ -128,7 +131,7 @@ export class FournisseurUpdateComponent implements OnInit, AfterViewInit {
     this.groupeFournisseurService
       .query({
         page: 0,
-        size: 9999,
+        size: 9999
       })
       .subscribe(res => {
         this.groupes = res.body || [];

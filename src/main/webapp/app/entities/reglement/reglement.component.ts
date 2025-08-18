@@ -24,16 +24,17 @@ import { Divider } from 'primeng/divider';
     NgbNavLinkBase,
     PanelModule,
     FormsModule,
-    Divider,
+    Divider
   ],
   templateUrl: './reglement.component.html',
-  styleUrl: './reglement.component.scss',
+  styleUrl: './reglement.component.scss'
 })
 export class ReglementComponent implements OnInit {
   protected active = 'factures-reglees';
   protected reglementFactureDossiers: ReglementFactureDossier[] = [];
   protected isGroupe = false;
   private readonly activatedRoute = inject(ActivatedRoute);
+
   ngOnInit(): void {
     this.activatedRoute.data.subscribe(({ factureDossiers }) => {
       if (factureDossiers?.length > 0) {

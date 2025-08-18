@@ -9,10 +9,10 @@ const mvtCaisseRoute: Routes = [
     loadComponent: () => import('./mvt-caisse.component').then(m => m.MvtCaisseComponent),
     data: {
       authorities: [Authority.ADMIN, Authority.MVT_CAISSE, Authority.TABLEAU_PHARMACIEN],
-      defaultSort: 'id,asc',
+      defaultSort: 'id,asc'
     },
-    canActivate: [UserRouteAccessService],
-  },
+    canActivate: [UserRouteAccessService]
+  }
   /* {
     path: ':id/view',
     component: CommandeDetailComponent,

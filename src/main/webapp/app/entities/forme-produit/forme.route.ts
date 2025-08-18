@@ -8,9 +8,9 @@ const formeRoute: Routes = [
     loadComponent: () => import('./forme-produit.component').then(m => m.FormeProduitComponent),
     data: {
       authorities: [Authority.ADMIN, Authority.FORME_PRODUIT],
-      defaultSort: 'id,asc',
+      defaultSort: 'id,asc'
     },
-    canActivate: [UserRouteAccessService],
-  },
+    canActivate: [UserRouteAccessService]
+  }
 ];
 export default formeRoute;

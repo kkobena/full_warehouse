@@ -109,12 +109,10 @@ public class SalesLine implements Serializable, Cloneable {
 
     @NotNull
     @ManyToOne(optional = false)
-    @JsonIgnoreProperties(value = "salesLines", allowSetters = true)
     private Sales sales;
 
     @NotNull
     @ManyToOne(optional = false)
-    @JsonIgnoreProperties(value = "salesLines", allowSetters = true)
     private Produit produit;
 
     @NotNull

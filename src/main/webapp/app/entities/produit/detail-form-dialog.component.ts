@@ -14,7 +14,7 @@ import { Button } from 'primeng/button';
 @Component({
   selector: 'jhi-detail-form-dialog',
   templateUrl: './detail-form-dialog.component.html',
-  imports: [WarehouseCommonModule, ReactiveFormsModule, FormsModule, InputText, InputNumber, Button],
+  imports: [WarehouseCommonModule, ReactiveFormsModule, FormsModule, InputText, InputNumber, Button]
 })
 export class DetailFormDialogComponent implements OnInit {
   produit?: Produit;
@@ -27,7 +27,7 @@ export class DetailFormDialogComponent implements OnInit {
     id: [],
     libelle: [null, [Validators.required]],
     costAmount: [null, [Validators.required]],
-    regularUnitPrice: [null, [Validators.required]],
+    regularUnitPrice: [null, [Validators.required]]
   });
   private readonly produitService = inject(ProduitService);
 
@@ -42,7 +42,7 @@ export class DetailFormDialogComponent implements OnInit {
       id: produit.id,
       libelle: produit.libelle,
       costAmount: produit.costAmount,
-      regularUnitPrice: produit.regularUnitPrice,
+      regularUnitPrice: produit.regularUnitPrice
     });
   }
 
@@ -63,7 +63,7 @@ export class DetailFormDialogComponent implements OnInit {
   protected subscribeToSaveResponse(result: Observable<HttpResponse<IProduit>>): void {
     result.subscribe({
       next: () => this.onSaveSuccess(),
-      error: () => this.onSaveError(),
+      error: () => this.onSaveError()
     });
   }
 
@@ -90,7 +90,7 @@ export class DetailFormDialogComponent implements OnInit {
       netUnitPrice: 0,
       itemQty: 0,
       itemCostAmount: 0,
-      itemRegularUnitPrice: 0,
+      itemRegularUnitPrice: 0
     };
   }
 }

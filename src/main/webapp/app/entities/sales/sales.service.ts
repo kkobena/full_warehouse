@@ -172,7 +172,7 @@ export class SalesService {
     const options = createRequestOption(req);
     return this.http.get<number>(this.resourceUrl + '/assurance/transform', {
       params: options,
-      observe: 'response',
+      observe: 'response'
     });
   }
 
@@ -187,7 +187,7 @@ export class SalesService {
   private convertDateFromClient(sales: ISales): ISales {
     return Object.assign({}, sales, {
       createdAt: sales.createdAt && sales.createdAt.isValid() ? sales.createdAt.toJSON() : undefined,
-      updatedAt: sales.updatedAt && sales.updatedAt.isValid() ? sales.updatedAt.toJSON() : undefined,
+      updatedAt: sales.updatedAt && sales.updatedAt.isValid() ? sales.updatedAt.toJSON() : undefined
     });
   }
 
@@ -212,7 +212,7 @@ export class SalesService {
   private convertItemDateFromClient(salesLine: ISalesLine): ISalesLine {
     const copy: ISalesLine = Object.assign({}, salesLine, {
       createdAt: salesLine.createdAt && salesLine.createdAt.isValid() ? salesLine.createdAt.toJSON() : undefined,
-      updatedAt: salesLine.updatedAt && salesLine.updatedAt.isValid() ? salesLine.updatedAt.toJSON() : undefined,
+      updatedAt: salesLine.updatedAt && salesLine.updatedAt.isValid() ? salesLine.updatedAt.toJSON() : undefined
     });
     return copy;
   }

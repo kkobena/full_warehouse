@@ -1,4 +1,4 @@
-import { Injectable, inject } from '@angular/core';
+import { inject, Injectable } from '@angular/core';
 import { HttpClient, HttpResponse } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { map } from 'rxjs/operators';
@@ -20,7 +20,8 @@ export class DeconditionService {
   /** Inserted by Angular inject() migration for backwards compatibility */
   constructor(...args: unknown[]);
 
-  constructor() {}
+  constructor() {
+  }
 
   create(decondition: IDecondition): Observable<EntityResponseType> {
     const copy = this.convertDateFromClient(decondition);
@@ -55,7 +56,7 @@ export class DeconditionService {
 
   protected convertDateFromClient(decondition: IDecondition): IDecondition {
     const copy: IDecondition = Object.assign({}, decondition, {
-      dateMtv: decondition.dateMtv && decondition.dateMtv.isValid() ? decondition.dateMtv.toJSON() : undefined,
+      dateMtv: decondition.dateMtv && decondition.dateMtv.isValid() ? decondition.dateMtv.toJSON() : undefined
     });
     return copy;
   }

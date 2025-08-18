@@ -8,7 +8,7 @@ describe('ListDifferesComponent', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [ListDifferesComponent],
+      imports: [ListDifferesComponent]
     }).compileComponents();
 
     fixture = TestBed.createComponent(ListDifferesComponent);

@@ -4,6 +4,7 @@ import { Component } from '@angular/core';
   selector: 'jhi-reglement-detail',
   imports: [],
   templateUrl: './reglement-detail.component.html',
-  styleUrl: './reglement-detail.component.scss',
+  styleUrl: './reglement-detail.component.scss'
 })
-export class ReglementDetailComponent {}
+export class ReglementDetailComponent {
+}

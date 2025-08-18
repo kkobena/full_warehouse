@@ -1,11 +1,11 @@
-
-import { Injectable, signal, computed } from '@angular/core';
+import { computed, Injectable, signal } from '@angular/core';
 
 export class SaleEvent<T = any> {
   constructor(
     public name: string,
     public content: T
-  ) {}
+  ) {
+  }
 }
 
 @Injectable({ providedIn: 'root' })

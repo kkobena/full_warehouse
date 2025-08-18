@@ -37,9 +37,9 @@ import { Card } from 'primeng/card';
     SplitButton,
     NgxSpinnerComponent,
     Tooltip,
-    Card,
+    Card
   ],
-  templateUrl: './recapitualtif-caisse.component.html',
+  templateUrl: './recapitualtif-caisse.component.html'
 })
 export class RecapitualtifCaisseComponent implements OnInit {
   // range15 = Array.from({ length: 5 }, (_, i) => i + 1);
@@ -49,7 +49,7 @@ export class RecapitualtifCaisseComponent implements OnInit {
   protected toTime = '23:59';
   protected readonly mvts = [
     { label: 'Les ventes uniquement', value: true },
-    { label: 'Tous les mouvemente', value: false },
+    { label: 'Tous les mouvemente', value: false }
   ];
   protected exportMenus: MenuItem[];
   protected messageBtn: MenuItem[];
@@ -68,26 +68,26 @@ export class RecapitualtifCaisseComponent implements OnInit {
       {
         label: 'Imprimer',
         icon: 'pi pi-print',
-        command: () => this.print(),
+        command: () => this.print()
       },
       {
         label: 'PDF',
         icon: 'pi pi-file-excel',
-        command: () => this.exportToPdf(),
-      },
+        command: () => this.exportToPdf()
+      }
     ];
 
     this.messageBtn = [
       {
         label: 'Mail',
         icon: 'pi pi-inbox',
-        command: () => this.sentMail(),
+        command: () => this.sentMail()
       } /*,
       {
         label: 'SMS',
         icon: 'pi pi-send',
         command: () => this.sentSms(),
-      },*/,
+      },*/
     ];
   }
 
@@ -108,7 +108,7 @@ export class RecapitualtifCaisseComponent implements OnInit {
         const blobUrl = URL.createObjectURL(blod);
         window.open(blobUrl);
       },
-      error: () => this.spinner.hide(),
+      error: () => this.spinner.hide()
     });
   }
 
@@ -119,7 +119,7 @@ export class RecapitualtifCaisseComponent implements OnInit {
         this.ticketZ = response.body;
         this.spinner.hide();
       },
-      error: () => this.spinner.hide(),
+      error: () => this.spinner.hide()
     });
   }
 
@@ -141,7 +141,7 @@ export class RecapitualtifCaisseComponent implements OnInit {
       next: () => {
         this.spinner.hide();
       },
-      error: () => this.spinner.hide(),
+      error: () => this.spinner.hide()
     });
   }
 
@@ -151,7 +151,7 @@ export class RecapitualtifCaisseComponent implements OnInit {
       next: () => {
         this.spinner.hide();
       },
-      error: () => this.spinner.hide(),
+      error: () => this.spinner.hide()
     });
   }
 
@@ -162,7 +162,7 @@ export class RecapitualtifCaisseComponent implements OnInit {
       fromTime: this.fromTime + ':00', // Ajout de ':00' pour le format HH:mm:ss
       toTime: this.toTime + ':59', // Ajout de ':59' pour le format HH:mm:ss
       onlyVente: this.onlyVente,
-      usersId: this.selectedUsersId.length > 0 ? this.selectedUsersId : null,
+      usersId: this.selectedUsersId.length > 0 ? this.selectedUsersId : null
     };
   }
 }

@@ -1,5 +1,5 @@
 import { HttpResponse } from '@angular/common/http';
-import { Component, OnInit, inject } from '@angular/core';
+import { Component, inject, OnInit } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { APPEND_TO, PRODUIT_COMBO_MIN_LENGTH, PRODUIT_NOT_FOUND } from 'app/shared/constants/pagination.constants';
 import moment from 'moment';
@@ -36,8 +36,8 @@ import { NgxSpinnerModule, NgxSpinnerService } from 'ngx-spinner';
     TableModule,
     BadgeModule,
     DividerModule,
-    NgxSpinnerModule,
-  ],
+    NgxSpinnerModule
+  ]
 })
 export class ProduitDetailComponent implements OnInit {
   protected activatedRoute = inject(ActivatedRoute);
@@ -94,7 +94,7 @@ export class ProduitDetailComponent implements OnInit {
         page: 0,
         size: 10,
         withdetail: false,
-        search: this.searchValue,
+        search: this.searchValue
       })
       .subscribe((res: HttpResponse<IProduit[]>) => this.onProduitSuccess(res.body));
   }
@@ -108,7 +108,7 @@ export class ProduitDetailComponent implements OnInit {
     this.spinner.show();
     this.produitStatService.fetchTransactions(this.buildQuery()).subscribe({
       next: (res: HttpResponse<ProduitAuditingState[]>) => this.onSuccessPage(res.body),
-      error: err => this.onError(err),
+      error: err => this.onError(err)
     });
   }
 
@@ -123,7 +123,7 @@ export class ProduitDetailComponent implements OnInit {
         window.open(blobUrl);
         this.spinner.hide();
       },
-      error: () => this.spinner.hide(),
+      error: () => this.spinner.hide()
     });
   }
 
@@ -145,7 +145,7 @@ export class ProduitDetailComponent implements OnInit {
     return {
       produitId: this.produit.id,
       fromDate: this.fromDate ? moment(this.fromDate).format('yyyy-MM-DD') : null,
-      toDate: this.toDate ? moment(this.toDate).format('yyyy-MM-DD') : null,
+      toDate: this.toDate ? moment(this.toDate).format('yyyy-MM-DD') : null
     };
   }
 

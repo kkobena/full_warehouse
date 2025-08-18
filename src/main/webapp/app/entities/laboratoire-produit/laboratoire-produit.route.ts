@@ -8,9 +8,9 @@ const laboratoireProduitRoute: Routes = [
     loadComponent: () => import('./laboratoire-produit.component').then(m => m.LaboratoireProduitComponent),
     data: {
       authorities: [Authority.ADMIN, Authority.LABORATOIRE],
-      defaultSort: 'id,asc',
+      defaultSort: 'id,asc'
     },
-    canActivate: [UserRouteAccessService],
-  },
+    canActivate: [UserRouteAccessService]
+  }
 ];
 export default laboratoireProduitRoute;

@@ -9,6 +9,7 @@ import jakarta.persistence.Enumerated;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.OneToOne;
@@ -73,6 +74,7 @@ public class CashRegister implements Serializable {
     private Ticketing ticketing;
 
     @ManyToOne
+    @JoinColumn(name = "updated_user_id", referencedColumnName = "id")
     private User updatedUser;
 
     @OneToMany(mappedBy = "cashRegister", cascade = { CascadeType.PERSIST, CascadeType.REMOVE })

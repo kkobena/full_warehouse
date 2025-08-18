@@ -66,7 +66,7 @@ import {
   isVo,
   SaleType,
   showCommonError,
-  translateSalesLabel,
+  translateSalesLabel
 } from './sale-helper';
 import { SaleEventSignal } from './sale-event';
 import { handleSaleEvents } from './sale-event-helper';
@@ -104,9 +104,9 @@ import { Toolbar } from 'primeng/toolbar';
     ProduitAutocompleteComponent,
     QuantiteProdutSaisieComponent,
     Divider,
-    Toolbar,
+    Toolbar
   ],
-  templateUrl: './selling-home.component.html',
+  templateUrl: './selling-home.component.html'
 })
 export class SellingHomeComponent implements OnInit, AfterViewInit {
   readonly minLength = PRODUIT_COMBO_MIN_LENGTH;
@@ -207,7 +207,8 @@ export class SellingHomeComponent implements OnInit, AfterViewInit {
 
   onRemoveCustomer(): void {
     if (this.isComptant()) {
-      this.salesService.removeCustommerToCashSale(this.currentSaleService.currentSale().id).subscribe(() => {});
+      this.salesService.removeCustommerToCashSale(this.currentSaleService.currentSale().id).subscribe(() => {
+      });
     }
   }
 
@@ -216,7 +217,7 @@ export class SellingHomeComponent implements OnInit, AfterViewInit {
       this.salesService
         .addCustommerToCashSale({
           key: this.currentSaleService.currentSale().id,
-          value: this.selectedCustomerService.selectedCustomerSignal().id,
+          value: this.selectedCustomerService.selectedCustomerSignal().id
         })
         .subscribe(() => {
           this.currentSaleService.currentSale().customerId = this.selectedCustomerService.selectedCustomerSignal().id;
@@ -330,10 +331,11 @@ export class SellingHomeComponent implements OnInit, AfterViewInit {
             }
           },
           this.translateLabel('venteSansBonHeader'),
-          this.translateLabel('venteSansBon'),
+          this.translateLabel('venteSansBon')
         );
       } else {
-        this.confimDialog().onWarn(() => {}, this.translateLabel('numeroBonMaquant'), this.translateLabel('numeroBonMaquantHeader'));
+        this.confimDialog().onWarn(() => {
+        }, this.translateLabel('numeroBonMaquant'), this.translateLabel('numeroBonMaquantHeader'));
       }
     } else {
       if (this.isAssurance()) {
@@ -381,10 +383,10 @@ export class SellingHomeComponent implements OnInit, AfterViewInit {
         this.voSalesService.find(curr.id).subscribe({
           next: res => {
             this.currentSaleService.setCurrentSale(res.body);
-          },
+          }
         });
       },
-      error: (err: any) => this.onCommonError(err),
+      error: (err: any) => this.onCommonError(err)
     });
   }
 
@@ -396,17 +398,17 @@ export class SellingHomeComponent implements OnInit, AfterViewInit {
     this.voSalesService
       .changeCustomer({
         key: curr.id,
-        value: cust.id,
+        value: cust.id
       })
       .subscribe({
         next: () => {
           this.voSalesService.find(curr.id).subscribe({
             next: res => {
               this.currentSaleService.setCurrentSale(res.body);
-            },
+            }
           });
         },
-        error: (err: any) => this.onChangeCustomerError(err, oldCustomer),
+        error: (err: any) => this.onChangeCustomerError(err, oldCustomer)
       });
   }
 
@@ -426,7 +428,7 @@ export class SellingHomeComponent implements OnInit, AfterViewInit {
             } else {
               this.assuranceComponent().create(
                 this.createSalesLine(this.produitSelected, qytMvt),
-                this.assuranceDataComponent().buildIClientTiersPayantFromInputs(),
+                this.assuranceDataComponent().buildIClientTiersPayantFromInputs()
               );
             }
           } else if (this.isCartnet()) {
@@ -435,7 +437,7 @@ export class SellingHomeComponent implements OnInit, AfterViewInit {
             } else {
               this.carnetComponent().create(
                 this.createSalesLine(this.produitSelected, qytMvt),
-                this.assuranceDataComponent().buildIClientTiersPayantFromInputs(),
+                this.assuranceDataComponent().buildIClientTiersPayantFromInputs()
               );
             }
           }
@@ -509,7 +511,7 @@ export class SellingHomeComponent implements OnInit, AfterViewInit {
     this.salesService
       .transform({
         natureVente: 'ASSURANCE',
-        saleId: this.currentSaleService.currentSale().id,
+        saleId: this.currentSaleService.currentSale().id
       })
       .subscribe({
         next: res => {
@@ -522,12 +524,12 @@ export class SellingHomeComponent implements OnInit, AfterViewInit {
                   .subscribe({ next: (resp: HttpResponse<ICustomer>) => this.selectedCustomerService.setCustomer(resp.body) });
               }
               this.onLoadPrevente(res.body, false);
-            },
+            }
           });
         },
         error: error => {
           this.onCommonError(error);
-        },
+        }
       });
   }
 
@@ -536,7 +538,7 @@ export class SellingHomeComponent implements OnInit, AfterViewInit {
     this.salesService
       .transform({
         natureVente: 'CARNET',
-        saleId: this.currentSaleService.currentSale().id,
+        saleId: this.currentSaleService.currentSale().id
       })
       .subscribe({
         next: res => {
@@ -549,12 +551,12 @@ export class SellingHomeComponent implements OnInit, AfterViewInit {
                   .subscribe({ next: (resp: HttpResponse<ICustomer>) => this.selectedCustomerService.setCustomer(resp.body) });
               }
               this.onLoadPrevente(res.body, false);
-            },
+            }
           });
         },
         error: error => {
           this.onCommonError(error);
-        },
+        }
       });
   }
 
@@ -630,7 +632,7 @@ export class SellingHomeComponent implements OnInit, AfterViewInit {
         this.translateLabel('modificationTypeVente'),
         message,
         null,
-        () => evt.preventDefault(),
+        () => evt.preventDefault()
       );
     }
   }
@@ -676,7 +678,7 @@ export class SellingHomeComponent implements OnInit, AfterViewInit {
           this.translateLabel('quantityGreatherMaxCanContinue'),
           this.confimDialog(),
           this.onAddProduit.bind(this),
-          this.updateProduitQtyBox.bind(this),
+          this.updateProduitQtyBox.bind(this)
         );
         break;
       case 'deconditionnement':
@@ -687,7 +689,7 @@ export class SellingHomeComponent implements OnInit, AfterViewInit {
           null,
           this.onAddProduit.bind(this),
           this.processQtyRequested.bind(this),
-          this.updateProduitQtyBox.bind(this),
+          this.updateProduitQtyBox.bind(this)
         );
         break;
       case 'forceStock':
@@ -696,7 +698,7 @@ export class SellingHomeComponent implements OnInit, AfterViewInit {
           this.translateLabel('quantityGreatherThanStock'),
           this.confimDialog(),
           this.onAddProduit.bind(this),
-          this.updateProduitQtyBox.bind(this),
+          this.updateProduitQtyBox.bind(this)
         );
         break;
       case 'stockInsuffisant':
@@ -816,14 +818,14 @@ export class SellingHomeComponent implements OnInit, AfterViewInit {
       error: error => {
         this.check = false;
         this.onStockError(salesLine, error);
-      },
+      }
     });
   }
 
   private subscribeToSaveResponse(result: Observable<HttpResponse<ISales>>): void {
     result.subscribe({
       next: (res: HttpResponse<ISales>) => this.onSaveSuccess(res.body),
-      error: () => this.onSaveError(),
+      error: () => this.onSaveError()
     });
   }
 
@@ -847,7 +849,7 @@ export class SellingHomeComponent implements OnInit, AfterViewInit {
       error: error => {
         this.check = false;
         this.onStockError(salesLine, error);
-      },
+      }
     });
   }
 
@@ -867,7 +869,7 @@ export class SellingHomeComponent implements OnInit, AfterViewInit {
             this.translateLabel('quantityGreatherThanStock'),
             this.confimDialog(),
             this.processQtyRequested.bind(this),
-            this.updateProduitQtyBox.bind(this),
+            this.updateProduitQtyBox.bind(this)
           );
         } else {
           this.openInfoDialog(this.errorService.getErrorMessage(error));
@@ -889,7 +891,7 @@ export class SellingHomeComponent implements OnInit, AfterViewInit {
               salesLine,
               this.onAddProduit.bind(this),
               this.processQtyRequested.bind(this),
-              this.updateProduitQtyBox.bind(this),
+              this.updateProduitQtyBox.bind(this)
             );
           } else {
             this.openInfoDialog(this.translateLabel('stockInsuffisant'));
@@ -972,7 +974,7 @@ export class SellingHomeComponent implements OnInit, AfterViewInit {
       saleId: this.currentSaleService.currentSale()?.id,
       quantitySold: quantityRequested,
       quantityRequested,
-      sales: this.currentSaleService.currentSale(),
+      sales: this.currentSaleService.currentSale()
     };
   }
 

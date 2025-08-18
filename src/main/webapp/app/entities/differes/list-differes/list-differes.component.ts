@@ -25,7 +25,7 @@ import { DiffereSummary } from '../model/differe-summary.model';
 @Component({
   selector: 'jhi-list-differes',
   imports: [Button, FormsModule, Toolbar, CommonModule, SelectModule, CardModule, TableModule, Tooltip, RouterModule, Tag],
-  templateUrl: './list-differes.component.html',
+  templateUrl: './list-differes.component.html'
 })
 export class ListDifferesComponent implements OnInit, OnDestroy {
   primngtranslate: Subscription;
@@ -41,12 +41,12 @@ export class ListDifferesComponent implements OnInit, OnDestroy {
   protected typesDifferes = [
     {
       id: StatutDiffere.PAYE,
-      label: 'Soldé',
+      label: 'Soldé'
     },
     {
       id: StatutDiffere.IMPAYE,
-      label: 'En cours',
-    },
+      label: 'En cours'
+    }
   ];
   protected customerId: number = null;
   protected statut: StatutDiffere = StatutDiffere.IMPAYE;
@@ -82,7 +82,7 @@ export class ListDifferesComponent implements OnInit, OnDestroy {
     this.destroy$.complete();
   }
 
-  
+
   protected exportPdf(): void {
     this.loadingPdf = true;
     this.differeService.exportListToPdf(this.buildQueryParams()).pipe(takeUntil(this.destroy$)).subscribe({
@@ -93,9 +93,10 @@ export class ListDifferesComponent implements OnInit, OnDestroy {
       },
       error: () => {
         this.loadingPdf = false;
-      },
+      }
     });
   }
+
   protected lazyLoading(event: LazyLoadEvent): void {
     if (event) {
       this.loadingBtn = true;
@@ -105,14 +106,14 @@ export class ListDifferesComponent implements OnInit, OnDestroy {
         .query({
           page: this.page,
           size: event.rows,
-          ...this.buildQueryParams(),
+          ...this.buildQueryParams()
         }).pipe(takeUntil(this.destroy$))
         .subscribe({
           next: (res: HttpResponse<Differe[]>) => this.onSuccess(res.body, res.headers, this.page),
           error: () => {
             this.loading = false;
             this.loadingBtn = false;
-          },
+          }
         });
     }
   }
@@ -125,14 +126,14 @@ export class ListDifferesComponent implements OnInit, OnDestroy {
       .query({
         page: pageToLoad,
         size: this.itemsPerPage,
-        ...this.buildQueryParams(),
+        ...this.buildQueryParams()
       }).pipe(takeUntil(this.destroy$))
       .subscribe({
         next: (res: HttpResponse<Differe[]>) => this.onSuccess(res.body, res.headers, pageToLoad),
         error: () => {
           this.loading = false;
           this.loadingBtn = false;
-        },
+        }
       });
   }
 
@@ -148,7 +149,7 @@ export class ListDifferesComponent implements OnInit, OnDestroy {
       },
       error: () => {
         this.clients = [];
-      },
+      }
     });
   }
 
@@ -176,7 +177,7 @@ export class ListDifferesComponent implements OnInit, OnDestroy {
     }*/
     this.differeService.setParams({
       customerId: this.customerId,
-      statut: this.statut,
+      statut: this.statut
       // fromDate: this.modelStartDate,
       // toDate: this.modelEndDate,
     });
@@ -190,7 +191,7 @@ export class ListDifferesComponent implements OnInit, OnDestroy {
       },
       error: () => {
         this.summary = null;
-      },
+      }
     });
   }
 }

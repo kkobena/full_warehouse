@@ -10,6 +10,7 @@ import jakarta.persistence.Enumerated;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 import jakarta.persistence.Transient;
@@ -106,6 +107,7 @@ public class TiersPayant implements Serializable {
     private int nbreBordereaux;
 
     @ManyToOne
+    @JoinColumn(name = "groupe_tiers_payant_id", referencedColumnName = "id")
     private GroupeTiersPayant groupeTiersPayant;
 
     @Column(name = "created", nullable = false)

@@ -1,112 +1,119 @@
 <div class="modal-header">
-  <h4 class="modal-title">{{header}}</h4>
+  <h4 class="modal-title">{{ header }}</h4>
   <button (click)="cancel()" aria-label="Close" class="btn-close" type="button">
     <span aria-hidden="true">&times;</span>
   </button>
 </div>
 <form (ngSubmit)="save()" [formGroup]="editForm" name="editForm" novalidate role="form">
   <div class="modal-body">
-   <p-card> <div [hidden]="true" class="form-group">
-     <input class="form-control" formControlName="id" id="id" name="id" readonly type="hidden" />
-   </div>
-     <div class="form-row">
-       <div class="form-group col">
-         <label class="form-control-label" for="field_fournisseurId">Fournisseurs</label>
-         <p-select #fournisseurSelect
-           (onChange)="onChange($event)"
-           [filter]="false"
-           [options]="fournisseurs"
-           [style]="{ width: '100%' }"
-           class="form-control ngCombo"
-           formControlName="fournisseurId"
-           id="field_fournisseurId"
-           optionLabel="libelle"
-           optionValue="id"
-           placeholder="Séléctionner un fournisseur "
-         >
-         </p-select>
-         @if (editForm.get('fournisseurId')!.invalid && (editForm.get('fournisseurId')!.dirty || editForm.get('fournisseurId')!.touched)) {
-           <div>
-             @if (editForm.get('fournisseurId')?.errors?.required) {
-               <small class="form-text text-danger" jhiTranslate="entity.validation.required"> This field is required. </small>
-             }
-           </div>
-         }
-       </div>
-     </div>
-     <div class="form-row">
-       <div class="form-group col">
-         <label class="form-control-label" for="field_codeCip">Code cip</label>
-         <input
-           autocomplete="off"
-           class="form-control"
-           formControlName="codeCip"
-           id="field_codeCip"
-           name="codeCip"
-           pInputText
-           pKeyFilter="int"
-           type="text"
-         />
+    <p-card>
+      <div [hidden]="true" class="form-group">
+        <input class="form-control" formControlName="id" id="id" name="id" readonly type="hidden" />
+      </div>
+      <div class="form-row">
+        <div class="form-group col">
+          <label class="form-control-label" for="field_fournisseurId">Fournisseurs</label>
+          <p-select #fournisseurSelect
+                    (onChange)="onChange($event)"
+                    [filter]="false"
+                    [options]="fournisseurs"
+                    [style]="{ width: '100%' }"
+                    class="form-control ngCombo"
+                    formControlName="fournisseurId"
+                    id="field_fournisseurId"
+                    optionLabel="libelle"
+                    optionValue="id"
+                    placeholder="Séléctionner un fournisseur "
+          >
+          </p-select>
+          @if (editForm.get('fournisseurId')!.invalid && (editForm.get('fournisseurId')!.dirty || editForm.get('fournisseurId')!.touched)) {
+            <div>
+              @if (editForm.get('fournisseurId')?.errors?.required) {
+                <small class="form-text text-danger" jhiTranslate="entity.validation.required"> This field is
+                  required. </small>
+              }
+            </div>
+          }
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="form-group col">
+          <label class="form-control-label" for="field_codeCip">Code cip</label>
+          <input
+            autocomplete="off"
+            class="form-control"
+            formControlName="codeCip"
+            id="field_codeCip"
+            name="codeCip"
+            pInputText
+            pKeyFilter="int"
+            type="text"
+          />
 
-         @if (editForm.get('codeCip')!.invalid && (editForm.get('codeCip')!.dirty || editForm.get('codeCip')!.touched)) {
-           <div>
-             @if (editForm.get('codeCip')?.errors?.required) {
-               <small class="form-text text-danger" jhiTranslate="entity.validation.required"> This field is required. </small>
-             }
-           </div>
-         }
-       </div>
-     </div>
-     <div class="form-row">
-       <div class="form-group col">
-         <label class="form-control-label" for="field_prixAchat">Prix achat</label>
-         <input
-           (keyup)="handlePrixAchatInput($event)"
-           autocomplete="off"
-           class="form-control"
-           formControlName="prixAchat"
-           id="field_prixAchat"
-           name="prixAchat"
-           pInputText
-           type="number"
-         />
-         @if (editForm.get('prixAchat')!.invalid && (editForm.get('prixAchat')!.dirty || editForm.get('prixAchat')!.touched)) {
-           <div>
-             @if (editForm.get('prixAchat')?.errors?.required) {
-               <small class="form-text text-danger" jhiTranslate="entity.validation.required"> This field is required. </small>
-             }
-           </div>
-         }
-       </div>
-     </div>
-     <div class="form-row">
-       <div class="form-group col">
-         <label class="form-control-label" for="field_prixUni">Prix unitaire</label>
-         <input
-           (keyup)="handlePrixUnitaireInput($event)"
-           autocomplete="off"
-           class="form-control"
-           formControlName="prixUni"
-           id="field_prixUni"
-           name="prixAchat"
-           pInputText
-           type="number"
-         />
-         @if (editForm.get('prixUni')!.invalid && (editForm.get('prixUni')!.dirty || editForm.get('prixUni')!.touched)) {
-           <div>
-             @if (editForm.get('prixUni')?.errors?.required) {
-               <small class="form-text text-danger" jhiTranslate="entity.validation.required"> This field is required. </small>
-             }
-           </div>
-         }
-       </div>
-     </div>
-     <div class="form-row">
-       <div class="form-check pt-1">
-         <p-toggleswitch [disabled]="hasPrincipal()" formControlName="principal" id="principal"></p-toggleswitch>
-         <label class="form-check-label form-control-label ml-3" for="principal">Est-il le fournisseur principal ?</label>
-       </div>
-     </div></p-card>
+          @if (editForm.get('codeCip')!.invalid && (editForm.get('codeCip')!.dirty || editForm.get('codeCip')!.touched)) {
+            <div>
+              @if (editForm.get('codeCip')?.errors?.required) {
+                <small class="form-text text-danger" jhiTranslate="entity.validation.required"> This field is
+                  required. </small>
+              }
+            </div>
+          }
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="form-group col">
+          <label class="form-control-label" for="field_prixAchat">Prix achat</label>
+          <input
+            (keyup)="handlePrixAchatInput($event)"
+            autocomplete="off"
+            class="form-control"
+            formControlName="prixAchat"
+            id="field_prixAchat"
+            name="prixAchat"
+            pInputText
+            type="number"
+          />
+          @if (editForm.get('prixAchat')!.invalid && (editForm.get('prixAchat')!.dirty || editForm.get('prixAchat')!.touched)) {
+            <div>
+              @if (editForm.get('prixAchat')?.errors?.required) {
+                <small class="form-text text-danger" jhiTranslate="entity.validation.required"> This field is
+                  required. </small>
+              }
+            </div>
+          }
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="form-group col">
+          <label class="form-control-label" for="field_prixUni">Prix unitaire</label>
+          <input
+            (keyup)="handlePrixUnitaireInput($event)"
+            autocomplete="off"
+            class="form-control"
+            formControlName="prixUni"
+            id="field_prixUni"
+            name="prixAchat"
+            pInputText
+            type="number"
+          />
+          @if (editForm.get('prixUni')!.invalid && (editForm.get('prixUni')!.dirty || editForm.get('prixUni')!.touched)) {
+            <div>
+              @if (editForm.get('prixUni')?.errors?.required) {
+                <small class="form-text text-danger" jhiTranslate="entity.validation.required"> This field is
+                  required. </small>
+              }
+            </div>
+          }
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="form-check pt-1">
+          <p-toggleswitch [disabled]="hasPrincipal()" formControlName="principal" id="principal"></p-toggleswitch>
+          <label class="form-check-label form-control-label ml-3" for="principal">Est-il le fournisseur principal
+            ?</label>
+        </div>
+      </div>
+    </p-card>
   </div>
 
   <div class="modal-footer">

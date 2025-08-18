@@ -52,8 +52,8 @@ import { ErrorService } from '../../shared/error.service';
     InputIconModule,
     Panel,
     ConfirmDialogComponent,
-    ToastAlertComponent,
-  ],
+    ToastAlertComponent
+  ]
 })
 export class FournisseurComponent implements OnInit {
   protected responsedto!: IResponseDto;
@@ -70,11 +70,12 @@ export class FournisseurComponent implements OnInit {
   private readonly modalService = inject(NgbModal);
   private readonly spinner = inject(SpinerService);
   private readonly errorService = inject(ErrorService);
+
   ngOnInit(): void {
     this.loadPage();
     this.groupeFournisseurService
       .query({
-        search: '',
+        search: ''
       })
       .subscribe((res: HttpResponse<IGroupeFournisseur[]>) => {
         if (res.body) {
@@ -93,11 +94,11 @@ export class FournisseurComponent implements OnInit {
       .query({
         page: pageToLoad,
         size: this.itemsPerPage,
-        search: query,
+        search: query
       })
       .subscribe({
         next: (res: HttpResponse<IFournisseur[]>) => this.onSuccess(res.body, res.headers, pageToLoad),
-        error: err => this.onError(err),
+        error: err => this.onError(err)
       });
   }
 
@@ -107,11 +108,11 @@ export class FournisseurComponent implements OnInit {
     this.entityService
       .query({
         page: this.page,
-        size: event.rows,
+        size: event.rows
       })
       .subscribe({
         next: (res: HttpResponse<IFournisseur[]>) => this.onSuccess(res.body, res.headers, this.page),
-        error: err => this.onError(err),
+        error: err => this.onError(err)
       });
   }
 
@@ -122,11 +123,11 @@ export class FournisseurComponent implements OnInit {
           next: () => {
             this.loadPage(0);
           },
-          error: err => this.onError(err),
+          error: err => this.onError(err)
         });
       },
       'Confirmation',
-      'Êtes-vous sûr de vouloir supprimer cet fournisseur ?',
+      'Êtes-vous sûr de vouloir supprimer cet fournisseur ?'
     );
   }
 
@@ -138,7 +139,7 @@ export class FournisseurComponent implements OnInit {
       () => {
         this.loadPage();
       },
-      'xl',
+      'xl'
     );
   }
 
@@ -150,7 +151,7 @@ export class FournisseurComponent implements OnInit {
       () => {
         this.loadPage();
       },
-      'xl',
+      'xl'
     );
   }
 
@@ -177,7 +178,7 @@ export class FournisseurComponent implements OnInit {
         this.spinner.show();
         this.uploadFileResponse(this.entityService.uploadFile(result));
       },
-      'xl',
+      'xl'
     );
   }
 
@@ -186,7 +187,7 @@ export class FournisseurComponent implements OnInit {
       next: (res: HttpResponse<IResponseDto>) => {
         this.alert().showInfo('Fichier importé avec succès');
       },
-      error: err => this.onError(err),
+      error: err => this.onError(err)
     });
   }
 

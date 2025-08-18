@@ -4,7 +4,7 @@ import { GroupRemise, Remise } from '../../../shared/model/remise.model';
 import { RemiseService } from '../../remise/remise.service';
 
 @Injectable({
-  providedIn: 'root',
+  providedIn: 'root'
 })
 export class RemiseCacheService {
   remises: WritableSignal<GroupRemise[]> = signal<GroupRemise[]>([]);

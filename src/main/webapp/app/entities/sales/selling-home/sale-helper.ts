@@ -75,7 +75,7 @@ export function getNavChangeMessage(nextId: string, translate: TranslateService)
 export function showCommonError(modalService: NgbModal, message: string, infoClass = 'alert alert-danger'): void {
   const modalRef = modalService.open(AlertInfoComponent, {
     backdrop: 'static',
-    centered: true,
+    centered: true
   });
   modalRef.componentInstance.message = message;
   modalRef.componentInstance.infoClass = infoClass;
@@ -88,13 +88,13 @@ export function showCommonModal<T>(
   onClose?: (reason: any) => void,
   size?: string,
   modalDialogClass?: string,
-  onDismiss?: (dismis: any) => void,
+  onDismiss?: (dismis: any) => void
 ): void {
   const modalRef = modalService.open(component, {
     backdrop: 'static',
     centered: true,
     size: size || 'lg',
-    modalDialogClass,
+    modalDialogClass
   });
 
   Object.assign(modalRef.componentInstance, componentInputs);

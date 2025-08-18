@@ -48,9 +48,9 @@ import { WarehouseCommonModule } from '../../../shared/warehouse-common/warehous
     FormsModule,
     FloatLabel,
     DatePickerModule,
-    Select,
+    Select
   ],
-  templateUrl: './taxe-report.component.html',
+  templateUrl: './taxe-report.component.html'
 })
 export class TaxeReportComponent implements OnInit, AfterViewInit {
   protected fromDate: Date | undefined;
@@ -94,11 +94,11 @@ export class TaxeReportComponent implements OnInit, AfterViewInit {
     this.loading = true;
     this.taxeReportService
       .query({
-        ...this.buildParams(),
+        ...this.buildParams()
       })
       .subscribe({
         next: (res: HttpResponse<TaxeWrapper>) => this.onSuccess(res.body),
-        error: () => this.onError(),
+        error: () => this.onError()
       });
     this.updateParam();
   }
@@ -110,7 +110,7 @@ export class TaxeReportComponent implements OnInit, AfterViewInit {
   onPrint(): void {
     this.taxeReportService
       .exportToPdf({
-        ...this.buildParams(),
+        ...this.buildParams()
       })
       .subscribe({
         next(blod) {
@@ -122,12 +122,12 @@ export class TaxeReportComponent implements OnInit, AfterViewInit {
           this.messageService.add({
             severity: 'error',
             summary: 'Error',
-            detail: 'Une erreur est survenue',
+            detail: 'Une erreur est survenue'
           });
         },
         complete: () => {
           this.loading = false;
-        },
+        }
       });
     this.updateParam();
   }
@@ -142,7 +142,7 @@ export class TaxeReportComponent implements OnInit, AfterViewInit {
     this.messageService.add({
       severity: 'error',
       summary: 'Error',
-      detail: 'Une erreur est survenue',
+      detail: 'Une erreur est survenue'
     });
     this.taxeReportWrapper = null;
     this.loading = false;
@@ -156,9 +156,9 @@ export class TaxeReportComponent implements OnInit, AfterViewInit {
           {
             data: this.taxeReportWrapper?.chart.data,
             backgroundColor: this.chartColorsUtilsService.colors().slice(0, this.taxeReportWrapper?.chart.labeles.length),
-            hoverBackgroundColor: this.chartColorsUtilsService.hoverColors().slice(0, this.taxeReportWrapper?.chart.labeles.length),
-          },
-        ],
+            hoverBackgroundColor: this.chartColorsUtilsService.hoverColors().slice(0, this.taxeReportWrapper?.chart.labeles.length)
+          }
+        ]
       },
       options: {
         maintainAspectRatio: false,
@@ -166,11 +166,11 @@ export class TaxeReportComponent implements OnInit, AfterViewInit {
         plugins: {
           legend: {
             labels: {
-              color: this.chartColorsUtilsService.textColor(),
-            },
-          },
-        },
-      },
+              color: this.chartColorsUtilsService.textColor()
+            }
+          }
+        }
+      }
     };
   }
 
@@ -180,7 +180,7 @@ export class TaxeReportComponent implements OnInit, AfterViewInit {
       toDate: DATE_FORMAT_ISO_DATE(this.toDate),
       typeVentes: getTypeVentes(this.selectedVente),
       groupBy: this.groupBy,
-      statuts: ['CLOSED'],
+      statuts: ['CLOSED']
     };
   }
 
@@ -189,7 +189,7 @@ export class TaxeReportComponent implements OnInit, AfterViewInit {
       fromDate: this.fromDate,
       toDate: this.toDate,
       selectedVente: this.selectedVente,
-      groupByTva: this.groupBy,
+      groupByTva: this.groupBy
     };
     this.mvtParamServiceService.setMvtCaisseParam(param);
   }

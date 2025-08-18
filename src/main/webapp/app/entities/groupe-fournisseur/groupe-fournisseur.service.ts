@@ -1,4 +1,4 @@
-import { Injectable, inject } from '@angular/core';
+import { inject, Injectable } from '@angular/core';
 import { HttpClient, HttpResponse } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { IGroupeFournisseur } from '../../shared/model/groupe-fournisseur.model';
@@ -10,7 +10,7 @@ type EntityResponseType = HttpResponse<IGroupeFournisseur>;
 type EntityArrayResponseType = HttpResponse<IGroupeFournisseur[]>;
 
 @Injectable({
-  providedIn: 'root',
+  providedIn: 'root'
 })
 export class GroupeFournisseurService {
   protected http = inject(HttpClient);
@@ -20,7 +20,8 @@ export class GroupeFournisseurService {
   /** Inserted by Angular inject() migration for backwards compatibility */
   constructor(...args: unknown[]);
 
-  constructor() {}
+  constructor() {
+  }
 
   create(groupeFournisseur: IGroupeFournisseur): Observable<EntityResponseType> {
     return this.http.post<IGroupeFournisseur>(this.resourceUrl, groupeFournisseur, { observe: 'response' });
@@ -38,7 +39,7 @@ export class GroupeFournisseurService {
     const options = createRequestOption(req);
     return this.http.get<IGroupeFournisseur[]>(this.resourceUrl, {
       params: options,
-      observe: 'response',
+      observe: 'response'
     });
   }
 

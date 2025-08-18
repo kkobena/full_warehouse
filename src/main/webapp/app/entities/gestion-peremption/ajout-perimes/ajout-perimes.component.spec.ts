@@ -10,7 +10,7 @@ describe('AjoutPerimesComponent', () => {
     await TestBed.configureTestingModule({
       imports: [AjoutPerimesComponent]
     })
-    .compileComponents();
+      .compileComponents();
 
     fixture = TestBed.createComponent(AjoutPerimesComponent);
     component = fixture.componentInstance;

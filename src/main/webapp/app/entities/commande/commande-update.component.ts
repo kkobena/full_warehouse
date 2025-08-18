@@ -450,7 +450,7 @@ export class CommandeUpdateComponent implements OnInit, AfterViewInit {
       this.modalService,
       FileResponseModalComponent,
       {
-        commandeSelected:this.commande,
+        commandeSelected: this.commande,
         header: 'IMPORTER REPONSE'
       },
       (responseCommande: IResponseCommande) => {

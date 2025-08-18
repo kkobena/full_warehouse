@@ -5,6 +5,7 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 import jakarta.validation.constraints.NotNull;
@@ -22,11 +23,13 @@ public class RepartitionStockProduit implements Serializable {
 
     @ManyToOne(optional = false)
     @NotNull
-    StockProduit stockProduitSource;
+    @JoinColumn(name = "stock_produit_source_id", referencedColumnName = "id")
+   private StockProduit stockProduitSource;
 
     @ManyToOne(optional = false)
     @NotNull
-    StockProduit stockProduitDestination;
+    @JoinColumn(name = "stock_produit_destination_id", referencedColumnName = "id")
+   private StockProduit stockProduitDestination;
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

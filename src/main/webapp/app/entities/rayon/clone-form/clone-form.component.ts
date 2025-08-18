@@ -23,7 +23,7 @@ import { Storage } from '../../storage/storage.model';
   selector: 'jhi-clone-form',
   imports: [Card, ReactiveFormsModule, Button, ToastAlertComponent, CommonModule, Select],
   templateUrl: './clone-form.component.html',
-  styleUrls: ['../../common-modal.component.scss'],
+  styleUrls: ['../../common-modal.component.scss']
 })
 export class CloneFormComponent implements OnInit, OnDestroy {
   rayons: IRayon[] = [];
@@ -34,7 +34,7 @@ export class CloneFormComponent implements OnInit, OnDestroy {
   protected isSaving = false;
   protected editForm = this.fb.group({
     storageId: [null, [Validators.required]],
-    magasinId: [null, [Validators.required]],
+    magasinId: [null, [Validators.required]]
   });
   private readonly activeModal = inject(NgbActiveModal);
   private readonly errorService = inject(ErrorService);
@@ -44,6 +44,7 @@ export class CloneFormComponent implements OnInit, OnDestroy {
   private readonly storageService = inject(StorageService);
   private readonly alert = viewChild.required<ToastAlertComponent>('alert');
   private destroy$ = new Subject<void>();
+
   ngOnInit(): void {
     this.findUserMagasin();
 
@@ -54,10 +55,12 @@ export class CloneFormComponent implements OnInit, OnDestroy {
         this.findMagsinStorage(value as number);
       });
   }
+
   ngOnDestroy(): void {
     this.destroy$.next();
     this.destroy$.complete();
   }
+
   protected cancel(): void {
     this.activeModal.dismiss();
   }
@@ -79,7 +82,7 @@ export class CloneFormComponent implements OnInit, OnDestroy {
         error: err => {
           this.isSaving = false;
           this.alert().showError(this.errorService.getErrorMessage(err));
-        },
+        }
       });
   }
 
@@ -91,10 +94,11 @@ export class CloneFormComponent implements OnInit, OnDestroy {
         this.magasins = res.body;
       });
   }
+
   private findMagsinStorage(magasinId: number): void {
     this.storageService
       .fetchStorages({
-        magasinId,
+        magasinId
       })
       .pipe(takeUntil(this.destroy$))
       .subscribe((res: HttpResponse<Storage[]>) => {

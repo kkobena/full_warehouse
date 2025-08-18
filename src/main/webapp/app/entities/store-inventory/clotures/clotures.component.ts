@@ -1,10 +1,10 @@
-import { Component, OnInit, input, inject } from '@angular/core';
+import { Component, inject, input, OnInit } from '@angular/core';
 import {
   GROUPING_BY,
   InventoryCategory,
   InventoryStatut,
   IStoreInventory,
-  StoreInventoryExportRecord,
+  StoreInventoryExportRecord
 } from '../../../shared/model/store-inventory.model';
 import { IUser } from '../../../core/user/user.model';
 import { ITEMS_PER_PAGE } from '../../../config/pagination.constants';
@@ -24,7 +24,7 @@ import { TooltipModule } from 'primeng/tooltip';
 @Component({
   selector: 'jhi-clotures',
   templateUrl: './clotures.component.html',
-  imports: [WarehouseCommonModule, ButtonModule, RippleModule, TooltipModule, ToastModule, NgxSpinnerModule, TableModule, RouterModule],
+  imports: [WarehouseCommonModule, ButtonModule, RippleModule, TooltipModule, ToastModule, NgxSpinnerModule, TableModule, RouterModule]
 })
 export class CloturesComponent implements OnInit {
   private spinner = inject(NgxSpinnerService);
@@ -65,7 +65,7 @@ export class CloturesComponent implements OnInit {
   protected openInfoDialog(message: string, infoClass: string): void {
     const modalRef = this.modalService.open(AlertInfoComponent, {
       backdrop: 'static',
-      centered: true,
+      centered: true
     });
     modalRef.componentInstance.message = message;
     modalRef.componentInstance.infoClass = infoClass;
@@ -76,7 +76,7 @@ export class CloturesComponent implements OnInit {
     this.page = page;
     if (navigate) {
       this.router.navigate(['/store-inventory'], {
-        queryParams: this.buildQuery(page),
+        queryParams: this.buildQuery(page)
       });
     }
     this.rowData = data || [];
@@ -92,7 +92,7 @@ export class CloturesComponent implements OnInit {
 
     this.storeInventoryService.query(this.buildQuery(page)).subscribe({
       next: (res: HttpResponse<IStoreInventory[]>) => this.onSuccess(res.body, res.headers, pageToLoad, !dontNavigate),
-      error: () => this.onError(),
+      error: () => this.onError()
     });
   }
 
@@ -103,7 +103,7 @@ export class CloturesComponent implements OnInit {
       size: this.itemsPerPage,
       userId: this.user()?.id,
       inventoryCategories: this.inventoryCategories()?.map(e => e.name),
-      statuts: this.statuts,
+      statuts: this.statuts
     };
   }
 
@@ -112,8 +112,8 @@ export class CloturesComponent implements OnInit {
       exportGroupBy: GROUPING_BY[0].name,
       filterRecord: {
         storeInventoryId,
-        selectedFilter: 'NONE',
-      },
+        selectedFilter: 'NONE'
+      }
     };
   }
 }

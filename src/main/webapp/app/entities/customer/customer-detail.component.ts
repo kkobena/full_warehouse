@@ -151,10 +151,10 @@ import { takeUntil } from 'rxjs/operators';
         flex-flow: column nowrap;
         justify-content: space-between;
       }
-    `,
+    `
   ],
   templateUrl: './customer-detail.component.html',
-  imports: [WarehouseCommonModule],
+  imports: [WarehouseCommonModule]
 })
 export class CustomerDetailComponent implements OnInit, OnDestroy {
   customer: ICustomer | null = null;
@@ -191,12 +191,12 @@ export class CustomerDetailComponent implements OnInit, OnDestroy {
   loadSales(): void {
     this.customerService
       .purchases({
-        customerId: this.customer.id,
+        customerId: this.customer.id
       })
       .pipe(takeUntil(this.destroy$))
       .subscribe(
         (res: HttpResponse<ICustomer[]>) => this.onSuccess(res.body),
-        () => this.onError(),
+        () => this.onError()
       );
   }
 
@@ -223,5 +223,6 @@ export class CustomerDetailComponent implements OnInit, OnDestroy {
     this.sales = data || [];
   }
 
-  protected onError(): void {}
+  protected onError(): void {
+  }
 }

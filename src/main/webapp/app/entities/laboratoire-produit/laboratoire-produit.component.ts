@@ -1,26 +1,19 @@
 import { Component, inject, OnInit, viewChild } from '@angular/core';
-import { ActivatedRoute, Router, RouterModule } from '@angular/router';
+import { RouterModule } from '@angular/router';
 import { LazyLoadEvent } from 'primeng/api';
 import { HttpErrorResponse, HttpHeaders, HttpResponse } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { LaboratoireProduitService } from './laboratoire-produit.service';
-import { DynamicDialogModule } from 'primeng/dynamicdialog';
 import { FormLaboratoireComponent } from './form-laboratoire/form-laboratoire.component';
 import { IResponseDto } from '../../shared/util/response-dto';
 import { ILaboratoire } from '../../shared/model/laboratoire.model';
 import { ITEMS_PER_PAGE } from '../../shared/constants/pagination.constants';
-import { WarehouseCommonModule } from '../../shared/warehouse-common/warehouse-common.module';
 import { ButtonModule } from 'primeng/button';
-import { RippleModule } from 'primeng/ripple';
-import { ConfirmDialogModule } from 'primeng/confirmdialog';
-import { ToastModule } from 'primeng/toast';
-import { FileUploadModule } from 'primeng/fileupload';
 import { ToolbarModule } from 'primeng/toolbar';
 import { TableModule } from 'primeng/table';
 import { InputTextModule } from 'primeng/inputtext';
 import { TooltipModule } from 'primeng/tooltip';
 import { FormsModule } from '@angular/forms';
-import { DialogModule } from 'primeng/dialog';
 import { IconField } from 'primeng/iconfield';
 import { InputIcon } from 'primeng/inputicon';
 import { Panel } from 'primeng/panel';
@@ -116,7 +109,6 @@ export class LaboratoireProduitComponent implements OnInit {
   protected delete(entity: ILaboratoire): void {
     this.confirmDialog(entity.id);
   }
-
 
 
   protected search(event: any): void {

@@ -2,7 +2,8 @@
   <h2 id="page-heading">
     <span jhiTranslate="warehouseApp.categorie.home.title">Categories</span>
 
-    <button [routerLink]="['/categorie/new']" class="btn btn-primary float-right jh-create-entity create-categorie" id="jh-create-entity">
+    <button [routerLink]="['/categorie/new']" class="btn btn-primary float-right jh-create-entity create-categorie"
+            id="jh-create-entity">
       <fa-icon icon="plus"></fa-icon>
       <span jhiTranslate="warehouseApp.categorie.home.createLabel"> Create a new Categorie </span>
     </button>
@@ -22,21 +23,21 @@
     <div class="table-responsive" id="entities">
       <table aria-describedby="page-heading" class="table table-striped">
         <thead>
-          <tr>
-            <th scope="col">
-              <span jhiTranslate="global.field.id">ID</span>
+        <tr>
+          <th scope="col">
+            <span jhiTranslate="global.field.id">ID</span>
 
-            </th>
-            <th scope="col">
-              <span jhiTranslate="warehouseApp.categorie.libelle">Libelle</span>
+          </th>
+          <th scope="col">
+            <span jhiTranslate="warehouseApp.categorie.libelle">Libelle</span>
 
-            </th>
-            <th scope="col">
-              <span jhiTranslate="warehouseApp.categorie.code">Code</span>
+          </th>
+          <th scope="col">
+            <span jhiTranslate="warehouseApp.categorie.code">Code</span>
 
-            </th>
-            <th scope="col"></th>
-          </tr>
+          </th>
+          <th scope="col"></th>
+        </tr>
         </thead>
         <tbody>
           @for (categorie of categories; track trackId($index, categorie)) {
@@ -48,7 +49,8 @@
               <td>{{ categorie.code }}</td>
               <td class="text-right">
                 <div class="btn-group">
-                  <button [routerLink]="['/categorie', categorie.id, 'edit']" class="btn btn-primary btn-sm" type="submit">
+                  <button [routerLink]="['/categorie', categorie.id, 'edit']" class="btn btn-primary btn-sm"
+                          type="submit">
                     <fa-icon icon="pencil-alt"></fa-icon>
                     <span class="d-none d-md-inline" jhiTranslate="entity.action.edit">Edit</span>
                   </button>

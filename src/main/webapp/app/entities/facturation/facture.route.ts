@@ -21,7 +21,7 @@ export const FactureResolve = (route: ActivatedRouteSnapshot): Observable<null |
             inject(Router).navigate(['404']);
             return EMPTY;
           }
-        }),
+        })
       );
   }
   return EMPTY;
@@ -33,41 +33,41 @@ const factureRoute: Routes = [
     loadComponent: () => import('./facturation.component').then(m => m.FacturationComponent),
     data: {
       authorities: [Authority.ADMIN, Authority.EDITION_FACTURATION, Authority.GESTION_FACTURATION],
-      defaultSort: 'id,asc',
+      defaultSort: 'id,asc'
     },
-    canActivate: [UserRouteAccessService],
+    canActivate: [UserRouteAccessService]
   },
   {
     path: 'new',
     loadComponent: () => import('./edition/edition.component').then(m => m.EditionComponent),
 
     data: {
-      authorities: [Authority.ADMIN, Authority.EDITION_FACTURATION, Authority.GESTION_FACTURATION],
+      authorities: [Authority.ADMIN, Authority.EDITION_FACTURATION, Authority.GESTION_FACTURATION]
     },
-    canActivate: [UserRouteAccessService],
+    canActivate: [UserRouteAccessService]
   },
   {
     path: ':id/view',
     loadComponent: () => import('./facture-detail/facture-detail.component').then(m => m.FactureDetailComponent),
     resolve: {
-      facture: FactureResolve,
+      facture: FactureResolve
     },
     data: {
-      authorities: [Authority.ADMIN, Authority.EDITION_FACTURATION, Authority.GESTION_FACTURATION],
+      authorities: [Authority.ADMIN, Authority.EDITION_FACTURATION, Authority.GESTION_FACTURATION]
     },
-    canActivate: [UserRouteAccessService],
+    canActivate: [UserRouteAccessService]
   },
 
   {
     path: ':id/group-view',
     loadComponent: () => import('./groupe-facture-detail/groupe-facture-detail.component').then(m => m.GroupeFactureDetailComponent),
     resolve: {
-      facture: FactureResolve,
+      facture: FactureResolve
     },
     data: {
-      authorities: [Authority.ADMIN, Authority.EDITION_FACTURATION, Authority.GESTION_FACTURATION],
+      authorities: [Authority.ADMIN, Authority.EDITION_FACTURATION, Authority.GESTION_FACTURATION]
     },
-    canActivate: [UserRouteAccessService],
-  },
+    canActivate: [UserRouteAccessService]
+  }
 ];
 export default factureRoute;

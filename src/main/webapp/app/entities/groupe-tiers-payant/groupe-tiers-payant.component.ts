@@ -5,7 +5,9 @@ import { RouterModule } from '@angular/router';
 import { GroupeTiersPayantService } from 'app/entities/groupe-tiers-payant/groupe-tierspayant.service';
 import { HttpErrorResponse, HttpResponse } from '@angular/common/http';
 import { DynamicDialogModule } from 'primeng/dynamicdialog';
-import { FormGroupeTiersPayantComponent } from 'app/entities/groupe-tiers-payant/form-groupe-tiers-payant/form-groupe-tiers-payant.component';
+import {
+  FormGroupeTiersPayantComponent
+} from 'app/entities/groupe-tiers-payant/form-groupe-tiers-payant/form-groupe-tiers-payant.component';
 import { ErrorService } from 'app/shared/error.service';
 import { Observable } from 'rxjs';
 import { WarehouseCommonModule } from '../../shared/warehouse-common/warehouse-common.module';
@@ -52,8 +54,8 @@ import { SpinerService } from '../../shared/spiner.service';
     IconFieldModule,
     PanelModule,
     ToastAlertComponent,
-    ConfirmDialogComponent,
-  ],
+    ConfirmDialogComponent
+  ]
 })
 export class GroupeTiersPayantComponent {
   protected readonly search = signal('');
@@ -66,12 +68,13 @@ export class GroupeTiersPayantComponent {
   private readonly reload = signal(0);
 
   private readonly groupTiersPayantResult = toSignal(
-    toObservable(this.reload).pipe(switchMap(() => this.entityService.query({ search: this.search() }))),
+    toObservable(this.reload).pipe(switchMap(() => this.entityService.query({ search: this.search() })))
   );
 
   protected readonly entites = computed(() => this.groupTiersPayantResult()?.body ?? []);
   protected readonly loading = computed(() => !this.groupTiersPayantResult());
   private readonly spinner = inject(SpinerService);
+
   onSearch(): void {
     this.reload.set(this.reload() + 1);
   }
@@ -82,13 +85,13 @@ export class GroupeTiersPayantComponent {
       FormGroupeTiersPayantComponent,
       {
         entity: null,
-        header: 'FORMULAIRE DE CREATION DE GROUPE TIERS-PAYANT ',
+        header: 'FORMULAIRE DE CREATION DE GROUPE TIERS-PAYANT '
       },
       () => {
         this.reload.set(this.reload() + 1);
         this.alert().showInfo('Groupe tiers-payant créé avec succès');
       },
-      'xl',
+      'xl'
     );
   }
 
@@ -101,7 +104,7 @@ export class GroupeTiersPayantComponent {
         this.spinner.show();
         this.uploadFileResponse(this.entityService.uploadFile(result));
       },
-      'xl',
+      'xl'
     );
   }
 
@@ -111,13 +114,13 @@ export class GroupeTiersPayantComponent {
       FormGroupeTiersPayantComponent,
       {
         entity: groupeTiersPyant,
-        header: 'FORMULAIRE DE MODIFICATION DE GROUPE TIERS-PAYANT ',
+        header: 'FORMULAIRE DE MODIFICATION DE GROUPE TIERS-PAYANT '
       },
       () => {
         this.reload.set(this.reload() + 1);
         this.alert().showInfo('Groupe tiers-payant mis à jour avec succès');
       },
-      'xl',
+      'xl'
     );
   }
 
@@ -127,7 +130,7 @@ export class GroupeTiersPayantComponent {
         this.reload.set(this.reload() + 1);
         this.alert().showInfo('Groupe tiers-payant supprimé avec succès');
       },
-      error: err => this.onSaveError(err),
+      error: err => this.onSaveError(err)
     });
   }
 
@@ -138,7 +141,7 @@ export class GroupeTiersPayantComponent {
   private uploadFileResponse(result: Observable<HttpResponse<IResponseDto>>): void {
     result.pipe(finalize(() => this.spinner.hide())).subscribe({
       next: res => this.onPocesCsvSuccess(res.body),
-      error: err => this.onSaveError(err),
+      error: err => this.onSaveError(err)
     });
   }
 

@@ -59,6 +59,7 @@ public class CashFund implements Serializable {
     private CashFundStatut statut;
 
     @ManyToOne
+    @JoinColumn(name = "validated_by_id", referencedColumnName = "id")
     private User validatedBy;
 
     public CashFundStatut getStatut() {

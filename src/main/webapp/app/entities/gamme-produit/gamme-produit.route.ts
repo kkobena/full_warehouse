@@ -8,9 +8,9 @@ const gammeProduitRoute: Routes = [
     loadComponent: () => import('./gamme-produit.component').then(m => m.GammeProduitComponent),
     data: {
       authorities: [Authority.ADMIN, Authority.GAMME_PRODUIT],
-      defaultSort: 'id,asc',
+      defaultSort: 'id,asc'
     },
-    canActivate: [UserRouteAccessService],
-  },
+    canActivate: [UserRouteAccessService]
+  }
 ];
 export default gammeProduitRoute;

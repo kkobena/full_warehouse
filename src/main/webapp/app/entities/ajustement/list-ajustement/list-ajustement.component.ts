@@ -20,7 +20,7 @@ import { Card } from 'primeng/card';
 @Component({
   selector: 'jhi-list-ajustement',
   templateUrl: './list-ajustement.component.html',
-  imports: [WarehouseCommonModule, ButtonModule, TableModule, TooltipModule, Card],
+  imports: [WarehouseCommonModule, ButtonModule, TableModule, TooltipModule, Card]
 })
 export class ListAjustementComponent implements OnInit {
   translate = inject(TranslateService);
@@ -41,7 +41,8 @@ export class ListAjustementComponent implements OnInit {
   /** Inserted by Angular inject() migration for backwards compatibility */
   constructor(...args: unknown[]);
 
-  constructor() {}
+  constructor() {
+  }
 
   ngOnInit(): void {
     this.onSearch();
@@ -69,7 +70,7 @@ export class ListAjustementComponent implements OnInit {
         //  saveAs(new Blob([blod], { type: 'pdf' }), `${delivery.id}.pdf`);
         //   saveAs(blod);
       },
-      error: () => this.spinner.hide(),
+      error: () => this.spinner.hide()
     });
   }
 
@@ -78,7 +79,7 @@ export class ListAjustementComponent implements OnInit {
     this.page = page;
     if (navigate) {
       this.router.navigate(['/ajustement'], {
-        queryParams: this.buildQuery(page),
+        queryParams: this.buildQuery(page)
       });
     }
     this.rowData = data || [];
@@ -99,7 +100,7 @@ export class ListAjustementComponent implements OnInit {
       toDate: params.toDate ? moment(params.toDate).format('yyyy-MM-DD') : null,
       userId: params.userId,
       serach: params.search,
-      statut: this.ajustementStatut,
+      statut: this.ajustementStatut
     };
   }
 
@@ -108,7 +109,7 @@ export class ListAjustementComponent implements OnInit {
 
     this.ajustementService.queryAjustement(this.buildQuery(page)).subscribe({
       next: (res: HttpResponse<IAjust[]>) => this.onSuccess(res.body, res.headers, pageToLoad, !dontNavigate),
-      error: () => this.onError(),
+      error: () => this.onError()
     });
   }
 }

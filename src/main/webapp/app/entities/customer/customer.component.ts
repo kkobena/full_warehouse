@@ -8,9 +8,7 @@ import { ICustomer } from 'app/shared/model/customer.model';
 import { ITEMS_PER_PAGE } from 'app/shared/constants/pagination.constants';
 import { CustomerService } from './customer.service';
 import { LazyLoadEvent, MenuItem, MessageService } from 'primeng/api';
-import {
-  UninsuredCustomerFormComponent
-} from './uninsured-customer-form/uninsured-customer-form.component';
+import { UninsuredCustomerFormComponent } from './uninsured-customer-form/uninsured-customer-form.component';
 import { DialogService } from 'primeng/dynamicdialog';
 import { TranslateService } from '@ngx-translate/core';
 import { FormAyantDroitComponent } from './form-ayant-droit/form-ayant-droit.component';
@@ -26,9 +24,7 @@ import { ToolbarModule } from 'primeng/toolbar';
 import { DropdownModule } from 'primeng/dropdown';
 import { SplitButtonModule } from 'primeng/splitbutton';
 import { TooltipModule } from 'primeng/tooltip';
-import {
-  CustomerTiersPayantComponent
-} from './customer-tiers-payant/customer-tiers-payant.component';
+import { CustomerTiersPayantComponent } from './customer-tiers-payant/customer-tiers-payant.component';
 import { IClientTiersPayant } from '../../shared/model/client-tiers-payant.model';
 import { AssureFormStepComponent } from './assure-form-step/assure-form-step.component';
 import { PrimeNG } from 'primeng/config';
@@ -38,9 +34,7 @@ import { InputIcon } from 'primeng/inputicon';
 import { Panel } from 'primeng/panel';
 import { DividerModule } from 'primeng/divider';
 import { CustomerCarnetComponent } from './carnet/customer-carnet.component';
-import {
-  ConfirmDialogComponent
-} from '../../shared/dialog/confirm-dialog/confirm-dialog.component';
+import { ConfirmDialogComponent } from '../../shared/dialog/confirm-dialog/confirm-dialog.component';
 import { SpinerService } from '../../shared/spiner.service';
 import { showCommonModal } from '../sales/selling-home/sale-helper';
 
@@ -67,8 +61,8 @@ import { showCommonModal } from '../sales/selling-home/sale-helper';
     IconField,
     InputIcon,
     Panel,
-    ConfirmDialogComponent,
-  ],
+    ConfirmDialogComponent
+  ]
 })
 export class CustomerComponent implements OnInit, OnDestroy {
   translate = inject(TranslateService);
@@ -77,7 +71,7 @@ export class CustomerComponent implements OnInit, OnDestroy {
   types: string[] = ['TOUT', 'ASSURE', 'STANDARD'];
   statuts: object[] = [
     { value: 'ENABLE', label: 'Actifs' },
-    { value: 'DISABLE', label: 'Désactivés' },
+    { value: 'DISABLE', label: 'Désactivés' }
   ];
   typeSelected = '';
   statutSelected = 'ENABLE';
@@ -102,6 +96,7 @@ export class CustomerComponent implements OnInit, OnDestroy {
   private readonly spinner = inject(SpinerService);
   private readonly messageService = inject(MessageService);
   private readonly confimDialog = viewChild.required<ConfirmDialogComponent>('confirmDialog');
+
   constructor() {
     this.translate.use('fr');
     this.translate.stream('primeng').subscribe(data => {
@@ -112,23 +107,23 @@ export class CustomerComponent implements OnInit, OnDestroy {
       {
         label: 'Assuré',
         icon: 'pi pi-user-plus',
-        command: () => this.addAssureCustomer('ASSURANCE'),
+        command: () => this.addAssureCustomer('ASSURANCE')
       },
       {
         label: 'Carnet',
         icon: 'pi pi-user-plus',
-        command: () => this.addCarnet('CARNET'),
+        command: () => this.addCarnet('CARNET')
       },
       {
         label: 'Dépôt',
         icon: 'pi pi-user-plus',
-        command: () => this.addCarnet('DEPOT'),
+        command: () => this.addCarnet('DEPOT')
       },
       {
         label: 'Standard',
         icon: 'pi pi-user-plus',
-        command: () => this.addUninsuredCustomer(),
-      },
+        command: () => this.addUninsuredCustomer()
+      }
     ];
   }
 
@@ -154,12 +149,12 @@ export class CustomerComponent implements OnInit, OnDestroy {
         sort: this.sort(),
         type: this.typeSelected,
         search: this.search,
-        status: this.statutSelected,
+        status: this.statutSelected
       })
       .pipe(takeUntil(this.destroy$))
       .subscribe({
         next: (res: HttpResponse<ICustomer[]>) => this.onSuccess(res.body, res.headers, pageToLoad, dontNavigate),
-        error: () => this.onError(),
+        error: () => this.onError()
       });
   }
 
@@ -174,12 +169,12 @@ export class CustomerComponent implements OnInit, OnDestroy {
           sort: this.sort(),
           type: this.typeSelected,
           search: this.search,
-          status: this.statutSelected,
+          status: this.statutSelected
         })
         .pipe(takeUntil(this.destroy$))
         .subscribe({
           next: (res: HttpResponse<ICustomer[]>) => this.onSuccess(res.body, res.headers, this.page, false),
-          error: () => this.onError(),
+          error: () => this.onError()
         });
     }
   }
@@ -219,7 +214,7 @@ export class CustomerComponent implements OnInit, OnDestroy {
         }
       },
       'SUPPRESSION DE CLIENT',
-      'Voulez-vous vraiment supprimer ce client ?',
+      'Voulez-vous vraiment supprimer ce client ?'
     );
   }
 
@@ -242,14 +237,14 @@ export class CustomerComponent implements OnInit, OnDestroy {
       {
         entity: null,
         categorie: categorie,
-        header: `FORMULAIRE DE CREATION DE CLIENT [ ${categorie} ]`,
+        header: `FORMULAIRE DE CREATION DE CLIENT [ ${categorie} ]`
       },
       (resp: ICustomer) => {
         if (resp) {
           this.loadPage();
         }
       },
-      'xl',
+      'xl'
     );
   }
 
@@ -260,7 +255,7 @@ export class CustomerComponent implements OnInit, OnDestroy {
       {
         entity: null,
         typeAssure,
-        header: 'FORMULAIRE DE CREATION DE CLIENT ',
+        header: 'FORMULAIRE DE CREATION DE CLIENT '
       },
       (resp: ICustomer) => {
         if (resp) {
@@ -268,7 +263,7 @@ export class CustomerComponent implements OnInit, OnDestroy {
         }
       },
       'xl',
-      'modal-dialog-80',
+      'modal-dialog-80'
     );
   }
 
@@ -278,7 +273,7 @@ export class CustomerComponent implements OnInit, OnDestroy {
       AssureFormStepComponent,
       {
         entity: customer,
-        header: `FORMULAIRE DE MODIFICATION DE CLIENT  [ ${customer.fullName}  ]`,
+        header: `FORMULAIRE DE MODIFICATION DE CLIENT  [ ${customer.fullName}  ]`
       },
       (resp: ICustomer) => {
         if (resp) {
@@ -286,7 +281,7 @@ export class CustomerComponent implements OnInit, OnDestroy {
         }
       },
       'xl',
-      'modal-dialog-80',
+      'modal-dialog-80'
     );
   }
 
@@ -296,7 +291,7 @@ export class CustomerComponent implements OnInit, OnDestroy {
         this.handleServiceCall(this.customerService.deleteTiersPayant(clientTiersPayant.id), () => this.loadPage());
       },
       'SUPPRESSION DE TIERS PAYANT',
-      'Voulez-vous vraiment supprimer ce tiers payant ?',
+      'Voulez-vous vraiment supprimer ce tiers payant ?'
     );
   }
 
@@ -306,14 +301,14 @@ export class CustomerComponent implements OnInit, OnDestroy {
       UninsuredCustomerFormComponent,
       {
         entity: null,
-        header: 'FORMULAIRE DE CREATION DE CLIENT ',
+        header: 'FORMULAIRE DE CREATION DE CLIENT '
       },
       (resp: ICustomer) => {
         if (resp) {
           this.loadPage();
         }
       },
-      'xl',
+      'xl'
     );
   }
 
@@ -323,14 +318,14 @@ export class CustomerComponent implements OnInit, OnDestroy {
       UninsuredCustomerFormComponent,
       {
         entity: customer,
-        header: `FORMULAIRE DE MODIFICATION DE CLIENT  [ ${customer.fullName}  ]`,
+        header: `FORMULAIRE DE MODIFICATION DE CLIENT  [ ${customer.fullName}  ]`
       },
       (resp: ICustomer) => {
         if (resp) {
           this.loadPage();
         }
       },
-      'xl',
+      'xl'
     );
   }
 
@@ -341,13 +336,13 @@ export class CustomerComponent implements OnInit, OnDestroy {
       {
         entity: null,
         assure: customer,
-        header: "FORMULAIRE D'AJOUT D'AYANT DROIT ",
+        header: 'FORMULAIRE D\'AJOUT D\'AYANT DROIT '
       },
       (resp: ICustomer) => {
         if (resp) {
           this.loadPage();
         }
-      },
+      }
     );
   }
 
@@ -358,13 +353,13 @@ export class CustomerComponent implements OnInit, OnDestroy {
       {
         entity: ayantDroit,
         assure: customer,
-        header: `FORMULAIRE DE MODIFICATION D'AYANT DROIT [ ${ayantDroit.fullName}  ]`,
+        header: `FORMULAIRE DE MODIFICATION D'AYANT DROIT [ ${ayantDroit.fullName}  ]`
       },
       (resp: ICustomer) => {
         if (resp) {
           this.loadPage();
         }
-      },
+      }
     );
   }
 
@@ -372,7 +367,7 @@ export class CustomerComponent implements OnInit, OnDestroy {
     this.confimDialog().onConfirm(
       () => this.deleteAssuredCustomer(ayantDroit),
       'SUPPRESSION',
-      'Voulez-vous vraiment supprimer cet ayant droit ?',
+      'Voulez-vous vraiment supprimer cet ayant droit ?'
     );
   }
 
@@ -391,14 +386,14 @@ export class CustomerComponent implements OnInit, OnDestroy {
       {
         entity: null,
         customer: customer,
-        header: "FORMULAIRE D'AJOUT DE TIERS PAYANT ",
+        header: 'FORMULAIRE D\'AJOUT DE TIERS PAYANT '
       },
       (resp: ICustomer) => {
         if (resp) {
           this.loadPage();
         }
       },
-      'xl',
+      'xl'
     );
   }
 
@@ -409,21 +404,21 @@ export class CustomerComponent implements OnInit, OnDestroy {
       {
         entity: clientTiersPayant,
         customer: customer,
-        header: 'FORMULAIRE DE MODIFICATION DE TIERS PAYANT [ ' + clientTiersPayant.tiersPayantName + ' ]',
+        header: 'FORMULAIRE DE MODIFICATION DE TIERS PAYANT [ ' + clientTiersPayant.tiersPayantName + ' ]'
       },
       (resp: ICustomer) => {
         if (resp) {
           this.loadPage();
         }
       },
-      'xl',
+      'xl'
     );
   }
 
   protected uploadJsonDataResponse(result: Observable<HttpResponse<void>>): void {
     result.pipe(finalize(() => this.spinner.hide())).subscribe({
       next: () => this.onPocesJsonSuccess(),
-      error: () => this.onImportError(),
+      error: () => this.onImportError()
     });
   }
 
@@ -442,7 +437,7 @@ export class CustomerComponent implements OnInit, OnDestroy {
     this.messageService.add({
       severity: 'error',
       summary: 'Erreur',
-      detail: 'Enregistrement a échoué',
+      detail: 'Enregistrement a échoué'
     });
   }
 
@@ -471,8 +466,8 @@ export class CustomerComponent implements OnInit, OnDestroy {
         queryParams: {
           page: this.page,
           size: this.itemsPerPage,
-          sort: this.predicate + ',' + (this.ascending ? 'asc' : 'desc'),
-        },
+          sort: this.predicate + ',' + (this.ascending ? 'asc' : 'desc')
+        }
       });
     }
     this.customers = data || [];
@@ -497,9 +492,9 @@ export class CustomerComponent implements OnInit, OnDestroy {
         this.messageService.add({
           severity: 'error',
           summary: 'Erreur',
-          detail: error.error?.errorKey ? this.translate.instant(error.error.errorKey) : error.error?.title || 'Erreur interne du serveur.',
+          detail: error.error?.errorKey ? this.translate.instant(error.error.errorKey) : error.error?.title || 'Erreur interne du serveur.'
         });
-      },
+      }
     });
   }
 
@@ -510,7 +505,7 @@ export class CustomerComponent implements OnInit, OnDestroy {
         header,
         width: width || '85%',
         closeOnEscape: false,
-        maximizable: true,
+        maximizable: true
       })
       .onClose.pipe(takeUntil(this.destroy$))
       .subscribe((resp: ICustomer) => {

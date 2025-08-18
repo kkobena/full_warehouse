@@ -56,10 +56,10 @@ import { Subscription } from 'rxjs';
     RouterLink,
     InputText,
     ToggleSwitch,
-    DatePicker,
+    DatePicker
   ],
   templateUrl: './factures.component.html',
-  styles: ``,
+  styles: ``
 })
 export class FacturesComponent implements OnInit, AfterViewInit {
   public readonly errorService = inject(ErrorService);
@@ -94,6 +94,7 @@ export class FacturesComponent implements OnInit, AfterViewInit {
   protected exporting = false;
   private primngtranslate: Subscription;
   private toDateMinusOneMonth: Date = null;
+
   constructor() {
     this.translate.use('fr');
     this.primngtranslate = this.translate.stream('primeng').subscribe(data => {
@@ -119,7 +120,7 @@ export class FacturesComponent implements OnInit, AfterViewInit {
       .query({
         page: 0,
         search: query,
-        size: 10,
+        size: 10
       })
       .subscribe((res: HttpResponse<IGroupeTiersPayant[]>) => {
         this.groupeTiersPayants = res.body || [];
@@ -132,12 +133,12 @@ export class FacturesComponent implements OnInit, AfterViewInit {
       .query({
         page: 0,
         search: query,
-        size: 10,
+        size: 10
       })
       .subscribe({
         next: (res: HttpResponse<ITiersPayant[]>) => {
           this.tiersPayants = res.body || [];
-        },
+        }
       });
   }
 
@@ -149,11 +150,11 @@ export class FacturesComponent implements OnInit, AfterViewInit {
       .query({
         page: pageToLoad,
         size: this.itemsPerPage,
-        ...this.buildSearchParams(),
+        ...this.buildSearchParams()
       })
       .subscribe({
         next: (res: HttpResponse<Facture[]>) => this.onSearchSuccess(res.body, res.headers, pageToLoad),
-        error: (error: any) => this.onError(error),
+        error: (error: any) => this.onError(error)
       });
   }
 
@@ -165,11 +166,11 @@ export class FacturesComponent implements OnInit, AfterViewInit {
         .query({
           page: this.page,
           size: event.rows,
-          ...this.buildSearchParams(),
+          ...this.buildSearchParams()
         })
         .subscribe({
           next: (res: HttpResponse<Facture[]>) => this.onSearchSuccess(res.body, res.headers, this.page),
-          error: (error: any) => this.onError(error),
+          error: (error: any) => this.onError(error)
         });
     }
   }
@@ -187,7 +188,7 @@ export class FacturesComponent implements OnInit, AfterViewInit {
   openInfoDialog(message: string, infoClass: string): void {
     const modalRef = this.modalService.open(AlertInfoComponent, {
       backdrop: 'static',
-      centered: true,
+      centered: true
     });
     modalRef.componentInstance.message = message;
     modalRef.componentInstance.infoClass = infoClass;
@@ -197,28 +198,28 @@ export class FacturesComponent implements OnInit, AfterViewInit {
     this.btnExports = [
       {
         label: 'Pdf',
-        icon: PrimeIcons.FILE_PDF,
+        icon: PrimeIcons.FILE_PDF
       },
       {
         label: 'Excel',
-        icon: PrimeIcons.FILE_EXCEL,
-      },
+        icon: PrimeIcons.FILE_EXCEL
+      }
     ];
 
     this.btnAction = [
       {
         label: 'Pdf',
         icon: PrimeIcons.FILE_PDF,
-        command: () => this.exportPdf(1),
+        command: () => this.exportPdf(1)
       },
       {
         label: 'Excel',
-        icon: PrimeIcons.FILE_EXCEL,
+        icon: PrimeIcons.FILE_EXCEL
       },
       {
         label: 'Word',
-        icon: PrimeIcons.FILE_WORD,
-      },
+        icon: PrimeIcons.FILE_WORD
+      }
     ];
   }
 
@@ -236,11 +237,11 @@ export class FacturesComponent implements OnInit, AfterViewInit {
           },
           error: (err: any) => {
             this.openInfoDialog(this.errorService.getErrorMessage(err), 'alert alert-danger');
-          },
+          }
         });
       },
 
-      key: 'delete',
+      key: 'delete'
     });
   }
 
@@ -255,7 +256,7 @@ export class FacturesComponent implements OnInit, AfterViewInit {
       error: err => {
         this.exporting = false;
         this.openInfoDialog(this.errorService.getErrorMessage(err), 'alert alert-danger');
-      },
+      }
     });
   }
 
@@ -264,7 +265,7 @@ export class FacturesComponent implements OnInit, AfterViewInit {
       backdrop: 'static',
       size: 'xl',
       centered: true,
-      modalDialogClass: 'facture-modal-dialog',
+      modalDialogClass: 'facture-modal-dialog'
     });
     modalRef.componentInstance.facture = facture;
   }
@@ -274,7 +275,7 @@ export class FacturesComponent implements OnInit, AfterViewInit {
       backdrop: 'static',
       size: 'xl',
       centered: true,
-      modalDialogClass: 'facture-modal-dialog',
+      modalDialogClass: 'facture-modal-dialog'
     });
     modalRef.componentInstance.facture = facture;
   }
@@ -332,7 +333,7 @@ export class FacturesComponent implements OnInit, AfterViewInit {
       factureProvisoire: this.factureProvisoire,
       search: this.search,
       statuts,
-      factureGroupees: this.factureGroup,
+      factureGroupees: this.factureGroup
     };
     this.factureStateService.setInvoiceSearchParams(params);
     return params;

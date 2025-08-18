@@ -2,7 +2,7 @@ import { Component, inject, viewChild } from '@angular/core';
 import { Button } from 'primeng/button';
 import { Card } from 'primeng/card';
 import { FileUpload } from 'primeng/fileupload';
-import { NgbActiveModal, NgbModal } from '@ng-bootstrap/ng-bootstrap';
+import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
 import { CommandeService } from '../commande.service';
 import { SpinerService } from '../../../shared/spiner.service';
 import { ICommande } from '../../../shared/model/commande.model';

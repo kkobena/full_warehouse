@@ -23,7 +23,7 @@ export const MenuResolve = (route: ActivatedRouteSnapshot): Observable<null | IA
             inject(Router).navigate(['404']);
             return EMPTY;
           }
-        }),
+        })
       );
   }
   return of(new Privilege());
@@ -33,42 +33,42 @@ const menuRoute: Routes = [
     path: '',
     loadComponent: () => import('./menu.component').then(m => m.MenuComponent),
     data: {
-      authorities: [Authority.ADMIN, Authority.MENU],
+      authorities: [Authority.ADMIN, Authority.MENU]
     },
-    canActivate: [UserRouteAccessService],
+    canActivate: [UserRouteAccessService]
   },
   {
     path: ':name/view',
     loadComponent: () => import('./menu-detail.component').then(m => m.MenuDetailComponent),
     resolve: {
-      privilege: MenuResolve,
+      privilege: MenuResolve
     },
     data: {
-      authorities: [Authority.ADMIN, Authority.MENU],
+      authorities: [Authority.ADMIN, Authority.MENU]
     },
-    canActivate: [UserRouteAccessService],
+    canActivate: [UserRouteAccessService]
   },
   {
     path: 'new',
     loadComponent: () => import('./menu-update.component').then(m => m.MenuUpdateComponent),
     resolve: {
-      privilege: MenuResolve,
+      privilege: MenuResolve
     },
     data: {
-      authorities: [Authority.ADMIN, Authority.MENU],
+      authorities: [Authority.ADMIN, Authority.MENU]
     },
-    canActivate: [UserRouteAccessService],
+    canActivate: [UserRouteAccessService]
   },
   {
     path: ':id/edit',
     loadComponent: () => import('./menu-update.component').then(m => m.MenuUpdateComponent),
     resolve: {
-      privilege: MenuResolve,
+      privilege: MenuResolve
     },
     data: {
-      authorities: [Authority.ADMIN, Authority.MENU],
+      authorities: [Authority.ADMIN, Authority.MENU]
     },
-    canActivate: [UserRouteAccessService],
-  },
+    canActivate: [UserRouteAccessService]
+  }
 ];
 export default menuRoute;

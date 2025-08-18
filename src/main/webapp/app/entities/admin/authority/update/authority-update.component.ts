@@ -14,7 +14,7 @@ import { AuthorityFormGroup, AuthorityFormService } from './authority-form.servi
 @Component({
   selector: 'jhi-authority-update',
   templateUrl: './authority-update.component.html',
-  imports: [SharedModule, FormsModule, ReactiveFormsModule],
+  imports: [SharedModule, FormsModule, ReactiveFormsModule]
 })
 export class AuthorityUpdateComponent implements OnInit {
   isSaving = false;
@@ -51,7 +51,7 @@ export class AuthorityUpdateComponent implements OnInit {
   protected subscribeToSaveResponse(result: Observable<HttpResponse<IAuthority>>): void {
     result.pipe(finalize(() => this.onSaveFinalize())).subscribe({
       next: () => this.onSaveSuccess(),
-      error: () => this.onSaveError(),
+      error: () => this.onSaveError()
     });
   }
 

@@ -1,4 +1,4 @@
-import { Injectable, inject } from '@angular/core';
+import { inject, Injectable } from '@angular/core';
 import { HttpClient, HttpResponse } from '@angular/common/http';
 import { firstValueFrom, Observable } from 'rxjs';
 
@@ -19,7 +19,8 @@ export class GroupeTiersPayantService {
   /** Inserted by Angular inject() migration for backwards compatibility */
   constructor(...args: unknown[]);
 
-  constructor() {}
+  constructor() {
+  }
 
   create(groupeTiersPayant: IGroupeTiersPayant): Observable<EntityResponseType> {
     return this.http.post<IGroupeTiersPayant>(this.resourceUrl, groupeTiersPayant, { observe: 'response' });
@@ -37,7 +38,7 @@ export class GroupeTiersPayantService {
     const options = createRequestOptions(req);
     return this.http.get<IGroupeTiersPayant[]>(this.resourceUrl, {
       params: options,
-      observe: 'response',
+      observe: 'response'
     });
   }
 

@@ -6,7 +6,7 @@ import { WarehouseCommonModule } from '../../../shared/warehouse-common/warehous
 @Component({
   selector: 'jhi-dossier-reglement-info',
   imports: [FieldsetModule, WarehouseCommonModule],
-  templateUrl: './dossier-reglement-info.component.html',
+  templateUrl: './dossier-reglement-info.component.html'
 })
 export class DossierReglementInfoComponent {
   readonly dossierFactureProjection = input<DossierFactureProjection | null>(null);

@@ -8,6 +8,7 @@ import jakarta.persistence.Enumerated;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 import jakarta.persistence.UniqueConstraint;
@@ -37,6 +38,7 @@ public class ThirdPartySaleLine implements Serializable, Cloneable {
 
     @NotNull
     @ManyToOne(optional = false)
+    @JoinColumn(name = "client_tiers_payant_id", referencedColumnName = "id")
     private ClientTiersPayant clientTiersPayant;
 
     @NotNull
@@ -68,6 +70,7 @@ public class ThirdPartySaleLine implements Serializable, Cloneable {
     private Integer montantRegle = 0;
 
     @ManyToOne
+    @JoinColumn(name = "facture_tiers_payant_id", referencedColumnName = "id")
     private FactureTiersPayant factureTiersPayant;
 
     public Long getId() {

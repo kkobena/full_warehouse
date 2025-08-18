@@ -54,55 +54,55 @@
       <p-panel header="Menu commandes">
         <p-toolbar>
           <ng-template #start>
-              @if (active === 'REQUESTED') {
-                <p-iconfield>
-                  <p-inputicon styleClass="pi pi-search" />
-                  <input
-                    class="ms-1"
-                    (keyup.enter)="onSearch()"
-                    [(ngModel)]="searchCommande"
-                    pInputText
-                    placeholder="Recherche sur la commande"
-                    type="text"
-                  /></p-iconfield
-                >
-              }
+            @if (active === 'REQUESTED') {
               <p-iconfield>
                 <p-inputicon styleClass="pi pi-search" />
                 <input
                   class="ms-1"
                   (keyup.enter)="onSearch()"
-                  [(ngModel)]="search"
+                  [(ngModel)]="searchCommande"
                   pInputText
-                  placeholder="Taper pour rechercher"
+                  placeholder="Recherche sur la commande"
                   type="text"
                 /></p-iconfield
               >
-              @if (active === 'SUGGESTIONS') {
-                <p-select
-                  class="ms-1"
-                  (onChange)="onTypeSuggestionChange($event)"
-                  [filter]="false"
-                  [showClear]="true"
-                  [options]="typeSuggessions"
-                  optionLabel="label"
-                  optionValue="value"
-                  placeholder="Séléctionner un type de suggestion "
-                >
-                </p-select
-                >
-                <p-select
-                  (onChange)="onFournisseurChange($event)"
-                  [filter]="false"
-                  class="ms-1"
-                  [showClear]="true"
-                  [options]="fournisseurs"
-                  optionLabel="libelle"
-                  optionValue="id"
-                  placeholder="Séléctionner un fournisseur "
-                >
-                </p-select>
-              }
+            }
+            <p-iconfield>
+              <p-inputicon styleClass="pi pi-search" />
+              <input
+                class="ms-1"
+                (keyup.enter)="onSearch()"
+                [(ngModel)]="search"
+                pInputText
+                placeholder="Taper pour rechercher"
+                type="text"
+              /></p-iconfield
+            >
+            @if (active === 'SUGGESTIONS') {
+              <p-select
+                class="ms-1"
+                (onChange)="onTypeSuggestionChange($event)"
+                [filter]="false"
+                [showClear]="true"
+                [options]="typeSuggessions"
+                optionLabel="label"
+                optionValue="value"
+                placeholder="Séléctionner un type de suggestion "
+              >
+              </p-select
+              >
+              <p-select
+                (onChange)="onFournisseurChange($event)"
+                [filter]="false"
+                class="ms-1"
+                [showClear]="true"
+                [options]="fournisseurs"
+                optionLabel="libelle"
+                optionValue="id"
+                placeholder="Séléctionner un fournisseur "
+              >
+              </p-select>
+            }
 
           </ng-template>
           <ng-template #end>

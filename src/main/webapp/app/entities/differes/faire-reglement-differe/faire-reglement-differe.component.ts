@@ -33,9 +33,9 @@ import { finalize, takeUntil } from 'rxjs/operators';
     InputText,
     PrimeTemplate,
     TableModule,
-    CommonModule,
+    CommonModule
   ],
-  templateUrl: './faire-reglement-differe.component.html',
+  templateUrl: './faire-reglement-differe.component.html'
 })
 export class FaireReglementDiffereComponent implements OnInit, OnDestroy {
   protected differe: Differe | null = null;
@@ -58,7 +58,7 @@ export class FaireReglementDiffereComponent implements OnInit, OnDestroy {
   openInfoDialog(message: string, infoClass: string): void {
     const modalRef = this.modalService.open(AlertInfoComponent, {
       backdrop: 'static',
-      centered: true,
+      centered: true
     });
     modalRef.componentInstance.message = message;
     modalRef.componentInstance.infoClass = infoClass;
@@ -89,7 +89,7 @@ export class FaireReglementDiffereComponent implements OnInit, OnDestroy {
       .doReglement(params)
       .pipe(
         finalize(() => (this.isSaving = false)),
-        takeUntil(this.destroy$),
+        takeUntil(this.destroy$)
       )
       .subscribe({
         next: res => {
@@ -97,7 +97,7 @@ export class FaireReglementDiffereComponent implements OnInit, OnDestroy {
             this.onPrintReceipt(res.body.idReglement);
           }
         },
-        error: err => this.onError(err),
+        error: err => this.onError(err)
       });
   }
 
@@ -113,7 +113,7 @@ export class FaireReglementDiffereComponent implements OnInit, OnDestroy {
         this.reset();
       },
       reject: () => this.reset(),
-      key: 'printReceipt',
+      key: 'printReceipt'
     });
   }
 

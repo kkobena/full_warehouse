@@ -1,50 +1,52 @@
 <jhi-toast-alert #alert></jhi-toast-alert>
 
 <div class="modal-header">
-  <h4 class="modal-title">{{title}}</h4>
+  <h4 class="modal-title">{{ title }}</h4>
   <button (click)="cancel()" aria-label="Close" class="btn-close" type="button">
     <span aria-hidden="true">&times;</span>
   </button>
 </div>
-<div class="modal-body" >
- <p-card>
-   <div class="ui-g form-group">
-     <label class="form-control-label" for="fournisseurId">Fournisseurs<span style="font-weight: 900; color: red">*</span></label>
-     <p-select
-       #fournisseur
-       [filter]="true"
-       [options]="fournisseurs"
-       [style]="{ width: '100%' }"
-       [virtualScroll]="false"
-       filterBy="libelle"
-       id="fournisseurId"
-       optionLabel="libelle"
-       optionValue="id"
-       placeholder="Sélectionner un fournisseur"
-     >
-     </p-select>
-   </div>
-   <div class="text-center ui-g form-group">
-     <p-fileupload
-       #fileUpload
-       [accept]="accept"
-       [customUpload]="true"
-       [showUploadButton]="false"
-       cancelLabel="Annuler"
-       cancelStyleClass="p-button-danger"
-       chooseIcon="pi pi-download"
-       chooseLabel="Chargez votre fichier"
-       chooseStyleClass="p-button-help"
-       mode="advanced"
-       name="importcsv"
-     >
-     </p-fileupload>
-   </div>
- </p-card>
+<div class="modal-body">
+  <p-card>
+    <div class="ui-g form-group">
+      <label class="form-control-label" for="fournisseurId">Fournisseurs<span
+        style="font-weight: 900; color: red">*</span></label>
+      <p-select
+        #fournisseur
+        [filter]="true"
+        [options]="fournisseurs"
+        [style]="{ width: '100%' }"
+        [virtualScroll]="false"
+        filterBy="libelle"
+        id="fournisseurId"
+        optionLabel="libelle"
+        optionValue="id"
+        placeholder="Sélectionner un fournisseur"
+      >
+      </p-select>
+    </div>
+    <div class="text-center ui-g form-group">
+      <p-fileupload
+        #fileUpload
+        [accept]="accept"
+        [customUpload]="true"
+        [showUploadButton]="false"
+        cancelLabel="Annuler"
+        cancelStyleClass="p-button-danger"
+        chooseIcon="pi pi-download"
+        chooseLabel="Chargez votre fichier"
+        chooseStyleClass="p-button-help"
+        mode="advanced"
+        name="importcsv"
+      >
+      </p-fileupload>
+    </div>
+  </p-card>
 </div>
 
 <div class="modal-footer">
-  <p-button class="mr-2" (click)="cancel()" data-dismiss="modal" icon="pi pi-times" label="Fermer" severity="secondary" type="button"> </p-button>
+  <p-button class="mr-2" (click)="cancel()" data-dismiss="modal" icon="pi pi-times" label="Fermer" severity="secondary"
+            type="button"></p-button>
 
   <p-button
     (click)="onUpload()"

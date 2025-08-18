@@ -28,9 +28,9 @@ import { FormsModule } from '@angular/forms';
     InputSwitchModule,
     ConfirmDialogComponent,
     ToastAlertComponent,
-    Panel,
+    Panel
   ],
-  templateUrl: './remise.component.html',
+  templateUrl: './remise.component.html'
 })
 export class RemiseComponent implements OnInit {
   protected responsedto!: IResponseDto;
@@ -50,7 +50,7 @@ export class RemiseComponent implements OnInit {
     this.loading = true;
     this.entityService.query({ typeRemise: 'CLIENT' }).subscribe({
       next: (res: HttpResponse<IRemise[]>) => this.onSuccess(res.body),
-      error: () => this.onError(),
+      error: () => this.onError()
     });
   }
 
@@ -62,7 +62,7 @@ export class RemiseComponent implements OnInit {
         });
       },
       'Confirmation',
-      'Voulez-vous supprimer cet enregistrement ?',
+      'Voulez-vous supprimer cet enregistrement ?'
     );
   }
 
@@ -70,7 +70,7 @@ export class RemiseComponent implements OnInit {
     const modalRef = this.ngModalService.open(RemiseClientFormModalComponent, {
       backdrop: 'static',
       size: 'lg',
-      centered: true,
+      centered: true
     });
     modalRef.componentInstance.entity = remise;
     modalRef.componentInstance.title = remise?.id ? 'Modifier la remise' : 'Ajouter une remise client';
@@ -115,7 +115,7 @@ export class RemiseComponent implements OnInit {
   private subscribeToSaveResponse(result: Observable<HttpResponse<IRemise>>): void {
     result.subscribe({
       next: () => this.onSaveSuccess(),
-      error: err => this.onSaveError(err),
+      error: err => this.onSaveError(err)
     });
   }
 }

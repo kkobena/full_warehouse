@@ -43,9 +43,9 @@ import { FloatLabel } from 'primeng/floatlabel';
     TagModule,
     DatePicker,
     Select,
-    FloatLabel,
+    FloatLabel
   ],
-  templateUrl: './gestion-caisse.component.html',
+  templateUrl: './gestion-caisse.component.html'
 })
 export class GestionCaisseComponent implements OnInit, AfterViewInit {
   protected totalItems = 0;
@@ -91,14 +91,14 @@ export class GestionCaisseComponent implements OnInit, AfterViewInit {
       .query({
         //  statuts: [CashRegisterStatut.OPEN, CashRegisterStatut.VALIDATED, CashRegisterStatut.CLOSED, CashRegisterStatut.PENDING],
         page: pageToLoad,
-        ...this.buildParams(),
+        ...this.buildParams()
       })
       .subscribe({
         next: (res: HttpResponse<MvtCaisse[]>) => this.onSuccess(res.body, res.headers, pageToLoad),
         error: () => this.onError(),
         complete: () => {
           this.btnLoading = false;
-        },
+        }
       });
   }
 
@@ -116,7 +116,7 @@ export class GestionCaisseComponent implements OnInit, AfterViewInit {
     this.messageService.add({
       severity: 'error',
       summary: 'Error',
-      detail: 'Une erreur est survenue',
+      detail: 'Une erreur est survenue'
     });
     /*  this.btnLoading = true;
      this.updateParam();
@@ -175,7 +175,7 @@ export class GestionCaisseComponent implements OnInit, AfterViewInit {
     const param: MvtCaisseParams = {
       fromDate: this.fromDate,
       toDate: this.toDate,
-      selectedUser: this.selectedUser,
+      selectedUser: this.selectedUser
     };
     this.mvtParamServiceService.setMvtCaisseParam(param);
   }
@@ -186,7 +186,7 @@ export class GestionCaisseComponent implements OnInit, AfterViewInit {
       size: this.itemsPerPage,
       fromDate: DATE_FORMAT_ISO_DATE(this.fromDate),
       toDate: DATE_FORMAT_ISO_DATE(this.toDate),
-      userId: this.selectedUser?.id,
+      userId: this.selectedUser?.id
     };
   }
 }

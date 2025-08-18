@@ -1,5 +1,4 @@
 import { Component, inject, OnInit, viewChild } from '@angular/core';
-import { Router } from '@angular/router';
 import { LazyLoadEvent } from 'primeng/api';
 import { HttpHeaders, HttpResponse } from '@angular/common/http';
 import { Observable } from 'rxjs';
@@ -118,7 +117,7 @@ export class GammeProduitComponent implements OnInit {
     this.loadPage(0, event.target.value);
   }
 
- protected showFileDialog(): void {
+  protected showFileDialog(): void {
     showCommonModal(
       this.modalService,
       FileUploadDialogComponent,
@@ -127,7 +126,7 @@ export class GammeProduitComponent implements OnInit {
         this.spinner.show();
         this.uploadFileResponse(this.entityService.uploadFile(result));
       },
-      'lg',
+      'lg'
     );
   }
 

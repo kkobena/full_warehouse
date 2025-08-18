@@ -1,5 +1,5 @@
-import { Injectable, inject } from '@angular/core';
-import { HttpResponse, HttpClient } from '@angular/common/http';
+import { inject, Injectable } from '@angular/core';
+import { HttpClient, HttpResponse } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { IGammeProduit } from '../../shared/model/gamme-produit.model';
 import { SERVER_API_URL } from '../../app.constants';
@@ -10,7 +10,7 @@ type EntityResponseType = HttpResponse<IGammeProduit>;
 type EntityArrayResponseType = HttpResponse<IGammeProduit[]>;
 
 @Injectable({
-  providedIn: 'root',
+  providedIn: 'root'
 })
 export class GammeProduitService {
   protected http = inject(HttpClient);
@@ -20,7 +20,8 @@ export class GammeProduitService {
   /** Inserted by Angular inject() migration for backwards compatibility */
   constructor(...args: unknown[]);
 
-  constructor() {}
+  constructor() {
+  }
 
   create(gammeProduit: IGammeProduit): Observable<EntityResponseType> {
     return this.http.post<IGammeProduit>(this.resourceUrl, gammeProduit, { observe: 'response' });

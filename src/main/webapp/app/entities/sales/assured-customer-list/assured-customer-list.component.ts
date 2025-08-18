@@ -32,8 +32,8 @@ import { Card } from 'primeng/card';
     TableModule,
     IconField,
     InputIcon,
-    Card,
-  ],
+    Card
+  ]
 })
 export class AssuredCustomerListComponent {
   customers: ICustomer[] = [];
@@ -82,11 +82,11 @@ export class AssuredCustomerListComponent {
         page: pageToLoad - 1,
         size: this.itemsPerPage,
         search: this.searchString,
-        typeTiersPayant: this.currentSaleService.typeVo(),
+        typeTiersPayant: this.currentSaleService.typeVo()
       })
       .subscribe({
         next: (res: HttpResponse<ICustomer[]>) => this.onSuccess(res.body, res.headers, pageToLoad),
-        error: () => this.onError(),
+        error: () => this.onError()
       });
   }
 
@@ -99,11 +99,11 @@ export class AssuredCustomerListComponent {
           page: this.page,
           size: event.rows,
           search: this.searchString,
-          typeTiersPayant: this.currentSaleService.typeVo(),
+          typeTiersPayant: this.currentSaleService.typeVo()
         })
         .subscribe({
           next: (res: HttpResponse<ISales[]>) => this.onSuccess(res.body, res.headers, this.page),
-          error: () => this.onError(),
+          error: () => this.onError()
         });
     }
   }

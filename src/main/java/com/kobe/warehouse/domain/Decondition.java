@@ -58,9 +58,7 @@ public class Decondition implements Serializable {
     @Column(name = "type_deconditionnement", nullable = false)
     private TypeDeconditionnement typeDeconditionnement;
 
-    @ManyToOne(optional = false)
-    @NotNull
-    private WarehouseCalendar calendar;
+
 
     public Long getId() {
         return id;
@@ -127,14 +125,7 @@ public class Decondition implements Serializable {
         return this;
     }
 
-    public @NotNull WarehouseCalendar getCalendar() {
-        return calendar;
-    }
 
-    public Decondition setCalendar(WarehouseCalendar calendar) {
-        this.calendar = calendar;
-        return this;
-    }
 
     public Decondition qtyMvt(Integer qtyMvt) {
         this.qtyMvt = qtyMvt;

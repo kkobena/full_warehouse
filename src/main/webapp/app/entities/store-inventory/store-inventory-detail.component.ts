@@ -37,8 +37,8 @@ import { LazyLoadEvent } from 'primeng/api';
     ButtonModule,
     RippleModule,
     Select,
-    Tooltip,
-  ],
+    Tooltip
+  ]
 })
 export class StoreInventoryDetailComponent implements OnInit {
   storeInventory: IStoreInventory | null = null;
@@ -57,7 +57,7 @@ export class StoreInventoryDetailComponent implements OnInit {
   protected readonly filtres: any = [
     { name: 'GAP', label: 'Ecart' },
     { name: 'GAP_POSITIF', label: 'Ecart positif' },
-    { name: 'GAP_NEGATIF', label: 'Ecart négatif' },
+    { name: 'GAP_NEGATIF', label: 'Ecart négatif' }
   ];
   protected ngbPaginationPage = 1;
   protected selectedfiltres: any | null;
@@ -91,14 +91,14 @@ export class StoreInventoryDetailComponent implements OnInit {
       .queryItems({
         page: pageToLoad - 1,
         size: this.itemsPerPage,
-        ...this.buildQuery(),
+        ...this.buildQuery()
       })
       .subscribe({
         next: (res: HttpResponse<IStoreInventoryLine[]>) => this.onSuccess(res.body, res.headers, pageToLoad),
         error: () => {
           this.loading = false;
           this.storeInventoryLines = [];
-        },
+        }
       });
   }
 
@@ -112,7 +112,7 @@ export class StoreInventoryDetailComponent implements OnInit {
         page: 0,
         size: 10,
         search,
-        storageId,
+        storageId
       })
       .subscribe((res: HttpResponse<IRayon[]>) => this.onLoadRayonSuccess(res.body));
   }
@@ -136,7 +136,7 @@ export class StoreInventoryDetailComponent implements OnInit {
         window.open(blobUrl);
         this.spinner.hide();
       },
-      error: () => this.spinner.hide(),
+      error: () => this.spinner.hide()
     });
   }
 
@@ -149,11 +149,11 @@ export class StoreInventoryDetailComponent implements OnInit {
           page: this.page,
           size: event.rows,
 
-          ...this.buildQuery(),
+          ...this.buildQuery()
         })
         .subscribe({
           next: (res: HttpResponse<IStoreInventoryLine[]>) => this.onSuccess(res.body, res.headers, this.page),
-          error: (error: any) => this.onError(error),
+          error: (error: any) => this.onError(error)
         });
     }
   }
@@ -188,8 +188,8 @@ export class StoreInventoryDetailComponent implements OnInit {
         search: this.searchValue,
         storageId: this.selectedStorage?.id,
         rayonId: this.selectedRayon?.id,
-        selectedFilter: this.selectedfiltres ? this.selectedfiltres?.name : 'NONE',
-      },
+        selectedFilter: this.selectedfiltres ? this.selectedfiltres?.name : 'NONE'
+      }
     };
   }
 
@@ -199,7 +199,7 @@ export class StoreInventoryDetailComponent implements OnInit {
       search: this.searchValue,
       storageId: this.selectedStorage?.id,
       rayonId: this.selectedRayon?.id,
-      selectedFilter: this.selectedfiltres ? this.selectedfiltres.name : 'NONE',
+      selectedFilter: this.selectedfiltres ? this.selectedfiltres.name : 'NONE'
     };
   }
 

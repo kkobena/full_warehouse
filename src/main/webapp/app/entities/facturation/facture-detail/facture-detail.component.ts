@@ -16,7 +16,7 @@ import { IconField } from 'primeng/iconfield';
   selector: 'jhi-facture-detail',
   imports: [DecimalPipe, TableModule, PanelModule, DatePipe, CommonModule, InputTextModule, FormsModule, InputIcon, IconField],
   templateUrl: './facture-detail.component.html',
-  styles: ``,
+  styles: ``
 })
 export class FactureDetailComponent implements OnInit {
   readonly facture = input<Facture | null>(null);
@@ -34,7 +34,8 @@ export class FactureDetailComponent implements OnInit {
   protected factureWritable = signal(this.facture());
 
   // scrollHeight="400px"
-  constructor() {}
+  constructor() {
+  }
 
   onRowSelect(factureItem: FactureItem) {
     this.selectedFactureItem = factureItem;

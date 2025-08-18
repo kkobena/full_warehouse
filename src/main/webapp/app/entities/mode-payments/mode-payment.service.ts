@@ -1,4 +1,4 @@
-import { Injectable, inject } from '@angular/core';
+import { inject, Injectable } from '@angular/core';
 import { HttpClient, HttpResponse } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { SERVER_API_URL } from '../../app.constants';
@@ -10,7 +10,7 @@ type EntityResponseType = HttpResponse<IPaymentMode>;
 type EntityArrayResponseType = HttpResponse<IPaymentMode[]>;
 
 @Injectable({
-  providedIn: 'root',
+  providedIn: 'root'
 })
 export class ModePaymentService {
   protected http = inject(HttpClient);
@@ -25,7 +25,7 @@ export class ModePaymentService {
     const options = createRequestOption(req);
     return this.http.get<IPaymentMode[]>(this.resourceUrl, {
       params: options,
-      observe: 'response',
+      observe: 'response'
     });
   }
 

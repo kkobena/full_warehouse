@@ -2,7 +2,7 @@ import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { HttpResponse, provideHttpClient } from '@angular/common/http';
 import { FormBuilder } from '@angular/forms';
 import { ActivatedRoute } from '@angular/router';
-import { Subject, from, of } from 'rxjs';
+import { from, of, Subject } from 'rxjs';
 
 import { AuthorityService } from '../service/authority.service';
 import { IAuthority } from '../authority.model';
@@ -26,10 +26,10 @@ describe('Authority Management Update Component', () => {
         {
           provide: ActivatedRoute,
           useValue: {
-            params: from([{}]),
-          },
-        },
-      ],
+            params: from([{}])
+          }
+        }
+      ]
     })
       .overrideTemplate(AuthorityUpdateComponent, '')
       .compileComponents();

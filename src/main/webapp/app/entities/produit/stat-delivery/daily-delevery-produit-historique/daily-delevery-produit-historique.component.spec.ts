@@ -8,7 +8,7 @@ describe('DaylyDeleveryProduitHistoriqueComponent', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [DailyDeleveryProduitHistoriqueComponent],
+      imports: [DailyDeleveryProduitHistoriqueComponent]
     }).compileComponents();
 
     fixture = TestBed.createComponent(DailyDeleveryProduitHistoriqueComponent);

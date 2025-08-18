@@ -1,4 +1,4 @@
-import { AfterViewInit, Component, ElementRef, inject, OnInit, viewChild } from '@angular/core';
+import { AfterViewInit, Component, inject, OnInit, viewChild } from '@angular/core';
 import { IProduit } from '../../../shared/model/produit.model';
 import { FournisseurProduit, IFournisseurProduit } from '../../../shared/model/fournisseur-produit.model';
 import { ProduitService } from '../produit.service';
@@ -41,7 +41,7 @@ import { finalize } from 'rxjs/operators';
     ToastAlertComponent
   ]
 })
-export class FormProduitFournisseurComponent implements OnInit,AfterViewInit {
+export class FormProduitFournisseurComponent implements OnInit, AfterViewInit {
   header: string = '';
   produit?: IProduit;
   entity?: IFournisseurProduit;
@@ -64,6 +64,7 @@ export class FormProduitFournisseurComponent implements OnInit,AfterViewInit {
   private readonly alert = viewChild.required<ToastAlertComponent>('alert');
   private fournisseurSelect = viewChild.required<Select>('fournisseurSelect');
   private readonly activeModal = inject(NgbActiveModal);
+
   save(): void {
     this.isSaving = true;
     const produitFournisseur = this.createFrom();
@@ -91,11 +92,13 @@ export class FormProduitFournisseurComponent implements OnInit,AfterViewInit {
       this.editForm.get('principal').setValue(false);
     }
   }
+
   ngAfterViewInit(): void {
     setTimeout(() => {
       this.fournisseurSelect().el.nativeElement.focus();
     }, 100);
   }
+
   hasPrincipal(): boolean {
     if (this.isEmpty()) {
       return false;

@@ -2,7 +2,7 @@ import { Injectable, signal, WritableSignal } from '@angular/core';
 import { MvtCaisseParams } from './mvt-caisse-util';
 
 @Injectable({
-  providedIn: 'root',
+  providedIn: 'root'
 })
 export class MvtParamServiceService {
   mvtCaisseParam: WritableSignal<MvtCaisseParams> = signal<MvtCaisseParams>(null);

@@ -35,10 +35,10 @@ import { ToastModule } from 'primeng/toast';
     BadgeModule,
     KeyFilterModule,
     ConfirmDialogModule,
-    ToastModule,
+    ToastModule
   ],
   providers: [ConfirmationService, MessageService],
-  templateUrl: './ticketing.component.html',
+  templateUrl: './ticketing.component.html'
 })
 export class TicketingComponent implements OnInit, AfterViewInit {
   readonly numberOf10ThousandInput = viewChild<ElementRef>('numberOf10Thousand');
@@ -55,7 +55,7 @@ export class TicketingComponent implements OnInit, AfterViewInit {
     numberOf2Thousand: new FormControl<number | null>(null, {}),
     numberOf1Thousand: new FormControl<number | null>(null, {}),
     numberOf500Hundred: new FormControl<number | null>(null, {}),
-    otherAmount: new FormControl<number | null>(null, {}),
+    otherAmount: new FormControl<number | null>(null, {})
   });
   protected selectedCashRegister: CashRegister | null = null;
 
@@ -82,8 +82,8 @@ export class TicketingComponent implements OnInit, AfterViewInit {
     this.messageService.add({
       severity: 'error',
       summary: 'Error',
-      detail: "L'opération n'a pas abouti",
-      life: 3000,
+      detail: 'L\'opération n\'a pas abouti',
+      life: 3000
     });
   }
 
@@ -95,7 +95,7 @@ export class TicketingComponent implements OnInit, AfterViewInit {
       numberOf2Thousand: ticketing.numberOf2Thousand,
       numberOf1Thousand: ticketing.numberOf1Thousand,
       numberOf500Hundred: ticketing.numberOf500Hundred,
-      otherAmount: ticketing.otherAmount,
+      otherAmount: ticketing.otherAmount
     });
   }
 
@@ -109,16 +109,16 @@ export class TicketingComponent implements OnInit, AfterViewInit {
       numberOf2Thousand: this.editForm.get(['numberOf2Thousand']).value ? this.editForm.get(['numberOf2Thousand']).value : 0,
       numberOf1Thousand: this.editForm.get(['numberOf1Thousand']).value ? this.editForm.get(['numberOf1Thousand']).value : 0,
       numberOf500Hundred: this.editForm.get(['numberOf500Hundred']).value ? this.editForm.get(['numberOf500Hundred']).value : 0,
-      otherAmount: this.editForm.get(['otherAmount']).value ? this.editForm.get(['otherAmount']).value : 0,
+      otherAmount: this.editForm.get(['otherAmount']).value ? this.editForm.get(['otherAmount']).value : 0
     };
   }
 
   protected save(): void {
     const message = this.totalAmount === 0
-        ? 'Le montant total doit être supérieur à <b>0</b>. Etes-vous sûr de vouloir continuer ?'
-        : `le montant total est de <span class="font-size-lg badge rounded-pill bg-secondary"><b> ${formatNumber(
-          this.totalAmount,
-        )}  </b></span> . Etes-vous sûr de vouloir continuer ?`;
+      ? 'Le montant total doit être supérieur à <b>0</b>. Etes-vous sûr de vouloir continuer ?'
+      : `le montant total est de <span class="font-size-lg badge rounded-pill bg-secondary"><b> ${formatNumber(
+        this.totalAmount
+      )}  </b></span> . Etes-vous sûr de vouloir continuer ?`;
 
     this.confirmTicketing(message);
   }
@@ -137,7 +137,7 @@ export class TicketingComponent implements OnInit, AfterViewInit {
       },
       reject: () => {
         this.numberOf10ThousandInput().nativeElement.focus();
-      },
+      }
     });
   }
 
@@ -150,8 +150,8 @@ export class TicketingComponent implements OnInit, AfterViewInit {
         this.messageService.add({
           severity: 'success',
           summary: 'Succès',
-          detail: "L'opération a été effectuée avec succès",
-          life: 2000,
+          detail: 'L\'opération a été effectuée avec succès',
+          life: 2000
         });
         setTimeout(() => {
           this.previousState();
@@ -160,7 +160,7 @@ export class TicketingComponent implements OnInit, AfterViewInit {
       error: () => {
         this.isSaving = false;
         this.showError();
-      },
+      }
     });
   }
 

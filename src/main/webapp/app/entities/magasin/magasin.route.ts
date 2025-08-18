@@ -21,7 +21,7 @@ export const MagasinResolve = (route: ActivatedRouteSnapshot): Observable<null |
             inject(Router).navigate(['404']);
             return EMPTY;
           }
-        }),
+        })
       );
   }
   return of(new Magasin());
@@ -31,42 +31,42 @@ const magasinRoute: Routes = [
     path: '',
     loadComponent: () => import('./magasin.component').then(m => m.MagasinComponent),
     data: {
-      authorities: [Authority.ADMIN, Authority.MAGASIN],
+      authorities: [Authority.ADMIN, Authority.MAGASIN]
     },
-    canActivate: [UserRouteAccessService],
+    canActivate: [UserRouteAccessService]
   },
   {
     path: ':id/view',
     loadComponent: () => import('./magasin-detail.component').then(m => m.MagasinDetailComponent),
     resolve: {
-      magasin: MagasinResolve,
+      magasin: MagasinResolve
     },
     data: {
-      authorities: [Authority.ADMIN, Authority.MAGASIN],
+      authorities: [Authority.ADMIN, Authority.MAGASIN]
     },
-    canActivate: [UserRouteAccessService],
+    canActivate: [UserRouteAccessService]
   },
   {
     path: 'new',
     loadComponent: () => import('./magasin-update.component').then(m => m.MagasinUpdateComponent),
     resolve: {
-      magasin: MagasinResolve,
+      magasin: MagasinResolve
     },
     data: {
-      authorities: [Authority.ADMIN, Authority.MAGASIN],
+      authorities: [Authority.ADMIN, Authority.MAGASIN]
     },
-    canActivate: [UserRouteAccessService],
+    canActivate: [UserRouteAccessService]
   },
   {
     path: ':id/edit',
     loadComponent: () => import('./magasin-update.component').then(m => m.MagasinUpdateComponent),
     resolve: {
-      magasin: MagasinResolve,
+      magasin: MagasinResolve
     },
     data: {
-      authorities: [Authority.ADMIN, Authority.MAGASIN],
+      authorities: [Authority.ADMIN, Authority.MAGASIN]
     },
-    canActivate: [UserRouteAccessService],
-  },
+    canActivate: [UserRouteAccessService]
+  }
 ];
 export default magasinRoute;

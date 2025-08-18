@@ -1,7 +1,14 @@
 import { Component } from '@angular/core';
 import { Card } from 'primeng/card';
 import { Divider } from 'primeng/divider';
-import { NgbNav, NgbNavContent, NgbNavItem, NgbNavLink, NgbNavLinkBase, NgbNavOutlet } from '@ng-bootstrap/ng-bootstrap';
+import {
+  NgbNav,
+  NgbNavContent,
+  NgbNavItem,
+  NgbNavLink,
+  NgbNavLinkBase,
+  NgbNavOutlet
+} from '@ng-bootstrap/ng-bootstrap';
 import { TiersPayantComponent } from './tiers-payant.component';
 import { GroupeTiersPayantComponent } from '../groupe-tiers-payant/groupe-tiers-payant.component';
 
@@ -17,9 +24,9 @@ import { GroupeTiersPayantComponent } from '../groupe-tiers-payant/groupe-tiers-
     NgbNavLinkBase,
     NgbNavOutlet,
     TiersPayantComponent,
-    GroupeTiersPayantComponent,
+    GroupeTiersPayantComponent
   ],
-  templateUrl: './tiers-payant-home.component.html',
+  templateUrl: './tiers-payant-home.component.html'
 })
 export class TiersPayantHomeComponent {
   protected active = 'tiers-payant';

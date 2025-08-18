@@ -33,10 +33,10 @@ import { ConfirmDialogModule } from 'primeng/confirmdialog';
     RippleModule,
     DialogModule,
     ToastModule,
-    ConfirmDialogModule,
+    ConfirmDialogModule
   ],
   providers: [ConfirmationService, MessageService],
-  templateUrl: './user-cash-register.component.html',
+  templateUrl: './user-cash-register.component.html'
 })
 export class UserCashRegisterComponent implements OnInit, AfterViewInit {
   cashFundAmountInput = viewChild<ElementRef>('cashFundAmountInput');
@@ -57,8 +57,8 @@ export class UserCashRegisterComponent implements OnInit, AfterViewInit {
   protected editForm = this.fb.group({
     cashFundAmount: new FormControl<number | null>(null, {
       validators: [Validators.required, Validators.min(0), Validators.max(1000000)],
-      nonNullable: true,
-    }),
+      nonNullable: true
+    })
   });
 
   protected readonly left = left;
@@ -67,7 +67,8 @@ export class UserCashRegisterComponent implements OnInit, AfterViewInit {
   protected readonly PENDING = CashRegisterStatut.PENDING;
   protected readonly CLOSED = CashRegisterStatut.CLOSED;
 
-  constructor() {}
+  constructor() {
+  }
 
   ngAfterViewInit(): void {
     if (this.openCaisse || this.cashRegisters.length === 0) {
@@ -102,7 +103,7 @@ export class UserCashRegisterComponent implements OnInit, AfterViewInit {
           this.messageService.add({
             severity: 'success',
             summary: 'Billetage ',
-            detail: 'Billetage effectué avec succès',
+            detail: 'Billetage effectué avec succès'
           });
           this.fetchCashRegisters();
         }
@@ -111,9 +112,9 @@ export class UserCashRegisterComponent implements OnInit, AfterViewInit {
         this.messageService.add({
           severity: 'error',
           summary: 'Billetage',
-          detail: 'Impossible de faire le ticketing',
+          detail: 'Impossible de faire le ticketing'
         });
-      },
+      }
     });
   }
 
@@ -125,7 +126,7 @@ export class UserCashRegisterComponent implements OnInit, AfterViewInit {
             this.messageService.add({
               severity: 'success',
               summary: 'Ouverture de caisse',
-              detail: 'Caisse ouverte avec succès',
+              detail: 'Caisse ouverte avec succès'
             });
             this.openCaisse = false;
             this.fetchCashRegisters();
@@ -135,9 +136,9 @@ export class UserCashRegisterComponent implements OnInit, AfterViewInit {
           this.messageService.add({
             severity: 'error',
             summary: 'Ouverture de caisse',
-            detail: "Impossible d'ouvrir la caisse",
+            detail: 'Impossible d\'ouvrir la caisse'
           });
-        },
+        }
       });
     }
   }
@@ -166,7 +167,7 @@ export class UserCashRegisterComponent implements OnInit, AfterViewInit {
             this.messageService.add({
               severity: 'success',
               summary: 'Fermeture de caisse',
-              detail: 'Caisse fermée avec succès',
+              detail: 'Caisse fermée avec succès'
             });
             this.fetchCashRegisters();
           },
@@ -174,11 +175,11 @@ export class UserCashRegisterComponent implements OnInit, AfterViewInit {
             this.messageService.add({
               severity: 'error',
               summary: 'Fermeture de caisse',
-              detail: 'Impossible de fermer la caisse',
+              detail: 'Impossible de fermer la caisse'
             });
-          },
+          }
         });
-      },
+      }
     });
   }
 

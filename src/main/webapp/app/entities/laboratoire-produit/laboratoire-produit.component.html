@@ -9,7 +9,8 @@
           <div class="p-toolbar-group-left p-md-7">
             <p-iconfield>
               <p-inputicon styleClass="pi pi-search" />
-              <input (keyup.enter)="search($event)" pInputText placeholder="Taper pour rechercher" style="width: 100%" type="text" />
+              <input (keyup.enter)="search($event)" pInputText placeholder="Taper pour rechercher" style="width: 100%"
+                     type="text" />
             </p-iconfield>
           </div>
           <div class="p-toolbar-group-right">
@@ -22,7 +23,8 @@
               severity="help"
               type="button"
             ></p-button>
-            <p-button (click)="addNewEntity()" icon="pi pi-check" label="Nouveau" raised="true" severity="success" type="button"></p-button>
+            <p-button (click)="addNewEntity()" icon="pi pi-check" label="Nouveau" raised="true" severity="success"
+                      type="button"></p-button>
           </div>
         </p-toolbar>
         <div class="mt-2">
@@ -45,7 +47,7 @@
               </tr>
             </ng-template>
             <ng-template let-columns="columns" let-elRow #body>
-              <tr  [pSelectableRow]="elRow">
+              <tr [pSelectableRow]="elRow">
                 <td>{{ elRow.libelle }}</td>
                 <td style="text-align: right">
                   <p-button
@@ -57,7 +59,8 @@
                     rounded="true"
                     severity="primary"
                   ></p-button>
-                  <p-button [text]="true" (click)="delete(elRow)" icon="pi pi-trash" pTooltip="Supprimer" rounded="true" severity="danger"></p-button>
+                  <p-button [text]="true" (click)="delete(elRow)" icon="pi pi-trash" pTooltip="Supprimer" rounded="true"
+                            severity="danger"></p-button>
                 </td>
               </tr>
             </ng-template>
@@ -70,6 +73,7 @@
         </div>
       </ng-template>
     </p-panel>
-  </div></div>
+  </div>
+</div>
 <jhi-toast-alert #alert></jhi-toast-alert>
 <jhi-confirm-dialog #confirmDialog></jhi-confirm-dialog>

@@ -16,7 +16,7 @@ import { Card } from 'primeng/card';
   selector: 'jhi-form-tableau',
   imports: [ToastAlertComponent, Button, FormsModule, InputText, ReactiveFormsModule, KeyFilter, Card],
   templateUrl: './form-tableau.component.html',
-  styleUrls: ['../../common-modal.component.scss'],
+  styleUrls: ['../../common-modal.component.scss']
 })
 export class FormTableauComponent implements OnInit {
   entity: ITableau | null = null;
@@ -26,24 +26,26 @@ export class FormTableauComponent implements OnInit {
     id: new FormControl<number | null>(null, {}),
     code: new FormControl<string | null>(null, {
       validators: [Validators.required],
-      nonNullable: true,
+      nonNullable: true
     }),
 
     value: new FormControl<number | null>(null, {
       validators: [Validators.min(0), Validators.required],
-      nonNullable: true,
-    }),
+      nonNullable: true
+    })
   });
   protected isSaving = false;
   private readonly alert = viewChild.required<ToastAlertComponent>('alert');
   private readonly errorService = inject(ErrorService);
   private readonly entityService = inject(TableauProduitService);
   private readonly activeModal = inject(NgbActiveModal);
+
   ngOnInit(): void {
     if (this.entity) {
       this.updateForm(this.entity);
     }
   }
+
   protected cancel(): void {
     this.activeModal.dismiss();
   }
@@ -63,7 +65,7 @@ export class FormTableauComponent implements OnInit {
     this.editForm.patchValue({
       id: entity.id,
       code: entity.code,
-      value: entity.value,
+      value: entity.value
     });
   }
 
@@ -80,15 +82,16 @@ export class FormTableauComponent implements OnInit {
   private subscribeToSaveResponse(result: Observable<HttpResponse<ITableau>>): void {
     result.subscribe({
       next: () => this.onSaveSuccess(),
-      error: error => this.onSaveError(error),
+      error: error => this.onSaveError(error)
     });
   }
+
   private createFromForm(): ITableau {
     return {
       ...new Tableau(),
       id: this.editForm.get(['id']).value,
       code: this.editForm.get(['code']).value,
-      value: this.editForm.get(['value']).value,
+      value: this.editForm.get(['value']).value
     };
   }
 }

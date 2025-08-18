@@ -134,7 +134,7 @@ export class AssuranceService {
   protected convertDateFromClient(sales: ISales): ISales {
     const copy: ISales = Object.assign({}, sales, {
       createdAt: sales.createdAt && sales.createdAt.isValid() ? sales.createdAt.toJSON() : undefined,
-      updatedAt: sales.updatedAt && sales.updatedAt.isValid() ? sales.updatedAt.toJSON() : undefined,
+      updatedAt: sales.updatedAt && sales.updatedAt.isValid() ? sales.updatedAt.toJSON() : undefined
     });
     return copy;
   }
@@ -160,7 +160,7 @@ export class AssuranceService {
   protected convertItemDateFromClient(salesLine: ISalesLine): ISalesLine {
     const copy: ISalesLine = Object.assign({}, salesLine, {
       createdAt: salesLine.createdAt && salesLine.createdAt.isValid() ? salesLine.createdAt.toJSON() : undefined,
-      updatedAt: salesLine.updatedAt && salesLine.updatedAt.isValid() ? salesLine.updatedAt.toJSON() : undefined,
+      updatedAt: salesLine.updatedAt && salesLine.updatedAt.isValid() ? salesLine.updatedAt.toJSON() : undefined
     });
     return copy;
   }

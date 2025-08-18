@@ -10,7 +10,7 @@ import { takeUntil } from 'rxjs/operators';
 
 @Component({
   templateUrl: './commande-import-response-dialog.component.html',
-  imports: [WarehouseCommonModule, ButtonModule],
+  imports: [WarehouseCommonModule, ButtonModule]
 })
 export class CommandeImportResponseDialogComponent implements OnDestroy {
   responseCommande?: ICommandeResponse;
@@ -33,7 +33,7 @@ export class CommandeImportResponseDialogComponent implements OnDestroy {
       next: blod => {
         saveAs(new Blob([blod], { type: 'text/csv' }), `${this.responseCommande.reference}.csv`);
         this.hiddenInfo = false;
-      },
+      }
     });
   }
 }

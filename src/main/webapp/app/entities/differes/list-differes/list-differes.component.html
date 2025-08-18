@@ -65,8 +65,10 @@
   </ng-template>
   <ng-template #end>
     <div>
-      <p-button (click)="onSerch()" [loading]="loadingBtn" [raised]="true" icon="pi pi-search" label="Rechercher" severity="info" />
-      <p-button (click)="exportPdf()" [loading]="loadingPdf" [raised]="true" icon="pi pi-file-pdf" label="Imprimer" severity="warn" />
+      <p-button (click)="onSerch()" [loading]="loadingBtn" [raised]="true" icon="pi pi-search" label="Rechercher"
+                severity="info" />
+      <p-button (click)="exportPdf()" [loading]="loadingPdf" [raised]="true" icon="pi pi-file-pdf" label="Imprimer"
+                severity="warn" />
     </div>
   </ng-template>
 </p-toolbar>
@@ -138,17 +140,17 @@
           <p-card>
             <table class="table table-secondary table-striped-columns table-bordered">
               <thead>
-                <tr class="table-secondary">
-                  <th colspan="6">Ventes</th>
-                </tr>
-                <tr>
-                  <th style="width: 2%">#</th>
-                  <th>Date</th>
-                  <th>Référence</th>
-                  <th>Montant vente</th>
-                  <th>Montant payé</th>
-                  <th>Reste à payer</th>
-                </tr>
+              <tr class="table-secondary">
+                <th colspan="6">Ventes</th>
+              </tr>
+              <tr>
+                <th style="width: 2%">#</th>
+                <th>Date</th>
+                <th>Référence</th>
+                <th>Montant vente</th>
+                <th>Montant payé</th>
+                <th>Reste à payer</th>
+              </tr>
               </thead>
               <tbody>
                 @for (differeItem of elRow.differeItems; track differeItem.saleId; let rowIndex = $index) {

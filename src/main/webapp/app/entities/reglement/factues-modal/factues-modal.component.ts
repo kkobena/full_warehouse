@@ -1,4 +1,4 @@
-import { AfterViewInit, Component, inject, input, signal, output } from '@angular/core';
+import { AfterViewInit, Component, inject, input, output, signal } from '@angular/core';
 import { HttpHeaders, HttpResponse } from '@angular/common/http';
 import { Facture } from '../../facturation/facture.model';
 import { LazyLoadEvent } from 'primeng/api';
@@ -35,10 +35,10 @@ import { DatePicker } from 'primeng/datepicker';
     InputText,
     ToggleSwitch,
     Toolbar,
-    DatePicker,
+    DatePicker
   ],
 
-  templateUrl: './factues-modal.component.html',
+  templateUrl: './factues-modal.component.html'
 })
 export class FactuesModalComponent implements AfterViewInit {
   protected readonly factureService = inject(FactureService);
@@ -66,6 +66,7 @@ export class FactuesModalComponent implements AfterViewInit {
   protected tiersPayants: ITiersPayant[] = [];
   protected selectedTiersPayants: ITiersPayant[] | undefined;
   protected minLength = 2;
+
   constructor() {
     this.toDate.setMonth(this.toDate.getMonth() - 1);
     this.modelStartDate = this.toDate;
@@ -85,7 +86,7 @@ export class FactuesModalComponent implements AfterViewInit {
       .query({
         page: 0,
         search: query,
-        size: 10,
+        size: 10
       })
       .subscribe((res: HttpResponse<IGroupeTiersPayant[]>) => {
         this.groupeTiersPayants = res.body || [];
@@ -98,12 +99,12 @@ export class FactuesModalComponent implements AfterViewInit {
       .query({
         page: 0,
         search: query,
-        size: 10,
+        size: 10
       })
       .subscribe({
         next: (res: HttpResponse<ITiersPayant[]>) => {
           this.tiersPayants = res.body || [];
-        },
+        }
       });
   }
 
@@ -115,11 +116,11 @@ export class FactuesModalComponent implements AfterViewInit {
       .query({
         page: pageToLoad,
         size: this.itemsPerPage,
-        ...this.buildSearchParams(),
+        ...this.buildSearchParams()
       })
       .subscribe({
         next: (res: HttpResponse<Facture[]>) => this.onSearchSuccess(res.body, res.headers, pageToLoad),
-        error: (error: any) => this.onError(error),
+        error: (error: any) => this.onError(error)
       });
   }
 
@@ -131,11 +132,11 @@ export class FactuesModalComponent implements AfterViewInit {
         .query({
           page: this.page,
           size: event.rows,
-          ...this.buildSearchParams(),
+          ...this.buildSearchParams()
         })
         .subscribe({
           next: (res: HttpResponse<Facture[]>) => this.onSearchSuccess(res.body, res.headers, this.page),
-          error: (error: any) => this.onError(error),
+          error: (error: any) => this.onError(error)
         });
     }
   }
@@ -198,7 +199,7 @@ export class FactuesModalComponent implements AfterViewInit {
       factureProvisoire: false,
       search: this.search,
       statuts: ['PARTIALLY_PAID', 'NOT_PAID'],
-      factureGroupees: this.factureGroupWritable(),
+      factureGroupees: this.factureGroupWritable()
     };
     this.regelementStateService.setInvoiceSearchParams(params);
     return params;

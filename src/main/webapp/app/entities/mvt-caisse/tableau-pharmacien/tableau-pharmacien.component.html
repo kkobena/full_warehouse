@@ -106,8 +106,7 @@
             </tr>
             </thead>
             <tbody>
-              @for (
-                tableauPharmacien of tableauPharmacienWrapper.tableauPharmaciens; track $index) {
+              @for (tableauPharmacien of tableauPharmacienWrapper.tableauPharmaciens; track $index) {
                 <tr>
                   @if (groupBy === 'daily') {
                     <td>{{ tableauPharmacien.mvtDate | date: 'dd/MM/yyyy' }}</td>

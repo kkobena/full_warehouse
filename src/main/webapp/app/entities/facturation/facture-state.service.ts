@@ -3,13 +3,14 @@ import { Facture } from './facture.model';
 import { InvoiceSearchParams } from './edition-search-params.model';
 
 @Injectable({
-  providedIn: 'root',
+  providedIn: 'root'
 })
 export class FactureStateService {
   selectedInvoice: WritableSignal<Facture> = signal<Facture>(null);
   invoiceSearchParams: WritableSignal<InvoiceSearchParams> = signal<InvoiceSearchParams>(null);
 
-  constructor() {}
+  constructor() {
+  }
 
   setCurrentInvoice(facture: Facture): void {
     this.selectedInvoice.set(facture);

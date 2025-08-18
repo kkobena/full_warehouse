@@ -83,8 +83,10 @@
   </ng-template>
   <ng-template #end>
     <div>
-      <p-button (click)="onSearch()" [loading]="loadingBtn" [raised]="true" icon="pi pi-search" label="Rechercher" severity="info" />
-      <p-button (click)="onPrintPdf()" [loading]="loadingPdf" [raised]="true" icon="pi pi-file-pdf" label="Imprimer" severity="warn" />
+      <p-button (click)="onSearch()" [loading]="loadingBtn" [raised]="true" icon="pi pi-search" label="Rechercher"
+                severity="info" />
+      <p-button (click)="onPrintPdf()" [loading]="loadingPdf" [raised]="true" icon="pi pi-file-pdf" label="Imprimer"
+                severity="warn" />
     </div>
   </ng-template>
 </p-toolbar>
@@ -171,8 +173,8 @@
         </td>
         <td class="text-right">
           <span class="font-bold ml-2 group-title total-group text-right">{{
-            'Total: ' + getTotalAmountByGroup(reglement.organismeId)
-          }}</span>
+              'Total: ' + getTotalAmountByGroup(reglement.organismeId)
+            }}</span>
         </td>
         <td colspan="5"></td>
       </tr>
@@ -195,8 +197,10 @@
         <td class="text-center">{{ reglement.created }}</td>
         <td>{{ reglement.user }}</td>
         <td class="text-right">
-          <p-button (click)="onView(reglement)" [rounded]="true" icon="pi pi-eye" severity="info" size="small"></p-button>
-          <p-button (click)="onPrint(reglement)" [rounded]="true" icon="pi pi-print" severity="secondary" size="small"></p-button>
+          <p-button (click)="onView(reglement)" [rounded]="true" icon="pi pi-eye" severity="info"
+                    size="small"></p-button>
+          <p-button (click)="onPrint(reglement)" [rounded]="true" icon="pi pi-print" severity="secondary"
+                    size="small"></p-button>
           <p-button
             (click)="onDelete(reglement)"
             [rounded]="true"
@@ -213,4 +217,4 @@
     </ng-template>
   </p-table>
 </div>
-<p-confirmDialog [baseZIndex]="10000" [style]="{ width: '40vw' }" key="delete"> </p-confirmDialog>
+<p-confirmDialog [baseZIndex]="10000" [style]="{ width: '40vw' }" key="delete"></p-confirmDialog>

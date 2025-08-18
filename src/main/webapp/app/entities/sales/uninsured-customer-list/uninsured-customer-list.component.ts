@@ -20,8 +20,8 @@ import { CustomerDataTableComponent } from './customer-data-table.component';
     InputTextModule,
     RippleModule,
     TableModule,
-    CustomerDataTableComponent,
-  ],
+    CustomerDataTableComponent
+  ]
 })
 export class UninsuredCustomerListComponent {
   header: string = null;

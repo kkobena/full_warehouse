@@ -2,14 +2,16 @@
   <div class="row">
     <div class="d-flex flex-row">
       <div class="p-2">
-        Montant vente: <span class="badge rounded-pill text-bg-light">{{ factureWritable().montantVente | number }}</span>
+        Montant vente: <span
+        class="badge rounded-pill text-bg-light">{{ factureWritable().montantVente | number }}</span>
       </div>
 
       <div class="p-2">
         Montant facture: <span class="badge rounded-pill text-bg-light">{{ factureWritable().montant | number }}</span>
       </div>
       <div class="p-2">
-        Montant payé: <span class="badge rounded-pill text-bg-light">{{ factureWritable().montantRegle | number }}</span>
+        Montant payé: <span
+        class="badge rounded-pill text-bg-light">{{ factureWritable().montantRegle | number }}</span>
       </div>
     </div>
   </div>
@@ -19,9 +21,9 @@
       <p-panel>
         <ng-template pTemplate="header">
           <span
-            >Détail de la facture de:
+          >Détail de la facture de:
             <span class="badge rounded-pill text-bg-light"
-              >{{ factureWritable().tiersPayantName }} [ {{ factureWritable().numFacture }}]</span
+            >{{ factureWritable().tiersPayantName }} [ {{ factureWritable().numFacture }}]</span
             >
           </span>
         </ng-template>
@@ -88,7 +90,8 @@
               Numéro: <span class="badge rounded-pill text-bg-light">{{ selectedFactureItem.saleNumber }}</span>
             </div>
             <div class="p-2">
-              Date: <span class="badge rounded-pill text-bg-light">{{ selectedFactureItem.created | date: 'dd/MM/yyyy HH:mm:ss' }}</span>
+              Date: <span
+              class="badge rounded-pill text-bg-light">{{ selectedFactureItem.created | date: 'dd/MM/yyyy HH:mm:ss' }}</span>
             </div>
           </div>
         }

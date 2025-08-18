@@ -8,7 +8,7 @@ describe('RaportActiviteGlobalComponent', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [RaportActiviteGlobalComponent],
+      imports: [RaportActiviteGlobalComponent]
     }).compileComponents();
 
     fixture = TestBed.createComponent(RaportActiviteGlobalComponent);

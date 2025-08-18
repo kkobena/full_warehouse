@@ -46,9 +46,9 @@ import { InputIcon } from 'primeng/inputicon';
     FactuesModalComponent,
     Drawer,
     IconField,
-    InputIcon,
+    InputIcon
   ],
-  templateUrl: './regelement-facture-individuelle.component.html',
+  templateUrl: './regelement-facture-individuelle.component.html'
 })
 export class RegelementFactureIndividuelleComponent implements OnInit {
   readonly reglementFactureDossiers = input<ReglementFactureDossier[]>([]);
@@ -115,7 +115,7 @@ export class RegelementFactureIndividuelleComponent implements OnInit {
   openInfoDialog(message: string, infoClass: string): void {
     const modalRef = this.modalService.open(AlertInfoComponent, {
       backdrop: 'static',
-      centered: true,
+      centered: true
     });
     modalRef.componentInstance.message = message;
     modalRef.componentInstance.infoClass = infoClass;
@@ -125,9 +125,11 @@ export class RegelementFactureIndividuelleComponent implements OnInit {
     this.selectedFacture.emit(facture);
     this.showSidebar = false;
   }
+
   get drawerWidth(): {} {
     return window.innerWidth <= 1280 ? { width: '85vw' } : { width: '70vw' };
   }
+
   ngOnInit(): void {
     this.reglementFactureDossiersSignal.set(this.reglementFactureDossiers());
   }
@@ -150,7 +152,7 @@ export class RegelementFactureIndividuelleComponent implements OnInit {
           this.onPrintReceipt(res.body);
         }
       },
-      error: err => this.onError(err),
+      error: err => this.onError(err)
     });
   }
 
@@ -166,7 +168,7 @@ export class RegelementFactureIndividuelleComponent implements OnInit {
         this.reset(response);
       },
       reject: () => this.reset(response),
-      key: 'printReceipt',
+      key: 'printReceipt'
     });
   }
 
@@ -182,7 +184,7 @@ export class RegelementFactureIndividuelleComponent implements OnInit {
     return {
       ...params,
       mode: this.getModeEditionReglement(),
-      dossierIds: this.dossierIds(),
+      dossierIds: this.dossierIds()
     };
   }
 
@@ -203,7 +205,7 @@ export class RegelementFactureIndividuelleComponent implements OnInit {
     this.factureService
       .findDossierReglement(id, 'individuelle', {
         page: 0,
-        size: 999999,
+        size: 999999
       })
       .subscribe({
         next: (res: HttpResponse<ReglementFactureDossier[]>) => {
@@ -213,14 +215,14 @@ export class RegelementFactureIndividuelleComponent implements OnInit {
         error: () => {
           this.reglementFactureDossiersSignal.set([]);
           this.dossierFactureProjectionSignal.set(null);
-        },
+        }
       });
   }
 
   private fetchFacture(): void {
     this.factureService
       .findDossierFactureProjection(this.dossierFactureProjection().id, {
-        isGroup: false,
+        isGroup: false
       })
       .subscribe(res => {
         this.dossierFactureProjectionSignal.set(res.body);

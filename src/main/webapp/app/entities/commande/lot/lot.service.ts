@@ -43,7 +43,7 @@ export class LotService {
     const options = createRequestOptions(req);
     return this.http.get<ILot[]>(this.resourceUrl, {
       params: options,
-      observe: 'response',
+      observe: 'response'
     });
   }
 
@@ -51,7 +51,7 @@ export class LotService {
     const options = createRequestOptions(req);
     return this.http.get<LotPerimeValeurSum>(this.resourceUrl + '/sum', {
       params: options,
-      observe: 'response',
+      observe: 'response'
     });
   }
 
@@ -59,7 +59,7 @@ export class LotService {
     const options = createRequestOptions(req);
     return this.http.get<LotPerimes[]>(this.resourceUrl, {
       params: options,
-      observe: 'response',
+      observe: 'response'
     });
   }
 
@@ -68,7 +68,7 @@ export class LotService {
     return this.http.get(`${this.resourceUrl}/export/${format}`, {
       params: options,
       observe: 'response',
-      responseType: 'blob',
+      responseType: 'blob'
     });
   }
 
@@ -76,7 +76,7 @@ export class LotService {
     const options = createRequestOptions(req);
     return this.http.get(`${this.resourceUrl}/pdf`, {
       params: options,
-      responseType: 'blob',
+      responseType: 'blob'
     });
   }
 }

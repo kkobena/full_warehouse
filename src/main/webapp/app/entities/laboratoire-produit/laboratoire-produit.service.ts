@@ -1,4 +1,4 @@
-import { Injectable, inject } from '@angular/core';
+import { inject, Injectable } from '@angular/core';
 import { HttpClient, HttpResponse } from '@angular/common/http';
 import { firstValueFrom, Observable } from 'rxjs';
 import { ILaboratoire } from '../../shared/model/laboratoire.model';
@@ -10,7 +10,7 @@ type EntityResponseType = HttpResponse<ILaboratoire>;
 type EntityArrayResponseType = HttpResponse<ILaboratoire[]>;
 
 @Injectable({
-  providedIn: 'root',
+  providedIn: 'root'
 })
 export class LaboratoireProduitService {
   protected http = inject(HttpClient);

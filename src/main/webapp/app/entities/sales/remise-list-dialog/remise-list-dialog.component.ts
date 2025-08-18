@@ -9,7 +9,7 @@ import { FormsModule } from '@angular/forms';
 @Component({
   selector: 'jhi-remise-list-dialog',
   imports: [WarehouseCommonModule, FormsModule],
-  templateUrl: './remise-list-dialog.component.html',
+  templateUrl: './remise-list-dialog.component.html'
 })
 export class RemiseListDialogComponent implements OnInit {
   types: RemiseType[] = [RemiseType.remiseProduit, RemiseType.remiseClient];
@@ -26,7 +26,7 @@ export class RemiseListDialogComponent implements OnInit {
     this.entityService.query().subscribe({
       next: (res: HttpResponse<IRemise[]>) => {
         this.entites = res.body.filter(remise => remise.enable);
-      },
+      }
     });
   }
 

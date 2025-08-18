@@ -17,7 +17,7 @@ import { finalize } from 'rxjs/operators';
   selector: 'jhi-finalyse',
   templateUrl: './finalyse.component.html',
 
-  imports: [WarehouseCommonModule, RouterModule, ButtonModule, FormsModule, ReactiveFormsModule, TextareaModule, ToastAlertComponent],
+  imports: [WarehouseCommonModule, RouterModule, ButtonModule, FormsModule, ReactiveFormsModule, TextareaModule, ToastAlertComponent]
 })
 export class FinalyseComponent implements OnInit {
   ref = inject(DynamicDialogRef);
@@ -29,8 +29,8 @@ export class FinalyseComponent implements OnInit {
   protected editForm = this.fb.group({
     commentaire: new FormControl<string | null>(null, {
       validators: [Validators.required],
-      nonNullable: true,
-    }),
+      nonNullable: true
+    })
   });
   private commentaire = viewChild.required<ElementRef>('commentaire');
   private readonly ajustementService = inject(AjustementService);
@@ -55,7 +55,7 @@ export class FinalyseComponent implements OnInit {
   protected subscribeToSaveResponse(result: Observable<HttpResponse<{}>>): void {
     result.pipe(finalize(() => this.spinner.hide())).subscribe({
       next: () => this.onSaveSuccess(),
-      error: () => this.onSaveError(),
+      error: () => this.onSaveError()
     });
   }
 
@@ -65,13 +65,13 @@ export class FinalyseComponent implements OnInit {
 
   protected onSaveError(): void {
     this.isSaving = false;
-    this.alert().showError("Erreur d'enregistrement", "Erreur d'enregistrement");
+    this.alert().showError('Erreur d\'enregistrement', 'Erreur d\'enregistrement');
   }
 
   private createFromForm(): IAjust {
     return {
       ...this.entity,
-      commentaire: this.editForm.get(['commentaire']).value,
+      commentaire: this.editForm.get(['commentaire']).value
     };
   }
 }

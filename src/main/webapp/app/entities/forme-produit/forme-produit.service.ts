@@ -1,4 +1,4 @@
-import { Injectable, inject } from '@angular/core';
+import { inject, Injectable } from '@angular/core';
 import { HttpClient, HttpResponse } from '@angular/common/http';
 
 import { Observable } from 'rxjs';
@@ -10,7 +10,7 @@ type EntityResponseType = HttpResponse<IFormProduit>;
 type EntityArrayResponseType = HttpResponse<IFormProduit[]>;
 
 @Injectable({
-  providedIn: 'root',
+  providedIn: 'root'
 })
 export class FormeProduitService {
   protected http = inject(HttpClient);
@@ -20,7 +20,8 @@ export class FormeProduitService {
   /** Inserted by Angular inject() migration for backwards compatibility */
   constructor(...args: unknown[]);
 
-  constructor() {}
+  constructor() {
+  }
 
   create(formProduit: IFormProduit): Observable<EntityResponseType> {
     return this.http.post<IFormProduit>(this.resourceUrl, formProduit, { observe: 'response' });
@@ -38,7 +39,7 @@ export class FormeProduitService {
     const options = createRequestOption(req);
     return this.http.get<IFormProduit[]>(this.resourceUrl, {
       params: options,
-      observe: 'response',
+      observe: 'response'
     });
   }
 

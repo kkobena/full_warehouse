@@ -37,9 +37,9 @@ import { Tooltip } from 'primeng/tooltip';
     Select,
     ConfirmDialogComponent,
     ToastAlertComponent,
-    Tooltip,
+    Tooltip
   ],
-  templateUrl: './complementaire-step.component.html',
+  templateUrl: './complementaire-step.component.html'
 })
 export class ComplementaireStepComponent implements OnDestroy {
   assureFormStepService = inject(AssureFormStepService);
@@ -51,11 +51,11 @@ export class ComplementaireStepComponent implements OnDestroy {
   protected catgories = [
     { label: 'RC1', value: 1 },
     { label: 'RC2', value: 2 },
-    { label: 'RC3', value: 3 },
+    { label: 'RC3', value: 3 }
   ];
   protected minLength = 3;
   protected editForm = this.fb.group({
-    tiersPayants: this.fb.array([]),
+    tiersPayants: this.fb.array([])
   });
   private readonly confimDialog = viewChild.required<ConfirmDialogComponent>('confirmDialog');
   private readonly alert = viewChild.required<ToastAlertComponent>('alert');
@@ -90,8 +90,8 @@ export class ComplementaireStepComponent implements OnDestroy {
         plafondConso: [],
         plafondJournalier: [],
         plafondAbsolu: [],
-        priorite: tiersPayants.length + 1,
-      }),
+        priorite: tiersPayants.length + 1
+      })
     );
     this.validateTiersPayantSize();
   }
@@ -120,7 +120,7 @@ export class ComplementaireStepComponent implements OnDestroy {
       {
         entity: null,
         categorie: this.assureFormStepService.typeAssure(),
-        header: 'FORMULAIRE DE CREATION DE TIERS-PAYANT',
+        header: 'FORMULAIRE DE CREATION DE TIERS-PAYANT'
       },
       (resp: ITiersPayant) => {
         if (resp) {
@@ -129,7 +129,7 @@ export class ComplementaireStepComponent implements OnDestroy {
         }
       },
       'xl',
-      'modal-dialog-80',
+      'modal-dialog-80'
     );
   }
 
@@ -144,7 +144,7 @@ export class ComplementaireStepComponent implements OnDestroy {
         page: 0,
         size: 10,
         type: 'ASSURANCE',
-        search: query,
+        search: query
       })
       .pipe(takeUntil(this.destroy$))
       .subscribe((res: HttpResponse<ITiersPayant[]>) => {
@@ -168,8 +168,8 @@ export class ComplementaireStepComponent implements OnDestroy {
         plafondJournalier: tiersPayant.plafondJournalier,
         priorite: tiersPayant.priorite,
         categorie: tiersPayant.priorite,
-        plafondAbsolu: tiersPayant.plafondAbsolu,
-      },
+        plafondAbsolu: tiersPayant.plafondAbsolu
+      }
     ]);
   }
 
@@ -187,8 +187,8 @@ export class ComplementaireStepComponent implements OnDestroy {
             plafondJournalier: tp.plafondJournalier,
             priorite: tp.categorie,
             plafondAbsolu: tp.plafondAbsolu,
-            taux: tp.taux,
-          }),
+            taux: tp.taux
+          })
         );
       });
   }
@@ -205,7 +205,7 @@ export class ComplementaireStepComponent implements OnDestroy {
             tiersPayants.removeAt(index);
             this.validateTiersPayantSize();
           },
-          error: err => this.onSaveError(err),
+          error: err => this.onSaveError(err)
         });
     } else {
       tiersPayants.removeAt(index);

@@ -8,7 +8,7 @@ import { FormsModule } from '@angular/forms';
 
 @Component({
   templateUrl: './commande-delete-dialog.component.html',
-  imports: [WarehouseCommonModule, FormsModule],
+  imports: [WarehouseCommonModule, FormsModule]
 })
 export class CommandeDeleteDialogComponent {
   protected commandeService = inject(CommandeService);
@@ -19,7 +19,8 @@ export class CommandeDeleteDialogComponent {
   /** Inserted by Angular inject() migration for backwards compatibility */
   constructor(...args: unknown[]);
 
-  constructor() {}
+  constructor() {
+  }
 
   cancel(): void {
     this.activeModal.dismiss();

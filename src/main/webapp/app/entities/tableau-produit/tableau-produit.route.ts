@@ -21,7 +21,7 @@ export const TableauProduitResolve = (route: ActivatedRouteSnapshot): Observable
             inject(Router).navigate(['404']);
             return EMPTY;
           }
-        }),
+        })
       );
   }
   return of(new Tableau());
@@ -32,20 +32,20 @@ const tableauProduitRoute: Routes = [
     loadComponent: () => import('./tableau-produit.component').then(m => m.TableauProduitComponent),
     data: {
       authorities: [Authority.ADMIN, Authority.REFERENTIEL],
-      defaultSort: 'id,asc',
+      defaultSort: 'id,asc'
     },
-    canActivate: [UserRouteAccessService],
+    canActivate: [UserRouteAccessService]
   },
   {
     path: ':id/associe',
     loadComponent: () => import('./produits/produit-associes.component').then(m => m.ProduitAssociesComponent),
     resolve: {
-      tableau: TableauProduitResolve,
+      tableau: TableauProduitResolve
     },
     data: {
-      authorities: [Authority.ADMIN, Authority.REFERENTIEL],
+      authorities: [Authority.ADMIN, Authority.REFERENTIEL]
     },
-    canActivate: [UserRouteAccessService],
-  },
+    canActivate: [UserRouteAccessService]
+  }
 ];
 export default tableauProduitRoute;

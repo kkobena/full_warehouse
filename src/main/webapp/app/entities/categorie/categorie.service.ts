@@ -17,7 +17,8 @@ export class CategorieService {
   /** Inserted by Angular inject() migration for backwards compatibility */
   constructor(...args: unknown[]);
 
-  constructor() {}
+  constructor() {
+  }
 
   create(categorie: ICategorie): Observable<EntityResponseType> {
     return this.http.post<ICategorie>(this.resourceUrl, categorie, { observe: 'response' });

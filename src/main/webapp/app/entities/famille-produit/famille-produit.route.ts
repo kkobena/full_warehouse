@@ -8,9 +8,9 @@ const familleProduitRoute: Routes = [
     loadComponent: () => import('./famille-produit.component').then(m => m.FamilleProduitComponent),
     data: {
       authorities: [Authority.ADMIN, Authority.FAMILLE_PRODUIT],
-      defaultSort: 'id,asc',
+      defaultSort: 'id,asc'
     },
-    canActivate: [UserRouteAccessService],
-  },
+    canActivate: [UserRouteAccessService]
+  }
 ];
 export default familleProduitRoute;

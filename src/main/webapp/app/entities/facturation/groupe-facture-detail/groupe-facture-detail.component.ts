@@ -26,10 +26,10 @@ import { InputIcon } from 'primeng/inputicon';
     CommonModule,
     FormsModule,
     IconField,
-    InputIcon,
+    InputIcon
   ],
   templateUrl: './groupe-facture-detail.component.html',
-  styles: ``,
+  styles: ``
 })
 export class GroupeFactureDetailComponent implements OnInit {
   readonly groupeFacture = input<Facture | null>(null);

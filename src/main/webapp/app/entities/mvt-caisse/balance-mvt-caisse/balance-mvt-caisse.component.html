@@ -65,26 +65,26 @@
           <div class="table-responsive">
             <table class="table table-secondary table-striped table-bordered table-hover">
               <thead>
-                <tr>
-                  <th rowspan="2" class="text-center">Type</th>
-                  <th rowspan="2" class="text-center">Nombre</th>
-                  <th colspan="4" class="text-center">Montants</th>
-                  <th rowspan="2" class="text-center">Pamier.Moyen</th>
-                  <th colspan="5" class="text-center">Modes règlements</th>
-                  <th rowspan="2" class="text-center">Différé</th>
-                  <th rowspan="2" class="text-center">Tiers-payant</th>
-                </tr>
-                <tr>
-                  <th class="text-center">Brut(TTC)</th>
-                  <th class="text-center">Remise</th>
-                  <th class="text-center">Net(TTC)</th>
-                  <th class="text-center">%</th>
-                  <th class="text-center">Espèce</th>
-                  <th class="text-center">Chèque</th>
-                  <th class="text-center">CB</th>
-                  <th class="text-center">Virement</th>
-                  <th class="text-center">Mobile</th>
-                </tr>
+              <tr>
+                <th rowspan="2" class="text-center">Type</th>
+                <th rowspan="2" class="text-center">Nombre</th>
+                <th colspan="4" class="text-center">Montants</th>
+                <th rowspan="2" class="text-center">Pamier.Moyen</th>
+                <th colspan="5" class="text-center">Modes règlements</th>
+                <th rowspan="2" class="text-center">Différé</th>
+                <th rowspan="2" class="text-center">Tiers-payant</th>
+              </tr>
+              <tr>
+                <th class="text-center">Brut(TTC)</th>
+                <th class="text-center">Remise</th>
+                <th class="text-center">Net(TTC)</th>
+                <th class="text-center">%</th>
+                <th class="text-center">Espèce</th>
+                <th class="text-center">Chèque</th>
+                <th class="text-center">CB</th>
+                <th class="text-center">Virement</th>
+                <th class="text-center">Mobile</th>
+              </tr>
               </thead>
               <tbody>
                 @for (item of balanceMvtCaisseWrapper.balanceCaisses; track $index) {
@@ -107,22 +107,22 @@
                 }
               </tbody>
               <tfoot>
-                <tr>
-                  <td class="tf-column">Total</td>
-                  <td class="amount-column">{{ balanceMvtCaisseWrapper.count | number }}</td>
-                  <td class="amount-column">{{ balanceMvtCaisseWrapper.montantTtc | number }}</td>
-                  <td class="amount-column">{{ balanceMvtCaisseWrapper.montantDiscount | number }}</td>
-                  <td class="amount-column">{{ balanceMvtCaisseWrapper.montantNet | number }}</td>
-                  <td class="amount-column">100</td>
-                  <td class="amount-column">{{ balanceMvtCaisseWrapper.panierMoyen | number }}</td>
-                  <td class="amount-column">{{ balanceMvtCaisseWrapper.montantCash | number }}</td>
-                  <td class="amount-column">{{ balanceMvtCaisseWrapper.montantCheck | number }}</td>
-                  <td class="amount-column">{{ balanceMvtCaisseWrapper.montantCard | number }}</td>
-                  <td class="amount-column">{{ balanceMvtCaisseWrapper.montantVirement | number }}</td>
-                  <td class="amount-column">{{ balanceMvtCaisseWrapper.montantMobileMoney | number }}</td>
-                  <td class="amount-column">{{ balanceMvtCaisseWrapper.montantDiffere | number }}</td>
-                  <td class="amount-column">{{ balanceMvtCaisseWrapper.partTiersPayant | number }}</td>
-                </tr>
+              <tr>
+                <td class="tf-column">Total</td>
+                <td class="amount-column">{{ balanceMvtCaisseWrapper.count | number }}</td>
+                <td class="amount-column">{{ balanceMvtCaisseWrapper.montantTtc | number }}</td>
+                <td class="amount-column">{{ balanceMvtCaisseWrapper.montantDiscount | number }}</td>
+                <td class="amount-column">{{ balanceMvtCaisseWrapper.montantNet | number }}</td>
+                <td class="amount-column">100</td>
+                <td class="amount-column">{{ balanceMvtCaisseWrapper.panierMoyen | number }}</td>
+                <td class="amount-column">{{ balanceMvtCaisseWrapper.montantCash | number }}</td>
+                <td class="amount-column">{{ balanceMvtCaisseWrapper.montantCheck | number }}</td>
+                <td class="amount-column">{{ balanceMvtCaisseWrapper.montantCard | number }}</td>
+                <td class="amount-column">{{ balanceMvtCaisseWrapper.montantVirement | number }}</td>
+                <td class="amount-column">{{ balanceMvtCaisseWrapper.montantMobileMoney | number }}</td>
+                <td class="amount-column">{{ balanceMvtCaisseWrapper.montantDiffere | number }}</td>
+                <td class="amount-column">{{ balanceMvtCaisseWrapper.partTiersPayant | number }}</td>
+              </tr>
               </tfoot>
             </table>
           </div>
@@ -136,35 +136,43 @@
               <ul class="list-group">
                 <li class="list-group-item d-flex justify-content-between align-items-center">
                   Total TTC
-                  <span class="badge text-bg-secondary rounded-pill">{{ balanceMvtCaisseWrapper.montantTtc | number }}</span>
+                  <span
+                    class="badge text-bg-secondary rounded-pill">{{ balanceMvtCaisseWrapper.montantTtc | number }}</span>
                 </li>
                 <li class="list-group-item d-flex justify-content-between align-items-center">
                   Total TVA
-                  <span class="badge text-bg-secondary rounded-pill">{{ balanceMvtCaisseWrapper.montantTaxe | number }}</span>
+                  <span
+                    class="badge text-bg-secondary rounded-pill">{{ balanceMvtCaisseWrapper.montantTaxe | number }}</span>
                 </li>
                 <li class="list-group-item d-flex justify-content-between align-items-center">
                   Total TH
-                  <span class="badge text-bg-secondary rounded-pill">{{ balanceMvtCaisseWrapper.montantHt | number }}</span>
+                  <span
+                    class="badge text-bg-secondary rounded-pill">{{ balanceMvtCaisseWrapper.montantHt | number }}</span>
                 </li>
                 <li class="list-group-item d-flex justify-content-between align-items-center">
                   Total comptant
-                  <span class="badge text-bg-secondary rounded-pill">{{ balanceMvtCaisseWrapper.montantPaye | number }}</span>
+                  <span
+                    class="badge text-bg-secondary rounded-pill">{{ balanceMvtCaisseWrapper.montantPaye | number }}</span>
                 </li>
                 <li class="list-group-item d-flex justify-content-between align-items-center">
                   Total achat
-                  <span class="badge text-bg-secondary rounded-pill">{{ balanceMvtCaisseWrapper.montantAchat | number }}</span>
+                  <span
+                    class="badge text-bg-secondary rounded-pill">{{ balanceMvtCaisseWrapper.montantAchat | number }}</span>
                 </li>
                 <li class="list-group-item d-flex justify-content-between align-items-center">
                   Marge
-                  <span class="badge text-bg-secondary rounded-pill">{{ balanceMvtCaisseWrapper.montantMarge | number }}</span>
+                  <span
+                    class="badge text-bg-secondary rounded-pill">{{ balanceMvtCaisseWrapper.montantMarge | number }}</span>
                 </li>
                 <li class="list-group-item d-flex justify-content-between align-items-center">
                   Ratio V/A
-                  <span class="badge text-bg-secondary rounded-pill">{{ balanceMvtCaisseWrapper.ratioVenteAchat | number }}</span>
+                  <span
+                    class="badge text-bg-secondary rounded-pill">{{ balanceMvtCaisseWrapper.ratioVenteAchat | number }}</span>
                 </li>
                 <li class="list-group-item d-flex justify-content-between align-items-center">
                   Ratio A/V
-                  <span class="badge text-bg-secondary rounded-pill">{{ balanceMvtCaisseWrapper.ratioAchatVente | number }}</span>
+                  <span
+                    class="badge text-bg-secondary rounded-pill">{{ balanceMvtCaisseWrapper.ratioAchatVente | number }}</span>
                 </li>
               </ul>
             </div>

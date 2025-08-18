@@ -35,6 +35,10 @@
     "browsehappy": "Vous utilisez un <strong>ancien</strong> navigateur. Veuillez <a href=\"http://browsehappy.com/?locale=fr\">mettre à jour votre navigateur</a> pour une meilleure expérience.",
     "menu": {
       "home": "Accueil",
+      "nouvelleVente": "Nouvelle vente",
+      "parametre": "Paramètres",
+      "nouvellePreVente": "Nouvelle prévente",
+      "nouvelleCommande": "Nouvelle commande",
       "mvtCaisse": "Mouvements de caisse",
       "referentiel": "Reférentiels",
       "tiersPayant": "Gestion des tiers payants",
@@ -47,7 +51,16 @@
       "gammeProduit": "Gamme de produit",
       "laboratoire": "Laboratoire",
       "motifAjustement": "Motifs ajustement",
+      "ajustement": "Ajustements",
       "jhipster-needle-menu-add-element": "JHipster will add additional menu entries here (do not translate!)",
+      "facturation": {
+        "title": "Gestion des factures",
+        "factures": "Factures",
+        "reglements": "Règlements",
+        "differes": "Gestion des diférés",
+        "tiersPayant": "Gestion tiers payants",
+        "client": "Clients"
+      },
       "entities": {
         "mvtCaisse": "Mouvements de caisse",
         "main": "Facturation",

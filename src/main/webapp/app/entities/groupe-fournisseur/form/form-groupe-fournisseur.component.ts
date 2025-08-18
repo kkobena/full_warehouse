@@ -26,10 +26,10 @@ import { ToastAlertComponent } from '../../../shared/toast-alert/toast-alert.com
     RippleModule,
     KeyFilterModule,
     Card,
-    ToastAlertComponent,
+    ToastAlertComponent
   ],
   templateUrl: './form-groupe-fournisseur.component.html',
-  styleUrls: ['./form-groupe-fournisseur.component.scss'],
+  styleUrls: ['./form-groupe-fournisseur.component.scss']
 })
 export class FormGroupeFournisseurComponent implements OnInit, AfterViewInit {
   header: string = '';
@@ -49,23 +49,26 @@ export class FormGroupeFournisseurComponent implements OnInit, AfterViewInit {
     odre: [],
     codeRecepteurPharmaMl: [],
     codeOfficePharmaMl: [],
-    urlPharmaMl: [],
+    urlPharmaMl: []
   });
   private readonly errorService = inject(ErrorService);
   private readonly entityService = inject(GroupeFournisseurService);
   private readonly activeModal = inject(NgbActiveModal);
   private readonly alert = viewChild.required<ToastAlertComponent>('alert');
   private libelleInput = viewChild.required<ElementRef>('libelleInput');
+
   ngOnInit(): void {
     if (this.entity) {
       this.updateForm(this.entity);
     }
   }
+
   ngAfterViewInit(): void {
     setTimeout(() => {
       this.libelleInput().nativeElement.focus();
     }, 100);
   }
+
   cancel(): void {
     this.activeModal.dismiss();
   }
@@ -84,7 +87,7 @@ export class FormGroupeFournisseurComponent implements OnInit, AfterViewInit {
   private subscribeToSaveResponse(result: Observable<HttpResponse<IGroupeFournisseur>>): void {
     result.subscribe({
       next: res => this.onSaveSuccess(res.body),
-      error: error => this.onSaveError(error),
+      error: error => this.onSaveError(error)
     });
   }
 
@@ -104,7 +107,7 @@ export class FormGroupeFournisseurComponent implements OnInit, AfterViewInit {
       odre: entity.odre,
       urlPharmaMl: entity.urlPharmaMl,
       codeRecepteurPharmaMl: entity.codeRecepteurPharmaMl,
-      codeOfficePharmaMl: entity.codeOfficePharmaMl,
+      codeOfficePharmaMl: entity.codeOfficePharmaMl
     });
   }
 
@@ -125,7 +128,7 @@ export class FormGroupeFournisseurComponent implements OnInit, AfterViewInit {
       odre: this.editForm.get(['odre']).value,
       codeRecepteurPharmaMl: this.editForm.get(['codeRecepteurPharmaMl']).value,
       codeOfficePharmaMl: this.editForm.get(['codeOfficePharmaMl']).value,
-      urlPharmaMl: this.editForm.get(['urlPharmaMl']).value,
+      urlPharmaMl: this.editForm.get(['urlPharmaMl']).value
     };
   }
 }

@@ -51,9 +51,9 @@ import { extractFileName } from '../../../shared/util/file-utils';
     SplitButtonModule,
     FormsModule,
     DatePicker,
-    FloatLabel,
+    FloatLabel
   ],
-  templateUrl: './tableau-pharmacien.component.html',
+  templateUrl: './tableau-pharmacien.component.html'
 })
 export class TableauPharmacienComponent implements OnInit, AfterViewInit {
   protected exportMenus: MenuItem[];
@@ -64,7 +64,7 @@ export class TableauPharmacienComponent implements OnInit, AfterViewInit {
   protected affichage = 'table';
   protected typeAffichafes = [
     { icon: 'pi pi-align-justify', value: 'table' },
-    { icon: 'pi pi-chart-bar', value: 'graphe' },
+    { icon: 'pi pi-chart-bar', value: 'graphe' }
   ];
   protected tableauPharmacienWrapper: TableauPharmacienWrapper | null = null;
   protected groupeFournisseurs: IGroupeFournisseur[] = [];
@@ -85,13 +85,13 @@ export class TableauPharmacienComponent implements OnInit, AfterViewInit {
       {
         label: 'PDF',
         icon: 'pi pi-file-pdf',
-        command: () => this.onPrint(),
+        command: () => this.onPrint()
       },
       {
         label: 'Excel',
         icon: 'pi pi-file-excel',
-        command: () => this.onExcel(),
-      },
+        command: () => this.onExcel()
+      }
     ];
     const params = this.mvtParamServiceService.mvtCaisseParam();
     if (params) {
@@ -118,11 +118,11 @@ export class TableauPharmacienComponent implements OnInit, AfterViewInit {
     this.loading = true;
     this.tableauPharmacienService
       .query({
-        ...this.buildParams(),
+        ...this.buildParams()
       })
       .subscribe({
         next: (res: HttpResponse<TableauPharmacienWrapper>) => this.onSuccess(res.body),
-        error: () => this.onError(),
+        error: () => this.onError()
       });
     this.updateParam();
   }
@@ -133,7 +133,7 @@ export class TableauPharmacienComponent implements OnInit, AfterViewInit {
         this.groupeFournisseurs = res.body || [];
 
         this.colspan = 2 + this.groupeFournisseurs.length;
-      },
+      }
     });
   }
 
@@ -166,12 +166,12 @@ export class TableauPharmacienComponent implements OnInit, AfterViewInit {
         this.messageService.add({
           severity: 'error',
           summary: 'Error',
-          detail: 'Une erreur est survenue',
+          detail: 'Une erreur est survenue'
         });
       },
       complete: () => {
         this.loading = false;
-      },
+      }
     });
   }
 
@@ -189,12 +189,12 @@ export class TableauPharmacienComponent implements OnInit, AfterViewInit {
         this.messageService.add({
           severity: 'error',
           summary: 'Error',
-          detail: 'Une erreur est survenue',
+          detail: 'Une erreur est survenue'
         });
       },
       complete: () => {
         this.loading = false;
-      },
+      }
     });
   }
 
@@ -208,7 +208,7 @@ export class TableauPharmacienComponent implements OnInit, AfterViewInit {
     this.messageService.add({
       severity: 'error',
       summary: 'Error',
-      detail: 'Une erreur est survenue',
+      detail: 'Une erreur est survenue'
     });
     this.tableauPharmacienWrapper = null;
     this.loading = false;
@@ -219,7 +219,7 @@ export class TableauPharmacienComponent implements OnInit, AfterViewInit {
       fromDate: DATE_FORMAT_ISO_DATE(this.fromDate),
       toDate: DATE_FORMAT_ISO_DATE(this.toDate),
       groupBy: this.groupBy,
-      statuts: ['CLOSED'],
+      statuts: ['CLOSED']
     };
   }
 
@@ -227,7 +227,7 @@ export class TableauPharmacienComponent implements OnInit, AfterViewInit {
     const param: MvtCaisseParams = {
       fromDate: this.fromDate,
       toDate: this.toDate,
-      groupBy: this.groupBy,
+      groupBy: this.groupBy
     };
     this.mvtParamServiceService.setMvtCaisseParam(param);
   }
@@ -266,7 +266,7 @@ export class TableauPharmacienComponent implements OnInit, AfterViewInit {
         achats.forEach(achat => {
           grossisteDuJour.push({
             id: achat.id,
-            montantAchatNet: achat.achat.montantNet,
+            montantAchatNet: achat.achat.montantNet
           });
         });
 
@@ -285,7 +285,7 @@ export class TableauPharmacienComponent implements OnInit, AfterViewInit {
         label: groupe.libelle,
         id: groupe.id,
         backgroundColor: cls.slice(i, i + 1),
-        hoverBackgroundColor: hColors.slice(i, i + 1),
+        hoverBackgroundColor: hColors.slice(i, i + 1)
       };
       achatsGrossiste.push(chartDataSet);
       i++;
@@ -337,27 +337,27 @@ export class TableauPharmacienComponent implements OnInit, AfterViewInit {
             label: 'Comptant',
             data: comptants,
             backgroundColor: this.chartColorsUtilsService.colors().slice(0, 1),
-            hoverBackgroundColor: this.chartColorsUtilsService.hoverColors().slice(0, 1),
+            hoverBackgroundColor: this.chartColorsUtilsService.hoverColors().slice(0, 1)
           },
           {
             label: 'Crédit',
             data: credits,
             backgroundColor: this.chartColorsUtilsService.colors().slice(1, 2),
-            hoverBackgroundColor: this.chartColorsUtilsService.hoverColors().slice(1, 2),
+            hoverBackgroundColor: this.chartColorsUtilsService.hoverColors().slice(1, 2)
           },
           {
             label: 'Montant net',
             data: montantNets,
             backgroundColor: this.chartColorsUtilsService.colors().slice(2, 3),
-            hoverBackgroundColor: this.chartColorsUtilsService.hoverColors().slice(2, 3),
+            hoverBackgroundColor: this.chartColorsUtilsService.hoverColors().slice(2, 3)
           },
           {
             label: 'Montant remise',
             data: montantRemises,
             backgroundColor: this.chartColorsUtilsService.colors().slice(3, 4),
-            hoverBackgroundColor: this.chartColorsUtilsService.hoverColors().slice(3, 4),
-          },
-        ],
+            hoverBackgroundColor: this.chartColorsUtilsService.hoverColors().slice(3, 4)
+          }
+        ]
       },
       options: {
         maintainAspectRatio: false,
@@ -366,34 +366,34 @@ export class TableauPharmacienComponent implements OnInit, AfterViewInit {
         plugins: {
           legend: {
             labels: {
-              color: this.chartColorsUtilsService.textColor(),
-            },
-          },
+              color: this.chartColorsUtilsService.textColor()
+            }
+          }
         },
         scales: {
           x: {
             ticks: {
               color: this.chartColorsUtilsService.textColorSecondary(),
               font: {
-                weight: 700,
-              },
+                weight: 700
+              }
             },
             grid: {
               color: this.chartColorsUtilsService.surfaceBorder(),
-              drawBorder: false,
-            },
+              drawBorder: false
+            }
           },
           y: {
             ticks: {
-              color: this.chartColorsUtilsService.textColorSecondary(),
+              color: this.chartColorsUtilsService.textColorSecondary()
             },
             grid: {
               color: this.chartColorsUtilsService.surfaceBorder(),
-              drawBorder: false,
-            },
-          },
-        },
-      },
+              drawBorder: false
+            }
+          }
+        }
+      }
     };
   }
 
@@ -401,7 +401,7 @@ export class TableauPharmacienComponent implements OnInit, AfterViewInit {
     this.grossiste = {
       data: {
         labels,
-        datasets: achatsGrossiste,
+        datasets: achatsGrossiste
       },
       options: {
         maintainAspectRatio: false,
@@ -410,34 +410,34 @@ export class TableauPharmacienComponent implements OnInit, AfterViewInit {
         plugins: {
           legend: {
             labels: {
-              color: this.chartColorsUtilsService.textColor(),
-            },
-          },
+              color: this.chartColorsUtilsService.textColor()
+            }
+          }
         },
         scales: {
           x: {
             ticks: {
               color: this.chartColorsUtilsService.textColorSecondary(),
               font: {
-                weight: 700,
-              },
+                weight: 700
+              }
             },
             grid: {
               color: this.chartColorsUtilsService.surfaceBorder(),
-              drawBorder: false,
-            },
+              drawBorder: false
+            }
           },
           y: {
             ticks: {
-              color: this.chartColorsUtilsService.textColorSecondary(),
+              color: this.chartColorsUtilsService.textColorSecondary()
             },
             grid: {
               color: this.chartColorsUtilsService.surfaceBorder(),
-              drawBorder: false,
-            },
-          },
-        },
-      },
+              drawBorder: false
+            }
+          }
+        }
+      }
     };
   }
 }

@@ -35,10 +35,10 @@ import { Divider } from 'primeng/divider';
     PanelModule,
     FacturesComponent,
     EditionComponent,
-    Divider,
+    Divider
   ],
   templateUrl: './facturation.component.html',
-  styles: ``,
+  styles: ``
 })
 export class FacturationComponent {
   protected active = 'factures';

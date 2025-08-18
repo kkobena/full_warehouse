@@ -1,6 +1,7 @@
 <div class="row reglement-dossier">
   <div class="reglement-dossier-table col-xl-8 col-sm-12 col-lg-9 col-md-9">
-    <p-table [showGridlines]="true" #differeTable [globalFilterFields]="['reference']" [value]="differe.differeItems" dataKey="saleId">
+    <p-table [showGridlines]="true" #differeTable [globalFilterFields]="['reference']" [value]="differe.differeItems"
+             dataKey="saleId">
       <ng-template #caption>
         <div class="d-flex justify-content-between">
           <div class="p-2"><span class="text-xl font-bold">Dossiers</span></div>
@@ -105,4 +106,4 @@
   </div>
 </div>
 
-<p-confirmDialog [baseZIndex]="10000" [style]="{ width: '40vw' }" key="printReceipt"> </p-confirmDialog>
+<p-confirmDialog [baseZIndex]="10000" [style]="{ width: '40vw' }" key="printReceipt"></p-confirmDialog>

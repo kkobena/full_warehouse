@@ -51,10 +51,10 @@ import { Subscription } from 'rxjs';
     IconField,
     InputIcon,
     ToggleSwitch,
-    DatePicker,
+    DatePicker
   ],
   providers: [ConfirmationService],
-  templateUrl: './factures-reglees.component.html',
+  templateUrl: './factures-reglees.component.html'
 })
 export class FacturesRegleesComponent implements AfterViewInit {
   protected readonly tiersPayantService = inject(TiersPayantService);
@@ -85,6 +85,7 @@ export class FacturesRegleesComponent implements AfterViewInit {
   protected scrollHeight = 'calc(100vh - 350px)';
   private primngtranslate: Subscription;
   private toDateMinus1Month = this.today;
+
   constructor() {
     this.translate.use('fr');
     this.primngtranslate = this.translate.stream('primeng').subscribe(data => {
@@ -94,6 +95,7 @@ export class FacturesRegleesComponent implements AfterViewInit {
     this.toDateMinus1Month.setMonth(this.toDateMinus1Month.getMonth() - 1);
     this.modelStartDate = this.toDateMinus1Month;
   }
+
   onSearch(): void {
     this.fetchData();
   }
@@ -113,11 +115,11 @@ export class FacturesRegleesComponent implements AfterViewInit {
           },
           error: (err: any) => {
             this.openInfoDialog(this.errorService.getErrorMessage(err), 'alert alert-danger');
-          },
+          }
         });
       },
 
-      key: 'delete',
+      key: 'delete'
     });
   }
 
@@ -141,7 +143,7 @@ export class FacturesRegleesComponent implements AfterViewInit {
         const blobUrl = URL.createObjectURL(blod);
         window.open(blobUrl);
       },
-      error: () => (this.loadingPdf = false),
+      error: () => (this.loadingPdf = false)
     });
   }
 
@@ -159,18 +161,18 @@ export class FacturesRegleesComponent implements AfterViewInit {
           },
           error: (err: any) => {
             this.openInfoDialog(this.errorService.getErrorMessage(err), 'alert alert-danger');
-          },
+          }
         });
       },
 
-      key: 'delete',
+      key: 'delete'
     });
   }
 
   openInfoDialog(message: string, infoClass: string): void {
     const modalRef = this.modalService.open(AlertInfoComponent, {
       backdrop: 'static',
-      centered: true,
+      centered: true
     });
     modalRef.componentInstance.message = message;
     modalRef.componentInstance.infoClass = infoClass;
@@ -190,7 +192,7 @@ export class FacturesRegleesComponent implements AfterViewInit {
       .query({
         page: 0,
         search: query,
-        size: 10,
+        size: 10
       })
       .subscribe((res: HttpResponse<IGroupeTiersPayant[]>) => {
         this.groupeTiersPayants = res.body || [];
@@ -203,12 +205,12 @@ export class FacturesRegleesComponent implements AfterViewInit {
       .query({
         page: 0,
         search: query,
-        size: 10,
+        size: 10
       })
       .subscribe({
         next: (res: HttpResponse<ITiersPayant[]>) => {
           this.tiersPayants = res.body || [];
-        },
+        }
       });
   }
 
@@ -223,7 +225,7 @@ export class FacturesRegleesComponent implements AfterViewInit {
       size: 'xl',
       centered: true,
 
-      modalDialogClass: 'facture-modal-dialog',
+      modalDialogClass: 'facture-modal-dialog'
     });
     modalRef.componentInstance.reglement = reglement;
   }
@@ -234,7 +236,7 @@ export class FacturesRegleesComponent implements AfterViewInit {
       size: 'xl',
       centered: true,
 
-      modalDialogClass: 'facture-modal-dialog',
+      modalDialogClass: 'facture-modal-dialog'
     });
     modalRef.componentInstance.reglement = reglement;
   }
@@ -268,7 +270,7 @@ export class FacturesRegleesComponent implements AfterViewInit {
       organismeId: this.factureGroup ? this.selectedGroupeTiersPayant?.id : this.selectedTiersPayant?.id,
       fromDate: DATE_FORMAT_ISO_DATE(this.modelStartDate),
       toDate: DATE_FORMAT_ISO_DATE(this.modelEndDate),
-      grouped: this.factureGroup,
+      grouped: this.factureGroup
     };
 
     this.regelementStateService.setInvoicePaymentParam(params);
@@ -286,7 +288,7 @@ export class FacturesRegleesComponent implements AfterViewInit {
       error: () => {
         this.loadingBtn = false;
         this.datas = [];
-      },
+      }
     });
   }
 }

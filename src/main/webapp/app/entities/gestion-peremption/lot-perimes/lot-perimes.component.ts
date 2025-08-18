@@ -42,9 +42,7 @@ import { DatePickerComponent } from '../../../shared/date-picker/date-picker.com
 import { saveAs } from 'file-saver';
 import { extractFileName2 } from '../../../shared/util/file-utils';
 import { SpinerService } from '../../../shared/spiner.service';
-import {
-  ConfirmDialogComponent
-} from '../../../shared/dialog/confirm-dialog/confirm-dialog.component';
+import { ConfirmDialogComponent } from '../../../shared/dialog/confirm-dialog/confirm-dialog.component';
 import { ToastAlertComponent } from '../../../shared/toast-alert/toast-alert.component';
 
 @Component({
@@ -72,9 +70,9 @@ import { ToastAlertComponent } from '../../../shared/toast-alert/toast-alert.com
     CtaComponent,
     DatePickerComponent,
     ConfirmDialogComponent,
-    ToastAlertComponent,
+    ToastAlertComponent
   ],
-  templateUrl: './lot-perimes.component.html',
+  templateUrl: './lot-perimes.component.html'
 })
 export class LotPerimesComponent implements OnInit, AfterViewInit {
   protected checkbox = viewChild<TableHeaderCheckbox>('checkbox');
@@ -105,16 +103,16 @@ export class LotPerimesComponent implements OnInit, AfterViewInit {
   protected types: any[] = [
     {
       label: 'Déjà périmé',
-      value: 'PERIME',
+      value: 'PERIME'
     },
     {
       label: 'En cours',
-      value: 'EN_COURS',
+      value: 'EN_COURS'
     },
     {
       label: 'Tout',
-      value: 'ALL',
-    },
+      value: 'ALL'
+    }
   ];
   protected selectedType: any = null;
   private readonly configurationService = inject(ConfigurationService);
@@ -128,7 +126,8 @@ export class LotPerimesComponent implements OnInit, AfterViewInit {
   private readonly confimDialog = viewChild.required<ConfirmDialogComponent>('confirmDialog');
   private readonly alert = viewChild.required<ToastAlertComponent>('alert');
 
-  ngAfterViewInit(): void {}
+  ngAfterViewInit(): void {
+  }
 
   ngOnInit(): void {
     this.selectedType = this.types[2];
@@ -139,18 +138,18 @@ export class LotPerimesComponent implements OnInit, AfterViewInit {
       {
         label: 'PDF',
         icon: 'pi pi-file-pdf',
-        command: () => this.exportPdf(),
+        command: () => this.exportPdf()
       },
       {
         label: 'Excel',
         icon: 'pi pi-file-excel',
-        command: () => this.onExport('EXCEL'),
+        command: () => this.onExport('EXCEL')
       },
       {
         label: 'Csv',
         icon: 'pi pi-file-export',
-        command: () => this.onExport('CSV'),
-      },
+        command: () => this.onExport('CSV')
+      }
     ];
     this.onSearch();
   }
@@ -182,11 +181,11 @@ export class LotPerimesComponent implements OnInit, AfterViewInit {
         .fetchLotPerimes({
           page: this.page,
           size: event.rows,
-          ...this.buidParams(),
+          ...this.buidParams()
         })
         .subscribe({
           next: (res: HttpResponse<LotPerimes[]>) => this.onSuccess(res.body, res.headers, this.page),
-          error: () => this.onError(),
+          error: () => this.onError()
         });
     }
   }
@@ -198,7 +197,7 @@ export class LotPerimesComponent implements OnInit, AfterViewInit {
       },
       error: () => {
         this.lotPerimeValeurSum = null;
-      },
+      }
     });
   }
 
@@ -217,7 +216,8 @@ export class LotPerimesComponent implements OnInit, AfterViewInit {
       'Confirmation',
       'Voulez-vous retirer la quantité du stock ?',
       null,
-      () => {},
+      () => {
+      }
     );
   }
 
@@ -227,7 +227,8 @@ export class LotPerimesComponent implements OnInit, AfterViewInit {
       'Confirmation',
       'Voulez-vous tout retirer du  stock ?',
       null,
-      () => {},
+      () => {
+      }
     );
   }
 
@@ -238,7 +239,7 @@ export class LotPerimesComponent implements OnInit, AfterViewInit {
         this.spinner.hide();
         window.open(URL.createObjectURL(blod));
       },
-      error: () => this.spinner.hide(),
+      error: () => this.spinner.hide()
     });
   }
 
@@ -256,7 +257,7 @@ export class LotPerimesComponent implements OnInit, AfterViewInit {
       },
       complete: () => {
         this.spinner.hide();
-      },
+      }
     });
   }
 
@@ -288,7 +289,7 @@ export class LotPerimesComponent implements OnInit, AfterViewInit {
       familleProduitId: this.selectedFamilleProduit?.id,
       magasinId: this.selectedMagasin?.id,
       storageId: this.selectedStorage?.id,
-      type: this.selectedType?.value,
+      type: this.selectedType?.value
     };
   }
 
@@ -310,11 +311,11 @@ export class LotPerimesComponent implements OnInit, AfterViewInit {
       .fetchLotPerimes({
         page: pageToLoad - 1,
         size: this.itemsPerPage,
-        ...this.buidParams(),
+        ...this.buidParams()
       })
       .subscribe({
         next: (res: HttpResponse<LotPerimes[]>) => this.onSuccess(res.body, res.headers, pageToLoad),
-        error: () => this.onError(),
+        error: () => this.onError()
       });
   }
 
@@ -323,7 +324,7 @@ export class LotPerimesComponent implements OnInit, AfterViewInit {
       .query({
         page: 0,
         storageId: this.selectedStorage?.id,
-        size: 9999,
+        size: 9999
       })
       .subscribe((res: HttpResponse<IRayon[]>) => {
         this.rayons = res.body || [];
@@ -334,7 +335,7 @@ export class LotPerimesComponent implements OnInit, AfterViewInit {
     this.fournisseurService
       .query({
         page: 0,
-        size: 9999,
+        size: 9999
       })
       .subscribe((res: HttpResponse<IFournisseur[]>) => {
         this.fournisseurs = res.body || [];
@@ -352,7 +353,7 @@ export class LotPerimesComponent implements OnInit, AfterViewInit {
       lotId: lot.id,
       quantity: lot.quantity,
       produitId: lot.produitId,
-      fournisseurId: this.selectedFournisseur?.id,
+      fournisseurId: this.selectedFournisseur?.id
     };
   }
 
@@ -362,8 +363,8 @@ export class LotPerimesComponent implements OnInit, AfterViewInit {
       products: lot
         ? [this.buildPayload(lot)]
         : this.selectedLotPerimes.map(d => {
-            return this.buildPayload(d);
-          }),
+          return this.buildPayload(d);
+        })
     };
   }
 
@@ -377,7 +378,7 @@ export class LotPerimesComponent implements OnInit, AfterViewInit {
       error: () => {
         this.spinner.hide();
         this.alert().showError('Une erreur est survenue');
-      },
+      }
     });
   }
 }

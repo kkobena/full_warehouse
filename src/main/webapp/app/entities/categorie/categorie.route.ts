@@ -21,7 +21,7 @@ export const CategorieResolve = (route: ActivatedRouteSnapshot): Observable<null
             inject(Router).navigate(['404']);
             return EMPTY;
           }
-        }),
+        })
       );
   }
   return of(new Categorie());
@@ -31,42 +31,42 @@ const categorieRoute: Routes = [
     path: '',
     loadComponent: () => import('./categorie.component').then(m => m.CategorieComponent),
     data: {
-      authorities: [Authority.ADMIN, Authority.CATEGORIE],
+      authorities: [Authority.ADMIN, Authority.CATEGORIE]
     },
-    canActivate: [UserRouteAccessService],
+    canActivate: [UserRouteAccessService]
   },
   {
     path: ':id/view',
     loadComponent: () => import('./categorie-detail.component').then(m => m.CategorieDetailComponent),
     resolve: {
-      categorie: CategorieResolve,
+      categorie: CategorieResolve
     },
     data: {
-      authorities: [Authority.ADMIN, Authority.CATEGORIE],
+      authorities: [Authority.ADMIN, Authority.CATEGORIE]
     },
-    canActivate: [UserRouteAccessService],
+    canActivate: [UserRouteAccessService]
   },
   {
     path: 'new',
     loadComponent: () => import('./categorie-update.component').then(m => m.CategorieUpdateComponent),
     resolve: {
-      categorie: CategorieResolve,
+      categorie: CategorieResolve
     },
     data: {
-      authorities: [Authority.ADMIN, Authority.CATEGORIE],
+      authorities: [Authority.ADMIN, Authority.CATEGORIE]
     },
-    canActivate: [UserRouteAccessService],
+    canActivate: [UserRouteAccessService]
   },
   {
     path: ':id/edit',
     loadComponent: () => import('./categorie-update.component').then(m => m.CategorieUpdateComponent),
     resolve: {
-      categorie: CategorieResolve,
+      categorie: CategorieResolve
     },
     data: {
-      authorities: [Authority.ADMIN, Authority.CATEGORIE],
+      authorities: [Authority.ADMIN, Authority.CATEGORIE]
     },
-    canActivate: [UserRouteAccessService],
-  },
+    canActivate: [UserRouteAccessService]
+  }
 ];
 export default categorieRoute;

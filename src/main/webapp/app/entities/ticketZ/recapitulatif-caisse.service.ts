@@ -7,7 +7,7 @@ import { createRequestOptions } from '../../shared/util/request-util';
 import { RecapParam } from './model/recap-param.model';
 
 @Injectable({
-  providedIn: 'root',
+  providedIn: 'root'
 })
 export class RecapitulatifCaisseService {
   private readonly http = inject(HttpClient);
@@ -17,7 +17,7 @@ export class RecapitulatifCaisseService {
     const options = createRequestOptions(req);
     return this.http.get<Ticket>(this.resourceUrl, {
       params: options,
-      observe: 'response',
+      observe: 'response'
     });
   }
 

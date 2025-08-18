@@ -16,18 +16,18 @@ import { ITva, Tva } from '../../../shared/model/tva.model';
   selector: 'jhi-form-tva',
   imports: [ToastAlertComponent, Button, FormsModule, InputText, ReactiveFormsModule, KeyFilter, Card],
   templateUrl: './form-tva.component.html',
-  styleUrls: ['../../common-modal.component.scss'],
+  styleUrls: ['../../common-modal.component.scss']
 })
 export class FormTvaComponent implements OnInit, AfterViewInit {
   header: string = '';
- private readonly  taux = viewChild.required<ElementRef>('taux');
+  private readonly taux = viewChild.required<ElementRef>('taux');
   protected fb = inject(FormBuilder);
   protected editForm = this.fb.group({
     id: new FormControl<number | null>(null, {}),
     taux: new FormControl<string | null>(null, {
       validators: [Validators.required],
-      nonNullable: true,
-    }),
+      nonNullable: true
+    })
   });
   protected isSaving = false;
   private readonly alert = viewChild.required<ToastAlertComponent>('alert');
@@ -35,7 +35,8 @@ export class FormTvaComponent implements OnInit, AfterViewInit {
   private readonly tvaService = inject(TvaService);
   private readonly activeModal = inject(NgbActiveModal);
 
-  ngOnInit(): void {}
+  ngOnInit(): void {
+  }
 
   ngAfterViewInit(): void {
     setTimeout(() => {
@@ -65,14 +66,15 @@ export class FormTvaComponent implements OnInit, AfterViewInit {
   private subscribeToSaveResponse(result: Observable<HttpResponse<ITva>>): void {
     result.subscribe({
       next: () => this.onSaveSuccess(),
-      error: error => this.onSaveError(error),
+      error: error => this.onSaveError(error)
     });
   }
+
   private createFromForm(): ITva {
     return {
       ...new Tva(),
       id: this.editForm.get(['id']).value,
-      taux: this.editForm.get(['taux']).value,
+      taux: this.editForm.get(['taux']).value
     };
   }
 }

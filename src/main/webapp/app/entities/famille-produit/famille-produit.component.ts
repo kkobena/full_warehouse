@@ -43,8 +43,8 @@ import { Panel } from 'primeng/panel';
     IconField,
     ToastAlertComponent,
     ConfirmDialogComponent,
-    Panel,
-  ],
+    Panel
+  ]
 })
 export class FamilleProduitComponent implements OnInit {
   responsedto!: IResponseDto;
@@ -60,6 +60,7 @@ export class FamilleProduitComponent implements OnInit {
   private readonly modalService = inject(NgbModal);
   private readonly errorService = inject(ErrorService);
   private readonly spinner = inject(SpinerService);
+
   ngOnInit(): void {
     this.loadPage();
   }
@@ -72,11 +73,11 @@ export class FamilleProduitComponent implements OnInit {
       .query({
         page: pageToLoad,
         size: ITEMS_PER_PAGE,
-        search: query,
+        search: query
       })
       .subscribe({
         next: (res: HttpResponse<IFamilleProduit[]>) => this.onSuccess(res.body, res.headers, pageToLoad),
-        error: err => this.onError(err),
+        error: err => this.onError(err)
       });
   }
 
@@ -87,11 +88,11 @@ export class FamilleProduitComponent implements OnInit {
       .query({
         page: this.page,
         size: event.rows,
-        search: '',
+        search: ''
       })
       .subscribe({
         next: (res: HttpResponse<IFamilleProduit[]>) => this.onSuccess(res.body, res.headers, this.page),
-        error: err => this.onError(err),
+        error: err => this.onError(err)
       });
   }
 
@@ -103,7 +104,7 @@ export class FamilleProduitComponent implements OnInit {
         });
       },
       'Suppression',
-      'Êtes-vous sûr de vouloir supprimer ?',
+      'Êtes-vous sûr de vouloir supprimer ?'
     );
   }
 
@@ -128,7 +129,7 @@ export class FamilleProduitComponent implements OnInit {
         this.spinner.show();
         this.uploadFileResponse(this.entityService.uploadFile(result));
       },
-      'xl',
+      'xl'
     );
   }
 
@@ -138,12 +139,12 @@ export class FamilleProduitComponent implements OnInit {
       FormFamilleComponent,
       {
         familleProduit: null,
-        header: "Ajout d'une nouvelle famille de produit",
+        header: 'Ajout d\'une nouvelle famille de produit'
       },
       () => {
         this.loadPage(0);
       },
-      'xl',
+      'xl'
     );
   }
 
@@ -153,12 +154,12 @@ export class FamilleProduitComponent implements OnInit {
       FormFamilleComponent,
       {
         familleProduit: entity,
-        header: 'Modification de ' + entity.libelle,
+        header: 'Modification de ' + entity.libelle
       },
       () => {
         this.loadPage(0);
       },
-      'xl',
+      'xl'
     );
   }
 
@@ -170,7 +171,7 @@ export class FamilleProduitComponent implements OnInit {
   protected uploadFileResponse(result: Observable<HttpResponse<IResponseDto>>): void {
     result.pipe(finalize(() => this.spinner.hide())).subscribe({
       next: (res: HttpResponse<IResponseDto>) => this.onPocesCsvSuccess(res.body),
-      error: err => this.onSaveError(err),
+      error: err => this.onSaveError(err)
     });
   }
 

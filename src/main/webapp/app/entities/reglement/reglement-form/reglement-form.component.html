@@ -3,7 +3,8 @@
     <div class="col-2 col-sm-4 col-md-2">
       <label class="form-check-label" for="partialPayment">Tout</label>
       <div class="form-check form-switch form-check-reverse">
-        <input class="form-check-input" formControlName="partialPayment" id="partialPayment" role="switch" type="checkbox" />
+        <input class="form-check-input" formControlName="partialPayment" id="partialPayment" role="switch"
+               type="checkbox" />
       </div>
     </div>
     <div class="col-10 col-sm-8 col-md-10">
@@ -33,7 +34,8 @@
   </div>
   <div class="input-group input-group-sm mb-1">
     <span class="input-group-text">Montant</span>
-    <input [readonly]="isReadOnly" autocomplete="off" class="form-control" formControlName="amount" id="amount" type="number" />
+    <input [readonly]="isReadOnly" autocomplete="off" class="form-control" formControlName="amount" id="amount"
+           type="number" />
   </div>
   @if (showBanqueInfo) {
     <div formGroupName="banqueInfo">
@@ -44,10 +46,8 @@
         <span class="input-group-text">Nom<span style="color: red">*</span></span>
         <input autocomplete="off" class="form-control" formControlName="nom" id="nom" />
       </div>
-      @if (
-        reglementForm.get('banqueInfo').get('nom')!.invalid &&
-        (reglementForm.get('banqueInfo').get('nom')!.dirty || reglementForm.get('banqueInfo').get('nom')!.touched)
-      ) {
+      @if (reglementForm.get('banqueInfo').get('nom')!.invalid &&
+      (reglementForm.get('banqueInfo').get('nom')!.dirty || reglementForm.get('banqueInfo').get('nom')!.touched)) {
         <div>
           @if (reglementForm.get('banqueInfo').get('nom')?.errors?.required) {
             <small class="form-text text-danger" style="color: red"> Ce champ est obligatoire. </small>
@@ -60,10 +60,8 @@
           <span class="input-group-text">Numéro<span style="color: red">*</span></span>
           <input autocomplete="off" class="form-control" formControlName="code" id="code" />
         </div>
-        @if (
-          reglementForm.get('banqueInfo').get('code')!.invalid &&
-          (reglementForm.get('banqueInfo').get('code')!.dirty || reglementForm.get('banqueInfo').get('code')!.touched)
-        ) {
+        @if (reglementForm.get('banqueInfo').get('code')!.invalid &&
+        (reglementForm.get('banqueInfo').get('code')!.dirty || reglementForm.get('banqueInfo').get('code')!.touched)) {
           <div>
             @if (reglementForm.get('banqueInfo').get('code')?.errors?.required) {
               <small class="form-text text-danger" style="color: red"> Ce champ est obligatoire. </small>

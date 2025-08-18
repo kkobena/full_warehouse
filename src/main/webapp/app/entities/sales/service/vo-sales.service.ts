@@ -1,4 +1,4 @@
-import { Injectable, inject } from '@angular/core';
+import { inject, Injectable } from '@angular/core';
 import { HttpClient, HttpResponse } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { map } from 'rxjs/operators';
@@ -52,9 +52,11 @@ export class VoSalesService {
   printReceipt(id: number): Observable<{}> {
     return this.http.get(`${this.resourceUrl}/assurance/print/receipt/${id}`, { observe: 'response' });
   }
+
   rePrintReceipt(id: number): Observable<{}> {
     return this.http.get(`${this.resourceUrl}/assurance/re-print/receipt/${id}`, { observe: 'response' });
   }
+
   create(sales: ISales): Observable<EntityResponseType> {
     const copy = this.convertDateFromClient(sales);
     return this.http
@@ -151,7 +153,7 @@ export class VoSalesService {
   private convertDateFromClient(sales: ISales): ISales {
     return Object.assign({}, sales, {
       createdAt: sales.createdAt && sales.createdAt.isValid() ? sales.createdAt.toJSON() : undefined,
-      updatedAt: sales.updatedAt && sales.updatedAt.isValid() ? sales.updatedAt.toJSON() : undefined,
+      updatedAt: sales.updatedAt && sales.updatedAt.isValid() ? sales.updatedAt.toJSON() : undefined
     });
   }
 
@@ -176,7 +178,7 @@ export class VoSalesService {
   private convertItemDateFromClient(salesLine: ISalesLine): ISalesLine {
     const copy: ISalesLine = Object.assign({}, salesLine, {
       createdAt: salesLine.createdAt && salesLine.createdAt.isValid() ? salesLine.createdAt.toJSON() : undefined,
-      updatedAt: salesLine.updatedAt && salesLine.updatedAt.isValid() ? salesLine.updatedAt.toJSON() : undefined,
+      updatedAt: salesLine.updatedAt && salesLine.updatedAt.isValid() ? salesLine.updatedAt.toJSON() : undefined
     });
     return copy;
   }

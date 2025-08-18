@@ -19,7 +19,7 @@ const MvtCaisseResolver = (route: ActivatedRouteSnapshot): Observable<null | Fin
             inject(Router).navigate(['404']);
             return EMPTY;
           }
-        }),
+        })
       );
   }
   return of(new FinancialTransaction());

@@ -1,4 +1,4 @@
-import {PeremptionStatut} from './peremption-statut';
+import { PeremptionStatut } from './peremption-statut';
 
 export class ProductToDestroy {
   id: number;

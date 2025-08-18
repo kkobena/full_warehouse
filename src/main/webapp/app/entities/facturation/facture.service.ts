@@ -1,4 +1,4 @@
-import { Injectable, inject } from '@angular/core';
+import { inject, Injectable } from '@angular/core';
 import { HttpClient, HttpResponse } from '@angular/common/http';
 
 import { Facture } from './facture.model';
@@ -15,7 +15,7 @@ type EntityResponseType = HttpResponse<Facture>;
 type EntityArrayResponseType = HttpResponse<Facture[]>;
 
 @Injectable({
-  providedIn: 'root',
+  providedIn: 'root'
 })
 export class FactureService {
   protected http = inject(HttpClient);
@@ -25,7 +25,8 @@ export class FactureService {
   /** Inserted by Angular inject() migration for backwards compatibility */
   constructor(...args: unknown[]);
 
-  constructor() {}
+  constructor() {
+  }
 
   find(id: number): Observable<EntityResponseType> {
     return this.http.get<Facture>(`${this.resourceUrl}/${id}`, { observe: 'response' });
@@ -48,7 +49,7 @@ export class FactureService {
     const options = createRequestOptions(editionSearchParams);
     return this.http.get<DossierFacture[]>(this.resourceUrl + '/bons', {
       params: options,
-      observe: 'response',
+      observe: 'response'
     });
   }
 
@@ -56,7 +57,7 @@ export class FactureService {
     const options = createRequestOptions(editionSearchParams);
     return this.http.get<TiersPayantDossierFacture[]>(this.resourceUrl + '/data', {
       params: options,
-      observe: 'response',
+      observe: 'response'
     });
   }
 
@@ -66,7 +67,7 @@ export class FactureService {
 
   exportToPdf(id: number): Observable<Blob> {
     return this.http.get(`${this.resourceUrl}/pdf/${id}`, {
-      responseType: 'blob',
+      responseType: 'blob'
     });
   }
 
@@ -74,7 +75,7 @@ export class FactureService {
     const options = createRequestOptions(editionResponse);
     return this.http.get(`${this.resourceUrl}/pdf`, {
       params: options,
-      responseType: 'blob',
+      responseType: 'blob'
     });
   }
 
@@ -83,12 +84,12 @@ export class FactureService {
     if (typeFacture === 'groupes') {
       return this.http.get<ReglementFactureDossier[]>(`${this.resourceUrl}/reglement/groupes/${id}`, {
         params: options,
-        observe: 'response',
+        observe: 'response'
       });
     }
     return this.http.get<ReglementFactureDossier[]>(`${this.resourceUrl}/reglement/single/${id}`, {
       params: options,
-      observe: 'response',
+      observe: 'response'
     });
   }
 
@@ -96,7 +97,7 @@ export class FactureService {
     const options = createRequestOptions(query);
     return this.http.get<DossierFactureProjection>(`${this.resourceUrl}/reglement/${id}`, {
       params: options,
-      observe: 'response',
+      observe: 'response'
     });
   }
 }

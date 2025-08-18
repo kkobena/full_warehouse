@@ -10,6 +10,7 @@ export class Suggestion {
   statutLibelle: string;
   suggestionAggregator: SuggestionAggregator;
 }
+
 export class SuggestionAggregator {
   itemsCount: number;
   montantAchat: number;

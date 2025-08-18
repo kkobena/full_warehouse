@@ -1,13 +1,17 @@
 import { Component, viewChild } from '@angular/core';
 import { ProduitAuditingParam } from '../../../shared/model/produit-record.model';
-import { YearlyDeleveryProduitHistoriqueComponent } from './yearly-delevery-produit-historique/yearly-delevery-produit-historique.component';
-import { DailyDeleveryProduitHistoriqueComponent } from './daily-delevery-produit-historique/daily-delevery-produit-historique.component';
+import {
+  YearlyDeleveryProduitHistoriqueComponent
+} from './yearly-delevery-produit-historique/yearly-delevery-produit-historique.component';
+import {
+  DailyDeleveryProduitHistoriqueComponent
+} from './daily-delevery-produit-historique/daily-delevery-produit-historique.component';
 import { WarehouseCommonModule } from '../../../shared/warehouse-common/warehouse-common.module';
 
 @Component({
   selector: 'jhi-stat-delivery',
   imports: [WarehouseCommonModule, DailyDeleveryProduitHistoriqueComponent, YearlyDeleveryProduitHistoriqueComponent],
-  templateUrl: './stat-delivery.component.html',
+  templateUrl: './stat-delivery.component.html'
 })
 export class StatDeliveryComponent {
   protected readonly daily = viewChild.required(DailyDeleveryProduitHistoriqueComponent);

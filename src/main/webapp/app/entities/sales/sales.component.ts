@@ -67,8 +67,8 @@ import { Card } from 'primeng/card';
     DatePickerModule,
     FloatLabel,
     ConfirmDialogComponent,
-    Card,
-  ],
+    Card
+  ]
 })
 export class SalesComponent implements OnInit, AfterViewInit {
   protected typeVentes: string[] = ['TOUT', 'VNO', 'VO'];
@@ -116,8 +116,8 @@ export class SalesComponent implements OnInit, AfterViewInit {
       {
         label: 'Fiche à partir csv',
         icon: 'pi pi-file-pdf',
-        command: () => console.error('print all record'),
-      },
+        command: () => console.error('print all record')
+      }
     ];
   }
 
@@ -132,7 +132,7 @@ export class SalesComponent implements OnInit, AfterViewInit {
             this.loadPage();
           }
         },
-        '45%',
+        '45%'
       );
     }
   }
@@ -169,18 +169,18 @@ export class SalesComponent implements OnInit, AfterViewInit {
         items: [
           {
             label: 'Modifier la vente',
-            icon: 'pi pi-pencil',
+            icon: 'pi pi-pencil'
           },
           {
             label: 'Modifier la date de vente',
-            icon: 'pi pi-calendar-plus',
+            icon: 'pi pi-calendar-plus'
           },
           {
             label: 'Modifier les informations du client',
-            icon: 'pi pi-user-edit',
-          },
-        ],
-      },
+            icon: 'pi pi-user-edit'
+          }
+        ]
+      }
     ];
   }
 
@@ -211,12 +211,12 @@ export class SalesComponent implements OnInit, AfterViewInit {
       this.modalService,
       CustomerEditModalComponent,
       {
-        sale: currSale,
+        sale: currSale
       },
       () => {
         this.loadPage();
       },
-      'xl',
+      'xl'
     );
   }
 
@@ -284,7 +284,7 @@ export class SalesComponent implements OnInit, AfterViewInit {
       fromHour: this.fromHour,
       toHour: this.toHour,
       global: this.global,
-      userId: this.selectedUserId,
+      userId: this.selectedUserId
     };
 
     this.router.navigate(['/sales'], { queryParams });
@@ -309,11 +309,11 @@ export class SalesComponent implements OnInit, AfterViewInit {
         fromHour: this.fromHour,
         toHour: this.toHour,
         global: this.global,
-        userId: this.selectedUserId,
+        userId: this.selectedUserId
       })
       .subscribe({
         next: (res: HttpResponse<ISales[]>) => this.onSuccess(res.body, res.headers, page),
-        error: () => this.onError(),
+        error: () => this.onError()
       });
   }
 
@@ -326,7 +326,7 @@ export class SalesComponent implements OnInit, AfterViewInit {
       toDate: this.toDate,
       fromHour: this.fromHour,
       toHour: this.toHour,
-      selectedUserId: this.selectedUserId,
+      selectedUserId: this.selectedUserId
     });
   }
 }

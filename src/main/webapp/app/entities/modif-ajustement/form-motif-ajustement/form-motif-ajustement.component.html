@@ -1,35 +1,36 @@
 <jhi-toast-alert #alert></jhi-toast-alert>
 <div class="modal-header">
-  <h4 class="modal-title">{{header}}</h4>
+  <h4 class="modal-title">{{ header }}</h4>
   <button (click)="cancel()" aria-label="Close" class="btn-close" type="button">
     <span aria-hidden="true">&times;</span>
   </button>
 </div>
 <form (ngSubmit)="save()" [formGroup]="editForm" name="editForm" novalidate role="form">
- <div class="modal-body">
-   <p-card>
-     <div class="p-col-12">
-       <div [hidden]="!editForm.get('id')!.value" class="form-group">
-         <input class="form-control" formControlName="id" id="id" name="id" readonly type="hidden" />
-       </div>
+  <div class="modal-body">
+    <p-card>
+      <div class="p-col-12">
+        <div [hidden]="!editForm.get('id')!.value" class="form-group">
+          <input class="form-control" formControlName="id" id="id" name="id" readonly type="hidden" />
+        </div>
 
 
-       <div class="p-fluid p-formgrid p-grid">
-         <div class="p-field p-col">
-           <label class="col-auto col-form-label">Libellé<span style="font-weight: 900; color: red">*</span></label>
-           <input #libelle autocomplete="off" class="form-control" formControlName="libelle" name="libelle" pInputText type="text" />
-           @if (editForm.get('libelle')!.invalid && (editForm.get('libelle')!.dirty || editForm.get('libelle')!.touched)) {
-             <div>
-               @if (editForm.get('libelle')?.errors?.required) {
-                 <small class="form-text text-danger" style="color: red"> Ce champ est obligatoire. </small>
-               }
-             </div>
-           }
-         </div>
-       </div>
-     </div>
-   </p-card>
- </div>
+        <div class="p-fluid p-formgrid p-grid">
+          <div class="p-field p-col">
+            <label class="col-auto col-form-label">Libellé<span style="font-weight: 900; color: red">*</span></label>
+            <input #libelle autocomplete="off" class="form-control" formControlName="libelle" name="libelle" pInputText
+                   type="text" />
+            @if (editForm.get('libelle')!.invalid && (editForm.get('libelle')!.dirty || editForm.get('libelle')!.touched)) {
+              <div>
+                @if (editForm.get('libelle')?.errors?.required) {
+                  <small class="form-text text-danger" style="color: red"> Ce champ est obligatoire. </small>
+                }
+              </div>
+            }
+          </div>
+        </div>
+      </div>
+    </p-card>
+  </div>
   <div class="modal-footer">
     <p-button
       (click)="cancel()"

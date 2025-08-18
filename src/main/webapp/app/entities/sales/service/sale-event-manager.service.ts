@@ -5,15 +5,16 @@ import { filter, share } from 'rxjs/operators';
 export class SaleEvent<T> {
   constructor(
     public name: string,
-    public content: T,
-  ) {}
+    public content: T
+  ) {
+  }
 }
 
 /**
  * An utility class to manage RX events
  */
 @Injectable({
-  providedIn: 'root',
+  providedIn: 'root'
 })
 export class SaleEventManager {
   observable: Observable<SaleEvent<any>>;
@@ -52,7 +53,7 @@ export class SaleEventManager {
             }
           }
           return false;
-        }),
+        })
       )
       .subscribe(callback);
   }

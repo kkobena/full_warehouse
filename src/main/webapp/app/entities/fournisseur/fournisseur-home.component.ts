@@ -1,7 +1,14 @@
 import { Component } from '@angular/core';
 import { Card } from 'primeng/card';
 import { Divider } from 'primeng/divider';
-import { NgbNav, NgbNavContent, NgbNavItem, NgbNavLink, NgbNavLinkBase, NgbNavOutlet } from '@ng-bootstrap/ng-bootstrap';
+import {
+  NgbNav,
+  NgbNavContent,
+  NgbNavItem,
+  NgbNavLink,
+  NgbNavLinkBase,
+  NgbNavOutlet
+} from '@ng-bootstrap/ng-bootstrap';
 import { FournisseurComponent } from './fournisseur.component';
 import { GroupeFournisseurComponent } from '../groupe-fournisseur/groupe-fournisseur.component';
 
@@ -17,9 +24,9 @@ import { GroupeFournisseurComponent } from '../groupe-fournisseur/groupe-fournis
     NgbNavLinkBase,
     FournisseurComponent,
     GroupeFournisseurComponent,
-    NgbNavOutlet,
+    NgbNavOutlet
   ],
-  templateUrl: './fournisseur-home.component.html',
+  templateUrl: './fournisseur-home.component.html'
 })
 export class FournisseurHomeComponent {
   protected active = 'fournisseur';

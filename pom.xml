@@ -274,29 +274,7 @@
       <groupId>com.google.zxing</groupId>
       <version>3.5.3</version>
     </dependency>
-    <!-- word lib -->
-    <!-- <dependency>
-       <artifactId>docx4j</artifactId>
-       <exclusions>
-         <exclusion>
-           <artifactId>slf4j-reload4j</artifactId>
-           <groupId>org.slf4j</groupId>
-         </exclusion>
-       </exclusions>
-       <groupId>org.docx4j</groupId>
-       <version>6.1.2</version>
-     </dependency>-->
-    <!-- excel lib -->
-    <!--   <dependency>
-         <artifactId>logback-classic</artifactId>
-         <groupId>ch.qos.logback</groupId>
-         <version>1.4.14</version> &lt;!&ndash; compatible SLF4J 2.0 &ndash;&gt;
-       </dependency>-->
-    <!--<dependency>
-      <artifactId>opencsv</artifactId>
-      <groupId>com.opencsv</groupId>
-      <version>5.11.2</version>
-    </dependency>-->
+
     <dependency>
       <artifactId>easyexcel</artifactId>
       <exclusions>
@@ -388,18 +366,6 @@
       <groupId>org.apache.pdfbox</groupId>
       <version>3.0.2</version>
     </dependency>
-
-    <!--    <dependency>-->
-    <!--      <artifactId>jhipster-framework</artifactId>-->
-    <!--      <exclusions>-->
-    <!--        <exclusion>-->
-    <!--          <artifactId>liquibase-core</artifactId>-->
-    <!--          <groupId>org.liquibase</groupId>-->
-    <!--        </exclusion>-->
-    <!--      </exclusions>-->
-    <!--      <groupId>tech.jhipster</groupId>-->
-    <!--      <version>${jhipster-framework.version}</version>-->
-    <!--    </dependency>-->
     <dependency>
       <artifactId>spring-boot-configuration-processor</artifactId>
       <groupId>org.springframework.boot</groupId>
@@ -438,23 +404,12 @@
       <groupId>org.springframework.boot</groupId>
       <scope>test</scope>
     </dependency>
-    <!--<dependency>
-      <artifactId>jboss-threads</artifactId>
-      <groupId>org.jboss.threads</groupId>
-      <version>3.9.1</version>
-    </dependency>-->
     <dependency>
       <artifactId>spring-boot-starter-thymeleaf</artifactId>
       <groupId>org.springframework.boot</groupId>
     </dependency>
     <dependency>
       <artifactId>spring-boot-starter-undertow</artifactId>
-      <!--   <exclusions>
-           <exclusion>
-             <artifactId>jboss-threads</artifactId>
-             <groupId>org.jboss.threads</groupId>
-           </exclusion>
-         </exclusions>-->
       <groupId>org.springframework.boot</groupId>
     </dependency>
     <dependency>
@@ -490,14 +445,6 @@
       <groupId>org.springdoc</groupId>
       <version>${springdoc-openapi-starter-webmvc-api.version}</version>
     </dependency>
-    <!-- <dependency>
-       <artifactId>jackson-datatype-hibernate6</artifactId>
-       <groupId>com.fasterxml.jackson.datatype</groupId>
-     </dependency>-->
-    <!-- <dependency>
-       <artifactId>jackson-datatype-hppc</artifactId>
-       <groupId>com.fasterxml.jackson.datatype</groupId>
-     </dependency>-->
     <dependency>
       <artifactId>jackson-datatype-jsr310</artifactId>
       <groupId>com.fasterxml.jackson.datatype</groupId>

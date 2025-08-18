@@ -20,7 +20,7 @@ import { ErrorService } from '../../../shared/error.service';
   styleUrls: ['../../common-modal.component.scss'],
   imports: [CommonModule, FormsModule, ReactiveFormsModule, ButtonModule, InputTextModule, RippleModule, ToastAlertComponent, Card]
 })
-export class FormFormeProduitComponent implements OnInit,AfterViewInit {
+export class FormFormeProduitComponent implements OnInit, AfterViewInit {
 
   entity: IFormProduit | null = null;
   header: string = '';
@@ -42,11 +42,13 @@ export class FormFormeProduitComponent implements OnInit,AfterViewInit {
       this.updateForm(this.entity);
     }
   }
+
   ngAfterViewInit(): void {
     setTimeout(() => {
       this.libelle().nativeElement.focus();
     }, 100);
   }
+
   protected updateForm(entity: IFormProduit): void {
     this.editForm.patchValue({
       id: entity.id,

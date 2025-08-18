@@ -27,8 +27,8 @@ import { takeUntil } from 'rxjs/operators';
     InputTextModule,
     TooltipModule,
     IconField,
-    InputIcon,
-  ],
+    InputIcon
+  ]
 })
 export class TiersPayantCustomerListComponent implements OnInit, OnDestroy {
   ref = inject(DynamicDialogRef);
@@ -42,7 +42,8 @@ export class TiersPayantCustomerListComponent implements OnInit, OnDestroy {
   /** Inserted by Angular inject() migration for backwards compatibility */
   constructor(...args: unknown[]);
 
-  constructor() {}
+  constructor() {
+  }
 
   ngOnInit(): void {
     this.assure = this.config.data.assure;

@@ -28,9 +28,9 @@ import { ErrorService } from '../../../shared/error.service';
     ToggleSwitch,
     ConfirmDialogComponent,
     ToastAlertComponent,
-    Panel,
+    Panel
   ],
-  templateUrl: './remise-produits.component.html',
+  templateUrl: './remise-produits.component.html'
 })
 export class RemiseProduitsComponent implements OnInit {
   protected responsedto!: IResponseDto;
@@ -41,11 +41,12 @@ export class RemiseProduitsComponent implements OnInit {
   private readonly confimDialog = viewChild.required<ConfirmDialogComponent>('confirmDialog');
   private readonly alert = viewChild.required<ToastAlertComponent>('alert');
   private readonly errorService = inject(ErrorService);
+
   loadPage(): void {
     this.loading = true;
     this.entityService.query({ typeRemise: 'PRODUIT' }).subscribe({
       next: (res: HttpResponse<IRemise[]>) => this.onSuccess(res.body),
-      error: () => this.onError(),
+      error: () => this.onError()
     });
   }
 
@@ -61,7 +62,7 @@ export class RemiseProduitsComponent implements OnInit {
         });
       },
       'Confirmation',
-      'Voulez-vous supprimer cet enregistrement ?',
+      'Voulez-vous supprimer cet enregistrement ?'
     );
   }
 
@@ -69,7 +70,7 @@ export class RemiseProduitsComponent implements OnInit {
     const modalRef = this.ngModalService.open(RemiseProduitFormModalComponent, {
       backdrop: 'static',
       size: 'lg',
-      centered: true,
+      centered: true
     });
     modalRef.componentInstance.entity = remise;
     modalRef.componentInstance.title = remise?.id ? 'Modifier la remise' : 'Ajouter une remise produit';
@@ -134,7 +135,7 @@ export class RemiseProduitsComponent implements OnInit {
   private subscribeToSaveResponse(result: Observable<HttpResponse<IRemise>>): void {
     result.subscribe({
       next: () => this.onSaveSuccess(),
-      error: err => this.onSaveError(err),
+      error: err => this.onSaveError(err)
     });
   }
 }

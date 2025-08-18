@@ -10,6 +10,7 @@ import jakarta.persistence.Enumerated;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 import jakarta.persistence.UniqueConstraint;
@@ -45,6 +46,7 @@ public class ClientTiersPayant implements Serializable {
 
     @NotNull
     @ManyToOne(optional = false)
+    @JoinColumn(name = "assured_customer_id", referencedColumnName = "id")
     private AssuredCustomer assuredCustomer;
 
     @Column(name = "num", nullable = false, length = 100)

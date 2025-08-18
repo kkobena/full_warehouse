@@ -6,6 +6,7 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
 import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 import jakarta.validation.constraints.NotNull;
@@ -42,6 +43,7 @@ public class AppConfiguration implements Serializable {
     private LocalDateTime updated = LocalDateTime.now();
 
     @ManyToOne
+    @JoinColumn(name = "validated_by_id", referencedColumnName = "id")
     private User validatedBy;
 
     @Column(name = "other_value")

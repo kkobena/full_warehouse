@@ -1,12 +1,12 @@
-import {inject} from '@angular/core';
-import {HttpResponse} from '@angular/common/http';
-import {ActivatedRouteSnapshot, Router, Routes} from '@angular/router';
-import {EMPTY, mergeMap, Observable, of} from 'rxjs';
+import { inject } from '@angular/core';
+import { HttpResponse } from '@angular/common/http';
+import { ActivatedRouteSnapshot, Router, Routes } from '@angular/router';
+import { EMPTY, mergeMap, Observable, of } from 'rxjs';
 
-import {Authority} from 'app/shared/constants/authority.constants';
-import {UserRouteAccessService} from 'app/core/auth/user-route-access.service';
-import {Commande, ICommande} from 'app/shared/model/commande.model';
-import {CommandeService} from './commande.service';
+import { Authority } from 'app/shared/constants/authority.constants';
+import { UserRouteAccessService } from 'app/core/auth/user-route-access.service';
+import { Commande, ICommande } from 'app/shared/model/commande.model';
+import { CommandeService } from './commande.service';
 
 
 import SuggestionResolver from './suggestion/suggestion.resolver';
@@ -25,7 +25,7 @@ export const CommandeResolve = (route: ActivatedRouteSnapshot): Observable<null 
               inject(Router).navigate(['404']);
               return EMPTY;
             }
-          }),
+          })
         );
     }
     return inject(CommandeService)
@@ -38,7 +38,7 @@ export const CommandeResolve = (route: ActivatedRouteSnapshot): Observable<null 
             inject(Router).navigate(['404']);
             return EMPTY;
           }
-        }),
+        })
       );
   }
   return of(new Commande());
@@ -51,9 +51,9 @@ const commandeRoute: Routes = [
     data: {
       authorities: [Authority.ADMIN, Authority.COMMANDE],
       defaultSort: 'id,asc',
-      pageTitle: 'warehouseApp.commande.home.title',
+      pageTitle: 'warehouseApp.commande.home.title'
     },
-    canActivate: [UserRouteAccessService],
+    canActivate: [UserRouteAccessService]
   },
 
   {
@@ -65,25 +65,25 @@ const commandeRoute: Routes = [
     this.router.navigate(['./', product.id], { relativeTo: this.route });
     */
     resolve: {
-      commande: CommandeResolve,
+      commande: CommandeResolve
     },
     data: {
       authorities: [Authority.ADMIN, Authority.COMMANDE],
-      pageTitle: 'warehouseApp.commande.home.title',
+      pageTitle: 'warehouseApp.commande.home.title'
     },
-    canActivate: [UserRouteAccessService],
+    canActivate: [UserRouteAccessService]
   },
   {
     path: ':id/edit',
     loadComponent: () => import('./commande-update.component').then(m => m.CommandeUpdateComponent),
     resolve: {
-      commande: CommandeResolve,
+      commande: CommandeResolve
     },
     data: {
       authorities: [Authority.ADMIN, Authority.COMMANDE],
-      pageTitle: 'warehouseApp.commande.home.title',
+      pageTitle: 'warehouseApp.commande.home.title'
     },
-    canActivate: [UserRouteAccessService],
+    canActivate: [UserRouteAccessService]
   },
 
 
@@ -91,14 +91,14 @@ const commandeRoute: Routes = [
     path: ':id/suggestion',
     loadComponent: () => import('./suggestion/edit-suggestion.component').then(m => m.EditSuggestionComponent),
     resolve: {
-      suggestion: SuggestionResolver,
+      suggestion: SuggestionResolver
     },
     data: {
       authorities: [Authority.ADMIN, Authority.COMMANDE],
-      pageTitle: 'warehouseApp.commande.home.title',
+      pageTitle: 'warehouseApp.commande.home.title'
     },
-    canActivate: [UserRouteAccessService],
-  },
+    canActivate: [UserRouteAccessService]
+  }
 ];
 
 export default commandeRoute;

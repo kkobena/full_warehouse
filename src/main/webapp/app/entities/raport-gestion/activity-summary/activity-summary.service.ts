@@ -11,7 +11,7 @@ import { AchatTiersPayant } from './model/achat-tiers-payant.model';
 import { ChiffreAffaire } from './model/chiffre-affaire.model';
 
 @Injectable({
-  providedIn: 'root',
+  providedIn: 'root'
 })
 export class ActivitySummaryService {
   private readonly http = inject(HttpClient);
@@ -21,6 +21,7 @@ export class ActivitySummaryService {
     const options = createRequestOptions(req);
     return this.http.get<ChiffreAffaire>(this.resourceUrl + '/ca', { params: options, observe: 'response' });
   }
+
   queryRecettes(req?: any): Observable<HttpResponse<Recette[]>> {
     const options = createRequestOptions(req);
     return this.http.get<Recette[]>(this.resourceUrl + '/recettes', { params: options, observe: 'response' });
@@ -28,20 +29,34 @@ export class ActivitySummaryService {
 
   getMouvementsCaisse(req?: any): Observable<HttpResponse<MouvementCaisse[]>> {
     const options = createRequestOptions(req);
-    return this.http.get<MouvementCaisse[]>(this.resourceUrl + '/mouvements-caisse', { params: options, observe: 'response' });
+    return this.http.get<MouvementCaisse[]>(this.resourceUrl + '/mouvements-caisse', {
+      params: options,
+      observe: 'response'
+    });
   }
 
   getGroupeFournisseurAchat(req?: any): Observable<HttpResponse<GroupeFournisseurAchat[]>> {
     const options = createRequestOptions(req);
-    return this.http.get<GroupeFournisseurAchat[]>(this.resourceUrl + '/achats', { params: options, observe: 'response' });
+    return this.http.get<GroupeFournisseurAchat[]>(this.resourceUrl + '/achats', {
+      params: options,
+      observe: 'response'
+    });
   }
+
   getReglementTiersPayants(req?: any): Observable<HttpResponse<ReglementTiersPayant[]>> {
     const options = createRequestOptions(req);
-    return this.http.get<ReglementTiersPayant[]>(this.resourceUrl + '/reglements-tiers-payants', { params: options, observe: 'response' });
+    return this.http.get<ReglementTiersPayant[]>(this.resourceUrl + '/reglements-tiers-payants', {
+      params: options,
+      observe: 'response'
+    });
   }
+
   getAchatTiersPayant(req?: any): Observable<HttpResponse<AchatTiersPayant[]>> {
     const options = createRequestOptions(req);
-    return this.http.get<AchatTiersPayant[]>(this.resourceUrl + '/achats-tiers-payants', { params: options, observe: 'response' });
+    return this.http.get<AchatTiersPayant[]>(this.resourceUrl + '/achats-tiers-payants', {
+      params: options,
+      observe: 'response'
+    });
   }
 
   onPrintPdf(req?: any): Observable<Blob> {

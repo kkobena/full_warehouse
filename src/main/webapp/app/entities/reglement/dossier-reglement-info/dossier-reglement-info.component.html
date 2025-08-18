@@ -27,15 +27,16 @@
       @if (dossierFactureProjection().montantDetailRegle > 0) {
         <li class="list-group-item d-flex justify-content-between align-items-center">
           Montant payé
-          <span class="montant-paye montant text-success">{{ dossierFactureProjection().montantDetailRegle | number }}</span>
+          <span
+            class="montant-paye montant text-success">{{ dossierFactureProjection().montantDetailRegle | number }}</span>
         </li>
       }
 
       <li class="list-group-item d-flex justify-content-between align-items-center">
         Montant restant
         <span class="montant text-primary">{{
-          dossierFactureProjection().montantTotal - dossierFactureProjection().montantDetailRegle | number
-        }}</span>
+            dossierFactureProjection().montantTotal - dossierFactureProjection().montantDetailRegle | number
+          }}</span>
       </li>
 
       <li class="list-group-item d-flex justify-content-between align-items-center">

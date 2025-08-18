@@ -20,7 +20,7 @@ export const RemiseResolve = (route: ActivatedRouteSnapshot): Observable<null | 
             inject(Router).navigate(['404']);
             return EMPTY;
           }
-        }),
+        })
       );
   }
   return of(new Remise());
@@ -31,9 +31,9 @@ const remiseRoute: Routes = [
     loadComponent: () => import('./remise-nav/remise-nav.component').then(m => m.RemiseNavComponent),
     data: {
       authorities: [Authority.ADMIN, Authority.REMISE],
-      defaultSort: 'id,asc',
+      defaultSort: 'id,asc'
     },
-    canActivate: [UserRouteAccessService],
-  },
+    canActivate: [UserRouteAccessService]
+  }
 ];
 export default remiseRoute;

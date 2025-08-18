@@ -21,7 +21,7 @@ export const ProduitResolve = (route: ActivatedRouteSnapshot): Observable<null |
             inject(Router).navigate(['404']);
             return EMPTY;
           }
-        }),
+        })
       );
   }
   return of(new Produit());
@@ -32,65 +32,65 @@ const produitRoute: Routes = [
     loadComponent: () => import('./produit.component').then(m => m.ProduitComponent),
     data: {
       authorities: [Authority.ADMIN, Authority.COMMANDE, Authority.PRODUIT],
-      defaultSort: 'id,asc',
+      defaultSort: 'id,asc'
     },
-    canActivate: [UserRouteAccessService],
+    canActivate: [UserRouteAccessService]
   },
   {
     path: ':id/view',
     loadComponent: () => import('./transaction/transaction.component').then(m => m.TransactionComponent),
     resolve: {
-      produit: ProduitResolve,
+      produit: ProduitResolve
     },
     data: {
-      authorities: [Authority.ADMIN, Authority.COMMANDE, Authority.PRODUIT],
+      authorities: [Authority.ADMIN, Authority.COMMANDE, Authority.PRODUIT]
     },
-    canActivate: [UserRouteAccessService],
+    canActivate: [UserRouteAccessService]
   },
   {
     path: 'transaction',
     loadComponent: () => import('./transaction/transaction.component').then(m => m.TransactionComponent),
     resolve: {
-      produit: ProduitResolve,
+      produit: ProduitResolve
     },
     data: {
-      authorities: [Authority.ADMIN, Authority.COMMANDE, Authority.PRODUIT],
+      authorities: [Authority.ADMIN, Authority.COMMANDE, Authority.PRODUIT]
     },
-    canActivate: [UserRouteAccessService],
+    canActivate: [UserRouteAccessService]
   },
   {
     path: 'new',
     loadComponent: () => import('./produit-update.component').then(m => m.ProduitUpdateComponent),
     resolve: {
-      produit: ProduitResolve,
+      produit: ProduitResolve
     },
     data: {
-      authorities: [Authority.ADMIN, Authority.COMMANDE, Authority.PRODUIT],
+      authorities: [Authority.ADMIN, Authority.COMMANDE, Authority.PRODUIT]
     },
-    canActivate: [UserRouteAccessService],
+    canActivate: [UserRouteAccessService]
   },
   {
     path: ':id/edit',
     loadComponent: () => import('./produit-update.component').then(m => m.ProduitUpdateComponent),
     resolve: {
-      produit: ProduitResolve,
+      produit: ProduitResolve
     },
     data: {
-      authorities: [Authority.ADMIN, Authority.COMMANDE, Authority.PRODUIT],
+      authorities: [Authority.ADMIN, Authority.COMMANDE, Authority.PRODUIT]
     },
-    canActivate: [UserRouteAccessService],
+    canActivate: [UserRouteAccessService]
   },
 
   {
     path: ':id/detail',
     loadComponent: () => import('./detail-produit-form/detail-produit-form.component').then(m => m.DetailProduitFormComponent),
     resolve: {
-      produit: ProduitResolve,
+      produit: ProduitResolve
     },
     data: {
-      authorities: [Authority.ADMIN, Authority.COMMANDE, Authority.PRODUIT],
+      authorities: [Authority.ADMIN, Authority.COMMANDE, Authority.PRODUIT]
     },
-    canActivate: [UserRouteAccessService],
-  },
+    canActivate: [UserRouteAccessService]
+  }
 ];
 export default produitRoute;

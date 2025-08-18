@@ -22,7 +22,7 @@ import { finalize } from 'rxjs/operators';
   selector: 'jhi-add-prix-form',
   imports: [ButtonModule, ReactiveFormsModule, Select, InputNumber, ToggleSwitch, Card, ToastAlertComponent],
   templateUrl: './add-prix-form.component.html',
-   styleUrls: ['../../common-modal.component.scss']
+  styleUrls: ['../../common-modal.component.scss']
 })
 export class AddPrixFormComponent implements OnInit, AfterViewInit {
   produit: IProduit | null = null;

@@ -1,5 +1,5 @@
 import { HttpClient, HttpResponse } from '@angular/common/http';
-import { Injectable, inject } from '@angular/core';
+import { inject, Injectable } from '@angular/core';
 import { lastValueFrom, Observable } from 'rxjs';
 import { SERVER_API_URL } from '../../app.constants';
 import { IRayon } from '../../shared/model/rayon.model';
@@ -10,7 +10,7 @@ type EntityResponseType = HttpResponse<IRayon>;
 type EntityArrayResponseType = HttpResponse<IRayon[]>;
 
 @Injectable({
-  providedIn: 'root',
+  providedIn: 'root'
 })
 export class RayonService {
   protected http = inject(HttpClient);

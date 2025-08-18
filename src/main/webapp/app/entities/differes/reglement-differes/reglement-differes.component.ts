@@ -38,9 +38,9 @@ import { DatePickerModule } from 'primeng/datepicker';
     RouterModule,
     Tag,
     FloatLabel,
-    DatePickerModule,
+    DatePickerModule
   ],
-  templateUrl: './reglement-differes.component.html',
+  templateUrl: './reglement-differes.component.html'
 })
 export class ReglementDifferesComponent implements OnInit, OnDestroy {
   protected page = 0;
@@ -104,7 +104,7 @@ export class ReglementDifferesComponent implements OnInit, OnDestroy {
         },
         error: () => {
           this.loadingPdf = false;
-        },
+        }
       });
   }
 
@@ -117,7 +117,7 @@ export class ReglementDifferesComponent implements OnInit, OnDestroy {
         .getReglementsDifferes({
           page: this.page,
           size: event.rows,
-          ...this.buildQueryParams(),
+          ...this.buildQueryParams()
         })
         .pipe(takeUntil(this.destroy$))
         .subscribe({
@@ -125,7 +125,7 @@ export class ReglementDifferesComponent implements OnInit, OnDestroy {
           error: () => {
             this.loading = false;
             this.loadingBtn = false;
-          },
+          }
         });
     }
   }
@@ -138,7 +138,7 @@ export class ReglementDifferesComponent implements OnInit, OnDestroy {
       .getReglementsDifferes({
         page: pageToLoad,
         size: this.itemsPerPage,
-        ...this.buildQueryParams(),
+        ...this.buildQueryParams()
       })
       .pipe(takeUntil(this.destroy$))
       .subscribe({
@@ -146,7 +146,7 @@ export class ReglementDifferesComponent implements OnInit, OnDestroy {
         error: () => {
           this.loading = false;
           this.loadingBtn = false;
-        },
+        }
       });
   }
 
@@ -165,7 +165,7 @@ export class ReglementDifferesComponent implements OnInit, OnDestroy {
         },
         error: () => {
           this.clients = [];
-        },
+        }
       });
   }
 
@@ -192,7 +192,7 @@ export class ReglementDifferesComponent implements OnInit, OnDestroy {
       customerId: this.customerId,
 
       fromDate: this.modelStartDate,
-      toDate: this.modelEndDate,
+      toDate: this.modelEndDate
     });
     return params;
   }
@@ -207,7 +207,7 @@ export class ReglementDifferesComponent implements OnInit, OnDestroy {
         },
         error: () => {
           this.summary = null;
-        },
+        }
       });
   }
 }

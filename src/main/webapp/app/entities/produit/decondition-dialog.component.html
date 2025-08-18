@@ -28,7 +28,8 @@
       @if (editForm.get('qtyMvt')!.invalid && (editForm.get('qtyMvt')!.dirty || editForm.get('qtyMvt')!.touched)) {
         <div>
           @if (editForm.get('qtyMvt')?.errors?.required) {
-            <small class="form-text text-danger" jhiTranslate="entity.validation.required"> This field is required. </small>
+            <small class="form-text text-danger" jhiTranslate="entity.validation.required"> This field is
+              required. </small>
           }
         </div>
       }
@@ -40,7 +41,8 @@
       <fa-icon icon="ban"></fa-icon>&nbsp;<span jhiTranslate="entity.action.cancel">Cancel</span>
     </button>
 
-    <button [disabled]="editForm.invalid || isSaving || isNotValid" class="btn btn-primary" id="save-entity" type="submit">
+    <button [disabled]="editForm.invalid || isSaving || isNotValid" class="btn btn-primary" id="save-entity"
+            type="submit">
       <fa-icon icon="times"></fa-icon>&nbsp;<span>Sauvegarder</span>
     </button>
   </div>

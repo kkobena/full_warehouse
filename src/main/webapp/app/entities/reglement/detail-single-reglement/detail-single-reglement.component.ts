@@ -15,7 +15,7 @@ import { InputIcon } from 'primeng/inputicon';
   selector: 'jhi-detail-single-reglement',
   imports: [FormsModule, ReactiveFormsModule, InputTextModule, PanelModule, PrimeTemplate, TableModule, IconField, InputIcon],
   templateUrl: './detail-single-reglement.component.html',
-  styles: ``,
+  styles: ``
 })
 export class DetailSingleReglementComponent implements OnInit {
   modalService = inject(NgbModal);

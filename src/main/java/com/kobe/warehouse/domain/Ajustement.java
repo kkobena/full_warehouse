@@ -9,6 +9,7 @@ import jakarta.persistence.Enumerated;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 import jakarta.persistence.UniqueConstraint;
@@ -63,6 +64,7 @@ public class Ajustement implements Serializable {
     private Ajust ajust;
 
     @ManyToOne
+    @JoinColumn(name = "motif_ajustement_id", referencedColumnName = "id")
     private MotifAjustement motifAjustement;
 
     public Long getId() {

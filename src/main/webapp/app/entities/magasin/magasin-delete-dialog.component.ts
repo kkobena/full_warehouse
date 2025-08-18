@@ -8,7 +8,7 @@ import { FormsModule } from '@angular/forms';
 
 @Component({
   templateUrl: './magasin-delete-dialog.component.html',
-  imports: [WarehouseCommonModule, FormsModule],
+  imports: [WarehouseCommonModule, FormsModule]
 })
 export class MagasinDeleteDialogComponent {
   activeModal = inject(NgbActiveModal);

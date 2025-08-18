@@ -5,6 +5,7 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 import jakarta.persistence.UniqueConstraint;
@@ -23,6 +24,7 @@ public class TiersPayantPrix implements java.io.Serializable {
     private Long id;
 
     @ManyToOne(optional = false)
+    @JoinColumn(name = "option_prix_produit_id", referencedColumnName = "id")
     private OptionPrixProduit optionPrixProduit;
 
     @Column(name = "prix", nullable = false)
@@ -33,6 +35,7 @@ public class TiersPayantPrix implements java.io.Serializable {
 
     @NotNull
     @ManyToOne(optional = false)
+    @JoinColumn(name = "sale_line_id", referencedColumnName = "id")
     private SalesLine saleLine;
 
     public Long getId() {

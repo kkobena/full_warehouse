@@ -2,16 +2,16 @@ import { Injectable, signal, WritableSignal } from '@angular/core';
 import { ITypePrescription } from '../../../shared/model/prescription-vente.model';
 
 @Injectable({
-  providedIn: 'root',
+  providedIn: 'root'
 })
 export class TypePrescriptionService {
   typePrescription: WritableSignal<ITypePrescription> = signal<ITypePrescription>({
     code: 'PRESCRIPTION',
-    name: 'Prescription',
+    name: 'Prescription'
   });
   typePrescriptionDefault: WritableSignal<ITypePrescription> = signal<ITypePrescription>({
     code: 'PRESCRIPTION',
-    name: 'Prescription',
+    name: 'Prescription'
   });
 
   setTypePrescription(typePrescription: ITypePrescription): void {

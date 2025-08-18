@@ -50,8 +50,8 @@ import { finalize } from 'rxjs/operators';
     InputIcon,
     Panel,
     ConfirmDialogComponent,
-    ToastAlertComponent,
-  ],
+    ToastAlertComponent
+  ]
 })
 export class GroupeFournisseurComponent implements OnInit {
   protected responsedto!: IResponseDto;
@@ -68,6 +68,7 @@ export class GroupeFournisseurComponent implements OnInit {
   private readonly alert = viewChild.required<ToastAlertComponent>('alert');
   private readonly modalService = inject(NgbModal);
   private readonly spinner = inject(SpinerService);
+
   ngOnInit(): void {
     this.loadPage();
   }
@@ -80,11 +81,11 @@ export class GroupeFournisseurComponent implements OnInit {
       .query({
         page: pageToLoad,
         size: this.itemsPerPage,
-        search: query,
+        search: query
       })
       .subscribe({
         next: (res: HttpResponse<IGroupeFournisseur[]>) => this.onSuccess(res.body, res.headers, pageToLoad),
-        error: () => this.onError(),
+        error: () => this.onError()
       });
   }
 
@@ -95,11 +96,11 @@ export class GroupeFournisseurComponent implements OnInit {
       .query({
         page: this.page,
         size: event.rows,
-        search: '',
+        search: ''
       })
       .subscribe({
         next: (res: HttpResponse<IGroupeFournisseur[]>) => this.onSuccess(res.body, res.headers, this.page),
-        error: () => this.onError(),
+        error: () => this.onError()
       });
   }
 
@@ -111,7 +112,7 @@ export class GroupeFournisseurComponent implements OnInit {
         });
       },
       'Confirmation',
-      'Êtes-vous sûr de vouloir supprimer cet groupe .',
+      'Êtes-vous sûr de vouloir supprimer cet groupe .'
     );
   }
 
@@ -121,12 +122,12 @@ export class GroupeFournisseurComponent implements OnInit {
       FormGroupeFournisseurComponent,
       {
         entity: entity,
-        header: `FORMULAIRE DE MODIFICATION DE ${entity.libelle}`,
+        header: `FORMULAIRE DE MODIFICATION DE ${entity.libelle}`
       },
       () => {
         this.loadPage();
       },
-      'xl',
+      'xl'
     );
   }
 
@@ -150,12 +151,12 @@ export class GroupeFournisseurComponent implements OnInit {
       FormGroupeFournisseurComponent,
       {
         entity: null,
-        header: 'FORMULAIRE DE CREATION DE GROUPE FOURNISSEUR ',
+        header: 'FORMULAIRE DE CREATION DE GROUPE FOURNISSEUR '
       },
       () => {
         this.loadPage(0);
       },
-      'xl',
+      'xl'
     );
   }
 
@@ -168,14 +169,14 @@ export class GroupeFournisseurComponent implements OnInit {
         this.spinner.show();
         this.uploadFileResponse(this.entityService.uploadFile(result));
       },
-      'xl',
+      'xl'
     );
   }
 
   private uploadFileResponse(result: Observable<HttpResponse<IResponseDto>>): void {
     result.pipe(finalize(() => this.spinner.hide())).subscribe({
       next: (res: HttpResponse<IResponseDto>) => this.onPocesCsvSuccess(res.body),
-      error: () => this.onSaveError(),
+      error: () => this.onSaveError()
     });
   }
 

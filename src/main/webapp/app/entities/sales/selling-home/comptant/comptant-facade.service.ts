@@ -14,7 +14,7 @@ import { UserVendeurService } from '../../service/user-vendeur.service';
 import { SpinerService } from '../../../../shared/spiner.service';
 
 @Injectable({
-  providedIn: 'root',
+  providedIn: 'root'
 })
 export class ComptantFacadeService {
   private readonly salesService = inject(SalesService);
@@ -47,7 +47,7 @@ export class ComptantFacadeService {
         0,
         this.currentSaleService.currentSale().commentaire,
         this.currentSaleService.currentSale().avoir,
-        this.currentSaleService.currentSale().payments,
+        this.currentSaleService.currentSale().payments
       );
     }
   }
@@ -78,7 +78,7 @@ export class ComptantFacadeService {
       .pipe(finalize(() => this.spinner.hide()))
       .subscribe({
         next: (res: HttpResponse<ISales>) => this.onSaleComptantResponseSuccess(res.body),
-        error: error => this.onSaveSaveError(error, this.currentSaleService.currentSale()),
+        error: error => this.onSaveSaveError(error, this.currentSaleService.currentSale())
       });
   }
 
@@ -95,7 +95,7 @@ export class ComptantFacadeService {
     const sale = this.currentSaleService.currentSale();
     this.handleSaleUpdate(
       this.salesService.updateItemQtyRequested(salesLine).pipe(switchMap(() => this.salesService.find(sale.id))),
-      salesLine,
+      salesLine
     );
   }
 
@@ -173,7 +173,7 @@ export class ComptantFacadeService {
       .pipe(finalize(() => this.spinner.hide()))
       .subscribe({
         next: (res: HttpResponse<FinalyseSale>) => this.onFinalyseSuccess(res.body),
-        error: err => this.onFinalyseError(err),
+        error: err => this.onFinalyseError(err)
       });
   }
 
@@ -183,7 +183,7 @@ export class ComptantFacadeService {
       .pipe(finalize(() => this.spinner.hide()))
       .subscribe({
         next: (res: HttpResponse<FinalyseSale>) => this.onFinalyseSuccess(res.body, true),
-        error: err => this.onFinalyseError(err),
+        error: err => this.onFinalyseError(err)
       });
   }
 
@@ -191,7 +191,7 @@ export class ComptantFacadeService {
     this.spinner.show();
     observable.pipe(finalize(() => this.spinner.hide())).subscribe({
       next: (res: HttpResponse<ISales>) => this.onSaveSuccess(res.body),
-      error: err => this.onSaveSaveError(err, this.currentSaleService.currentSale(), payload),
+      error: err => this.onSaveSaveError(err, this.currentSaleService.currentSale(), payload)
     });
   }
 
@@ -216,7 +216,7 @@ export class ComptantFacadeService {
       cassierId: this.userCaissierService.caissier()?.id,
       sellerId: this.userVendeurService.vendeur()?.id,
       type: 'VNO',
-      categorie: 'VNO',
+      categorie: 'VNO'
     };
   }
 }

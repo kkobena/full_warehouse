@@ -6,6 +6,7 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 import jakarta.persistence.UniqueConstraint;
@@ -44,6 +45,7 @@ public class SuggestionLine implements Serializable {
     private Suggestion suggestion;
 
     @ManyToOne(optional = false)
+    @JoinColumn(name = "fournisseur_produit_id", referencedColumnName = "id")
     private FournisseurProduit fournisseurProduit;
 
     public Long getId() {

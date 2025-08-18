@@ -27,7 +27,7 @@ export class ImportProduitReponseModalComponent {
   }
 
   protected onClickLink(): void {
-    this.produitService.getRejectCsv(this.responsedto.rejectFileUrl).pipe(finalize(()=>this.activeModal.dismiss())).subscribe({
+    this.produitService.getRejectCsv(this.responsedto.rejectFileUrl).pipe(finalize(() => this.activeModal.dismiss())).subscribe({
       next: blod => {
         saveAs(new Blob([blod], { type: 'text/csv' }), this.responsedto.rejectFileUrl);
 

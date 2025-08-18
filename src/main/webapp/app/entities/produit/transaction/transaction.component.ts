@@ -1,34 +1,34 @@
-import {Component, inject, OnInit, viewChild} from '@angular/core';
-import {ButtonModule} from 'primeng/button';
-import {CardModule} from 'primeng/card';
-import {DividerModule} from 'primeng/divider';
-import {InputTextModule} from 'primeng/inputtext';
-import {NgbNav} from '@ng-bootstrap/ng-bootstrap';
-import {ToolbarModule} from 'primeng/toolbar';
-import {FormsModule} from '@angular/forms';
-import {ActivatedRoute, RouterModule} from '@angular/router';
-import {WarehouseCommonModule} from '../../../shared/warehouse-common/warehouse-common.module';
-import {PanelModule} from 'primeng/panel';
-import {AuditingComponent} from '../auditing/auditing.component';
-import {ProduitAuditingParam} from '../../../shared/model/produit-record.model';
-import {IProduit} from '../../../shared/model/produit.model';
-import {ProduitService} from '../produit.service';
-import {ProduitAuditingParamService} from './produit-auditing-param.service';
-import {BadgeModule} from 'primeng/badge';
+import { Component, inject, OnInit, viewChild } from '@angular/core';
+import { ButtonModule } from 'primeng/button';
+import { CardModule } from 'primeng/card';
+import { DividerModule } from 'primeng/divider';
+import { InputTextModule } from 'primeng/inputtext';
+import { NgbNav } from '@ng-bootstrap/ng-bootstrap';
+import { ToolbarModule } from 'primeng/toolbar';
+import { FormsModule } from '@angular/forms';
+import { ActivatedRoute, RouterModule } from '@angular/router';
+import { WarehouseCommonModule } from '../../../shared/warehouse-common/warehouse-common.module';
+import { PanelModule } from 'primeng/panel';
+import { AuditingComponent } from '../auditing/auditing.component';
+import { ProduitAuditingParam } from '../../../shared/model/produit-record.model';
+import { IProduit } from '../../../shared/model/produit.model';
+import { ProduitService } from '../produit.service';
+import { ProduitAuditingParamService } from './produit-auditing-param.service';
+import { BadgeModule } from 'primeng/badge';
 import {
   APPEND_TO,
   PRODUIT_COMBO_MIN_LENGTH,
   PRODUIT_COMBO_RESULT_SIZE,
   PRODUIT_NOT_FOUND
 } from '../../../shared/constants/pagination.constants';
-import {AutoCompleteModule} from 'primeng/autocomplete';
-import {RippleModule} from 'primeng/ripple';
-import {StatSalesComponent} from '../stat-sales/stat-sales.component';
-import {StatDeliveryComponent} from '../stat-delivery/stat-delivery.component';
-import {BackButtonComponent} from "../../../shared/cta/back-button.component";
-import {ButtonGroup} from "primeng/buttongroup";
-import {DatePickerComponent} from "../../../shared/date-picker/date-picker.component";
-import {ProduitAutocompleteComponent} from "../../../shared/produit-autocomplete/produit-autocomplete.component";
+import { AutoCompleteModule } from 'primeng/autocomplete';
+import { RippleModule } from 'primeng/ripple';
+import { StatSalesComponent } from '../stat-sales/stat-sales.component';
+import { StatDeliveryComponent } from '../stat-delivery/stat-delivery.component';
+import { BackButtonComponent } from '../../../shared/cta/back-button.component';
+import { ButtonGroup } from 'primeng/buttongroup';
+import { DatePickerComponent } from '../../../shared/date-picker/date-picker.component';
+import { ProduitAutocompleteComponent } from '../../../shared/produit-autocomplete/produit-autocomplete.component';
 
 @Component({
   selector: 'jhi-transaction',
@@ -52,10 +52,10 @@ import {ProduitAutocompleteComponent} from "../../../shared/produit-autocomplete
     BackButtonComponent,
     ButtonGroup,
     DatePickerComponent,
-    ProduitAutocompleteComponent,
+    ProduitAutocompleteComponent
   ],
   templateUrl: './transaction.component.html',
-  providers: [ProduitAuditingParamService],
+  providers: [ProduitAuditingParamService]
 })
 export class TransactionComponent implements OnInit {
   readonly auditingComponent = viewChild(AuditingComponent);
@@ -79,7 +79,7 @@ export class TransactionComponent implements OnInit {
   ngOnInit(): void {
     this.dateDebut().value = this.defaultDate;
     this.dateFin().value = this.defaultDate;
-    this.activatedRoute.data.subscribe(({produit}) => {
+    this.activatedRoute.data.subscribe(({ produit }) => {
       if (produit?.id) {
         this.produit = produit;
         const params: ProduitAuditingParam = this.buildQuery();
@@ -134,7 +134,7 @@ export class TransactionComponent implements OnInit {
     const params: ProduitAuditingParam = {
       produitId: this.produit.id,
       fromDate: this.dateDebut().submitValue,
-      toDate: this.dateFin().submitValue,
+      toDate: this.dateFin().submitValue
     };
     this.produitAuditingParamService.setParameter(params);
     return params;

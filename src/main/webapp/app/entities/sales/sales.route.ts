@@ -21,7 +21,7 @@ export const SalesResolve = (route: ActivatedRouteSnapshot): Observable<null | I
             inject(Router).navigate(['404']);
             return EMPTY;
           }
-        }),
+        })
       );
   }
   return of(new Sales());
@@ -33,67 +33,67 @@ const salesRoute: Routes = [
     data: {
       authorities: [Authority.ADMIN, Authority.SALES, Authority.ROLE_CAISSIER, Authority.ROLE_VENDEUR],
       defaultSort: 'id,asc',
-      pageTitle: 'warehouseApp.sales.home.title',
+      pageTitle: 'warehouseApp.sales.home.title'
     },
-    canActivate: [UserRouteAccessService],
+    canActivate: [UserRouteAccessService]
   },
   {
     path: ':id/view',
     loadComponent: () => import('./sales-detail.component').then(m => m.SalesDetailComponent),
     resolve: {
-      sales: SalesResolve,
+      sales: SalesResolve
     },
     data: {
       authorities: [Authority.ADMIN, Authority.SALES, Authority.ROLE_CAISSIER, Authority.ROLE_VENDEUR],
-      pageTitle: 'warehouseApp.sales.home.title',
+      pageTitle: 'warehouseApp.sales.home.title'
     },
-    canActivate: [UserRouteAccessService],
+    canActivate: [UserRouteAccessService]
   },
   {
     path: ':isPresale/new',
     loadComponent: () => import('./selling-home/selling-home.component').then(m => m.SellingHomeComponent),
     resolve: {
-      sales: SalesResolve,
+      sales: SalesResolve
     },
     data: {
-      authorities: [Authority.ADMIN, Authority.SALES, Authority.ROLE_CAISSIER, Authority.ROLE_VENDEUR],
+      authorities: [Authority.ADMIN, Authority.SALES, Authority.ROLE_CAISSIER, Authority.ROLE_VENDEUR]
     },
-    canActivate: [UserRouteAccessService],
+    canActivate: [UserRouteAccessService]
   },
   {
     path: ':id/:isPresale/edit',
     loadComponent: () => import('./selling-home/selling-home.component').then(m => m.SellingHomeComponent),
     resolve: {
-      sales: SalesResolve,
+      sales: SalesResolve
     },
     data: {
       authorities: [Authority.ADMIN, Authority.SALES, Authority.ROLE_CAISSIER, Authority.ROLE_VENDEUR],
-      mode: 'edit',
+      mode: 'edit'
     },
-    canActivate: [UserRouteAccessService],
+    canActivate: [UserRouteAccessService]
   },
   {
     path: 'presale',
     loadComponent: () => import('./presale/presale.component').then(m => m.PresaleComponent),
     resolve: {
-      sales: SalesResolve,
+      sales: SalesResolve
     },
     data: {
       authorities: [Authority.ADMIN, Authority.SALES, Authority.ROLE_CAISSIER, Authority.ROLE_VENDEUR],
-      mode: 'presale',
+      mode: 'presale'
     },
-    canActivate: [UserRouteAccessService],
+    canActivate: [UserRouteAccessService]
   },
   {
     path: 'ventes-en-cours',
     loadComponent: () => import('./vente-en-cours/vente-en-cours.component').then(m => m.VenteEnCoursComponent),
     resolve: {
-      sales: SalesResolve,
+      sales: SalesResolve
     },
     data: {
-      authorities: [Authority.ADMIN, Authority.SALES, Authority.ROLE_CAISSIER, Authority.ROLE_VENDEUR],
+      authorities: [Authority.ADMIN, Authority.SALES, Authority.ROLE_CAISSIER, Authority.ROLE_VENDEUR]
     },
-    canActivate: [UserRouteAccessService],
-  },
+    canActivate: [UserRouteAccessService]
+  }
 ];
 export default salesRoute;

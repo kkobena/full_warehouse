@@ -2,6 +2,7 @@ package com.kobe.warehouse.domain;
 
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
+import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import org.hibernate.annotations.JoinFormula;
 
@@ -13,6 +14,7 @@ public class UninsuredCustomer extends Customer {
     private CustomerAccount account;
 
     @ManyToOne
+    @JoinColumn(name = "remise_client_id", referencedColumnName = "id")
     private RemiseClient remiseClient;
 
     public CustomerAccount getAccount() {

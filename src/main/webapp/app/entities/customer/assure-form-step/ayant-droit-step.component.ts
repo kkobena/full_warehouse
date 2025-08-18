@@ -23,9 +23,9 @@ import { DateNaissDirective } from '../../../shared/date-naiss.directive';
     TranslateDirective,
     CardModule,
     DividerModule,
-    DateNaissDirective,
+    DateNaissDirective
   ],
-  templateUrl: './ayant-droit-step.component.html',
+  templateUrl: './ayant-droit-step.component.html'
 })
 export class AyantDroitStepComponent implements OnInit {
   assure?: ICustomer;
@@ -40,7 +40,7 @@ export class AyantDroitStepComponent implements OnInit {
     lastName: [null, [Validators.required, Validators.min(1)]],
     numAyantDroit: [null, [Validators.required, Validators.min(1)]],
     datNaiss: [],
-    sexe: [],
+    sexe: []
   });
 
   ngOnInit(): void {
@@ -66,7 +66,7 @@ export class AyantDroitStepComponent implements OnInit {
       lastName: customer.lastName,
       datNaiss: customer.datNaiss,
       sexe: customer.sexe,
-      numAyantDroit: customer.numAyantDroit,
+      numAyantDroit: customer.numAyantDroit
     });
   }
 
@@ -80,7 +80,7 @@ export class AyantDroitStepComponent implements OnInit {
       numAyantDroit: formValue.numAyantDroit,
       datNaiss: formValue.datNaiss,
       sexe: formValue.sexe,
-      type: 'ASSURE',
+      type: 'ASSURE'
     };
   }
 

@@ -44,9 +44,9 @@ import { Divider } from 'primeng/divider';
     GestionCaisseComponent,
     ActivitySummaryComponent,
     RecapitualtifCaisseComponent,
-    Divider,
+    Divider
   ],
-  templateUrl: './mvt-caisse.component.html',
+  templateUrl: './mvt-caisse.component.html'
 })
 export class MvtCaisseComponent {
   protected active = 'mvt-caisse';

@@ -5,51 +5,51 @@
   </button>
 </div>
 <div class="modal-body">
- <p-card>
-   <div class="form-row">
-     <div class="form-group col">
-       <label class="form-control-label">Fournisseurs</label>
-       <p-select
-         [(ngModel)]="fournisseurSelectedId"
-         [filter]="true"
-         [options]="fournisseurs"
-         [style]="{ width: '100%' }"
-         optionLabel="libelle"
-         optionValue="id"
-         placeholder="Séléctionner un fournisseur "
-       >
-       </p-select>
-     </div>
-   </div>
-   <div class="form-row">
-     <div class="form-group col">
-       <label class="form-control-label">Model de fichier</label>
-       <p-select
-         [(ngModel)]="modelSelected"
-         [filter]="false"
-         [options]="models"
-         [style]="{ width: '100%' }"
-         optionLabel="label"
-         optionValue="value"
-         placeholder="Séléctionner un model de fichier "
-       >
-       </p-select>
-     </div>
-   </div>
-   <div class="form-row">
-     <p-fileupload
-       #fileUpload
-       (uploadHandler)="uploadHandler($event, fileUpload)"
-       [auto]="true"
-       [customUpload]="true"
-       [showCancelButton]="true"
-       accept=".csv,.txt"
-       chooseLabel="Importer un fichier"
-       mode="basic"
-     >
-     </p-fileupload>
-   </div>
- </p-card>
+  <p-card>
+    <div class="form-row">
+      <div class="form-group col">
+        <label class="form-control-label">Fournisseurs</label>
+        <p-select
+          [(ngModel)]="fournisseurSelectedId"
+          [filter]="true"
+          [options]="fournisseurs"
+          [style]="{ width: '100%' }"
+          optionLabel="libelle"
+          optionValue="id"
+          placeholder="Séléctionner un fournisseur "
+        >
+        </p-select>
+      </div>
+    </div>
+    <div class="form-row">
+      <div class="form-group col">
+        <label class="form-control-label">Model de fichier</label>
+        <p-select
+          [(ngModel)]="modelSelected"
+          [filter]="false"
+          [options]="models"
+          [style]="{ width: '100%' }"
+          optionLabel="label"
+          optionValue="value"
+          placeholder="Séléctionner un model de fichier "
+        >
+        </p-select>
+      </div>
+    </div>
+    <div class="form-row">
+      <p-fileupload
+        #fileUpload
+        (uploadHandler)="uploadHandler($event, fileUpload)"
+        [auto]="true"
+        [customUpload]="true"
+        [showCancelButton]="true"
+        accept=".csv,.txt"
+        chooseLabel="Importer un fichier"
+        mode="basic"
+      >
+      </p-fileupload>
+    </div>
+  </p-card>
 </div>
 
 <div class="modal-footer">

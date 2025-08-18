@@ -12,7 +12,7 @@ export const doReglementResolver = (route: ActivatedRouteSnapshot): Observable<n
     return inject(FactureService)
       .findDossierReglement(id, typeFacture, {
         page: 0,
-        size: 999999,
+        size: 999999
       })
       .pipe(
         mergeMap((res: HttpResponse<ReglementFactureDossier[]>) => {
@@ -22,7 +22,7 @@ export const doReglementResolver = (route: ActivatedRouteSnapshot): Observable<n
             inject(Router).navigate(['404']);
             return EMPTY;
           }
-        }),
+        })
       );
   }
   return EMPTY;

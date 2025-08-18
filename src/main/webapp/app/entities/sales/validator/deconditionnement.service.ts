@@ -1,4 +1,3 @@
-
 import { inject, Injectable } from '@angular/core';
 import { IProduit } from '../../../shared/model/produit.model';
 import { ProduitService } from '../../produit/produit.service';
@@ -74,7 +73,7 @@ export class DeconditionnementService {
               } else {
                 showCommonError(this.modalService, this.errorService.getErrorMessage(error));
               }
-            },
+            }
           });
         }
       },
@@ -91,7 +90,7 @@ export class DeconditionnementService {
     return {
       ...new Decondition(),
       qtyMvt: qtyDeconditione,
-      produitId,
+      produitId
     };
   }
 

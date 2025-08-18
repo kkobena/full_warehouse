@@ -3,6 +3,7 @@ package com.kobe.warehouse.domain;
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
 import java.time.LocalDate;
@@ -22,6 +23,7 @@ public class AssuredCustomer extends Customer {
     private LocalDate datNaiss;
 
     @ManyToOne
+    @JoinColumn(name = "assure_principal_id", referencedColumnName = "id")
     private AssuredCustomer assurePrincipal;
 
     @Column(name = "num_ayant_droit", length = 100)

@@ -26,7 +26,7 @@ import { CardModule } from 'primeng/card';
     ConfirmDialogComponent,
     CardModule
   ],
-  templateUrl: '../base-sale/base-sale.component.html',
+  templateUrl: '../base-sale/base-sale.component.html'
 })
 export class CarnetComponent extends BaseSaleComponent {
   constructor() {

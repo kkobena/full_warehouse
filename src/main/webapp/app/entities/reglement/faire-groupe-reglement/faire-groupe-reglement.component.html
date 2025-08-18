@@ -3,7 +3,7 @@
     <span class="font-semibold text-xl">Factures</span>
   </ng-template>
   <ng-template pTemplate="content">
-    <jhi-factues-modal (selectedFacture)="onSelectFacture($event)" [factureGroup]="false"> </jhi-factues-modal>
+    <jhi-factues-modal (selectedFacture)="onSelectFacture($event)" [factureGroup]="false"></jhi-factues-modal>
   </ng-template>
 </p-drawer>
 <div class="row reglement-dossier">
@@ -121,9 +121,10 @@
       >
       </jhi-reglement-form>
     </p-fieldset>
-    <jhi-dossier-reglement-info [dossierFactureProjection]="dossierFactureProjectionWritable()" [totalApayer]="montantAPayer()">
+    <jhi-dossier-reglement-info [dossierFactureProjection]="dossierFactureProjectionWritable()"
+                                [totalApayer]="montantAPayer()">
     </jhi-dossier-reglement-info>
   </div>
 </div>
 
-<p-confirmDialog [baseZIndex]="10000" [style]="{ width: '40vw' }" key="printReceipt"> </p-confirmDialog>
+<p-confirmDialog [baseZIndex]="10000" [style]="{ width: '40vw' }" key="printReceipt"></p-confirmDialog>

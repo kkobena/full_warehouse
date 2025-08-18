@@ -43,9 +43,9 @@ import { FloatLabel } from 'primeng/floatlabel';
     ToastModule,
     FormsModule,
     DatePicker,
-    FloatLabel,
+    FloatLabel
   ],
-  templateUrl: './balance-mvt-caisse.component.html',
+  templateUrl: './balance-mvt-caisse.component.html'
 })
 export class BalanceMvtCaisseComponent implements OnInit, AfterViewInit {
   protected fromDate: Date | undefined;
@@ -78,11 +78,11 @@ export class BalanceMvtCaisseComponent implements OnInit, AfterViewInit {
     this.loading = true;
     this.balanceMvtCaisseService
       .query({
-        ...this.buildParams(),
+        ...this.buildParams()
       })
       .subscribe({
         next: (res: HttpResponse<BalanceCaisseWrapper>) => this.onSuccess(res.body),
-        error: () => this.onError(),
+        error: () => this.onError()
       });
     this.updateParam();
   }
@@ -90,7 +90,7 @@ export class BalanceMvtCaisseComponent implements OnInit, AfterViewInit {
   onPrint(): void {
     this.balanceMvtCaisseService
       .exportToPdf({
-        ...this.buildParams(),
+        ...this.buildParams()
       })
       .subscribe({
         next(blod) {
@@ -102,12 +102,12 @@ export class BalanceMvtCaisseComponent implements OnInit, AfterViewInit {
           this.messageService.add({
             severity: 'error',
             summary: 'Error',
-            detail: 'Une erreur est survenue',
+            detail: 'Une erreur est survenue'
           });
         },
         complete: () => {
           this.loading = false;
-        },
+        }
       });
     this.updateParam();
   }
@@ -115,7 +115,7 @@ export class BalanceMvtCaisseComponent implements OnInit, AfterViewInit {
   private setParam(): void {
     const param: MvtCaisseParams = {
       fromDate: this.fromDate,
-      toDate: this.toDate,
+      toDate: this.toDate
     };
     this.mvtParamServiceService.setMvtCaisseParam(param);
   }
@@ -135,7 +135,7 @@ export class BalanceMvtCaisseComponent implements OnInit, AfterViewInit {
     return {
       fromDate: DATE_FORMAT_ISO_DATE(this.fromDate),
       toDate: DATE_FORMAT_ISO_DATE(this.toDate),
-      statuts: ['CLOSED'],
+      statuts: ['CLOSED']
     };
   }
 
@@ -148,7 +148,7 @@ export class BalanceMvtCaisseComponent implements OnInit, AfterViewInit {
     this.messageService.add({
       severity: 'error',
       summary: 'Error',
-      detail: 'Une erreur est survenue',
+      detail: 'Une erreur est survenue'
     });
     this.balanceMvtCaisseWrapper = null;
     this.loading = false;

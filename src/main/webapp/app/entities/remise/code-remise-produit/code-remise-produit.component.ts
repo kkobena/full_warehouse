@@ -11,7 +11,7 @@ import { CodeRemiseProduitsModalComponent } from '../code-remise-produits-modal/
   selector: 'jhi-code-remise-produit',
 
   imports: [FaIconComponent],
-  templateUrl: './code-remise-produit.component.html',
+  templateUrl: './code-remise-produit.component.html'
 })
 export class CodeRemiseProduitComponent implements OnInit {
   entites?: CodeRemise[];
@@ -22,7 +22,7 @@ export class CodeRemiseProduitComponent implements OnInit {
     this.entityService.queryFullCodes().subscribe({
       next: (res: HttpResponse<CodeRemise[]>) => {
         this.entites = res.body || [];
-      },
+      }
     });
   }
 
@@ -30,7 +30,7 @@ export class CodeRemiseProduitComponent implements OnInit {
     const modalRef = this.ngModalService.open(CodeRemiseProduitsModalComponent, {
       backdrop: 'static',
       size: 'xl',
-      centered: true,
+      centered: true
     });
     modalRef.componentInstance.codeRemise = codeRemise;
 

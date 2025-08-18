@@ -3,14 +3,15 @@ import { IProduit } from '../../../shared/model/produit.model';
 
 @Injectable({ providedIn: 'root' })
 export class SaleStockValidator {
-  constructor() {}
+  constructor() {
+  }
 
   validate(
     produit: IProduit,
     quantityRequested: number,
     totalQuantity: number,
     canForceStock: boolean,
-    quantityMax: number,
+    quantityMax: number
   ): { isValid: boolean; reason?: string } {
     if (quantityRequested <= 0) {
       return { isValid: false, reason: 'invalidQuantity' };

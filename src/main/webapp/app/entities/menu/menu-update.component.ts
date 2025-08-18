@@ -1,4 +1,4 @@
-import { Component, OnInit, inject } from '@angular/core';
+import { Component, inject, OnInit } from '@angular/core';
 import { HttpResponse } from '@angular/common/http';
 
 import { FormsModule, ReactiveFormsModule, UntypedFormBuilder, Validators } from '@angular/forms';
@@ -26,8 +26,8 @@ import { InputTextModule } from 'primeng/inputtext';
     FormsModule,
     KeyFilterModule,
     ReactiveFormsModule,
-    InputTextModule,
-  ],
+    InputTextModule
+  ]
 })
 export class MenuUpdateComponent implements OnInit {
   protected privillegeService = inject(PrivillegeService);
@@ -37,7 +37,7 @@ export class MenuUpdateComponent implements OnInit {
   isSaving = false;
   editForm = this.fb.group({
     libelle: [null, [Validators.required]],
-    name: [null, [Validators.required]],
+    name: [null, [Validators.required]]
   });
   protected entity: IAuthority | null;
   protected readonly BLOCK_SPACE = BLOCK_SPACE;
@@ -51,7 +51,7 @@ export class MenuUpdateComponent implements OnInit {
   updateForm(authority: IAuthority): void {
     this.editForm.patchValue({
       libelle: authority.libelle,
-      name: authority.name,
+      name: authority.name
     });
     if (authority.name) {
       this.editForm.get(['name']).disable();
@@ -76,7 +76,7 @@ export class MenuUpdateComponent implements OnInit {
   protected subscribeToSaveResponse(result: Observable<HttpResponse<IAuthority>>): void {
     result.subscribe({
       next: () => this.onSaveSuccess(),
-      error: () => this.onSaveError(),
+      error: () => this.onSaveError()
     });
   }
 
@@ -93,7 +93,7 @@ export class MenuUpdateComponent implements OnInit {
     return {
       ...new Privilege(),
       libelle: this.editForm.get(['libelle']).value,
-      name: this.editForm.get(['name']).value,
+      name: this.editForm.get(['name']).value
     };
   }
 }

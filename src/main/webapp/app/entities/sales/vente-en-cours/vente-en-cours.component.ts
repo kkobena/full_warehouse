@@ -1,17 +1,14 @@
 import { Component, inject, OnInit, viewChild } from '@angular/core';
-import { ConfirmationService } from 'primeng/api';
 import { ISales } from '../../../shared/model/sales.model';
 import { SalesService } from '../sales.service';
 import { WarehouseCommonModule } from '../../../shared/warehouse-common/warehouse-common.module';
 import { RouterModule } from '@angular/router';
-import { ConfirmDialogModule } from 'primeng/confirmdialog';
 import { FormsModule } from '@angular/forms';
 import { TooltipModule } from 'primeng/tooltip';
 import { ButtonModule } from 'primeng/button';
 import { InputTextModule } from 'primeng/inputtext';
 import { TableModule } from 'primeng/table';
 import { ToolbarModule } from 'primeng/toolbar';
-import { acceptButtonProps, rejectButtonProps } from '../../../shared/util/modal-button-props';
 import { Select } from 'primeng/select';
 import { IconField } from 'primeng/iconfield';
 import { InputIcon } from 'primeng/inputicon';
@@ -43,8 +40,9 @@ export class VenteEnCoursComponent implements OnInit {
   typeVenteSelected = '';
   sales: ISales[] = [];
   search = '';
-  private readonly  salesService = inject(SalesService);
+  private readonly salesService = inject(SalesService);
   private readonly confimDialog = viewChild.required<ConfirmDialogComponent>('confirmDialog');
+
   ngOnInit(): void {
     this.typeVenteSelected = 'TOUT';
     this.loadPreventes();
@@ -58,7 +56,7 @@ export class VenteEnCoursComponent implements OnInit {
     this.salesService
       .queryPrevente({
         search: this.search,
-        type: this.typeVenteSelected,
+        type: this.typeVenteSelected
       })
       .subscribe(res => {
         this.sales = res.body ?? [];

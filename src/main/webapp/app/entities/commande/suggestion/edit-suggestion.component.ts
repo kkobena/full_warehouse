@@ -1,41 +1,39 @@
-import {Component, ElementRef, inject, OnInit, signal, viewChild} from '@angular/core';
-import {Suggestion} from './model/suggestion.model';
-import {SuggestionService} from './suggestion.service';
-import {ConfirmationService, LazyLoadEvent, MenuItem, PrimeIcons, PrimeTemplate} from 'primeng/api';
-import {HttpHeaders, HttpResponse} from '@angular/common/http';
-import {SuggestionLine} from './model/suggestion-line.model';
+import { Component, ElementRef, inject, OnInit, signal, viewChild } from '@angular/core';
+import { Suggestion } from './model/suggestion.model';
+import { SuggestionService } from './suggestion.service';
+import { LazyLoadEvent, MenuItem, PrimeIcons, PrimeTemplate } from 'primeng/api';
+import { HttpHeaders, HttpResponse } from '@angular/common/http';
+import { SuggestionLine } from './model/suggestion-line.model';
 import {
   APPEND_TO,
   ITEMS_PER_PAGE,
   PRODUIT_COMBO_MIN_LENGTH,
   PRODUIT_NOT_FOUND
 } from '../../../shared/constants/pagination.constants';
-import {acceptButtonProps, rejectButtonProps} from '../../../shared/util/modal-button-props';
-import {DialogService} from 'primeng/dynamicdialog';
-import {Button} from 'primeng/button';
-import {CommonModule} from '@angular/common';
-import {ActivatedRoute, Router, RouterModule} from '@angular/router';
-import {TableModule} from 'primeng/table';
-import {Tooltip} from 'primeng/tooltip';
-import {Keys} from '../../../shared/model/keys.model';
-import {NgxSpinnerModule, NgxSpinnerService} from 'ngx-spinner';
-import {ConfirmDialogModule} from 'primeng/confirmdialog';
-import {EtaProduitComponent} from '../../../shared/eta-produit/eta-produit.component';
-import {IconField} from 'primeng/iconfield';
-import {InputIcon} from 'primeng/inputicon';
-import {InputTextModule} from 'primeng/inputtext';
-import {ToolbarModule} from 'primeng/toolbar';
-import {SplitButton} from 'primeng/splitbutton';
-import {AutoComplete} from 'primeng/autocomplete';
-import {InputGroup} from 'primeng/inputgroup';
-import {InputGroupAddon} from 'primeng/inputgroupaddon';
-import {FormsModule, ReactiveFormsModule} from '@angular/forms';
-import {IProduit} from '../../../shared/model/produit.model';
-import {IFournisseur} from '../../../shared/model/fournisseur.model';
-import {saveAs} from 'file-saver';
-import {ProduitService} from '../../produit/produit.service';
-import {Observable} from 'rxjs';
-import {FloatLabelModule} from 'primeng/floatlabel';
+import { Button } from 'primeng/button';
+import { CommonModule } from '@angular/common';
+import { ActivatedRoute, Router, RouterModule } from '@angular/router';
+import { TableModule } from 'primeng/table';
+import { Tooltip } from 'primeng/tooltip';
+import { Keys } from '../../../shared/model/keys.model';
+import { NgxSpinnerModule } from 'ngx-spinner';
+import { ConfirmDialogModule } from 'primeng/confirmdialog';
+import { EtaProduitComponent } from '../../../shared/eta-produit/eta-produit.component';
+import { IconField } from 'primeng/iconfield';
+import { InputIcon } from 'primeng/inputicon';
+import { InputTextModule } from 'primeng/inputtext';
+import { ToolbarModule } from 'primeng/toolbar';
+import { SplitButton } from 'primeng/splitbutton';
+import { AutoComplete } from 'primeng/autocomplete';
+import { InputGroup } from 'primeng/inputgroup';
+import { InputGroupAddon } from 'primeng/inputgroupaddon';
+import { FormsModule, ReactiveFormsModule } from '@angular/forms';
+import { IProduit } from '../../../shared/model/produit.model';
+import { IFournisseur } from '../../../shared/model/fournisseur.model';
+import { saveAs } from 'file-saver';
+import { ProduitService } from '../../produit/produit.service';
+import { Observable } from 'rxjs';
+import { FloatLabelModule } from 'primeng/floatlabel';
 import { ConfirmDialogComponent } from '../../../shared/dialog/confirm-dialog/confirm-dialog.component';
 import { SpinerService } from '../../../shared/spiner.service';
 
@@ -66,7 +64,7 @@ import { SpinerService } from '../../../shared/spiner.service';
   ],
   templateUrl: './edit-suggestion.component.html',
 
-  styles: ``,
+  styles: ``
 })
 export class EditSuggestionComponent implements OnInit {
   private readonly suggestionService = inject(SuggestionService);
@@ -94,6 +92,7 @@ export class EditSuggestionComponent implements OnInit {
   protected writableSignal = signal<Suggestion>(null);
   private readonly confimDialog = viewChild.required<ConfirmDialogComponent>('confirmDialog');
   private readonly spinner = inject(SpinerService);
+
   constructor() {
     this.splitbuttons = [
       {
@@ -102,14 +101,14 @@ export class EditSuggestionComponent implements OnInit {
 
         command: () => {
           this.exportCSV();
-        },
+        }
       },
       {
         label: 'Pdf',
         icon: PrimeIcons.FILE_PDF,
         command: () => {
-        },
-      },
+        }
+      }
     ];
   }
 
@@ -147,7 +146,7 @@ export class EditSuggestionComponent implements OnInit {
         page: 0,
         size: 5,
         withdetail: false,
-        search: this.searchProduit,
+        search: this.searchProduit
       })
       .subscribe((res: HttpResponse<any[]>) => this.onProduitSuccess(res.body));
   }
@@ -155,7 +154,7 @@ export class EditSuggestionComponent implements OnInit {
   private buildParameters(): any {
     return {
       search: this.search,
-      suggestionId: this.writableSignal()?.id,
+      suggestionId: this.writableSignal()?.id
     };
   }
 
@@ -173,7 +172,7 @@ export class EditSuggestionComponent implements OnInit {
       error: err => {
         this.spinner.hide();
         this.onCommonError(err);
-      },
+      }
     });
   }
 
@@ -187,12 +186,12 @@ export class EditSuggestionComponent implements OnInit {
       error: err => {
         this.spinner.hide();
         this.onCommonError(err);
-      },
+      }
     });
   }
 
   ngOnInit(): void {
-    this.activatedRoute.data.subscribe(({suggestion}) => {
+    this.activatedRoute.data.subscribe(({ suggestion }) => {
       this.writableSignal.set(suggestion);
       this.onSearch();
     });
@@ -202,8 +201,8 @@ export class EditSuggestionComponent implements OnInit {
 
     this.confimDialog().onConfirm(() =>
       this.onDelete({
-        ids: this.selections.map(suggestion => suggestion.id),
-      }),'Suppression', 'Êtes-vous sûr de vouloir supprimer ?')
+        ids: this.selections.map(suggestion => suggestion.id)
+      }), 'Suppression', 'Êtes-vous sûr de vouloir supprimer ?');
   }
 
   previousState(): void {
@@ -217,11 +216,11 @@ export class EditSuggestionComponent implements OnInit {
       .queryItems({
         page: pageToLoad,
         size: this.itemsPerPage,
-        ...this.buildParameters(),
+        ...this.buildParameters()
       })
       .subscribe({
         next: (res: HttpResponse<SuggestionLine[]>) => this.onSuccess(res.body, res.headers, pageToLoad),
-        error: () => this.onError(),
+        error: () => this.onError()
       });
   }
 
@@ -252,14 +251,14 @@ export class EditSuggestionComponent implements OnInit {
     return {
       ...new SuggestionLine(),
       produitId: produit.id,
-      quantity,
+      quantity
     };
   }
 
   onAddOrderLine(qytMvt: number): void {
     if (this.produitSelected) {
       this.subscribeToSaveLineResponse(
-        this.suggestionService.createOrUpdateItem(this.createItem(this.produitSelected, qytMvt), this.writableSignal().id),
+        this.suggestionService.createOrUpdateItem(this.createItem(this.produitSelected, qytMvt), this.writableSignal().id)
       );
     }
   }
@@ -267,7 +266,7 @@ export class EditSuggestionComponent implements OnInit {
   private subscribeToSaveLineResponse(result: Observable<HttpResponse<{}>>): void {
     result.subscribe({
       next: () => this.onSaveLineSuccess(),
-      error: (err: any) => this.onCommonError(err),
+      error: (err: any) => this.onCommonError(err)
     });
   }
 
@@ -313,7 +312,7 @@ export class EditSuggestionComponent implements OnInit {
       error: error => {
         this.spinner.hide();
         this.onCommonError(error);
-      },
+      }
     });
   }
 
@@ -323,8 +322,8 @@ export class EditSuggestionComponent implements OnInit {
   delete(id: number): void {
     this.confimDialog().onConfirm(() =>
       this.onDelete({
-        ids: [id],
-      }),'Suppression', 'Êtes-vous sûr de vouloir supprimer ?');
+        ids: [id]
+      }), 'Suppression', 'Êtes-vous sûr de vouloir supprimer ?');
   }
 
   protected lazyLoading(event: LazyLoadEvent): void {
@@ -335,11 +334,11 @@ export class EditSuggestionComponent implements OnInit {
         .queryItems({
           page: this.page,
           size: event.rows,
-          ...this.buildParameters(),
+          ...this.buildParameters()
         })
         .subscribe({
           next: (res: HttpResponse<SuggestionLine[]>) => this.onSuccess(res.body, res.headers, this.page),
-          error: () => this.onError(),
+          error: () => this.onError()
         });
     }
   }

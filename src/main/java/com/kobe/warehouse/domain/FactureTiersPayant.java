@@ -9,6 +9,7 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.Index;
+import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
@@ -45,6 +46,7 @@ public class FactureTiersPayant implements Serializable {
     private int remiseForfetaire;
 
     @ManyToOne
+    @JoinColumn(name = "tiers_payant_id", referencedColumnName = "id")
     private TiersPayant tiersPayant;
 
     private boolean factureProvisoire;

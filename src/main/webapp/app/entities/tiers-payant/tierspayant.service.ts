@@ -33,7 +33,7 @@ export class TiersPayantService {
     const options = createRequestOptions(req);
     return this.http.get<ITiersPayant[]>(this.resourceUrl, {
       params: options,
-      observe: 'response',
+      observe: 'response'
     });
   }
 
@@ -55,18 +55,21 @@ export class TiersPayantService {
 
   getModelFacture(): Observable<HttpResponse<ModelFacture[]>> {
     return this.http.get<ModelFacture[]>(this.resourceUrl + '/models-facture', {
-      observe: 'response',
+      observe: 'response'
     });
   }
 
   getOrdreTrisFacture(): Observable<HttpResponse<OrdreTrisFacture[]>> {
     return this.http.get<OrdreTrisFacture[]>(this.resourceUrl + '/order-tris-facture', {
-      observe: 'response',
+      observe: 'response'
     });
   }
 
   fetchAchatTiersPayant(req?: any): Observable<HttpResponse<TiersPayantAchat[]>> {
     const options = createRequestOptions(req);
-    return this.http.get<TiersPayantAchat[]>(this.resourceUrl + '/achats-summary', { params: options, observe: 'response' });
+    return this.http.get<TiersPayantAchat[]>(this.resourceUrl + '/achats-summary', {
+      params: options,
+      observe: 'response'
+    });
   }
 }

@@ -7,11 +7,12 @@ import com.kobe.warehouse.service.cash_register.dto.FetchCashRegisterParams;
 import com.kobe.warehouse.service.cash_register.dto.TypeVente;
 import com.kobe.warehouse.service.errors.CashRegisterException;
 import com.kobe.warehouse.service.errors.NonClosedCashRegisterException;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Stream;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
 
 public interface CashRegisterService {
     Optional<CashRegister> getOpiningCashRegisterByUser(User user);
@@ -47,5 +48,6 @@ public interface CashRegisterService {
     int getCanceledAmount(CashRegister cashRegister);
 
     boolean hasOpenCashRegister();
+
     CashRegister getCashRegister();
 }

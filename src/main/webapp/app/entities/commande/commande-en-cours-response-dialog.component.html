@@ -11,7 +11,7 @@
         <div class="card-header bg-success text-white">Nombre de produits pris en compte</div>
         <div class="card-body text-center">
           <span class="badge badge-success text-lg-center" style="font-weight: 700; font-size: 1.6rem"
-            >{{ responseCommandeItem.length | number }} /{{ (commande?.orderLines)!.length | number }}</span
+          >{{ responseCommandeItem.length | number }} /{{ (commande?.orderLines)!.length | number }}</span
           >
         </div>
       </div>
@@ -23,18 +23,19 @@
           <div class="card-body">
             <p>
               <span class="badge badge-warning" style="font-weight: 700; font-size: 1.6rem"
-                >{{ responseCommandeItemNonPrisEnComte.length | number }} /{{ (commande?.orderLines)!.length | number }}</span
+              >{{ responseCommandeItemNonPrisEnComte.length | number }}
+                /{{ (commande?.orderLines)!.length | number }}</span
               >
             </p>
             <div style="width: 100%">
               @if (responseCommandeItemNonPrisEnComte?.length < commande?.orderLines?.length) {
                 <table class="table table-striped">
                   <thead>
-                    <tr>
-                      <th scope="col">Code</th>
-                      <th scope="col">Description</th>
-                      <th scope="col">Quantité disponible</th>
-                    </tr>
+                  <tr>
+                    <th scope="col">Code</th>
+                    <th scope="col">Description</th>
+                    <th scope="col">Quantité disponible</th>
+                  </tr>
                   </thead>
                   <tbody>
                     @for (item of responseCommandeItemNonPrisEnComte; track item) {

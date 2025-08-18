@@ -18,7 +18,7 @@ const SuggestionResolver = (route: ActivatedRouteSnapshot): Observable<null | Su
             inject(Router).navigate(['404']);
             return EMPTY;
           }
-        }),
+        })
       );
   }
   return of(new Suggestion());

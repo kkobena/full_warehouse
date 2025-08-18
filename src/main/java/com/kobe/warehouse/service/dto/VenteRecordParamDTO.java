@@ -13,9 +13,7 @@ public class VenteRecordParamDTO {
     private boolean canceled;
     private boolean differeOnly;
     private StatGroupBy venteStatGroupBy = StatGroupBy.DAY;
-
     private CategorieChiffreAffaire categorieChiffreAffaire = CategorieChiffreAffaire.CA;
-
     private DashboardPeriode dashboardPeriode = DashboardPeriode.daily;
     private int start;
     private int limit = 10;

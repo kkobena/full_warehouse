@@ -53,9 +53,7 @@ public class ReponseRetourBon implements Serializable {
     @Column(name = "commentaire", length = 150)
     private String commentaire;
 
-    @ManyToOne(optional = false)
-    @NotNull
-    private WarehouseCalendar calendar;
+
 
     @OneToMany(mappedBy = "reponseRetourBon")
     private List<ReponseRetourBonItem> reponseRetourBonItems = new ArrayList<>();
@@ -123,14 +121,7 @@ public class ReponseRetourBon implements Serializable {
         return this;
     }
 
-    public @NotNull WarehouseCalendar getCalendar() {
-        return calendar;
-    }
 
-    public ReponseRetourBon setCalendar(@NotNull WarehouseCalendar calendar) {
-        this.calendar = calendar;
-        return this;
-    }
 
     public List<ReponseRetourBonItem> getReponseRetourBonItems() {
         return reponseRetourBonItems;

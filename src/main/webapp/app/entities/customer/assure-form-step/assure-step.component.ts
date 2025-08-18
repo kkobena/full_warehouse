@@ -44,9 +44,9 @@ import { takeUntil } from 'rxjs/operators';
     TranslateDirective,
     CardModule,
     ComplementaireStepComponent,
-    DateNaissDirective,
+    DateNaissDirective
   ],
-  templateUrl: './assure-step.component.html',
+  templateUrl: './assure-step.component.html'
 })
 export class AssureStepComponent implements OnInit, AfterViewInit, OnDestroy {
   header: string | null = null;
@@ -73,7 +73,7 @@ export class AssureStepComponent implements OnInit, AfterViewInit, OnDestroy {
     adresse: [],
     sexe: [],
     datNaiss: [],
-    remiseId: [],
+    remiseId: []
   });
   readonly tiersPayantService = inject(TiersPayantService);
   readonly modalService = inject(NgbModal);
@@ -107,7 +107,7 @@ export class AssureStepComponent implements OnInit, AfterViewInit, OnDestroy {
         page: 0,
         size: 10,
         type: this.commonService.categorie(),
-        search: query,
+        search: query
       }).pipe(takeUntil(this.destroy$))
       .subscribe((res: HttpResponse<ITiersPayant[]>) => {
         this.tiersPayants = res.body!;
@@ -142,7 +142,7 @@ export class AssureStepComponent implements OnInit, AfterViewInit, OnDestroy {
       tiersPayantId: formValue.tiersPayantId?.id,
       taux: formValue.taux,
       tiersPayant: formValue.tiersPayantId,
-      tiersPayants: this.buildComplementaires(),
+      tiersPayants: this.buildComplementaires()
     };
   }
 
@@ -153,7 +153,7 @@ export class AssureStepComponent implements OnInit, AfterViewInit, OnDestroy {
       {
         entity: null,
         categorie: this.assureFormStepService.typeAssure(),
-        header: 'FORMULAIRE DE CREATION DE TIERS-PAYANT',
+        header: 'FORMULAIRE DE CREATION DE TIERS-PAYANT'
       },
       (resp: ITiersPayant) => {
         if (resp) {
@@ -162,7 +162,7 @@ export class AssureStepComponent implements OnInit, AfterViewInit, OnDestroy {
         }
       },
       'xl',
-      'modal-dialog-80',
+      'modal-dialog-80'
     );
   }
 
@@ -177,7 +177,7 @@ export class AssureStepComponent implements OnInit, AfterViewInit, OnDestroy {
       datNaiss: customer.datNaiss,
       sexe: customer.sexe,
       tiersPayantId: customer.tiersPayant,
-      taux: customer.taux,
+      taux: customer.taux
     });
   }
 

@@ -5,6 +5,7 @@ import com.kobe.warehouse.domain.Sales;
 import com.kobe.warehouse.domain.Sales_;
 import com.kobe.warehouse.domain.User;
 import com.kobe.warehouse.domain.User_;
+import com.kobe.warehouse.domain.enumeration.CategorieChiffreAffaire;
 import com.kobe.warehouse.domain.enumeration.PaymentStatus;
 import com.kobe.warehouse.domain.enumeration.SalesStatut;
 import com.kobe.warehouse.domain.enumeration.TypeVente;
@@ -66,10 +67,7 @@ public interface SalesRepository extends JpaSpecificationExecutor<Sales>, JpaRep
         return (root, query, cb) -> cb.equal(root.get(Sales_.customer).get(Customer_.id), customerId);
     }
 
-    default Specification<Sales> filterByPeriode(LocalDate fromDate, LocalDate toDate) {
-        return (root, _, cb) ->
-            cb.between(cb.function("DATE", LocalDate.class, root.get(Sales_.updatedAt)), cb.literal(fromDate), cb.literal(toDate));
-    }
+
 
     default Specification<Sales> filterByPaymentStatus(Set<PaymentStatus> paymentStatuses) {
         if (CollectionUtils.isEmpty(paymentStatuses)) {
@@ -126,5 +124,9 @@ public interface SalesRepository extends JpaSpecificationExecutor<Sales>, JpaRep
 
     default Specification<Sales> isDiffere() {
         return (root, query, cb) -> cb.isNull(root.get(Sales_.differe));
+    }
+
+    default Specification<Sales> hasCategorieCa(EnumSet<CategorieChiffreAffaire> categorieChiffreAffaires) {
+        return (root, query, cb) -> root.get(Sales_.categorieChiffreAffaire).in(categorieChiffreAffaires);
     }
 }

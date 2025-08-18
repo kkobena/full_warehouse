@@ -8,7 +8,11 @@ import { TableModule } from 'primeng/table';
 import { BadgeModule } from 'primeng/badge';
 import { DividerModule } from 'primeng/divider';
 import { NgxSpinnerModule } from 'ngx-spinner';
-import { ProduitAuditingParam, ProduitAuditingState, ProduitAuditingSum } from '../../../shared/model/produit-record.model';
+import {
+  ProduitAuditingParam,
+  ProduitAuditingState,
+  ProduitAuditingSum
+} from '../../../shared/model/produit-record.model';
 import { HttpHeaders, HttpResponse } from '@angular/common/http';
 import { ProduitStatService } from '../stat/produit-stat.service';
 import { ProduitAuditingParamService } from '../transaction/produit-auditing-param.service';
@@ -27,9 +31,9 @@ import { MouvementProduit } from '../../../shared/model/enumerations/mouvement-p
     TableModule,
     BadgeModule,
     DividerModule,
-    NgxSpinnerModule,
+    NgxSpinnerModule
   ],
-  templateUrl: './auditing.component.html',
+  templateUrl: './auditing.component.html'
 })
 export class AuditingComponent implements OnInit {
   protected saleQuantity?: number;
@@ -73,7 +77,7 @@ export class AuditingComponent implements OnInit {
       },
       error: () => {
         this.summaries = [];
-      },
+      }
     });
   }
 
@@ -84,7 +88,7 @@ export class AuditingComponent implements OnInit {
         // saveAs(blod, 'suivi_mvt_article_' + fileName);
         const blobUrl = URL.createObjectURL(blod);
         window.open(blobUrl);
-      },
+      }
     });
   }
 
@@ -96,16 +100,17 @@ export class AuditingComponent implements OnInit {
         .fetchTransactions({
           page: this.page,
           size: event.rows,
-          ...this.buidParams(),
+          ...this.buidParams()
         })
         .subscribe({
           next: (res: HttpResponse<ProduitAuditingState[]>) => this.onSuccess(res.body, res.headers, this.page),
-          error: err => this.onError(err),
+          error: err => this.onError(err)
         });
     }
   }
 
-  private onError(eror: any): void {}
+  private onError(eror: any): void {
+  }
 
   private onSuccessPage(data: ProduitAuditingState[] | null): void {
     this.entites = data || [];
@@ -125,11 +130,11 @@ export class AuditingComponent implements OnInit {
       .fetchTransactions({
         page: pageToLoad - 1,
         size: this.itemsPerPage,
-        ...this.buidParams(),
+        ...this.buidParams()
       })
       .subscribe({
         next: (res: HttpResponse<ProduitAuditingState[]>) => this.onSuccess(res.body, res.headers, pageToLoad),
-        error: err => this.onError(err),
+        error: err => this.onError(err)
       });
   }
 
@@ -140,7 +145,7 @@ export class AuditingComponent implements OnInit {
       fromDate: param.fromDate,
       toDate: param.toDate,
       page: this.page,
-      size: this.itemsPerPage,
+      size: this.itemsPerPage
     };
   }
 

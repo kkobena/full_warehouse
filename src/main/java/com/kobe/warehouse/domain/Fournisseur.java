@@ -6,6 +6,7 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 import jakarta.validation.constraints.NotNull;
@@ -56,6 +57,7 @@ public class Fournisseur implements Serializable {
 
     @ManyToOne(optional = false)
     @NotNull
+    @JoinColumn(name = "groupe_pournisseur_id", referencedColumnName = "id")
     @JsonIgnoreProperties(value = "fournisseurs", allowSetters = true)
     private GroupeFournisseur groupeFournisseur;
 

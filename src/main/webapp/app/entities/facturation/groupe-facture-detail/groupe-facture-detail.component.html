@@ -2,18 +2,21 @@
   <div class="col-md-4 col-xl-4 col-lg-4 col-sm-12">
     <div class="d-flex flex-row">
       <div class="p-2">
-        Montant facture: <span class="badge rounded-pill text-bg-light">{{ groupeFactureSignal().invoiceTotalAmount | number }}</span>
+        Montant facture: <span
+        class="badge rounded-pill text-bg-light">{{ groupeFactureSignal().invoiceTotalAmount | number }}</span>
       </div>
       <div class="p-2">
-        Montant payé: <span class="badge rounded-pill text-bg-light">{{ groupeFactureSignal().montantRegle | number }}</span>
+        Montant payé: <span
+        class="badge rounded-pill text-bg-light">{{ groupeFactureSignal().montantRegle | number }}</span>
       </div>
     </div>
     <div>
       <p-panel>
         <ng-template pTemplate="header">
           <span
-            >Détail groupe de facture :
-            <span class="badge rounded-pill text-bg-light">{{ groupeFactureSignal().name }} [ {{ groupeFactureSignal().numFacture }}]</span>
+          >Détail groupe de facture :
+            <span class="badge rounded-pill text-bg-light">{{ groupeFactureSignal().name }}
+              [ {{ groupeFactureSignal().numFacture }}]</span>
           </span>
         </ng-template>
 

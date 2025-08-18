@@ -16,13 +16,12 @@
         >
         </p-select>
 
-        @if (
-          editForm.get('typeFinancialTransaction')!.invalid &&
-          (editForm.get('typeFinancialTransaction')!.dirty || editForm.get('typeFinancialTransaction')!.touched)
-        ) {
+        @if (editForm.get('typeFinancialTransaction')!.invalid &&
+        (editForm.get('typeFinancialTransaction')!.dirty || editForm.get('typeFinancialTransaction')!.touched)) {
           <div>
             @if (editForm.get('typeFinancialTransaction')?.errors?.required) {
-              <small class="form-text text-danger" jhiTranslate="entity.validation.required"> This field is required. </small>
+              <small class="form-text text-danger" jhiTranslate="entity.validation.required"> This field is
+                required. </small>
             }
           </div>
         }
@@ -46,7 +45,8 @@
         @if (editForm.get('paymentMode')!.invalid && (editForm.get('paymentMode')!.dirty || editForm.get('paymentMode')!.touched)) {
           <div>
             @if (editForm.get('paymentMode')?.errors?.required) {
-              <small class="form-text text-danger" jhiTranslate="entity.validation.required"> This field is required. </small>
+              <small class="form-text text-danger" jhiTranslate="entity.validation.required"> This field is
+                required. </small>
             }
           </div>
         }
@@ -57,11 +57,13 @@
       <div class="form-group col">
         <label class="form-control-label">Montant</label>
 
-        <p-inputNumber [max]="90000000" [min]="0" autocomplete="off" formControlName="amount" inputId="field_amount" name="amount" />
+        <p-inputNumber [max]="90000000" [min]="0" autocomplete="off" formControlName="amount" inputId="field_amount"
+                       name="amount" />
         @if (editForm.get('amount')!.invalid && (editForm.get('amount')!.dirty || editForm.get('amount')!.touched)) {
           <div>
             @if (editForm.get('amount')?.errors?.required) {
-              <small class="form-text text-danger" jhiTranslate="entity.validation.required"> This field is required. </small>
+              <small class="form-text text-danger" jhiTranslate="entity.validation.required"> This field is
+                required. </small>
             }
           </div>
         }
@@ -102,7 +104,8 @@
   </div>
 
   <div class="modal-footer">
-    <p-button (click)="cancel()" [raised]="true" icon="pi pi-times" label="Annuler" severity="danger" type="button"> </p-button>
+    <p-button (click)="cancel()" [raised]="true" icon="pi pi-times" label="Annuler" severity="danger"
+              type="button"></p-button>
 
     <p-button
       [disabled]="editForm.invalid || isSaving || !isValid"

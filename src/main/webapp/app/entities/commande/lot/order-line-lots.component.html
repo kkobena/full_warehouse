@@ -8,13 +8,13 @@
 <div class="modal-body">
   <table class="table table-striped">
     <thead>
-      <tr>
-        <th>Num</th>
-        <th>Quantité</th>
-        <th>Quantité ug</th>
-        <th>Date Fabrication</th>
-        <th>Date péremption</th>
-      </tr>
+    <tr>
+      <th>Num</th>
+      <th>Quantité</th>
+      <th>Quantité ug</th>
+      <th>Date Fabrication</th>
+      <th>Date péremption</th>
+    </tr>
     </thead>
     <tbody>
       @for (lot of lots; track lot.numLot) {
@@ -28,5 +28,6 @@
   </table>
 </div>
 <div class="modal-footer">
-  <p-button (click)="cancel()" class="p-mr-2" icon="pi pi-times" label="Annuler" severity="danger" type="button"></p-button>
+  <p-button (click)="cancel()" class="p-mr-2" icon="pi pi-times" label="Annuler" severity="danger"
+            type="button"></p-button>
 </div>

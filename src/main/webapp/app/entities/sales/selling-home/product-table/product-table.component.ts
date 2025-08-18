@@ -37,9 +37,9 @@ import { showCommonError } from '../sale-helper';
     InputGroupAddonModule,
     InputGroupModule,
     Select,
-    ConfirmDialogComponent,
+    ConfirmDialogComponent
   ],
-  templateUrl: './product-table.component.html',
+  templateUrl: './product-table.component.html'
 })
 export class ProductTableComponent {
   readonly itemQtySoldEvent = output<ISalesLine>();
@@ -92,7 +92,7 @@ export class ProductTableComponent {
       if (newQty > salesLine.quantityRequested) {
         this.openInfoDialog(
           `La quantité saisie  ${newQty}  ne doit pas être supérieure à la quantité demandée ${salesLine.quantityRequested}`,
-          'alert alert-danger',
+          'alert alert-danger'
         );
       } else {
         salesLine.quantitySold = newQty;
@@ -133,7 +133,7 @@ export class ProductTableComponent {
         'Supprimer Produit',
         ' Voullez-vous supprimer  ce produit ?',
         null,
-        () => this.deleteItemEvent.emit(null),
+        () => this.deleteItemEvent.emit(null)
       );
     } else {
       this.deleteItemEvent.emit(item);
@@ -154,7 +154,7 @@ export class ProductTableComponent {
       'Forcer le stock',
       message,
       null,
-      () => this.itemQtyRequestedEvent.emit(null),
+      () => this.itemQtyRequestedEvent.emit(null)
     );
   }
 }

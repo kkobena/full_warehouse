@@ -24,7 +24,7 @@ import { Card } from 'primeng/card';
   selector: 'jhi-activity-summary',
   imports: [CommonModule, Toolbar, DatePicker, FloatLabel, FormsModule, Button, IconField, InputIcon, InputText, TableModule, Card],
   templateUrl: './activity-summary.component.html',
-  styleUrl: './activity-summary.component.scss',
+  styleUrl: './activity-summary.component.scss'
 })
 export class ActivitySummaryComponent {
   protected loadingPdf = false;
@@ -71,7 +71,7 @@ export class ActivitySummaryComponent {
         this.chiffreAffaire = res.body;
         this.loadingCa.set(false);
       },
-      error: err => this.loadingCa.set(false),
+      error: err => this.loadingCa.set(false)
     });
   }
 
@@ -83,9 +83,10 @@ export class ActivitySummaryComponent {
         const blobUrl = URL.createObjectURL(blod);
         window.open(blobUrl);
       },
-      error: () => (this.loadingPdf = false),
+      error: () => (this.loadingPdf = false)
     });
   }
+
   private getGroupeFournisseurAchat(query: any): void {
     this.loadingAchat.set(true);
     this.activitySummaryService.getGroupeFournisseurAchat(query).subscribe({
@@ -93,7 +94,7 @@ export class ActivitySummaryComponent {
         this.groupeFournisseurAchats = res.body;
         this.loadingAchat.set(false);
       },
-      error: err => this.loadingAchat.set(false),
+      error: err => this.loadingAchat.set(false)
     });
   }
 
@@ -104,7 +105,7 @@ export class ActivitySummaryComponent {
         this.reglementTiersPayants = res.body;
         this.loadingReglement.set(false);
       },
-      error: err => this.loadingReglement.set(false),
+      error: err => this.loadingReglement.set(false)
     });
   }
 
@@ -115,7 +116,7 @@ export class ActivitySummaryComponent {
         this.achatTiersPayant = res.body;
         this.loadingAchatTp.set(false);
       },
-      error: err => this.loadingAchatTp.set(false),
+      error: err => this.loadingAchatTp.set(false)
     });
   }
 
@@ -126,7 +127,7 @@ export class ActivitySummaryComponent {
       searchAchat: this.searchAchat,
       searchReglement: this.searchReglement,
       page: 0,
-      size: 99999,
+      size: 99999
     };
   }
 

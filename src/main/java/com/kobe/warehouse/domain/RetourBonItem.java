@@ -5,6 +5,7 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 import jakarta.validation.constraints.Min;
@@ -19,7 +20,6 @@ public class RetourBonItem implements Serializable {
 
     @Serial
     private static final long serialVersionUID = 1L;
-
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
@@ -30,10 +30,12 @@ public class RetourBonItem implements Serializable {
 
     @ManyToOne(optional = false)
     @NotNull
+    @JoinColumn(name = "retour_bon_id", referencedColumnName = "id")
     private RetourBon retourBon;
 
     @ManyToOne(optional = false)
     @NotNull
+    @JoinColumn(name = "motif_retour_id", referencedColumnName = "id")
     private MotifRetourProduit motifRetour;
 
     @ManyToOne(optional = false)

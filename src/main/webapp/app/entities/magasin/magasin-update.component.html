@@ -10,12 +10,14 @@
           </div>
 
           <div class="form-group">
-            <label class="form-control-label form-label" for="field_fullName" jhiTranslate="warehouseApp.magasin.name">Raison sociale</label>
+            <label class="form-control-label form-label" for="field_fullName" jhiTranslate="warehouseApp.magasin.name">Raison
+              sociale</label>
             <input class="form-control" formControlName="fullName" id="field_fullName" name="fullName" type="text" />
             @if (editForm.get('fullName')!.invalid && (editForm.get('fullName')!.dirty || editForm.get('fullName')!.touched)) {
               <div>
                 @if (editForm.get('fullName')?.errors?.required) {
-                  <small class="form-text text-danger" jhiTranslate="entity.validation.required"> This field is required. </small>
+                  <small class="form-text text-danger" jhiTranslate="entity.validation.required"> This field is
+                    required. </small>
                 }
               </div>
             }
@@ -27,7 +29,8 @@
             @if (editForm.get('name')!.invalid && (editForm.get('name')!.dirty || editForm.get('name')!.touched)) {
               <div>
                 @if (editForm.get('name')?.errors?.required) {
-                  <small class="form-text text-danger" jhiTranslate="entity.validation.required"> This field is required. </small>
+                  <small class="form-text text-danger" jhiTranslate="entity.validation.required"> This field is
+                    required. </small>
                 }
               </div>
             }
@@ -39,27 +42,33 @@
             @if (editForm.get('phone')!.invalid && (editForm.get('phone')!.dirty || editForm.get('phone')!.touched)) {
               <div>
                 @if (editForm.get('phone')?.errors?.required) {
-                  <small class="form-text text-danger" jhiTranslate="entity.validation.required"> This field is required. </small>
+                  <small class="form-text text-danger" jhiTranslate="entity.validation.required"> This field is
+                    required. </small>
                 }
               </div>
             }
           </div>
 
           <div class="form-group">
-            <label class="form-control-label form-label" for="field_address" jhiTranslate="warehouseApp.magasin.address">Address</label>
+            <label class="form-control-label form-label" for="field_address"
+                   jhiTranslate="warehouseApp.magasin.address">Address</label>
             <input class="form-control" formControlName="address" id="field_address" name="address" type="text" />
           </div>
           <div class="form-group">
-            <label class="form-control-label form-label" for="field_registre" jhiTranslate="warehouseApp.magasin.registre">Registre</label>
+            <label class="form-control-label form-label" for="field_registre"
+                   jhiTranslate="warehouseApp.magasin.registre">Registre</label>
             <input class="form-control" formControlName="registre" id="field_registre" name="registre" type="text" />
           </div>
           <div class="form-group">
-            <label class="form-control-label form-label" for="field_note" jhiTranslate="warehouseApp.magasin.note">Note</label>
+            <label class="form-control-label form-label" for="field_note"
+                   jhiTranslate="warehouseApp.magasin.note">Note</label>
             <input class="form-control" formControlName="note" id="field_note" name="note" type="text" />
           </div>
           <div class="form-group">
-            <label class="form-control-label" for="field_welcomeMessage" jhiTranslate="warehouseApp.magasin.welcomeMessage">Note</label>
-            <input class="form-control" formControlName="welcomeMessage" id="field_welcomeMessage" name="welcomeMessage" type="text" />
+            <label class="form-control-label" for="field_welcomeMessage"
+                   jhiTranslate="warehouseApp.magasin.welcomeMessage">Note</label>
+            <input class="form-control" formControlName="welcomeMessage" id="field_welcomeMessage" name="welcomeMessage"
+                   type="text" />
           </div>
         </div>
 

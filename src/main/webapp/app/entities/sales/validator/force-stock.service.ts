@@ -1,4 +1,3 @@
-
 import { inject, Injectable } from '@angular/core';
 import { ConfirmDialogComponent } from '../../../shared/dialog/confirm-dialog/confirm-dialog.component';
 import { ISalesLine } from '../../../shared/model/sales-line.model';

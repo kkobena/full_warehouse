@@ -102,14 +102,14 @@ export class CommandeService {
     const options = createRequestOptions(req);
     return this.http.get<IOrderLine[]>(`${this.resourceUrl}/filter-order-lines`, {
       params: options,
-      observe: 'response',
+      observe: 'response'
     });
   }
 
   fetchOrderLinesByCommandeId(commandeId: number): Observable<HttpResponse<IOrderLine[]>> {
     return this.http.get<IOrderLine[]>(`${this.resourceUrl}/pageable-order-lines/${commandeId}`, {
       params: { size: '99999', sort: 'fournisseurProduit_produit_libelle' },
-      observe: 'response',
+      observe: 'response'
     });
   }
 
@@ -118,7 +118,7 @@ export class CommandeService {
     return this.http
       .get<ICommande[]>(this.resourceUrl + '/commandes-without-order-lines', {
         params: options,
-        observe: 'response',
+        observe: 'response'
       })
       .pipe(map((res: EntityArrayResponseType) => this.convertDateArrayFromServer(res)));
   }
@@ -133,13 +133,13 @@ export class CommandeService {
 
   importerReponseCommande(commandeId: number, file: any): Observable<HttpResponse<IResponseCommande>> {
     return this.http.post<IResponseCommande>(`${this.resourceUrl}/verification-commande-en-cours/${commandeId}`, file, {
-      observe: 'response',
+      observe: 'response'
     });
   }
 
   uploadNewCommande(fournisseurId: number, model: string, file: any): Observable<HttpResponse<ICommandeResponse>> {
     return this.http.post<ICommandeResponse>(`${this.resourceUrl}/upload-new-commande/${fournisseurId}/${model}`, file, {
-      observe: 'response',
+      observe: 'response'
     });
   }
 
@@ -149,7 +149,7 @@ export class CommandeService {
 
   updateQuantityReceived(orderLine: IOrderLine): Observable<{}> {
     return this.http.put(this.resourceUrl + '/update-order-line-quantity-received', orderLine, {
-      observe: 'response',
+      observe: 'response'
     });
   }
 
@@ -192,7 +192,7 @@ export class CommandeService {
   private convertDateFromClient(commande: ICommande): ICommande {
     return Object.assign({}, commande, {
       createdAt: commande.createdAt && commande.createdAt.isValid() ? commande.createdAt.toJSON() : undefined,
-      updatedAt: commande.updatedAt && commande.updatedAt.isValid() ? commande.updatedAt.toJSON() : undefined,
+      updatedAt: commande.updatedAt && commande.updatedAt.isValid() ? commande.updatedAt.toJSON() : undefined
     });
   }
 

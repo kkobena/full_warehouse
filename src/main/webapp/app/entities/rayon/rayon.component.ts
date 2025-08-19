@@ -24,7 +24,6 @@ import { Panel } from 'primeng/panel';
 import { Select } from 'primeng/select';
 import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { ErrorService } from '../../shared/error.service';
-import { SpinerService } from '../../shared/spiner.service';
 import { showCommonModal } from '../sales/selling-home/sale-helper';
 import { FileUploadDialogComponent } from '../groupe-tiers-payant/file-upload-dialog/file-upload-dialog.component';
 import { finalize, takeUntil } from 'rxjs/operators';
@@ -32,11 +31,11 @@ import { CloneFormComponent } from './clone-form/clone-form.component';
 import { MagasinService } from '../magasin/magasin.service';
 import { StorageService } from '../storage/storage.service';
 import { Storage } from '../storage/storage.model';
+import { SpinnerComponent } from '../../shared/spinner/spinner.component';
 
 @Component({
   selector: 'jhi-rayon',
   templateUrl: './rayon.component.html',
-  styleUrls: ['./rayon.component.scss'],
   imports: [
     WarehouseCommonModule,
     ButtonModule,
@@ -52,7 +51,8 @@ import { Storage } from '../storage/storage.model';
     ToastAlertComponent,
     Panel,
     Select,
-    ReactiveFormsModule
+    ReactiveFormsModule,
+    SpinnerComponent
   ]
 })
 export class RayonComponent implements OnInit, OnDestroy {
@@ -77,7 +77,7 @@ export class RayonComponent implements OnInit, OnDestroy {
   private readonly alert = viewChild.required<ToastAlertComponent>('alert');
   private readonly modalService = inject(NgbModal);
   private readonly errorService = inject(ErrorService);
-  private readonly spinner = inject(SpinerService);
+   private readonly spinner = viewChild.required<SpinnerComponent>('spinner');
   private readonly magasinService = inject(MagasinService);
   private readonly storageService = inject(StorageService);
   private destroy$ = new Subject<void>();
@@ -152,7 +152,7 @@ export class RayonComponent implements OnInit, OnDestroy {
       FileUploadDialogComponent,
       {},
       result => {
-        this.spinner.show();
+        this.spinner().show();
         this.uploadFileResponse(this.entityService.uploadRayonFile(result));
       },
       'lg'
@@ -238,7 +238,7 @@ export class RayonComponent implements OnInit, OnDestroy {
   }
 
   private uploadFileResponse(result: Observable<HttpResponse<IResponseDto>>): void {
-    result.pipe(finalize(() => this.spinner.hide())).subscribe({
+    result.pipe(finalize(() => this.spinner().hide())).subscribe({
       next: (res: HttpResponse<IResponseDto>) => this.onPocesCsvSuccess(res.body),
       error: err => this.onSaveError(err)
     });

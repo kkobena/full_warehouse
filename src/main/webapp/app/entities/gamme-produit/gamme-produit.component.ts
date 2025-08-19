@@ -20,8 +20,8 @@ import { Panel } from 'primeng/panel';
 import { showCommonModal } from '../sales/selling-home/sale-helper';
 import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { FileUploadDialogComponent } from '../groupe-tiers-payant/file-upload-dialog/file-upload-dialog.component';
-import { SpinerService } from '../../shared/spiner.service';
 import { finalize } from 'rxjs/operators';
+import { SpinnerComponent } from '../../shared/spinner/spinner.component';
 
 @Component({
   selector: 'jhi-gamme-produit',
@@ -37,7 +37,8 @@ import { finalize } from 'rxjs/operators';
     IconField,
     InputIcon,
     ConfirmDialogComponent,
-    Panel
+    Panel,
+    SpinnerComponent
   ]
 })
 export class GammeProduitComponent implements OnInit {
@@ -53,7 +54,7 @@ export class GammeProduitComponent implements OnInit {
   private readonly entityService = inject(GammeProduitService);
   private readonly confimDialog = viewChild.required<ConfirmDialogComponent>('confirmDialog');
   private readonly modalService = inject(NgbModal);
-  private readonly spinner = inject(SpinerService);
+   private readonly spinner = viewChild.required<SpinnerComponent>('spinner');
 
   ngOnInit(): void {
     this.loadPage();
@@ -123,7 +124,7 @@ export class GammeProduitComponent implements OnInit {
       FileUploadDialogComponent,
       {},
       result => {
-        this.spinner.show();
+        this.spinner().show();
         this.uploadFileResponse(this.entityService.uploadFile(result));
       },
       'lg'
@@ -178,7 +179,7 @@ export class GammeProduitComponent implements OnInit {
 
 
   private uploadFileResponse(result: Observable<HttpResponse<IResponseDto>>): void {
-    result.pipe(finalize(() => this.spinner.hide())).subscribe({
+    result.pipe(finalize(() => this.spinner().hide())).subscribe({
       next: (res: HttpResponse<IResponseDto>) => this.onPocesCsvSuccess(res.body),
       error: () => this.onSaveError()
     });

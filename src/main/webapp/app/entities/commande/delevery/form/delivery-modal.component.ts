@@ -23,6 +23,7 @@ import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
 import { SpinerService } from '../../../../shared/spiner.service';
 import { ToastAlertComponent } from '../../../../shared/toast-alert/toast-alert.component';
 import { ErrorService } from '../../../../shared/error.service';
+import { SpinnerComponent } from '../../../../shared/spinner/spinner.component';
 
 @Component({
   selector: 'jhi-form-delivery',
@@ -40,7 +41,8 @@ import { ErrorService } from '../../../../shared/error.service';
     KeyFilterModule,
     InputTextModule,
     DatePicker,
-    ToastAlertComponent
+    ToastAlertComponent,
+    SpinnerComponent
   ]
 })
 export class DeliveryModalComponent implements OnInit {
@@ -73,7 +75,7 @@ export class DeliveryModalComponent implements OnInit {
   private readonly primeNGConfig = inject(PrimeNG);
   private readonly translate = inject(TranslateService);
   private readonly activeModal = inject(NgbActiveModal);
-  private readonly spinner = inject(SpinerService);
+   private readonly spinner = viewChild.required<SpinnerComponent>('spinner');
   private readonly alert = viewChild.required<ToastAlertComponent>('alert');
   private readonly errorService = inject(ErrorService);
 
@@ -108,7 +110,7 @@ export class DeliveryModalComponent implements OnInit {
   save(): void {
     this.isSaving = true;
     const entity = this.createFrom();
-    this.spinner.show();
+    this.spinner().show();
     if (this.isEdit) {
       this.subscribeToSaveResponse(this.entityService.update(entity));
     } else {
@@ -124,7 +126,7 @@ export class DeliveryModalComponent implements OnInit {
     result
       .pipe(
         finalize(() => {
-          this.spinner.hide();
+          this.spinner().hide();
           this.isSaving = false;
         })
       )

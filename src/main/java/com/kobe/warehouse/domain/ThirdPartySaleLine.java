@@ -19,7 +19,7 @@ import java.time.LocalDateTime;
 import java.util.Objects;
 
 @Entity
-@Table(name = "third_party_saleLine", uniqueConstraints = { @UniqueConstraint(columnNames = { "client_tiers_payant_id", "sale_id" }) })
+@Table(name = "third_party_sale_line", uniqueConstraints = { @UniqueConstraint(columnNames = { "client_tiers_payant_id", "sale_id" }) })
 public class ThirdPartySaleLine implements Serializable, Cloneable {
 
     @Serial

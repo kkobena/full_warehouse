@@ -26,6 +26,7 @@ import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { UninsuredCustomerListComponent } from '../../uninsured-customer-list/uninsured-customer-list.component';
 import { take } from 'rxjs/operators';
 import { Card } from 'primeng/card';
+import { SpinnerComponent } from '../../../../shared/spinner/spinner.component';
 
 @Component({
   selector: 'jhi-comptant',
@@ -46,7 +47,8 @@ import { Card } from 'primeng/card';
     AmountComputingComponent,
     ModeReglementComponent,
     ConfirmDialogComponent,
-    Card
+    Card,
+    SpinnerComponent
   ],
   templateUrl: './comptant.component.html'
 })
@@ -74,6 +76,7 @@ export class ComptantComponent {
   private readonly baseSaleService = inject(BaseSaleService);
   private readonly selectedCustomerService = inject(SelectedCustomerService);
   private readonly selectModeReglementService = inject(SelectModeReglementService);
+  private readonly spinner = viewChild.required<SpinnerComponent>('spinner');
 
   constructor() {
     this.facade.saveResponse$.pipe(takeUntilDestroyed()).subscribe(res => {
@@ -82,6 +85,16 @@ export class ComptantComponent {
         this.amountComputingComponent().computeMonnaie(null);
       }
     });
+
+    this.facade.spinnerService$.pipe(takeUntilDestroyed()).subscribe(res => {
+      if (res) {
+        this.spinner().show();
+      } else {
+        this.spinner().hide();
+      }
+    });
+
+
     this.facade.finalyseSale$.pipe(takeUntilDestroyed()).subscribe(res => {
       this.responseEvent.emit(res);
     });

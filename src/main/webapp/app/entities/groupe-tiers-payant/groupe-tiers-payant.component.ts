@@ -31,7 +31,7 @@ import { ToastAlertComponent } from '../../shared/toast-alert/toast-alert.compon
 import { toObservable, toSignal } from '@angular/core/rxjs-interop';
 import { finalize, switchMap } from 'rxjs/operators';
 import { FileUploadDialogComponent } from './file-upload-dialog/file-upload-dialog.component';
-import { SpinerService } from '../../shared/spiner.service';
+import { SpinnerComponent } from '../../shared/spinner/spinner.component';
 
 @Component({
   selector: 'jhi-groupe-tiers-payant',
@@ -54,7 +54,8 @@ import { SpinerService } from '../../shared/spiner.service';
     IconFieldModule,
     PanelModule,
     ToastAlertComponent,
-    ConfirmDialogComponent
+    ConfirmDialogComponent,
+    SpinnerComponent
   ]
 })
 export class GroupeTiersPayantComponent {
@@ -73,7 +74,7 @@ export class GroupeTiersPayantComponent {
 
   protected readonly entites = computed(() => this.groupTiersPayantResult()?.body ?? []);
   protected readonly loading = computed(() => !this.groupTiersPayantResult());
-  private readonly spinner = inject(SpinerService);
+   private readonly spinner = viewChild.required<SpinnerComponent>('spinner');
 
   onSearch(): void {
     this.reload.set(this.reload() + 1);
@@ -101,7 +102,7 @@ export class GroupeTiersPayantComponent {
       FileUploadDialogComponent,
       {},
       result => {
-        this.spinner.show();
+        this.spinner().show();
         this.uploadFileResponse(this.entityService.uploadFile(result));
       },
       'xl'
@@ -139,7 +140,7 @@ export class GroupeTiersPayantComponent {
   }
 
   private uploadFileResponse(result: Observable<HttpResponse<IResponseDto>>): void {
-    result.pipe(finalize(() => this.spinner.hide())).subscribe({
+    result.pipe(finalize(() => this.spinner().hide())).subscribe({
       next: res => this.onPocesCsvSuccess(res.body),
       error: err => this.onSaveError(err)
     });

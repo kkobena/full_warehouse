@@ -28,8 +28,8 @@ import { Authority } from '../../../../shared/constants/authority.constants';
 import { HasAuthorityService } from '../../service/has-authority.service';
 import { FormActionAutorisationComponent } from '../../form-action-autorisation/form-action-autorisation.component';
 import { ConfirmDialogComponent } from '../../../../shared/dialog/confirm-dialog/confirm-dialog.component';
-import { SpinerService } from '../../../../shared/spiner.service';
 import { CardModule } from 'primeng/card';
+import { SpinnerComponent } from '../../../../shared/spinner/spinner.component';
 
 @Component({
   templateUrl: './base-sale.component.html',
@@ -43,7 +43,8 @@ import { CardModule } from 'primeng/card';
     RouterModule,
     ButtonModule,
     ConfirmDialogComponent,
-    CardModule
+    CardModule,
+    SpinnerComponent
   ]
 })
 export class BaseSaleComponent {
@@ -70,7 +71,7 @@ export class BaseSaleComponent {
   private readonly modalService = inject(NgbModal);
   private baseSaleService = inject(BaseSaleService);
   private readonly confimDialog = viewChild.required<ConfirmDialogComponent>('confirmDialog');
-  private readonly spinner = inject(SpinerService);
+   private readonly spinner = viewChild.required<SpinnerComponent>('spinner');
 
   protected get entryAmount(): number {
     return this.modeReglementComponent()?.getInputSum() || 0;
@@ -165,7 +166,7 @@ export class BaseSaleComponent {
     sale.payrollAmount = Math.min(entryAmount, sale.amountToBePaid);
     sale.restToPay = Math.max(restToPay, 0);
     sale.montantRendu = sale.montantVerse - sale.amountToBePaid;
-    this.spinner.show();
+    this.spinner().show();
     this.isSaving = true;
     this.salesService
       .save(sale)
@@ -177,7 +178,7 @@ export class BaseSaleComponent {
   }
 
   putCurrentSaleOnHold(): void {
-    this.spinner.show();
+    this.spinner().show();
     this.isSaving = true;
     this.salesService
       .putCurrentOnStandBy(this.currentSaleService.currentSale())
@@ -189,7 +190,7 @@ export class BaseSaleComponent {
   }
 
   create(salesLine: ISalesLine, tiersPayants: IClientTiersPayant[]): void {
-    this.spinner.show();
+    this.spinner().show();
     this.isSaving = true;
     this.salesService
       .create(
@@ -211,7 +212,7 @@ export class BaseSaleComponent {
   }
 
   onAddProduit(salesLine: ISalesLine): void {
-    this.spinner.show();
+    this.spinner().show();
     this.isSaving = true;
     this.salesService
       .addItem(salesLine)
@@ -219,7 +220,7 @@ export class BaseSaleComponent {
         switchMap((res: HttpResponse<ISalesLine>) => this.salesService.find(res.body.saleId)),
         finalize(() => {
           this.isSaving = false;
-          this.spinner.hide();
+          this.spinner().hide();
         })
       )
       .subscribe({
@@ -229,7 +230,7 @@ export class BaseSaleComponent {
   }
 
   removeLine(salesLine: ISalesLine): void {
-    this.spinner.show();
+    this.spinner().show();
     this.isSaving = true;
     const sale = this.currentSaleService.currentSale();
     this.salesService
@@ -238,7 +239,7 @@ export class BaseSaleComponent {
         switchMap(() => this.salesService.find(sale.id)),
         finalize(() => {
           this.isSaving = false;
-          this.spinner.hide();
+          this.spinner().hide();
         })
       )
       .subscribe({
@@ -274,7 +275,7 @@ export class BaseSaleComponent {
   }
 
   updateItemQtyRequested(salesLine: ISalesLine): void {
-    this.spinner.show();
+    this.spinner().show();
     this.isSaving = true;
     const sale = this.currentSaleService.currentSale();
     this.salesService
@@ -283,7 +284,7 @@ export class BaseSaleComponent {
         switchMap(() => this.salesService.find(sale.id)),
         finalize(() => {
           this.isSaving = false;
-          this.spinner.hide();
+          this.spinner().hide();
         })
       )
       .subscribe({
@@ -299,7 +300,7 @@ export class BaseSaleComponent {
   }
 
   updateItemQtySold(salesLine: ISalesLine): void {
-    this.spinner.show();
+    this.spinner().show();
     this.isSaving = true;
     const sale = this.currentSaleService.currentSale();
     this.salesService
@@ -308,7 +309,7 @@ export class BaseSaleComponent {
         switchMap(() => this.salesService.find(sale.id)),
         finalize(() => {
           this.isSaving = false;
-          this.spinner.hide();
+          this.spinner().hide();
         })
       )
       .subscribe({
@@ -318,7 +319,7 @@ export class BaseSaleComponent {
   }
 
   updateItemPrice(salesLine: ISalesLine): void {
-    this.spinner.show();
+    this.spinner().show();
     this.isSaving = true;
     const sale = this.currentSaleService.currentSale();
     this.salesService
@@ -327,7 +328,7 @@ export class BaseSaleComponent {
         switchMap(() => this.salesService.find(sale.id)),
         finalize(() => {
           this.isSaving = false;
-          this.spinner.hide();
+          this.spinner().hide();
         })
       )
       .subscribe({
@@ -379,7 +380,7 @@ export class BaseSaleComponent {
         switchMap(() => this.salesService.find(sale.id)),
         finalize(() => {
           this.isSaving = false;
-          this.spinner.hide();
+          this.spinner().hide();
         })
       )
       .subscribe({

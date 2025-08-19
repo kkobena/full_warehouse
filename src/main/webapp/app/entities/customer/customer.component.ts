@@ -37,6 +37,7 @@ import { CustomerCarnetComponent } from './carnet/customer-carnet.component';
 import { ConfirmDialogComponent } from '../../shared/dialog/confirm-dialog/confirm-dialog.component';
 import { SpinerService } from '../../shared/spiner.service';
 import { showCommonModal } from '../sales/selling-home/sale-helper';
+import { SpinnerComponent } from '../../shared/spinner/spinner.component';
 
 @Component({
   selector: 'jhi-customer',
@@ -61,7 +62,8 @@ import { showCommonModal } from '../sales/selling-home/sale-helper';
     IconField,
     InputIcon,
     Panel,
-    ConfirmDialogComponent
+    ConfirmDialogComponent,
+    SpinnerComponent
   ]
 })
 export class CustomerComponent implements OnInit, OnDestroy {
@@ -93,7 +95,7 @@ export class CustomerComponent implements OnInit, OnDestroy {
   private readonly modalService = inject(NgbModal);
   private destroy$ = new Subject<void>();
   private readonly dialogService = inject(DialogService);
-  private readonly spinner = inject(SpinerService);
+   private readonly spinner = viewChild.required<SpinnerComponent>('spinner');
   private readonly messageService = inject(MessageService);
   private readonly confimDialog = viewChild.required<ConfirmDialogComponent>('confirmDialog');
 
@@ -415,16 +417,11 @@ export class CustomerComponent implements OnInit, OnDestroy {
     );
   }
 
-  protected uploadJsonDataResponse(result: Observable<HttpResponse<void>>): void {
-    result.pipe(finalize(() => this.spinner.hide())).subscribe({
-      next: () => this.onPocesJsonSuccess(),
-      error: () => this.onImportError()
-    });
-  }
+
 
   protected onPocesJsonSuccess(): void {
     this.jsonDialog = false;
-    this.spinner.hide();
+    this.spinner().hide();
     this.loadPage();
   }
 
@@ -432,14 +429,7 @@ export class CustomerComponent implements OnInit, OnDestroy {
     return customer.typeTiersPayant === 'ASSURANCE' && customer.tiersPayants && customer.tiersPayants.length < 4;
   }
 
-  private onImportError(): void {
-    this.spinner.hide();
-    this.messageService.add({
-      severity: 'error',
-      summary: 'Erreur',
-      detail: 'Enregistrement a échoué'
-    });
-  }
+
 
   private handleNavigation(): void {
     combineLatest(this.activatedRoute.data, this.activatedRoute.queryParamMap, (data: Data, params: ParamMap) => {
@@ -481,14 +471,14 @@ export class CustomerComponent implements OnInit, OnDestroy {
   }
 
   private handleServiceCall(observable: Observable<any>, successCallback: () => void): void {
-    this.spinner.show();
+    this.spinner().show();
     observable.pipe(takeUntil(this.destroy$)).subscribe({
       next: () => {
-        this.spinner.hide();
+        this.spinner().hide();
         successCallback();
       },
       error: error => {
-        this.spinner.hide();
+        this.spinner().hide();
         this.messageService.add({
           severity: 'error',
           summary: 'Erreur',

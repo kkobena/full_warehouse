@@ -41,9 +41,9 @@ import { CtaComponent } from '../../../shared/cta/cta.component';
 import { DatePickerComponent } from '../../../shared/date-picker/date-picker.component';
 import { saveAs } from 'file-saver';
 import { extractFileName2 } from '../../../shared/util/file-utils';
-import { SpinerService } from '../../../shared/spiner.service';
 import { ConfirmDialogComponent } from '../../../shared/dialog/confirm-dialog/confirm-dialog.component';
 import { ToastAlertComponent } from '../../../shared/toast-alert/toast-alert.component';
+import { SpinnerComponent } from '../../../shared/spinner/spinner.component';
 
 @Component({
   selector: 'jhi-lot-perimes',
@@ -70,7 +70,8 @@ import { ToastAlertComponent } from '../../../shared/toast-alert/toast-alert.com
     CtaComponent,
     DatePickerComponent,
     ConfirmDialogComponent,
-    ToastAlertComponent
+    ToastAlertComponent,
+    SpinnerComponent
   ],
   templateUrl: './lot-perimes.component.html'
 })
@@ -121,7 +122,7 @@ export class LotPerimesComponent implements OnInit, AfterViewInit {
   private readonly magasinSrevice = inject(MagasinService);
   private readonly storageService = inject(StorageService);
   private readonly productToDestroyService = inject(ProductToDestroyService);
-  private readonly spinner = inject(SpinerService);
+   private readonly spinner = viewChild.required<SpinnerComponent>('spinner');
   private readonly lotService = inject(LotService);
   private readonly confimDialog = viewChild.required<ConfirmDialogComponent>('confirmDialog');
   private readonly alert = viewChild.required<ToastAlertComponent>('alert');
@@ -233,30 +234,30 @@ export class LotPerimesComponent implements OnInit, AfterViewInit {
   }
 
   private exportPdf(): void {
-    this.spinner.show();
+    this.spinner().show();
     this.lotService.exportToPdf(this.buidParams()).subscribe({
       next: blod => {
-        this.spinner.hide();
+        this.spinner().hide();
         window.open(URL.createObjectURL(blod));
       },
-      error: () => this.spinner.hide()
+      error: () => this.spinner().hide()
     });
   }
 
   private onExport(format: string): void {
-    this.spinner.show();
+    this.spinner().show();
     this.lotService.export(format, this.buidParams()).subscribe({
       next: resp => {
-        this.spinner.hide();
+        this.spinner().hide();
         const blob = resp.body;
         saveAs(blob, extractFileName2(resp.headers.get('Content-disposition'), format, 'liste_de_produit_perimes'));
       },
       error: () => {
-        this.spinner.hide();
+        this.spinner().hide();
         this.alert().showError('Une erreur est survenue');
       },
       complete: () => {
-        this.spinner.hide();
+        this.spinner().hide();
       }
     });
   }
@@ -302,7 +303,7 @@ export class LotPerimesComponent implements OnInit, AfterViewInit {
 
   private onError(): void {
     this.loading = false;
-    this.spinner.hide();
+    this.spinner().hide();
   }
 
   private loadPage(page?: number): void {
@@ -369,14 +370,14 @@ export class LotPerimesComponent implements OnInit, AfterViewInit {
   }
 
   private retirerStock(lot?: LotPerimes): void {
-    this.spinner.show();
+    this.spinner().show();
     this.productToDestroyService.addProductQuantity(this.buildPayloads(lot)).subscribe({
       next: () => {
-        this.spinner.hide();
+        this.spinner().hide();
         this.loadPage();
       },
       error: () => {
-        this.spinner.hide();
+        this.spinner().hide();
         this.alert().showError('Une erreur est survenue');
       }
     });

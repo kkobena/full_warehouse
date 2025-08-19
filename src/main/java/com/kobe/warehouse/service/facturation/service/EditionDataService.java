@@ -28,27 +28,7 @@ import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
 
 public interface EditionDataService {
-    String QUERY =
-        """
-          SELECT t.id AS tiersPayantId,t.full_name AS tiersPayantName,SUM(sl.montant) AS totalAmount,COUNT(sl.id) AS factureItemCount FROM third_party_sale_line sl JOIN sales s ON sl.sale_id = s.id JOIN client_tiers_payant  c ON sl.client_tiers_payant_id = c.id
-         JOIN tiers_payant t ON c.tiers_payant_id = t.id  LEFT JOIN facture_tiers_payant ftp ON sl.facture_tiers_payant_id = ftp.id
-        """;
-    String GROUP_QUERY =
-        """
-                SELECT gtp.id as tiersPayantId,gtp.name as tiersPayantName,SUM(sl.montant) as totalAmount,COUNT(sl.id) AS factureItemCount FROM third_party_sale_line sl JOIN sales s ON sl.sale_id = s.id JOIN client_tiers_payant  c ON sl.client_tiers_payant_id = c.id JOIN tiers_payant t ON c.tiers_payant_id = t.id
-        LEFT JOIN facture_tiers_payant ftp ON sl.facture_tiers_payant_id = ftp.id JOIN groupe_tiers_payant gtp ON t.groupe_tiers_payant_id = gtp.id
-        """;
 
-    String QUERY_COUNT =
-        """
-          SELECT COUNT(distinct t.id) as factureItemCount FROM third_party_sale_line sl JOIN sales s ON sl.sale_id = s.id JOIN client_tiers_payant  c ON sl.client_tiers_payant_id = c.id
-         JOIN tiers_payant t ON c.tiers_payant_id = t.id  LEFT JOIN facture_tiers_payant ftp ON sl.facture_tiers_payant_id = ftp.id
-        """;
-    String GROUP_COUNT =
-        """
-                SELECT COUNT(distinct gtp.id) as factureItemCount FROM third_party_sale_line sl JOIN sales s ON sl.sale_id = s.id JOIN client_tiers_payant  c ON sl.client_tiers_payant_id = c.id JOIN tiers_payant t ON c.tiers_payant_id = t.id
-        LEFT JOIN facture_tiers_payant ftp ON sl.facture_tiers_payant_id = ftp.id JOIN groupe_tiers_payant gtp ON t.groupe_tiers_payant_id = gtp.id
-        """;
     String FACTURES_UNITAIRE_QUERY =
         """
           SELECT f.created,  f.id as factureId,gf.id as groupeFactureId,f.montant_regle as montantRegle,f.remise_forfetaire as remiseForfetaire,f.debut_periode as debutPeriode,f.statut  as statut,
@@ -140,19 +120,7 @@ public interface EditionDataService {
             .concat("'" + editionSearchParams.endDate() + "'");
     }
 
-    default String buildFinalQuery(EditionSearchParams editionSearchParams) {
-        if (editionSearchParams.modeEdition() == ModeEditionEnum.GROUP) {
-            return buildQuery(editionSearchParams, GROUP_QUERY).concat(" GROUP BY gtp.id ORDER BY gtp.name ASC ");
-        }
-        return buildQuery(editionSearchParams, QUERY).concat(" GROUP BY t.id ORDER BY t.full_name ASC ");
-    }
 
-    default String buildFinalCountQuery(EditionSearchParams editionSearchParams) {
-        if (editionSearchParams.modeEdition() == ModeEditionEnum.GROUP) {
-            return buildQuery(editionSearchParams, GROUP_COUNT);
-        }
-        return buildQuery(editionSearchParams, QUERY_COUNT);
-    }
 
     default String buildInvoiceQuery(InvoiceSearchParams invoiceSearchParams, String query) {
         return query

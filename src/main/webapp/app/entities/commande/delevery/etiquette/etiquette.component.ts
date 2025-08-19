@@ -10,9 +10,9 @@ import { KeyFilterModule } from 'primeng/keyfilter';
 import { InputTextModule } from 'primeng/inputtext';
 import { Subject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
-import { SpinerService } from '../../../../shared/spiner.service';
 import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
 import { Card } from 'primeng/card';
+import { SpinnerComponent } from '../../../../shared/spinner/spinner.component';
 
 @Component({
   selector: 'jhi-etiquette-delevery',
@@ -24,7 +24,8 @@ import { Card } from 'primeng/card';
     ButtonModule,
     FormsModule,
     InputTextModule,
-    Card
+    Card,
+    SpinnerComponent
   ]
 })
 export class EtiquetteComponent implements AfterViewInit, OnDestroy {
@@ -34,7 +35,7 @@ export class EtiquetteComponent implements AfterViewInit, OnDestroy {
   protected startAt = 1;
   private readonly entityService = inject(DeliveryService);
 
-  spinner = inject(SpinerService);
+  private readonly spinner = viewChild.required<SpinnerComponent>('spinner');
   private destroy$ = new Subject<void>();
   private readonly activeModal = inject(NgbActiveModal);
   private readonly startInput = viewChild.required<ElementRef>('startInput');
@@ -63,15 +64,15 @@ export class EtiquetteComponent implements AfterViewInit, OnDestroy {
   }
 
   private printEtiquette(): void {
-    this.spinner.show();
+    this.spinner().show();
     this.entityService.printEtiquette(this.entity.id, { startAt: this.startAt }).pipe(takeUntil(this.destroy$)).subscribe({
       next: (blod: Blob) => {
-        this.spinner.hide();
+        this.spinner().hide();
         saveAs(blod, this.entity.receiptReference + '_' + DATE_FORMAT_DD_MM_YYYY_HH_MM_SS());
         this.cancel();
       },
       error: () => {
-        this.spinner.hide();
+        this.spinner().hide();
         this.isSaving = false;
       }
     });

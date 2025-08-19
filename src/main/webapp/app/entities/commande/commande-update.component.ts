@@ -56,6 +56,7 @@ import { ConfirmDialogComponent } from '../../shared/dialog/confirm-dialog/confi
 import { ToastAlertComponent } from '../../shared/toast-alert/toast-alert.component';
 import { SpinerService } from '../../shared/spiner.service';
 import { FileResponseModalComponent } from './file-response-modal/file-response-modal.component';
+import { SpinnerComponent } from '../../shared/spinner/spinner.component';
 
 @Component({
   selector: 'jhi-commande-update',
@@ -84,7 +85,8 @@ import { FileResponseModalComponent } from './file-response-modal/file-response-
     Panel,
     FloatLabel,
     ConfirmDialogComponent,
-    ToastAlertComponent
+    ToastAlertComponent,
+    SpinnerComponent
   ]
 })
 export class CommandeUpdateComponent implements OnInit, AfterViewInit {
@@ -119,7 +121,7 @@ export class CommandeUpdateComponent implements OnInit, AfterViewInit {
   private readonly modalService = inject(NgbModal);
   private readonly fournisseurService = inject(FournisseurService);
   private readonly errorService = inject(ErrorService);
-  private readonly spinner = inject(SpinerService);
+   private readonly spinner = viewChild.required<SpinnerComponent>('spinner');
   private readonly deliveryService = inject(DeliveryService);
   private readonly commandCommonService = inject(CommandCommonService);
   private readonly router = inject(Router);
@@ -571,11 +573,11 @@ export class CommandeUpdateComponent implements OnInit, AfterViewInit {
   }
 
   private showsPinner(): void {
-    this.spinner.show();
+    this.spinner().show();
   }
 
   private hidePinner(): void {
-    this.spinner.hide();
+    this.spinner().hide();
   }
 
   protected onAddLot(deliveryItem: IOrderLine): void {

@@ -23,9 +23,9 @@ import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { showCommonModal } from '../sales/selling-home/sale-helper';
 import { ErrorService } from '../../shared/error.service';
 import { FileUploadDialogComponent } from '../groupe-tiers-payant/file-upload-dialog/file-upload-dialog.component';
-import { SpinerService } from '../../shared/spiner.service';
 import { finalize } from 'rxjs/operators';
 import { Panel } from 'primeng/panel';
+import { SpinnerComponent } from '../../shared/spinner/spinner.component';
 
 @Component({
   selector: 'jhi-famille-produit',
@@ -43,7 +43,8 @@ import { Panel } from 'primeng/panel';
     IconField,
     ToastAlertComponent,
     ConfirmDialogComponent,
-    Panel
+    Panel,
+    SpinnerComponent
   ]
 })
 export class FamilleProduitComponent implements OnInit {
@@ -59,7 +60,7 @@ export class FamilleProduitComponent implements OnInit {
   private readonly alert = viewChild.required<ToastAlertComponent>('alert');
   private readonly modalService = inject(NgbModal);
   private readonly errorService = inject(ErrorService);
-  private readonly spinner = inject(SpinerService);
+   private readonly spinner = viewChild.required<SpinnerComponent>('spinner');
 
   ngOnInit(): void {
     this.loadPage();
@@ -126,7 +127,7 @@ export class FamilleProduitComponent implements OnInit {
       FileUploadDialogComponent,
       {},
       result => {
-        this.spinner.show();
+        this.spinner().show();
         this.uploadFileResponse(this.entityService.uploadFile(result));
       },
       'xl'
@@ -169,7 +170,7 @@ export class FamilleProduitComponent implements OnInit {
   }
 
   protected uploadFileResponse(result: Observable<HttpResponse<IResponseDto>>): void {
-    result.pipe(finalize(() => this.spinner.hide())).subscribe({
+    result.pipe(finalize(() => this.spinner().hide())).subscribe({
       next: (res: HttpResponse<IResponseDto>) => this.onPocesCsvSuccess(res.body),
       error: err => this.onSaveError(err)
     });

@@ -141,16 +141,4 @@ public abstract class AbstractEditionFactureService implements EditionService {
         return 0;
     }
 }
-// est-ce qu'on n'a des endpoint côte ROD pour recuper les informations zone de chanladises
-// le pacte
-// administrateur
-// pour les missions 0:: n le pacte
-// modification des droits de type de structure
-// les pactes ==> ROD
-// les missions ==> appel à l'API rod avec id clavis
-// impact exportation des données  avec l'id clavis,inditification des structures
-// deux type de structure:: faire acte et faire mission
-//faire mission
-// les existantes :  acte et mission :: type de structure
-// les nouvelles : mission uniquement
-// las pactes une liste  de pactes
+

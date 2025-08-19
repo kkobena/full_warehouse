@@ -28,10 +28,10 @@ import { FournisseurUpdateComponent } from './fournisseur-update.component';
 import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { ToastAlertComponent } from '../../shared/toast-alert/toast-alert.component';
 import { FileUploadDialogComponent } from '../groupe-tiers-payant/file-upload-dialog/file-upload-dialog.component';
-import { SpinerService } from '../../shared/spiner.service';
 import { Observable } from 'rxjs';
 import { finalize } from 'rxjs/operators';
 import { ErrorService } from '../../shared/error.service';
+import { SpinnerComponent } from '../../shared/spinner/spinner.component';
 
 @Component({
   selector: 'jhi-fournisseur',
@@ -52,7 +52,8 @@ import { ErrorService } from '../../shared/error.service';
     InputIconModule,
     Panel,
     ConfirmDialogComponent,
-    ToastAlertComponent
+    ToastAlertComponent,
+    SpinnerComponent
   ]
 })
 export class FournisseurComponent implements OnInit {
@@ -68,7 +69,7 @@ export class FournisseurComponent implements OnInit {
   private readonly confimDialog = viewChild.required<ConfirmDialogComponent>('confirmDialog');
   private readonly alert = viewChild.required<ToastAlertComponent>('alert');
   private readonly modalService = inject(NgbModal);
-  private readonly spinner = inject(SpinerService);
+   private readonly spinner = viewChild.required<SpinnerComponent>('spinner');
   private readonly errorService = inject(ErrorService);
 
   ngOnInit(): void {
@@ -175,7 +176,7 @@ export class FournisseurComponent implements OnInit {
       FileUploadDialogComponent,
       {},
       result => {
-        this.spinner.show();
+        this.spinner().show();
         this.uploadFileResponse(this.entityService.uploadFile(result));
       },
       'xl'
@@ -183,7 +184,7 @@ export class FournisseurComponent implements OnInit {
   }
 
   private uploadFileResponse(result: Observable<HttpResponse<IResponseDto>>): void {
-    result.pipe(finalize(() => this.spinner.hide())).subscribe({
+    result.pipe(finalize(() => this.spinner().hide())).subscribe({
       next: (res: HttpResponse<IResponseDto>) => {
         this.alert().showInfo('Fichier importé avec succès');
       },

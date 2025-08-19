@@ -1,9 +1,9 @@
-import { Component, inject, OnInit } from '@angular/core';
+import { Component, inject, OnInit, viewChild } from '@angular/core';
 import { RecapitulatifCaisseService } from '../recapitulatif-caisse.service';
 import { TIMES } from '../../../shared/util/times';
 import { RecapParam } from '../model/recap-param.model';
 import { DATE_FORMAT_ISO_DATE } from '../../../shared/util/warehouse-util';
-import { NgxSpinnerComponent, NgxSpinnerService } from 'ngx-spinner';
+import { NgxSpinnerModule, NgxSpinnerService } from 'ngx-spinner';
 import { CommonModule } from '@angular/common';
 import { Ticket } from '../model/ticket.model';
 import { UserService } from '../../../core/user/user.service';
@@ -21,6 +21,7 @@ import { MenuItem } from 'primeng/api';
 import { SplitButton } from 'primeng/splitbutton';
 import { Tooltip } from 'primeng/tooltip';
 import { Card } from 'primeng/card';
+import { SpinnerComponent } from '../../../shared/spinner/spinner.component';
 
 @Component({
   selector: 'jhi-recapitualtif-caisse',
@@ -35,9 +36,9 @@ import { Card } from 'primeng/card';
     MultiSelectModule,
     SelectModule,
     SplitButton,
-    NgxSpinnerComponent,
     Tooltip,
-    Card
+    Card,
+    SpinnerComponent
   ],
   templateUrl: './recapitualtif-caisse.component.html'
 })
@@ -59,7 +60,7 @@ export class RecapitualtifCaisseComponent implements OnInit {
   protected selectedUsersId: number[] = [null];
   protected readonly hous = TIMES;
   private readonly recapitulatifCaisseService = inject(RecapitulatifCaisseService);
-  private readonly spinner = inject(NgxSpinnerService);
+  private readonly spinner = viewChild.required<SpinnerComponent>('spinner');
   private readonly userService = inject(UserService);
 
   ngOnInit(): void {
@@ -101,25 +102,25 @@ export class RecapitualtifCaisseComponent implements OnInit {
   }
 
   protected exportToPdf(): void {
-    this.spinner.show();
+    this.spinner().show();
     this.recapitulatifCaisseService.exportToPdf(this.buildParams()).subscribe({
       next: blod => {
-        this.spinner.hide();
+        this.spinner().hide();
         const blobUrl = URL.createObjectURL(blod);
         window.open(blobUrl);
       },
-      error: () => this.spinner.hide()
+      error: () => this.spinner().hide()
     });
   }
 
   protected fetchTickets(): void {
-    this.spinner.show();
+    this.spinner().show();
     this.recapitulatifCaisseService.query(this.buildParams()).subscribe({
       next: response => {
         this.ticketZ = response.body;
-        this.spinner.hide();
+        this.spinner().hide();
       },
-      error: () => this.spinner.hide()
+      error: () => this.spinner().hide()
     });
   }
 
@@ -136,22 +137,22 @@ export class RecapitualtifCaisseComponent implements OnInit {
   }
 
   private print(): void {
-    this.spinner.show();
+    this.spinner().show();
     this.recapitulatifCaisseService.print(this.buildParams()).subscribe({
       next: () => {
-        this.spinner.hide();
+        this.spinner().hide();
       },
-      error: () => this.spinner.hide()
+      error: () => this.spinner().hide()
     });
   }
 
   private sentMail(): void {
-    this.spinner.show();
+    this.spinner().show();
     this.recapitulatifCaisseService.sendMail(this.buildParams()).subscribe({
       next: () => {
-        this.spinner.hide();
+        this.spinner().hide();
       },
-      error: () => this.spinner.hide()
+      error: () => this.spinner().hide()
     });
   }
 

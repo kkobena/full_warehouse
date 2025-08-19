@@ -31,6 +31,7 @@ import { Panel } from 'primeng/panel';
 import { showCommonModal } from '../sales/selling-home/sale-helper';
 import { ConfirmDialogComponent } from '../../shared/dialog/confirm-dialog/confirm-dialog.component';
 import { SpinerService } from '../../shared/spiner.service';
+import { SpinnerComponent } from '../../shared/spinner/spinner.component';
 
 @Component({
   selector: 'jhi-tiers-payant',
@@ -56,7 +57,8 @@ import { SpinerService } from '../../shared/spiner.service';
     IconField,
     InputIcon,
     Panel,
-    ConfirmDialogComponent
+    ConfirmDialogComponent,
+    SpinnerComponent
   ]
 })
 export class TiersPayantComponent implements OnInit {
@@ -84,7 +86,7 @@ export class TiersPayantComponent implements OnInit {
   private readonly router = inject(Router);
   private readonly messageService = inject(MessageService);
   private readonly modalService = inject(NgbModal);
-  private readonly spinner = inject(SpinerService);
+   private readonly spinner = viewChild.required<SpinnerComponent>('spinner');
   private readonly confimDialog = viewChild.required<ConfirmDialogComponent>('confirmDialog');
 
   constructor() {
@@ -116,7 +118,7 @@ export class TiersPayantComponent implements OnInit {
     const formData: FormData = new FormData();
     const file = event.files[0];
     formData.append('importjson', file, file.name);
-    this.spinner.show();
+    this.spinner().show();
     this.jsonDialog = false;
     this.uploadJsonDataResponse(this.entityService.uploadJsonData(formData));
   }
@@ -269,7 +271,7 @@ export class TiersPayantComponent implements OnInit {
 
   protected onImportError(): void {
     this.isSaving = false;
-    this.spinner.hide();
+    this.spinner().hide();
     this.messageService.add({
       severity: 'error',
       summary: 'Erreur',
@@ -286,7 +288,7 @@ export class TiersPayantComponent implements OnInit {
 
   protected onPocesJsonSuccess(): void {
     this.jsonDialog = false;
-    this.spinner.hide();
+    this.spinner().hide();
     this.loadPage();
   }
 

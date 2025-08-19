@@ -10,6 +10,7 @@ import { FormsModule } from '@angular/forms';
 import { BaseSaleComponent } from '../base-sale/base-sale.component';
 import { ConfirmDialogComponent } from '../../../../shared/dialog/confirm-dialog/confirm-dialog.component';
 import { CardModule } from 'primeng/card';
+import { SpinnerComponent } from '../../../../shared/spinner/spinner.component';
 
 @Component({
   selector: 'jhi-carnet',
@@ -24,7 +25,7 @@ import { CardModule } from 'primeng/card';
     ProductTableComponent,
     ModeReglementComponent,
     ConfirmDialogComponent,
-    CardModule
+    CardModule,SpinnerComponent
   ],
   templateUrl: '../base-sale/base-sale.component.html'
 })

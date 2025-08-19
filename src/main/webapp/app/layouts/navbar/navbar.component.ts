@@ -59,15 +59,7 @@ export default class NavbarComponent implements OnInit {
   protected version = '';
   protected account = inject(AccountService).trackCurrentAccount();
   navItems: NavItem[] = [];
-  protected readonly faWarehouse = faWarehouse;
-  protected readonly faShoppingBag = faShoppingBag;
-  protected readonly faShippingFast = faShippingFast;
-  protected readonly faShoppingBasket = faShoppingBasket;
-  protected readonly faStore = faStore;
-  protected readonly basketShoppingPlus = faBasketShopping;
   protected menuStock: string[] = [];
-  protected readonly faSackDollar = faSackDollar;
-  protected faCoins = faCoins;
   protected readonly faTimes = faTimes;
   private loginService = inject(LoginService);
   private router = inject(Router);
@@ -144,7 +136,7 @@ export default class NavbarComponent implements OnInit {
         authorities: [Authority.GESTION_COURANT, Authority.ADMIN, Authority.ROLE_CAISSIER, Authority.ROLE_VENDEUR, Authority.SALES],
         children: [
           {
-            label: 'global.menu.entities.sales',
+            label:this.translateLabel('entities.sales'),
             routerLink: '/sales',
             faIcon: faShoppingBag
           },

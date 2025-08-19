@@ -9,13 +9,16 @@ import { ICommande } from '../../../shared/model/commande.model';
 import { HttpErrorResponse } from '@angular/common/http';
 import { ToastAlertComponent } from '../../../shared/toast-alert/toast-alert.component';
 import { ErrorService } from '../../../shared/error.service';
+import { SpinnerComponent } from '../../../shared/spinner/spinner.component';
 
 @Component({
   selector: 'jhi-file-response-modal',
   imports: [
     Button,
     Card,
-    FileUpload
+    FileUpload,
+    SpinnerComponent,
+    ToastAlertComponent
   ],
   templateUrl: './file-response-modal.component.html',
   styleUrls: ['../../common-modal.component.scss']
@@ -26,7 +29,7 @@ export class FileResponseModalComponent {
 
   private readonly commandeService = inject(CommandeService);
   private readonly activeModal = inject(NgbActiveModal);
-  private readonly spinner = inject(SpinerService);
+   private readonly spinner = viewChild.required<SpinnerComponent>('spinner');
   private readonly alert = viewChild.required<ToastAlertComponent>('alert');
   private readonly errorService = inject(ErrorService);
 
@@ -39,14 +42,14 @@ export class FileResponseModalComponent {
     const formData: FormData = new FormData();
     const file = event.files[0];
     formData.append('commande', file, file.name);
-    this.spinner.show();
+    this.spinner().show();
     this.commandeService.importerReponseCommande(this.commandeSelected.id, formData).subscribe({
       next: res => {
-        this.spinner.hide();
+        this.spinner().hide();
         this.activeModal.close(res.body);
       },
       error: error => {
-        this.spinner.hide();
+        this.spinner().hide();
         this.onCommonError(error);
       }
     });

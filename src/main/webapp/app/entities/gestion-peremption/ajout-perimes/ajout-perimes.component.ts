@@ -1,4 +1,4 @@
-import { Component, ElementRef, inject, OnInit, viewChild, ViewEncapsulation } from '@angular/core';
+import { Component, ElementRef, inject, OnInit, viewChild } from '@angular/core';
 import {
   APPEND_TO,
   ITEMS_PER_PAGE,
@@ -30,10 +30,10 @@ import { PeremptionStatut } from '../model/peremption-statut';
 import { RemoveButtonTextComponent } from '../../../shared/cta/remove-button-text.component';
 import { BackButtonComponent } from '../../../shared/cta/back-button.component';
 import { ButtonGroup } from 'primeng/buttongroup';
-import { SpinerService } from '../../../shared/spiner.service';
 import { IconField } from 'primeng/iconfield';
 import { InputIcon } from 'primeng/inputicon';
 import { DatePickerComponent } from '../../../shared/date-picker/date-picker.component';
+import { SpinnerComponent } from '../../../shared/spinner/spinner.component';
 
 @Component({
   selector: 'jhi-ajout-perimes',
@@ -58,11 +58,12 @@ import { DatePickerComponent } from '../../../shared/date-picker/date-picker.com
     ButtonGroup,
     IconField,
     InputIcon,
-    DatePickerComponent
+    DatePickerComponent,
+    SpinnerComponent
   ],
   templateUrl: './ajout-perimes.component.html',
-  styleUrls: ['./ajout-perimes.component.scss'],
-  encapsulation: ViewEncapsulation.None
+  styleUrls: ['./ajout-perimes.component.scss']
+
 })
 export class AjoutPerimesComponent implements OnInit {
   protected readonly PRODUIT_COMBO_MIN_LENGTH = PRODUIT_COMBO_MIN_LENGTH;
@@ -87,7 +88,7 @@ export class AjoutPerimesComponent implements OnInit {
   private produitComponent = viewChild.required<ProduitAutocompleteComponent>('produitComponent');
   private confimDialog = viewChild.required<ConfirmDialogComponent>('confirmDialog');
   private alert = viewChild.required<ToastAlertComponent>('alert');
-  private readonly spinner = inject(SpinerService);
+  private readonly spinner = viewChild.required<SpinnerComponent>('spinner');
 
   private readonly productToDestroyService = inject(ProductToDestroyService);
 
@@ -134,15 +135,15 @@ export class AjoutPerimesComponent implements OnInit {
   protected onClose(): void {
     this.confimDialog().onConfirm(
       () => {
-        this.spinner.show();
+        this.spinner().show();
         this.productToDestroyService.closeCurrent().subscribe({
           next: () => {
-            this.spinner.hide();
+            this.spinner().hide();
             this.data = [];
             this.alert()?.showInfo('La clôture a été effectuée avec succès.');
           },
           error: err => {
-            this.spinner.hide();
+            this.spinner().hide();
             this.onError(err);
           }
         });

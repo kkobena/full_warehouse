@@ -68,6 +68,7 @@ public class FactureTiersPayant implements Serializable {
     private InvoiceStatut statut = InvoiceStatut.NOT_PAID;
 
     @ManyToOne
+    @JoinColumn(name = "groupe_tiers_payant_id", referencedColumnName = "id")
     private GroupeTiersPayant groupeTiersPayant;
 
     @NotNull
@@ -78,6 +79,7 @@ public class FactureTiersPayant implements Serializable {
     private List<FactureTiersPayant> factureTiersPayants = new ArrayList<>();
 
     @ManyToOne
+    @JoinColumn(name = "groupe_facture_tiers_payant_id", referencedColumnName = "id")
     private FactureTiersPayant groupeFactureTiersPayant;
 
     @OneToMany(mappedBy = "factureTiersPayant")

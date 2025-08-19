@@ -11,7 +11,6 @@ import { SelectedCustomerService } from '../../service/selected-customer.service
 import { TypePrescriptionService } from '../../service/type-prescription.service';
 import { UserCaissierService } from '../../service/user-caissier.service';
 import { UserVendeurService } from '../../service/user-vendeur.service';
-import { SpinerService } from '../../../../shared/spiner.service';
 
 @Injectable({
   providedIn: 'root'
@@ -23,13 +22,13 @@ export class ComptantFacadeService {
   private readonly typePrescriptionService = inject(TypePrescriptionService);
   private readonly userCaissierService = inject(UserCaissierService);
   private readonly userVendeurService = inject(UserVendeurService);
-  private readonly spinner = inject(SpinerService);
-
   private saveResponseSubject = new Subject<SaveResponse>();
   saveResponse$ = this.saveResponseSubject.asObservable();
-
   private finalyseSaleSubject = new Subject<FinalyseSale>();
   finalyseSale$ = this.finalyseSaleSubject.asObservable();
+
+  private spinnerService = new Subject<boolean>();
+  spinnerService$ = this.spinnerService.asObservable();
 
   private openUninsuredCustomerSubject = new Subject<{
     isVenteDefferee: boolean;
@@ -72,10 +71,10 @@ export class ComptantFacadeService {
   }
 
   createComptant(salesLine: ISalesLine): void {
-    this.spinner.show();
+    this.spinnerService.next(true);
     this.salesService
       .createComptant(this.createSaleComptant(salesLine))
-      .pipe(finalize(() => this.spinner.hide()))
+      .pipe(finalize(() => this.spinnerService.next(false)))
       .subscribe({
         next: (res: HttpResponse<ISales>) => this.onSaleComptantResponseSuccess(res.body),
         error: error => this.onSaveSaveError(error, this.currentSaleService.currentSale())
@@ -118,10 +117,10 @@ export class ComptantFacadeService {
   }
 
   printInvoice(saleId: number): void {
-    this.spinner.show();
+    this.spinnerService.next(true);
     this.salesService
       .printInvoice(saleId)
-      .pipe(finalize(() => this.spinner.hide()))
+      .pipe(finalize(() => this.spinnerService.next(false)))
       .subscribe(blob => {
         const blobUrl = URL.createObjectURL(blob);
         window.open(blobUrl);
@@ -129,10 +128,10 @@ export class ComptantFacadeService {
   }
 
   printReceipt(saleId: number): void {
-    this.spinner.show();
+    this.spinnerService.next(true);
     this.salesService
       .printReceipt(saleId)
-      .pipe(finalize(() => this.spinner.hide()))
+      .pipe(finalize(() => this.spinnerService.next(false)))
       .subscribe();
   }
 
@@ -165,12 +164,12 @@ export class ComptantFacadeService {
 
   private saveCashSale(entryAmount: number): void {
     console.warn('entrypoint', entryAmount);
-    this.spinner.show();
+    this.spinnerService.next(true);
     const currentSale = this.currentSaleService.currentSale();
     this.updateSaleAmounts(currentSale, entryAmount);
     this.salesService
       .saveCash(currentSale)
-      .pipe(finalize(() => this.spinner.hide()))
+      .pipe(finalize(() => this.spinnerService.next(false)))
       .subscribe({
         next: (res: HttpResponse<FinalyseSale>) => this.onFinalyseSuccess(res.body),
         error: err => this.onFinalyseError(err)
@@ -180,7 +179,7 @@ export class ComptantFacadeService {
   private putCurrentCashSaleOnHold(): void {
     this.salesService
       .putCurrentCashSaleOnStandBy(this.currentSaleService.currentSale())
-      .pipe(finalize(() => this.spinner.hide()))
+      .pipe(finalize(() => this.spinnerService.next(false)))
       .subscribe({
         next: (res: HttpResponse<FinalyseSale>) => this.onFinalyseSuccess(res.body, true),
         error: err => this.onFinalyseError(err)
@@ -188,8 +187,8 @@ export class ComptantFacadeService {
   }
 
   private handleSaleUpdate(observable: Observable<HttpResponse<ISales>>, payload: any = null): void {
-    this.spinner.show();
-    observable.pipe(finalize(() => this.spinner.hide())).subscribe({
+    this.spinnerService.next(true);
+    observable.pipe(finalize(() => this.spinnerService.next(false))).subscribe({
       next: (res: HttpResponse<ISales>) => this.onSaveSuccess(res.body),
       error: err => this.onSaveSaveError(err, this.currentSaleService.currentSale(), payload)
     });

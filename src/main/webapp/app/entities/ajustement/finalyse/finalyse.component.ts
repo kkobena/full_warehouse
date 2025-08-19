@@ -9,15 +9,16 @@ import { WarehouseCommonModule } from '../../../shared/warehouse-common/warehous
 import { RouterModule } from '@angular/router';
 import { ButtonModule } from 'primeng/button';
 import { TextareaModule } from 'primeng/textarea';
-import { SpinerService } from '../../../shared/spiner.service';
+
 import { ToastAlertComponent } from '../../../shared/toast-alert/toast-alert.component';
 import { finalize } from 'rxjs/operators';
+import { SpinnerComponent } from '../../../shared/spinner/spinner.component';
 
 @Component({
   selector: 'jhi-finalyse',
   templateUrl: './finalyse.component.html',
 
-  imports: [WarehouseCommonModule, RouterModule, ButtonModule, FormsModule, ReactiveFormsModule, TextareaModule, ToastAlertComponent]
+  imports: [WarehouseCommonModule, RouterModule, ButtonModule, FormsModule, ReactiveFormsModule, TextareaModule, ToastAlertComponent, SpinnerComponent]
 })
 export class FinalyseComponent implements OnInit {
   ref = inject(DynamicDialogRef);
@@ -34,7 +35,7 @@ export class FinalyseComponent implements OnInit {
   });
   private commentaire = viewChild.required<ElementRef>('commentaire');
   private readonly ajustementService = inject(AjustementService);
-  private readonly spinner = inject(SpinerService);
+  private readonly spinner = viewChild.required<SpinnerComponent>('spinner');
   private alert = viewChild.required<ToastAlertComponent>('alert');
 
   ngOnInit(): void {
@@ -44,7 +45,7 @@ export class FinalyseComponent implements OnInit {
 
   save(): void {
     this.isSaving = true;
-    this.spinner.show();
+    this.spinner().show();
     this.subscribeToSaveResponse(this.ajustementService.saveAjustement(this.createFromForm()));
   }
 
@@ -53,7 +54,7 @@ export class FinalyseComponent implements OnInit {
   }
 
   protected subscribeToSaveResponse(result: Observable<HttpResponse<{}>>): void {
-    result.pipe(finalize(() => this.spinner.hide())).subscribe({
+    result.pipe(finalize(() => this.spinner().hide())).subscribe({
       next: () => this.onSaveSuccess(),
       error: () => this.onSaveError()
     });

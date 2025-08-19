@@ -17,9 +17,9 @@ import { ButtonModule } from 'primeng/button';
 import { Select } from 'primeng/select';
 import { Card } from 'primeng/card';
 import { ToastAlertComponent } from '../../../shared/toast-alert/toast-alert.component';
-import { SpinerService } from '../../../shared/spiner.service';
 import { ErrorService } from '../../../shared/error.service';
 import { finalize } from 'rxjs/operators';
+import { SpinnerComponent } from '../../../shared/spinner/spinner.component';
 
 @Component({
   selector: 'jhi-import-produit-modal',
@@ -35,7 +35,8 @@ import { finalize } from 'rxjs/operators';
     ButtonModule,
     Select,
     Card,
-    ToastAlertComponent
+    ToastAlertComponent,
+    SpinnerComponent
   ],
   templateUrl: './import-produit-modal.component.html',
   styleUrls: ['../../common-modal.component.scss']
@@ -50,10 +51,10 @@ export class ImportProduitModalComponent implements OnInit {
   protected fournisseurs: IFournisseur[] = [];
   protected accept = '.csv';
   private readonly alert = viewChild.required<ToastAlertComponent>('alert');
-  private readonly spinner = inject(SpinerService);
   private readonly errorService = inject(ErrorService);
   private readonly activeModal = inject(NgbActiveModal);
   private readonly produitService = inject(ProduitService);
+  private readonly spinner = viewChild.required<SpinnerComponent>('spinner');
 
   get isFileUploadValid(): boolean {
     return this.fileUpload().hasFiles() && !this.isSaving && this.fournisseur().value;
@@ -64,7 +65,7 @@ export class ImportProduitModalComponent implements OnInit {
   }
 
   onUpload(): void {
-    this.spinner.show();
+    this.spinner().show();
     this.isSaving = true;
     this.uploadFileResponse(this.produitService.uploadFile(this.buildFormData()));
   }
@@ -110,7 +111,7 @@ export class ImportProduitModalComponent implements OnInit {
 
   private uploadFileResponse(result: Observable<HttpResponse<IResponseDto>>): void {
     result.pipe(finalize(() => {
-      this.spinner.hide();
+      this.spinner().hide();
       this.isSaving = false;
     })).subscribe({
       next: (res: HttpResponse<IResponseDto>) => this.onPocesCsvSuccess(res.body),
@@ -124,7 +125,7 @@ export class ImportProduitModalComponent implements OnInit {
   }
 
   private onSaveError(error: HttpErrorResponse): void {
-    this.spinner.hide();
+    this.spinner().hide();
     this.isSaving = false;
     this.alert().showError(this.errorService.getErrorMessage(error));
   }

@@ -1,4 +1,4 @@
-import { Component, inject, input, OnInit } from '@angular/core';
+import { Component, inject, input, OnInit, viewChild } from '@angular/core';
 import { IDelivery } from '../../../../shared/model/delevery.model';
 import { ITEMS_PER_PAGE } from '../../../../shared/constants/pagination.constants';
 import { RouterModule } from '@angular/router';
@@ -11,9 +11,9 @@ import { ButtonModule } from 'primeng/button';
 import { RippleModule } from 'primeng/ripple';
 import { TableModule } from 'primeng/table';
 import { TooltipModule } from 'primeng/tooltip';
-import { SpinerService } from '../../../../shared/spiner.service';
 import { showCommonModal } from '../../../sales/selling-home/sale-helper';
 import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
+import { SpinnerComponent } from '../../../../shared/spinner/spinner.component';
 
 export type ExpandMode = 'single' | 'multiple';
 
@@ -26,7 +26,8 @@ export type ExpandMode = 'single' | 'multiple';
     RouterModule,
     RippleModule,
     TableModule,
-    TooltipModule
+    TooltipModule,
+    SpinnerComponent
   ]
 })
 export class ListBonsComponent implements OnInit {
@@ -41,7 +42,7 @@ export class ListBonsComponent implements OnInit {
   protected ngbPaginationPage = 1;
   protected totalItems = 0;
   protected selectedFilter = 'CLOSED';
-  private readonly spinner = inject(SpinerService);
+   private readonly spinner = viewChild.required<SpinnerComponent>('spinner');
   private readonly modalService = inject(NgbModal);
 
   ngOnInit(): void {
@@ -96,14 +97,14 @@ export class ListBonsComponent implements OnInit {
   }
 
   exportPdf(delivery: IDelivery): void {
-    this.spinner.show();
+    this.spinner().show();
     this.entityService.exportToPdf(delivery.id).subscribe({
       next: blod => {
-        this.spinner.hide();
+        this.spinner().hide();
         const blobUrl = URL.createObjectURL(blod);
         window.open(blobUrl);
       },
-      error: () => this.spinner.hide()
+      error: () => this.spinner().hide()
     });
   }
 

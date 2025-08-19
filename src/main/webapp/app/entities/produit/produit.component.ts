@@ -49,12 +49,12 @@ import { ConfirmDialogComponent } from '../../shared/dialog/confirm-dialog/confi
 import { showCommonModal } from '../sales/selling-home/sale-helper';
 import { finalize } from 'rxjs/operators';
 import { FileUploadDialogComponent } from '../groupe-tiers-payant/file-upload-dialog/file-upload-dialog.component';
-import { SpinerService } from '../../shared/spiner.service';
 import {
   ImportProduitReponseModalComponent
 } from './import-produit-reponse-modal/import-produit-reponse-modal.component';
 import { Panel } from 'primeng/panel';
 import { CardModule } from 'primeng/card';
+import { SpinnerComponent } from '../../shared/spinner/spinner.component';
 
 export type ExpandMode = 'single' | 'multiple';
 
@@ -152,7 +152,8 @@ export type ExpandMode = 'single' | 'multiple';
     ToastAlertComponent,
     ConfirmDialogComponent,
     Panel,
-    CardModule
+    CardModule,
+    SpinnerComponent
   ]
 })
 export class ProduitComponent implements OnInit {
@@ -194,7 +195,7 @@ export class ProduitComponent implements OnInit {
   private readonly configurationService = inject(ConfigurationService);
   private readonly confimDialog = viewChild.required<ConfirmDialogComponent>('confirmDialog');
   private readonly alert = viewChild.required<ToastAlertComponent>('alert');
-  private readonly spinner = inject(SpinerService);
+   private readonly spinner = viewChild.required<SpinnerComponent>('spinner');
 
   constructor() {
     this.criteria = new ProduitCriteria();
@@ -411,7 +412,7 @@ export class ProduitComponent implements OnInit {
       FileUploadDialogComponent,
       { accept: '.json' },
       (result) => {
-        this.spinner.show();
+        this.spinner().show();
         this.uploadJsonDataResponse(this.produitService.uploadJsonData(result));
       },
       'lg'
@@ -572,7 +573,7 @@ export class ProduitComponent implements OnInit {
 
   private uploadJsonDataResponse(result: Observable<HttpResponse<void>>): void {
     result.pipe(finalize(() => {
-      this.spinner.hide();
+      this.spinner().hide();
       this.isSaving = false;
     })).subscribe({
       next: () => this.onPocesJsonSuccess(),

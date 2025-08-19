@@ -1,4 +1,4 @@
-import { Component, inject, input, OnDestroy, OnInit } from '@angular/core';
+import { Component, inject, input, OnDestroy, OnInit, viewChild } from '@angular/core';
 import { IDelivery } from '../../../../shared/model/delevery.model';
 import { ITEMS_PER_PAGE } from '../../../../shared/constants/pagination.constants';
 import { RouterModule } from '@angular/router';
@@ -11,14 +11,14 @@ import { TooltipModule } from 'primeng/tooltip';
 import { CommandeService } from '../../commande.service';
 import { Subject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
-import { SpinerService } from '../../../../shared/spiner.service';
+import { SpinnerComponent } from '../../../../shared/spinner/spinner.component';
 
 export type ExpandMode = 'single' | 'multiple';
 
 @Component({
   selector: 'jhi-bon-en-cours',
   templateUrl: './bon-en-cours.component.html',
-  imports: [WarehouseCommonModule, ButtonModule, TableModule, RouterModule, TooltipModule]
+  imports: [WarehouseCommonModule, ButtonModule, TableModule, RouterModule, TooltipModule, SpinnerComponent]
 })
 export class BonEnCoursComponent implements OnInit, OnDestroy {
   search = input<string>('');
@@ -32,7 +32,7 @@ export class BonEnCoursComponent implements OnInit, OnDestroy {
   protected totalItems = 0;
   protected readonly selectedFilter = 'RECEIVED';
   private readonly commandeService = inject(CommandeService);
-  private readonly spinner = inject(SpinerService);
+   private readonly spinner = viewChild.required<SpinnerComponent>('spinner');
   private readonly entityService = inject(DeliveryService);
   private destroy$ = new Subject<void>();
 
@@ -74,17 +74,17 @@ export class BonEnCoursComponent implements OnInit, OnDestroy {
   }
 
   exportPdf(delivery: IDelivery): void {
-    this.spinner.show();
+    this.spinner().show();
     this.entityService
       .exportToPdf(delivery.id)
       .pipe(takeUntil(this.destroy$))
       .subscribe({
         next: blod => {
-          this.spinner.hide();
+          this.spinner().hide();
           const blobUrl = URL.createObjectURL(blod);
           window.open(blobUrl);
         },
-        error: () => this.spinner.hide()
+        error: () => this.spinner().hide()
       });
   }
 

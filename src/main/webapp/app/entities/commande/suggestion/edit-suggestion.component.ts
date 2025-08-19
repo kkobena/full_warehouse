@@ -35,7 +35,7 @@ import { ProduitService } from '../../produit/produit.service';
 import { Observable } from 'rxjs';
 import { FloatLabelModule } from 'primeng/floatlabel';
 import { ConfirmDialogComponent } from '../../../shared/dialog/confirm-dialog/confirm-dialog.component';
-import { SpinerService } from '../../../shared/spiner.service';
+import { SpinnerComponent } from '../../../shared/spinner/spinner.component';
 
 @Component({
   selector: 'jhi-edit-suggestion',
@@ -60,11 +60,11 @@ import { SpinerService } from '../../../shared/spiner.service';
     ReactiveFormsModule,
     FormsModule,
     FloatLabelModule,
-    ConfirmDialogComponent
+    ConfirmDialogComponent,
+    SpinnerComponent
   ],
   templateUrl: './edit-suggestion.component.html',
 
-  styles: ``
 })
 export class EditSuggestionComponent implements OnInit {
   private readonly suggestionService = inject(SuggestionService);
@@ -91,7 +91,7 @@ export class EditSuggestionComponent implements OnInit {
   produitbox = viewChild.required<any>('produitbox');
   protected writableSignal = signal<Suggestion>(null);
   private readonly confimDialog = viewChild.required<ConfirmDialogComponent>('confirmDialog');
-  private readonly spinner = inject(SpinerService);
+   private readonly spinner = viewChild.required<SpinnerComponent>('spinner');
 
   constructor() {
     this.splitbuttons = [
@@ -163,28 +163,28 @@ export class EditSuggestionComponent implements OnInit {
   }
 
   commander(): void {
-    this.spinner.show();
+    this.spinner().show();
     this.suggestionService.commander(this.writableSignal()?.id).subscribe({
       next: () => {
-        this.spinner.hide();
+        this.spinner().hide();
         this.gotoCommandeComponent();
       },
       error: err => {
-        this.spinner.hide();
+        this.spinner().hide();
         this.onCommonError(err);
       }
     });
   }
 
   sanitize(): void {
-    this.spinner.show();
+    this.spinner().show();
     this.suggestionService.sanitize(this.writableSignal()?.id).subscribe({
       next: () => {
         this.onSearch();
-        this.spinner.hide();
+        this.spinner().hide();
       },
       error: err => {
-        this.spinner.hide();
+        this.spinner().hide();
         this.onCommonError(err);
       }
     });
@@ -299,18 +299,18 @@ export class EditSuggestionComponent implements OnInit {
   }
 
   private onDelete(ids: Keys): void {
-    this.spinner.show();
+    this.spinner().show();
     this.suggestionService.deleteItem(ids).subscribe({
       next: () => {
         this.selections = [];
-        this.spinner.hide();
+        this.spinner().hide();
         this.suggestionService.find(this.writableSignal().id).subscribe(res => {
           this.writableSignal.set(res.body);
           this.loadPage();
         });
       },
       error: error => {
-        this.spinner.hide();
+        this.spinner().hide();
         this.onCommonError(error);
       }
     });

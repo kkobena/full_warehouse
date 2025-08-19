@@ -27,8 +27,8 @@ import { ToastAlertComponent } from '../../shared/toast-alert/toast-alert.compon
 import { showCommonModal } from '../sales/selling-home/sale-helper';
 import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { FileUploadDialogComponent } from '../groupe-tiers-payant/file-upload-dialog/file-upload-dialog.component';
-import { SpinerService } from '../../shared/spiner.service';
 import { finalize } from 'rxjs/operators';
+import { SpinnerComponent } from '../../shared/spinner/spinner.component';
 
 @Component({
   selector: 'jhi-groupe-fournisseur',
@@ -50,7 +50,8 @@ import { finalize } from 'rxjs/operators';
     InputIcon,
     Panel,
     ConfirmDialogComponent,
-    ToastAlertComponent
+    ToastAlertComponent,
+    SpinnerComponent
   ]
 })
 export class GroupeFournisseurComponent implements OnInit {
@@ -67,7 +68,7 @@ export class GroupeFournisseurComponent implements OnInit {
   private readonly confimDialog = viewChild.required<ConfirmDialogComponent>('confirmDialog');
   private readonly alert = viewChild.required<ToastAlertComponent>('alert');
   private readonly modalService = inject(NgbModal);
-  private readonly spinner = inject(SpinerService);
+   private readonly spinner = viewChild.required<SpinnerComponent>('spinner');
 
   ngOnInit(): void {
     this.loadPage();
@@ -166,7 +167,7 @@ export class GroupeFournisseurComponent implements OnInit {
       FileUploadDialogComponent,
       {},
       result => {
-        this.spinner.show();
+        this.spinner().show();
         this.uploadFileResponse(this.entityService.uploadFile(result));
       },
       'xl'
@@ -174,7 +175,7 @@ export class GroupeFournisseurComponent implements OnInit {
   }
 
   private uploadFileResponse(result: Observable<HttpResponse<IResponseDto>>): void {
-    result.pipe(finalize(() => this.spinner.hide())).subscribe({
+    result.pipe(finalize(() => this.spinner().hide())).subscribe({
       next: (res: HttpResponse<IResponseDto>) => this.onPocesCsvSuccess(res.body),
       error: () => this.onSaveError()
     });

@@ -18,10 +18,11 @@ import { Observable, Subject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
 import { ConfirmDialogComponent } from '../../../shared/dialog/confirm-dialog/confirm-dialog.component';
 import { SpinerService } from '../../../shared/spiner.service';
+import { SpinnerComponent } from '../../../shared/spinner/spinner.component';
 
 @Component({
   selector: 'jhi-suggestion',
-  imports: [Button, CommonModule, RouterModule, TableModule, Tooltip, ConfirmDialogComponent],
+  imports: [Button, CommonModule, RouterModule, TableModule, Tooltip, ConfirmDialogComponent, SpinnerComponent],
   templateUrl: './suggestion.component.html'
 })
 export class SuggestionComponent implements OnInit, OnDestroy {
@@ -46,7 +47,7 @@ export class SuggestionComponent implements OnInit, OnDestroy {
 
   private readonly modalService = inject(NgbModal);
   private readonly confimDialog = viewChild.required<ConfirmDialogComponent>('confirmDialog');
-  private readonly spinner = inject(SpinerService);
+   private readonly spinner = viewChild.required<SpinnerComponent>('spinner');
 
   constructor() {
     this.rowExpandMode = 'single';
@@ -168,15 +169,15 @@ export class SuggestionComponent implements OnInit, OnDestroy {
   }
 
   private onDelete(ids: Keys): void {
-    this.spinner.show();
+    this.spinner().show();
     this.suggestionService.delete(ids).subscribe({
       next: () => {
         this.selections = [];
-        this.spinner.hide();
+        this.spinner().hide();
         this.loadPage();
       },
       error: error => {
-        this.spinner.hide();
+        this.spinner().hide();
         this.onCommonError(error);
       }
     });
@@ -219,14 +220,14 @@ export class SuggestionComponent implements OnInit, OnDestroy {
   }
 
   private handleServiceCall(observable: Observable<any>, successCallback: () => void, spinnerName: string): void {
-    this.spinner.show();
+    this.spinner().show();
     observable.pipe(takeUntil(this.destroy$)).subscribe({
       next: () => {
-        this.spinner.hide();
+        this.spinner().hide();
         successCallback();
       },
       error: error => {
-        this.spinner.hide();
+        this.spinner().hide();
         this.onCommonError(error);
       }
     });

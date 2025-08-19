@@ -15,12 +15,13 @@ import { SpinerService } from '../../shared/spiner.service';
 import { finalize } from 'rxjs/operators';
 import { ToastAlertComponent } from '../../shared/toast-alert/toast-alert.component';
 import { Card } from 'primeng/card';
+import { SpinnerComponent } from '../../shared/spinner/spinner.component';
 
 @Component({
   selector: 'jhi-importation-new-commande',
   templateUrl: './importation-new-commande.component.html',
   styleUrls: ['../common-modal.component.scss'],
-  imports: [WarehouseCommonModule, FormsModule, FileUploadModule, Select, Button, ToastAlertComponent, Card]
+  imports: [WarehouseCommonModule, FormsModule, FileUploadModule, Select, Button, ToastAlertComponent, Card, SpinnerComponent]
 })
 export class ImportationNewCommandeComponent implements OnInit {
   header: string = '';
@@ -34,7 +35,7 @@ export class ImportationNewCommandeComponent implements OnInit {
   private readonly commandeService = inject(CommandeService);
   private readonly fournisseurService = inject(FournisseurService);
   protected readonly modalService = inject(NgbModal);
-  private readonly spinner = inject(SpinerService);
+   private readonly spinner = viewChild.required<SpinnerComponent>('spinner');
   private readonly alert = viewChild.required<ToastAlertComponent>('alert');
   private readonly errorService = inject(ErrorService);
   private readonly activeModal = inject(NgbActiveModal);
@@ -60,10 +61,10 @@ export class ImportationNewCommandeComponent implements OnInit {
     const file = this.file;
 
     formData.append('commande', file, file.name);
-    this.spinner.show();
+    this.spinner().show();
     this.commandeService.uploadNewCommande(this.fournisseurSelectedId, this.modelSelected, formData)
       .pipe(finalize(() => {
-        this.spinner.hide();
+        this.spinner().hide();
         this.isSaving = false;
       }))
       .subscribe({

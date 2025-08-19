@@ -9,7 +9,6 @@ import { IMagasin, IStorage } from '../../../shared/model/magasin.model';
 import { IRayon } from '../../../shared/model/rayon.model';
 import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
 import { ErrorService } from '../../../shared/error.service';
-import { SpinerService } from '../../../shared/spiner.service';
 import { RayonService } from '../rayon.service';
 import { Observable, Subject } from 'rxjs';
 import { HttpResponse } from '@angular/common/http';
@@ -18,10 +17,11 @@ import { finalize, takeUntil } from 'rxjs/operators';
 import { MagasinService } from '../../magasin/magasin.service';
 import { StorageService } from '../../storage/storage.service';
 import { Storage } from '../../storage/storage.model';
+import { SpinnerComponent } from '../../../shared/spinner/spinner.component';
 
 @Component({
   selector: 'jhi-clone-form',
-  imports: [Card, ReactiveFormsModule, Button, ToastAlertComponent, CommonModule, Select],
+  imports: [Card, ReactiveFormsModule, Button, ToastAlertComponent, CommonModule, Select, SpinnerComponent],
   templateUrl: './clone-form.component.html',
   styleUrls: ['../../common-modal.component.scss']
 })
@@ -38,7 +38,7 @@ export class CloneFormComponent implements OnInit, OnDestroy {
   });
   private readonly activeModal = inject(NgbActiveModal);
   private readonly errorService = inject(ErrorService);
-  private readonly spinner = inject(SpinerService);
+   private readonly spinner = viewChild.required<SpinnerComponent>('spinner');
   private readonly entityService = inject(RayonService);
   private readonly magasinService = inject(MagasinService);
   private readonly storageService = inject(StorageService);
@@ -67,13 +67,14 @@ export class CloneFormComponent implements OnInit, OnDestroy {
 
   protected save(): void {
     this.isSaving = true;
+    this.spinner().show();
     const storageId = this.editForm.get(['storageId']).value;
     this.onResponse(this.entityService.cloner(this.rayons, storageId));
   }
 
   private onResponse(result: Observable<HttpResponse<IResponseDto>>): void {
     result
-      .pipe(finalize(() => this.spinner.hide()))
+      .pipe(finalize(() => this.spinner().hide()))
       .pipe(takeUntil(this.destroy$))
       .subscribe({
         next: (res: HttpResponse<IResponseDto>) => {

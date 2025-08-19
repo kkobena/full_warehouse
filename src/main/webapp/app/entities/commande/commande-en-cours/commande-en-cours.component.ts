@@ -18,6 +18,7 @@ import { OrderStatut } from '../../../shared/model/enumerations/order-statut.mod
 import { SpinerService } from '../../../shared/spiner.service';
 import { finalize } from 'rxjs/operators';
 import { ConfirmDialogComponent } from '../../../shared/dialog/confirm-dialog/confirm-dialog.component';
+import { SpinnerComponent } from '../../../shared/spinner/spinner.component';
 
 export type ExpandMode = 'single' | 'multiple';
 
@@ -30,7 +31,8 @@ export type ExpandMode = 'single' | 'multiple';
     TableModule,
     RouterModule,
     TooltipModule,
-    ConfirmDialogComponent
+    ConfirmDialogComponent,
+    SpinnerComponent
   ]
 })
 export class CommandeEnCoursComponent implements OnInit {
@@ -52,7 +54,7 @@ export class CommandeEnCoursComponent implements OnInit {
   readonly itemsPerPage = ITEMS_PER_PAGE;
   readonly rowExpandMode: ExpandMode;
   private errorService = inject(ErrorService);
-  private spinner = inject(SpinerService);
+  private readonly spinner = viewChild.required<SpinnerComponent>('spinner');
   private readonly selectedFilters = ['REQUESTED'];
   private readonly commandeService = inject(CommandeService);
   private readonly confimDialog = viewChild.required<ConfirmDialogComponent>('confirmDialog');
@@ -86,8 +88,8 @@ export class CommandeEnCoursComponent implements OnInit {
   }
 
   deleteCommande(commandeId: number): void {
-    this.spinner.show();
-    this.commandeService.delete(commandeId).pipe(finalize(() => this.spinner.hide())).subscribe({
+   this.spinner().show();
+    this.commandeService.delete(commandeId).pipe(finalize(() =>this.spinner().hide())).subscribe({
       next: () => {
         this.loadPage();
       },
@@ -144,16 +146,16 @@ export class CommandeEnCoursComponent implements OnInit {
     if (!isSameProvider) {
       this.openInfoDialog('Veillez sélectionner des commandes du même grossiste', 'alert alert-info');
     } else {
-      this.spinner.show();
+     this.spinner().show();
       this.commandeService.fusionner(ids).subscribe({
         next: () => {
           this.selections = [];
           this.loadPage();
-          this.spinner.hide();
+         this.spinner().hide();
         },
         error: error => {
           this.onCommonError(error);
-          this.spinner.hide();
+         this.spinner().hide();
         }
       });
     }

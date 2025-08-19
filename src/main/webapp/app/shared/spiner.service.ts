@@ -2,7 +2,7 @@ import {inject, Injectable} from '@angular/core';
 import {NgxSpinnerService} from "ngx-spinner";
 
 @Injectable({
-  providedIn: 'root'
+  providedIn: 'root',
 })
 export class SpinerService {
   private readonly spinner = inject(NgxSpinnerService);

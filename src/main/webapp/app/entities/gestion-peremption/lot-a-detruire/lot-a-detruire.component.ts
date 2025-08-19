@@ -1,11 +1,11 @@
 import { AfterViewInit, Component, inject, OnInit, viewChild } from '@angular/core';
 import { ProductToDestroyService } from '../product-to-destroy.service';
 import { ITEMS_PER_PAGE } from '../../../shared/constants/pagination.constants';
-import { LazyLoadEvent, MenuItem } from 'primeng/api';
+import { MenuItem } from 'primeng/api';
 import { HttpHeaders, HttpResponse } from '@angular/common/http';
 import { DATE_FORMAT_ISO_DATE } from '../../../shared/util/warehouse-util';
 import { ProductToDestroy, ProductToDestroyFilter, ProductToDestroySum } from '../model/product-to-destroy';
-import { TableHeaderCheckbox, TableModule } from 'primeng/table';
+import { TableHeaderCheckbox, TableLazyLoadEvent, TableModule } from 'primeng/table';
 import { PrimeNG } from 'primeng/config';
 import { TranslatePipe, TranslateService } from '@ngx-translate/core';
 import { IMagasin } from '../../../shared/model/magasin.model';
@@ -65,8 +65,7 @@ import { SpinnerComponent } from '../../../shared/spinner/spinner.component';
     ToastAlertComponent,
     SpinnerComponent
   ],
-  templateUrl: './lot-a-detruire.component.html',
-  providers: []
+  templateUrl: './lot-a-detruire.component.html'
 })
 export class LotADetruireComponent implements OnInit, AfterViewInit {
   protected checkbox = viewChild<TableHeaderCheckbox>('checkbox');
@@ -195,7 +194,7 @@ export class LotADetruireComponent implements OnInit, AfterViewInit {
     this.loadPage();
   }
 
-  protected lazyLoading(event: LazyLoadEvent): void {
+  protected lazyLoading(event: TableLazyLoadEvent): void {
     if (event) {
       this.page = event.first / event.rows;
       this.loading = true;

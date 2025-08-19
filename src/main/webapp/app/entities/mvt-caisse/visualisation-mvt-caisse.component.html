@@ -97,8 +97,9 @@
           [value]="mvtCaisses"
           dataKey="id"
           selectionMode="multiple"
+          stripedRows="true"
         >
-          <ng-template pTemplate="header">
+          <ng-template #header>
             <tr>
               <th>Type</th>
               <th>Référence</th>
@@ -111,7 +112,7 @@
               <th [hidden]="true" style="width: 15px"></th>
             </tr>
           </ng-template>
-          <ng-template let-mvtCaisse pTemplate="body">
+          <ng-template let-mvtCaisse #body>
             <tr>
               <td>
                 {{ mvtCaisse.transactionType }}

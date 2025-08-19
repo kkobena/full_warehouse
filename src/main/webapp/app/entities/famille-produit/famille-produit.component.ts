@@ -1,7 +1,6 @@
 import { Component, inject, OnInit, viewChild } from '@angular/core';
 import { FamilleProduitService } from './famille-produit.service';
 import { RouterModule } from '@angular/router';
-import { LazyLoadEvent } from 'primeng/api';
 import { HttpErrorResponse, HttpHeaders, HttpResponse } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { FormFamilleComponent } from './form-famille/form-famille.component';
@@ -10,7 +9,7 @@ import { IFamilleProduit } from '../../shared/model/famille-produit.model';
 import { ITEMS_PER_PAGE } from '../../shared/constants/pagination.constants';
 import { WarehouseCommonModule } from '../../shared/warehouse-common/warehouse-common.module';
 import { ToolbarModule } from 'primeng/toolbar';
-import { TableModule } from 'primeng/table';
+import { TableLazyLoadEvent, TableModule } from 'primeng/table';
 import { ButtonModule } from 'primeng/button';
 import { RippleModule } from 'primeng/ripple';
 import { InputTextModule } from 'primeng/inputtext';
@@ -82,7 +81,7 @@ export class FamilleProduitComponent implements OnInit {
       });
   }
 
-  lazyLoading(event: LazyLoadEvent): void {
+  lazyLoading(event: TableLazyLoadEvent): void {
     this.page = event.first / event.rows;
     this.loading = true;
     this.entityService

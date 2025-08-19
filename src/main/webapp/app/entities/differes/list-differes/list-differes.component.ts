@@ -9,10 +9,9 @@ import { SelectModule } from 'primeng/select';
 import { ClientDiffere } from '../model/client-differe.model';
 import { StatutDiffere } from '../model/statut-differe';
 import { Differe } from '../model/differe.model';
-import { TableModule } from 'primeng/table';
+import { TableLazyLoadEvent, TableModule } from 'primeng/table';
 import { Tooltip } from 'primeng/tooltip';
 import { ITEMS_PER_PAGE } from '../../../shared/constants/pagination.constants';
-import { LazyLoadEvent } from 'primeng/api';
 import { HttpHeaders, HttpResponse } from '@angular/common/http';
 import { RouterModule } from '@angular/router';
 import { CardModule } from 'primeng/card';
@@ -97,7 +96,7 @@ export class ListDifferesComponent implements OnInit, OnDestroy {
     });
   }
 
-  protected lazyLoading(event: LazyLoadEvent): void {
+  protected lazyLoading(event: TableLazyLoadEvent): void {
     if (event) {
       this.loadingBtn = true;
       this.page = event.first / event.rows;

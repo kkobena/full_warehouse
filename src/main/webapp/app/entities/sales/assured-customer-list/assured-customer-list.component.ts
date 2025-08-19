@@ -1,5 +1,4 @@
 import { Component, inject } from '@angular/core';
-import { LazyLoadEvent } from 'primeng/api';
 import { ICustomer } from '../../../shared/model/customer.model';
 import { CustomerService } from '../../customer/customer.service';
 import { WarehouseCommonModule } from '../../../shared/warehouse-common/warehouse-common.module';
@@ -7,7 +6,7 @@ import { FormsModule } from '@angular/forms';
 import { ButtonModule } from 'primeng/button';
 import { InputTextModule } from 'primeng/inputtext';
 import { RippleModule } from 'primeng/ripple';
-import { TableModule } from 'primeng/table';
+import { TableLazyLoadEvent, TableModule } from 'primeng/table';
 import { TooltipModule } from 'primeng/tooltip';
 import { HttpHeaders, HttpResponse } from '@angular/common/http';
 import { ITEMS_PER_PAGE } from '../../../shared/constants/pagination.constants';
@@ -90,7 +89,7 @@ export class AssuredCustomerListComponent {
       });
   }
 
-  protected lazyLoading(event: LazyLoadEvent): void {
+  protected lazyLoading(event: TableLazyLoadEvent): void {
     if (event) {
       this.page = event.first / event.rows;
       this.loading = true;

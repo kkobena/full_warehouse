@@ -4,20 +4,18 @@ import { Suggestion } from './model/suggestion.model';
 import { RouterModule } from '@angular/router';
 import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { ErrorService } from '../../../shared/error.service';
-import { LazyLoadEvent } from 'primeng/api';
 import { ITEMS_PER_PAGE } from '../../../shared/constants/pagination.constants';
 import { HttpHeaders, HttpResponse } from '@angular/common/http';
 import { AlertInfoComponent } from '../../../shared/alert/alert-info.component';
 import { ExpandMode } from '../commande-en-cours/commande-en-cours.component';
 import { Keys } from '../../../shared/model/keys.model';
 import { Button } from 'primeng/button';
-import { TableModule } from 'primeng/table';
+import { TableLazyLoadEvent, TableModule } from 'primeng/table';
 import { Tooltip } from 'primeng/tooltip';
 import { CommonModule } from '@angular/common';
 import { Observable, Subject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
 import { ConfirmDialogComponent } from '../../../shared/dialog/confirm-dialog/confirm-dialog.component';
-import { SpinerService } from '../../../shared/spiner.service';
 import { SpinnerComponent } from '../../../shared/spinner/spinner.component';
 
 @Component({
@@ -130,7 +128,7 @@ export class SuggestionComponent implements OnInit, OnDestroy {
     }
   }
 
-  lazyLoading(event: LazyLoadEvent): void {
+  lazyLoading(event: TableLazyLoadEvent): void {
     if (event) {
       this.page = event.first / event.rows;
       this.loading = true;

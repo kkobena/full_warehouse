@@ -2,12 +2,12 @@ import { Component, inject, OnDestroy, OnInit, viewChild } from '@angular/core';
 import { HttpHeaders, HttpResponse } from '@angular/common/http';
 import { ActivatedRoute, Data, ParamMap, Router, RouterLink } from '@angular/router';
 import { combineLatest, Observable, Subject } from 'rxjs';
-import { finalize, takeUntil } from 'rxjs/operators';
+import { takeUntil } from 'rxjs/operators';
 import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { ICustomer } from 'app/shared/model/customer.model';
 import { ITEMS_PER_PAGE } from 'app/shared/constants/pagination.constants';
 import { CustomerService } from './customer.service';
-import { LazyLoadEvent, MenuItem, MessageService } from 'primeng/api';
+import { MenuItem, MessageService } from 'primeng/api';
 import { UninsuredCustomerFormComponent } from './uninsured-customer-form/uninsured-customer-form.component';
 import { DialogService } from 'primeng/dynamicdialog';
 import { TranslateService } from '@ngx-translate/core';
@@ -17,7 +17,7 @@ import { FormsModule } from '@angular/forms';
 import { ButtonModule } from 'primeng/button';
 import { RippleModule } from 'primeng/ripple';
 import { InputTextModule } from 'primeng/inputtext';
-import { TableModule } from 'primeng/table';
+import { TableLazyLoadEvent, TableModule } from 'primeng/table';
 import { DialogModule } from 'primeng/dialog';
 import { FileUploadModule } from 'primeng/fileupload';
 import { ToolbarModule } from 'primeng/toolbar';
@@ -35,7 +35,6 @@ import { Panel } from 'primeng/panel';
 import { DividerModule } from 'primeng/divider';
 import { CustomerCarnetComponent } from './carnet/customer-carnet.component';
 import { ConfirmDialogComponent } from '../../shared/dialog/confirm-dialog/confirm-dialog.component';
-import { SpinerService } from '../../shared/spiner.service';
 import { showCommonModal } from '../sales/selling-home/sale-helper';
 import { SpinnerComponent } from '../../shared/spinner/spinner.component';
 
@@ -95,7 +94,7 @@ export class CustomerComponent implements OnInit, OnDestroy {
   private readonly modalService = inject(NgbModal);
   private destroy$ = new Subject<void>();
   private readonly dialogService = inject(DialogService);
-   private readonly spinner = viewChild.required<SpinnerComponent>('spinner');
+  private readonly spinner = viewChild.required<SpinnerComponent>('spinner');
   private readonly messageService = inject(MessageService);
   private readonly confimDialog = viewChild.required<ConfirmDialogComponent>('confirmDialog');
 
@@ -160,7 +159,7 @@ export class CustomerComponent implements OnInit, OnDestroy {
       });
   }
 
-  lazyLoading(event: LazyLoadEvent): void {
+  lazyLoading(event: TableLazyLoadEvent): void {
     if (event) {
       this.page = event.first / event.rows;
       this.loading = true;
@@ -418,7 +417,6 @@ export class CustomerComponent implements OnInit, OnDestroy {
   }
 
 
-
   protected onPocesJsonSuccess(): void {
     this.jsonDialog = false;
     this.spinner().hide();
@@ -428,7 +426,6 @@ export class CustomerComponent implements OnInit, OnDestroy {
   protected displayTiersPayantAddBtn(customer: ICustomer): boolean {
     return customer.typeTiersPayant === 'ASSURANCE' && customer.tiersPayants && customer.tiersPayants.length < 4;
   }
-
 
 
   private handleNavigation(): void {

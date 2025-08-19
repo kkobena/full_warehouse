@@ -1,6 +1,5 @@
 import { Component, inject, OnInit, viewChild } from '@angular/core';
 import { RouterModule } from '@angular/router';
-import { LazyLoadEvent } from 'primeng/api';
 import { HttpErrorResponse, HttpHeaders, HttpResponse } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { LaboratoireProduitService } from './laboratoire-produit.service';
@@ -10,7 +9,7 @@ import { ILaboratoire } from '../../shared/model/laboratoire.model';
 import { ITEMS_PER_PAGE } from '../../shared/constants/pagination.constants';
 import { ButtonModule } from 'primeng/button';
 import { ToolbarModule } from 'primeng/toolbar';
-import { TableModule } from 'primeng/table';
+import { TableLazyLoadEvent, TableModule } from 'primeng/table';
 import { InputTextModule } from 'primeng/inputtext';
 import { TooltipModule } from 'primeng/tooltip';
 import { FormsModule } from '@angular/forms';
@@ -80,7 +79,7 @@ export class LaboratoireProduitComponent implements OnInit {
       });
   }
 
-  protected lazyLoading(event: LazyLoadEvent): void {
+  protected lazyLoading(event: TableLazyLoadEvent): void {
     this.page = event.first / event.rows;
     this.loading = true;
     this.entityService

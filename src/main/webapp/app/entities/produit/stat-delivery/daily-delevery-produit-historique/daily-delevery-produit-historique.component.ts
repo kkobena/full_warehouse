@@ -8,9 +8,8 @@ import {
 import { ProduitStatService } from '../../stat/produit-stat.service';
 import { ProduitAuditingParamService } from '../../transaction/produit-auditing-param.service';
 import { HttpHeaders, HttpResponse } from '@angular/common/http';
-import { LazyLoadEvent } from 'primeng/api';
 import { CommonModule } from '@angular/common';
-import { TableModule } from 'primeng/table';
+import { TableLazyLoadEvent, TableModule } from 'primeng/table';
 
 @Component({
   selector: 'jhi-daily-delevery-produit-historique',
@@ -50,7 +49,7 @@ export class DailyDeleveryProduitHistoriqueComponent implements OnInit {
       });
   }
 
-  lazyLoading(event: LazyLoadEvent): void {
+  lazyLoading(event: TableLazyLoadEvent): void {
     if (event) {
       this.page = event.first / event.rows;
       this.loading = true;

@@ -1,5 +1,4 @@
 import { Component, inject, OnInit, viewChild } from '@angular/core';
-import { LazyLoadEvent } from 'primeng/api';
 import { RouterModule } from '@angular/router';
 import { ModifAjustementService } from './motif-ajustement.service';
 import { ITEMS_PER_PAGE } from '../../shared/constants/pagination.constants';
@@ -8,7 +7,7 @@ import { HttpHeaders, HttpResponse } from '@angular/common/http';
 import { FormMotifAjustementComponent } from './form-motif-ajustement/form-motif-ajustement.component';
 import { ButtonModule } from 'primeng/button';
 import { ToolbarModule } from 'primeng/toolbar';
-import { TableModule } from 'primeng/table';
+import { TableLazyLoadEvent, TableModule } from 'primeng/table';
 import { InputTextModule } from 'primeng/inputtext';
 import { TooltipModule } from 'primeng/tooltip';
 import { FormsModule } from '@angular/forms';
@@ -64,7 +63,7 @@ export class ModifAjustementComponent implements OnInit {
       });
   }
 
-  protected lazyLoading(event: LazyLoadEvent): void {
+  protected lazyLoading(event: TableLazyLoadEvent): void {
     this.page = event.first / event.rows;
     this.loading = true;
     this.entityService

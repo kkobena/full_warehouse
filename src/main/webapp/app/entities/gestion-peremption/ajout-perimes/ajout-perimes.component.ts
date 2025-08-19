@@ -22,9 +22,8 @@ import { CtaComponent } from '../../../shared/cta/cta.component';
 import { ConfirmDialogComponent } from '../../../shared/dialog/confirm-dialog/confirm-dialog.component';
 import { ToastAlertComponent } from '../../../shared/toast-alert/toast-alert.component';
 import { DecimalPipe } from '@angular/common';
-import { TableModule } from 'primeng/table';
+import { TableLazyLoadEvent, TableModule } from 'primeng/table';
 import { Tag } from 'primeng/tag';
-import { LazyLoadEvent } from 'primeng/api';
 import { HttpHeaders, HttpResponse } from '@angular/common/http';
 import { PeremptionStatut } from '../model/peremption-statut';
 import { RemoveButtonTextComponent } from '../../../shared/cta/remove-button-text.component';
@@ -218,7 +217,7 @@ export class AjoutPerimesComponent implements OnInit {
     return 'info';
   }
 
-  protected lazyLoading(event: LazyLoadEvent): void {
+  protected lazyLoading(event: TableLazyLoadEvent): void {
     if (event) {
       this.page = event.first / event.rows;
       this.loading = true;

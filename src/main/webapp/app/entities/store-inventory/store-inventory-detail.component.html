@@ -1,5 +1,4 @@
-<ngx-spinner [fullScreen]="false" bdColor="rgba(255,255,255,0.5)" color="#f13151" size="medium"
-             type="timer"></ngx-spinner>
+
 <div class="row justify-content-center">
   <div class="col-3">
     <div class="card">
@@ -141,9 +140,10 @@
       [value]="storeInventoryLines"
       dataKey="id"
       selectionMode="multiple"
-      styleClass="p-datatable-striped mt-2"
+      stripedRows="true"
+      styleClass=" mt-2"
     >
-      <ng-template pTemplate="header">
+      <ng-template #header>
         <tr>
           <th>Cip</th>
           <th>Libellé</th>
@@ -157,7 +157,7 @@
           <th style="width: 5%"></th>
         </tr>
       </ng-template>
-      <ng-template let-storeInventory pTemplate="body">
+      <ng-template let-storeInventory #body>
         <tr>
           <td>{{ storeInventory.produitCip }}</td>
           <td>{{ storeInventory.produitLibelle }}</td>
@@ -185,3 +185,4 @@
     </p-table>
   </div>
 </div>
+<jhi-spinner #spinner></jhi-spinner>

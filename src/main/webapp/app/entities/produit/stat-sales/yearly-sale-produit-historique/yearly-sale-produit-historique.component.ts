@@ -8,14 +8,13 @@ import { ProduitStatService } from '../../stat/produit-stat.service';
 import { ProduitAuditingParamService } from '../../transaction/produit-auditing-param.service';
 import { ITEMS_PER_PAGE } from '../../../../shared/constants/pagination.constants';
 import { HttpHeaders, HttpResponse } from '@angular/common/http';
-import { LazyLoadEvent, PrimeTemplate } from 'primeng/api';
 import { CommonModule } from '@angular/common';
-import { TableModule } from 'primeng/table';
+import { TableLazyLoadEvent, TableModule } from 'primeng/table';
 import { MonthEnum } from '../../../../shared/model/enumerations/month-enum';
 
 @Component({
   selector: 'jhi-yearly-sale-produit-historique',
-  imports: [CommonModule, PrimeTemplate, TableModule],
+  imports: [CommonModule, TableModule],
   templateUrl: './yearly-sale-produit-historique.component.html'
 })
 export class YearlySaleProduitHistoriqueComponent implements OnInit {
@@ -63,7 +62,7 @@ export class YearlySaleProduitHistoriqueComponent implements OnInit {
       });
   }
 
-  lazyLoading(event: LazyLoadEvent): void {
+  lazyLoading(event: TableLazyLoadEvent): void {
     if (event) {
       this.page = event.first / event.rows;
       this.loading = true;

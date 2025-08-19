@@ -4,7 +4,7 @@ import { FactureService } from '../facture.service';
 import { TiersPayantService } from '../../tiers-payant/tierspayant.service';
 import { GroupeTiersPayantService } from '../../groupe-tiers-payant/groupe-tierspayant.service';
 import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
-import { ConfirmationService, LazyLoadEvent, MenuItem, PrimeIcons } from 'primeng/api';
+import { ConfirmationService, MenuItem, PrimeIcons } from 'primeng/api';
 import { ToolbarModule } from 'primeng/toolbar';
 import { WarehouseCommonModule } from '../../../shared/warehouse-common/warehouse-common.module';
 import { FormsModule } from '@angular/forms';
@@ -21,7 +21,7 @@ import { InvoiceSearchParams } from '../edition-search-params.model';
 import { DATE_FORMAT_ISO_DATE } from '../../../shared/util/warehouse-util';
 import { Facture } from '../facture.model';
 import { AlertInfoComponent } from '../../../shared/alert/alert-info.component';
-import { TableModule } from 'primeng/table';
+import { TableLazyLoadEvent, TableModule } from 'primeng/table';
 import { ITEMS_PER_PAGE } from '../../../shared/constants/pagination.constants';
 import { ConfirmDialogModule } from 'primeng/confirmdialog';
 import { FactureDetailDialogComponent } from '../facture-detail/facture-detail-dialog.component';
@@ -158,7 +158,7 @@ export class FacturesComponent implements OnInit, AfterViewInit {
       });
   }
 
-  lazyLoading(event: LazyLoadEvent): void {
+  lazyLoading(event: TableLazyLoadEvent): void {
     if (event) {
       this.page = event.first / event.rows;
       this.loading = true;

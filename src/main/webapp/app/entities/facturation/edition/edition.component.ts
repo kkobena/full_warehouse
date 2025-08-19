@@ -8,7 +8,7 @@ import { GroupeTiersPayantService } from '../../groupe-tiers-payant/groupe-tiers
 import { HttpHeaders, HttpResponse } from '@angular/common/http';
 import { IGroupeTiersPayant } from '../../../shared/model/groupe-tierspayant.model';
 import { ITiersPayant } from '../../../shared/model/tierspayant.model';
-import { TableModule } from 'primeng/table';
+import { TableLazyLoadEvent, TableModule } from 'primeng/table';
 import { TiersPayantDossierFacture } from '../tiers-payant-dossier-facture.model';
 import { DossierFacture } from '../dossier-facture.model';
 import { InputTextModule } from 'primeng/inputtext';
@@ -21,7 +21,7 @@ import { AutoCompleteModule } from 'primeng/autocomplete';
 import { ErrorService } from '../../../shared/error.service';
 import { AlertInfoComponent } from '../../../shared/alert/alert-info.component';
 import { ConfirmDialogModule } from 'primeng/confirmdialog';
-import { ConfirmationService, LazyLoadEvent } from 'primeng/api';
+import { ConfirmationService } from 'primeng/api';
 import { FactureEditionResponse } from '../facture-edition-response';
 import { ButtonModule } from 'primeng/button';
 import { acceptButtonProps, rejectButtonProps } from '../../../shared/util/modal-button-props';
@@ -227,7 +227,7 @@ export class EditionComponent implements OnInit, OnDestroy {
       });
   }
 
-  lazyLoading(event: LazyLoadEvent): void {
+  lazyLoading(event: TableLazyLoadEvent): void {
     if (event) {
       this.pageTp = event.first / event.rows;
       this.loading = true;

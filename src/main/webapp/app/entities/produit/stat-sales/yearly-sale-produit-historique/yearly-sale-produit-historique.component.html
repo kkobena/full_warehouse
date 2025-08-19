@@ -9,9 +9,10 @@
     [showCurrentPageReport]="false"
     [totalRecords]="totalItems"
     [value]="data"
+    stripedRows="true"
     dataKey="annee"
   >
-    <ng-template pTemplate="header">
+    <ng-template #header>
       <tr>
         <th>Année</th>
         <th>Janvier</th>
@@ -28,7 +29,7 @@
         <th>Décembre</th>
       </tr>
     </ng-template>
-    <ng-template let-vente pTemplate="body">
+    <ng-template let-vente #body>
       <tr>
         <td>{{ vente.annee }}</td>
         <td class="amount-column">{{ getMonthData(vente, JANUARY) | number }}</td>

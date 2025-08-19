@@ -4,7 +4,7 @@ import { ButtonModule } from 'primeng/button';
 import { RippleModule } from 'primeng/ripple';
 import { FormsModule } from '@angular/forms';
 import { PanelModule } from 'primeng/panel';
-import { TableModule } from 'primeng/table';
+import { TableLazyLoadEvent, TableModule } from 'primeng/table';
 import { BadgeModule } from 'primeng/badge';
 import { DividerModule } from 'primeng/divider';
 import { NgxSpinnerModule } from 'ngx-spinner';
@@ -17,7 +17,6 @@ import { HttpHeaders, HttpResponse } from '@angular/common/http';
 import { ProduitStatService } from '../stat/produit-stat.service';
 import { ProduitAuditingParamService } from '../transaction/produit-auditing-param.service';
 import { ITEMS_PER_PAGE } from '../../../shared/constants/pagination.constants';
-import { LazyLoadEvent } from 'primeng/api';
 import { MouvementProduit } from '../../../shared/model/enumerations/mouvement-produit.model';
 
 @Component({
@@ -92,7 +91,7 @@ export class AuditingComponent implements OnInit {
     });
   }
 
-  protected lazyLoading(event: LazyLoadEvent): void {
+  protected lazyLoading(event: TableLazyLoadEvent): void {
     if (event) {
       this.page = event.first / event.rows;
       this.loading = true;

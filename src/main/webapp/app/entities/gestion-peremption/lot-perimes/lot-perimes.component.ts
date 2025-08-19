@@ -2,7 +2,7 @@ import { AfterViewInit, Component, inject, OnInit, viewChild } from '@angular/co
 import { LotService } from '../../commande/lot/lot.service';
 import { LotFilterParam, LotPerimes, LotPerimeValeurSum } from '../model/lot-perimes';
 import { DATE_FORMAT_ISO_DATE } from '../../../shared/util/warehouse-util';
-import { LazyLoadEvent, MenuItem } from 'primeng/api';
+import { MenuItem } from 'primeng/api';
 import { HttpHeaders, HttpResponse } from '@angular/common/http';
 import { ITEMS_PER_PAGE } from '../../../shared/constants/pagination.constants';
 import { ToolbarModule } from 'primeng/toolbar';
@@ -30,7 +30,7 @@ import { ButtonGroup } from 'primeng/buttongroup';
 import { SplitButton } from 'primeng/splitbutton';
 import { RouterLink } from '@angular/router';
 import { DecimalPipe } from '@angular/common';
-import { TableHeaderCheckbox, TableModule } from 'primeng/table';
+import { TableHeaderCheckbox, TableLazyLoadEvent, TableModule } from 'primeng/table';
 import { Tag } from 'primeng/tag';
 import { PeremptionStatut } from '../model/peremption-statut';
 import { ProductToDestroyService } from '../product-to-destroy.service';
@@ -47,7 +47,6 @@ import { SpinnerComponent } from '../../../shared/spinner/spinner.component';
 
 @Component({
   selector: 'jhi-lot-perimes',
-  providers: [],
   imports: [
     ToolbarModule,
     IconField,
@@ -174,7 +173,7 @@ export class LotPerimesComponent implements OnInit, AfterViewInit {
     this.onSearch();
   }
 
-  protected lazyLoading(event: LazyLoadEvent): void {
+  protected lazyLoading(event: TableLazyLoadEvent): void {
     if (event) {
       this.page = event.first / event.rows;
       this.loading = true;

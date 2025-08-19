@@ -1,7 +1,7 @@
 import { Component, ElementRef, inject, OnInit, signal, viewChild } from '@angular/core';
 import { Suggestion } from './model/suggestion.model';
 import { SuggestionService } from './suggestion.service';
-import { LazyLoadEvent, MenuItem, PrimeIcons, PrimeTemplate } from 'primeng/api';
+import { MenuItem, PrimeIcons } from 'primeng/api';
 import { HttpHeaders, HttpResponse } from '@angular/common/http';
 import { SuggestionLine } from './model/suggestion-line.model';
 import {
@@ -13,7 +13,7 @@ import {
 import { Button } from 'primeng/button';
 import { CommonModule } from '@angular/common';
 import { ActivatedRoute, Router, RouterModule } from '@angular/router';
-import { TableModule } from 'primeng/table';
+import { TableLazyLoadEvent, TableModule } from 'primeng/table';
 import { Tooltip } from 'primeng/tooltip';
 import { Keys } from '../../../shared/model/keys.model';
 import { NgxSpinnerModule } from 'ngx-spinner';
@@ -43,7 +43,6 @@ import { SpinnerComponent } from '../../../shared/spinner/spinner.component';
     Button,
     CommonModule,
     RouterModule,
-    PrimeTemplate,
     TableModule,
     Tooltip,
     NgxSpinnerModule,
@@ -63,7 +62,7 @@ import { SpinnerComponent } from '../../../shared/spinner/spinner.component';
     ConfirmDialogComponent,
     SpinnerComponent
   ],
-  templateUrl: './edit-suggestion.component.html',
+  templateUrl: './edit-suggestion.component.html'
 
 })
 export class EditSuggestionComponent implements OnInit {
@@ -91,7 +90,7 @@ export class EditSuggestionComponent implements OnInit {
   produitbox = viewChild.required<any>('produitbox');
   protected writableSignal = signal<Suggestion>(null);
   private readonly confimDialog = viewChild.required<ConfirmDialogComponent>('confirmDialog');
-   private readonly spinner = viewChild.required<SpinnerComponent>('spinner');
+  private readonly spinner = viewChild.required<SpinnerComponent>('spinner');
 
   constructor() {
     this.splitbuttons = [
@@ -326,7 +325,7 @@ export class EditSuggestionComponent implements OnInit {
       }), 'Suppression', 'Êtes-vous sûr de vouloir supprimer ?');
   }
 
-  protected lazyLoading(event: LazyLoadEvent): void {
+  protected lazyLoading(event: TableLazyLoadEvent): void {
     if (event) {
       this.page = event.first / event.rows;
       this.loading = true;

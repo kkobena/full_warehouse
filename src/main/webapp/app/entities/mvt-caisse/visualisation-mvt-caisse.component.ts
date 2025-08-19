@@ -3,14 +3,14 @@ import { ToolbarModule } from 'primeng/toolbar';
 import { FormsModule } from '@angular/forms';
 import { RippleModule } from 'primeng/ripple';
 import { ButtonModule } from 'primeng/button';
-import { TableModule } from 'primeng/table';
+import { TableLazyLoadEvent, TableModule } from 'primeng/table';
 import { TooltipModule } from 'primeng/tooltip';
 import { WarehouseCommonModule } from '../../shared/warehouse-common/warehouse-common.module';
 import { MvtCaisse, MvtCaisseWrapper, TypeFinancialTransaction } from '../cash-register/model/cash-register.model';
 import { MvtCaisseServiceService } from './mvt-caisse-service.service';
 import { Router } from '@angular/router';
 import { HttpHeaders, HttpResponse } from '@angular/common/http';
-import { ConfirmationService, LazyLoadEvent, MessageService } from 'primeng/api';
+import { ConfirmationService, MessageService } from 'primeng/api';
 import { InputTextModule } from 'primeng/inputtext';
 import { IPaymentMode } from '../../shared/model/payment-mode.model';
 import { IUser } from '../../core/user/user.model';
@@ -151,7 +151,7 @@ export class VisualisationMvtCaisseComponent implements OnInit, AfterViewInit {
     return this.colorsByTypes[index % this.colors.length];
   }
 
-  protected lazyLoading(event: LazyLoadEvent): void {
+  protected lazyLoading(event: TableLazyLoadEvent): void {
     if (event) {
       this.page = event.first / event.rows;
       this.loading = true;

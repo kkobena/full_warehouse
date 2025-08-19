@@ -2,7 +2,7 @@ import { Component, inject, OnInit, viewChild } from '@angular/core';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { FournisseurService } from './fournisseur.service';
 import { RouterModule } from '@angular/router';
-import { LazyLoadEvent, SelectItem } from 'primeng/api';
+import { SelectItem } from 'primeng/api';
 import { HttpErrorResponse, HttpHeaders, HttpResponse } from '@angular/common/http';
 
 import { GroupeFournisseurService } from '../groupe-fournisseur/groupe-fournisseur.service';
@@ -14,7 +14,7 @@ import { WarehouseCommonModule } from '../../shared/warehouse-common/warehouse-c
 import { ButtonModule } from 'primeng/button';
 import { RippleModule } from 'primeng/ripple';
 import { ToolbarModule } from 'primeng/toolbar';
-import { TableModule } from 'primeng/table';
+import { TableLazyLoadEvent, TableModule } from 'primeng/table';
 import { InputTextModule } from 'primeng/inputtext';
 import { KeyFilterModule } from 'primeng/keyfilter';
 import { TooltipModule } from 'primeng/tooltip';
@@ -103,7 +103,7 @@ export class FournisseurComponent implements OnInit {
       });
   }
 
-  protected lazyLoading(event: LazyLoadEvent): void {
+  protected lazyLoading(event: TableLazyLoadEvent): void {
     this.page = event.first / event.rows;
     this.loading = true;
     this.entityService

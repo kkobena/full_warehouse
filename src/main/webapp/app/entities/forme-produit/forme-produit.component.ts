@@ -1,12 +1,11 @@
 import { Component, inject, OnInit, viewChild } from '@angular/core';
-import { LazyLoadEvent } from 'primeng/api';
 import { HttpHeaders, HttpResponse } from '@angular/common/http';
 import { FormeProduitService } from './forme-produit.service';
 import { ITEMS_PER_PAGE } from '../../shared/constants/pagination.constants';
 import { IFormProduit } from '../../shared/model/form-produit.model';
 import { ButtonModule } from 'primeng/button';
 import { ToolbarModule } from 'primeng/toolbar';
-import { TableModule } from 'primeng/table';
+import { TableLazyLoadEvent, TableModule } from 'primeng/table';
 import { Tooltip } from 'primeng/tooltip';
 import { ConfirmDialogComponent } from '../../shared/dialog/confirm-dialog/confirm-dialog.component';
 import { Panel } from 'primeng/panel';
@@ -66,7 +65,7 @@ export class FormeProduitComponent implements OnInit {
       });
   }
 
-  protected lazyLoading(event: LazyLoadEvent): void {
+  protected lazyLoading(event: TableLazyLoadEvent): void {
     if (event) {
       this.page = event.first / event.rows;
       this.loading = true;

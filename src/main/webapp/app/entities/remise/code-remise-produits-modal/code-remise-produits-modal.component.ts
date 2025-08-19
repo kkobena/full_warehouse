@@ -1,5 +1,4 @@
 import { AfterViewInit, Component, inject, viewChild } from '@angular/core';
-import { LazyLoadEvent } from 'primeng/api';
 import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
 import { ProduitService } from '../../produit/produit.service';
 import { RemiseService } from '../remise.service';
@@ -13,7 +12,7 @@ import { RayonService } from '../../rayon/rayon.service';
 import { ButtonModule } from 'primeng/button';
 import { TagModule } from 'primeng/tag';
 import { ToolbarModule } from 'primeng/toolbar';
-import { TableHeaderCheckbox, TableModule } from 'primeng/table';
+import { TableHeaderCheckbox, TableLazyLoadEvent, TableModule } from 'primeng/table';
 import { TooltipModule } from 'primeng/tooltip';
 import { ITEMS_PER_PAGE } from '../../../shared/constants/pagination.constants';
 import { SpinerService } from '../../../shared/spiner.service';
@@ -101,7 +100,7 @@ export class CodeRemiseProduitsModalComponent implements AfterViewInit {
       });
   }
 
-  protected lazyLoading(event: LazyLoadEvent): void {
+  protected lazyLoading(event: TableLazyLoadEvent): void {
     if ((this.selectedRayon || this.search) && event) {
       this.page = event.first / event.rows;
       this.loading = true;

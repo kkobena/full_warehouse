@@ -11,7 +11,7 @@
     [value]="data"
     dataKey="mvtDate"
   >
-    <ng-template pTemplate="header">
+    <ng-template #header>
       <tr>
         <th>Date</th>
         <th>Référence</th>
@@ -25,7 +25,7 @@
         <th>Opérateur</th>
       </tr>
     </ng-template>
-    <ng-template let-vente pTemplate="body">
+    <ng-template let-vente #body>
       <tr>
         <td>{{ vente.mvtDate | date: 'dd/MM/yyyy HH:mm:ss' }}</td>
         <td>{{ vente.reference }}</td>

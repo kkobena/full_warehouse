@@ -8,13 +8,12 @@ import {
 import { ProduitAuditingParamService } from '../../transaction/produit-auditing-param.service';
 import { ITEMS_PER_PAGE } from '../../../../shared/constants/pagination.constants';
 import { HttpHeaders, HttpResponse } from '@angular/common/http';
-import { LazyLoadEvent, PrimeTemplate } from 'primeng/api';
 import { CommonModule, DatePipe } from '@angular/common';
-import { TableModule } from 'primeng/table';
+import { TableLazyLoadEvent, TableModule } from 'primeng/table';
 
 @Component({
   selector: 'jhi-daily-sale-produit-historique',
-  imports: [CommonModule, DatePipe, PrimeTemplate, TableModule],
+  imports: [CommonModule, DatePipe, TableModule],
   templateUrl: './daily-sale-produit-historique.component.html'
 })
 export class DailySaleProduitHistoriqueComponent implements OnInit {
@@ -50,7 +49,7 @@ export class DailySaleProduitHistoriqueComponent implements OnInit {
       });
   }
 
-  lazyLoading(event: LazyLoadEvent): void {
+  lazyLoading(event: TableLazyLoadEvent): void {
     if (event) {
       this.page = event.first / event.rows;
       this.loading = true;

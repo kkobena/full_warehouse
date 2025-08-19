@@ -1,5 +1,4 @@
 import { Component, inject, OnInit, viewChild } from '@angular/core';
-import { LazyLoadEvent } from 'primeng/api';
 import { HttpHeaders, HttpResponse } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { GammeProduitService } from './gamme-produit.service';
@@ -10,7 +9,7 @@ import { ITEMS_PER_PAGE } from '../../shared/constants/pagination.constants';
 import { IResponseDto } from '../../shared/util/response-dto';
 import { ButtonModule } from 'primeng/button';
 import { ToolbarModule } from 'primeng/toolbar';
-import { TableModule } from 'primeng/table';
+import { TableLazyLoadEvent, TableModule } from 'primeng/table';
 import { InputTextModule } from 'primeng/inputtext';
 import { TooltipModule } from 'primeng/tooltip';
 import { IconField } from 'primeng/iconfield';
@@ -76,7 +75,7 @@ export class GammeProduitComponent implements OnInit {
       });
   }
 
-  protected lazyLoading(event: LazyLoadEvent): void {
+  protected lazyLoading(event: TableLazyLoadEvent): void {
     this.page = event.first / event.rows;
     this.loading = true;
     this.entityService

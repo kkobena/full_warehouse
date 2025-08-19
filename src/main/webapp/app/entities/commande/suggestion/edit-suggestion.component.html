@@ -137,7 +137,7 @@
         [value]="suggestions"
         dataKey="id"
         selectionMode="multiple"
-        styleClass="p-datatable-striped mt-2"
+        stripedRows="true"
       >
         <ng-template #caption>
           <div class="d-flex justify-content-between">
@@ -207,7 +207,7 @@
             <th style="width: 8%"></th>
           </tr>
         </ng-template>
-        <ng-template let-suggestion pTemplate="body">
+        <ng-template let-suggestion #body>
           <tr>
             <td>
               <jhi-eta-produit [isSuggestion]="true"
@@ -240,7 +240,7 @@
                     type="number"
                   />
                 </ng-template>
-                <ng-template pTemplate="output">
+                <ng-template #output>
                   {{ suggestion.quantity | number }}
                 </ng-template>
               </p-cellEditor>

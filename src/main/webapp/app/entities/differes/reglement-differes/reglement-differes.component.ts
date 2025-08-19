@@ -2,9 +2,8 @@ import { Component, inject, OnDestroy, OnInit } from '@angular/core';
 import { Button } from 'primeng/button';
 import { CardModule } from 'primeng/card';
 import { CommonModule } from '@angular/common';
-import { LazyLoadEvent } from 'primeng/api';
 import { SelectModule } from 'primeng/select';
-import { TableModule } from 'primeng/table';
+import { TableLazyLoadEvent, TableModule } from 'primeng/table';
 import { Tag } from 'primeng/tag';
 import { Toolbar } from 'primeng/toolbar';
 import { Tooltip } from 'primeng/tooltip';
@@ -108,7 +107,7 @@ export class ReglementDifferesComponent implements OnInit, OnDestroy {
       });
   }
 
-  protected lazyLoading(event: LazyLoadEvent): void {
+  protected lazyLoading(event: TableLazyLoadEvent): void {
     if (event) {
       this.loadingBtn = true;
       this.page = event.first / event.rows;

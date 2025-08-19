@@ -3,7 +3,7 @@ import { TiersPayantService } from './tierspayant.service';
 import { Observable } from 'rxjs';
 import { HttpHeaders, HttpResponse } from '@angular/common/http';
 import { IResponseDto } from '../../shared/util/response-dto';
-import { LazyLoadEvent, MenuItem, MessageService } from 'primeng/api';
+import { MenuItem, MessageService } from 'primeng/api';
 import { DynamicDialogModule } from 'primeng/dynamicdialog';
 import { NgbActiveModal, NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { ITEMS_PER_PAGE } from '../../shared/constants/pagination.constants';
@@ -17,7 +17,7 @@ import { RippleModule } from 'primeng/ripple';
 import { DropdownModule } from 'primeng/dropdown';
 import { FileUploadModule } from 'primeng/fileupload';
 import { ToolbarModule } from 'primeng/toolbar';
-import { TableModule } from 'primeng/table';
+import { TableLazyLoadEvent, TableModule } from 'primeng/table';
 import { InputTextModule } from 'primeng/inputtext';
 import { TooltipModule } from 'primeng/tooltip';
 import { FormsModule } from '@angular/forms';
@@ -30,7 +30,6 @@ import { InputIcon } from 'primeng/inputicon';
 import { Panel } from 'primeng/panel';
 import { showCommonModal } from '../sales/selling-home/sale-helper';
 import { ConfirmDialogComponent } from '../../shared/dialog/confirm-dialog/confirm-dialog.component';
-import { SpinerService } from '../../shared/spiner.service';
 import { SpinnerComponent } from '../../shared/spinner/spinner.component';
 
 @Component({
@@ -144,7 +143,7 @@ export class TiersPayantComponent implements OnInit {
       });
   }
 
-  lazyLoading(event: LazyLoadEvent): void {
+  lazyLoading(event: TableLazyLoadEvent): void {
     if (event) {
       this.page = event.first / event.rows;
       this.loading = true;

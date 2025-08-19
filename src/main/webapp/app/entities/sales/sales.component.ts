@@ -2,7 +2,7 @@ import { AfterViewInit, Component, inject, OnInit, viewChild } from '@angular/co
 import { Router, RouterModule } from '@angular/router';
 import { ISales } from 'app/shared/model/sales.model';
 import { SalesService } from './sales.service';
-import { LazyLoadEvent, MenuItem } from 'primeng/api';
+import { MenuItem } from 'primeng/api';
 import { TranslateService } from '@ngx-translate/core';
 import { DatePipe } from '@angular/common';
 import { IUser } from '../../core/user/user.model';
@@ -16,7 +16,7 @@ import { TooltipModule } from 'primeng/tooltip';
 import { ButtonModule } from 'primeng/button';
 import { InputTextModule } from 'primeng/inputtext';
 import { RippleModule } from 'primeng/ripple';
-import { TableModule } from 'primeng/table';
+import { TableLazyLoadEvent, TableModule } from 'primeng/table';
 import { ToolbarModule } from 'primeng/toolbar';
 import { DividerModule } from 'primeng/divider';
 import { CalendarModule } from 'primeng/calendar';
@@ -226,7 +226,7 @@ export class SalesComponent implements OnInit, AfterViewInit {
     this.updateParam();
   }
 
-  protected lazyLoading(event: LazyLoadEvent): void {
+  protected lazyLoading(event: TableLazyLoadEvent): void {
     if (event) {
       this.page = event.first / event.rows;
       this.itemsPerPage = event.rows;

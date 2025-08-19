@@ -103,9 +103,10 @@
       [value]="datas"
       dataKey="factureId"
       selectionMode="single"
-      styleClass="p-datatable-striped mt-2"
+      stripedRows="true"
+      styleClass=" mt-2"
     >
-      <ng-template pTemplate="header">
+      <ng-template #header>
         <tr>
           <th scope="col"><span>Num</span></th>
           <th scope="col"><span>Tiers-payant</span></th>
@@ -119,7 +120,7 @@
           <th scope="col">Date édition</th>
         </tr>
       </ng-template>
-      <ng-template let-columns="columns" let-elRow pTemplate="body">
+      <ng-template let-columns="columns" let-elRow #body>
         <tr [pEditableRow]="elRow" [pSelectableRow]="elRow" (dblclick)="onSelectFacture(elRow)">
           <td>{{ elRow.numFacture }}</td>
           <td>{{ elRow.tiersPayantName }}</td>

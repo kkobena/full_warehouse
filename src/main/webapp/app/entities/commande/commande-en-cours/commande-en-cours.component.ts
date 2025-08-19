@@ -2,7 +2,6 @@ import { Component, inject, input, OnInit, output, viewChild } from '@angular/co
 import { ICommande } from '../../../shared/model/commande.model';
 import { IOrderLine } from '../../../shared/model/order-line.model';
 import { ITEMS_PER_PAGE } from '../../../shared/constants/pagination.constants';
-import { LazyLoadEvent } from 'primeng/api';
 import { CommandeService } from '../commande.service';
 import { Router, RouterModule } from '@angular/router';
 import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
@@ -12,10 +11,9 @@ import { saveAs } from 'file-saver';
 import { AlertInfoComponent } from '../../../shared/alert/alert-info.component';
 import { WarehouseCommonModule } from '../../../shared/warehouse-common/warehouse-common.module';
 import { ButtonModule } from 'primeng/button';
-import { TableModule } from 'primeng/table';
+import { TableLazyLoadEvent, TableModule } from 'primeng/table';
 import { TooltipModule } from 'primeng/tooltip';
 import { OrderStatut } from '../../../shared/model/enumerations/order-statut.model';
-import { SpinerService } from '../../../shared/spiner.service';
 import { finalize } from 'rxjs/operators';
 import { ConfirmDialogComponent } from '../../../shared/dialog/confirm-dialog/confirm-dialog.component';
 import { SpinnerComponent } from '../../../shared/spinner/spinner.component';
@@ -185,7 +183,7 @@ export class CommandeEnCoursComponent implements OnInit {
     }
   }
 
-  lazyLoading(event: LazyLoadEvent): void {
+  lazyLoading(event: TableLazyLoadEvent): void {
     if (event) {
       this.page = event.first / event.rows;
       this.loading = true;

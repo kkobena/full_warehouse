@@ -1,7 +1,6 @@
 import { AfterViewInit, Component, inject, input, output, signal } from '@angular/core';
 import { HttpHeaders, HttpResponse } from '@angular/common/http';
 import { Facture } from '../../facturation/facture.model';
-import { LazyLoadEvent } from 'primeng/api';
 import { FactureService } from '../../facturation/facture.service';
 import { InvoiceSearchParams } from '../../facturation/edition-search-params.model';
 import { DATE_FORMAT_ISO_DATE } from '../../../shared/util/warehouse-util';
@@ -9,7 +8,7 @@ import { INVOICES_STATUT } from '../../../shared/constants/data-constants';
 import { IGroupeTiersPayant } from '../../../shared/model/groupe-tierspayant.model';
 import { ITiersPayant } from '../../../shared/model/tierspayant.model';
 import { RegelementStateService } from '../regelement-state.service';
-import { TableModule } from 'primeng/table';
+import { TableLazyLoadEvent, TableModule } from 'primeng/table';
 import { WarehouseCommonModule } from '../../../shared/warehouse-common/warehouse-common.module';
 import { FormsModule } from '@angular/forms';
 import { FloatLabelModule } from 'primeng/floatlabel';
@@ -124,7 +123,7 @@ export class FactuesModalComponent implements AfterViewInit {
       });
   }
 
-  lazyLoading(event: LazyLoadEvent): void {
+  lazyLoading(event: TableLazyLoadEvent): void {
     if (event) {
       this.page = event.first / event.rows;
       this.loading = true;

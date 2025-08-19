@@ -1,4 +1,4 @@
-import { Component, inject, OnInit } from '@angular/core';
+import { Component, inject, OnInit, viewChild } from '@angular/core';
 import { ActivatedRoute, RouterModule } from '@angular/router';
 
 import { GROUPING_BY, IStoreInventory, StoreInventoryExportRecord } from 'app/shared/model/store-inventory.model';
@@ -16,12 +16,12 @@ import { WarehouseCommonModule } from '../../shared/warehouse-common/warehouse-c
 import { FormsModule } from '@angular/forms';
 import { DividerModule } from 'primeng/divider';
 import { AutoCompleteModule } from 'primeng/autocomplete';
-import { TableModule } from 'primeng/table';
+import { TableLazyLoadEvent, TableModule } from 'primeng/table';
 import { ButtonModule } from 'primeng/button';
 import { RippleModule } from 'primeng/ripple';
 import { Select } from 'primeng/select';
 import { Tooltip } from 'primeng/tooltip';
-import { LazyLoadEvent } from 'primeng/api';
+import { SpinnerComponent } from '../../shared/spinner/spinner.component';
 
 @Component({
   selector: 'jhi-store-inventory-detail',
@@ -31,13 +31,13 @@ import { LazyLoadEvent } from 'primeng/api';
     FormsModule,
     RouterModule,
     DividerModule,
-    NgxSpinnerModule,
     AutoCompleteModule,
     TableModule,
     ButtonModule,
     RippleModule,
     Select,
-    Tooltip
+    Tooltip,
+    SpinnerComponent
   ]
 })
 export class StoreInventoryDetailComponent implements OnInit {
@@ -67,7 +67,7 @@ export class StoreInventoryDetailComponent implements OnInit {
   protected rayons: IRayon[] = [];
   protected storages: Storage[];
   protected readonly ITEMS_PER_PAGE = ITEMS_PER_PAGE;
-  private spinner = inject(NgxSpinnerService);
+  private readonly spinner = viewChild.required<SpinnerComponent>('spinner');
 
   ngOnInit(): void {
     this.activatedRoute.data.subscribe(({ storeInventory }) => {
@@ -126,7 +126,7 @@ export class StoreInventoryDetailComponent implements OnInit {
   }
 
   exportPdf(): void {
-    this.spinner.show();
+    this.spinner().show();
 
     this.storeInventoryService.exportToPdf(this.buildPdfQuery()).subscribe({
       next: blod => {
@@ -134,13 +134,13 @@ export class StoreInventoryDetailComponent implements OnInit {
         //   saveAs(blod, 'inventaire_' + fileName);
         const blobUrl = URL.createObjectURL(blod);
         window.open(blobUrl);
-        this.spinner.hide();
+        this.spinner().hide();
       },
-      error: () => this.spinner.hide()
+      error: () => this.spinner().hide()
     });
   }
 
-  lazyLoading(event: LazyLoadEvent): void {
+ protected lazyLoading(event: TableLazyLoadEvent): void {
     if (event) {
       this.page = event.first / event.rows;
       this.loading = true;

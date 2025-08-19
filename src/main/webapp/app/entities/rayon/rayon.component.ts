@@ -1,7 +1,6 @@
 import { HttpErrorResponse, HttpHeaders, HttpResponse } from '@angular/common/http';
 import { Component, inject, OnDestroy, OnInit, viewChild } from '@angular/core';
 import { RouterModule } from '@angular/router';
-import { LazyLoadEvent } from 'primeng/api';
 import { Observable, Subject } from 'rxjs';
 import { FormRayonComponent } from './form-rayon/form-rayon.component';
 import { RayonService } from './rayon.service';
@@ -12,7 +11,7 @@ import { IMagasin, IStorage } from '../../shared/model/magasin.model';
 import { WarehouseCommonModule } from '../../shared/warehouse-common/warehouse-common.module';
 import { ButtonModule } from 'primeng/button';
 import { ToolbarModule } from 'primeng/toolbar';
-import { TableModule } from 'primeng/table';
+import { TableLazyLoadEvent, TableModule } from 'primeng/table';
 import { InputTextModule } from 'primeng/inputtext';
 import { TooltipModule } from 'primeng/tooltip';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
@@ -114,7 +113,7 @@ export class RayonComponent implements OnInit, OnDestroy {
       });
   }
 
-  protected lazyLoading(event: LazyLoadEvent): void {
+  protected lazyLoading(event: TableLazyLoadEvent): void {
     if (event) {
       this.page = event.first / event.rows;
       this.loading = true;

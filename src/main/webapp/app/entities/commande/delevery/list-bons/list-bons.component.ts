@@ -4,12 +4,11 @@ import { ITEMS_PER_PAGE } from '../../../../shared/constants/pagination.constant
 import { RouterModule } from '@angular/router';
 import { DeliveryService } from '../delivery.service';
 import { HttpHeaders, HttpResponse } from '@angular/common/http';
-import { LazyLoadEvent } from 'primeng/api';
 import { EtiquetteComponent } from '../etiquette/etiquette.component';
 import { WarehouseCommonModule } from '../../../../shared/warehouse-common/warehouse-common.module';
 import { ButtonModule } from 'primeng/button';
 import { RippleModule } from 'primeng/ripple';
-import { TableModule } from 'primeng/table';
+import { TableLazyLoadEvent, TableModule } from 'primeng/table';
 import { TooltipModule } from 'primeng/tooltip';
 import { showCommonModal } from '../../../sales/selling-home/sale-helper';
 import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
@@ -58,7 +57,7 @@ export class ListBonsComponent implements OnInit {
     this.loadPage(0);
   }
 
-  lazyLoading(event: LazyLoadEvent): void {
+  lazyLoading(event: TableLazyLoadEvent): void {
     if (event) {
       this.page = event.first / event.rows;
       this.itemsPerPage = event.rows;

@@ -22,7 +22,7 @@ public class PrixReferenceDTO {
     private String typeLibelle;
 
     public PrixReferenceDTO(OptionPrixProduit optionPrixProduit) {
-        this.valeur = optionPrixProduit.getValeur();
+        this.valeur = optionPrixProduit.getPrice();
         this.id = optionPrixProduit.getId();
         this.enabled = optionPrixProduit.isEnabled();
         this.type = optionPrixProduit.getType();

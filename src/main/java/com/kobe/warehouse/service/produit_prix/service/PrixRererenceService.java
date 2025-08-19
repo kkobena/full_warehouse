@@ -2,6 +2,7 @@ package com.kobe.warehouse.service.produit_prix.service;
 
 import com.kobe.warehouse.domain.OptionPrixProduit;
 import com.kobe.warehouse.service.produit_prix.dto.PrixReferenceDTO;
+
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
@@ -30,4 +31,6 @@ public interface PrixRererenceService {
     List<OptionPrixProduit> findByProduitIdAndTiersPayantIds(Long produitId, Set<Long> tiersPayantIds);
 
     void save(OptionPrixProduit optionPrixProduit);
+
+    int getSaleLineTotalAmount(OptionPrixProduit optionPrixProduit, int incomingPrice);
 }

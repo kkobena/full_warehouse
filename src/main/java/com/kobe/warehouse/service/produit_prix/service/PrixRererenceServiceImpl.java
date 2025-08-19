@@ -7,11 +7,12 @@ import com.kobe.warehouse.domain.enumeration.OptionPrixType;
 import com.kobe.warehouse.repository.PrixReferenceRepository;
 import com.kobe.warehouse.service.UserService;
 import com.kobe.warehouse.service.produit_prix.dto.PrixReferenceDTO;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @Transactional
@@ -43,7 +44,7 @@ public class PrixRererenceServiceImpl implements PrixRererenceService {
             .map(prixReference -> {
                 PrixReferenceDTO dto = new PrixReferenceDTO();
                 dto.setId(prixReference.getId());
-                dto.setValeur(prixReference.getValeur());
+                dto.setValeur(prixReference.getPrice());
                 dto.setEnabled(prixReference.isEnabled());
                 dto.setType(prixReference.getType());
                 return Optional.of(dto);
@@ -68,7 +69,7 @@ public class PrixRererenceServiceImpl implements PrixRererenceService {
         OptionPrixProduit optionPrixProduit = new OptionPrixProduit();
         optionPrixProduit.setProduit(new Produit().id(dto.getProduitId()));
         optionPrixProduit.setTiersPayant(new TiersPayant().setId(dto.getTiersPayantId()));
-        optionPrixProduit.setValeur(dto.getValeur());
+        optionPrixProduit.setPrice(dto.getValeur());
         optionPrixProduit.setEnabled(dto.isEnabled());
         optionPrixProduit.setType(dto.getType());
         optionPrixProduit.setUser(this.userService.getUser());
@@ -78,11 +79,11 @@ public class PrixRererenceServiceImpl implements PrixRererenceService {
     @Override
     public void update(PrixReferenceDTO dto) {
         this.prixReferenceRepository.findById(dto.getId()).ifPresent(prixReference -> {
-                prixReference.setValeur(dto.getValeur());
-                prixReference.setEnabled(dto.isEnabled());
-                prixReference.setType(dto.getType());
-                this.prixReferenceRepository.save(prixReference);
-            });
+            prixReference.setPrice(dto.getValeur());
+            prixReference.setEnabled(dto.isEnabled());
+            prixReference.setType(dto.getType());
+            this.prixReferenceRepository.save(prixReference);
+        });
     }
 
     @Override
@@ -104,11 +105,26 @@ public class PrixRererenceServiceImpl implements PrixRererenceService {
         }
         if (prixReference.getType() == OptionPrixType.POURCENTAGE) {
             return Math.round(incomingPrice * prixReference.getTaux());
+        } else if (prixReference.getType() == OptionPrixType.RERERENCE) {
+            return prixReference.getPrice();
         } else {
-            return prixReference.getValeur();
+            return Math.round( prixReference.getPrice() * prixReference.getRate() / 100);
         }
     }
-
+    @Override
+    @Transactional(readOnly = true)
+    public int getSaleLineTotalAmount(OptionPrixProduit prixReference, int incomingPrice) {
+        if (prixReference == null) {
+            return incomingPrice;
+        }
+        if (prixReference.getType() == OptionPrixType.POURCENTAGE) {
+            return Math.round(incomingPrice * prixReference.getTaux());
+        } else if (prixReference.getType() == OptionPrixType.RERERENCE) {
+            return prixReference.getPrice();
+        } else {
+            return Math.round( prixReference.getPrice() * prixReference.getRate() / 100);
+        }
+    }
     @Override
     public void save(OptionPrixProduit optionPrixProduit) {
         this.prixReferenceRepository.save(optionPrixProduit);
@@ -121,7 +137,7 @@ public class PrixRererenceServiceImpl implements PrixRererenceService {
             .map(prixReference -> {
                 PrixReferenceDTO dto = new PrixReferenceDTO();
                 dto.setId(prixReference.getId());
-                dto.setValeur(prixReference.getValeur());
+                dto.setValeur(prixReference.getPrice());
                 dto.setEnabled(prixReference.isEnabled());
                 OptionPrixType type = prixReference.getType();
                 dto.setTypeLibelle(type.getLibelle());

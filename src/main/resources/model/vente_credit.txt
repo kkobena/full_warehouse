@@ -1,8 +1,8 @@
 A TRAITER
 
-CAS 2- 
-si un produit est remboursé dans un cas complementaire a un prix inferieur a celui du RO 
-exemple: 
+
+si un produit est remboursé dans un cas complementaire a un prix inferieur a celui du RO
+exemple:
 UN PRODUIT EST REMBOURSé A 3500 CHEZ MUGEFCI ET REMBOURSé A 2000 CHEZ MUPEMENET
 
 LE CALCUL DOIT SE FAIRE SUR LE PRIX LE MOINS CHER ET LA DIFFERENCE ENTRE LE PRIX LE MOINS CHER ET LE PRIX DE LA PHARMACIE (PRIX NORMAL) SERA AJOUTé SUR LE NET A PAYER
@@ -49,7 +49,7 @@ si le client n'a pas souscrit a mupemenet confort qu'il est simple alors le prod
 
 
 **
-Quand on modifie le type de cas, de prix reference ou taux en prix et taux la reorganisation des champs peut poser probleme dans la saisie 
+Quand on modifie le type de cas, de prix reference ou taux en prix et taux la reorganisation des champs peut poser probleme dans la saisie
 le champ taux prend la place du champ prix
 
 ** si possible

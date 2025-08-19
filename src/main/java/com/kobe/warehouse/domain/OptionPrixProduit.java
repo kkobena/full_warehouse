@@ -9,6 +9,7 @@ import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 import jakarta.persistence.UniqueConstraint;
@@ -36,10 +37,11 @@ public class OptionPrixProduit implements Serializable {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    private int valeur;
+    private int price;
 
     @NotNull
     @ManyToOne(optional = false, fetch = FetchType.LAZY)
+    @JoinColumn(name = "tiers_payant_id", referencedColumnName = "id")
     private TiersPayant tiersPayant;
 
     @ManyToOne(optional = false, fetch = FetchType.LAZY)
@@ -47,6 +49,7 @@ public class OptionPrixProduit implements Serializable {
 
     @ColumnDefault(value = "true")
     private boolean enabled = true;
+    private float rate;
 
     @NotNull
     @Enumerated(EnumType.STRING)
@@ -66,6 +69,14 @@ public class OptionPrixProduit implements Serializable {
 
     public LocalDateTime getUpdated() {
         return updated;
+    }
+
+    public float getRate() {
+        return rate;
+    }
+
+    public void setRate(float rate) {
+        this.rate = rate;
     }
 
     public void setUpdated(LocalDateTime updated) {
@@ -147,17 +158,17 @@ public class OptionPrixProduit implements Serializable {
         return Objects.hashCode(id);
     }
 
-    public int getValeur() {
-        return valeur;
+    public int getPrice() {
+        return price;
     }
 
-    public void setValeur(int valeur) {
-        this.valeur = valeur;
+    public void setPrice(int valeur) {
+        this.price = valeur;
     }
 
     public float getTaux() {
         if (type == OptionPrixType.POURCENTAGE) {
-            return valeur / 100.0f;
+            return price / 100.0f;
         }
         return 0.0f;
     }

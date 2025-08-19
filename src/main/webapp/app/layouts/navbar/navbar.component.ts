@@ -141,7 +141,7 @@ export default class NavbarComponent implements OnInit {
       {
         label: this.translateLabel('menuGestionCourrante'),
         faIcon: faThList,
-        authorities: [Authority.GESTION_COURANT,  Authority.ADMIN, Authority.ROLE_CAISSIER,Authority.ROLE_VENDEUR , Authority.SALES],
+        authorities: [Authority.GESTION_COURANT, Authority.ADMIN, Authority.ROLE_CAISSIER, Authority.ROLE_VENDEUR, Authority.SALES],
         children: [
           {
             label: 'global.menu.entities.sales',
@@ -152,7 +152,7 @@ export default class NavbarComponent implements OnInit {
             label: this.translateLabel('mvtCaisse'),
             routerLink: '/mvt-caisse',
             faIcon: faCoins,
-            authorities: [Authority.PAYMENT , Authority.ADMIN,Authority.MVT_CAISSE , Authority.BALANCE_CAISSE,Authority.TABLEAU_PHARMACIEN]
+            authorities: [Authority.PAYMENT, Authority.ADMIN, Authority.MVT_CAISSE, Authority.BALANCE_CAISSE, Authority.TABLEAU_PHARMACIEN]
           }
         ]
       },
@@ -160,7 +160,7 @@ export default class NavbarComponent implements OnInit {
       {
         label: this.translateLabel('menuGestionStock'),
         faIcon: faTruckFast,
-        authorities: [Authority.ROLE_RESPONSABLE_COMMANDE,  Authority.GESTION_STOCK, Authority.GESTION_ENTREE_STOCK, Authority.ADMIN,Authority.COMMANDE],
+        authorities: [Authority.ROLE_RESPONSABLE_COMMANDE, Authority.GESTION_STOCK, Authority.GESTION_ENTREE_STOCK, Authority.ADMIN, Authority.COMMANDE],
         children: [
           {
             label: this.translateLabel('entities.produit'),
@@ -193,7 +193,7 @@ export default class NavbarComponent implements OnInit {
             label: this.translateLabel('entities.storeInventory'),
             routerLink: '/store-inventory',
             faIcon: faClipboardList,
-            authorities: [Authority.STORE_INVENTORY,  Authority.ADMIN]
+            authorities: [Authority.STORE_INVENTORY, Authority.ADMIN]
           }
         ]
       },
@@ -202,7 +202,7 @@ export default class NavbarComponent implements OnInit {
       {
         label: this.translateLabel('facturation.title'),
         faIcon: faWallet,
-        authorities: [Authority.ADMIN,Authority.GESTION_FACTURATION ],
+        authorities: [Authority.ADMIN, Authority.GESTION_FACTURATION],
         children: [
           {
             label: this.translateLabel('facturation.factures'),
@@ -277,7 +277,7 @@ export default class NavbarComponent implements OnInit {
       {
         label: this.translateLabel('admin.main'),
         faIcon: faCogs,
-        authorities: [Authority.ADMIN,Authority.MENU_ADMIN, Authority.USER_MANAGEMENT,Authority.MAGASIN],
+        authorities: [Authority.ADMIN, Authority.MENU_ADMIN, Authority.USER_MANAGEMENT, Authority.MAGASIN],
         children: [
           {
             label: this.translateLabel('entities.magasin'),

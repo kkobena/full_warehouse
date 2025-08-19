@@ -1,4 +1,4 @@
-import { Component, inject, OnInit, signal } from '@angular/core';
+import { Component, effect, inject, OnInit, signal } from '@angular/core';
 import { Router, RouterModule } from '@angular/router';
 import { environment } from 'environments/environment';
 import { AccountService } from 'app/core/auth/account.service';
@@ -12,6 +12,7 @@ import {
   faBoxOpen,
   faBuilding,
   faCalendarTimes,
+  faCashRegister,
   faClipboardList,
   faCog,
   faCogs,
@@ -45,6 +46,7 @@ import {
 } from '@fortawesome/free-solid-svg-icons';
 import { Theme, ThemeService } from '../../core/theme/theme.service';
 import { TranslateService } from '@ngx-translate/core';
+import { Authority } from '../../shared/constants/authority.constants';
 
 @Component({
   selector: 'jhi-navbar',
@@ -88,10 +90,12 @@ export default class NavbarComponent implements OnInit {
     if (VERSION) {
       this.version = VERSION.toLowerCase().startsWith('v') ? VERSION : `v${VERSION}`;
     }
+    effect(() => {
+      this.navItems = this.buildNavItem();
+    });
   }
 
   ngOnInit(): void {
-    this.navItems = this.buildNavItem();
     this.themes = this.themeService.getThemes();
 
   }
@@ -128,16 +132,16 @@ export default class NavbarComponent implements OnInit {
   private buildNavItem(): NavItem[] {
     const allItems: NavItem[] = [
       {
-        label:this.translateLabel('nouvelleVente') ,
+        label: this.translateLabel('nouvelleVente'),
         faIcon: faBasketShopping,
-        authorities: ['ROLE_ADMIN', 'ROLE_CAISSIER'],
+        authorities: [Authority.ADMIN, Authority.ROLE_CAISSIER],
         routerLink: '/sales/false/new'
       },
 
       {
-        label:this.translateLabel('menuGestionCourrante'),
+        label: this.translateLabel('menuGestionCourrante'),
         faIcon: faThList,
-        authorities: ['gestion-courant', 'ROLE_ADMIN', 'ROLE_CAISSIER', 'ROLE_VENDEUR', 'sales'],
+        authorities: [Authority.GESTION_COURANT,  Authority.ADMIN, Authority.ROLE_CAISSIER,Authority.ROLE_VENDEUR , Authority.SALES],
         children: [
           {
             label: 'global.menu.entities.sales',
@@ -145,10 +149,10 @@ export default class NavbarComponent implements OnInit {
             faIcon: faShoppingBag
           },
           {
-            label:this.translateLabel('mvtCaisse'),
+            label: this.translateLabel('mvtCaisse'),
             routerLink: '/mvt-caisse',
             faIcon: faCoins,
-            authorities: ['payment', 'ROLE_ADMIN', 'mvt-caisse', 'tableau-pharmacien']
+            authorities: [Authority.PAYMENT , Authority.ADMIN,Authority.MVT_CAISSE , Authority.BALANCE_CAISSE,Authority.TABLEAU_PHARMACIEN]
           }
         ]
       },
@@ -156,10 +160,10 @@ export default class NavbarComponent implements OnInit {
       {
         label: this.translateLabel('menuGestionStock'),
         faIcon: faTruckFast,
-        authorities: ['gestion-stock', 'ROLE_ADMIN', 'commande', 'ROLE_RESPONSABLE_COMMANDE'],
+        authorities: [Authority.ROLE_RESPONSABLE_COMMANDE,  Authority.GESTION_STOCK, Authority.GESTION_ENTREE_STOCK, Authority.ADMIN,Authority.COMMANDE],
         children: [
           {
-            label:this.translateLabel('entities.produit'),
+            label: this.translateLabel('entities.produit'),
             routerLink: '/produit',
             faIcon: faBoxOpen
           },
@@ -189,16 +193,16 @@ export default class NavbarComponent implements OnInit {
             label: this.translateLabel('entities.storeInventory'),
             routerLink: '/store-inventory',
             faIcon: faClipboardList,
-            authorities: ['store-inventory', 'ROLE_ADMIN']
+            authorities: [Authority.STORE_INVENTORY,  Authority.ADMIN]
           }
         ]
       },
 
 
       {
-        label: this.translateLabel('facturation.title'),//TODO
+        label: this.translateLabel('facturation.title'),
         faIcon: faWallet,
-        authorities: ['ROLE_ADMIN', 'gestion-facturation'],
+        authorities: [Authority.ADMIN,Authority.GESTION_FACTURATION ],
         children: [
           {
             label: this.translateLabel('facturation.factures'),
@@ -232,13 +236,13 @@ export default class NavbarComponent implements OnInit {
       {
         label: this.translateLabel('referentiel'),
         faIcon: faBook,
-        authorities: ['referentiel', 'ROLE_ADMIN'],
+        authorities: [Authority.REFERENTIEL, Authority.ADMIN],
         children: [
           { label: this.translateLabel('entities.rayon'), routerLink: '/rayon', faIcon: faStream },
           {
             label: this.translateLabel('entities.remise'),
             routerLink: '/remises',
-            authorities: ['ROLE_ADMIN', 'remises'],
+            authorities: [Authority.ADMIN, Authority.REMISE],
             faIcon: faPercent
           },
           { label: this.translateLabel('entities.tableau'), routerLink: '/tableaux', faIcon: faTable },
@@ -264,7 +268,7 @@ export default class NavbarComponent implements OnInit {
           {
             label: this.translateLabel('parametre'),
             routerLink: '/parametre',
-            authorities: ['ROLE_ADMIN', 'parametre'],
+            authorities: [Authority.ADMIN, 'parametre'],
             faIcon: faCog
           }
         ]
@@ -273,7 +277,7 @@ export default class NavbarComponent implements OnInit {
       {
         label: this.translateLabel('admin.main'),
         faIcon: faCogs,
-        authorities: ['ROLE_ADMIN', 'admin', 'user-management', 'magasin'],
+        authorities: [Authority.ADMIN,Authority.MENU_ADMIN, Authority.USER_MANAGEMENT,Authority.MAGASIN],
         children: [
           {
             label: this.translateLabel('entities.magasin'),
@@ -305,10 +309,10 @@ export default class NavbarComponent implements OnInit {
             faIcon: 'wrench'
           },
           {
-            authorities: ['ROLE_ADMIN', 'ROLE_CAISSIER', 'ROLE_VENDEUR', 'MY_CASH_REGISTER'],
+            authorities: [Authority.ADMIN, Authority.ROLE_CAISSIER, Authority.ROLE_VENDEUR, Authority.MY_CASH_REGISTER],
             label: this.translateLabel('account.cashRegister'),
             routerLink: '/my-cash-register',
-            faIcon: 'sack-dollar'
+            faIcon: faCashRegister
 
           },
           {

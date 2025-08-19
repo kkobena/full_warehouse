@@ -29,6 +29,10 @@ Navbar
     font-weight: 400;
   }
 
+  .ng-fa-icon {
+    margin-right: 0.2em;
+  }
+
   .navbar-toggler {
     &:hover {
       color: $navbar-dark-hover-color;

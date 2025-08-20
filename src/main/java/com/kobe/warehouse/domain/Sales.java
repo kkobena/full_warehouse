@@ -144,8 +144,6 @@ public class Sales implements Serializable, Cloneable {
 
     @OneToMany(mappedBy = "sales")
     private Set<SalesLine> salesLines = new HashSet<>();
-    @OneToMany(mappedBy = "sale")
-    private Set<SalePayment> salePayments = new HashSet<>();
     @ManyToOne
     private Remise remise;
     @NotNull
@@ -223,13 +221,7 @@ public class Sales implements Serializable, Cloneable {
     @NotNull
     private WarehouseCalendar calendar;
 
-    public Set<SalePayment> getSalePayments() {
-        return salePayments;
-    }
 
-    public void setSalePayments(Set<SalePayment> salePayments) {
-        this.salePayments = salePayments;
-    }
 
     public Long getId() {
         return id;

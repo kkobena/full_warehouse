@@ -82,7 +82,6 @@ public class ThirdPartySales extends Sales implements Serializable {
     public boolean hasOptionPrixPourcentage() {
         return this.getSalesLines()
             .stream()
-            .flatMap(e -> e.getPrixAssurances().stream())
-            .anyMatch(pr -> pr.getOptionPrixProduit().getType() == OptionPrixType.POURCENTAGE);
+            .map(e -> e.getRates().stream()).findAny().isPresent();
     }
 }

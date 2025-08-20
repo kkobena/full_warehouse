@@ -104,7 +104,7 @@ public class PrixRererenceServiceImpl implements PrixRererenceService {
             return incomingPrice;
         }
         if (prixReference.getType() == OptionPrixType.POURCENTAGE) {
-            return Math.round(incomingPrice * prixReference.getTaux());
+            return Math.round(incomingPrice * prixReference.getRate());
         } else if (prixReference.getType() == OptionPrixType.RERERENCE) {
             return prixReference.getPrice();
         } else {
@@ -118,7 +118,7 @@ public class PrixRererenceServiceImpl implements PrixRererenceService {
             return incomingPrice;
         }
         if (prixReference.getType() == OptionPrixType.POURCENTAGE) {
-            return Math.round(incomingPrice * prixReference.getTaux());
+            return Math.round(incomingPrice * prixReference.getRate());
         } else if (prixReference.getType() == OptionPrixType.RERERENCE) {
             return prixReference.getPrice();
         } else {

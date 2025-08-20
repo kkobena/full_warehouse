@@ -3,6 +3,8 @@ package com.kobe.warehouse.service.dto;
 import com.kobe.warehouse.domain.FournisseurProduit;
 import com.kobe.warehouse.domain.Produit;
 import com.kobe.warehouse.domain.SalesLine;
+import com.kobe.warehouse.service.sale.calculation.dto.Rate;
+
 import java.time.LocalDateTime;
 import java.util.List;
 
@@ -35,6 +37,7 @@ public class SaleLineDTO {
     private Integer taxValue;
     private boolean forceStock; // mis pour forcer le stock a la vente
     private List<TiersPayantPrixRecord> tiersPayantPrixRecords;
+    private List<Rate> rates;
 
     public SaleLineDTO() {}
 
@@ -61,18 +64,8 @@ public class SaleLineDTO {
         produitId = produit.getId();
         saleId = salesLine.getSales().getId();
         quantiyAvoir = salesLine.getQuantityAvoir();
-        tiersPayantPrixRecords = salesLine
-            .getPrixAssurances()
-            .stream()
-            .map(prix ->
-                new TiersPayantPrixRecord(
-                    prix.getPrix(),
-                    prix.getMontant(),
-                    prix.getOptionPrixProduit().getType(),
-                    prix.getOptionPrixProduit().getValeur()
-                )
-            )
-            .toList();
+        rates = salesLine
+            .getRates();
     }
 
     public List<TiersPayantPrixRecord> getTiersPayantPrixRecords() {
@@ -81,6 +74,14 @@ public class SaleLineDTO {
 
     public void setTiersPayantPrixRecords(List<TiersPayantPrixRecord> tiersPayantPrixRecords) {
         this.tiersPayantPrixRecords = tiersPayantPrixRecords;
+    }
+
+    public List<Rate> getRates() {
+        return rates;
+    }
+
+    public void setRates(List<Rate> rates) {
+        this.rates = rates;
     }
 
     public Long getId() {

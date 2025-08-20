@@ -14,18 +14,19 @@ import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 import jakarta.persistence.UniqueConstraint;
 import jakarta.validation.constraints.NotNull;
+import org.hibernate.annotations.ColumnDefault;
+
 import java.io.Serial;
 import java.io.Serializable;
 import java.time.LocalDateTime;
 import java.util.Objects;
-import org.hibernate.annotations.ColumnDefault;
 
 @Entity
 @Table(
     name = "produit_tiers_payant_prix",
     uniqueConstraints = {
-        @UniqueConstraint(columnNames = { "produit_id", "tiers_payant_id", "enabled" }),
-        @UniqueConstraint(columnNames = { "produit_id", "tiers_payant_id", "prix_type" }),
+        @UniqueConstraint(columnNames = {"produit_id", "tiers_payant_id", "enabled"}),
+        @UniqueConstraint(columnNames = {"produit_id", "tiers_payant_id", "prix_type"}),
     }
 )
 public class OptionPrixProduit implements Serializable {
@@ -36,7 +37,6 @@ public class OptionPrixProduit implements Serializable {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-
     private int price;
 
     @NotNull
@@ -49,7 +49,8 @@ public class OptionPrixProduit implements Serializable {
 
     @ColumnDefault(value = "true")
     private boolean enabled = true;
-    private float rate;
+    @Column(name = "rate", nullable = false)
+    private float rate = 100.0f;
 
     @NotNull
     @Enumerated(EnumType.STRING)
@@ -71,16 +72,16 @@ public class OptionPrixProduit implements Serializable {
         return updated;
     }
 
+    public void setUpdated(LocalDateTime updated) {
+        this.updated = updated;
+    }
+
     public float getRate() {
         return rate;
     }
 
     public void setRate(float rate) {
         this.rate = rate;
-    }
-
-    public void setUpdated(LocalDateTime updated) {
-        this.updated = updated;
     }
 
     public User getUser() {
@@ -166,10 +167,5 @@ public class OptionPrixProduit implements Serializable {
         this.price = valeur;
     }
 
-    public float getTaux() {
-        if (type == OptionPrixType.POURCENTAGE) {
-            return price / 100.0f;
-        }
-        return 0.0f;
-    }
+
 }

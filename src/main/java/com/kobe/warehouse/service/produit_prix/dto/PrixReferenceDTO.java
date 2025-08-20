@@ -26,7 +26,7 @@ public class PrixReferenceDTO {
         this.id = optionPrixProduit.getId();
         this.enabled = optionPrixProduit.isEnabled();
         this.type = optionPrixProduit.getType();
-        this.taux = optionPrixProduit.getTaux();
+        this.taux = optionPrixProduit.getRate();
         this.typeLibelle = optionPrixProduit.getType().getLibelle();
     }
 

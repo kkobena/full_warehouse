@@ -1,6 +1,6 @@
 package com.kobe.warehouse.domain;
 
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.kobe.warehouse.service.sale.calculation.dto.Rate;
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -12,20 +12,21 @@ import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 import jakarta.persistence.UniqueConstraint;
 import jakarta.validation.constraints.NotNull;
+import org.hibernate.annotations.JdbcTypeCode;
+import org.hibernate.type.SqlTypes;
+
 import java.io.Serial;
 import java.io.Serializable;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
-import org.hibernate.annotations.JdbcTypeCode;
-import org.hibernate.type.SqlTypes;
 
 /**
  * A SalesLine.
  */
 @Entity
-@Table(name = "sales_line", uniqueConstraints = { @UniqueConstraint(columnNames = { "produit_id", "sales_id" }) })
+@Table(name = "sales_line", uniqueConstraints = {@UniqueConstraint(columnNames = {"produit_id", "sales_id"})})
 public class SalesLine implements Serializable, Cloneable {
 
     @Serial
@@ -99,6 +100,9 @@ public class SalesLine implements Serializable, Cloneable {
     @Column(name = "cost_amount", nullable = false, columnDefinition = "int default '0'")
     private Integer costAmount = 0;
 
+    @Column(name = "calculation_base_price")
+    private Integer calculationBasePrice;
+
     @NotNull
     @Column(name = "created_at", nullable = false)
     private LocalDateTime createdAt;
@@ -134,12 +138,21 @@ public class SalesLine implements Serializable, Cloneable {
     @Column(name = "tax_amount", nullable = false, columnDefinition = "int default '0'")
     private Integer taxAmount = 0;
 
-    @OneToMany(mappedBy = "saleLine", cascade = { CascadeType.PERSIST, CascadeType.REMOVE })
-    private List<TiersPayantPrix> prixAssurances = new ArrayList<>();
-
     @JdbcTypeCode(SqlTypes.JSON)
     @Column(columnDefinition = "json", name = "lots")
     private List<LotSold> lots = new ArrayList<>();
+
+    @JdbcTypeCode(SqlTypes.JSON)
+    @Column(columnDefinition = "json", name = "rates")
+    private List<Rate> rates = new ArrayList<>();
+
+    public List<Rate> getRates() {
+        return rates;
+    }
+
+    public void setRates(List<Rate> rates) {
+        this.rates = rates;
+    }
 
     public Long getId() {
         return id;
@@ -166,14 +179,7 @@ public class SalesLine implements Serializable, Cloneable {
         return this;
     }
 
-    public List<TiersPayantPrix> getPrixAssurances() {
-        return prixAssurances;
-    }
 
-    public SalesLine setPrixAssurances(List<TiersPayantPrix> prixAssurances) {
-        this.prixAssurances = prixAssurances;
-        return this;
-    }
 
     public @NotNull Integer getQuantityUg() {
         return quantityUg;
@@ -443,6 +449,17 @@ public class SalesLine implements Serializable, Cloneable {
     public SalesLine sales(Sales sales) {
         this.sales = sales;
         return this;
+    }
+
+    public Integer getCalculationBasePrice() {
+        if (calculationBasePrice == null) {
+            calculationBasePrice = regularUnitPrice;
+        }
+        return calculationBasePrice;
+    }
+
+    public void setCalculationBasePrice(Integer calculationBasePrice) {
+        this.calculationBasePrice = calculationBasePrice;
     }
 
     public SalesLine produit(Produit produit) {

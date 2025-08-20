@@ -19,7 +19,7 @@ SI L’UTILISATEUR RENSEIGNE CELUI DE 70% SANS TOUCHER LES AUTRES PRODUITS, APPL
 
 *RAPPELER LE PRIX SUR L’ECRAN D’AJOUT DE TAUX ET PRIX (si on choisi la 3 option)
 
-Qd tu ajoutes un autre tiers payant en complementaire il met tout à 100%
+
 
 
 CAS-4

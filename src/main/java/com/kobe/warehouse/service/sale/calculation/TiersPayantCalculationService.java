@@ -33,7 +33,7 @@ public class TiersPayantCalculationService {
         Map<Long, BigDecimal> tiersPayants = new HashMap<>();
         if (CollectionUtils.isEmpty(input.getSaleItems())) return null;
         for (SaleItemInput saleItemInput : input.getSaleItems()) {
-            CalculatedShare itemShare = calculateSaleItem(saleItemInput, input.getTiersPayants());
+            CalculatedShare itemShare = calculateSaleItem(saleItemInput, input.getTiersPayants(),input.getNatureVente());
             totalAmountAssurance = totalAmountAssurance.add(itemShare.getTotalReimbursedAmount());
             discountAmount = discountAmount.add(saleItemInput.getDiscountAmount());
             itemPartAssure = itemPartAssure.add(itemShare.getPatientShare());
@@ -112,7 +112,7 @@ public class TiersPayantCalculationService {
         return partTiersPayantNet.min(reste);
     }
 
-    private CalculatedShare calculateSaleItem(SaleItemInput saleItem, List<TiersPayantInput> tiersPayantInputs) {
+    private CalculatedShare calculateSaleItem(SaleItemInput saleItem, List<TiersPayantInput> tiersPayantInputs,NatureVente natureVente) {
         tiersPayantInputs.sort(Comparator.comparingInt(tp -> tp.getPriorite().getValue()));
         CalculatedShare itemShare = new CalculatedShare();
         itemShare.setPharmacyPrice(saleItem.getRegularUnitPrice());
@@ -121,8 +121,9 @@ public class TiersPayantCalculationService {
         BigDecimal totalPartTiersPayant = BigDecimal.ZERO;
         int prixReference = saleItem.getPrixAssurances().stream().filter(p -> p.getOptionPrixType() != OptionPrixType.POURCENTAGE).mapToInt(TiersPayantPrixInput::getPrice).min().orElse(0);
         boolean hasOptionPrix = !saleItem.getPrixAssurances().isEmpty();
-        BigDecimal calculationBase = prixReference > 0 ? BigDecimal.valueOf(prixReference) : itemShare.getPharmacyPrice();
-        itemShare.setCalculationBasePrice(calculationBase.intValue());
+        BigDecimal calculationBaseUni = prixReference > 0 ? BigDecimal.valueOf(prixReference) : itemShare.getPharmacyPrice();
+        BigDecimal calculationBase = calculationBaseUni.multiply(BigDecimal.valueOf(saleItem.getQuantity()));
+        itemShare.setCalculationBasePrice(calculationBaseUni.intValue());
         for (TiersPayantInput tiersPayantInput : tiersPayantInputs) {
             float rate = tiersPayantInput.getTaux();
             if (hasOptionPrix) {
@@ -132,23 +133,20 @@ public class TiersPayantCalculationService {
                 if (tiersPayantPrixInput != null) {
                     rate = tiersPayantPrixInput.getRate();
                     itemShare.getRates().add(new Rate(tiersPayantInput.getClientTiersPayantId(), rate));
-                   /* if (tiersPayantPrixInput.getOptionPrixType() == OptionPrixType.POURCENTAGE) {
-                        rate = tiersPayantPrixInput.getRate();
-                        calculationBase = calculationBase.min(percentagePrice);
 
-                    } else {
-                        calculationBase = BigDecimal.valueOf(tiersPayantPrixInput.getPrice());//BigDecimal.valueOf(tiersPayantPrixInput.getPrice()) .multiply(BigDecimal.valueOf(tiersPayantPrixInput.getRate()));
-                         calculationBase = calculationBase.min(mixedPrice);
-                        rate = tiersPayantPrixInput.getRate();
-
-                    }*/
                 }
             }
             BigDecimal remainingAmountForTps = calculationBase.subtract(totalPartTiersPayant);
             if (remainingAmountForTps.compareTo(BigDecimal.ZERO) <= 0) break;
-
             BigDecimal actualShare = calculationBase.multiply(BigDecimal.valueOf(rate));
-            actualShare = actualShare.min(remainingAmountForTps);
+            if (rate == 100.0f && natureVente==NatureVente.ASSURANCE) { // formulle confort
+                remainingAmountForTps = saleItem.getTotalSalesAmount().subtract(totalPartTiersPayant);
+                actualShare = BigDecimal.ZERO.max(remainingAmountForTps);
+            } else {
+                actualShare = actualShare.min(remainingAmountForTps);
+            }
+
+
             totalPartTiersPayant = totalPartTiersPayant.add(actualShare);
             itemShare.getTiersPayants().put(tiersPayantInput.getClientTiersPayantId(), actualShare);
         }

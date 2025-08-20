@@ -955,9 +955,10 @@ public class ThirdPartySaleServiceImpl extends SaleCommonService implements Thir
             SaleItemInput si = new SaleItemInput();
             Produit produit = sl.getProduit();
             si.setSalesLineId(sl.getId());
+            si.setTotalSalesAmount(BigDecimal.valueOf(sl.getSalesAmount()));
             si.setQuantity(sl.getQuantityRequested());
             si.setRegularUnitPrice(BigDecimal.valueOf(sl.getRegularUnitPrice()));
-            input.setTotalSalesAmount(Objects.requireNonNullElse(input.getTotalSalesAmount(), BigDecimal.ZERO).add(BigDecimal.valueOf(sl.getSalesAmount())));
+            input.setTotalSalesAmount(Objects.requireNonNullElse(input.getTotalSalesAmount(), BigDecimal.ZERO).add(si.getTotalSalesAmount()));
             this.prixRererenceService.findByProduitIdAndTiersPayantIds(produit.getId(), tiersPayantIds).forEach(prixRef ->
                 tiersPayantInputs.forEach(cl -> {
                     if (cl.getTiersPayantId().compareTo(prixRef.getTiersPayant().getId()) == 0) {

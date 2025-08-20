@@ -7,11 +7,11 @@ import java.util.List;
 public class SaleItemInput {
     //private Long produitId;
     private Long salesLineId;
-    private int quantity;
+    private Integer quantity;
     private BigDecimal regularUnitPrice;
     private BigDecimal discountAmount= BigDecimal.ZERO;
     private List<TiersPayantPrixInput> prixAssurances = new ArrayList<>();
-
+    private BigDecimal totalSalesAmount;
     public Long getSalesLineId() {
         return salesLineId;
     }
@@ -28,11 +28,19 @@ public class SaleItemInput {
         this.produitId = produitId;
     }*/
 
-    public int getQuantity() {
+    public BigDecimal getTotalSalesAmount() {
+        return totalSalesAmount;
+    }
+
+    public void setTotalSalesAmount(BigDecimal totalSalesAmount) {
+        this.totalSalesAmount = totalSalesAmount;
+    }
+
+    public Integer getQuantity() {
         return quantity;
     }
 
-    public void setQuantity(int quantity) {
+    public void setQuantity(Integer quantity) {
         this.quantity = quantity;
     }
 

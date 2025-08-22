@@ -1,6 +1,7 @@
 <div class="modal-header">
   <h4 class="modal-title">{{ header }}</h4>
-  <button (click)="cancel()" aria-hidden="true" class="btn-close" data-dismiss="modal" type="button">&times;</button>
+  <button (click)="cancel()" aria-hidden="true" class="btn-close" data-dismiss="modal"
+          type="button"></button>
 </div>
 <div class="modal-body">
   <p-card>
@@ -14,7 +15,8 @@
           <th>Cip</th>
         }
         <th>Option de prix</th>
-        <th class="text-right">Valeur</th>
+        <th class="text-right">Prix dé référence</th>
+        <th class="text-right">Taux de remboursement</th>
         <th class="text-right">
           <p-button
             (click)="onAddNew()"
@@ -37,11 +39,13 @@
               <td>{{ prix.produitCode }}</td>
             }
             <td>{{ prix.typeLibelle }}</td>
-            @if (prix.type === 'RERERENCE') {
-              <td class="amount-column">{{ prix.valeur | number }}</td>
+            <td class="amount-column">{{ prix.price | number }}</td>
+            @if (prix.type==='REFERENCE'){
+              <td></td>
             } @else {
-              <td class="amount-column">{{ prix.valeur }}%</td>
+              <td class="amount-column">{{ prix.rate }}%</td>
             }
+
             <td class="text-right">
               <p-button
                 (click)="onEdit(prix)"

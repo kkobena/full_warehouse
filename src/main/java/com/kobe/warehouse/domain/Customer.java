@@ -11,6 +11,8 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.Inheritance;
 import jakarta.persistence.InheritanceType;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotEmpty;
@@ -26,7 +28,9 @@ import java.time.LocalDateTime;
 @Table(name = "customer")
 @Inheritance(strategy = InheritanceType.SINGLE_TABLE)
 public class Customer implements Serializable {
-
+    @ManyToOne
+    @JoinColumn(name = "remise_client_id", referencedColumnName = "id")
+    private RemiseClient remiseClient;
     @Serial
     private static final long serialVersionUID = 1L;
 
@@ -70,6 +74,14 @@ public class Customer implements Serializable {
     @Enumerated(EnumType.STRING)
     @Column(name = "type_assure", nullable = false, length = 15)
     private TypeAssure typeAssure;
+
+    public RemiseClient getRemiseClient() {
+        return remiseClient;
+    }
+
+    public void setRemiseClient(RemiseClient remiseClient) {
+        this.remiseClient = remiseClient;
+    }
 
     public Long getId() {
         return id;

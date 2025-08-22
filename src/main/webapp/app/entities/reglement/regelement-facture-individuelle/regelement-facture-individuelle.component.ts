@@ -6,7 +6,6 @@ import { WarehouseCommonModule } from '../../../shared/warehouse-common/warehous
 import { InputTextModule } from 'primeng/inputtext';
 import { RippleModule } from 'primeng/ripple';
 import { TooltipModule } from 'primeng/tooltip';
-import { ConfirmDialogModule } from 'primeng/confirmdialog';
 import { SplitButtonModule } from 'primeng/splitbutton';
 import { NgbAlertModule, NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { FieldsetModule } from 'primeng/fieldset';
@@ -15,20 +14,19 @@ import { DossierReglementInfoComponent } from '../dossier-reglement-info/dossier
 import { ReglementFormComponent } from '../reglement-form/reglement-form.component';
 import { ModeEditionReglement, ReglementParams, ResponseReglement, SelectedFacture } from '../model/reglement.model';
 import { AlertInfoComponent } from '../../../shared/alert/alert-info.component';
-import { ConfirmationService } from 'primeng/api';
 import { ErrorService } from '../../../shared/error.service';
 import { ReglementService } from '../reglement.service';
 import { FactureService } from '../../facturation/facture.service';
 import { HttpResponse } from '@angular/common/http';
 import { FactuesModalComponent } from '../factues-modal/factues-modal.component';
-import { acceptButtonProps, rejectButtonProps } from '../../../shared/util/modal-button-props';
 import { Drawer } from 'primeng/drawer';
 import { IconField } from 'primeng/iconfield';
 import { InputIcon } from 'primeng/inputicon';
+import { ConfirmDialogComponent } from '../../../shared/dialog/confirm-dialog/confirm-dialog.component';
 
 @Component({
   selector: 'jhi-regelement-facture-individuelle',
-  providers: [ConfirmationService],
+
   imports: [
     WarehouseCommonModule,
     TableModule,
@@ -36,7 +34,6 @@ import { InputIcon } from 'primeng/inputicon';
     ButtonModule,
     RippleModule,
     TooltipModule,
-    ConfirmDialogModule,
     SplitButtonModule,
     NgbAlertModule,
     FieldsetModule,
@@ -46,7 +43,8 @@ import { InputIcon } from 'primeng/inputicon';
     FactuesModalComponent,
     Drawer,
     IconField,
-    InputIcon
+    InputIcon,
+    ConfirmDialogComponent
   ],
   templateUrl: './regelement-facture-individuelle.component.html'
 })
@@ -64,16 +62,16 @@ export class RegelementFactureIndividuelleComponent implements OnInit {
     return this.factureDossierSelectionnes()?.map(d => d.id) || [];
   });
   reglementFormComponent = viewChild(ReglementFormComponent);
-  protected readonly modalService = inject(NgbModal);
-  protected readonly confirmationService = inject(ConfirmationService);
-  protected readonly errorService = inject(ErrorService);
-  protected readonly reglementService = inject(ReglementService);
-  protected readonly factureService = inject(FactureService);
+  private readonly modalService = inject(NgbModal);
+  private readonly errorService = inject(ErrorService);
+  private readonly reglementService = inject(ReglementService);
+  private readonly factureService = inject(FactureService);
   readonly selectedFacture = output<SelectedFacture>();
   protected showSidebar = false;
   protected partialPayment = false;
   protected readonly ModeEditionReglement = ModeEditionReglement;
   protected isSaving = false;
+  private readonly confimDialog = viewChild.required<ConfirmDialogComponent>('confirmDialog');
 
   constructor() {
     effect(() => {
@@ -157,19 +155,11 @@ export class RegelementFactureIndividuelleComponent implements OnInit {
   }
 
   private onPrintReceipt(response: ResponseReglement): void {
-    this.confirmationService.confirm({
-      message: ' Voullez-vous imprimer le ticket ?',
-      header: 'TICKET REGLEMENT',
-      icon: 'pi pi-info-circle',
-      rejectButtonProps: rejectButtonProps(),
-      acceptButtonProps: acceptButtonProps(),
-      accept: () => {
-        this.reglementService.printReceipt(response.id).subscribe();
-        this.reset(response);
-      },
-      reject: () => this.reset(response),
-      key: 'printReceipt'
-    });
+
+    this.confimDialog().onConfirm(() => {
+      this.reglementService.printReceipt(response.id).subscribe();
+      this.reset(response);
+    }, 'TICKET REGLEMENT', ' Voullez-vous imprimer le ticket ?', 'pi pi-info-circle', () => this.reset(response));
   }
 
   private computeMontantRestant(d: ReglementFactureDossier): number {

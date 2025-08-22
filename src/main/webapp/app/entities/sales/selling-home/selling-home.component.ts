@@ -151,21 +151,21 @@ export class SellingHomeComponent implements OnInit, AfterViewInit {
   protected currentSaleService = inject(CurrentSaleService);
   protected userVendeurService = inject(UserVendeurService);
   protected readonly PRODUIT_COMBO_RESULT_SIZE = PRODUIT_COMBO_RESULT_SIZE;
-  private typePrescriptionService = inject(TypePrescriptionService);
-  private userCaissierService = inject(UserCaissierService);
-  private hasAuthorityService = inject(HasAuthorityService);
-  private voSalesService = inject(VoSalesService);
-  private baseSaleService = inject(BaseSaleService);
-  private selectModeReglementService = inject(SelectModeReglementService);
-  private selectedCustomerService = inject(SelectedCustomerService);
-  private lastCurrencyGivenService = inject(LastCurrencyGivenService);
-  private salesService = inject(SalesService);
-  private customerService = inject(CustomerService);
-  private produitService = inject(ProduitService);
-  private activatedRoute = inject(ActivatedRoute);
-  private router = inject(Router);
-  private modalService = inject(NgbModal);
-  private errorService = inject(ErrorService);
+  private readonly typePrescriptionService = inject(TypePrescriptionService);
+  private readonly userCaissierService = inject(UserCaissierService);
+  private readonly  hasAuthorityService = inject(HasAuthorityService);
+  private readonly voSalesService = inject(VoSalesService);
+  private readonly baseSaleService = inject(BaseSaleService);
+  private readonly selectModeReglementService = inject(SelectModeReglementService);
+  private  readonly selectedCustomerService = inject(SelectedCustomerService);
+  private readonly lastCurrencyGivenService = inject(LastCurrencyGivenService);
+  private readonly salesService = inject(SalesService);
+  private readonly customerService = inject(CustomerService);
+  private readonly produitService = inject(ProduitService);
+  private readonly activatedRoute = inject(ActivatedRoute);
+  private readonly router = inject(Router);
+  private readonly modalService = inject(NgbModal);
+  private readonly errorService = inject(ErrorService);
   private readonly translate = inject(TranslateService);
   private quantityMessage = '';
   private readonly confimDialog = viewChild.required<ConfirmDialogComponent>('confirmDialog');
@@ -780,7 +780,7 @@ export class SellingHomeComponent implements OnInit, AfterViewInit {
     return this.active === SaleType.CARNET;
   }
 
-  private isAssurance(): boolean {
+  protected isAssurance(): boolean {
     return this.active === SaleType.ASSURANCE;
   }
 

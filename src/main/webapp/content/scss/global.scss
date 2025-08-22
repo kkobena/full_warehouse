@@ -1772,7 +1772,7 @@ jhi-recapitualtif-caisse {
 }
 
 .pharma-smart-primary-text {
-  color: #6c757d;
+  color: #6c757d !important;
 }
 
 .pharma-smart-secondary-text {
@@ -1855,4 +1855,10 @@ jhi-recapitualtif-caisse {
   color: #495057;
   text-align: right;
   font-weight: 600;
+}
+.my-cash-register-container{
+  .pharma-smart-primary-text{
+
+    font-weight: 600;
+  }
 }

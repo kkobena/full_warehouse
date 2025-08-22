@@ -1,24 +1,20 @@
-import { AfterViewInit, Component, inject, OnInit } from '@angular/core';
+import { AfterViewInit, Component, inject, OnInit, viewChild } from '@angular/core';
 import { ToolbarModule } from 'primeng/toolbar';
 import { FormsModule } from '@angular/forms';
-import { RippleModule } from 'primeng/ripple';
 import { ButtonModule } from 'primeng/button';
 import { TableLazyLoadEvent, TableModule } from 'primeng/table';
 import { TooltipModule } from 'primeng/tooltip';
 import { WarehouseCommonModule } from '../../shared/warehouse-common/warehouse-common.module';
 import { MvtCaisse, MvtCaisseWrapper, TypeFinancialTransaction } from '../cash-register/model/cash-register.model';
 import { MvtCaisseServiceService } from './mvt-caisse-service.service';
-import { Router } from '@angular/router';
 import { HttpHeaders, HttpResponse } from '@angular/common/http';
-import { ConfirmationService, MessageService } from 'primeng/api';
 import { InputTextModule } from 'primeng/inputtext';
 import { IPaymentMode } from '../../shared/model/payment-mode.model';
 import { IUser } from '../../core/user/user.model';
 import { ModePaymentService } from '../mode-payments/mode-payment.service';
 import { MultiSelectModule } from 'primeng/multiselect';
-import { DialogService, DynamicDialogRef } from 'primeng/dynamicdialog';
 import { FormTransactionComponent } from './form-transaction/form-transaction.component';
-import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
+import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { DATE_FORMAT_ISO_DATE } from '../../shared/util/warehouse-util';
 import { getTypeName, MvtCaisseParams } from './mvt-caisse-util';
 import { ButtonGroupModule } from 'primeng/buttongroup';
@@ -27,20 +23,19 @@ import { UserService } from '../../core/user/user.service';
 import { TranslateService } from '@ngx-translate/core';
 import { CardModule } from 'primeng/card';
 import { MvtParamServiceService } from './mvt-param-service.service';
-import { ToastModule } from 'primeng/toast';
 import { PrimeNG } from 'primeng/config';
 import { DatePicker } from 'primeng/datepicker';
 import { Select } from 'primeng/select';
 import { FloatLabel } from 'primeng/floatlabel';
+import { ToastAlertComponent } from '../../shared/toast-alert/toast-alert.component';
+import { showCommonModal } from '../sales/selling-home/sale-helper';
 
 @Component({
   selector: 'jhi-visualisation-mvt-caisse',
-  providers: [MessageService, DialogService, ConfirmationService, NgbActiveModal],
   imports: [
     WarehouseCommonModule,
     ToolbarModule,
     FormsModule,
-    RippleModule,
     ButtonModule,
     TableModule,
     TooltipModule,
@@ -49,10 +44,10 @@ import { FloatLabel } from 'primeng/floatlabel';
     ButtonGroupModule,
     DividerModule,
     CardModule,
-    ToastModule,
     DatePicker,
     Select,
-    FloatLabel
+    FloatLabel,
+    ToastAlertComponent
   ],
   templateUrl: './visualisation-mvt-caisse.component.html'
 })
@@ -85,18 +80,16 @@ export class VisualisationMvtCaisseComponent implements OnInit, AfterViewInit {
   ];
   protected selectedTypes: TypeFinancialTransaction[] = [];
   protected paymentModes: IPaymentMode[] = [];
-  protected ref!: DynamicDialogRef;
   private readonly colors: string[] = ['bg-primary', 'bg-info', 'bg-success', 'bg-warning', 'bg-danger', 'bg-secondary'];
   private readonly colorsByTypes: string[] = ['bg-primary', 'bg-info', 'bg-success', 'bg-warning', 'bg-secondary'];
-  private userService = inject(UserService);
-  private mvtCaisseService = inject(MvtCaisseServiceService);
-  private router = inject(Router);
-  private modeService = inject(ModePaymentService);
-  private dialogService = inject(DialogService);
-  private primeNGConfig = inject(PrimeNG);
-  private translate = inject(TranslateService);
-  private mvtParamServiceService = inject(MvtParamServiceService);
-  private messageService = inject(MessageService);
+  private readonly userService = inject(UserService);
+  private readonly mvtCaisseService = inject(MvtCaisseServiceService);
+  private readonly modeService = inject(ModePaymentService);
+  private readonly primeNGConfig = inject(PrimeNG);
+  private readonly translate = inject(TranslateService);
+  private readonly mvtParamServiceService = inject(MvtParamServiceService);
+  private readonly alert = viewChild.required<ToastAlertComponent>('alert');
+  private readonly modalService = inject(NgbModal);
 
   ngOnInit(): void {
     if (this.mvtParamServiceService.mvtCaisseParam()) {
@@ -184,11 +177,8 @@ export class VisualisationMvtCaisseComponent implements OnInit, AfterViewInit {
       },
       error: () => {
         this.btnLoading = false;
-        this.messageService.add({
-          severity: 'error',
-          summary: 'Error',
-          detail: 'Une erreur est survenue'
-        });
+
+        this.alert().showError('Erreur', 'Une erreur est survenue lors de l\'exportation');
       },
       complete: () => {
         this.btnLoading = false;
@@ -197,26 +187,18 @@ export class VisualisationMvtCaisseComponent implements OnInit, AfterViewInit {
   }
 
   protected addNew(): void {
-    this.ref = this.dialogService.open(FormTransactionComponent, {
-      data: { entity: null },
-      header: 'FORMULAIRE D\'AJOUT DE MOUVEMENT DE CAISSE',
-      width: '50%'
-    });
-    this.ref.onClose.subscribe(() => {
-      this.onSearch();
-    });
+    showCommonModal(
+      this.modalService,
+      FormTransactionComponent,
+      { header: 'FORMULAIRE D\'AJOUT DE MOUVEMENT DE CAISSE' },
+      () => this.onSearch(), 'lg'
+    );
   }
 
   private onSuccess(data: MvtCaisse[] | null, headers: HttpHeaders, page: number): void {
     this.totalItems = Number(headers.get('X-Total-Count'));
     this.page = page;
-    /*     this.router.navigate(['/mvt-caisse'], {
-          queryParams: {
-            page: this.page,
-            size: this.itemsPerPage,
-            search: this.search,
-          },
-        }); */
+
 
     this.mvtCaisses = data || [];
     this.loading = false;

@@ -1,4 +1,4 @@
-import { Component, inject, OnInit } from '@angular/core';
+import { Component, inject, OnInit, viewChild } from '@angular/core';
 import { ISales } from '../../../shared/model/sales.model';
 import { SalesService } from '../sales.service';
 import { ConfirmationService } from 'primeng/api';
@@ -15,36 +15,35 @@ import { ToolbarModule } from 'primeng/toolbar';
 import { IconField } from 'primeng/iconfield';
 import { InputIcon } from 'primeng/inputicon';
 import { Select } from 'primeng/select';
+import { ConfirmDialogComponent } from '../../../shared/dialog/confirm-dialog/confirm-dialog.component';
 
 @Component({
   selector: 'jhi-presale',
   templateUrl: './presale.component.html',
-  providers: [ConfirmationService],
+
   imports: [
     WarehouseCommonModule,
     RouterModule,
-    ConfirmDialogModule,
     FormsModule,
     TooltipModule,
     ButtonModule,
     InputTextModule,
-    RippleModule,
     TableModule,
     ToolbarModule,
     IconField,
     InputIcon,
-    Select
+    Select,
+    ConfirmDialogComponent
   ]
 })
 export class PresaleComponent implements OnInit {
-  protected salesService = inject(SalesService);
-  protected confirmationService = inject(ConfirmationService);
 
   typeVentes: string[] = ['TOUT', 'VNO', 'VO'];
   typeVenteSelected = '';
   sales: ISales[] = [];
   search = '';
-
+  private readonly  salesService = inject(SalesService);
+  private readonly confimDialog = viewChild.required<ConfirmDialogComponent>('confirmDialog');
   ngOnInit(): void {
     this.typeVenteSelected = 'TOUT';
     this.loadPreventes();
@@ -76,12 +75,6 @@ export class PresaleComponent implements OnInit {
   }
 
   confirmRemove(sale: ISales): void {
-    this.confirmationService.confirm({
-      message: 'Voulez-vous vraiment supprimer cette pré-vente ?',
-      header: 'SUPPRESSION DE PRE-VENTE',
-      icon: 'pi pi-info-circle',
-      accept: () => this.deletePrevente(sale),
-      key: 'deletePrevente'
-    });
+    this.confimDialog().onConfirm( () => this.deletePrevente(sale), 'Suppression de pré-vente', 'Voulez-vous supprimer cette pré-vente ?');
   }
 }

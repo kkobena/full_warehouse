@@ -125,7 +125,7 @@ export class EditSuggestionComponent implements OnInit {
       const el = this.quantityBox().nativeElement;
       el.focus();
       el.select();
-    }, 50);
+    }, 100);
   }
 
   onProviderSelect(): void {
@@ -136,7 +136,7 @@ export class EditSuggestionComponent implements OnInit {
     setTimeout(() => {
       this.produitbox()?.inputEL.nativeElement.focus();
       this.produitbox()?.inputEL.nativeElement.select();
-    }, 50);
+    }, 100);
   }
 
   loadProduits(): void {

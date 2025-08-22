@@ -1,4 +1,4 @@
-import { Component, inject, OnDestroy, OnInit } from '@angular/core';
+import { Component, inject, OnDestroy, OnInit, viewChild } from '@angular/core';
 import { WarehouseCommonModule } from '../../../shared/warehouse-common/warehouse-common.module';
 import { FactureService } from '../facture.service';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
@@ -15,16 +15,12 @@ import { InputTextModule } from 'primeng/inputtext';
 import { TooltipModule } from 'primeng/tooltip';
 import { EditionSearchParams } from '../edition-search-params.model';
 import { DATE_FORMAT_ISO_DATE } from '../../../shared/util/warehouse-util';
-import { StyleClassModule } from 'primeng/styleclass';
-import { NgbDatepickerModule, NgbModal } from '@ng-bootstrap/ng-bootstrap';
+import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { AutoCompleteModule } from 'primeng/autocomplete';
 import { ErrorService } from '../../../shared/error.service';
 import { AlertInfoComponent } from '../../../shared/alert/alert-info.component';
-import { ConfirmDialogModule } from 'primeng/confirmdialog';
-import { ConfirmationService } from 'primeng/api';
 import { FactureEditionResponse } from '../facture-edition-response';
 import { ButtonModule } from 'primeng/button';
-import { acceptButtonProps, rejectButtonProps } from '../../../shared/util/modal-button-props';
 import { ToggleSwitch } from 'primeng/toggleswitch';
 import { IconField } from 'primeng/iconfield';
 import { InputIcon } from 'primeng/inputicon';
@@ -32,10 +28,12 @@ import { TranslateService } from '@ngx-translate/core';
 import { PrimeNG } from 'primeng/config';
 import { Subject } from 'rxjs';
 import { DatePicker } from 'primeng/datepicker';
+import { ConfirmDialogComponent } from '../../../shared/dialog/confirm-dialog/confirm-dialog.component';
+import { Card } from 'primeng/card';
+import { Select } from 'primeng/select';
 
 @Component({
   selector: 'jhi-edition',
-  providers: [ConfirmationService],
   imports: [
     WarehouseCommonModule,
     FormsModule,
@@ -43,28 +41,21 @@ import { DatePicker } from 'primeng/datepicker';
     TableModule,
     InputTextModule,
     TooltipModule,
-    StyleClassModule,
-    NgbDatepickerModule,
     AutoCompleteModule,
-    ConfirmDialogModule,
     ButtonModule,
     ToggleSwitch,
     IconField,
     InputIcon,
-    DatePicker
+    DatePicker,
+    ConfirmDialogComponent,
+    Card,
+    Select
   ],
   templateUrl: './edition.component.html'
 })
 export class EditionComponent implements OnInit, OnDestroy {
-  protected readonly translate = inject(TranslateService);
-  protected readonly primeNGConfig = inject(PrimeNG);
-  protected readonly errorService = inject(ErrorService);
-  protected readonly factureService = inject(FactureService);
-  protected readonly tiersPayantService = inject(TiersPayantService);
-  protected readonly groupeTiersPayantService = inject(GroupeTiersPayantService);
-  protected readonly modalService = inject(NgbModal);
+
   protected minLength = 2;
-  protected readonly confirmationService = inject(ConfirmationService);
   protected groupeTiersPayants: IGroupeTiersPayant[] = [];
   protected selectedGroupeTiersPayants: IGroupeTiersPayant[] | undefined;
   protected tiersPayants: ITiersPayant[] = [];
@@ -91,9 +82,15 @@ export class EditionComponent implements OnInit, OnDestroy {
   protected editing = false;
   protected loading!: boolean;
   protected exporting = false;
-
+  private readonly confimDialog = viewChild.required<ConfirmDialogComponent>('confirmDialog');
   private destroy$ = new Subject<void>();
-
+  private readonly translate = inject(TranslateService);
+  private readonly primeNGConfig = inject(PrimeNG);
+  private readonly errorService = inject(ErrorService);
+  private readonly factureService = inject(FactureService);
+  private readonly tiersPayantService = inject(TiersPayantService);
+  private readonly groupeTiersPayantService = inject(GroupeTiersPayantService);
+  private readonly modalService = inject(NgbModal);
   constructor() {
     this.translate.use('fr');
     this.translate.stream('primeng').subscribe(data => {
@@ -301,32 +298,24 @@ export class EditionComponent implements OnInit, OnDestroy {
   }
 
   private onPrintAllInvoices(response: FactureEditionResponse): void {
-    this.confirmationService.confirm({
-      message: ' Voullez-vous imprimer les factures ?',
-      header: 'IMPRESSION DE FACTURE ',
-      icon: 'pi pi-info-circle',
-      rejectButtonProps: rejectButtonProps(),
-      acceptButtonProps: acceptButtonProps(),
-      accept: () => {
-        this.exporting = true;
-        this.factureService.exportAllInvoices(response).subscribe({
-          next: (res: Blob) => {
-            this.exporting = false;
-            // const file = new Blob([res], { type: 'application/pdf' });
-            const fileURL = URL.createObjectURL(res);
-            window.open(fileURL);
-          },
-          error: (err: any) => {
-            this.exporting = false;
-            this.openInfoDialog(this.errorService.getErrorMessage(err), 'alert alert-danger');
-          }
-        });
-        this.resetForm();
-      },
-      reject: () => {
-        this.resetForm();
-      },
-      key: 'printialog'
+
+    this.confimDialog().onConfirm(() => {
+      this.exporting = true;
+      this.factureService.exportAllInvoices(response).subscribe({
+        next: (res: Blob) => {
+          this.exporting = false;
+          // const file = new Blob([res], { type: 'application/pdf' });
+          const fileURL = URL.createObjectURL(res);
+          window.open(fileURL);
+        },
+        error: (err: any) => {
+          this.exporting = false;
+          this.openInfoDialog(this.errorService.getErrorMessage(err), 'alert alert-danger');
+        }
+      });
+      this.resetForm();
+    }, 'IMPRESSION DE FACTURE', 'Êtes-vous sûr de vouloir imprimer les factures ?', null, () => {
+      this.resetForm();
     });
   }
 }

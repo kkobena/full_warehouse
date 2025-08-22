@@ -37,6 +37,7 @@ import { CustomerCarnetComponent } from './carnet/customer-carnet.component';
 import { ConfirmDialogComponent } from '../../shared/dialog/confirm-dialog/confirm-dialog.component';
 import { showCommonModal } from '../sales/selling-home/sale-helper';
 import { SpinnerComponent } from '../../shared/spinner/spinner.component';
+import { Card } from 'primeng/card';
 
 @Component({
   selector: 'jhi-customer',
@@ -62,7 +63,8 @@ import { SpinnerComponent } from '../../shared/spinner/spinner.component';
     InputIcon,
     Panel,
     ConfirmDialogComponent,
-    SpinnerComponent
+    SpinnerComponent,
+    Card
   ]
 })
 export class CustomerComponent implements OnInit, OnDestroy {

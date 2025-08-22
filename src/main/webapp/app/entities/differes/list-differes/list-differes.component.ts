@@ -62,6 +62,14 @@ export class ListDifferesComponent implements OnInit, OnDestroy {
       this.primeNGConfig.setTranslation(data);
     });
   }
+ protected onStatutChange(evt:any  ): void {
+
+    this.onSerch();
+  }
+  protected onChange(evt:any  ): void {
+
+    this.onSerch();
+  }
 
   ngOnInit(): void {
     this.fetchClients();

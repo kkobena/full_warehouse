@@ -46,17 +46,6 @@ const ajustementRoute: Routes = [
       authorities: [Authority.ADMIN, Authority.AJUSTEMENT]
     },
     canActivate: [UserRouteAccessService]
-  },
-  {
-    path: ':id/edit',
-    loadComponent: () => import('./ajustement-detail.component').then(m => m.AjustementDetailComponent),
-    resolve: {
-      ajustement: AjustementResolve
-    },
-    data: {
-      authorities: [Authority.ADMIN, Authority.AJUSTEMENT]
-    },
-    canActivate: [UserRouteAccessService]
   }
 ];
 export default ajustementRoute;

@@ -1,4 +1,4 @@
-import { AfterViewInit, Component, inject, OnInit } from '@angular/core';
+import { AfterViewInit, Component, inject, OnInit, viewChild } from '@angular/core';
 import { MvtParamServiceService } from '../mvt-param-service.service';
 import { BalanceCaisseWrapper } from './balance-caisse.model';
 import { BalanceMvtCaisseService } from './balance-mvt-caisse.service';
@@ -24,10 +24,11 @@ import { FormsModule } from '@angular/forms';
 import { PrimeNG } from 'primeng/config';
 import { DatePicker } from 'primeng/datepicker';
 import { FloatLabel } from 'primeng/floatlabel';
+import { ToastAlertComponent } from '../../../shared/toast-alert/toast-alert.component';
+import { finalize } from 'rxjs/operators';
 
 @Component({
   selector: 'jhi-balance-mvt-caisse',
-  providers: [MessageService, DialogService, ConfirmationService],
   imports: [
     Button,
     MultiSelectModule,
@@ -40,10 +41,10 @@ import { FloatLabel } from 'primeng/floatlabel';
     SplitButtonModule,
     RadioButtonModule,
     DividerModule,
-    ToastModule,
     FormsModule,
     DatePicker,
-    FloatLabel
+    FloatLabel,
+    ToastAlertComponent
   ],
   templateUrl: './balance-mvt-caisse.component.html'
 })
@@ -53,11 +54,10 @@ export class BalanceMvtCaisseComponent implements OnInit, AfterViewInit {
   protected loading = false;
   protected balanceMvtCaisseWrapper: BalanceCaisseWrapper | null = null;
   private mvtParamServiceService = inject(MvtParamServiceService);
-  private messageService = inject(MessageService);
   private translate = inject(TranslateService);
   private balanceMvtCaisseService = inject(BalanceMvtCaisseService);
   private primeNGConfig = inject(PrimeNG);
-
+  private readonly alert = viewChild.required<ToastAlertComponent>('alert');
   ngAfterViewInit(): void {
     this.translate.use('fr');
     this.translate.stream('primeng').subscribe(data => {
@@ -91,23 +91,16 @@ export class BalanceMvtCaisseComponent implements OnInit, AfterViewInit {
     this.balanceMvtCaisseService
       .exportToPdf({
         ...this.buildParams()
-      })
+      }).pipe(finalize(() => this.loading = false))
       .subscribe({
         next(blod) {
           const blobUrl = URL.createObjectURL(blod);
           window.open(blobUrl);
         },
         error: () => {
-          this.loading = false;
-          this.messageService.add({
-            severity: 'error',
-            summary: 'Error',
-            detail: 'Une erreur est survenue'
-          });
-        },
-        complete: () => {
-          this.loading = false;
+          this.alert().showError('Erreur', 'Une erreur est survenue lors de l\'export PDF');
         }
+
       });
     this.updateParam();
   }
@@ -145,11 +138,7 @@ export class BalanceMvtCaisseComponent implements OnInit, AfterViewInit {
   }
 
   private onError(): void {
-    this.messageService.add({
-      severity: 'error',
-      summary: 'Error',
-      detail: 'Une erreur est survenue'
-    });
+    this.alert().showError('Une erreur est survenue lors de la récupération des données');
     this.balanceMvtCaisseWrapper = null;
     this.loading = false;
   }

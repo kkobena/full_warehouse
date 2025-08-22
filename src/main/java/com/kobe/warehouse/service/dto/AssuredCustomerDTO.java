@@ -45,7 +45,7 @@ public class AssuredCustomerDTO extends CustomerDTO {
         List<AssuredCustomerDTO> ayantDroits
     ) {
         super(customer);
-        this.remise = customer.getRemise();
+        this.remise = customer.getRemiseClient();
         this.sexe = customer.getSexe();
         this.numAyantDroit = customer.getNumAyantDroit();
         this.tiersPayants = clientTiersPayants

@@ -29,6 +29,7 @@ public class SaleLineDTO {
     private Long saleId;
     private Integer quantityStock;
     private Integer quantiyAvoir;
+    private Integer calculationBasePrice;
     private Integer montantTvaUg = 0;
     private Integer quantityUg;
     private Integer amountToBeTakenIntoAccount;
@@ -51,7 +52,6 @@ public class SaleLineDTO {
         netUnitPrice = salesLine.getNetUnitPrice();
         discountAmount = salesLine.getDiscountAmount();
         salesAmount = salesLine.getSalesAmount();
-        netAmount = salesLine.getNetAmount();
         costAmount = salesLine.getCostAmount();
         createdAt = salesLine.getCreatedAt();
         updatedAt = salesLine.getUpdatedAt();
@@ -64,6 +64,7 @@ public class SaleLineDTO {
         produitId = produit.getId();
         saleId = salesLine.getSales().getId();
         quantiyAvoir = salesLine.getQuantityAvoir();
+        calculationBasePrice = salesLine.getCalculationBasePrice();
         rates = salesLine
             .getRates();
     }
@@ -213,6 +214,14 @@ public class SaleLineDTO {
     public SaleLineDTO setCode(String code) {
         this.code = code;
         return this;
+    }
+
+    public Integer getCalculationBasePrice() {
+        return calculationBasePrice;
+    }
+
+    public void setCalculationBasePrice(Integer calculationBasePrice) {
+        this.calculationBasePrice = calculationBasePrice;
     }
 
     public Long getProduitId() {

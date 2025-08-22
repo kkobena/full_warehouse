@@ -17,77 +17,91 @@ import com.kobe.warehouse.repository.PosteRepository;
 import com.kobe.warehouse.repository.UserRepository;
 import com.kobe.warehouse.service.ReferenceService;
 import com.kobe.warehouse.service.StorageService;
-import com.kobe.warehouse.service.WarehouseCalendarService;
 import com.kobe.warehouse.service.cash_register.CashRegisterService;
 import com.kobe.warehouse.service.dto.SaleDTO;
 import com.kobe.warehouse.service.errors.PaymentAmountException;
 import com.kobe.warehouse.service.errors.SaleAlreadyCloseException;
 import com.kobe.warehouse.service.errors.SaleNotFoundCustomerException;
-import com.kobe.warehouse.service.sale.AvoirService;
 import com.kobe.warehouse.service.sale.SalesLineService;
 import com.kobe.warehouse.service.utils.AfficheurPosService;
-import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
-import java.util.Objects;
-import java.util.Set;
-import java.util.stream.Collectors;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
 
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
+import java.util.Objects;
+import java.util.Set;
+import java.util.stream.Collectors;
+
 @Service
 public class SaleCommonService {
-
     private final ReferenceService referenceService;
-    private final WarehouseCalendarService warehouseCalendarService;
     private final StorageService storageService;
     private final UserRepository userRepository;
     private final SaleLineServiceFactory saleLineServiceFactory;
     private final CashRegisterService cashRegisterService;
-    private final AvoirService avoirService;
     private final PosteRepository posteRepository;
     private final AfficheurPosService afficheurPosService;
 
     public SaleCommonService(
         ReferenceService referenceService,
-        WarehouseCalendarService warehouseCalendarService,
         StorageService storageService,
         UserRepository userRepository,
         SaleLineServiceFactory saleLineServiceFactory,
         CashRegisterService cashRegisterService,
-        AvoirService avoirService,
+
         PosteRepository posteRepository,
         AfficheurPosService afficheurPosService
     ) {
         this.referenceService = referenceService;
-        this.warehouseCalendarService = warehouseCalendarService;
+
         this.storageService = storageService;
         this.userRepository = userRepository;
         this.saleLineServiceFactory = saleLineServiceFactory;
         this.cashRegisterService = cashRegisterService;
-        this.avoirService = avoirService;
         this.posteRepository = posteRepository;
         this.afficheurPosService = afficheurPosService;
     }
 
-    public void computeSaleEagerAmount(Sales c, int amount, int oldSalesAmount) {
-        c.setSalesAmount((c.getSalesAmount() - oldSalesAmount) + amount);
-        c.setNetAmount(c.getSalesAmount());
+    public void computeSaleEagerAmount(Sales c) {
+        updateAmounts(c);
     }
 
-    public void computeSaleLazyAmount(Sales c, SalesLine saleLine, SalesLine oldSaleLine) {
-        if (oldSaleLine != null) {
-            c.setCostAmount(
-                (c.getCostAmount() - (oldSaleLine.getQuantityRequested() * oldSaleLine.getCostAmount())) +
-                (saleLine.getQuantityRequested() * saleLine.getCostAmount())
-            );
-        } else {
-            c.setCostAmount(c.getCostAmount() + (saleLine.getQuantityRequested() * saleLine.getCostAmount()));
+    protected void updateAmounts(Sales c) {
+        int salesAmount = 0;
+        int costAmount = 0;
+        int taxableAmount = 0;
+        int htAmount = 0;
+        int discount = 0;
+
+
+        for (SalesLine salesLine : c.getSalesLines()) {
+            int saleItemAmount = salesLine.getQuantityRequested() * salesLine.getRegularUnitPrice();
+            int costAmountItem = salesLine.getQuantityRequested() * salesLine.getCostAmount();
+            salesAmount += saleItemAmount;
+            costAmount += costAmountItem;
+            int htAmont = computeHtAmount(saleItemAmount, salesLine.getTaxValue());
+            htAmount += htAmont;
+            int montantTva = saleItemAmount - htAmont;
+            taxableAmount += montantTva;
+            discount += Objects.requireNonNullElse(salesLine.getDiscountAmount(), 0);
+
         }
+
+        c.setSalesAmount(salesAmount);
+        c.setCostAmount(costAmount);
+        c.setTaxAmount(taxableAmount);
+        c.setHtAmount(htAmount);
+        c.setDiscountAmount(discount);
+        c.setNetAmount(salesAmount - discount);
+
+
     }
+
 
     public void processDiscountCash(CashSale c, int discountAmount) {
         c.setNetAmount(c.getSalesAmount() - discountAmount);
@@ -95,68 +109,17 @@ public class SaleCommonService {
 
     public void processDiscountCommonAmounts(Sales c) {
         int discountAmount = 0;
-        int discountAmountUg = 0;
-        int discountAmountHorsUg = 0;
+
         for (SalesLine saleLine : c.getSalesLines()) {
             discountAmount += saleLine.getDiscountAmount();
-            discountAmountUg += saleLine.getDiscountAmountUg();
-            discountAmountHorsUg += saleLine.getDiscountAmountHorsUg();
+
         }
         c.setDiscountAmount(discountAmount);
-        c.setDiscountAmountUg(discountAmountUg);
-        c.setDiscountAmountHorsUg(discountAmountHorsUg);
         if (c instanceof CashSale cashSale) {
             processDiscountCash(cashSale, discountAmount);
         }
     }
 
-    public void computeUgTvaAmount(Sales c, SalesLine saleLine, SalesLine oldSaleLine) {
-        if (saleLine.getQuantityUg().compareTo(0) == 0) {
-            return;
-        }
-        if (oldSaleLine == null) {
-            int htc = saleLine.getQuantityUg() * saleLine.getRegularUnitPrice();
-            int costAmount = saleLine.getQuantityUg() * saleLine.getCostAmount();
-            if (saleLine.getTaxValue().compareTo(0) == 0) {
-                c.setHtAmountUg(c.getHtAmountUg() + htc);
-                c.setMontantttcUg(c.getMontantttcUg() + htc);
-            } else {
-                double valeurTva = 1 + (Double.valueOf(saleLine.getTaxValue()) / 100);
-                int htAmont = (int) Math.ceil(htc / valeurTva);
-                int montantTva = htc - htAmont;
-                c.setMontantTvaUg(c.getMontantTvaUg() + montantTva);
-                c.setHtAmountUg(c.getHtAmountUg() + htAmont);
-            }
-            c.setMargeUg(c.getMargeUg() + (htc - costAmount));
-            c.setNetUgAmount(
-                c.getMontantttcUg() + ((saleLine.getQuantityUg() * saleLine.getRegularUnitPrice()) - saleLine.getDiscountAmountUg())
-            );
-        } else {
-            int htcOld = oldSaleLine.getQuantityUg() * oldSaleLine.getRegularUnitPrice();
-            int htc = saleLine.getQuantityUg() * saleLine.getRegularUnitPrice();
-            int costAmountOld = oldSaleLine.getQuantityUg() * oldSaleLine.getCostAmount();
-            int costAmount = saleLine.getQuantityUg() * saleLine.getCostAmount();
-            if (saleLine.getTaxValue().compareTo(0) == 0) {
-                c.setHtAmountUg((c.getHtAmountUg() - htcOld) + htc);
-                c.setMontantttcUg((c.getMontantttcUg() - htcOld) + htc);
-            } else {
-                double valeurTva = 1 + (Double.valueOf(saleLine.getTaxValue()) / 100);
-                int htAmont = (int) Math.ceil(htc / valeurTva);
-                int montantTva = htc - htAmont;
-                int htAmontOld = (int) Math.ceil(htcOld / valeurTva);
-                int montantTvaOld = htcOld - htAmontOld;
-
-                c.setMontantTvaUg((c.getMontantTvaUg() - montantTvaOld) + montantTva);
-                c.setHtAmountUg((c.getHtAmountUg() - htAmontOld) + htAmont);
-            }
-            c.setMargeUg((c.getMargeUg() - (htcOld - costAmountOld)) + (htc - costAmount));
-            c.setNetUgAmount(
-                (c.getMontantttcUg() -
-                    ((oldSaleLine.getQuantityUg() * oldSaleLine.getRegularUnitPrice()) - oldSaleLine.getDiscountAmountUg())) +
-                ((saleLine.getQuantityUg() * saleLine.getRegularUnitPrice()) - saleLine.getDiscountAmountUg())
-            );
-        }
-    }
 
     private int computeHtAmount(Integer amount, Integer taxValue) {
         int tax = Objects.requireNonNullElse(taxValue, 0);
@@ -168,36 +131,6 @@ public class SaleCommonService {
         return (int) Math.ceil(ttc / valeurTva);
     }
 
-    public void computeTvaAmount(Sales c, SalesLine saleLine, SalesLine oldSaleLine) {
-        if (oldSaleLine == null) {
-            if (saleLine.getTaxValue().compareTo(0) == 0) {
-                c.setHtAmount(c.getHtAmount() + saleLine.getSalesAmount());
-                saleLine.setTaxAmount(0);
-                saleLine.setHtAmount(saleLine.getSalesAmount());
-            } else {
-                int htAmont = computeHtAmount(saleLine.getSalesAmount(), saleLine.getTaxValue());
-                int montantTva = saleLine.getSalesAmount() - htAmont;
-                c.setTaxAmount(c.getTaxAmount() + montantTva);
-                c.setHtAmount(c.getHtAmount() + htAmont);
-                saleLine.setTaxAmount(montantTva);
-                saleLine.setHtAmount(htAmont);
-            }
-        } else {
-            if (saleLine.getTaxValue().compareTo(0) == 0) {
-                c.setHtAmount((c.getHtAmount() - oldSaleLine.getSalesAmount()) + saleLine.getSalesAmount());
-                saleLine.setHtAmount(saleLine.getSalesAmount());
-            } else {
-                int htAmont = computeHtAmount(saleLine.getSalesAmount(), saleLine.getTaxValue());
-                int montantTva = saleLine.getSalesAmount() - htAmont;
-                int htAmontOld = computeHtAmount(oldSaleLine.getSalesAmount(), saleLine.getTaxValue());
-                int montantTvaOld = oldSaleLine.getSalesAmount() - htAmontOld;
-                c.setTaxAmount((c.getTaxAmount() - montantTvaOld) + montantTva);
-                c.setHtAmount((c.getHtAmount() - htAmontOld) + htAmont);
-                saleLine.setTaxAmount(montantTva);
-                saleLine.setHtAmount(htAmont);
-            }
-        }
-    }
 
     public void computeSaleEagerAmountOnRemovingItem(Sales c, SalesLine saleLine) {
         c.setSalesAmount(c.getSalesAmount() - saleLine.getSalesAmount());
@@ -207,26 +140,6 @@ public class SaleCommonService {
         c.setCostAmount(c.getCostAmount() - (saleLine.getQuantityRequested() * saleLine.getCostAmount()));
     }
 
-    public void computeUgTvaAmountOnRemovingItem(Sales c, SalesLine saleLine) {
-        if (saleLine.getQuantityUg().compareTo(0) == 0) {
-            return;
-        }
-        int htc = saleLine.getQuantityUg() * saleLine.getRegularUnitPrice();
-        int costAmount = saleLine.getQuantityUg() * saleLine.getCostAmount();
-        if (saleLine.getTaxValue().compareTo(0) == 0) {
-            c.setHtAmountUg(c.getHtAmountUg() - htc);
-            c.setMontantttcUg(c.getMontantttcUg() - htc);
-        } else {
-            int htAmont = computeHtAmount(htc, saleLine.getTaxValue());
-            int montantTva = htc - htAmont;
-            c.setMontantTvaUg(c.getMontantTvaUg() - montantTva);
-            c.setHtAmountUg(c.getHtAmountUg() - htAmont);
-        }
-        c.setMargeUg(c.getMargeUg() - (htc - costAmount));
-        c.setNetUgAmount(
-            c.getMontantttcUg() - ((saleLine.getQuantityUg() * saleLine.getRegularUnitPrice()) - saleLine.getDiscountAmountUg())
-        );
-    }
 
     public void computeTvaAmountOnRemovingItem(Sales c, SalesLine saleLine) {
         if (saleLine.getTaxValue().compareTo(0) == 0) {
@@ -269,7 +182,8 @@ public class SaleCommonService {
                         json.put("tva", k);
                         json.put("amount", totalTva);
                         array.put(json);
-                    } catch (JSONException _) {}
+                    } catch (JSONException _) {
+                    }
                 });
             if (!array.isEmpty()) {
                 return array.toString();
@@ -317,11 +231,10 @@ public class SaleCommonService {
         c.setDiffere(dto.isDiffere());
         this.buildPreventeReference(c);
         c.setStatut(SalesStatut.ACTIVE);
-        c.setCalendar(this.warehouseCalendarService.initCalendar());
         this.posteRepository.findFirstByAddress(dto.getCaisseNum()).ifPresent(poste -> {
-                c.setCaisse(poste);
-                c.setLastCaisse(poste);
-            });
+            c.setCaisse(poste);
+            c.setLastCaisse(poste);
+        });
 
         c.setPaymentStatus(PaymentStatus.IMPAYE);
         c.setMagasin(c.getCaissier().getMagasin());
@@ -348,7 +261,6 @@ public class SaleCommonService {
         if (Objects.isNull(cashRegister)) {
             cashRegister = cashRegisterService.openCashRegister(user, user);
         }
-        c.setCalendar(this.warehouseCalendarService.initCalendar());
         c.setCashRegister(cashRegister);
         Long id = storageService.getDefaultConnectedUserPointOfSaleStorage().getId();
         getSaleLineService(c).save(c.getSalesLines(), user, id);
@@ -375,9 +287,7 @@ public class SaleCommonService {
         }
         c.setRestToPay(c.getRestToPay() < 0 ? 0 : c.getRestToPay());
         this.buildReference(c);
-        if (dto.isAvoir()) {
-            this.avoirService.save(c);
-        }
+
     }
 
     public void arrondirMontantCaisse(Sales sales) {
@@ -388,17 +298,12 @@ public class SaleCommonService {
         sales.setRemise(null);
         sales.setDiscountAmount(0);
         sales.setNetAmount(sales.getSalesAmount());
-        sales.setDiscountAmountUg(0);
-        sales.setDiscountAmountHorsUg(0);
         sales.setAmountToBePaid(sales.getSalesAmount());
         sales.setRestToPay(sales.getSalesAmount());
         sales
             .getSalesLines()
             .forEach(salesLine -> {
                 salesLine.setDiscountAmount(0);
-                salesLine.setDiscountAmountUg(0);
-                salesLine.setDiscountAmountHorsUg(0);
-                salesLine.setNetAmount(salesLine.getSalesAmount());
                 getSaleLineService(sales).saveSalesLine(salesLine);
             });
     }

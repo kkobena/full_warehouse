@@ -26,11 +26,11 @@ public interface PrixRererenceService {
 
     List<PrixReferenceDTO> findAllByProduitId(Long produitId);
 
-    int getSaleLineUnitPrice(OptionPrixProduit optionPrixProduit, int incomingPrice);
+
 
     List<OptionPrixProduit> findByProduitIdAndTiersPayantIds(Long produitId, Set<Long> tiersPayantIds);
 
     void save(OptionPrixProduit optionPrixProduit);
 
-    int getSaleLineTotalAmount(OptionPrixProduit optionPrixProduit, int incomingPrice);
+
 }

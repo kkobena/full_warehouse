@@ -1,6 +1,5 @@
 package com.kobe.warehouse.domain;
 
-import com.kobe.warehouse.domain.enumeration.OptionPrixType;
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -31,7 +30,7 @@ public class ThirdPartySales extends Sales implements Serializable {
     @Column(name = "part_tiers_payant", columnDefinition = "int default '0'")
     private Integer partTiersPayant = 0;
 
-    @OneToMany(mappedBy = "sale", orphanRemoval = true, cascade = { CascadeType.REMOVE, CascadeType.PERSIST })
+    @OneToMany(mappedBy = "sale", orphanRemoval = true, cascade = { CascadeType.REMOVE })
     private List<ThirdPartySaleLine> thirdPartySaleLines = new ArrayList<>();
 
     public String getNumBon() {

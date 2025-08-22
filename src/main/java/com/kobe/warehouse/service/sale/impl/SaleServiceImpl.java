@@ -27,7 +27,6 @@ import com.kobe.warehouse.service.PaymentService;
 import com.kobe.warehouse.service.ReferenceService;
 import com.kobe.warehouse.service.StorageService;
 import com.kobe.warehouse.service.UtilisationCleSecuriteService;
-import com.kobe.warehouse.service.WarehouseCalendarService;
 import com.kobe.warehouse.service.cash_register.CashRegisterService;
 import com.kobe.warehouse.service.dto.CashSaleDTO;
 import com.kobe.warehouse.service.dto.KeyValue;
@@ -41,22 +40,20 @@ import com.kobe.warehouse.service.errors.PaymentAmountException;
 import com.kobe.warehouse.service.errors.PrivilegeException;
 import com.kobe.warehouse.service.errors.SaleNotFoundCustomerException;
 import com.kobe.warehouse.service.errors.StockException;
-import com.kobe.warehouse.service.sale.AvoirService;
 import com.kobe.warehouse.service.sale.SaleService;
 import com.kobe.warehouse.service.sale.SalesLineService;
 import com.kobe.warehouse.service.sale.ThirdPartySaleService;
 import com.kobe.warehouse.service.sale.dto.FinalyseSaleDTO;
 import com.kobe.warehouse.service.utils.AfficheurPosService;
-import java.time.LocalDateTime;
-import java.util.Collections;
-import java.util.Objects;
-import java.util.Optional;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.time.LocalDateTime;
+import java.util.Collections;
+import java.util.Optional;
 
 @Service
 @Transactional
@@ -85,8 +82,7 @@ public class SaleServiceImpl extends SaleCommonService implements SaleService {
         SaleLineServiceFactory saleLineServiceFactory,
         PaymentService paymentService,
         ReferenceService referenceService,
-        WarehouseCalendarService warehouseCalendarService,
-        AvoirService avoirService,
+
         PosteRepository posteRepository,
         UtilisationCleSecuriteService utilisationCleSecuriteService,
         RemiseRepository remiseRepository,
@@ -94,12 +90,10 @@ public class SaleServiceImpl extends SaleCommonService implements SaleService {
     ) {
         super(
             referenceService,
-            warehouseCalendarService,
             storageService,
             userRepository,
             saleLineServiceFactory,
             cashRegisterService,
-            avoirService,
             posteRepository,
             afficheurPosService
         );
@@ -151,14 +145,9 @@ public class SaleServiceImpl extends SaleCommonService implements SaleService {
         c.setNetAmount(dto.getNetAmount());
         c.setPayrollAmount(dto.getPayrollAmount());
         c.setSalesAmount(dto.getSalesAmount());
-        c.setMargeUg(dto.getMargeUg());
         c.setToIgnore(dto.isToIgnore());
         c.setNumberTransaction(dto.getNumberTransaction());
         c.setTaxAmount(dto.getTaxAmount());
-        c.setMontantnetUg(dto.getMontantnetUg());
-        c.setMargeUg(dto.getMargeUg());
-        c.setMontantTvaUg(dto.getMontantTvaUg());
-        c.setMontantttcUg(dto.getMontantttcUg());
         c.setStatut(SalesStatut.CLOSED);
         c.setSalesAmount(dto.getSalesAmount());
         c.setRestToPay(dto.getRestToPay());
@@ -235,7 +224,7 @@ public class SaleServiceImpl extends SaleCommonService implements SaleService {
             dto.getSalesLines().getFirst(),
             storageService.getDefaultConnectedUserPointOfSaleStorage().getId()
         );
-        upddateCashSaleAmounts(cashSale, saleLine, null);
+        upddateCashSaleAmounts(cashSale, saleLine);
         cashSale.getSalesLines().add(saleLine);
         CashSale sale = salesRepository.saveAndFlush(cashSale);
         saleLine.setSales(cashSale);
@@ -245,47 +234,41 @@ public class SaleServiceImpl extends SaleCommonService implements SaleService {
         return new CashSaleDTO(sale);
     }
 
-    private void upddateCashSaleAmounts(CashSale c, SalesLine saleLine, SalesLine oldSaleLine) {
-        computeSaleEagerAmount(c, saleLine.getSalesAmount(), Objects.nonNull(oldSaleLine) ? oldSaleLine.getSalesAmount() : 0);
+    private void upddateCashSaleAmounts(CashSale c, SalesLine saleLine) {
+        computeSaleEagerAmount(c);
         this.proccessDiscount(c);
         computeCashSaleAmountToPaid(c);
-        computeSaleLazyAmount(c, saleLine, oldSaleLine);
-        computeTvaAmount(c, saleLine, oldSaleLine);
-        computeUgTvaAmount(c, saleLine, oldSaleLine);
         arrondirMontantCaisse(c);
     }
 
     @Override
     public SaleLineDTO updateItemQuantityRequested(SaleLineDTO saleLineDTO) throws StockException, DeconditionnementStockOut {
         SalesLine salesLine = salesLineService.getOneById(saleLineDTO.getId());
-        SalesLine oldSalesLine = (SalesLine) salesLine.clone();
         salesLineService.updateItemQuantityRequested(
             saleLineDTO,
             salesLine,
             storageService.getDefaultConnectedUserPointOfSaleStorage().getId()
         );
-        return finalizeSaleLineUpdate(salesLine, oldSalesLine);
+        return finalizeSaleLineUpdate(salesLine);
     }
 
     @Override
     public SaleLineDTO updateItemQuantitySold(SaleLineDTO saleLineDTO) {
         SalesLine salesLine = salesLineService.getOneById(saleLineDTO.getId());
-        SalesLine oldSalesLine = (SalesLine) salesLine.clone();
         salesLineService.updateItemQuantitySold(salesLine, saleLineDTO, storageService.getDefaultConnectedUserPointOfSaleStorage().getId());
-        return finalizeSaleLineUpdate(salesLine, oldSalesLine);
+        return finalizeSaleLineUpdate(salesLine);
     }
 
     @Override
     public SaleLineDTO updateItemRegularPrice(SaleLineDTO saleLineDTO) {
         SalesLine salesLine = salesLineService.getOneById(saleLineDTO.getId());
-        SalesLine oldSalesLine = (SalesLine) salesLine.clone();
         salesLineService.updateItemRegularPrice(saleLineDTO, salesLine, storageService.getDefaultConnectedUserPointOfSaleStorage().getId());
-        return finalizeSaleLineUpdate(salesLine, oldSalesLine);
+        return finalizeSaleLineUpdate(salesLine);
     }
 
-    private SaleLineDTO finalizeSaleLineUpdate(SalesLine salesLine, SalesLine oldSalesLine) {
+    private SaleLineDTO finalizeSaleLineUpdate(SalesLine salesLine) {
         CashSale sales = (CashSale) salesLine.getSales();
-        upddateCashSaleAmounts(sales, salesLine, oldSalesLine);
+        upddateCashSaleAmounts(sales, salesLine);
         cashSaleRepository.saveAndFlush(sales);
         this.displayNet(sales.getNetAmount());
         return new SaleLineDTO(salesLine);
@@ -301,10 +284,9 @@ public class SaleServiceImpl extends SaleCommonService implements SaleService {
         Long storageId = storageService.getDefaultConnectedUserPointOfSaleStorage().getId();
         if (salesLineOp.isPresent()) {
             SalesLine salesLine = salesLineOp.get();
-            SalesLine oldSalesLine = (SalesLine) salesLine.clone();
             salesLineService.updateSaleLine(dto, salesLine, storageId);
             CashSale cashSale = (CashSale) salesLine.getSales();
-            upddateCashSaleAmounts(cashSale, salesLine, oldSalesLine);
+            upddateCashSaleAmounts(cashSale, salesLine);
             cashSaleRepository.save(cashSale);
             return salesLine;
         }
@@ -315,7 +297,7 @@ public class SaleServiceImpl extends SaleCommonService implements SaleService {
 
     private void updateSaleWhenAddItem(SaleLineDTO dto, SalesLine salesLine) {
         CashSale sales = cashSaleRepository.getReferenceById(dto.getSaleId());
-        upddateCashSaleAmounts(sales, salesLine, null);
+        upddateCashSaleAmounts(sales, salesLine);
         salesLine.setSales(sales);
         salesRepository.saveAndFlush(sales);
     }
@@ -408,19 +390,14 @@ public class SaleServiceImpl extends SaleCommonService implements SaleService {
         buildReference(copy);
         copy.setCanceledSale(sales);
         copy.setStatut(SalesStatut.CANCELED);
-        copy.setMontantttcUg(copy.getMontantttcUg() * (-1));
-        copy.setHtAmountUg(copy.getHtAmountUg() * (-1));
         copy.setCostAmount(copy.getCostAmount() * (-1));
         copy.setNetAmount(copy.getNetAmount() * (-1));
         copy.setSalesAmount(copy.getSalesAmount() * (-1));
         copy.setHtAmount(copy.getHtAmount() * (-1));
         copy.setPayrollAmount(copy.getPayrollAmount() * (-1));
-        copy.setMargeUg(copy.getMargeUg() * (-1));
         copy.setRestToPay(copy.getRestToPay() * (-1));
         copy.setCopy(true);
         copy.setDiscountAmount(copy.getDiscountAmount() * (-1));
-        copy.setDiscountAmountUg(copy.getDiscountAmountUg() * (-1));
-        copy.setDiscountAmountHorsUg(copy.getDiscountAmountHorsUg() * (-1));
         copy.setTaxAmount(copy.getTaxAmount() * (-1));
         copy.setUser(sales.getUser());
         copy.setLastUserEdit(storageService.getUser());
@@ -433,7 +410,6 @@ public class SaleServiceImpl extends SaleCommonService implements SaleService {
         this.proccessDiscount(c);
         computeCashSaleAmountToPaid(c);
         computeSaleLazyAmountOnRemovingItem(c, saleLine);
-        computeUgTvaAmountOnRemovingItem(c, saleLine);
         computeTvaAmountOnRemovingItem(c, saleLine);
     }
 

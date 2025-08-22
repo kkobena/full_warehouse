@@ -24,7 +24,6 @@ import { Card } from 'primeng/card';
   selector: 'jhi-activity-summary',
   imports: [CommonModule, Toolbar, DatePicker, FloatLabel, FormsModule, Button, IconField, InputIcon, InputText, TableModule, Card],
   templateUrl: './activity-summary.component.html',
-  styleUrl: './activity-summary.component.scss'
 })
 export class ActivitySummaryComponent {
   protected loadingPdf = false;

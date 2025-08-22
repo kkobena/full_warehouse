@@ -20,7 +20,9 @@ import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
+import jakarta.persistence.Transient;
 import jakarta.validation.constraints.NotNull;
+
 import java.io.Serial;
 import java.io.Serializable;
 import java.time.LocalDateTime;
@@ -70,20 +72,16 @@ public class Sales implements Serializable, Cloneable {
     @Column(name = "sales_amount", nullable = false, columnDefinition = "int default '0'")
     private Integer salesAmount = 0;
 
-    @NotNull
-    @Column(name = "ht_amount", nullable = false, columnDefinition = "int default '0'")
+    @Transient
     private Integer htAmount = 0;
 
-    @NotNull
-    @Column(name = "net_amount", nullable = false, columnDefinition = "int default '0'")
+    @Transient
     private Integer netAmount = 0;
 
-    @NotNull
-    @Column(name = "tax_amount", nullable = false, columnDefinition = "int default '0'")
+    @Transient
     private Integer taxAmount = 0;
 
-    @NotNull
-    @Column(name = "cost_amount", nullable = false, columnDefinition = "int default '0'")
+    @Transient
     private Integer costAmount = 0;
 
     @NotNull
@@ -98,36 +96,9 @@ public class Sales implements Serializable, Cloneable {
     @Column(name = "rest_to_pay", nullable = false, columnDefinition = "int default '0'")
     private Integer restToPay = 0;
 
-    @Column(name = "amount_to_be_taken_into_account", nullable = false, columnDefinition = "int default '0'")
-    private Integer amountToBeTakenIntoAccount = 0;
+    @Column(name = "amount_to_be_taken_into_account", nullable = false)
+    private Integer amountToBeTakenIntoAccount ;
 
-    @Column(name = "marge_ug")
-    private Integer margeUg = 0;
-
-    @Column(name = "montant_ttc_ug", columnDefinition = "int default '0'")
-    private Integer montantttcUg = 0;
-
-    @Column(name = "montant_net_ug", columnDefinition = "int default '0'")
-    private Integer montantnetUg = 0;
-
-    @Column(name = "montant_tva_ug", columnDefinition = "int default '0'")
-    private Integer montantTvaUg = 0;
-
-    @NotNull
-    @Column(name = "discount_amount_hors_ug", nullable = false, columnDefinition = "int default '0'")
-    private Integer discountAmountHorsUg = 0;
-
-    @NotNull
-    @Column(name = "discount_amount_ug", nullable = false, columnDefinition = "int default '0'")
-    private Integer discountAmountUg = 0;
-
-    @NotNull
-    @Column(name = "net_ug_amount", nullable = false, columnDefinition = "int default '0'")
-    private Integer netUgAmount = 0;
-
-    @NotNull
-    @Column(name = "ht_amount_ug", nullable = false, columnDefinition = "int default '0'")
-    private Integer htAmountUg = 0;
 
     @NotNull
     @Enumerated(EnumType.STRING)
@@ -213,14 +184,8 @@ public class Sales implements Serializable, Cloneable {
     @Column(name = "monnaie", nullable = false, columnDefinition = "int default '0'")
     private Integer monnaie = 0;
     @ManyToOne
-    private Avoir avoir;
-    @ManyToOne
     @JoinColumn(name = "cash_register_id", referencedColumnName = "id")
     private CashRegister cashRegister;
-    @ManyToOne(optional = false)
-    @NotNull
-    private WarehouseCalendar calendar;
-
 
 
     public Long getId() {
@@ -316,6 +281,9 @@ public class Sales implements Serializable, Cloneable {
     }
 
     public Integer getAmountToBeTakenIntoAccount() {
+        if (amountToBeTakenIntoAccount == null) {
+            amountToBeTakenIntoAccount = salesAmount;
+        }
         return amountToBeTakenIntoAccount;
     }
 
@@ -324,77 +292,7 @@ public class Sales implements Serializable, Cloneable {
         return this;
     }
 
-    public Integer getMargeUg() {
-        return margeUg;
-    }
 
-    public Sales setMargeUg(Integer margeUg) {
-        this.margeUg = margeUg;
-        return this;
-    }
-
-    public Integer getMontantttcUg() {
-        return montantttcUg;
-    }
-
-    public Sales setMontantttcUg(Integer montantttcUg) {
-        this.montantttcUg = montantttcUg;
-        return this;
-    }
-
-    public Integer getMontantnetUg() {
-        return montantnetUg;
-    }
-
-    public Sales setMontantnetUg(Integer montantnetUg) {
-        this.montantnetUg = montantnetUg;
-        return this;
-    }
-
-    public Integer getMontantTvaUg() {
-        return montantTvaUg;
-    }
-
-    public Sales setMontantTvaUg(Integer montantTvaUg) {
-        this.montantTvaUg = montantTvaUg;
-        return this;
-    }
-
-    public @NotNull Integer getDiscountAmountHorsUg() {
-        return discountAmountHorsUg;
-    }
-
-    public Sales setDiscountAmountHorsUg(Integer discountAmountHorsUg) {
-        this.discountAmountHorsUg = discountAmountHorsUg;
-        return this;
-    }
-
-    public @NotNull Integer getDiscountAmountUg() {
-        return discountAmountUg;
-    }
-
-    public Sales setDiscountAmountUg(Integer discountAmountUg) {
-        this.discountAmountUg = discountAmountUg;
-        return this;
-    }
-
-    public @NotNull Integer getNetUgAmount() {
-        return netUgAmount;
-    }
-
-    public Sales setNetUgAmount(Integer netUgAmount) {
-        this.netUgAmount = netUgAmount;
-        return this;
-    }
-
-    public @NotNull Integer getHtAmountUg() {
-        return htAmountUg;
-    }
-
-    public Sales setHtAmountUg(Integer htAmountUg) {
-        this.htAmountUg = htAmountUg;
-        return this;
-    }
 
     public @NotNull SalesStatut getStatut() {
         return statut;
@@ -661,14 +559,7 @@ public class Sales implements Serializable, Cloneable {
         return this;
     }
 
-    public Avoir getAvoir() {
-        return avoir;
-    }
 
-    public Sales setAvoir(Avoir avoir) {
-        this.avoir = avoir;
-        return this;
-    }
 
     public CashRegister getCashRegister() {
         return cashRegister;
@@ -679,14 +570,7 @@ public class Sales implements Serializable, Cloneable {
         return this;
     }
 
-    public @NotNull WarehouseCalendar getCalendar() {
-        return calendar;
-    }
 
-    public Sales setCalendar(WarehouseCalendar calendar) {
-        this.calendar = calendar;
-        return this;
-    }
 
     public Sales discountAmount(Integer discountAmount) {
         this.discountAmount = discountAmount;

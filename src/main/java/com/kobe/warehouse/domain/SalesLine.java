@@ -1,14 +1,12 @@
 package com.kobe.warehouse.domain;
 
 import com.kobe.warehouse.service.sale.calculation.dto.Rate;
-import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.ManyToOne;
-import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 import jakarta.persistence.UniqueConstraint;
 import jakarta.validation.constraints.NotNull;
@@ -21,6 +19,8 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
+
+import static java.util.Objects.isNull;
 
 /**
  * A SalesLine.
@@ -53,10 +53,6 @@ public class SalesLine implements Serializable, Cloneable {
     private Integer quantityAvoir = 0;
 
     @NotNull
-    @Column(name = "montant_tva_ug", nullable = false, columnDefinition = "int default '0'")
-    private Integer montantTvaUg = 0;
-
-    @NotNull
     @Column(name = "regular_unit_price", nullable = false, columnDefinition = "int default '0'")
     private Integer regularUnitPrice;
 
@@ -73,24 +69,8 @@ public class SalesLine implements Serializable, Cloneable {
     private Integer discountAmount = 0;
 
     @NotNull
-    @Column(name = "discount_amount_hors_ug", nullable = false, columnDefinition = "int default '0'")
-    private Integer discountAmountHorsUg = 0;
-
-    @NotNull
-    @Column(name = "discount_amount_ug", nullable = false, columnDefinition = "int default '0'")
-    private Integer discountAmountUg = 0;
-
-    @NotNull
     @Column(name = "sales_amount", nullable = false, columnDefinition = "int default '0'")
     private Integer salesAmount = 0;
-
-    @NotNull
-    @Column(name = "net_amount", nullable = false, columnDefinition = "int default '0'")
-    private Integer netAmount = 0;
-
-    @NotNull
-    @Column(name = "ht_amount", nullable = false, columnDefinition = "int default '0'")
-    private Integer htAmount = 0;
 
     @NotNull
     @Column(name = "tax_value", nullable = false, columnDefinition = "int default '0'")
@@ -126,25 +106,29 @@ public class SalesLine implements Serializable, Cloneable {
     @Column(name = "to_ignore", nullable = false)
     private boolean toIgnore = false;
 
-    @Column(name = "amount_to_be_taken_into_account", nullable = false, columnDefinition = "int default '0'")
-    private Integer amountToBeTakenIntoAccount = 0;
+    @Column(name = "amount_to_be_taken_into_account", nullable = false)
+    private Integer amountToBeTakenIntoAccount;
 
     @Column(name = "after_stock")
     private Integer afterStock;
-
+    @Column(name = "taux_remise")
+    private float tauxRemise = 0.0f;
     @Column(name = "init_stock")
     private Integer initStock;
-
-    @Column(name = "tax_amount", nullable = false, columnDefinition = "int default '0'")
-    private Integer taxAmount = 0;
-
     @JdbcTypeCode(SqlTypes.JSON)
     @Column(columnDefinition = "json", name = "lots")
     private List<LotSold> lots = new ArrayList<>();
-
     @JdbcTypeCode(SqlTypes.JSON)
     @Column(columnDefinition = "json", name = "rates")
     private List<Rate> rates = new ArrayList<>();
+
+    public float getTauxRemise() {
+        return tauxRemise;
+    }
+
+    public void setTauxRemise(float tauxRemise) {
+        this.tauxRemise = tauxRemise;
+    }
 
     public List<Rate> getRates() {
         return rates;
@@ -180,7 +164,6 @@ public class SalesLine implements Serializable, Cloneable {
     }
 
 
-
     public @NotNull Integer getQuantityUg() {
         return quantityUg;
     }
@@ -199,14 +182,6 @@ public class SalesLine implements Serializable, Cloneable {
         return this;
     }
 
-    public @NotNull Integer getMontantTvaUg() {
-        return montantTvaUg;
-    }
-
-    public SalesLine setMontantTvaUg(Integer montantTvaUg) {
-        this.montantTvaUg = montantTvaUg;
-        return this;
-    }
 
     public @NotNull Integer getRegularUnitPrice() {
         return regularUnitPrice;
@@ -252,23 +227,6 @@ public class SalesLine implements Serializable, Cloneable {
         this.discountAmount = discountAmount;
     }
 
-    public @NotNull Integer getDiscountAmountHorsUg() {
-        return discountAmountHorsUg;
-    }
-
-    public SalesLine setDiscountAmountHorsUg(Integer discountAmountHorsUg) {
-        this.discountAmountHorsUg = discountAmountHorsUg;
-        return this;
-    }
-
-    public @NotNull Integer getDiscountAmountUg() {
-        return discountAmountUg;
-    }
-
-    public SalesLine setDiscountAmountUg(Integer discountAmountUg) {
-        this.discountAmountUg = discountAmountUg;
-        return this;
-    }
 
     public @NotNull Integer getSalesAmount() {
         return salesAmount;
@@ -278,21 +236,6 @@ public class SalesLine implements Serializable, Cloneable {
         this.salesAmount = salesAmount;
     }
 
-    public @NotNull Integer getNetAmount() {
-        return netAmount;
-    }
-
-    public void setNetAmount(Integer netAmount) {
-        this.netAmount = netAmount;
-    }
-
-    public @NotNull Integer getHtAmount() {
-        return htAmount;
-    }
-
-    public void setHtAmount(@NotNull Integer htAmount) {
-        this.htAmount = htAmount;
-    }
 
     public @NotNull Integer getTaxValue() {
         return taxValue;
@@ -362,6 +305,9 @@ public class SalesLine implements Serializable, Cloneable {
     }
 
     public Integer getAmountToBeTakenIntoAccount() {
+        if (isNull(amountToBeTakenIntoAccount)) {
+            amountToBeTakenIntoAccount = salesAmount;
+        }
         return amountToBeTakenIntoAccount;
     }
 
@@ -388,13 +334,6 @@ public class SalesLine implements Serializable, Cloneable {
         return this;
     }
 
-    public Integer getTaxAmount() {
-        return taxAmount;
-    }
-
-    public void setTaxAmount(Integer taxAmount) {
-        this.taxAmount = taxAmount;
-    }
 
     public SalesLine quantitySold(Integer quantitySold) {
         this.quantitySold = quantitySold;
@@ -426,10 +365,6 @@ public class SalesLine implements Serializable, Cloneable {
         return this;
     }
 
-    public SalesLine netAmount(Integer netAmount) {
-        this.netAmount = netAmount;
-        return this;
-    }
 
     public SalesLine costAmount(Integer costAmount) {
         this.costAmount = costAmount;
@@ -452,9 +387,6 @@ public class SalesLine implements Serializable, Cloneable {
     }
 
     public Integer getCalculationBasePrice() {
-        if (calculationBasePrice == null) {
-            calculationBasePrice = regularUnitPrice;
-        }
         return calculationBasePrice;
     }
 
@@ -467,7 +399,6 @@ public class SalesLine implements Serializable, Cloneable {
         return this;
     }
 
-    // jhipster-needle-entity-add-getters-setters - JHipster will add getters and setters here
 
     @Override
     public boolean equals(Object o) {
@@ -504,7 +435,7 @@ public class SalesLine implements Serializable, Cloneable {
             + ", salesAmount="
             + getSalesAmount()
             + ", netAmount="
-            + getNetAmount()
+
             + ", costAmount="
             + getCostAmount()
             + ", createdAt='"
@@ -520,8 +451,7 @@ public class SalesLine implements Serializable, Cloneable {
     public Object clone() {
         try {
             return super.clone();
-        } catch (CloneNotSupportedException e) {
-            e.printStackTrace(System.err);
+        } catch (CloneNotSupportedException _) {
             return null;
         }
     }

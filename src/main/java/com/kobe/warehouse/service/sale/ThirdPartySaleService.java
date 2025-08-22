@@ -14,7 +14,6 @@ import com.kobe.warehouse.service.errors.DeconditionnementStockOut;
 import com.kobe.warehouse.service.errors.GenericError;
 import com.kobe.warehouse.service.errors.InvalidPhoneNumberException;
 import com.kobe.warehouse.service.errors.NumBonAlreadyUseException;
-import com.kobe.warehouse.service.errors.PaymentAmountException;
 import com.kobe.warehouse.service.errors.PlafondVenteException;
 import com.kobe.warehouse.service.errors.PrivilegeException;
 import com.kobe.warehouse.service.errors.SaleNotFoundCustomerException;
@@ -60,7 +59,7 @@ public interface ThirdPartySaleService {
     void updateDate(ThirdPartySaleDTO dto);
 
     FinalyseSaleDTO save(ThirdPartySaleDTO dto)
-        throws PaymentAmountException, SaleNotFoundCustomerException, ThirdPartySalesTiersPayantException, PlafondVenteException;
+        throws  SaleNotFoundCustomerException, ThirdPartySalesTiersPayantException, PlafondVenteException;
 
     SaleLineDTO updateItemQuantitySold(SaleLineDTO saleLineDTO) throws PlafondVenteException;
 
@@ -78,7 +77,7 @@ public interface ThirdPartySaleService {
     void changeCustomer(KeyValue keyValue) throws GenericError, PlafondVenteException;
 
     FinalyseSaleDTO editSale(ThirdPartySaleDTO dto)
-        throws PaymentAmountException, SaleNotFoundCustomerException, ThirdPartySalesTiersPayantException, PlafondVenteException;
+        throws  SaleNotFoundCustomerException, ThirdPartySalesTiersPayantException, PlafondVenteException;
 
     void authorizeAction(UtilisationCleSecuriteDTO utilisationCleSecuriteDTO) throws PrivilegeException;
 

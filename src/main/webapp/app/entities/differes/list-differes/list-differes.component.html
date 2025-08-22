@@ -1,186 +1,192 @@
-<p-toolbar>
-  <ng-template #start>
-    <div class="d-flex justify-content-start">
-      <div class="pt-1 ml-1">
-        <p-select
-          (onChange)="onStatutChange($event)"
-          [(ngModel)]="statut"
-          [filter]="false"
-          [options]="typesDifferes"
-          [showClear]="true"
-          class="w-full md:w-56"
-          optionLabel="label"
-          optionValue="id"
-          placeholder="Filtrer par statut"
-        >
-        </p-select>
-      </div>
-      <div class="pt-1 ml-1">
-        <p-select
-          (onChange)="onChange($event)"
-          [(ngModel)]="customerId"
-          [filter]="false"
-          [options]="clients"
-          [showClear]="true"
-          class="w-full md:w-56"
-          optionLabel="fullName"
-          optionValue="id"
-          placeholder="Filtrer par clients"
-        >
-        </p-select>
-      </div>
+<div class="pharma-smart-content p-2">
+  <div><p-toolbar>
+    <ng-template #start>
+      <div class="d-flex justify-content-start">
+        <div class="pt-1 ml-1">
+          <p-select
+            (onChange)="onStatutChange($event)"
+            [(ngModel)]="statut"
+            [filter]="false"
+            [options]="typesDifferes"
+            [showClear]="true"
+            class="w-full md:w-56"
+            optionLabel="label"
+            optionValue="id"
+            placeholder="Filtrer par statut"
+          >
+          </p-select>
+        </div>
+        <div class="pt-1 ml-1">
+          <p-select
+            (onChange)="onChange($event)"
+            [(ngModel)]="customerId"
+            [filter]="false"
+            [options]="clients"
+            [showClear]="true"
+            class="w-full md:w-56"
+            optionLabel="fullName"
+            optionValue="id"
+            placeholder="Filtrer par clients"
+          >
+          </p-select>
+        </div>
 
-      <!--   <div class="pt-1 ml-1">
-        <p-floatlabel variant="on">
-          <p-datePicker
-            [(ngModel)]="modelStartDate"
-            [iconDisplay]="'input'"
-            [selectOtherMonths]="true"
-            [showButtonBar]="true"
-            [showIcon]="true"
-            dateFormat="dd/mm/yy"
-            id="du"
-            inputId="du"
-          />
-          <label for="du">Du</label>
-        </p-floatlabel>
+        <!--   <div class="pt-1 ml-1">
+          <p-floatlabel variant="on">
+            <p-datePicker
+              [(ngModel)]="modelStartDate"
+              [iconDisplay]="'input'"
+              [selectOtherMonths]="true"
+              [showButtonBar]="true"
+              [showIcon]="true"
+              dateFormat="dd/mm/yy"
+              id="du"
+              inputId="du"
+            />
+            <label for="du">Du</label>
+          </p-floatlabel>
+        </div>
+        <div class="pt-1 ml-1">
+          <p-floatlabel variant="on">
+            <p-datePicker
+              [(ngModel)]="modelEndDate"
+              [iconDisplay]="'input'"
+              [selectOtherMonths]="true"
+              [showButtonBar]="true"
+              [showIcon]="true"
+              dateFormat="dd/mm/yy"
+              id="au"
+              inputId="au"
+            />
+            <label for="au">Au</label>
+          </p-floatlabel>
+        </div>
+  -->
       </div>
-      <div class="pt-1 ml-1">
-        <p-floatlabel variant="on">
-          <p-datePicker
-            [(ngModel)]="modelEndDate"
-            [iconDisplay]="'input'"
-            [selectOtherMonths]="true"
-            [showButtonBar]="true"
-            [showIcon]="true"
-            dateFormat="dd/mm/yy"
-            id="au"
-            inputId="au"
-          />
-          <label for="au">Au</label>
-        </p-floatlabel>
+    </ng-template>
+    <ng-template #end>
+      <div>
+        <p-button (click)="onSerch()" [loading]="loadingBtn" [raised]="true" icon="pi pi-search" label="Rechercher"
+                  severity="info" />
+        <p-button (click)="exportPdf()" [loading]="loadingPdf" [raised]="true" icon="pi pi-file-pdf" label="Imprimer"
+                  severity="warn" />
       </div>
--->
+    </ng-template>
+  </p-toolbar></div>
+  <div>@if (data.length) {
+    <p-table
+      (onLazyLoad)="lazyLoading($event)"
+      [lazy]="true"
+      [loading]="loading"
+      [paginator]="true"
+      [rowsPerPageOptions]="[10, 15, 20, 30, 50]"
+      [rows]="itemsPerPage"
+      [showCurrentPageReport]="false"
+      [totalRecords]="totalItems"
+      [value]="data"
+      dataKey="customerId"
+      [showGridlines]="true"
+      styleClass="table table-striped"
+    >
+      <ng-template #header>
+        <tr>
+          <th style="width: 3%"></th>
+          <th>Client</th>
+          <th>Montant Vente</th>
+          <th>Montant payé</th>
+          <th>Reste</th>
+          <th></th>
+        </tr>
+      </ng-template>
+      <ng-template let-expanded="expanded" let-differe #body>
+        <tr>
+          <td>
+            <p-button
+              [icon]="expanded ? 'pi pi-chevron-down' : 'pi pi-chevron-right'"
+              [pRowToggler]="differe"
+              [rounded]="true"
+              [text]="true"
+              type="button"
+            />
+          </td>
+          <td>{{ differe.firstName + ' ' + differe.lastName }}</td>
+          <td class="text-right amount-td-column">{{ differe.saleAmount | number }}</td>
+          <td class="text-right amount-td-column">{{ differe.paidAmount | number }}</td>
+          <td class="text-right amount-td-column red-400">{{ differe.rest | number }}</td>
+
+          <td>
+            <div class="btn-group d-flex justify-content-end">
+              @if (differe.rest > 0) {
+                <p-button
+                  [routerLink]="['/gestion-differe', differe.customerId, 'do-reglement-differe']"
+                  class="mr-1"
+                  icon="pi pi-credit-card"
+                  [rounded]="true"
+                  [text]="true"
+                  severity="primary"
+                  pTooltip="Faire un règlement"
+                >
+                </p-button>
+              } @else {
+                <p-tag severity="success" value="Soldé"></p-tag>
+              }
+            </div>
+          </td>
+        </tr>
+      </ng-template>
+      <ng-template let-elRow #expandedrow>
+        <tr>
+          <td colspan="6">
+            <p-card>
+              <table class="table table-secondary table-striped-columns table-bordered">
+                <thead>
+                <tr class="table-secondary">
+                  <th colspan="6">Ventes</th>
+                </tr>
+                <tr>
+                  <th style="width: 2%">#</th>
+                  <th>Date</th>
+                  <th>Référence</th>
+                  <th>Montant vente</th>
+                  <th>Montant payé</th>
+                  <th>Reste à payer</th>
+                </tr>
+                </thead>
+                <tbody>
+                  @for (differeItem of elRow.differeItems; track differeItem.saleId; let rowIndex = $index) {
+                    <tr>
+                      <td style="text-align: left">{{ rowIndex + 1 }}</td>
+                      <td>{{ differeItem.mvtDate | date: 'dd/MM/yy HH:mm' }}</td>
+                      <td>{{ differeItem.reference }}</td>
+                      <td class="text-right amount-td-column">{{ differeItem.amount | number }}</td>
+                      <td class="text-right amount-td-column">{{ differeItem.paidAmount | number }}</td>
+                      <td class="text-right red-400 amount-td-column">{{ differeItem.restAmount | number }}</td>
+                    </tr>
+                  }
+                </tbody>
+              </table>
+            </p-card>
+          </td>
+        </tr>
+      </ng-template>
+      <ng-template #footer>
+        <tr>
+          <td class="p-text-left" colspan="2" style="font-weight: 700">TOTAL GENERAL</td>
+          <td class="amount-column text-right">{{ summary?.saleAmout | number }}</td>
+          <td class="amount-column text-right">{{ summary?.paidAmount | number }}</td>
+          <td class="amount-column text-right red-400">{{ summary?.rest | number }}</td>
+          <td></td>
+        </tr>
+      </ng-template>
+    </p-table>
+  } @else {
+    <div class="alert alert-warning" id="no-result">
+      <span>Aucune donnée trouvée</span>
     </div>
-  </ng-template>
-  <ng-template #end>
-    <div>
-      <p-button (click)="onSerch()" [loading]="loadingBtn" [raised]="true" icon="pi pi-search" label="Rechercher"
-                severity="info" />
-      <p-button (click)="exportPdf()" [loading]="loadingPdf" [raised]="true" icon="pi pi-file-pdf" label="Imprimer"
-                severity="warn" />
-    </div>
-  </ng-template>
-</p-toolbar>
+  }</div>
+</div>
 
-@if (data.length) {
-  <p-table
-    (onLazyLoad)="lazyLoading($event)"
-    [lazy]="true"
-    [loading]="loading"
-    [paginator]="true"
-    [rowsPerPageOptions]="[10, 15, 20, 30, 50]"
-    [rows]="itemsPerPage"
-    [showCurrentPageReport]="false"
-    [totalRecords]="totalItems"
-    [value]="data"
-    dataKey="customerId"
-    [showGridlines]="true"
-    styleClass="table table-striped"
-  >
-    <ng-template #header>
-      <tr>
-        <th style="width: 3%"></th>
-        <th>Client</th>
-        <th>Montant Vente</th>
-        <th>Montant payé</th>
-        <th>Reste</th>
-        <th></th>
-      </tr>
-    </ng-template>
-    <ng-template let-expanded="expanded" let-differe #body>
-      <tr>
-        <td>
-          <p-button
-            [icon]="expanded ? 'pi pi-chevron-down' : 'pi pi-chevron-right'"
-            [pRowToggler]="differe"
-            [rounded]="true"
-            [text]="true"
-            type="button"
-          />
-        </td>
-        <td>{{ differe.firstName + ' ' + differe.lastName }}</td>
-        <td class="text-right amount-td-column">{{ differe.saleAmount | number }}</td>
-        <td class="text-right amount-td-column">{{ differe.paidAmount | number }}</td>
-        <td class="text-right amount-td-column red-400">{{ differe.rest | number }}</td>
 
-        <td>
-          <div class="btn-group d-flex justify-content-end">
-            @if (differe.rest > 0) {
-              <p-button
-                [routerLink]="['/gestion-differe', differe.customerId, 'do-reglement-differe']"
-                class="mr-1"
-                icon="pi pi-credit-card"
-                [rounded]="true"
-                [text]="true"
-                severity="primary"
-                pTooltip="Faire un règlement"
-              >
-              </p-button>
-            } @else {
-              <p-tag severity="success" value="Soldé"></p-tag>
-            }
-          </div>
-        </td>
-      </tr>
-    </ng-template>
-    <ng-template let-elRow #expandedrow>
-      <tr>
-        <td colspan="6">
-          <p-card>
-            <table class="table table-secondary table-striped-columns table-bordered">
-              <thead>
-              <tr class="table-secondary">
-                <th colspan="6">Ventes</th>
-              </tr>
-              <tr>
-                <th style="width: 2%">#</th>
-                <th>Date</th>
-                <th>Référence</th>
-                <th>Montant vente</th>
-                <th>Montant payé</th>
-                <th>Reste à payer</th>
-              </tr>
-              </thead>
-              <tbody>
-                @for (differeItem of elRow.differeItems; track differeItem.saleId; let rowIndex = $index) {
-                  <tr>
-                    <td style="text-align: left">{{ rowIndex + 1 }}</td>
-                    <td>{{ differeItem.mvtDate | date: 'dd/MM/yy HH:mm' }}</td>
-                    <td>{{ differeItem.reference }}</td>
-                    <td class="text-right amount-td-column">{{ differeItem.amount | number }}</td>
-                    <td class="text-right amount-td-column">{{ differeItem.paidAmount | number }}</td>
-                    <td class="text-right red-400 amount-td-column">{{ differeItem.restAmount | number }}</td>
-                  </tr>
-                }
-              </tbody>
-            </table>
-          </p-card>
-        </td>
-      </tr>
-    </ng-template>
-    <ng-template #footer>
-      <tr>
-        <td class="p-text-left" colspan="2" style="font-weight: 700">TOTAL GENERAL</td>
-        <td class="amount-column text-right">{{ summary?.saleAmout | number }}</td>
-        <td class="amount-column text-right">{{ summary?.paidAmount | number }}</td>
-        <td class="amount-column text-right red-400">{{ summary?.rest | number }}</td>
-        <td></td>
-      </tr>
-    </ng-template>
-  </p-table>
-} @else {
-  <div class="alert alert-warning" id="no-result">
-    <span>Aucune donnée trouvée</span>
-  </div>
-}
+
+
+

@@ -1,4 +1,4 @@
-import { AfterViewInit, Component, inject, OnInit } from '@angular/core';
+import { AfterViewInit, Component, inject, OnInit, viewChild } from '@angular/core';
 import { CashRegisterService } from '../../cash-register/cash-register.service';
 import { Button } from 'primeng/button';
 import { InputTextModule } from 'primeng/inputtext';
@@ -9,7 +9,6 @@ import { TooltipModule } from 'primeng/tooltip';
 import { ITEMS_PER_PAGE } from '../../../shared/constants/pagination.constants';
 import { IUser } from '../../../core/user/user.model';
 import { CashRegister, CashRegisterStatut, MvtCaisse } from '../../cash-register/model/cash-register.model';
-import { ConfirmationService, MessageService } from 'primeng/api';
 import { TranslateService } from '@ngx-translate/core';
 import { MvtParamServiceService } from '../mvt-param-service.service';
 import { MvtCaisseParams } from '../mvt-caisse-util';
@@ -17,7 +16,6 @@ import { HttpHeaders, HttpResponse } from '@angular/common/http';
 import { UserService } from '../../../core/user/user.service';
 import { DATE_FORMAT_ISO_DATE } from '../../../shared/util/warehouse-util';
 import { WarehouseCommonModule } from '../../../shared/warehouse-common/warehouse-common.module';
-import { ToastModule } from 'primeng/toast';
 import { CardModule } from 'primeng/card';
 import { TableModule } from 'primeng/table';
 import { TagModule } from 'primeng/tag';
@@ -25,10 +23,10 @@ import { PrimeNG } from 'primeng/config';
 import { DatePicker } from 'primeng/datepicker';
 import { Select } from 'primeng/select';
 import { FloatLabel } from 'primeng/floatlabel';
+import { ToastAlertComponent } from '../../../shared/toast-alert/toast-alert.component';
 
 @Component({
   selector: 'jhi-gestion-caisse',
-  providers: [MessageService, ConfirmationService],
   imports: [
     WarehouseCommonModule,
     Button,
@@ -37,13 +35,13 @@ import { FloatLabel } from 'primeng/floatlabel';
     ToolbarModule,
     TooltipModule,
     FormsModule,
-    ToastModule,
     CardModule,
     TableModule,
     TagModule,
     DatePicker,
     Select,
-    FloatLabel
+    FloatLabel,
+    ToastAlertComponent
   ],
   templateUrl: './gestion-caisse.component.html'
 })
@@ -68,8 +66,8 @@ export class GestionCaisseComponent implements OnInit, AfterViewInit {
   private readonly translate = inject(TranslateService);
   private readonly userService = inject(UserService);
   private readonly mvtParamServiceService = inject(MvtParamServiceService);
-  private readonly messageService = inject(MessageService);
   private readonly entityService = inject(CashRegisterService);
+  private readonly alert = viewChild.required<ToastAlertComponent>('alert');
 
   ngAfterViewInit(): void {
     this.translate.use('fr');
@@ -113,11 +111,7 @@ export class GestionCaisseComponent implements OnInit, AfterViewInit {
   }
 
   protected onPrint(): void {
-    this.messageService.add({
-      severity: 'error',
-      summary: 'Error',
-      detail: 'Une erreur est survenue'
-    });
+    this.alert().showInfo('Fonctionnalité non implémentée');
     /*  this.btnLoading = true;
      this.updateParam();
      this.entityService.exportToPdf(this.buildParams()).subscribe({

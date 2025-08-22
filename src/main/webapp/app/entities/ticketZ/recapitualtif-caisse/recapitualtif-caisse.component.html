@@ -1,155 +1,167 @@
 
+<div class="container-fluid">
+  <div class="pharma-smart-content p-2">
+    <p-toolbar>
+      <ng-template #start>
+        <div class="d-flex justify-content-between">
+          <div>
+            <p-select (onChange)="onSelectedUsersChange()" [(ngModel)]="onlyVente" [options]="mvts"
+                      size="large"></p-select>
+          </div>
+          <div>
+            <p-multiSelect
+              [(ngModel)]="selectedUsersId"
+              [fluid]="true"
+              [options]="users"
+              id="selectedUserId"
+              inputId="selectedUserId"
+              optionLabel="abbrName"
+              optionValue="id"
+              size="large"
 
-<p-panel header="Recapitulatif de caisse">
-  <p-toolbar>
-    <ng-template #start>
-      <div class="d-flex justify-content-between">
-        <div>
-          <p-select (onChange)="onSelectedUsersChange()" [(ngModel)]="onlyVente" [options]="mvts"
-                    size="large"></p-select>
+            ></p-multiSelect>
+          </div>
+
+
+          <div>
+            <p-floatlabel variant="on">
+              <p-datePicker
+                [(ngModel)]="fromDate"
+                [maxDate]="toDate"
+                [selectOtherMonths]="true"
+                [showButtonBar]="true"
+                dateFormat="dd/mm/yy"
+                id="toDate"
+              >
+              </p-datePicker>
+              <label for="toDate">Du</label>
+            </p-floatlabel>
+          </div>
+          <div>
+            <p-floatlabel variant="on">
+              <p-datePicker
+                [(ngModel)]="toDate"
+                [minDate]="fromDate"
+                [selectOtherMonths]="true"
+                [showButtonBar]="true"
+                dateFormat="dd/mm/yy"
+                id="toDate"
+                inputId="toDate"
+              ></p-datePicker>
+              <label for="toDate">Au</label>
+            </p-floatlabel>
+          </div>
+          <div>
+            <p-floatlabel variant="on">
+              <p-select [(ngModel)]="fromTime" [options]="hous" id="fromHour" size="large"></p-select>
+              <label for="fromHour">De</label>
+            </p-floatlabel>
+          </div>
+          <div>
+            <p-floatlabel variant="on">
+              <p-select [(ngModel)]="toTime" [options]="hous" id="toHour" size="large"></p-select>
+              <label for="hous">A</label>
+            </p-floatlabel>
+          </div>
         </div>
-        <div>
-          <p-multiSelect
-            [(ngModel)]="selectedUsersId"
-            [fluid]="true"
-            [options]="users"
-            id="selectedUserId"
-            inputId="selectedUserId"
-            optionLabel="abbrName"
-            optionValue="id"
-            size="large"
+      </ng-template>
+      <ng-template #end>
+        <div class="d-flex justify-content-end">
+          <p-button
+            (onClick)="fetchTickets()"
+            [raised]="true"
+            icon="pi pi-file"
+            label="Rechercher"
+            severity="primary"
+          ></p-button>
 
-          ></p-multiSelect>
+          <p-splitbutton
+            [model]="messageBtn"
+            [raised]="true"
+            icon="pi pi-telegram"
+            label="Message"
+            pTooltip="Envoie par mail ou SMS"
+            severity="info"
+            tooltipPosition="left"
+          />
+
+
+          <p-splitbutton
+            [model]="exportMenus"
+            [raised]="true"
+            icon="pi pi-file-export"
+            label="Exporter"
+            pTooltip="Imprimer ou exporter en PDF"
+            severity="help"
+            tooltipPosition="left"
+          ></p-splitbutton
+          >
+
+
         </div>
-
-
-        <div>
-          <p-floatlabel variant="on">
-            <p-datePicker
-              [(ngModel)]="fromDate"
-              [maxDate]="toDate"
-              [selectOtherMonths]="true"
-              [showButtonBar]="true"
-              dateFormat="dd/mm/yy"
-              id="toDate"
-            >
-            </p-datePicker>
-            <label for="toDate">Du</label>
-          </p-floatlabel>
-        </div>
-        <div>
-          <p-floatlabel variant="on">
-            <p-datePicker
-              [(ngModel)]="toDate"
-              [minDate]="fromDate"
-              [selectOtherMonths]="true"
-              [showButtonBar]="true"
-              dateFormat="dd/mm/yy"
-              id="toDate"
-              inputId="toDate"
-            ></p-datePicker>
-            <label for="toDate">Au</label>
-          </p-floatlabel>
-        </div>
-        <div>
-          <p-floatlabel variant="on">
-            <p-select [(ngModel)]="fromTime" [options]="hous" id="fromHour" size="large"></p-select>
-            <label for="fromHour">De</label>
-          </p-floatlabel>
-        </div>
-        <div>
-          <p-floatlabel variant="on">
-            <p-select [(ngModel)]="toTime" [options]="hous" id="toHour" size="large"></p-select>
-            <label for="hous">A</label>
-          </p-floatlabel>
-        </div>
-      </div>
-    </ng-template>
-    <ng-template #end>
-      <div class="d-flex justify-content-end">
-        <p-button
-          (onClick)="fetchTickets()"
-          [raised]="true"
-          icon="pi pi-file"
-          label="Rechercher"
-          severity="primary"
-        ></p-button>
-
-        <p-splitbutton
-          [model]="messageBtn"
-          [raised]="true"
-          icon="pi pi-telegram"
-          label="Message"
-          pTooltip="Envoie par mail ou SMS"
-          severity="info"
-          tooltipPosition="left"
-        />
-
-
-        <p-splitbutton
-          [model]="exportMenus"
-          [raised]="true"
-          icon="pi pi-file-export"
-          label="Exporter"
-          pTooltip="Imprimer ou exporter en PDF"
-          severity="help"
-          tooltipPosition="left"
-        ></p-splitbutton
-        >
-
-
-      </div>
-    </ng-template>
-  </p-toolbar>
-
-  <div class="ticketz-container row">
-    @let summary = ticketZ?.summaries || [];
-    @if (summary.length) {
-      <div class="col-3 summary">
-        <p-card class="recap-card" [header]="' RECAPITULATIF GÉNÉRAL'">
-          <ul class="list-group">
-            @for (item of summary; track item.libelle) {
-              <li class="list-group-item d-flex justify-content-between align-items-center">
-                {{ item.libelle }}
-                <span
-                  class="badge text-bg-secondary fw-bold rounded-pill">{{ item.value | number }}</span>
-              </li>
-            }
-
-
-          </ul>
-
-        </p-card>
-      </div>
-    }
-    <div [ngClass]="summary.length ? 'col-9 row' : 'col-12 row'">
-
-      @for (recap of ticketZ?.datas; track recap.userName) {
-        <div class="col  mb-1">
-          <p-card class="recap-card" [header]="'RECAPITULATIF DE: '+  recap.userName">
-            <ul class="list-group">
-              @for (item of recap.datas; track item.libelle) {
-                <li class="list-group-item d-flex justify-content-between align-items-center">
-                  {{ item.libelle }}
-                  <span
-                    class="badge text-bg-secondary fw-bold rounded-pill">{{ item.value | number }}</span>
-                </li>
+      </ng-template>
+    </p-toolbar>
+    <div class=" mt-3 mb-3 pharma-smart row">
+      @let summary = ticketZ?.summaries || [];
+      @if (summary.length) {
+        <div class="col-3 summary">
+          <p-card>
+            <ng-template #title>
+              <div class="card-title primary-title">
+                <i class="pi pi-money-bill mr-2"></i>
+                RECAPITULATIF GÉNÉRAL
+              </div>
+            </ng-template>
+            <div class="grid"><div class="col-12">
+              @for (item of summary; track item.libelle) {
+                <div class="field">
+                  <label class="fw-semibold fs-4"> {{ item.libelle }}</label>
+                  <span class="badge text-bg-secondary fs-4  rounded-pill">{{ item.value | number }}</span>
+                </div>
               }
+            </div></div>
 
-              @for (item of recap.summary; track item.libelle) {
-                <li
-                  class="list-group-item d-flex  justify-content-between align-items-center">
-                  <span class="font-bold">{{ item.libelle }}</span>
-                  <span
-                    class="badge text-bg-secondary fw-bold rounded-pill">{{ item.value | number }}</span>
-                </li>
-              }
-            </ul>
 
           </p-card>
         </div>
       }
+      <div [ngClass]="summary.length ? 'col-9 row' : 'col-12 row'">
+
+        @for (recap of ticketZ?.datas; track recap.userName) {
+          <div class="col  mb-1">
+            <p-card>
+              <ng-template #title>
+                <div class="card-title secondary-title">
+                  <i class="pi pi-money-bill mr-2"></i>
+                  {{'RECAPITULATIF DE: '+  recap.userName}}
+                </div>
+              </ng-template>
+              <div class="grid">
+                <div class="col-12">
+                  @for (item of recap.datas; track item.libelle) {
+                    <div class="field">
+                      <label> {{ item.libelle }}</label>
+                      <span class="badge text-bg-secondary fs-5 rounded-pill">{{ item.value | number }}</span>
+                    </div>
+                  }
+                  @for (item of recap.summary; track item.libelle) {
+                    <div class="field">
+                      <label class="fw-semibold fs-4"> {{ item.libelle }}</label>
+                      <span class="badge text-bg-secondary fs-4  rounded-pill">{{ item.value | number }}</span>
+                    </div>
+                  }
+                </div>
+              </div>
+
+
+
+            </p-card>
+          </div>
+        }
+      </div>
     </div>
   </div>
-</p-panel>
+
+
+</div>
 <jhi-spinner #spinner ></jhi-spinner>

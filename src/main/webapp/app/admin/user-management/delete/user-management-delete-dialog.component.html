@@ -2,7 +2,8 @@
   <form (ngSubmit)="confirmDelete(user.login!)" name="deleteForm">
     <div class="modal-header">
       <h4 class="modal-title" jhiTranslate="entity.delete.title">Confirmation de suppression</h4>
-      <button (click)="cancel()" aria-hidden="true" class="btn-close" data-dismiss="modal" type="button">&times;</button>
+      <button (click)="cancel()" aria-hidden="true" class="btn-close" data-dismiss="modal"
+          type="button"></button>
     </div>
     <div class="modal-body">
       <jhi-alert-error></jhi-alert-error>

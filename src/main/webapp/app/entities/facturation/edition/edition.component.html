@@ -1,222 +1,226 @@
-<div class="row">
-  <div class="col-lg-3 col-xl-3 col-sm-4 col-md-3">
-    <div class="card">
-      <div class="card-body">
-        <div class="mb-3">
-          <label class="form-label">Edition de factures provisoires ?</label>
-          <div class="flex justify-content-center">
-            <p-toggleswitch [(ngModel)]="factureProvisoire" />
-          </div>
+<div class="row pharma-smart-content p-2">
+  <div class="col-lg-3 col-xl-3 col-sm-4 col-md-3 mt-3 mb-3">
+    <p-card>
+      <div class="mb-3">
+        <label class="form-label">Edition de factures provisoires ?</label>
+        <div class="flex justify-content-center">
+          <p-toggleswitch [(ngModel)]="factureProvisoire" />
         </div>
-
-        <div class="mb-3">
-          <label class="form-label" for="startDate">Date de début</label>
-
-          <p-datePicker
-            [(ngModel)]="modelStartDate"
-            [selectOtherMonths]="true"
-            [showButtonBar]="true"
-            [showIcon]="true"
-            dateFormat="dd/mm/yy"
-            id="startDate"
-            inputId="startDate"
-          />
-        </div>
-        <div class="mb-3">
-          <label class="form-label" for="endDate">Date de fin</label>
-          <p-datePicker
-            [(ngModel)]="modelEndDate"
-            [selectOtherMonths]="true"
-            [showButtonBar]="true"
-            [showIcon]="true"
-            dateFormat="dd/mm/yy"
-            id="endDate"
-            inputId="endDate"
-          />
-        </div>
-
-        <div class="mb-3">
-          <label class="form-label" for="endDate">Sélectionner le mode d'édition</label>
-          <select (change)="onModeEditionChange()" [(ngModel)]="modeEdition" class="form-select"
-                  id="modeEdition">
-            <option selected value="ALL"></option>
-            @for (mode of modeEditions; track mode.code) {
-              <option [ngValue]="mode.code">{{ mode.value }}</option>
-            }
-          </select>
-        </div>
-        @if (modeEdition === 'TYPE') {
-          <div class="mb-3">
-            <label class="form-label" for="typeTiersPayant">Types tiers-payant</label>
-            <select [(ngModel)]="typeTiersPayant" class="form-select" id="typeTiersPayant">
-              @for (mode of typeTiersPayants; track mode.code) {
-                <option [ngValue]="mode.code">{{ mode.value }}</option>
-              }
-            </select>
-          </div>
-        }
-        @if (modeEdition === 'GROUP') {
-          <div class="mb-3">
-            <label class="form-label" for="groupeTiersPayantId">Groupe tiers-payants</label>
-
-            <p-autoComplete
-              (completeMethod)="searchGroupTiersPayant($event)"
-              [(ngModel)]="selectedGroupeTiersPayants"
-              [forceSelection]="true"
-              [inputStyle]="{ width: '100%' }"
-              [minLength]="minLength"
-              [style]="{ width: '100%' }"
-              [suggestions]="groupeTiersPayants"
-              appendTo="body"
-              id="groupeTiersPayantId"
-              [multiple]="true"
-              optionLabel="name"
-              placeholder="Taper pour rechercher"
-            >
-            </p-autoComplete>
-          </div>
-        }
-
-        @if (modeEdition === 'TIERS_PAYANT') {
-          <div class="mb-3">
-            <label class="form-label" for="tiersPayants">Tiers-payants</label>
-
-            <p-autoComplete
-              (completeMethod)="searchTiersPayant($event)"
-              [(ngModel)]="selectedTiersPayants"
-              [forceSelection]="true"
-              [inputStyle]="{ width: '100%' }"
-              [minLength]="minLength"
-              [style]="{ width: '100%' }"
-              [suggestions]="tiersPayants"
-              appendTo="body"
-              id="tiersPayants"
-              [multiple]="true"
-              optionLabel="fullName"
-              placeholder="Taper pour rechercher"
-            >
-            </p-autoComplete>
-          </div>
-        }
       </div>
+      <div class="mb-3">
+        <label class="form-label" for="startDate">Date de début</label>
+
+        <p-datePicker
+          [(ngModel)]="modelStartDate"
+          [selectOtherMonths]="true"
+          [showButtonBar]="true"
+          [showIcon]="true"
+          dateFormat="dd/mm/yy"
+          id="startDate"
+          [fluid]="true"
+          inputId="startDate"
+        />
+      </div>
+      <div class="mb-3">
+        <label class="form-label" for="endDate">Date de fin</label>
+        <p-datePicker
+          [(ngModel)]="modelEndDate"
+          [selectOtherMonths]="true"
+          [showButtonBar]="true"
+          [showIcon]="true"
+          [fluid]="true"
+          dateFormat="dd/mm/yy"
+          id="endDate"
+          inputId="endDate"
+        />
+      </div>
+
+      <div class="mb-3">
+        <label class="form-label" for="endDate">Sélectionner le mode d'édition</label>
+        <p-select size="large" [fluid]="true" (onChange)="onModeEditionChange()" [(ngModel)]="modeEdition" id="modeEdition"  [options]="modeEditions" optionLabel="value" optionValue="code" dataKey="code">
+        </p-select>
+       <!-- <select (change)="onModeEditionChange()" [(ngModel)]="modeEdition" class="form-select"
+                id="modeEdition">
+          <option selected value="ALL"></option>
+          @for (mode of modeEditions; track mode.code) {
+            <option [ngValue]="mode.code">{{ mode.value }}</option>
+          }
+        </select>-->
+      </div>
+      @if (modeEdition === 'TYPE') {
+        <div class="mb-3">
+          <label class="form-label" for="typeTiersPayant">Types tiers-payant</label>
+          <p-select size="large" [fluid]="true"  [(ngModel)]="typeTiersPayant" id="typeTiersPayant"  [options]="typeTiersPayants" optionLabel="value" optionValue="code" dataKey="code">
+          </p-select>
+
+        </div>
+      }
+      @if (modeEdition === 'GROUP') {
+        <div class="mb-3">
+          <label class="form-label" for="groupeTiersPayantId">Groupe tiers-payants</label>
+
+          <p-autoComplete
+            (completeMethod)="searchGroupTiersPayant($event)"
+            [(ngModel)]="selectedGroupeTiersPayants"
+            [forceSelection]="true"
+            [inputStyle]="{ width: '100%' }"
+            [minLength]="minLength"
+            [style]="{ width: '100%' }"
+            [suggestions]="groupeTiersPayants"
+            appendTo="body"
+            id="groupeTiersPayantId"
+            [multiple]="true"
+            optionLabel="name"
+            placeholder="Taper pour rechercher"
+
+          >
+          </p-autoComplete>
+        </div>
+      }
+
+      @if (modeEdition === 'TIERS_PAYANT') {
+        <div class="mb-3">
+          <label class="form-label" for="tiersPayants">Tiers-payants</label>
+
+          <p-autoComplete
+            (completeMethod)="searchTiersPayant($event)"
+            [(ngModel)]="selectedTiersPayants"
+            [forceSelection]="true"
+            [inputStyle]="{ width: '100%' }"
+            [minLength]="minLength"
+            [style]="{ width: '100%' }"
+            [suggestions]="tiersPayants"
+            appendTo="body"
+            id="tiersPayants"
+            [multiple]="true"
+            optionLabel="fullName"
+            placeholder="Taper pour rechercher"
+          >
+          </p-autoComplete>
+        </div>
+      }
+
       <div class="card-footer">
         <div class="d-flex align-items-center justify-content-center">
           <p-button (click)="onSearch()" [loading]="searching" [raised]="true" icon="pi pi-search"
                     label="Rechercher" severity="info" />
         </div>
       </div>
-    </div>
+    </p-card>
+
   </div>
-  <div class="col-lg-9 col-xl-9 col-md-9 col-sm-8">
-    @if (modeEdition !== 'SELECTION_BON') {
-      <p-table
-        #dt
-        [(selection)]="selectedTiersPayantDossiers"
-        [paginator]="true"
-        [rowsPerPageOptions]="[15, 20, 30, 50]"
-        [rows]="itemsPerPage"
-        [showCurrentPageReport]="false"
-        [totalRecords]="totalItems"
-        [value]="tiersPayantDossierFactures"
-        dataKey="id"
-        styleClass="p-datatable-sm p-datatable-gridlines"
-      >
-        <ng-template #caption>
-          <div class="d-flex align-items-end justify-content-end">
-            <p-button (click)="onEdit()" [loading]="editing" [raised]="true" icon="pi pi-check"
-                      label="Editer" severity="success" />
-          </div>
-        </ng-template>
-        <ng-template #header>
-          <tr>
-            <th>Tiers-payant</th>
-            <th>Nombre de dossiers</th>
-            <th>Montant</th>
-            @if (modeEdition && (modeEdition === 'SELECTED' || modeEdition === 'GROUP')) {
+  <div class="col-lg-9 col-xl-9 col-md-9 col-sm-8 mt-3 mb-3">
+    <p-card>
+      @if (modeEdition !== 'SELECTION_BON') {
+        <p-table
+          #dt
+          [(selection)]="selectedTiersPayantDossiers"
+          [paginator]="true"
+          [rowsPerPageOptions]="[15, 20, 30, 50]"
+          [rows]="itemsPerPage"
+          [showCurrentPageReport]="false"
+          [totalRecords]="totalItems"
+          [value]="tiersPayantDossierFactures"
+          dataKey="id"
+          [stripedRows]="true"
+        >
+          <ng-template #caption>
+            <div class="d-flex align-items-end justify-content-end">
+              <p-button (click)="onEdit()" [loading]="editing" [raised]="true" icon="pi pi-check"
+                        label="Editer" severity="primary" />
+            </div>
+          </ng-template>
+          <ng-template #header>
+            <tr>
+              <th>Tiers-payant</th>
+              <th>Nombre de dossiers</th>
+              <th>Montant</th>
+              @if (modeEdition && (modeEdition === 'SELECTED' || modeEdition === 'GROUP')) {
+                <th style="width: 4rem">
+                  <p-tableHeaderCheckbox />
+                </th>
+              }
+            </tr>
+          </ng-template>
+
+          <ng-template let-data #body>
+            <tr>
+              <td>
+                {{ data.name }}
+              </td>
+              <td class="text-right amount-column">
+                {{ data.factureItemCount | number }}
+              </td>
+              <td class="text-right amount-column">{{ data.totalAmount | number }}</td>
+              @if (modeEdition && (modeEdition === 'SELECTED' || modeEdition === 'GROUP')) {
+                <td>
+                  <p-tableCheckbox [value]="data" />
+                </td>
+              }
+            </tr>
+          </ng-template>
+        </p-table>
+      }
+
+      @if (modeEdition && modeEdition === 'SELECTION_BON') {
+        <p-table
+          #bonDt
+          [(selection)]="selectedDossiers"
+          [paginator]="true"
+          [rowsPerPageOptions]="[15, 20, 30, 50]"
+          [rows]="itemsPerPage"
+          [showCurrentPageReport]="false"
+          [totalRecords]="totalItems"
+          [value]="dossierFactures"
+          dataKey="id"
+          styleClass="p-datatable-sm p-datatable-gridlines"
+        >
+          <ng-template #caption>
+            <div class="d-flex align-items-center justify-content-between">
+              <p-iconfield>
+                <p-inputicon styleClass="pi pi-search" />
+                <input (input)="bonDt.filterGlobal($event.target.value, 'contains')" pInputText
+                       placeholder="Rechercher..." type="text" />
+              </p-iconfield>
+
+              <p-button (click)="onEdit()" [loading]="editing" [raised]="true" icon="pi pi-check"
+                        label="Editer" severity="success" />
+            </div>
+          </ng-template>
+          <ng-template #header>
+            <tr>
+              <th>Clients</th>
+              <th>Date</th>
+              <th>Référence bon</th>
+              <th>Montant vente</th>
+              <th>Montant</th>
               <th style="width: 4rem">
                 <p-tableHeaderCheckbox />
               </th>
-            }
-          </tr>
-        </ng-template>
-
-        <ng-template let-data#body>
-          <tr>
-            <td>
-              {{ data.name }}
-            </td>
-            <td class="text-right amount-column">
-              {{ data.factureItemCount | number }}
-            </td>
-            <td class="text-right amount-column">{{ data.totalAmount | number }}</td>
-            @if (modeEdition && (modeEdition === 'SELECTED' || modeEdition === 'GROUP')) {
+            </tr>
+          </ng-template>
+          <ng-template let-dossier #body>
+            <tr>
+              <td>{{ dossier.assuredCustomer.firstName }} {{ dossier.assuredCustomer.lastName }}</td>
               <td>
-                <p-tableCheckbox [value]="data" />
+                {{ dossier.createdAt | date: 'dd/MM/yyyy HH:mm:ss' }}
               </td>
-            }
-          </tr>
-        </ng-template>
-      </p-table>
-    }
+              <td>
+                {{ dossier.numBon }}
+              </td>
+              <td class="text-right amount-column">
+                {{ dossier.montantVente | number }}
+              </td>
+              <td class="text-right amount-column">{{ dossier.montantBon | number }}</td>
+              <td>
+                <p-tableCheckbox [value]="dossier" />
+              </td>
+            </tr>
+          </ng-template>
+        </p-table>
+      }
+    </p-card>
 
-    @if (modeEdition && modeEdition === 'SELECTION_BON') {
-      <p-table
-        #bonDt
-        [(selection)]="selectedDossiers"
-        [paginator]="true"
-        [rowsPerPageOptions]="[15, 20, 30, 50]"
-        [rows]="itemsPerPage"
-        [showCurrentPageReport]="false"
-        [totalRecords]="totalItems"
-        [value]="dossierFactures"
-        dataKey="id"
-        styleClass="p-datatable-sm p-datatable-gridlines"
-      >
-        <ng-template #caption>
-          <div class="d-flex align-items-center justify-content-between">
-            <p-iconfield>
-              <p-inputicon styleClass="pi pi-search" />
-              <input (input)="bonDt.filterGlobal($event.target.value, 'contains')" pInputText
-                     placeholder="Rechercher..." type="text" />
-            </p-iconfield>
-
-            <p-button (click)="onEdit()" [loading]="editing" [raised]="true" icon="pi pi-check"
-                      label="Editer" severity="success" />
-          </div>
-        </ng-template>
-        <ng-template #header>
-          <tr>
-            <th>Clients</th>
-            <th>Date</th>
-            <th>Référence bon</th>
-            <th>Montant vente</th>
-            <th>Montant</th>
-            <th style="width: 4rem">
-              <p-tableHeaderCheckbox />
-            </th>
-          </tr>
-        </ng-template>
-        <ng-template let-dossier #body>
-          <tr>
-            <td>{{ dossier.assuredCustomer.firstName }} {{ dossier.assuredCustomer.lastName }}</td>
-            <td>
-              {{ dossier.createdAt | date: 'dd/MM/yyyy HH:mm:ss' }}
-            </td>
-            <td>
-              {{ dossier.numBon }}
-            </td>
-            <td class="text-right amount-column">
-              {{ dossier.montantVente | number }}
-            </td>
-            <td class="text-right amount-column">{{ dossier.montantBon | number }}</td>
-            <td>
-              <p-tableCheckbox [value]="dossier" />
-            </td>
-          </tr>
-        </ng-template>
-      </p-table>
-    }
   </div>
 </div>
-<p-confirmDialog [baseZIndex]="10000" [style]="{ width: '40vw' }"
-                 key="printialog"></p-confirmDialog>
+<jhi-confirm-dialog #confirmDialog></jhi-confirm-dialog>

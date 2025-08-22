@@ -1,23 +1,25 @@
-import { AfterViewInit, Component, ElementRef, inject, OnInit, viewChild } from '@angular/core';
+import { AfterViewInit, Component, inject, OnInit, viewChild } from '@angular/core';
 import { WarehouseCommonModule } from '../../../shared/warehouse-common/warehouse-common.module';
 import { FormBuilder, FormControl, FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { TooltipModule } from 'primeng/tooltip';
 import { ButtonModule } from 'primeng/button';
 import { InputTextModule } from 'primeng/inputtext';
-import { RippleModule } from 'primeng/ripple';
 import { TableModule } from 'primeng/table';
 import { ToolbarModule } from 'primeng/toolbar';
 import { CashRegister } from '../model/cash-register.model';
-import { ConfirmationService, MessageService } from 'primeng/api';
 import { Ticketing } from '../model/ticketing.model';
 import { CardModule } from 'primeng/card';
 import { ActivatedRoute } from '@angular/router';
 import { BadgeModule } from 'primeng/badge';
 import { KeyFilterModule } from 'primeng/keyfilter';
-import { ConfirmDialogModule } from 'primeng/confirmdialog';
 import { formatNumber } from '../../../shared/util/warehouse-util';
 import { CashRegisterService } from '../cash-register.service';
-import { ToastModule } from 'primeng/toast';
+import { ConfirmDialogComponent } from '../../../shared/dialog/confirm-dialog/confirm-dialog.component';
+import { ToastAlertComponent } from '../../../shared/toast-alert/toast-alert.component';
+import { InputNumber, InputNumberModule } from 'primeng/inputnumber';
+import { TagModule } from 'primeng/tag';
+import { InputGroupModule } from 'primeng/inputgroup';
+import { InputGroupAddonModule } from 'primeng/inputgroupaddon';
 
 @Component({
   selector: 'jhi-ticketing',
@@ -27,23 +29,42 @@ import { ToastModule } from 'primeng/toast';
     TooltipModule,
     ButtonModule,
     InputTextModule,
-    RippleModule,
     TableModule,
     ToolbarModule,
     ReactiveFormsModule,
     CardModule,
     BadgeModule,
     KeyFilterModule,
-    ConfirmDialogModule,
-    ToastModule
+    ConfirmDialogComponent,
+    ToastAlertComponent,
+    InputNumberModule,
+    TagModule,
+    InputGroupModule,
+    InputGroupAddonModule
   ],
-  providers: [ConfirmationService, MessageService],
-  templateUrl: './ticketing.component.html'
+
+  templateUrl: './ticketing.component.html',
+  styles: [`
+    .form-header {
+      background-color: #f8f9fa;
+      border-bottom: 2px solid #dee2e6;
+      padding: 0.75rem 0;
+      margin-bottom: 1.5rem !important;
+    }
+    .subtotal-value {
+      font-size: 1.1rem;
+      font-weight: bold;
+      color: #495057;
+      padding: 0.5rem;
+      display: block;
+    }
+    `]
+
 })
-export class TicketingComponent implements OnInit, AfterViewInit {
-  readonly numberOf10ThousandInput = viewChild<ElementRef>('numberOf10Thousand');
-  protected activatedRoute = inject(ActivatedRoute);
-  protected entityService = inject(CashRegisterService);
+export class TicketingComponent implements OnInit {
+  readonly numberOf10ThousandInput = viewChild<InputNumber>('numberOf10Thousand');
+  private readonly activatedRoute = inject(ActivatedRoute);
+  private readonly entityService = inject(CashRegisterService);
   protected fb = inject(FormBuilder);
   protected isSaving = false;
   protected display = false;
@@ -59,8 +80,9 @@ export class TicketingComponent implements OnInit, AfterViewInit {
   });
   protected selectedCashRegister: CashRegister | null = null;
 
-  private confirmationService = inject(ConfirmationService);
-  private messageService = inject(MessageService);
+
+  private readonly confimDialog = viewChild.required<ConfirmDialogComponent>('confirmDialog');
+  private readonly alert = viewChild.required<ToastAlertComponent>('alert');
 
   ngOnInit(): void {
     this.activatedRoute.data.subscribe(({ cashRegister }) => (this.selectedCashRegister = cashRegister));
@@ -74,17 +96,10 @@ export class TicketingComponent implements OnInit, AfterViewInit {
     window.history.back();
   }
 
-  ngAfterViewInit(): void {
-    this.numberOf10ThousandInput().nativeElement.focus();
-  }
 
   showError() {
-    this.messageService.add({
-      severity: 'error',
-      summary: 'Error',
-      detail: 'L\'opération n\'a pas abouti',
-      life: 3000
-    });
+
+    this.alert().showError('L\'opération n\'a pas abouti');
   }
 
   protected updateForm(ticketing: Ticketing): void {
@@ -116,7 +131,7 @@ export class TicketingComponent implements OnInit, AfterViewInit {
   protected save(): void {
     const message = this.totalAmount === 0
       ? 'Le montant total doit être supérieur à <b>0</b>. Etes-vous sûr de vouloir continuer ?'
-      : `le montant total est de <span class="font-size-lg badge rounded-pill bg-secondary"><b> ${formatNumber(
+      : `le montant total est de <span class="fs-4 badge rounded-pill bg-secondary"><b> ${formatNumber(
         this.totalAmount
       )}  </b></span> . Etes-vous sûr de vouloir continuer ?`;
 
@@ -124,21 +139,8 @@ export class TicketingComponent implements OnInit, AfterViewInit {
   }
 
   private confirmTicketing(message: string): void {
-    this.confirmationService.confirm({
-      message,
-      header: 'Confirmation',
-      icon: 'pi pi-exclamation-triangle',
-      acceptButtonStyleClass: 'p-button-danger',
-      rejectButtonStyleClass: 'p-button-text ',
-      rejectLabel: 'Non',
-      acceptLabel: 'Oui',
-      accept: () => {
-        this.doTicketing();
-      },
-      reject: () => {
-        this.numberOf10ThousandInput().nativeElement.focus();
-      }
-    });
+
+    this.confimDialog().onConfirm(() => this.doTicketing(), 'BILLETAGE', message, 'pi pi-exclamation-triangle', () => this.numberOf10ThousandInput().el.nativeElement.focus());
   }
 
   private doTicketing(): void {
@@ -147,12 +149,8 @@ export class TicketingComponent implements OnInit, AfterViewInit {
     this.entityService.doTicketing(ticketing).subscribe({
       next: () => {
         this.isSaving = false;
-        this.messageService.add({
-          severity: 'success',
-          summary: 'Succès',
-          detail: 'L\'opération a été effectuée avec succès',
-          life: 2000
-        });
+
+        this.alert().showInfo('Billetage effectué avec succès');
         setTimeout(() => {
           this.previousState();
         }, 2000);

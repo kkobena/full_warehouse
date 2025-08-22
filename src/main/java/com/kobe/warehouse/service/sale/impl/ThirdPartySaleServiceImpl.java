@@ -37,7 +37,6 @@ import com.kobe.warehouse.service.PaymentService;
 import com.kobe.warehouse.service.ReferenceService;
 import com.kobe.warehouse.service.StorageService;
 import com.kobe.warehouse.service.UtilisationCleSecuriteService;
-import com.kobe.warehouse.service.WarehouseCalendarService;
 import com.kobe.warehouse.service.cash_register.CashRegisterService;
 import com.kobe.warehouse.service.dto.AssuredCustomerDTO;
 import com.kobe.warehouse.service.dto.ClientTiersPayantDTO;
@@ -59,7 +58,6 @@ import com.kobe.warehouse.service.errors.SaleNotFoundCustomerException;
 import com.kobe.warehouse.service.errors.StockException;
 import com.kobe.warehouse.service.errors.ThirdPartySalesTiersPayantException;
 import com.kobe.warehouse.service.produit_prix.service.PrixRererenceService;
-import com.kobe.warehouse.service.sale.AvoirService;
 import com.kobe.warehouse.service.sale.SalesLineService;
 import com.kobe.warehouse.service.sale.ThirdPartySaleService;
 import com.kobe.warehouse.service.sale.calculation.TiersPayantCalculationService;
@@ -83,6 +81,7 @@ import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashSet;
 import java.util.List;
@@ -126,10 +125,8 @@ public class ThirdPartySaleServiceImpl extends SaleCommonService implements Thir
         UserRepository userRepository,
         PaymentService paymentService,
         ReferenceService referenceService,
-        WarehouseCalendarService warehouseCalendarService,
         CashRegisterService cashRegisterService,
-        AvoirService avoirService,
-        PosteRepository posteRepository,
+              PosteRepository posteRepository,
         CashSaleRepository cashSaleRepository,
         UtilisationCleSecuriteService utilisationCleSecuriteService,
         RemiseRepository remiseRepository,
@@ -140,12 +137,10 @@ public class ThirdPartySaleServiceImpl extends SaleCommonService implements Thir
     ) {
         super(
             referenceService,
-            warehouseCalendarService,
             storageService,
             userRepository,
             saleLineServiceFactory,
             cashRegisterService,
-            avoirService,
             posteRepository,
             afficheurPosService
         );
@@ -174,20 +169,47 @@ public class ThirdPartySaleServiceImpl extends SaleCommonService implements Thir
         );
         ThirdPartySales thirdPartySales = buildThirdPartySale(dto);
         thirdPartySales.getSalesLines().add(saleLine);
-        computeSaleEagerAmount(thirdPartySales, saleLine.getSalesAmount(), 0);
+        computeSaleEagerAmount(thirdPartySales);
 
         applRemiseToSale(thirdPartySales);
-        String message = upddateThirdPartySaleAmounts(thirdPartySales, saleLine, null, false);
         thirdPartySales.setOrigineVente(OrigineVente.DIRECT);
-        ThirdPartySales sale = thirdPartySaleRepository.saveAndFlush(thirdPartySales);
-        saleLine.setSales(sale);
+        thirdPartySales = thirdPartySaleRepository.saveAndFlush(thirdPartySales);
+        saleLine.setSales(thirdPartySales);
         salesLineService.saveSalesLine(saleLine);
+        String message = saveTiersPayantLines(dto, thirdPartySales, saleLine);
         this.displayNet(thirdPartySales.getPartAssure());
-        ThirdPartySaleDTO thirdPartySaleDTO = new ThirdPartySaleDTO(sale);
+        ThirdPartySaleDTO thirdPartySaleDTO = new ThirdPartySaleDTO(thirdPartySales);
         if (StringUtils.hasLength(message)) {
             throw new PlafondVenteException(thirdPartySaleDTO, message);
         }
         return thirdPartySaleDTO;
+    }
+
+    private String saveTiersPayantLines(ThirdPartySaleDTO dto, ThirdPartySales thirdPartySales, SalesLine saleLine) {
+        List<ClientTiersPayant> clientTiersPayants = getClientTiersPayants(dto.getTiersPayants().stream().map(ClientTiersPayantDTO::getId).collect(Collectors.toSet()));
+        for (ClientTiersPayant clientTiersPayant : clientTiersPayants) {
+            ClientTiersPayantDTO clientTiersPayantDTO = dto
+                .getTiersPayants()
+                .stream()
+                .filter(ctpdto -> Objects.equals(ctpdto.getId(), clientTiersPayant.getId()))
+                .findFirst()
+                .orElseThrow(() -> new GenericError("Client tiers payant introuvable"));
+            if (dto.getNumBon() != null) {
+                if (checkIfNumBonIsAlReadyUse(dto.getNumBon(), clientTiersPayant.getId(), null)) {
+                    throw new NumBonAlreadyUseException(dto.getNumBon());
+                }
+
+            }
+            ThirdPartySaleLine thirdPartySaleLine = createThirdPartySaleLine(dto.getNumBon(), clientTiersPayant, 0);
+
+            thirdPartySaleLine.setSale(thirdPartySales);
+            thirdPartySales.getThirdPartySaleLines().add(thirdPartySaleLine);
+        }
+        return upddateThirdPartySaleAmounts(thirdPartySales, true, clientTiersPayants);
+    }
+
+    private List<ClientTiersPayant> getClientTiersPayants(Set<Long> ids) {
+        return clientTiersPayantRepository.findAllByIdIn(ids);
     }
 
     @Override
@@ -237,6 +259,9 @@ public class ThirdPartySaleServiceImpl extends SaleCommonService implements Thir
     }
 
     private Consommation buildConsommation(Integer montant) {
+        if (montant == null) {
+            throw new GenericError("Unexpected null value for montant in buildConsommation");
+        }
         LocalDate now = LocalDate.now();
         Consommation consommation = new Consommation();
         consommation.setId(buildConsommationId());
@@ -277,7 +302,7 @@ public class ThirdPartySaleServiceImpl extends SaleCommonService implements Thir
     }
 
     private ThirdPartySaleLine createThirdPartySaleLine(
-        ClientTiersPayantDTO clientTiersPayantDTO,
+        String numNon,
         ClientTiersPayant clientTiersPayant,
         int partTiersPayant
     ) {
@@ -285,7 +310,19 @@ public class ThirdPartySaleServiceImpl extends SaleCommonService implements Thir
         thirdPartySaleLine.setCreated(LocalDateTime.now());
         thirdPartySaleLine.setUpdated(thirdPartySaleLine.getCreated());
         thirdPartySaleLine.setEffectiveUpdateDate(thirdPartySaleLine.getCreated());
-        thirdPartySaleLine.setNumBon(clientTiersPayantDTO.getNumBon());
+        thirdPartySaleLine.setNumBon(numNon);
+        thirdPartySaleLine.setClientTiersPayant(clientTiersPayant);
+        thirdPartySaleLine.setMontant(partTiersPayant);
+        return thirdPartySaleLine;
+    }
+
+    private ThirdPartySaleLine updateThirdPartySaleLine(
+        ThirdPartySaleLine thirdPartySaleLine,
+        ClientTiersPayant clientTiersPayant,
+        int partTiersPayant
+    ) {
+        thirdPartySaleLine.setUpdated(LocalDateTime.now());
+        thirdPartySaleLine.setEffectiveUpdateDate(thirdPartySaleLine.getUpdated());
         thirdPartySaleLine.setClientTiersPayant(clientTiersPayant);
         thirdPartySaleLine.setMontant(partTiersPayant);
         return thirdPartySaleLine;
@@ -330,8 +367,9 @@ public class ThirdPartySaleServiceImpl extends SaleCommonService implements Thir
             SalesLine salesLine = salesLineOp.get();
             salesLineService.updateSaleLine(dto, salesLine, storageId);
             thirdPartySales = (ThirdPartySales) salesLine.getSales();
-            var message = reComputeAndApplyAmounts(thirdPartySales, true);
-            thirdPartySales = thirdPartySaleRepository.save(thirdPartySales);
+            updateAmounts(thirdPartySales);
+            var message = reComputeAndApplyAmounts(thirdPartySales, null, true);
+            // thirdPartySales = thirdPartySaleRepository.save(thirdPartySales);
             if (StringUtils.hasLength(message)) {
                 throw new PlafondVenteException(new ThirdPartySaleDTO(thirdPartySales), message);
             }
@@ -339,8 +377,9 @@ public class ThirdPartySaleServiceImpl extends SaleCommonService implements Thir
         }
         thirdPartySales = thirdPartySaleRepository.getReferenceById(dto.getSaleId());
         SalesLine salesLine = salesLineService.create(dto, storageId, thirdPartySales);
-        var message = reComputeAndApplyAmounts(thirdPartySales, true);
-        thirdPartySales = thirdPartySaleRepository.save(thirdPartySales);
+        updateAmounts(thirdPartySales);
+        var message = reComputeAndApplyAmounts(thirdPartySales, null, true);
+        //   thirdPartySales = thirdPartySaleRepository.save(thirdPartySales);
         if (StringUtils.hasLength(message)) {
             throw new PlafondVenteException(new ThirdPartySaleDTO(thirdPartySales), message);
         }
@@ -354,12 +393,11 @@ public class ThirdPartySaleServiceImpl extends SaleCommonService implements Thir
         SalesLine salesLine = salesLineService.getOneById(id);
         ThirdPartySales sales = (ThirdPartySales) salesLine.getSales();
         sales.removeSalesLine(salesLine);
-        upddateSaleAmountsOnRemovingItem(sales, salesLine);
         sales.setUpdatedAt(LocalDateTime.now());
         sales.setEffectiveUpdateDate(sales.getUpdatedAt());
         sales.setLastUserEdit(storageService.getUser());
-        thirdPartySaleRepository.save(sales);
         salesLineService.deleteSaleLine(salesLine);
+        upddateSaleAmountsOnRemovingItem(sales);
         this.displayNet(sales.getPartAssure());
     }
 
@@ -377,7 +415,7 @@ public class ThirdPartySaleServiceImpl extends SaleCommonService implements Thir
         Sales sales = salesLine.getSales();
         ThirdPartySales thirdPartySales = (ThirdPartySales) sales;
         var message = computeThirdPartySaleAmounts(thirdPartySales, salesLine, oldsalesline);
-        thirdPartySales = thirdPartySaleRepository.saveAndFlush(thirdPartySales);
+        //   thirdPartySales = thirdPartySaleRepository.saveAndFlush(thirdPartySales);
         this.displayNet(thirdPartySales.getPartAssure());
         if (StringUtils.hasLength(message)) {
             throw new PlafondVenteException(new ThirdPartySaleDTO(thirdPartySales), message);
@@ -436,7 +474,7 @@ public class ThirdPartySaleServiceImpl extends SaleCommonService implements Thir
     @Override
     @Transactional(noRollbackFor = {PlafondVenteException.class})
     public FinalyseSaleDTO save(ThirdPartySaleDTO dto)
-        throws PaymentAmountException, SaleNotFoundCustomerException, ThirdPartySalesTiersPayantException, NumBonAlreadyUseException {
+        throws SaleNotFoundCustomerException, ThirdPartySalesTiersPayantException, NumBonAlreadyUseException {
         ThirdPartySales p = thirdPartySaleRepository.findOneWithEagerSalesLines(dto.getId()).orElseThrow();
         this.save(p, dto);
         FinalyseSaleDTO response = finalizeSaleProcess(p, dto);
@@ -542,16 +580,16 @@ public class ThirdPartySaleServiceImpl extends SaleCommonService implements Thir
         if (checkIfNumBonIsAlReadyUse(dto.getNumBon(), clientTiersPayant.getId(), null)) {
             throw new NumBonAlreadyUseException(dto.getNumBon());
         }
-        ThirdPartySaleLine thirdPartySaleLine = createThirdPartySaleLine(dto, clientTiersPayant, 0);
+        ThirdPartySaleLine thirdPartySaleLine = createThirdPartySaleLine(dto.getNumBon(), clientTiersPayant, 0);
         thirdPartySaleLine.setSale(thirdPartySales);
         thirdPartySaleLineRepository.save(thirdPartySaleLine);
         thirdPartySales.getThirdPartySaleLines().add(thirdPartySaleLine);
         applRemiseToSale(thirdPartySales);
-        var message = reComputeAndApplyAmounts(thirdPartySales, true);
-        var tp = thirdPartySaleRepository.saveAndFlush(thirdPartySales);
+        String message = reComputeAndApplyAmounts(thirdPartySales, null, true);
+        //  var tp = thirdPartySaleRepository.saveAndFlush(thirdPartySales);
         this.displayNet(thirdPartySales.getPartAssure());
         if (StringUtils.hasLength(message)) {
-            ThirdPartySaleDTO thirdPartySaleDTO = new ThirdPartySaleDTO(tp);
+            ThirdPartySaleDTO thirdPartySaleDTO = new ThirdPartySaleDTO(thirdPartySales);
             throw new PlafondVenteException(thirdPartySaleDTO, message);
         }
     }
@@ -567,9 +605,9 @@ public class ThirdPartySaleServiceImpl extends SaleCommonService implements Thir
                 thirdPartySaleLine.setSale(null);
                 thirdPartySales.getThirdPartySaleLines().remove(thirdPartySaleLine);
                 thirdPartySaleLineRepository.delete(thirdPartySaleLine);
-                reComputeAndApplyAmounts(thirdPartySales, true);
+                reComputeAndApplyAmounts(thirdPartySales, null, true);
 
-                thirdPartySaleRepository.saveAndFlush(thirdPartySales);
+                //  thirdPartySaleRepository.saveAndFlush(thirdPartySales);
                 this.displayNet(thirdPartySales.getPartAssure());
             });
     }
@@ -600,10 +638,9 @@ public class ThirdPartySaleServiceImpl extends SaleCommonService implements Thir
         thirdPartySales.setUpdatedAt(LocalDateTime.now());
         thirdPartySales.setEffectiveUpdateDate(thirdPartySales.getUpdatedAt());
         getAyantDroitFromId(dto.getAyantDroitId()).ifPresent(thirdPartySales::setAyantDroit);
-        String message = reComputeAndApplyAmounts(thirdPartySales, true);
-        ThirdPartySales sale = thirdPartySaleRepository.saveAndFlush(thirdPartySales);
+        String message = reComputeAndApplyAmounts(thirdPartySales, null, true);
         if (StringUtils.hasLength(message)) {
-            ThirdPartySaleDTO thirdPartySaleDTO = new ThirdPartySaleDTO(sale);
+            ThirdPartySaleDTO thirdPartySaleDTO = new ThirdPartySaleDTO(thirdPartySales);
             throw new PlafondVenteException(thirdPartySaleDTO, message);
         }
     }
@@ -615,7 +652,6 @@ public class ThirdPartySaleServiceImpl extends SaleCommonService implements Thir
         c.setCostAmount(cashSale.getCostAmount());
         c.setNumberTransaction(cashSale.getNumberTransaction());
         c.setCategorieChiffreAffaire(cashSale.getCategorieChiffreAffaire());
-        c.setAvoir(cashSale.getAvoir());
         c.setTypePrescription(cashSale.getTypePrescription());
         c.setSeller(cashSale.getSeller());
         c.setImported(false);
@@ -630,7 +666,6 @@ public class ThirdPartySaleServiceImpl extends SaleCommonService implements Thir
         c.setToIgnore(cashSale.isToIgnore());
         c.setDiffere(cashSale.isDiffere());
         c.setStatut(cashSale.getStatut());
-        c.setCalendar(cashSale.getCalendar());
         c.setCaisse(cashSale.getCaisse());
         c.setLastCaisse(cashSale.getLastCaisse());
         c.setPaymentStatus(cashSale.getPaymentStatus());
@@ -638,30 +673,24 @@ public class ThirdPartySaleServiceImpl extends SaleCommonService implements Thir
         return c;
     }
 
-    private String upddateThirdPartySaleAmounts(ThirdPartySales c, SalesLine saleLine, SalesLine oldSaleLine, boolean isUpdate) {
-        computeSaleLazyAmount(c, saleLine, oldSaleLine);
-        computeTvaAmount(c, saleLine, oldSaleLine);
-        computeUgTvaAmount(c, saleLine, oldSaleLine);
-        return reComputeAndApplyAmounts(c, isUpdate);
+    private String upddateThirdPartySaleAmounts(ThirdPartySales c, boolean isUpdate, List<ClientTiersPayant> clientTiersPayants) {
+        updateAmounts(c);
+        return reComputeAndApplyAmounts(c, clientTiersPayants, isUpdate);
     }
 
     private String computeThirdPartySaleAmounts(ThirdPartySales thirdPartySales, SalesLine salesLine, SalesLine oldsalesline) {
-        computeSaleEagerAmount(thirdPartySales, salesLine.getSalesAmount(), oldsalesline != null ? oldsalesline.getSalesAmount() : 0);
+        computeSaleEagerAmount(thirdPartySales);
 
         applRemiseToSale(thirdPartySales);
         //  var message = reComputeAmounts(thirdPartySales);
-        return upddateThirdPartySaleAmounts(thirdPartySales, salesLine, oldsalesline, true);
+        return upddateThirdPartySaleAmounts(thirdPartySales, true, null);
 
     }
 
-    private void upddateSaleAmountsOnRemovingItem(ThirdPartySales c, SalesLine saleLine) {
-        computeSaleEagerAmount(c, saleLine.getSalesAmount() * (-1), 0);
+    private void upddateSaleAmountsOnRemovingItem(ThirdPartySales c) {
+        computeSaleEagerAmount(c);
         applRemiseToSale(c);
-
-        computeSaleLazyAmountOnRemovingItem(c, saleLine);
-        computeUgTvaAmountOnRemovingItem(c, saleLine);
-        computeTvaAmountOnRemovingItem(c, saleLine);
-        reComputeAndApplyAmounts(c, true);
+        reComputeAndApplyAmounts(c, null, true);
     }
 
     private ThirdPartySales buildThirdPartySale(ThirdPartySaleDTO dto) throws GenericError {
@@ -700,29 +729,22 @@ public class ThirdPartySaleServiceImpl extends SaleCommonService implements Thir
         thirdPartySales.setAyantDroit(assuredCustomer);
         thirdPartySales.setUpdatedAt(LocalDateTime.now());
         thirdPartySales.setEffectiveUpdateDate(thirdPartySales.getUpdatedAt());
-        //   String message = computeAmounts(null, buildFromCustomer(assuredCustomer), thirdPartySales);
-        ThirdPartySales sale = thirdPartySaleRepository.saveAndFlush(thirdPartySales);
-        String message = reComputeAndApplyAmounts(sale, true);
-        ThirdPartySaleDTO thirdPartySaleDTO = new ThirdPartySaleDTO(sale);
+        String message = saveTiersPayantLinesOnChangeCustomer(thirdPartySales);
+        ThirdPartySaleDTO thirdPartySaleDTO = new ThirdPartySaleDTO(thirdPartySales);
         if (StringUtils.hasLength(message)) {
             throw new PlafondVenteException(thirdPartySaleDTO, message);
         }
     }
 
-    private List<ClientTiersPayantDTO> buildFromCustomer(AssuredCustomer assuredCustomer) {
-        List<ClientTiersPayantDTO> clientTiersPayantDTOs = new ArrayList<>();
-        Set<ClientTiersPayant> clientTiersPayants = assuredCustomer.getClientTiersPayants();
+
+    private String saveTiersPayantLinesOnChangeCustomer(ThirdPartySales thirdPartySales) {
+        List<ClientTiersPayant> clientTiersPayants = ((AssuredCustomer) thirdPartySales.getCustomer()).getClientTiersPayants().stream().sorted(Comparator.comparingInt(c -> c.getPriorite().getValue())).collect(Collectors.toList());
         for (ClientTiersPayant clientTiersPayant : clientTiersPayants) {
-            ClientTiersPayantDTO clientTiersPayantDTO = new ClientTiersPayantDTO();
-            clientTiersPayantDTO.setId(clientTiersPayant.getId());
-            clientTiersPayantDTO.setTaux(clientTiersPayant.getTaux());
-            clientTiersPayantDTO.setTiersPayantId(clientTiersPayant.getTiersPayant().getId());
-            clientTiersPayantDTO.setPriorite(clientTiersPayant.getPriorite());
-            clientTiersPayantDTO.setCategorie(clientTiersPayantDTO.getPriorite().getValue());
-            clientTiersPayantDTO.setNewClientTiersPayant(true);
-            clientTiersPayantDTOs.add(clientTiersPayantDTO);
+            ThirdPartySaleLine thirdPartySaleLine = createThirdPartySaleLine(null, clientTiersPayant, 0);
+            thirdPartySaleLine.setSale(thirdPartySales);
+            thirdPartySales.getThirdPartySaleLines().add(thirdPartySaleLine);
         }
-        return clientTiersPayantDTOs;
+        return reComputeAndApplyAmounts(thirdPartySales, clientTiersPayants, true);
     }
 
     @Override
@@ -874,8 +896,8 @@ public class ThirdPartySaleServiceImpl extends SaleCommonService implements Thir
                 throw new GenericError("La remise produit n'est pas applicable sur une vente assurance", "notYetImplemented");
             }*/
         }
-        reComputeAndApplyAmounts(thirdPartySales, true);
-        this.thirdPartySaleRepository.save(thirdPartySales);
+        reComputeAndApplyAmounts(thirdPartySales, null, true);
+
     }
 
     private void applRemiseToSale(ThirdPartySales thirdPartySales) {
@@ -890,8 +912,15 @@ public class ThirdPartySaleServiceImpl extends SaleCommonService implements Thir
     }
 
 
-    private String reComputeAndApplyAmounts(ThirdPartySales thirdPartySales, boolean isUpdate) {
-        CalculationInput input = buildCalculationInput(thirdPartySales);
+    private String reComputeAndApplyAmounts(ThirdPartySales thirdPartySales, List<ClientTiersPayant> clientTiersPayants, boolean isUpdate) {
+        // CalculationInput input = buildCalculationInput(thirdPartySales);
+        if (CollectionUtils.isEmpty(clientTiersPayants)) {
+            clientTiersPayants = thirdPartySales.getThirdPartySaleLines()
+                .stream()
+                .map(ThirdPartySaleLine::getClientTiersPayant)
+                .collect(Collectors.toList());
+        }
+        CalculationInput input = buildCalculationInput(thirdPartySales, clientTiersPayants);
         CalculationResult output = tiersPayantCalculationService.calculate(input);
         int totalPatientShare = output.getTotalPatientShare().intValue();
         thirdPartySales.setPartTiersPayant(output.getTotalTiersPayant().intValue());
@@ -922,8 +951,74 @@ public class ThirdPartySaleServiceImpl extends SaleCommonService implements Thir
 
                 });
         }
+        if (isUpdate) {
+            thirdPartySales = this.thirdPartySaleRepository.saveAndFlush(thirdPartySales);
+        }
 
         return output.getWarningMessage();
+    }
+
+    private List<SaleItemInput> buildSaleItemInputs(ThirdPartySales sale, CalculationInput input, Set<Long> tiersPayantIds, List<TiersPayantInput> tiersPayantInputs) {
+        return sale.getSalesLines().stream().map(sl -> {
+            SaleItemInput si = new SaleItemInput();
+            Produit produit = sl.getProduit();
+            si.setSalesLineId(sl.getId());
+            si.setTotalSalesAmount(BigDecimal.valueOf(sl.getSalesAmount()));
+            si.setQuantity(sl.getQuantityRequested());
+            si.setRegularUnitPrice(BigDecimal.valueOf(sl.getRegularUnitPrice()));
+            input.setTotalSalesAmount(Objects.requireNonNullElse(input.getTotalSalesAmount(), BigDecimal.ZERO).add(si.getTotalSalesAmount()));
+            this.prixRererenceService.findByProduitIdAndTiersPayantIds(produit.getId(), tiersPayantIds).forEach(prixRef ->
+                tiersPayantInputs.forEach(cl -> {
+                    if (cl.getTiersPayantId().compareTo(prixRef.getTiersPayant().getId()) == 0) {
+                        TiersPayantPrixInput pi = new TiersPayantPrixInput();
+                        pi.setCompteTiersPayantId(cl.getClientTiersPayantId());
+                        pi.setPrice(prixRef.getPrice());
+                        pi.setRate(prixRef.getRate());
+                        pi.setOptionPrixType(prixRef.getType());
+                        si.getPrixAssurances().add(pi);
+                    }
+
+                })
+            );
+            return si;
+        }).collect(Collectors.toList());
+    }
+
+    private CalculationInput buildCalculationInput(ThirdPartySales sale, List<ClientTiersPayant> clientTiersPayants) {
+        CalculationInput input = new CalculationInput();
+        input.setNatureVente(sale.getNatureVente());
+        input.setDiscountAmount(BigDecimal.valueOf(sale.getDiscountAmount()));
+
+        Set<Long> tiersPayantIds = new HashSet<>();
+        List<TiersPayantInput> tiersPayantInputs = buildTiersPayantInputs(clientTiersPayants, tiersPayantIds);
+        input.setTiersPayants(tiersPayantInputs);
+
+        List<SaleItemInput> saleItemInputs = buildSaleItemInputs(sale, input, tiersPayantIds, tiersPayantInputs);
+        input.setSaleItems(saleItemInputs);
+
+        return input;
+    }
+
+    private List<TiersPayantInput> buildTiersPayantInputs(List<ClientTiersPayant> clientTiersPayants, Set<Long> tiersPayantIds) {
+        if (CollectionUtils.isEmpty(clientTiersPayants)) {
+            return Collections.emptyList();
+        }
+        return clientTiersPayants.stream().
+            map(ctp -> {
+                TiersPayantInput ti = new TiersPayantInput();
+                TiersPayant tiersPayant = ctp.getTiersPayant();
+                tiersPayantIds.add(tiersPayant.getId());
+                ti.setClientTiersPayantId(ctp.getId());
+                ti.setTiersPayantId(tiersPayant.getId());
+                ti.setTiersPayantFullName(tiersPayant.getFullName());
+                ti.setTaux(ctp.getTaux() / 100.0f);
+                ti.setPriorite(ctp.getPriorite());
+                Optional.ofNullable(tiersPayant.getPlafondConso()).ifPresent(v -> ti.setPlafondConso(BigDecimal.valueOf(v)));
+                Optional.ofNullable(ctp.getConsoMensuelle()).ifPresent(v -> ti.setConsoMensuelle(BigDecimal.valueOf(v)));
+                Optional.ofNullable(tiersPayant.getPlafondJournalierClient()).ifPresent(v -> ti.setPlafondJournalierClient(BigDecimal.valueOf(v)));
+                return ti;
+            }).collect(Collectors.toList());
+
     }
 
     private CalculationInput buildCalculationInput(ThirdPartySales sale) {
@@ -950,30 +1045,7 @@ public class ThirdPartySaleServiceImpl extends SaleCommonService implements Thir
             }).collect(Collectors.toList());
         input.setTiersPayants(tiersPayantInputs);
 
-
-        List<SaleItemInput> saleItemInputs = sale.getSalesLines().stream().map(sl -> {
-            SaleItemInput si = new SaleItemInput();
-            Produit produit = sl.getProduit();
-            si.setSalesLineId(sl.getId());
-            si.setTotalSalesAmount(BigDecimal.valueOf(sl.getSalesAmount()));
-            si.setQuantity(sl.getQuantityRequested());
-            si.setRegularUnitPrice(BigDecimal.valueOf(sl.getRegularUnitPrice()));
-            input.setTotalSalesAmount(Objects.requireNonNullElse(input.getTotalSalesAmount(), BigDecimal.ZERO).add(si.getTotalSalesAmount()));
-            this.prixRererenceService.findByProduitIdAndTiersPayantIds(produit.getId(), tiersPayantIds).forEach(prixRef ->
-                tiersPayantInputs.forEach(cl -> {
-                    if (cl.getTiersPayantId().compareTo(prixRef.getTiersPayant().getId()) == 0) {
-                        TiersPayantPrixInput pi = new TiersPayantPrixInput();
-                        pi.setCompteTiersPayantId(cl.getClientTiersPayantId());
-                        pi.setPrice(prixRef.getPrice());
-                        pi.setRate(prixRef.getRate());
-                        pi.setOptionPrixType(prixRef.getType());
-                        si.getPrixAssurances().add(pi);
-                    }
-
-                })
-            );
-            return si;
-        }).collect(Collectors.toList());
+        List<SaleItemInput> saleItemInputs = buildSaleItemInputs(sale, input, tiersPayantIds, tiersPayantInputs);
         input.setSaleItems(saleItemInputs);
 
         return input;

@@ -1,7 +1,6 @@
 import { AfterViewInit, Component, ElementRef, inject, OnInit, viewChild } from '@angular/core';
 import { CashRegisterService } from '../cash-register.service';
-import { ActivatedRoute, Router, RouterModule } from '@angular/router';
-import { ConfirmationService, MessageService } from 'primeng/api';
+import { RouterModule } from '@angular/router';
 import { ConfigurationService } from '../../../shared/configuration.service';
 import { CashRegister, CashRegisterStatut } from '../model/cash-register.model';
 import { WarehouseCommonModule } from '../../../shared/warehouse-common/warehouse-common.module';
@@ -12,11 +11,10 @@ import { TableModule } from 'primeng/table';
 import { FormBuilder, FormControl, ReactiveFormsModule, Validators } from '@angular/forms';
 import { KeyFilterModule } from 'primeng/keyfilter';
 import { InputTextModule } from 'primeng/inputtext';
-import { RippleModule } from 'primeng/ripple';
-import { DialogModule } from 'primeng/dialog';
 import { left } from '@popperjs/core';
-import { ToastModule } from 'primeng/toast';
-import { ConfirmDialogModule } from 'primeng/confirmdialog';
+import { ConfirmDialogComponent } from '../../../shared/dialog/confirm-dialog/confirm-dialog.component';
+import { ToastAlertComponent } from '../../../shared/toast-alert/toast-alert.component';
+import { ErrorService } from '../../../shared/error.service';
 
 @Component({
   selector: 'jhi-user-cash-register',
@@ -30,30 +28,19 @@ import { ConfirmDialogModule } from 'primeng/confirmdialog';
     ReactiveFormsModule,
     KeyFilterModule,
     InputTextModule,
-    RippleModule,
-    DialogModule,
-    ToastModule,
-    ConfirmDialogModule
+    ConfirmDialogComponent,
+    ToastAlertComponent
   ],
-  providers: [ConfirmationService, MessageService],
   templateUrl: './user-cash-register.component.html'
 })
 export class UserCashRegisterComponent implements OnInit, AfterViewInit {
-  cashFundAmountInput = viewChild<ElementRef>('cashFundAmountInput');
-  fb = inject(FormBuilder);
-  entityService = inject(CashRegisterService);
-  activatedRoute = inject(ActivatedRoute);
-  router = inject(Router);
-  messageService = inject(MessageService);
-  configService = inject(ConfigurationService);
-  modalService = inject(ConfirmationService);
-
+  protected cashFundAmountInput = viewChild<ElementRef>('cashFundAmountInput');
+  protected fb = inject(FormBuilder);
   protected overtureCaisseAuto = false;
   protected isSaving = false;
   protected openCaisse = false;
   protected cashFundAmount: number | null = null;
   protected cashRegisters: CashRegister[] = [];
-  protected selectedCashRegister: CashRegister | null = null;
   protected editForm = this.fb.group({
     cashFundAmount: new FormControl<number | null>(null, {
       validators: [Validators.required, Validators.min(0), Validators.max(1000000)],
@@ -66,9 +53,11 @@ export class UserCashRegisterComponent implements OnInit, AfterViewInit {
   protected readonly VALIDATED = CashRegisterStatut.VALIDATED;
   protected readonly PENDING = CashRegisterStatut.PENDING;
   protected readonly CLOSED = CashRegisterStatut.CLOSED;
-
-  constructor() {
-  }
+  private readonly confimDialog = viewChild.required<ConfirmDialogComponent>('confirmDialog');
+  private readonly alert = viewChild.required<ToastAlertComponent>('alert');
+  private readonly errorService = inject(ErrorService);
+  private readonly entityService = inject(CashRegisterService);
+  private readonly configService = inject(ConfigurationService);
 
   ngAfterViewInit(): void {
     if (this.openCaisse || this.cashRegisters.length === 0) {
@@ -100,20 +89,14 @@ export class UserCashRegisterComponent implements OnInit, AfterViewInit {
     this.entityService.doTicketing({ cashRegisterId: cashRegister.id }).subscribe({
       next: res => {
         if (res.body) {
-          this.messageService.add({
-            severity: 'success',
-            summary: 'Billetage ',
-            detail: 'Billetage effectué avec succès'
-          });
+
+          this.alert().showInfo('Billetage effectué avec succès');
           this.fetchCashRegisters();
         }
       },
       error: () => {
-        this.messageService.add({
-          severity: 'error',
-          summary: 'Billetage',
-          detail: 'Impossible de faire le ticketing'
-        });
+
+        this.alert().showError('Impossible de faire le ticketing');
       }
     });
   }
@@ -123,21 +106,14 @@ export class UserCashRegisterComponent implements OnInit, AfterViewInit {
       this.entityService.openCashRegister({ cashFundAmount: this.editForm.get(['cashFundAmount']).value }).subscribe({
         next: res => {
           if (res.body) {
-            this.messageService.add({
-              severity: 'success',
-              summary: 'Ouverture de caisse',
-              detail: 'Caisse ouverte avec succès'
-            });
+
+            this.alert().showInfo('Caisse ouverte avec succès');
             this.openCaisse = false;
             this.fetchCashRegisters();
           }
         },
-        error: () => {
-          this.messageService.add({
-            severity: 'error',
-            summary: 'Ouverture de caisse',
-            detail: 'Impossible d\'ouvrir la caisse'
-          });
+        error: (err) => {
+          this.alert().showError(this.errorService.getErrorMessage(err));
         }
       });
     }
@@ -153,34 +129,18 @@ export class UserCashRegisterComponent implements OnInit, AfterViewInit {
   }
 
   protected closeCashRegister(cashRegister: CashRegister): void {
-    this.modalService.confirm({
-      header: 'Confirmation',
-      icon: 'pi pi-exclamation-triangle',
-      acceptButtonStyleClass: 'p-button-danger',
-      rejectButtonStyleClass: 'p-button-text ',
-      rejectLabel: 'Non',
-      acceptLabel: 'Oui',
-      message: 'Êtes-vous sûr de vouloir fermer cette caisse sans billetage ?',
-      accept: () => {
-        this.entityService.closeCashRegister(cashRegister.id).subscribe({
-          next: () => {
-            this.messageService.add({
-              severity: 'success',
-              summary: 'Fermeture de caisse',
-              detail: 'Caisse fermée avec succès'
-            });
-            this.fetchCashRegisters();
-          },
-          error: () => {
-            this.messageService.add({
-              severity: 'error',
-              summary: 'Fermeture de caisse',
-              detail: 'Impossible de fermer la caisse'
-            });
-          }
-        });
-      }
-    });
+    this.confimDialog().onConfirm(() =>  () => {
+      this.entityService.closeCashRegister(cashRegister.id).subscribe({
+        next: () => {
+
+          this.alert().showInfo('Caisse fermée avec succès');
+          this.fetchCashRegisters();
+        },
+        error: (err) => {
+          this.alert().showError(this.errorService.getErrorMessage(err));
+        }
+      });
+    },'Fermeture de caisse', 'Êtes-vous sûr de vouloir fermer cette caisse sans billetage ?', 'pi pi-exclamation-triangle');
   }
 
   protected hasOpingCashRegister(): boolean {
@@ -189,9 +149,9 @@ export class UserCashRegisterComponent implements OnInit, AfterViewInit {
 
   private setCashFundControlFocus(): void {
     setTimeout(() => {
-      this.cashFundAmountInput().nativeElement.focus();
-      this.editForm.get(['cashFundAmount']).setValue(this.cashFundAmount);
-      this.cashFundAmountInput().nativeElement.select();
-    }, 50);
+      this.cashFundAmountInput()?.nativeElement.focus();
+      this.editForm.get(['cashFundAmount'])?.setValue(this.cashFundAmount);
+      this.cashFundAmountInput()?.nativeElement.select();
+    }, 100);
   }
 }

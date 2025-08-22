@@ -13,11 +13,15 @@
               optionLabel="label"
               optionValue="value"
               placeholder="Filtrer par critère"
+              size="large"
+              [fluid]="true"
             >
             </p-select>
           </div>
           <div class="mr-1">
             <p-select
+              size="large"
+              [fluid]="true"
               (onChange)="filtreRayon($event)"
               [(ngModel)]="selectedRayon"
               [options]="rayons"
@@ -34,6 +38,8 @@
               [(ngModel)]="selectedFamille"
               [options]="familles"
               [showClear]="true"
+              size="large"
+              [fluid]="true"
               optionLabel="libelle"
               optionValue="id"
               placeholder="Séléctionner une famille"

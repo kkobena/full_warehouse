@@ -1,4 +1,4 @@
-import { AfterViewInit, Component, inject, OnInit, viewChild } from '@angular/core';
+import { AfterViewInit, Component, DestroyRef, inject, OnInit, viewChild } from '@angular/core';
 import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
 import { ButtonModule } from 'primeng/button';
 import { IProduit } from '../../../shared/model/produit.model';
@@ -17,40 +17,56 @@ import { ToggleSwitch } from 'primeng/toggleswitch';
 import { Card } from 'primeng/card';
 import { ToastAlertComponent } from '../../../shared/toast-alert/toast-alert.component';
 import { finalize } from 'rxjs/operators';
+import { DecimalPipe } from '@angular/common';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { formatNumber } from '../../../shared/util/warehouse-util';
+import { ConfirmationService } from 'primeng/api';
+import { acceptButtonProps, rejectButtonProps } from '../../../shared/util/modal-button-props';
+import { ConfirmDialog } from 'primeng/confirmdialog';
+
+const PriceTypes = {
+  REFERENCE: 'REFERENCE',
+  POURCENTAGE: 'POURCENTAGE',
+  MIXED_REFERENCE_POURCENTAGE: 'MIXED_REFERENCE_POURCENTAGE'
+} as const;
+
+type PriceType = (typeof PriceTypes)[keyof typeof PriceTypes];
 
 @Component({
   selector: 'jhi-add-prix-form',
-  imports: [ButtonModule, ReactiveFormsModule, Select, InputNumber, ToggleSwitch, Card, ToastAlertComponent],
+  imports: [ButtonModule, ReactiveFormsModule, Select, InputNumber, ToggleSwitch, Card, ToastAlertComponent, DecimalPipe, ConfirmDialog],
   templateUrl: './add-prix-form.component.html',
-  styleUrls: ['../../common-modal.component.scss']
+  styleUrls: ['../../common-modal.component.scss'],
+  providers: [ConfirmationService]
 })
 export class AddPrixFormComponent implements OnInit, AfterViewInit {
+  // Component Inputs
   produit: IProduit | null = null;
   tiersPayant: ITiersPayant | null = null;
   entity: PrixReference | null = null;
   isFromProduit = true;
-  protected valeurLabel = 'Prix appliqué';
-  protected fb = inject(FormBuilder);
+
+  // Template accessible properties
   protected isSaving = false;
-  protected typePrix = 'RERERENCE';
   protected tiersPayants: ITiersPayant[] = [];
   protected produits: IProduit[] = [];
-  protected pricesType: any[] = [
+  protected pricesType: { code: PriceType; libelle: string }[] = [
     {
-      code: 'RERERENCE',
+      code: PriceTypes.REFERENCE,
       libelle: 'Prix de référence assurance'
     },
-    { code: 'POURCENTAGE', libelle: 'Pourcentage appliqué par l\'assureur' }
+    { code: PriceTypes.POURCENTAGE, libelle: 'Pourcentage appliqué par l\'assureur' },
+    { code: PriceTypes.MIXED_REFERENCE_POURCENTAGE, libelle: 'Pourcentage appliqué au prix de référence' }
   ];
-  protected editForm = this.fb.group({
-    id: new FormControl<number | null>(null, {}),
-    valeur: new FormControl<number | null>(null, {
-      validators: [Validators.required, Validators.min(5), Validators.max(1000000)],
-      nonNullable: true
-    }),
-    tiersPayantId: new FormControl<number | null>(null, {}),
-    produitId: new FormControl<number | null>(null, {}),
-    type: new FormControl<string | null>(null, {
+
+  // Form definition
+  protected editForm = inject(FormBuilder).group({
+    id: new FormControl<number | null>(null),
+    price: new FormControl<number | null>(null),
+    rate: new FormControl<number | null>(null),
+    tiersPayantId: new FormControl<number | null>(null),
+    produitId: new FormControl<number | null>(null),
+    type: new FormControl<PriceType | null>(PriceTypes.REFERENCE, {
       validators: [Validators.required],
       nonNullable: true
     }),
@@ -60,69 +76,70 @@ export class AddPrixFormComponent implements OnInit, AfterViewInit {
     })
   });
 
+  // Injected services
   private readonly activeModal = inject(NgbActiveModal);
   private readonly entityService = inject(PrixReferenceService);
   private readonly errorService = inject(ErrorService);
   private readonly tiersPayantService = inject(TiersPayantService);
   private readonly produitService = inject(ProduitService);
+  private readonly destroyRef = inject(DestroyRef);
   private readonly alert = viewChild.required<ToastAlertComponent>('alert');
+  private readonly confirmationService = inject(ConfirmationService);
 
   ngOnInit(): void {
-    if (this.isFromProduit) {
-      this.getTiersPayants();
-    } else {
-      this.getProduits();
-    }
-    if (this.entity !== null && this.entity !== undefined) {
+    this.loadInitialData();
+    if (this.entity) {
       this.updateForm(this.entity);
     }
+    this.setupConditionalValidators();
+  }
+
+  ngAfterViewInit(): void {
+    this.subscribeToTypeChanges();
   }
 
   cancel(): void {
     this.activeModal.dismiss();
   }
 
-  ngAfterViewInit() {
-    /* setTimeout(() => {
-       this.editForm.get('type').setValue(this.typePrix);
-     }, 30);*/
-    this.editForm.get('type').valueChanges.subscribe(value => {
-      if (value === 'RERERENCE') {
-        this.editForm.get('valeur').setValidators([Validators.required, Validators.min(5), Validators.max(1000000)]);
-        this.valeurLabel = 'Prix appliqué';
-      } else {
-        this.editForm.get('valeur').setValidators([Validators.required, Validators.min(10), Validators.max(100)]);
-        this.valeurLabel = 'Pourcentage';
-      }
-      this.editForm.get('valeur').updateValueAndValidity();
-    });
-    if (this.isFromProduit) {
-      this.editForm.get('tiersPayantId').setValidators([Validators.required]);
-      this.editForm.get('tiersPayantId').updateValueAndValidity();
-      this.editForm.get('produitId').setValue(this.produit?.id);
-    } else {
-      this.editForm.get('produitId').setValidators([Validators.required]);
-      this.editForm.get('produitId').updateValueAndValidity();
-      this.editForm.get('tiersPayantId').setValue(this.tiersPayant?.id);
-    }
-  }
-
   protected save(): void {
+    if (this.editForm.invalid) {
+      this.alert().showError('Formulaire invalide');
+      return;
+    }  this.alert().showError('Formulaire invalide');
     this.isSaving = true;
     const prixReference = this.createFromForm();
-    if (prixReference.id !== null) {
-      this.subscribeToSaveResponse(this.entityService.update(prixReference));
+    if (prixReference.type !== PriceTypes.POURCENTAGE && prixReference.price > this.produit?.regularUnitPrice) {
+      const message = `Le prix que vous avez saisi  <span class="fs-4 fw-semibold text-danger"> (${formatNumber(prixReference.price)})</span> est supérieur au prix de vente au public <span class="fs-4 fw-semibold text-success">(${formatNumber(this.produit?.regularUnitPrice)})</span>. Voulez-vous continuer ?`;
+
+
+      this.confirmationService.confirm({
+        message: message,
+        header: 'Confirmation',
+        icon: 'pi pi-info-circle',
+        rejectButtonProps: rejectButtonProps(),
+        acceptButtonProps: acceptButtonProps(),
+        accept: () => this.onConfirmSave(prixReference)
+      });
+
     } else {
-      this.subscribeToSaveResponse(this.entityService.create(prixReference));
+      this.onConfirmSave(prixReference);
     }
+
+
+  }
+
+  private onConfirmSave(prixReference: PrixReference): void {
+    const saveObservable = prixReference.id ? this.entityService.update(prixReference) : this.entityService.create(prixReference);
+    this.subscribeToSaveResponse(saveObservable);
   }
 
   protected updateForm(entity: PrixReference): void {
     this.editForm.patchValue({
       id: entity.id,
-      type: entity.type,
+      type: entity.type as PriceType,
       tiersPayantId: entity.tiersPayantId,
-      valeur: entity.valeur,
+      price: entity.price,
       produitId: entity.produitId,
       enabled: entity.enabled
     });
@@ -131,28 +148,91 @@ export class AddPrixFormComponent implements OnInit, AfterViewInit {
   private createFromForm(): PrixReference {
     return {
       ...new PrixReference(),
-      id: this.editForm.get(['id']).value,
-      enabled: this.editForm.get(['enabled']).value,
-      tiersPayantId: this.editForm.get(['tiersPayantId']).value,
-      produitId: this.editForm.get(['produitId']).value,
-      type: this.editForm.get(['type']).value,
-      valeur: this.editForm.get(['valeur']).value
+      ...this.editForm.getRawValue()
     };
   }
 
   private subscribeToSaveResponse(result: Observable<HttpResponse<{}>>): void {
-    result.pipe(finalize(() => this.isSaving = false)).subscribe({
+    result.pipe(finalize(() => (this.isSaving = false))).subscribe({
       next: () => this.onSaveSuccess(),
       error: (err: any) => this.onSaveError(err)
     });
   }
 
   private onSaveSuccess(): void {
-    this.cancel();
+    this.activeModal.close('saved');
   }
 
   private onSaveError(err: HttpErrorResponse): void {
     this.alert().showError(this.errorService.getErrorMessage(err));
+  }
+
+  protected get shouldShowRateControl(): boolean {
+    const type = this.editForm.get('type')?.value;
+    return type === PriceTypes.POURCENTAGE || type === PriceTypes.MIXED_REFERENCE_POURCENTAGE;
+  }
+
+  protected get shouldShowPriceControl(): boolean {
+    const type = this.editForm.get('type')?.value;
+    return type !== PriceTypes.POURCENTAGE;
+  }
+
+  private loadInitialData(): void {
+    if (this.isFromProduit) {
+      this.getTiersPayants();
+    } else {
+      this.getProduits();
+    }
+  }
+
+  private setupConditionalValidators(): void {
+    if (this.isFromProduit) {
+      this.editForm.get('tiersPayantId')?.setValidators([Validators.required]);
+      this.editForm.get('produitId')?.setValue(this.produit?.id ?? null);
+    } else {
+      this.editForm.get('produitId')?.setValidators([Validators.required]);
+      this.editForm.get('tiersPayantId')?.setValue(this.tiersPayant?.id ?? null);
+    }
+    this.editForm.updateValueAndValidity();
+  }
+
+  private subscribeToTypeChanges(): void {
+    this.editForm
+      .get('type')
+      ?.valueChanges.pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe(value => {
+        this.updateValidatorsBasedOnType(value);
+      }); this.editForm
+      .get('tiersPayantId')
+      ?.valueChanges.pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe(value => {
+        this.updateValidatorsBasedOnType(this.editForm
+          .get('type').value);
+      });
+  }
+
+  private updateValidatorsBasedOnType(type: PriceType | null): void {
+    const priceControl = this.editForm.get('price');
+    const rateControl = this.editForm.get('rate');
+
+    /* if (!priceControl || !rateControl) {
+       return;
+     }*/
+
+    priceControl?.clearValidators();
+    rateControl?.clearValidators();
+
+    if (type === PriceTypes.POURCENTAGE || type === PriceTypes.MIXED_REFERENCE_POURCENTAGE) {
+      rateControl.setValidators([Validators.required, Validators.min(0), Validators.max(100)]);
+
+    }
+    if (type !== PriceTypes.POURCENTAGE) {
+      priceControl.setValidators([Validators.required]);
+
+    }
+
+    priceControl.updateValueAndValidity();
+    rateControl.updateValueAndValidity();
   }
 
   private getTiersPayants(): void {
@@ -166,9 +246,7 @@ export class AddPrixFormComponent implements OnInit, AfterViewInit {
         next: (res: HttpResponse<ITiersPayant[]>) => {
           this.tiersPayants = res.body || [];
         },
-        error: (err) => {
-          this.alert().showError(this.errorService.getErrorMessage(err));
-        }
+        error: (err: HttpErrorResponse) => this.onSaveError(err)
       });
   }
 
@@ -183,9 +261,7 @@ export class AddPrixFormComponent implements OnInit, AfterViewInit {
         next: (res: HttpResponse<IProduit[]>) => {
           this.produits = res.body || [];
         },
-        error: (err) => {
-          this.alert().showError(this.errorService.getErrorMessage(err));
-        }
+        error: (err: HttpErrorResponse) => this.onSaveError(err)
       });
   }
 }

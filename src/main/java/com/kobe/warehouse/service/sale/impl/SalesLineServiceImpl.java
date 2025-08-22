@@ -80,7 +80,6 @@ public abstract class SalesLineServiceImpl implements SalesLineService {
         salesLine.costAmount(produit.getCostAmount());
         salesLine.setProduit(produit);
         salesLine.setSalesAmount(dto.getQuantityRequested() * dto.getRegularUnitPrice());
-        salesLine.setNetAmount(salesLine.getSalesAmount());
         salesLine.setNetUnitPrice(dto.getRegularUnitPrice());
         salesLine.setQuantitySold(dto.getQuantitySold());
         salesLine.setRegularUnitPrice(dto.getRegularUnitPrice());
@@ -165,27 +164,12 @@ public abstract class SalesLineServiceImpl implements SalesLineService {
     public void processProductDiscount(SalesLine salesLine) {
         Sales sales = salesLine.getSales();
         Remise remise = sales.getRemise();
-        if (Objects.isNull(remise)) {
-            salesLine.setNetAmount(0);
-            return;
-        }
+
         RemiseProduit remiseProduit = (RemiseProduit) remise;
         getGrilleRemise(salesLine.getProduit().getCodeRemise(), remiseProduit, sales).ifPresent(grilleRemise -> {
             int discount = (int) Math.ceil(salesLine.getSalesAmount() * grilleRemise.getTauxRemise());
             salesLine.setDiscountAmount(discount);
-            salesLine.setNetAmount(salesLine.getSalesAmount() - salesLine.getDiscountAmount());
-            salesLine.setDiscountAmountHorsUg(salesLine.getDiscountAmount());
-            if (salesLine.getQuantityUg() > 0) {
-                int discountHUg = (int) Math.ceil(
-                    ((salesLine.getQuantityRequested() - salesLine.getQuantityUg()) * salesLine.getRegularUnitPrice()) *
-                    grilleRemise.getRemiseValue()
-                );
-                salesLine.setDiscountAmountHorsUg(discountHUg);
-                discountHUg = (int) Math.ceil(
-                    (salesLine.getQuantityUg() * salesLine.getRegularUnitPrice()) * grilleRemise.getRemiseValue()
-                );
-                salesLine.setDiscountAmountUg(discountHUg);
-            }
+            salesLine.setTauxRemise(grilleRemise.getTauxRemise());
         });
     }
 
@@ -202,9 +186,7 @@ public abstract class SalesLineServiceImpl implements SalesLineService {
         salesLine.setUpdatedAt(dto.getUpdatedAt());
         salesLine.costAmount(dto.getCostAmount());
         salesLine.setProduit(produit);
-        salesLine.setNetAmount(dto.getNetAmount());
         salesLine.setSalesAmount(dto.getSalesAmount());
-        salesLine.setNetAmount(dto.getSalesAmount());
         salesLine.setNetUnitPrice(dto.getRegularUnitPrice());
         salesLine.setRegularUnitPrice(dto.getRegularUnitPrice());
         salesLine.setDiscountAmount(dto.getDiscountAmount());
@@ -213,7 +195,6 @@ public abstract class SalesLineServiceImpl implements SalesLineService {
         salesLine.setQuantityRequested(dto.getQuantityRequested());
         salesLine.setQuantityAvoir(dto.getQuantiyAvoir());
         salesLine.setQuantityUg(dto.getQuantityUg());
-        salesLine.setMontantTvaUg(dto.getMontantTvaUg());
         salesLine.setToIgnore(dto.isToIgnore());
         salesLine.setTaxValue(dto.getTaxValue());
         salesLine.setAmountToBeTakenIntoAccount(dto.getAmountToBeTakenIntoAccount());
@@ -232,7 +213,6 @@ public abstract class SalesLineServiceImpl implements SalesLineService {
         salesLine.setUpdatedAt(LocalDateTime.now());
         salesLine.setEffectiveUpdateDate(salesLine.getUpdatedAt());
         salesLine.setSalesAmount((salesLine.getQuantityRequested() + dto.getQuantityRequested()) * dto.getRegularUnitPrice());
-        salesLine.setNetAmount(salesLine.getSalesAmount());
         salesLine.setNetUnitPrice(dto.getRegularUnitPrice());
         salesLine.setQuantitySold(salesLine.getQuantitySold() + dto.getQuantitySold());
         salesLine.setRegularUnitPrice(dto.getRegularUnitPrice());
@@ -385,16 +365,12 @@ public abstract class SalesLineServiceImpl implements SalesLineService {
         salesLineCopy.setSales(copy);
         salesLineCopy.setUpdatedAt(salesLineCopy.getCreatedAt());
         salesLineCopy.setEffectiveUpdateDate(salesLineCopy.getUpdatedAt());
-        salesLineCopy.setMontantTvaUg(salesLineCopy.getMontantTvaUg() * (-1));
         salesLineCopy.setSalesAmount(salesLineCopy.getSalesAmount() * (-1));
-        salesLineCopy.setNetAmount(salesLineCopy.getNetAmount() * (-1));
         salesLineCopy.setQuantityAvoir(salesLineCopy.getQuantityAvoir() * (-1));
         salesLineCopy.setQuantitySold(salesLineCopy.getQuantitySold() * (-1));
         salesLineCopy.setQuantityUg(salesLineCopy.getQuantityUg() * (-1));
         salesLineCopy.setQuantityRequested(salesLineCopy.getQuantityRequested() * (-1));
-        salesLineCopy.setDiscountAmountHorsUg(salesLineCopy.getDiscountAmountHorsUg() * (-1));
         salesLineCopy.setDiscountAmount(salesLineCopy.getDiscountAmount() * (-1));
-        salesLineCopy.setDiscountAmountUg(salesLineCopy.getDiscountAmountUg() * (-1));
         salesLineCopy.setAmountToBeTakenIntoAccount(salesLineCopy.getAmountToBeTakenIntoAccount() * (-1));
 
         StockProduit stockProduit = stockProduitRepository.findOneByProduitIdAndStockageId(salesLine.getProduit().getId(), storageId);

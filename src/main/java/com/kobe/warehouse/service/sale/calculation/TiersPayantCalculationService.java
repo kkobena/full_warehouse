@@ -33,7 +33,7 @@ public class TiersPayantCalculationService {
         Map<Long, BigDecimal> tiersPayants = new HashMap<>();
         if (CollectionUtils.isEmpty(input.getSaleItems())) return null;
         for (SaleItemInput saleItemInput : input.getSaleItems()) {
-            CalculatedShare itemShare = calculateSaleItem(saleItemInput, input.getTiersPayants(),input.getNatureVente());
+            CalculatedShare itemShare = calculateSaleItem(saleItemInput, input.getTiersPayants(), input.getNatureVente());
             totalAmountAssurance = totalAmountAssurance.add(itemShare.getTotalReimbursedAmount());
             discountAmount = discountAmount.add(saleItemInput.getDiscountAmount());
             itemPartAssure = itemPartAssure.add(itemShare.getPatientShare());
@@ -54,7 +54,7 @@ public class TiersPayantCalculationService {
             TiersPayantLineOutput lineOutput = new TiersPayantLineOutput();
             lineOutput.setClientTiersPayantId(tpInput.getClientTiersPayantId());
             lineOutput.setMontant(actualShare);
-            lineOutput.setFinalTaux(calculateFinalTaux(actualShare, totalAmountAssurance));
+            lineOutput.setFinalTaux(calculateFinalTaux(actualShare, calculationResult.getTotalSaleAmount()));
             lineOutputs.add(lineOutput);
         }
         calculationResult.setTotalTiersPayant(totalAmountAssurance);
@@ -112,7 +112,7 @@ public class TiersPayantCalculationService {
         return partTiersPayantNet.min(reste);
     }
 
-    private CalculatedShare calculateSaleItem(SaleItemInput saleItem, List<TiersPayantInput> tiersPayantInputs,NatureVente natureVente) {
+    private CalculatedShare calculateSaleItem(SaleItemInput saleItem, List<TiersPayantInput> tiersPayantInputs, NatureVente natureVente) {
         tiersPayantInputs.sort(Comparator.comparingInt(tp -> tp.getPriorite().getValue()));
         CalculatedShare itemShare = new CalculatedShare();
         itemShare.setPharmacyPrice(saleItem.getRegularUnitPrice());
@@ -130,8 +130,8 @@ public class TiersPayantCalculationService {
                 TiersPayantPrixInput tiersPayantPrixInput = saleItem.getPrixAssurances().stream()
                     .filter(p -> p.getCompteTiersPayantId().equals(tiersPayantInput.getClientTiersPayantId())).findFirst().orElse(null);
 
-                if (tiersPayantPrixInput != null) {
-                    rate = tiersPayantPrixInput.getRate();
+                if (tiersPayantPrixInput != null && tiersPayantPrixInput.getOptionPrixType() != OptionPrixType.REFERENCE) {
+                    rate = tiersPayantPrixInput.getRate() / 100.0f;
                     itemShare.getRates().add(new Rate(tiersPayantInput.getClientTiersPayantId(), rate));
 
                 }
@@ -139,7 +139,7 @@ public class TiersPayantCalculationService {
             BigDecimal remainingAmountForTps = calculationBase.subtract(totalPartTiersPayant);
             if (remainingAmountForTps.compareTo(BigDecimal.ZERO) <= 0) break;
             BigDecimal actualShare = calculationBase.multiply(BigDecimal.valueOf(rate));
-            if (rate == 100.0f && natureVente==NatureVente.ASSURANCE) { // formulle confort
+            if (rate == 1.0f && natureVente == NatureVente.ASSURANCE) { // formulle confort
                 remainingAmountForTps = saleItem.getTotalSalesAmount().subtract(totalPartTiersPayant);
                 actualShare = BigDecimal.ZERO.max(remainingAmountForTps);
             } else {

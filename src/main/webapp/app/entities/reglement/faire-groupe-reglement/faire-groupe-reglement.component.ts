@@ -16,25 +16,23 @@ import { ReglementFormComponent } from '../reglement-form/reglement-form.compone
 import { WarehouseCommonModule } from '../../../shared/warehouse-common/warehouse-common.module';
 import { RippleModule } from 'primeng/ripple';
 import { TooltipModule } from 'primeng/tooltip';
-import { ConfirmDialogModule } from 'primeng/confirmdialog';
 import { SplitButtonModule } from 'primeng/splitbutton';
 import { NgbAlertModule, NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { FormsModule } from '@angular/forms';
 import { ReglementService } from '../reglement.service';
-import { ConfirmationService } from 'primeng/api';
 import { ErrorService } from '../../../shared/error.service';
 import { AlertInfoComponent } from '../../../shared/alert/alert-info.component';
 import { FactureService } from '../../facturation/facture.service';
 import { HttpResponse } from '@angular/common/http';
 import { FactuesModalComponent } from '../factues-modal/factues-modal.component';
-import { acceptButtonProps, rejectButtonProps } from '../../../shared/util/modal-button-props';
 import { Drawer } from 'primeng/drawer';
 import { IconField } from 'primeng/iconfield';
 import { InputIcon } from 'primeng/inputicon';
+import { ConfirmDialogComponent } from '../../../shared/dialog/confirm-dialog/confirm-dialog.component';
 
 @Component({
   selector: 'jhi-faire-groupe-reglement',
-  providers: [ConfirmationService],
+
   imports: [
     WarehouseCommonModule,
     TableModule,
@@ -42,7 +40,6 @@ import { InputIcon } from 'primeng/inputicon';
     ButtonModule,
     RippleModule,
     TooltipModule,
-    ConfirmDialogModule,
     SplitButtonModule,
     NgbAlertModule,
     FieldsetModule,
@@ -52,7 +49,8 @@ import { InputIcon } from 'primeng/inputicon';
     FactuesModalComponent,
     Drawer,
     IconField,
-    InputIcon
+    InputIcon,
+    ConfirmDialogComponent
   ],
   templateUrl: './faire-groupe-reglement.component.html'
 })
@@ -70,16 +68,16 @@ export class FaireGroupeReglementComponent implements OnInit {
     return this.factureDossierSelectionnes()?.map(d => d.id) || [];
   });
   reglementFormComponent = viewChild(ReglementFormComponent);
-  protected readonly reglementService = inject(ReglementService);
-  protected readonly modalService = inject(NgbModal);
-  protected readonly confirmationService = inject(ConfirmationService);
-  protected readonly errorService = inject(ErrorService);
-  protected readonly factureService = inject(FactureService);
-  readonly selectedFacture = output<SelectedFacture>();
+  private readonly reglementService = inject(ReglementService);
+  private readonly modalService = inject(NgbModal);
+  private readonly errorService = inject(ErrorService);
+  private readonly factureService = inject(FactureService);
+   selectedFacture = output<SelectedFacture>();
   protected showSidebar = false;
   protected partialPayment = false;
   protected isSaving = false;
   protected readonly ModeEditionReglement = ModeEditionReglement;
+  private readonly confimDialog = viewChild.required<ConfirmDialogComponent>('confirmDialog');
 
   constructor() {
     if (this.dossierFactureProjection()) {
@@ -152,19 +150,11 @@ export class FaireGroupeReglementComponent implements OnInit {
   }
 
   private onPrintReceipt(response: ResponseReglement): void {
-    this.confirmationService.confirm({
-      message: ' Voullez-vous imprimer le ticket ?',
-      header: 'TICKET REGLEMENT',
-      icon: 'pi pi-info-circle',
-      rejectButtonProps: rejectButtonProps(),
-      acceptButtonProps: acceptButtonProps(),
-      accept: () => {
-        this.reglementService.printReceipt(response.id).subscribe();
-        this.reset(response);
-      },
-      reject: () => this.reset(response),
-      key: 'printReceipt'
-    });
+
+    this.confimDialog().onConfirm(() => {
+      this.reglementService.printReceipt(response.id).subscribe();
+      this.reset(response);
+    }, 'TICKET REGLEMENT', ' Voullez-vous imprimer le ticket ?', 'pi pi-info-circle', () => this.reset(response));
   }
 
   private computeMontantRestant(d: ReglementFactureDossier): number {

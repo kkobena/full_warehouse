@@ -71,7 +71,7 @@ export class BaseSaleComponent {
   private readonly modalService = inject(NgbModal);
   private baseSaleService = inject(BaseSaleService);
   private readonly confimDialog = viewChild.required<ConfirmDialogComponent>('confirmDialog');
-   private readonly spinner = viewChild.required<SpinnerComponent>('spinner');
+  private readonly spinner = viewChild.required<SpinnerComponent>('spinner');
 
   protected get entryAmount(): number {
     return this.modeReglementComponent()?.getInputSum() || 0;
@@ -170,7 +170,10 @@ export class BaseSaleComponent {
     this.isSaving = true;
     this.salesService
       .save(sale)
-      .pipe(finalize(() => (this.isSaving = false)))
+      .pipe(finalize(() => {
+        this.isSaving = false;
+        this.spinner().hide();
+      }))
       .subscribe({
         next: (res: HttpResponse<FinalyseSale>) => this.baseSaleService.onFinalyseSuccess(res.body),
         error: err => this.baseSaleService.onFinalyseError(err)
@@ -182,7 +185,10 @@ export class BaseSaleComponent {
     this.isSaving = true;
     this.salesService
       .putCurrentOnStandBy(this.currentSaleService.currentSale())
-      .pipe(finalize(() => (this.isSaving = false)))
+      .pipe(finalize(() => {
+        this.isSaving = false;
+        this.spinner().hide();
+      }))
       .subscribe({
         next: (res: HttpResponse<FinalyseSale>) => this.baseSaleService.onFinalyseSuccess(res.body, true),
         error: err => this.baseSaleService.onFinalyseError(err)
@@ -204,7 +210,10 @@ export class BaseSaleComponent {
           this.currentSaleService.typeVo()
         )
       )
-      .pipe(finalize(() => (this.isSaving = false)))
+      .pipe(finalize(() => {
+        this.isSaving = false;
+        this.spinner().hide();
+      }))
       .subscribe({
         next: (res: HttpResponse<ISales>) => this.baseSaleService.onSaleResponseSuccess(res.body),
         error: (err: any) => this.baseSaleService.onSaveError(err, this.currentSaleService.currentSale())

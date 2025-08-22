@@ -1,4 +1,4 @@
-import { AfterViewInit, Component, inject } from '@angular/core';
+import { AfterViewInit, Component, inject, viewChild } from '@angular/core';
 import { AutoCompleteModule } from 'primeng/autocomplete';
 import { ButtonModule } from 'primeng/button';
 import { FloatLabelModule } from 'primeng/floatlabel';
@@ -19,20 +19,17 @@ import { RegelementStateService } from '../regelement-state.service';
 import { DividerModule } from 'primeng/divider';
 import { RippleModule } from 'primeng/ripple';
 import { ReglementService } from '../reglement.service';
-import { ConfirmationService } from 'primeng/api';
 import { AlertInfoComponent } from '../../../shared/alert/alert-info.component';
 import { ErrorService } from '../../../shared/error.service';
-import { ConfirmDialogModule } from 'primeng/confirmdialog';
 import { DetailSingleReglementComponent } from '../detail-single-reglement/detail-single-reglement.component';
 import { DetailGroupReglementComponent } from '../detail-group-reglement/detail-group-reglement.component';
-import { acceptButtonProps, rejectButtonProps } from '../../../shared/util/modal-button-props';
 import { IconField } from 'primeng/iconfield';
 import { InputIcon } from 'primeng/inputicon';
 import { ToggleSwitch } from 'primeng/toggleswitch';
 import { DatePicker } from 'primeng/datepicker';
 import { TranslateService } from '@ngx-translate/core';
 import { PrimeNG } from 'primeng/config';
-import { Subscription } from 'rxjs';
+import { ConfirmDialogComponent } from '../../../shared/dialog/confirm-dialog/confirm-dialog.component';
 
 @Component({
   selector: 'jhi-factures-reglees',
@@ -47,23 +44,17 @@ import { Subscription } from 'rxjs';
     InputTextModule,
     DividerModule,
     RippleModule,
-    ConfirmDialogModule,
     IconField,
     InputIcon,
     ToggleSwitch,
-    DatePicker
+    DatePicker,
+    ConfirmDialogComponent
   ],
-  providers: [ConfirmationService],
+
   templateUrl: './factures-reglees.component.html'
 })
 export class FacturesRegleesComponent implements AfterViewInit {
-  protected readonly tiersPayantService = inject(TiersPayantService);
-  protected readonly groupeTiersPayantService = inject(GroupeTiersPayantService);
-  protected readonly regelementStateService = inject(RegelementStateService);
-  protected readonly reglementService = inject(ReglementService);
-  protected readonly confirmationService = inject(ConfirmationService);
-  protected readonly errorService = inject(ErrorService);
-  protected readonly modalService = inject(NgbModal);
+
   protected expandedRows = {};
   protected readonly translate = inject(TranslateService);
   protected readonly primeNGConfig = inject(PrimeNG);
@@ -83,12 +74,18 @@ export class FacturesRegleesComponent implements AfterViewInit {
   protected datas: Reglement[] = [];
   protected selectedDatas: Reglement[] = [];
   protected scrollHeight = 'calc(100vh - 350px)';
-  private primngtranslate: Subscription;
+  private readonly confimDialog = viewChild.required<ConfirmDialogComponent>('confirmDialog');
   private toDateMinus1Month = this.today;
+  private readonly tiersPayantService = inject(TiersPayantService);
+  private readonly groupeTiersPayantService = inject(GroupeTiersPayantService);
+  private readonly regelementStateService = inject(RegelementStateService);
+  private readonly reglementService = inject(ReglementService);
+  private readonly errorService = inject(ErrorService);
+  private readonly modalService = inject(NgbModal);
 
   constructor() {
     this.translate.use('fr');
-    this.primngtranslate = this.translate.stream('primeng').subscribe(data => {
+    this.translate.stream('primeng').subscribe(data => {
       this.primeNGConfig.setTranslation(data);
     });
 
@@ -101,26 +98,17 @@ export class FacturesRegleesComponent implements AfterViewInit {
   }
 
   onRemoveAll(): void {
-    this.confirmationService.confirm({
-      message: ' Voullez-vous supprimer ces règlements ?',
-      header: 'SUPPRESSION DE REGLEMENT',
-      icon: 'pi pi-info-circle',
-      rejectButtonProps: rejectButtonProps(),
-      acceptButtonProps: acceptButtonProps(),
-      accept: () => {
-        this.reglementService.deleteAll({ ids: this.selectedDatas.map(e => e.id) }).subscribe({
-          next: () => {
-            this.selectedDatas = [];
-            this.fetchData();
-          },
-          error: (err: any) => {
-            this.openInfoDialog(this.errorService.getErrorMessage(err), 'alert alert-danger');
-          }
-        });
-      },
-
-      key: 'delete'
-    });
+    this.confimDialog().onConfirm(() => {
+      this.reglementService.deleteAll({ ids: this.selectedDatas.map(e => e.id) }).subscribe({
+        next: () => {
+          this.selectedDatas = [];
+          this.fetchData();
+        },
+        error: (err: any) => {
+          this.openInfoDialog(this.errorService.getErrorMessage(err), 'alert alert-danger');
+        }
+      });
+    }, 'SUPPRESSION DE REGLEMENT', 'Voullez-vous supprimer ces règlements ?');
   }
 
   onView(item: Reglement): void {
@@ -148,25 +136,18 @@ export class FacturesRegleesComponent implements AfterViewInit {
   }
 
   onDelete(item: Reglement): void {
-    this.confirmationService.confirm({
-      message: ' Voullez-vous supprimer cet règlement ?',
-      header: 'SUPPRESSION DE REGLEMENT',
-      icon: 'pi pi-info-circle',
-      rejectButtonProps: rejectButtonProps(),
-      acceptButtonProps: acceptButtonProps(),
-      accept: () => {
-        this.reglementService.delete(item.id).subscribe({
-          next: () => {
-            this.fetchData();
-          },
-          error: (err: any) => {
-            this.openInfoDialog(this.errorService.getErrorMessage(err), 'alert alert-danger');
-          }
-        });
-      },
 
-      key: 'delete'
-    });
+    this.confimDialog().onConfirm(() => {
+      this.reglementService.delete(item.id).subscribe({
+        next: () => {
+          this.fetchData();
+        },
+        error: (err: any) => {
+          this.openInfoDialog(this.errorService.getErrorMessage(err), 'alert alert-danger');
+        }
+      });
+    }, 'SUPPRESSION DE REGLEMENT', 'Voullez-vous supprimer cet règlement ?');
+
   }
 
   openInfoDialog(message: string, infoClass: string): void {

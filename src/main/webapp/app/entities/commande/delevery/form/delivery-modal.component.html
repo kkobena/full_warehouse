@@ -1,8 +1,7 @@
 <jhi-toast-alert #alert></jhi-toast-alert>
 <div class="modal-header">
-  <h4 class="modal-title">{{ header }}</h4>
+  <h5 class="modal-title">{{ header }}</h5>
   <button (click)="cancel()" aria-label="Close" class="btn-close" type="button">
-    <span aria-hidden="true">&times;</span>
   </button>
 </div>
 <form (ngSubmit)="save()" [formGroup]="editForm" name="editForm" novalidate role="form">

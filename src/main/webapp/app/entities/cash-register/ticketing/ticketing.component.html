@@ -1,184 +1,175 @@
-<p-card [style]="{ width: '50vw', marginLeft: 'auto', marginRight: 'auto', marginTop: '15px' }"
-        styleClass="billetage">
-  <ng-template pTemplate="header">
-    <span class="badge rounded-pill bg-secondary"
-    >Billetage de la caisse du {{ selectedCashRegister?.created | date: 'dd/MM/yyyy HH:mm' }}</span
-    >
-  </ng-template>
-
-  <form (ngSubmit)="save()" [formGroup]="editForm" novalidate>
-    <div class="form-group row">
-      <label class="col-sm-6 col-form-label"
-      ><label>Nbre de billets</label>
-        <p-badge badgeSize="large" severity="info" styleClass="bielletage-label" value="10 000" />
-      </label>
-
-      <div class="col-sm-3">
-        <input
-          #numberOf10Thousand
-          (input)="onInputChange()"
-          autocomplete="off"
-          class="form-control"
-          formControlName="numberOf10Thousand"
-          id="field_numberOf10Thousand"
-          name="numberOf10Thousand"
-          pInputText
-          pKeyFilter="int"
-          type="text"
-        />
-      </div>
-      <div class="col-sm-3">
-        <span class="badge rounded-pill bg-secondary">{{
-            this.editForm.get(['numberOf10Thousand'])!.value * 10000 | number
-          }}</span>
-      </div>
-    </div>
-    <div class="form-group row">
-      <label class="col-sm-6 col-form-label"
-      ><label>Nbre de billets</label>
-        <p-badge badgeSize="large" severity="info" styleClass="bielletage-label" value="5 000" />
-      </label>
-
-      <div class="col-sm-3">
-        <input (input)="onInputChange()"
-               autocomplete="off"
-               class="form-control"
-               formControlName="numberOf5Thousand"
-               id="field_numberOf5Thousand"
-               name="numberOf5Thousand"
-               pInputText
-               pKeyFilter="int"
-               type="text"
-        />
-      </div>
-      <div class="col-sm-3">
-        <span class="badge rounded-pill bg-secondary">{{
-            this.editForm.get(['numberOf5Thousand'])!.value * 5000 | number
-          }}</span>
-      </div>
-    </div>
-    <div class="form-group row">
-      <label class="col-sm-6 col-form-label"
-      ><label>Nbre de billets</label>
-
-        <p-badge badgeSize="large" severity="info" styleClass="bielletage-label" value="2 000" />
-      </label>
-
-      <div class="col-sm-3">
-        <input (input)="onInputChange()"
-               autocomplete="off"
-               class="form-control"
-               formControlName="numberOf2Thousand"
-               id="field_numberOf2Thousand"
-               name="numberOf2Thousand"
-               pInputText
-               pKeyFilter="int"
-               type="text"
-        />
-      </div>
-      <div class="col-sm-3">
-        <span class="badge rounded-pill bg-secondary">{{
-            this.editForm.get(['numberOf2Thousand'])!.value * 2000 | number
-          }}</span>
-      </div>
-    </div>
-    <div class="form-group row">
-      <label class="col-sm-6 col-form-label"
-      ><label>Nbre de billets</label>
-        <p-badge badgeSize="large" severity="info" styleClass="bielletage-label" value="1 000" />
-      </label>
-
-      <div class="col-sm-3">
-        <input (input)="onInputChange()"
-               autocomplete="off"
-               class="form-control"
-               formControlName="numberOf1Thousand"
-               id="field_numberOf1Thousand"
-               name="numberOf1Thousand"
-               pInputText
-               pKeyFilter="int"
-               type="text"
-        />
-      </div>
-      <div class="col-sm-3">
-        <span class="badge rounded-pill bg-secondary">{{
-            this.editForm.get(['numberOf1Thousand'])!.value * 1000 | number
-          }}</span>
-      </div>
-    </div>
-    <div class="form-group row">
-      <label class="col-sm-6 col-form-label"
-      ><label>Nbre de billets/pièces</label>
-
-        <p-badge badgeSize="large" severity="info" styleClass="bielletage-label" value="500" />
-      </label>
-      <div class="col-sm-3">
-        <input (input)="onInputChange()"
-               autocomplete="off"
-               class="form-control"
-               formControlName="numberOf500Hundred"
-               id="field_numberOf500"
-               name="numberOf500Hundred"
-               pInputText
-               pKeyFilter="int"
-               type="text"
-        />
-      </div>
-      <div class="col-sm-3">
-        <span class="badge rounded-pill bg-secondary">{{
-            this.editForm.get(['numberOf500Hundred'])!.value * 500 | number
-          }}</span>
-      </div>
-    </div>
 
 
-    <div class="form-group row">
-      <label class="col-sm-6 col-form-label">Autre montant</label>
-      <div class="col-sm-3">
-        <input (input)="onInputChange()"
-               autocomplete="off"
-               class="form-control"
-               formControlName="otherAmount"
-               id="field_otherAmount"
-               name="otherAmount"
-               pInputText
-               pKeyFilter="int"
-               type="text"
-        />
-      </div>
-      <div class="col-sm-3">
-        <span class="badge rounded-pill bg-secondary">{{
-            this.editForm.get(['otherAmount'])!.value * 1 | number
-          }}</span>
-      </div>
-    </div>
-    <div class="form-group row">
-      <label class="col-sm-6 col-form-label"
-             style="font-weight: 700; font-size: 1.3rem">Total</label>
+<div class="container">
+  <div class="h-100 w-75 pharma-smart mx-auto mt-5">
+    <p-card>
+      <ng-template #title>
+        <div class="card-title primary-title">
+          <i class="pi pi-money-bill mr-2"></i>
+          Billetage de la caisse du {{ selectedCashRegister?.created | date: 'dd/MM/yyyy HH:mm' }}
+        </div>
+      </ng-template>
 
-      <div class="col-sm-6">
-        <span class="badge rounded-pill bg-warning"> {{ totalAmount | number }}</span>
-      </div>
-    </div>
-  </form>
-  <ng-template pTemplate="footer">
-    <div class="gap-2 mt-1 d-flex justify-content-center">
-      <p-button
-        (click)="save()"
-        [disabled]="editForm.invalid || isSaving"
-        icon="pi pi-check"
-        id="save-entity"
-        label="Enregistrer"
-        raised="true"
-        severity="primary"
-        type="submit"
-      >
-      </p-button>
-      <p-button (click)="previousState()" icon="pi pi-times" label="Annuler" raised="true"
-                severity="danger" type="button"></p-button>
-    </div>
-  </ng-template>
-</p-card>
+      <form (ngSubmit)="save()" [formGroup]="editForm" novalidate>
+        <!-- Header -->
+        <div class="row fw-semibold mb-2 form-header">
+          <div class="col-md-3">Type de billet</div>
+          <div class="col-md-3 text-center">Valeur</div>
+          <div class="col-md-3 text-center">Quantité</div>
+          <div class="col-md-3 text-right">Sous-total</div>
+        </div>
 
-<p-confirmDialog />
-<p-toast position="center"></p-toast>
+        <!-- 10000 -->
+        <div class="form-group row align-items-center mb-3">
+          <div class="col-md-3">
+            <span class="fw-semibold pharma-smart-primary-text">Billets</span>
+          </div>
+          <div class="col-md-3 text-center">
+            <p-tag severity="info" value="10 000"></p-tag>
+          </div>
+          <div class="col-md-3">
+            <p-inputNumber autocomplete="off" #numberOf10Thousand
+                           inputId="numberOf10Thousand"
+                           [autofocus]="true"
+                           formControlName="numberOf10Thousand"
+                           (onInput)="onInputChange()">
+            </p-inputNumber>
+          </div>
+          <div class="col-md-3 text-right">
+            <p-tag class="fw-semibold fs-5" severity="secondary" [value]=" ((editForm.get('numberOf10Thousand')!.value || 0) * 10000) | currency:'XOF':'symbol':'1.0-0' " ></p-tag>
+          </div>
+        </div>
+
+        <!-- 5000 -->
+        <div class="form-group row align-items-center mb-3">
+          <div class="col-md-3">
+            <span class="fw-semibold pharma-smart-primary-text">Billets</span>
+          </div>
+          <div class="col-md-3 text-center">
+            <p-tag severity="info" value="5 000"></p-tag>
+          </div>
+          <div class="col-md-3">
+            <p-inputNumber autocomplete="off" inputId="numberOf5Thousand"
+                           formControlName="numberOf5Thousand"
+                           (onInput)="onInputChange()">
+            </p-inputNumber>
+          </div>
+          <div class="col-md-3 text-right">
+
+            <p-tag class="fw-semibold fs-5" severity="secondary" [value]=" ((editForm.get('numberOf5Thousand')!.value || 0) * 5000) | currency:'XOF':'symbol':'1.0-0' " ></p-tag>
+
+          </div>
+        </div>
+
+        <!-- 2000 -->
+        <div class="form-group row align-items-center mb-3">
+          <div class="col-md-3">
+            <span class="fw-semibold pharma-smart-primary-text">Billets</span>
+          </div>
+          <div class="col-md-3 text-center">
+            <p-tag severity="info" value="2 000"></p-tag>
+          </div>
+          <div class="col-md-3">
+            <p-inputNumber autocomplete="off" inputId="numberOf2Thousand"
+                           formControlName="numberOf2Thousand"
+                           (onInput)="onInputChange()">
+            </p-inputNumber>
+          </div>
+          <div class="col-md-3 text-right">
+
+            <p-tag class="fw-semibold fs-5" severity="secondary" [value]=" ((editForm.get('numberOf2Thousand')!.value || 0) * 2000) | currency:'XOF':'symbol':'1.0-0' " ></p-tag>
+          </div>
+        </div>
+
+        <!-- 1000 -->
+        <div class="form-group row align-items-center mb-3">
+          <div class="col-md-3">
+            <span class="fw-semibold pharma-smart-primary-text">Billets</span>
+          </div>
+          <div class="col-md-3 text-center">
+            <p-tag severity="info" value="1 000"></p-tag>
+          </div>
+          <div class="col-md-3">
+            <p-inputNumber autocomplete="off" inputId="numberOf1Thousand"
+                           formControlName="numberOf1Thousand"
+                           (onInput)="onInputChange()">
+            </p-inputNumber>
+          </div>
+          <div class="col-md-3 text-right">
+
+            <p-tag class="fw-semibold fs-5" severity="secondary" [value]=" ((editForm.get('numberOf1Thousand')!.value || 0) * 1000) | currency:'XOF':'symbol':'1.0-0' " ></p-tag>
+
+          </div>
+        </div>
+
+        <!-- 500 -->
+        <div class="form-group row align-items-center mb-3">
+          <div class="col-md-3">
+            <span class="fw-semibold pharma-smart-primary-text">Billets/Pièces</span>
+          </div>
+          <div class="col-md-3 text-center">
+            <p-tag severity="info" value="500"></p-tag>
+          </div>
+          <div class="col-md-3">
+            <p-inputNumber autocomplete="off" inputId="numberOf500Hundred"
+                           formControlName="numberOf500Hundred"
+                           (onInput)="onInputChange()">
+            </p-inputNumber>
+          </div>
+          <div class="col-md-3 text-right">
+            <p-tag class="fw-semibold fs-5" severity="secondary" [value]=" ((editForm.get('numberOf500Hundred')!.value || 0) * 500) | currency:'XOF':'symbol':'1.0-0' " ></p-tag>
+          </div>
+        </div>
+
+        <!-- Other Amount -->
+        <div class="form-group row align-items-center mb-3">
+          <div class="col-md-6">
+            <span class="fw-semibold pharma-smart-primary-text">Autre montant</span>
+          </div>
+          <div class="col-md-3">
+            <p-inputNumber autocomplete="off" inputId="otherAmount"
+                           formControlName="otherAmount"
+                           (onInput)="onInputChange()">
+            </p-inputNumber>
+          </div>
+          <div class="col-md-3 text-right">
+            <p-tag class="fw-semibold fs-5" severity="secondary" [value]=" (editForm.get('otherAmount')!.value || 0) | currency:'XOF':'symbol':'1.0-0' " ></p-tag>
+
+          </div>
+        </div>
+
+        <hr>
+
+        <div class="row justify-content-end mt-3 mb-2">
+          <div class="col-auto">
+            <div class="d-flex align-items-center">
+              <span class="h4 fw-semibold mr-2">Total:</span>
+             <p-tag class="fs-2 fw-semibold"  [value]="totalAmount | currency:'XOF':'symbol':'1.0-0'" severity="secondary"></p-tag>
+            </div>
+          </div>
+        </div>
+      </form>
+
+      <ng-template #footer>
+        <div class="gap-2 mt-1 d-flex justify-content-end">
+          <p-button (click)="previousState()" icon="pi pi-times" label="Annuler" raised="true"
+                     severity="secondary" type="button"></p-button>
+          <p-button
+            (click)="save()"
+            [disabled]="editForm.invalid || isSaving"
+            icon="pi pi-check"
+            id="save-entity"
+            label="Enregistrer"
+            raised="true"
+            severity="primary"
+            type="submit"
+          >
+          </p-button>
+        </div>
+      </ng-template>
+    </p-card>
+  </div>
+</div>
+
+<jhi-confirm-dialog #confirmDialog></jhi-confirm-dialog>
+<jhi-toast-alert #alert></jhi-toast-alert>

@@ -1,10 +1,10 @@
-import { AfterViewInit, Component, inject, OnInit } from '@angular/core';
+import { AfterViewInit, Component, inject, OnInit, viewChild } from '@angular/core';
 import { ErrorService } from '../../../shared/error.service';
 import { FactureService } from '../facture.service';
 import { TiersPayantService } from '../../tiers-payant/tierspayant.service';
 import { GroupeTiersPayantService } from '../../groupe-tiers-payant/groupe-tierspayant.service';
 import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
-import { ConfirmationService, MenuItem, PrimeIcons } from 'primeng/api';
+import { MenuItem, PrimeIcons } from 'primeng/api';
 import { ToolbarModule } from 'primeng/toolbar';
 import { WarehouseCommonModule } from '../../../shared/warehouse-common/warehouse-common.module';
 import { FormsModule } from '@angular/forms';
@@ -23,23 +23,21 @@ import { Facture } from '../facture.model';
 import { AlertInfoComponent } from '../../../shared/alert/alert-info.component';
 import { TableLazyLoadEvent, TableModule } from 'primeng/table';
 import { ITEMS_PER_PAGE } from '../../../shared/constants/pagination.constants';
-import { ConfirmDialogModule } from 'primeng/confirmdialog';
 import { FactureDetailDialogComponent } from '../facture-detail/facture-detail-dialog.component';
 import { GroupeFactureDetailDialogComponent } from '../groupe-facture-detail/groupe-facture-detail-dialog.component';
 import { FactureStateService } from '../facture-state.service';
 import { Tooltip } from 'primeng/tooltip';
 import { RouterLink } from '@angular/router';
-import { acceptButtonProps, rejectButtonProps } from '../../../shared/util/modal-button-props';
 import { InputText } from 'primeng/inputtext';
 import { ToggleSwitch } from 'primeng/toggleswitch';
 import { DatePicker } from 'primeng/datepicker';
 import { TranslateService } from '@ngx-translate/core';
 import { PrimeNG } from 'primeng/config';
-import { Subscription } from 'rxjs';
+import { ConfirmDialogComponent } from '../../../shared/dialog/confirm-dialog/confirm-dialog.component';
+import { Select } from 'primeng/select';
 
 @Component({
   selector: 'jhi-factures',
-  providers: [ConfirmationService],
   imports: [
     ToolbarModule,
     WarehouseCommonModule,
@@ -50,28 +48,28 @@ import { Subscription } from 'rxjs';
     SplitButtonModule,
     FloatLabelModule,
     TableModule,
-    ConfirmDialogModule,
     ToolbarModule,
     Tooltip,
     RouterLink,
     InputText,
     ToggleSwitch,
-    DatePicker
+    DatePicker,
+    ConfirmDialogComponent,
+    Select
   ],
-  templateUrl: './factures.component.html',
-  styles: ``
+  templateUrl: './factures.component.html'
+
 })
 export class FacturesComponent implements OnInit, AfterViewInit {
-  public readonly errorService = inject(ErrorService);
-  public readonly factureService = inject(FactureService);
-  public readonly tiersPayantService = inject(TiersPayantService);
-  public readonly groupeTiersPayantService = inject(GroupeTiersPayantService);
-  public readonly modalService = inject(NgbModal);
-  public readonly factureStateService = inject(FactureStateService);
+  private readonly errorService = inject(ErrorService);
+  private readonly factureService = inject(FactureService);
+  private readonly tiersPayantService = inject(TiersPayantService);
+  private readonly groupeTiersPayantService = inject(GroupeTiersPayantService);
+  private readonly modalService = inject(NgbModal);
+  private readonly factureStateService = inject(FactureStateService);
   minLength = 2;
-  public readonly confirmationService = inject(ConfirmationService);
-  public readonly translate = inject(TranslateService);
-  public readonly primeNGConfig = inject(PrimeNG);
+  private readonly translate = inject(TranslateService);
+  private readonly primeNGConfig = inject(PrimeNG);
   btnExports: MenuItem[];
   btnAction: MenuItem[];
   protected factureProvisoire = false;
@@ -92,12 +90,12 @@ export class FacturesComponent implements OnInit, AfterViewInit {
   protected loadingBtn = false;
   protected loading!: boolean;
   protected exporting = false;
-  private primngtranslate: Subscription;
+  private readonly confimDialog = viewChild.required<ConfirmDialogComponent>('confirmDialog');
   private toDateMinusOneMonth: Date = null;
 
   constructor() {
     this.translate.use('fr');
-    this.primngtranslate = this.translate.stream('primeng').subscribe(data => {
+    this.translate.stream('primeng').subscribe(data => {
       this.primeNGConfig.setTranslation(data);
     });
     const toDate = new Date();
@@ -211,7 +209,7 @@ export class FacturesComponent implements OnInit, AfterViewInit {
         label: 'Pdf',
         icon: PrimeIcons.FILE_PDF,
         command: () => this.exportPdf(1)
-      },
+      }/*,
       {
         label: 'Excel',
         icon: PrimeIcons.FILE_EXCEL
@@ -219,30 +217,22 @@ export class FacturesComponent implements OnInit, AfterViewInit {
       {
         label: 'Word',
         icon: PrimeIcons.FILE_WORD
-      }
+      }*/
     ];
   }
 
   onDelete(id: number): void {
-    this.confirmationService.confirm({
-      message: ' Voullez-vous supprimer cette facture ?',
-      header: 'SUPPRESSION DE FACTURE ',
-      icon: 'pi pi-info-circle',
-      rejectButtonProps: rejectButtonProps(),
-      acceptButtonProps: acceptButtonProps(),
-      accept: () => {
-        this.factureService.delete(id).subscribe({
-          next: () => {
-            this.loadPage();
-          },
-          error: (err: any) => {
-            this.openInfoDialog(this.errorService.getErrorMessage(err), 'alert alert-danger');
-          }
-        });
-      },
 
-      key: 'delete'
-    });
+    this.confimDialog().onConfirm(() => {
+      this.factureService.delete(id).subscribe({
+        next: () => {
+          this.loadPage();
+        },
+        error: (err: any) => {
+          this.openInfoDialog(this.errorService.getErrorMessage(err), 'alert alert-danger');
+        }
+      });
+    }, 'Suppression', 'Êtes-vous sûr de vouloir supprimer ?');
   }
 
   exportPdf(id: number): void {

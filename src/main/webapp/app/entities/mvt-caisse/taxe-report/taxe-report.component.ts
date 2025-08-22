@@ -1,4 +1,4 @@
-import { AfterViewInit, Component, inject, OnInit } from '@angular/core';
+import { AfterViewInit, Component, inject, OnInit, viewChild } from '@angular/core';
 import { Button } from 'primeng/button';
 import { InputTextModule } from 'primeng/inputtext';
 import { MultiSelectModule } from 'primeng/multiselect';
@@ -28,10 +28,11 @@ import { DatePickerModule } from 'primeng/datepicker';
 import { Select } from 'primeng/select';
 import { ChartColorsUtilsService } from '../../../shared/util/chart-colors-utils.service';
 import { WarehouseCommonModule } from '../../../shared/warehouse-common/warehouse-common.module';
+import { ToastAlertComponent } from '../../../shared/toast-alert/toast-alert.component';
+import { finalize } from 'rxjs/operators';
 
 @Component({
   selector: 'jhi-taxe-report',
-  providers: [MessageService, ConfirmationService],
   imports: [
     WarehouseCommonModule,
     Button,
@@ -44,11 +45,11 @@ import { WarehouseCommonModule } from '../../../shared/warehouse-common/warehous
     SelectButtonModule,
     ChartModule,
     CardModule,
-    ToastModule,
     FormsModule,
     FloatLabel,
     DatePickerModule,
-    Select
+    Select,
+    ToastAlertComponent
   ],
   templateUrl: './taxe-report.component.html'
 })
@@ -65,12 +66,10 @@ export class TaxeReportComponent implements OnInit, AfterViewInit {
   protected doughnutChart: DoughnutChart | null = null;
   private readonly primeNGConfig = inject(PrimeNG);
   private readonly translate = inject(TranslateService);
-  private readonly messageService = inject(MessageService);
   private readonly taxeReportService = inject(TaxeReportService);
-
   private readonly mvtParamServiceService = inject(MvtParamServiceService);
   private readonly chartColorsUtilsService = inject(ChartColorsUtilsService);
-
+  private readonly alert = viewChild.required<ToastAlertComponent>('alert');
   ngOnInit(): void {
     const params = this.mvtParamServiceService.mvtCaisseParam();
     if (params) {
@@ -111,22 +110,14 @@ export class TaxeReportComponent implements OnInit, AfterViewInit {
     this.taxeReportService
       .exportToPdf({
         ...this.buildParams()
-      })
+      }).pipe(finalize(() => this.loading = false))
       .subscribe({
         next(blod) {
           const blobUrl = URL.createObjectURL(blod);
           window.open(blobUrl);
         },
         error: () => {
-          this.loading = false;
-          this.messageService.add({
-            severity: 'error',
-            summary: 'Error',
-            detail: 'Une erreur est survenue'
-          });
-        },
-        complete: () => {
-          this.loading = false;
+          this.alert().showError( 'Une erreur est survenue lors de l\'export PDF');
         }
       });
     this.updateParam();
@@ -139,11 +130,7 @@ export class TaxeReportComponent implements OnInit, AfterViewInit {
   }
 
   private onError(): void {
-    this.messageService.add({
-      severity: 'error',
-      summary: 'Error',
-      detail: 'Une erreur est survenue'
-    });
+    this.alert().showError('Une erreur est survenue lors de la récupération des données');
     this.taxeReportWrapper = null;
     this.loading = false;
   }
@@ -173,7 +160,6 @@ export class TaxeReportComponent implements OnInit, AfterViewInit {
       }
     };
   }
-
   private buildParams(): any {
     return {
       fromDate: DATE_FORMAT_ISO_DATE(this.fromDate),

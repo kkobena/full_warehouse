@@ -1,8 +1,8 @@
 <div class="modal-header">
-  <h4 class="modal-title">AJOUT DE PRIX DE REFERENCE SUR LE PRODUIT {{ produit?.libelle }}</h4>
-  <button (click)="cancel()" aria-hidden="true" class="btn-close" data-dismiss="modal" type="button">
-    &times;
-  </button>
+  <h5 class="modal-title">AJOUT DE PRIX DE REFERENCE SUR LE PRODUIT</h5>
+
+  <button (click)="cancel()" aria-hidden="true" class="btn-close" data-dismiss="modal"
+          type="button"></button>
 </div>
 
 <form (ngSubmit)="save()" [formGroup]="editForm" name="editForm" novalidate role="form">
@@ -12,7 +12,25 @@
       <div [hidden]="true">
         <input formControlName="id" id="id" name="id" readonly type="hidden" />
       </div>
+      <div class="row m-3">
+        <span class="fs-5 fw-semibold ">{{ produit?.libelle }}</span>
+      </div>
+      <div class="row">
 
+        <div class="col-6">
+          <div class="field">
+            <label class="fs-6 fw-semibold ">Code Cip</label>
+            <span>{{ produit?.codeCip }}</span>
+          </div>
+        </div>
+        <div class="col-6">
+          <div class="field">
+            <label class="fs-6 fw-semibold">Prix de vente</label>
+            <span class="badge text-bg-secondary fs-4 rounded-pill">{{ produit?.regularUnitPrice | number }}</span>
+
+          </div>
+        </div>
+      </div>
       <div class="form-row">
         <div class="form-group col">
 
@@ -22,6 +40,8 @@
             [options]="pricesType"
             formControlName="type"
             id="type"
+            size="large"
+            [fluid]="true"
             optionLabel="libelle"
             optionValue="code"
             placeholder="Selectionnez une option de prix"
@@ -49,6 +69,8 @@
             formControlName="tiersPayantId"
             id="tiersPayantId"
             optionLabel="fullName"
+            size="large"
+            [fluid]="true"
             optionValue="id"
             placeholder="Selectionnez le tiers payant"
           />
@@ -71,6 +93,8 @@
             formControlName="produitId"
             id="tiersPayantId"
             optionLabel="fullName"
+            size="large"
+            [fluid]="true"
             optionValue="id"
             placeholder="Selectionnez le produit"
           />
@@ -85,25 +109,48 @@
           }</div>
       </div>
 
+      @if (shouldShowPriceControl) {
+        <div class="form-row">
+          <div class="form-group col">
+            <label class="form-control-label" for="price">Prix de référence<span class="red-400"
+                                                                                 style="font-weight: 900">*</span></label>
 
-      <div class="form-row">
-        <div class="form-group col">
-          <label class="form-control-label" for="valeur">{{ valeurLabel }}<span class="red-400"
-                                                                                style="font-weight: 900">*</span></label>
-
-          <p-inputNumber autocomplete="off" formControlName="valeur" id="valeur"
-                         name="valeur"></p-inputNumber>
-          @let valeur = editForm.get('valeur');
-          @if (valeur!.invalid && (valeur!.dirty || valeur!.touched)) {
-            <div>
-              @if (valeur?.errors?.required) {
-                <small class="form-text text-danger" style="color: red"> Ce champ est
-                  obligatoire. </small>
-              }
-            </div>
-          }
+            <p-inputNumber autocomplete="off" formControlName="price" id="price"
+                           name="price"></p-inputNumber>
+            @let price = editForm.get('price');
+            @if (price!.invalid && (price!.dirty || price!.touched)) {
+              <div>
+                @if (price?.errors?.required) {
+                  <small class="form-text text-danger" style="color: red"> Ce champ est
+                    obligatoire. </small>
+                }
+              </div>
+            }
+          </div>
         </div>
-      </div>
+      }
+
+      @if (shouldShowRateControl) {
+        <div class="form-row">
+          <div class="form-group col">
+            <label class="form-control-label" for="rate">Taux de remboursement<span class="red-400"
+                                                                                    style="font-weight: 900">*</span></label>
+
+            <p-inputNumber autocomplete="off" formControlName="rate" id="rate"
+                           name="rate"></p-inputNumber>
+            @let rate = editForm.get('rate');
+            @if (rate!.invalid && (rate!.dirty || rate!.touched)) {
+              <div>
+                @if (rate?.errors?.required) {
+                  <small class="form-text text-danger" style="color: red"> Ce champ est
+                    obligatoire. </small>
+                }
+              </div>
+            }
+          </div>
+        </div>
+      }
+
       <div class="form-row">
         <div class="form-group col">
           <label class="form-control-label" for="enabled" style="margin-right: 3rem;">Activer/Désactiver<span
@@ -132,3 +179,4 @@
   </div>
 </form>
 <jhi-toast-alert #alert></jhi-toast-alert>
+<p-confirmdialog />

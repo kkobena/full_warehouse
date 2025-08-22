@@ -1,4 +1,4 @@
-import { AfterViewInit, Component, inject, OnInit } from '@angular/core';
+import { AfterViewInit, Component, inject, OnInit, viewChild } from '@angular/core';
 import { FormBuilder, FormControl, FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
 import { InputTextModule } from 'primeng/inputtext';
 import { KeyFilterModule } from 'primeng/keyfilter';
@@ -19,6 +19,9 @@ import { InputNumberModule } from 'primeng/inputnumber';
 import { Select } from 'primeng/select';
 import { DatePicker } from 'primeng/datepicker';
 import { Button } from 'primeng/button';
+import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
+import { ToastAlertComponent } from '../../../shared/toast-alert/toast-alert.component';
+import { Card } from 'primeng/card';
 
 @Component({
   selector: 'jhi-form-transaction',
@@ -27,21 +30,23 @@ import { Button } from 'primeng/button';
     InputTextModule,
     KeyFilterModule,
     ReactiveFormsModule,
-    ToastModule,
     TranslateDirective,
     InputNumberModule,
     Select,
     DatePicker,
-    Button
+    Button,
+    ToastAlertComponent,
+    Card
   ],
   templateUrl: './form-transaction.component.html',
-  styleUrl: './form-transaction.component.scss'
+  styleUrls: ['../../common-modal.component.scss'],
 })
 export class FormTransactionComponent implements OnInit, AfterViewInit {
   isSaving = false;
   isValid = true;
   appendTo = 'body';
   maxDate = new Date();
+  header: string | null = null;
   protected errorService = inject(ErrorService);
   protected types: TypeFinancialTransaction[] = [
     TypeFinancialTransaction.ENTREE_CAISSE,
@@ -68,11 +73,10 @@ export class FormTransactionComponent implements OnInit, AfterViewInit {
     transactionDate: new FormControl<Date>(new Date()),
     commentaire: new FormControl<string | null>(null, {})
   });
-  private ref = inject(DynamicDialogRef);
+  private readonly activeModal = inject(NgbActiveModal);
   private mvtCaisseService = inject(MvtCaisseServiceService);
-  private messageService = inject(MessageService);
   private modeService = inject(ModePaymentService);
-
+  private readonly alert = viewChild.required<ToastAlertComponent>('alert');
   ngOnInit(): void {
     this.modeService.query().subscribe((res: HttpResponse<IPaymentMode[]>) => {
       if (res.body) {
@@ -88,7 +92,7 @@ export class FormTransactionComponent implements OnInit, AfterViewInit {
   }
 
   cancel(): void {
-    this.ref.close();
+    this.activeModal.dismiss();
   }
 
   save(): void {
@@ -122,24 +126,11 @@ export class FormTransactionComponent implements OnInit, AfterViewInit {
 
   protected onSaveSuccess(financialTransaction: FinancialTransaction | null): void {
     this.isSaving = false;
-    this.ref.close(financialTransaction);
+    this.activeModal.close(financialTransaction);
   }
 
   protected onSaveError(error: any): void {
     this.isSaving = false;
-
-    if (error.error?.errorKey) {
-      this.messageService.add({
-        severity: 'error',
-        summary: 'Erreur',
-        detail: this.errorService.getErrorMessage(error)
-      });
-    } else {
-      this.messageService.add({
-        severity: 'error',
-        summary: 'Erreur',
-        detail: 'Erreur interne du serveur.'
-      });
-    }
+this.alert().showError(this.errorService.getErrorMessage(error));
   }
 }

@@ -3,7 +3,7 @@
 <div class="modal-header">
   <h4 class="modal-title">AJOUT DE LA DATE DE PEREMTION SUR LE PRODUIT {{ produit?.libelle }}</h4>
   <button (click)="cancel()" aria-label="Close" class="btn-close" type="button">
-    <span aria-hidden="true">&times;</span>
+
   </button>
 </div>
 <form (ngSubmit)="save()" [formGroup]="editForm" name="editForm" novalidate role="form">

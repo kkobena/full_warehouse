@@ -23,6 +23,7 @@ export interface ISalesLine {
   saleId?: number;
   quantityStock?: number;
   quantityRequested?: number;
+  calculationBasePrice?: number;
   code?: string;
   forceStock?: boolean;
 }

@@ -3,13 +3,11 @@ import { RecapitulatifCaisseService } from '../recapitulatif-caisse.service';
 import { TIMES } from '../../../shared/util/times';
 import { RecapParam } from '../model/recap-param.model';
 import { DATE_FORMAT_ISO_DATE } from '../../../shared/util/warehouse-util';
-import { NgxSpinnerModule, NgxSpinnerService } from 'ngx-spinner';
 import { CommonModule } from '@angular/common';
 import { Ticket } from '../model/ticket.model';
 import { UserService } from '../../../core/user/user.service';
 import { IUser } from '../../../core/user/user.model';
 import { HttpResponse } from '@angular/common/http';
-import { Panel } from 'primeng/panel';
 import { Button } from 'primeng/button';
 import { DatePicker } from 'primeng/datepicker';
 import { FloatLabel } from 'primeng/floatlabel';
@@ -27,7 +25,6 @@ import { SpinnerComponent } from '../../../shared/spinner/spinner.component';
   selector: 'jhi-recapitualtif-caisse',
   imports: [
     CommonModule,
-    Panel,
     Button,
     DatePicker,
     FloatLabel,

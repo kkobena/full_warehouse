@@ -13,7 +13,6 @@ import { NgxSpinnerModule } from 'ngx-spinner';
 import { CardModule } from 'primeng/card';
 import { ToolbarModule } from 'primeng/toolbar';
 import { DividerModule } from 'primeng/divider';
-import { DropdownModule } from 'primeng/dropdown';
 import { FormsModule } from '@angular/forms';
 import { InputTextModule } from 'primeng/inputtext';
 import { AjustementService } from './ajustement.service';
@@ -31,7 +30,6 @@ import { Panel } from 'primeng/panel';
   imports: [
     WarehouseCommonModule,
     DividerModule,
-    DropdownModule,
     ButtonModule,
     TableModule,
     NgxSpinnerModule,

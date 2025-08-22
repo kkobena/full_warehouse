@@ -9,6 +9,7 @@
     [value]="sale().salesLines"
     currentPageReportTemplate="Affichage de {first} à {last} sur {totalRecords} produits"
     dataKey="id"
+    stripedRows="true"
     selectionMode="single"
   >
     <ng-template #caption>
@@ -41,6 +42,8 @@
             <p-inputgroup>
               <p-inputgroup-addon> Remises</p-inputgroup-addon>
               <p-select
+                size="large"
+                [fluid]="true"
                 (onChange)="onSelectRemise()"
                 [options]="remises"
                 [(ngModel)]="selectedRemise"
@@ -61,16 +64,31 @@
       </div>
     </ng-template>
     <ng-template #header>
-      <tr>
-        <th style="width: 5%">#</th>
-        <th style="width: 10%">CODE</th>
-        <th style="width: 44%">LIBELLE</th>
-        <th style="width: 8%">QTE.D</th>
-        <th style="width: 8%">QTE.S</th>
-        <th style="width: 9%">PU</th>
-        <th style="width: 10%">TOTAL</th>
-        <th style="width: 6%"></th>
-      </tr>
+      @if (sale().natureVente !== 'ASSURANCE') {
+        <tr>
+          <th style="width: 5%">#</th>
+          <th style="width: 10%">CODE</th>
+          <th style="width: 44%">LIBELLE</th>
+          <th style="width: 8%">QTE.D</th>
+          <th style="width: 8%">QTE.S</th>
+          <th style="width: 9%">PU</th>
+          <th style="width: 10%">TOTAL</th>
+          <th style="width: 6%"></th>
+        </tr>
+      } @else {
+        <tr>
+          <th style="width: 3%">#</th>
+          <th style="width: 9%">CODE</th>
+          <th style="width: 40%">LIBELLE</th>
+          <th style="width: 8%">QTE.D</th>
+          <th style="width: 8%">QTE.S</th>
+          <th style="width: 9%">PU</th>
+          <th style="width: 9%">BR</th>
+          <th style="width: 10%">TOTAL</th>
+          <th style="width: 4%"></th>
+        </tr>
+      }
+
     </ng-template>
     <ng-template let-rowIndex="rowIndex" let-saleLine #body>
       <tr [ngClass]="{ 'table-danger': saleLine.quantitySold < saleLine.quantityRequested }">
@@ -132,6 +150,12 @@
         } @else {
           <td style="text-align: right">{{ saleLine.regularUnitPrice | number }}</td>
         }
+        @if (sale().natureVente === 'ASSURANCE') {
+          <td [ngClass]="{ 'text-danger': saleLine.calculationBasePrice !== undefined }" style="text-align: right">
+            {{ saleLine.calculationBasePrice | number }}
+          </td>
+        }
+
 
         <td style="text-align: right; font-weight: bold">{{ saleLine.salesAmount | number }}</td>
         <td style="text-align: right">

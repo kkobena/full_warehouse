@@ -13,9 +13,6 @@ import java.util.Set;
 @Entity
 public class AssuredCustomer extends Customer {
 
-    @ManyToOne
-    private RemiseClient remise;
-
     @Column(name = "sexe")
     private String sexe;
 
@@ -71,13 +68,7 @@ public class AssuredCustomer extends Customer {
         return this;
     }
 
-    public RemiseClient getRemise() {
-        return remise;
-    }
 
-    public void setRemise(RemiseClient remise) {
-        this.remise = remise;
-    }
 
     public String getSexe() {
         return sexe;

@@ -1,68 +1,94 @@
-<div class="user-cashregister">
+<div class="container my-cash-register-container">
   @if (openCaisse || cashRegisters.length === 0) {
-    <p-card header="Ouverture de caisse"
-            [style]="{ width: '20vw', marginLeft: 'auto', marginRight: 'auto', marginTop: '35px' }">
-      <form [formGroup]="editForm" (ngSubmit)="openCashRegister()">
-        <div class="form-group">
-          <label for="cashFundAmount">Fonds de caisse</label>
-          <input
-            #cashFundAmountInput
-            type="text"
-            pInputText
-            pKeyFilter="int"
-            class="form-control"
-            id="cashFundAmount"
-            formControlName="cashFundAmount"
-          />
-        </div>
-      </form>
-      <ng-template pTemplate="footer">
-        <div class="flex gap-3 mt-1">
-          <p-button
-            [disabled]="editForm.invalid || isSaving"
-            (click)="openCashRegister()"
-            label="Valider"
-            type="submit"
-            class="w-full"
-            styleClass="w-full"
-          />
+    <div class="h-100 w-50 pharma-smart mx-auto mt-5">
+      <p-card >
+        <ng-template #title>
+          <div class="card-title primary-title">
+            <i class="pi pi-money-bill mr-2"></i>
+            Ouverture de caisse
+          </div>
+        </ng-template>
+        <form [formGroup]="editForm" (ngSubmit)="openCashRegister()">
+          <div class="form-group">
+            <label for="cashFundAmount">Fonds de caisse</label>
+            <input autocomplete="off"
+                   #cashFundAmountInput
+                   type="text"
+                   pInputText
+                   pKeyFilter="int"
+                   class="form-control"
+                   id="cashFundAmount"
+                   formControlName="cashFundAmount"
+            />
+          </div>
+        </form>
+        <ng-template #footer>
+          <div class="d-flex justify-content-end mt-1">
+            <p-button
+              [disabled]="editForm.invalid || isSaving"
+              (click)="openCashRegister()"
+              label="Valider"
+              type="submit"
+              severity="primary"
+              icon="pi pi-check"
+
+            />
+          </div>
+        </ng-template>
+      </p-card>
+    </div>
+
+  } @else if (cashRegisters.length === 1) {
+  <div class="h-100 w-75 pharma-smart mx-auto mt-5">
+    <p-card>
+      <ng-template #title>
+        <div class="card-title primary-title">
+          <i class="pi pi-money-bill mr-2"></i>
+          Ma caisse en cours
         </div>
       </ng-template>
-    </p-card>
-  } @else if (cashRegisters.length === 1) {
-    <p-card header="Ma caisse en cours"
-            [style]="{ width: '40vw', marginLeft: 'auto', marginRight: 'auto', marginTop: '35px' }">
       <ul class="list-group">
-        <li class="list-group-item d-flex justify-content-between align-items-center">
+        <li class="pharma-smart-primary-text list-group-item d-flex justify-content-between align-items-center">
           Fonds de caisse <span
-          class="badge bg-primary rounded-pill">{{ cashRegisters[0]?.cashFund | number }}</span>
+          class="badge bg-primary rounded-pill fw-semibold">{{ cashRegisters[0]?.cashFund | number }}</span>
         </li>
 
-        <li class="list-group-item d-flex justify-content-between align-items-center">
-          Date d'ouverture <span
-          class="badge bg-success rounded-pill">{{ cashRegisters[0]?.created | date: 'dd/MM/yyyy HH:mm' }}</span>
+        <li class=" list-group-item d-flex justify-content-between align-items-center">
+         <span class="pharma-smart-primary-text">Date d'ouverture</span> <span
+          class="badge bg-success rounded-pill fw-semibold">{{ cashRegisters[0]?.created | date: 'dd/MM/yyyy HH:mm' }}</span>
         </li>
 
         @if (cashRegisters[0].statut === OPEN) {
-          <li class="list-group-item d-flex justify-content-between align-items-center">
-            Etat de la caisse <span class="badge bg-warning rounded-pill">En cours</span>
+          <li class=" pharma-smart-primary-text list-group-item d-flex justify-content-between align-items-center">
+            Etat de la caisse <span class="badge bg-warning rounded-pill fw-semibold">En cours</span>
           </li>
         } @else if (cashRegisters[0].statut === CLOSED) {
-          <li class="list-group-item d-flex justify-content-between align-items-center">
-            Etat de la caisse <span class="badge bg-secondary rounded-pill">Fermée</span>
+          <li class=" pharma-smart-primary-text list-group-item d-flex justify-content-between align-items-center">
+            Etat de la caisse <span class="badge bg-secondary rounded-pill fw-semibold">Fermée</span>
           </li>
         } @else if (cashRegisters[0].statut === PENDING) {
           <li class="list-group-item d-flex justify-content-between align-items-center">
-            Etat de la caisse <span class="badge bg-warning rounded-pill">En attente</span>
+            Etat de la caisse <span class="badge bg-warning rounded-pill fw-semibold">En attente</span>
           </li>
         } @else if (cashRegisters[0].statut === VALIDATED) {
-          <li class="list-group-item d-flex justify-content-between align-items-center">
-            Etat de la caisse <span class="badge bg-info rounded-pill">Validée</span>
+          <li class=" pharma-smart-primary-text list-group-item d-flex justify-content-between align-items-center">
+            Etat de la caisse <span class="badge bg-info rounded-pill fw-semibold">Validée</span>
           </li>
         }
       </ul>
-      <ng-template pTemplate="footer">
-        <div class="d-flex justify-content-center gap-3 mt-1">
+      <ng-template #footer>
+        <div class="d-flex justify-content-end gap-2 mt-1">
+          <p-button icon="pi pi-arrow-left" label="Retour" severity="secondary"
+                    (click)="previousState()"
+                    class="w-full" styleClass="w-full" />
+          <p-button
+            label="Nouvelle caisse"
+            [hidden]="hasOpingCashRegister()"
+            (click)="onOpenCashRegister()"
+            severity="info"
+            class="w-full"
+            styleClass="w-full"
+          />
           <p-button
             [routerLink]="['/my-cash-register', cashRegisters[0].id, 'billetage']"
             label="Fermer la caisse"
@@ -71,87 +97,72 @@
             icon="pi pi-wallet"
             styleClass="w-full"
           />
-          <p-button
-            label="Nouvelle caisse"
-            [hidden]="hasOpingCashRegister()"
-            (click)="onOpenCashRegister()"
-            severity="warn"
-            class="w-full"
-            styleClass="w-full"
-          />
 
-          <p-button icon="pi pi-arrow-left" label="Retour" severity="secondary"
-                    (click)="previousState()"
-                    class="w-full" styleClass="w-full" />
         </div>
       </ng-template>
     </p-card>
+  </div>
+
   } @else {
-    <p-panel header="Mes caisses en cours"
-             [style]="{ width: '65vw', marginLeft: 'auto', marginRight: 'auto' }">
-      <!--      <ng-template pTemplate="header">-->
-      <!--        <div class="row" style="width: 100%;padding: 0;">-->
-      <!--          <h5 class="col-md-7" style="padding: 0;">Mes caisses en cours</h5>-->
-      <!--          &lt;!&ndash;          <div  class="col-md-5" style="padding-right: 0;">&ndash;&gt;-->
-      <!--          &lt;!&ndash;            <p-button [style]="{float:'right'}" label="Nouvelle caisse"&ndash;&gt;-->
-      <!--          &lt;!&ndash;                      (click)="onOpenCashRegister()"&ndash;&gt;-->
-      <!--          &lt;!&ndash;                      severity="primary"&ndash;&gt;-->
-      <!--          &lt;!&ndash;                      class="w-full"&ndash;&gt;-->
-      <!--          &lt;!&ndash;                      styleClass="w-full" />&ndash;&gt;-->
-      <!--          &lt;!&ndash;          </div>&ndash;&gt;-->
-
-      <!--        </div>-->
-      <!--      </ng-template>-->
-
-      <p-table [value]="cashRegisters" [rows]="10" [paginator]="true"
-               [rowsPerPageOptions]="[10, 15, 20]">
-        <ng-template pTemplate="header">
-          <tr>
-            <th>Date d'ouverture</th>
-            <th>Fonds de caisse</th>
-            <th>Etat de la caisse</th>
-            <th>Action</th>
-          </tr>
+    <div class="h-100 w-75 pharma-smart mx-auto mt-5">
+      <p-card>
+        <ng-template #title>
+          <div class="card-title primary-title">
+            <i class="pi pi-money-bill mr-2"></i>
+            Mes caisses en cours
+          </div>
         </ng-template>
-        <ng-template pTemplate="body" let-cashRegister>
-          <tr>
-            <td>{{ cashRegister.created | date: 'dd/MM/yyyy HH:mm' }}</td>
-            <td class="text-right text-900">{{ cashRegister.initAmount | number }}</td>
-            @if (cashRegister.statut === 'OPEN' || cashRegister.statut === 'En cours') {
-              <td class="text-center"><span class="badge bg-success rounded-pill">En cours</span>
-              </td>
-            } @else if (cashRegister.statut === 'CLOSED' || cashRegister.statut === 'Fermée') {
-              <td class="text-center"><span class="badge bg-secondary rounded-pill">Fermée</span>
-              </td>
-            } @else if (cashRegister.statut === 'PENDING' || cashRegister.statut === 'En attente') {
-              <td class="text-center"><span class="badge bg-warning rounded-pill">En attente</span>
-              </td>
-            } @else {
-              <td class="text-center"><span class="badge bg-info rounded-pill">Validée</span></td>
-            }
 
-            <td class="text-right">
-              @if (cashRegister.statut === 'OPEN' ||
-              cashRegister.statut === 'En cours' ||
-              cashRegister.statut === 'PENDING' ||
-              cashRegister.statut === 'En attente') {
-                <button
-                  [routerLink]="['/my-cash-register', cashRegister.id, 'billetage']"
-                  label="Fermer"
-                  class="p-button-secondary"
-                  pButton
-                ></button>
-                <!--    <button  (click)="closeCashRegister(cashRegister)"
-                            label="Fermer sans billetage" class="p-button-warning" pButton
-                    ></button>-->
+        <p-table [value]="cashRegisters" [rows]="10" [paginator]="true"
+                 [rowsPerPageOptions]="[10, 15, 20]">
+          <ng-template #header>
+            <tr>
+              <th>Date d'ouverture</th>
+              <th>Fonds de caisse</th>
+              <th>Etat de la caisse</th>
+              <th>Action</th>
+            </tr>
+          </ng-template>
+          <ng-template #body let-cashRegister>
+            <tr>
+              <td>{{ cashRegister.created | date: 'dd/MM/yyyy HH:mm' }}</td>
+              <td class="text-right text-900">{{ cashRegister.initAmount | number }}</td>
+              @if (cashRegister.statut === 'OPEN' || cashRegister.statut === 'En cours') {
+                <td class="text-center"><span class="badge bg-success rounded-pill fw-semibold">En cours</span>
+                </td>
+              } @else if (cashRegister.statut === 'CLOSED' || cashRegister.statut === 'Fermée') {
+                <td class="text-center"><span class="badge bg-secondary rounded-pill fw-semibold ">Fermée</span>
+                </td>
+              } @else if (cashRegister.statut === 'PENDING' || cashRegister.statut === 'En attente') {
+                <td class="text-center"><span class="badge bg-warning rounded-pill fw-semibold">En attente</span>
+                </td>
+              } @else {
+                <td class="text-center"><span class="badge bg-info rounded-pill fw-semibold">Validée</span></td>
               }
-            </td>
-          </tr>
-        </ng-template>
-      </p-table>
-    </p-panel>
+
+              <td class="text-right">
+                @if (cashRegister.statut === 'OPEN' ||
+                cashRegister.statut === 'En cours' ||
+                cashRegister.statut === 'PENDING' ||
+                cashRegister.statut === 'En attente') {
+                  <p-button
+                    [routerLink]="['/my-cash-register', cashRegister.id, 'billetage']"
+                    label="Fermer" icon="pi pi-wallet"
+                    severity="primary"
+
+                  ></p-button>
+                  <!--    <button  (click)="closeCashRegister(cashRegister)"
+                              label="Fermer sans billetage" class="p-button-warning" pButton
+                      ></button>-->
+                }
+              </td>
+            </tr>
+          </ng-template>
+        </p-table>
+      </p-card>
+    </div>
+
   }
 </div>
-
-<p-toast position="center"></p-toast>
-<p-confirmDialog />
+<jhi-toast-alert #alert></jhi-toast-alert>
+<jhi-confirm-dialog #confirmDialog></jhi-confirm-dialog>

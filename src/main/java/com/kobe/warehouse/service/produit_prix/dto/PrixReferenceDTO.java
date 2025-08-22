@@ -6,7 +6,7 @@ import jakarta.validation.constraints.NotNull;
 
 public class PrixReferenceDTO {
 
-    private int valeur;
+    private int price;
     private long id;
     private boolean enabled;
     private Long tiersPayantId;
@@ -15,18 +15,18 @@ public class PrixReferenceDTO {
     @NotNull
     private OptionPrixType type;
 
-    private float taux;
+    private float rate;
     private String tiersPayantName;
     private String produitName;
     private String produitCode;
     private String typeLibelle;
 
     public PrixReferenceDTO(OptionPrixProduit optionPrixProduit) {
-        this.valeur = optionPrixProduit.getPrice();
+        this.price = optionPrixProduit.getPrice();
         this.id = optionPrixProduit.getId();
         this.enabled = optionPrixProduit.isEnabled();
         this.type = optionPrixProduit.getType();
-        this.taux = optionPrixProduit.getRate();
+        this.rate = optionPrixProduit.getRate();
         this.typeLibelle = optionPrixProduit.getType().getLibelle();
     }
 
@@ -72,12 +72,12 @@ public class PrixReferenceDTO {
         return tiersPayantName;
     }
 
-    public int getValeur() {
-        return valeur;
+    public int getPrice() {
+        return price;
     }
 
-    public void setValeur(int valeur) {
-        this.valeur = valeur;
+    public void setPrice(int price) {
+        this.price = price;
     }
 
     public long getId() {
@@ -120,12 +120,12 @@ public class PrixReferenceDTO {
         this.type = type;
     }
 
-    public float getTaux() {
-        return taux;
+    public float getRate() {
+        return rate;
     }
 
-    public void setTaux(float taux) {
-        this.taux = taux;
+    public void setRate(float rate) {
+        this.rate = rate;
     }
 
     public String getTypeLibelle() {

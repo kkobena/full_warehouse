@@ -1,6 +1,7 @@
 export class PrixReference {
   id?: number;
-  valeur?: number;
+  price?: number;
+  rate?: number;
   tiersPayantId?: number;
   produitId: number;
   type?: string;

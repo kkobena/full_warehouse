@@ -1,31 +1,31 @@
-import { Component, ElementRef, inject, OnInit, viewChild } from '@angular/core';
+import { AfterViewInit, Component, ElementRef, inject, viewChild } from '@angular/core';
 import { AjustementService } from '../ajustement.service';
 import { IAjust } from '../../../shared/model/ajust.model';
-import { DynamicDialogConfig, DynamicDialogRef } from 'primeng/dynamicdialog';
 import { FormBuilder, FormControl, FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Observable } from 'rxjs';
 import { HttpResponse } from '@angular/common/http';
 import { WarehouseCommonModule } from '../../../shared/warehouse-common/warehouse-common.module';
 import { RouterModule } from '@angular/router';
 import { ButtonModule } from 'primeng/button';
-import { TextareaModule } from 'primeng/textarea';
 
 import { ToastAlertComponent } from '../../../shared/toast-alert/toast-alert.component';
 import { finalize } from 'rxjs/operators';
 import { SpinnerComponent } from '../../../shared/spinner/spinner.component';
+import { Card } from 'primeng/card';
+import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
+import { InputText } from 'primeng/inputtext';
 
 @Component({
   selector: 'jhi-finalyse',
   templateUrl: './finalyse.component.html',
+  styleUrls: ['../../common-modal.component.scss'],
 
-  imports: [WarehouseCommonModule, RouterModule, ButtonModule, FormsModule, ReactiveFormsModule, TextareaModule, ToastAlertComponent, SpinnerComponent]
+  imports: [WarehouseCommonModule, RouterModule, ButtonModule, FormsModule, ReactiveFormsModule, ToastAlertComponent, SpinnerComponent, Card, InputText]
 })
-export class FinalyseComponent implements OnInit {
-  ref = inject(DynamicDialogRef);
-  config = inject(DynamicDialogConfig);
+export class FinalyseComponent implements AfterViewInit {
+  header: string | null = null;
+  entity?: IAjust;
   protected isSaving = false;
-  protected entity?: IAjust;
-
   protected fb = inject(FormBuilder);
   protected editForm = this.fb.group({
     commentaire: new FormControl<string | null>(null, {
@@ -37,10 +37,13 @@ export class FinalyseComponent implements OnInit {
   private readonly ajustementService = inject(AjustementService);
   private readonly spinner = viewChild.required<SpinnerComponent>('spinner');
   private alert = viewChild.required<ToastAlertComponent>('alert');
+  private readonly activeModal = inject(NgbActiveModal);
 
-  ngOnInit(): void {
-    this.entity = this.config.data.entity;
-    this.commentaire().nativeElement.focus();
+
+  ngAfterViewInit(): void {
+    setTimeout(() => {
+      this.commentaire().nativeElement.focus();
+    }, 100);
   }
 
   save(): void {
@@ -50,7 +53,7 @@ export class FinalyseComponent implements OnInit {
   }
 
   cancel(): void {
-    this.ref.destroy();
+    this.activeModal.dismiss();
   }
 
   protected subscribeToSaveResponse(result: Observable<HttpResponse<{}>>): void {
@@ -61,7 +64,7 @@ export class FinalyseComponent implements OnInit {
   }
 
   protected onSaveSuccess(): void {
-    this.ref.close();
+    this.activeModal.close('Ajustement finalisé avec succès');
   }
 
   protected onSaveError(): void {

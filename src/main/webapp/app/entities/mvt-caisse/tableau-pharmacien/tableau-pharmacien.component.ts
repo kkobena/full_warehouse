@@ -1,4 +1,4 @@
-import { AfterViewInit, Component, inject, OnInit } from '@angular/core';
+import { AfterViewInit, Component, inject, OnInit, viewChild } from '@angular/core';
 import { ConfirmationService, MenuItem, MessageService } from 'primeng/api';
 import { TranslateService } from '@ngx-translate/core';
 import { TableauPharmacienService } from './tableau-pharmacien.service';
@@ -30,13 +30,13 @@ import { DatePicker } from 'primeng/datepicker';
 import { FloatLabel } from 'primeng/floatlabel';
 import { saveAs } from 'file-saver';
 import { extractFileName } from '../../../shared/util/file-utils';
+import { ToastAlertComponent } from '../../../shared/toast-alert/toast-alert.component';
+import { finalize } from 'rxjs/operators';
 
 @Component({
   selector: 'jhi-tableau-pharmacien',
-  providers: [MessageService, DialogService, ConfirmationService],
   imports: [
     Button,
-    DropdownModule,
     InputTextModule,
     MultiSelectModule,
     PaginatorModule,
@@ -51,7 +51,8 @@ import { extractFileName } from '../../../shared/util/file-utils';
     SplitButtonModule,
     FormsModule,
     DatePicker,
-    FloatLabel
+    FloatLabel,
+    ToastAlertComponent
   ],
   templateUrl: './tableau-pharmacien.component.html'
 })
@@ -74,12 +75,12 @@ export class TableauPharmacienComponent implements OnInit, AfterViewInit {
 
   protected showGrossisteChart = false;
   private primeNGConfig = inject(PrimeNG);
-  private translate = inject(TranslateService);
-  private messageService = inject(MessageService);
+  private readonly translate = inject(TranslateService);
+
   private tableauPharmacienService = inject(TableauPharmacienService);
   private mvtParamServiceService = inject(MvtParamServiceService);
   private chartColorsUtilsService = inject(ChartColorsUtilsService);
-
+  private readonly alert = viewChild.required<ToastAlertComponent>('alert');
   ngOnInit(): void {
     this.exportMenus = [
       {
@@ -155,22 +156,13 @@ export class TableauPharmacienComponent implements OnInit, AfterViewInit {
   protected onPrint(): void {
     this.loading = true;
     this.updateParam();
-    this.tableauPharmacienService.exportToPdf(this.buildParams()).subscribe({
+    this.tableauPharmacienService.exportToPdf(this.buildParams()).pipe(finalize(() => this.loading=false)).subscribe({
       next: blod => {
-        this.loading = false;
         const blobUrl = URL.createObjectURL(blod);
         window.open(blobUrl);
       },
       error: () => {
-        this.loading = false;
-        this.messageService.add({
-          severity: 'error',
-          summary: 'Error',
-          detail: 'Une erreur est survenue'
-        });
-      },
-      complete: () => {
-        this.loading = false;
+        this.alert().showError( 'Une erreur est survenue lors de l\'export PDF');
       }
     });
   }
@@ -178,22 +170,14 @@ export class TableauPharmacienComponent implements OnInit, AfterViewInit {
   protected onExcel(): void {
     this.loading = true;
     this.updateParam();
-    this.tableauPharmacienService.exportToExcel(this.buildParams()).subscribe({
+    this.tableauPharmacienService.exportToExcel(this.buildParams()).pipe(finalize(() => this.loading=false)).subscribe({
       next: resp => {
-        this.loading = false;
+
         const blob = resp.body;
         saveAs(blob, extractFileName(resp.headers.get('content-disposition') || ''));
       },
       error: () => {
-        this.loading = false;
-        this.messageService.add({
-          severity: 'error',
-          summary: 'Error',
-          detail: 'Une erreur est survenue'
-        });
-      },
-      complete: () => {
-        this.loading = false;
+        this.alert().showError('Une erreur est survenue lors de l\'export Excel');
       }
     });
   }
@@ -205,11 +189,7 @@ export class TableauPharmacienComponent implements OnInit, AfterViewInit {
   }
 
   private onError(): void {
-    this.messageService.add({
-      severity: 'error',
-      summary: 'Error',
-      detail: 'Une erreur est survenue'
-    });
+    this.alert().showError('Une erreur est survenue lors de la récupération des données');
     this.tableauPharmacienWrapper = null;
     this.loading = false;
   }

@@ -50,7 +50,7 @@ public class OptionPrixProduit implements Serializable {
     @ColumnDefault(value = "true")
     private boolean enabled = true;
     @Column(name = "rate", nullable = false)
-    private float rate = 100.0f;
+    private float rate = 1.0f;
 
     @NotNull
     @Enumerated(EnumType.STRING)

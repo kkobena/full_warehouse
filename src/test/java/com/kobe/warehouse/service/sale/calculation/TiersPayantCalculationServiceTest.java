@@ -546,7 +546,7 @@ class TiersPayantCalculationServiceTest {
         TiersPayantPrixInput prixInput2 = new TiersPayantPrixInput();
         prixInput2.setCompteTiersPayantId(1L);
         prixInput2.setPrice(4250);
-        prixInput2.setRate(100.f);
+        prixInput2.setRate(1.f);
         prixInput2.setOptionPrixType(OptionPrixType.MIXED_REFERENCE_POURCENTAGE);
         saleItem.setPrixAssurances(List.of(prixInput,prixInput2));
         input.setSaleItems(Collections.singletonList(saleItem));
@@ -558,7 +558,7 @@ class TiersPayantCalculationServiceTest {
 
         TiersPayantInput tiersPayant1 = new TiersPayantInput();
         tiersPayant1.setClientTiersPayantId(2L);
-        tiersPayant1.setTaux(100.0f);
+        tiersPayant1.setTaux(1.0f);
         tiersPayant1.setPriorite(PrioriteTiersPayant.R1);
         input.setTiersPayants(new ArrayList<>(List.of(tiersPayant,tiersPayant1)));
         CalculationResult result = tiersPayantCalculationService.calculate(input);

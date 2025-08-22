@@ -13,6 +13,7 @@ import { Card } from 'primeng/card';
 import { showCommonModal } from '../../sales/selling-home/sale-helper';
 import { ConfirmationService } from 'primeng/api';
 
+
 @Component({
   selector: 'jhi-list-prix-reference',
   imports: [CommonModule, Button, Tooltip, ConfirmDialogComponent, Card],
@@ -112,4 +113,5 @@ export class ListPrixReferenceComponent implements OnInit {
       this.load();
     });
   }
+
 }

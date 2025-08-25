@@ -1,5 +1,5 @@
 import dayjs from 'dayjs';
-import {MouvementProduit} from "./enumerations/mouvement-produit.model";
+import { MouvementProduit } from './enumerations/mouvement-produit.model';
 
 export class ProductStatRecord {
   id?: number;
@@ -17,7 +17,7 @@ export class ProductStatRecord {
   discountAmountHorsUg?: number;
   amountToBeTakenIntoAaccount?: number;
   taxAmount?: number;
-  htAmount?: number;
+  montantHt?: number;
   quantityAvg?: number;
   amountAvg?: number;
 }
@@ -96,4 +96,11 @@ export class HistoriqueProduitVenteMensuelleSummary {
 export class ProduitAuditingSum {
   mouvementProduitType: MouvementProduit;
   quantity: number;
+}
+export class ProductStatParetoRecord {
+  libelle: string;
+  codeCip: string;
+  total: number;
+  totalGlobal: number;
+  pourcentage: number;
 }

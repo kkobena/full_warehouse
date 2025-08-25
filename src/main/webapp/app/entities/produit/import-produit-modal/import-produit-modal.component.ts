@@ -12,7 +12,6 @@ import { IResponseDto } from '../../../shared/util/response-dto';
 import { ToastModule } from 'primeng/toast';
 import { IFournisseur } from '../../../shared/model/fournisseur.model';
 import { FournisseurService } from '../../fournisseur/fournisseur.service';
-import { NgxSpinnerModule } from 'ngx-spinner';
 import { ButtonModule } from 'primeng/button';
 import { Select } from 'primeng/select';
 import { Card } from 'primeng/card';
@@ -31,15 +30,14 @@ import { SpinnerComponent } from '../../../shared/spinner/spinner.component';
     TableModule,
     FileUploadModule,
     ToastModule,
-    NgxSpinnerModule,
     ButtonModule,
     Select,
     Card,
     ToastAlertComponent,
-    SpinnerComponent
+    SpinnerComponent,
   ],
   templateUrl: './import-produit-modal.component.html',
-  styleUrls: ['../../common-modal.component.scss']
+  styleUrls: ['../../common-modal.component.scss'],
 })
 export class ImportProduitModalComponent implements OnInit {
   type: string | null = null;
@@ -83,7 +81,7 @@ export class ImportProduitModalComponent implements OnInit {
     this.fournisseurService
       .query({
         page: 0,
-        size: 9999
+        size: 9999,
       })
       .subscribe((res: HttpResponse<IFournisseur[]>) => {
         this.fournisseurs = res.body || [];
@@ -97,12 +95,12 @@ export class ImportProduitModalComponent implements OnInit {
       [
         JSON.stringify({
           typeImportation: this.type,
-          fournisseurId: this.fournisseur().value
-        })
+          fournisseurId: this.fournisseur().value,
+        }),
       ],
       {
-        type: 'application/json'
-      }
+        type: 'application/json',
+      },
     );
     formData.append('data', body);
     formData.append('fichier', file, file.name);
@@ -110,17 +108,20 @@ export class ImportProduitModalComponent implements OnInit {
   }
 
   private uploadFileResponse(result: Observable<HttpResponse<IResponseDto>>): void {
-    result.pipe(finalize(() => {
-      this.spinner().hide();
-      this.isSaving = false;
-    })).subscribe({
-      next: (res: HttpResponse<IResponseDto>) => this.onPocesCsvSuccess(res.body),
-      error: (err) => this.onSaveError(err)
-    });
+    result
+      .pipe(
+        finalize(() => {
+          this.spinner().hide();
+          this.isSaving = false;
+        }),
+      )
+      .subscribe({
+        next: (res: HttpResponse<IResponseDto>) => this.onPocesCsvSuccess(res.body),
+        error: err => this.onSaveError(err),
+      });
   }
 
   private onPocesCsvSuccess(responseDto: IResponseDto | null): void {
-
     this.activeModal.close(responseDto);
   }
 

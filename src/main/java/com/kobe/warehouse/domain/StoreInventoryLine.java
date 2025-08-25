@@ -1,6 +1,5 @@
 package com.kobe.warehouse.domain;
 
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
@@ -8,6 +7,9 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
+import jakarta.persistence.NamedStoredProcedureQuery;
+import jakarta.persistence.ParameterMode;
+import jakarta.persistence.StoredProcedureParameter;
 import jakarta.persistence.Table;
 import jakarta.persistence.UniqueConstraint;
 import jakarta.validation.constraints.NotNull;
@@ -18,6 +20,15 @@ import java.time.LocalDateTime;
 /**
  * A StoreInventoryLine.
  */
+
+@NamedStoredProcedureQuery(
+    name = "StoreInventoryLine.proc_close_inventory",
+    procedureName = "proc_close_inventory",
+    parameters = {
+        @StoredProcedureParameter(mode = ParameterMode.IN, name = "store_inventory_id", type = Long.class),
+        @StoredProcedureParameter(mode = ParameterMode.OUT, name = "nombreLigne", type = Integer.class),
+    }
+)
 @Entity
 @Table(name = "store_inventory_line", uniqueConstraints = { @UniqueConstraint(columnNames = { "produit_id", "store_inventory_id" }) })
 public class StoreInventoryLine implements Serializable {

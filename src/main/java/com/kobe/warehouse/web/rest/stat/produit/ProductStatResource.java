@@ -47,8 +47,10 @@ public class ProductStatResource {
     }
 
     @GetMapping("/ca")
-    public ResponseEntity<List<ProductStatRecord>> fetchProductStat(@Valid ProduitRecordParamDTO produitRecordParam) {
-        return ResponseEntity.ok().body(productStatService.fetchProductStat(produitRecordParam));
+    public ResponseEntity<List<ProductStatRecord>> fetchProductStat(@Valid ProduitRecordParamDTO produitRecordParam, Pageable pageable) {
+        Page<ProductStatRecord> page = productStatService.fetchProductStat(produitRecordParam, pageable);
+        HttpHeaders headers = PaginationUtil.generatePaginationHttpHeaders(ServletUriComponentsBuilder.fromCurrentRequest(), page);
+        return ResponseEntity.ok().headers(headers).body(page.getContent());
     }
 
     @GetMapping("/vingt-quantre-vingt")

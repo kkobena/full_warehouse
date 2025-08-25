@@ -22,6 +22,7 @@ public class ThirdPartySaleDTO extends SaleDTO {
     private String numBon;
     private boolean sansBon;
     private AssuredCustomerDTO ayantDroit;
+    private boolean hasPriceOption;
 
     public ThirdPartySaleDTO() {
         super();
@@ -33,6 +34,7 @@ public class ThirdPartySaleDTO extends SaleDTO {
         this.partAssure = thirdPartySales.getPartAssure();
         this.partTiersPayant = thirdPartySales.getPartTiersPayant();
         AssuredCustomer assuredCustomer = thirdPartySales.getAyantDroit();
+        this.hasPriceOption = thirdPartySales.isHasPriceOption();
         if (assuredCustomer != null) {
             this.ayantDroitId = assuredCustomer.getId();
             this.ayantDroitFirstName = assuredCustomer.getFirstName();
@@ -50,6 +52,14 @@ public class ThirdPartySaleDTO extends SaleDTO {
     public ThirdPartySaleDTO setAyantDroit(AssuredCustomerDTO ayantDroit) {
         this.ayantDroit = ayantDroit;
         return this;
+    }
+
+    public boolean isHasPriceOption() {
+        return hasPriceOption;
+    }
+
+    public void setHasPriceOption(boolean hasPriceOption) {
+        this.hasPriceOption = hasPriceOption;
     }
 
     public List<ClientTiersPayantDTO> getTiersPayants() {

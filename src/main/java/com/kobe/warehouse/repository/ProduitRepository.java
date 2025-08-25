@@ -25,6 +25,8 @@ import java.util.Optional;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
+import org.springframework.data.jpa.repository.query.Procedure;
+import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 /**
@@ -34,13 +36,21 @@ import org.springframework.stereotype.Repository;
 @Repository
 public interface ProduitRepository
     extends JpaRepository<Produit, Long>, JpaSpecificationExecutor<Produit>, SpecificationBuilder, ProduitCustomRepository {
-    default Specification<Produit> specialisationCritereRecherche(String queryString) {
-        return (root, query, cb) -> cb.like(cb.upper(root.get(Produit_.libelle)), queryString.toUpperCase());
-    }
+    @Procedure(name = "Produit.getTopQty80PercentProducts")
+    List<Object[]> getTopQty80PercentProducts(
+        @Param("startDate") LocalDate startDate,
+        @Param("endDate") LocalDate endDate,
+        @Param("caList") String caList,
+        @Param("statutList") String statutList
+    );
 
-    default Specification<Produit> specialisationTypeProduit(TypeProduit typeProduit) {
-        return (root, query, cb) -> cb.equal(root.get(Produit_.typeProduit), typeProduit);
-    }
+    @Procedure(name = "Produit.getTopAmount80PercentProducts")
+    List<Object[]> getTopAmount80PercentProducts(
+        @Param("startDate") LocalDate startDate,
+        @Param("endDate") LocalDate endDate,
+        @Param("caList") String caList,
+        @Param("statutList") String statutList
+    );
 
     Produit findFirstByParentId(Long parentId);
 
@@ -160,5 +170,13 @@ public interface ProduitRepository
         spec = add(spec, filterByFamilleProduitId(param.getFamilleProduitId()));
 
         return spec;
+    }
+
+    default Specification<Produit> specialisationCritereRecherche(String queryString) {
+        return (root, query, cb) -> cb.like(cb.upper(root.get(Produit_.libelle)), queryString.toUpperCase());
+    }
+
+    default Specification<Produit> specialisationTypeProduit(TypeProduit typeProduit) {
+        return (root, query, cb) -> cb.equal(root.get(Produit_.typeProduit), typeProduit);
     }
 }

@@ -1,13 +1,5 @@
 package com.kobe.warehouse.service.dto.builder;
 
-import com.kobe.warehouse.service.dto.records.ProductStatParetoRecord;
-import com.kobe.warehouse.service.dto.records.ProductStatRecord;
-import jakarta.persistence.Tuple;
-import java.math.BigDecimal;
-import java.math.MathContext;
-import java.math.RoundingMode;
-import java.util.Objects;
-
 public final class ProductStatQueryBuilder {
 
     public static final String LIKE_STATEMENT = " AND (p.code_ean LIKE '%s' OR fp.code_cip LIKE '%s' OR p.libelle LIKE '%s') "; // ORDER BY
@@ -40,43 +32,4 @@ public final class ProductStatQueryBuilder {
         """;
     public static final String COUNT_QUERY =
         "SELECT COUNT(DISTINCT l.produit_id) AS produit_count FROM  sales_line l,sales s WHERE s.id=l.sales_id AND DATE(s.updated_at)  BETWEEN ?1 AND ?2 AND s.statut='CLOSED'  AND s.canceled=false AND s.imported=0 %s %s %s";
-
-    public static ProductStatRecord buildProductStatRecord(Tuple tuple) {
-        if (Objects.isNull(tuple.get("produit_id", Long.class))) return null;
-        return new ProductStatRecord(
-            tuple.get("produit_id", Long.class).intValue(),
-            tuple.get("produit_count", Long.class).intValue(),
-            tuple.get("code_cip", String.class),
-            tuple.get("code_ean", String.class),
-            tuple.get("libelle", String.class),
-            tuple.get("quantity_sold", BigDecimal.class).intValue(),
-            tuple.get("quantity_ug", BigDecimal.class).intValue(),
-            tuple.get("net_amount", BigDecimal.class),
-            tuple.get("cost_amount", BigDecimal.class),
-            tuple.get("sales_amount", BigDecimal.class),
-            tuple.get("discount_amount", BigDecimal.class),
-            tuple.get("montant_tva_ug", BigDecimal.class),
-            tuple.get("discount_amount_hors_ug", BigDecimal.class),
-            tuple.get("amount_to_be_taken_into_account", BigDecimal.class),
-            tuple.get("tax_amount", BigDecimal.class),
-            tuple.get("ht_amount", BigDecimal.class)
-        );
-    }
-
-    public static ProductStatParetoRecord buildProductStatParetoRecord(Tuple tuple) {
-        if (Objects.isNull(tuple.get("produit_id", Long.class))) return null;
-        return new ProductStatParetoRecord(
-            tuple.get("produit_id", Long.class).intValue(),
-            tuple.get("code_cip", String.class),
-            tuple.get("code_ean", String.class),
-            tuple.get("libelle", String.class),
-            tuple.get("quantity_sold", BigDecimal.class).intValue(),
-            tuple.get("quantity_avg", BigDecimal.class).round(new MathContext(2, RoundingMode.HALF_UP)).doubleValue(),
-            tuple.get("amount_avg", BigDecimal.class).round(new MathContext(2, RoundingMode.HALF_UP)).doubleValue(),
-            tuple.get("net_amount", BigDecimal.class),
-            tuple.get("sales_amount", BigDecimal.class),
-            tuple.get("ht_amount", BigDecimal.class),
-            tuple.get("tax_amount", BigDecimal.class)
-        );
-    }
 }

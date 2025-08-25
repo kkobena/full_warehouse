@@ -1,5 +1,9 @@
 package com.kobe.warehouse.service.sale.calculation;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
+
 import com.kobe.warehouse.domain.enumeration.NatureVente;
 import com.kobe.warehouse.domain.enumeration.OptionPrixType;
 import com.kobe.warehouse.domain.enumeration.PrioriteTiersPayant;
@@ -8,18 +12,13 @@ import com.kobe.warehouse.service.sale.calculation.dto.CalculationResult;
 import com.kobe.warehouse.service.sale.calculation.dto.SaleItemInput;
 import com.kobe.warehouse.service.sale.calculation.dto.TiersPayantInput;
 import com.kobe.warehouse.service.sale.calculation.dto.TiersPayantPrixInput;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
-
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
-
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertNull;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 class TiersPayantCalculationServiceTest {
 
@@ -205,7 +204,7 @@ class TiersPayantCalculationServiceTest {
         TiersPayantPrixInput prixInput = new TiersPayantPrixInput();
         prixInput.setCompteTiersPayantId(1L);
         prixInput.setPrice(1500);
-        prixInput.setRate(0.8f);
+        prixInput.setRate(80.0f);
         prixInput.setOptionPrixType(OptionPrixType.MIXED_REFERENCE_POURCENTAGE);
         saleItem.setPrixAssurances(Collections.singletonList(prixInput));
         input.setSaleItems(Collections.singletonList(saleItem));
@@ -222,10 +221,9 @@ class TiersPayantCalculationServiceTest {
         assertEquals(BigDecimal.valueOf(2000), result.getTotalSaleAmount());
         assertEquals(0, result.getTotalTiersPayant().compareTo(BigDecimal.valueOf(1200.0)));
         assertEquals(0, result.getTotalPatientShare().compareTo(BigDecimal.valueOf(800.0)));
-        assertEquals(0,result.getDiscountAmount().compareTo(BigDecimal.valueOf(0.0)) );
-        assertEquals(1,result.getItemShares().getFirst().getRates().size() );
+        assertEquals(0, result.getDiscountAmount().compareTo(BigDecimal.valueOf(0.0)));
+        assertEquals(1, result.getItemShares().getFirst().getRates().size());
     }
-
 
     @Test
     void testCalculate_withSingleTiersPayantRate_zero() {
@@ -257,7 +255,6 @@ class TiersPayantCalculationServiceTest {
         assertEquals(BigDecimal.ZERO, result.getDiscountAmount());
     }
 
-
     @Test
     void testCalculate_withSingleTiersPayantRate_Carnet() {
         CalculationInput input = new CalculationInput();
@@ -280,7 +277,7 @@ class TiersPayantCalculationServiceTest {
         saleItem2.setRegularUnitPrice(BigDecimal.valueOf(750));
         saleItem2.setDiscountAmount(BigDecimal.ZERO);
         saleItem2.setPrixAssurances(new ArrayList<>());
-        input.setSaleItems(List.of(saleItem,saleItem2));
+        input.setSaleItems(List.of(saleItem, saleItem2));
 
         TiersPayantInput tiersPayant = new TiersPayantInput();
         tiersPayant.setClientTiersPayantId(1L);
@@ -296,7 +293,6 @@ class TiersPayantCalculationServiceTest {
         assertEquals(0, result.getTotalPatientShare().compareTo(BigDecimal.valueOf(0.0)));
         assertEquals(BigDecimal.ZERO, result.getDiscountAmount());
     }
-
 
     @Test
     void testCalculate_withSingleTiersPayantRate_Carnet_with_discount() {
@@ -320,7 +316,7 @@ class TiersPayantCalculationServiceTest {
         saleItem2.setRegularUnitPrice(BigDecimal.valueOf(750));
         saleItem2.setDiscountAmount(BigDecimal.ZERO);
         saleItem2.setPrixAssurances(new ArrayList<>());
-        input.setSaleItems(List.of(saleItem,saleItem2));
+        input.setSaleItems(List.of(saleItem, saleItem2));
 
         TiersPayantInput tiersPayant = new TiersPayantInput();
         tiersPayant.setClientTiersPayantId(1L);
@@ -334,7 +330,7 @@ class TiersPayantCalculationServiceTest {
         assertEquals(BigDecimal.valueOf(1750), result.getTotalSaleAmount());
         assertEquals(0, result.getTotalTiersPayant().compareTo(BigDecimal.valueOf(1500.0)));
         assertEquals(0, result.getTotalPatientShare().compareTo(BigDecimal.valueOf(0.0)));
-        assertEquals(0,  result.getDiscountAmount().compareTo(BigDecimal.valueOf(250.0)));
+        assertEquals(0, result.getDiscountAmount().compareTo(BigDecimal.valueOf(250.0)));
     }
 
     @Test
@@ -352,7 +348,7 @@ class TiersPayantCalculationServiceTest {
         TiersPayantPrixInput prixInput = new TiersPayantPrixInput();
         prixInput.setCompteTiersPayantId(1L);
         prixInput.setPrice(1500);
-        prixInput.setRate(0.8f);
+        prixInput.setRate(80.0f);
         prixInput.setOptionPrixType(OptionPrixType.MIXED_REFERENCE_POURCENTAGE);
         saleItem.setPrixAssurances(Collections.singletonList(prixInput));
         input.setSaleItems(Collections.singletonList(saleItem));
@@ -366,9 +362,8 @@ class TiersPayantCalculationServiceTest {
         assertEquals(BigDecimal.valueOf(2000), result.getTotalSaleAmount());
         assertEquals(0, result.getTotalTiersPayant().compareTo(BigDecimal.valueOf(1200.0)));
         assertEquals(0, result.getTotalPatientShare().compareTo(BigDecimal.valueOf(800.0)));
-        assertEquals(0,result.getDiscountAmount().compareTo(BigDecimal.valueOf(0.0)) );
+        assertEquals(0, result.getDiscountAmount().compareTo(BigDecimal.valueOf(0.0)));
     }
-
 
     @Test
     void testCalculate_withTiersPayantSpecificPriceAndOtherSaleItemsAndTpRate() {
@@ -385,10 +380,9 @@ class TiersPayantCalculationServiceTest {
         TiersPayantPrixInput prixInput = new TiersPayantPrixInput();
         prixInput.setCompteTiersPayantId(1L);
         prixInput.setPrice(1500);
-        prixInput.setRate(0.8f);
+        prixInput.setRate(80.0f);
         prixInput.setOptionPrixType(OptionPrixType.MIXED_REFERENCE_POURCENTAGE);
         saleItem.setPrixAssurances(Collections.singletonList(prixInput));
-
 
         SaleItemInput saleItem2 = new SaleItemInput();
         saleItem2.setSalesLineId(2L);
@@ -397,7 +391,7 @@ class TiersPayantCalculationServiceTest {
         saleItem2.setRegularUnitPrice(BigDecimal.valueOf(3750));
         saleItem2.setDiscountAmount(BigDecimal.ZERO);
 
-        input.setSaleItems(List.of(saleItem,saleItem2));
+        input.setSaleItems(List.of(saleItem, saleItem2));
         TiersPayantInput tiersPayant = new TiersPayantInput();
         tiersPayant.setClientTiersPayantId(1L);
         tiersPayant.setTaux(0.7f);
@@ -408,7 +402,7 @@ class TiersPayantCalculationServiceTest {
         assertEquals(BigDecimal.valueOf(5750), result.getTotalSaleAmount());
         assertEquals(0, result.getTotalTiersPayant().compareTo(BigDecimal.valueOf(3825.0)));
         assertEquals(0, result.getTotalPatientShare().compareTo(BigDecimal.valueOf(1925.0)));
-        assertEquals(0,result.getDiscountAmount().compareTo(BigDecimal.valueOf(0.0)) );
+        assertEquals(0, result.getDiscountAmount().compareTo(BigDecimal.valueOf(0.0)));
     }
 
     @Test
@@ -426,15 +420,15 @@ class TiersPayantCalculationServiceTest {
         TiersPayantPrixInput prixInput = new TiersPayantPrixInput();
         prixInput.setCompteTiersPayantId(1L);
         prixInput.setPrice(4750);
-        prixInput.setRate(0.8f);
+        prixInput.setRate(80.0f);
         prixInput.setOptionPrixType(OptionPrixType.MIXED_REFERENCE_POURCENTAGE);
 
         TiersPayantPrixInput prixInput2 = new TiersPayantPrixInput();
         prixInput2.setCompteTiersPayantId(1L);
         prixInput2.setPrice(4250);
-        prixInput2.setRate(0.2f);
+        prixInput2.setRate(20.0f);
         prixInput2.setOptionPrixType(OptionPrixType.MIXED_REFERENCE_POURCENTAGE);
-        saleItem.setPrixAssurances(List.of(prixInput,prixInput2));
+        saleItem.setPrixAssurances(List.of(prixInput, prixInput2));
         input.setSaleItems(Collections.singletonList(saleItem));
 
         TiersPayantInput tiersPayant = new TiersPayantInput();
@@ -446,7 +440,7 @@ class TiersPayantCalculationServiceTest {
         tiersPayant1.setClientTiersPayantId(2L);
         tiersPayant1.setTaux(0.20f);
         tiersPayant1.setPriorite(PrioriteTiersPayant.R1);
-        input.setTiersPayants(new ArrayList<>(List.of(tiersPayant,tiersPayant1)));
+        input.setTiersPayants(new ArrayList<>(List.of(tiersPayant, tiersPayant1)));
         CalculationResult result = tiersPayantCalculationService.calculate(input);
         assertNotNull(result);
         assertEquals(4250, result.getItemShares().getFirst().getCalculationBasePrice());
@@ -455,9 +449,8 @@ class TiersPayantCalculationServiceTest {
         assertEquals(BigDecimal.valueOf(5750), result.getTotalSaleAmount());
         assertEquals(0, result.getTotalTiersPayant().compareTo(BigDecimal.valueOf(4250.0)));
         assertEquals(0, result.getTotalPatientShare().compareTo(BigDecimal.valueOf(1500.0)));
-        assertEquals(0,result.getDiscountAmount().compareTo(BigDecimal.valueOf(0.0)) );
+        assertEquals(0, result.getDiscountAmount().compareTo(BigDecimal.valueOf(0.0)));
     }
-
 
     @Test
     void testCalculate_withTiersPayantDailyCeiling() {
@@ -491,7 +484,6 @@ class TiersPayantCalculationServiceTest {
         assertEquals(0, result.getTotalPatientShare().compareTo(BigDecimal.valueOf(1500.0)));
         assertEquals(BigDecimal.ZERO, result.getDiscountAmount());
     }
-
 
     @Test
     void testCalculate_withTiersPayantDailyCeiling2() {
@@ -540,15 +532,15 @@ class TiersPayantCalculationServiceTest {
         TiersPayantPrixInput prixInput = new TiersPayantPrixInput();
         prixInput.setCompteTiersPayantId(1L);
         prixInput.setPrice(4750);
-        prixInput.setRate(0.8f);
+        prixInput.setRate(80.0f);
         prixInput.setOptionPrixType(OptionPrixType.MIXED_REFERENCE_POURCENTAGE);
 
         TiersPayantPrixInput prixInput2 = new TiersPayantPrixInput();
         prixInput2.setCompteTiersPayantId(1L);
         prixInput2.setPrice(4250);
-        prixInput2.setRate(1.f);
+        prixInput2.setRate(100.f);
         prixInput2.setOptionPrixType(OptionPrixType.MIXED_REFERENCE_POURCENTAGE);
-        saleItem.setPrixAssurances(List.of(prixInput,prixInput2));
+        saleItem.setPrixAssurances(List.of(prixInput, prixInput2));
         input.setSaleItems(Collections.singletonList(saleItem));
 
         TiersPayantInput tiersPayant = new TiersPayantInput();
@@ -560,7 +552,7 @@ class TiersPayantCalculationServiceTest {
         tiersPayant1.setClientTiersPayantId(2L);
         tiersPayant1.setTaux(1.0f);
         tiersPayant1.setPriorite(PrioriteTiersPayant.R1);
-        input.setTiersPayants(new ArrayList<>(List.of(tiersPayant,tiersPayant1)));
+        input.setTiersPayants(new ArrayList<>(List.of(tiersPayant, tiersPayant1)));
         CalculationResult result = tiersPayantCalculationService.calculate(input);
         assertNotNull(result);
         assertEquals(4250, result.getItemShares().getFirst().getCalculationBasePrice());
@@ -569,7 +561,7 @@ class TiersPayantCalculationServiceTest {
         assertEquals(BigDecimal.valueOf(5750), result.getTotalSaleAmount());
         assertEquals(0, result.getTotalTiersPayant().compareTo(BigDecimal.valueOf(5750.0)));
         assertEquals(0, result.getTotalPatientShare().compareTo(BigDecimal.valueOf(0.0)));
-        assertEquals(0,result.getDiscountAmount().compareTo(BigDecimal.valueOf(0.0)) );
+        assertEquals(0, result.getDiscountAmount().compareTo(BigDecimal.valueOf(0.0)));
     }
 
     @Test

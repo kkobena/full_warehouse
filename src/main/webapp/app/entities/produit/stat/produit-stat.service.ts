@@ -12,10 +12,11 @@ import {
   HistoriqueProduitVente,
   HistoriqueProduitVenteMensuelleSummary,
   HistoriqueProduitVenteSummary,
+  ProductStatParetoRecord,
   ProductStatRecord,
   ProduitAuditingParam,
   ProduitAuditingState,
-  ProduitAuditingSum
+  ProduitAuditingSum,
 } from '../../../shared/model/produit-record.model';
 
 @Injectable({ providedIn: 'root' })
@@ -27,15 +28,15 @@ export class ProduitStatService {
     const options = createRequestOptions(venteRecordParam);
     return this.http.get<ProductStatRecord[]>(`${this.resourceUrl}/ca`, {
       params: options,
-      observe: 'response'
+      observe: 'response',
     });
   }
 
-  fetch20x80(venteRecordParam: VenteRecordParam): Observable<HttpResponse<ProductStatRecord[]>> {
+  fetch20x80(venteRecordParam: VenteRecordParam): Observable<HttpResponse<ProductStatParetoRecord[]>> {
     const options = createRequestOptions(venteRecordParam);
-    return this.http.get<ProductStatRecord[]>(`${this.resourceUrl}/vingt-quantre-vingt`, {
+    return this.http.get<ProductStatParetoRecord[]>(`${this.resourceUrl}/vingt-quantre-vingt`, {
       params: options,
-      observe: 'response'
+      observe: 'response',
     });
   }
 
@@ -43,7 +44,7 @@ export class ProduitStatService {
     const options = createRequestOptions(produitAuditingParam);
     return this.http.get<ProduitAuditingState[]>(`${this.resourceUrl}/transactions`, {
       params: options,
-      observe: 'response'
+      observe: 'response',
     });
   }
 
@@ -51,7 +52,7 @@ export class ProduitStatService {
     const options = createRequestOptions(produitAuditingParam);
     return this.http.get<ProduitAuditingSum[]>(`${this.resourceUrl}/transactions/sum`, {
       params: options,
-      observe: 'response'
+      observe: 'response',
     });
   }
 
@@ -63,7 +64,7 @@ export class ProduitStatService {
     const options = createRequestOptions(produitAuditingParam);
     return this.http.get<HistoriqueProduitVente[]>(`${this.resourceUrl}/historique-vente`, {
       params: options,
-      observe: 'response'
+      observe: 'response',
     });
   }
 
@@ -71,7 +72,7 @@ export class ProduitStatService {
     const options = createRequestOptions(produitAuditingParam);
     return this.http.get<HistoriqueProduitAchats[]>(`${this.resourceUrl}/historique-achat`, {
       params: options,
-      observe: 'response'
+      observe: 'response',
     });
   }
 
@@ -79,7 +80,7 @@ export class ProduitStatService {
     const options = createRequestOptions(produitAuditingParam);
     return this.http.get<HistoriqueProduitDonneesMensuelles[]>(`${this.resourceUrl}/historique-achat-mensuelle`, {
       params: options,
-      observe: 'response'
+      observe: 'response',
     });
   }
 
@@ -87,7 +88,7 @@ export class ProduitStatService {
     const options = createRequestOptions(produitAuditingParam);
     return this.http.get<HistoriqueProduitDonneesMensuelles[]>(`${this.resourceUrl}/historique-vente-mensuelle`, {
       params: options,
-      observe: 'response'
+      observe: 'response',
     });
   }
 
@@ -95,7 +96,7 @@ export class ProduitStatService {
     const options = createRequestOptions(produitAuditingParam);
     return this.http.get<HistoriqueProduitAchatsSummary>(`${this.resourceUrl}/historique-achat-summary`, {
       params: options,
-      observe: 'response'
+      observe: 'response',
     });
   }
 
@@ -103,17 +104,17 @@ export class ProduitStatService {
     const options = createRequestOptions(produitAuditingParam);
     return this.http.get<HistoriqueProduitVenteSummary>(`${this.resourceUrl}/historique-vente-summary`, {
       params: options,
-      observe: 'response'
+      observe: 'response',
     });
   }
 
   getHistoriqueVenteMensuelleSummary(
-    produitAuditingParam: ProduitAuditingParam
+    produitAuditingParam: ProduitAuditingParam,
   ): Observable<HttpResponse<HistoriqueProduitVenteMensuelleSummary>> {
     const options = createRequestOptions(produitAuditingParam);
     return this.http.get<HistoriqueProduitVenteMensuelleSummary>(`${this.resourceUrl}/historique-vente-mensuelle-summary`, {
       params: options,
-      observe: 'response'
+      observe: 'response',
     });
   }
 
@@ -121,7 +122,7 @@ export class ProduitStatService {
     const options = createRequestOptions(produitAuditingParam);
     return this.http.get(`${this.resourceUrl}/historique-vente/pdf`, {
       params: options,
-      responseType: 'blob'
+      responseType: 'blob',
     });
   }
 
@@ -129,7 +130,7 @@ export class ProduitStatService {
     const options = createRequestOptions(produitAuditingParam);
     return this.http.get(`${this.resourceUrl}/historique-achat/pdf`, {
       params: options,
-      responseType: 'blob'
+      responseType: 'blob',
     });
   }
 
@@ -137,7 +138,7 @@ export class ProduitStatService {
     const options = createRequestOptions(produitAuditingParam);
     return this.http.get(`${this.resourceUrl}/historique-vente-mensuelle/pdf`, {
       params: options,
-      responseType: 'blob'
+      responseType: 'blob',
     });
   }
 
@@ -145,7 +146,7 @@ export class ProduitStatService {
     const options = createRequestOptions(produitAuditingParam);
     return this.http.get(`${this.resourceUrl}/historique-achat-mensuelle/pdf`, {
       params: options,
-      responseType: 'blob'
+      responseType: 'blob',
     });
   }
 }

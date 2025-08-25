@@ -16,7 +16,10 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.Index;
 import jakarta.persistence.ManyToOne;
+import jakarta.persistence.NamedStoredProcedureQuery;
 import jakarta.persistence.OneToMany;
+import jakarta.persistence.ParameterMode;
+import jakarta.persistence.StoredProcedureParameter;
 import jakarta.persistence.Table;
 import jakarta.persistence.UniqueConstraint;
 import jakarta.validation.constraints.Min;
@@ -38,6 +41,26 @@ import org.hibernate.envers.RelationTargetAuditMode;
  * not an ignored comment
  */
 @Audited(targetAuditMode = RelationTargetAuditMode.NOT_AUDITED)
+@NamedStoredProcedureQuery(
+    name = "Produit.getTopAmount80PercentProducts",
+    procedureName = "GetTopAmount80PercentProducts",
+    parameters = {
+        @StoredProcedureParameter(mode = ParameterMode.IN, name = "startDate", type = LocalDate.class),
+        @StoredProcedureParameter(mode = ParameterMode.IN, name = "endDate", type = LocalDate.class),
+        @StoredProcedureParameter(mode = ParameterMode.IN, name = "caList", type = String.class),
+        @StoredProcedureParameter(mode = ParameterMode.IN, name = "statutList", type = String.class),
+    }
+)
+@NamedStoredProcedureQuery(
+    name = "Produit.getTopQty80PercentProducts",
+    procedureName = "GetTopQty80PercentProducts",
+    parameters = {
+        @StoredProcedureParameter(mode = ParameterMode.IN, name = "startDate", type = LocalDate.class),
+        @StoredProcedureParameter(mode = ParameterMode.IN, name = "endDate", type = LocalDate.class),
+        @StoredProcedureParameter(mode = ParameterMode.IN, name = "caList", type = String.class),
+        @StoredProcedureParameter(mode = ParameterMode.IN, name = "statutList", type = String.class),
+    }
+)
 @Entity
 @Table(
     name = "produit",

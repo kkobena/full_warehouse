@@ -12,7 +12,7 @@ import {
 } from '@fortawesome/free-solid-svg-icons';
 import { TableModule } from 'primeng/table';
 import { VenteByTypeRecord, VenteModePaimentRecord, VenteRecord, VenteRecordWrapper } from '../../shared/model/vente-record.model';
-import { ProductStatRecord } from '../../shared/model/produit-record.model';
+import { ProductStatParetoRecord, ProductStatRecord } from '../../shared/model/produit-record.model';
 import { AchatRecord } from '../../shared/model/achat-record.model';
 import { CaPeriodeFilter } from '../../shared/model/enumerations/ca-periode-filter.model';
 import { TOPS } from '../../shared/constants/pagination.constants';
@@ -58,7 +58,8 @@ export class HomeBaseComponent implements OnInit {
   protected canceled: VenteRecord | null = null;
   protected rowQuantity: ProductStatRecord[] = [];
   protected rowAmount: ProductStatRecord[] = [];
-  protected row20x80: ProductStatRecord[] = [];
+  protected row20x80: ProductStatParetoRecord[] = [];
+  protected row20x80Montant: ProductStatParetoRecord[] = [];
   protected achatRecord: AchatRecord | null = null;
   protected assurance: VenteRecord | null = null;
   protected vno: VenteRecord | null = null;
@@ -136,6 +137,11 @@ export class HomeBaseComponent implements OnInit {
       }),
       twentyEighty: this.produitStatService.fetch20x80({
         dashboardPeriode: this.dashboardPeriode,
+        order: OrderBy.QUANTITY_SOLD,
+      }),
+      twentyEightyMontant: this.produitStatService.fetch20x80({
+        dashboardPeriode: this.dashboardPeriode,
+        order: OrderBy.AMOUNT,
       }),
       tiersPayantAchat: this.tiersPayantService.fetchAchatTiersPayant({
         dashboardPeriode: this.dashboardPeriode,
@@ -152,6 +158,7 @@ export class HomeBaseComponent implements OnInit {
         this.onFetchPoduitCaSuccess(data.produitCa.body);
         this.onFetchPoduitAmountSuccess(data.produitAmount.body);
         this.onFetch20x80Success(data.twentyEighty.body);
+        this.onFetch20x80AmountSuccess(data.twentyEightyMontant.body);
         this.onFetchTiersPayantSuccess(data.tiersPayantAchat.body);
         this.buildAllCharts();
       },
@@ -234,27 +241,36 @@ export class HomeBaseComponent implements OnInit {
     this.rowAmount = productStatRecords;
     this.computeAmountTopAmount();
   }
-
-  private onFetch20x80Success(productStatRecords: ProductStatRecord[] | []): void {
+  private onFetch20x80AmountSuccess(productStatRecords: ProductStatParetoRecord[] | []): void {
+    this.row20x80Montant = productStatRecords;
+    this.computeAmountrow20x80Amount();
+  }
+  private onFetch20x80Success(productStatRecords: ProductStatParetoRecord[] | []): void {
     this.row20x80 = productStatRecords;
     this.computeAmountrow20x80();
   }
 
   private computeAmountTopQuantity(): void {
     this.totalQuantityToQuantity = this.rowQuantity.reduce((sum, p) => sum + p.quantitySold, 0);
-    this.totalAmountTopQuantity = this.rowQuantity.reduce((sum, p) => sum + p.htAmount, 0);
+    this.totalAmountTopQuantity = this.rowQuantity.reduce((sum, p) => sum + p.montantHt, 0);
   }
 
   private computeAmountTopAmount(): void {
     this.totalQuantityTopAmount = this.rowAmount.reduce((sum, p) => sum + p.quantitySold, 0);
-    this.totalAmountTopAmount = this.rowAmount.reduce((sum, p) => sum + p.htAmount, 0);
+    this.totalAmountTopAmount = this.rowAmount.reduce((sum, p) => sum + p.montantHt, 0);
+  }
+  private computeAmountrow20x80Amount(): void {
+    if (this.row20x80Montant?.length) {
+      this.totalAmount20x80 = this.row20x80Montant[0].totalGlobal;
+    }
+    this.totalAmountAvg = this.row20x80Montant?.reduce((sum, p) => sum + p.pourcentage, 0);
   }
 
   private computeAmountrow20x80(): void {
-    this.totalAmount20x80 = this.row20x80.reduce((sum, p) => sum + p.htAmount, 0);
-    this.totalQuantity20x80 = this.row20x80.reduce((sum, p) => sum + p.quantitySold, 0);
-    this.totalQuantityAvg = this.row20x80.reduce((sum, p) => sum + p.quantityAvg, 0);
-    this.totalAmountAvg = this.row20x80.reduce((sum, p) => sum + p.amountAvg, 0);
+    if (this.row20x80?.length) {
+      this.totalQuantity20x80 = this.row20x80[0].totalGlobal;
+    }
+    this.totalQuantityAvg = this.row20x80?.reduce((sum, p) => sum + p.pourcentage, 0);
   }
 
   private initializeChartStyles(): void {
@@ -295,7 +311,7 @@ export class HomeBaseComponent implements OnInit {
           type: 'bar',
           label: 'Montant HT',
           backgroundColor: this.documentStyle.getPropertyValue('--p-blue-200'),
-          data: this.rowAmount.map(p => p.htAmount),
+          data: this.rowAmount.map(p => p.montantHt),
         },
       ],
     };
@@ -311,13 +327,13 @@ export class HomeBaseComponent implements OnInit {
           label: '% Montant',
           borderColor: this.documentStyle.getPropertyValue('--p-cyan-300'),
           tension: 0.4,
-          data: this.row20x80.map(p => p.amountAvg),
+          data: this.row20x80.map(p => p.pourcentage),
         },
         {
           type: 'bar',
           label: 'Montant HT',
           backgroundColor: this.documentStyle.getPropertyValue('--p-orange-300'),
-          data: this.row20x80.map(p => p.htAmount),
+          data: this.row20x80.map(p => p.total),
         },
       ],
     };

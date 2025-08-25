@@ -10,6 +10,7 @@ import java.io.Serial;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
+import org.hibernate.annotations.ColumnDefault;
 
 @Entity
 public class ThirdPartySales extends Sales implements Serializable {
@@ -29,6 +30,10 @@ public class ThirdPartySales extends Sales implements Serializable {
 
     @Column(name = "part_tiers_payant", columnDefinition = "int default '0'")
     private Integer partTiersPayant = 0;
+
+    @ColumnDefault("false")
+    @Column(name = "has_price_option")
+    private boolean hasPriceOption;
 
     @OneToMany(mappedBy = "sale", orphanRemoval = true, cascade = { CascadeType.REMOVE })
     private List<ThirdPartySaleLine> thirdPartySaleLines = new ArrayList<>();
@@ -78,9 +83,12 @@ public class ThirdPartySales extends Sales implements Serializable {
         return this;
     }
 
-    public boolean hasOptionPrixPourcentage() {
-        return this.getSalesLines()
-            .stream()
-            .map(e -> e.getRates().stream()).findAny().isPresent();
+    public boolean isHasPriceOption() {
+        return hasPriceOption;
+    }
+
+    public ThirdPartySales setHasPriceOption(boolean hasPriceOption) {
+        this.hasPriceOption = hasPriceOption;
+        return this;
     }
 }

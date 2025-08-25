@@ -4,7 +4,6 @@ import com.kobe.warehouse.domain.FournisseurProduit;
 import com.kobe.warehouse.domain.Produit;
 import com.kobe.warehouse.domain.SalesLine;
 import com.kobe.warehouse.service.sale.calculation.dto.Rate;
-
 import java.time.LocalDateTime;
 import java.util.List;
 
@@ -37,7 +36,7 @@ public class SaleLineDTO {
     private LocalDateTime effectiveUpdateDate;
     private Integer taxValue;
     private boolean forceStock; // mis pour forcer le stock a la vente
-    private List<TiersPayantPrixRecord> tiersPayantPrixRecords;
+
     private List<Rate> rates;
 
     public SaleLineDTO() {}
@@ -69,13 +68,7 @@ public class SaleLineDTO {
             .getRates();
     }
 
-    public List<TiersPayantPrixRecord> getTiersPayantPrixRecords() {
-        return tiersPayantPrixRecords;
-    }
 
-    public void setTiersPayantPrixRecords(List<TiersPayantPrixRecord> tiersPayantPrixRecords) {
-        this.tiersPayantPrixRecords = tiersPayantPrixRecords;
-    }
 
     public List<Rate> getRates() {
         return rates;

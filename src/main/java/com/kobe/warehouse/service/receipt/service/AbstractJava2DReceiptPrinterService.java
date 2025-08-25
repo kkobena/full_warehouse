@@ -22,8 +22,6 @@ import java.util.List;
 import java.util.Objects;
 import javax.print.PrintService;
 import javax.print.PrintServiceLookup;
-import org.springframework.boot.context.event.ApplicationReadyEvent;
-import org.springframework.context.event.EventListener;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 
@@ -210,11 +208,5 @@ public abstract class AbstractJava2DReceiptPrinterService implements Printable {
             y += lineHeight;
         }
         return y;
-    }
-
-    @EventListener(ApplicationReadyEvent.class)
-    protected void loadDriver() {
-        // This method is intentionally left empty as it's not used.
-        // The printerJob is initialized in the constructor or getPrinterJob method.
     }
 }

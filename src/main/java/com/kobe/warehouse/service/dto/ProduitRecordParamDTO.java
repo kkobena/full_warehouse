@@ -5,6 +5,7 @@ public class ProduitRecordParamDTO extends VenteRecordParamDTO {
     private OrderBy order = OrderBy.QUANTITY_SOLD;
     private String search;
     private Long produitId;
+    private Long fournisseurId;
 
     public OrderBy getOrder() {
         return order;
@@ -13,6 +14,14 @@ public class ProduitRecordParamDTO extends VenteRecordParamDTO {
     public ProduitRecordParamDTO setOrder(OrderBy order) {
         this.order = order;
         return this;
+    }
+
+    public Long getFournisseurId() {
+        return fournisseurId;
+    }
+
+    public void setFournisseurId(Long fournisseurId) {
+        this.fournisseurId = fournisseurId;
     }
 
     public String getSearch() {

@@ -10,9 +10,6 @@ import com.kobe.warehouse.service.sale.calculation.dto.SaleItemInput;
 import com.kobe.warehouse.service.sale.calculation.dto.TiersPayantInput;
 import com.kobe.warehouse.service.sale.calculation.dto.TiersPayantLineOutput;
 import com.kobe.warehouse.service.sale.calculation.dto.TiersPayantPrixInput;
-import org.springframework.stereotype.Service;
-import org.springframework.util.CollectionUtils;
-
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.util.ArrayList;
@@ -20,15 +17,16 @@ import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import org.springframework.stereotype.Service;
+import org.springframework.util.CollectionUtils;
 
 @Service
 public class TiersPayantCalculationService {
 
-
     public CalculationResult calculate(CalculationInput input) {
         CalculationResult calculationResult = new CalculationResult();
         BigDecimal totalAmountAssurance = BigDecimal.ZERO;
-        BigDecimal itemPartAssure = BigDecimal.ZERO;
+
         BigDecimal discountAmount = BigDecimal.ZERO;
         Map<Long, BigDecimal> tiersPayants = new HashMap<>();
         if (CollectionUtils.isEmpty(input.getSaleItems())) return null;
@@ -36,9 +34,10 @@ public class TiersPayantCalculationService {
             CalculatedShare itemShare = calculateSaleItem(saleItemInput, input.getTiersPayants(), input.getNatureVente());
             totalAmountAssurance = totalAmountAssurance.add(itemShare.getTotalReimbursedAmount());
             discountAmount = discountAmount.add(saleItemInput.getDiscountAmount());
-            itemPartAssure = itemPartAssure.add(itemShare.getPatientShare());
-            itemShare.getTiersPayants().forEach((clientTiersPayantId, montant) ->
-                tiersPayants.merge(clientTiersPayantId, montant, BigDecimal::add));
+
+            itemShare
+                .getTiersPayants()
+                .forEach((clientTiersPayantId, montant) -> tiersPayants.merge(clientTiersPayantId, montant, BigDecimal::add));
             calculationResult.getItemShares().add(itemShare);
         }
         calculationResult.setDiscountAmount(discountAmount.setScale(0, RoundingMode.HALF_UP));
@@ -68,8 +67,9 @@ public class TiersPayantCalculationService {
     private BigDecimal applyCeilings(BigDecimal partTiersPayantNet, TiersPayantInput tp, StringBuilder warnings) {
         BigDecimal finalAmount = computeThirdPartyPart(tp, partTiersPayantNet);
         if (finalAmount.compareTo(partTiersPayantNet) != 0) {
-            warnings.append("Le montant remboursé pour le tiers payant ")
-                .append(tp.getClientTiersPayantId())
+            warnings
+                .append("Le montant remboursé pour le tiers payant ")
+                .append(tp.getTiersPayantFullName())
                 .append(" a été plafonné à ")
                 .append(finalAmount)
                 .append(".\n");
@@ -78,13 +78,12 @@ public class TiersPayantCalculationService {
     }
 
     private BigDecimal computeThirdPartyPart(TiersPayantInput tp, BigDecimal partTiersPayantNet) {
-        BigDecimal totalNetAmount = computePlafond(tp.getPlafondConso(), tp.getConsoMensuelle(), partTiersPayantNet);//plafon tiers payant mensuel consommation
+        BigDecimal totalNetAmount = computePlafond(tp.getPlafondConso(), tp.getConsoMensuelle(), partTiersPayantNet); //plafon tiers payant mensuel consommation
         return computePlafondClient(tp, totalNetAmount);
     }
 
-
     private BigDecimal computePlafondClient(TiersPayantInput tp, BigDecimal partTiersPayantNet) {
-        BigDecimal totalNetAmount = computePlafond(tp.getPlafondConso(), tp.getConsoMensuelle(), partTiersPayantNet);//plafon mensuel consommation
+        BigDecimal totalNetAmount = computePlafond(tp.getPlafondConso(), tp.getConsoMensuelle(), partTiersPayantNet); //plafon mensuel consommation
         return computePlafondVente(tp.getPlafondJournalierClient(), totalNetAmount);
     }
 
@@ -94,7 +93,6 @@ public class TiersPayantCalculationService {
         }
         return totalNetAmount.min(plafondVente);
     }
-
 
     private BigDecimal computePlafond(BigDecimal plafond, BigDecimal conso, BigDecimal partTiersPayantNet) {
         if (plafond == null) {
@@ -118,8 +116,15 @@ public class TiersPayantCalculationService {
         itemShare.setPharmacyPrice(saleItem.getRegularUnitPrice());
         itemShare.setSaleLineId(saleItem.getSalesLineId());
         itemShare.setDiscountAmount(saleItem.getDiscountAmount());
+        itemShare.setTotalSalesAmount(saleItem.getTotalSalesAmount());
         BigDecimal totalPartTiersPayant = BigDecimal.ZERO;
-        int prixReference = saleItem.getPrixAssurances().stream().filter(p -> p.getOptionPrixType() != OptionPrixType.POURCENTAGE).mapToInt(TiersPayantPrixInput::getPrice).min().orElse(0);
+        int prixReference = saleItem
+            .getPrixAssurances()
+            .stream()
+            .filter(p -> p.getOptionPrixType() != OptionPrixType.POURCENTAGE)
+            .mapToInt(TiersPayantPrixInput::getPrice)
+            .min()
+            .orElse(0);
         boolean hasOptionPrix = !saleItem.getPrixAssurances().isEmpty();
         BigDecimal calculationBaseUni = prixReference > 0 ? BigDecimal.valueOf(prixReference) : itemShare.getPharmacyPrice();
         BigDecimal calculationBase = calculationBaseUni.multiply(BigDecimal.valueOf(saleItem.getQuantity()));
@@ -127,13 +132,16 @@ public class TiersPayantCalculationService {
         for (TiersPayantInput tiersPayantInput : tiersPayantInputs) {
             float rate = tiersPayantInput.getTaux();
             if (hasOptionPrix) {
-                TiersPayantPrixInput tiersPayantPrixInput = saleItem.getPrixAssurances().stream()
-                    .filter(p -> p.getCompteTiersPayantId().equals(tiersPayantInput.getClientTiersPayantId())).findFirst().orElse(null);
+                TiersPayantPrixInput tiersPayantPrixInput = saleItem
+                    .getPrixAssurances()
+                    .stream()
+                    .filter(p -> p.getCompteTiersPayantId().equals(tiersPayantInput.getClientTiersPayantId()))
+                    .findFirst()
+                    .orElse(null);
 
                 if (tiersPayantPrixInput != null && tiersPayantPrixInput.getOptionPrixType() != OptionPrixType.REFERENCE) {
                     rate = tiersPayantPrixInput.getRate() / 100.0f;
                     itemShare.getRates().add(new Rate(tiersPayantInput.getClientTiersPayantId(), rate));
-
                 }
             }
             BigDecimal remainingAmountForTps = calculationBase.subtract(totalPartTiersPayant);
@@ -146,32 +154,35 @@ public class TiersPayantCalculationService {
                 actualShare = actualShare.min(remainingAmountForTps);
             }
 
-
             totalPartTiersPayant = totalPartTiersPayant.add(actualShare);
             itemShare.getTiersPayants().put(tiersPayantInput.getClientTiersPayantId(), actualShare);
         }
         itemShare.setTotalReimbursedAmount(totalPartTiersPayant);
-        calculatePatientShare(itemShare);
 
         return itemShare;
-    }
-
-    private void calculatePatientShare(CalculatedShare itemShare) {
-        BigDecimal patientPart = itemShare.getPharmacyPrice().subtract(itemShare.getTotalReimbursedAmount()).subtract(itemShare.getDiscountAmount());
-        itemShare.setPatientShare(patientPart.max(BigDecimal.ZERO));
-
     }
 
     private BigDecimal calculatePatientShare(CalculationResult calculationResult, NatureVente nature) {
         if (nature == NatureVente.ASSURANCE) {
             // BigDecimal patientPart = calculationResult.getTotalSaleAmount().subtract(calculationResult.getTotalComplementaryShare()).subtract(calculationResult.getDiscountAmount());
-            BigDecimal patientPart = calculationResult.getTotalSaleAmount().subtract(calculationResult.getTotalTiersPayant()).subtract(calculationResult.getDiscountAmount()).setScale(0, RoundingMode.HALF_UP);
+            BigDecimal patientPart = calculationResult
+                .getTotalSaleAmount()
+                .subtract(calculationResult.getTotalTiersPayant())
+                .subtract(calculationResult.getDiscountAmount())
+                .setScale(0, RoundingMode.HALF_UP);
             return patientPart.max(BigDecimal.ZERO);
         }
         if (nature == NatureVente.CARNET) {
-            BigDecimal partTiersPayant = calculationResult.getTotalTiersPayant().subtract(calculationResult.getDiscountAmount()).max(BigDecimal.ZERO).setScale(0, RoundingMode.HALF_UP);
+            BigDecimal partTiersPayant = calculationResult
+                .getTotalTiersPayant()
+                .subtract(calculationResult.getDiscountAmount())
+                .max(BigDecimal.ZERO)
+                .setScale(0, RoundingMode.HALF_UP);
             calculationResult.setTotalTiersPayant(partTiersPayant);
-            BigDecimal netAmount = calculationResult.getTotalSaleAmount().subtract(calculationResult.getDiscountAmount()).setScale(0, RoundingMode.HALF_UP);
+            BigDecimal netAmount = calculationResult
+                .getTotalSaleAmount()
+                .subtract(calculationResult.getDiscountAmount())
+                .setScale(0, RoundingMode.HALF_UP);
             return netAmount.subtract(partTiersPayant).max(BigDecimal.ZERO);
         }
         return calculationResult.getTotalSaleAmount().setScale(0, RoundingMode.HALF_UP);
@@ -179,8 +190,6 @@ public class TiersPayantCalculationService {
 
     private int calculateFinalTaux(BigDecimal actualShare, BigDecimal totalAmount) {
         if (totalAmount.compareTo(BigDecimal.ZERO) == 0) return 0;
-        return actualShare.multiply(BigDecimal.valueOf(100))
-            .divide(totalAmount, 0, RoundingMode.CEILING)
-            .intValue();
+        return actualShare.multiply(BigDecimal.valueOf(100)).divide(totalAmount, 0, RoundingMode.CEILING).intValue();
     }
 }

@@ -14,7 +14,7 @@ import com.kobe.warehouse.domain.StoreInventoryLine;
 import com.kobe.warehouse.domain.User;
 import com.kobe.warehouse.domain.enumeration.MouvementProduit;
 import com.kobe.warehouse.domain.enumeration.TypeDeconditionnement;
-import org.mapstruct.control.MappingControl;
+
 
 public class InventoryTransactionBuilder {
 

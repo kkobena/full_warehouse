@@ -1,5 +1,7 @@
 package com.kobe.warehouse.service.sale.calculation.dto;
 
+import static java.util.Objects.nonNull;
+
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -7,16 +9,19 @@ import java.util.List;
 import java.util.Map;
 
 public class CalculatedShare {
+
     private BigDecimal pharmacyPrice;
-    private BigDecimal totalPrice = BigDecimal.ZERO;
+    private BigDecimal totalSalesAmount = BigDecimal.ZERO;
     private Integer calculationBasePrice;
-    private double roShare;
-    private Map<Long, BigDecimal> tiersPayants= new HashMap<>();
-    private BigDecimal patientShare;
+    private Map<Long, BigDecimal> tiersPayants = new HashMap<>();
     private BigDecimal totalReimbursedAmount = BigDecimal.ZERO;
     private BigDecimal discountAmount = BigDecimal.ZERO;
     private List<Rate> rates = new ArrayList<>();
     private Long saleLineId;
+
+    public boolean hasPriceOption() {
+        return !rates.isEmpty() || nonNull(calculationBasePrice);
+    }
 
     public BigDecimal getDiscountAmount() {
         return discountAmount;
@@ -34,12 +39,12 @@ public class CalculatedShare {
         this.rates = rates;
     }
 
-    public BigDecimal getTotalPrice() {
-        return totalPrice;
+    public BigDecimal getTotalSalesAmount() {
+        return totalSalesAmount;
     }
 
-    public void setTotalPrice(BigDecimal totalPrice) {
-        this.totalPrice = totalPrice;
+    public void setTotalSalesAmount(BigDecimal totalSalesAmount) {
+        this.totalSalesAmount = totalSalesAmount;
     }
 
     public BigDecimal getPharmacyPrice() {
@@ -58,14 +63,6 @@ public class CalculatedShare {
         this.calculationBasePrice = calculationBasePrice;
     }
 
-    public double getRoShare() {
-        return roShare;
-    }
-
-    public void setRoShare(double roShare) {
-        this.roShare = roShare;
-    }
-
     public Map<Long, BigDecimal> getTiersPayants() {
         return tiersPayants;
     }
@@ -74,16 +71,12 @@ public class CalculatedShare {
         this.tiersPayants = tiersPayants;
     }
 
-    public BigDecimal getPatientShare() {
-        return patientShare;
-    }
-
-    public void setPatientShare(BigDecimal patientShare) {
-        this.patientShare = patientShare;
-    }
-
     public BigDecimal getTotalReimbursedAmount() {
         return totalReimbursedAmount;
+    }
+
+    public void setTotalReimbursedAmount(BigDecimal totalReimbursedAmount) {
+        this.totalReimbursedAmount = totalReimbursedAmount;
     }
 
     public Long getSaleLineId() {
@@ -92,9 +85,5 @@ public class CalculatedShare {
 
     public void setSaleLineId(Long saleLineId) {
         this.saleLineId = saleLineId;
-    }
-
-    public void setTotalReimbursedAmount(BigDecimal totalReimbursedAmount) {
-        this.totalReimbursedAmount = totalReimbursedAmount;
     }
 }

@@ -5,14 +5,18 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class CalculationResult {
+
     private List<CalculatedShare> itemShares = new ArrayList<>();
-    private BigDecimal totalRoShare = BigDecimal.ZERO;
     private BigDecimal totalTiersPayant = BigDecimal.ZERO;
     private BigDecimal totalPatientShare = BigDecimal.ZERO;
     private BigDecimal totalSaleAmount = BigDecimal.ZERO;
     private BigDecimal discountAmount = BigDecimal.ZERO;
-    private List<TiersPayantLineOutput> tiersPayantLines= new ArrayList<>();
+    private List<TiersPayantLineOutput> tiersPayantLines = new ArrayList<>();
     private String warningMessage;
+
+    public boolean hasPriceOption() {
+        return itemShares.stream().anyMatch(CalculatedShare::hasPriceOption);
+    }
 
     public List<CalculatedShare> getItemShares() {
         return itemShares;
@@ -20,14 +24,6 @@ public class CalculationResult {
 
     public void setItemShares(List<CalculatedShare> itemShares) {
         this.itemShares = itemShares;
-    }
-
-    public BigDecimal getTotalRoShare() {
-        return totalRoShare;
-    }
-
-    public void setTotalRoShare(BigDecimal totalRoShare) {
-        this.totalRoShare = totalRoShare;
     }
 
     public BigDecimal getTotalTiersPayant() {
@@ -48,6 +44,10 @@ public class CalculationResult {
 
     public BigDecimal getTotalSaleAmount() {
         return totalSaleAmount;
+    }
+
+    public void setTotalSaleAmount(BigDecimal totalSaleAmount) {
+        this.totalSaleAmount = totalSaleAmount;
     }
 
     public BigDecimal getDiscountAmount() {
@@ -72,9 +72,5 @@ public class CalculationResult {
 
     public void setWarningMessage(String warningMessage) {
         this.warningMessage = warningMessage;
-    }
-
-    public void setTotalSaleAmount(BigDecimal totalSaleAmount) {
-        this.totalSaleAmount = totalSaleAmount;
     }
 }

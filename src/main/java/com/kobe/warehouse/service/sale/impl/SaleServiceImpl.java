@@ -45,15 +45,14 @@ import com.kobe.warehouse.service.sale.SalesLineService;
 import com.kobe.warehouse.service.sale.ThirdPartySaleService;
 import com.kobe.warehouse.service.sale.dto.FinalyseSaleDTO;
 import com.kobe.warehouse.service.utils.AfficheurPosService;
+import java.time.LocalDateTime;
+import java.util.Collections;
+import java.util.Optional;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
-import java.time.LocalDateTime;
-import java.util.Collections;
-import java.util.Optional;
 
 @Service
 @Transactional
@@ -224,8 +223,9 @@ public class SaleServiceImpl extends SaleCommonService implements SaleService {
             dto.getSalesLines().getFirst(),
             storageService.getDefaultConnectedUserPointOfSaleStorage().getId()
         );
-        upddateCashSaleAmounts(cashSale, saleLine);
         cashSale.getSalesLines().add(saleLine);
+        upddateCashSaleAmounts(cashSale);
+
         CashSale sale = salesRepository.saveAndFlush(cashSale);
         saleLine.setSales(cashSale);
 
@@ -234,7 +234,7 @@ public class SaleServiceImpl extends SaleCommonService implements SaleService {
         return new CashSaleDTO(sale);
     }
 
-    private void upddateCashSaleAmounts(CashSale c, SalesLine saleLine) {
+    private void upddateCashSaleAmounts(CashSale c) {
         computeSaleEagerAmount(c);
         this.proccessDiscount(c);
         computeCashSaleAmountToPaid(c);
@@ -268,7 +268,7 @@ public class SaleServiceImpl extends SaleCommonService implements SaleService {
 
     private SaleLineDTO finalizeSaleLineUpdate(SalesLine salesLine) {
         CashSale sales = (CashSale) salesLine.getSales();
-        upddateCashSaleAmounts(sales, salesLine);
+        upddateCashSaleAmounts(sales);
         cashSaleRepository.saveAndFlush(sales);
         this.displayNet(sales.getNetAmount());
         return new SaleLineDTO(salesLine);
@@ -286,7 +286,7 @@ public class SaleServiceImpl extends SaleCommonService implements SaleService {
             SalesLine salesLine = salesLineOp.get();
             salesLineService.updateSaleLine(dto, salesLine, storageId);
             CashSale cashSale = (CashSale) salesLine.getSales();
-            upddateCashSaleAmounts(cashSale, salesLine);
+            upddateCashSaleAmounts(cashSale);
             cashSaleRepository.save(cashSale);
             return salesLine;
         }
@@ -297,7 +297,7 @@ public class SaleServiceImpl extends SaleCommonService implements SaleService {
 
     private void updateSaleWhenAddItem(SaleLineDTO dto, SalesLine salesLine) {
         CashSale sales = cashSaleRepository.getReferenceById(dto.getSaleId());
-        upddateCashSaleAmounts(sales, salesLine);
+        upddateCashSaleAmounts(sales);
         salesLine.setSales(sales);
         salesRepository.saveAndFlush(sales);
     }

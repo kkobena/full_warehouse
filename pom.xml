@@ -56,11 +56,6 @@
                 <groupId>org.springframework.boot</groupId>
               </path>
               <path>
-                <artifactId>mapstruct-processor</artifactId>
-                <groupId>org.mapstruct</groupId>
-                <version>${mapstruct.version}</version>
-              </path>
-              <path>
                 <artifactId>hibernate-processor</artifactId>
                 <groupId>org.hibernate.orm</groupId>
                 <version>${hibernate.version}</version>
@@ -500,17 +495,6 @@
       <version>${hibernate-validator.version}</version>
     </dependency>
 
-    <dependency>
-      <artifactId>mapstruct</artifactId>
-      <groupId>org.mapstruct</groupId>
-      <version>${mapstruct.version}</version>
-    </dependency>
-    <dependency>
-      <artifactId>mapstruct-processor</artifactId>
-      <groupId>org.mapstruct</groupId>
-      <scope>provided</scope>
-      <version>${mapstruct.version}</version>
-    </dependency>
 
     <dependency>
       <artifactId>mysql-connector-j</artifactId>
@@ -726,16 +710,12 @@
 
 
     <frontend-maven-plugin.version>1.15.1</frontend-maven-plugin.version>
-    <git-commit-id-maven-plugin.version>8.0.2</git-commit-id-maven-plugin.version>
 
     <hibernate-validator.version>9.0.1.Final</hibernate-validator.version>
     <hibernate.version>7.1.0.Final</hibernate.version>
     <java.version>24</java.version>
 
-    <jhipster-framework.version>8.9.0</jhipster-framework.version>
 
-    <lifecycle-mapping.version>1.0.0</lifecycle-mapping.version>
-    <mapstruct.version>1.6.3</mapstruct.version>
     <maven-antrun-plugin.version>3.1.0</maven-antrun-plugin.version>
 
     <maven-clean-plugin.version>3.4.0</maven-clean-plugin.version>

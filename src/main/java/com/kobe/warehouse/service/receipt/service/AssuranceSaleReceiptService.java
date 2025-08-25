@@ -2,7 +2,6 @@ package com.kobe.warehouse.service.receipt.service;
 
 import static java.util.Objects.nonNull;
 
-import com.kobe.warehouse.domain.enumeration.OptionPrixType;
 import com.kobe.warehouse.domain.enumeration.PrioriteTiersPayant;
 import com.kobe.warehouse.repository.PrinterRepository;
 import com.kobe.warehouse.service.AppConfigurationService;
@@ -12,7 +11,6 @@ import com.kobe.warehouse.service.dto.SaleDTO;
 import com.kobe.warehouse.service.dto.SaleLineDTO;
 import com.kobe.warehouse.service.dto.ThirdPartySaleDTO;
 import com.kobe.warehouse.service.dto.ThirdPartySaleLineDTO;
-import com.kobe.warehouse.service.dto.TiersPayantPrixRecord;
 import com.kobe.warehouse.service.receipt.dto.AssuranceReceiptItem;
 import com.kobe.warehouse.service.receipt.dto.HeaderFooterItem;
 import com.kobe.warehouse.service.receipt.dto.SaleReceiptItem;
@@ -27,7 +25,6 @@ import java.util.List;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
-import org.springframework.util.CollectionUtils;
 
 @Service
 public class AssuranceSaleReceiptService extends AbstractSaleReceiptService {
@@ -36,7 +33,6 @@ public class AssuranceSaleReceiptService extends AbstractSaleReceiptService {
     private final SaleDataService saleDataService;
     private ThirdPartySaleDTO thirdPartySale;
     private boolean isEdit;
-    private boolean hasPrixOption;
 
     public AssuranceSaleReceiptService(
         AppConfigurationService appConfigurationService,
@@ -63,17 +59,6 @@ public class AssuranceSaleReceiptService extends AbstractSaleReceiptService {
         int productNameWidth = getProductNameWidth();
         var produitName = saleLineDTO.getProduitLibelle();
         item.setTotalPrice(NumberUtil.formatToString(saleLineDTO.getSalesAmount()));
-        if (!CollectionUtils.isEmpty(saleLineDTO.getTiersPayantPrixRecords())) {
-            hasPrixOption = true;
-            TiersPayantPrixRecord tiersPayantPrixRecord = saleLineDTO.getTiersPayantPrixRecords().getFirst();
-            if (tiersPayantPrixRecord.type() == OptionPrixType.POURCENTAGE) {
-                item.setTaux(tiersPayantPrixRecord.valeur() + "");
-            } else {
-                int taux = (int) Math.ceil(((double) tiersPayantPrixRecord.prix() * 100) / saleLineDTO.getRegularUnitPrice());
-                item.setTaux(taux + "");
-            }
-            item.setTotalPrice(NumberUtil.formatToString(tiersPayantPrixRecord.montant()));
-        }
 
         item.setProduitName(produitName.length() > productNameWidth ? produitName.substring(0, productNameWidth) : produitName);
         item.setQuantity(NumberUtil.formatToString(saleLineDTO.getQuantityRequested()));
@@ -83,7 +68,7 @@ public class AssuranceSaleReceiptService extends AbstractSaleReceiptService {
 
     public void printReceipt(String hostName, Long saleId, boolean isEdit) {
         this.isEdit = isEdit;
-        hasPrixOption = false;
+
         thirdPartySale = (ThirdPartySaleDTO) this.saleDataService.getOneSaleDTO(saleId);
         try {
             print(hostName);
@@ -156,8 +141,16 @@ public class AssuranceSaleReceiptService extends AbstractSaleReceiptService {
                 y
             );
 
-            if (!hasPrixOption) {
+            if (!thirdPartySale.isHasPriceOption()) {
                 drawAndCenterText(graphics2D, thirdPartySaleLine.getTaux() + "%", width, getPuRightMargin() + 100, y);
+            } else {
+                drawAndCenterText(
+                    graphics2D,
+                    NumberUtil.formatToString(thirdPartySaleLine.getMontant()),
+                    width,
+                    getPuRightMargin() + 100,
+                    y
+                );
             }
 
             graphics2D.setFont(BOLD_FONT);
@@ -176,18 +169,18 @@ public class AssuranceSaleReceiptService extends AbstractSaleReceiptService {
         FontMetrics fontMetrics = graphics2D.getFontMetrics(font);
         graphics2D.setFont(font);
         //add quantity before product
-        if (hasPrixOption) {
+        /*   if (thirdPartySale.isHasPriceOption()) {
             return drawOprixOptionTableHeader(graphics2D, margin, y, fontMetrics);
-        }
+        }*/
 
         return drawDefaultTableHeader(graphics2D, margin, y, fontMetrics);
     }
 
     @Override
     protected int getProductNameWidth() {
-        if (hasPrixOption) {
+        /*if (thirdPartySale.isHasPriceOption()) {
             return 20;
-        }
+        }*/
         return 22;
     }
 
@@ -211,11 +204,13 @@ public class AssuranceSaleReceiptService extends AbstractSaleReceiptService {
 
     @Override
     protected void drawItem(Graphics2D graphics2D, int y, FontMetrics fontMetrics, SaleReceiptItem item) {
-        if (hasPrixOption) {
+        /*  if (thirdPartySale.isHasPriceOption()) {
             drawOptionPrixItem(graphics2D, y, fontMetrics, item);
         } else {
             drawDefaultItem(graphics2D, y, fontMetrics, item);
-        }
+        }*/
+
+        drawDefaultItem(graphics2D, y, fontMetrics, item);
     }
 
     private void drawOptionPrixItem(Graphics2D graphics2D, int y, FontMetrics fontMetrics, SaleReceiptItem item) {

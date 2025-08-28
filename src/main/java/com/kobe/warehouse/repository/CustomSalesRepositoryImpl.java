@@ -1,8 +1,5 @@
 package com.kobe.warehouse.repository;
 
-import static java.util.Objects.isNull;
-import static java.util.Objects.nonNull;
-
 import com.kobe.warehouse.domain.CashRegister_;
 import com.kobe.warehouse.domain.Customer_;
 import com.kobe.warehouse.domain.PaymentMode;
@@ -17,12 +14,11 @@ import com.kobe.warehouse.domain.Sales_;
 import com.kobe.warehouse.domain.ThirdPartySales;
 import com.kobe.warehouse.domain.ThirdPartySales_;
 import com.kobe.warehouse.domain.User_;
-import com.kobe.warehouse.domain.enumeration.TypeVente;
 import com.kobe.warehouse.service.dto.enumeration.StatGroupBy;
-import com.kobe.warehouse.service.dto.enumeration.TypeVenteDTO;
 import com.kobe.warehouse.service.dto.records.VenteByTypeRecord;
 import com.kobe.warehouse.service.dto.records.VentePeriodeRecord;
 import com.kobe.warehouse.service.dto.records.VenteRecord;
+import com.kobe.warehouse.service.financiel_transaction.SaleSpecification;
 import com.kobe.warehouse.service.financiel_transaction.dto.BalanceCaisseDTO;
 import com.kobe.warehouse.service.financiel_transaction.dto.MvtParam;
 import com.kobe.warehouse.service.reglement.differe.dto.Differe;
@@ -44,11 +40,6 @@ import jakarta.persistence.criteria.Predicate;
 import jakarta.persistence.criteria.Root;
 import jakarta.persistence.criteria.Selection;
 import jakarta.persistence.criteria.SetJoin;
-import java.time.LocalDate;
-import java.time.Month;
-import java.time.Year;
-import java.time.format.DateTimeFormatter;
-import java.util.List;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.data.domain.Page;
@@ -57,7 +48,15 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.util.StringUtils;
+
+import java.time.LocalDate;
+import java.time.Month;
+import java.time.Year;
+import java.time.format.DateTimeFormatter;
+import java.util.List;
+
+import static java.util.Objects.isNull;
+import static java.util.Objects.nonNull;
 
 @Repository
 @Transactional(readOnly = true)
@@ -65,9 +64,11 @@ public class CustomSalesRepositoryImpl implements CustomSalesRepository {
 
     private static final Logger LOG = LoggerFactory.getLogger(CustomSalesRepositoryImpl.class);
     private final EntityManager entityManager;
+    private final SaleSpecification saleSpecification;
 
-    public CustomSalesRepositoryImpl(EntityManager entityManager) {
+    public CustomSalesRepositoryImpl(EntityManager entityManager, SaleSpecification saleSpecification) {
         this.entityManager = entityManager;
+        this.saleSpecification = saleSpecification;
     }
 
     @Override
@@ -352,6 +353,7 @@ public class CustomSalesRepositoryImpl implements CustomSalesRepository {
             nonNull(groupingExpression) ? groupingExpression.cast(String.class) : root.get(Sales_.type).cast(String.class)
         );
     }
+
     @Override
     public List<BalanceCaisseDTO> fetchSalesForBalanceCaisse(MvtParam mvtParam) {
         CriteriaBuilder cb = entityManager.getCriteriaBuilder();
@@ -361,27 +363,28 @@ public class CustomSalesRepositoryImpl implements CustomSalesRepository {
         SetJoin<Sales, SalesLine> salesLineSetJoin = root.joinSet(Sales_.SALES_LINES);
         Join<SalePayment, PaymentMode> paymentMode = payments.join(PaymentTransaction_.paymentMode, JoinType.INNER);
         Path<ThirdPartySales> thirdPartySalesPath = cb.treat(root, ThirdPartySales.class);
-        Expression<Integer> quantityExpression =mvtParam.isExcludeFreeUnit()? cb.diff(salesLineSetJoin.get(SalesLine_.quantityRequested),salesLineSetJoin.get(SalesLine_.quantityUg)) :salesLineSetJoin.get(SalesLine_.quantityRequested);
+        Expression<Integer> quantityExpression = mvtParam.isExcludeFreeUnit() ? cb.diff(salesLineSetJoin.get(SalesLine_.quantityRequested), salesLineSetJoin.get(SalesLine_.quantityUg)) : salesLineSetJoin.get(SalesLine_.quantityRequested);
 
-        Expression<Long> montantTtcExpression =mvtParam.isExcludeFreeUnit()? cb.sumAsLong(cb.prod(cb.diff(salesLineSetJoin.get(SalesLine_.quantityRequested),salesLineSetJoin.get(SalesLine_.quantityUg)),salesLineSetJoin.get(SalesLine_.regularUnitPrice))) :cb.sumAsLong(cb.prod(salesLineSetJoin.get(SalesLine_.quantityRequested), salesLineSetJoin.get(SalesLine_.regularUnitPrice)));
-        Expression<Long> montantTtcAcahtExpression =mvtParam.isExcludeFreeUnit()? cb.sumAsLong(cb.prod(cb.diff(salesLineSetJoin.get(SalesLine_.quantityRequested),salesLineSetJoin.get(SalesLine_.quantityUg)),salesLineSetJoin.get(SalesLine_.costAmount))) :cb.sumAsLong(cb.prod(salesLineSetJoin.get(SalesLine_.quantityRequested), salesLineSetJoin.get(SalesLine_.costAmount)));
-        Expression<?> discountExpression =mvtParam.isExcludeFreeUnit()? cb.sum(cb.prod(quantityExpression,salesLineSetJoin.get(SalesLine_.tauxRemise))) :cb.sumAsLong(root.get(Sales_.discountAmount));
-        Expression<Integer> montantHtExpression =mvtParam.isExcludeFreeUnit()? cb.prod(cb.diff(salesLineSetJoin.get(SalesLine_.quantityRequested),salesLineSetJoin.get(SalesLine_.quantityUg)),salesLineSetJoin.get(SalesLine_.regularUnitPrice)) :cb.prod(salesLineSetJoin.get(SalesLine_.quantityRequested), salesLineSetJoin.get(SalesLine_.regularUnitPrice));
+        Expression<Long> montantTtcExpression = mvtParam.isExcludeFreeUnit() ? cb.sumAsLong(cb.prod(cb.diff(salesLineSetJoin.get(SalesLine_.quantityRequested), salesLineSetJoin.get(SalesLine_.quantityUg)), salesLineSetJoin.get(SalesLine_.regularUnitPrice))) : cb.sumAsLong(cb.prod(salesLineSetJoin.get(SalesLine_.quantityRequested), salesLineSetJoin.get(SalesLine_.regularUnitPrice)));
+        Expression<Long> montantTtcAcahtExpression = mvtParam.isExcludeFreeUnit() ? cb.sumAsLong(cb.prod(cb.diff(salesLineSetJoin.get(SalesLine_.quantityRequested), salesLineSetJoin.get(SalesLine_.quantityUg)), salesLineSetJoin.get(SalesLine_.costAmount))) : cb.sumAsLong(cb.prod(salesLineSetJoin.get(SalesLine_.quantityRequested), salesLineSetJoin.get(SalesLine_.costAmount)));
+        Expression<?> discountExpression = mvtParam.isExcludeFreeUnit() ? cb.sum(cb.prod(quantityExpression, salesLineSetJoin.get(SalesLine_.tauxRemise))) : cb.sumAsLong(root.get(Sales_.discountAmount));
+        Expression<Integer> montantHtQtyExpression = mvtParam.isExcludeFreeUnit() ? cb.prod(cb.diff(salesLineSetJoin.get(SalesLine_.quantityRequested), salesLineSetJoin.get(SalesLine_.quantityUg)), salesLineSetJoin.get(SalesLine_.regularUnitPrice)) : cb.prod(salesLineSetJoin.get(SalesLine_.quantityRequested), salesLineSetJoin.get(SalesLine_.regularUnitPrice));
 
 
-        cq.select(createBalanceCaisseDTOResult(cb, root, payments, paymentMode,salesLineSetJoin,thirdPartySalesPath,montantTtcExpression,montantTtcAcahtExpression,discountExpression,montantHtExpression));
-        cq.where(cb.and(
+        cq.select(createBalanceCaisseDTOResult(cb, root, payments, paymentMode, salesLineSetJoin, thirdPartySalesPath, montantTtcExpression, montantTtcAcahtExpression, discountExpression, montantHtQtyExpression));
+      /*  cq.where(cb.and(
             cb.between(cb.function("DATE", java.time.LocalDate.class, root.get(Sales_.updatedAt)), mvtParam.getFromDate(), mvtParam.getToDate()),
             root.get(Sales_.statut).in(mvtParam.getStatuts()),
             root.get(Sales_.type).in(mvtParam.getTypeVentes().stream().map(com.kobe.warehouse.service.cash_register.dto.TypeVente::getValue).toList()),
             root.get(Sales_.categorieChiffreAffaire).in(mvtParam.getCategorieChiffreAffaires())
-        ));
+        ));*/
+        cq.where(saleSpecification.builder(mvtParam).toPredicate(root, cq, cb));
         cq.groupBy(root.get(Sales_.type), payments.get(PaymentTransaction_.paymentMode).get(PaymentMode_.code));
 
         return entityManager.createQuery(cq).getResultList();
     }
 
-    private CompoundSelection<BalanceCaisseDTO> createBalanceCaisseDTOResult(CriteriaBuilder cb, Root<Sales> root, SetJoin<Sales, SalePayment> payments,Join<SalePayment, PaymentMode> paymentMode,SetJoin<Sales, SalesLine> salesLineSetJoin,Path<ThirdPartySales> thirdPartySalesPath,Expression<Long> montantTtcExpression, Expression<Long> montantTtcAcahtExpression,Expression<?>discountExpression, Expression<Integer> montantHtExpression) {
+    private CompoundSelection<BalanceCaisseDTO> createBalanceCaisseDTOResult(CriteriaBuilder cb, Root<Sales> root, SetJoin<Sales, SalePayment> payments, Join<SalePayment, PaymentMode> paymentMode, SetJoin<Sales, SalesLine> salesLineSetJoin, Path<ThirdPartySales> thirdPartySalesPath, Expression<Long> montantTtcExpression, Expression<Long> montantTtcAcahtExpression, Expression<?> discountExpression, Expression<Integer> montantHtQtyExpression) {
         return cb.construct(BalanceCaisseDTO.class,
             root.get(Sales_.type),
             cb.count(root.get(Sales_.id)),
@@ -392,7 +395,7 @@ public class CustomSalesRepositoryImpl implements CustomSalesRepository {
             cb.ceiling(
                 cb.sum(
                     cb.quot(
-                        montantHtExpression,
+                        montantHtQtyExpression,
                         cb.sum(1, cb.quot(salesLineSetJoin.get(SalesLine_.taxValue), 100.0d))
                     )
                 )
@@ -423,8 +426,10 @@ public class CustomSalesRepositoryImpl implements CustomSalesRepository {
 
     private Expression<?> getGroupingExpression(Root<Sales> root, StatGroupBy statGroupBy) {
         return switch (statGroupBy) {
-            case DAY -> entityManager.getCriteriaBuilder().function("date", LocalDate.class, root.get(Sales_.updatedAt));
-            case MONTH -> entityManager.getCriteriaBuilder().function("month", Integer.class, root.get(Sales_.updatedAt));
+            case DAY ->
+                entityManager.getCriteriaBuilder().function("date", LocalDate.class, root.get(Sales_.updatedAt));
+            case MONTH ->
+                entityManager.getCriteriaBuilder().function("month", Integer.class, root.get(Sales_.updatedAt));
             case YEAR -> entityManager.getCriteriaBuilder().function("year", Integer.class, root.get(Sales_.updatedAt));
             case HOUR -> entityManager.getCriteriaBuilder().function("hour", Integer.class, root.get(Sales_.updatedAt));
             case null -> null;

@@ -36,7 +36,7 @@ public class TaxeProxy {
         return ResponseEntity.ok(
             taxeService.fetchTaxe(
                 new MvtParam(fromDate, toDate, categorieChiffreAffaires, statuts, typeVentes, groupeBy).build(),
-                false,
+
                 false
             )
         );
@@ -53,8 +53,7 @@ public class TaxeProxy {
         @RequestParam(value = "groupBy", required = false, defaultValue = "codeTva") String groupeBy
     ) throws MalformedURLException {
         Resource resource = taxeService.exportToPdf(
-            new MvtParam(fromDate, toDate, categorieChiffreAffaires, statuts, typeVentes, groupeBy).build(),
-            false
+            new MvtParam(fromDate, toDate, categorieChiffreAffaires, statuts, typeVentes, groupeBy).build()
         );
         return Utils.printPDF(resource, request);
     }

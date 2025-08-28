@@ -17,7 +17,7 @@ public class TableauPharmacienWrapper {
     private long montantVenteNet;
     private long montantVenteRemise;
     private long montantVenteTaxe;
-    private int numberCount;
+    private long numberCount;
     private long montantVenteCredit;
     private long montantVenteComptant;
     private long montantAchatNet;
@@ -116,11 +116,11 @@ public class TableauPharmacienWrapper {
         return this;
     }
 
-    public int getNumberCount() {
+    public long getNumberCount() {
         return numberCount;
     }
 
-    public TableauPharmacienWrapper setNumberCount(int numberCount) {
+    public TableauPharmacienWrapper setNumberCount(long numberCount) {
         this.numberCount = numberCount;
         return this;
     }

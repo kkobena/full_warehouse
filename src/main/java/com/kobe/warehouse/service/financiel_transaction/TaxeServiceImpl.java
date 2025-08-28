@@ -1,21 +1,27 @@
 package com.kobe.warehouse.service.financiel_transaction;
 
+import com.kobe.warehouse.domain.SalesLine;
+import com.kobe.warehouse.domain.SalesLine_;
+import com.kobe.warehouse.domain.Sales_;
+import com.kobe.warehouse.service.AppConfigurationService;
 import com.kobe.warehouse.service.dto.DoughnutChart;
 import com.kobe.warehouse.service.dto.ReportPeriode;
 import com.kobe.warehouse.service.financiel_transaction.dto.MvtParam;
 import com.kobe.warehouse.service.financiel_transaction.dto.TaxeDTO;
 import com.kobe.warehouse.service.financiel_transaction.dto.TaxeWrapperDTO;
 import jakarta.persistence.EntityManager;
-import jakarta.persistence.Tuple;
-import java.math.BigDecimal;
+
 import java.net.MalformedURLException;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 import java.util.stream.Collectors;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+
+import jakarta.persistence.criteria.CriteriaBuilder;
+import jakarta.persistence.criteria.CriteriaQuery;
+import jakarta.persistence.criteria.Expression;
+import jakarta.persistence.criteria.Root;
 import org.springframework.core.io.Resource;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
@@ -23,36 +29,26 @@ import org.springframework.util.StringUtils;
 @Service
 public class TaxeServiceImpl implements TaxeService, MvtCommonService {
 
-    private static final Logger log = LoggerFactory.getLogger(TaxeServiceImpl.class);
-    private static final String SELECT_TAXE =
-        """
-        SELECT %s  sl.tax_value as codeTva ,SUM(sl.tax_amount) as montantTaxe,
-        SUM(sl.sales_amount) as montantTtc, SUM(sl.cost_amount) as montantAchat,SUM(sl.ht_amount) as montantHt,SUM(sl.discount_amount) as montantRemise,
-        SUM(sl.net_amount) as montantNet,SUM(sl.montant_tva_ug) as montantTvaUg,SUM(sl.discount_amount_ug) as montantRemiseUg,SUM(sl.amount_to_be_taken_into_account) as amountToBeTakenIntoAccount,
-        SUM(sl.quantity_ug*sl.regular_unit_price) as montantTtcUg FROM sales_line sl JOIN sales s ON s.id=sl.sales_id
 
-        """;
-    private static final String DATE_COLUMN = " DATE_FORMAT(s.updated_at, '%Y-%m-%d') AS mvtDate,";
-    private static final String GROUP_BY_DATE = " group by sl.tax_value, mvtDate ORDER BY mvtDate";
-    private static final String GROUP_BY_TVA_CODE = " group by sl.tax_value ORDER BY sl.tax_value";
-    private static final String WHERE_CLAUSE =
-        " WHERE DATE(s.updated_at) BETWEEN ?1 AND ?2 AND s.statut IN (%s) AND s.dtype IN (%s) AND s.ca IN (%s) AND sl.to_ignore=?3";
     private final EntityManager entityManager;
     private final TvaReportReportService tvaReportService;
-
-    public TaxeServiceImpl(EntityManager entityManager, TvaReportReportService tvaReportService) {
+    private final TaxeSpecification taxeSpecification;
+    private final AppConfigurationService appConfigurationService;
+    public TaxeServiceImpl(EntityManager entityManager, TvaReportReportService tvaReportService, TaxeSpecification taxeSpecification, AppConfigurationService appConfigurationService) {
         this.entityManager = entityManager;
         this.tvaReportService = tvaReportService;
+        this.taxeSpecification = taxeSpecification;
+        this.appConfigurationService = appConfigurationService;
     }
 
     @Override
-    public TaxeWrapperDTO fetchTaxe(MvtParam mvtParam, boolean ignoreSomeTaxe, boolean toExport) {
-        List<Tuple> result = fetchTaxe(mvtParam, ignoreSomeTaxe);
+    public TaxeWrapperDTO fetchTaxe(MvtParam mvtParam,  boolean toExport) {
+        List<TaxeDTO> result = fetchTaxe(mvtParam);
         if (result.isEmpty()) {
             return null;
         }
         TaxeWrapperDTO taxeWrapperDTO = new TaxeWrapperDTO();
-        buildFromTuple(result, "daily".equals(mvtParam.getGroupeBy()), taxeWrapperDTO);
+        buildFromProjection(result, "daily".equals(mvtParam.getGroupeBy()), taxeWrapperDTO);
         if (toExport) {
             return taxeWrapperDTO;
         }
@@ -61,57 +57,57 @@ public class TaxeServiceImpl implements TaxeService, MvtCommonService {
     }
 
     @Override
-    public Resource exportToPdf(MvtParam mvtParam, boolean ignoreSomeTaxe) throws MalformedURLException {
+    public Resource exportToPdf(MvtParam mvtParam) throws MalformedURLException {
         return this.tvaReportService.exportToPdf(
-                this.fetchTaxe(mvtParam, ignoreSomeTaxe, true),
-                new ReportPeriode(mvtParam.getFromDate(), mvtParam.getToDate()),
-                StringUtils.hasText(mvtParam.getGroupeBy()) && "daily".equals(mvtParam.getGroupeBy())
-            );
+            this.fetchTaxe(mvtParam, true),
+            new ReportPeriode(mvtParam.getFromDate(), mvtParam.getToDate()),
+            StringUtils.hasText(mvtParam.getGroupeBy()) && "daily".equals(mvtParam.getGroupeBy())
+        );
     }
 
-    private String buildQuery(MvtParam mvtParam) {
-        if (StringUtils.hasText(mvtParam.getGroupeBy()) && "daily".equals(mvtParam.getGroupeBy())) {
-            return String.format(SELECT_TAXE, DATE_COLUMN) + buildWhereClause(mvtParam) + GROUP_BY_DATE;
+    private List<TaxeDTO> fetchTaxe(MvtParam mvtParam) {
+        mvtParam.setExcludeFreeUnit(appConfigurationService.excludeFreeUnit());
+        CriteriaBuilder cb = entityManager.getCriteriaBuilder();
+        CriteriaQuery<TaxeDTO> cq = cb.createQuery(TaxeDTO.class);
+        Root<SalesLine> root = cq.from(SalesLine.class);
+        cq.where(taxeSpecification.builder(mvtParam).toPredicate(root, cq, cb));
+
+        boolean daily = "daily".equals(mvtParam.getGroupeBy());
+
+        Expression<Integer> taxValue = root.get(SalesLine_.taxValue);
+        Expression<Integer> quantiteValue =mvtParam.isExcludeFreeUnit() ? cb.diff(root.get(SalesLine_.quantityRequested),root.get(SalesLine_.quantityUg)):root.get(SalesLine_.quantityRequested);
+        Expression<Long> montantTtc =mvtParam.isExcludeFreeUnit() ? cb.sumAsLong(cb.prod(quantiteValue,root.get(SalesLine_.regularUnitPrice))): cb.sumAsLong(root.get(SalesLine_.salesAmount));
+        Expression<Long> montantAchat =  cb.sumAsLong(cb.prod(quantiteValue,root.get(SalesLine_.costAmount)));
+       // Expression<Long> montantRemise = cb.sumAsLong(root.get(SalesLine_.discountAmount));
+        Expression<Long> amountToBeTakenIntoAccount = cb.sumAsLong(root.get(SalesLine_.amountToBeTakenIntoAccount));
+
+       // Expression<Number> taxAmountExpression = cb.quot(cb.prod(root.get(SalesLine_.salesAmount), root.get(SalesLine_.taxValue)), cb.sum(100, root.get(SalesLine_.taxValue)));
+
+        Expression<Number> montantHt=    cb.ceiling(
+            cb.sum(
+                cb.quot(
+                    cb.prod(quantiteValue,root.get(SalesLine_.regularUnitPrice)),
+                    cb.sum(1, cb.quot(root.get(SalesLine_.taxValue), 100.0d))
+                )
+            )
+        );
+        if (daily) {
+            Expression<LocalDate> mvtDate = cb.function("DATE", LocalDate.class, root.get(SalesLine_.sales).get(Sales_.updatedAt));
+            cq.select(cb.construct(TaxeDTO.class, mvtDate, taxValue,  montantTtc, montantAchat, montantHt,  amountToBeTakenIntoAccount));
+            cq.groupBy(taxValue, mvtDate);
+            cq.orderBy(cb.asc(mvtDate));
+        } else {
+            cq.select(cb.construct(TaxeDTO.class, taxValue, montantTtc, montantAchat, montantHt,   amountToBeTakenIntoAccount));
+            cq.groupBy(taxValue);
+            cq.orderBy(cb.asc(taxValue));
         }
-        return String.format(SELECT_TAXE, "") + buildWhereClause(mvtParam) + GROUP_BY_TVA_CODE;
+
+        return entityManager.createQuery(cq).getResultList();
     }
 
-    private String buildWhereClause(MvtParam mvtParam) {
-        return this.buildWhereClause(WHERE_CLAUSE, mvtParam);
-    }
-
-    private List<Tuple> fetchTaxe(MvtParam mvtParam, boolean ignoreSomeTaxe) {
-        try {
-            return entityManager
-                .createNativeQuery(buildQuery(mvtParam), Tuple.class)
-                .setParameter(1, mvtParam.getFromDate())
-                .setParameter(2, mvtParam.getToDate())
-                .setParameter(3, ignoreSomeTaxe)
-                .getResultList();
-        } catch (Exception e) {
-            log.error("Error while fetching taxe", e);
-            return List.of();
-        }
-    }
-
-    private void buildFromTuple(List<Tuple> tuples, boolean groupByDate, TaxeWrapperDTO taxeWrapperDTO) {
+    private void buildFromProjection(List<TaxeDTO> projections, boolean groupByDate, TaxeWrapperDTO taxeWrapperDTO) {
         taxeWrapperDTO.setGroupDate(groupByDate);
-        tuples.forEach(t -> {
-            TaxeDTO taxeDTO = new TaxeDTO();
-            if (groupByDate) {
-                taxeDTO.setMvtDate(LocalDate.parse(t.get("mvtDate", String.class)));
-            }
-            taxeDTO.setCodeTva(t.get("codeTva", Integer.class));
-            taxeDTO.setMontantTaxe(t.get("montantTaxe", BigDecimal.class).longValue());
-            taxeDTO.setMontantTtc(t.get("montantTtc", BigDecimal.class).longValue());
-            taxeDTO.setMontantAchat(t.get("montantAchat", BigDecimal.class).longValue());
-            taxeDTO.setMontantHt(t.get("montantHt", BigDecimal.class).longValue());
-            taxeDTO.setMontantRemise(t.get("montantRemise", BigDecimal.class).longValue());
-            taxeDTO.setMontantNet(t.get("montantNet", BigDecimal.class).longValue());
-            taxeDTO.setMontantTvaUg(t.get("montantTvaUg", BigDecimal.class).longValue());
-            taxeDTO.setMontantRemiseUg(t.get("montantRemiseUg", BigDecimal.class).longValue());
-            taxeDTO.setAmountToBeTakenIntoAccount(t.get("amountToBeTakenIntoAccount", BigDecimal.class).longValue());
-            taxeDTO.setMontantTtcUg(t.get("montantTtcUg", BigDecimal.class).longValue());
+        projections.forEach(taxeDTO -> {
             updateTaxeWrapper(taxeWrapperDTO, taxeDTO);
         });
     }
@@ -123,10 +119,7 @@ public class TaxeServiceImpl implements TaxeService, MvtCommonService {
         taxeWrapper.setMontantNet(taxeWrapper.getMontantNet() + taxe.getMontantNet());
         taxeWrapper.setMontantRemise(taxeWrapper.getMontantRemise() + taxe.getMontantRemise());
         taxeWrapper.setMontantAchat(taxeWrapper.getMontantAchat() + taxe.getMontantAchat());
-        taxeWrapper.setMontantRemiseUg(taxeWrapper.getMontantRemiseUg() + taxe.getMontantRemiseUg());
-        taxeWrapper.setMontantTvaUg(taxeWrapper.getMontantTvaUg() + taxe.getMontantTvaUg());
         taxeWrapper.setAmountToBeTakenIntoAccount(taxeWrapper.getAmountToBeTakenIntoAccount() + taxe.getAmountToBeTakenIntoAccount());
-        taxeWrapper.setMontantTtcUg(taxeWrapper.getMontantTtcUg() + taxe.getMontantTtcUg());
         taxeWrapper.getTaxes().add(taxe);
     }
 

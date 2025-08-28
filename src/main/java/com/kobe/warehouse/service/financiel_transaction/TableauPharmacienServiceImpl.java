@@ -1,7 +1,21 @@
 package com.kobe.warehouse.service.financiel_transaction;
 
+import com.kobe.warehouse.domain.Commande;
+import com.kobe.warehouse.domain.Commande_;
+import com.kobe.warehouse.domain.Fournisseur;
+import com.kobe.warehouse.domain.Fournisseur_;
 import com.kobe.warehouse.domain.GroupeFournisseur;
+import com.kobe.warehouse.domain.GroupeFournisseur_;
+import com.kobe.warehouse.domain.PaymentTransaction_;
+import com.kobe.warehouse.domain.SalePayment;
+import com.kobe.warehouse.domain.Sales;
+import com.kobe.warehouse.domain.SalesLine;
+import com.kobe.warehouse.domain.SalesLine_;
+import com.kobe.warehouse.domain.Sales_;
+import com.kobe.warehouse.domain.ThirdPartySales;
+import com.kobe.warehouse.domain.ThirdPartySales_;
 import com.kobe.warehouse.repository.GroupeFournisseurRepository;
+import com.kobe.warehouse.service.AppConfigurationService;
 import com.kobe.warehouse.service.dto.GroupeFournisseurDTO;
 import com.kobe.warehouse.service.dto.ReportPeriode;
 import com.kobe.warehouse.service.excel.ExcelExportService;
@@ -29,6 +43,16 @@ import java.util.Objects;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.stream.Collectors;
+
+import jakarta.persistence.criteria.CompoundSelection;
+import jakarta.persistence.criteria.CriteriaBuilder;
+import jakarta.persistence.criteria.CriteriaQuery;
+import jakarta.persistence.criteria.Expression;
+import jakarta.persistence.criteria.Join;
+import jakarta.persistence.criteria.JoinType;
+import jakarta.persistence.criteria.Path;
+import jakarta.persistence.criteria.Root;
+import jakarta.persistence.criteria.SetJoin;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.core.io.Resource;
@@ -46,17 +70,21 @@ public class TableauPharmacienServiceImpl implements TableauPharmacienService {
     private final Set<Long> groupeFournisseurs = new HashSet<>();
     private final TableauPharmacienReportReportService reportService;
     private final ExcelExportService excelExportService;
+    private final TableauPharmacienSpecification tableauPharmacienSpecification;
+    private final AppConfigurationService appConfigurationService;
 
     public TableauPharmacienServiceImpl(
         EntityManager entityManager,
         GroupeFournisseurRepository groupeFournisseurRepository,
         TableauPharmacienReportReportService reportService,
-        ExcelExportService excelExportService
+        ExcelExportService excelExportService, TableauPharmacienSpecification tableauPharmacienSpecification, AppConfigurationService appConfigurationService
     ) {
         this.entityManager = entityManager;
         this.groupeFournisseurRepository = groupeFournisseurRepository;
         this.reportService = reportService;
         this.excelExportService = excelExportService;
+        this.tableauPharmacienSpecification = tableauPharmacienSpecification;
+        this.appConfigurationService = appConfigurationService;
         groupeFournisseurs.addAll(fetchGroupGrossisteToDisplay().stream().map(GroupeFournisseurDTO::getId).collect(Collectors.toSet()));
     }
 
@@ -74,17 +102,18 @@ public class TableauPharmacienServiceImpl implements TableauPharmacienService {
 
     @Override
     public TableauPharmacienWrapper getTableauPharmacien(MvtParam mvtParam) {
+        mvtParam.setExcludeFreeUnit(appConfigurationService.excludeFreeUnit());
         return computeData(mvtParam);
     }
 
     @Override
     public Resource exportToPdf(MvtParam mvtParam) throws MalformedURLException {
         return this.reportService.exportToPdf(
-                this.getTableauPharmacien(mvtParam),
-                this.fetchGroupGrossisteToDisplay(),
-                new ReportPeriode(mvtParam.getFromDate(), mvtParam.getToDate()),
-                mvtParam.getGroupeBy()
-            );
+            this.getTableauPharmacien(mvtParam),
+            this.fetchGroupGrossisteToDisplay(),
+            new ReportPeriode(mvtParam.getFromDate(), mvtParam.getToDate()),
+            mvtParam.getGroupeBy()
+        );
     }
 
     @Override
@@ -129,53 +158,13 @@ public class TableauPharmacienServiceImpl implements TableauPharmacienService {
         return this.excelExportService.generate(genericExcel, "Tableau pharmacien", "tableau_pharmacien");
     }
 
-    private List<Tuple> executeQuery(MvtParam mvtParam) {
-        return entityManager
-            .createNativeQuery(buildQuery(mvtParam), Tuple.class)
-            .setParameter(1, mvtParam.getFromDate())
-            .setParameter(2, mvtParam.getToDate())
-            .getResultList();
-    }
+    private void buildAchatsFromProjection( List<AchatDTO> projections , TableauPharmacienWrapper tableauPharmacienWrapper) {
+        projections
+            .forEach(achatDTO -> {
 
-    private List<Tuple> executeAchatQuery(MvtParam mvtParam) {
-        return entityManager
-            .createNativeQuery(buildAchatQuery(mvtParam.getGroupeBy()), Tuple.class)
-            .setParameter(1, mvtParam.getFromDate())
-            .setParameter(2, mvtParam.getToDate())
-            .getResultList();
-    }
-
-    private List<AchatDTO> buildAchatsFromTuple(List<Tuple> tuples, TableauPharmacienWrapper tableauPharmacienWrapper) {
-        return tuples
-            .stream()
-            .map(t -> {
-                AchatDTO achatDTO = new AchatDTO();
-                achatDTO
-                    .setMontantNet(t.get("montantNet", BigDecimal.class).longValue())
-                    .setMontantTtc(t.get("montantTtc", BigDecimal.class).longValue())
-                    // .setMontantHt(t.get("montantHt", BigDecimal.class).longValue())
-                    .setMontantTaxe(t.get("montantTaxe", BigDecimal.class).longValue())
-                    .setMontantRemise(t.get("montantRemise", BigDecimal.class).longValue())
-                    .setGroupeGrossiste(t.get("groupeGrossiste", String.class))
-                    .setGroupeGrossisteId(t.get("groupeGrossisteId", Long.class))
-                    .setOrdreAffichage(t.get("ordreAffichage", Integer.class))
-                    .setMvtDate(getMvtDate(t.get("mvtDate", String.class)));
                 updateTableauPharmacienWrapper(tableauPharmacienWrapper, achatDTO);
-                return achatDTO;
-            })
-            .sorted(Comparator.comparing(AchatDTO::getOrdreAffichage))
-            .toList();
-    }
 
-    private LocalDate getMvtDate(String mvtDate) {
-        if (StringUtils.hasText(mvtDate)) {
-            if (mvtDate.length() == 7) {
-                return DateUtil.formaFromYearMonth(mvtDate);
-            } else {
-                return LocalDate.parse(mvtDate);
-            }
-        }
-        return null;
+            });
     }
 
     private void updateTableauPharmacienWrapper(TableauPharmacienWrapper tableauPharmacienWrapper, AchatDTO achatDTO) {
@@ -186,53 +175,12 @@ public class TableauPharmacienServiceImpl implements TableauPharmacienService {
         tableauPharmacienWrapper.setMontantAchatHt(tableauPharmacienWrapper.getMontantAchatHt() + achatDTO.getMontantHt());
     }
 
-    private List<TableauPharmacienDTO> buildTableauPharmacienFromTuple(
-        List<Tuple> tuples,
-        TableauPharmacienWrapper tableauPharmacienWrapper,
-        boolean groupingByMonth
+    private void buildTableauPharmacienFromProjection(
+        List<TableauPharmacienDTO> projections,
+        TableauPharmacienWrapper tableauPharmacienWrapper
     ) {
-        return tuples
-            .stream()
-            .map(t -> {
-                TableauPharmacienDTO tableauPharmacienDTO = new TableauPharmacienDTO();
-                long montantCredit = 0L;
-                long partAssure = 0L;
-                if (Objects.nonNull(t.get("partTiersPayant", BigDecimal.class))) {
-                    montantCredit = t.get("partTiersPayant", BigDecimal.class).longValue();
-                }
-                if (Objects.nonNull(t.get("montantDiffere", BigDecimal.class))) {
-                    montantCredit += t.get("montantDiffere", BigDecimal.class).longValue();
-                }
-                if (Objects.nonNull(t.get("partAssure", BigDecimal.class))) {
-                    partAssure = t.get("partAssure", BigDecimal.class).longValue();
-                }
-                tableauPharmacienDTO
-                    .setAmountToBePaid(t.get("amountToBePaid", BigDecimal.class).longValue())
-                    .setMontantNetUg(t.get("montantNetUg", BigDecimal.class).longValue())
-                    .setMontantTtcUg(t.get("montantTtcUg", BigDecimal.class).longValue())
-                    .setMontantHtUg(t.get("montantHtUg", BigDecimal.class).longValue())
-                    .setNombreVente(t.get("numberCount", Long.class).intValue())
-                    .setAmountToBeTakenIntoAccount(t.get("amountToBeTakenIntoAccount", BigDecimal.class).longValue())
-                    //   .setMontantAchat(t.get("montantAchat", BigDecimal.class).longValue())
-                    .setMontantCredit(montantCredit)
-                    .setPartAssure(partAssure)
-                    .setMvtDate(
-                        groupingByMonth
-                            ? DateUtil.formaFromYearMonth(t.get("mvtDate", String.class))
-                            : LocalDate.parse(t.get("mvtDate", String.class))
-                    )
-                    .setMontantComptant(
-                        Objects.nonNull(t.get("montantPaye", BigDecimal.class)) ? t.get("montantPaye", BigDecimal.class).longValue() : 0L
-                    )
-                    .setMontantTtc(t.get("montantTtc", BigDecimal.class).longValue())
-                    .setMontantHt(t.get("montantHt", BigDecimal.class).longValue())
-                    .setMontantTaxe(t.get("montantTaxe", BigDecimal.class).longValue())
-                    .setMontantRemise(t.get("montantDiscount", BigDecimal.class).longValue())
-                    .setMontantNet(t.get("montantNet", BigDecimal.class).longValue());
-                updateTableauPharmacienWrapper(tableauPharmacienWrapper, tableauPharmacienDTO);
-                return tableauPharmacienDTO;
-            })
-            .collect(Collectors.toList());
+        projections
+            .forEach(tableauPharmacienDTO -> updateTableauPharmacienWrapper(tableauPharmacienWrapper, tableauPharmacienDTO));
     }
 
     private void updateTableauPharmacienWrapper(
@@ -261,7 +209,7 @@ public class TableauPharmacienServiceImpl implements TableauPharmacienService {
         if (achats.isEmpty()) {
             return tableauPharmaciens;
         }
-
+        achats.sort(Comparator.comparing(AchatDTO::getOrdreAffichage));
         Map<LocalDate, List<AchatDTO>> map = achats.stream().collect(Collectors.groupingBy(AchatDTO::getMvtDate));
 
         if (tableauPharmaciens.isEmpty()) {
@@ -318,7 +266,7 @@ public class TableauPharmacienServiceImpl implements TableauPharmacienService {
                 FournisseurAchat achatFournisseur;
 
                 if (fournisseurAchats.isEmpty()) {
-                    achatFournisseur = newGroupFournisseurAchat(topKey, value.getFirst().getGroupeGrossiste());
+                    achatFournisseur = newGroupFournisseurAchat(topKey, value.get(0).getGroupeGrossiste());
                 } else {
                     FournisseurAchat f = null;
                     for (FournisseurAchat fournisseurAchat : fournisseurAchats) {
@@ -328,7 +276,7 @@ public class TableauPharmacienServiceImpl implements TableauPharmacienService {
                         }
                     }
                     if (f == null) {
-                        achatFournisseur = newGroupFournisseurAchat(topKey, value.getFirst().getGroupeGrossiste());
+                        achatFournisseur = newGroupFournisseurAchat(topKey, value.get(0).getGroupeGrossiste());
                     } else {
                         achatFournisseur = f;
                     }
@@ -364,14 +312,13 @@ public class TableauPharmacienServiceImpl implements TableauPharmacienService {
 
     private TableauPharmacienWrapper computeData(MvtParam mvtParam) {
         TableauPharmacienWrapper tableauPharmacienWrapper = new TableauPharmacienWrapper();
-        List<Tuple> tuples = executeQuery(mvtParam);
-        List<TableauPharmacienDTO> tableauPharmaciens = buildTableauPharmacienFromTuple(
-            tuples,
-            tableauPharmacienWrapper,
-            "month".equals(mvtParam.getGroupeBy())
+        List<TableauPharmacienDTO> tableauPharmaciens = fetchSalesData(mvtParam);
+        buildTableauPharmacienFromProjection(
+            tableauPharmaciens,
+            tableauPharmacienWrapper
         );
-        List<Tuple> achatTuples = executeAchatQuery(mvtParam);
-        List<AchatDTO> achats = buildAchatsFromTuple(achatTuples, tableauPharmacienWrapper);
+        List<AchatDTO> achats  = fetchAchatData(mvtParam);
+        buildAchatsFromProjection(achats, tableauPharmacienWrapper);
         List<TableauPharmacienDTO> result = addAchatsToTableauPharmacien(tableauPharmaciens, new ArrayList<>(achats));
 
         tableauPharmacienWrapper.setTableauPharmaciens(result);
@@ -400,7 +347,7 @@ public class TableauPharmacienServiceImpl implements TableauPharmacienService {
                     FournisseurAchat fournisseurAchat = new FournisseurAchat();
                     fournisseurAchat.setAchat(new AchatDTO());
                     fournisseurAchat.setId(k);
-                    fournisseurAchat.setLibelle(v.getFirst().getLibelle());
+                    fournisseurAchat.setLibelle(v.get(0).getLibelle());
                     fournisseurAchat.setAchat(getAchatDTO(v.stream().map(FournisseurAchat::getAchat).toList(), fournisseurAchat));
                     montantAchat.addAndGet(fournisseurAchat.getAchat().getMontantNet());
                     groupAchats.add(fournisseurAchat);
@@ -485,11 +432,95 @@ public class TableauPharmacienServiceImpl implements TableauPharmacienService {
         var all = groupeFournisseurRepository.findAllByOrderByOdreAsc();
         if (all.size() > 4) {
             List<GroupeFournisseurDTO> topN = new ArrayList<>(all.stream().limit(4).map(GroupeFournisseurDTO::new).toList());
-            topN.addLast(new GroupeFournisseurDTO().setId(GROUP_OTHER_ID).setLibelle("Autres").setOdre(1000_1000));
+            topN.add(new GroupeFournisseurDTO().setId(GROUP_OTHER_ID).setLibelle("Autres").setOdre(1000_1000));
             topN.sort(Comparator.comparing(GroupeFournisseurDTO::getOdre));
             return topN;
         } else {
             return all.stream().sorted(Comparator.comparing(GroupeFournisseur::getOdre)).map(GroupeFournisseurDTO::new).toList();
         }
+    }
+
+
+
+    private List<TableauPharmacienDTO> fetchSalesData(MvtParam mvtParam) {
+
+
+        CriteriaBuilder cb = entityManager.getCriteriaBuilder();
+        CriteriaQuery<TableauPharmacienDTO> cq = cb.createQuery(TableauPharmacienDTO.class);
+        Root<Sales> root = cq.from(Sales.class);
+        SetJoin<Sales, SalePayment> payments = root.joinSet(Sales_.PAYMENTS, JoinType.LEFT);
+        SetJoin<Sales, SalesLine> salesLineSetJoin = root.joinSet(Sales_.SALES_LINES);
+        Path<ThirdPartySales> thirdPartySalesPath = cb.treat(root, ThirdPartySales.class);
+        Expression<Integer> quantityExpression = mvtParam.isExcludeFreeUnit() ? cb.diff(salesLineSetJoin.get(SalesLine_.quantityRequested), salesLineSetJoin.get(SalesLine_.quantityUg)) : salesLineSetJoin.get(SalesLine_.quantityRequested);
+        Expression<Long> montantTtcExpression = mvtParam.isExcludeFreeUnit() ? cb.sumAsLong(cb.prod(cb.diff(salesLineSetJoin.get(SalesLine_.quantityRequested), salesLineSetJoin.get(SalesLine_.quantityUg)), salesLineSetJoin.get(SalesLine_.regularUnitPrice))) : cb.sumAsLong(cb.prod(salesLineSetJoin.get(SalesLine_.quantityRequested), salesLineSetJoin.get(SalesLine_.regularUnitPrice)));
+        Expression<Long> montantTtcAcahtExpression = mvtParam.isExcludeFreeUnit() ? cb.sumAsLong(cb.prod(cb.diff(salesLineSetJoin.get(SalesLine_.quantityRequested), salesLineSetJoin.get(SalesLine_.quantityUg)), salesLineSetJoin.get(SalesLine_.costAmount))) : cb.sumAsLong(cb.prod(salesLineSetJoin.get(SalesLine_.quantityRequested), salesLineSetJoin.get(SalesLine_.costAmount)));
+        Expression<?> discountExpression = mvtParam.isExcludeFreeUnit() ? cb.sum(cb.prod(quantityExpression, salesLineSetJoin.get(SalesLine_.tauxRemise))) : cb.sumAsLong(root.get(Sales_.discountAmount));
+        Expression<Integer> montantHtQtyExpression = mvtParam.isExcludeFreeUnit() ? cb.prod(cb.diff(salesLineSetJoin.get(SalesLine_.quantityRequested), salesLineSetJoin.get(SalesLine_.quantityUg)), salesLineSetJoin.get(SalesLine_.regularUnitPrice)) : cb.prod(salesLineSetJoin.get(SalesLine_.quantityRequested), salesLineSetJoin.get(SalesLine_.regularUnitPrice));
+        cq.where(tableauPharmacienSpecification.buildSalesSpecification(mvtParam).toPredicate(root, cq, cb));
+
+        Expression<LocalDate> mvtDate = cb.function("DATE", LocalDate.class, root.get(Sales_.updatedAt));
+        if ("month".equals(mvtParam.getGroupeBy())) {
+            mvtDate = cb.function("DATE_FORMAT", LocalDate.class, root.get(Sales_.updatedAt), cb.literal("%Y-%m"));
+        }
+        cq.select(createTableauPharmacienDTOResult(cb, root, payments, salesLineSetJoin, thirdPartySalesPath, montantTtcExpression, montantTtcAcahtExpression, discountExpression, montantHtQtyExpression, mvtDate));
+        cq.groupBy(mvtDate);
+        cq.orderBy(cb.asc(mvtDate));
+
+        return entityManager.createQuery(cq).getResultList();
+    }
+
+
+    private CompoundSelection<TableauPharmacienDTO> createTableauPharmacienDTOResult(CriteriaBuilder cb, Root<Sales> root, SetJoin<Sales, SalePayment> payments, SetJoin<Sales, SalesLine> salesLineSetJoin, Path<ThirdPartySales> thirdPartySalesPath, Expression<Long> montantTtcExpression, Expression<Long> montantTtcAcahtExpression, Expression<?> discountExpression, Expression<Integer> montantHtQtyExpression, Expression<LocalDate> mvtDate) {
+        return cb.construct(TableauPharmacienDTO.class,
+            mvtDate,
+            cb.count(root.get(Sales_.id)),
+            discountExpression,
+            montantTtcExpression,
+            cb.sumAsLong(payments.get(PaymentTransaction_.paidAmount)),
+            cb.sumAsLong(payments.get(PaymentTransaction_.reelAmount)),
+            cb.ceiling(
+                cb.sum(
+                    cb.quot(
+                        montantHtQtyExpression,
+                        cb.sum(1, cb.quot(salesLineSetJoin.get(SalesLine_.taxValue), 100.0d))
+                    )
+                )
+            ),
+            montantTtcAcahtExpression,
+            cb.sum(root.get(Sales_.restToPay)),
+            cb.sumAsLong(root.get(Sales_.amountToBeTakenIntoAccount)),
+            cb.sumAsLong(thirdPartySalesPath.get(ThirdPartySales_.partTiersPayant)),
+            cb.sumAsLong(thirdPartySalesPath.get(ThirdPartySales_.partAssure))
+        );
+    }
+
+    private List<AchatDTO> fetchAchatData(MvtParam mvtParam) {
+        CriteriaBuilder cb = entityManager.getCriteriaBuilder();
+        CriteriaQuery<AchatDTO> cq = cb.createQuery(AchatDTO.class);
+        Root<Commande> root = cq.from(Commande.class);
+        Join<Commande, Fournisseur> fournisseur = root.join(Commande_.fournisseur);
+        Join<Fournisseur, GroupeFournisseur> groupeFournisseur = fournisseur.join(Fournisseur_.groupeFournisseur);
+        cq.where(tableauPharmacienSpecification.buildAchatSpecification(mvtParam).toPredicate(root, cq, cb));
+
+        Expression<LocalDate> mvtDate = cb.function("DATE", LocalDate.class, root.get(Commande_.updatedAt));
+        if ("month".equals(mvtParam.getGroupeBy())) {
+            mvtDate = cb.function("DATE_FORMAT", LocalDate.class, root.get(Commande_.updatedAt), cb.literal("%Y-%m"));
+        }
+
+        cq.select(cb.construct(AchatDTO.class,
+            mvtDate,
+            cb.sumAsLong(cb.diff(root.get(Commande_.grossAmount), root.get(Commande_.taxAmount))),
+            cb.sumAsLong(root.get(Commande_.taxAmount)),
+            cb.sumAsLong(root.get(Commande_.grossAmount)),
+            cb.sumAsLong(root.get(Commande_.discountAmount)),
+            groupeFournisseur.get(GroupeFournisseur_.id),
+            groupeFournisseur.get(GroupeFournisseur_.libelle),
+            groupeFournisseur.get(GroupeFournisseur_.odre)
+        ));
+
+        cq.groupBy(mvtDate, groupeFournisseur.get(GroupeFournisseur_.id));
+        cq.orderBy(cb.asc(mvtDate));
+
+        return entityManager.createQuery(cq).getResultList();
     }
 }

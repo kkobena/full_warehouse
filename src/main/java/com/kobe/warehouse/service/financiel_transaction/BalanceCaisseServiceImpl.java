@@ -1,9 +1,7 @@
 package com.kobe.warehouse.service.financiel_transaction;
 
-import com.kobe.warehouse.domain.enumeration.CategorieChiffreAffaire;
 import com.kobe.warehouse.domain.enumeration.ModePaimentCode;
 import com.kobe.warehouse.domain.enumeration.TransactionTypeAffichage;
-import com.kobe.warehouse.domain.enumeration.TypeFinancialTransaction;
 import com.kobe.warehouse.repository.PaymentTransactionRepository;
 import com.kobe.warehouse.repository.SalesRepository;
 import com.kobe.warehouse.service.AppConfigurationService;
@@ -13,9 +11,6 @@ import com.kobe.warehouse.service.financiel_transaction.dto.BalanceCaisseDTO;
 import com.kobe.warehouse.service.financiel_transaction.dto.BalanceCaisseWrapper;
 import com.kobe.warehouse.service.financiel_transaction.dto.MvtParam;
 import com.kobe.warehouse.service.utils.DateUtil;
-import jakarta.persistence.EntityManager;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.core.io.Resource;
 import org.springframework.stereotype.Service;
 
@@ -26,23 +21,21 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map.Entry;
 import java.util.Objects;
-import java.util.Set;
 import java.util.stream.Collectors;
 
 @Service
 public class BalanceCaisseServiceImpl implements BalanceCaisseService {
 
-    private static final Logger log = LoggerFactory.getLogger(BalanceCaisseServiceImpl.class);
-    private final EntityManager entityManager;
+
     private final BalanceReportReportService balanceReportService;
     private final SalesRepository salesRepository;
     private final PaymentTransactionRepository paymentTransactionRepository;
     private final AppConfigurationService appConfigurationService;
 
-    public BalanceCaisseServiceImpl(EntityManager entityManager, BalanceReportReportService balanceReportService,
+    public BalanceCaisseServiceImpl(BalanceReportReportService balanceReportService,
                                     SalesRepository salesRepository,
                                     PaymentTransactionRepository paymentTransactionRepository, AppConfigurationService appConfigurationService) {
-        this.entityManager = entityManager;
+
         this.balanceReportService = balanceReportService;
         this.salesRepository = salesRepository;
         this.paymentTransactionRepository = paymentTransactionRepository;
@@ -60,11 +53,10 @@ public class BalanceCaisseServiceImpl implements BalanceCaisseService {
 
     @Override
     public BalanceCaisseWrapper getBalanceCaisse(MvtParam mvtParam) {
-        mvtParam.setExcludeFreeUnit(!appConfigurationService.excludeFreeUnit());
+        mvtParam.setExcludeFreeUnit(appConfigurationService.excludeFreeUnit());
         return getBalanceCaisseNew(mvtParam);
 
     }
-
 
 
     private BalanceCaisseWrapper computeBalanceCaisses(List<BalanceCaisseDTO> balanceCaisseDTOS) {
@@ -240,8 +232,6 @@ public class BalanceCaisseServiceImpl implements BalanceCaisseService {
             }
         }
     }
-
-
 
 
     private void computeMvts(BalanceCaisseWrapper balanceCaisseWrapper, List<BalanceCaisseDTO> balanceCaisses) {

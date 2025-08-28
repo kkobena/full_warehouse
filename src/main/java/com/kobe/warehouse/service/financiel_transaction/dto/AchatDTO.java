@@ -94,4 +94,18 @@ public class AchatDTO {
         this.groupeGrossiste = groupeGrossiste;
         return this;
     }
+
+    public AchatDTO() {
+    }
+
+    public AchatDTO(LocalDate mvtDate, Long montantNet, Long montantTaxe, Long montantTtc, Long montantRemise, Long groupeGrossisteId, String groupeGrossiste, Integer ordreAffichage) {
+        this.mvtDate = mvtDate;
+        this.montantNet = montantNet;
+        this.montantTaxe = montantTaxe;
+        this.montantTtc = montantTtc;
+        this.montantRemise = montantRemise;
+        this.groupeGrossisteId = groupeGrossisteId;
+        this.groupeGrossiste = groupeGrossiste;
+        this.ordreAffichage = ordreAffichage;
+    }
 }

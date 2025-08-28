@@ -22,7 +22,7 @@ public class MobileTvaServiceImpl implements MobileTvaService {
 
     @Override
     public Tva getTva(MvtParam mvtParam) {
-        TaxeWrapperDTO taxeWrapper = this.taxeService.fetchTaxe(mvtParam.build(), false, true);
+        TaxeWrapperDTO taxeWrapper = this.taxeService.fetchTaxe(mvtParam.build(), false);
 
         if (nonNull(taxeWrapper)) {
             long totalTtc = taxeWrapper.getTaxes().stream().mapToLong(t -> t.getMontantTtc()).sum();

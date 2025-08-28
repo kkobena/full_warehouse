@@ -6,7 +6,7 @@ import java.net.MalformedURLException;
 import org.springframework.core.io.Resource;
 
 public interface TaxeService {
-    TaxeWrapperDTO fetchTaxe(MvtParam mvtParam, boolean ignoreSomeTaxe, boolean toExport);
+    TaxeWrapperDTO fetchTaxe(MvtParam mvtParam, boolean toExport);
 
-    Resource exportToPdf(MvtParam mvtParam, boolean ignoreSomeTaxe) throws MalformedURLException;
+    Resource exportToPdf(MvtParam mvtParam) throws MalformedURLException;
 }

@@ -1,21 +1,43 @@
 package com.kobe.warehouse.service.financiel_transaction.dto;
 
 import java.time.LocalDate;
+import java.util.Objects;
+
+import static java.util.Objects.isNull;
 
 public class TaxeDTO {
 
     private LocalDate mvtDate;
-    private long montantHt;
-    private long montantTaxe;
-    private long montantTtc;
-    private long montantNet;
+    private Long montantHt = 0L;
+    private Long montantTaxe = 0L;
+    private Long montantTtc = 0L;
+    private Long montantNet = 0L;
     private long montantRemise;
-    private long montantAchat;
-    private long montantRemiseUg;
-    private long montantTvaUg;
-    private int codeTva;
-    private long amountToBeTakenIntoAccount;
-    private long montantTtcUg;
+    private Long montantAchat = 0L;
+    private Integer codeTva;
+    private Long amountToBeTakenIntoAccount = 0L;
+
+    public TaxeDTO() {
+    }
+
+    public TaxeDTO(LocalDate mvtDate, Integer codeTva, Long montantTtc, Long montantAchat, Double montantHt, Long amountToBeTakenIntoAccount) {
+        this.mvtDate = mvtDate;
+        this.codeTva = codeTva;
+        this.montantTtc = montantTtc;
+        this.montantAchat = montantAchat;
+        this.montantHt = isNull(montantHt) ? 0L : montantHt.longValue();
+        this.amountToBeTakenIntoAccount = amountToBeTakenIntoAccount;
+        this.montantTaxe = Objects.requireNonNullElse(montantAchat, 0L) - this.montantHt;
+    }
+
+    public TaxeDTO(Integer codeTva, Long montantTtc, Long montantAchat, Double montantHt, Long amountToBeTakenIntoAccount) {
+        this.codeTva = codeTva;
+        this.montantTtc = montantTtc;
+        this.montantAchat = montantAchat;
+        this.montantHt = isNull(montantHt) ? 0L : montantHt.longValue();
+        this.montantTaxe = Objects.requireNonNullElse(montantAchat, 0L) - this.montantHt;
+        this.amountToBeTakenIntoAccount = amountToBeTakenIntoAccount;
+    }
 
     public LocalDate getMvtDate() {
         return mvtDate;
@@ -26,102 +48,68 @@ public class TaxeDTO {
         return this;
     }
 
-    public long getMontantHt() {
+    public Long getMontantHt() {
         return montantHt;
     }
 
-    public TaxeDTO setMontantHt(long montantHt) {
+    public void setMontantHt(Long montantHt) {
         this.montantHt = montantHt;
-        return this;
     }
 
-    public long getMontantTaxe() {
+    public Long getMontantTaxe() {
         return montantTaxe;
     }
 
-    public TaxeDTO setMontantTaxe(long montantTaxe) {
+    public void setMontantTaxe(Long montantTaxe) {
         this.montantTaxe = montantTaxe;
-        return this;
     }
 
-    public long getMontantTtc() {
+    public Long getMontantTtc() {
         return montantTtc;
     }
 
-    public TaxeDTO setMontantTtc(long montantTtc) {
+    public void setMontantTtc(Long montantTtc) {
         this.montantTtc = montantTtc;
-        return this;
     }
 
-    public long getMontantNet() {
+    public Long getMontantNet() {
         return montantNet;
     }
 
-    public TaxeDTO setMontantNet(long montantNet) {
+    public void setMontantNet(Long montantNet) {
         this.montantNet = montantNet;
-        return this;
     }
 
     public long getMontantRemise() {
         return montantRemise;
     }
 
-    public TaxeDTO setMontantRemise(long montantRemise) {
+    public void setMontantRemise(long montantRemise) {
         this.montantRemise = montantRemise;
-        return this;
     }
 
-    public long getMontantAchat() {
+    public Long getMontantAchat() {
         return montantAchat;
     }
 
-    public TaxeDTO setMontantAchat(long montantAchat) {
+    public void setMontantAchat(Long montantAchat) {
         this.montantAchat = montantAchat;
-        return this;
     }
 
-    public long getMontantRemiseUg() {
-        return montantRemiseUg;
-    }
-
-    public TaxeDTO setMontantRemiseUg(long montantRemiseUg) {
-        this.montantRemiseUg = montantRemiseUg;
-        return this;
-    }
-
-    public long getMontantTvaUg() {
-        return montantTvaUg;
-    }
-
-    public TaxeDTO setMontantTvaUg(long montantTvaUg) {
-        this.montantTvaUg = montantTvaUg;
-        return this;
-    }
-
-    public int getCodeTva() {
+    public Integer getCodeTva() {
         return codeTva;
     }
 
-    public TaxeDTO setCodeTva(int codeTva) {
+    public void setCodeTva(Integer codeTva) {
         this.codeTva = codeTva;
-        return this;
     }
 
-    public long getAmountToBeTakenIntoAccount() {
+    public Long getAmountToBeTakenIntoAccount() {
         return amountToBeTakenIntoAccount;
     }
 
-    public TaxeDTO setAmountToBeTakenIntoAccount(long amountToBeTakenIntoAccount) {
+    public void setAmountToBeTakenIntoAccount(Long amountToBeTakenIntoAccount) {
         this.amountToBeTakenIntoAccount = amountToBeTakenIntoAccount;
-        return this;
     }
 
-    public long getMontantTtcUg() {
-        return montantTtcUg;
-    }
-
-    public TaxeDTO setMontantTtcUg(long montantTtcUg) {
-        this.montantTtcUg = montantTtcUg;
-        return this;
-    }
 }

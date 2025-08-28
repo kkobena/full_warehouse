@@ -1,10 +1,14 @@
 package com.kobe.warehouse.service.financiel_transaction.dto;
 
+import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
+
+import static java.util.Objects.isNull;
 
 public class TableauPharmacienDTO {
 
@@ -13,11 +17,12 @@ public class TableauPharmacienDTO {
     private long montantTtc;
     private long montantCredit;
     private long montantRemise;
+    private long  montantReel;
     private long montantNet;
     private long montantAchat;
     private long montantAchatNet;
     private long montantTaxe;
-    private int nombreVente;
+    private long nombreVente;
     private long montantAvoir;
     private long montantHt;
     private long amountToBePaid;
@@ -203,7 +208,7 @@ public class TableauPharmacienDTO {
         return this;
     }
 
-    public int getNombreVente() {
+    public long getNombreVente() {
         return nombreVente;
     }
 
@@ -246,5 +251,51 @@ public class TableauPharmacienDTO {
     public TableauPharmacienDTO setMontantBonAchat(long montantBonAchat) {
         this.montantBonAchat = montantBonAchat;
         return this;
+    }
+    private Integer getDiscountAsInteger(Object montantDiscount) {
+        if (isNull(montantDiscount)) {
+            return 0;
+        }
+        if (montantDiscount instanceof Double) {
+            return ((Double) montantDiscount).intValue();
+        } else if (montantDiscount instanceof Long) {
+            return ((Long) montantDiscount).intValue();
+        } else if (montantDiscount instanceof Integer) {
+            return (Integer) montantDiscount;
+        } else if (montantDiscount instanceof BigDecimal) {
+            return ((BigDecimal) montantDiscount).intValue();
+        }
+        return 0;
+    }
+
+    public long getMontantReel() {
+        return montantReel;
+    }
+
+    public void setMontantReel(long montantReel) {
+        this.montantReel = montantReel;
+    }
+
+    public void setNombreVente(long nombreVente) {
+        this.nombreVente = nombreVente;
+    }
+
+    public TableauPharmacienDTO() {
+    }
+
+    public TableauPharmacienDTO(LocalDate mvtDate, Long numberCount, Object discount, Long montantTtc, Long montantPaye, Long montantReel, Double montantHt, Long montantAchat, Integer montantDiffere, Long amountToBeTakenIntoAccount, Long partTiersPayant, Long partAssure) {
+        this.mvtDate = mvtDate;
+        this.nombreVente = numberCount;
+        this.montantRemise = getDiscountAsInteger(discount);
+        this.montantTtc = montantTtc;
+        this.montantComptant = montantPaye;
+        this.montantHt = isNull(montantHt) ? null : montantHt.longValue();
+        this.montantNet = montantTtc - this.montantRemise;
+        this.montantAchat = montantAchat;
+        this.montantCredit = Objects .requireNonNullElse(partTiersPayant,0L) + Objects.requireNonNullElse(montantDiffere,0) ;
+        this.amountToBeTakenIntoAccount = amountToBeTakenIntoAccount;
+        this.partAssure = partAssure;
+        this.montantReel = montantReel;
+        this.montantTaxe = this.montantTtc - this.montantHt;
     }
 }

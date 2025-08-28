@@ -6,6 +6,7 @@ import com.kobe.warehouse.service.cash_register.dto.TypeVente;
 import com.kobe.warehouse.service.dto.enumeration.TypeVenteDTO;
 
 import java.math.BigDecimal;
+import java.time.LocalDate;
 
 import static java.util.Objects.isNull;
 
@@ -46,29 +47,7 @@ public class BalanceCaisseDTO {
     private Long partTiersPayant;
     private TransactionTypeAffichage typeVeTypeAffichage;
 
-    /*
-       root.get(Sales_.type),
-                cb.count(root.get(Sales_.id)),
-                discountExpression,
-                montantTtcExpression,
-                cb.sumAsLong(payments.get(PaymentTransaction_.paidAmount)),
-                cb.sumAsLong(payments.get(PaymentTransaction_.reelAmount)),
-                cb.ceiling(
-                    cb.sum(
-                        cb.quot(
-                            montantTtcExpression,
-                            cb.sum(1, cb.quot(salesLineSetJoin.get(SalesLine_.taxValue), 100.0d))
-                        )
-                    )
-                ),
-                paymentMode.get(PaymentMode_.code),
-                paymentMode.get(PaymentMode_.libelle),
-                montantTtcAcahtExpression,
-                cb.sum(root.get(Sales_.restToPay)),
-                cb.sumAsLong(root.get(Sales_.amountToBeTakenIntoAccount)),
-                cb.sumAsLong(thirdPartySalesPath.get(ThirdPartySales_.partTiersPayant)),
-                cb.sumAsLong(thirdPartySalesPath.get(ThirdPartySales_.partAssure))
-     */
+
     public BalanceCaisseDTO(String typeSale, Long numberCount, Object discount, Long montantTtc, Long montantPaye, Long montantReel, Double montantHt, String modePaiement, String libelleModePaiement, Long montantAchat, Integer montantDiffere, Long amountToBeTakenIntoAccount, Long partTiersPayant, Long partAssure) {
         this.typeSale = TypeVenteDTO.valueOf(typeSale).getValue();
         this.count = numberCount;

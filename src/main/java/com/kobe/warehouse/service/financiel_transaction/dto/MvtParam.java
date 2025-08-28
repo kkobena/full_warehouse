@@ -17,7 +17,15 @@ public class MvtParam {
     private Set<SalesStatut> statuts;
     private Set<TypeVente> typeVentes;
     private boolean excludeFreeUnit;
+    private Boolean toIgnore;
 
+    public Boolean getToIgnore() {
+        return toIgnore;
+    }
+
+    public void setToIgnore(Boolean toIgnore) {
+        this.toIgnore = toIgnore;
+    }
 
     public MvtParam(
         LocalDate fromDate,

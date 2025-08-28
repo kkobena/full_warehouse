@@ -47,6 +47,9 @@ spring:
 
   thymeleaf:
     cache: true
+  threads:
+    virtual:
+      enabled: true
 
 
 # server:

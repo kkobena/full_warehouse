@@ -13,11 +13,11 @@ import org.springframework.scheduling.annotation.AsyncConfigurer;
 import org.springframework.scheduling.annotation.EnableAsync;
 import org.springframework.scheduling.annotation.EnableScheduling;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
-
+/*
 @Configuration
 @EnableAsync
 @EnableScheduling
-@Profile("!testdev & !testprod")
+@Profile("!testdev & !testprod")*/
 public class AsyncConfiguration implements AsyncConfigurer {
 
     private static final Logger LOG = LoggerFactory.getLogger(AsyncConfiguration.class);
@@ -29,7 +29,7 @@ public class AsyncConfiguration implements AsyncConfigurer {
     }
 
     @Override
-    @Bean(name = "taskExecutor")
+   // @Bean(name = "taskExecutor")
     public Executor getAsyncExecutor() {
         LOG.debug("Creating Async Task Executor");
         ThreadPoolTaskExecutor executor = new ThreadPoolTaskExecutor();

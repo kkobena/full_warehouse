@@ -7,6 +7,7 @@ import com.kobe.warehouse.domain.InvoicePayment;
 import com.kobe.warehouse.domain.InvoicePayment_;
 import com.kobe.warehouse.domain.PaymentFournisseur;
 import com.kobe.warehouse.domain.PaymentFournisseur_;
+import com.kobe.warehouse.domain.PaymentMode;
 import com.kobe.warehouse.domain.PaymentMode_;
 import com.kobe.warehouse.domain.PaymentTransaction;
 import com.kobe.warehouse.domain.PaymentTransaction_;
@@ -14,13 +15,18 @@ import com.kobe.warehouse.domain.SalePayment;
 import com.kobe.warehouse.domain.SalePayment_;
 import com.kobe.warehouse.domain.Sales_;
 import com.kobe.warehouse.domain.User_;
+import com.kobe.warehouse.service.financiel_transaction.dto.BalanceCaisseDTO;
 import com.kobe.warehouse.service.financiel_transaction.dto.MvtCaisseProjection;
 import com.kobe.warehouse.service.financiel_transaction.dto.MvtCaisseSumProjection;
+import com.kobe.warehouse.service.financiel_transaction.dto.MvtParam;
 import com.kobe.warehouse.service.tiketz.dto.TicketZProjection;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.TypedQuery;
+import jakarta.persistence.criteria.CompoundSelection;
 import jakarta.persistence.criteria.CriteriaBuilder;
 import jakarta.persistence.criteria.CriteriaQuery;
+import jakarta.persistence.criteria.Join;
+import jakarta.persistence.criteria.JoinType;
 import jakarta.persistence.criteria.Path;
 import jakarta.persistence.criteria.Predicate;
 import jakarta.persistence.criteria.Root;
@@ -160,5 +166,32 @@ public class PaymentTransactionCustomRepositoryImpl implements PaymentTransactio
 
         TypedQuery<TicketZProjection> typedQuery = entityManager.createQuery(query);
         return typedQuery.getResultList();
+    }
+
+    @Override
+    public List<BalanceCaisseDTO> fetchPaymentTransactionsForBalanceCaisse(MvtParam mvtParam) {
+        CriteriaBuilder cb = entityManager.getCriteriaBuilder();
+        CriteriaQuery<BalanceCaisseDTO> cq = cb.createQuery(BalanceCaisseDTO.class);
+        Root<PaymentTransaction> root = cq.from(PaymentTransaction.class);
+        Join<PaymentTransaction, PaymentMode> paymentMode = root.join(PaymentTransaction_.paymentMode, JoinType.INNER);
+
+        cq.select(createBalanceCaisseDTOResult(cb, root, paymentMode));
+        cq.where(cb.and(
+            cb.between(cb.function("DATE", java.time.LocalDate.class, root.get(PaymentTransaction_.createdAt)), mvtParam.getFromDate(), mvtParam.getToDate()),
+            root.get(PaymentTransaction_.categorieChiffreAffaire).in(mvtParam.getCategorieChiffreAffaires())
+        ));
+        cq.groupBy(root.get(PaymentTransaction_.paymentMode).get(PaymentMode_.code), root.get(PaymentTransaction_.typeFinancialTransaction));
+
+        return entityManager.createQuery(cq).getResultList();
+    }
+
+    private CompoundSelection<BalanceCaisseDTO> createBalanceCaisseDTOResult(CriteriaBuilder cb, Root<PaymentTransaction> root, Join<PaymentTransaction, PaymentMode> paymentMode) {
+        return cb.construct(BalanceCaisseDTO.class,
+            cb.sumAsLong(root.get(PaymentTransaction_.paidAmount)),
+            cb.sumAsLong(root.get(PaymentTransaction_.reelAmount)),
+            paymentMode.get(PaymentMode_.code),
+            paymentMode.get(PaymentMode_.libelle),
+            root.get(PaymentTransaction_.typeFinancialTransaction)
+        );
     }
 }

@@ -35,7 +35,7 @@ import org.springframework.util.StringUtils;
  */
 @SuppressWarnings("unused")
 @Repository
-public interface SalesRepository extends JpaSpecificationExecutor<Sales>, JpaRepository<Sales, Long>, CustomSalesRepository {
+public interface SalesRepository extends JpaSpecificationExecutor<Sales>, JpaRepository<Sales, Long>, CustomSalesRepository{
     @Query("select sale from Sales sale left join fetch sale.salesLines where sale.id =:id")
     Optional<Sales> findOneWithEagerSalesLines(@Param("id") Long id);
 

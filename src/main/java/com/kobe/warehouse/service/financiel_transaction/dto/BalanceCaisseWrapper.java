@@ -9,7 +9,7 @@ public class BalanceCaisseWrapper {
     private List<Tuple> mvtCaissesByModes = new ArrayList<>();
     private List<Tuple> mvtCaisses = new ArrayList<>();
     private List<BalanceCaisseDTO> balanceCaisses = new ArrayList<>();
-    private int count;
+    private long count;
     private long montantTtc;
     private long montantHt;
     private long montantDiscount;
@@ -181,11 +181,11 @@ public class BalanceCaisseWrapper {
         return this;
     }
 
-    public int getCount() {
+    public long getCount() {
         return count;
     }
 
-    public BalanceCaisseWrapper setCount(int count) {
+    public BalanceCaisseWrapper setCount(long count) {
         this.count = count;
         return this;
     }

@@ -50,4 +50,5 @@ public final class EntityConstant {
     public static final String APP_EXPIRY_ALERT_DAYS_BEFORE = "APP_EXPIRY_ALERT_DAYS_BEFORE"; // nombre de jour avant la date de peremption pour l'alerte d'un produit,
     public static final String APP_GESTION_LOT = "APP_GESTION_LOT"; // nombre de jour avant la date de peremption pour l'alerte d'un produit,
     public static final String USER_STORAGE__CACHE = "USER_STORAGE__CACHE";
+    public static final String EXCLUDE_FREE_UNIT = "EXCLUDE_FREE_UNIT";
 }

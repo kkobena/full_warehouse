@@ -3,6 +3,7 @@ package com.kobe.warehouse.service.financiel_transaction.dto;
 import com.kobe.warehouse.domain.enumeration.CategorieChiffreAffaire;
 import com.kobe.warehouse.domain.enumeration.SalesStatut;
 import com.kobe.warehouse.service.cash_register.dto.TypeVente;
+
 import java.time.LocalDate;
 import java.util.Objects;
 import java.util.Set;
@@ -15,6 +16,8 @@ public class MvtParam {
     private Set<CategorieChiffreAffaire> categorieChiffreAffaires;
     private Set<SalesStatut> statuts;
     private Set<TypeVente> typeVentes;
+    private boolean excludeFreeUnit;
+
 
     public MvtParam(
         LocalDate fromDate,
@@ -30,6 +33,17 @@ public class MvtParam {
         this.statuts = statuts;
         this.typeVentes = typeVentes;
         this.groupeBy = groupeBy;
+    }
+
+    public MvtParam() {
+    }
+
+    public boolean isExcludeFreeUnit() {
+        return excludeFreeUnit;
+    }
+
+    public void setExcludeFreeUnit(boolean excludeFreeUnit) {
+        this.excludeFreeUnit = excludeFreeUnit;
     }
 
     public LocalDate getFromDate() {

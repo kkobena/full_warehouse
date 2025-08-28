@@ -1,8 +1,10 @@
 package com.kobe.warehouse.repository;
 
 import com.kobe.warehouse.domain.PaymentTransaction;
+import com.kobe.warehouse.service.financiel_transaction.dto.BalanceCaisseDTO;
 import com.kobe.warehouse.service.financiel_transaction.dto.MvtCaisseProjection;
 import com.kobe.warehouse.service.financiel_transaction.dto.MvtCaisseSumProjection;
+import com.kobe.warehouse.service.financiel_transaction.dto.MvtParam;
 import com.kobe.warehouse.service.tiketz.dto.TicketZProjection;
 import java.util.List;
 import org.springframework.data.domain.Page;
@@ -15,4 +17,6 @@ public interface PaymentTransactionCustomRepository {
     List<MvtCaisseSumProjection> fetchAllSum(Specification<PaymentTransaction> specification);
 
     List<TicketZProjection> fetchAllMvts(Specification<PaymentTransaction> specification);
+
+    List<BalanceCaisseDTO> fetchPaymentTransactionsForBalanceCaisse(MvtParam mvtParam);
 }

@@ -4,13 +4,14 @@ import com.kobe.warehouse.constant.EntityConstant;
 import com.kobe.warehouse.domain.AppConfiguration;
 import com.kobe.warehouse.domain.Magasin;
 import com.kobe.warehouse.repository.AppConfigurationRepository;
-import java.time.LocalDateTime;
-import java.util.List;
-import java.util.Optional;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.time.LocalDateTime;
+import java.util.List;
+import java.util.Optional;
 
 @Service
 @Transactional
@@ -153,5 +154,15 @@ public class AppConfigurationService {
             .map(AppConfiguration::getValue)
             .map(Integer::parseInt)
             .orElse(7);
+    }
+
+    @Transactional(readOnly = true)
+    @Cacheable(EntityConstant.EXCLUDE_FREE_UNIT)
+    public boolean excludeFreeUnit() {
+        return appConfigurationRepository
+            .findById(EntityConstant.EXCLUDE_FREE_UNIT)
+            .map(AppConfiguration::getValue)
+            .map(Boolean::parseBoolean)
+            .orElse(false);
     }
 }

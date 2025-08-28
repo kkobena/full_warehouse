@@ -5,6 +5,9 @@ import static java.util.Objects.nonNull;
 
 import com.kobe.warehouse.domain.CashRegister_;
 import com.kobe.warehouse.domain.Customer_;
+import com.kobe.warehouse.domain.PaymentMode;
+import com.kobe.warehouse.domain.PaymentMode_;
+import com.kobe.warehouse.domain.PaymentTransaction_;
 import com.kobe.warehouse.domain.SalePayment;
 import com.kobe.warehouse.domain.SalePayment_;
 import com.kobe.warehouse.domain.Sales;
@@ -20,6 +23,8 @@ import com.kobe.warehouse.service.dto.enumeration.TypeVenteDTO;
 import com.kobe.warehouse.service.dto.records.VenteByTypeRecord;
 import com.kobe.warehouse.service.dto.records.VentePeriodeRecord;
 import com.kobe.warehouse.service.dto.records.VenteRecord;
+import com.kobe.warehouse.service.financiel_transaction.dto.BalanceCaisseDTO;
+import com.kobe.warehouse.service.financiel_transaction.dto.MvtParam;
 import com.kobe.warehouse.service.reglement.differe.dto.Differe;
 import com.kobe.warehouse.service.reglement.differe.dto.DiffereItem;
 import com.kobe.warehouse.service.reglement.differe.dto.DiffereSummary;
@@ -28,9 +33,12 @@ import com.kobe.warehouse.service.tiketz.dto.TicketZCreditProjection;
 import com.kobe.warehouse.service.utils.DateUtil;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.TypedQuery;
+import jakarta.persistence.criteria.CompoundSelection;
 import jakarta.persistence.criteria.CriteriaBuilder;
 import jakarta.persistence.criteria.CriteriaQuery;
 import jakarta.persistence.criteria.Expression;
+import jakarta.persistence.criteria.Join;
+import jakarta.persistence.criteria.JoinType;
 import jakarta.persistence.criteria.Path;
 import jakarta.persistence.criteria.Predicate;
 import jakarta.persistence.criteria.Root;
@@ -242,7 +250,7 @@ public class CustomSalesRepositoryImpl implements CustomSalesRepository {
         CriteriaBuilder cb = entityManager.getCriteriaBuilder();
         CriteriaQuery<VenteRecord> cq = cb.createQuery(VenteRecord.class);
         Root<Sales> root = cq.from(Sales.class);
-        SetJoin<Sales, SalePayment> payments = root.joinSet(Sales_.PAYMENTS);
+        SetJoin<Sales, SalePayment> payments = root.joinSet(Sales_.PAYMENTS, JoinType.LEFT);
         SetJoin<Sales, SalesLine> salesLineSetJoin = root.joinSet(Sales_.SALES_LINES);
         cq.select(buildVenteRecord(root, salesLineSetJoin, payments, cb, null));
 
@@ -254,7 +262,7 @@ public class CustomSalesRepositoryImpl implements CustomSalesRepository {
         CriteriaBuilder cb = entityManager.getCriteriaBuilder();
         CriteriaQuery<VenteRecord> cq = cb.createQuery(VenteRecord.class);
         Root<Sales> root = cq.from(Sales.class);
-        SetJoin<Sales, SalePayment> payments = root.joinSet(Sales_.PAYMENTS);
+        SetJoin<Sales, SalePayment> payments = root.joinSet(Sales_.PAYMENTS, JoinType.LEFT);
         SetJoin<Sales, SalesLine> salesLineSetJoin = root.joinSet(Sales_.SALES_LINES);
         Expression<?> groupingExpression = getGroupingExpression(root, statGroupBy);
         cq
@@ -269,7 +277,7 @@ public class CustomSalesRepositoryImpl implements CustomSalesRepository {
         CriteriaBuilder cb = entityManager.getCriteriaBuilder();
         CriteriaQuery<VenteRecord> cq = cb.createQuery(VenteRecord.class);
         Root<Sales> root = cq.from(Sales.class);
-        SetJoin<Sales, SalePayment> payments = root.joinSet(Sales_.PAYMENTS);
+        SetJoin<Sales, SalePayment> payments = root.joinSet(Sales_.PAYMENTS, JoinType.LEFT);
         SetJoin<Sales, SalesLine> salesLineSetJoin = root.joinSet(Sales_.SALES_LINES);
         Expression<String> groupingExpression = root.get(Sales_.type);
         cq
@@ -319,7 +327,7 @@ public class CustomSalesRepositoryImpl implements CustomSalesRepository {
             cb.sum(root.get(Sales_.amountToBePaid)),
             cb.sum(root.get(Sales_.discountAmount)),
             cb.sum(cb.prod(salesLineSetJoin.get(SalesLine_.quantityRequested), salesLineSetJoin.get(SalesLine_.costAmount))),
-            //  cb.diff(cb.sum(root.get(Sales_.htAmount)), cb.sum(root.get(Sales_.costAmount))),
+
             cb.sum(root.get(Sales_.amountToBeTakenIntoAccount)),
             cb.diff(cb.sum(root.get(Sales_.salesAmount)), cb.sum(root.get(Sales_.discountAmount))),
             cb.ceiling(
@@ -332,13 +340,11 @@ public class CustomSalesRepositoryImpl implements CustomSalesRepository {
             ),
             cb.sum(thirdPartySalesPath.get(ThirdPartySales_.partAssure)),
             cb.sum(thirdPartySalesPath.get(ThirdPartySales_.partTiersPayant)),
-            //  cb.sum(root.get(Sales_.taxAmount)),
-            // cb.diff(cb.sum(root.get(Sales_.salesAmount)), cb.ceiling(cb.sum(cb.quot(salesLineSetJoin.get(SalesLine_.salesAmount),cb.sum(1,cb.quot(salesLineSetJoin.get(SalesLine_.taxValue),100.0d)))))),
             cb.sum(root.get(Sales_.restToPay)),
             cb.sum(root.get(Sales_.payrollAmount)),
             cb.sum(payments.get(SalePayment_.paidAmount)),
             cb.sum(payments.get(SalePayment_.reelAmount)),
-            cb.sum(cb.prod(salesLineSetJoin.get(SalesLine_.quantityRequested), salesLineSetJoin.get(SalesLine_.quantityUg))),
+            cb.sum(cb.prod(salesLineSetJoin.get(SalesLine_.regularUnitPrice), salesLineSetJoin.get(SalesLine_.quantityUg))),
             cb.count(root),
             //   cb.quot(cb.sum(root.get(Sales_.htAmount)), cb.count(root)),
             root.get(Sales_.type),
@@ -346,17 +352,61 @@ public class CustomSalesRepositoryImpl implements CustomSalesRepository {
             nonNull(groupingExpression) ? groupingExpression.cast(String.class) : root.get(Sales_.type).cast(String.class)
         );
     }
+    @Override
+    public List<BalanceCaisseDTO> fetchSalesForBalanceCaisse(MvtParam mvtParam) {
+        CriteriaBuilder cb = entityManager.getCriteriaBuilder();
+        CriteriaQuery<BalanceCaisseDTO> cq = cb.createQuery(BalanceCaisseDTO.class);
+        Root<Sales> root = cq.from(Sales.class);
+        SetJoin<Sales, SalePayment> payments = root.joinSet(Sales_.PAYMENTS, JoinType.LEFT);
+        SetJoin<Sales, SalesLine> salesLineSetJoin = root.joinSet(Sales_.SALES_LINES);
+        Join<SalePayment, PaymentMode> paymentMode = payments.join(PaymentTransaction_.paymentMode, JoinType.INNER);
+        Path<ThirdPartySales> thirdPartySalesPath = cb.treat(root, ThirdPartySales.class);
+        Expression<Integer> quantityExpression =mvtParam.isExcludeFreeUnit()? cb.diff(salesLineSetJoin.get(SalesLine_.quantityRequested),salesLineSetJoin.get(SalesLine_.quantityUg)) :salesLineSetJoin.get(SalesLine_.quantityRequested);
 
-    private TypeVenteDTO fromTypeVente(String typeVente) {
-        if (StringUtils.hasLength(typeVente)) {
-            if (typeVente.equalsIgnoreCase(TypeVente.CashSale.name())) {
-                return TypeVenteDTO.CashSale;
-            } else if (typeVente.equalsIgnoreCase(TypeVente.ThirdPartySales.name())) {
-                return TypeVenteDTO.ThirdPartySales;
-            }
-        }
-        return null;
+        Expression<Long> montantTtcExpression =mvtParam.isExcludeFreeUnit()? cb.sumAsLong(cb.prod(cb.diff(salesLineSetJoin.get(SalesLine_.quantityRequested),salesLineSetJoin.get(SalesLine_.quantityUg)),salesLineSetJoin.get(SalesLine_.regularUnitPrice))) :cb.sumAsLong(cb.prod(salesLineSetJoin.get(SalesLine_.quantityRequested), salesLineSetJoin.get(SalesLine_.regularUnitPrice)));
+        Expression<Long> montantTtcAcahtExpression =mvtParam.isExcludeFreeUnit()? cb.sumAsLong(cb.prod(cb.diff(salesLineSetJoin.get(SalesLine_.quantityRequested),salesLineSetJoin.get(SalesLine_.quantityUg)),salesLineSetJoin.get(SalesLine_.costAmount))) :cb.sumAsLong(cb.prod(salesLineSetJoin.get(SalesLine_.quantityRequested), salesLineSetJoin.get(SalesLine_.costAmount)));
+        Expression<?> discountExpression =mvtParam.isExcludeFreeUnit()? cb.sum(cb.prod(quantityExpression,salesLineSetJoin.get(SalesLine_.tauxRemise))) :cb.sumAsLong(root.get(Sales_.discountAmount));
+        Expression<Integer> montantHtExpression =mvtParam.isExcludeFreeUnit()? cb.prod(cb.diff(salesLineSetJoin.get(SalesLine_.quantityRequested),salesLineSetJoin.get(SalesLine_.quantityUg)),salesLineSetJoin.get(SalesLine_.regularUnitPrice)) :cb.prod(salesLineSetJoin.get(SalesLine_.quantityRequested), salesLineSetJoin.get(SalesLine_.regularUnitPrice));
+
+
+        cq.select(createBalanceCaisseDTOResult(cb, root, payments, paymentMode,salesLineSetJoin,thirdPartySalesPath,montantTtcExpression,montantTtcAcahtExpression,discountExpression,montantHtExpression));
+        cq.where(cb.and(
+            cb.between(cb.function("DATE", java.time.LocalDate.class, root.get(Sales_.updatedAt)), mvtParam.getFromDate(), mvtParam.getToDate()),
+            root.get(Sales_.statut).in(mvtParam.getStatuts()),
+            root.get(Sales_.type).in(mvtParam.getTypeVentes().stream().map(com.kobe.warehouse.service.cash_register.dto.TypeVente::getValue).toList()),
+            root.get(Sales_.categorieChiffreAffaire).in(mvtParam.getCategorieChiffreAffaires())
+        ));
+        cq.groupBy(root.get(Sales_.type), payments.get(PaymentTransaction_.paymentMode).get(PaymentMode_.code));
+
+        return entityManager.createQuery(cq).getResultList();
     }
+
+    private CompoundSelection<BalanceCaisseDTO> createBalanceCaisseDTOResult(CriteriaBuilder cb, Root<Sales> root, SetJoin<Sales, SalePayment> payments,Join<SalePayment, PaymentMode> paymentMode,SetJoin<Sales, SalesLine> salesLineSetJoin,Path<ThirdPartySales> thirdPartySalesPath,Expression<Long> montantTtcExpression, Expression<Long> montantTtcAcahtExpression,Expression<?>discountExpression, Expression<Integer> montantHtExpression) {
+        return cb.construct(BalanceCaisseDTO.class,
+            root.get(Sales_.type),
+            cb.count(root.get(Sales_.id)),
+            discountExpression,
+            montantTtcExpression,
+            cb.sumAsLong(payments.get(PaymentTransaction_.paidAmount)),
+            cb.sumAsLong(payments.get(PaymentTransaction_.reelAmount)),
+            cb.ceiling(
+                cb.sum(
+                    cb.quot(
+                        montantHtExpression,
+                        cb.sum(1, cb.quot(salesLineSetJoin.get(SalesLine_.taxValue), 100.0d))
+                    )
+                )
+            ),
+            paymentMode.get(PaymentMode_.code),
+            paymentMode.get(PaymentMode_.libelle),
+            montantTtcAcahtExpression,
+            cb.sum(root.get(Sales_.restToPay)),
+            cb.sumAsLong(root.get(Sales_.amountToBeTakenIntoAccount)),
+            cb.sumAsLong(thirdPartySalesPath.get(ThirdPartySales_.partTiersPayant)),
+            cb.sumAsLong(thirdPartySalesPath.get(ThirdPartySales_.partAssure))
+        );
+    }
+
 
     private String buildMvtDate(VenteRecord venteRecord, StatGroupBy statGroupBy) {
         if (isNull(statGroupBy)) {

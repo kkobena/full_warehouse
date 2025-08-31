@@ -88,7 +88,7 @@ public class ExportationCsvService {
                 .getAbsolutePath();
         try (
             final FileWriter writer = new FileWriter(filename);
-            final CSVPrinter printer = new CSVPrinter(writer, CSVFormat.EXCEL.builder().setDelimiter(';').build())
+            final CSVPrinter printer = new CSVPrinter(writer, CSVFormat.EXCEL.builder().setDelimiter(';').get())
         ) {
             switch (commandeModel) {
                 case LABOREX -> printLaborexFormatCsv(printer, items);

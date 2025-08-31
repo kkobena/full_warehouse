@@ -11,7 +11,7 @@ import com.kobe.warehouse.domain.Storage_;
 import com.kobe.warehouse.domain.StoreInventory;
 import com.kobe.warehouse.domain.StoreInventoryLine;
 import com.kobe.warehouse.domain.StoreInventory_;
-import com.kobe.warehouse.domain.User_;
+import com.kobe.warehouse.domain.AppUser_;
 import com.kobe.warehouse.domain.enumeration.InventoryCategory;
 import com.kobe.warehouse.domain.enumeration.InventoryStatut;
 import com.kobe.warehouse.repository.RayonRepository;
@@ -603,7 +603,7 @@ public class InventaireServiceImpl implements InventaireService {
             predicates.add(cb.equal(root.get(StoreInventory_.storage).get(Storage_.id), storeInventoryFilterRecord.storageId()));
         }
         if (Objects.nonNull(storeInventoryFilterRecord.userId())) {
-            predicates.add(cb.equal(root.get(StoreInventory_.user).get(User_.id), storeInventoryFilterRecord.userId()));
+            predicates.add(cb.equal(root.get(StoreInventory_.user).get(AppUser_.id), storeInventoryFilterRecord.userId()));
         }
 
         return predicates;
@@ -721,7 +721,7 @@ public class InventaireServiceImpl implements InventaireService {
             });
     }
 
-    @EventListener(ApplicationReadyEvent.class)
+   // @EventListener(ApplicationReadyEvent.class)
     public void clean() {
         List<IdProjection> ids = this.storeInventoryRepository.findByStatutEquals(LocalDateTime.now().minusMonths(4));
         if (!CollectionUtils.isEmpty(ids)) {

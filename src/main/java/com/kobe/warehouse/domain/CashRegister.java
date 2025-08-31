@@ -6,6 +6,7 @@ import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
+import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
@@ -32,9 +33,9 @@ public class CashRegister implements Serializable {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @ManyToOne(optional = false)
+    @ManyToOne(optional = false,fetch = FetchType.LAZY)
     @NotNull
-    private User user;
+    private AppUser user;
 
     @NotNull
     @Column(name = "init_amount")
@@ -73,9 +74,9 @@ public class CashRegister implements Serializable {
     @OneToOne(mappedBy = "cashRegister")
     private Ticketing ticketing;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "updated_user_id", referencedColumnName = "id")
-    private User updatedUser;
+    private AppUser updatedUser;
 
     @OneToMany(mappedBy = "cashRegister", cascade = { CascadeType.PERSIST, CascadeType.REMOVE })
     private List<CashRegisterItem> cashRegisterItems = new ArrayList<>();
@@ -125,11 +126,11 @@ public class CashRegister implements Serializable {
         return this;
     }
 
-    public User getUser() {
+    public AppUser getUser() {
         return user;
     }
 
-    public CashRegister setUser(User user) {
+    public CashRegister setUser(AppUser user) {
         this.user = user;
         return this;
     }
@@ -143,11 +144,11 @@ public class CashRegister implements Serializable {
         return this;
     }
 
-    public User getUpdatedUser() {
+    public AppUser getUpdatedUser() {
         return updatedUser;
     }
 
-    public CashRegister setUpdatedUser(User updatedUser) {
+    public CashRegister setUpdatedUser(AppUser updatedUser) {
         this.updatedUser = updatedUser;
         return this;
     }

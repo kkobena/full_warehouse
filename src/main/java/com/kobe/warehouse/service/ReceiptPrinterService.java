@@ -1,6 +1,6 @@
 package com.kobe.warehouse.service;
 
-import com.kobe.warehouse.domain.User;
+import com.kobe.warehouse.domain.AppUser;
 import com.kobe.warehouse.service.receipt.service.AssuranceSaleReceiptService;
 import com.kobe.warehouse.service.receipt.service.CashSaleReceiptService;
 import com.kobe.warehouse.service.report.SaleReceiptService;
@@ -63,7 +63,7 @@ public class ReceiptPrinterService {
 
     private PrintService findPrintService() {
         // findPrintService("\\\\192.168.1.104\\HP LaserJet P1007");
-        User user = storageService.getUser();
+        AppUser user = storageService.getUser();
         String printerName = null;
 
         return PrintServiceLookup.lookupDefaultPrintService();

@@ -8,6 +8,7 @@ import jakarta.persistence.DiscriminatorType;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
+import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
@@ -18,6 +19,8 @@ import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 import jakarta.validation.constraints.NotNull;
+import org.springframework.data.domain.Persistable;
+
 import java.io.Serial;
 import java.io.Serializable;
 import java.time.LocalDate;
@@ -30,7 +33,7 @@ import java.time.LocalDateTime;
 @Table(name = "payment_transaction", indexes = { @Index(columnList = "categorie_ca", name = "pt_categorie_ca_id_index") })
 @Inheritance(strategy = InheritanceType.SINGLE_TABLE)
 @DiscriminatorColumn(name = "dtype", discriminatorType = DiscriminatorType.STRING)
-public class PaymentTransaction implements Serializable {
+public class PaymentTransaction implements Persistable<SaleId>, Serializable {
 
     @Serial
     private static final long serialVersionUID = 1L;
@@ -63,7 +66,7 @@ public class PaymentTransaction implements Serializable {
     private PaymentMode paymentMode;
 
     @NotNull
-    @ManyToOne(optional = false)
+    @ManyToOne(optional = false,fetch = FetchType.LAZY)
     @JoinColumn(name = "cash_register_id", referencedColumnName = "id")
     private CashRegister cashRegister;
 

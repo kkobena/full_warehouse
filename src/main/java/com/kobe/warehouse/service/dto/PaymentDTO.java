@@ -3,7 +3,7 @@ package com.kobe.warehouse.service.dto;
 import com.kobe.warehouse.domain.Customer;
 import com.kobe.warehouse.domain.SalePayment;
 import com.kobe.warehouse.domain.Sales;
-import com.kobe.warehouse.domain.User;
+import com.kobe.warehouse.domain.AppUser;
 import java.time.LocalDateTime;
 
 public class PaymentDTO {
@@ -36,13 +36,13 @@ public class PaymentDTO {
         this.createdAt = payment.getCreatedAt();
         this.updatedAt = payment.getCreatedAt();
         this.paymentMode = new PaymentModeDTO(payment.getPaymentMode());
-        User user = payment.getCashRegister().getUser();
+        AppUser user = payment.getCashRegister().getUser();
         this.userId = user.getId();
         this.userFullName = user.getFirstName() + " " + user.getLastName();
         Sales sales = payment.getSale();
         this.customer = sales.getCustomer();
         this.saleNumberTransaction = sales.getNumberTransaction();
-        this.salesId = sales.getId();
+        this.salesId = sales.getId().getId();
         this.salesAmount = sales.getSalesAmount();
         this.salesNetAmount = sales.getNetAmount();
         this.montantVerse = payment.getMontantVerse();

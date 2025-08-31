@@ -107,7 +107,7 @@ public class RayonServiceImpl implements RayonService {
             : storageId;
         AtomicInteger count = new AtomicInteger(0);
         try (BufferedReader br = new BufferedReader(new InputStreamReader(inputStream))) {
-            Iterable<CSVRecord> records = CSVFormat.DEFAULT.builder().setDelimiter(';').build().parse(br);
+            Iterable<CSVRecord> records = CSVFormat.DEFAULT.builder().setDelimiter(';').get().parse(br);
             records.forEach(record -> {
                 var index = count.get();
                 if (index == 0) {

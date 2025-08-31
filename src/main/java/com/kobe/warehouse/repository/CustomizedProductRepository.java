@@ -388,7 +388,7 @@ public class CustomizedProductRepository implements CustomizedProductService {
         }
         Produit produit = ProduitBuilder.buildProduitFromProduitDTO(dto, produitToUpdate);
         buildRayonProduits(produit, dto, rayonProduits);
-        produit.getFournisseurProduits().stream().filter(FournisseurProduit::isPrincipal).findFirst().ifPresent(em::merge);
+     //   produit.getFournisseurProduits().stream().filter(FournisseurProduit::isPrincipal).findFirst().ifPresent(em::merge);
         em.merge(produit);
         logsService.create(
             TransactionType.UPDATE_PRODUCT,

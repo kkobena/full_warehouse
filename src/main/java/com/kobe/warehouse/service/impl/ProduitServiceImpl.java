@@ -8,20 +8,21 @@ import com.kobe.warehouse.repository.MagasinRepository;
 import com.kobe.warehouse.repository.ProduitRepository;
 import com.kobe.warehouse.repository.RayonRepository;
 import com.kobe.warehouse.service.ProduitService;
-import com.kobe.warehouse.service.dto.*;
+import com.kobe.warehouse.service.dto.ProduitCriteria;
+import com.kobe.warehouse.service.dto.ProduitDTO;
 import com.kobe.warehouse.service.dto.builder.ProduitBuilder;
-
-import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.util.Collections;
-import java.util.List;
-import java.util.Optional;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.util.Collections;
+import java.util.List;
+import java.util.Optional;
 
 /**
  * Service Implementation for managing {@link com.kobe.warehouse.domain.Produit}.
@@ -105,11 +106,11 @@ public class ProduitServiceImpl implements ProduitService {
     @Override
     @Transactional(readOnly = true)
     public Page<ProduitDTO> findAll(ProduitCriteria produitCriteria, Pageable pageable) {
-        log.debug("Request to get all Produits {} ", produitCriteria);
+        log.debug("Request to get all Produits  ", produitCriteria);
         try {
             return customizedProductService.findAll(produitCriteria, pageable);
         } catch (Exception e) {
-            log.error("Request findAll  Produits : {}", e);
+            log.error("Request findAll  Produits : ", e);
             return Page.empty();
         }
     }
@@ -165,7 +166,6 @@ public class ProduitServiceImpl implements ProduitService {
     }
 
 
-
     @Override
     @Transactional(readOnly = true)
     public List<ProduitDTO> productsLiteList(ProduitCriteria produitCriteria, Pageable pageable) {
@@ -206,6 +206,11 @@ public class ProduitServiceImpl implements ProduitService {
     public void updatePeremption(Long produitId, LocalDate peremptionDate) {
         Produit produit = produitRepository.getReferenceById(produitId);
         produit.setPerimeAt(peremptionDate);
+    }
+
+    @Override
+    public Produit findReferenceById(Long id) {
+        return produitRepository.getReferenceById(id);
     }
 
     private Storage getPointOfSale() {

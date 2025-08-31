@@ -11,7 +11,7 @@ import com.kobe.warehouse.domain.Magasin;
 import com.kobe.warehouse.domain.ProductsToDestroy;
 import com.kobe.warehouse.domain.Produit;
 import com.kobe.warehouse.domain.StockProduit;
-import com.kobe.warehouse.domain.User;
+import com.kobe.warehouse.domain.AppUser;
 import com.kobe.warehouse.domain.enumeration.StorageType;
 import com.kobe.warehouse.repository.FournisseurProduitRepository;
 import com.kobe.warehouse.repository.LotRepository;
@@ -180,7 +180,7 @@ public class ProductsToDestroyServiceImpl implements ProductsToDestroyService {
                 pageable
             ).map(productToDestroy -> {
                 ProductToDestroyDTO productToDestroyDTO = buildProductToDestroy(productToDestroy);
-                User user = productToDestroy.getUser();
+                AppUser user = productToDestroy.getUser();
                 productToDestroyDTO.setUser(user.getFirstName().charAt(0) + ".".toUpperCase() + user.getLastName());
                 return productToDestroyDTO;
             });

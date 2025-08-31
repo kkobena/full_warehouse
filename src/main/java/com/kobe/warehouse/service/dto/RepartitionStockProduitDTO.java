@@ -180,7 +180,7 @@ public class RepartitionStockProduitDTO {
         this.storageSourceId = storageSource.getId();
         this.storageDestId = storageDest.getId();
         this.storageDestLibelle = storageDest.getName();
-        User oUser = repartitionStockProduit.getUser();
+        AppUser oUser = repartitionStockProduit.getUser();
         this.user = String.format("%s %s", oUser.getFirstName(), oUser.getLastName());
     }
 }

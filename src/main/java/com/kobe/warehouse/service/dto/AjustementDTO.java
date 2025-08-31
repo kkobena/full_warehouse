@@ -1,10 +1,10 @@
 package com.kobe.warehouse.service.dto;
 
 import com.kobe.warehouse.domain.Ajustement;
+import com.kobe.warehouse.domain.AppUser;
 import com.kobe.warehouse.domain.FournisseurProduit;
 import com.kobe.warehouse.domain.MotifAjustement;
 import com.kobe.warehouse.domain.Produit;
-import com.kobe.warehouse.domain.User;
 import jakarta.validation.constraints.NotNull;
 import java.time.LocalDateTime;
 
@@ -43,7 +43,7 @@ public class AjustementDTO {
         if (fournisseurProduit != null) {
             codeCip = fournisseurProduit.getCodeCip();
         }
-        User user = ajustement.getAjust().getUser();
+        AppUser user = ajustement.getAjust().getUser();
         userFullName = user.getFirstName() + " " + user.getLastName();
         MotifAjustement motifAjustement = ajustement.getMotifAjustement();
         if (motifAjustement != null) {

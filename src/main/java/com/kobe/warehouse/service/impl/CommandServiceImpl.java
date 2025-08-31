@@ -7,7 +7,7 @@ import com.kobe.warehouse.domain.Lot;
 import com.kobe.warehouse.domain.OrderLine;
 import com.kobe.warehouse.domain.Produit;
 import com.kobe.warehouse.domain.Suggestion;
-import com.kobe.warehouse.domain.User;
+import com.kobe.warehouse.domain.AppUser;
 import com.kobe.warehouse.domain.enumeration.OrderStatut;
 import com.kobe.warehouse.repository.CommandeRepository;
 import com.kobe.warehouse.service.OrderLineService;
@@ -125,7 +125,7 @@ public class CommandServiceImpl implements CommandService {
     }
 
     private Commande buildCommandeFromCommandeDTO(CommandeDTO commandeDTO) {
-        User user = storageService.getUser();
+        AppUser user = storageService.getUser();
         Commande commande = new Commande();
         commande.setCreatedAt(LocalDateTime.now());
         commande.setUpdatedAt(commande.getCreatedAt());
@@ -478,7 +478,7 @@ public class CommandServiceImpl implements CommandService {
         try (
             CSVParser parser = new CSVParser(
                 new InputStreamReader(multipartFile.getInputStream()),
-                CSVFormat.EXCEL.builder().setDelimiter(';').build()
+                CSVFormat.EXCEL.builder().setDelimiter(';').get()
             )
         ) {
             for (CSVRecord record : parser) {
@@ -564,7 +564,7 @@ public class CommandServiceImpl implements CommandService {
         try (
             CSVParser parser = new CSVParser(
                 new InputStreamReader(multipartFile.getInputStream()),
-                CSVFormat.EXCEL.builder().setDelimiter(';').build()
+                CSVFormat.EXCEL.builder().setDelimiter(';').get()
             )
         ) {
             for (CSVRecord record : parser) {
@@ -649,7 +649,7 @@ public class CommandServiceImpl implements CommandService {
         try (
             CSVParser parser = new CSVParser(
                 new InputStreamReader(multipartFile.getInputStream()),
-                CSVFormat.EXCEL.builder().setDelimiter(';').build()
+                CSVFormat.EXCEL.builder().setDelimiter(';').get()
             )
         ) {
             for (CSVRecord record : parser) {
@@ -719,7 +719,7 @@ public class CommandServiceImpl implements CommandService {
         try (
             CSVParser parser = new CSVParser(
                 new InputStreamReader(multipartFile.getInputStream()),
-                CSVFormat.EXCEL.builder().setDelimiter(';').build()
+                CSVFormat.EXCEL.builder().setDelimiter(';').get()
             )
         ) {
             for (CSVRecord record : parser) {
@@ -931,7 +931,7 @@ public class CommandServiceImpl implements CommandService {
         try (
             CSVParser parser = new CSVParser(
                 new InputStreamReader(multipartFile.getInputStream()),
-                CSVFormat.EXCEL.builder().setDelimiter(';').build()
+                CSVFormat.EXCEL.builder().setDelimiter(';').get()
             )
         ) {
             for (CSVRecord record : parser) {
@@ -1120,7 +1120,7 @@ public class CommandServiceImpl implements CommandService {
         try (
             CSVParser parser = new CSVParser(
                 new InputStreamReader(multipartFile.getInputStream()),
-                CSVFormat.EXCEL.builder().setDelimiter(';').build()
+                CSVFormat.EXCEL.builder().setDelimiter(';').get()
             )
         ) {
             for (CSVRecord record : parser) {
@@ -1202,7 +1202,7 @@ public class CommandServiceImpl implements CommandService {
         try (
             CSVParser parser = new CSVParser(
                 new InputStreamReader(multipartFile.getInputStream()),
-                CSVFormat.EXCEL.builder().setDelimiter(';').build()
+                CSVFormat.EXCEL.builder().setDelimiter(';').get()
             )
         ) {
             for (CSVRecord record : parser) {
@@ -1291,7 +1291,7 @@ public class CommandServiceImpl implements CommandService {
     }
 
     private void buildNew(Suggestion suggestion) {
-        User user = storageService.getUser();
+        AppUser user = storageService.getUser();
         Commande commande = new Commande();
 
         commande.setCreatedAt(LocalDateTime.now());

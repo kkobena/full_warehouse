@@ -10,6 +10,7 @@ import jakarta.persistence.Enumerated;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.Index;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
@@ -26,6 +27,11 @@ import org.hibernate.type.SqlTypes;
 @Entity
 @Table(
     name = "client_tiers_payant",
+    indexes = {
+        @Index(columnList = "num", name = "client_num_index"),
+        @Index(columnList = "statut", name = "client_statut_index")
+
+    },
     uniqueConstraints = {
         @UniqueConstraint(columnNames = { "tiers_payant_id", "assured_customer_id" }),
         @UniqueConstraint(columnNames = { "tiers_payant_id", "num" }),
@@ -70,7 +76,7 @@ public class ClientTiersPayant implements Serializable {
     private TiersPayantStatut statut = TiersPayantStatut.ACTIF;
 
     @NotNull
-    @Column(name = "taux", nullable = false, columnDefinition = "int(3)")
+    @Column(name = "taux", nullable = false)
     private int taux;
 
     @Column(name = "conso_mensuelle")

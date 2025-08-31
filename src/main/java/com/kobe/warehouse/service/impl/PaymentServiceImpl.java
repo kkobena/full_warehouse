@@ -5,7 +5,7 @@ import com.kobe.warehouse.domain.PaymentMode;
 import com.kobe.warehouse.domain.SalePayment;
 import com.kobe.warehouse.domain.Sales;
 import com.kobe.warehouse.domain.ThirdPartySales;
-import com.kobe.warehouse.domain.User;
+import com.kobe.warehouse.domain.AppUser;
 import com.kobe.warehouse.domain.enumeration.ModePaimentCode;
 import com.kobe.warehouse.domain.enumeration.TypeFinancialTransaction;
 import com.kobe.warehouse.repository.PaymentModeRepository;
@@ -52,7 +52,7 @@ public class PaymentServiceImpl implements PaymentService {
     }
 
     @Override
-    public Set<SalePayment> buildPaymentFromFromPaymentDTO(Sales sales, SaleDTO saleDTO, User user) {
+    public Set<SalePayment> buildPaymentFromFromPaymentDTO(Sales sales, SaleDTO saleDTO, AppUser user) {
         Set<SalePayment> payments = new HashSet<>();
         saleDTO
             .getPayments()

@@ -1,6 +1,7 @@
 package com.kobe.warehouse.service.sale;
 
 import com.kobe.warehouse.constant.EntityConstant;
+import com.kobe.warehouse.domain.AppUser;
 import com.kobe.warehouse.domain.CashSale;
 import com.kobe.warehouse.domain.CashSale_;
 import com.kobe.warehouse.domain.FournisseurProduit;
@@ -14,8 +15,7 @@ import com.kobe.warehouse.domain.Sales_;
 import com.kobe.warehouse.domain.ThirdPartySaleLine;
 import com.kobe.warehouse.domain.ThirdPartySales;
 import com.kobe.warehouse.domain.ThirdPartySales_;
-import com.kobe.warehouse.domain.User;
-import com.kobe.warehouse.domain.User_;
+import com.kobe.warehouse.domain.AppUser_;
 import com.kobe.warehouse.domain.enumeration.PaymentStatus;
 import com.kobe.warehouse.domain.enumeration.SalesStatut;
 import com.kobe.warehouse.repository.SalesLineRepository;
@@ -32,6 +32,7 @@ import jakarta.persistence.EntityManager;
 import jakarta.persistence.TypedQuery;
 import jakarta.persistence.criteria.CriteriaBuilder;
 import jakarta.persistence.criteria.CriteriaQuery;
+import jakarta.persistence.criteria.Expression;
 import jakarta.persistence.criteria.Join;
 import jakarta.persistence.criteria.JoinType;
 import jakarta.persistence.criteria.Predicate;
@@ -39,7 +40,10 @@ import jakarta.persistence.criteria.Root;
 import jakarta.persistence.criteria.SetJoin;
 import java.net.MalformedURLException;
 import java.sql.Date;
+import java.sql.Time;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -182,8 +186,8 @@ public class SaleDataService {
         return this.saleInvoiceService.printInvoice(this.findOne(saleId));
     }
 
-    private User getUser() {
-        Optional<User> user = SecurityUtils.getCurrentUserLogin().flatMap(userRepository::findOneByLogin);
+    private AppUser getUser() {
+        Optional<AppUser> user = SecurityUtils.getCurrentUserLogin().flatMap(userRepository::findOneByLogin);
         return user.orElseGet(null);
     }
 
@@ -241,7 +245,7 @@ public class SaleDataService {
 
     private void predicatesPrevente(String query, List<Predicate> predicates, CriteriaBuilder cb, Root<Sales> root, Long userId) {
         LocalDate now = LocalDate.now();
-        predicates.add(cb.equal(root.get(Sales_.user).get(User_.magasin), getUser().getMagasin()));
+        predicates.add(cb.equal(root.get(Sales_.user).get(AppUser_.magasin), getUser().getMagasin()));
         if (StringUtils.isNotEmpty(query)) {
             query = query.toUpperCase() + "%";
             SetJoin<Sales, SalesLine> lineSetJoin = root.joinSet(Sales_.SALES_LINES);
@@ -257,7 +261,7 @@ public class SaleDataService {
             );
         }
         if (Objects.nonNull(userId)) {
-            predicates.add(cb.equal(root.get(Sales_.seller).get(User_.id), userId));
+            predicates.add(cb.equal(root.get(Sales_.seller).get(AppUser_.id), userId));
         }
 
         predicates.add(cb.equal(root.get(Sales_.statut), SalesStatut.ACTIVE));
@@ -384,17 +388,33 @@ public class SaleDataService {
         Root<Sales> root
     ) {
         if (fromDate != null && toDate != null) {
+            LocalDateTime fromDateTime = fromDate.atStartOfDay();
+            LocalDateTime toDateTime = toDate.atTime(LocalTime.MAX);
+
+
             predicates.add(
-                cb.between(cb.function("DATE", Date.class, root.get(Sales_.updatedAt)), Date.valueOf(fromDate), Date.valueOf(toDate))
+                cb.between(root.get(Sales_.updatedAt), fromDateTime, toDateTime)
             );
+           /* predicates.add(
+                cb.between(cb.function("DATE", Date.class, root.get(Sales_.updatedAt)), Date.valueOf(fromDate), Date.valueOf(toDate))
+            );*/
         }
     }
 
     private void periodeTimePredicat(String fromHour, String toHour, CriteriaBuilder cb, List<Predicate> predicates, Root<Sales> root) {
         if (StringUtils.isNotEmpty(fromHour) && StringUtils.isNotEmpty(toHour)) {
-            predicates.add(
-                cb.between(cb.function("TIME", String.class, root.get(Sales_.updatedAt)), fromHour.concat(":00"), toHour.concat(":59"))
+            Expression<String> timeExpr = cb.function(
+                "TO_CHAR",
+                String.class,
+                root.get(Sales_.updatedAt),
+                cb.literal("HH24:MI")
             );
+            predicates.add(
+                cb.between(timeExpr, fromHour.concat(":00"), toHour.concat(":59"))
+            );
+            /*predicates.add(
+                cb.between(cb.function("TIME", Time.class, root.get(Sales_.updatedAt)),Time.valueOf(fromHour.concat(":00")) ,Time.valueOf(toHour.concat(":59")) )
+            );*/
         }
     }
 
@@ -422,7 +442,7 @@ public class SaleDataService {
         periodeUserPredicat(userId, cb, predicates, root);
         predicates.add(cb.isFalse(root.get(Sales_.canceled)));
         predicates.add(cb.equal(root.get(Sales_.statut), SalesStatut.CLOSED));
-        predicates.add(cb.equal(root.get(Sales_.user).get(User_.magasin), getUser().getMagasin()));
+        predicates.add(cb.equal(root.get(Sales_.user).get(AppUser_.magasin), getUser().getMagasin()));
         impayePredicats(predicates, cb, root, paymentStatus);
         if (isDiffere != null) {
             if (isDiffere) {
@@ -437,10 +457,10 @@ public class SaleDataService {
         if (userId != null) {
             predicates.add(
                 cb.or(
-                    cb.equal(root.get(Sales_.user).get(User_.id), userId),
-                    cb.equal(root.get(Sales_.caissier).get(User_.id), userId),
-                    cb.equal(root.get(Sales_.user).get(User_.id), userId),
-                    cb.equal(root.get(Sales_.seller).get(User_.id), userId)
+                    cb.equal(root.get(Sales_.user).get(AppUser_.id), userId),
+                    cb.equal(root.get(Sales_.caissier).get(AppUser_.id), userId),
+                    cb.equal(root.get(Sales_.user).get(AppUser_.id), userId),
+                    cb.equal(root.get(Sales_.seller).get(AppUser_.id), userId)
                 )
             );
         }
@@ -482,7 +502,7 @@ public class SaleDataService {
     private ThirdPartySaleDTO buildFromEntity(ThirdPartySales thirdPartySales) {
         ThirdPartySaleDTO thirdPartySaleDTO = new ThirdPartySaleDTO(thirdPartySales);
         Pair<List<ThirdPartySaleLineDTO>, List<ClientTiersPayantDTO>> listListPair = buildTiersPayantDTOFromSale(
-            thirdPartySaleLineRepository.findAllBySaleId(thirdPartySales.getId())
+            thirdPartySaleLineRepository.findAllBySaleId(thirdPartySales.getId().getId())
         );
         thirdPartySaleDTO.setTiersPayants(listListPair.getRight());
         thirdPartySaleDTO.setThirdPartySaleLines(listListPair.getLeft());

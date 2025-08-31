@@ -10,7 +10,7 @@ import com.kobe.warehouse.domain.Produit;
 import com.kobe.warehouse.domain.Produit_;
 import com.kobe.warehouse.domain.RayonProduit;
 import com.kobe.warehouse.domain.RayonProduit_;
-import com.kobe.warehouse.domain.User_;
+import com.kobe.warehouse.domain.AppUser_;
 import com.kobe.warehouse.service.product_to_destroy.dto.ProductToDestroyFilter;
 import jakarta.persistence.criteria.Join;
 import org.springframework.data.jpa.domain.Specification;
@@ -88,7 +88,7 @@ public interface ProductsToDestroyRepository
             return null;
         }
 
-        return (root, _, cb) -> cb.equal(root.get(ProductsToDestroy_.user).get(User_.id), userId);
+        return (root, _, cb) -> cb.equal(root.get(ProductsToDestroy_.user).get(AppUser_.id), userId);
     }
 
     default Specification<ProductsToDestroy> filterByRayonId(Long rayonId) {

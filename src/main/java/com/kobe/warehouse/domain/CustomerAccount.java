@@ -28,7 +28,7 @@ public class CustomerAccount implements Serializable {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(name = "balance", nullable = false, columnDefinition = "int(8) default 0")
+    @Column(name = "balance", nullable = false)
     private int balance; // solde
 
     @Column(name = "created_at", nullable = false)

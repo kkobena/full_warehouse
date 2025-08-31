@@ -51,7 +51,6 @@ import org.springframework.transaction.annotation.Transactional;
 public class ProductStatServiceImpl implements ProductStatService {
 
     private final ProduitAuditingReportSevice produitAuditingReportSevice;
-    private final FournisseurProduitRepository fournisseurProduitRepository;
     private final SalesLineRepository salesLineRepository;
     private final HistoriqueVenteReportReportService historiqueVenteReportReportService;
     private final OrderLineRepository orderLineRepository;
@@ -68,7 +67,6 @@ public class ProductStatServiceImpl implements ProductStatService {
         ProduitRepository produitRepository
     ) {
         this.produitAuditingReportSevice = produitAuditingReportSevice;
-        this.fournisseurProduitRepository = fournisseurProduitRepository;
         this.salesLineRepository = salesLineRepository;
         this.historiqueVenteReportReportService = historiqueVenteReportReportService;
         this.orderLineRepository = orderLineRepository;
@@ -96,7 +94,7 @@ public class ProductStatServiceImpl implements ProductStatService {
     public Resource printToPdf(ProduitAuditingParam produitAuditingParam) throws MalformedURLException {
         return this.produitAuditingReportSevice.printToPdf(
                 this.fetchProduitDailyTransaction(produitAuditingParam, Pageable.unpaged()).getContent(),
-                fournisseurProduitRepository.findFirstByPrincipalIsTrueAndProduitId(produitAuditingParam.produitId()),
+            produitRepository.getReferenceById(produitAuditingParam.produitId()),
                 new ReportPeriode(produitAuditingParam.fromDate(), produitAuditingParam.toDate())
             );
     }
@@ -274,7 +272,7 @@ public class ProductStatServiceImpl implements ProductStatService {
                         produitHistorique.endDate(),
                         status
                     ),
-                this.fournisseurProduitRepository.findHistoriqueProduitInfoByFournisseurIdAndProduitId(produitHistorique.produitId()),
+                this.produitRepository.findHistoriqueProduitInfo(produitHistorique.produitId()),
                 new ReportPeriode(produitHistorique.startDate(), produitHistorique.endDate())
             );
     }
@@ -290,7 +288,7 @@ public class ProductStatServiceImpl implements ProductStatService {
                         Pageable.unpaged()
                     ).getContent(),
                 this.getHistoriqueAchatSummary(produitHistorique),
-                this.fournisseurProduitRepository.findHistoriqueProduitInfoByFournisseurIdAndProduitId(produitHistorique.produitId()),
+            this.produitRepository.findHistoriqueProduitInfo(produitHistorique.produitId()),
                 new ReportPeriode(produitHistorique.startDate(), produitHistorique.endDate())
             );
     }
@@ -300,7 +298,7 @@ public class ProductStatServiceImpl implements ProductStatService {
         return this.historiqueVenteReportReportService.exportHistoriqueVenteMensuelleToPdf(
                 this.getHistoriqueVenteMensuelle(produitHistorique),
                 this.getHistoriqueVenteMensuelleSummary(produitHistorique),
-                this.fournisseurProduitRepository.findHistoriqueProduitInfoByFournisseurIdAndProduitId(produitHistorique.produitId()),
+            this.produitRepository.findHistoriqueProduitInfo(produitHistorique.produitId()),
                 new ReportPeriode(produitHistorique.startDate(), produitHistorique.endDate())
             );
     }
@@ -310,7 +308,7 @@ public class ProductStatServiceImpl implements ProductStatService {
         return this.historiqueVenteReportReportService.exportHistoriqueAchatsMensuelToPdf(
                 this.getHistoriqueAchatMensuelle(produitHistorique),
                 this.getHistoriqueAchatSummary(produitHistorique),
-                this.fournisseurProduitRepository.findHistoriqueProduitInfoByFournisseurIdAndProduitId(produitHistorique.produitId()),
+            this.produitRepository.findHistoriqueProduitInfo(produitHistorique.produitId()),
                 new ReportPeriode(produitHistorique.startDate(), produitHistorique.endDate())
             );
     }

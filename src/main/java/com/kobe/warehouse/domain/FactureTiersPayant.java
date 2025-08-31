@@ -23,6 +23,7 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import org.hibernate.annotations.ColumnDefault;
+import org.springframework.data.domain.Persistable;
 
 @Entity
 @Table(
@@ -30,7 +31,7 @@ import org.hibernate.annotations.ColumnDefault;
     uniqueConstraints = { @UniqueConstraint(columnNames = { "num_facture" }) },
     indexes = { @Index(columnList = "num_facture", name = "num_facture_index") }
 )
-public class FactureTiersPayant implements Serializable {
+public class FactureTiersPayant implements Persistable<SaleId>, Serializable {
 
     @Serial
     private static final long serialVersionUID = 1L;
@@ -58,13 +59,12 @@ public class FactureTiersPayant implements Serializable {
 
     private LocalDateTime updated = LocalDateTime.now();
 
-    @ColumnDefault("0")
-    @Column(name = "montant_regle", columnDefinition = "int default '0'")
+    @Column(name = "montant_regle")
     private int montantRegle;
 
     @NotNull
     @Enumerated(EnumType.STRING)
-    @Column(name = "statut", nullable = false, columnDefinition = "varchar(20) default 'NOT_PAID'")
+    @Column(name = "statut", nullable = false)
     private InvoiceStatut statut = InvoiceStatut.NOT_PAID;
 
     @ManyToOne
@@ -73,7 +73,7 @@ public class FactureTiersPayant implements Serializable {
 
     @NotNull
     @ManyToOne(optional = false)
-    private User user;
+    private AppUser user;
 
     @OneToMany(mappedBy = "groupeFactureTiersPayant")
     private List<FactureTiersPayant> factureTiersPayants = new ArrayList<>();
@@ -204,11 +204,11 @@ public class FactureTiersPayant implements Serializable {
         return this;
     }
 
-    public @NotNull User getUser() {
+    public @NotNull AppUser getUser() {
         return user;
     }
 
-    public FactureTiersPayant setUser(@NotNull User user) {
+    public FactureTiersPayant setUser(@NotNull AppUser user) {
         this.user = user;
         return this;
     }

@@ -527,7 +527,7 @@ public class EditionDataServiceImpl implements EditionDataService {
         factureItemDto.setMontantClient(Objects.requireNonNullElse(sales.getPartAssure(), 0));
         factureItemDto.setTaux(thirdPartySaleLine.getTaux());
         factureItemDto.setSaleNumber(sales.getNumberTransaction());
-        factureItemDto.setSaleId(sales.getId());
+        factureItemDto.setSaleId(sales.getId().getId());
         factureItemDto.setStatut(thirdPartySaleLine.getStatut());
         factureItemDto.setMontantVente(sales.getSalesAmount());
         factureItemDto.setMontantRegle(Objects.requireNonNullElse(thirdPartySaleLine.getMontantRegle(), 0));

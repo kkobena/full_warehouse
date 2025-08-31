@@ -10,21 +10,27 @@ import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
+import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.IdClass;
 import jakarta.persistence.Index;
 import jakarta.persistence.Inheritance;
 import jakarta.persistence.InheritanceType;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
+import jakarta.persistence.PostLoad;
+import jakarta.persistence.PrePersist;
 import jakarta.persistence.Table;
 import jakarta.persistence.Transient;
 import jakarta.validation.constraints.NotNull;
+import org.springframework.data.domain.Persistable;
 
 import java.io.Serial;
 import java.io.Serializable;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.HashSet;
 import java.util.Objects;
@@ -37,25 +43,30 @@ import java.util.Set;
 @Table(
     name = "sales",
     indexes = {
+        @Index(columnList = "dtype", name = "vente_dtype_index"),
+        @Index(columnList = "sale_date", name = "vente_sale_date_index"),
         @Index(columnList = "statut", name = "vente_statut_index"),
         @Index(columnList = "number_transaction", name = "vente_number_transaction_index"),
-        @Index(columnList = "created_at", name = "vente_created_at_index"),
-        @Index(columnList = "updated_at", name = "vente_updated_at_index"),
-        @Index(columnList = "effective_update_date", name = "vente_effective_update_index"),
+        @Index(columnList = "ca", name = "vente_ca_index"),
+        @Index(columnList = "imported", name = "vente_imported_index"),
         @Index(columnList = "to_ignore", name = "vente_to_ignore_index"),
         @Index(columnList = "payment_status", name = "vente_payment_status_index"),
         @Index(columnList = "nature_vente", name = "vente_nature_vente_index"),
     }
 )
 @Inheritance(strategy = InheritanceType.SINGLE_TABLE)
-public class Sales implements Serializable, Cloneable {
+@IdClass(SaleId.class)
+public class Sales implements Persistable<SaleId>, Serializable, Cloneable {
 
     @Serial
     private static final long serialVersionUID = 1L;
-
+    @Transient
+    private boolean isNew = true;
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
+    @Id
+    @Column(name = "sale_date")
+    private LocalDate saleDate = LocalDate.now();
 
     @Column(name = "dtype", insertable = false, updatable = false)
     private String type;
@@ -65,11 +76,11 @@ public class Sales implements Serializable, Cloneable {
     private String numberTransaction;
 
     @NotNull
-    @Column(name = "discount_amount", nullable = false, columnDefinition = "int default '0'")
+    @Column(name = "discount_amount", nullable = false)
     private Integer discountAmount = 0;
 
     @NotNull
-    @Column(name = "sales_amount", nullable = false, columnDefinition = "int default '0'")
+    @Column(name = "sales_amount", nullable = false)
     private Integer salesAmount = 0;
 
     @Transient
@@ -85,24 +96,24 @@ public class Sales implements Serializable, Cloneable {
     private Integer costAmount = 0;
 
     @NotNull
-    @Column(name = "amount_to_be_paid", nullable = false, columnDefinition = "int default '0'")
+    @Column(name = "amount_to_be_paid", nullable = false)
     private Integer amountToBePaid = 0;
 
     @NotNull
-    @Column(name = "payroll_amount", nullable = false, columnDefinition = "int default '0'")
+    @Column(name = "payroll_amount", nullable = false)
     private Integer payrollAmount = 0; // montant paye
 
     @NotNull
-    @Column(name = "rest_to_pay", nullable = false, columnDefinition = "int default '0'")
+    @Column(name = "rest_to_pay", nullable = false)
     private Integer restToPay = 0;
 
     @Column(name = "amount_to_be_taken_into_account", nullable = false)
-    private Integer amountToBeTakenIntoAccount ;
+    private Integer amountToBeTakenIntoAccount;
 
 
     @NotNull
     @Enumerated(EnumType.STRING)
-    @Column(name = "statut", nullable = false, length = 20)
+    @Column(name = "statut", nullable = false)
     private SalesStatut statut;
 
     @NotNull
@@ -118,32 +129,32 @@ public class Sales implements Serializable, Cloneable {
     @ManyToOne
     private Remise remise;
     @NotNull
-    @ManyToOne(optional = false)
-    private User user;
+    @ManyToOne(optional = false, fetch = FetchType.LAZY)
+    private AppUser user;
     @NotNull
-    @ManyToOne(optional = false)
-    private User seller;
+    @ManyToOne(optional = false, fetch = FetchType.LAZY)
+    private AppUser seller;
     @NotNull
-    @ManyToOne(optional = false)
-    private User caissier;
-    @OneToMany(mappedBy = "sale")
+    @ManyToOne(optional = false, fetch = FetchType.LAZY)
+    private AppUser caissier;
+    @OneToMany(mappedBy = "sale", fetch = FetchType.LAZY)
     private Set<SalePayment> payments = new HashSet<>();
-    @ManyToOne(optional = false)
+    @ManyToOne(optional = false, fetch = FetchType.LAZY)
     @NotNull
     private Magasin magasin;
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     private Sales canceledSale;
-    @ManyToOne(optional = false)
+    @ManyToOne(optional = false, fetch = FetchType.LAZY)
     @NotNull
-    private User lastUserEdit;
+    private AppUser lastUserEdit;
     @NotNull
     @Column(name = "effective_update_date", nullable = false)
     private LocalDateTime effectiveUpdateDate = LocalDateTime.now();
-    @Column(name = "to_ignore", nullable = false, columnDefinition = "boolean default false")
+    @Column(name = "to_ignore", nullable = false)
     private boolean toIgnore = false;
-    @Column(name = "copy", nullable = false, columnDefinition = "boolean default false")
+    @Column(name = "copy", nullable = false)
     private Boolean copy = false;
-    @Column(name = "imported", nullable = false, columnDefinition = "boolean default false")
+    @Column(name = "imported", nullable = false)
     private boolean imported = false;
     @NotNull
     @Enumerated(EnumType.STRING)
@@ -162,34 +173,34 @@ public class Sales implements Serializable, Cloneable {
     @Column(name = "type_prescription", nullable = false, length = 15)
     private TypePrescription typePrescription;
     @NotNull
-    @Column(name = "differe", nullable = false, columnDefinition = "boolean default false")
+    @Column(name = "differe", nullable = false)
     private boolean differe = false;
     @NotNull
     @Enumerated(EnumType.STRING)
-    @Column(name = "ca", nullable = false, length = 30)
+    @Column(name = "ca", nullable = false)
     private CategorieChiffreAffaire categorieChiffreAffaire = CategorieChiffreAffaire.CA;
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     private Poste caisse;
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     private Poste lastCaisse;
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     private Customer customer;
-    @Column(name = "canceled", nullable = false, columnDefinition = "boolean default false")
+    @Column(name = "canceled", nullable = false)
     private Boolean canceled = false;
     @Column(length = 100)
     private String tvaEmbeded;
     @Column(name = "commentaire")
     private String commentaire;
     @NotNull
-    @Column(name = "monnaie", nullable = false, columnDefinition = "int default '0'")
+    @Column(name = "monnaie", nullable = false)
     private Integer monnaie = 0;
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "cash_register_id", referencedColumnName = "id")
     private CashRegister cashRegister;
 
 
-    public Long getId() {
-        return id;
+    public SaleId getId() {
+        return new SaleId(id, saleDate);
     }
 
     public void setId(Long id) {
@@ -262,6 +273,14 @@ public class Sales implements Serializable, Cloneable {
         return this;
     }
 
+    public LocalDate getSaleDate() {
+        return saleDate;
+    }
+
+    public void setSaleDate(LocalDate saleDate) {
+        this.saleDate = saleDate;
+    }
+
     public @NotNull Integer getPayrollAmount() {
         return payrollAmount;
     }
@@ -291,7 +310,6 @@ public class Sales implements Serializable, Cloneable {
         this.amountToBeTakenIntoAccount = amountToBeTakenIntoAccount;
         return this;
     }
-
 
 
     public @NotNull SalesStatut getStatut() {
@@ -334,28 +352,28 @@ public class Sales implements Serializable, Cloneable {
         this.remise = remise;
     }
 
-    public @NotNull User getUser() {
+    public @NotNull AppUser getUser() {
         return user;
     }
 
-    public void setUser(User user) {
+    public void setUser(AppUser user) {
         this.user = user;
     }
 
-    public @NotNull User getSeller() {
+    public @NotNull AppUser getSeller() {
         return seller;
     }
 
-    public Sales setSeller(User seller) {
+    public Sales setSeller(AppUser seller) {
         this.seller = seller;
         return this;
     }
 
-    public @NotNull User getCaissier() {
+    public @NotNull AppUser getCaissier() {
         return caissier;
     }
 
-    public Sales setCaissier(User caissier) {
+    public Sales setCaissier(AppUser caissier) {
         this.caissier = caissier;
         return this;
     }
@@ -393,11 +411,11 @@ public class Sales implements Serializable, Cloneable {
         return this;
     }
 
-    public @NotNull User getLastUserEdit() {
+    public @NotNull AppUser getLastUserEdit() {
         return lastUserEdit;
     }
 
-    public Sales setLastUserEdit(User lastUserEdit) {
+    public Sales setLastUserEdit(AppUser lastUserEdit) {
         this.lastUserEdit = lastUserEdit;
         return this;
     }
@@ -560,7 +578,6 @@ public class Sales implements Serializable, Cloneable {
     }
 
 
-
     public CashRegister getCashRegister() {
         return cashRegister;
     }
@@ -569,7 +586,6 @@ public class Sales implements Serializable, Cloneable {
         this.cashRegister = cashRegister;
         return this;
     }
-
 
 
     public Sales discountAmount(Integer discountAmount) {
@@ -631,18 +647,14 @@ public class Sales implements Serializable, Cloneable {
 
     @Override
     public boolean equals(Object o) {
-        if (this == o) {
-            return true;
-        }
-        if (!(o instanceof Sales)) {
-            return false;
-        }
-        return id != null && id.equals(((Sales) o).id);
+        if (o == null || getClass() != o.getClass()) return false;
+        Sales sales = (Sales) o;
+        return Objects.equals(id, sales.id) && Objects.equals(saleDate, sales.saleDate);
     }
 
     @Override
     public int hashCode() {
-        return 31;
+        return Objects.hash(id, saleDate);
     }
 
     @Override
@@ -657,5 +669,15 @@ public class Sales implements Serializable, Cloneable {
         } catch (CloneNotSupportedException e) {
             return null;
         }
+    }
+    @Override
+    public boolean isNew() {
+        return isNew;
+    }
+
+    @PrePersist
+    @PostLoad
+    void markNotNew() {
+        this.isNew = false;
     }
 }

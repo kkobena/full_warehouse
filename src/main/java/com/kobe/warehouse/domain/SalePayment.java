@@ -2,6 +2,7 @@ package com.kobe.warehouse.domain;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.FetchType;
 import jakarta.persistence.ManyToOne;
 import jakarta.validation.constraints.NotNull;
 import java.io.Serial;
@@ -14,7 +15,7 @@ public class SalePayment extends PaymentTransaction implements Serializable, Clo
     private static final long serialVersionUID = 1L;
 
     @NotNull
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     private Sales sale;
 
     @NotNull

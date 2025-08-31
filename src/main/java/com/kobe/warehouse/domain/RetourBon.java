@@ -35,7 +35,7 @@ public class RetourBon implements Serializable {
 
     @ManyToOne(optional = false)
     @NotNull
-    private User user;
+    private AppUser user;
 
     @NotNull
     @Enumerated(EnumType.STRING)
@@ -81,11 +81,11 @@ public class RetourBon implements Serializable {
         return this;
     }
 
-    public @NotNull User getUser() {
+    public @NotNull AppUser getUser() {
         return user;
     }
 
-    public RetourBon setUser(@NotNull User user) {
+    public RetourBon setUser(@NotNull AppUser user) {
         this.user = user;
         return this;
     }

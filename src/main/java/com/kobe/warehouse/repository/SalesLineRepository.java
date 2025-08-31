@@ -1,5 +1,6 @@
 package com.kobe.warehouse.repository;
 
+import com.kobe.warehouse.domain.AppUser_;
 import com.kobe.warehouse.domain.FournisseurProduit;
 import com.kobe.warehouse.domain.FournisseurProduit_;
 import com.kobe.warehouse.domain.Magasin_;
@@ -8,10 +9,10 @@ import com.kobe.warehouse.domain.Produit_;
 import com.kobe.warehouse.domain.RayonProduit;
 import com.kobe.warehouse.domain.RayonProduit_;
 import com.kobe.warehouse.domain.Rayon_;
+import com.kobe.warehouse.domain.SaleLineId;
 import com.kobe.warehouse.domain.SalesLine;
 import com.kobe.warehouse.domain.SalesLine_;
 import com.kobe.warehouse.domain.Sales_;
-import com.kobe.warehouse.domain.User_;
 import com.kobe.warehouse.domain.enumeration.CategorieChiffreAffaire;
 import com.kobe.warehouse.domain.enumeration.SalesStatut;
 import com.kobe.warehouse.service.dto.HistoriqueProduitVente;
@@ -21,11 +22,6 @@ import com.kobe.warehouse.service.dto.HistoriqueProduitVenteSummary;
 import com.kobe.warehouse.service.dto.projection.LastDateProjection;
 import jakarta.persistence.criteria.Join;
 import jakarta.persistence.criteria.SetJoin;
-import java.time.LocalDate;
-import java.util.EnumSet;
-import java.util.List;
-import java.util.Optional;
-import java.util.Set;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
@@ -35,14 +31,22 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
+import java.time.LocalDate;
+import java.util.EnumSet;
+import java.util.List;
+import java.util.Optional;
+import java.util.Set;
+
 /**
  * Spring Data repository for the SalesLine entity.
  */
 @SuppressWarnings("unused")
 @Repository
 public interface SalesLineRepository
-    extends JpaRepository<SalesLine, Long>, JpaSpecificationExecutor<SalesLine>, SalesLineRepositoryCustom {
+    extends JpaRepository<SalesLine, SaleLineId>, JpaSpecificationExecutor<SalesLine>, SalesLineRepositoryCustom {
     List<SalesLine> findBySalesIdOrderByProduitLibelle(Long salesId);
+
+    SalesLine findOneById(Long id);
 
     Optional<SalesLine> findBySalesIdAndProduitId(Long salesId, Long produitId);
 
@@ -58,8 +62,8 @@ public interface SalesLineRepository
 
     @Query(
         value = "SELECT s.updated_at AS mvtDate,s.number_transaction AS reference,o.quantity_requested AS quantite," +
-        "o.regular_unit_price AS prixUnitaire,o.ht_amount AS montantHt,o.net_amount AS montantNet,o.sales_amount AS montantTtc," +
-        "o.discount_amount AS montantRemise,o.tax_amount AS montantTva,u.first_name AS firstName,u.last_name AS lastName    FROM sales_line o JOIN sales s ON o.sales_id = s.id JOIN user u ON s.caissier_id =u.id WHERE o.produit_id =:produitId AND s.statut IN(:statuts) AND DATE(s.updated_at) BETWEEN :startDate AND :endDate ORDER BY s.updated_at DESC",
+            "o.regular_unit_price AS prixUnitaire,o.ht_amount AS montantHt,o.net_amount AS montantNet,o.sales_amount AS montantTtc," +
+            "o.discount_amount AS montantRemise,o.tax_amount AS montantTva,u.first_name AS firstName,u.last_name AS lastName    FROM sales_line o JOIN sales s ON o.sales_id = s.id JOIN user u ON s.caissier_id =u.id WHERE o.produit_id =:produitId AND s.statut IN(:statuts) AND DATE(s.updated_at) BETWEEN :startDate AND :endDate ORDER BY s.updated_at DESC",
         nativeQuery = true
     )
     Page<HistoriqueProduitVente> getHistoriqueVente(
@@ -138,7 +142,7 @@ public interface SalesLineRepository
     }
 
     default Specification<SalesLine> filterByUserId(Long userId) {
-        return (root, query, cb) -> cb.equal(root.get(SalesLine_.sales).get(Sales_.caissier).get(User_.id), userId);
+        return (root, query, cb) -> cb.equal(root.get(SalesLine_.sales).get(Sales_.caissier).get(AppUser_.id), userId);
     }
 
     default Specification<SalesLine> filterByProduitId(Long produitId) {

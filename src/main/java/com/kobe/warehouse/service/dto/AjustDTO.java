@@ -1,8 +1,9 @@
 package com.kobe.warehouse.service.dto;
 
 import com.kobe.warehouse.domain.Ajust;
+import com.kobe.warehouse.domain.AppUser;
 import com.kobe.warehouse.domain.Storage;
-import com.kobe.warehouse.domain.User;
+
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -29,7 +30,7 @@ public class AjustDTO {
             this.storageId = storage.getId();
             this.storageLibelle = storage.getName();
         }
-        User user = ajust.getUser();
+        AppUser user = ajust.getUser();
         this.userId = user.getId();
         this.userFullName = user.getFirstName().concat(" ") + user.getLastName();
     }

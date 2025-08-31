@@ -3,6 +3,7 @@ package com.kobe.warehouse.domain;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
@@ -27,7 +28,6 @@ import org.springframework.data.annotation.LastModifiedBy;
  */
 @Entity
 @Table(name = "stock_produit", uniqueConstraints = @UniqueConstraint(columnNames = { "storage_id", "produit_id" }))
-@Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
 @Audited(targetAuditMode = RelationTargetAuditMode.NOT_AUDITED)
 public class StockProduit implements Serializable {
 
@@ -59,12 +59,12 @@ public class StockProduit implements Serializable {
     @Column(name = "updated_at", nullable = false)
     private LocalDateTime updatedAt;
 
-    @ManyToOne(optional = false)
+    @ManyToOne(optional = false,fetch = FetchType.LAZY)
     @NotNull
     @JsonIgnoreProperties(value = "stockProduits", allowSetters = true)
     private Produit produit;
 
-    @ManyToOne(optional = false)
+    @ManyToOne(optional = false,fetch = FetchType.LAZY)
     @NotNull
     private Storage storage;
 

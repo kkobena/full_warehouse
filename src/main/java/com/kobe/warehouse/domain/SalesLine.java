@@ -3,18 +3,23 @@ package com.kobe.warehouse.domain;
 import com.kobe.warehouse.service.sale.calculation.dto.Rate;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
+import jakarta.persistence.FetchType;
 import jakarta.persistence.Id;
+import jakarta.persistence.IdClass;
 import jakarta.persistence.ManyToOne;
+import jakarta.persistence.PostLoad;
+import jakarta.persistence.PrePersist;
 import jakarta.persistence.Table;
+import jakarta.persistence.Transient;
 import jakarta.persistence.UniqueConstraint;
 import jakarta.validation.constraints.NotNull;
 import org.hibernate.annotations.JdbcTypeCode;
 import org.hibernate.type.SqlTypes;
+import org.springframework.data.domain.Persistable;
 
 import java.io.Serial;
 import java.io.Serializable;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -26,89 +31,73 @@ import static java.util.Objects.isNull;
  * A SalesLine.
  */
 @Entity
-@Table(name = "sales_line", uniqueConstraints = {@UniqueConstraint(columnNames = {"produit_id", "sales_id"})})
-public class SalesLine implements Serializable, Cloneable {
+@IdClass(SaleLineId.class)
+@Table(name = "sales_line", uniqueConstraints = {@UniqueConstraint(columnNames = {"produit_id", "sales_id", "sale_date"})})
+public class SalesLine implements Persistable<SaleLineId>, Serializable, Cloneable {
 
     @Serial
     private static final long serialVersionUID = 1L;
-
+    @Transient
+    private boolean isNew = true;
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-
+    @Id
+    @Column(name = "sale_date")
+    private LocalDate saleDate = LocalDate.now();
     @NotNull
     @Column(name = "quantity_sold", nullable = false)
     private Integer quantitySold;
-
     @NotNull
     @Column(name = "quantity_requested", nullable = false)
     private Integer quantityRequested;
-
     @NotNull
     @Column(name = "quantity_ug", nullable = false, columnDefinition = "int default '0'")
     private Integer quantityUg = 0;
-
     @NotNull
     @Column(name = "quantity_avoir", nullable = false, columnDefinition = "int default '0'")
     private Integer quantityAvoir = 0;
-
     @NotNull
     @Column(name = "regular_unit_price", nullable = false, columnDefinition = "int default '0'")
     private Integer regularUnitPrice;
-
     @NotNull
     @Column(name = "discount_unit_price", nullable = false, columnDefinition = "int default '0'")
     private Integer discountUnitPrice = 0;
-
     @NotNull
     @Column(name = "net_unit_price", nullable = false, columnDefinition = "int default '0'")
     private Integer netUnitPrice = 0;
-
     @NotNull
     @Column(name = "discount_amount", nullable = false, columnDefinition = "int default '0'")
     private Integer discountAmount = 0;
-
     @NotNull
     @Column(name = "sales_amount", nullable = false, columnDefinition = "int default '0'")
     private Integer salesAmount = 0;
-
     @NotNull
     @Column(name = "tax_value", nullable = false, columnDefinition = "int default '0'")
     private Integer taxValue = 0;
-
     @NotNull
     @Column(name = "cost_amount", nullable = false, columnDefinition = "int default '0'")
     private Integer costAmount = 0;
-
     @Column(name = "calculation_base_price")
     private Integer calculationBasePrice;
-
     @NotNull
     @Column(name = "created_at", nullable = false)
     private LocalDateTime createdAt;
-
     @NotNull
     @Column(name = "updated_at", nullable = false)
     private LocalDateTime updatedAt;
-
     @NotNull
     @ManyToOne(optional = false)
     private Sales sales;
-
     @NotNull
-    @ManyToOne(optional = false)
+    @ManyToOne(optional = false, fetch = FetchType.LAZY)
     private Produit produit;
-
     @NotNull
     @Column(name = "effective_update_date", nullable = false)
     private LocalDateTime effectiveUpdateDate;
-
     @Column(name = "to_ignore", nullable = false)
     private boolean toIgnore = false;
-
     @Column(name = "amount_to_be_taken_into_account", nullable = false)
     private Integer amountToBeTakenIntoAccount;
-
     @Column(name = "after_stock")
     private Integer afterStock;
     @Column(name = "taux_remise")
@@ -116,11 +105,28 @@ public class SalesLine implements Serializable, Cloneable {
     @Column(name = "init_stock")
     private Integer initStock;
     @JdbcTypeCode(SqlTypes.JSON)
-    @Column(columnDefinition = "json", name = "lots")
+    @Column(columnDefinition = "jsonb", name = "lots")
     private List<LotSold> lots = new ArrayList<>();
     @JdbcTypeCode(SqlTypes.JSON)
-    @Column(columnDefinition = "json", name = "rates")
+    @Column(columnDefinition = "jsonb", name = "rates")
     private List<Rate> rates = new ArrayList<>();
+
+    @Override
+    public SaleLineId getId() {
+        return new SaleLineId(id, saleDate);
+    }
+
+    public void setId(Long id) {
+        this.id = id;
+    }
+
+    public LocalDate getSaleDate() {
+        return saleDate;
+    }
+
+    public void setSaleDate(LocalDate saleDate) {
+        this.saleDate = saleDate;
+    }
 
     public float getTauxRemise() {
         return tauxRemise;
@@ -134,16 +140,12 @@ public class SalesLine implements Serializable, Cloneable {
         return rates;
     }
 
+//    public Long getId() {
+//        return id;
+//    }
+
     public void setRates(List<Rate> rates) {
         this.rates = rates;
-    }
-
-    public Long getId() {
-        return id;
-    }
-
-    public void setId(Long id) {
-        this.id = id;
     }
 
     public @NotNull Integer getQuantitySold() {
@@ -402,18 +404,14 @@ public class SalesLine implements Serializable, Cloneable {
 
     @Override
     public boolean equals(Object o) {
-        if (this == o) {
-            return true;
-        }
-        if (!(o instanceof SalesLine)) {
-            return false;
-        }
-        return id != null && id.equals(((SalesLine) o).id);
+        if (o == null || getClass() != o.getClass()) return false;
+        SalesLine salesLine = (SalesLine) o;
+        return Objects.equals(id, salesLine.id) && Objects.equals(saleDate, salesLine.saleDate);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(id);
+        return Objects.hash(id, saleDate);
     }
 
     // prettier-ignore
@@ -454,5 +452,16 @@ public class SalesLine implements Serializable, Cloneable {
         } catch (CloneNotSupportedException _) {
             return null;
         }
+    }
+
+    @Override
+    public boolean isNew() {
+        return isNew;
+    }
+
+    @PrePersist
+    @PostLoad
+    void markNotNew() {
+        this.isNew = false;
     }
 }

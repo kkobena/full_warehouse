@@ -2,6 +2,7 @@ package com.kobe.warehouse.domain;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import jakarta.persistence.Entity;
+import jakarta.persistence.FetchType;
 import jakarta.persistence.ManyToOne;
 import java.io.Serial;
 import java.io.Serializable;
@@ -16,7 +17,7 @@ public class PaymentFournisseur extends PaymentTransaction implements Serializab
     @Serial
     private static final long serialVersionUID = 1L;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     private Commande commande;
 
     public Commande getCommande() {

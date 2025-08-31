@@ -2,7 +2,7 @@ package com.kobe.warehouse.service.dto;
 
 import com.kobe.warehouse.domain.Commande;
 import com.kobe.warehouse.domain.Fournisseur;
-import com.kobe.warehouse.domain.User;
+import com.kobe.warehouse.domain.AppUser;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.Comparator;
@@ -42,7 +42,7 @@ public class DeliveryReceiptDTO {
         receiptAmount = commande.getGrossAmount();
         createdDate = commande.getCreatedAt();
         modifiedDate = commande.getUpdatedAt();
-        User user1 = commande.getUser();
+        AppUser user1 = commande.getUser();
         createdUser = String.format("%s. %s", user1.getFirstName().charAt(0), user1.getLastName());
 
         Fournisseur fournisseur = commande.getFournisseur();

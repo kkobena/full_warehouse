@@ -393,3 +393,90 @@ FROM delivery_receipt d;
 <artifactId>docx4j-ImportXHTML-core</artifactId>
 <version>11.5.3</version>
 </dependency>
+## POSTGREDB
+
+shared_buffers = 25% de la RAM
+work_mem = 4MB à 64MB (selon requêtes complexes, à multiplier par connexions simultanées)
+maintenance_work_mem = 256MB à 1GB (pour VACUUM, CREATE INDEX)
+effective_cache_size = 75% de la RAM
+
+## 16g
+# Mémoire
+shared_buffers = 4GB
+work_mem = 32MB
+maintenance_work_mem = 512MB
+effective_cache_size = 12GB
+
+# Connexions
+max_connections = 200
+
+# WAL
+wal_level = replica
+wal_buffers = 16MB
+checkpoint_completion_target = 0.9
+
+# Autovacuum
+autovacuum = on
+autovacuum_naptime = 30s
+autovacuum_vacuum_cost_limit = -1
+
+# Parallelism
+max_worker_processes = 8
+max_parallel_workers = 8
+max_parallel_workers_per_gather = 4
+
+# Logs
+logging_collector = on
+log_directory = 'pg_log'
+log_filename = 'postgresql-%Y-%m-%d.log'
+log_statement = 'ddl'
+log_min_duration_statement = 500
+
+## 8g
+# Mémoire
+shared_buffers = 2GB
+work_mem = 16MB
+maintenance_work_mem = 256MB
+effective_cache_size = 6GB
+
+# Connexions
+max_connections = 150
+
+# WAL
+wal_level = replica
+wal_buffers = 8MB
+checkpoint_completion_target = 0.9
+
+# Autovacuum
+autovacuum = on
+autovacuum_naptime = 30s
+autovacuum_vacuum_cost_limit = -1
+
+# Parallelism
+max_worker_processes = 4
+max_parallel_workers = 4
+max_parallel_workers_per_gather = 2
+
+# Logs
+logging_collector = on
+log_directory = 'pg_log'
+log_filename = 'postgresql-%Y-%m-%d.log'
+log_statement = 'ddl'
+log_min_duration_statement = 500
+
+
+create database warehouse;
+
+CREATE USER warehouse WITH PASSWORD 'warehouse2802';
+GRANT ALL PRIVILEGES ON DATABASE warehouse TO warehouse;
+CREATE SCHEMA warehouse AUTHORIZATION warehouse;
+create  database warehouse;
+
+CREATE USER warehouse WITH PASSWORD 'warehouse2802';
+GRANT ALL PRIVILEGES ON DATABASE warehouse TO warehouse;
+
+
+psql -U user -d warehouse
+
+CREATE SCHEMA warehouse AUTHORIZATION warehouse;
+GRANT ALL PRIVILEGES ON SCHEMA warehouse TO warehouse;

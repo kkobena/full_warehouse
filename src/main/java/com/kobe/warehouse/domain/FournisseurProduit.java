@@ -3,6 +3,7 @@ package com.kobe.warehouse.domain;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
@@ -14,6 +15,7 @@ import jakarta.persistence.UniqueConstraint;
 import jakarta.validation.constraints.NotNull;
 import java.io.Serial;
 import java.io.Serializable;
+import java.time.LocalDateTime;
 import java.util.HashSet;
 import java.util.Set;
 import org.hibernate.annotations.Cache;
@@ -29,10 +31,10 @@ import org.hibernate.annotations.CacheConcurrencyStrategy;
         @UniqueConstraint(columnNames = { "produit_id", "fournisseur_id" }),
         @UniqueConstraint(columnNames = { "code_cip", "fournisseur_id" }),
     },
-    indexes = { @Index(columnList = "code_cip ASC", name = "code_cip_index"), @Index(columnList = "principal", name = "principal_index") }
+    indexes = { @Index(columnList = "code_cip ASC", name = "code_cip_index") }
 )
 @Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
-public class FournisseurProduit extends AbstractAuditingEntity implements Serializable {
+public class FournisseurProduit  implements Serializable {
 
     @Serial
     private static final long serialVersionUID = 1L;
@@ -53,24 +55,22 @@ public class FournisseurProduit extends AbstractAuditingEntity implements Serial
     @Column(name = "prix_uni", nullable = false)
     private Integer prixUni;
 
-    @NotNull
-    @Column(name = "principal", nullable = false, columnDefinition = "boolean default false")
-    private Boolean principal;
-
-    @ManyToOne(optional = false)
+    @ManyToOne(optional = false,fetch =  FetchType.LAZY)
     @NotNull
     @JsonIgnoreProperties(value = "fournisseurProduits", allowSetters = true)
     private Produit produit;
 
-    @ManyToOne(optional = false)
+    @ManyToOne(optional = false,fetch =  FetchType.LAZY)
     @NotNull
     @JsonIgnoreProperties(value = "fournisseurProduits", allowSetters = true)
     private Fournisseur fournisseur;
 
-    @OneToMany(mappedBy = "fournisseurProduit")
+    @OneToMany(mappedBy = "fournisseurProduit", fetch = FetchType.LAZY)
     private Set<OrderLine> orderLines = new HashSet<>();
-
-    @Override
+    @Column(name = "created_date", updatable = false)
+    private LocalDateTime createdDate = LocalDateTime.now();
+    @Column(name = "last_modified_date")
+    private LocalDateTime lastModifiedDate = LocalDateTime.now();
     public Long getId() {
         return id;
     }
@@ -103,13 +103,7 @@ public class FournisseurProduit extends AbstractAuditingEntity implements Serial
         this.prixUni = prixUni;
     }
 
-    public @NotNull Boolean getPrincipal() {
-        return principal;
-    }
 
-    public void setPrincipal(Boolean principal) {
-        this.principal = principal;
-    }
 
     public @NotNull Produit getProduit() {
         return produit;
@@ -151,18 +145,27 @@ public class FournisseurProduit extends AbstractAuditingEntity implements Serial
         return this;
     }
 
-    public Boolean isPrincipal() {
-        return principal;
-    }
 
-    public FournisseurProduit principal(Boolean principal) {
-        this.principal = principal;
-        return this;
-    }
 
     public FournisseurProduit produit(Produit produit) {
         this.produit = produit;
         return this;
+    }
+
+    public LocalDateTime getCreatedDate() {
+        return createdDate;
+    }
+
+    public void setCreatedDate(LocalDateTime createdDate) {
+        this.createdDate = createdDate;
+    }
+
+    public LocalDateTime getLastModifiedDate() {
+        return lastModifiedDate;
+    }
+
+    public void setLastModifiedDate(LocalDateTime lastModifiedDate) {
+        this.lastModifiedDate = lastModifiedDate;
     }
 
     @Override
@@ -197,7 +200,6 @@ public class FournisseurProduit extends AbstractAuditingEntity implements Serial
             ", createdAt='" +
             "'" +
             ", principal='" +
-            isPrincipal() +
             "'" +
             "}"
         );

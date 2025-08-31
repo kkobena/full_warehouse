@@ -66,7 +66,7 @@ public class OptionPrixProduit implements Serializable {
     private LocalDateTime updated = LocalDateTime.now();
 
     @ManyToOne(optional = false, fetch = FetchType.LAZY)
-    private User user;
+    private AppUser user;
 
     public LocalDateTime getUpdated() {
         return updated;
@@ -84,11 +84,11 @@ public class OptionPrixProduit implements Serializable {
         this.rate = rate;
     }
 
-    public User getUser() {
+    public AppUser getUser() {
         return user;
     }
 
-    public void setUser(User user) {
+    public void setUser(AppUser user) {
         this.user = user;
     }
 

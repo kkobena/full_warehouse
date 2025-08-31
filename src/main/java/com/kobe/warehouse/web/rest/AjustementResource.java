@@ -56,7 +56,7 @@ public class AjustementResource {
     ) {
         log.debug("REST request to get all Ajustements");
 
-        return ajustementService.findAll(id, search).stream().map(AjustementDTO::new).collect(Collectors.toList());
+        return ajustementService.findAll(id, search);
     }
 
     @PostMapping("/ajustements")

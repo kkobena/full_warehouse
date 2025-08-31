@@ -1,6 +1,6 @@
 package com.kobe.warehouse.security;
 
-import com.kobe.warehouse.domain.User;
+import com.kobe.warehouse.domain.AppUser;
 import com.kobe.warehouse.repository.UserRepository;
 import java.util.*;
 import java.util.stream.Collectors;
@@ -35,7 +35,7 @@ public class DomainUserDetailsService implements UserDetailsService {
             .orElseThrow(() -> new UsernameNotFoundException("User " + lowercaseLogin + " was not found in the database"));
     }
 
-    private org.springframework.security.core.userdetails.User createSpringSecurityUser(String lowercaseLogin, User user) {
+    private org.springframework.security.core.userdetails.User createSpringSecurityUser(String lowercaseLogin, AppUser user) {
         if (!user.isActivated()) {
             throw new UserNotActivatedException("User " + lowercaseLogin + " was not activated");
         }

@@ -1,12 +1,12 @@
 package com.kobe.warehouse.service.reglement.differe.service;
 
+import com.kobe.warehouse.domain.AppUser;
 import com.kobe.warehouse.domain.Banque;
 import com.kobe.warehouse.domain.Customer;
 import com.kobe.warehouse.domain.DifferePayment;
 import com.kobe.warehouse.domain.DifferePaymentItem;
 import com.kobe.warehouse.domain.PaymentMode;
 import com.kobe.warehouse.domain.Sales;
-import com.kobe.warehouse.domain.User;
 import com.kobe.warehouse.domain.enumeration.PaymentStatus;
 import com.kobe.warehouse.repository.BanqueRepository;
 import com.kobe.warehouse.repository.CustomerRepository;
@@ -150,7 +150,7 @@ public class ReglementDiffereServiceImpl implements ReglementDiffereService {
     @Override
     public ReglementDiffereResponse doReglement(NewDifferePaymentDTO differePayment) {
         Customer customer = this.customerRepository.getReferenceById(differePayment.customerId());
-        List<Sales> sales = this.salesRepository.findAllById(differePayment.saleIds());
+        List<Sales> sales = this.salesRepository.findSalesByIdIn(differePayment.saleIds());
         DifferePayment differePaymentEntity = new DifferePayment();
         differePaymentEntity.setDiffereCustomer(customer);
         differePaymentEntity.setMontantVerse(differePayment.amount());
@@ -194,7 +194,7 @@ public class ReglementDiffereServiceImpl implements ReglementDiffereService {
     @Override
     public ReglementDiffereReceiptDTO getReglementDiffereReceipt(Long id) {
         DifferePayment differePayment = this.differePaymentRepository.findById(id).orElseThrow();
-        User user = differePayment.getCashRegister().getUser();
+        AppUser user = differePayment.getCashRegister().getUser();
         Customer customer = differePayment.getDiffereCustomer();
         PaymentMode paymentMode = differePayment.getPaymentMode();
         BigDecimal solde = this.salesRepository.getDiffereSoldeByCustomerId(customer.getId());

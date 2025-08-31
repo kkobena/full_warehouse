@@ -41,7 +41,7 @@ public class RepartitionStockProduit implements Serializable {
 
     @NotNull
     @ManyToOne(optional = false)
-    private User user;
+    private AppUser user;
 
     @NotNull
     @Column(name = "created_at", nullable = false)
@@ -103,11 +103,11 @@ public class RepartitionStockProduit implements Serializable {
         return this;
     }
 
-    public @NotNull User getUser() {
+    public @NotNull AppUser getUser() {
         return user;
     }
 
-    public RepartitionStockProduit setUser(User user) {
+    public RepartitionStockProduit setUser(AppUser user) {
         this.user = user;
         return this;
     }

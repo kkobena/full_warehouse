@@ -1,9 +1,5 @@
 package com.kobe.warehouse.repository;
 
-import static java.util.Objects.isNull;
-import static java.util.Objects.nonNull;
-import static org.springframework.util.StringUtils.hasText;
-
 import com.kobe.warehouse.domain.FamilleProduit_;
 import com.kobe.warehouse.domain.FournisseurProduit;
 import com.kobe.warehouse.domain.FournisseurProduit_;
@@ -16,18 +12,25 @@ import com.kobe.warehouse.domain.StockProduit;
 import com.kobe.warehouse.domain.StockProduit_;
 import com.kobe.warehouse.domain.enumeration.Status;
 import com.kobe.warehouse.domain.enumeration.TypeProduit;
+import com.kobe.warehouse.service.dto.produit.HistoriqueProduitInfo;
 import com.kobe.warehouse.service.stock.dto.LotFilterParam;
 import jakarta.persistence.criteria.Expression;
 import jakarta.persistence.criteria.Join;
-import java.time.LocalDate;
-import java.util.List;
-import java.util.Optional;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
+import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.jpa.repository.query.Procedure;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
+
+import java.time.LocalDate;
+import java.util.List;
+import java.util.Optional;
+
+import static java.util.Objects.isNull;
+import static java.util.Objects.nonNull;
+import static org.springframework.util.StringUtils.hasText;
 
 /**
  * Spring Data repository for the Produit entity.
@@ -36,7 +39,10 @@ import org.springframework.stereotype.Repository;
 @Repository
 public interface ProduitRepository
     extends JpaRepository<Produit, Long>, JpaSpecificationExecutor<Produit>, SpecificationBuilder, ProduitCustomRepository {
-    @Procedure(name = "Produit.getTopQty80PercentProducts")
+    @Query(
+        value = "SELECT * FROM gettopqty80percentproducts(:startDate, :endDate, :caList, :statutList)",
+        nativeQuery = true
+    )
     List<Object[]> getTopQty80PercentProducts(
         @Param("startDate") LocalDate startDate,
         @Param("endDate") LocalDate endDate,
@@ -44,7 +50,10 @@ public interface ProduitRepository
         @Param("statutList") String statutList
     );
 
-    @Procedure(name = "Produit.getTopAmount80PercentProducts")
+    @Query(
+        value = "SELECT * FROM gettopamount80percentproducts(:startDate, :endDate, :caList, :statutList)",
+        nativeQuery = true
+    )
     List<Object[]> getTopAmount80PercentProducts(
         @Param("startDate") LocalDate startDate,
         @Param("endDate") LocalDate endDate,
@@ -52,11 +61,35 @@ public interface ProduitRepository
         @Param("statutList") String statutList
     );
 
+
+    @Procedure(procedureName = "gettopqty80percentproducts")
+    List<Object[]> getTopQty80PercentProducts__(
+        LocalDate startDate,
+        LocalDate endDate,
+        String caList,
+        String statutList
+    );
+
+    @Procedure(procedureName = "gettopamount80percentproducts")
+    List<Object[]> getTopAmount80PercentProducts__(
+        LocalDate startDate,
+        LocalDate endDate,
+        String caList,
+        String statutList
+    );
+
     Produit findFirstByParentId(Long parentId);
 
     List<Produit> findAllByParentIdIsNull();
 
     Optional<Produit> findOneByLibelle(String libelle);
+
+    @Query(
+        value = "SELECT p.libelle AS libelle , o.code_cip AS codeCip,p.code_ean AS codeEan FROM produit p   JOIN fournisseur_produit  o ON o.fournisseur_produit_princial_id = p.id WHERE o.produit_id =?1 ",
+        nativeQuery = true
+    )
+    HistoriqueProduitInfo findHistoriqueProduitInfo(Long produitId);
+
 
     default Specification<Produit> filterByStock() {
         return (root, query, cb) -> {

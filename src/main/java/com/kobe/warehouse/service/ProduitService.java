@@ -2,14 +2,15 @@ package com.kobe.warehouse.service;
 
 import com.kobe.warehouse.domain.Produit;
 import com.kobe.warehouse.domain.StockProduit;
-import com.kobe.warehouse.service.dto.*;
+import com.kobe.warehouse.service.dto.ProduitCriteria;
+import com.kobe.warehouse.service.dto.ProduitDTO;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
 
 /**
  * Service Interface for managing {@link com.kobe.warehouse.domain.Produit}.
@@ -77,4 +78,6 @@ public interface ProduitService {
     void updateFromCommande(ProduitDTO produitDTO, Produit produit);
 
     void updatePeremption(Long produitId, LocalDate peremptionDate);
+
+    Produit findReferenceById(Long id);
 }

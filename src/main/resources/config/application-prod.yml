@@ -31,18 +31,20 @@ spring:
 
   datasource:
     type: com.zaxxer.hikari.HikariDataSource
-    url: jdbc:mysql://localhost:3306/warehouse?useLegacyDatetimeCode=false&serverTimezone=${user.timezone}&characterEncoding=UTF-8
+    driver-class-name: org.postgresql.Driver
+    url: jdbc:postgresql://localhost:5432/warehouse
     username: warehouse
     password: warehouse2802
     hikari:
-      poolName: Hikari
-      auto-commit: false
-      data-source-properties:
-        cachePrepStmts: true
-        prepStmtCacheSize: 250
-        prepStmtCacheSqlLimit: 2048
-        useServerPrepStmts: true
-        driverClassName: com.mysql.cj.jdbc.Driver
+        poolName: Hikari
+        auto-commit: false
+        maximum-pool-size: 50         # plus de connexions pour prod
+        minimum-idle: 10
+        idle-timeout: 600000          # 10 min
+        max-lifetime: 1800000         # 30 min
+        connection-timeout: 30000     # 30 sec
+        validation-timeout: 5000      # 5 sec
+        leak-detection-threshold: 20000
 
 
   thymeleaf:

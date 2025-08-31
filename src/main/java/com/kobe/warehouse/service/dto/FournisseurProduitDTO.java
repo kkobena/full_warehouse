@@ -43,7 +43,6 @@ public class FournisseurProduitDTO {
         Fournisseur fr = f.getFournisseur();
         fournisseurId = fr.getId();
         fournisseurLibelle = fr.getLibelle();
-        principal = f.isPrincipal();
     }
 
     public static FournisseurProduitDTO fromEntity(FournisseurProduit f) {
@@ -59,8 +58,8 @@ public class FournisseurProduitDTO {
             .setProduitLibelle(p.getLibelle())
             .setProduitId(p.getId())
             .setFournisseurId(fr.getId())
-            .setProduit(ProduitBuilder.fromEntity(p))
-            .setPrincipal(f.isPrincipal());
+            .setProduit(ProduitBuilder.fromEntity(p));
+
     }
 
     public Long getId() {

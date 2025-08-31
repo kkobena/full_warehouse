@@ -1,10 +1,10 @@
 package com.kobe.warehouse.service;
 
+import com.kobe.warehouse.domain.AppUser;
 import com.kobe.warehouse.domain.Decondition;
 import com.kobe.warehouse.domain.FournisseurProduit;
 import com.kobe.warehouse.domain.Produit;
 import com.kobe.warehouse.domain.StockProduit;
-import com.kobe.warehouse.domain.User;
 import com.kobe.warehouse.domain.enumeration.TransactionType;
 import com.kobe.warehouse.domain.enumeration.TypeDeconditionnement;
 import com.kobe.warehouse.repository.DeconditionRepository;
@@ -58,7 +58,7 @@ public class DeconditionService {
         int beforeStock,
         int afterStock,
         int mvtQty,
-        User user,
+        AppUser user,
         TypeDeconditionnement typeDeconditionnement
     ) {
         Decondition decondition = new Decondition();
@@ -82,7 +82,7 @@ public class DeconditionService {
             storageService.getDefaultConnectedUserPointOfSaleStorage().getId()
         );
         int stock = stockProduit.getQtyStock();
-        User user = storageService.getUser();
+        AppUser user = storageService.getUser();
         if (stock >= deconditionDTO.getQtyMvt()) {
             stockProduit.setQtyStock(stock - deconditionDTO.getQtyMvt());
             stockProduit.setQtyVirtual(stockProduit.getQtyStock());

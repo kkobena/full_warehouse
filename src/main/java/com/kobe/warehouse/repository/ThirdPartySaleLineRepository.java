@@ -1,5 +1,6 @@
 package com.kobe.warehouse.repository;
 
+import com.kobe.warehouse.domain.AssuranceSaleId;
 import com.kobe.warehouse.domain.ClientTiersPayant_;
 import com.kobe.warehouse.domain.FactureTiersPayant;
 import com.kobe.warehouse.domain.FactureTiersPayant_;
@@ -14,10 +15,6 @@ import com.kobe.warehouse.service.dto.projection.AchatTiersPayant;
 import jakarta.persistence.criteria.CriteriaBuilder.In;
 import jakarta.persistence.criteria.Join;
 import jakarta.persistence.criteria.JoinType;
-import java.time.LocalDate;
-import java.util.List;
-import java.util.Optional;
-import java.util.Set;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
@@ -27,9 +24,14 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
+import java.time.LocalDate;
+import java.util.List;
+import java.util.Optional;
+import java.util.Set;
+
 @Repository
 public interface ThirdPartySaleLineRepository
-    extends JpaRepository<ThirdPartySaleLine, Long>, JpaSpecificationExecutor<ThirdPartySaleLine>, ThirdPartySaleLineCustomRepository {
+    extends JpaRepository<ThirdPartySaleLine, AssuranceSaleId>, JpaSpecificationExecutor<ThirdPartySaleLine>, ThirdPartySaleLineCustomRepository {
     long countByClientTiersPayantId(Long clientTiersPayantId);
 
     List<ThirdPartySaleLine> findAllBySaleId(Long saleId);
@@ -70,9 +72,9 @@ public interface ThirdPartySaleLineRepository
     default Specification<ThirdPartySaleLine> periodeCriteria(LocalDate startDate, LocalDate endDate) {
         return (root, _, cb) ->
             cb.between(
-                cb.function("DATE", LocalDate.class, root.get(ThirdPartySaleLine_.sale).get(ThirdPartySales_.updatedAt)),
-                cb.literal(startDate),
-                cb.literal(endDate)
+                root.get(ThirdPartySaleLine_.sale).get(ThirdPartySales_.saleDate),
+                startDate,
+                endDate
             );
     }
 
@@ -155,8 +157,8 @@ public interface ThirdPartySaleLineRepository
     }
 
     @Query(
-        value = "SELECT o.clientTiersPayant.tiersPayant.fullName AS libelle,o.clientTiersPayant.tiersPayant.categorie AS categorie,COUNT(o) AS bonsCount,SUM(o.montant) AS montant,COUNT( DISTINCT o.clientTiersPayant.id)  AS clientCount FROM ThirdPartySaleLine o WHERE FUNCTION('DATE',o.sale.updatedAt)  BETWEEN :fromDate AND :toDate AND o.sale.statut=:statut AND (o.clientTiersPayant.tiersPayant.name like %:search% or o.clientTiersPayant.tiersPayant.fullName like %:search% ) GROUP BY o.clientTiersPayant.tiersPayant.id",
-        countQuery = "SELECT COUNT(DISTINCT o.clientTiersPayant.id) FROM ThirdPartySaleLine o WHERE FUNCTION('DATE',o.sale.updatedAt)  BETWEEN :fromDate AND :toDate AND o.sale.statut=:statut AND (o.clientTiersPayant.tiersPayant.name like %:search% or o.clientTiersPayant.tiersPayant.fullName like %:search% )"
+        value = "SELECT o.clientTiersPayant.tiersPayant.fullName AS libelle,o.clientTiersPayant.tiersPayant.categorie AS categorie,COUNT(o) AS bonsCount,SUM(o.montant) AS montant,COUNT( DISTINCT o.clientTiersPayant.id)  AS clientCount FROM ThirdPartySaleLine o WHERE o.sale.saleDate  BETWEEN :fromDate AND :toDate AND o.sale.statut=:statut AND (o.clientTiersPayant.tiersPayant.name like %:search% or o.clientTiersPayant.tiersPayant.fullName like %:search% ) GROUP BY o.clientTiersPayant.tiersPayant.id",
+        countQuery = "SELECT COUNT(DISTINCT o.clientTiersPayant.id) FROM ThirdPartySaleLine o WHERE o.sale.saleDate  BETWEEN :fromDate AND :toDate AND o.sale.statut=:statut AND (o.clientTiersPayant.tiersPayant.name like %:search% or o.clientTiersPayant.tiersPayant.fullName like %:search% )"
     )
     Page<AchatTiersPayant> fetchAchatTiersPayant(
         @Param("fromDate") LocalDate fromDate,

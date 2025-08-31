@@ -40,10 +40,10 @@ public class Lot implements Serializable {
     @ManyToOne(optional = false, fetch = FetchType.LAZY)
     private OrderLine orderLine;
 
-    @Column(name = "quantity", nullable = false, columnDefinition = "int(6) default '0'")
+    @Column(name = "quantity", nullable = false)
     private Integer quantity;
 
-    @Column(name = "quantity_received_ug", nullable = false, columnDefinition = "int(4) default '0'")
+    @Column(name = "quantity_received_ug", nullable = false)
     private int freeQty;
 
     @NotNull

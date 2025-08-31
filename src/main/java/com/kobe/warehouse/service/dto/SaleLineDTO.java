@@ -43,7 +43,7 @@ public class SaleLineDTO {
 
     public SaleLineDTO(SalesLine salesLine) {
         super();
-        id = salesLine.getId();
+        id = salesLine.getId().getId();
         quantitySold = salesLine.getQuantitySold();
         quantityRequested = salesLine.getQuantityRequested();
         regularUnitPrice = salesLine.getRegularUnitPrice();
@@ -61,7 +61,7 @@ public class SaleLineDTO {
         }
         produitLibelle = produit.getLibelle();
         produitId = produit.getId();
-        saleId = salesLine.getSales().getId();
+        saleId = salesLine.getSales().getId().getId();
         quantiyAvoir = salesLine.getQuantityAvoir();
         calculationBasePrice = salesLine.getCalculationBasePrice();
         rates = salesLine

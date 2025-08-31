@@ -285,13 +285,26 @@
       <groupId>com.alibaba</groupId>
       <version>4.0.3</version>
     </dependency>
-
-
     <dependency>
-      <artifactId>flyway-mysql</artifactId>
+      <groupId>org.ehcache</groupId>
+      <artifactId>ehcache</artifactId>
+      <version>3.10.8</version>
+    </dependency>
+    <dependency>
+      <groupId>javax.cache</groupId>
+      <artifactId>cache-api</artifactId>
+      <version>1.1.1</version>
+    </dependency>
+    <dependency>
       <groupId>org.flywaydb</groupId>
-      <scope>provided</scope>
-     <!-- <version>11.10.5</version>-->
+      <artifactId>flyway-database-postgresql</artifactId>
+      <version>11.11.2</version>
+     <!-- <scope>runtime</scope>-->
+    </dependency>
+    <dependency>
+      <groupId>org.flywaydb</groupId>
+      <artifactId>flyway-core</artifactId>
+      <version>11.11.2</version>
     </dependency>
     <dependency>
       <artifactId>libphonenumber</artifactId>
@@ -498,13 +511,17 @@
       <groupId>org.hibernate.validator</groupId>
       <version>${hibernate-validator.version}</version>
     </dependency>
-
-
     <dependency>
-      <artifactId>mysql-connector-j</artifactId>
-      <groupId>com.mysql</groupId>
-      <version>9.4.0</version>
+      <groupId>org.postgresql</groupId>
+      <artifactId>postgresql</artifactId>
+      <scope>runtime</scope>
     </dependency>
+
+<!--    <dependency>-->
+<!--      <artifactId>mysql-connector-j</artifactId>-->
+<!--      <groupId>com.mysql</groupId>-->
+<!--      <version>9.4.0</version>-->
+<!--    </dependency>-->
     <dependency>
       <artifactId>jdbc</artifactId>
       <groupId>org.testcontainers</groupId>

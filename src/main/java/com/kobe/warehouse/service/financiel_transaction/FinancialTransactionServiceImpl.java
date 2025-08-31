@@ -5,7 +5,7 @@ import com.kobe.warehouse.domain.CashRegister_;
 import com.kobe.warehouse.domain.DefaultPayment;
 import com.kobe.warehouse.domain.PaymentTransaction;
 import com.kobe.warehouse.domain.PaymentTransaction_;
-import com.kobe.warehouse.domain.User_;
+import com.kobe.warehouse.domain.AppUser_;
 import com.kobe.warehouse.domain.enumeration.CategorieChiffreAffaire;
 import com.kobe.warehouse.domain.enumeration.TransactionTypeAffichage;
 import com.kobe.warehouse.repository.DefaultTransactionRepository;
@@ -230,7 +230,7 @@ public class FinancialTransactionServiceImpl implements FinancialTransactionServ
 
         if (Objects.nonNull(transactionFilter.userId())) {
             predicates.add(
-                cb.equal(root.get(PaymentTransaction_.cashRegister).get(CashRegister_.user).get(User_.id), transactionFilter.userId())
+                cb.equal(root.get(PaymentTransaction_.cashRegister).get(CashRegister_.user).get(AppUser_.id), transactionFilter.userId())
             );
         }
         if (Objects.nonNull(transactionFilter.fromDate()) && Objects.nonNull(transactionFilter.toDate())) {

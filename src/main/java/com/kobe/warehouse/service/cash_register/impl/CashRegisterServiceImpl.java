@@ -2,11 +2,11 @@ package com.kobe.warehouse.service.cash_register.impl;
 
 import com.kobe.warehouse.constant.EntityConstant;
 import com.kobe.warehouse.domain.AppConfiguration;
+import com.kobe.warehouse.domain.AppUser;
 import com.kobe.warehouse.domain.CashFund;
 import com.kobe.warehouse.domain.CashRegister;
 import com.kobe.warehouse.domain.CashRegisterItem;
 import com.kobe.warehouse.domain.PaymentMode;
-import com.kobe.warehouse.domain.User;
 import com.kobe.warehouse.domain.enumeration.CashFundStatut;
 import com.kobe.warehouse.domain.enumeration.CashFundType;
 import com.kobe.warehouse.domain.enumeration.CashRegisterStatut;
@@ -66,7 +66,7 @@ public class CashRegisterServiceImpl implements CashRegisterService {
     }
 
     @Override
-    public Optional<CashRegister> getOpiningCashRegisterByUser(User user) throws CashRegisterException {
+    public Optional<CashRegister> getOpiningCashRegisterByUser(AppUser user) throws CashRegisterException {
         List<CashRegister> cashRegisters = cashRegisterRepository.findOneByUserIdAndStatutAndAndBeginTime(
             user.getId(),
             CashRegisterStatut.OPEN,
@@ -80,12 +80,12 @@ public class CashRegisterServiceImpl implements CashRegisterService {
     }
 
     @Override
-    public CashRegister getLastOpiningUserCashRegisterByUser(User user) {
+    public CashRegister getLastOpiningUserCashRegisterByUser(AppUser user) {
         return getOpiningCashRegisterByUser(user).orElse(null);
     }
 
     @Override
-    public CashRegister openCashRegister(User user, Long cashFundId) {
+    public CashRegister openCashRegister(AppUser user, Long cashFundId) {
         CashRegister cashRegister = create(user);
         cashRegister.setCashFund(this.cashFundService.findById(cashFundId));
         this.cashRegisterRepository.save(cashRegister);
@@ -109,7 +109,7 @@ public class CashRegisterServiceImpl implements CashRegisterService {
     }
 
     @Override
-    public CashRegister openCashRegister(User user, User cashRegisterOwner) {
+    public CashRegister openCashRegister(AppUser user, AppUser cashRegisterOwner) {
         AppConfiguration appConfiguration = this.appConfigurationService.findOneById(EntityConstant.APP_CASH_FUND).orElse(null);
         if (Objects.nonNull(appConfiguration) && Integer.parseInt(appConfiguration.getValue().trim()) == 1) {
             if (this.hasOpenCashRegister()) {
@@ -148,7 +148,7 @@ public class CashRegisterServiceImpl implements CashRegisterService {
     }
 
     @Override
-    public void checkIfCashRegisterIsOpen(User user, User admin) throws CashRegisterException {
+    public void checkIfCashRegisterIsOpen(AppUser user, AppUser admin) throws CashRegisterException {
         try {
             this.getOpiningCashRegisterByUser(user);
         } catch (CashRegisterException e) {
@@ -325,7 +325,7 @@ public class CashRegisterServiceImpl implements CashRegisterService {
         return new PaymentMode().code(code);
     }
 
-    private CashRegister create(User user) {
+    private CashRegister create(AppUser user) {
         CashRegister cashRegister = new CashRegister();
         cashRegister.setBeginTime(LocalDateTime.now());
         cashRegister.setCreated(cashRegister.getBeginTime());

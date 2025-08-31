@@ -72,7 +72,6 @@ public interface CustomizedProductService {
         fournisseurProduit.setPrixAchat(dto.getPrixAchat());
         fournisseurProduit.setPrixUni(dto.getPrixUni());
         fournisseurProduit.setFournisseur(fournisseurFromId(dto.getFournisseurId()));
-        fournisseurProduit.setPrincipal(dto.isPrincipal());
         return fournisseurProduit;
     }
 
@@ -89,7 +88,6 @@ public interface CustomizedProductService {
         fournisseurProduit.setCodeCip(dto.getCodeCip());
         fournisseurProduit.setPrixAchat(dto.getPrixAchat());
         fournisseurProduit.setPrixUni(dto.getPrixUni());
-        fournisseurProduit.setPrincipal(dto.isPrincipal());
         fournisseurProduit.setFournisseur(fournisseurFromId(dto.getFournisseurId()));
         return fournisseurProduit;
     }

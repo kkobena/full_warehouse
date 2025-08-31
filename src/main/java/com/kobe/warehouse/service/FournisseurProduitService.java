@@ -8,14 +8,15 @@ import com.kobe.warehouse.repository.FournisseurRepository;
 import com.kobe.warehouse.service.dto.FournisseurProduitDTO;
 import com.kobe.warehouse.service.errors.DefaultFournisseurException;
 import com.kobe.warehouse.service.errors.GenericError;
-import java.util.List;
-import java.util.Objects;
-import java.util.Optional;
 import org.apache.commons.lang3.RandomStringUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.util.List;
+import java.util.Objects;
+import java.util.Optional;
 
 @Service
 @Transactional
@@ -90,7 +91,6 @@ public class FournisseurProduitService {
         FournisseurProduit fournisseurProduit = new FournisseurProduit();
         fournisseurProduit.setProduit(produitFromId(dto.getProduitId()));
         fournisseurProduit.setFournisseur(fournisseurRepository.getReferenceById(dto.getFournisseurId()));
-        fournisseurProduit.setPrincipal(dto.isPrincipal());
         fournisseurProduit.setCodeCip(buildCodeCip(dto.getCodeCip()));
         fournisseurProduit.setPrixAchat(dto.getPrixAchat());
         fournisseurProduit.setPrixUni(dto.getPrixUni());
@@ -114,7 +114,6 @@ public class FournisseurProduitService {
         }
         fournisseurProduit.setProduit(produitFromId(dto.getProduitId()));
 
-        fournisseurProduit.setPrincipal(dto.isPrincipal());
         fournisseurProduit.setCodeCip(buildCodeCip(dto.getCodeCip()));
         fournisseurProduit.setPrixAchat(dto.getPrixAchat());
         fournisseurProduit.setPrixUni(dto.getPrixUni());
@@ -125,26 +124,11 @@ public class FournisseurProduitService {
         fournisseurProduitRepository.delete(fournisseurProduitRepository.getReferenceById(id));
     }
 
-    public void updateDefaultFournisseur(long id, boolean isChecked) throws DefaultFournisseurException {
+    public void updateDefaultFournisseur(long id, long produitId) throws DefaultFournisseurException {
         FournisseurProduit fournisseurProduit = fournisseurProduitRepository.getReferenceById(id);
-        Long produitId = fournisseurProduit.getProduit().getId();
-        long count = fournisseurProduitRepository.principalAlreadyExiste(produitId);
-        long nbreFournisseurProduit = fournisseurProduitRepository.countByProduit(produitId);
-      
-        if (nbreFournisseurProduit == 1 && count == 1 && !isChecked) {
-            throw new GenericError("Il faut au moins un fournisseur principal", "principal");
-        }
-        if (count == 1 && !isChecked) {
-            throw new GenericError("Il faut changer le fournisseur principal avant de le désactiver ", "principal");
-        }
-        if (count > 1 && isChecked) {
-            List<FournisseurProduit> all = fournisseurProduitRepository.findAllByAllPrincipal(produitId);
-            all.forEach(fournisseurProduit1 -> fournisseurProduit1.setPrincipal(false));
-            fournisseurProduitRepository.saveAll(all);
-        }
-
-        fournisseurProduit.setPrincipal(isChecked);
-        fournisseurProduitRepository.saveAndFlush(fournisseurProduit);
+        Produit produit = produitService.findReferenceById(produitId);
+        produit.setFournisseurProduitPrincipal(fournisseurProduit);
+        produitService.update(produit);
     }
 
     public Optional<FournisseurProduit> findFirstByProduitIdAndFournisseurId(Long produitId, Long fournissieurId) {
@@ -178,38 +162,6 @@ public class FournisseurProduitService {
         return fournisseurProduitRepository.save(fournisseurProduit);
     }
 
-    public FournisseurProduit createNewFournisseurProduitDuringCommande(FournisseurProduitDTO dto) throws GenericError {
-        long constraint = fournisseurProduitRepository.countFournisseurProduitByProduitIdAndFournisseurId(
-            dto.getProduitId(),
-            dto.getFournisseurId()
-        );
-        if (constraint > 0) {
-            throw new GenericError("Le produit est déjà rattaché au fournisseur séléctionné", "duplicateProvider");
-        }
-
-        constraint = fournisseurProduitRepository.countFournisseurProduitByCodeCipAndFournisseurId(
-            dto.getCodeCip(),
-            dto.getFournisseurId()
-        );
-        if (constraint > 0) {
-            throw new GenericError(
-                String.format("Ce code %s est déjà associé à un produit pour ce grossiste", dto.getCodeCip()),
-                "duplicateCodeCip"
-            );
-        }
-        constraint = fournisseurProduitRepository.countByCodeCipAndProduitId(dto.getCodeCip(), dto.getProduitId());
-        if (constraint > 0) {
-            throw new GenericError(String.format("Ce code %s est déjà associé à un produit ", dto.getCodeCip()), "codeCip");
-        }
-        FournisseurProduit fournisseurProduit = new FournisseurProduit();
-        fournisseurProduit.setProduit(produitFromId(dto.getProduitId()));
-        fournisseurProduit.setFournisseur(fournisseurRepository.getReferenceById(dto.getFournisseurId()));
-        fournisseurProduit.setPrincipal(dto.isPrincipal());
-        fournisseurProduit.setCodeCip(buildCodeCip(dto.getCodeCip()));
-        fournisseurProduit.setPrixAchat(dto.getPrixAchat());
-        fournisseurProduit.setPrixUni(dto.getPrixUni());
-        return fournisseurProduitRepository.saveAndFlush(fournisseurProduit);
-    }
 
     public Optional<FournisseurProduitDTO> findOneById(Long id) {
         return this.fournisseurProduitRepository.findById(id).map(FournisseurProduitDTO::fromEntity);
@@ -218,14 +170,7 @@ public class FournisseurProduitService {
     public void updateProduitFournisseurFromCommande(FournisseurProduitDTO dto) throws GenericError {
         FournisseurProduit fournisseurProduit = this.fournisseurProduitRepository.getReferenceById(dto.getId());
         Produit produit = fournisseurProduit.getProduit();
-        if (dto.isPrincipal()) {
-            fournisseurProduit.setPrincipal(dto.isPrincipal());
-            FournisseurProduit fournisseurProduitPrincipal = produit.getFournisseurProduitPrincipal();
-            if (Objects.nonNull(fournisseurProduitPrincipal)) {
-                fournisseurProduitPrincipal.setPrincipal(false);
-                this.fournisseurProduitRepository.saveAndFlush(fournisseurProduitPrincipal);
-            }
-        }
+
         valideCodeCip(dto, fournisseurProduit);
 
         fournisseurProduit.setCodeCip(buildCodeCip(dto.getCodeCip()));
@@ -239,9 +184,9 @@ public class FournisseurProduitService {
         long constraint;
         if (org.springframework.util.StringUtils.hasLength(dto.getCodeCip()) && !dto.getCodeCip().equals(fournisseurProduit.getCodeCip())) {
             constraint = this.fournisseurProduitRepository.countFournisseurProduitByCodeCipAndFournisseurId(
-                    dto.getCodeCip(),
-                    dto.getFournisseurId()
-                );
+                dto.getCodeCip(),
+                dto.getFournisseurId()
+            );
             if (constraint > 0) {
                 throw new GenericError(
                     String.format("Ce code %s est déjà associé à un produit pour ce grossiste", dto.getCodeCip()),

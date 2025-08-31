@@ -457,7 +457,6 @@ public final class ProduitBuilder {
         FournisseurProduit fournisseurProduit = new FournisseurProduit();
         fournisseurProduit.setFournisseur(fournisseurFromId(dto.getFournisseurId()));
         fournisseurProduit.setCodeCip(dto.getCodeCip());
-        fournisseurProduit.setPrincipal(true);
         fournisseurProduit.setPrixAchat(dto.getCostAmount());
         fournisseurProduit.setPrixUni(dto.getRegularUnitPrice());
         return fournisseurProduit;

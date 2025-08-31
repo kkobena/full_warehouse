@@ -1,8 +1,8 @@
 package com.kobe.warehouse.service.sale;
 
+import com.kobe.warehouse.domain.AppUser;
 import com.kobe.warehouse.domain.Sales;
 import com.kobe.warehouse.domain.SalesLine;
-import com.kobe.warehouse.domain.User;
 import com.kobe.warehouse.service.dto.SaleLineDTO;
 import com.kobe.warehouse.service.errors.DeconditionnementStockOut;
 import com.kobe.warehouse.service.errors.StockException;
@@ -39,13 +39,13 @@ public interface SalesLineService {
 
     void saveSalesLine(SalesLine salesLine);
 
-    void cloneSalesLine(Set<SalesLine> salesLines, Sales copy, User user, Long storageId);
+    void cloneSalesLine(Set<SalesLine> salesLines, Sales copy, AppUser user, Long storageId);
 
-    void createInventory(SalesLine salesLine, User user, Long storageId);
+    void createInventory(SalesLine salesLine, AppUser user, Long storageId);
 
-    void createInventory(Set<SalesLine> salesLines, User user, Long storageId);
+    void createInventory(Set<SalesLine> salesLines, AppUser user, Long storageId);
 
-    void save(Set<SalesLine> salesLines, User user, Long storageId);
+    void save(Set<SalesLine> salesLines, AppUser user, Long storageId);
 
     void processProductDiscount(SalesLine salesLine);
 }

@@ -33,7 +33,7 @@ public class DifferePaymentItem implements Serializable {
     @ManyToOne(optional = false)
     private Sales sale;
 
-    @ManyToOne(optional = false)
+    @ManyToOne(optional = false,fetch =  FetchType.LAZY)
     @NotNull
     @JoinColumn(name = "differe_payment_id", referencedColumnName = "id")
     private DifferePayment differePayment;

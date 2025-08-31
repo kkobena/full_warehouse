@@ -38,10 +38,10 @@ public class ProductsToDestroy implements Serializable {
     @JoinColumn(name = "fournisseur_produit_id", referencedColumnName = "id")
     private FournisseurProduit fournisseurProduit;
 
-    @Column(name = "quantity", nullable = false, columnDefinition = "int(6) ")
+    @Column(name = "quantity", nullable = false)
     @Min(1)
     private int quantity;
-    @Column(name = "stock_initial", nullable = false, columnDefinition = "int(6) ")
+    @Column(name = "stock_initial", nullable = false)
     @Min(1)
     private int stockInitial;
 
@@ -51,9 +51,9 @@ public class ProductsToDestroy implements Serializable {
     private LocalDate dateDestuction;
     @NotNull
     @ManyToOne(optional = false)
-    private User user;
+    private AppUser user;
 
-    @Column(name = "destroyed", columnDefinition = "boolean default false")
+    @Column(name = "destroyed")
     private boolean destroyed;
 
     @NotNull
@@ -64,7 +64,7 @@ public class ProductsToDestroy implements Serializable {
     @ManyToOne(optional = false)
     private Magasin magasin;
 
-    @Column(name = "editing", columnDefinition = "boolean default false")
+    @Column(name = "editing")
     private boolean editing; // pour gerer les ajouts manuels
 
     public LocalDateTime getCreated() {
@@ -155,11 +155,11 @@ public class ProductsToDestroy implements Serializable {
         this.updated = updated;
     }
 
-    public User getUser() {
+    public AppUser getUser() {
         return user;
     }
 
-    public void setUser(User user) {
+    public void setUser(AppUser user) {
         this.user = user;
     }
 

@@ -1,6 +1,5 @@
 package com.kobe.warehouse.domain;
 
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.kobe.warehouse.domain.enumeration.CategorieABC;
 import com.kobe.warehouse.domain.enumeration.CodeRemise;
 import com.kobe.warehouse.domain.enumeration.Status;
@@ -15,15 +14,22 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.Index;
+import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.NamedStoredProcedureQuery;
 import jakarta.persistence.OneToMany;
+import jakarta.persistence.OneToOne;
 import jakarta.persistence.ParameterMode;
 import jakarta.persistence.StoredProcedureParameter;
 import jakarta.persistence.Table;
 import jakarta.persistence.UniqueConstraint;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotNull;
+import org.hibernate.annotations.JoinFormula;
+import org.hibernate.envers.Audited;
+import org.hibernate.envers.NotAudited;
+import org.hibernate.envers.RelationTargetAuditMode;
+
 import java.io.Serial;
 import java.io.Serializable;
 import java.time.LocalDate;
@@ -32,10 +38,6 @@ import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
-import org.hibernate.annotations.JoinFormula;
-import org.hibernate.envers.Audited;
-import org.hibernate.envers.NotAudited;
-import org.hibernate.envers.RelationTargetAuditMode;
 
 /**
  * not an ignored comment
@@ -43,7 +45,7 @@ import org.hibernate.envers.RelationTargetAuditMode;
 @Audited(targetAuditMode = RelationTargetAuditMode.NOT_AUDITED)
 @NamedStoredProcedureQuery(
     name = "Produit.getTopAmount80PercentProducts",
-    procedureName = "GetTopAmount80PercentProducts",
+    procedureName = "gettopamount80percentproducts",
     parameters = {
         @StoredProcedureParameter(mode = ParameterMode.IN, name = "startDate", type = LocalDate.class),
         @StoredProcedureParameter(mode = ParameterMode.IN, name = "endDate", type = LocalDate.class),
@@ -53,7 +55,7 @@ import org.hibernate.envers.RelationTargetAuditMode;
 )
 @NamedStoredProcedureQuery(
     name = "Produit.getTopQty80PercentProducts",
-    procedureName = "GetTopQty80PercentProducts",
+    procedureName = "gettopqty80percentproducts",
     parameters = {
         @StoredProcedureParameter(mode = ParameterMode.IN, name = "startDate", type = LocalDate.class),
         @StoredProcedureParameter(mode = ParameterMode.IN, name = "endDate", type = LocalDate.class),
@@ -64,13 +66,14 @@ import org.hibernate.envers.RelationTargetAuditMode;
 @Entity
 @Table(
     name = "produit",
-    uniqueConstraints = { @UniqueConstraint(columnNames = { "libelle", "type_produit" }) },
+    uniqueConstraints = {@UniqueConstraint(columnNames = {"libelle", "type_produit"})},
     indexes = {
-        @Index(columnList = "libelle ASC", name = "libelle_index"),
+        @Index(columnList = "libelle", name = "libelle_index"),
         @Index(columnList = "code_ean", name = "codeEan_index"),
         @Index(columnList = "status", name = "status_index"),
     }
 )
+
 public class Produit implements Serializable {
 
     @Serial
@@ -128,8 +131,8 @@ public class Produit implements Serializable {
     @Column(name = "item_cost_amount", nullable = false)
     private Integer itemCostAmount = 0;
 
-    @Column(name = "scheduled", columnDefinition = "boolean default false COMMENT 'pour les produits avec une obligation ordonnance'")
-    private Boolean scheduled = false;
+    @Column(name = "scheduled", columnDefinition = "boolean default false")
+    private Boolean scheduled = false;//pour les produits avec une obligation ordonnance
 
     @NotNull
     @Min(value = 0)
@@ -137,7 +140,7 @@ public class Produit implements Serializable {
     private Integer itemRegularUnitPrice = 0;
 
     @NotAudited
-    @OneToMany(mappedBy = "produit", fetch = FetchType.LAZY, cascade = { CascadeType.REMOVE })
+    @OneToMany(mappedBy = "produit", fetch = FetchType.LAZY, cascade = {CascadeType.REMOVE})
     private List<OptionPrixProduit> optionPrixProduit = new ArrayList<>();
 
     @NotNull
@@ -149,32 +152,28 @@ public class Produit implements Serializable {
     private Boolean deconditionnable;
 
     @NotAudited
-    @ManyToOne
-    @JsonIgnoreProperties(value = "produits", allowSetters = true)
+    @ManyToOne(fetch = FetchType.LAZY)
     private Produit parent;
 
     @NotAudited
-    @OneToMany(mappedBy = "parent", fetch = FetchType.EAGER, cascade = { CascadeType.REMOVE })
+    @OneToMany(mappedBy = "parent", fetch = FetchType.LAZY, cascade = {CascadeType.REMOVE})
     private List<Produit> produits = new ArrayList<>();
 
     @NotAudited
-    @OneToMany(mappedBy = "produit", fetch = FetchType.EAGER, cascade = { CascadeType.REMOVE })
+    @OneToMany(mappedBy = "produit", fetch = FetchType.LAZY, cascade = {CascadeType.REMOVE})
     private Set<StockProduit> stockProduits = new HashSet<>();
 
     @NotAudited
-    @ManyToOne(optional = false)
-    @JsonIgnoreProperties(value = "produits", allowSetters = true)
+    @ManyToOne(optional = false, fetch = FetchType.LAZY)
     @NotNull
     private Tva tva;
 
     @NotAudited
-    @ManyToOne
-    @JsonIgnoreProperties(value = "produits", allowSetters = true)
+    @ManyToOne(fetch = FetchType.LAZY)
     private Laboratoire laboratoire;
 
     @NotAudited
-    @ManyToOne
-    @JsonIgnoreProperties(value = "produits", allowSetters = true)
+    @ManyToOne(fetch = FetchType.LAZY)
     private FormProduit forme;
 
     @Column(name = "code_ean")
@@ -185,17 +184,15 @@ public class Produit implements Serializable {
 
     @NotNull
     @NotAudited
-    @ManyToOne(optional = false)
-    @JsonIgnoreProperties(value = "produits", allowSetters = true)
+    @ManyToOne(optional = false, fetch = FetchType.LAZY)
     private FamilleProduit famille;
 
     @NotAudited
-    @ManyToOne
-    @JsonIgnoreProperties(value = "produits", allowSetters = true)
+    @ManyToOne(fetch = FetchType.LAZY)
     private GammeProduit gamme;
 
     @NotAudited
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     private Dci dci;
 
     @NotNull
@@ -212,12 +209,13 @@ public class Produit implements Serializable {
     private LocalDate perimeAt;
 
     @NotAudited
-    @OneToMany(mappedBy = "produit", cascade = { CascadeType.PERSIST, CascadeType.MERGE, CascadeType.REMOVE })
+    @OneToMany(mappedBy = "produit", fetch = FetchType.LAZY, cascade = {CascadeType.PERSIST, CascadeType.MERGE, CascadeType.REMOVE})
     private Set<FournisseurProduit> fournisseurProduits = new HashSet<>();
 
     @NotAudited
-    @ManyToOne(fetch = FetchType.EAGER)
-    @JoinFormula("(SELECT o.id FROM fournisseur_produit o WHERE o.principal=1 AND o.produit_id=id LIMIT 1)")
+    @OneToOne
+    @JoinColumn(name = "fournisseur_produit_princial_id", referencedColumnName = "id")
+    // @JoinFormula("(SELECT o.id FROM fournisseur_produit o WHERE o.principal=true AND o.produit_id=id LIMIT 1)")
     private FournisseurProduit fournisseurProduitPrincipal;
 
     @NotAudited
@@ -226,14 +224,11 @@ public class Produit implements Serializable {
     private StockProduit stockProduitPointOfSale;
 
     @NotAudited
-    @OneToMany(mappedBy = "produit", fetch = FetchType.EAGER, cascade = { CascadeType.PERSIST, CascadeType.MERGE, CascadeType.REMOVE })
+    @OneToMany(mappedBy = "produit", fetch = FetchType.LAZY, cascade = {CascadeType.PERSIST, CascadeType.MERGE, CascadeType.REMOVE})
     private Set<RayonProduit> rayonProduits = new HashSet<>();
 
-    @NotAudited
-    @OneToMany(mappedBy = "produit", fetch = FetchType.LAZY, cascade = { CascadeType.REMOVE }, orphanRemoval = true)
-    private List<DailyStock> dailyStocks = new ArrayList<>();
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     private Tableau tableau;
 
     /*
@@ -253,10 +248,10 @@ public class Produit implements Serializable {
     @Enumerated(EnumType.STRING)
     @Column(
         name = "code_remise",
-        length = 6,
-        columnDefinition = "varchar(6) default 'CODE_0' COMMENT 'Code de remise qui seront mappés sur les grilles de remises'"
+        length = 6
     )
-    private CodeRemise codeRemise = CodeRemise.CODE_0;
+
+    private CodeRemise codeRemise = CodeRemise.CODE_0;//Code de remise qui seront mappés sur les grilles de remises
 
     public CodeRemise getCodeRemise() {
         return codeRemise;
@@ -574,13 +569,6 @@ public class Produit implements Serializable {
         return this;
     }
 
-    public List<DailyStock> getDailyStocks() {
-        return dailyStocks;
-    }
-
-    public void setDailyStocks(List<DailyStock> dailyStocks) {
-        this.dailyStocks = dailyStocks;
-    }
 
     public Tableau getTableau() {
         return tableau;

@@ -2,7 +2,7 @@ package com.kobe.warehouse.service.dto;
 
 import com.kobe.warehouse.config.Constants;
 import com.kobe.warehouse.domain.Authority;
-import com.kobe.warehouse.domain.User;
+import com.kobe.warehouse.domain.AppUser;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Pattern;
@@ -58,7 +58,7 @@ public class UserDTO implements Serializable {
 
     public UserDTO() {}
 
-    public UserDTO(User user) {
+    public UserDTO(AppUser user) {
         id = user.getId();
         login = user.getLogin();
         firstName = user.getFirstName();
@@ -76,7 +76,7 @@ public class UserDTO implements Serializable {
         abbrName = String.format("%s. %s", user.getFirstName().charAt(0), user.getLastName());
     }
 
-    public static UserDTO user(User user) {
+    public static UserDTO user(AppUser user) {
         UserDTO userDTO = new UserDTO();
         userDTO.setId(user.getId());
         userDTO.setEmail(user.getEmail());

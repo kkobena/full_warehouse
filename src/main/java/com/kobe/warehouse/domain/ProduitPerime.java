@@ -46,7 +46,7 @@ public class ProduitPerime implements Serializable {
 
     @ManyToOne(optional = false)
     @NotNull
-    private User user;
+    private AppUser user;
 
     @Min(1)
     @NotNull
@@ -112,11 +112,11 @@ public class ProduitPerime implements Serializable {
         return this;
     }
 
-    public @NotNull User getUser() {
+    public @NotNull AppUser getUser() {
         return user;
     }
 
-    public ProduitPerime setUser(@NotNull User user) {
+    public ProduitPerime setUser(@NotNull AppUser user) {
         this.user = user;
         return this;
     }

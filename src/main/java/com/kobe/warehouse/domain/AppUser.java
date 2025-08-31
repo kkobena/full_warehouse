@@ -33,9 +33,9 @@ import org.hibernate.annotations.CacheConcurrencyStrategy;
  * A user.
  */
 @Entity
-@Table(name = "user")
+@Table(name = "app_user")
 @Cache(usage = CacheConcurrencyStrategy.NONSTRICT_READ_WRITE)
-public class User extends AbstractAuditingEntity<Long> implements Serializable {
+public class AppUser extends AbstractAuditingEntity<Long> implements Serializable {
 
     @Serial
     private static final long serialVersionUID = 1L;
@@ -222,7 +222,7 @@ public class User extends AbstractAuditingEntity<Long> implements Serializable {
         return magasin;
     }
 
-    public User setMagasin(Magasin magasin) {
+    public AppUser setMagasin(Magasin magasin) {
         this.magasin = magasin;
         return this;
     }
@@ -247,7 +247,7 @@ public class User extends AbstractAuditingEntity<Long> implements Serializable {
         return actionAuthorityKey;
     }
 
-    public User setActionAuthorityKey(String actionAuthorityKey) {
+    public AppUser setActionAuthorityKey(String actionAuthorityKey) {
         this.actionAuthorityKey = actionAuthorityKey;
         return this;
     }
@@ -257,10 +257,10 @@ public class User extends AbstractAuditingEntity<Long> implements Serializable {
         if (this == o) {
             return true;
         }
-        if (!(o instanceof User)) {
+        if (!(o instanceof AppUser)) {
             return false;
         }
-        return id != null && id.equals(((User) o).id);
+        return id != null && id.equals(((AppUser) o).id);
     }
 
     @Override

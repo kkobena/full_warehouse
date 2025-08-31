@@ -25,6 +25,7 @@ import java.util.ArrayList;
 import java.util.List;
 import org.hibernate.annotations.ColumnDefault;
 import org.hibernate.annotations.Comment;
+import org.springframework.data.domain.Persistable;
 
 /**
  * A Commande.
@@ -39,7 +40,7 @@ import org.hibernate.annotations.Comment;
         @Index(columnList = "receipt_reference", name = "receipt_reference_index"),
     }
 )
-public class Commande implements Serializable, Cloneable {
+public class Commande implements Persistable<SaleId>, Serializable, Cloneable {
 
     @Serial
     private static final long serialVersionUID = 1L;
@@ -61,24 +62,24 @@ public class Commande implements Serializable, Cloneable {
     private int discountAmount;
 
     //   @Formula("(SELECT SUM(oi.quantity_requested*oi.order_unit_price) FROM order_line oi WHERE oi.commande_id = id)")
-    @Comment("montant vente de la commande en cours de traitement")
+
     @Column(name = "order_amount")
-    private Integer orderAmount;
+    private Integer orderAmount;//montant vente de la commande en cours de traitement
 
     //  @Formula("(SELECT SUM((oi.quantity_received+oi.free_qty)*oi.order_unit_price) FROM order_line oi WHERE oi.commande_id = id)")
-    @Comment("montant vente de la commande finalisée")
+
     @Column(name = "final_amount")
     private Integer finalAmount;
 
-    @Comment("montant achat de la commande")
+
     @NotNull
     @Column(name = "gross_amount", nullable = false)
-    private Integer grossAmount;
+    private Integer grossAmount;//montant achat de la commande
 
-    @Column(name = "ht_amount", columnDefinition = "int default '0'")
+    @Column(name = "ht_amount")
     private int htAmount = 0;
 
-    @Column(name = "tax_amount", columnDefinition = "int default '0'")
+    @Column(name = "tax_amount")
     private int taxAmount = 0;
 
     @NotNull
@@ -109,13 +110,14 @@ public class Commande implements Serializable, Cloneable {
 
     @ManyToOne(optional = false)
     @NotNull
-    private User user;
+    private AppUser user;
 
     @ManyToOne(optional = false)
     @NotNull
     private Fournisseur fournisseur;
 
     @ColumnDefault(value = "false")
+    @Column(name = "has_been_submitted_to_pharmaml")
     private boolean hasBeenSubmittedToPharmaML;
 
     public boolean isHasBeenSubmittedToPharmaML() {
@@ -252,11 +254,11 @@ public class Commande implements Serializable, Cloneable {
         this.orderLines = orderLines;
     }
 
-    public @NotNull User getUser() {
+    public @NotNull AppUser getUser() {
         return user;
     }
 
-    public void setUser(User user) {
+    public void setUser(AppUser user) {
         this.user = user;
     }
 

@@ -5,29 +5,35 @@ import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
+import jakarta.persistence.FetchType;
 import jakarta.persistence.Id;
+import jakarta.persistence.IdClass;
+import jakarta.persistence.Index;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 import jakarta.persistence.UniqueConstraint;
 import jakarta.validation.constraints.NotNull;
+import org.springframework.data.domain.Persistable;
+
 import java.io.Serial;
 import java.io.Serializable;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.Objects;
 
 @Entity
-@Table(name = "third_party_sale_line", uniqueConstraints = { @UniqueConstraint(columnNames = { "client_tiers_payant_id", "sale_id" }) })
-public class ThirdPartySaleLine implements Serializable, Cloneable {
+@IdClass(AssuranceSaleId.class)
+@Table(name = "third_party_sale_line", indexes = {@Index(columnList = "num_bon", name = "third_party_sale_line_num_bon")}, uniqueConstraints = {@UniqueConstraint(columnNames = {"client_tiers_payant_id", "sale_id", "sale_date"})})
+public class ThirdPartySaleLine implements Persistable<SaleId>, Serializable, Cloneable {
 
     @Serial
     private static final long serialVersionUID = 1L;
-
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
+    @Id
+    @Column(name = "sale_date")
+    private LocalDate saleDate = LocalDate.now();
 
     @NotNull
     @ManyToOne(optional = false)
@@ -69,7 +75,7 @@ public class ThirdPartySaleLine implements Serializable, Cloneable {
     @Column(name = "montant_regle")
     private Integer montantRegle = 0;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "facture_tiers_payant_id", referencedColumnName = "id")
     private FactureTiersPayant factureTiersPayant;
 
@@ -80,6 +86,14 @@ public class ThirdPartySaleLine implements Serializable, Cloneable {
     public ThirdPartySaleLine setId(Long id) {
         this.id = id;
         return this;
+    }
+
+    public LocalDate getSaleDate() {
+        return saleDate;
+    }
+
+    public void setSaleDate(LocalDate saleDate) {
+        this.saleDate = saleDate;
     }
 
     public @NotNull ThirdPartySales getSale() {
@@ -205,7 +219,6 @@ public class ThirdPartySaleLine implements Serializable, Cloneable {
         try {
             return super.clone();
         } catch (CloneNotSupportedException e) {
-            e.printStackTrace(System.err);
             return null;
         }
     }

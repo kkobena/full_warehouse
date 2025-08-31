@@ -1,7 +1,7 @@
 package com.kobe.warehouse.service.cash_register;
 
+import com.kobe.warehouse.domain.AppUser;
 import com.kobe.warehouse.domain.CashRegister;
-import com.kobe.warehouse.domain.User;
 import com.kobe.warehouse.service.cash_register.dto.CashRegisterDTO;
 import com.kobe.warehouse.service.cash_register.dto.FetchCashRegisterParams;
 import com.kobe.warehouse.service.cash_register.dto.TypeVente;
@@ -15,19 +15,19 @@ import java.util.Optional;
 import java.util.stream.Stream;
 
 public interface CashRegisterService {
-    Optional<CashRegister> getOpiningCashRegisterByUser(User user);
+    Optional<CashRegister> getOpiningCashRegisterByUser(AppUser user);
 
-    CashRegister getLastOpiningUserCashRegisterByUser(User user);
+    CashRegister getLastOpiningUserCashRegisterByUser(AppUser user);
 
-    CashRegister openCashRegister(User user, Long cashFundId);
+    CashRegister openCashRegister(AppUser user, Long cashFundId);
 
     Optional<CashRegisterDTO> openCashRegister(int cashFundAmount) throws NonClosedCashRegisterException;
 
-    CashRegister openCashRegister(User user, User cashRegisterOwner);
+    CashRegister openCashRegister(AppUser user, AppUser cashRegisterOwner);
 
     boolean checkAutomaticFundAllocation();
 
-    void checkIfCashRegisterIsOpen(User user, User admin) throws CashRegisterException;
+    void checkIfCashRegisterIsOpen(AppUser user, AppUser admin) throws CashRegisterException;
 
     CashRegister getCashRegisterById(Long id);
 

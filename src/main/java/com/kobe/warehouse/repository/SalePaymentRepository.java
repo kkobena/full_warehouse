@@ -1,12 +1,11 @@
 package com.kobe.warehouse.repository;
 
+import com.kobe.warehouse.domain.AppUser;
 import com.kobe.warehouse.domain.CashRegister_;
 import com.kobe.warehouse.domain.SalePayment;
 import com.kobe.warehouse.domain.SalePayment_;
-import com.kobe.warehouse.domain.Sales;
 import com.kobe.warehouse.domain.Sales_;
-import com.kobe.warehouse.domain.User;
-import com.kobe.warehouse.domain.User_;
+import com.kobe.warehouse.domain.AppUser_;
 import com.kobe.warehouse.domain.enumeration.CategorieChiffreAffaire;
 import com.kobe.warehouse.domain.enumeration.SalesStatut;
 import com.kobe.warehouse.domain.enumeration.TypeVente;
@@ -46,7 +45,7 @@ public interface SalePaymentRepository
         if (caissierIds == null || caissierIds.isEmpty()) {
             return null; // No filter applied
         }
-        return (root, query, cb) -> root.get(SalePayment_.cashRegister).get(CashRegister_.user).get(User_.id).in(caissierIds);
+        return (root, query, cb) -> root.get(SalePayment_.cashRegister).get(CashRegister_.user).get(AppUser_.id).in(caissierIds);
     }
 
     default Specification<SalePayment> filterByPeriode(LocalDateTime fromDate, LocalDateTime toDate) {
@@ -70,11 +69,11 @@ public interface SalePaymentRepository
         return (root, query, cb) -> cb.equal( root.get(SalePayment_.sale).get(Sales_.type), typeVente.name());
     }
 
-    default Specification<SalePayment> hasCaissier(User caissier) {
+    default Specification<SalePayment> hasCaissier(AppUser caissier) {
         return (root, query, cb) -> cb.equal( root.get(SalePayment_.sale).get(Sales_.caissier), caissier);
     }
 
-    default Specification<SalePayment> hasVendeur(User vendeur) {
+    default Specification<SalePayment> hasVendeur(AppUser vendeur) {
         return (root, query, cb) -> cb.equal( root.get(SalePayment_.sale).get(Sales_.seller), vendeur);
     }
 

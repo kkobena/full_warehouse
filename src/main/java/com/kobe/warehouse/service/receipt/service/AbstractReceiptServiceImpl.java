@@ -1,8 +1,6 @@
 package com.kobe.warehouse.service.receipt.service;
 
 import com.kobe.warehouse.config.FileStorageProperties;
-import com.kobe.warehouse.domain.Printer;
-import com.kobe.warehouse.domain.User;
 import com.kobe.warehouse.service.StorageService;
 import com.kobe.warehouse.service.errors.FileStorageException;
 import com.kobe.warehouse.service.report.Constant;
@@ -21,7 +19,7 @@ import java.util.Locale;
 import java.util.Map;
 import javax.print.PrintService;
 import javax.print.PrintServiceLookup;
-import org.apache.commons.lang3.StringUtils;
+
 import org.apache.pdfbox.Loader;
 import org.apache.pdfbox.pdmodel.PDDocument;
 import org.apache.pdfbox.printing.Orientation;

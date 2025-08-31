@@ -6,6 +6,7 @@ import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
+import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
@@ -14,6 +15,7 @@ import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
 import jakarta.validation.constraints.NotNull;
+
 import java.io.Serial;
 import java.io.Serializable;
 import java.time.LocalDateTime;
@@ -33,9 +35,9 @@ public class CashFund implements Serializable {
     @Column(name = "amount")
     private Integer amount;
 
-    @ManyToOne(optional = false)
+    @ManyToOne(optional = false, fetch = FetchType.LAZY)
     @NotNull
-    private User user;
+    private AppUser user;
 
     @NotNull
     @Column(name = "created")
@@ -58,9 +60,9 @@ public class CashFund implements Serializable {
     @Column(name = "statut", nullable = false)
     private CashFundStatut statut;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "validated_by_id", referencedColumnName = "id")
-    private User validatedBy;
+    private AppUser validatedBy;
 
     public CashFundStatut getStatut() {
         return statut;
@@ -71,11 +73,11 @@ public class CashFund implements Serializable {
         return this;
     }
 
-    public User getValidatedBy() {
+    public AppUser getValidatedBy() {
         return validatedBy;
     }
 
-    public CashFund setValidatedBy(User validatedBy) {
+    public CashFund setValidatedBy(AppUser validatedBy) {
         this.validatedBy = validatedBy;
         return this;
     }
@@ -98,11 +100,11 @@ public class CashFund implements Serializable {
         return this;
     }
 
-    public User getUser() {
+    public AppUser getUser() {
         return user;
     }
 
-    public CashFund setUser(User user) {
+    public CashFund setUser(AppUser user) {
         this.user = user;
         return this;
     }

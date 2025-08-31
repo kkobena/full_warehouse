@@ -1,6 +1,6 @@
 package com.kobe.warehouse.service.impl;
 
-import com.kobe.warehouse.domain.User;
+import com.kobe.warehouse.domain.AppUser;
 import com.kobe.warehouse.domain.UtilisationCleSecurite;
 import com.kobe.warehouse.domain.enumeration.TransactionType;
 import com.kobe.warehouse.repository.AuthorityPrivilegeRepository;
@@ -46,8 +46,8 @@ public class UtilisationCleSecuriteServiceImpl implements UtilisationCleSecurite
     }
 
     @Override
-    public void save(User owner, UtilisationCleSecuriteDTO utilisationCleSecuriteDTO) {
-        User connectedUser = this.userService.getUser();
+    public void save(AppUser owner, UtilisationCleSecuriteDTO utilisationCleSecuriteDTO) {
+        AppUser connectedUser = this.userService.getUser();
         UtilisationCleSecurite utilisationCleSecurite = new UtilisationCleSecurite()
             .setCleSecuriteOwner(owner)
             .setConnectedUser(connectedUser)

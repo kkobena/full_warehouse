@@ -1,5 +1,7 @@
 package com.kobe.warehouse.service.sale.impl;
 
+import com.kobe.warehouse.config.IdGeneratorService;
+import com.kobe.warehouse.domain.AppUser;
 import com.kobe.warehouse.domain.CashRegister;
 import com.kobe.warehouse.domain.CashSale;
 import com.kobe.warehouse.domain.Remise;
@@ -8,7 +10,6 @@ import com.kobe.warehouse.domain.RemiseProduit;
 import com.kobe.warehouse.domain.Sales;
 import com.kobe.warehouse.domain.SalesLine;
 import com.kobe.warehouse.domain.ThirdPartySales;
-import com.kobe.warehouse.domain.User;
 import com.kobe.warehouse.domain.enumeration.CodeRemise;
 import com.kobe.warehouse.domain.enumeration.PaymentStatus;
 import com.kobe.warehouse.domain.enumeration.SalesStatut;
@@ -46,6 +47,7 @@ public class SaleCommonService {
     private final CashRegisterService cashRegisterService;
     private final PosteRepository posteRepository;
     private final AfficheurPosService afficheurPosService;
+    private final IdGeneratorService idGeneratorService;
 
     public SaleCommonService(
         ReferenceService referenceService,
@@ -55,7 +57,7 @@ public class SaleCommonService {
         CashRegisterService cashRegisterService,
 
         PosteRepository posteRepository,
-        AfficheurPosService afficheurPosService
+        AfficheurPosService afficheurPosService, IdGeneratorService idGeneratorService
     ) {
         this.referenceService = referenceService;
 
@@ -65,6 +67,7 @@ public class SaleCommonService {
         this.cashRegisterService = cashRegisterService;
         this.posteRepository = posteRepository;
         this.afficheurPosService = afficheurPosService;
+        this.idGeneratorService = idGeneratorService;
     }
 
     public void computeSaleEagerAmount(Sales c) {
@@ -205,11 +208,16 @@ public class SaleCommonService {
         }
     }
 
+    protected void setId(Sales c) {
+        c.setId(idGeneratorService.nextId());
+    }
+
     protected void intSale(SaleDTO dto, Sales c) {
-        User user = storageService.getUser();
+        c.setId(idGeneratorService.nextId());
+        AppUser user = storageService.getUser();
         c.setNatureVente(dto.getNatureVente());
         c.setTypePrescription(dto.getTypePrescription());
-        User caissier = user;
+        AppUser caissier = user;
         if (user.getId().compareTo(dto.getCassierId()) != 0) {
             caissier = userRepository.getReferenceById(dto.getCassierId());
         }
@@ -255,7 +263,7 @@ public class SaleCommonService {
     }
 
     private void finalizeSale(Sales c, SaleDTO dto) {
-        User user = storageService.getUser();
+        AppUser user = storageService.getUser();
         c.setUser(user);
         CashRegister cashRegister = cashRegisterService.getLastOpiningUserCashRegisterByUser(user);
         if (Objects.isNull(cashRegister)) {

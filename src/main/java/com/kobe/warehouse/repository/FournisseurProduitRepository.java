@@ -11,14 +11,7 @@ import org.springframework.stereotype.Repository;
 
 @Repository
 public interface FournisseurProduitRepository extends JpaRepository<FournisseurProduit, Long> {
-    @Query("SELECT o FROM FournisseurProduit o WHERE o.principal=TRUE AND o.produit.id=?1")
-    FournisseurProduit findFirstByPrincipalIsTrueAndProduitId(Long produitId);
 
-    @Query("SELECT o FROM FournisseurProduit o WHERE o.principal=TRUE AND o.produit.id=?1 ")
-    List<FournisseurProduit> findAllByAllPrincipal(Long produitId);
-
-    @Query("SELECT COUNT(o) FROM FournisseurProduit o WHERE o.principal=TRUE AND o.produit.id=?1")
-    long principalAlreadyExiste(Long produitId);
 
     @Query("SELECT COUNT(o) FROM FournisseurProduit o WHERE  o.produit.id=?1 AND o.fournisseur.id = ?2")
     long countFournisseurProduitByProduitIdAndFournisseurId(Long produitId, Long produitFournisseurId);
@@ -41,11 +34,7 @@ public interface FournisseurProduitRepository extends JpaRepository<FournisseurP
 
     List<FournisseurProduit> findAllByFournisseurIdAndProduitParentIsNull(Long produitId, Pageable pageable);
 
-    @Query(
-        value = "SELECT p.libelle AS libelle , o.code_cip AS codeCip,p.code_ean AS codeEan FROM fournisseur_produit o JOIN  produit p ON o.produit_id = p.id WHERE o.produit_id =?1 AND o.principal",
-        nativeQuery = true
-    )
-    HistoriqueProduitInfo findHistoriqueProduitInfoByFournisseurIdAndProduitId(Long produitId);
+
 
     List<FournisseurProduit> findByCodeCipContainingOrProduitCodeEanContaining(String codeCip, String codeEan);
 }

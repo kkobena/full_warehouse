@@ -4,7 +4,7 @@ import com.kobe.warehouse.domain.CashRegister_;
 import com.kobe.warehouse.domain.PaymentMode_;
 import com.kobe.warehouse.domain.SalePayment;
 import com.kobe.warehouse.domain.SalePayment_;
-import com.kobe.warehouse.domain.User_;
+import com.kobe.warehouse.domain.AppUser_;
 import com.kobe.warehouse.service.dto.records.VenteModePaimentRecord;
 import com.kobe.warehouse.service.tiketz.dto.TicketZProjection;
 import jakarta.persistence.EntityManager;
@@ -40,17 +40,17 @@ public class SalePaymentCustomRepositoryImpl implements SalePaymentCustomReposit
                     TicketZProjection.class,
                     root.get(SalePayment_.paymentMode).get(PaymentMode_.code),
                     root.get(SalePayment_.paymentMode).get(PaymentMode_.libelle),
-                    root.get(SalePayment_.cashRegister).get(CashRegister_.user).get(User_.id),
-                    root.get(SalePayment_.cashRegister).get(CashRegister_.user).get(User_.firstName),
-                    root.get(SalePayment_.cashRegister).get(CashRegister_.user).get(User_.lastName),
+                    root.get(SalePayment_.cashRegister).get(CashRegister_.user).get(AppUser_.id),
+                    root.get(SalePayment_.cashRegister).get(CashRegister_.user).get(AppUser_.firstName),
+                    root.get(SalePayment_.cashRegister).get(CashRegister_.user).get(AppUser_.lastName),
                     cb.sumAsLong(root.get(SalePayment_.paidAmount)),
                     cb.sumAsLong(root.get(SalePayment_.reelAmount)),
                     root.get(SalePayment_.credit)
                 )
             )
             .groupBy(
-                root.get(SalePayment_.cashRegister).get(CashRegister_.user).get(User_.id),
-                root.get(SalePayment_.cashRegister).get(CashRegister_.user).get(User_.id),
+                root.get(SalePayment_.cashRegister).get(CashRegister_.user).get(AppUser_.id),
+                root.get(SalePayment_.cashRegister).get(CashRegister_.user).get(AppUser_.id),
                 root.get(SalePayment_.paymentMode).get(PaymentMode_.code)
             );
 
@@ -76,7 +76,7 @@ public class SalePaymentCustomRepositoryImpl implements SalePaymentCustomReposit
                     cb.sum(root.get(SalePayment_.paidAmount))
                 )
             )
-            .groupBy(
+            .groupBy(root.get(SalePayment_.paymentMode).get(PaymentMode_.libelle),
                 root.get(SalePayment_.paymentMode).get(PaymentMode_.code)
             );
 

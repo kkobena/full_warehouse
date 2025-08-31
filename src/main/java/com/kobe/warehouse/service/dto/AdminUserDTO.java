@@ -2,8 +2,8 @@ package com.kobe.warehouse.service.dto;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.kobe.warehouse.config.Constants;
+import com.kobe.warehouse.domain.AppUser;
 import com.kobe.warehouse.domain.Authority;
-import com.kobe.warehouse.domain.User;
 import com.kobe.warehouse.security.SecurityUtils;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
@@ -71,7 +71,7 @@ public class AdminUserDTO implements Serializable {
         // Empty constructor needed for Jackson.
     }
 
-    public AdminUserDTO(User user) {
+    public AdminUserDTO(AppUser user) {
         this.id = user.getId();
         this.login = user.getLogin();
         this.firstName = user.getFirstName();
@@ -89,7 +89,7 @@ public class AdminUserDTO implements Serializable {
         this.authorities = user.getAuthorities().stream().map(Authority::getName).collect(Collectors.toSet());
     }
 
-    public AdminUserDTO(User user, Set<Authority> authorities0) {
+    public AdminUserDTO(AppUser user, Set<Authority> authorities0) {
         this.id = user.getId();
         this.login = user.getLogin();
         this.firstName = user.getFirstName();

@@ -54,7 +54,7 @@ public class Suggestion implements Serializable {
     private Magasin magasin;
 
     @ManyToOne
-    private User lastUserEdit;
+    private AppUser lastUserEdit;
 
     @Enumerated(EnumType.STRING)
     @Column(name = "type_suggession", length = 10)
@@ -122,11 +122,11 @@ public class Suggestion implements Serializable {
         this.magasin = magasin;
     }
 
-    public User getLastUserEdit() {
+    public AppUser getLastUserEdit() {
         return lastUserEdit;
     }
 
-    public void setLastUserEdit(User lastUserEdit) {
+    public void setLastUserEdit(AppUser lastUserEdit) {
         this.lastUserEdit = lastUserEdit;
     }
 

@@ -91,8 +91,8 @@ public class DifferePaymentDataRepositoryImpl implements DifferePaymentDataRepos
                 cb.construct(
                     ReglementDiffereDTO.class,
                     root.get(DifferePayment_.id),
-                    root.get(DifferePayment_.cashRegister).get(CashRegister_.user).get(User_.firstName),
-                    root.get(DifferePayment_.cashRegister).get(CashRegister_.user).get(User_.lastName),
+                    root.get(DifferePayment_.cashRegister).get(CashRegister_.user).get(AppUser_.firstName),
+                    root.get(DifferePayment_.cashRegister).get(CashRegister_.user).get(AppUser_.lastName),
                     root.get(DifferePayment_.createdAt),
                     root.get(DifferePayment_.expectedAmount),
                     root.get(DifferePayment_.montantVerse),

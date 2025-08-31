@@ -520,7 +520,6 @@ public class PharmaMlServiceImpl implements PharmaMlService {
                         fournisseurProduit.setFournisseur(fournisseur);
                         fournisseurProduit.setPrixAchat(Integer.parseInt(prix.key() + ""));
                         fournisseurProduit.setPrixUni(Integer.parseInt(prix.value() + ""));
-                        fournisseurProduit.setPrincipal(fournisseurProduits.stream().noneMatch(FournisseurProduit::isPrincipal));
                         fournisseurProduit = fournisseurProduitService.save(fournisseurProduit);
                     }
 

@@ -1,7 +1,7 @@
 package com.kobe.warehouse.service.dto;
 
 import com.kobe.warehouse.domain.StoreInventory;
-import com.kobe.warehouse.domain.User;
+import com.kobe.warehouse.domain.AppUser;
 import com.kobe.warehouse.domain.enumeration.InventoryType;
 import java.time.LocalDateTime;
 import java.util.List;
@@ -30,7 +30,7 @@ public class StoreInventoryExport {
         this.updatedAt = storeInventory.getUpdatedAt();
         this.inventoryValueCostAfter = storeInventory.getInventoryValueCostAfter();
         this.inventoryAmountAfter = storeInventory.getInventoryAmountAfter();
-        User user = storeInventory.getUser();
+        AppUser user = storeInventory.getUser();
         this.abbrName = String.format("%s. %s", user.getFirstName().charAt(0), user.getLastName());
         this.statut = storeInventory.getStatut().name();
         this.inventoryType = storeInventory.getInventoryType();

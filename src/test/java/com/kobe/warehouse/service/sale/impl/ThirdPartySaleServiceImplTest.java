@@ -1,6 +1,8 @@
 package com.kobe.warehouse.service.sale.impl;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
+import com.kobe.warehouse.config.IdGeneratorService;
+import com.kobe.warehouse.domain.AppUser;
 import com.kobe.warehouse.domain.AssuredCustomer;
 import com.kobe.warehouse.domain.ClientTiersPayant;
 import com.kobe.warehouse.domain.SalesLine;
@@ -8,7 +10,6 @@ import com.kobe.warehouse.domain.Storage;
 import com.kobe.warehouse.domain.ThirdPartySaleLine;
 import com.kobe.warehouse.domain.ThirdPartySales;
 import com.kobe.warehouse.domain.TiersPayant;
-import com.kobe.warehouse.domain.User;
 import com.kobe.warehouse.domain.enumeration.NatureVente;
 import com.kobe.warehouse.domain.enumeration.PrioriteTiersPayant;
 import com.kobe.warehouse.domain.enumeration.SalesStatut;
@@ -117,6 +118,8 @@ class ThirdPartySaleServiceImplTest {
     private SaleLineServiceFactory saleLineServiceFactory;
     @Mock
     private AfficheurPosService afficheurPosService;
+    @Mock
+    private  IdGeneratorService idGeneratorService;
 
     @InjectMocks
     private ThirdPartySaleServiceImpl thirdPartySaleService;
@@ -202,7 +205,7 @@ class ThirdPartySaleServiceImplTest {
     void setUp() {
       //  MockitoAnnotations.openMocks(this);
         when(saleLineServiceFactory.getService(any())).thenReturn(salesLineService);
-        User user = new User();
+        AppUser user = new AppUser();
         user.setId(1L);
         user.setLogin("test");
         when(storageService.getUser()).thenReturn(user);
@@ -226,7 +229,7 @@ class ThirdPartySaleServiceImplTest {
             afficheurPosService,
             prixRererenceService,
             logService,
-            tiersPayantCalculationService
+            tiersPayantCalculationService,idGeneratorService
         );
     }
 
@@ -321,7 +324,7 @@ class ThirdPartySaleServiceImplTest {
 
         ThirdPartySales thirdPartySales = new ThirdPartySales();
         thirdPartySales.setId(1L);
-        when(thirdPartySaleRepository.getReferenceById(1L)).thenReturn(thirdPartySales);
+     //   when(thirdPartySaleRepository.getReferenceById(1L)).thenReturn(thirdPartySales);
 
         SalesLine salesLine = new SalesLine();
         salesLine.setSalesAmount(1000);
@@ -479,7 +482,7 @@ class ThirdPartySaleServiceImplTest {
 
         ThirdPartySales thirdPartySales = new ThirdPartySales();
         thirdPartySales.setId(1L);
-        when(thirdPartySaleRepository.getReferenceById(1L)).thenReturn(thirdPartySales);
+       // when(thirdPartySaleRepository.getReferenceById(1L)).thenReturn(thirdPartySales);
 
         when(thirdPartySaleLineRepository.countThirdPartySaleLineByNumBonAndClientTiersPayantId(anyString(), anyLong(), any(SalesStatut.class))).thenReturn(0l);
 
@@ -510,7 +513,7 @@ class ThirdPartySaleServiceImplTest {
 
         ThirdPartySales thirdPartySales = new ThirdPartySales();
         thirdPartySales.setId(1L);
-        when(thirdPartySaleRepository.getReferenceById(1L)).thenReturn(thirdPartySales);
+       // when(thirdPartySaleRepository.getReferenceById(1L)).thenReturn(thirdPartySales);
 
         when(thirdPartySaleLineRepository.countThirdPartySaleLineByNumBonAndClientTiersPayantId(anyString(), anyLong(), any(SalesStatut.class))).thenReturn(1l);
 
@@ -616,7 +619,7 @@ class ThirdPartySaleServiceImplTest {
         KeyValue keyValue = new KeyValue(1L, 2L);
         ThirdPartySales thirdPartySales = new ThirdPartySales();
         thirdPartySales.setId(1L);
-        when(thirdPartySaleRepository.getReferenceById(1L)).thenReturn(thirdPartySales);
+     //   when(thirdPartySaleRepository.getReferenceById(1L)).thenReturn(thirdPartySales);
 
         AssuredCustomer assuredCustomer = new AssuredCustomer();
         assuredCustomer.setId(2L);
@@ -690,7 +693,7 @@ class ThirdPartySaleServiceImplTest {
         ClientTiersPayant clientTiersPayant = new ClientTiersPayant();
         clientTiersPayant.setId(1L);
         when(clientTiersPayantRepository.getReferenceById(1L)).thenReturn(clientTiersPayant);
-        when(thirdPartySaleRepository.getReferenceById(2L)).thenThrow(new IllegalArgumentException());
+      //  when(thirdPartySaleRepository.getReferenceById(2L)).thenThrow(new IllegalArgumentException());
         assertThrows(GenericError.class, () -> {
             thirdPartySaleService.addThirdPartySaleLineToSales(dto, 2L);
         });
@@ -731,7 +734,7 @@ class ThirdPartySaleServiceImplTest {
         KeyValue keyValue = new KeyValue(1L, 2L);
         ThirdPartySales thirdPartySales = new ThirdPartySales();
         thirdPartySales.setId(1L);
-        when(thirdPartySaleRepository.getReferenceById(1L)).thenReturn(thirdPartySales);
+       // when(thirdPartySaleRepository.getReferenceById(1L)).thenReturn(thirdPartySales);
         AssuredCustomer assuredCustomer = new AssuredCustomer();
         assuredCustomer.setId(2L);
         when(assuredCustomerRepository.getReferenceById(2L)).thenReturn(assuredCustomer);
@@ -779,7 +782,7 @@ class ThirdPartySaleServiceImplTest {
         ThirdPartySales thirdPartySales = new ThirdPartySales();
         thirdPartySales.setId(1L);
         thirdPartySales.setCustomer(assuredCustomer);
-        when(thirdPartySaleRepository.getReferenceById(1L)).thenReturn(thirdPartySales);
+       // when(thirdPartySaleRepository.getReferenceById(1L)).thenReturn(thirdPartySales);
         when(assuredCustomerRepository.save(any(AssuredCustomer.class))).thenReturn(assuredCustomer);
         thirdPartySaleService.updateCustomerInformation(updateSale);
         verify(assuredCustomerRepository).save(any(AssuredCustomer.class));

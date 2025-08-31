@@ -7,7 +7,7 @@ import com.kobe.warehouse.domain.Fournisseur_;
 import com.kobe.warehouse.domain.OrderLine;
 import com.kobe.warehouse.domain.OrderLine_;
 import com.kobe.warehouse.domain.Produit_;
-import com.kobe.warehouse.domain.User_;
+import com.kobe.warehouse.domain.AppUser_;
 import com.kobe.warehouse.repository.CommandeRepository;
 import com.kobe.warehouse.repository.OrderLineRepository;
 import com.kobe.warehouse.service.FileResourceService;
@@ -160,7 +160,7 @@ public class StockEntryDataServiceImpl extends FileResourceService implements St
         }
         if (Objects.nonNull(deliveryReceiptFilterDTO.getUserId())) {
             predicates.add(
-                cb.or(cb.equal(root.get(OrderLine_.commande).get(Commande_.user).get(User_.id), deliveryReceiptFilterDTO.getUserId()))
+                cb.or(cb.equal(root.get(OrderLine_.commande).get(Commande_.user).get(AppUser_.id), deliveryReceiptFilterDTO.getUserId()))
             );
         }
         if (Objects.nonNull(deliveryReceiptFilterDTO.getFromDate()) && Objects.nonNull(deliveryReceiptFilterDTO.getToDate())) {

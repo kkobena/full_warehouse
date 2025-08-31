@@ -2,7 +2,7 @@ package com.kobe.warehouse.service;
 
 import com.kobe.warehouse.domain.SalePayment;
 import com.kobe.warehouse.domain.Sales;
-import com.kobe.warehouse.domain.User;
+import com.kobe.warehouse.domain.AppUser;
 import com.kobe.warehouse.service.dto.SaleDTO;
 import java.util.List;
 import java.util.Set;
@@ -12,7 +12,7 @@ public interface PaymentService {
 
     List<SalePayment> findAllBySalesId(Long id);
 
-    Set<SalePayment> buildPaymentFromFromPaymentDTO(Sales sales, SaleDTO saleDTO, User user);
+    Set<SalePayment> buildPaymentFromFromPaymentDTO(Sales sales, SaleDTO saleDTO, AppUser user);
 
     void buildPaymentFromFromPaymentDTO(Sales sales, SaleDTO saleDTO);
 

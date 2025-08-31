@@ -17,7 +17,7 @@ public class Substitut implements Serializable {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @ManyToOne(optional = false)
+    @ManyToOne(optional = false,fetch = FetchType.LAZY)
     private Produit produit;
 
     @ManyToOne(optional = false)

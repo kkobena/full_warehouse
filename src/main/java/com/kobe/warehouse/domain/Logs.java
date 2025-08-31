@@ -49,7 +49,7 @@ public class Logs implements Serializable {
 
     @ManyToOne(optional = false)
     @NotNull
-    private User user;
+    private AppUser user;
 
     @NotNull
     @Column(name = "indentity_key", nullable = false)
@@ -97,11 +97,11 @@ public class Logs implements Serializable {
         return this;
     }
 
-    public @NotNull User getUser() {
+    public @NotNull AppUser getUser() {
         return user;
     }
 
-    public Logs setUser(User user) {
+    public Logs setUser(AppUser user) {
         this.user = user;
         return this;
     }

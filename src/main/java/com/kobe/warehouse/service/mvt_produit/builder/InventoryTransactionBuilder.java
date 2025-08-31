@@ -1,6 +1,7 @@
 package com.kobe.warehouse.service.mvt_produit.builder;
 
 import com.kobe.warehouse.domain.Ajustement;
+import com.kobe.warehouse.domain.AppUser;
 import com.kobe.warehouse.domain.Decondition;
 import com.kobe.warehouse.domain.FournisseurProduit;
 import com.kobe.warehouse.domain.InventoryTransaction;
@@ -11,7 +12,6 @@ import com.kobe.warehouse.domain.RetourBonItem;
 import com.kobe.warehouse.domain.SalesLine;
 import com.kobe.warehouse.domain.StoreInventory;
 import com.kobe.warehouse.domain.StoreInventoryLine;
-import com.kobe.warehouse.domain.User;
 import com.kobe.warehouse.domain.enumeration.MouvementProduit;
 import com.kobe.warehouse.domain.enumeration.TypeDeconditionnement;
 
@@ -30,7 +30,7 @@ public class InventoryTransactionBuilder {
                 .setQuantityBefor(salesLine.getInitStock())
                 .setQuantityAfter(salesLine.getAfterStock())
                 .setCostAmount(salesLine.getCostAmount())
-                .setEntityId(salesLine.getId())
+                .setEntityId(salesLine.getId().getId())
                 .setUser(salesLine.getSales().getUser())
                 .setMagasin(salesLine.getSales().getUser().getMagasin())
                 .setRegularUnitPrice(salesLine.getRegularUnitPrice());
@@ -114,7 +114,7 @@ public class InventoryTransactionBuilder {
         }else if (entity instanceof StoreInventoryLine storeInventoryLine) {
             Produit produit = storeInventoryLine.getProduit();
             StoreInventory storeInventory= storeInventoryLine.getStoreInventory();
-            User user=storeInventory.getUser();
+            AppUser user=storeInventory.getUser();
             inventoryTransaction = new InventoryTransaction()
                 .setCreatedAt(storeInventoryLine.getUpdatedAt())
                 .setProduit(produit)

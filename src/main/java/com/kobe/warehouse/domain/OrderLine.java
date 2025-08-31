@@ -19,13 +19,14 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import org.hibernate.annotations.Formula;
+import org.springframework.data.domain.Persistable;
 
 /**
  * A OrderLine.
  */
 @Entity
 @Table(name = "order_line", uniqueConstraints = { @UniqueConstraint(columnNames = { "commande_id", "fournisseur_produit_id" }) })
-public class OrderLine implements Serializable, Cloneable {
+public class OrderLine implements Persistable<SaleId>, Serializable, Cloneable {
 
     @Serial
     private static final long serialVersionUID = 1L;
@@ -34,24 +35,24 @@ public class OrderLine implements Serializable, Cloneable {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(name = "quantity_received", columnDefinition = "int(6) ")
+    @Column(name = "quantity_received")
     private Integer quantityReceived;
 
     @NotNull
-    @Column(name = "init_stock", nullable = false, columnDefinition = "int(6) ")
+    @Column(name = "init_stock", nullable = false)
     private Integer initStock;
 
-    @Column(name = "final_stock", columnDefinition = "int(6) ")
+    @Column(name = "final_stock")
     private Integer finalStock;
 
     @NotNull
-    @Column(name = "quantity_requested", nullable = false, columnDefinition = "int(6) ")
+    @Column(name = "quantity_requested", nullable = false)
     private Integer quantityRequested;
 
-    @Column(name = "quantity_returned", columnDefinition = "int(6) ")
+    @Column(name = "quantity_returned")
     private Integer quantityReturned;
 
-    @Column(name = "discount_amount", nullable = false, columnDefinition = "int(6) default '0'")
+    @Column(name = "discount_amount", nullable = false)
     private int discountAmount = 0;
 
     @Formula("quantity_requested*order_unit_price")
@@ -60,10 +61,10 @@ public class OrderLine implements Serializable, Cloneable {
     @Formula("quantity_requested*order_cost_amount")
     private Integer grossAmount; // montant achat commande
 
-    @Column(name = "net_amount", columnDefinition = "int(8) default '0'")
+    @Column(name = "net_amount")
     private Integer netAmount = 0;
 
-    @Column(name = "tax_amount", columnDefinition = "int(6) default '0'")
+    @Column(name = "tax_amount")
     private Integer taxAmount = 0;
 
     @NotNull
@@ -82,14 +83,14 @@ public class OrderLine implements Serializable, Cloneable {
     private Commande commande;
 
     @NotNull
-    @Column(name = "order_unit_price", nullable = false, columnDefinition = "int(8) ")
+    @Column(name = "order_unit_price", nullable = false)
     private Integer orderUnitPrice; // prix uni commande
 
     @NotNull
-    @Column(name = "order_cost_amount", nullable = false, columnDefinition = "int(8) default '0'")
+    @Column(name = "order_cost_amount", nullable = false)
     private Integer orderCostAmount; // prix d'achat commande
 
-    @Column(name = "free_qty", columnDefinition = "int(4) default '0'")
+    @Column(name = "free_qty")
     private int freeQty;
 
     @ManyToOne(optional = false)

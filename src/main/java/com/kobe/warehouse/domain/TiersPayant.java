@@ -7,9 +7,11 @@ import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
+import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.Index;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
@@ -25,13 +27,17 @@ import java.util.HashSet;
 import java.util.Objects;
 import java.util.Set;
 import org.hibernate.annotations.ColumnDefault;
-import org.hibernate.annotations.Comment;
 import org.hibernate.annotations.JdbcTypeCode;
 import org.hibernate.type.SqlTypes;
 
 @Entity
 @Table(
-    name = "tiers_payant",
+    name = "tiers_payant",  indexes = {
+    @Index(columnList = "full_name", name = "tiers_payant_full_name_index"),
+    @Index(columnList = "name", name = "tiers_payant_name_index"),
+    @Index(columnList = "statut", name = "tiers_payant_statut_index"),
+    @Index(columnList = "categorie", name = "tiers_payant_categorie_index"),
+},
     uniqueConstraints = { @UniqueConstraint(columnNames = { "name" }), @UniqueConstraint(columnNames = { "full_name" }) }
 )
 public class TiersPayant implements Serializable {
@@ -53,7 +59,7 @@ public class TiersPayant implements Serializable {
     @Column(name = "full_name", nullable = false, length = 200)
     private String fullName;
 
-    @Column(name = "nbre_bons_max_sur_fact", columnDefinition = "int(8)")
+    @Column(name = "nbre_bons_max_sur_fact")
     private Integer nbreBons;
 
     @Column(name = "montant_max_sur_fact")
@@ -103,10 +109,10 @@ public class TiersPayant implements Serializable {
     @Column(name = "remise_forfaitaire")
     private int remiseForfaitaire;
 
-    @Column(name = "nbre_bordereau", columnDefinition = "int(6) ")
+    @Column(name = "nbre_bordereau")
     private int nbreBordereaux;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "groupe_tiers_payant_id", referencedColumnName = "id")
     private GroupeTiersPayant groupeTiersPayant;
 
@@ -117,11 +123,11 @@ public class TiersPayant implements Serializable {
     private LocalDateTime updated = LocalDateTime.now();
 
     @NotNull
-    @ManyToOne(optional = false)
-    private User user;
+    @ManyToOne(optional = false, fetch = FetchType.LAZY)
+    private AppUser user;
 
     @JdbcTypeCode(SqlTypes.JSON)
-    @Column(columnDefinition = "json", name = "consommation_json")
+    @Column(columnDefinition = "jsonb", name = "consommation_json")
     private Set<Consommation> consommations = new HashSet<>();
 
     @Column(name = "model_facture", length = 20)
@@ -137,10 +143,10 @@ public class TiersPayant implements Serializable {
     @Column(name = "plafond_absolu_client")
     private boolean plafondAbsoluClient;
 
-    @Comment("Identifiant contribuable")
+
     @Pattern(regexp = "^[a-zA-Z0-9]*$")
     @Column(name = "ncc", length = 100)
-    private String ncc;
+    private String ncc;//Identifiant contribuable
 
     @Transient
     private String modelFilePath;
@@ -354,11 +360,11 @@ public class TiersPayant implements Serializable {
         return this;
     }
 
-    public User getUser() {
+    public AppUser getUser() {
         return user;
     }
 
-    public TiersPayant setUser(User user) {
+    public TiersPayant setUser(AppUser user) {
         this.user = user;
         return this;
     }

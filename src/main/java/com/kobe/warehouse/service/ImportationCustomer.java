@@ -2,11 +2,11 @@ package com.kobe.warehouse.service;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.kobe.warehouse.domain.AppUser;
 import com.kobe.warehouse.domain.AssuredCustomer;
 import com.kobe.warehouse.domain.ClientTiersPayant;
 import com.kobe.warehouse.domain.Importation;
 import com.kobe.warehouse.domain.UninsuredCustomer;
-import com.kobe.warehouse.domain.User;
 import com.kobe.warehouse.domain.enumeration.ImportationStatus;
 import com.kobe.warehouse.domain.enumeration.ImportationType;
 import com.kobe.warehouse.domain.enumeration.Status;
@@ -65,7 +65,7 @@ public class ImportationCustomer {
     public ResponseDTO updateStocFromJSON(InputStream input) throws IOException {
         ResponseDTO response = new ResponseDTO();
         ObjectMapper mapper = new ObjectMapper();
-        User user = this.storageService.getUserFormImport();
+        AppUser user = this.storageService.getUserFormImport();
         AtomicInteger errorSize = new AtomicInteger(0);
         AtomicInteger size = new AtomicInteger(0);
         List<CustomerDTO> list = mapper.readValue(input, new TypeReference<>() {});
@@ -201,7 +201,7 @@ public class ImportationCustomer {
         });
     }
 
-    private Importation importation(User user) {
+    private Importation importation(AppUser user) {
         Importation importation = new Importation();
         importation.setImportationStatus(ImportationStatus.PROCESSING);
         importation.setImportationType(ImportationType.CLIENTS);

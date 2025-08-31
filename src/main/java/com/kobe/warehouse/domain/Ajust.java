@@ -26,7 +26,7 @@ public class Ajust implements Serializable {
 
     @ManyToOne(optional = false)
     @NotNull
-    private User user;
+    private AppUser user;
 
     @NotNull
     @Enumerated(EnumType.STRING)
@@ -86,11 +86,11 @@ public class Ajust implements Serializable {
         this.statut = statut;
     }
 
-    public @NotNull User getUser() {
+    public @NotNull AppUser getUser() {
         return user;
     }
 
-    public void setUser(User user) {
+    public void setUser(AppUser user) {
         this.user = user;
     }
 

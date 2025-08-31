@@ -6,14 +6,17 @@
 
 logging:
   level:
-    org.hibernate.SQL: DEBUG
-    org.hibernate.type.descriptor.sql.BasicBinder: DEBUG
     ROOT: DEBUG
+    org.hibernate.SQL: DEBUG           # Affiche toutes les requêtes SQL générées
+    org.hibernate.type.descriptor.sql.BasicBinder: TRACE  # Affiche les valeurs des paramètres liés
+    org.springframework: INFO
     com.kobe.warehouse: DEBUG
     javax:
       management:
         remote:
           rmi: OFF
+
+
 
 spring:
   devtools:
@@ -31,22 +34,24 @@ spring:
     serialization:
       indent-output: true
   datasource:
-    driver-class-name: com.mysql.cj.jdbc.Driver
+    driver-class-name: org.postgresql.Driver
     type: com.zaxxer.hikari.HikariDataSource
-    url: jdbc:mysql://localhost:33010/warehouse?useLegacyDatetimeCode=false&serverTimezone=${user.timezone}&noAccessToProcedureBodies=true
-    #    username: warehouse
-    #    password: warehouse2802
+    url: jdbc:postgresql://localhost:5432/warehouse
     username: warehouse
     password: warehouse2802
     hikari:
       poolName: Hikari
       auto-commit: false
-      data-source-properties:
-        cachePrepStmts: true
-        prepStmtCacheSize: 250
-        prepStmtCacheSqlLimit: 2048
-        useServerPrepStmts: true
-        driverClassName: com.mysql.cj.jdbc.Driver
+      maximum-pool-size: 10
+      minimum-idle: 2
+      idle-timeout: 30000
+      max-lifetime: 1800000
+      connection-timeout: 30000
+  jpa:
+    database-platform: org.hibernate.dialect.PostgreSQLDialect
+    show-sql: true
+    hibernate:
+      ddl-auto: none
   threads:
     virtual:
       enabled: true

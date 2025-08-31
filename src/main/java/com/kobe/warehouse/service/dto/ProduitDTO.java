@@ -4,7 +4,6 @@ import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.fasterxml.jackson.datatype.jsr310.deser.LocalDateDeserializer;
 import com.fasterxml.jackson.datatype.jsr310.ser.LocalDateSerializer;
-import com.kobe.warehouse.domain.DailyStock;
 import com.kobe.warehouse.domain.HistoriqueProduitInventaire;
 import com.kobe.warehouse.domain.ParcoursProduit;
 import com.kobe.warehouse.domain.enumeration.TypeProduit;
@@ -85,7 +84,7 @@ public class ProduitDTO {
     private int saleOfPointVirtualStock;
     private String expirationDate;
     private String displayField;
-    private List<DailyStock> dailyStocks = new ArrayList<>();
+
     private TableauDTO tableau;
     private int unitPrice;
     private String remiseCode;
@@ -219,10 +218,6 @@ public class ProduitDTO {
         return this;
     }
 
-    public ProduitDTO dailyStocks(List<DailyStock> dailyStocks) {
-        this.dailyStocks = dailyStocks;
-        return this;
-    }
 
     public String getCodeCip() {
         return codeCip;
@@ -782,13 +777,7 @@ public class ProduitDTO {
         return this;
     }
 
-    public List<DailyStock> getDailyStocks() {
-        return dailyStocks;
-    }
 
-    public void setDailyStocks(List<DailyStock> dailyStocks) {
-        this.dailyStocks = dailyStocks;
-    }
 
     public TableauDTO getTableau() {
         return tableau;

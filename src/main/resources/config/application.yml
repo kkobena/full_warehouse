@@ -1,4 +1,12 @@
+
+flyway:
+  enabled: true
+  schemas: warehouse
+  table: warehouse_history
+
+
 spring:
+
   application:
     name: warehouse
   profiles:
@@ -13,29 +21,30 @@ spring:
       repositories:
         bootstrap-mode: deferred
   jpa:
-    database-platform: org.hibernate.dialect.MariaDBDialect
+    database-platform: org.hibernate.dialect.PostgreSQLDialect
     open-in-view: false
     properties:
       hibernate:
         format_sql: false
-        generate_statistics: true
-        dialect: org.hibernate.dialect.MariaDBDialect
+        generate_statistics: false
+        dialect: org.hibernate.dialect.PostgreSQLDialect
+        default_schema: warehouse
       hibernate.jdbc.time_zone: UTC
       hibernate.timezone.default_storage: NORMALIZE
       hibernate.id.new_generator_mappings: true
       hibernate.connection.provider_disables_autocommit: true
       hibernate.cache.use_second_level_cache: false
       hibernate.cache.use_query_cache: false
-      hibernate.generate_statistics: true
-      # modify batch size as necessary
-      hibernate.jdbc.batch_size: 25
+      hibernate.jdbc.batch_size: 50
       hibernate.order_inserts: true
       hibernate.order_updates: true
       hibernate.query.fail_on_pagination_over_collection_fetch: true
       hibernate.query.in_clause_parameter_padding: true
+      cache.region.factory_class: org.hibernate.cache.jcache.JCacheRegionFactory
+
 
     hibernate:
-      ddl-auto: update
+      ddl-auto: validate
       naming:
         physical-strategy: org.hibernate.boot.model.naming.PhysicalNamingStrategyStandardImpl
         implicit-strategy: org.hibernate.boot.model.naming.ImplicitNamingStrategyJpaCompliantImpl
@@ -59,19 +68,8 @@ spring:
   thymeleaf:
     mode: HTML
 
-  flyway:
-    enabled: false
-    create-schemas: false
-    driver-class-name: com.mysql.cj.jdbc.Driver
-    password: warehouse2802
-    user: warehouse
-    installed-by: warehouse
-    schemas: warehouse
-    community-db-support-enabled: true
-    detect-encoding: true
-    baseline-description: 'initilize database'
-    baseline-on-migrate: true
-    table: warehouse_history
+
+
   mail:
     host: smtp.gmail.com
     port: 587

@@ -5,7 +5,7 @@ import com.kobe.warehouse.domain.GroupeTiersPayant;
 import com.kobe.warehouse.domain.InvoicePayment;
 import com.kobe.warehouse.domain.PaymentMode;
 import com.kobe.warehouse.domain.TiersPayant;
-import com.kobe.warehouse.domain.User;
+import com.kobe.warehouse.domain.AppUser;
 import com.kobe.warehouse.service.utils.DateUtil;
 import com.kobe.warehouse.service.utils.NumberUtil;
 import java.util.ArrayList;
@@ -56,7 +56,7 @@ public class InvoicePaymentReceiptDTO {
         PaymentMode mode = invoicePayment.getPaymentMode();
         this.paymentMode = mode.getLibelle();
         this.paymentModeCode = mode.getCode();
-        User u = invoicePayment.getCashRegister().getUser();
+        AppUser u = invoicePayment.getCashRegister().getUser();
         this.user = u.getFirstName() + " " + u.getLastName();
         var montantR = invoicePayment.getExpectedAmount() - invoicePayment.getPaidAmount();
         if (montantR > 0) {

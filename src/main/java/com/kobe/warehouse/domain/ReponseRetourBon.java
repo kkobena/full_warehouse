@@ -39,7 +39,7 @@ public class ReponseRetourBon implements Serializable {
 
     @ManyToOne(optional = false)
     @NotNull
-    private User user;
+    private AppUser user;
 
     @ManyToOne(optional = false)
     @NotNull
@@ -85,11 +85,11 @@ public class ReponseRetourBon implements Serializable {
         return this;
     }
 
-    public @NotNull User getUser() {
+    public @NotNull AppUser getUser() {
         return user;
     }
 
-    public ReponseRetourBon setUser(@NotNull User user) {
+    public ReponseRetourBon setUser(@NotNull AppUser user) {
         this.user = user;
         return this;
     }

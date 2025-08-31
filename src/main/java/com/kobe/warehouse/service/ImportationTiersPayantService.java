@@ -2,10 +2,10 @@ package com.kobe.warehouse.service;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.kobe.warehouse.domain.AppUser;
 import com.kobe.warehouse.domain.GroupeTiersPayant;
 import com.kobe.warehouse.domain.Importation;
 import com.kobe.warehouse.domain.TiersPayant;
-import com.kobe.warehouse.domain.User;
 import com.kobe.warehouse.domain.enumeration.ImportationStatus;
 import com.kobe.warehouse.domain.enumeration.ImportationType;
 import com.kobe.warehouse.repository.ImportationRepository;
@@ -53,7 +53,7 @@ public class ImportationTiersPayantService implements TiersPayantMapper {
     public ResponseDTO updateStocFromJSON(InputStream input) throws IOException {
         ResponseDTO response = new ResponseDTO();
         ObjectMapper mapper = new ObjectMapper();
-        User user = this.storageService.getUserFormImport();
+        AppUser user = this.storageService.getUserFormImport();
         AtomicInteger errorSize = new AtomicInteger(0);
         AtomicInteger size = new AtomicInteger(0);
         List<TiersPayantDto> list = mapper.readValue(input, new TypeReference<>() {});
@@ -107,7 +107,7 @@ public class ImportationTiersPayantService implements TiersPayantMapper {
         return importationRepository.findFirstByImportationTypeOrderByCreatedDesc(importationType);
     }
 
-    private void processImportation(final TiersPayantDto p, AtomicInteger errorSize, AtomicInteger size, User user) {
+    private void processImportation(final TiersPayantDto p, AtomicInteger errorSize, AtomicInteger size, AppUser user) {
         transactionTemplate.execute(
             new TransactionCallbackWithoutResult() {
                 @Override
@@ -130,7 +130,7 @@ public class ImportationTiersPayantService implements TiersPayantMapper {
         );
     }
 
-    private Importation importation(User user) {
+    private Importation importation(AppUser user) {
         Importation importation = new Importation();
         importation.setImportationStatus(ImportationStatus.PROCESSING);
         importation.setImportationType(ImportationType.TIERS_PAYANT);

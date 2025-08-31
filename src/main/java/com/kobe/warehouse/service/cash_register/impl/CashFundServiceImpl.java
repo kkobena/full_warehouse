@@ -1,8 +1,8 @@
 package com.kobe.warehouse.service.cash_register.impl;
 
+import com.kobe.warehouse.domain.AppUser;
 import com.kobe.warehouse.domain.CashFund;
 import com.kobe.warehouse.domain.CashRegister;
-import com.kobe.warehouse.domain.User;
 import com.kobe.warehouse.domain.enumeration.CashFundStatut;
 import com.kobe.warehouse.domain.enumeration.CashFundType;
 import com.kobe.warehouse.domain.enumeration.CashRegisterStatut;
@@ -22,21 +22,21 @@ public class CashFundServiceImpl implements CashFundService {
     }
 
     @Override
-    public CashFund allocateCashFund(Integer amount, CashFundType cashFundType, User cashRegisterOwner, User user) {
+    public CashFund allocateCashFund(Integer amount, CashFundType cashFundType, AppUser cashRegisterOwner, AppUser user) {
         CashFund cashFund = createCashFund(amount, cashFundType, cashRegisterOwner, user, CashFundStatut.PENDING);
         return cashFundRepository.save(cashFund);
     }
 
     @Override
-    public CashFund initCashFund(int amount, User user) {
+    public CashFund initCashFund(int amount, AppUser user) {
         return createCashFund(amount, CashFundType.MANUAL, user, user, CashFundStatut.VALIDETED);
     }
 
     private CashFund createCashFund(
         int amount,
         CashFundType cashFundType,
-        User cashRegisterOwner,
-        User user,
+        AppUser cashRegisterOwner,
+        AppUser user,
         CashFundStatut cashFundStatut
     ) {
         CashFund cashFund = new CashFund();

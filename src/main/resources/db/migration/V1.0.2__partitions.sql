@@ -1,0 +1,430 @@
+--
+-- create table sales_archives
+-- (
+--   dtype                           varchar(31)  not null
+--     constraint sales_archives_dtype_check
+--       check ((dtype)::text = ANY
+--              ((ARRAY ['Sales'::character varying, 'CashSale'::character varying, 'ThirdPartySales'::character varying, 'VenteDepot'::character varying, 'VenteDepotAgree'::character varying])::text[])),
+--   id BIGINT NOT NULL,
+--   amount_to_be_paid               integer      not null,
+--   amount_to_be_taken_into_account integer      not null,
+--   canceled                        boolean      not null,
+--   ca                              varchar(255) not null
+--     constraint sales_archives_ca_check
+--       check ((ca)::text = ANY
+--              ((ARRAY ['CA'::character varying, 'CA_DEPOT'::character varying, 'CALLEBASE'::character varying, 'TO_IGNORE'::character varying])::text[])),
+--   commentaire                     varchar(255),
+--   copy                            boolean      not null,
+--   created_at                      timestamp(6) not null,
+--   differe                         boolean      not null,
+--   discount_amount                 integer      not null,
+--   effective_update_date           timestamp(6) not null,
+--   imported                        boolean      not null,
+--   monnaie                         integer      not null,
+--   nature_vente                    varchar(15)  not null
+--     constraint sales_archives_nature_vente_check
+--       check ((nature_vente)::text = ANY
+--              ((ARRAY ['COMPTANT'::character varying, 'ASSURANCE'::character varying, 'CARNET'::character varying])::text[])),
+--   number_transaction              varchar(255) not null,
+--   origine_vente                   varchar(255) not null
+--     constraint sales_archives_origine_vente_check
+--       check ((origine_vente)::text = ANY
+--              ((ARRAY ['DIRECT'::character varying, 'DIVIS'::character varying, 'IMPORTE'::character varying])::text[])),
+--   payment_status                  varchar(15)  not null
+--     constraint ales_archives_payment_status_check
+--       check ((payment_status)::text = ANY
+--              ((ARRAY ['PAYE'::character varying, 'IMPAYE'::character varying, 'ALL'::character varying])::text[])),
+--   payroll_amount                  integer      not null,
+--   rest_to_pay                     integer      not null,
+--   sales_amount                    integer      not null,
+--   statut                          varchar(255) not null
+--     constraint sales_archives_statut_check
+--       check ((statut)::text = ANY
+--              ((ARRAY [ 'CLOSED'::character varying, 'DESABLED'::character varying, 'CANCELED'::character varying, 'REMOVE'::character varying])::text[])),
+--   to_ignore                       boolean      not null,
+--   tvaembeded                      varchar(100),
+--   type_prescription               varchar(15)  not null
+--     constraint sales_archives_type_prescription_check
+--       check ((type_prescription)::text = ANY
+--              ((ARRAY ['PRESCRIPTION'::character varying, 'CONSEIL'::character varying, 'DEPOT'::character varying])::text[])),
+--   updated_at                      timestamp(6) not null,
+--   has_price_option                boolean default false,
+--   num_bon                         varchar(50),
+--   part_assure                     integer default 0,
+--   part_tiers_payant               integer default 0,
+--   caisse_id                       bigint,
+--   caissier_id                     bigint       not null,
+--   canceledsale_id                 bigint,
+--   cash_register_id                bigint,
+--   customer_id                     bigint,
+--   lastcaisse_id                   bigint,
+--   lastuseredit_id                 bigint       not null,
+--   magasin_id                      bigint       not null,
+--   remise_id                       bigint,
+--   seller_id                       bigint       not null,
+--   user_id                         bigint       not null,
+--   account_id                      bigint,
+--   ayant_droit_id                  bigint,
+--   depot_id                        bigint,
+--   depot_agree_id                  bigint,
+--   constraint sales_archives_check
+--     check (((dtype)::text <> 'ThirdPartySales'::text) OR (has_price_option IS NOT NULL)),
+--   PRIMARY KEY (id, updated_at)
+-- ) PARTITION BY RANGE (updated_at);
+--
+-- create index sales_achives_dtype_index
+--   on sales_archives (dtype);
+--
+-- create index sales_achives_statut_index
+--   on sales_archives (statut);
+--
+-- create index sales_achives_transaction_index
+--   on sales_archives (number_transaction);
+--
+-- create index sales_achives_ca_index
+--   on sales_archives (ca);
+--
+-- create index sales_achives_imported_index
+--   on sales_archives (imported);
+--
+-- create index sales_achives_to_ignore_index
+--   on sales_archives (to_ignore);
+--
+-- create index sales_achives_payment_status_index
+--   on sales_archives (payment_status);
+--
+-- create table facture_tiers_payant_archives
+-- (
+--   id    BIGINT NOT NULL,
+--
+--   created                        timestamp(6) not null,
+--   debutperiode                   date,
+--   factureprovisoire              boolean      not null,
+--   finperiode                     date,
+--   montant_regle                  integer,
+--   num_facture                    varchar(20)  not null
+-- ,
+--   remiseforfetaire               integer      not null,
+--   statut                         varchar(255) not null
+--     constraint facture_archive_statut_check
+--       check ((statut)::text = ANY
+--              ((ARRAY ['PAID'::character varying, 'NOT_PAID'::character varying, 'PARTIALLY_PAID'::character varying])::text[])),
+--   updated                        timestamp(6),
+--   groupe_facture_tiers_payant_id bigint
+--     ,
+--   groupe_tiers_payant_id         bigint
+--     ,
+--   tiers_payant_id                bigint
+--    ,
+--   user_id                        bigint       not null,
+--   PRIMARY KEY (id, created)
+--
+-- )PARTITION BY RANGE (created);
+--
+-- create index archives_num_facture_index
+--   on facture_tiers_payant_archives (num_facture);
+--
+--
+--
+-- create table commande_achives
+-- (
+--   id            BIGINT NOT NULL,
+--
+--   created_at                     timestamp(6) not null,
+--   discount_amount                integer default 0,
+--   final_amount                   integer,
+--   gross_amount                   integer      not null,
+--   has_been_submitted_to_pharmaml boolean default false,
+--   ht_amount                      integer,
+--   order_amount                   integer,
+--   order_reference                varchar(20),
+--   order_status                   varchar(10)  not null
+--     constraint commande_archives_status_check
+--       check ((order_status)::text = ANY
+--              ((ARRAY [ 'CLOSED'::character varying])::text[])),
+--   paiment_status                 varchar(255) not null
+--     constraint commande_paiment_status_check
+--       check ((paiment_status)::text = ANY
+--              ((ARRAY ['UNPAID'::character varying, 'PAID'::character varying, 'NOT_SOLD'::character varying])::text[])),
+--   receipt_date                   date,
+--   receipt_reference              varchar(20),
+--   tax_amount                     integer,
+--   receipt_type                   varchar(255) not null
+--     constraint commande_achives_receipt_type_check
+--       check ((receipt_type)::text = ANY
+--              ((ARRAY ['DIRECT'::character varying, 'ORDER'::character varying])::text[])),
+--   updated_at                     timestamp(6) not null,
+--   fournisseur_id                 bigint       not null
+--    ,
+--   user_id                        bigint       not null,
+--   PRIMARY KEY (id, updated_at)
+-- ) PARTITION BY RANGE (updated_at);
+-- create index orderachives_status_index
+--   on commande_achives (order_status);
+--
+-- create index receiptachives_paiment_status_index
+--   on commande_achives (paiment_status);
+--
+-- create index receiptachives_reference_index
+--   on commande_achives (receipt_reference);
+--
+--
+-- create table mvt_produit_archives
+-- (
+--   id            BIGINT NOT NULL,
+--
+--   cost_amount        integer      not null,
+--   created_at         timestamp(6) not null,
+--   entity_id          bigint       not null,
+--   mouvemen_type      varchar(255) not null
+--     constraint produit_mouvemen_type_check
+--       check ((mouvemen_type)::text = ANY
+--              ((ARRAY ['SALE'::character varying, 'DELETE_SALE'::character varying, 'CANCEL_SALE'::character varying, 'AJUSTEMENT_IN'::character varying, 'AJUSTEMENT_OUT'::character varying, 'INVENTAIRE'::character varying, 'COMMANDE'::character varying, 'DECONDTION_IN'::character varying, 'DECONDTION_OUT'::character varying, 'MOUVEMENT_STOCK_IN'::character varying, 'MOUVEMENT_STOCK_OUT'::character varying, 'ENTREE_STOCK'::character varying, 'RETRAIT_PERIME'::character varying, 'RETOUR_DEPOT'::character varying, 'RETOUR_FOURNISSEUR'::character varying])::text[])),
+--   quantity           integer      not null,
+--   quantity_after     integer      not null,
+--   quantity_befor     integer      not null,
+--   regular_unit_price integer      not null,
+--   magasin_id         bigint       not null
+--    ,
+--   produit_id         bigint       not null
+--    ,
+--   user_id            bigint       not null
+--     ,
+-- primary key (id, created_at)
+-- ) PARTITION BY RANGE (created_at);
+--
+-- create index mouvement_type_index
+--   on mvt_produit_archives (mouvemen_type);
+--
+--
+-- create table stock_produit_achives
+-- (
+--   id               bigint  not null,
+--   rev              integer not null,
+--   revtype          smallint,
+--   created_at       timestamp(6),
+--   last_modified_by varchar(50),
+--   qty_stock        integer,
+--   qty_ug           integer,
+--   qty_virtual      integer,
+--   updated_at       timestamp(6),
+--   produit_id       bigint,
+--   storage_id       bigint,
+--   primary key (id, updated_at)
+-- ) PARTITION BY RANGE (updated_at);
+--
+--
+--
+-- create table sales_line_archives
+-- (
+--   id                              bigint,
+--
+--   after_stock                     integer,
+--   amount_to_be_taken_into_account integer           not null,
+--   calculation_base_price          integer,
+--   cost_amount                     integer default 0 not null,
+--   created_at                      timestamp(6)      not null,
+--   discount_amount                 integer default 0 not null,
+--   discount_unit_price             integer default 0 not null,
+--   effective_update_date           timestamp(6)      not null,
+--   init_stock                      integer,
+--   lots                            jsonb,
+--   net_unit_price                  integer default 0 not null,
+--   quantity_avoir                  integer default 0 not null,
+--   quantity_requested              integer           not null,
+--   quantity_sold                   integer           not null,
+--   quantity_ug                     integer default 0 not null,
+--   rates                           jsonb,
+--   regular_unit_price              integer default 0 not null,
+--   sales_amount                    integer default 0 not null,
+--   taux_remise                     real,
+--   tax_value                       integer default 0 not null,
+--   to_ignore                       boolean           not null,
+--   updated_at                      timestamp(6)      not null,
+--   produit_id                      bigint            not null,
+--   sales_id                        bigint            not null,
+--   primary key (id, updated_at)
+-- ) PARTITION BY RANGE (updated_at);
+--
+-- create table order_line_archives
+-- (
+--   id                              bigint,
+--   created_at             timestamp(6) not null,
+--   date_peremption        date,
+--   discount_amount        integer      not null,
+--   final_stock            integer,
+--   free_qty               integer,
+--   init_stock             integer      not null,
+--   net_amount             integer,
+--   order_cost_amount      integer      not null,
+--   order_unit_price       integer      not null,
+--   provisional_code       boolean,
+--   quantity_received      integer,
+--   quantity_requested     integer      not null,
+--   quantity_returned      integer,
+--   receipt_date           timestamp(6),
+--   tax_amount             integer,
+--   is_updated             boolean,
+--   updated_at             timestamp(6) not null,
+--   commande_id            bigint       not null,
+--   fournisseur_produit_id bigint       not null,
+--   tva_id                 bigint,
+--   primary key (id, updated_at)
+-- ) PARTITION BY RANGE (updated_at);
+--
+--
+-- create table third_party_sale_line_archives
+-- (
+--   id                      bigint ,
+--   created_at              timestamp(6) not null,
+--   effective_update_date   timestamp(6) not null,
+--   montant                 integer      not null,
+--   montant_regle           integer,
+--   num_bon                 varchar(50),
+--   statut                  varchar(255) not null
+--     constraint tline_statut_check
+--       check ((statut)::text = ANY
+--              ((ARRAY ['ACTIF'::character varying, 'HALF_PAID'::character varying, 'DELETE'::character varying, 'CLOSED'::character varying, 'PAID'::character varying])::text[])),
+--   taux                    smallint     not null,
+--   updated_at              timestamp(6) not null,
+--   client_tiers_payant_id  bigint       not null
+--     ,
+--   facture_tiers_payant_id bigint
+--     ,
+--   sale_id                 bigint       not null
+--  ,
+-- primary key (id, updated_at)
+-- ) PARTITION BY RANGE (updated_at);
+--
+--
+-- create table payment_transaction_archives
+-- (
+--   dtype                  varchar(31)  not null
+--     constraint payment_dtype_check
+--       check ((dtype)::text = ANY
+--              ((ARRAY ['PaymentTransaction'::character varying, 'AccountTransaction'::character varying, 'DefaultPayment'::character varying, 'DifferePayment'::character varying, 'InvoicePayment'::character varying, 'PaymentFournisseur'::character varying, 'SalePayment'::character varying])::text[])),
+--   id                     bigint ,
+--   categorie_ca           varchar(255) not null
+--     constraint payment_categorie_ca_check
+--       check ((categorie_ca)::text = ANY
+--              ((ARRAY ['CA'::character varying, 'CA_DEPOT'::character varying, 'CALLEBASE'::character varying, 'TO_IGNORE'::character varying])::text[])),
+--   commentaire            varchar(255),
+--   created_at             timestamp(6) not null,
+--   credit                 boolean      not null,
+--   expected_amount        integer      not null,
+--   montant_verse          integer      not null,
+--   paid_amount            integer      not null,
+--   reel_amount            integer      not null,
+--   transaction_date       date         not null,
+--   type_transaction       varchar(255) not null
+--     constraint payment_type_transaction_check
+--       check ((type_transaction)::text = ANY
+--              ((ARRAY ['CASH_SALE'::character varying, 'CREDIT_SALE'::character varying, 'VENTES_DEPOTS'::character varying, 'VENTES_DEPOTS_AGREE'::character varying, 'REGLEMENT_DIFFERE'::character varying, 'REGLEMENT_TIERS_PAYANT'::character varying, 'SORTIE_CAISSE'::character varying, 'ENTREE_CAISSE'::character varying, 'FONDS_CAISSE'::character varying, 'REGLMENT_FOURNISSEUR'::character varying, 'CAUTION'::character varying])::text[])),
+--   grouped                boolean,
+--   part_assure            integer default 0,
+--   part_tiers_payant      integer default 0,
+--   banque_id              bigint
+-- ,
+--   cash_register_id       bigint       not null
+--  ,
+--   payment_mode_code      varchar(50)  not null
+-- ,
+--   account_id             bigint
+-- ,
+--   differecustomer_id     bigint
+-- ,
+--   facture_tierspayant_id bigint
+--  ,
+--   parent_id              bigint
+--  ,
+--   commande_id            bigint
+--   ,
+--   sale_id                bigint
+-- ,
+--   constraint payment_transaction_check
+--     check (((dtype)::text <> 'InvoicePayment'::text) OR (grouped IS NOT NULL)),
+--   primary key (id, created_at)
+-- ) PARTITION BY RANGE (created_at);
+
+-- CREATE TABLE payment_transaction_y2025 PARTITION OF payment_transaction_archives FOR VALUES FROM ('2025-01-01') TO ('2026-01-01');
+-- CREATE TABLE payment_transaction_y2026 PARTITION OF payment_transaction_archives FOR VALUES FROM ('2026-01-01') TO ('2027-01-01');
+-- CREATE TABLE payment_transaction_y2027 PARTITION OF payment_transaction_archives FOR VALUES FROM ('2027-01-01') TO ('2028-01-01');
+-- CREATE TABLE payment_transaction_y2028 PARTITION OF payment_transaction_archives FOR VALUES FROM ('2028-01-01') TO ('2029-01-01');
+-- CREATE TABLE payment_transaction_y2029 PARTITION OF payment_transaction_archives FOR VALUES FROM ('2029-01-01') TO ('2030-01-01');
+--
+
+
+
+-- CREATE TABLE third_party_sale_line_y2025 PARTITION OF third_party_sale_line_archives FOR VALUES FROM ('2025-01-01') TO ('2026-01-01');
+-- CREATE TABLE third_party_sale_line_y2026 PARTITION OF third_party_sale_line_archives FOR VALUES FROM ('2026-01-01') TO ('2027-01-01');
+-- CREATE TABLE third_party_sale_line_y2027 PARTITION OF third_party_sale_line_archives FOR VALUES FROM ('2027-01-01') TO ('2028-01-01');
+-- CREATE TABLE third_party_sale_line_y2028 PARTITION OF third_party_sale_line_archives FOR VALUES FROM ('2028-01-01') TO ('2029-01-01');
+-- CREATE TABLE third_party_sale_line_y2029 PARTITION OF third_party_sale_line_archives FOR VALUES FROM ('2029-01-01') TO ('2030-01-01');
+--
+--
+
+-- CREATE TABLE order_line_y2025 PARTITION OF order_line_archives FOR VALUES FROM ('2025-01-01') TO ('2026-01-01');
+-- CREATE TABLE order_line_y2026 PARTITION OF order_line_archives FOR VALUES FROM ('2026-01-01') TO ('2027-01-01');
+-- CREATE TABLE order_line_y2027 PARTITION OF order_line_archives FOR VALUES FROM ('2027-01-01') TO ('2028-01-01');
+-- CREATE TABLE order_line_y2028 PARTITION OF order_line_archives FOR VALUES FROM ('2028-01-01') TO ('2029-01-01');
+-- CREATE TABLE order_line_y2029 PARTITION OF order_line_archives FOR VALUES FROM ('2029-01-01') TO ('2030-01-01');
+--
+
+
+-- CREATE TABLE sales_line_y2025 PARTITION OF sales_line FOR VALUES FROM ('2025-01-01') TO ('2026-01-01');
+-- CREATE TABLE sales_line_y2026 PARTITION OF sales_line FOR VALUES FROM ('2026-01-01') TO ('2027-01-01');
+-- CREATE TABLE sales_line_y2027 PARTITION OF sales_line FOR VALUES FROM ('2027-01-01') TO ('2028-01-01');
+-- CREATE TABLE sales_line_y2028 PARTITION OF sales_line FOR VALUES FROM ('2028-01-01') TO ('2029-01-01');
+-- CREATE TABLE sales_line_y2029 PARTITION OF sales_line FOR VALUES FROM ('2029-01-01') TO ('2030-01-01');
+
+-- test
+CREATE TABLE sales_line_y30 PARTITION OF sales_line FOR VALUES FROM ('2025-08-30') TO ('2026-08-31');
+CREATE TABLE sales_line_y31 PARTITION OF sales_line FOR VALUES FROM ('2026-08-31') TO ('2026-09-01');
+CREATE TABLE sales_line_y32 PARTITION OF sales_line FOR VALUES FROM ('2026-09-01') TO ('2026-09-02');
+
+
+CREATE TABLE sales_y30 PARTITION OF sales FOR VALUES FROM ('2025-08-30') TO ('2026-08-31');
+CREATE TABLE sales_y31 PARTITION OF sales FOR VALUES FROM ('2026-08-31') TO ('2026-09-01');
+CREATE TABLE sales_y32 PARTITION OF sales FOR VALUES FROM ('2026-09-01') TO ('2026-09-02');
+
+
+
+
+--PARTITION BY RANGE (updated_at)
+-- CREATE TABLE sales_y2025 PARTITION OF sales FOR VALUES FROM ('2025-01-01') TO ('2026-01-01');
+-- CREATE TABLE sales_y2026 PARTITION OF sales FOR VALUES FROM ('2026-01-01') TO ('2027-01-01');
+-- CREATE TABLE sales_y2027 PARTITION OF sales FOR VALUES FROM ('2027-01-01') TO ('2028-01-01');
+-- CREATE TABLE sales_y2028 PARTITION OF sales FOR VALUES FROM ('2028-01-01') TO ('2029-01-01');
+-- CREATE TABLE sales_y2029 PARTITION OF sales FOR VALUES FROM ('2029-01-01') TO ('2030-01-01');
+
+-- PARTITION BY RANGE (updated_at)
+-- CREATE TABLE commande_y2025 PARTITION OF commande_achives FOR VALUES FROM ('2025-01-01') TO ('2026-01-01');
+-- CREATE TABLE commande_y2026 PARTITION OF commande_achives FOR VALUES FROM ('2026-01-01') TO ('2027-01-01');
+-- CREATE TABLE commande_y2027 PARTITION OF commande_achives FOR VALUES FROM ('2027-01-01') TO ('2028-01-01');
+-- CREATE TABLE commande_y2028 PARTITION OF commande_achives FOR VALUES FROM ('2028-01-01') TO ('2029-01-01');
+-- CREATE TABLE commande_y2029 PARTITION OF commande_achives FOR VALUES FROM ('2029-01-01') TO ('2030-01-01');
+
+
+-- facture_tiers_payant PARTITION BY RANGE (created)
+-- CREATE TABLE facture_tiers_payant_y2025 PARTITION OF facture_tiers_payant_archives FOR VALUES FROM ('2025-01-01') TO ('2026-01-01');
+-- CREATE TABLE facture_tiers_payant_y2026 PARTITION OF facture_tiers_payant_archives FOR VALUES FROM ('2026-01-01') TO ('2027-01-01');
+-- CREATE TABLE facture_tiers_payant_y2027 PARTITION OF facture_tiers_payant_archives FOR VALUES FROM ('2027-01-01') TO ('2028-01-01');
+-- CREATE TABLE facture_tiers_payant_y2028 PARTITION OF facture_tiers_payant_archives FOR VALUES FROM ('2028-01-01') TO ('2029-01-01');
+-- CREATE TABLE facture_tiers_payant_y2029 PARTITION OF facture_tiers_payant_archives FOR VALUES FROM ('2029-01-01') TO ('2030-01-01');
+
+
+-- inventory_transaction PARTITION BY RANGE (created_at)
+-- CREATE TABLE inventory_transaction_y2025 PARTITION OF mvt_produit_archives FOR VALUES FROM ('2025-01-01') TO ('2026-01-01');
+-- CREATE TABLE inventory_transaction_y2026 PARTITION OF mvt_produit_archives FOR VALUES FROM ('2026-01-01') TO ('2027-01-01');
+-- CREATE TABLE inventory_transaction_y2027 PARTITION OF mvt_produit_archives FOR VALUES FROM ('2027-01-01') TO ('2028-01-01');
+-- CREATE TABLE inventory_transaction_y2028 PARTITION OF mvt_produit_archives FOR VALUES FROM ('2028-01-01') TO ('2029-01-01');
+-- CREATE TABLE inventory_transaction_y2029 PARTITION OF mvt_produit_archives FOR VALUES FROM ('2029-01-01') TO ('2030-01-01');
+
+-- stock_produit_aud PARTITION BY RANGE (updated_at)
+-- CREATE TABLE stock_produit_aud_y2025 PARTITION OF stock_produit_achives FOR VALUES FROM ('2025-01-01') TO ('2026-01-01');
+-- CREATE TABLE stock_produit_aud_y2026 PARTITION OF stock_produit_achives FOR VALUES FROM ('2026-01-01') TO ('2027-01-01');
+-- CREATE TABLE stock_produit_aud_y2027 PARTITION OF stock_produit_achives FOR VALUES FROM ('2027-01-01') TO ('2028-01-01');
+-- CREATE TABLE stock_produit_aud_y2028 PARTITION OF stock_produit_achives FOR VALUES FROM ('2028-01-01') TO ('2029-01-01');
+-- CREATE TABLE stock_produit_aud_y2029 PARTITION OF stock_produit_achives FOR VALUES FROM ('2029-01-01') TO ('2030-01-01');
+--
+

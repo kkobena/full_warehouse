@@ -4,7 +4,7 @@ import com.kobe.warehouse.domain.CashRegister_;
 import com.kobe.warehouse.domain.PaymentMode_;
 import com.kobe.warehouse.domain.PaymentTransaction;
 import com.kobe.warehouse.domain.PaymentTransaction_;
-import com.kobe.warehouse.domain.User_;
+import com.kobe.warehouse.domain.AppUser_;
 import com.kobe.warehouse.domain.enumeration.CategorieChiffreAffaire;
 import com.kobe.warehouse.domain.enumeration.TypeFinancialTransaction;
 import com.kobe.warehouse.service.dto.projection.MouvementCaisse;
@@ -47,7 +47,7 @@ public interface PaymentTransactionRepository
         if (userId == null) {
             return null;
         }
-        return (root, query, cb) -> cb.equal(root.get(PaymentTransaction_.cashRegister).get(CashRegister_.user).get(User_.id), userId);
+        return (root, query, cb) -> cb.equal(root.get(PaymentTransaction_.cashRegister).get(CashRegister_.user).get(AppUser_.id), userId);
     }
 
     default Specification<PaymentTransaction> filterByPeriode(LocalDateTime fromDate, LocalDateTime toDate) {
@@ -93,7 +93,7 @@ public interface PaymentTransactionRepository
         if (caissierIds == null || caissierIds.isEmpty()) {
             return null; // No filter applied
         }
-        return (root, query, cb) -> root.get(PaymentTransaction_.cashRegister).get(CashRegister_.user).get(User_.id).in(caissierIds);
+        return (root, query, cb) -> root.get(PaymentTransaction_.cashRegister).get(CashRegister_.user).get(AppUser_.id).in(caissierIds);
     }
 
 

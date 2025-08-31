@@ -4,6 +4,8 @@ import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
+import org.hibernate.annotations.ColumnDefault;
+
 import java.io.Serial;
 import java.io.Serializable;
 import java.util.Objects;
@@ -17,11 +19,11 @@ public class WarehouseSequence implements Serializable {
 
     @Id
     private String name;
-
-    @Column(name = "seq_value", columnDefinition = "int default '0'")
+    @ColumnDefault("0")
+    @Column(name = "seq_value")
     private Integer value;
-
-    @Column(name = "increment", columnDefinition = "int(4) default '1'")
+    @ColumnDefault("1")
+    @Column(name = "increment")
     private short increment = 1;
 
     public String getName() {

@@ -13,7 +13,8 @@ import com.kobe.warehouse.domain.SalesLine_;
 import com.kobe.warehouse.domain.Sales_;
 import com.kobe.warehouse.domain.ThirdPartySales;
 import com.kobe.warehouse.domain.ThirdPartySales_;
-import com.kobe.warehouse.domain.User_;
+import com.kobe.warehouse.domain.AppUser_;
+import com.kobe.warehouse.domain.enumeration.SalesStatut;
 import com.kobe.warehouse.service.dto.enumeration.StatGroupBy;
 import com.kobe.warehouse.service.dto.records.VenteByTypeRecord;
 import com.kobe.warehouse.service.dto.records.VentePeriodeRecord;
@@ -81,8 +82,8 @@ public class CustomSalesRepositoryImpl implements CustomSalesRepository {
             .select(
                 cb.construct(
                     DiffereItem.class,
-                    root.get(Sales_.cashRegister).get(CashRegister_.user).get(User_.firstName),
-                    root.get(Sales_.cashRegister).get(CashRegister_.user).get(User_.lastName),
+                    root.get(Sales_.cashRegister).get(CashRegister_.user).get(AppUser_.firstName),
+                    root.get(Sales_.cashRegister).get(CashRegister_.user).get(AppUser_.lastName),
                     root.get(Sales_.numberTransaction),
                     root.get(Sales_.salesAmount),
                     root.get(Sales_.payrollAmount),
@@ -231,13 +232,13 @@ public class CustomSalesRepositoryImpl implements CustomSalesRepository {
             .select(
                 cb.construct(
                     TicketZCreditProjection.class,
-                    root.get(Sales_.caissier).get(User_.id),
-                    root.get(Sales_.caissier).get(User_.firstName),
-                    root.get(Sales_.caissier).get(User_.lastName),
+                    root.get(Sales_.caissier).get(AppUser_.id),
+                    root.get(Sales_.caissier).get(AppUser_.firstName),
+                    root.get(Sales_.caissier).get(AppUser_.lastName),
                     cb.sumAsLong(root.get(Sales_.restToPay))
                 )
             )
-            .groupBy(root.get(Sales_.caissier).get(User_.id));
+            .groupBy(root.get(Sales_.caissier).get(AppUser_.id));
 
         Predicate predicate = specification.toPredicate(root, query, cb);
         query.where(predicate);
@@ -338,7 +339,7 @@ public class CustomSalesRepositoryImpl implements CustomSalesRepository {
                         cb.sum(1, cb.quot(salesLineSetJoin.get(SalesLine_.taxValue), 100.0d))
                     )
                 )
-            ),
+            ),//postgres
             cb.sum(thirdPartySalesPath.get(ThirdPartySales_.partAssure)),
             cb.sum(thirdPartySalesPath.get(ThirdPartySales_.partTiersPayant)),
             cb.sum(root.get(Sales_.restToPay)),
@@ -348,9 +349,9 @@ public class CustomSalesRepositoryImpl implements CustomSalesRepository {
             cb.sum(cb.prod(salesLineSetJoin.get(SalesLine_.regularUnitPrice), salesLineSetJoin.get(SalesLine_.quantityUg))),
             cb.count(root),
             //   cb.quot(cb.sum(root.get(Sales_.htAmount)), cb.count(root)),
-            root.get(Sales_.type),
-            root.get(Sales_.statut),
-            nonNull(groupingExpression) ? groupingExpression.cast(String.class) : root.get(Sales_.type).cast(String.class)
+            nonNull(groupingExpression)? root.get(Sales_.type): cb.literal(""),
+            nonNull(groupingExpression)? root.get(Sales_.statut): cb.nullLiteral(SalesStatut.class),
+            nonNull(groupingExpression) ? groupingExpression.cast(String.class) :  cb.literal("")
         );
     }
 
@@ -372,12 +373,7 @@ public class CustomSalesRepositoryImpl implements CustomSalesRepository {
 
 
         cq.select(createBalanceCaisseDTOResult(cb, root, payments, paymentMode, salesLineSetJoin, thirdPartySalesPath, montantTtcExpression, montantTtcAcahtExpression, discountExpression, montantHtQtyExpression));
-      /*  cq.where(cb.and(
-            cb.between(cb.function("DATE", java.time.LocalDate.class, root.get(Sales_.updatedAt)), mvtParam.getFromDate(), mvtParam.getToDate()),
-            root.get(Sales_.statut).in(mvtParam.getStatuts()),
-            root.get(Sales_.type).in(mvtParam.getTypeVentes().stream().map(com.kobe.warehouse.service.cash_register.dto.TypeVente::getValue).toList()),
-            root.get(Sales_.categorieChiffreAffaire).in(mvtParam.getCategorieChiffreAffaires())
-        ));*/
+
         cq.where(saleSpecification.builder(mvtParam).toPredicate(root, cq, cb));
         cq.groupBy(root.get(Sales_.type), payments.get(PaymentTransaction_.paymentMode).get(PaymentMode_.code));
 

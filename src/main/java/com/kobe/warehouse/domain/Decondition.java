@@ -6,6 +6,7 @@ import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
+import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
@@ -46,9 +47,9 @@ public class Decondition implements Serializable {
 
     @ManyToOne(optional = false)
     @NotNull
-    private User user;
+    private AppUser user;
 
-    @ManyToOne(optional = false)
+    @ManyToOne(optional = false,fetch = FetchType.LAZY)
     @NotNull
     @JsonIgnoreProperties(value = "deconditions", allowSetters = true)
     private Produit produit;
@@ -100,11 +101,11 @@ public class Decondition implements Serializable {
         this.stockAfter = stockAfter;
     }
 
-    public @NotNull User getUser() {
+    public @NotNull AppUser getUser() {
         return user;
     }
 
-    public void setUser(User user) {
+    public void setUser(AppUser user) {
         this.user = user;
     }
 
@@ -147,7 +148,7 @@ public class Decondition implements Serializable {
         return this;
     }
 
-    public Decondition user(User user) {
+    public Decondition user(AppUser user) {
         this.user = user;
         return this;
     }

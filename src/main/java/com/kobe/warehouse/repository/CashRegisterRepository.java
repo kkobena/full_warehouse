@@ -1,8 +1,8 @@
 package com.kobe.warehouse.repository;
 
+import com.kobe.warehouse.domain.AppUser_;
 import com.kobe.warehouse.domain.CashRegister;
 import com.kobe.warehouse.domain.CashRegister_;
-import com.kobe.warehouse.domain.User_;
 import com.kobe.warehouse.domain.enumeration.CashRegisterStatut;
 import com.kobe.warehouse.service.cash_register.dto.CashRegisterTransactionSpecialisation;
 import com.kobe.warehouse.service.cash_register.dto.CashRegisterVenteSpecialisation;
@@ -51,7 +51,7 @@ public interface CashRegisterRepository extends JpaRepository<CashRegister, Long
     );
 
     default Specification<CashRegister> specialisation(Long userId) {
-        return (root, _, cb) -> cb.equal(root.get(CashRegister_.user).get(User_.id), userId);
+        return (root, _, cb) -> cb.equal(root.get(CashRegister_.user).get(AppUser_.id), userId);
     }
 
     default Specification<CashRegister> specialisation(Set<CashRegisterStatut> statuts) {

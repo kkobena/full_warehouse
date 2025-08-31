@@ -6,7 +6,7 @@ import com.kobe.warehouse.domain.FournisseurProduit;
 import com.kobe.warehouse.domain.MotifAjustement;
 import com.kobe.warehouse.domain.Produit;
 import com.kobe.warehouse.domain.StockProduit;
-import com.kobe.warehouse.domain.User;
+import com.kobe.warehouse.domain.AppUser;
 import com.kobe.warehouse.domain.enumeration.AjustType;
 import com.kobe.warehouse.domain.enumeration.AjustementStatut;
 import com.kobe.warehouse.domain.enumeration.TransactionType;
@@ -25,6 +25,8 @@ import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.function.BiPredicate;
+import java.util.stream.Collectors;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
@@ -75,7 +77,7 @@ public class AjustementService extends FileResourceService {
         this.inventoryTransactionService = inventoryTransactionService;
     }
 
-    private User getUser() {
+    private AppUser getUser() {
         return SecurityUtils.getCurrentUserLogin().flatMap(userRepository::findOneByLogin).orElseThrow();
     }
 
@@ -208,7 +210,7 @@ public class AjustementService extends FileResourceService {
     }
 
     @Transactional(readOnly = true)
-    public List<Ajustement> findAll(Long id, String search) {
+    public List<AjustementDTO> findAll(Long id, String search) {
         log.debug("Request to get all Ajustements");
         Comparator<Ajustement> ajustementComparator = (Comparator.comparing(Ajustement::getDateMtv, Comparator.reverseOrder()));
 
@@ -218,11 +220,11 @@ public class AjustementService extends FileResourceService {
                 .stream()
                 .sorted(ajustementComparator)
                 .filter(it -> this.searchPredicate.test(it, search))
-                .toList();
+                .toList().stream().map(AjustementDTO::new).collect(Collectors.toList());
         }
         List<Ajustement> ajustements = ajustementRepository.findAllByAjustId(id);
         ajustements.sort(ajustementComparator);
-        return ajustements;
+        return ajustements.stream().map(AjustementDTO::new).collect(Collectors.toList());
     }
 
     @Transactional(readOnly = true)

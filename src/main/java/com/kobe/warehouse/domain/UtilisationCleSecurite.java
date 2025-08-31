@@ -25,11 +25,11 @@ public class UtilisationCleSecurite implements Serializable {
 
     @NotNull
     @ManyToOne(optional = false)
-    private User cleSecuriteOwner;
+    private AppUser cleSecuriteOwner;
 
     @NotNull
     @ManyToOne(optional = false)
-    private User connectedUser;
+    private AppUser connectedUser;
 
     @NotNull
     @Column(name = "caisse", nullable = false)
@@ -60,20 +60,20 @@ public class UtilisationCleSecurite implements Serializable {
         return this;
     }
 
-    public @NotNull User getCleSecuriteOwner() {
+    public @NotNull AppUser getCleSecuriteOwner() {
         return cleSecuriteOwner;
     }
 
-    public UtilisationCleSecurite setCleSecuriteOwner(@NotNull User cleSecuriteOwner) {
+    public UtilisationCleSecurite setCleSecuriteOwner(@NotNull AppUser cleSecuriteOwner) {
         this.cleSecuriteOwner = cleSecuriteOwner;
         return this;
     }
 
-    public @NotNull User getConnectedUser() {
+    public @NotNull AppUser getConnectedUser() {
         return connectedUser;
     }
 
-    public UtilisationCleSecurite setConnectedUser(@NotNull User connectedUser) {
+    public UtilisationCleSecurite setConnectedUser(@NotNull AppUser connectedUser) {
         this.connectedUser = connectedUser;
         return this;
     }

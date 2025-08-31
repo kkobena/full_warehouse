@@ -9,6 +9,7 @@ import jakarta.persistence.Enumerated;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.Index;
 import jakarta.persistence.Inheritance;
 import jakarta.persistence.InheritanceType;
 import jakarta.persistence.JoinColumn;
@@ -25,14 +26,22 @@ import java.time.LocalDateTime;
  * A Customer.
  */
 @Entity
-@Table(name = "customer")
+@Table(name = "customer",
+    indexes = {
+        @Index(columnList = "first_name", name = "client_first_name_index"),
+        @Index(columnList = "status", name = "client_status_index"),
+        @Index(columnList = "last_name", name = "client_last_name_index")
+
+    }
+)
 @Inheritance(strategy = InheritanceType.SINGLE_TABLE)
 public class Customer implements Serializable {
+    @Serial
+    private static final long serialVersionUID = 1L;
     @ManyToOne
     @JoinColumn(name = "remise_client_id", referencedColumnName = "id")
     private RemiseClient remiseClient;
-    @Serial
-    private static final long serialVersionUID = 1L;
+
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

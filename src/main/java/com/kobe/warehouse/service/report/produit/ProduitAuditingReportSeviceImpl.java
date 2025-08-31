@@ -1,6 +1,7 @@
 package com.kobe.warehouse.service.report.produit;
 
 import com.kobe.warehouse.domain.FournisseurProduit;
+import com.kobe.warehouse.domain.Produit;
 import com.kobe.warehouse.service.dto.ReportPeriode;
 import com.kobe.warehouse.service.dto.produit.ProduitAuditingState;
 import com.kobe.warehouse.service.stat.impl.SuiviArticleReportReportService;
@@ -20,15 +21,15 @@ public class ProduitAuditingReportSeviceImpl implements ProduitAuditingReportSev
     }
 
     @Override
-    public Resource printToPdf(List<ProduitAuditingState> datas, FournisseurProduit fournisseurProduit, ReportPeriode reportPeriode)
+    public Resource printToPdf(List<ProduitAuditingState> datas, Produit produit, ReportPeriode reportPeriode)
         throws MalformedURLException {
         DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern("dd/MM/yyyy");
         return suiviArticleReportService.exportToPdf(
             datas,
             String.format(
                 "Suivi du produit %s [%s] du %s au %s ",
-                fournisseurProduit.getProduit().getLibelle(),
-                fournisseurProduit.getCodeCip(),
+                produit.getLibelle(),
+                produit.getFournisseurProduitPrincipal().getCodeCip(),
                 reportPeriode.from().format(dateTimeFormatter),
                 reportPeriode.to().format(dateTimeFormatter)
             )

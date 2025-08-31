@@ -2,9 +2,9 @@ package com.kobe.warehouse.service;
 
 import com.kobe.warehouse.config.Constants;
 import com.kobe.warehouse.constant.EntityConstant;
+import com.kobe.warehouse.domain.AppUser;
 import com.kobe.warehouse.domain.Magasin;
 import com.kobe.warehouse.domain.Storage;
-import com.kobe.warehouse.domain.User;
 import com.kobe.warehouse.domain.enumeration.StorageType;
 import com.kobe.warehouse.repository.StorageRepository;
 import com.kobe.warehouse.repository.UserRepository;
@@ -51,7 +51,7 @@ public class StorageService {
         return storageRepository.getReferenceById(EntityConstant.RESERVE_STORAGE);
     }
 
-    public User getUser() {
+    public AppUser getUser() {
         return SecurityUtils.getCurrentUserLogin().flatMap(userRepository::findOneByLogin).orElse(null);
     }
 
@@ -77,8 +77,8 @@ public class StorageService {
         return getUser().getMagasin();
     }
 
-    public User getUserFormImport() {
-        Optional<User> user = SecurityUtils.getCurrentUserLogin().flatMap(userRepository::findOneByLogin);
+    public AppUser getUserFormImport() {
+        Optional<AppUser> user = SecurityUtils.getCurrentUserLogin().flatMap(userRepository::findOneByLogin);
         return user.orElse(userRepository.findOneByLogin(Constants.SYSTEM).get());
     }
 
@@ -86,7 +86,7 @@ public class StorageService {
         return getUserFormImport().getMagasin();
     }
 
-    public User getSystemeUser() {
+    public AppUser getSystemeUser() {
         return userRepository.findOneByLogin(Constants.SYSTEM).orElse(getUser());
     }
 

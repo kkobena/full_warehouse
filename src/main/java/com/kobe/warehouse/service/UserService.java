@@ -1,9 +1,9 @@
 package com.kobe.warehouse.service;
 
 import com.kobe.warehouse.config.Constants;
+import com.kobe.warehouse.domain.AppUser;
 import com.kobe.warehouse.domain.Authority;
 import com.kobe.warehouse.domain.Magasin;
-import com.kobe.warehouse.domain.User;
 import com.kobe.warehouse.repository.AuthorityRepository;
 import com.kobe.warehouse.repository.PersistentTokenRepository;
 import com.kobe.warehouse.repository.UserRepository;
@@ -58,7 +58,7 @@ public class UserService {
         this.authorityRepository = authorityRepository;
     }
 
-    public Optional<User> activateRegistration(String key) {
+    public Optional<AppUser> activateRegistration(String key) {
         log.debug("Activating user for activation key {}", key);
         return userRepository
             .findOneByActivationKey(key)
@@ -71,7 +71,7 @@ public class UserService {
             });
     }
 
-    public Optional<User> completePasswordReset(String newPassword, String key) {
+    public Optional<AppUser> completePasswordReset(String newPassword, String key) {
         log.debug("Reset user password for reset key {}", key);
         return userRepository
             .findOneByResetKey(key)
@@ -84,10 +84,10 @@ public class UserService {
             });
     }
 
-    public Optional<User> requestPasswordReset(String mail) {
+    public Optional<AppUser> requestPasswordReset(String mail) {
         return userRepository
             .findOneByEmailIgnoreCase(mail)
-            .filter(User::isActivated)
+            .filter(AppUser::isActivated)
             .map(user -> {
                 user.setResetKey(RandomUtil.generateResetKey());
                 user.setResetDate(LocalDateTime.now());
@@ -95,8 +95,8 @@ public class UserService {
             });
     }
 
-    public User createUser(AdminUserDTO userDTO) {
-        User user = new User();
+    public AppUser createUser(AdminUserDTO userDTO) {
+        AppUser user = new AppUser();
         user.setLogin(userDTO.getLogin().toLowerCase());
         user.setFirstName(userDTO.getFirstName());
         user.setLastName(userDTO.getLastName());
@@ -224,12 +224,12 @@ public class UserService {
     }
 
     @Transactional(readOnly = true)
-    public Optional<User> getUserWithAuthoritiesByLogin(String login) {
+    public Optional<AppUser> getUserWithAuthoritiesByLogin(String login) {
         return userRepository.findOneWithAuthoritiesByLogin(login);
     }
 
     @Transactional(readOnly = true)
-    public Optional<User> getUserWithAuthorities() {
+    public Optional<AppUser> getUserWithAuthorities() {
         return SecurityUtils.getCurrentUserLogin().flatMap(userRepository::findOneWithAuthoritiesByLogin);
     }
 
@@ -246,7 +246,7 @@ public class UserService {
             .findByTokenDateBefore(now.minusMonths(1))
             .forEach(token -> {
                 log.debug("Deleting token {}", token.getSeries());
-                User user = token.getUser();
+                AppUser user = token.getUser();
                 user.getPersistentTokens().remove(token);
                 persistentTokenRepository.delete(token);
             });
@@ -277,7 +277,7 @@ public class UserService {
         return authorityRepository.findAll().stream().map(Authority::getName).collect(Collectors.toList());
     }
 
-    public User getUser() {
+    public AppUser getUser() {
         return SecurityUtils.getCurrentUserLogin().flatMap(userRepository::findOneByLogin).orElse(null);
     }
 
@@ -297,7 +297,7 @@ public class UserService {
             );
     }
 
-    public Optional<User> getUserByPwdOrSecurityKey(String input) {
+    public Optional<AppUser> getUserByPwdOrSecurityKey(String input) {
         return userRepository.findOneByActionAuthorityKey(DigestUtils.sha256Hex(input));
     }
 

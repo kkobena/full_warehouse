@@ -1,6 +1,6 @@
 package com.kobe.warehouse.web.rest.proxy;
 
-import com.kobe.warehouse.domain.User;
+import com.kobe.warehouse.domain.AppUser;
 import com.kobe.warehouse.repository.UserRepository;
 import com.kobe.warehouse.security.SecurityUtils;
 import com.kobe.warehouse.service.UserService;
@@ -45,13 +45,13 @@ public class AccountResourcesProxy {
     protected void saveAccount(AdminUserDTO userDTO) {
         String userLogin = SecurityUtils.getCurrentUserLogin()
             .orElseThrow(() -> new AccountResourceException("Current user login not found"));
-        Optional<User> existingUser = org.springframework.util.StringUtils.hasText(userDTO.getEmail())
+        Optional<AppUser> existingUser = org.springframework.util.StringUtils.hasText(userDTO.getEmail())
             ? userRepository.findOneByEmailIgnoreCase(userDTO.getEmail())
             : Optional.empty();
         if (existingUser.isPresent() && (!existingUser.get().getLogin().equalsIgnoreCase(userLogin))) {
             throw new EmailAlreadyUsedException();
         }
-        Optional<User> user = userRepository.findOneByLogin(userLogin);
+        Optional<AppUser> user = userRepository.findOneByLogin(userLogin);
         if (user.isEmpty()) {
             throw new AccountResourceException("User could not be found");
         }
@@ -79,7 +79,7 @@ public class AccountResourcesProxy {
         if (isPasswordLengthInvalid(keyAndPassword.getNewPassword())) {
             throw new InvalidPasswordException();
         }
-        Optional<User> user = userService.completePasswordReset(keyAndPassword.getNewPassword(), keyAndPassword.getKey());
+        Optional<AppUser> user = userService.completePasswordReset(keyAndPassword.getNewPassword(), keyAndPassword.getKey());
 
         if (user.isEmpty()) {
             throw new AccountResourceException("No user was found for this reset key");

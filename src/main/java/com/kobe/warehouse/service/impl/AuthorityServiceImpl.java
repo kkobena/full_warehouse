@@ -21,6 +21,8 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.function.BiPredicate;
 import java.util.stream.Collectors;
+
+import org.apache.commons.lang3.Strings;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
@@ -31,8 +33,8 @@ import org.springframework.util.StringUtils;
 public class AuthorityServiceImpl implements AuthorityService {
 
     final BiPredicate<Menu, String> privilegesSearchPredicate = (menu, s) ->
-        org.apache.commons.lang3.StringUtils.containsIgnoreCase(menu.getName(), s) ||
-        org.apache.commons.lang3.StringUtils.containsIgnoreCase(menu.getLibelle(), s);
+        Strings.CI.contains(menu.getName(), s) ||
+            Strings.CI.contains(menu.getLibelle(), s);
     private final AuthorityRepository authorityRepository;
     private final MenuRepository menuRepository;
     private final PrivilegeRepository privilegeRepository;

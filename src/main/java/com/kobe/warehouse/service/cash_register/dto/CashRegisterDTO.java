@@ -4,7 +4,7 @@ import com.kobe.warehouse.domain.CashFund;
 import com.kobe.warehouse.domain.CashRegister;
 import com.kobe.warehouse.domain.PaymentMode;
 import com.kobe.warehouse.domain.Ticketing;
-import com.kobe.warehouse.domain.User;
+import com.kobe.warehouse.domain.AppUser;
 import com.kobe.warehouse.domain.enumeration.CashRegisterStatut;
 import com.kobe.warehouse.domain.enumeration.PaymentGroup;
 import com.kobe.warehouse.service.dto.UserDTO;
@@ -52,7 +52,7 @@ public class CashRegisterDTO {
         if (Objects.nonNull(fund)) {
             this.cashFund = fund.getAmount();
         }
-        User updatedU = cashRegister.getUpdatedUser();
+        AppUser updatedU = cashRegister.getUpdatedUser();
         if (Objects.nonNull(updatedU)) {
             this.updatedUser = new UserDTO(updatedU);
         }

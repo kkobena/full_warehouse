@@ -14,7 +14,7 @@ import com.kobe.warehouse.domain.PaymentTransaction_;
 import com.kobe.warehouse.domain.SalePayment;
 import com.kobe.warehouse.domain.SalePayment_;
 import com.kobe.warehouse.domain.Sales_;
-import com.kobe.warehouse.domain.User_;
+import com.kobe.warehouse.domain.AppUser_;
 import com.kobe.warehouse.service.financiel_transaction.dto.BalanceCaisseDTO;
 import com.kobe.warehouse.service.financiel_transaction.dto.MvtCaisseProjection;
 import com.kobe.warehouse.service.financiel_transaction.dto.MvtCaisseSumProjection;
@@ -75,8 +75,8 @@ public class PaymentTransactionCustomRepositoryImpl implements PaymentTransactio
                     root.get(PaymentTransaction_.categorieChiffreAffaire),
                     root.get(PaymentTransaction_.transactionDate),
                     paymentFournisseurPath.get(PaymentFournisseur_.commande).get(Commande_.id),
-                    root.get(PaymentTransaction_.cashRegister).get(CashRegister_.user).get(User_.firstName),
-                    root.get(PaymentTransaction_.cashRegister).get(CashRegister_.user).get(User_.lastName),
+                    root.get(PaymentTransaction_.cashRegister).get(CashRegister_.user).get(AppUser_.firstName),
+                    root.get(PaymentTransaction_.cashRegister).get(CashRegister_.user).get(AppUser_.lastName),
                     root.get(PaymentTransaction_.reelAmount)
                 )
             )
@@ -126,7 +126,8 @@ public class PaymentTransactionCustomRepositoryImpl implements PaymentTransactio
             )
             .groupBy(
                 root.get(PaymentTransaction_.typeFinancialTransaction),
-                root.get(PaymentTransaction_.paymentMode).get(PaymentMode_.code)
+                root.get(PaymentTransaction_.paymentMode).get(PaymentMode_.code),
+                root.get(PaymentTransaction_.paymentMode).get(PaymentMode_.libelle)
             );
 
         Predicate predicate = specification.toPredicate(root, query, cb);
@@ -147,16 +148,16 @@ public class PaymentTransactionCustomRepositoryImpl implements PaymentTransactio
                     TicketZProjection.class,
                     root.get(PaymentTransaction_.paymentMode).get(PaymentMode_.code),
                     root.get(PaymentTransaction_.paymentMode).get(PaymentMode_.libelle),
-                    root.get(PaymentTransaction_.cashRegister).get(CashRegister_.user).get(User_.id),
-                    root.get(PaymentTransaction_.cashRegister).get(CashRegister_.user).get(User_.firstName),
-                    root.get(PaymentTransaction_.cashRegister).get(CashRegister_.user).get(User_.lastName),
+                    root.get(PaymentTransaction_.cashRegister).get(CashRegister_.user).get(AppUser_.id),
+                    root.get(PaymentTransaction_.cashRegister).get(CashRegister_.user).get(AppUser_.firstName),
+                    root.get(PaymentTransaction_.cashRegister).get(CashRegister_.user).get(AppUser_.lastName),
                     cb.sumAsLong(root.get(PaymentTransaction_.paidAmount)),
                     cb.sumAsLong(root.get(PaymentTransaction_.reelAmount)),
                     root.get(PaymentTransaction_.credit)
                 )
             )
             .groupBy(
-                root.get(PaymentTransaction_.cashRegister).get(CashRegister_.user).get(User_.id),
+                root.get(PaymentTransaction_.cashRegister).get(CashRegister_.user).get(AppUser_.id),
                 root.get(PaymentTransaction_.paymentMode).get(PaymentMode_.code),
                 root.get(PaymentTransaction_.credit)
             );

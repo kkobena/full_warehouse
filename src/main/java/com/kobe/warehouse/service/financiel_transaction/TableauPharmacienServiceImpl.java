@@ -85,7 +85,7 @@ public class TableauPharmacienServiceImpl implements TableauPharmacienService {
         this.excelExportService = excelExportService;
         this.tableauPharmacienSpecification = tableauPharmacienSpecification;
         this.appConfigurationService = appConfigurationService;
-        groupeFournisseurs.addAll(fetchGroupGrossisteToDisplay().stream().map(GroupeFournisseurDTO::getId).collect(Collectors.toSet()));
+      //  groupeFournisseurs.addAll(fetchGroupGrossisteToDisplay().stream().map(GroupeFournisseurDTO::getId).collect(Collectors.toSet()));//TODO a revoir
     }
 
     private static AchatDTO getAchatDTO(List<AchatDTO> value, FournisseurAchat achatFournisseur) {

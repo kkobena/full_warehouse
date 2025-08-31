@@ -55,7 +55,7 @@ public class ThirdPartySaleLineCustomRepositoryImpl implements ThirdPartySaleLin
                     cb.sumAsLong(root.get(ThirdPartySaleLine_.montant))
                 )
             )
-            .groupBy(root.get(ThirdPartySaleLine_.clientTiersPayant).get(ClientTiersPayant_.tiersPayant).get(TiersPayant_.id))
+            .groupBy(root.get(ThirdPartySaleLine_.clientTiersPayant).get(ClientTiersPayant_.tiersPayant).get(TiersPayant_.id), root.get(ThirdPartySaleLine_.clientTiersPayant).get(ClientTiersPayant_.tiersPayant).get(TiersPayant_.name))
             .orderBy(cb.desc(sumExpr));
 
         Predicate predicate = specification.toPredicate(root, query, cb);

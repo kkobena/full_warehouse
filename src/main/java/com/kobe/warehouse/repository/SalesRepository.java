@@ -1,10 +1,11 @@
 package com.kobe.warehouse.repository;
 
+import com.kobe.warehouse.domain.AppUser;
 import com.kobe.warehouse.domain.Customer_;
+import com.kobe.warehouse.domain.SaleId;
 import com.kobe.warehouse.domain.Sales;
 import com.kobe.warehouse.domain.Sales_;
-import com.kobe.warehouse.domain.User;
-import com.kobe.warehouse.domain.User_;
+import com.kobe.warehouse.domain.AppUser_;
 import com.kobe.warehouse.domain.enumeration.CategorieChiffreAffaire;
 import com.kobe.warehouse.domain.enumeration.PaymentStatus;
 import com.kobe.warehouse.domain.enumeration.SalesStatut;
@@ -17,6 +18,7 @@ import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.EnumSet;
+import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 import org.springframework.data.domain.Page;
@@ -35,9 +37,11 @@ import org.springframework.util.StringUtils;
  */
 @SuppressWarnings("unused")
 @Repository
-public interface SalesRepository extends JpaSpecificationExecutor<Sales>, JpaRepository<Sales, Long>, CustomSalesRepository{
+public interface SalesRepository extends JpaSpecificationExecutor<Sales>, JpaRepository<Sales, SaleId>, CustomSalesRepository{
     @Query("select sale from Sales sale left join fetch sale.salesLines where sale.id =:id")
     Optional<Sales> findOneWithEagerSalesLines(@Param("id") Long id);
+
+    List<Sales> findSalesByIdIn(Set<Long> ids);
 
     @Query(
         value = "SELECT SUM(s.cost_amount) montantAchat, SUM(s.sales_amount) AS montantTtc,SUM(s.tax_amount) AS montantTva,SUM(s.ht_amount) AS montantHt,SUM(s.discount_amount) AS montantRemise,SUM(s.net_amount) AS montantNet,SUM(s.part_tiers_payant) AS MontantTp,SUM(s.rest_to_pay) AS montantDiffere FROM sales s  WHERE s.ca IN ('CA') AND s.statut IN('CANCELED', 'CLOSED','REMOVE') AND DATE(s.updated_at) BETWEEN :fromDate AND :toDate",
@@ -91,7 +95,7 @@ public interface SalesRepository extends JpaSpecificationExecutor<Sales>, JpaRep
         if (caissierIds == null || caissierIds.isEmpty()) {
             return null; // No filter applied
         }
-        return (root, query, cb) -> root.get(Sales_.caissier).get(User_.id).in(caissierIds);
+        return (root, query, cb) -> root.get(Sales_.caissier).get(AppUser_.id).in(caissierIds);
     }
 
     default Specification<Sales> filterByPeriode(LocalDateTime fromDate, LocalDateTime toDate) {
@@ -114,11 +118,11 @@ public interface SalesRepository extends JpaSpecificationExecutor<Sales>, JpaRep
         return (root, query, cb) -> cb.equal(root.get(Sales_.type), typeVente.name());
     }
 
-    default Specification<Sales> hasCaissier(User caissier) {
+    default Specification<Sales> hasCaissier(AppUser caissier) {
         return (root, query, cb) -> cb.equal(root.get(Sales_.caissier), caissier);
     }
 
-    default Specification<Sales> hasVendeur(User vendeur) {
+    default Specification<Sales> hasVendeur(AppUser vendeur) {
         return (root, query, cb) -> cb.equal(root.get(Sales_.seller), vendeur);
     }
 

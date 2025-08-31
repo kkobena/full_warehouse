@@ -1,11 +1,10 @@
 package com.kobe.warehouse.service;
 
-import static java.util.Objects.nonNull;
-
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.kobe.warehouse.config.FileStorageProperties;
 import com.kobe.warehouse.constant.EntityConstant;
+import com.kobe.warehouse.domain.AppUser;
 import com.kobe.warehouse.domain.FamilleProduit;
 import com.kobe.warehouse.domain.Fournisseur;
 import com.kobe.warehouse.domain.FournisseurProduit;
@@ -19,7 +18,6 @@ import com.kobe.warehouse.domain.StockProduit;
 import com.kobe.warehouse.domain.Storage;
 import com.kobe.warehouse.domain.Tableau;
 import com.kobe.warehouse.domain.Tva;
-import com.kobe.warehouse.domain.User;
 import com.kobe.warehouse.domain.enumeration.CodeRemise;
 import com.kobe.warehouse.domain.enumeration.ImportationStatus;
 import com.kobe.warehouse.domain.enumeration.ImportationType;
@@ -44,6 +42,24 @@ import com.kobe.warehouse.service.dto.TypeImportationProduit;
 import com.kobe.warehouse.service.errors.FileStorageException;
 import com.kobe.warehouse.service.errors.GenericError;
 import com.kobe.warehouse.service.utils.NumberUtil;
+import org.apache.commons.csv.CSVFormat;
+import org.apache.commons.csv.CSVPrinter;
+import org.apache.commons.csv.CSVRecord;
+import org.apache.commons.lang3.ObjectUtils;
+import org.apache.commons.lang3.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.core.io.Resource;
+import org.springframework.core.io.UrlResource;
+import org.springframework.scheduling.annotation.Async;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.TransactionDefinition;
+import org.springframework.transaction.TransactionStatus;
+import org.springframework.transaction.annotation.Transactional;
+import org.springframework.transaction.support.TransactionCallbackWithoutResult;
+import org.springframework.transaction.support.TransactionTemplate;
+import org.springframework.util.CollectionUtils;
+
 import java.io.BufferedReader;
 import java.io.FileWriter;
 import java.io.IOException;
@@ -65,23 +81,8 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicInteger;
-import org.apache.commons.csv.CSVFormat;
-import org.apache.commons.csv.CSVPrinter;
-import org.apache.commons.csv.CSVRecord;
-import org.apache.commons.lang3.ObjectUtils;
-import org.apache.commons.lang3.StringUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.core.io.Resource;
-import org.springframework.core.io.UrlResource;
-import org.springframework.scheduling.annotation.Async;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.TransactionDefinition;
-import org.springframework.transaction.TransactionStatus;
-import org.springframework.transaction.annotation.Transactional;
-import org.springframework.transaction.support.TransactionCallbackWithoutResult;
-import org.springframework.transaction.support.TransactionTemplate;
-import org.springframework.util.CollectionUtils;
+
+import static java.util.Objects.nonNull;
 
 @Service
 public class ImportationProduitService {
@@ -151,7 +152,8 @@ public class ImportationProduitService {
         Storage storage = storageService.getDefaultMagasinMainStorage();
         AtomicInteger errorSize = new AtomicInteger(0);
         AtomicInteger size = new AtomicInteger(0);
-        List<ProduitDTO> list = mapper.readValue(input, new TypeReference<>() {});
+        List<ProduitDTO> list = mapper.readValue(input, new TypeReference<>() {
+        });
         int totalSize = list.size();
         log.info("size===>> {}", list.size());
         transactionTemplate.setPropagationBehavior(TransactionDefinition.ISOLATION_REPEATABLE_READ);
@@ -301,12 +303,11 @@ public class ImportationProduitService {
         fournisseurProduit.setFournisseur(fournisseurRepository.findFirstByLibelleEquals(p.getFournisseurLibelle()).orElse(null));
         fournisseurProduit.setPrixUni(p.getPrixUni());
         fournisseurProduit.setPrixAchat(p.getPrixAchat());
-        fournisseurProduit.setPrincipal(p.isPrincipal());
         fournisseurProduit.setCodeCip(p.getCodeCip());
         return fournisseurProduit;
     }
 
-    private Importation importation(User user) {
+    private Importation importation(AppUser user) {
         Importation importation = new Importation();
         importation.setImportationStatus(ImportationStatus.PROCESSING);
         importation.setImportationType(ImportationType.STOCK_PRODUIT);
@@ -603,7 +604,7 @@ public class ImportationProduitService {
                                 Long tvaId;
                                 if (
                                     org.springframework.util.StringUtils.hasText(codeTva) &&
-                                    codeTvaMap.containsKey(NumberUtil.parseInt(codeTva))
+                                        codeTvaMap.containsKey(NumberUtil.parseInt(codeTva))
                                 ) {
                                     tvaId = codeTvaMap.get(NumberUtil.parseInt(codeTva));
                                 } else {
@@ -705,12 +706,15 @@ public class ImportationProduitService {
         StockProduit stockProduit = buidStockProduit(produitRecord, storage);
         Produit produit = buildProduit(produitRecord);
         produit.setRayonProduits(Set.of(new RayonProduit().setRayon(new Rayon().id(produitRecord.rayonId())).setProduit(produit)));
+        FournisseurProduit fournisseurProduit = buildFournisseurProduit(produitRecord);
+        fournisseurProduit.setProduit(produit);
+        produit = produitRepository.save(produit);
+        this.fournisseurProduitRepository.save(fournisseurProduit);
+        produit.setFournisseurProduitPrincipal(fournisseurProduit);
         produit = produitRepository.save(produit);
         stockProduit.setProduit(produit);
         stockProduitRepository.save(stockProduit);
-        FournisseurProduit fournisseurProduit = buildFournisseurProduit(produitRecord);
-        fournisseurProduit.setProduit(produit);
-        this.fournisseurProduitRepository.save(fournisseurProduit);
+
         return produit;
     }
 
@@ -744,7 +748,6 @@ public class ImportationProduitService {
         fournisseurProduit.setFournisseur(this.fournisseurRepository.getReferenceById(record.fournisseurId()));
         fournisseurProduit.setPrixUni(record.prixVente());
         fournisseurProduit.setPrixAchat(record.prixAchat());
-        fournisseurProduit.setPrincipal(true);
         fournisseurProduit.setCodeCip(record.cip());
         return fournisseurProduit;
     }
@@ -948,5 +951,6 @@ public class ImportationProduitService {
         Integer prixUniDetail,
         Integer prixAchatDetail,
         TypeImportationProduit typeImportationProduit
-    ) {}
+    ) {
+    }
 }

@@ -3,6 +3,7 @@ package com.kobe.warehouse.service.dto;
 import com.fasterxml.jackson.annotation.JsonSubTypes;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.kobe.warehouse.Util;
+import com.kobe.warehouse.domain.AppUser;
 import com.kobe.warehouse.domain.AssuredCustomer;
 import com.kobe.warehouse.domain.CashSale;
 import com.kobe.warehouse.domain.Poste;
@@ -11,7 +12,6 @@ import com.kobe.warehouse.domain.RemiseProduit;
 import com.kobe.warehouse.domain.Sales;
 import com.kobe.warehouse.domain.ThirdPartySales;
 import com.kobe.warehouse.domain.UninsuredCustomer;
-import com.kobe.warehouse.domain.User;
 import com.kobe.warehouse.domain.enumeration.NatureVente;
 import com.kobe.warehouse.domain.enumeration.PaymentStatus;
 import com.kobe.warehouse.domain.enumeration.SalesStatut;
@@ -85,7 +85,7 @@ public class SaleDTO implements Serializable {
     public SaleDTO() {}
 
     public SaleDTO(Sales sale) {
-        this.id = sale.getId();
+        this.id = sale.getId().getId();
         this.commentaire = sale.getCommentaire();
         this.discountAmount = sale.getDiscountAmount();
         if (sale instanceof ThirdPartySales thirdPartySales) {
@@ -131,7 +131,7 @@ public class SaleDTO implements Serializable {
             .sorted(Comparator.comparing(SaleLineDTO::getUpdatedAt, Comparator.reverseOrder()))
             .toList();
         this.payments = sale.getPayments().stream().map(PaymentDTO::new).toList();
-        User user = sale.getUser();
+        AppUser user = sale.getUser();
         this.userFullName = user.getFirstName() + " " + user.getLastName();
         this.numberTransaction = sale.getNumberTransaction();
         this.natureVente = sale.getNatureVente();

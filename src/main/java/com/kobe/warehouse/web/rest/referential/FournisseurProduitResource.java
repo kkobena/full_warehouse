@@ -61,10 +61,10 @@ public class FournisseurProduitResource {
             .build();
     }
 
-    @PutMapping("/fournisseur-produits/{id}/{checked}")
-    public ResponseEntity<Void> updateDefaultFournisseur(@PathVariable("id") Long id, @PathVariable("checked") Boolean checked) {
+    @PutMapping("/fournisseur-produits/{id}/{prodduitId}")
+    public ResponseEntity<Void> updateDefaultFournisseur(@PathVariable("id") Long id, @PathVariable("prodduitId") Long prodduitId) {
         log.debug("REST request to delete FournisseurProduit : {}", id);
-        fournisseurProduitService.updateDefaultFournisseur(id, checked);
+        fournisseurProduitService.updateDefaultFournisseur(id, prodduitId);
         return ResponseEntity.accepted().build();
     }
 

@@ -44,7 +44,7 @@ public class AppConfiguration implements Serializable {
 
     @ManyToOne
     @JoinColumn(name = "validated_by_id", referencedColumnName = "id")
-    private User validatedBy;
+    private AppUser validatedBy;
 
     @Column(name = "other_value")
     private String otherValue;
@@ -90,11 +90,11 @@ public class AppConfiguration implements Serializable {
         return this;
     }
 
-    public User getValidatedBy() {
+    public AppUser getValidatedBy() {
         return validatedBy;
     }
 
-    public AppConfiguration setValidatedBy(User validatedBy) {
+    public AppConfiguration setValidatedBy(AppUser validatedBy) {
         this.validatedBy = validatedBy;
         return this;
     }

@@ -44,18 +44,11 @@ public class SalesLineRepositoryCustomImpl implements SalesLineRepositoryCustom 
         CriteriaQuery<ProductStatRecord> cq = cb.createQuery(ProductStatRecord.class);
         Root<SalesLine> root = cq.from(SalesLine.class);
         Join<SalesLine, Produit> produitJoin = root.join(SalesLine_.produit, JoinType.INNER);
-        cq.groupBy(produitJoin.get(Produit_.id));
-        List<Predicate> predicates = new ArrayList<>(List.of(spec.toPredicate(root, cq, cb)));
+        cq.groupBy(produitJoin.get(Produit_.id), produitJoin.get(Produit_.fournisseurProduitPrincipal).get(FournisseurProduit_.codeCip));
 
-        Join<Produit, FournisseurProduit> fournisseurProduitJoin = produitJoin.join(Produit_.fournisseurProduits, JoinType.INNER);
-
-        if (fournisseurId != null) {
-            predicates.add(cb.equal(fournisseurProduitJoin.get(FournisseurProduit_.fournisseur).get(Fournisseur_.id), fournisseurId));
-        } else {
-            predicates.add(cb.equal(fournisseurProduitJoin.get(FournisseurProduit_.principal), true));
-        }
-
-        cq.where(predicates.toArray(new Predicate[0]));
+       // TODO avoir comment metre le fourniseur principal en  jsonb dans produit
+        Predicate predicates=spec.toPredicate(root, cq, cb);
+        cq.where(predicates);
 
         cq.select(
             cb.construct(
@@ -63,7 +56,7 @@ public class SalesLineRepositoryCustomImpl implements SalesLineRepositoryCustom 
                 produitJoin.get(Produit_.id),
                 cb.count(produitJoin.get(Produit_.id)),
                 //  cb.sum(root.get(SalesLine_.htAmount)),
-                fournisseurProduitJoin.get(FournisseurProduit_.codeCip),
+                produitJoin.get(Produit_.fournisseurProduitPrincipal).get(FournisseurProduit_.codeCip),
                 produitJoin.get(Produit_.codeEan),
                 produitJoin.get(Produit_.libelle),
                 cb.sum(root.get(SalesLine_.quantitySold)),
@@ -90,12 +83,12 @@ public class SalesLineRepositoryCustomImpl implements SalesLineRepositoryCustom 
         return new PageImpl<>(q.getResultList(), pageable, count(predicates));
     }
 
-    private long count(List<Predicate> predicates) {
+    private long count(Predicate predicates) {
         CriteriaBuilder cb = em.getCriteriaBuilder();
         CriteriaQuery<Long> countQuery = cb.createQuery(Long.class);
         Root<SalesLine> root = countQuery.from(SalesLine.class);
         countQuery.select(cb.countDistinct(root.get(SalesLine_.produit)));
-        countQuery.where(predicates.toArray(new Predicate[0]));
+        countQuery.where(predicates);
         return em.createQuery(countQuery).getSingleResult();
     }
 }

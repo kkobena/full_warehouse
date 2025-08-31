@@ -1,5 +1,7 @@
 package com.kobe.warehouse.service.sale.impl;
 
+import com.kobe.warehouse.config.IdGeneratorService;
+import com.kobe.warehouse.domain.AppUser;
 import com.kobe.warehouse.domain.CashSale;
 import com.kobe.warehouse.domain.FournisseurProduit;
 import com.kobe.warehouse.domain.GrilleRemise;
@@ -12,7 +14,6 @@ import com.kobe.warehouse.domain.SalesLine;
 import com.kobe.warehouse.domain.StockProduit;
 import com.kobe.warehouse.domain.ThirdPartySales;
 import com.kobe.warehouse.domain.Tva;
-import com.kobe.warehouse.domain.User;
 import com.kobe.warehouse.domain.enumeration.CodeRemise;
 import com.kobe.warehouse.domain.enumeration.TransactionType;
 import com.kobe.warehouse.repository.ProduitRepository;
@@ -27,16 +28,17 @@ import com.kobe.warehouse.service.mvt_produit.service.InventoryTransactionServic
 import com.kobe.warehouse.service.sale.SalesLineService;
 import com.kobe.warehouse.service.stock.LotService;
 import com.kobe.warehouse.service.stock.SuggestionProduitService;
+import org.springframework.scheduling.annotation.Async;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.CollectionUtils;
+
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicInteger;
-import org.springframework.scheduling.annotation.Async;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
-import org.springframework.util.CollectionUtils;
 
 @Service
 @Transactional
@@ -49,15 +51,16 @@ public abstract class SalesLineServiceImpl implements SalesLineService {
     private final SuggestionProduitService suggestionProduitService;
     private final LotService lotService;
     private final InventoryTransactionService inventoryTransactionService;
+    private final IdGeneratorService idGeneratorService;
 
-    public SalesLineServiceImpl(
+    protected SalesLineServiceImpl(
         ProduitRepository produitRepository,
         SalesLineRepository salesLineRepository,
         StockProduitRepository stockProduitRepository,
         LogsService logsService,
         SuggestionProduitService suggestionProduitService,
         LotService lotService,
-        InventoryTransactionService inventoryTransactionService
+        InventoryTransactionService inventoryTransactionService, IdGeneratorService idGeneratorService
     ) {
         this.produitRepository = produitRepository;
         this.salesLineRepository = salesLineRepository;
@@ -66,12 +69,19 @@ public abstract class SalesLineServiceImpl implements SalesLineService {
         this.suggestionProduitService = suggestionProduitService;
         this.lotService = lotService;
         this.inventoryTransactionService = inventoryTransactionService;
+        this.idGeneratorService = idGeneratorService;
+    }
+
+    private SalesLine getNew() {
+        SalesLine salesLine = new SalesLine();
+        salesLine.setId(idGeneratorService.nextId());
+        return salesLine;
     }
 
     protected SalesLine setCommonSaleLine(SaleLineDTO dto, Long stockageId) {
         Produit produit = produitRepository.getReferenceById(dto.getProduitId());
         Tva tva = produit.getTva();
-        SalesLine salesLine = new SalesLine();
+        SalesLine salesLine = getNew();
         salesLine.setTaxValue(tva.getTaux());
         salesLine.setCreatedAt(LocalDateTime.now());
         salesLine.setUpdatedAt(LocalDateTime.now());
@@ -133,7 +143,7 @@ public abstract class SalesLineServiceImpl implements SalesLineService {
 
     @Override
     public SalesLine getOneById(Long id) {
-        return salesLineRepository.getReferenceById(id);
+        return salesLineRepository.findOneById(id);
     }
 
     @Override
@@ -181,7 +191,7 @@ public abstract class SalesLineServiceImpl implements SalesLineService {
     @Override
     public SalesLine buildSaleLineFromDTO(SaleLineDTO dto) {
         Produit produit = produitRepository.findOneByLibelle(dto.getProduitLibelle().trim()).orElseThrow();
-        SalesLine salesLine = new SalesLine();
+        SalesLine salesLine = getNew();
         salesLine.setCreatedAt(dto.getCreatedAt());
         salesLine.setUpdatedAt(dto.getUpdatedAt());
         salesLine.costAmount(dto.getCostAmount());
@@ -206,7 +216,8 @@ public abstract class SalesLineServiceImpl implements SalesLineService {
     public SalesLine create(SaleLineDTO dto, Long storageId, Sales sales) {
         SalesLine salesLine = createSaleLineFromDTO(dto, storageId);
         salesLine.setSales(sales);
-        return salesLineRepository.save(salesLine);
+        salesLine = salesLineRepository.save(salesLine);
+        return salesLine;
     }
 
     private void updateSalesLine(SalesLine salesLine, SaleLineDTO dto, Long stockageId) {
@@ -249,7 +260,7 @@ public abstract class SalesLineServiceImpl implements SalesLineService {
     }
 
     @Override
-    public void cloneSalesLine(Set<SalesLine> salesLines, Sales copy, User user, Long storageId) {
+    public void cloneSalesLine(Set<SalesLine> salesLines, Sales copy, AppUser user, Long storageId) {
         salesLines.forEach(salesLine -> {
             salesLine.setUpdatedAt(LocalDateTime.now());
             salesLine.setEffectiveUpdateDate(salesLine.getUpdatedAt());
@@ -258,7 +269,7 @@ public abstract class SalesLineServiceImpl implements SalesLineService {
     }
 
     @Override
-    public void createInventory(SalesLine salesLine, User user, Long storageId) {
+    public void createInventory(SalesLine salesLine, AppUser user, Long storageId) {
         //   InventoryTransaction inventoryTransaction = inventoryTransactionRepository.buildInventoryTransaction(salesLine, user);
         Produit p = salesLine.getProduit();
         StockProduit stockProduit = stockProduitRepository.findOneByProduitIdAndStockageId(p.getId(), storageId);
@@ -268,7 +279,7 @@ public abstract class SalesLineServiceImpl implements SalesLineService {
         //   inventoryTransaction.setQuantityAfter(quantityAfter);
         //  inventoryTransactionRepository.save(inventoryTransaction);
         if (quantityBefor < salesLine.getQuantityRequested()) {
-            logsService.create(TransactionType.FORCE_STOCK, TransactionType.FORCE_STOCK.getValue(), salesLine.getId().toString());
+            logsService.create(TransactionType.FORCE_STOCK, TransactionType.FORCE_STOCK.getValue(), salesLine.getId().getId().toString());
         }
         FournisseurProduit fournisseurProduitPrincipal = p.getFournisseurProduitPrincipal();
         if (fournisseurProduitPrincipal != null && fournisseurProduitPrincipal.getPrixUni() < salesLine.getRegularUnitPrice()) {
@@ -280,7 +291,7 @@ public abstract class SalesLineServiceImpl implements SalesLineService {
                 salesLine.getRegularUnitPrice(),
                 salesLine.getSales().getNumberTransaction()
             );
-            logsService.create(TransactionType.MODIFICATION_PRIX_PRODUCT_A_LA_VENTE, desc, salesLine.getId().toString());
+            logsService.create(TransactionType.MODIFICATION_PRIX_PRODUCT_A_LA_VENTE, desc, salesLine.getId().getId().toString());
         }
         stockProduit.setQtyStock(stockProduit.getQtyStock() - (salesLine.getQuantityRequested() - salesLine.getQuantityUg()));
         stockProduit.setQtyUG(stockProduit.getQtyUG() - salesLine.getQuantityUg());
@@ -290,14 +301,14 @@ public abstract class SalesLineServiceImpl implements SalesLineService {
 
     @Async
     @Override
-    public void createInventory(Set<SalesLine> salesLines, User user, Long storageId) {
+    public void createInventory(Set<SalesLine> salesLines, AppUser user, Long storageId) {
         if (!CollectionUtils.isEmpty(salesLines)) {
             salesLines.forEach(salesLine -> createInventory(salesLine, user, storageId));
         }
     }
 
     @Override
-    public void save(Set<SalesLine> salesLines, User user, Long storageId) {
+    public void save(Set<SalesLine> salesLines, AppUser user, Long storageId) {
         List<QuantitySuggestion> quantitySuggestions = new ArrayList<>();
         if (!CollectionUtils.isEmpty(salesLines)) {
             salesLines.forEach(salesLine -> {
@@ -316,17 +327,17 @@ public abstract class SalesLineServiceImpl implements SalesLineService {
         int quantitySold = salesLine.getQuantitySold();
         AtomicInteger quantityToUpdate = new AtomicInteger(salesLine.getQuantitySold());
         this.lotService.findByProduitId(salesLine.getProduit().getId()).forEach(lot -> {
-                if (quantityToUpdate.get() > 0) {
-                    if (lot.getQuantity() >= quantitySold) {
-                        //long id, String numLot, int quantity
-                        salesLine.getLots().add(new LotSold(lot.getId(), lot.getNumLot(), quantitySold));
-                        quantityToUpdate.addAndGet(-quantitySold);
-                    } else {
-                        quantityToUpdate.addAndGet(-lot.getQuantity());
-                        salesLine.getLots().add(new LotSold(lot.getId(), lot.getNumLot(), lot.getQuantity()));
-                    }
+            if (quantityToUpdate.get() > 0) {
+                if (lot.getQuantity() >= quantitySold) {
+                    //long id, String numLot, int quantity
+                    salesLine.getLots().add(new LotSold(lot.getId(), lot.getNumLot(), quantitySold));
+                    quantityToUpdate.addAndGet(-quantitySold);
+                } else {
+                    quantityToUpdate.addAndGet(-lot.getQuantity());
+                    salesLine.getLots().add(new LotSold(lot.getId(), lot.getNumLot(), lot.getQuantity()));
                 }
-            });
+            }
+        });
         this.lotService.updateLots(salesLine.getLots());
     }
 
@@ -337,7 +348,7 @@ public abstract class SalesLineServiceImpl implements SalesLineService {
         salesLine.setAfterStock(quantityAfter);
 
         if (quantityBefor < salesLine.getQuantityRequested()) {
-            logsService.create(TransactionType.FORCE_STOCK, TransactionType.FORCE_STOCK.getValue(), salesLine.getId().toString());
+            logsService.create(TransactionType.FORCE_STOCK, TransactionType.FORCE_STOCK.getValue(), salesLine.getId().getId().toString());
         }
         FournisseurProduit fournisseurProduitPrincipal = p.getFournisseurProduitPrincipal();
         if (fournisseurProduitPrincipal != null && fournisseurProduitPrincipal.getPrixUni() < salesLine.getRegularUnitPrice()) {
@@ -349,7 +360,7 @@ public abstract class SalesLineServiceImpl implements SalesLineService {
                 salesLine.getRegularUnitPrice(),
                 salesLine.getSales().getNumberTransaction()
             );
-            logsService.create(TransactionType.MODIFICATION_PRIX_PRODUCT_A_LA_VENTE, desc, salesLine.getId().toString());
+            logsService.create(TransactionType.MODIFICATION_PRIX_PRODUCT_A_LA_VENTE, desc, salesLine.getId().getId().toString());
         }
         stockProduit.setQtyStock(stockProduit.getQtyStock() - (salesLine.getQuantityRequested() - salesLine.getQuantityUg()));
         stockProduit.setQtyUG(stockProduit.getQtyUG() - salesLine.getQuantityUg());

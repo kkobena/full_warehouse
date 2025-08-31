@@ -64,7 +64,7 @@ public class InventoryTransaction implements Serializable {
 
     @ManyToOne(optional = false)
     @NotNull
-    private User user;
+    private AppUser user;
 
     @NotNull
     @Column(name = "cost_amount", nullable = false)
@@ -145,11 +145,11 @@ public class InventoryTransaction implements Serializable {
         return this;
     }
 
-    public User getUser() {
+    public AppUser getUser() {
         return user;
     }
 
-    public InventoryTransaction setUser(User user) {
+    public InventoryTransaction setUser(AppUser user) {
         this.user = user;
         return this;
     }

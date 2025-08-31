@@ -69,7 +69,7 @@ public class StoreInventory implements Serializable {
 
     @NotNull
     @ManyToOne(optional = false)
-    private User user;
+    private AppUser user;
 
     @NotNull
     @Enumerated(EnumType.STRING)
@@ -171,11 +171,11 @@ public class StoreInventory implements Serializable {
         this.storeInventoryLines = storeInventoryLines;
     }
 
-    public @NotNull User getUser() {
+    public @NotNull AppUser getUser() {
         return user;
     }
 
-    public void setUser(User user) {
+    public void setUser(AppUser user) {
         this.user = user;
     }
 

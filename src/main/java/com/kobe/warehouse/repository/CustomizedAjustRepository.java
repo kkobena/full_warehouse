@@ -4,11 +4,12 @@ import com.kobe.warehouse.domain.Ajust;
 import com.kobe.warehouse.domain.Ajust_;
 import com.kobe.warehouse.domain.Ajustement;
 import com.kobe.warehouse.domain.Ajustement_;
+import com.kobe.warehouse.domain.AppUser_;
 import com.kobe.warehouse.domain.FournisseurProduit;
 import com.kobe.warehouse.domain.FournisseurProduit_;
 import com.kobe.warehouse.domain.Produit;
 import com.kobe.warehouse.domain.Produit_;
-import com.kobe.warehouse.domain.User_;
+
 import com.kobe.warehouse.domain.enumeration.AjustementStatut;
 import com.kobe.warehouse.service.FileResourceService;
 import com.kobe.warehouse.service.dto.AjustDTO;
@@ -114,7 +115,7 @@ public class CustomizedAjustRepository extends FileResourceService implements Aj
             );
         }
         if (Objects.nonNull(ajustementFilterRecord.userId())) {
-            predicates.add(cb.equal(root.get(Ajustement_.ajust).get(Ajust_.user).get(User_.id), ajustementFilterRecord.userId()));
+            predicates.add(cb.equal(root.get(Ajustement_.ajust).get(Ajust_.user).get(AppUser_.id), ajustementFilterRecord.userId()));
         }
         predicates.add(cb.equal(root.get(Ajustement_.ajust).get(Ajust_.statut), ajustementFilterRecord.statut()));
         predicates.add(

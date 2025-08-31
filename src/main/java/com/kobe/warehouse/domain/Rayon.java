@@ -46,7 +46,7 @@ public class Rayon implements Serializable {
     @NotNull
     private Storage storage;
 
-    @Column(name = "exclude", columnDefinition = "boolean default false")
+    @Column(name = "to_exclude")
     private boolean exclude;
 
     public Rayon id(Long id) {

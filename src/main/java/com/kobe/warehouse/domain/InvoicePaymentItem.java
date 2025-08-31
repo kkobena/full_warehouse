@@ -2,6 +2,7 @@ package com.kobe.warehouse.domain;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
@@ -37,11 +38,11 @@ public class InvoicePaymentItem implements Serializable {
     private Integer paidAmount;
 
     @NotNull
-    @ManyToOne(optional = false)
+    @ManyToOne(optional = false,fetch = FetchType.LAZY)
     @JoinColumn(name = "third_party_sale_line_id", referencedColumnName = "id")
     private ThirdPartySaleLine thirdPartySaleLine;
 
-    @ManyToOne(optional = false)
+    @ManyToOne(optional = false,fetch =  FetchType.LAZY)
     @NotNull
     @JoinColumn(name = "invoice_payment_id", referencedColumnName = "id")
     private InvoicePayment invoicePayment;

@@ -55,7 +55,7 @@ public class Importation implements Serializable {
 
     @NotNull
     @ManyToOne(optional = false)
-    private User user;
+    private AppUser user;
 
     @NotNull
     @Column(name = "created_at", nullable = false)
@@ -122,11 +122,11 @@ public class Importation implements Serializable {
         return this;
     }
 
-    public @NotNull User getUser() {
+    public @NotNull AppUser getUser() {
         return user;
     }
 
-    public Importation setUser(User user) {
+    public Importation setUser(AppUser user) {
         this.user = user;
         return this;
     }

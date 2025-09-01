@@ -1,5 +1,6 @@
 package com.kobe.warehouse.service.facturation.service;
 
+import com.kobe.warehouse.config.IdGeneratorService;
 import com.kobe.warehouse.domain.FactureTiersPayant;
 import com.kobe.warehouse.domain.ThirdPartySaleLine;
 import com.kobe.warehouse.domain.TiersPayant;
@@ -30,17 +31,21 @@ public abstract class AbstractEditionFactureService implements EditionService {
     private final FacturationRepository facturationRepository;
     private final AppConfigurationService appConfigurationService;
     private final UserService userService;
+    private final IdGeneratorService idGeneratorService;
 
     protected AbstractEditionFactureService(
         ThirdPartySaleLineRepository thirdPartySaleLineRepository,
         FacturationRepository facturationRepository,
         AppConfigurationService appConfigurationService,
-        UserService userService
+        UserService userService,
+        IdGeneratorService idGeneratorService
     ) {
         this.thirdPartySaleLineRepository = thirdPartySaleLineRepository;
         this.facturationRepository = facturationRepository;
         this.appConfigurationService = appConfigurationService;
         this.userService = userService;
+        this.idGeneratorService = idGeneratorService;
+        this.idGeneratorService.setSequenceName("id_facture_seq");
     }
 
     @Override
@@ -58,9 +63,7 @@ public abstract class AbstractEditionFactureService implements EditionService {
     }
 
     protected Specification<ThirdPartySaleLine> buildFetchSpecification(EditionSearchParams editionSearchParams) {
-        Specification<ThirdPartySaleLine> thirdPartySaleLineSpecification =
-            this.thirdPartySaleLineRepository.canceledCriteria()
-        ;
+        Specification<ThirdPartySaleLine> thirdPartySaleLineSpecification = this.thirdPartySaleLineRepository.canceledCriteria();
         thirdPartySaleLineSpecification = thirdPartySaleLineSpecification.and(
             this.thirdPartySaleLineRepository.saleStatutsCriteria(Set.of(SalesStatut.CLOSED))
         );
@@ -108,6 +111,7 @@ public abstract class AbstractEditionFactureService implements EditionService {
         EditionSearchParams editionSearchParams
     ) {
         FactureTiersPayant factureTiersPayant = new FactureTiersPayant()
+            .setId(this.idGeneratorService.nextId())
             .setCreated(dateCreation)
             .setRemiseForfetaire(Objects.requireNonNullElse(tiersPayant.getRemiseForfaitaire(), 0))
             .setUpdated(dateCreation)
@@ -141,4 +145,3 @@ public abstract class AbstractEditionFactureService implements EditionService {
         return 0;
     }
 }
-

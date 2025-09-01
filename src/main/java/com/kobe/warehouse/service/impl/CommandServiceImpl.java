@@ -1,5 +1,7 @@
 package com.kobe.warehouse.service.impl;
 
+import com.kobe.warehouse.config.IdGeneratorService;
+import com.kobe.warehouse.domain.AppUser;
 import com.kobe.warehouse.domain.Commande;
 import com.kobe.warehouse.domain.Fournisseur;
 import com.kobe.warehouse.domain.FournisseurProduit;
@@ -7,7 +9,6 @@ import com.kobe.warehouse.domain.Lot;
 import com.kobe.warehouse.domain.OrderLine;
 import com.kobe.warehouse.domain.Produit;
 import com.kobe.warehouse.domain.Suggestion;
-import com.kobe.warehouse.domain.AppUser;
 import com.kobe.warehouse.domain.enumeration.OrderStatut;
 import com.kobe.warehouse.repository.CommandeRepository;
 import com.kobe.warehouse.service.OrderLineService;
@@ -71,6 +72,7 @@ public class CommandServiceImpl implements CommandService {
     private final ReferenceService referenceService;
     private final ExportationCsvService exportationCsvService;
     private final ImportationEchoueService importationEchoueService;
+    private final IdGeneratorService idGeneratorService;
 
     public CommandServiceImpl(
         CommandeRepository commandeRepository,
@@ -78,7 +80,8 @@ public class CommandServiceImpl implements CommandService {
         OrderLineService orderLineService,
         ReferenceService referenceService,
         ExportationCsvService exportationCsvService,
-        ImportationEchoueService importationEchoueService
+        ImportationEchoueService importationEchoueService,
+        IdGeneratorService idGeneratorService
     ) {
         this.commandeRepository = commandeRepository;
         this.storageService = storageService;
@@ -86,6 +89,8 @@ public class CommandServiceImpl implements CommandService {
         this.referenceService = referenceService;
         this.exportationCsvService = exportationCsvService;
         this.importationEchoueService = importationEchoueService;
+        this.idGeneratorService = idGeneratorService;
+        this.idGeneratorService.setSequenceName("id_commande_seq");
     }
 
     static void addModelLaborexLigneExistant(
@@ -140,6 +145,10 @@ public class CommandServiceImpl implements CommandService {
         return commande;
     }
 
+    private Commande findCommandeById(Long id) {
+        return commandeRepository.findCommandeById(id);
+    }
+
     @Override
     public CommandeLiteDTO createOrUpdateOrderLine(OrderLineDTO orderLineDTO) {
         int oldGrossAmount = 0;
@@ -155,7 +164,7 @@ public class CommandServiceImpl implements CommandService {
             orderLine = optionalOrderLine.get();
         }
 
-        Commande commande = commandeRepository.getReferenceById(orderLineDTO.getCommande().getId());
+        Commande commande = findCommandeById(orderLineDTO.getCommande().getId());
         if (orderLine == null) {
             orderLine = orderLineService.buildOrderLineFromOrderLineDTO(orderLineDTO);
             orderLine.setCommande(commande);
@@ -224,12 +233,12 @@ public class CommandServiceImpl implements CommandService {
 
     @Override
     public void deleteById(Long id) {
-        commandeRepository.deleteById(id);
+        commandeRepository.deleteCommandeById(id);
     }
 
     @Override
     public void rollback(Long id) {
-        Commande commande = commandeRepository.getReferenceById(id);
+        Commande commande = findCommandeById(id);
         commande.setOrderStatus(OrderStatut.REQUESTED);
         commande.setUpdatedAt(LocalDateTime.now());
         commandeRepository.save(commande);
@@ -242,7 +251,7 @@ public class CommandServiceImpl implements CommandService {
 
     @Override
     public void deleteOrderLinesByIds(Long commandeId, List<Long> ids) {
-        Commande commande = commandeRepository.getReferenceById(commandeId);
+        Commande commande = findCommandeById(commandeId);
         ids.forEach(orderLineId ->
             orderLineService
                 .findOneById(orderLineId)
@@ -259,11 +268,11 @@ public class CommandServiceImpl implements CommandService {
     public void fusionner(List<Long> ids) {
         Collections.sort(ids);
         final Long firstCommandeId = ids.getFirst();
-        Commande commande = commandeRepository.getReferenceById(firstCommandeId);
+        Commande commande = findCommandeById(firstCommandeId);
         List<Commande> commandesToDelete = new ArrayList<>();
         List<Long> longs = ids.subList(1, ids.size());
         longs.forEach(aLong -> {
-            Commande commandeSecond = commandeRepository.getReferenceById(aLong);
+            Commande commandeSecond = findCommandeById(aLong);
             commandeSecond
                 .getOrderLines()
                 .forEach(orderLine ->
@@ -288,7 +297,7 @@ public class CommandServiceImpl implements CommandService {
 
     @Override
     public void deleteAll(List<Long> ids) {
-        ids.forEach(this.commandeRepository::deleteById);
+        ids.forEach(this.commandeRepository::deleteCommandeById);
     }
 
     @Override
@@ -297,9 +306,9 @@ public class CommandServiceImpl implements CommandService {
         assert fileName != null;
         String extension = fileName.substring(fileName.indexOf(".") + 1);
         if (extension.equalsIgnoreCase(CSV)) {
-            return verificationCommandeCsv(multipartFile, commandeRepository.getReferenceById(commandeId));
+            return verificationCommandeCsv(multipartFile, findCommandeById(commandeId));
         }
-        return verificationCommandeExcel(multipartFile, commandeRepository.getReferenceById(commandeId));
+        return verificationCommandeExcel(multipartFile, findCommandeById(commandeId));
     }
 
     @Override
@@ -315,7 +324,7 @@ public class CommandServiceImpl implements CommandService {
                     "modelimportation"
                 );
             };
-        saveLignesBonEchouees(commandeResponse, commande.getId());
+        saveLignesBonEchouees(commandeResponse, commande.getId().getId());
         return commandeResponse;
     }
 
@@ -1063,7 +1072,7 @@ public class CommandServiceImpl implements CommandService {
         return new VerificationResponseCommandeDTO.Item()
             .setCodeCip(fournisseurProduit.getCodeCip())
             .setProduitLibelle(produit.getLibelle())
-            .setCodeEan(produit.getCodeEan())
+            .setCodeEan(produit.getCodeEanLaboratoire())
             .setQuantite(orderLine.getQuantityRequested())
             .setQuantitePriseEnCompte(quantityReceived);
     }
@@ -1071,9 +1080,15 @@ public class CommandServiceImpl implements CommandService {
     private Optional<OrderLine> getOrderLineInCommandeItems(List<OrderLine> orderLines, final String codeCipOrCodeEan) {
         for (OrderLine orderLine : orderLines) {
             FournisseurProduit fournisseurProduit = orderLine.getFournisseurProduit();
+            Produit produit = fournisseurProduit.getProduit();
+
+            String codeCip = fournisseurProduit.getCodeCip();
+            String codeEan = fournisseurProduit.getCodeEan();
+            String codeEanLab = produit.getCodeEanLaboratoire();
             if (
-                fournisseurProduit.getCodeCip().contains(codeCipOrCodeEan) ||
-                fournisseurProduit.getProduit().getCodeEan().contains(codeCipOrCodeEan)
+                Objects.equals(codeCipOrCodeEan, codeCip) ||
+                Objects.equals(codeCipOrCodeEan, codeEan) ||
+                Objects.equals(codeCipOrCodeEan, codeEanLab)
             ) {
                 return Optional.of(orderLine);
             }
@@ -1316,7 +1331,7 @@ public class CommandServiceImpl implements CommandService {
 
     @Override
     public void changeGrossiste(CommandeDTO commandeDTO) {
-        Commande commande = commandeRepository.findById(commandeDTO.getId()).orElseThrow();
+        Commande commande = findCommandeById(commandeDTO.getId());
         Fournisseur fournisseur = new Fournisseur().id(commandeDTO.getFournisseurId());
         commande.setFournisseur(fournisseur);
         commande.setUpdatedAt(LocalDateTime.now());

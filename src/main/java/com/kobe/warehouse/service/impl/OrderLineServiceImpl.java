@@ -1,5 +1,6 @@
 package com.kobe.warehouse.service.impl;
 
+import com.kobe.warehouse.config.IdGeneratorService;
 import com.kobe.warehouse.domain.Commande;
 import com.kobe.warehouse.domain.FournisseurProduit;
 import com.kobe.warehouse.domain.OrderLine;
@@ -33,17 +34,21 @@ public class OrderLineServiceImpl implements OrderLineService {
     private final FournisseurProduitService fournisseurProduitService;
     private final ProduitRepository produitRepository;
     private final CustomizedProductService customizedProductService;
+    private final IdGeneratorService idGeneratorService;
 
     public OrderLineServiceImpl(
         OrderLineRepository orderLineRepository,
         FournisseurProduitService fournisseurProduitService,
         ProduitRepository produitRepository,
-        CustomizedProductService customizedProductService
+        CustomizedProductService customizedProductService,
+        IdGeneratorService idGeneratorService
     ) {
         this.orderLineRepository = orderLineRepository;
         this.fournisseurProduitService = fournisseurProduitService;
         this.produitRepository = produitRepository;
         this.customizedProductService = customizedProductService;
+        this.idGeneratorService = idGeneratorService;
+        this.idGeneratorService.setSequenceName("id_order_line_seq");
     }
 
     @Override
@@ -73,6 +78,7 @@ public class OrderLineServiceImpl implements OrderLineService {
     @Override
     public OrderLine buildOrderLine(OrderLineDTO orderLineDTO, FournisseurProduit fournisseurProduit) {
         OrderLine orderLine = new OrderLine();
+        orderLine.setId(this.idGeneratorService.nextId());
         orderLine.createdAt(LocalDateTime.now());
         orderLine.setUpdatedAt(orderLine.getCreatedAt());
         orderLine.setInitStock(orderLineDTO.getTotalQuantity());
@@ -252,6 +258,7 @@ public class OrderLineServiceImpl implements OrderLineService {
 
     private OrderLine buildOrderLine(Commande commande, OrderLineDTO orderLineDTO) {
         OrderLine orderLine = new OrderLine();
+        orderLine.setId(this.idGeneratorService.nextId());
         orderLine.setCreatedAt(commande.getCreatedAt());
         orderLine.setUpdatedAt(commande.getCreatedAt());
         orderLine.setQuantityReceived(orderLineDTO.getQuantityReceived());
@@ -275,6 +282,7 @@ public class OrderLineServiceImpl implements OrderLineService {
             .map(StockProduit::getTotalStockQuantity)
             .reduce(0, Integer::sum);
         OrderLine orderLine = new OrderLine();
+        orderLine.setId(this.idGeneratorService.nextId());
         orderLine.setCreatedAt(LocalDateTime.now());
         orderLine.setUpdatedAt(orderLine.getCreatedAt());
         orderLine.setQuantityReceived(0);
@@ -319,5 +327,31 @@ public class OrderLineServiceImpl implements OrderLineService {
         orderLine.setOrderUnitPrice(fournisseurProduit.getPrixUni());
         orderLine.setOrderCostAmount(fournisseurProduit.getPrixAchat());
         orderLineRepository.save(orderLine);
+    }
+
+    @Override
+    public OrderLine buildDeliveryReceiptItemFromRecord(
+        FournisseurProduit fournisseurProduit,
+        int quantityRequested,
+        int quantityReceived,
+        int orderCostAmount,
+        int orderUnitPrice,
+        int quantityUg,
+        int stock,
+        int taxeAmount,
+        Commande commande
+    ) {
+        OrderLine orderLine = new OrderLine();
+        orderLine.setId(this.idGeneratorService.nextId());
+        orderLine.setFreeQty(quantityUg);
+        orderLine.setCreatedAt(commande.getCreatedAt());
+        orderLine.setQuantityReceived(quantityReceived);
+        orderLine.setQuantityRequested(quantityRequested);
+        orderLine.setOrderUnitPrice(orderUnitPrice > 0 ? orderUnitPrice : fournisseurProduit.getPrixUni());
+        orderLine.setOrderCostAmount(orderCostAmount > 0 ? orderCostAmount : fournisseurProduit.getPrixAchat());
+        orderLine.setInitStock(stock);
+        orderLine.setFournisseurProduit(fournisseurProduit);
+        orderLine.setTaxAmount(taxeAmount);
+        return orderLine;
     }
 }

@@ -1,5 +1,6 @@
 package com.kobe.warehouse.service.facturation.service;
 
+import com.kobe.warehouse.config.IdGeneratorService;
 import com.kobe.warehouse.domain.ThirdPartySaleLine;
 import com.kobe.warehouse.repository.FacturationRepository;
 import com.kobe.warehouse.repository.ThirdPartySaleLineRepository;
@@ -21,9 +22,10 @@ public class EditionByTypeTiersPayantService extends AbstractEditionFactureServi
         ThirdPartySaleLineRepository thirdPartySaleLineRepository,
         FacturationRepository facturationRepository,
         AppConfigurationService appConfigurationService,
-        UserService userService
+        UserService userService,
+        IdGeneratorService idGeneratorService
     ) {
-        super(thirdPartySaleLineRepository, facturationRepository, appConfigurationService, userService);
+        super(thirdPartySaleLineRepository, facturationRepository, appConfigurationService, userService, idGeneratorService);
         this.thirdPartySaleLineRepository = thirdPartySaleLineRepository;
     }
 

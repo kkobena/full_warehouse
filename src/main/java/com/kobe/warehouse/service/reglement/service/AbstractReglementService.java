@@ -1,5 +1,6 @@
 package com.kobe.warehouse.service.reglement.service;
 
+import com.kobe.warehouse.config.IdGeneratorService;
 import com.kobe.warehouse.domain.Banque;
 import com.kobe.warehouse.domain.CashRegister;
 import com.kobe.warehouse.domain.FactureTiersPayant;
@@ -36,6 +37,8 @@ public abstract class AbstractReglementService implements ReglementService {
     private final FacturationRepository facturationRepository;
     private final ThirdPartySaleLineRepository thirdPartySaleLineRepository;
     private final BanqueRepository banqueRepository;
+    private final IdGeneratorService idGeneratorService;
+    private final InvoicePaymentItemService invoicePaymentItemService;
 
     protected AbstractReglementService(
         CashRegisterService cashRegisterService,
@@ -43,7 +46,9 @@ public abstract class AbstractReglementService implements ReglementService {
         UserService userService,
         FacturationRepository facturationRepository,
         ThirdPartySaleLineRepository thirdPartySaleLineRepository,
-        BanqueRepository banqueRepository
+        BanqueRepository banqueRepository,
+        IdGeneratorService idGeneratorService,
+        InvoicePaymentItemService invoicePaymentItemService
     ) {
         this.cashRegisterService = cashRegisterService;
         this.invoicePaymentRepository = invoicePaymentRepository;
@@ -52,6 +57,9 @@ public abstract class AbstractReglementService implements ReglementService {
 
         this.thirdPartySaleLineRepository = thirdPartySaleLineRepository;
         this.banqueRepository = banqueRepository;
+        this.idGeneratorService = idGeneratorService;
+        this.invoicePaymentItemService = invoicePaymentItemService;
+        this.idGeneratorService.setSequenceName("id_transaction_seq");
     }
 
     protected CashRegister getCashRegister() {
@@ -59,12 +67,7 @@ public abstract class AbstractReglementService implements ReglementService {
     }
 
     protected InvoicePaymentItem buildInvoicePaymentItem(ThirdPartySaleLine thirdPartySaleLine, InvoicePayment invoicePayment, int amount) {
-        InvoicePaymentItem invoicePaymentItem = new InvoicePaymentItem();
-        invoicePaymentItem.setAmount(thirdPartySaleLine.getMontant() - thirdPartySaleLine.getMontantRegle());
-        invoicePaymentItem.setInvoicePayment(invoicePayment);
-        invoicePaymentItem.setThirdPartySaleLine(thirdPartySaleLine);
-        invoicePaymentItem.setPaidAmount(amount);
-        return invoicePaymentItem;
+        return this.invoicePaymentItemService.buildInvoicePaymentItem(thirdPartySaleLine, invoicePayment, amount);
     }
 
     protected void updateThirdPartyLine(ThirdPartySaleLine thirdPartySaleLine, int amount) {
@@ -78,8 +81,14 @@ public abstract class AbstractReglementService implements ReglementService {
         }
     }
 
+    private InvoicePayment getNew() {
+        InvoicePayment invoice = new InvoicePayment();
+        invoice.setId(this.idGeneratorService.nextId());
+        return invoice;
+    }
+
     protected InvoicePayment buildInvoicePayment(FactureTiersPayant factureTiersPayant, ReglementParam reglementParam) {
-        InvoicePayment invoice = new InvoicePayment().setFactureTiersPayant(factureTiersPayant);
+        InvoicePayment invoice = getNew().setFactureTiersPayant(factureTiersPayant);
         invoice
             .setCashRegister(getCashRegister())
             .setMontantVerse(reglementParam.getAmount())
@@ -90,7 +99,7 @@ public abstract class AbstractReglementService implements ReglementService {
     }
 
     protected InvoicePayment buildInvoicePayment(FactureTiersPayant factureTiersPayant, InvoicePayment paymentParent) {
-        InvoicePayment invoicePayment = new InvoicePayment();
+        InvoicePayment invoicePayment = getNew();
         invoicePayment.setBanque(paymentParent.getBanque());
         invoicePayment.setFactureTiersPayant(factureTiersPayant);
         invoicePayment.setCashRegister(paymentParent.getCashRegister());

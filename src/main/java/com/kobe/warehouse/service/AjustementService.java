@@ -2,11 +2,11 @@ package com.kobe.warehouse.service;
 
 import com.kobe.warehouse.domain.Ajust;
 import com.kobe.warehouse.domain.Ajustement;
+import com.kobe.warehouse.domain.AppUser;
 import com.kobe.warehouse.domain.FournisseurProduit;
 import com.kobe.warehouse.domain.MotifAjustement;
 import com.kobe.warehouse.domain.Produit;
 import com.kobe.warehouse.domain.StockProduit;
-import com.kobe.warehouse.domain.AppUser;
 import com.kobe.warehouse.domain.enumeration.AjustType;
 import com.kobe.warehouse.domain.enumeration.AjustementStatut;
 import com.kobe.warehouse.domain.enumeration.TransactionType;
@@ -26,7 +26,6 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.function.BiPredicate;
 import java.util.stream.Collectors;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
@@ -176,7 +175,7 @@ public class AjustementService extends FileResourceService {
             FournisseurProduit fournisseurProduitPrincipal = produit.getFournisseurProduitPrincipal();
             String desc = String.format(
                 "Ajustement du produit %s %s quantité initiale %d quantité ajustéé %d quantité finale %d",
-                fournisseurProduitPrincipal != null ? fournisseurProduitPrincipal.getCodeCip() : produit.getCodeEan(),
+                fournisseurProduitPrincipal.getCodeCip(),
                 produit.getLibelle(),
                 initStock,
                 ajustement.getQtyMvt(),
@@ -220,7 +219,10 @@ public class AjustementService extends FileResourceService {
                 .stream()
                 .sorted(ajustementComparator)
                 .filter(it -> this.searchPredicate.test(it, search))
-                .toList().stream().map(AjustementDTO::new).collect(Collectors.toList());
+                .toList()
+                .stream()
+                .map(AjustementDTO::new)
+                .collect(Collectors.toList());
         }
         List<Ajustement> ajustements = ajustementRepository.findAllByAjustId(id);
         ajustements.sort(ajustementComparator);

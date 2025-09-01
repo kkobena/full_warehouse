@@ -1,5 +1,7 @@
 package com.kobe.warehouse.service;
 
+import static java.util.Objects.nonNull;
+
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.kobe.warehouse.config.FileStorageProperties;
@@ -42,24 +44,6 @@ import com.kobe.warehouse.service.dto.TypeImportationProduit;
 import com.kobe.warehouse.service.errors.FileStorageException;
 import com.kobe.warehouse.service.errors.GenericError;
 import com.kobe.warehouse.service.utils.NumberUtil;
-import org.apache.commons.csv.CSVFormat;
-import org.apache.commons.csv.CSVPrinter;
-import org.apache.commons.csv.CSVRecord;
-import org.apache.commons.lang3.ObjectUtils;
-import org.apache.commons.lang3.StringUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.core.io.Resource;
-import org.springframework.core.io.UrlResource;
-import org.springframework.scheduling.annotation.Async;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.TransactionDefinition;
-import org.springframework.transaction.TransactionStatus;
-import org.springframework.transaction.annotation.Transactional;
-import org.springframework.transaction.support.TransactionCallbackWithoutResult;
-import org.springframework.transaction.support.TransactionTemplate;
-import org.springframework.util.CollectionUtils;
-
 import java.io.BufferedReader;
 import java.io.FileWriter;
 import java.io.IOException;
@@ -81,8 +65,23 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicInteger;
-
-import static java.util.Objects.nonNull;
+import org.apache.commons.csv.CSVFormat;
+import org.apache.commons.csv.CSVPrinter;
+import org.apache.commons.csv.CSVRecord;
+import org.apache.commons.lang3.ObjectUtils;
+import org.apache.commons.lang3.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.core.io.Resource;
+import org.springframework.core.io.UrlResource;
+import org.springframework.scheduling.annotation.Async;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.TransactionDefinition;
+import org.springframework.transaction.TransactionStatus;
+import org.springframework.transaction.annotation.Transactional;
+import org.springframework.transaction.support.TransactionCallbackWithoutResult;
+import org.springframework.transaction.support.TransactionTemplate;
+import org.springframework.util.CollectionUtils;
 
 @Service
 public class ImportationProduitService {
@@ -152,8 +151,7 @@ public class ImportationProduitService {
         Storage storage = storageService.getDefaultMagasinMainStorage();
         AtomicInteger errorSize = new AtomicInteger(0);
         AtomicInteger size = new AtomicInteger(0);
-        List<ProduitDTO> list = mapper.readValue(input, new TypeReference<>() {
-        });
+        List<ProduitDTO> list = mapper.readValue(input, new TypeReference<>() {});
         int totalSize = list.size();
         log.info("size===>> {}", list.size());
         transactionTemplate.setPropagationBehavior(TransactionDefinition.ISOLATION_REPEATABLE_READ);
@@ -226,7 +224,7 @@ public class ImportationProduitService {
         produit.setItemQty(1);
         produit.setItemRegularUnitPrice(produitDTO.getRegularUnitPrice());
         produit.setRegularUnitPrice(produitDTO.getRegularUnitPrice());
-        produit.setCodeEan(produitDTO.getCodeEan());
+        produit.setCodeEanLaboratoire(produitDTO.getCodeEanLaboratoire());
         produit.setCheckExpiryDate(produitDTO.getDateperemption());
         produit.setDeconditionnable(false);
         produit.setQtyAppro(0);
@@ -262,7 +260,7 @@ public class ImportationProduitService {
         produit.setItemQty(produitDTO.getItemQty());
         produit.setItemRegularUnitPrice(produitDTO.getItemRegularUnitPrice());
         produit.setRegularUnitPrice(produitDTO.getRegularUnitPrice());
-        produit.setCodeEan(produitDTO.getCodeEan());
+        produit.setCodeEanLaboratoire(produitDTO.getCodeEan());
         produit.setCheckExpiryDate(produitDTO.getDateperemption());
         produit.setDeconditionnable(produitDTO.getDeconditionnable());
         produit.setQtyAppro(produitDTO.getQtyAppro());
@@ -604,7 +602,7 @@ public class ImportationProduitService {
                                 Long tvaId;
                                 if (
                                     org.springframework.util.StringUtils.hasText(codeTva) &&
-                                        codeTvaMap.containsKey(NumberUtil.parseInt(codeTva))
+                                    codeTvaMap.containsKey(NumberUtil.parseInt(codeTva))
                                 ) {
                                     tvaId = codeTvaMap.get(NumberUtil.parseInt(codeTva));
                                 } else {
@@ -807,7 +805,7 @@ public class ImportationProduitService {
             produit.setScheduled(record.scheduled());
         }
         if (org.springframework.util.StringUtils.hasText(record.codeEan())) {
-            produit.setCodeEan(record.codeEan());
+            produit.setCodeEanLaboratoire(record.codeEan());
         }
 
         return produit;
@@ -951,6 +949,5 @@ public class ImportationProduitService {
         Integer prixUniDetail,
         Integer prixAchatDetail,
         TypeImportationProduit typeImportationProduit
-    ) {
-    }
+    ) {}
 }

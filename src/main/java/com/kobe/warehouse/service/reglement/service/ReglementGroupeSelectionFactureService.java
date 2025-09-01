@@ -1,15 +1,14 @@
 package com.kobe.warehouse.service.reglement.service;
 
+import com.kobe.warehouse.config.IdGeneratorService;
 import com.kobe.warehouse.domain.FactureTiersPayant;
 import com.kobe.warehouse.domain.InvoicePayment;
 import com.kobe.warehouse.domain.enumeration.InvoiceStatut;
 import com.kobe.warehouse.repository.BanqueRepository;
 import com.kobe.warehouse.repository.FacturationRepository;
 import com.kobe.warehouse.repository.InvoicePaymentRepository;
-import com.kobe.warehouse.repository.PaymentTransactionRepository;
 import com.kobe.warehouse.repository.ThirdPartySaleLineRepository;
 import com.kobe.warehouse.service.UserService;
-import com.kobe.warehouse.service.WarehouseCalendarService;
 import com.kobe.warehouse.service.cash_register.CashRegisterService;
 import com.kobe.warehouse.service.errors.CashRegisterException;
 import com.kobe.warehouse.service.errors.GenericError;
@@ -31,13 +30,14 @@ public class ReglementGroupeSelectionFactureService extends AbstractReglementSer
 
     public ReglementGroupeSelectionFactureService(
         CashRegisterService cashRegisterService,
-        PaymentTransactionRepository paymentTransactionRepository,
         InvoicePaymentRepository invoicePaymentRepository,
         UserService userService,
         FacturationRepository facturationRepository,
         ThirdPartySaleLineRepository thirdPartySaleLineRepository,
         BanqueRepository banqueRepository,
-        ReglementFactureSelectionneesService reglementFactureSelectionneesService
+        ReglementFactureSelectionneesService reglementFactureSelectionneesService,
+        IdGeneratorService idGeneratorService,
+        InvoicePaymentItemService invoicePaymentItemService
     ) {
         super(
             cashRegisterService,
@@ -45,7 +45,9 @@ public class ReglementGroupeSelectionFactureService extends AbstractReglementSer
             userService,
             facturationRepository,
             thirdPartySaleLineRepository,
-            banqueRepository
+            banqueRepository,
+            idGeneratorService,
+            invoicePaymentItemService
         );
         this.facturationRepository = facturationRepository;
         this.reglementFactureSelectionneesService = reglementFactureSelectionneesService;
@@ -58,7 +60,7 @@ public class ReglementGroupeSelectionFactureService extends AbstractReglementSer
         if (ligneSelectionnes.isEmpty()) {
             throw new GenericError("Aucun dossiers à regler");
         }
-        FactureTiersPayant factureTiersPayant = this.facturationRepository.findById(reglementParam.getId()).orElseThrow();
+        FactureTiersPayant factureTiersPayant = this.facturationRepository.findFactureTiersPayantById(reglementParam.getId()).orElseThrow();
 
         InvoicePayment invoicePayment = super.buildInvoicePayment(factureTiersPayant, reglementParam);
         invoicePayment.setGrouped(true);
@@ -80,7 +82,7 @@ public class ReglementGroupeSelectionFactureService extends AbstractReglementSer
                 montantVerse = 0;
             }
             montantPaye += itemAmount;
-            FactureTiersPayant facture = this.facturationRepository.findById(item.getId()).orElseThrow();
+            FactureTiersPayant facture = this.facturationRepository.findFactureTiersPayantById(item.getId()).orElseThrow();
             var invoicePaymentItem = this.reglementFactureSelectionneesService.doReglement(invoicePayment, facture, itemAmount, item);
             invoicePayments.add(invoicePaymentItem);
         }
@@ -97,6 +99,6 @@ public class ReglementGroupeSelectionFactureService extends AbstractReglementSer
             item.setParent(invoicePayment);
         }
         super.saveInvoicePayments(invoicePayments);
-        return new ResponseReglementDTO(invoicePayment.getId(), factureTiersPayant.getStatut() == InvoiceStatut.PAID);
+        return new ResponseReglementDTO(invoicePayment.getId().getId(), factureTiersPayant.getStatut() == InvoiceStatut.PAID);
     }
 }

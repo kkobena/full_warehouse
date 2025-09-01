@@ -1,8 +1,8 @@
 package com.kobe.warehouse.service.dto;
 
+import com.kobe.warehouse.domain.AppUser;
 import com.kobe.warehouse.domain.Commande;
 import com.kobe.warehouse.domain.Fournisseur;
-import com.kobe.warehouse.domain.AppUser;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.Comparator;
@@ -35,7 +35,7 @@ public class DeliveryReceiptDTO {
     private final int itemSize;
 
     public DeliveryReceiptDTO(Commande commande) {
-        id = commande.getId();
+        id = commande.getId().getId();
         discountAmount = commande.getDiscountAmount();
         receiptReference = commande.getReceiptReference();
         receiptDate = commande.getReceiptDate();

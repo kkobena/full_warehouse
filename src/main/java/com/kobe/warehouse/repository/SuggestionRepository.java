@@ -1,6 +1,12 @@
 package com.kobe.warehouse.repository;
 
-import com.kobe.warehouse.domain.*;
+import com.kobe.warehouse.domain.FournisseurProduit_;
+import com.kobe.warehouse.domain.Fournisseur_;
+import com.kobe.warehouse.domain.Produit_;
+import com.kobe.warehouse.domain.Suggestion;
+import com.kobe.warehouse.domain.SuggestionLine;
+import com.kobe.warehouse.domain.SuggestionLine_;
+import com.kobe.warehouse.domain.Suggestion_;
 import com.kobe.warehouse.domain.enumeration.TypeSuggession;
 import jakarta.persistence.criteria.SetJoin;
 import java.time.LocalDateTime;
@@ -36,13 +42,14 @@ public interface SuggestionRepository
             String searchPattern = search.toUpperCase() + "%";
             SetJoin<Suggestion, SuggestionLine> setJoin = root.joinSet(Suggestion_.SUGGESTION_LINES);
             return cb.or(
-                cb.like(cb.upper(setJoin.get(SuggestionLine_.fournisseurProduit).get(FournisseurProduit_.codeCip)), searchPattern),
+                cb.like(setJoin.get(SuggestionLine_.fournisseurProduit).get(FournisseurProduit_.codeCip), searchPattern),
+                cb.like(setJoin.get(SuggestionLine_.fournisseurProduit).get(FournisseurProduit_.codeEan), searchPattern),
                 cb.like(
                     cb.upper(setJoin.get(SuggestionLine_.fournisseurProduit).get(FournisseurProduit_.produit).get(Produit_.libelle)),
                     searchPattern
                 ),
                 cb.like(
-                    cb.upper(setJoin.get(SuggestionLine_.fournisseurProduit).get(FournisseurProduit_.produit).get(Produit_.codeEan)),
+                    setJoin.get(SuggestionLine_.fournisseurProduit).get(FournisseurProduit_.produit).get(Produit_.codeEanLaboratoire),
                     searchPattern
                 )
             );

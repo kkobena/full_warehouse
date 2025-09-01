@@ -1,6 +1,10 @@
 package com.kobe.warehouse.repository;
 
-import com.kobe.warehouse.domain.*;
+import com.kobe.warehouse.domain.FournisseurProduit_;
+import com.kobe.warehouse.domain.Produit_;
+import com.kobe.warehouse.domain.SuggestionLine;
+import com.kobe.warehouse.domain.SuggestionLine_;
+import com.kobe.warehouse.domain.Suggestion_;
 import com.kobe.warehouse.domain.enumeration.TypeSuggession;
 import com.kobe.warehouse.service.dto.projection.SuggestionAggregator;
 import java.util.Optional;
@@ -37,8 +41,11 @@ public interface SuggestionLineRepository extends JpaRepository<SuggestionLine, 
                     cb.upper(root.get(SuggestionLine_.fournisseurProduit).get(FournisseurProduit_.produit).get(Produit_.libelle)),
                     searchPattern
                 ),
+                cb.like(cb.upper(root.get(SuggestionLine_.fournisseurProduit).get(FournisseurProduit_.codeEan)), searchPattern),
                 cb.like(
-                    cb.upper(root.get(SuggestionLine_.fournisseurProduit).get(FournisseurProduit_.produit).get(Produit_.codeEan)),
+                    cb.upper(
+                        root.get(SuggestionLine_.fournisseurProduit).get(FournisseurProduit_.produit).get(Produit_.codeEanLaboratoire)
+                    ),
                     searchPattern
                 )
             );

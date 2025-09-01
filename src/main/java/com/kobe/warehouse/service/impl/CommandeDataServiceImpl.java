@@ -72,24 +72,28 @@ public class CommandeDataServiceImpl implements CommandeDataService {
         this.orderLineRepository = orderLineRepository;
     }
 
+    private Commande findId(Long id) {
+        return commandeRepository.findCommandeById(id);
+    }
+
     @Override
     public CommandeDTO findOneById(Long id) {
-        return new CommandeDTO(commandeRepository.getReferenceById(id));
+        return new CommandeDTO(commandeRepository.findCommandeById(id));
     }
 
     @Override
     public Optional<Commande> getOneById(Long id) {
-        return commandeRepository.findById(id);
+        return Optional.ofNullable(findId(id));
     }
 
     @Override
     public Optional<CommandeEntryDTO> getCommandeById(Long id) {
-        return commandeRepository.findById(id).map(CommandeEntryDTO::new);
+        return Optional.ofNullable(findId(id)).map(CommandeEntryDTO::new);
     }
 
     @Override
     public Resource exportCommandeToCsv(Long id) throws IOException {
-        return getResource(exportationCsvService.exportCommandeToCsv(commandeRepository.getReferenceById(id)));
+        return getResource(exportationCsvService.exportCommandeToCsv(findId(id)));
     }
 
     @Override
@@ -99,7 +103,7 @@ public class CommandeDataServiceImpl implements CommandeDataService {
 
     @Override
     public List<OrderLineDTO> filterCommandeLines(CommandeFilterDTO commandeFilter) {
-        List<OrderLine> orderLines = commandeRepository.getReferenceById(commandeFilter.getCommandeId()).getOrderLines();
+        List<OrderLine> orderLines = findId(commandeFilter.getCommandeId()).getOrderLines();
 
         if (StringUtils.isNotEmpty(commandeFilter.getSearch())) {
             if (commandeFilter.getFilterCommaneEnCours() != null && commandeFilter.getFilterCommaneEnCours() != FilterCommaneEnCours.ALL) {
@@ -160,7 +164,7 @@ public class CommandeDataServiceImpl implements CommandeDataService {
             customizedCommandeService
                 .fetchCommandes(commandeFilterDTO, pageable)
                 .stream()
-                .map(commande -> new CommandeLiteDTO(commande, orderLineRepository.countByCommandeId(commande.getId())))
+                .map(commande -> new CommandeLiteDTO(commande, orderLineRepository.countByCommandeId(commande.getId().getId())))
                 .collect(Collectors.toList()),
             pageable,
             count

@@ -66,7 +66,7 @@ public class ReglementDataServiceImpl implements ReglementDataService {
     @Override
     @Transactional
     public void deleteReglement(long idReglement) {
-        InvoicePayment invoicePayment = invoicePaymentRepository.findById(idReglement).orElseThrow();
+        InvoicePayment invoicePayment = invoicePaymentRepository.findInvoicePaymentById(idReglement).orElseThrow();
         List<InvoicePayment> invoicePayments = invoicePayment.getInvoicePayments();
         if (CollectionUtils.isEmpty(invoicePayments)) {
             deleteInvoicePayment(invoicePayment, null);
@@ -110,9 +110,7 @@ public class ReglementDataServiceImpl implements ReglementDataService {
         if (invoicePaymentParam.grouped()) {
             sort = Sort.by(Direction.ASC, "createdAt").and(Sort.by(Direction.ASC, "factureTiersPayant.groupeTiersPayant.name"));
         }
-        Specification<InvoicePayment> invoicePaymentSpecification =
-            this.invoicePaymentRepository.periodeCriteria(startDate, endDate)
-        ;
+        Specification<InvoicePayment> invoicePaymentSpecification = this.invoicePaymentRepository.periodeCriteria(startDate, endDate);
         invoicePaymentSpecification = invoicePaymentSpecification.and(
             this.invoicePaymentRepository.invoicesTypePredicats(invoicePaymentParam.grouped())
         );
@@ -163,7 +161,7 @@ public class ReglementDataServiceImpl implements ReglementDataService {
     }
 
     private InvoicePaymentReceiptDTO getInvoicePaymentReceipt(long idReglement) {
-        return new InvoicePaymentReceiptDTO(this.invoicePaymentRepository.getReferenceById(idReglement));
+        return new InvoicePaymentReceiptDTO(this.invoicePaymentRepository.findInvoicePaymentById(idReglement).orElseThrow());
     }
 
     private int deleteInvoicePayment(InvoicePayment invoicePayment, FactureTiersPayant groupeFacture) {

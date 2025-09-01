@@ -35,6 +35,7 @@ public class DeliveryReceiptItemDTO {
     private final String fournisseurProduitLibelle;
     private final String fournisseurProduitCip;
     private final String fournisseurProduitEan;
+    private final String codeEanLaboratoire;
     private final List<LotDTO> lots;
     private final Boolean updated;
     private final Integer quantityReceivedTmp;
@@ -51,7 +52,7 @@ public class DeliveryReceiptItemDTO {
             tva = new TvaDTO(tvaEntity);
         }
 
-        id = orderLine.getId();
+        id = orderLine.getId().getId();
         freeQty = orderLine.getFreeQty();
         quantityReceived = orderLine.getQuantityReceived();
         initStock = orderLine.getInitStock();
@@ -72,7 +73,8 @@ public class DeliveryReceiptItemDTO {
         fournisseurProduitId = fournisseurProduit.getId();
         produitId = produit.getId();
         fournisseurProduitCip = fournisseurProduit.getCodeCip();
-        fournisseurProduitEan = produit.getCodeEan();
+        fournisseurProduitEan = fournisseurProduit.getCodeEan();
+        codeEanLaboratoire = produit.getCodeEanLaboratoire();
         fournisseurProduitLibelle = produit.getLibelle();
         updated = orderLine.getUpdated();
         afterStock = orderLine.getFinalStock();
@@ -193,5 +195,9 @@ public class DeliveryReceiptItemDTO {
 
     public void setTva(TvaDTO tva) {
         this.tva = tva;
+    }
+
+    public String getCodeEanLaboratoire() {
+        return codeEanLaboratoire;
     }
 }

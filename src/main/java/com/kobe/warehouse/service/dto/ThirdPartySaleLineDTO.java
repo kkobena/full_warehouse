@@ -31,7 +31,7 @@ public class ThirdPartySaleLineDTO {
     public ThirdPartySaleLineDTO() {}
 
     public ThirdPartySaleLineDTO(ThirdPartySaleLine thirdPartySaleLine) {
-        this.id = thirdPartySaleLine.getId();
+        this.id = thirdPartySaleLine.getId().getId();
         this.numBon = thirdPartySaleLine.getNumBon();
         this.montant = thirdPartySaleLine.getMontant();
         ClientTiersPayant clientTiersPayant = thirdPartySaleLine.getClientTiersPayant();

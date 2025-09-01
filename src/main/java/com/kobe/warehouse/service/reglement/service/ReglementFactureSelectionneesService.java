@@ -1,5 +1,6 @@
 package com.kobe.warehouse.service.reglement.service;
 
+import com.kobe.warehouse.config.IdGeneratorService;
 import com.kobe.warehouse.domain.FactureTiersPayant;
 import com.kobe.warehouse.domain.InvoicePayment;
 import com.kobe.warehouse.domain.ThirdPartySaleLine;
@@ -7,7 +8,6 @@ import com.kobe.warehouse.domain.enumeration.InvoiceStatut;
 import com.kobe.warehouse.repository.BanqueRepository;
 import com.kobe.warehouse.repository.FacturationRepository;
 import com.kobe.warehouse.repository.InvoicePaymentRepository;
-import com.kobe.warehouse.repository.PaymentTransactionRepository;
 import com.kobe.warehouse.repository.ThirdPartySaleLineRepository;
 import com.kobe.warehouse.service.UserService;
 import com.kobe.warehouse.service.cash_register.CashRegisterService;
@@ -20,7 +20,6 @@ import com.kobe.warehouse.service.reglement.dto.ResponseReglementDTO;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
-import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -33,12 +32,13 @@ public class ReglementFactureSelectionneesService extends AbstractReglementServi
 
     public ReglementFactureSelectionneesService(
         CashRegisterService cashRegisterService,
-        PaymentTransactionRepository paymentTransactionRepository,
         InvoicePaymentRepository invoicePaymentRepository,
         UserService userService,
         FacturationRepository facturationRepository,
         ThirdPartySaleLineRepository thirdPartySaleLineRepository,
-        BanqueRepository banqueRepository
+        BanqueRepository banqueRepository,
+        IdGeneratorService idGeneratorService,
+        InvoicePaymentItemService invoicePaymentItemService
     ) {
         super(
             cashRegisterService,
@@ -46,7 +46,9 @@ public class ReglementFactureSelectionneesService extends AbstractReglementServi
             userService,
             facturationRepository,
             thirdPartySaleLineRepository,
-            banqueRepository
+            banqueRepository,
+            idGeneratorService,
+            invoicePaymentItemService
         );
         this.facturationRepository = facturationRepository;
         this.thirdPartySaleLineRepository = thirdPartySaleLineRepository;
@@ -59,7 +61,7 @@ public class ReglementFactureSelectionneesService extends AbstractReglementServi
             throw new GenericError("Aucun dossiers à regler");
         }
         List<ThirdPartySaleLine> thirdPartySaleLinesUpdated = new ArrayList<>();
-        FactureTiersPayant factureTiersPayant = facturationRepository.findById(reglementParam.getId()).orElseThrow();
+        FactureTiersPayant factureTiersPayant = facturationRepository.findFactureTiersPayantById(reglementParam.getId()).orElseThrow();
         List<ThirdPartySaleLine> thirdPartySaleLines = getThirdPartySaleLines(reglementParam);
 
         InvoicePayment invoicePayment = super.buildInvoicePayment(factureTiersPayant, reglementParam);
@@ -93,7 +95,7 @@ public class ReglementFactureSelectionneesService extends AbstractReglementServi
         invoicePayment.setPaidAmount(montantPaye);
         invoicePayment.setReelAmount(montantPaye);
         invoicePayment = super.saveInvoicePayment(invoicePayment);
-        return new ResponseReglementDTO(invoicePayment.getId(), factureTiersPayant.getStatut() == InvoiceStatut.PAID);
+        return new ResponseReglementDTO(invoicePayment.getId().getId(), factureTiersPayant.getStatut() == InvoiceStatut.PAID);
     }
 
     public InvoicePayment doReglement(
@@ -138,7 +140,7 @@ public class ReglementFactureSelectionneesService extends AbstractReglementServi
 
     private List<ThirdPartySaleLine> getThirdPartySaleLines(ReglementParam reglementParam) {
         return this.thirdPartySaleLineRepository.findAll(
-              this.thirdPartySaleLineRepository.selectionBonCriteria(Set.copyOf(reglementParam.getDossierIds()))
+                this.thirdPartySaleLineRepository.selectionBonCriteria(Set.copyOf(reglementParam.getDossierIds()))
             );
     }
 }

@@ -11,21 +11,23 @@ import jakarta.persistence.IdClass;
 import jakarta.persistence.Index;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
+import jakarta.persistence.PostLoad;
+import jakarta.persistence.PrePersist;
 import jakarta.persistence.Table;
+import jakarta.persistence.Transient;
 import jakarta.persistence.UniqueConstraint;
 import jakarta.validation.constraints.NotNull;
-import org.springframework.data.domain.Persistable;
-
 import java.io.Serial;
 import java.io.Serializable;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.Objects;
+import org.springframework.data.domain.Persistable;
 
 @Entity
 @IdClass(AssuranceSaleId.class)
 @Table(name = "third_party_sale_line", indexes = {@Index(columnList = "num_bon", name = "third_party_sale_line_num_bon")}, uniqueConstraints = {@UniqueConstraint(columnNames = {"client_tiers_payant_id", "sale_id", "sale_date"})})
-public class ThirdPartySaleLine implements Persistable<SaleId>, Serializable, Cloneable {
+public class ThirdPartySaleLine implements Persistable<AssuranceSaleId>, Serializable, Cloneable {
 
     @Serial
     private static final long serialVersionUID = 1L;
@@ -78,9 +80,10 @@ public class ThirdPartySaleLine implements Persistable<SaleId>, Serializable, Cl
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "facture_tiers_payant_id", referencedColumnName = "id")
     private FactureTiersPayant factureTiersPayant;
-
-    public Long getId() {
-        return id;
+    @Transient
+    private boolean isNew = true;
+    public AssuranceSaleId getId() {
+        return new AssuranceSaleId(id, saleDate);
     }
 
     public ThirdPartySaleLine setId(Long id) {
@@ -221,5 +224,16 @@ public class ThirdPartySaleLine implements Persistable<SaleId>, Serializable, Cl
         } catch (CloneNotSupportedException e) {
             return null;
         }
+    }
+
+    @Override
+    public boolean isNew() {
+        return isNew;
+    }
+
+    @PrePersist
+    @PostLoad
+    void markNotNew() {
+        this.isNew = false;
     }
 }

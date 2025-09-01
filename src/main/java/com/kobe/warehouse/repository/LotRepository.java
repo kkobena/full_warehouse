@@ -93,8 +93,13 @@ public interface LotRepository extends JpaRepository<Lot, Long>, JpaSpecificatio
                     search
                 ),
                 cb.like(root.get(Lot_.orderLine).get(OrderLine_.fournisseurProduit).get(FournisseurProduit_.codeCip), search),
+                cb.like(root.get(Lot_.orderLine).get(OrderLine_.fournisseurProduit).get(FournisseurProduit_.codeEan), search),
                 cb.like(
-                    root.get(Lot_.orderLine).get(OrderLine_.fournisseurProduit).get(FournisseurProduit_.produit).get(Produit_.codeEan),
+                    root
+                        .get(Lot_.orderLine)
+                        .get(OrderLine_.fournisseurProduit)
+                        .get(FournisseurProduit_.produit)
+                        .get(Produit_.codeEanLaboratoire),
                     search
                 )
             );

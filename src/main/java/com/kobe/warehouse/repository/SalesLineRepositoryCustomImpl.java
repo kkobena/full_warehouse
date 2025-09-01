@@ -1,8 +1,6 @@
 package com.kobe.warehouse.repository;
 
-import com.kobe.warehouse.domain.FournisseurProduit;
 import com.kobe.warehouse.domain.FournisseurProduit_;
-import com.kobe.warehouse.domain.Fournisseur_;
 import com.kobe.warehouse.domain.Produit;
 import com.kobe.warehouse.domain.Produit_;
 import com.kobe.warehouse.domain.SalesLine;
@@ -17,8 +15,6 @@ import jakarta.persistence.criteria.Join;
 import jakarta.persistence.criteria.JoinType;
 import jakarta.persistence.criteria.Predicate;
 import jakarta.persistence.criteria.Root;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Objects;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
@@ -44,10 +40,9 @@ public class SalesLineRepositoryCustomImpl implements SalesLineRepositoryCustom 
         CriteriaQuery<ProductStatRecord> cq = cb.createQuery(ProductStatRecord.class);
         Root<SalesLine> root = cq.from(SalesLine.class);
         Join<SalesLine, Produit> produitJoin = root.join(SalesLine_.produit, JoinType.INNER);
-        cq.groupBy(produitJoin.get(Produit_.id), produitJoin.get(Produit_.fournisseurProduitPrincipal).get(FournisseurProduit_.codeCip));
 
-       // TODO avoir comment metre le fourniseur principal en  jsonb dans produit
-        Predicate predicates=spec.toPredicate(root, cq, cb);
+        // TODO avoir comment metre le fourniseur principal en  jsonb dans produit
+        Predicate predicates = spec.toPredicate(root, cq, cb);
         cq.where(predicates);
 
         cq.select(
@@ -57,7 +52,7 @@ public class SalesLineRepositoryCustomImpl implements SalesLineRepositoryCustom 
                 cb.count(produitJoin.get(Produit_.id)),
                 //  cb.sum(root.get(SalesLine_.htAmount)),
                 produitJoin.get(Produit_.fournisseurProduitPrincipal).get(FournisseurProduit_.codeCip),
-                produitJoin.get(Produit_.codeEan),
+                produitJoin.get(Produit_.codeEanLaboratoire),
                 produitJoin.get(Produit_.libelle),
                 cb.sum(root.get(SalesLine_.quantitySold)),
                 cb.sum(root.get(SalesLine_.costAmount)),
@@ -70,9 +65,19 @@ public class SalesLineRepositoryCustomImpl implements SalesLineRepositoryCustom 
         );
 
         if (Objects.nonNull(order) && order == OrderBy.AMOUNT) {
-            cq.orderBy(cb.desc(cb.sum(root.get(SalesLine_.salesAmount)))).groupBy(produitJoin.get(Produit_.id));
+            cq
+                .orderBy(cb.desc(cb.sum(root.get(SalesLine_.salesAmount))))
+                .groupBy(
+                    produitJoin.get(Produit_.id),
+                    produitJoin.get(Produit_.fournisseurProduitPrincipal).get(FournisseurProduit_.codeCip)
+                );
         } else {
-            cq.orderBy(cb.desc(cb.sum(root.get(SalesLine_.quantitySold)))).groupBy(produitJoin.get(Produit_.id));
+            cq
+                .orderBy(cb.desc(cb.sum(root.get(SalesLine_.quantitySold))))
+                .groupBy(
+                    produitJoin.get(Produit_.id),
+                    produitJoin.get(Produit_.fournisseurProduitPrincipal).get(FournisseurProduit_.codeCip)
+                );
         }
 
         TypedQuery<ProductStatRecord> q = em.createQuery(cq);

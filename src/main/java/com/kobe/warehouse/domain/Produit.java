@@ -25,11 +25,6 @@ import jakarta.persistence.Table;
 import jakarta.persistence.UniqueConstraint;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotNull;
-import org.hibernate.annotations.JoinFormula;
-import org.hibernate.envers.Audited;
-import org.hibernate.envers.NotAudited;
-import org.hibernate.envers.RelationTargetAuditMode;
-
 import java.io.Serial;
 import java.io.Serializable;
 import java.time.LocalDate;
@@ -38,6 +33,10 @@ import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import org.hibernate.annotations.JoinFormula;
+import org.hibernate.envers.Audited;
+import org.hibernate.envers.NotAudited;
+import org.hibernate.envers.RelationTargetAuditMode;
 
 /**
  * not an ignored comment
@@ -176,8 +175,7 @@ public class Produit implements Serializable {
     @ManyToOne(fetch = FetchType.LAZY)
     private FormProduit forme;
 
-    @Column(name = "code_ean")
-    private String codeEan;
+
 
     @Column(name = "code_ean_labo")
     private String codeEanLaboratoire;
@@ -491,13 +489,6 @@ public class Produit implements Serializable {
         this.forme = forme;
     }
 
-    public String getCodeEan() {
-        return codeEan;
-    }
-
-    public void setCodeEan(String codeEan) {
-        this.codeEan = codeEan;
-    }
 
     public FamilleProduit getFamille() {
         return famille;

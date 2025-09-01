@@ -2,7 +2,6 @@ package com.kobe.warehouse.service.sale.impl;
 
 import com.kobe.warehouse.config.IdGeneratorService;
 import com.kobe.warehouse.domain.SalesLine;
-import com.kobe.warehouse.repository.InventoryTransactionRepository;
 import com.kobe.warehouse.repository.ProduitRepository;
 import com.kobe.warehouse.repository.SalesLineRepository;
 import com.kobe.warehouse.repository.StockProduitRepository;
@@ -34,7 +33,9 @@ public class AssuranceSaleLineServiceImpl extends SalesLineServiceImpl {
             stockProduitRepository,
             logsService,
             suggestionProduitService,
-            lotService,inventoryTransactionService,idGeneratorService
+            lotService,
+            inventoryTransactionService,
+            idGeneratorService
         );
     }
 

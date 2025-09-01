@@ -130,8 +130,12 @@ public class StockEntryServiceImpl implements StockEntryService {
         this.commandeRepository.saveAndFlush(finalizeSaisie(deliveryReceiptLite));
     }
 
+    private Commande getReferenceById(Long id) {
+        return commandeRepository.findCommandeById(id);
+    }
+
     private Commande finalizeSaisie(DeliveryReceiptLiteDTO deliveryReceiptLite) {
-        Commande deliveryReceipt = this.commandeRepository.getReferenceById(deliveryReceiptLite.getId());
+        Commande deliveryReceipt = getReferenceById(deliveryReceiptLite.getId());
         // TODO: liste des vente en avoir pour envoi possible de notif et de mail
         deliveryReceipt
             .getOrderLines()
@@ -144,7 +148,7 @@ public class StockEntryServiceImpl implements StockEntryService {
                             "%s [%s %s ]",
                             "Code cip non renseigné pour ce produit ",
                             produit.getLibelle(),
-                            Optional.ofNullable(produit.getCodeEan()).orElse("")
+                            Optional.ofNullable(fournisseurProduit.getCodeCip()).orElse("")
                         ),
                         "codeCipManquant"
                     );
@@ -207,7 +211,7 @@ public class StockEntryServiceImpl implements StockEntryService {
 
     @Override
     public DeliveryReceiptLiteDTO createBon(DeliveryReceiptLiteDTO deliveryReceiptLite) {
-        Commande commande = this.commandeRepository.getReferenceById(deliveryReceiptLite.getId());
+        Commande commande = getReferenceById(deliveryReceiptLite.getId());
         commande.setUpdatedAt(LocalDateTime.now());
         commande.setUser(storageService.getUser());
         commande.orderStatus(OrderStatut.RECEIVED);
@@ -222,7 +226,7 @@ public class StockEntryServiceImpl implements StockEntryService {
 
     @Override
     public DeliveryReceiptLiteDTO updateBon(DeliveryReceiptLiteDTO deliveryReceiptLite) {
-        Commande commande = this.commandeRepository.getReferenceById(deliveryReceiptLite.getId());
+        Commande commande = getReferenceById(deliveryReceiptLite.getId());
         return fromEntity(commandeRepository.save(buildDeliveryReceipt(deliveryReceiptLite, commande)));
     }
 
@@ -244,7 +248,7 @@ public class StockEntryServiceImpl implements StockEntryService {
                     "modelimportation"
                 );
             };
-        saveLignesBonEchouees(commandeResponse, commande.getId());
+        saveLignesBonEchouees(commandeResponse, commande.getId().getId());
         return commandeResponse;
     }
 
@@ -325,7 +329,7 @@ public class StockEntryServiceImpl implements StockEntryService {
 
     private DeliveryReceiptLiteDTO fromEntity(Commande commande) {
         return new DeliveryReceiptLiteDTO()
-            .setId(commande.getId())
+            .setId(commande.getId().getId())
             .setHtAmount(commande.getHtAmount())
             .setReceiptAmount(commande.getGrossAmount())
             .setFinalAmount(commande.getFinalAmount())
@@ -394,16 +398,19 @@ public class StockEntryServiceImpl implements StockEntryService {
         int taxeAmount,
         Commande commande
     ) {
-        OrderLine orderLine = new OrderLine();
-        orderLine.setFreeQty(quantityUg);
-        orderLine.setCreatedAt(commande.getCreatedAt());
-        orderLine.setQuantityReceived(quantityReceived);
-        orderLine.setQuantityRequested(quantityRequested);
-        orderLine.setOrderUnitPrice(orderUnitPrice > 0 ? orderUnitPrice : fournisseurProduit.getPrixUni());
-        orderLine.setOrderCostAmount(orderCostAmount > 0 ? orderCostAmount : fournisseurProduit.getPrixAchat());
-        orderLine.setInitStock(stock);
-        orderLine.setFournisseurProduit(fournisseurProduit);
-        orderLine.setTaxAmount(taxeAmount);
+        OrderLine orderLine =
+            this.orderLineService.buildDeliveryReceiptItemFromRecord(
+                    fournisseurProduit,
+                    quantityRequested,
+                    quantityReceived,
+                    orderCostAmount,
+                    orderUnitPrice,
+                    quantityUg,
+                    stock,
+                    taxeAmount,
+                    commande
+                );
+
         commande.getOrderLines().add(orderLine);
 
         return orderLine;

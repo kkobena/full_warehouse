@@ -6,17 +6,21 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
 import jakarta.persistence.FetchType;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.IdClass;
 import jakarta.persistence.Index;
 import jakarta.persistence.ManyToOne;
+import jakarta.persistence.PostLoad;
+import jakarta.persistence.PrePersist;
 import jakarta.persistence.Table;
+import jakarta.persistence.Transient;
 import jakarta.persistence.UniqueConstraint;
 import jakarta.validation.constraints.NotNull;
 import java.io.Serial;
 import java.io.Serializable;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
+import org.springframework.data.domain.Persistable;
 
 /**
  * A InventoryTransaction.
@@ -24,23 +28,28 @@ import java.time.LocalDateTime;
 @Entity
 @Table(
     name = "inventory_transaction",
-    uniqueConstraints = { @UniqueConstraint(columnNames = { "entity_id", "produit_id", "mouvemen_type" }) },
+    uniqueConstraints = { @UniqueConstraint(columnNames = { "entity_id", "produit_id", "mouvement_type", "transaction_date" }) },
     indexes = {
-        @Index(columnList = "mouvemen_type", name = "mouvemen_type_index"), @Index(columnList = "created_at", name = "createdAt_index"),
+        @Index(columnList = "mouvement_type", name = "inventory_mouvement_type_type_index"),
+        @Index(columnList = "transaction_date", name = "inventory_transaction_date_index"),
     }
 )
-public class InventoryTransaction implements Serializable {
+@IdClass(ProductMvtId.class)
+public class InventoryTransaction implements Persistable<ProductMvtId>, Serializable {
 
     @Serial
     private static final long serialVersionUID = 1L;
 
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
+
+    @Id
+    @Column(name = "transaction_date", nullable = false)
+    private LocalDate transactionDate = LocalDate.now();
 
     @NotNull
     @Enumerated(EnumType.STRING)
-    @Column(name = "mouvemen_type", nullable = false)
+    @Column(name = "mouvement_type", nullable = false)
     private MouvementProduit mouvementType;
 
     @NotNull
@@ -82,8 +91,11 @@ public class InventoryTransaction implements Serializable {
     @Column(name = "entity_id", nullable = false)
     private Long entityId;
 
-    public Long getId() {
-        return id;
+    @Transient
+    private boolean isNew = true;
+
+    public ProductMvtId getId() {
+        return new ProductMvtId(id, transactionDate);
     }
 
     public InventoryTransaction setId(Long id) {
@@ -190,6 +202,14 @@ public class InventoryTransaction implements Serializable {
         return this;
     }
 
+    public LocalDate getTransactionDate() {
+        return transactionDate;
+    }
+
+    public void setTransactionDate(LocalDate transactionDate) {
+        this.transactionDate = transactionDate;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) {
@@ -204,5 +224,16 @@ public class InventoryTransaction implements Serializable {
     @Override
     public int hashCode() {
         return 31;
+    }
+
+    @Override
+    public boolean isNew() {
+        return isNew;
+    }
+
+    @PrePersist
+    @PostLoad
+    void markNotNew() {
+        this.isNew = false;
     }
 }

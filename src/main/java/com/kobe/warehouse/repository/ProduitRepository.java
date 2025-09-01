@@ -1,5 +1,9 @@
 package com.kobe.warehouse.repository;
 
+import static java.util.Objects.isNull;
+import static java.util.Objects.nonNull;
+import static org.springframework.util.StringUtils.hasText;
+
 import com.kobe.warehouse.domain.FamilleProduit_;
 import com.kobe.warehouse.domain.FournisseurProduit;
 import com.kobe.warehouse.domain.FournisseurProduit_;
@@ -16,6 +20,9 @@ import com.kobe.warehouse.service.dto.produit.HistoriqueProduitInfo;
 import com.kobe.warehouse.service.stock.dto.LotFilterParam;
 import jakarta.persistence.criteria.Expression;
 import jakarta.persistence.criteria.Join;
+import java.time.LocalDate;
+import java.util.List;
+import java.util.Optional;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
@@ -24,14 +31,6 @@ import org.springframework.data.jpa.repository.query.Procedure;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
-import java.time.LocalDate;
-import java.util.List;
-import java.util.Optional;
-
-import static java.util.Objects.isNull;
-import static java.util.Objects.nonNull;
-import static org.springframework.util.StringUtils.hasText;
-
 /**
  * Spring Data repository for the Produit entity.
  */
@@ -39,10 +38,7 @@ import static org.springframework.util.StringUtils.hasText;
 @Repository
 public interface ProduitRepository
     extends JpaRepository<Produit, Long>, JpaSpecificationExecutor<Produit>, SpecificationBuilder, ProduitCustomRepository {
-    @Query(
-        value = "SELECT * FROM gettopqty80percentproducts(:startDate, :endDate, :caList, :statutList)",
-        nativeQuery = true
-    )
+    @Query(value = "SELECT * FROM gettopqty80percentproducts(:startDate, :endDate, :caList, :statutList)", nativeQuery = true)
     List<Object[]> getTopQty80PercentProducts(
         @Param("startDate") LocalDate startDate,
         @Param("endDate") LocalDate endDate,
@@ -50,10 +46,7 @@ public interface ProduitRepository
         @Param("statutList") String statutList
     );
 
-    @Query(
-        value = "SELECT * FROM gettopamount80percentproducts(:startDate, :endDate, :caList, :statutList)",
-        nativeQuery = true
-    )
+    @Query(value = "SELECT * FROM gettopamount80percentproducts(:startDate, :endDate, :caList, :statutList)", nativeQuery = true)
     List<Object[]> getTopAmount80PercentProducts(
         @Param("startDate") LocalDate startDate,
         @Param("endDate") LocalDate endDate,
@@ -61,22 +54,11 @@ public interface ProduitRepository
         @Param("statutList") String statutList
     );
 
-
     @Procedure(procedureName = "gettopqty80percentproducts")
-    List<Object[]> getTopQty80PercentProducts__(
-        LocalDate startDate,
-        LocalDate endDate,
-        String caList,
-        String statutList
-    );
+    List<Object[]> getTopQty80PercentProducts__(LocalDate startDate, LocalDate endDate, String caList, String statutList);
 
     @Procedure(procedureName = "gettopamount80percentproducts")
-    List<Object[]> getTopAmount80PercentProducts__(
-        LocalDate startDate,
-        LocalDate endDate,
-        String caList,
-        String statutList
-    );
+    List<Object[]> getTopAmount80PercentProducts__(LocalDate startDate, LocalDate endDate, String caList, String statutList);
 
     Produit findFirstByParentId(Long parentId);
 
@@ -89,7 +71,6 @@ public interface ProduitRepository
         nativeQuery = true
     )
     HistoriqueProduitInfo findHistoriqueProduitInfo(Long produitId);
-
 
     default Specification<Produit> filterByStock() {
         return (root, query, cb) -> {
@@ -123,11 +104,12 @@ public interface ProduitRepository
         }
         return (root, _, cb) -> {
             Join<Produit, FournisseurProduit> produitJoin = root.join(Produit_.fournisseurProduits);
-
+            var seatchT = "%" + searhTerm.toUpperCase() + "%";
             return cb.or(
-                cb.like(cb.upper(root.get(Produit_.libelle)), "%" + searhTerm.toUpperCase() + "%"),
-                cb.like(cb.upper(produitJoin.get(FournisseurProduit_.codeCip)), "%" + searhTerm.toUpperCase() + "%"),
-                cb.like(cb.upper(root.get(Produit_.codeEan)), "%" + searhTerm.toUpperCase() + "%")
+                cb.like(cb.upper(produitJoin.get(FournisseurProduit_.codeCip)), seatchT),
+                cb.like(cb.upper(produitJoin.get(FournisseurProduit_.codeEan)), seatchT),
+                cb.like(cb.upper(root.get(Produit_.libelle)), seatchT),
+                cb.like(cb.upper(root.get(Produit_.codeEanLaboratoire)), seatchT)
             );
         };
     }

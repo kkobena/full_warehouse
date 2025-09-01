@@ -120,15 +120,16 @@ public class CustomizedCommandeRepository implements CustomizedCommandeService {
 
             predicates.add(
                 cb.or(
+                    cb.like(cb.upper(root.get(OrderLine_.fournisseurProduit).get(FournisseurProduit_.codeCip)), search),
+                    cb.like(cb.upper(root.get(OrderLine_.fournisseurProduit).get(FournisseurProduit_.codeEan)), search),
                     cb.like(
                         cb.upper(root.get(OrderLine_.fournisseurProduit).get(FournisseurProduit_.produit).get(Produit_.libelle)),
                         search
                     ),
                     cb.like(
-                        cb.upper(root.get(OrderLine_.fournisseurProduit).get(FournisseurProduit_.produit).get(Produit_.codeEan)),
+                        cb.upper(root.get(OrderLine_.fournisseurProduit).get(FournisseurProduit_.produit).get(Produit_.codeEanLaboratoire)),
                         search
-                    ),
-                    cb.like(cb.upper(root.get(OrderLine_.fournisseurProduit).get(FournisseurProduit_.codeCip)), search)
+                    )
                 )
             );
         }

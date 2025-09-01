@@ -57,7 +57,7 @@ public class SalePayment extends PaymentTransaction implements Serializable, Clo
     public Object clone() {
         try {
             return super.clone();
-        } catch (CloneNotSupportedException e) {
+        } catch (Exception e) {
             return null;
         }
     }

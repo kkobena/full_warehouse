@@ -22,6 +22,11 @@ import com.kobe.warehouse.service.dto.HistoriqueProduitVenteSummary;
 import com.kobe.warehouse.service.dto.projection.LastDateProjection;
 import jakarta.persistence.criteria.Join;
 import jakarta.persistence.criteria.SetJoin;
+import java.time.LocalDate;
+import java.util.EnumSet;
+import java.util.List;
+import java.util.Optional;
+import java.util.Set;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
@@ -30,12 +35,6 @@ import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
-
-import java.time.LocalDate;
-import java.util.EnumSet;
-import java.util.List;
-import java.util.Optional;
-import java.util.Set;
 
 /**
  * Spring Data repository for the SalesLine entity.
@@ -113,9 +112,10 @@ public interface SalesLineRepository
             Join<SalesLine, Produit> produitJoin = root.join(SalesLine_.produit);
             SetJoin<Produit, FournisseurProduit> fournisseurProduitProduitJoin = produitJoin.joinSet(Produit_.FOURNISSEUR_PRODUITS);
             return cb.or(
-                cb.like(cb.upper(produitJoin.get(Produit_.codeEan)), searchTerm),
-                cb.like(cb.upper(produitJoin.get(Produit_.libelle)), searchTerm),
-                cb.like(cb.upper(fournisseurProduitProduitJoin.get(FournisseurProduit_.codeCip)), searchTerm)
+                cb.like(cb.upper(fournisseurProduitProduitJoin.get(FournisseurProduit_.codeCip)), searchTerm),
+                cb.like(cb.upper(fournisseurProduitProduitJoin.get(FournisseurProduit_.codeEan)), searchTerm),
+                cb.like(cb.upper(produitJoin.get(Produit_.codeEanLaboratoire)), searchTerm),
+                cb.like(cb.upper(produitJoin.get(Produit_.libelle)), searchTerm)
             );
         };
     }

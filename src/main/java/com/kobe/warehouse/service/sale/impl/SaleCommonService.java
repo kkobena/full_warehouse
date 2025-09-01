@@ -25,18 +25,17 @@ import com.kobe.warehouse.service.errors.SaleAlreadyCloseException;
 import com.kobe.warehouse.service.errors.SaleNotFoundCustomerException;
 import com.kobe.warehouse.service.sale.SalesLineService;
 import com.kobe.warehouse.service.utils.AfficheurPosService;
-import org.json.JSONArray;
-import org.json.JSONException;
-import org.json.JSONObject;
-import org.springframework.stereotype.Service;
-import org.springframework.util.CollectionUtils;
-
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+import org.springframework.stereotype.Service;
+import org.springframework.util.CollectionUtils;
 
 @Service
 public class SaleCommonService {
@@ -68,6 +67,7 @@ public class SaleCommonService {
         this.posteRepository = posteRepository;
         this.afficheurPosService = afficheurPosService;
         this.idGeneratorService = idGeneratorService;
+        this.idGeneratorService.setSequenceName("id_sale_seq");
     }
 
     public void computeSaleEagerAmount(Sales c) {

@@ -5,13 +5,14 @@ import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.IdClass;
 import jakarta.persistence.Index;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
+import jakarta.persistence.PostLoad;
+import jakarta.persistence.PrePersist;
 import jakarta.persistence.Table;
 import jakarta.persistence.Transient;
 import jakarta.persistence.UniqueConstraint;
@@ -22,23 +23,28 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
-import org.hibernate.annotations.ColumnDefault;
 import org.springframework.data.domain.Persistable;
 
 @Entity
 @Table(
     name = "facture_tiers_payant",
-    uniqueConstraints = { @UniqueConstraint(columnNames = { "num_facture" }) },
-    indexes = { @Index(columnList = "num_facture", name = "num_facture_index") }
+    uniqueConstraints = { @UniqueConstraint(columnNames = { "num_facture", "invoice_date" }) },
+    indexes = {
+        @Index(columnList = "num_facture", name = "num_facture_index"), @Index(columnList = "invoice_date", name = "invoice_date_index"),
+    }
 )
-public class FactureTiersPayant implements Persistable<SaleId>, Serializable {
+@IdClass(FactureItemId.class)
+public class FactureTiersPayant implements Persistable<FactureItemId>, Serializable {
 
     @Serial
     private static final long serialVersionUID = 1L;
 
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
+
+    @Id
+    @Column(name = "invoice_date")
+    private LocalDate invoiceDate;
 
     @NotNull
     @Column(name = "num_facture", nullable = false, length = 20)
@@ -86,6 +92,9 @@ public class FactureTiersPayant implements Persistable<SaleId>, Serializable {
     private List<ThirdPartySaleLine> facturesDetails = new ArrayList<>();
 
     @Transient
+    private boolean isNew = true;
+
+    @Transient
     private String displayNumFacture;
 
     public LocalDateTime getCreated() {
@@ -95,6 +104,14 @@ public class FactureTiersPayant implements Persistable<SaleId>, Serializable {
     public FactureTiersPayant setCreated(LocalDateTime created) {
         this.created = created;
         return this;
+    }
+
+    public LocalDate getInvoiceDate() {
+        return invoiceDate;
+    }
+
+    public void setInvoiceDate(LocalDate invoiceDate) {
+        this.invoiceDate = invoiceDate;
     }
 
     public String getDisplayNumFacture() {
@@ -177,8 +194,8 @@ public class FactureTiersPayant implements Persistable<SaleId>, Serializable {
         return this;
     }
 
-    public Long getId() {
-        return id;
+    public FactureItemId getId() {
+        return new FactureItemId(id, invoiceDate);
     }
 
     public FactureTiersPayant setId(Long id) {
@@ -247,5 +264,16 @@ public class FactureTiersPayant implements Persistable<SaleId>, Serializable {
     public FactureTiersPayant setUpdated(LocalDateTime updated) {
         this.updated = updated;
         return this;
+    }
+
+    @Override
+    public boolean isNew() {
+        return isNew;
+    }
+
+    @PrePersist
+    @PostLoad
+    void markNotNew() {
+        this.isNew = false;
     }
 }

@@ -56,7 +56,7 @@ public class OrderLineDTO {
     public OrderLineDTO(OrderLine orderLine) {
         initStock = orderLine.getInitStock();
         //  orderUnitPrice = orderLine.getOrderUnitPrice();
-        id = orderLine.getId();
+        id = orderLine.getId().getId();
         quantityReceived = orderLine.getQuantityReceived();
         quantityRequested = orderLine.getQuantityRequested();
         quantityReturned = orderLine.getQuantityReturned();
@@ -75,7 +75,7 @@ public class OrderLineDTO {
         fournisseurProduitId = fournisseurProduit.getId();
         produitLibelle = produit.getLibelle();
         produitCip = fournisseurProduit.getCodeCip();
-        produitCodeEan = produit.getCodeEan();
+        produitCodeEan = produit.getCodeEanLaboratoire();
         orderCostAmount = orderLine.getOrderCostAmount();
         provisionalCode = orderLine.getProvisionalCode();
         quantityReceivedTmp = orderLine.getQuantityReceived() != null ? orderLine.getQuantityReceived() : orderLine.getQuantityRequested();

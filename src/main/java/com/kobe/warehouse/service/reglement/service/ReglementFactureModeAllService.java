@@ -1,5 +1,6 @@
 package com.kobe.warehouse.service.reglement.service;
 
+import com.kobe.warehouse.config.IdGeneratorService;
 import com.kobe.warehouse.domain.FactureTiersPayant;
 import com.kobe.warehouse.domain.InvoicePayment;
 import com.kobe.warehouse.domain.ThirdPartySaleLine;
@@ -29,7 +30,9 @@ public class ReglementFactureModeAllService extends AbstractReglementService {
         UserService userService,
         FacturationRepository facturationRepository,
         ThirdPartySaleLineRepository thirdPartySaleLineRepository,
-        BanqueRepository banqueRepository
+        BanqueRepository banqueRepository,
+        IdGeneratorService idGeneratorService,
+        InvoicePaymentItemService invoicePaymentItemService
     ) {
         super(
             cashRegisterService,
@@ -37,7 +40,9 @@ public class ReglementFactureModeAllService extends AbstractReglementService {
             userService,
             facturationRepository,
             thirdPartySaleLineRepository,
-            banqueRepository
+            banqueRepository,
+            idGeneratorService,
+            invoicePaymentItemService
         );
         this.facturationRepository = facturationRepository;
     }
@@ -66,11 +71,15 @@ public class ReglementFactureModeAllService extends AbstractReglementService {
         invoicePayment.setCommentaire(reglementParam.getComment());
         invoicePayment = super.saveInvoicePayment(invoicePayment);
 
-        return new ResponseReglementDTO(invoicePayment.getId(), factureTiersPayant.getStatut() == InvoiceStatut.PAID);
+        return new ResponseReglementDTO(getId(invoicePayment), factureTiersPayant.getStatut() == InvoiceStatut.PAID);
+    }
+
+    private Long getId(InvoicePayment invoicePayment) {
+        return invoicePayment.getId().getId();
     }
 
     private FactureTiersPayant getFactureTiersPayant(ReglementParam reglementParam) {
-        return facturationRepository.findById(reglementParam.getId()).orElseThrow();
+        return facturationRepository.findFactureTiersPayantById(reglementParam.getId()).orElseThrow();
     }
 
     public InvoicePayment doReglement(InvoicePayment groupeInvoicePayment, FactureTiersPayant factureTiersPayant) {

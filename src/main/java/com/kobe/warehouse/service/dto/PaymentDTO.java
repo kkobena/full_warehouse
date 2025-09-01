@@ -1,9 +1,9 @@
 package com.kobe.warehouse.service.dto;
 
+import com.kobe.warehouse.domain.AppUser;
 import com.kobe.warehouse.domain.Customer;
 import com.kobe.warehouse.domain.SalePayment;
 import com.kobe.warehouse.domain.Sales;
-import com.kobe.warehouse.domain.AppUser;
 import java.time.LocalDateTime;
 
 public class PaymentDTO {
@@ -30,7 +30,7 @@ public class PaymentDTO {
 
     public PaymentDTO(SalePayment payment) {
         super();
-        this.id = payment.getId();
+        this.id = payment.getId().getId();
         this.netAmount = payment.getReelAmount();
         this.paidAmount = payment.getPaidAmount();
         this.createdAt = payment.getCreatedAt();

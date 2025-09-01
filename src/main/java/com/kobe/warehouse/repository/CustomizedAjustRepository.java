@@ -9,7 +9,6 @@ import com.kobe.warehouse.domain.FournisseurProduit;
 import com.kobe.warehouse.domain.FournisseurProduit_;
 import com.kobe.warehouse.domain.Produit;
 import com.kobe.warehouse.domain.Produit_;
-
 import com.kobe.warehouse.domain.enumeration.AjustementStatut;
 import com.kobe.warehouse.service.FileResourceService;
 import com.kobe.warehouse.service.dto.AjustDTO;
@@ -108,9 +107,10 @@ public class CustomizedAjustRepository extends FileResourceService implements Aj
             SetJoin<Produit, FournisseurProduit> fp = produitJoin.joinSet(Produit_.FOURNISSEUR_PRODUITS, JoinType.LEFT);
             predicates.add(
                 cb.or(
+                    cb.like(cb.upper(fp.get(FournisseurProduit_.codeCip)), search),
                     cb.like(cb.upper(produitJoin.get(Produit_.libelle)), search),
-                    cb.like(cb.upper(produitJoin.get(Produit_.codeEan)), search),
-                    cb.like(cb.upper(fp.get(FournisseurProduit_.codeCip)), search)
+                    cb.like(cb.upper(produitJoin.get(Produit_.codeEanLaboratoire)), search),
+                    cb.like(cb.upper(fp.get(FournisseurProduit_.codeEan)), search)
                 )
             );
         }

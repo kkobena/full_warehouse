@@ -28,17 +28,16 @@ import com.kobe.warehouse.service.mvt_produit.service.InventoryTransactionServic
 import com.kobe.warehouse.service.sale.SalesLineService;
 import com.kobe.warehouse.service.stock.LotService;
 import com.kobe.warehouse.service.stock.SuggestionProduitService;
-import org.springframework.scheduling.annotation.Async;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
-import org.springframework.util.CollectionUtils;
-
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicInteger;
+import org.springframework.scheduling.annotation.Async;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.CollectionUtils;
 
 @Service
 @Transactional
@@ -60,7 +59,8 @@ public abstract class SalesLineServiceImpl implements SalesLineService {
         LogsService logsService,
         SuggestionProduitService suggestionProduitService,
         LotService lotService,
-        InventoryTransactionService inventoryTransactionService, IdGeneratorService idGeneratorService
+        InventoryTransactionService inventoryTransactionService,
+        IdGeneratorService idGeneratorService
     ) {
         this.produitRepository = produitRepository;
         this.salesLineRepository = salesLineRepository;
@@ -70,6 +70,7 @@ public abstract class SalesLineServiceImpl implements SalesLineService {
         this.lotService = lotService;
         this.inventoryTransactionService = inventoryTransactionService;
         this.idGeneratorService = idGeneratorService;
+        this.idGeneratorService.setSequenceName("id_sale_item_seq");
     }
 
     private SalesLine getNew() {
@@ -327,17 +328,17 @@ public abstract class SalesLineServiceImpl implements SalesLineService {
         int quantitySold = salesLine.getQuantitySold();
         AtomicInteger quantityToUpdate = new AtomicInteger(salesLine.getQuantitySold());
         this.lotService.findByProduitId(salesLine.getProduit().getId()).forEach(lot -> {
-            if (quantityToUpdate.get() > 0) {
-                if (lot.getQuantity() >= quantitySold) {
-                    //long id, String numLot, int quantity
-                    salesLine.getLots().add(new LotSold(lot.getId(), lot.getNumLot(), quantitySold));
-                    quantityToUpdate.addAndGet(-quantitySold);
-                } else {
-                    quantityToUpdate.addAndGet(-lot.getQuantity());
-                    salesLine.getLots().add(new LotSold(lot.getId(), lot.getNumLot(), lot.getQuantity()));
+                if (quantityToUpdate.get() > 0) {
+                    if (lot.getQuantity() >= quantitySold) {
+                        //long id, String numLot, int quantity
+                        salesLine.getLots().add(new LotSold(lot.getId(), lot.getNumLot(), quantitySold));
+                        quantityToUpdate.addAndGet(-quantitySold);
+                    } else {
+                        quantityToUpdate.addAndGet(-lot.getQuantity());
+                        salesLine.getLots().add(new LotSold(lot.getId(), lot.getNumLot(), lot.getQuantity()));
+                    }
                 }
-            }
-        });
+            });
         this.lotService.updateLots(salesLine.getLots());
     }
 

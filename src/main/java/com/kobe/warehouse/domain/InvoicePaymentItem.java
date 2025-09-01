@@ -3,16 +3,20 @@ package com.kobe.warehouse.domain;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.IdClass;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
+import jakarta.persistence.PostLoad;
+import jakarta.persistence.PrePersist;
 import jakarta.persistence.Table;
+import jakarta.persistence.Transient;
 import jakarta.validation.constraints.NotNull;
 import java.io.Serial;
 import java.io.Serializable;
+import java.time.LocalDate;
 import java.util.Objects;
+import org.springframework.data.domain.Persistable;
 
 /**
  * A InvoicePaymentItem.
@@ -20,14 +24,18 @@ import java.util.Objects;
 
 @Entity
 @Table(name = "invoice_payment_item")
-public class InvoicePaymentItem implements Serializable {
+@IdClass(PaymentItemId.class)
+public class InvoicePaymentItem implements Persistable<PaymentItemId>, Serializable {
 
     @Serial
     private static final long serialVersionUID = 1L;
 
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
+
+    @Id
+    @Column(name = "transaction_date", nullable = false)
+    private LocalDate transactionDate = LocalDate.now();
 
     @NotNull
     @Column(name = "montant_attendu", nullable = false)
@@ -38,14 +46,25 @@ public class InvoicePaymentItem implements Serializable {
     private Integer paidAmount;
 
     @NotNull
-    @ManyToOne(optional = false,fetch = FetchType.LAZY)
+    @ManyToOne(optional = false, fetch = FetchType.LAZY)
     @JoinColumn(name = "third_party_sale_line_id", referencedColumnName = "id")
     private ThirdPartySaleLine thirdPartySaleLine;
 
-    @ManyToOne(optional = false,fetch =  FetchType.LAZY)
+    @ManyToOne(optional = false, fetch = FetchType.LAZY)
     @NotNull
     @JoinColumn(name = "invoice_payment_id", referencedColumnName = "id")
     private InvoicePayment invoicePayment;
+
+    @Transient
+    private boolean isNew = true;
+
+    public LocalDate getTransactionDate() {
+        return transactionDate;
+    }
+
+    public void setTransactionDate(LocalDate transactionDate) {
+        this.transactionDate = transactionDate;
+    }
 
     public @NotNull ThirdPartySaleLine getThirdPartySaleLine() {
         return thirdPartySaleLine;
@@ -74,8 +93,8 @@ public class InvoicePaymentItem implements Serializable {
         return this;
     }
 
-    public Long getId() {
-        return id;
+    public PaymentItemId getId() {
+        return new PaymentItemId(id, transactionDate);
     }
 
     public InvoicePaymentItem setId(Long id) {
@@ -107,5 +126,16 @@ public class InvoicePaymentItem implements Serializable {
     @Override
     public int hashCode() {
         return Objects.hashCode(id);
+    }
+
+    @Override
+    public boolean isNew() {
+        return isNew;
+    }
+
+    @PrePersist
+    @PostLoad
+    void markNotNew() {
+        this.isNew = false;
     }
 }

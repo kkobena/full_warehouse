@@ -71,4 +71,15 @@ public interface OrderLineService {
     void changeFournisseurProduit(OrderLine orderLine, Long fournisseurId);
 
     void delete(OrderLine orderLine);
+    OrderLine buildDeliveryReceiptItemFromRecord(
+        FournisseurProduit fournisseurProduit,
+        int quantityRequested,
+        int quantityReceived,
+        int orderCostAmount,
+        int orderUnitPrice,
+        int quantityUg,
+        int stock,
+        int taxeAmount,
+        Commande commande
+    );
 }

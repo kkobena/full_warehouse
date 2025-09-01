@@ -207,7 +207,7 @@ public class SuggestionProduitServiceImpl implements SuggestionProduitService {
                     e.getUpdatedAt(),
                     produit.getLibelle(),
                     fournisseurProduit.getCodeCip(),
-                    produit.getCodeEan(),
+                    fournisseurProduit.getCodeEan(),
                     produit.getId(),
                     fournisseurProduit.getId(),
                     currentstock,
@@ -442,8 +442,8 @@ public class SuggestionProduitServiceImpl implements SuggestionProduitService {
                     Produit produit = fournisseurProduit.getProduit();
                     try {
                         printer.printRecord(
-                            org.apache.commons.lang3.StringUtils.isNotEmpty(produit.getCodeEan())
-                                ? produit.getCodeEan()
+                            org.apache.commons.lang3.StringUtils.isNotEmpty(produit.getCodeEanLaboratoire())
+                                ? produit.getCodeEanLaboratoire()
                                 : fournisseurProduit.getCodeCip(),
                             item.getQuantity()
                         );

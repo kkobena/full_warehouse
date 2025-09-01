@@ -9,38 +9,53 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
 import jakarta.persistence.FetchType;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.IdClass;
 import jakarta.persistence.Index;
 import jakarta.persistence.Inheritance;
 import jakarta.persistence.InheritanceType;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
+import jakarta.persistence.PostLoad;
+import jakarta.persistence.PrePersist;
 import jakarta.persistence.Table;
+import jakarta.persistence.Transient;
 import jakarta.validation.constraints.NotNull;
-import org.springframework.data.domain.Persistable;
-
 import java.io.Serial;
 import java.io.Serializable;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import org.springframework.data.domain.Persistable;
 
 /**
  * A PaymentTransaction.
  */
 @Entity
-@Table(name = "payment_transaction", indexes = { @Index(columnList = "categorie_ca", name = "pt_categorie_ca_id_index") })
+@Table(
+    name = "payment_transaction",
+    indexes = {
+        @Index(columnList = "categorie_ca", name = "pt_categorie_ca_id_index"),
+        @Index(columnList = "type_transaction", name = "pt_type_transaction_index"),
+        @Index(columnList = "transaction_date", name = "pt_transaction_date_index"),
+    }
+)
 @Inheritance(strategy = InheritanceType.SINGLE_TABLE)
 @DiscriminatorColumn(name = "dtype", discriminatorType = DiscriminatorType.STRING)
-public class PaymentTransaction implements Persistable<SaleId>, Serializable {
+@IdClass(PaymentId.class)
+public class PaymentTransaction implements Persistable<PaymentId>, Serializable {
 
     @Serial
     private static final long serialVersionUID = 1L;
 
+    @Transient
+    private boolean isNew = true;
+
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
+
+    @Id
+    @Column(name = "transaction_date", nullable = false)
+    private LocalDate transactionDate = LocalDate.now();
 
     @NotNull
     @Column(name = "expected_amount", nullable = false)
@@ -66,7 +81,7 @@ public class PaymentTransaction implements Persistable<SaleId>, Serializable {
     private PaymentMode paymentMode;
 
     @NotNull
-    @ManyToOne(optional = false,fetch = FetchType.LAZY)
+    @ManyToOne(optional = false, fetch = FetchType.LAZY)
     @JoinColumn(name = "cash_register_id", referencedColumnName = "id")
     private CashRegister cashRegister;
 
@@ -74,10 +89,6 @@ public class PaymentTransaction implements Persistable<SaleId>, Serializable {
     @Enumerated(EnumType.STRING)
     @Column(name = "categorie_ca", nullable = false)
     private CategorieChiffreAffaire categorieChiffreAffaire = CategorieChiffreAffaire.CA;
-
-    @Column(name = "transaction_date", nullable = false)
-    @NotNull
-    private LocalDate transactionDate = LocalDate.now();
 
     private boolean credit;
 
@@ -187,8 +198,8 @@ public class PaymentTransaction implements Persistable<SaleId>, Serializable {
         return this;
     }
 
-    public Long getId() {
-        return id;
+    public PaymentId getId() {
+        return new PaymentId(id, transactionDate);
     }
 
     public void setId(Long id) {
@@ -236,18 +247,22 @@ public class PaymentTransaction implements Persistable<SaleId>, Serializable {
     }
 
     @Override
-    public boolean equals(Object o) {
-        if (this == o) {
-            return true;
+    public Object clone() {
+        try {
+            return super.clone();
+        } catch (CloneNotSupportedException e) {
+            return null;
         }
-        if (!(o instanceof PaymentTransaction)) {
-            return false;
-        }
-        return id != null && id.equals(((PaymentTransaction) o).id);
     }
 
     @Override
-    public int hashCode() {
-        return 31;
+    public boolean isNew() {
+        return isNew;
+    }
+
+    @PrePersist
+    @PostLoad
+    void markNotNew() {
+        this.isNew = false;
     }
 }

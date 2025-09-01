@@ -226,8 +226,8 @@ public class CustomizedProductRepository implements CustomizedProductService {
         if (StringUtils.hasLength(dto.getExpirationDate())) {
             produit.setPerimeAt(LocalDate.parse(dto.getExpirationDate(), DateTimeFormatter.ofPattern("dd/MM/yyyy")));
         }
-        if (StringUtils.hasLength(dto.getCodeEan())) {
-            produit.setCodeEan(dto.getCodeEan());
+        if (StringUtils.hasLength(dto.getCodeEanLaboratoire())) {
+            produit.setCodeEanLaboratoire(dto.getCodeEanLaboratoire());
         }
 
         produit.setUpdatedAt(LocalDateTime.now());
@@ -388,7 +388,7 @@ public class CustomizedProductRepository implements CustomizedProductService {
         }
         Produit produit = ProduitBuilder.buildProduitFromProduitDTO(dto, produitToUpdate);
         buildRayonProduits(produit, dto, rayonProduits);
-     //   produit.getFournisseurProduits().stream().filter(FournisseurProduit::isPrincipal).findFirst().ifPresent(em::merge);
+        //   produit.getFournisseurProduits().stream().filter(FournisseurProduit::isPrincipal).findFirst().ifPresent(em::merge);
         em.merge(produit);
         logsService.create(
             TransactionType.UPDATE_PRODUCT,
@@ -409,7 +409,9 @@ public class CustomizedProductRepository implements CustomizedProductService {
             predicates.add(
                 cb.or(
                     cb.like(root.get(FournisseurProduit_.codeCip), criteteria),
-                    cb.like(root.get(FournisseurProduit_.produit).get(Produit_.codeEan), criteteria)
+                    cb.like(root.get(FournisseurProduit_.codeEan), criteteria),
+                    cb.like(root.get(FournisseurProduit_.produit).get(Produit_.codeEanLaboratoire), criteteria),
+                    cb.like(root.get(FournisseurProduit_.produit).get(Produit_.libelle), criteteria)
                 )
             );
             predicates.add(cb.equal(root.get(FournisseurProduit_.fournisseur).get(Fournisseur_.id), fournisseurId));
@@ -465,9 +467,10 @@ public class CustomizedProductRepository implements CustomizedProductService {
             SetJoin<Produit, FournisseurProduit> fp = root.joinSet(Produit_.FOURNISSEUR_PRODUITS, JoinType.LEFT);
             predicates.add(
                 cb.or(
+                    cb.like(cb.upper(fp.get(FournisseurProduit_.codeEan)), search),
+                    cb.like(cb.upper(fp.get(FournisseurProduit_.codeCip)), search),
                     cb.like(cb.upper(root.get(Produit_.libelle)), search),
-                    cb.like(cb.upper(root.get(Produit_.codeEan)), search),
-                    cb.like(cb.upper(fp.get(FournisseurProduit_.codeCip)), search)
+                    cb.like(cb.upper(root.get(Produit_.codeEanLaboratoire)), search)
                 )
             );
         }
@@ -564,9 +567,10 @@ public class CustomizedProductRepository implements CustomizedProductService {
             SetJoin<Produit, FournisseurProduit> fp = root.joinSet(Produit_.FOURNISSEUR_PRODUITS, JoinType.LEFT);
             predicates.add(
                 cb.or(
+                    cb.like(cb.upper(fp.get(FournisseurProduit_.codeEan)), search),
+                    cb.like(cb.upper(fp.get(FournisseurProduit_.codeCip)), search),
                     cb.like(cb.upper(root.get(Produit_.libelle)), search),
-                    cb.like(root.get(Produit_.codeEan), search),
-                    cb.like(fp.get(FournisseurProduit_.codeCip), search)
+                    cb.like(root.get(Produit_.codeEanLaboratoire), search)
                 )
             );
         }
@@ -623,9 +627,10 @@ public class CustomizedProductRepository implements CustomizedProductService {
             SetJoin<Produit, FournisseurProduit> fp = root.joinSet(Produit_.FOURNISSEUR_PRODUITS, JoinType.LEFT);
             predicates.add(
                 cb.or(
+                    cb.like(cb.upper(fp.get(FournisseurProduit_.codeEan)), search),
+                    cb.like(cb.upper(fp.get(FournisseurProduit_.codeCip)), search),
                     cb.like(cb.upper(root.get(Produit_.libelle)), search),
-                    cb.like(cb.upper(root.get(Produit_.codeEan)), search),
-                    cb.like(cb.upper(fp.get(FournisseurProduit_.codeCip)), search)
+                    cb.like(root.get(Produit_.codeEanLaboratoire), search)
                 )
             );
         }

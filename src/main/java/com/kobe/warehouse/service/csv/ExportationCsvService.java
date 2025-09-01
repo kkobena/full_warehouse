@@ -63,7 +63,9 @@ public class ExportationCsvService {
                     Produit produit = fournisseurProduit.getProduit();
                     try {
                         printer.printRecord(
-                            StringUtils.isNotEmpty(produit.getCodeEan()) ? produit.getCodeEan() : fournisseurProduit.getCodeCip(),
+                            StringUtils.isNotEmpty(produit.getCodeEanLaboratoire())
+                                ? produit.getCodeEanLaboratoire()
+                                : fournisseurProduit.getCodeCip(),
                             orderLine.getQuantityRequested()
                         );
                     } catch (IOException e) {

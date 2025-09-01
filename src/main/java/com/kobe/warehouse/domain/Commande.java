@@ -8,13 +8,15 @@ import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.IdClass;
 import jakarta.persistence.Index;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
+import jakarta.persistence.PostLoad;
+import jakarta.persistence.PrePersist;
 import jakarta.persistence.Table;
+import jakarta.persistence.Transient;
 import jakarta.persistence.UniqueConstraint;
 import jakarta.validation.constraints.NotNull;
 import java.io.Serial;
@@ -24,7 +26,6 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import org.hibernate.annotations.ColumnDefault;
-import org.hibernate.annotations.Comment;
 import org.springframework.data.domain.Persistable;
 
 /**
@@ -33,21 +34,26 @@ import org.springframework.data.domain.Persistable;
 @Entity
 @Table(
     name = "commande",
-    uniqueConstraints = { @UniqueConstraint(columnNames = { "receipt_reference", "fournisseur_id" }) },
+    uniqueConstraints = { @UniqueConstraint(columnNames = { "receipt_reference", "fournisseur_id", "order_date" }) },
     indexes = {
         @Index(columnList = "order_status", name = "order_status_index"),
+        @Index(columnList = "order_date", name = "cmd_order_date_index"),
         @Index(columnList = "paiment_status", name = "receipt_paiment_status_index"),
         @Index(columnList = "receipt_reference", name = "receipt_reference_index"),
     }
 )
-public class Commande implements Persistable<SaleId>, Serializable, Cloneable {
+@IdClass(CommandeId.class)
+public class Commande implements Persistable<CommandeId>, Serializable, Cloneable {
 
     @Serial
     private static final long serialVersionUID = 1L;
 
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
+
+    @Id
+    @Column(name = "order_date")
+    private LocalDate orderDate = LocalDate.now();
 
     @Column(name = "order_reference", length = 20)
     private String orderReference;
@@ -64,17 +70,16 @@ public class Commande implements Persistable<SaleId>, Serializable, Cloneable {
     //   @Formula("(SELECT SUM(oi.quantity_requested*oi.order_unit_price) FROM order_line oi WHERE oi.commande_id = id)")
 
     @Column(name = "order_amount")
-    private Integer orderAmount;//montant vente de la commande en cours de traitement
+    private Integer orderAmount; //montant vente de la commande en cours de traitement
 
     //  @Formula("(SELECT SUM((oi.quantity_received+oi.free_qty)*oi.order_unit_price) FROM order_line oi WHERE oi.commande_id = id)")
 
     @Column(name = "final_amount")
     private Integer finalAmount;
 
-
     @NotNull
     @Column(name = "gross_amount", nullable = false)
-    private Integer grossAmount;//montant achat de la commande
+    private Integer grossAmount; //montant achat de la commande
 
     @Column(name = "ht_amount")
     private int htAmount = 0;
@@ -120,6 +125,9 @@ public class Commande implements Persistable<SaleId>, Serializable, Cloneable {
     @Column(name = "has_been_submitted_to_pharmaml")
     private boolean hasBeenSubmittedToPharmaML;
 
+    @Transient
+    private boolean isNew = true;
+
     public boolean isHasBeenSubmittedToPharmaML() {
         return hasBeenSubmittedToPharmaML;
     }
@@ -136,8 +144,8 @@ public class Commande implements Persistable<SaleId>, Serializable, Cloneable {
         this.finalAmount = finalAmount;
     }
 
-    public Long getId() {
-        return id;
+    public CommandeId getId() {
+        return new CommandeId(id, orderDate);
     }
 
     public void setId(Long id) {
@@ -342,6 +350,25 @@ public class Commande implements Persistable<SaleId>, Serializable, Cloneable {
         orderLines.remove(orderLine);
         orderLine.setCommande(null);
         return this;
+    }
+
+    @Override
+    public boolean isNew() {
+        return isNew;
+    }
+
+    @PrePersist
+    @PostLoad
+    void markNotNew() {
+        this.isNew = false;
+    }
+
+    public LocalDate getOrderDate() {
+        return orderDate;
+    }
+
+    public void setOrderDate(LocalDate orderDate) {
+        this.orderDate = orderDate;
     }
 
     @Override

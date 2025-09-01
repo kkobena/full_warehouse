@@ -1,5 +1,6 @@
 package com.kobe.warehouse.service.facturation.service;
 
+import com.kobe.warehouse.config.IdGeneratorService;
 import com.kobe.warehouse.domain.FactureTiersPayant;
 import com.kobe.warehouse.domain.GroupeTiersPayant;
 import com.kobe.warehouse.domain.ThirdPartySaleLine;
@@ -26,16 +27,19 @@ public class EditionByGroupTiersService extends AbstractEditionFactureService {
 
     private final ThirdPartySaleLineRepository thirdPartySaleLineRepository;
     private final UserService userService;
+    private final IdGeneratorService idGeneratorService;
 
     public EditionByGroupTiersService(
         ThirdPartySaleLineRepository thirdPartySaleLineRepository,
         FacturationRepository facturationRepository,
         AppConfigurationService appConfigurationService,
-        UserService userService
+        UserService userService,
+        IdGeneratorService idGeneratorService
     ) {
-        super(thirdPartySaleLineRepository, facturationRepository, appConfigurationService, userService);
+        super(thirdPartySaleLineRepository, facturationRepository, appConfigurationService, userService, idGeneratorService);
         this.thirdPartySaleLineRepository = thirdPartySaleLineRepository;
         this.userService = userService;
+        this.idGeneratorService = idGeneratorService;
     }
 
     @Override
@@ -86,6 +90,7 @@ public class EditionByGroupTiersService extends AbstractEditionFactureService {
         EditionSearchParams editionSearchParams
     ) {
         return new FactureTiersPayant()
+            .setId(this.idGeneratorService.nextId())
             .setCreated(dateCreation)
             .setUser(userService.getUser())
             .setUpdated(dateCreation)

@@ -4,10 +4,7 @@ import com.kobe.warehouse.domain.ClientTiersPayant;
 import com.kobe.warehouse.domain.ClientTiersPayant_;
 import com.kobe.warehouse.domain.FactureTiersPayant;
 import com.kobe.warehouse.domain.FactureTiersPayant_;
-import com.kobe.warehouse.domain.GroupeTiersPayant;
 import com.kobe.warehouse.domain.GroupeTiersPayant_;
-import com.kobe.warehouse.domain.Sales;
-import com.kobe.warehouse.domain.Sales_;
 import com.kobe.warehouse.domain.ThirdPartySaleLine;
 import com.kobe.warehouse.domain.ThirdPartySaleLine_;
 import com.kobe.warehouse.domain.ThirdPartySales;
@@ -34,20 +31,32 @@ public class EditionDataSpecification {
         return (root, query, cb) -> {
             List<Predicate> predicates = new ArrayList<>();
             Join<ThirdPartySaleLine, ThirdPartySales> salesJoin = root.join(ThirdPartySaleLine_.sale, JoinType.INNER);
-            predicates.add(cb.between(salesJoin.get(ThirdPartySales_.updatedAt), editionSearchParams.startDate().atStartOfDay(), editionSearchParams.endDate().atTime(23, 59, 59)));
+            predicates.add(
+                cb.between(salesJoin.get(ThirdPartySales_.saleDate), editionSearchParams.startDate(), editionSearchParams.endDate())
+            );
             predicates.add(salesJoin.get(ThirdPartySales_.statut).in(Set.of(SalesStatut.CLOSED)));
             predicates.add(cb.isNull(salesJoin.get(ThirdPartySales_.canceledSale)));
             predicates.add(cb.isFalse(salesJoin.get(ThirdPartySales_.canceled)));
 
-            Join<ThirdPartySaleLine, ClientTiersPayant> clientTiersPayantJoin = root.join(ThirdPartySaleLine_.clientTiersPayant, JoinType.INNER);
-            Join<ClientTiersPayant, TiersPayant> tiersPayantJoin = clientTiersPayantJoin.join(ClientTiersPayant_.tiersPayant, JoinType.INNER);
+            Join<ThirdPartySaleLine, ClientTiersPayant> clientTiersPayantJoin = root.join(
+                ThirdPartySaleLine_.clientTiersPayant,
+                JoinType.INNER
+            );
+            Join<ClientTiersPayant, TiersPayant> tiersPayantJoin = clientTiersPayantJoin.join(
+                ClientTiersPayant_.tiersPayant,
+                JoinType.INNER
+            );
 
-            if (!CollectionUtils.isEmpty(editionSearchParams.tiersPayantIds()) && editionSearchParams.modeEdition() != ModeEditionEnum.GROUP) {
+            if (
+                !CollectionUtils.isEmpty(editionSearchParams.tiersPayantIds()) && editionSearchParams.modeEdition() != ModeEditionEnum.GROUP
+            ) {
                 predicates.add(tiersPayantJoin.get(TiersPayant_.id).in(editionSearchParams.tiersPayantIds()));
             }
 
             if (!CollectionUtils.isEmpty(editionSearchParams.groupIds()) && editionSearchParams.modeEdition() == ModeEditionEnum.GROUP) {
-                predicates.add(tiersPayantJoin.get(TiersPayant_.groupeTiersPayant).get(GroupeTiersPayant_.id).in(editionSearchParams.groupIds()));
+                predicates.add(
+                    tiersPayantJoin.get(TiersPayant_.groupeTiersPayant).get(GroupeTiersPayant_.id).in(editionSearchParams.groupIds())
+                );
             }
 
             if (editionSearchParams.factureProvisoire()) {

@@ -3,19 +3,20 @@ package com.kobe.warehouse.repository;
 import com.kobe.warehouse.domain.Customer_;
 import com.kobe.warehouse.domain.DifferePayment;
 import com.kobe.warehouse.domain.DifferePayment_;
+import com.kobe.warehouse.domain.PaymentId;
+import java.time.LocalDate;
+import java.util.Optional;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.stereotype.Repository;
-
-import java.time.LocalDate;
 
 /**
  * Spring Data  repository for the DifferePayment entity.
  */
 @Repository
 public interface DifferePaymentRepository
-    extends JpaRepository<DifferePayment, Long>, JpaSpecificationExecutor<DifferePayment>, DifferePaymentDataRepository {
+    extends JpaRepository<DifferePayment, PaymentId>, JpaSpecificationExecutor<DifferePayment>, DifferePaymentDataRepository {
     default Specification<DifferePayment> filterByCustomerId(Long customerId) {
         if (customerId == null) {
             return null;
@@ -24,7 +25,8 @@ public interface DifferePaymentRepository
     }
 
     default Specification<DifferePayment> filterByPeriode(LocalDate fromDate, LocalDate toDate) {
-        return (root, _, cb) ->
-            cb.between(cb.function("DATE", LocalDate.class, root.get(DifferePayment_.createdAt)), fromDate, toDate);
+        return (root, _, cb) -> cb.between(cb.function("DATE", LocalDate.class, root.get(DifferePayment_.createdAt)), fromDate, toDate);
     }
+
+    Optional<DifferePayment> findDifferePaymentById(Long id);
 }

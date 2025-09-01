@@ -29,33 +29,6 @@ import org.springframework.util.StringUtils;
 
 public interface EditionDataService {
 
-    String FACTURES_UNITAIRE_QUERY =
-        """
-          SELECT f.created,  f.id as factureId,gf.id as groupeFactureId,f.montant_regle as montantRegle,f.remise_forfetaire as remiseForfetaire,f.debut_periode as debutPeriode,f.statut  as statut,
-          f.fin_periode as finPeriode,f.facture_provisoire as factureProvisoire,f.num_facture as numFacture,gf.num_facture as groupeNumFacture,tp.full_name  as tiersPayantName,th.montantVente AS montantVente,th.montantRemise AS montantRemise,
-          th.itemMontantRegle,th.itemsCount AS itemsCount,th.montantTiersPayant AS montantAttendu FROM  facture_tiers_payant f  JOIN (SELECT th.facture_tiers_payant_id,COUNT(th.id) as itemsCount,SUM(th.montant_regle)  as itemMontantRegle,SUM(th.montant) as montantTiersPayant,SUM(s.sales_amount) AS montantVente,SUM(s.discount_amount) AS montantRemise  FROM third_party_sale_line th
-        JOIN sales s ON  th.sale_id=s.id GROUP  BY th.facture_tiers_payant_id) AS  th ON f.id=th.facture_tiers_payant_id LEFT JOIN facture_tiers_payant gf ON f.groupe_facture_tiers_payant_id=gf.id  JOIN tiers_payant tp ON f.tiers_payant_id=tp.id
-          WHERE f.id NOT IN (SELECT fd.groupe_facture_tiers_payant_id FROM facture_tiers_payant fd WHERE fd.groupe_facture_tiers_payant_id IS NOT NULL)
-        """;
-
-    String FACTURES_UNITAIRE_COUNT_QUERY =
-        """
-        SELECT COUNT( f.id) as itemsCount FROM  facture_tiers_payant f  LEFT JOIN facture_tiers_payant gf ON f.groupe_facture_tiers_payant_id=gf.id  JOIN tiers_payant tp ON f.tiers_payant_id=tp.id
-        WHERE f.id NOT IN (SELECT fd.groupe_facture_tiers_payant_id FROM facture_tiers_payant fd WHERE fd.groupe_facture_tiers_payant_id IS NOT NULL)
-        """;
-
-    String GROUPE_FACTURE_QUERY =
-        """
-        SELECT fd.montantDetailRegle AS montantRegle,f.created,  f.id as factureId,f.debut_periode as debutPeriode,f.statut  as statut,f.fin_periode as finPeriode,f.facture_provisoire as factureProvisoire,f.num_facture as numFacture,gtp.name as tiersPayantName,
-         fd.montantTiersPayant as montantAttendu,fd.itemsCount AS itemsCount,fd.montantVente AS montantVente,fd.montantRemise AS montantRemise FROM  facture_tiers_payant f JOIN groupe_tiers_payant gtp ON f.groupe_tiers_payant_id=gtp.id
-         JOIN (SELECT SUM(i.montant_regle) AS montantDetailRegle, i.groupe_facture_tiers_payant_id,COUNT(distinct i.id) as itemsCount,SUM(it.montant) as montantTiersPayant,SUM(s.sales_amount) AS montantVente,SUM(s.discount_amount) AS montantRemise   FROM facture_tiers_payant i JOIN third_party_sale_line it ON i.id = it.facture_tiers_payant_id JOIN sales s ON  it.sale_id=s.id  GROUP BY i.groupe_facture_tiers_payant_id )
-          as fd ON f.id=fd.groupe_facture_tiers_payant_id
-
-        """;
-    String GROUPE_FACTURE_COUNT_QUERY =
-        """
-        SELECT COUNT( f.id) as itemsCount FROM  facture_tiers_payant f JOIN groupe_tiers_payant gtp ON f.groupe_tiers_payant_id=gtp.id JOIN (SELECT i.groupe_facture_tiers_payant_id   FROM facture_tiers_payant i  ) as fd ON f.id=fd.groupe_facture_tiers_payant_id
-        """;
 
     Page<DossierFactureDto> getSales(EditionSearchParams editionSearchParams, Pageable pageable);
 
@@ -122,13 +95,7 @@ public interface EditionDataService {
 
 
 
-    default String buildInvoiceQuery(InvoiceSearchParams invoiceSearchParams, String query) {
-        return query
-            .concat(buildSearchPeriod(invoiceSearchParams, " AND ", false))
-            .concat(buildTiersPayantIds(invoiceSearchParams.tiersPayantIds()))
-            .concat(isFactureProvisoire(invoiceSearchParams, " AND "))
-            .concat(buildStatus(invoiceSearchParams, " AND "));
-    }
+
 
     default String buildSearchQuery(InvoiceSearchParams invoiceSearchParams, String appendAnd, boolean isGroup) {
         String query = "";
@@ -161,12 +128,7 @@ public interface EditionDataService {
         return " AND f.tiers_payant_id IN (".concat(buildIds(tiersPayantIds)).concat(") ");
     }
 
-    default String buildGroupTiersPayantIds(Set<Long> groupIds, String appendAnd) {
-        if (CollectionUtils.isEmpty(groupIds)) {
-            return "";
-        }
-        return appendAnd + "  f.groupe_tiers_payant_id IN (".concat(buildIds(groupIds)).concat(") ");
-    }
+
 
     default String buildSearchPeriod(InvoiceSearchParams invoiceSearchParams, String appendAnd, boolean isGroup) {
         String query = buildSearchQuery(invoiceSearchParams, appendAnd, isGroup);
@@ -201,29 +163,12 @@ public interface EditionDataService {
         return invoiceStatuts.stream().map(e -> "'" + e.name() + "'").collect(Collectors.joining(","));
     }
 
-    default String buildFinalInvoiceQuery(InvoiceSearchParams invoiceSearchParams) {
-        return buildInvoiceQuery(invoiceSearchParams, FACTURES_UNITAIRE_QUERY).concat(" ORDER BY f.created DESC,tp.full_name ASC ");
-    }
 
-    default String buildGroupInvoiceQuery(InvoiceSearchParams invoiceSearchParams, String query) {
-        return query
-            .concat(buildSearchPeriod(invoiceSearchParams, " WHERE ", true))
-            .concat(buildGroupTiersPayantIds(invoiceSearchParams.groupIds(), " AND "))
-            .concat(isFactureProvisoire(invoiceSearchParams, " AND "))
-            .concat(buildStatus(invoiceSearchParams, " AND "));
-    }
 
-    default String buildFinalGroupInvoiceQuery(InvoiceSearchParams invoiceSearchParams) {
-        return buildGroupInvoiceQuery(invoiceSearchParams, GROUPE_FACTURE_QUERY).concat(" ORDER BY f.created DESC,gtp.name ASC ");
-    }
 
-    default String buildCountFinalInvoiceQuery(InvoiceSearchParams invoiceSearchParams) {
-        return buildInvoiceQuery(invoiceSearchParams, FACTURES_UNITAIRE_COUNT_QUERY);
-    }
 
-    default String buildCountFinalGroupInvoiceQuery(InvoiceSearchParams invoiceSearchParams) {
-        return buildGroupInvoiceQuery(invoiceSearchParams, GROUPE_FACTURE_COUNT_QUERY);
-    }
+
+
 
     FactureTiersPayant getFactureTiersPayant(Long id);
 

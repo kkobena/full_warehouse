@@ -1,15 +1,14 @@
 package com.kobe.warehouse.service.reglement.service;
 
+import com.kobe.warehouse.config.IdGeneratorService;
 import com.kobe.warehouse.domain.FactureTiersPayant;
 import com.kobe.warehouse.domain.InvoicePayment;
 import com.kobe.warehouse.domain.enumeration.InvoiceStatut;
 import com.kobe.warehouse.repository.BanqueRepository;
 import com.kobe.warehouse.repository.FacturationRepository;
 import com.kobe.warehouse.repository.InvoicePaymentRepository;
-import com.kobe.warehouse.repository.PaymentTransactionRepository;
 import com.kobe.warehouse.repository.ThirdPartySaleLineRepository;
 import com.kobe.warehouse.service.UserService;
-import com.kobe.warehouse.service.WarehouseCalendarService;
 import com.kobe.warehouse.service.cash_register.CashRegisterService;
 import com.kobe.warehouse.service.errors.CashRegisterException;
 import com.kobe.warehouse.service.errors.PaymentAmountException;
@@ -29,13 +28,14 @@ public class ReglementGroupeFactureService extends AbstractReglementService {
 
     public ReglementGroupeFactureService(
         CashRegisterService cashRegisterService,
-        PaymentTransactionRepository paymentTransactionRepository,
         InvoicePaymentRepository invoicePaymentRepository,
         UserService userService,
         FacturationRepository facturationRepository,
         ThirdPartySaleLineRepository thirdPartySaleLineRepository,
         BanqueRepository banqueRepository,
-        ReglementFactureModeAllService reglementFactureModeAllService
+        ReglementFactureModeAllService reglementFactureModeAllService,
+        IdGeneratorService idGeneratorService,
+        InvoicePaymentItemService invoicePaymentItemService
     ) {
         super(
             cashRegisterService,
@@ -43,7 +43,9 @@ public class ReglementGroupeFactureService extends AbstractReglementService {
             userService,
             facturationRepository,
             thirdPartySaleLineRepository,
-            banqueRepository
+            banqueRepository,
+            idGeneratorService,
+            invoicePaymentItemService
         );
         this.facturationRepository = facturationRepository;
         this.reglementFactureModeAllService = reglementFactureModeAllService;
@@ -51,7 +53,7 @@ public class ReglementGroupeFactureService extends AbstractReglementService {
 
     @Override
     public ResponseReglementDTO doReglement(ReglementParam reglementParam) throws CashRegisterException, PaymentAmountException {
-        FactureTiersPayant factureTiersPayant = this.facturationRepository.findById(reglementParam.getId()).orElseThrow();
+        FactureTiersPayant factureTiersPayant = this.facturationRepository.findFactureTiersPayantById(reglementParam.getId()).orElseThrow();
 
         InvoicePayment invoicePayment = super.buildInvoicePayment(factureTiersPayant, reglementParam);
         invoicePayment.setGrouped(true);
@@ -83,6 +85,6 @@ public class ReglementGroupeFactureService extends AbstractReglementService {
             item.setParent(invoicePayment);
         }
         super.saveInvoicePayments(invoicePayments);
-        return new ResponseReglementDTO(invoicePayment.getId(), factureTiersPayant.getStatut() == InvoiceStatut.PAID);
+        return new ResponseReglementDTO(invoicePayment.getId().getId(), factureTiersPayant.getStatut() == InvoiceStatut.PAID);
     }
 }

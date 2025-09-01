@@ -65,7 +65,7 @@ public final class ProduitBuilder {
             produit.setItemRegularUnitPrice(produitDTO.getRegularUnitPrice());
         }
         produit.setRegularUnitPrice(produitDTO.getRegularUnitPrice());
-        produit.setCodeEan(produitDTO.getCodeEan());
+        produit.setCodeEanLaboratoire(produitDTO.getLaboratoireLibelle());
         produit.setCheckExpiryDate(produitDTO.getDateperemption());
         produit.setDeconditionnable(produitDTO.getDeconditionnable());
         produit.setQtyAppro(produitDTO.getQtyAppro());
@@ -103,7 +103,7 @@ public final class ProduitBuilder {
         produit.setItemQty(produitDTO.getItemQty());
         produit.setItemRegularUnitPrice(produitDTO.getItemRegularUnitPrice());
         produit.setRegularUnitPrice(produitDTO.getRegularUnitPrice());
-        produit.setCodeEan(produitDTO.getCodeEan());
+        produit.setCodeEanLaboratoire(produitDTO.getLaboratoireLibelle());
         produit.setCheckExpiryDate(produitDTO.getDateperemption());
         produit.setDeconditionnable(produitDTO.getDeconditionnable());
         produit.setQtyAppro(produitDTO.getQtyAppro());
@@ -294,7 +294,7 @@ public final class ProduitBuilder {
         produitDTO.setQtyAppro(produit.getQtyAppro()).setQtySeuilMini(produit.getQtySeuilMini());
         produitDTO.setDateperemption(produit.getCheckExpiryDate());
         produitDTO.setChiffre(produit.getChiffre());
-        produitDTO.setDeconditionnable(produit.getDeconditionnable()).setCodeEan(produit.getCodeEan());
+        produitDTO.setDeconditionnable(produit.getDeconditionnable()).setCodeEan(produit.getCodeEanLaboratoire());
         if (produit.getPerimeAt() != null) {
             produitDTO.expirationDate(produit.getPerimeAt().format(DateTimeFormatter.ofPattern(PERIME_DATE_PATERN)));
         }
@@ -370,7 +370,7 @@ public final class ProduitBuilder {
                 dto.setRayonLibelle(rayon.getLibelle());
             } catch (Exception _) {}
         }
-        dto.setCodeEan(produit.getCodeEan());
+        dto.setCodeEan(produit.getCodeEanLaboratoire());
         FournisseurProduit fournisseurProduitPrincipal = produit.getFournisseurProduitPrincipal();
         if (fournisseurProduitPrincipal != null) {
             dto.setCodeCip(fournisseurProduitPrincipal.getCodeCip());
@@ -485,7 +485,7 @@ public final class ProduitBuilder {
             produit.setCodeRemise(CodeRemise.fromValue(produitDTO.getRemiseCode()));
         }
         produit.setRegularUnitPrice(produitDTO.getRegularUnitPrice());
-        produit.setCodeEan(produitDTO.getCodeEan());
+        produit.setCodeEanLaboratoire(produitDTO.getLaboratoireLibelle());
         produit.setCheckExpiryDate(produitDTO.getDateperemption());
         produit.setDeconditionnable(produitDTO.getDeconditionnable());
         produit.setQtyAppro(produitDTO.getQtyAppro());

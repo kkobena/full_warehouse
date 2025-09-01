@@ -1,5 +1,6 @@
 package com.kobe.warehouse.service.reglement.differe.service;
 
+import com.kobe.warehouse.config.IdGeneratorService;
 import com.kobe.warehouse.domain.AppUser;
 import com.kobe.warehouse.domain.Banque;
 import com.kobe.warehouse.domain.Customer;
@@ -27,13 +28,6 @@ import com.kobe.warehouse.service.reglement.differe.dto.ReglementDiffereReceiptD
 import com.kobe.warehouse.service.reglement.differe.dto.ReglementDiffereResponse;
 import com.kobe.warehouse.service.reglement.differe.dto.ReglementDiffereWrapperDTO;
 import com.kobe.warehouse.service.reglement.dto.BanqueInfoDTO;
-import org.springframework.core.io.Resource;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
-import org.springframework.data.jpa.domain.Specification;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
-
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.List;
@@ -41,6 +35,12 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicInteger;
+import org.springframework.core.io.Resource;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.domain.Specification;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @Transactional
@@ -53,6 +53,7 @@ public class ReglementDiffereServiceImpl implements ReglementDiffereService {
     private final ReglementDiffereReportService reglementDiffereReportService;
     private final BanqueRepository banqueRepository;
     private final DiffereReceiptService differeReceiptService;
+    private final IdGeneratorService idGeneratorService;
 
     public ReglementDiffereServiceImpl(
         DifferePaymentRepository differePaymentRepository,
@@ -61,7 +62,7 @@ public class ReglementDiffereServiceImpl implements ReglementDiffereService {
         CashRegisterService cashRegisterService,
         ReglementDiffereReportService reglementDiffereReportService,
         BanqueRepository banqueRepository,
-        DiffereReceiptService differeReceiptService
+        DiffereReceiptService differeReceiptService, IdGeneratorService idGeneratorService
     ) {
         this.differePaymentRepository = differePaymentRepository;
         this.salesRepository = salesRepository;
@@ -70,6 +71,8 @@ public class ReglementDiffereServiceImpl implements ReglementDiffereService {
         this.reglementDiffereReportService = reglementDiffereReportService;
         this.banqueRepository = banqueRepository;
         this.differeReceiptService = differeReceiptService;
+        this.idGeneratorService = idGeneratorService;
+        this.idGeneratorService.setSequenceName("id_transaction_seq");
     }
 
     @Override
@@ -152,6 +155,7 @@ public class ReglementDiffereServiceImpl implements ReglementDiffereService {
         Customer customer = this.customerRepository.getReferenceById(differePayment.customerId());
         List<Sales> sales = this.salesRepository.findSalesByIdIn(differePayment.saleIds());
         DifferePayment differePaymentEntity = new DifferePayment();
+        differePaymentEntity.setId(this.idGeneratorService.nextId());
         differePaymentEntity.setDiffereCustomer(customer);
         differePaymentEntity.setMontantVerse(differePayment.amount());
         differePaymentEntity.setExpectedAmount(differePayment.expectedAmount());
@@ -165,6 +169,7 @@ public class ReglementDiffereServiceImpl implements ReglementDiffereService {
                 return;
             }
             DifferePaymentItem differePaymentItem = new DifferePaymentItem();
+            differePaymentItem.setId(this.idGeneratorService.nextId());
             int amountToPay = sale.getRestToPay();
             if (paidAmount.get() >= amountToPay) {
                 paidAmount.addAndGet(-amountToPay);
@@ -188,12 +193,12 @@ public class ReglementDiffereServiceImpl implements ReglementDiffereService {
             differePaymentEntity.setReelAmount(differePaymentEntity.getPaidAmount());
             differePaymentEntity.getDifferePaymentItems().add(differePaymentItem);
         });
-        return new ReglementDiffereResponse(this.differePaymentRepository.save(differePaymentEntity).getId());
+        return new ReglementDiffereResponse(this.differePaymentRepository.save(differePaymentEntity).getId().getId());
     }
 
     @Override
     public ReglementDiffereReceiptDTO getReglementDiffereReceipt(Long id) {
-        DifferePayment differePayment = this.differePaymentRepository.findById(id).orElseThrow();
+        DifferePayment differePayment = this.differePaymentRepository.findDifferePaymentById(id).orElseThrow();
         AppUser user = differePayment.getCashRegister().getUser();
         Customer customer = differePayment.getDiffereCustomer();
         PaymentMode paymentMode = differePayment.getPaymentMode();

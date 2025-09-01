@@ -34,7 +34,7 @@ import org.hibernate.annotations.CacheConcurrencyStrategy;
     indexes = { @Index(columnList = "code_cip ASC", name = "code_cip_index") }
 )
 @Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
-public class FournisseurProduit  implements Serializable {
+public class FournisseurProduit implements Serializable {
 
     @Serial
     private static final long serialVersionUID = 1L;
@@ -43,9 +43,11 @@ public class FournisseurProduit  implements Serializable {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @NotNull
-    @Column(name = "code_cip", nullable = false)
+    @Column(name = "code_cip")
     private String codeCip;
+
+    @Column(name = "code_ean")
+    private String codeEan;
 
     @NotNull
     @Column(name = "prix_achat", nullable = false)
@@ -55,22 +57,25 @@ public class FournisseurProduit  implements Serializable {
     @Column(name = "prix_uni", nullable = false)
     private Integer prixUni;
 
-    @ManyToOne(optional = false,fetch =  FetchType.LAZY)
+    @ManyToOne(optional = false, fetch = FetchType.LAZY)
     @NotNull
     @JsonIgnoreProperties(value = "fournisseurProduits", allowSetters = true)
     private Produit produit;
 
-    @ManyToOne(optional = false,fetch =  FetchType.LAZY)
+    @ManyToOne(optional = false, fetch = FetchType.LAZY)
     @NotNull
     @JsonIgnoreProperties(value = "fournisseurProduits", allowSetters = true)
     private Fournisseur fournisseur;
 
     @OneToMany(mappedBy = "fournisseurProduit", fetch = FetchType.LAZY)
     private Set<OrderLine> orderLines = new HashSet<>();
+
     @Column(name = "created_date", updatable = false)
     private LocalDateTime createdDate = LocalDateTime.now();
+
     @Column(name = "last_modified_date")
     private LocalDateTime lastModifiedDate = LocalDateTime.now();
+
     public Long getId() {
         return id;
     }
@@ -102,8 +107,6 @@ public class FournisseurProduit  implements Serializable {
     public void setPrixUni(Integer prixUni) {
         this.prixUni = prixUni;
     }
-
-
 
     public @NotNull Produit getProduit() {
         return produit;
@@ -145,8 +148,6 @@ public class FournisseurProduit  implements Serializable {
         return this;
     }
 
-
-
     public FournisseurProduit produit(Produit produit) {
         this.produit = produit;
         return this;
@@ -166,6 +167,14 @@ public class FournisseurProduit  implements Serializable {
 
     public void setLastModifiedDate(LocalDateTime lastModifiedDate) {
         this.lastModifiedDate = lastModifiedDate;
+    }
+
+    public String getCodeEan() {
+        return codeEan;
+    }
+
+    public void setCodeEan(String codeEan) {
+        this.codeEan = codeEan;
     }
 
     @Override

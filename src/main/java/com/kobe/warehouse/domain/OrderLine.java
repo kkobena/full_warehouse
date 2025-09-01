@@ -3,13 +3,15 @@ package com.kobe.warehouse.domain;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.IdClass;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
+import jakarta.persistence.PostLoad;
+import jakarta.persistence.PrePersist;
 import jakarta.persistence.Table;
+import jakarta.persistence.Transient;
 import jakarta.persistence.UniqueConstraint;
 import jakarta.validation.constraints.NotNull;
 import java.io.Serial;
@@ -25,18 +27,25 @@ import org.springframework.data.domain.Persistable;
  * A OrderLine.
  */
 @Entity
-@Table(name = "order_line", uniqueConstraints = { @UniqueConstraint(columnNames = { "commande_id", "fournisseur_produit_id" }) })
-public class OrderLine implements Persistable<SaleId>, Serializable, Cloneable {
+@Table(
+    name = "order_line",
+    uniqueConstraints = { @UniqueConstraint(columnNames = { "commande_id", "fournisseur_produit_id", "order_date" }) }
+)
+@IdClass(OrderLineId.class)
+public class OrderLine implements Persistable<OrderLineId>, Serializable, Cloneable {
 
     @Serial
     private static final long serialVersionUID = 1L;
 
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
     @Column(name = "quantity_received")
     private Integer quantityReceived;
+
+    @Id
+    @Column(name = "order_date")
+    private LocalDate orderDate = LocalDate.now();
 
     @NotNull
     @Column(name = "init_stock", nullable = false)
@@ -112,6 +121,9 @@ public class OrderLine implements Persistable<SaleId>, Serializable, Cloneable {
     @Column(name = "date_peremption")
     private LocalDate datePeremption;
 
+    @Transient
+    private boolean isNew = true;
+
     public Integer getFinalStock() {
         return finalStock;
     }
@@ -128,8 +140,8 @@ public class OrderLine implements Persistable<SaleId>, Serializable, Cloneable {
         this.datePeremption = datePeremption;
     }
 
-    public Long getId() {
-        return id;
+    public OrderLineId getId() {
+        return new OrderLineId(id, orderDate);
     }
 
     public void setId(Long id) {
@@ -159,6 +171,14 @@ public class OrderLine implements Persistable<SaleId>, Serializable, Cloneable {
 
     public void setQuantityRequested(Integer quantityRequested) {
         this.quantityRequested = quantityRequested;
+    }
+
+    public LocalDate getOrderDate() {
+        return orderDate;
+    }
+
+    public void setOrderDate(LocalDate orderDate) {
+        this.orderDate = orderDate;
     }
 
     public Integer getQuantityReturned() {
@@ -412,6 +432,17 @@ public class OrderLine implements Persistable<SaleId>, Serializable, Cloneable {
             + getUpdatedAt()
 
             + "}";
+    }
+
+    @Override
+    public boolean isNew() {
+        return isNew;
+    }
+
+    @PrePersist
+    @PostLoad
+    void markNotNew() {
+        this.isNew = false;
     }
 
     @Override

@@ -1,5 +1,6 @@
 package com.kobe.warehouse.service.impl;
 
+import com.kobe.warehouse.domain.AppUser_;
 import com.kobe.warehouse.domain.Commande;
 import com.kobe.warehouse.domain.Commande_;
 import com.kobe.warehouse.domain.FournisseurProduit_;
@@ -7,7 +8,6 @@ import com.kobe.warehouse.domain.Fournisseur_;
 import com.kobe.warehouse.domain.OrderLine;
 import com.kobe.warehouse.domain.OrderLine_;
 import com.kobe.warehouse.domain.Produit_;
-import com.kobe.warehouse.domain.AppUser_;
 import com.kobe.warehouse.repository.CommandeRepository;
 import com.kobe.warehouse.repository.OrderLineRepository;
 import com.kobe.warehouse.service.FileResourceService;
@@ -23,7 +23,6 @@ import jakarta.persistence.criteria.CriteriaQuery;
 import jakarta.persistence.criteria.Predicate;
 import jakarta.persistence.criteria.Root;
 import java.io.IOException;
-import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -76,12 +75,12 @@ public class StockEntryDataServiceImpl extends FileResourceService implements St
 
     @Override
     public Optional<DeliveryReceiptDTO> findOneById(Long id) {
-        return commandeRepository.findById(id).map(DeliveryReceiptDTO::new);
+        return Optional.ofNullable(commandeRepository.findCommandeById(id)).map(DeliveryReceiptDTO::new);
     }
 
     @Override
     public Resource exportToPdf(Long id) throws IOException {
-        return this.getResource(receiptReportService.print(commandeRepository.getReferenceById(id)));
+        return this.getResource(receiptReportService.print(commandeRepository.findCommandeById(id)));
     }
 
     private long receiptCount(DeliveryReceiptFilterDTO deliveryReceiptFilterDTO) {
@@ -138,8 +137,9 @@ public class StockEntryDataServiceImpl extends FileResourceService implements St
                     cb.like(cb.upper(root.get(OrderLine_.commande).get(Commande_.receiptReference)), search),
                     cb.like(cb.upper(root.get(OrderLine_.commande).get(Commande_.orderReference)), search),
                     cb.like(cb.upper(root.get(OrderLine_.fournisseurProduit).get(FournisseurProduit_.codeCip)), search),
+                    cb.like(cb.upper(root.get(OrderLine_.fournisseurProduit).get(FournisseurProduit_.codeEan)), search),
                     cb.like(
-                        cb.upper(root.get(OrderLine_.fournisseurProduit).get(FournisseurProduit_.produit).get(Produit_.codeEan)),
+                        cb.upper(root.get(OrderLine_.fournisseurProduit).get(FournisseurProduit_.produit).get(Produit_.codeEanLaboratoire)),
                         search
                     ),
                     cb.like(
@@ -166,7 +166,7 @@ public class StockEntryDataServiceImpl extends FileResourceService implements St
         if (Objects.nonNull(deliveryReceiptFilterDTO.getFromDate()) && Objects.nonNull(deliveryReceiptFilterDTO.getToDate())) {
             predicates.add(
                 cb.between(
-                    cb.function("DATE", LocalDate.class, root.get(OrderLine_.commande).get(Commande_.updatedAt)),
+                   root.get(OrderLine_.commande).get(Commande_.orderDate),
                     deliveryReceiptFilterDTO.getFromDate(),
                     deliveryReceiptFilterDTO.getToDate()
                 )
@@ -174,14 +174,14 @@ public class StockEntryDataServiceImpl extends FileResourceService implements St
         } else if (Objects.nonNull(deliveryReceiptFilterDTO.getFromDate())) {
             predicates.add(
                 cb.equal(
-                    cb.function("DATE", LocalDate.class, root.get(OrderLine_.commande).get(Commande_.updatedAt)),
+                     root.get(OrderLine_.commande).get(Commande_.orderDate),
                     deliveryReceiptFilterDTO.getFromDate()
                 )
             );
         } else if (Objects.nonNull(deliveryReceiptFilterDTO.getToDate())) {
             predicates.add(
                 cb.equal(
-                    cb.function("DATE", LocalDate.class, root.get(OrderLine_.commande).get(Commande_.updatedAt)),
+                   root.get(OrderLine_.commande).get(Commande_.orderDate),
                     deliveryReceiptFilterDTO.getToDate()
                 )
             );

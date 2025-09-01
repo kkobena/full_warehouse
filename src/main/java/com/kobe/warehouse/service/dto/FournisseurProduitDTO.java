@@ -29,6 +29,7 @@ public class FournisseurProduitDTO {
     private String fournisseurLibelle;
     private boolean principal;
     private ProduitDTO produit;
+    private String codeEan;
 
     public FournisseurProduitDTO() {}
 
@@ -43,6 +44,7 @@ public class FournisseurProduitDTO {
         Fournisseur fr = f.getFournisseur();
         fournisseurId = fr.getId();
         fournisseurLibelle = fr.getLibelle();
+        codeEan = f.getCodeEan();
     }
 
     public static FournisseurProduitDTO fromEntity(FournisseurProduit f) {
@@ -59,7 +61,15 @@ public class FournisseurProduitDTO {
             .setProduitId(p.getId())
             .setFournisseurId(fr.getId())
             .setProduit(ProduitBuilder.fromEntity(p));
+    }
 
+    public String getCodeEan() {
+        return codeEan;
+    }
+
+    public FournisseurProduitDTO setCodeEan(String codeEan) {
+        this.codeEan = codeEan;
+        return this;
     }
 
     public Long getId() {

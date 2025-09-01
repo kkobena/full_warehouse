@@ -5,14 +5,30 @@ import java.time.LocalDate;
 import java.util.Objects;
 
 public class AssuranceSaleId implements Serializable {
+
     private Long id;
     private LocalDate saleDate;
 
-    public AssuranceSaleId() {
-    }
+    public AssuranceSaleId() {}
 
     public AssuranceSaleId(Long id, LocalDate saleDate) {
         this.id = id;
+        this.saleDate = saleDate;
+    }
+
+    public Long getId() {
+        return id;
+    }
+
+    public void setId(Long id) {
+        this.id = id;
+    }
+
+    public LocalDate getSaleDate() {
+        return saleDate;
+    }
+
+    public void setSaleDate(LocalDate saleDate) {
         this.saleDate = saleDate;
     }
 

@@ -2,6 +2,7 @@ package com.kobe.warehouse.service.sale;
 
 import com.kobe.warehouse.constant.EntityConstant;
 import com.kobe.warehouse.domain.AppUser;
+import com.kobe.warehouse.domain.AppUser_;
 import com.kobe.warehouse.domain.CashSale;
 import com.kobe.warehouse.domain.CashSale_;
 import com.kobe.warehouse.domain.FournisseurProduit;
@@ -15,7 +16,6 @@ import com.kobe.warehouse.domain.Sales_;
 import com.kobe.warehouse.domain.ThirdPartySaleLine;
 import com.kobe.warehouse.domain.ThirdPartySales;
 import com.kobe.warehouse.domain.ThirdPartySales_;
-import com.kobe.warehouse.domain.AppUser_;
 import com.kobe.warehouse.domain.enumeration.PaymentStatus;
 import com.kobe.warehouse.domain.enumeration.SalesStatut;
 import com.kobe.warehouse.repository.SalesLineRepository;
@@ -40,7 +40,6 @@ import jakarta.persistence.criteria.Root;
 import jakarta.persistence.criteria.SetJoin;
 import java.net.MalformedURLException;
 import java.sql.Date;
-import java.sql.Time;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
@@ -253,10 +252,11 @@ public class SaleDataService {
             SetJoin<Produit, FournisseurProduit> fp = produitJoin.joinSet(Produit_.FOURNISSEUR_PRODUITS, JoinType.LEFT);
             predicates.add(
                 cb.or(
-                    cb.like(cb.upper(root.get(Sales_.numberTransaction)), query),
+                    cb.like(root.get(Sales_.numberTransaction), query),
+                    cb.like(fp.get(FournisseurProduit_.codeCip), query),
+                    cb.like(fp.get(FournisseurProduit_.codeEan), query),
                     cb.like(cb.upper(produitJoin.get(Produit_.libelle)), query),
-                    cb.like(cb.upper(produitJoin.get(Produit_.codeEan)), query),
-                    cb.like(cb.upper(fp.get(FournisseurProduit_.codeCip)), query)
+                    cb.like(produitJoin.get(Produit_.codeEanLaboratoire), query)
                 )
             );
         }
@@ -372,8 +372,9 @@ public class SaleDataService {
                 predicates.add(
                     cb.or(
                         cb.like(cb.upper(produitJoin.get(Produit_.libelle)), query),
-                        cb.like(cb.upper(produitJoin.get(Produit_.codeEan)), query),
-                        cb.like(cb.upper(fp.get(FournisseurProduit_.codeCip)), query)
+                        cb.like(produitJoin.get(Produit_.codeEanLaboratoire), query),
+                        cb.like(fp.get(FournisseurProduit_.codeCip), query),
+                        cb.like(fp.get(FournisseurProduit_.codeEan), query)
                     )
                 );
             }
@@ -391,11 +392,8 @@ public class SaleDataService {
             LocalDateTime fromDateTime = fromDate.atStartOfDay();
             LocalDateTime toDateTime = toDate.atTime(LocalTime.MAX);
 
-
-            predicates.add(
-                cb.between(root.get(Sales_.updatedAt), fromDateTime, toDateTime)
-            );
-           /* predicates.add(
+            predicates.add(cb.between(root.get(Sales_.updatedAt), fromDateTime, toDateTime));
+            /* predicates.add(
                 cb.between(cb.function("DATE", Date.class, root.get(Sales_.updatedAt)), Date.valueOf(fromDate), Date.valueOf(toDate))
             );*/
         }
@@ -403,15 +401,8 @@ public class SaleDataService {
 
     private void periodeTimePredicat(String fromHour, String toHour, CriteriaBuilder cb, List<Predicate> predicates, Root<Sales> root) {
         if (StringUtils.isNotEmpty(fromHour) && StringUtils.isNotEmpty(toHour)) {
-            Expression<String> timeExpr = cb.function(
-                "TO_CHAR",
-                String.class,
-                root.get(Sales_.updatedAt),
-                cb.literal("HH24:MI")
-            );
-            predicates.add(
-                cb.between(timeExpr, fromHour.concat(":00"), toHour.concat(":59"))
-            );
+            Expression<String> timeExpr = cb.function("TO_CHAR", String.class, root.get(Sales_.updatedAt), cb.literal("HH24:MI"));
+            predicates.add(cb.between(timeExpr, fromHour.concat(":00"), toHour.concat(":59")));
             /*predicates.add(
                 cb.between(cb.function("TIME", Time.class, root.get(Sales_.updatedAt)),Time.valueOf(fromHour.concat(":00")) ,Time.valueOf(toHour.concat(":59")) )
             );*/

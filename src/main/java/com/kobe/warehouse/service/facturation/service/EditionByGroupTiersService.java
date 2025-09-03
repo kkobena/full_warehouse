@@ -1,6 +1,6 @@
 package com.kobe.warehouse.service.facturation.service;
 
-import com.kobe.warehouse.config.IdGeneratorService;
+import com.kobe.warehouse.service.id_generator.FactureIdGeneratorService;
 import com.kobe.warehouse.domain.FactureTiersPayant;
 import com.kobe.warehouse.domain.GroupeTiersPayant;
 import com.kobe.warehouse.domain.ThirdPartySaleLine;
@@ -27,19 +27,19 @@ public class EditionByGroupTiersService extends AbstractEditionFactureService {
 
     private final ThirdPartySaleLineRepository thirdPartySaleLineRepository;
     private final UserService userService;
-    private final IdGeneratorService idGeneratorService;
+    private final  FactureIdGeneratorService factureIdGeneratorService;
 
     public EditionByGroupTiersService(
         ThirdPartySaleLineRepository thirdPartySaleLineRepository,
         FacturationRepository facturationRepository,
         AppConfigurationService appConfigurationService,
         UserService userService,
-        IdGeneratorService idGeneratorService
+        FactureIdGeneratorService factureIdGeneratorService
     ) {
-        super(thirdPartySaleLineRepository, facturationRepository, appConfigurationService, userService, idGeneratorService);
+        super(thirdPartySaleLineRepository, facturationRepository, appConfigurationService, userService, factureIdGeneratorService);
         this.thirdPartySaleLineRepository = thirdPartySaleLineRepository;
         this.userService = userService;
-        this.idGeneratorService = idGeneratorService;
+        this.factureIdGeneratorService = factureIdGeneratorService;
     }
 
     @Override
@@ -90,7 +90,7 @@ public class EditionByGroupTiersService extends AbstractEditionFactureService {
         EditionSearchParams editionSearchParams
     ) {
         return new FactureTiersPayant()
-            .setId(this.idGeneratorService.nextId())
+            .setId(this.factureIdGeneratorService.nextId())
             .setCreated(dateCreation)
             .setUser(userService.getUser())
             .setUpdated(dateCreation)

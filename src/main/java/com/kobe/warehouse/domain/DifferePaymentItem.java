@@ -3,9 +3,12 @@ package com.kobe.warehouse.domain;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.IdClass;
 import jakarta.persistence.JoinColumn;
+import jakarta.persistence.JoinColumns;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.PostLoad;
 import jakarta.persistence.PrePersist;
@@ -24,18 +27,14 @@ import org.springframework.data.domain.Persistable;
 
 @Entity
 @Table(name = "differe_payment_item")
-@IdClass(DiffereItemId.class)
-public class DifferePaymentItem implements Persistable<DiffereItemId>, Serializable {
+public class DifferePaymentItem implements Serializable {
 
     @Serial
     private static final long serialVersionUID = 1L;
 
     @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-
-    @Id
-    @Column(name = "transaction_date", nullable = false)
-    private LocalDate transactionDate = LocalDate.now();
 
     @NotNull
     @Column(name = "expected_amount", nullable = false)
@@ -51,14 +50,14 @@ public class DifferePaymentItem implements Persistable<DiffereItemId>, Serializa
 
     @ManyToOne(optional = false, fetch = FetchType.LAZY)
     @NotNull
-    @JoinColumn(name = "differe_payment_id", referencedColumnName = "id")
+    @JoinColumns({
+        @JoinColumn(name = "differe_payment_id", referencedColumnName = "id"),
+        @JoinColumn(name = "transaction_date", referencedColumnName = "transaction_date")
+    })
     private DifferePayment differePayment;
 
-    @Transient
-    private boolean isNew = true;
-
-    public DiffereItemId getId() {
-        return new DiffereItemId(id, transactionDate);
+    public Long getId() {
+        return id;
     }
 
     public DifferePaymentItem setId(Long id) {
@@ -93,14 +92,6 @@ public class DifferePaymentItem implements Persistable<DiffereItemId>, Serializa
         return this;
     }
 
-    public LocalDate getTransactionDate() {
-        return transactionDate;
-    }
-
-    public void setTransactionDate(LocalDate transactionDate) {
-        this.transactionDate = transactionDate;
-    }
-
     public DifferePayment getDifferePayment() {
         return differePayment;
     }
@@ -125,16 +116,5 @@ public class DifferePaymentItem implements Persistable<DiffereItemId>, Serializa
     @Override
     public int hashCode() {
         return Objects.hashCode(id);
-    }
-
-    @Override
-    public boolean isNew() {
-        return isNew;
-    }
-
-    @PrePersist
-    @PostLoad
-    void markNotNew() {
-        this.isNew = false;
     }
 }

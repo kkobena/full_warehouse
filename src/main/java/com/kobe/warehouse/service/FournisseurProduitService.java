@@ -201,7 +201,7 @@ public class FournisseurProduitService {
     }
 
     public List<FournisseurProduit> findByCodeCipOrProduitcodeEan(String codeCip) {
-        return fournisseurProduitRepository.findByCodeCipContainingOrProduitCodeEanContaining(codeCip, codeCip);
+        return fournisseurProduitRepository.findByCodeCipContainingOrCodeEanContaining(codeCip, codeCip);
     }
 
     public FournisseurProduit save(FournisseurProduit fournisseurProduit) {

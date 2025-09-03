@@ -30,13 +30,16 @@ import org.springframework.stereotype.Repository;
 @Repository
 public interface SalePaymentRepository
     extends JpaRepository<SalePayment, Long>, JpaSpecificationExecutor<SalePayment>, SalePaymentCustomRepository {
+   @Deprecated(forRemoval = true)
     List<SalePayment> findAllBySaleId(Long id);
+
+    List<SalePayment> findAllBySaleIdAndSaleSaleDate(Long id, LocalDate date);
 
     Optional<List<SalePayment>> findBySaleId(Long id);
 
     @Query(
         value = "SELECT  SUM(p.reel_amount) AS montantReel,SUM(p.paid_amount) AS montantPaye,pm.libelle AS modePaimentLibelle,pm.code AS modePaimentCode FROM payment_transaction p JOIN payment_mode pm ON p.payment_mode_code = pm.code " +
-        "    JOIN sales s on p.sale_id = s.id WHERE s.ca IN ('CA') AND s.statut IN('CANCELED', 'CLOSED','REMOVE') AND DATE(s.updated_at) BETWEEN :fromDate AND :toDate GROUP BY pm.code",
+        "    JOIN sales s on p.sale_id = s.id WHERE s.ca IN ('CA') AND s.statut IN('CANCELED', 'CLOSED','REMOVE') AND s.sale_date BETWEEN :fromDate AND :toDate GROUP BY pm.code",
         nativeQuery = true
     )
     List<Recette> findRecettes(@Param("fromDate") LocalDate fromDate, @Param("toDate") LocalDate toDate);
@@ -54,7 +57,7 @@ public interface SalePaymentRepository
 
 
     default Specification<SalePayment> between(LocalDate fromDate, LocalDate toDate) {
-        return (root, query, cb) -> cb.between(cb.function("date", LocalDate.class, root.get(SalePayment_.sale).get(Sales_.updatedAt)), fromDate, toDate);
+        return (root, query, cb) -> cb.between( root.get(SalePayment_.sale).get(Sales_.saleDate), fromDate, toDate);
     }
 
     default Specification<SalePayment> hasStatut(EnumSet<SalesStatut> statut) {

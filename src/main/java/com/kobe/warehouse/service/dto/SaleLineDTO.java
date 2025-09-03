@@ -2,6 +2,7 @@ package com.kobe.warehouse.service.dto;
 
 import com.kobe.warehouse.domain.FournisseurProduit;
 import com.kobe.warehouse.domain.Produit;
+import com.kobe.warehouse.domain.SaleLineId;
 import com.kobe.warehouse.domain.SalesLine;
 import com.kobe.warehouse.service.sale.calculation.dto.Rate;
 import java.time.LocalDateTime;
@@ -36,6 +37,7 @@ public class SaleLineDTO {
     private LocalDateTime effectiveUpdateDate;
     private Integer taxValue;
     private boolean forceStock; // mis pour forcer le stock a la vente
+    private SaleLineId saleLineId;
 
     private List<Rate> rates;
 
@@ -43,7 +45,8 @@ public class SaleLineDTO {
 
     public SaleLineDTO(SalesLine salesLine) {
         super();
-        id = salesLine.getId().getId();
+        saleLineId = salesLine.getId();
+        id = saleLineId.getId();
         quantitySold = salesLine.getQuantitySold();
         quantityRequested = salesLine.getQuantityRequested();
         regularUnitPrice = salesLine.getRegularUnitPrice();
@@ -150,6 +153,14 @@ public class SaleLineDTO {
     public SaleLineDTO setHtAmount(Integer htAmount) {
         this.htAmount = htAmount;
         return this;
+    }
+
+    public SaleLineId getSaleLineId() {
+        return saleLineId;
+    }
+
+    public void setSaleLineId(SaleLineId saleLineId) {
+        this.saleLineId = saleLineId;
     }
 
     public Integer getNetAmount() {

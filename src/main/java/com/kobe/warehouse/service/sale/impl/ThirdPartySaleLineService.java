@@ -1,6 +1,5 @@
 package com.kobe.warehouse.service.sale.impl;
 
-import com.kobe.warehouse.config.IdGeneratorService;
 import com.kobe.warehouse.domain.ClientTiersPayant;
 import com.kobe.warehouse.domain.ThirdPartySaleLine;
 import com.kobe.warehouse.domain.ThirdPartySales;
@@ -8,28 +7,30 @@ import com.kobe.warehouse.domain.enumeration.SalesStatut;
 import com.kobe.warehouse.domain.enumeration.ThirdPartySaleStatut;
 import com.kobe.warehouse.repository.ThirdPartySaleLineRepository;
 import com.kobe.warehouse.service.StorageService;
+import com.kobe.warehouse.service.id_generator.AssuranceItemIdGeneratorService;
+import org.springframework.stereotype.Service;
+
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
-import org.springframework.stereotype.Service;
 
 @Service
 public class ThirdPartySaleLineService {
 
-    private final IdGeneratorService idGeneratorService;
+    private final AssuranceItemIdGeneratorService assuranceItemIdGeneratorService;
     private final ThirdPartySaleLineRepository thirdPartySaleLineRepository;
     private final StorageService storageService;
 
     public ThirdPartySaleLineService(
-        IdGeneratorService idGeneratorService,
+        AssuranceItemIdGeneratorService assuranceItemIdGeneratorService,
         ThirdPartySaleLineRepository thirdPartySaleLineRepository,
         StorageService storageService
     ) {
-        this.idGeneratorService = idGeneratorService;
+        this.assuranceItemIdGeneratorService = assuranceItemIdGeneratorService;
         this.thirdPartySaleLineRepository = thirdPartySaleLineRepository;
         this.storageService = storageService;
-        this.idGeneratorService.setSequenceName("id_sale_assurance_item_seq");
+
     }
 
     public List<ThirdPartySaleLine> findAllBySaleId(Long saleId) {
@@ -38,7 +39,7 @@ public class ThirdPartySaleLineService {
 
     public ThirdPartySaleLine clone(ThirdPartySaleLine original, ThirdPartySales copy) {
         ThirdPartySaleLine clone = (ThirdPartySaleLine) original.clone();
-        clone.setId(idGeneratorService.nextId());
+        clone.setId(assuranceItemIdGeneratorService.nextId());
         clone.setSaleDate(LocalDate.now());
         clone.setStatut(ThirdPartySaleStatut.DELETE);
         clone.setMontant(clone.getMontant() * (-1));
@@ -56,7 +57,7 @@ public class ThirdPartySaleLineService {
 
     public ThirdPartySaleLine createThirdPartySaleLine(String numNon, ClientTiersPayant clientTiersPayant, int partTiersPayant) {
         ThirdPartySaleLine thirdPartySaleLine = new ThirdPartySaleLine();
-        thirdPartySaleLine.setId(this.idGeneratorService.nextId());
+        thirdPartySaleLine.setId(this.assuranceItemIdGeneratorService.nextId());
         thirdPartySaleLine.setCreated(LocalDateTime.now());
         thirdPartySaleLine.setUpdated(thirdPartySaleLine.getCreated());
         thirdPartySaleLine.setEffectiveUpdateDate(thirdPartySaleLine.getCreated());

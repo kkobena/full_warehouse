@@ -9,6 +9,7 @@ import com.kobe.warehouse.domain.CashSale;
 import com.kobe.warehouse.domain.Poste;
 import com.kobe.warehouse.domain.RemiseClient;
 import com.kobe.warehouse.domain.RemiseProduit;
+import com.kobe.warehouse.domain.SaleId;
 import com.kobe.warehouse.domain.Sales;
 import com.kobe.warehouse.domain.ThirdPartySales;
 import com.kobe.warehouse.domain.UninsuredCustomer;
@@ -31,6 +32,7 @@ import org.apache.commons.lang3.StringUtils;
 public class SaleDTO implements Serializable {
 
     private Long id;
+    private SaleId saleId;
     private Integer discountAmount;
     private String numberTransaction;
     private Long customerId;
@@ -72,7 +74,7 @@ public class SaleDTO implements Serializable {
     private TypePrescription typePrescription;
     private PaymentStatus paymentStatus;
     private CustomerDTO customer;
-    private UserDTO cassier, seller;
+    private UserDTO cassier;private UserDTO seller;
     private Long cassierId;
     private Long sellerId;
     private String caisseEndNum;
@@ -82,10 +84,12 @@ public class SaleDTO implements Serializable {
     private List<TvaEmbeded> tvaEmbededs = new ArrayList<>();
     private String commentaire;
 
+
     public SaleDTO() {}
 
     public SaleDTO(Sales sale) {
-        this.id = sale.getId().getId();
+        this.saleId = sale.getId();
+        this.id = this.saleId.getId();
         this.commentaire = sale.getCommentaire();
         this.discountAmount = sale.getDiscountAmount();
         if (sale instanceof ThirdPartySales thirdPartySales) {
@@ -617,5 +621,13 @@ public class SaleDTO implements Serializable {
     public SaleDTO setCommentaire(String commentaire) {
         this.commentaire = commentaire;
         return this;
+    }
+
+    public SaleId getSaleId() {
+        return saleId;
+    }
+
+    public void setSaleId(SaleId saleId) {
+        this.saleId = saleId;
     }
 }

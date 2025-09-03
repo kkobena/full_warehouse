@@ -53,6 +53,7 @@ export interface ISales {
   sansBon?: boolean;
   commentaire?: string;
   avoir?: boolean;
+  saleId?: SaleId;
   remise?: IRemise;
 }
 
@@ -97,7 +98,7 @@ export class Sales implements ISales {
     public thirdPartySaleLines?: IThirdPartySaleLine[],
     public partTiersPayant?: number,
     public sansBon?: boolean,
-    public avoir?: boolean,
+    public avoir?: boolean
   ) {
     this.statut = this.statut || SalesStatut.ACTIVE;
     this.differe = this.differe || false;
@@ -152,4 +153,14 @@ export class InputToFocus {
 export class KeyValue {
   key: number;
   value: number;
+}
+
+export class UpdateSaleInfo {
+  id: SaleId;
+  value: number;
+}
+
+export class SaleId {
+  id: number;
+  saleDate: string;
 }

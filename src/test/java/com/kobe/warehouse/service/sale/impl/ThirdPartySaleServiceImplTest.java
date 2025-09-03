@@ -11,7 +11,7 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
-import com.kobe.warehouse.config.IdGeneratorService;
+import com.kobe.warehouse.service.id_generator.SaleIdGeneratorService;
 import com.kobe.warehouse.domain.AppUser;
 import com.kobe.warehouse.domain.AssuredCustomer;
 import com.kobe.warehouse.domain.ClientTiersPayant;
@@ -137,7 +137,7 @@ class ThirdPartySaleServiceImplTest {
     private AfficheurPosService afficheurPosService;
 
     @Mock
-    private IdGeneratorService idGeneratorService;
+    private SaleIdGeneratorService idGeneratorService;
 
     @InjectMocks
     private ThirdPartySaleServiceImpl thirdPartySaleService;

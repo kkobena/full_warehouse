@@ -10,6 +10,7 @@ import jakarta.persistence.Id;
 import jakarta.persistence.IdClass;
 import jakarta.persistence.Index;
 import jakarta.persistence.JoinColumn;
+import jakarta.persistence.JoinColumns;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.PostLoad;
 import jakarta.persistence.PrePersist;
@@ -39,6 +40,10 @@ public class ThirdPartySaleLine implements Persistable<AssuranceSaleId>, Seriali
 
     @NotNull
     @ManyToOne(optional = false)
+    @JoinColumns({
+        @JoinColumn(name = "sale_id", referencedColumnName = "id"),
+        @JoinColumn(name = "sale_sale_date", referencedColumnName = "sale_date")
+    })
     private ThirdPartySales sale;
 
     @Column(name = "num_bon", length = 50)
@@ -78,7 +83,10 @@ public class ThirdPartySaleLine implements Persistable<AssuranceSaleId>, Seriali
     private Integer montantRegle = 0;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "facture_tiers_payant_id", referencedColumnName = "id")
+    @JoinColumns({
+        @JoinColumn(name = "facture_tiers_payant_id", referencedColumnName = "id"),
+        @JoinColumn(name = "invoice_date", referencedColumnName = "invoice_date")
+    })
     private FactureTiersPayant factureTiersPayant;
     @Transient
     private boolean isNew = true;

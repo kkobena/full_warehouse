@@ -478,6 +478,7 @@ log_directory = 'pg_log'
 log_filename = 'postgresql-%Y-%m-%d.log'
 log_statement = 'ddl'
 log_min_duration_statement = 500
+enable_partition_pruning = on
 
 create database warehouse;
 

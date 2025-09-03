@@ -1,11 +1,13 @@
 package com.kobe.warehouse.service.dto;
 
+import com.kobe.warehouse.domain.AssuranceSaleId;
 import com.kobe.warehouse.domain.AssuredCustomer;
 import com.kobe.warehouse.domain.ClientTiersPayant;
 import com.kobe.warehouse.domain.ThirdPartySaleLine;
 import com.kobe.warehouse.domain.TiersPayant;
 import com.kobe.warehouse.domain.enumeration.PrioriteTiersPayant;
 import com.kobe.warehouse.domain.enumeration.ThirdPartySaleStatut;
+
 import java.time.LocalDateTime;
 
 public class ThirdPartySaleLineDTO {
@@ -27,11 +29,14 @@ public class ThirdPartySaleLineDTO {
     private Integer montantRemise;
     private Integer montantNet;
     private PrioriteTiersPayant priorite;
+    private AssuranceSaleId assuranceSaleId;
 
-    public ThirdPartySaleLineDTO() {}
+    public ThirdPartySaleLineDTO() {
+    }
 
     public ThirdPartySaleLineDTO(ThirdPartySaleLine thirdPartySaleLine) {
-        this.id = thirdPartySaleLine.getId().getId();
+        this.assuranceSaleId = thirdPartySaleLine.getId();
+        this.id = this.assuranceSaleId.getId();
         this.numBon = thirdPartySaleLine.getNumBon();
         this.montant = thirdPartySaleLine.getMontant();
         ClientTiersPayant clientTiersPayant = thirdPartySaleLine.getClientTiersPayant();
@@ -49,6 +54,14 @@ public class ThirdPartySaleLineDTO {
         this.taux = thirdPartySaleLine.getTaux();
         this.statut = thirdPartySaleLine.getStatut();
         this.priorite = clientTiersPayant.getPriorite();
+    }
+
+    public AssuranceSaleId getAssuranceSaleId() {
+        return assuranceSaleId;
+    }
+
+    public void setAssuranceSaleId(AssuranceSaleId assuranceSaleId) {
+        this.assuranceSaleId = assuranceSaleId;
     }
 
     public Integer getMontantNet() {

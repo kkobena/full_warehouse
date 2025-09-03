@@ -9,6 +9,7 @@ import jakarta.persistence.Id;
 import jakarta.persistence.IdClass;
 import jakarta.persistence.Index;
 import jakarta.persistence.JoinColumn;
+import jakarta.persistence.JoinColumns;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.PostLoad;
@@ -85,7 +86,10 @@ public class FactureTiersPayant implements Persistable<FactureItemId>, Serializa
     private List<FactureTiersPayant> factureTiersPayants = new ArrayList<>();
 
     @ManyToOne
-    @JoinColumn(name = "groupe_facture_tiers_payant_id", referencedColumnName = "id")
+    @JoinColumns({
+        @JoinColumn(name = "groupe_facture_tiers_payant_id", referencedColumnName = "id"),
+        @JoinColumn(name = "groupe_facture_tiers_payant_id_invoice_date", referencedColumnName = "invoice_date")
+    })
     private FactureTiersPayant groupeFactureTiersPayant;
 
     @OneToMany(mappedBy = "factureTiersPayant")

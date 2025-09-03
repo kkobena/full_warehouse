@@ -37,6 +37,7 @@ public interface FacturationRepository
     String findLatestFactureNumber();
 
     List<FactureTiersPayant> findAllByCreatedEquals(LocalDateTime created, Sort sort);
+    @Deprecated(forRemoval = true)
     Optional<FactureTiersPayant> findFactureTiersPayantById(Long id);
 
     List<FactureTiersPayant> findAllByCreatedEqualsAndGroupeFactureTiersPayantIsNull(LocalDateTime created, Sort sort);

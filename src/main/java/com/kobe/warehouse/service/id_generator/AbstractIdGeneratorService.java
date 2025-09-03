@@ -1,15 +1,16 @@
-package com.kobe.warehouse.config;
+package com.kobe.warehouse.service.id_generator;
 
 import jakarta.persistence.EntityManager;
 import org.springframework.stereotype.Service;
 
 @Service
-public class IdGeneratorService {
+public abstract class AbstractIdGeneratorService {
 
-    private String sequenceName;
     private final EntityManager entityManager;
+    protected abstract String getSequenceName();
 
-    public IdGeneratorService(EntityManager entityManager) {
+
+    protected AbstractIdGeneratorService(EntityManager entityManager) {
         this.entityManager = entityManager;
     }
 
@@ -20,14 +21,8 @@ public class IdGeneratorService {
                 .setParameter("seqName", getSequenceName())
                 .getSingleResult()
         ).longValue();
-        //  return ((Number) entityManager.createNativeQuery("SELECT nextval('id_generator_seq')").getSingleResult()).longValue();
+
     }
 
-    public void setSequenceName(String sequenceName) {
-        this.sequenceName = sequenceName;
-    }
 
-    public String getSequenceName() {
-        return sequenceName;
-    }
 }

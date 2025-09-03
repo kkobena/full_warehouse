@@ -7,6 +7,8 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.Index;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.JoinColumns;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 import jakarta.persistence.UniqueConstraint;
@@ -38,6 +40,10 @@ public class Lot implements Serializable {
 
     @NotNull
     @ManyToOne(optional = false, fetch = FetchType.LAZY)
+    @JoinColumns({
+        @JoinColumn(name = "order_line_id", referencedColumnName = "id"),
+        @JoinColumn(name = "commande_order_date", referencedColumnName = "order_date")
+    })
     private OrderLine orderLine;
 
     @Column(name = "quantity", nullable = false)

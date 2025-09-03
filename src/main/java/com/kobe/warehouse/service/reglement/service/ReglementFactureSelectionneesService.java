@@ -1,6 +1,5 @@
 package com.kobe.warehouse.service.reglement.service;
 
-import com.kobe.warehouse.config.IdGeneratorService;
 import com.kobe.warehouse.domain.FactureTiersPayant;
 import com.kobe.warehouse.domain.InvoicePayment;
 import com.kobe.warehouse.domain.ThirdPartySaleLine;
@@ -14,14 +13,16 @@ import com.kobe.warehouse.service.cash_register.CashRegisterService;
 import com.kobe.warehouse.service.errors.CashRegisterException;
 import com.kobe.warehouse.service.errors.GenericError;
 import com.kobe.warehouse.service.errors.PaymentAmountException;
+import com.kobe.warehouse.service.id_generator.TransactionIdGeneratorService;
 import com.kobe.warehouse.service.reglement.dto.LigneSelectionnesDTO;
 import com.kobe.warehouse.service.reglement.dto.ReglementParam;
 import com.kobe.warehouse.service.reglement.dto.ResponseReglementDTO;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @Transactional
@@ -37,7 +38,7 @@ public class ReglementFactureSelectionneesService extends AbstractReglementServi
         FacturationRepository facturationRepository,
         ThirdPartySaleLineRepository thirdPartySaleLineRepository,
         BanqueRepository banqueRepository,
-        IdGeneratorService idGeneratorService,
+        TransactionIdGeneratorService transactionIdGeneratorService,
         InvoicePaymentItemService invoicePaymentItemService
     ) {
         super(
@@ -47,7 +48,7 @@ public class ReglementFactureSelectionneesService extends AbstractReglementServi
             facturationRepository,
             thirdPartySaleLineRepository,
             banqueRepository,
-            idGeneratorService,
+            transactionIdGeneratorService,
             invoicePaymentItemService
         );
         this.facturationRepository = facturationRepository;
@@ -140,7 +141,7 @@ public class ReglementFactureSelectionneesService extends AbstractReglementServi
 
     private List<ThirdPartySaleLine> getThirdPartySaleLines(ReglementParam reglementParam) {
         return this.thirdPartySaleLineRepository.findAll(
-                this.thirdPartySaleLineRepository.selectionBonCriteria(Set.copyOf(reglementParam.getDossierIds()))
-            );
+            this.thirdPartySaleLineRepository.selectionBonCriteria(Set.copyOf(reglementParam.getDossierIds()))
+        );
     }
 }

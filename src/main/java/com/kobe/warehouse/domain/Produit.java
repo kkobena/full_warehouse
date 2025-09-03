@@ -68,7 +68,7 @@ import org.hibernate.envers.RelationTargetAuditMode;
     uniqueConstraints = {@UniqueConstraint(columnNames = {"libelle", "type_produit"})},
     indexes = {
         @Index(columnList = "libelle", name = "libelle_index"),
-        @Index(columnList = "code_ean", name = "codeEan_index"),
+        @Index(columnList = "code_ean_labo", name = "code_ean_labo_index"),
         @Index(columnList = "status", name = "status_index"),
     }
 )

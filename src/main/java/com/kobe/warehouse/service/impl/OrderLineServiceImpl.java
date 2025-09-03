@@ -1,6 +1,6 @@
 package com.kobe.warehouse.service.impl;
 
-import com.kobe.warehouse.config.IdGeneratorService;
+
 import com.kobe.warehouse.domain.Commande;
 import com.kobe.warehouse.domain.FournisseurProduit;
 import com.kobe.warehouse.domain.OrderLine;
@@ -16,15 +16,17 @@ import com.kobe.warehouse.service.OrderLineService;
 import com.kobe.warehouse.service.dto.FournisseurProduitDTO;
 import com.kobe.warehouse.service.dto.OrderLineDTO;
 import com.kobe.warehouse.service.errors.GenericError;
-import java.time.LocalDateTime;
-import java.util.List;
-import java.util.Optional;
-import java.util.Set;
+import com.kobe.warehouse.service.id_generator.OrderLineIdGeneratorService;
 import org.apache.commons.lang3.ObjectUtils;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.util.Pair;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.time.LocalDateTime;
+import java.util.List;
+import java.util.Optional;
+import java.util.Set;
 
 @Service
 @Transactional
@@ -34,21 +36,21 @@ public class OrderLineServiceImpl implements OrderLineService {
     private final FournisseurProduitService fournisseurProduitService;
     private final ProduitRepository produitRepository;
     private final CustomizedProductService customizedProductService;
-    private final IdGeneratorService idGeneratorService;
+    private final OrderLineIdGeneratorService orderLineIdGeneratorService;
 
     public OrderLineServiceImpl(
         OrderLineRepository orderLineRepository,
         FournisseurProduitService fournisseurProduitService,
         ProduitRepository produitRepository,
         CustomizedProductService customizedProductService,
-        IdGeneratorService idGeneratorService
+        OrderLineIdGeneratorService orderLineIdGeneratorService
     ) {
         this.orderLineRepository = orderLineRepository;
         this.fournisseurProduitService = fournisseurProduitService;
         this.produitRepository = produitRepository;
         this.customizedProductService = customizedProductService;
-        this.idGeneratorService = idGeneratorService;
-        this.idGeneratorService.setSequenceName("id_order_line_seq");
+        this.orderLineIdGeneratorService = orderLineIdGeneratorService;
+
     }
 
     @Override
@@ -57,7 +59,8 @@ public class OrderLineServiceImpl implements OrderLineService {
     }
 
     @Override
-    public void updateOrderLine(OrderLine orderLine) {}
+    public void updateOrderLine(OrderLine orderLine) {
+    }
 
     @Override
     public OrderLine buildOrderLineFromOrderLineDTO(OrderLineDTO orderLineDTO) {
@@ -78,7 +81,7 @@ public class OrderLineServiceImpl implements OrderLineService {
     @Override
     public OrderLine buildOrderLine(OrderLineDTO orderLineDTO, FournisseurProduit fournisseurProduit) {
         OrderLine orderLine = new OrderLine();
-        orderLine.setId(this.idGeneratorService.nextId());
+        orderLine.setId(this.orderLineIdGeneratorService.nextId());
         orderLine.createdAt(LocalDateTime.now());
         orderLine.setUpdatedAt(orderLine.getCreatedAt());
         orderLine.setInitStock(orderLineDTO.getTotalQuantity());
@@ -164,10 +167,12 @@ public class OrderLineServiceImpl implements OrderLineService {
     }
 
     @Override
-    public void removeProductState(List<Produit> produits, OrderStatut orderStatut) {}
+    public void removeProductState(List<Produit> produits, OrderStatut orderStatut) {
+    }
 
     @Override
-    public void rollbackProductState(List<Produit> produits) {}
+    public void rollbackProductState(List<Produit> produits) {
+    }
 
     @Override
     public int countByCommandeOrderStatusAndFournisseurProduitProduitId(OrderStatut orderStatut, Long produitId) {
@@ -258,7 +263,7 @@ public class OrderLineServiceImpl implements OrderLineService {
 
     private OrderLine buildOrderLine(Commande commande, OrderLineDTO orderLineDTO) {
         OrderLine orderLine = new OrderLine();
-        orderLine.setId(this.idGeneratorService.nextId());
+        orderLine.setId(this.orderLineIdGeneratorService.nextId());
         orderLine.setCreatedAt(commande.getCreatedAt());
         orderLine.setUpdatedAt(commande.getCreatedAt());
         orderLine.setQuantityReceived(orderLineDTO.getQuantityReceived());
@@ -282,7 +287,7 @@ public class OrderLineServiceImpl implements OrderLineService {
             .map(StockProduit::getTotalStockQuantity)
             .reduce(0, Integer::sum);
         OrderLine orderLine = new OrderLine();
-        orderLine.setId(this.idGeneratorService.nextId());
+        orderLine.setId(this.orderLineIdGeneratorService.nextId());
         orderLine.setCreatedAt(LocalDateTime.now());
         orderLine.setUpdatedAt(orderLine.getCreatedAt());
         orderLine.setQuantityReceived(0);
@@ -300,22 +305,22 @@ public class OrderLineServiceImpl implements OrderLineService {
     public void changeFournisseurProduit(OrderLine orderLine, Long fournisseurId) {
         Produit produit = orderLine.getFournisseurProduit().getProduit();
         this.fournisseurProduitService.findFirstByProduitIdAndFournisseurId(produit.getId(), fournisseurId).ifPresentOrElse(
-                newFournisseurProduit -> {
-                    orderLine.setFournisseurProduit(newFournisseurProduit);
-                    orderLine.setProvisionalCode(false);
-                    updateOrderLineAmount(orderLine, newFournisseurProduit);
-                },
-                () -> {
-                    FournisseurProduit fournisseurProduit = createNewFromOne(
-                        produit.getFournisseurProduitPrincipal(),
-                        fournisseurId,
-                        produit.getId()
-                    );
-                    orderLine.setFournisseurProduit(fournisseurProduit);
-                    orderLine.setProvisionalCode(true);
-                    updateOrderLineAmount(orderLine, fournisseurProduit);
-                }
-            );
+            newFournisseurProduit -> {
+                orderLine.setFournisseurProduit(newFournisseurProduit);
+                orderLine.setProvisionalCode(false);
+                updateOrderLineAmount(orderLine, newFournisseurProduit);
+            },
+            () -> {
+                FournisseurProduit fournisseurProduit = createNewFromOne(
+                    produit.getFournisseurProduitPrincipal(),
+                    fournisseurId,
+                    produit.getId()
+                );
+                orderLine.setFournisseurProduit(fournisseurProduit);
+                orderLine.setProvisionalCode(true);
+                updateOrderLineAmount(orderLine, fournisseurProduit);
+            }
+        );
     }
 
     @Override
@@ -342,7 +347,7 @@ public class OrderLineServiceImpl implements OrderLineService {
         Commande commande
     ) {
         OrderLine orderLine = new OrderLine();
-        orderLine.setId(this.idGeneratorService.nextId());
+        orderLine.setId(this.orderLineIdGeneratorService.nextId());
         orderLine.setFreeQty(quantityUg);
         orderLine.setCreatedAt(commande.getCreatedAt());
         orderLine.setQuantityReceived(quantityReceived);

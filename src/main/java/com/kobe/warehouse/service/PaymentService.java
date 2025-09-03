@@ -1,5 +1,6 @@
 package com.kobe.warehouse.service;
 
+import com.kobe.warehouse.domain.SaleId;
 import com.kobe.warehouse.domain.SalePayment;
 import com.kobe.warehouse.domain.Sales;
 import com.kobe.warehouse.domain.AppUser;
@@ -17,4 +18,6 @@ public interface PaymentService {
     void buildPaymentFromFromPaymentDTO(Sales sales, SaleDTO saleDTO);
 
     void delete(SalePayment payment);
+
+    List<SalePayment> findAllBySales(SaleId id);
 }

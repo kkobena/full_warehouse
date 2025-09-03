@@ -6,6 +6,8 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.Id;
 import jakarta.persistence.IdClass;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.JoinColumns;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.PostLoad;
 import jakarta.persistence.PrePersist;
@@ -87,6 +89,10 @@ public class SalesLine implements Persistable<SaleLineId>, Serializable, Cloneab
     private LocalDateTime updatedAt;
     @NotNull
     @ManyToOne(optional = false)
+    @JoinColumns({
+        @JoinColumn(name = "sales_id", referencedColumnName = "id"),
+        @JoinColumn(name = "sales_sale_date", referencedColumnName = "sale_date")
+    })
     private Sales sales;
     @NotNull
     @ManyToOne(optional = false, fetch = FetchType.LAZY)

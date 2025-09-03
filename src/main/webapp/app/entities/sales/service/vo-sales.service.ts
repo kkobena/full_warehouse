@@ -10,6 +10,7 @@ import { FinalyseSale, ISales, KeyValue } from 'app/shared/model/sales.model';
 import { ISalesLine } from '../../../shared/model/sales-line.model';
 import { IClientTiersPayant } from '../../../shared/model/client-tiers-payant.model';
 import { UtilisationCleSecurite } from '../../action-autorisation/utilisation-cle-securite.model';
+import { UpdateSale } from '../customer-edit-modal/update-sale.model';
 
 type EntityResponseType = HttpResponse<ISales>;
 type EntityArrayResponseType = HttpResponse<ISales[]>;
@@ -34,6 +35,9 @@ export class VoSalesService {
 
   delete(id: number): Observable<HttpResponse<{}>> {
     return this.http.delete(`${this.resourceUrl}/${id}`, { observe: 'response' });
+  }
+  updateCustomerInformation(updateSale: UpdateSale): Observable<HttpResponse<{}>> {
+    return this.http.put<{}>(`${this.resourceUrl}/assurance/update-customer-information`, updateSale, { observe: 'response' });
   }
 
   putCurrentOnStandBy(sales: ISales): Observable<HttpResponse<FinalyseSale>> {

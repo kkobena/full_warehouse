@@ -6,6 +6,7 @@ import jakarta.persistence.FetchType;
 import jakarta.persistence.Id;
 import jakarta.persistence.IdClass;
 import jakarta.persistence.JoinColumn;
+import jakarta.persistence.JoinColumns;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.PostLoad;
 import jakarta.persistence.PrePersist;
@@ -47,12 +48,19 @@ public class InvoicePaymentItem implements Persistable<PaymentItemId>, Serializa
 
     @NotNull
     @ManyToOne(optional = false, fetch = FetchType.LAZY)
-    @JoinColumn(name = "third_party_sale_line_id", referencedColumnName = "id")
+    @JoinColumns({
+        @JoinColumn(name = "third_party_sale_line_id", referencedColumnName = "id"),
+        @JoinColumn(name = "third_party_sale_sale_date", referencedColumnName = "sale_date")
+    })
     private ThirdPartySaleLine thirdPartySaleLine;
 
     @ManyToOne(optional = false, fetch = FetchType.LAZY)
     @NotNull
-    @JoinColumn(name = "invoice_payment_id", referencedColumnName = "id")
+
+    @JoinColumns({
+        @JoinColumn(name = "invoice_payment_id", referencedColumnName = "id"),
+        @JoinColumn(name = "invoicePayment_transaction_date", referencedColumnName = "transaction_date")
+    })
     private InvoicePayment invoicePayment;
 
     @Transient

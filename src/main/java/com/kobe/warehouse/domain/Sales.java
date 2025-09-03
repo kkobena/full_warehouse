@@ -19,6 +19,7 @@ import jakarta.persistence.Index;
 import jakarta.persistence.Inheritance;
 import jakarta.persistence.InheritanceType;
 import jakarta.persistence.JoinColumn;
+import jakarta.persistence.JoinColumns;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.PostLoad;
@@ -143,6 +144,10 @@ public class Sales implements Persistable<SaleId>, Serializable, Cloneable {
     @NotNull
     private Magasin magasin;
     @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumns({
+        @JoinColumn(name = "canceled_sale_id", referencedColumnName = "id"),
+        @JoinColumn(name = "canceled_sale_date", referencedColumnName = "sale_date")
+    })
     private Sales canceledSale;
     @ManyToOne(optional = false, fetch = FetchType.LAZY)
     @NotNull

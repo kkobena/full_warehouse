@@ -1,6 +1,6 @@
 package com.kobe.warehouse.service.reglement.service;
 
-import com.kobe.warehouse.config.IdGeneratorService;
+
 import com.kobe.warehouse.domain.Banque;
 import com.kobe.warehouse.domain.CashRegister;
 import com.kobe.warehouse.domain.FactureTiersPayant;
@@ -18,6 +18,7 @@ import com.kobe.warehouse.repository.InvoicePaymentRepository;
 import com.kobe.warehouse.repository.ThirdPartySaleLineRepository;
 import com.kobe.warehouse.service.UserService;
 import com.kobe.warehouse.service.cash_register.CashRegisterService;
+import com.kobe.warehouse.service.id_generator.TransactionIdGeneratorService;
 import com.kobe.warehouse.service.reglement.dto.BanqueInfoDTO;
 import com.kobe.warehouse.service.reglement.dto.ReglementParam;
 import java.time.LocalDate;
@@ -37,7 +38,7 @@ public abstract class AbstractReglementService implements ReglementService {
     private final FacturationRepository facturationRepository;
     private final ThirdPartySaleLineRepository thirdPartySaleLineRepository;
     private final BanqueRepository banqueRepository;
-    private final IdGeneratorService idGeneratorService;
+    private final TransactionIdGeneratorService transactionIdGeneratorService;
     private final InvoicePaymentItemService invoicePaymentItemService;
 
     protected AbstractReglementService(
@@ -47,7 +48,7 @@ public abstract class AbstractReglementService implements ReglementService {
         FacturationRepository facturationRepository,
         ThirdPartySaleLineRepository thirdPartySaleLineRepository,
         BanqueRepository banqueRepository,
-        IdGeneratorService idGeneratorService,
+        TransactionIdGeneratorService transactionIdGeneratorService,
         InvoicePaymentItemService invoicePaymentItemService
     ) {
         this.cashRegisterService = cashRegisterService;
@@ -57,9 +58,9 @@ public abstract class AbstractReglementService implements ReglementService {
 
         this.thirdPartySaleLineRepository = thirdPartySaleLineRepository;
         this.banqueRepository = banqueRepository;
-        this.idGeneratorService = idGeneratorService;
+        this.transactionIdGeneratorService = transactionIdGeneratorService;
         this.invoicePaymentItemService = invoicePaymentItemService;
-        this.idGeneratorService.setSequenceName("id_transaction_seq");
+
     }
 
     protected CashRegister getCashRegister() {
@@ -83,7 +84,7 @@ public abstract class AbstractReglementService implements ReglementService {
 
     private InvoicePayment getNew() {
         InvoicePayment invoice = new InvoicePayment();
-        invoice.setId(this.idGeneratorService.nextId());
+        invoice.setId(this.transactionIdGeneratorService.nextId());
         return invoice;
     }
 

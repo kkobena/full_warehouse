@@ -1,8 +1,5 @@
 package com.kobe.warehouse.service.mvt_produit.service;
 
-import static java.util.Objects.nonNull;
-
-import com.kobe.warehouse.config.IdGeneratorService;
 import com.kobe.warehouse.domain.InventoryTransaction;
 import com.kobe.warehouse.domain.enumeration.MouvementProduit;
 import com.kobe.warehouse.domain.enumeration.TransactionType;
@@ -14,14 +11,18 @@ import com.kobe.warehouse.service.dto.produit.ProduitAuditingParam;
 import com.kobe.warehouse.service.dto.produit.ProduitAuditingState;
 import com.kobe.warehouse.service.dto.produit.ProduitAuditingSum;
 import com.kobe.warehouse.service.dto.projection.LastDateProjection;
+import com.kobe.warehouse.service.id_generator.MvtProduitIdGeneratorService;
 import com.kobe.warehouse.service.mvt_produit.builder.InventoryTransactionBuilder;
-import java.time.LocalDateTime;
-import java.util.List;
-import java.util.Optional;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.time.LocalDateTime;
+import java.util.List;
+import java.util.Optional;
+
+import static java.util.Objects.nonNull;
 
 @Service
 @Transactional
@@ -29,22 +30,22 @@ public class InventoryTransactionServiceIml implements InventoryTransactionServi
 
     private final InventoryTransactionRepository inventoryTransactionRepository;
     private final InventoryTransactionSpec inventoryTransactionSpec;
-    private final IdGeneratorService idGeneratorService;
+    private final MvtProduitIdGeneratorService mvtProduitIdGeneratorService;
 
     public InventoryTransactionServiceIml(
         InventoryTransactionRepository inventoryTransactionRepository,
         InventoryTransactionSpec inventoryTransactionSpec,
-        IdGeneratorService idGeneratorService
+        MvtProduitIdGeneratorService mvtProduitIdGeneratorService
     ) {
         this.inventoryTransactionRepository = inventoryTransactionRepository;
         this.inventoryTransactionSpec = inventoryTransactionSpec;
-        this.idGeneratorService = idGeneratorService;
-        this.idGeneratorService.setSequenceName("id_mvt_produit_seq");
+        this.mvtProduitIdGeneratorService = mvtProduitIdGeneratorService;
+
     }
 
     @Override
     public void save(Object entity) {
-        inventoryTransactionRepository.save(new InventoryTransactionBuilder(entity).build().setId(idGeneratorService.nextId()));
+        inventoryTransactionRepository.save(new InventoryTransactionBuilder(entity).build().setId(mvtProduitIdGeneratorService.nextId()));
     }
 
     @Transactional(readOnly = true)
@@ -67,8 +68,8 @@ public class InventoryTransactionServiceIml implements InventoryTransactionServi
         Integer type
     ) {
         this.inventoryTransactionSpec.setInventoryTransactionFilter(
-                new InventoryTransactionFilterDTO().setEndDate(endDate).setProduitId(produitId).setStartDate(startDate).setType(type)
-            );
+            new InventoryTransactionFilterDTO().setEndDate(endDate).setProduitId(produitId).setStartDate(startDate).setType(type)
+        );
 
         return inventoryTransactionRepository.findAll(this.inventoryTransactionSpec, pageable).map(InventoryTransactionDTO::new);
     }
@@ -86,9 +87,9 @@ public class InventoryTransactionServiceIml implements InventoryTransactionServi
         var startDate = nonNull(produitAuditingParam.fromDate()) ? produitAuditingParam.fromDate() : null;
         var endDate = nonNull(produitAuditingParam.toDate()) ? produitAuditingParam.toDate() : null;
         return this.inventoryTransactionRepository.fetchProduitDailyTransaction(
-                inventoryTransactionRepository.combineSpecifications(produitAuditingParam.produitId(), startDate, endDate),
-                pageable
-            );
+            inventoryTransactionRepository.combineSpecifications(produitAuditingParam.produitId(), startDate, endDate),
+            pageable
+        );
     }
 
     @Override
@@ -96,7 +97,7 @@ public class InventoryTransactionServiceIml implements InventoryTransactionServi
         var startDate = nonNull(produitAuditingParam.fromDate()) ? produitAuditingParam.fromDate() : null;
         var endDate = nonNull(produitAuditingParam.toDate()) ? produitAuditingParam.toDate() : null;
         return this.inventoryTransactionRepository.fetchProduitDailyTransactionSum(
-                inventoryTransactionRepository.combineSpecifications(produitAuditingParam.produitId(), startDate, endDate)
-            );
+            inventoryTransactionRepository.combineSpecifications(produitAuditingParam.produitId(), startDate, endDate)
+        );
     }
 }

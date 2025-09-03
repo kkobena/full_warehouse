@@ -1,6 +1,5 @@
 package com.kobe.warehouse.service.sale.impl;
 
-import com.kobe.warehouse.config.IdGeneratorService;
 import com.kobe.warehouse.domain.AppUser;
 import com.kobe.warehouse.domain.CashSale;
 import com.kobe.warehouse.domain.FournisseurProduit;
@@ -24,20 +23,22 @@ import com.kobe.warehouse.service.dto.SaleLineDTO;
 import com.kobe.warehouse.service.dto.records.QuantitySuggestion;
 import com.kobe.warehouse.service.errors.DeconditionnementStockOut;
 import com.kobe.warehouse.service.errors.StockException;
+import com.kobe.warehouse.service.id_generator.SaleLineIdGeneratorService;
 import com.kobe.warehouse.service.mvt_produit.service.InventoryTransactionService;
 import com.kobe.warehouse.service.sale.SalesLineService;
 import com.kobe.warehouse.service.stock.LotService;
 import com.kobe.warehouse.service.stock.SuggestionProduitService;
+import org.springframework.scheduling.annotation.Async;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.CollectionUtils;
+
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicInteger;
-import org.springframework.scheduling.annotation.Async;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
-import org.springframework.util.CollectionUtils;
 
 @Service
 @Transactional
@@ -50,7 +51,7 @@ public abstract class SalesLineServiceImpl implements SalesLineService {
     private final SuggestionProduitService suggestionProduitService;
     private final LotService lotService;
     private final InventoryTransactionService inventoryTransactionService;
-    private final IdGeneratorService idGeneratorService;
+    private final SaleLineIdGeneratorService saleLineIdGeneratorService;
 
     protected SalesLineServiceImpl(
         ProduitRepository produitRepository,
@@ -60,7 +61,7 @@ public abstract class SalesLineServiceImpl implements SalesLineService {
         SuggestionProduitService suggestionProduitService,
         LotService lotService,
         InventoryTransactionService inventoryTransactionService,
-        IdGeneratorService idGeneratorService
+        SaleLineIdGeneratorService saleLineIdGeneratorService
     ) {
         this.produitRepository = produitRepository;
         this.salesLineRepository = salesLineRepository;
@@ -69,13 +70,13 @@ public abstract class SalesLineServiceImpl implements SalesLineService {
         this.suggestionProduitService = suggestionProduitService;
         this.lotService = lotService;
         this.inventoryTransactionService = inventoryTransactionService;
-        this.idGeneratorService = idGeneratorService;
-        this.idGeneratorService.setSequenceName("id_sale_item_seq");
+        this.saleLineIdGeneratorService = saleLineIdGeneratorService;
+
     }
 
     private SalesLine getNew() {
         SalesLine salesLine = new SalesLine();
-        salesLine.setId(idGeneratorService.nextId());
+        salesLine.setId(saleLineIdGeneratorService.nextId());
         return salesLine;
     }
 
@@ -328,17 +329,17 @@ public abstract class SalesLineServiceImpl implements SalesLineService {
         int quantitySold = salesLine.getQuantitySold();
         AtomicInteger quantityToUpdate = new AtomicInteger(salesLine.getQuantitySold());
         this.lotService.findByProduitId(salesLine.getProduit().getId()).forEach(lot -> {
-                if (quantityToUpdate.get() > 0) {
-                    if (lot.getQuantity() >= quantitySold) {
-                        //long id, String numLot, int quantity
-                        salesLine.getLots().add(new LotSold(lot.getId(), lot.getNumLot(), quantitySold));
-                        quantityToUpdate.addAndGet(-quantitySold);
-                    } else {
-                        quantityToUpdate.addAndGet(-lot.getQuantity());
-                        salesLine.getLots().add(new LotSold(lot.getId(), lot.getNumLot(), lot.getQuantity()));
-                    }
+            if (quantityToUpdate.get() > 0) {
+                if (lot.getQuantity() >= quantitySold) {
+                    //long id, String numLot, int quantity
+                    salesLine.getLots().add(new LotSold(lot.getId(), lot.getNumLot(), quantitySold));
+                    quantityToUpdate.addAndGet(-quantitySold);
+                } else {
+                    quantityToUpdate.addAndGet(-lot.getQuantity());
+                    salesLine.getLots().add(new LotSold(lot.getId(), lot.getNumLot(), lot.getQuantity()));
                 }
-            });
+            }
+        });
         this.lotService.updateLots(salesLine.getLots());
     }
 

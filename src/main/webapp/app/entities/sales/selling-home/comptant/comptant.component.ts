@@ -8,7 +8,7 @@ import { FormsModule } from '@angular/forms';
 import { ProductTableComponent } from '../product-table/product-table.component';
 import { IPaymentMode, PaymentModeControl } from '../../../../shared/model/payment-mode.model';
 import { IRemise } from '../../../../shared/model/remise.model';
-import { FinalyseSale, InputToFocus, ISales, SaveResponse } from '../../../../shared/model/sales.model';
+import { FinalyseSale, InputToFocus, ISales, SaleId, SaveResponse } from '../../../../shared/model/sales.model';
 import { ISalesLine } from '../../../../shared/model/sales-line.model';
 import { AmountComputingComponent } from './amount-computing/amount-computing.component';
 import { ModeReglementComponent } from '../../mode-reglement/mode-reglement.component';
@@ -237,7 +237,7 @@ export class ComptantComponent {
     this.facade.printInvoice(sale.id);
   }
 
-  printSale(saleId: number): void {
+  printSale(saleId: SaleId): void {
     this.facade.printReceipt(saleId);
   }
 

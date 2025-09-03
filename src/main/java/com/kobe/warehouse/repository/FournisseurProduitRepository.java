@@ -1,7 +1,7 @@
 package com.kobe.warehouse.repository;
 
 import com.kobe.warehouse.domain.FournisseurProduit;
-import com.kobe.warehouse.service.dto.produit.HistoriqueProduitInfo;
+
 import java.util.List;
 import java.util.Optional;
 import org.springframework.data.domain.Pageable;
@@ -36,5 +36,5 @@ public interface FournisseurProduitRepository extends JpaRepository<FournisseurP
 
 
 
-    List<FournisseurProduit> findByCodeCipContainingOrProduitCodeEanContaining(String codeCip, String codeEan);
+    List<FournisseurProduit> findByCodeCipContainingOrCodeEanContaining(String codeCip, String codeEan);
 }

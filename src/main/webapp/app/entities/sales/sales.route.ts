@@ -10,9 +10,10 @@ import { SalesService } from './sales.service';
 
 export const SalesResolve = (route: ActivatedRouteSnapshot): Observable<null | ISales> => {
   const id = route.params['id'];
+  const saleDate = route.params['saleDate'];
   if (id) {
     return inject(SalesService)
-      .find(id)
+      .find({id, saleDate})
       .pipe(
         mergeMap((res: HttpResponse<ISales>) => {
           if (res.body) {

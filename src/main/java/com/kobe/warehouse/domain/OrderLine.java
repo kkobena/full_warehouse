@@ -6,6 +6,7 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
 import jakarta.persistence.IdClass;
 import jakarta.persistence.JoinColumn;
+import jakarta.persistence.JoinColumns;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.PostLoad;
@@ -88,7 +89,10 @@ public class OrderLine implements Persistable<OrderLineId>, Serializable, Clonea
     private LocalDateTime receiptDate;
 
     @ManyToOne(optional = false)
-    @JsonIgnoreProperties(value = "orderLines", allowSetters = true)
+    @JoinColumns({
+        @JoinColumn(name = "commande_id", referencedColumnName = "id"),
+        @JoinColumn(name = "commande_order_date", referencedColumnName = "order_date")
+    })
     private Commande commande;
 
     @NotNull

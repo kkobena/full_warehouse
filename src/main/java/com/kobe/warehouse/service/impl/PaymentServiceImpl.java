@@ -1,11 +1,13 @@
 package com.kobe.warehouse.service.impl;
 
+
+import com.kobe.warehouse.domain.AppUser;
 import com.kobe.warehouse.domain.CashSale;
 import com.kobe.warehouse.domain.PaymentMode;
+import com.kobe.warehouse.domain.SaleId;
 import com.kobe.warehouse.domain.SalePayment;
 import com.kobe.warehouse.domain.Sales;
 import com.kobe.warehouse.domain.ThirdPartySales;
-import com.kobe.warehouse.domain.AppUser;
 import com.kobe.warehouse.domain.enumeration.ModePaimentCode;
 import com.kobe.warehouse.domain.enumeration.TypeFinancialTransaction;
 import com.kobe.warehouse.repository.PaymentModeRepository;
@@ -13,28 +15,34 @@ import com.kobe.warehouse.repository.SalePaymentRepository;
 import com.kobe.warehouse.service.PaymentService;
 import com.kobe.warehouse.service.dto.PaymentDTO;
 import com.kobe.warehouse.service.dto.SaleDTO;
+import com.kobe.warehouse.service.id_generator.TransactionIdGeneratorService;
+import org.springframework.stereotype.Service;
+import org.springframework.util.CollectionUtils;
+
 import java.time.LocalDateTime;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
-import org.springframework.stereotype.Service;
-import org.springframework.util.CollectionUtils;
 
 @Service
 public class PaymentServiceImpl implements PaymentService {
 
     private final SalePaymentRepository paymentRepository;
     private final PaymentModeRepository paymentModeRepository;
+    private final TransactionIdGeneratorService transactionIdGeneratorService;
 
-    public PaymentServiceImpl(SalePaymentRepository paymentRepository, PaymentModeRepository paymentModeRepository) {
+    public PaymentServiceImpl(SalePaymentRepository paymentRepository, PaymentModeRepository paymentModeRepository, TransactionIdGeneratorService transactionIdGeneratorService) {
         this.paymentRepository = paymentRepository;
         this.paymentModeRepository = paymentModeRepository;
+        this.transactionIdGeneratorService = transactionIdGeneratorService;
+
+
     }
 
     @Override
     public void clonePayment(SalePayment payment, Sales copy) {
         SalePayment paymentCopy = (SalePayment) payment.clone();
-        paymentCopy.setId(null);
+        paymentCopy.setId(this.transactionIdGeneratorService.nextId());
         paymentCopy.setCreatedAt(copy.getCreatedAt());
         paymentCopy.setCashRegister(copy.getCashRegister());
         paymentCopy.setSale(copy);
@@ -49,6 +57,11 @@ public class PaymentServiceImpl implements PaymentService {
     @Override
     public List<SalePayment> findAllBySalesId(Long id) {
         return paymentRepository.findAllBySaleId(id);
+    }
+
+    @Override
+    public List<SalePayment> findAllBySales(SaleId id) {
+        return this.paymentRepository.findAllBySaleIdAndSaleSaleDate(id.getId(), id.getSaleDate());
     }
 
     @Override
@@ -88,6 +101,7 @@ public class PaymentServiceImpl implements PaymentService {
 
     private SalePayment buildPaymentFromFromPaymentDTO(Sales sales, PaymentDTO paymentDTO) {
         SalePayment payment = new SalePayment();
+        payment.setId(this.transactionIdGeneratorService.nextId());
         payment.setCreatedAt(LocalDateTime.now());
         payment.setSale(sales);
         payment.setCashRegister(sales.getCashRegister());
@@ -115,4 +129,6 @@ public class PaymentServiceImpl implements PaymentService {
         }
         return payment;
     }
+
+
 }

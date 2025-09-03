@@ -1,12 +1,13 @@
 package com.kobe.warehouse.service.sale.impl;
 
 import com.kobe.warehouse.config.Constants;
-import com.kobe.warehouse.config.IdGeneratorService;
+import com.kobe.warehouse.service.id_generator.SaleIdGeneratorService;
 import com.kobe.warehouse.domain.AppUser;
 import com.kobe.warehouse.domain.CashSale;
 import com.kobe.warehouse.domain.PaymentMode;
 import com.kobe.warehouse.domain.RemiseClient;
 import com.kobe.warehouse.domain.RemiseProduit;
+import com.kobe.warehouse.domain.SaleId;
 import com.kobe.warehouse.domain.SalePayment;
 import com.kobe.warehouse.domain.Sales;
 import com.kobe.warehouse.domain.SalesLine;
@@ -85,7 +86,7 @@ public class SaleServiceImpl extends SaleCommonService implements SaleService {
         PosteRepository posteRepository,
         UtilisationCleSecuriteService utilisationCleSecuriteService,
         RemiseRepository remiseRepository,
-        AfficheurPosService afficheurPosService, IdGeneratorService idGeneratorService
+        AfficheurPosService afficheurPosService, SaleIdGeneratorService idGeneratorService
     ) {
         super(
             referenceService,
@@ -187,7 +188,9 @@ public class SaleServiceImpl extends SaleCommonService implements SaleService {
         }
         return payment;
     }
-
+    private CashSale findOneById(SaleId id) {
+        return this.cashSaleRepository.getReferenceById(id);
+    }
     private CashSale findOneById(Long id) {
         return this.cashSaleRepository.findOneById(id);
     }

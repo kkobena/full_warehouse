@@ -26,6 +26,7 @@ export interface ISalesLine {
   calculationBasePrice?: number;
   code?: string;
   forceStock?: boolean;
+  saleLineId?: SaleLineId;
 }
 
 export class SalesLine implements ISalesLine {
@@ -56,3 +57,8 @@ export class SalesLine implements ISalesLine {
     this.forceStock = this.forceStock || false;
   }
 }
+export class SaleLineId {
+  id: number;
+  saleDate: string;
+}
+

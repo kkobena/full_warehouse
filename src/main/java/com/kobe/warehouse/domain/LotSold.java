@@ -1,3 +1,5 @@
 package com.kobe.warehouse.domain;
 
-public record LotSold(long id, String numLot, int quantity) {}
+import java.io.Serializable;
+
+public record LotSold(long id, String numLot, int quantity) implements Serializable {}

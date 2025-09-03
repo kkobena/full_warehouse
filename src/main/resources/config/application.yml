@@ -5,6 +5,12 @@ flyway:
 
 
 spring:
+#  flyway:
+#    schemas: warehouse
+#    table: warehouse_history
+#    enabled: true
+#    encoding: UTF-8
+#    locations: classpath:db/migration
 
   application:
     name: warehouse
@@ -22,9 +28,11 @@ spring:
   jpa:
     database-platform: org.hibernate.dialect.PostgreSQLDialect
     open-in-view: false
+    show-sql: true
+
     properties:
       hibernate:
-        format_sql: false
+        format_sql: true
         generate_statistics: false
         dialect: org.hibernate.dialect.PostgreSQLDialect
         default_schema: warehouse
@@ -47,7 +55,7 @@ spring:
       naming:
         physical-strategy: org.hibernate.boot.model.naming.PhysicalNamingStrategyStandardImpl
         implicit-strategy: org.hibernate.boot.model.naming.ImplicitNamingStrategyJpaCompliantImpl
-    show-sql: false
+
 
   messages:
     basename: i18n/messages

@@ -1,6 +1,5 @@
 package com.kobe.warehouse.service.reglement.service;
 
-import com.kobe.warehouse.config.IdGeneratorService;
 import com.kobe.warehouse.domain.FactureTiersPayant;
 import com.kobe.warehouse.domain.InvoicePayment;
 import com.kobe.warehouse.domain.enumeration.InvoiceStatut;
@@ -12,12 +11,14 @@ import com.kobe.warehouse.service.UserService;
 import com.kobe.warehouse.service.cash_register.CashRegisterService;
 import com.kobe.warehouse.service.errors.CashRegisterException;
 import com.kobe.warehouse.service.errors.PaymentAmountException;
+import com.kobe.warehouse.service.id_generator.TransactionIdGeneratorService;
 import com.kobe.warehouse.service.reglement.dto.ReglementParam;
 import com.kobe.warehouse.service.reglement.dto.ResponseReglementDTO;
-import java.util.ArrayList;
-import java.util.List;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.util.ArrayList;
+import java.util.List;
 
 @Service
 @Transactional
@@ -34,7 +35,7 @@ public class ReglementGroupeFactureService extends AbstractReglementService {
         ThirdPartySaleLineRepository thirdPartySaleLineRepository,
         BanqueRepository banqueRepository,
         ReglementFactureModeAllService reglementFactureModeAllService,
-        IdGeneratorService idGeneratorService,
+        TransactionIdGeneratorService transactionIdGeneratorService,
         InvoicePaymentItemService invoicePaymentItemService
     ) {
         super(
@@ -44,7 +45,7 @@ public class ReglementGroupeFactureService extends AbstractReglementService {
             facturationRepository,
             thirdPartySaleLineRepository,
             banqueRepository,
-            idGeneratorService,
+            transactionIdGeneratorService,
             invoicePaymentItemService
         );
         this.facturationRepository = facturationRepository;

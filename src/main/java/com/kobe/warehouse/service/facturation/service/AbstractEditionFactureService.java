@@ -1,6 +1,6 @@
 package com.kobe.warehouse.service.facturation.service;
 
-import com.kobe.warehouse.config.IdGeneratorService;
+
 import com.kobe.warehouse.domain.FactureTiersPayant;
 import com.kobe.warehouse.domain.ThirdPartySaleLine;
 import com.kobe.warehouse.domain.TiersPayant;
@@ -18,6 +18,8 @@ import java.util.Objects;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
+
+import com.kobe.warehouse.service.id_generator.FactureIdGeneratorService;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
@@ -31,21 +33,21 @@ public abstract class AbstractEditionFactureService implements EditionService {
     private final FacturationRepository facturationRepository;
     private final AppConfigurationService appConfigurationService;
     private final UserService userService;
-    private final IdGeneratorService idGeneratorService;
+    private final FactureIdGeneratorService factureIdGeneratorService;
 
     protected AbstractEditionFactureService(
         ThirdPartySaleLineRepository thirdPartySaleLineRepository,
         FacturationRepository facturationRepository,
         AppConfigurationService appConfigurationService,
         UserService userService,
-        IdGeneratorService idGeneratorService
+        FactureIdGeneratorService factureIdGeneratorService
     ) {
         this.thirdPartySaleLineRepository = thirdPartySaleLineRepository;
         this.facturationRepository = facturationRepository;
         this.appConfigurationService = appConfigurationService;
         this.userService = userService;
-        this.idGeneratorService = idGeneratorService;
-        this.idGeneratorService.setSequenceName("id_facture_seq");
+        this.factureIdGeneratorService = factureIdGeneratorService;
+
     }
 
     @Override
@@ -111,7 +113,7 @@ public abstract class AbstractEditionFactureService implements EditionService {
         EditionSearchParams editionSearchParams
     ) {
         FactureTiersPayant factureTiersPayant = new FactureTiersPayant()
-            .setId(this.idGeneratorService.nextId())
+            .setId(this.factureIdGeneratorService.nextId())
             .setCreated(dateCreation)
             .setRemiseForfetaire(Objects.requireNonNullElse(tiersPayant.getRemiseForfaitaire(), 0))
             .setUpdated(dateCreation)

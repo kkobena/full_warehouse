@@ -6,8 +6,8 @@ import moment from 'moment';
 
 import { SERVER_API_URL } from 'app/app.constants';
 import { createRequestOption, createRequestOptions } from 'app/shared/util/request-util';
-import { FinalyseSale, ISales, KeyValue } from 'app/shared/model/sales.model';
-import { ISalesLine } from '../../shared/model/sales-line.model';
+import { FinalyseSale, ISales, KeyValue, SaleId, UpdateSaleInfo } from 'app/shared/model/sales.model';
+import { ISalesLine, SaleLineId } from '../../shared/model/sales-line.model';
 import { IResponseDto } from '../../shared/util/response-dto';
 import { UtilisationCleSecurite } from '../action-autorisation/utilisation-cle-securite.model';
 
@@ -51,9 +51,9 @@ export class SalesService {
       .pipe(map((res: EntityResponseType) => this.convertDateFromServer(res)));
   }
 
-  find(id: number): Observable<EntityResponseType> {
+  find(id: SaleId): Observable<EntityResponseType> {
     return this.http
-      .get<ISales>(`${this.resourceUrl}/${id}`, { observe: 'response' })
+      .get<ISales>(`${this.resourceUrl}/${id.id}/${id.saleDate}`, { observe: 'response' })
       .pipe(map((res: EntityResponseType) => this.convertDateFromServer(res)));
   }
 
@@ -70,8 +70,8 @@ export class SalesService {
       .pipe(map((res: EntityArrayResponseType) => this.convertDateArrayFromServer(res)));
   }
 
-  delete(id: number): Observable<HttpResponse<{}>> {
-    return this.http.delete(`${this.resourceUrl}/${id}`, { observe: 'response' });
+  delete(id: SaleId): Observable<HttpResponse<{}>> {
+    return this.http.delete(`${this.resourceUrl}/${id.id}/${id.saleDate}`, { observe: 'response' });
   }
 
   saveComptant(sales: ISales): Observable<HttpResponse<IResponseDto>> {
@@ -84,16 +84,16 @@ export class SalesService {
     return this.http.put<FinalyseSale>(this.resourceUrl + '/comptant/save', copy, { observe: 'response' });
   }
 
-  print(id: number): Observable<Blob> {
-    return this.http.get(`${this.resourceUrl}/print/${id}`, { responseType: 'blob' });
+  print(id: SaleId): Observable<Blob> {
+    return this.http.get(`${this.resourceUrl}/print/${id.id}/${id.saleDate}`, { responseType: 'blob' });
   }
 
-  printReceipt(id: number): Observable<{}> {
-    return this.http.get(`${this.resourceUrl}/print/receipt/${id}`, { observe: 'response' });
+  printReceipt(id: SaleId): Observable<{}> {
+    return this.http.get(`${this.resourceUrl}/print/receipt/${id.id}/${id.saleDate}`, { observe: 'response' });
   }
 
-  rePrintReceipt(id: number): Observable<{}> {
-    return this.http.get(`${this.resourceUrl}/re-print/receipt/${id}`, { observe: 'response' });
+  rePrintReceipt(id: SaleId): Observable<{}> {
+    return this.http.get(`${this.resourceUrl}/re-print/receipt/${id.id}/${id.saleDate}`, { observe: 'response' });
   }
 
   addItemComptant(salesLine: ISalesLine): Observable<HttpResponse<ISalesLine>> {
@@ -128,8 +128,8 @@ export class SalesService {
       .pipe(map((res: HttpResponse<ISalesLine>) => this.convertItemDateFromServer(res)));
   }
 
-  deleteItem(id: number): Observable<HttpResponse<{}>> {
-    return this.http.delete(`${this.resourceUrl}/delete-item/${id}`, { observe: 'response' });
+  deleteItem(id: SaleLineId): Observable<HttpResponse<{}>> {
+    return this.http.delete(`${this.resourceUrl}/delete-item/${id.id}/${id.saleDate}`, { observe: 'response' });
   }
 
   putCurrentCashSaleOnStandBy(sales: ISales): Observable<HttpResponse<FinalyseSale>> {
@@ -137,7 +137,7 @@ export class SalesService {
     return this.http.put<FinalyseSale>(this.resourceUrl + '/comptant/put-on-hold', copy, { observe: 'response' });
   }
 
-  addCustommerToCashSale(keyValue: KeyValue): Observable<HttpResponse<{}>> {
+  addCustommerToCashSale(keyValue: UpdateSaleInfo): Observable<HttpResponse<{}>> {
     return this.http.put(this.resourceUrl + '/comptant/add-customer', keyValue, { observe: 'response' });
   }
 
@@ -152,20 +152,20 @@ export class SalesService {
       .pipe(map((res: EntityArrayResponseType) => this.convertDateArrayFromServer(res)));
   }
 
-  deletePrevente(id: number): Observable<HttpResponse<{}>> {
-    return this.http.delete(`${this.resourceUrl}/prevente/${id}`, { observe: 'response' });
+  deletePrevente(id: SaleId): Observable<HttpResponse<{}>> {
+    return this.http.delete(`${this.resourceUrl}/prevente/${id.id}/${id.saleDate}`, { observe: 'response' });
   }
 
-  printInvoice(id: number): Observable<Blob> {
-    return this.http.get(`${this.resourceUrl}/print/invoice/${id}`, { responseType: 'blob' });
+  printInvoice(id: SaleId): Observable<Blob> {
+    return this.http.get(`${this.resourceUrl}/print/invoice/${id.id}/${id.saleDate}`, { responseType: 'blob' });
   }
 
-  cancelComptant(id: number): Observable<HttpResponse<{}>> {
-    return this.http.delete(`${this.resourceUrl}/cancel/comptant/${id}`, { observe: 'response' });
+  cancelComptant(id: SaleId): Observable<HttpResponse<{}>> {
+    return this.http.delete(`${this.resourceUrl}/cancel/comptant/${id.id}/${id.saleDate}`, { observe: 'response' });
   }
 
-  cancelAssurance(id: number): Observable<HttpResponse<{}>> {
-    return this.http.delete(`${this.resourceUrl}/cancel/assurance/${id}`, { observe: 'response' });
+  cancelAssurance(id: SaleId): Observable<HttpResponse<{}>> {
+    return this.http.delete(`${this.resourceUrl}/cancel/assurance/${id.id}/${id.saleDate}`, { observe: 'response' });
   }
 
   transform(req?: any): Observable<HttpResponse<number>> {
@@ -180,7 +180,7 @@ export class SalesService {
     return this.http.delete(`${this.resourceUrl}/comptant/remove-remise/${id}`, { observe: 'response' });
   }
 
-  addRemise(key: KeyValue): Observable<HttpResponse<{}>> {
+  addRemise(key: UpdateSaleInfo): Observable<HttpResponse<{}>> {
     return this.http.put(this.resourceUrl + '/comptant/add-remise', key, { observe: 'response' });
   }
 

@@ -1,6 +1,6 @@
 package com.kobe.warehouse.service.impl;
 
-import com.kobe.warehouse.config.IdGeneratorService;
+
 import com.kobe.warehouse.domain.AppUser;
 import com.kobe.warehouse.domain.Commande;
 import com.kobe.warehouse.domain.Fournisseur;
@@ -23,25 +23,11 @@ import com.kobe.warehouse.service.dto.OrderItem;
 import com.kobe.warehouse.service.dto.OrderLineDTO;
 import com.kobe.warehouse.service.dto.VerificationResponseCommandeDTO;
 import com.kobe.warehouse.service.errors.GenericError;
+import com.kobe.warehouse.service.id_generator.CommandeIdGeneratorService;
 import com.kobe.warehouse.service.stock.CommandService;
 import com.kobe.warehouse.service.stock.ImportationEchoueService;
 import com.kobe.warehouse.service.utils.DateUtil;
 import com.kobe.warehouse.service.utils.FileUtil;
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStreamReader;
-import java.math.BigDecimal;
-import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
-import java.util.Optional;
-import java.util.Set;
 import org.apache.commons.csv.CSVFormat;
 import org.apache.commons.csv.CSVParser;
 import org.apache.commons.csv.CSVRecord;
@@ -59,6 +45,22 @@ import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.math.BigDecimal;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+import java.util.Optional;
+import java.util.Set;
+
 @Service
 @Transactional
 public class CommandServiceImpl implements CommandService {
@@ -72,7 +74,7 @@ public class CommandServiceImpl implements CommandService {
     private final ReferenceService referenceService;
     private final ExportationCsvService exportationCsvService;
     private final ImportationEchoueService importationEchoueService;
-    private final IdGeneratorService idGeneratorService;
+    private final CommandeIdGeneratorService commandeIdGeneratorService;
 
     public CommandServiceImpl(
         CommandeRepository commandeRepository,
@@ -81,7 +83,7 @@ public class CommandServiceImpl implements CommandService {
         ReferenceService referenceService,
         ExportationCsvService exportationCsvService,
         ImportationEchoueService importationEchoueService,
-        IdGeneratorService idGeneratorService
+        CommandeIdGeneratorService commandeIdGeneratorService
     ) {
         this.commandeRepository = commandeRepository;
         this.storageService = storageService;
@@ -89,8 +91,8 @@ public class CommandServiceImpl implements CommandService {
         this.referenceService = referenceService;
         this.exportationCsvService = exportationCsvService;
         this.importationEchoueService = importationEchoueService;
-        this.idGeneratorService = idGeneratorService;
-        this.idGeneratorService.setSequenceName("id_commande_seq");
+        this.commandeIdGeneratorService = commandeIdGeneratorService;
+
     }
 
     static void addModelLaborexLigneExistant(
@@ -132,6 +134,7 @@ public class CommandServiceImpl implements CommandService {
     private Commande buildCommandeFromCommandeDTO(CommandeDTO commandeDTO) {
         AppUser user = storageService.getUser();
         Commande commande = new Commande();
+        commande.setId(this.commandeIdGeneratorService.nextId());
         commande.setCreatedAt(LocalDateTime.now());
         commande.setUpdatedAt(commande.getCreatedAt());
         commande.setUser(user);
@@ -374,7 +377,8 @@ public class CommandServiceImpl implements CommandService {
             case COPHARMED -> uploadCOPHARMEDCSVFormat(commande, multipartFile, items, longOrderLineMap, fournisseurId);
             case DPCI -> uploadDPCICSVFormat(commande, multipartFile, items, longOrderLineMap, fournisseurId);
             case TEDIS -> uploadTEDISCSVFormat(commande, multipartFile, items, longOrderLineMap, fournisseurId);
-            case CIP_QTE_PA -> uploadCipQtePrixAchatFormat(commande, multipartFile, items, longOrderLineMap, fournisseurId);
+            case CIP_QTE_PA ->
+                uploadCipQtePrixAchatFormat(commande, multipartFile, items, longOrderLineMap, fournisseurId);
             case CIP_QTE -> uploadCipQteFormat(commande, multipartFile, items, longOrderLineMap, fournisseurId);
         };
         createRuptureFile(commande.getOrderReference(), commandeModel, commandeResponseDTO.getItems());
@@ -1027,7 +1031,8 @@ public class CommandServiceImpl implements CommandService {
                         case NUMERIC:
                             try {
                                 code = String.valueOf(codeCell.getNumericCellValue());
-                            } catch (Exception ignored) {}
+                            } catch (Exception ignored) {
+                            }
                             break;
                         default:
                             break;
@@ -1087,8 +1092,8 @@ public class CommandServiceImpl implements CommandService {
             String codeEanLab = produit.getCodeEanLaboratoire();
             if (
                 Objects.equals(codeCipOrCodeEan, codeCip) ||
-                Objects.equals(codeCipOrCodeEan, codeEan) ||
-                Objects.equals(codeCipOrCodeEan, codeEanLab)
+                    Objects.equals(codeCipOrCodeEan, codeEan) ||
+                    Objects.equals(codeCipOrCodeEan, codeEanLab)
             ) {
                 return Optional.of(orderLine);
             }
@@ -1104,13 +1109,13 @@ public class CommandServiceImpl implements CommandService {
     ) {
         commande.setGrossAmount(
             commande.getGrossAmount() +
-            (orderLine.getQuantityReceived() * orderLine.getOrderCostAmount()) -
-            (oldQuantityReceived * orderLine.getOrderCostAmount())
+                (orderLine.getQuantityReceived() * orderLine.getOrderCostAmount()) -
+                (oldQuantityReceived * orderLine.getOrderCostAmount())
         );
         commande.setOrderAmount(
             commande.getOrderAmount() +
-            (orderLine.getQuantityReceived() * orderLine.getOrderUnitPrice()) -
-            (oldQuantityReceived * orderLine.getOrderUnitPrice())
+                (orderLine.getQuantityReceived() * orderLine.getOrderUnitPrice()) -
+                (oldQuantityReceived * orderLine.getOrderUnitPrice())
         );
         commande.setTaxAmount(commande.getTaxAmount() + orderLine.getTaxAmount() - oldTaxAmount);
     }

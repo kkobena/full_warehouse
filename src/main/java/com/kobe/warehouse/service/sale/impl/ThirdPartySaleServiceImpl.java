@@ -6,7 +6,7 @@ import static java.util.Objects.nonNull;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.kobe.warehouse.Util;
-import com.kobe.warehouse.config.IdGeneratorService;
+import com.kobe.warehouse.service.id_generator.SaleIdGeneratorService;
 import com.kobe.warehouse.domain.AppUser;
 import com.kobe.warehouse.domain.AssuredCustomer;
 import com.kobe.warehouse.domain.CashSale;
@@ -112,7 +112,7 @@ public class ThirdPartySaleServiceImpl extends SaleCommonService implements Thir
     private final LogsService logService;
     private final DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern("yyyyMM").withZone(ZoneId.systemDefault());
     private final TiersPayantCalculationService tiersPayantCalculationService;
-    private final IdGeneratorService idGeneratorService;
+    private final SaleIdGeneratorService idGeneratorService;
 
 
     public ThirdPartySaleServiceImpl(
@@ -134,7 +134,7 @@ public class ThirdPartySaleServiceImpl extends SaleCommonService implements Thir
         AfficheurPosService afficheurPosService,
         PrixRererenceService prixRererenceService,
         LogsService logService,
-        TiersPayantCalculationService tiersPayantCalculationService, IdGeneratorService idGeneratorService
+        TiersPayantCalculationService tiersPayantCalculationService, SaleIdGeneratorService idGeneratorService
     ) {
         super(
             referenceService,

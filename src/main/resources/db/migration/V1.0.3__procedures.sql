@@ -44,7 +44,7 @@ BEGIN
     WHERE st.produit_id = v_produit_id
       AND st.storage_id = v_storage_id;
 
-    INSERT INTO inventory_transaction(cost_amount, created_at, entity_id, mouvemen_type, quantity,
+    INSERT INTO inventory_transaction(cost_amount, created_at, entity_id, mouvement_type, quantity,
                                       quantity_after, quantity_befor, regular_unit_price,
                                       magasin_id, produit_id, user_id)
     VALUES (v_inventory_value_cost, v_updated_at, v_entity_id, 'INVENTAIRE', v_quantity_on_hand,
@@ -68,7 +68,7 @@ WITH ventes_par_produit AS (
          SUM(sl.quantity_requested) AS qte_totale
   FROM sales_line sl
          JOIN sales s ON s.id = sl.sales_id
-  WHERE DATE(s.updated_at) BETWEEN startDate AND endDate
+  WHERE s.sale_date BETWEEN startDate AND endDate
     AND s.ca = ANY(string_to_array(caList, ','))
     AND s.statut = ANY(string_to_array(statutList, ','))
     AND s.canceled = false
@@ -112,7 +112,7 @@ WITH ventes_par_produit AS (
          SUM(sl.sales_amount) AS sales_amount
   FROM sales_line sl
          JOIN sales s ON s.id = sl.sales_id
-  WHERE DATE(s.updated_at) BETWEEN startDate AND endDate
+  WHERE s.sale_date BETWEEN startDate AND endDate
     AND s.ca = ANY(string_to_array(caList, ','))
     AND s.statut = ANY(string_to_array(statutList, ','))
     AND s.canceled = false

@@ -1,6 +1,5 @@
 package com.kobe.warehouse.service.reglement.service;
 
-import com.kobe.warehouse.config.IdGeneratorService;
 import com.kobe.warehouse.domain.FactureTiersPayant;
 import com.kobe.warehouse.domain.InvoicePayment;
 import com.kobe.warehouse.domain.ThirdPartySaleLine;
@@ -13,6 +12,7 @@ import com.kobe.warehouse.service.UserService;
 import com.kobe.warehouse.service.cash_register.CashRegisterService;
 import com.kobe.warehouse.service.errors.CashRegisterException;
 import com.kobe.warehouse.service.errors.PaymentAmountException;
+import com.kobe.warehouse.service.id_generator.TransactionIdGeneratorService;
 import com.kobe.warehouse.service.reglement.dto.ReglementParam;
 import com.kobe.warehouse.service.reglement.dto.ResponseReglementDTO;
 import org.springframework.stereotype.Service;
@@ -31,7 +31,7 @@ public class ReglementFactureModeAllService extends AbstractReglementService {
         FacturationRepository facturationRepository,
         ThirdPartySaleLineRepository thirdPartySaleLineRepository,
         BanqueRepository banqueRepository,
-        IdGeneratorService idGeneratorService,
+        TransactionIdGeneratorService transactionIdGeneratorService,
         InvoicePaymentItemService invoicePaymentItemService
     ) {
         super(
@@ -41,7 +41,7 @@ public class ReglementFactureModeAllService extends AbstractReglementService {
             facturationRepository,
             thirdPartySaleLineRepository,
             banqueRepository,
-            idGeneratorService,
+            transactionIdGeneratorService,
             invoicePaymentItemService
         );
         this.facturationRepository = facturationRepository;

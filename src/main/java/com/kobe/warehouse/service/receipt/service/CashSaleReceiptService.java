@@ -7,33 +7,26 @@ import com.kobe.warehouse.service.dto.SaleDTO;
 import com.kobe.warehouse.service.dto.UninsuredCustomerDTO;
 import com.kobe.warehouse.service.receipt.dto.CashSaleReceiptItem;
 import com.kobe.warehouse.service.receipt.dto.HeaderFooterItem;
-import com.kobe.warehouse.service.sale.SaleDataService;
 import com.kobe.warehouse.service.utils.NumberUtil;
+import java.awt.FontMetrics;
+import java.awt.Graphics2D;
+import java.awt.print.PrinterException;
+import java.util.ArrayList;
+import java.util.List;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 
-import java.awt.*;
-import java.awt.print.PrinterException;
-import java.util.ArrayList;
-import java.util.List;
-
 @Service
 public class CashSaleReceiptService extends AbstractSaleReceiptService {
 
     private static final Logger LOG = LoggerFactory.getLogger(CashSaleReceiptService.class);
-    private final SaleDataService saleDataService;
     private CashSaleDTO cashSale;
     private boolean isEdit;
 
-    public CashSaleReceiptService(
-        AppConfigurationService appConfigurationService,
-        SaleDataService saleDataService,
-        PrinterRepository printerRepository
-    ) {
+    public CashSaleReceiptService(AppConfigurationService appConfigurationService, PrinterRepository printerRepository) {
         super(appConfigurationService, printerRepository);
-        this.saleDataService = saleDataService;
     }
 
     @Override
@@ -51,9 +44,9 @@ public class CashSaleReceiptService extends AbstractSaleReceiptService {
         return cashSale.getSalesLines().stream().map(saleLineDTO -> (CashSaleReceiptItem) fromSaleLine(saleLineDTO)).toList();
     }
 
-    public void printReceipt(String hostName, Long saleId, boolean isEdit) {
+    public void printReceipt(String hostName, CashSaleDTO sale, boolean isEdit) {
         this.isEdit = isEdit;
-        cashSale = (CashSaleDTO) this.saleDataService.getOneSaleDTO(saleId);
+        this.cashSale = sale;
         try {
             print(hostName);
         } catch (PrinterException e) {

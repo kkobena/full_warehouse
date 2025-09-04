@@ -2,6 +2,7 @@ package com.kobe.warehouse.service.dto;
 
 import com.kobe.warehouse.domain.FournisseurProduit;
 import com.kobe.warehouse.domain.Produit;
+import com.kobe.warehouse.domain.SaleId;
 import com.kobe.warehouse.domain.SaleLineId;
 import com.kobe.warehouse.domain.SalesLine;
 import com.kobe.warehouse.service.sale.calculation.dto.Rate;
@@ -38,6 +39,7 @@ public class SaleLineDTO {
     private Integer taxValue;
     private boolean forceStock; // mis pour forcer le stock a la vente
     private SaleLineId saleLineId;
+    private SaleId saleCompositeId;
 
     private List<Rate> rates;
 
@@ -64,14 +66,19 @@ public class SaleLineDTO {
         }
         produitLibelle = produit.getLibelle();
         produitId = produit.getId();
-        saleId = salesLine.getSales().getId().getId();
         quantiyAvoir = salesLine.getQuantityAvoir();
         calculationBasePrice = salesLine.getCalculationBasePrice();
         rates = salesLine
             .getRates();
     }
 
+    public SaleId getSaleCompositeId() {
+        return saleCompositeId;
+    }
 
+    public void setSaleCompositeId(SaleId saleCompositeId) {
+        this.saleCompositeId = saleCompositeId;
+    }
 
     public List<Rate> getRates() {
         return rates;

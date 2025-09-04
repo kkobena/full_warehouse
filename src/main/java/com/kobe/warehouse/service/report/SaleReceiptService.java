@@ -2,6 +2,7 @@ package com.kobe.warehouse.service.report;
 
 import com.kobe.warehouse.config.FileStorageProperties;
 import com.kobe.warehouse.constant.EntityConstant;
+import com.kobe.warehouse.domain.SaleId;
 import com.kobe.warehouse.repository.AppConfigurationRepository;
 import com.kobe.warehouse.service.StorageService;
 import com.kobe.warehouse.service.dto.CashSaleDTO;
@@ -157,7 +158,7 @@ public class SaleReceiptService {
         }
     }
 
-    public String printCashReceipt(Long id) {
+    public String printCashReceipt(SaleId id) {
         CashSaleDTO saleDTO = (CashSaleDTO) saleDataService.getOneSaleDTO(id);
         return buildReceiptFile(saleDTO);
     }
@@ -265,10 +266,5 @@ public class SaleReceiptService {
                 this.maxiRowCount = Integer.parseInt(appConfiguration.getValue())
             );
         return this.maxiRowCount;
-    }
-
-    public String printVoReceipt(Long id) {
-        ThirdPartySaleDTO saleDTO = (ThirdPartySaleDTO) saleDataService.getOneSaleDTO(id);
-        return buildReceiptFile(saleDTO);
     }
 }

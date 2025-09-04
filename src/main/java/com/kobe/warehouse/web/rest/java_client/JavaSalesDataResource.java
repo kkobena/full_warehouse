@@ -1,5 +1,6 @@
 package com.kobe.warehouse.web.rest.java_client;
 
+import com.kobe.warehouse.domain.SaleId;
 import com.kobe.warehouse.service.dto.SaleDTO;
 import com.kobe.warehouse.service.sale.SaleDataService;
 import com.kobe.warehouse.web.rest.proxy.SalesDataResourceProxy;
@@ -28,14 +29,14 @@ public class JavaSalesDataResource extends SalesDataResourceProxy {
      * @return the {@link ResponseEntity} with status {@code 200 (OK)} and with body the sales, or
      * with status {@code 404 (Not Found)}.
      */
-    @GetMapping("/sales/{id}")
-    public ResponseEntity<SaleDTO> getSales(@PathVariable Long id) {
-        return super.getSales(id);
+    @GetMapping("/sales/{id}/{saleDate}")
+    public ResponseEntity<SaleDTO> getSales(@PathVariable("id") Long id, @PathVariable("saleDate") LocalDate saleDate) {
+        return super.getSales(new SaleId(id, saleDate));
     }
 
-    @GetMapping("/sales/edit/{id}")
-    public ResponseEntity<SaleDTO> getSalesForEdit(@PathVariable Long id) {
-        return super.getSalesForEdit(id);
+    @GetMapping("/sales/edit/{id}/{saleDate}")
+    public ResponseEntity<SaleDTO> getSalesForEdit(@PathVariable("id") Long id, @PathVariable("saleDate") LocalDate saleDate) {
+        return super.getSalesForEdit(new SaleId(id, saleDate));
     }
 
     @GetMapping("/sales/prevente")

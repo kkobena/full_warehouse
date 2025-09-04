@@ -1,6 +1,6 @@
 package com.kobe.warehouse.web.rest.sales;
 
-import com.kobe.warehouse.service.ReceiptPrinterService;
+import com.kobe.warehouse.domain.SaleId;
 import com.kobe.warehouse.service.dto.SaleDTO;
 import com.kobe.warehouse.service.report.SaleReceiptService;
 import com.kobe.warehouse.service.sale.SaleDataService;
@@ -30,22 +30,15 @@ import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 @RequestMapping("/api")
 public class SalesDataResource {
 
-    private static final String ENTITY_NAME = "sales";
     private final Logger log = LoggerFactory.getLogger(SalesDataResource.class);
     private final SaleDataService saleDataService;
-    private final ReceiptPrinterService receiptPrinterService;
     private final SaleReceiptService saleReceiptService;
 
     @Value("${pharma-smart.clientApp.name}")
     private String applicationName;
 
-    public SalesDataResource(
-        SaleDataService saleDataService,
-        ReceiptPrinterService receiptPrinterService,
-        SaleReceiptService saleReceiptService
-    ) {
+    public SalesDataResource(SaleDataService saleDataService, SaleReceiptService saleReceiptService) {
         this.saleDataService = saleDataService;
-        this.receiptPrinterService = receiptPrinterService;
         this.saleReceiptService = saleReceiptService;
     }
 
@@ -56,23 +49,27 @@ public class SalesDataResource {
      * @return the {@link ResponseEntity} with status {@code 200 (OK)} and with body the sales, or
      * with status {@code 404 (Not Found)}.
      */
-    @GetMapping("/sales/{id}")
-    public ResponseEntity<SaleDTO> getSales(@PathVariable Long id) {
+    @GetMapping("/sales/{id}/{saleDate}")
+    public ResponseEntity<SaleDTO> getSales(@PathVariable("id") Long id, @PathVariable("saleDate") LocalDate saleDate) {
         log.debug("REST request to get Sales : {}", id);
-        SaleDTO sale = saleDataService.fetchPurchaseBy(id);
+        SaleDTO sale = saleDataService.fetchPurchaseBy(id, saleDate);
         return ResponseEntity.ok().body(sale);
     }
 
-    @GetMapping("/sales/edit/{id}")
-    public ResponseEntity<SaleDTO> getSalesForEdit(@PathVariable Long id) {
+    @GetMapping("/sales/edit/{id}/{saleDate}")
+    public ResponseEntity<SaleDTO> getSalesForEdit(@PathVariable("id") Long id, @PathVariable("saleDate") LocalDate saleDate) {
         log.debug("REST request to get Sales : {}", id);
-        Optional<SaleDTO> saleDTO = saleDataService.fetchPurchaseForEditBy(id);
+        Optional<SaleDTO> saleDTO = saleDataService.fetchPurchaseForEditBy(id, saleDate);
         return saleDTO.map(dto -> ResponseEntity.ok().body(dto)).orElseGet(() -> ResponseEntity.ok().build());
     }
 
-    @GetMapping("/sales/print/invoice/{id}")
-    public ResponseEntity<Resource> printInvoice(@PathVariable Long id, HttpServletRequest request) throws IOException {
-        Resource resource = saleDataService.printInvoice(id);
+    @GetMapping("/sales/print/invoice/{id}/{saleDate}")
+    public ResponseEntity<Resource> printInvoice(
+        @PathVariable("id") Long id,
+        @PathVariable("saleDate") LocalDate saleDate,
+        HttpServletRequest request
+    ) throws IOException {
+        Resource resource = saleDataService.printInvoice(new SaleId(id, saleDate));
         return Utils.printPDF(resource, request);
     }
 
@@ -117,33 +114,37 @@ public class SalesDataResource {
         return ResponseEntity.ok().headers(headers).body(page.getContent());
     }
 
-    @GetMapping("/sales/print/invoices/{id}")
-    public ResponseEntity<Resource> printInvoices(@PathVariable Long id, HttpServletRequest request) throws IOException {
-        String gereratefilePath = saleReceiptService.printCashReceipt(id);
+    @GetMapping("/sales/print/invoices/{id}/{saleDate}")
+    public ResponseEntity<Resource> printInvoices(
+        @PathVariable("id") Long id,
+        @PathVariable("saleDate") LocalDate saleDate,
+        HttpServletRequest request
+    ) throws IOException {
+        String gereratefilePath = saleReceiptService.printCashReceipt(new SaleId(id, saleDate));
         return Utils.printPDF(gereratefilePath, request);
     }
 
-    @GetMapping("/sales/print/receipt/{id}")
-    public ResponseEntity<Void> printCashReceipt(@PathVariable Long id) {
-        receiptPrinterService.printCashSale(id, false);
+    @GetMapping("/sales/print/receipt/{id}/{saleDate}")
+    public ResponseEntity<Void> printCashReceipt(@PathVariable("id") Long id, @PathVariable("saleDate") LocalDate saleDate) {
+        saleDataService.printReceipt(new SaleId(id, saleDate), false);
         return ResponseEntity.ok().build();
     }
 
-    @GetMapping("/sales/re-print/receipt/{id}")
-    public ResponseEntity<Void> rePrintCashReceipt(@PathVariable Long id) {
-        receiptPrinterService.printCashSale(id, true);
+    @GetMapping("/sales/re-print/receipt/{id}/{saleDate}")
+    public ResponseEntity<Void> rePrintCashReceipt(@PathVariable("id") Long id, @PathVariable("saleDate") LocalDate saleDate) {
+        saleDataService.printReceipt(new SaleId(id, saleDate), true);
         return ResponseEntity.ok().build();
     }
 
-    @GetMapping("/sales/assurance/print/receipt/{id}")
-    public ResponseEntity<Void> printVoReceipt(@PathVariable Long id) {
-        receiptPrinterService.printVoSale(id, false);
+    @GetMapping("/sales/assurance/print/receipt/{id}/{saleDate}")
+    public ResponseEntity<Void> printVoReceipt(@PathVariable("id") Long id, @PathVariable("saleDate") LocalDate saleDate) {
+        saleDataService.printReceipt(new SaleId(id, saleDate), false);
         return ResponseEntity.ok().build();
     }
 
-    @GetMapping("/sales/assurance/re-print/receipt/{id}")
-    public ResponseEntity<Void> rePrintVoReceipt(@PathVariable Long id) {
-        receiptPrinterService.printVoSale(id, true);
+    @GetMapping("/sales/assurance/re-print/receipt/{id}/{saleDate}")
+    public ResponseEntity<Void> rePrintVoReceipt(@PathVariable("id") Long id, @PathVariable("saleDate") LocalDate saleDate) {
+        saleDataService.printReceipt(new SaleId(id, saleDate), true);
         return ResponseEntity.ok().build();
     }
 }

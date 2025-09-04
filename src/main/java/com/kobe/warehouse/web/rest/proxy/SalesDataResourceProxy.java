@@ -1,5 +1,6 @@
 package com.kobe.warehouse.web.rest.proxy;
 
+import com.kobe.warehouse.domain.SaleId;
 import com.kobe.warehouse.service.dto.SaleDTO;
 import com.kobe.warehouse.service.sale.SaleDataService;
 import com.kobe.warehouse.web.util.PaginationUtil;
@@ -16,7 +17,6 @@ import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 public class SalesDataResourceProxy {
 
-    private static final String ENTITY_NAME = "sales";
     private final Logger log = LoggerFactory.getLogger(SalesDataResourceProxy.class);
     private final SaleDataService saleDataService;
 
@@ -24,15 +24,15 @@ public class SalesDataResourceProxy {
         this.saleDataService = saleDataService;
     }
 
-    public ResponseEntity<SaleDTO> getSales(Long id) {
+    public ResponseEntity<SaleDTO> getSales(SaleId id) {
         log.debug("REST request to get Sales : {}", id);
-        SaleDTO sale = saleDataService.fetchPurchaseBy(id);
+        SaleDTO sale = saleDataService.fetchPurchaseBy(id.getId(), id.getSaleDate());
         return ResponseEntity.ok().body(sale);
     }
 
-    public ResponseEntity<SaleDTO> getSalesForEdit(Long id) {
+    public ResponseEntity<SaleDTO> getSalesForEdit(SaleId id) {
         log.debug("REST request to get Sales : {}", id);
-        Optional<SaleDTO> saleDTO = saleDataService.fetchPurchaseForEditBy(id);
+        Optional<SaleDTO> saleDTO = saleDataService.fetchPurchaseForEditBy(id.getId(), id.getSaleDate());
         if (saleDTO.isEmpty()) {
             return ResponseEntity.ok().build();
         }

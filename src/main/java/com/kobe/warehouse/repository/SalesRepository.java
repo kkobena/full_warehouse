@@ -1,11 +1,11 @@
 package com.kobe.warehouse.repository;
 
 import com.kobe.warehouse.domain.AppUser;
+import com.kobe.warehouse.domain.AppUser_;
 import com.kobe.warehouse.domain.Customer_;
 import com.kobe.warehouse.domain.SaleId;
 import com.kobe.warehouse.domain.Sales;
 import com.kobe.warehouse.domain.Sales_;
-import com.kobe.warehouse.domain.AppUser_;
 import com.kobe.warehouse.domain.enumeration.CategorieChiffreAffaire;
 import com.kobe.warehouse.domain.enumeration.PaymentStatus;
 import com.kobe.warehouse.domain.enumeration.SalesStatut;
@@ -37,9 +37,9 @@ import org.springframework.util.StringUtils;
  */
 @SuppressWarnings("unused")
 @Repository
-public interface SalesRepository extends JpaSpecificationExecutor<Sales>, JpaRepository<Sales, SaleId>, CustomSalesRepository{
-    @Query("select sale from Sales sale left join fetch sale.salesLines where sale.id =:id")
-    Optional<Sales> findOneWithEagerSalesLines(@Param("id") Long id);
+public interface SalesRepository extends JpaSpecificationExecutor<Sales>, JpaRepository<Sales, SaleId>, CustomSalesRepository {
+    @Query("select sale from Sales sale left join fetch sale.salesLines where sale.id =:id AND sale.saleDate =:saleDate")
+    Optional<Sales> findOneWithEagerSalesLines(@Param("id") Long id, @Param("saleDate") LocalDate saleDate);
 
     List<Sales> findSalesByIdIn(Set<Long> ids);
 
@@ -70,8 +70,6 @@ public interface SalesRepository extends JpaSpecificationExecutor<Sales>, JpaRep
         }
         return (root, query, cb) -> cb.equal(root.get(Sales_.customer).get(Customer_.id), customerId);
     }
-
-
 
     default Specification<Sales> filterByPaymentStatus(Set<PaymentStatus> paymentStatuses) {
         if (CollectionUtils.isEmpty(paymentStatuses)) {

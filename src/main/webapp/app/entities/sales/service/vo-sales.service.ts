@@ -6,38 +6,29 @@ import moment from 'moment';
 
 import { SERVER_API_URL } from 'app/app.constants';
 import { createRequestOption } from 'app/shared/util/request-util';
-import { FinalyseSale, ISales, KeyValue } from 'app/shared/model/sales.model';
-import { ISalesLine } from '../../../shared/model/sales-line.model';
+import { FinalyseSale, ISales, SaleId, UpdateSaleInfo } from 'app/shared/model/sales.model';
+import { ISalesLine, SaleLineId } from '../../../shared/model/sales-line.model';
 import { IClientTiersPayant } from '../../../shared/model/client-tiers-payant.model';
 import { UtilisationCleSecurite } from '../../action-autorisation/utilisation-cle-securite.model';
-import { UpdateSale } from '../customer-edit-modal/update-sale.model';
 
 type EntityResponseType = HttpResponse<ISales>;
 type EntityArrayResponseType = HttpResponse<ISales[]>;
 
 @Injectable({ providedIn: 'root' })
 export class VoSalesService {
+  public resourceUrl = SERVER_API_URL + 'api/sales';
   protected http = inject(HttpClient);
 
-  public resourceUrl = SERVER_API_URL + 'api/sales';
-
-  find(id: number): Observable<EntityResponseType> {
+  find(id: SaleId): Observable<EntityResponseType> {
     return this.http
-      .get<ISales>(`${this.resourceUrl}/${id}`, { observe: 'response' })
+      .get<ISales>(`${this.resourceUrl}/${id.id}/${id.saleDate}`, { observe: 'response' })
       .pipe(map((res: EntityResponseType) => this.convertDateFromServer(res)));
   }
 
-  findForEdit(id: number): Observable<EntityResponseType> {
+  findForEdit(id: SaleId): Observable<EntityResponseType> {
     return this.http
-      .get<ISales>(`${this.resourceUrl}/edit/${id}`, { observe: 'response' })
+      .get<ISales>(`${this.resourceUrl}/edit/${id.id}/${id.saleDate}`, { observe: 'response' })
       .pipe(map((res: EntityResponseType) => this.convertDateFromServer(res)));
-  }
-
-  delete(id: number): Observable<HttpResponse<{}>> {
-    return this.http.delete(`${this.resourceUrl}/${id}`, { observe: 'response' });
-  }
-  updateCustomerInformation(updateSale: UpdateSale): Observable<HttpResponse<{}>> {
-    return this.http.put<{}>(`${this.resourceUrl}/assurance/update-customer-information`, updateSale, { observe: 'response' });
   }
 
   putCurrentOnStandBy(sales: ISales): Observable<HttpResponse<FinalyseSale>> {
@@ -49,16 +40,16 @@ export class VoSalesService {
     return this.http.put<FinalyseSale>(this.resourceUrl + '/assurance/save', sales, { observe: 'response' });
   }
 
-  print(id: number): Observable<Blob> {
-    return this.http.get(`${this.resourceUrl}/print/${id}`, { responseType: 'blob' });
+  print(id: SaleId): Observable<Blob> {
+    return this.http.get(`${this.resourceUrl}/print/${id.id}/${id.saleDate}`, { responseType: 'blob' });
   }
 
-  printReceipt(id: number): Observable<{}> {
-    return this.http.get(`${this.resourceUrl}/assurance/print/receipt/${id}`, { observe: 'response' });
+  printReceipt(id: SaleId): Observable<{}> {
+    return this.http.get(`${this.resourceUrl}/assurance/print/receipt/${id.id}/${id.saleDate}`, { observe: 'response' });
   }
 
-  rePrintReceipt(id: number): Observable<{}> {
-    return this.http.get(`${this.resourceUrl}/assurance/re-print/receipt/${id}`, { observe: 'response' });
+  rePrintReceipt(id: SaleId): Observable<{}> {
+    return this.http.get(`${this.resourceUrl}/assurance/re-print/receipt/${id.id}/${id.saleDate}`, { observe: 'response' });
   }
 
   create(sales: ISales): Observable<EntityResponseType> {
@@ -99,12 +90,12 @@ export class VoSalesService {
       .pipe(map((res: HttpResponse<ISalesLine>) => this.convertItemDateFromServer(res)));
   }
 
-  deleteItem(id: number): Observable<HttpResponse<{}>> {
-    return this.http.delete(`${this.resourceUrl}/delete-item/assurance/${id}`, { observe: 'response' });
+  deleteItem(id: SaleLineId): Observable<HttpResponse<{}>> {
+    return this.http.delete(`${this.resourceUrl}/delete-item/assurance/${id.id}/${id.saleDate}`, { observe: 'response' });
   }
 
-  removeThirdPartySaleLineToSales(id: number, saleId: number): Observable<HttpResponse<{}>> {
-    return this.http.delete(`${this.resourceUrl}/remove-tiers-payant/assurance/${id}/${saleId}`, { observe: 'response' });
+  removeThirdPartySaleLineToSales(id: SaleId, saleId: number): Observable<HttpResponse<{}>> {
+    return this.http.delete(`${this.resourceUrl}/remove-tiers-payant/assurance/${id}/${saleId}/${id.saleDate}`, { observe: 'response' });
   }
 
   queryPrevente(req?: any): Observable<EntityArrayResponseType> {
@@ -118,23 +109,19 @@ export class VoSalesService {
     return this.http.delete(`${this.resourceUrl}/prevente/${id}`, { observe: 'response' });
   }
 
-  printInvoice(id: number): Observable<Blob> {
-    return this.http.get(`${this.resourceUrl}/print/invoice/${id}`, { responseType: 'blob' });
+  printInvoice(id: SaleId): Observable<Blob> {
+    return this.http.get(`${this.resourceUrl}/print/invoice/${id}/${id.saleDate}`, { responseType: 'blob' });
   }
 
-  cancel(id: number): Observable<HttpResponse<{}>> {
-    return this.http.delete(`${this.resourceUrl}/cancel/assurance/${id}`, { observe: 'response' });
-  }
-
-  changeCustommer(keyValue: KeyValue): Observable<HttpResponse<{}>> {
-    return this.http.put(this.resourceUrl + '/assurance/customer', keyValue, { observe: 'response' });
+  cancel(id: SaleId): Observable<HttpResponse<{}>> {
+    return this.http.delete(`${this.resourceUrl}/cancel/assurance/${id}/${id.saleDate}`, { observe: 'response' });
   }
 
   updateTransformedSale(sales: ISales): Observable<HttpResponse<{}>> {
     return this.http.put(this.resourceUrl + '/assurance/transform/add-customer', sales, { observe: 'response' });
   }
 
-  changeCustomer(keyValue: KeyValue): Observable<HttpResponse<{}>> {
+  changeCustomer(keyValue: UpdateSaleInfo): Observable<HttpResponse<{}>> {
     return this.http.put(this.resourceUrl + '/assurance/change/customer', keyValue, { observe: 'response' });
   }
 
@@ -146,18 +133,18 @@ export class VoSalesService {
     return this.http.put(`${this.resourceUrl}/add-assurance/assurance/${id}`, clientTiersPayant, { observe: 'response' });
   }
 
-  addRemise(key: KeyValue): Observable<HttpResponse<{}>> {
+  addRemise(key: UpdateSaleInfo): Observable<HttpResponse<{}>> {
     return this.http.put(this.resourceUrl + '/assurance/add-remise', key, { observe: 'response' });
   }
 
-  removeRemiseFromCashSale(id: number): Observable<HttpResponse<{}>> {
+  removeRemiseFromSale(id: number): Observable<HttpResponse<{}>> {
     return this.http.delete(`${this.resourceUrl}/assurance/remove-remise/${id}`, { observe: 'response' });
   }
 
   private convertDateFromClient(sales: ISales): ISales {
     return Object.assign({}, sales, {
       createdAt: sales.createdAt && sales.createdAt.isValid() ? sales.createdAt.toJSON() : undefined,
-      updatedAt: sales.updatedAt && sales.updatedAt.isValid() ? sales.updatedAt.toJSON() : undefined
+      updatedAt: sales.updatedAt && sales.updatedAt.isValid() ? sales.updatedAt.toJSON() : undefined,
     });
   }
 
@@ -182,7 +169,7 @@ export class VoSalesService {
   private convertItemDateFromClient(salesLine: ISalesLine): ISalesLine {
     const copy: ISalesLine = Object.assign({}, salesLine, {
       createdAt: salesLine.createdAt && salesLine.createdAt.isValid() ? salesLine.createdAt.toJSON() : undefined,
-      updatedAt: salesLine.updatedAt && salesLine.updatedAt.isValid() ? salesLine.updatedAt.toJSON() : undefined
+      updatedAt: salesLine.updatedAt && salesLine.updatedAt.isValid() ? salesLine.updatedAt.toJSON() : undefined,
     });
     return copy;
   }

@@ -1,14 +1,18 @@
 package com.kobe.warehouse.service.sale;
 
+import static java.util.Objects.isNull;
+
 import com.kobe.warehouse.constant.EntityConstant;
 import com.kobe.warehouse.domain.AppUser;
 import com.kobe.warehouse.domain.AppUser_;
 import com.kobe.warehouse.domain.CashSale;
 import com.kobe.warehouse.domain.CashSale_;
+import com.kobe.warehouse.domain.Customer_;
 import com.kobe.warehouse.domain.FournisseurProduit;
 import com.kobe.warehouse.domain.FournisseurProduit_;
 import com.kobe.warehouse.domain.Produit;
 import com.kobe.warehouse.domain.Produit_;
+import com.kobe.warehouse.domain.SaleId;
 import com.kobe.warehouse.domain.Sales;
 import com.kobe.warehouse.domain.SalesLine;
 import com.kobe.warehouse.domain.SalesLine_;
@@ -22,6 +26,7 @@ import com.kobe.warehouse.repository.SalesLineRepository;
 import com.kobe.warehouse.repository.ThirdPartySaleLineRepository;
 import com.kobe.warehouse.repository.UserRepository;
 import com.kobe.warehouse.security.SecurityUtils;
+import com.kobe.warehouse.service.ReceiptPrinterService;
 import com.kobe.warehouse.service.dto.CashSaleDTO;
 import com.kobe.warehouse.service.dto.ClientTiersPayantDTO;
 import com.kobe.warehouse.service.dto.SaleDTO;
@@ -38,11 +43,9 @@ import jakarta.persistence.criteria.JoinType;
 import jakarta.persistence.criteria.Predicate;
 import jakarta.persistence.criteria.Root;
 import jakarta.persistence.criteria.SetJoin;
+import jakarta.validation.constraints.NotNull;
 import java.net.MalformedURLException;
-import java.sql.Date;
 import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -62,19 +65,22 @@ import org.springframework.transaction.annotation.Transactional;
 @Transactional(readOnly = true)
 public class SaleDataService {
 
+    private static final String DEFAULT_HEURE_DEBUT = "00:00";
+    private static final String DEFAULT_HEURE_FIN = "23:59";
     private final EntityManager em;
     private final UserRepository userRepository;
     private final SaleInvoiceReportService saleInvoiceService;
-
     private final SalesLineRepository salesLineRepository;
     private final ThirdPartySaleLineRepository thirdPartySaleLineRepository;
+    private final ReceiptPrinterService receiptPrinterService;
 
     public SaleDataService(
         EntityManager em,
         UserRepository userRepository,
         SaleInvoiceReportService saleInvoiceService,
         SalesLineRepository salesLineRepository,
-        ThirdPartySaleLineRepository thirdPartySaleLineRepository
+        ThirdPartySaleLineRepository thirdPartySaleLineRepository,
+        ReceiptPrinterService receiptPrinterService
     ) {
         this.em = em;
         this.userRepository = userRepository;
@@ -83,54 +89,40 @@ public class SaleDataService {
         this.salesLineRepository = salesLineRepository;
 
         this.thirdPartySaleLineRepository = thirdPartySaleLineRepository;
+        this.receiptPrinterService = receiptPrinterService;
     }
 
     public List<SaleDTO> customerPurchases(Long customerId, LocalDate fromDate, LocalDate toDate) {
         CriteriaBuilder cb = em.getCriteriaBuilder();
         CriteriaQuery<Sales> cq = cb.createQuery(Sales.class);
         Root<Sales> root = cq.from(Sales.class);
-        root.fetch("salesLines", JoinType.INNER);
-        root.fetch("payments", JoinType.LEFT);
-        cq.select(root).distinct(true).orderBy(cb.desc(root.get("updatedAt")));
+        root.fetch(Sales_.SALES_LINES, JoinType.INNER);
+        root.fetch(Sales_.PAYMENTS, JoinType.LEFT);
+        cq.select(root).distinct(true).orderBy(cb.desc(root.get(Sales_.updatedAt)));
         List<Predicate> predicates = new ArrayList<>();
-        predicates.add(cb.equal(root.get("customer").get("id"), customerId));
-        predicates.add(cb.notEqual(root.get("statut"), SalesStatut.PENDING));
+        predicates.add(cb.equal(root.get(Sales_.customer).get(Customer_.id), customerId));
+        predicates.add(root.get(Sales_.statut).in(SalesStatut.CLOSED, SalesStatut.CANCELED));
         if (fromDate != null) {
-            predicates.add(
-                cb.between(cb.function("DATE", Date.class, root.get("updatedAt")), Date.valueOf(fromDate), Date.valueOf(toDate))
-            );
+            predicates.add(cb.between(root.get(Sales_.saleDate), fromDate, toDate));
+        } else {
+            LocalDate now = LocalDate.now();
+            LocalDate from = LocalDate.now().minusYears(1);
+            predicates.add(cb.between(root.get(Sales_.saleDate), from, now));
         }
         cq.where(cb.and(predicates.toArray(new Predicate[0])));
         TypedQuery<Sales> q = em.createQuery(cq);
         return q.getResultList().stream().map(this::buildSaleDTO).collect(Collectors.toList());
     }
 
-    public SaleDTO findOne(Long id) {
-        CriteriaBuilder cb = em.getCriteriaBuilder();
-        CriteriaQuery<Sales> cq = cb.createQuery(Sales.class);
-        Root<Sales> root = cq.from(Sales.class);
-        root.fetch(Sales_.SALES_LINES, JoinType.INNER);
-        root.fetch(Sales_.PAYMENTS, JoinType.LEFT);
-        cq.select(root).distinct(true);
-        cq.where(cb.equal(root.get(Sales_.id), id));
-        TypedQuery<Sales> q = em.createQuery(cq);
-        Sales sales = q.getSingleResult();
-        return new SaleDTO(sales);
+    public SaleDTO findOne(SaleId id) {
+        return new SaleDTO(fetchById(id, false));
     }
 
-    public Sales getOne(Long id) {
-        CriteriaBuilder cb = em.getCriteriaBuilder();
-        CriteriaQuery<Sales> cq = cb.createQuery(Sales.class);
-        Root<Sales> root = cq.from(Sales.class);
-        root.fetch(Sales_.SALES_LINES, JoinType.INNER);
-        root.fetch(Sales_.PAYMENTS, JoinType.LEFT);
-        cq.select(root).distinct(true);
-        cq.where(cb.equal(root.get(Sales_.id), id));
-        TypedQuery<Sales> q = em.createQuery(cq);
-        return q.getSingleResult();
+    public Sales getOne(SaleId id) {
+        return fetchById(id, false);
     }
 
-    public SaleDTO getOneSaleDTO(Long id) {
+    public SaleDTO getOneSaleDTO(SaleId id) {
         Sales sales = getOne(id);
         return switch (sales) {
             case CashSale cashSale -> new CashSaleDTO(cashSale);
@@ -139,50 +131,48 @@ public class SaleDataService {
         };
     }
 
-    public SaleDTO fetchPurchaseBy(Long id) {
-        CriteriaBuilder cb = em.getCriteriaBuilder();
-        CriteriaQuery<Sales> cq = cb.createQuery(Sales.class);
-        Root<Sales> root = cq.from(Sales.class);
-        root.fetch("salesLines", JoinType.LEFT);
-        root.fetch("payments", JoinType.LEFT);
-        cq.select(root).distinct(true);
-        List<Predicate> predicates = new ArrayList<>();
-        predicates.add(cb.equal(root.get("id"), id));
-        cq.where(cb.and(predicates.toArray(new Predicate[0])));
-        TypedQuery<Sales> q = em.createQuery(cq);
-        Sales sales = q.getSingleResult();
-        if (sales instanceof ThirdPartySales thirdPartySales) {
-            return buildFromEntity(thirdPartySales);
-        } else {
-            return new CashSaleDTO((CashSale) sales);
-        }
+    public SaleDTO fetchPurchaseBy(@NotNull Long id, @NotNull LocalDate saleDate) {
+        return fetch(new SaleId(id, saleDate), false).orElseThrow(() -> new RuntimeException("Sale not found"));
     }
 
-    public Optional<SaleDTO> fetchPurchaseForEditBy(Long id) {
+    public Optional<SaleDTO> fetchPurchaseForEditBy(@NotNull Long id, @NotNull LocalDate saleDate) {
+        return fetch(new SaleId(id, saleDate), true);
+    }
+
+    private Sales fetchById(SaleId id, boolean toEdit) {
         CriteriaBuilder cb = em.getCriteriaBuilder();
         CriteriaQuery<Sales> cq = cb.createQuery(Sales.class);
         Root<Sales> root = cq.from(Sales.class);
-        root.fetch("salesLines", JoinType.LEFT);
-        root.fetch("payments", JoinType.LEFT);
+        root.fetch(Sales_.SALES_LINES, JoinType.LEFT);
+        root.fetch(Sales_.PAYMENTS, JoinType.LEFT);
         cq.select(root).distinct(true);
         List<Predicate> predicates = new ArrayList<>();
-        predicates.add(cb.equal(root.get("id"), id));
+        predicates.add(cb.equal(root.get(Sales_.id), id.getId()));
+        predicates.add(cb.equal(root.get(Sales_.saleDate), id.getSaleDate()));
+        if (toEdit) {
+            predicates.add(cb.equal(root.get(Sales_.statut), SalesStatut.ACTIVE));
+        }
         cq.where(cb.and(predicates.toArray(new Predicate[0])));
         TypedQuery<Sales> q = em.createQuery(cq);
-        Sales sales = q.getSingleResult();
-        if (sales.getStatut() == SalesStatut.ACTIVE) {
-            if (sales instanceof ThirdPartySales) {
-                return Optional.of(buildFromEntity((ThirdPartySales) sales));
-            } else {
-                return Optional.of(new CashSaleDTO((CashSale) sales));
-            }
+        return q.getSingleResult();
+    }
+
+    private Optional<SaleDTO> fetch(SaleId id, boolean toEdit) {
+        Sales sales = fetchById(id, toEdit);
+        if (isNull(sales)) {
+            return Optional.empty();
         }
-        return Optional.empty();
+
+        if (sales instanceof ThirdPartySales thirdPartySales) {
+            return Optional.of(buildFromEntity(thirdPartySales));
+        } else {
+            return Optional.of(new CashSaleDTO((CashSale) sales));
+        }
     }
 
     @Transactional(readOnly = true)
-    public Resource printInvoice(Long saleId) throws MalformedURLException {
-        return this.saleInvoiceService.printInvoice(this.findOne(saleId));
+    public Resource printInvoice(SaleId saleId) throws MalformedURLException {
+        return this.saleInvoiceService.printInvoice(new SaleDTO(this.fetchById(saleId, false)));
     }
 
     private AppUser getUser() {
@@ -265,7 +255,7 @@ public class SaleDataService {
         }
 
         predicates.add(cb.equal(root.get(Sales_.statut), SalesStatut.ACTIVE));
-        predicates.add(cb.greaterThanOrEqualTo(root.get(Sales_.updatedAt), now.atStartOfDay()));
+        predicates.add(cb.equal(root.get(Sales_.saleDate), now));
     }
 
     public Page<SaleDTO> listVenteTerminees(
@@ -389,24 +379,22 @@ public class SaleDataService {
         Root<Sales> root
     ) {
         if (fromDate != null && toDate != null) {
-            LocalDateTime fromDateTime = fromDate.atStartOfDay();
-            LocalDateTime toDateTime = toDate.atTime(LocalTime.MAX);
-
-            predicates.add(cb.between(root.get(Sales_.updatedAt), fromDateTime, toDateTime));
-            /* predicates.add(
-                cb.between(cb.function("DATE", Date.class, root.get(Sales_.updatedAt)), Date.valueOf(fromDate), Date.valueOf(toDate))
-            );*/
+            predicates.add(cb.between(root.get(Sales_.saleDate), fromDate, toDate));
         }
     }
 
     private void periodeTimePredicat(String fromHour, String toHour, CriteriaBuilder cb, List<Predicate> predicates, Root<Sales> root) {
-        if (StringUtils.isNotEmpty(fromHour) && StringUtils.isNotEmpty(toHour)) {
+        if (isValidHour(fromHour, toHour)) {
             Expression<String> timeExpr = cb.function("TO_CHAR", String.class, root.get(Sales_.updatedAt), cb.literal("HH24:MI"));
             predicates.add(cb.between(timeExpr, fromHour.concat(":00"), toHour.concat(":59")));
-            /*predicates.add(
-                cb.between(cb.function("TIME", Time.class, root.get(Sales_.updatedAt)),Time.valueOf(fromHour.concat(":00")) ,Time.valueOf(toHour.concat(":59")) )
-            );*/
         }
+    }
+
+    private boolean isValidHour(String fromHour, String toHour) {
+        if (StringUtils.isEmpty(fromHour) || StringUtils.isEmpty(toHour)) {
+            return false;
+        }
+        return !fromHour.equals(DEFAULT_HEURE_DEBUT) && !toHour.equals(DEFAULT_HEURE_FIN);
     }
 
     private void predicatesVentesTerminees(
@@ -428,11 +416,12 @@ public class SaleDataService {
             periodeDatePredicat(fromDate, toDate, cb, predicates, root);
             periodeTimePredicat(fromHour, toHour, cb, predicates, root);
         } else { // recherche par reference
+            periodeDatePredicat(fromDate, toDate, cb, predicates, root); // a cause du partitionnement par date
             predicatRechercheParReference(search, cb, predicates, root);
         }
         periodeUserPredicat(userId, cb, predicates, root);
-        predicates.add(cb.isFalse(root.get(Sales_.canceled)));
-        predicates.add(cb.equal(root.get(Sales_.statut), SalesStatut.CLOSED));
+        // predicates.add(cb.isFalse(root.get(Sales_.canceled)));
+        predicates.add(root.get(Sales_.statut).in(SalesStatut.CLOSED, SalesStatut.CANCELED));
         predicates.add(cb.equal(root.get(Sales_.user).get(AppUser_.magasin), getUser().getMagasin()));
         impayePredicats(predicates, cb, root, paymentStatus);
         if (isDiffere != null) {
@@ -448,7 +437,6 @@ public class SaleDataService {
         if (userId != null) {
             predicates.add(
                 cb.or(
-                    cb.equal(root.get(Sales_.user).get(AppUser_.id), userId),
                     cb.equal(root.get(Sales_.caissier).get(AppUser_.id), userId),
                     cb.equal(root.get(Sales_.user).get(AppUser_.id), userId),
                     cb.equal(root.get(Sales_.seller).get(AppUser_.id), userId)
@@ -492,8 +480,9 @@ public class SaleDataService {
 
     private ThirdPartySaleDTO buildFromEntity(ThirdPartySales thirdPartySales) {
         ThirdPartySaleDTO thirdPartySaleDTO = new ThirdPartySaleDTO(thirdPartySales);
+        SaleId saleId = thirdPartySales.getId();
         Pair<List<ThirdPartySaleLineDTO>, List<ClientTiersPayantDTO>> listListPair = buildTiersPayantDTOFromSale(
-            thirdPartySaleLineRepository.findAllBySaleId(thirdPartySales.getId().getId())
+            thirdPartySaleLineRepository.findAllBySaleIdAndSaleSaleDate(saleId.getId(), saleId.getSaleDate())
         );
         thirdPartySaleDTO.setTiersPayants(listListPair.getRight());
         thirdPartySaleDTO.setThirdPartySaleLines(listListPair.getLeft());
@@ -505,6 +494,15 @@ public class SaleDataService {
             return buildFromEntity(thirdPartySales);
         } else {
             return new CashSaleDTO((CashSale) s);
+        }
+    }
+
+    public void printReceipt(SaleId saleId, boolean isEdit) {
+        Sales sales = fetchById(saleId, isEdit);
+        if (sales instanceof CashSale g) {
+            receiptPrinterService.printCashSale(new CashSaleDTO(g), isEdit);
+        } else if (sales instanceof ThirdPartySales thirdPartySales) {
+            receiptPrinterService.printVoSale(new ThirdPartySaleDTO(thirdPartySales), isEdit);
         }
     }
 }

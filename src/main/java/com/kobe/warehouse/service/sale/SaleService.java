@@ -1,10 +1,11 @@
 package com.kobe.warehouse.service.sale;
 
 import com.kobe.warehouse.domain.CashSale;
+import com.kobe.warehouse.domain.SaleId;
+import com.kobe.warehouse.domain.SaleLineId;
 import com.kobe.warehouse.domain.SalePayment;
 import com.kobe.warehouse.domain.Sales;
 import com.kobe.warehouse.service.dto.CashSaleDTO;
-import com.kobe.warehouse.service.dto.KeyValue;
 import com.kobe.warehouse.service.dto.PaymentDTO;
 import com.kobe.warehouse.service.dto.ResponseDTO;
 import com.kobe.warehouse.service.dto.SaleLineDTO;
@@ -38,11 +39,11 @@ public interface SaleService {
      */
     ResponseDTO putCashSaleOnHold(CashSaleDTO dto);
 
-    void deleteSaleLineById(Long id);
+    void deleteSaleLineById(SaleLineId id);
 
-    void deleteSalePrevente(Long id);
+    void deleteSalePrevente(SaleId id);
 
-    void cancelCashSale(Long id);
+    void cancelCashSale(SaleId id);
 
     CashSale fromDTOOldCashSale(CashSaleDTO dto);
 
@@ -52,13 +53,13 @@ public interface SaleService {
   Gestin d'ouverture de caisse
    */
 
-    void setCustomer(KeyValue keyValue);
+    void setCustomer(UpdateSaleInfo keyValue);
 
-    void removeCustomer(Long saleId);
+    void removeCustomer(SaleId saleId);
 
     void authorizeAction(UtilisationCleSecuriteDTO utilisationCleSecuriteDTO) throws PrivilegeException;
 
-    void processDiscount(KeyValue keyValue);
+    void processDiscount(UpdateSaleInfo keyValue);
 
-    void removeRemiseFromCashSale(Long saleId);
+    void removeRemiseFromCashSale(SaleId saleId);
 }

@@ -8,6 +8,7 @@ import com.kobe.warehouse.domain.LotSold;
 import com.kobe.warehouse.domain.Produit;
 import com.kobe.warehouse.domain.Remise;
 import com.kobe.warehouse.domain.RemiseProduit;
+import com.kobe.warehouse.domain.SaleLineId;
 import com.kobe.warehouse.domain.Sales;
 import com.kobe.warehouse.domain.SalesLine;
 import com.kobe.warehouse.domain.StockProduit;
@@ -28,17 +29,16 @@ import com.kobe.warehouse.service.mvt_produit.service.InventoryTransactionServic
 import com.kobe.warehouse.service.sale.SalesLineService;
 import com.kobe.warehouse.service.stock.LotService;
 import com.kobe.warehouse.service.stock.SuggestionProduitService;
-import org.springframework.scheduling.annotation.Async;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
-import org.springframework.util.CollectionUtils;
-
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicInteger;
+import org.springframework.scheduling.annotation.Async;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.CollectionUtils;
 
 @Service
 @Transactional
@@ -144,8 +144,8 @@ public abstract class SalesLineServiceImpl implements SalesLineService {
     }
 
     @Override
-    public SalesLine getOneById(Long id) {
-        return salesLineRepository.findOneById(id);
+    public SalesLine getOneById(SaleLineId id) {
+        return salesLineRepository.findById(id).orElseThrow();
     }
 
     @Override

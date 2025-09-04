@@ -14,7 +14,6 @@ import com.kobe.warehouse.service.dto.ThirdPartySaleLineDTO;
 import com.kobe.warehouse.service.receipt.dto.AssuranceReceiptItem;
 import com.kobe.warehouse.service.receipt.dto.HeaderFooterItem;
 import com.kobe.warehouse.service.receipt.dto.SaleReceiptItem;
-import com.kobe.warehouse.service.sale.SaleDataService;
 import com.kobe.warehouse.service.utils.NumberUtil;
 import java.awt.Font;
 import java.awt.FontMetrics;
@@ -30,17 +29,11 @@ import org.springframework.stereotype.Service;
 public class AssuranceSaleReceiptService extends AbstractSaleReceiptService {
 
     private static final Logger LOG = LoggerFactory.getLogger(AssuranceSaleReceiptService.class);
-    private final SaleDataService saleDataService;
     private ThirdPartySaleDTO thirdPartySale;
     private boolean isEdit;
 
-    public AssuranceSaleReceiptService(
-        AppConfigurationService appConfigurationService,
-        SaleDataService saleDataService,
-        PrinterRepository printerRepository
-    ) {
+    public AssuranceSaleReceiptService(AppConfigurationService appConfigurationService, PrinterRepository printerRepository) {
         super(appConfigurationService, printerRepository);
-        this.saleDataService = saleDataService;
     }
 
     @Override
@@ -66,10 +59,10 @@ public class AssuranceSaleReceiptService extends AbstractSaleReceiptService {
         return item;
     }
 
-    public void printReceipt(String hostName, Long saleId, boolean isEdit) {
+    public void printReceipt(String hostName, ThirdPartySaleDTO thirdPartySale, boolean isEdit) {
         this.isEdit = isEdit;
 
-        thirdPartySale = (ThirdPartySaleDTO) this.saleDataService.getOneSaleDTO(saleId);
+        this.thirdPartySale = thirdPartySale;
         try {
             print(hostName);
         } catch (PrinterException e) {

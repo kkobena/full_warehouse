@@ -1,6 +1,7 @@
 package com.kobe.warehouse.service.sale;
 
 import com.kobe.warehouse.domain.AppUser;
+import com.kobe.warehouse.domain.SaleLineId;
 import com.kobe.warehouse.domain.Sales;
 import com.kobe.warehouse.domain.SalesLine;
 import com.kobe.warehouse.service.dto.SaleLineDTO;
@@ -27,7 +28,7 @@ public interface SalesLineService {
 
     SalesLine create(SaleLineDTO dto, Long storageId, Sales sales);
 
-    SalesLine getOneById(Long id);
+    SalesLine getOneById(SaleLineId id);
 
     SalesLine createSaleLineFromDTO(SaleLineDTO saleLine, Long stockageId);
 

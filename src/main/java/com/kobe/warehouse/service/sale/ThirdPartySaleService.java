@@ -1,6 +1,7 @@
 package com.kobe.warehouse.service.sale;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
+import com.kobe.warehouse.domain.SaleId;
 import com.kobe.warehouse.domain.ThirdPartySaleLine;
 import com.kobe.warehouse.domain.ThirdPartySales;
 import com.kobe.warehouse.domain.enumeration.NatureVente;
@@ -27,7 +28,7 @@ import java.util.List;
 public interface ThirdPartySaleService {
     ThirdPartySaleLine clone(ThirdPartySaleLine original, ThirdPartySales copy);
 
-    List<ThirdPartySaleLine> findAllBySaleId(Long saleId);
+    List<ThirdPartySaleLine> findAllBySaleId(SaleId saleId);
 
     void copySale(ThirdPartySales sales, ThirdPartySales copy);
 
@@ -52,18 +53,18 @@ public interface ThirdPartySaleService {
 
     SaleLineDTO updateItemRegularPrice(SaleLineDTO saleLineDTO) throws PlafondVenteException;
 
-    void cancelSale(Long id);
+    void cancelSale(SaleId id);
 
     ResponseDTO putThirdPartySaleOnHold(ThirdPartySaleDTO dto);
 
     void updateDate(ThirdPartySaleDTO dto);
 
     FinalyseSaleDTO save(ThirdPartySaleDTO dto)
-        throws  SaleNotFoundCustomerException, ThirdPartySalesTiersPayantException, PlafondVenteException;
+        throws SaleNotFoundCustomerException, ThirdPartySalesTiersPayantException, PlafondVenteException;
 
     SaleLineDTO updateItemQuantitySold(SaleLineDTO saleLineDTO) throws PlafondVenteException;
 
-    void deleteSalePrevente(Long id);
+    void deleteSalePrevente(SaleId id);
 
     void addThirdPartySaleLineToSales(ClientTiersPayantDTO dto, Long saleId)
         throws GenericError, NumBonAlreadyUseException, PlafondVenteException;
@@ -77,7 +78,7 @@ public interface ThirdPartySaleService {
     void changeCustomer(KeyValue keyValue) throws GenericError, PlafondVenteException;
 
     FinalyseSaleDTO editSale(ThirdPartySaleDTO dto)
-        throws  SaleNotFoundCustomerException, ThirdPartySalesTiersPayantException, PlafondVenteException;
+        throws SaleNotFoundCustomerException, ThirdPartySalesTiersPayantException, PlafondVenteException;
 
     void authorizeAction(UtilisationCleSecuriteDTO utilisationCleSecuriteDTO) throws PrivilegeException;
 

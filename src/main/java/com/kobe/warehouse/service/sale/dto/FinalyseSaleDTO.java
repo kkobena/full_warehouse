@@ -1,3 +1,5 @@
 package com.kobe.warehouse.service.sale.dto;
 
-public record FinalyseSaleDTO(long saleId, boolean success) {}
+import com.kobe.warehouse.domain.SaleId;
+
+public record FinalyseSaleDTO(SaleId saleId, boolean success) {}

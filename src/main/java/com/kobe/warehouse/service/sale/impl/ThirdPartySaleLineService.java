@@ -1,6 +1,7 @@
 package com.kobe.warehouse.service.sale.impl;
 
 import com.kobe.warehouse.domain.ClientTiersPayant;
+import com.kobe.warehouse.domain.SaleId;
 import com.kobe.warehouse.domain.ThirdPartySaleLine;
 import com.kobe.warehouse.domain.ThirdPartySales;
 import com.kobe.warehouse.domain.enumeration.SalesStatut;
@@ -8,12 +9,11 @@ import com.kobe.warehouse.domain.enumeration.ThirdPartySaleStatut;
 import com.kobe.warehouse.repository.ThirdPartySaleLineRepository;
 import com.kobe.warehouse.service.StorageService;
 import com.kobe.warehouse.service.id_generator.AssuranceItemIdGeneratorService;
-import org.springframework.stereotype.Service;
-
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
+import org.springframework.stereotype.Service;
 
 @Service
 public class ThirdPartySaleLineService {
@@ -30,11 +30,10 @@ public class ThirdPartySaleLineService {
         this.assuranceItemIdGeneratorService = assuranceItemIdGeneratorService;
         this.thirdPartySaleLineRepository = thirdPartySaleLineRepository;
         this.storageService = storageService;
-
     }
 
-    public List<ThirdPartySaleLine> findAllBySaleId(Long saleId) {
-        return thirdPartySaleLineRepository.findAllBySaleId(saleId);
+    public List<ThirdPartySaleLine> findAllBySaleId(SaleId saleId) {
+        return thirdPartySaleLineRepository.findAllBySaleIdAndSaleSaleDate(saleId.getId(), saleId.getSaleDate());
     }
 
     public ThirdPartySaleLine clone(ThirdPartySaleLine original, ThirdPartySales copy) {
@@ -89,11 +88,17 @@ public class ThirdPartySaleLineService {
             numBon,
             saleId,
             clientTiersPayantId,
-            salesStatut
+            salesStatut,
+            LocalDate.now().minusMonths(3)
         );
     }
 
     public long countThirdPartySaleLineByNumBonAndClientTiersPayantId(String numBon, Long clientTiersPayantId, SalesStatut salesStatut) {
-        return thirdPartySaleLineRepository.countThirdPartySaleLineByNumBonAndClientTiersPayantId(numBon, clientTiersPayantId, salesStatut);
+        return thirdPartySaleLineRepository.countThirdPartySaleLineByNumBonAndClientTiersPayantId(
+            numBon,
+            clientTiersPayantId,
+            salesStatut,
+            LocalDate.now().minusMonths(3)
+        );
     }
 }

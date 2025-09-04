@@ -44,8 +44,8 @@ import { SpinnerComponent } from '../../../../shared/spinner/spinner.component';
     ButtonModule,
     ConfirmDialogComponent,
     CardModule,
-    SpinnerComponent
-  ]
+    SpinnerComponent,
+  ],
 })
 export class BaseSaleComponent {
   modeReglementComponent = viewChild<ModeReglementComponent>('modeReglement');
@@ -154,8 +154,7 @@ export class BaseSaleComponent {
       'Vente différé',
       'Voullez-vous regler le reste en différé ?',
       null,
-      () => {
-      }
+      () => {},
     );
   }
 
@@ -170,13 +169,15 @@ export class BaseSaleComponent {
     this.isSaving = true;
     this.salesService
       .save(sale)
-      .pipe(finalize(() => {
-        this.isSaving = false;
-        this.spinner().hide();
-      }))
+      .pipe(
+        finalize(() => {
+          this.isSaving = false;
+          this.spinner().hide();
+        }),
+      )
       .subscribe({
         next: (res: HttpResponse<FinalyseSale>) => this.baseSaleService.onFinalyseSuccess(res.body),
-        error: err => this.baseSaleService.onFinalyseError(err)
+        error: err => this.baseSaleService.onFinalyseError(err),
       });
   }
 
@@ -185,13 +186,15 @@ export class BaseSaleComponent {
     this.isSaving = true;
     this.salesService
       .putCurrentOnStandBy(this.currentSaleService.currentSale())
-      .pipe(finalize(() => {
-        this.isSaving = false;
-        this.spinner().hide();
-      }))
+      .pipe(
+        finalize(() => {
+          this.isSaving = false;
+          this.spinner().hide();
+        }),
+      )
       .subscribe({
         next: (res: HttpResponse<FinalyseSale>) => this.baseSaleService.onFinalyseSuccess(res.body, true),
-        error: err => this.baseSaleService.onFinalyseError(err)
+        error: err => this.baseSaleService.onFinalyseError(err),
       });
   }
 
@@ -207,16 +210,18 @@ export class BaseSaleComponent {
           this.userCaissierService.caissier().id,
           this.userVendeurService.vendeur().id,
           this.selectedCustomerService.selectedCustomerSignal().id,
-          this.currentSaleService.typeVo()
-        )
+          this.currentSaleService.typeVo(),
+        ),
       )
-      .pipe(finalize(() => {
-        this.isSaving = false;
-        this.spinner().hide();
-      }))
+      .pipe(
+        finalize(() => {
+          this.isSaving = false;
+          this.spinner().hide();
+        }),
+      )
       .subscribe({
         next: (res: HttpResponse<ISales>) => this.baseSaleService.onSaleResponseSuccess(res.body),
-        error: (err: any) => this.baseSaleService.onSaveError(err, this.currentSaleService.currentSale())
+        error: (err: any) => this.baseSaleService.onSaveError(err, this.currentSaleService.currentSale()),
       });
   }
 
@@ -230,11 +235,11 @@ export class BaseSaleComponent {
         finalize(() => {
           this.isSaving = false;
           this.spinner().hide();
-        })
+        }),
       )
       .subscribe({
         next: (res: HttpResponse<ISales>) => this.baseSaleService.onSaveSuccess(res.body),
-        error: (err: any) => this.baseSaleService.onSaveError(err, this.currentSaleService.currentSale())
+        error: (err: any) => this.baseSaleService.onSaveError(err, this.currentSaleService.currentSale()),
       });
   }
 
@@ -249,18 +254,18 @@ export class BaseSaleComponent {
         finalize(() => {
           this.isSaving = false;
           this.spinner().hide();
-        })
+        }),
       )
       .subscribe({
         next: (res: HttpResponse<ISales>) => this.baseSaleService.onSaveSuccess(res.body),
-        error: (err: any) => this.baseSaleService.onSaveError(err, sale)
+        error: (err: any) => this.baseSaleService.onSaveError(err, sale),
       });
   }
 
   openActionAutorisationDialog(privilege: string, entityToProccess: any): void {
     const modalRef = this.modalService.open(FormActionAutorisationComponent, {
       backdrop: 'static',
-      centered: true
+      centered: true,
     });
     modalRef.componentInstance.entity = this.currentSaleService.currentSale();
     modalRef.componentInstance.privilege = privilege;
@@ -294,7 +299,7 @@ export class BaseSaleComponent {
         finalize(() => {
           this.isSaving = false;
           this.spinner().hide();
-        })
+        }),
       )
       .subscribe({
         next: (res: HttpResponse<ISales>) => this.baseSaleService.onSaveSuccess(res.body),
@@ -304,7 +309,7 @@ export class BaseSaleComponent {
           } else {
             this.baseSaleService.onSaveError(err, sale);
           }
-        }
+        },
       });
   }
 
@@ -319,11 +324,11 @@ export class BaseSaleComponent {
         finalize(() => {
           this.isSaving = false;
           this.spinner().hide();
-        })
+        }),
       )
       .subscribe({
         next: (res: HttpResponse<ISales>) => this.baseSaleService.onSaveSuccess(res.body),
-        error: (err: any) => this.baseSaleService.onSaveError(err, sale)
+        error: (err: any) => this.baseSaleService.onSaveError(err, sale),
       });
   }
 
@@ -338,11 +343,11 @@ export class BaseSaleComponent {
         finalize(() => {
           this.isSaving = false;
           this.spinner().hide();
-        })
+        }),
       )
       .subscribe({
         next: (res: HttpResponse<ISales>) => this.baseSaleService.onSaveSuccess(res.body),
-        error: (err: any) => this.baseSaleService.onSaveError(err, sale)
+        error: (err: any) => this.baseSaleService.onSaveError(err, sale),
       });
   }
 
@@ -367,7 +372,7 @@ export class BaseSaleComponent {
   onAddRmiseOpenActionAutorisationDialog(remise: IRemise): void {
     const modalRef = this.modalService.open(FormActionAutorisationComponent, {
       backdrop: 'static',
-      centered: true
+      centered: true,
     });
     modalRef.componentInstance.entity = this.currentSaleService.currentSale();
     modalRef.componentInstance.privilege = Authority.PR_AJOUTER_REMISE_VENTE;
@@ -382,7 +387,7 @@ export class BaseSaleComponent {
     const sale = this.currentSaleService.currentSale();
     const action$ = remise
       ? this.salesService.addRemise({ key: sale.id, value: remise.id })
-      : this.salesService.removeRemiseFromCashSale(sale.id);
+      : this.salesService.removeRemiseFromSale(sale.id);
 
     action$
       .pipe(
@@ -390,11 +395,11 @@ export class BaseSaleComponent {
         finalize(() => {
           this.isSaving = false;
           this.spinner().hide();
-        })
+        }),
       )
       .subscribe({
         next: (res: HttpResponse<ISales>) => this.baseSaleService.onSaveSuccess(res.body),
-        error: (err: any) => this.baseSaleService.onSaveError(err, sale)
+        error: (err: any) => this.baseSaleService.onSaveError(err, sale),
       });
   }
 

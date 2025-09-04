@@ -15,6 +15,10 @@ import com.kobe.warehouse.service.dto.projection.AchatTiersPayant;
 import jakarta.persistence.criteria.CriteriaBuilder.In;
 import jakarta.persistence.criteria.Join;
 import jakarta.persistence.criteria.JoinType;
+import java.time.LocalDate;
+import java.util.List;
+import java.util.Optional;
+import java.util.Set;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
@@ -24,35 +28,35 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
-import java.time.LocalDate;
-import java.util.List;
-import java.util.Optional;
-import java.util.Set;
-
 @Repository
 public interface ThirdPartySaleLineRepository
-    extends JpaRepository<ThirdPartySaleLine, AssuranceSaleId>, JpaSpecificationExecutor<ThirdPartySaleLine>, ThirdPartySaleLineCustomRepository {
+    extends
+        JpaRepository<ThirdPartySaleLine, AssuranceSaleId>,
+        JpaSpecificationExecutor<ThirdPartySaleLine>,
+        ThirdPartySaleLineCustomRepository {
     long countByClientTiersPayantId(Long clientTiersPayantId);
 
-    List<ThirdPartySaleLine> findAllBySaleId(Long saleId);
+    List<ThirdPartySaleLine> findAllBySaleIdAndSaleSaleDate(Long saleId, LocalDate saleDate);
 
     @Query(
-        value = "SELECT  count(o) FROM ThirdPartySaleLine o WHERE o.numBon=:numBon AND o.clientTiersPayant.id=:clientTiersPayantId AND o.sale.statut=:statut "
+        value = "SELECT  count(o) FROM ThirdPartySaleLine o WHERE o.numBon=:numBon AND o.clientTiersPayant.id=:clientTiersPayantId AND o.sale.statut=:statut AND o.saleDate>=:startOfDay  "
     )
     long countThirdPartySaleLineByNumBonAndClientTiersPayantId(
         @Param("numBon") String numBon,
         @Param("clientTiersPayantId") Long clientTiersPayantId,
-        @Param("statut") SalesStatut statut
+        @Param("statut") SalesStatut statut,
+        @Param("startOfDay") LocalDate startOfDay
     );
 
     @Query(
-        value = "SELECT  count(o) FROM ThirdPartySaleLine o WHERE o.numBon=:numBon AND o.clientTiersPayant.id=:clientTiersPayantId AND o.sale.statut=:statut AND o.sale.id <>:saleId "
+        value = "SELECT  count(o) FROM ThirdPartySaleLine o WHERE o.numBon=:numBon AND o.clientTiersPayant.id=:clientTiersPayantId AND o.sale.statut=:statut AND o.sale.id <>:saleId AND o.saleDate>=:startOfDay "
     )
     long countThirdPartySaleLineByNumBonAndClientTiersPayantIdAndSaleId(
         @Param("numBon") String numBon,
         @Param("clientTiersPayantId") Long saleId,
         @Param("saleId") Long clientTiersPayantId,
-        @Param("statut") SalesStatut statut
+        @Param("statut") SalesStatut statut,
+        @Param("startOfDay") LocalDate startOfDay
     );
 
     @Query(
@@ -70,12 +74,7 @@ public interface ThirdPartySaleLineRepository
     Optional<ThirdPartySaleLine> findFirstByClientTiersPayantIdAndSaleId(Long clientTiersPayantId, Long saleId);
 
     default Specification<ThirdPartySaleLine> periodeCriteria(LocalDate startDate, LocalDate endDate) {
-        return (root, _, cb) ->
-            cb.between(
-                root.get(ThirdPartySaleLine_.sale).get(ThirdPartySales_.saleDate),
-                startDate,
-                endDate
-            );
+        return (root, _, cb) -> cb.between(root.get(ThirdPartySaleLine_.sale).get(ThirdPartySales_.saleDate), startDate, endDate);
     }
 
     default Specification<ThirdPartySaleLine> selectionBonCriteria(Set<Long> ids) {

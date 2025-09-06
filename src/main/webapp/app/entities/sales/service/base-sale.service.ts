@@ -2,7 +2,15 @@ import { computed, effect, inject, Injectable, signal, WritableSignal } from '@a
 import { CurrentSaleService } from './current-sale.service';
 import { IPaymentMode } from '../../../shared/model/payment-mode.model';
 import { SelectModeReglementService } from './select-mode-reglement.service';
-import { FinalyseSale, InputToFocus, ISales, Sales, SaveResponse, StockError } from '../../../shared/model/sales.model';
+import {
+  FinalyseSale,
+  InputToFocus,
+  ISales,
+  SaleId,
+  Sales,
+  SaveResponse,
+  StockError
+} from '../../../shared/model/sales.model';
 import { ISalesLine } from '../../../shared/model/sales-line.model';
 import { VoSalesService } from './vo-sales.service';
 import { ConfigurationService } from '../../../shared/configuration.service';
@@ -162,7 +170,7 @@ export class BaseSaleService {
   }
 
   onRemoveThirdPartySaleLineToSalesSuccess(id: number): void {
-    this.onSaveResponse(this.salesService.removeThirdPartySaleLineToSales(id, this.currentSaleService.currentSale().id));
+    this.onSaveResponse(this.salesService.removeThirdPartySaleLineToSales(id, this.currentSaleService.currentSale().saleId));
   }
 
   getMaxToSale(): void {
@@ -186,12 +194,12 @@ export class BaseSaleService {
     });
   }
 
-  onAddThirdPartySale(id: number, clientTiersPayant: IClientTiersPayant): void {
+  onAddThirdPartySale(id: SaleId, clientTiersPayant: IClientTiersPayant): void {
     this.onSaveResponse(this.salesService.addComplementaireSales(id, clientTiersPayant));
   }
 
   private onSaveResponse(result: Observable<HttpResponse<ISales>>): void {
-    result.pipe(switchMap(() => this.salesService.findForEdit(this.currentSaleService.currentSale().id))).subscribe({
+    result.pipe(switchMap(() => this.salesService.findForEdit(this.currentSaleService.currentSale().saleId))).subscribe({
       next: res => {
         this.currentSaleService.setCurrentSale(res.body);
         this.saleEventManager.broadcast({

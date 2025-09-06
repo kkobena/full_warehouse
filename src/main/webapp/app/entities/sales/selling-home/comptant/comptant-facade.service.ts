@@ -3,7 +3,7 @@ import { Observable, Subject } from 'rxjs';
 import { finalize, switchMap } from 'rxjs/operators';
 import { HttpResponse } from '@angular/common/http';
 import { FinalyseSale, ISales, SaleId, Sales, SaveResponse } from '../../../../shared/model/sales.model';
-import { ISalesLine } from '../../../../shared/model/sales-line.model';
+import { ISalesLine, SaleLineId } from '../../../../shared/model/sales-line.model';
 import { IRemise } from '../../../../shared/model/remise.model';
 import { SalesService } from '../../sales.service';
 import { CurrentSaleService } from '../../service/current-sale.service';
@@ -83,10 +83,13 @@ export class ComptantFacadeService {
 
   addItemToSale(salesLine: ISalesLine): void {
     const sale = this.currentSaleService.currentSale();
-    this.handleSaleUpdate(this.salesService.addItemComptant(salesLine).pipe(switchMap(res => this.salesService.find(sale.saleId))));
+    this.handleSaleUpdate(this.salesService.addItemComptant({
+      ...salesLine,
+      saleCompositeId: sale.saleId
+    }).pipe(switchMap(res => this.salesService.find(sale.saleId))));
   }
 
-  removeItemFromSale(id: number): void {
+  removeItemFromSale(id: SaleLineId): void {
     const sale = this.currentSaleService.currentSale();
     this.handleSaleUpdate(this.salesService.deleteItem(id).pipe(switchMap(() => this.salesService.find(sale.saleId))));
   }
@@ -94,7 +97,10 @@ export class ComptantFacadeService {
   updateItemQtyRequested(salesLine: ISalesLine): void {
     const sale = this.currentSaleService.currentSale();
     this.handleSaleUpdate(
-      this.salesService.updateItemQtyRequested(salesLine).pipe(switchMap(() => {
+      this.salesService.updateItemQtyRequested({
+        ...salesLine,
+        saleCompositeId: sale.saleId
+      }).pipe(switchMap(() => {
         return this.salesService.find(sale.saleId);
       })),
       salesLine
@@ -103,12 +109,18 @@ export class ComptantFacadeService {
 
   updateItemQtySold(salesLine: ISalesLine): void {
     const sale = this.currentSaleService.currentSale();
-    this.handleSaleUpdate(this.salesService.updateItemQtySold(salesLine).pipe(switchMap(() => this.salesService.find(sale.saleId))));
+    this.handleSaleUpdate(this.salesService.updateItemQtySold({
+      ...salesLine,
+      saleCompositeId: sale.saleId
+    }).pipe(switchMap(() => this.salesService.find(sale.saleId))));
   }
 
   updateItemPrice(salesLine: ISalesLine): void {
     const sale = this.currentSaleService.currentSale();
-    this.handleSaleUpdate(this.salesService.updateItemPrice(salesLine).pipe(switchMap(() => this.salesService.find(sale.saleId))));
+    this.handleSaleUpdate(this.salesService.updateItemPrice({
+      ...salesLine,
+      saleCompositeId: sale.saleId
+    }).pipe(switchMap(() => this.salesService.find(sale.saleId))));
   }
 
   updateRemise(remise?: IRemise): void {
@@ -119,7 +131,7 @@ export class ComptantFacadeService {
     this.handleSaleUpdate(action$.pipe(switchMap(() => this.salesService.find(sale.saleId))));
   }
 
-  printInvoice(saleId: number): void {
+  printInvoice(saleId: SaleId): void {
     this.spinnerService.next(true);
     this.salesService
       .printInvoice(saleId)

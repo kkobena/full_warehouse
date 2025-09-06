@@ -34,17 +34,8 @@
               "src/main/webapp/content",
               "src/main/webapp/favicon.ico",
               "src/main/webapp/manifest.webapp",
-              "src/main/webapp/robots.txt",
-              {
-                "glob": "**/*.css",
-                "input": "node_modules/bootswatch/dist",
-                "output": "/assets/themes"
-              },
-              {
-                "glob": "**/*.css",
-                "input": "node_modules/@primeng/themes",
-                "output": "/assets/themes"
-              }
+              "src/main/webapp/robots.txt"
+
             ],
             "styles": [
               "src/main/webapp/content/scss/vendor.scss",

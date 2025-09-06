@@ -94,8 +94,8 @@ export class VoSalesService {
     return this.http.delete(`${this.resourceUrl}/delete-item/assurance/${id.id}/${id.saleDate}`, { observe: 'response' });
   }
 
-  removeThirdPartySaleLineToSales(id: SaleId, saleId: number): Observable<HttpResponse<{}>> {
-    return this.http.delete(`${this.resourceUrl}/remove-tiers-payant/assurance/${id}/${saleId}/${id.saleDate}`, { observe: 'response' });
+  removeThirdPartySaleLineToSales(id: number, saleId: SaleId): Observable<HttpResponse<{}>> {
+    return this.http.delete(`${this.resourceUrl}/remove-tiers-payant/assurance/${id}/${saleId.id}/${saleId.saleDate}`, { observe: 'response' });
   }
 
   queryPrevente(req?: any): Observable<EntityArrayResponseType> {
@@ -129,16 +129,16 @@ export class VoSalesService {
     return this.http.post(this.resourceUrl + '/assurance/authorize-action', utilisationCleSecurite, { observe: 'response' });
   }
 
-  addComplementaireSales(id: number, clientTiersPayant: IClientTiersPayant): Observable<HttpResponse<{}>> {
-    return this.http.put(`${this.resourceUrl}/add-assurance/assurance/${id}`, clientTiersPayant, { observe: 'response' });
+  addComplementaireSales(id: SaleId, clientTiersPayant: IClientTiersPayant): Observable<HttpResponse<{}>> {
+    return this.http.put(`${this.resourceUrl}/add-assurance/assurance/${id.id}/${id.saleDate}`, clientTiersPayant, { observe: 'response' });
   }
 
   addRemise(key: UpdateSaleInfo): Observable<HttpResponse<{}>> {
     return this.http.put(this.resourceUrl + '/assurance/add-remise', key, { observe: 'response' });
   }
 
-  removeRemiseFromSale(id: number): Observable<HttpResponse<{}>> {
-    return this.http.delete(`${this.resourceUrl}/assurance/remove-remise/${id}`, { observe: 'response' });
+  removeRemiseFromSale(id: SaleId): Observable<HttpResponse<{}>> {
+    return this.http.delete(`${this.resourceUrl}/assurance/remove-remise/${id.id}/${id.saleDate}`, { observe: 'response' });
   }
 
   private convertDateFromClient(sales: ISales): ISales {

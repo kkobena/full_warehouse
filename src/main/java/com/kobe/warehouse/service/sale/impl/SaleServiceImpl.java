@@ -292,7 +292,7 @@ public class SaleServiceImpl extends SaleCommonService implements SaleService {
     }
 
     private SalesLine createOrUpdateSaleLine(SaleLineDTO dto) {
-        Optional<SalesLine> salesLineOp = salesLineService.findBySalesIdAndProduitId(dto.getSaleId(), dto.getProduitId());
+        Optional<SalesLine> salesLineOp = salesLineService.findBySalesIdAndProduitId(dto.getSaleCompositeId(), dto.getProduitId());
         Long storageId = storageService.getDefaultConnectedUserPointOfSaleStorage().getId();
         if (salesLineOp.isPresent()) {
             SalesLine salesLine = salesLineOp.get();

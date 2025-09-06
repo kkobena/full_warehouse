@@ -69,7 +69,7 @@ export class VenteEnCoursComponent implements OnInit {
 
   deletePrevente(sale: ISales): void {
     if (sale.id) {
-      this.salesService.deletePrevente(sale.id).subscribe(() => this.loadPreventes());
+      this.salesService.deletePrevente(sale.saleId).subscribe(() => this.loadPreventes());
     }
   }
 

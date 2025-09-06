@@ -15,10 +15,6 @@ import com.kobe.warehouse.service.dto.projection.AchatTiersPayant;
 import jakarta.persistence.criteria.CriteriaBuilder.In;
 import jakarta.persistence.criteria.Join;
 import jakarta.persistence.criteria.JoinType;
-import java.time.LocalDate;
-import java.util.List;
-import java.util.Optional;
-import java.util.Set;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
@@ -28,12 +24,17 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
+import java.time.LocalDate;
+import java.util.List;
+import java.util.Optional;
+import java.util.Set;
+
 @Repository
 public interface ThirdPartySaleLineRepository
     extends
-        JpaRepository<ThirdPartySaleLine, AssuranceSaleId>,
-        JpaSpecificationExecutor<ThirdPartySaleLine>,
-        ThirdPartySaleLineCustomRepository {
+    JpaRepository<ThirdPartySaleLine, AssuranceSaleId>,
+    JpaSpecificationExecutor<ThirdPartySaleLine>,
+    ThirdPartySaleLineCustomRepository {
     long countByClientTiersPayantId(Long clientTiersPayantId);
 
     List<ThirdPartySaleLine> findAllBySaleIdAndSaleSaleDate(Long saleId, LocalDate saleDate);
@@ -59,19 +60,9 @@ public interface ThirdPartySaleLineRepository
         @Param("startOfDay") LocalDate startOfDay
     );
 
-    @Query(
-        value = "SELECT  SUM(s.montant)-SUM(s.montant_regle) AS montantAttendu FROM third_party_sale_line s WHERE s.facture_tiers_payant_id=:factureTiersPayantId",
-        nativeQuery = true
-    )
-    long sumMontantAttenduByFactureTiersPayantId(@Param("factureTiersPayantId") Long factureTiersPayantId);
 
-    @Query(
-        value = "SELECT  SUM(s.montant)-SUM(s.montant_regle) AS montantAttendu FROM third_party_sale_line s JOIN facture_tiers_payant f ON s.facture_tiers_payant_id = f.id  WHERE f.groupe_tiers_payant_id =:factureTiersPayantId",
-        nativeQuery = true
-    )
-    long sumMontantAttenduGroupeFacture(@Param("factureTiersPayantId") Long factureTiersPayantId);
-
-    Optional<ThirdPartySaleLine> findFirstByClientTiersPayantIdAndSaleId(Long clientTiersPayantId, Long saleId);
+    @Query("SELECT o FROM ThirdPartySaleLine o WHERE o.clientTiersPayant.id=:clientTiersPayantId AND o.sale.id=:saleId AND o.saleDate=:saleDate")
+    Optional<ThirdPartySaleLine> findFirstByClientTiersPayantIdAndSaleIdAndSaleSaleDate(Long clientTiersPayantId, Long saleId, LocalDate saleDate);
 
     default Specification<ThirdPartySaleLine> periodeCriteria(LocalDate startDate, LocalDate endDate) {
         return (root, _, cb) -> cb.between(root.get(ThirdPartySaleLine_.sale).get(ThirdPartySales_.saleDate), startDate, endDate);

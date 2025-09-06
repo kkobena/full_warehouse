@@ -165,7 +165,7 @@ export class ComptantComponent {
   }
 
   removeLine(salesLine: ISalesLine): void {
-    this.facade.removeItemFromSale(salesLine.id);
+    this.facade.removeItemFromSale(salesLine.saleLineId);
   }
 
   openActionAutorisationDialog(privilege: string, entityToProccess: any): void {
@@ -210,7 +210,7 @@ export class ComptantComponent {
 
   printInvoice(): void {
     if (this.selectedCustomerService.selectedCustomerSignal()) {
-      this.facade.printInvoice(this.currentSaleService.currentSale().id);
+      this.facade.printInvoice(this.currentSaleService.currentSale().saleId);
     }
   }
 
@@ -234,7 +234,7 @@ export class ComptantComponent {
   }
 
   print(sale: ISales | null): void {
-    this.facade.printInvoice(sale.id);
+    this.facade.printInvoice(sale.saleId);
   }
 
   printSale(saleId: SaleId): void {

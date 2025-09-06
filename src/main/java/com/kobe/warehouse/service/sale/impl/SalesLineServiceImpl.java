@@ -8,6 +8,7 @@ import com.kobe.warehouse.domain.LotSold;
 import com.kobe.warehouse.domain.Produit;
 import com.kobe.warehouse.domain.Remise;
 import com.kobe.warehouse.domain.RemiseProduit;
+import com.kobe.warehouse.domain.SaleId;
 import com.kobe.warehouse.domain.SaleLineId;
 import com.kobe.warehouse.domain.Sales;
 import com.kobe.warehouse.domain.SalesLine;
@@ -105,9 +106,10 @@ public abstract class SalesLineServiceImpl implements SalesLineService {
     @Override
     public Sales createSaleLine(SaleLineDTO saleLine, Sales sale, Long stockageId) throws StockException {
         SalesLine salesLine;
-        Optional<SalesLine> optionalSalesLine = salesLineRepository.findBySalesIdAndProduitId(
+        Optional<SalesLine> optionalSalesLine = salesLineRepository.findBySalesIdAndProduitIdAndSalesSaleDate(
             saleLine.getSaleId(),
-            saleLine.getProduitId()
+            saleLine.getProduitId(),
+            sale.getSaleDate()
         );
         if (optionalSalesLine.isPresent()) {
             salesLine = optionalSalesLine.get();
@@ -235,8 +237,8 @@ public abstract class SalesLineServiceImpl implements SalesLineService {
     }
 
     @Override
-    public Optional<SalesLine> findBySalesIdAndProduitId(Long salesId, Long produitId) {
-        return salesLineRepository.findBySalesIdAndProduitId(salesId, produitId);
+    public Optional<SalesLine> findBySalesIdAndProduitId(SaleId salesId, Long produitId) {
+        return salesLineRepository.findBySalesIdAndProduitIdAndSalesSaleDate(salesId.getId(), produitId,salesId.getSaleDate());
     }
 
     @Override

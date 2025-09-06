@@ -241,9 +241,9 @@ export class SalesComponent implements OnInit, AfterViewInit {
   protected delete(sale: ISales): void {
     if (sale) {
       if (sale.categorie === 'VNO') {
-        this.salesService.cancelComptant(sale.id).subscribe(() => this.loadPage());
+        this.salesService.cancelComptant(sale.saleId).subscribe(() => this.loadPage());
       } else {
-        this.salesService.cancelAssurance(sale.id).subscribe(() => this.loadPage());
+        this.salesService.cancelAssurance(sale.saleId).subscribe(() => this.loadPage());
       }
     }
   }
@@ -253,7 +253,7 @@ export class SalesComponent implements OnInit, AfterViewInit {
   }
 
   protected print(sales: ISales): void {
-    this.salesService.printInvoice(sales.id).subscribe(blod => {
+    this.salesService.printInvoice(sales.saleId).subscribe(blod => {
       const blobUrl = URL.createObjectURL(blod);
       window.open(blobUrl);
     });
@@ -261,9 +261,9 @@ export class SalesComponent implements OnInit, AfterViewInit {
 
   protected printSale(sale: ISales): void {
     if (sale.categorie === 'VNO') {
-      this.salesService.rePrintReceipt(sale.id).subscribe();
+      this.salesService.rePrintReceipt(sale.saleId).subscribe();
     } else {
-      this.assuranceSalesService.rePrintReceipt(sale.id).subscribe();
+      this.assuranceSalesService.rePrintReceipt(sale.saleId).subscribe();
     }
   }
 

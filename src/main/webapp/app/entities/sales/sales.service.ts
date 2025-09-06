@@ -168,9 +168,9 @@ export class SalesService {
     return this.http.delete(`${this.resourceUrl}/cancel/assurance/${id.id}/${id.saleDate}`, { observe: 'response' });
   }
 
-  transform(req?: any): Observable<HttpResponse<number>> {
+  transform(req?: any): Observable<HttpResponse<SaleId>> {
     const options = createRequestOption(req);
-    return this.http.get<number>(this.resourceUrl + '/assurance/transform', {
+    return this.http.get<SaleId>(this.resourceUrl + '/assurance/transform', {
       params: options,
       observe: 'response'
     });

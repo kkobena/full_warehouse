@@ -15,7 +15,14 @@ import { ITypePrescription } from '../../../shared/model/prescription-vente.mode
 import { ICustomer } from '../../../shared/model/customer.model';
 import { IProduit } from '../../../shared/model/produit.model';
 import { GroupRemise, IRemise } from '../../../shared/model/remise.model';
-import { FinalyseSale, InputToFocus, ISales, SaveResponse, StockError } from '../../../shared/model/sales.model';
+import {
+  FinalyseSale,
+  InputToFocus,
+  ISales,
+  SaleId,
+  SaveResponse,
+  StockError
+} from '../../../shared/model/sales.model';
 import { ISalesLine, SalesLine } from '../../../shared/model/sales-line.model';
 import { PRODUIT_COMBO_MIN_LENGTH, PRODUIT_COMBO_RESULT_SIZE } from '../../../shared/constants/pagination.constants';
 import { Observable } from 'rxjs';
@@ -216,7 +223,7 @@ export class SellingHomeComponent implements OnInit, AfterViewInit {
     if (this.isComptant()) {
       this.salesService
         .addCustommerToCashSale({
-          key: this.currentSaleService.currentSale().id,
+          id: this.currentSaleService.currentSale().saleId,
           value: this.selectedCustomerService.selectedCustomerSignal().id
         })
         .subscribe(() => {
@@ -380,7 +387,7 @@ export class SellingHomeComponent implements OnInit, AfterViewInit {
     this.voSalesService.updateTransformedSale(curr).subscribe({
       next: () => {
         this.currentSaleService.setVoFromCashSale(false);
-        this.voSalesService.find(curr.id).subscribe({
+        this.voSalesService.find(curr.saleId).subscribe({
           next: res => {
             this.currentSaleService.setCurrentSale(res.body);
           }
@@ -397,12 +404,12 @@ export class SellingHomeComponent implements OnInit, AfterViewInit {
     assignCustomerToSale(curr, cust);
     this.voSalesService
       .changeCustomer({
-        key: curr.id,
+        id: curr.saleId,
         value: cust.id
       })
       .subscribe({
         next: () => {
-          this.voSalesService.find(curr.id).subscribe({
+          this.voSalesService.find(curr.saleId).subscribe({
             next: res => {
               this.currentSaleService.setCurrentSale(res.body);
             }
@@ -465,7 +472,7 @@ export class SellingHomeComponent implements OnInit, AfterViewInit {
     }
   }
 
-  printSale(saleId: number): void {
+  printSale(saleId: SaleId): void {
     if (this.isComptant()) {
       this.comptantComponent().printSale(saleId);
     } else if (this.isVoSale()) {
@@ -811,7 +818,7 @@ export class SellingHomeComponent implements OnInit, AfterViewInit {
     this.voSalesService.updateItemQtyRequested(salesLine).subscribe({
       next: () => {
         if (this.currentSaleService.currentSale()) {
-          this.subscribeToSaveResponse(this.voSalesService.find(this.currentSaleService.currentSale().id));
+          this.subscribeToSaveResponse(this.voSalesService.find(this.currentSaleService.currentSale().saleId));
         }
         this.check = true;
       },
@@ -842,7 +849,7 @@ export class SellingHomeComponent implements OnInit, AfterViewInit {
     this.salesService.updateItemQtyRequested(salesLine).subscribe({
       next: () => {
         if (this.currentSaleService.currentSale()) {
-          this.subscribeToSaveResponse(this.salesService.find(this.currentSaleService.currentSale().id));
+          this.subscribeToSaveResponse(this.salesService.find(this.currentSaleService.currentSale().saleId));
         }
         this.check = true;
       },
@@ -874,9 +881,9 @@ export class SellingHomeComponent implements OnInit, AfterViewInit {
         } else {
           this.openInfoDialog(this.errorService.getErrorMessage(error));
           if (this.isComptant()) {
-            this.subscribeToSaveResponse(this.salesService.find(this.currentSaleService.currentSale().id));
+            this.subscribeToSaveResponse(this.salesService.find(this.currentSaleService.currentSale().saleId));
           } else if (this.isVoSale()) {
-            this.subscribeToSaveResponse(this.voSalesService.find(this.currentSaleService.currentSale().id));
+            this.subscribeToSaveResponse(this.voSalesService.find(this.currentSaleService.currentSale().saleId));
           }
         }
       } else if (error.error.errorKey === 'stockChInsufisant') {

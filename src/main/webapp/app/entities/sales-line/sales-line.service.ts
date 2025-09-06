@@ -39,9 +39,6 @@ export class SalesLineService {
       .pipe(map((res: EntityArrayResponseType) => this.convertDateArrayFromServer(res)));
   }
 
-  delete(id: number): Observable<HttpResponse<{}>> {
-    return this.http.delete(`${this.resourceUrl}/${id}`, { observe: 'response' });
-  }
 
   queryBySale(id?: number): Observable<EntityArrayResponseType> {
     return this.http

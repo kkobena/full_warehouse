@@ -212,7 +212,7 @@ export class CustomerDetailComponent implements OnInit, OnDestroy {
 
   print(): void {
     if (this.saleSelected !== null && this.saleSelected !== undefined) {
-      this.salesService.print(this.saleSelected.id).pipe(takeUntil(this.destroy$)).subscribe(blod => {
+      this.salesService.print(this.saleSelected.saleId).pipe(takeUntil(this.destroy$)).subscribe(blod => {
         const blobUrl = URL.createObjectURL(blod);
         window.open(blobUrl);
       });

@@ -1,9 +1,12 @@
 package com.kobe.warehouse.web.rest.proxy;
 
+import com.kobe.warehouse.domain.SaleId;
+import com.kobe.warehouse.domain.SaleLineId;
 import com.kobe.warehouse.service.dto.CashSaleDTO;
 import com.kobe.warehouse.service.dto.KeyValue;
 import com.kobe.warehouse.service.dto.ResponseDTO;
 import com.kobe.warehouse.service.dto.SaleLineDTO;
+import com.kobe.warehouse.service.dto.records.UpdateSaleInfo;
 import com.kobe.warehouse.service.errors.BadRequestAlertException;
 import com.kobe.warehouse.service.sale.SaleService;
 import com.kobe.warehouse.service.sale.dto.FinalyseSaleDTO;
@@ -97,7 +100,7 @@ public class SalesResourceProxy {
             .body(result);
     }
 
-    public ResponseEntity<Void> deleteSaleItem(Long id) {
+    public ResponseEntity<Void> deleteSaleItem(SaleLineId id) {
         log.debug("REST request to delete Sales : {}", id);
         saleService.deleteSaleLineById(id);
         return ResponseEntity.noContent()
@@ -105,7 +108,7 @@ public class SalesResourceProxy {
             .build();
     }
 
-    public ResponseEntity<Void> deleteSalePrevente(Long id) {
+    public ResponseEntity<Void> deleteSalePrevente(SaleId id) {
         log.debug("REST request to delete Sales : {}", id);
         saleService.deleteSalePrevente(id);
         return ResponseEntity.noContent()
@@ -113,7 +116,7 @@ public class SalesResourceProxy {
             .build();
     }
 
-    public ResponseEntity<Void> cancelCashSale(Long id) {
+    public ResponseEntity<Void> cancelCashSale(SaleId id) {
         log.debug("REST request to delete Sales : {}", id);
         saleService.cancelCashSale(id);
         return ResponseEntity.noContent()
@@ -121,12 +124,12 @@ public class SalesResourceProxy {
             .build();
     }
 
-    public ResponseEntity<Void> addCustommerToCashSale(KeyValue keyValue) {
-        saleService.setCustomer(keyValue);
+    public ResponseEntity<Void> addCustommerToCashSale(UpdateSaleInfo updateSaleInfo) {
+        saleService.setCustomer(updateSaleInfo);
         return ResponseEntity.accepted().build();
     }
 
-    public ResponseEntity<Void> removeCustommerToCashSale(Long id) {
+    public ResponseEntity<Void> removeCustommerToCashSale(SaleId id) {
         saleService.removeCustomer(id);
         return ResponseEntity.accepted().build();
     }

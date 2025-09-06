@@ -1,5 +1,5 @@
 import { Moment } from 'moment';
-import { ISales } from 'app/shared/model/sales.model';
+import { ISales, SaleId } from 'app/shared/model/sales.model';
 import { IProduit } from 'app/shared/model/produit.model';
 
 export interface ISalesLine {
@@ -27,6 +27,7 @@ export interface ISalesLine {
   code?: string;
   forceStock?: boolean;
   saleLineId?: SaleLineId;
+  saleCompositeId?: SaleId;
 }
 
 export class SalesLine implements ISalesLine {
@@ -52,11 +53,12 @@ export class SalesLine implements ISalesLine {
     public quantityStock?: number,
     public quantityRequested?: number,
     public code?: string,
-    public forceStock?: boolean,
+    public forceStock?: boolean
   ) {
     this.forceStock = this.forceStock || false;
   }
 }
+
 export class SaleLineId {
   id: number;
   saleDate: string;

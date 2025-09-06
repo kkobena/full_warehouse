@@ -1,5 +1,6 @@
 package com.kobe.warehouse.web.rest.sales;
 
+import com.kobe.warehouse.domain.SaleLineId;
 import com.kobe.warehouse.domain.Sales;
 import com.kobe.warehouse.repository.SalesLineRepository;
 import com.kobe.warehouse.service.dto.SaleLineDTO;
@@ -8,10 +9,6 @@ import com.kobe.warehouse.service.errors.StockException;
 import com.kobe.warehouse.service.sale.SaleService;
 import com.kobe.warehouse.web.util.HeaderUtil;
 import jakarta.validation.Valid;
-import java.net.URI;
-import java.net.URISyntaxException;
-import java.util.List;
-import java.util.stream.Collectors;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
@@ -25,6 +22,12 @@ import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.time.LocalDate;
+import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * REST controller for managing {@link com.kobe.warehouse.domain.SalesLine}.
@@ -82,10 +85,10 @@ public class SalesLineResource {
             .body(result);
     }
 
-    @DeleteMapping("/sales-lines/{id}")
-    public ResponseEntity<Void> delete(@PathVariable Long id) {
+    @DeleteMapping("/sales-lines/{id}/{saleDate}")
+    public ResponseEntity<Void> delete(@PathVariable("id") Long id, @PathVariable("saleDate") LocalDate saleDate) {
         log.debug("REST request to delete sales-lines : {}", id);
-        saleService.deleteSaleLineById(id);
+        saleService.deleteSaleLineById(new SaleLineId(id, saleDate));
         return ResponseEntity.noContent()
             .headers(HeaderUtil.createEntityDeletionAlert(applicationName, true, ENTITY_NAME, id.toString()))
             .build();

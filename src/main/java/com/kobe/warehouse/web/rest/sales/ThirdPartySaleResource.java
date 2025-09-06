@@ -1,6 +1,8 @@
 package com.kobe.warehouse.web.rest.sales;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
+import com.kobe.warehouse.domain.SaleId;
+import com.kobe.warehouse.domain.SaleLineId;
 import com.kobe.warehouse.domain.Sales;
 import com.kobe.warehouse.domain.enumeration.NatureVente;
 import com.kobe.warehouse.service.dto.ClientTiersPayantDTO;
@@ -9,6 +11,7 @@ import com.kobe.warehouse.service.dto.ResponseDTO;
 import com.kobe.warehouse.service.dto.SaleLineDTO;
 import com.kobe.warehouse.service.dto.ThirdPartySaleDTO;
 import com.kobe.warehouse.service.dto.UtilisationCleSecuriteDTO;
+import com.kobe.warehouse.service.dto.records.UpdateSaleInfo;
 import com.kobe.warehouse.service.errors.BadRequestAlertException;
 import com.kobe.warehouse.service.errors.PlafondVenteException;
 import com.kobe.warehouse.service.sale.ThirdPartySaleService;
@@ -19,6 +22,8 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.time.LocalDate;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
@@ -134,36 +139,37 @@ public class ThirdPartySaleResource {
 
     @DeleteMapping("/sales/delete-item/assurance/{id}")
     @Transactional(noRollbackFor = { PlafondVenteException.class })
-    public ResponseEntity<Void> deleteSaleItem(@PathVariable Long id) {
+    public ResponseEntity<Void> deleteSaleItem(@PathVariable SaleLineId id) {
         saleService.deleteSaleLineById(id);
         return ResponseEntity.noContent()
             .headers(HeaderUtil.createEntityDeletionAlert(applicationName, true, ENTITY_NAME, id.toString()))
             .build();
     }
 
-    @DeleteMapping("/sales/prevente/assurance/{id}")
-    public ResponseEntity<Void> deleteSalePrevente(@PathVariable Long id) {
-        saleService.deleteSalePrevente(id);
+    @DeleteMapping("/sales/prevente/assurance/{id}/{saleDate}")
+    public ResponseEntity<Void> deleteSalePrevente(@PathVariable("id") Long id, @PathVariable("saleDate") LocalDate saleDate) {
+        saleService.deleteSalePrevente(new SaleId(id, saleDate));
         return ResponseEntity.noContent()
             .headers(HeaderUtil.createEntityDeletionAlert(applicationName, true, ENTITY_NAME, id.toString()))
             .build();
     }
 
-    @DeleteMapping("/sales/cancel/assurance/{id}")
-    public ResponseEntity<Void> cancelSale(@PathVariable Long id) {
-        saleService.cancelSale(id);
+    @DeleteMapping("/sales/cancel/assurance/{id}/{saleDate}")
+    public ResponseEntity<Void> cancelSale(@PathVariable("id") Long id, @PathVariable("saleDate") LocalDate saleDate) {
+        saleService.cancelSale(new SaleId(id, saleDate));
         return ResponseEntity.noContent()
             .headers(HeaderUtil.createEntityDeletionAlert(applicationName, true, ENTITY_NAME, id.toString()))
             .build();
     }
 
-    @DeleteMapping("/sales/remove-tiers-payant/assurance/{id}/{saleId}")
+    @DeleteMapping("/sales/remove-tiers-payant/assurance/{id}/{saleId}/{saleDate}")
     @Transactional(noRollbackFor = { PlafondVenteException.class })
     public ResponseEntity<Void> removeThirdPartySaleLineToSales(
         @PathVariable("id") Long clientTiersPayantId,
-        @PathVariable("saleId") Long saleId
+        @PathVariable("saleId") Long saleId,
+        @PathVariable("saleDate") LocalDate saleDate
     ) {
-        saleService.removeThirdPartySaleLineToSales(clientTiersPayantId, saleId);
+        saleService.removeThirdPartySaleLineToSales(clientTiersPayantId, new SaleId(saleId, saleDate));
         return ResponseEntity.noContent()
             .headers(HeaderUtil.createEntityDeletionAlert(applicationName, true, ENTITY_NAME, saleId.toString()))
             .build();
@@ -177,17 +183,16 @@ public class ThirdPartySaleResource {
     }
 
     @GetMapping("/sales/assurance/transform")
-    public ResponseEntity<Long> transform(
+    public ResponseEntity<SaleId> transform(
         @RequestParam(name = "natureVente") NatureVente natureVente,
         @RequestParam(name = "saleId") Long saleId
     ) {
         if (saleId == null) {
             throw new BadRequestAlertException("Invalid id", ENTITY_NAME, "idnull");
         }
-        Long id = saleService.changeCashSaleToThirdPartySale(saleId, natureVente);
+
         return ResponseEntity.ok()
-            .headers(HeaderUtil.createEntityUpdateAlert(applicationName, true, ENTITY_NAME, saleId.toString()))
-            .body(id);
+            .body(saleService.changeCashSaleToThirdPartySale(saleId, natureVente));
     }
 
     @PutMapping("/sales/assurance/transform/add-customer")
@@ -199,8 +204,8 @@ public class ThirdPartySaleResource {
 
     @PutMapping("/sales/assurance/change/customer")
     @Transactional(noRollbackFor = { PlafondVenteException.class })
-    public ResponseEntity<Void> changeCustomer(@Valid @RequestBody KeyValue keyValue) {
-        saleService.changeCustomer(keyValue);
+    public ResponseEntity<Void> changeCustomer(@Valid @RequestBody UpdateSaleInfo updateSaleInfo) {
+        saleService.changeCustomer(updateSaleInfo);
         return ResponseEntity.accepted().build();
     }
 
@@ -227,8 +232,8 @@ public class ThirdPartySaleResource {
     }
 
     @PutMapping("/sales/assurance/add-remise")
-    public ResponseEntity<Void> addRemise(@Valid @RequestBody KeyValue keyValue) {
-        saleService.processDiscount(keyValue);
+    public ResponseEntity<Void> addRemise(@Valid @RequestBody UpdateSaleInfo updateSaleInfo) {
+        saleService.processDiscount(updateSaleInfo);
         return ResponseEntity.accepted().build();
     }
 

@@ -47,7 +47,7 @@ public interface SalesLineRepository
 
     SalesLine findOneById(Long id);
 
-    Optional<SalesLine> findBySalesIdAndProduitId(Long salesId, Long produitId);
+    Optional<SalesLine> findBySalesIdAndProduitIdAndSalesSaleDate(Long salesId, Long produitId, LocalDate saleDate);
 
     Optional<List<SalesLine>> findAllBySalesId(Long salesId);
 

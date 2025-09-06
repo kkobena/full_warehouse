@@ -33,7 +33,10 @@ import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+
+import org.hibernate.annotations.Generated;
 import org.hibernate.annotations.JoinFormula;
+import org.hibernate.boot.jaxb.mapping.GenerationTiming;
 import org.hibernate.envers.Audited;
 import org.hibernate.envers.NotAudited;
 import org.hibernate.envers.RelationTargetAuditMode;
@@ -175,8 +178,6 @@ public class Produit implements Serializable {
     @ManyToOne(fetch = FetchType.LAZY)
     private FormProduit forme;
 
-
-
     @Column(name = "code_ean_labo")
     private String codeEanLaboratoire;
 
@@ -224,8 +225,6 @@ public class Produit implements Serializable {
     @NotAudited
     @OneToMany(mappedBy = "produit", fetch = FetchType.LAZY, cascade = {CascadeType.PERSIST, CascadeType.MERGE, CascadeType.REMOVE})
     private Set<RayonProduit> rayonProduits = new HashSet<>();
-
-
     @ManyToOne(fetch = FetchType.LAZY)
     private Tableau tableau;
 
@@ -233,23 +232,23 @@ public class Produit implements Serializable {
     seuil minimun en point de vente pour declencher un reassort
      */
     @Min(value = 0)
-    @Column(name = "seuil_reassort")
+    @Column(name = "seuil_reassort",comment = "seuil minimun en point de vente pour declencher un reassort")
     private Integer seuilReassort;
 
     /*
     seuil minimun du detail en point de vente pour declencher un deconditionnement
      */
     @Min(value = 0)
-    @Column(name = "seuil_decond")
+    @Column(name = "seuil_decond",comment = "seuil minimun du detail en point de vente pour declencher un deconditionnement")
     private Integer seuilDeconditionnement;
 
     @Enumerated(EnumType.STRING)
     @Column(
         name = "code_remise",
-        length = 6
+        length = 6,comment = "Code de remise qui seront mappés sur les grilles de remises"
     )
-
     private CodeRemise codeRemise = CodeRemise.CODE_0;//Code de remise qui seront mappés sur les grilles de remises
+
 
     public CodeRemise getCodeRemise() {
         return codeRemise;

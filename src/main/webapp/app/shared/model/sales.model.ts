@@ -131,10 +131,10 @@ export class SaveResponse {
 export class FinalyseSale {
   success: boolean;
   error?: any;
-  saleId?: number;
+  saleId?: SaleId;
   putOnStandBy?: boolean;
 
-  constructor(success: boolean, error?: any, saleId?: number, putOnStandBy?: boolean) {
+  constructor(success: boolean, error?: any, saleId?: SaleId, putOnStandBy?: boolean) {
     this.success = success;
     this.error = error;
     this.saleId = saleId;

@@ -105,12 +105,12 @@ public class StockReapproServiceImpl {
             """
             SELECT p.id,p.item_qty,(SELECT COALESCE(SUM(sl.quantity_sold),0) FROM sales_line sl,sales s WHERE sl.produit_id=p.id
 
-             AND  s.id=sl.sales_id AND s.statut='CLOSED' AND DATE(s.updated_at) BETWEEN ?1 AND ?2
+             AND  s.id=sl.sales_id AND s.statut='CLOSED' AND s.sale_date BETWEEN ?1 AND ?2
 
             ) AS qtySold, (SELECT COALESCE(SUM(sl.quantity_sold),0) FROM sales_line sl,sales s,produit pd WHERE sl.produit_id=pd.id
 
-             AND  s.id=sl.sales_id AND s.statut='CLOSED' AND pd.type_produit=0 AND pd.parent_id=p.id AND DATE(s.updated_at) BETWEEN ?3 AND ?4
-            ) AS itemQtySold FROM produit p where p.status=0 AND p.type_produit=1
+             AND  s.id=sl.sales_id AND s.statut='CLOSED' AND pd.type_produit='DETAIL' AND pd.parent_id=p.id AND s.sale_date BETWEEN ?3 AND ?4
+            ) AS itemQtySold FROM produit p where p.status='ENABLE' AND p.type_produit='PACKAGE'
             """;
         try {
             Query q = entityManager.createNativeQuery(sqlQuery, Tuple.class);

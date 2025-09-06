@@ -285,28 +285,17 @@
       <groupId>com.alibaba</groupId>
       <version>4.0.3</version>
     </dependency>
-    <dependency>
-      <groupId>org.ehcache</groupId>
-      <artifactId>ehcache</artifactId>
-      <version>3.10.8</version>
-    </dependency>
-    <dependency>
-      <groupId>javax.cache</groupId>
-      <artifactId>cache-api</artifactId>
-      <version>1.1.1</version>
-    </dependency>
-    <!-- https://mvnrepository.com/artifact/org.springframework.boot/spring-boot-starter-flyway -->
-  <!--  <dependency>
-      <groupId>org.springframework.boot</groupId>
-      <artifactId>spring-boot-starter-flyway</artifactId>
-      <version>4.0.0-M2</version>
-      <exclusions>
-        <exclusion>
-          <groupId>org.flywaydb</groupId>
-          <artifactId>flyway-core</artifactId>
-        </exclusion>
-      </exclusions>
-    </dependency>-->
+<!--    <dependency>-->
+<!--      <groupId>org.ehcache</groupId>-->
+<!--      <artifactId>ehcache</artifactId>-->
+<!--      <version>3.11.1</version>-->
+<!--    </dependency>-->
+<!--    <dependency>-->
+<!--      <groupId>javax.cache</groupId>-->
+<!--      <artifactId>cache-api</artifactId>-->
+<!--      <version>1.1.0</version>-->
+<!--    </dependency>-->
+
     <dependency>
       <groupId>org.flywaydb</groupId>
       <artifactId>flyway-database-postgresql</artifactId>
@@ -371,11 +360,11 @@
       <groupId>org.apache.poi</groupId>
       <version>5.4.1</version>
     </dependency>
-    <dependency>
-      <artifactId>jasypt-spring-boot-starter</artifactId>
-      <groupId>com.github.ulisesbocchio</groupId>
-      <version>3.0.5</version>
-    </dependency>
+<!--    <dependency>-->
+<!--      <artifactId>jasypt-spring-boot-starter</artifactId>-->
+<!--      <groupId>com.github.ulisesbocchio</groupId>-->
+<!--      <version>3.0.5</version>-->
+<!--    </dependency>-->
 
     <dependency>
       <artifactId>barcode4j</artifactId>
@@ -516,7 +505,7 @@
     <dependency>
       <artifactId>hibernate-processor</artifactId>
       <groupId>org.hibernate.orm</groupId>
-      <version>7.1.0.Final</version>
+      <version>${hibernate.version}</version>
     </dependency>
     <dependency>
       <artifactId>hibernate-validator</artifactId>
@@ -593,6 +582,7 @@
         <dependency>
           <artifactId>hibernate-processor</artifactId>
           <groupId>org.hibernate.orm</groupId>
+          <version>${hibernate.version}</version>
         </dependency>
       </dependencies>
       <id>IDE</id>

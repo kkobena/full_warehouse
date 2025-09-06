@@ -172,7 +172,7 @@ export class AssuranceDataComponent implements OnInit, AfterViewInit {
       (resp: IClientTiersPayant) => {
         if (resp) {
           if (this.currentSaleService.currentSale()) {
-            this.baseSaleService.onAddThirdPartySale(this.currentSaleService.currentSale()?.id, resp);
+            this.baseSaleService.onAddThirdPartySale(this.currentSaleService.currentSale()?.saleId, resp);
           }
           this.selectedTiersPayants.set([...this.selectedTiersPayants(), resp]);
           this.bonInputFocusOnAddTiersPayant(null);

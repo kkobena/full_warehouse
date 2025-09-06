@@ -65,23 +65,26 @@ export class PackDialogueComponent implements OnInit {
 
   protected subscribeToSaveResponse(result: Observable<HttpResponse<ISales>>): void {
     result.subscribe({
-      next: (res: HttpResponse<ISales>) => this.onSaveSuccess(res.body),
+      next: (res: HttpResponse<ISales>) => this.onSave(res.body),
       error: () => this.onSaveError()
     });
   }
-
-  protected onSaveSuccess(sale: ISales): void {
+  private onSave(sale: ISales): void {
+    this.isSaving = false;
+    this.activeModal.close(sale);
+  }
+  private onSaveSuccess(sale: ISalesLine): void {
     this.isSaving = false;
     this.activeModal.close(sale);
   }
 
-  protected onSaveError(): void {
+  private onSaveError(): void {
     this.isSaving = false;
   }
 
   protected subscribeToSaveLineResponse(result: Observable<HttpResponse<ISalesLine>>): void {
     result.subscribe({
-      next: (res: HttpResponse<ISales>) => this.onSaveSuccess(res.body),
+      next: (res: HttpResponse<ISalesLine>) => this.onSaveSuccess(res.body),
       error: () => this.onSaveError()
     });
   }

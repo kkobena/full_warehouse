@@ -1,10 +1,13 @@
 package com.kobe.warehouse.web.rest.sales;
 
+import com.kobe.warehouse.domain.SaleId;
+import com.kobe.warehouse.domain.SaleLineId;
 import com.kobe.warehouse.service.dto.CashSaleDTO;
 import com.kobe.warehouse.service.dto.KeyValue;
 import com.kobe.warehouse.service.dto.ResponseDTO;
 import com.kobe.warehouse.service.dto.SaleLineDTO;
 import com.kobe.warehouse.service.dto.UtilisationCleSecuriteDTO;
+import com.kobe.warehouse.service.dto.records.UpdateSaleInfo;
 import com.kobe.warehouse.service.errors.BadRequestAlertException;
 import com.kobe.warehouse.service.sale.SaleService;
 import com.kobe.warehouse.service.sale.dto.FinalyseSaleDTO;
@@ -13,6 +16,8 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.time.LocalDate;
+
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.ResponseEntity;
 import org.springframework.transaction.annotation.Transactional;
@@ -110,39 +115,39 @@ public class SalesResource {
             .body(result);
     }
 
-    @DeleteMapping("/sales/delete-item/{id}")
-    public ResponseEntity<Void> deleteSaleItem(@PathVariable Long id) {
-        saleService.deleteSaleLineById(id);
+    @DeleteMapping("/sales/delete-item/{id}/{saleDate}")
+    public ResponseEntity<Void> deleteSaleItem(@PathVariable("id") Long id, @PathVariable("saleDate") LocalDate saleDate) {
+        saleService.deleteSaleLineById(new SaleLineId(id, saleDate));
         return ResponseEntity.noContent()
             .headers(HeaderUtil.createEntityDeletionAlert(applicationName, true, ENTITY_NAME, id.toString()))
             .build();
     }
 
-    @DeleteMapping("/sales/prevente/{id}")
-    public ResponseEntity<Void> deleteSalePrevente(@PathVariable Long id) {
-        saleService.deleteSalePrevente(id);
+    @DeleteMapping("/sales/prevente/{id}/{saleDate}")
+    public ResponseEntity<Void> deleteSalePrevente(@PathVariable("id") Long id, @PathVariable("saleDate") LocalDate saleDate) {
+        saleService.deleteSalePrevente(new SaleId(id, saleDate));
         return ResponseEntity.noContent()
             .headers(HeaderUtil.createEntityDeletionAlert(applicationName, true, ENTITY_NAME, id.toString()))
             .build();
     }
 
-    @DeleteMapping("/sales/cancel/comptant/{id}")
-    public ResponseEntity<Void> cancelCashSale(@PathVariable Long id) {
-        saleService.cancelCashSale(id);
+    @DeleteMapping("/sales/cancel/comptant/{id}/{saleDate}")
+    public ResponseEntity<Void> cancelCashSale(@PathVariable("id") Long id, @PathVariable("saleDate") LocalDate saleDate) {
+        saleService.cancelCashSale(new SaleId(id, saleDate));
         return ResponseEntity.noContent()
             .headers(HeaderUtil.createEntityDeletionAlert(applicationName, true, ENTITY_NAME, id.toString()))
             .build();
     }
 
     @PutMapping("/sales/comptant/add-customer")
-    public ResponseEntity<Void> addCustommerToCashSale(@Valid @RequestBody KeyValue keyValue) {
-        saleService.setCustomer(keyValue);
+    public ResponseEntity<Void> addCustommerToCashSale(@Valid @RequestBody UpdateSaleInfo updateSaleInfo) {
+        saleService.setCustomer(updateSaleInfo);
         return ResponseEntity.accepted().build();
     }
 
-    @DeleteMapping("/sales/comptant/remove-customer/{id}")
-    public ResponseEntity<Void> removeCustommerToCashSale(@PathVariable Long id) {
-        saleService.removeCustomer(id);
+    @DeleteMapping("/sales/comptant/remove-customer/{id}/{saleDate}")
+    public ResponseEntity<Void> removeCustommerToCashSale(@PathVariable("id") Long id, @PathVariable("saleDate") LocalDate saleDate) {
+        saleService.removeCustomer(new SaleId(id, saleDate));
         return ResponseEntity.accepted().build();
     }
 
@@ -157,14 +162,14 @@ public class SalesResource {
     }
 
     @PutMapping("/sales/comptant/add-remise")
-    public ResponseEntity<Void> addRemise(@Valid @RequestBody KeyValue keyValue) {
-        saleService.processDiscount(keyValue);
+    public ResponseEntity<Void> addRemise(@Valid @RequestBody UpdateSaleInfo updateSaleInfo) {
+        saleService.processDiscount(updateSaleInfo);
         return ResponseEntity.accepted().build();
     }
 
-    @DeleteMapping("/sales/comptant/remove-remise/{id}")
-    public ResponseEntity<Void> removeRemiseFromCashSale(@PathVariable Long id) {
-        saleService.removeRemiseFromCashSale(id);
+    @DeleteMapping("/sales/comptant/remove-remise/{id}/{saleDate}")
+    public ResponseEntity<Void> removeRemiseFromCashSale(@PathVariable("id") Long id, @PathVariable("saleDate") LocalDate saleDate) {
+        saleService.removeRemiseFromCashSale(new SaleId(id, saleDate));
         return ResponseEntity.ok().build();
     }
 }

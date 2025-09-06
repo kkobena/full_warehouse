@@ -74,8 +74,8 @@ public class ThirdPartySaleLineService {
         thirdPartySaleLineRepository.deleteAll(thirdPartySaleLines);
     }
 
-    public Optional<ThirdPartySaleLine> findFirstByClientTiersPayantIdAndSaleId(Long clientTiersPayantId, Long saleId) {
-        return thirdPartySaleLineRepository.findFirstByClientTiersPayantIdAndSaleId(clientTiersPayantId, saleId);
+    public Optional<ThirdPartySaleLine> findFirstByClientTiersPayantIdAndSaleId(Long clientTiersPayantId, SaleId saleId) {
+        return thirdPartySaleLineRepository.findFirstByClientTiersPayantIdAndSaleIdAndSaleSaleDate(clientTiersPayantId, saleId.getId(), saleId.getSaleDate());
     }
 
     public long countThirdPartySaleLineByNumBonAndClientTiersPayantIdAndSaleId(

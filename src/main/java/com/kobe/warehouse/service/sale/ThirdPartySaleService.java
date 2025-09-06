@@ -2,6 +2,7 @@ package com.kobe.warehouse.service.sale;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.kobe.warehouse.domain.SaleId;
+import com.kobe.warehouse.domain.SaleLineId;
 import com.kobe.warehouse.domain.ThirdPartySaleLine;
 import com.kobe.warehouse.domain.ThirdPartySales;
 import com.kobe.warehouse.domain.enumeration.NatureVente;
@@ -11,6 +12,7 @@ import com.kobe.warehouse.service.dto.ResponseDTO;
 import com.kobe.warehouse.service.dto.SaleLineDTO;
 import com.kobe.warehouse.service.dto.ThirdPartySaleDTO;
 import com.kobe.warehouse.service.dto.UtilisationCleSecuriteDTO;
+import com.kobe.warehouse.service.dto.records.UpdateSaleInfo;
 import com.kobe.warehouse.service.errors.DeconditionnementStockOut;
 import com.kobe.warehouse.service.errors.GenericError;
 import com.kobe.warehouse.service.errors.InvalidPhoneNumberException;
@@ -44,7 +46,7 @@ public interface ThirdPartySaleService {
 
     SaleLineDTO createOrUpdateSaleLine(SaleLineDTO dto) throws PlafondVenteException;
 
-    void deleteSaleLineById(Long id);
+    void deleteSaleLineById(SaleLineId id);
 
     ThirdPartySaleDTO createSale(ThirdPartySaleDTO dto) throws GenericError, PlafondVenteException;
 
@@ -69,20 +71,20 @@ public interface ThirdPartySaleService {
     void addThirdPartySaleLineToSales(ClientTiersPayantDTO dto, Long saleId)
         throws GenericError, NumBonAlreadyUseException, PlafondVenteException;
 
-    void removeThirdPartySaleLineToSales(Long clientTiersPayantId, Long saleId) throws PlafondVenteException;
+    void removeThirdPartySaleLineToSales(Long clientTiersPayantId, SaleId saleId) throws PlafondVenteException;
 
-    Long changeCashSaleToThirdPartySale(Long saleId, NatureVente natureVente);
+    SaleId changeCashSaleToThirdPartySale(Long saleId, NatureVente natureVente);
 
     void updateTransformedSale(ThirdPartySaleDTO dto) throws PlafondVenteException;
 
-    void changeCustomer(KeyValue keyValue) throws GenericError, PlafondVenteException;
+    void changeCustomer(UpdateSaleInfo updateSaleInfo) throws GenericError, PlafondVenteException;
 
     FinalyseSaleDTO editSale(ThirdPartySaleDTO dto)
         throws SaleNotFoundCustomerException, ThirdPartySalesTiersPayantException, PlafondVenteException;
 
     void authorizeAction(UtilisationCleSecuriteDTO utilisationCleSecuriteDTO) throws PrivilegeException;
 
-    void processDiscount(KeyValue keyValue);
+    void processDiscount(UpdateSaleInfo updateSaleInfo);
 
     void updateCustomerInformation(UpdateSale updateSale) throws InvalidPhoneNumberException, GenericError, JsonProcessingException;
 }

@@ -1,6 +1,7 @@
 package com.kobe.warehouse.service.sale;
 
 import com.kobe.warehouse.domain.AppUser;
+import com.kobe.warehouse.domain.SaleId;
 import com.kobe.warehouse.domain.SaleLineId;
 import com.kobe.warehouse.domain.Sales;
 import com.kobe.warehouse.domain.SalesLine;
@@ -36,7 +37,7 @@ public interface SalesLineService {
 
     void deleteSaleLine(SalesLine salesLine);
 
-    Optional<SalesLine> findBySalesIdAndProduitId(Long salesId, Long produitId);
+    Optional<SalesLine> findBySalesIdAndProduitId(SaleId salesId, Long produitId);
 
     void saveSalesLine(SalesLine salesLine);
 

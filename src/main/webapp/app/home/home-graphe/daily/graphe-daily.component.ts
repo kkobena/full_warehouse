@@ -8,7 +8,7 @@ import { CaPeriodeFilter } from '../../../shared/model/enumerations/ca-periode-f
 import { CharBuilderService } from '../../../shared/util/char-builder.service';
 import { LineChart } from '../../../shared/model/line-chart.model';
 import { WarehouseCommonModule } from '../../../shared/warehouse-common/warehouse-common.module';
-import { DropdownModule } from 'primeng/dropdown';
+import { SelectModule } from 'primeng/select';
 import { TableModule } from 'primeng/table';
 import { FormsModule } from '@angular/forms';
 import { ChartModule } from 'primeng/chart';
@@ -17,7 +17,7 @@ import { ChartModule } from 'primeng/chart';
   selector: 'jhi-graphe-daily',
   templateUrl: './graphe-daily.component.html',
   styleUrls: ['./graphe-daily.component.scss'],
-  imports: [WarehouseCommonModule, DropdownModule, TableModule, FormsModule, ChartModule],
+  imports: [WarehouseCommonModule, SelectModule, TableModule, FormsModule, ChartModule],
 })
 export class GrapheDailyComponent implements OnInit {
   private charBuilderService = inject(CharBuilderService);

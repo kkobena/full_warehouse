@@ -3,7 +3,7 @@ import { ButtonModule } from 'primeng/button';
 import { ToastModule } from 'primeng/toast';
 import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
 import { DialogModule } from 'primeng/dialog';
-import { DropdownModule } from 'primeng/dropdown';
+
 import { FormBuilder, FormControl, FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
 import { InputTextModule } from 'primeng/inputtext';
 import { KeyFilterModule } from 'primeng/keyfilter';
@@ -21,7 +21,6 @@ import { ErrorService } from '../../../shared/error.service';
   imports: [
     ToastModule,
     DialogModule,
-    DropdownModule,
     FormsModule,
     InputTextModule,
     KeyFilterModule,
@@ -29,10 +28,10 @@ import { ErrorService } from '../../../shared/error.service';
     StyleClassModule,
     ButtonModule,
     ToastAlertComponent,
-    Card
+    Card,
   ],
   templateUrl: './remise-client-form-modal.component.html',
-  styleUrls: ['../../common-modal.component.scss']
+  styleUrls: ['../../common-modal.component.scss'],
 })
 export class RemiseClientFormModalComponent implements AfterViewInit {
   remiseValue = viewChild.required<ElementRef>('remiseValue');
@@ -42,12 +41,12 @@ export class RemiseClientFormModalComponent implements AfterViewInit {
     id: new FormControl<number | null>(null),
     valeur: new FormControl<string | null>(null, {
       validators: [Validators.required],
-      nonNullable: true
+      nonNullable: true,
     }),
     remiseValue: new FormControl<number | null>(null, {
       validators: [Validators.min(1), Validators.required],
-      nonNullable: true
-    })
+      nonNullable: true,
+    }),
   });
   protected isSaving = false;
   protected title: string | null = null;
@@ -75,7 +74,7 @@ export class RemiseClientFormModalComponent implements AfterViewInit {
     this.editForm.patchValue({
       id: entity.id,
       valeur: entity.valeur,
-      remiseValue: entity.remiseValue
+      remiseValue: entity.remiseValue,
     });
   }
 
@@ -89,7 +88,7 @@ export class RemiseClientFormModalComponent implements AfterViewInit {
   protected subscribeToSaveResponse(result: Observable<HttpResponse<IRemise>>): void {
     result.subscribe({
       next: () => this.onSaveSuccess(),
-      error: err => this.onSaveError(err)
+      error: err => this.onSaveError(err),
     });
   }
 
@@ -109,7 +108,7 @@ export class RemiseClientFormModalComponent implements AfterViewInit {
       id: this.editForm.get(['id']).value,
       remiseValue: this.editForm.get(['remiseValue']).value,
       valeur: this.editForm.get(['valeur']).value,
-      type: 'remiseClient'
+      type: 'remiseClient',
     };
   }
 }

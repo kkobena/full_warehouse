@@ -1,8 +1,8 @@
 import { inject, Injectable } from '@angular/core';
-import Aura from '@primeng/themes/aura';
-import Lara from '@primeng/themes/lara';
-import Material from '@primeng/themes/material';
-import Nora from '@primeng/themes/nora';
+import Aura from '@primeuix/themes/aura';
+import Lara from '@primeuix/themes/lara';
+import Material from '@primeuix/themes/material';
+import Nora from '@primeuix/themes/nora';
 import { PrimeNG } from 'primeng/config';
 
 export interface Theme {
@@ -12,17 +12,16 @@ export interface Theme {
 }
 
 @Injectable({
-  providedIn: 'root'
+  providedIn: 'root',
 })
 export class ThemeService {
   private themes: Theme[] = [
     { name: 'Aura', type: 'primeng', value: Aura },
     { name: 'Lara', type: 'primeng', value: Lara },
     { name: 'Material', type: 'primeng', value: Material },
-    { name: 'Nora', type: 'primeng', value: Nora }
+    { name: 'Nora', type: 'primeng', value: Nora },
   ];
   private primengConfig = inject(PrimeNG);
-
 
   getThemes(): Theme[] {
     return this.themes;
@@ -48,13 +47,10 @@ export class ThemeService {
     localStorage.setItem('selected-theme', themeName);
   }
 
-
   loadCurrentTheme(): void {
     const themeName = localStorage.getItem('selected-theme') || 'Aura';
     if (themeName) {
       this.setTheme(themeName);
     }
   }
-
-
 }

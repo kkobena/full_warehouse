@@ -1,17 +1,17 @@
 import { AfterViewInit, Component, inject, OnInit, viewChild } from '@angular/core';
-import { ConfirmationService, MenuItem, MessageService } from 'primeng/api';
+import { MenuItem } from 'primeng/api';
 import { TranslateService } from '@ngx-translate/core';
 import { TableauPharmacienService } from './tableau-pharmacien.service';
 import { HttpResponse } from '@angular/common/http';
 import { DATE_FORMAT_ISO_DATE, FORMAT_ISO_DATE_TO_STRING_FR } from '../../../shared/util/warehouse-util';
 import { TableauPharmacien, TableauPharmacienWrapper } from './tableau-pharmacien.model';
 import { Button } from 'primeng/button';
-import { DropdownModule } from 'primeng/dropdown';
+
 import { RadioButtonModule } from 'primeng/radiobutton';
 import { SelectButtonModule } from 'primeng/selectbutton';
 import { ToolbarModule } from 'primeng/toolbar';
 import { TooltipModule } from 'primeng/tooltip';
-import { DialogService } from 'primeng/dynamicdialog';
+
 import { InputTextModule } from 'primeng/inputtext';
 import { MultiSelectModule } from 'primeng/multiselect';
 import { PaginatorModule } from 'primeng/paginator';
@@ -52,9 +52,9 @@ import { finalize } from 'rxjs/operators';
     FormsModule,
     DatePicker,
     FloatLabel,
-    ToastAlertComponent
+    ToastAlertComponent,
   ],
-  templateUrl: './tableau-pharmacien.component.html'
+  templateUrl: './tableau-pharmacien.component.html',
 })
 export class TableauPharmacienComponent implements OnInit, AfterViewInit {
   protected exportMenus: MenuItem[];
@@ -65,7 +65,7 @@ export class TableauPharmacienComponent implements OnInit, AfterViewInit {
   protected affichage = 'table';
   protected typeAffichafes = [
     { icon: 'pi pi-align-justify', value: 'table' },
-    { icon: 'pi pi-chart-bar', value: 'graphe' }
+    { icon: 'pi pi-chart-bar', value: 'graphe' },
   ];
   protected tableauPharmacienWrapper: TableauPharmacienWrapper | null = null;
   protected groupeFournisseurs: IGroupeFournisseur[] = [];
@@ -86,13 +86,13 @@ export class TableauPharmacienComponent implements OnInit, AfterViewInit {
       {
         label: 'PDF',
         icon: 'pi pi-file-pdf',
-        command: () => this.onPrint()
+        command: () => this.onPrint(),
       },
       {
         label: 'Excel',
         icon: 'pi pi-file-excel',
-        command: () => this.onExcel()
-      }
+        command: () => this.onExcel(),
+      },
     ];
     const params = this.mvtParamServiceService.mvtCaisseParam();
     if (params) {
@@ -119,11 +119,11 @@ export class TableauPharmacienComponent implements OnInit, AfterViewInit {
     this.loading = true;
     this.tableauPharmacienService
       .query({
-        ...this.buildParams()
+        ...this.buildParams(),
       })
       .subscribe({
         next: (res: HttpResponse<TableauPharmacienWrapper>) => this.onSuccess(res.body),
-        error: () => this.onError()
+        error: () => this.onError(),
       });
     this.updateParam();
   }
@@ -134,7 +134,7 @@ export class TableauPharmacienComponent implements OnInit, AfterViewInit {
         this.groupeFournisseurs = res.body || [];
 
         this.colspan = 2 + this.groupeFournisseurs.length;
-      }
+      },
     });
   }
 
@@ -156,30 +156,35 @@ export class TableauPharmacienComponent implements OnInit, AfterViewInit {
   protected onPrint(): void {
     this.loading = true;
     this.updateParam();
-    this.tableauPharmacienService.exportToPdf(this.buildParams()).pipe(finalize(() => this.loading=false)).subscribe({
-      next: blod => {
-        const blobUrl = URL.createObjectURL(blod);
-        window.open(blobUrl);
-      },
-      error: () => {
-        this.alert().showError( 'Une erreur est survenue lors de l\'export PDF');
-      }
-    });
+    this.tableauPharmacienService
+      .exportToPdf(this.buildParams())
+      .pipe(finalize(() => (this.loading = false)))
+      .subscribe({
+        next: blod => {
+          const blobUrl = URL.createObjectURL(blod);
+          window.open(blobUrl);
+        },
+        error: () => {
+          this.alert().showError("Une erreur est survenue lors de l'export PDF");
+        },
+      });
   }
 
   protected onExcel(): void {
     this.loading = true;
     this.updateParam();
-    this.tableauPharmacienService.exportToExcel(this.buildParams()).pipe(finalize(() => this.loading=false)).subscribe({
-      next: resp => {
-
-        const blob = resp.body;
-        saveAs(blob, extractFileName(resp.headers.get('content-disposition') || ''));
-      },
-      error: () => {
-        this.alert().showError('Une erreur est survenue lors de l\'export Excel');
-      }
-    });
+    this.tableauPharmacienService
+      .exportToExcel(this.buildParams())
+      .pipe(finalize(() => (this.loading = false)))
+      .subscribe({
+        next: resp => {
+          const blob = resp.body;
+          saveAs(blob, extractFileName(resp.headers.get('content-disposition') || ''));
+        },
+        error: () => {
+          this.alert().showError("Une erreur est survenue lors de l'export Excel");
+        },
+      });
   }
 
   private onSuccess(data: TableauPharmacienWrapper | null): void {
@@ -199,7 +204,7 @@ export class TableauPharmacienComponent implements OnInit, AfterViewInit {
       fromDate: DATE_FORMAT_ISO_DATE(this.fromDate),
       toDate: DATE_FORMAT_ISO_DATE(this.toDate),
       groupBy: this.groupBy,
-      statuts: ['CLOSED']
+      statuts: ['CLOSED'],
     };
   }
 
@@ -207,7 +212,7 @@ export class TableauPharmacienComponent implements OnInit, AfterViewInit {
     const param: MvtCaisseParams = {
       fromDate: this.fromDate,
       toDate: this.toDate,
-      groupBy: this.groupBy
+      groupBy: this.groupBy,
     };
     this.mvtParamServiceService.setMvtCaisseParam(param);
   }
@@ -246,7 +251,7 @@ export class TableauPharmacienComponent implements OnInit, AfterViewInit {
         achats.forEach(achat => {
           grossisteDuJour.push({
             id: achat.id,
-            montantAchatNet: achat.achat.montantNet
+            montantAchatNet: achat.achat.montantNet,
           });
         });
 
@@ -265,7 +270,7 @@ export class TableauPharmacienComponent implements OnInit, AfterViewInit {
         label: groupe.libelle,
         id: groupe.id,
         backgroundColor: cls.slice(i, i + 1),
-        hoverBackgroundColor: hColors.slice(i, i + 1)
+        hoverBackgroundColor: hColors.slice(i, i + 1),
       };
       achatsGrossiste.push(chartDataSet);
       i++;
@@ -317,27 +322,27 @@ export class TableauPharmacienComponent implements OnInit, AfterViewInit {
             label: 'Comptant',
             data: comptants,
             backgroundColor: this.chartColorsUtilsService.colors().slice(0, 1),
-            hoverBackgroundColor: this.chartColorsUtilsService.hoverColors().slice(0, 1)
+            hoverBackgroundColor: this.chartColorsUtilsService.hoverColors().slice(0, 1),
           },
           {
             label: 'Crédit',
             data: credits,
             backgroundColor: this.chartColorsUtilsService.colors().slice(1, 2),
-            hoverBackgroundColor: this.chartColorsUtilsService.hoverColors().slice(1, 2)
+            hoverBackgroundColor: this.chartColorsUtilsService.hoverColors().slice(1, 2),
           },
           {
             label: 'Montant net',
             data: montantNets,
             backgroundColor: this.chartColorsUtilsService.colors().slice(2, 3),
-            hoverBackgroundColor: this.chartColorsUtilsService.hoverColors().slice(2, 3)
+            hoverBackgroundColor: this.chartColorsUtilsService.hoverColors().slice(2, 3),
           },
           {
             label: 'Montant remise',
             data: montantRemises,
             backgroundColor: this.chartColorsUtilsService.colors().slice(3, 4),
-            hoverBackgroundColor: this.chartColorsUtilsService.hoverColors().slice(3, 4)
-          }
-        ]
+            hoverBackgroundColor: this.chartColorsUtilsService.hoverColors().slice(3, 4),
+          },
+        ],
       },
       options: {
         maintainAspectRatio: false,
@@ -346,34 +351,34 @@ export class TableauPharmacienComponent implements OnInit, AfterViewInit {
         plugins: {
           legend: {
             labels: {
-              color: this.chartColorsUtilsService.textColor()
-            }
-          }
+              color: this.chartColorsUtilsService.textColor(),
+            },
+          },
         },
         scales: {
           x: {
             ticks: {
               color: this.chartColorsUtilsService.textColorSecondary(),
               font: {
-                weight: 700
-              }
+                weight: 700,
+              },
             },
             grid: {
               color: this.chartColorsUtilsService.surfaceBorder(),
-              drawBorder: false
-            }
+              drawBorder: false,
+            },
           },
           y: {
             ticks: {
-              color: this.chartColorsUtilsService.textColorSecondary()
+              color: this.chartColorsUtilsService.textColorSecondary(),
             },
             grid: {
               color: this.chartColorsUtilsService.surfaceBorder(),
-              drawBorder: false
-            }
-          }
-        }
-      }
+              drawBorder: false,
+            },
+          },
+        },
+      },
     };
   }
 
@@ -381,7 +386,7 @@ export class TableauPharmacienComponent implements OnInit, AfterViewInit {
     this.grossiste = {
       data: {
         labels,
-        datasets: achatsGrossiste
+        datasets: achatsGrossiste,
       },
       options: {
         maintainAspectRatio: false,
@@ -390,34 +395,34 @@ export class TableauPharmacienComponent implements OnInit, AfterViewInit {
         plugins: {
           legend: {
             labels: {
-              color: this.chartColorsUtilsService.textColor()
-            }
-          }
+              color: this.chartColorsUtilsService.textColor(),
+            },
+          },
         },
         scales: {
           x: {
             ticks: {
               color: this.chartColorsUtilsService.textColorSecondary(),
               font: {
-                weight: 700
-              }
+                weight: 700,
+              },
             },
             grid: {
               color: this.chartColorsUtilsService.surfaceBorder(),
-              drawBorder: false
-            }
+              drawBorder: false,
+            },
           },
           y: {
             ticks: {
-              color: this.chartColorsUtilsService.textColorSecondary()
+              color: this.chartColorsUtilsService.textColorSecondary(),
             },
             grid: {
               color: this.chartColorsUtilsService.surfaceBorder(),
-              drawBorder: false
-            }
-          }
-        }
-      }
+              drawBorder: false,
+            },
+          },
+        },
+      },
     };
   }
 }

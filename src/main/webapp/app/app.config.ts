@@ -1,14 +1,20 @@
-import { ApplicationConfig, LOCALE_ID, importProvidersFrom, inject, provideZoneChangeDetection } from '@angular/core';
+import {
+  ApplicationConfig,
+  importProvidersFrom,
+  inject,
+  LOCALE_ID,
+  provideZoneChangeDetection
+} from '@angular/core';
 import { BrowserModule, Title } from '@angular/platform-browser';
 import {
   NavigationError,
+  provideRouter,
   Router,
   RouterFeatures,
   TitleStrategy,
-  provideRouter,
   withComponentInputBinding,
   withDebugTracing,
-  withNavigationErrorHandler,
+  withNavigationErrorHandler
 } from '@angular/router';
 import { ServiceWorkerModule } from '@angular/service-worker';
 import { provideHttpClient, withInterceptorsFromDi } from '@angular/common/http';
@@ -24,7 +30,7 @@ import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { provideNgxWebstorage, withLocalStorage, withSessionStorage } from 'ngx-webstorage';
 import { provideAnimationsAsync } from '@angular/platform-browser/animations/async';
 import { providePrimeNG } from 'primeng/config';
-import Aura from '@primeng/themes/aura';
+import Aura from '@primeuix/themes/aura';
 
 const routerFeatures: RouterFeatures[] = [
   withComponentInputBinding(),
@@ -39,7 +45,7 @@ const routerFeatures: RouterFeatures[] = [
     } else {
       router.navigate(['/error']);
     }
-  }),
+  })
 ];
 if (environment.DEBUG_INFO_ENABLED) {
   routerFeatures.push(withDebugTracing());
@@ -64,9 +70,9 @@ export const appConfig: ApplicationConfig = {
     provideAnimationsAsync(),
     providePrimeNG({
       theme: {
-        preset: Aura,
-      },
+        preset: Aura
+      }
       /*  translation: {}, */
-    }),
-  ],
+    })
+  ]
 };

@@ -1,7 +1,11 @@
 import { HttpResponse } from '@angular/common/http';
 import { Component, inject, OnInit } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
-import { APPEND_TO, PRODUIT_COMBO_MIN_LENGTH, PRODUIT_NOT_FOUND } from 'app/shared/constants/pagination.constants';
+import {
+  APPEND_TO,
+  PRODUIT_COMBO_MIN_LENGTH,
+  PRODUIT_NOT_FOUND
+} from 'app/shared/constants/pagination.constants';
 import moment from 'moment';
 import { IProduit } from 'app/shared/model/produit.model';
 import { ProduitService } from './produit.service';
@@ -10,16 +14,20 @@ import { FormsModule } from '@angular/forms';
 import { PanelModule } from 'primeng/panel';
 import { AutoCompleteModule } from 'primeng/autocomplete';
 import { ToolbarModule } from 'primeng/toolbar';
-import { CalendarModule } from 'primeng/calendar';
+
 import { ButtonModule } from 'primeng/button';
 import { RippleModule } from 'primeng/ripple';
 import { TableModule } from 'primeng/table';
 import { BadgeModule } from 'primeng/badge';
 import { ProduitStatService } from './stat/produit-stat.service';
-import { ProduitAuditingParam, ProduitAuditingState } from '../../shared/model/produit-record.model';
+import {
+  ProduitAuditingParam,
+  ProduitAuditingState
+} from '../../shared/model/produit-record.model';
 import { DividerModule } from 'primeng/divider';
 import { DATE_FORMAT_DD_MM_YYYY_HH_MM_SS } from '../../shared/util/warehouse-util';
 import { NgxSpinnerModule, NgxSpinnerService } from 'ngx-spinner';
+import { DatePicker } from 'primeng/datepicker';
 
 @Component({
   selector: 'jhi-produit-detail',
@@ -32,25 +40,23 @@ import { NgxSpinnerModule, NgxSpinnerService } from 'ngx-spinner';
     PanelModule,
     AutoCompleteModule,
     ToolbarModule,
-    CalendarModule,
     TableModule,
     BadgeModule,
     DividerModule,
-    NgxSpinnerModule
-  ]
+    NgxSpinnerModule,
+    DatePicker,
+  ],
 })
 export class ProduitDetailComponent implements OnInit {
-  protected activatedRoute = inject(ActivatedRoute);
-  protected router = inject(Router);
-  protected produitStatService = inject(ProduitStatService);
-  protected produitService = inject(ProduitService);
-  private spinner = inject(NgxSpinnerService);
-
   produit: IProduit | null = null;
   produits: IProduit[] = [];
   event: any;
   searchValue?: string;
   entites: ProduitAuditingState[] = [];
+  protected activatedRoute = inject(ActivatedRoute);
+  protected router = inject(Router);
+  protected produitStatService = inject(ProduitStatService);
+  protected produitService = inject(ProduitService);
   protected readonly PRODUIT_COMBO_MIN_LENGTH = PRODUIT_COMBO_MIN_LENGTH;
   protected readonly PRODUIT_NOT_FOUND = PRODUIT_NOT_FOUND;
   protected readonly APPEND_TO = APPEND_TO;
@@ -67,6 +73,7 @@ export class ProduitDetailComponent implements OnInit {
   protected canceledQuantity?: number;
   protected retourDepot?: number;
   protected storeInventoryQuantity?: number;
+  private spinner = inject(NgxSpinnerService);
 
   ngOnInit(): void {
     this.activatedRoute.data.subscribe(({ produit }) => {
@@ -94,7 +101,7 @@ export class ProduitDetailComponent implements OnInit {
         page: 0,
         size: 10,
         withdetail: false,
-        search: this.searchValue
+        search: this.searchValue,
       })
       .subscribe((res: HttpResponse<IProduit[]>) => this.onProduitSuccess(res.body));
   }
@@ -108,7 +115,7 @@ export class ProduitDetailComponent implements OnInit {
     this.spinner.show();
     this.produitStatService.fetchTransactions(this.buildQuery()).subscribe({
       next: (res: HttpResponse<ProduitAuditingState[]>) => this.onSuccessPage(res.body),
-      error: err => this.onError(err)
+      error: err => this.onError(err),
     });
   }
 
@@ -123,7 +130,7 @@ export class ProduitDetailComponent implements OnInit {
         window.open(blobUrl);
         this.spinner.hide();
       },
-      error: () => this.spinner.hide()
+      error: () => this.spinner.hide(),
     });
   }
 
@@ -145,7 +152,7 @@ export class ProduitDetailComponent implements OnInit {
     return {
       produitId: this.produit.id,
       fromDate: this.fromDate ? moment(this.fromDate).format('yyyy-MM-DD') : null,
-      toDate: this.toDate ? moment(this.toDate).format('yyyy-MM-DD') : null
+      toDate: this.toDate ? moment(this.toDate).format('yyyy-MM-DD') : null,
     };
   }
 

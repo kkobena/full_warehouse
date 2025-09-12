@@ -10,7 +10,6 @@ import { WarehouseCommonModule } from '../shared/warehouse-common/warehouse-comm
 import { InputTextModule } from 'primeng/inputtext';
 import { Password } from 'primeng/password';
 import { ToggleSwitchModule } from 'primeng/toggleswitch';
-import { InputSwitch } from 'primeng/inputswitch';
 
 @Component({
   selector: 'jhi-login',

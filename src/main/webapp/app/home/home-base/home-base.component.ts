@@ -29,7 +29,7 @@ import { ChartModule } from 'primeng/chart';
 import { ToggleButtonModule } from 'primeng/togglebutton';
 import { backgroundColor, hoverBackgroundColor, surfaceBorder, textColor, textColorSecondary } from '../../shared/chart-color-helper';
 import { ToggleStateService } from './toggle-state.service';
-import { ToggleButtonChangeEvent } from 'primeng/togglebutton/togglebutton.interface';
+import { ToggleButtonChangeEvent } from 'primeng/togglebutton';
 import { SelectModule } from 'primeng/select';
 
 interface TopSelection {

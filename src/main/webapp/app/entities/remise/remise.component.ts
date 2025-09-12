@@ -8,7 +8,7 @@ import { HttpErrorResponse, HttpResponse } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { IRemise } from '../../shared/model/remise.model';
 import { RemiseService } from './remise.service';
-import { InputSwitchModule } from 'primeng/inputswitch';
+
 import { RemiseClientFormModalComponent } from './remise-client-form-modal/remise-client-form-modal.component';
 import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { ConfirmDialogComponent } from '../../shared/dialog/confirm-dialog/confirm-dialog.component';
@@ -16,6 +16,7 @@ import { ToastAlertComponent } from '../../shared/toast-alert/toast-alert.compon
 import { Panel } from 'primeng/panel';
 import { ErrorService } from '../../shared/error.service';
 import { FormsModule } from '@angular/forms';
+import { ToggleSwitchModule } from 'primeng/toggleswitch';
 
 @Component({
   selector: 'jhi-remise',
@@ -25,12 +26,12 @@ import { FormsModule } from '@angular/forms';
     ButtonModule,
     TableModule,
     TooltipModule,
-    InputSwitchModule,
+    ToggleSwitchModule,
     ConfirmDialogComponent,
     ToastAlertComponent,
-    Panel
+    Panel,
   ],
-  templateUrl: './remise.component.html'
+  templateUrl: './remise.component.html',
 })
 export class RemiseComponent implements OnInit {
   protected responsedto!: IResponseDto;
@@ -50,7 +51,7 @@ export class RemiseComponent implements OnInit {
     this.loading = true;
     this.entityService.query({ typeRemise: 'CLIENT' }).subscribe({
       next: (res: HttpResponse<IRemise[]>) => this.onSuccess(res.body),
-      error: () => this.onError()
+      error: () => this.onError(),
     });
   }
 
@@ -62,7 +63,7 @@ export class RemiseComponent implements OnInit {
         });
       },
       'Confirmation',
-      'Voulez-vous supprimer cet enregistrement ?'
+      'Voulez-vous supprimer cet enregistrement ?',
     );
   }
 
@@ -70,7 +71,7 @@ export class RemiseComponent implements OnInit {
     const modalRef = this.ngModalService.open(RemiseClientFormModalComponent, {
       backdrop: 'static',
       size: 'lg',
-      centered: true
+      centered: true,
     });
     modalRef.componentInstance.entity = remise;
     modalRef.componentInstance.title = remise?.id ? 'Modifier la remise' : 'Ajouter une remise client';
@@ -115,7 +116,7 @@ export class RemiseComponent implements OnInit {
   private subscribeToSaveResponse(result: Observable<HttpResponse<IRemise>>): void {
     result.subscribe({
       next: () => this.onSaveSuccess(),
-      error: err => this.onSaveError(err)
+      error: err => this.onSaveError(err),
     });
   }
 }

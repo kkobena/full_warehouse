@@ -18,7 +18,9 @@ import { Statut } from '../../shared/model/enumerations/statut.model';
 import { TypeProduit } from '../../shared/model/enumerations/type-produit.model';
 import { IFournisseurProduit } from '../../shared/model/fournisseur-produit.model';
 import { ErrorService } from '../../shared/error.service';
-import { FormProduitFournisseurComponent } from './form-produit-fournisseur/form-produit-fournisseur.component';
+import {
+  FormProduitFournisseurComponent
+} from './form-produit-fournisseur/form-produit-fournisseur.component';
 import { ConfigurationService } from '../../shared/configuration.service';
 import { IConfiguration } from '../../shared/model/configuration.model';
 import { Params } from '../../shared/model/enumerations/params.model';
@@ -31,7 +33,6 @@ import { FormsModule } from '@angular/forms';
 import { ToolbarModule } from 'primeng/toolbar';
 import { SplitButtonModule } from 'primeng/splitbutton';
 import { TableModule } from 'primeng/table';
-import { InputSwitchModule } from 'primeng/inputswitch';
 import { InputTextModule } from 'primeng/inputtext';
 import { ImportProduitModalComponent } from './import-produit-modal/import-produit-modal.component';
 import { SelectModule } from 'primeng/select';
@@ -42,19 +43,24 @@ import { EtaProduitComponent } from '../../shared/eta-produit/eta-produit.compon
 import { IFamilleProduit } from '../../shared/model/famille-produit.model';
 import { IRayon } from '../../shared/model/rayon.model';
 import { ButtonGroup } from 'primeng/buttongroup';
-import { ListPrixReferenceComponent } from '../prix-reference/list-prix-reference/list-prix-reference.component';
+import {
+  ListPrixReferenceComponent
+} from '../prix-reference/list-prix-reference/list-prix-reference.component';
 import { DatePeremptionFormComponent } from './date-peremption-form/date-peremption-form.component';
 import { ToastAlertComponent } from '../../shared/toast-alert/toast-alert.component';
-import { ConfirmDialogComponent } from '../../shared/dialog/confirm-dialog/confirm-dialog.component';
+import {
+  ConfirmDialogComponent
+} from '../../shared/dialog/confirm-dialog/confirm-dialog.component';
 import { showCommonModal } from '../sales/selling-home/sale-helper';
 import { finalize } from 'rxjs/operators';
-import { FileUploadDialogComponent } from '../groupe-tiers-payant/file-upload-dialog/file-upload-dialog.component';
+import {
+  FileUploadDialogComponent
+} from '../groupe-tiers-payant/file-upload-dialog/file-upload-dialog.component';
 import {
   ImportProduitReponseModalComponent
 } from './import-produit-reponse-modal/import-produit-reponse-modal.component';
 import { Panel } from 'primeng/panel';
 import { CardModule } from 'primeng/card';
-
 
 export type ExpandMode = 'single' | 'multiple';
 
@@ -68,23 +74,18 @@ export type ExpandMode = 'single' | 'multiple';
 
       :host ::ng-deep .p-card .info-title {
         background-color: var(--p-sky-400);
-
       }
 
       :host ::ng-deep .p-card .warn-title {
         background-color: var(--p-orange-400);
-
       }
 
       :host ::ng-deep .p-card .secondary-title {
         background-color: var(--p-purple-400);
-
       }
 
       :host ::ng-deep .p-card .primary-title {
         background-color: var(--p-primary-color);
-
-
       }
 
       :host ::ng-deep .p-card .p-card-title .card-title {
@@ -125,9 +126,7 @@ export type ExpandMode = 'single' | 'multiple';
         text-align: right;
         font-weight: 600;
       }
-
-
-    `
+    `,
   ],
   templateUrl: './produit.component.html',
   imports: [
@@ -141,7 +140,6 @@ export type ExpandMode = 'single' | 'multiple';
     ToastModule,
     ButtonModule,
     TooltipModule,
-    InputSwitchModule,
     InputTextModule,
     SelectModule,
     IconField,
@@ -153,7 +151,7 @@ export type ExpandMode = 'single' | 'multiple';
     ConfirmDialogComponent,
     Panel,
     CardModule,
-  ]
+  ],
 })
 export class ProduitComponent implements OnInit {
   protected selectedFamille: number = null;
@@ -195,7 +193,6 @@ export class ProduitComponent implements OnInit {
   private readonly confimDialog = viewChild.required<ConfirmDialogComponent>('confirmDialog');
   private readonly alert = viewChild.required<ToastAlertComponent>('alert');
 
-
   constructor() {
     this.criteria = new ProduitCriteria();
     this.criteria.status = Statut.ENABLE;
@@ -206,7 +203,7 @@ export class ProduitComponent implements OnInit {
         command: () => {
           this.typeImportation = 'NOUVELLE_INSTALLATION';
           this.onOpenImportDialog();
-        }
+        },
       },
       {
         label: 'Basculement',
@@ -214,7 +211,7 @@ export class ProduitComponent implements OnInit {
         command: () => {
           this.typeImportation = 'BASCULEMENT';
           this.onOpenImportDialog();
-        }
+        },
       },
       {
         label: 'Basculement de perstige',
@@ -222,15 +219,15 @@ export class ProduitComponent implements OnInit {
         command: () => {
           this.typeImportation = 'BASCULEMENT_PRESTIGE';
           this.onOpenImportDialog();
-        }
-      }
+        },
+      },
     ];
     this.filtesProduits = [
       { label: 'Produits actifs', value: 0 },
       { label: 'Produits désactifs', value: 1 },
       { label: 'Déconditionnables', value: 2 },
       { label: 'Déconditionnés', value: 3 },
-      { label: 'Tous', value: 10 }
+      { label: 'Tous', value: 10 },
     ];
 
     this.search = '';
@@ -241,7 +238,7 @@ export class ProduitComponent implements OnInit {
     const modalRef = this.modalService.open(ImportProduitModalComponent, {
       backdrop: 'static',
       size: 'lg',
-      centered: true
+      centered: true,
     });
     modalRef.componentInstance.type = this.typeImportation;
     modalRef.closed.subscribe(reason => {
@@ -252,34 +249,23 @@ export class ProduitComponent implements OnInit {
     });
   }
 
-  private showResponse(responsedto: IResponseDto): void {
-    showCommonModal(
-      this.modalService,
-      ImportProduitReponseModalComponent,
-      { responsedto },
-      () => {
-      },
-      'lg'
-    );
-  }
-
   populate(): void {
     this.familleService.query({ search: '' }).subscribe({
       next: res => {
         this.familles = res.body;
-      }
+      },
     });
 
     this.rayonService
       .query({
         search: '',
         page: 0,
-        size: 9999
+        size: 9999,
       })
       .subscribe({
         next: rayonsResponse => {
           this.rayons = rayonsResponse.body;
-        }
+        },
       });
   }
 
@@ -307,11 +293,11 @@ export class ProduitComponent implements OnInit {
         deconditionne: this.criteria.deconditionne,
         deconditionnable: this.criteria.deconditionnable,
         status: statut,
-        familleId: this.criteria.familleId
+        familleId: this.criteria.familleId,
       })
       .subscribe({
         next: (res: HttpResponse<IProduit[]>) => this.onSuccess(res.body, res.headers, pageToLoad, !dontNavigate),
-        error: () => this.onError()
+        error: () => this.onError(),
       });
   }
 
@@ -329,12 +315,6 @@ export class ProduitComponent implements OnInit {
     this.confimDialog().onConfirm(() => this.delete(produit), 'Suppression', 'Voulez-vous supprimer ce produit ?');
   }
 
-  private delete(produit: IProduit): void {
-    this.produitService.delete(produit.id).subscribe(() => {
-      this.loadPage();
-    });
-  }
-
   sort(): string[] {
     const result = [this.predicate + ',' + (this.ascending ? 'asc' : 'desc')];
     if (this.predicate !== 'libelle') {
@@ -347,7 +327,7 @@ export class ProduitComponent implements OnInit {
     const modalRef = this.modalService.open(DetailFormDialogComponent, {
       size: 'lg',
       backdrop: 'static',
-      centered: true
+      centered: true,
     });
     modalRef.componentInstance.produit = produit;
   }
@@ -356,7 +336,7 @@ export class ProduitComponent implements OnInit {
     const modalRef = this.modalService.open(DetailFormDialogComponent, {
       size: 'lg',
       backdrop: 'static',
-      centered: true
+      centered: true,
     });
     modalRef.componentInstance.entity = produit;
   }
@@ -364,7 +344,7 @@ export class ProduitComponent implements OnInit {
   openInfoDialog(message: string, infoClass: string): void {
     const modalRef = this.modalService.open(AlertInfoComponent, {
       backdrop: 'static',
-      centered: true
+      centered: true,
     });
     modalRef.componentInstance.message = message;
     modalRef.componentInstance.infoClass = infoClass;
@@ -372,12 +352,12 @@ export class ProduitComponent implements OnInit {
 
   decondition(produit: IProduit): void {
     if (produit.produits.length === 0) {
-      this.openInfoDialog('Le produit n\'a pas de détail. Vous devriez en ajouter d\'abord', 'alert alert-info');
+      this.openInfoDialog("Le produit n'a pas de détail. Vous devriez en ajouter d'abord", 'alert alert-info');
     } else {
       const modalRef = this.modalService.open(DeconditionDialogComponent, {
         size: '60%',
         backdrop: 'static',
-        centered: true
+        centered: true,
       });
       modalRef.componentInstance.produit = produit;
     }
@@ -405,19 +385,6 @@ export class ProduitComponent implements OnInit {
     this.loadPage(0);
   }
 
-  protected onImportJsonFile(): void {
-    showCommonModal(
-      this.modalService,
-      FileUploadDialogComponent,
-      { accept: '.json' },
-      (result) => {
-        this.uploadJsonDataResponse(this.produitService.uploadJsonData(result));
-      },
-      'lg'
-    );
-  }
-
-
   filtreClik(): void {
     if (this.selectedCriteria === 2) {
       this.criteria.deconditionnable = true;
@@ -441,17 +408,29 @@ export class ProduitComponent implements OnInit {
     this.loadPage(0);
   }
 
+  protected onImportJsonFile(): void {
+    showCommonModal(
+      this.modalService,
+      FileUploadDialogComponent,
+      { accept: '.json' },
+      result => {
+        this.uploadJsonDataResponse(this.produitService.uploadJsonData(result));
+      },
+      'lg',
+    );
+  }
+
   protected onChangeDefaultProduitFournisseur(e: any, four: IFournisseurProduit): void {
     const isChecked = e.checked;
     if (four) {
       this.produitService.updateDefaultFournisseur(four.id, isChecked).subscribe({
-        error: error => this.onActionError(four, error)
+        error: error => this.onActionError(four, error),
       });
     }
   }
 
   protected getToolTip(four: IFournisseurProduit): string {
-    return four.principal ? 'L\'Actuel fournisseur principal' : 'Changer en fournisseur principal';
+    return four.principal ? "L'Actuel fournisseur principal" : 'Changer en fournisseur principal';
   }
 
   protected onDeleteProduitFournisseur(four: IFournisseurProduit, produit: IProduit): void {
@@ -462,7 +441,7 @@ export class ProduitComponent implements OnInit {
             produit.fournisseurProduits = produit.fournisseurProduits.filter(e => e.id !== four.id);
           }
         },
-        error: error => this.onCommonError(error)
+        error: error => this.onCommonError(error),
       });
     }
   }
@@ -473,39 +452,42 @@ export class ProduitComponent implements OnInit {
       FormProduitFournisseurComponent,
       {
         produit,
-        header: 'Ajouter un fournisseur au produit ' + produit.libelle
+        header: 'Ajouter un fournisseur au produit ' + produit.libelle,
       },
-      (resp) => {
+      resp => {
         produit.fournisseurProduits.push(resp);
       },
-      'lg'
+      'lg',
     );
   }
 
   protected editFournisseur(produit: IProduit, fournisseurProduit: IFournisseurProduit | null): void {
-
     showCommonModal(
       this.modalService,
       FormProduitFournisseurComponent,
       {
         entity: fournisseurProduit,
         produit,
-        header: 'Modification du produit ' + produit.libelle
+        header: 'Modification du produit ' + produit.libelle,
       },
-      (resp) => {
+      resp => {
         const newFours = produit.fournisseurProduits.filter(e => e.id !== resp.id);
         if (newFours) {
           newFours.push(resp);
           produit.fournisseurProduits = newFours;
         }
       },
-      'lg'
+      'lg',
     );
   }
 
   protected confirmDeleteProduitFournisseur(four: IFournisseurProduit, produit: IProduit): void {
     console.log(four);
-    this.confimDialog().onConfirm(() => this.onDeleteProduitFournisseur(four, produit), 'Retrait de fournisseur', ' Voullez-vous detacher ce fournisseur de ce produit ?');
+    this.confimDialog().onConfirm(
+      () => this.onDeleteProduitFournisseur(four, produit),
+      'Retrait de fournisseur',
+      ' Voullez-vous detacher ce fournisseur de ce produit ?',
+    );
   }
 
   protected findConfigStock(): void {
@@ -515,13 +497,12 @@ export class ProduitComponent implements OnInit {
     }
   }
 
-
   protected addPrixReference(produit: IProduit): void {
     const modalRef = this.modalService.open(ListPrixReferenceComponent, {
       size: 'xl',
       scrollable: true,
       backdrop: 'static',
-      centered: true
+      centered: true,
     });
     modalRef.componentInstance.isFromProduit = true;
     modalRef.componentInstance.produit = produit;
@@ -531,7 +512,7 @@ export class ProduitComponent implements OnInit {
       },
       () => {
         this.loadPage();
-      }
+      },
     );
   }
 
@@ -539,7 +520,7 @@ export class ProduitComponent implements OnInit {
     const modalRef = this.modalService.open(DatePeremptionFormComponent, {
       size: 'lg',
       backdrop: 'static',
-      centered: true
+      centered: true,
     });
     modalRef.componentInstance.produit = produit;
     modalRef.result.then(
@@ -548,8 +529,18 @@ export class ProduitComponent implements OnInit {
       },
       () => {
         this.loadPage();
-      }
+      },
     );
+  }
+
+  private showResponse(responsedto: IResponseDto): void {
+    showCommonModal(this.modalService, ImportProduitReponseModalComponent, { responsedto }, () => {}, 'lg');
+  }
+
+  private delete(produit: IProduit): void {
+    this.produitService.delete(produit.id).subscribe(() => {
+      this.loadPage();
+    });
   }
 
   private onError(): void {
@@ -570,33 +561,34 @@ export class ProduitComponent implements OnInit {
   }
 
   private uploadJsonDataResponse(result: Observable<HttpResponse<void>>): void {
-    result.pipe(finalize(() => {
-      this.isSaving = false;
-    })).subscribe({
-      next: () => this.onPocesJsonSuccess(),
-      error: (err) => this.onSaveError(err)
-    });
+    result
+      .pipe(
+        finalize(() => {
+          this.isSaving = false;
+        }),
+      )
+      .subscribe({
+        next: () => this.onPocesJsonSuccess(),
+        error: err => this.onSaveError(err),
+      });
   }
 
   private onPocesJsonSuccess(): void {
-
     const interval = setInterval(() => {
       this.produitService.findImortation().subscribe({
         next: res => {
           if (res.body) {
             this.responsedto = res.body;
             if (this.responsedto.completed) {
-              setTimeout(() => {
-              }, 5000);
+              setTimeout(() => {}, 5000);
               clearInterval(interval);
             }
           }
         },
         error() {
-          setTimeout(() => {
-          }, 5000);
+          setTimeout(() => {}, 5000);
           clearInterval(interval);
-        }
+        },
       });
     }, 10000);
   }
@@ -609,8 +601,8 @@ export class ProduitComponent implements OnInit {
         queryParams: {
           page: this.page,
           size: this.itemsPerPage,
-          sort: this.predicate + ',' + (this.ascending ? 'asc' : 'desc')
-        }
+          sort: this.predicate + ',' + (this.ascending ? 'asc' : 'desc'),
+        },
       });
     }
     this.produits = data || [];

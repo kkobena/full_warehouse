@@ -7,7 +7,7 @@ import { RemiseService } from '../remise.service';
 import { CodeRemise, GrilleRemise, IRemise, Remise } from '../../../shared/model/remise.model';
 import { Observable } from 'rxjs';
 import { HttpErrorResponse, HttpResponse } from '@angular/common/http';
-import { MessagesModule } from 'primeng/messages';
+import { MessageModule } from 'primeng/message';
 import { ToastAlertComponent } from '../../../shared/toast-alert/toast-alert.component';
 import { ErrorService } from '../../../shared/error.service';
 import { Card } from 'primeng/card';
@@ -17,7 +17,7 @@ import { Select } from 'primeng/select';
 @Component({
   selector: 'jhi-remise-produit-form-modal',
 
-  imports: [ReactiveFormsModule, ToastModule, MessagesModule, ButtonModule, ToastAlertComponent, Card, InputText, Select],
+  imports: [ReactiveFormsModule, ToastModule, MessageModule, ButtonModule, ToastAlertComponent, Card, InputText, Select],
   templateUrl: './remise-produit-form-modal.component.html',
   styleUrls: ['../../common-modal.component.scss']
 })

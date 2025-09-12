@@ -1,6 +1,5 @@
 import { Component, inject, OnDestroy, viewChild } from '@angular/core';
 import { FormArray, ReactiveFormsModule, UntypedFormBuilder, Validators } from '@angular/forms';
-import { DropdownModule } from 'primeng/dropdown';
 import { ButtonModule } from 'primeng/button';
 import { KeyFilterModule } from 'primeng/keyfilter';
 import { InputTextModule } from 'primeng/inputtext';
@@ -15,7 +14,7 @@ import { CardModule } from 'primeng/card';
 import { ErrorService } from '../../../shared/error.service';
 import { ICustomer } from '../../../shared/model/customer.model';
 import { FormTiersPayantComponent } from '../../tiers-payant/form-tiers-payant/form-tiers-payant.component';
-import { Select } from 'primeng/select';
+import { Select, SelectModule } from 'primeng/select';
 import { showCommonModal } from '../../sales/selling-home/sale-helper';
 import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { ConfirmDialogComponent } from '../../../shared/dialog/confirm-dialog/confirm-dialog.component';
@@ -28,7 +27,7 @@ import { Tooltip } from 'primeng/tooltip';
   selector: 'jhi-complementaire-step',
   imports: [
     ReactiveFormsModule,
-    DropdownModule,
+    SelectModule,
     KeyFilterModule,
     InputTextModule,
     AutoCompleteModule,
@@ -37,9 +36,9 @@ import { Tooltip } from 'primeng/tooltip';
     Select,
     ConfirmDialogComponent,
     ToastAlertComponent,
-    Tooltip
+    Tooltip,
   ],
-  templateUrl: './complementaire-step.component.html'
+  templateUrl: './complementaire-step.component.html',
 })
 export class ComplementaireStepComponent implements OnDestroy {
   assureFormStepService = inject(AssureFormStepService);
@@ -51,11 +50,11 @@ export class ComplementaireStepComponent implements OnDestroy {
   protected catgories = [
     { label: 'RC1', value: 1 },
     { label: 'RC2', value: 2 },
-    { label: 'RC3', value: 3 }
+    { label: 'RC3', value: 3 },
   ];
   protected minLength = 3;
   protected editForm = this.fb.group({
-    tiersPayants: this.fb.array([])
+    tiersPayants: this.fb.array([]),
   });
   private readonly confimDialog = viewChild.required<ConfirmDialogComponent>('confirmDialog');
   private readonly alert = viewChild.required<ToastAlertComponent>('alert');
@@ -90,8 +89,8 @@ export class ComplementaireStepComponent implements OnDestroy {
         plafondConso: [],
         plafondJournalier: [],
         plafondAbsolu: [],
-        priorite: tiersPayants.length + 1
-      })
+        priorite: tiersPayants.length + 1,
+      }),
     );
     this.validateTiersPayantSize();
   }
@@ -120,7 +119,7 @@ export class ComplementaireStepComponent implements OnDestroy {
       {
         entity: null,
         categorie: this.assureFormStepService.typeAssure(),
-        header: 'FORMULAIRE DE CREATION DE TIERS-PAYANT'
+        header: 'FORMULAIRE DE CREATION DE TIERS-PAYANT',
       },
       (resp: ITiersPayant) => {
         if (resp) {
@@ -129,7 +128,7 @@ export class ComplementaireStepComponent implements OnDestroy {
         }
       },
       'xl',
-      'modal-dialog-80'
+      'modal-dialog-80',
     );
   }
 
@@ -144,7 +143,7 @@ export class ComplementaireStepComponent implements OnDestroy {
         page: 0,
         size: 10,
         type: 'ASSURANCE',
-        search: query
+        search: query,
       })
       .pipe(takeUntil(this.destroy$))
       .subscribe((res: HttpResponse<ITiersPayant[]>) => {
@@ -168,8 +167,8 @@ export class ComplementaireStepComponent implements OnDestroy {
         plafondJournalier: tiersPayant.plafondJournalier,
         priorite: tiersPayant.priorite,
         categorie: tiersPayant.priorite,
-        plafondAbsolu: tiersPayant.plafondAbsolu
-      }
+        plafondAbsolu: tiersPayant.plafondAbsolu,
+      },
     ]);
   }
 
@@ -187,8 +186,8 @@ export class ComplementaireStepComponent implements OnDestroy {
             plafondJournalier: tp.plafondJournalier,
             priorite: tp.categorie,
             plafondAbsolu: tp.plafondAbsolu,
-            taux: tp.taux
-          })
+            taux: tp.taux,
+          }),
         );
       });
   }
@@ -205,7 +204,7 @@ export class ComplementaireStepComponent implements OnDestroy {
             tiersPayants.removeAt(index);
             this.validateTiersPayantSize();
           },
-          error: err => this.onSaveError(err)
+          error: err => this.onSaveError(err),
         });
     } else {
       tiersPayants.removeAt(index);

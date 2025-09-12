@@ -21,14 +21,13 @@ import { TableLazyLoadEvent, TableModule } from 'primeng/table';
 import { DialogModule } from 'primeng/dialog';
 import { FileUploadModule } from 'primeng/fileupload';
 import { ToolbarModule } from 'primeng/toolbar';
-import { DropdownModule } from 'primeng/dropdown';
 import { SplitButtonModule } from 'primeng/splitbutton';
 import { TooltipModule } from 'primeng/tooltip';
 import { CustomerTiersPayantComponent } from './customer-tiers-payant/customer-tiers-payant.component';
 import { IClientTiersPayant } from '../../shared/model/client-tiers-payant.model';
 import { AssureFormStepComponent } from './assure-form-step/assure-form-step.component';
 import { PrimeNG } from 'primeng/config';
-import { Select } from 'primeng/select';
+import { Select, SelectModule } from 'primeng/select';
 import { IconField } from 'primeng/iconfield';
 import { InputIcon } from 'primeng/inputicon';
 import { Panel } from 'primeng/panel';
@@ -45,7 +44,7 @@ import { Card } from 'primeng/card';
   providers: [DialogService, MessageService],
   imports: [
     WarehouseCommonModule,
-    DropdownModule,
+    SelectModule,
     ToolbarModule,
     FormsModule,
     ButtonModule,

@@ -17,6 +17,6 @@ public interface FamilleProduitRepository extends JpaRepository<FamilleProduit, 
     Page<FamilleProduit> findAllByCodeOrLibelleContainingAllIgnoreCase(String code, String libelle, Pageable pageable);
 
     Optional<FamilleProduit> findFirstByLibelleEquals(String libelle);
-Pageable
+
     FamilleProduit findByCodeEquals(String code);
 }

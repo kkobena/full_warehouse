@@ -2,7 +2,6 @@ import { Component } from '@angular/core';
 import { ConfirmationService } from 'primeng/api';
 import { DialogService } from 'primeng/dynamicdialog';
 import { WarehouseCommonModule } from '../../shared/warehouse-common/warehouse-common.module';
-import { SidebarModule } from 'primeng/sidebar';
 import { RouterModule } from '@angular/router';
 import { NgxSpinnerModule } from 'ngx-spinner';
 import { PanelModule } from 'primeng/panel';
@@ -27,7 +26,6 @@ import { Divider } from 'primeng/divider';
   providers: [ConfirmationService, DialogService],
   imports: [
     WarehouseCommonModule,
-    SidebarModule,
     RouterModule,
     NgxSpinnerModule,
     PanelModule,
@@ -44,9 +42,9 @@ import { Divider } from 'primeng/divider';
     GestionCaisseComponent,
     ActivitySummaryComponent,
     RecapitualtifCaisseComponent,
-    Divider
+    Divider,
   ],
-  templateUrl: './mvt-caisse.component.html'
+  templateUrl: './mvt-caisse.component.html',
 })
 export class MvtCaisseComponent {
   protected active = 'mvt-caisse';

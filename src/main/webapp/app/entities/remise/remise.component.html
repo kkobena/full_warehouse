@@ -41,7 +41,7 @@
           <td style="text-align: right">{{ elRow.remiseValue }}</td>
 
           <td class="text-right">
-            <p-inputSwitch (onChange)="onStatusChange(elRow)" [(ngModel)]="elRow.enable" />
+            <p-toggleswitch (onChange)="onStatusChange(elRow)" [(ngModel)]="elRow.enable" />
           </td>
 
           <td class="text-right">
@@ -72,8 +72,8 @@
       </ng-template>
     </p-table>
   } @else {
-    <div class="alert alert-warning" id="no-result">
-      <span>Aucune donnée trouvée</span>
-    </div>
-  }
+  <div class="alert alert-warning" id="no-result">
+    <span>Aucune donnée trouvée</span>
+  </div>
+}
 </p-panel>

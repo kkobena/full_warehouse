@@ -159,10 +159,9 @@
           />
           @if (datNaiss!.invalid && (datNaiss!.dirty || datNaiss!.touched)) {
             <div>
-              @let errors = datNaiss?.errors;
-              @if (errors?.invalidDate || errors?.outOfRange) {
-                <small class="form-text text-danger"> Veuillez saisir une date valide</small>
-              }
+              @let errors = datNaiss?.errors; @if (errors?.invalidDate || errors?.outOfRange) {
+              <small class="form-text text-danger"> Veuillez saisir une date valide</small>
+            }
             </div>
           }
         </div>

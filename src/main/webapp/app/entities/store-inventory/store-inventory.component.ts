@@ -18,7 +18,7 @@ import { WarehouseCommonModule } from '../../shared/warehouse-common/warehouse-c
 import { MultiSelectModule } from 'primeng/multiselect';
 import { CardModule } from 'primeng/card';
 import { ToolbarModule } from 'primeng/toolbar';
-import { DropdownModule } from 'primeng/dropdown';
+
 import { ButtonModule } from 'primeng/button';
 import { RippleModule } from 'primeng/ripple';
 import { FormsModule } from '@angular/forms';
@@ -48,14 +48,13 @@ import { Divider } from 'primeng/divider';
         height: 550px;
         max-height: 700px;
       }
-    `
+    `,
   ],
   imports: [
     WarehouseCommonModule,
     MultiSelectModule,
     CardModule,
     ToolbarModule,
-    DropdownModule,
     ButtonModule,
     RippleModule,
     FormsModule,
@@ -64,8 +63,8 @@ import { Divider } from 'primeng/divider';
     Select,
     InputGroup,
     InputGroupAddon,
-    Divider
-  ]
+    Divider,
+  ],
 })
 export class StoreInventoryComponent implements OnInit {
   protected storeInventories: IStoreInventory[];
@@ -101,7 +100,7 @@ export class StoreInventoryComponent implements OnInit {
     this.itemsPerPage = ITEMS_PER_PAGE;
     this.page = 0;
     this.links = {
-      last: 0
+      last: 0,
     };
     this.predicate = 'id';
     this.ascending = true;
@@ -112,7 +111,7 @@ export class StoreInventoryComponent implements OnInit {
         sortable: true,
         filter: 'agTextColumnFilter',
         minWidth: 300,
-        flex: 1.2
+        flex: 1.2,
       },
       {
         headerName: 'Stock initial',
@@ -120,22 +119,22 @@ export class StoreInventoryComponent implements OnInit {
         type: ['rightAligned', 'numericColumn'],
         editable: true,
         width: 120,
-        valueFormatter: this.formatNumber
+        valueFormatter: this.formatNumber,
       },
       {
         headerName: 'Quantité saisie',
         width: 140,
         field: 'quantityOnHand',
         editable: true,
-        type: ['rightAligned', 'numericColumn']
+        type: ['rightAligned', 'numericColumn'],
       },
       {
         headerName: 'Ecart',
         width: 80,
         type: ['rightAligned', 'numericColumn'],
         valueGetter: this.setGap,
-        cellStyle: this.cellClass
-      }
+        cellStyle: this.cellClass,
+      },
     ];
   }
 
@@ -177,7 +176,7 @@ export class StoreInventoryComponent implements OnInit {
   delete(storeInventory: IStoreInventory): void {
     const modalRef = this.modalService.open(StoreInventoryDeleteDialogComponent, {
       size: 'lg',
-      backdrop: 'static'
+      backdrop: 'static',
     });
     modalRef.componentInstance.storeInventory = storeInventory;
   }
@@ -200,7 +199,7 @@ export class StoreInventoryComponent implements OnInit {
     this.ref = this.dialogService.open(InventoryFormComponent, {
       data: { entity: null },
       width: '40%',
-      header: 'Nouvel inventaire'
+      header: 'Nouvel inventaire',
     });
     this.ref.onClose.subscribe((res: IStoreInventory) => this.goTo(res));
   }
@@ -217,7 +216,7 @@ export class StoreInventoryComponent implements OnInit {
   protected subscribeToSaveResponse(result: Observable<HttpResponse<IStoreInventory>>): void {
     result.subscribe({
       next: () => this.onSaveSuccess(),
-      error: () => this.onSaveError()
+      error: () => this.onSaveError(),
     });
   }
 
@@ -225,8 +224,7 @@ export class StoreInventoryComponent implements OnInit {
     this.loadAll();
   }
 
-  protected onSaveError(): void {
-  }
+  protected onSaveError(): void {}
 
   protected onSuccess(data: IStoreInventory[] | null): void {
     if (data) {
@@ -244,8 +242,7 @@ export class StoreInventoryComponent implements OnInit {
     });
   }
 
-  protected onSearch(): void {
-  }
+  protected onSearch(): void {}
 
   protected onSelectUser(): void {
     this.onSearch();

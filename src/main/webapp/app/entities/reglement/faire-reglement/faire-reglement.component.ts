@@ -1,9 +1,7 @@
 import { Component, inject, input, OnInit, signal, ViewEncapsulation } from '@angular/core';
-import { SidebarModule } from 'primeng/sidebar';
+
 import { FaireGroupeReglementComponent } from '../faire-groupe-reglement/faire-groupe-reglement.component';
-import {
-  RegelementFactureIndividuelleComponent
-} from '../regelement-facture-individuelle/regelement-facture-individuelle.component';
+import { RegelementFactureIndividuelleComponent } from '../regelement-facture-individuelle/regelement-facture-individuelle.component';
 import { DossierFactureProjection, ReglementFactureDossier } from '../model/reglement-facture-dossier.model';
 import { SelectedFacture } from '../model/reglement.model';
 import { FactureService } from '../../facturation/facture.service';
@@ -11,10 +9,10 @@ import { HttpResponse } from '@angular/common/http';
 
 @Component({
   selector: 'jhi-faire-reglement',
-  imports: [SidebarModule, FaireGroupeReglementComponent, RegelementFactureIndividuelleComponent],
+  imports: [FaireGroupeReglementComponent, RegelementFactureIndividuelleComponent],
   templateUrl: './faire-reglement.component.html',
   styleUrls: ['./faire-reglement.component.scss'],
-  encapsulation: ViewEncapsulation.None
+  encapsulation: ViewEncapsulation.None,
 })
 export class FaireReglementComponent implements OnInit {
   readonly isGroupe = input(false);
@@ -39,7 +37,7 @@ export class FaireReglementComponent implements OnInit {
     this.reglementFactureDossiersSignal.set(this.reglementFactureDossiers());
     this.factureService
       .findDossierFactureProjection(this.reglementFactureDossiers()[0]?.parentId, {
-        isGroup: this.isGroupe()
+        isGroup: this.isGroupe(),
       })
       .subscribe(res => {
         this.dossierFactureProjection = res.body;
@@ -49,7 +47,7 @@ export class FaireReglementComponent implements OnInit {
   private fetchFacture(facture: SelectedFacture): void {
     this.factureService
       .findDossierFactureProjection(facture.facture.factureId, {
-        isGroup: facture.isGroup
+        isGroup: facture.isGroup,
       })
       .subscribe(res => {
         this.dossierFactureProjection = res.body;
@@ -60,7 +58,7 @@ export class FaireReglementComponent implements OnInit {
     this.factureService
       .findDossierReglement(id, path, {
         page: 0,
-        size: 999999
+        size: 999999,
       })
       .subscribe({
         next: (res: HttpResponse<ReglementFactureDossier[]>) => {
@@ -69,7 +67,7 @@ export class FaireReglementComponent implements OnInit {
         error: () => {
           this.reglementFactureDossiersSignal.set([]);
           this.dossierFactureProjection = null;
-        }
+        },
       });
   }
 }

@@ -2,12 +2,7 @@ import { Component, inject, OnInit } from '@angular/core';
 import { HttpHeaders, HttpResponse } from '@angular/common/http';
 import { ActivatedRoute, RouterModule } from '@angular/router';
 import { Observable } from 'rxjs';
-import {
-  GROUPING_BY,
-  IStoreInventory,
-  ItemsCountRecord,
-  StoreInventoryExportRecord
-} from 'app/shared/model/store-inventory.model';
+import { GROUPING_BY, IStoreInventory, ItemsCountRecord, StoreInventoryExportRecord } from 'app/shared/model/store-inventory.model';
 import { StoreInventoryService } from './store-inventory.service';
 
 import { StoreInventoryLineService } from '../store-inventory-line/store-inventory-line.service';
@@ -27,7 +22,6 @@ import { AlertInfoComponent } from '../../shared/alert/alert-info.component';
 import { WarehouseCommonModule } from '../../shared/warehouse-common/warehouse-common.module';
 import { FormsModule } from '@angular/forms';
 import { DividerModule } from 'primeng/divider';
-import { DropdownModule } from 'primeng/dropdown';
 import { AutoCompleteModule } from 'primeng/autocomplete';
 import { TableModule } from 'primeng/table';
 import { ButtonModule } from 'primeng/button';
@@ -42,7 +36,7 @@ import {
   GridReadyEvent,
   ModuleRegistry,
   provideGlobalGridOptions,
-  themeAlpine
+  themeAlpine,
 } from 'ag-grid-community';
 import { InputTextModule } from 'primeng/inputtext';
 import { Authority } from '../../shared/constants/authority.constants';
@@ -68,7 +62,6 @@ provideGlobalGridOptions({ theme: themeAlpine });
     RouterModule,
     DividerModule,
     NgxSpinnerModule,
-    DropdownModule,
     AutoCompleteModule,
     TableModule,
     ButtonModule,
@@ -80,8 +73,8 @@ provideGlobalGridOptions({ theme: themeAlpine });
     Select,
     Toolbar,
     IconField,
-    InputIcon
-  ]
+    InputIcon,
+  ],
 })
 export class StoreInventoryUpdateComponent implements OnInit {
   hasAuthorityService = inject(HasAuthorityService);
@@ -107,7 +100,7 @@ export class StoreInventoryUpdateComponent implements OnInit {
     { name: 'NOT_UPDATED', label: 'Pas mise à jour' },
     { name: 'GAP', label: 'Ecart' },
     { name: 'GAP_POSITIF', label: 'Ecart positif' },
-    { name: 'GAP_NEGATIF', label: 'Ecart négatif' }
+    { name: 'GAP_NEGATIF', label: 'Ecart négatif' },
   ];
   protected selectedfiltres: any | null;
   protected page = 0;
@@ -146,14 +139,14 @@ export class StoreInventoryUpdateComponent implements OnInit {
         headerName: 'Cip',
         field: 'produitCip',
         sortable: false,
-        flex: 0.4
+        flex: 0.4,
       },
       {
         headerName: 'Libellé',
         field: 'produitLibelle',
         sortable: false,
         minWidth: 300,
-        flex: 1.2
+        flex: 1.2,
       },
 
       {
@@ -163,7 +156,7 @@ export class StoreInventoryUpdateComponent implements OnInit {
         editable: true,
         type: ['rightAligned', 'numericColumn'],
         valueFormatter: formatNumberToString,
-        cellStyle: this.stockOnHandcellStyle
+        cellStyle: this.stockOnHandcellStyle,
       },
       /*  {
           field: 'updated',
@@ -179,7 +172,7 @@ export class StoreInventoryUpdateComponent implements OnInit {
         type: ['rightAligned', 'numericColumn'],
         valueFormatter: formatNumberToString,
         //  cellStyle: this.cellStyle,
-        flex: 0.3
+        flex: 0.3,
       },
       {
         headerName: 'Ecart',
@@ -187,13 +180,13 @@ export class StoreInventoryUpdateComponent implements OnInit {
         flex: 0.2,
         type: ['rightAligned', 'numericColumn'],
         valueFormatter: formatNumberToString,
-        cellStyle: this.cellClass
-      }
+        cellStyle: this.cellClass,
+      },
     ];
     this.defaultColDef = {
       // flex: 1,
       // cellClass: 'align-right',
-      enableCellChangeFlash: true
+      enableCellChangeFlash: true,
     };
     /* this.frameworkComponents = {
        statusInvCellRenderer: InventoryStatusComponent,
@@ -230,13 +223,13 @@ export class StoreInventoryUpdateComponent implements OnInit {
 
   confirmClose(): void {
     this.confirmationService.confirm({
-      message: 'Voullez-vous clôturer l\'inventaire ?',
+      message: "Voullez-vous clôturer l'inventaire ?",
       header: ' CLOTURE',
       icon: 'pi pi-info-circle',
       rejectButtonProps: rejectButtonProps(),
       acceptButtonProps: acceptButtonProps(),
       accept: () => this.close(),
-      key: 'saveAll'
+      key: 'saveAll',
     });
   }
 
@@ -251,7 +244,7 @@ export class StoreInventoryUpdateComponent implements OnInit {
           this.messageService.add({
             severity: 'success',
             summary: 'Success',
-            detail: `Nombre de produits de l'inventaire ${res.body.count}`
+            detail: `Nombre de produits de l'inventaire ${res.body.count}`,
           });
           this.isSaving = false;
           setTimeout(() => {
@@ -261,7 +254,7 @@ export class StoreInventoryUpdateComponent implements OnInit {
         error: error => {
           this.onCloseError(error);
           this.spinner.hide();
-        }
+        },
       });
     }
   }
@@ -299,7 +292,7 @@ export class StoreInventoryUpdateComponent implements OnInit {
         page: 0,
         size: 999,
         search,
-        storageId
+        storageId,
       })
       .subscribe((res: HttpResponse<IRayon[]>) => this.onLoadRayonSuccess(res.body));
   }
@@ -315,14 +308,14 @@ export class StoreInventoryUpdateComponent implements OnInit {
       .query({
         page: pageToLoad - 1,
         size: this.itemsPerPage,
-        ...this.buildQuery()
+        ...this.buildQuery(),
       })
       .subscribe({
         next: (res: HttpResponse<IStoreInventoryLine[]>) => this.onSuccess(res.body, res.headers, pageToLoad),
         error: () => {
           this.loading = false;
           this.storeInventoryLines = [];
-        }
+        },
       });
   }
 
@@ -343,7 +336,7 @@ export class StoreInventoryUpdateComponent implements OnInit {
     params.data.quantityOnHand = params.oldValue;
     this.gridApi.startEditingCell({
       rowIndex: params.rowIndex,
-      colKey: 'quantityOnHand'
+      colKey: 'quantityOnHand',
     });
   }
 
@@ -400,7 +393,7 @@ export class StoreInventoryUpdateComponent implements OnInit {
       setTimeout(() => {
         this.gridApi.startEditingCell({
           rowIndex: 0,
-          colKey: 'quantityOnHand'
+          colKey: 'quantityOnHand',
         });
       }, 100);
     } else {
@@ -412,7 +405,7 @@ export class StoreInventoryUpdateComponent implements OnInit {
     result.subscribe({
       next: (res: HttpResponse<IStoreInventoryLine>) => this.onUpadateIem(params, res.body),
 
-      error: () => this.onSaveItemError(params)
+      error: () => this.onSaveItemError(params),
     });
   }
 
@@ -424,15 +417,15 @@ export class StoreInventoryUpdateComponent implements OnInit {
         search: this.searchValue,
         storageId: this.selectedStorage?.id,
         rayonId: this.selectedRayon?.id,
-        selectedFilter: this.selectedfiltres ? this.selectedfiltres.name : 'NONE'
-      }
+        selectedFilter: this.selectedfiltres ? this.selectedfiltres.name : 'NONE',
+      },
     };
   }
 
   private openInfoDialog(message: string, infoClass: string): void {
     const modalRef = this.modalService.open(AlertInfoComponent, {
       backdrop: 'static',
-      centered: true
+      centered: true,
     });
     modalRef.componentInstance.message = message;
     modalRef.componentInstance.infoClass = infoClass;
@@ -446,7 +439,7 @@ export class StoreInventoryUpdateComponent implements OnInit {
         next: translatedErrorMessage => {
           this.openInfoDialog(translatedErrorMessage, 'alert alert-danger');
         },
-        error: () => this.openInfoDialog(error.error.title, 'alert alert-danger')
+        error: () => this.openInfoDialog(error.error.title, 'alert alert-danger'),
       });
     }
   }
@@ -461,7 +454,7 @@ export class StoreInventoryUpdateComponent implements OnInit {
       search: this.searchValue,
       storageId: this.selectedStorage?.id,
       rayonId: this.selectedRayon?.id,
-      selectedFilter: this.selectedfiltres ? this.selectedfiltres.name : 'NONE'
+      selectedFilter: this.selectedfiltres ? this.selectedfiltres.name : 'NONE',
     };
   }
 

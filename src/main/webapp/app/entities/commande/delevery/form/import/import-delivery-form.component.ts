@@ -15,7 +15,7 @@ import { ButtonModule } from 'primeng/button';
 import { RouterModule } from '@angular/router';
 import { RippleModule } from 'primeng/ripple';
 import { InputTextModule } from 'primeng/inputtext';
-import { DropdownModule } from 'primeng/dropdown';
+
 import { ToastModule } from 'primeng/toast';
 import { CardModule } from 'primeng/card';
 import { KeyFilterModule } from 'primeng/keyfilter';
@@ -42,15 +42,14 @@ type ModelFichier = { label: string; value: string };
     FormsModule,
     ReactiveFormsModule,
     InputTextModule,
-    DropdownModule,
     ToastModule,
     NgxSpinnerModule,
     CardModule,
     KeyFilterModule,
     FileUploadModule,
     Select,
-    DatePicker
-  ]
+    DatePicker,
+  ],
 })
 export class ImportDeliveryFormComponent implements OnInit {
   appendTo = 'body';
@@ -69,29 +68,29 @@ export class ImportDeliveryFormComponent implements OnInit {
   editForm = this.fb.group({
     model: new FormControl<ModelFichier | null>(null, {
       validators: [Validators.required],
-      nonNullable: true
+      nonNullable: true,
     }),
     fournisseur: new FormControl<IFournisseur | null>(null, {
       validators: [Validators.required],
-      nonNullable: true
+      nonNullable: true,
     }),
     deliveryReceipt: this.fb.group({
       receiptReference: new FormControl<string | null>(null, {
         validators: [Validators.required],
-        nonNullable: true
+        nonNullable: true,
       }),
       receiptDate: new FormControl<Date | null>(null, {
-        validators: [Validators.required]
+        validators: [Validators.required],
       }),
       receiptAmount: new FormControl<number | null>(null, {
         validators: [Validators.min(0), Validators.required],
-        nonNullable: true
+        nonNullable: true,
       }),
       taxAmount: new FormControl<number | null>(null, {
         validators: [Validators.required, Validators.min(0)],
-        nonNullable: true
-      })
-    })
+        nonNullable: true,
+      }),
+    }),
   });
   private readonly messageService = inject(MessageService);
   private readonly fournisseurService = inject(FournisseurService);
@@ -106,7 +105,7 @@ export class ImportDeliveryFormComponent implements OnInit {
       { label: 'LABOREX', value: 'LABOREX' },
       { label: 'COPHARMED', value: 'COPHARMED' },
       { label: 'DPCI', value: 'DPCI' },
-      { label: 'TEDIS', value: 'TEDIS' }
+      { label: 'TEDIS', value: 'TEDIS' },
     ];
   }
 
@@ -139,7 +138,7 @@ export class ImportDeliveryFormComponent implements OnInit {
     const deliveryReceipt: UploadDeleiveryReceipt = this.createUploadDeleiveryReceipt();
     const formData: FormData = new FormData();
     const body = new Blob([JSON.stringify(deliveryReceipt)], {
-      type: 'application/json'
+      type: 'application/json',
     });
     formData.append('deliveryReceipt', body);
     formData.append('fichier', this.file, this.file.name);
@@ -154,7 +153,7 @@ export class ImportDeliveryFormComponent implements OnInit {
       complete: () => {
         this.isSaving = false;
         this.spinner.hide('gestion-commande-spinner');
-      }
+      },
     });
   }
 
@@ -164,7 +163,7 @@ export class ImportDeliveryFormComponent implements OnInit {
     this.messageService.add({
       severity: 'error',
       summary: 'Erreur',
-      detail: 'L\'importation n\'a pas abouti'
+      detail: "L'importation n'a pas abouti",
     });
   }
 
@@ -175,10 +174,12 @@ export class ImportDeliveryFormComponent implements OnInit {
       fournisseurId: this.editForm.get('fournisseur')?.value?.id,
       deliveryReceipt: {
         receiptReference: deliveryReceiptForm.get('receiptReference')?.value,
-        receiptDate: deliveryReceiptForm.get('receiptDate')?.value ? moment(deliveryReceiptForm.get('receiptDate')?.value).format(DATE_FORMAT) : null,
+        receiptDate: deliveryReceiptForm.get('receiptDate')?.value
+          ? moment(deliveryReceiptForm.get('receiptDate')?.value).format(DATE_FORMAT)
+          : null,
         receiptAmount: deliveryReceiptForm.get('receiptAmount')?.value,
-        taxAmount: deliveryReceiptForm.get('taxAmount')?.value
-      }
+        taxAmount: deliveryReceiptForm.get('taxAmount')?.value,
+      },
     };
   }
 }

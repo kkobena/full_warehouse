@@ -12,7 +12,6 @@ import { ButtonModule } from 'primeng/button';
 import { RippleModule } from 'primeng/ripple';
 import { InputTextModule } from 'primeng/inputtext';
 import { RadioButtonModule } from 'primeng/radiobutton';
-import { CalendarModule } from 'primeng/calendar';
 import { KeyFilterModule } from 'primeng/keyfilter';
 import { InputMaskModule } from 'primeng/inputmask';
 import { DATE_FORMAT_FROM_STRING_FR, FORMAT_ISO_DATE_TO_STRING_FR } from '../../../shared/util/warehouse-util';
@@ -33,12 +32,11 @@ import { Card } from 'primeng/card';
     InputTextModule,
     RadioButtonModule,
     ReactiveFormsModule,
-    CalendarModule,
     KeyFilterModule,
     InputMaskModule,
     ToastAlertComponent,
-    Card
-  ]
+    Card,
+  ],
 })
 export class FormAyantDroitComponent implements OnInit, AfterViewInit, OnDestroy {
   header: string;
@@ -54,7 +52,7 @@ export class FormAyantDroitComponent implements OnInit, AfterViewInit, OnDestroy
     lastName: [null, [Validators.required, Validators.min(1)]],
     numAyantDroit: [null, [Validators.required]],
     datNaiss: [],
-    sexe: []
+    sexe: [],
   });
   private readonly errorService = inject(ErrorService);
   private readonly customerService = inject(CustomerService);
@@ -90,7 +88,7 @@ export class FormAyantDroitComponent implements OnInit, AfterViewInit, OnDestroy
       lastName: customer.lastName,
       datNaiss: customer.datNaiss ? FORMAT_ISO_DATE_TO_STRING_FR(customer.datNaiss) : null,
       sexe: customer.sexe,
-      numAyantDroit: customer.numAyantDroit
+      numAyantDroit: customer.numAyantDroit,
     });
   }
 
@@ -115,7 +113,7 @@ export class FormAyantDroitComponent implements OnInit, AfterViewInit, OnDestroy
       datNaiss: DATE_FORMAT_FROM_STRING_FR(formValue.datNaiss),
       sexe: formValue.sexe,
       type: 'ASSURE',
-      assureId: this.assure.id
+      assureId: this.assure.id,
     };
   }
 
@@ -123,11 +121,11 @@ export class FormAyantDroitComponent implements OnInit, AfterViewInit, OnDestroy
     result
       .pipe(
         finalize(() => (this.isSaving = false)),
-        takeUntil(this.destroy$)
+        takeUntil(this.destroy$),
       )
       .subscribe({
         next: res => this.onSaveSuccess(res.body),
-        error: error => this.onSaveError(error)
+        error: error => this.onSaveError(error),
       });
   }
 

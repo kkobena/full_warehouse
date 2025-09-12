@@ -12,10 +12,9 @@ import { Observable } from 'rxjs';
 import { InputTextModule } from 'primeng/inputtext';
 import { ButtonModule } from 'primeng/button';
 import { RippleModule } from 'primeng/ripple';
-import { InputSwitchModule } from 'primeng/inputswitch';
 import { KeyFilterModule } from 'primeng/keyfilter';
 import { Select } from 'primeng/select';
-import { ToggleSwitch } from 'primeng/toggleswitch';
+import { ToggleSwitch, ToggleSwitchModule } from 'primeng/toggleswitch';
 import { CommonModule } from '@angular/common';
 import { Card } from 'primeng/card';
 import { ToastAlertComponent } from '../../../shared/toast-alert/toast-alert.component';
@@ -33,7 +32,7 @@ import { finalize } from 'rxjs/operators';
     InputTextModule,
     ButtonModule,
     RippleModule,
-    InputSwitchModule,
+    ToggleSwitchModule,
     KeyFilterModule,
     Select,
     ToggleSwitch,
@@ -196,3 +195,4 @@ export class FormProduitFournisseurComponent implements OnInit, AfterViewInit {
     };
   }
 }
+

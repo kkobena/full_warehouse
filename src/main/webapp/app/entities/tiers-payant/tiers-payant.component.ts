@@ -14,7 +14,7 @@ import { ErrorService } from '../../shared/error.service';
 import { WarehouseCommonModule } from '../../shared/warehouse-common/warehouse-common.module';
 import { ButtonModule } from 'primeng/button';
 import { RippleModule } from 'primeng/ripple';
-import { DropdownModule } from 'primeng/dropdown';
+
 import { FileUploadModule } from 'primeng/fileupload';
 import { ToolbarModule } from 'primeng/toolbar';
 import { TableLazyLoadEvent, TableModule } from 'primeng/table';
@@ -40,7 +40,6 @@ import { SpinnerComponent } from '../../shared/spinner/spinner.component';
     WarehouseCommonModule,
     ButtonModule,
     RippleModule,
-    DropdownModule,
     FileUploadModule,
     ToolbarModule,
     TableModule,
@@ -57,8 +56,8 @@ import { SpinnerComponent } from '../../shared/spinner/spinner.component';
     InputIcon,
     Panel,
     ConfirmDialogComponent,
-    SpinnerComponent
-  ]
+    SpinnerComponent,
+  ],
 })
 export class TiersPayantComponent implements OnInit {
   protected tiersPayants?: ITiersPayant[] = [];
@@ -85,23 +84,23 @@ export class TiersPayantComponent implements OnInit {
   private readonly router = inject(Router);
   private readonly messageService = inject(MessageService);
   private readonly modalService = inject(NgbModal);
-   private readonly spinner = viewChild.required<SpinnerComponent>('spinner');
+  private readonly spinner = viewChild.required<SpinnerComponent>('spinner');
   private readonly confimDialog = viewChild.required<ConfirmDialogComponent>('confirmDialog');
 
   constructor() {
     this.tiersPayantSplitbuttons = [
       {
         label: 'ASSURANCE',
-        command: () => this.addTiersPayantAssurance()
+        command: () => this.addTiersPayantAssurance(),
       },
       {
         label: 'CARNET',
-        command: () => this.addCarnet()
+        command: () => this.addCarnet(),
       },
       {
         label: 'DEPOT',
-        command: () => this.addDepot()
-      }
+        command: () => this.addDepot(),
+      },
     ];
   }
 
@@ -135,11 +134,11 @@ export class TiersPayantComponent implements OnInit {
         page: pageToLoad - 1,
         size: this.itemsPerPage,
         type: this.typeSelected,
-        search: this.search
+        search: this.search,
       })
       .subscribe({
         next: (res: HttpResponse<ITiersPayant[]>) => this.onSuccess(res.body, res.headers, pageToLoad, !dontNavigate),
-        error: () => this.onError()
+        error: () => this.onError(),
       });
   }
 
@@ -152,11 +151,11 @@ export class TiersPayantComponent implements OnInit {
           page: this.page,
           size: event.rows,
           type: this.typeSelected,
-          search: this.search
+          search: this.search,
         })
         .subscribe({
           next: (res: HttpResponse<ITiersPayant[]>) => this.onSuccess(res.body, res.headers, this.page, false),
-          error: () => this.onError()
+          error: () => this.onError(),
         });
     }
   }
@@ -168,13 +167,13 @@ export class TiersPayantComponent implements OnInit {
       {
         entity: null,
         categorie: 'ASSURANCE',
-        header: 'FORMULAIRE DE CREATION DE TIERS-PAYANT ASSURANCE'
+        header: 'FORMULAIRE DE CREATION DE TIERS-PAYANT ASSURANCE',
       },
       () => {
         this.loadPage();
       },
       'xl',
-      'modal-dialog-70'
+      'modal-dialog-70',
     );
   }
 
@@ -185,13 +184,13 @@ export class TiersPayantComponent implements OnInit {
       {
         entity: null,
         categorie: 'CARNET',
-        header: 'FORMULAIRE DE CREATION DE TIERS-PAYANT CARNET'
+        header: 'FORMULAIRE DE CREATION DE TIERS-PAYANT CARNET',
       },
       () => {
         this.loadPage();
       },
       'xl',
-      'modal-dialog-70'
+      'modal-dialog-70',
     );
   }
 
@@ -202,13 +201,13 @@ export class TiersPayantComponent implements OnInit {
       {
         entity: null,
         categorie: 'DEPOT',
-        header: 'FORMULAIRE DE CREATION DE COMME DEPOT'
+        header: 'FORMULAIRE DE CREATION DE COMME DEPOT',
       },
       () => {
         this.loadPage();
       },
       'xl',
-      'modal-dialog-70'
+      'modal-dialog-70',
     );
   }
 
@@ -219,13 +218,13 @@ export class TiersPayantComponent implements OnInit {
       {
         entity: tiersPayant,
         categorie: tiersPayant.categorie,
-        header: `MODIFICATION DU TIERS-PAYANT [ ${tiersPayant.fullName}  ]`
+        header: `MODIFICATION DU TIERS-PAYANT [ ${tiersPayant.fullName}  ]`,
       },
       () => {
         this.loadPage();
       },
       'xl',
-      'modal-dialog-70'
+      'modal-dialog-70',
     );
   }
 
@@ -233,7 +232,7 @@ export class TiersPayantComponent implements OnInit {
     this.confimDialog().onConfirm(
       () => this.onDelete(tiersPayant),
       'SUPPRESSION DE TIERS-PAYANT',
-      'Voulez-vous vraiment supprimer ce tiers-payant ?'
+      'Voulez-vous vraiment supprimer ce tiers-payant ?',
     );
   }
 
@@ -241,21 +240,21 @@ export class TiersPayantComponent implements OnInit {
     this.confimDialog().onConfirm(
       () => this.onDesable(tiersPayant),
       'DESACTIVATION DE TIERS-PAYANT',
-      'Voulez-vous vraiment désativer ce tiers-payant ?'
+      'Voulez-vous vraiment désativer ce tiers-payant ?',
     );
   }
 
   onDelete(tiersPayant: ITiersPayant): void {
     this.entityService.delete(tiersPayant.id).subscribe({
       next: () => this.loadPage(),
-      error: error => this.onSaveError(error)
+      error: error => this.onSaveError(error),
     });
   }
 
   onDesable(tiersPayant: ITiersPayant): void {
     this.entityService.desable(tiersPayant.id).subscribe({
       next: () => this.loadPage(),
-      error: error => this.onSaveError(error)
+      error: error => this.onSaveError(error),
     });
   }
 
@@ -264,7 +263,7 @@ export class TiersPayantComponent implements OnInit {
     this.messageService.add({
       severity: 'error',
       summary: 'Erreur',
-      detail: this.errorService.getErrorMessage(error)
+      detail: this.errorService.getErrorMessage(error),
     });
   }
 
@@ -274,14 +273,14 @@ export class TiersPayantComponent implements OnInit {
     this.messageService.add({
       severity: 'error',
       summary: 'Erreur',
-      detail: 'Enregistrement a échoué'
+      detail: 'Enregistrement a échoué',
     });
   }
 
   protected uploadJsonDataResponse(result: Observable<HttpResponse<void>>): void {
     result.subscribe({
       next: () => this.onPocesJsonSuccess(),
-      error: () => this.onImportError()
+      error: () => this.onImportError(),
     });
   }
 
@@ -298,8 +297,8 @@ export class TiersPayantComponent implements OnInit {
       this.router.navigate(['/tiers-payant'], {
         queryParams: {
           page: this.page,
-          size: this.itemsPerPage
-        }
+          size: this.itemsPerPage,
+        },
       });
     }
     this.tiersPayants = data || [];

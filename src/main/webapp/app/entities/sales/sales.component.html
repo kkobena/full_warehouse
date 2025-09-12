@@ -62,7 +62,8 @@
           </div>
           <div class="mr-1">
             <p-floatlabel variant="on">
-              <p-select [(ngModel)]="fromHour" [options]="hous" id="fromHour" size="large"></p-select>
+              <p-select [(ngModel)]="fromHour" [options]="hous" id="fromHour"
+                        size="large"></p-select>
               <label for="fromHour">De</label>
             </p-floatlabel>
           </div>
@@ -91,19 +92,22 @@
                       (click)="loadPage()"
                       icon="pi pi-search"
                       pTooltip="Rechercher"
-                      raised="true"
+                      [raised]="true"
+                      [rounded]="true"
+
                       severity="info"
                       tooltipPosition="top"
             ></p-button>
-            &nbsp;
-              <!--   <p-splitbutton [model]="splitbuttons" icon="pi pi-upload"
-                pTooltip="Exporter" styleClass="p-button-raised p-button-help"
-              tooltipPosition="top"></p-splitbutton>-->
+
+            <!--   <p-splitbutton [model]="splitbuttons" icon="pi pi-upload"
+              pTooltip="Exporter" styleClass="p-button-raised p-button-help"
+            tooltipPosition="top"></p-splitbutton>-->
             <p-button
               [routerLink]="['/sales', false, 'new']"
               icon="pi pi-plus"
               pTooltip="Nouvelle vente"
               raised="true"
+              [rounded]="true"
               severity="success"
               tooltipPosition="top"
             >
@@ -183,7 +187,8 @@
                     pTooltip="Voir"
                   >
                   </p-button>
-                  @if (canEdit && (sale.natureVente === 'ASSURANCE' || sale.natureVente === 'CARNET')) {
+                  @if (canEdit && (sale.natureVente === 'ASSURANCE' || sale.natureVente
+                    === 'CARNET')) {
 
                     <p-button
                       [routerLink]="['/sales', sale.id, false, 'edit']"
@@ -426,7 +431,8 @@
                                 <td style="text-align: left">{{ rowIndex + 1 }}</td>
                                 <td>{{ saleLine.code }}</td>
                                 <td>{{ saleLine.produitLibelle }}</td>
-                                <td class="text-right">{{ saleLine.quantityRequested | number }}</td>
+                                <td class="text-right">{{ saleLine.quantityRequested | number }}
+                                </td>
                                 <td class="text-right">{{ saleLine.quantitySold | number }}</td>
                                 <td class="text-right">{{ saleLine.regularUnitPrice | number }}</td>
                                 <td
@@ -454,7 +460,6 @@
       }
     </div>
   </div>
-
 
 
 </div>

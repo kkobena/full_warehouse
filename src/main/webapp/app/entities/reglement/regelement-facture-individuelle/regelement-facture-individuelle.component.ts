@@ -1,5 +1,18 @@
-import { Component, computed, effect, inject, input, OnInit, output, signal, viewChild } from '@angular/core';
-import { DossierFactureProjection, ReglementFactureDossier } from '../model/reglement-facture-dossier.model';
+import {
+  Component,
+  computed,
+  effect,
+  inject,
+  input,
+  OnInit,
+  output,
+  signal,
+  viewChild
+} from '@angular/core';
+import {
+  DossierFactureProjection,
+  ReglementFactureDossier
+} from '../model/reglement-facture-dossier.model';
 import { ButtonModule } from 'primeng/button';
 import { TableHeaderCheckbox, TableModule } from 'primeng/table';
 import { WarehouseCommonModule } from '../../../shared/warehouse-common/warehouse-common.module';
@@ -9,10 +22,16 @@ import { TooltipModule } from 'primeng/tooltip';
 import { SplitButtonModule } from 'primeng/splitbutton';
 import { NgbAlertModule, NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { FieldsetModule } from 'primeng/fieldset';
-import { SidebarModule } from 'primeng/sidebar';
-import { DossierReglementInfoComponent } from '../dossier-reglement-info/dossier-reglement-info.component';
+import {
+  DossierReglementInfoComponent
+} from '../dossier-reglement-info/dossier-reglement-info.component';
 import { ReglementFormComponent } from '../reglement-form/reglement-form.component';
-import { ModeEditionReglement, ReglementParams, ResponseReglement, SelectedFacture } from '../model/reglement.model';
+import {
+  ModeEditionReglement,
+  ReglementParams,
+  ResponseReglement,
+  SelectedFacture
+} from '../model/reglement.model';
 import { AlertInfoComponent } from '../../../shared/alert/alert-info.component';
 import { ErrorService } from '../../../shared/error.service';
 import { ReglementService } from '../reglement.service';
@@ -22,7 +41,9 @@ import { FactuesModalComponent } from '../factues-modal/factues-modal.component'
 import { Drawer } from 'primeng/drawer';
 import { IconField } from 'primeng/iconfield';
 import { InputIcon } from 'primeng/inputicon';
-import { ConfirmDialogComponent } from '../../../shared/dialog/confirm-dialog/confirm-dialog.component';
+import {
+  ConfirmDialogComponent
+} from '../../../shared/dialog/confirm-dialog/confirm-dialog.component';
 
 @Component({
   selector: 'jhi-regelement-facture-individuelle',
@@ -37,16 +58,15 @@ import { ConfirmDialogComponent } from '../../../shared/dialog/confirm-dialog/co
     SplitButtonModule,
     NgbAlertModule,
     FieldsetModule,
-    SidebarModule,
     DossierReglementInfoComponent,
     ReglementFormComponent,
     FactuesModalComponent,
     Drawer,
     IconField,
     InputIcon,
-    ConfirmDialogComponent
+    ConfirmDialogComponent,
   ],
-  templateUrl: './regelement-facture-individuelle.component.html'
+  templateUrl: './regelement-facture-individuelle.component.html',
 })
 export class RegelementFactureIndividuelleComponent implements OnInit {
   readonly reglementFactureDossiers = input<ReglementFactureDossier[]>([]);
@@ -62,15 +82,15 @@ export class RegelementFactureIndividuelleComponent implements OnInit {
     return this.factureDossierSelectionnes()?.map(d => d.id) || [];
   });
   reglementFormComponent = viewChild(ReglementFormComponent);
-  private readonly modalService = inject(NgbModal);
-  private readonly errorService = inject(ErrorService);
-  private readonly reglementService = inject(ReglementService);
-  private readonly factureService = inject(FactureService);
   readonly selectedFacture = output<SelectedFacture>();
   protected showSidebar = false;
   protected partialPayment = false;
   protected readonly ModeEditionReglement = ModeEditionReglement;
   protected isSaving = false;
+  private readonly modalService = inject(NgbModal);
+  private readonly errorService = inject(ErrorService);
+  private readonly reglementService = inject(ReglementService);
+  private readonly factureService = inject(FactureService);
   private readonly confimDialog = viewChild.required<ConfirmDialogComponent>('confirmDialog');
 
   constructor() {
@@ -93,6 +113,10 @@ export class RegelementFactureIndividuelleComponent implements OnInit {
     return this.montantAPayer();
   }
 
+  get drawerWidth(): {} {
+    return window.innerWidth <= 1280 ? { width: '85vw' } : { width: '70vw' };
+  }
+
   private get montantAttendu(): number {
     const dossierFactureProjection = this.dossierFactureProjection();
     if (dossierFactureProjection) {
@@ -113,7 +137,7 @@ export class RegelementFactureIndividuelleComponent implements OnInit {
   openInfoDialog(message: string, infoClass: string): void {
     const modalRef = this.modalService.open(AlertInfoComponent, {
       backdrop: 'static',
-      centered: true
+      centered: true,
     });
     modalRef.componentInstance.message = message;
     modalRef.componentInstance.infoClass = infoClass;
@@ -122,10 +146,6 @@ export class RegelementFactureIndividuelleComponent implements OnInit {
   onSelectFacture(facture: SelectedFacture): void {
     this.selectedFacture.emit(facture);
     this.showSidebar = false;
-  }
-
-  get drawerWidth(): {} {
-    return window.innerWidth <= 1280 ? { width: '85vw' } : { width: '70vw' };
   }
 
   ngOnInit(): void {
@@ -150,16 +170,21 @@ export class RegelementFactureIndividuelleComponent implements OnInit {
           this.onPrintReceipt(res.body);
         }
       },
-      error: err => this.onError(err)
+      error: err => this.onError(err),
     });
   }
 
   private onPrintReceipt(response: ResponseReglement): void {
-
-    this.confimDialog().onConfirm(() => {
-      this.reglementService.printReceipt(response.id).subscribe();
-      this.reset(response);
-    }, 'TICKET REGLEMENT', ' Voullez-vous imprimer le ticket ?', 'pi pi-info-circle', () => this.reset(response));
+    this.confimDialog().onConfirm(
+      () => {
+        this.reglementService.printReceipt(response.id).subscribe();
+        this.reset(response);
+      },
+      'TICKET REGLEMENT',
+      ' Voullez-vous imprimer le ticket ?',
+      'pi pi-info-circle',
+      () => this.reset(response),
+    );
   }
 
   private computeMontantRestant(d: ReglementFactureDossier): number {
@@ -174,7 +199,7 @@ export class RegelementFactureIndividuelleComponent implements OnInit {
     return {
       ...params,
       mode: this.getModeEditionReglement(),
-      dossierIds: this.dossierIds()
+      dossierIds: this.dossierIds(),
     };
   }
 
@@ -195,7 +220,7 @@ export class RegelementFactureIndividuelleComponent implements OnInit {
     this.factureService
       .findDossierReglement(id, 'individuelle', {
         page: 0,
-        size: 999999
+        size: 999999,
       })
       .subscribe({
         next: (res: HttpResponse<ReglementFactureDossier[]>) => {
@@ -205,14 +230,14 @@ export class RegelementFactureIndividuelleComponent implements OnInit {
         error: () => {
           this.reglementFactureDossiersSignal.set([]);
           this.dossierFactureProjectionSignal.set(null);
-        }
+        },
       });
   }
 
   private fetchFacture(): void {
     this.factureService
       .findDossierFactureProjection(this.dossierFactureProjection().id, {
-        isGroup: false
+        isGroup: false,
       })
       .subscribe(res => {
         this.dossierFactureProjectionSignal.set(res.body);

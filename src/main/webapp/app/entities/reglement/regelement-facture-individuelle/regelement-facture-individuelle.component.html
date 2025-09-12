@@ -3,7 +3,8 @@
     <span class="font-semibold text-xl">Factures</span>
   </ng-template>
   <ng-template #content>
-    <jhi-factues-modal (selectedFacture)="onSelectFacture($event)" [factureGroup]="false"></jhi-factues-modal>
+    <jhi-factues-modal (selectedFacture)="onSelectFacture($event)"
+                       [factureGroup]="false"></jhi-factues-modal>
   </ng-template>
 </p-drawer>
 
@@ -18,10 +19,10 @@
       [rowsPerPageOptions]="[10, 20, 30, 50, 100]"
       [rows]="20"
       [showCurrentPageReport]="true"
+      [stripedRows]="true"
       [value]="reglementFactureDossiersSignal()"
       currentPageReportTemplate="Affichage de {first} à {last} sur {totalRecords} dossisiers"
       dataKey="id"
-      [stripedRows]="true"
       selectionMode="multiple"
     >
       <ng-template #caption>
@@ -29,7 +30,7 @@
           <div class="p-2"><span class="text-xl font-bold">Dossiers</span></div>
           <div class="p-0">
             <p-iconfield>
-              <p-inputicon styleClass="pi pi-search" />
+              <p-inputicon class="pi pi-search" />
               <input
                 (input)="factureDossierTable.filterGlobal($event.target.value, 'contains')"
                 [style]="{ width: '300px' }"
@@ -60,7 +61,7 @@
           }
         </tr>
       </ng-template>
-      <ng-template let-item let-rowIndex="rowIndex" #body>
+      <ng-template #body let-item let-rowIndex="rowIndex">
         <tr [ngClass]="{ 'table-success0': item.montantPaye > 0 }">
           <td>{{ item.bonNumber }}</td>
           <td>{{ item.customerFullName }}</td>
@@ -90,7 +91,8 @@
         <div class="d-flex d-flex justify-content-between form-reglement-toolbar">
           <span>Formulaire réglement</span>
           @if (!this.dossierFactureProjection()) {
-            <p-button (click)="openSideBar()" icon="pi pi-search" label="Recherche" severity="info"></p-button>
+            <p-button (click)="openSideBar()" icon="pi pi-search" label="Recherche"
+                      severity="info"></p-button>
           }
         </div>
       </ng-template>

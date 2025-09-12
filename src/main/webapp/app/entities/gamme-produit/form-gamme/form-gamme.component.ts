@@ -4,7 +4,6 @@ import { FormsModule, ReactiveFormsModule, UntypedFormBuilder, Validators } from
 import { Observable } from 'rxjs';
 import { GammeProduitService } from '../gamme-produit.service';
 import { GammeProduit, IGammeProduit } from '../../../shared/model/gamme-produit.model';
-import { DropdownModule } from 'primeng/dropdown';
 import { ButtonModule } from 'primeng/button';
 import { InputTextModule } from 'primeng/inputtext';
 import { ToastAlertComponent } from '../../../shared/toast-alert/toast-alert.component';
@@ -18,20 +17,9 @@ import { KeyFilter } from 'primeng/keyfilter';
   selector: 'jhi-form-gamme',
   templateUrl: './form-gamme.component.html',
   styleUrls: ['../../common-modal.component.scss'],
-  imports: [
-    CommonModule,
-    FormsModule,
-    ReactiveFormsModule,
-    DropdownModule,
-    ButtonModule,
-    InputTextModule,
-    ToastAlertComponent,
-    Card,
-    KeyFilter
-  ]
+  imports: [CommonModule, FormsModule, ReactiveFormsModule, ButtonModule, InputTextModule, ToastAlertComponent, Card, KeyFilter],
 })
 export class FormGammeComponent implements OnInit, AfterViewInit {
-
   header: string = '';
   gamme: IGammeProduit | null = null;
   protected fb = inject(UntypedFormBuilder);
@@ -39,7 +27,7 @@ export class FormGammeComponent implements OnInit, AfterViewInit {
   protected editForm = this.fb.group({
     id: [],
     code: [],
-    libelle: [null, [Validators.required]]
+    libelle: [null, [Validators.required]],
   });
   private readonly entityService = inject(GammeProduitService);
   private readonly activeModal = inject(NgbActiveModal);
@@ -76,12 +64,11 @@ export class FormGammeComponent implements OnInit, AfterViewInit {
   private subscribeToSaveResponse(result: Observable<HttpResponse<IGammeProduit>>): void {
     result.subscribe({
       next: (res: HttpResponse<IGammeProduit>) => this.onSaveSuccess(res.body),
-      error: (err) => this.onSaveError(err)
+      error: err => this.onSaveError(err),
     });
   }
 
   private onSaveSuccess(response: IGammeProduit | null): void {
-
     this.activeModal.close(response);
   }
 
@@ -94,7 +81,7 @@ export class FormGammeComponent implements OnInit, AfterViewInit {
     this.editForm.patchValue({
       id: entity.id,
       code: entity.code,
-      libelle: entity.libelle
+      libelle: entity.libelle,
     });
   }
 
@@ -103,7 +90,7 @@ export class FormGammeComponent implements OnInit, AfterViewInit {
       ...new GammeProduit(),
       id: this.editForm.get(['id']).value,
       code: this.editForm.get(['code']).value,
-      libelle: this.editForm.get(['libelle']).value
+      libelle: this.editForm.get(['libelle']).value,
     };
   }
 }

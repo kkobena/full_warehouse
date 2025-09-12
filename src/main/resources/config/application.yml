@@ -1,16 +1,10 @@
 flyway:
-  enabled: false
+  enabled: true
   schemas: warehouse
   table: warehouse_history
 
 
 spring:
-#  flyway:
-#    schemas: warehouse
-#    table: warehouse_history
-#    enabled: true
-#    encoding: UTF-8
-#    locations: classpath:db/migration
 
   application:
     name: warehouse
@@ -47,7 +41,7 @@ spring:
       hibernate.order_updates: true
       hibernate.query.fail_on_pagination_over_collection_fetch: true
       hibernate.query.in_clause_parameter_padding: true
-#      cache.region.factory_class: jcache
+    #      cache.region.factory_class: jcache
 
 
     hibernate:

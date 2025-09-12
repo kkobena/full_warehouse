@@ -40,7 +40,7 @@ public class ProblemDetailWithCause extends ProblemDetail {
 
         public ProblemDetailWithCauseBuilder() {
             this.type = BLANK_TYPE;
-            this.properties = new HashMap();
+            this.properties = new HashMap<>();
         }
 
         public static ProblemDetailWithCause.ProblemDetailWithCauseBuilder instance() {

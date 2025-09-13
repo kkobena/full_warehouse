@@ -8,7 +8,7 @@ logging:
   level:
     ROOT: DEBUG
     org.hibernate.SQL: DEBUG           # Affiche toutes les requêtes SQL générées
-    org.hibernate.type.descriptor.sql.BasicBinder: TRACE  # Affiche les valeurs des paramètres liés
+    org.hibernate.type.descriptor.sql.BasicBinder: DEBUG   # Affiche les valeurs des paramètres liés
     org.springframework: INFO
     com.kobe.warehouse: DEBUG
     javax:
@@ -86,12 +86,6 @@ pharma-smart-log:
       host: localhost
       port: 5000
       ring-buffer-size: 512
-# ===================================================================
-# Application specific properties
-# Add your own application properties here, see the ApplicationProperties class
-# to have type-safe configuration, like in the JHipsterProperties above
-#
-# More documentation is available at:
 
 # application:
 file:

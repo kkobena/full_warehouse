@@ -22,7 +22,7 @@ spring:
   jpa:
     database-platform: org.hibernate.dialect.PostgreSQLDialect
     open-in-view: false
-    show-sql: true
+    show-sql: false
 
     properties:
       hibernate:
@@ -141,8 +141,6 @@ pharma-smart:
   clientApp:
     name: 'warehouseApp'
 
-  security:
-    content-security-policy: "default-src 'self'; frame-src 'self' data:; script-src 'self' 'unsafe-inline' 'unsafe-eval' https://storage.googleapis.com; style-src 'self' https://fonts.googleapis.com 'unsafe-inline'; img-src 'self' data:; font-src 'self' https://fonts.gstatic.com data:"
 
 # application:
 port-com:

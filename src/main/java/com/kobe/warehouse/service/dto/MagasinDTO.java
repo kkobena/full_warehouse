@@ -1,7 +1,6 @@
 package com.kobe.warehouse.service.dto;
 
 import com.kobe.warehouse.domain.Magasin;
-import com.kobe.warehouse.domain.Storage;
 import jakarta.validation.constraints.NotNull;
 import java.io.Serializable;
 import org.slf4j.Logger;
@@ -22,8 +21,8 @@ public class MagasinDTO implements Serializable {
     private String registre;
     private String compteContribuable;
     private String numComptable;
-    private Storage primaryStorage;
-    private Storage pointOfSale;
+    private StorageDTO primaryStorage;
+    private StorageDTO pointOfSale;
     private String welcomeMessage;
     private String fullName;
 
@@ -38,9 +37,8 @@ public class MagasinDTO implements Serializable {
         registre = magasin.getRegistre();
         compteContribuable = magasin.getCompteContribuable();
         numComptable = magasin.getNumComptable();
-        LOG.info("=== {}{}", magasin.getPrimaryStorage(), magasin.getPointOfSale());
-        primaryStorage = magasin.getPrimaryStorage();
-        pointOfSale = magasin.getPointOfSale();
+        primaryStorage = new StorageDTO(magasin.getPrimaryStorage());
+        pointOfSale = new StorageDTO(magasin.getPointOfSale());
         welcomeMessage = magasin.getWelcomeMessage();
         fullName = magasin.getFullName();
     }
@@ -109,19 +107,19 @@ public class MagasinDTO implements Serializable {
         this.numComptable = numComptable;
     }
 
-    public Storage getPrimaryStorage() {
+    public StorageDTO getPrimaryStorage() {
         return primaryStorage;
     }
 
-    public void setPrimaryStorage(Storage primaryStorage) {
+    public void setPrimaryStorage(StorageDTO primaryStorage) {
         this.primaryStorage = primaryStorage;
     }
 
-    public Storage getPointOfSale() {
+    public StorageDTO getPointOfSale() {
         return pointOfSale;
     }
 
-    public void setPointOfSale(Storage pointOfSale) {
+    public void setPointOfSale(StorageDTO pointOfSale) {
         this.pointOfSale = pointOfSale;
     }
 

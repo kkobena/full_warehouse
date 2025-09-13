@@ -20,13 +20,17 @@ import { provideServiceWorker } from '@angular/service-worker';
 import { provideNgxWebstorage, withLocalStorage, withSessionStorage } from 'ngx-webstorage';
 import { providePrimeNG } from 'primeng/config';
 import Aura from '@primeuix/themes/aura';
+import { provideNoopAnimations } from '@angular/platform-browser/animations';
 
 import { environment } from '../environments/environment';
 import routes from './app.routes';
 import { AppPageTitleStrategy } from './app-page-title-strategy';
 import { httpInterceptorProviders } from './core/interceptor';
-import { provideAnimationsAsync } from '@angular/platform-browser/animations/async';
-import { provideTranslations, translationInitializer } from './shared/language/translation.module';
+
+import { provideTranslateService, MissingTranslationHandler } from '@ngx-translate/core';
+import { provideTranslateHttpLoader } from '@ngx-translate/http-loader';
+import { CustomMissingTranslationHandler } from './config/translation.config';
+import { translationInitializer } from './shared/language/translation.initializer';
 
 // --- Navigation error handler ---
 function handleNavigationError(e: NavigationError) {
@@ -68,15 +72,25 @@ export const appConfig: ApplicationConfig = {
     provideServiceWorker('ngsw-worker.js', { enabled: environment.production }),
 
     // --- i18n / Locale ---
-    provideTranslations,
+    provideTranslateService({
+      loader: provideTranslateHttpLoader({
+        prefix: 'i18n/',
+        // @ts-ignore
+        suffix: `.json?_=${I18N_HASH}`
+      }),
+      missingTranslationHandler: {
+        provide: MissingTranslationHandler,
+        useClass: CustomMissingTranslationHandler
+      }
+    }),
     provideAppInitializer(translationInitializer),
 
     // --- Storage ---
     provideNgxWebstorage(withLocalStorage(), withSessionStorage()),
 
     // --- UI / Animations ---
-    provideAnimationsAsync(),
-    importProvidersFrom([]), // ici tu peux importer tes modules animations si besoin
+    provideNoopAnimations(),
+    importProvidersFrom([]),
     providePrimeNG({ theme: { preset: Aura } }),
 
     // --- Interceptors ---

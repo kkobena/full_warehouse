@@ -1092,10 +1092,6 @@ li .icon-holder .icon i {
   }
 }
 
-.p-button-icon-only {
-  padding: 0.45rem 1rem;
-}
-
 
 .customer-overlay-panel {
   padding: 0;
@@ -1766,7 +1762,8 @@ jhi-recapitualtif-caisse {
     background-color: transparent;
 
   }
-  .main-card-body{
+
+  .main-card-body {
     padding: 0 !important;
   }
 }
@@ -1811,11 +1808,12 @@ jhi-recapitualtif-caisse {
 .p-card .primary-title {
   background-color: var(--p-primary-color);
 }
+
 .expanded-content {
   background-color: #f8f9fa;
 }
 
-.pharma-smart{
+.pharma-smart {
   .p-card .p-card-title .card-title {
     color: #ffffff;
     padding: 0.5rem;
@@ -1856,9 +1854,14 @@ jhi-recapitualtif-caisse {
   text-align: right;
   font-weight: 600;
 }
-.my-cash-register-container{
-  .pharma-smart-primary-text{
+
+.my-cash-register-container {
+  .pharma-smart-primary-text {
 
     font-weight: 600;
   }
+}
+
+.p-button-icon-only {
+  padding: 0.1rem 0.75rem !important;
 }

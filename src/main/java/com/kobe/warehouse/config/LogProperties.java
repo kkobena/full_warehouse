@@ -8,11 +8,9 @@ import java.util.Map;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.web.cors.CorsConfiguration;
 
-@ConfigurationProperties(
-    prefix = "pharma-smart-log",
-    ignoreUnknownFields = false
-)
+@ConfigurationProperties(prefix = "pharma-smart-log", ignoreUnknownFields = false)
 public class LogProperties {
+
     private final Async async = new Async();
     private final Http http = new Http();
     private final Database database = new Database();
@@ -85,6 +83,7 @@ public class LogProperties {
     }
 
     public static class Async {
+
         private int corePoolSize = 2;
         private int maxPoolSize = 50;
         private int queueCapacity = 10000;
@@ -115,6 +114,7 @@ public class LogProperties {
     }
 
     public static class Http {
+
         private final Http.Cache cache = new Http.Cache();
 
         public Http.Cache getCache() {
@@ -122,6 +122,7 @@ public class LogProperties {
         }
 
         public static class Cache {
+
             public int timeToLiveInDays = 1461;
 
             public int getTimeToLiveInDays() {
@@ -135,6 +136,7 @@ public class LogProperties {
     }
 
     public static class Database {
+
         private final Database.Couchbase couchbase = new Database.Couchbase();
 
         public Database.Couchbase getCouchbase() {
@@ -142,6 +144,7 @@ public class LogProperties {
         }
 
         public static class Couchbase {
+
             private String bucketName;
             private String scopeName;
 
@@ -166,6 +169,7 @@ public class LogProperties {
     }
 
     public static class Cache {
+
         private final Cache.Hazelcast hazelcast = new Cache.Hazelcast();
         private final Cache.Caffeine caffeine = new Cache.Caffeine();
         private final Cache.Ehcache ehcache = new Cache.Ehcache();
@@ -198,6 +202,7 @@ public class LogProperties {
         }
 
         public static class Hazelcast {
+
             private int timeToLiveSeconds = 3600;
             private int backupCount = 1;
 
@@ -219,6 +224,7 @@ public class LogProperties {
         }
 
         public static class Caffeine {
+
             private int timeToLiveSeconds = 3600;
             private long maxEntries = 100L;
 
@@ -240,6 +246,7 @@ public class LogProperties {
         }
 
         public static class Ehcache {
+
             private int timeToLiveSeconds = 3600;
             private long maxEntries = 100L;
 
@@ -261,6 +268,7 @@ public class LogProperties {
         }
 
         public static class Infinispan {
+
             private final Cache.Infinispan.Local local = new Cache.Infinispan.Local();
             private final Cache.Infinispan.Distributed distributed = new Cache.Infinispan.Distributed();
             private final Cache.Infinispan.Replicated replicated = new Cache.Infinispan.Replicated();
@@ -296,6 +304,7 @@ public class LogProperties {
             }
 
             public static class Local {
+
                 private long timeToLiveSeconds = 60L;
                 private long maxEntries = 100L;
 
@@ -317,6 +326,7 @@ public class LogProperties {
             }
 
             public static class Distributed {
+
                 private long timeToLiveSeconds = 60L;
                 private long maxEntries = 100L;
                 private int instanceCount = 1;
@@ -347,6 +357,7 @@ public class LogProperties {
             }
 
             public static class Replicated {
+
                 private long timeToLiveSeconds = 60L;
                 private long maxEntries = 100L;
 
@@ -369,6 +380,7 @@ public class LogProperties {
         }
 
         public static class Memcached {
+
             private final Cache.Memcached.Authentication authentication = new Cache.Memcached.Authentication();
             private boolean enabled = false;
             private String servers = "localhost:11211";
@@ -412,6 +424,7 @@ public class LogProperties {
             }
 
             public static class Authentication {
+
                 private boolean enabled = false;
                 private String username;
                 private String password;
@@ -446,6 +459,7 @@ public class LogProperties {
         }
 
         public static class Redis {
+
             private String[] server;
             private int expiration;
             private boolean cluster;
@@ -527,6 +541,7 @@ public class LogProperties {
     }
 
     public static class Mail {
+
         private boolean enabled = false;
         private String from = "";
         private String baseUrl = "";
@@ -557,11 +572,13 @@ public class LogProperties {
     }
 
     public static class Security {
+
         private final Security.ClientAuthorization clientAuthorization = new Security.ClientAuthorization();
         private final Security.Authentication authentication = new Security.Authentication();
         private final Security.RememberMe rememberMe = new Security.RememberMe();
         private final Security.OAuth2 oauth2 = new Security.OAuth2();
-        private String contentSecurityPolicy = "default-src 'self'; frame-src 'self' data:; script-src 'self' 'unsafe-inline' 'unsafe-eval' https://storage.googleapis.com; style-src 'self' 'unsafe-inline'; img-src 'self' data:; font-src 'self' data:";
+        private String contentSecurityPolicy =
+            "default-src 'self'; frame-src 'self' data:; script-src 'self' 'unsafe-inline' 'unsafe-eval' https://storage.googleapis.com; style-src 'self' https://fonts.googleapis.com 'unsafe-inline'; img-src 'self' data:; font-src 'self' https://fonts.gstatic.com data:";
 
         public Security.ClientAuthorization getClientAuthorization() {
             return this.clientAuthorization;
@@ -588,6 +605,7 @@ public class LogProperties {
         }
 
         public static class ClientAuthorization {
+
             private String accessTokenUri;
             private String tokenServiceId;
             private String clientId;
@@ -634,6 +652,7 @@ public class LogProperties {
         }
 
         public static class Authentication {
+
             private final Security.Authentication.Jwt jwt = new Security.Authentication.Jwt();
 
             public Security.Authentication.Jwt getJwt() {
@@ -641,6 +660,7 @@ public class LogProperties {
             }
 
             public static class Jwt {
+
                 private String secret;
                 private String base64Secret;
                 private long tokenValidityInSeconds;
@@ -688,6 +708,7 @@ public class LogProperties {
         }
 
         public static class RememberMe {
+
             private @NotNull String key;
 
             public RememberMe() {
@@ -704,6 +725,7 @@ public class LogProperties {
         }
 
         public static class OAuth2 {
+
             private final List<String> audience = new ArrayList();
 
             public List<String> getAudience() {
@@ -717,6 +739,7 @@ public class LogProperties {
     }
 
     public static class ApiDocs {
+
         private String title = "Application API";
         private String description = "API documentation";
         private String version = "0.0.1";
@@ -839,6 +862,7 @@ public class LogProperties {
         }
 
         public static class Server {
+
             private String url;
             private String description;
 
@@ -861,6 +885,7 @@ public class LogProperties {
     }
 
     public static class Logging {
+
         private final Logging.Logstash logstash = new Logging.Logstash();
         private boolean useJsonFormat = false;
 
@@ -877,6 +902,7 @@ public class LogProperties {
         }
 
         public static class Logstash {
+
             private boolean enabled = false;
             private String host = "localhost";
             private int port = 5000;
@@ -917,6 +943,7 @@ public class LogProperties {
     }
 
     public static class Social {
+
         private String redirectAfterSignIn = "/#/home";
 
         public String getRedirectAfterSignIn() {
@@ -929,6 +956,7 @@ public class LogProperties {
     }
 
     public static class Gateway {
+
         private final Gateway.RateLimiting rateLimiting = new Gateway.RateLimiting();
         private Map<String, List<String>> authorizedMicroservicesEndpoints;
 
@@ -949,6 +977,7 @@ public class LogProperties {
         }
 
         public static class RateLimiting {
+
             private boolean enabled = false;
             private long limit = 100000L;
             private int durationInSeconds = 3600;
@@ -980,6 +1009,7 @@ public class LogProperties {
     }
 
     public static class Registry {
+
         private String password;
 
         public Registry() {
@@ -996,6 +1026,7 @@ public class LogProperties {
     }
 
     public static class ClientApp {
+
         private String name = "warehouseApp";
 
         public String getName() {
@@ -1008,6 +1039,7 @@ public class LogProperties {
     }
 
     public static class AuditEvents {
+
         private int retentionPeriod = 30;
 
         public int getRetentionPeriod() {

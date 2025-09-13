@@ -24,7 +24,7 @@ public class PharmaSmartDefaults {
     }
 
     public interface Gateway {
-        Map<String, List<String>> authorizedMicroservicesEndpoints = new LinkedHashMap();
+        Map<String, List<String>> authorizedMicroservicesEndpoints = new LinkedHashMap<>();
 
         interface RateLimiting {
             boolean enabled = false;

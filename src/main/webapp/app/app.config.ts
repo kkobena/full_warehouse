@@ -2,10 +2,10 @@ import {
   ApplicationConfig,
   importProvidersFrom,
   inject,
-  LOCALE_ID,
-  provideZoneChangeDetection
+  provideZoneChangeDetection,
+  provideAppInitializer
 } from '@angular/core';
-import { BrowserModule, Title } from '@angular/platform-browser';
+import { provideHttpClient, withInterceptorsFromDi } from '@angular/common/http';
 import {
   NavigationError,
   provideRouter,
@@ -16,63 +16,70 @@ import {
   withDebugTracing,
   withNavigationErrorHandler
 } from '@angular/router';
-import { ServiceWorkerModule } from '@angular/service-worker';
-import { provideHttpClient, withInterceptorsFromDi } from '@angular/common/http';
-
-import './config/dayjs';
-import { TranslationModule } from 'app/shared/language/translation.module';
-import { environment } from 'environments/environment';
-import { httpInterceptorProviders } from './core/interceptor';
-import routes from './app.routes';
-
-import { AppPageTitleStrategy } from './app-page-title-strategy';
-import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
+import { provideServiceWorker } from '@angular/service-worker';
 import { provideNgxWebstorage, withLocalStorage, withSessionStorage } from 'ngx-webstorage';
-import { provideAnimationsAsync } from '@angular/platform-browser/animations/async';
 import { providePrimeNG } from 'primeng/config';
 import Aura from '@primeuix/themes/aura';
 
-const routerFeatures: RouterFeatures[] = [
-  withComponentInputBinding(),
-  withNavigationErrorHandler((e: NavigationError) => {
-    const router = inject(Router);
-    if (e.error.status === 403) {
-      router.navigate(['/accessdenied']);
-    } else if (e.error.status === 404) {
-      router.navigate(['/404']);
-    } else if (e.error.status === 401) {
+import { environment } from '../environments/environment';
+import routes from './app.routes';
+import { AppPageTitleStrategy } from './app-page-title-strategy';
+import { httpInterceptorProviders } from './core/interceptor';
+import { provideAnimationsAsync } from '@angular/platform-browser/animations/async';
+import { provideTranslations, translationInitializer } from './shared/language/translation.module';
+
+// --- Navigation error handler ---
+function handleNavigationError(e: NavigationError) {
+  const router = inject(Router);
+  switch (e.error?.status) {
+    case 401:
       router.navigate(['/login']);
-    } else {
+      break;
+    case 403:
+      router.navigate(['/accessdenied']);
+      break;
+    case 404:
+      router.navigate(['/404']);
+      break;
+    default:
       router.navigate(['/error']);
-    }
-  })
-];
+      break;
+  }
+}
+
+const routerFeatures: RouterFeatures[] = [withComponentInputBinding(), withNavigationErrorHandler(handleNavigationError)];
+
 if (environment.DEBUG_INFO_ENABLED) {
   routerFeatures.push(withDebugTracing());
 }
 
+// --- AppConfig standalone Angular 20 ---
 export const appConfig: ApplicationConfig = {
   providers: [
-    /* provideZoneChangeDetection({ eventCoalescing: true, runCoalescing: true }), */
+    // --- Core Angular ---
     provideZoneChangeDetection({ eventCoalescing: true }),
-    provideRouter(routes, ...routerFeatures),
-
-    importProvidersFrom(BrowserModule),
-    importProvidersFrom(BrowserAnimationsModule),
-    importProvidersFrom(ServiceWorkerModule.register('ngsw-worker.js', { enabled: false })),
-    importProvidersFrom(TranslationModule),
     provideHttpClient(withInterceptorsFromDi()),
-    provideNgxWebstorage(withLocalStorage(), withSessionStorage()),
-    Title,
-    { provide: LOCALE_ID, useValue: 'fr' },
-    httpInterceptorProviders,
+
+    // --- Routing ---
+    provideRouter(routes, ...routerFeatures),
     { provide: TitleStrategy, useClass: AppPageTitleStrategy },
+
+    // --- Service Worker ---
+    provideServiceWorker('ngsw-worker.js', { enabled: environment.production }),
+
+    // --- i18n / Locale ---
+    provideTranslations,
+    provideAppInitializer(translationInitializer),
+
+    // --- Storage ---
+    provideNgxWebstorage(withLocalStorage(), withSessionStorage()),
+
+    // --- UI / Animations ---
     provideAnimationsAsync(),
-    providePrimeNG({
-      theme: {
-        preset: Aura
-      }
-      /*  translation: {}, */
-    })
-  ]
+    importProvidersFrom([]), // ici tu peux importer tes modules animations si besoin
+    providePrimeNG({ theme: { preset: Aura } }),
+
+    // --- Interceptors ---
+    httpInterceptorProviders,
+  ],
 };

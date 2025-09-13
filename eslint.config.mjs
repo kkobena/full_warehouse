@@ -12,9 +12,9 @@ export default tseslint.config(
   {
     languageOptions: {
       globals: {
-        ...globals.node,
-      },
-    },
+        ...globals.node
+      }
+    }
   },
   { ignores: ['src/main/docker/'] },
   { ignores: ['target/classes/static/', 'target/'] },
@@ -22,19 +22,20 @@ export default tseslint.config(
   {
     files: ['**/*.{js,cjs,mjs}'],
     rules: {
-      'no-unused-vars': ['error', { argsIgnorePattern: '^_' }],
-    },
+      'no-unused-vars': ['error', { argsIgnorePattern: '^_' }]
+    }
   },
   {
     files: ['src/main/webapp/**/*.ts'],
-    extends: [...tseslint.configs.strictTypeChecked, ...tseslint.configs.stylistic, ...angular.configs.tsRecommended],
+    extends: [...tseslint.configs.strictTypeChecked,
+      ...tseslint.configs.stylistic, ...angular.configs.tsRecommended],
     languageOptions: {
       globals: {
-        ...globals.browser,
+        ...globals.browser
       },
       parserOptions: {
-        project: ['./tsconfig.app.json', './tsconfig.spec.json'],
-      },
+        project: ['./tsconfig.app.json', './tsconfig.spec.json']
+      }
     },
     processor: angular.processInlineTemplates,
     rules: {
@@ -43,20 +44,21 @@ export default tseslint.config(
         {
           type: 'element',
           prefix: 'jhi',
-          style: 'kebab-case',
-        },
+          style: 'kebab-case'
+        }
       ],
       '@angular-eslint/directive-selector': [
         'error',
         {
           type: 'attribute',
           prefix: 'jhi',
-          style: 'camelCase',
-        },
+          style: 'camelCase'
+        }
       ],
       '@angular-eslint/relative-url-prefix': 'error',
       '@typescript-eslint/consistent-type-definitions': 'off',
-      '@typescript-eslint/explicit-function-return-type': ['error', { allowExpressions: true }],
+      '@typescript-eslint/explicit-function-return-type': ['error',
+        { allowExpressions: true }],
       '@typescript-eslint/explicit-module-boundary-types': 'off',
       '@typescript-eslint/member-ordering': [
         'error',
@@ -74,9 +76,9 @@ export default tseslint.config(
             'private-static-method',
             'public-instance-method',
             'protected-instance-method',
-            'private-instance-method',
-          ],
-        },
+            'private-instance-method'
+          ]
+        }
       ],
       '@typescript-eslint/no-confusing-void-expression': 'off',
       '@typescript-eslint/no-empty-object-type': 'off',
@@ -94,7 +96,8 @@ export default tseslint.config(
       '@typescript-eslint/no-unused-vars': 'off',
       '@typescript-eslint/prefer-nullish-coalescing': 'error',
       '@typescript-eslint/prefer-optional-chain': 'error',
-      '@typescript-eslint/restrict-template-expressions': ['error', { allowNumber: true }],
+      '@typescript-eslint/restrict-template-expressions': ['error',
+        { allowNumber: true }],
       '@typescript-eslint/unbound-method': 'off',
       'arrow-body-style': 'error',
       curly: 'error',
@@ -107,27 +110,29 @@ export default tseslint.config(
       'no-labels': 'error',
       'no-new': 'error',
       'no-new-wrappers': 'error',
-      'object-shorthand': ['error', 'always', { avoidExplicitReturnArrows: true }],
+      'object-shorthand': ['error', 'always',
+        { avoidExplicitReturnArrows: true }],
       radix: 'error',
-      'spaced-comment': ['warn', 'always'],
-    },
+      'spaced-comment': ['warn', 'always']
+    }
   },
   {
     files: ['src/main/webapp/**/*.spec.ts'],
     rules: {
-      '@typescript-eslint/no-empty-function': 'off',
-    },
+      '@typescript-eslint/no-empty-function': 'off'
+    }
   },
   {
     files: ['**/*.html'],
-    extends: [...angular.configs.templateRecommended, ...angular.configs.templateAccessibility],
-    rules: {},
+    extends: [...angular.configs.templateRecommended,
+      ...angular.configs.templateAccessibility],
+    rules: {}
   },
   {
     // Html templates require some work
     ignores: ['**/*.html'],
-    extends: [prettier],
+    extends: [prettier]
   },
-  // jhipster-needle-eslint-add-config - JHipster will add additional config here
-  prettier,
+
+  prettier
 );

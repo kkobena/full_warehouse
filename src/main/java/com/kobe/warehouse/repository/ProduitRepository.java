@@ -53,12 +53,15 @@ public interface ProduitRepository
         @Param("caList") String caList,
         @Param("statutList") String statutList
     );
-
-    @Procedure(procedureName = "gettopqty80percentproducts")
-    List<Object[]> getTopQty80PercentProducts__(LocalDate startDate, LocalDate endDate, String caList, String statutList);
-
-    @Procedure(procedureName = "gettopamount80percentproducts")
-    List<Object[]> getTopAmount80PercentProducts__(LocalDate startDate, LocalDate endDate, String caList, String statutList);
+    @Query(
+        value = "SELECT search_produits_json(:qtext, :magasin, :limitResult)",
+        nativeQuery = true
+    )
+    String searchProduitsJson(
+        @Param("qtext") String qtext,
+        @Param("magasin") Integer magasin,
+        @Param("limitResult") Integer limitResult
+    );
 
     Produit findFirstByParentId(Long parentId);
 

@@ -8,8 +8,8 @@ logging:
   level:
     ROOT: DEBUG
     org.hibernate.SQL: DEBUG           # Affiche toutes les requêtes SQL générées
-    org.hibernate.type.descriptor.sql.BasicBinder: DEBUG   # Affiche les valeurs des paramètres liés
-    org.springframework: INFO
+    org.hibernate.type.descriptor.sql.BasicBinder: TRACE   # Affiche les valeurs des paramètres liés
+    org.springframework: DEBUG
     com.kobe.warehouse: DEBUG
     javax:
       management:

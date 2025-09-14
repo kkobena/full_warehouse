@@ -13,7 +13,7 @@ import { INatureVente } from '../../../shared/model/nature-vente.model';
 import { IUser } from '../../../core/user/user.model';
 import { ITypePrescription } from '../../../shared/model/prescription-vente.model';
 import { ICustomer } from '../../../shared/model/customer.model';
-import { IProduit } from '../../../shared/model/produit.model';
+import { ProduitSearch } from '../../../shared/model/produit.model';
 import { GroupRemise, IRemise } from '../../../shared/model/remise.model';
 import {
   FinalyseSale,
@@ -61,7 +61,6 @@ import { DrawerModule } from 'primeng/drawer';
 import { ConfirmDialogComponent } from '../../../shared/dialog/confirm-dialog/confirm-dialog.component';
 import { ToastAlertComponent } from '../../../shared/toast-alert/toast-alert.component';
 import { FloatLabel } from 'primeng/floatlabel';
-import { ProduitAutocompleteComponent } from '../../../shared/produit-autocomplete/produit-autocomplete.component';
 import { QuantiteProdutSaisieComponent } from '../../../shared/quantite-produt-saisie/quantite-produt-saisie.component';
 import {
   assignCustomerToSale,
@@ -82,10 +81,12 @@ import { DeconditionnementService } from '../validator/deconditionnement.service
 import { ForceStockService } from '../validator/force-stock.service';
 import { SaleStockValidator } from '../validator/sale-stock-validator.service';
 import { Toolbar } from 'primeng/toolbar';
+import {
+  ProduitSearchAutocompleteComponent
+} from '../../../shared/produit-search-autocomplete/produit-search-autocomplete.component';
 
 @Component({
   selector: 'jhi-selling-home',
-  providers: [],
   imports: [
     WarehouseCommonModule,
     PreventeModalComponent,
@@ -108,10 +109,10 @@ import { Toolbar } from 'primeng/toolbar';
     ConfirmDialogComponent,
     ToastAlertComponent,
     FloatLabel,
-    ProduitAutocompleteComponent,
     QuantiteProdutSaisieComponent,
     Divider,
-    Toolbar
+    Toolbar,
+    ProduitSearchAutocompleteComponent
   ],
   templateUrl: './selling-home.component.html'
 })
@@ -139,8 +140,7 @@ export class SellingHomeComponent implements OnInit, AfterViewInit {
   protected userSeller?: IUser;
   protected typePrescription?: ITypePrescription | null;
   protected customers: ICustomer[] = [];
-  protected produits: IProduit[] = [];
-  protected produitSelected?: IProduit | null = null;
+  protected produitSelected?: ProduitSearch | null = null;
   protected appendTo = 'body';
   protected remise: IRemise[] = [];
   protected base64 = ';base64,';
@@ -160,11 +160,11 @@ export class SellingHomeComponent implements OnInit, AfterViewInit {
   protected readonly PRODUIT_COMBO_RESULT_SIZE = PRODUIT_COMBO_RESULT_SIZE;
   private readonly typePrescriptionService = inject(TypePrescriptionService);
   private readonly userCaissierService = inject(UserCaissierService);
-  private readonly  hasAuthorityService = inject(HasAuthorityService);
+  private readonly hasAuthorityService = inject(HasAuthorityService);
   private readonly voSalesService = inject(VoSalesService);
   private readonly baseSaleService = inject(BaseSaleService);
   private readonly selectModeReglementService = inject(SelectModeReglementService);
-  private  readonly selectedCustomerService = inject(SelectedCustomerService);
+  private readonly selectedCustomerService = inject(SelectedCustomerService);
   private readonly lastCurrencyGivenService = inject(LastCurrencyGivenService);
   private readonly salesService = inject(SalesService);
   private readonly customerService = inject(CustomerService);
@@ -178,7 +178,7 @@ export class SellingHomeComponent implements OnInit, AfterViewInit {
   private readonly confimDialog = viewChild.required<ConfirmDialogComponent>('confirmDialog');
   private readonly alert = viewChild.required<ToastAlertComponent>('alert');
   private readonly quantyBox = viewChild.required<QuantiteProdutSaisieComponent>('produitQteCmpt');
-  private readonly produitbox = viewChild.required<ProduitAutocompleteComponent>('produitbox');
+  private readonly produitbox = viewChild.required<ProduitSearchAutocompleteComponent>('produitbox');
   private readonly saleEventManager = inject(SaleEventSignal);
   private readonly destroyRef = inject(DestroyRef);
   private readonly platformId = inject(PLATFORM_ID);
@@ -656,7 +656,7 @@ export class SellingHomeComponent implements OnInit, AfterViewInit {
     this.produitbox().getFocus();
   }
 
-  protected onSelectProduct(selectedProduit?: IProduit): void {
+  protected onSelectProduct(selectedProduit?: ProduitSearch): void {
     this.produitSelected = selectedProduit || null;
     this.quantyBox().reset(1);
     this.quantyBox().focusProduitControl();
@@ -973,7 +973,7 @@ export class SellingHomeComponent implements OnInit, AfterViewInit {
     });
   }
 
-  private createSalesLine(produit: IProduit, quantityRequested: number): ISalesLine {
+  private createSalesLine(produit: ProduitSearch, quantityRequested: number): ISalesLine {
     return {
       ...new SalesLine(),
       produitId: produit.id,

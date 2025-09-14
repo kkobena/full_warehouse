@@ -1,31 +1,27 @@
 package com.kobe.warehouse.service.stat.impl;
 
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.kobe.warehouse.domain.SalePayment;
 import com.kobe.warehouse.domain.Sales;
 import com.kobe.warehouse.domain.enumeration.SalesStatut;
 import com.kobe.warehouse.repository.SalePaymentRepository;
 import com.kobe.warehouse.repository.SalesRepository;
 import com.kobe.warehouse.service.dto.VenteRecordParamDTO;
-import com.kobe.warehouse.service.dto.builder.QueryBuilderConstant;
-import com.kobe.warehouse.service.dto.builder.VenteStatQueryBuilder;
 import com.kobe.warehouse.service.dto.records.VenteByTypeRecord;
 import com.kobe.warehouse.service.dto.records.VenteModePaimentRecord;
 import com.kobe.warehouse.service.dto.records.VentePeriodeRecord;
 import com.kobe.warehouse.service.dto.records.VenteRecord;
 import com.kobe.warehouse.service.dto.records.VenteRecordWrapper;
 import com.kobe.warehouse.service.stat.SaleStatService;
-import jakarta.persistence.EntityManager;
-import jakarta.persistence.Tuple;
 import org.apache.commons.lang3.tuple.Pair;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.util.CollectionUtils;
 
 import java.time.LocalDate;
-import java.util.Collections;
 import java.util.EnumSet;
 import java.util.List;
 
@@ -39,10 +35,12 @@ public class SaleStatServiceImpl implements SaleStatService {
 
     private final SalesRepository salesRepository;
     private final SalePaymentRepository salePaymentRepository;
+    private final ObjectMapper objectMapper;
 
-    public SaleStatServiceImpl( SalesRepository salesRepository, SalePaymentRepository salePaymentRepository) {
+    public SaleStatServiceImpl(SalesRepository salesRepository, SalePaymentRepository salePaymentRepository, ObjectMapper objectMapper) {
         this.salesRepository = salesRepository;
         this.salePaymentRepository = salePaymentRepository;
+        this.objectMapper = objectMapper;
     }
 
 
@@ -62,7 +60,6 @@ public class SaleStatServiceImpl implements SaleStatService {
     }
 
 
-
     @Override
     public List<VentePeriodeRecord> getCaGroupingByPeriode(VenteRecordParamDTO venteRecordParamDTO) {
         Pair<LocalDate, LocalDate> periode = getPeriode(venteRecordParamDTO);
@@ -72,7 +69,8 @@ public class SaleStatServiceImpl implements SaleStatService {
     @Override
     public List<VenteByTypeRecord> getCaGroupingByType(VenteRecordParamDTO venteRecordParamDTO) {
         Pair<LocalDate, LocalDate> periode = getPeriode(venteRecordParamDTO);
-        return this.salesRepository.fetchVenteByTypeRecords(buildSpecification(venteRecordParamDTO, periode));
+        return getCaGroupingByType(venteRecordParamDTO, periode).stream().map(venteRecord -> new VenteByTypeRecord(venteRecord.type(), venteRecord)).toList();
+        //  return this.salesRepository.fetchVenteByTypeRecords(buildSpecification(venteRecordParamDTO, periode));
     }
 
     @Override
@@ -84,15 +82,31 @@ public class SaleStatServiceImpl implements SaleStatService {
 
     private VenteRecord fetchVenteRecord(VenteRecordParamDTO venteRecordParam, Pair<LocalDate, LocalDate> periode) {
         try {
-            return this.salesRepository.fetchVenteRecord(buildSpecification(venteRecordParam, periode));
+            String jsonResult = salesRepository.fetchSalesSummary(periode.getLeft(), periode.getRight(), new String[]{venteRecordParam.isCanceled() ? SalesStatut.CANCELED.name() : SalesStatut.CLOSED.name()}, new String[]{venteRecordParam.getCategorieChiffreAffaire().name()});
+            return objectMapper.readValue(jsonResult, new TypeReference<>() {
+            });
+
         } catch (Exception e) {
             LOG.error(null, e);
             return null;
         }
     }
 
+    private List<VenteRecord> getCaGroupingByType(VenteRecordParamDTO venteRecordParam, Pair<LocalDate, LocalDate> periode) {
+        try {
+            String jsonResult = salesRepository.fetchSalesSummaryByTypeVente(periode.getLeft(), periode.getRight(), new String[]{venteRecordParam.isCanceled() ? SalesStatut.CANCELED.name() : SalesStatut.CLOSED.name()}, new String[]{venteRecordParam.getCategorieChiffreAffaire().name()});
+            return objectMapper.readValue(jsonResult, new TypeReference<>() {
+            });
+
+        } catch (Exception e) {
+            LOG.error(null, e);
+            return List.of();
+        }
+    }
+
     private Specification<SalePayment> buildSalePayementSpecification(VenteRecordParamDTO venteRecordParam, Pair<LocalDate, LocalDate> periode) {
         Specification<SalePayment> specification = this.salePaymentRepository.between(periode.getLeft(), periode.getRight());
+        specification = specification.and(this.salePaymentRepository.paymentBetween(periode.getLeft(), periode.getRight()));
         specification = specification.and(this.salePaymentRepository.notImported());
         if (venteRecordParam.isDiffereOnly()) {
             specification = specification.and(this.salePaymentRepository.isDiffere());

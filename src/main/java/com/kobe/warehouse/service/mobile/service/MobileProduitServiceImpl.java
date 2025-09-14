@@ -1,6 +1,6 @@
 package com.kobe.warehouse.service.mobile.service;
 
-import com.kobe.warehouse.service.ProduitService;
+import com.kobe.warehouse.service.stock.ProduitService;
 import com.kobe.warehouse.service.dto.ProduitCriteria;
 import com.kobe.warehouse.service.dto.ProduitDTO;
 import org.springframework.data.domain.Pageable;

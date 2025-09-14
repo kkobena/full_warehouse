@@ -1,4 +1,4 @@
-package com.kobe.warehouse.service.impl;
+package com.kobe.warehouse.service.stock.impl;
 
 import com.kobe.warehouse.constant.EntityConstant;
 import com.kobe.warehouse.domain.AppConfiguration;
@@ -50,7 +50,7 @@ public class StockReapproServiceImpl {
         this.transactionTemplate = transactionTemplate;
     }
 
-    // @Scheduled(cron = "0 0 8-19 * * *")
+  //   @Scheduled(cron = "0 0 9-11 * * *")
     @Scheduled(cron = "0 0/30 * * * *")
     public void computeStockReapprovisionnement() {
         Optional<AppConfiguration> appConfiguration = getLastReapproDate();

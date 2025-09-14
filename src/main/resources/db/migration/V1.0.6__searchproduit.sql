@@ -20,15 +20,17 @@ $$
 BEGIN
   RETURN (WITH q AS (SELECT unaccent(qtext)::text AS query)
           SELECT jsonb_agg(result)
-          FROM (SELECT p.id                              AS produit_id,
-                       p.fournisseur_produit_princial_id AS code_cip_principal_id,
+          FROM (SELECT p.id ,
+                       p.fournisseur_produit_princial_id AS codecipprincipalid,
                        p.libelle,
-                       p.code_ean_labo,
-                       -- regrouper les codes CIP/EAN des différents fournisseurs
+                       p.code_ean_labo AS codeeanlabo,
+                       p.parent_id                       AS parentid,
+                       p.item_qty                        AS itemqty,
+                       p.deconditionnable,
                        jsonb_agg(
                          jsonb_build_object(
                            'id', pf.id,
-                           'codecip', pf.code_cip,
+                           'codeCip', pf.code_cip,
                            'codeEan', pf.code_ean,
                            'prixUni', pf.prix_uni,
                            'prixAchat', pf.prix_achat

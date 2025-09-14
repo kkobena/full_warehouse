@@ -113,7 +113,7 @@ public class MvtParam {
             typeVentes = Set.of(TypeVente.CASH_SALE, TypeVente.CREDIT_SALE, TypeVente.VENTES_DEPOT_AGREE);
         }
         if (Objects.isNull(statuts) || statuts.isEmpty()) {
-            statuts = Set.of(SalesStatut.CLOSED);
+            statuts = Set.of(SalesStatut.CLOSED, SalesStatut.CANCELED);
         }
         if (Objects.isNull(categorieChiffreAffaires) || categorieChiffreAffaires.isEmpty()) {
             categorieChiffreAffaires = Set.of(CategorieChiffreAffaire.CA);

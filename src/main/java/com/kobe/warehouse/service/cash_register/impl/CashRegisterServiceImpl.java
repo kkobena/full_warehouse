@@ -190,7 +190,7 @@ public class CashRegisterServiceImpl implements CashRegisterService {
         List<CashRegisterTransactionSpecialisation> mvtData =
             this.cashRegisterRepository.findCashRegisterMvtDataById(
                     cashRegister.getId(),
-                    Set.of(CategorieChiffreAffaire.CA.ordinal()),
+                    Set.of(CategorieChiffreAffaire.CA.name()),
                     Set.of(PaymentType.SalePayment.name(), PaymentType.PaymentFournisseur.name())
                 );
         mvtData

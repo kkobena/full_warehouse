@@ -6,7 +6,7 @@ import moment from 'moment';
 
 import { SERVER_API_URL } from 'app/app.constants';
 import { createRequestOption, createRequestOptions } from 'app/shared/util/request-util';
-import { IProduit } from 'app/shared/model/produit.model';
+import { IProduit, ProduitSearch } from 'app/shared/model/produit.model';
 import { IResponseDto } from '../../shared/util/response-dto';
 import { IFournisseurProduit } from '../../shared/model/fournisseur-produit.model';
 import { IRayonProduit } from '../../shared/model/rayon-produit.model';
@@ -122,7 +122,11 @@ export class ProduitService {
       .get<IProduit[]>(`${this.resourceUrl}/lite`, { params: options, observe: 'response' })
       .pipe(map((res: EntityArrayResponseType) => this.convertDateArrayFromServer(res)));
   }
-
+  search(req?: any): Observable<HttpResponse<ProduitSearch[]>> {
+    const options = createRequestOptions(req);
+    return this.http
+      .get<ProduitSearch[]>(`${this.resourceUrl}/search`, { params: options, observe: 'response' });
+  }
   updatePeremptionDate(id: number, datePeremption: any): Observable<HttpResponse<{}>> {
     return this.http.put<{}>(`${this.resourceUrl}/${id}/peremption-date`, datePeremption, { observe: 'response' });
   }

@@ -8,6 +8,7 @@ import com.kobe.warehouse.repository.FournisseurRepository;
 import com.kobe.warehouse.service.dto.FournisseurProduitDTO;
 import com.kobe.warehouse.service.errors.DefaultFournisseurException;
 import com.kobe.warehouse.service.errors.GenericError;
+import com.kobe.warehouse.service.stock.ProduitService;
 import org.apache.commons.lang3.RandomStringUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.data.domain.Pageable;
@@ -15,7 +16,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
-import java.util.Objects;
 import java.util.Optional;
 
 @Service

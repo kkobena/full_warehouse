@@ -1,7 +1,5 @@
 package com.kobe.warehouse.service.tiketz.service;
 
-import static java.util.Objects.isNull;
-
 import com.kobe.warehouse.domain.PaymentMode;
 import com.kobe.warehouse.domain.PaymentTransaction;
 import com.kobe.warehouse.domain.SalePayment;
@@ -23,6 +21,11 @@ import com.kobe.warehouse.service.tiketz.dto.TicketZData;
 import com.kobe.warehouse.service.tiketz.dto.TicketZParam;
 import com.kobe.warehouse.service.tiketz.dto.TicketZProjection;
 import com.kobe.warehouse.service.tiketz.dto.TicketZRecap;
+import org.springframework.data.jpa.domain.Specification;
+import org.springframework.http.ResponseEntity;
+import org.springframework.stereotype.Service;
+import org.springframework.util.CollectionUtils;
+
 import java.awt.print.PrinterException;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
@@ -34,10 +37,8 @@ import java.util.Map;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.stream.Collectors;
-import org.springframework.data.jpa.domain.Specification;
-import org.springframework.http.ResponseEntity;
-import org.springframework.stereotype.Service;
-import org.springframework.util.CollectionUtils;
+
+import static java.util.Objects.isNull;
 
 @Service
 public class TicketZServiceImpl implements TicketZService {
@@ -77,11 +78,11 @@ public class TicketZServiceImpl implements TicketZService {
     public void printTicketZ(String hostName, TicketZParam param) throws PrinterException {
         Pair periode = getPeriode(param);
         this.ticketZPrinterService.printTicketZ(
-                hostName,
-                getTicketZ(param),
-                (LocalDateTime) periode.key(),
-                (LocalDateTime) periode.value()
-            );
+            hostName,
+            getTicketZ(param),
+            (LocalDateTime) periode.key(),
+            (LocalDateTime) periode.value()
+        );
     }
 
     @Override
@@ -266,8 +267,9 @@ public class TicketZServiceImpl implements TicketZService {
     }
 
     private Specification<PaymentTransaction> getTicketZAllPaymentSpecification(TicketZParam param, Pair periode) {
-        Specification<PaymentTransaction> specification =
-            this.paymentTransactionRepository.filterByPeriode((LocalDateTime) periode.key(), (LocalDateTime) periode.value());
+        Specification<PaymentTransaction> specification = this.paymentTransactionRepository.filterByPeriode(((LocalDateTime) periode.key()).toLocalDate(), ((LocalDateTime) periode.value()).toLocalDate());
+        //TODO A revoir pour verifier si se ne sont pas les heures par defaut 00:00 et 23:59
+        specification = specification.and(this.paymentTransactionRepository.filterByPeriode((LocalDateTime) periode.key(), (LocalDateTime) periode.value()));
 
         if (!CollectionUtils.isEmpty(param.usersId())) {
             specification = specification.and(this.paymentTransactionRepository.filterByCaissierId(param.usersId()));

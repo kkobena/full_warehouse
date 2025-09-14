@@ -24,6 +24,7 @@ public final class EntityConstant {
     public static final String VNO = "VNO";
     public static final String VO = "VO";
     public static final String ASSURE = "ASSURE";
+    public static final String CARNET = "CARNET";
     public static final String STANDARD = "STANDARD";
     public static final String APP_CASH_FUND = "APP_CASH_FUND";
     public static final String RECEIPT_MAXI_ROW = "RECEIPT_MAXI_ROW";

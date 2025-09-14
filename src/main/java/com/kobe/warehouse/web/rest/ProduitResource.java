@@ -3,12 +3,13 @@ package com.kobe.warehouse.web.rest;
 import com.kobe.warehouse.domain.enumeration.Status;
 import com.kobe.warehouse.repository.ProduitRepository;
 import com.kobe.warehouse.service.ProductActivityService;
-import com.kobe.warehouse.service.ProduitService;
+import com.kobe.warehouse.service.stock.ProduitService;
 import com.kobe.warehouse.service.dto.DatePeremtion;
 import com.kobe.warehouse.service.dto.ProductActivityDTO;
 import com.kobe.warehouse.service.dto.ProduitCriteria;
 import com.kobe.warehouse.service.dto.ProduitDTO;
 import com.kobe.warehouse.service.errors.BadRequestAlertException;
+import com.kobe.warehouse.service.stock.dto.ProduitSearch;
 import com.kobe.warehouse.web.rest.proxy.ProduitResourceProxy;
 import com.kobe.warehouse.web.util.HeaderUtil;
 import com.kobe.warehouse.web.util.PaginationUtil;
@@ -25,7 +26,6 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
-import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -42,7 +42,6 @@ import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
  */
 @RestController
 @RequestMapping("/api")
-@Transactional
 public class ProduitResource extends ProduitResourceProxy {
 
     private static final String ENTITY_NAME = "produit";
@@ -108,7 +107,7 @@ public class ProduitResource extends ProduitResourceProxy {
      * @return the {@link ResponseEntity} with status {@code 200 (OK)} and the list of produits in
      * body.
      */
-    @Transactional(readOnly = true)
+
     @GetMapping("/produits")
     public ResponseEntity<List<ProduitDTO>> getAllProduits(
         @RequestParam(required = false, name = "search") String search,
@@ -146,7 +145,7 @@ public class ProduitResource extends ProduitResourceProxy {
      * @return the {@link ResponseEntity} with status {@code 200 (OK)} and with body the produit, or
      * with status {@code 404 (Not Found)}.
      */
-    @Transactional(readOnly = true)
+
     @GetMapping("/produits/{id}")
     public ResponseEntity<ProduitDTO> getProduit(@PathVariable Long id) {
         log.debug("REST request to get Produit : {}", id);
@@ -179,7 +178,7 @@ public class ProduitResource extends ProduitResourceProxy {
         return ResponseEntity.ok().build();
     }
 
-    @Transactional(readOnly = true)
+
     @GetMapping("/produits/lite")
     public ResponseEntity<List<ProduitDTO>> getAllLite(
         @RequestParam(required = false, name = "search") String search,
@@ -210,7 +209,25 @@ public class ProduitResource extends ProduitResourceProxy {
         );
     }
 
-    @Transactional(readOnly = true)
+
+
+    @GetMapping("/produits/search")
+    public ResponseEntity<List<ProduitSearch>> search(
+        @RequestParam( name = "search") String search,
+        @RequestParam(required = false, name = "magasinId") Long magasinId,
+        Pageable pageable
+    ) {
+        return super.search(search,magasinId,
+            pageable
+        );
+    }
+
+
+
+
+
+
+
     @GetMapping("/produits/activity")
     public ResponseEntity<List<ProductActivityDTO>> getProduitActivity(
         @RequestParam(name = "produitId") Long produitId,

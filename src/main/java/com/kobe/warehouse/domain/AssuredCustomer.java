@@ -1,11 +1,14 @@
 package com.kobe.warehouse.domain;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.FetchType;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
+
 import java.time.LocalDate;
 import java.util.HashSet;
 import java.util.Set;
@@ -25,11 +28,11 @@ public class AssuredCustomer extends Customer {
 
     @Column(name = "num_ayant_droit", length = 100)
     private String numAyantDroit;
-
-    @OneToMany(mappedBy = "assurePrincipal", orphanRemoval = true, cascade = { CascadeType.REMOVE, CascadeType.PERSIST })
+    @JsonIgnore
+    @OneToMany(fetch = FetchType.EAGER, mappedBy = "assurePrincipal", orphanRemoval = true, cascade = {CascadeType.REMOVE, CascadeType.PERSIST})
     private Set<AssuredCustomer> ayantDroits = new HashSet<>();
-
-    @OneToMany(mappedBy = "assuredCustomer", orphanRemoval = true, cascade = { CascadeType.REMOVE, CascadeType.PERSIST })
+    @JsonIgnore
+    @OneToMany(mappedBy = "assuredCustomer", orphanRemoval = true, cascade = {CascadeType.REMOVE, CascadeType.PERSIST})
     private Set<ClientTiersPayant> clientTiersPayants = new HashSet<>();
 
     public AssuredCustomer getAssurePrincipal() {
@@ -67,7 +70,6 @@ public class AssuredCustomer extends Customer {
         this.numAyantDroit = numAyantDroit;
         return this;
     }
-
 
 
     public String getSexe() {

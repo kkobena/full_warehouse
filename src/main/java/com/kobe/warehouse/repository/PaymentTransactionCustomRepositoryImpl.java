@@ -175,13 +175,14 @@ public class PaymentTransactionCustomRepositoryImpl implements PaymentTransactio
         CriteriaQuery<BalanceCaisseDTO> cq = cb.createQuery(BalanceCaisseDTO.class);
         Root<PaymentTransaction> root = cq.from(PaymentTransaction.class);
         Join<PaymentTransaction, PaymentMode> paymentMode = root.join(PaymentTransaction_.paymentMode, JoinType.INNER);
-
         cq.select(createBalanceCaisseDTOResult(cb, root, paymentMode));
         cq.where(cb.and(
-            cb.between(cb.function("DATE", java.time.LocalDate.class, root.get(PaymentTransaction_.createdAt)), mvtParam.getFromDate(), mvtParam.getToDate()),
-            root.get(PaymentTransaction_.categorieChiffreAffaire).in(mvtParam.getCategorieChiffreAffaires())
+            cb.between(root.get(PaymentTransaction_.transactionDate), mvtParam.getFromDate(), mvtParam.getToDate()),
+            root.get(PaymentTransaction_.categorieChiffreAffaire).in(mvtParam.getCategorieChiffreAffaires()),
+            root.get(PaymentTransaction_.type).notEqualTo(SalePayment.class.getName())
+
         ));
-        cq.groupBy(root.get(PaymentTransaction_.paymentMode).get(PaymentMode_.code), root.get(PaymentTransaction_.typeFinancialTransaction));
+        cq.groupBy(paymentMode.get(PaymentMode_.code),paymentMode.get(PaymentMode_.libelle), root.get(PaymentTransaction_.typeFinancialTransaction));
 
         return entityManager.createQuery(cq).getResultList();
     }

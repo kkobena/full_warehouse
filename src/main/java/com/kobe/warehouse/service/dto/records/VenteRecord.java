@@ -1,11 +1,12 @@
 package com.kobe.warehouse.service.dto.records;
 
-import static java.util.Objects.nonNull;
-
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.kobe.warehouse.domain.enumeration.SalesStatut;
+
 import java.math.BigDecimal;
 import java.math.RoundingMode;
-import java.util.Objects;
+
+import static java.util.Objects.nonNull;
 
 public record VenteRecord(
     Integer salesAmount,
@@ -31,42 +32,29 @@ public record VenteRecord(
         return 0;
     }
 
+    @JsonProperty("taxAmount")
     public Integer taxAmount() {
+        if (nonNull(montantHt) && nonNull(salesAmount)) {
+            return BigDecimal.valueOf(salesAmount).subtract(BigDecimal.valueOf(montantHt)).setScale(0, RoundingMode.HALF_UP).intValue();
+        }
         return 0;
     }
 
-    public Integer htAmountUg() {
-        return 0;
-    }
+
+
+    @JsonProperty("htAmount")
     public BigDecimal htAmount() {
         if (nonNull(montantHt)) return BigDecimal.valueOf(montantHt).setScale(0, RoundingMode.HALF_UP);
         return BigDecimal.ZERO;
     }
+
+    @JsonProperty("panierMoyen")
     public BigDecimal panierMoyen() {
-        return htAmount().divide(BigDecimal.valueOf(Objects.requireNonNullElse(saleCount, 1L)), 0, RoundingMode.HALF_UP);
+        if (nonNull(montantHt) && nonNull(saleCount) && saleCount > 0) {
+            return BigDecimal.valueOf(montantHt).divide(BigDecimal.valueOf(saleCount), 0, RoundingMode.HALF_UP);
+        }
+        return BigDecimal.ZERO;
     }
 
-    public Integer discountAmountHorsUg() {
-        return 0;
-    }
 
-    public Integer discountAmountUg() {
-        return 0;
-    }
-
-    public Integer netUgAmount() {
-        return 0;
-    }
-
-    public Integer margeUg() {
-        return 0;
-    }
-
-    public Integer montantttcUg() {
-        return 0;
-    }
-
-    public Integer montantnetUg() {
-        return 0;
-    }
 }

@@ -188,7 +188,7 @@ public class Sales implements Persistable<SaleId>, Serializable, Cloneable {
     private Poste caisse;
     @ManyToOne(fetch = FetchType.LAZY)
     private Poste lastCaisse;
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne
     private Customer customer;
     @Column(name = "canceled", nullable = false)
     private Boolean canceled = false;

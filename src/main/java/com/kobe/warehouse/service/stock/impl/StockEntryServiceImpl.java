@@ -1,4 +1,4 @@
-package com.kobe.warehouse.service.impl;
+package com.kobe.warehouse.service.stock.impl;
 
 import static java.util.Objects.nonNull;
 
@@ -20,7 +20,7 @@ import com.kobe.warehouse.repository.WarehouseSequenceRepository;
 import com.kobe.warehouse.service.FournisseurProduitService;
 import com.kobe.warehouse.service.LogsService;
 import com.kobe.warehouse.service.OrderLineService;
-import com.kobe.warehouse.service.ProduitService;
+import com.kobe.warehouse.service.stock.ProduitService;
 import com.kobe.warehouse.service.ReferenceService;
 import com.kobe.warehouse.service.StorageService;
 import com.kobe.warehouse.service.dto.CommandeModel;

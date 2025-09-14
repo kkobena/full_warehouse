@@ -59,6 +59,9 @@ public interface SalePaymentRepository
     default Specification<SalePayment> between(LocalDate fromDate, LocalDate toDate) {
         return (root, query, cb) -> cb.between( root.get(SalePayment_.sale).get(Sales_.saleDate), fromDate, toDate);
     }
+    default Specification<SalePayment> paymentBetween(LocalDate fromDate, LocalDate toDate) {
+        return (root, query, cb) -> cb.between( root.get(SalePayment_.transactionDate), fromDate, toDate);
+    }
 
     default Specification<SalePayment> hasStatut(EnumSet<SalesStatut> statut) {
         return (root, query, cb) ->  root.get(SalePayment_.sale).get(Sales_.statut).in(statut);

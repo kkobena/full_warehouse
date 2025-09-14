@@ -228,7 +228,7 @@
       <div class="card-body p-0">
         @if (!showGraphs) {
           <p-table [scrollable]="true" [value]="rowQuantity" scrollHeight="400px"
-                   styleClass="p-table-striped">
+                   [stripedRows]="true">
             <ng-template #header>
               <tr>
                 <th>Libellé</th>
@@ -274,7 +274,7 @@
       <div class="card-body p-0">
         @if (!showGraphs) {
           <p-table [scrollable]="true" [value]="rowAmount" scrollHeight="400px"
-                   styleClass="p-table-striped">
+                   [stripedRows]="true">
             <ng-template #header>
               <tr>
                 <th>Libellé</th>
@@ -320,7 +320,7 @@
       <div class="card-body p-0">
         @if (!showGraphs) {
           <p-table [scrollable]="true" [value]="row20x80" scrollHeight="400px"
-                   styleClass="p-table-striped">
+                   [stripedRows]="true">
             <ng-template #header>
               <tr>
                 <th>Libellé</th>
@@ -369,7 +369,7 @@
       <div class="card-body p-0">
         @if (!showGraphs) {
           <p-table [scrollable]="true" [value]="row20x80Montant" scrollHeight="400px"
-                   styleClass="p-table-striped">
+                   [stripedRows]="true">
             <ng-template #header>
               <tr>
                 <th>Libellé</th>
@@ -390,7 +390,7 @@
             </ng-template>
             <ng-template #footer>
               <tr>
-                <td class="fw-bold">Total</td>
+                <td colspan="2" class="fw-bold">Total</td>
                 <td class="text-end fw-bold">{{ totalAmount20x80 | number }}</td>
                 <td class="text-end fw-bold">{{ totalAmountAvg | number }}</td>
 

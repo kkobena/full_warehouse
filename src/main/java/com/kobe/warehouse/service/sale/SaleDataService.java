@@ -1,7 +1,5 @@
 package com.kobe.warehouse.service.sale;
 
-import static java.util.Objects.isNull;
-
 import com.kobe.warehouse.constant.EntityConstant;
 import com.kobe.warehouse.domain.AppUser;
 import com.kobe.warehouse.domain.AppUser_;
@@ -44,14 +42,6 @@ import jakarta.persistence.criteria.Predicate;
 import jakarta.persistence.criteria.Root;
 import jakarta.persistence.criteria.SetJoin;
 import jakarta.validation.constraints.NotNull;
-import java.net.MalformedURLException;
-import java.time.LocalDate;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.Objects;
-import java.util.Optional;
-import java.util.stream.Collectors;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.tuple.Pair;
 import org.springframework.core.io.Resource;
@@ -60,6 +50,17 @@ import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.net.MalformedURLException;
+import java.time.LocalDate;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+import java.util.Objects;
+import java.util.Optional;
+import java.util.stream.Collectors;
+
+import static java.util.Objects.isNull;
 
 @Service
 @Transactional(readOnly = true)
@@ -258,6 +259,7 @@ public class SaleDataService {
         predicates.add(cb.equal(root.get(Sales_.saleDate), now));
     }
 
+    @Transactional
     public Page<SaleDTO> listVenteTerminees(
         String search,
         LocalDate fromDate,

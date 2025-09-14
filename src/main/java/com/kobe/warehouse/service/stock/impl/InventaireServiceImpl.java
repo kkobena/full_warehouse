@@ -1,4 +1,4 @@
-package com.kobe.warehouse.service.impl;
+package com.kobe.warehouse.service.stock.impl;
 
 import com.kobe.warehouse.domain.FournisseurProduit;
 import com.kobe.warehouse.domain.HistoriqueInventaire;
@@ -19,7 +19,7 @@ import com.kobe.warehouse.repository.StockProduitRepository;
 import com.kobe.warehouse.repository.StoreInventoryLineRepository;
 import com.kobe.warehouse.repository.StoreInventoryRepository;
 import com.kobe.warehouse.service.InventaireService;
-import com.kobe.warehouse.service.ProduitService;
+import com.kobe.warehouse.service.stock.ProduitService;
 import com.kobe.warehouse.service.StorageService;
 import com.kobe.warehouse.service.UserService;
 import com.kobe.warehouse.service.dto.InventoryExportSummary;
@@ -73,8 +73,6 @@ import org.apache.commons.csv.CSVRecord;
 import org.apache.commons.lang3.tuple.Triple;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.boot.context.event.ApplicationReadyEvent;
-import org.springframework.context.event.EventListener;
 import org.springframework.core.io.Resource;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;

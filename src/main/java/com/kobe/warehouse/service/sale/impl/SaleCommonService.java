@@ -102,6 +102,7 @@ public class SaleCommonService {
         c.setHtAmount(htAmount);
         c.setDiscountAmount(discount);
         c.setNetAmount(salesAmount - discount);
+        c.setAmountToBeTakenIntoAccount(salesAmount);
 
 
     }

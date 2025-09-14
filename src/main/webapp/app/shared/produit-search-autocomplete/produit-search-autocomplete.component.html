@@ -37,7 +37,7 @@
           [ngClass]="{ stockless: item.totalQuantity <= 0 }"
           class="float-right"
         >
-          {{ item.regularUnitPrice | number }}
+          {{ item.fournisseurProduit?.prixUni | number }}
         </span>
       </div>
     </ng-template>

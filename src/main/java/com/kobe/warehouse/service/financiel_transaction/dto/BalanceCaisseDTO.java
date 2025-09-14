@@ -6,50 +6,55 @@ import com.kobe.warehouse.service.cash_register.dto.TypeVente;
 import com.kobe.warehouse.service.dto.enumeration.TypeVenteDTO;
 
 import java.math.BigDecimal;
-import java.time.LocalDate;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Objects;
 
 import static java.util.Objects.isNull;
 
 public class BalanceCaisseDTO {
 
-    private Long count;
-    private Long montantTtc;
-    private Long montantHt;
-    private Integer montantDiscount;
-    private Long montantPartAssure;
-    private Long montantPartAssureur;
-    private Long montantNet;
-    private Long montantCash;
-    private Long montantPaye;
-    private Long montantReel;
-    private Long montantCard;
-    private Long montantMobileMoney;
-    private Long montantCheck;
-    private Long montantCredit;
-    private Integer montantDiffere;
+    private Long count = 0L;
+    private Long montantTtc = 0L;
+    private Long montantHt = 0L;
+    private Integer montantDiscount = 0;
+    private Long montantPartAssure = 0L;
+    private Long montantPartAssureur = 0L;
+    private Long montantNet = 0L;
+    private Long montantCash = 0L;
+    private Long montantPaye = 0L;
+    private Long montantReel = 0L;
+    private Long montantCard = 0L;
+    private Long montantMobileMoney = 0L;
+    private Long montantCheck = 0L;
+    private Long montantCredit = 0L;
+    private Integer montantDiffere = 0;
     private short typeSalePercent;
-    private String typeSale;
-    private Long panierMoyen;
-    private Long montantVirement;
+    private TypeVenteDTO typeSale;
+    private Long panierMoyen = 0L;
+    private Long montantVirement = 0L;
     private String modePaiement;
     private String libelleModePaiement;
     private TypeVente typeVente;
-    private Long montantDepot;
-    private Long montantAchat;
-    private Long montantMarge;
-    private Long amountToBePaid;
-    private Long amountToBeTakenIntoAccount;
-    private Long montantNetUg;
-    private Long montantTtcUg;
-    private Long montantHtUg;
-    private Long montantTaxe;
-    private Long partAssure;
-    private Long partTiersPayant;
+    private Long montantDepot = 0L;
+    private Long montantAchat = 0L;
+    private Long montantMarge = 0L;
+    private Long amountToBePaid = 0L;
+    private Long amountToBeTakenIntoAccount = 0L;
+    private Long montantNetUg = 0L;
+    private Long montantTtcUg = 0L;
+    private Long montantHtUg = 0L;
+    private Long montantTaxe = 0L;
+    private Long partAssure = 0L;
+    private Long partTiersPayant = 0L;
+    private Integer montantRemiseUg = 0;
+    private Integer montantRemiseProduit = 0;
     private TransactionTypeAffichage typeVeTypeAffichage;
+    private List<PaymentDTO> payments = new ArrayList<>();
 
 
     public BalanceCaisseDTO(String typeSale, Long numberCount, Object discount, Long montantTtc, Long montantPaye, Long montantReel, Double montantHt, String modePaiement, String libelleModePaiement, Long montantAchat, Integer montantDiffere, Long amountToBeTakenIntoAccount, Long partTiersPayant, Long partAssure) {
-        this.typeSale = TypeVenteDTO.valueOf(typeSale).getValue();
+        this.typeSale = TypeVenteDTO.valueOf(typeSale);
         this.count = numberCount;
         this.montantDiscount = getDiscountAsInteger(discount);
         this.montantTtc = montantTtc;
@@ -67,7 +72,7 @@ public class BalanceCaisseDTO {
         this.montantTaxe = this.montantTtc - this.montantHt;
     }
 
-    public BalanceCaisseDTO(Long amount,Long montantSansArrondi, String modePaiement, String libelleModePaiement, TypeFinancialTransaction typeTransaction) {
+    public BalanceCaisseDTO(Long amount, Long montantSansArrondi, String modePaiement, String libelleModePaiement, TypeFinancialTransaction typeTransaction) {
         this.montantPaye = amount;
         this.modePaiement = modePaiement;
         this.montantReel = montantSansArrondi;
@@ -77,6 +82,14 @@ public class BalanceCaisseDTO {
 
     public BalanceCaisseDTO() {
 
+    }
+
+    public Integer getMontantRemiseUg() {
+        return montantRemiseUg;
+    }
+
+    public void setMontantRemiseUg(Integer montantRemiseUg) {
+        this.montantRemiseUg = montantRemiseUg;
     }
 
     public Long getMontantReel() {
@@ -91,16 +104,13 @@ public class BalanceCaisseDTO {
         if (isNull(montantDiscount)) {
             return 0;
         }
-        if (montantDiscount instanceof Double) {
-            return ((Double) montantDiscount).intValue();
-        } else if (montantDiscount instanceof Long) {
-            return ((Long) montantDiscount).intValue();
-        } else if (montantDiscount instanceof Integer) {
-            return (Integer) montantDiscount;
-        } else if (montantDiscount instanceof BigDecimal) {
-            return ((BigDecimal) montantDiscount).intValue();
-        }
-        return 0;
+        return switch (montantDiscount) {
+            case Double m -> m.intValue();
+            case Long ml -> ml.intValue();
+            case Integer mi -> mi;
+            case BigDecimal mb -> mb.intValue();
+            default -> 0;
+        };
     }
 
     public Long getAmountToBePaid() {
@@ -158,6 +168,7 @@ public class BalanceCaisseDTO {
     }
 
     public Long getMontantMarge() {
+        montantMarge = getMontantNet() - Objects.requireNonNullElse(montantAchat, 0L);
         return montantMarge;
     }
 
@@ -284,6 +295,7 @@ public class BalanceCaisseDTO {
     }
 
     public Long getMontantNet() {
+        montantNet = Objects.requireNonNullElse(montantTtc, 0L) - (Objects.requireNonNullElse(montantDiscount, 0) - Objects.requireNonNullElse(montantRemiseUg, 0));
         return montantNet;
     }
 
@@ -355,16 +367,21 @@ public class BalanceCaisseDTO {
         return this;
     }
 
-    public String getTypeSale() {
+    public TypeVenteDTO getTypeSale() {
         return typeSale;
     }
 
-    public BalanceCaisseDTO setTypeSale(String typeSale) {
+    public BalanceCaisseDTO setTypeSale(TypeVenteDTO typeSale) {
         this.typeSale = typeSale;
         return this;
     }
 
     public Long getPanierMoyen() {
+        if (count != 0) {
+            panierMoyen = getMontantTtc() / count;
+        } else {
+            panierMoyen = 0L;
+        }
         return panierMoyen;
     }
 
@@ -374,13 +391,10 @@ public class BalanceCaisseDTO {
     }
 
     public Long getMontantTaxe() {
+        montantTaxe = Objects.requireNonNullElse(montantTtc, 0L) - Objects.requireNonNullElse(montantHt, 0L);
         return montantTaxe;
     }
 
-    public BalanceCaisseDTO setMontantTaxe(Long montantTaxe) {
-        this.montantTaxe = montantTaxe;
-        return this;
-    }
 
     public Long getPartAssure() {
         return partAssure;
@@ -389,6 +403,22 @@ public class BalanceCaisseDTO {
     public BalanceCaisseDTO setPartAssure(Long partAssure) {
         this.partAssure = partAssure;
         return this;
+    }
+
+    public List<PaymentDTO> getPayments() {
+        return payments;
+    }
+
+    public void setPayments(List<PaymentDTO> payments) {
+        this.payments = payments;
+    }
+
+    public Integer getMontantRemiseProduit() {
+        return montantRemiseProduit;
+    }
+
+    public void setMontantRemiseProduit(Integer montantRemiseProduit) {
+        this.montantRemiseProduit = montantRemiseProduit;
     }
 
     public Long getPartTiersPayant() {

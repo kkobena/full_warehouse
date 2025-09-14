@@ -1,5 +1,7 @@
-package com.kobe.warehouse.service.impl;
+package com.kobe.warehouse.service.stock.impl;
 
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.kobe.warehouse.domain.Produit;
 import com.kobe.warehouse.domain.StockProduit;
 import com.kobe.warehouse.domain.Storage;
@@ -7,10 +9,12 @@ import com.kobe.warehouse.repository.CustomizedProductService;
 import com.kobe.warehouse.repository.MagasinRepository;
 import com.kobe.warehouse.repository.ProduitRepository;
 import com.kobe.warehouse.repository.RayonRepository;
-import com.kobe.warehouse.service.ProduitService;
+import com.kobe.warehouse.service.AppConfigurationService;
 import com.kobe.warehouse.service.dto.ProduitCriteria;
 import com.kobe.warehouse.service.dto.ProduitDTO;
 import com.kobe.warehouse.service.dto.builder.ProduitBuilder;
+import com.kobe.warehouse.service.stock.ProduitService;
+import com.kobe.warehouse.service.stock.dto.ProduitSearch;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.data.domain.Page;
@@ -24,6 +28,8 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
+import static java.util.Objects.isNull;
+
 /**
  * Service Implementation for managing {@link com.kobe.warehouse.domain.Produit}.
  */
@@ -31,22 +37,26 @@ import java.util.Optional;
 @Transactional
 public class ProduitServiceImpl implements ProduitService {
 
-    private final Logger log = LoggerFactory.getLogger(ProduitServiceImpl.class);
+    private static final Logger LOG = LoggerFactory.getLogger(ProduitServiceImpl.class);
     private final MagasinRepository magasinRepository;
     private final ProduitRepository produitRepository;
     private final CustomizedProductService customizedProductService;
     private final RayonRepository rayonRepository;
+    private final ObjectMapper objectMapper;
+    private final AppConfigurationService appConfigurationService;
 
     public ProduitServiceImpl(
         MagasinRepository magasinRepository,
         ProduitRepository produitRepository,
         CustomizedProductService customizedProductService,
-        RayonRepository rayonRepository
+        RayonRepository rayonRepository, ObjectMapper objectMapper, AppConfigurationService appConfigurationService
     ) {
         this.magasinRepository = magasinRepository;
         this.produitRepository = produitRepository;
         this.customizedProductService = customizedProductService;
         this.rayonRepository = rayonRepository;
+        this.objectMapper = objectMapper;
+        this.appConfigurationService = appConfigurationService;
     }
 
     /**
@@ -57,11 +67,11 @@ public class ProduitServiceImpl implements ProduitService {
      */
     @Override
     public void save(ProduitDTO produitDTO) {
-        log.debug("Request to save Produit : {}", produitDTO);
+        LOG.debug("Request to save Produit : {}", produitDTO);
         try {
             customizedProductService.save(produitDTO, rayonRepository.getReferenceById(produitDTO.getRayonId()));
         } catch (Exception e) {
-            log.error("Request to save Produit : {}", e);
+            LOG.error("Request to save Produit : {}", e);
         }
     }
 
@@ -74,7 +84,7 @@ public class ProduitServiceImpl implements ProduitService {
     @Override
     @Transactional(readOnly = true)
     public Page<ProduitDTO> findAll(Pageable pageable) {
-        log.debug("Request to get all Produits");
+        LOG.debug("Request to get all Produits");
         return produitRepository.findAll(pageable).map(ProduitBuilder::fromProduit);
     }
 
@@ -87,7 +97,7 @@ public class ProduitServiceImpl implements ProduitService {
     @Override
     @Transactional(readOnly = true)
     public Optional<ProduitDTO> findOne(Long id) {
-        log.debug("Request to get Produit : {}", id);
+        LOG.debug("Request to get Produit : {}", id);
         return customizedProductService.findOneById(id);
     }
 
@@ -98,7 +108,7 @@ public class ProduitServiceImpl implements ProduitService {
      */
     @Override
     public void delete(Long id) {
-        log.debug("Request to delete Produit : {}", id);
+        LOG.debug("Request to delete Produit : {}", id);
 
         produitRepository.deleteById(id);
     }
@@ -106,11 +116,11 @@ public class ProduitServiceImpl implements ProduitService {
     @Override
     @Transactional(readOnly = true)
     public Page<ProduitDTO> findAll(ProduitCriteria produitCriteria, Pageable pageable) {
-        log.debug("Request to get all Produits  ", produitCriteria);
+        LOG.debug("Request to get all Produits  ", produitCriteria);
         try {
             return customizedProductService.findAll(produitCriteria, pageable);
         } catch (Exception e) {
-            log.error("Request findAll  Produits : ", e);
+            LOG.error("Request findAll  Produits : ", e);
             return Page.empty();
         }
     }
@@ -118,7 +128,7 @@ public class ProduitServiceImpl implements ProduitService {
     @Override
     @Transactional(readOnly = true)
     public ProduitDTO findOne(ProduitCriteria produitCriteria) {
-        log.debug("Request to get Produit : {}", produitCriteria);
+        LOG.debug("Request to get Produit : {}", produitCriteria);
         Optional<ProduitDTO> produit = produitRepository.findById(produitCriteria.getId()).map(ProduitBuilder::fromProduit);
         ProduitDTO dto = null;
         if (produit.isPresent()) {
@@ -146,22 +156,22 @@ public class ProduitServiceImpl implements ProduitService {
     @Override
     @Transactional(readOnly = true)
     public List<ProduitDTO> findWithCriteria(ProduitCriteria produitCriteria) {
-        log.debug("Request to  findWithCriteria {} ", produitCriteria);
+        LOG.debug("Request to  findWithCriteria {} ", produitCriteria);
         try {
             return customizedProductService.findAll(produitCriteria);
         } catch (Exception e) {
-            log.error("Request findWithCriteria  Produits : {}", e);
+            LOG.error("Request findWithCriteria  Produits : {}", e);
             return Collections.emptyList();
         }
     }
 
     @Override
     public void update(ProduitDTO produitDTO) {
-        log.debug("Request to update Produit : {}", produitDTO);
+        LOG.debug("Request to update Produit : {}", produitDTO);
         try {
             customizedProductService.update(produitDTO);
         } catch (Exception e) {
-            log.error("Request to update Produit : {}", e);
+            LOG.error("Request to update Produit : {}", e);
         }
     }
 
@@ -174,11 +184,11 @@ public class ProduitServiceImpl implements ProduitService {
 
     @Override
     public void updateDetail(ProduitDTO produitDTO) {
-        log.debug("Request to updateDetail Produit : {}", produitDTO);
+        LOG.debug("Request to updateDetail Produit : {}", produitDTO);
         try {
             customizedProductService.updateDetail(produitDTO);
         } catch (Exception e) {
-            log.error("Request to update Produit : {}", e);
+            LOG.error("Request to update Produit : {}", e);
         }
     }
 
@@ -211,6 +221,23 @@ public class ProduitServiceImpl implements ProduitService {
     @Override
     public Produit findReferenceById(Long id) {
         return produitRepository.getReferenceById(id);
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public List<ProduitSearch> searchProducts(String search, Long magasinId, Pageable pageable) {
+        if (isNull(magasinId)) {
+            magasinId = appConfigurationService.getMagasin().getId();
+        }
+
+        String jsonResult = produitRepository.searchProduitsJson(search,magasinId.intValue(), pageable.getPageSize());
+        try {
+            return objectMapper.readValue(jsonResult, new TypeReference<>() {
+            });
+        } catch (Exception e) {
+            LOG.error(null, e);
+            return List.of();
+        }
     }
 
     private Storage getPointOfSale() {

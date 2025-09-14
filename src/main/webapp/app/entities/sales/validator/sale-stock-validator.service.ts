@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { IProduit } from '../../../shared/model/produit.model';
+import { IProduit, ProduitSearch } from '../../../shared/model/produit.model';
 
 @Injectable({ providedIn: 'root' })
 export class SaleStockValidator {
@@ -7,7 +7,7 @@ export class SaleStockValidator {
   }
 
   validate(
-    produit: IProduit,
+    produit: ProduitSearch,
     quantityRequested: number,
     totalQuantity: number,
     canForceStock: boolean,
@@ -22,7 +22,7 @@ export class SaleStockValidator {
         if (quantityRequested > quantityMax) {
           return { isValid: false, reason: 'forceStockAndQuantityExceedsMax' };
         }
-        if (produit.produitId) {
+        if (produit.parentId) {
           return { isValid: false, reason: 'deconditionnement' };
         }
         return { isValid: false, reason: 'forceStock' };

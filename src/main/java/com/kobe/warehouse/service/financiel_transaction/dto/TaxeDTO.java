@@ -57,6 +57,7 @@ public class TaxeDTO {
     }
 
     public Long getMontantTaxe() {
+        montantTaxe = Objects.requireNonNullElse(montantTtc, 0L) - Objects.requireNonNullElse(this.montantHt, 0L);
         return montantTaxe;
     }
 

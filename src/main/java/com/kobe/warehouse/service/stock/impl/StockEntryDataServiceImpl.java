@@ -1,4 +1,4 @@
-package com.kobe.warehouse.service.impl;
+package com.kobe.warehouse.service.stock.impl;
 
 import com.kobe.warehouse.domain.AppUser_;
 import com.kobe.warehouse.domain.Commande;
@@ -15,7 +15,6 @@ import com.kobe.warehouse.service.dto.DeliveryReceiptDTO;
 import com.kobe.warehouse.service.dto.filter.DeliveryReceiptFilterDTO;
 import com.kobe.warehouse.service.stock.DeliveryReceiptReportReportService;
 import com.kobe.warehouse.service.stock.StockEntryDataService;
-import com.kobe.warehouse.service.stock.impl.EtiquetteExportReportServiceImpl;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.TypedQuery;
 import jakarta.persistence.criteria.CriteriaBuilder;

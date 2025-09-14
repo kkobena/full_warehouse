@@ -2,7 +2,9 @@ package com.kobe.warehouse.service.dto.enumeration;
 
 public enum TypeVenteDTO {
     CashSale("VNO"),
-    ThirdPartySales("VO");
+    ThirdPartySales("VO"),
+    VenteDepot("VENTES_DEPOTS"),
+    VenteDepotAgree("DEPOT_AGREE");
 
     private final String value;
 

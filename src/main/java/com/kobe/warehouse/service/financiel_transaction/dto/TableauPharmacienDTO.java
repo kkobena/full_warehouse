@@ -14,6 +14,7 @@ public class TableauPharmacienDTO {
 
     private LocalDate mvtDate;
     private long montantComptant;
+    private int montantDiffere;
     private long montantTtc;
     private long montantCredit;
     private long montantRemise;
@@ -53,6 +54,14 @@ public class TableauPharmacienDTO {
     public TableauPharmacienDTO setAmountToBeTakenIntoAccount(long amountToBeTakenIntoAccount) {
         this.amountToBeTakenIntoAccount = amountToBeTakenIntoAccount;
         return this;
+    }
+
+    public int getMontantDiffere() {
+        return montantDiffere;
+    }
+
+    public void setMontantDiffere(int montantDiffere) {
+        this.montantDiffere = montantDiffere;
     }
 
     public float getRatioAchatVente() {

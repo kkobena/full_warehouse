@@ -9,6 +9,7 @@ import { IFournisseurProduit } from './fournisseur-produit.model';
 import { IRayonProduit } from './rayon-produit.model';
 import { ITableau } from './tableau.model';
 import { EtatProduit } from './etat-produit.model';
+import { StorageType } from './magasin.model';
 
 export interface IProduit {
   id?: number;
@@ -136,11 +137,53 @@ export class Produit implements IProduit {
     public rayonId?: number,
     public expirationDate?: string,
     public displayField?: string,
-    public rayonProduits?: IRayonProduit[],
-  ) {}
+    public rayonProduits?: IRayonProduit[]
+  ) {
+  }
 }
+
 export class Dci {
   id?: number;
   libelle?: string;
   code?: string;
+}
+
+export class ProduitFournisseurSearch {
+  id: number;
+  codeCip: string;
+  codeEan: string;
+  prixUni: number;
+  prixAchat: number;
+
+}
+
+export class ProduitRayonSearch {
+  code: string;
+  libelle: string;
+
+}
+
+export class ProduitStockSearch {
+  quantite: number;
+  qteUg: number;
+  storage: number;
+  storageType: StorageType;
+
+}
+
+export class ProduitSearch {
+  id: number;
+  itemQty: number;
+  deconditionnable: boolean;
+  parentId: number;
+  codeCipPrincipalId: number;
+  libelle: string;
+  codeEanLabo: string;
+  fournisseurs: ProduitFournisseurSearch[];
+  fournisseurProduit: ProduitFournisseurSearch;
+  rayons: ProduitRayonSearch[];
+  stocks: ProduitStockSearch[];
+  totalQuantity: number;
+  regularUnitPrice: number;
+
 }

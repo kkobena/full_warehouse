@@ -53,6 +53,9 @@ public interface PaymentTransactionRepository
     default Specification<PaymentTransaction> filterByPeriode(LocalDateTime fromDate, LocalDateTime toDate) {
         return (root, _, cb) -> cb.between(root.get(PaymentTransaction_.createdAt), fromDate, toDate);
     }
+    default Specification<PaymentTransaction> filterByPeriode(LocalDate fromDate, LocalDate toDate) {
+        return (root, _, cb) -> cb.between(root.get(PaymentTransaction_.transactionDate), fromDate, toDate);
+    }
 
     default Specification<PaymentTransaction> filterByTypeFinancialTransaction(
         EnumSet<TypeFinancialTransaction> typeFinancialTransactions

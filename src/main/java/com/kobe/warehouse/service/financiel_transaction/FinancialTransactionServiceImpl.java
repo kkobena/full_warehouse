@@ -25,6 +25,7 @@ import com.kobe.warehouse.service.financiel_transaction.dto.MvtCaisseProjection;
 import com.kobe.warehouse.service.financiel_transaction.dto.MvtCaisseSumProjection;
 import com.kobe.warehouse.service.financiel_transaction.dto.MvtCaisseWrapper;
 import com.kobe.warehouse.service.financiel_transaction.dto.SaleInfo;
+import com.kobe.warehouse.service.id_generator.TransactionIdGeneratorService;
 import com.kobe.warehouse.service.utils.DateUtil;
 import com.kobe.warehouse.service.utils.ServiceUtil;
 import jakarta.persistence.EntityManager;
@@ -59,17 +60,14 @@ import org.springframework.transaction.annotation.Transactional;
 @Transactional
 @Service
 public class FinancialTransactionServiceImpl implements FinancialTransactionService {
-
-    private static final Logger log = LoggerFactory.getLogger(FinancialTransactionServiceImpl.class);
-
     private final PaymentTransactionRepository paymentTransactionRepository;
     private final UserService userService;
     private final SalesRepository salesRepository;
-
     private final CashRegisterService cashRegisterService;
     private final EntityManager em;
     private final MvtCaisseReportReportService mvtCaisseReportService;
     private final DefaultTransactionRepository defaultTransactionRepository;
+    private final TransactionIdGeneratorService transactionIdGeneratorService;
 
     public FinancialTransactionServiceImpl(
         PaymentTransactionRepository paymentTransactionRepository,
@@ -78,7 +76,7 @@ public class FinancialTransactionServiceImpl implements FinancialTransactionServ
         CashRegisterService cashRegisterService,
         EntityManager em,
         MvtCaisseReportReportService mvtCaisseReportService,
-        DefaultTransactionRepository defaultTransactionRepository
+        DefaultTransactionRepository defaultTransactionRepository, TransactionIdGeneratorService transactionIdGeneratorService
     ) {
         this.paymentTransactionRepository = paymentTransactionRepository;
         this.userService = userService;
@@ -87,6 +85,7 @@ public class FinancialTransactionServiceImpl implements FinancialTransactionServ
         this.em = em;
         this.mvtCaisseReportService = mvtCaisseReportService;
         this.defaultTransactionRepository = defaultTransactionRepository;
+        this.transactionIdGeneratorService = transactionIdGeneratorService;
     }
 
     @Override
@@ -153,6 +152,8 @@ public class FinancialTransactionServiceImpl implements FinancialTransactionServ
     private DefaultPayment fromDTO(FinancialTransactionDTO financialTransaction) {
         var user = userService.getUser();
         DefaultPayment paymentTransaction = new DefaultPayment();
+        paymentTransaction.setId(transactionIdGeneratorService.nextId());
+
         paymentTransaction.setCreatedAt(LocalDateTime.now());
         CashRegister cashRegister = cashRegisterService.getLastOpiningUserCashRegisterByUser(user);
         if (Objects.isNull(cashRegister)) {
@@ -271,8 +272,7 @@ public class FinancialTransactionServiceImpl implements FinancialTransactionServ
         var from = Objects.requireNonNullElse(transactionFilter.fromDate(), LocalDate.now());
         var to = Objects.requireNonNullElse(transactionFilter.toDate(), LocalDate.now());
         Specification<PaymentTransaction> specification =
-            paymentTransactionRepository.filterByPeriode(from.atStartOfDay(), to.atTime(LocalTime.MAX))
-        ;
+            paymentTransactionRepository.filterByPeriode(from, to);
         if (transactionFilter.userId() != null) {
             specification = specification.and(paymentTransactionRepository.filterByUserId(transactionFilter.userId()));
         }

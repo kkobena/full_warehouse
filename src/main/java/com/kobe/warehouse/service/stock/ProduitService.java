@@ -1,9 +1,10 @@
-package com.kobe.warehouse.service;
+package com.kobe.warehouse.service.stock;
 
 import com.kobe.warehouse.domain.Produit;
 import com.kobe.warehouse.domain.StockProduit;
 import com.kobe.warehouse.service.dto.ProduitCriteria;
 import com.kobe.warehouse.service.dto.ProduitDTO;
+import com.kobe.warehouse.service.stock.dto.ProduitSearch;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
@@ -80,4 +81,6 @@ public interface ProduitService {
     void updatePeremption(Long produitId, LocalDate peremptionDate);
 
     Produit findReferenceById(Long id);
+
+    List<ProduitSearch> searchProducts(String search ,Long magasinId, Pageable pageable);
 }

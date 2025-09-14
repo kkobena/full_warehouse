@@ -59,7 +59,7 @@
 
     </div>
     <div class="pharma-smart-content pt-1 pb-3 col-lg-10 col-xl-10 col-xxl-10  col-md-10 col-sm-8 ">
-      <p-toolbar styleClass="mb-1">
+      <p-toolbar class="mb-1">
         <div [style]="{ width: '100%'}" class="row ">
           <div class="col-3 ">
             <p-floatlabel variant="on">
@@ -117,23 +117,23 @@
       </p-toolbar>
 
       @if (active === 'assurance' || active === 'carnet') {
-        <p-toolbar styleClass="mt-1">
+        <p-toolbar class="mt-1">
           <jhi-assurance-data></jhi-assurance-data>
         </p-toolbar>
       }
 
-      <p-toolbar styleClass="mt-2 mb-2">
+      <p-toolbar class="mt-2 mb-2">
         <div [style]="{ width: '100%'}" class="row mt-sm-1">
           <div class="col-md-6 sale-product-div d-flex justify-content-between">
             <div class="flex-grow-1 mr-1">
-              <jhi-produit-autocomplete #produitbox
-                                        (onKeyEnter)="onSaveKeyDown($event)"
-                                        (selectedProduit)="onSelectProduct($event)"
-                                        [(ngModel)]="produitSelected"
-                                        [autofocus]="true"
-                                        [includeDetails]="true"
-                                        [pageSize]="PRODUIT_COMBO_RESULT_SIZE">
-              </jhi-produit-autocomplete>
+              <jhi-produit-search-autocomplete #produitbox
+                                               (onKeyEnter)="onSaveKeyDown($event)"
+                                               (selectedProduit)="onSelectProduct($event)"
+                                               [(ngModel)]="produitSelected"
+                                               [autofocus]="true"
+                                               [includeDetails]="true"
+                                               [pageSize]="PRODUIT_COMBO_RESULT_SIZE"></jhi-produit-search-autocomplete>
+
             </div>
             <div>
               <jhi-quantite-produt-saisie #produitQteCmpt (addQuantite)="addQuantity($event)"
@@ -157,9 +157,9 @@
             </div>
           }
           <div class="col-md-3">
-            @for (rayon of produitSelected?.rayonProduits; track rayon.id) {
+            @for (rayon of produitSelected?.rayons; track rayon.code) {
               <p-button badgeSeverity="contrast" label="Rayons" outlined
-                        [badge]="rayon.libelleRayon"></p-button>
+                        [badge]="rayon.libelle"></p-button>
             }
           </div>
         </div>

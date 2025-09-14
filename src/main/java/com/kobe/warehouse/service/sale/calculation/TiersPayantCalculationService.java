@@ -10,6 +10,9 @@ import com.kobe.warehouse.service.sale.calculation.dto.SaleItemInput;
 import com.kobe.warehouse.service.sale.calculation.dto.TiersPayantInput;
 import com.kobe.warehouse.service.sale.calculation.dto.TiersPayantLineOutput;
 import com.kobe.warehouse.service.sale.calculation.dto.TiersPayantPrixInput;
+import org.springframework.stereotype.Service;
+import org.springframework.util.CollectionUtils;
+
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.util.ArrayList;
@@ -17,8 +20,6 @@ import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import org.springframework.stereotype.Service;
-import org.springframework.util.CollectionUtils;
 
 @Service
 public class TiersPayantCalculationService {
@@ -128,7 +129,10 @@ public class TiersPayantCalculationService {
         boolean hasOptionPrix = !saleItem.getPrixAssurances().isEmpty();
         BigDecimal calculationBaseUni = prixReference > 0 ? BigDecimal.valueOf(prixReference) : itemShare.getPharmacyPrice();
         BigDecimal calculationBase = calculationBaseUni.multiply(BigDecimal.valueOf(saleItem.getQuantity()));
-        itemShare.setCalculationBasePrice(calculationBaseUni.intValue());
+        if (prixReference != 0) {
+            itemShare.setCalculationBasePrice(calculationBaseUni.intValue());
+        }
+
         for (TiersPayantInput tiersPayantInput : tiersPayantInputs) {
             float rate = tiersPayantInput.getTaux();
             if (hasOptionPrix) {

@@ -502,7 +502,7 @@ public class TableauPharmacienServiceImpl implements TableauPharmacienService {
         Join<Fournisseur, GroupeFournisseur> groupeFournisseur = fournisseur.join(Fournisseur_.groupeFournisseur);
         cq.where(tableauPharmacienSpecification.buildAchatSpecification(mvtParam).toPredicate(root, cq, cb));
 
-        Expression<LocalDate> mvtDate = cb.function("DATE", LocalDate.class, root.get(Commande_.updatedAt));
+        Expression<LocalDate> mvtDate = root.get(Commande_.orderDate);
         if ("month".equals(mvtParam.getGroupeBy())) {
             mvtDate = cb.function("DATE_FORMAT", LocalDate.class, root.get(Commande_.updatedAt), cb.literal("%Y-%m"));
         }

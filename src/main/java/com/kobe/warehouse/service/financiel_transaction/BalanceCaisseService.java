@@ -8,7 +8,5 @@ import org.springframework.core.io.Resource;
 public interface BalanceCaisseService extends MvtCommonService {
 
     BalanceCaisseWrapper getBalanceCaisse(MvtParam mvtParam);
-
-
     Resource exportToPdf(MvtParam mvtParam) throws MalformedURLException;
 }

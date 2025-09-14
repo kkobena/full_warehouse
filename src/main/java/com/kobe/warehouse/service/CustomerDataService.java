@@ -76,7 +76,7 @@ public class CustomerDataService {
         if (!StringUtils.hasLength(categorie) || categorie.equalsIgnoreCase(EntityConstant.TOUT)) {
             return loadAll(search, status, pageable);
         }
-        if (categorie.equalsIgnoreCase(EntityConstant.ASSURE)) {
+        if (categorie.equalsIgnoreCase(EntityConstant.ASSURE) || EntityConstant.CARNET.equalsIgnoreCase(categorie)  ) {
             return loadAllAsuredCustomers(search, status, pageable);
         }
         return loadAllUninsuredCustomers(search, status, pageable);
@@ -129,11 +129,10 @@ public class CustomerDataService {
         predicatsAssuredCustomer(search, status, predicates, cb, assuredCustomerRoot);
         cq
             .select(root)
-            .distinct(true)
             .orderBy(
                 cb.asc(assuredCustomerRoot.get(AssuredCustomer_.firstName)),
                 cb.asc(assuredCustomerRoot.get(AssuredCustomer_.lastName))
-            );
+            ).groupBy(root);
         cq.where(cb.and(predicates.toArray(new Predicate[0])));
         TypedQuery<Customer> q = entityManager.createQuery(cq);
         if (pageable != null) {
@@ -268,11 +267,10 @@ public class CustomerDataService {
         predicatsAssuredCustomer(search, tiersPayantCategorie, predicates, cb, assuredCustomerRoot);
         cq
             .select(root)
-            .distinct(true)
             .orderBy(
                 cb.asc(assuredCustomerRoot.get(AssuredCustomer_.firstName)),
                 cb.asc(assuredCustomerRoot.get(AssuredCustomer_.lastName))
-            );
+            ).groupBy(root);
         cq.where(cb.and(predicates.toArray(new Predicate[0])));
         TypedQuery<Customer> q = entityManager.createQuery(cq);
         if (pageable != null) {

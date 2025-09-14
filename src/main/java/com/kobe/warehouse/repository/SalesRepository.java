@@ -14,13 +14,6 @@ import com.kobe.warehouse.service.dto.projection.ChiffreAffaire;
 import com.kobe.warehouse.service.financiel_transaction.dto.SaleInfo;
 import com.kobe.warehouse.service.reglement.differe.dto.ClientDiffere;
 import jakarta.persistence.criteria.CriteriaBuilder.In;
-import java.math.BigDecimal;
-import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.util.EnumSet;
-import java.util.List;
-import java.util.Optional;
-import java.util.Set;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
@@ -31,6 +24,14 @@ import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
+
+import java.math.BigDecimal;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.util.EnumSet;
+import java.util.List;
+import java.util.Optional;
+import java.util.Set;
 
 /**
  * Spring Data repository for the Sales entity.
@@ -44,7 +45,7 @@ public interface SalesRepository extends JpaSpecificationExecutor<Sales>, JpaRep
     List<Sales> findSalesByIdIn(Set<Long> ids);
 
     @Query(
-        value = "SELECT SUM(s.cost_amount) montantAchat, SUM(s.sales_amount) AS montantTtc,SUM(s.tax_amount) AS montantTva,SUM(s.ht_amount) AS montantHt,SUM(s.discount_amount) AS montantRemise,SUM(s.net_amount) AS montantNet,SUM(s.part_tiers_payant) AS MontantTp,SUM(s.rest_to_pay) AS montantDiffere FROM sales s  WHERE s.ca IN ('CA') AND s.statut IN('CANCELED', 'CLOSED','REMOVE') AND DATE(s.updated_at) BETWEEN :fromDate AND :toDate",
+        value = "SELECT SUM(s.cost_amount) montantAchat, SUM(s.sales_amount) AS montantTtc,SUM(s.tax_amount) AS montantTva,SUM(s.ht_amount) AS montantHt,SUM(s.discount_amount) AS montantRemise,SUM(s.net_amount) AS montantNet,SUM(s.part_tiers_payant) AS MontantTp,SUM(s.rest_to_pay) AS montantDiffere FROM sales s  WHERE s.ca IN ('CA') AND s.statut IN('CANCELED', 'CLOSED','REMOVE') AND s.sale_date BETWEEN :fromDate AND :toDate",
         nativeQuery = true
     )
     ChiffreAffaire getChiffreAffaire(@Param("fromDate") LocalDate fromDate, @Param("toDate") LocalDate toDate);
@@ -63,6 +64,75 @@ public interface SalesRepository extends JpaSpecificationExecutor<Sales>, JpaRep
         "SELECT SUM(o.restToPay)   FROM Sales o  JOIN o.customer c  WHERE o.differe AND o.statut='CLOSED' AND o.canceled =FALSE  AND c.id =:customerId"
     )
     BigDecimal getDiffereSoldeByCustomerId(Long customerId);
+
+    @Query(
+        value = "SELECT sales_summary_json(:startDate, :endDate, :statuts,:caterorieChiffreAffaire)",
+        nativeQuery = true
+    )
+    String fetchSalesSummary(
+        @Param("startDate") LocalDate startDate,
+        @Param("endDate") LocalDate endDate,
+        @Param("statuts") String[] statuts,
+        @Param("caterorieChiffreAffaire") String[] caterorieChiffreAffaire
+
+    );
+    @Query(
+        value = "SELECT sales_summary_by_type_json(:startDate, :endDate, :statuts,:caterorieChiffreAffaire)",
+        nativeQuery = true
+    )
+    String fetchSalesSummaryByTypeVente(
+        @Param("startDate") LocalDate startDate,
+        @Param("endDate") LocalDate endDate,
+        @Param("statuts") String[] statuts,
+        @Param("caterorieChiffreAffaire") String[] caterorieChiffreAffaire
+
+    );
+
+
+    @Query(
+        value = "SELECT sales_balance(:startDate, :endDate, :statuts,:caterorieChiffreAffaire,:excludeFreeQty,:toIgnore)",
+        nativeQuery = true
+    )
+    String fetchSalesBalance(
+        @Param("startDate") LocalDate startDate,
+        @Param("endDate") LocalDate endDate,
+        @Param("statuts") String[] statuts,
+        @Param("caterorieChiffreAffaire") String[] caterorieChiffreAffaire,
+        @Param("excludeFreeQty") boolean excludeFreeQty,
+        @Param("toIgnore") boolean toIgnore
+
+    );
+
+    @Query(
+        value = "SELECT sales_tva_report(:startDate, :endDate, :statuts,:caterorieChiffreAffaire,:excludeFreeQty,:toIgnore)",
+        nativeQuery = true
+    )
+    String fetchSalesTvaReport(
+        @Param("startDate") LocalDate startDate,
+        @Param("endDate") LocalDate endDate,
+        @Param("statuts") String[] statuts,
+        @Param("caterorieChiffreAffaire") String[] caterorieChiffreAffaire,
+        @Param("excludeFreeQty") boolean excludeFreeQty,
+        @Param("toIgnore") boolean toIgnore
+
+    );
+
+    @Query(
+        value = "SELECT sales_tva_report_journalier(:startDate, :endDate, :statuts,:caterorieChiffreAffaire,:excludeFreeQty,:toIgnore)",
+        nativeQuery = true
+    )
+    String fetchSalesTvaReportJournalier(
+        @Param("startDate") LocalDate startDate,
+        @Param("endDate") LocalDate endDate,
+        @Param("statuts") String[] statuts,
+        @Param("caterorieChiffreAffaire") String[] caterorieChiffreAffaire,
+        @Param("excludeFreeQty") boolean excludeFreeQty,
+        @Param("toIgnore") boolean toIgnore
+
+    );
+
+
+
 
     default Specification<Sales> filterByCustomerId(Long customerId) {
         if (customerId == null) {
@@ -101,7 +171,7 @@ public interface SalesRepository extends JpaSpecificationExecutor<Sales>, JpaRep
     }
 
     default Specification<Sales> between(LocalDate fromDate, LocalDate toDate) {
-        return (root, query, cb) -> cb.between(cb.function("date", LocalDate.class, root.get(Sales_.updatedAt)), fromDate, toDate);
+        return (root, query, cb) -> cb.between(root.get(Sales_.saleDate), fromDate, toDate);
     }
 
     default Specification<Sales> hasStatut(EnumSet<SalesStatut> statut) {

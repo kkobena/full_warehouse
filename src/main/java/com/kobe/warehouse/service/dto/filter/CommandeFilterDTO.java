@@ -3,6 +3,8 @@ package com.kobe.warehouse.service.dto.filter;
 import com.kobe.warehouse.domain.enumeration.OrderStatut;
 import com.kobe.warehouse.service.dto.FilterCommaneEnCours;
 import com.kobe.warehouse.service.dto.Sort;
+
+import java.time.LocalDate;
 import java.util.Set;
 
 public class CommandeFilterDTO {
@@ -14,6 +16,7 @@ public class CommandeFilterDTO {
     private FilterCommaneEnCours filterCommaneEnCours;
     private String typeSuggession;
     private Sort orderBy;
+    private LocalDate orderDate;
 
     public Sort getOrderBy() {
         return orderBy;
@@ -57,6 +60,15 @@ public class CommandeFilterDTO {
 
     public CommandeFilterDTO setOrderStatuts(Set<OrderStatut> orderStatuts) {
         this.orderStatuts = orderStatuts;
+        return this;
+    }
+
+    public LocalDate getOrderDate() {
+        return orderDate;
+    }
+
+    public CommandeFilterDTO setOrderDate(LocalDate orderDate) {
+        this.orderDate = orderDate;
         return this;
     }
 

@@ -53,13 +53,13 @@ public interface SaleService {
   Gestin d'ouverture de caisse
    */
 
-    void setCustomer(UpdateSaleInfo keyValue);
+    void setCustomer(UpdateSaleInfo updateSaleInfo);
 
     void removeCustomer(SaleId saleId);
 
     void authorizeAction(UtilisationCleSecuriteDTO utilisationCleSecuriteDTO) throws PrivilegeException;
 
-    void processDiscount(UpdateSaleInfo keyValue);
+    void processDiscount(UpdateSaleInfo updateSaleInfo);
 
     void removeRemiseFromCashSale(SaleId saleId);
 }

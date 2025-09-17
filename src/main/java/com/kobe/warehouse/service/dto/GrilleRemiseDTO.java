@@ -1,9 +1,8 @@
-package com.kobe.warehouse.service;
+package com.kobe.warehouse.service.dto;
 
 import com.kobe.warehouse.domain.GrilleRemise;
 import com.kobe.warehouse.domain.enumeration.CodeGrilleType;
 import com.kobe.warehouse.domain.enumeration.CodeRemise;
-import com.kobe.warehouse.service.dto.CodeRemiseDTO;
 
 public class GrilleRemiseDTO {
 

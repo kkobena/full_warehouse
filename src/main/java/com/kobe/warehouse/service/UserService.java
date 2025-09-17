@@ -1,6 +1,7 @@
 package com.kobe.warehouse.service;
 
 import com.kobe.warehouse.config.Constants;
+import com.kobe.warehouse.constant.EntityConstant;
 import com.kobe.warehouse.domain.AppUser;
 import com.kobe.warehouse.domain.Authority;
 import com.kobe.warehouse.domain.Magasin;
@@ -21,6 +22,7 @@ import java.util.stream.Collectors;
 import org.apache.commons.codec.digest.DigestUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.scheduling.annotation.Scheduled;
@@ -276,7 +278,7 @@ public class UserService {
     public List<String> getAuthorities() {
         return authorityRepository.findAll().stream().map(Authority::getName).collect(Collectors.toList());
     }
-
+    @Cacheable(value = EntityConstant.CURRENT_USER_CACHE, key = "T(com.kobe.warehouse.security.SecurityUtils).getCurrentUserLogin().orElse('anonymous')")
     public AppUser getUser() {
         return SecurityUtils.getCurrentUserLogin().flatMap(userRepository::findOneByLogin).orElse(null);
     }

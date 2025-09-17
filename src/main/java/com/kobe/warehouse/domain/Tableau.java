@@ -9,6 +9,9 @@ import jakarta.persistence.Index;
 import jakarta.persistence.Table;
 import jakarta.persistence.UniqueConstraint;
 import jakarta.validation.constraints.NotNull;
+import org.hibernate.annotations.Cache;
+import org.hibernate.annotations.CacheConcurrencyStrategy;
+
 import java.io.Serial;
 import java.io.Serializable;
 
@@ -18,6 +21,7 @@ import java.io.Serializable;
     uniqueConstraints = { @UniqueConstraint(columnNames = { "code" }) },
     indexes = { @Index(columnList = "code", name = "code_index") }
 )
+@Cache(usage = CacheConcurrencyStrategy.NONSTRICT_READ_WRITE)
 public class Tableau implements Serializable {
 
     @Serial

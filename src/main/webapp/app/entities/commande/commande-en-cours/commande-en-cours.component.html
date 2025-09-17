@@ -18,7 +18,7 @@
     [value]="commandes"
     dataKey="id"
     selectionMode="multiple"
-    styleClass="p-datatable-striped mt-2"
+    [stripedRows]="true"
   >
     <ng-template #header>
       <tr>
@@ -60,7 +60,7 @@
         <td class="text-right">
           <div class="btn-group">
             <p-button
-              [routerLink]="['/commande', commande.id, 'edit']"
+              [routerLink]="['/commande', commande.commandeId.id,commande.commandeId.orderDate, 'edit']"
               severity="success"
               icon="pi pi-pencil"
               [rounded]="true"

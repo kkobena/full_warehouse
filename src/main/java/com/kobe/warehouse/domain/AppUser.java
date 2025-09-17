@@ -99,13 +99,13 @@ public class AppUser extends AbstractAuditingEntity<Long> implements Serializabl
     private Magasin magasin;
 
     @JsonIgnore
-    @ManyToMany
+    @ManyToMany(fetch = jakarta.persistence.FetchType.EAGER)
     @JoinTable(
         name = "user_authority",
         joinColumns = { @JoinColumn(name = "user_id", referencedColumnName = "id") },
         inverseJoinColumns = { @JoinColumn(name = "authority_name", referencedColumnName = "name") }
     )
-    @Cache(usage = CacheConcurrencyStrategy.NONSTRICT_READ_WRITE)
+    @Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
     @BatchSize(size = 100)
     private Set<Authority> authorities = new HashSet<>();
 

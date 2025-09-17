@@ -34,6 +34,8 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+import org.hibernate.annotations.Cache;
+import org.hibernate.annotations.CacheConcurrencyStrategy;
 import org.hibernate.annotations.Generated;
 import org.hibernate.annotations.JoinFormula;
 import org.hibernate.boot.jaxb.mapping.GenerationTiming;
@@ -45,26 +47,7 @@ import org.hibernate.envers.RelationTargetAuditMode;
  * not an ignored comment
  */
 @Audited(targetAuditMode = RelationTargetAuditMode.NOT_AUDITED)
-@NamedStoredProcedureQuery(
-    name = "Produit.getTopAmount80PercentProducts",
-    procedureName = "gettopamount80percentproducts",
-    parameters = {
-        @StoredProcedureParameter(mode = ParameterMode.IN, name = "startDate", type = LocalDate.class),
-        @StoredProcedureParameter(mode = ParameterMode.IN, name = "endDate", type = LocalDate.class),
-        @StoredProcedureParameter(mode = ParameterMode.IN, name = "caList", type = String.class),
-        @StoredProcedureParameter(mode = ParameterMode.IN, name = "statutList", type = String.class),
-    }
-)
-@NamedStoredProcedureQuery(
-    name = "Produit.getTopQty80PercentProducts",
-    procedureName = "gettopqty80percentproducts",
-    parameters = {
-        @StoredProcedureParameter(mode = ParameterMode.IN, name = "startDate", type = LocalDate.class),
-        @StoredProcedureParameter(mode = ParameterMode.IN, name = "endDate", type = LocalDate.class),
-        @StoredProcedureParameter(mode = ParameterMode.IN, name = "caList", type = String.class),
-        @StoredProcedureParameter(mode = ParameterMode.IN, name = "statutList", type = String.class),
-    }
-)
+
 @Entity
 @Table(
     name = "produit",
@@ -75,7 +58,7 @@ import org.hibernate.envers.RelationTargetAuditMode;
         @Index(columnList = "status", name = "status_index"),
     }
 )
-
+@Cache(usage = CacheConcurrencyStrategy.NONSTRICT_READ_WRITE)
 public class Produit implements Serializable {
 
     @Serial
@@ -143,6 +126,7 @@ public class Produit implements Serializable {
 
     @NotAudited
     @OneToMany(mappedBy = "produit", fetch = FetchType.LAZY, cascade = {CascadeType.REMOVE})
+    @Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
     private List<OptionPrixProduit> optionPrixProduit = new ArrayList<>();
 
     @NotNull
@@ -209,6 +193,7 @@ public class Produit implements Serializable {
 
     @NotAudited
     @OneToMany(mappedBy = "produit", fetch = FetchType.LAZY, cascade = {CascadeType.PERSIST, CascadeType.MERGE, CascadeType.REMOVE})
+    @Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
     private Set<FournisseurProduit> fournisseurProduits = new HashSet<>();
 
     @NotAudited

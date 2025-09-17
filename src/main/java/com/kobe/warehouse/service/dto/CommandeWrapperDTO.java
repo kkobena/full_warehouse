@@ -1,6 +1,7 @@
 package com.kobe.warehouse.service.dto;
 
 import com.kobe.warehouse.domain.Commande;
+import com.kobe.warehouse.domain.CommandeId;
 import com.kobe.warehouse.domain.enumeration.OrderStatut;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -8,6 +9,7 @@ import java.time.LocalDateTime;
 public abstract class CommandeWrapperDTO {
 
     private Long id;
+    private CommandeId commandeId;
     private String orderReference;
     private String receiptReference;
     private LocalDate receiptDate;
@@ -30,6 +32,7 @@ public abstract class CommandeWrapperDTO {
 
     protected CommandeWrapperDTO(Commande commande) {
         id = commande.getId().getId();
+        commandeId = commande.getId();
         orderReference = commande.getOrderReference();
         receiptReference = commande.getReceiptReference();
         receiptDate = commande.getReceiptDate();
@@ -200,6 +203,14 @@ public abstract class CommandeWrapperDTO {
 
     public boolean isHasBeenSubmittedToPharmaML() {
         return hasBeenSubmittedToPharmaML;
+    }
+
+    public CommandeId getCommandeId() {
+        return commandeId;
+    }
+
+    public void setCommandeId(CommandeId commandeId) {
+        this.commandeId = commandeId;
     }
 
     public CommandeWrapperDTO setHasBeenSubmittedToPharmaML(boolean hasBeenSubmittedToPharmaML) {

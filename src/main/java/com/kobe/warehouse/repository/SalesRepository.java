@@ -10,7 +10,6 @@ import com.kobe.warehouse.domain.enumeration.CategorieChiffreAffaire;
 import com.kobe.warehouse.domain.enumeration.PaymentStatus;
 import com.kobe.warehouse.domain.enumeration.SalesStatut;
 import com.kobe.warehouse.domain.enumeration.TypeVente;
-import com.kobe.warehouse.service.dto.projection.ChiffreAffaire;
 import com.kobe.warehouse.service.financiel_transaction.dto.SaleInfo;
 import com.kobe.warehouse.service.reglement.differe.dto.ClientDiffere;
 import jakarta.persistence.criteria.CriteriaBuilder.In;
@@ -44,16 +43,11 @@ public interface SalesRepository extends JpaSpecificationExecutor<Sales>, JpaRep
 
     List<Sales> findSalesByIdIn(Set<Long> ids);
 
-    @Query(
-        value = "SELECT SUM(s.cost_amount) montantAchat, SUM(s.sales_amount) AS montantTtc,SUM(s.tax_amount) AS montantTva,SUM(s.ht_amount) AS montantHt,SUM(s.discount_amount) AS montantRemise,SUM(s.net_amount) AS montantNet,SUM(s.part_tiers_payant) AS MontantTp,SUM(s.rest_to_pay) AS montantDiffere FROM sales s  WHERE s.ca IN ('CA') AND s.statut IN('CANCELED', 'CLOSED','REMOVE') AND s.sale_date BETWEEN :fromDate AND :toDate",
-        nativeQuery = true
-    )
-    ChiffreAffaire getChiffreAffaire(@Param("fromDate") LocalDate fromDate, @Param("toDate") LocalDate toDate);
 
     @Query(
-        "SELECT o.numberTransaction AS reference,c.firstName AS customerFirstName,c.lastName AS customerLastName   FROM Sales o LEFT JOIN o.customer c  WHERE o.id =:id"
+        "SELECT o.numberTransaction AS reference,c.firstName AS customerFirstName,c.lastName AS customerLastName   FROM Sales o LEFT JOIN o.customer c  WHERE o.id =:id AND o.saleDate =:saleDate"
     )
-    SaleInfo findSaleInfoById(@Param("id") Long id);
+    SaleInfo findSaleInfoById(@Param("id") Long id, @Param("saleDate") LocalDate saleDate);
 
     @Query(
         "SELECT c.lastName AS lastName,c.firstName AS firsName,c.id AS id   FROM Sales o  JOIN o.customer c  WHERE o.differe AND o.statut='CLOSED' AND o.canceled =FALSE  GROUP BY c.id ORDER BY c.firstName,c.lastName"
@@ -77,6 +71,20 @@ public interface SalesRepository extends JpaSpecificationExecutor<Sales>, JpaRep
 
     );
     @Query(
+        value = "SELECT rapport_activite_vente_report(:startDate, :endDate, :statuts,:caterorieChiffreAffaire,:excludeFreeQty,:toIgnore)",
+        nativeQuery = true
+    )
+    String getChiffreAffaire(
+        @Param("startDate") LocalDate startDate,
+        @Param("endDate") LocalDate endDate,
+        @Param("statuts") String[] statuts,
+        @Param("caterorieChiffreAffaire") String[] caterorieChiffreAffaire,
+        @Param("excludeFreeQty") boolean excludeFreeQty,
+        @Param("toIgnore") boolean toIgnore
+    );
+
+
+    @Query(
         value = "SELECT sales_summary_by_type_json(:startDate, :endDate, :statuts,:caterorieChiffreAffaire)",
         nativeQuery = true
     )
@@ -85,9 +93,7 @@ public interface SalesRepository extends JpaSpecificationExecutor<Sales>, JpaRep
         @Param("endDate") LocalDate endDate,
         @Param("statuts") String[] statuts,
         @Param("caterorieChiffreAffaire") String[] caterorieChiffreAffaire
-
     );
-
 
     @Query(
         value = "SELECT sales_balance(:startDate, :endDate, :statuts,:caterorieChiffreAffaire,:excludeFreeQty,:toIgnore)",
@@ -100,7 +106,6 @@ public interface SalesRepository extends JpaSpecificationExecutor<Sales>, JpaRep
         @Param("caterorieChiffreAffaire") String[] caterorieChiffreAffaire,
         @Param("excludeFreeQty") boolean excludeFreeQty,
         @Param("toIgnore") boolean toIgnore
-
     );
 
     @Query(
@@ -114,7 +119,6 @@ public interface SalesRepository extends JpaSpecificationExecutor<Sales>, JpaRep
         @Param("caterorieChiffreAffaire") String[] caterorieChiffreAffaire,
         @Param("excludeFreeQty") boolean excludeFreeQty,
         @Param("toIgnore") boolean toIgnore
-
     );
 
     @Query(
@@ -128,11 +132,32 @@ public interface SalesRepository extends JpaSpecificationExecutor<Sales>, JpaRep
         @Param("caterorieChiffreAffaire") String[] caterorieChiffreAffaire,
         @Param("excludeFreeQty") boolean excludeFreeQty,
         @Param("toIgnore") boolean toIgnore
-
+    );
+    @Query(
+        value = "SELECT tableau_pharmacien_report(:startDate, :endDate, :statuts,:caterorieChiffreAffaire,:excludeFreeQty,:toIgnore)",
+        nativeQuery = true
+    )
+    String fetchTableauPharmacienReport(
+        @Param("startDate") LocalDate startDate,
+        @Param("endDate") LocalDate endDate,
+        @Param("statuts") String[] statuts,
+        @Param("caterorieChiffreAffaire") String[] caterorieChiffreAffaire,
+        @Param("excludeFreeQty") boolean excludeFreeQty,
+        @Param("toIgnore") boolean toIgnore
     );
 
-
-
+    @Query(
+        value = "SELECT tableau_pharmacien_month_report(:startDate, :endDate, :statuts,:caterorieChiffreAffaire,:excludeFreeQty,:toIgnore)",
+        nativeQuery = true
+    )
+    String fetchTableauPharmacienReportMensuel(
+        @Param("startDate") LocalDate startDate,
+        @Param("endDate") LocalDate endDate,
+        @Param("statuts") String[] statuts,
+        @Param("caterorieChiffreAffaire") String[] caterorieChiffreAffaire,
+        @Param("excludeFreeQty") boolean excludeFreeQty,
+        @Param("toIgnore") boolean toIgnore
+    );
 
     default Specification<Sales> filterByCustomerId(Long customerId) {
         if (customerId == null) {

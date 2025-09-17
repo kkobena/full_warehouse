@@ -2,12 +2,13 @@ package com.kobe.warehouse.service.impl;
 
 
 import com.kobe.warehouse.domain.Commande;
+import com.kobe.warehouse.domain.CommandeId;
 import com.kobe.warehouse.domain.FournisseurProduit;
 import com.kobe.warehouse.domain.OrderLine;
+import com.kobe.warehouse.domain.OrderLineId;
 import com.kobe.warehouse.domain.Produit;
 import com.kobe.warehouse.domain.StockProduit;
 import com.kobe.warehouse.domain.SuggestionLine;
-import com.kobe.warehouse.domain.enumeration.OrderStatut;
 import com.kobe.warehouse.repository.CustomizedProductService;
 import com.kobe.warehouse.repository.OrderLineRepository;
 import com.kobe.warehouse.repository.ProduitRepository;
@@ -18,7 +19,6 @@ import com.kobe.warehouse.service.dto.OrderLineDTO;
 import com.kobe.warehouse.service.errors.GenericError;
 import com.kobe.warehouse.service.id_generator.OrderLineIdGeneratorService;
 import org.apache.commons.lang3.ObjectUtils;
-import org.springframework.data.domain.PageRequest;
 import org.springframework.data.util.Pair;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -97,7 +97,7 @@ public class OrderLineServiceImpl implements OrderLineService {
 
     @Override
     public Pair<OrderLine, OrderLine> updateOrderLineQuantityRequested(OrderLineDTO orderLineDTO) {
-        OrderLine orderLine = orderLineRepository.getReferenceById(orderLineDTO.getId());
+        OrderLine orderLine = orderLineRepository.getReferenceById(orderLineDTO.getOrderLineId());
         OrderLine oldOrderLine = (OrderLine) orderLine.clone();
         orderLine.setQuantityRequested(orderLineDTO.getQuantityRequested());
         orderLine.setUpdatedAt(LocalDateTime.now());
@@ -119,7 +119,7 @@ public class OrderLineServiceImpl implements OrderLineService {
     }
 
     @Override
-    public void updateOrderLineQuantityUG(Long id, int quantityUg) {
+    public void updateOrderLineQuantityUG(OrderLineId id, int quantityUg) {
         OrderLine orderLine = orderLineRepository.getReferenceById(id);
         orderLine.setFreeQty(quantityUg);
         orderLine.setUpdatedAt(LocalDateTime.now());
@@ -143,7 +143,7 @@ public class OrderLineServiceImpl implements OrderLineService {
 
     @Override
     public Pair<OrderLine, OrderLine> updateOrderLineUnitPrice(OrderLineDTO orderLineDTO) {
-        OrderLine orderLine = orderLineRepository.getReferenceById(orderLineDTO.getId());
+        OrderLine orderLine = orderLineRepository.getReferenceById(orderLineDTO.getOrderLineId());
         OrderLine oldOrderLine = (OrderLine) orderLine.clone();
         orderLine.setOrderUnitPrice(orderLineDTO.getOrderUnitPrice());
         orderLine.setUpdatedAt(LocalDateTime.now());
@@ -153,7 +153,7 @@ public class OrderLineServiceImpl implements OrderLineService {
 
     @Override
     public Pair<OrderLine, OrderLine> updateOrderLineCostAmount(OrderLineDTO orderLineDTO) {
-        OrderLine orderLine = orderLineRepository.getReferenceById(orderLineDTO.getId());
+        OrderLine orderLine = orderLineRepository.getReferenceById(orderLineDTO.getOrderLineId());
         OrderLine oldOrderLine = (OrderLine) orderLine.clone();
         orderLine.setOrderCostAmount(orderLineDTO.getOrderCostAmount());
         orderLine.setUpdatedAt(LocalDateTime.now());
@@ -166,18 +166,6 @@ public class OrderLineServiceImpl implements OrderLineService {
         orderLineRepository.delete(orderLine);
     }
 
-    @Override
-    public void removeProductState(List<Produit> produits, OrderStatut orderStatut) {
-    }
-
-    @Override
-    public void rollbackProductState(List<Produit> produits) {
-    }
-
-    @Override
-    public int countByCommandeOrderStatusAndFournisseurProduitProduitId(OrderStatut orderStatut, Long produitId) {
-        return this.orderLineRepository.countByCommandeOrderStatusAndFournisseurProduitProduitId(orderStatut, produitId);
-    }
 
     private FournisseurProduit createNewFournisseurProduit(OrderLineDTO orderLineDTO, Produit produit) throws GenericError {
         FournisseurProduit fournisseurProduit = produit.getFournisseurProduitPrincipal();
@@ -203,7 +191,7 @@ public class OrderLineServiceImpl implements OrderLineService {
     }
 
     @Override
-    public Optional<OrderLine> findOneById(Long id) {
+    public Optional<OrderLine> findOneById(OrderLineId id) {
         if (id == null) {
             return Optional.empty();
         }
@@ -216,7 +204,7 @@ public class OrderLineServiceImpl implements OrderLineService {
     }
 
     @Override
-    public Optional<OrderLine> findOneFromCommande(Long produitId, Long commandeId, Long fournisseurId) {
+    public Optional<OrderLine> findOneFromCommande(Long produitId, CommandeId commandeId, Long fournisseurId) {
         Optional<FournisseurProduit> fournisseurProduitOptional = fournisseurProduitService.findFirstByProduitIdAndFournisseurId(
             produitId,
             fournisseurId
@@ -224,12 +212,12 @@ public class OrderLineServiceImpl implements OrderLineService {
         if (fournisseurProduitOptional.isEmpty()) {
             return Optional.empty();
         }
-        return orderLineRepository.findFirstByFournisseurProduitIdAndCommandeId(fournisseurProduitOptional.get().getId(), commandeId);
+        return orderLineRepository.findFirstByFournisseurProduitIdAndCommandeIdAndCommandeOrderDate(fournisseurProduitOptional.get().getId(), commandeId.getId(), commandeId.getOrderDate());
     }
 
     @Override
     public void updateCodeCip(OrderLineDTO orderLineDTO) {
-        OrderLine orderLine = findOneById(orderLineDTO.getId()).get();
+        OrderLine orderLine = findOneById(orderLineDTO.getOrderLineId()).get();
         fournisseurProduitService.updateCip(orderLineDTO.getProduitCip(), orderLine.getFournisseurProduit());
         orderLine.setProvisionalCode(Boolean.FALSE);
         orderLine.setUpdatedAt(LocalDateTime.now());
@@ -246,20 +234,12 @@ public class OrderLineServiceImpl implements OrderLineService {
         return customizedProductService.getFournisseurProduitByCriteria(criteria, fournisseurId);
     }
 
-    @Override
-    public int produitTotalStock(FournisseurProduit fournisseurProduit) {
-        return customizedProductService.produitTotalStock(fournisseurProduit.getProduit());
-    }
 
     @Override
     public int produitTotalStockWithQantitUg(Produit produit) {
         return customizedProductService.produitTotalStock(produit);
     }
 
-    @Override
-    public List<FournisseurProduit> getFournisseurProduitsByFournisseur(Long founisseurId) {
-        return fournisseurProduitService.getFournisseurProduitsByFournisseur(founisseurId, PageRequest.of(0, 1000));
-    }
 
     private OrderLine buildOrderLine(Commande commande, OrderLineDTO orderLineDTO) {
         OrderLine orderLine = new OrderLine();

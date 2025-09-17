@@ -97,7 +97,7 @@ export class ListBonsComponent implements OnInit {
 
   exportPdf(delivery: IDelivery): void {
     this.spinner().show();
-    this.entityService.exportToPdf(delivery.id).subscribe({
+    this.entityService.exportToPdf(delivery.commandeId).subscribe({
       next: blod => {
         this.spinner().hide();
         const blobUrl = URL.createObjectURL(blod);

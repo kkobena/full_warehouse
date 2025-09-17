@@ -1,14 +1,28 @@
 package com.kobe.warehouse.service.dto.projection;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.kobe.warehouse.domain.enumeration.ModePaimentCode;
+
 import java.math.BigDecimal;
 
-public interface Recette {
-    BigDecimal getMontantPaye();
+public record Recette(String code, String libelle, BigDecimal paidAmount, BigDecimal realAmount) {
+    @JsonProperty("montantPaye")
+    public BigDecimal getMontantPaye() {
+        return paidAmount;
+    }
 
-    BigDecimal getMontantReel();
+    @JsonProperty("montantReel")
+    public BigDecimal getMontantReel() {
+        return realAmount;
+    }
 
-    ModePaimentCode getModePaimentCode();
+    @JsonProperty("modePaimentCode")
+    public ModePaimentCode getModePaimentCode() {
+        return ModePaimentCode.fromName(code);
+    }
 
-    String getModePaimentLibelle();
+    @JsonProperty("modePaimentLibelle")
+    public String getModePaimentLibelle() {
+        return libelle;
+    }
 }

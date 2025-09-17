@@ -30,9 +30,7 @@ import static java.util.Objects.nonNull;
 @Service
 @Transactional(readOnly = true)
 public class SaleStatServiceImpl implements SaleStatService {
-
     private final Logger LOG = LoggerFactory.getLogger(SaleStatServiceImpl.class);
-
     private final SalesRepository salesRepository;
     private final SalePaymentRepository salePaymentRepository;
     private final ObjectMapper objectMapper;

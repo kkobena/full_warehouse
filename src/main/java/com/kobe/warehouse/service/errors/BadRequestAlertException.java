@@ -1,13 +1,8 @@
 package com.kobe.warehouse.service.errors;
 
-import com.kobe.warehouse.web.rest.errors.ProblemDetailWithCause;
-import com.kobe.warehouse.web.rest.errors.ProblemDetailWithCause.ProblemDetailWithCauseBuilder;
 import java.io.Serial;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.HttpStatusCode;
-import org.springframework.web.ErrorResponseException;
 
-public class BadRequestAlertException extends ErrorResponseException {
+public class BadRequestAlertException extends RuntimeException {
 
     @Serial
     private static final long serialVersionUID = 1L;
@@ -15,101 +10,49 @@ public class BadRequestAlertException extends ErrorResponseException {
     private final String entityName;
 
     private final String errorKey;
+    private final Object payload;
 
     public BadRequestAlertException(String defaultMessage, String entityName, String errorKey) {
-        super(
-            HttpStatus.BAD_REQUEST,
-            ProblemDetailWithCauseBuilder.instance()
-                .withStatus(HttpStatus.BAD_REQUEST.value())
-                .withProperty("message", defaultMessage)
-                .withProperty("errorKey", errorKey)
-                .build(),
-            null
+        super(defaultMessage
         );
         this.errorKey = errorKey;
         this.entityName = entityName;
+        this.payload = null;
     }
 
-    public BadRequestAlertException(HttpStatusCode status, String defaultMessage, String errorKey) {
-        super(
-            status,
-            ProblemDetailWithCauseBuilder.instance()
-                .withStatus(status.value())
-                .withProperty("message", defaultMessage)
-                .withProperty("errorKey", errorKey)
-                .build(),
-            null
-        );
-        this.errorKey = errorKey;
-        this.entityName = null;
-    }
 
-    public BadRequestAlertException(HttpStatusCode status, String defaultMessage) {
-        super(
-            status,
-            ProblemDetailWithCauseBuilder.instance().withStatus(status.value()).withProperty("message", defaultMessage).build(),
-            null
+    public BadRequestAlertException(String defaultMessage) {
+        super(defaultMessage
         );
         this.errorKey = null;
         this.entityName = null;
+        this.payload = null;
     }
 
-    public BadRequestAlertException(HttpStatusCode status, String defaultMessage, Object payload) {
-        super(
-            status,
-            ProblemDetailWithCauseBuilder.instance()
-                .withStatus(status.value())
-                .withProperty("message", defaultMessage)
-                .withProperty("payload", payload)
-                .build(),
-            null
+    public BadRequestAlertException(String defaultMessage, Object payload) {
+        super(defaultMessage
         );
         this.errorKey = null;
         this.entityName = null;
+        this.payload = payload;
     }
 
     public BadRequestAlertException(String defaultMessage, String errorKey) {
-        super(
-            HttpStatus.BAD_REQUEST,
-            ProblemDetailWithCauseBuilder.instance()
-                .withStatus(HttpStatus.BAD_REQUEST.value())
-                .withTitle(defaultMessage)
-                .withProperty("message", defaultMessage)
-                .withProperty("errorKey", errorKey)
-                .build(),
-            null
+        super(defaultMessage
         );
         this.entityName = null;
         this.errorKey = errorKey;
+        this.payload = null;
     }
 
-    public BadRequestAlertException(String defaultMessage) {
-        super(
-            HttpStatus.BAD_REQUEST,
-            ProblemDetailWithCauseBuilder.instance()
-                .withStatus(HttpStatus.BAD_REQUEST.value())
-                .withTitle(defaultMessage)
-                .withProperty("message", defaultMessage)
-                .build(),
-            null
-        );
-        this.entityName = null;
-        this.errorKey = null;
-    }
 
-    public BadRequestAlertException(HttpStatusCode status, String defaultMessage, String errorKey, Object payload) {
-        super(
-            status,
-            ProblemDetailWithCauseBuilder.instance()
-                .withStatus(status.value())
-                .withProperty("message", defaultMessage)
-                .withProperty("payload", payload)
-                .withProperty("errorKey", errorKey)
-                .build(),
-            null
+    public BadRequestAlertException(String defaultMessage, String errorKey, Object payload) {
+        super(defaultMessage
+
         );
-        this.errorKey = null;
+        this.errorKey = errorKey;
         this.entityName = null;
+        this.payload = payload;
     }
 
     public String getEntityName() {
@@ -120,7 +63,7 @@ public class BadRequestAlertException extends ErrorResponseException {
         return errorKey;
     }
 
-    public ProblemDetailWithCause getProblemDetailWithCause() {
-        return (ProblemDetailWithCause) this.getBody();
+    public Object getPayload() {
+        return payload;
     }
 }

@@ -23,6 +23,7 @@ import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
+import org.springframework.util.StringUtils;
 
 import java.time.LocalDate;
 import java.util.List;
@@ -146,15 +147,19 @@ public interface ThirdPartySaleLineRepository
         };
     }
 
-    @Query(
-        value = "SELECT o.clientTiersPayant.tiersPayant.fullName AS libelle,o.clientTiersPayant.tiersPayant.categorie AS categorie,COUNT(o) AS bonsCount,SUM(o.montant) AS montant,COUNT( DISTINCT o.clientTiersPayant.id)  AS clientCount FROM ThirdPartySaleLine o WHERE o.sale.saleDate  BETWEEN :fromDate AND :toDate AND o.sale.statut=:statut AND (o.clientTiersPayant.tiersPayant.name like %:search% or o.clientTiersPayant.tiersPayant.fullName like %:search% ) GROUP BY o.clientTiersPayant.tiersPayant.id",
-        countQuery = "SELECT COUNT(DISTINCT o.clientTiersPayant.id) FROM ThirdPartySaleLine o WHERE o.sale.saleDate  BETWEEN :fromDate AND :toDate AND o.sale.statut=:statut AND (o.clientTiersPayant.tiersPayant.name like %:search% or o.clientTiersPayant.tiersPayant.fullName like %:search% )"
-    )
-    Page<AchatTiersPayant> fetchAchatTiersPayant(
-        @Param("fromDate") LocalDate fromDate,
-        @Param("toDate") LocalDate toDate,
-        @Param("search") String search,
-        @Param("statut") SalesStatut Statut,
-        Pageable pageable
-    );
+    default Specification<ThirdPartySaleLine> filterBySearchTerm(String searchTerm) {
+        if (StringUtils.hasLength(searchTerm)) {
+            return (root, _, cb) -> {
+                String likePattern = "%" + searchTerm.toLowerCase() + "%";
+                return cb.or(
+                    cb.like(cb.lower(root.get(ThirdPartySaleLine_.clientTiersPayant).get(ClientTiersPayant_.tiersPayant).get(TiersPayant_.name)), likePattern),
+                    cb.like(cb.lower(root.get(ThirdPartySaleLine_.clientTiersPayant).get(ClientTiersPayant_.tiersPayant).get(TiersPayant_.fullName)), likePattern)
+                );
+            };
+        }
+        return (root, _, cb) -> cb.conjunction();
+
+    }
+
+
 }

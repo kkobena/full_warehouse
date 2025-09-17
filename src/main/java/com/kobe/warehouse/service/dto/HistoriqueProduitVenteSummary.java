@@ -1,15 +1,16 @@
 package com.kobe.warehouse.service.dto;
 
-public interface HistoriqueProduitVenteSummary {
-    int getQuantite();
+import com.fasterxml.jackson.annotation.JsonProperty;
 
-    int getMontantNet();
+public record HistoriqueProduitVenteSummary(int montantHt, int quantite,
+                                            int montantAchat, int montantTtc, int montantRemise) {
+    @JsonProperty("montantTva")
+    public int montantTva() {
+        return montantTtc - montantHt;
+    }
 
-    int getMontantRemise();
-
-    int getMontantTtc();
-
-    int getMontantTva();
-
-    int getMontantHt();
+    @JsonProperty("montantNet")
+    public int montantNet() {
+        return montantTtc - montantRemise;
+    }
 }

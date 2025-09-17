@@ -19,14 +19,14 @@ public class LoggingConfiguration {
         @Value("${spring.application.name}") String appName,
         @Value("${server.port}") String serverPort,
         LogProperties logProperties,
-        ObjectMapper mapper
+        ObjectMapper objectMapper
     ) throws JsonProcessingException {
         LoggerContext context = (LoggerContext) LoggerFactory.getILoggerFactory();
 
         Map<String, String> map = new HashMap<>();
         map.put("app_name", appName);
         map.put("app_port", serverPort);
-        String customFields = mapper.writeValueAsString(map);
+        String customFields = objectMapper.writeValueAsString(map);
 
         LogProperties.Logging loggingProperties = logProperties.getLogging();
         LogProperties.Logging.Logstash logstashProperties = loggingProperties.getLogstash();

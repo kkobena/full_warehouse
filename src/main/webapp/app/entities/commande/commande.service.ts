@@ -9,6 +9,8 @@ import { ICommande } from 'app/shared/model/commande.model';
 import { IOrderLine } from '../../shared/model/order-line.model';
 import { IResponseCommande } from '../../shared/model/response-commande.model';
 import { ICommandeResponse } from '../../shared/model/commande-response.model';
+import { CommandeId } from '../../shared/model/abstract-commande.model';
+import { OrderLineId } from '../../shared/model/abstract-order-item.model';
 
 type EntityResponseType = HttpResponse<ICommande>;
 type EntityArrayResponseType = HttpResponse<ICommande[]>;
@@ -32,23 +34,17 @@ export class CommandeService {
       .pipe(map((res: EntityResponseType) => this.convertDateFromServer(res)));
   }
 
-  find(id: number): Observable<EntityResponseType> {
+  find(commandeId: CommandeId): Observable<EntityResponseType> {
     return this.http
-      .get<ICommande>(`${this.resourceUrl}/${id}`, { observe: 'response' })
+      .get<ICommande>(`${this.resourceUrl}/${commandeId.id}/${commandeId.orderDate}`, { observe: 'response' })
       .pipe(map((res: EntityResponseType) => this.convertDateFromServer(res)));
   }
 
-  delete(id: number): Observable<HttpResponse<{}>> {
-    return this.http.delete(`${this.resourceUrl}/${id}`, { observe: 'response' });
+  delete(commandeId: CommandeId): Observable<HttpResponse<{}>> {
+    return this.http.delete(`${this.resourceUrl}/${commandeId.id}/${commandeId.orderDate}`, { observe: 'response' });
   }
 
-  rollback(id: number): Observable<HttpResponse<{}>> {
-    return this.http.delete(`${this.resourceUrl}/rollback/${id}`, { observe: 'response' });
-  }
 
-  rollbackCommandes(ids: number[]): Observable<HttpResponse<{}>> {
-    return this.http.put(`${this.resourceUrl}/rollback`, ids, { observe: 'response' });
-  }
 
   createOrUpdateOrderLine(orderLine: IOrderLine): Observable<EntityResponseType> {
     return this.http
@@ -74,28 +70,25 @@ export class CommandeService {
       .pipe(map((res: EntityResponseType) => this.convertDateFromServer(res)));
   }
 
-  deleteOrderLineById(id: number): Observable<HttpResponse<{}>> {
-    return this.http.delete(`${this.resourceUrl}/order-line/${id}`, { observe: 'response' });
+  deleteOrderLineById(orderLineId: OrderLineId): Observable<HttpResponse<{}>> {
+    return this.http.delete(`${this.resourceUrl}/order-line/${orderLineId.id}/${orderLineId.orderDate}`, { observe: 'response' });
   }
 
-  deleteOrderLinesByIds(commandeId: number, ids: number[]): Observable<HttpResponse<{}>> {
-    return this.http.put(`${this.resourceUrl}/delete/order-lines/${commandeId}`, ids, { observe: 'response' });
+  deleteOrderLinesByIds(commandeId: CommandeId, ids: OrderLineId[]): Observable<HttpResponse<{}>> {
+    return this.http.put(`${this.resourceUrl}/delete/order-lines/${commandeId.id}/${commandeId.orderDate}`, ids, { observe: 'response' });
   }
 
   updateCip(orderLine: IOrderLine): Observable<HttpResponse<{}>> {
     return this.http.put<IOrderLine>(this.resourceUrl + '/update-provisional-cip', orderLine, { observe: 'response' });
   }
 
-  closeCommandeEnCours(commandeId: number): Observable<HttpResponse<{}>> {
-    return this.http.get(`${this.resourceUrl}/close-commande-en-cours/${commandeId}`, { observe: 'response' });
+
+  exportToCsv(commandeId: CommandeId): Observable<Blob> {
+    return this.http.get(`${this.resourceUrl}/csv/${commandeId.id}/${commandeId.orderDate}`, { responseType: 'blob' });
   }
 
-  exportToCsv(commandeId: number): Observable<Blob> {
-    return this.http.get(`${this.resourceUrl}/csv/${commandeId}`, { responseType: 'blob' });
-  }
-
-  exportToPdf(commandeId: number): Observable<Blob> {
-    return this.http.get(`${this.resourceUrl}/pdf/${commandeId}`, { responseType: 'blob' });
+  exportToPdf(commandeId: CommandeId): Observable<Blob> {
+    return this.http.get(`${this.resourceUrl}/pdf/${commandeId.id}/${commandeId.orderDate}`, { responseType: 'blob' });
   }
 
   filterCommandeLines(req?: any): Observable<HttpResponse<IOrderLine[]>> {
@@ -106,8 +99,8 @@ export class CommandeService {
     });
   }
 
-  fetchOrderLinesByCommandeId(commandeId: number): Observable<HttpResponse<IOrderLine[]>> {
-    return this.http.get<IOrderLine[]>(`${this.resourceUrl}/pageable-order-lines/${commandeId}`, {
+  fetchOrderLinesByCommandeId(commandeId: CommandeId): Observable<HttpResponse<IOrderLine[]>> {
+    return this.http.get<IOrderLine[]>(`${this.resourceUrl}/pageable-order-lines/${commandeId.id}/${commandeId.orderDate}`, {
       params: { size: '99999', sort: 'fournisseurProduit_produit_libelle' },
       observe: 'response'
     });
@@ -123,16 +116,16 @@ export class CommandeService {
       .pipe(map((res: EntityArrayResponseType) => this.convertDateArrayFromServer(res)));
   }
 
-  fusionner(ids: number[]): Observable<HttpResponse<{}>> {
+  fusionner(ids: CommandeId[]): Observable<HttpResponse<{}>> {
     return this.http.put(`${this.resourceUrl}/fusionner`, ids, { observe: 'response' });
   }
 
-  deleteSelectedCommandes(ids: number[]): Observable<HttpResponse<{}>> {
+  deleteSelectedCommandes(ids: CommandeId[]): Observable<HttpResponse<{}>> {
     return this.http.put(`${this.resourceUrl}/delete-commandes`, ids, { observe: 'response' });
   }
 
-  importerReponseCommande(commandeId: number, file: any): Observable<HttpResponse<IResponseCommande>> {
-    return this.http.post<IResponseCommande>(`${this.resourceUrl}/verification-commande-en-cours/${commandeId}`, file, {
+  importerReponseCommande(commandeId: CommandeId, file: any): Observable<HttpResponse<IResponseCommande>> {
+    return this.http.post<IResponseCommande>(`${this.resourceUrl}/verification-commande-en-cours/${commandeId.id}/${commandeId.orderDate}`, file, {
       observe: 'response'
     });
   }
@@ -183,9 +176,9 @@ export class CommandeService {
       .pipe(map((res: EntityResponseType) => this.convertDateFromServer(res)));
   }
 
-  findSaisieEntreeStock(id: number): Observable<EntityResponseType> {
+  findSaisieEntreeStock(commandeId: CommandeId): Observable<EntityResponseType> {
     return this.http
-      .get<ICommande>(`${this.resourceUrl}/entree-stock/${id}`, { observe: 'response' })
+      .get<ICommande>(`${this.resourceUrl}/entree-stock/${commandeId.id}/${commandeId.orderDate}`, { observe: 'response' })
       .pipe(map((res: EntityResponseType) => this.convertDateFromServer(res)));
   }
 

@@ -1,6 +1,8 @@
 package com.kobe.warehouse.service.stock;
 
 import com.kobe.warehouse.domain.Commande;
+import com.kobe.warehouse.domain.CommandeId;
+import com.kobe.warehouse.domain.OrderLineId;
 import com.kobe.warehouse.domain.Suggestion;
 import com.kobe.warehouse.service.dto.CommandeDTO;
 import com.kobe.warehouse.service.dto.CommandeLiteDTO;
@@ -26,21 +28,21 @@ public interface CommandService {
 
     Commande updateOrderUnitPrice(OrderLineDTO orderLineDTO);
 
-    void deleteOrderLineById(Long orderLineId);
+    void deleteOrderLineById(OrderLineId orderLineId);
 
-    void deleteById(Long id);
+    void deleteById(CommandeId id);
 
-    void rollback(Long id);
+    void rollback(CommandeId id);
 
     void updateCodeCip(OrderLineDTO orderLineDTO);
 
-    void deleteOrderLinesByIds(Long commandeId, List<Long> ids);
+    void deleteOrderLinesByIds(CommandeId commandeId, List<OrderLineId> ids);
 
-    void fusionner(List<Long> ids);
+    void fusionner(List<CommandeId> ids);
 
-    void deleteAll(List<Long> ids);
+    void deleteAll(List<CommandeId> ids);
 
-    VerificationResponseCommandeDTO importerReponseCommande(Long commandeId, MultipartFile multipartFile);
+    VerificationResponseCommandeDTO importerReponseCommande(CommandeId commandeId, MultipartFile multipartFile);
 
     CommandeResponseDTO uploadNewCommande(Long fournisseurId, CommandeModel commandeModel, MultipartFile multipartFile);
 

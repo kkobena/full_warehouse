@@ -73,7 +73,7 @@ public interface ThirdPartySaleService {
 
     void removeThirdPartySaleLineToSales(Long clientTiersPayantId, SaleId saleId) throws PlafondVenteException;
 
-    SaleId changeCashSaleToThirdPartySale(Long saleId, NatureVente natureVente);
+    SaleId changeCashSaleToThirdPartySale(SaleId saleId, NatureVente natureVente);
 
     void updateTransformedSale(ThirdPartySaleDTO dto) throws PlafondVenteException;
 

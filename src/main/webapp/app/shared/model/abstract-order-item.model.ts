@@ -1,6 +1,7 @@
 import { ILot } from './lot.model';
 import { ICommande } from './commande.model';
 import { IProduit } from './produit.model';
+import { CommandeId } from './abstract-commande.model';
 
 export interface AbstractOrderItem {
   id?: number;
@@ -37,4 +38,12 @@ export interface AbstractOrderItem {
   produitLibelle?: string;
   produitCip?: string;
   produitCodeEan?: string;
+  orderLineId?: OrderLineId;
+  compositeId?: CommandeId;
+  orderDate?: string;
+}
+
+export class OrderLineId {
+  id: number;
+  orderDate: string;
 }

@@ -1,11 +1,11 @@
 package com.kobe.warehouse.service.financiel_transaction;
 
+import com.kobe.warehouse.domain.AppUser_;
 import com.kobe.warehouse.domain.CashRegister;
 import com.kobe.warehouse.domain.CashRegister_;
 import com.kobe.warehouse.domain.DefaultPayment;
 import com.kobe.warehouse.domain.PaymentTransaction;
 import com.kobe.warehouse.domain.PaymentTransaction_;
-import com.kobe.warehouse.domain.AppUser_;
 import com.kobe.warehouse.domain.enumeration.CategorieChiffreAffaire;
 import com.kobe.warehouse.domain.enumeration.TransactionTypeAffichage;
 import com.kobe.warehouse.repository.DefaultTransactionRepository;
@@ -34,6 +34,15 @@ import jakarta.persistence.criteria.CriteriaBuilder;
 import jakarta.persistence.criteria.CriteriaQuery;
 import jakarta.persistence.criteria.Predicate;
 import jakarta.persistence.criteria.Root;
+import org.apache.commons.lang3.ObjectUtils;
+import org.springframework.core.io.Resource;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.domain.Specification;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
 import java.io.IOException;
 import java.math.BigDecimal;
 import java.time.LocalDate;
@@ -46,16 +55,6 @@ import java.util.Map.Entry;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.Collectors;
-import org.apache.commons.lang3.ObjectUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.core.io.Resource;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageImpl;
-import org.springframework.data.domain.Pageable;
-import org.springframework.data.jpa.domain.Specification;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
 @Transactional
 @Service
@@ -133,10 +132,10 @@ public class FinancialTransactionServiceImpl implements FinancialTransactionServ
         MvtCaisseWrapper mvtCaisseWrapper = buildMvtCaisseWrapper(transactionFilter);
         Pair pair = buildPeriode(transactionFilter);
         return this.mvtCaisseReportService.exportToPdf(
-                new ArrayList<>(mvtCaisses),
-                mvtCaisseWrapper,
-                new ReportPeriode(((LocalDateTime) pair.key()).toLocalDate(), ((LocalDateTime) pair.value()).toLocalDate())
-            );
+            new ArrayList<>(mvtCaisses),
+            mvtCaisseWrapper,
+            new ReportPeriode(((LocalDateTime) pair.key()).toLocalDate(), ((LocalDateTime) pair.value()).toLocalDate())
+        );
     }
 
     @Override
@@ -298,6 +297,7 @@ public class FinancialTransactionServiceImpl implements FinancialTransactionServ
         return specification;
     }
 
+    //TODO voir comment implementer avec une fonction postgre jsonb
     private MvtCaisseDTO buildFrom(MvtCaisseProjection mvtCaisseProjection) {
         MvtCaisseDTO mvtCaisseDTO = new MvtCaisseDTO();
         mvtCaisseDTO.setId(mvtCaisseProjection.id());
@@ -309,15 +309,18 @@ public class FinancialTransactionServiceImpl implements FinancialTransactionServ
         mvtCaisseDTO.setUserFullName(mvtCaisseProjection.firstName().charAt(0) + "".toUpperCase() + ". " + mvtCaisseProjection.lastName());
         switch (mvtCaisseProjection.paymentType()) {
             case SalePayment -> {
-                SaleInfo saleInfo = salesRepository.findSaleInfoById(mvtCaisseProjection.saleId());
+                SaleInfo saleInfo = salesRepository.findSaleInfoById(mvtCaisseProjection.saleId(), mvtCaisseProjection.saleDate());
                 mvtCaisseDTO.setReference(saleInfo.getReference());
                 if (saleInfo.getCustomerFirstName() != null) {
                     mvtCaisseDTO.setOrganisme(saleInfo.getCustomerLastName() + " " + saleInfo.getCustomerFirstName());
                 }
             }
-            case InvoicePayment -> {} //TODO dans invoice
-            case DifferePayment -> {} //TODO dans differe
-            case AccountTransaction -> {} //TODO gestion des cautions
+            case InvoicePayment -> {
+            } //TODO dans invoice
+            case DifferePayment -> {
+            } //TODO dans differe
+            case AccountTransaction -> {
+            } //TODO gestion des cautions
         }
         return mvtCaisseDTO;
     }
@@ -328,10 +331,10 @@ public class FinancialTransactionServiceImpl implements FinancialTransactionServ
         );
         MvtCaisseWrapper mvtCaisseWrapper = new MvtCaisseWrapper();
 
-        BigDecimal totalPaymentAmount = new BigDecimal(0);
-        BigDecimal totalMobileAmount = new BigDecimal(0);
-        BigDecimal creditedAmount = new BigDecimal(0);
-        BigDecimal debitedAmount = new BigDecimal(0);
+        BigDecimal totalPaymentAmount = BigDecimal.ZERO;
+        BigDecimal totalMobileAmount = BigDecimal.ZERO;
+        BigDecimal creditedAmount = BigDecimal.ZERO;
+        BigDecimal debitedAmount = BigDecimal.ZERO;
         List<com.kobe.warehouse.service.dto.records.Tuple> typeTransactionAmounts = new ArrayList<>();
         List<com.kobe.warehouse.service.dto.records.Tuple> modesPaiementAmounts = new ArrayList<>();
 

@@ -2,11 +2,15 @@ package com.kobe.warehouse.service.dto;
 
 import static java.util.Objects.nonNull;
 
+import com.kobe.warehouse.domain.CommandeId;
 import com.kobe.warehouse.domain.FournisseurProduit;
 import com.kobe.warehouse.domain.OrderLine;
+import com.kobe.warehouse.domain.OrderLineId;
 import com.kobe.warehouse.domain.Produit;
 import com.kobe.warehouse.domain.Tableau;
 import com.kobe.warehouse.domain.Tva;
+
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.HashSet;
 import java.util.Optional;
@@ -50,6 +54,9 @@ public class OrderLineDTO {
     private int freeQty;
     private Boolean updated;
     private Integer afterStock;
+    private OrderLineId orderLineId;
+    private LocalDate orderDate;
+    private CommandeId compositeId;
 
     public OrderLineDTO() {}
 
@@ -57,6 +64,7 @@ public class OrderLineDTO {
         initStock = orderLine.getInitStock();
         //  orderUnitPrice = orderLine.getOrderUnitPrice();
         id = orderLine.getId().getId();
+        orderLineId = orderLine.getId();
         quantityReceived = orderLine.getQuantityReceived();
         quantityRequested = orderLine.getQuantityRequested();
         quantityReturned = orderLine.getQuantityReturned();
@@ -134,6 +142,14 @@ public class OrderLineDTO {
 
     public int getTotalQuantity() {
         return totalQuantity;
+    }
+
+    public OrderLineId getOrderLineId() {
+        return orderLineId;
+    }
+
+    public void setOrderLineId(OrderLineId orderLineId) {
+        this.orderLineId = orderLineId;
     }
 
     public OrderLineDTO setTotalQuantity(int totalQuantity) {
@@ -403,6 +419,22 @@ public class OrderLineDTO {
 
     public Set<LotDTO> getLots() {
         return lots;
+    }
+
+    public LocalDate getOrderDate() {
+        return orderDate;
+    }
+
+    public void setOrderDate(LocalDate orderDate) {
+        this.orderDate = orderDate;
+    }
+
+    public CommandeId getCompositeId() {
+        return compositeId;
+    }
+
+    public void setCompositeId(CommandeId compositeId) {
+        this.compositeId = compositeId;
     }
 
     public OrderLineDTO setLots(Set<LotDTO> lots) {

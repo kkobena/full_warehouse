@@ -21,6 +21,9 @@ import java.io.Serializable;
 import java.time.LocalDateTime;
 import java.util.HashSet;
 import java.util.Set;
+
+import org.hibernate.annotations.Cache;
+import org.hibernate.annotations.CacheConcurrencyStrategy;
 import org.hibernate.annotations.JdbcTypeCode;
 import org.hibernate.type.SqlTypes;
 
@@ -37,6 +40,7 @@ import org.hibernate.type.SqlTypes;
         @UniqueConstraint(columnNames = { "tiers_payant_id", "num" }),
     }
 )
+@Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
 public class ClientTiersPayant implements Serializable {
 
     @Serial

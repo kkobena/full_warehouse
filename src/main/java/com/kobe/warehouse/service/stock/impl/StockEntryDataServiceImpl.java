@@ -2,6 +2,7 @@ package com.kobe.warehouse.service.stock.impl;
 
 import com.kobe.warehouse.domain.AppUser_;
 import com.kobe.warehouse.domain.Commande;
+import com.kobe.warehouse.domain.CommandeId;
 import com.kobe.warehouse.domain.Commande_;
 import com.kobe.warehouse.domain.FournisseurProduit_;
 import com.kobe.warehouse.domain.Fournisseur_;
@@ -73,13 +74,13 @@ public class StockEntryDataServiceImpl extends FileResourceService implements St
     }
 
     @Override
-    public Optional<DeliveryReceiptDTO> findOneById(Long id) {
-        return Optional.ofNullable(commandeRepository.findCommandeById(id)).map(DeliveryReceiptDTO::new);
+    public Optional<DeliveryReceiptDTO> findOneById(CommandeId id) {
+        return Optional.of(commandeRepository.getReferenceById(id)).map(DeliveryReceiptDTO::new);
     }
 
     @Override
-    public Resource exportToPdf(Long id) throws IOException {
-        return this.getResource(receiptReportService.print(commandeRepository.findCommandeById(id)));
+    public Resource exportToPdf(CommandeId id) throws IOException {
+        return this.getResource(receiptReportService.print(commandeRepository.getReferenceById(id)));
     }
 
     private long receiptCount(DeliveryReceiptFilterDTO deliveryReceiptFilterDTO) {
@@ -189,7 +190,7 @@ public class StockEntryDataServiceImpl extends FileResourceService implements St
     }
 
     @Override
-    public Resource printEtiquette(Long id, int startAt) throws IOException {
-        return this.etiquetteExportService.print(this.orderLineRepository.findAllByCommandeId(id), startAt);
+    public Resource printEtiquette(CommandeId commandeId, int startAt) throws IOException {
+        return this.etiquetteExportService.print(this.orderLineRepository.findAllByCommandeIdAndCommandeOrderDate(commandeId.getId(),commandeId.getOrderDate()), startAt);
     }
 }

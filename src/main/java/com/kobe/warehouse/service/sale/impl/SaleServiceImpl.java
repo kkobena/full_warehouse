@@ -194,9 +194,6 @@ public class SaleServiceImpl extends SaleCommonService implements SaleService {
         return this.cashSaleRepository.getReferenceById(id);
     }
 
-    private CashSale findOneById(Long id) {
-        return this.cashSaleRepository.findOneById(id);
-    }
 
     @Override
     public void setCustomer(UpdateSaleInfo keyValue) {
@@ -303,7 +300,7 @@ public class SaleServiceImpl extends SaleCommonService implements SaleService {
             return salesLine;
         }
         SalesLine salesLine = salesLineService.create(dto, storageId, findOne(dto.getSaleCompositeId()));
-        updateSaleWhenAddItem(dto, salesLine);
+        updateSaleWhenAddItem( salesLine);
         return salesLine;
     }
 
@@ -311,8 +308,7 @@ public class SaleServiceImpl extends SaleCommonService implements SaleService {
         return this.cashSaleRepository.getReferenceById(id);
     }
 
-    private void updateSaleWhenAddItem(SaleLineDTO dto, SalesLine salesLine) {
-        //CashSale sales = findOne(dto.getSaleId());
+    private void updateSaleWhenAddItem( SalesLine salesLine) {
         CashSale sales = (CashSale) salesLine.getSales();
         upddateCashSaleAmounts(sales);
         salesLine.setSales(sales);

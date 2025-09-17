@@ -8,6 +8,8 @@ import { AbstractOrderItem } from './abstract-order-item.model';
 
 export interface AbstractCommande {
   id?: number;
+  commandeId?: CommandeId;
+  orderDate?: string;
   fournisseurId?: number;
   receiptDate?: string;
   discountAmount?: number;
@@ -30,4 +32,10 @@ export interface AbstractCommande {
   orderReference?: string;
   itemSize?: number;
   statut?: string;
+
+}
+
+export class CommandeId {
+  id: number;
+  orderDate: string;
 }

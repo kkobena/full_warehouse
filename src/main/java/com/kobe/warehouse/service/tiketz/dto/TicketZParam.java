@@ -21,4 +21,16 @@ public record TicketZParam(
             toTime = LocalTime.MAX;
         }
     }
+
+    public boolean isMinTime() {
+        return fromTime.equals(LocalTime.MIN);
+    }
+
+    public boolean isMaxTime() {
+        return toTime.equals(LocalTime.MAX) || toTime.equals(LocalTime.of(23, 59, 59));
+    }
+
+    public boolean isMinDate() {
+        return isMinTime() && isMaxTime();
+    }
 }

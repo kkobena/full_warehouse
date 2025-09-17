@@ -63,7 +63,6 @@ public class BalanceCaisseServiceImpl implements BalanceCaisseService {
     private List<BalanceCaisseDTO> fetchBalanceCaisse(MvtParam mvtParam) {
         try {
             String jsonResult = salesRepository.fetchSalesBalance(mvtParam.getFromDate(), mvtParam.getToDate(), mvtParam.getStatuts().stream().map(SalesStatut::name).toArray(String[]::new), mvtParam.getCategorieChiffreAffaires().stream().map(CategorieChiffreAffaire::name).toArray(String[]::new), mvtParam.isExcludeFreeUnit(), BooleanUtils.toBoolean(mvtParam.getToIgnore()));
-            System.err.println(jsonResult);
             return objectMapper.readValue(jsonResult, new TypeReference<>() {
             });
 

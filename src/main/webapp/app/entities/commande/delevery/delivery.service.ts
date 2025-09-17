@@ -6,6 +6,7 @@ import { createRequestOptions } from 'app/shared/util/request-util';
 import { IDelivery } from '../../../shared/model/delevery.model';
 import { ICommandeResponse } from '../../../shared/model/commande-response.model';
 import { IDeliveryItem } from '../../../shared/model/delivery-item';
+import { CommandeId } from '../../../shared/model/abstract-commande.model';
 
 type EntityResponseType = HttpResponse<IDelivery>;
 type EntityArrayResponseType = HttpResponse<IDelivery[]>;
@@ -24,8 +25,8 @@ export class DeliveryService {
     this.deliveryPreviousActiveNav.set(nav);
   }
 
-  find(id: number): Observable<EntityResponseType> {
-    return this.http.get<IDelivery>(`${this.resourceUrl}/${id}`, { observe: 'response' });
+  find(commandeId: CommandeId): Observable<EntityResponseType> {
+    return this.http.get<IDelivery>(`${this.resourceUrl}/${commandeId.id}/${commandeId.orderDate}`, { observe: 'response' });
   }
 
   create(entity: IDelivery): Observable<EntityResponseType> {
@@ -40,17 +41,17 @@ export class DeliveryService {
     return this.http.put<IDelivery>(this.resourceUrl2, entity, { observe: 'response' });
   }
 
-  exportToCsv(entityId: number): Observable<Blob> {
-    return this.http.get(`${this.resourceUrl}/csv/${entityId}`, { responseType: 'blob' });
+  exportToCsv(commandeId: CommandeId): Observable<Blob> {
+    return this.http.get(`${this.resourceUrl}/csv/${commandeId.id}/${commandeId.orderDate}`, { responseType: 'blob' });
   }
 
-  exportToPdf(entityId: number): Observable<Blob> {
-    return this.http.get(`${this.resourceUrl}/pdf/${entityId}`, { responseType: 'blob' });
+  exportToPdf(commandeId: CommandeId): Observable<Blob> {
+    return this.http.get(`${this.resourceUrl}/pdf/${commandeId.id}/${commandeId.orderDate}`, { responseType: 'blob' });
   }
 
-  printEtiquette(id: number, req: any): Observable<Blob> {
+  printEtiquette(commandeId: CommandeId, req: any): Observable<Blob> {
     const options = createRequestOptions(req);
-    return this.http.get(`${this.resourceUrl}/etiquettes/${id}`, {
+    return this.http.get(`${this.resourceUrl}/etiquettes/${commandeId.id}/${commandeId.orderDate}`, {
       params: options,
       responseType: 'blob'
     });

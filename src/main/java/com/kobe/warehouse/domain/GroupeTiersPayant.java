@@ -11,11 +11,15 @@ import jakarta.persistence.Id;
 import jakarta.persistence.Table;
 import jakarta.persistence.UniqueConstraint;
 import jakarta.validation.constraints.NotNull;
+import org.hibernate.annotations.Cache;
+import org.hibernate.annotations.CacheConcurrencyStrategy;
+
 import java.io.Serial;
 import java.io.Serializable;
 
 @Entity
 @Table(name = "groupe_tiers_payant", uniqueConstraints = { @UniqueConstraint(columnNames = { "name" }) })
+@Cache(usage = CacheConcurrencyStrategy.NONSTRICT_READ_WRITE)
 public class GroupeTiersPayant implements Serializable {
 
     @Serial

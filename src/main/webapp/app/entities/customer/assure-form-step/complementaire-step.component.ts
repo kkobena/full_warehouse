@@ -17,14 +17,17 @@ import { FormTiersPayantComponent } from '../../tiers-payant/form-tiers-payant/f
 import { Select, SelectModule } from 'primeng/select';
 import { showCommonModal } from '../../sales/selling-home/sale-helper';
 import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
-import { ConfirmDialogComponent } from '../../../shared/dialog/confirm-dialog/confirm-dialog.component';
 import { ToastAlertComponent } from '../../../shared/toast-alert/toast-alert.component';
 import { Subject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
 import { Tooltip } from 'primeng/tooltip';
+import { ConfirmationService } from 'primeng/api';
+import { ConfirmDialog } from 'primeng/confirmdialog';
+import { acceptButtonProps, rejectButtonProps } from '../../../shared/util/modal-button-props';
 
 @Component({
   selector: 'jhi-complementaire-step',
+  providers: [ConfirmationService],
   imports: [
     ReactiveFormsModule,
     SelectModule,
@@ -34,33 +37,34 @@ import { Tooltip } from 'primeng/tooltip';
     CardModule,
     ButtonModule,
     Select,
-    ConfirmDialogComponent,
+    ConfirmDialog,
     ToastAlertComponent,
-    Tooltip,
+    Tooltip
   ],
-  templateUrl: './complementaire-step.component.html',
+  templateUrl: './complementaire-step.component.html'
 })
 export class ComplementaireStepComponent implements OnDestroy {
   assureFormStepService = inject(AssureFormStepService);
   customerService = inject(CustomerService);
-  tiersPayant!: ITiersPayant | null;
+  tiersPayant: ITiersPayant | null = null;
   tiersPayants: ITiersPayant[] = [];
   validSize = true;
   protected fb = inject(UntypedFormBuilder);
   protected catgories = [
     { label: 'RC1', value: 1 },
     { label: 'RC2', value: 2 },
-    { label: 'RC3', value: 3 },
+    { label: 'RC3', value: 3 }
   ];
   protected minLength = 3;
   protected editForm = this.fb.group({
-    tiersPayants: this.fb.array([]),
+    tiersPayants: this.fb.array([])
   });
-  private readonly confimDialog = viewChild.required<ConfirmDialogComponent>('confirmDialog');
+
   private readonly alert = viewChild.required<ToastAlertComponent>('alert');
   private readonly tiersPayantService = inject(TiersPayantService);
   private readonly modalService = inject(NgbModal);
   private readonly errorService = inject(ErrorService);
+  private readonly confirmationService = inject(ConfirmationService);
   private destroy$ = new Subject<void>();
 
   get editFormGroups(): FormArray {
@@ -89,8 +93,8 @@ export class ComplementaireStepComponent implements OnDestroy {
         plafondConso: [],
         plafondJournalier: [],
         plafondAbsolu: [],
-        priorite: tiersPayants.length + 1,
-      }),
+        priorite: tiersPayants.length + 1
+      })
     );
     this.validateTiersPayantSize();
   }
@@ -119,7 +123,7 @@ export class ComplementaireStepComponent implements OnDestroy {
       {
         entity: null,
         categorie: this.assureFormStepService.typeAssure(),
-        header: 'FORMULAIRE DE CREATION DE TIERS-PAYANT',
+        header: 'FORMULAIRE DE CREATION DE TIERS-PAYANT'
       },
       (resp: ITiersPayant) => {
         if (resp) {
@@ -128,7 +132,7 @@ export class ComplementaireStepComponent implements OnDestroy {
         }
       },
       'xl',
-      'modal-dialog-80',
+      'modal-dialog-80'
     );
   }
 
@@ -143,7 +147,7 @@ export class ComplementaireStepComponent implements OnDestroy {
         page: 0,
         size: 10,
         type: 'ASSURANCE',
-        search: query,
+        search: query
       })
       .pipe(takeUntil(this.destroy$))
       .subscribe((res: HttpResponse<ITiersPayant[]>) => {
@@ -167,8 +171,8 @@ export class ComplementaireStepComponent implements OnDestroy {
         plafondJournalier: tiersPayant.plafondJournalier,
         priorite: tiersPayant.priorite,
         categorie: tiersPayant.priorite,
-        plafondAbsolu: tiersPayant.plafondAbsolu,
-      },
+        plafondAbsolu: tiersPayant.plafondAbsolu
+      }
     ]);
   }
 
@@ -186,14 +190,15 @@ export class ComplementaireStepComponent implements OnDestroy {
             plafondJournalier: tp.plafondJournalier,
             priorite: tp.categorie,
             plafondAbsolu: tp.plafondAbsolu,
-            taux: tp.taux,
-          }),
+            taux: tp.taux
+          })
         );
       });
   }
 
   removeTiersPayant(index: number): void {
     const tiersPayants = this.convertFormAsFormArray();
+    console.error('tiersPayants', tiersPayants);
     const tiersPayant = tiersPayants.at(index).value as IClientTiersPayant;
     if (tiersPayant.id) {
       this.customerService
@@ -204,7 +209,7 @@ export class ComplementaireStepComponent implements OnDestroy {
             tiersPayants.removeAt(index);
             this.validateTiersPayantSize();
           },
-          error: err => this.onSaveError(err),
+          error: err => this.onSaveError(err)
         });
     } else {
       tiersPayants.removeAt(index);
@@ -217,6 +222,19 @@ export class ComplementaireStepComponent implements OnDestroy {
   }
 
   confirmRemove(index: number): void {
-    this.confimDialog().onConfirm(() => this.removeTiersPayant(index), 'Suppression', 'Voulez-vous vraiment ce complémentaire ?');
+    if (this.tiersPayant != null) {
+      this.confirmationService.confirm({
+        message: 'Voulez-vous vraiment ce complémentaire ?',
+        header: ' Suppression',
+        icon: 'pi pi-info-circle',
+        rejectButtonProps: rejectButtonProps(),
+        acceptButtonProps: acceptButtonProps(),
+        accept: () => this.removeTiersPayant(index)
+      });
+    } else {
+      this.removeTiersPayant(index);
+    }
+
+
   }
 }

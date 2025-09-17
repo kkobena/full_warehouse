@@ -26,10 +26,11 @@ public class AppConfigurationService {
     }
 
     @Transactional(readOnly = true)
+    @Cacheable(EntityConstant.APP_MONO_STOCK)
     public boolean isMono() {
-        return true;/*
+
         Optional<AppConfiguration> appConfiguration = appConfigurationRepository.findById(EntityConstant.APP_GESTION_STOCK);
-        return appConfiguration.map(configuration -> Integer.parseInt(configuration.getValue().trim()) == 0).orElse(true);*/
+        return appConfiguration.map(configuration -> Integer.parseInt(configuration.getValue().trim()) == 0).orElse(true);
     }
 
     @Transactional(readOnly = true)
@@ -51,7 +52,7 @@ public class AppConfigurationService {
             .map(configuration -> {
                 try {
                     return Integer.parseInt(configuration.getValue().trim()) == 1;
-                } catch (NumberFormatException e) {
+                } catch (NumberFormatException _) {
                     return false;
                 }
             });
@@ -164,5 +165,26 @@ public class AppConfigurationService {
             .map(AppConfiguration::getValue)
             .map(Boolean::parseBoolean)
             .orElse(false);
+    }
+
+    @Transactional(readOnly = true)
+    @Cacheable(EntityConstant.APP_NBRE_JOUR_RETENTION_SUGGESTION)
+    public int getNombreJourRetentionSuggestion() {
+        return appConfigurationRepository
+            .findById(EntityConstant.APP_NBRE_JOUR_RETENTION_SUGGESTION)
+            .map(AppConfiguration::getValue)
+            .map(Integer::parseInt)
+            .orElse(30);
+    }
+
+
+    @Transactional(readOnly = true)
+    @Cacheable(EntityConstant.APP_NBRE_JOUR_RETENTION_COMMANDE)
+    public int getNombreJourRetentionCommande() {
+        return appConfigurationRepository
+            .findById(EntityConstant.APP_NBRE_JOUR_RETENTION_COMMANDE)
+            .map(AppConfiguration::getValue)
+            .map(Integer::parseInt)
+            .orElse(30);
     }
 }

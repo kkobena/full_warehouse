@@ -2,6 +2,7 @@ package com.kobe.warehouse.service.financiel_transaction.dto;
 
 import com.kobe.warehouse.domain.enumeration.CategorieChiffreAffaire;
 import com.kobe.warehouse.domain.enumeration.TypeFinancialTransaction;
+
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 
@@ -22,7 +23,8 @@ public record MvtCaisseProjection(
     Long deliveryId,
     String firstName,
     String lastName,
-    Integer montant
+    Integer montant,
+    LocalDate saleDate
 ) {
     public PaymentType paymentType() {
         return PaymentType.valueOf(type);

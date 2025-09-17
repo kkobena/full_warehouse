@@ -10,14 +10,15 @@ public final class EntityConstant {
     public static final long SANS_EMPLACEMENT = 1L;
     public static final long DEFAULT_STORAGE = 1L;
     public static final String DEFAULT_MAIN_STORAGE = "DEFAULT_MAIN_STORAGE";
-    public static final long POINT_of_STORAGE = 2L;
+    public static final long POINT_OF_STORAGE = 2L;
     public static final long DEFAULT_MAGASIN = 1L;
     public static final String APP_GESTION_STOCK = "APP_GESTION_STOCK";
+    public static final String APP_MONO_STOCK = "APP_MONO_STOCK";
     public static final String APP_MODE_PAYMENTS = "APP_MODE_PAYMENTS";
     public static final long RESERVE_STORAGE = 3L;
     public static final String SANS_EMPLACEMENT_LIBELLE = "SANS EMPLACEMENT";
-    public static final String POINT_DE_VENTE_CACHE = "POINT_DE_VENTE";
-    public static final String PRINCIPAL_CACHE = "PRINCIPAL";
+    public static final String POINT_DE_VENTE_CACHE = "POINT_DE_VENTE_CACHE";
+
     public static final String CAN_SORCE_STOCK = "CAN_SORCE_STOCK";
     public static final String APP_QTY_MAX = "APP_QTY_MAX";
     public static final String TOUT = "TOUT";
@@ -50,6 +51,13 @@ public final class EntityConstant {
     public static final String APP_NOMBRE_JOUR_AVANT_PEREMPTION = "APP_NOMBRE_JOUR_AVANT_PEREMPTION"; // nombre de jour avant la date de peremption pour la vente d'un produit,
     public static final String APP_EXPIRY_ALERT_DAYS_BEFORE = "APP_EXPIRY_ALERT_DAYS_BEFORE"; // nombre de jour avant la date de peremption pour l'alerte d'un produit,
     public static final String APP_GESTION_LOT = "APP_GESTION_LOT"; // nombre de jour avant la date de peremption pour l'alerte d'un produit,
-    public static final String USER_STORAGE__CACHE = "USER_STORAGE__CACHE";
+
     public static final String EXCLUDE_FREE_UNIT = "EXCLUDE_FREE_UNIT";
+    public static final String USER_STORAGE_CACHE = "USER_STORAGE_CACHE";
+    public static final String USER_RESERVE_STORAGE_CACHE = "USER_RESERVE_STORAGE_CACHE";
+    public static final String USER_MAIN_STORAGE_CACHE = "USER_MAIN_STORAGE_CACHE";
+    public static final String CURRENT_USER_CACHE = "CURRENT_USER_CACHE";
+    public static final String CURRENT_USER_MAGASIN_CACHE = "CURRENT_USER_MAGASIN_CACHE";
+    public static final String APP_NBRE_JOUR_RETENTION_SUGGESTION= "APP_RETENTION_SUGGESTION" ;// Nombre de jour de retention des suggestions
+    public static final String APP_NBRE_JOUR_RETENTION_COMMANDE= "APP_RETENTION_COMMANDE" ;// Nombre de jour de retention des suggestions
 }

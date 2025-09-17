@@ -30,14 +30,7 @@ public interface CommonStatService {
         };
     }
 
-    default String buildGroupBy(StatGroupBy statGroup) {
-        return switch (statGroup) {
-            case DAY -> " DATE_FORMAT(s.updated_at,'%Y-%m-%d') ";
-            case MONTH -> " MONTH(s.updated_at) ";
-            case YEAR -> " YEAR(s.updated_at) ";
-            case HOUR -> " HOUR(s.updated_at) ";
-        };
-    }
+
 
     default String buildChiffreAffaire(CategorieChiffreAffaire categorieChiffreAffaire) {
         return switch (categorieChiffreAffaire) {

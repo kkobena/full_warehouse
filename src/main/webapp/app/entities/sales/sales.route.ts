@@ -39,7 +39,7 @@ const salesRoute: Routes = [
     canActivate: [UserRouteAccessService]
   },
   {
-    path: ':id/view',
+    path: ':id/:saleDate/view',
     loadComponent: () => import('./sales-detail.component').then(m => m.SalesDetailComponent),
     resolve: {
       sales: SalesResolve
@@ -62,7 +62,7 @@ const salesRoute: Routes = [
     canActivate: [UserRouteAccessService]
   },
   {
-    path: ':id/:isPresale/edit',
+    path: ':id/:saleDate/:isPresale/edit',
     loadComponent: () => import('./selling-home/selling-home.component').then(m => m.SellingHomeComponent),
     resolve: {
       sales: SalesResolve

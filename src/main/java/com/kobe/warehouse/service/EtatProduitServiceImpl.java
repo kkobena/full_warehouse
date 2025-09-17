@@ -9,16 +9,20 @@ import com.kobe.warehouse.service.dto.EtatProduit;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDate;
+
 @Service
 @Transactional(readOnly = true)
 public class EtatProduitServiceImpl implements EtatProduitService {
 
     private final SuggestionLineRepository suggestionLineRepository;
     private final OrderLineRepository orderLineRepository;
+    private final AppConfigurationService appConfigurationService;
 
-    public EtatProduitServiceImpl(SuggestionLineRepository suggestionLineRepository, OrderLineRepository orderLineRepository) {
+    public EtatProduitServiceImpl(SuggestionLineRepository suggestionLineRepository, OrderLineRepository orderLineRepository, AppConfigurationService appConfigurationService) {
         this.suggestionLineRepository = suggestionLineRepository;
         this.orderLineRepository = orderLineRepository;
+        this.appConfigurationService = appConfigurationService;
     }
 
     @Override
@@ -34,9 +38,7 @@ public class EtatProduitServiceImpl implements EtatProduitService {
 
     @Override
     public boolean canSuggere(Long idProduit) {
-        int commandeCount = orderLineRepository.countByFournisseurProduitProduitIdAndCommandeOrderStatus(idProduit, OrderStatut.REQUESTED);
-        int entree = orderLineRepository.countByFournisseurProduitProduitIdAndCommandeOrderStatus(idProduit, OrderStatut.RECEIVED);
-        return commandeCount == 0 && entree == 0;
+        return getCommandeCount(idProduit, OrderStatut.REQUESTED) == 0 && getCommandeCount(idProduit, OrderStatut.RECEIVED) == 0;
     }
 
     private EtatProduit buildEtatProduit(Long idProduit, int currentStock) {
@@ -44,8 +46,8 @@ public class EtatProduitServiceImpl implements EtatProduitService {
         boolean stockNegatif = currentStock < 0;
         boolean stockZero = currentStock == 0;
         int suggestionCount = suggestionLineRepository.countByFournisseurProduitProduitId(idProduit);
-        int commandeCount = orderLineRepository.countByFournisseurProduitProduitIdAndCommandeOrderStatus(idProduit, OrderStatut.REQUESTED);
-        boolean entree = orderLineRepository.existsByFournisseurProduitProduitIdAndCommandeOrderStatus(idProduit, OrderStatut.RECEIVED);
+        int commandeCount = getCommandeCount(idProduit, OrderStatut.REQUESTED);
+        boolean entree = orderLineRepository.existsByFournisseurProduitProduitIdAndCommandeOrderStatusAndCommandeOrderDateGreaterThan(idProduit, OrderStatut.RECEIVED, getDateRetentionCommande());
         return new EtatProduit(
             stockPositif,
             stockNegatif,
@@ -56,5 +58,14 @@ public class EtatProduitServiceImpl implements EtatProduitService {
             suggestionCount > 1,
             commandeCount > 1
         );
+    }
+
+    private LocalDate getDateRetentionCommande() {
+        return LocalDate.now().plusDays(appConfigurationService.getNombreJourRetentionCommande());
+    }
+
+    private int getCommandeCount(Long idProduit, OrderStatut orderStatut) {
+        LocalDate dateRetentionCommande = getDateRetentionCommande();
+        return orderLineRepository.countByFournisseurProduitProduitIdAndCommandeOrderStatusAndCommandeOrderDateGreaterThan(idProduit, orderStatut, dateRetentionCommande);
     }
 }

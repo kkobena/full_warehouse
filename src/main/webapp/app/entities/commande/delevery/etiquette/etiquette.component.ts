@@ -65,7 +65,7 @@ export class EtiquetteComponent implements AfterViewInit, OnDestroy {
 
   private printEtiquette(): void {
     this.spinner().show();
-    this.entityService.printEtiquette(this.entity.id, { startAt: this.startAt }).pipe(takeUntil(this.destroy$)).subscribe({
+    this.entityService.printEtiquette(this.entity.commandeId, { startAt: this.startAt }).pipe(takeUntil(this.destroy$)).subscribe({
       next: (blod: Blob) => {
         this.spinner().hide();
         saveAs(blod, this.entity.receiptReference + '_' + DATE_FORMAT_DD_MM_YYYY_HH_MM_SS());

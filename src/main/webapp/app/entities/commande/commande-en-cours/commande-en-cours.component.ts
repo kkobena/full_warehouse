@@ -17,6 +17,7 @@ import { OrderStatut } from '../../../shared/model/enumerations/order-statut.mod
 import { finalize } from 'rxjs/operators';
 import { ConfirmDialogComponent } from '../../../shared/dialog/confirm-dialog/confirm-dialog.component';
 import { SpinnerComponent } from '../../../shared/spinner/spinner.component';
+import { CommandeId } from '../../../shared/model/abstract-commande.model';
 
 export type ExpandMode = 'single' | 'multiple';
 
@@ -85,7 +86,7 @@ export class CommandeEnCoursComponent implements OnInit {
       });
   }
 
-  deleteCommande(commandeId: number): void {
+  deleteCommande(commandeId: CommandeId): void {
    this.spinner().show();
     this.commandeService.delete(commandeId).pipe(finalize(() =>this.spinner().hide())).subscribe({
       next: () => {
@@ -107,18 +108,18 @@ export class CommandeEnCoursComponent implements OnInit {
 
   onRowExpand(event: any): void {
     if (!event.data.orderLines) {
-      this.commandeService.fetchOrderLinesByCommandeId(event.data.id).subscribe(res => {
+      this.commandeService.fetchOrderLinesByCommandeId(event.data.commandeId).subscribe(res => {
         event.data.orderLines = res.body;
       });
     }
   }
 
   exportCSV(commande: ICommande): void {
-    this.commandeService.exportToCsv(commande.id).subscribe(blod => saveAs(blod));
+    this.commandeService.exportToCsv(commande.commandeId).subscribe(blod => saveAs(blod));
   }
 
   exportPdf(commande: ICommande): void {
-    this.commandeService.exportToPdf(commande.id).subscribe(blod => {
+    this.commandeService.exportToPdf(commande.commandeId).subscribe(blod => {
       const blobUrl = URL.createObjectURL(blod);
       window.open(blobUrl);
     });
@@ -136,7 +137,9 @@ export class CommandeEnCoursComponent implements OnInit {
   }
 
   fusionner(): void {
-    const ids = this.selections.map(e => e.id);
+    const ids = this.selections.map(e => {
+      return { id: e.id!, orderDate: e.orderDate! };
+    });
     const fournisseursIdArray = this.selections.map(e => e.fournisseur.id);
     const firstId = fournisseursIdArray[0];
     const isSameProviderFn = (currentValue: number) => currentValue === firstId;
@@ -166,14 +169,16 @@ export class CommandeEnCoursComponent implements OnInit {
 
 
   removeAll(): void {
-    this.commandeService.deleteSelectedCommandes(this.selections.map(e => e.id)).subscribe(() => {
+    this.commandeService.deleteSelectedCommandes(this.selections.map(e => {
+      return { id: e.id!, orderDate: e.orderDate! };
+    })).subscribe(() => {
       this.loadPage();
       this.selections = [];
     });
   }
 
   confirmDelete(commande: ICommande): void {
-    this.confimDialog().onConfirm(() => this.deleteCommande(commande.id), 'Suppression', 'Êtes-vous sûre de vouloir supprimer ?');
+    this.confimDialog().onConfirm(() => this.deleteCommande(commande.commandeId), 'Suppression', 'Êtes-vous sûre de vouloir supprimer ?');
   }
 
 

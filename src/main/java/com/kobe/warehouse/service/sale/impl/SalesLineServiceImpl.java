@@ -221,6 +221,7 @@ public abstract class SalesLineServiceImpl implements SalesLineService {
         SalesLine salesLine = createSaleLineFromDTO(dto, storageId);
         salesLine.setSales(sales);
         salesLine = salesLineRepository.save(salesLine);
+        sales.getSalesLines().add(salesLine);
         return salesLine;
     }
 

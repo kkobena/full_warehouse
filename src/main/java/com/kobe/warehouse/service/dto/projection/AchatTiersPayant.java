@@ -1,15 +1,9 @@
 package com.kobe.warehouse.service.dto.projection;
 
+import com.kobe.warehouse.domain.enumeration.TiersPayantCategorie;
+
 import java.math.BigDecimal;
 
-public interface AchatTiersPayant {
-    String getLibelle();
+public record AchatTiersPayant(String libelle, TiersPayantCategorie categorie, Long bonsCount, Long clientCount, Integer montant) {
 
-    String getCategorie();
-
-    Integer getClientCount();
-
-    BigDecimal getMontant();
-
-    Integer getBonsCount();
 }

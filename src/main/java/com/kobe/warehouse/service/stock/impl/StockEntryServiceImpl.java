@@ -4,9 +4,11 @@ import static java.util.Objects.nonNull;
 
 import com.kobe.warehouse.constant.EntityConstant;
 import com.kobe.warehouse.domain.Commande;
+import com.kobe.warehouse.domain.CommandeId;
 import com.kobe.warehouse.domain.FournisseurProduit;
 import com.kobe.warehouse.domain.Lot;
 import com.kobe.warehouse.domain.OrderLine;
+import com.kobe.warehouse.domain.OrderLineId;
 import com.kobe.warehouse.domain.Produit;
 import com.kobe.warehouse.domain.StockProduit;
 import com.kobe.warehouse.domain.Tva;
@@ -130,8 +132,8 @@ public class StockEntryServiceImpl implements StockEntryService {
         this.commandeRepository.saveAndFlush(finalizeSaisie(deliveryReceiptLite));
     }
 
-    private Commande getReferenceById(Long id) {
-        return commandeRepository.findCommandeById(id);
+    private Commande getReferenceById(CommandeId id) {
+        return commandeRepository.getReferenceById(id);
     }
 
     private Commande finalizeSaisie(DeliveryReceiptLiteDTO deliveryReceiptLite) {
@@ -254,7 +256,7 @@ public class StockEntryServiceImpl implements StockEntryService {
 
     @Override
     public void updateQuantityUG(DeliveryReceiptItemLiteDTO deliveryReceiptItem) {
-        OrderLine orderLine = getOrderLine(deliveryReceiptItem.getId());
+        OrderLine orderLine = getOrderLine(deliveryReceiptItem.getOrderLineId());
         orderLine.setFreeQty(deliveryReceiptItem.getQuantityUG());
         updateItem(orderLine);
     }
@@ -267,32 +269,32 @@ public class StockEntryServiceImpl implements StockEntryService {
 
     @Override
     public void updateQuantityReceived(DeliveryReceiptItemLiteDTO deliveryReceiptItem) {
-        OrderLine orderLine = getOrderLine(deliveryReceiptItem.getId());
+        OrderLine orderLine = getOrderLine(deliveryReceiptItem.getOrderLineId());
         orderLine.setQuantityReceived(deliveryReceiptItem.getQuantityReceivedTmp());
         updateItem(orderLine);
     }
 
-    private OrderLine getOrderLine(Long id) {
+    private OrderLine getOrderLine(OrderLineId id) {
         return this.orderLineService.findOneById(id).orElse(null);
     }
 
     @Override
     public void updateOrderUnitPrice(DeliveryReceiptItemLiteDTO deliveryReceiptItem) {
-        OrderLine orderLine = getOrderLine(deliveryReceiptItem.getId());
+        OrderLine orderLine = getOrderLine(deliveryReceiptItem.getOrderLineId());
         orderLine.setOrderUnitPrice(deliveryReceiptItem.getOrderUnitPrice());
         updateItem(orderLine);
     }
 
     @Override
     public void updateTva(DeliveryReceiptItemLiteDTO deliveryReceiptItem) {
-        OrderLine orderLine = getOrderLine(deliveryReceiptItem.getId());
+        OrderLine orderLine = getOrderLine(deliveryReceiptItem.getOrderLineId());
         orderLine.setTva(new Tva().setId(deliveryReceiptItem.getTvaId()));
         updateItem(orderLine);
     }
 
     @Override
     public void updateDatePeremption(DeliveryReceiptItemLiteDTO deliveryReceiptItem) {
-        OrderLine orderLine = getOrderLine(deliveryReceiptItem.getId());
+        OrderLine orderLine = getOrderLine(deliveryReceiptItem.getOrderLineId());
         //orderLine.setDatePeremption(deliveryReceiptItem.getDatePeremptionTmp());
         updateItem(orderLine);
     }
@@ -329,7 +331,7 @@ public class StockEntryServiceImpl implements StockEntryService {
 
     private DeliveryReceiptLiteDTO fromEntity(Commande commande) {
         return new DeliveryReceiptLiteDTO()
-            .setId(commande.getId().getId())
+            .setId(commande.getId())
             .setHtAmount(commande.getHtAmount())
             .setReceiptAmount(commande.getGrossAmount())
             .setFinalAmount(commande.getFinalAmount())

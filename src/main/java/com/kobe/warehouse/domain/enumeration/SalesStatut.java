@@ -1,5 +1,7 @@
 package com.kobe.warehouse.domain.enumeration;
 
+import java.util.Set;
+
 /**
  * The SalesStatut enumeration.
  */
@@ -10,5 +12,10 @@ public enum SalesStatut {
     ACTIVE,
     DESABLED,
     CANCELED,
-    REMOVE,
+    REMOVED;
+
+    public static Set<SalesStatut> getStatutForFacturation() {
+        return Set.of(CLOSED, CANCELED);
+    }
+
 }

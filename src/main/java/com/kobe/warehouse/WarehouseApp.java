@@ -19,11 +19,13 @@ import org.slf4j.LoggerFactory;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
+import org.springframework.cache.annotation.EnableCaching;
 import org.springframework.context.annotation.Bean;
 import org.springframework.core.env.Environment;
 
 @SpringBootApplication
 @EnableConfigurationProperties({ ApplicationProperties.class, MailProperties.class, LogProperties.class })
+@EnableCaching
 public class WarehouseApp {
 
     private static final Logger LOG = LoggerFactory.getLogger(WarehouseApp.class);

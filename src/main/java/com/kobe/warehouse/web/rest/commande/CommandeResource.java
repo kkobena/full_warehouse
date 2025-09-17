@@ -1,5 +1,7 @@
 package com.kobe.warehouse.web.rest.commande;
 
+import com.kobe.warehouse.domain.CommandeId;
+import com.kobe.warehouse.domain.OrderLineId;
 import com.kobe.warehouse.service.dto.CommandeDTO;
 import com.kobe.warehouse.service.dto.CommandeLiteDTO;
 import com.kobe.warehouse.service.dto.CommandeModel;
@@ -11,6 +13,7 @@ import com.kobe.warehouse.web.util.HeaderUtil;
 import jakarta.validation.Valid;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.time.LocalDate;
 import java.util.List;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.ResponseEntity;
@@ -91,48 +94,48 @@ public class CommandeResource {
             .build();
     }
 
-    @PutMapping("/commandes/delete/order-lines/{id}")
-    public ResponseEntity<Void> deleteOrderLinesByIds(@PathVariable Long id, @RequestBody List<Long> ids) {
-        commandService.deleteOrderLinesByIds(id, ids);
+    @PutMapping("/commandes/delete/order-lines/{id}/{orderDate}")
+    public ResponseEntity<Void> deleteOrderLinesByIds(@PathVariable Long id,@PathVariable LocalDate orderDate, @RequestBody List<OrderLineId> ids) {
+        commandService.deleteOrderLinesByIds(new CommandeId(id,orderDate), ids);
         return ResponseEntity.noContent()
             .headers(HeaderUtil.createEntityDeletionAlert(applicationName, true, ENTITY_NAME, id.toString()))
             .build();
     }
 
     @PutMapping("/commandes/fusionner")
-    public ResponseEntity<Void> fusionner(@RequestBody List<Long> ids) {
+    public ResponseEntity<Void> fusionner(@RequestBody List<CommandeId> ids) {
         commandService.fusionner(ids);
         return ResponseEntity.noContent().headers(HeaderUtil.createEntityDeletionAlert(applicationName, true, ENTITY_NAME, "")).build();
     }
 
     @PutMapping("/commandes/delete-commandes")
-    public ResponseEntity<Void> deleteSelectedCommandes(@RequestBody List<Long> ids) {
+    public ResponseEntity<Void> deleteSelectedCommandes(@RequestBody List<CommandeId> ids) {
         commandService.deleteAll(ids);
         return ResponseEntity.noContent().headers(HeaderUtil.createEntityDeletionAlert(applicationName, true, ENTITY_NAME, "")).build();
     }
 
-    @DeleteMapping("/commandes/order-line/{id}")
-    public ResponseEntity<Void> deleteOrderLineById(@PathVariable Long id) {
-        commandService.deleteOrderLineById(id);
+    @DeleteMapping("/commandes/order-line/{id}/{orderDate}")
+    public ResponseEntity<Void> deleteOrderLineById(@PathVariable Long id, @PathVariable LocalDate orderDate) {
+        commandService.deleteOrderLineById(new OrderLineId(id,orderDate));
         return ResponseEntity.noContent()
             .headers(HeaderUtil.createEntityDeletionAlert(applicationName, true, ENTITY_NAME, id.toString()))
             .build();
     }
 
-    @DeleteMapping("/commandes/{id}")
-    public ResponseEntity<Void> deleteById(@PathVariable Long id) {
-        commandService.deleteById(id);
+    @DeleteMapping("/commandes/{id}/{orderDate}")
+    public ResponseEntity<Void> deleteById(@PathVariable Long id, @PathVariable LocalDate orderDate) {
+        commandService.deleteById(new CommandeId(id,orderDate));
         return ResponseEntity.noContent()
             .headers(HeaderUtil.createEntityDeletionAlert(applicationName, true, ENTITY_NAME, id.toString()))
             .build();
     }
 
-    @PostMapping("/commandes/verification-commande-en-cours/{id}")
+    @PostMapping("/commandes/verification-commande-en-cours/{id}/{orderDate}")
     public ResponseEntity<VerificationResponseCommandeDTO> importerReponseCommande(
-        @PathVariable Long id,
+        @PathVariable("id") Long id,@PathVariable("orderDate") LocalDate orderDate,
         @RequestPart("commande") MultipartFile file
     ) {
-        VerificationResponseCommandeDTO verificationResponseCommandeDTO = commandService.importerReponseCommande(id, file);
+        VerificationResponseCommandeDTO verificationResponseCommandeDTO = commandService.importerReponseCommande(new CommandeId(id,orderDate), file);
         return ResponseEntity.ok(verificationResponseCommandeDTO);
     }
 
@@ -146,9 +149,9 @@ public class CommandeResource {
         return ResponseEntity.ok(commandeResponseDTO);
     }
 
-    @DeleteMapping("/commandes/rollback/{id}")
-    public ResponseEntity<Void> rollback(@PathVariable Long id) {
-        commandService.rollback(id);
+    @DeleteMapping("/commandes/rollback/{id}/{orderDate}")
+    public ResponseEntity<Void> rollback(@PathVariable Long id, @PathVariable LocalDate orderDate) {
+        commandService.rollback(new CommandeId(id,orderDate));
         return ResponseEntity.noContent()
             .headers(HeaderUtil.createEntityDeletionAlert(applicationName, true, ENTITY_NAME, id.toString()))
             .build();

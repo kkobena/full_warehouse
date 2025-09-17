@@ -1,22 +1,23 @@
 package com.kobe.warehouse.service.pharmaml.dto;
 
+import com.kobe.warehouse.domain.CommandeId;
 import com.kobe.warehouse.service.pharmaml.dto.enumeration.TypeCommande;
 import java.time.LocalDate;
 
 public class EnvoiParamsDTO {
 
     private Long grossisteId;
-    private Long commandeId;
+    private CommandeId commandeId;
     private LocalDate dateLivraisonSouhaitee;
     private TypeCommande typeCommande;
     private String commentaire;
     private Long ruptureId;
 
-    public Long getCommandeId() {
+    public CommandeId getCommandeId() {
         return commandeId;
     }
 
-    public EnvoiParamsDTO setCommandeId(Long commandeId) {
+    public EnvoiParamsDTO setCommandeId(CommandeId commandeId) {
         this.commandeId = commandeId;
         return this;
     }

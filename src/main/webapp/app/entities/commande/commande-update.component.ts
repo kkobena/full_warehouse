@@ -57,6 +57,7 @@ import { ToastAlertComponent } from '../../shared/toast-alert/toast-alert.compon
 import { SpinerService } from '../../shared/spiner.service';
 import { FileResponseModalComponent } from './file-response-modal/file-response-modal.component';
 import { SpinnerComponent } from '../../shared/spinner/spinner.component';
+import { CommandeId } from '../../shared/model/abstract-commande.model';
 
 @Component({
   selector: 'jhi-commande-update',
@@ -285,7 +286,7 @@ export class CommandeUpdateComponent implements OnInit, AfterViewInit {
 
   protected onDeleteOrderLineById(orderLine: IOrderLine): void {
     if (this.commande) {
-      this.commandeService.deleteOrderLineById(orderLine.id).subscribe(() => {
+      this.commandeService.deleteOrderLineById(orderLine.orderLineId).subscribe(() => {
         this.refreshCommande();
       });
     }
@@ -300,8 +301,10 @@ export class CommandeUpdateComponent implements OnInit, AfterViewInit {
   }
 
   protected deleteSelectedOrderLine(): void {
-    const ids = this.selectedEl.map(e => e.id);
-    this.commandeService.deleteOrderLinesByIds(this.commande.id, ids).subscribe(() => {
+    const ids = this.selectedEl.map(e => {
+      return { id: e.id!, orderDate: e.orderDate! };
+    });
+    this.commandeService.deleteOrderLinesByIds(this.commande.commandeId, ids).subscribe(() => {
       this.refreshCommande();
       this.selectedEl = [];
       this.focusPrdoduitBox();
@@ -309,7 +312,7 @@ export class CommandeUpdateComponent implements OnInit, AfterViewInit {
   }
 
   protected exportPdf(): void {
-    this.commandeService.exportToPdf(this.commande.id).subscribe(blod => {
+    this.commandeService.exportToPdf(this.commande.commandeId).subscribe(blod => {
       const blobUrl = URL.createObjectURL(blod);
       window.open(blobUrl);
     });
@@ -335,14 +338,14 @@ export class CommandeUpdateComponent implements OnInit, AfterViewInit {
   }
 
   private reloadCommande(): void {
-    this.commandeService.find(this.commande.id).subscribe(res => {
+    this.commandeService.find(this.commande.commandeId).subscribe(res => {
       this.commande = res.body;
       this.orderLines = this.commande.orderLines;
     });
   }
 
   protected exportCSV(): void {
-    this.commandeService.exportToCsv(this.commande.id).subscribe(blod => saveAs(blod));
+    this.commandeService.exportToCsv(this.commande.commandeId).subscribe(blod => saveAs(blod));
   }
 
   protected searchFn(event: any): void {
@@ -499,7 +502,7 @@ export class CommandeUpdateComponent implements OnInit, AfterViewInit {
   }
 
   private refreshCommande(): void {
-    this.commandeService.find(this.commande.id).subscribe(res => {
+    this.commandeService.find(this.commande.commandeId).subscribe(res => {
       this.commande = res.body;
       this.orderLines = this.commande.orderLines;
       this.focusPrdoduitBox();
@@ -517,7 +520,7 @@ export class CommandeUpdateComponent implements OnInit, AfterViewInit {
   }
 
 
-  private onSaveOrderLineSuccess(commandeId: number): void {
+  private onSaveOrderLineSuccess(commandeId: CommandeId): void {
     this.commandeService.find(commandeId).subscribe(res => {
       this.commande = res.body;
       this.orderLines = this.commande.orderLines;
@@ -539,7 +542,7 @@ export class CommandeUpdateComponent implements OnInit, AfterViewInit {
 
   private subscribeToSaveOrderLineResponse(result: Observable<HttpResponse<ICommande>>): void {
     result.subscribe({
-      next: (res: HttpResponse<ICommande>) => this.onSaveOrderLineSuccess(res.body?.id),
+      next: (res: HttpResponse<ICommande>) => this.onSaveOrderLineSuccess(res.body?.commandeId),
       error: (err: any) => this.onCommonError(err)
     });
   }
@@ -676,18 +679,18 @@ export class CommandeUpdateComponent implements OnInit, AfterViewInit {
     this.commande.fournisseurId = this.selectedProvider;
     this.commandeService.changeGrossiste(this.commande).subscribe({
       next: () => {
-        this.onSaveOrderLineSuccess(this.commande.id);
+        this.onSaveOrderLineSuccess(this.commande.commandeId);
       },
       error: error => {
         this.onCommonError(error);
-        this.onSaveOrderLineSuccess(this.commande.id);
+        this.onSaveOrderLineSuccess(this.commande.commandeId);
       }
     });
   }
 
   private subscribeUpdateOrderLineResponse(result: Observable<HttpResponse<{}>>): void {
     result.subscribe({
-      next: () => this.onSaveOrderLineSuccess(this.commande?.id),
+      next: () => this.onSaveOrderLineSuccess(this.commande?.commandeId),
       error: (err: any) => this.onCommonError(err)
     });
   }

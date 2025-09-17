@@ -2,17 +2,13 @@ package com.kobe.warehouse.service.dto;
 
 import java.time.Month;
 
-public interface HistoriqueProduitAchatMensuelle {
-    Integer getAnnee();
+public record HistoriqueProduitAchatMensuelle(Integer annee, Integer mois, int quantite, Integer montantAchat) {
 
-    Integer getMois();
 
-    int getQuantite();
-
-    default Month getMonth() {
-        if (getMois() == null) {
+    public Month getMonth() {
+        if (mois == null) {
             return null;
         }
-        return Month.of(getMois());
+        return Month.of(mois);
     }
 }

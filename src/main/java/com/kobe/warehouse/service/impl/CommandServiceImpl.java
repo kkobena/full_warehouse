@@ -3,10 +3,12 @@ package com.kobe.warehouse.service.impl;
 
 import com.kobe.warehouse.domain.AppUser;
 import com.kobe.warehouse.domain.Commande;
+import com.kobe.warehouse.domain.CommandeId;
 import com.kobe.warehouse.domain.Fournisseur;
 import com.kobe.warehouse.domain.FournisseurProduit;
 import com.kobe.warehouse.domain.Lot;
 import com.kobe.warehouse.domain.OrderLine;
+import com.kobe.warehouse.domain.OrderLineId;
 import com.kobe.warehouse.domain.Produit;
 import com.kobe.warehouse.domain.Suggestion;
 import com.kobe.warehouse.domain.enumeration.OrderStatut;
@@ -53,6 +55,7 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -64,10 +67,9 @@ import java.util.Set;
 @Service
 @Transactional
 public class CommandServiceImpl implements CommandService {
-
+    private final Logger log = LoggerFactory.getLogger(CommandServiceImpl.class);
     private static final String CSV = "csv";
     private static final String TXT = "txt";
-    private final Logger log = LoggerFactory.getLogger(CommandServiceImpl.class);
     private final CommandeRepository commandeRepository;
     private final StorageService storageService;
     private final OrderLineService orderLineService;
@@ -148,8 +150,8 @@ public class CommandServiceImpl implements CommandService {
         return commande;
     }
 
-    private Commande findCommandeById(Long id) {
-        return commandeRepository.findCommandeById(id);
+    private Commande findCommandeById(CommandeId id) {
+        return commandeRepository.getReferenceById(id);
     }
 
     @Override
@@ -159,7 +161,7 @@ public class CommandServiceImpl implements CommandService {
 
         Optional<OrderLine> optionalOrderLine = orderLineService.findOneFromCommande(
             orderLineDTO.getProduitId(),
-            orderLineDTO.getCommande().getId(),
+            orderLineDTO.getCommande().getCommandeId(),
             orderLineDTO.getCommande().getFournisseurId()
         );
         OrderLine orderLine = null;
@@ -167,7 +169,7 @@ public class CommandServiceImpl implements CommandService {
             orderLine = optionalOrderLine.get();
         }
 
-        Commande commande = findCommandeById(orderLineDTO.getCommande().getId());
+        Commande commande = findCommandeById(orderLineDTO.getCommande().getCommandeId());
         if (orderLine == null) {
             orderLine = orderLineService.buildOrderLineFromOrderLineDTO(orderLineDTO);
             orderLine.setCommande(commande);
@@ -191,7 +193,7 @@ public class CommandServiceImpl implements CommandService {
     @Override
     public void updateOrderLineQuantityReceived(OrderLineDTO orderLineDTO) {
         orderLineService
-            .findOneById(orderLineDTO.getId())
+            .findOneById(orderLineDTO.getOrderLineId())
             .ifPresentOrElse(
                 orderLine -> orderLineService.updateOrderLineQuantityReceived(orderLine, orderLineDTO.getQuantityReceived()),
                 NullPointerException::new
@@ -201,9 +203,9 @@ public class CommandServiceImpl implements CommandService {
     @Override
     public void updateOrderLineQuantityUg(OrderLineDTO orderLineDTO) {
         orderLineService
-            .findOneById(orderLineDTO.getId())
+            .findOneById(orderLineDTO.getOrderLineId())
             .ifPresentOrElse(
-                orderLine -> orderLineService.updateOrderLineQuantityUG(orderLineDTO.getId(), orderLineDTO.getFreeQty()),
+                orderLine -> orderLineService.updateOrderLineQuantityUG(orderLine.getId(), orderLineDTO.getFreeQty()),
                 NullPointerException::new
             );
     }
@@ -222,7 +224,7 @@ public class CommandServiceImpl implements CommandService {
     }
 
     @Override
-    public void deleteOrderLineById(Long orderLineId) {
+    public void deleteOrderLineById(OrderLineId orderLineId) {
         orderLineService
             .findOneById(orderLineId)
             .ifPresent(orderLine -> {
@@ -235,12 +237,12 @@ public class CommandServiceImpl implements CommandService {
     }
 
     @Override
-    public void deleteById(Long id) {
-        commandeRepository.deleteCommandeById(id);
+    public void deleteById(CommandeId id) {
+        commandeRepository.deleteById(id);
     }
 
     @Override
-    public void rollback(Long id) {
+    public void rollback(CommandeId id) {
         Commande commande = findCommandeById(id);
         commande.setOrderStatus(OrderStatut.REQUESTED);
         commande.setUpdatedAt(LocalDateTime.now());
@@ -253,7 +255,7 @@ public class CommandServiceImpl implements CommandService {
     }
 
     @Override
-    public void deleteOrderLinesByIds(Long commandeId, List<Long> ids) {
+    public void deleteOrderLinesByIds(CommandeId commandeId, List<OrderLineId> ids) {
         Commande commande = findCommandeById(commandeId);
         ids.forEach(orderLineId ->
             orderLineService
@@ -268,12 +270,12 @@ public class CommandServiceImpl implements CommandService {
     }
 
     @Override
-    public void fusionner(List<Long> ids) {
-        Collections.sort(ids);
-        final Long firstCommandeId = ids.getFirst();
+    public void fusionner(List<CommandeId> ids) {
+        ids.sort(Comparator.comparing(CommandeId::getId));
+        final CommandeId firstCommandeId = ids.getFirst();
         Commande commande = findCommandeById(firstCommandeId);
         List<Commande> commandesToDelete = new ArrayList<>();
-        List<Long> longs = ids.subList(1, ids.size());
+        List<CommandeId> longs = ids.subList(1, ids.size());
         longs.forEach(aLong -> {
             Commande commandeSecond = findCommandeById(aLong);
             commandeSecond
@@ -299,12 +301,12 @@ public class CommandServiceImpl implements CommandService {
     }
 
     @Override
-    public void deleteAll(List<Long> ids) {
-        ids.forEach(this.commandeRepository::deleteCommandeById);
+    public void deleteAll(List<CommandeId> ids) {
+        ids.forEach(this.commandeRepository::deleteById);
     }
 
     @Override
-    public VerificationResponseCommandeDTO importerReponseCommande(Long commandeId, MultipartFile multipartFile) {
+    public VerificationResponseCommandeDTO importerReponseCommande(CommandeId commandeId, MultipartFile multipartFile) {
         String fileName = multipartFile.getOriginalFilename();
         assert fileName != null;
         String extension = fileName.substring(fileName.indexOf(".") + 1);
@@ -351,6 +353,7 @@ public class CommandServiceImpl implements CommandService {
 
     private Commande buildCommande(Long fournisseurId) {
         Commande commande = new Commande();
+        commande.setId(this.commandeIdGeneratorService.nextId());
         commande.setTaxAmount(0);
         commande.setHtAmount(0);
         commande.setOrderStatus(OrderStatut.REQUESTED);
@@ -1336,7 +1339,7 @@ public class CommandServiceImpl implements CommandService {
 
     @Override
     public void changeGrossiste(CommandeDTO commandeDTO) {
-        Commande commande = findCommandeById(commandeDTO.getId());
+        Commande commande = findCommandeById(commandeDTO.getCommandeId());
         Fournisseur fournisseur = new Fournisseur().id(commandeDTO.getFournisseurId());
         commande.setFournisseur(fournisseur);
         commande.setUpdatedAt(LocalDateTime.now());

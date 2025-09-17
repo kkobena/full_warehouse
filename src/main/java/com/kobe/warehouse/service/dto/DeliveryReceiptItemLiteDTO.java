@@ -1,5 +1,6 @@
 package com.kobe.warehouse.service.dto;
 
+import com.kobe.warehouse.domain.OrderLineId;
 import jakarta.validation.constraints.NotNull;
 import java.time.LocalDate;
 import java.util.List;
@@ -21,6 +22,7 @@ public class DeliveryReceiptItemLiteDTO {
     private Long tvaId;
     private LocalDate datePeremption;
     private LocalDate datePeremptionTmp;
+    private OrderLineId orderLineId;
 
     public LocalDate getDatePeremptionTmp() {
         return datePeremptionTmp;
@@ -55,6 +57,15 @@ public class DeliveryReceiptItemLiteDTO {
 
     public DeliveryReceiptItemLiteDTO setTvaId(Long tvaId) {
         this.tvaId = tvaId;
+        return this;
+    }
+
+    public OrderLineId getOrderLineId() {
+        return orderLineId;
+    }
+
+    public DeliveryReceiptItemLiteDTO setOrderLineId(OrderLineId orderLineId) {
+        this.orderLineId = orderLineId;
         return this;
     }
 

@@ -2,12 +2,16 @@ package com.kobe.warehouse.domain;
 
 import com.kobe.warehouse.domain.enumeration.TypeSubstitut;
 import jakarta.persistence.*;
+import org.hibernate.annotations.Cache;
+import org.hibernate.annotations.CacheConcurrencyStrategy;
+
 import java.io.Serial;
 import java.io.Serializable;
 import java.util.Objects;
 
 @Entity
 @Table(name = "substitut", uniqueConstraints = { @UniqueConstraint(columnNames = { "produit_id", "substitut_id" }) })
+@Cache(usage = CacheConcurrencyStrategy.NONSTRICT_READ_WRITE)
 public class Substitut implements Serializable {
 
     @Serial

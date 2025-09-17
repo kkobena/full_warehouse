@@ -10,11 +10,12 @@ import com.kobe.warehouse.repository.StorageRepository;
 import com.kobe.warehouse.repository.UserRepository;
 import com.kobe.warehouse.security.SecurityUtils;
 import com.kobe.warehouse.service.dto.StorageDTO;
-import java.util.List;
-import java.util.Optional;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.util.List;
+import java.util.Optional;
 
 @Service
 @Transactional
@@ -23,15 +24,17 @@ public class StorageService {
     private final StorageRepository storageRepository;
     private final AppConfigurationService appConfigurationService;
     private final UserRepository userRepository;
+    private final UserService userService;
 
     public StorageService(
         StorageRepository storageRepository,
         AppConfigurationService appConfigurationService,
-        UserRepository userRepository
+        UserRepository userRepository, UserService userService
     ) {
         this.storageRepository = storageRepository;
         this.appConfigurationService = appConfigurationService;
         this.userRepository = userRepository;
+        this.userService = userService;
     }
 
     public Storage getStorageByMagasinIdAndType(Long magasinId, StorageType storageType) {
@@ -47,20 +50,17 @@ public class StorageService {
         return storageRepository.getReferenceById(EntityConstant.DEFAULT_STORAGE);
     }
 
-    public Storage getDefaultMagasinReserveStorage() {
-        return storageRepository.getReferenceById(EntityConstant.RESERVE_STORAGE);
-    }
 
     public AppUser getUser() {
-        return SecurityUtils.getCurrentUserLogin().flatMap(userRepository::findOneByLogin).orElse(null);
+        return userService.getUser();
     }
 
-    @Cacheable(EntityConstant.PRINCIPAL_CACHE)
+    @Cacheable(value = EntityConstant.USER_MAIN_STORAGE_CACHE,key = "#root.target.getUser().getMagasin().getId()")
     public Storage getDefaultConnectedUserMainStorage() {
         return getStorageByMagasinIdAndType(getUser().getMagasin().getId(), StorageType.PRINCIPAL);
     }
 
-    @Cacheable(EntityConstant.POINT_DE_VENTE_CACHE)
+    @Cacheable(value =EntityConstant.POINT_DE_VENTE_CACHE,key = "#root.target.getUser().getMagasin().getId()")
     public Storage getDefaultConnectedUserPointOfSaleStorage() {
         if (appConfigurationService.isMono()) {
             return getStorageByMagasinIdAndType(getUser().getMagasin().getId(), StorageType.PRINCIPAL);
@@ -69,9 +69,11 @@ public class StorageService {
         return getStorageByMagasinIdAndType(getUser().getMagasin().getId(), StorageType.POINT_DE_VENTE);
     }
 
+    @Cacheable( value =EntityConstant.USER_RESERVE_STORAGE_CACHE,key = "#root.target.getUser().getMagasin().getId()")
     public Storage getDefaultConnectedUserReserveStorage() {
         return getStorageByMagasinIdAndType(getUser().getMagasin().getId(), StorageType.SAFETY_STOCK);
     }
+
 
     public Magasin getConnectedUserMagasin() {
         return getUser().getMagasin();
@@ -94,7 +96,7 @@ public class StorageService {
         return this.storageRepository.findAllByMagasinId(magasinId).stream().map(StorageDTO::new).toList();
     }
 
-    @Cacheable(EntityConstant.USER_STORAGE__CACHE)
+    @Cacheable(EntityConstant.USER_STORAGE_CACHE)
     public List<StorageDTO> fetchAllByConnectedUser() {
         return this.fetchAllByMagasin(this.getUser().getMagasin().getId());
     }

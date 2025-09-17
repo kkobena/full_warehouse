@@ -13,6 +13,9 @@ import jakarta.validation.constraints.NotNull;
 import java.io.Serial;
 import java.io.Serializable;
 import java.util.Objects;
+
+import org.hibernate.annotations.Cache;
+import org.hibernate.annotations.CacheConcurrencyStrategy;
 import org.hibernate.annotations.ColumnDefault;
 
 @Entity
@@ -21,6 +24,7 @@ import org.hibernate.annotations.ColumnDefault;
     uniqueConstraints = { @UniqueConstraint(columnNames = { "name" }), @UniqueConstraint(columnNames = { "name", "poste_id" }) },
     indexes = { @Index(columnList = "name", name = "name_index") }
 )
+@Cache(usage = CacheConcurrencyStrategy.NONSTRICT_READ_WRITE)
 public class Printer implements Serializable {
 
     @Serial

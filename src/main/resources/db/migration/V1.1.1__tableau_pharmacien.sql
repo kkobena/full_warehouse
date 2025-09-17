@@ -114,7 +114,7 @@ select jsonb_agg(
            'montantTtc', coalesce(sla.sales_amount, 0),
            'montantRemise', sa.total_discount_amount,
            'montantRemiseUg', coalesce(sla.remise_ug_produit, 0),
-           'montantCredit', coalesce(sa.total_part_tiers_payant, 0),
+           'montantCredit', coalesce(sa.total_part_tiers_payant, 0)+sa.total_rest_to_pay,
            'montantDiffere', sa.total_rest_to_pay,
            'nombreVente', sa.distinct_sales_count,
            'montantTtcUg', sla.sales_ug_amount,
@@ -244,11 +244,11 @@ with filtered_sales as (
      )
 select jsonb_agg(
          jsonb_build_object(
-           'mvtDate', to_char(sa.month_date, 'YYYY-MM'),
+           'mvtDate', to_char(sa.month_date, 'YYYY-MM-DD'),
            'montantTtc', coalesce(sla.sales_amount, 0),
            'montantRemise', sa.total_discount_amount,
            'montantRemiseUg', coalesce(sla.remise_ug_produit, 0),
-           'montantCredit', coalesce(sa.total_part_tiers_payant, 0),
+           'montantCredit', coalesce(sa.total_part_tiers_payant, 0)+sa.total_rest_to_pay,
            'montantDiffere', sa.total_rest_to_pay,
            'nombreVente', sa.distinct_sales_count,
            'montantTtcUg', sla.sales_ug_amount,
@@ -263,3 +263,93 @@ from sales_agg sa
        join sales_line_agg sla on sa.month_date = sla.month_date
        left join payment_agg pa on sa.month_date = pa.month_date;
 $$;
+
+
+CREATE OR REPLACE FUNCTION tableau_pharmacien_commandes_report(
+
+  p_start_date DATE,
+  p_end_date DATE,
+  p_order_status TEXT
+)
+  RETURNS JSONB
+AS $$
+BEGIN
+  RETURN (
+    SELECT jsonb_agg(
+             jsonb_build_object(
+               'mvtDate', order_date,
+               'montantNet', net_amount,
+               'montantTaxe', tax_amount,
+               'montantTtc', gross_amount,
+               'montantRemise', discount_amount,
+               'groupeGrossisteId', group_id,
+               'groupeGrossiste', group_libelle,
+               'ordreAffichage', group_order
+             )
+           )
+    FROM (
+           SELECT
+             c.order_date,
+             SUM(c.gross_amount - c.tax_amount) AS net_amount,
+             SUM(c.tax_amount) AS tax_amount,
+             SUM(c.gross_amount) AS gross_amount,
+             SUM(c.discount_amount) AS discount_amount,
+             g.id AS group_id,
+             g.libelle AS group_libelle,
+             g.odre AS group_order
+           FROM commande c
+                  JOIN fournisseur f ON f.id = c.fournisseur_id
+                  JOIN groupe_fournisseur g ON g.id = f.groupe_pournisseur_id
+           WHERE c.order_date BETWEEN p_start_date AND p_end_date
+             AND c.order_status = p_order_status
+           GROUP BY c.order_date, g.id, g.libelle, g.odre
+           ORDER BY c.order_date
+         ) sub
+  );
+END;
+$$ LANGUAGE plpgsql;
+
+
+
+CREATE OR REPLACE FUNCTION tableau_pharmacien_commandes_mois_report(
+  p_start_date DATE,
+  p_end_date DATE,
+  p_order_status TEXT
+)
+  RETURNS JSONB
+AS $$
+BEGIN
+  RETURN (
+    SELECT jsonb_agg(
+             jsonb_build_object(
+               'mvtDate', to_char(month_date, 'YYYY-MM-DD'),
+               'montantNet', net_amount,
+               'montantTaxe', tax_amount,
+               'montantTtc', gross_amount,
+               'montantRemise', discount_amount,
+               'groupeGrossisteId', group_id,
+               'groupeGrossiste', group_libelle,
+               'ordreAffichage', group_order
+             )
+           )
+    FROM (
+           SELECT
+             date_trunc('month', c.order_date) AS month_date,
+             SUM(c.gross_amount - c.tax_amount) AS net_amount,
+             SUM(c.tax_amount) AS tax_amount,
+             SUM(c.gross_amount) AS gross_amount,
+             SUM(c.discount_amount) AS discount_amount,
+             g.id AS group_id,
+             g.libelle AS group_libelle,
+             g.odre AS group_order
+           FROM commande c
+                  JOIN fournisseur f ON f.id = c.fournisseur_id
+                  JOIN groupe_fournisseur g ON g.id = f.groupe_pournisseur_id
+           WHERE c.order_date BETWEEN p_start_date AND p_end_date
+             AND c.order_status = p_order_status
+           GROUP BY month_date, g.id, g.libelle, g.odre
+           ORDER BY month_date
+         ) sub
+  );
+END;
+$$ LANGUAGE plpgsql;

@@ -13,10 +13,11 @@ import SuggestionResolver from './suggestion/suggestion.resolver';
 
 export const CommandeResolve = (route: ActivatedRouteSnapshot): Observable<null | ICommande> => {
   const id = route.params['id'];
+  const orderDate = route.params['orderDate'];
   if (id) {
     if (route.url.some(url => url.path.includes('stock-entry'))) {
       return inject(CommandeService)
-        .findSaisieEntreeStock(id)
+        .findSaisieEntreeStock({ id: id, orderDate: orderDate })
         .pipe(
           mergeMap((commande: HttpResponse<ICommande>) => {
             if (commande.body) {
@@ -29,7 +30,7 @@ export const CommandeResolve = (route: ActivatedRouteSnapshot): Observable<null 
         );
     }
     return inject(CommandeService)
-      .find(id)
+      .find({ id: id, orderDate: orderDate })
       .pipe(
         mergeMap((res: HttpResponse<ICommande>) => {
           if (res.body) {
@@ -74,7 +75,7 @@ const commandeRoute: Routes = [
     canActivate: [UserRouteAccessService]
   },
   {
-    path: ':id/edit',
+    path: ':id/:orderDate/edit',
     loadComponent: () => import('./commande-update.component').then(m => m.CommandeUpdateComponent),
     resolve: {
       commande: CommandeResolve

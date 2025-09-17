@@ -238,7 +238,10 @@ public class TicketZServiceImpl implements TicketZService {
 
     private Specification<Sales> getTicketZDiffereSpecification(TicketZParam param, Pair periode) {
         Specification<Sales> specification =
-            this.salesRepository.filterByPeriode((LocalDateTime) periode.key(), (LocalDateTime) periode.value());
+            this.salesRepository.between(param.fromDate(), param.toDate());
+        if (!param.isMinDate()) {
+            specification = specification.and(this.salesRepository.filterByPeriode((LocalDateTime) periode.key(), (LocalDateTime) periode.value()));
+        }
 
         if (!CollectionUtils.isEmpty(param.usersId())) {
             specification = specification.and(this.salesRepository.filterByCaissierId(param.usersId()));
@@ -248,7 +251,10 @@ public class TicketZServiceImpl implements TicketZService {
 
     private Specification<ThirdPartySales> getTicketZCreditSpecification(TicketZParam param, Pair periode) {
         Specification<ThirdPartySales> specification =
-            this.thirdPartySaleRepository.filterByPeriode((LocalDateTime) periode.key(), (LocalDateTime) periode.value());
+            this.thirdPartySaleRepository.filterByPeriode(param.fromDate(), param.toDate());
+        if (!param.isMinDate()) {
+            specification = specification.and(this.thirdPartySaleRepository.filterByPeriode((LocalDateTime) periode.key(), (LocalDateTime) periode.value()));
+        }
 
         if (!CollectionUtils.isEmpty(param.usersId())) {
             specification = specification.and(this.thirdPartySaleRepository.filterByCaissierId(param.usersId()));
@@ -258,7 +264,11 @@ public class TicketZServiceImpl implements TicketZService {
 
     private Specification<SalePayment> getTicketZSalePaymentSpecification(TicketZParam param, Pair periode) {
         Specification<SalePayment> specification =
-            this.salePaymentRepository.filterByPeriode((LocalDateTime) periode.key(), (LocalDateTime) periode.value());
+            this.salePaymentRepository.paymentBetween(param.fromDate(), param.toDate());
+
+        if (!param.isMinDate()) {
+            specification = specification.and(this.salePaymentRepository.filterByPeriode((LocalDateTime) periode.key(), (LocalDateTime) periode.value()));
+        }
 
         if (!CollectionUtils.isEmpty(param.usersId())) {
             specification = specification.and(this.salePaymentRepository.filterByCaissierId(param.usersId()));
@@ -268,9 +278,10 @@ public class TicketZServiceImpl implements TicketZService {
 
     private Specification<PaymentTransaction> getTicketZAllPaymentSpecification(TicketZParam param, Pair periode) {
         Specification<PaymentTransaction> specification = this.paymentTransactionRepository.filterByPeriode(((LocalDateTime) periode.key()).toLocalDate(), ((LocalDateTime) periode.value()).toLocalDate());
-        //TODO A revoir pour verifier si se ne sont pas les heures par defaut 00:00 et 23:59
-        specification = specification.and(this.paymentTransactionRepository.filterByPeriode((LocalDateTime) periode.key(), (LocalDateTime) periode.value()));
 
+        if (!param.isMinDate()) {
+            specification = specification.and(this.paymentTransactionRepository.filterByPeriode((LocalDateTime) periode.key(), (LocalDateTime) periode.value()));
+        }
         if (!CollectionUtils.isEmpty(param.usersId())) {
             specification = specification.and(this.paymentTransactionRepository.filterByCaissierId(param.usersId()));
         }

@@ -26,12 +26,5 @@ public interface DeliveryReceiptRepository extends JpaRepository<Commande, Comma
         Pageable pageable
     );
 
-    @Query(
-        value = "select SUM(a.orderAmount)  AS montantTtc,SUM(a.htAmount)  AS montantHt,SUM(a.taxAmount)  AS montantTva from Commande a where FUNCTION('DATE',a.createdAt)  between :fromDate and :toDate AND a.orderStatus=:orderStatut"
-    )
-    ChiffreAffaireAchat fetchAchats(
-        @Param("fromDate") LocalDate fromDate,
-        @Param("toDate") LocalDate toDate,
-        @Param("orderStatut") OrderStatut orderStatut
-    );
+
 }

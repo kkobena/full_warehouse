@@ -11,14 +11,14 @@
                 [filter]="false"
                 [options]="typeVentes"
                 placeholder="Filtrer par critère"
-                styleClass="dropdown-width"
+
               >
               </p-select>
             </div>
 
             <div class="col">
               <p-iconfield>
-                <p-inputicon styleClass="pi pi-search" />
+                <p-inputicon class="pi pi-search" />
                 <input (keyup.enter)="onSearch()" pInputText placeholder="Taper pour rechercher" type="text" />
               </p-iconfield>
             </div>
@@ -90,7 +90,7 @@
             <td>
               <div class="btn-group d-flex justify-content-end">
                 <p-button
-                  [routerLink]="['/sales', sale.id, false, 'edit']"
+                  [routerLink]="['/sales', sale.saleId.id,sale.saleId.saleDate, false, 'edit']"
                   [text]="true"
                   icon="pi pi-pencil"
                   pTooltip="Editer"

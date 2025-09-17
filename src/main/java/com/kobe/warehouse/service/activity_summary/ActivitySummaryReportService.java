@@ -95,9 +95,9 @@ public class ActivitySummaryReportService extends CommonReportService {
         BigDecimal montant = BigDecimal.ZERO;
         int bonsCount = 0;
         for (AchatTiersPayant achatTiersPayant : achatTiersPayants) {
-            clientCount += achatTiersPayant.getClientCount();
-            montant = montant.add(achatTiersPayant.getMontant());
-            bonsCount += achatTiersPayant.getBonsCount();
+            clientCount += achatTiersPayant.clientCount();
+            montant = montant.add(BigDecimal.valueOf(achatTiersPayant.montant()));
+            bonsCount += achatTiersPayant.bonsCount();
         }
         return new Amount(clientCount, montant, bonsCount);
     }

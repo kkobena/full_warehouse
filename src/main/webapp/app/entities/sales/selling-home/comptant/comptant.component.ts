@@ -82,7 +82,7 @@ export class ComptantComponent {
     this.facade.saveResponse$.pipe(takeUntilDestroyed()).subscribe(res => {
       this.saveResponse.emit(res);
       if (res.success) {
-        this.amountComputingComponent().computeMonnaie(null);
+        this.amountComputingComponent()?.computeMonnaie(null);
       }
     });
 

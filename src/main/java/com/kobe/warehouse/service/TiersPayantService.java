@@ -28,7 +28,6 @@ public interface TiersPayantService extends TiersPayantMapper {
 
     Page<AchatTiersPayant> fetchAchatTiersPayant(LocalDate fromDate, LocalDate toDate, String search, Pageable pageable);
 
-    Page<ReglementTiersPayants> findReglementTierspayant(LocalDate fromDate, LocalDate toDate, String search, Pageable pageable);
 
     List<TiersPayantAchat> fetchAchatTiersPayant(VenteRecordParamDTO venteRecordParam);
 }

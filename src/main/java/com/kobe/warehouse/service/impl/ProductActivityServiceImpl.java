@@ -34,12 +34,12 @@ import org.springframework.stereotype.Service;
 public class ProductActivityServiceImpl implements ProductActivityService {
 
     private static final String VENTE_QUERY =
-        "SELECT  DATE(s.updated_at) as mvt_date, SUM(sl.quantity_requested) AS qty_mvt,MIN(s.updated_at) AS min_mvt_date,MAX(s.updated_at) AS max_mvt_date FROM sales_line sl, sales s WHERE s.id=sl.sales_id AND sl.produit_id=?1  AND   DATE(s.updated_at) BETWEEN ?2 AND ?3 AND s.statut=?4 AND s.copy=0 AND s.imported=0 GROUP BY  DATE(s.updated_at) ORDER BY  DATE(s.updated_at) ";
+        "SELECT  DATE(s.updated_at) as mvt_date, SUM(sl.quantity_requested) AS qty_mvt,MIN(s.updated_at) AS min_mvt_date,MAX(s.sale_date) AS max_mvt_date FROM sales_line sl, sales s WHERE s.id=sl.sales_id  AND sl.produit_id=?1  AND   s.sale_date BETWEEN ?2 AND ?3 AND s.statut=?4 AND s.copy=0 AND s.imported=0 GROUP BY  s.sale_date ORDER BY  s.sale_date ";
     private static final String AJUSTEMENT_QUERY =
         "SELECT DATE(a.date_mtv) as mvt_date,a.type_ajust,SUM(a.qty_mvt) as qty_mvt,MIN(a.date_mtv) AS min_mvt_date,MAX(a.date_mtv) AS max_mvt_date  FROM ajustement a WHERE a.produit_id=?1 AND DATE(a.date_mtv) BETWEEN ?2 AND ?3 GROUP BY a.type_ajust," +
         "mvt_date ORDER BY mvt_date";
     private static final String CANCELED_QUERY =
-        "SELECT sl.produit_id, DATE(s.updated_at) as mvt_date, SUM(sl.quantity_requested) AS qty_mvt,MIN(s.updated_at) AS min_mvt_date,MAX(s.updated_at) AS max_mvt_date FROM sales_line sl, sales s WHERE s.id=sl.sales_id AND sl.produit_id=?1  AND   DATE(s.updated_at) BETWEEN ?2 AND ?3 AND s.statut=?4  AND s.imported=0 GROUP BY  DATE(s.updated_at) ORDER BY  DATE(s.updated_at)";
+        "SELECT sl.produit_id, DATE(s.updated_at) as mvt_date, SUM(sl.quantity_requested) AS qty_mvt,MIN(s.sale_date) AS min_mvt_date,MAX(s.sale_date) AS max_mvt_date FROM sales_line sl, sales s WHERE s.id=sl.sales_id AND sl.produit_id=?1  AND   s.sale_date BETWEEN ?2 AND ?3 AND s.statut=?4  AND s.imported=0 GROUP BY  s.sale_date ORDER BY  s.sale_date";
     private static final String DECONDITIONNEMENT_QUERY =
         "SELECT SUM(d.qty_mvt) AS qty_mvt,DATE(d.date_mtv) as mvt_date,d.type_deconditionnement AS type_decon,MIN(d.date_mtv) AS min_mvt_date,MAX(d.date_mtv) AS max_mvt_date  FROM decondition d  WHERE  d.produit_id=?1 AND DATE(d.date_mtv) BETWEEN ?2 AND ?3  GROUP BY DATE(d.date_mtv) ,d.type_deconditionnement";
     private static final String ENTRY_QUERY =
@@ -176,7 +176,7 @@ public class ProductActivityServiceImpl implements ProductActivityService {
 
     // a revoir
     private List<VenteActivityDTO> getCanceledProduitVente(Long produitId, LocalDate fromDate, LocalDate toDate) {
-        return getProduitVente(CANCELED_QUERY, produitId, fromDate, toDate, true, SalesStatut.REMOVE);
+        return getProduitVente(CANCELED_QUERY, produitId, fromDate, toDate, true, SalesStatut.CANCELED);
     }
 
     private List<VenteActivityDTO> getProduitVente(

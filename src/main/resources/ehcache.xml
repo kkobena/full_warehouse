@@ -1,0 +1,154 @@
+
+
+<config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xmlns="http://www.ehcache.org/v3"
+        xsi:schemaLocation="http://www.ehcache.org/v3
+                            http://www.ehcache.org/schema/ehcache-core.xsd">
+
+
+  <cache-template name="default-parameter">
+    <expiry>
+      <ttl unit="days">1</ttl>
+    </expiry>
+    <resources>
+      <offheap unit="MB">5</offheap>
+    </resources>
+  </cache-template>
+
+
+<!-- ============================= -->
+<!-- Template : entités volatiles  -->
+<!-- (produits)   -->
+<!-- ============================= -->
+<cache-template name="default-volatile">
+  <expiry>
+    <ttl unit="minutes">30</ttl> <!-- Durée de vie : 30 min -->
+  </expiry>
+  <resources>
+    <offheap unit="MB">10</offheap>  <!-- 10 Mo en off-heap -->
+  </resources>
+</cache-template>
+
+<!-- =============================== -->
+<!-- Template : entités stables      -->
+<!-- (métadonnées, rôles, etc.)-->
+<!-- =============================== -->
+<cache-template name="default-metadata">
+  <expiry>
+    <ttl unit="days">1</ttl> <!-- Durée de vie : 24h -->
+  </expiry>
+  <resources>
+    <offheap unit="MB">10</offheap>  <!-- 10 Mo en off-heap -->
+  </resources>
+</cache-template>
+
+
+  <!-- =============================== -->
+  <!-- Template : entités stables      -->
+  <!-- (métadonnées, client, etc.)-->
+  <!-- =============================== -->
+  <cache-template name="default-client-metadata">
+    <expiry>
+      <ttl unit="minutes">30</ttl> <!-- Durée de vie : 30minute -->
+    </expiry>
+    <resources>
+      <offheap unit="MB">10</offheap>  <!-- 10 Mo en off-heap -->
+    </resources>
+  </cache-template>
+  <!-- =============================== -->
+  <!-- Template : requete hibernate      -->
+
+  <cache-template name="default-hibernate-query">
+    <expiry>
+      <ttl>5</ttl> <!-- Durée de vie : 5second-->
+    </expiry>
+    <resources>
+      <offheap unit="MB">10</offheap>  <!-- 10 Mo en off-heap -->
+    </resources>
+  </cache-template>
+
+
+
+
+  <!-- ============== -->
+  <!-- Entités produit -->
+  <!-- ============== -->
+  <cache alias="com.kobe.warehouse.domain.Produit" uses-template="default-volatile"/>
+  <cache alias="com.kobe.warehouse.domain.Produit.fournisseurProduits" uses-template="default-volatile"/>
+  <cache alias="com.kobe.warehouse.domain.Produit.rayonProduits" uses-template="default-volatile"/>
+  <cache alias="com.kobe.warehouse.domain.FournisseurProduit" uses-template="default-volatile"/>
+  <cache alias="com.kobe.warehouse.domain.OptionPrixProduit" uses-template="default-volatile"/>
+
+
+  <!-- ================= -->
+<!-- Entités métadonnées -->
+<!-- ================= -->
+<cache alias="com.kobe.warehouse.domain.AppUser" uses-template="default-metadata"/>
+<cache alias="com.kobe.warehouse.domain.AppUser.persistentTokens" uses-template="default-metadata"/>
+<cache alias="com.kobe.warehouse.domain.CashFund" uses-template="default-metadata"/>
+<cache alias="com.kobe.warehouse.domain.AppUser.authorities" uses-template="default-metadata"/>
+<cache alias="com.kobe.warehouse.domain.Authority" uses-template="default-metadata"/>
+<cache alias="com.kobe.warehouse.domain.Authority.privileges" uses-template="default-metadata"/>
+<cache alias="com.kobe.warehouse.domain.Magasin" uses-template="default-metadata"/>
+<cache alias="com.kobe.warehouse.domain.Categorie" uses-template="default-metadata"/>
+<cache alias="com.kobe.warehouse.domain.Dci" uses-template="default-metadata"/>
+<cache alias="com.kobe.warehouse.domain.GammeProduit" uses-template="default-metadata"/>
+<cache alias="com.kobe.warehouse.domain.FormProduit" uses-template="default-metadata"/>
+<cache alias="com.kobe.warehouse.domain.GrilleRemise" uses-template="default-metadata"/>
+<cache alias="com.kobe.warehouse.domain.GroupeFournisseur" uses-template="default-metadata"/>
+<cache alias="com.kobe.warehouse.domain.Fournisseur" uses-template="default-metadata"/>
+<cache alias="com.kobe.warehouse.domain.GroupeTiersPayant" uses-template="default-metadata"/>
+<cache alias="com.kobe.warehouse.domain.Laboratoire" uses-template="default-metadata"/>
+<cache alias="com.kobe.warehouse.domain.MotifAjustement" uses-template="default-metadata"/>
+<cache alias="com.kobe.warehouse.domain.PaymentMode" uses-template="default-metadata"/>
+<cache alias="com.kobe.warehouse.domain.Rayon" uses-template="default-metadata"/>
+<cache alias="com.kobe.warehouse.domain.RayonProduit" uses-template="default-metadata"/>
+<cache alias="com.kobe.warehouse.domain.Storage" uses-template="default-metadata"/>
+<cache alias="com.kobe.warehouse.domain.Remise" uses-template="default-metadata"/>
+<cache alias="com.kobe.warehouse.domain.Tableau" uses-template="default-metadata"/>
+<cache alias="com.kobe.warehouse.domain.Tva" uses-template="default-metadata"/>
+<cache alias="com.kobe.warehouse.domain.FamilleProduit" uses-template="default-metadata"/>
+<cache alias="com.kobe.warehouse.domain.AppConfiguration" uses-template="default-metadata"/>
+<cache alias="com.kobe.warehouse.domain.CashRegister" uses-template="default-metadata"/>
+<cache alias="com.kobe.warehouse.domain.PersistentToken" uses-template="default-metadata"/>
+<cache alias="com.kobe.warehouse.domain.Ticketing" uses-template="default-metadata"/>
+<cache alias="com.kobe.warehouse.domain.Printer" uses-template="default-metadata"/>
+<cache alias="com.kobe.warehouse.domain.AuthorityPrivilege" uses-template="default-metadata"/>
+<cache alias="com.kobe.warehouse.domain.Privilege" uses-template="default-metadata"/>
+<cache alias="com.kobe.warehouse.domain.Menu" uses-template="default-metadata"/>
+<cache alias="com.kobe.warehouse.domain.Poste" uses-template="default-metadata"/>
+<cache alias="com.kobe.warehouse.domain.Poste.printers" uses-template="default-metadata"/>
+<cache alias="com.kobe.warehouse.domain.Substitut" uses-template="default-metadata"/>
+
+
+<cache alias="com.kobe.warehouse.domain.TiersPayant" uses-template="default-client-metadata"/>
+<cache alias="com.kobe.warehouse.domain.Customer" uses-template="default-client-metadata"/>
+<cache alias="com.kobe.warehouse.domain.ClientTiersPayant" uses-template="default-client-metadata"/>
+
+<!-- ================= -->
+<!-- Cache des requêtes Hibernate -->
+<!-- ================= -->
+<cache alias="default-query-results-region" uses-template="default-hibernate-query"/>
+  <cache alias="EXCLUDE_FREE_UNIT" uses-template="default-parameter"/>
+  <cache alias="APP_NOMBRE_JOUR_AVANT_PEREMPTION" uses-template="default-parameter"/>
+  <cache alias="APP_EXPIRY_ALERT_DAYS_BEFORE" uses-template="default-parameter"/>
+  <cache alias="USER_MAGASIN" uses-template="default-parameter"/>
+  <cache alias="APP_POS_PRINTER_ITEM_COUNT_PER_PAGE" uses-template="default-parameter"/>
+  <cache alias="APP_POS_PRINTER_MARGIN" uses-template="default-parameter"/>
+  <cache alias="APP_POS_PRINTER_WIDTH" uses-template="default-parameter"/>
+  <cache alias="APP_SUGGESTION_RETENTION" uses-template="default-parameter"/>
+  <cache alias="APP_RESET_INVOICE_NUMBER" uses-template="default-parameter"/>
+  <cache alias="APP_GESTION_LOT" uses-template="default-parameter"/>
+  <cache alias="APP_GESTION_STOCK" uses-template="default-parameter"/>
+  <cache alias="APP_MONO_STOCK" uses-template="default-parameter"/>
+  <cache alias="USER_STORAGE_CACHE" uses-template="default-parameter"/>
+  <cache alias="POINT_DE_VENTE_CACHE" uses-template="default-parameter"/>
+  <cache alias="USER_RESERVE_STORAGE_CACHE" uses-template="default-parameter"/>
+  <cache alias="USER_MAIN_STORAGE_CACHE" uses-template="default-parameter"/>
+  <cache alias="DEFAULT_MAIN_STORAGE" uses-template="default-parameter"/>
+  <cache alias="APP_MODE_PAYMENTS" uses-template="default-parameter"/>
+  <cache alias="CURRENT_USER_CACHE" uses-template="default-parameter"/>
+  <cache alias="CURRENT_USER_MAGASIN_CACHE" uses-template="default-parameter"/>
+  <cache alias="APP_RETENTION_SUGGESTION" uses-template="default-parameter"/>
+  <cache alias="APP_RETENTION_COMMANDE" uses-template="default-parameter"/>
+</config>

@@ -1,12 +1,13 @@
 package com.kobe.warehouse.service.dto;
 
+import com.kobe.warehouse.domain.CommandeId;
 import jakarta.validation.constraints.NotNull;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 
 public class DeliveryReceiptLiteDTO {
 
-    private Long id;
+    private CommandeId id;
 
     @NotNull
     private Integer receiptAmount;
@@ -21,11 +22,11 @@ public class DeliveryReceiptLiteDTO {
     private String orderReference;
     private Integer finalAmount; //montant vente
 
-    public Long getId() {
+    public CommandeId getId() {
         return id;
     }
 
-    public DeliveryReceiptLiteDTO setId(Long id) {
+    public DeliveryReceiptLiteDTO setId(CommandeId id) {
         this.id = id;
         return this;
     }

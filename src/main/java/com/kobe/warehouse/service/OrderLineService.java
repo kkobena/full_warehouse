@@ -1,11 +1,12 @@
 package com.kobe.warehouse.service;
 
 import com.kobe.warehouse.domain.Commande;
+import com.kobe.warehouse.domain.CommandeId;
 import com.kobe.warehouse.domain.FournisseurProduit;
 import com.kobe.warehouse.domain.OrderLine;
+import com.kobe.warehouse.domain.OrderLineId;
 import com.kobe.warehouse.domain.Produit;
 import com.kobe.warehouse.domain.SuggestionLine;
-import com.kobe.warehouse.domain.enumeration.OrderStatut;
 import com.kobe.warehouse.service.dto.OrderLineDTO;
 import com.kobe.warehouse.service.errors.GenericError;
 import java.util.List;
@@ -30,11 +31,11 @@ public interface OrderLineService {
 
     void deleteOrderLine(OrderLine orderLine);
 
-    Optional<OrderLine> findOneById(Long id);
+    Optional<OrderLine> findOneById(OrderLineId id);
 
     OrderLine save(OrderLine orderLine);
 
-    Optional<OrderLine> findOneFromCommande(Long produitId, Long commandeId, Long fournisseurId);
+    Optional<OrderLine> findOneFromCommande(Long produitId, CommandeId  commandeId, Long fournisseurId);
 
     void updateCodeCip(OrderLineDTO orderLineDTO);
 
@@ -42,7 +43,7 @@ public interface OrderLineService {
 
     void updateOrderLineQuantityReceived(OrderLine orderLine, int quantityReceived);
 
-    void updateOrderLineQuantityUG(Long id, int quantityReceived);
+    void updateOrderLineQuantityUG(OrderLineId id, int quantityReceived);
 
     void saveAll(List<OrderLine> orderLines);
 
@@ -54,17 +55,10 @@ public interface OrderLineService {
 
     Optional<FournisseurProduit> getFournisseurProduitByCriteria(String criteria, Long fournisseurId);
 
-    int produitTotalStock(FournisseurProduit fournisseurProduit);
 
     int produitTotalStockWithQantitUg(Produit produit);
 
-    List<FournisseurProduit> getFournisseurProduitsByFournisseur(Long founisseurId);
 
-    void removeProductState(List<Produit> produits, OrderStatut orderStatut);
-
-    void rollbackProductState(List<Produit> produits);
-
-    int countByCommandeOrderStatusAndFournisseurProduitProduitId(OrderStatut orderStatut, Long produitId);
 
     OrderLine buildOrderLine(SuggestionLine suggestionLine);
 

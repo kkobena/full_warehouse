@@ -1,7 +1,13 @@
 package com.kobe.warehouse.service.impl;
 
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.kobe.warehouse.domain.Commande;
+import com.kobe.warehouse.domain.CommandeId;
 import com.kobe.warehouse.domain.OrderLine;
+import com.kobe.warehouse.domain.enumeration.CategorieChiffreAffaire;
+import com.kobe.warehouse.domain.enumeration.OrderStatut;
+import com.kobe.warehouse.domain.enumeration.SalesStatut;
 import com.kobe.warehouse.repository.CommandeRepository;
 import com.kobe.warehouse.repository.CustomizedCommandeService;
 import com.kobe.warehouse.repository.OrderLineRepository;
@@ -13,6 +19,8 @@ import com.kobe.warehouse.service.dto.FilterCommaneEnCours;
 import com.kobe.warehouse.service.dto.OrderLineDTO;
 import com.kobe.warehouse.service.dto.Sort;
 import com.kobe.warehouse.service.dto.filter.CommandeFilterDTO;
+import com.kobe.warehouse.service.financiel_transaction.dto.AchatDTO;
+import com.kobe.warehouse.service.financiel_transaction.dto.MvtParam;
 import com.kobe.warehouse.service.report.CommandeReportReportService;
 import com.kobe.warehouse.service.stock.CommandeDataService;
 import java.io.IOException;
@@ -24,7 +32,11 @@ import java.util.List;
 import java.util.Optional;
 import java.util.function.BiPredicate;
 import java.util.stream.Collectors;
+
+import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.UrlResource;
 import org.springframework.data.domain.Page;
@@ -38,11 +50,13 @@ import org.springframework.transaction.annotation.Transactional;
 @Transactional(readOnly = true)
 public class CommandeDataServiceImpl implements CommandeDataService {
 
+    private static final Logger LOG = LoggerFactory.getLogger(CommandeDataServiceImpl.class);
     private final CommandeRepository commandeRepository;
     private final ExportationCsvService exportationCsvService;
     private final CommandeReportReportService commandeReportService;
     private final CustomizedCommandeService customizedCommandeService;
     private final OrderLineRepository orderLineRepository;
+    private  final ObjectMapper objectMapper;
 
     private final BiPredicate<OrderLine, String> searchPredicate = (orderLine, s) ->
         StringUtils.isEmpty(s) ||
@@ -63,47 +77,45 @@ public class CommandeDataServiceImpl implements CommandeDataService {
         ExportationCsvService exportationCsvService,
         CommandeReportReportService commandeReportService,
         CustomizedCommandeService customizedCommandeService,
-        OrderLineRepository orderLineRepository
+        OrderLineRepository orderLineRepository, ObjectMapper objectMapper
     ) {
         this.commandeRepository = commandeRepository;
         this.exportationCsvService = exportationCsvService;
         this.commandeReportService = commandeReportService;
         this.customizedCommandeService = customizedCommandeService;
         this.orderLineRepository = orderLineRepository;
+        this.objectMapper = objectMapper;
     }
 
-    private Commande findId(Long id) {
-        return commandeRepository.findCommandeById(id);
-    }
-
-    @Override
-    public CommandeDTO findOneById(Long id) {
-        return new CommandeDTO(commandeRepository.findCommandeById(id));
+    private Commande findId(CommandeId id) {
+        return commandeRepository.getReferenceById(id);
     }
 
     @Override
-    public Optional<Commande> getOneById(Long id) {
-        return Optional.ofNullable(findId(id));
+    public CommandeDTO findOneById(CommandeId id) {
+        return new CommandeDTO(findId(id));
     }
 
+
+
     @Override
-    public Optional<CommandeEntryDTO> getCommandeById(Long id) {
+    public Optional<CommandeEntryDTO> getCommandeById(CommandeId id) {
         return Optional.ofNullable(findId(id)).map(CommandeEntryDTO::new);
     }
 
     @Override
-    public Resource exportCommandeToCsv(Long id) throws IOException {
+    public Resource exportCommandeToCsv(CommandeId id) throws IOException {
         return getResource(exportationCsvService.exportCommandeToCsv(findId(id)));
     }
 
     @Override
-    public Resource exportCommandeToPdf(Long id) throws IOException {
+    public Resource exportCommandeToPdf(CommandeId id) throws IOException {
         return getResource(commandeReportService.printCommandeEnCours(findOneById(id)));
     }
 
     @Override
     public List<OrderLineDTO> filterCommandeLines(CommandeFilterDTO commandeFilter) {
-        List<OrderLine> orderLines = findId(commandeFilter.getCommandeId()).getOrderLines();
+        List<OrderLine> orderLines = findId(new CommandeId(commandeFilter.getCommandeId(),commandeFilter.getOrderDate())).getOrderLines();
 
         if (StringUtils.isNotEmpty(commandeFilter.getSearch())) {
             if (commandeFilter.getFilterCommaneEnCours() != null && commandeFilter.getFilterCommaneEnCours() != FilterCommaneEnCours.ALL) {
@@ -115,7 +127,7 @@ public class CommandeDataServiceImpl implements CommandeDataService {
                             .filter(orderLine -> searchPredicate.test(orderLine, commandeFilter.getSearch()))
                             .map(OrderLineDTO::new)
                             .sorted(getSort(commandeFilter.getOrderBy()))
-                            .collect(Collectors.toList());
+                            .toList();
                     case PROVISOL_CIP:
                         return orderLines
                             .stream()
@@ -123,7 +135,7 @@ public class CommandeDataServiceImpl implements CommandeDataService {
                             .filter(orderLine -> searchPredicate.test(orderLine, commandeFilter.getSearch()))
                             .map(OrderLineDTO::new)
                             .sorted(getSort(commandeFilter.getOrderBy()))
-                            .collect(Collectors.toList());
+                            .toList();
                 }
             }
             return orderLines
@@ -131,7 +143,7 @@ public class CommandeDataServiceImpl implements CommandeDataService {
                 .filter(orderLine -> searchPredicate.test(orderLine, commandeFilter.getSearch()))
                 .map(OrderLineDTO::new)
                 .sorted(getSort(commandeFilter.getOrderBy()))
-                .collect(Collectors.toList());
+                .toList();
         }
         if (commandeFilter.getFilterCommaneEnCours() != null && commandeFilter.getFilterCommaneEnCours() != FilterCommaneEnCours.ALL) {
             switch (commandeFilter.getFilterCommaneEnCours()) {
@@ -141,17 +153,17 @@ public class CommandeDataServiceImpl implements CommandeDataService {
                         .filter(orderLine -> searchFilterPrix.test(orderLine, commandeFilter.getFilterCommaneEnCours()))
                         .map(OrderLineDTO::new)
                         .sorted(getSort(commandeFilter.getOrderBy()))
-                        .collect(Collectors.toList());
+                        .toList();
                 case PROVISOL_CIP:
                     return orderLines
                         .stream()
                         .filter(orderLine -> searchFilterCip.test(orderLine, commandeFilter.getFilterCommaneEnCours()))
                         .map(OrderLineDTO::new)
                         .sorted(getSort(commandeFilter.getOrderBy()))
-                        .collect(Collectors.toList());
+                        .toList();
             }
         }
-        return orderLines.stream().map(OrderLineDTO::new).sorted(getSort(commandeFilter.getOrderBy())).collect(Collectors.toList());
+        return orderLines.stream().map(OrderLineDTO::new).sorted(getSort(commandeFilter.getOrderBy())).toList();
     }
 
     @Override
@@ -164,16 +176,16 @@ public class CommandeDataServiceImpl implements CommandeDataService {
             customizedCommandeService
                 .fetchCommandes(commandeFilterDTO, pageable)
                 .stream()
-                .map(commande -> new CommandeLiteDTO(commande, orderLineRepository.countByCommandeId(commande.getId().getId())))
-                .collect(Collectors.toList()),
+                .map(commande -> new CommandeLiteDTO(commande, orderLineRepository.countByCommande((commande))))
+                .toList(),
             pageable,
             count
         );
     }
 
     @Override
-    public Page<OrderLineDTO> filterCommandeLines(Long commandeId, Pageable pageable) {
-        return orderLineRepository.findByCommandeId(commandeId, pageable).map(OrderLineDTO::new);
+    public Page<OrderLineDTO> filterCommandeLines(CommandeId commandeId, Pageable pageable) {
+        return orderLineRepository.findByCommandeIdAndCommandeOrderDate(commandeId.getId(),commandeId.getOrderDate(), pageable).map(OrderLineDTO::new);
     }
 
     @Override
@@ -182,8 +194,29 @@ public class CommandeDataServiceImpl implements CommandeDataService {
     }
 
     @Override
-    public ResponseEntity<byte[]> exportPdf(Long id) {
+    public ResponseEntity<byte[]> exportPdf(CommandeId id) {
         return null;
+    }
+
+    @Override
+    public List<AchatDTO> fetchReportTableauPharmacienData(MvtParam mvtParam) {
+        try {
+            String jsonResult;
+            if ("month".equals(mvtParam.getGroupeBy())) {
+                jsonResult = commandeRepository.fetchTableauPharmacienReportMensuel(mvtParam.getFromDate(), mvtParam.getToDate(), OrderStatut.CLOSED.name());
+            } else {
+                jsonResult = commandeRepository.fetchTableauPharmacienReport(mvtParam.getFromDate(), mvtParam.getToDate(),  OrderStatut.CLOSED.name());
+            }
+            if (StringUtils.isEmpty(jsonResult)) {
+                return List.of();
+            }
+            return objectMapper.readValue(jsonResult, new TypeReference<>() {
+            });
+
+        } catch (Exception e) {
+            LOG.error(null, e);
+            return List.of();
+        }
     }
 
     private Resource getResource(String path) throws MalformedURLException {

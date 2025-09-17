@@ -507,11 +507,14 @@ export class SellingHomeComponent implements OnInit, AfterViewInit {
     this.lastCurrencyGivenService.setLastCurrency(lastCurrency);
     this.lastCurrencyGivenService.resetGivenCurrency();
     this.showAddModePaimentBtn = false;
+    this.goToNew();
     if (!this.isComptant()) {
       this.active = 'comptant';
     }
     this.updateProduitQtyBox();
   }
+
+
 
   onChangeCashSaleToVo(): void {
     this.selectedCustomerService.setCustomer(null);
@@ -999,5 +1002,9 @@ export class SellingHomeComponent implements OnInit, AfterViewInit {
 
   private translateLabel(label: string): string {
     return translateSalesLabel(this.translate, label);
+  }
+
+  private goToNew() {
+    this.router.navigate(['/sales', 'false', 'new']);
   }
 }

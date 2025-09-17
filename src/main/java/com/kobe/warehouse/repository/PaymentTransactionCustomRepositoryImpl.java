@@ -1,5 +1,6 @@
 package com.kobe.warehouse.repository;
 
+import com.kobe.warehouse.domain.AppUser_;
 import com.kobe.warehouse.domain.CashRegister_;
 import com.kobe.warehouse.domain.Commande_;
 import com.kobe.warehouse.domain.FactureTiersPayant_;
@@ -14,7 +15,6 @@ import com.kobe.warehouse.domain.PaymentTransaction_;
 import com.kobe.warehouse.domain.SalePayment;
 import com.kobe.warehouse.domain.SalePayment_;
 import com.kobe.warehouse.domain.Sales_;
-import com.kobe.warehouse.domain.AppUser_;
 import com.kobe.warehouse.service.financiel_transaction.dto.BalanceCaisseDTO;
 import com.kobe.warehouse.service.financiel_transaction.dto.MvtCaisseProjection;
 import com.kobe.warehouse.service.financiel_transaction.dto.MvtCaisseSumProjection;
@@ -30,13 +30,14 @@ import jakarta.persistence.criteria.JoinType;
 import jakarta.persistence.criteria.Path;
 import jakarta.persistence.criteria.Predicate;
 import jakarta.persistence.criteria.Root;
-import java.util.List;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.util.List;
 
 @Repository
 @Transactional(readOnly = true)
@@ -77,7 +78,8 @@ public class PaymentTransactionCustomRepositoryImpl implements PaymentTransactio
                     paymentFournisseurPath.get(PaymentFournisseur_.commande).get(Commande_.id),
                     root.get(PaymentTransaction_.cashRegister).get(CashRegister_.user).get(AppUser_.firstName),
                     root.get(PaymentTransaction_.cashRegister).get(CashRegister_.user).get(AppUser_.lastName),
-                    root.get(PaymentTransaction_.reelAmount)
+                    root.get(PaymentTransaction_.reelAmount),
+                    salePaymentPath.get(SalePayment_.sale).get(Sales_.saleDate)
                 )
             )
             .orderBy(cb.desc(root.get(PaymentTransaction_.createdAt)));
@@ -157,8 +159,11 @@ public class PaymentTransactionCustomRepositoryImpl implements PaymentTransactio
                 )
             )
             .groupBy(
-                root.get(PaymentTransaction_.cashRegister).get(CashRegister_.user).get(AppUser_.id),
                 root.get(PaymentTransaction_.paymentMode).get(PaymentMode_.code),
+                root.get(PaymentTransaction_.paymentMode).get(PaymentMode_.libelle),
+                root.get(PaymentTransaction_.cashRegister).get(CashRegister_.user).get(AppUser_.id),
+                root.get(PaymentTransaction_.cashRegister).get(CashRegister_.user).get(AppUser_.firstName),
+                root.get(PaymentTransaction_.cashRegister).get(CashRegister_.user).get(AppUser_.lastName),
                 root.get(PaymentTransaction_.credit)
             );
 
@@ -182,7 +187,7 @@ public class PaymentTransactionCustomRepositoryImpl implements PaymentTransactio
             root.get(PaymentTransaction_.type).notEqualTo(SalePayment.class.getName())
 
         ));
-        cq.groupBy(paymentMode.get(PaymentMode_.code),paymentMode.get(PaymentMode_.libelle), root.get(PaymentTransaction_.typeFinancialTransaction));
+        cq.groupBy(paymentMode.get(PaymentMode_.code), paymentMode.get(PaymentMode_.libelle), root.get(PaymentTransaction_.typeFinancialTransaction));
 
         return entityManager.createQuery(cq).getResultList();
     }

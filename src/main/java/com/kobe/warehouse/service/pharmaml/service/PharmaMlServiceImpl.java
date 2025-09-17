@@ -112,7 +112,7 @@ public class PharmaMlServiceImpl implements PharmaMlService {
 
     @Override
     public PharmamlCommandeResponse envoiPharmaCommande(EnvoiParamsDTO envoiParamsDTO) {
-        Commande commande = commandeRepository.findCommandeById(envoiParamsDTO.getCommandeId());
+        Commande commande = commandeRepository.getReferenceById(envoiParamsDTO.getCommandeId());
         try {
             fournisseur = isNull(envoiParamsDTO.getGrossisteId())
                 ? commande.getFournisseur()

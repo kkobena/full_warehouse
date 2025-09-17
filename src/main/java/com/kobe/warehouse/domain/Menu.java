@@ -29,6 +29,7 @@ import org.hibernate.annotations.CacheConcurrencyStrategy;
  */
 @Entity
 @Table(name = "menu", uniqueConstraints = { @UniqueConstraint(columnNames = { "name" }) })
+@Cache(usage = CacheConcurrencyStrategy.NONSTRICT_READ_WRITE)
 public class Menu implements Serializable {
 
     @Serial

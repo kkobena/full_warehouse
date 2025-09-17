@@ -63,7 +63,7 @@ public class AuthorityServiceImpl implements AuthorityService {
         authority.setLibelle(authorityDTO.libelle());
         if (CollectionUtils.isEmpty(authorityDTO.privilleges())) {
             authority.setMenus(Collections.emptySet());
-            authority.setPrivilege(Collections.emptySet());
+            authority.setPrivileges(Collections.emptySet());
         } else {
             authority.setMenus(
                 authorityDTO

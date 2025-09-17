@@ -1,6 +1,6 @@
 package com.kobe.warehouse.service.remise;
 
-import com.kobe.warehouse.service.GrilleRemiseDTO;
+import com.kobe.warehouse.service.dto.GrilleRemiseDTO;
 import com.kobe.warehouse.service.dto.CodeRemiseDTO;
 import com.kobe.warehouse.service.dto.RemiseDTO;
 import com.kobe.warehouse.service.dto.RemiseProduitsDTO;

@@ -40,7 +40,9 @@ public class ThirdPartySaleCustomRepositoryImpl implements ThirdPartySaleCustomR
                     cb.sumAsLong(root.get(ThirdPartySales_.partTiersPayant))
                 )
             )
-            .groupBy(root.get(ThirdPartySales_.caissier).get(AppUser_.id));
+            .groupBy( root.get(ThirdPartySales_.caissier).get(AppUser_.id),
+                root.get(ThirdPartySales_.caissier).get(AppUser_.firstName),
+                root.get(ThirdPartySales_.caissier).get(AppUser_.lastName));
 
         Predicate predicate = specification.toPredicate(root, query, cb);
         query.where(predicate);

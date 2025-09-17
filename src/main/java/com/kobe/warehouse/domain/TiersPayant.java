@@ -112,7 +112,7 @@ public class TiersPayant implements Serializable {
     @Column(name = "nbre_bordereau")
     private int nbreBordereaux;
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne
     @JoinColumn(name = "groupe_tiers_payant_id", referencedColumnName = "id")
     private GroupeTiersPayant groupeTiersPayant;
 

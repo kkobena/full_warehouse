@@ -47,17 +47,18 @@ public class Authority implements Serializable {
         joinColumns = { @JoinColumn(name = "authority_name", referencedColumnName = "name") },
         inverseJoinColumns = { @JoinColumn(name = "menu_id", referencedColumnName = "id") }
     )
+    @Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
     private Set<Menu> menus = new HashSet<>();
-
+    @Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
     @OneToMany(mappedBy = "authority", cascade = { CascadeType.REMOVE })
-    private Set<AuthorityPrivilege> privilege = new HashSet<>();
+    private Set<AuthorityPrivilege> privileges = new HashSet<>();
 
-    public Set<AuthorityPrivilege> getPrivilege() {
-        return privilege;
+    public Set<AuthorityPrivilege> getPrivileges() {
+        return privileges;
     }
 
-    public Authority setPrivilege(Set<AuthorityPrivilege> privilege) {
-        this.privilege = privilege;
+    public Authority setPrivileges(Set<AuthorityPrivilege> privilege) {
+        this.privileges = privilege;
         return this;
     }
 

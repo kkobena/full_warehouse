@@ -67,11 +67,11 @@ public interface InvoicePaymentRepository extends JpaRepository<InvoicePayment, 
             }
         };
     }
-
+//TODO  ajouter la colonne de la date de vente sur la facture
     @Query(
-        value = "SELECT tp.full_name AS libelle,tp.categorie AS type,f.num_facture,it.montantReglement,it.montantFacture FROM  payment_transaction p JOIN facture_tiers_payant f ON p.facture_tiers_payant_id = f.id JOIN tiers_payant tp on f.tiers_payant_id = tp.id JOIN (SELECT s.facture_tiers_payant_id, SUM(s.montant_regle) AS montantReglement,SUM(s.montant) AS montantFacture FROM third_party_sale_line s" +
-        " GROUP BY s.facture_tiers_payant_id) AS it ON it.facture_tiers_payant_id=f.id WHERE p.transaction_date  BETWEEN :fromDate AND :toDate AND (tp.name like :search or tp.full_name like :search ) GROUP BY tp.id",
-        countQuery = "SELECT COUNT(p.id) FROM  payment_transaction p JOIN facture_tiers_payant f ON p.facture_tiers_payant_id = f.id JOIN tiers_payant tp on f.tiers_payant_id = tp.id WHERE p.transaction_date  BETWEEN :fromDate AND :toDate AND (tp.name like :search or tp.full_name like :search ) GROUP BY tp.id",
+        value = "SELECT tp.full_name AS libelle,tp.categorie AS type,f.num_facture,SUM(it.montantReglement),SUM(it.montantFacture) FROM  payment_transaction p JOIN facture_tiers_payant f ON p.facture_tierspayant_id = f.id JOIN tiers_payant tp on f.tiers_payant_id = tp.id JOIN (SELECT s.sale_date,s.facture_tiers_payant_id, SUM(s.montant_regle) AS montantReglement,SUM(s.montant) AS montantFacture FROM third_party_sale_line s " +
+            " GROUP BY s.facture_tiers_payant_id) AS it ON it.facture_tiers_payant_id=f.id AND it.sale_date=f.sale_date     WHERE p.transaction_date  BETWEEN :fromDate AND :toDate AND (tp.name like :search or tp.full_name like :search ) GROUP BY tp.id,tp.full_name, tp.categorie ,f.num_facture",
+        countQuery = "SELECT COUNT(p.id) FROM  payment_transaction p JOIN facture_tiers_payant f ON p.facture_tierspayant_id = f.id JOIN tiers_payant tp on f.tiers_payant_id = tp.id WHERE p.transaction_date  BETWEEN :fromDate AND :toDate AND (tp.name like :search or tp.full_name like :search ) GROUP BY tp.id",
         nativeQuery = true
     )
     Page<ReglementTiersPayants> findReglementTierspayant(

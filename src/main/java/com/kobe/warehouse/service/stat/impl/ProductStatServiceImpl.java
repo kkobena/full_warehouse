@@ -1,12 +1,11 @@
 package com.kobe.warehouse.service.stat.impl;
 
-import static java.util.Objects.nonNull;
-
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.kobe.warehouse.domain.SalesLine;
 import com.kobe.warehouse.domain.enumeration.CategorieChiffreAffaire;
 import com.kobe.warehouse.domain.enumeration.OrderStatut;
 import com.kobe.warehouse.domain.enumeration.SalesStatut;
-import com.kobe.warehouse.repository.FournisseurProduitRepository;
 import com.kobe.warehouse.repository.OrderLineRepository;
 import com.kobe.warehouse.repository.ProduitRepository;
 import com.kobe.warehouse.repository.SalesLineRepository;
@@ -26,45 +25,56 @@ import com.kobe.warehouse.service.dto.ReportPeriode;
 import com.kobe.warehouse.service.dto.produit.ProduitAuditingParam;
 import com.kobe.warehouse.service.dto.produit.ProduitAuditingState;
 import com.kobe.warehouse.service.dto.produit.ProduitAuditingSum;
+import com.kobe.warehouse.service.dto.records.HistoriqueVenteResult;
 import com.kobe.warehouse.service.dto.records.ProductStatParetoRecord;
 import com.kobe.warehouse.service.dto.records.ProductStatRecord;
 import com.kobe.warehouse.service.mvt_produit.service.InventoryTransactionService;
 import com.kobe.warehouse.service.report.produit.ProduitAuditingReportSevice;
 import com.kobe.warehouse.service.stat.ProductStatService;
+import com.kobe.warehouse.service.stat.dto.ProductSaleSummary;
+import org.apache.commons.lang3.tuple.Pair;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.core.io.Resource;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.domain.Specification;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.CollectionUtils;
+
 import java.net.MalformedURLException;
 import java.time.LocalDate;
+import java.util.Arrays;
 import java.util.EnumSet;
 import java.util.List;
 import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
-import org.apache.commons.lang3.tuple.Pair;
-import org.springframework.core.io.Resource;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
-import org.springframework.data.jpa.domain.Specification;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
+
+import static java.util.Objects.nonNull;
 
 @Service
 @Transactional(readOnly = true)
 public class ProductStatServiceImpl implements ProductStatService {
 
+    private static final Logger LOG = LoggerFactory.getLogger(ProductStatServiceImpl.class);
     private final ProduitAuditingReportSevice produitAuditingReportSevice;
     private final SalesLineRepository salesLineRepository;
     private final HistoriqueVenteReportReportService historiqueVenteReportReportService;
     private final OrderLineRepository orderLineRepository;
     private final InventoryTransactionService inventoryTransactionService;
     private final ProduitRepository produitRepository;
+    private final ObjectMapper objectMapper;
 
     public ProductStatServiceImpl(
         ProduitAuditingReportSevice produitAuditingReportSevice,
-        FournisseurProduitRepository fournisseurProduitRepository,
         SalesLineRepository salesLineRepository,
         HistoriqueVenteReportReportService historiqueVenteReportReportService,
         OrderLineRepository orderLineRepository,
         InventoryTransactionService inventoryTransactionService,
-        ProduitRepository produitRepository
+        ProduitRepository produitRepository, ObjectMapper objectMapper
     ) {
         this.produitAuditingReportSevice = produitAuditingReportSevice;
         this.salesLineRepository = salesLineRepository;
@@ -72,6 +82,7 @@ public class ProductStatServiceImpl implements ProductStatService {
         this.orderLineRepository = orderLineRepository;
         this.inventoryTransactionService = inventoryTransactionService;
         this.produitRepository = produitRepository;
+        this.objectMapper = objectMapper;
     }
 
     @Override
@@ -93,36 +104,33 @@ public class ProductStatServiceImpl implements ProductStatService {
     @Override
     public Resource printToPdf(ProduitAuditingParam produitAuditingParam) throws MalformedURLException {
         return this.produitAuditingReportSevice.printToPdf(
-                this.fetchProduitDailyTransaction(produitAuditingParam, Pageable.unpaged()).getContent(),
+            this.fetchProduitDailyTransaction(produitAuditingParam, Pageable.unpaged()).getContent(),
             produitRepository.getReferenceById(produitAuditingParam.produitId()),
-                new ReportPeriode(produitAuditingParam.fromDate(), produitAuditingParam.toDate())
-            );
+            new ReportPeriode(produitAuditingParam.fromDate(), produitAuditingParam.toDate())
+        );
     }
 
     @Override
     @Transactional(readOnly = true)
     public Page<HistoriqueProduitVente> getHistoriqueVente(ProduitHistoriqueParam produitHistorique, Pageable pageable) {
-        return this.salesLineRepository.getHistoriqueVente(
-                produitHistorique.produitId(),
-                produitHistorique.startDate(),
-                produitHistorique.endDate(),
-                getSalesStatuts(),
-                pageable
-            );
+        HistoriqueVenteResult historiqueVenteResult = fetchHistoriqueVente(produitHistorique, pageable);
+        if (Objects.nonNull(historiqueVenteResult)) {
+            new PageImpl<>(historiqueVenteResult.content(), pageable, historiqueVenteResult.totalElements());
+        }
+        return Page.empty();
+
+
     }
 
     @Override
     @Transactional(readOnly = true)
     public List<HistoriqueProduitAchatMensuelleWrapper> getHistoriqueAchatMensuelle(ProduitHistoriqueParam produitHistorique) {
-        List<HistoriqueProduitAchatMensuelle> historiqueProduitAchats = orderLineRepository.getHistoriqueAchatMensuelle(
-            produitHistorique.produitId(),
-            produitHistorique.startDate(),
-            produitHistorique.endDate(),
-            OrderStatut.CLOSED.name()
+        List<HistoriqueProduitAchatMensuelle> historiqueProduitAchats = fecthHistoriqueAchatMensuelle(
+            produitHistorique
         );
         return historiqueProduitAchats
             .stream()
-            .collect(Collectors.groupingBy(HistoriqueProduitAchatMensuelle::getAnnee))
+            .collect(Collectors.groupingBy(HistoriqueProduitAchatMensuelle::annee))
             .entrySet()
             .stream()
             .map(entry ->
@@ -131,7 +139,7 @@ public class ProductStatServiceImpl implements ProductStatService {
                     entry
                         .getValue()
                         .stream()
-                        .collect(Collectors.toMap(HistoriqueProduitAchatMensuelle::getMonth, HistoriqueProduitAchatMensuelle::getQuantite))
+                        .collect(Collectors.toMap(HistoriqueProduitAchatMensuelle::getMonth, HistoriqueProduitAchatMensuelle::quantite))
                 )
             )
             .toList();
@@ -141,25 +149,22 @@ public class ProductStatServiceImpl implements ProductStatService {
     @Transactional(readOnly = true)
     public Page<HistoriqueProduitAchats> getHistoriqueAchat(ProduitHistoriqueParam produitHistorique, Pageable pageable) {
         return this.orderLineRepository.getHistoriqueAchat(
-                produitHistorique.produitId(),
-                produitHistorique.startDate(),
-                produitHistorique.endDate(),
-                OrderStatut.CLOSED.name(),
-                pageable
-            );
+            produitHistorique.produitId(),
+            produitHistorique.startDate(),
+            produitHistorique.endDate(),
+            OrderStatut.CLOSED.name(),
+            pageable
+        );
     }
 
     @Override
     public List<HistoriqueProduitVenteMensuelleWrapper> getHistoriqueVenteMensuelle(ProduitHistoriqueParam produitHistorique) {
-        List<HistoriqueProduitVenteMensuelle> historiqueProduitVenteMensuelles = salesLineRepository.getHistoriqueVenteMensuelle(
-            produitHistorique.produitId(),
-            produitHistorique.startDate(),
-            produitHistorique.endDate(),
-            Set.of(SalesStatut.CLOSED.name(), SalesStatut.CANCELED.name(), SalesStatut.REMOVE.name())
+        List<HistoriqueProduitVenteMensuelle> historiqueProduitVenteMensuelles = fetchHistoriqueVenteMensuelle(
+            produitHistorique
         );
         return historiqueProduitVenteMensuelles
             .stream()
-            .collect(Collectors.groupingBy(HistoriqueProduitVenteMensuelle::getAnnee))
+            .collect(Collectors.groupingBy(HistoriqueProduitVenteMensuelle::annee))
             .entrySet()
             .stream()
             .map(entry ->
@@ -168,7 +173,7 @@ public class ProductStatServiceImpl implements ProductStatService {
                     entry
                         .getValue()
                         .stream()
-                        .collect(Collectors.toMap(HistoriqueProduitVenteMensuelle::getMonth, HistoriqueProduitVenteMensuelle::getQuantite))
+                        .collect(Collectors.toMap(HistoriqueProduitVenteMensuelle::getMonth, HistoriqueProduitVenteMensuelle::quantite))
                 )
             )
             .toList();
@@ -177,31 +182,28 @@ public class ProductStatServiceImpl implements ProductStatService {
     @Override
     public HistoriqueProduitAchatsSummary getHistoriqueAchatSummary(ProduitHistoriqueParam produitHistorique) {
         return this.orderLineRepository.getHistoriqueAchatSummary(
-                produitHistorique.produitId(),
-                produitHistorique.startDate(),
-                produitHistorique.endDate(),
-                OrderStatut.CLOSED.name()
-            );
+            produitHistorique.produitId(),
+            produitHistorique.startDate(),
+            produitHistorique.endDate(),
+            OrderStatut.CLOSED.name()
+        );
     }
 
     @Override
     public HistoriqueProduitVenteSummary getHistoriqueVenteSummary(ProduitHistoriqueParam produitHistorique) {
-        return this.salesLineRepository.getHistoriqueVenteSummary(
-                produitHistorique.produitId(),
-                produitHistorique.startDate(),
-                produitHistorique.endDate(),
-                getSalesStatuts()
-            );
+        return buildHistoriqueProduitVenteSummary(fetchHistoriqueVenteSummary(
+            produitHistorique
+        ));
     }
 
     @Override
     public HistoriqueProduitVenteMensuelleSummary getHistoriqueVenteMensuelleSummary(ProduitHistoriqueParam produitHistorique) {
         return this.salesLineRepository.getHistoriqueVenteMensuelleSummary(
-                produitHistorique.produitId(),
-                produitHistorique.startDate(),
-                produitHistorique.endDate(),
-                getSalesStatuts()
-            );
+            produitHistorique.produitId(),
+            produitHistorique.startDate(),
+            produitHistorique.endDate(),
+            getSalesStatuts()
+        );
     }
 
     private Specification<SalesLine> buildSalesLineSpecification(ProduitRecordParamDTO produitRecordParam) {
@@ -257,67 +259,134 @@ public class ProductStatServiceImpl implements ProductStatService {
 
     @Override
     public Resource exportHistoriqueVenteToPdf(ProduitHistoriqueParam produitHistorique) {
-        var status = Set.of(SalesStatut.CLOSED.name(), SalesStatut.CANCELED.name());
+
         return this.historiqueVenteReportReportService.exportHistoriqueVenteToPdf(
-                this.salesLineRepository.getHistoriqueVente(
-                        produitHistorique.produitId(),
-                        produitHistorique.startDate(),
-                        produitHistorique.endDate(),
-                        status,
-                        Pageable.unpaged()
-                    ).getContent(),
-                this.salesLineRepository.getHistoriqueVenteSummary(
-                        produitHistorique.produitId(),
-                        produitHistorique.startDate(),
-                        produitHistorique.endDate(),
-                        status
-                    ),
-                this.produitRepository.findHistoriqueProduitInfo(produitHistorique.produitId()),
-                new ReportPeriode(produitHistorique.startDate(), produitHistorique.endDate())
-            );
+            fetchHistoriqueVente(produitHistorique,
+                Pageable.unpaged()
+            ).content(),
+            buildHistoriqueProduitVenteSummary(
+                fetchHistoriqueVenteSummary(
+                    produitHistorique
+                )),
+            this.produitRepository.findHistoriqueProduitInfo(produitHistorique.produitId()),
+            new ReportPeriode(produitHistorique.startDate(), produitHistorique.endDate())
+        );
     }
 
     @Override
     public Resource exportHistoriqueAchatToPdf(ProduitHistoriqueParam produitHistorique) {
         return this.historiqueVenteReportReportService.exportHistoriqueAchatsToPdf(
-                this.orderLineRepository.getHistoriqueAchat(
-                        produitHistorique.produitId(),
-                        produitHistorique.startDate(),
-                        produitHistorique.endDate(),
-                        OrderStatut.CLOSED.name(),
-                        Pageable.unpaged()
-                    ).getContent(),
-                this.getHistoriqueAchatSummary(produitHistorique),
+            this.orderLineRepository.getHistoriqueAchat(
+                produitHistorique.produitId(),
+                produitHistorique.startDate(),
+                produitHistorique.endDate(),
+                OrderStatut.CLOSED.name(),
+                Pageable.unpaged()
+            ).getContent(),
+            this.getHistoriqueAchatSummary(produitHistorique),
             this.produitRepository.findHistoriqueProduitInfo(produitHistorique.produitId()),
-                new ReportPeriode(produitHistorique.startDate(), produitHistorique.endDate())
-            );
+            new ReportPeriode(produitHistorique.startDate(), produitHistorique.endDate())
+        );
     }
 
     @Override
     public Resource exportHistoriqueVenteMensuelleToPdf(ProduitHistoriqueParam produitHistorique) {
         return this.historiqueVenteReportReportService.exportHistoriqueVenteMensuelleToPdf(
-                this.getHistoriqueVenteMensuelle(produitHistorique),
-                this.getHistoriqueVenteMensuelleSummary(produitHistorique),
+            this.getHistoriqueVenteMensuelle(produitHistorique),
+            this.getHistoriqueVenteMensuelleSummary(produitHistorique),
             this.produitRepository.findHistoriqueProduitInfo(produitHistorique.produitId()),
-                new ReportPeriode(produitHistorique.startDate(), produitHistorique.endDate())
-            );
+            new ReportPeriode(produitHistorique.startDate(), produitHistorique.endDate())
+        );
     }
 
     @Override
     public Resource exportHistoriqueAchatMensuelToPdf(ProduitHistoriqueParam produitHistorique) {
         return this.historiqueVenteReportReportService.exportHistoriqueAchatsMensuelToPdf(
-                this.getHistoriqueAchatMensuelle(produitHistorique),
-                this.getHistoriqueAchatSummary(produitHistorique),
+            this.getHistoriqueAchatMensuelle(produitHistorique),
+            this.getHistoriqueAchatSummary(produitHistorique),
             this.produitRepository.findHistoriqueProduitInfo(produitHistorique.produitId()),
-                new ReportPeriode(produitHistorique.startDate(), produitHistorique.endDate())
-            );
+            new ReportPeriode(produitHistorique.startDate(), produitHistorique.endDate())
+        );
     }
 
     private Set<String> getSalesStatuts() {
-        return Set.of(SalesStatut.CLOSED.name(), SalesStatut.CANCELED.name(), SalesStatut.REMOVE.name());
+        return SalesStatut.getStatutForFacturation().stream().map(SalesStatut::name).collect(Collectors.toSet());
     }
 
     private EnumSet<SalesStatut> getSalesStatutEnum() {
-        return EnumSet.of(SalesStatut.CLOSED, SalesStatut.CANCELED, SalesStatut.REMOVE);
+        return EnumSet.of(SalesStatut.CLOSED, SalesStatut.CANCELED);
+    }
+
+    private HistoriqueVenteResult fetchHistoriqueVente(ProduitHistoriqueParam produitHistorique, Pageable pageable) {
+        int offset = pageable.isUnpaged() ? 0 : (int) pageable.getOffset();
+        int limit = pageable.isUnpaged() ? Integer.MAX_VALUE : pageable.getPageSize();
+        try {
+            String jsonResult = salesLineRepository.getHistoriqueVente(produitHistorique.produitId(), produitHistorique.startDate(), produitHistorique.endDate(), SalesStatut.getStatutForFacturation().stream().map(SalesStatut::name).toArray(String[]::new), Arrays.stream(CategorieChiffreAffaire.values()).map(CategorieChiffreAffaire::name).toArray(String[]::new), offset, limit);
+            System.err.println(jsonResult);
+            return objectMapper.readValue(jsonResult, new TypeReference<>() {
+            });
+        } catch (Exception e) {
+            LOG.info(null, e);
+            return null;
+        }
+    }
+
+    private List<HistoriqueProduitVenteMensuelle> fetchHistoriqueVenteMensuelle(ProduitHistoriqueParam produitHistorique) {
+
+        try {
+            String jsonResult = salesLineRepository.getHistoriqueVenteMensuelle(produitHistorique.startDate(), produitHistorique.endDate(), SalesStatut.getStatutForFacturation().stream().map(SalesStatut::name).toArray(String[]::new), Arrays.stream(CategorieChiffreAffaire.values()).map(CategorieChiffreAffaire::name).toArray(String[]::new), produitHistorique.produitId());
+            System.err.println(jsonResult);
+            return objectMapper.readValue(jsonResult, new TypeReference<>() {
+            });
+        } catch (Exception e) {
+            LOG.info(null, e);
+            return null;
+        }
+    }
+
+
+    private List<HistoriqueProduitAchatMensuelle> fecthHistoriqueAchatMensuelle(ProduitHistoriqueParam produitHistorique) {
+
+        try {
+            String jsonResult = orderLineRepository.getHistoriqueAchatMensuelle(produitHistorique.startDate(), produitHistorique.endDate(), OrderStatut.CLOSED.name(), produitHistorique.produitId());
+            System.err.println(jsonResult);
+            return objectMapper.readValue(jsonResult, new TypeReference<>() {
+            });
+        } catch (Exception e) {
+            LOG.info(null, e);
+            return null;
+        }
+    }
+
+    private List<ProductSaleSummary> fetchHistoriqueVenteSummary(ProduitHistoriqueParam produitHistorique) {
+        try {
+            String jsonResult = salesLineRepository.getHistoriqueVenteSummary(produitHistorique.startDate(), produitHistorique.endDate(),
+                SalesStatut.getStatutForFacturation().stream().map(SalesStatut::name).toArray(String[]::new), Arrays.stream(CategorieChiffreAffaire.values()).map(CategorieChiffreAffaire::name).toArray(String[]::new), produitHistorique.produitId(), produitHistorique.groupBy().getOrder());
+            System.err.println(jsonResult);
+            return objectMapper.readValue(jsonResult, new TypeReference<>() {
+            });
+        } catch (Exception e) {
+            LOG.info(null, e);
+            return null;
+        }
+    }
+
+    private HistoriqueProduitVenteSummary buildHistoriqueProduitVenteSummary(List<ProductSaleSummary> summaries) {
+        int montantHt = 0;
+        int quantite = 0;
+        int montantAchat = 0;
+        int montantTtc = 0;
+        int montantRemise = 0;
+        if (CollectionUtils.isEmpty(summaries)) return null;
+        for (ProductSaleSummary summary : summaries) {
+            montantHt += summary.montantHt() != null ? summary.montantHt() : 0;
+            quantite += summary.quantite() != null ? summary.quantite() : 0;
+            montantAchat += summary.montantAchat() != null ? summary.montantAchat() : 0;
+            montantTtc += summary.montantTtc() != null ? summary.montantTtc() : 0;
+            montantRemise += summary.montantRemise() != null ? summary.montantRemise() : 0;
+        }
+        return new HistoriqueProduitVenteSummary(montantHt, quantite, montantAchat, montantTtc, montantRemise);
+
+
     }
 }

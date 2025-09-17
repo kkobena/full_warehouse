@@ -96,7 +96,7 @@ public final class SecurityUtils {
         Set<String> authorities = new HashSet<>();
         authorities.add(authority.getName());
         authorities.addAll(authority.getMenus().stream().map(Menu::getName).collect(Collectors.toSet()));
-        authorities.addAll(authority.getPrivilege().stream().map(action -> action.getPrivilege().getName()).collect(Collectors.toSet()));
+        authorities.addAll(authority.getPrivileges().stream().map(action -> action.getPrivilege().getName()).collect(Collectors.toSet()));
         return authorities;
     }
 

@@ -1,6 +1,5 @@
 import { Moment } from 'moment';
 import { IPaymentFournisseur } from 'app/shared/model/payment-fournisseur.model';
-import { IOrderLine } from 'app/shared/model/order-line.model';
 import { OrderStatut } from 'app/shared/model/enumerations/order-statut.model';
 import { IMagasin } from 'app/shared/model/magasin.model';
 import { IUser } from 'app/core/user/user.model';

@@ -29,6 +29,9 @@ public interface ThirdPartySaleRepository
         }
         return (root, query, cb) -> root.get(ThirdPartySales_.caissier).get(AppUser_.id).in(caissierIds);
     }
+    default Specification<ThirdPartySales> filterByPeriode(LocalDate fromDate, LocalDate toDate) {
+        return (root, _, cb) -> cb.between(root.get(ThirdPartySales_.saleDate), fromDate, toDate);
+    }
 
     default Specification<ThirdPartySales> filterByPeriode(LocalDateTime fromDate, LocalDateTime toDate) {
         return (root, _, cb) -> cb.between(root.get(ThirdPartySales_.updatedAt), fromDate, toDate);

@@ -20,7 +20,7 @@ import org.hibernate.annotations.CacheConcurrencyStrategy;
  */
 @Entity
 @Table(name = "gamme_produit")
-@Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
+@Cache(usage = CacheConcurrencyStrategy.NONSTRICT_READ_WRITE)
 public class GammeProduit implements Serializable {
 
     @Serial
@@ -37,9 +37,7 @@ public class GammeProduit implements Serializable {
     @Column(name = "libelle", nullable = false, unique = true)
     private String libelle;
 
-    @OneToMany(mappedBy = "gamme")
-    @Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
-    private Set<Produit> produits = new HashSet<>();
+
 
     public Long getId() {
         return id;
@@ -81,20 +79,7 @@ public class GammeProduit implements Serializable {
         return this;
     }
 
-    public Set<Produit> getProduits() {
-        return produits;
-    }
 
-    public void setProduits(Set<Produit> produits) {
-        this.produits = produits;
-    }
-
-    public GammeProduit produits(Set<Produit> produits) {
-        this.produits = produits;
-        return this;
-    }
-
-    // jhipster-needle-entity-add-getters-setters - JHipster will add getters and setters here
 
     @Override
     public boolean equals(Object o) {

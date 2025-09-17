@@ -238,7 +238,9 @@ public class CustomSalesRepositoryImpl implements CustomSalesRepository {
                     cb.sumAsLong(root.get(Sales_.restToPay))
                 )
             )
-            .groupBy(root.get(Sales_.caissier).get(AppUser_.id));
+            .groupBy( root.get(Sales_.caissier).get(AppUser_.id),
+                root.get(Sales_.caissier).get(AppUser_.firstName),
+                root.get(Sales_.caissier).get(AppUser_.lastName));
 
         Predicate predicate = specification.toPredicate(root, query, cb);
         query.where(predicate);

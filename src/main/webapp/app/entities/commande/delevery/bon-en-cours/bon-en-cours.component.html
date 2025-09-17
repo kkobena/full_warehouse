@@ -13,7 +13,7 @@
     currentPageReportTemplate="Affichage de {first} à {last} sur {totalRecords} elements"
     dataKey="id"
     selectionMode="multiple"
-    styleClass="p-datatable-gridlines mt-2"
+    [stripedRows]="true"
   >
     <ng-template #header>
       <tr>
@@ -58,7 +58,7 @@
         <td class="text-right">
           <div class="btn-group">
             <p-button
-              [routerLink]="['/commande', row.id, 'edit']"
+              [routerLink]="['/commande', row.commandeId.id,row.commandeId.orderDate, 'edit']"
               severity="help"
               [rounded]="true"
               [text]="true"

@@ -613,8 +613,8 @@ public class ThirdPartySaleServiceImpl extends SaleCommonService implements Thir
     }
 
     @Override
-    public SaleId changeCashSaleToThirdPartySale(Long saleId, NatureVente natureVente) {
-        CashSale cashSale = this.cashSaleRepository.findOneById(saleId);
+    public SaleId changeCashSaleToThirdPartySale(SaleId saleId, NatureVente natureVente) {
+        CashSale cashSale = this.cashSaleRepository.getReferenceById(saleId);
         ThirdPartySales c = copyFromCashSale(cashSale);
         c.setNatureVente(natureVente);
         c = thirdPartySaleRepository.save(c);

@@ -14,6 +14,8 @@ import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 import jakarta.persistence.UniqueConstraint;
 import jakarta.validation.constraints.NotNull;
+import org.hibernate.annotations.Cache;
+import org.hibernate.annotations.CacheConcurrencyStrategy;
 import org.hibernate.annotations.ColumnDefault;
 
 import java.io.Serial;
@@ -29,6 +31,7 @@ import java.util.Objects;
         @UniqueConstraint(columnNames = {"produit_id", "tiers_payant_id", "prix_type"}),
     }
 )
+@Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
 public class OptionPrixProduit implements Serializable {
 
     @Serial

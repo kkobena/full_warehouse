@@ -1,5 +1,6 @@
 package com.kobe.warehouse.web.rest.commande;
 
+import com.kobe.warehouse.domain.CommandeId;
 import com.kobe.warehouse.service.dto.DeliveryReceiptDTO;
 import com.kobe.warehouse.service.dto.filter.DeliveryReceiptFilterDTO;
 import com.kobe.warehouse.service.stock.StockEntryDataService;
@@ -9,6 +10,7 @@ import com.kobe.warehouse.web.util.ResponseUtil;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import java.io.IOException;
+import java.time.LocalDate;
 import java.util.List;
 import org.springframework.core.io.Resource;
 import org.springframework.data.domain.Page;
@@ -25,7 +27,6 @@ import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 @RestController
 @RequestMapping("/api")
-@Transactional //TO DO : remove this annotation
 public class StockEntryDataResource {
 
     private final StockEntryDataService stockEntryDataServicetryService;
@@ -41,24 +42,24 @@ public class StockEntryDataResource {
         return ResponseEntity.ok().headers(headers).body(page.getContent());
     }
 
-    @GetMapping("/commandes/data/entree-stock/{id}")
-    public ResponseEntity<DeliveryReceiptDTO> getOne(@PathVariable Long id) {
-        return ResponseUtil.wrapOrNotFound(stockEntryDataServicetryService.findOneById(id));
+    @GetMapping("/commandes/data/entree-stock/{id}/{orderDate}")
+    public ResponseEntity<DeliveryReceiptDTO> getOne(@PathVariable Long id, @PathVariable LocalDate orderDate) {
+        return ResponseUtil.wrapOrNotFound(stockEntryDataServicetryService.findOneById(new CommandeId(id, orderDate)));
     }
 
-    @GetMapping("/commandes/data/entree-stock/etiquettes/{id}")
+    @GetMapping("/commandes/data/entree-stock/etiquettes/{id}/{orderDate}")
     public ResponseEntity<Resource> getPdf(
-        @PathVariable Long id,
+        @PathVariable Long id,@PathVariable LocalDate orderDate,
         @RequestParam(required = false, name = "startAt", defaultValue = "1") Integer startAt,
         HttpServletRequest request
     ) throws IOException {
-        final Resource resource = stockEntryDataServicetryService.printEtiquette(id, startAt);
+        final Resource resource = stockEntryDataServicetryService.printEtiquette(new CommandeId(id, orderDate), startAt);
         return Utils.printPDF(resource, request);
     }
 
-    @GetMapping("/commandes/data/entree-stock/pdf/{id}")
-    public ResponseEntity<Resource> getPdf(@PathVariable Long id, HttpServletRequest request) throws IOException {
-        final Resource resource = stockEntryDataServicetryService.exportToPdf(id);
+    @GetMapping("/commandes/data/entree-stock/pdf/{id}/{orderDate}")
+    public ResponseEntity<Resource> getPdf(@PathVariable Long id,@PathVariable LocalDate orderDate, HttpServletRequest request) throws IOException {
+        final Resource resource = stockEntryDataServicetryService.exportToPdf(new CommandeId(id, orderDate));
         return Utils.printPDF(resource, request);
     }
 }

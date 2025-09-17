@@ -1,5 +1,8 @@
 package com.kobe.warehouse.service.activity_summary;
 
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.kobe.warehouse.domain.enumeration.CategorieChiffreAffaire;
 import com.kobe.warehouse.domain.enumeration.ModePaimentCode;
 import com.kobe.warehouse.domain.enumeration.OrderStatut;
 import com.kobe.warehouse.domain.enumeration.SalesStatut;
@@ -9,6 +12,7 @@ import com.kobe.warehouse.repository.PaymentTransactionRepository;
 import com.kobe.warehouse.repository.SalePaymentRepository;
 import com.kobe.warehouse.repository.SalesRepository;
 import com.kobe.warehouse.repository.ThirdPartySaleLineRepository;
+import com.kobe.warehouse.service.TiersPayantService;
 import com.kobe.warehouse.service.dto.ChiffreAffaireDTO;
 import com.kobe.warehouse.service.dto.projection.AchatTiersPayant;
 import com.kobe.warehouse.service.dto.projection.ChiffreAffaire;
@@ -24,51 +28,61 @@ import com.kobe.warehouse.service.utils.DateUtil;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.List;
+import java.util.Set;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.core.io.Resource;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import static java.util.Objects.nonNull;
+
 @Service
 @Transactional(readOnly = true)
 public class ActivitySummaryServiceImpl implements ActivitySummaryService {
 
-    private final ThirdPartySaleLineRepository thirdPartySaleLineRepository;
+    private static final Logger LOG = LoggerFactory.getLogger(ActivitySummaryServiceImpl.class);
+    private final TiersPayantService payantService;
     private final InvoicePaymentRepository invoicePaymentRepository;
     private final CommandeRepository commandeRepository;
     private final PaymentTransactionRepository paymentTransactionRepository;
     private final SalePaymentRepository paymentRepository;
     private final SalesRepository salesRepository;
     private final ActivitySummaryReportService activitySummaryReportService;
+    private final ObjectMapper objectMapper;
 
     public ActivitySummaryServiceImpl(
-        ThirdPartySaleLineRepository thirdPartySaleLineRepository,
+        TiersPayantService payantService,
         InvoicePaymentRepository invoicePaymentRepository,
         CommandeRepository commandeRepository,
         PaymentTransactionRepository paymentTransactionRepository,
         SalePaymentRepository paymentRepository,
         SalesRepository salesRepository,
-        ActivitySummaryReportService activitySummaryReportService
+        ActivitySummaryReportService activitySummaryReportService, ObjectMapper objectMapper
     ) {
-        this.thirdPartySaleLineRepository = thirdPartySaleLineRepository;
+        this.payantService = payantService;
         this.invoicePaymentRepository = invoicePaymentRepository;
         this.commandeRepository = commandeRepository;
         this.paymentTransactionRepository = paymentTransactionRepository;
         this.paymentRepository = paymentRepository;
         this.salesRepository = salesRepository;
         this.activitySummaryReportService = activitySummaryReportService;
+        this.objectMapper = objectMapper;
     }
 
     @Override
     public ChiffreAffaireDTO getChiffreAffaire(LocalDate fromDate, LocalDate toDate) {
-        ChiffreAffaire chiffreAffaire = this.salesRepository.getChiffreAffaire(fromDate, toDate);
-        List<Recette> recettes = this.findRecettes(fromDate, toDate);
+        ChiffreAffaire chiffreAffaire = getChiffreAffaireSummary(fromDate, toDate);
+
         ChiffreAffaireAchat achats = this.fetchAchats(fromDate, toDate);
         List<MouvementCaisse> mvts = this.findMouvementsCaisse(fromDate, toDate);
         BigDecimal montantEspece = BigDecimal.ZERO;
         BigDecimal montantRegle = BigDecimal.ZERO;
         BigDecimal montantAutreModePaiement = BigDecimal.ZERO;
+        List<Recette> recettes =nonNull(chiffreAffaire) ? chiffreAffaire.payments() : List.of();
         for (Recette recette : recettes) {
             montantRegle = montantRegle.add(recette.getMontantReel());
             if (recette.getModePaimentCode() == ModePaimentCode.CASH) {
@@ -77,17 +91,18 @@ public class ActivitySummaryServiceImpl implements ActivitySummaryService {
                 montantAutreModePaiement = montantAutreModePaiement.add(recette.getMontantReel());
             }
         }
+        //TODO si gestion de ug
         var caRecord = new ChiffreAffaireRecord(
-            chiffreAffaire.getMontantTtc(),
-            chiffreAffaire.getMontantTva(),
-            chiffreAffaire.getMontantHt(),
-            chiffreAffaire.getMontantRemise(),
-            chiffreAffaire.getMontantNet(),
+          nonNull(chiffreAffaire)?  chiffreAffaire.montantTtc():BigDecimal.ZERO,
+            nonNull(chiffreAffaire)? chiffreAffaire.getMontantTva():BigDecimal.ZERO,
+            nonNull(chiffreAffaire)?  chiffreAffaire.montantHt():BigDecimal.ZERO,
+            nonNull(chiffreAffaire)?  chiffreAffaire.montantRemise():BigDecimal.ZERO,
+            nonNull(chiffreAffaire)?  chiffreAffaire.montantNet():BigDecimal.ZERO,
             montantEspece,
-            chiffreAffaire.getMontantCredit(),
+            nonNull(chiffreAffaire)?  chiffreAffaire.getMontantCredit():BigDecimal.ZERO,
             montantRegle,
             montantAutreModePaiement,
-            chiffreAffaire.getMarge()
+            nonNull(chiffreAffaire)? chiffreAffaire.getMarge():BigDecimal.ZERO
         );
         return new ChiffreAffaireDTO(recettes, caRecord, achats, mvts);
     }
@@ -127,11 +142,23 @@ public class ActivitySummaryServiceImpl implements ActivitySummaryService {
 
     @Override
     public Page<AchatTiersPayant> fetchAchatTiersPayant(LocalDate fromDate, LocalDate toDate, String search, Pageable pageable) {
-        return this.thirdPartySaleLineRepository.fetchAchatTiersPayant(fromDate, toDate, search, SalesStatut.CLOSED, pageable);
+        return this.payantService.fetchAchatTiersPayant(fromDate, toDate, search,  pageable);
     }
 
     @Override
     public Page<ReglementTiersPayants> findReglementTierspayant(LocalDate fromDate, LocalDate toDate, String search, Pageable pageable) {
         return this.invoicePaymentRepository.findReglementTierspayant(fromDate, toDate, search, pageable);
+    }
+
+    private ChiffreAffaire getChiffreAffaireSummary(LocalDate fromDate, LocalDate toDate) {
+        try {
+            String jsonResult = this.salesRepository.getChiffreAffaire(fromDate, toDate, SalesStatut.getStatutForFacturation().stream().map(SalesStatut::name).toArray(String[]::new), Set.of(CategorieChiffreAffaire.CA).stream().map(CategorieChiffreAffaire::name).toArray(String[]::new),false,false);
+            return objectMapper.readValue(jsonResult, new TypeReference<>() {
+            });
+
+        } catch (Exception e) {
+            LOG.info(null, e);
+            return null;
+        }
     }
 }

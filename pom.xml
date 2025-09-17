@@ -269,6 +269,10 @@
       <groupId>com.google.zxing</groupId>
       <version>3.5.3</version>
     </dependency>
+    <dependency>
+      <groupId>org.springframework.boot</groupId>
+      <artifactId>spring-boot-starter-cache</artifactId>
+    </dependency>
 
     <dependency>
       <artifactId>easyexcel</artifactId>
@@ -285,16 +289,22 @@
       <groupId>com.alibaba</groupId>
       <version>4.0.3</version>
     </dependency>
-<!--    <dependency>-->
-<!--      <groupId>org.ehcache</groupId>-->
-<!--      <artifactId>ehcache</artifactId>-->
-<!--      <version>3.11.1</version>-->
-<!--    </dependency>-->
-<!--    <dependency>-->
-<!--      <groupId>javax.cache</groupId>-->
-<!--      <artifactId>cache-api</artifactId>-->
-<!--      <version>1.1.0</version>-->
-<!--    </dependency>-->
+    <dependency>
+      <groupId>org.ehcache</groupId>
+      <artifactId>ehcache</artifactId>
+      <version>3.11.1</version>
+    </dependency>
+    <dependency>
+      <groupId>javax.cache</groupId>
+      <artifactId>cache-api</artifactId>
+      <version>1.1.1</version>
+    </dependency>
+
+    <dependency>
+      <groupId>jakarta.xml.bind</groupId>
+      <artifactId>jakarta.xml.bind-api</artifactId>
+      <version>4.0.4</version>
+    </dependency>
 
     <dependency>
       <groupId>org.flywaydb</groupId>
@@ -321,9 +331,14 @@
      <!-- <version>2.17.0</version>-->
     </dependency>
     <dependency>
-      <artifactId>jaxb-api</artifactId>
       <groupId>javax.xml.bind</groupId>
-      <version>2.4.0-b180830.0359</version>
+      <artifactId>jaxb-api</artifactId>
+      <version>2.3.1</version>
+    </dependency>
+    <dependency>
+      <groupId>com.sun.xml.bind</groupId>
+      <artifactId>jaxb-impl</artifactId>
+      <version>2.3.1</version>
     </dependency>
     <dependency>
       <artifactId>commons-csv</artifactId>
@@ -393,6 +408,7 @@
     <dependency>
       <artifactId>spring-boot-starter-aop</artifactId>
       <groupId>org.springframework.boot</groupId>
+     <version>4.0.0-M2</version>
     </dependency>
     <dependency>
       <artifactId>spring-boot-starter-data-jpa</artifactId>
@@ -498,6 +514,11 @@
       <version>2.11.2</version>
     </dependency>
     <dependency>
+      <artifactId>hibernate-jcache</artifactId>
+      <groupId>org.hibernate.orm</groupId>
+      <version>${hibernate.version}</version>
+    </dependency>
+    <dependency>
       <artifactId>hibernate-core</artifactId>
       <groupId>org.hibernate.orm</groupId>
       <version>${hibernate.version}</version>
@@ -553,7 +574,7 @@
   <parent>
     <groupId>org.springframework.boot</groupId>
     <artifactId>spring-boot-starter-parent</artifactId>
-    <version>4.0.0-M2</version>
+    <version>4.0.0-M3</version>
     <relativePath/> <!-- lookup parent from repository -->
   </parent>
 
@@ -730,7 +751,7 @@
 
     <hibernate-validator.version>9.0.1.Final</hibernate-validator.version>
     <hibernate.version>7.1.0.Final</hibernate.version>
-    <java.version>24</java.version>
+    <java.version>25</java.version>
     <xhtmlrenderer.version>9.13.3</xhtmlrenderer.version>
 
 
@@ -775,6 +796,11 @@
       <id>maven_central</id>
       <name>Maven Central</name>
       <url>https://repo.maven.apache.org/maven2/</url>
+    </repository>
+    <repository>
+      <id>spring-milestones</id>
+      <name>Spring Milestones</name>
+      <url>https://repo.spring.io/milestone</url>
     </repository>
   </repositories>
   <version>0.2.2-SNAPSHOT</version>

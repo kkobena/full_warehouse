@@ -245,7 +245,7 @@ export class ModeReglementComponent implements OnInit {
   }
 
   getInputSum(): number {
-    return this.selectModeReglementService.modeReglements()?.reduce((sum, mode) => sum + (mode.amount || 0), 0);
+    return (this.selectModeReglementService.modeReglements() || []).reduce((sum, mode) => sum + (mode.amount || 0), 0);
   }
 
   onSansBonChange(evt: any): void {
@@ -261,8 +261,7 @@ export class ModeReglementComponent implements OnInit {
   }
 
   buildPayment(entryAmount: number): IPayment[] {
-    return this.selectModeReglementService
-      .modeReglements()
+    return (this.selectModeReglementService.modeReglements() || [])
       .filter(mode => (mode.amount || 0) > 0)
       .map(mode => this.buildModePayment(mode, mode.amount, entryAmount));
   }

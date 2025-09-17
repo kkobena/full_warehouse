@@ -10,6 +10,9 @@ import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 import jakarta.persistence.UniqueConstraint;
 import jakarta.validation.constraints.NotNull;
+import org.hibernate.annotations.Cache;
+import org.hibernate.annotations.CacheConcurrencyStrategy;
+
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
@@ -21,6 +24,7 @@ import java.util.Objects;
     uniqueConstraints = { @UniqueConstraint(columnNames = { "name" }) },
     indexes = { @Index(columnList = "name", name = "poste_name_index") }
 )
+@Cache(usage = CacheConcurrencyStrategy.NONSTRICT_READ_WRITE)
 public class Poste implements Serializable {
 
     private static final long serialVersionUID = 1L;
@@ -40,6 +44,7 @@ public class Poste implements Serializable {
     private String address;
 
     @OneToMany(mappedBy = "poste")
+    @Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
     private List<Printer> printers = new ArrayList<>();
 
     public String getPosteNumber() {

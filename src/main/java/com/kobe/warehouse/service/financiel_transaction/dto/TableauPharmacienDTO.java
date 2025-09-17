@@ -32,12 +32,14 @@ public class TableauPharmacienDTO {
     private long montantTtcUg;
     private long montantHtUg;
     private long partAssure;
+    private long montantRemiseUg;
     private List<FournisseurAchat> groupAchats = new ArrayList<>();
     private long montantAvoirFournisseur;
     private long montantBonAchat;
     private float ratioAchatVente;
     private float ratioVenteAchat;
     private Map<Long, Long> achatFournisseurs = new HashMap<>();
+    private List<PaymentDTO> payments = new ArrayList<>();
 
     public Map<Long, Long> getAchatFournisseurs() {
         return achatFournisseurs;
@@ -56,6 +58,8 @@ public class TableauPharmacienDTO {
         return this;
     }
 
+
+
     public int getMontantDiffere() {
         return montantDiffere;
     }
@@ -71,6 +75,14 @@ public class TableauPharmacienDTO {
     public TableauPharmacienDTO setRatioAchatVente(float ratioAchatVente) {
         this.ratioAchatVente = ratioAchatVente;
         return this;
+    }
+
+    public long getMontantRemiseUg() {
+        return montantRemiseUg;
+    }
+
+    public void setMontantRemiseUg(long montantRemiseUg) {
+        this.montantRemiseUg = montantRemiseUg;
     }
 
     public float getRatioVenteAchat() {
@@ -221,10 +233,7 @@ public class TableauPharmacienDTO {
         return nombreVente;
     }
 
-    public TableauPharmacienDTO setNombreVente(int nombreVente) {
-        this.nombreVente = nombreVente;
-        return this;
-    }
+
 
     public long getMontantAvoir() {
         return montantAvoir;
@@ -290,6 +299,14 @@ public class TableauPharmacienDTO {
     }
 
     public TableauPharmacienDTO() {
+    }
+
+    public List<PaymentDTO> getPayments() {
+        return payments;
+    }
+
+    public void setPayments(List<PaymentDTO> payments) {
+        this.payments = payments;
     }
 
     public TableauPharmacienDTO(LocalDate mvtDate, Long numberCount, Object discount, Long montantTtc, Long montantPaye, Long montantReel, Double montantHt, Long montantAchat, Integer montantDiffere, Long amountToBeTakenIntoAccount, Long partTiersPayant, Long partAssure) {

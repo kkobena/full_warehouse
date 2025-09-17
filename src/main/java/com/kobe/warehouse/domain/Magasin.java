@@ -15,6 +15,9 @@ import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotNull;
 import java.io.Serial;
 import java.io.Serializable;
+
+import org.hibernate.annotations.Cache;
+import org.hibernate.annotations.CacheConcurrencyStrategy;
 import org.hibernate.annotations.JoinFormula;
 
 /**
@@ -22,6 +25,7 @@ import org.hibernate.annotations.JoinFormula;
  */
 @Entity
 @Table(name = "magasin")
+@Cache(usage = CacheConcurrencyStrategy.NONSTRICT_READ_WRITE)
 public class Magasin implements Serializable {
 
     @Serial

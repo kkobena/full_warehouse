@@ -1,5 +1,6 @@
 package com.kobe.warehouse.service.stock;
 
+import com.kobe.warehouse.domain.CommandeId;
 import com.kobe.warehouse.service.dto.DeliveryReceiptDTO;
 import com.kobe.warehouse.service.dto.filter.DeliveryReceiptFilterDTO;
 import java.io.IOException;
@@ -14,9 +15,9 @@ public interface StockEntryDataService {
 
     List<DeliveryReceiptDTO> fetchAllDeliveryReceipts(DeliveryReceiptFilterDTO deliveryReceiptFilterDTO, Pageable pageable);
 
-    Optional<DeliveryReceiptDTO> findOneById(Long id);
+    Optional<DeliveryReceiptDTO> findOneById(CommandeId id);
 
-    Resource printEtiquette(Long id, int startAt) throws IOException;
+    Resource printEtiquette(CommandeId id, int startAt) throws IOException;
 
-    Resource exportToPdf(Long id) throws IOException;
+    Resource exportToPdf(CommandeId id) throws IOException;
 }

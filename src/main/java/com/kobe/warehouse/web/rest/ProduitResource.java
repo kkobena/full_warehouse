@@ -88,10 +88,9 @@ public class ProduitResource extends ProduitResourceProxy {
      * @return the {@link ResponseEntity} with status {@code 200 (OK)} and with body the updated
      * produit, or with status {@code 400 (Bad Request)} if the produit is not valid, or with status
      * {@code 500 (Internal Server Error)} if the produit couldn't be updated.
-     * @throws URISyntaxException if the Location URI syntax is incorrect.
      */
     @PutMapping("/produits")
-    public ResponseEntity<Void> updateProduit(@Valid @RequestBody ProduitDTO produitDTO) throws URISyntaxException {
+    public ResponseEntity<Void> updateProduit(@Valid @RequestBody ProduitDTO produitDTO)  {
         log.debug("REST request to update Produit : {}", produitDTO);
         if (produitDTO.getId() == null) {
             throw new BadRequestAlertException("Invalid id", ENTITY_NAME, "idnull");
@@ -221,12 +220,6 @@ public class ProduitResource extends ProduitResourceProxy {
             pageable
         );
     }
-
-
-
-
-
-
 
     @GetMapping("/produits/activity")
     public ResponseEntity<List<ProductActivityDTO>> getProduitActivity(

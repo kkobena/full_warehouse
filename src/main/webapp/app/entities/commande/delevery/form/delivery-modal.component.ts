@@ -20,7 +20,6 @@ import { TranslateService } from '@ngx-translate/core';
 import { PrimeNG } from 'primeng/config';
 import { DatePicker } from 'primeng/datepicker';
 import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
-import { SpinerService } from '../../../../shared/spiner.service';
 import { ToastAlertComponent } from '../../../../shared/toast-alert/toast-alert.component';
 import { ErrorService } from '../../../../shared/error.service';
 import { SpinnerComponent } from '../../../../shared/spinner/spinner.component';
@@ -75,7 +74,7 @@ export class DeliveryModalComponent implements OnInit {
   private readonly primeNGConfig = inject(PrimeNG);
   private readonly translate = inject(TranslateService);
   private readonly activeModal = inject(NgbActiveModal);
-   private readonly spinner = viewChild.required<SpinnerComponent>('spinner');
+  private readonly spinner = viewChild.required<SpinnerComponent>('spinner');
   private readonly alert = viewChild.required<ToastAlertComponent>('alert');
   private readonly errorService = inject(ErrorService);
 
@@ -148,6 +147,7 @@ export class DeliveryModalComponent implements OnInit {
     return {
       ...new Delivery(),
       id: this.commande.id,
+      commandeId: { id: this.commande.id, orderDate: this.commande.orderDate },
       receiptReference: this.editForm.get(['receiptReference']).value,
       receiptDate: this.editForm.get('receiptDate').value ? moment(this.editForm.get('receiptDate').value).format(DATE_FORMAT) : null,
       receiptAmount: this.editForm.get(['receiptAmount']).value,

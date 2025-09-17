@@ -43,7 +43,7 @@ export class FileResponseModalComponent {
     const file = event.files[0];
     formData.append('commande', file, file.name);
     this.spinner().show();
-    this.commandeService.importerReponseCommande(this.commandeSelected.id, formData).subscribe({
+    this.commandeService.importerReponseCommande(this.commandeSelected.commandeId, formData).subscribe({
       next: res => {
         this.spinner().hide();
         this.activeModal.close(res.body);

@@ -46,8 +46,9 @@ export class BonEnCoursComponent implements OnInit, OnDestroy {
   }
 
   onRowExpand(event: any): void {
+
     if (!event.data.orderLines) {
-      this.commandeService.fetchOrderLinesByCommandeId(event.data.id).subscribe(res => {
+      this.commandeService.fetchOrderLinesByCommandeId(event.data.commandeId).subscribe(res => {
         event.data.orderLines = res.body;
       });
     }
@@ -76,7 +77,7 @@ export class BonEnCoursComponent implements OnInit, OnDestroy {
   exportPdf(delivery: IDelivery): void {
     this.spinner().show();
     this.entityService
-      .exportToPdf(delivery.id)
+      .exportToPdf(delivery.commandeId)
       .pipe(takeUntil(this.destroy$))
       .subscribe({
         next: blod => {

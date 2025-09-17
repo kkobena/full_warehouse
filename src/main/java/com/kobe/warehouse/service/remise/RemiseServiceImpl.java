@@ -12,7 +12,7 @@ import com.kobe.warehouse.repository.GrilleRemiseRepository;
 import com.kobe.warehouse.repository.RemiseClientRepository;
 import com.kobe.warehouse.repository.RemiseProduitRepository;
 import com.kobe.warehouse.repository.RemiseRepository;
-import com.kobe.warehouse.service.GrilleRemiseDTO;
+import com.kobe.warehouse.service.dto.GrilleRemiseDTO;
 import com.kobe.warehouse.service.dto.CodeRemiseDTO;
 import com.kobe.warehouse.service.dto.ProduitCriteria;
 import com.kobe.warehouse.service.dto.RemiseClientDTO;

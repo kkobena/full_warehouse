@@ -8,6 +8,7 @@ import com.kobe.warehouse.domain.HistoriqueProduitInventaire;
 import com.kobe.warehouse.domain.ParcoursProduit;
 import com.kobe.warehouse.domain.enumeration.TypeProduit;
 import com.kobe.warehouse.service.produit_prix.dto.PrixReferenceDTO;
+
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -776,7 +777,6 @@ public class ProduitDTO {
         this.parcoursProduits = parcoursProduits;
         return this;
     }
-
 
 
     public TableauDTO getTableau() {

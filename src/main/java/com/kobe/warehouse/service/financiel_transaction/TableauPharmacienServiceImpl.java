@@ -295,6 +295,8 @@ public class TableauPharmacienServiceImpl implements TableauPharmacienService {
     }
 
     private void updateTableauPharmaciens(Map<LocalDate, List<AchatDTO>> map, List<TableauPharmacienDTO> tableauPharmaciens) {
+
+
         map.forEach((k, v) -> {
             TableauPharmacienDTO tableauPharmacienDTO = new TableauPharmacienDTO();
             tableauPharmacienDTO.setMvtDate(k);
@@ -373,7 +375,7 @@ public class TableauPharmacienServiceImpl implements TableauPharmacienService {
                     .floatValue()
             );
         } catch (Exception e) {
-            LOG.info("Error {}", e.getMessage());
+            LOG.info( e.getLocalizedMessage());
         }
     }
 
@@ -392,7 +394,7 @@ public class TableauPharmacienServiceImpl implements TableauPharmacienService {
                     .floatValue()
             );
         } catch (Exception e) {
-            LOG.info("Error {}", e.getMessage());
+            LOG.info( e.getLocalizedMessage());
         }
     }
 
@@ -407,7 +409,7 @@ public class TableauPharmacienServiceImpl implements TableauPharmacienService {
                     .floatValue()
             );
         } catch (Exception e) {
-            LOG.info("Error {}", e.getMessage());
+            LOG.info( e.getLocalizedMessage());
         }
     }
 
@@ -422,7 +424,7 @@ public class TableauPharmacienServiceImpl implements TableauPharmacienService {
                     .floatValue()
             );
         } catch (Exception e) {
-            LOG.info("Error {}", e.getMessage());
+            LOG.info( e.getLocalizedMessage());
         }
     }
 
@@ -452,8 +454,8 @@ public class TableauPharmacienServiceImpl implements TableauPharmacienService {
             });
 
         } catch (Exception e) {
-            LOG.error(null, e);
-            return List.of();
+            LOG.info( e.getLocalizedMessage());
+            return  new ArrayList<>();
         }
     }
 

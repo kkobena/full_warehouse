@@ -2,6 +2,7 @@ package com.kobe.warehouse.service.dto;
 
 import com.kobe.warehouse.domain.AppUser;
 import com.kobe.warehouse.domain.Commande;
+import com.kobe.warehouse.domain.CommandeId;
 import com.kobe.warehouse.domain.Fournisseur;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -11,6 +12,7 @@ import java.util.List;
 public class DeliveryReceiptDTO {
 
     private final Long id;
+    private final CommandeId commandeId;
 
     private final String receiptReference;
 
@@ -36,6 +38,7 @@ public class DeliveryReceiptDTO {
 
     public DeliveryReceiptDTO(Commande commande) {
         id = commande.getId().getId();
+        commandeId = commande.getId();
         discountAmount = commande.getDiscountAmount();
         receiptReference = commande.getReceiptReference();
         receiptDate = commande.getReceiptDate();
@@ -110,6 +113,10 @@ public class DeliveryReceiptDTO {
 
     public List<DeliveryReceiptItemDTO> getReceiptItems() {
         return receiptItems;
+    }
+
+    public CommandeId getCommandeId() {
+        return commandeId;
     }
 
     public int getItemSize() {

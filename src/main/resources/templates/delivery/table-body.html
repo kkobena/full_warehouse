@@ -16,12 +16,12 @@
   <tr th:class="${itmStat.last}?'last-item':''" th:each="itm : ${items}">
     <td
       class="text-left"
-      th:if="${#strings.isEmpty(itm.fournisseurProduit.produit.codeEan)}"
+      th:if="${#strings.isEmpty(itm.fournisseurProduit.produit.codeEanLaboratoire)}"
       th:text="${itm.fournisseurProduit.codeCip}"
     ></td>
     <td
       class="text-left"
-      th:if="${!#strings.isEmpty(itm.fournisseurProduit.produit.codeEan)}"
+      th:if="${!#strings.isEmpty(itm.fournisseurProduit.produit.codeEanLaboratoire)}"
       th:text="${itm.fournisseurProduit.produit.codeEan}"
     ></td>
     <td class="text-left" th:text="${itm.fournisseurProduit.produit.libelle}"></td>

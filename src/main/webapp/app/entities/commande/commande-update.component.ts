@@ -54,10 +54,10 @@ import { EditProduitComponent } from './delevery/form/edit-produit/edit-produit.
 import { showCommonModal } from '../sales/selling-home/sale-helper';
 import { ConfirmDialogComponent } from '../../shared/dialog/confirm-dialog/confirm-dialog.component';
 import { ToastAlertComponent } from '../../shared/toast-alert/toast-alert.component';
-import { SpinerService } from '../../shared/spiner.service';
 import { FileResponseModalComponent } from './file-response-modal/file-response-modal.component';
 import { SpinnerComponent } from '../../shared/spinner/spinner.component';
 import { CommandeId } from '../../shared/model/abstract-commande.model';
+import { Card } from 'primeng/card';
 
 @Component({
   selector: 'jhi-commande-update',
@@ -87,7 +87,8 @@ import { CommandeId } from '../../shared/model/abstract-commande.model';
     FloatLabel,
     ConfirmDialogComponent,
     ToastAlertComponent,
-    SpinnerComponent
+    SpinnerComponent,
+    Card
   ]
 })
 export class CommandeUpdateComponent implements OnInit, AfterViewInit {
@@ -110,8 +111,8 @@ export class CommandeUpdateComponent implements OnInit, AfterViewInit {
   protected commandebuttons: MenuItem[];
   protected exportbuttons: MenuItem[];
   protected fileDialog = false;
-  protected fournisseurBox = viewChild.required<any>('fournisseurBox');
-  protected produitbox = viewChild.required<any>('produitbox');
+  protected fournisseurBox = viewChild<any>('fournisseurBox');
+  protected produitbox = viewChild<any>('produitbox');
   protected readonly sorts = SORT;
   protected readonly PRODUIT_NOT_FOUND = PRODUIT_NOT_FOUND;
   protected readonly PRODUIT_COMBO_MIN_LENGTH = PRODUIT_COMBO_MIN_LENGTH;
@@ -122,7 +123,7 @@ export class CommandeUpdateComponent implements OnInit, AfterViewInit {
   private readonly modalService = inject(NgbModal);
   private readonly fournisseurService = inject(FournisseurService);
   private readonly errorService = inject(ErrorService);
-   private readonly spinner = viewChild.required<SpinnerComponent>('spinner');
+  private readonly spinner = viewChild.required<SpinnerComponent>('spinner');
   private readonly deliveryService = inject(DeliveryService);
   private readonly commandCommonService = inject(CommandCommonService);
   private readonly router = inject(Router);
@@ -366,7 +367,10 @@ export class CommandeUpdateComponent implements OnInit, AfterViewInit {
   }
 
   protected focusPrdoduitBox(): void {
-    this.focusAndSelectElement(this.produitbox().inputEL.nativeElement, 50);
+    if (this.produitbox()) {
+      this.focusAndSelectElement(this.produitbox()?.inputEL.nativeElement, 50);
+    }
+
   }
 
   private focusAndSelectElement(element: any, delay: number): void {
@@ -629,9 +633,9 @@ export class CommandeUpdateComponent implements OnInit, AfterViewInit {
   private onFinalize(): void {
     this.showsPinner();
     this.deliveryService.finalizeSaisieEntreeStock(this.commande).subscribe({
-      next: () => {
+      next: (res: HttpResponse<CommandeId>) => {
         this.hidePinner();
-        this.confirmPrintTicket(this.commande);
+        this.confirmPrintTicket(res.body);
       },
       error: error => {
         this.onCommonError(error);
@@ -640,8 +644,11 @@ export class CommandeUpdateComponent implements OnInit, AfterViewInit {
     });
   }
 
-  protected confirmPrintTicket(commande: ICommande): void {
-    this.confimDialog().onConfirm(() => this.printEtiquette(commande), 'Impression', 'Voullez-vous imprimer les étiquettes ?', null, () => {
+  protected confirmPrintTicket(commandeId: CommandeId): void {
+    this.confimDialog().onConfirm(() => this.printEtiquette({
+      ...this.commande,
+      commandeId: commandeId
+    }), 'Impression', 'Voullez-vous imprimer les étiquettes ?', null, () => {
       this.commande = null;
       this.previousState();
     });

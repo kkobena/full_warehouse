@@ -4,6 +4,7 @@ import static java.util.Objects.nonNull;
 
 import com.kobe.warehouse.domain.FournisseurProduit;
 import com.kobe.warehouse.domain.OrderLine;
+import com.kobe.warehouse.domain.OrderLineId;
 import com.kobe.warehouse.domain.Produit;
 import com.kobe.warehouse.domain.Tableau;
 import com.kobe.warehouse.domain.Tva;
@@ -41,6 +42,7 @@ public class DeliveryReceiptItemDTO {
     private final Integer quantityReceivedTmp;
     private final Integer costAmount;
     private final Integer afterStock;
+    private final OrderLineId orderLineId;
     private Long tvaId;
     private TvaDTO tva;
 
@@ -53,6 +55,7 @@ public class DeliveryReceiptItemDTO {
         }
 
         id = orderLine.getId().getId();
+        orderLineId = orderLine.getId();
         freeQty = orderLine.getFreeQty();
         quantityReceived = orderLine.getQuantityReceived();
         initStock = orderLine.getInitStock();
@@ -199,5 +202,9 @@ public class DeliveryReceiptItemDTO {
 
     public String getCodeEanLaboratoire() {
         return codeEanLaboratoire;
+    }
+
+    public OrderLineId getOrderLineId() {
+        return orderLineId;
     }
 }

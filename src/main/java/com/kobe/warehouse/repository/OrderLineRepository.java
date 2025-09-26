@@ -39,7 +39,7 @@ public interface OrderLineRepository extends JpaRepository<OrderLine, OrderLineI
     List<OrderLine> findAllByCommandeIdAndCommandeOrderDate(Long deliveryReceiptId,LocalDate orderDate);
 
     @Query(
-        value = "SELECT MAX(o.order_date) AS updatedAt FROM order_line o JOIN fournisseur_produit fp ON o.fournisseur_produit_id = fp.id JOIN commande d ON o.commande_id = d.id WHERE fp.produit_id = ?1 AND d.order_status=?2",
+        value = "SELECT MAX(o.updated_at) AS updatedAt FROM order_line o JOIN fournisseur_produit fp ON o.fournisseur_produit_id = fp.id JOIN commande d ON o.commande_id = d.id WHERE fp.produit_id = ?1 AND d.order_status=?2",
         nativeQuery = true
     )
     LastDateProjection findLastUpdatedAtByFournisseurProduitProduitId(Long produitId, String receiptStatut);
@@ -73,7 +73,7 @@ public interface OrderLineRepository extends JpaRepository<OrderLine, OrderLineI
 
 
     @Query(
-        value = "SELECT SUM(o.quantity_received) AS quantite,SUM(o.order_cost_amount*o.quantity_received) AS montantAchat  FROM order_line o JOIN fournisseur_produit fp ON o.fournisseur_produit_id = fp.id JOIN commande d ON o.commande_id = d.id WHERE fp.produit_id =:produitId AND d.order_status=:statut AND o.order_date BETWEEN :startDate AND :endDate AND o.commande_order_date = d.order_date",
+        value = "SELECT coalesce(SUM(o.quantity_received),0) AS quantite,coalesce(SUM(o.order_cost_amount*o.quantity_received),0) AS montantAchat  FROM order_line o JOIN fournisseur_produit fp ON o.fournisseur_produit_id = fp.id JOIN commande d ON o.commande_id = d.id WHERE fp.produit_id =:produitId AND d.order_status=:statut AND o.order_date BETWEEN :startDate AND :endDate AND o.commande_order_date = d.order_date",
         nativeQuery = true
     )
     HistoriqueProduitAchatsSummary getHistoriqueAchatSummary(

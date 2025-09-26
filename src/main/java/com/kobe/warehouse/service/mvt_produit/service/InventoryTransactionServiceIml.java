@@ -1,6 +1,7 @@
 package com.kobe.warehouse.service.mvt_produit.service;
 
 import com.kobe.warehouse.domain.InventoryTransaction;
+import com.kobe.warehouse.domain.OrderLine;
 import com.kobe.warehouse.domain.enumeration.MouvementProduit;
 import com.kobe.warehouse.domain.enumeration.TransactionType;
 import com.kobe.warehouse.repository.InventoryTransactionRepository;
@@ -17,6 +18,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.CollectionUtils;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -99,5 +101,12 @@ public class InventoryTransactionServiceIml implements InventoryTransactionServi
         return this.inventoryTransactionRepository.fetchProduitDailyTransactionSum(
             inventoryTransactionRepository.combineSpecifications(produitAuditingParam.produitId(), startDate, endDate)
         );
+    }
+
+    @Override
+    public void saveAll(List<OrderLine> entities) {
+        if (CollectionUtils.isEmpty(entities)) {
+            entities.forEach(this::save);
+        }
     }
 }

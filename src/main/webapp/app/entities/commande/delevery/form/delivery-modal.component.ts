@@ -147,7 +147,7 @@ export class DeliveryModalComponent implements OnInit {
     return {
       ...new Delivery(),
       id: this.commande.id,
-      commandeId: { id: this.commande.id, orderDate: this.commande.orderDate },
+      commandeId: this.commande.commandeId,
       receiptReference: this.editForm.get(['receiptReference']).value,
       receiptDate: this.editForm.get('receiptDate').value ? moment(this.editForm.get('receiptDate').value).format(DATE_FORMAT) : null,
       receiptAmount: this.editForm.get(['receiptAmount']).value,

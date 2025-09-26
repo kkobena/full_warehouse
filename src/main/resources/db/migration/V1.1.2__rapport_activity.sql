@@ -123,3 +123,78 @@ $$;
 ALTER TABLE  facture_tiers_payant ADD COLUMN IF NOT EXISTS sale_date date  not null;
 create index facture_tiers_payant_sale_date_index
   on facture_tiers_payant (sale_date);
+
+
+CREATE OR REPLACE FUNCTION find_reglement_tierspayant(
+  p_from_date DATE,
+  p_to_date DATE,
+  p_search TEXT DEFAULT NULL,
+  p_offset INT DEFAULT 0,
+  p_limit INT DEFAULT 20
+)
+  RETURNS JSONB AS
+$$
+BEGIN
+  RETURN (
+    WITH data AS (
+      SELECT
+        tp.full_name AS libelle,
+        tp.categorie AS type,
+        f.num_facture AS num_facture,
+        SUM(it.montantReglement) AS montant_reglement,
+        SUM(it.montantFacture) AS montant_facture
+      FROM payment_transaction p
+             JOIN facture_tiers_payant f ON p.facture_tierspayant_id = f.id
+             JOIN tiers_payant tp ON f.tiers_payant_id = tp.id
+             JOIN (
+        SELECT s.sale_date,
+               s.facture_tiers_payant_id,
+               SUM(s.montant_regle) AS montantReglement,
+               SUM(s.montant) AS montantFacture
+        FROM third_party_sale_line s
+        GROUP BY s.facture_tiers_payant_id, s.sale_date
+      ) it ON it.facture_tiers_payant_id = f.id
+        AND it.sale_date = f.sale_date
+      WHERE p.transaction_date BETWEEN p_from_date AND p_to_date
+        AND (
+        p_search IS NULL
+          OR tp.name ILIKE p_search
+          OR tp.full_name ILIKE p_search
+        )
+      GROUP BY tp.id, tp.full_name, tp.categorie, f.num_facture
+      ORDER BY tp.full_name
+      LIMIT p_limit OFFSET p_offset
+    )
+    SELECT jsonb_build_object(
+             'totalElements', (
+        SELECT COUNT(*) FROM (
+                               SELECT 1
+                               FROM payment_transaction p
+                                      JOIN facture_tiers_payant f ON p.facture_tierspayant_id = f.id
+                                      JOIN tiers_payant tp ON f.tiers_payant_id = tp.id
+                               WHERE p.transaction_date BETWEEN p_from_date AND p_to_date
+                                 AND (
+                                 p_search IS NULL
+                                   OR tp.name ILIKE p_search
+                                   OR tp.full_name ILIKE p_search
+                                 )
+                               GROUP BY tp.id, tp.full_name, tp.categorie, f.num_facture
+                             ) sub
+      ),
+             'content', jsonb_agg(
+               jsonb_build_object(
+                 'libelle', data.libelle,
+                 'type', data.type,
+                 'factureNumber', data.num_facture,
+                 'montantReglement', data.montant_reglement,
+                 'montantFacture', data.montant_facture
+               )
+                        )
+           )
+    FROM data
+  );
+END;
+$$ LANGUAGE plpgsql STABLE;
+
+
+

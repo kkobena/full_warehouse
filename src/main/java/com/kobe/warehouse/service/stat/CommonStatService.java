@@ -1,14 +1,10 @@
 package com.kobe.warehouse.service.stat;
 
-import com.kobe.warehouse.domain.enumeration.CategorieChiffreAffaire;
-import com.kobe.warehouse.domain.enumeration.TypeVente;
 import com.kobe.warehouse.service.dto.VenteRecordParamDTO;
-import com.kobe.warehouse.service.dto.builder.QueryBuilderConstant;
-import com.kobe.warehouse.service.dto.builder.VenteStatQueryBuilder;
-import com.kobe.warehouse.service.dto.enumeration.StatGroupBy;
+import org.apache.commons.lang3.tuple.Pair;
+
 import java.time.LocalDate;
 import java.util.Objects;
-import org.apache.commons.lang3.tuple.Pair;
 
 public interface CommonStatService {
     default Pair<LocalDate, LocalDate> buildPeriode(VenteRecordParamDTO venteRecordParam) {
@@ -31,30 +27,4 @@ public interface CommonStatService {
     }
 
 
-
-    default String buildChiffreAffaire(CategorieChiffreAffaire categorieChiffreAffaire) {
-        return switch (categorieChiffreAffaire) {
-            case CA -> QueryBuilderConstant.CA;
-            case CALLEBASE -> QueryBuilderConstant.CALLEBASE;
-            case CA_DEPOT -> QueryBuilderConstant.CA_DEPOT;
-            case TO_IGNORE -> QueryBuilderConstant.TO_IGNORE;
-        };
-    }
-
-    default String buildType(TypeVente typeVente) {
-        if (Objects.nonNull(typeVente)) {
-            return String.format(VenteStatQueryBuilder.TYPE_VENTE, typeVente);
-        }
-        return "";
-    }
-
-    default String buildQuery(String sql, VenteRecordParamDTO param) {
-        String diff = "";
-
-        if (param.isDiffereOnly()) {
-            diff = QueryBuilderConstant.DIFFERE;
-        }
-
-        return String.format(sql, this.buildChiffreAffaire(param.getCategorieChiffreAffaire()), diff, buildType(param.getTypeVente()));
-    }
 }

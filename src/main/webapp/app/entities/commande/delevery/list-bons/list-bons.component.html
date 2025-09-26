@@ -13,8 +13,8 @@
     currentPageReportTemplate="Affichage de {first} à {last} sur {totalRecords} elements"
     dataKey="id"
     selectionMode="multiple"
-    stripedRows="true"
-    styleClass=" mt-2"
+    [stripedRows]="true"
+    class=" mt-2"
   >
     <ng-template #header>
       <tr>
@@ -101,7 +101,7 @@
               [value]="item.receiptItems"
               currentPageReportTemplate="Affichage de {first} à {last} sur {totalRecords} elements"
             >
-              <ng-template pTemplate="header">
+              <ng-template #header>
                 <tr>
                   <th>#</th>
                   <th pSortableColumn="fournisseurProduitCip">

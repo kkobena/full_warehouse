@@ -32,7 +32,7 @@ public class InventoryTransactionCustomRepositoryImpl implements InventoryTransa
         CriteriaBuilder cb = entityManager.getCriteriaBuilder();
         CriteriaQuery<ProduitAuditingState> query = cb.createQuery(ProduitAuditingState.class);
         Root<InventoryTransaction> root = query.from(InventoryTransaction.class);
-        Expression<LocalDate> dateExpr = cb.function("DATE", LocalDate.class, root.get(InventoryTransaction_.createdAt));
+        Expression<LocalDate> dateExpr =root.get(InventoryTransaction_.transactionDate);
 
         query
             .select(
@@ -46,8 +46,8 @@ public class InventoryTransactionCustomRepositoryImpl implements InventoryTransa
                 )
             )
             .groupBy(
-                root.get(InventoryTransaction_.mouvementType), cb.function("DATE", LocalDate.class, root.get(InventoryTransaction_.createdAt))
-            ).orderBy(cb.asc(cb.function("DATE", LocalDate.class, root.get(InventoryTransaction_.createdAt))));
+                root.get(InventoryTransaction_.mouvementType), root.get(InventoryTransaction_.transactionDate)
+            ).orderBy(cb.asc(root.get(InventoryTransaction_.transactionDate)));
         Predicate predicate = specification.toPredicate(root, query, cb);
         query.where(predicate);
 
@@ -87,8 +87,8 @@ public class InventoryTransactionCustomRepositoryImpl implements InventoryTransa
         CriteriaBuilder cb = entityManager.getCriteriaBuilder();
         CriteriaQuery<Long> countQuery = cb.createQuery(Long.class);
         Root<InventoryTransaction> root = countQuery.from(InventoryTransaction.class);
-        countQuery.select(cb.count(cb.function("DATE", LocalDate.class, root.get(InventoryTransaction_.createdAt)))).groupBy(
-            root.get(InventoryTransaction_.mouvementType), cb.function("DATE", LocalDate.class, root.get(InventoryTransaction_.createdAt))
+        countQuery.select(cb.count(root.get(InventoryTransaction_.transactionDate))).groupBy(
+            root.get(InventoryTransaction_.mouvementType),root.get(InventoryTransaction_.transactionDate)
         );
         Predicate predicate = specification.toPredicate(root, countQuery, cb);
         countQuery.where(predicate);

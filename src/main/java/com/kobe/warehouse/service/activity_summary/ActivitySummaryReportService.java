@@ -106,8 +106,8 @@ public class ActivitySummaryReportService extends CommonReportService {
         int montantFacture = 0;
         int montantReglement = 0;
         for (ReglementTiersPayants r : reglementTiersPayants) {
-            montantFacture += r.getMontantFacture();
-            montantReglement += r.getMontantReglement();
+            montantFacture += r.montantFacture();
+            montantReglement += r.montantReglement();
         }
         return new Amount(montantFacture, montantReglement);
     }

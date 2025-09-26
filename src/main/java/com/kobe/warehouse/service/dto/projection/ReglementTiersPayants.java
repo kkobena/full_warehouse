@@ -1,17 +1,13 @@
 package com.kobe.warehouse.service.dto.projection;
 
-public interface ReglementTiersPayants {
-    String getLibelle();
+import com.fasterxml.jackson.annotation.JsonProperty;
+import com.kobe.warehouse.domain.enumeration.TiersPayantCategorie;
 
-    String getType();
-
-    String getFactureNumber();
-
-    Integer getMontantFacture();
-
-    Integer getMontantReglement();
-
-    default Integer getMontantRestant() {
-        return getMontantFacture() - getMontantReglement();
+public record ReglementTiersPayants(String libelle, TiersPayantCategorie type, String numFacture, Long montantReglement,
+                                    Long montantFacture) {
+    @JsonProperty("montantRestant")
+    public Long montantRestant() {
+        return montantFacture - montantReglement;
     }
+
 }

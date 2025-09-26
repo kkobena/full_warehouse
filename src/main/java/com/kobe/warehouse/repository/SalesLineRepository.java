@@ -54,7 +54,7 @@ public interface SalesLineRepository
     List<SalesLine> findAllByQuantityAvoirGreaterThan(Integer zero);
 
     @Query(
-        value = "SELECT MAX(s.sale_date) AS updatedAt FROM sales_line o JOIN sales s ON o.sales_id = s.id WHERE o.produit_id =:produitId AND s.statut=:statut",
+        value = "SELECT MAX(s.updated_at) AS updatedAt FROM sales_line o JOIN sales s ON o.sales_id = s.id WHERE o.produit_id =:produitId AND s.statut=:statut",
         nativeQuery = true
     )
     LastDateProjection findLastUpdatedAtByProduitIdAndSalesStatut(@Param("produitId") Long produitId, @Param("statut") String statut);
@@ -64,7 +64,7 @@ public interface SalesLineRepository
         value = "SELECT get_historique_vente(:produitId,:startDate, :endDate, :statuts,:caterorieChiffreAffaire,:offset,:limit)",
         nativeQuery = true
     )
-//HistoriqueVenteResult
+
     String getHistoriqueVente(
         @Param("produitId") Long produitId,
         @Param("startDate") LocalDate startDate,

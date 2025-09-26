@@ -1,5 +1,6 @@
 package com.kobe.warehouse.web.rest.commande;
 
+import com.kobe.warehouse.domain.CommandeId;
 import com.kobe.warehouse.service.dto.CommandeEntryDTO;
 import com.kobe.warehouse.service.dto.CommandeResponseDTO;
 import com.kobe.warehouse.service.dto.DeliveryReceiptItemLiteDTO;
@@ -10,9 +11,6 @@ import com.kobe.warehouse.service.stock.CommandService;
 import com.kobe.warehouse.service.stock.StockEntryService;
 import com.kobe.warehouse.web.util.HeaderUtil;
 import jakarta.validation.Valid;
-import java.io.IOException;
-import java.net.URI;
-import java.net.URISyntaxException;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -25,6 +23,10 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestPart;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
+
+import java.io.IOException;
+import java.net.URI;
+import java.net.URISyntaxException;
 
 @RestController
 @RequestMapping("/api")
@@ -44,11 +46,9 @@ public class StockEntryResource {
     }
 
     @PutMapping("/commandes/entree-stock/finalize")
-    public ResponseEntity<Void> finalizeSaisieEntreeStock(@Valid @RequestBody DeliveryReceiptLiteDTO deliveryReceiptLite) {
-        stockEntryService.finalizeSaisieEntreeStock(deliveryReceiptLite);
+    public ResponseEntity<CommandeId> finalizeSaisieEntreeStock(@Valid @RequestBody DeliveryReceiptLiteDTO deliveryReceiptLite) {
         return ResponseEntity.accepted()
-            .headers(HeaderUtil.createEntityCreationAlert(applicationName, true, ENTITY_NAME, deliveryReceiptLite.getId().toString()))
-            .build();
+            .body(stockEntryService.finalizeSaisieEntreeStock(deliveryReceiptLite));
     }
 
     @PutMapping("/commandes/entree-stock/update-order-line-cost-amount")
@@ -117,7 +117,7 @@ public class StockEntryResource {
         return ResponseEntity.accepted().body(stockEntryService.updateBon(deliveryReceiptLiteDTO));
     }
 
-    @PostMapping(path = "/commandes/entree-stock/upload-new", consumes = { MediaType.MULTIPART_FORM_DATA_VALUE })
+    @PostMapping(path = "/commandes/entree-stock/upload-new", consumes = {MediaType.MULTIPART_FORM_DATA_VALUE})
     public ResponseEntity<CommandeResponseDTO> importerReponseCommande(
         @RequestPart("deliveryReceipt") UploadDeleiveryReceiptDTO deliveryReceipt,
         @RequestPart("fichier") MultipartFile file

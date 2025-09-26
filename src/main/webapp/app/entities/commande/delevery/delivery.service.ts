@@ -33,8 +33,8 @@ export class DeliveryService {
     return this.http.post<IDelivery>(this.resourceUrl2, entity, { observe: 'response' });
   }
 
-  finalizeSaisieEntreeStock(delivery: IDelivery): Observable<EntityResponseType> {
-    return this.http.put<IDelivery>(this.resourceFinalyse, delivery, { observe: 'response' });
+  finalizeSaisieEntreeStock(delivery: IDelivery): Observable<HttpResponse<CommandeId>> {
+    return this.http.put<CommandeId>(this.resourceFinalyse, delivery, { observe: 'response' });
   }
 
   update(entity: IDelivery): Observable<EntityResponseType> {

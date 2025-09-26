@@ -1,15 +1,21 @@
 package com.kobe.warehouse.service.dto.records;
 
-import java.math.BigDecimal;
+import com.fasterxml.jackson.annotation.JsonProperty;
+
+import java.util.Objects;
 
 public record AchatRecord(
-    BigDecimal receiptAmount,
-    BigDecimal discountAmount,
-    BigDecimal netAmount,
-    BigDecimal taxAmount,
+    Long receiptAmount,
+    Long discountAmount,
+    Long taxAmount,
     Long achatCount
 ) {
+    @JsonProperty("ttcAmount")
     public long ttcAmount() {
-        return receiptAmount.add(taxAmount).longValue();
+        return Objects.requireNonNullElse(receiptAmount, 0L) + Objects.requireNonNullElse(taxAmount, 0L);
+    }
+    @JsonProperty("netAmount")
+    public long netAmount(){
+        return Objects.requireNonNullElse(receiptAmount, 0L)-Objects.requireNonNullElse(discountAmount, 0L);
     }
 }

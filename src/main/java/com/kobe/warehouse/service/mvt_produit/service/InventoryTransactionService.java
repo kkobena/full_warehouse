@@ -1,6 +1,7 @@
 package com.kobe.warehouse.service.mvt_produit.service;
 
 import com.kobe.warehouse.domain.InventoryTransaction;
+import com.kobe.warehouse.domain.OrderLine;
 import com.kobe.warehouse.domain.enumeration.MouvementProduit;
 import com.kobe.warehouse.service.dto.InventoryTransactionDTO;
 import com.kobe.warehouse.service.dto.produit.ProduitAuditingParam;
@@ -34,4 +35,6 @@ public interface InventoryTransactionService {
     Page<ProduitAuditingState> fetchProduitDailyTransaction(@Valid ProduitAuditingParam produitAuditingParam, Pageable pageable);
 
     List<ProduitAuditingSum> fetchProduitDailyTransactionSum(@Valid ProduitAuditingParam produitAuditingParam);
+
+    void saveAll(List<OrderLine> entities);
 }

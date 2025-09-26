@@ -3,7 +3,7 @@
   <div class="row">
     @if (isReceiption) {
       <div class="col-md-2 col-sm-12 col-lg-2 col-xl-2">
-        <ul class="list-group">
+        <p-card> <ul class="list-group">
           <li class="list-group-item d-flex justify-content-between align-items-center">
             <span style="margin-right: 5px">Grossiste</span>
             <span class="text-primary fw-bold">{{ commande?.fournisseur?.libelle }}</span>
@@ -25,13 +25,14 @@
             Taxe
             <span class="text-primary fw-bold">{{ commande?.taxAmount | number }}</span>
           </li>
-        </ul>
+        </ul></p-card>
+
       </div>
     } @else {
       <div class="col-md-12 col-sm-12 col-lg-12 col-xl-12 m-1">
         <p-toolbar>
           <div [style]="{ width: '100%' }" class="d-flex justify-content-start">
-            <div>
+            <div class="mr-1">
               <p-inputgroup>
                 <p-inputgroup-addon>Fournisseurs</p-inputgroup-addon>
                 <p-select
@@ -51,7 +52,7 @@
             </div>
             &nbsp;
             <div class="flex-grow-1 commande-edition-form">
-              <div [style]="{ width: '100%' }" class="input-group">
+              <div [style]="{ width: '100%' }" class="input-group  ">
                 <span class="input-group-text">Produits</span>
 
                 <p-autoComplete
@@ -138,334 +139,338 @@
 
     <div
       [ngClass]="isReceiption ? 'col-md-10 col-sm-12 col-lg-10 col-xl-10' : 'col-md-12 col-sm-12 col-lg-12 col-xl-12'">
-      @if (commande) {
-        <p-table
-          [(selection)]="selectedEl"
-          [paginator]="true"
-          [rowsPerPageOptions]="[10, 20, 30, 40, 50]"
-          [rows]="10"
-          [value]="orderLines"
-          dataKey="id"
-          [showGridlines]="true"
-        >
-          <ng-template #caption>
-            <div class="d-flex justify-content-between">
-              <div class="d-flex justify-content-start flex-fill">
-                <div>
-                  <p-iconfield>
-                    <p-inputicon styleClass="pi pi-search" />
-                    <input
-                      (keyup.enter)="onFilterCommandeLines()"
-                      [(ngModel)]="search"
-                      pInputText
-                      placeholder="Taper pour rechercher"
-                      type="text"
-                    />
-                  </p-iconfield>
-                </div>
-                <div>
-                  <p-floatlabel variant="on">
-                    <p-select
-                      size="large"
-                      (onChange)="onFilterCommandeLines()"
-                      [(ngModel)]="tris"
-                      [options]="sorts"
-                      optionLabel="label"
-                      optionValue="code"
-                      inputId="ordre"
-                    >
-                    </p-select>
-                    <label for="ordre">Ordre</label>
-                  </p-floatlabel>
-                </div>
+     <p-card>
+       @if (commande) {
+         <p-table
+           [(selection)]="selectedEl"
+           [paginator]="true"
+           [rowsPerPageOptions]="[10, 20, 30, 40, 50]"
+           [rows]="10"
+           [value]="orderLines"
+           dataKey="id"
+           [showGridlines]="true"
+         >
+           <ng-template #caption>
+             <div class="d-flex justify-content-between">
+               <div class="d-flex justify-content-start flex-fill">
+                 <div class="mr-1">
+                   <p-iconfield>
+                     <p-inputicon class="pi pi-search" />
+                     <input
+                       (keyup.enter)="onFilterCommandeLines()"
+                       [(ngModel)]="search"
+                       pInputText
+                       placeholder="Taper pour rechercher"
+                       type="text"
+                     />
+                   </p-iconfield>
+                 </div>
+                 <div class="mr-1">
+                   <p-floatlabel variant="on">
+                     <p-select
+                       size="large"
+                       (onChange)="onFilterCommandeLines()"
+                       [(ngModel)]="tris"
+                       [fluid]="true"
+                       [options]="sorts"
+                       optionLabel="label"
+                       optionValue="code"
+                       inputId="ordre"
+                     >
+                     </p-select>
+                     <label for="ordre">Ordre</label>
+                   </p-floatlabel>
+                 </div>
 
-                <div>
-                  <p-floatlabel variant="on">
-                    <p-select
-                      size="large"
-                      (onChange)="onFilterCommandeLines()"
-                      [(ngModel)]="selectedFilter"
-                      [options]="filtres!"
-                      optionLabel="label"
-                      optionValue="value"
-                      inputId="selectedFilter"
-                    >
-                    </p-select>
-                    <label for="selectedFilter">Filtrer par</label>
-                  </p-floatlabel>
-                </div>
-              </div>
+                 <div>
+                   <p-floatlabel variant="on">
+                     <p-select
+                       size="large"
+                       (onChange)="onFilterCommandeLines()"
+                       [(ngModel)]="selectedFilter"
+                       [options]="filtres!"
+                       optionLabel="label"
+                       [fluid]="true"
+                       optionValue="value"
+                       inputId="selectedFilter"
+                     >
+                     </p-select>
+                     <label for="selectedFilter">Filtrer par</label>
+                   </p-floatlabel>
+                 </div>
+               </div>
 
-              <div class="d-flex justify-content-end flex-fill">
-                <p-buttonGroup>
-                  @if (!isReceiption) {
-                    <p-button (click)="onCreateBon()" severity="primary" icon="pi pi-truck"
-                              label="Créer le bon"
-                              [raised]="true"></p-button>
+               <div class="d-flex justify-content-end flex-fill">
+                 <p-buttonGroup>
+                   @if (!isReceiption) {
+                     <p-button class="mr-1" (click)="onCreateBon()" severity="primary" icon="pi pi-truck"
+                               label="Créer le bon"
+                               [raised]="true"></p-button>
 
-                    <p-button
-                      label="Importer la réponse"
-                      icon="pi pi-download"
-                      [raised]="true"
-                      severity="info"
-                      (click)="fileDialog = true"
-                    />
-                  } @else {
-                    <p-button
-                      (click)="onConfirmFinalize()"
-                      [raised]="true"
-                      icon="pi pi-check-circle"
-                      label="Valider"
-                      severity="primary"
-                      type="button"
-                    ></p-button>
-                  }
+                     <p-button class="mr-1"
+                               label="Importer la réponse"
+                               icon="pi pi-download"
+                               [raised]="true"
+                               severity="info"
+                               (click)="fileDialog = true"
+                     />
+                   } @else {
+                     <p-button class="mr-1"
+                               (click)="onConfirmFinalize()"
+                               [raised]="true"
+                               icon="pi pi-check-circle"
+                               label="Valider"
+                               severity="primary"
+                               type="button"
+                     ></p-button>
+                   }
 
-                  <p-splitbutton [model]="exportbuttons" icon="pi pi-file-export" label="Exporter"
-                                 severity="warn"
-                                 [raised]="true" />
+                   <p-splitbutton class="mr-1" [model]="exportbuttons" icon="pi pi-file-export" label="Exporter"
+                                  severity="warn"
+                                  [raised]="true" />
 
-                  @if (!isReceiption && selectedEl!.length > 0) {
-                    <p-button [raised]="true" label="Supprimer" icon="pi pi-times" severity="danger"
-                              (click)="confirmDeleteAll()">
-                    </p-button>
-                  }
-                </p-buttonGroup>
-              </div>
-            </div>
-          </ng-template>
-          <ng-template #header>
-            <tr>
-              <th style="width: 2%">#</th>
-              <th style="width: 8%">Code</th>
-              <th style="width: 20%">Description</th>
-              <th style="width: 5%" class="text-right">Stock</th>
-              <th style="width: 8%" class="text-right">P.A</th>
-              <th style="width: 6%">P.A Machine</th>
-              <th style="width: 8%" class="text-right">P.U</th>
-              <th style="width: 6%" class="text-right">P.U Machine</th>
-              <th style="width: 8%" class="text-right">Qté</th>
-              <th style="width: 6%" class="text-right">Qté Ug</th>
-              <!--   <th style="width: 5%">T.ACHAT</th>-->
-              @if (showLotColumn()) {
-                <th style="width: 7%">Lots</th>
-                <th style="width: 7%">Date péremption</th>
-              }
-
-
-              <th style="width: 6%"></th>
-              @if (!isReceiption) {
-                <th class="text-center" style="width: 2%;">
-                  <p-tableHeaderCheckbox></p-tableHeaderCheckbox>
-                </th>
-              }
-            </tr>
-          </ng-template>
-          <ng-template let-orderLine let-rowIndex="rowIndex" #body>
-            <tr [ngClass]="orderLineTableColor(orderLine)">
-              <td style="text-align: left">{{ rowIndex + 1 }}</td>
-              @if (orderLine.provisionalCode === false || !isReceiption) {
-                <td>{{ orderLine.produitCip }}</td>
-              } @else {
-                <td class="table-info" pEditableColumn>
-                  <p-cellEditor>
-                    <ng-template pTemplate="input">
-                      <input
-                        (focus)="$event.target.select()"
-                        (keydown.enter)="onUpdateCip(orderLine, $event)"
-                        [value]="orderLine.produitCip"
-                        pInputText
-                        required
-                        style="width: 100%"
-                        type="text"
-                      />
-                    </ng-template>
-                    <ng-template pTemplate="output">
-                      {{ orderLine.produitCip }}
-                    </ng-template>
-                  </p-cellEditor>
-                </td>
-              }
-
-              <td>{{ orderLine.produitLibelle }}</td>
-              <td style="text-align: right">{{ orderLine.initStock | number }}</td>
-              @if (!isReceiption) {
-                <td pEditableColumn class="amount-td-column">
-                  <p-cellEditor>
-                    <ng-template pTemplate="input">
-                      <input
-                        (focus)="$event.target.select()"
-                        (keydown.enter)="onUpdateOrderCostAmount(orderLine, $event)"
-                        [value]="orderLine.orderCostAmount"
-                        pInputText
-                        required
-                        style="width: 100%"
-                        type="number"
-                      />
-                    </ng-template>
-                    <ng-template pTemplate="output">
-                      {{ orderLine.orderCostAmount | number }}
-                    </ng-template>
-                  </p-cellEditor>
-                </td>
-              } @else {
-                <td class="amount-td-column"> {{ orderLine.orderCostAmount | number }}</td>
-
-              }
-
-              <td style="text-align: right">{{ orderLine.costAmount | number }}</td>
-              @if (!isReceiption) {
-                <td pEditableColumn class="amount-td-column">
-                  <p-cellEditor>
-                    <ng-template pTemplate="input">
-                      <input
-                        (focus)="$event.target.select()"
-                        (keydown.enter)="onUpdateOrderUnitPrice(orderLine, $event)"
-                        [value]="orderLine.orderUnitPrice"
-                        pInputText
-                        required
-                        style="width: 100%"
-                        type="number"
-                      />
-                    </ng-template>
-                    <ng-template pTemplate="output">
-                      {{ orderLine.orderUnitPrice | number }}
-                    </ng-template>
-                  </p-cellEditor>
-                </td>
-              } @else {
-                <td class="amount-td-column"> {{ orderLine.orderUnitPrice | number }}</td>
-
-              }
-
-              <td style="text-align: right">{{ orderLine.regularUnitPrice | number }}</td>
-              @if (!isReceiption) {
-                <td pEditableColumn class="amount-td-column">
-                  <p-cellEditor>
-                    <ng-template pTemplate="input">
-                      <input
-                        (focus)="$event.target.select()"
-                        (keydown.enter)="onUpdateQuantityRequested(orderLine, $event)"
-                        [value]="orderLine.quantityRequested"
-                        pInputText
-                        required
-                        style="width: 100%"
-                        type="number"
-                      />
-                    </ng-template>
-                    <ng-template pTemplate="output">
-                      {{ orderLine.quantityRequested | number }}
-                    </ng-template>
-                  </p-cellEditor>
-                </td>
-              } @else {
-                <td class="amount-td-column">
-                  {{ orderLine.quantityRequested | number }}
-                </td>
-              }
+                   @if (!isReceiption && selectedEl!.length > 0) {
+                     <p-button [raised]="true" label="Supprimer" icon="pi pi-times" severity="danger"
+                               (click)="confirmDeleteAll()">
+                     </p-button>
+                   }
+                 </p-buttonGroup>
+               </div>
+             </div>
+           </ng-template>
+           <ng-template #header>
+             <tr>
+               <th style="width: 2%">#</th>
+               <th style="width: 8%">Code</th>
+               <th style="width: 20%">Description</th>
+               <th style="width: 5%" class="text-right">Stock</th>
+               <th style="width: 8%" class="text-right">P.A</th>
+               <th style="width: 6%">P.A Machine</th>
+               <th style="width: 8%" class="text-right">P.U</th>
+               <th style="width: 6%" class="text-right">P.U Machine</th>
+               <th style="width: 8%" class="text-right">Qté</th>
+               <th style="width: 6%" class="text-right">Qté Ug</th>
+               <!--   <th style="width: 5%">T.ACHAT</th>-->
+               @if (showLotColumn()) {
+                 <th style="width: 7%">Lots</th>
+                 <th style="width: 7%">Date péremption</th>
+               }
 
 
-              <td [pEditableColumn]="orderLine.freeQty" pEditableColumnField="freeQty"
-                  class="amount-td-column">
-                <p-cellEditor>
-                  <ng-template pTemplate="input">
-                    <input
-                      (focus)="$event.target.select()"
-                      (keydown.enter)="onUpdateFreeQtyRequested(orderLine, $event)"
-                      [value]="orderLine.freeQty"
+               <th style="width: 6%"></th>
+               @if (!isReceiption) {
+                 <th class="text-center" style="width: 2%;">
+                   <p-tableHeaderCheckbox></p-tableHeaderCheckbox>
+                 </th>
+               }
+             </tr>
+           </ng-template>
+           <ng-template let-orderLine let-rowIndex="rowIndex" #body>
+             <tr [ngClass]="orderLineTableColor(orderLine)">
+               <td style="text-align: left">{{ rowIndex + 1 }}</td>
+               @if (orderLine.provisionalCode === false || !isReceiption) {
+                 <td>{{ orderLine.produitCip }}</td>
+               } @else {
+                 <td class="table-info" pEditableColumn>
+                   <p-cellEditor>
+                     <ng-template pTemplate="input">
+                       <input
+                         (focus)="$event.target.select()"
+                         (keydown.enter)="onUpdateCip(orderLine, $event)"
+                         [value]="orderLine.produitCip"
+                         pInputText
+                         required
+                         style="width: 100%"
+                         type="text"
+                       />
+                     </ng-template>
+                     <ng-template pTemplate="output">
+                       {{ orderLine.produitCip }}
+                     </ng-template>
+                   </p-cellEditor>
+                 </td>
+               }
 
-                      pInputText
-                      required
-                      style="width: 100%"
-                      type="number"
-                    />
-                  </ng-template>
-                  <ng-template pTemplate="output">
-                    {{ orderLine.freeQty | number }}
-                  </ng-template>
-                </p-cellEditor>
-              </td>
+               <td>{{ orderLine.produitLibelle }}</td>
+               <td style="text-align: right">{{ orderLine.initStock | number }}</td>
+               @if (!isReceiption) {
+                 <td pEditableColumn class="amount-td-column">
+                   <p-cellEditor>
+                     <ng-template pTemplate="input">
+                       <input
+                         (focus)="$event.target.select()"
+                         (keydown.enter)="onUpdateOrderCostAmount(orderLine, $event)"
+                         [value]="orderLine.orderCostAmount"
+                         pInputText
+                         required
+                         style="width: 100%"
+                         type="number"
+                       />
+                     </ng-template>
+                     <ng-template pTemplate="output">
+                       {{ orderLine.orderCostAmount | number }}
+                     </ng-template>
+                   </p-cellEditor>
+                 </td>
+               } @else {
+                 <td class="amount-td-column"> {{ orderLine.orderCostAmount | number }}</td>
 
-              @if (showLotColumn()) {
-                <td>
-                  @for (lot of orderLine.lots; track lot.numLot) {
-                    <span> {{ lot.numLot }}</span>
-                  }
-                </td>
+               }
 
-                <td>
-                  @for (lot of orderLine.lots; track lot.numLot) {
-                    <span>{{ lot.expiryDate | date: 'dd/MM/yyyy' }}</span>
-                  }
-                </td>
-              }
-              <td style="text-align: right" class="d-flex justify-content-end">
-                <p-buttonGroup>
-                  <p-button
-                    (click)="editLigneInfos(orderLine)"
-                    icon="pi pi-pencil"
-                    severity="success"
-                    [text]="true"
-                    tooltipPosition="left"
-                    pTooltip="Modifier le produit"
-                  ></p-button>
-                  @if (orderLine.lots.length > 0 || showLotBtn) {
-                    <p-button
-                      [text]="true"
-                      (click)="onAddLot(orderLine)"
-                      severity="info"
-                      icon="pi pi-plus-circle"
-                      pTooltip="Gérer le lot"
-                      tooltipPosition="left"
-                    ></p-button>
-                  }
+               <td style="text-align: right">{{ orderLine.costAmount | number }}</td>
+               @if (!isReceiption) {
+                 <td pEditableColumn class="amount-td-column">
+                   <p-cellEditor>
+                     <ng-template pTemplate="input">
+                       <input
+                         (focus)="$event.target.select()"
+                         (keydown.enter)="onUpdateOrderUnitPrice(orderLine, $event)"
+                         [value]="orderLine.orderUnitPrice"
+                         pInputText
+                         required
+                         style="width: 100%"
+                         type="number"
+                       />
+                     </ng-template>
+                     <ng-template pTemplate="output">
+                       {{ orderLine.orderUnitPrice | number }}
+                     </ng-template>
+                   </p-cellEditor>
+                 </td>
+               } @else {
+                 <td class="amount-td-column"> {{ orderLine.orderUnitPrice | number }}</td>
 
-                  @if (!isReceiption) {
-                    <p-button
-                      (click)="confirmDeleteItem(orderLine)"
-                      icon="pi pi-trash"
-                      severity="danger"
-                      [text]="true"
-                      pTooltip="Supprimer"
-                      tooltipPosition="left"
-                    ></p-button>
-                  } @else {
-                    @if (orderLine.lots.length > 0 || showLotBtn) {
-                      <p-button
-                        (click)="confirmDeleteItem(orderLine)"
-                        icon="pi pi-trash"
-                        severity="danger"
-                        [text]="true"
-                        pTooltip="Supprimer le lot"
-                        tooltipPosition="left"
-                      ></p-button>
-                    }
-                  }
-                </p-buttonGroup>
-              </td>
-              @if (!isReceiption) {
-                <td class="text-center" style="width: 5px;">
-                  <p-tableCheckbox [value]="orderLine"></p-tableCheckbox>
-                </td>
-              }
-            </tr>
-          </ng-template>
-          @if (orderLines.length > 0) {
-            <ng-template #footer>
-              <tr>
-                <td class="p-text-left" colspan="4" style="font-weight: 700">VALEUR ACHAT/VENTE</td>
-                <td class="amount-column text-right red-400">{{ commande.grossAmount | number }}
-                </td>
-                <td class="amount-column text-right red-400"
-                    colspan="2">{{ commande.orderAmount | number }}
-                </td>
-                <td class="amount-column text-right" colspan="3"></td>
-                <td colspan="4"></td>
-              </tr>
-            </ng-template>
-          }
-        </p-table>
-      }
+               }
+
+               <td style="text-align: right">{{ orderLine.regularUnitPrice | number }}</td>
+               @if (!isReceiption) {
+                 <td pEditableColumn class="amount-td-column">
+                   <p-cellEditor>
+                     <ng-template pTemplate="input">
+                       <input
+                         (focus)="$event.target.select()"
+                         (keydown.enter)="onUpdateQuantityRequested(orderLine, $event)"
+                         [value]="orderLine.quantityRequested"
+                         pInputText
+                         required
+                         style="width: 100%"
+                         type="number"
+                       />
+                     </ng-template>
+                     <ng-template pTemplate="output">
+                       {{ orderLine.quantityRequested | number }}
+                     </ng-template>
+                   </p-cellEditor>
+                 </td>
+               } @else {
+                 <td class="amount-td-column">
+                   {{ orderLine.quantityRequested | number }}
+                 </td>
+               }
+
+
+               <td [pEditableColumn]="orderLine.freeQty" pEditableColumnField="freeQty"
+                   class="amount-td-column">
+                 <p-cellEditor>
+                   <ng-template pTemplate="input">
+                     <input
+                       (focus)="$event.target.select()"
+                       (keydown.enter)="onUpdateFreeQtyRequested(orderLine, $event)"
+                       [value]="orderLine.freeQty"
+
+                       pInputText
+                       required
+                       style="width: 100%"
+                       type="number"
+                     />
+                   </ng-template>
+                   <ng-template pTemplate="output">
+                     {{ orderLine.freeQty | number }}
+                   </ng-template>
+                 </p-cellEditor>
+               </td>
+
+               @if (showLotColumn()) {
+                 <td>
+                   @for (lot of orderLine.lots; track lot.numLot) {
+                     <span> {{ lot.numLot }}</span>
+                   }
+                 </td>
+
+                 <td>
+                   @for (lot of orderLine.lots; track lot.numLot) {
+                     <span>{{ lot.expiryDate | date: 'dd/MM/yyyy' }}</span>
+                   }
+                 </td>
+               }
+               <td style="text-align: right" class="d-flex justify-content-end">
+                 <p-buttonGroup>
+                   <p-button
+                     (click)="editLigneInfos(orderLine)"
+                     icon="pi pi-pencil"
+                     severity="success"
+                     [text]="true"
+                     tooltipPosition="left"
+                     pTooltip="Modifier le produit"
+                   ></p-button>
+                   @if (orderLine.lots.length > 0 || showLotBtn) {
+                     <p-button
+                       [text]="true"
+                       (click)="onAddLot(orderLine)"
+                       severity="info"
+                       icon="pi pi-plus-circle"
+                       pTooltip="Gérer le lot"
+                       tooltipPosition="left"
+                     ></p-button>
+                   }
+
+                   @if (!isReceiption) {
+                     <p-button
+                       (click)="confirmDeleteItem(orderLine)"
+                       icon="pi pi-trash"
+                       severity="danger"
+                       [text]="true"
+                       pTooltip="Supprimer"
+                       tooltipPosition="left"
+                     ></p-button>
+                   } @else {
+                     @if (orderLine.lots.length > 0 || showLotBtn) {
+                       <p-button
+                         (click)="confirmDeleteItem(orderLine)"
+                         icon="pi pi-trash"
+                         severity="danger"
+                         [text]="true"
+                         pTooltip="Supprimer le lot"
+                         tooltipPosition="left"
+                       ></p-button>
+                     }
+                   }
+                 </p-buttonGroup>
+               </td>
+               @if (!isReceiption) {
+                 <td class="text-center" style="width: 5px;">
+                   <p-tableCheckbox [value]="orderLine"></p-tableCheckbox>
+                 </td>
+               }
+             </tr>
+           </ng-template>
+           @if (orderLines.length > 0) {
+             <ng-template #footer>
+               <tr>
+                 <td class="p-text-left" colspan="4" style="font-weight: 700">VALEUR ACHAT/VENTE</td>
+                 <td class="amount-column text-right red-400">{{ commande.grossAmount | number }}
+                 </td>
+                 <td class="amount-column text-right red-400"
+                     colspan="2">{{ commande.orderAmount | number }}
+                 </td>
+                 <td class="amount-column text-right" colspan="3"></td>
+                 <td colspan="4"></td>
+               </tr>
+             </ng-template>
+           }
+         </p-table>
+       }
+     </p-card>
     </div>
   </div>
 </p-panel>

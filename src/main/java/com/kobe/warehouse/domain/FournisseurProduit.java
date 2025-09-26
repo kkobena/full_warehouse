@@ -57,7 +57,7 @@ public class FournisseurProduit implements Serializable {
     @Column(name = "prix_uni", nullable = false)
     private Integer prixUni;
 
-    @ManyToOne(optional = false, fetch = FetchType.LAZY)
+    @ManyToOne(optional = false)
     @NotNull
     @JsonIgnoreProperties(value = "fournisseurProduits", allowSetters = true)
     private Produit produit;

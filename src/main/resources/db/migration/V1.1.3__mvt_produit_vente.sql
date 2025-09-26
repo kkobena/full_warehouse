@@ -207,8 +207,8 @@ BEGIN
         s.number_transaction,
         o.quantity_requested,
         o.regular_unit_price,
-        CEIL(SUM((o.quantity_requested * o.regular_unit_price) /
-                 NULLIF(1 + (o.tax_value / 100), 0)))   AS ht_amount,
+        CEIL((o.quantity_requested * o.regular_unit_price) /
+             NULLIF(1 + (o.tax_value / 100), 0))   AS ht_amount,
         o.sales_amount,
         o.discount_amount,
         u.first_name,
@@ -242,7 +242,7 @@ BEGIN
                  'quantite', data.quantity_requested,
                  'prixUnitaire', data.regular_unit_price,
                  'montantHt', data.ht_amount,
-                 'montantNet', data.sales_amount-data.discount_amount,
+                 'montantNet', data.sales_amount - data.discount_amount,
                  'montantTtc', data.sales_amount,
                  'montantRemise', data.discount_amount,
                  'montantTva', data.sales_amount - data.ht_amount,
@@ -256,3 +256,10 @@ BEGIN
 END;
 $$ LANGUAGE plpgsql STABLE;
 
+
+alter table commande
+  drop constraint IF EXISTS uk61ev37mxhvp6daoqsh7s10ok1;
+
+alter table commande
+  add constraint uk61ev37mxhvp6daoqsh7s10ok1
+    unique (receipt_reference, fournisseur_id, order_date, order_status);

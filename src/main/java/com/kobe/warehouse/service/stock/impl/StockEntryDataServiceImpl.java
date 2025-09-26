@@ -22,20 +22,23 @@ import jakarta.persistence.criteria.CriteriaBuilder;
 import jakarta.persistence.criteria.CriteriaQuery;
 import jakarta.persistence.criteria.Predicate;
 import jakarta.persistence.criteria.Root;
+import org.springframework.core.io.Resource;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.Pageable;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.StringUtils;
+
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
-import org.springframework.core.io.Resource;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageImpl;
-import org.springframework.data.domain.Pageable;
-import org.springframework.stereotype.Service;
-import org.springframework.util.StringUtils;
 
 @Service
+@Transactional(readOnly = true)
 public class StockEntryDataServiceImpl extends FileResourceService implements StockEntryDataService {
 
     private final EntityManager em;
@@ -60,6 +63,7 @@ public class StockEntryDataServiceImpl extends FileResourceService implements St
     }
 
     @Override
+    @Transactional
     public Page<DeliveryReceiptDTO> fetchAllReceipts(DeliveryReceiptFilterDTO deliveryReceiptFilterDTO, Pageable pageable) {
         long count = receiptCount(deliveryReceiptFilterDTO);
         if (count == 0) {
@@ -166,7 +170,7 @@ public class StockEntryDataServiceImpl extends FileResourceService implements St
         if (Objects.nonNull(deliveryReceiptFilterDTO.getFromDate()) && Objects.nonNull(deliveryReceiptFilterDTO.getToDate())) {
             predicates.add(
                 cb.between(
-                   root.get(OrderLine_.commande).get(Commande_.orderDate),
+                    root.get(OrderLine_.commande).get(Commande_.orderDate),
                     deliveryReceiptFilterDTO.getFromDate(),
                     deliveryReceiptFilterDTO.getToDate()
                 )
@@ -174,14 +178,14 @@ public class StockEntryDataServiceImpl extends FileResourceService implements St
         } else if (Objects.nonNull(deliveryReceiptFilterDTO.getFromDate())) {
             predicates.add(
                 cb.equal(
-                     root.get(OrderLine_.commande).get(Commande_.orderDate),
+                    root.get(OrderLine_.commande).get(Commande_.orderDate),
                     deliveryReceiptFilterDTO.getFromDate()
                 )
             );
         } else if (Objects.nonNull(deliveryReceiptFilterDTO.getToDate())) {
             predicates.add(
                 cb.equal(
-                   root.get(OrderLine_.commande).get(Commande_.orderDate),
+                    root.get(OrderLine_.commande).get(Commande_.orderDate),
                     deliveryReceiptFilterDTO.getToDate()
                 )
             );
@@ -191,6 +195,6 @@ public class StockEntryDataServiceImpl extends FileResourceService implements St
 
     @Override
     public Resource printEtiquette(CommandeId commandeId, int startAt) throws IOException {
-        return this.etiquetteExportService.print(this.orderLineRepository.findAllByCommandeIdAndCommandeOrderDate(commandeId.getId(),commandeId.getOrderDate()), startAt);
+        return this.etiquetteExportService.print(this.orderLineRepository.findAllByCommandeIdAndCommandeOrderDate(commandeId.getId(), commandeId.getOrderDate()), startAt);
     }
 }

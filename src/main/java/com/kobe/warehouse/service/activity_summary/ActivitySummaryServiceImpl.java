@@ -11,7 +11,6 @@ import com.kobe.warehouse.repository.InvoicePaymentRepository;
 import com.kobe.warehouse.repository.PaymentTransactionRepository;
 import com.kobe.warehouse.repository.SalePaymentRepository;
 import com.kobe.warehouse.repository.SalesRepository;
-import com.kobe.warehouse.repository.ThirdPartySaleLineRepository;
 import com.kobe.warehouse.service.TiersPayantService;
 import com.kobe.warehouse.service.dto.ChiffreAffaireDTO;
 import com.kobe.warehouse.service.dto.projection.AchatTiersPayant;
@@ -23,20 +22,25 @@ import com.kobe.warehouse.service.dto.projection.Recette;
 import com.kobe.warehouse.service.dto.projection.ReglementTiersPayants;
 import com.kobe.warehouse.service.dto.records.ActivitySummaryRecord;
 import com.kobe.warehouse.service.dto.records.ChiffreAffaireRecord;
+import com.kobe.warehouse.service.dto.records.ReglementTiersPayantResult;
 import com.kobe.warehouse.service.errors.ReportFileExportException;
 import com.kobe.warehouse.service.utils.DateUtil;
-import java.math.BigDecimal;
-import java.time.LocalDate;
-import java.util.List;
-import java.util.Set;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.core.io.Resource;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.CollectionUtils;
+import org.springframework.util.StringUtils;
+
+import java.math.BigDecimal;
+import java.time.LocalDate;
+import java.util.List;
+import java.util.Objects;
+import java.util.Set;
 
 import static java.util.Objects.nonNull;
 
@@ -82,7 +86,7 @@ public class ActivitySummaryServiceImpl implements ActivitySummaryService {
         BigDecimal montantEspece = BigDecimal.ZERO;
         BigDecimal montantRegle = BigDecimal.ZERO;
         BigDecimal montantAutreModePaiement = BigDecimal.ZERO;
-        List<Recette> recettes =nonNull(chiffreAffaire) ? chiffreAffaire.payments() : List.of();
+        List<Recette> recettes = nonNull(chiffreAffaire) ? chiffreAffaire.payments() : List.of();
         for (Recette recette : recettes) {
             montantRegle = montantRegle.add(recette.getMontantReel());
             if (recette.getModePaimentCode() == ModePaimentCode.CASH) {
@@ -93,16 +97,16 @@ public class ActivitySummaryServiceImpl implements ActivitySummaryService {
         }
         //TODO si gestion de ug
         var caRecord = new ChiffreAffaireRecord(
-          nonNull(chiffreAffaire)?  chiffreAffaire.montantTtc():BigDecimal.ZERO,
-            nonNull(chiffreAffaire)? chiffreAffaire.getMontantTva():BigDecimal.ZERO,
-            nonNull(chiffreAffaire)?  chiffreAffaire.montantHt():BigDecimal.ZERO,
-            nonNull(chiffreAffaire)?  chiffreAffaire.montantRemise():BigDecimal.ZERO,
-            nonNull(chiffreAffaire)?  chiffreAffaire.montantNet():BigDecimal.ZERO,
+            nonNull(chiffreAffaire) ? chiffreAffaire.montantTtc() : BigDecimal.ZERO,
+            nonNull(chiffreAffaire) ? chiffreAffaire.getMontantTva() : BigDecimal.ZERO,
+            nonNull(chiffreAffaire) ? chiffreAffaire.montantHt() : BigDecimal.ZERO,
+            nonNull(chiffreAffaire) ? chiffreAffaire.montantRemise() : BigDecimal.ZERO,
+            nonNull(chiffreAffaire) ? chiffreAffaire.montantNet() : BigDecimal.ZERO,
             montantEspece,
-            nonNull(chiffreAffaire)?  chiffreAffaire.getMontantCredit():BigDecimal.ZERO,
+            nonNull(chiffreAffaire) ? chiffreAffaire.getMontantCredit() : BigDecimal.ZERO,
             montantRegle,
             montantAutreModePaiement,
-            nonNull(chiffreAffaire)? chiffreAffaire.getMarge():BigDecimal.ZERO
+            nonNull(chiffreAffaire) ? chiffreAffaire.getMarge() : BigDecimal.ZERO
         );
         return new ChiffreAffaireDTO(recettes, caRecord, achats, mvts);
     }
@@ -130,34 +134,55 @@ public class ActivitySummaryServiceImpl implements ActivitySummaryService {
     public Resource printToPdf(LocalDate fromDate, LocalDate toDate, String searchAchatTp, String searchReglement)
         throws ReportFileExportException {
         return this.activitySummaryReportService.printToPdf(
-                new ActivitySummaryRecord(
-                    getChiffreAffaire(fromDate, toDate),
-                    fetchAchatTiersPayant(fromDate, toDate, searchAchatTp, Pageable.unpaged()).getContent(),
-                    findReglementTierspayant(fromDate, toDate, searchReglement, Pageable.unpaged()).getContent(),
-                    fetchAchats(fromDate, toDate, Pageable.unpaged()).getContent(),
-                    " du " + DateUtil.formatFr(fromDate) + " au " + toDate
-                )
-            );
+            new ActivitySummaryRecord(
+                getChiffreAffaire(fromDate, toDate),
+                fetchAchatTiersPayant(fromDate, toDate, searchAchatTp, Pageable.unpaged()).getContent(),
+                findReglementTierspayant(fromDate, toDate, searchReglement, Pageable.unpaged()).getContent(),
+                fetchAchats(fromDate, toDate, Pageable.unpaged()).getContent(),
+                " du " + DateUtil.formatFr(fromDate) + " au " + toDate
+            )
+        );
     }
 
     @Override
     public Page<AchatTiersPayant> fetchAchatTiersPayant(LocalDate fromDate, LocalDate toDate, String search, Pageable pageable) {
-        return this.payantService.fetchAchatTiersPayant(fromDate, toDate, search,  pageable);
+        return this.payantService.fetchAchatTiersPayant(fromDate, toDate, search, pageable);
     }
 
     @Override
     public Page<ReglementTiersPayants> findReglementTierspayant(LocalDate fromDate, LocalDate toDate, String search, Pageable pageable) {
-        return this.invoicePaymentRepository.findReglementTierspayant(fromDate, toDate, search, pageable);
+        ReglementTiersPayantResult reglementTiersPayantResult = loadReglementTierspayant(fromDate, toDate, search, pageable);
+        if (Objects.nonNull(reglementTiersPayantResult) && !CollectionUtils.isEmpty(reglementTiersPayantResult.content())) {
+            new PageImpl<>(reglementTiersPayantResult.content(), pageable, reglementTiersPayantResult.totalElements());
+        }
+        return Page.empty();
+
+
     }
 
     private ChiffreAffaire getChiffreAffaireSummary(LocalDate fromDate, LocalDate toDate) {
         try {
-            String jsonResult = this.salesRepository.getChiffreAffaire(fromDate, toDate, SalesStatut.getStatutForFacturation().stream().map(SalesStatut::name).toArray(String[]::new), Set.of(CategorieChiffreAffaire.CA).stream().map(CategorieChiffreAffaire::name).toArray(String[]::new),false,false);
+            String jsonResult = this.salesRepository.getChiffreAffaire(fromDate, toDate, SalesStatut.getStatutForFacturation().stream().map(SalesStatut::name).toArray(String[]::new), Set.of(CategorieChiffreAffaire.CA).stream().map(CategorieChiffreAffaire::name).toArray(String[]::new), false, false);
             return objectMapper.readValue(jsonResult, new TypeReference<>() {
             });
 
         } catch (Exception e) {
             LOG.info(null, e);
+            return null;
+        }
+    }
+
+    private ReglementTiersPayantResult loadReglementTierspayant(LocalDate fromDate, LocalDate toDate, String search, Pageable pageable) {
+        int offset = pageable.isUnpaged() ? 0 : (int) pageable.getOffset();
+        int limit = pageable.isUnpaged() ? Integer.MAX_VALUE : pageable.getPageSize();
+        try {
+
+            String jsonResult = invoicePaymentRepository.findReglementTierspayant(fromDate, toDate, StringUtils.hasLength(search) ? search : null, offset, limit);
+            System.err.println(jsonResult);
+            return objectMapper.readValue(jsonResult, new TypeReference<>() {
+            });
+        } catch (Exception e) {
+            LOG.info(e.getLocalizedMessage());
             return null;
         }
     }

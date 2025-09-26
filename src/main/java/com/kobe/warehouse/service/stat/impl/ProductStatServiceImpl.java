@@ -46,6 +46,7 @@ import org.springframework.util.CollectionUtils;
 
 import java.net.MalformedURLException;
 import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.EnumSet;
 import java.util.List;
@@ -114,7 +115,7 @@ public class ProductStatServiceImpl implements ProductStatService {
     @Transactional(readOnly = true)
     public Page<HistoriqueProduitVente> getHistoriqueVente(ProduitHistoriqueParam produitHistorique, Pageable pageable) {
         HistoriqueVenteResult historiqueVenteResult = fetchHistoriqueVente(produitHistorique, pageable);
-        if (Objects.nonNull(historiqueVenteResult)) {
+        if (Objects.nonNull(historiqueVenteResult ) && !CollectionUtils.isEmpty(historiqueVenteResult.content())) {
             new PageImpl<>(historiqueVenteResult.content(), pageable, historiqueVenteResult.totalElements());
         }
         return Page.empty();
@@ -322,11 +323,11 @@ public class ProductStatServiceImpl implements ProductStatService {
         int limit = pageable.isUnpaged() ? Integer.MAX_VALUE : pageable.getPageSize();
         try {
             String jsonResult = salesLineRepository.getHistoriqueVente(produitHistorique.produitId(), produitHistorique.startDate(), produitHistorique.endDate(), SalesStatut.getStatutForFacturation().stream().map(SalesStatut::name).toArray(String[]::new), Arrays.stream(CategorieChiffreAffaire.values()).map(CategorieChiffreAffaire::name).toArray(String[]::new), offset, limit);
-            System.err.println(jsonResult);
+
             return objectMapper.readValue(jsonResult, new TypeReference<>() {
             });
         } catch (Exception e) {
-            LOG.info(null, e);
+            LOG.info( e.getLocalizedMessage());
             return null;
         }
     }
@@ -335,12 +336,12 @@ public class ProductStatServiceImpl implements ProductStatService {
 
         try {
             String jsonResult = salesLineRepository.getHistoriqueVenteMensuelle(produitHistorique.startDate(), produitHistorique.endDate(), SalesStatut.getStatutForFacturation().stream().map(SalesStatut::name).toArray(String[]::new), Arrays.stream(CategorieChiffreAffaire.values()).map(CategorieChiffreAffaire::name).toArray(String[]::new), produitHistorique.produitId());
-            System.err.println(jsonResult);
+
             return objectMapper.readValue(jsonResult, new TypeReference<>() {
             });
         } catch (Exception e) {
-            LOG.info(null, e);
-            return null;
+            LOG.info( e.getLocalizedMessage());
+            return new ArrayList<>();
         }
     }
 
@@ -349,12 +350,12 @@ public class ProductStatServiceImpl implements ProductStatService {
 
         try {
             String jsonResult = orderLineRepository.getHistoriqueAchatMensuelle(produitHistorique.startDate(), produitHistorique.endDate(), OrderStatut.CLOSED.name(), produitHistorique.produitId());
-            System.err.println(jsonResult);
+
             return objectMapper.readValue(jsonResult, new TypeReference<>() {
             });
         } catch (Exception e) {
-            LOG.info(null, e);
-            return null;
+            LOG.info( e.getLocalizedMessage());
+            return new ArrayList<>();
         }
     }
 
@@ -362,12 +363,12 @@ public class ProductStatServiceImpl implements ProductStatService {
         try {
             String jsonResult = salesLineRepository.getHistoriqueVenteSummary(produitHistorique.startDate(), produitHistorique.endDate(),
                 SalesStatut.getStatutForFacturation().stream().map(SalesStatut::name).toArray(String[]::new), Arrays.stream(CategorieChiffreAffaire.values()).map(CategorieChiffreAffaire::name).toArray(String[]::new), produitHistorique.produitId(), produitHistorique.groupBy().getOrder());
-            System.err.println(jsonResult);
+
             return objectMapper.readValue(jsonResult, new TypeReference<>() {
             });
         } catch (Exception e) {
-            LOG.info(null, e);
-            return null;
+            LOG.info( e.getLocalizedMessage());
+            return new ArrayList<>();
         }
     }
 

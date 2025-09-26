@@ -26,6 +26,7 @@ import com.kobe.warehouse.service.stock.CommandeDataService;
 import java.io.IOException;
 import java.net.MalformedURLException;
 import java.nio.file.Paths;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
@@ -208,14 +209,14 @@ public class CommandeDataServiceImpl implements CommandeDataService {
                 jsonResult = commandeRepository.fetchTableauPharmacienReport(mvtParam.getFromDate(), mvtParam.getToDate(),  OrderStatut.CLOSED.name());
             }
             if (StringUtils.isEmpty(jsonResult)) {
-                return List.of();
+                return new ArrayList<>();
             }
             return objectMapper.readValue(jsonResult, new TypeReference<>() {
             });
 
         } catch (Exception e) {
             LOG.error(null, e);
-            return List.of();
+            return new ArrayList<>();
         }
     }
 

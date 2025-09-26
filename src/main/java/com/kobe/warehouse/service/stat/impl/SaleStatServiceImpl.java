@@ -97,7 +97,7 @@ public class SaleStatServiceImpl implements SaleStatService {
             });
 
         } catch (Exception e) {
-            LOG.error(null, e);
+            LOG.info(e.getMessage());
             return List.of();
         }
     }

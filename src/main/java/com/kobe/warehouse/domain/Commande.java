@@ -25,6 +25,8 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
+
 import org.hibernate.annotations.ColumnDefault;
 import org.springframework.data.domain.Persistable;
 
@@ -34,7 +36,7 @@ import org.springframework.data.domain.Persistable;
 @Entity
 @Table(
     name = "commande",
-    uniqueConstraints = { @UniqueConstraint(columnNames = { "receipt_reference", "fournisseur_id", "order_date" }) },
+    uniqueConstraints = { @UniqueConstraint(columnNames = { "receipt_reference", "fournisseur_id", "order_date","order_status" }) },
     indexes = {
         @Index(columnList = "order_status", name = "order_status_index"),
         @Index(columnList = "order_date", name = "cmd_order_date_index"),
@@ -97,7 +99,7 @@ public class Commande implements Persistable<CommandeId>, Serializable, Cloneabl
 
     @NotNull
     @Enumerated(EnumType.STRING)
-    @Column(name = "order_status", length = 10)
+    @Column(name = "order_status")
     private OrderStatut orderStatus = OrderStatut.REQUESTED;
 
     @OneToMany(mappedBy = "commande", cascade = { CascadeType.PERSIST, CascadeType.REMOVE })
@@ -371,15 +373,12 @@ public class Commande implements Persistable<CommandeId>, Serializable, Cloneabl
         this.orderDate = orderDate;
     }
 
+
     @Override
     public boolean equals(Object o) {
-        if (this == o) {
-            return true;
-        }
-        if (!(o instanceof Commande)) {
-            return false;
-        }
-        return id != null && id.equals(((Commande) o).id);
+        if (o == null || getClass() != o.getClass()) return false;
+        Commande commande = (Commande) o;
+        return Objects.equals(id, commande.id) && Objects.equals(orderDate, commande.orderDate);
     }
 
     @Override
@@ -425,7 +424,7 @@ public class Commande implements Persistable<CommandeId>, Serializable, Cloneabl
     public Object clone() {
         try {
             return super.clone();
-        } catch (CloneNotSupportedException e) {
+        } catch (CloneNotSupportedException _) {
             return null;
         }
     }

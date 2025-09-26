@@ -453,7 +453,7 @@ public class OrderLine implements Persistable<OrderLineId>, Serializable, Clonea
     public Object clone() {
         try {
             return super.clone();
-        } catch (CloneNotSupportedException e) {
+        } catch (CloneNotSupportedException _) {
             return null;
         }
     }

@@ -1,14 +1,16 @@
 package com.kobe.warehouse.service.stock;
 
+import com.kobe.warehouse.domain.CommandeId;
 import com.kobe.warehouse.service.dto.CommandeResponseDTO;
 import com.kobe.warehouse.service.dto.DeliveryReceiptItemLiteDTO;
 import com.kobe.warehouse.service.dto.DeliveryReceiptLiteDTO;
 import com.kobe.warehouse.service.dto.UploadDeleiveryReceiptDTO;
-import java.io.IOException;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
+
 public interface StockEntryService {
-    void finalizeSaisieEntreeStock(DeliveryReceiptLiteDTO deliveryReceiptLite);
+    CommandeId finalizeSaisieEntreeStock(DeliveryReceiptLiteDTO deliveryReceiptLite);
 
     DeliveryReceiptLiteDTO createBon(DeliveryReceiptLiteDTO deliveryReceiptLite);
 

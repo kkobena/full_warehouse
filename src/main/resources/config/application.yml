@@ -1,5 +1,5 @@
 flyway:
-  enabled: false
+  enabled: true
   schemas: warehouse
   table: warehouse_history
 
@@ -15,8 +15,8 @@ spring:
   cache:
     type: jcache
     jcache:
-        config: classpath:ehcache.xml
-        provider: org.ehcache.jsr107.EhcacheCachingProvider
+      config: classpath:ehcache.xml
+      provider: org.ehcache.jsr107.EhcacheCachingProvider
 
   application:
     name: warehouse

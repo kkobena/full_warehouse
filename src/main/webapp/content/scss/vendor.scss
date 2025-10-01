@@ -1,5 +1,6 @@
-@import 'bootstrap/scss/functions';
+$web-font-path: "../css/open-sans.css" !default;
 @import 'bootswatch/dist/yeti/variables';
+@import 'bootstrap/scss/functions';
 @import 'bootstrap/scss/bootstrap';
 @import 'bootswatch/dist/yeti/bootswatch';
 @import '@ng-select/ng-select/themes/default.theme.css';

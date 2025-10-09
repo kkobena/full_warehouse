@@ -1,22 +1,22 @@
 <div [style]="{ width: '100%'}" class="row">
   <div class="col-xl-2 col-lg-2 col-md-2 col-sm-12 ">
     @if (selectedCustomerService.selectedCustomerSignal() && currentSaleService.currentSale()) {
-      <p-button [variant]="'text'" raised="true" (click)="onChangeCustomerClick()"
-                severity="danger"
-                icon="pi pi-user-edit" label="Changer de client"
+      <p-button (click)="onChangeCustomerClick()" [variant]="'text'" icon="pi pi-user-edit"
+                label="Changer de client"
+                raised="true" severity="danger"
       >
       </p-button>
     } @else {
       <p-iconfield>
-        <p-inputicon styleClass="pi pi-search" />
+        <p-inputicon class="pi pi-search" />
         <input
-          class="form-control-lg"
-          [style]="{ width: '98%' }"
-          pInputText
-          autocomplete="off"
           #searchInput
           (keydown.enter)="load()"
           [(ngModel)]="search"
+          [style]="{ width: '98%' }"
+          autocomplete="off"
+          class="form-control-lg"
+          pInputText
           placeholder="Rechercher client"
           type="text"
         />
@@ -30,10 +30,10 @@
           <li
             class="list-group-item d-flex justify-content-between align-items-center bg-primary-subtle">
             <span>Assuré</span>
-            <p-button [variant]="'text'" raised="true" severity="info"
-                      size="small" icon="pi pi-user-edit" label="Editer"
+            <p-button (click)="editAssuredCustomer()" [variant]="'text'" icon="pi pi-user-edit"
+                      label="Editer" raised="true" severity="info"
 
-                      (click)="editAssuredCustomer()"
+                      size="small"
             />
           </li>
           <li class="list-group-item d-flex justify-content-between align-items-center">
@@ -55,19 +55,19 @@
         <div [class]="divCustomer()">
           <ul class="list-group list-group-flush">
             <li
-              class="list-group-item d-flex justify-content-between align-items-center list-group-title bg-success bg-opacity-10"
               aria-current="true"
+              class="list-group-item d-flex justify-content-between align-items-center list-group-title bg-success bg-opacity-10"
             >
               <span>Ayant droit</span>
               @if (ayantDroit?.id === selectedCustomerService.selectedCustomerSignal().id) {
-                <p-button [variant]="'text'" raised="true" icon="pi pi-users"
-                          label="Remplacer" size="small"
-                          (click)="loadAyantDoits()"
+                <p-button (click)="loadAyantDoits()" [variant]="'text'" icon="pi pi-users"
+                          label="Remplacer" raised="true"
+                          size="small"
                 />
 
               } @else {
-                <p-splitbutton label="Gérer" icon="pi pi-user-edit" size="small"
-                               [model]="items" [text]="true" severity="info" />
+                <p-splitbutton [model]="items" [text]="true" icon="pi pi-user-edit"
+                               label="Gérer" severity="info" size="small" />
               }
             </li>
             @if (ayantDroit) {
@@ -106,23 +106,23 @@
             <p-inputgroup>
               <p-inputgroup-addon>Bon</p-inputgroup-addon>
               <input
-                pInputText
-                type="text"
                 #tpInput
+                (keydown.enter)="onBonEnter(tp)"
+                [(ngModel)]="tp.numBon"
+                [fluid]="true"
+                autocomplete="off"
                 class="tiersPayant-input"
                 id="bon-{{ tp.id }}"
                 name="bon-{{ i }}"
-                [(ngModel)]="tp.numBon"
-                (keydown.enter)="onBonEnter(tp)"
-                autocomplete="off"
+                pInputText
                 pKeyFilter="alphanum"
-                [fluid]="true"
+                type="text"
               />
               @if (selectedTiersPayants().length > 1) {
                 <p-inputgroup-addon>
-                  <p-button icon="pi pi-trash" severity="danger" type="button"
-                            pTooltip="Supprimer ce tiers payant"
-                            (click)="removeTiersPayant(tp)">
+                  <p-button (click)="removeTiersPayant(tp)" icon="pi pi-trash" pTooltip="Supprimer ce tiers payant"
+                            severity="danger"
+                            type="button">
                   </p-button>
                 </p-inputgroup-addon>
               }
@@ -130,10 +130,10 @@
               < selectedCustomerService.selectedCustomerSignal().tiersPayants.length
               && currentSaleService.typeVo() === 'ASSURANCE') {
                 <p-inputgroup-addon>
-                  <p-button icon="pi pi-plus"
-                            pTooltip="Ajouter un tiers payant complémentaire"
-                            severity="primary" type="button"
-                            (click)="addComplementaire()">
+                  <p-button (click)="addComplementaire()"
+                            icon="pi pi-plus"
+                            pTooltip="Ajouter un tiers payant complémentaire" severity="primary"
+                            type="button">
                   </p-button>
                 </p-inputgroup-addon>
               }

@@ -45,7 +45,7 @@ public class FactureTiersPayant implements Persistable<FactureItemId>, Serializa
 
     @Id
     @Column(name = "invoice_date")
-    private LocalDate invoiceDate;
+    private LocalDate invoiceDate = LocalDate.now();
 
     @NotNull
     @Column(name = "num_facture", nullable = false, length = 20)
@@ -86,10 +86,12 @@ public class FactureTiersPayant implements Persistable<FactureItemId>, Serializa
     private List<FactureTiersPayant> factureTiersPayants = new ArrayList<>();
 
     @ManyToOne
-    @JoinColumns({
-        @JoinColumn(name = "groupe_facture_tiers_payant_id", referencedColumnName = "id"),
-        @JoinColumn(name = "groupe_facture_tiers_payant_id_invoice_date", referencedColumnName = "invoice_date")
-    })
+    @JoinColumns(
+        {
+            @JoinColumn(name = "groupe_facture_tiers_payant_id", referencedColumnName = "id"),
+            @JoinColumn(name = "groupe_facture_tiers_payant_invoice_date", referencedColumnName = "invoice_date"),
+        }
+    )
     private FactureTiersPayant groupeFactureTiersPayant;
 
     @OneToMany(mappedBy = "factureTiersPayant")

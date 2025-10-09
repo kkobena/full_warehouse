@@ -1,15 +1,15 @@
 <form (ngSubmit)="save()" [formGroup]="reglementForm">
-  <div class="row">
-    <div class="col-2 col-sm-4 col-md-2">
-      <label class="form-check-label" for="partialPayment">Tout</label>
-      <div class="form-check form-switch form-check-reverse">
-        <input class="form-check-input" formControlName="partialPayment" id="partialPayment" role="switch"
-               type="checkbox" />
-      </div>
+  <div class="row mb-2">
+    <div class=" col-4 col-sm-12 col-md-4 d-flex align-items-center">
+      <p-toggleswitch formControlName="partialPayment" inputId="partialPayment"></p-toggleswitch>
+      <label class="ms-2 fw-bold" for="partialPayment">Tout régler</label>
     </div>
-    <div class="col-10 col-sm-8 col-md-10">
-      <div class="input-group input-group-sm mb-1">
-        <span class="input-group-text">Date</span>
+
+    <div class="col-8 col-sm-12 col-md-8 ">
+      <p-inputgroup>
+        <p-inputgroup-addon>
+          Date
+        </p-inputgroup-addon>
         <p-datePicker
           [defaultDate]="maxDate"
           [maxDate]="maxDate"
@@ -20,71 +20,103 @@
           id="datePaiement"
           selectOtherMonths="true"
         />
-      </div>
+      </p-inputgroup>
+
+
     </div>
   </div>
 
-  <div class="input-group input-group-sm mb-1">
-    <span class="input-group-text">Mode de paiement</span>
-    <select class="form-control" formControlName="modePaimentCode" id="modePaiement">
-      @for (mode of paymentModes; track mode.code) {
-        <option [ngValue]="mode.code">{{ mode.libelle }}</option>
-      }
-    </select>
+  <div class="mb-2">
+
+    <p-inputgroup>
+      <p-inputgroup-addon>Mode de paiement</p-inputgroup-addon>
+      <p-select
+        [fluid]="true"
+        [options]="paymentModes"
+        dataKey="code"
+        formControlName="modePaimentCode"
+        optionLabel="libelle"
+        optionValue="code"
+        size="large"
+      >
+      </p-select>
+    </p-inputgroup>
+
   </div>
-  <div class="input-group input-group-sm mb-1">
-    <span class="input-group-text">Montant</span>
-    <input [readonly]="isReadOnly" autocomplete="off" class="form-control" formControlName="amount" id="amount"
-           type="number" />
+  <div class="mb-2">
+    <p-inputgroup>
+      <p-inputgroup-addon>Montant</p-inputgroup-addon>
+      <input [fluid]="true" [readonly]="isReadOnly" formControlName="amount" pInputText
+             pKeyFilter="int"
+             size="large" />
+    </p-inputgroup>
+
   </div>
   @if (showBanqueInfo) {
     <div formGroupName="banqueInfo">
       <p-divider align="center" type="solid">
         <b>Infos sur la banque</b>
       </p-divider>
-      <div class="input-group input-group-sm mb-1">
-        <span class="input-group-text">Nom<span style="color: red">*</span></span>
-        <input autocomplete="off" class="form-control" formControlName="nom" id="nom" />
+
+
+      <div class="mb-1">
+        <p-inputgroup>
+          <p-inputgroup-addon>Nom <span style="color: red">*</span></p-inputgroup-addon>
+          <input [fluid]="true" formControlName="nom" pInputText
+                 size="large" />
+        </p-inputgroup>
       </div>
       @if (reglementForm.get('banqueInfo').get('nom')!.invalid &&
-      (reglementForm.get('banqueInfo').get('nom')!.dirty || reglementForm.get('banqueInfo').get('nom')!.touched)) {
+      (reglementForm.get('banqueInfo').get('nom')!.dirty || reglementForm.get('banqueInfo').get(
+        'nom')!.touched)) {
         <div>
           @if (reglementForm.get('banqueInfo').get('nom')?.errors?.required) {
-            <small class="form-text text-danger" style="color: red"> Ce champ est obligatoire. </small>
+            <small class="form-text text-danger" style="color: red"> Ce champ est
+              obligatoire. </small>
           }
         </div>
       }
 
       @if (reglementForm.get('modePaimentCode')!.value === CH) {
-        <div class="input-group input-group-sm mb-1">
-          <span class="input-group-text">Numéro<span style="color: red">*</span></span>
-          <input autocomplete="off" class="form-control" formControlName="code" id="code" />
+        <div class="mb-1">
+
+          <p-inputgroup>
+            <p-inputgroup-addon>Numéro <span style="color: red">*</span></p-inputgroup-addon>
+            <input [fluid]="true" formControlName="code" pInputText pKeyFilter="alphanum"
+                   size="large" />
+          </p-inputgroup>
+
         </div>
         @if (reglementForm.get('banqueInfo').get('code')!.invalid &&
-        (reglementForm.get('banqueInfo').get('code')!.dirty || reglementForm.get('banqueInfo').get('code')!.touched)) {
+        (reglementForm.get('banqueInfo').get('code')!.dirty || reglementForm.get(
+          'banqueInfo').get(
+          'code')!.touched)) {
           <div>
             @if (reglementForm.get('banqueInfo').get('code')?.errors?.required) {
-              <small class="form-text text-danger" style="color: red"> Ce champ est obligatoire. </small>
+              <small class="form-text text-danger" style="color: red"> Ce champ est
+                obligatoire. </small>
             }
           </div>
         }
       }
 
-      <div class="input-group input-group-sm mb-1">
-        <span class="input-group-text">Bénéficiare</span>
-        <input autocomplete="off" class="form-control" formControlName="beneficiaire" id="beneficiaire" />
+      <div class="mb-2">
+        <p-inputgroup>
+          <p-inputgroup-addon>Bénéficiare</p-inputgroup-addon>
+          <input [fluid]="true" formControlName="beneficiaire" pInputText
+                 size="large" />
+        </p-inputgroup>
+
       </div>
     </div>
   }
   <div class="d-flex justify-content-end">
-    <button [disabled]="!valid || !validMontantSaisi() || isSaving()" class="btn btn-danger" type="submit">
-      @if (isSaving()) {
-        <span aria-hidden="true" class="spinner-border spinner-border-sm"></span>
-        <span role="status">Traitement...</span>
-      } @else {
-        <fa-icon icon="check"></fa-icon>
-        Valider
-      }
-    </button>
+    <p-button [disabled]="!valid || !validMontantSaisi() || isSaving()" [loading]="isSaving()"
+              icon="pi pi-check" label="Valider"
+              loadingIcon="pi pi-spinner" severity="danger" type="submit">
+
+    </p-button>
   </div>
 </form>
+
+

@@ -14,11 +14,10 @@ import com.kobe.warehouse.service.errors.PaymentAmountException;
 import com.kobe.warehouse.service.id_generator.TransactionIdGeneratorService;
 import com.kobe.warehouse.service.reglement.dto.ReglementParam;
 import com.kobe.warehouse.service.reglement.dto.ResponseReglementDTO;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
-
 import java.util.ArrayList;
 import java.util.List;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @Transactional
@@ -54,7 +53,7 @@ public class ReglementGroupeFactureService extends AbstractReglementService {
 
     @Override
     public ResponseReglementDTO doReglement(ReglementParam reglementParam) throws CashRegisterException, PaymentAmountException {
-        FactureTiersPayant factureTiersPayant = this.facturationRepository.findFactureTiersPayantById(reglementParam.getId()).orElseThrow();
+        FactureTiersPayant factureTiersPayant = this.facturationRepository.getReferenceById(reglementParam.getId());
 
         InvoicePayment invoicePayment = super.buildInvoicePayment(factureTiersPayant, reglementParam);
         invoicePayment.setGrouped(true);
@@ -86,6 +85,6 @@ public class ReglementGroupeFactureService extends AbstractReglementService {
             item.setParent(invoicePayment);
         }
         super.saveInvoicePayments(invoicePayments);
-        return new ResponseReglementDTO(invoicePayment.getId().getId(), factureTiersPayant.getStatut() == InvoiceStatut.PAID);
+        return new ResponseReglementDTO(invoicePayment.getId(), factureTiersPayant.getStatut() == InvoiceStatut.PAID);
     }
 }

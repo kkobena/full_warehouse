@@ -8,6 +8,8 @@ import com.kobe.warehouse.domain.SalesLine;
 import com.kobe.warehouse.service.dto.SaleLineDTO;
 import com.kobe.warehouse.service.errors.DeconditionnementStockOut;
 import com.kobe.warehouse.service.errors.StockException;
+import java.time.LocalDate;
+import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 
@@ -50,4 +52,6 @@ public interface SalesLineService {
     void save(Set<SalesLine> salesLines, AppUser user, Long storageId);
 
     void processProductDiscount(SalesLine salesLine);
+
+    List<SaleLineDTO> findBySalesIdAndSalesSaleDateOrderByProduitLibelle(Long salesId, LocalDate saleDate);
 }

@@ -1,5 +1,7 @@
 package com.kobe.warehouse.service.facturation.dto;
 
+import java.time.LocalDate;
+
 public interface AbstractReglementFactureDossier {
     long getId();
 
@@ -10,4 +12,7 @@ public interface AbstractReglementFactureDossier {
     boolean isGroupe();
 
     long getParentId();
+
+    LocalDate getInvoiceDate();
+    LocalDate getParentInvoiceDate();
 }

@@ -1,54 +1,57 @@
 @if (dossierFactureProjection()) {
   <p-fieldset [toggleable]="true" legend="Infos facture">
-    <ul class="list-group">
-      @if (dossierFactureProjection().categorie) {
-        <li class="list-group-item d-flex justify-content-between align-items-center">
-          Type tiers-payant
-          <span>{{ dossierFactureProjection().categorie }}</span>
-        </li>
-      }
-      <li class="list-group-item d-flex justify-content-between align-items-center">
-        Tiers-payant
-        <span>{{ dossierFactureProjection().name }}</span>
-      </li>
-      <li class="list-group-item d-flex justify-content-between align-items-center">
-        Code facture
-        <span>{{ dossierFactureProjection().numFacture }}</span>
-      </li>
-      <li class="list-group-item d-flex justify-content-between align-items-center">
-        Dossiers
-        <span class="text-danger">{{ dossierFactureProjection().itemCount | number }}</span>
-      </li>
-      <li class="list-group-item d-flex justify-content-between align-items-center">
-        Montant total
-        <span class="montant-total montant text-primary">{{ dossierFactureProjection().montantTotal | number }}</span>
-      </li>
+    @if (dossierFactureProjection().categorie) {
+      <div class="grid">
+        <div class="col-12">
+          <div class="field">
+            <label>Type tiers payant</label>
+            <span>{{ dossierFactureProjection().categorie }}</span>
+          </div>
+          <div class="field">
+            <label>Tiers payant</label>
+            <span>{{ dossierFactureProjection().name }}</span>
+          </div>
 
-      @if (dossierFactureProjection().montantDetailRegle > 0) {
-        <li class="list-group-item d-flex justify-content-between align-items-center">
-          Montant payé
-          <span
-            class="montant-paye montant text-success">{{ dossierFactureProjection().montantDetailRegle | number }}</span>
-        </li>
-      }
+          <div class="field">
+            <label>Code facture</label>
+            <span>{{ dossierFactureProjection().numFacture }}</span>
+          </div>
+          <div class="field">
+            <label>Dossiers</label>
+            <span class="text-danger">{{ dossierFactureProjection().itemCount | number }}</span>
+          </div>
+          <div class="field">
+            <label>Montant total</label>
+            <span class="text-primary">{{ dossierFactureProjection().montantTotal | number }}</span>
+          </div>
+          @if (dossierFactureProjection().montantDetailRegle > 0) {
+            <div class="field">
+              <label>Montant payé</label>
+              <span
+                class="text-success">{{ dossierFactureProjection().montantDetailRegle | number }}</span>
+            </div>
 
-      <li class="list-group-item d-flex justify-content-between align-items-center">
-        Montant restant
-        <span class="montant text-primary">{{
-            dossierFactureProjection().montantTotal - dossierFactureProjection().montantDetailRegle | number
-          }}</span>
-      </li>
+          }
+          <div class="field">
+            <label>Montant restant</label>
+            <span class="montant text-primary">{{
+                dossierFactureProjection().montantTotal
+                - dossierFactureProjection().montantDetailRegle | number
+              }}</span>
+          </div>
 
-      <li class="list-group-item d-flex justify-content-between align-items-center">
-        Montant à payer
-        <span class="montant-payer montant text-danger">{{ montantApayer | number }}</span>
-      </li>
-      @if (monnaie()) {
-        <li class="list-group-item d-flex justify-content-between align-items-center">
-          Monnaie
-          <span class="montant-payer montant text-danger">{{ monnaie() | number }}</span>
-        </li>
-      }
-    </ul>
+          <div class="field">
+            <label>Montant à payer</label>
+            <span class="montant-payer montant text-danger">{{ montantApayer | number }}</span>
+          </div>
+
+          <div class="field">
+            <label>Monnaie</label>
+            <span class="montant-payer montant text-danger">{{ monnaie() | number }}</span>
+          </div>
+
+        </div>
+      </div>
+    }
   </p-fieldset>
 }

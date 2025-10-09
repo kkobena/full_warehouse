@@ -1,7 +1,7 @@
-import { Facture } from '../../facturation/facture.model';
+import { Facture, FactureId } from '../../facturation/facture.model';
 
 export class Reglement {
-  id: number;
+  id: PaymentId;
   organismeId: number;
   organisme: string;
   codeFacture: string;
@@ -41,7 +41,7 @@ export class Banque {
 
 export class ReglementParams {
   amount?: number;
-  id: number;
+  id: FactureId;
   montantFacture: number;
   totalAmount?: number;
   amountToPaid?: number;
@@ -63,7 +63,7 @@ export class LigneSelectionnes {
 }
 
 export class ResponseReglement {
-  id: number;
+  id: PaymentId;
   total: boolean;
 }
 
@@ -100,4 +100,8 @@ export class InvoicePaymentParam {
   fromDate?: string;
   toDate?: string;
   grouped: boolean;
+}
+export class PaymentId {
+  id: number;
+  transactionDate: string;
 }

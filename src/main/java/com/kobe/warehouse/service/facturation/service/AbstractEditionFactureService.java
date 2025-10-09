@@ -11,15 +11,13 @@ import com.kobe.warehouse.service.AppConfigurationService;
 import com.kobe.warehouse.service.UserService;
 import com.kobe.warehouse.service.facturation.dto.EditionSearchParams;
 import com.kobe.warehouse.service.facturation.dto.FactureEditionResponse;
+import com.kobe.warehouse.service.id_generator.FactureIdGeneratorService;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
-
-import com.kobe.warehouse.service.id_generator.FactureIdGeneratorService;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
@@ -115,7 +113,7 @@ public abstract class AbstractEditionFactureService implements EditionService {
         FactureTiersPayant factureTiersPayant = new FactureTiersPayant()
             .setId(this.factureIdGeneratorService.nextId())
             .setCreated(dateCreation)
-            .setRemiseForfetaire(Objects.requireNonNullElse(tiersPayant.getRemiseForfaitaire(), 0))
+            .setRemiseForfetaire(tiersPayant.getRemiseForfaitaire())
             .setUpdated(dateCreation)
             .setGroupeFactureTiersPayant(factureGroup)
             .setDebutPeriode(editionSearchParams.startDate())

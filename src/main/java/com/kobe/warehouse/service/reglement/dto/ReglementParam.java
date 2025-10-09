@@ -1,5 +1,6 @@
 package com.kobe.warehouse.service.reglement.dto;
 
+import com.kobe.warehouse.domain.FactureItemId;
 import com.kobe.warehouse.domain.enumeration.ModePaimentCode;
 import jakarta.validation.constraints.NotNull;
 import java.time.LocalDate;
@@ -8,7 +9,7 @@ import java.util.List;
 
 public class ReglementParam {
 
-    private long id;
+    private FactureItemId id;
 
     @NotNull
     private ModeEditionReglement mode;
@@ -42,11 +43,11 @@ public class ReglementParam {
         return this;
     }
 
-    public long getId() {
+    public FactureItemId getId() {
         return id;
     }
 
-    public ReglementParam setId(long id) {
+    public ReglementParam setId(FactureItemId id) {
         this.id = id;
         return this;
     }

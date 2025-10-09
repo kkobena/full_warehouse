@@ -4,6 +4,7 @@ import com.kobe.warehouse.domain.AppUser;
 import com.kobe.warehouse.domain.FactureTiersPayant;
 import com.kobe.warehouse.domain.GroupeTiersPayant;
 import com.kobe.warehouse.domain.InvoicePayment;
+import com.kobe.warehouse.domain.PaymentId;
 import com.kobe.warehouse.domain.PaymentMode;
 import com.kobe.warehouse.domain.TiersPayant;
 import com.kobe.warehouse.service.utils.DateUtil;
@@ -13,7 +14,7 @@ import java.util.Objects;
 
 public class InvoicePaymentDTO {
 
-    private final long id;
+    private final PaymentId id;
     private final String organisme;
     private final long organismeId;
     private final String codeFacture;
@@ -32,7 +33,7 @@ public class InvoicePaymentDTO {
     private List<InvoicePaymentItemDTO> invoicePaymentItems;
 
     public InvoicePaymentDTO(InvoicePayment invoicePayment) {
-        this.id = invoicePayment.getId().getId();
+        this.id = invoicePayment.getId();
         this.montantAttendu = NumberUtil.formatToString(invoicePayment.getExpectedAmount());
         FactureTiersPayant factureTiersPayant = invoicePayment.getFactureTiersPayant();
         this.codeFacture = factureTiersPayant.getNumFacture();
@@ -96,7 +97,7 @@ public class InvoicePaymentDTO {
         return grouped;
     }
 
-    public long getId() {
+    public PaymentId getId() {
         return id;
     }
 

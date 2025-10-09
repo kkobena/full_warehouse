@@ -71,15 +71,11 @@ public class ReglementFactureModeAllService extends AbstractReglementService {
         invoicePayment.setCommentaire(reglementParam.getComment());
         invoicePayment = super.saveInvoicePayment(invoicePayment);
 
-        return new ResponseReglementDTO(getId(invoicePayment), factureTiersPayant.getStatut() == InvoiceStatut.PAID);
-    }
-
-    private Long getId(InvoicePayment invoicePayment) {
-        return invoicePayment.getId().getId();
+        return new ResponseReglementDTO(invoicePayment.getId(), factureTiersPayant.getStatut() == InvoiceStatut.PAID);
     }
 
     private FactureTiersPayant getFactureTiersPayant(ReglementParam reglementParam) {
-        return facturationRepository.findFactureTiersPayantById(reglementParam.getId()).orElseThrow();
+        return facturationRepository.getReferenceById(reglementParam.getId());
     }
 
     public InvoicePayment doReglement(InvoicePayment groupeInvoicePayment, FactureTiersPayant factureTiersPayant) {

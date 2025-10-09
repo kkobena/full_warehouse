@@ -1,5 +1,7 @@
 package com.kobe.warehouse.service.facturation.dto;
 
+import com.kobe.warehouse.domain.AssuranceSaleId;
+import com.kobe.warehouse.domain.SaleId;
 import com.kobe.warehouse.domain.enumeration.ThirdPartySaleStatut;
 import com.kobe.warehouse.service.dto.AssuredCustomerDTO;
 import java.time.LocalDateTime;
@@ -20,6 +22,8 @@ public class FactureItemDto {
     private int montantRegle;
     private AssuredCustomerDTO customer;
     private AssuredCustomerDTO ayantsDroit;
+    private AssuranceSaleId assuranceSaleId;
+    private SaleId comppsiteSaleId;
 
     public AssuredCustomerDTO getAyantsDroit() {
         return ayantsDroit;
@@ -27,6 +31,24 @@ public class FactureItemDto {
 
     public FactureItemDto setAyantsDroit(AssuredCustomerDTO ayantsDroit) {
         this.ayantsDroit = ayantsDroit;
+        return this;
+    }
+
+    public AssuranceSaleId getAssuranceSaleId() {
+        return assuranceSaleId;
+    }
+
+    public FactureItemDto setAssuranceSaleId(AssuranceSaleId assuranceSaleId) {
+        this.assuranceSaleId = assuranceSaleId;
+        return this;
+    }
+
+    public SaleId getComppsiteSaleId() {
+        return comppsiteSaleId;
+    }
+
+    public FactureItemDto setComppsiteSaleId(SaleId comppsiteSaleId) {
+        this.comppsiteSaleId = comppsiteSaleId;
         return this;
     }
 

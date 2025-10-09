@@ -51,6 +51,7 @@ import com.kobe.warehouse.service.utils.AfficheurPosService;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.Collections;
+import java.util.List;
 import java.util.Optional;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
@@ -194,7 +195,6 @@ public class SaleServiceImpl extends SaleCommonService implements SaleService {
         return this.cashSaleRepository.getReferenceById(id);
     }
 
-
     @Override
     public void setCustomer(UpdateSaleInfo keyValue) {
         CashSale cashSale = findOneById(keyValue.id());
@@ -300,7 +300,7 @@ public class SaleServiceImpl extends SaleCommonService implements SaleService {
             return salesLine;
         }
         SalesLine salesLine = salesLineService.create(dto, storageId, findOne(dto.getSaleCompositeId()));
-        updateSaleWhenAddItem( salesLine);
+        updateSaleWhenAddItem(salesLine);
         return salesLine;
     }
 
@@ -308,7 +308,7 @@ public class SaleServiceImpl extends SaleCommonService implements SaleService {
         return this.cashSaleRepository.getReferenceById(id);
     }
 
-    private void updateSaleWhenAddItem( SalesLine salesLine) {
+    private void updateSaleWhenAddItem(SalesLine salesLine) {
         CashSale sales = (CashSale) salesLine.getSales();
         upddateCashSaleAmounts(sales);
         salesLine.setSales(sales);
@@ -317,7 +317,9 @@ public class SaleServiceImpl extends SaleCommonService implements SaleService {
 
     @Override
     public FinalyseSaleDTO save(CashSaleDTO dto) throws PaymentAmountException, SaleNotFoundCustomerException, CashRegisterException {
-        CashSale cashSale = cashSaleRepository.findOneWithEagerSalesLines(dto.getSaleId().getId(),dto.getSaleId().getSaleDate()).orElseThrow();
+        CashSale cashSale = cashSaleRepository
+            .findOneWithEagerSalesLines(dto.getSaleId().getId(), dto.getSaleId().getSaleDate())
+            .orElseThrow();
         this.save(cashSale, dto);
         UninsuredCustomer uninsuredCustomer = getUninsuredCustomerById(dto.getCustomerId());
         cashSale.setCustomer(uninsuredCustomer);
@@ -465,5 +467,10 @@ public class SaleServiceImpl extends SaleCommonService implements SaleService {
         this.removeRemise(sales);
         this.cashSaleRepository.save(sales);
         this.displayNet(sales.getNetAmount());
+    }
+
+    @Override
+    public List<SaleLineDTO> findBySalesIdAndSalesSaleDateOrderByProduitLibelle(Long salesId, LocalDate saleDate) {
+        return salesLineService.findBySalesIdAndSalesSaleDateOrderByProduitLibelle(salesId, saleDate);
     }
 }

@@ -19,7 +19,7 @@ import { SplitButtonModule } from 'primeng/splitbutton';
 import { FloatLabelModule } from 'primeng/floatlabel';
 import { InvoiceSearchParams } from '../edition-search-params.model';
 import { DATE_FORMAT_ISO_DATE } from '../../../shared/util/warehouse-util';
-import { Facture } from '../facture.model';
+import { Facture, FactureId } from '../facture.model';
 import { AlertInfoComponent } from '../../../shared/alert/alert-info.component';
 import { TableLazyLoadEvent, TableModule } from 'primeng/table';
 import { ITEMS_PER_PAGE } from '../../../shared/constants/pagination.constants';
@@ -55,21 +55,12 @@ import { Select } from 'primeng/select';
     ToggleSwitch,
     DatePicker,
     ConfirmDialogComponent,
-    Select
+    Select,
   ],
-  templateUrl: './factures.component.html'
-
+  templateUrl: './factures.component.html',
 })
 export class FacturesComponent implements OnInit, AfterViewInit {
-  private readonly errorService = inject(ErrorService);
-  private readonly factureService = inject(FactureService);
-  private readonly tiersPayantService = inject(TiersPayantService);
-  private readonly groupeTiersPayantService = inject(GroupeTiersPayantService);
-  private readonly modalService = inject(NgbModal);
-  private readonly factureStateService = inject(FactureStateService);
   minLength = 2;
-  private readonly translate = inject(TranslateService);
-  private readonly primeNGConfig = inject(PrimeNG);
   btnExports: MenuItem[];
   btnAction: MenuItem[];
   protected factureProvisoire = false;
@@ -90,6 +81,14 @@ export class FacturesComponent implements OnInit, AfterViewInit {
   protected loadingBtn = false;
   protected loading!: boolean;
   protected exporting = false;
+  private readonly errorService = inject(ErrorService);
+  private readonly factureService = inject(FactureService);
+  private readonly tiersPayantService = inject(TiersPayantService);
+  private readonly groupeTiersPayantService = inject(GroupeTiersPayantService);
+  private readonly modalService = inject(NgbModal);
+  private readonly factureStateService = inject(FactureStateService);
+  private readonly translate = inject(TranslateService);
+  private readonly primeNGConfig = inject(PrimeNG);
   private readonly confimDialog = viewChild.required<ConfirmDialogComponent>('confirmDialog');
   private toDateMinusOneMonth: Date = null;
 
@@ -118,7 +117,7 @@ export class FacturesComponent implements OnInit, AfterViewInit {
       .query({
         page: 0,
         search: query,
-        size: 10
+        size: 10,
       })
       .subscribe((res: HttpResponse<IGroupeTiersPayant[]>) => {
         this.groupeTiersPayants = res.body || [];
@@ -131,12 +130,12 @@ export class FacturesComponent implements OnInit, AfterViewInit {
       .query({
         page: 0,
         search: query,
-        size: 10
+        size: 10,
       })
       .subscribe({
         next: (res: HttpResponse<ITiersPayant[]>) => {
           this.tiersPayants = res.body || [];
-        }
+        },
       });
   }
 
@@ -148,11 +147,11 @@ export class FacturesComponent implements OnInit, AfterViewInit {
       .query({
         page: pageToLoad,
         size: this.itemsPerPage,
-        ...this.buildSearchParams()
+        ...this.buildSearchParams(),
       })
       .subscribe({
         next: (res: HttpResponse<Facture[]>) => this.onSearchSuccess(res.body, res.headers, pageToLoad),
-        error: (error: any) => this.onError(error)
+        error: (error: any) => this.onError(error),
       });
   }
 
@@ -164,11 +163,11 @@ export class FacturesComponent implements OnInit, AfterViewInit {
         .query({
           page: this.page,
           size: event.rows,
-          ...this.buildSearchParams()
+          ...this.buildSearchParams(),
         })
         .subscribe({
           next: (res: HttpResponse<Facture[]>) => this.onSearchSuccess(res.body, res.headers, this.page),
-          error: (error: any) => this.onError(error)
+          error: (error: any) => this.onError(error),
         });
     }
   }
@@ -186,7 +185,7 @@ export class FacturesComponent implements OnInit, AfterViewInit {
   openInfoDialog(message: string, infoClass: string): void {
     const modalRef = this.modalService.open(AlertInfoComponent, {
       backdrop: 'static',
-      centered: true
+      centered: true,
     });
     modalRef.componentInstance.message = message;
     modalRef.componentInstance.infoClass = infoClass;
@@ -196,20 +195,20 @@ export class FacturesComponent implements OnInit, AfterViewInit {
     this.btnExports = [
       {
         label: 'Pdf',
-        icon: PrimeIcons.FILE_PDF
+        icon: PrimeIcons.FILE_PDF,
       },
       {
         label: 'Excel',
-        icon: PrimeIcons.FILE_EXCEL
-      }
+        icon: PrimeIcons.FILE_EXCEL,
+      },
     ];
 
     this.btnAction = [
       {
         label: 'Pdf',
         icon: PrimeIcons.FILE_PDF,
-        command: () => this.exportPdf(1)
-      }/*,
+        command: () => this.exportPdf(null),
+      } /*,
       {
         label: 'Excel',
         icon: PrimeIcons.FILE_EXCEL
@@ -217,25 +216,28 @@ export class FacturesComponent implements OnInit, AfterViewInit {
       {
         label: 'Word',
         icon: PrimeIcons.FILE_WORD
-      }*/
+      }*/,
     ];
   }
 
-  onDelete(id: number): void {
-
-    this.confimDialog().onConfirm(() => {
-      this.factureService.delete(id).subscribe({
-        next: () => {
-          this.loadPage();
-        },
-        error: (err: any) => {
-          this.openInfoDialog(this.errorService.getErrorMessage(err), 'alert alert-danger');
-        }
-      });
-    }, 'Suppression', 'Êtes-vous sûr de vouloir supprimer ?');
+  onDelete(id: FactureId): void {
+    this.confimDialog().onConfirm(
+      () => {
+        this.factureService.delete(id).subscribe({
+          next: () => {
+            this.loadPage();
+          },
+          error: (err: any) => {
+            this.openInfoDialog(this.errorService.getErrorMessage(err), 'alert alert-danger');
+          },
+        });
+      },
+      'Suppression',
+      'Êtes-vous sûr de vouloir supprimer ?',
+    );
   }
 
-  exportPdf(id: number): void {
+  exportPdf(id: FactureId): void {
     this.exporting = true;
     this.factureService.exportToPdf(id).subscribe({
       next: blod => {
@@ -246,7 +248,7 @@ export class FacturesComponent implements OnInit, AfterViewInit {
       error: err => {
         this.exporting = false;
         this.openInfoDialog(this.errorService.getErrorMessage(err), 'alert alert-danger');
-      }
+      },
     });
   }
 
@@ -255,7 +257,7 @@ export class FacturesComponent implements OnInit, AfterViewInit {
       backdrop: 'static',
       size: 'xl',
       centered: true,
-      modalDialogClass: 'facture-modal-dialog'
+      modalDialogClass: 'facture-modal-dialog',
     });
     modalRef.componentInstance.facture = facture;
   }
@@ -265,7 +267,7 @@ export class FacturesComponent implements OnInit, AfterViewInit {
       backdrop: 'static',
       size: 'xl',
       centered: true,
-      modalDialogClass: 'facture-modal-dialog'
+      modalDialogClass: 'facture-modal-dialog',
     });
     modalRef.componentInstance.facture = facture;
   }
@@ -323,7 +325,7 @@ export class FacturesComponent implements OnInit, AfterViewInit {
       factureProvisoire: this.factureProvisoire,
       search: this.search,
       statuts,
-      factureGroupees: this.factureGroup
+      factureGroupees: this.factureGroup,
     };
     this.factureStateService.setInvoiceSearchParams(params);
     return params;

@@ -8,12 +8,20 @@ import { ReglementFactureDossier } from './model/reglement-facture-dossier.model
 export const doReglementResolver = (route: ActivatedRouteSnapshot): Observable<null | ReglementFactureDossier[]> => {
   const id = route.params['id'];
   const typeFacture = route.params['typeFacture'];
+  const invoiceDate = route.params['invoiceDate'];
   if (id) {
     return inject(FactureService)
-      .findDossierReglement(id, typeFacture, {
-        page: 0,
-        size: 999999
-      })
+      .findDossierReglement(
+        {
+          id: id,
+          invoiceDate: invoiceDate,
+        },
+        typeFacture,
+        {
+          page: 0,
+          size: 999999,
+        },
+      )
       .pipe(
         mergeMap((res: HttpResponse<ReglementFactureDossier[]>) => {
           if (res.body) {
@@ -22,7 +30,7 @@ export const doReglementResolver = (route: ActivatedRouteSnapshot): Observable<n
             inject(Router).navigate(['404']);
             return EMPTY;
           }
-        })
+        }),
       );
   }
   return EMPTY;

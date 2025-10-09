@@ -1,6 +1,8 @@
+import { OrderLineId } from './abstract-order-item.model';
+
 export interface ILot {
   id?: number;
-  receiptItemId?: number;
+  receiptItemId?: OrderLineId;
   quantity?: number;
   numLot?: string;
   receiptReference?: string;
@@ -17,7 +19,7 @@ export class Lot implements ILot {
   constructor(
     public id?: number,
     public receiptItemQuantityRequested?: number,
-    public receiptItemId?: number,
+    public receiptItemId?: OrderLineId,
     public quantity?: number,
     public numLot?: string,
     public receiptReference?: string,

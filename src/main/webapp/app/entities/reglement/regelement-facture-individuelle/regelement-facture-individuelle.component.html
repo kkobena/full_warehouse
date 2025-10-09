@@ -86,32 +86,36 @@
     </p-table>
   </div>
   <div class="col-sm-12 col-lg-3 col-xl-4 col-md-3 formulaire">
-    <p-fieldset>
-      <ng-template #header>
-        <div class="d-flex d-flex justify-content-between form-reglement-toolbar">
-          <span>Formulaire réglement</span>
-          @if (!this.dossierFactureProjection()) {
-            <p-button (click)="openSideBar()" icon="pi pi-search" label="Recherche"
-                      severity="info"></p-button>
-          }
-        </div>
-      </ng-template>
+    <div class="col-12 mb-2">
+      <p-fieldset>
+        <ng-template #header>
+          <div class="d-flex d-flex justify-content-between form-reglement-toolbar">
+            <span>Formulaire réglement</span>
+            @if (!this.dossierFactureProjection()) {
+              <p-button (click)="openSideBar()" icon="pi pi-search" label="Recherche"
+                        severity="info"></p-button>
+            }
+          </div>
+        </ng-template>
 
-      <jhi-reglement-form
-        (partialPayment)="onPartielReglement($event)"
-        (reglementParams)="onSaveReglement($event)"
-        [allSelection]="checkbox()?.checked"
-        [dossierIds]="dossierIds()"
-        [facture]="dossierFactureProjectionSignal()"
-        [isSaving]="isSaving"
-        [montantAPayer]="totalAmount"
-        [typeFacture]="ModeEditionReglement.SINGLE"
-      >
-      </jhi-reglement-form>
-    </p-fieldset>
-    <jhi-dossier-reglement-info [dossierFactureProjection]="dossierFactureProjectionSignal()"
-                                [totalApayer]="montantAPayer()">
-    </jhi-dossier-reglement-info>
+        <jhi-reglement-form
+          (partialPayment)="onPartielReglement($event)"
+          (reglementParams)="onSaveReglement($event)"
+          [allSelection]="checkbox()?.checked"
+          [dossierIds]="dossierIds()"
+          [facture]="dossierFactureProjectionSignal()"
+          [isSaving]="isSaving"
+          [montantAPayer]="totalAmount"
+          [typeFacture]="ModeEditionReglement.SINGLE"
+        >
+        </jhi-reglement-form>
+      </p-fieldset>
+    </div>
+    <div class="col-12">
+      <jhi-dossier-reglement-info [dossierFactureProjection]="dossierFactureProjectionSignal()"
+                                  [totalApayer]="montantAPayer()">
+      </jhi-dossier-reglement-info>
+    </div>
   </div>
 </div>
 

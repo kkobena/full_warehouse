@@ -1,4 +1,4 @@
-<jhi-confirm-dialog #confirmDialog></jhi-confirm-dialog>
+<p-confirmDialog [style]="{ width: '40vw' }"></p-confirmDialog>
 <jhi-toast-alert #alert></jhi-toast-alert>
 <div class="modal-header">
   <h4 class="modal-title">{{ header }}</h4>
@@ -8,7 +8,8 @@
 <div class="modal-body">
   <p-card> @if (showUgAddNewBtn) {
     <div class="mb-1" style="text-align: right">
-      <p-button (click)="add()" severity="info" raised="true" icon="pi pi-check" label="Ajouter un nouveau lot"
+      <p-button (click)="add()" severity="info" raised="true" icon="pi pi-check"
+                label="Ajouter un nouveau lot"
                 type="button"></p-button>
     </div>
   }
@@ -20,9 +21,9 @@
         [value]="lots"
         dataKey="numLot"
         selectionMode="single"
-        styleClass="ui-table-cars"
+        [stripedRows]="true"
       >
-        <ng-template pTemplate="header">
+        <ng-template #header>
           <tr>
             <th scope="col"><span>Num</span></th>
             <th scope="col"><span>Quantité</span></th>
@@ -32,7 +33,7 @@
             <th scope="col"></th>
           </tr>
         </ng-template>
-        <ng-template let-columns="columns" let-elRow pTemplate="body">
+        <ng-template let-elRow #body>
           <tr [pEditableRow]="elRow" [pSelectableRow]="elRow">
             <td>{{ elRow.numLot }}</td>
             <td>{{ elRow.quantityReceived }}</td>
@@ -43,14 +44,16 @@
             <td style="text-align: center">
               <p-button
                 (click)="edit(elRow)"
-                class="p-mr-2"
+                class="mr-2"
                 icon="pi pi-pencil"
                 pTooltip="Editer"
                 severity="success"
+                [text]="true"
                 [rounded]="true"
                 type="submit"
               ></p-button>
-              <p-button (click)="delete(elRow)" icon="pi pi-trash" severity="warn" [rounded]="true"
+              <p-button [text]="true" (click)="delete(elRow)" icon="pi pi-trash" severity="warn"
+                        [rounded]="true"
                         type="submit"></p-button>
             </td>
           </tr>

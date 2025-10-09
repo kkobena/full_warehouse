@@ -4,18 +4,33 @@ import { NgbActiveModal, NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { InvoicePaymentItem, Reglement } from '../model/reglement.model';
 import { InputTextModule } from 'primeng/inputtext';
 import { PanelModule } from 'primeng/panel';
-import { PrimeTemplate } from 'primeng/api';
 import { TableModule } from 'primeng/table';
 import { ReglementService } from '../reglement.service';
 import { HttpResponse } from '@angular/common/http';
 import { IconField } from 'primeng/iconfield';
 import { InputIcon } from 'primeng/inputicon';
+import { Button } from 'primeng/button';
+import { Tag } from 'primeng/tag';
+import { CommonModule } from '@angular/common';
+import { Card } from 'primeng/card';
 
 @Component({
   selector: 'jhi-detail-single-reglement',
-  imports: [FormsModule, ReactiveFormsModule, InputTextModule, PanelModule, PrimeTemplate, TableModule, IconField, InputIcon],
+  imports: [
+    CommonModule,
+    FormsModule,
+    ReactiveFormsModule,
+    InputTextModule,
+    PanelModule,
+    TableModule,
+    IconField,
+    InputIcon,
+    Button,
+    Tag,
+    Card,
+  ],
   templateUrl: './detail-single-reglement.component.html',
-  styles: ``
+  styleUrls: ['./detail-single-reglement.component.scss'],
 })
 export class DetailSingleReglementComponent implements OnInit {
   modalService = inject(NgbModal);
@@ -30,7 +45,7 @@ export class DetailSingleReglementComponent implements OnInit {
   }
 
   ngOnInit(): void {
-    if (this.reglement && this.reglement.id) {
+    if (this.reglement) {
       this.reglementService.getItems(this.reglement.id).subscribe((res: HttpResponse<InvoicePaymentItem[]>) => {
         this.datas = res.body || [];
       });

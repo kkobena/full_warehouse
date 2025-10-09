@@ -1,5 +1,17 @@
-import { Component, computed, inject, input, OnInit, output, signal, viewChild } from '@angular/core';
-import { DossierFactureProjection, ReglementFactureDossier } from '../model/reglement-facture-dossier.model';
+import {
+  Component,
+  computed,
+  inject,
+  input,
+  OnInit,
+  output,
+  signal,
+  viewChild
+} from '@angular/core';
+import {
+  DossierFactureProjection,
+  ReglementFactureDossier
+} from '../model/reglement-facture-dossier.model';
 import { TableHeaderCheckbox, TableModule } from 'primeng/table';
 import {
   LigneSelectionnes,
@@ -9,7 +21,9 @@ import {
   SelectedFacture
 } from '../model/reglement.model';
 import { ButtonModule } from 'primeng/button';
-import { DossierReglementInfoComponent } from '../dossier-reglement-info/dossier-reglement-info.component';
+import {
+  DossierReglementInfoComponent
+} from '../dossier-reglement-info/dossier-reglement-info.component';
 import { FieldsetModule } from 'primeng/fieldset';
 import { InputTextModule } from 'primeng/inputtext';
 import { ReglementFormComponent } from '../reglement-form/reglement-form.component';
@@ -28,7 +42,10 @@ import { FactuesModalComponent } from '../factues-modal/factues-modal.component'
 import { Drawer } from 'primeng/drawer';
 import { IconField } from 'primeng/iconfield';
 import { InputIcon } from 'primeng/inputicon';
-import { ConfirmDialogComponent } from '../../../shared/dialog/confirm-dialog/confirm-dialog.component';
+import {
+  ConfirmDialogComponent
+} from '../../../shared/dialog/confirm-dialog/confirm-dialog.component';
+import { FactureId } from '../../facturation/facture.model';
 
 @Component({
   selector: 'jhi-faire-groupe-reglement',
@@ -50,9 +67,9 @@ import { ConfirmDialogComponent } from '../../../shared/dialog/confirm-dialog/co
     Drawer,
     IconField,
     InputIcon,
-    ConfirmDialogComponent
+    ConfirmDialogComponent,
   ],
-  templateUrl: './faire-groupe-reglement.component.html'
+  templateUrl: './faire-groupe-reglement.component.html',
 })
 export class FaireGroupeReglementComponent implements OnInit {
   readonly reglementFactureDossiers = input<ReglementFactureDossier[]>([]);
@@ -68,15 +85,15 @@ export class FaireGroupeReglementComponent implements OnInit {
     return this.factureDossierSelectionnes()?.map(d => d.id) || [];
   });
   reglementFormComponent = viewChild(ReglementFormComponent);
-  private readonly reglementService = inject(ReglementService);
-  private readonly modalService = inject(NgbModal);
-  private readonly errorService = inject(ErrorService);
-  private readonly factureService = inject(FactureService);
-   selectedFacture = output<SelectedFacture>();
+  selectedFacture = output<SelectedFacture>();
   protected showSidebar = false;
   protected partialPayment = false;
   protected isSaving = false;
   protected readonly ModeEditionReglement = ModeEditionReglement;
+  private readonly reglementService = inject(ReglementService);
+  private readonly modalService = inject(NgbModal);
+  private readonly errorService = inject(ErrorService);
+  private readonly factureService = inject(FactureService);
   private readonly confimDialog = viewChild.required<ConfirmDialogComponent>('confirmDialog');
 
   constructor() {
@@ -96,7 +113,7 @@ export class FaireGroupeReglementComponent implements OnInit {
   openInfoDialog(message: string, infoClass: string): void {
     const modalRef = this.modalService.open(AlertInfoComponent, {
       backdrop: 'static',
-      centered: true
+      centered: true,
     });
     modalRef.componentInstance.message = message;
     modalRef.componentInstance.infoClass = infoClass;
@@ -141,7 +158,7 @@ export class FaireGroupeReglementComponent implements OnInit {
           this.onPrintReceipt(res.body);
         }
       },
-      error: err => this.onError(err)
+      error: err => this.onError(err),
     });
   }
 
@@ -150,11 +167,16 @@ export class FaireGroupeReglementComponent implements OnInit {
   }
 
   private onPrintReceipt(response: ResponseReglement): void {
-
-    this.confimDialog().onConfirm(() => {
-      this.reglementService.printReceipt(response.id).subscribe();
-      this.reset(response);
-    }, 'TICKET REGLEMENT', ' Voullez-vous imprimer le ticket ?', 'pi pi-info-circle', () => this.reset(response));
+    this.confimDialog().onConfirm(
+      () => {
+        this.reglementService.printReceipt(response.id).subscribe();
+        this.reset(response);
+      },
+      'TICKET REGLEMENT',
+      ' Voullez-vous imprimer le ticket ?',
+      'pi pi-info-circle',
+      () => this.reset(response),
+    );
   }
 
   private computeMontantRestant(d: ReglementFactureDossier): number {
@@ -165,7 +187,7 @@ export class FaireGroupeReglementComponent implements OnInit {
     return {
       ...params,
       mode: this.getModeEditionReglement(),
-      ligneSelectionnes: this.buildLigneSelectionnes()
+      ligneSelectionnes: this.buildLigneSelectionnes(),
     };
   }
 
@@ -180,7 +202,7 @@ export class FaireGroupeReglementComponent implements OnInit {
           id: d.id,
           montantAttendu: d.montantTotal - d.montantPaye,
           montantVerse: d.montantVerse,
-          montantFacture: this.dossierFactureProjectionWritable().montantTotal
+          montantFacture: this.dossierFactureProjectionWritable().montantTotal,
         };
       });
     }
@@ -196,15 +218,15 @@ export class FaireGroupeReglementComponent implements OnInit {
       this.reglementFormComponent().cashInput.setValue(null);
     } else {
       this.fetchFacture();
-      this.reload(this.dossierFactureProjectionWritable().id);
+      this.reload(this.dossierFactureProjectionWritable().factureItemId);
     }
   }
 
-  private reload(id: number): void {
+  private reload(id: FactureId): void {
     this.factureService
       .findDossierReglement(id, 'groupes', {
         page: 0,
-        size: 999999
+        size: 999999,
       })
       .subscribe({
         next: (res: HttpResponse<ReglementFactureDossier[]>) => {
@@ -213,14 +235,14 @@ export class FaireGroupeReglementComponent implements OnInit {
         error: () => {
           this.reglementFactureDossiersWritable.set([]);
           this.dossierFactureProjectionWritable.set(null);
-        }
+        },
       });
   }
 
   private fetchFacture(): void {
     this.factureService
-      .findDossierFactureProjection(this.dossierFactureProjectionWritable().id, {
-        isGroup: true
+      .findDossierFactureProjection(this.dossierFactureProjectionWritable().factureItemId, {
+        isGroup: true,
       })
       .subscribe(res => {
         this.dossierFactureProjectionWritable.set(res.body);

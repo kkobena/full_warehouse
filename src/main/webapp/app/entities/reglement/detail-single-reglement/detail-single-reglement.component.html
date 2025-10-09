@@ -1,81 +1,108 @@
 <div class="modal-header">
-  <h6 class="modal-title">
-    Code facture <span class="badge rounded-pill text-bg-light"> {{ reglement.codeFacture }}</span>
-  </h6>
-
-  <button (click)="cancel()" aria-hidden="true" class="close" data-dismiss="modal" type="button">&times;</button>
+  <h5 class="modal-title font-weight-bold">
+    Détail du règlement <span class="text-primary">{{ reglement.codeFacture }}</span>
+  </h5>
+  <button (click)="cancel()" aria-label="Close" class="btn-close" type="button"></button>
 </div>
 
 <div class="modal-body">
-  <div class="row">
-    <div class="row">
-      <div class="d-flex flex-row">
-        <div class="p-2">
-          Date règlement: <span class="badge rounded-pill text-bg-light">{{ reglement.created }}</span>
+  <p-card class="mb-2">
+    <div class=" p-3 border rounded-3 ">
+      <div class="row g-3">
+        <div class="col-sm-6 col-lg-3">
+          <label class="text-muted d-block mb-1 small">Date règlement</label>
+          <span class="fw-semibold">{{ reglement.created | date: 'dd/MM/yyyy HH:mm' }}</span>
         </div>
-        <div class="p-2">
-          Montant attendu: <span class="badge rounded-pill text-bg-light">{{ reglement.montantAttendu }}</span>
+        <div class="col-sm-6 col-lg-3">
+          <label class="text-muted d-block mb-1 small">Montant attendu</label>
+          <span class="fw-semibold">{{ reglement.montantAttendu }}</span>
         </div>
-
-        <div class="p-2">
-          Montant règlé: <span class="badge rounded-pill text-bg-light">{{ reglement.paidAmount }}</span>
+        <div class="col-sm-6 col-lg-3">
+          <label class="text-muted d-block mb-1 small">Montant réglé</label>
+          <span class="fw-semibold text-success">{{ reglement.paidAmount }}</span>
         </div>
-        <div class="p-2">
-          Montant restant: <span class="badge rounded-pill text-bg-light">{{ reglement.montantRestant }}</span>
+        <div class="col-sm-6 col-lg-3">
+          <label class="text-muted d-block mb-1 small">Montant restant</label>
+          <span class="fw-semibold text-danger">{{ reglement.montantRestant }}</span>
         </div>
-        <div class="p-2">
-          Mode règlement: <span class="badge rounded-pill text-bg-light">{{ reglement.paymentMode }}</span>
+        <div class="col-12">
+          <label class="text-muted d-block mb-1 small">Mode règlement</label>
+          <p-tag [value]="reglement.paymentMode" rounded="true" severity="info"></p-tag>
         </div>
       </div>
     </div>
+  </p-card>
+  <p-card>
+    <p-table
+      #fact
+      [globalFilterFields]="['numBon', 'customer', 'customerMatricule']"
+      [paginator]="true"
+      [rowsPerPageOptions]="[10, 25, 50, 100]"
+      [rows]="10"
+      [scrollHeight]="scrollHeight"
+      [scrollable]="true"
+      [stripedRows]="true"
+      [tableStyle]="{ 'min-width': '70rem' }"
+      [value]="datas"
+    >
+      <ng-template #caption>
+        <div class="d-flex justify-content-between align-items-center">
+          <h6 class="m-0">Dossiers de la facture</h6>
+          <p-icon-field iconPosition="left">
+            <p-inputicon class="pi pi-search" />
+            <input
+              (input)="fact.filterGlobal($event.target.value, 'contains')"
+              class="p-inputtext-sm"
+              pInputText
+              placeholder="Rechercher un dossier"
+              type="text"
+            />
+          </p-icon-field>
+        </div>
+      </ng-template>
+      <ng-template #header>
+        <tr>
+          <th style="width:12%">Num. Bon</th>
+          <th style="width:12%">Date</th>
+          <th style="width:10%">Heure</th>
+          <th>Assuré</th>
+          <th style="width:15%">Matricule</th>
+          <th style="width:12%; text-align: end">Montant</th>
+          <th style="width:12%; text-align: end">Attendu</th>
+          <th style="width:12%; text-align: end">Réglé</th>
+          <th style="width:12%; text-align: end">Restant</th>
+        </tr>
+      </ng-template>
+      <ng-template #body let-factureDetail>
+        <tr>
+          <td>{{ factureDetail.numBon }}</td>
+          <td>{{ factureDetail.created | date: 'dd/MM/yyyy' }}</td>
+          <td>{{ factureDetail.heure }}</td>
+          <td>{{ factureDetail.customer }}</td>
+          <td>{{ factureDetail.customerMatricule }}</td>
+          <td class="text-end">{{ factureDetail.montantVente }}</td>
+          <td class="text-end">{{ factureDetail.montantAttendu }}</td>
+          <td class="text-end">{{ factureDetail.montant }}</td>
+          <td [class.text-danger]="factureDetail.montantRestant > 0" class="text-end fw-bold">
+            {{ factureDetail.montantRestant }}
+          </td>
+        </tr>
+      </ng-template>
+      <ng-template #emptyMessage>
+        <tr>
+          <td class="text-center p-4" colspan="9">Aucun dossier trouvé pour ce règlement.</td>
+        </tr>
+      </ng-template>
+    </p-table>
+  </p-card>
 
-    <div class="row">
-      <p-panel header="Dossiers">
-        <p-table
-          #fact
-          [globalFilterFields]="['numBon', 'customer', 'customerMatricule']"
-          [scrollHeight]="scrollHeight"
-          [scrollable]="true"
-          [value]="datas"
-          styleClass="p-datatable-striped"
-        >
-          <ng-template pTemplate="caption">
-            <div class="d-flex">
-              <p-iconfield>
-                <p-inputicon styleClass="pi pi-search" />
-                <input (input)="fact.filterGlobal($event.target.value, 'contains')" pInputText placeholder="Filtrer"
-                       type="text" />
-              </p-iconfield>
-            </div>
-          </ng-template>
-          <ng-template pTemplate="header">
-            <tr>
-              <th>Num.Bon</th>
-              <th>Date</th>
-              <th>Heure</th>
-              <th>Assuré</th>
-              <th>Matricule assuré</th>
-              <th>Montant dossier</th>
-              <th>Montant attendu</th>
-              <th>Montant règlé</th>
-              <th>Montant restant</th>
-            </tr>
-          </ng-template>
-          <ng-template let-factureDetail pTemplate="body">
-            <tr>
-              <td>{{ factureDetail.numBon }}</td>
-              <td>{{ factureDetail.created }}</td>
-              <td>{{ factureDetail.heure }}</td>
-              <td>{{ factureDetail.customer }}</td>
-              <td>{{ factureDetail.customerMatricule }}</td>
-              <td class="text-right">{{ factureDetail.montantVente }}</td>
-              <td class="text-right">{{ factureDetail.montantAttendu }}</td>
-              <td class="text-right">{{ factureDetail.montant }}</td>
-              <td class="text-right">{{ factureDetail.montantRestant }}</td>
-            </tr>
-          </ng-template>
-        </p-table>
-      </p-panel>
-    </div>
-  </div>
+
 </div>
+
+<div class="modal-footer">
+  <p-button (click)="cancel()" [raised]="true" data-dismiss="modal" icon="pi pi-times"
+            label="Annuler"
+            severity="secondary" type="button">
+  </p-button>
+</div>
+

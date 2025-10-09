@@ -15,24 +15,12 @@ export class LotService {
 
   private readonly resourceUrl = SERVER_API_URL + 'api/lot';
 
-  create(lot: ILot): Observable<EntityResponseType> {
-    return this.http.post<ILot>(this.resourceUrl + '/add-to-commande', lot, { observe: 'response' });
-  }
-
   addLot(lot: ILot): Observable<EntityResponseType> {
     return this.http.post<ILot>(this.resourceUrl + '/add', lot, { observe: 'response' });
   }
 
   editLot(lot: ILot): Observable<EntityResponseType> {
     return this.http.post<ILot>(this.resourceUrl + '/edit', lot, { observe: 'response' });
-  }
-
-  find(id: number): Observable<EntityResponseType> {
-    return this.http.get<ILot>(`${this.resourceUrl}/${id}`, { observe: 'response' });
-  }
-
-  delete(lot: ILot): Observable<HttpResponse<{}>> {
-    return this.http.put(this.resourceUrl + '/remove-to-commande', lot, { observe: 'response' });
   }
 
   remove(id: number): Observable<HttpResponse<{}>> {
@@ -43,7 +31,7 @@ export class LotService {
     const options = createRequestOptions(req);
     return this.http.get<ILot[]>(this.resourceUrl, {
       params: options,
-      observe: 'response'
+      observe: 'response',
     });
   }
 
@@ -51,7 +39,7 @@ export class LotService {
     const options = createRequestOptions(req);
     return this.http.get<LotPerimeValeurSum>(this.resourceUrl + '/sum', {
       params: options,
-      observe: 'response'
+      observe: 'response',
     });
   }
 
@@ -59,7 +47,7 @@ export class LotService {
     const options = createRequestOptions(req);
     return this.http.get<LotPerimes[]>(this.resourceUrl, {
       params: options,
-      observe: 'response'
+      observe: 'response',
     });
   }
 
@@ -68,7 +56,7 @@ export class LotService {
     return this.http.get(`${this.resourceUrl}/export/${format}`, {
       params: options,
       observe: 'response',
-      responseType: 'blob'
+      responseType: 'blob',
     });
   }
 
@@ -76,7 +64,7 @@ export class LotService {
     const options = createRequestOptions(req);
     return this.http.get(`${this.resourceUrl}/pdf`, {
       params: options,
-      responseType: 'blob'
+      responseType: 'blob',
     });
   }
 }

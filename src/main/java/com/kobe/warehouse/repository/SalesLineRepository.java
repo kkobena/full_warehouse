@@ -15,26 +15,21 @@ import com.kobe.warehouse.domain.SalesLine_;
 import com.kobe.warehouse.domain.Sales_;
 import com.kobe.warehouse.domain.enumeration.CategorieChiffreAffaire;
 import com.kobe.warehouse.domain.enumeration.SalesStatut;
-import com.kobe.warehouse.service.dto.HistoriqueProduitVente;
-import com.kobe.warehouse.service.dto.HistoriqueProduitVenteMensuelle;
 import com.kobe.warehouse.service.dto.HistoriqueProduitVenteMensuelleSummary;
 import com.kobe.warehouse.service.dto.projection.LastDateProjection;
 import jakarta.persistence.criteria.Join;
 import jakarta.persistence.criteria.SetJoin;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
+import java.time.LocalDate;
+import java.util.EnumSet;
+import java.util.List;
+import java.util.Optional;
+import java.util.Set;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
-
-import java.time.LocalDate;
-import java.util.EnumSet;
-import java.util.List;
-import java.util.Optional;
-import java.util.Set;
 
 /**
  * Spring Data repository for the SalesLine entity.
@@ -43,13 +38,9 @@ import java.util.Set;
 @Repository
 public interface SalesLineRepository
     extends JpaRepository<SalesLine, SaleLineId>, JpaSpecificationExecutor<SalesLine>, SalesLineRepositoryCustom {
-    List<SalesLine> findBySalesIdOrderByProduitLibelle(Long salesId);
-
-    SalesLine findOneById(Long id);
+    List<SalesLine> findBySalesIdAndSalesSaleDateOrderByProduitLibelle(Long salesId, LocalDate saleDate);
 
     Optional<SalesLine> findBySalesIdAndProduitIdAndSalesSaleDate(Long salesId, Long produitId, LocalDate saleDate);
-
-    Optional<List<SalesLine>> findAllBySalesId(Long salesId);
 
     List<SalesLine> findAllByQuantityAvoirGreaterThan(Integer zero);
 
@@ -59,12 +50,10 @@ public interface SalesLineRepository
     )
     LastDateProjection findLastUpdatedAtByProduitIdAndSalesStatut(@Param("produitId") Long produitId, @Param("statut") String statut);
 
-
     @Query(
         value = "SELECT get_historique_vente(:produitId,:startDate, :endDate, :statuts,:caterorieChiffreAffaire,:offset,:limit)",
         nativeQuery = true
     )
-
     String getHistoriqueVente(
         @Param("produitId") Long produitId,
         @Param("startDate") LocalDate startDate,
@@ -75,13 +64,10 @@ public interface SalesLineRepository
         @Param("limit") int limit
     );
 
-
-
     @Query(
         value = "SELECT get_product_sales_summary_monthly(:startDate, :endDate, :statuts,:caterorieChiffreAffaire,:produitId)",
         nativeQuery = true
     )
-
     // List<HistoriqueProduitVenteMensuelle>
     String getHistoriqueVenteMensuelle(
         @Param("startDate") LocalDate startDate,
@@ -90,7 +76,6 @@ public interface SalesLineRepository
         @Param("caterorieChiffreAffaire") String[] caterorieChiffreAffaire,
         @Param("produitId") Long produitId
     );
-
 
     @Query(
         value = "SELECT get_product_sales_summary(:startDate, :endDate, :statuts,:caterorieChiffreAffaire,:produitId,:groupBy)",

@@ -17,12 +17,11 @@ import com.kobe.warehouse.service.id_generator.TransactionIdGeneratorService;
 import com.kobe.warehouse.service.reglement.dto.LigneSelectionnesDTO;
 import com.kobe.warehouse.service.reglement.dto.ReglementParam;
 import com.kobe.warehouse.service.reglement.dto.ResponseReglementDTO;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
-
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @Transactional
@@ -62,7 +61,7 @@ public class ReglementFactureSelectionneesService extends AbstractReglementServi
             throw new GenericError("Aucun dossiers à regler");
         }
         List<ThirdPartySaleLine> thirdPartySaleLinesUpdated = new ArrayList<>();
-        FactureTiersPayant factureTiersPayant = facturationRepository.findFactureTiersPayantById(reglementParam.getId()).orElseThrow();
+        FactureTiersPayant factureTiersPayant = facturationRepository.getReferenceById(reglementParam.getId());
         List<ThirdPartySaleLine> thirdPartySaleLines = getThirdPartySaleLines(reglementParam);
 
         InvoicePayment invoicePayment = super.buildInvoicePayment(factureTiersPayant, reglementParam);
@@ -96,7 +95,7 @@ public class ReglementFactureSelectionneesService extends AbstractReglementServi
         invoicePayment.setPaidAmount(montantPaye);
         invoicePayment.setReelAmount(montantPaye);
         invoicePayment = super.saveInvoicePayment(invoicePayment);
-        return new ResponseReglementDTO(invoicePayment.getId().getId(), factureTiersPayant.getStatut() == InvoiceStatut.PAID);
+        return new ResponseReglementDTO(invoicePayment.getId(), factureTiersPayant.getStatut() == InvoiceStatut.PAID);
     }
 
     public InvoicePayment doReglement(
@@ -141,7 +140,7 @@ public class ReglementFactureSelectionneesService extends AbstractReglementServi
 
     private List<ThirdPartySaleLine> getThirdPartySaleLines(ReglementParam reglementParam) {
         return this.thirdPartySaleLineRepository.findAll(
-            this.thirdPartySaleLineRepository.selectionBonCriteria(Set.copyOf(reglementParam.getDossierIds()))
-        );
+                this.thirdPartySaleLineRepository.selectionBonCriteria(Set.copyOf(reglementParam.getDossierIds()))
+            );
     }
 }

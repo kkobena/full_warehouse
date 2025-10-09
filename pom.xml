@@ -705,8 +705,6 @@
       </activation>
       <build>
         <plugins>
-
-
           <plugin>
             <artifactId>frontend-maven-plugin</artifactId>
             <executions>

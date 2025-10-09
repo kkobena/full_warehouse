@@ -2,26 +2,30 @@ package com.kobe.warehouse.repository;
 
 import com.kobe.warehouse.domain.FactureTiersPayant;
 import com.kobe.warehouse.domain.FactureTiersPayant_;
+import com.kobe.warehouse.domain.GroupeTiersPayant;
 import com.kobe.warehouse.domain.GroupeTiersPayant_;
 import com.kobe.warehouse.domain.Sales_;
+import com.kobe.warehouse.domain.ThirdPartySaleLine;
 import com.kobe.warehouse.domain.ThirdPartySaleLine_;
+import com.kobe.warehouse.domain.ThirdPartySales;
 import com.kobe.warehouse.domain.TiersPayant_;
 import com.kobe.warehouse.service.facturation.dto.FactureDto;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.TypedQuery;
 import jakarta.persistence.criteria.CriteriaBuilder;
 import jakarta.persistence.criteria.CriteriaQuery;
+import jakarta.persistence.criteria.Join;
+import jakarta.persistence.criteria.JoinType;
 import jakarta.persistence.criteria.Predicate;
 import jakarta.persistence.criteria.Root;
 import jakarta.persistence.criteria.Subquery;
+import java.util.List;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
-
-import java.util.List;
 
 @Repository
 @Transactional(readOnly = true)
@@ -45,17 +49,21 @@ public class FactureTiersPayantRepositoryCustomImpl implements FactureTiersPayan
 
         Subquery<Long> subquery = query.subquery(Long.class);
         Root<FactureTiersPayant> subRoot = subquery.from(FactureTiersPayant.class);
-        subquery.select(subRoot.get(FactureTiersPayant_.groupeFactureTiersPayant).get(FactureTiersPayant_.id));
-        subquery.where(subRoot.get(FactureTiersPayant_.groupeFactureTiersPayant).isNotNull());
+        subquery.select(cb.literal(1L)).where(cb.equal(subRoot.get(FactureTiersPayant_.groupeFactureTiersPayant), root));
 
-        query.where(cb.not(root.get(FactureTiersPayant_.id).in(subquery)));
+        query.where(cb.not(cb.exists(subquery)));
+
+        Join<FactureTiersPayant, ThirdPartySaleLine> details = root.join(FactureTiersPayant_.facturesDetails);
+        Join<ThirdPartySaleLine, ThirdPartySales> sales = details.join(ThirdPartySaleLine_.sale);
+        Join<FactureTiersPayant, FactureTiersPayant> groupe = root.join(FactureTiersPayant_.groupeFactureTiersPayant, JoinType.LEFT);
 
         query.select(
             cb.construct(
                 FactureDto.class,
+                root.get(FactureTiersPayant_.invoiceDate),
                 root.get(FactureTiersPayant_.created),
                 root.get(FactureTiersPayant_.id),
-                root.get(FactureTiersPayant_.groupeFactureTiersPayant).get(FactureTiersPayant_.id),
+                groupe.get(FactureTiersPayant_.id),
                 root.get(FactureTiersPayant_.montantRegle),
                 root.get(FactureTiersPayant_.remiseForfetaire),
                 root.get(FactureTiersPayant_.debutPeriode),
@@ -63,20 +71,36 @@ public class FactureTiersPayantRepositoryCustomImpl implements FactureTiersPayan
                 root.get(FactureTiersPayant_.finPeriode),
                 root.get(FactureTiersPayant_.factureProvisoire),
                 root.get(FactureTiersPayant_.numFacture),
-                root.get(FactureTiersPayant_.groupeFactureTiersPayant).get(FactureTiersPayant_.numFacture),
+                groupe.get(FactureTiersPayant_.numFacture),
                 root.get(FactureTiersPayant_.tiersPayant).get(TiersPayant_.fullName),
-                cb.sum(root.join(FactureTiersPayant_.facturesDetails).join(ThirdPartySaleLine_.sale).get(Sales_.salesAmount)),
-                cb.sum(root.join(FactureTiersPayant_.facturesDetails).join(ThirdPartySaleLine_.sale).get(Sales_.discountAmount)),
-                cb.sum(root.join(FactureTiersPayant_.facturesDetails).get(ThirdPartySaleLine_.montantRegle)),
-                cb.count(root.join(FactureTiersPayant_.facturesDetails)),
-                cb.sum(root.join(FactureTiersPayant_.facturesDetails).get(ThirdPartySaleLine_.montant))
+                cb.sum(sales.get(Sales_.salesAmount)),
+                cb.sum(sales.get(Sales_.discountAmount)),
+                cb.sum(details.get(ThirdPartySaleLine_.montantRegle)),
+                cb.count(details),
+                cb.sum(details.get(ThirdPartySaleLine_.montant))
             )
         );
-        query.groupBy(root.get(FactureTiersPayant_.id));
+
+        query.groupBy(
+            root.get(FactureTiersPayant_.invoiceDate),
+            root.get(FactureTiersPayant_.created),
+            root.get(FactureTiersPayant_.id),
+            groupe.get(FactureTiersPayant_.id),
+            root.get(FactureTiersPayant_.montantRegle),
+            root.get(FactureTiersPayant_.remiseForfetaire),
+            root.get(FactureTiersPayant_.debutPeriode),
+            root.get(FactureTiersPayant_.statut),
+            root.get(FactureTiersPayant_.finPeriode),
+            root.get(FactureTiersPayant_.factureProvisoire),
+            root.get(FactureTiersPayant_.numFacture),
+            groupe.get(FactureTiersPayant_.numFacture),
+            root.get(FactureTiersPayant_.tiersPayant).get(TiersPayant_.fullName)
+        );
 
         TypedQuery<FactureDto> typedQuery = em.createQuery(query);
         typedQuery.setFirstResult((int) pageable.getOffset());
         typedQuery.setMaxResults(pageable.getPageSize());
+
         List<FactureDto> result = typedQuery.getResultList();
         return new PageImpl<>(result, pageable, countInvoices(specification));
     }
@@ -87,15 +111,42 @@ public class FactureTiersPayantRepositoryCustomImpl implements FactureTiersPayan
         CriteriaQuery<FactureDto> query = cb.createQuery(FactureDto.class);
         Root<FactureTiersPayant> root = query.from(FactureTiersPayant.class);
         //   Specification<FactureTiersPayant> specification = InvoiceSpecification.aGroupedFacture(invoiceSearchParams);
+        Join<FactureTiersPayant, FactureTiersPayant> details = root.join(FactureTiersPayant_.factureTiersPayants);
+        Join<FactureTiersPayant, GroupeTiersPayant> groupeTp = root.join(FactureTiersPayant_.groupeTiersPayant, JoinType.LEFT);
+        Join<FactureTiersPayant, ThirdPartySaleLine> detailsVenete = details.join(FactureTiersPayant_.facturesDetails);
+        Join<ThirdPartySaleLine, ThirdPartySales> sale = detailsVenete.join(ThirdPartySaleLine_.sale);
         Predicate predicate = specification.toPredicate(root, query, cb);
         if (predicate != null) {
             query.where(predicate);
         }
+        //java.time.LocalDate, java.lang.Integer, java.time.LocalDateTime,
+        // java.lang.Long, java.time.LocalDate,
+        // com.kobe.warehouse.domain.enumeration.InvoiceStatut, java.time.LocalDate, java.lang.Boolean,
+        // java.lang.String, java.lang.String, java.lang.Integer, java.lang.Long, java.lang.Integer, java.lang.Integer
+
+        /*
+           LocalDate invoiceDate,
+        Integer montantRegle,
+        LocalDateTime created,
+        Long id,
+        LocalDate debutPeriode,
+        InvoiceStatut statut,
+        LocalDate finPeriode,
+        Boolean factureProvisoire,
+        String groupeNumFacture,
+        String tiersPayantName,
+        Integer montantVente,
+        Long itemsCount,
+        Integer montant,
+        Integer montantNetVente,
+        Integer montantRemiseVente
+         */
 
         query.select(
             cb.construct(
                 FactureDto.class,
-                cb.sum(root.join(FactureTiersPayant_.factureTiersPayants).get(FactureTiersPayant_.montantRegle)),
+                root.get(FactureTiersPayant_.invoiceDate),
+                cb.sum(details.get(FactureTiersPayant_.montantRegle)),
                 root.get(FactureTiersPayant_.created),
                 root.get(FactureTiersPayant_.id),
                 root.get(FactureTiersPayant_.debutPeriode),
@@ -103,26 +154,24 @@ public class FactureTiersPayantRepositoryCustomImpl implements FactureTiersPayan
                 root.get(FactureTiersPayant_.finPeriode),
                 root.get(FactureTiersPayant_.factureProvisoire),
                 root.get(FactureTiersPayant_.numFacture),
-                root.get(FactureTiersPayant_.groupeTiersPayant).get(GroupeTiersPayant_.name),
-                cb.sum(root.join(FactureTiersPayant_.factureTiersPayants).join(FactureTiersPayant_.facturesDetails).get(ThirdPartySaleLine_.montant)),
-                cb.count(root.join(FactureTiersPayant_.factureTiersPayants)),
-                cb.sum(
-                    root
-                        .join(FactureTiersPayant_.factureTiersPayants)
-                        .join(FactureTiersPayant_.facturesDetails)
-                        .join(ThirdPartySaleLine_.sale)
-                        .get(Sales_.salesAmount)
-                ),
-                cb.sum(
-                    root
-                        .join(FactureTiersPayant_.factureTiersPayants)
-                        .join(FactureTiersPayant_.facturesDetails)
-                        .join(ThirdPartySaleLine_.sale)
-                        .get(Sales_.discountAmount)
-                )
+                groupeTp.get(GroupeTiersPayant_.name),
+                cb.sum(sale.get(Sales_.salesAmount)),
+                cb.count(details),
+                cb.sum(detailsVenete.get(ThirdPartySaleLine_.montant)),
+                cb.sum(sale.get(Sales_.discountAmount))
             )
         );
-        query.groupBy(root.get(FactureTiersPayant_.id));
+        query.groupBy(
+            root.get(FactureTiersPayant_.invoiceDate),
+            root.get(FactureTiersPayant_.created),
+            root.get(FactureTiersPayant_.id),
+            root.get(FactureTiersPayant_.debutPeriode),
+            root.get(FactureTiersPayant_.statut),
+            root.get(FactureTiersPayant_.finPeriode),
+            root.get(FactureTiersPayant_.factureProvisoire),
+            root.get(FactureTiersPayant_.numFacture),
+            groupeTp.get(GroupeTiersPayant_.name)
+        );
 
         TypedQuery<FactureDto> typedQuery = em.createQuery(query);
         typedQuery.setFirstResult((int) pageable.getOffset());

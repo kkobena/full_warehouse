@@ -1,11 +1,23 @@
 <div class="modal-header">
   <h6 class="modal-title">
-    Facture <span class="badge rounded-pill text-bg-light"> {{ facture.numFacture }}</span>
+    Facture <span class="badge rounded-pill text-bg-light fs-6"> {{ facture.numFacture }}</span>
   </h6>
 
-  <button (click)="cancel()" aria-hidden="true" class="close" data-dismiss="modal" type="button">&times;</button>
+  <button (click)="cancel()" aria-hidden="true" class="btn-close" data-dismiss="modal"
+          type="button">&times;
+  </button>
 </div>
 
 <div class="modal-body">
-  <jhi-facture-detail [facture]="facture"></jhi-facture-detail>
+  <p-card>
+    <jhi-facture-detail [facture]="facture"></jhi-facture-detail>
+  </p-card>
+</div>
+<div class="modal-footer">
+  <p-button (click)="cancel()" [raised]="true" data-dismiss="modal" icon="pi pi-times"
+            label="Annuler"
+            severity="secondary" type="button">
+  </p-button>
+
+
 </div>

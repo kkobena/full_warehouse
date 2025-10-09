@@ -1,13 +1,5 @@
 import { AfterViewInit, Component, computed, inject, input, output, signal } from '@angular/core';
-import {
-  AbstractControl,
-  FormBuilder,
-  FormControl,
-  FormGroup,
-  FormsModule,
-  ReactiveFormsModule,
-  Validators
-} from '@angular/forms';
+import { AbstractControl, FormBuilder, FormControl, FormGroup, FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
 import { DossierFactureProjection } from '../model/reglement-facture-dossier.model';
 import { ModeEditionReglement, ReglementParams } from '../model/reglement.model';
 import { IPaymentMode } from '../../../shared/model/payment-mode.model';
@@ -16,16 +8,34 @@ import { HttpResponse } from '@angular/common/http';
 import { ModePaymentService } from '../../mode-payments/mode-payment.service';
 import { TranslateService } from '@ngx-translate/core';
 import { DividerModule } from 'primeng/divider';
-import { FaIconComponent } from '@fortawesome/angular-fontawesome';
 import moment from 'moment/moment';
 import { DATE_FORMAT } from '../../../shared/constants/input.constants';
 import { PrimeNG } from 'primeng/config';
 import { DatePicker } from 'primeng/datepicker';
+import { Button } from 'primeng/button';
+import { ToggleSwitch } from 'primeng/toggleswitch';
+import { InputGroup } from 'primeng/inputgroup';
+import { InputGroupAddon } from 'primeng/inputgroupaddon';
+import { InputText } from 'primeng/inputtext';
+import { Select } from 'primeng/select';
+import { KeyFilter } from 'primeng/keyfilter';
 
 @Component({
   selector: 'jhi-reglement-form',
-  imports: [FormsModule, ReactiveFormsModule, DividerModule, FaIconComponent, DatePicker],
-  templateUrl: './reglement-form.component.html'
+  imports: [
+    FormsModule,
+    ReactiveFormsModule,
+    DividerModule,
+    DatePicker,
+    Button,
+    ToggleSwitch,
+    InputGroup,
+    InputGroupAddon,
+    InputText,
+    Select,
+    KeyFilter,
+  ],
+  templateUrl: './reglement-form.component.html',
 })
 export class ReglementFormComponent implements AfterViewInit {
   readonly CASH = 'CASH';
@@ -68,30 +78,30 @@ export class ReglementFormComponent implements AfterViewInit {
   reglementForm = this.fb.group({
     amount: new FormControl<number | null>(null, {
       validators: [Validators.required],
-      nonNullable: true
+      nonNullable: true,
     }),
 
     modePaimentCode: new FormControl<string | null>(null, {
       validators: [Validators.required],
-      nonNullable: true
+      nonNullable: true,
     }),
     partialPayment: new FormControl<boolean | null>(true, {
       validators: [Validators.required],
-      nonNullable: true
+      nonNullable: true,
     }),
     paymentDate: new FormControl<Date | null>(null, {}),
 
     banqueInfo: this.fb.group({
       nom: new FormControl<string | null>(null, {
         validators: [Validators.required],
-        nonNullable: true
+        nonNullable: true,
       }),
       code: new FormControl<string | null>(null, {
         validators: [Validators.required],
-        nonNullable: true
+        nonNullable: true,
       }),
-      beneficiaire: new FormControl<string | null>(null, {})
-    })
+      beneficiaire: new FormControl<string | null>(null, {}),
+    }),
   });
   private modeService = inject(ModePaymentService);
 
@@ -242,8 +252,8 @@ export class ReglementFormComponent implements AfterViewInit {
       amountToPaid: this.montantPayer,
       paymentDate: paymentDate ? moment(paymentDate).format(DATE_FORMAT) : null,
       totalAmount: this.initTotalAmount,
-      id: this.facture().id,
-      montantFacture: this.facture().montantTotal
+      id: this.facture().factureItemId,
+      montantFacture: this.facture().montantTotal,
     };
   }
 }

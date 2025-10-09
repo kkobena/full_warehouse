@@ -1,4 +1,5 @@
 import { Customer } from '../../shared/model/customer.model';
+import { SaleId } from '../../shared/model/sales.model';
 
 export class Facture {
   numFacture?: string;
@@ -28,6 +29,7 @@ export class Facture {
   statut?: string;
   items?: FactureItem[];
   factures?: Facture[];
+  factureItemId?: FactureId;
 }
 
 export class FactureItem {
@@ -45,4 +47,9 @@ export class FactureItem {
   montantRegle?: number;
   customer?: Customer;
   ayantsDroit?: Customer;
+  comppsiteSaleId?: SaleId;
+}
+export class FactureId {
+  id: number;
+  invoiceDate: string;
 }

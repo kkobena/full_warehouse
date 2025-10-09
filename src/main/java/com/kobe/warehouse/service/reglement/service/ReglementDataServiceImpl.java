@@ -3,6 +3,7 @@ package com.kobe.warehouse.service.reglement.service;
 import com.kobe.warehouse.domain.FactureTiersPayant;
 import com.kobe.warehouse.domain.InvoicePayment;
 import com.kobe.warehouse.domain.InvoicePaymentItem;
+import com.kobe.warehouse.domain.PaymentId;
 import com.kobe.warehouse.domain.ThirdPartySaleLine;
 import com.kobe.warehouse.domain.enumeration.InvoiceStatut;
 import com.kobe.warehouse.domain.enumeration.ThirdPartySaleStatut;
@@ -65,8 +66,8 @@ public class ReglementDataServiceImpl implements ReglementDataService {
 
     @Override
     @Transactional
-    public void deleteReglement(long idReglement) {
-        InvoicePayment invoicePayment = invoicePaymentRepository.findInvoicePaymentById(idReglement).orElseThrow();
+    public void deleteReglement(PaymentId idReglement) {
+        InvoicePayment invoicePayment = invoicePaymentRepository.getReferenceById(idReglement);
         List<InvoicePayment> invoicePayments = invoicePayment.getInvoicePayments();
         if (CollectionUtils.isEmpty(invoicePayments)) {
             deleteInvoicePayment(invoicePayment, null);
@@ -84,18 +85,13 @@ public class ReglementDataServiceImpl implements ReglementDataService {
 
     @Override
     @Transactional
-    public void deleteReglement(Set<Long> idReglements) {
+    public void deleteReglement(Set<PaymentId> idReglements) {
         idReglements.forEach(this::deleteReglement);
     }
 
     @Override
-    public void printReceipt(long idReglement) {
+    public void printReceipt(PaymentId idReglement) {
         this.invoiceReceiptService.printReceipt(null, getInvoicePaymentReceipt(idReglement));
-    }
-
-    @Override
-    public List<InvoicePaymentWrapper> getInvoicePayments(InvoicePaymentParam invoicePaymentParam) {
-        return List.of();
     }
 
     @Override
@@ -134,13 +130,25 @@ public class ReglementDataServiceImpl implements ReglementDataService {
     }
 
     @Override
-    public List<InvoicePaymentItemDTO> getInvoicePaymentsItems(long idReglement) {
-        return this.invoicePaymentItemRepository.findByInvoicePaymentId(idReglement).stream().map(InvoicePaymentItemDTO::new).toList();
+    public List<InvoicePaymentItemDTO> getInvoicePaymentsItems(PaymentId paymentId) {
+        return this.invoicePaymentItemRepository.findByInvoicePaymentIdAndInvoicePaymentTransactionDate(
+                paymentId.getId(),
+                paymentId.getTransactionDate()
+            )
+            .stream()
+            .map(InvoicePaymentItemDTO::new)
+            .toList();
     }
 
     @Override
-    public List<InvoicePaymentDTO> getInvoicePaymentsGroupItems(long idReglement) {
-        return this.invoicePaymentRepository.findInvoicePaymentByParentId(idReglement).stream().map(InvoicePaymentDTO::new).toList();
+    public List<InvoicePaymentDTO> getInvoicePaymentsGroupItems(PaymentId paymentId) {
+        return this.invoicePaymentRepository.findInvoicePaymentByParentIdAndParentTransactionDate(
+                paymentId.getId(),
+                paymentId.getTransactionDate()
+            )
+            .stream()
+            .map(InvoicePaymentDTO::new)
+            .toList();
     }
 
     @Override
@@ -160,8 +168,8 @@ public class ReglementDataServiceImpl implements ReglementDataService {
         return this.reglementReportService.printToPdf(invoicePaymentWrappers);
     }
 
-    private InvoicePaymentReceiptDTO getInvoicePaymentReceipt(long idReglement) {
-        return new InvoicePaymentReceiptDTO(this.invoicePaymentRepository.findInvoicePaymentById(idReglement).orElseThrow());
+    private InvoicePaymentReceiptDTO getInvoicePaymentReceipt(PaymentId idReglement) {
+        return new InvoicePaymentReceiptDTO(this.invoicePaymentRepository.getReferenceById(idReglement));
     }
 
     private int deleteInvoicePayment(InvoicePayment invoicePayment, FactureTiersPayant groupeFacture) {

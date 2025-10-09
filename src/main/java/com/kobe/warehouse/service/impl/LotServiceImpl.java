@@ -8,6 +8,7 @@ import com.kobe.warehouse.domain.FamilleProduit;
 import com.kobe.warehouse.domain.FournisseurProduit;
 import com.kobe.warehouse.domain.Lot;
 import com.kobe.warehouse.domain.LotSold;
+import com.kobe.warehouse.domain.OrderLine;
 import com.kobe.warehouse.domain.Produit;
 import com.kobe.warehouse.domain.Rayon;
 import com.kobe.warehouse.domain.RayonProduit;
@@ -15,6 +16,7 @@ import com.kobe.warehouse.domain.StockProduit;
 import com.kobe.warehouse.repository.LotRepository;
 import com.kobe.warehouse.repository.ProduitRepository;
 import com.kobe.warehouse.service.AppConfigurationService;
+import com.kobe.warehouse.service.OrderLineService;
 import com.kobe.warehouse.service.dto.LotDTO;
 import com.kobe.warehouse.service.excel.ExcelExportUtil;
 import com.kobe.warehouse.service.excel.model.ExportFormat;
@@ -26,6 +28,7 @@ import com.kobe.warehouse.service.stock.dto.LotPerimeValeurSum;
 import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.Optional;
@@ -49,23 +52,32 @@ public class LotServiceImpl implements LotService {
     private final AppConfigurationService appConfigurationService;
     private final ProduitRepository produitRepository;
     private final LotServiceReportService lotServiceReportService;
+    private final OrderLineService orderLineService;
 
     public LotServiceImpl(
         LotRepository lotRepository,
         AppConfigurationService appConfigurationService,
         ProduitRepository produitRepository,
-        LotServiceReportService lotServiceReportService
+        LotServiceReportService lotServiceReportService,
+        OrderLineService orderLineService
     ) {
         this.lotRepository = lotRepository;
 
         this.appConfigurationService = appConfigurationService;
         this.produitRepository = produitRepository;
         this.lotServiceReportService = lotServiceReportService;
+        this.orderLineService = orderLineService;
     }
 
     @Override
     public LotDTO addLot(LotDTO lot) {
-        return new LotDTO(this.lotRepository.saveAndFlush(lot.toEntity()));
+        OrderLine orderLine = this.orderLineService.findOneById(lot.getReceiptItemId()).orElse(null);
+        Lot lotEntity = lot.toEntity();
+        lotEntity.setCreatedDate(LocalDateTime.now());
+        lotEntity.setPrixUnit(orderLine.getOrderUnitPrice());
+        lotEntity.setPrixAchat(orderLine.getOrderCostAmount());
+        lotEntity.setOrderLine(orderLine);
+        return new LotDTO(this.lotRepository.saveAndFlush(lotEntity));
     }
 
     @Override

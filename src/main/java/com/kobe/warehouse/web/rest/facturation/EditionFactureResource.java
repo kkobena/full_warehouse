@@ -1,5 +1,6 @@
 package com.kobe.warehouse.web.rest.facturation;
 
+import com.kobe.warehouse.domain.FactureItemId;
 import com.kobe.warehouse.domain.enumeration.InvoiceStatut;
 import com.kobe.warehouse.domain.enumeration.TiersPayantCategorie;
 import com.kobe.warehouse.service.facturation.dto.DossierFactureDto;
@@ -135,7 +136,7 @@ public class EditionFactureResource {
     }
 
     @DeleteMapping("/edition-factures/delete")
-    public ResponseEntity<Void> deleteInvoices(@RequestParam(name = "invoicesIds") Set<Long> invoicesIds) {
+    public ResponseEntity<Void> deleteInvoices(@RequestParam(name = "invoicesIds") Set<FactureItemId> invoicesIds) {
         editionService.deleteFacture(invoicesIds);
         return ResponseEntity.ok().build();
     }
@@ -176,9 +177,9 @@ public class EditionFactureResource {
         return ResponseEntity.ok().headers(headers).body(page.getContent());
     }
 
-    @GetMapping("/edition-factures/pdf/{id}")
-    public ResponseEntity<Resource> exportToPdf(HttpServletRequest request, @PathVariable Long id) {
-        return Utils.printPDF(editionService.printToPdf(id), request);
+    @GetMapping("/edition-factures/pdf/{id}/{invoiceDate}")
+    public ResponseEntity<Resource> exportToPdf(HttpServletRequest request, @PathVariable Long id, @PathVariable LocalDate invoiceDate) {
+        return Utils.printPDF(editionService.printToPdf(new FactureItemId(id, invoiceDate)), request);
     }
 
     @GetMapping("/edition-factures/pdf")
@@ -190,36 +191,45 @@ public class EditionFactureResource {
         return Utils.printPDF(editionService.printToPdf(new FactureEditionResponse(createdDate, isGroup)), request);
     }
 
-    @GetMapping("/edition-factures/{id}")
-    public ResponseEntity<FactureDtoWrapper> getone(@PathVariable Long id) {
-        return ResponseUtil.wrapOrNotFound(editionService.getFacture(id));
+    @GetMapping("/edition-factures/{id}/{invoiceDate}")
+    public ResponseEntity<FactureDtoWrapper> getone(@PathVariable Long id, @PathVariable LocalDate invoiceDate) {
+        return ResponseUtil.wrapOrNotFound(editionService.getFacture(new FactureItemId(id, invoiceDate)));
     }
 
-    @DeleteMapping("/edition-factures/{id}")
-    public ResponseEntity<Void> delete(@PathVariable Long id) {
-        editionService.deleteFacture(id);
+    @DeleteMapping("/edition-factures/{id}/{invoiceDate}")
+    public ResponseEntity<Void> delete(@PathVariable Long id, @PathVariable LocalDate invoiceDate) {
+        editionService.deleteFacture(new FactureItemId(id, invoiceDate));
         return ResponseEntity.noContent().build();
     }
 
-    @GetMapping("/edition-factures/reglement/groupes/{id}")
-    public ResponseEntity<List<FacturationGroupeDossier>> getGroupReglementData(@PathVariable Long id, Pageable pageable) {
-        Page<FacturationGroupeDossier> page = editionService.findGroupeFactureReglementData(id, pageable);
+    @GetMapping("/edition-factures/reglement/groupes/{id}/{invoiceDate}")
+    public ResponseEntity<List<FacturationGroupeDossier>> getGroupReglementData(
+        @PathVariable Long id,
+        @PathVariable LocalDate invoiceDate,
+        Pageable pageable
+    ) {
+        Page<FacturationGroupeDossier> page = editionService.findGroupeFactureReglementData(new FactureItemId(id, invoiceDate), pageable);
         HttpHeaders headers = PaginationUtil.generatePaginationHttpHeaders(ServletUriComponentsBuilder.fromCurrentRequest(), page);
         return ResponseEntity.ok().headers(headers).body(page.getContent());
     }
 
-    @GetMapping("/edition-factures/reglement/single/{id}")
-    public ResponseEntity<List<FacturationDossier>> getReglementData(@PathVariable Long id, Pageable pageable) {
-        Page<FacturationDossier> page = editionService.findFactureReglementData(id, pageable);
+    @GetMapping("/edition-factures/reglement/single/{id}/{invoiceDate}")
+    public ResponseEntity<List<FacturationDossier>> getReglementData(
+        @PathVariable Long id,
+        @PathVariable LocalDate invoiceDate,
+        Pageable pageable
+    ) {
+        Page<FacturationDossier> page = editionService.findFactureReglementData(new FactureItemId(id, invoiceDate), pageable);
         HttpHeaders headers = PaginationUtil.generatePaginationHttpHeaders(ServletUriComponentsBuilder.fromCurrentRequest(), page);
         return ResponseEntity.ok().headers(headers).body(page.getContent());
     }
 
-    @GetMapping("/edition-factures/reglement/{id}")
+    @GetMapping("/edition-factures/reglement/{id}/{invoiceDate}")
     public ResponseEntity<DossierFactureProjection> findDossierFacture(
         @PathVariable Long id,
+        @PathVariable LocalDate invoiceDate,
         @RequestParam(name = "isGroup", required = false, defaultValue = "false") Boolean isGroup
     ) {
-        return ResponseEntity.ok().body(editionService.findDossierFacture(id, isGroup));
+        return ResponseEntity.ok().body(editionService.findDossierFacture(new FactureItemId(id, invoiceDate), isGroup));
     }
 }

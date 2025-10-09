@@ -7,6 +7,7 @@ import moment from 'moment';
 import { SERVER_API_URL } from 'app/app.constants';
 import { createRequestOption } from 'app/shared/util/request-util';
 import { ISalesLine } from 'app/shared/model/sales-line.model';
+import { SaleId } from '../../shared/model/sales.model';
 
 type EntityResponseType = HttpResponse<ISalesLine>;
 type EntityArrayResponseType = HttpResponse<ISalesLine[]>;
@@ -15,8 +16,8 @@ type EntityArrayResponseType = HttpResponse<ISalesLine[]>;
 export class SalesLineService {
   protected http = inject(HttpClient);
 
-  public resourceUrl = SERVER_API_URL + 'api/sales-lines';
-  public saleUrl = SERVER_API_URL + 'api/sales';
+  private readonly resourceUrl = SERVER_API_URL + 'api/sales-lines';
+  private readonly saleUrl = SERVER_API_URL + 'api/sales';
 
   create(salesLine: ISalesLine): Observable<EntityResponseType> {
     const copy = this.convertDateFromClient(salesLine);
@@ -39,22 +40,20 @@ export class SalesLineService {
       .pipe(map((res: EntityArrayResponseType) => this.convertDateArrayFromServer(res)));
   }
 
-
-  queryBySale(id?: number): Observable<EntityArrayResponseType> {
+  queryBySale(saleId?: SaleId): Observable<EntityArrayResponseType> {
     return this.http
-      .get<ISalesLine[]>(`${this.resourceUrl}/${id}`, { observe: 'response' })
+      .get<ISalesLine[]>(`${this.resourceUrl}/${saleId.id}/${saleId.saleDate}`, { observe: 'response' })
       .pipe(map((res: EntityArrayResponseType) => this.convertDateArrayFromServer(res)));
   }
 
-  protected convertDateFromClient(salesLine: ISalesLine): ISalesLine {
-    const copy: ISalesLine = Object.assign({}, salesLine, {
+  private convertDateFromClient(salesLine: ISalesLine): ISalesLine {
+    return Object.assign({}, salesLine, {
       createdAt: salesLine.createdAt && salesLine.createdAt.isValid() ? salesLine.createdAt.toJSON() : undefined,
-      updatedAt: salesLine.updatedAt && salesLine.updatedAt.isValid() ? salesLine.updatedAt.toJSON() : undefined
+      updatedAt: salesLine.updatedAt && salesLine.updatedAt.isValid() ? salesLine.updatedAt.toJSON() : undefined,
     });
-    return copy;
   }
 
-  protected convertDateFromServer(res: EntityResponseType): EntityResponseType {
+  private convertDateFromServer(res: EntityResponseType): EntityResponseType {
     if (res.body) {
       res.body.createdAt = res.body.createdAt ? moment(res.body.createdAt) : undefined;
       res.body.updatedAt = res.body.updatedAt ? moment(res.body.updatedAt) : undefined;
@@ -62,7 +61,7 @@ export class SalesLineService {
     return res;
   }
 
-  protected convertDateArrayFromServer(res: EntityArrayResponseType): EntityArrayResponseType {
+  private convertDateArrayFromServer(res: EntityArrayResponseType): EntityArrayResponseType {
     if (res.body) {
       res.body.forEach((salesLine: ISalesLine) => {
         salesLine.createdAt = salesLine.createdAt ? moment(salesLine.createdAt) : undefined;

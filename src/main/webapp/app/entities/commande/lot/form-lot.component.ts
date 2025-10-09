@@ -1,6 +1,12 @@
 import { HttpErrorResponse, HttpResponse } from '@angular/common/http';
 import { Component, inject, OnInit, viewChild } from '@angular/core';
-import { FormBuilder, FormControl, FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
+import {
+  FormBuilder,
+  FormControl,
+  FormsModule,
+  ReactiveFormsModule,
+  Validators
+} from '@angular/forms';
 import { Observable } from 'rxjs';
 import { ILot, Lot } from '../../../shared/model/lot.model';
 import { LotService } from './lot.service';
@@ -33,16 +39,16 @@ import { Card } from 'primeng/card';
     InputTextModule,
     DatePicker,
     ToastAlertComponent,
-    Card
-  ]
+    Card,
+  ],
 })
 export class FormLotComponent implements OnInit {
   header = 'Ajout de lot';
-  protected fb = inject(FormBuilder);
-  protected isSaving = false;
   entity?: ILot;
   deliveryItem?: AbstractOrderItem;
   commandeId?: number;
+  protected fb = inject(FormBuilder);
+  protected isSaving = false;
   protected numLotAlreadyExist = false;
   protected maxDate = new Date();
   protected minDate = new Date();
@@ -51,20 +57,20 @@ export class FormLotComponent implements OnInit {
     id: new FormControl<number | null>(null, {}),
     numLot: new FormControl<string | null>(null, {
       validators: [Validators.required],
-      nonNullable: true
+      nonNullable: true,
     }),
     expiryDate: new FormControl<Date | null>(null, {
-      validators: [Validators.required]
+      validators: [Validators.required],
     }),
     ugQuantityReceived: new FormControl<number | null>(null, {
-      validators: [Validators.min(0)]
+      validators: [Validators.min(0)],
     }),
     quantityReceived: new FormControl<number | null>(null, {
       validators: [Validators.required, Validators.min(0)],
-      nonNullable: true
+      nonNullable: true,
     }),
 
-    manufacturingDate: new FormControl<Date | null>(null)
+    manufacturingDate: new FormControl<Date | null>(null),
   });
   private readonly primeNGConfig = inject(PrimeNG);
   private readonly translate = inject(TranslateService);
@@ -103,7 +109,7 @@ export class FormLotComponent implements OnInit {
       quantityReceived: entity.quantityReceived,
       expiryDate: entity.expiryDate ? new Date(entity.expiryDate) : null,
       manufacturingDate: entity.manufacturingDate ? new Date(entity.manufacturingDate) : null,
-      ugQuantityReceived: entity.ugQuantityReceived
+      ugQuantityReceived: entity.ugQuantityReceived,
     });
   }
 
@@ -125,7 +131,6 @@ export class FormLotComponent implements OnInit {
     const quantity = Number(event.target.value);
     const maxQuantity = this.getValidLotQuantity();
     if (quantity > maxQuantity) {
-
       this.alert().showError(`La quantité saisie ne peut être supérieure à ${maxQuantity}`);
     }
   }
@@ -142,7 +147,6 @@ export class FormLotComponent implements OnInit {
     const quantity = Number(event.target.value);
     const maxQuantity = this.getValidLotUgQuantity();
     if (quantity > maxQuantity) {
-
       this.alert().showError(`La quantité ug saisie ne peut être supérieure à ${maxQuantity}`);
     }
   }
@@ -150,7 +154,7 @@ export class FormLotComponent implements OnInit {
   protected subscribeToSaveResponse(result: Observable<HttpResponse<ILot>>): void {
     result.subscribe({
       next: (res: HttpResponse<ILot>) => this.onSaveSuccess(res.body),
-      error: (err) => this.onSaveError(err)
+      error: err => this.onSaveError(err),
     });
   }
 
@@ -176,7 +180,7 @@ export class FormLotComponent implements OnInit {
         : null,
       quantityReceived: this.editForm.get(['quantityReceived']).value,
       ugQuantityReceived: this.editForm.get(['ugQuantityReceived']).value,
-      receiptItemId: this.deliveryItem?.id
+      receiptItemId: this.deliveryItem?.orderLineId,
     };
   }
 

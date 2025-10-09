@@ -18,6 +18,8 @@ import com.kobe.warehouse.service.errors.PrivilegeException;
 import com.kobe.warehouse.service.errors.SaleNotFoundCustomerException;
 import com.kobe.warehouse.service.errors.StockException;
 import com.kobe.warehouse.service.sale.dto.FinalyseSaleDTO;
+import java.time.LocalDate;
+import java.util.List;
 
 public interface SaleService {
     SaleLineDTO updateSaleLine(SaleLineDTO saleLine);
@@ -62,4 +64,6 @@ public interface SaleService {
     void processDiscount(UpdateSaleInfo updateSaleInfo);
 
     void removeRemiseFromCashSale(SaleId saleId);
+
+    List<SaleLineDTO> findBySalesIdAndSalesSaleDateOrderByProduitLibelle(Long salesId, LocalDate saleDate);
 }

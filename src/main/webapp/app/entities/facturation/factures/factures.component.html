@@ -42,13 +42,16 @@
 
           <div class="p-1">
             <p-floatlabel>
-              <input [(ngModel)]="search" [style]="{ width: '150px' }" id="search" pInputText type="text" />
+              <input [(ngModel)]="search" [style]="{ width: '150px' }" id="search" pInputText
+                     type="text" />
               <label for="search">Rechercher par numéro</label>
             </p-floatlabel>
           </div>
           <div class="p-1">
 
-            <p-select dataKey="code" [(ngModel)]="statut" (onChange)="onSearch()" size="large" [fluid]="true"  [options]="statuts" optionValue="code" optionLabel="value"
+            <p-select (onChange)="onSearch()" [(ngModel)]="statut" [fluid]="true"
+                      [options]="statuts"
+                      dataKey="code" optionLabel="value" optionValue="code" size="large"
             >
 
             </p-select>
@@ -57,14 +60,14 @@
             <div class="p-1">
               <p-floatlabel>
                 <p-autoComplete
-                  id="groupeTiersPayants"
-                  inputId="groupeTiersPayants"
                   (completeMethod)="searchGroupTiersPayant($event)"
                   [(ngModel)]="selectedGroupeTiersPayants"
                   [forceSelection]="true"
                   [multiple]="true"
                   [suggestions]="groupeTiersPayants"
                   appendTo="body"
+                  id="groupeTiersPayants"
+                  inputId="groupeTiersPayants"
                   optionLabel="name"
                 >
                 </p-autoComplete>
@@ -75,14 +78,14 @@
             <div class="p-1">
               <p-floatlabel>
                 <p-autoComplete
-                  id="tiersPayantId"
-                  inputId="tiersPayantId"
                   (completeMethod)="searchTiersPayant($event)"
                   [(ngModel)]="selectedTiersPayants"
                   [forceSelection]="true"
                   [minQueryLength]="minLength"
                   [multiple]="true"
                   [suggestions]="tiersPayants"
+                  id="tiersPayantId"
+                  inputId="tiersPayantId"
                   optionLabel="fullName"
                 >
                 </p-autoComplete>
@@ -103,7 +106,8 @@
           />
         </div>
         <div [hidden]="true" class="p-1">
-          <p-splitbutton [model]="btnExports" [raised]="true" icon="pi pi-file-export" label="Exporter"
+          <p-splitbutton [model]="btnExports" [raised]="true" icon="pi pi-file-export"
+                         label="Exporter"
                          pTooltip="Exporter" severity="help" />
         </div>
       </ng-template>
@@ -119,16 +123,16 @@
         [paginator]="true"
         [rowsPerPageOptions]="[10, 15, 20, 30, 50]"
         [rows]="itemsPerPage"
+        [stripedRows]="true"
         [totalRecords]="totalItems"
         [value]="datas"
         dataKey="factureId"
         selectionMode="single"
-        [stripedRows]="true"
       >
         <ng-template #header>
           <tr>
             <th scope="col"><span>Num</span></th>
-            <th scope="col"><span>Tiers-payant</span></th>
+            <th scope="col"><span>Tiers payant</span></th>
             <th scope="col"><span>Période</span></th>
             <th scope="col">Nbre Dossiers</th>
             <th scope="col">Montant Brut</th>
@@ -141,13 +145,13 @@
             <th scope="col"></th>
           </tr>
         </ng-template>
-        <ng-template let-columns="columns" let-elRow #body>
+        <ng-template #body let-elRow>
           <tr [pEditableRow]="elRow" [pSelectableRow]="elRow">
             <td>{{ elRow.numFacture }}</td>
             <td>{{ elRow.tiersPayantName }}</td>
             <td>{{ elRow.periode }}</td>
             <td class="text-right">{{ elRow.itemsCount | number }}</td>
-            <td class="text-right">{{ elRow.montantAttendu | number }}</td>
+            <td class="text-right">{{ elRow.montant | number }}</td>
             <td class="text-right">{{ elRow.montantRemiseVente | number }}</td>
             <td class="text-right">{{ elRow.remiseForfetaire | number }}</td>
             <td class="text-right">{{ elRow.montantNet | number }}</td>
@@ -158,21 +162,21 @@
               <div class="btn-group" role="group">
                 @if (factureGroup) {
                   <p-button
-                    [text]="true"
+                    (click)="onOpenGroupeDetail(elRow)"
                     [rounded]="true"
+                    [text]="true"
                     icon="pi pi-eye"
                     pTooltip="Voir détail"
                     severity="info"
-                    (click)="onOpenGroupeDetail(elRow)"
                   />
                 } @else {
                   <p-button
-                    [text]="true"
+                    (click)="onOpenDetail(elRow)"
                     [rounded]="true"
+                    [text]="true"
                     icon="pi pi-eye"
                     pTooltip="Voir détail"
                     severity="info"
-                    (click)="onOpenDetail(elRow)"
                   />
                 }
 
@@ -180,17 +184,17 @@
                   @if (factureGroup) {
                     <p-button
                       [rounded]="true"
+                      [routerLink]="['/reglement-facture', elRow.factureItemId.id,elRow.factureItemId.invoiceDate, 'groupes', 'faire-reglement']"
                       [text]="true"
                       icon="pi pi-credit-card"
-                      [routerLink]="['/reglement-facture', elRow.factureId, 'groupes', 'faire-reglement']"
                       pTooltip="Régler"
                       severity="success"
                     />
                   } @else {
                     <p-button
                       [rounded]="true"
+                      [routerLink]="['/reglement-facture',elRow.factureItemId.id,elRow.factureItemId.invoiceDate, 'individuelle', 'faire-reglement']"
                       [text]="true"
-                      [routerLink]="['/reglement-facture', elRow.factureId, 'individuelle', 'faire-reglement']"
                       icon="pi pi-credit-card"
                       pTooltip="Régler"
                       severity="success"
@@ -198,10 +202,10 @@
                   }
                 }
                 <p-button
+                  (click)="exportPdf(elRow.factureItemId)"
+                  [loading]="exporting"
                   [rounded]="true"
                   [text]="true"
-                  [loading]="exporting"
-                  (click)="exportPdf(elRow.factureId)"
                   icon="pi pi-file-pdf"
                   pTooltip="Exporter en Pdf"
                   severity="warn"
@@ -209,12 +213,12 @@
 
                 @if (elRow.statut === 'NOT_PAID') {
                   <p-button
+                    (click)="onDelete(elRow.factureItemId)"
                     [rounded]="true"
                     [text]="true"
                     icon="pi pi-trash"
                     pTooltip="Supprimer"
                     severity="danger"
-                    (click)="onDelete(elRow.factureId)"
                   />
                 }
               </div>

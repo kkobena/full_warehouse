@@ -9,28 +9,23 @@ import { TooltipModule } from 'primeng/tooltip';
 import { IOrderLine } from '../../../../shared/model/order-line.model';
 import { Subject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
-import { ConfirmDialogComponent } from '../../../../shared/dialog/confirm-dialog/confirm-dialog.component';
 import { ToastAlertComponent } from '../../../../shared/toast-alert/toast-alert.component';
 import { NgbActiveModal, NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { ErrorService } from '../../../../shared/error.service';
 import { HttpErrorResponse } from '@angular/common/http';
 import { showCommonModal } from '../../../sales/selling-home/sale-helper';
 import { Card } from 'primeng/card';
+import { ConfirmationService } from 'primeng/api';
+import { acceptButtonProps, rejectButtonProps } from '../../../../shared/util/modal-button-props';
+import { ConfirmDialog } from 'primeng/confirmdialog';
 
 @Component({
   selector: 'jhi-list-lot',
   templateUrl: './list-lot.component.html',
   styleUrls: ['../../../common-modal.component.scss'],
+  providers: [ConfirmationService],
 
-  imports: [
-    WarehouseCommonModule,
-    ButtonModule,
-    TooltipModule,
-    TableModule,
-    ConfirmDialogComponent,
-    ToastAlertComponent,
-    Card
-  ]
+  imports: [WarehouseCommonModule, ButtonModule, TooltipModule, TableModule, ToastAlertComponent, Card, ConfirmDialog],
 })
 export class ListLotComponent implements OnInit, OnDestroy {
   lots: ILot[] = [];
@@ -45,8 +40,7 @@ export class ListLotComponent implements OnInit, OnDestroy {
   private readonly alert = viewChild.required<ToastAlertComponent>('alert');
   private readonly errorService = inject(ErrorService);
   private readonly activeModal = inject(NgbActiveModal);
-  private readonly confimDialog = viewChild.required<ConfirmDialogComponent>('confirmDialog');
-
+  private readonly confirmationService = inject(ConfirmationService);
   ngOnInit(): void {
     this.lots = this.deliveryItem.lots;
     this.showAddBtn();
@@ -86,15 +80,24 @@ export class ListLotComponent implements OnInit, OnDestroy {
   }
 
   private confirmDialog(lot: ILot): void {
-    this.confimDialog().onConfirm(() => {
-      this.entityService.remove(lot.id).pipe(takeUntil(this.destroy$)).subscribe({
-        next: () => {
-          this.removeLotFromLotsArray(lot);
-        },
-        error: err => this.onSaveError(err)
-      });
-    }, 'Suppression', 'Voullez-vous supprimer ce lot ?');
-
+    this.confirmationService.confirm({
+      message: 'Voullez-vous supprimer ce lot  ?',
+      header: 'Suppression',
+      icon: 'pi pi-info-circle',
+      rejectButtonProps: rejectButtonProps(),
+      acceptButtonProps: acceptButtonProps(),
+      accept: () => {
+        this.entityService
+          .remove(lot.id)
+          .pipe(takeUntil(this.destroy$))
+          .subscribe({
+            next: () => {
+              this.removeLotFromLotsArray(lot);
+            },
+            error: err => this.onSaveError(err),
+          });
+      },
+    });
   }
 
   private removeLotFromLotsArray(lot: ILot): void {
@@ -112,9 +115,9 @@ export class ListLotComponent implements OnInit, OnDestroy {
         entity,
         deliveryItem: this.deliveryItem,
         header,
-        commandeId: this.commandeId
+        commandeId: this.commandeId,
       },
-      (updateLot) => {
+      updateLot => {
         if (updateLot) {
           if (entity) {
             this.removeLotFromLotsArray(entity);
@@ -124,7 +127,7 @@ export class ListLotComponent implements OnInit, OnDestroy {
           this.showAddBtn();
         }
       },
-      'lg'
+      'lg',
     );
   }
 }

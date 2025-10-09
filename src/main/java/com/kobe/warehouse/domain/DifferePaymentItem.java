@@ -6,20 +6,14 @@ import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
-import jakarta.persistence.IdClass;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.JoinColumns;
 import jakarta.persistence.ManyToOne;
-import jakarta.persistence.PostLoad;
-import jakarta.persistence.PrePersist;
 import jakarta.persistence.Table;
-import jakarta.persistence.Transient;
 import jakarta.validation.constraints.NotNull;
 import java.io.Serial;
 import java.io.Serializable;
-import java.time.LocalDate;
 import java.util.Objects;
-import org.springframework.data.domain.Persistable;
 
 /**
  * A DifferePaymentItem.
@@ -50,10 +44,12 @@ public class DifferePaymentItem implements Serializable {
 
     @ManyToOne(optional = false, fetch = FetchType.LAZY)
     @NotNull
-    @JoinColumns({
-        @JoinColumn(name = "differe_payment_id", referencedColumnName = "id"),
-        @JoinColumn(name = "transaction_date", referencedColumnName = "transaction_date")
-    })
+    @JoinColumns(
+        {
+            @JoinColumn(name = "differe_payment_id", referencedColumnName = "id"),
+            @JoinColumn(name = "differe_payment_transaction_date", referencedColumnName = "transaction_date"),
+        }
+    )
     private DifferePayment differePayment;
 
     public Long getId() {

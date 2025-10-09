@@ -3,6 +3,7 @@ create sequence revinfo_seq
 
 alter sequence revinfo_seq owner to warehouse;
 
+
 create table authority
 (
   name    varchar(50) not null
@@ -409,7 +410,7 @@ create table commande
   ht_amount                      integer,
   order_amount                   integer,
   order_reference                varchar(20),
-  order_status                   varchar(10)  not null
+  order_status                   varchar(255) not null
     constraint commande_order_status_check
       check ((order_status)::text = ANY
              ((ARRAY ['REQUESTED'::character varying, 'RECEIVED'::character varying, 'CLOSED'::character varying])::text[])),
@@ -432,8 +433,8 @@ create table commande
     constraint fkro08of7obw2mwehrxc5ueous4
       references app_user,
   primary key (id, order_date),
-  constraint uk61ev37mxhvp6daoqsh7s10ok1
-    unique (receipt_reference, fournisseur_id, order_date)
+  constraint uk6qonv1tc6fovev339nhglmgox
+    unique (receipt_reference, fournisseur_id, order_date, order_status)
 ) PARTITION BY RANGE (order_date);
 
 alter table commande
@@ -990,7 +991,7 @@ create table sales
   statut                          varchar(255) not null
     constraint sales_statut_check
       check ((statut)::text = ANY
-             ((ARRAY ['PROCESSING'::character varying, 'PENDING'::character varying, 'CLOSED'::character varying, 'ACTIVE'::character varying, 'DESABLED'::character varying, 'CANCELED'::character varying, 'REMOVE'::character varying])::text[])),
+             ((ARRAY ['PROCESSING'::character varying, 'PENDING'::character varying, 'CLOSED'::character varying, 'ACTIVE'::character varying, 'DESABLED'::character varying, 'CANCELED'::character varying, 'REMOVED'::character varying])::text[])),
   to_ignore                       boolean      not null,
   tvaembeded                      varchar(100),
   type_prescription               varchar(15)  not null
@@ -1055,96 +1056,6 @@ create table sales
 
 alter table sales
   owner to warehouse;
-
-create table payment_transaction
-(
-  dtype                   varchar(31)  not null
-    constraint payment_transaction_dtype_check
-      check ((dtype)::text = ANY
-             ((ARRAY ['PaymentTransaction'::character varying, 'AccountTransaction'::character varying, 'DefaultPayment'::character varying, 'DifferePayment'::character varying, 'InvoicePayment'::character varying, 'PaymentFournisseur'::character varying, 'SalePayment'::character varying])::text[])),
-  id                      bigint       not null,
-  transaction_date        date         not null,
-  categorie_ca            varchar(255) not null
-    constraint payment_transaction_categorie_ca_check
-      check ((categorie_ca)::text = ANY
-             ((ARRAY ['CA'::character varying, 'CA_DEPOT'::character varying, 'CALLEBASE'::character varying, 'TO_IGNORE'::character varying])::text[])),
-  commentaire             varchar(255),
-  created_at              timestamp(6) not null,
-  credit                  boolean      not null,
-  expected_amount         integer      not null,
-  montant_verse           integer      not null,
-  paid_amount             integer      not null,
-  reel_amount             integer      not null,
-  type_transaction        varchar(255) not null
-    constraint payment_transaction_type_transaction_check
-      check ((type_transaction)::text = ANY
-             ((ARRAY ['CASH_SALE'::character varying, 'CREDIT_SALE'::character varying, 'VENTES_DEPOTS'::character varying, 'VENTES_DEPOTS_AGREE'::character varying, 'REGLEMENT_DIFFERE'::character varying, 'REGLEMENT_TIERS_PAYANT'::character varying, 'SORTIE_CAISSE'::character varying, 'ENTREE_CAISSE'::character varying, 'FONDS_CAISSE'::character varying, 'REGLMENT_FOURNISSEUR'::character varying, 'CAUTION'::character varying])::text[])),
-  grouped                 boolean,
-  part_assure             integer default 0,
-  part_tiers_payant       integer default 0,
-  banque_id               bigint
-    constraint fkisvg65ny10fvvwvvwl5w5kged
-      references banque,
-  cash_register_id        bigint       not null
-    constraint fkgq9ocwvjtdlt49fd0vhibjd4t
-      references cash_register,
-  payment_mode_code       varchar(50)  not null
-    constraint fkllqlbjskwsugxh20pc7h43wd3
-      references payment_mode,
-  account_id              bigint
-    constraint fk823dgt89dnv33jbhorxi0c1q7
-      references customer_account,
-  differecustomer_id      bigint
-    constraint fk8byn1yh1bq27ebr0a0xld90sx
-      references customer,
-  facture_tierspayant_id  bigint,
-  parent_id               bigint,
-  parent_transaction_date date,
-  commande_id             bigint,
-  commande_order_date     date,
-  sale_id                 bigint,
-  sale_date               date,
-  primary key (id, transaction_date),
-  constraint fka8far4p67shjrlvfu5ewq7gjg
-    foreign key (parent_id, parent_transaction_date) references payment_transaction,
-  constraint fk8f4joagtb7of30jrwvqtcv6k6
-    foreign key (commande_id, commande_order_date) references commande,
-  constraint fk8ygywq9q2tisrq6am9y3gj0r0
-    foreign key (sale_id, sale_date) references sales,
-  constraint payment_transaction_check
-    check (((dtype)::text <> 'InvoicePayment'::text) OR (grouped IS NOT NULL))
-) PARTITION BY RANGE (transaction_date);
-
-alter table payment_transaction
-  owner to warehouse;
-
-create table differe_payment_item
-(
-  id                 bigint generated by default as identity
-    primary key,
-  expected_amount    integer not null,
-  paid_amount        integer not null,
-  differe_payment_id bigint  not null,
-  transaction_date   date    not null,
-  sale_id            bigint  not null,
-  sale_sale_date     date    not null,
-  constraint fkdx6bsotuj1kf2g4qfupqhw8xs
-    foreign key (differe_payment_id, transaction_date) references payment_transaction,
-  constraint fkjnm480tag7d9vhoyqjgo2bg6r
-    foreign key (sale_id, sale_sale_date) references sales
-);
-
-alter table differe_payment_item
-  owner to warehouse;
-
-create index pt_categorie_ca_id_index
-  on payment_transaction (categorie_ca);
-
-create index pt_type_transaction_index
-  on payment_transaction (type_transaction);
-
-create index pt_transaction_date_index
-  on payment_transaction (transaction_date);
 
 create index vente_dtype_index
   on sales (dtype);
@@ -1223,7 +1134,8 @@ create table ajust
   date_mtv    timestamp(6) not null,
   statut      varchar(255) not null
     constraint ajust_statut_check
-      check ((statut)::text = ANY ((ARRAY ['PENDING'::character varying, 'CLOSED'::character varying])::text[])),
+      check ((statut)::text = ANY
+             ((ARRAY ['PENDING'::character varying, 'CLOSED'::character varying])::text[])),
   storage_id  bigint       not null
     constraint fkbkc3o0mx6q4799rpbpgcd0e89
       references storage,
@@ -1300,7 +1212,8 @@ create table suggestion
   created_at           timestamp(6) not null,
   statut               varchar(15)
     constraint suggestion_statut_check
-      check ((statut)::text = ANY ((ARRAY ['OPEN'::character varying, 'CLOSED'::character varying])::text[])),
+      check ((statut)::text = ANY
+             ((ARRAY ['OPEN'::character varying, 'CLOSED'::character varying])::text[])),
   suggession_reference varchar(255),
   type_suggession      varchar(10)
     constraint suggestion_type_suggession_check
@@ -1476,38 +1389,38 @@ create index client_statut_index
 
 create table facture_tiers_payant
 (
-  id                                          bigint       not null,
-  invoice_date                                date         not null,
-  created                                     timestamp(6) not null,
-  debutperiode                                date,
-  factureprovisoire                           boolean      not null,
-  finperiode                                  date,
-  montant_regle                               integer,
-  num_facture                                 varchar(20)  not null,
-  remiseforfetaire                            integer      not null,
-  statut                                      varchar(255) not null
+  id                                       bigint       not null,
+  invoice_date                             date         not null,
+  created                                  timestamp(6) not null,
+  debutperiode                             date,
+  factureprovisoire                        boolean      not null,
+  finperiode                               date,
+  montant_regle                            integer,
+  num_facture                              varchar(20)  not null,
+  remiseforfetaire                         integer      not null,
+  statut                                   varchar(255) not null
     constraint facture_tiers_payant_statut_check
       check ((statut)::text = ANY
              ((ARRAY ['PAID'::character varying, 'NOT_PAID'::character varying, 'PARTIALLY_PAID'::character varying])::text[])),
-  updated                                     timestamp(6),
-  groupe_facture_tiers_payant_id              bigint,
-  groupe_facture_tiers_payant_id_invoice_date date,
-  groupe_tiers_payant_id                      bigint
+  updated                                  timestamp(6),
+  groupe_facture_tiers_payant_id           bigint,
+  groupe_facture_tiers_payant_invoice_date date,
+  groupe_tiers_payant_id                   bigint
     constraint fkku32lbuahnuhx7f249jglins9
       references groupe_tiers_payant,
-  tiers_payant_id                             bigint
+  tiers_payant_id                          bigint
     constraint fk64mvu1jd0r3m57m1dil45h40p
       references tiers_payant,
-  user_id                                     bigint       not null
+  user_id                                  bigint       not null
     constraint fkj9kenliu2tun2h4adfuw5ysos
       references app_user,
   primary key (id, invoice_date),
   constraint ukdt73aahuxv495c5fyqdlk9w2l
     unique (num_facture, invoice_date),
-  constraint fk6nsx3atr4q4tob9cqsstiya9x
+  constraint fk7xhr3xi8007aq0d7eate41j5o
     foreign key (groupe_facture_tiers_payant_id,
-                 groupe_facture_tiers_payant_id_invoice_date) references facture_tiers_payant
-)PARTITION BY RANGE (invoice_date);
+                 groupe_facture_tiers_payant_invoice_date) references facture_tiers_payant
+) PARTITION BY RANGE (invoice_date);
 
 alter table facture_tiers_payant
   owner to warehouse;
@@ -1517,6 +1430,99 @@ create index num_facture_index
 
 create index invoice_date_index
   on facture_tiers_payant (invoice_date);
+
+create table payment_transaction
+(
+  dtype                            varchar(31)  not null
+    constraint payment_transaction_dtype_check
+      check ((dtype)::text = ANY
+             ((ARRAY ['PaymentTransaction'::character varying, 'AccountTransaction'::character varying, 'DefaultPayment'::character varying, 'DifferePayment'::character varying, 'InvoicePayment'::character varying, 'PaymentFournisseur'::character varying, 'SalePayment'::character varying])::text[])),
+  id                               bigint       not null,
+  transaction_date                 date         not null,
+  categorie_ca                     varchar(255) not null
+    constraint payment_transaction_categorie_ca_check
+      check ((categorie_ca)::text = ANY
+             ((ARRAY ['CA'::character varying, 'CA_DEPOT'::character varying, 'CALLEBASE'::character varying, 'TO_IGNORE'::character varying])::text[])),
+  commentaire                      varchar(255),
+  created_at                       timestamp(6) not null,
+  credit                           boolean      not null,
+  expected_amount                  integer      not null,
+  montant_verse                    integer      not null,
+  paid_amount                      integer      not null,
+  reel_amount                      integer      not null,
+  type_transaction                 varchar(255) not null
+    constraint payment_transaction_type_transaction_check
+      check ((type_transaction)::text = ANY
+             ((ARRAY ['CASH_SALE'::character varying, 'CREDIT_SALE'::character varying, 'VENTES_DEPOTS'::character varying, 'VENTES_DEPOTS_AGREE'::character varying, 'REGLEMENT_DIFFERE'::character varying, 'REGLEMENT_TIERS_PAYANT'::character varying, 'SORTIE_CAISSE'::character varying, 'ENTREE_CAISSE'::character varying, 'FONDS_CAISSE'::character varying, 'REGLMENT_FOURNISSEUR'::character varying, 'CAUTION'::character varying])::text[])),
+  grouped                          boolean,
+  part_assure                      integer default 0,
+  part_tiers_payant                integer default 0,
+  banque_id                        bigint
+    constraint fkisvg65ny10fvvwvvwl5w5kged
+      references banque,
+  cash_register_id                 bigint       not null
+    constraint fkgq9ocwvjtdlt49fd0vhibjd4t
+      references cash_register,
+  payment_mode_code                varchar(50)  not null
+    constraint fkllqlbjskwsugxh20pc7h43wd3
+      references payment_mode,
+  account_id                       bigint
+    constraint fk823dgt89dnv33jbhorxi0c1q7
+      references customer_account,
+  differecustomer_id               bigint
+    constraint fk8byn1yh1bq27ebr0a0xld90sx
+      references customer,
+  facture_tierspayant_id           bigint,
+  facture_tierspayant_invoice_date date,
+  parent_id                        bigint,
+  parent_transaction_date          date,
+  commande_id                      bigint,
+  commande_order_date              date,
+  sale_id                          bigint,
+  sale_date                        date,
+  primary key (id, transaction_date),
+  constraint fkjr3gwj35rtcx1caanle73yog
+    foreign key (facture_tierspayant_id, facture_tierspayant_invoice_date) references facture_tiers_payant,
+  constraint fka8far4p67shjrlvfu5ewq7gjg
+    foreign key (parent_id, parent_transaction_date) references payment_transaction,
+  constraint fk8f4joagtb7of30jrwvqtcv6k6
+    foreign key (commande_id, commande_order_date) references commande,
+  constraint fk8ygywq9q2tisrq6am9y3gj0r0
+    foreign key (sale_id, sale_date) references sales,
+  constraint payment_transaction_check
+    check (((dtype)::text <> 'InvoicePayment'::text) OR (grouped IS NOT NULL))
+) PARTITION BY RANGE (transaction_date);
+
+alter table payment_transaction
+  owner to warehouse;
+
+create table differe_payment_item
+(
+  id                               bigint generated by default as identity
+    primary key,
+  expected_amount                  integer not null,
+  paid_amount                      integer not null,
+  differe_payment_id               bigint  not null,
+  differe_payment_transaction_date date    not null,
+  sale_id                          bigint  not null,
+  sale_sale_date                   date    not null,
+  constraint fk9j5n3uk2eoevn961cymckddi1
+    foreign key (differe_payment_id, differe_payment_transaction_date) references payment_transaction,
+  constraint fkjnm480tag7d9vhoyqjgo2bg6r
+    foreign key (sale_id, sale_sale_date) references sales
+);
+
+alter table differe_payment_item
+  owner to warehouse;
+
+create index pt_categorie_ca_id_index
+  on payment_transaction (categorie_ca);
+
+create index pt_type_transaction_index
+  on payment_transaction (type_transaction);
+
+create index pt_transaction_date_index
+  on payment_transaction (transaction_date);
 
 create table third_party_sale_line
 (
@@ -1554,17 +1560,17 @@ alter table third_party_sale_line
 
 create table invoice_payment_item
 (
-  id                              bigint  not null,
-  transaction_date                date    not null,
-  montant_attendu                 integer not null,
-  montant_paye                    integer not null,
-  invoice_payment_id              bigint  not null,
-  invoicepayment_transaction_date date    not null,
-  third_party_sale_line_id        bigint  not null,
-  third_party_sale_sale_date      date    not null,
+  id                               bigint  not null,
+  transaction_date                 date    not null,
+  montant_attendu                  integer not null,
+  montant_paye                     integer not null,
+  invoice_payment_id               bigint  not null,
+  invoice_payment_transaction_date date    not null,
+  third_party_sale_line_id         bigint  not null,
+  third_party_sale_sale_date       date    not null,
   primary key (id, transaction_date),
-  constraint fkmyyc14070ymb6yw2k8d6pt77f
-    foreign key (invoice_payment_id, invoicepayment_transaction_date) references payment_transaction,
+  constraint fk7t8sw8mnqeav633k0devth3u
+    foreign key (invoice_payment_id, invoice_payment_transaction_date) references payment_transaction,
   constraint fk4mna1evppauqmlghj8a9vybi
     foreign key (third_party_sale_line_id, third_party_sale_sale_date) references third_party_sale_line
 ) PARTITION BY RANGE (transaction_date);
@@ -1747,6 +1753,12 @@ create table produit
   constraint ukhaaprmfc9pf1bp3n5g9dnkx91
     unique (libelle, type_produit)
 );
+
+comment on column produit.code_remise is 'Code de remise qui seront mappés sur les grilles de remises';
+
+comment on column produit.seuil_decond is 'seuil minimun du detail en point de vente pour declencher un deconditionnement';
+
+comment on column produit.seuil_reassort is 'seuil minimun en point de vente pour declencher un reassort';
 
 alter table produit
   owner to warehouse;

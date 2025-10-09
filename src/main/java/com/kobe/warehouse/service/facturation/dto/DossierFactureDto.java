@@ -1,5 +1,6 @@
 package com.kobe.warehouse.service.facturation.dto;
 
+import com.kobe.warehouse.domain.AssuranceSaleId;
 import com.kobe.warehouse.service.dto.AssuredCustomerDTO;
 import java.time.LocalDateTime;
 
@@ -11,6 +12,7 @@ public class DossierFactureDto {
     private String numBon;
     private int montantVente;
     private int montantBon;
+    private AssuranceSaleId assuranceSaleId;
 
     public AssuredCustomerDTO getAssuredCustomer() {
         return assuredCustomer;
@@ -54,6 +56,15 @@ public class DossierFactureDto {
 
     public DossierFactureDto setMontantVente(int montantVente) {
         this.montantVente = montantVente;
+        return this;
+    }
+
+    public AssuranceSaleId getAssuranceSaleId() {
+        return assuranceSaleId;
+    }
+
+    public DossierFactureDto setAssuranceSaleId(AssuranceSaleId assuranceSaleId) {
+        this.assuranceSaleId = assuranceSaleId;
         return this;
     }
 

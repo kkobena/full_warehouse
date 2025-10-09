@@ -1,3 +1,5 @@
 package com.kobe.warehouse.service.reglement.dto;
 
-public record ResponseReglementDTO(Long id, boolean total) {}
+import com.kobe.warehouse.domain.PaymentId;
+
+public record ResponseReglementDTO(PaymentId id, boolean total) {}

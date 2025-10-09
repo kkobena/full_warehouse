@@ -16,11 +16,10 @@ import com.kobe.warehouse.service.id_generator.TransactionIdGeneratorService;
 import com.kobe.warehouse.service.reglement.dto.LigneSelectionnesDTO;
 import com.kobe.warehouse.service.reglement.dto.ReglementParam;
 import com.kobe.warehouse.service.reglement.dto.ResponseReglementDTO;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
-
 import java.util.ArrayList;
 import java.util.List;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @Transactional
@@ -61,7 +60,7 @@ public class ReglementGroupeSelectionFactureService extends AbstractReglementSer
         if (ligneSelectionnes.isEmpty()) {
             throw new GenericError("Aucun dossiers à regler");
         }
-        FactureTiersPayant factureTiersPayant = this.facturationRepository.findFactureTiersPayantById(reglementParam.getId()).orElseThrow();
+        FactureTiersPayant factureTiersPayant = this.facturationRepository.getReferenceById(reglementParam.getId());
 
         InvoicePayment invoicePayment = super.buildInvoicePayment(factureTiersPayant, reglementParam);
         invoicePayment.setGrouped(true);
@@ -83,7 +82,7 @@ public class ReglementGroupeSelectionFactureService extends AbstractReglementSer
                 montantVerse = 0;
             }
             montantPaye += itemAmount;
-            FactureTiersPayant facture = this.facturationRepository.findFactureTiersPayantById(item.getId()).orElseThrow();
+            FactureTiersPayant facture = this.facturationRepository.getReferenceById(item.getId());
             var invoicePaymentItem = this.reglementFactureSelectionneesService.doReglement(invoicePayment, facture, itemAmount, item);
             invoicePayments.add(invoicePaymentItem);
         }
@@ -100,6 +99,6 @@ public class ReglementGroupeSelectionFactureService extends AbstractReglementSer
             item.setParent(invoicePayment);
         }
         super.saveInvoicePayments(invoicePayments);
-        return new ResponseReglementDTO(invoicePayment.getId().getId(), factureTiersPayant.getStatut() == InvoiceStatut.PAID);
+        return new ResponseReglementDTO(invoicePayment.getId(), factureTiersPayant.getStatut() == InvoiceStatut.PAID);
     }
 }

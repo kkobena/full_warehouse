@@ -26,10 +26,9 @@ import { InputIcon } from 'primeng/inputicon';
     CommonModule,
     FormsModule,
     IconField,
-    InputIcon
+    InputIcon,
   ],
   templateUrl: './groupe-facture-detail.component.html',
-  styles: ``
 })
 export class GroupeFactureDetailComponent implements OnInit {
   readonly groupeFacture = input<Facture | null>(null);
@@ -44,7 +43,7 @@ export class GroupeFactureDetailComponent implements OnInit {
 
   ngOnInit(): void {
     this.groupeFactureSignal.set(this.groupeFacture());
-    this.factureService.find(this.groupeFactureSignal().factureId).subscribe((res: HttpResponse<Facture>) => {
+    this.factureService.find(this.groupeFactureSignal().factureItemId).subscribe((res: HttpResponse<Facture>) => {
       this.groupeFactureSignal.set(res.body);
     });
   }

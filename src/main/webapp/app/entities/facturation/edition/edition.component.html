@@ -12,12 +12,12 @@
 
         <p-datePicker
           [(ngModel)]="modelStartDate"
+          [fluid]="true"
           [selectOtherMonths]="true"
           [showButtonBar]="true"
           [showIcon]="true"
           dateFormat="dd/mm/yy"
           id="startDate"
-          [fluid]="true"
           inputId="startDate"
         />
       </div>
@@ -25,10 +25,10 @@
         <label class="form-label" for="endDate">Date de fin</label>
         <p-datePicker
           [(ngModel)]="modelEndDate"
+          [fluid]="true"
           [selectOtherMonths]="true"
           [showButtonBar]="true"
           [showIcon]="true"
-          [fluid]="true"
           dateFormat="dd/mm/yy"
           id="endDate"
           inputId="endDate"
@@ -37,20 +37,24 @@
 
       <div class="mb-3">
         <label class="form-label" for="endDate">Sélectionner le mode d'édition</label>
-        <p-select size="large" [fluid]="true" (onChange)="onModeEditionChange()" [(ngModel)]="modeEdition" id="modeEdition"  [options]="modeEditions" optionLabel="value" optionValue="code" dataKey="code">
+        <p-select (onChange)="onModeEditionChange()" [(ngModel)]="modeEdition" [fluid]="true"
+                  [options]="modeEditions" dataKey="code" id="modeEdition"
+                  optionLabel="value" optionValue="code" size="large">
         </p-select>
-       <!-- <select (change)="onModeEditionChange()" [(ngModel)]="modeEdition" class="form-select"
-                id="modeEdition">
-          <option selected value="ALL"></option>
-          @for (mode of modeEditions; track mode.code) {
-            <option [ngValue]="mode.code">{{ mode.value }}</option>
-          }
-        </select>-->
+        <!-- <select (change)="onModeEditionChange()" [(ngModel)]="modeEdition" class="form-select"
+                 id="modeEdition">
+           <option selected value="ALL"></option>
+           @for (mode of modeEditions; track mode.code) {
+             <option [ngValue]="mode.code">{{ mode.value }}</option>
+           }
+         </select>-->
       </div>
       @if (modeEdition === 'TYPE') {
         <div class="mb-3">
-          <label class="form-label" for="typeTiersPayant">Types tiers-payant</label>
-          <p-select size="large" [fluid]="true"  [(ngModel)]="typeTiersPayant" id="typeTiersPayant"  [options]="typeTiersPayants" optionLabel="value" optionValue="code" dataKey="code">
+          <label class="form-label" for="typeTiersPayant">Types tiers payant</label>
+          <p-select [(ngModel)]="typeTiersPayant" [fluid]="true" [options]="typeTiersPayants" dataKey="code"
+                    id="typeTiersPayant" optionLabel="value" optionValue="code"
+                    size="large">
           </p-select>
 
         </div>
@@ -65,11 +69,11 @@
             [forceSelection]="true"
             [inputStyle]="{ width: '100%' }"
             [minQueryLength]="minLength"
+            [multiple]="true"
             [style]="{ width: '100%' }"
             [suggestions]="groupeTiersPayants"
             appendTo="body"
             id="groupeTiersPayantId"
-            [multiple]="true"
             optionLabel="name"
             placeholder="Taper pour rechercher"
 
@@ -80,7 +84,7 @@
 
       @if (modeEdition === 'TIERS_PAYANT') {
         <div class="mb-3">
-          <label class="form-label" for="tiersPayants">Tiers-payants</label>
+          <label class="form-label" for="tiersPayants">Tiers payants</label>
 
           <p-autoComplete
             (completeMethod)="searchTiersPayant($event)"
@@ -88,11 +92,11 @@
             [forceSelection]="true"
             [inputStyle]="{ width: '100%' }"
             [minQueryLength]="minLength"
+            [multiple]="true"
             [style]="{ width: '100%' }"
             [suggestions]="tiersPayants"
             appendTo="body"
             id="tiersPayants"
-            [multiple]="true"
             optionLabel="fullName"
             placeholder="Taper pour rechercher"
           >
@@ -119,10 +123,10 @@
           [rowsPerPageOptions]="[15, 20, 30, 50]"
           [rows]="itemsPerPage"
           [showCurrentPageReport]="false"
+          [stripedRows]="true"
           [totalRecords]="totalItems"
           [value]="tiersPayantDossierFactures"
           dataKey="id"
-          [stripedRows]="true"
         >
           <ng-template #caption>
             <div class="d-flex align-items-end justify-content-end">
@@ -143,7 +147,7 @@
             </tr>
           </ng-template>
 
-          <ng-template let-data #body>
+          <ng-template #body let-data>
             <tr>
               <td>
                 {{ data.name }}
@@ -170,15 +174,15 @@
           [rowsPerPageOptions]="[15, 20, 30, 50]"
           [rows]="itemsPerPage"
           [showCurrentPageReport]="false"
+          [stripedRows]="true"
           [totalRecords]="totalItems"
           [value]="dossierFactures"
           dataKey="id"
-          styleClass="p-datatable-sm p-datatable-gridlines"
         >
           <ng-template #caption>
             <div class="d-flex align-items-center justify-content-between">
               <p-iconfield>
-                <p-inputicon styleClass="pi pi-search" />
+                <p-inputicon class="pi pi-search" />
                 <input (input)="bonDt.filterGlobal($event.target.value, 'contains')" pInputText
                        placeholder="Rechercher..." type="text" />
               </p-iconfield>
@@ -199,7 +203,7 @@
               </th>
             </tr>
           </ng-template>
-          <ng-template let-dossier #body>
+          <ng-template #body let-dossier>
             <tr>
               <td>{{ dossier.assuredCustomer.firstName }} {{ dossier.assuredCustomer.lastName }}</td>
               <td>

@@ -13,6 +13,13 @@ import com.kobe.warehouse.domain.enumeration.TypeVente;
 import com.kobe.warehouse.service.financiel_transaction.dto.SaleInfo;
 import com.kobe.warehouse.service.reglement.differe.dto.ClientDiffere;
 import jakarta.persistence.criteria.CriteriaBuilder.In;
+import java.math.BigDecimal;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.util.EnumSet;
+import java.util.List;
+import java.util.Optional;
+import java.util.Set;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
@@ -24,14 +31,6 @@ import org.springframework.stereotype.Repository;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
 
-import java.math.BigDecimal;
-import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.util.EnumSet;
-import java.util.List;
-import java.util.Optional;
-import java.util.Set;
-
 /**
  * Spring Data repository for the Sales entity.
  */
@@ -42,7 +41,6 @@ public interface SalesRepository extends JpaSpecificationExecutor<Sales>, JpaRep
     Optional<Sales> findOneWithEagerSalesLines(@Param("id") Long id, @Param("saleDate") LocalDate saleDate);
 
     List<Sales> findSalesByIdIn(Set<Long> ids);
-
 
     @Query(
         "SELECT o.numberTransaction AS reference,c.firstName AS customerFirstName,c.lastName AS customerLastName   FROM Sales o LEFT JOIN o.customer c  WHERE o.id =:id AND o.saleDate =:saleDate"
@@ -59,17 +57,14 @@ public interface SalesRepository extends JpaSpecificationExecutor<Sales>, JpaRep
     )
     BigDecimal getDiffereSoldeByCustomerId(Long customerId);
 
-    @Query(
-        value = "SELECT sales_summary_json(:startDate, :endDate, :statuts,:caterorieChiffreAffaire)",
-        nativeQuery = true
-    )
+    @Query(value = "SELECT sales_summary_json(:startDate, :endDate, :statuts,:caterorieChiffreAffaire)", nativeQuery = true)
     String fetchSalesSummary(
         @Param("startDate") LocalDate startDate,
         @Param("endDate") LocalDate endDate,
         @Param("statuts") String[] statuts,
         @Param("caterorieChiffreAffaire") String[] caterorieChiffreAffaire
-
     );
+
     @Query(
         value = "SELECT rapport_activite_vente_report(:startDate, :endDate, :statuts,:caterorieChiffreAffaire,:excludeFreeQty,:toIgnore)",
         nativeQuery = true
@@ -83,11 +78,7 @@ public interface SalesRepository extends JpaSpecificationExecutor<Sales>, JpaRep
         @Param("toIgnore") boolean toIgnore
     );
 
-
-    @Query(
-        value = "SELECT sales_summary_by_type_json(:startDate, :endDate, :statuts,:caterorieChiffreAffaire)",
-        nativeQuery = true
-    )
+    @Query(value = "SELECT sales_summary_by_type_json(:startDate, :endDate, :statuts,:caterorieChiffreAffaire)", nativeQuery = true)
     String fetchSalesSummaryByTypeVente(
         @Param("startDate") LocalDate startDate,
         @Param("endDate") LocalDate endDate,
@@ -133,6 +124,7 @@ public interface SalesRepository extends JpaSpecificationExecutor<Sales>, JpaRep
         @Param("excludeFreeQty") boolean excludeFreeQty,
         @Param("toIgnore") boolean toIgnore
     );
+
     @Query(
         value = "SELECT tableau_pharmacien_report(:startDate, :endDate, :statuts,:caterorieChiffreAffaire,:excludeFreeQty,:toIgnore)",
         nativeQuery = true
@@ -158,6 +150,9 @@ public interface SalesRepository extends JpaSpecificationExecutor<Sales>, JpaRep
         @Param("excludeFreeQty") boolean excludeFreeQty,
         @Param("toIgnore") boolean toIgnore
     );
+
+    @Query(value = "SELECT fetch_product_quantity_sold_json(:startDate, :endDate)", nativeQuery = true)
+    String fetchProductQuantitySold(@Param("startDate") LocalDate startDate, @Param("endDate") LocalDate endDate);
 
     default Specification<Sales> filterByCustomerId(Long customerId) {
         if (customerId == null) {

@@ -1,7 +1,7 @@
 package com.kobe.warehouse.service.dto;
 
 import com.kobe.warehouse.domain.Lot;
-import com.kobe.warehouse.domain.OrderLine;
+import com.kobe.warehouse.domain.OrderLineId;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
@@ -15,7 +15,7 @@ public class LotDTO {
 
     private String receiptReference;
 
-    private Long receiptItemId;
+    private OrderLineId receiptItemId;
 
     private Integer quantity;
 
@@ -71,11 +71,11 @@ public class LotDTO {
         return this;
     }
 
-    public Long getReceiptItemId() {
+    public OrderLineId getReceiptItemId() {
         return receiptItemId;
     }
 
-    public LotDTO setReceiptItemId(Long receiptItemId) {
+    public LotDTO setReceiptItemId(OrderLineId receiptItemId) {
         this.receiptItemId = receiptItemId;
         return this;
     }
@@ -145,11 +145,8 @@ public class LotDTO {
 
     public Lot toEntity() {
         var ug = Optional.ofNullable(freeQty).orElse(0);
-        var orderLine = new OrderLine();
-        orderLine.setId(receiptItemId);
         return new Lot()
             .setNumLot(numLot)
-            .setOrderLine(orderLine)
             .setExpiryDate(expiryDate)
             .setManufacturingDate(manufacturingDate)
             .setQuantity(quantityReceived + ug)

@@ -1,17 +1,19 @@
 package com.kobe.warehouse.service.reglement.dto;
 
+import com.kobe.warehouse.domain.FactureItemId;
+
 public class LigneSelectionnesDTO {
 
-    private long id;
+    private FactureItemId id;
     private int montantVerse;
     private int montantAttendu;
     private int montantFacture;
 
-    public long getId() {
+    public FactureItemId getId() {
         return id;
     }
 
-    public LigneSelectionnesDTO setId(long id) {
+    public LigneSelectionnesDTO setId(FactureItemId id) {
         this.id = id;
         return this;
     }

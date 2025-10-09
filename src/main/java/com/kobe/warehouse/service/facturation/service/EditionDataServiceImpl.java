@@ -2,6 +2,7 @@ package com.kobe.warehouse.service.facturation.service;
 
 import com.kobe.warehouse.domain.AssuredCustomer;
 import com.kobe.warehouse.domain.ClientTiersPayant;
+import com.kobe.warehouse.domain.FactureItemId;
 import com.kobe.warehouse.domain.FactureTiersPayant;
 import com.kobe.warehouse.domain.GroupeTiersPayant;
 import com.kobe.warehouse.domain.Sales;
@@ -116,7 +117,7 @@ public class EditionDataServiceImpl implements EditionDataService {
     }
 
     @Override
-    public void deleteFacture(Long id) {
+    public void deleteFacture(FactureItemId id) {
         FactureTiersPayant factureTiersPayant = getFactureTiersPayant(id);
         if (Objects.nonNull(factureTiersPayant)) {
             resetThirdPartySaleLines(factureTiersPayant);
@@ -140,12 +141,12 @@ public class EditionDataServiceImpl implements EditionDataService {
     }
 
     @Override
-    public Optional<FactureDtoWrapper> getFacture(Long id) {
+    public Optional<FactureDtoWrapper> getFacture(FactureItemId id) {
         return Optional.ofNullable(buildFactureDtoWrapper(getFactureTiersPayant(id)));
     }
 
     @Override
-    public void deleteFacture(Set<Long> ids) {
+    public void deleteFacture(Set<FactureItemId> ids) {
         List<FactureTiersPayant> factureTiersPayants = this.facturationRepository.findAll(this.facturationRepository.fetchByIs(ids));
         factureTiersPayants.forEach(t -> {
             List<ThirdPartySaleLine> thirdPartySaleLines = t.getFacturesDetails();
@@ -159,8 +160,8 @@ public class EditionDataServiceImpl implements EditionDataService {
     }
 
     @Override
-    public FactureTiersPayant getFactureTiersPayant(Long id) {
-        return this.facturationRepository.findFactureTiersPayantById(id).orElse(null);
+    public FactureTiersPayant getFactureTiersPayant(FactureItemId id) {
+        return this.facturationRepository.getReferenceById(id);
     }
 
     @Override
@@ -192,7 +193,7 @@ public class EditionDataServiceImpl implements EditionDataService {
     }
 
     @Override
-    public Resource printToPdf(Long id) {
+    public Resource printToPdf(FactureItemId id) {
         FactureTiersPayant factureTiersPayant = getFactureTiersPayant(id);
         if (Objects.nonNull(factureTiersPayant.getTiersPayant())) {
             return this.facturationReportService.printToPdf(factureTiersPayant);
@@ -201,21 +202,21 @@ public class EditionDataServiceImpl implements EditionDataService {
     }
 
     @Override
-    public Page<FacturationGroupeDossier> findGroupeFactureReglementData(Long id, Pageable pageable) {
-        return this.facturationRepository.findGroupeFactureById(id, pageable);
+    public Page<FacturationGroupeDossier> findGroupeFactureReglementData(FactureItemId id, Pageable pageable) {
+        return this.facturationRepository.findGroupeFactureById(id.getId(), id.getInvoiceDate(), pageable);
     }
 
     @Override
-    public Page<FacturationDossier> findFactureReglementData(Long id, Pageable pageable) {
-        return this.facturationRepository.findFacturationDossierByFactureId(id, pageable);
+    public Page<FacturationDossier> findFactureReglementData(FactureItemId id, Pageable pageable) {
+        return this.facturationRepository.findFacturationDossierByFactureId(id.getId(), id.getInvoiceDate(), pageable);
     }
 
     @Override
-    public DossierFactureProjection findDossierFacture(Long id, boolean isGroup) {
+    public DossierFactureProjection findDossierFacture(FactureItemId id, boolean isGroup) {
         if (isGroup) {
-            return this.facturationRepository.findGroupDossierFacture(id);
+            return this.facturationRepository.findGroupDossierFacture(id.getId(), id.getInvoiceDate());
         }
-        return this.facturationRepository.findSingleDossierFacture(id);
+        return this.facturationRepository.findSingleDossierFacture(id.getId(), id.getInvoiceDate());
     }
 
     private Specification<ThirdPartySaleLine> buildFetchSpecification(EditionSearchParams editionSearchParams) {
@@ -258,6 +259,7 @@ public class EditionDataServiceImpl implements EditionDataService {
         AssuredCustomer assuredCustomer = (AssuredCustomer) sales.getCustomer();
         return new DossierFactureDto()
             .setId(thirdPartySaleLine.getId().getId())
+            .setAssuranceSaleId(thirdPartySaleLine.getId())
             .setNumBon(thirdPartySaleLine.getNumBon())
             .setCreatedAt(sales.getUpdatedAt())
             .setMontantBon(thirdPartySaleLine.getMontant())
@@ -276,6 +278,7 @@ public class EditionDataServiceImpl implements EditionDataService {
     private GroupeFactureDto buildGroupeFactureDtoFromEntity(FactureTiersPayant factureTiersPayant) {
         GroupeTiersPayant groupeTiersPayant = factureTiersPayant.getGroupeTiersPayant();
         GroupeFactureDto groupeFactureDto = new GroupeFactureDto();
+        groupeFactureDto.setFactureItemId(factureTiersPayant.getId());
         groupeFactureDto.setName(groupeTiersPayant.getName());
         groupeFactureDto.setTelephone(groupeTiersPayant.getTelephone());
         groupeFactureDto.setAdresse(groupeTiersPayant.getAdresse());
@@ -288,6 +291,7 @@ public class EditionDataServiceImpl implements EditionDataService {
             .sorted(Comparator.comparing(f -> f.getId().getId()))
             .map(fact -> {
                 FactureDto factureDto = new FactureDto();
+                factureDto.setFactureItemId(fact.getId());
                 TiersPayant tiersPayant = fact.getTiersPayant();
                 factureDto.setFactureId(fact.getId().getId());
                 factureDto.setTiersPayantName(tiersPayant.getFullName());
@@ -321,6 +325,7 @@ public class EditionDataServiceImpl implements EditionDataService {
         GroupeTiersPayant groupeTiersPayant = factureTiersPayant.getGroupeTiersPayant();
 
         GroupeFactureDto groupeFactureDto = new GroupeFactureDto();
+        groupeFactureDto.setFactureItemId(factureTiersPayant.getId());
         groupeFactureDto.setDebutPeriode(factureTiersPayant.getDebutPeriode());
         groupeFactureDto.setFinPeriode(factureTiersPayant.getFinPeriode());
         groupeFactureDto.setName(groupeTiersPayant.getName());
@@ -358,6 +363,7 @@ public class EditionDataServiceImpl implements EditionDataService {
 
     private FactureDto buildFactureDto(FactureTiersPayant factureTiersPayant) {
         FactureDto factureDto = new FactureDto();
+        factureDto.setFactureItemId(factureTiersPayant.getId());
         TiersPayant tiersPayant = factureTiersPayant.getTiersPayant();
         factureDto.setFactureId(factureTiersPayant.getId().getId());
         factureDto.setTiersPayantName(tiersPayant.getFullName());
@@ -377,7 +383,7 @@ public class EditionDataServiceImpl implements EditionDataService {
             //                isCarnet = true;
             //            }
             montantVente += sales.getSalesAmount();
-            factureDto.setMontant(factureDto.getMontant() + thirdPartySaleLine.getMontant());
+            factureDto.setMontant(Objects.requireNonNullElse(factureDto.getMontant(), 0) + thirdPartySaleLine.getMontant());
             remiseVente += Objects.requireNonNullElse(sales.getDiscountAmount(), 0);
             montantPaye += Objects.requireNonNullElse(thirdPartySaleLine.getMontantRegle(), 0);
             factureDto.getItems().add(buildFromThirdPartySaleLine(thirdPartySaleLine, sales));
@@ -401,6 +407,8 @@ public class EditionDataServiceImpl implements EditionDataService {
         factureItemDto.setTaux(thirdPartySaleLine.getTaux());
         factureItemDto.setSaleNumber(sales.getNumberTransaction());
         factureItemDto.setSaleId(sales.getId().getId());
+        factureItemDto.setAssuranceSaleId(thirdPartySaleLine.getId());
+        factureItemDto.setComppsiteSaleId(sales.getId());
         factureItemDto.setStatut(thirdPartySaleLine.getStatut());
         factureItemDto.setMontantVente(sales.getSalesAmount());
         factureItemDto.setMontantRegle(Objects.requireNonNullElse(thirdPartySaleLine.getMontantRegle(), 0));

@@ -4,6 +4,7 @@ import jakarta.persistence.CascadeType;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.JoinColumn;
+import jakarta.persistence.JoinColumns;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
 import jakarta.validation.constraints.NotNull;
@@ -24,13 +25,24 @@ public class InvoicePayment extends PaymentTransaction implements Serializable {
 
     @NotNull
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "facture_tiersPayant_id", referencedColumnName = "id")
+    @JoinColumns(
+        {
+            @JoinColumn(name = "facture_tierspayant_id", referencedColumnName = "id"),
+            @JoinColumn(name = "facture_tierspayant_invoice_date", referencedColumnName = "invoice_date"),
+        }
+    )
     private FactureTiersPayant factureTiersPayant;
 
-    @OneToMany(mappedBy = "invoicePayment",fetch = FetchType.LAZY, cascade = { CascadeType.PERSIST, CascadeType.REMOVE })
+    @OneToMany(mappedBy = "invoicePayment", fetch = FetchType.LAZY, cascade = { CascadeType.PERSIST, CascadeType.REMOVE })
     private List<InvoicePaymentItem> invoicePaymentItems = new ArrayList<>();
 
     @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumns(
+        {
+            @JoinColumn(name = "parent_id", referencedColumnName = "id"),
+            @JoinColumn(name = "parent_transaction_date", referencedColumnName = "transaction_date"),
+        }
+    )
     private InvoicePayment parent;
 
     private boolean grouped;

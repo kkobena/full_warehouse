@@ -6,12 +6,8 @@ import com.kobe.warehouse.domain.InvoicePayment;
 import com.kobe.warehouse.domain.InvoicePayment_;
 import com.kobe.warehouse.domain.PaymentId;
 import com.kobe.warehouse.domain.TiersPayant_;
-import com.kobe.warehouse.service.dto.projection.ReglementTiersPayants;
 import java.time.LocalDate;
 import java.util.List;
-import java.util.Optional;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
@@ -21,9 +17,7 @@ import org.springframework.stereotype.Repository;
 
 @Repository
 public interface InvoicePaymentRepository extends JpaRepository<InvoicePayment, PaymentId>, JpaSpecificationExecutor<InvoicePayment> {
-    List<InvoicePayment> findInvoicePaymentByParentId(long parentId);
-
-    Optional<InvoicePayment> findInvoicePaymentById(Long paymentId);
+    List<InvoicePayment> findInvoicePaymentByParentIdAndParentTransactionDate(long parentId, LocalDate parentTransactionDate);
 
     default Specification<InvoicePayment> specialisationQueryString(String queryValue) {
         return (root, _, cb) ->
@@ -68,11 +62,7 @@ public interface InvoicePaymentRepository extends JpaRepository<InvoicePayment, 
         };
     }
 
-    @Query(
-        value = "SELECT find_reglement_tierspayant(:startDate, :endDate, :search,:offset,:limit)",
-        nativeQuery = true
-
-    )
+    @Query(value = "SELECT find_reglement_tierspayant(:startDate, :endDate, :search,:offset,:limit)", nativeQuery = true)
     String findReglementTierspayant(
         @Param("startDate") LocalDate fromDate,
         @Param("endDate") LocalDate toDate,

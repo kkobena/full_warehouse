@@ -1,16 +1,13 @@
 import { Component, inject, OnInit, viewChild } from '@angular/core';
 import { ISales } from '../../../shared/model/sales.model';
 import { SalesService } from '../sales.service';
-import { ConfirmationService } from 'primeng/api';
 import { WarehouseCommonModule } from '../../../shared/warehouse-common/warehouse-common.module';
 import { FormsModule } from '@angular/forms';
 import { TooltipModule } from 'primeng/tooltip';
 import { ButtonModule } from 'primeng/button';
 import { InputTextModule } from 'primeng/inputtext';
-import { RippleModule } from 'primeng/ripple';
 import { TableModule } from 'primeng/table';
 import { RouterModule } from '@angular/router';
-import { ConfirmDialogModule } from 'primeng/confirmdialog';
 import { ToolbarModule } from 'primeng/toolbar';
 import { IconField } from 'primeng/iconfield';
 import { InputIcon } from 'primeng/inputicon';
@@ -33,16 +30,15 @@ import { ConfirmDialogComponent } from '../../../shared/dialog/confirm-dialog/co
     IconField,
     InputIcon,
     Select,
-    ConfirmDialogComponent
-  ]
+    ConfirmDialogComponent,
+  ],
 })
 export class PresaleComponent implements OnInit {
-
   typeVentes: string[] = ['TOUT', 'VNO', 'VO'];
   typeVenteSelected = '';
   sales: ISales[] = [];
   search = '';
-  private readonly  salesService = inject(SalesService);
+  private readonly salesService = inject(SalesService);
   private readonly confimDialog = viewChild.required<ConfirmDialogComponent>('confirmDialog');
   ngOnInit(): void {
     this.typeVenteSelected = 'TOUT';
@@ -57,7 +53,7 @@ export class PresaleComponent implements OnInit {
     this.salesService
       .queryPrevente({
         search: this.search,
-        type: this.typeVenteSelected
+        type: this.typeVenteSelected,
       })
       .subscribe(res => {
         this.sales = res.body ?? [];
@@ -75,6 +71,6 @@ export class PresaleComponent implements OnInit {
   }
 
   confirmRemove(sale: ISales): void {
-    this.confimDialog().onConfirm( () => this.deletePrevente(sale), 'Suppression de pré-vente', 'Voulez-vous supprimer cette pré-vente ?');
+    this.confimDialog().onConfirm(() => this.deletePrevente(sale), 'Suppression de pré-vente', 'Voulez-vous supprimer cette pré-vente ?');
   }
 }

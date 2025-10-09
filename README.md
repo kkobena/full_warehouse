@@ -489,8 +489,11 @@ create database warehouse;
 
 CREATE USER warehouse WITH PASSWORD 'warehouse2802';
 GRANT ALL PRIVILEGES ON DATABASE warehouse TO warehouse;
+psql -U postgre -d warehouse
+psql -U postgre
 
-psql -U user -d warehouse
+create database warehouse;
+\c warehouse
 
 CREATE SCHEMA warehouse AUTHORIZATION warehouse;
 GRANT ALL PRIVILEGES ON SCHEMA warehouse TO warehouse;
@@ -504,3 +507,4 @@ GRANT ALL PRIVILEGES ON DATABASE warehouse TO warehouse;
 se connecter sur la bd warehouse
 CREATE SCHEMA warehouse AUTHORIZATION warehouse;
 GRANT ALL PRIVILEGES ON SCHEMA warehouse TO warehouse;
+\c warehouse pour se connecter sur la bd warehouse

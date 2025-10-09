@@ -1,0 +1,28 @@
+@use 'sass:color';
+
+$primary-color: #007bff;
+$success-color: #28a745;
+$info-color: #17a2b8;
+$light-gray: #f8f9fa;
+
+@function light-background($color) {
+  @return color.scale($color, $lightness: 95%);
+}
+
+:host {
+  .summary-card-vente {
+    background-color: light-background($success-color);
+  }
+
+  .summary-card-facture {
+    background-color: light-background($primary-color);
+  }
+
+  .summary-card-paye {
+    background-color: light-background($info-color);
+  }
+
+  .details-card {
+    background-color: $light-gray;
+  }
+}

@@ -1,13 +1,14 @@
 package com.kobe.warehouse.service.facturation.dto;
 
+import com.kobe.warehouse.domain.FactureItemId;
 import com.kobe.warehouse.domain.enumeration.InvoiceStatut;
-import org.springframework.util.StringUtils;
-
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
+import org.springframework.util.StringUtils;
 
 public class FactureDto extends FactureDtoWrapper {
 
@@ -36,12 +37,31 @@ public class FactureDto extends FactureDtoWrapper {
     private InvoiceStatut statut;
     private List<FactureItemDto> items;
 
-    public FactureDto() {
-    }
+    public FactureDto() {}
 
-    public FactureDto(LocalDateTime created, Long id, Long groupeFactureId, Integer montantRegle, Integer remiseForfetaire, LocalDate debutPeriode, InvoiceStatut statut, LocalDate finPeriode, Boolean factureProvisoire, String numFacture, String groupeNumFacture, String tiersPayantName, Integer montantVente, Integer montantRemiseVente, Integer itemMontantRegle, Long itemsCount, Integer montant) {
+    public FactureDto(
+        LocalDate invoiceDate,
+        LocalDateTime created,
+        Long id,
+        Long groupeFactureId,
+        Integer montantRegle,
+        Integer remiseForfetaire,
+        LocalDate debutPeriode,
+        InvoiceStatut statut,
+        LocalDate finPeriode,
+        Boolean factureProvisoire,
+        String numFacture,
+        String groupeNumFacture,
+        String tiersPayantName,
+        Integer montantVente,
+        Integer montantRemiseVente,
+        Integer itemMontantRegle,
+        Long itemsCount,
+        Integer montant
+    ) {
         this.created = created;
         this.factureId = id;
+        this.factureItemId = new FactureItemId(id, invoiceDate);
         this.groupeFactureId = groupeFactureId;
         this.montantRegle = montantRegle;
         this.remiseForfetaire = remiseForfetaire;
@@ -60,6 +80,7 @@ public class FactureDto extends FactureDtoWrapper {
     }
 
     public FactureDto(
+        LocalDate invoiceDate,
         Integer montantRegle,
         LocalDateTime created,
         Long id,
@@ -67,14 +88,14 @@ public class FactureDto extends FactureDtoWrapper {
         InvoiceStatut statut,
         LocalDate finPeriode,
         Boolean factureProvisoire,
-        String numFacture,
         String groupeNumFacture,
+        String tiersPayantName,
         Integer montantVente,
         Long itemsCount,
         Integer montant,
-        Integer montantNetVente,
         Integer montantRemiseVente
     ) {
+        this.factureItemId = new FactureItemId(id, invoiceDate);
         this.montantRegle = montantRegle;
         this.created = created;
         this.factureId = id;
@@ -82,12 +103,11 @@ public class FactureDto extends FactureDtoWrapper {
         this.statut = statut;
         this.finPeriode = finPeriode;
         this.factureProvisoire = factureProvisoire;
-        this.numFacture = numFacture;
+        this.tiersPayantName = tiersPayantName;
         this.groupeNumFacture = groupeNumFacture;
         this.montantVente = montantVente;
         this.itemsCount = itemsCount;
         this.montant = montant;
-        this.montantNetVente = montantNetVente;
         this.montantRemiseVente = montantRemiseVente;
     }
 
@@ -202,6 +222,7 @@ public class FactureDto extends FactureDtoWrapper {
     }
 
     public Integer getMontantNetVente() {
+        montantNetVente = Objects.requireNonNullElse(montantVente, 0) - Objects.requireNonNullElse(montantRemiseVente, 0);
         return montantNetVente;
     }
 
@@ -211,6 +232,7 @@ public class FactureDto extends FactureDtoWrapper {
     }
 
     public Integer getMontantNet() {
+        montantNet = Objects.requireNonNullElse(montant, 0) - Objects.requireNonNullElse(remiseForfetaire, 0);
         return montantNet;
     }
 
@@ -256,6 +278,7 @@ public class FactureDto extends FactureDtoWrapper {
     }
 
     public Integer getMontantRestant() {
+        montantRestant = Objects.requireNonNullElse(montantNet, 0) - Objects.requireNonNullElse(montantRegle, 0);
         return montantRestant;
     }
 
@@ -292,7 +315,6 @@ public class FactureDto extends FactureDtoWrapper {
     }
 
     public String getPeriode() {
-
         if (debutPeriode != null && finPeriode != null) {
             periode = "Du " + debutPeriode.format(formatter) + " au " + finPeriode.format(formatter);
         }
@@ -312,5 +334,4 @@ public class FactureDto extends FactureDtoWrapper {
         this.statut = statut;
         return this;
     }
-
 }

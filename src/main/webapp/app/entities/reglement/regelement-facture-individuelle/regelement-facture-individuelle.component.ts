@@ -1,18 +1,5 @@
-import {
-  Component,
-  computed,
-  effect,
-  inject,
-  input,
-  OnInit,
-  output,
-  signal,
-  viewChild
-} from '@angular/core';
-import {
-  DossierFactureProjection,
-  ReglementFactureDossier
-} from '../model/reglement-facture-dossier.model';
+import { Component, computed, effect, inject, input, OnInit, output, signal, viewChild } from '@angular/core';
+import { DossierFactureProjection, ReglementFactureDossier } from '../model/reglement-facture-dossier.model';
 import { ButtonModule } from 'primeng/button';
 import { TableHeaderCheckbox, TableModule } from 'primeng/table';
 import { WarehouseCommonModule } from '../../../shared/warehouse-common/warehouse-common.module';
@@ -22,16 +9,9 @@ import { TooltipModule } from 'primeng/tooltip';
 import { SplitButtonModule } from 'primeng/splitbutton';
 import { NgbAlertModule, NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { FieldsetModule } from 'primeng/fieldset';
-import {
-  DossierReglementInfoComponent
-} from '../dossier-reglement-info/dossier-reglement-info.component';
+import { DossierReglementInfoComponent } from '../dossier-reglement-info/dossier-reglement-info.component';
 import { ReglementFormComponent } from '../reglement-form/reglement-form.component';
-import {
-  ModeEditionReglement,
-  ReglementParams,
-  ResponseReglement,
-  SelectedFacture
-} from '../model/reglement.model';
+import { ModeEditionReglement, ReglementParams, ResponseReglement, SelectedFacture } from '../model/reglement.model';
 import { AlertInfoComponent } from '../../../shared/alert/alert-info.component';
 import { ErrorService } from '../../../shared/error.service';
 import { ReglementService } from '../reglement.service';
@@ -41,9 +21,8 @@ import { FactuesModalComponent } from '../factues-modal/factues-modal.component'
 import { Drawer } from 'primeng/drawer';
 import { IconField } from 'primeng/iconfield';
 import { InputIcon } from 'primeng/inputicon';
-import {
-  ConfirmDialogComponent
-} from '../../../shared/dialog/confirm-dialog/confirm-dialog.component';
+import { ConfirmDialogComponent } from '../../../shared/dialog/confirm-dialog/confirm-dialog.component';
+import { FactureId } from '../../facturation/facture.model';
 
 @Component({
   selector: 'jhi-regelement-facture-individuelle',
@@ -196,6 +175,7 @@ export class RegelementFactureIndividuelleComponent implements OnInit {
   }
 
   private buildReglementParams(params: ReglementParams): ReglementParams {
+    console.warn(params);
     return {
       ...params,
       mode: this.getModeEditionReglement(),
@@ -212,11 +192,16 @@ export class RegelementFactureIndividuelleComponent implements OnInit {
       this.reglementFormComponent().cashInput.setValue(null);
     } else {
       this.fetchFacture();
-      this.reload(this.dossierFactureProjection().id);
+      const factureId: FactureId = {
+        id: this.dossierFactureProjection().id,
+        invoiceDate: this.dossierFactureProjection().invoiceDate,
+      };
+
+      this.reload(factureId);
     }
   }
 
-  private reload(id: number): void {
+  private reload(id: FactureId): void {
     this.factureService
       .findDossierReglement(id, 'individuelle', {
         page: 0,
@@ -235,8 +220,9 @@ export class RegelementFactureIndividuelleComponent implements OnInit {
   }
 
   private fetchFacture(): void {
+    const factureId = this.dossierFactureProjection().factureItemId;
     this.factureService
-      .findDossierFactureProjection(this.dossierFactureProjection().id, {
+      .findDossierFactureProjection(factureId, {
         isGroup: false,
       })
       .subscribe(res => {

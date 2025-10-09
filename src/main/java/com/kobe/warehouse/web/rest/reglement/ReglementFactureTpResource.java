@@ -1,5 +1,6 @@
 package com.kobe.warehouse.web.rest.reglement;
 
+import com.kobe.warehouse.domain.PaymentId;
 import com.kobe.warehouse.service.reglement.ReglementRegistry;
 import com.kobe.warehouse.service.reglement.dto.InvoicePaymentDTO;
 import com.kobe.warehouse.service.reglement.dto.InvoicePaymentItemDTO;
@@ -57,30 +58,39 @@ public class ReglementFactureTpResource {
         );
     }
 
-    @GetMapping("/reglements/items/{idReglement}")
-    public ResponseEntity<List<InvoicePaymentItemDTO>> getItems(@PathVariable(name = "idReglement") long idReglement) {
-        return ResponseEntity.ok(this.reglementDataService.getInvoicePaymentsItems(idReglement));
+    @GetMapping("/reglements/items/{idReglement}/{transactionDate}")
+    public ResponseEntity<List<InvoicePaymentItemDTO>> getItems(
+        @PathVariable(name = "idReglement") long idReglement,
+        @PathVariable(name = "transactionDate") LocalDate transactionDate
+    ) {
+        return ResponseEntity.ok(this.reglementDataService.getInvoicePaymentsItems(new PaymentId(idReglement, transactionDate)));
     }
 
-    @GetMapping("/reglements/group/items/{idReglement}")
-    public ResponseEntity<List<InvoicePaymentDTO>> getGroupeItems(@PathVariable(name = "idReglement") long idReglement) {
-        return ResponseEntity.ok(this.reglementDataService.getInvoicePaymentsGroupItems(idReglement));
+    @GetMapping("/reglements/group/items/{idReglement}/{transactionDate}")
+    public ResponseEntity<List<InvoicePaymentDTO>> getGroupeItems(
+        @PathVariable(name = "idReglement") long idReglement,
+        @PathVariable(name = "transactionDate") LocalDate transactionDate
+    ) {
+        return ResponseEntity.ok(this.reglementDataService.getInvoicePaymentsGroupItems(new PaymentId(idReglement, transactionDate)));
     }
 
-    @GetMapping("/reglements/print-receipt/{idReglement}")
-    public ResponseEntity<Void> printReceipt(@PathVariable(name = "idReglement") long idReglement) {
-        this.reglementDataService.printReceipt(idReglement);
+    @GetMapping("/reglements/print-receipt/{idReglement}/{transactionDate}")
+    public ResponseEntity<Void> printReceipt(
+        @PathVariable(name = "idReglement") long idReglement,
+        @PathVariable(name = "transactionDate") LocalDate transactionDate
+    ) {
+        this.reglementDataService.printReceipt(new PaymentId(idReglement, transactionDate));
         return ResponseEntity.ok().build();
     }
 
-    @DeleteMapping("/reglements/{id}")
-    public ResponseEntity<Void> delete(@PathVariable Long id) {
-        this.reglementDataService.deleteReglement(id);
+    @DeleteMapping("/reglements/{id}/{transactionDate}")
+    public ResponseEntity<Void> delete(@PathVariable Long id, @PathVariable LocalDate transactionDate) {
+        this.reglementDataService.deleteReglement(new PaymentId(id, transactionDate));
         return ResponseEntity.noContent().build();
     }
 
     @DeleteMapping("/reglements/all")
-    public ResponseEntity<Void> deleteAll(@RequestParam(name = "ids") Set<Long> ids) {
+    public ResponseEntity<Void> deleteAll(@RequestParam(name = "ids") Set<PaymentId> ids) {
         this.reglementDataService.deleteReglement(ids);
         return ResponseEntity.noContent().build();
     }

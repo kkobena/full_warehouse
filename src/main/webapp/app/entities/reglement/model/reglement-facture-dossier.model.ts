@@ -1,3 +1,5 @@
+import { FactureId } from '../../facturation/facture.model';
+
 export class ReglementFactureDossier {
   id: number;
   montantPaye?: number;
@@ -16,6 +18,8 @@ export class ReglementFactureDossier {
   bonNumber?: string;
   groupe?: boolean;
   montantVerse?: number;
+  invoiceDate?: string;
+  parentInvoiceDate?: string;
 }
 
 export class DossierFactureProjection {
@@ -29,10 +33,12 @@ export class DossierFactureProjection {
   facturationDate?: Date;
   id?: number;
   montantVerse?: number;
+  invoiceDate?: string;
+  factureItemId: FactureId;
 }
 
 export class LigneSelectionnes {
-  id: number;
+  id: FactureId;
   montantVerse: number;
   montantAttendu: number;
 }

@@ -1,19 +1,19 @@
 package com.kobe.warehouse.service.stock.impl;
 
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.kobe.warehouse.constant.EntityConstant;
 import com.kobe.warehouse.domain.AppConfiguration;
 import com.kobe.warehouse.domain.Produit;
 import com.kobe.warehouse.domain.Produit_;
+import com.kobe.warehouse.repository.SalesRepository;
 import com.kobe.warehouse.service.AppConfigurationService;
+import com.kobe.warehouse.service.stock.dto.ProduitQuantitySold;
 import com.kobe.warehouse.service.utils.DateUtil;
 import jakarta.persistence.EntityManager;
-import jakarta.persistence.Query;
-import jakarta.persistence.TemporalType;
-import jakarta.persistence.Tuple;
 import jakarta.persistence.criteria.CriteriaBuilder;
 import jakarta.persistence.criteria.CriteriaUpdate;
 import jakarta.persistence.criteria.Root;
-import java.math.BigDecimal;
 import java.time.Duration;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -36,21 +36,26 @@ public class StockReapproServiceImpl {
     private final Logger log = LoggerFactory.getLogger(StockReapproServiceImpl.class);
     private final EntityManager entityManager;
     private final AppConfigurationService appConfigurationService;
-
     private final TransactionTemplate transactionTemplate;
+    private final SalesRepository salesRepository;
+    private final ObjectMapper objectMapper;
 
     public StockReapproServiceImpl(
         EntityManager entityManager,
         AppConfigurationService appConfigurationService,
-        TransactionTemplate transactionTemplate
+        TransactionTemplate transactionTemplate,
+        SalesRepository salesRepository,
+        ObjectMapper objectMapper
     ) {
         this.entityManager = entityManager;
         this.appConfigurationService = appConfigurationService;
 
         this.transactionTemplate = transactionTemplate;
+        this.salesRepository = salesRepository;
+        this.objectMapper = objectMapper;
     }
 
-  //   @Scheduled(cron = "0 0 9-11 * * *")
+    //   @Scheduled(cron = "0 0 9-11 * * *")
     @Scheduled(cron = "0 0/30 * * * *")
     public void computeStockReapprovisionnement() {
         Optional<AppConfiguration> appConfiguration = getLastReapproDate();
@@ -100,36 +105,20 @@ public class StockReapproServiceImpl {
             .forEach(tuple -> computeProduitQtyReappro(tuple, dailyNumberStock, nbLimit, denominateur));
     }
 
-    private List<Tuple> fetchProductAndQuantitySold(LocalDate threeMonthAgo, LocalDate lastMonth) {
-        String sqlQuery =
-            """
-            SELECT p.id,p.item_qty,(SELECT COALESCE(SUM(sl.quantity_sold),0) FROM sales_line sl,sales s WHERE sl.produit_id=p.id
-
-             AND  s.id=sl.sales_id AND s.statut='CLOSED' AND s.sale_date BETWEEN ?1 AND ?2
-
-            ) AS qtySold, (SELECT COALESCE(SUM(sl.quantity_sold),0) FROM sales_line sl,sales s,produit pd WHERE sl.produit_id=pd.id
-
-             AND  s.id=sl.sales_id AND s.statut='CLOSED' AND pd.type_produit='DETAIL' AND pd.parent_id=p.id AND s.sale_date BETWEEN ?3 AND ?4
-            ) AS itemQtySold FROM produit p where p.status='ENABLE' AND p.type_produit='PACKAGE'
-            """;
+    private List<ProduitQuantitySold> fetchProductAndQuantitySold(LocalDate threeMonthAgo, LocalDate lastMonth) {
         try {
-            Query q = entityManager.createNativeQuery(sqlQuery, Tuple.class);
-            q.setParameter(1, java.sql.Date.valueOf(threeMonthAgo), TemporalType.DATE);
-            q.setParameter(2, java.sql.Date.valueOf(lastMonth), TemporalType.DATE);
-            q.setParameter(3, java.sql.Date.valueOf(threeMonthAgo), TemporalType.DATE);
-            q.setParameter(4, java.sql.Date.valueOf(lastMonth), TemporalType.DATE);
-            return q.getResultList();
+            return objectMapper.readValue(salesRepository.fetchProductQuantitySold(threeMonthAgo, lastMonth), new TypeReference<>() {});
         } catch (Exception e) {
-            log.debug(null, e);
+            log.info(e.getMessage());
             return Collections.emptyList();
         }
     }
 
-    private void computeProduitQtyReappro(Tuple tuple, int dayStock, int delayReappro, double denominateurReappro) {
-        long id = tuple.get("id", Long.class).intValue();
-        int qtySold = tuple.get("qtySold", BigDecimal.class).intValue();
-        int itemQtySold = tuple.get("itemQtySold", BigDecimal.class).intValue();
-        int itemQty = tuple.get("item_qty", Integer.class);
+    private void computeProduitQtyReappro(ProduitQuantitySold tuple, int dayStock, int delayReappro, double denominateurReappro) {
+        long id = tuple.id();
+        int qtySold = tuple.qtySold();
+        int itemQtySold = tuple.itemQtySold();
+        int itemQty = tuple.itemQty();
         if (itemQtySold > 0) {
             qtySold = qtySold + ((int) Math.ceil(itemQtySold / (double) itemQty));
         }

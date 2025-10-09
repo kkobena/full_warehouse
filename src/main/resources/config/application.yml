@@ -1,5 +1,5 @@
 flyway:
-  enabled: true
+  enabled: false
   schemas: warehouse
   table: warehouse_history
 
@@ -8,7 +8,6 @@ spring:
   application:
     name: pharma-smart
   profiles:
-
     active: '@spring.profiles.active@'
 
   jmx:
@@ -135,36 +134,15 @@ server:
 springdoc:
   show-actuator: false
 
-# Properties to be exposed on the /info management endpoint
+
 info:
-  # Comma separated list of profiles that will trigger the ribbon to show
   display-ribbon-on-profiles: 'dev'
 
 
 pharma-smart:
   clientApp:
-    name: 'warehouseApp'
-  cache:
-    caffeine:
-      specs:
-        CURRENT_USER_CACHE:
-          time-to-live: 10m
-          max-size: 100
-        USER_STORAGE_CACHE:
-          time-to-live: 10m
-          max-size: 100
-        USER_RESERVE_STORAGE_CACHE:
-          time-to-live: 10m
-          max-size: 100
-        USER_MAIN_STORAGE_CACHE:
-          time-to-live: 10m
-          max-size: 100
-        CURRENT_USER_MAGASIN_CACHE:
-          time-to-live: 10m
-          max-size: 100
-        POINT_DE_VENTE_CACHE:
-          time-to-live: 10m
-          max-size: 100
+    name: 'pharma-smart'
+
 
 
 # application:

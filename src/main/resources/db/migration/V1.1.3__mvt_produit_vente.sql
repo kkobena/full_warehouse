@@ -31,14 +31,14 @@ BEGIN
                                          THEN 'S1'
                                        ELSE 'S2' END
                          WHEN 4 THEN to_char(s.sale_date, 'YYYY')
-                         END                                                                                         AS mvt_date,
-                       MIN(s.sale_date)                                                                              AS min_date,
+                         END                                            AS mvt_date,
+                       MIN(s.sale_date)                                 AS min_date,
                        CEIL(SUM((o.quantity_requested * o.regular_unit_price) /
-                                NULLIF(1 + (o.tax_value / 100), 0)))                                                 AS montant_ht,
-                       SUM(o.quantity_requested)                                                                     AS quantite,
-                       SUM(o.quantity_requested * o.cost_amount)                                                     AS montant_achat,
-                       SUM(o.quantity_requested * o.regular_unit_price)                                              AS montant_ttc,
-                       SUM(o.discount_amount)                                                                        AS montant_remise
+                                NULLIF(1 + (o.tax_value / 100), 0)))    AS montant_ht,
+                       SUM(o.quantity_requested)                        AS quantite,
+                       SUM(o.quantity_requested * o.cost_amount)        AS montant_achat,
+                       SUM(o.quantity_requested * o.regular_unit_price) AS montant_ttc,
+                       SUM(o.discount_amount)                           AS montant_remise
                 FROM sales_line o
                        JOIN sales s ON o.sales_id = s.id
                 WHERE o.sales_sale_date = s.sale_date
@@ -200,66 +200,54 @@ CREATE OR REPLACE FUNCTION get_historique_vente(
   RETURNS jsonb AS
 $$
 BEGIN
-  RETURN (
-    WITH data AS (
-      SELECT
-        s.updated_at,
-        s.number_transaction,
-        o.quantity_requested,
-        o.regular_unit_price,
-        CEIL((o.quantity_requested * o.regular_unit_price) /
-             NULLIF(1 + (o.tax_value / 100), 0))   AS ht_amount,
-        o.sales_amount,
-        o.discount_amount,
-        u.first_name,
-        u.last_name
-      FROM sales_line o
-             JOIN sales s ON o.sales_id = s.id
-             JOIN app_user u ON s.caissier_id = u.id
-      WHERE o.produit_id = p_produit_id
-        AND s.statut = ANY (p_statuts)
-        AND s.ca = ANY (p_cas)
-        AND o.sales_sale_date = s.sale_date
-        AND s.sale_date BETWEEN p_start_date AND p_end_date
-      ORDER BY s.updated_at DESC
-      LIMIT p_limit OFFSET p_offset
-    )
-    SELECT jsonb_build_object(
-             'totalElements', (
-        SELECT COUNT(*)
-        FROM sales_line o
-               JOIN sales s ON o.sales_id = s.id
-        WHERE o.produit_id = p_produit_id
-          AND s.statut = ANY (p_statuts)
-          AND s.ca = ANY (p_cas)
-          AND o.sales_sale_date = s.sale_date
-          AND s.sale_date BETWEEN p_start_date AND p_end_date
-      ),
-             'content', jsonb_agg(
-               jsonb_build_object(
-                 'mvtDate', data.updated_at,
-                 'reference', data.number_transaction,
-                 'quantite', data.quantity_requested,
-                 'prixUnitaire', data.regular_unit_price,
-                 'montantHt', data.ht_amount,
-                 'montantNet', data.sales_amount - data.discount_amount,
-                 'montantTtc', data.sales_amount,
-                 'montantRemise', data.discount_amount,
-                 'montantTva', data.sales_amount - data.ht_amount,
-                 'firstName', data.first_name,
-                 'lastName', data.last_name
-               )
-                        )
-           )
-    FROM data
-  );
+  RETURN (WITH data AS (SELECT s.updated_at,
+                               s.number_transaction,
+                               o.quantity_requested,
+                               o.regular_unit_price,
+                               CEIL((o.quantity_requested * o.regular_unit_price) /
+                                    NULLIF(1 + (o.tax_value / 100), 0)) AS ht_amount,
+                               o.sales_amount,
+                               o.discount_amount,
+                               u.first_name,
+                               u.last_name
+                        FROM sales_line o
+                               JOIN sales s ON o.sales_id = s.id
+                               JOIN app_user u ON s.caissier_id = u.id
+                        WHERE o.produit_id = p_produit_id
+                          AND s.statut = ANY (p_statuts)
+                          AND s.ca = ANY (p_cas)
+                          AND o.sales_sale_date = s.sale_date
+                          AND s.sale_date BETWEEN p_start_date AND p_end_date
+                        ORDER BY s.updated_at DESC
+                        LIMIT p_limit OFFSET p_offset)
+          SELECT jsonb_build_object(
+                   'totalElements', (SELECT COUNT(*)
+                                     FROM sales_line o
+                                            JOIN sales s ON o.sales_id = s.id
+                                     WHERE o.produit_id = p_produit_id
+                                       AND s.statut = ANY (p_statuts)
+                                       AND s.ca = ANY (p_cas)
+                                       AND o.sales_sale_date = s.sale_date
+                                       AND s.sale_date BETWEEN p_start_date AND p_end_date),
+                   'content', jsonb_agg(
+                     jsonb_build_object(
+                       'mvtDate', data.updated_at,
+                       'reference', data.number_transaction,
+                       'quantite', data.quantity_requested,
+                       'prixUnitaire', data.regular_unit_price,
+                       'montantHt', data.ht_amount,
+                       'montantNet', data.sales_amount - data.discount_amount,
+                       'montantTtc', data.sales_amount,
+                       'montantRemise', data.discount_amount,
+                       'montantTva', data.sales_amount - data.ht_amount,
+                       'firstName', data.first_name,
+                       'lastName', data.last_name
+                     )
+                              )
+                 )
+          FROM data);
 END;
 $$ LANGUAGE plpgsql STABLE;
 
 
-alter table commande
-  drop constraint IF EXISTS uk61ev37mxhvp6daoqsh7s10ok1;
 
-alter table commande
-  add constraint uk61ev37mxhvp6daoqsh7s10ok1
-    unique (receipt_reference, fournisseur_id, order_date, order_status);

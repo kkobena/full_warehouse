@@ -12,9 +12,11 @@ import { doReglementResolver } from './do-reglement.resolver';
 
 export const ReglementResolve = (route: ActivatedRouteSnapshot): Observable<null | Reglement> => {
   const id = route.params['id'];
+  const transactionDate = route.params['transactionDate'];
+
   if (id) {
     return inject(ReglementService)
-      .find(id)
+      .find({ id: id, transactionDate: transactionDate })
       .pipe(
         mergeMap((res: HttpResponse<Reglement>) => {
           if (res.body) {
@@ -23,7 +25,7 @@ export const ReglementResolve = (route: ActivatedRouteSnapshot): Observable<null
             inject(Router).navigate(['404']);
             return EMPTY;
           }
-        })
+        }),
       );
   }
   return EMPTY;
@@ -34,41 +36,29 @@ const reglementRoute: Routes = [
     loadComponent: () => import('./reglement.component').then(m => m.ReglementComponent),
     data: {
       authorities: [Authority.ADMIN, Authority.GESTION_REGLEMENT_FACTURE],
-      defaultSort: 'id,asc'
+      defaultSort: 'id,asc',
     },
-    canActivate: [UserRouteAccessService]
+    canActivate: [UserRouteAccessService],
   },
   {
     path: 'new',
     loadComponent: () => import('./faire-reglement/faire-reglement.component').then(m => m.FaireReglementComponent),
 
     data: {
-      authorities: [Authority.ADMIN, Authority.GESTION_REGLEMENT_FACTURE]
+      authorities: [Authority.ADMIN, Authority.GESTION_REGLEMENT_FACTURE],
     },
-    canActivate: [UserRouteAccessService]
+    canActivate: [UserRouteAccessService],
   },
   {
-    path: ':id/:typeFacture/faire-reglement',
+    path: ':id/:invoiceDate/:typeFacture/faire-reglement',
     loadComponent: () => import('./reglement.component').then(m => m.ReglementComponent),
     resolve: {
-      factureDossiers: doReglementResolver
+      factureDossiers: doReglementResolver,
     },
     data: {
-      authorities: [Authority.ADMIN, Authority.GESTION_REGLEMENT_FACTURE]
+      authorities: [Authority.ADMIN, Authority.GESTION_REGLEMENT_FACTURE],
     },
-    canActivate: [UserRouteAccessService]
+    canActivate: [UserRouteAccessService],
   },
-
-  {
-    path: ':id/view',
-    loadComponent: () => import('./reglement-detail/reglement-detail.component').then(m => m.ReglementDetailComponent),
-    resolve: {
-      reglement: ReglementResolve
-    },
-    data: {
-      authorities: [Authority.ADMIN, Authority.GESTION_REGLEMENT_FACTURE]
-    },
-    canActivate: [UserRouteAccessService]
-  }
 ];
 export default reglementRoute;

@@ -13,11 +13,15 @@ import com.kobe.warehouse.service.stock.SuggestionProduitService;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+/**
+ * Base implementation for SalesLineService.
+ * This class consolidates the common logic previously duplicated in
+ */
 @Service
 @Transactional
-public class AssuranceSaleLineServiceImpl extends SalesLineServiceImpl {
+public class SalesLineServiceBaseImpl extends SalesLineServiceImpl {
 
-    public AssuranceSaleLineServiceImpl(
+    public SalesLineServiceBaseImpl(
         ProduitRepository produitRepository,
         SalesLineRepository salesLineRepository,
         StockProduitRepository stockProduitRepository,

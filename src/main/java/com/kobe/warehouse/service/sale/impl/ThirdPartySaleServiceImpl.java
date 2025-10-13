@@ -116,6 +116,7 @@ public class ThirdPartySaleServiceImpl extends SaleCommonService implements Thir
     private final DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern("yyyyMM").withZone(ZoneId.systemDefault());
     private final TiersPayantCalculationService tiersPayantCalculationService;
     private final SaleIdGeneratorService idGeneratorService;
+    private final ConsommationService consommationService;
 
     public ThirdPartySaleServiceImpl(
         ThirdPartySaleLineService ThirdPartySaleLineService,
@@ -137,7 +138,8 @@ public class ThirdPartySaleServiceImpl extends SaleCommonService implements Thir
         PrixRererenceService prixRererenceService,
         LogsService logService,
         TiersPayantCalculationService tiersPayantCalculationService,
-        SaleIdGeneratorService idGeneratorService
+        SaleIdGeneratorService idGeneratorService,
+        ConsommationService consommationService
     ) {
         super(
             referenceService,
@@ -164,6 +166,7 @@ public class ThirdPartySaleServiceImpl extends SaleCommonService implements Thir
         this.prixRererenceService = prixRererenceService;
         this.logService = logService;
         this.tiersPayantCalculationService = tiersPayantCalculationService;
+        this.consommationService = consommationService;
     }
 
     @Override
@@ -248,70 +251,29 @@ public class ThirdPartySaleServiceImpl extends SaleCommonService implements Thir
 
     @Override
     public void updateClientTiersPayantAccount(ThirdPartySaleLine thirdPartySaleLine) {
-        ClientTiersPayant clientTiersPayant = thirdPartySaleLine.getClientTiersPayant();
-        Set<Consommation> consommations = CollectionUtils.isEmpty(clientTiersPayant.getConsommations())
-            ? new HashSet<>()
-            : clientTiersPayant.getConsommations();
-        consommations
-            .stream()
-            .filter(consommation -> consommation.getId() == buildConsommationId(dateTimeFormatter.format(thirdPartySaleLine.getUpdated())))
-            .findFirst()
-            .ifPresentOrElse(
-                conso -> conso.setConsommation(conso.getConsommation() + thirdPartySaleLine.getMontant()),
-                () -> consommations.add(buildConsommation(thirdPartySaleLine.getMontant()))
-            );
-
-        clientTiersPayant.setConsommations(consommations);
-        clientTiersPayant.setConsoMensuelle(
-            clientTiersPayant.getConsoMensuelle() != null
-                ? clientTiersPayant.getConsoMensuelle() + thirdPartySaleLine.getMontant()
-                : thirdPartySaleLine.getMontant()
+        consommationService.updateConsommation(
+            thirdPartySaleLine.getClientTiersPayant(),
+            thirdPartySaleLine.getMontant(),
+            thirdPartySaleLine.getUpdated(),
+            clientTiersPayantRepository::save
         );
-        clientTiersPayant.setUpdated(LocalDateTime.now());
-        clientTiersPayantRepository.save(clientTiersPayant);
-    }
-
-    private Consommation buildConsommation(Integer montant) {
-        if (montant == null) {
-            throw new GenericError("Unexpected null value for montant in buildConsommation");
-        }
-        LocalDate now = LocalDate.now();
-        Consommation consommation = new Consommation();
-        consommation.setId(buildConsommationId());
-        consommation.setConsommation(montant);
-        consommation.setMonth((short) now.getMonthValue());
-        consommation.setYear(now.getYear());
-        return consommation;
     }
 
     @Override
     public void updateTiersPayantAccount(ThirdPartySaleLine thirdPartySaleLine) {
         TiersPayant tiersPayant = thirdPartySaleLine.getClientTiersPayant().getTiersPayant();
-        Set<Consommation> consommations = CollectionUtils.isEmpty(tiersPayant.getConsommations())
-            ? new HashSet<>()
-            : tiersPayant.getConsommations();
-        consommations
-            .stream()
-            .filter(consommation -> consommation.getId() == buildConsommationId(dateTimeFormatter.format(thirdPartySaleLine.getUpdated())))
-            .findFirst()
-            .ifPresentOrElse(
-                conso -> conso.setConsommation(conso.getConsommation() + thirdPartySaleLine.getMontant()),
-                () -> consommations.add(buildConsommation(thirdPartySaleLine.getMontant()))
-            );
-        tiersPayant.setConsommations(consommations);
-        tiersPayant.setConsoMensuelle(
-            tiersPayant.getConsoMensuelle() != null
-                ? tiersPayant.getConsoMensuelle() + thirdPartySaleLine.getMontant()
-                : thirdPartySaleLine.getMontant()
-        );
-        tiersPayant.setUpdated(LocalDateTime.now());
         tiersPayant.setUser(storageService.getUser());
-        tiersPayantRepository.save(tiersPayant);
+        consommationService.updateConsommation(
+            tiersPayant,
+            thirdPartySaleLine.getMontant(),
+            thirdPartySaleLine.getUpdated(),
+            tiersPayantRepository::save
+        );
     }
 
     @Override
     public int buildConsommationId() {
-        return Integer.parseInt(LocalDate.now().format(dateTimeFormatter));
+        return consommationService.buildConsommationId();
     }
 
     private ThirdPartySaleLine updateThirdPartySaleLine(

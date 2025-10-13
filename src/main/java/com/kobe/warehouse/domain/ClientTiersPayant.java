@@ -1,8 +1,10 @@
 package com.kobe.warehouse.domain;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.kobe.warehouse.domain.enumeration.PrioriteTiersPayant;
 import com.kobe.warehouse.domain.enumeration.TiersPayantStatut;
 import com.kobe.warehouse.service.dto.Consommation;
+import com.kobe.warehouse.service.sale.impl.ConsommationService;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
@@ -41,7 +43,7 @@ import org.hibernate.type.SqlTypes;
     }
 )
 @Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
-public class ClientTiersPayant implements Serializable {
+public class ClientTiersPayant implements Serializable, ConsommationService.HasConsommation {
 
     @Serial
     private static final long serialVersionUID = 1L;
@@ -143,9 +145,9 @@ public class ClientTiersPayant implements Serializable {
         return updated;
     }
 
-    public ClientTiersPayant setUpdated(LocalDateTime updated) {
+    public void setUpdated(LocalDateTime updated) {
         this.updated = updated;
-        return this;
+       // return this;
     }
 
     public @NotNull PrioriteTiersPayant getPriorite() {
@@ -184,13 +186,19 @@ public class ClientTiersPayant implements Serializable {
         return this;
     }
 
+    @Override
+    @JsonIgnore
+    public void setConsoMensuelle(Number consoMensuelle) {
+        this.consoMensuelle = (consoMensuelle != null) ? consoMensuelle.longValue() : null;
+    }
+
     public Set<Consommation> getConsommations() {
         return consommations;
     }
 
-    public ClientTiersPayant setConsommations(Set<Consommation> consommations) {
+    public void setConsommations(Set<Consommation> consommations) {
         this.consommations = consommations;
-        return this;
+        //return this;
     }
 
     public double getTauxValue() {

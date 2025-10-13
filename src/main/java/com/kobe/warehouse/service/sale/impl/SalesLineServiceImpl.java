@@ -55,6 +55,7 @@ public abstract class SalesLineServiceImpl implements SalesLineService {
     private final LotService lotService;
     private final InventoryTransactionService inventoryTransactionService;
     private final SaleLineIdGeneratorService saleLineIdGeneratorService;
+    private final StockUpdateService stockUpdateService;
 
     protected SalesLineServiceImpl(
         ProduitRepository produitRepository,
@@ -74,6 +75,7 @@ public abstract class SalesLineServiceImpl implements SalesLineService {
         this.lotService = lotService;
         this.inventoryTransactionService = inventoryTransactionService;
         this.saleLineIdGeneratorService = saleLineIdGeneratorService;
+        this.stockUpdateService = new StockUpdateService(stockProduitRepository, logsService);
     }
 
     private SalesLine getNew() {
@@ -321,7 +323,7 @@ public abstract class SalesLineServiceImpl implements SalesLineService {
                 Produit p = salesLine.getProduit();
                 StockProduit stockProduit = stockProduitRepository.findOneByProduitIdAndStockageId(p.getId(), storageId);
                 updateSaleLineLotSold(salesLine);
-                save(salesLine, stockProduit, p);
+                save(salesLine, stockProduit, p, storageId);
                 this.inventoryTransactionService.save(salesLine);
                 quantitySuggestions.add(new QuantitySuggestion(salesLine.getQuantityRequested(), stockProduit, p));
             });
@@ -347,31 +349,10 @@ public abstract class SalesLineServiceImpl implements SalesLineService {
         this.lotService.updateLots(salesLine.getLots());
     }
 
-    private void save(SalesLine salesLine, StockProduit stockProduit, Produit p) {
-        int quantityBefor = stockProduit.getTotalStockQuantity();
-        int quantityAfter = quantityBefor - salesLine.getQuantityRequested();
-        salesLine.setInitStock(quantityBefor);
-        salesLine.setAfterStock(quantityAfter);
-
-        if (quantityBefor < salesLine.getQuantityRequested()) {
-            logsService.create(TransactionType.FORCE_STOCK, TransactionType.FORCE_STOCK.getValue(), salesLine.getId().getId().toString());
-        }
-        FournisseurProduit fournisseurProduitPrincipal = p.getFournisseurProduitPrincipal();
-        if (fournisseurProduitPrincipal != null && fournisseurProduitPrincipal.getPrixUni() < salesLine.getRegularUnitPrice()) {
-            String desc = String.format(
-                "Le prix de vente du produit %s %s a été modifié sur la vente %s prix usuel:  %d prix sur la vente %s",
-                fournisseurProduitPrincipal.getCodeCip(),
-                p.getLibelle(),
-                fournisseurProduitPrincipal.getPrixUni(),
-                salesLine.getRegularUnitPrice(),
-                salesLine.getSales().getNumberTransaction()
-            );
-            logsService.create(TransactionType.MODIFICATION_PRIX_PRODUCT_A_LA_VENTE, desc, salesLine.getId().getId().toString());
-        }
-        stockProduit.setQtyStock(stockProduit.getQtyStock() - (salesLine.getQuantityRequested() - salesLine.getQuantityUg()));
-        stockProduit.setQtyUG(stockProduit.getQtyUG() - salesLine.getQuantityUg());
-        stockProduit.setUpdatedAt(LocalDateTime.now());
-        stockProduitRepository.save(stockProduit);
+    private void save(SalesLine salesLine, StockProduit stockProduit, Produit p, Long storageId) {
+        StockUpdateService.StockUpdateResult result = stockUpdateService.updateStock(salesLine, storageId);
+        salesLine.setInitStock(result.getQuantityBefore());
+        salesLine.setAfterStock(result.getQuantityAfter());
         this.salesLineRepository.save(salesLine);
     }
 

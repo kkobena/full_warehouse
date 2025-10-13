@@ -4,75 +4,86 @@ import com.kobe.warehouse.domain.GroupeTiersPayant;
 import com.kobe.warehouse.domain.TiersPayant;
 import java.time.LocalDateTime;
 
+/**
+ * Mapper interface for converting between TiersPayant entity and TiersPayantDto.
+ * Provides bidirectional mapping with support for creating new entities or updating existing ones.
+ */
 public interface TiersPayantMapper {
+
+    /**
+     * Converts a TiersPayant entity to a TiersPayantDto.
+     *
+     * @param tiersPayant the entity to convert
+     * @return the corresponding DTO
+     */
     default TiersPayantDto fromEntity(TiersPayant tiersPayant) {
         return new TiersPayantDto()
+            .setId(tiersPayant.getId())
+            .setName(tiersPayant.getName())
+            .setFullName(tiersPayant.getFullName())
+            .setNcc(tiersPayant.getNcc())
             .setAdresse(tiersPayant.getAdresse())
             .setCategorie(tiersPayant.getCategorie())
+            .setStatut(tiersPayant.getStatut())
             .setCodeOrganisme(tiersPayant.getCodeOrganisme())
             .setConsoMensuelle(tiersPayant.getConsoMensuelle())
             .setPlafondConso(tiersPayant.getPlafondConso())
             .setPlafondAbsolu(tiersPayant.isPlafondAbsolu())
-            .setCreated(tiersPayant.getCreated())
-            .setUpdated(tiersPayant.getUpdated())
-            .setEmail(tiersPayant.getEmail())
-            .setName(tiersPayant.getName())
-            .setFullName(tiersPayant.getFullName())
-            .setId(tiersPayant.getId())
             .setPlafondAbsoluClient(tiersPayant.isPlafondAbsoluClient())
             .setPlafondConsoClient(tiersPayant.getPlafondConsoClient())
             .setPlafondJournalierClient(tiersPayant.getPlafondJournalierClient())
-            .setGroupeTiersPayant(tiersPayant.getGroupeTiersPayant())
             .setMontantMaxParFcture(tiersPayant.getMontantMaxParFcture())
             .setNbreBons(tiersPayant.getNbreBons())
             .setNbreBordereaux(tiersPayant.getNbreBordereaux())
             .setRemiseForfaitaire(tiersPayant.getRemiseForfaitaire())
+            .setEmail(tiersPayant.getEmail())
             .setTelephone(tiersPayant.getTelephone())
             .setTelephoneFixe(tiersPayant.getTelephoneFixe())
             .setToBeExclude(tiersPayant.isBeExclude())
             .setModelFacture(tiersPayant.getModelFacture())
-            .setNcc(tiersPayant.getNcc())
-            .setStatut(tiersPayant.getStatut());
+            .setGroupeTiersPayant(tiersPayant.getGroupeTiersPayant())
+            .setCreated(tiersPayant.getCreated())
+            .setUpdated(tiersPayant.getUpdated());
     }
 
-    default TiersPayant entityFromDto(TiersPayantDto payantDto) {
-        return new TiersPayant()
-            .setNcc(payantDto.getNcc())
-            .setAdresse(payantDto.getAdresse())
-            .setCategorie(payantDto.getCategorie())
-            .setCodeOrganisme(payantDto.getCodeOrganisme())
-            .setConsoMensuelle(payantDto.getConsoMensuelle())
-            .setPlafondConso(payantDto.getPlafondConso())
-            .setPlafondAbsolu(payantDto.isPlafondAbsolu())
-            .setPlafondAbsoluClient(payantDto.isPlafondAbsoluClient())
-            .setPlafondConsoClient(payantDto.getPlafondConsoClient())
-            .setPlafondJournalierClient(payantDto.getPlafondJournalierClient())
-            .setCreated(LocalDateTime.now())
-            .setUpdated(LocalDateTime.now())
-            .setEmail(payantDto.getEmail())
-            .setName(payantDto.getName())
-            .setGroupeTiersPayant(fromId(payantDto.getGroupeTiersPayantId()))
-            .setFullName(payantDto.getFullName())
-            .setMontantMaxParFcture(payantDto.getMontantMaxParFcture())
-            .setNbreBons(payantDto.getNbreBons())
-            .setNbreBordereaux(payantDto.getNbreBordereaux())
-            .setRemiseForfaitaire(payantDto.getRemiseForfaitaire())
-            .setTelephone(payantDto.getTelephone())
-            .setTelephoneFixe(payantDto.getTelephoneFixe())
-            .setBeExclude(payantDto.isToBeExclude())
-            .setModelFacture(payantDto.getModelFacture());
+    /**
+     * Creates a new TiersPayant entity from a TiersPayantDto.
+     * Sets the created and updated timestamps to the current time.
+     *
+     * @param dto the DTO to convert
+     * @return a new TiersPayant entity
+     */
+    default TiersPayant entityFromDto(TiersPayantDto dto) {
+        TiersPayant tiersPayant = new TiersPayant();
+        tiersPayant.setCreated(LocalDateTime.now());
+        return mapDtoToEntity(dto, tiersPayant);
     }
 
-    default GroupeTiersPayant fromId(Long groupeTiersPayantId) {
-        if (groupeTiersPayantId == null) {
-            return null;
-        }
-        return new GroupeTiersPayant().setId(groupeTiersPayantId);
-    }
-
+    /**
+     * Updates an existing TiersPayant entity from a TiersPayantDto.
+     * Preserves the original created timestamp and updates the updated timestamp.
+     *
+     * @param dto the DTO with updated data
+     * @param tiersPayant the existing entity to update
+     * @return the updated TiersPayant entity
+     */
     default TiersPayant entityFromDto(TiersPayantDto dto, TiersPayant tiersPayant) {
-        return tiersPayant
+        return mapDtoToEntity(dto, tiersPayant);
+    }
+
+    /**
+     * Maps all fields from a DTO to an entity.
+     * This method contains the common mapping logic used by both create and update operations.
+     *
+     * @param dto the source DTO
+     * @param entity the target entity
+     * @return the updated entity
+     */
+    private TiersPayant mapDtoToEntity(TiersPayantDto dto, TiersPayant entity) {
+        entity
             .setNcc(dto.getNcc())
+            .setName(dto.getName())
+            .setFullName(dto.getFullName())
             .setAdresse(dto.getAdresse())
             .setCategorie(dto.getCategorie())
             .setCodeOrganisme(dto.getCodeOrganisme())
@@ -82,18 +93,33 @@ public interface TiersPayantMapper {
             .setPlafondAbsoluClient(dto.isPlafondAbsoluClient())
             .setPlafondConsoClient(dto.getPlafondConsoClient())
             .setPlafondJournalierClient(dto.getPlafondJournalierClient())
-            .setUpdated(LocalDateTime.now())
-            .setEmail(dto.getEmail())
-            .setName(dto.getName())
-            .setGroupeTiersPayant(fromId(dto.getGroupeTiersPayantId()))
-            .setFullName(dto.getFullName())
             .setMontantMaxParFcture(dto.getMontantMaxParFcture())
             .setNbreBons(dto.getNbreBons())
             .setNbreBordereaux(dto.getNbreBordereaux())
             .setRemiseForfaitaire(dto.getRemiseForfaitaire())
+            .setEmail(dto.getEmail())
             .setTelephone(dto.getTelephone())
             .setTelephoneFixe(dto.getTelephoneFixe())
             .setBeExclude(dto.isToBeExclude())
-            .setModelFacture(dto.getModelFacture());
+            .setModelFacture(dto.getModelFacture())
+            .setGroupeTiersPayant(fromId(dto.getGroupeTiersPayantId()));
+
+        entity.setUpdated(LocalDateTime.now());
+
+        return entity;
+    }
+
+    /**
+     * Creates a GroupeTiersPayant entity reference from an ID.
+     * This is useful for setting relationships without loading the full entity.
+     *
+     * @param groupeTiersPayantId the ID of the group
+     * @return a GroupeTiersPayant with only the ID set, or null if the ID is null
+     */
+    default GroupeTiersPayant fromId(Long groupeTiersPayantId) {
+        if (groupeTiersPayantId == null) {
+            return null;
+        }
+        return new GroupeTiersPayant().setId(groupeTiersPayantId);
     }
 }

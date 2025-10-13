@@ -115,12 +115,13 @@ public class TiersPayantServiceImpl implements TiersPayantService, CommonStatSer
 
     @Override
     public void desable(Long id) {
-        tiersPayantRepository.save(
-            tiersPayantRepository
-                .getReferenceById(id)
-                .setStatut(TiersPayantStatut.DISABLED)
-                .setUpdated(LocalDateTime.now())
-                .setUser(storageService.getUser())
+        var tp = tiersPayantRepository.getReferenceById(id);
+        tp
+            .setStatut(TiersPayantStatut.DISABLED)
+
+            .setUser(storageService.getUser());
+        tp.setUpdated(LocalDateTime.now());
+        tiersPayantRepository.save(tp
         );
     }
 
@@ -149,7 +150,6 @@ public class TiersPayantServiceImpl implements TiersPayantService, CommonStatSer
     public Page<AchatTiersPayant> fetchAchatTiersPayant(LocalDate fromDate, LocalDate toDate, String search, Pageable pageable) {
         return this.thirdPartySaleLineRepository.fetchAchatsTiersPayant(buildThirdPartySaleLineSpecification(fromDate, toDate, search), pageable);
     }
-
 
 
     @Override

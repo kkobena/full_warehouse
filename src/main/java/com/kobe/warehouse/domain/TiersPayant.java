@@ -1,8 +1,10 @@
 package com.kobe.warehouse.domain;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.kobe.warehouse.domain.enumeration.TiersPayantCategorie;
 import com.kobe.warehouse.domain.enumeration.TiersPayantStatut;
 import com.kobe.warehouse.service.dto.Consommation;
+import com.kobe.warehouse.service.sale.impl.ConsommationService;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
@@ -40,7 +42,7 @@ import org.hibernate.type.SqlTypes;
 },
     uniqueConstraints = { @UniqueConstraint(columnNames = { "name" }), @UniqueConstraint(columnNames = { "full_name" }) }
 )
-public class TiersPayant implements Serializable {
+public class TiersPayant implements Serializable, ConsommationService.HasConsommation {
 
     @Serial
     private static final long serialVersionUID = 1L;
@@ -243,6 +245,12 @@ public class TiersPayant implements Serializable {
         return this;
     }
 
+    @Override
+    @JsonIgnore
+    public void setConsoMensuelle(Number consoMensuelle) {
+        this.consoMensuelle = (consoMensuelle != null) ? consoMensuelle.longValue() : null;
+    }
+
     public boolean isPlafondAbsolu() {
         return plafondAbsolu;
     }
@@ -355,9 +363,9 @@ public class TiersPayant implements Serializable {
         return updated;
     }
 
-    public TiersPayant setUpdated(LocalDateTime updated) {
+    public void setUpdated(LocalDateTime updated) {
         this.updated = updated;
-        return this;
+
     }
 
     public AppUser getUser() {
@@ -373,9 +381,9 @@ public class TiersPayant implements Serializable {
         return consommations;
     }
 
-    public TiersPayant setConsommations(Set<Consommation> consommations) {
+    public void setConsommations(Set<Consommation> consommations) {
         this.consommations = consommations;
-        return this;
+      //  return this;
     }
 
     public Integer getPlafondConsoClient() {

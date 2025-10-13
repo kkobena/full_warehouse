@@ -340,7 +340,7 @@ public class SaleServiceImpl extends SaleCommonService implements SaleService {
         AppUser user = storageService.getUser();
         CashSale cashSale = findOne(dto.getSaleId());
         cashSale.setLastUserEdit(user);
-        paymentService.buildPaymentFromFromPaymentDTO(cashSale, dto, user);
+      //  paymentService.buildPaymentFromFromPaymentDTO(cashSale, dto, user);
         UninsuredCustomer uninsuredCustomer = getUninsuredCustomerById(dto.getCustomerId());
         cashSale.setCustomer(uninsuredCustomer);
         salesRepository.save(cashSale);
@@ -389,7 +389,7 @@ public class SaleServiceImpl extends SaleCommonService implements SaleService {
                 sales.setLastUserEdit(user);
                 cashSaleRepository.save(sales);
                 cashSaleRepository.save(copy);
-                paymentService.findAllBySalesId(sales.getId().getId()).forEach(payment -> paymentService.clonePayment(payment, copy));
+                paymentService.findAllBySale(sales).forEach(payment -> paymentService.clonePayment(payment, copy));
                 salesLineService.cloneSalesLine(
                     sales.getSalesLines(),
                     copy,

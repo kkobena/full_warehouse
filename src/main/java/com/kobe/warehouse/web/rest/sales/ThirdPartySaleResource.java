@@ -43,7 +43,6 @@ import java.time.LocalDate;
  */
 @RestController
 @RequestMapping("/api")
-@Transactional
 public class ThirdPartySaleResource {
 
     private static final String ENTITY_NAME = "sales";

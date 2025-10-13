@@ -11,7 +11,6 @@ import java.util.Set;
 public interface PaymentService {
     void clonePayment(SalePayment payment, Sales copy);
 
-    List<SalePayment> findAllBySalesId(Long id);
 
     Set<SalePayment> buildPaymentFromFromPaymentDTO(Sales sales, SaleDTO saleDTO, AppUser user);
 
@@ -20,4 +19,6 @@ public interface PaymentService {
     void delete(SalePayment payment);
 
     List<SalePayment> findAllBySales(SaleId id);
+
+    List<SalePayment> findAllBySale(Sales sales);
 }

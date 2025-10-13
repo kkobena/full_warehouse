@@ -72,15 +72,8 @@ export class AssuranceDataComponent implements OnInit, AfterViewInit {
   protected baseSaleService = inject(BaseSaleService);
   protected readonly currentSaleService = inject(CurrentSaleService);
   protected selectedTiersPayants: WritableSignal<IClientTiersPayant[]> = signal<IClientTiersPayant[]>([]);
-  protected divClass: Signal<string> = computed(() => {
-    const count = this.selectedTiersPayants().length;
-    return count === 2 ? 'col-md-3 col-sm-3 col-3 bon' : count > 2 ? 'col-md-2 col-sm-2 col-2 bon' : 'col-md-4 col-sm-4 col-4 bon';
-  });
-  protected divCustomer: Signal<string> = computed(() => {
-    return this.selectedTiersPayants().length >= 2
-      ? 'col-md-3 col-sm-3 col-lg-3 col-xl-3 col-sm-12 '
-      : 'col-md-4 col-sm-4 col-xl-4 col-sm-12';
-  });
+  protected divClass: Signal<string> = computed(() => this.getDivClassForCount(this.selectedTiersPayants().length));
+  protected divCustomer: Signal<string> = computed(() => this.getDivCustomerClassForCount(this.selectedTiersPayants().length));
   private readonly customerService = inject(CustomerService);
   private readonly confimDialog = viewChild.required<ConfirmDialogComponent>('confirmDialog');
   private readonly modalService = inject(NgbModal);
@@ -128,9 +121,7 @@ export class AssuranceDataComponent implements OnInit, AfterViewInit {
       },
       (resp: ICustomer) => {
         if (resp) {
-          this.selectedCustomerService.setCustomer(resp);
-          this.handleCustomer(resp);
-          this.firstRefBonFocus();
+          this.handleCustomerSelection(resp);
         }
       },
       '70%',
@@ -183,16 +174,13 @@ export class AssuranceDataComponent implements OnInit, AfterViewInit {
   }
 
   protected removeTiersPayant(tiersPayant: IClientTiersPayant): void {
-    const currentTp = this.selectedTiersPayants();
-    const updatedTp = currentTp.filter(tp => tp.id !== tiersPayant.id);
+    const updatedTp = this.selectedTiersPayants().filter(tp => tp.id !== tiersPayant.id);
     this.confimDialog().onConfirm(
       () => {
         if (this.currentSaleService.currentSale()) {
           this.baseSaleService.onRemoveThirdPartySaleLineToSalesSuccess(tiersPayant.id);
-          this.selectedTiersPayants.set(updatedTp);
-        } else {
-          this.selectedTiersPayants.set(updatedTp);
         }
+        this.selectedTiersPayants.set(updatedTp);
       },
       'Supprimer tiers payant',
       'Etes-vous sûr de vouloir supprimer ce tiers payant?',
@@ -205,9 +193,10 @@ export class AssuranceDataComponent implements OnInit, AfterViewInit {
   }
 
   protected addAssuredCustomer(): void {
-    if (this.currentSaleService.typeVo() === 'ASSURANCE') {
+    const saleType = this.getCurrentSaleType();
+    if (saleType === 'ASSURANCE') {
       this.openAssuredCustomerForm(null);
-    } else if (this.currentSaleService.typeVo() === 'CARNET') {
+    } else if (saleType === 'CARNET') {
       showCommonModal(
         this.modalService,
         CustomerCarnetComponent,
@@ -217,8 +206,7 @@ export class AssuranceDataComponent implements OnInit, AfterViewInit {
           categorie: 'CARNET'
         },
         (resp: ICustomer) => {
-
-          this.setCustomer(resp,this.currentSaleService.typeVo());
+          this.setCustomer(resp, saleType);
         },
         'xl',
         'modal-dialog-70'
@@ -267,8 +255,7 @@ export class AssuranceDataComponent implements OnInit, AfterViewInit {
       return;
     }
 
-    const saleType = this.currentSaleService.typeVo();
-    this.queryAssuredCustomers(saleType);
+    this.queryAssuredCustomers(this.getCurrentSaleType());
   }
 
   private queryAssuredCustomers(saleType: string): void {
@@ -327,17 +314,18 @@ export class AssuranceDataComponent implements OnInit, AfterViewInit {
 
   private openAssuredCustomerForm(customer: ICustomer | null): void {
     const isEdit = !!customer;
+    const saleType = this.getCurrentSaleType();
     const header = isEdit ? 'FORMULAIRE DE MODIFICATION DE CLIENT' : 'FORMULAIRE D\'AJOUT DE NOUVEAU DE CLIENT';
     showCommonModal(
       this.modalService,
       AssureFormStepComponent,
       {
         entity: customer,
-        typeAssure: this.currentSaleService.typeVo(),
+        typeAssure: saleType,
         header: header
       },
       (resp: ICustomer) => {
-        this.setCustomer(resp,this.currentSaleService.typeVo());
+        this.setCustomer(resp, saleType);
       },
       'xl',
       'modal-dialog-80'
@@ -389,16 +377,39 @@ export class AssuranceDataComponent implements OnInit, AfterViewInit {
     }, 100);
   }
 
+  private getDivClassForCount(count: number): string {
+    if (count === 2) return 'col-md-3 col-sm-3 col-3 bon';
+    if (count > 2) return 'col-md-2 col-sm-2 col-2 bon';
+    return 'col-md-4 col-sm-4 col-4 bon';
+  }
+
+  private getDivCustomerClassForCount(count: number): string {
+    return count >= 2
+      ? 'col-md-3 col-sm-3 col-lg-3 col-xl-3 col-sm-12 '
+      : 'col-md-4 col-sm-4 col-xl-4 col-sm-12';
+  }
+
+  private handleCustomerSelection(customer: ICustomer): void {
+    this.selectedCustomerService.setCustomer(customer);
+    this.handleCustomer(customer);
+    this.firstRefBonFocus();
+  }
+
+  private getCurrentSaleType(): string {
+    return this.currentSaleService.typeVo();
+  }
+
   private handleCustomer(assuredCustomer: ICustomer): void {
-    if (assuredCustomer && !this.currentSaleService.isEdit()) {
-      const saleType = this.currentSaleService.typeVo();
-      if (saleType === 'ASSURANCE') {
-        this.selectedTiersPayants.set(assuredCustomer.tiersPayants || []);
-        this.ayantDroit =
-          assuredCustomer.ayantDroits?.find(ad => ad.id === assuredCustomer.id || ad.num === assuredCustomer.num) || assuredCustomer;
-      } else if (saleType === 'CARNET' && assuredCustomer.tiersPayants?.length) {
-        this.selectedTiersPayants.set([assuredCustomer.tiersPayants[0]]);
-      }
+    if (!assuredCustomer || this.currentSaleService.isEdit()) {
+      return;
+    }
+
+    const saleType = this.getCurrentSaleType();
+    this.setTiersPayantsForSaleType(assuredCustomer, saleType);
+
+    if (saleType === 'ASSURANCE') {
+      this.ayantDroit =
+        assuredCustomer.ayantDroits?.find(ad => ad.id === assuredCustomer.id || ad.num === assuredCustomer.num) || assuredCustomer;
     }
   }
 }

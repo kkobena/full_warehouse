@@ -520,7 +520,7 @@ public class ThirdPartySaleServiceImpl extends SaleCommonService implements Thir
     public ResponseDTO putThirdPartySaleOnHold(ThirdPartySaleDTO dto) {
         ResponseDTO response = new ResponseDTO();
         ThirdPartySales thirdPartySales = thirdPartySaleRepository.findOneById(dto.getId());
-        paymentService.buildPaymentFromFromPaymentDTO(thirdPartySales, dto, storageService.getUser());
+      //  paymentService.buildPaymentFromFromPaymentDTO(thirdPartySales, dto, storageService.getUser());
         thirdPartySaleRepository.save(thirdPartySales);
         response.setSuccess(true);
         return response;

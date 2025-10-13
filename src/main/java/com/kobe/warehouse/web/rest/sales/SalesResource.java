@@ -34,7 +34,6 @@ import org.springframework.web.bind.annotation.RestController;
  */
 @RestController
 @RequestMapping("/api")
-@Transactional
 public class SalesResource {
 
     private static final String ENTITY_NAME = "sales";

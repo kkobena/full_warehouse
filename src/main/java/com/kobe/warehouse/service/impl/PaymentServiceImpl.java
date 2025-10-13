@@ -54,14 +54,15 @@ public class PaymentServiceImpl implements PaymentService {
         paymentRepository.save(payment);
     }
 
-    @Override
-    public List<SalePayment> findAllBySalesId(Long id) {
-        return paymentRepository.findAllBySaleId(id);
-    }
 
     @Override
     public List<SalePayment> findAllBySales(SaleId id) {
         return this.paymentRepository.findAllBySaleIdAndSaleSaleDate(id.getId(), id.getSaleDate());
+    }
+
+    @Override
+    public List<SalePayment> findAllBySale(Sales sales) {
+        return paymentRepository.findAllBySale(sales);
     }
 
     @Override

@@ -4,6 +4,7 @@ import com.kobe.warehouse.domain.AppUser;
 import com.kobe.warehouse.domain.CashRegister_;
 import com.kobe.warehouse.domain.SalePayment;
 import com.kobe.warehouse.domain.SalePayment_;
+import com.kobe.warehouse.domain.Sales;
 import com.kobe.warehouse.domain.Sales_;
 import com.kobe.warehouse.domain.AppUser_;
 import com.kobe.warehouse.domain.enumeration.CategorieChiffreAffaire;
@@ -30,12 +31,11 @@ import org.springframework.stereotype.Repository;
 @Repository
 public interface SalePaymentRepository
     extends JpaRepository<SalePayment, Long>, JpaSpecificationExecutor<SalePayment>, SalePaymentCustomRepository {
-   @Deprecated(forRemoval = true)
-    List<SalePayment> findAllBySaleId(Long id);
+
+    List<SalePayment> findAllBySale(Sales sale);
 
     List<SalePayment> findAllBySaleIdAndSaleSaleDate(Long id, LocalDate date);
 
-    Optional<List<SalePayment>> findBySaleId(Long id);
 
     @Query(
         value = "SELECT  SUM(p.reel_amount) AS montantReel,SUM(p.paid_amount) AS montantPaye,pm.libelle AS modePaimentLibelle,pm.code AS modePaimentCode FROM payment_transaction p JOIN payment_mode pm ON p.payment_mode_code = pm.code " +

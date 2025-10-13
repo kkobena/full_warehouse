@@ -23,7 +23,7 @@ import java.util.Objects;
  */
 @Entity
 @Table(name = "persistent_token")
-@Cache(usage = CacheConcurrencyStrategy.NONSTRICT_READ_WRITE)
+@Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
 public class PersistentToken implements Serializable {
 
     @Serial

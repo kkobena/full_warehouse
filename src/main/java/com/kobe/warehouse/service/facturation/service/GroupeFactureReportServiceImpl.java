@@ -7,7 +7,6 @@ import com.kobe.warehouse.service.errors.FileStorageException;
 import com.kobe.warehouse.service.errors.ReportFileExportException;
 import com.kobe.warehouse.service.facturation.dto.GroupeFactureDto;
 import com.kobe.warehouse.service.report.Constant;
-import com.lowagie.text.DocumentException;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -111,7 +110,7 @@ public class GroupeFactureReportServiceImpl implements GroupeFactureReportServic
             renderer.setDocumentFromString(this.getTemplateAsHtml());
             renderer.layout();
             renderer.createPDF(outputStream);
-        } catch (IOException | DocumentException e) {
+        } catch (IOException  e) {
             log.debug("printOneReceiptPage", e);
         }
         return filePath;

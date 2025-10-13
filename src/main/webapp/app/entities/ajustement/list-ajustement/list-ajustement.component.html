@@ -5,9 +5,9 @@
     [rows]="itemsPerPage"
     [value]="rowData"
     dataKey="id"
-    styleClass="p-datatable-gridlines "
+    [stripedRows]="true"
   >
-    <ng-template pTemplate="header">
+    <ng-template #header>
       <tr>
         <th style="width: 3%"></th>
         <th>Opérateur</th>
@@ -18,7 +18,7 @@
         <th style="width: 7%"></th>
       </tr>
     </ng-template>
-    <ng-template let-ajust let-expanded="expanded" pTemplate="body">
+    <ng-template let-ajust let-expanded="expanded" #body>
       <tr>
         <td>
           <p-button
@@ -41,7 +41,7 @@
               class="ml-sm-1"
               rounded="true"
               [text]="true"
-              icon="pi pi-print"
+              icon="pi pi-file-pdf"
               severity="secondary"
               pTooltip="Imprimer"
             ></p-button>

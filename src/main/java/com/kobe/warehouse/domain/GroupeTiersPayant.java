@@ -19,7 +19,7 @@ import java.io.Serializable;
 
 @Entity
 @Table(name = "groupe_tiers_payant", uniqueConstraints = { @UniqueConstraint(columnNames = { "name" }) })
-@Cache(usage = CacheConcurrencyStrategy.NONSTRICT_READ_WRITE)
+@Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
 public class GroupeTiersPayant implements Serializable {
 
     @Serial

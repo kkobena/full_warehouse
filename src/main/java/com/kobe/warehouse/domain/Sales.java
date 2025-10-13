@@ -11,8 +11,6 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
 import jakarta.persistence.FetchType;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.IdClass;
 import jakarta.persistence.Index;
@@ -246,7 +244,9 @@ public class Sales implements Persistable<SaleId>, Serializable, Cloneable {
     }
 
     public @NotNull Integer getNetAmount() {
+        netAmount = Objects.requireNonNullElse(salesAmount, 0) - Objects.requireNonNullElse(discountAmount, 0);
         return netAmount;
+
     }
 
     public void setNetAmount(Integer netAmount) {
@@ -675,6 +675,7 @@ public class Sales implements Persistable<SaleId>, Serializable, Cloneable {
             return null;
         }
     }
+
     @Override
     public boolean isNew() {
         return isNew;

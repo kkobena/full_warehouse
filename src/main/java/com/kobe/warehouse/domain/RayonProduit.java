@@ -18,7 +18,7 @@ import java.io.Serializable;
 
 @Entity
 @Table(name = "rayon_produit", uniqueConstraints = { @UniqueConstraint(columnNames = { "produit_id", "rayon_id" }) })
-@Cache(usage = CacheConcurrencyStrategy.NONSTRICT_READ_WRITE)
+@Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
 public class RayonProduit implements Serializable {
 
     @Serial

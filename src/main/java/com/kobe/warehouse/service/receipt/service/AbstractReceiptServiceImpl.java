@@ -4,7 +4,7 @@ import com.kobe.warehouse.config.FileStorageProperties;
 import com.kobe.warehouse.service.StorageService;
 import com.kobe.warehouse.service.errors.FileStorageException;
 import com.kobe.warehouse.service.report.Constant;
-import com.lowagie.text.DocumentException;
+
 import java.awt.print.PrinterException;
 import java.awt.print.PrinterJob;
 import java.io.FileOutputStream;
@@ -24,6 +24,7 @@ import org.apache.pdfbox.Loader;
 import org.apache.pdfbox.pdmodel.PDDocument;
 import org.apache.pdfbox.printing.Orientation;
 import org.apache.pdfbox.printing.PDFPageable;
+import org.openpdf.text.DocumentException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;

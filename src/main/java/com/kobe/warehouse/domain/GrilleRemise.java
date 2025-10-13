@@ -32,7 +32,7 @@ import java.util.Objects;
         @UniqueConstraint(columnNames = { "code", "remise_produit_id" }, name = "remise_produit_id_code_un_index"),
     }
 )
-@Cache(usage = CacheConcurrencyStrategy.NONSTRICT_READ_WRITE)
+@Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
 public class GrilleRemise implements Serializable {
 
     @Serial

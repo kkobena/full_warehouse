@@ -1,8 +1,10 @@
 package com.kobe.warehouse.service.pdf;
 
-import com.lowagie.text.Image;
-import com.lowagie.text.pdf.BarcodeEAN;
+
 import java.awt.*;
+
+import org.openpdf.text.Image;
+import org.openpdf.text.pdf.BarcodeEAN;
 import org.w3c.dom.Element;
 import org.xhtmlrenderer.extend.FSImage;
 import org.xhtmlrenderer.extend.ReplacedElement;

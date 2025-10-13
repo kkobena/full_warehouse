@@ -18,7 +18,7 @@ import org.hibernate.validator.constraints.URL;
  */
 @Entity
 @Table(name = "groupe_fournisseur")
-@Cache(usage = CacheConcurrencyStrategy.NONSTRICT_READ_WRITE)
+@Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
 public class GroupeFournisseur implements Serializable {
 
     @Serial

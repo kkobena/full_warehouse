@@ -38,11 +38,7 @@ export class ListAjustementComponent implements OnInit {
   protected ajustements?: IAjustement[];
   private spinner = inject(NgxSpinnerService);
 
-  /** Inserted by Angular inject() migration for backwards compatibility */
-  constructor(...args: unknown[]);
 
-  constructor() {
-  }
 
   ngOnInit(): void {
     this.onSearch();

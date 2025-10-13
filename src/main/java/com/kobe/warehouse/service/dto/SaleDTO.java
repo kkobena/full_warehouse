@@ -89,7 +89,7 @@ public class SaleDTO implements Serializable {
 
     public SaleDTO(Sales sale) {
         this.saleId = sale.getId();
-        this.id = this.saleId.getId();
+        this.id = saleId.getId();
         this.commentaire = sale.getCommentaire();
         this.discountAmount = sale.getDiscountAmount();
         if (sale instanceof ThirdPartySales thirdPartySales) {

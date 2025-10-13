@@ -13,10 +13,10 @@
     <tr th:class="${itmStat.last}?'last-item':''" th:each="itm : ${items}">
       <td
         class="text-left"
-        th:if="${#strings.isEmpty(itm.produit.codeEan)}"
+        th:if="${#strings.isEmpty(itm.produit.codeEanLaboratoire)}"
         th:text="${itm.produit.fournisseurProduitPrincipal.codeCip}"
       ></td>
-      <td class="text-left" th:if="${!#strings.isEmpty(itm.produit.codeEan)}" th:text="${itm.produit.codeEan}"></td>
+      <td class="text-left" th:if="${!#strings.isEmpty(itm.produit.codeEanLaboratoire)}" th:text="${itm.produit.codeEanLaboratoire}"></td>
       <td class="text-left" th:text="${itm.produit.libelle}"></td>
       <td class="text-left" th:text="${itm.motifAjustement.libelle}"></td>
       <td class="unit" th:if="${itm.qtyMvt ge 1000}" th:text="${#numbers.formatInteger(itm.qtyMvt,3,'WHITESPACE')}"></td>

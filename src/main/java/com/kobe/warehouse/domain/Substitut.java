@@ -11,7 +11,7 @@ import java.util.Objects;
 
 @Entity
 @Table(name = "substitut", uniqueConstraints = { @UniqueConstraint(columnNames = { "produit_id", "substitut_id" }) })
-@Cache(usage = CacheConcurrencyStrategy.NONSTRICT_READ_WRITE)
+@Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
 public class Substitut implements Serializable {
 
     @Serial

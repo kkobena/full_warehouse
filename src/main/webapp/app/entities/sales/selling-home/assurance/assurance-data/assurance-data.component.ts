@@ -217,7 +217,8 @@ export class AssuranceDataComponent implements OnInit, AfterViewInit {
           categorie: 'CARNET'
         },
         (resp: ICustomer) => {
-          this.setCustomer(resp);
+
+          this.setCustomer(resp,this.currentSaleService.typeVo());
         },
         'xl',
         'modal-dialog-70'
@@ -262,42 +263,66 @@ export class AssuranceDataComponent implements OnInit, AfterViewInit {
   }
 
   protected load(): void {
-    const saleType = this.currentSaleService.typeVo();
-    if (this.search) {
-      this.customerService
-        .queryAssuredCustomer({
-          search: this.search,
-          size: 2,
-          typeTiersPayant: saleType
-        })
-        .subscribe({
-          next: (res: HttpResponse<ICustomer[]>) => {
-            const assuredCustomers = res.body;
-            if (assuredCustomers && assuredCustomers.length) {
-              if (assuredCustomers.length === 1) {
-                const assuredCustomer = assuredCustomers[0];
-                this.selectedCustomerService.setCustomer(assuredCustomer);
-                if (saleType === 'ASSURANCE') {
-                  this.selectedTiersPayants.set(assuredCustomer.tiersPayants || []);
-                  /*  this.ayantDroit =
-                    assuredCustomer.ayantDroits?.find(ad => ad.id === assuredCustomer.id || ad.num === assuredCustomer.num) || assuredCustomer;*/
-                } else if (saleType === 'CARNET' && assuredCustomer.tiersPayants?.length) {
-                  this.selectedTiersPayants.set([assuredCustomer.tiersPayants[0]]);
-                }
-                this.firstRefBonFocus();
-              } else {
-                this.openAssuredCustomerListTable();
-              }
-              this.search = null;
-            } else {
-              this.addAssuredCustomer();
-              this.search = null;
-            }
-          },
-          error() {
-          }
-        });
+    if (!this.search) {
+      return;
     }
+
+    const saleType = this.currentSaleService.typeVo();
+    this.queryAssuredCustomers(saleType);
+  }
+
+  private queryAssuredCustomers(saleType: string): void {
+    this.customerService
+      .queryAssuredCustomer({
+        search: this.search,
+        size: 2,
+        typeTiersPayant: saleType
+      })
+      .subscribe({
+        next: (res: HttpResponse<ICustomer[]>) => this.handleQueryResponse(res.body, saleType)
+      });
+  }
+
+  private handleQueryResponse(assuredCustomers: ICustomer[] | null, saleType: string): void {
+    if (!assuredCustomers?.length) {
+      this.handleNoCustomersFound();
+      return;
+    }
+
+    if (assuredCustomers.length === 1) {
+      this.handleSingleCustomerFound(assuredCustomers[0], saleType);
+    } else {
+      this.handleMultipleCustomersFound();
+    }
+  }
+
+  private handleSingleCustomerFound(customer: ICustomer, saleType: string): void {
+    this.selectedCustomerService.setCustomer(customer);
+    this.setTiersPayantsForSaleType(customer, saleType);
+    this.firstRefBonFocus();
+    this.clearSearch();
+  }
+
+  private handleMultipleCustomersFound(): void {
+    this.openAssuredCustomerListTable();
+    this.clearSearch();
+  }
+
+  private handleNoCustomersFound(): void {
+    this.addAssuredCustomer();
+    this.clearSearch();
+  }
+
+  private setTiersPayantsForSaleType(customer: ICustomer, saleType: string): void {
+    if (saleType === 'ASSURANCE') {
+      this.selectedTiersPayants.set(customer.tiersPayants || []);
+    } else if (saleType === 'CARNET' && customer.tiersPayants?.length) {
+      this.selectedTiersPayants.set([customer.tiersPayants[0]]);
+    }
+  }
+
+  private clearSearch(): void {
+    this.search = null;
   }
 
   private openAssuredCustomerForm(customer: ICustomer | null): void {
@@ -312,7 +337,7 @@ export class AssuranceDataComponent implements OnInit, AfterViewInit {
         header: header
       },
       (resp: ICustomer) => {
-        this.setCustomer(resp);
+        this.setCustomer(resp,this.currentSaleService.typeVo());
       },
       'xl',
       'modal-dialog-80'
@@ -337,9 +362,11 @@ export class AssuranceDataComponent implements OnInit, AfterViewInit {
     );
   }
 
-  private setCustomer(cust: ICustomer): void {
+  private setCustomer(cust: ICustomer,saleType: string): void {
     if (cust) {
       this.selectedCustomerService.setCustomer(cust);
+      this.setTiersPayantsForSaleType(cust, saleType);
+      this.firstRefBonFocus();
     }
   }
 

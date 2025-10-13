@@ -17,7 +17,7 @@ import java.util.Objects;
 
 @Entity
 @Table(name = "authority_privilege", uniqueConstraints = { @UniqueConstraint(columnNames = { "privilege_name", "authority_name" }) })
-@Cache(usage = CacheConcurrencyStrategy.NONSTRICT_READ_WRITE)
+@Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
 public class AuthorityPrivilege implements Serializable {
 
     @Serial

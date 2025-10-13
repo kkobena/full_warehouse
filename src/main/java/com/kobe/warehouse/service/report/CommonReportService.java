@@ -7,7 +7,6 @@ import com.kobe.warehouse.service.dto.Pair;
 import com.kobe.warehouse.service.dto.ReportPeriode;
 import com.kobe.warehouse.service.errors.FileStorageException;
 import com.kobe.warehouse.service.utils.DateUtil;
-import com.lowagie.text.DocumentException;
 import jakarta.validation.constraints.NotNull;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
@@ -134,7 +133,7 @@ public abstract class CommonReportService {
                 firstPageRowCount += maxiRowCount;
             }
             renderer.finishPDF();
-        } catch (IOException | DocumentException e) {
+        } catch (IOException e) {
             log.error("printMultiplesReceiptPage", e);
         }
         return filePath;
@@ -234,7 +233,7 @@ public Response generatePdf() {
             e.printStackTrace();
         }
              */
-        } catch (IOException | DocumentException e) {
+        } catch (IOException  e) {
             log.debug("printOneReceiptPage", e);
         }
         return filePath;

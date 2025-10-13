@@ -20,7 +20,7 @@ import java.io.Serializable;
  */
 @Entity
 @Table(name = "payment_mode")
-@Cache(usage = CacheConcurrencyStrategy.NONSTRICT_READ_WRITE)
+@Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
 public class PaymentMode implements Serializable {
 
     @Serial

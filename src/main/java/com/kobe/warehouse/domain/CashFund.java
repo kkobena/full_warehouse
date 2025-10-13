@@ -24,7 +24,7 @@ import java.time.LocalDateTime;
 
 @Entity
 @Table(name = "cash_fund")
-@Cache(usage = CacheConcurrencyStrategy.NONSTRICT_READ_WRITE)
+@Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
 public class CashFund implements Serializable {
 
     @Serial

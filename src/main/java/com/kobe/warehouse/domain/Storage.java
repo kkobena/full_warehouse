@@ -23,7 +23,7 @@ import java.util.Objects;
 @Entity
 @Table(name = "storage", uniqueConstraints = @UniqueConstraint(columnNames = { "storage_type", "magasin_id" }))
 @JsonIgnoreProperties(value = { "magasin" })
-@Cache(usage = CacheConcurrencyStrategy.NONSTRICT_READ_WRITE)
+@Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
 public class Storage implements Serializable {
 
     @Serial

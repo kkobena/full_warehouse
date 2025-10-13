@@ -58,7 +58,7 @@ import org.hibernate.envers.RelationTargetAuditMode;
         @Index(columnList = "status", name = "status_index"),
     }
 )
-@Cache(usage = CacheConcurrencyStrategy.NONSTRICT_READ_WRITE)
+@Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
 public class Produit implements Serializable {
 
     @Serial

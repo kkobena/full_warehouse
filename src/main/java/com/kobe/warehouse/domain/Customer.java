@@ -38,7 +38,7 @@ import java.time.LocalDateTime;
     }
 )
 @Inheritance(strategy = InheritanceType.SINGLE_TABLE)
-@Cache(usage = CacheConcurrencyStrategy.NONSTRICT_READ_WRITE)
+@Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
 public class Customer implements Serializable {
     @Serial
     private static final long serialVersionUID = 1L;

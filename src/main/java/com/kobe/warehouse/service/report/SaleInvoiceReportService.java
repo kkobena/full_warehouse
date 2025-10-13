@@ -3,7 +3,7 @@ package com.kobe.warehouse.service.report;
 import com.kobe.warehouse.config.FileStorageProperties;
 import com.kobe.warehouse.service.StorageService;
 import com.kobe.warehouse.service.dto.SaleDTO;
-import com.lowagie.text.DocumentException;
+
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
@@ -11,6 +11,8 @@ import java.net.MalformedURLException;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+
+import org.openpdf.text.DocumentException;
 import org.springframework.core.io.Resource;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -23,7 +25,7 @@ import org.xhtmlrenderer.pdf.ITextRenderer;
 @Transactional(readOnly = true)
 public class SaleInvoiceReportService extends CommonReportService {
 
-    private static final String SALE = "sale";
+    private final String SALE = "sale";
     private final SpringTemplateEngine templateEngine;
     private final StorageService storageService;
 

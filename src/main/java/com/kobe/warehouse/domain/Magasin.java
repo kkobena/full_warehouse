@@ -25,7 +25,7 @@ import org.hibernate.annotations.JoinFormula;
  */
 @Entity
 @Table(name = "magasin")
-@Cache(usage = CacheConcurrencyStrategy.NONSTRICT_READ_WRITE)
+@Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
 public class Magasin implements Serializable {
 
     @Serial

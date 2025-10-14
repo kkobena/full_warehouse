@@ -83,7 +83,7 @@ export class RemiseProduitFormModalComponent implements OnInit, AfterViewInit {
   ngAfterViewInit(): void {
     this.editForm.get('codeRemise').valueChanges.subscribe(value => {
       if (value) {
-        this.editForm.get('grilles').reset();
+       // this.editForm.get('grilles').reset();
         const cordeRemise = this.remisesCodes.find(code => code.value === value);
         this.addGrille(cordeRemise);
       }

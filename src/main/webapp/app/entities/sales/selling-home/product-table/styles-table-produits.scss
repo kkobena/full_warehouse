@@ -494,3 +494,246 @@ $pharma-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
     display: none;
   }
 }
+// ====================================
+// HEADER COMPACT - VERSION MODERNE
+// ====================================
+.pharma-table-header-compact {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 12px 20px;
+  background: linear-gradient(to bottom, #f8f9fa, #ffffff);
+  border-bottom: 2px solid #e9ecef;
+  flex-wrap: wrap;
+}
+
+// ====================================
+// SECTION RECHERCHE
+// ====================================
+.pharma-filter-search {
+  flex: 1;
+  min-width: 280px;
+
+  ::ng-deep {
+    .p-iconfield {
+      width: 100%;
+      max-width: 450px;
+    }
+
+    .p-inputicon {
+      color: #6c757d;
+      left: 12px;
+      font-size: 14px;
+    }
+
+    .pharma-search-input {
+      width: 100%;
+      height: 42px;
+      padding: 10px 12px 10px 38px;
+      border: 1px solid $pharma-border;
+      border-radius: 8px;
+      font-size: 14px;
+      transition: all 0.2s ease;
+      background: #fafbfc;
+
+      &:hover {
+        border-color: #adb5bd;
+        background: $pharma-white;
+      }
+
+      &:focus {
+        border-color: $pharma-primary;
+        box-shadow: 0 0 0 3px rgba(91, 137, 166, 0.1);
+        background: $pharma-white;
+        outline: none;
+      }
+
+      &::placeholder {
+        color: #adb5bd;
+      }
+    }
+  }
+}
+
+// ====================================
+// SÉPARATEUR VERTICAL
+// ====================================
+.pharma-divider {
+  width: 1px;
+  height: 40px;
+  background: linear-gradient(to bottom, transparent, #dee2e6, transparent);
+  flex-shrink: 0;
+}
+
+// ====================================
+// SECTION REMISE
+// ====================================
+.pharma-remise-section {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-shrink: 0;
+}
+
+// Badge info remise
+.pharma-remise-info {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 14px;
+  background: linear-gradient(135deg, #fff8e1 0%, #ffecb3 100%);
+  border: 1px solid #ffb300;
+  border-radius: 8px;
+  white-space: nowrap;
+
+  i {
+    color: #f57c00;
+    font-size: 15px;
+  }
+
+  .remise-label {
+    color: #e65100;
+    font-size: 13px;
+    font-weight: 500;
+  }
+
+  .remise-value {
+    color: #e65100;
+    font-weight: 700;
+    font-size: 14px;
+    margin-left: 2px;
+  }
+}
+
+// Sélecteur de remise compact
+::ng-deep {
+  .pharma-remise-select-compact {
+    min-width: 200px;
+    max-width: 280px;
+
+    .p-select {
+      height: 42px;
+      border: 1px solid $pharma-border;
+      border-radius: 8px;
+      background: #fafbfc;
+      transition: all 0.2s ease;
+
+      &:hover {
+        border-color: #adb5bd;
+        background: $pharma-white;
+      }
+
+      &:focus,
+      &.p-focus {
+        border-color: $pharma-primary;
+        box-shadow: 0 0 0 3px rgba(91, 137, 166, 0.1);
+        background: $pharma-white;
+      }
+
+      .p-select-label {
+        padding: 10px 12px;
+        font-size: 14px;
+        color: $pharma-text;
+      }
+
+      .p-select-dropdown {
+        width: 42px;
+        color: #6c757d;
+      }
+    }
+
+    .p-select-clear-icon {
+      color: #6c757d;
+      font-size: 13px;
+
+      &:hover {
+        color: $pharma-danger;
+      }
+    }
+  }
+
+  .pharma-remise-group {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 12px;
+    font-weight: 600;
+    font-size: 13px;
+    color: $pharma-primary;
+    background: #f0f7fa;
+    border-radius: 4px;
+    margin: 4px 0;
+
+    i {
+      font-size: 14px;
+      color: $pharma-primary;
+    }
+  }
+}
+
+// ====================================
+// RESPONSIVE
+// ====================================
+@media (max-width: 1024px) {
+  .pharma-table-header-compact {
+    flex-wrap: wrap;
+    gap: 12px;
+  }
+
+  .pharma-filter-search {
+    flex: 1 1 100%;
+    min-width: 100%;
+
+    ::ng-deep .p-iconfield {
+      max-width: 100%;
+    }
+  }
+
+  .pharma-divider {
+    display: none;
+  }
+
+  .pharma-remise-section {
+    flex: 1 1 100%;
+    justify-content: space-between;
+    width: 100%;
+  }
+
+  .pharma-remise-info {
+    flex: 0 1 auto;
+  }
+
+  ::ng-deep .pharma-remise-select-compact {
+    flex: 1 1 auto;
+    min-width: 180px;
+  }
+}
+
+@media (max-width: 640px) {
+  .pharma-table-header-compact {
+    padding: 12px 15px;
+  }
+
+  .pharma-remise-section {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 10px;
+  }
+
+  .pharma-remise-info {
+    justify-content: center;
+  }
+
+  ::ng-deep .pharma-remise-select-compact {
+    max-width: 100%;
+  }
+}
+
+// ====================================
+// IMPRESSION
+// ====================================
+@media print {
+  .pharma-table-header-compact {
+    display: none;
+  }
+}

@@ -110,14 +110,16 @@
               [variant]="!isLargeScreen ? 'text' : undefined"
               icon="pi pi-clock"
               [label]="isLargeScreen ? 'Ventes en attente' : ''"
+              [rounded]="!isLargeScreen"
+              size="small"
               severity="info"
               [badge]="1"
               badgeSeverity="danger"
             ></p-button>
 
 
-
             <p-button label="Retour"
+                      size="small"
                       (click)="previousState()"
                       severity="secondary"
                       icon="pi pi-arrow-left">
@@ -147,7 +149,7 @@
               [autofocus]="true"
               [includeDetails]="true"
               [pageSize]="PRODUIT_COMBO_RESULT_SIZE"
-              styleClass="pharma-autocomplete">
+              class="pharma-autocomplete">
             </jhi-produit-search-autocomplete>
           </div>
 

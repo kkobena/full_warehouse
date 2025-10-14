@@ -1,32 +1,39 @@
 @if (sale()) {
   <div class="pharma-table-wrapper">
+    <!-- En-tête du tableau avec actions - VERSION COMPACTE -->
+    <div class="pharma-table-header-compact">
 
-    <!-- En-tête du tableau avec actions -->
-    <div class="pharma-table-header">
-      <div class="pharma-table-header-left">
+      <!-- Recherche produit -->
+      <div class="pharma-filter-search">
         <p-iconfield>
-          <p-inputicon class="pi pi-filter" />
+          <p-inputicon class="pi pi-search" />
           <input
             #filterInput
             (input)="produitTable.filterGlobal($event.target.value, 'contains')"
             pInputText
             placeholder="Rechercher un produit..."
             type="text"
+            class="pharma-search-input"
           />
         </p-iconfield>
-
       </div>
 
-      <div class="pharma-table-header-center">
-        @if (!currentSaleService.currentSale()?.remise) {
-          <div class="pharma-remise-badge">
+      <!-- Séparateur vertical -->
+      <div class="pharma-divider"></div>
+
+      <!-- Section Remise -->
+      <div class="pharma-remise-section">
+
+        <!-- Badge Remise Info -->
+        @if (currentSaleService.currentSale()?.remise) {
+          <div class="pharma-remise-info">
             <i class="pi pi-percentage"></i>
-            <span>Remise appliquée: <strong class="remise-value">{{ remiseTaux() }}</strong></span>
+            <span class="remise-label">Remise:</span>
+            <strong class="remise-value">{{ remiseTaux() }}</strong>
           </div>
         }
-      </div>
 
-      <div class="pharma-table-header-right">
+        <!-- Sélecteur de remise -->
         @let remises = remiseCacheService.remises();
         @if (remises?.length > 0) {
           <p-select
@@ -37,7 +44,7 @@
             [showClear]="true"
             placeholder="Choisir une remise"
             optionLabel="valeur"
-            class="pharma-remise-select">
+            class="pharma-remise-select-compact">
             <ng-template #group let-group>
               <div class="pharma-remise-group">
                 <i class="pi pi-tag"></i>

@@ -25,7 +25,7 @@ import { PopoverModule } from 'primeng/popover';
     CustomerDataTableComponent,
     TagModule
   ],
-  providers: [],
+
   templateUrl: './customer-overlay-panel.component.html'
 })
 export class CustomerOverlayPanelComponent {

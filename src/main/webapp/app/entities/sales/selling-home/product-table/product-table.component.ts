@@ -21,6 +21,8 @@ import { InputGroupModule } from 'primeng/inputgroup';
 import { Select } from 'primeng/select';
 import { ConfirmDialogComponent } from '../../../../shared/dialog/confirm-dialog/confirm-dialog.component';
 import { showCommonError } from '../sale-helper';
+import { InputIcon } from 'primeng/inputicon';
+import { IconField } from 'primeng/iconfield';
 
 @Component({
   selector: 'jhi-product-table',
@@ -37,9 +39,12 @@ import { showCommonError } from '../sale-helper';
     InputGroupAddonModule,
     InputGroupModule,
     Select,
-    ConfirmDialogComponent
+    ConfirmDialogComponent,
+    InputIcon,
+    IconField
   ],
-  templateUrl: './product-table.component.html'
+  templateUrl: './product-table.component.html',
+  styleUrls: ['./styles-table-produits.scss'],
 })
 export class ProductTableComponent {
   readonly itemQtySoldEvent = output<ISalesLine>();

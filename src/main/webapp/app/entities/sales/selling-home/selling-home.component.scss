@@ -41,3 +41,454 @@
     margin-right: 0.5rem;
   }
 }
+
+
+
+// ====================================
+// VARIABLES PHARMA SMART
+// ====================================
+$pharma-primary: #5b89a6;
+$pharma-success: #5cb85c;
+$pharma-info: #5bc0de;
+$pharma-secondary: #95a5a6;
+$pharma-danger: #d9534f;
+
+$pharma-bg: #f5f7fa;
+$pharma-white: #ffffff;
+$pharma-border: #dfe3e8;
+$pharma-text: #333333;
+$pharma-text-light: #6c757d;
+
+$pharma-radius: 4px;
+$pharma-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+$pharma-shadow-hover: 0 2px 6px rgba(0, 0, 0, 0.15);
+
+// ====================================
+// LAYOUT PRINCIPAL
+// ====================================
+:host {
+  display: block;
+  height: 100%;
+}
+
+.pharma-container {
+  background: $pharma-bg;
+  min-height: 100vh;
+  padding: 10px;
+}
+
+.pharma-row {
+  display: flex;
+  gap: 10px;
+  align-items: flex-start;
+}
+
+// ====================================
+// SIDEBAR - MENU TYPES DE VENTE
+// ====================================
+.pharma-sidebar {
+  flex: 0 0 220px;
+  width: 220px;
+}
+
+.pharma-card {
+  background: $pharma-white;
+  border-radius: $pharma-radius;
+  box-shadow: $pharma-shadow;
+  overflow: hidden;
+}
+
+.pharma-card-header {
+  background: linear-gradient(to bottom, #6b9ab8, #5b89a6);
+  color: $pharma-white;
+  padding: 15px;
+  font-weight: 600;
+  font-size: 14px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+
+  i {
+    font-size: 16px;
+  }
+}
+
+.pharma-nav {
+  padding: 10px;
+}
+
+// ====================================
+// NAVIGATION PILLS
+// ====================================
+::ng-deep {
+  .pharma-nav {
+    .nav-pills {
+      .nav-link {
+        border-radius: $pharma-radius;
+        padding: 12px 15px;
+        margin-bottom: 5px;
+        color: $pharma-text;
+        font-size: 14px;
+        font-weight: 500;
+        transition: all 0.2s ease;
+        border: 1px solid transparent;
+
+        &:hover {
+          background: #f8f9fa;
+          border-color: $pharma-border;
+        }
+
+        &.active {
+          background: $pharma-primary;
+          color: $pharma-white;
+          box-shadow: $pharma-shadow;
+        }
+      }
+    }
+  }
+}
+
+// ====================================
+// ZONE DE CONTENU PRINCIPALE
+// ====================================
+.pharma-content {
+  flex: 1;
+  min-width: 0;
+}
+
+// ====================================
+// TOOLBARS
+// ====================================
+.pharma-toolbar {
+  background: $pharma-white;
+  border-radius: $pharma-radius;
+  box-shadow: $pharma-shadow;
+  padding: 15px;
+  margin-bottom: 15px;
+}
+
+.pharma-toolbar-row {
+  display: flex;
+  gap: 15px;
+  align-items: flex-end;
+  flex-wrap: wrap;
+}
+
+.pharma-toolbar-item {
+  display: flex;
+  align-items: center;
+}
+
+.pharma-toolbar-grow {
+  flex: 1;
+  min-width: 200px;
+}
+
+.pharma-toolbar-actions {
+  display: flex;
+  gap: 8px;
+  margin-left: auto;
+}
+
+.pharma-assurance-toolbar {
+  background: #f8f9fa;
+  border: 1px solid $pharma-border;
+}
+
+.pharma-product-toolbar {
+  padding: 20px;
+}
+
+// ====================================
+// ZONE DE SAISIE PRODUIT
+// ====================================
+.pharma-product-search {
+  flex: 1;
+  min-width: 300px;
+}
+
+.pharma-quantity {
+  flex: 0 0 160px;
+}
+
+.pharma-product-info {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  flex-wrap: wrap;
+}
+
+.pharma-input-label {
+  font-size: 12px;
+  color: $pharma-text-light;
+  margin-bottom: 5px;
+  font-weight: 500;
+}
+
+// ====================================
+// BUTTONS STYLE PHARMA
+// ====================================
+::ng-deep {
+  .pharma-btn {
+    border-radius: $pharma-radius;
+    padding: 10px 20px;
+    font-size: 14px;
+    font-weight: 500;
+    transition: all 0.2s ease;
+    box-shadow: $pharma-shadow;
+
+    &:hover:not(:disabled) {
+      box-shadow: $pharma-shadow-hover;
+      transform: translateY(-1px);
+    }
+
+    &:active:not(:disabled) {
+      transform: translateY(0);
+    }
+
+    .p-button-icon {
+      font-size: 14px;
+    }
+  }
+
+  .pharma-info-btn {
+    border-radius: $pharma-radius;
+    font-size: 13px;
+    padding: 8px 12px;
+
+    .p-badge {
+      font-size: 11px;
+      font-weight: 600;
+      margin-left: 6px;
+      padding: 3px 8px;
+      border-radius: 10px;
+    }
+  }
+
+  .p-button-info {
+    background: $pharma-info;
+    border-color: $pharma-info;
+
+    &:hover:not(:disabled) {
+      background: darken($pharma-info, 8%);
+      border-color: darken($pharma-info, 8%);
+    }
+  }
+
+  .p-button-secondary {
+    background: $pharma-secondary;
+    border-color: $pharma-secondary;
+
+    &:hover:not(:disabled) {
+      background: darken($pharma-secondary, 8%);
+      border-color: darken($pharma-secondary, 8%);
+    }
+  }
+}
+
+// ====================================
+// SELECT / FLOATLABEL
+// ====================================
+::ng-deep {
+  .p-select {
+    border: 1px solid $pharma-border;
+    border-radius: $pharma-radius;
+    box-shadow: none;
+    transition: all 0.2s ease;
+
+    &:hover {
+      border-color: $pharma-primary;
+    }
+
+    &.p-focus,
+    &:focus {
+      border-color: $pharma-primary;
+      box-shadow: 0 0 0 3px rgba(91, 137, 166, 0.1);
+    }
+  }
+
+  .p-floatlabel {
+    label {
+      color: $pharma-text-light;
+      font-size: 13px;
+      font-weight: 500;
+    }
+
+    &:has(.p-select.p-focus) label,
+    &:has(.p-select.p-filled) label {
+      color: $pharma-primary;
+    }
+  }
+}
+
+// ====================================
+// CONTENU VENTE
+// ====================================
+.pharma-sale-content {
+  background: $pharma-white;
+  border-radius: $pharma-radius;
+  box-shadow: $pharma-shadow;
+  padding: 20px;
+  min-height: 500px;
+}
+
+// ====================================
+// DRAWER
+// ====================================
+::ng-deep {
+  .p-drawer {
+    .p-drawer-header {
+      background: linear-gradient(to bottom, #6b9ab8, #5b89a6);
+      color: $pharma-white;
+      padding: 20px;
+      border-bottom: none;
+    }
+
+    .p-drawer-content {
+      background: $pharma-bg;
+      padding: 20px;
+    }
+  }
+}
+
+// ====================================
+// INPUTS & AUTOCOMPLETE
+// ====================================
+::ng-deep {
+  .p-inputtext {
+    border: 1px solid $pharma-border;
+    border-radius: $pharma-radius;
+    transition: all 0.2s ease;
+
+    &:hover {
+      border-color: $pharma-primary;
+    }
+
+    &:focus {
+      border-color: $pharma-primary;
+      box-shadow: 0 0 0 3px rgba(91, 137, 166, 0.1);
+    }
+  }
+
+  .p-autocomplete {
+    width: 100%;
+
+    .p-autocomplete-input {
+      width: 100%;
+      border: 1px solid $pharma-border;
+      border-radius: $pharma-radius;
+
+      &:focus {
+        border-color: $pharma-primary;
+        box-shadow: 0 0 0 3px rgba(91, 137, 166, 0.1);
+      }
+    }
+  }
+
+  .p-badge {
+    border-radius: 10px;
+    font-weight: 600;
+  }
+}
+
+// ====================================
+// RESPONSIVE
+// ====================================
+@media (max-width: 992px) {
+  .pharma-row {
+    flex-direction: column;
+  }
+
+  .pharma-sidebar {
+    width: 100%;
+    flex: 1;
+  }
+
+  .pharma-nav {
+    ::ng-deep .nav-pills {
+      display: flex;
+      overflow-x: auto;
+
+      .nav-link {
+        white-space: nowrap;
+        min-width: fit-content;
+      }
+    }
+  }
+}
+
+@media (max-width: 768px) {
+  .pharma-container {
+    padding: 10px;
+  }
+
+  .pharma-toolbar-row {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .pharma-toolbar-item {
+    width: 100%;
+  }
+
+  .pharma-toolbar-actions {
+    margin-left: 0;
+    justify-content: space-between;
+  }
+
+  .pharma-product-search,
+  .pharma-quantity {
+    flex: 1;
+    min-width: 100%;
+  }
+
+  .pharma-btn-label {
+    display: none;
+  }
+
+  .pharma-btn {
+    padding: 10px;
+  }
+}
+
+@media (max-width: 576px) {
+  .pharma-sidebar {
+    flex: 0 0 auto;
+  }
+
+  .pharma-card-header {
+    font-size: 13px;
+    padding: 12px;
+  }
+
+  .pharma-toolbar {
+    padding: 12px;
+  }
+
+  .pharma-sale-content {
+    padding: 15px;
+  }
+}
+
+// ====================================
+// IMPRESSION
+// ====================================
+@media print {
+  .pharma-sidebar,
+  .pharma-toolbar-actions,
+  .pharma-btn {
+    display: none !important;
+  }
+
+  .pharma-container {
+    padding: 0;
+    background: white;
+  }
+
+  .pharma-card,
+  .pharma-toolbar,
+  .pharma-sale-content {
+    box-shadow: none !important;
+    border: 1px solid #ddd;
+  }
+}

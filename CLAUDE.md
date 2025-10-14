@@ -206,7 +206,7 @@ Authorization is role-based with a fine-grained privilege system:
 ### Frontend Architecture
 
 - Feature module per entity (lazy-loaded routes)
-- Standalone components (Angular 14+ pattern)
+- Standalone components (Angular 20+ pattern)
 - Services for HTTP communication (use Angular's `HttpClient`)
 - RxJS observables for async operations
 - PrimeNG components for complex UI (tables, dialogs, forms)
@@ -344,3 +344,7 @@ psql -U warehouse -d warehouse
 \dt warehouse.*              # List all tables
 \d warehouse.table_name      # Describe table structure
 ```
+- use angular 20
+- use JDK 25
+- use primeng 20
+- use p-button

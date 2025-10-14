@@ -1,0 +1,496 @@
+// ====================================
+// VARIABLES
+// ====================================
+$pharma-primary: #5b89a6;
+$pharma-success: #5cb85c;
+$pharma-danger: #d9534f;
+$pharma-warning: #f0ad4e;
+$pharma-info: #5bc0de;
+
+$pharma-bg: #f5f7fa;
+$pharma-white: #ffffff;
+$pharma-border: #dfe3e8;
+$pharma-text: #333333;
+$pharma-text-light: #6c757d;
+
+$pharma-radius: 4px;
+$pharma-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+
+// ====================================
+// WRAPPER TABLEAU
+// ====================================
+.pharma-table-wrapper {
+  background: $pharma-white;
+  border-radius: $pharma-radius;
+  box-shadow: $pharma-shadow;
+  overflow: hidden;
+}
+
+// ====================================
+// EN-TÊTE DU TABLEAU
+// ====================================
+.pharma-table-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 15px;
+  padding: 10px 20px;
+  background: linear-gradient(to bottom, #f8f9fa, #ffffff);
+  border-bottom: 2px solid #e9ecef;
+  flex-wrap: wrap;
+}
+
+.pharma-table-header-left {
+  flex: 1;
+  min-width: 250px;
+
+  .pharma-search-input {
+    width: 100%;
+    max-width: 400px;
+    border: 1px solid $pharma-border;
+    border-radius: $pharma-radius;
+    padding: 10px 10px 10px 35px;
+    font-size: 14px;
+    transition: all 0.2s ease;
+
+    &:focus {
+      border-color: $pharma-primary;
+      box-shadow: 0 0 0 3px rgba(91, 137, 166, 0.1);
+    }
+
+    &::placeholder {
+      color: #adb5bd;
+    }
+  }
+
+  .p-input-icon-left {
+    width: 100%;
+    max-width: 400px;
+
+    i {
+      color: #6c757d;
+      left: 12px;
+    }
+  }
+}
+
+.pharma-table-header-center {
+  flex: 0 0 auto;
+}
+
+.pharma-table-header-right {
+  flex: 0 0 auto;
+  min-width: 200px;
+}
+
+// Badge de remise
+.pharma-remise-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 16px;
+  background: linear-gradient(135deg, #fff3cd 0%, #ffe69c 100%);
+  border: 1px solid #ffc107;
+  border-radius: $pharma-radius;
+  color: #856404;
+  font-size: 13px;
+  font-weight: 500;
+
+  i {
+    font-size: 14px;
+  }
+
+  .remise-value {
+    color: #856404;
+    font-weight: 700;
+    font-size: 14px;
+  }
+}
+
+// Select de remise
+::ng-deep {
+  .pharma-remise-select {
+    min-width: 220px;
+
+    .p-select {
+      border: 1px solid $pharma-border;
+      border-radius: $pharma-radius;
+
+      &:hover {
+        border-color: $pharma-primary;
+      }
+    }
+  }
+
+  .pharma-remise-group {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-weight: 600;
+    color: $pharma-primary;
+
+    i {
+      font-size: 14px;
+    }
+  }
+}
+
+// ====================================
+// TABLEAU PRIMENG
+// ====================================
+::ng-deep {
+  .pharma-table {
+    .p-datatable-wrapper {
+      border-radius: 0;
+    }
+
+    // En-tête du tableau
+    .p-datatable-thead {
+      .pharma-table-head {
+        th {
+          background: linear-gradient(to bottom, #6b9ab8, #5b89a6);
+          color: $pharma-white;
+          font-weight: 600;
+          font-size: 13px;
+          text-transform: uppercase;
+          letter-spacing: 0.5px;
+          padding: 12px 15px;
+          border: none;
+          border-right: 1px solid rgba(255, 255, 255, 0.1);
+
+          &:last-child {
+            border-right: none;
+          }
+        }
+      }
+    }
+
+    // Corps du tableau
+    .p-datatable-tbody {
+      tr {
+        transition: all 0.2s ease;
+
+        &:nth-child(even) {
+          background: #f8f9fa;
+        }
+
+        &:hover {
+          background: #e3f2fd !important;
+        }
+
+        td {
+          padding: 12px 15px;
+          border-bottom: 1px solid #e9ecef;
+          font-size: 14px;
+          color: $pharma-text;
+        }
+
+        // Ligne avec alerte (quantité insuffisante)
+        &.pharma-row-warning {
+          background: #fff3cd !important;
+          border-left: 3px solid $pharma-warning;
+
+          &:hover {
+            background: #ffe8a1 !important;
+          }
+        }
+      }
+    }
+
+    // Pied du tableau
+    .p-datatable-tfoot {
+      .pharma-table-footer {
+        background: linear-gradient(to bottom, #f8f9fa, #e9ecef);
+        border-top: 2px solid #dee2e6;
+
+        td {
+          padding: 15px;
+          font-weight: 600;
+          font-size: 14px;
+        }
+      }
+    }
+  }
+}
+
+// ====================================
+// STYLES DES CELLULES
+// ====================================
+
+// Numéro de ligne
+.pharma-row-number {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 24px;
+  height: 24px;
+  background: linear-gradient(135deg, #e9ecef 0%, #dee2e6 100%);
+  border-radius: 50%;
+  font-weight: 600;
+  font-size: 12px;
+  color: #495057;
+  padding: 0 6px;
+}
+
+// Code produit
+.pharma-code {
+  font-family: 'Courier New', monospace;
+  font-weight: 600;
+  color: $pharma-primary;
+  font-size: 13px;
+  padding: 4px 4px;
+  background: #e3f2fd;
+  border-radius: 3px;
+  display: inline-block;
+}
+
+// Nom du produit
+.pharma-product-name {
+  font-size: 14px;
+  color: $pharma-text;
+  line-height: 1.4;
+  font-weight: 500;
+}
+
+// Valeurs de quantité
+.pharma-qty-value {
+  font-weight: 600;
+  color: $pharma-primary;
+  font-size: 14px;
+}
+
+// Prix
+.pharma-price {
+  font-weight: 600;
+  color: #495057;
+  font-size: 14px;
+}
+
+// Base de remboursement spéciale
+.pharma-br-special {
+  .pharma-price {
+    color: $pharma-danger !important;
+    font-weight: 700;
+  }
+}
+
+// Total
+.pharma-total {
+  font-weight: 700;
+  color: $pharma-success;
+  font-size: 15px;
+}
+
+// ====================================
+// INPUTS ÉDITABLES
+// ====================================
+::ng-deep {
+  .pharma-input-qty,
+  .pharma-input-price {
+    width: 90px !important;
+    text-align: center;
+    border: 2px solid $pharma-primary;
+    border-radius: $pharma-radius;
+    font-weight: 600;
+    padding: 6px;
+    font-size: 14px;
+
+    &:focus {
+      border-color: $pharma-success;
+      box-shadow: 0 0 0 3px rgba(92, 184, 92, 0.2);
+    }
+  }
+
+  .p-cell-editing {
+    background: #e8f5e9 !important;
+    padding: 4px !important;
+  }
+}
+
+// ====================================
+// FOOTER DU TABLEAU
+// ====================================
+.pharma-footer-label {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: $pharma-primary;
+
+  i {
+    font-size: 16px;
+  }
+
+  span {
+    font-weight: 700;
+    font-size: 14px;
+    text-transform: uppercase;
+  }
+}
+
+.pharma-footer-value {
+  font-weight: 700;
+  color: $pharma-primary;
+  font-size: 14px;
+}
+
+.pharma-footer-total {
+  font-weight: 700;
+  color: $pharma-success;
+  font-size: 18px;
+}
+
+// ====================================
+// MESSAGE TABLEAU VIDE
+// ====================================
+.pharma-empty-message {
+  text-align: center;
+  padding: 60px 20px !important;
+}
+
+.pharma-empty-content {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+  color: #6c757d;
+
+  i {
+    font-size: 48px;
+    color: #adb5bd;
+  }
+
+  p {
+    margin: 0;
+    font-size: 16px;
+    font-weight: 600;
+    color: #495057;
+  }
+
+  small {
+    font-size: 13px;
+    color: #6c757d;
+  }
+}
+
+// ====================================
+// PAGINATION
+// ====================================
+::ng-deep {
+  .pharma-table {
+    .p-paginator {
+      background: #f8f9fa;
+      border-top: 1px solid #dee2e6;
+      padding: 12px 20px;
+
+      .p-paginator-current {
+        color: $pharma-text-light;
+        font-size: 13px;
+      }
+
+      .p-paginator-pages {
+        .p-paginator-page {
+          min-width: 35px;
+          height: 35px;
+          border-radius: $pharma-radius;
+          margin: 0 3px;
+          transition: all 0.2s ease;
+
+          &.p-highlight {
+            background: $pharma-primary;
+            border-color: $pharma-primary;
+          }
+
+          &:hover {
+            background: #e9ecef;
+          }
+        }
+      }
+
+      .p-dropdown {
+        border: 1px solid $pharma-border;
+        border-radius: $pharma-radius;
+
+        &:hover {
+          border-color: $pharma-primary;
+        }
+      }
+    }
+  }
+}
+
+// ====================================
+// RESPONSIVE
+// ====================================
+@media (max-width: 992px) {
+  .pharma-table-header {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .pharma-table-header-left,
+  .pharma-table-header-center,
+  .pharma-table-header-right {
+    width: 100%;
+    max-width: 100%;
+  }
+
+  .pharma-search-input {
+    max-width: 100% !important;
+  }
+}
+
+@media (max-width: 768px) {
+  ::ng-deep {
+    .pharma-table {
+      font-size: 12px;
+
+      .p-datatable-thead th {
+        font-size: 11px;
+        padding: 10px 8px;
+      }
+
+      .p-datatable-tbody td {
+        padding: 10px 8px !important;
+      }
+    }
+  }
+
+
+
+  .pharma-product-name {
+    font-size: 12px;
+  }
+
+  .pharma-row-number {
+    width: 24px;
+    height: 24px;
+    font-size: 11px;
+  }
+}
+
+// ====================================
+// IMPRESSION
+// ====================================
+@media print {
+  .pharma-table-header {
+    display: none;
+  }
+
+  ::ng-deep {
+    .pharma-table {
+      .p-paginator {
+        display: none;
+      }
+
+      .p-datatable-tbody {
+        tr {
+          page-break-inside: avoid;
+        }
+      }
+    }
+  }
+
+  .p-button {
+    display: none;
+  }
+}

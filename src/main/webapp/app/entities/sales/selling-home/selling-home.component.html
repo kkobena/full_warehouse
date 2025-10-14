@@ -1,176 +1,196 @@
+<!-- Drawer pour ventes en attente -->
 <p-drawer [(visible)]="pendingSalesSidebar" [style]="{ width: '70vw' }" position="right">
   <ng-template #header>
-    <span class="font-semibold text-xl">VENTES EN ATTENTES</span>
+    <i class="pi pi-clock text-xl"></i>
+    <span class="font-semibold text-xl">Ventes en attente</span>
   </ng-template>
   <ng-template #content>
-    <jhi-prevente-modal (pendingSalesSidebarChange)="closeSideBar($event)"
-                        [user]="userCaissier"></jhi-prevente-modal>
+    <jhi-prevente-modal
+      (pendingSalesSidebarChange)="closeSideBar($event)"
+      [user]="userCaissier">
+    </jhi-prevente-modal>
   </ng-template>
 </p-drawer>
-<div class="container-fluid">
-  <div class="row ">
-    <div class="col-lg-2 col-xl-2 col-md-2 col-xxl-2 col-sm-4 pharma-smart">
 
-      <p-card>
-        <ng-template #title>
-          <div class="card-title secondary-title">
-            <i class="pi pi-cog mr-2"></i>
-            Les types de vente
-          </div>
-        </ng-template>
-        <div
-          #nav="ngbNav"
-          (navChange)="onNavChange($event)"
-          [(activeId)]="active"
-          class="nav flex-column nav-pills"
-          ngbNav
-          orientation="vertical"
-        >
-          <ng-container ngbNavItem="comptant">
-            <a class="flex-sm-fill nav-link" ngbNavLink>Comptant</a>
-            <ng-template ngbNavContent>
-              <jhi-comptant
-                (inputToFocusEvent)="getControlToFocus($event)"
-                (responseEvent)="onFinalyse($event)"
-                (saveResponse)="onSave($event)"
-                [canFocusLastModeInput]="canFocusLastModeInput"
-                [isPresale]="isPresale"
-              >
-              </jhi-comptant>
-            </ng-template>
-          </ng-container>
-          <p-divider layout="horizontal"></p-divider>
-          <ng-container ngbNavItem="assurance">
-            <a class="flex-sm-fill nav-link" ngbNavLink>Assurance</a>
-            <ng-template ngbNavContent>
-              <jhi-assurance [isPresale]="isPresale"></jhi-assurance>
-            </ng-template>
-          </ng-container>
-          <p-divider layout="horizontal"></p-divider>
-          <ng-container ngbNavItem="carnet">
-            <a class="flex-sm-fill nav-link" ngbNavLink>Carnet</a>
-            <ng-template ngbNavContent>
-              <jhi-carnet [isPresale]="isPresale"></jhi-carnet>
-            </ng-template>
-          </ng-container>
+<!-- Interface principale -->
+<div class="pharma-container">
+  <div class="pharma-row">
+
+    <!-- MENU TYPES DE VENTE - Style original amélioré -->
+    <div class="pharma-sidebar">
+      <div class="pharma-card">
+        <div class="pharma-card-header">
+          <i class="pi pi-cog"></i>
+          <span>Les types de vente</span>
         </div>
-      </p-card>
 
+        <div class="pharma-nav">
+          <div
+            #nav="ngbNav"
+            (navChange)="onNavChange($event)"
+            [(activeId)]="active"
+            class="nav flex-column nav-pills"
+            ngbNav
+            orientation="vertical">
 
+            <ng-container ngbNavItem="comptant">
+              <a class="nav-link pharma-nav-link" ngbNavLink>Comptant</a>
+              <ng-template ngbNavContent>
+                <jhi-comptant
+                  (inputToFocusEvent)="getControlToFocus($event)"
+                  (responseEvent)="onFinalyse($event)"
+                  (saveResponse)="onSave($event)"
+                  [canFocusLastModeInput]="canFocusLastModeInput"
+                  [isPresale]="isPresale">
+                </jhi-comptant>
+              </ng-template>
+            </ng-container>
+
+            <ng-container ngbNavItem="assurance">
+              <a class="nav-link pharma-nav-link" ngbNavLink>Assurance</a>
+              <ng-template ngbNavContent>
+                <jhi-assurance [isPresale]="isPresale"></jhi-assurance>
+              </ng-template>
+            </ng-container>
+
+            <ng-container ngbNavItem="carnet">
+              <a class="nav-link pharma-nav-link" ngbNavLink>Carnet</a>
+              <ng-template ngbNavContent>
+                <jhi-carnet [isPresale]="isPresale"></jhi-carnet>
+              </ng-template>
+            </ng-container>
+          </div>
+        </div>
+      </div>
     </div>
-    <div class="pharma-smart-content pt-1 pb-3 col-lg-10 col-xl-10 col-xxl-10  col-md-10 col-sm-8 ">
-      <p-toolbar class="mb-1">
-        <div [style]="{ width: '100%'}" class="row ">
-          <div class="col-3 ">
+
+    <!-- ZONE DE TRAVAIL PRINCIPALE -->
+    <div class="pharma-content">
+
+      <!-- Barre d'outils supérieure -->
+      <div class="pharma-toolbar">
+        <div class="pharma-toolbar-row">
+
+          <!-- Vendeur -->
+          <div class="pharma-toolbar-item" style="flex: 0 0 280px;">
             <p-floatlabel variant="on">
               <p-select
                 #userBox
-                (onChange)="onSelectUser()"
                 [(ngModel)]="userSeller"
+                (onChange)="onSelectUser()"
+                [options]="this.userVendeurService.vendeurs()"
                 [appendTo]="appendTo"
                 [autofocus]="true"
                 [dataKey]="'id'"
-                [fluid]="true"
-                [options]="this.userVendeurService.vendeurs()"
+                [style]="{ width: '100%' }"
                 id="vendeurs"
                 optionLabel="abbrName"
-                size="large"
-              ></p-select>
-
+                class="pharma-select">
+              </p-select>
               <label for="vendeurs">{{ 'warehouseApp.sales.vendeurs' | translate }}</label>
             </p-floatlabel>
           </div>
-          <div class="col-9 row text-right" style="padding: 0">
-            <div class="col-8">
-              @if (active === 'comptant' && currentSaleService.currentSale()) {
-                <jhi-customer-overlay-panel
-                  (onCloseEvent)="onCustomerOverlay($event)"></jhi-customer-overlay-panel>
-              }
-            </div>
-            <div class="col-4">
-              @if (isLargeScreen) {
-                <p-button
-                  (click)="openPindingSide()"
-                  [disabled]="currentSaleService.currentSale() || isPresale"
-                  [raised]="true"
-                  icon="pi pi-search"
-                  label="Ventes en attente"
-                  severity="info"
-                ></p-button>
-              } @else {
-                <p-button
-                  (click)="openPindingSide()"
-                  [disabled]="currentSaleService.currentSale() || isPresale"
-                  [raised]="true"
-                  icon="pi pi-search"
-                  pTooltip="Ventes en attente"
-                  severity="info"
-                  tooltipPosition="left"
-                ></p-button>
-              }
 
-              <p-button (click)="previousState()" [raised]="true" icon="pi pi-arrow-left"
-                        label="Retour" severity="secondary"></p-button>
-            </div>
-          </div>
-        </div>
-      </p-toolbar>
-
-      @if (active === 'assurance' || active === 'carnet') {
-        <p-toolbar class="mt-1">
-          <jhi-assurance-data></jhi-assurance-data>
-        </p-toolbar>
-      }
-
-      <p-toolbar class="mt-2 mb-2">
-        <div [style]="{ width: '100%'}" class="row mt-sm-1">
-          <div class="col-md-6 sale-product-div d-flex justify-content-between">
-            <div class="flex-grow-1 mr-1">
-              <jhi-produit-search-autocomplete #produitbox
-                                               (onKeyEnter)="onSaveKeyDown($event)"
-                                               (selectedProduit)="onSelectProduct($event)"
-                                               [(ngModel)]="produitSelected"
-                                               [autofocus]="true"
-                                               [includeDetails]="true"
-                                               [pageSize]="PRODUIT_COMBO_RESULT_SIZE"></jhi-produit-search-autocomplete>
-
-            </div>
-            <div>
-              <jhi-quantite-produt-saisie #produitQteCmpt (addQuantite)="addQuantity($event)"
-                                          [disabledButton]="disableButton"
-                                          [isValid]="!!produitSelected"
-                                          [style]="{'max-width': '160px'}">
-              </jhi-quantite-produt-saisie>
-
-            </div>
-
-          </div>
-
-          @if (showStock) {
-            <div class="col-md-1">
-              <p-button
-                badgeSeverity="contrast"
-                label="Stock"
-                outlined
-                [badge]="produitSelected?.totalQuantity | number"
-              ></p-button>
-            </div>
-          }
-          <div class="col-md-3">
-            @for (rayon of produitSelected?.rayons; track rayon.code) {
-              <p-button badgeSeverity="contrast" label="Rayons" outlined
-                        [badge]="rayon.libelle"></p-button>
+          <!-- Client (si comptant) -->
+          <div class="pharma-toolbar-item pharma-toolbar-grow">
+            @if (active === 'comptant' && currentSaleService.currentSale()) {
+              <jhi-customer-overlay-panel
+                (onCloseEvent)="onCustomerOverlay($event)">
+              </jhi-customer-overlay-panel>
             }
           </div>
-        </div>
-      </p-toolbar>
-      <div [ngbNavOutlet]="nav"></div>
 
+          <!-- Actions -->
+          <div class="pharma-toolbar-item pharma-toolbar-actions">
+
+
+            <p-button
+              (click)="openPindingSide()"
+              [disabled]="currentSaleService.currentSale() || isPresale"
+              [variant]="!isLargeScreen ? 'text' : undefined"
+              icon="pi pi-clock"
+              [label]="isLargeScreen ? 'Ventes en attente' : ''"
+              severity="info"
+              [badge]="1"
+              badgeSeverity="danger"
+            ></p-button>
+
+
+
+            <p-button label="Retour"
+                      (click)="previousState()"
+                      severity="secondary"
+                      icon="pi pi-arrow-left">
+            </p-button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Données assurance/carnet -->
+      @if (active === 'assurance' || active === 'carnet') {
+        <div class="pharma-toolbar pharma-assurance-toolbar">
+          <jhi-assurance-data></jhi-assurance-data>
+        </div>
+      }
+
+      <!-- Zone de saisie produit -->
+      <div class="pharma-toolbar pharma-product-toolbar">
+        <div class="pharma-toolbar-row">
+
+          <!-- Recherche produit -->
+          <div class="pharma-product-search">
+            <jhi-produit-search-autocomplete
+              #produitbox
+              [(ngModel)]="produitSelected"
+              (selectedProduit)="onSelectProduct($event)"
+              (onKeyEnter)="onSaveKeyDown($event)"
+              [autofocus]="true"
+              [includeDetails]="true"
+              [pageSize]="PRODUIT_COMBO_RESULT_SIZE"
+              styleClass="pharma-autocomplete">
+            </jhi-produit-search-autocomplete>
+          </div>
+
+          <!-- Quantité -->
+          <div class="pharma-quantity">
+            <jhi-quantite-produt-saisie
+              #produitQteCmpt
+              (addQuantite)="addQuantity($event)"
+              [disabledButton]="disableButton"
+              [isValid]="!!produitSelected"
+              styleClass="pharma-quantity-input">
+            </jhi-quantite-produt-saisie>
+          </div>
+
+          <!-- Stock et Rayons -->
+          @if (produitSelected) {
+            <div class="product-info-badges">
+              @if (showStock) {
+                <p-tag class="mr-1" [severity]="stockSeverity">
+                  <i class="pi pi-box"></i>
+                  <span class="ml-1">Stock: {{ produitSelected?.totalQuantity | number }}</span>
+                </p-tag>
+              }
+
+              @for (rayon of produitSelected?.rayons; track rayon.code) {
+                <p-tag severity="info">
+                  <i class="pi pi-map-marker"></i>
+                  <span class="ml-1">{{ rayon.libelle }}</span>
+                </p-tag>
+              }
+            </div>
+          }
+        </div>
+      </div>
+
+      <!-- Contenu des onglets de vente -->
+      <div class="pharma-sale-content">
+        <div [ngbNavOutlet]="nav"></div>
+      </div>
     </div>
   </div>
 </div>
 
-
+<!-- Composants de notification -->
 <jhi-confirm-dialog #confirmDialog></jhi-confirm-dialog>
 <jhi-toast-alert #alert></jhi-toast-alert>
-

@@ -84,6 +84,8 @@ import { Toolbar } from 'primeng/toolbar';
 import {
   ProduitSearchAutocompleteComponent
 } from '../../../shared/produit-search-autocomplete/produit-search-autocomplete.component';
+import { Tag } from 'primeng/tag';
+import { Chip } from 'primeng/chip';
 
 @Component({
   selector: 'jhi-selling-home',
@@ -112,9 +114,12 @@ import {
     QuantiteProdutSaisieComponent,
     Divider,
     Toolbar,
-    ProduitSearchAutocompleteComponent
+    ProduitSearchAutocompleteComponent,
+    Tag,
+    Chip
   ],
-  templateUrl: './selling-home.component.html'
+  templateUrl: './selling-home.component.html',
+  styleUrl: './selling-home.component.scss'
 })
 export class SellingHomeComponent implements OnInit, AfterViewInit {
   readonly minLength = PRODUIT_COMBO_MIN_LENGTH;

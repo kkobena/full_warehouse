@@ -43,11 +43,11 @@ import { Card } from 'primeng/card';
     PopoverModule,
     ToggleSwitch,
     InputGroupAddonModule,
-    InputGroupModule,
-    Card
+    InputGroupModule
   ],
   templateUrl: './mode-reglement.component.html',
-  styles: [
+  styleUrls: ['./mode-reglement.scss']
+ /* styles: [
     `
       :host ::ng-deep .p-card .p-card-title .card-title {
         color: #ffffff;
@@ -64,7 +64,7 @@ import { Card } from 'primeng/card';
         align-items: center;
       }
     `
-  ]
+  ]*/
 })
 export class ModeReglementComponent implements OnInit {
   readonly paymentModeControlEvent = output<PaymentModeControl>();

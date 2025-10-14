@@ -1,0 +1,273 @@
+/* ============================================
+   CARD MODES DE PAIEMENT - Couleurs douces
+   ============================================ */
+:host ::ng-deep .p-card .p-card-title .card-title {
+  color: #ffffff;
+  padding: 0.5rem;
+  margin: -1.25rem -1.25rem 1.25rem -1.25rem;
+  border-top-left-radius: var(--border-radius);
+  border-top-right-radius: var(--border-radius);
+}
+
+.card-title {
+  font-size: 1.2rem;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+}
+/* ============================================
+   CARD MODES DE PAIEMENT - Style Pharma
+   ============================================ */
+
+.payment-modes-card {
+  background: #ffffff;
+  border-radius: 4px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  overflow: hidden;
+}
+
+.payment-modes-header {
+  background: linear-gradient(to bottom, #6b9ab8, #5b89a6);
+  color: #ffffff;
+  padding: 15px;
+  font-weight: 600;
+  font-size: 14px;
+  border: none;
+}
+
+.payment-modes-header .header-content {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: #ffffff;
+}
+
+.payment-modes-header i {
+  font-size: 16px;
+}
+
+.payment-modes-header h3 {
+  margin: 0;
+  font-size: 14px;
+  font-weight: 600;
+  color: #ffffff;
+  letter-spacing: 0;
+}
+
+.payment-modes-body {
+  padding: 1.5rem;
+}
+
+/* Toggle Options */
+.toggle-option {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1rem;
+  background: #f8f9fa;
+  border-radius: 4px;
+  margin-bottom: 1.5rem;
+  border: 1px solid #dfe3e8;
+}
+
+.toggle-option label {
+  font-weight: 500;
+  color: #333333;
+  margin: 0;
+  font-size: 0.95rem;
+}
+
+/* Amélioration des inputs PrimeNG existants */
+.ws-mode-reglement .p-inputgroup {
+  margin-bottom: 0.75rem;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  border-radius: 4px;
+  overflow: hidden;
+  transition: all 0.2s ease;
+}
+
+.ws-mode-reglement .p-inputgroup:hover {
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
+  transform: translateY(-1px);
+}
+
+.ws-mode-reglement .p-inputgroup-addon {
+  background: #f5f7fa;
+  border-color: #dfe3e8;
+}
+
+.ws-mode-reglement input.payment-mode-input {
+  font-size: 1.1rem;
+  font-weight: 600;
+  padding: 0.75rem 1rem;
+  border-color: #dfe3e8;
+}
+
+.ws-mode-reglement input.payment-mode-input:hover {
+  border-color: #5b89a6;
+}
+
+.ws-mode-reglement input.payment-mode-input:focus {
+  border-color: #5b89a6;
+  box-shadow: 0 0 0 3px rgba(91, 137, 166, 0.1);
+}
+
+.ws-mode-reglement .p-button.add-mode-payment-btn {
+  background: #5bc0de;
+  border-color: #5bc0de;
+  transition: all 0.2s ease;
+}
+
+.ws-mode-reglement .p-button.add-mode-payment-btn:hover {
+  background: #46b8da;
+  border-color: #46b8da;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
+  transform: translateY(-1px);
+}
+
+.ws-mode-reglement .p-button[severity="danger"] {
+  background: #d9534f;
+  border-color: #d9534f;
+  transition: all 0.2s ease;
+}
+
+.ws-mode-reglement .p-button[severity="danger"]:hover {
+  background: #c9302c;
+  border-color: #c9302c;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
+  transform: translateY(-1px);
+}
+
+/* ============================================
+   CARD INFORMATIONS COMPLÉMENTAIRES - Style Pharma
+   ============================================ */
+
+.additional-info-card {
+  background: #ffffff;
+  border-radius: 4px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  overflow: hidden;
+}
+
+.additional-info-header {
+  background: linear-gradient(to bottom, #6b9ab8, #5b89a6);
+  color: #ffffff;
+  padding: 15px;
+  font-weight: 600;
+  font-size: 14px;
+  border: none;
+}
+
+.additional-info-header .header-content {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: #ffffff;
+}
+
+.additional-info-header i {
+  font-size: 16px;
+}
+
+.additional-info-header h3 {
+  margin: 0;
+  font-size: 14px;
+  font-weight: 600;
+  color: #ffffff;
+  letter-spacing: 0;
+}
+
+.additional-info-body {
+  padding: 1.5rem;
+  background: #ffffff;
+}
+
+.info-field {
+  margin-bottom: 1rem;
+}
+
+.info-field:last-child {
+  margin-bottom: 0;
+}
+
+.info-field label {
+  display: block;
+  font-weight: 500;
+  color: #6c757d;
+  margin-bottom: 0.5rem;
+  font-size: 13px;
+}
+
+.info-field input {
+  width: 100%;
+  padding: 0.75rem 1rem;
+  border: 1px solid #dfe3e8;
+  border-radius: 4px;
+  font-size: 1rem;
+  transition: all 0.2s ease;
+  background: #ffffff;
+}
+
+.info-field input:hover {
+  border-color: #5b89a6;
+}
+
+.info-field input:focus {
+  outline: none;
+  border-color: #5b89a6;
+  background: #ffffff;
+  box-shadow: 0 0 0 3px rgba(91, 137, 166, 0.1);
+}
+
+.info-field input::placeholder {
+  color: #95a5a6;
+}
+
+.bank-info-fields {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+/* ============================================
+   RESPONSIVE
+   ============================================ */
+
+@media (max-width: 992px) {
+  .payment-modes-header h3,
+  .additional-info-header h3 {
+    font-size: 13px;
+  }
+
+  .payment-modes-header,
+  .additional-info-header {
+    padding: 12px 15px;
+  }
+
+  .payment-modes-body,
+  .additional-info-body {
+    padding: 1.25rem;
+  }
+}
+
+@media (max-width: 768px) {
+  .ws-mode-reglement .p-button.add-mode-payment-btn,
+  .ws-mode-reglement .p-button[severity="danger"] {
+    height: 45px !important;
+  }
+}
+
+@media print {
+  .payment-modes-card,
+  .additional-info-card {
+    box-shadow: none !important;
+    border: 1px solid #ddd;
+  }
+
+  .payment-modes-header,
+  .additional-info-header {
+    background: #5b89a6 !important;
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+  }
+}

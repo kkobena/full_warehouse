@@ -2,37 +2,24 @@
   @if (showModeReglementCard()) {
     <div
       [ngClass]="currentSaleService.currentSale()?.amountToBePaid > 0 ? ' col-md-7 col-xl-7 col-lg-7 col-sm-12 mt-2' : ' col-md-10 col-xl-10 col-lg-10 col-sm-12 mt-2'">
-      <p-card>
-        <ng-template #title>
-          <div class="card-title primary-title">
-            <i class="pi pi-money-bill mr-2"></i>
-            Modes de règlement
+
+      <div class="payment-modes-card">
+        <div class="payment-modes-header">
+          <div class="header-content">
+            <i class="pi pi-money-bill"></i>
+            <h3>Modes de règlement</h3>
           </div>
-        </ng-template>
+        </div>
 
-
-        <div class=" sale-card">
-          <div class="d-flex justify-content-between mode-reglement-label">
-            @if (currentSaleService.currentSale()?.type === 'VO' && baseSaleService.hasSansBon()) {
-              <span>
-              <label>Vente sans bon?</label>
+        <div class="payment-modes-body">
+          @if (currentSaleService.currentSale()?.type === 'VO' && baseSaleService.hasSansBon()) {
+            <div class="toggle-option">
+              <label for="sansBon">Vente sans bon</label>
               <p-toggleswitch inputId="sansBon" [(ngModel)]="isVenteSansBon"
-                              (onChange)="onSansBonChange($event)"> </p-toggleswitch
-              ></span>
-            }
+                              (onChange)="onSansBonChange($event)"></p-toggleswitch>
+            </div>
+          }
 
-            <!-- <span>
-             <label>Imprimer le ticket de caisse ?</label>
-             <p-toggleswitch inputId="printTicket" [(ngModel)]="printReceipt"
-
-                             (onChange)="onPrintReceiptChange($event)"> </p-toggleswitch>
-           </span>
-             <span>
-             <label>Imprimer la facture?</label>
-             <p-toggleswitch [(ngModel)]="printInvoice" (onChange)="onPrintInvoiceChange($event)"
-                             inputId="printInvoice"> </p-toggleswitch>
-           </span>-->
-          </div>
           @if (currentSaleService.currentSale()?.amountToBePaid > 0) {
             <div class="row ws-mode-reglement" style="margin-top: 0.5rem">
               @for (modePay of selectModeReglementService.modeReglements(); track modePay.code) {
@@ -84,53 +71,72 @@
             </div>
           }
         </div>
-      </p-card>
+      </div>
 
     </div>
-    <!-- TODO revoir la gestion des info diffiere ou paiment par cb/virement/cheque ajouter un modal pour la saisie des info banque ou client differe: afficher plain text sur l'ecran de vente avec option de modification -->
+
     @if (manageShowInfosBancaire() || isDiffere()) {
       <div class="col-md-5 col-xl-5 col-lg-5 col-sm-12 mt-2">
-        <p-card>
-          <ng-template #title>
-            <div class="card-title info-title">
-              <i class="pi pi-info-circle mr-2"></i>
-              Informations complementaire
+        <div class="additional-info-card">
+          <div class="additional-info-header">
+            <div class="header-content">
+              <i class="pi pi-info-circle"></i>
+              <h3>Informations complémentaires</h3>
             </div>
-          </ng-template>
+          </div>
 
-          <div class="card-body sale-card">
+          <div class="additional-info-body">
             @if (isDiffere()) {
-              <div class="p-inputgroup mt-1">
-                <span class="p-inputgroup-addon">Commentaire</span>
-                <input #commentaireInput [(ngModel)]="commentaire" pInputText type="text"
-                       [autofocus]="true" (keydown.enter)="save()" />
+              <div class="info-field">
+                <label>Commentaire</label>
+                <input #commentaireInput
+                       [(ngModel)]="commentaire"
+                       pInputText
+                       type="text"
+                       [autofocus]="true"
+                       (keydown.enter)="save()"
+                       placeholder="Saisir un commentaire" />
               </div>
             }
 
             @if (manageShowInfosBancaire()) {
-              <div class="mt-1">
-                <p-inputgroup class="mb-1">
-                  <p-inputgroup-addon> Référence</p-inputgroup-addon>
-                  <input #referenceInput [(ngModel)]="referenceBancaire" pInputText type="text" />
-                </p-inputgroup>
+              <div class="bank-info-fields">
+                <div class="info-field">
+                  <label>Référence</label>
+                  <input #referenceInput
+                         [(ngModel)]="referenceBancaire"
+                         pInputText
+                         type="text"
+                         placeholder="Référence bancaire" />
+                </div>
 
-                <p-inputgroup class="mb-1">
-                  <p-inputgroup-addon> Banque</p-inputgroup-addon>
-                  <input #banqueInput [(ngModel)]="banque" pInputText type="text" />
-                </p-inputgroup>
-                <p-inputgroup class="mb-1">
-                  <p-inputgroup-addon> Lieux</p-inputgroup-addon>
-                  <input #lieuxInput [(ngModel)]="lieux" pInputText type="text" />
-                </p-inputgroup>
+                <div class="info-field">
+                  <label>Banque</label>
+                  <input #banqueInput
+                         [(ngModel)]="banque"
+                         pInputText
+                         type="text"
+                         placeholder="Nom de la banque" />
+                </div>
+
+                <div class="info-field">
+                  <label>Lieu</label>
+                  <input #lieuxInput
+                         [(ngModel)]="lieux"
+                         pInputText
+                         type="text"
+                         placeholder="Lieu" />
+                </div>
               </div>
             }
           </div>
-        </p-card>
-
+        </div>
       </div>
     }
   }
 </div>
+
+<!-- Popovers -->
 <p-popover #addOverlayPanel [style]="{ width: '450px' }">
   <ng-template #content>
     <div class="d-flex flex-wrap">
@@ -160,7 +166,7 @@
 </p-popover>
 
 <p-popover #customerModal [style]="{ width: '650px' }">
-  <ng-template pTemplate="content">
+  <ng-template #content>
     <jhi-customer-data-table (closeModalEvent)="onClose(customerModal)"></jhi-customer-data-table>
   </ng-template>
 </p-popover>

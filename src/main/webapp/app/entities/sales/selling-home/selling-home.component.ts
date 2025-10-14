@@ -76,16 +76,13 @@ import {
 } from './sale-helper';
 import { SaleEventSignal } from './sale-event';
 import { handleSaleEvents } from './sale-event-helper';
-import { Divider } from 'primeng/divider';
 import { DeconditionnementService } from '../validator/deconditionnement.service';
 import { ForceStockService } from '../validator/force-stock.service';
 import { SaleStockValidator } from '../validator/sale-stock-validator.service';
-import { Toolbar } from 'primeng/toolbar';
 import {
   ProduitSearchAutocompleteComponent
 } from '../../../shared/produit-search-autocomplete/produit-search-autocomplete.component';
 import { Tag } from 'primeng/tag';
-import { Chip } from 'primeng/chip';
 
 @Component({
   selector: 'jhi-selling-home',
@@ -112,11 +109,8 @@ import { Chip } from 'primeng/chip';
     ToastAlertComponent,
     FloatLabel,
     QuantiteProdutSaisieComponent,
-    Divider,
-    Toolbar,
     ProduitSearchAutocompleteComponent,
-    Tag,
-    Chip
+    Tag
   ],
   templateUrl: './selling-home.component.html',
   styleUrl: './selling-home.component.scss'
@@ -518,7 +512,6 @@ export class SellingHomeComponent implements OnInit, AfterViewInit {
     }
     this.updateProduitQtyBox();
   }
-
 
 
   onChangeCashSaleToVo(): void {

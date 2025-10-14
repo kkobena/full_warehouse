@@ -1,0 +1,89 @@
+.amounts-summary {
+  background: #ffffff;
+  border-radius: 8px;
+  padding: 1rem;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+}
+
+.amount-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.75rem 0;
+  border-bottom: 1px solid #f0f0f0;
+}
+
+.amount-row:last-child {
+  border-bottom: none;
+}
+
+.amount-label {
+  font-size: 0.95rem;
+  color: #666;
+  font-weight: 500;
+}
+
+.amount-value {
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: #333;
+  font-variant-numeric: tabular-nums;
+}
+
+/* Styles spécifiques */
+.amount-total .amount-value {
+  color: #10b981;
+  font-size: 1.25rem;
+}
+
+.amount-discount .amount-value {
+  color: #ef4444;
+}
+
+.amount-to-pay {
+  background: #fee2e2;
+  margin: 0 -0.5rem;
+  padding: 1rem;
+  border-radius: 6px;
+  border: 2px solid #fca5a5;
+}
+
+.amount-to-pay .amount-label {
+  color: #991b1b;
+  font-weight: 600;
+  font-size: 1rem;
+}
+
+.amount-to-pay .amount-value {
+  color: #dc2626;
+  font-size: 1.5rem;
+  font-weight: 700;
+}
+
+.amount-change .amount-value {
+  color: #3b82f6;
+  font-size: 1.3rem;
+}
+
+.amount-last {
+  background: #fef3c7;
+  margin: 0.5rem -1rem -1rem;
+  padding: 0.75rem 1rem;
+  border-radius: 0 0 8px 8px;
+}
+
+.amount-last .amount-value {
+  color: #d97706;
+}
+
+.amount-divider {
+  height: 2px;
+  background: linear-gradient(to right, transparent, #e5e7eb 50%, transparent);
+  margin: 0.5rem 0;
+}
+
+/* Animation subtile au survol */
+.amount-row:hover {
+  background: #f9fafb;
+  cursor: default;
+}

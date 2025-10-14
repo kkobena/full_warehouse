@@ -45,7 +45,8 @@ import { SpinnerComponent } from '../../../../shared/spinner/spinner.component';
     ConfirmDialogComponent,
     CardModule,
     SpinnerComponent
-  ]
+  ],
+  styleUrls: ['./base-sale.scss']
 })
 export class BaseSaleComponent {
   modeReglementComponent = viewChild<ModeReglementComponent>('modeReglement');

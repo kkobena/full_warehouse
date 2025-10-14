@@ -127,7 +127,7 @@ export class ComptantFacadeService {
     const sale = this.currentSaleService.currentSale();
     const action$ = remise
       ? this.salesService.addRemise({ id: sale.saleId, value: remise.id })
-      : this.salesService.removeRemiseFromCashSale(sale.id);
+      : this.salesService.removeRemiseFromCashSale(sale.saleId);
     this.handleSaleUpdate(action$.pipe(switchMap(() => this.salesService.find(sale.saleId))));
   }
 

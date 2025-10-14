@@ -176,8 +176,8 @@ export class SalesService {
     });
   }
 
-  removeRemiseFromCashSale(id: number): Observable<HttpResponse<{}>> {
-    return this.http.delete(`${this.resourceUrl}/comptant/remove-remise/${id}`, { observe: 'response' });
+  removeRemiseFromCashSale(saleId: SaleId): Observable<HttpResponse<{}>> {
+    return this.http.delete(`${this.resourceUrl}/comptant/remove-remise/${saleId.id}/${saleId.saleDate}`, { observe: 'response' });
   }
 
   addRemise(key: UpdateSaleInfo): Observable<HttpResponse<{}>> {

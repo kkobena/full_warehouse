@@ -47,10 +47,10 @@ import { SpinnerComponent } from '../../../../shared/spinner/spinner.component';
     AmountComputingComponent,
     ModeReglementComponent,
     ConfirmDialogComponent,
-    Card,
     SpinnerComponent
   ],
-  templateUrl: './comptant.component.html'
+  templateUrl: './comptant.component.html',
+  styleUrls: ['./comptant.scss']
 })
 export class ComptantComponent {
   readonly isPresale = input(false);

@@ -110,6 +110,7 @@
       [showCurrentPageReport]="true"
       [stripedRows]="true"
       [value]="datas"
+      class="pharma-table"
       currentPageReportTemplate="Affichage de {first} à {last} sur {totalRecords} règlements"
       dataKey="id"
       groupRowsBy="organismeId"
@@ -148,7 +149,7 @@
         </div>
       </ng-template>
       <ng-template #header>
-        <tr>
+        <tr class="pharma-table-head">
           <th>Organisme</th>
           <th>Code facture</th>
           <th>Mode règlement</th>
@@ -188,16 +189,16 @@
 
       <ng-template #expandedrow let-reglement>
         <tr>
-          <td class="text-center" colspan="2">{{ reglement.codeFacture }}</td>
+          <td class="text-center pharma-code" colspan="2">{{ reglement.codeFacture }}</td>
           <td>{{ reglement.paymentMode }}</td>
 
-          <td class="amount-column">
+          <td class="pharma-total">
             {{ reglement.montantAttendu }}
           </td>
-          <td class="amount-column">
+          <td class="pharma-total">
             {{ reglement.paidAmount }}
           </td>
-          <td class="amount-column">
+          <td class="pharma-total">
             {{ reglement.montantRestant }}
           </td>
           <td class="text-center">{{ reglement.created }}</td>

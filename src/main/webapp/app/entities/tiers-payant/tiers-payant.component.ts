@@ -35,6 +35,7 @@ import { SpinnerComponent } from '../../shared/spinner/spinner.component';
 @Component({
   selector: 'jhi-tiers-payant',
   templateUrl: './tiers-payant.component.html',
+  styleUrl: './tiers-payant.component.scss',
   providers: [MessageService, NgbActiveModal],
   imports: [
     WarehouseCommonModule,

@@ -51,7 +51,8 @@ import { ConfirmDialogComponent } from '../../../shared/dialog/confirm-dialog/co
     ConfirmDialogComponent
   ],
 
-  templateUrl: './factures-reglees.component.html'
+  templateUrl: './factures-reglees.component.html',
+  styleUrl: './factures-reglees.component.scss'
 })
 export class FacturesRegleesComponent implements AfterViewInit {
 

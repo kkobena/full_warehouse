@@ -47,11 +47,12 @@
         [rows]="10"
         [showCurrentPageReport]="true"
         [value]="sales"
+        class="pharma-table"
         currentPageReportTemplate="Affichage de {first} à {last} sur {totalRecords} ventes"
         dataKey="id"
       >
         <ng-template #header>
-          <tr>
+          <tr class="pharma-table-head">
             <th style="width: 3%"></th>
             <th style="width: 6%">Type</th>
             <th style="width: 9%">Référence</th>
@@ -75,16 +76,16 @@
               />
             </td>
             @if (sale.natureVente === 'ASSURANCE') {
-              <td>Assurance</td>
+              <td><span class="pharma-badge pharma-badge-info">Assurance</span></td>
             } @else if (sale.natureVente === 'CARNET') {
-              <td>Carnet</td>
+              <td><span class="pharma-badge pharma-badge-info">Carnet</span></td>
             } @else {
-              <td>VNO</td>
+              <td><span class="pharma-badge pharma-badge-info">VNO</span></td>
             }
-            <td>{{ sale.numberTransaction }}</td>
+            <td class="pharma-code">{{ sale.numberTransaction }}</td>
             <td class="text-right">{{ sale.salesLines.length | number }}</td>
-            <td class="text-right">{{ sale.salesAmount | number }}</td>
-            <td>{{ sale.customer?.fullName }}</td>
+            <td class="pharma-total">{{ sale.salesAmount | number }}</td>
+            <td class="pharma-entity-name">{{ sale.customer?.fullName }}</td>
             <td>{{ sale.seller?.abbrName }}</td>
             <td>{{ sale.cassier?.abbrName }}</td>
             <td>

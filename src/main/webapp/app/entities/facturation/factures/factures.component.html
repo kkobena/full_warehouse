@@ -126,11 +126,12 @@
         [stripedRows]="true"
         [totalRecords]="totalItems"
         [value]="datas"
+        class="pharma-table"
         dataKey="factureId"
         selectionMode="single"
       >
         <ng-template #header>
-          <tr>
+          <tr class="pharma-table-head">
             <th scope="col"><span>Num</span></th>
             <th scope="col"><span>Tiers payant</span></th>
             <th scope="col"><span>Période</span></th>
@@ -147,16 +148,16 @@
         </ng-template>
         <ng-template #body let-elRow>
           <tr [pEditableRow]="elRow" [pSelectableRow]="elRow">
-            <td>{{ elRow.numFacture }}</td>
-            <td>{{ elRow.tiersPayantName }}</td>
+            <td class="pharma-code">{{ elRow.numFacture }}</td>
+            <td class="pharma-entity-name">{{ elRow.tiersPayantName }}</td>
             <td>{{ elRow.periode }}</td>
             <td class="text-right">{{ elRow.itemsCount | number }}</td>
-            <td class="text-right">{{ elRow.montant | number }}</td>
-            <td class="text-right">{{ elRow.montantRemiseVente | number }}</td>
-            <td class="text-right">{{ elRow.remiseForfetaire | number }}</td>
-            <td class="text-right">{{ elRow.montantNet | number }}</td>
-            <td class="text-right">{{ elRow.montantRegle | number }}</td>
-            <td class="text-right">{{ elRow.montantRestant | number }}</td>
+            <td class="pharma-total">{{ elRow.montant | number }}</td>
+            <td class="pharma-total">{{ elRow.montantRemiseVente | number }}</td>
+            <td class="pharma-total">{{ elRow.remiseForfetaire | number }}</td>
+            <td class="pharma-total">{{ elRow.montantNet | number }}</td>
+            <td class="pharma-total">{{ elRow.montantRegle | number }}</td>
+            <td class="pharma-total">{{ elRow.montantRestant | number }}</td>
             <td>{{ elRow.created | date: 'dd/MM/yy HH:mm' }}</td>
             <td style="text-align: right">
               <div class="btn-group" role="group">

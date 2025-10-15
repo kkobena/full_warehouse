@@ -82,9 +82,10 @@
             dataKey="id"
             selectionMode="multiple"
            stripedRows="true"
+           class="pharma-table"
           >
             <ng-template #header>
-              <tr>
+              <tr class="pharma-table-head">
                 <th>Caissier</th>
                 <th>Fond de caisse</th>
                 <th>Recette</th>
@@ -103,12 +104,19 @@
                   {{ mvtCaisse.user?.abbrName }}
                 </td>
                 <td class="text-right amount-column">
-                  {{ mvtCaisse.cashFund | number }}
+                  <span class="pharma-total">{{ mvtCaisse.cashFund | number }}</span>
                 </td>
-                <td class="text-right amount-column">{{ mvtCaisse.cashAmount | number }}</td>
-                <td class="text-right amount-column">{{ mvtCaisse.estimateAmount | number }}</td>
-                <td class="text-right amount-column">{{ mvtCaisse.mobileAmount | number }}</td>
-                <td class="text-right amount-column">{{ mvtCaisse.ticketing?.totalAmount | number }}
+                <td class="text-right amount-column">
+                  <span class="pharma-total">{{ mvtCaisse.cashAmount | number }}</span>
+                </td>
+                <td class="text-right amount-column">
+                  <span class="pharma-total">{{ mvtCaisse.estimateAmount | number }}</span>
+                </td>
+                <td class="text-right amount-column">
+                  <span class="pharma-total">{{ mvtCaisse.mobileAmount | number }}</span>
+                </td>
+                <td class="text-right amount-column">
+                  <span class="pharma-total">{{ mvtCaisse.ticketing?.totalAmount | number }}</span>
                 </td>
                 @if (mvtCaisse.gap > 0) {
                   <td class="text-right text-success amount-column">{{ mvtCaisse.gap | number }}</td>

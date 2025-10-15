@@ -32,6 +32,7 @@ import { SpinnerComponent } from '../../shared/spinner/spinner.component';
 @Component({
   selector: 'jhi-groupe-fournisseur',
   templateUrl: './groupe-fournisseur.component.html',
+  styleUrl: './groupe-fournisseur.component.scss',
   imports: [
     WarehouseCommonModule,
     ButtonModule,

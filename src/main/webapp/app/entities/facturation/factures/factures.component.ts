@@ -58,6 +58,7 @@ import { Select } from 'primeng/select';
     Select,
   ],
   templateUrl: './factures.component.html',
+  styleUrl: './factures.component.scss'
 })
 export class FacturesComponent implements OnInit, AfterViewInit {
   minLength = 2;

@@ -27,6 +27,7 @@ import { ToastAlertComponent } from '../../../shared/toast-alert/toast-alert.com
 
 @Component({
   selector: 'jhi-gestion-caisse',
+  styleUrl: './gestion-caisse.component.scss',
   imports: [
     WarehouseCommonModule,
     Button,

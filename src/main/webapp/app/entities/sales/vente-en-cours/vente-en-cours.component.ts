@@ -18,7 +18,7 @@ import { Card } from 'primeng/card';
 @Component({
   selector: 'jhi-vente-en-cours',
   templateUrl: './vente-en-cours.component.html',
-  styleUrls: ['../sales.component.scss'],
+  styleUrls: ['../sales.component.scss', './vente-en-cours.component.scss'],
   imports: [
     WarehouseCommonModule,
     RouterModule,

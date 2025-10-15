@@ -82,9 +82,10 @@
       dataKey="id"
       selectionMode="single"
       styleClass="p-datatable-gridlines mt-2"
+      class="pharma-table"
     >
       <ng-template pTemplate="header">
-        <tr>
+        <tr class="pharma-table-head">
           <th style="width: 9%">Type</th>
           <th style="width: 7%">Code</th>
           <th style="width: 15%">Nom abrégé</th>
@@ -98,13 +99,23 @@
       </ng-template>
       <ng-template let-tiersPayant pTemplate="body">
         <tr>
-          <td>{{ tiersPayant.categorie }}</td>
-          <td>{{ tiersPayant.codeOrganisme }}</td>
+          <td>
+            <span class="pharma-badge pharma-badge-info">{{ tiersPayant.categorie }}</span>
+          </td>
+          <td>
+            <span class="pharma-code">{{ tiersPayant.codeOrganisme }}</span>
+          </td>
           <td>{{ tiersPayant.name }}</td>
-          <td>{{ tiersPayant.fullName }}</td>
+          <td>
+            <div class="pharma-entity-name">{{ tiersPayant.fullName }}</div>
+          </td>
           <td>{{ tiersPayant.telephone }}</td>
-          <td class="text-right">{{ tiersPayant.plafondConso | number }}</td>
-          <td class="text-right">{{ tiersPayant.encours | number }}</td>
+          <td class="text-right">
+            <span class="pharma-total">{{ tiersPayant.plafondConso | number }}</span>
+          </td>
+          <td class="text-right">
+            <span class="pharma-total">{{ tiersPayant.encours | number }}</span>
+          </td>
           <td class="text-right">{{ tiersPayant.customers?.length | number }}</td>
 
           <td class="text-right">

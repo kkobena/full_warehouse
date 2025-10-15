@@ -41,6 +41,7 @@ import { Card } from 'primeng/card';
 @Component({
   selector: 'jhi-customer',
   templateUrl: './customer.component.html',
+  styleUrl: './customer.component.scss',
   providers: [DialogService, MessageService],
   imports: [
     WarehouseCommonModule,

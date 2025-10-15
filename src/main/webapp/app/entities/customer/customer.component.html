@@ -82,10 +82,10 @@
         dataKey="id"
         stripedRows="true"
         selectionMode="single"
-
+        class="pharma-table"
       >
         <ng-template #header>
-          <tr>
+          <tr class="pharma-table-head">
             <th style="width: 3%"></th>
             <th style="width: 10%">Catégorie</th>
             <th style="width: 30%">Nom et Prénom(s)</th>
@@ -108,12 +108,20 @@
                 type="button"
               />
             </td>
-            <td>{{ customer.categorie }}</td>
-            <td>{{ customer.fullName }}</td>
-            <td>{{ customer.code }}</td>
+            <td>
+              <span class="pharma-badge pharma-badge-info">{{ customer.categorie }}</span>
+            </td>
+            <td>
+              <div class="pharma-entity-name">{{ customer.fullName }}</div>
+            </td>
+            <td>
+              <span class="pharma-code">{{ customer.code }}</span>
+            </td>
             <td>{{ customer.num }}</td>
             <td>{{ customer.phone }}</td>
-            <td class="text-right">{{ customer.encours | number }}</td>
+            <td class="text-right">
+              <span class="pharma-total">{{ customer.encours | number }}</span>
+            </td>
             <td class="text-right">
               <div class="btn-group">
                 <p-button
@@ -198,7 +206,7 @@
           </tr>
         </ng-template>
         <ng-template let-customer #expandedrow>
-          <tr>
+          <tr class="pharma-expanded-row">
             <td colspan="8">
               @if (customer.type === 'ASSURE') {
                 <div class="row pharma-smart pharma-smart-content">

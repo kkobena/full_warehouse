@@ -79,9 +79,9 @@
 
     <div class="mt-2">
       @if (produits && produits.length > 0) {
-        <p-table [rowExpandMode]="rowExpandMode" [value]="produits" dataKey="id">
+        <p-table [rowExpandMode]="rowExpandMode" [value]="produits" dataKey="id" class="pharma-table">
           <ng-template #header>
-            <tr>
+            <tr class="pharma-table-head">
               <th style="width:2rem"></th>
               <th style="width: 8%">Cip</th>
               <th style="width: 11%">Code EAN</th>
@@ -111,9 +111,15 @@
                   type="button"
                 />
               </td>
-              <td>{{ produit.codeCip }}</td>
-              <td>{{ produit.codeEan }}</td>
-              <td>{{ produit.libelle }}</td>
+              <td>
+                <span class="pharma-code">{{ produit.codeCip }}</span>
+              </td>
+              <td>
+                <span class="pharma-code">{{ produit.codeEan }}</span>
+              </td>
+              <td>
+                <div class="pharma-product-name">{{ produit.libelle }}</div>
+              </td>
               @if (produit.totalQuantity < 0) {
                 <td style="text-align: right"
                     class="amount-column red-400">{{ produit.totalQuantity | number }}
@@ -128,10 +134,18 @@
                 </td>
               }
 
-              <td style="text-align: right">{{ produit.costAmount | number }}</td>
-              <td style="text-align: right">{{ produit.regularUnitPrice | number }}</td>
-              <td style="text-align: right">{{ produit.qtyAppro | number }}</td>
-              <td style="text-align: right">{{ produit.qtySeuilMini | number }}</td>
+              <td style="text-align: right">
+                <span class="pharma-price">{{ produit.costAmount | number }}</span>
+              </td>
+              <td style="text-align: right">
+                <span class="pharma-price">{{ produit.regularUnitPrice | number }}</span>
+              </td>
+              <td style="text-align: right">
+                <span class="pharma-qty-value">{{ produit.qtyAppro | number }}</span>
+              </td>
+              <td style="text-align: right">
+                <span class="pharma-qty-value">{{ produit.qtySeuilMini | number }}</span>
+              </td>
               <td>
                 <jhi-eta-produit [etatProduit]="produit.etatProduit"
                                  [showLabel]="false"></jhi-eta-produit>
@@ -246,7 +260,7 @@
             </tr>
           </ng-template>
           <ng-template let-elRow #expandedrow>
-            <tr>
+            <tr class="pharma-expanded-row">
               <td colspan="11">
                 <div class="p-3  expanded-content">
                   <div class="row">

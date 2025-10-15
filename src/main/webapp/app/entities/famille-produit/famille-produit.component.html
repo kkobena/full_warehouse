@@ -40,9 +40,10 @@
             [value]="entites"
             dataKey="id"
             selectionMode="single"
+            class="pharma-table"
           >
             <ng-template #header>
-              <tr>
+              <tr class="pharma-table-head">
                 <th scope="col"><span>Code</span></th>
                 <th scope="col"><span>Libellé</span></th>
                 <th scope="col"><span>Catégorie article</span></th>
@@ -51,8 +52,12 @@
             </ng-template>
             <ng-template let-columns="columns" let-elRow #body>
               <tr [pEditableRow]="elRow" [pSelectableRow]="elRow">
-                <td>{{ elRow.code }}</td>
-                <td>{{ elRow.libelle }}</td>
+                <td>
+                  <span class="pharma-code">{{ elRow.code }}</span>
+                </td>
+                <td>
+                  <div class="pharma-entity-name">{{ elRow.libelle }}</div>
+                </td>
                 <td>{{ elRow.categorieLibelle }}</td>
                 <td style="text-align: right">
                   <p-button (click)="onEdit(elRow)" [rounded]="true" severity="success"

@@ -39,9 +39,10 @@
           dataKey="id"
           selectionMode="single"
           stripedRows="true"
+          class="pharma-table"
         >
           <ng-template #header>
-            <tr>
+            <tr class="pharma-table-head">
               <th scope="col" style="width: 10%"><span>Code</span></th>
               <th scope="col" style="width: 70%"><span>Libellé</span></th>
               <th scope="col" style="width: 20%"></th>
@@ -49,8 +50,12 @@
           </ng-template>
           <ng-template let-columns="columns" let-elRow #body>
             <tr [pEditableRow]="elRow" [pSelectableRow]="elRow">
-              <td>{{ elRow.code }}</td>
-              <td>{{ elRow.libelle }}</td>
+              <td>
+                <span class="pharma-code">{{ elRow.code }}</span>
+              </td>
+              <td>
+                <div class="pharma-entity-name">{{ elRow.libelle }}</div>
+              </td>
               <td style="text-align: right">
                 <p-button
                   (click)="onEdit(elRow)"

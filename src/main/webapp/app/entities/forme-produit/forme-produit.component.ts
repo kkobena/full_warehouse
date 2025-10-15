@@ -19,6 +19,7 @@ import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
 @Component({
   selector: 'jhi-forme-produit',
   templateUrl: './forme-produit.component.html',
+  styleUrl: './forme-produit.component.scss',
   imports: [
     ButtonModule,
     ToolbarModule,

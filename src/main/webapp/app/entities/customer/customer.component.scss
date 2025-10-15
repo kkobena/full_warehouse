@@ -1,0 +1,8 @@
+@import 'app/shared/scss/table-common';
+
+// Additional styles for customer component
+.active {
+  background-color: #e3f2fd !important;
+  border-left: 3px solid #5b89a6 !important;
+  font-weight: 600;
+}

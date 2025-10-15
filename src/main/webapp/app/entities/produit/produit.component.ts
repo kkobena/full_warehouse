@@ -66,69 +66,8 @@ export type ExpandMode = 'single' | 'multiple';
 
 @Component({
   selector: 'jhi-produit',
-  styles: [
-    `
-      .expanded-content {
-        background-color: #f8f9fa;
-      }
-
-      :host ::ng-deep .p-card .info-title {
-        background-color: var(--p-sky-400);
-      }
-
-      :host ::ng-deep .p-card .warn-title {
-        background-color: var(--p-orange-400);
-      }
-
-      :host ::ng-deep .p-card .secondary-title {
-        background-color: var(--p-purple-400);
-      }
-
-      :host ::ng-deep .p-card .primary-title {
-        background-color: var(--p-primary-color);
-      }
-
-      :host ::ng-deep .p-card .p-card-title .card-title {
-        color: #ffffff;
-        padding: 0.5rem;
-        margin: -1.25rem -1.25rem 1.25rem -1.25rem;
-        border-top-left-radius: var(--border-radius);
-        border-top-right-radius: var(--border-radius);
-      }
-
-      .card-title {
-        font-size: 1.2rem;
-        font-weight: 600;
-        display: flex;
-        align-items: center;
-      }
-
-      .field {
-        display: flex;
-        flex-direction: row;
-        justify-content: space-between;
-        align-items: center;
-        padding: 0.5rem 0;
-        border-bottom: 1px solid #dfe7ef;
-      }
-
-      .field:last-child {
-        border-bottom: none;
-      }
-
-      .field label {
-        font-weight: 600;
-        color: #6c757d;
-      }
-
-      .field span {
-        color: #495057;
-        text-align: right;
-        font-weight: 600;
-      }
-    `,
-  ],
   templateUrl: './produit.component.html',
+  styleUrl: './produit.component.scss',
   imports: [
     WarehouseCommonModule,
     FormsModule,

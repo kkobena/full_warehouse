@@ -36,10 +36,10 @@
       [value]="entites"
       dataKey="id"
       selectionMode="single"
-      styleClass="ui-table-cars"
+      class="pharma-table"
     >
       <ng-template #header>
-        <tr>
+        <tr class="pharma-table-head">
           <th scope="col" style="width: 5%"><span>Code</span></th>
           <th scope="col" style="width: 28%"><span>Libellé</span></th>
           <th scope="col" style="width: 10%"><span>Code postale</span></th>
@@ -52,8 +52,12 @@
       </ng-template>
       <ng-template let-columns="columns" let-elRow #body>
         <tr [pEditableRow]="elRow" [pSelectableRow]="elRow">
-          <td>{{ elRow.code }}</td>
-          <td>{{ elRow.libelle }}</td>
+          <td>
+            <span class="pharma-code">{{ elRow.code }}</span>
+          </td>
+          <td>
+            <div class="pharma-entity-name">{{ elRow.libelle }}</div>
+          </td>
           <td>{{ elRow.addressePostal }}</td>
           <td>{{ elRow.mobile }}</td>
           <td>{{ elRow.phone }}</td>

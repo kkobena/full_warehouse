@@ -28,6 +28,7 @@ import { SpinnerComponent } from '../../shared/spinner/spinner.component';
 @Component({
   selector: 'jhi-laboratoire-produit',
   templateUrl: './laboratoire-produit.component.html',
+  styleUrl: './laboratoire-produit.component.scss',
   imports: [
     ButtonModule,
     ToolbarModule,

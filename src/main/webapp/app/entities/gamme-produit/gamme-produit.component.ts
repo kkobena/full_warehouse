@@ -25,8 +25,7 @@ import { SpinnerComponent } from '../../shared/spinner/spinner.component';
 @Component({
   selector: 'jhi-gamme-produit',
   templateUrl: './gamme-produit.component.html',
-
-
+  styleUrl: './gamme-produit.component.scss',
   imports: [
     ButtonModule,
     ToolbarModule,

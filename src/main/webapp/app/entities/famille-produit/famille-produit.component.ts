@@ -29,6 +29,7 @@ import { SpinnerComponent } from '../../shared/spinner/spinner.component';
 @Component({
   selector: 'jhi-famille-produit',
   templateUrl: './famille-produit.component.html',
+  styleUrl: './famille-produit.component.scss',
   imports: [
     WarehouseCommonModule,
     ButtonModule,

@@ -1,0 +1,75 @@
+@import 'app/shared/scss/table-common';
+
+// Specific styles for produit component
+.red-400 {
+  color: #ef4444 !important;
+  font-weight: 700;
+}
+
+.orange-400 {
+  color: #fb923c !important;
+  font-weight: 700;
+}
+
+.amount-column {
+  font-weight: 600;
+}
+
+.expanded-content {
+  background-color: #f8f9fa;
+}
+
+::ng-deep .p-card .info-title {
+  background-color: var(--p-sky-400);
+}
+
+::ng-deep .p-card .warn-title {
+  background-color: var(--p-orange-400);
+}
+
+::ng-deep .p-card .secondary-title {
+  background-color: var(--p-purple-400);
+}
+
+::ng-deep .p-card .primary-title {
+  background-color: var(--p-primary-color);
+}
+
+::ng-deep .p-card .p-card-title .card-title {
+  color: #ffffff;
+  padding: 0.5rem;
+  margin: -1.25rem -1.25rem 1.25rem -1.25rem;
+  border-top-left-radius: var(--border-radius);
+  border-top-right-radius: var(--border-radius);
+}
+
+.card-title {
+  font-size: 1.2rem;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+}
+
+.field {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.5rem 0;
+  border-bottom: 1px solid #dfe7ef;
+}
+
+.field:last-child {
+  border-bottom: none;
+}
+
+.field label {
+  font-weight: 600;
+  color: #6c757d;
+}
+
+.field span {
+  color: #495057;
+  text-align: right;
+  font-weight: 600;
+}

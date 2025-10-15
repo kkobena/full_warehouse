@@ -105,12 +105,14 @@
 
 
             <p-button
+              pTooltip="Ventes en attente"
+              class="mr-2"
+              tooltipPosition="left"
               (click)="openPindingSide()"
               [disabled]="currentSaleService.currentSale() || isPresale"
-              [variant]="!isLargeScreen ? 'text' : undefined"
+              [variant]="'text'"
               icon="pi pi-clock"
-              [label]="isLargeScreen ? 'Ventes en attente' : ''"
-              [rounded]="!isLargeScreen"
+              [rounded]="true"
               size="small"
               severity="info"
               [badge]="'1'"

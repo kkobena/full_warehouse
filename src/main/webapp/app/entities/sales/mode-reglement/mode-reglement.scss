@@ -178,13 +178,10 @@
 }
 
 .additional-info-body {
-  padding: 1.5rem;
+  padding: 1rem;
   background: #ffffff;
 }
 
-.info-field {
-  margin-bottom: 1rem;
-}
 
 .info-field:last-child {
   margin-bottom: 0;
@@ -201,23 +198,11 @@
 .info-field input {
   width: 100%;
   padding: 0.75rem 1rem;
-  border: 1px solid #dfe3e8;
   border-radius: 4px;
   font-size: 1rem;
   transition: all 0.2s ease;
-  background: #ffffff;
 }
 
-.info-field input:hover {
-  border-color: #5b89a6;
-}
-
-.info-field input:focus {
-  outline: none;
-  border-color: #5b89a6;
-  background: #ffffff;
-  box-shadow: 0 0 0 3px rgba(91, 137, 166, 0.1);
-}
 
 .info-field input::placeholder {
   color: #95a5a6;

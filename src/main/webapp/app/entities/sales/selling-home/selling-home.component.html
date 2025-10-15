@@ -141,16 +141,18 @@
 
           <!-- Recherche produit -->
           <div class="pharma-product-search">
-            <jhi-produit-search-autocomplete
+            <jhi-produit-search-autocomplete-scanner
               #produitbox
               [(ngModel)]="produitSelected"
               (selectedProduit)="onSelectProduct($event)"
               (onKeyEnter)="onSaveKeyDown($event)"
+              (onBarcodeScanned)="onBarcodeScanned($event)"
               [autofocus]="true"
               [includeDetails]="true"
               [pageSize]="PRODUIT_COMBO_RESULT_SIZE"
+              [enableScanner]="true"
               class="pharma-autocomplete">
-            </jhi-produit-search-autocomplete>
+            </jhi-produit-search-autocomplete-scanner>
           </div>
 
           <!-- Quantité -->

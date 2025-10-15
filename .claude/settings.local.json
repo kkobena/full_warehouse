@@ -5,7 +5,8 @@
       "Bash(./mvnw clean:*)",
       "Bash(where mvn)",
       "Bash(./mvnw test:*)",
-      "Bash(mvn test:*)"
+      "Bash(mvn test:*)",
+      "Bash(mkdir:*)"
     ],
     "deny": [],
     "ask": []

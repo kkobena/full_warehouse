@@ -1,0 +1,117 @@
+<!-- Notification des raccourcis avec signals -->
+@if (shortcutNotification()) {
+  <div class="shortcut-notification">
+    <i class="pi pi-check-circle"></i>
+    {{ shortcutNotification() }}
+  </div>
+}
+
+<!-- Modal d'aide -->
+<p-dialog
+  [(visible)]="showShortcutsModal"
+  [modal]="true"
+  [style]="{width: '800px', maxHeight: '90vh'}"
+  [draggable]="false"
+  [closable]="true"
+  header="🎹 Guide des Raccourcis Clavier">
+
+  <div class="shortcuts-help">
+    <div class="shortcuts-intro">
+      <p><i class="pi pi-info-circle"></i> Ces raccourcis sont optimisés pour ne pas interférer avec votre navigateur</p>
+    </div>
+
+    <div class="shortcuts-section">
+      <h4><i class="pi pi-compass"></i> Navigation & Focus</h4>
+      @for (shortcut of getShortcutsByCategory('Navigation'); track shortcut.key) {
+        <div class="shortcut-item">
+          <kbd class="shortcut-key">{{ formatShortcutKey(shortcut) }}</kbd>
+          <span class="shortcut-desc">{{ shortcut.description }}</span>
+        </div>
+      }
+    </div>
+
+    <div class="shortcuts-section">
+      <h4><i class="pi pi-shopping-cart"></i> Types de Vente</h4>
+      @for (shortcut of getShortcutsByCategory('Types de vente'); track shortcut.key) {
+        <div class="shortcut-item">
+          <kbd class="shortcut-key">{{ formatShortcutKey(shortcut) }}</kbd>
+          <span class="shortcut-desc">{{ shortcut.description }}</span>
+        </div>
+      }
+    </div>
+
+    <div class="shortcuts-section">
+      <h4><i class="pi pi-money-bill"></i> Modes de Paiement</h4>
+      @for (shortcut of getShortcutsByCategory('Paiement'); track shortcut.key) {
+        <div class="shortcut-item">
+          <kbd class="shortcut-key">{{ formatShortcutKey(shortcut) }}</kbd>
+          <span class="shortcut-desc">{{ shortcut.description }}</span>
+        </div>
+      }
+    </div>
+
+    <div class="shortcuts-section">
+      <h4><i class="pi pi-check-circle"></i> Actions Principales</h4>
+      @for (shortcut of getShortcutsByCategory('Actions'); track shortcut.key) {
+        <div class="shortcut-item">
+          <kbd class="shortcut-key">{{ formatShortcutKey(shortcut) }}</kbd>
+          <span class="shortcut-desc">{{ shortcut.description }}</span>
+        </div>
+      }
+    </div>
+
+    <div class="shortcuts-section">
+      <h4><i class="pi pi-box"></i> Gestion Produits</h4>
+      @for (shortcut of getShortcutsByCategory('Produits'); track shortcut.key) {
+        <div class="shortcut-item">
+          <kbd class="shortcut-key">{{ formatShortcutKey(shortcut) }}</kbd>
+          <span class="shortcut-desc">{{ shortcut.description }}</span>
+        </div>
+      }
+    </div>
+
+    <div class="shortcuts-section">
+      <h4><i class="pi pi-percentage"></i> Remises</h4>
+      @for (shortcut of getShortcutsByCategory('Remises'); track shortcut.key) {
+        <div class="shortcut-item">
+          <kbd class="shortcut-key">{{ formatShortcutKey(shortcut) }}</kbd>
+          <span class="shortcut-desc">{{ shortcut.description }}</span>
+        </div>
+      }
+    </div>
+
+    <div class="shortcuts-section">
+      <h4><i class="pi pi-print"></i> Impression</h4>
+      @for (shortcut of getShortcutsByCategory('Impression'); track shortcut.key) {
+        <div class="shortcut-item">
+          <kbd class="shortcut-key">{{ formatShortcutKey(shortcut) }}</kbd>
+          <span class="shortcut-desc">{{ shortcut.description }}</span>
+        </div>
+      }
+    </div>
+  </div>
+
+  <ng-template pTemplate="footer">
+    <div class="shortcuts-footer">
+      <span class="shortcuts-tip">
+        <i class="pi pi-lightbulb"></i>
+        Astuce : Appuyez sur <kbd>F1</kbd> à tout moment pour afficher cette aide
+      </span>
+      <p-button
+        label="Fermer"
+        icon="pi pi-times"
+        (click)="showShortcutsModal.set(false)"
+        [outlined]="true">
+      </p-button>
+    </div>
+  </ng-template>
+</p-dialog>
+
+<!-- Bouton d'aide flottant -->
+<button
+  class="help-button"
+  (click)="toggleShortcutsModal()"
+  title="Raccourcis clavier (F1)"
+  type="button">
+  <i class="pi pi-question"></i>
+</button>

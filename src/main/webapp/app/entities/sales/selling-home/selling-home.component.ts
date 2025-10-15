@@ -80,8 +80,8 @@ import { DeconditionnementService } from '../validator/deconditionnement.service
 import { ForceStockService } from '../validator/force-stock.service';
 import { SaleStockValidator } from '../validator/sale-stock-validator.service';
 import {
-  ProduitSearchAutocompleteComponent
-} from '../../../shared/produit-search-autocomplete/produit-search-autocomplete.component';
+  ProduitSearchAutocompleteScannerComponent
+} from '../../../shared/produit-search-autocomplete-scanner/produit-search-autocomplete-scanner.component';
 import { Tag } from 'primeng/tag';
 
 @Component({
@@ -109,7 +109,7 @@ import { Tag } from 'primeng/tag';
     ToastAlertComponent,
     FloatLabel,
     QuantiteProdutSaisieComponent,
-    ProduitSearchAutocompleteComponent,
+    ProduitSearchAutocompleteScannerComponent,
     Tag
   ],
   templateUrl: './selling-home.component.html',
@@ -177,7 +177,7 @@ export class SellingHomeComponent implements OnInit, AfterViewInit {
   private readonly confimDialog = viewChild.required<ConfirmDialogComponent>('confirmDialog');
   private readonly alert = viewChild.required<ToastAlertComponent>('alert');
   private readonly quantyBox = viewChild.required<QuantiteProdutSaisieComponent>('produitQteCmpt');
-  private readonly produitbox = viewChild.required<ProduitSearchAutocompleteComponent>('produitbox');
+  private readonly produitbox = viewChild.required<ProduitSearchAutocompleteScannerComponent>('produitbox');
   private readonly saleEventManager = inject(SaleEventSignal);
   private readonly destroyRef = inject(DestroyRef);
   private readonly platformId = inject(PLATFORM_ID);
@@ -676,6 +676,13 @@ export class SellingHomeComponent implements OnInit, AfterViewInit {
         this.manageAmountDiv();
       }
     }
+  }
+
+  protected onBarcodeScanned(barcode: string): void {
+    // Optional: Log or handle barcode scan event
+    console.log('Barcode scanned:', barcode);
+    // The product will be automatically selected by the autocomplete component
+    // No additional action needed here unless you want to add custom logic
   }
 
   private handleInvalidStock(reason: string, qytMvt: number): void {

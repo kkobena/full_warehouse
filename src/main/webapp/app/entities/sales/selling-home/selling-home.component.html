@@ -16,7 +16,7 @@
 <div class="pharma-container">
   <div class="pharma-row">
 
-    <!-- MENU TYPES DE VENTE - Style original amélioré -->
+
     <div class="pharma-sidebar">
       <div class="pharma-card">
         <div class="pharma-card-header">
@@ -113,7 +113,7 @@
               [rounded]="!isLargeScreen"
               size="small"
               severity="info"
-              [badge]="1"
+              [badge]="'1'"
               badgeSeverity="danger"
             ></p-button>
 
@@ -162,7 +162,7 @@
               (addQuantite)="addQuantity($event)"
               [disabledButton]="disableButton"
               [isValid]="!!produitSelected"
-              styleClass="pharma-quantity-input">
+              class="pharma-quantity-input">
             </jhi-quantite-produt-saisie>
           </div>
 

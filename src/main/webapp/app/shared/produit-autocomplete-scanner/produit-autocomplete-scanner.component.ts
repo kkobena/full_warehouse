@@ -133,29 +133,50 @@ export class ProduitAutocompleteScannerComponent implements ControlValueAccessor
   private onTouched: () => void = () => {};
 
   private setupBarcodeScanner(): void {
+    // OFFLINE CAPABILITY: The barcode scanner detection works entirely offline
+    // It uses keyboard event timing to detect rapid input from barcode scanners
+    // Only the product search API call requires a network connection
+    // GLOBAL SCAN: Works regardless of which field has focus
     this.keydownListener = (event: KeyboardEvent) => {
-      const inputEl = this.produitbox().inputEL?.nativeElement;
-      const isInputFocused = document.activeElement === inputEl;
+      const scannedCode = this.scanDetectorService.keyPressed(event.key);
 
-      // Only process barcode scan if the input is focused or no input is focused (global scan)
-      if (isInputFocused || document.activeElement?.tagName === 'BODY') {
-        const scannedCode = this.scanDetectorService.keyPressed(event.key);
+      if (scannedCode) {
+        // Prevent default behavior to avoid typing into focused fields
+        event.preventDefault();
+        event.stopPropagation();
 
-        if (scannedCode) {
-          // Prevent default behavior
-          event.preventDefault();
-          event.stopPropagation();
+        // Get reference to the product input
+        const inputEl = this.produitbox().inputEL?.nativeElement;
 
-          // Clear the input if scanner data was typed into it
-          if (isInputFocused && inputEl) {
-            inputEl.value = '';
+        // Clear any text that might have been typed into the product input
+        if (inputEl) {
+          inputEl.value = '';
+        }
+
+        // Clear any other focused input that might have received scanner characters
+        const activeElement = document.activeElement as HTMLInputElement;
+        if (activeElement && (activeElement.tagName === 'INPUT' || activeElement.tagName === 'TEXTAREA')) {
+          // Store the current value to potentially restore it
+          const currentValue = activeElement.value;
+
+          // Check if the current value ends with partial barcode data
+          // If it does, remove it (barcode chars would be the last chars typed rapidly)
+          if (currentValue.length > 0) {
+            activeElement.value = '';
           }
+        }
 
-          // Emit the scanned barcode
-          this.onBarcodeScanned.emit(scannedCode);
+        // Emit the scanned barcode
+        this.onBarcodeScanned.emit(scannedCode);
 
-          // Search for product by barcode
-          this.searchByBarcode(scannedCode);
+        // Search for product by barcode (requires network connection)
+        this.searchByBarcode(scannedCode);
+
+        // Focus the product search field after scan for better UX
+        if (inputEl) {
+          setTimeout(() => {
+            inputEl.focus();
+          }, 100);
         }
       }
     };

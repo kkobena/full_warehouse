@@ -29,7 +29,6 @@ import { UserVendeurService } from '../../service/user-vendeur.service';
   selector: 'jhi-prevente-modal',
   templateUrl: './prevente-modal.component.html',
   styleUrls: ['./prevente-modal.component.scss'],
-  encapsulation: ViewEncapsulation.None,
   imports: [
     WarehouseCommonModule,
     FormsModule,

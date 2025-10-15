@@ -20,7 +20,7 @@
 
     <div class="flex-grow-1">
       <p-iconfield>
-        <p-inputicon styleClass="pi pi-search" />
+        <p-inputicon class="pi pi-search" />
         <input (keyup.enter)="onSearch($event)" [style]="{ 'width': '95%' }" pInputText
                placeholder="Taper pour rechercher"
                type="text" />
@@ -31,89 +31,115 @@
 </p-toolbar>
 
 <p-divider></p-divider>
-<p-table
-  [metaKeySelection]="true"
-  [paginator]="true"
-  [rows]="15"
-  [value]="preventes"
-  dataKey="id"
-  styleClass="prevente-modal p-datatable-sm"
->
-  <ng-template pTemplate="header">
-    <tr>
-      <th style="width: 2%"></th>
-      <th style="width: 10%">Référence</th>
-      <th style="width: 8%">Nbre d'articles</th>
-      <th style="width: 10%">Montant</th>
-      <th style="width: 20%">Client</th>
-      <th style="width: 15%">Vendeur</th>
-    </tr>
-  </ng-template>
-  <ng-template #body let-columns="columns" let-expanded="expanded" let-rowIndex="rowIndex"
-               let-sale>
-    <tr (click)="onSelect(sale)" (dblclick)="onDbleSelect(sale)"
-        [ngClass]="{ active: selectedRowIndex == sale.id }">
-      <td>
-        <p-button
-          [icon]="expanded ? 'pi pi-chevron-down' : 'pi pi-chevron-right'"
-          [pRowToggler]="sale"
-          [rounded]="true"
-          [text]="true"
-          type="button"
-        />
-      </td>
-      <td>{{ sale.numberTransaction }}</td>
-      <td class="text-right">{{ sale.salesLines.length | number }}</td>
-      <td class="text-right">{{ sale.salesAmount | number }}</td>
-      <td>{{ sale.customer?.fullName }}</td>
-      <td>{{ sale.seller?.abbrName }}</td>
-    </tr>
-  </ng-template>
-  <ng-template #expandedrow let-elRow>
-    <tr>
-      <td colspan="8">
-        <div class="card">
-          <div class="card-header bg-info text-white">LISTES DES PRODUITS</div>
-          <div class="card-body">
-            <p-table
-              [paginator]="true"
-              [rowsPerPageOptions]="[10, 15, 20, 30, 50]"
-              [rows]="10"
-              [showCurrentPageReport]="true"
-              [value]="elRow.salesLines"
-              currentPageReportTemplate="Affichage de {first} à {last} sur {totalRecords} produits"
-              dataKey="id"
-              selectionMode="single"
-            >
-              <ng-template #header>
-                <tr>
-                  <th style="width: 5%">#</th>
-                  <th style="width: 10%">CODE</th>
-                  <th style="width: 44%">LIBELLE</th>
-                  <th style="width: 8%">QTE.D</th>
-                  <th style="width: 8%">QTE.S</th>
-                  <th style="width: 9%">PU</th>
-                  <th style="width: 10%">TOTAL</th>
-                </tr>
-              </ng-template>
-              <ng-template #body let-rowIndex="rowIndex" let-saleLine>
-                <tr
-                  [ngClass]="{ 'table-danger': saleLine.quantitySold < saleLine.quantityRequested }">
-                  <td style="text-align: left">{{ rowIndex + 1 }}</td>
-                  <td>{{ saleLine.code }}</td>
-                  <td>{{ saleLine.produitLibelle }}</td>
-                  <td class="text-right">{{ saleLine.quantityRequested | number }}</td>
-                  <td class="text-right">{{ saleLine.quantitySold | number }}</td>
-                  <td class="text-right">{{ saleLine.regularUnitPrice | number }}</td>
-                  <td
-                    style="text-align: right; font-weight: bold">{{ saleLine.salesAmount | number }}
-                  </td>
-                </tr>
-              </ng-template>
-            </p-table>
+<div class="pharma-table-wrapper">
+  <p-table
+    [metaKeySelection]="true"
+    [paginator]="true"
+    [rows]="10"
+    [value]="preventes"
+    dataKey="id"
+    class="pharma-table"
+  >
+    <ng-template #header>
+      <tr class="pharma-table-head">
+        <th style="width: 2%"></th>
+        <th style="width: 10%">Référence</th>
+        <th style="width: 8%">Nbre d'articles</th>
+        <th style="width: 10%">Montant</th>
+        <th style="width: 20%">Client</th>
+        <th style="width: 15%">Vendeur</th>
+      </tr>
+    </ng-template>
+    <ng-template #body  let-expanded="expanded" let-rowIndex="rowIndex"
+                 let-sale>
+      <tr (click)="onSelect(sale)" (dblclick)="onDbleSelect(sale)"
+          [ngClass]="{ active: selectedRowIndex == sale.id }">
+        <td>
+          <p-button
+            [icon]="expanded ? 'pi pi-chevron-down' : 'pi pi-chevron-right'"
+            [pRowToggler]="sale"
+            [rounded]="true"
+            [text]="true"
+            type="button"
+          />
+        </td>
+        <td>
+          <span class="pharma-code">{{ sale.numberTransaction }}</span>
+        </td>
+        <td class="text-right">
+          <span class="pharma-qty-value">{{ sale.salesLines.length | number }}</span>
+        </td>
+        <td class="text-right">
+          <span class="pharma-total">{{ sale.salesAmount | number }}</span>
+        </td>
+        <td>
+          <div class="pharma-entity-name">{{ sale.customer?.fullName }}</div>
+        </td>
+        <td>{{ sale.seller?.abbrName }}</td>
+      </tr>
+    </ng-template>
+    <ng-template #expandedrow let-elRow>
+      <tr class="pharma-expanded-row">
+        <td colspan="6">
+          <div class="pharma-sub-table-card">
+            <div class="card-header bg-info text-white">
+              <i class="pi pi-list"></i>
+              LISTES DES PRODUITS
+            </div>
+            <div class="card-body">
+              <p-table
+                [paginator]="true"
+                [rowsPerPageOptions]="[10, 15, 20, 30, 50]"
+                [rows]="10"
+                [showCurrentPageReport]="true"
+                [value]="elRow.salesLines"
+                currentPageReportTemplate="Affichage de {first} à {last} sur {totalRecords} produits"
+                dataKey="id"
+                selectionMode="single"
+              >
+                <ng-template #header>
+                  <tr class="pharma-table-head">
+                    <th style="width: 5%">#</th>
+                    <th style="width: 10%">CODE</th>
+                    <th style="width: 44%">LIBELLE</th>
+                    <th style="width: 8%">QTE.D</th>
+                    <th style="width: 8%">QTE.S</th>
+                    <th style="width: 9%">PU</th>
+                    <th style="width: 10%">TOTAL</th>
+                  </tr>
+                </ng-template>
+                <ng-template #body let-rowIndex="rowIndex" let-saleLine>
+                  <tr
+                    [ngClass]="{ 'table-danger': saleLine.quantitySold < saleLine.quantityRequested }">
+                    <td style="text-align: center">
+                      <span class="pharma-row-number">{{ rowIndex + 1 }}</span>
+                    </td>
+                    <td>
+                      <span class="pharma-code">{{ saleLine.code }}</span>
+                    </td>
+                    <td>
+                      <div class="pharma-product-name">{{ saleLine.produitLibelle }}</div>
+                    </td>
+                    <td class="text-right">
+                      <span class="pharma-qty-value">{{ saleLine.quantityRequested | number }}</span>
+                    </td>
+                    <td class="text-right">
+                      <span class="pharma-qty-value">{{ saleLine.quantitySold | number }}</span>
+                    </td>
+                    <td class="text-right">
+                      <span class="pharma-price">{{ saleLine.regularUnitPrice | number }}</span>
+                    </td>
+                    <td class="text-right">
+                      <span class="pharma-total">{{ saleLine.salesAmount | number }}</span>
+                    </td>
+                  </tr>
+                </ng-template>
+              </p-table>
+            </div>
           </div>
-        </div>
-      </td>
-    </tr>
-  </ng-template>
-</p-table>
+        </td>
+      </tr>
+    </ng-template>
+  </p-table>
+</div>
+

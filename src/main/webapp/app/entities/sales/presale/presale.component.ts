@@ -17,6 +17,7 @@ import { ConfirmDialogComponent } from '../../../shared/dialog/confirm-dialog/co
 @Component({
   selector: 'jhi-presale',
   templateUrl: './presale.component.html',
+  styleUrls: ['./presale.scss'],
 
   imports: [
     WarehouseCommonModule,

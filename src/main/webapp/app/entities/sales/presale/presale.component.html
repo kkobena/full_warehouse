@@ -11,14 +11,14 @@
               [filter]="false"
               [options]="typeVentes"
               placeholder="Filtrer par critère"
-              styleClass="dropdown-width"
+               [fluid]="true"
             >
             </p-select>
           </div>
 
           <div class="col">
             <p-iconfield>
-              <p-inputicon styleClass="pi pi-search" />
+              <p-inputicon class="pi pi-search" />
               <input (keyup.enter)="onSearch()" pInputText placeholder="Taper pour rechercher" type="text" />
             </p-iconfield>
           </div>
@@ -38,7 +38,8 @@
         </div>
       </ng-template>
     </p-toolbar>
-    <div class="mt-3 mb-3">  <p-table
+    <div class="mt-3 mb-3">
+      <p-table
       [paginator]="true"
       [rowsPerPageOptions]="[10, 15, 20, 30, 50]"
       [rows]="10"
@@ -47,9 +48,9 @@
       currentPageReportTemplate="Affichage de {first} à {last} sur {totalRecords} ventes"
       dataKey="id"
       selectionMode="single"
-      styleClass="p-datatable-gridlines mt-2"
+      [showGridlines]="true"
     >
-      <ng-template pTemplate="header">
+      <ng-template #header>
         <tr>
           <th style="width: 3%"></th>
           <th style="width: 10%">Référence</th>
@@ -122,7 +123,7 @@
                   dataKey="id"
                   selectionMode="single"
                 >
-                  <ng-template pTemplate="header">
+                  <ng-template #header>
                     <tr>
                       <th style="width: 5%">#</th>
                       <th style="width: 10%">CODE</th>
@@ -133,7 +134,7 @@
                       <th style="width: 10%">TOTAL</th>
                     </tr>
                   </ng-template>
-                  <ng-template let-rowIndex="rowIndex" let-saleLine pTemplate="body">
+                  <ng-template let-rowIndex="rowIndex" let-saleLine #body>
                     <tr [ngClass]="{ 'table-danger': saleLine.quantitySold < saleLine.quantityRequested }">
                       <td style="text-align: left">{{ rowIndex + 1 }}</td>
                       <td>{{ saleLine.code }}</td>

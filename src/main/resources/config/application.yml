@@ -142,6 +142,20 @@ info:
 pharma-smart:
   clientApp:
     name: 'pharma-smart'
+  # OAuth2 Authorization Server settings
+  oauth2:
+    issuer-uri: http://localhost:8080
+    # Access token expiration times (in seconds)
+    access-token-validity:
+      web: 7200      # 2 hours
+      mobile: 28800  # 8 hours
+      desktop: 43200 # 12 hours
+      service: 3600  # 1 hour
+    # Refresh token expiration times (in seconds)
+    refresh-token-validity:
+      web: 2592000      # 30 days
+      mobile: 7776000   # 90 days
+      desktop: 31536000 # 365 days
 
 
 

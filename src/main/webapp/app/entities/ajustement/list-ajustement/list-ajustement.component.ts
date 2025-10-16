@@ -15,13 +15,12 @@ import { WarehouseCommonModule } from '../../../shared/warehouse-common/warehous
 import { ButtonModule } from 'primeng/button';
 import { TableModule } from 'primeng/table';
 import { TooltipModule } from 'primeng/tooltip';
-import { Card } from 'primeng/card';
 
 @Component({
   selector: 'jhi-list-ajustement',
   templateUrl: './list-ajustement.component.html',
   styleUrl: './list-ajustement.component.scss',
-  imports: [WarehouseCommonModule, ButtonModule, TableModule, TooltipModule, Card]
+  imports: [WarehouseCommonModule, ButtonModule, TableModule, TooltipModule]
 })
 export class ListAjustementComponent implements OnInit {
   translate = inject(TranslateService);

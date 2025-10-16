@@ -41,8 +41,12 @@ public final class SecurityUtils {
             return springSecurityUser.getUsername();
         } else if (authentication.getPrincipal() instanceof String s) {
             return s;
+        } else if (authentication.getPrincipal() instanceof org.springframework.security.oauth2.jwt.Jwt jwt) {
+
+            return jwt.getSubject();
         }
-        return null;
+
+        return authentication.getName();
     }
 
     /**

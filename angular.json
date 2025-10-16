@@ -74,6 +74,17 @@
                 }
               ]
             },
+            "electron": {
+              "optimization": true,
+              "outputHashing": "none",
+              "sourceMap": true,
+              "namedChunks": false,
+              "extractLicenses": true,
+              "vendorChunk": false,
+              "buildOptimizer": true,
+              "serviceWorker": false,
+              "baseHref": "./"
+            },
             "development": {
               "buildOptimizer": false,
               "optimization": false,

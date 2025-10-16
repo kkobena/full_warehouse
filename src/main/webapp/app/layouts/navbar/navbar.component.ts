@@ -42,11 +42,14 @@ import {
   faTruckFast,
   faUsers,
   faWallet,
-  faWarehouse
+  faWarehouse,
+  faServer
 } from '@fortawesome/free-solid-svg-icons';
 import { Theme, ThemeService } from '../../core/theme/theme.service';
 import { TranslateService } from '@ngx-translate/core';
 import { Authority } from '../../shared/constants/authority.constants';
+import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
+import { AppSettingsDialogComponent } from '../../shared/settings/app-settings-dialog.component';
 
 @Component({
   selector: 'jhi-navbar',
@@ -65,10 +68,12 @@ export default class NavbarComponent implements OnInit {
   private router = inject(Router);
   private themeService = inject(ThemeService);
   private translate = inject(TranslateService);
+  private modalService = inject(NgbModal);
 
   themes: Theme[];
   selectedTheme: string;
   readonly faPalette = faPalette;
+  readonly faServer = faServer;
 
 
   changeTheme(themeName: string): void {
@@ -108,6 +113,10 @@ export default class NavbarComponent implements OnInit {
 
   protected toggleNavbar(): void {
     this.isNavbarCollapsed.update(isNavbarCollapsed => !isNavbarCollapsed);
+  }
+
+  protected openAppSettings(): void {
+    this.modalService.open(AppSettingsDialogComponent, { size: 'lg', backdrop: 'static' });
   }
 
   protected hasAnyAuthority(authorities: string[] | string): boolean {
@@ -289,6 +298,7 @@ export default class NavbarComponent implements OnInit {
 
           }
 
+
         ]
       },
       {
@@ -345,7 +355,11 @@ export default class NavbarComponent implements OnInit {
         label: this.translateLabel('account.main'),
         faIcon: 'user',
         children: [
-
+          {
+            label: 'Paramètres Serveur',
+            faIcon: faServer,
+            click: () => this.openAppSettings()
+          },
 
           {
             label: this.translateLabel('account.login'),

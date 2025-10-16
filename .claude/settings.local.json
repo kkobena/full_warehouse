@@ -14,7 +14,9 @@
       "Bash(! grep -q \"pharma-table-head\" \"$file\")",
       "Bash(then echo \"$file\")",
       "Bash(fi)",
-      "Bash(done)"
+      "Bash(done)",
+      "Bash(npm run electron:prod:*)",
+      "Bash(curl:*)"
     ],
     "deny": [],
     "ask": []

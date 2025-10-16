@@ -74,6 +74,24 @@ server:
 
 
 pharma-smart-log:
+  # CORS configuration for production - allow LAN access
+  cors:
+    # Allow all origins on local network for LAN deployments
+    allowed-origin-patterns:
+      - 'http://localhost:*'
+      - 'https://localhost:*'
+      - 'http://127.0.0.1:*'
+      - 'https://127.0.0.1:*'
+      - 'http://192.168.*.*:*'
+      - 'https://192.168.*.*:*'
+      - 'http://10.*.*.*:*'
+      - 'https://10.*.*.*:*'
+      - 'file://*'
+    allowed-methods: '*'
+    allowed-headers: '*'
+    exposed-headers: 'Link,X-Total-Count,X-${pharma-smart.clientApp.name}-alert,X-${pharma-smart.clientApp.name}-error,X-${pharma-smart.clientApp.name}-params'
+    allow-credentials: true
+    max-age: 1800
   http:
     cache: # Used by the CachingHttpHeadersFilter
       timeToLiveInDays: 1461

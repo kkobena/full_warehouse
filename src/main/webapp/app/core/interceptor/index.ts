@@ -5,10 +5,12 @@ import { AuthExpiredInterceptor } from 'app/core/interceptor/auth-expired.interc
 import { ErrorHandlerInterceptor } from 'app/core/interceptor/error-handler.interceptor';
 import { NotificationInterceptor } from 'app/core/interceptor/notification.interceptor';
 import { authJwtInterceptor } from 'app/core/interceptor/auth-jwt.interceptor';
+import { apiBaseUrlInterceptor } from 'app/core/interceptor/api-base-url.interceptor';
 
 export const httpInterceptorProviders = [
-  // JWT interceptor (functional) - adds Authorization header
-  withInterceptors([authJwtInterceptor]),
+  // API base URL interceptor (functional) - prepends server URL for Electron
+  // Must be FIRST to ensure correct URL before JWT interceptor
+  withInterceptors([apiBaseUrlInterceptor, authJwtInterceptor]),
 
   // Legacy class-based interceptors
   {

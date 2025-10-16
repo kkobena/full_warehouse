@@ -578,7 +578,7 @@ public class LogProperties {
         private final Security.RememberMe rememberMe = new Security.RememberMe();
         private final Security.OAuth2 oauth2 = new Security.OAuth2();
         private String contentSecurityPolicy =
-            "default-src 'self'; frame-src 'self' data:; script-src 'self' 'unsafe-inline' 'unsafe-eval' https://storage.googleapis.com; style-src 'self' https://fonts.googleapis.com 'unsafe-inline'; img-src 'self' data:; font-src 'self' https://fonts.gstatic.com data:";
+            "default-src 'self'; frame-src 'self' data:; script-src 'self' 'unsafe-inline' 'unsafe-eval' https://storage.googleapis.com; style-src 'self' https://fonts.googleapis.com 'unsafe-inline'; img-src 'self' data:; font-src 'self' https://fonts.gstatic.com data:; connect-src 'self' http://localhost:* http://127.0.0.1:* http://192.168.1.*:* ws://localhost:* ws://127.0.0.1:* ws://192.168.1.*:*";
 
         public Security.ClientAuthorization getClientAuthorization() {
             return this.clientAuthorization;

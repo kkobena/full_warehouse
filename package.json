@@ -4,6 +4,7 @@
   "private": true,
   "description": "Description for Warehouse",
   "license": "UNLICENSED",
+  "main": "electron.js",
   "scripts": {
     "build": "npm run webapp:prod --",
     "clean-www": "rimraf target/classes/static/",
@@ -26,7 +27,35 @@
     "webapp:dev-ssl": "ng serve --ssl",
     "webapp:dev-verbose": "ng serve --verbose",
     "webapp:prod": "npm run clean-www && npm run webapp:build:prod",
-    "webapp:test": "npm run test --"
+    "webapp:test": "npm run test --",
+    "electron:start": "concurrently \"ng serve\" \"wait-on http://localhost:4200 && electron . --dev\"",
+    "electron": "electron .",
+    "electron:dev": "ELECTRON_START_URL=http://localhost:4200 electron .",
+    "electron:prod": "ng build --configuration=electron && electron .",
+    "electron:build": "ng build --configuration=electron && electron-builder --win --x64 --publish never",
+    "electron:build-dir": "ng build --configuration=electron && electron-builder --win --x64 --dir --publish never",
+    "electron:build-all": "ng build --configuration=electron && electron-builder --win --x64 --publish never"
+  },
+  "build": {
+    "appId": "com.kobe.warehouse",
+    "productName": "PharmaSmart",
+    "npmRebuild": false,
+    "copyright": "Copyright © 2025 Kobena",
+    "directories": {
+      "output": "dist-electron"
+    },
+    "files": [
+      "target/classes/static/**",
+      "electron.js"
+    ],
+    "win": {
+      "icon": "src/main/webapp/favicon.ico",
+      "target": "nsis"
+    },
+    "mac": {
+      "icon": "src/main/webapp/favicon.ico",
+      "target": "dmg"
+    }
   },
   "config": {
     "backend_port": "8080",
@@ -87,8 +116,10 @@
     "angular-eslint": "20.2.0",
     "browser-sync": "^3.0.4",
     "buffer": "6.0.3",
-    "concurrently": "9.1.2",
+    "concurrently": "^9.1.2",
     "copy-webpack-plugin": "13.0.0",
+    "electron": "^38.3.0",
+    "electron-builder": "^26.0.12",
     "eslint": "^9.28.0",
     "folder-hash": "4.1.1",
     "globals": "16.0.0",
@@ -107,7 +138,7 @@
     "ts-jest": "29.2.5",
     "typescript": "5.9.2",
     "typescript-eslint": "^8.33.1",
-    "wait-on": "8.0.2",
+    "wait-on": "^8.0.2",
     "webpack-bundle-analyzer": "4.10.2",
     "webpack-merge": "6.0.1",
     "webpack-notifier": "1.15.0"

@@ -227,10 +227,10 @@
       </div>
       <div class="card-body p-0">
         @if (!showGraphs) {
-          <p-table [scrollable]="true" [value]="rowQuantity" scrollHeight="400px"
+          <p-table class="pharma-table" [scrollable]="true" [value]="rowQuantity" scrollHeight="400px"
                    [stripedRows]="true">
             <ng-template #header>
-              <tr>
+              <tr class="pharma-table-head">
                 <th>Libellé</th>
                 <th class="text-end">Montant</th>
                 <th class="text-end">Quantité</th>
@@ -273,10 +273,10 @@
       </div>
       <div class="card-body p-0">
         @if (!showGraphs) {
-          <p-table [scrollable]="true" [value]="rowAmount" scrollHeight="400px"
+          <p-table class="pharma-table" [scrollable]="true" [value]="rowAmount" scrollHeight="400px"
                    [stripedRows]="true">
             <ng-template #header>
-              <tr>
+              <tr class="pharma-table-head">
                 <th>Libellé</th>
                 <th class="text-end">Quantité</th>
                 <th class="text-end">Montant</th>
@@ -319,10 +319,10 @@
       </div>
       <div class="card-body p-0">
         @if (!showGraphs) {
-          <p-table [scrollable]="true" [value]="row20x80" scrollHeight="400px"
+          <p-table class="pharma-table" [scrollable]="true" [value]="row20x80" scrollHeight="400px"
                    [stripedRows]="true">
             <ng-template #header>
-              <tr>
+              <tr class="pharma-table-head">
                 <th>Libellé</th>
                 <th>Cip</th>
                 <th class="text-end">Quantité</th>
@@ -333,7 +333,7 @@
             <ng-template #body let-produit>
               <tr>
                 <td>{{ produit.libelle }}</td>
-                <td>{{ produit.codeCip }}</td>
+                <td><span class="pharma-code">{{ produit.codeCip }}</span>  </td>
                 <td class="text-end">{{ produit.total | number }}</td>
                 <td class="text-end fw-bold text-info">{{ produit.pourcentage }}</td>
 
@@ -368,10 +368,10 @@
       </div>
       <div class="card-body p-0">
         @if (!showGraphs) {
-          <p-table [scrollable]="true" [value]="row20x80Montant" scrollHeight="400px"
+          <p-table class="pharma-table" [scrollable]="true" [value]="row20x80Montant" scrollHeight="400px"
                    [stripedRows]="true">
             <ng-template #header>
-              <tr>
+              <tr class="pharma-table-head">
                 <th>Libellé</th>
                 <th>Cip</th>
                 <th class="text-end">Montant</th>
@@ -382,7 +382,7 @@
             <ng-template #body let-produit>
               <tr>
                 <td>{{ produit.libelle }}</td>
-                <td>{{ produit.codeCip }}</td>
+                <td><span class="pharma-code">{{ produit.codeCip }}</span>   </td>
                 <td class="text-end">{{ produit.total | number }}</td>
                 <td class="text-end fw-bold text-info">{{ produit.pourcentage }}</td>
 

@@ -7,7 +7,14 @@
       "Bash(./mvnw test:*)",
       "Bash(mvn test:*)",
       "Bash(mkdir:*)",
-      "Bash(test:*)"
+      "Bash(test:*)",
+      "Bash(find:*)",
+      "Bash(for:*)",
+      "Bash(do if grep -q \"<thead\" \"$file\")",
+      "Bash(! grep -q \"pharma-table-head\" \"$file\")",
+      "Bash(then echo \"$file\")",
+      "Bash(fi)",
+      "Bash(done)"
     ],
     "deny": [],
     "ask": []

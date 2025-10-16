@@ -23,6 +23,7 @@ import { Tooltip } from 'primeng/tooltip';
 @Component({
   selector: 'jhi-user-mgmt',
   templateUrl: './user-management.component.html',
+  styleUrls: ['./user-management.component.scss'],
   imports: [
     WarehouseCommonModule,
     ButtonModule,

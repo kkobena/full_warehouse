@@ -15,7 +15,8 @@ import { MonthEnum } from '../../../../shared/model/enumerations/month-enum';
 @Component({
   selector: 'jhi-yearly-sale-produit-historique',
   imports: [CommonModule, TableModule],
-  templateUrl: './yearly-sale-produit-historique.component.html'
+  templateUrl: './yearly-sale-produit-historique.component.html',
+  styleUrls: ['./yearly-sale-produit-historique.component.scss']
 })
 export class YearlySaleProduitHistoriqueComponent implements OnInit {
   protected readonly JANUARY = MonthEnum.JANUARY;

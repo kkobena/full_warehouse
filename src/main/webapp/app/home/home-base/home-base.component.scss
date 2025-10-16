@@ -1,4 +1,6 @@
-::ng-deep .p-togglebutton {
+@import 'app/shared/scss/table-common';
+
+.p-togglebutton {
   background: #ffffff;
   border: 1px solid #ced4da;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);

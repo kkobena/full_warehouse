@@ -33,7 +33,7 @@
   @if (authorities && authorities.length > 0) {
     <div class="table-responsive table-entities" id="entities">
       <table class="table table-striped" aria-describedby="page-heading">
-        <thead>
+        <thead class="pharma-table-head">
         <tr jhiSort [sortState]="sortState" (sortChange)="navigateToWithComponentValues($event)">
           <th scope="col" jhiSortBy="name">
             <div class="d-flex">

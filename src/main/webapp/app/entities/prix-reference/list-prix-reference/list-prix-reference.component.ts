@@ -19,7 +19,7 @@ import { ConfirmationService } from 'primeng/api';
   imports: [CommonModule, Button, Tooltip, ConfirmDialogComponent, Card],
   providers: [ConfirmationService],
   templateUrl: './list-prix-reference.component.html',
-  styleUrls: ['../../common-modal.component.scss']
+  styleUrls: ['../../common-modal.component.scss', './list-prix-reference.component.scss']
 })
 export class ListPrixReferenceComponent implements OnInit {
   produit: IProduit | null = null;

@@ -9,7 +9,7 @@
     @if (sales && sales.length > 0) {
       <div class="table-responsive table-sm table-hover">
         <table class="table table-striped">
-          <thead>
+          <thead class="pharma-table-head">
           <tr>
             <th scope="col"><span jhiTranslate="warehouseApp.sales.numberTransaction">numberTransaction</span></th>
             <th scope="col"><span jhiTranslate="warehouseApp.sales.updatedAt">Date</span></th>
@@ -71,7 +71,7 @@
                 </div>
                 <div class="invoice-items">
                   <table>
-                    <thead>
+                    <thead class="pharma-table-head">
                     <tr>
                       <th><span jhiTranslate="warehouseApp.produit.libelle">Libellé</span></th>
                       <th><span jhiTranslate="warehouseApp.salesLine.quantitySold">Qunatité</span></th>

@@ -55,6 +55,7 @@ import { finalize } from 'rxjs/operators';
     ToastAlertComponent,
   ],
   templateUrl: './tableau-pharmacien.component.html',
+  styleUrls: ['./tableau-pharmacien.component.scss']
 })
 export class TableauPharmacienComponent implements OnInit, AfterViewInit {
   protected exportMenus: MenuItem[];

@@ -9,9 +9,9 @@ import { CodeRemiseProduitsModalComponent } from '../code-remise-produits-modal/
 
 @Component({
   selector: 'jhi-code-remise-produit',
-
   imports: [FaIconComponent],
-  templateUrl: './code-remise-produit.component.html'
+  templateUrl: './code-remise-produit.component.html',
+  styleUrls: ['./code-remise-produit.component.scss']
 })
 export class CodeRemiseProduitComponent implements OnInit {
   entites?: CodeRemise[];

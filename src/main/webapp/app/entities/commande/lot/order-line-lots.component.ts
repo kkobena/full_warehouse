@@ -7,7 +7,8 @@ import { Button } from 'primeng/button';
 @Component({
   selector: 'jhi-order-line-lots',
   imports: [WarehouseCommonModule, Button],
-  templateUrl: './order-line-lots.component.html'
+  templateUrl: './order-line-lots.component.html',
+  styleUrls: ['./order-line-lots.component.scss']
 })
 export class OrderLineLotsComponent {
   protected lots: ILot[] = [];

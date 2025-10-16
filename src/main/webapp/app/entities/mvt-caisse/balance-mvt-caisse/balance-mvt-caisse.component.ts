@@ -46,7 +46,8 @@ import { finalize } from 'rxjs/operators';
     FloatLabel,
     ToastAlertComponent
   ],
-  templateUrl: './balance-mvt-caisse.component.html'
+  templateUrl: './balance-mvt-caisse.component.html',
+  styleUrls: ['./balance-mvt-caisse.component.scss']
 })
 export class BalanceMvtCaisseComponent implements OnInit, AfterViewInit {
   protected fromDate: Date | undefined;

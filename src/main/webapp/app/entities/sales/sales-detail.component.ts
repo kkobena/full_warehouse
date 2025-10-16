@@ -11,7 +11,7 @@ import { Card } from 'primeng/card';
 @Component({
   selector: 'jhi-sales-detail',
   templateUrl: './sales-detail.component.html',
-  styleUrls: ['./sales-details.component.scss'],
+  styleUrls: ['./sales-details.component.scss', './sales-detail.component.scss'],
   imports: [WarehouseCommonModule, RouterModule, DecimalPipe, Button, ToolbarModule, Card]
 })
 export class SalesDetailComponent implements OnInit {

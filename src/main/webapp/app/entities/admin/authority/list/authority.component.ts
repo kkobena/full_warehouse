@@ -14,6 +14,7 @@ import { AuthorityDeleteDialogComponent } from '../delete/authority-delete-dialo
 @Component({
   selector: 'jhi-authority',
   templateUrl: './authority.component.html',
+  styleUrls: ['./authority.component.scss'],
   imports: [RouterModule, FormsModule, SharedModule, SortDirective, SortByDirective]
 })
 export class AuthorityComponent implements OnInit {

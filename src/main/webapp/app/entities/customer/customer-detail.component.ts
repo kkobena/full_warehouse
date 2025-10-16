@@ -154,6 +154,7 @@ import { takeUntil } from 'rxjs/operators';
     `
   ],
   templateUrl: './customer-detail.component.html',
+  styleUrls: ['./customer-detail.component.scss'],
   imports: [WarehouseCommonModule]
 })
 export class CustomerDetailComponent implements OnInit, OnDestroy {

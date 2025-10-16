@@ -10,6 +10,7 @@ import { takeUntil } from 'rxjs/operators';
 
 @Component({
   templateUrl: './commande-import-response-dialog.component.html',
+  styleUrls: ['./commande-import-response-dialog.component.scss'],
   imports: [WarehouseCommonModule, ButtonModule]
 })
 export class CommandeImportResponseDialogComponent implements OnDestroy {

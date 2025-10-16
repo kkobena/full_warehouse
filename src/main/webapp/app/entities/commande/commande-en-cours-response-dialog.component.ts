@@ -8,7 +8,7 @@ import { WarehouseCommonModule } from '../../shared/warehouse-common/warehouse-c
 
 @Component({
   templateUrl: './commande-en-cours-response-dialog.component.html',
-  styleUrls: ['../common-modal.component.scss'],
+  styleUrls: ['../common-modal.component.scss', './commande-en-cours-response-dialog.component.scss'],
   imports: [WarehouseCommonModule]
 })
 export class CommandeEnCoursResponseDialogComponent implements OnInit {

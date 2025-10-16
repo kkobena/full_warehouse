@@ -19,7 +19,8 @@ import { FormParamettreComponent } from './form-paramettre/form-paramettre.compo
     InputTextModule,
     ButtonModule
   ],
-  templateUrl: './parametre.component.html'
+  templateUrl: './parametre.component.html',
+  styleUrls: ['./parametre.component.scss']
 })
 export class ParametreComponent implements OnInit {
   protected apps: IConfiguration[] = [];

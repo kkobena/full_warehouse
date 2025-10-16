@@ -17,6 +17,7 @@ import { RouterModule } from '@angular/router';
 @Component({
   selector: 'jhi-categorie',
   templateUrl: './categorie.component.html',
+  styleUrls: ['./categorie.component.scss'],
   imports: [WarehouseCommonModule, PanelModule, ButtonModule, RouterModule]
 })
 export class CategorieComponent implements OnInit {

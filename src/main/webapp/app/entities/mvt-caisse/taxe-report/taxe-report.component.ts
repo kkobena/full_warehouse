@@ -51,7 +51,8 @@ import { finalize } from 'rxjs/operators';
     Select,
     ToastAlertComponent
   ],
-  templateUrl: './taxe-report.component.html'
+  templateUrl: './taxe-report.component.html',
+  styleUrls: ['./taxe-report.component.scss']
 })
 export class TaxeReportComponent implements OnInit, AfterViewInit {
   protected fromDate: Date | undefined;

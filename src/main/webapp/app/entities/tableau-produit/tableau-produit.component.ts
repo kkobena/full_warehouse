@@ -19,6 +19,7 @@ import { FormTableauComponent } from './form-tableau/form-tableau.component';
 @Component({
   selector: 'jhi-groupe-fournisseur',
   templateUrl: './tableau-produit.component.html',
+  styleUrl: './tableau-produit.component.scss',
   imports: [
     WarehouseCommonModule,
     FormsModule,

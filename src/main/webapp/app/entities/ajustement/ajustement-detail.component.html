@@ -79,6 +79,7 @@
       [showCurrentPageReport]="false"
       [value]="items"
       dataKey="id"
+      class="pharma-table"
     >
       <ng-template #caption>
         <p-iconfield>
@@ -94,7 +95,7 @@
 
       </ng-template>
       <ng-template #header>
-        <tr>
+        <tr class="pharma-table-head">
           <th style="width: 2%">#</th>
           <th>Cip</th>
           <th>Libellé</th>
@@ -109,10 +110,10 @@
       </ng-template>
       <ng-template #body let-ajustement let-rowIndex="rowIndex">
         <tr>
-          <td style="text-align: left">{{ rowIndex + 1 }}</td>
-          <td>{{ ajustement.codeCip }}</td>
-          <td>{{ ajustement.produitLibelle }}</td>
-          <td style="text-align: right">{{ ajustement.stockBefore | number }}</td>
+          <td style="text-align: left"><span class="pharma-row-number">{{ rowIndex + 1 }}</span></td>
+          <td><span class="pharma-code">{{ ajustement.codeCip }}</span></td>
+          <td><span class="pharma-entity-name">{{ ajustement.produitLibelle }}</span></td>
+          <td style="text-align: right"><span class="pharma-qty-value">{{ ajustement.stockBefore | number }}</span></td>
           <td pEditableColumn style="text-align: right">
             <p-cellEditor>
               <ng-template #input>
@@ -128,11 +129,11 @@
                 />
               </ng-template>
               <ng-template #output>
-                {{ ajustement.qtyMvt | number }}
+                <span class="pharma-qty-value">{{ ajustement.qtyMvt | number }}</span>
               </ng-template>
             </p-cellEditor>
           </td>
-          <td class="text-right">{{ ajustement.stockAfter | number }}</td>
+          <td class="text-right"><span class="pharma-qty-value">{{ ajustement.stockAfter | number }}</span></td>
           <td style="text-align: right">
             <p-button
               (click)="confirmDeleteItem(ajustement)"

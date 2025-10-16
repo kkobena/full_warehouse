@@ -1,6 +1,6 @@
-<p-table [scrollable]="true" [value]="entites" [showGridlines]="true">
+<p-table class="pharma-table" [scrollable]="true" [value]="entites" [showGridlines]="true">
   <ng-template #header>
-    <tr>
+    <tr class="pharma-table-head">
       <th rowspan="2">Date</th>
       <th rowspan="2">Qté.init</th>
       <th class="text-center" colspan="5">Sortie</th>
@@ -9,7 +9,7 @@
       <th rowspan="2">Ecart.inv</th>
       <th rowspan="2">Stock</th>
     </tr>
-    <tr>
+    <tr class="pharma-table-head">
       <th>Vente</th>
       <th>Retour.four</th>
       <th>Qté.périmée</th>
@@ -24,51 +24,51 @@
   <ng-template let-columns="columns" let-elRow #body>
     <tr [pEditableRow]="elRow" [pSelectableRow]="elRow">
       <td class="text-center">{{ elRow.mvtDate | date: 'dd/MM/yyyy' }}</td>
-      <td class="text-right">{{ elRow.initStock | number }}</td>
-      <td class="text-right">{{ elRow.saleQuantity }}</td>
-      <td class="text-right">{{ elRow.retourFournisseurQuantity | number }}</td>
-      <td class="text-right">{{ elRow.perimeQuantity | number }}</td>
-      <td class="text-right">{{ elRow.ajustementNegatifQuantity | number }}</td>
-      <td class="text-right">{{ elRow.deconNegatifQuantity | number }}</td>
-      <td class="text-right">{{ elRow.deleveryQuantity | number }}</td>
-      <td class="text-right">{{ elRow.ajustementPositifQuantity | number }}</td>
-      <td class="text-right">{{ elRow.deconPositifQuantity | number }}</td>
-      <td class="text-right text-danger">{{ elRow.canceledQuantity | number }}</td>
-      <td class="text-right">{{ elRow.storeInventoryQuantity | number }}</td>
-      <td class="text-right">{{ elRow.inventoryGap | number }}</td>
-      <td class="text-right">{{ elRow.afterStock | number }}</td>
+      <td class="text-right"><span class="pharma-qty-value">{{ elRow.initStock | number }}</span></td>
+      <td class="text-right"><span class="pharma-qty-value">{{ elRow.saleQuantity }}</span></td>
+      <td class="text-right"><span class="pharma-qty-value">{{ elRow.retourFournisseurQuantity | number }}</span></td>
+      <td class="text-right"><span class="pharma-qty-value">{{ elRow.perimeQuantity | number }}</span></td>
+      <td class="text-right"><span class="pharma-qty-value">{{ elRow.ajustementNegatifQuantity | number }}</span></td>
+      <td class="text-right"><span class="pharma-qty-value">{{ elRow.deconNegatifQuantity | number }}</span></td>
+      <td class="text-right"><span class="pharma-qty-value">{{ elRow.deleveryQuantity | number }}</span></td>
+      <td class="text-right"><span class="pharma-qty-value">{{ elRow.ajustementPositifQuantity | number }}</span></td>
+      <td class="text-right"><span class="pharma-qty-value">{{ elRow.deconPositifQuantity | number }}</span></td>
+      <td class="text-right text-danger"><span class="pharma-qty-value">{{ elRow.canceledQuantity | number }}</span></td>
+      <td class="text-right"><span class="pharma-qty-value">{{ elRow.storeInventoryQuantity | number }}</span></td>
+      <td class="text-right"><span class="pharma-qty-value">{{ elRow.inventoryGap | number }}</span></td>
+      <td class="text-right"><span class="pharma-total">{{ elRow.afterStock | number }}</span></td>
     </tr>
   </ng-template>
   <ng-template #footer>
     @if (entites && entites.length > 0) {
-      <tr>
-        <td colspan="2">TOTAUX</td>
-        <td class="text-right amount-column">
-          {{ saleQuantity | number }}
+      <tr class="pharma-table-footer">
+        <td colspan="2"><span class="pharma-footer-label">TOTAUX</span></td>
+        <td class="text-right">
+          <span class="pharma-footer-value">{{ saleQuantity | number }}</span>
         </td>
-        <td class="text-right amount-column">
-          {{ retourFournisseurQuantity | number }}
+        <td class="text-right">
+          <span class="pharma-footer-value">{{ retourFournisseurQuantity | number }}</span>
         </td>
-        <td class="text-right amount-column">
-          {{ perimeQuantity | number }}
+        <td class="text-right">
+          <span class="pharma-footer-value">{{ perimeQuantity | number }}</span>
         </td>
-        <td class="text-right amount-column">
-          {{ ajustementNegatifQuantity | number }}
+        <td class="text-right">
+          <span class="pharma-footer-value">{{ ajustementNegatifQuantity | number }}</span>
         </td>
-        <td class="text-right amount-column">
-          {{ deconNegatifQuantity | number }}
+        <td class="text-right">
+          <span class="pharma-footer-value">{{ deconNegatifQuantity | number }}</span>
         </td>
-        <td class="text-right amount-column">
-          {{ deleveryQuantity | number }}
+        <td class="text-right">
+          <span class="pharma-footer-value">{{ deleveryQuantity | number }}</span>
         </td>
-        <td class="text-right amount-column">
-          {{ ajustementPositifQuantity | number }}
+        <td class="text-right">
+          <span class="pharma-footer-value">{{ ajustementPositifQuantity | number }}</span>
         </td>
-        <td class="amount-column text-right">
-          {{ deconPositifQuantity | number }}
+        <td class="text-right">
+          <span class="pharma-footer-value">{{ deconPositifQuantity | number }}</span>
         </td>
-        <td class="text-right amount-column text-danger">
-          {{ canceledQuantity | number }}
+        <td class="text-right text-danger">
+          <span class="pharma-footer-value">{{ canceledQuantity | number }}</span>
         </td>
         <td colspan="3"></td>
       </tr>

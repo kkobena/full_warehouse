@@ -6,9 +6,10 @@
     [value]="rowData"
     dataKey="id"
     [stripedRows]="true"
+    class="pharma-table"
   >
     <ng-template #header>
-      <tr>
+      <tr class="pharma-table-head">
         <th style="width: 3%"></th>
         <th>Opérateur</th>
         <th>Date opération</th>
@@ -29,11 +30,11 @@
             type="button"
           />
         </td>
-        <td>{{ ajust.userFullName }}</td>
-        <td>{{ ajust.dateMtv | date: 'dd/MM/yy HH:mm' }}</td>
-        <td class="text-right">{{ ajust.ajustements.length }}</td>
-        <td>{{ ajust.commentaire }}</td>
-        <td>{{ ajust.storageLibelle }}</td>
+        <td><span class="pharma-entity-name">{{ ajust.userFullName }}</span></td>
+        <td><span class="pharma-entity-name">{{ ajust.dateMtv | date: 'dd/MM/yy HH:mm' }}</span></td>
+        <td class="text-right"><span class="pharma-qty-value">{{ ajust.ajustements.length }}</span></td>
+        <td><span class="pharma-entity-name">{{ ajust.commentaire }}</span></td>
+        <td><span class="pharma-entity-name">{{ ajust.storageLibelle }}</span></td>
         <td class="text-right">
           <div class="btn-group">
             <p-button
@@ -50,42 +51,42 @@
       </tr>
     </ng-template>
     <ng-template let-elRow #expandedrow>
-      <tr>
+      <tr class="pharma-expanded-row">
         <td colspan="7">
-          <p-card>
-            <table class="table table-secondary table-striped-columns table-bordered">
-              <thead>
-              <tr class="table-secondary">
-                <th colspan="7">DETAILS</th>
-              </tr>
-              <tr>
-                <th style="width: 2%">#</th>
-                <th>Code cip</th>
-                <th>Libellé</th>
-                <th>Quantité ajustée</th>
-                <th>Stock avant</th>
-                <th>Stock final</th>
-                <th>Motif</th>
-              </tr>
-              </thead>
-              <tbody>
-                @for (ajustement of elRow.ajustements; track ajustement.id; let rowIndex = $index) {
-                  <tr>
-                    <td style="text-align: left">{{ rowIndex + 1 }}</td>
-                    <td>{{ ajustement.codeCip }}</td>
-                    <td>{{ ajustement.produitLibelle }}</td>
-                    <td class="text-right ">{{ ajustement.qtyMvt | number }}</td>
-                    <td class="text-right amount-td-column">{{ ajustement.stockBefore | number }}
-                    </td>
-                    <td class="text-right amount-td-column">{{ ajustement.stockAfter | number }}
-                    </td>
-                    <td>{{ ajustement.motifAjustementLibelle }}</td>
-                  </tr>
-                }
-              </tbody>
-            </table>
-          </p-card>
-
+          <div class="pharma-sub-table-container">
+            <div class="pharma-sub-table-header">
+              <i class="pi pi-list"></i>
+              <span>DETAILS</span>
+            </div>
+            <div class="pharma-sub-table-body">
+              <table class="table table-striped-columns table-bordered">
+                <thead>
+                <tr class="pharma-table-head">
+                  <th style="width: 2%">#</th>
+                  <th>Code cip</th>
+                  <th>Libellé</th>
+                  <th>Quantité ajustée</th>
+                  <th>Stock avant</th>
+                  <th>Stock final</th>
+                  <th>Motif</th>
+                </tr>
+                </thead>
+                <tbody>
+                  @for (ajustement of elRow.ajustements; track ajustement.id; let rowIndex = $index) {
+                    <tr>
+                      <td style="text-align: left"><span class="pharma-row-number">{{ rowIndex + 1 }}</span></td>
+                      <td><span class="pharma-code">{{ ajustement.codeCip }}</span></td>
+                      <td><span class="pharma-entity-name">{{ ajustement.produitLibelle }}</span></td>
+                      <td class="text-right"><span class="pharma-qty-value">{{ ajustement.qtyMvt | number }}</span></td>
+                      <td class="text-right"><span class="pharma-qty-value">{{ ajustement.stockBefore | number }}</span></td>
+                      <td class="text-right"><span class="pharma-qty-value">{{ ajustement.stockAfter | number }}</span></td>
+                      <td><span class="pharma-entity-name">{{ ajustement.motifAjustementLibelle }}</span></td>
+                    </tr>
+                  }
+                </tbody>
+              </table>
+            </div>
+          </div>
         </td>
       </tr>
     </ng-template>

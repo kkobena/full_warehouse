@@ -19,7 +19,6 @@ import { InputIcon } from 'primeng/inputicon';
     FactureDetailComponent,
     DecimalPipe,
     PanelModule,
-    PrimeTemplate,
     TableModule,
     InputTextModule,
     PaginatorModule,
@@ -29,6 +28,7 @@ import { InputIcon } from 'primeng/inputicon';
     InputIcon,
   ],
   templateUrl: './groupe-facture-detail.component.html',
+  styleUrls: ['./groupe-facture-detail.component.scss']
 })
 export class GroupeFactureDetailComponent implements OnInit {
   readonly groupeFacture = input<Facture | null>(null);

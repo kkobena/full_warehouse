@@ -49,9 +49,10 @@
       dataKey="id"
       selectionMode="single"
       [showGridlines]="true"
+      class="pharma-table"
     >
       <ng-template #header>
-        <tr>
+        <tr class="pharma-table-head">
           <th style="width: 3%"></th>
           <th style="width: 10%">Référence</th>
           <th style="width: 8%">Nbre d'articles</th>
@@ -73,10 +74,16 @@
               type="button"
             />
           </td>
-          <td>{{ sale.numberTransaction }}</td>
+          <td>
+            <span class="pharma-code">{{ sale.numberTransaction }}</span>
+          </td>
           <td class="text-right">{{ sale.salesLines.length | number }}</td>
-          <td class="text-right">{{ sale.salesAmount | number }}</td>
-          <td>{{ sale.customer?.fullName }}</td>
+          <td class="text-right">
+            <span class="pharma-total">{{ sale.salesAmount | number }}</span>
+          </td>
+          <td>
+            <div class="pharma-entity-name">{{ sale.customer?.fullName }}</div>
+          </td>
           <td>{{ sale.seller?.fullName }}</td>
           <td>{{ sale.cassier?.fullName }}</td>
           <td class="text-center">
@@ -108,10 +115,13 @@
         </tr>
       </ng-template>
       <ng-template #expandedrow let-elRow>
-        <tr>
+        <tr class="pharma-expanded-row">
           <td colspan="8">
-            <div class="card">
-              <div class="card-header bg-info text-white">LISTES DES PRODUITS</div>
+            <div class="pharma-sub-table-card card">
+              <div class="card-header bg-info text-white">
+                <i class="pi pi-list"></i>
+                LISTES DES PRODUITS
+              </div>
               <div class="card-body">
                 <p-table
                   [paginator]="true"
@@ -124,7 +134,7 @@
                   selectionMode="single"
                 >
                   <ng-template #header>
-                    <tr>
+                    <tr class="pharma-table-head">
                       <th style="width: 5%">#</th>
                       <th style="width: 10%">CODE</th>
                       <th style="width: 44%">LIBELLE</th>
@@ -136,13 +146,27 @@
                   </ng-template>
                   <ng-template let-rowIndex="rowIndex" let-saleLine #body>
                     <tr [ngClass]="{ 'table-danger': saleLine.quantitySold < saleLine.quantityRequested }">
-                      <td style="text-align: left">{{ rowIndex + 1 }}</td>
-                      <td>{{ saleLine.code }}</td>
-                      <td>{{ saleLine.produitLibelle }}</td>
-                      <td class="text-right">{{ saleLine.quantityRequested | number }}</td>
-                      <td class="text-right">{{ saleLine.quantitySold | number }}</td>
-                      <td class="text-right">{{ saleLine.regularUnitPrice | number }}</td>
-                      <td style="text-align: right; font-weight: bold">{{ saleLine.salesAmount | number }}</td>
+                      <td style="text-align: left">
+                        <span class="pharma-row-number">{{ rowIndex + 1 }}</span>
+                      </td>
+                      <td>
+                        <span class="pharma-code">{{ saleLine.code }}</span>
+                      </td>
+                      <td>
+                        <div class="pharma-product-name">{{ saleLine.produitLibelle }}</div>
+                      </td>
+                      <td class="text-right">
+                        <span class="pharma-qty-value">{{ saleLine.quantityRequested | number }}</span>
+                      </td>
+                      <td class="text-right">
+                        <span class="pharma-qty-value">{{ saleLine.quantitySold | number }}</span>
+                      </td>
+                      <td class="text-right">
+                        <span class="pharma-price">{{ saleLine.regularUnitPrice | number }}</span>
+                      </td>
+                      <td class="text-right">
+                        <span class="pharma-total">{{ saleLine.salesAmount | number }}</span>
+                      </td>
                     </tr>
                   </ng-template>
                 </p-table>

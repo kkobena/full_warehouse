@@ -9,6 +9,7 @@
 <div class="row">
   <div class=" col-xl-8 col-sm-12 col-lg-9 col-md-9">
     <p-table
+      class="pharma-table"
       #factureDossierTable
       (selectionChange)="onSelectChange($event)"
       [(selection)]="factureDossierSelectionnes"
@@ -41,7 +42,7 @@
         </div>
       </ng-template>
       <ng-template #header>
-        <tr>
+        <tr class="pharma-table-head">
           <th>Organisme</th>
           <th>Période</th>
           <th>Num facture</th>
@@ -60,15 +61,15 @@
       </ng-template>
       <ng-template let-item let-rowIndex="rowIndex" #body>
         <tr [ngClass]="{ 'table-success0': item.montantPaye > 0 }">
-          <td>{{ item.organismeName }}</td>
+          <td><span class="pharma-entity-name">{{ item.organismeName }}</span></td>
           <td>Du {{ item.debutPeriode | date: 'dd/MM/yy' }} Au {{ item.finPeriode | date: 'dd/MM/yy' }}</td>
-          <td>{{ item.numFacture }}</td>
-          <td class="amount-column">{{ item.itemsCount | number }}</td>
+          <td><span class="pharma-code">{{ item.numFacture }}</span></td>
+          <td class="amount-column"><span class="pharma-qty-value">{{ item.itemsCount | number }}</span></td>
           <td class="amount-column">
-            {{ item.montantTotal | number }}
+            <span class="pharma-price">{{ item.montantTotal | number }}</span>
           </td>
           <td class="amount-column">
-            {{ item.montantPaye | number }}
+            <span class="pharma-price">{{ item.montantPaye | number }}</span>
           </td>
           @if (isInputEditable(item)) {
             <td pEditableColumn class="amount-column">
@@ -84,13 +85,13 @@
                   />
                 </ng-template>
                 <ng-template #output>
-                  {{ item.montantVerse | number }}
+                  <span class="pharma-price">{{ item.montantVerse | number }}</span>
                 </ng-template>
               </p-cellEditor>
             </td>
           } @else {
             <td class="amount-column">
-              {{ item.montantVerse | number }}
+              <span class="pharma-price">{{ item.montantVerse | number }}</span>
             </td>
           }
           @if (partialPayment) {

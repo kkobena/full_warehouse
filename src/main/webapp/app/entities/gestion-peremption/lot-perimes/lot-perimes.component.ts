@@ -72,7 +72,8 @@ import { SpinnerComponent } from '../../../shared/spinner/spinner.component';
     ToastAlertComponent,
     SpinnerComponent
   ],
-  templateUrl: './lot-perimes.component.html'
+  templateUrl: './lot-perimes.component.html',
+  styleUrl: './lot-perimes.component.scss'
 })
 export class LotPerimesComponent implements OnInit, AfterViewInit {
   protected checkbox = viewChild<TableHeaderCheckbox>('checkbox');

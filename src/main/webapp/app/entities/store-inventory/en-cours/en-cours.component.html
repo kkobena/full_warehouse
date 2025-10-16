@@ -12,9 +12,9 @@
   [value]="rowData"
   dataKey="id"
   selectionMode="multiple"
-  styleClass="p-datatable-striped mt-2"
+  [showGridlines]="true"
 >
-  <ng-template pTemplate="header">
+  <ng-template #header>
     <tr>
       <th>Emplacement</th>
       <th>Date</th>
@@ -23,7 +23,7 @@
       <th style="width: 15%"></th>
     </tr>
   </ng-template>
-  <ng-template let-storeInventory pTemplate="body">
+  <ng-template let-storeInventory #body>
     <tr>
       <td>{{ storeInventory.storage?.name }}</td>
       <td>{{ storeInventory.updatedAt | date: 'dd/MM/yyyy HH:mm:ss' }}</td>

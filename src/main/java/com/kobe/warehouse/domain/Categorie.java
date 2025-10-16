@@ -18,7 +18,7 @@ import java.io.Serializable;
  */
 @Entity
 @Table(name = "categorie")
-@Cache(usage = CacheConcurrencyStrategy.NONSTRICT_READ_WRITE)
+@Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
 public class Categorie implements Serializable {
 
     @Serial

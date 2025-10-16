@@ -85,13 +85,12 @@
                [rows]="itemsPerPage"
                [totalRecords]="totalItems"
                [value]="entites"
-               class="mt-2"
+               class="pharma-table mt-2"
                dataKey="id"
                stripedRows="true"
-               styleClass=" mt-2"
       >
         <ng-template #header>
-          <tr>
+          <tr class="pharma-table-head">
             <th scope="col" style="width: 15%;"><span>Emplacement</span></th>
             <th scope="col" style="width: 15%;"><span>Code</span></th>
             <th scope="col"><span>Libellé</span></th>
@@ -103,9 +102,9 @@
         </ng-template>
         <ng-template #body let-columns="columns" let-elRow let-rowIndex="rowIndex">
           <tr [pSelectableRowIndex]="rowIndex" [pSelectableRow]="elRow">
-            <td>{{ elRow.storageType }}</td>
-            <td>{{ elRow.code }}</td>
-            <td>{{ elRow.libelle }}</td>
+            <td><span class="pharma-entity-name">{{ elRow.storageType }}</span></td>
+            <td><span class="pharma-code">{{ elRow.code }}</span></td>
+            <td><span class="pharma-entity-name">{{ elRow.libelle }}</span></td>
             <td>
               <p-tableCheckbox [disabled]="elRow.code==='SANS'" [value]="elRow" />
             </td>

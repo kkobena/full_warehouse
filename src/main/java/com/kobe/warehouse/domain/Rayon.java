@@ -24,7 +24,7 @@ import org.hibernate.annotations.CacheConcurrencyStrategy;
         @UniqueConstraint(columnNames = { "libelle", "storage_id" }), @UniqueConstraint(columnNames = { "code", "storage_id" }),
     }
 )
-@Cache(usage = CacheConcurrencyStrategy.NONSTRICT_READ_WRITE)
+@Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
 public class Rayon implements Serializable {
 
     @Serial

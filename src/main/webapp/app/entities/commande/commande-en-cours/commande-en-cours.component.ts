@@ -24,6 +24,7 @@ export type ExpandMode = 'single' | 'multiple';
 @Component({
   selector: 'jhi-commande-en-cours',
   templateUrl: './commande-en-cours.component.html',
+  styleUrl: './commande-en-cours.component.scss',
   imports: [
     WarehouseCommonModule,
     ButtonModule,

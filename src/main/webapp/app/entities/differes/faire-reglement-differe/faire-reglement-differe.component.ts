@@ -5,7 +5,7 @@ import { Fieldset } from 'primeng/fieldset';
 import { IconField } from 'primeng/iconfield';
 import { InputIcon } from 'primeng/inputicon';
 import { InputText } from 'primeng/inputtext';
-import { ConfirmationService, PrimeTemplate } from 'primeng/api';
+import { ConfirmationService } from 'primeng/api';
 import { TableModule } from 'primeng/table';
 import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { ErrorService } from '../../../shared/error.service';
@@ -31,11 +31,11 @@ import { finalize, takeUntil } from 'rxjs/operators';
     IconField,
     InputIcon,
     InputText,
-    PrimeTemplate,
     TableModule,
     CommonModule
   ],
-  templateUrl: './faire-reglement-differe.component.html'
+  templateUrl: './faire-reglement-differe.component.html',
+  styleUrls: ['./faire-reglement-differe.component.scss']
 })
 export class FaireReglementDiffereComponent implements OnInit, OnDestroy {
   protected differe: Differe | null = null;

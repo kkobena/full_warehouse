@@ -21,7 +21,8 @@ import { SpinnerComponent } from '../../../shared/spinner/spinner.component';
 @Component({
   selector: 'jhi-suggestion',
   imports: [Button, CommonModule, RouterModule, TableModule, Tooltip, ConfirmDialogComponent, SpinnerComponent],
-  templateUrl: './suggestion.component.html'
+  templateUrl: './suggestion.component.html',
+  styleUrl: './suggestion.component.scss'
 })
 export class SuggestionComponent implements OnInit, OnDestroy {
   readonly search = input('');

@@ -15,7 +15,7 @@ import java.io.Serializable;
 
 @Entity
 @Table(name = "privilege")
-@Cache(usage = CacheConcurrencyStrategy.NONSTRICT_READ_WRITE)
+@Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
 public class Privilege implements Serializable {
 
     @Serial

@@ -59,6 +59,7 @@
 
   <div>
     <p-table
+      class="pharma-table"
       (onLazyLoad)="lazyLoading($event)"
       [lazy]="true"
       [loading]="loading"
@@ -80,7 +81,7 @@
 
       </ng-template>
       <ng-template #header>
-        <tr>
+        <tr class="pharma-table-head">
           <th>Libellé produit</th>
           <th>Code produit</th>
           <th>Numéro lot</th>
@@ -95,14 +96,14 @@
       </ng-template>
       <ng-template #body let-data>
         <tr>
-          <td>
+          <td class="pharma-product-name">
             {{ data.produitName }}
           </td>
 
-          <td>
+          <td class="pharma-code">
             {{ data.produitCodeCip }}
           </td>
-          <td>
+          <td class="pharma-code">
             {{ data.numLot }}
           </td>
           <td>
@@ -124,19 +125,19 @@
                 />
               </ng-template>
               <ng-template #output>
-                {{ data.quantity | number }}
+                <span class="pharma-qty-value">{{ data.quantity | number }}</span>
               </ng-template>
             </p-cellEditor>
           </td>
 
-          <td class="text-right amount-column">{{ data.prixAchat | number }}</td>
-          <td class="text-right amount-column">{{ data.prixUni | number }}</td>
+          <td class="text-right amount-column"><span class="pharma-price">{{ data.prixAchat | number }}</span></td>
+          <td class="text-right amount-column"><span class="pharma-price">{{ data.prixUni | number }}</span></td>
           <td class="text-center">
             <p-tag [severity]="getSeverity(data.peremptionStatut)"
                    [value]="data.peremptionStatut.libelle" />
           </td>
 
-          <td>
+          <td class="pharma-entity-name">
             {{ data.fournisseur }}
           </td>
 

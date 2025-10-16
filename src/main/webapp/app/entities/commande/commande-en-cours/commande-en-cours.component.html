@@ -2,6 +2,7 @@
 
 @if (commandes && commandes.length > 0) {
   <p-table
+    class="pharma-table"
     (onLazyLoad)="lazyLoading($event)"
     (onRowExpand)="onRowExpand($event)"
     (onRowSelect)="onRowSelected()"
@@ -21,7 +22,7 @@
     [stripedRows]="true"
   >
     <ng-template #header>
-      <tr>
+      <tr class="pharma-table-head">
         <th style="width: 3%"></th>
         <th style="width: 12%">Date</th>
         <th style="width: 8%">Référence</th>
@@ -48,11 +49,11 @@
           />
         </td>
         <td>{{ commande.updatedAt | date: 'dd/MM/yyyy HH:mm:ss' }}</td>
-        <td>{{ commande.orderReference }}</td>
-        <td class="text-right">{{ commande.itemSize | number }}</td>
-        <td class="text-right">{{ commande.grossAmount | number }}</td>
-        <td class="text-right">{{ commande.orderAmount | number }}</td>
-        <td>{{ commande.fournisseur?.libelle }}</td>
+        <td class="pharma-code">{{ commande.orderReference }}</td>
+        <td class="text-right"><span class="pharma-qty-value">{{ commande.itemSize | number }}</span></td>
+        <td class="text-right"><span class="pharma-total">{{ commande.grossAmount | number }}</span></td>
+        <td class="text-right"><span class="pharma-total">{{ commande.orderAmount | number }}</span></td>
+        <td class="pharma-entity-name">{{ commande.fournisseur?.libelle }}</td>
         <td>{{ commande.lastUserEdit?.abbrName }}</td>
         <td class="text-center">
           <p-tableCheckbox [value]="commande"></p-tableCheckbox>
@@ -104,8 +105,9 @@
       </tr>
     </ng-template>
     <ng-template let-elRow #expandedrow>
-      <tr class="commande-rowexpansion">
+      <tr class="pharma-expanded-row">
         <td colspan="10">
+          <div class="pharma-sub-table-card">
           <p-table
             [paginator]="true"
             [rowsPerPageOptions]="[10, 20, 30, 40, 50]"
@@ -113,11 +115,11 @@
             [showCurrentPageReport]="false"
             [value]="elRow.orderLines"
             dataKey="id"
-            responsiveLayout="scroll"
-            styleClass="p-datatable-striped rowexpansion-table"
+            [stripedRows]="true"
+
           >
             <ng-template #header>
-              <tr>
+              <tr class="pharma-table-head">
                 <th style="width: 3%">#</th>
                 <th style="width: 8%">CODE</th>
                 <th style="width: 30%">LIBELLE</th>
@@ -132,31 +134,32 @@
             </ng-template>
             <ng-template let-orderLine let-rowIndex="rowIndex" #body>
               <tr [ngClass]="orderLineTableColor(orderLine)">
-                <td style="text-align: left">{{ rowIndex + 1 }}</td>
-                <td>{{ orderLine.produitCip }}</td>
+                <td class="pharma-row-number">{{ rowIndex + 1 }}</td>
+                <td class="pharma-code">{{ orderLine.produitCip }}</td>
 
-                <td>{{ orderLine.produitLibelle }}</td>
-                <td style="text-align: right">{{ orderLine.initStock | number }}</td>
-
-                <td style="text-align: right">
-                  {{ orderLine.orderCostAmount | number }}
-                </td>
-                <td style="text-align: right">{{ orderLine.costAmount | number }}</td>
+                <td class="pharma-product-name">{{ orderLine.produitLibelle }}</td>
+                <td style="text-align: right"><span class="pharma-qty-value">{{ orderLine.initStock | number }}</span></td>
 
                 <td style="text-align: right">
-                  {{ orderLine.orderUnitPrice | number }}
+                  <span class="pharma-price">{{ orderLine.orderCostAmount | number }}</span>
                 </td>
-                <td style="text-align: right">{{ orderLine.regularUnitPrice | number }}</td>
+                <td style="text-align: right"><span class="pharma-price">{{ orderLine.costAmount | number }}</span></td>
+
                 <td style="text-align: right">
-                  {{ orderLine.quantityRequested | number }}
+                  <span class="pharma-price">{{ orderLine.orderUnitPrice | number }}</span>
                 </td>
-                <td style="text-align: right">{{
+                <td style="text-align: right"><span class="pharma-price">{{ orderLine.regularUnitPrice | number }}</span></td>
+                <td style="text-align: right">
+                  <span class="pharma-qty-value">{{ orderLine.quantityRequested | number }}</span>
+                </td>
+                <td style="text-align: right"><span class="pharma-total">{{
                     orderLine.quantityRequested * orderLine.orderCostAmount | number
-                  }}
+                  }}</span>
                 </td>
               </tr>
             </ng-template>
           </p-table>
+          </div>
         </td>
       </tr>
     </ng-template>

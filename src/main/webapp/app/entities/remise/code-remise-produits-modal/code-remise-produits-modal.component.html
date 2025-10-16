@@ -14,6 +14,7 @@
   <p-card>
 
     <p-table
+      class="pharma-table"
       (onLazyLoad)="lazyLoading($event)"
       [(selection)]="selectedProduits"
       [lazy]="true"
@@ -49,7 +50,7 @@
         </div>
       </ng-template>
       <ng-template #header>
-        <tr>
+        <tr class="pharma-table-head">
           <th style="width: 2%">#</th>
           <th>Cip</th>
           <th>Libellé</th>
@@ -61,10 +62,10 @@
       </ng-template>
       <ng-template #body let-produit let-rowIndex="rowIndex">
         <tr>
-          <td style="text-align: left">{{ rowIndex + 1 }}</td>
-          <td>{{ produit.codeCip }}</td>
-          <td>{{ produit.libelle }}</td>
-          <td>{{ produit.remiseCode }}</td>
+          <td style="text-align: left"><span class="pharma-row-number">{{ rowIndex + 1 }}</span></td>
+          <td><span class="pharma-code">{{ produit.codeCip }}</span></td>
+          <td><span class="pharma-product-name">{{ produit.libelle }}</span></td>
+          <td><span class="pharma-code">{{ produit.remiseCode }}</span></td>
 
           <td class="text-center">
             <p-tableCheckbox [value]="produit"></p-tableCheckbox>

@@ -18,17 +18,17 @@
             [value]="tvas"
             dataKey="id"
             selectionMode="single"
-            styleClass="ui-table-cars"
+            class="pharma-table"
           >
             <ng-template #header>
-              <tr>
+              <tr class="pharma-table-head">
                 <th scope="col"><span>Taux</span></th>
                 <th scope="col"></th>
               </tr>
             </ng-template>
             <ng-template let-columns="columns" let-tva #body>
               <tr [pSelectableRow]="tva">
-                <td>{{ tva.taux }}</td>
+                <td><span class="pharma-price">{{ tva.taux }}</span></td>
                 <td style="text-align: center">
                   <p-button (click)="delete(tva)" severity="danger" icon="pi pi-trash"
                             [rounded]="true" [text]="true" pTooltip="Supprimer"

@@ -24,7 +24,7 @@ import org.hibernate.annotations.ColumnDefault;
     uniqueConstraints = { @UniqueConstraint(columnNames = { "name" }), @UniqueConstraint(columnNames = { "name", "poste_id" }) },
     indexes = { @Index(columnList = "name", name = "name_index") }
 )
-@Cache(usage = CacheConcurrencyStrategy.NONSTRICT_READ_WRITE)
+@Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
 public class Printer implements Serializable {
 
     @Serial

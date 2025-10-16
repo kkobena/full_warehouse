@@ -16,6 +16,7 @@
 
     @if (lots?.length > 0) {
       <p-table
+        class="pharma-table"
         [(selection)]="selectedEl"
         [resizableColumns]="true"
         [value]="lots"
@@ -24,7 +25,7 @@
         [stripedRows]="true"
       >
         <ng-template #header>
-          <tr>
+          <tr class="pharma-table-head">
             <th scope="col"><span>Num</span></th>
             <th scope="col"><span>Quantité</span></th>
             <th scope="col"><span>Quantité ug</span></th>
@@ -35,9 +36,9 @@
         </ng-template>
         <ng-template let-elRow #body>
           <tr [pEditableRow]="elRow" [pSelectableRow]="elRow">
-            <td>{{ elRow.numLot }}</td>
-            <td>{{ elRow.quantityReceived }}</td>
-            <td>{{ elRow.ugQuantityReceived }}</td>
+            <td class="pharma-code">{{ elRow.numLot }}</td>
+            <td><span class="pharma-qty-value">{{ elRow.quantityReceived }}</span></td>
+            <td><span class="pharma-qty-value">{{ elRow.ugQuantityReceived }}</span></td>
             <td>{{ elRow.manufacturingDate | date: 'dd/MM/yyyy' }}</td>
             <td>{{ elRow.expiryDate | date: 'dd/MM/yyyy' }}</td>
 

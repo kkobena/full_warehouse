@@ -5,6 +5,7 @@
         <div class="input-group">
           <p-floatlabel variant="on">
             <p-datePicker
+              class="mr-1"
               [(ngModel)]="fromDate"
               [iconDisplay]="'input'"
               [showButtonBar]="true"
@@ -15,7 +16,7 @@
               showIcon="true"
             />
             <label for="dateDebut">Date début</label></p-floatlabel
-          >&nbsp;
+          >
 
           <p-floatlabel variant="on">
             <p-datePicker
@@ -27,15 +28,16 @@
               inputId="dateFin"
               selectOtherMonths="true"
               showIcon="true"
+              class="mr-1"
             ></p-datePicker
             >&nbsp;
             <label for="dateFin">Date fin</label>
           </p-floatlabel>
 
-          <p-select [(ngModel)]="selectedVente" [filter]="false" [options]="types" [showClear]="true"
+          <p-select  class="mr-1" [fluid]="true" [(ngModel)]="selectedVente" [filter]="false" [options]="types" [showClear]="true"
                     placeholder="Type de vente"></p-select
           >&nbsp;
-          <div class="tva-radio flex align-items-center">
+          <div class="tva-radio flex align-items-center ">
             <p-radioButton
               (onClick)="onAffichageChange()"
               [(ngModel)]="groupBy"
@@ -66,12 +68,14 @@
             icon="pi pi-search"
             label="Rechercher"
             pTooltip="Rechercher"
+            class="mr-1"
             severity="info"
             tooltipPosition="top"
           ></p-button
-          >&nbsp;
+          >
 
           <p-button
+            class="mr-1"
             (click)="onPrint()"
             [loading]="loading"
             icon="pi pi-print"
@@ -80,7 +84,7 @@
             severity="warn"
             tooltipPosition="top"
           />&nbsp;
-          <p-selectButton [(ngModel)]="affichage" [options]="typeAffichafes" optionLabel="icon" optionValue="value">
+          <p-selectButton  class="mr-1" [(ngModel)]="affichage" [options]="typeAffichafes" optionLabel="icon" optionValue="value">
             <ng-template #item let-item>
               <i [class]="item.icon"></i>
             </ng-template>

@@ -17,7 +17,7 @@ import java.io.Serializable;
 
 @Entity
 @Table(name = "motif_ajustement", uniqueConstraints = { @UniqueConstraint(columnNames = { "libelle" }) })
-@Cache(usage = CacheConcurrencyStrategy.NONSTRICT_READ_WRITE)
+@Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
 public class MotifAjustement implements Serializable {
 
     @Serial

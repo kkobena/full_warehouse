@@ -11,6 +11,7 @@
   </p-toolbar>
   @if (entites && entites?.length > 0) {
     <p-table
+      class="pharma-table"
       (onLazyLoad)="lazyLoading()"
       [lazy]="true"
       [loading]="loading"
@@ -20,7 +21,7 @@
       [showGridlines]="true"
     >
       <ng-template #header>
-        <tr>
+        <tr class="pharma-table-head">
           <th scope="col" style="width: 30px">#</th>
 
           <th scope="col"><span>Libellé</span></th>
@@ -33,12 +34,12 @@
       </ng-template>
       <ng-template let-columns="columns" let-elRow let-rowIndex="rowIndex" #body>
         <tr [pSelectableRow]="elRow">
-          <td>{{ rowIndex + 1 }}</td>
+          <td><span class="pharma-row-number">{{ rowIndex + 1 }}</span></td>
 
-          <td>{{ elRow.valeur }}</td>
-          <td class="text-right">{{ elRow.grilles[0]?.codeRemise?.value }}</td>
-          <td class="text-right">{{ getVnoTaux(elRow) }}</td>
-          <td class="text-right">{{ getVoTaux(elRow) }}</td>
+          <td><span class="pharma-entity-name">{{ elRow.valeur }}</span></td>
+          <td class="text-right"><span class="pharma-code">{{ elRow.grilles[0]?.codeRemise?.value }}</span></td>
+          <td class="text-right"><span class="pharma-qty-value">{{ getVnoTaux(elRow) }}</span></td>
+          <td class="text-right"><span class="pharma-qty-value">{{ getVoTaux(elRow) }}</span></td>
           <td class="text-right">
             <p-toggleswitch (onChange)="onStatusChange(elRow)" [(ngModel)]="elRow.enable" />
           </td>

@@ -62,7 +62,8 @@ import { SpinnerComponent } from '../../../shared/spinner/spinner.component';
     ConfirmDialogComponent,
     SpinnerComponent
   ],
-  templateUrl: './edit-suggestion.component.html'
+  templateUrl: './edit-suggestion.component.html',
+  styleUrl: './edit-suggestion.component.scss'
 
 })
 export class EditSuggestionComponent implements OnInit {

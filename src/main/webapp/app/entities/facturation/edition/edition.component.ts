@@ -51,7 +51,8 @@ import { Select } from 'primeng/select';
     Card,
     Select
   ],
-  templateUrl: './edition.component.html'
+  templateUrl: './edition.component.html',
+  styleUrls: ['./edition.component.scss']
 })
 export class EditionComponent implements OnInit, OnDestroy {
 

@@ -12,6 +12,7 @@
       </p-toolbar>
       @if (entites && entites?.length > 0) {
         <p-table
+          class="pharma-table"
           [(selection)]="selectedEl"
           [loading]="loading"
           [paginator]="false"
@@ -21,7 +22,7 @@
           [showGridlines]="true"
         >
           <ng-template #header>
-            <tr>
+            <tr class="pharma-table-head">
               <th scope="col" style="width: 30px">#</th>
               <th scope="col"><span>Code</span></th>
               <th scope="col"><span>Valeur</span></th>
@@ -30,9 +31,9 @@
           </ng-template>
           <ng-template let-columns="columns" let-elRow let-rowIndex="rowIndex" #body>
             <tr [pSelectableRow]="elRow">
-              <td>{{ rowIndex + 1 }}</td>
-              <td>{{ elRow.code }}</td>
-              <td style="text-align: right">{{ elRow.value }}</td>
+              <td><span class="pharma-row-number">{{ rowIndex + 1 }}</span></td>
+              <td><span class="pharma-code">{{ elRow.code }}</span></td>
+              <td style="text-align: right"><span class="pharma-entity-name">{{ elRow.value }}</span></td>
 
               <td style="text-align: center">
                 <p-button

@@ -24,7 +24,8 @@ import { DiffereSummary } from '../model/differe-summary.model';
 @Component({
   selector: 'jhi-list-differes',
   imports: [Button, FormsModule, Toolbar, CommonModule, SelectModule, CardModule, TableModule, Tooltip, RouterModule, Tag],
-  templateUrl: './list-differes.component.html'
+  templateUrl: './list-differes.component.html',
+  styleUrls: ['./list-differes.component.scss']
 })
 export class ListDifferesComponent implements OnInit, OnDestroy {
   primngtranslate: Subscription;

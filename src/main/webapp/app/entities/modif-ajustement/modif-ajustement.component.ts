@@ -19,7 +19,7 @@ import { showCommonModal } from '../sales/selling-home/sale-helper';
 @Component({
   selector: 'jhi-modif-ajustement',
   templateUrl: './modif-ajustement.component.html',
-
+  styleUrl: './modif-ajustement.component.scss',
   imports: [
     ButtonModule,
     ToolbarModule,

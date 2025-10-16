@@ -32,7 +32,8 @@ import { MouvementProduit } from '../../../shared/model/enumerations/mouvement-p
     DividerModule,
     NgxSpinnerModule
   ],
-  templateUrl: './auditing.component.html'
+  templateUrl: './auditing.component.html',
+  styleUrl: './auditing.component.scss',
 })
 export class AuditingComponent implements OnInit {
   protected saleQuantity?: number;

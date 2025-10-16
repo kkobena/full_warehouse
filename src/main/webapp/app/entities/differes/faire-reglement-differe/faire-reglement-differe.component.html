@@ -7,7 +7,7 @@
           <div class="p-2"><span class="text-xl font-bold">Dossiers</span></div>
           <div class="p-0">
             <p-iconfield>
-              <p-inputicon styleClass="pi pi-search" />
+              <p-inputicon class="pi pi-search" />
               <input
                 (input)="differeTable.filterGlobal($event.target.value, 'contains')"
                 [style]="{ width: '300px' }"
@@ -19,7 +19,7 @@
           </div>
         </div>
       </ng-template>
-      <ng-template pTemplate="header">
+      <ng-template #header>
         <tr>
           <th>Référence</th>
           <th>Date vente</th>
@@ -29,7 +29,7 @@
           <th>Montant Restant</th>
         </tr>
       </ng-template>
-      <ng-template let-item let-rowIndex="rowIndex" pTemplate="body">
+      <ng-template let-item let-rowIndex="rowIndex" #body>
         <tr [ngClass]="{ 'table-success0': item.restAmount > 0 }">
           <td>{{ item.reference }}</td>
           <td>{{ item.mvtDate | date: 'dd/MM/yy HH:mm' }}</td>

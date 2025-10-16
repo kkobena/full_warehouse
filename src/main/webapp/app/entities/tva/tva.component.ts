@@ -17,6 +17,7 @@ import { TranslatePipe } from '@ngx-translate/core';
 @Component({
   selector: 'jhi-tva',
   templateUrl: './tva.component.html',
+  styleUrl: './tva.component.scss',
   imports: [CommonModule, ButtonModule, TableModule, Panel, Toolbar, Tooltip, ConfirmDialogComponent, TranslatePipe]
 })
 export class TvaComponent implements OnInit {

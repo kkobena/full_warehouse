@@ -20,6 +20,7 @@ import { Authority } from '../../shared/constants/authority.constants';
 @Component({
   selector: 'jhi-menu',
   templateUrl: './menu.component.html',
+  styleUrl: './menu.component.scss',
   providers: [MessageService],
   imports: [
     WarehouseCommonModule,

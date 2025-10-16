@@ -42,6 +42,7 @@ import { showCommonModal } from '../sales/selling-home/sale-helper';
 @Component({
   selector: 'jhi-ajustement-detail',
   templateUrl: './ajustement-detail.component.html',
+  styleUrl: './ajustement-detail.component.scss',
   imports: [
     WarehouseCommonModule,
     CardModule,

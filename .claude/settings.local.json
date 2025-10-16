@@ -6,7 +6,8 @@
       "Bash(where mvn)",
       "Bash(./mvnw test:*)",
       "Bash(mvn test:*)",
-      "Bash(mkdir:*)"
+      "Bash(mkdir:*)",
+      "Bash(test:*)"
     ],
     "deny": [],
     "ask": []

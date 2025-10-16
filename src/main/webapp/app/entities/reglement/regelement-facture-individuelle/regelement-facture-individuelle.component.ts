@@ -46,6 +46,7 @@ import { FactureId } from '../../facturation/facture.model';
     ConfirmDialogComponent,
   ],
   templateUrl: './regelement-facture-individuelle.component.html',
+  styleUrl: './regelement-facture-individuelle.component.scss',
 })
 export class RegelementFactureIndividuelleComponent implements OnInit {
   readonly reglementFactureDossiers = input<ReglementFactureDossier[]>([]);

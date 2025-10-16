@@ -17,9 +17,9 @@
       </ng-template>
 
 
-      <p-table [paginator]="false" [value]="authorities" dataKey="id" styleClass="p-datatable-striped">
+      <p-table [paginator]="false" [value]="authorities" dataKey="id" styleClass="p-datatable-striped" class="pharma-table">
         <ng-template #header>
-          <tr>
+          <tr class="pharma-table-head">
             <th style="width: 20%">Nom</th>
             <th>Description</th>
             <th style="width: 15%"></th>
@@ -27,7 +27,9 @@
         </ng-template>
         <ng-template let-row let-rowIndex="rowIndex" #body>
           <tr>
-            <td>{{ row.name }}</td>
+            <td>
+              <span class="pharma-badge pharma-badge-primary">{{ row.name }}</span>
+            </td>
             <td [pEditableColumn]="row.libelle" pEditableColumn pEditableColumnField="libelle">
               <p-cellEditor>
                 <ng-template #input>

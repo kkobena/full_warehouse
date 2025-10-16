@@ -11,6 +11,7 @@
 <div class="row reglement-dossier">
   <div class="reglement-dossier-table col-xl-8 col-sm-12 col-lg-9 col-md-9">
     <p-table
+      class="pharma-table"
       #factureDossierTable
       (selectionChange)="onSelectChange($event)"
       [(selection)]="factureDossierSelectionnes"
@@ -43,7 +44,7 @@
         </div>
       </ng-template>
       <ng-template #header>
-        <tr>
+        <tr class="pharma-table-head">
           <th>Réf.Bon</th>
           <th>Nom/Prénom(s)</th>
           <th>Matricule</th>
@@ -63,18 +64,18 @@
       </ng-template>
       <ng-template #body let-item let-rowIndex="rowIndex">
         <tr [ngClass]="{ 'table-success0': item.montantPaye > 0 }">
-          <td>{{ item.bonNumber }}</td>
-          <td>{{ item.customerFullName }}</td>
-          <td>{{ item.matricule }}</td>
+          <td><span class="pharma-code">{{ item.bonNumber }}</span></td>
+          <td><span class="pharma-entity-name">{{ item.customerFullName }}</span></td>
+          <td><span class="pharma-code">{{ item.matricule }}</span></td>
           <td>{{ item.saleDate | date: 'dd/MM/yy HH:mm' }}</td>
           <td class="amount-column">
-            {{ item.montantTotal | number }}
+            <span class="pharma-price">{{ item.montantTotal | number }}</span>
           </td>
           <td class="amount-column">
-            {{ item.montantPaye | number }}
+            <span class="pharma-price">{{ item.montantPaye | number }}</span>
           </td>
           <td class="amount-column">
-            {{ item.montantTotal - item.montantPaye | number }}
+            <span class="pharma-total">{{ item.montantTotal - item.montantPaye | number }}</span>
           </td>
           @if (partialPayment) {
             <td class="text-center">

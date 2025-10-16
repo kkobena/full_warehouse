@@ -39,7 +39,8 @@ import { DatePickerModule } from 'primeng/datepicker';
     FloatLabel,
     DatePickerModule
   ],
-  templateUrl: './reglement-differes.component.html'
+  templateUrl: './reglement-differes.component.html',
+  styleUrls: ['./reglement-differes.component.scss']
 })
 export class ReglementDifferesComponent implements OnInit, OnDestroy {
   protected page = 0;

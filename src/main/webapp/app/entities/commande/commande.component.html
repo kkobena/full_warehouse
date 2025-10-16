@@ -56,7 +56,7 @@
           <ng-template #start>
             @if (active === 'REQUESTED') {
               <p-iconfield>
-                <p-inputicon styleClass="pi pi-search" />
+                <p-inputicon class="pi pi-search" />
                 <input
                   class="ms-1"
                   (keyup.enter)="onSearch()"
@@ -68,7 +68,7 @@
               >
             }
             <p-iconfield>
-              <p-inputicon styleClass="pi pi-search" />
+              <p-inputicon class="pi pi-search" />
               <input
                 class="ms-1"
                 (keyup.enter)="onSearch()"
@@ -84,6 +84,7 @@
                 (onChange)="onTypeSuggestionChange($event)"
                 [filter]="false"
                 [showClear]="true"
+                [fluid]="true"
                 [options]="typeSuggessions"
                 optionLabel="label"
                 optionValue="value"
@@ -95,6 +96,7 @@
                 (onChange)="onFournisseurChange($event)"
                 [filter]="false"
                 class="ms-1"
+                [fluid]="true"
                 [showClear]="true"
                 [options]="fournisseurs"
                 optionLabel="libelle"

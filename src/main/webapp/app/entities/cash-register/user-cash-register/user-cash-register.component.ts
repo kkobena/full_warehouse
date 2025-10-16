@@ -31,7 +31,8 @@ import { ErrorService } from '../../../shared/error.service';
     ConfirmDialogComponent,
     ToastAlertComponent
   ],
-  templateUrl: './user-cash-register.component.html'
+  templateUrl: './user-cash-register.component.html',
+  styleUrls: ['./user-cash-register.component.scss']
 })
 export class UserCashRegisterComponent implements OnInit, AfterViewInit {
   protected cashFundAmountInput = viewChild<ElementRef>('cashFundAmountInput');

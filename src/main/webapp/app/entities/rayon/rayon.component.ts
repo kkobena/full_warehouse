@@ -35,6 +35,7 @@ import { SpinnerComponent } from '../../shared/spinner/spinner.component';
 @Component({
   selector: 'jhi-rayon',
   templateUrl: './rayon.component.html',
+  styleUrl: './rayon.component.scss',
   imports: [
     WarehouseCommonModule,
     ButtonModule,

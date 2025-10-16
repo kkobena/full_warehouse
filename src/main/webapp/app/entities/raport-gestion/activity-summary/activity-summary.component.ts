@@ -24,6 +24,7 @@ import { Card } from 'primeng/card';
   selector: 'jhi-activity-summary',
   imports: [CommonModule, Toolbar, DatePicker, FloatLabel, FormsModule, Button, IconField, InputIcon, InputText, TableModule, Card],
   templateUrl: './activity-summary.component.html',
+  styleUrl: './activity-summary.component.scss',
 })
 export class ActivitySummaryComponent {
   protected loadingPdf = false;
@@ -38,7 +39,7 @@ export class ActivitySummaryComponent {
   private readonly translate = inject(TranslateService);
   private readonly primeNGConfig = inject(PrimeNG);
   private readonly activitySummaryService = inject(ActivitySummaryService);
-  private primngtranslate: Subscription;
+
   // protected scrollHeight = 'calc(100vh - 350px)';
   protected loadingCa = signal(false);
   protected loadingAchat = signal(false);
@@ -48,7 +49,7 @@ export class ActivitySummaryComponent {
 
   constructor() {
     this.translate.use('fr');
-    this.primngtranslate = this.translate.stream('primeng').subscribe(data => {
+    this.translate.stream('primeng').subscribe(data => {
       this.primeNGConfig.setTranslation(data);
     });
 

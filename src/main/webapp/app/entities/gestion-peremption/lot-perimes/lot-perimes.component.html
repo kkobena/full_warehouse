@@ -224,6 +224,7 @@
   @if (data && data.length) {
     <div>
       <p-table
+        class="pharma-table"
         (onLazyLoad)="lazyLoading($event)"
         [lazy]="true"
         [loading]="loading"
@@ -239,7 +240,7 @@
         [(selection)]="selectedLotPerimes"
       >
         <ng-template #header>
-          <tr>
+          <tr class="pharma-table-head">
             <th>Libellé produit</th>
             <th>Code produit</th>
             <th>Numéro lot</th>
@@ -258,32 +259,32 @@
         </ng-template>
         <ng-template let-data #body>
           <tr>
-            <td>
+            <td class="pharma-product-name">
               {{ data.produitName }}
             </td>
 
-            <td>
+            <td class="pharma-code">
               {{ data.produitCode }}
             </td>
-            <td>
+            <td class="pharma-code">
               {{ data.numLot }}
             </td>
             <td>
               {{ data.datePeremption }}
             </td>
             <td class="text-right amount-column">
-              {{ data.quantity | number }}
+              <span class="pharma-qty-value">{{ data.quantity | number }}</span>
             </td>
-            <td class="text-right amount-column">{{ data.prixAchat | number }}</td>
-            <td class="text-right amount-column">{{ data.prixVente | number }}</td>
+            <td class="text-right amount-column"><span class="pharma-price">{{ data.prixAchat | number }}</span></td>
+            <td class="text-right amount-column"><span class="pharma-price">{{ data.prixVente | number }}</span></td>
             <td class="text-center">
               <p-tag [value]="data.peremptionStatut.libelle"
                      [severity]="getSeverity(data.peremptionStatut)" />
             </td>
-            <td>
+            <td class="pharma-entity-name">
               {{ data.fournisseur }}
             </td>
-            <td>
+            <td class="pharma-entity-name">
               {{ data.rayonName }}
             </td>
             <td class="text-center">

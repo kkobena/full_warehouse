@@ -22,7 +22,7 @@ import { ConfirmDialog } from 'primeng/confirmdialog';
 @Component({
   selector: 'jhi-list-lot',
   templateUrl: './list-lot.component.html',
-  styleUrls: ['../../../common-modal.component.scss'],
+  styleUrls: ['../../../common-modal.component.scss', './list-lot.component.scss'],
   providers: [ConfirmationService],
 
   imports: [WarehouseCommonModule, ButtonModule, TooltipModule, TableModule, ToastAlertComponent, Card, ConfirmDialog],

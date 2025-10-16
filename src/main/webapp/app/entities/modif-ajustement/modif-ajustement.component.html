@@ -29,16 +29,17 @@
               [loading]="loading"
               (onLazyLoad)="lazyLoading($event)"
               stripedRows="true"
+              class="pharma-table"
             >
               <ng-template #header>
-                <tr>
+                <tr class="pharma-table-head">
                   <th scope="col"><span>Libellé</span></th>
                   <th scope="col"></th>
                 </tr>
               </ng-template>
               <ng-template #body let-elRow let-columns="columns">
                 <tr>
-                  <td>{{ elRow.libelle }}</td>
+                  <td><span class="pharma-entity-name">{{ elRow.libelle }}</span></td>
                   <td style="text-align: right">
                     <p-button [text]="true" rounded="true" severity="success" icon="pi pi-pencil" size="small"
                               (click)="onEdit(elRow)"></p-button>

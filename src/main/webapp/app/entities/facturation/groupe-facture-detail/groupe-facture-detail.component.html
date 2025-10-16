@@ -12,7 +12,7 @@
     </div>
     <div>
       <p-panel>
-        <ng-template pTemplate="header">
+        <ng-template #header>
           <span
           >Détail groupe de facture :
             <span class="badge rounded-pill text-bg-light">{{ groupeFactureSignal().name }}
@@ -31,12 +31,12 @@
           dataKey="saleId"
           scrollHeight="500px"
           selectionMode="single"
-          styleClass="p-datatable-striped"
+         [stripedRows]="true"
         >
-          <ng-template pTemplate="caption">
+          <ng-template #caption>
             <div class="d-flex">
               <p-iconfield>
-                <p-inputicon styleClass="pi pi-search" />
+                <p-inputicon class="pi pi-search" />
                 <input
                   (input)="fact.filterGlobal($event.target.value, 'contains')"
                   [(ngModel)]="searchValue"
@@ -47,7 +47,7 @@
               </p-iconfield>
             </div>
           </ng-template>
-          <ng-template pTemplate="header">
+          <ng-template #header>
             <tr>
               <th>Code</th>
               <th>Organisme</th>
@@ -55,7 +55,7 @@
               <th>Montant payé</th>
             </tr>
           </ng-template>
-          <ng-template let-factureDetail pTemplate="body">
+          <ng-template let-factureDetail #body>
             <tr (click)="onRowSelect(factureDetail)">
               <td>{{ factureDetail.numFacture }}</td>
               <td>{{ factureDetail.tiersPayantName }}</td>

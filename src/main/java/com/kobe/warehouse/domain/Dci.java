@@ -21,7 +21,7 @@ import java.io.Serializable;
     uniqueConstraints = { @UniqueConstraint(columnNames = { "code" }), @UniqueConstraint(columnNames = { "libelle" }) },
     indexes = { @Index(columnList = "libelle", name = "dci_libelle_index") }
 )
-@Cache(usage = CacheConcurrencyStrategy.NONSTRICT_READ_WRITE)
+@Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
 public class Dci implements Serializable {
 
     @Serial

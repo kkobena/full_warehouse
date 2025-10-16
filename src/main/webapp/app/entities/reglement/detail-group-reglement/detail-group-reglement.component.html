@@ -37,18 +37,18 @@
           [value]="reglements"
           dataKey="id"
           selectionMode="single"
-          styleClass="p-datatable-striped"
+          [stripedRows]="true"
         >
-          <ng-template pTemplate="caption">
+          <ng-template #caption>
             <div class="d-flex">
               <p-iconfield>
-                <p-inputicon styleClass="pi pi-search" />
+                <p-inputicon class="pi pi-search" />
                 <input (input)="fact.filterGlobal($event.target.value, 'contains')" pInputText placeholder="Filtrer"
                        type="text" />
               </p-iconfield>
             </div>
           </ng-template>
-          <ng-template pTemplate="header">
+          <ng-template #header>
             <tr>
               <th>Organisme</th>
               <th>Code facture</th>
@@ -57,7 +57,7 @@
               <th>Montant restant</th>
             </tr>
           </ng-template>
-          <ng-template let-reglement pTemplate="body">
+          <ng-template let-reglement #body>
             <tr (click)="onRowSelect(reglement)">
               <td>{{ reglement.organisme }}</td>
               <td>{{ reglement.codeFacture }}</td>
@@ -79,18 +79,18 @@
             [scrollHeight]="scrollHeight"
             [scrollable]="true"
             [value]="datas"
-            styleClass="p-datatable-striped"
+            [stripedRows]="true"
           >
-            <ng-template pTemplate="caption">
+            <ng-template #caption>
               <div class="d-flex">
                 <p-iconfield>
-                  <p-inputicon styleClass="pi pi-search" />
+                  <p-inputicon class="pi pi-search" />
                   <input (input)="fact.filterGlobal($event.target.value, 'contains')" pInputText placeholder="Filtrer"
                          type="text" />
                 </p-iconfield>
               </div>
             </ng-template>
-            <ng-template pTemplate="header">
+            <ng-template #header>
               <tr>
                 <th>Num.Bon</th>
                 <th>Date</th>
@@ -103,7 +103,7 @@
                 <th>Montant restant</th>
               </tr>
             </ng-template>
-            <ng-template let-factureDetail pTemplate="body">
+            <ng-template let-factureDetail #body>
               <tr>
                 <td>{{ factureDetail.numBon }}</td>
                 <td>{{ factureDetail.created }}</td>

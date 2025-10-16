@@ -65,7 +65,8 @@ import { SpinnerComponent } from '../../../shared/spinner/spinner.component';
     ToastAlertComponent,
     SpinnerComponent
   ],
-  templateUrl: './lot-a-detruire.component.html'
+  templateUrl: './lot-a-detruire.component.html',
+  styleUrl: './lot-a-detruire.component.scss'
 })
 export class LotADetruireComponent implements OnInit, AfterViewInit {
   protected checkbox = viewChild<TableHeaderCheckbox>('checkbox');

@@ -14,10 +14,10 @@
     dataKey="id"
     selectionMode="multiple"
     [stripedRows]="true"
-    class=" mt-2"
+    class="pharma-table mt-2"
   >
     <ng-template #header>
-      <tr>
+      <tr class="pharma-table-head">
         <th style="width: 1%"></th>
         <th style="width: 13%">Date</th>
         <th style="width: 8%">Date reception</th>
@@ -47,14 +47,24 @@
 
         <td>{{ row.createdDate | date: 'dd/MM/yyyy HH:mm:ss' }}</td>
         <td>{{ row.receiptDate | date: 'dd/MM/yyyy' }}</td>
-        <td>{{ row.receiptReference }}</td>
+        <td>
+          <span class="pharma-code">{{ row.receiptReference }}</span>
+        </td>
 
-        <td class="text-right amount-td-column">{{ row.receiptAmount | number }}</td>
-        <td class="text-right amount-td-column">{{ row.netAmount | number }}</td>
-        <td class="text-right amount-td-column">{{ row.taxAmount | number }}</td>
+        <td class="text-right amount-td-column">
+          <span class="pharma-total">{{ row.receiptAmount | number }}</span>
+        </td>
+        <td class="text-right amount-td-column">
+          <span class="pharma-total">{{ row.netAmount | number }}</span>
+        </td>
+        <td class="text-right amount-td-column">
+          <span class="pharma-total">{{ row.taxAmount | number }}</span>
+        </td>
 
         <td class="text-right amount-td-column">{{ row.itemSize | number }}</td>
-        <td>{{ row.fournisseurLibelle }}</td>
+        <td>
+          <div class="pharma-entity-name">{{ row.fournisseurLibelle }}</div>
+        </td>
         <td>{{ row.createdUser }}</td>
 
         <td class="text-right">
@@ -90,9 +100,14 @@
       </tr>
     </ng-template>
     <ng-template #expandedrow let-item>
-      <tr>
+      <tr class="pharma-expanded-row">
         <td colspan="12">
-          <div class="p-3">
+          <div class="pharma-sub-table-container">
+            <div class="pharma-sub-table-header">
+              <i class="pi pi-list"></i>
+              <span>DÉTAILS DU BON DE LIVRAISON</span>
+            </div>
+            <div class="pharma-sub-table-body">
             <p-table
               [paginator]="true"
               [rowsPerPageOptions]="[10, 25, 50]"
@@ -102,7 +117,7 @@
               currentPageReportTemplate="Affichage de {first} à {last} sur {totalRecords} elements"
             >
               <ng-template #header>
-                <tr>
+                <tr class="pharma-table-head">
                   <th>#</th>
                   <th pSortableColumn="fournisseurProduitCip">
                     Code
@@ -121,20 +136,36 @@
               </ng-template>
               <ng-template let-receiptItem let-rowIndex="rowIndex" #body>
                 <tr>
-                  <td style="text-align: left">{{ rowIndex + 1 }}</td>
-                  <td>{{
-                      receiptItem.fournisseurProduitEan || receiptItem.fournisseurProduitCip
-                    }}
+                  <td style="text-align: left">
+                    <span class="pharma-row-number">{{ rowIndex + 1 }}</span>
                   </td>
-                  <td>{{ receiptItem.fournisseurProduitLibelle }}</td>
-                  <td class="text-right">{{ receiptItem.initStock | number }}</td>
-                  <td class="text-right">{{ receiptItem.afterStock | number }}</td>
-                  <td class="text-right">{{ receiptItem.quantityReceived | number }}</td>
-                  <td class="text-right">{{ receiptItem.orderCostAmount | number }}</td>
-                  <td class="text-right">{{ receiptItem.orderUnitPrice | number }}</td>
+                  <td>
+                    <span class="pharma-code">{{
+                      receiptItem.fournisseurProduitEan || receiptItem.fournisseurProduitCip
+                    }}</span>
+                  </td>
+                  <td>
+                    <div class="pharma-product-name">{{ receiptItem.fournisseurProduitLibelle }}</div>
+                  </td>
+                  <td class="text-right">
+                    <span class="pharma-qty-value">{{ receiptItem.initStock | number }}</span>
+                  </td>
+                  <td class="text-right">
+                    <span class="pharma-qty-value">{{ receiptItem.afterStock | number }}</span>
+                  </td>
+                  <td class="text-right">
+                    <span class="pharma-qty-value">{{ receiptItem.quantityReceived | number }}</span>
+                  </td>
+                  <td class="text-right">
+                    <span class="pharma-price">{{ receiptItem.orderCostAmount | number }}</span>
+                  </td>
+                  <td class="text-right">
+                    <span class="pharma-price">{{ receiptItem.orderUnitPrice | number }}</span>
+                  </td>
                 </tr>
               </ng-template>
             </p-table>
+            </div>
           </div>
         </td>
       </tr>

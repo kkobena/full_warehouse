@@ -19,6 +19,7 @@ export type ExpandMode = 'single' | 'multiple';
 @Component({
   selector: 'jhi-list-bons',
   templateUrl: './list-bons.component.html',
+  styleUrl: './list-bons.component.scss',
   imports: [
     WarehouseCommonModule,
     ButtonModule,

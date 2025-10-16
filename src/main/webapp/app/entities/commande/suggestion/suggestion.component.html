@@ -2,6 +2,7 @@
 
 @if (suggestions && suggestions.length > 0) {
   <p-table
+    class="pharma-table"
     (onLazyLoad)="lazyLoading($event)"
     (onRowSelect)="onRowSelected()"
     (onRowUnselect)="onRowUnselect()"
@@ -21,7 +22,7 @@
     styleClass="mt-2"
   >
     <ng-template #header>
-      <tr>
+      <tr class="pharma-table-head">
         <th>Type</th>
         <th>Fournisseur</th>
         <th>Référence</th>
@@ -35,11 +36,11 @@
     </ng-template>
     <ng-template let-suggestion #body>
       <tr>
-        <td>{{ suggestion.typeSuggession }}</td>
-        <td>{{ suggestion.fournisseurLibelle }}</td>
-        <td>{{ suggestion.suggessionReference }}</td>
+        <td><span class="pharma-badge pharma-badge-info">{{ suggestion.typeSuggession }}</span></td>
+        <td class="pharma-entity-name">{{ suggestion.fournisseurLibelle }}</td>
+        <td class="pharma-code">{{ suggestion.suggessionReference }}</td>
         <td>{{ suggestion.updatedAt | date: 'dd/MM/yyyy HH:mm:ss' }}</td>
-        <td>{{ suggestion.statutLibelle }}</td>
+        <td><span class="pharma-badge pharma-badge-info">{{ suggestion.statutLibelle }}</span></td>
         <td class="text-center">
           <p-tableCheckbox [value]="suggestion"></p-tableCheckbox>
         </td>

@@ -5,7 +5,6 @@ import { InvoicePaymentItem, Reglement } from '../model/reglement.model';
 import { HttpResponse } from '@angular/common/http';
 import { InputTextModule } from 'primeng/inputtext';
 import { PanelModule } from 'primeng/panel';
-import { PrimeTemplate } from 'primeng/api';
 import { ReactiveFormsModule } from '@angular/forms';
 import { TableModule } from 'primeng/table';
 import { IconField } from 'primeng/iconfield';
@@ -13,9 +12,9 @@ import { InputIcon } from 'primeng/inputicon';
 
 @Component({
   selector: 'jhi-detail-group-reglement',
-  imports: [InputTextModule, PanelModule, PrimeTemplate, ReactiveFormsModule, TableModule, IconField, InputIcon],
+  imports: [InputTextModule, PanelModule, ReactiveFormsModule, TableModule, IconField, InputIcon],
   templateUrl: './detail-group-reglement.component.html',
-  styles: ``
+  styleUrls: ['./detail-group-reglement.component.scss']
 })
 export class DetailGroupReglementComponent implements OnInit {
   modalService = inject(NgbModal);

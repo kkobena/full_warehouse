@@ -70,6 +70,7 @@ import { FactureId } from '../../facturation/facture.model';
     ConfirmDialogComponent,
   ],
   templateUrl: './faire-groupe-reglement.component.html',
+  styleUrl: './faire-groupe-reglement.component.scss',
 })
 export class FaireGroupeReglementComponent implements OnInit {
   readonly reglementFactureDossiers = input<ReglementFactureDossier[]>([]);

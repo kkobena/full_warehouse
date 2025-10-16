@@ -20,7 +20,7 @@ import org.hibernate.annotations.CacheConcurrencyStrategy;
  */
 @Entity
 @Table(name = "laboratoire")
-@Cache(usage = CacheConcurrencyStrategy.NONSTRICT_READ_WRITE)
+@Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
 public class Laboratoire implements Serializable {
 
     @Serial

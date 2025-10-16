@@ -20,6 +20,7 @@ import { Card } from 'primeng/card';
 @Component({
   selector: 'jhi-list-ajustement',
   templateUrl: './list-ajustement.component.html',
+  styleUrl: './list-ajustement.component.scss',
   imports: [WarehouseCommonModule, ButtonModule, TableModule, TooltipModule, Card]
 })
 export class ListAjustementComponent implements OnInit {

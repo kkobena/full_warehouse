@@ -22,7 +22,7 @@ import java.util.Set;
  */
 @Entity
 @Table(name = "tva", uniqueConstraints = { @UniqueConstraint(columnNames = { "taux" }) })
-@Cache(usage = CacheConcurrencyStrategy.NONSTRICT_READ_WRITE)
+@Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
 public class Tva implements Serializable {
 
     @Serial

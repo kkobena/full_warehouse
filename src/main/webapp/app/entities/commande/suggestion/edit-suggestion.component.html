@@ -125,6 +125,7 @@
     </p-toolbar>
     @if (suggestions && suggestions.length > 0) {
       <p-table
+        class="pharma-table"
         (onLazyLoad)="lazyLoading($event)"
         [(selection)]="selections"
         [lazy]="true"
@@ -192,7 +193,7 @@
           </div>
         </ng-template>
         <ng-template #header>
-          <tr>
+          <tr class="pharma-table-head">
             <th style="width: 20%">Etat</th>
             <th>Code</th>
             <th>Libellé</th>
@@ -213,19 +214,19 @@
               <jhi-eta-produit [isSuggestion]="true"
                                [etatProduit]="suggestion.etatProduit"></jhi-eta-produit>
             </td>
-            <td>{{ suggestion.fournisseurProduitCip }}</td>
-            <td>{{ suggestion.fournisseurProduitLibelle }}</td>
+            <td class="pharma-code">{{ suggestion.fournisseurProduitCip }}</td>
+            <td class="pharma-product-name">{{ suggestion.fournisseurProduitLibelle }}</td>
             @if (suggestion.currentStock < 0) {
               <td style="text-align: right"
-                  class="amount-column red-400">{{ suggestion.currentStock | number }}
+                  class="amount-column red-400"><span class="pharma-qty-value">{{ suggestion.currentStock | number }}</span>
               </td>
             } @else if (suggestion.currentStock === 0) {
               <td style="text-align: right"
-                  class="amount-column orange-400">{{ suggestion.currentStock | number }}
+                  class="amount-column orange-400"><span class="pharma-qty-value">{{ suggestion.currentStock | number }}</span>
               </td>
             } @else {
               <td style="text-align: right"
-                  class="amount-column">{{ suggestion.currentStock | number }}
+                  class="amount-column"><span class="pharma-qty-value">{{ suggestion.currentStock | number }}</span>
               </td>
             }
             <td pEditableColumn style="text-align: right" class="amount-column">
@@ -241,15 +242,15 @@
                   />
                 </ng-template>
                 <ng-template #output>
-                  {{ suggestion.quantity | number }}
+                  <span class="pharma-qty-value">{{ suggestion.quantity | number }}</span>
                 </ng-template>
               </p-cellEditor>
             </td>
             <td style="text-align: right"
-                class="amount-column">{{ suggestion.prixAchat | number }}
+                class="amount-column"><span class="pharma-price">{{ suggestion.prixAchat | number }}</span>
             </td>
             <td style="text-align: right"
-                class="amount-column">{{ suggestion.prixVente | number }}
+                class="amount-column"><span class="pharma-price">{{ suggestion.prixVente | number }}</span>
             </td>
             <td class="text-center">
               <p-tableCheckbox [value]="suggestion"></p-tableCheckbox>

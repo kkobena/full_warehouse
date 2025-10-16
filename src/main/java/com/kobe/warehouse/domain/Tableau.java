@@ -21,7 +21,7 @@ import java.io.Serializable;
     uniqueConstraints = { @UniqueConstraint(columnNames = { "code" }) },
     indexes = { @Index(columnList = "code", name = "code_index") }
 )
-@Cache(usage = CacheConcurrencyStrategy.NONSTRICT_READ_WRITE)
+@Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
 public class Tableau implements Serializable {
 
     @Serial

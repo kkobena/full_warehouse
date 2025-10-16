@@ -137,7 +137,7 @@
 
         >
           <ng-template #header>
-            <tr class="pharma-table-head">
+            <tr>
               <th style="width: 3%"></th>
               <th style="width: 12%">Date</th>
               <th style="width: 5%">Type</th>
@@ -276,7 +276,7 @@
           <ng-template let-elRow #expandedrow>
             <tr>
               <td colspan="10">
-                <div class="p-3  expanded-content pharma-smart">
+                <div class="p-3 expanded-content pharma-smart">
                   @if (elRow.categorie === 'VNO') {
                     <p-card>
                       <ng-template #title>
@@ -294,7 +294,7 @@
                         currentPageReportTemplate="Affichage de {first} à {last} sur {totalRecords} produits"
                         dataKey="id"
                         selectionMode="single"
-                        styleClass="p-datatable-striped rowexpansion-table"
+                        class="p-datatable-striped rowexpansion-table"
                       >
                         <ng-template #header>
                           <tr>

@@ -32,6 +32,7 @@ import { ToggleSwitchModule } from 'primeng/toggleswitch';
     Panel,
   ],
   templateUrl: './remise.component.html',
+  styleUrl: './remise.component.scss',
 })
 export class RemiseComponent implements OnInit {
   protected responsedto!: IResponseDto;

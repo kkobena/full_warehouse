@@ -30,7 +30,8 @@ import { ErrorService } from '../../../shared/error.service';
     ToastAlertComponent,
     Panel
   ],
-  templateUrl: './remise-produits.component.html'
+  templateUrl: './remise-produits.component.html',
+  styleUrl: './remise-produits.component.scss',
 })
 export class RemiseProduitsComponent implements OnInit {
   protected responsedto!: IResponseDto;

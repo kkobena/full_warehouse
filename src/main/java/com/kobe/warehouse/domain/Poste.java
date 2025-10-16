@@ -24,7 +24,7 @@ import java.util.Objects;
     uniqueConstraints = { @UniqueConstraint(columnNames = { "name" }) },
     indexes = { @Index(columnList = "name", name = "poste_name_index") }
 )
-@Cache(usage = CacheConcurrencyStrategy.NONSTRICT_READ_WRITE)
+@Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
 public class Poste implements Serializable {
 
     private static final long serialVersionUID = 1L;

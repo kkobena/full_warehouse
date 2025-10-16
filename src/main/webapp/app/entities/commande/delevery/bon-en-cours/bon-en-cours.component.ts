@@ -18,6 +18,7 @@ export type ExpandMode = 'single' | 'multiple';
 @Component({
   selector: 'jhi-bon-en-cours',
   templateUrl: './bon-en-cours.component.html',
+  styleUrls: ['./bon-en-cours.component.scss'],
   imports: [WarehouseCommonModule, ButtonModule, TableModule, RouterModule, TooltipModule, SpinnerComponent]
 })
 export class BonEnCoursComponent implements OnInit, OnDestroy {

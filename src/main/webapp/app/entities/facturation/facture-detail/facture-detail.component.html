@@ -7,7 +7,7 @@
             <div>
               <h6 class="card-subtitle mb-2 text-muted">Montant vente</h6>
               <h4
-                class="card-title fw-bold">{{ factureWritable().montantVente | number: '1.0-0' }}</h4>
+                class="card-title fw-bold">{{ factureWritable().montantVente | number }}</h4>
             </div>
             <div class="fs-2 text-success">
               <i class="pi pi-shopping-cart"></i>
@@ -22,7 +22,7 @@
           <div class="d-flex justify-content-between align-items-center">
             <div>
               <h6 class="card-subtitle mb-2 text-muted">Montant facture</h6>
-              <h4 class="card-title fw-bold">{{ factureWritable().montant | number: '1.0-0' }}</h4>
+              <h4 class="card-title fw-bold">{{ factureWritable().montant | number }}</h4>
             </div>
             <div class="fs-2 text-primary">
               <i class="pi pi-file-text"></i>
@@ -38,7 +38,7 @@
             <div>
               <h6 class="card-subtitle mb-2 text-muted">Montant payé</h6>
               <h4
-                class="card-title fw-bold">{{ factureWritable().montantRegle | number: '1.0-0' }}</h4>
+                class="card-title fw-bold">{{ factureWritable().montantRegle | number }}</h4>
             </div>
             <div class="fs-2 text-info">
               <i class="pi pi-check-circle"></i>
@@ -108,11 +108,11 @@
             <tr [pSelectableRow]="factureDetail">
               <td>{{ factureDetail.numBon }}</td>
               <td>{{ factureDetail.customer.fullName }}</td>
-              <td class="text-end">{{ factureDetail.montantVente | number: '1.0-0' }}</td>
-              <td class="text-end">{{ factureDetail.montantRemise | number: '1.0-0' }}</td>
-              <td class="text-end">{{ factureDetail.montant | number: '1.0-0' }}</td>
-              <td class="text-end">{{ factureDetail.montantClient | number: '1.0-0' }}</td>
-              <td class="text-end">{{ factureDetail.montantRegle | number: '1.0-0' }}</td>
+              <td class="text-end">{{ factureDetail.montantVente | number }}</td>
+              <td class="text-end">{{ factureDetail.montantRemise | number }}</td>
+              <td class="text-end">{{ factureDetail.montant | number }}</td>
+              <td class="text-end">{{ factureDetail.montantClient | number }}</td>
+              <td class="text-end">{{ factureDetail.montantRegle | number }}</td>
               <td class="text-end">{{ factureDetail.taux | number }}%</td>
             </tr>
           </ng-template>
@@ -169,8 +169,8 @@
               <td>{{ saleLine.code }}</td>
               <td>{{ saleLine.produitLibelle }}</td>
               <td class="text-end">{{ saleLine.quantitySold | number }}</td>
-              <td class="text-end">{{ saleLine.regularUnitPrice | number: '1.0-0' }}</td>
-              <td class="text-end">{{ saleLine.salesAmount | number: '1.0-0' }}</td>
+              <td class="text-end">{{ saleLine.regularUnitPrice | number }}</td>
+              <td class="text-end">{{ saleLine.salesAmount | number }}</td>
             </tr>
           </ng-template>
           <ng-template #empty>

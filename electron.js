@@ -1,4 +1,4 @@
-const { app, BrowserWindow, protocol } = require('electron');
+const { app, BrowserWindow, protocol, ipcMain } = require('electron');
 const path = require('path');
 const url = require('url');
 const fs = require('fs');
@@ -9,6 +9,8 @@ function createWindow() {
   win = new BrowserWindow({
     width: 1400,
     height: 900,
+    frame: false,
+    autoHideMenuBar: true,
     webPreferences: {
       nodeIntegration: false, // Security best practice
       contextIsolation: true, // Security best practice
@@ -16,6 +18,24 @@ function createWindow() {
       preload: path.join(__dirname, 'preload.js'), // Add preload script for secure IPC
     },
   });
+
+  // IPC listeners for window actions
+  ipcMain.on('window-close', () => {
+    win.close();
+  });
+
+  ipcMain.on('window-maximize', () => {
+    if (win.isMaximized()) {
+      win.unmaximize();
+    } else {
+      win.maximize();
+    }
+  });
+
+  ipcMain.on('window-minimize', () => {
+    win.minimize();
+  });
+
 
   // Determine the start URL
   const startUrl = process.env.ELECTRON_START_URL || url.format({

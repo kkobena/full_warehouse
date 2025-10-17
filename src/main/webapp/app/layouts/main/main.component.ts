@@ -13,12 +13,15 @@ import { LayoutService } from '../../core/config/layout.service';
 import { Observable } from 'rxjs';
 
 
+import { TitleBarComponent } from '../title-bar/title-bar.component';
+
+
 @Component({
   selector: 'jhi-main',
   templateUrl: './main.component.html',
   styleUrl: './main.component.scss',
   providers: [AppPageTitleStrategy, ConfirmationService],
-  imports: [RouterOutlet, ConfirmDialogModule, CommonModule, AsyncPipe],
+  imports: [RouterOutlet, ConfirmDialogModule, CommonModule, AsyncPipe, TitleBarComponent],
 })
 export default class MainComponent implements OnInit {
   private readonly renderer: Renderer2;
@@ -37,6 +40,10 @@ export default class MainComponent implements OnInit {
     this.renderer = this.rootRenderer.createRenderer(document.querySelector('html'), null);
     this.layoutMode$ = this.layoutService.layoutMode$;
     this.sidebarCollapsed$ = this.layoutService.sidebarCollapsed$;
+  }
+
+  public isElectron = (): boolean => {
+    return !!window.ipcRenderer;
   }
 
   ngOnInit(): void {

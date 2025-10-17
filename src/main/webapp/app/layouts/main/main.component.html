@@ -5,7 +5,7 @@
 @if (layoutMode$ | async; as layoutMode) {
   <!-- Navbar Layout (Horizontal) -->
   @if (layoutMode === 'navbar') {
-    <div>
+    <div class="sticky-navbar">
       <router-outlet name="navbar"></router-outlet>
     </div>
   }

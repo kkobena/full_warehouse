@@ -10,7 +10,6 @@ declare global {
   selector: 'jhi-title-bar',
   templateUrl: './title-bar.component.html',
   styleUrls: ['./title-bar.component.scss'],
-  standalone: true,
 })
 export class TitleBarComponent {
   minimize(): void {

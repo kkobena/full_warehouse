@@ -348,3 +348,4 @@ psql -U warehouse -d warehouse
 - use JDK 25
 - use primeng 20
 - use p-button
+- angular 20 new flow

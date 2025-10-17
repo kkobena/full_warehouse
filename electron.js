@@ -41,7 +41,7 @@ function createWindow() {
   win.loadURL(startUrl);
 
   // Always open DevTools to debug white screen issues
-  win.webContents.openDevTools();
+ win.webContents.openDevTools();
 
   // Log console messages from renderer
   win.webContents.on('console-message', (event, level, message, line, sourceId) => {

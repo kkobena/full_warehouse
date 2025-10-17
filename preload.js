@@ -5,7 +5,7 @@ contextBridge.exposeInMainWorld('electron', {
   // Platform info
   platform: process.platform,
 
-  // IPC communication (if needed later)
+  // IPC communication for printer and hardware access
   send: (channel, data) => {
     const validChannels = ['print-receipt', 'open-cash-drawer'];
     if (validChannels.includes(channel)) {

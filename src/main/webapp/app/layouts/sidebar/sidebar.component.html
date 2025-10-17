@@ -1,0 +1,204 @@
+<aside class="sidebar" [class.collapsed]="isCollapsed()">
+  <!-- Sidebar Header -->
+  <div class="sidebar-header">
+    @if (!isCollapsed()) {
+      <a class="logo-container" routerLink="/">
+        <span class="logo-text">Pharma Smart</span>
+        @if (version) {
+          <span class="logo-version ms-1">{{ version }}</span>
+        }
+      </a>
+    }
+    <button
+      type="button"
+      class="btn btn-link toggle-btn"
+      (click)="toggleSidebar()"
+      [attr.aria-label]="'Toggle sidebar'"
+    >
+      <fa-icon [icon]="faBars"></fa-icon>
+    </button>
+  </div>
+
+  <!-- User Info -->
+  @if (account() && !isCollapsed()) {
+    <div class="sidebar-user">
+      <div class="user-avatar">
+        <fa-icon [icon]="faUserCircle" size="2x"></fa-icon>
+      </div>
+      <div class="user-info">
+        <div class="user-name">{{ account()!.login }}</div>
+        <div class="user-role text-muted small">
+          {{ account()!.authorities[0] }}
+        </div>
+      </div>
+    </div>
+  }
+
+  <!-- Navigation Menu -->
+  <nav class="sidebar-nav">
+    <ul class="nav-list">
+      @for (item of navItems; track item.label) {
+        <li class="nav-item">
+          <!-- Menu item without children -->
+          @if (!item.children && item.routerLink) {
+            <a
+              [routerLink]="item.routerLink"
+              routerLinkActive="active"
+              class="nav-link"
+              [class.collapsed-item]="isCollapsed()"
+              [title]="isCollapsed() ? item.label : ''"
+              (click)="onMenuItemClick()"
+            >
+              <span class="nav-icon">
+                <fa-icon [icon]="item.faIcon"></fa-icon>
+              </span>
+              @if (!isCollapsed()) {
+                <span class="nav-label">{{ item.label }}</span>
+              }
+            </a>
+          }
+
+          <!-- Menu item with click handler -->
+          @if (!item.children && item.click && !item.routerLink) {
+            <a
+              (click)="onMenuItemClick(item.click)"
+              class="nav-link clickable"
+              [class.collapsed-item]="isCollapsed()"
+              [title]="isCollapsed() ? item.label : ''"
+            >
+              <span class="nav-icon">
+                <fa-icon [icon]="item.faIcon"></fa-icon>
+              </span>
+              @if (!isCollapsed()) {
+                <span class="nav-label">{{ item.label }}</span>
+              }
+            </a>
+          }
+
+          <!-- Menu item with children (expandable) -->
+          @if (item.children && item.children.length > 0) {
+            <div class="nav-item-with-children"
+                 [class.hover-enabled]="isCollapsed()"
+                 (mouseenter)="isCollapsed() && onParentMenuHover(item.label, true)"
+                 (mouseleave)="isCollapsed() && onParentMenuHover(item.label, false)">
+              <a
+                class="nav-link has-children"
+                [class.collapsed-item]="isCollapsed()"
+                [class.expanded]="isExpanded(item.label)"
+                [title]="isCollapsed() ? item.label : ''"
+                (click)="onParentMenuClick(item.label)"
+              >
+                <span class="nav-icon">
+                  <fa-icon [icon]="item.faIcon"></fa-icon>
+                </span>
+                @if (!isCollapsed()) {
+                  <span class="nav-label">
+                    {{ item.label }}
+                  </span>
+                }
+                @if (!isCollapsed()) {
+                  <span class="nav-arrow">
+                    <fa-icon [icon]="isExpanded(item.label) ? faChevronDown : faChevronRight"></fa-icon>
+                  </span>
+                }
+              </a>
+
+              <!-- Submenu (inline when sidebar expanded) -->
+              @if (isExpanded(item.label) && !isCollapsed()) {
+                <ul class="submenu">
+                  @for (child of item.children; track child.label) {
+                    <li class="submenu-item">
+                      @if (child.routerLink) {
+                        <a
+                          [routerLink]="child.routerLink"
+                          routerLinkActive="active"
+                          class="submenu-link"
+                          (click)="onSubmenuItemClick()"
+                        >
+                          <span class="submenu-icon">
+                            <fa-icon [icon]="child.faIcon"></fa-icon>
+                          </span>
+                          <span class="submenu-label">{{ child.label }}</span>
+                        </a>
+                      }
+
+                      @if (child.click && !child.routerLink) {
+                        <a
+                          (click)="onSubmenuItemClick(child.click)"
+                          class="submenu-link clickable"
+                        >
+                          <span class="submenu-icon">
+                            <fa-icon [icon]="child.faIcon"></fa-icon>
+                          </span>
+                          <span class="submenu-label">{{ child.label }}</span>
+                        </a>
+                      }
+                    </li>
+                  }
+                </ul>
+              }
+
+              <!-- Flyout submenu (when sidebar collapsed) -->
+              @if (isExpanded(item.label) && isCollapsed()) {
+                <ul class="submenu-flyout">
+                  <li class="flyout-header">{{ item.label }}</li>
+                  @for (child of item.children; track child.label) {
+                    <li class="submenu-item">
+                      @if (child.routerLink) {
+                        <a
+                          [routerLink]="child.routerLink"
+                          routerLinkActive="active"
+                          class="submenu-link"
+                        >
+                          <span class="submenu-icon">
+                            <fa-icon [icon]="child.faIcon"></fa-icon>
+                          </span>
+                          <span class="submenu-label">{{ child.label }}</span>
+                        </a>
+                      }
+
+                      @if (child.click && !child.routerLink) {
+                        <a
+                          (click)="child.click()"
+                          class="submenu-link clickable"
+                        >
+                          <span class="submenu-icon">
+                            <fa-icon [icon]="child.faIcon"></fa-icon>
+                          </span>
+                          <span class="submenu-label">{{ child.label }}</span>
+                        </a>
+                      }
+                    </li>
+                  }
+                </ul>
+              }
+            </div>
+          }
+        </li>
+      }
+    </ul>
+  </nav>
+
+  <!-- Sidebar Footer -->
+  @if (!isCollapsed()) {
+    <div class="sidebar-footer">
+      <!-- Theme Selector -->
+      @if (themes && themes.length > 1) {
+        <div class="theme-selector">
+          <label class="small text-muted">Thème</label>
+          <select
+            class="form-select form-select-sm"
+            [(ngModel)]="selectedTheme"
+            (change)="changeTheme(selectedTheme)"
+          >
+            @for (theme of themes; track theme.name) {
+              <option [value]="theme.name">
+                {{ theme.name }}
+              </option>
+            }
+          </select>
+        </div>
+      }
+    </div>
+  }
+</aside>

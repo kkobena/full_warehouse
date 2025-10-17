@@ -12,7 +12,9 @@ import { ThemeService } from 'app/core/theme/theme.service';
 
 @Component({
   selector: 'jhi-app',
-  template: '<jhi-main></jhi-main>',
+  template: `
+    <jhi-main></jhi-main>
+  `,
   imports: [MainComponent],
 })
 export default class AppComponent {

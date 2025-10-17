@@ -28,13 +28,13 @@
     "webapp:dev-verbose": "ng serve --verbose",
     "webapp:prod": "npm run clean-www && npm run webapp:build:prod",
     "webapp:test": "npm run test --",
-    "electron:start": "concurrently \"ng serve\" \"wait-on http://localhost:4200 && electron . --dev\"",
+    "electron:start": "concurrently \"npm run start\" \"wait-on http://localhost:4200 && electron . --dev\"",
+    "electron:dev": "cross-env ELECTRON_START_URL=http://localhost:4200 electron .",
+    "electron:prod": "npm run clean-www && ng build --configuration=electron && electron .",
     "electron": "electron .",
-    "electron:dev": "ELECTRON_START_URL=http://localhost:4200 electron .",
-    "electron:prod": "ng build --configuration=electron && electron .",
-    "electron:build": "ng build --configuration=electron && electron-builder --win --x64 --publish never",
-    "electron:build-dir": "ng build --configuration=electron && electron-builder --win --x64 --dir --publish never",
-    "electron:build-all": "ng build --configuration=electron && electron-builder --win --x64 --publish never"
+    "electron:build": "npm run clean-www && ng build --configuration=electron && electron-builder --win --x64 --publish never",
+    "electron:build-dir": "npm run clean-www && ng build --configuration=electron && electron-builder --win --x64 --dir --publish never",
+    "electron:package": "npm run clean-www && ng build --configuration=electron && electron-builder --win --x64 --publish never"
   },
   "build": {
     "appId": "com.kobe.warehouse",
@@ -46,7 +46,8 @@
     },
     "files": [
       "target/classes/static/**",
-      "electron.js"
+      "electron.js",
+      "preload.js"
     ],
     "win": {
       "icon": "src/main/webapp/favicon.ico",
@@ -118,6 +119,7 @@
     "buffer": "6.0.3",
     "concurrently": "^9.1.2",
     "copy-webpack-plugin": "13.0.0",
+    "cross-env": "^10.1.0",
     "electron": "^38.3.0",
     "electron-builder": "^26.0.12",
     "eslint": "^9.28.0",

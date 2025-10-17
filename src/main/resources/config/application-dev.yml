@@ -80,13 +80,7 @@ pharma-smart-log:
       # security key (this key should be unique for your application, and kept secret)
       key: e6272562f8e92c219ee0e4fdf0820bdc06a1058f6e8ab97bc7b89d9d85558881306da57607f52c5bf545f38982946add9428
 
-  logging:
-    use-json-format: false # By default, logs are not in Json format
-    logstash: # Forward logs to logstash over a socket, used by LoggingConfiguration
-      enabled: false
-      host: localhost
-      port: 5000
-      ring-buffer-size: 512
+
 
 # application:
 file:

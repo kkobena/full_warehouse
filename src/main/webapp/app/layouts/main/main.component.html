@@ -1,20 +1,35 @@
-<div>
-  <router-outlet name="navbar"></router-outlet>
-</div>
+<!-- Conditional Layout: Navbar or Sidebar -->
+@if (layoutMode$ | async; as layoutMode) {
+  <!-- Navbar Layout (Horizontal) -->
+  @if (layoutMode === 'navbar') {
+    <div>
+      <router-outlet name="navbar"></router-outlet>
+    </div>
+  }
 
-<div class="container-fluid">
-  <div class="card mt-2 main border border-0">
-    <div class="card-body main-card-body">
-      <p-confirmDialog
-        [style]="{ width: '40vw' }"
-        styleClass="ws-dialog"
-      ></p-confirmDialog>
+  <!-- Sidebar Layout (Vertical) -->
+  @if (layoutMode === 'sidebar') {
+    <div>
+      <router-outlet name="sidebar"></router-outlet>
+    </div>
+  }
 
+  <!-- Main Content Area -->
+  <div class="main-content"
+       [class.with-sidebar]="layoutMode === 'sidebar'"
+       [class.with-navbar]="layoutMode === 'navbar'"
+       [class.sidebar-collapsed]="layoutMode === 'sidebar' && (sidebarCollapsed$ | async)">
+    <div class="container-fluid">
+      <div class="card mt-2 main border border-0">
+        <div class="card-body main-card-body">
+          <p-confirmDialog
+            [style]="{ width: '40vw' }"
+            styleClass="ws-dialog"
+          ></p-confirmDialog>
 
-
-      <router-outlet></router-outlet>
+          <router-outlet></router-outlet>
+        </div>
+      </div>
     </div>
   </div>
-
-  <!-- <jhi-footer></jhi-footer>-->
-</div>
+}

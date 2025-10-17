@@ -24,5 +24,6 @@ public final class Constants {
     public static final String PR_MOBILE_USER = "mobile_user";
     public static final String ROLE_ADMIN = "ROLE_ADMIN";
 
-    private Constants() {}
+    private Constants() {
+    }
 }

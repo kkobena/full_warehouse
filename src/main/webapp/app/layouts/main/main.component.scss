@@ -1,0 +1,26 @@
+.main-content {
+  transition: margin-left 0.3s ease;
+
+  // With sidebar: add left margin to accommodate sidebar
+  &.with-sidebar {
+    margin-left: 280px;
+
+    @media (max-width: 768px) {
+      margin-left: 0;
+    }
+
+    // When sidebar is collapsed, reduce margin
+    &.sidebar-collapsed {
+      margin-left: 70px;
+
+      @media (max-width: 768px) {
+        margin-left: 0;
+      }
+    }
+  }
+
+  // With navbar: add top padding for fixed navbar
+  &.with-navbar {
+    margin-left: 0;
+  }
+}

@@ -17,6 +17,11 @@ const routes: Routes = [
     outlet: 'navbar',
   },
   {
+    path: '',
+    loadComponent: () => import('./layouts/sidebar/sidebar.component'),
+    outlet: 'sidebar',
+  },
+  {
     path: 'admin',
     data: {
       authorities: [Authority.ADMIN],

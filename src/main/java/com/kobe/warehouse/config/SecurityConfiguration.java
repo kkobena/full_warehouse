@@ -23,29 +23,7 @@ import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.HttpStatusEntryPoint;
 import org.springframework.security.web.header.writers.ReferrerPolicyHeaderWriter;
 
-/**
- * Security configuration for unified JWT authentication.
- *
- * Architecture:
- * - Single security filter chain using JWT authentication for ALL clients:
- *   - Web application (Angular)
- *   - Mobile application
- *   - Desktop POS (Electron)
- *   - Java clients (thermal printers)
- *
- * Authentication flow:
- * 1. Client posts credentials to /api/auth/login
- * 2. Backend validates via DomainUserDetailsService (loads user from database)
- * 3. Backend generates JWT token with user authorities (roles, menus, privileges)
- * 4. Client includes JWT in Authorization header for subsequent requests
- * 5. Backend validates JWT and extracts authorities via JwtAuthenticationConverter
- *
- * Features:
- * - Stateless (no server-side sessions)
- * - No CSRF protection needed (JWT is immune to CSRF)
- * - Unified authentication across all client types
- * - Role-based and privilege-based authorization
- */
+
 @Configuration
 @EnableAsync
 @EnableScheduling
@@ -68,19 +46,13 @@ public class SecurityConfiguration {
         return new BCryptPasswordEncoder();
     }
 
-    /**
-     * AuthenticationManager bean for authenticating users.
-     * Used by /api/auth/login endpoint to validate credentials against database.
-     */
+
     @Bean
     public AuthenticationManager authenticationManager(AuthenticationConfiguration authenticationConfiguration) throws Exception {
         return authenticationConfiguration.getAuthenticationManager();
     }
 
-    /**
-     * Main security filter chain for JWT-based authentication.
-     * Applies to ALL requests including /api/**, /java-client/**, etc.
-     */
+
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         http

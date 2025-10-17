@@ -2,106 +2,114 @@ import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
-import { AppSettingsService, AppSettings } from 'app/core/config/app-settings.service';
+import { AppSettingsService } from 'app/core/config/app-settings.service';
+import { Card } from 'primeng/card';
+import { Button } from 'primeng/button';
 
 @Component({
   selector: 'jhi-app-settings-dialog',
-  standalone: true,
-  imports: [CommonModule, FormsModule],
+  imports: [CommonModule, FormsModule, Card, Button],
+  styleUrls: ['../../entities/common-modal.component.scss'],
   template: `
     <div class="modal-header">
       <h4 class="modal-title">Paramètres de l'Application</h4>
       <button type="button" class="btn-close" aria-label="Close" (click)="dismiss()"></button>
     </div>
+    <p-card>
+      <div class="modal-body">
+        <div class="alert alert-info">
+          <i class="bi bi-info-circle"></i>
+          Configurez l'adresse du serveur backend pour vous connecter à votre système PharmaSmart sur le réseau local.
+        </div>
 
-    <div class="modal-body">
-      <div class="alert alert-info">
-        <i class="bi bi-info-circle"></i>
-        Configurez l'adresse du serveur backend pour vous connecter à votre système PharmaSmart sur le réseau local.
-      </div>
-
-      <form #settingsForm="ngForm">
-        <div class="mb-3">
-          <label for="apiServerUrl" class="form-label">
-            <strong>Adresse du Serveur Backend</strong>
-          </label>
-          <input
-            type="url"
-            class="form-control"
-            id="apiServerUrl"
-            name="apiServerUrl"
-            [(ngModel)]="apiServerUrl"
-            placeholder="http://192.168.1.100:8080"
-            required
-            pattern="https?://.+"
-          />
-          <div class="form-text">
-            Exemples: http://localhost:8080, http://192.168.1.100:8080
+        <form #settingsForm="ngForm">
+          <div class="mb-3">
+            <label for="apiServerUrl" class="form-label">
+              <strong>Adresse du Serveur Backend</strong>
+            </label>
+            <input
+              type="url"
+              class="form-control"
+              id="apiServerUrl"
+              name="apiServerUrl"
+              [(ngModel)]="apiServerUrl"
+              placeholder="http://192.168.1.100:8080"
+              required
+              pattern="http?://.+"
+            />
+            <div class="form-text">
+              Exemples: http://localhost:8080, http://192.168.1.100:8080
+            </div>
           </div>
-        </div>
 
-        <div class="d-flex gap-2 mb-3">
-          <button
-            type="button"
-            class="btn btn-sm btn-outline-primary"
-            (click)="testConnection()"
-            [disabled]="testing || !apiServerUrl"
-          >
-            <i class="bi" [ngClass]="testing ? 'bi-hourglass-split' : 'bi-wifi'"></i>
-            {{ testing ? 'Test en cours...' : 'Tester la connexion' }}
-          </button>
+          <div class="d-flex gap-2 mb-3">
+            <button
+              type="button"
+              class="btn btn-sm btn-outline-primary"
+              (click)="testConnection()"
+              [disabled]="testing || !apiServerUrl"
+            >
+              <i class="bi" [ngClass]="testing ? 'bi-hourglass-split' : 'bi-wifi'"></i>
+              {{ testing ? 'Test en cours...' : 'Tester la connexion' }}
+            </button>
 
-          <button
-            type="button"
-            class="btn btn-sm btn-outline-secondary"
-            (click)="resetToDefaults()"
-          >
-            <i class="bi bi-arrow-counterclockwise"></i>
-            Réinitialiser
-          </button>
-        </div>
-
-        <div *ngIf="connectionTestResult !== null" class="alert" [ngClass]="{
+            <button
+              type="button"
+              class="btn btn-sm btn-outline-secondary"
+              (click)="resetToDefaults()"
+            >
+              <i class="bi bi-arrow-counterclockwise"></i>
+              Réinitialiser
+            </button>
+          </div>
+          @if (connectionTestResult !== null) {
+            <div class="alert" [ngClass]="{
           'alert-success': connectionTestResult === true,
           'alert-danger': connectionTestResult === false
         }">
-          <i class="bi" [ngClass]="{
+              <i class="bi" [ngClass]="{
             'bi-check-circle': connectionTestResult === true,
             'bi-x-circle': connectionTestResult === false
           }"></i>
-          {{ connectionTestResult ? 'Connexion réussie!' : 'Échec de la connexion. Vérifiez l\'adresse et réessayez.' }}
-        </div>
-      </form>
+              {{ connectionTestResult ? 'Connexion réussie!' : 'Échec de la connexion. Vérifiez l\'adresse et
+              réessayez.'
+              }}
+            </div>
+          }
 
-      <div class="mt-4 pt-3 border-top">
-        <h6>Informations:</h6>
-        <ul class="small text-muted">
-          <li>Le serveur doit être accessible sur votre réseau local</li>
-          <li>Assurez-vous que le port (généralement 8080) n'est pas bloqué par le pare-feu</li>
-          <li>L'application redémarrera automatiquement après la sauvegarde</li>
-        </ul>
+        </form>
+
+        <div class="mt-4 pt-3 border-top">
+          <h6>Informations:</h6>
+          <ul class="small text-muted">
+            <li>Le serveur doit être accessible sur votre réseau local</li>
+            <li>Assurez-vous que le port (généralement 8080) n'est pas bloqué par le pare-feu</li>
+            <li>L'application redémarrera automatiquement après la sauvegarde</li>
+          </ul>
+        </div>
       </div>
-    </div>
+    </p-card>
 
     <div class="modal-footer">
-      <button type="button" class="btn btn-secondary" (click)="dismiss()">
-        Annuler
-      </button>
-      <button
-        type="button"
-        class="btn btn-primary"
-        (click)="save()"
+
+      <p-button class="mr-2" (click)="dismiss()" icon="pi pi-times" label="Annuler" raised="true" severity="secondary"
+                type="button"></p-button>
+      <p-button
         [disabled]="!apiServerUrl || testing"
-      >
-        <i class="bi bi-check-lg"></i>
-        Enregistrer et Redémarrer
-      </button>
+        class="mr-1"
+        icon="pi pi-check-lg"
+        label="Enregistrer et Redémarrer"
+        raised="true"
+        severity="primary"
+        (click)="save()"
+        type="button"
+      ></p-button>
+
+
     </div>
   `,
   styles: [`
-    .modal-header {
-      background-color: #f8f9fa;
-    }
+
 
     .form-label {
       color: #495057;

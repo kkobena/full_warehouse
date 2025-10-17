@@ -1,20 +1,18 @@
 import { Injectable } from '@angular/core';
 import { BehaviorSubject, Observable } from 'rxjs';
+import { environment } from 'environments/environment';
 
 export interface AppSettings {
   apiServerUrl: string;
 }
 
 const DEFAULT_SETTINGS: AppSettings = {
-  apiServerUrl: 'http://localhost:8080'
+  apiServerUrl: environment.apiServerUrl
 };
 
 const SETTINGS_STORAGE_KEY = 'pharmasmart_app_settings';
 
-/**
- * Service for managing application settings including API server URL.
- * Settings are persisted in localStorage and can be updated at runtime.
- */
+
 @Injectable({
   providedIn: 'root'
 })

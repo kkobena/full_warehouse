@@ -1,11 +1,13 @@
-import { Component, effect, inject, OnInit, signal } from '@angular/core';
+import { Component, effect, inject, OnInit } from '@angular/core';
 import { Router, RouterModule } from '@angular/router';
-import { environment } from 'environments/environment';
+import { CommonModule } from '@angular/common';
+import { FormsModule } from '@angular/forms';
 import { AccountService } from 'app/core/auth/account.service';
 import { LoginService } from 'app/login/login.service';
-import { NavItem } from './navbar-item.model';
+import { NavItem } from '../navbar/navbar-item.model';
 import { WarehouseCommonModule } from '../../shared/warehouse-common/warehouse-common.module';
 import {
+  faBasketShopping,
   faBook,
   faBoxes,
   faBoxOpen,
@@ -27,21 +29,22 @@ import {
   faPalette,
   faPercent,
   faPills,
-  faSackDollar,
   faShippingFast,
   faShoppingBag,
-  faShoppingBasket,
   faSlidersH,
   faStore,
   faStream,
   faTable,
   faThList,
-  faTimes,
   faTruck,
   faTruckFast,
   faUsers,
   faWallet,
-  faServer, faBars
+  faServer,
+  faBars,
+  faChevronDown,
+  faChevronRight,
+  faUserCircle
 } from '@fortawesome/free-solid-svg-icons';
 import { Theme, ThemeService } from '../../core/theme/theme.service';
 import { TranslateService } from '@ngx-translate/core';
@@ -49,20 +52,21 @@ import { Authority } from '../../shared/constants/authority.constants';
 import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { AppSettingsDialogComponent } from '../../shared/settings/app-settings-dialog.component';
 import { LayoutService } from '../../core/config/layout.service';
+import { environment } from 'environments/environment';
 
 @Component({
-  selector: 'jhi-navbar',
-  templateUrl: './navbar.component.html',
-  styleUrl: './navbar.component.scss',
-  imports: [RouterModule, WarehouseCommonModule]
+  selector: 'jhi-sidebar',
+  standalone: true,
+  imports: [CommonModule, RouterModule, WarehouseCommonModule, FormsModule],
+  templateUrl: './sidebar.component.html',
+  styleUrl: './sidebar.component.scss'
 })
-export default class NavbarComponent implements OnInit {
-  protected isNavbarCollapsed = signal(true);
-  protected version = '';
+export default class SidebarComponent implements OnInit {
   protected account = inject(AccountService).trackCurrentAccount();
+  protected version = '';
   navItems: NavItem[] = [];
-  protected menuStock: string[] = [];
-  protected readonly faTimes = faTimes;
+  expandedItems = new Set<string>();
+
   private loginService = inject(LoginService);
   private router = inject(Router);
   private themeService = inject(ThemeService);
@@ -72,17 +76,14 @@ export default class NavbarComponent implements OnInit {
 
   themes: Theme[];
   selectedTheme: string;
-  readonly faPalette = faPalette;
-  readonly faServer = faServer;
 
 
-  changeTheme(themeName: string): void {
-    this.selectedTheme = themeName;
-    this.themeService.setTheme(themeName);
-  }
+  readonly faBars = faBars;
+  readonly faChevronDown = faChevronDown;
+  readonly faChevronRight = faChevronRight;
+  readonly faUserCircle = faUserCircle;
 
   constructor() {
-    this.menuStock = ['gestion-entree', 'commande', 'gestion-stock', 'produit'];
     const { VERSION } = environment;
     if (VERSION) {
       this.version = VERSION.toLowerCase().startsWith('v') ? VERSION : `v${VERSION}`;
@@ -94,11 +95,78 @@ export default class NavbarComponent implements OnInit {
 
   ngOnInit(): void {
     this.themes = this.themeService.getThemes();
-
   }
 
-  protected collapseNavbar(): void {
-    this.isNavbarCollapsed.set(true);
+  protected isCollapsed(): boolean {
+    return this.layoutService.isSidebarCollapsed();
+  }
+
+  protected toggleSidebar(): void {
+    this.layoutService.toggleSidebarCollapsed();
+  }
+
+  protected toggleItem(label: string): void {
+    if (this.expandedItems.has(label)) {
+      this.expandedItems.delete(label);
+    } else {
+      this.expandedItems.add(label);
+    }
+  }
+
+  protected expandItem(label: string): void {
+    this.expandedItems.add(label);
+  }
+
+  protected collapseItem(label: string): void {
+    this.expandedItems.delete(label);
+  }
+
+  protected isExpanded(label: string): boolean {
+    return this.expandedItems.has(label);
+  }
+
+  protected onParentMenuHover(label: string, isEntering: boolean): void {
+    if (isEntering) {
+      this.expandItem(label);
+    } else {
+      this.collapseItem(label);
+    }
+  }
+
+  protected onParentMenuClick(label: string): void {
+    if (this.isCollapsed()) {
+      // If sidebar is collapsed, expand it and show the menu
+      this.toggleSidebar();
+      this.expandItem(label);
+    } else {
+      // If sidebar is expanded, toggle the menu item
+      this.toggleItem(label);
+    }
+  }
+
+  protected onMenuItemClick(clickHandler?: () => void): void {
+    if (clickHandler) {
+      clickHandler();
+    }
+    // Collapse sidebar if it's expanded when clicking a menu item without children
+    if (!this.isCollapsed()) {
+      this.toggleSidebar();
+    }
+  }
+
+  protected onSubmenuItemClick(clickHandler?: () => void): void {
+    if (clickHandler) {
+      clickHandler();
+    }
+    // Collapse sidebar if it's expanded when clicking a submenu item
+    if (!this.isCollapsed()) {
+      this.toggleSidebar();
+    }
+  }
+
+  protected changeTheme(themeName: string): void {
+    this.selectedTheme = themeName;
+    this.themeService.setTheme(themeName);
   }
 
   protected login(): void {
@@ -106,13 +174,8 @@ export default class NavbarComponent implements OnInit {
   }
 
   protected logout(): void {
-    this.collapseNavbar();
     this.loginService.logout();
     this.router.navigate(['']);
-  }
-
-  protected toggleNavbar(): void {
-    this.isNavbarCollapsed.update(isNavbarCollapsed => !isNavbarCollapsed);
   }
 
   protected openAppSettings(): void {
@@ -131,21 +194,21 @@ export default class NavbarComponent implements OnInit {
   }
 
   private buildNavItem(): NavItem[] {
+    // Same menu structure as navbar
     const allItems: NavItem[] = [
-     /* {
+      {
         label: this.translateLabel('nouvelleVente'),
         faIcon: faBasketShopping,
         authorities: [Authority.ADMIN, Authority.ROLE_CAISSIER],
         routerLink: '/sales/false/new'
-      },*/
-
+      },
       {
         label: this.translateLabel('menuGestionCourrante'),
         faIcon: faThList,
         authorities: [Authority.GESTION_COURANT, Authority.ADMIN, Authority.ROLE_CAISSIER, Authority.ROLE_VENDEUR, Authority.SALES],
         children: [
           {
-            label:this.translateLabel('entities.sales'),
+            label: this.translateLabel('entities.sales'),
             routerLink: '/sales',
             faIcon: faShoppingBag
           },
@@ -157,7 +220,6 @@ export default class NavbarComponent implements OnInit {
           }
         ]
       },
-      // Gestion Stock
       {
         label: this.translateLabel('menuGestionStock'),
         faIcon: faTruckFast,
@@ -173,13 +235,11 @@ export default class NavbarComponent implements OnInit {
             routerLink: '/commande',
             faIcon: faShippingFast
           },
-
           {
             label: this.translateLabel('entities.inventoryTransaction'),
             routerLink: '/produit/transaction',
             faIcon: faEye
           },
-
           {
             label: this.translateLabel('ajustement'),
             routerLink: '/ajustement',
@@ -198,8 +258,6 @@ export default class NavbarComponent implements OnInit {
           }
         ]
       },
-
-
       {
         label: this.translateLabel('facturation.title'),
         faIcon: faWallet,
@@ -214,26 +272,24 @@ export default class NavbarComponent implements OnInit {
             label: this.translateLabel('facturation.reglements'),
             routerLink: '/reglement-facture',
             faIcon: faMoneyBill
-
           },
           {
             label: this.translateLabel('facturation.differes'),
             routerLink: '/gestion-differe',
             faIcon: faMoneyCheckAlt
-
           },
           {
             label: this.translateLabel('facturation.tiersPayant'),
             routerLink: '/tiers-payant',
             faIcon: faLink
-          }, {
+          },
+          {
             label: this.translateLabel('facturation.client'),
             routerLink: '/customer',
             faIcon: faUsers
           }
         ]
       },
-      // Référentiel
       {
         label: this.translateLabel('referentiel'),
         faIcon: faBook,
@@ -274,7 +330,6 @@ export default class NavbarComponent implements OnInit {
           }
         ]
       },
-
       {
         label: this.translateLabel('admin.main'),
         faIcon: faCogs,
@@ -289,16 +344,17 @@ export default class NavbarComponent implements OnInit {
             label: this.translateLabel('admin.userManagement'),
             routerLink: '/admin/user-management',
             faIcon: faUsers
-
           },
           {
             label: this.translateLabel('entities.menu'),
             routerLink: '/menu',
             faIcon: faCogs
-
+          },
+          {
+            label: 'Paramètres Serveur',
+            faIcon: faServer,
+            click: () => this.openAppSettings()
           }
-
-
         ]
       },
       {
@@ -315,16 +371,14 @@ export default class NavbarComponent implements OnInit {
             label: this.translateLabel('account.cashRegister'),
             routerLink: '/my-cash-register',
             faIcon: faCashRegister
-
           },
           {
             label: this.translateLabel('account.password'),
             routerLink: '/account/password',
             faIcon: 'lock'
-
           },
           {
-            label: 'Mode Sidebar',
+            label: 'Mode Navigation',
             faIcon: faBars,
             click: () => this.layoutService.toggleLayout()
           },
@@ -332,9 +386,7 @@ export default class NavbarComponent implements OnInit {
             label: this.translateLabel('account.logout'),
             faIcon: 'sign-out-alt',
             click: () => this.logout()
-
           }
-
         ]
       }
     ];
@@ -354,6 +406,7 @@ export default class NavbarComponent implements OnInit {
 
       return filterByAuthority(allItems);
     }
+
     return [
       {
         label: this.translateLabel('account.main'),
@@ -365,7 +418,7 @@ export default class NavbarComponent implements OnInit {
             click: () => this.openAppSettings()
           },
           {
-            label: 'Mode Sidebar',
+            label: 'Mode Navigation',
             faIcon: faBars,
             click: () => this.layoutService.toggleLayout()
           },
@@ -373,9 +426,7 @@ export default class NavbarComponent implements OnInit {
             label: this.translateLabel('account.login'),
             faIcon: 'sign-out-alt',
             click: () => this.login()
-
           }
-
         ]
       }
     ];
@@ -388,6 +439,4 @@ export default class NavbarComponent implements OnInit {
   private translateFullLabel(key: string): string {
     return this.translate.instant(`warehouseApp.${key}`);
   }
-
-  protected readonly faSideBare = faBars;
 }

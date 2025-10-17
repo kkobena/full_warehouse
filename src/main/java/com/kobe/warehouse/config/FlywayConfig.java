@@ -14,8 +14,9 @@ import java.util.List;
 @Configuration
 public class FlywayConfig {
 
-private final ObjectProvider<DatabasePartitionService> partitionServiceProvider;
+    private final ObjectProvider<DatabasePartitionService> partitionServiceProvider;
     private final Environment environment;
+
     public FlywayConfig(ObjectProvider<DatabasePartitionService> partitionServiceProvider, Environment environment) {
         this.partitionServiceProvider = partitionServiceProvider;
         this.environment = environment;
@@ -40,15 +41,15 @@ private final ObjectProvider<DatabasePartitionService> partitionServiceProvider;
 
         // Lancer la migration au démarrage
         flyway.migrate();
-        DatabasePartitionService databasePartitionService=partitionServiceProvider.getIfAvailable();
+        DatabasePartitionService databasePartitionService = partitionServiceProvider.getIfAvailable();
         if (databasePartitionService != null) {
             Year current = Year.now();
             Year next = current.plusYears(1L);
-            List.of("sales", "sales_line","third_party_sale_line", "commande", "order_line",
-                    "facture_tiers_payant","inventory_transaction",
-                    "payment_transaction","invoice_payment_item")
+            List.of("sales", "sales_line", "third_party_sale_line", "commande", "order_line",
+                    "facture_tiers_payant", "inventory_transaction",
+                    "payment_transaction", "invoice_payment_item")
                 .forEach((table) -> {
-                    databasePartitionService.createMonthlyPartition(table,  current);
+                    databasePartitionService.createMonthlyPartition(table, current);
                     databasePartitionService.createMonthlyPartition(table, next);
                 });
         }

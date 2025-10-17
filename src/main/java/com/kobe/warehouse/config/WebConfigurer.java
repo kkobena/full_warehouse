@@ -1,12 +1,6 @@
 package com.kobe.warehouse.config;
 
-import static java.net.URLDecoder.decode;
-
 import jakarta.servlet.ServletContext;
-import java.io.File;
-import java.nio.charset.StandardCharsets;
-import java.nio.file.Path;
-import java.util.Objects;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.boot.web.server.WebServerFactory;
@@ -20,6 +14,13 @@ import org.springframework.util.CollectionUtils;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 import org.springframework.web.filter.CorsFilter;
+
+import java.io.File;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Path;
+import java.util.Objects;
+
+import static java.net.URLDecoder.decode;
 
 /**
  * Configuration of web application with Servlet 3.0 APIs.

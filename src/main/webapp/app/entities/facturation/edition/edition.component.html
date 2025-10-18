@@ -52,7 +52,8 @@
       @if (modeEdition === 'TYPE') {
         <div class="mb-3">
           <label class="form-label" for="typeTiersPayant">Types tiers payant</label>
-          <p-select [(ngModel)]="typeTiersPayant" [fluid]="true" [options]="typeTiersPayants" dataKey="code"
+          <p-select [(ngModel)]="typeTiersPayant" [fluid]="true" [options]="typeTiersPayants"
+                    dataKey="code"
                     id="typeTiersPayant" optionLabel="value" optionValue="code"
                     size="large">
           </p-select>
@@ -106,8 +107,11 @@
 
       <div class="card-footer">
         <div class="d-flex align-items-center justify-content-center">
-          <p-button (click)="onSearch()" [loading]="searching" [raised]="true" icon="pi pi-search"
+          <p-button (click)="onSearch()" [loading]="searching" [raised]="true" class="mr-1"
+                    icon="pi pi-search"
                     label="Rechercher" severity="info" />
+          <p-button (click)="onEdit()" [loading]="editing" [raised]="true" icon="pi pi-check"
+                    label="Editer" severity="primary" />
         </div>
       </div>
     </p-card>
@@ -126,6 +130,7 @@
           [stripedRows]="true"
           [totalRecords]="totalItems"
           [value]="tiersPayantDossierFactures"
+          class="pharma-table"
           dataKey="id"
         >
           <ng-template #caption>
@@ -135,7 +140,7 @@
             </div>
           </ng-template>
           <ng-template #header>
-            <tr>
+            <tr class="pharma-table-head">
               <th>Tiers-payant</th>
               <th>Nombre de dossiers</th>
               <th>Montant</th>
@@ -149,13 +154,13 @@
 
           <ng-template #body let-data>
             <tr>
-              <td>
+              <td class="pharma-entity-name">
                 {{ data.name }}
               </td>
               <td class="text-right amount-column">
                 {{ data.factureItemCount | number }}
               </td>
-              <td class="text-right amount-column">{{ data.totalAmount | number }}</td>
+              <td class="text-right amount-column pharma-total">{{ data.totalAmount | number }}</td>
               @if (modeEdition && (modeEdition === 'SELECTED' || modeEdition === 'GROUP')) {
                 <td>
                   <p-tableCheckbox [value]="data" />
@@ -177,6 +182,7 @@
           [stripedRows]="true"
           [totalRecords]="totalItems"
           [value]="dossierFactures"
+          class="pharma-table"
           dataKey="id"
         >
           <ng-template #caption>
@@ -192,7 +198,7 @@
             </div>
           </ng-template>
           <ng-template #header>
-            <tr>
+            <tr class="pharma-table-head">
               <th>Clients</th>
               <th>Date</th>
               <th>Référence bon</th>
@@ -205,17 +211,20 @@
           </ng-template>
           <ng-template #body let-dossier>
             <tr>
-              <td>{{ dossier.assuredCustomer.firstName }} {{ dossier.assuredCustomer.lastName }}</td>
+              <td
+                class="pharma-entity-name">{{ dossier.assuredCustomer.firstName }} {{ dossier.assuredCustomer.lastName }}
+              </td>
               <td>
                 {{ dossier.createdAt | date: 'dd/MM/yyyy HH:mm:ss' }}
               </td>
-              <td>
+              <td class="pharma-code">
                 {{ dossier.numBon }}
               </td>
-              <td class="text-right amount-column">
+              <td class="text-right amount-column pharma-price">
                 {{ dossier.montantVente | number }}
               </td>
-              <td class="text-right amount-column">{{ dossier.montantBon | number }}</td>
+              <td class="text-right amount-column pharma-total">{{ dossier.montantBon | number }}
+              </td>
               <td>
                 <p-tableCheckbox [value]="dossier" />
               </td>
@@ -227,4 +236,6 @@
 
   </div>
 </div>
-<jhi-confirm-dialog #confirmDialog></jhi-confirm-dialog>
+
+
+<p-confirmDialog />

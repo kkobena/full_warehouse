@@ -60,7 +60,7 @@ $pharma-shadow: 0 1px 3px rgba(0, 0, 0, 0.1) !default;
   display: flex;
   align-items: center;
   gap: 16px;
-   padding: 4px ;
+  padding: 4px;
   background: linear-gradient(to bottom, #f8f9fa, #ffffff);
   border-bottom: 2px solid #e9ecef;
   flex-wrap: wrap;
@@ -162,7 +162,7 @@ $pharma-shadow: 0 1px 3px rgba(0, 0, 0, 0.1) !default;
         font-size: 13px;
         text-transform: uppercase;
         letter-spacing: 0.5px;
-         padding: 4px ;
+        padding: 4px;
         border: none;
         border-right: 1px solid rgba(255, 255, 255, 0.1);
 
@@ -187,7 +187,7 @@ $pharma-shadow: 0 1px 3px rgba(0, 0, 0, 0.1) !default;
       }
 
       td {
-         padding: 4px ;
+        padding: 4px;
         border-bottom: 1px solid #e9ecef;
         font-size: 14px;
         color: $pharma-text;
@@ -265,7 +265,7 @@ $pharma-shadow: 0 1px 3px rgba(0, 0, 0, 0.1) !default;
   font-weight: 600;
   color: $pharma-primary;
   font-size: 13px;
-  padding: 4px 4px;
+  /*  padding: 8px 8px !important;*/
   background: #e3f2fd;
   border-radius: 3px;
   display: inline-block;
@@ -546,7 +546,7 @@ $pharma-shadow: 0 1px 3px rgba(0, 0, 0, 0.1) !default;
         font-size: 13px;
         text-transform: uppercase;
         letter-spacing: 0.5px;
-         padding: 4px ;
+        padding: 4px;
         border: none;
         border-right: 1px solid rgba(255, 255, 255, 0.1);
 
@@ -569,7 +569,7 @@ $pharma-shadow: 0 1px 3px rgba(0, 0, 0, 0.1) !default;
         }
 
         td {
-           padding: 4px ;
+          padding: 4px;
           border-bottom: 1px solid #e9ecef;
           font-size: 14px;
           color: $pharma-text;
@@ -761,6 +761,7 @@ $pharma-shadow: 0 1px 3px rgba(0, 0, 0, 0.1) !default;
 .font-weight-normal {
   font-weight: 400 !important;
 }
+
 .pharma-price {
 
   text-align: right !important;

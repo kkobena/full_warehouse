@@ -1,4 +1,3 @@
-
 <div class="container-fluid">
   <div class="row">
     <div class="col-lg-2 col-xl-2 col-xxl-2  col-md-3 col-sm-4">
@@ -6,7 +5,7 @@
         <div #nav="ngbNav" [(activeId)]="active" class="nav flex-column nav-pills" ngbNav
              orientation="vertical">
           <ng-container ngbNavItem="factures">
-            <a class="flex-sm-fill nav-link" ngbNavLink>Les factures</a>
+            <a class="flex-sm-fill nav-link" ngbNavLink>Liste des factures</a>
             <ng-template ngbNavContent>
               <jhi-factures></jhi-factures>
             </ng-template>
@@ -22,7 +21,7 @@
       </p-card>
     </div>
     <div class="col-xl-10 col-lg-10 col-md-9 col-sm-8  row">
-        <div [ngbNavOutlet]="nav"></div>
+      <div [ngbNavOutlet]="nav"></div>
 
     </div>
 

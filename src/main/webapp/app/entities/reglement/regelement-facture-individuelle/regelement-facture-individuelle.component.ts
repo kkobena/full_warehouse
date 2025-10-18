@@ -1,5 +1,18 @@
-import { Component, computed, effect, inject, input, OnInit, output, signal, viewChild } from '@angular/core';
-import { DossierFactureProjection, ReglementFactureDossier } from '../model/reglement-facture-dossier.model';
+import {
+  Component,
+  computed,
+  effect,
+  inject,
+  input,
+  OnInit,
+  output,
+  signal,
+  viewChild
+} from '@angular/core';
+import {
+  DossierFactureProjection,
+  ReglementFactureDossier
+} from '../model/reglement-facture-dossier.model';
 import { ButtonModule } from 'primeng/button';
 import { TableHeaderCheckbox, TableModule } from 'primeng/table';
 import { WarehouseCommonModule } from '../../../shared/warehouse-common/warehouse-common.module';
@@ -9,9 +22,16 @@ import { TooltipModule } from 'primeng/tooltip';
 import { SplitButtonModule } from 'primeng/splitbutton';
 import { NgbAlertModule, NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { FieldsetModule } from 'primeng/fieldset';
-import { DossierReglementInfoComponent } from '../dossier-reglement-info/dossier-reglement-info.component';
+import {
+  DossierReglementInfoComponent
+} from '../dossier-reglement-info/dossier-reglement-info.component';
 import { ReglementFormComponent } from '../reglement-form/reglement-form.component';
-import { ModeEditionReglement, ReglementParams, ResponseReglement, SelectedFacture } from '../model/reglement.model';
+import {
+  ModeEditionReglement,
+  ReglementParams,
+  ResponseReglement,
+  SelectedFacture
+} from '../model/reglement.model';
 import { AlertInfoComponent } from '../../../shared/alert/alert-info.component';
 import { ErrorService } from '../../../shared/error.service';
 import { ReglementService } from '../reglement.service';
@@ -21,8 +41,10 @@ import { FactuesModalComponent } from '../factues-modal/factues-modal.component'
 import { Drawer } from 'primeng/drawer';
 import { IconField } from 'primeng/iconfield';
 import { InputIcon } from 'primeng/inputicon';
-import { ConfirmDialogComponent } from '../../../shared/dialog/confirm-dialog/confirm-dialog.component';
 import { FactureId } from '../../facturation/facture.model';
+import { ConfirmDialog } from 'primeng/confirmdialog';
+import { ConfirmationService } from 'primeng/api';
+import { acceptButtonProps, rejectButtonProps } from '../../../shared/util/modal-button-props';
 
 @Component({
   selector: 'jhi-regelement-facture-individuelle',
@@ -43,10 +65,11 @@ import { FactureId } from '../../facturation/facture.model';
     Drawer,
     IconField,
     InputIcon,
-    ConfirmDialogComponent,
+    ConfirmDialog,
   ],
   templateUrl: './regelement-facture-individuelle.component.html',
   styleUrl: './regelement-facture-individuelle.component.scss',
+  providers: [ConfirmationService],
 })
 export class RegelementFactureIndividuelleComponent implements OnInit {
   readonly reglementFactureDossiers = input<ReglementFactureDossier[]>([]);
@@ -71,7 +94,7 @@ export class RegelementFactureIndividuelleComponent implements OnInit {
   private readonly errorService = inject(ErrorService);
   private readonly reglementService = inject(ReglementService);
   private readonly factureService = inject(FactureService);
-  private readonly confimDialog = viewChild.required<ConfirmDialogComponent>('confirmDialog');
+  private readonly confirmationService = inject(ConfirmationService);
 
   constructor() {
     effect(() => {
@@ -155,16 +178,18 @@ export class RegelementFactureIndividuelleComponent implements OnInit {
   }
 
   private onPrintReceipt(response: ResponseReglement): void {
-    this.confimDialog().onConfirm(
-      () => {
+    this.confirmationService.confirm({
+      message: 'Voullez-vous imprimer le ticket ?',
+      header: 'TICKET REGLEMENT',
+      icon: 'pi pi-info-circle',
+      rejectButtonProps: rejectButtonProps(),
+      acceptButtonProps: acceptButtonProps(),
+      accept: () => {
         this.reglementService.printReceipt(response.id).subscribe();
         this.reset(response);
       },
-      'TICKET REGLEMENT',
-      ' Voullez-vous imprimer le ticket ?',
-      'pi pi-info-circle',
-      () => this.reset(response),
-    );
+      reject: () => this.reset(response),
+    });
   }
 
   private computeMontantRestant(d: ReglementFactureDossier): number {

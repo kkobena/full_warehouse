@@ -11,11 +11,13 @@
         <p-select
           [(ngModel)]="fournisseurSelectedId"
           [filter]="true"
+          [fluid]="true"
           [options]="fournisseurs"
           [style]="{ width: '100%' }"
           optionLabel="libelle"
           optionValue="id"
           placeholder="Séléctionner un fournisseur "
+          size="large"
         >
         </p-select>
       </div>
@@ -52,7 +54,8 @@
 </div>
 
 <div class="modal-footer">
-  <p-button class="mr-2" (click)="cancel()" data-dismiss="modal" icon="pi pi-times" label="Annuler" raised="true"
+  <p-button (click)="cancel()" class="mr-2" data-dismiss="modal" icon="pi pi-times" label="Annuler"
+            raised="true"
             severity="secondary" type="button">
   </p-button>
 
@@ -68,4 +71,4 @@
   </p-button>
 </div>
 <jhi-toast-alert #alert></jhi-toast-alert>
-<jhi-spinner #spinner ></jhi-spinner>
+<jhi-spinner #spinner></jhi-spinner>

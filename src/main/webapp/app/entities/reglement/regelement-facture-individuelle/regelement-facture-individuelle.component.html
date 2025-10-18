@@ -11,7 +11,6 @@
 <div class="row reglement-dossier">
   <div class="reglement-dossier-table col-xl-8 col-sm-12 col-lg-9 col-md-9">
     <p-table
-      class="pharma-table"
       #factureDossierTable
       (selectionChange)="onSelectChange($event)"
       [(selection)]="factureDossierSelectionnes"
@@ -22,6 +21,7 @@
       [showCurrentPageReport]="true"
       [stripedRows]="true"
       [value]="reglementFactureDossiersSignal()"
+      class="pharma-table"
       currentPageReportTemplate="Affichage de {first} à {last} sur {totalRecords} dossisiers"
       dataKey="id"
       selectionMode="multiple"
@@ -66,7 +66,7 @@
         <tr [ngClass]="{ 'table-success0': item.montantPaye > 0 }">
           <td><span class="pharma-code">{{ item.bonNumber }}</span></td>
           <td><span class="pharma-entity-name">{{ item.customerFullName }}</span></td>
-          <td><span class="pharma-code">{{ item.matricule }}</span></td>
+          <td><span class="pharma-badge pharma-badge-info">{{ item.matricule }}</span></td>
           <td>{{ item.saleDate | date: 'dd/MM/yy HH:mm' }}</td>
           <td class="amount-column">
             <span class="pharma-price">{{ item.montantTotal | number }}</span>
@@ -120,4 +120,4 @@
   </div>
 </div>
 
-<jhi-confirm-dialog #confirmDialog></jhi-confirm-dialog>
+<p-confirmDialog />

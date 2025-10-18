@@ -148,7 +148,7 @@
         </ng-template>
         <ng-template #body let-elRow>
           <tr [pEditableRow]="elRow" [pSelectableRow]="elRow">
-            <td class="pharma-code">{{ elRow.numFacture }}</td>
+            <td><span class="pharma-code">{{ elRow.numFacture }}</span></td>
             <td class="pharma-entity-name">{{ elRow.tiersPayantName }}</td>
             <td>{{ elRow.periode }}</td>
             <td class="text-right">{{ elRow.itemsCount | number }}</td>

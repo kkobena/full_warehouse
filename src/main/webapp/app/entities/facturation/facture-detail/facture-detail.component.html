@@ -72,7 +72,7 @@
           [scrollable]="true"
           [stripedRows]="true"
           [value]="factureWritable().items"
-          class="p-datatable-sm"
+          class="pharma-table"
           dataKey="saleId"
           scrollHeight="450px"
           selectionMode="single"
@@ -93,7 +93,7 @@
             </div>
           </ng-template>
           <ng-template #header>
-            <tr>
+            <tr class="pharma-table-head">
               <th>Num.Bon</th>
               <th>Assuré</th>
               <th class="text-end">Total vente</th>
@@ -106,11 +106,11 @@
           </ng-template>
           <ng-template #body let-factureDetail>
             <tr [pSelectableRow]="factureDetail">
-              <td>{{ factureDetail.numBon }}</td>
-              <td>{{ factureDetail.customer.fullName }}</td>
+              <td><span class="pharma-code">{{ factureDetail.numBon }}</span></td>
+              <td class="pharma-entity-name">{{ factureDetail.customer.fullName }}</td>
               <td class="text-end">{{ factureDetail.montantVente | number }}</td>
               <td class="text-end">{{ factureDetail.montantRemise | number }}</td>
-              <td class="text-end">{{ factureDetail.montant | number }}</td>
+              <td class="text-end pharma-total">{{ factureDetail.montant | number }}</td>
               <td class="text-end">{{ factureDetail.montantClient | number }}</td>
               <td class="text-end">{{ factureDetail.montantRegle | number }}</td>
               <td class="text-end">{{ factureDetail.taux | number }}%</td>
@@ -153,10 +153,10 @@
           </div>
         }
 
-        <p-table [scrollable]="true" [value]="salesLines" class="p-datatable-sm"
+        <p-table [scrollable]="true" [value]="salesLines" class="pharma-table"
                  scrollHeight="400px">
           <ng-template #header>
-            <tr>
+            <tr class="pharma-table-head">
               <th>CIP</th>
               <th>Libellé</th>
               <th class="text-end">Qté</th>
@@ -166,11 +166,11 @@
           </ng-template>
           <ng-template #body let-saleLine>
             <tr>
-              <td>{{ saleLine.code }}</td>
-              <td>{{ saleLine.produitLibelle }}</td>
+              <td><span class="pharma-code">{{ saleLine.code }}</span></td>
+              <td class="pharma-product-name">{{ saleLine.produitLibelle }}</td>
               <td class="text-end">{{ saleLine.quantitySold | number }}</td>
               <td class="text-end">{{ saleLine.regularUnitPrice | number }}</td>
-              <td class="text-end">{{ saleLine.salesAmount | number }}</td>
+              <td class="text-end pharma-total">{{ saleLine.salesAmount | number }}</td>
             </tr>
           </ng-template>
           <ng-template #empty>

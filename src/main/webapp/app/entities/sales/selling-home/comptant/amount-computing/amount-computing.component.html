@@ -1,58 +1,60 @@
 @if (currentSaleService.currentSale()) {
 
-    <!-- Montant principal -->
-    <div class="amount-row amount-total">
-      <span class="amount-label">Total</span>
-      <span class="amount-value">{{ currentSaleService.currentSale().salesAmount | number }}</span>
+  <!-- Montant principal -->
+  <div class="amount-row amount-total">
+    <span class="amount-label">Total</span>
+    <span class="amount-value">{{ currentSaleService.currentSale().salesAmount | number }}</span>
+  </div>
+
+  <!-- TVA si applicable -->
+  @if (currentSaleService.currentSale().taxAmount! > 0) {
+    <div class="amount-row">
+      <span class="amount-label">TVA</span>
+      <span class="amount-value">{{ currentSaleService.currentSale().taxAmount | number }}</span>
     </div>
+  }
 
-    <!-- TVA si applicable -->
-    @if (currentSaleService.currentSale().taxAmount! > 0) {
-      <div class="amount-row">
-        <span class="amount-label">TVA</span>
-        <span class="amount-value">{{ currentSaleService.currentSale().taxAmount | number }}</span>
-      </div>
-    }
-
-    <!-- Remise si applicable -->
-    @if (currentSaleService.currentSale().discountAmount! > 0) {
-      <div class="amount-row amount-discount">
-        <span class="amount-label">Remise</span>
-        <span class="amount-value">-{{ currentSaleService.currentSale().discountAmount | number }}</span>
-      </div>
-    }
-
-    <!-- Part assurance -->
-    @if (currentSaleService.currentSale()?.natureVente !== 'COMPTANT') {
-      <div class="amount-row">
-        <span class="amount-label">Part assurance</span>
-        <span class="amount-value">{{ currentSaleService.currentSale().partTiersPayant | number }}</span>
-      </div>
-    }
-
-    <!-- Séparateur -->
-    <div class="amount-divider"></div>
-
-    <!-- Montant à payer (mis en évidence) -->
-    <div class="amount-row amount-to-pay">
-      <span class="amount-label">Montant à payer</span>
-      <span class="amount-value">{{ currentSaleService.currentSale().amountToBePaid | number }}</span>
+  <!-- Remise si applicable -->
+  @if (currentSaleService.currentSale().discountAmount! > 0) {
+    <div class="amount-row amount-discount">
+      <span class="amount-label">Remise</span>
+      <span
+        class="amount-value">-{{ currentSaleService.currentSale().discountAmount | number }}</span>
     </div>
+  }
 
-    <!-- Monnaie si applicable -->
-    @if (currentSaleService.currentSale().amountToBePaid! > 0) {
-      <div class="amount-row amount-change">
-        <span class="amount-label">Monnaie</span>
-        <span class="amount-value">{{ monnaie | number }}</span>
-      </div>
-    }
+  <!-- Part assurance -->
+  @if (currentSaleService.currentSale()?.natureVente !== 'COMPTANT') {
+    <div class="amount-row">
+      <span class="amount-label">Part assurance</span>
+      <span
+        class="amount-value">{{ currentSaleService.currentSale().partTiersPayant | number }}</span>
+    </div>
+  }
 
-    <!-- Dernière monnaie -->
-    @if (this.lastCurrencyGivenService.lastCurrency() > 0) {
-      <div class="amount-row amount-last">
-        <span class="amount-label">Dernière monnaie</span>
-        <span class="amount-value">{{ lastCurrencyGivenService.lastCurrency() | number }}</span>
-      </div>
-    }
+  <!-- Séparateur -->
+  <div class="amount-divider"></div>
+
+  <!-- Montant à payer (mis en évidence) -->
+  <div class="amount-row amount-to-pay">
+    <span class="amount-label">Montant à payer</span>
+    <span class="amount-value">{{ currentSaleService.currentSale().amountToBePaid | number }}</span>
+  </div>
+
+  <!-- Monnaie si applicable -->
+  @if (currentSaleService.currentSale().amountToBePaid! > 0) {
+    <div class="amount-row amount-change">
+      <span class="amount-label">Monnaie</span>
+      <span class="amount-value">{{ monnaie | number }}</span>
+    </div>
+  }
+
+  <!-- Dernière monnaie -->
+  @if (this.lastCurrencyGivenService.lastCurrency() > 0) {
+    <div class="amount-row amount-last mb-2">
+      <span class="amount-label">Dernière monnaie</span>
+      <span class="amount-value">{{ lastCurrencyGivenService.lastCurrency() | number }}</span>
+    </div>
+  }
 
 }

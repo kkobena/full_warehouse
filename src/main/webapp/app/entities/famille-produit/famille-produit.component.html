@@ -9,7 +9,7 @@
         <p-toolbar>
           <ng-template #start>
             <p-iconfield>
-              <p-inputicon styleClass="pi pi-search" />
+              <p-inputicon class="pi pi-search" />
               <input (keyup.enter)="search($event)" pInputText placeholder="Taper pour rechercher"
                      style="width: 98%" type="text" />
             </p-iconfield>
@@ -38,9 +38,9 @@
             [rows]="itemsPerPage"
             [totalRecords]="totalItems"
             [value]="entites"
+            class="pharma-table"
             dataKey="id"
             selectionMode="single"
-            class="pharma-table"
           >
             <ng-template #header>
               <tr class="pharma-table-head">
@@ -50,7 +50,7 @@
                 <th scope="col"></th>
               </tr>
             </ng-template>
-            <ng-template let-columns="columns" let-elRow #body>
+            <ng-template #body let-columns="columns" let-elRow>
               <tr [pEditableRow]="elRow" [pSelectableRow]="elRow">
                 <td>
                   <span class="pharma-code">{{ elRow.code }}</span>
@@ -60,11 +60,11 @@
                 </td>
                 <td>{{ elRow.categorieLibelle }}</td>
                 <td style="text-align: right">
-                  <p-button (click)="onEdit(elRow)" [rounded]="true" severity="success"
-                            pTooltip="Modifier" [text]="true" icon="pi pi-pencil">
+                  <p-button (click)="onEdit(elRow)" [rounded]="true" [text]="true"
+                            icon="pi pi-pencil" pTooltip="Modifier" severity="success">
                   </p-button>
-                  <p-button (click)="delete(elRow)" [rounded]="true" severity="danger"
-                            icon="pi pi-trash" [text]="true" pTooltip="Supprimer">
+                  <p-button (click)="delete(elRow)" [rounded]="true" [text]="true"
+                            icon="pi pi-trash" pTooltip="Supprimer" severity="danger">
                   </p-button>
                 </td>
               </tr>
@@ -84,4 +84,4 @@
 </div>
 <jhi-confirm-dialog #confirmDialog></jhi-confirm-dialog>
 <jhi-toast-alert #alert></jhi-toast-alert>
-<jhi-spinner #spinner ></jhi-spinner>
+<jhi-spinner #spinner></jhi-spinner>

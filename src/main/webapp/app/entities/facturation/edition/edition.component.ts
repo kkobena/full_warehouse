@@ -1,8 +1,11 @@
-import { Component, inject, OnDestroy, OnInit, viewChild } from '@angular/core';
+import { Component, inject, OnDestroy, OnInit } from '@angular/core';
 import { WarehouseCommonModule } from '../../../shared/warehouse-common/warehouse-common.module';
 import { FactureService } from '../facture.service';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
-import { CATEGORIE_TIRERS_PAYANT, MODE_EDITIONS_FACTURE } from '../../../shared/constants/data-constants';
+import {
+  CATEGORIE_TIRERS_PAYANT,
+  MODE_EDITIONS_FACTURE
+} from '../../../shared/constants/data-constants';
 import { TiersPayantService } from '../../tiers-payant/tierspayant.service';
 import { GroupeTiersPayantService } from '../../groupe-tiers-payant/groupe-tierspayant.service';
 import { HttpHeaders, HttpResponse } from '@angular/common/http';
@@ -28,9 +31,11 @@ import { TranslateService } from '@ngx-translate/core';
 import { PrimeNG } from 'primeng/config';
 import { Subject } from 'rxjs';
 import { DatePicker } from 'primeng/datepicker';
-import { ConfirmDialogComponent } from '../../../shared/dialog/confirm-dialog/confirm-dialog.component';
 import { Card } from 'primeng/card';
 import { Select } from 'primeng/select';
+import { ConfirmDialog } from 'primeng/confirmdialog';
+import { ConfirmationService } from 'primeng/api';
+import { acceptButtonProps, rejectButtonProps } from '../../../shared/util/modal-button-props';
 
 @Component({
   selector: 'jhi-edition',
@@ -47,15 +52,15 @@ import { Select } from 'primeng/select';
     IconField,
     InputIcon,
     DatePicker,
-    ConfirmDialogComponent,
     Card,
-    Select
+    Select,
+    ConfirmDialog,
   ],
   templateUrl: './edition.component.html',
-  styleUrls: ['./edition.component.scss']
+  styleUrls: ['./edition.component.scss'],
+  providers: [ConfirmationService],
 })
 export class EditionComponent implements OnInit, OnDestroy {
-
   protected minLength = 2;
   protected groupeTiersPayants: IGroupeTiersPayant[] = [];
   protected selectedGroupeTiersPayants: IGroupeTiersPayant[] | undefined;
@@ -83,7 +88,6 @@ export class EditionComponent implements OnInit, OnDestroy {
   protected editing = false;
   protected loading!: boolean;
   protected exporting = false;
-  private readonly confimDialog = viewChild.required<ConfirmDialogComponent>('confirmDialog');
   private destroy$ = new Subject<void>();
   private readonly translate = inject(TranslateService);
   private readonly primeNGConfig = inject(PrimeNG);
@@ -92,6 +96,7 @@ export class EditionComponent implements OnInit, OnDestroy {
   private readonly tiersPayantService = inject(TiersPayantService);
   private readonly groupeTiersPayantService = inject(GroupeTiersPayantService);
   private readonly modalService = inject(NgbModal);
+  private readonly confirmationService = inject(ConfirmationService);
   constructor() {
     this.translate.use('fr');
     this.translate.stream('primeng').subscribe(data => {
@@ -123,7 +128,7 @@ export class EditionComponent implements OnInit, OnDestroy {
       .query({
         page: 0,
         search: query,
-        size: 10
+        size: 10,
       })
       .subscribe((res: HttpResponse<IGroupeTiersPayant[]>) => {
         this.groupeTiersPayants = res.body || [];
@@ -136,12 +141,12 @@ export class EditionComponent implements OnInit, OnDestroy {
       .query({
         page: 0,
         search: query,
-        size: 10
+        size: 10,
       })
       .subscribe({
         next: (res: HttpResponse<ITiersPayant[]>) => {
           this.tiersPayants = res.body || [];
-        }
+        },
       });
   }
 
@@ -167,7 +172,7 @@ export class EditionComponent implements OnInit, OnDestroy {
         }
       },
       complete: () => (this.editing = false),
-      error: (error: any) => this.onError(error)
+      error: (error: any) => this.onError(error),
     });
   }
 
@@ -180,7 +185,7 @@ export class EditionComponent implements OnInit, OnDestroy {
   openInfoDialog(message: string, infoClass: string): void {
     const modalRef = this.modalService.open(AlertInfoComponent, {
       backdrop: 'static',
-      centered: true
+      centered: true,
     });
     modalRef.componentInstance.message = message;
     modalRef.componentInstance.infoClass = infoClass;
@@ -193,12 +198,12 @@ export class EditionComponent implements OnInit, OnDestroy {
       .queryBons({
         page: pageToLoad,
         size: this.itemsPerPage,
-        ...this.buildSearchParams()
+        ...this.buildSearchParams(),
       })
       .subscribe({
         next: (res: HttpResponse<DossierFacture[]>) => this.onSearchBonSuccess(res.body, res.headers, pageToLoad),
         complete: () => (this.searching = false),
-        error: () => (this.searching = false)
+        error: () => (this.searching = false),
       });
   }
 
@@ -210,7 +215,7 @@ export class EditionComponent implements OnInit, OnDestroy {
       .queryEditionData({
         page: pageToLoad,
         size: this.itemsPerPage,
-        ...this.buildSearchParams()
+        ...this.buildSearchParams(),
       })
       .subscribe({
         next: (res: HttpResponse<TiersPayantDossierFacture[]>) => this.onSearchSuccess(res.body, res.headers, pageToLoad),
@@ -221,7 +226,7 @@ export class EditionComponent implements OnInit, OnDestroy {
         error: () => {
           this.loading = false;
           this.searching = false;
-        }
+        },
       });
   }
 
@@ -233,7 +238,7 @@ export class EditionComponent implements OnInit, OnDestroy {
         .queryEditionData({
           page: this.pageTp,
           size: event.rows,
-          ...this.buildSearchParams()
+          ...this.buildSearchParams(),
         })
         .subscribe({
           next: (res: HttpResponse<TiersPayantDossierFacture[]>) => this.onSearchSuccess(res.body, res.headers, this.pageTp),
@@ -244,7 +249,7 @@ export class EditionComponent implements OnInit, OnDestroy {
           complete: () => {
             this.loading = false;
             this.searching = false;
-          }
+          },
         });
     }
   }
@@ -279,7 +284,7 @@ export class EditionComponent implements OnInit, OnDestroy {
       all: this.all,
       categorieTiersPayants: [this.typeTiersPayant],
       factureProvisoire: this.factureProvisoire,
-      modeEdition: this.modeEdition ? this.modeEdition : 'ALL'
+      modeEdition: this.modeEdition ? this.modeEdition : 'ALL',
     };
   }
 
@@ -294,29 +299,36 @@ export class EditionComponent implements OnInit, OnDestroy {
     }
     return {
       ...this.buildSearchParams(),
-      ids: selectedIds
+      ids: selectedIds,
     };
   }
 
   private onPrintAllInvoices(response: FactureEditionResponse): void {
-
-    this.confimDialog().onConfirm(() => {
-      this.exporting = true;
-      this.factureService.exportAllInvoices(response).subscribe({
-        next: (res: Blob) => {
-          this.exporting = false;
-          // const file = new Blob([res], { type: 'application/pdf' });
-          const fileURL = URL.createObjectURL(res);
-          window.open(fileURL);
-        },
-        error: (err: any) => {
-          this.exporting = false;
-          this.openInfoDialog(this.errorService.getErrorMessage(err), 'alert alert-danger');
-        }
-      });
-      this.resetForm();
-    }, 'IMPRESSION DE FACTURE', 'Êtes-vous sûr de vouloir imprimer les factures ?', null, () => {
-      this.resetForm();
+    this.confirmationService.confirm({
+      message: 'Êtes-vous sûr de vouloir imprimer les factures ?',
+      header: ' IMPRESSION DE FACTURE',
+      icon: 'pi pi-info-circle',
+      rejectButtonProps: rejectButtonProps(),
+      acceptButtonProps: acceptButtonProps(),
+      accept: () => {
+        this.exporting = true;
+        this.factureService.exportAllInvoices(response).subscribe({
+          next: (res: Blob) => {
+            this.exporting = false;
+            // const file = new Blob([res], { type: 'application/pdf' });
+            const fileURL = URL.createObjectURL(res);
+            window.open(fileURL);
+          },
+          error: (err: any) => {
+            this.exporting = false;
+            this.openInfoDialog(this.errorService.getErrorMessage(err), 'alert alert-danger');
+          },
+        });
+        this.resetForm();
+      },
+      reject: () => {
+        this.resetForm();
+      },
     });
   }
 }

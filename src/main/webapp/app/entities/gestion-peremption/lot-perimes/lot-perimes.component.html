@@ -57,14 +57,14 @@
         @if (!isMono) {
           <p-floatlabel variant="on">
             <p-select
-              [style]="{'min-width': '150px'}"
               (onChange)="onMagasinChange()"
               [(ngModel)]="selectedMagasin"
               [options]="magasins"
               [showClear]="true"
-              optionLabel="fullName"
-              id="magasins"
+              [style]="{'min-width': '150px'}"
               class="mr-1"
+              id="magasins"
+              optionLabel="fullName"
             ></p-select>
             <label for="magasins">{{ 'warehouseApp.labels.magasin' | translate }}</label>
           </p-floatlabel>
@@ -73,11 +73,11 @@
               (onChange)="onStorageChange()"
               [(ngModel)]="selectedStorage"
               [options]="storages"
-              [style]="{'min-width': '150px'}"
-              id="storages"
               [showClear]="true"
-              optionLabel="name"
+              [style]="{'min-width': '150px'}"
               class="mr-1"
+              id="storages"
+              optionLabel="name"
             ></p-select>
             <label for="storages">{{ 'warehouseApp.labels.typeStockage' | translate }}</label>
           </p-floatlabel>
@@ -101,6 +101,7 @@
           <p-select
             (onChange)="onSearch()"
             [(ngModel)]="selectedFournisseur"
+            [fluid]="true"
             [options]="fournisseurs"
             [showClear]="true"
             [style]="{'min-width': '200px'}"
@@ -224,20 +225,20 @@
   @if (data && data.length) {
     <div>
       <p-table
-        class="pharma-table"
         (onLazyLoad)="lazyLoading($event)"
+        [(selection)]="selectedLotPerimes"
         [lazy]="true"
         [loading]="loading"
         [paginator]="true"
         [rowsPerPageOptions]="[ 10, 15, 20, 30, 50]"
         [rows]="itemsPerPage"
         [showCurrentPageReport]="false"
+        [showGridlines]="true"
         [totalRecords]="totalItems"
         [value]="data"
+        class="pharma-table"
         dataKey="id"
-        [showGridlines]="true"
         selectionMode="multiple"
-        [(selection)]="selectedLotPerimes"
       >
         <ng-template #header>
           <tr class="pharma-table-head">
@@ -257,7 +258,7 @@
             <th></th>
           </tr>
         </ng-template>
-        <ng-template let-data #body>
+        <ng-template #body let-data>
           <tr>
             <td class="pharma-product-name">
               {{ data.produitName }}
@@ -275,11 +276,13 @@
             <td class="text-right amount-column">
               <span class="pharma-qty-value">{{ data.quantity | number }}</span>
             </td>
-            <td class="text-right amount-column"><span class="pharma-price">{{ data.prixAchat | number }}</span></td>
-            <td class="text-right amount-column"><span class="pharma-price">{{ data.prixVente | number }}</span></td>
+            <td class="text-right amount-column"><span
+              class="pharma-price">{{ data.prixAchat | number }}</span></td>
+            <td class="text-right amount-column"><span
+              class="pharma-price">{{ data.prixVente | number }}</span></td>
             <td class="text-center">
-              <p-tag [value]="data.peremptionStatut.libelle"
-                     [severity]="getSeverity(data.peremptionStatut)" />
+              <p-tag [severity]="getSeverity(data.peremptionStatut)"
+                     [value]="data.peremptionStatut.libelle" />
             </td>
             <td class="pharma-entity-name">
               {{ data.fournisseur }}
@@ -293,10 +296,10 @@
             <td class="text-right">
               <div class="btn-group">
                 <jhi-remove-tex-button (click)="confirmRetirerDialog(data)"></jhi-remove-tex-button>
-                <jhi-cta severity="info" [tooltip]="'warehouseApp.buttons.retourFournisseur'"
-                         icon="pi pi-reply"
-                         [raised]="false" [isText]="true"
-                         (click)="confirmRetirerDialog(data)"></jhi-cta>
+                <jhi-cta (click)="confirmRetirerDialog(data)" [isText]="true"
+                         [raised]="false"
+                         [tooltip]="'warehouseApp.buttons.retourFournisseur'" icon="pi pi-reply"
+                         severity="info"></jhi-cta>
               </div>
             </td>
           </tr>
@@ -317,4 +320,4 @@
 <jhi-confirm-dialog #confirmDialog></jhi-confirm-dialog>
 <jhi-toast-alert #alert></jhi-toast-alert>
 
-<jhi-spinner #spinner ></jhi-spinner>
+<jhi-spinner #spinner></jhi-spinner>

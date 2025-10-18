@@ -2,10 +2,7 @@ import { Component, inject, OnDestroy, OnInit } from '@angular/core';
 import { WarehouseCommonModule } from '../../../shared/warehouse-common/warehouse-common.module';
 import { FactureService } from '../facture.service';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
-import {
-  CATEGORIE_TIRERS_PAYANT,
-  MODE_EDITIONS_FACTURE
-} from '../../../shared/constants/data-constants';
+import { CATEGORIE_TIRERS_PAYANT, MODE_EDITIONS_FACTURE } from '../../../shared/constants/data-constants';
 import { TiersPayantService } from '../../tiers-payant/tierspayant.service';
 import { GroupeTiersPayantService } from '../../groupe-tiers-payant/groupe-tierspayant.service';
 import { HttpHeaders, HttpResponse } from '@angular/common/http';

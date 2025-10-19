@@ -6,14 +6,14 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
 import jakarta.persistence.Id;
+import jakarta.persistence.Lob;
 import jakarta.persistence.Table;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
-import org.hibernate.annotations.Cache;
-import org.hibernate.annotations.CacheConcurrencyStrategy;
-
 import java.io.Serial;
 import java.io.Serializable;
+import org.hibernate.annotations.Cache;
+import org.hibernate.annotations.CacheConcurrencyStrategy;
 
 /**
  * A PaymentMode.
@@ -51,6 +51,10 @@ public class PaymentMode implements Serializable {
 
     private String iconUrl;
 
+    @Lob
+    @Column(name = "qr_code", columnDefinition = "BYTEA")
+    private byte[] qrCode;
+
     public String getIconUrl() {
         return iconUrl;
     }
@@ -66,6 +70,15 @@ public class PaymentMode implements Serializable {
 
     public PaymentMode setOrder(short order) {
         this.order = order;
+        return this;
+    }
+
+    public byte[] getQrCode() {
+        return qrCode;
+    }
+
+    public PaymentMode setQrCode(byte[] qrCode) {
+        this.qrCode = qrCode;
         return this;
     }
 

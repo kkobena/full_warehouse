@@ -7,6 +7,16 @@ public class PaymentModeDTO {
     private String code;
     private String libelle;
     private String group;
+    private byte[] qrCode;
+
+    public PaymentModeDTO() {}
+
+    public PaymentModeDTO(PaymentMode paymentMode) {
+        this.code = paymentMode.getCode();
+        this.libelle = paymentMode.getLibelle();
+        this.group = paymentMode.getGroup().name();
+        this.qrCode = paymentMode.getQrCode();
+    }
 
     public String getCode() {
         return code;
@@ -35,11 +45,12 @@ public class PaymentModeDTO {
         return this;
     }
 
-    public PaymentModeDTO() {}
+    public byte[] getQrCode() {
+        return qrCode;
+    }
 
-    public PaymentModeDTO(PaymentMode paymentMode) {
-        this.code = paymentMode.getCode();
-        this.libelle = paymentMode.getLibelle();
-        this.group = paymentMode.getGroup().name();
+    public PaymentModeDTO setQrCode(byte[] qrCode) {
+        this.qrCode = qrCode;
+        return this;
     }
 }

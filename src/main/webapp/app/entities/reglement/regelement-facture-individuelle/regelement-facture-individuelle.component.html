@@ -1,6 +1,7 @@
 <p-drawer [(visible)]="showSidebar" [style]="drawerWidth" position="right">
   <ng-template #header>
-    <span class="font-semibold text-xl">Factures</span>
+    <i class="pi pi-clock text-xl"></i>
+    <span class="font-bold text-xl">Factures</span>
   </ng-template>
   <ng-template #content>
     <jhi-factues-modal (selectedFacture)="onSelectFacture($event)"

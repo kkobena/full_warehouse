@@ -1,15 +1,16 @@
 <p-drawer [(visible)]="showSidebar" [style]="drawerWidth" position="right">
   <ng-template #header>
-    <span class="font-semibold text-xl">Factures</span>
+    <i class="pi pi-clock text-xl"></i>
+    <span class="font-bold text-xl">Factures</span>
   </ng-template>
   <ng-template #content>
-    <jhi-factues-modal (selectedFacture)="onSelectFacture($event)" [factureGroup]="false"></jhi-factues-modal>
+    <jhi-factues-modal (selectedFacture)="onSelectFacture($event)"
+                       [factureGroup]="false"></jhi-factues-modal>
   </ng-template>
 </p-drawer>
 <div class="row">
   <div class=" col-xl-8 col-sm-12 col-lg-9 col-md-9">
     <p-table
-      class="pharma-table"
       #factureDossierTable
       (selectionChange)="onSelectChange($event)"
       [(selection)]="factureDossierSelectionnes"
@@ -18,8 +19,9 @@
       [rowsPerPageOptions]="[10, 20, 30, 50, 100]"
       [rows]="20"
       [showCurrentPageReport]="true"
-      [value]="reglementFactureDossiersWritable()"
       [stripedRows]="true"
+      [value]="reglementFactureDossiersWritable()"
+      class="pharma-table"
       currentPageReportTemplate="Affichage de {first} à {last} sur {totalRecords} dossisiers"
       dataKey="id"
       selectionMode="multiple"
@@ -29,7 +31,7 @@
           <div class="p-2"><span class="text-xl font-bold">Dossiers</span></div>
           <div class="p-0">
             <p-iconfield>
-              <p-inputicon styleClass="pi pi-search" />
+              <p-inputicon class="pi pi-search" />
               <input
                 (input)="factureDossierTable.filterGlobal($event.target.value, 'contains')"
                 [style]="{ width: '300px' }"
@@ -59,12 +61,15 @@
           }
         </tr>
       </ng-template>
-      <ng-template let-item let-rowIndex="rowIndex" #body>
-        <tr [ngClass]="{ 'table-success0': item.montantPaye > 0 }">
+      <ng-template #body let-item let-rowIndex="rowIndex">
+        <tr [ngClass]="{ 'table-success': item.montantPaye > 0 }">
           <td><span class="pharma-entity-name">{{ item.organismeName }}</span></td>
-          <td>Du {{ item.debutPeriode | date: 'dd/MM/yy' }} Au {{ item.finPeriode | date: 'dd/MM/yy' }}</td>
+          <td>Du {{ item.debutPeriode | date: 'dd/MM/yy' }}
+            Au {{ item.finPeriode | date: 'dd/MM/yy' }}
+          </td>
           <td><span class="pharma-code">{{ item.numFacture }}</span></td>
-          <td class="amount-column"><span class="pharma-qty-value">{{ item.itemsCount | number }}</span></td>
+          <td class="amount-column"><span
+            class="pharma-qty-value">{{ item.itemsCount | number }}</span></td>
           <td class="amount-column">
             <span class="pharma-price">{{ item.montantTotal | number }}</span>
           </td>
@@ -72,14 +77,14 @@
             <span class="pharma-price">{{ item.montantPaye | number }}</span>
           </td>
           @if (isInputEditable(item)) {
-            <td pEditableColumn class="amount-column">
+            <td class="amount-column" pEditableColumn>
               <p-cellEditor>
                 <ng-template #input>
                   <input
-                    pInputText
-                    [(ngModel)]="item.montantVerse"
-                    required
                     (keyup)="onMontantVerseChange(item)"
+                    [(ngModel)]="item.montantVerse"
+                    pInputText
+                    required
                     style="width: 100px"
                     type="number"
                   />
@@ -108,7 +113,8 @@
       <ng-template #header>
         <div class="d-flex d-flex justify-content-between form-reglement-toolbar">
           <span>Formulaire réglement</span>
-          <p-button (click)="openSideBar()" icon="pi pi-search" label="Recherche" severity="info"></p-button>
+          <p-button (click)="openSideBar()" icon="pi pi-search" label="Recherche"
+                    severity="info"></p-button>
         </div>
       </ng-template>
       <jhi-reglement-form

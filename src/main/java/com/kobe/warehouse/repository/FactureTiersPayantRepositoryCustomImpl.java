@@ -43,15 +43,16 @@ public class FactureTiersPayantRepositoryCustomImpl implements FactureTiersPayan
         CriteriaQuery<FactureDto> query = cb.createQuery(FactureDto.class);
         Root<FactureTiersPayant> root = query.from(FactureTiersPayant.class);
         Predicate predicate = specification.toPredicate(root, query, cb);
-        if (predicate != null) {
-            query.where(predicate);
-        }
 
         Subquery<Long> subquery = query.subquery(Long.class);
         Root<FactureTiersPayant> subRoot = subquery.from(FactureTiersPayant.class);
         subquery.select(cb.literal(1L)).where(cb.equal(subRoot.get(FactureTiersPayant_.groupeFactureTiersPayant), root));
-
-        query.where(cb.not(cb.exists(subquery)));
+        Predicate noGroupExists = cb.not(cb.exists(subquery));
+        if (predicate != null) {
+            query.where(cb.and(predicate, noGroupExists));
+        } else {
+            query.where(noGroupExists);
+        }
 
         Join<FactureTiersPayant, ThirdPartySaleLine> details = root.join(FactureTiersPayant_.facturesDetails);
         Join<ThirdPartySaleLine, ThirdPartySales> sales = details.join(ThirdPartySaleLine_.sale);
@@ -119,28 +120,7 @@ public class FactureTiersPayantRepositoryCustomImpl implements FactureTiersPayan
         if (predicate != null) {
             query.where(predicate);
         }
-        //java.time.LocalDate, java.lang.Integer, java.time.LocalDateTime,
-        // java.lang.Long, java.time.LocalDate,
-        // com.kobe.warehouse.domain.enumeration.InvoiceStatut, java.time.LocalDate, java.lang.Boolean,
-        // java.lang.String, java.lang.String, java.lang.Integer, java.lang.Long, java.lang.Integer, java.lang.Integer
 
-        /*
-           LocalDate invoiceDate,
-        Integer montantRegle,
-        LocalDateTime created,
-        Long id,
-        LocalDate debutPeriode,
-        InvoiceStatut statut,
-        LocalDate finPeriode,
-        Boolean factureProvisoire,
-        String groupeNumFacture,
-        String tiersPayantName,
-        Integer montantVente,
-        Long itemsCount,
-        Integer montant,
-        Integer montantNetVente,
-        Integer montantRemiseVente
-         */
 
         query.select(
             cb.construct(

@@ -1,4 +1,4 @@
-import { Component, inject, input, OnInit, signal, ViewEncapsulation } from '@angular/core';
+import { Component, inject, input, OnInit, signal } from '@angular/core';
 
 import { FaireGroupeReglementComponent } from '../faire-groupe-reglement/faire-groupe-reglement.component';
 import { RegelementFactureIndividuelleComponent } from '../regelement-facture-individuelle/regelement-facture-individuelle.component';
@@ -13,7 +13,6 @@ import { FactureId } from '../../facturation/facture.model';
   imports: [FaireGroupeReglementComponent, RegelementFactureIndividuelleComponent],
   templateUrl: './faire-reglement.component.html',
   styleUrls: ['./faire-reglement.component.scss'],
-  encapsulation: ViewEncapsulation.None,
 })
 export class FaireReglementComponent implements OnInit {
   factureService = inject(FactureService);
@@ -27,8 +26,8 @@ export class FaireReglementComponent implements OnInit {
     if (facture) {
       this.isGroupeSignal.set(facture.isGroup);
       this.fetchFacture(facture);
-      const path = this.isGroupe() ? 'groupes' : 'individuelle';
-      this.reload(facture.facture.factureItemId, path);
+      //  const path = this.isGroupe() ? 'groupes' : 'individuelle';
+      //  this.reload(facture.facture.factureItemId, path);
     }
   }
 
@@ -36,17 +35,19 @@ export class FaireReglementComponent implements OnInit {
     this.isGroupeSignal.set(this.isGroupe());
     this.reglementFactureDossiersSignal.set(this.reglementFactureDossiers());
     const parent = this.reglementFactureDossiers()[0];
-    const parentId: FactureId = {
-      id: parent?.parentId || 0,
-      invoiceDate: this.isGroupe() ? parent?.parentInvoiceDate : parent.invoiceDate,
-    };
-    this.factureService
-      .findDossierFactureProjection(parentId, {
-        isGroup: this.isGroupe(),
-      })
-      .subscribe(res => {
-        this.dossierFactureProjection = res.body;
-      });
+    if (parent) {
+      const parentId: FactureId = {
+        id: parent?.parentId || 0,
+        invoiceDate: this.isGroupe() ? parent?.parentInvoiceDate : parent.invoiceDate,
+      };
+      this.factureService
+        .findDossierFactureProjection(parentId, {
+          isGroup: this.isGroupe(),
+        })
+        .subscribe(res => {
+          this.dossierFactureProjection = res.body;
+        });
+    }
   }
 
   private fetchFacture(facture: SelectedFacture): void {

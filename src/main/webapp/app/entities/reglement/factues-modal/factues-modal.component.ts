@@ -34,17 +34,17 @@ import { DatePicker } from 'primeng/datepicker';
     InputText,
     ToggleSwitch,
     Toolbar,
-    DatePicker
+    DatePicker,
   ],
 
-  templateUrl: './factues-modal.component.html'
+  templateUrl: './factues-modal.component.html',
+  styleUrls: ['./factues-modal.scss'],
 })
 export class FactuesModalComponent implements AfterViewInit {
-  protected readonly factureService = inject(FactureService);
-
-  protected readonly regelementStateService = inject(RegelementStateService);
   factureGroup = input<boolean>(false);
   factureGroupWritable = signal(this.factureGroup());
+  protected readonly factureService = inject(FactureService);
+  protected readonly regelementStateService = inject(RegelementStateService);
   protected readonly tiersPayantService = inject(TiersPayantService);
   protected readonly groupeTiersPayantService = inject(GroupeTiersPayantService);
   protected readonly selectedFacture = output<SelectedFacture>();
@@ -56,7 +56,6 @@ export class FactuesModalComponent implements AfterViewInit {
   protected datas: Facture[] = [];
   protected statut: string = null;
   protected readonly statuts = INVOICES_STATUT;
-  private readonly toDate = new Date();
   protected modelStartDate: Date = null;
   protected modelEndDate: Date = new Date();
   protected groupeTiersPayants: IGroupeTiersPayant[] = [];
@@ -65,6 +64,7 @@ export class FactuesModalComponent implements AfterViewInit {
   protected tiersPayants: ITiersPayant[] = [];
   protected selectedTiersPayants: ITiersPayant[] | undefined;
   protected minLength = 2;
+  private readonly toDate = new Date();
 
   constructor() {
     this.toDate.setMonth(this.toDate.getMonth() - 1);
@@ -85,7 +85,7 @@ export class FactuesModalComponent implements AfterViewInit {
       .query({
         page: 0,
         search: query,
-        size: 10
+        size: 10,
       })
       .subscribe((res: HttpResponse<IGroupeTiersPayant[]>) => {
         this.groupeTiersPayants = res.body || [];
@@ -98,12 +98,12 @@ export class FactuesModalComponent implements AfterViewInit {
       .query({
         page: 0,
         search: query,
-        size: 10
+        size: 10,
       })
       .subscribe({
         next: (res: HttpResponse<ITiersPayant[]>) => {
           this.tiersPayants = res.body || [];
-        }
+        },
       });
   }
 
@@ -115,11 +115,11 @@ export class FactuesModalComponent implements AfterViewInit {
       .query({
         page: pageToLoad,
         size: this.itemsPerPage,
-        ...this.buildSearchParams()
+        ...this.buildSearchParams(),
       })
       .subscribe({
         next: (res: HttpResponse<Facture[]>) => this.onSearchSuccess(res.body, res.headers, pageToLoad),
-        error: (error: any) => this.onError(error)
+        error: (error: any) => this.onError(error),
       });
   }
 
@@ -131,11 +131,11 @@ export class FactuesModalComponent implements AfterViewInit {
         .query({
           page: this.page,
           size: event.rows,
-          ...this.buildSearchParams()
+          ...this.buildSearchParams(),
         })
         .subscribe({
           next: (res: HttpResponse<Facture[]>) => this.onSearchSuccess(res.body, res.headers, this.page),
-          error: (error: any) => this.onError(error)
+          error: (error: any) => this.onError(error),
         });
     }
   }
@@ -178,7 +178,7 @@ export class FactuesModalComponent implements AfterViewInit {
       this.factureGroupWritable.set(this.factureGroup());
     }
 
-    this.onSearch();
+    //  this.onSearch();
   }
 
   protected onSearchSuccess(data: Facture[] | null, headers: HttpHeaders, page: number): void {
@@ -198,7 +198,7 @@ export class FactuesModalComponent implements AfterViewInit {
       factureProvisoire: false,
       search: this.search,
       statuts: ['PARTIALLY_PAID', 'NOT_PAID'],
-      factureGroupees: this.factureGroupWritable()
+      factureGroupees: this.factureGroupWritable(),
     };
     this.regelementStateService.setInvoiceSearchParams(params);
     return params;

@@ -1,18 +1,5 @@
-import {
-  Component,
-  computed,
-  effect,
-  inject,
-  input,
-  OnInit,
-  output,
-  signal,
-  viewChild
-} from '@angular/core';
-import {
-  DossierFactureProjection,
-  ReglementFactureDossier
-} from '../model/reglement-facture-dossier.model';
+import { Component, computed, effect, inject, input, OnInit, output, signal, viewChild } from '@angular/core';
+import { DossierFactureProjection, ReglementFactureDossier } from '../model/reglement-facture-dossier.model';
 import { ButtonModule } from 'primeng/button';
 import { TableHeaderCheckbox, TableModule } from 'primeng/table';
 import { WarehouseCommonModule } from '../../../shared/warehouse-common/warehouse-common.module';
@@ -22,16 +9,9 @@ import { TooltipModule } from 'primeng/tooltip';
 import { SplitButtonModule } from 'primeng/splitbutton';
 import { NgbAlertModule, NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { FieldsetModule } from 'primeng/fieldset';
-import {
-  DossierReglementInfoComponent
-} from '../dossier-reglement-info/dossier-reglement-info.component';
+import { DossierReglementInfoComponent } from '../dossier-reglement-info/dossier-reglement-info.component';
 import { ReglementFormComponent } from '../reglement-form/reglement-form.component';
-import {
-  ModeEditionReglement,
-  ReglementParams,
-  ResponseReglement,
-  SelectedFacture
-} from '../model/reglement.model';
+import { ModeEditionReglement, ReglementParams, ResponseReglement, SelectedFacture } from '../model/reglement.model';
 import { AlertInfoComponent } from '../../../shared/alert/alert-info.component';
 import { ErrorService } from '../../../shared/error.service';
 import { ReglementService } from '../reglement.service';
@@ -149,6 +129,7 @@ export class RegelementFactureIndividuelleComponent implements OnInit {
   onSelectFacture(facture: SelectedFacture): void {
     this.selectedFacture.emit(facture);
     this.showSidebar = false;
+    this.reload(facture.facture?.factureItemId);
   }
 
   ngOnInit(): void {
@@ -201,7 +182,6 @@ export class RegelementFactureIndividuelleComponent implements OnInit {
   }
 
   private buildReglementParams(params: ReglementParams): ReglementParams {
-    console.warn(params);
     return {
       ...params,
       mode: this.getModeEditionReglement(),

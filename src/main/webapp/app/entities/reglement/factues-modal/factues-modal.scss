@@ -1,0 +1,17 @@
+@import 'app/shared/scss/table-common';
+
+::ng-deep {
+  .p-drawer {
+    .p-drawer-header {
+      background: linear-gradient(to bottom, #6b9ab8, #5b89a6);
+      color: $pharma-white;
+      padding: 20px;
+      border-bottom: none;
+    }
+
+    .p-drawer-content {
+      background: $pharma-bg;
+      padding: 20px;
+    }
+  }
+}

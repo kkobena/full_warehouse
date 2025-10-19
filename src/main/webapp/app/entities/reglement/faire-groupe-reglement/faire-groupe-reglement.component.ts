@@ -1,29 +1,9 @@
-import {
-  Component,
-  computed,
-  inject,
-  input,
-  OnInit,
-  output,
-  signal,
-  viewChild
-} from '@angular/core';
-import {
-  DossierFactureProjection,
-  ReglementFactureDossier
-} from '../model/reglement-facture-dossier.model';
+import { Component, computed, inject, input, OnInit, output, signal, viewChild } from '@angular/core';
+import { DossierFactureProjection, ReglementFactureDossier } from '../model/reglement-facture-dossier.model';
 import { TableHeaderCheckbox, TableModule } from 'primeng/table';
-import {
-  LigneSelectionnes,
-  ModeEditionReglement,
-  ReglementParams,
-  ResponseReglement,
-  SelectedFacture
-} from '../model/reglement.model';
+import { LigneSelectionnes, ModeEditionReglement, ReglementParams, ResponseReglement, SelectedFacture } from '../model/reglement.model';
 import { ButtonModule } from 'primeng/button';
-import {
-  DossierReglementInfoComponent
-} from '../dossier-reglement-info/dossier-reglement-info.component';
+import { DossierReglementInfoComponent } from '../dossier-reglement-info/dossier-reglement-info.component';
 import { FieldsetModule } from 'primeng/fieldset';
 import { InputTextModule } from 'primeng/inputtext';
 import { ReglementFormComponent } from '../reglement-form/reglement-form.component';
@@ -42,9 +22,7 @@ import { FactuesModalComponent } from '../factues-modal/factues-modal.component'
 import { Drawer } from 'primeng/drawer';
 import { IconField } from 'primeng/iconfield';
 import { InputIcon } from 'primeng/inputicon';
-import {
-  ConfirmDialogComponent
-} from '../../../shared/dialog/confirm-dialog/confirm-dialog.component';
+import { ConfirmDialogComponent } from '../../../shared/dialog/confirm-dialog/confirm-dialog.component';
 import { FactureId } from '../../facturation/facture.model';
 
 @Component({
@@ -128,6 +106,7 @@ export class FaireGroupeReglementComponent implements OnInit {
   onSelectFacture(facture: SelectedFacture): void {
     this.selectedFacture.emit(facture);
     this.showSidebar = false;
+    this.reload(facture?.facture?.factureItemId);
   }
 
   ngOnInit(): void {

@@ -189,16 +189,17 @@
 
       <ng-template #expandedrow let-reglement>
         <tr>
-          <td class="text-center pharma-code" colspan="2">{{ reglement.codeFacture }}</td>
-          <td>{{ reglement.paymentMode }}</td>
+          <td class="text-center " colspan="2"><span
+            class="pharma-code">{{ reglement.codeFacture }}</span></td>
+          <td><span class="pharma-badge pharma-badge-info">{{ reglement.paymentMode }}</span></td>
 
-          <td class="pharma-total">
+          <td class="pharma-price">
             {{ reglement.montantAttendu }}
           </td>
           <td class="pharma-total">
             {{ reglement.paidAmount }}
           </td>
-          <td class="pharma-total">
+          <td class="pharma-price">
             {{ reglement.montantRestant }}
           </td>
           <td class="text-center">{{ reglement.created }}</td>

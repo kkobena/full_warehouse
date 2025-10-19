@@ -13,7 +13,7 @@ import { UserCaissierService } from '../../service/user-caissier.service';
 import { UserVendeurService } from '../../service/user-vendeur.service';
 
 @Injectable({
-  providedIn: 'root'
+  providedIn: 'root',
 })
 export class ComptantFacadeService {
   private readonly salesService = inject(SalesService);
@@ -46,7 +46,7 @@ export class ComptantFacadeService {
         0,
         this.currentSaleService.currentSale().commentaire,
         this.currentSaleService.currentSale().avoir,
-        this.currentSaleService.currentSale().payments
+        this.currentSaleService.currentSale().payments,
       );
     }
   }
@@ -77,16 +77,20 @@ export class ComptantFacadeService {
       .pipe(finalize(() => this.spinnerService.next(false)))
       .subscribe({
         next: (res: HttpResponse<ISales>) => this.onSaleComptantResponseSuccess(res.body),
-        error: error => this.onSaveSaveError(error, this.currentSaleService.currentSale())
+        error: error => this.onSaveSaveError(error, this.currentSaleService.currentSale()),
       });
   }
 
   addItemToSale(salesLine: ISalesLine): void {
     const sale = this.currentSaleService.currentSale();
-    this.handleSaleUpdate(this.salesService.addItemComptant({
-      ...salesLine,
-      saleCompositeId: sale.saleId
-    }).pipe(switchMap(res => this.salesService.find(sale.saleId))));
+    this.handleSaleUpdate(
+      this.salesService
+        .addItemComptant({
+          ...salesLine,
+          saleCompositeId: sale.saleId,
+        })
+        .pipe(switchMap(res => this.salesService.find(sale.saleId))),
+    );
   }
 
   removeItemFromSale(id: SaleLineId): void {
@@ -97,30 +101,42 @@ export class ComptantFacadeService {
   updateItemQtyRequested(salesLine: ISalesLine): void {
     const sale = this.currentSaleService.currentSale();
     this.handleSaleUpdate(
-      this.salesService.updateItemQtyRequested({
-        ...salesLine,
-        saleCompositeId: sale.saleId
-      }).pipe(switchMap(() => {
-        return this.salesService.find(sale.saleId);
-      })),
-      salesLine
+      this.salesService
+        .updateItemQtyRequested({
+          ...salesLine,
+          saleCompositeId: sale.saleId,
+        })
+        .pipe(
+          switchMap(() => {
+            return this.salesService.find(sale.saleId);
+          }),
+        ),
+      salesLine,
     );
   }
 
   updateItemQtySold(salesLine: ISalesLine): void {
     const sale = this.currentSaleService.currentSale();
-    this.handleSaleUpdate(this.salesService.updateItemQtySold({
-      ...salesLine,
-      saleCompositeId: sale.saleId
-    }).pipe(switchMap(() => this.salesService.find(sale.saleId))));
+    this.handleSaleUpdate(
+      this.salesService
+        .updateItemQtySold({
+          ...salesLine,
+          saleCompositeId: sale.saleId,
+        })
+        .pipe(switchMap(() => this.salesService.find(sale.saleId))),
+    );
   }
 
   updateItemPrice(salesLine: ISalesLine): void {
     const sale = this.currentSaleService.currentSale();
-    this.handleSaleUpdate(this.salesService.updateItemPrice({
-      ...salesLine,
-      saleCompositeId: sale.saleId
-    }).pipe(switchMap(() => this.salesService.find(sale.saleId))));
+    this.handleSaleUpdate(
+      this.salesService
+        .updateItemPrice({
+          ...salesLine,
+          saleCompositeId: sale.saleId,
+        })
+        .pipe(switchMap(() => this.salesService.find(sale.saleId))),
+    );
   }
 
   updateRemise(remise?: IRemise): void {
@@ -178,7 +194,6 @@ export class ComptantFacadeService {
   }
 
   private saveCashSale(entryAmount: number): void {
-    console.warn('entrypoint', entryAmount);
     this.spinnerService.next(true);
     const currentSale = this.currentSaleService.currentSale();
     this.updateSaleAmounts(currentSale, entryAmount);
@@ -187,7 +202,7 @@ export class ComptantFacadeService {
       .pipe(finalize(() => this.spinnerService.next(false)))
       .subscribe({
         next: (res: HttpResponse<FinalyseSale>) => this.onFinalyseSuccess(res.body),
-        error: err => this.onFinalyseError(err)
+        error: err => this.onFinalyseError(err),
       });
   }
 
@@ -197,7 +212,7 @@ export class ComptantFacadeService {
       .pipe(finalize(() => this.spinnerService.next(false)))
       .subscribe({
         next: (res: HttpResponse<FinalyseSale>) => this.onFinalyseSuccess(res.body, true),
-        error: err => this.onFinalyseError(err)
+        error: err => this.onFinalyseError(err),
       });
   }
 
@@ -205,7 +220,7 @@ export class ComptantFacadeService {
     this.spinnerService.next(true);
     observable.pipe(finalize(() => this.spinnerService.next(false))).subscribe({
       next: (res: HttpResponse<ISales>) => this.onSaveSuccess(res.body),
-      error: err => this.onSaveSaveError(err, this.currentSaleService.currentSale(), payload)
+      error: err => this.onSaveSaveError(err, this.currentSaleService.currentSale(), payload),
     });
   }
 
@@ -230,7 +245,7 @@ export class ComptantFacadeService {
       cassierId: this.userCaissierService.caissier()?.id,
       sellerId: this.userVendeurService.vendeur()?.id,
       type: 'VNO',
-      categorie: 'VNO'
+      categorie: 'VNO',
     };
   }
 

@@ -2,7 +2,7 @@
 <p-drawer [(visible)]="pendingSalesSidebar" [style]="{ width: '70vw' }" position="right">
   <ng-template #header>
     <i class="pi pi-clock text-xl"></i>
-    <span class="font-semibold text-xl">Ventes en attente</span>
+    <span class="font-bold text-xl">Ventes en attente</span>
   </ng-template>
   <ng-template #content>
     <jhi-prevente-modal
@@ -76,16 +76,16 @@
             <p-floatlabel variant="on">
               <p-select
                 #userBox
-                [(ngModel)]="userSeller"
                 (onChange)="onSelectUser()"
-                [options]="this.userVendeurService.vendeurs()"
+                [(ngModel)]="userSeller"
                 [appendTo]="appendTo"
                 [autofocus]="true"
                 [dataKey]="'id'"
+                [options]="this.userVendeurService.vendeurs()"
                 [style]="{ width: '100%' }"
+                class="pharma-select"
                 id="vendeurs"
-                optionLabel="abbrName"
-                class="pharma-select">
+                optionLabel="abbrName">
               </p-select>
               <label for="vendeurs">{{ 'warehouseApp.sales.vendeurs' | translate }}</label>
             </p-floatlabel>
@@ -105,26 +105,26 @@
 
 
             <p-button
-              pTooltip="Ventes en attente"
-              class="mr-2"
-              tooltipPosition="left"
               (click)="openPindingSide()"
-              [disabled]="currentSaleService.currentSale() || isPresale"
-              [variant]="'text'"
-              icon="pi pi-clock"
-              [rounded]="true"
-              size="small"
-              severity="info"
               [badge]="'1'"
+              [disabled]="currentSaleService.currentSale() || isPresale"
+              [rounded]="true"
+              [variant]="'text'"
               badgeSeverity="danger"
+              class="mr-2"
+              icon="pi pi-clock"
+              pTooltip="Ventes en attente"
+              severity="info"
+              size="small"
+              tooltipPosition="left"
             ></p-button>
 
 
-            <p-button label="Retour"
-                      size="small"
-                      (click)="previousState()"
+            <p-button (click)="previousState()"
+                      icon="pi pi-arrow-left"
+                      label="Retour"
                       severity="secondary"
-                      icon="pi pi-arrow-left">
+                      size="small">
             </p-button>
           </div>
         </div>
@@ -145,14 +145,14 @@
           <div class="pharma-product-search">
             <jhi-produit-search-autocomplete-scanner
               #produitbox
-              [(ngModel)]="produitSelected"
-              (selectedProduit)="onSelectProduct($event)"
-              (onKeyEnter)="onSaveKeyDown($event)"
               (onBarcodeScanned)="onBarcodeScanned($event)"
+              (onKeyEnter)="onSaveKeyDown($event)"
+              (selectedProduit)="onSelectProduct($event)"
+              [(ngModel)]="produitSelected"
               [autofocus]="true"
+              [enableScanner]="true"
               [includeDetails]="true"
               [pageSize]="PRODUIT_COMBO_RESULT_SIZE"
-              [enableScanner]="true"
               class="pharma-autocomplete">
             </jhi-produit-search-autocomplete-scanner>
           </div>
@@ -172,7 +172,7 @@
           @if (produitSelected) {
             <div class="product-info-badges">
               @if (showStock) {
-                <p-tag class="mr-1" [severity]="stockSeverity">
+                <p-tag [severity]="stockSeverity" class="mr-1">
                   <i class="pi pi-box"></i>
                   <span class="ml-1">Stock: {{ produitSelected?.totalQuantity | number }}</span>
                 </p-tag>

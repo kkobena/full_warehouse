@@ -1,11 +1,7 @@
 import { HttpResponse } from '@angular/common/http';
 import { Component, inject, OnInit } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
-import {
-  APPEND_TO,
-  PRODUIT_COMBO_MIN_LENGTH,
-  PRODUIT_NOT_FOUND
-} from 'app/shared/constants/pagination.constants';
+import { APPEND_TO, PRODUIT_COMBO_MIN_LENGTH, PRODUIT_NOT_FOUND } from 'app/shared/constants/pagination.constants';
 import moment from 'moment';
 import { IProduit } from 'app/shared/model/produit.model';
 import { ProduitService } from './produit.service';
@@ -20,10 +16,7 @@ import { RippleModule } from 'primeng/ripple';
 import { TableModule } from 'primeng/table';
 import { BadgeModule } from 'primeng/badge';
 import { ProduitStatService } from './stat/produit-stat.service';
-import {
-  ProduitAuditingParam,
-  ProduitAuditingState
-} from '../../shared/model/produit-record.model';
+import { ProduitAuditingParam, ProduitAuditingState } from '../../shared/model/produit-record.model';
 import { DividerModule } from 'primeng/divider';
 import { DATE_FORMAT_DD_MM_YYYY_HH_MM_SS } from '../../shared/util/warehouse-util';
 import { NgxSpinnerModule, NgxSpinnerService } from 'ngx-spinner';
@@ -174,10 +167,8 @@ export class ProduitDetailComponent implements OnInit {
     this.resetTotaux();
     if (this.entites.length > 0) {
       for (const e of this.entites) {
-        console.warn(e);
         if (e.saleQuantity) {
           this.saleQuantity = this.saleQuantity + e.saleQuantity;
-          console.error(this.saleQuantity);
         }
         if (e.retourFournisseurQuantity) {
           this.retourFournisseurQuantity = this.retourFournisseurQuantity + e.retourFournisseurQuantity;

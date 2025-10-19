@@ -1,5 +1,4 @@
-
-import { Injectable, signal, computed } from '@angular/core';
+import { computed, Injectable, signal } from '@angular/core';
 import { Subject } from 'rxjs';
 
 export interface KeyboardShortcut {
@@ -13,30 +12,47 @@ export interface KeyboardShortcut {
 }
 
 @Injectable({
-  providedIn: 'root'
+  providedIn: 'root',
 })
 export class KeyboardShortcutsService {
   private shortcuts = signal<Map<string, KeyboardShortcut>>(new Map());
+  shortcutsList = computed(() => Array.from(this.shortcuts().values()));
   private shortcutTriggered$ = new Subject<string>();
-
   // Raccourcis navigateur à éviter
   private readonly BROWSER_SHORTCUTS = [
-    'ctrl+n', 'ctrl+t', 'ctrl+w', 'ctrl+shift+t',
-    'ctrl+l', 'ctrl+k', 'ctrl+d', 'ctrl+shift+d',
-    'ctrl+h', 'ctrl+j', 'ctrl+p', 'ctrl+s',
-    'ctrl+f', 'ctrl+g', 'ctrl+shift+i', 'f12',
-    'ctrl+u', 'ctrl++', 'ctrl+-', 'ctrl+0',
-    'f5', 'ctrl+r', 'ctrl+shift+r',
-    'alt+left', 'alt+right', 'ctrl+tab', 'ctrl+shift+tab',
+    'ctrl+n',
+    'ctrl+t',
+    'ctrl+w',
+    'ctrl+shift+t',
+    'ctrl+l',
+    'ctrl+k',
+    'ctrl+d',
+    'ctrl+shift+d',
+    'ctrl+h',
+    'ctrl+j',
+    'ctrl+p',
+    'ctrl+s',
+    'ctrl+f',
+    'ctrl+g',
+    'ctrl+shift+i',
+    'f12',
+    'ctrl+u',
+    'ctrl++',
+    'ctrl+-',
+    'ctrl+0',
+    'f5',
+    'ctrl+r',
+    'ctrl+shift+r',
+    'alt+left',
+    'alt+right',
+    'ctrl+tab',
+    'ctrl+shift+tab',
   ];
-
-  shortcutsList = computed(() => Array.from(this.shortcuts().values()));
 
   registerShortcut(shortcut: KeyboardShortcut): boolean {
     const key = this.getShortcutKey(shortcut);
 
     if (this.BROWSER_SHORTCUTS.includes(key)) {
-      console.warn(`⚠️ Le raccourci ${key} est réservé par le navigateur`);
       return false;
     }
 
@@ -67,14 +83,6 @@ export class KeyboardShortcutsService {
     return false;
   }
 
-  private getShortcutKey(shortcut: KeyboardShortcut): string {
-    return `${shortcut.ctrl ? 'ctrl+' : ''}${shortcut.alt ? 'alt+' : ''}${shortcut.shift ? 'shift+' : ''}${shortcut.key.toLowerCase()}`;
-  }
-
-  private getEventKey(event: KeyboardEvent): string {
-    return `${event.ctrlKey ? 'ctrl+' : ''}${event.altKey ? 'alt+' : ''}${event.shiftKey ? 'shift+' : ''}${event.key.toLowerCase()}`;
-  }
-
   getShortcutTriggered$() {
     return this.shortcutTriggered$.asObservable();
   }
@@ -85,5 +93,13 @@ export class KeyboardShortcutsService {
 
   getShortcutsByCategory(category: string): KeyboardShortcut[] {
     return this.shortcutsList().filter(s => s.category === category);
+  }
+
+  private getShortcutKey(shortcut: KeyboardShortcut): string {
+    return `${shortcut.ctrl ? 'ctrl+' : ''}${shortcut.alt ? 'alt+' : ''}${shortcut.shift ? 'shift+' : ''}${shortcut.key.toLowerCase()}`;
+  }
+
+  private getEventKey(event: KeyboardEvent): string {
+    return `${event.ctrlKey ? 'ctrl+' : ''}${event.altKey ? 'alt+' : ''}${event.shiftKey ? 'shift+' : ''}${event.key.toLowerCase()}`;
   }
 }

@@ -1,5 +1,5 @@
 flyway:
-  enabled: true
+  enabled: false
   schemas: warehouse
   table: warehouse_history
 
@@ -27,7 +27,7 @@ spring:
     database-platform: org.hibernate.dialect.PostgreSQLDialect
 
     open-in-view: false
-    show-sql: false
+    show-sql: true
     properties:
       hibernate:
         format_sql: true
@@ -36,6 +36,7 @@ spring:
         default_schema: warehouse
         cache:
           region.factory_class: org.hibernate.cache.jcache.JCacheRegionFactory
+        use_sql_comments: true
       hibernate.jdbc.time_zone: UTC
       hibernate.timezone.default_storage: NORMALIZE
       hibernate.id.new_generator_mappings: true

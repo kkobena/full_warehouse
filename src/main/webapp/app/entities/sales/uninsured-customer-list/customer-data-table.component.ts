@@ -33,7 +33,8 @@ import { showCommonModal } from '../selling-home/sale-helper';
     IconField,
     InputIcon
   ],
-  templateUrl: './customer-data-table.component.html'
+  templateUrl: './customer-data-table.component.html',
+  styleUrls: ['./customer-data-table.scss']
 })
 export class CustomerDataTableComponent {
   customers: ICustomer[] = [];

@@ -29,12 +29,7 @@ public interface CustomSalesRepository {
 
     List<TicketZCreditProjection> getTicketZDifferes(Specification<Sales> specification);
 
-    VenteRecord fetchVenteRecord(Specification<Sales> specification);
 
     List<VentePeriodeRecord> fetchVentePeriodeRecords(Specification<Sales> specification, StatGroupBy statGroupBy);
-
-    List<VenteByTypeRecord> fetchVenteByTypeRecords(Specification<Sales> specification);
-
-    List<BalanceCaisseDTO> fetchSalesForBalanceCaisse(MvtParam mvtParam);
 
 }

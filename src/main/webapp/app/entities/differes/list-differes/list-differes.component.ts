@@ -32,8 +32,7 @@ export class ListDifferesComponent implements OnInit, OnDestroy {
   protected page = 0;
   protected totalItems = 0;
   protected loading!: boolean;
-  /* protected modelStartDate: Date = new Date();
-  protected modelEndDate: Date = new Date();*/
+  protected readonly  hideStatusFilter = true;
   protected loadingBtn = false;
   protected loadingPdf = false;
   protected clients: ClientDiffere[] = [];

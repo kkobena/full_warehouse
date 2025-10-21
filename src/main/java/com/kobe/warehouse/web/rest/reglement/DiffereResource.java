@@ -48,10 +48,9 @@ public class DiffereResource {
     @GetMapping
     public ResponseEntity<List<DiffereDTO>> getAllDifferes(
         @RequestParam(name = "customerId", required = false) Long customerId,
-        @RequestParam(name = "paymentStatuses", required = false) Set<PaymentStatus> paymentStatuses,
         Pageable pageable
     ) {
-        Page<DiffereDTO> page = reglementDiffereService.getDiffere(customerId, paymentStatuses, pageable);
+        Page<DiffereDTO> page = reglementDiffereService.getDiffere(customerId, Set.of(PaymentStatus.IMPAYE), pageable);
         HttpHeaders headers = PaginationUtil.generatePaginationHttpHeaders(ServletUriComponentsBuilder.fromCurrentRequest(), page);
 
         return ResponseEntity.ok().headers(headers).body(page.getContent());
@@ -71,10 +70,9 @@ public class DiffereResource {
     @GetMapping("/pdf")
     public ResponseEntity<Resource> exportList(
         HttpServletRequest request,
-        @RequestParam(name = "customerId", required = false) Long customerId,
-        @RequestParam(name = "paymentStatuses", required = false) Set<PaymentStatus> paymentStatuses
+        @RequestParam(name = "customerId", required = false) Long customerId
     ) {
-        return Utils.printPDF(reglementDiffereService.printListToPdf(customerId, paymentStatuses), request);
+        return Utils.printPDF(reglementDiffereService.printListToPdf(customerId, Set.of(PaymentStatus.IMPAYE)), request);
     }
 
     @GetMapping("/reglements/pdf")
@@ -115,9 +113,8 @@ public class DiffereResource {
 
     @GetMapping("/summary")
     public ResponseEntity<DiffereSummary> getDiffereSummary(
-        @RequestParam(name = "customerId", required = false) Long customerId,
-        @RequestParam(name = "paymentStatuses", required = false) Set<PaymentStatus> paymentStatuses
+        @RequestParam(name = "customerId", required = false) Long customerId
     ) {
-        return ResponseEntity.ok().body(reglementDiffereService.getDiffereSummary(customerId, paymentStatuses));
+        return ResponseEntity.ok().body(reglementDiffereService.getDiffereSummary(customerId, Set.of(PaymentStatus.IMPAYE)));
     }
 }

@@ -165,11 +165,7 @@ public interface SalesRepository extends JpaSpecificationExecutor<Sales>, JpaRep
         if (CollectionUtils.isEmpty(paymentStatuses)) {
             return null;
         }
-        return (root, _, cb) -> {
-            In<PaymentStatus> salesIn = cb.in(root.get(Sales_.paymentStatus));
-            paymentStatuses.forEach(salesIn::value);
-            return salesIn;
-        };
+        return (root, _, cb) -> root.get(Sales_.paymentStatus).in(paymentStatuses);
     }
 
     default Specification<Sales> filterNumberTransaction(String numberTransaction) {

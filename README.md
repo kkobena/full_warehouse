@@ -513,3 +513,7 @@ SELECT
 COUNT(*) FILTER (WHERE d.checked) AS checkedCount,
 COUNT(*) FILTER (WHERE NOT d.checked) AS uncheckedCount
 FROM t_order_detail d
+
+#TO DO
+ - Intercepeteur window.__TAURI__
+ - Ajout de trays Electron pour notification

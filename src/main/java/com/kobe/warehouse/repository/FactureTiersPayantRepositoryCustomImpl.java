@@ -8,6 +8,7 @@ import com.kobe.warehouse.domain.Sales_;
 import com.kobe.warehouse.domain.ThirdPartySaleLine;
 import com.kobe.warehouse.domain.ThirdPartySaleLine_;
 import com.kobe.warehouse.domain.ThirdPartySales;
+import com.kobe.warehouse.domain.TiersPayant;
 import com.kobe.warehouse.domain.TiersPayant_;
 import com.kobe.warehouse.service.facturation.dto.FactureDto;
 import jakarta.persistence.EntityManager;
@@ -57,6 +58,7 @@ public class FactureTiersPayantRepositoryCustomImpl implements FactureTiersPayan
         Join<FactureTiersPayant, ThirdPartySaleLine> details = root.join(FactureTiersPayant_.facturesDetails);
         Join<ThirdPartySaleLine, ThirdPartySales> sales = details.join(ThirdPartySaleLine_.sale);
         Join<FactureTiersPayant, FactureTiersPayant> groupe = root.join(FactureTiersPayant_.groupeFactureTiersPayant, JoinType.LEFT);
+        Join<FactureTiersPayant, TiersPayant> tiersPayantJoin = root.join(FactureTiersPayant_.tiersPayant);
 
         query.select(
             cb.construct(
@@ -73,7 +75,7 @@ public class FactureTiersPayantRepositoryCustomImpl implements FactureTiersPayan
                 root.get(FactureTiersPayant_.factureProvisoire),
                 root.get(FactureTiersPayant_.numFacture),
                 groupe.get(FactureTiersPayant_.numFacture),
-                root.get(FactureTiersPayant_.tiersPayant).get(TiersPayant_.fullName),
+                tiersPayantJoin.get(TiersPayant_.fullName),
                 cb.sum(sales.get(Sales_.salesAmount)),
                 cb.sum(sales.get(Sales_.discountAmount)),
                 cb.sum(details.get(ThirdPartySaleLine_.montantRegle)),
@@ -95,7 +97,7 @@ public class FactureTiersPayantRepositoryCustomImpl implements FactureTiersPayan
             root.get(FactureTiersPayant_.factureProvisoire),
             root.get(FactureTiersPayant_.numFacture),
             groupe.get(FactureTiersPayant_.numFacture),
-            root.get(FactureTiersPayant_.tiersPayant).get(TiersPayant_.fullName)
+            tiersPayantJoin.get(TiersPayant_.fullName)
         );
 
         TypedQuery<FactureDto> typedQuery = em.createQuery(query);

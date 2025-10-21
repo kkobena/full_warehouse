@@ -1,5 +1,5 @@
 flyway:
-  enabled: false
+  enabled: true
   schemas: warehouse
   table: warehouse_history
 

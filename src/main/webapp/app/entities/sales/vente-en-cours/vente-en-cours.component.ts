@@ -31,8 +31,7 @@ import { Card } from 'primeng/card';
     Select,
     IconField,
     InputIcon,
-    ConfirmDialogComponent,
-    Card
+    ConfirmDialogComponent
   ]
 })
 export class VenteEnCoursComponent implements OnInit {

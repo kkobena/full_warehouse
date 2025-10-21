@@ -16,7 +16,10 @@
       "Bash(fi)",
       "Bash(done)",
       "Bash(npm run electron:prod:*)",
-      "Bash(curl:*)"
+      "Bash(curl:*)",
+      "Bash(npm run webapp:build:tauri:*)",
+      "Bash(npm run tauri:build:debug:*)",
+      "Bash(cargo build:*)"
     ],
     "deny": [],
     "ask": []

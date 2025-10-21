@@ -23,6 +23,7 @@
     "webapp:build": "npm run clean-www && npm run webapp:build:dev",
     "webapp:build:dev": "ng build --configuration development",
     "webapp:build:prod": "ng build --configuration production",
+    "webapp:build:tauri": "npm run clean-www && ng build --configuration tauri",
     "webapp:dev": "ng serve",
     "webapp:dev-ssl": "ng serve --ssl",
     "webapp:dev-verbose": "ng serve --verbose",
@@ -34,7 +35,12 @@
     "electron": "electron .",
     "electron:build": "npm run clean-www && ng build --configuration=electron && electron-builder --win --x64 --publish never",
     "electron:build-dir": "npm run clean-www && ng build --configuration=electron && electron-builder --win --x64 --dir --publish never",
-    "electron:package": "npm run clean-www && ng build --configuration=electron && electron-builder --win --x64 --publish never"
+    "electron:package": "npm run clean-www && ng build --configuration=electron && electron-builder --win --x64 --publish never",
+    "tauri": "tauri",
+    "tauri:dev": "tauri dev",
+    "tauri:build": "npm run webapp:build:tauri && tauri build",
+    "tauri:build:debug": "npm run webapp:build:tauri && tauri build --debug",
+    "tauri:build:fast": "tauri build"
   },
   "build": {
     "appId": "com.kobe.warehouse",
@@ -111,6 +117,7 @@
     "@angular/compiler-cli": "20.3.2",
     "@angular/service-worker": "20.3.2",
     "@eslint/js": "9.25.1",
+    "@tauri-apps/cli": "^2.1.0",
     "@types/file-saver": "^2.0.7",
     "@types/jest": "29.5.14",
     "@types/node": "^22.13.14",

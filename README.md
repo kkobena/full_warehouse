@@ -514,6 +514,41 @@ COUNT(*) FILTER (WHERE d.checked) AS checkedCount,
 COUNT(*) FILTER (WHERE NOT d.checked) AS uncheckedCount
 FROM t_order_detail d
 
+# Desktop Application Support
+
+PharmaSmart supports two desktop application frameworks:
+
+## Electron
+Traditional desktop framework with Node.js integration. See [ELECTRON_README.md](ELECTRON_README.md) for details.
+
+```bash
+# Development
+npm run electron:dev
+
+# Build
+npm run electron:build
+```
+
+## Tauri
+Modern, lightweight desktop framework using Rust. See [TAURI_README.md](TAURI_README.md) for complete setup guide.
+
+```bash
+# Development
+npm run tauri:dev
+
+# Build
+npm run tauri:build
+```
+
+### Quick Comparison
+- **Electron**: ~150MB bundle, full Node.js access, mature ecosystem
+- **Tauri**: ~5MB bundle, Rust backend, native webview, better security
+
+Choose based on your deployment needs:
+- Use **Tauri** for smaller, faster, more secure applications
+- Use **Electron** if you need extensive Node.js libraries or have legacy code
+
 #TO DO
  - Intercepeteur window.__TAURI__
  - Ajout de trays Electron pour notification
+ - Generate Tauri icons from favicon

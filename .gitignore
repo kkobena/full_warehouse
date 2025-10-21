@@ -151,4 +151,14 @@ Desktop.ini
 ######################
 coverage/
 .nyc_output/
+
+######################
+# Electron
+######################
 /dist-electron/
+
+######################
+# Tauri
+######################
+/src-tauri/target/
+/src-tauri/Cargo.lock

@@ -55,6 +55,7 @@ import { ProduitAutocompleteComponent } from '../../../shared/produit-autocomple
     ProduitAutocompleteComponent
   ],
   templateUrl: './transaction.component.html',
+  styleUrls: ['./transaction.scss'],
   providers: [ProduitAuditingParamService]
 })
 export class TransactionComponent implements OnInit {

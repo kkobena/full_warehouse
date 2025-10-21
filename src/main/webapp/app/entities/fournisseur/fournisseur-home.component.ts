@@ -26,7 +26,8 @@ import { GroupeFournisseurComponent } from '../groupe-fournisseur/groupe-fournis
     GroupeFournisseurComponent,
     NgbNavOutlet
   ],
-  templateUrl: './fournisseur-home.component.html'
+  templateUrl: './fournisseur-home.component.html',
+  styleUrl: './fournisseur-home.component.scss',
 })
 export class FournisseurHomeComponent {
   protected active = 'fournisseur';

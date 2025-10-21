@@ -81,10 +81,10 @@
       currentPageReportTemplate="Affichage de {first} à {last} sur {totalRecords}"
       dataKey="id"
       selectionMode="single"
-      styleClass="p-datatable-gridlines mt-2"
+
       class="pharma-table"
     >
-      <ng-template pTemplate="header">
+      <ng-template #header>
         <tr class="pharma-table-head">
           <th style="width: 9%">Type</th>
           <th style="width: 7%">Code</th>
@@ -97,7 +97,7 @@
           <th style="width: 14%"></th>
         </tr>
       </ng-template>
-      <ng-template let-tiersPayant pTemplate="body">
+      <ng-template let-tiersPayant #body>
         <tr>
           <td>
             <span class="pharma-badge pharma-badge-info">{{ tiersPayant.categorie }}</span>

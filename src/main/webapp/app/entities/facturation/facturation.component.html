@@ -5,14 +5,14 @@
         <div #nav="ngbNav" [(activeId)]="active" class="nav flex-column nav-pills" ngbNav
              orientation="vertical">
           <ng-container ngbNavItem="factures">
-            <a class="flex-sm-fill nav-link" ngbNavLink>Liste des factures</a>
+            <a class="nav-link pharma-nav-link" ngbNavLink>Liste des factures</a>
             <ng-template ngbNavContent>
               <jhi-factures></jhi-factures>
             </ng-template>
           </ng-container>
           <p-divider layout="horizontal"></p-divider>
           <ng-container ngbNavItem="edition-facture">
-            <a class="flex-sm-fill nav-link" ngbNavLink>Edition de facture</a>
+            <a class="nav-link pharma-nav-link" ngbNavLink>Edition de facture</a>
             <ng-template ngbNavContent>
               <jhi-edition></jhi-edition>
             </ng-template>

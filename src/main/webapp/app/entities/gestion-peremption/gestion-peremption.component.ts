@@ -25,7 +25,7 @@ import { WarehouseCommonModule } from '../../shared/warehouse-common/warehouse-c
     WarehouseCommonModule
   ],
   templateUrl: './gestion-peremption.component.html',
-  styles: ``
+  styleUrls: ['./gestion-peremption.scss'],
 })
 export class GestionPeremptionComponent {
   protected active = 'lot-perimes';

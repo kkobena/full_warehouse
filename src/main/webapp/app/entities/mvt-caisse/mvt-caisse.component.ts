@@ -45,6 +45,7 @@ import { Divider } from 'primeng/divider';
     Divider,
   ],
   templateUrl: './mvt-caisse.component.html',
+  styleUrl: './mvt-caisse.component.scss',
 })
 export class MvtCaisseComponent {
   protected active = 'mvt-caisse';

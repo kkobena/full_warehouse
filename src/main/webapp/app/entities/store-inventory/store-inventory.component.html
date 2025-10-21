@@ -4,14 +4,14 @@
       <div #nav="ngbNav" [(activeId)]="active" class="nav flex-column nav-pills" ngbNav
            orientation="vertical">
         <ng-container ngbNavItem="CREATE">
-          <a class="flex-sm-fill nav-link" ngbNavLink>En cours</a>
+          <a class="nav-link pharma-nav-link" ngbNavLink>En cours</a>
           <ng-template ngbNavContent>
             <jhi-en-cours [inventoryCategories]="inventoryCategories" [user]="user"></jhi-en-cours>
           </ng-template>
         </ng-container>
         <p-divider layout="horizontal"></p-divider>
         <ng-container ngbNavItem="CLOSED">
-          <a class="flex-sm-fill nav-link" ngbNavLink>Cloturés</a>
+          <a class="nav-link pharma-nav-link" ngbNavLink>Cloturés</a>
           <ng-template ngbNavContent>
             <jhi-clotures [inventoryCategories]="inventoryCategories" [user]="user"></jhi-clotures>
           </ng-template>

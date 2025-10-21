@@ -24,6 +24,7 @@ import { Divider } from 'primeng/divider';
     Divider
   ],
   templateUrl: './sales-home.component.html',
+  styleUrl: './sales-home.component.scss',
 })
 export class SalesHomeComponent implements OnInit {
   saleToolBarService = inject(SaleToolBarService);

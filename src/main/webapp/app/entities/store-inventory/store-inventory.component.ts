@@ -33,23 +33,7 @@ import { Divider } from 'primeng/divider';
   selector: 'jhi-store-inventory',
   templateUrl: './store-inventory.component.html',
   providers: [ConfirmationService, DialogService, MessageService],
-  styles: [
-    `
-      .table tr:hover {
-        cursor: pointer;
-      }
-
-      .table .active {
-        background-color: #95caf9 !important;
-      }
-
-      .ag-theme-alpine {
-        min-height: 400px;
-        height: 550px;
-        max-height: 700px;
-      }
-    `,
-  ],
+ styleUrls: ['./store-inventory.scss'],
   imports: [
     WarehouseCommonModule,
     MultiSelectModule,

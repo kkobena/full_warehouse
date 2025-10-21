@@ -26,7 +26,8 @@ import { GroupeTiersPayantComponent } from '../groupe-tiers-payant/groupe-tiers-
     TiersPayantComponent,
     GroupeTiersPayantComponent
   ],
-  templateUrl: './tiers-payant-home.component.html'
+  templateUrl: './tiers-payant-home.component.html',
+  styleUrls: ['./tiers-payant-home.scss'],
 })
 export class TiersPayantHomeComponent {
   protected active = 'tiers-payant';

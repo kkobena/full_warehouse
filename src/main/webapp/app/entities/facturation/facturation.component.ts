@@ -38,6 +38,7 @@ import { Divider } from 'primeng/divider';
     Divider,
   ],
   templateUrl: './facturation.component.html',
+  styleUrl: './facturation.component.scss',
 })
 export class FacturationComponent {
   protected active = 'factures';

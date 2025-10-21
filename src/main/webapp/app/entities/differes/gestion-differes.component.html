@@ -6,14 +6,14 @@
         <div #nav="ngbNav" [(activeId)]="active" class="nav flex-column nav-pills" ngbNav
              orientation="vertical">
           <ng-container ngbNavItem="liste">
-            <a class="flex-sm-fill nav-link" ngbNavLink>Les différés</a>
+            <a class="nav-link pharma-nav-link" ngbNavLink>Les différés</a>
             <ng-template ngbNavContent>
               <jhi-list-differes></jhi-list-differes>
             </ng-template>
           </ng-container>
           <p-divider layout="horizontal"></p-divider>
           <ng-container ngbNavItem="faire-reglement">
-            <a class="flex-sm-fill nav-link" ngbNavLink>Règlements différés</a>
+            <a class="nav-link pharma-nav-link" ngbNavLink>Règlements différés</a>
             <ng-template ngbNavContent>
               <jhi-reglement-differes></jhi-reglement-differes>
             </ng-template>

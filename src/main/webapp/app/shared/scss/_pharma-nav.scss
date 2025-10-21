@@ -1,0 +1,81 @@
+// ====================================
+// PHARMA SMART - COMMON NAVIGATION STYLES
+// ====================================
+// This file contains the common navigation styles for the Pharma-Smart application
+// Import this file in your component SCSS files to use the pharma-nav-link class
+
+// ====================================
+// VARIABLES PHARMA SMART
+// ====================================
+$pharma-primary: #5b89a6;
+$pharma-success: #5cb85c;
+$pharma-info: #5bc0de;
+$pharma-secondary: #95a5a6;
+$pharma-danger: #d9534f;
+
+$pharma-bg: #f5f7fa;
+$pharma-white: #ffffff;
+$pharma-border: #dfe3e8;
+$pharma-text: #333333;
+$pharma-text-light: #6c757d;
+
+$pharma-radius: 4px;
+$pharma-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+$pharma-shadow-hover: 0 2px 6px rgba(0, 0, 0, 0.15);
+
+// ====================================
+// NAVIGATION PILLS - PHARMA NAV LINK
+// ====================================
+::ng-deep {
+  .nav-pills {
+    .pharma-nav-link {
+      border-radius: $pharma-radius;
+      padding: 12px 15px;
+      margin-bottom: 5px;
+      color: $pharma-text;
+      font-size: 14px;
+      font-weight: 500;
+      transition: all 0.2s ease;
+      border: 1px solid transparent;
+
+      &:hover {
+        background: #f8f9fa;
+        border-color: $pharma-border;
+      }
+
+      &.active {
+        background: $pharma-primary;
+        color: $pharma-white;
+        box-shadow: $pharma-shadow;
+      }
+    }
+  }
+}
+
+// ====================================
+// CARD HEADER STYLE (for p-card)
+// ====================================
+::ng-deep {
+  .p-card {
+    .p-card-content {
+      padding: 10px;
+    }
+  }
+}
+
+// ====================================
+// RESPONSIVE
+// ====================================
+@media (max-width: 992px) {
+  ::ng-deep {
+    .nav-pills {
+      display: flex;
+      overflow-x: auto;
+
+      .pharma-nav-link {
+        white-space: nowrap;
+        min-width: fit-content;
+      }
+    }
+  }
+}

@@ -25,7 +25,7 @@ import { Divider } from 'primeng/divider';
     Divider
   ],
   templateUrl: './gestion-differes.component.html',
-  styles: ``
+  styleUrl: './gestion-differes.component.scss',
 })
 export class GestionDifferesComponent {
   protected active = 'liste';

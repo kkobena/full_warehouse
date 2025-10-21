@@ -4,21 +4,21 @@
       <div #nav="ngbNav" [(activeId)]="active" class="nav flex-column nav-pills" ngbNav
            orientation="vertical">
         <ng-container ngbNavItem="auditing">
-          <a class="flex-sm-fill nav-link" ngbNavLink>Mouvements de stock</a>
+          <a class="nav-link pharma-nav-link" ngbNavLink>Mouvements de stock</a>
           <ng-template ngbNavContent>
             <jhi-auditing></jhi-auditing>
           </ng-template>
         </ng-container>
 
         <ng-container ngbNavItem="sales">
-          <a class="flex-sm-fill nav-link" ngbNavLink>Historique des ventes</a>
+          <a class="nav-link pharma-nav-link" ngbNavLink>Historique des ventes</a>
           <ng-template ngbNavContent>
             <jhi-stat-sales></jhi-stat-sales>
           </ng-template>
         </ng-container>
         <p-divider layout="horizontal"></p-divider>
         <ng-container ngbNavItem="commande">
-          <a class="flex-sm-fill nav-link" ngbNavLink>Historique des commandes</a>
+          <a class="nav-link pharma-nav-link" ngbNavLink>Historique des commandes</a>
           <ng-template ngbNavContent>
             <jhi-stat-delivery></jhi-stat-delivery>
           </ng-template>

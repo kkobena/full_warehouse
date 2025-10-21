@@ -1,29 +1,3 @@
-// ====================================
-// COMMON TABLE STYLES FOR PHARMA-SMART
-// ====================================
-// This file contains reusable table styles inspired by the product table design
-// Use these classes to maintain consistent table styling across the application
-//
-// USAGE:
-// 1. Import this file in your component SCSS: @import 'app/shared/scss/table-common';
-// 2. Apply the classes to your p-table component:
-//    <p-table class="pharma-table">
-//      <ng-template #header>
-//        <tr class="pharma-table-head">
-//          <th>Column 1</th>
-//          <th>Column 2</th>
-//        </tr>
-//      </ng-template>
-//    </p-table>
-//
-// AVAILABLE COMPONENTS:
-// - Table wrapper: .pharma-table-wrapper
-// - Table header compact: .pharma-table-header-compact
-// - Filter search: .pharma-filter-search
-// - Table styling: .pharma-table
-// - Row styles: .pharma-row-warning, .pharma-row-hover
-// - Cell content: .pharma-code, .pharma-price, .pharma-total, etc.
-// ====================================
 
 // ====================================
 // VARIABLES

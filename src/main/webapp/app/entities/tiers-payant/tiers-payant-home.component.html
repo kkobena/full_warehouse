@@ -5,14 +5,14 @@
         <div #nav="ngbNav" [(activeId)]="active" class="nav flex-column nav-pills" ngbNav
              orientation="vertical">
           <ng-container ngbNavItem="tiers-payant">
-            <a class="flex-sm-fill nav-link" ngbNavLink>Tiers payants</a>
+            <a class="nav-link pharma-nav-link" ngbNavLink>Tiers payants</a>
             <ng-template ngbNavContent>
               <jhi-tiers-payant></jhi-tiers-payant>
             </ng-template>
           </ng-container>
           <p-divider layout="horizontal"></p-divider>
           <ng-container ngbNavItem="groupe-tiers-payant">
-            <a class="flex-sm-fill nav-link" ngbNavLink>Groupe de tiers payants</a>
+            <a class="nav-link pharma-nav-link" ngbNavLink>Groupe de tiers payants</a>
             <ng-template ngbNavContent>
               <jhi-groupe-tiers-payant></jhi-groupe-tiers-payant>
             </ng-template>

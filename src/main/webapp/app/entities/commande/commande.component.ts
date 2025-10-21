@@ -57,17 +57,7 @@ import { ConfirmDialogComponent } from '../../shared/dialog/confirm-dialog/confi
     Select,
     ConfirmDialogComponent
   ],
-  styles: [
-    `
-      .commande-gestion .table tr:hover {
-        cursor: pointer;
-      }
-
-      table .active {
-        background-color: #95caf9 !important;
-      }
-    `
-  ]
+  styleUrl: './commande.component.scss',
 })
 export class CommandeComponent implements OnInit {
   protected fournisseurService = inject(FournisseurService);

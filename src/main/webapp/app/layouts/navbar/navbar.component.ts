@@ -20,6 +20,7 @@ import {
   faExclamationTriangle,
   faEye,
   faFileInvoice,
+  faKeyboard,
   faLink,
   faMapMarker,
   faMoneyBill,
@@ -48,6 +49,7 @@ import { TranslateService } from '@ngx-translate/core';
 import { Authority } from '../../shared/constants/authority.constants';
 import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { AppSettingsDialogComponent } from '../../shared/settings/app-settings-dialog.component';
+import { ShortcutsHelpDialogComponent } from '../../shared/shortcuts/shortcuts-help-dialog.component';
 import { LayoutService } from '../../core/config/layout.service';
 
 @Component({
@@ -117,6 +119,10 @@ export default class NavbarComponent implements OnInit {
 
   protected openAppSettings(): void {
     this.modalService.open(AppSettingsDialogComponent, { size: 'lg', backdrop: 'static' });
+  }
+
+  protected openShortcutsHelp(): void {
+    this.modalService.open(ShortcutsHelpDialogComponent, { size: 'xl', backdrop: 'static', scrollable: true });
   }
 
   protected hasAnyAuthority(authorities: string[] | string): boolean {
@@ -324,6 +330,11 @@ export default class NavbarComponent implements OnInit {
 
           },
           {
+            label: 'Raccourcis Clavier',
+            faIcon: faKeyboard,
+            click: () => this.openShortcutsHelp()
+          },
+          {
             label: 'Mode Sidebar',
             faIcon: faBars,
             click: () => this.layoutService.toggleLayout()
@@ -363,6 +374,11 @@ export default class NavbarComponent implements OnInit {
             label: 'Paramètres Serveur',
             faIcon: faServer,
             click: () => this.openAppSettings()
+          },
+          {
+            label: 'Raccourcis Clavier',
+            faIcon: faKeyboard,
+            click: () => this.openShortcutsHelp()
           },
           {
             label: 'Mode Sidebar',

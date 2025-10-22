@@ -8,6 +8,7 @@ import java.awt.Font;
 import java.awt.FontMetrics;
 import java.awt.Graphics2D;
 import java.awt.print.PrinterException;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import org.slf4j.Logger;
@@ -75,6 +76,11 @@ public class InvoiceReceiptService extends ReglementAbstractReceiptService {
 
     @Override
     protected List<HeaderFooterItem> getFooterItems() {
+        return List.of();
+    }
+
+    @Override
+    protected List<byte[]> generateTicket() throws IOException {
         return List.of();
     }
 

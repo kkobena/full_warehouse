@@ -46,7 +46,8 @@
       }
     ],
     "security": {
-      "csp": "default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' data: https: http:; font-src 'self' data:; connect-src 'self' http://localhost:* ws://localhost:* http://172.23.162.15:* ws://172.23.162.15:* http://192.168.*:* ws://192.168.*:* http://10.*:* ws://10.*:*"
+      "csp": "default-src 'self' tauri:; script-src 'self' 'unsafe-inline' 'unsafe-eval' tauri:; style-src 'self' 'unsafe-inline'; img-src 'self' data: https: http: tauri: asset: http://asset.localhost; font-src 'self' data:; connect-src 'self' ipc: http://ipc.localhost http://localhost:* ws://localhost:* http://172.23.162.15:* ws://172.23.162.15:* http://192.168.*:* ws://192.168.*:* http://10.*:* ws://10.*:*",
+      "capabilities": ["default"]
     }
   }
 }

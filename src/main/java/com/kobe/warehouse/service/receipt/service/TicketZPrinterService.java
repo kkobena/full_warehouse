@@ -7,6 +7,7 @@ import com.kobe.warehouse.service.receipt.dto.HeaderFooterItem;
 import com.kobe.warehouse.service.tiketz.dto.TicketZ;
 import java.awt.Graphics2D;
 import java.awt.print.PrinterException;
+import java.io.IOException;
 import java.time.LocalDateTime;
 import java.util.List;
 import org.springframework.stereotype.Service;
@@ -28,6 +29,11 @@ public class TicketZPrinterService extends AbstractTicketZService{
 
     @Override
     protected List<HeaderFooterItem> getFooterItems() {
+        return List.of();
+    }
+
+    @Override
+    protected List<byte[]> generateTicket() throws IOException {
         return List.of();
     }
 

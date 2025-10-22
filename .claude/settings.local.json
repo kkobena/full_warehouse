@@ -19,7 +19,9 @@
       "Bash(curl:*)",
       "Bash(npm run webapp:build:tauri:*)",
       "Bash(npm run tauri:build:debug:*)",
-      "Bash(cargo build:*)"
+      "Bash(cargo build:*)",
+      "Bash(npm run lint)",
+      "Bash(cargo doc:*)"
     ],
     "deny": [],
     "ask": []

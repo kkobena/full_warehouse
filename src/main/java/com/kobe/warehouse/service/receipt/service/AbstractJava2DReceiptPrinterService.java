@@ -6,20 +6,23 @@ import com.kobe.warehouse.repository.PrinterRepository;
 import com.kobe.warehouse.service.AppConfigurationService;
 import com.kobe.warehouse.service.receipt.dto.AbstractItem;
 import com.kobe.warehouse.service.receipt.dto.HeaderFooterItem;
-import java.awt.BasicStroke;
-import java.awt.Font;
-import java.awt.FontMetrics;
-import java.awt.Graphics2D;
+
+import java.awt.*;
+import java.awt.image.BufferedImage;
 import java.awt.print.PageFormat;
 import java.awt.print.Paper;
 import java.awt.print.Printable;
 import java.awt.print.PrinterException;
 import java.awt.print.PrinterJob;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
 import java.time.LocalDate;
 import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
+import javax.imageio.ImageIO;
 import javax.print.PrintService;
 import javax.print.PrintServiceLookup;
 import org.springframework.stereotype.Service;
@@ -71,6 +74,7 @@ public abstract class AbstractJava2DReceiptPrinterService implements Printable {
     protected abstract List<HeaderFooterItem> getFooterItems();
 
     protected abstract int getNumberOfCopies();
+    protected abstract List<byte[]> generateTicket() throws IOException;
 
     protected int drawWelcomeMessage(Graphics2D graphics2D, int margin, int y) {
         if (StringUtils.hasText(magasin.getWelcomeMessage())) {

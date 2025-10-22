@@ -19,6 +19,7 @@ import java.awt.Font;
 import java.awt.FontMetrics;
 import java.awt.Graphics2D;
 import java.awt.print.PrinterException;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import org.slf4j.Logger;
@@ -115,6 +116,8 @@ public class AssuranceSaleReceiptService extends AbstractSaleReceiptService {
         }
         return thirdPartySale.getThirdPartySaleLines().size() + 1;
     }
+
+
 
     @Override
     public List<HeaderFooterItem> getFooterItems() {
@@ -290,5 +293,21 @@ public class AssuranceSaleReceiptService extends AbstractSaleReceiptService {
             return name;
         }
         return name.substring(0, 28);
+    }
+
+    /**
+     * Generate assurance receipt as byte arrays for Tauri clients
+     * <p>
+     * This method is specifically designed for Tauri clients that need to print
+     * receipts on a different machine from the backend server
+     *
+     * @param sale the third-party/assurance sale to generate receipt for
+     * @return list of byte arrays representing receipt pages as PNG images
+     * @throws IOException if image generation fails
+     */
+    public List<byte[]> generateTicketForTauri(ThirdPartySaleDTO sale) throws IOException {
+        this.thirdPartySale = sale;
+        this.isEdit = false;
+        return generateTicket();
     }
 }

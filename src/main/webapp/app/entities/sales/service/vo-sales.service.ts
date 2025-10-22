@@ -52,6 +52,14 @@ export class VoSalesService {
     return this.http.get(`${this.resourceUrl}/assurance/re-print/receipt/${id.id}/${id.saleDate}`, { observe: 'response' });
   }
 
+  /**
+   * Get assurance receipt as byte arrays for Tauri printing
+   * Returns a list of PNG images (as byte arrays) representing each page of the receipt
+   */
+  getReceiptForTauri(id: SaleId): Observable<string[]> {
+    return this.http.get<string[]>(`${this.resourceUrl}/assurance/receipt/tauri/${id.id}/${id.saleDate}`);
+  }
+
   create(sales: ISales): Observable<EntityResponseType> {
     const copy = this.convertDateFromClient(sales);
     return this.http

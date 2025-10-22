@@ -27,6 +27,7 @@ import { UninsuredCustomerListComponent } from '../../uninsured-customer-list/un
 import { take } from 'rxjs/operators';
 import { Card } from 'primeng/card';
 import { SpinnerComponent } from '../../../../shared/spinner/spinner.component';
+import { TauriPrinterService } from '../../../../shared/services/tauri-printer.service';
 
 @Component({
   selector: 'jhi-comptant',
@@ -76,6 +77,7 @@ export class ComptantComponent {
   private readonly baseSaleService = inject(BaseSaleService);
   private readonly selectedCustomerService = inject(SelectedCustomerService);
   private readonly selectModeReglementService = inject(SelectModeReglementService);
+  private readonly tauriPrinterService = inject(TauriPrinterService);
   private readonly spinner = viewChild.required<SpinnerComponent>('spinner');
 
   constructor() {
@@ -238,7 +240,12 @@ export class ComptantComponent {
   }
 
   printSale(saleId: SaleId): void {
-    this.facade.printReceipt(saleId);
+    // Check if running in Tauri using the proper service method
+    if (this.tauriPrinterService.isRunningInTauri()) {
+      this.facade.printReceiptForTauri(saleId);
+    } else {
+      this.facade.printReceipt(saleId);
+    }
   }
 
   onAddRmiseOpenActionAutorisationDialog(remise: IRemise): void {

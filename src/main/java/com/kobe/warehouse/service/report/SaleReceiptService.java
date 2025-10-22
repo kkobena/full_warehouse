@@ -4,6 +4,8 @@ import com.kobe.warehouse.config.FileStorageProperties;
 import com.kobe.warehouse.constant.EntityConstant;
 import com.kobe.warehouse.domain.SaleId;
 import com.kobe.warehouse.repository.AppConfigurationRepository;
+import com.kobe.warehouse.repository.PrinterRepository;
+import com.kobe.warehouse.service.AppConfigurationService;
 import com.kobe.warehouse.service.StorageService;
 import com.kobe.warehouse.service.dto.CashSaleDTO;
 import com.kobe.warehouse.service.dto.SaleDTO;
@@ -11,6 +13,8 @@ import com.kobe.warehouse.service.dto.SaleLineDTO;
 import com.kobe.warehouse.service.dto.ThirdPartySaleDTO;
 import com.kobe.warehouse.service.errors.FileStorageException;
 import com.kobe.warehouse.service.pdf.BarcodeImageReplacedElementFactory;
+import com.kobe.warehouse.service.receipt.service.AssuranceSaleReceiptService;
+import com.kobe.warehouse.service.receipt.service.CashSaleReceiptService;
 import com.kobe.warehouse.service.sale.SaleDataService;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -45,6 +49,8 @@ public class SaleReceiptService {
     private final StorageService storageService;
     private final Path fileStorageLocation;
     private final AppConfigurationRepository appConfigurationRepository;
+    private final AppConfigurationService appConfigurationService;
+    private final PrinterRepository printerRepository;
     private String SIZE_VALUE = "80mm 80mm";
     private int maxiRowCount = 40;
 
@@ -53,12 +59,16 @@ public class SaleReceiptService {
         SaleDataService saleDataService,
         StorageService storageService,
         FileStorageProperties fileStorageProperties,
-        AppConfigurationRepository appConfigurationRepository
+        AppConfigurationRepository appConfigurationRepository,
+        AppConfigurationService appConfigurationService,
+        PrinterRepository printerRepository
     ) {
         this.templateEngine = templateEngine;
         this.saleDataService = saleDataService;
         this.storageService = storageService;
         this.appConfigurationRepository = appConfigurationRepository;
+        this.appConfigurationService = appConfigurationService;
+        this.printerRepository = printerRepository;
         this.fileStorageLocation = Paths.get(fileStorageProperties.getReportsDir()).toAbsolutePath().normalize();
 
         try {
@@ -266,5 +276,43 @@ public class SaleReceiptService {
                 this.maxiRowCount = Integer.parseInt(appConfiguration.getValue())
             );
         return this.maxiRowCount;
+    }
+
+    /**
+     * Generate cash sale receipt as byte arrays for Tauri clients
+     * <p>
+     * This method creates a list of PNG images (one per page) as byte arrays
+     * that can be sent to Tauri clients for printing on remote machines
+     *
+     * @param id the sale id and date
+     * @return list of byte arrays representing receipt pages as PNG images
+     * @throws IOException if image generation fails
+     */
+    public List<byte[]> generateTicketForTauri(SaleId id) throws IOException {
+        CashSaleDTO saleDTO = (CashSaleDTO) saleDataService.getOneSaleDTO(id);
+        CashSaleReceiptService receiptService = new CashSaleReceiptService(
+            appConfigurationService,
+            printerRepository
+        );
+        return receiptService.generateTicketForTauri(saleDTO);
+    }
+
+    /**
+     * Generate assurance/third-party sale receipt as byte arrays for Tauri clients
+     * <p>
+     * This method creates a list of PNG images (one per page) as byte arrays
+     * that can be sent to Tauri clients for printing on remote machines
+     *
+     * @param id the sale id and date
+     * @return list of byte arrays representing receipt pages as PNG images
+     * @throws IOException if image generation fails
+     */
+    public List<byte[]> generateVoTicketForTauri(SaleId id) throws IOException {
+        ThirdPartySaleDTO saleDTO = (ThirdPartySaleDTO) saleDataService.getOneSaleDTO(id);
+        AssuranceSaleReceiptService receiptService = new AssuranceSaleReceiptService(
+            appConfigurationService,
+            printerRepository
+        );
+        return receiptService.generateTicketForTauri(saleDTO);
     }
 }

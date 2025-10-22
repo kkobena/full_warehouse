@@ -11,6 +11,8 @@ import { SelectedCustomerService } from '../../service/selected-customer.service
 import { TypePrescriptionService } from '../../service/type-prescription.service';
 import { UserCaissierService } from '../../service/user-caissier.service';
 import { UserVendeurService } from '../../service/user-vendeur.service';
+import { TauriPrinterService } from '../../../../shared/services/tauri-printer.service';
+import { ErrorService } from '../../../../shared/error.service';
 
 @Injectable({
   providedIn: 'root',
@@ -22,6 +24,8 @@ export class ComptantFacadeService {
   private readonly typePrescriptionService = inject(TypePrescriptionService);
   private readonly userCaissierService = inject(UserCaissierService);
   private readonly userVendeurService = inject(UserVendeurService);
+  private readonly tauriPrinterService = inject(TauriPrinterService);
+  private readonly errorService = inject(ErrorService);
   private saveResponseSubject = new Subject<SaveResponse>();
   saveResponse$ = this.saveResponseSubject.asObservable();
   private finalyseSaleSubject = new Subject<FinalyseSale>();
@@ -164,6 +168,34 @@ export class ComptantFacadeService {
       .printReceipt(saleId)
       .pipe(finalize(() => this.spinnerService.next(false)))
       .subscribe();
+  }
+
+  /**
+   * Print receipt for Tauri clients
+   * Gets receipt as PNG images and prints them to the local printer
+   */
+  printReceiptForTauri(saleId: SaleId): void {
+    this.spinnerService.next(true);
+    this.salesService
+      .getReceiptForTauri(saleId)
+      .pipe(finalize(() => this.spinnerService.next(false)))
+      .subscribe({
+        next: async (receiptPages: string[]) => {
+          try {
+            await this.tauriPrinterService.printReceipt(receiptPages);
+            console.log('Receipt printed successfully');
+          } catch (error) {
+            console.error('Error printing receipt:', error);
+            this.onSaveError(error);
+
+
+          }
+        },
+        error: err => {
+          console.error('Error getting receipt for Tauri:', err);
+          this.onSaveError(err);
+        }
+      });
   }
 
   private onSaveSuccess(sale: ISales | null): void {

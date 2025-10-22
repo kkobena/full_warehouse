@@ -75,4 +75,21 @@ export class QuantiteProdutSaisieComponent {
   protected handleEnter(): void {
     this.onAdd();
   }
+
+  incrementQuantity(amount: number = 1): void {
+    if (this.isValid()) {
+      const currentValue = this.quantite || 0;
+      this.quantite = currentValue + amount;
+      this.focusProduitControl();
+    }
+  }
+
+  decrementQuantity(amount: number = 1): void {
+    if (this.isValid()) {
+      const currentValue = this.quantite || 0;
+      const newValue = currentValue - amount;
+      this.quantite = newValue > 0 ? newValue : 1;
+      this.focusProduitControl();
+    }
+  }
 }

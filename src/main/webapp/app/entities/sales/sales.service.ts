@@ -6,7 +6,7 @@ import moment from 'moment';
 
 import { SERVER_API_URL } from 'app/app.constants';
 import { createRequestOption, createRequestOptions } from 'app/shared/util/request-util';
-import { FinalyseSale, ISales, KeyValue, SaleId, UpdateSaleInfo } from 'app/shared/model/sales.model';
+import { FinalyseSale, ISales, SaleId, UpdateSaleInfo } from 'app/shared/model/sales.model';
 import { ISalesLine, SaleLineId } from '../../shared/model/sales-line.model';
 import { IResponseDto } from '../../shared/util/response-dto';
 import { UtilisationCleSecurite } from '../action-autorisation/utilisation-cle-securite.model';
@@ -94,6 +94,22 @@ export class SalesService {
 
   rePrintReceipt(id: SaleId): Observable<{}> {
     return this.http.get(`${this.resourceUrl}/re-print/receipt/${id.id}/${id.saleDate}`, { observe: 'response' });
+  }
+
+  /**
+   * Get receipt as byte arrays for Tauri printing
+   * Returns a list of PNG images (as byte arrays) representing each page of the receipt
+   */
+  getReceiptForTauri(id: SaleId): Observable<string[]> {
+    return this.http.get<string[]>(`${this.resourceUrl}/receipt/tauri/${id.id}/${id.saleDate}`);
+  }
+
+  /**
+   * Get assurance receipt as byte arrays for Tauri printing
+   * Returns a list of PNG images (as byte arrays) representing each page of the receipt
+   */
+  getAssuranceReceiptForTauri(id: SaleId): Observable<string[]> {
+    return this.http.get<string[]>(`${this.resourceUrl}/assurance/receipt/tauri/${id.id}/${id.saleDate}`);
   }
 
   addItemComptant(salesLine: ISalesLine): Observable<HttpResponse<ISalesLine>> {

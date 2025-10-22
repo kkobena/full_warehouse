@@ -1,5 +1,16 @@
 import { isPlatformBrowser } from '@angular/common';
-import { AfterViewInit, Component, DestroyRef, effect, inject, OnInit, PLATFORM_ID, viewChild } from '@angular/core';
+import {
+  AfterViewInit,
+  Component,
+  DestroyRef,
+  effect,
+  HostListener,
+  inject,
+  OnDestroy,
+  OnInit,
+  PLATFORM_ID,
+  viewChild
+} from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { ButtonModule } from 'primeng/button';
 import { InputTextModule } from 'primeng/inputtext';
@@ -83,6 +94,8 @@ import {
   ProduitSearchAutocompleteScannerComponent
 } from '../../../shared/produit-search-autocomplete-scanner/produit-search-autocomplete-scanner.component';
 import { Tag } from 'primeng/tag';
+import { SellingHomeShortcutsService } from './racourci/selling-home-shortcuts.service';
+import { KeyboardShortcutsService } from './racourci/keyboard-shortcuts.service';
 
 @Component({
   selector: 'jhi-selling-home',
@@ -115,7 +128,7 @@ import { Tag } from 'primeng/tag';
   templateUrl: './selling-home.component.html',
   styleUrl: './selling-home.component.scss'
 })
-export class SellingHomeComponent implements OnInit, AfterViewInit {
+export class SellingHomeComponent implements OnInit, AfterViewInit, OnDestroy {
   readonly minLength = PRODUIT_COMBO_MIN_LENGTH;
   readonly COMPTANT = 'COMPTANT';
   readonly CARNET = 'CARNET';
@@ -184,6 +197,8 @@ export class SellingHomeComponent implements OnInit, AfterViewInit {
   private readonly saleStockValidator = inject(SaleStockValidator);
   private readonly deconditionnementService = inject(DeconditionnementService);
   private readonly forceStockService = inject(ForceStockService);
+  private readonly shortcutsService = inject(SellingHomeShortcutsService);
+  private readonly keyboardService = inject(KeyboardShortcutsService);
 
   constructor() {
     this.canForceStock = this.hasAuthorityService.hasAuthorities(Authority.PR_FORCE_STOCK);
@@ -272,6 +287,9 @@ export class SellingHomeComponent implements OnInit, AfterViewInit {
 
     this.typePrescription = this.typePrescriptionService.typePrescriptionDefault();
 
+    // Register keyboard shortcuts
+    this.registerKeyboardShortcuts();
+
     this.activatedRoute.data.pipe(takeUntilDestroyed(this.destroyRef)).subscribe(({ sales, mode }) => {
       if (sales.id) {
         if (sales.customer) {
@@ -297,6 +315,11 @@ export class SellingHomeComponent implements OnInit, AfterViewInit {
       }
     }
     this.userVendeurService.setVendeur(this.userSeller);
+  }
+
+  @HostListener('document:keydown', ['$event'])
+  handleKeyboardEvent(event: KeyboardEvent): void {
+    this.keyboardService.handleKeyboardEvent(event);
   }
 
   manageAmountDiv(): void {
@@ -1011,5 +1034,119 @@ export class SellingHomeComponent implements OnInit, AfterViewInit {
 
   private goToNew() {
     this.router.navigate(['/sales', 'false', 'new']);
+  }
+
+  ngOnDestroy(): void {
+    this.shortcutsService.unregisterAll();
+  }
+
+  private registerKeyboardShortcuts(): void {
+    this.shortcutsService.registerAll({
+      // Navigation
+      focusProductSearch: () => this.produitbox()?.getFocus(),
+      focusQuantity: () => this.quantyBox()?.focusProduitControl(),
+      focusCustomer: () => {
+        if (this.isComptant()) {
+          // this.customerBox()?.show();
+        }
+      },
+      focusVendor: () => this.userBox()?.nativeElement?.focus(),
+
+      // Product actions
+      //addProduct: () => this.onAddProduit(),
+      addProduct: () => {
+      },
+      removeSelectedLine: () => {
+        if (this.isComptant()) {
+          //   this.comptantComponent()?.removeSelectedItem();
+        } else if (this.isAssurance()) {
+          // this.assuranceComponent()?.removeSelectedItem();
+        } else if (this.isCartnet()) {
+          // this.carnetComponent()?.removeSelectedItem();
+        }
+      },
+      clearProduct: () => {
+        this.produitSelected = null;
+        this.produitbox()?.getFocus();
+      },
+      viewProductStock: () => {
+        if (this.produitSelected) {
+          // Stock modal would be triggered here if available
+          console.log('View stock for product:', this.produitSelected);
+        }
+      },
+
+      // Sale types
+      switchToComptant: () => {
+        this.active = 'comptant';
+      },
+      switchToAssurance: () => {
+        this.active = 'assurance';
+      },
+      switchToCarnet: () => {
+        this.active = 'carnet';
+      },
+
+      // Payment & Finalization
+      finalizeSale: () => this.manageAmountDiv(),
+      savePending: () => {
+        if (this.isComptant()) {
+          this.comptantComponent()?.putCurrentSaleOnStandBy();
+        } else if (this.isAssurance()) {
+          this.setEnAttenteAssurance();
+        } else if (this.isCartnet()) {
+          this.setEnAttenteAssurance();
+        }
+      },
+      viewPendingSales: () => this.openPindingSide(),
+      cancelSale: () => this.resetAll(),
+
+      // Quantity
+      incrementQuantity: (amount: number) => {
+        this.quantyBox()?.incrementQuantity(amount);
+      },
+      decrementQuantity: (amount: number) => {
+        this.quantyBox()?.decrementQuantity(amount);
+      },
+
+      // Discounts
+      applyDiscount: () => {
+        if (this.isComptant()) {
+          // this.comptantComponent()?.openRemiseModal();
+        } else if (this.isAssurance()) {
+          //  this.assuranceComponent()?.openRemiseModal();
+        } else if (this.isCartnet()) {
+          // this.carnetComponent()?.openRemiseModal();
+        }
+      },
+      removeDiscount: () => {
+        if (this.isComptant()) {
+          //  this.comptantComponent()?.removeDiscount();
+        } else if (this.isAssurance()) {
+          //  this.assuranceComponent()?.removeDiscount();
+        } else if (this.isCartnet()) {
+          //  this.carnetComponent()?.removeDiscount();
+        }
+      },
+
+      // Printing
+      printInvoice: () => this.onPrintInvoice(),
+      printReceipt: () => {
+        if (this.isComptant()) {
+          this.comptantComponent()?.printSale(this.currentSaleService.currentSale()?.saleId);
+        } else if (this.isAssurance()) {
+          this.assuranceComponent()?.printSale(this.currentSaleService.currentSale()?.saleId);
+
+        } else if (this.isCartnet()) {
+          this.carnetComponent()?.printSale(this.currentSaleService.currentSale()?.saleId);
+        }
+      },
+
+      // Tauri-specific (optional, only if user has permission)
+      forceStock: this.canForceStock ? () => {
+        console.log('Force stock activated');
+        // Force stock logic would go here
+      } : undefined
+    });
   }
 }

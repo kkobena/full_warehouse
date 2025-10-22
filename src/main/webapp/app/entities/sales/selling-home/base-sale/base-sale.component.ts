@@ -30,6 +30,7 @@ import { FormActionAutorisationComponent } from '../../form-action-autorisation/
 import { ConfirmDialogComponent } from '../../../../shared/dialog/confirm-dialog/confirm-dialog.component';
 import { CardModule } from 'primeng/card';
 import { SpinnerComponent } from '../../../../shared/spinner/spinner.component';
+import { TauriPrinterService } from '../../../../shared/services/tauri-printer.service';
 
 @Component({
   templateUrl: './base-sale.component.html',
@@ -381,7 +382,37 @@ export class BaseSaleComponent {
   }
 
   printSale(saleId: SaleId): void {
-    this.salesService.printReceipt(saleId).subscribe();
+    // Check if running in Tauri
+    // @ts-ignore
+    if (window.__TAURI__) {
+      this.printSaleForTauri(saleId);
+    } else {
+      this.salesService.printReceipt(saleId).subscribe();
+    }
+  }
+
+  /**
+   * Print receipt for Tauri clients
+   * Gets receipt as PNG images and prints them to the local printer
+   */
+  private printSaleForTauri(saleId: SaleId): void {
+    const tauriPrinterService = inject(TauriPrinterService);
+
+    this.salesService.getReceiptForTauri(saleId).subscribe({
+      next: async (receiptPages: string[]) => {
+        try {
+          await tauriPrinterService.printReceipt(receiptPages);
+          console.log('Receipt printed successfully');
+        } catch (error) {
+          console.error('Error printing receipt:', error);
+          alert('Erreur lors de l\'impression du ticket');
+        }
+      },
+      error: err => {
+        console.error('Error getting receipt for Tauri:', err);
+        alert('Erreur lors de la récupération du ticket');
+      }
+    });
   }
 
   onAddRmiseOpenActionAutorisationDialog(remise: IRemise): void {

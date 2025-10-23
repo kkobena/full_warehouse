@@ -1,152 +1,139 @@
-<div class="row mb-1">
-  <div class="col-12 d-flex justify-content-end">
-    <p-toggleButton
-      (onChange)="onToggleChange($event)"
-      [(ngModel)]="showGraphs"
-      [style]="{ 'min-width': '10rem' }"
-      offIcon="pi pi-table"
-      offLabel="Vue Tabulaire"
-      onIcon="pi pi-chart-bar"
-      onLabel="Vue Graphique"
-    ></p-toggleButton>
+<div class="row">
+  <div class="col-12 d-flex justify-content-end dashboard-toggle mt-1 mb-1">
+    <div class="custom-segment-control">
+      <div class="segment-track">
+        <div class="segment-slider" [class.active-right]="showGraphs"></div>
+        <button
+          type="button"
+          class="segment-option"
+          [class.active]="!showGraphs"
+          (click)="showGraphs = false; onToggleChange({ checked: false })"
+        >
+          <i class="pi pi-table"></i>
+          <span>Vue Tabulaire</span>
+        </button>
+        <button
+          type="button"
+          class="segment-option"
+          [class.active]="showGraphs"
+          (click)="showGraphs = true; onToggleChange({ checked: true })"
+        >
+          <i class="pi pi-chart-bar"></i>
+          <span>Vue Graphique</span>
+        </button>
+      </div>
+    </div>
   </div>
 </div>
 <div class="row">
   <!-- Card 1: Total Montant Global -->
   <div class="col-xl-3 col-md-6 mb-2">
-    <div class="card h-100 border-start border-primary border-4">
+    <div class="card h-100 kpi-card primary-accent">
       <div class="card-body">
-        <div class="d-flex align-items-center">
-          <div class="flex-grow-1">
-            <p class="text-muted fw-medium mb-2">Total montant global</p>
-            <h4 class="mb-0 "><span
-              class="fw-semibold">{{ venteRecord?.salesAmount | number }} </span><span
-              class="text-muted">TTC</span>
+        <div class="kpi-header">
+          <div class="kpi-content">
+            <p class="kpi-label">Total montant global</p>
+            <h4 class="kpi-value">
+              <span>{{ venteRecord?.salesAmount | number }}</span>
+              <span class="value-suffix">TTC</span>
             </h4>
-            <div class="mt-2 pt-1">
-              <span
-                class="badge bg-success-subtle fw-semibold text-success my-1 me-1 ">{{ venteRecord?.htAmount | number }}
-                HT</span>
-              <span
-                class="badge bg-info-subtle fw-semibold text-info">{{ venteRecord?.taxAmount | number }}
-                TVA</span>
+            <div class="kpi-badges">
+              <span class="badge bg-success-subtle text-success">{{ venteRecord?.htAmount | number }} HT</span>
+              <span class="badge bg-info-subtle text-info">{{ venteRecord?.taxAmount | number }} TVA</span>
             </div>
           </div>
-          <div class="flex-shrink-0 text-primary">
-            <fa-icon [icon]="faShoppingBasket" size="3x"></fa-icon>
+          <div class="kpi-icon text-primary">
+            <fa-icon [icon]="faShoppingBasket"></fa-icon>
           </div>
         </div>
       </div>
-      <div class="card-footer bg-transparent border-top">
-        <div class="d-flex justify-content-between align-items-center">
-          <span class="text-muted">Nombre de ventes</span>
-          <span
-            class="badge bg-warning-subtle fw-semibold text-warning">{{ venteRecord?.saleCount | number }}</span>
-        </div>
+      <div class="card-footer">
+        <span class="footer-label">Nombre de ventes</span>
+        <span class="badge bg-warning-subtle text-warning">{{ venteRecord?.saleCount | number }}</span>
       </div>
     </div>
   </div>
 
   <!-- Card 2: Total en Net -->
   <div class="col-xl-3 col-md-6 mb-2">
-    <div class="card h-100 border-start border-danger border-4">
+    <div class="card h-100 kpi-card danger-accent">
       <div class="card-body">
-        <div class="d-flex align-items-center">
-          <div class="flex-grow-1">
-            <p class="text-muted fw-medium mb-2">Total en net</p>
-            <h4 class="mb-0 fw-semibold">{{ venteRecord?.netAmount | number }}</h4>
-            <div class="mt-2 pt-1">
-              <span
-                class="badge bg-primary-subtle fw-semibold text-primary my-1 me-1">{{ venteRecord?.paidAmount | number }}
-                Comptant</span>
-              <span
-                class="badge bg-danger-subtle  fw-semibold text-danger">{{ venteRecord?.restToPay | number }}
-                Crédit</span>
+        <div class="kpi-header">
+          <div class="kpi-content">
+            <p class="kpi-label">Total en net</p>
+            <h4 class="kpi-value">
+              <span>{{ venteRecord?.netAmount | number }}</span>
+            </h4>
+            <div class="kpi-badges">
+              <span class="badge bg-primary-subtle text-primary">{{ venteRecord?.paidAmount | number }} Comptant</span>
+              <span class="badge bg-danger-subtle text-danger">{{ venteRecord?.restToPay | number }} Crédit</span>
             </div>
           </div>
-          <div class="flex-shrink-0 text-danger">
-            <fa-icon [icon]="faShippingFast" size="3x"></fa-icon>
+          <div class="kpi-icon text-danger">
+            <fa-icon [icon]="faShippingFast"></fa-icon>
           </div>
         </div>
       </div>
-      <div class="card-footer bg-transparent border-top">
-        <div class="d-flex justify-content-between align-items-center">
-          <span class="text-muted">Remise</span>
-          <span
-            class="badge bg-primary-subtle fw-semibold text-primary  ">{{ venteRecord?.discountAmount | number }}</span>
-        </div>
+      <div class="card-footer">
+        <span class="footer-label">Remise</span>
+        <span class="badge bg-primary-subtle text-primary">{{ venteRecord?.discountAmount | number }}</span>
       </div>
     </div>
   </div>
 
   <!-- Card 3: Chiffres d'affaires par type -->
   <div class="col-xl-3 col-md-6 mb-2">
-    <div class="card h-100 border-start border-success border-4">
+    <div class="card h-100 kpi-card success-accent">
       <div class="card-body">
-        <div class="d-flex align-items-center">
-          <div class="flex-grow-1">
-            <p class="text-muted fw-medium mb-2">Chiffres d'affaires par type</p>
-            <h4 class="mb-0 fw-semibold">{{
-                (vno?.salesAmount || 0) + (assurance?.salesAmount || 0) | number
-              }}</h4>
-            <div class="mt-2 pt-1">
-              <span
-                class="badge bg-primary-subtle fw-semibold text-primary my-1 me-1">{{ vno?.salesAmount | number }}
-                Comptant</span>
-              <span
-                class="badge bg-danger-subtle fw-semibold text-danger">{{ assurance?.salesAmount | number }}
-                Crédit</span>
+        <div class="kpi-header">
+          <div class="kpi-content">
+            <p class="kpi-label">Chiffres d'affaires par type</p>
+            <h4 class="kpi-value">
+              <span>{{ (vno?.salesAmount || 0) + (assurance?.salesAmount || 0) | number }}</span>
+            </h4>
+            <div class="kpi-badges">
+              <span class="badge bg-primary-subtle text-primary">{{ vno?.salesAmount | number }} Comptant</span>
+              <span class="badge bg-danger-subtle text-danger">{{ assurance?.salesAmount | number }} Crédit</span>
             </div>
           </div>
-          <div class="flex-shrink-0 text-success">
-            <fa-icon [icon]="faChartLine" size="3x"></fa-icon>
+          <div class="kpi-icon text-success">
+            <fa-icon [icon]="faChartLine"></fa-icon>
           </div>
         </div>
       </div>
-      <div class="card-footer bg-transparent border-top">
-        <div class="d-flex justify-content-between align-items-center">
-          <span class="text-muted">Annulations</span>
-          @if (canceled?.salesAmount) {
-            <span
-              class="badge bg-secondary-subtle text-secondary fw-semibold ">{{ canceled?.salesAmount | number }}
-              ({{ canceled?.saleCount | number }})
-            </span>
-          }
-        </div>
+      <div class="card-footer">
+        <span class="footer-label">Annulations</span>
+        @if (canceled?.salesAmount) {
+          <span class="badge bg-secondary-subtle text-secondary">{{ canceled?.salesAmount | number }} ({{ canceled?.saleCount | number }})</span>
+        }
       </div>
     </div>
   </div>
 
   <!-- Card 4: Total Achats -->
   <div class="col-xl-3 col-md-6 mb-2">
-    <div class="card h-100 border-start border-warning border-4">
+    <div class="card h-100 kpi-card warning-accent">
       <div class="card-body">
-        <div class="d-flex align-items-center">
-          <div class="flex-grow-1">
-            <p class="text-muted fw-medium mb-2">Total montant des achats</p>
-            <h4 class="mb-0"><span
-              class="fw-semibold">{{ achatRecord?.receiptAmount | number }}</span> <span
-              class="text-muted ">TTC</span></h4>
-            <div class="mt-2 pt-1">
-              <span
-                class="badge bg-success-subtle fw-semibold text-success my-1 me-1 fw-semibold">{{ achatRecord?.netAmount | number }}
-                HT</span>
-              <span
-                class="badge bg-info-subtle fw-semibold text-info fw-semibold">{{ achatRecord?.taxAmount | number }}
-                TVA</span>
+        <div class="kpi-header">
+          <div class="kpi-content">
+            <p class="kpi-label">Total montant des achats</p>
+            <h4 class="kpi-value">
+              <span>{{ achatRecord?.receiptAmount | number }}</span>
+              <span class="value-suffix">TTC</span>
+            </h4>
+            <div class="kpi-badges">
+              <span class="badge bg-success-subtle text-success">{{ achatRecord?.netAmount | number }} HT</span>
+              <span class="badge bg-info-subtle text-info">{{ achatRecord?.taxAmount | number }} TVA</span>
             </div>
           </div>
-          <div class="flex-shrink-0 text-warning">
-            <fa-icon [icon]="faCommentsDollar" size="3x"></fa-icon>
+          <div class="kpi-icon text-warning">
+            <fa-icon [icon]="faCommentsDollar"></fa-icon>
           </div>
         </div>
       </div>
-      <div class="card-footer bg-transparent border-top">
-        <div class="d-flex justify-content-between align-items-center">
-          <span class="text-muted">Nombre d'achats</span>
-          <span
-            class="badge bg-warning-subtle text-warning fw-semibold  fw-semibold">{{ achatRecord?.achatCount | number }}</span>
-        </div>
+      <div class="card-footer">
+        <span class="footer-label">Nombre d'achats</span>
+        <span class="badge bg-warning-subtle text-warning">{{ achatRecord?.achatCount | number }}</span>
       </div>
     </div>
   </div>
@@ -155,9 +142,9 @@
 <div class="row">
   <!-- Card 5: Total par mode reglement -->
   <div class="col-xl-6 col-md-6 mb-2">
-    <div class="card h-100">
-      <div class="card-header d-flex justify-content-between align-items-center bg-light">
-        <h5 class="card-title mb-0">
+    <div class="card h-100 data-card">
+      <div class="card-header">
+        <h5 class="card-title">
           <fa-icon [icon]="faCreditCard" class="text-info"></fa-icon>
           Total par mode de règlement
         </h5>
@@ -184,9 +171,9 @@
   </div>
   <!-- Card 6: Ventes par tiers-payant -->
   <div class="col-xl-6 col-md-6 mb-2">
-    <div class="card h-100">
-      <div class="card-header d-flex justify-content-between align-items-center bg-light">
-        <h5 class="card-title mb-0">
+    <div class="card h-100 data-card">
+      <div class="card-header">
+        <h5 class="card-title">
           <fa-icon [icon]="faChartPie" class="text-success"></fa-icon>
           Ventes par tiers-payant
         </h5>
@@ -216,9 +203,9 @@
 
 <div class="row">
   <div class="col-lg-6 mb-2">
-    <div class="card h-100">
-      <div class="card-header d-flex justify-content-between align-items-center bg-light">
-        <h5 class="card-title mb-0">
+    <div class="card h-100 data-card">
+      <div class="card-header">
+        <h5 class="card-title">
           <fa-icon [icon]="faChartArea" class="text-primary"></fa-icon>
           Meilleures ventes en quantité
         </h5>
@@ -262,9 +249,9 @@
   </div>
 
   <div class="col-lg-6 mb-2">
-    <div class="card h-100">
-      <div class="card-header d-flex justify-content-between align-items-center bg-light">
-        <h5 class="card-title mb-0">
+    <div class="card h-100 data-card">
+      <div class="card-header">
+        <h5 class="card-title">
           <fa-icon [icon]="faChartBar" class="text-warning"></fa-icon>
           Meilleures ventes en valeur
         </h5>
@@ -310,9 +297,9 @@
 
 <div class="row">
   <div class="col-lg-6 mb-2">
-    <div class="card h-100">
-      <div class="card-header d-flex justify-content-between align-items-center bg-light">
-        <h5 class="card-title mb-0">
+    <div class="card h-100 data-card">
+      <div class="card-header">
+        <h5 class="card-title">
           <fa-icon [icon]="faChartLine" class="text-info"></fa-icon>
           Analyse Pareto 20/80 des ventes en quantité
         </h5>
@@ -359,11 +346,11 @@
   </div>
 
   <div class="col-lg-6 mb-2">
-    <div class="card h-100">
-      <div class="card-header d-flex justify-content-between align-items-center bg-light">
-        <h5 class="card-title mb-0">
+    <div class="card h-100 data-card">
+      <div class="card-header">
+        <h5 class="card-title">
           <fa-icon [icon]="faChartLine" class="text-info"></fa-icon>
-          Analyse Pareto 20/80 du chiffre d’affaires
+          Analyse Pareto 20/80 du chiffre d'affaires
         </h5>
       </div>
       <div class="card-body p-0">

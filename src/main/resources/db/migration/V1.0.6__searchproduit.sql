@@ -21,7 +21,7 @@ BEGIN
   RETURN (WITH q AS (SELECT unaccent(qtext)::text AS query)
           SELECT jsonb_agg(result)
           FROM (SELECT p.id ,
-                       p.fournisseur_produit_princial_id AS codecipprincipalid,
+                       p.fournisseur_produit_principal_id AS codecipprincipalid,
                        p.libelle,
                        p.code_ean_labo AS codeeanlabo,
                        p.parent_id                       AS parentid,
@@ -85,7 +85,7 @@ BEGIN
                     p.code_ean_labo LIKE q.query || '%'))
                    -- recherche préfixe stricte sur le libellé
                    OR (lower(p.libelle) LIKE lower(q.query || '%'))
-                GROUP BY p.id, p.libelle, p.code_ean_labo, p.fournisseur_produit_princial_id
+                GROUP BY p.id, p.libelle, p.code_ean_labo, p.fournisseur_produit_principal_id
                 ORDER BY p.libelle ASC
                 LIMIT limit_result) result);
 END;

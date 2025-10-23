@@ -1730,7 +1730,7 @@ create table produit
   forme_id                        bigint
     constraint fkl718rk1riol8vlo4ynew1bv08
       references form_produit,
-  fournisseur_produit_princial_id bigint
+  fournisseur_produit_principal_id bigint
     constraint ukahch43l6nvdao4pggfqbmpime
       unique
     constraint fk5yhxmomhxho35n3cv97x4xq5c

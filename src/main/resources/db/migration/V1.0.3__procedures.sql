@@ -94,7 +94,7 @@ SELECT p.libelle,
        ROUND((c.qte_totale / c.total_global) * 100, 2) AS pourcentage
 FROM classement c
        JOIN produit p ON p.id = c.produit_id
-       LEFT JOIN fournisseur_produit fp ON fp.id = p.fournisseur_produit_princial_id
+       LEFT JOIN fournisseur_produit fp ON fp.id = p.fournisseur_produit_principal_id
 WHERE c.cumul <= 0.8 * c.total_global
 GROUP BY p.id, p.libelle, c.qte_totale, c.total_global
 ORDER BY c.qte_totale DESC;
@@ -138,7 +138,7 @@ SELECT p.libelle,
        ROUND((c.sales_amount / c.total_global) * 100, 2) AS pourcentage
 FROM classement c
        JOIN produit p ON p.id = c.produit_id
-       LEFT JOIN fournisseur_produit fp ON fp.id = p.fournisseur_produit_princial_id
+       LEFT JOIN fournisseur_produit fp ON fp.id = p.fournisseur_produit_principal_id
 WHERE c.cumul <= 0.8 * c.total_global
 GROUP BY p.id, p.libelle, c.total_global, c.sales_amount
 ORDER BY c.sales_amount DESC;

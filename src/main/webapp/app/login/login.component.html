@@ -1,61 +1,116 @@
-<div class="container">
-  <div class="row justify-content-center">
-    <div class="col-lg-7 col-md-8 col-sm-12 col-xl-5 col-xxl-4 mt-5">
-      <p-card>
-        <h4 class="fw-semibold">Authentification</h4>
-        @if (authenticationError()) {
-          <div class="alert alert-danger" data-cy="loginError"
-               jhiTranslate="login.messages.error.authentication">
-            <strong>Erreur de connexion !</strong> Veuillez vérifier vos identifiants de connexion.
+<div class="login-wrapper">
+  <!-- Left Panel - Branding -->
+  <div class="login-branding">
+    <div class="branding-content">
+      <div class="logo-section">
+        <img src="content/images/logo.png" alt="Pharma-Smart Logo" class="brand-logo" />
+        <h1 class="brand-title">Pharma-Smart</h1>
+        <p class="brand-subtitle">Système de Gestion de Pharmacie</p>
+      </div>
+
+      <div class="features-list">
+        <div class="feature-item">
+          <i class="pi pi-check-circle"></i>
+          <span>Gestion complète des stocks</span>
+        </div>
+        <div class="feature-item">
+          <i class="pi pi-check-circle"></i>
+          <span>Facturation intelligente</span>
+        </div>
+        <div class="feature-item">
+          <i class="pi pi-check-circle"></i>
+          <span>Suivi des ventes en temps réel</span>
+        </div>
+        <div class="feature-item">
+          <i class="pi pi-check-circle"></i>
+          <span>Conformité réglementaire</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Right Panel - Login Form -->
+  <div class="login-form-panel">
+    <div class="form-container">
+      <div class="form-header">
+        <h2 class="form-title">Bienvenue</h2>
+        <p class="form-subtitle">Connectez-vous à votre espace</p>
+      </div>
+
+      @if (authenticationError()) {
+        <div class="error-message" data-cy="loginError">
+          <i class="pi pi-exclamation-circle"></i>
+          <div class="error-content">
+            <strong>Erreur de connexion</strong>
+            <p>Veuillez vérifier vos identifiants de connexion</p>
           </div>
-        }
-        <form (ngSubmit)="login()" [formGroup]="loginForm" class="form">
-          <div class="mb-3">
-            <label class="username-label" for="username" jhiTranslate="global.form.username.label">Nom
-              d&apos;utilisateur</label>
-            <input #username
-                   [fluid]="true"
-                   autocomplete="off" data-cy="username"
-                   formControlName="username"
-                   id="username"
-                   name="username"
-                   pInputText
-                   placeholder="{{ 'global.form.username.placeholder' | translate }}"
-                   type="text"
-            />
+        </div>
+      }
+
+      <form (ngSubmit)="login()" [formGroup]="loginForm" class="login-form">
+        <div class="form-field">
+          <label for="username" class="field-label">
+            <i class="pi pi-user"></i>
+            <span jhiTranslate="global.form.username.label">Nom d'utilisateur</span>
+          </label>
+          <input
+            #username
+            [fluid]="true"
+            autocomplete="username"
+            data-cy="username"
+            formControlName="username"
+            id="username"
+            name="username"
+            pInputText
+            placeholder="{{ 'global.form.username.placeholder' | translate }}"
+            type="text"
+            class="modern-input"
+          />
+        </div>
+
+        <div class="form-field">
+          <label for="password" class="field-label">
+            <i class="pi pi-lock"></i>
+            <span jhiTranslate="login.form.password">Mot de passe</span>
+          </label>
+          <p-password
+            [feedback]="false"
+            [fluid]="true"
+            [toggleMask]="true"
+            autocomplete="current-password"
+            data-cy="password"
+            formControlName="password"
+            id="password"
+            placeholder="{{ 'login.form.password.placeholder' | translate }}"
+            styleClass="modern-password"
+          />
+        </div>
+
+        <div class="form-options">
+          <div class="remember-me">
+            <p-toggleswitch formControlName="rememberMe" id="rememberMe" name="rememberMe" />
+            <label for="rememberMe">Se souvenir de moi</label>
           </div>
+          <a href="#" class="forgot-link">Mot de passe oublié ?</a>
+        </div>
 
-          <div class="mb-3">
-            <label for="password" jhiTranslate="login.form.password">Mot de passe</label>
-            <p-password
-              [feedback]="false"
-              [fluid]="true"
-              [toggleMask]="true"
-              autocomplete="off"
-              data-cy="password"
-              formControlName="password"
-              id="password"
-              placeholder="{{ 'login.form.password.placeholder' | translate }}"
-              type="password"
-            />
-          </div>
+        <p-button
+          data-cy="submit"
+          icon="pi pi-sign-in"
+          label="Se connecter"
+          severity="primary"
+          type="submit"
+          [fluid]="true"
+          styleClass="login-button"
+        />
+      </form>
 
-          <div class="form-check">
-
-            <p-toggleswitch formControlName="rememberMe" id="rememberMe"
-                            name="rememberMe" />
-            <label for="rememberMe" style="position:relative;top:-8px !important">Garder la session
-              ouverte</label>
-
-          </div>
-          <div class="text-right">
-            <p-button data-cy="submit" icon="pi pi-sign-in" label="Se connecter" severity="primary"
-                      type="submit" />
-          </div>
-
-
-        </form>
-      </p-card>
+      <div class="form-footer">
+        <p class="help-text">
+          <i class="pi pi-info-circle"></i>
+          Besoin d'aide ? Contactez votre administrateur système
+        </p>
+      </div>
     </div>
   </div>
 </div>

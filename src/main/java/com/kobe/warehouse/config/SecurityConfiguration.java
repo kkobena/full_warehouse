@@ -106,10 +106,16 @@ public class SecurityConfiguration {
                         request -> request.getRequestURI().equals("/")
                     )
                     .permitAll()
-                    // Admin-only endpoints
+                    // Admin-only endpoints (excluding public health/info endpoints)
                     .requestMatchers(
                         request -> request.getRequestURI().startsWith("/api/admin/"),
-                        request -> request.getRequestURI().startsWith("/management/")
+                        request -> {
+                            String uri = request.getRequestURI();
+                            return uri.startsWith("/management/")
+                                && !uri.equals("/management/health")
+                                && !uri.startsWith("/management/health/")
+                             ;
+                        }
                     )
                     .hasAuthority(AuthoritiesConstants.ADMIN)
                     // All other /api/** and /java-client/** endpoints require authentication

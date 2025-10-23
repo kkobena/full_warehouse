@@ -10,9 +10,10 @@
     [totalRecords]="totalItems"
     [value]="data"
     dataKey="mvtDate"
+    class="pharma-table"
   >
     <ng-template #header>
-      <tr>
+      <tr class="pharma-table-head">
         <th>Date</th>
         <th>Référence</th>
         <th>Prix.Unitaire</th>
@@ -29,25 +30,25 @@
       <tr>
         <td>{{ vente.mvtDate | date: 'dd/MM/yyyy HH:mm:ss' }}</td>
         <td>{{ vente.reference }}</td>
-        <td class="amount-column">{{ vente.prixUnitaire | number }}</td>
-        <td class="amount-column">{{ vente.quantite | number }}</td>
-        <td class="amount-column">{{ vente.montantTtc | number }}</td>
-        <td class="amount-column">{{ vente.montantTva | number }}</td>
-        <td class="amount-column">{{ vente.montantHt | number }}</td>
-        <td class="amount-column">{{ vente.montantRemise | number }}</td>
-        <td class="amount-column">{{ vente.montantNet | number }}</td>
+        <td class="amount-column pharma-price">{{ vente.prixUnitaire | number }}</td>
+        <td class="amount-column pharma-qty-value">{{ vente.quantite | number }}</td>
+        <td class="amount-column pharma-price">{{ vente.montantTtc | number }}</td>
+        <td class="amount-column pharma-price">{{ vente.montantTva | number }}</td>
+        <td class="amount-column pharma-price">{{ vente.montantHt | number }}</td>
+        <td class="amount-column pharma-price">{{ vente.montantRemise | number }}</td>
+        <td class="amount-column pharma-price">{{ vente.montantNet | number }}</td>
         <td>{{ vente.user }}</td>
       </tr>
     </ng-template>
     <ng-template #footer>
       <tr>
-        <td colspan="3" class="text-left font-bold p-3 pb-0">Totaux</td>
-        <td class="amount-column">{{ summary?.quantite | number }}</td>
-        <td class="amount-column">{{ summary?.montantTtc | number }}</td>
-        <td class="amount-column">{{ summary?.montantTva | number }}</td>
-        <td class="amount-column">{{ summary?.montantHt | number }}</td>
-        <td class="amount-column">{{ summary?.montantRemise | number }}</td>
-        <td class="amount-column">{{ summary?.montantNet | number }}</td>
+        <td colspan="3" class="text-left font-bold p-3 pb-0 pharma-footer-label">Totaux</td>
+        <td class="amount-column pharma-footer-total">{{ summary?.quantite | number }}</td>
+        <td class="amount-column pharma-footer-total">{{ summary?.montantTtc | number }}</td>
+        <td class="amount-column pharma-footer-total">{{ summary?.montantTva | number }}</td>
+        <td class="amount-column pharma-footer-total">{{ summary?.montantHt | number }}</td>
+        <td class="amount-column pharma-footer-total">{{ summary?.montantRemise | number }}</td>
+        <td class="amount-column pharma-footer-total">{{ summary?.montantNet | number }}</td>
         <td></td>
       </tr>
     </ng-template>

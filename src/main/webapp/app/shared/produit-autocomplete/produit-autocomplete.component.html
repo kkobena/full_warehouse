@@ -18,7 +18,9 @@
     [showEmptyMessage]="true"
     [style]="style()"
     [suggestions]="produits()"
+    (onClear)="clear($event)"
     id="produits"
+    [fluid]="true"
     optionLabel="libelle"
     size="large"
   >

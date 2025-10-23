@@ -26,6 +26,7 @@ import { ToggleSwitchModule } from 'primeng/toggleswitch';
     ToggleSwitchModule,
   ],
   templateUrl: './login.component.html',
+  styleUrls: ['./login.component.scss'],
 })
 export default class LoginComponent implements OnInit, AfterViewInit {
   username = viewChild.required<ElementRef>('username');

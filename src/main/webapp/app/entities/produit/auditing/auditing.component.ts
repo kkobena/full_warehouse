@@ -33,7 +33,7 @@ import { MouvementProduit } from '../../../shared/model/enumerations/mouvement-p
     NgxSpinnerModule
   ],
   templateUrl: './auditing.component.html',
-  styleUrl: './auditing.component.scss',
+  styleUrl: './auditing.component.scss'
 })
 export class AuditingComponent implements OnInit {
   protected saleQuantity?: number;
@@ -61,7 +61,15 @@ export class AuditingComponent implements OnInit {
     if (param && param.produitId) {
       this.loadPage();
       this.fetchSum();
+    } else {
+      this.resetData();
     }
+  }
+
+  resetData(): void {
+    this.entites = [];
+    this.summaries = [];
+    this.resetTotaux();
   }
 
   load(): void {
@@ -92,24 +100,10 @@ export class AuditingComponent implements OnInit {
     });
   }
 
-  protected lazyLoading(event: TableLazyLoadEvent): void {
-    if (event) {
-      this.page = event.first / event.rows;
-      this.loading = true;
-      this.produitStatService
-        .fetchTransactions({
-          page: this.page,
-          size: event.rows,
-          ...this.buidParams()
-        })
-        .subscribe({
-          next: (res: HttpResponse<ProduitAuditingState[]>) => this.onSuccess(res.body, res.headers, this.page),
-          error: err => this.onError(err)
-        });
-    }
-  }
 
-  private onError(eror: any): void {
+
+  private onError(): void {
+    this.entites = [];
   }
 
   private onSuccessPage(data: ProduitAuditingState[] | null): void {
@@ -117,24 +111,20 @@ export class AuditingComponent implements OnInit {
     this.computeTotaux();
   }
 
-  private onSuccess(data: ProduitAuditingState[] | null, headers: HttpHeaders, page: number): void {
-    this.totalItems = Number(headers.get('X-Total-Count'));
-    this.page = page;
+  private onSuccess(data: ProduitAuditingState[] | null): void {
     this.entites = data || [];
     this.loading = false;
   }
 
-  private loadPage(page?: number): void {
-    const pageToLoad: number = page || this.page || 1;
+  private loadPage(): void {
+
     this.produitStatService
       .fetchTransactions({
-        page: pageToLoad - 1,
-        size: this.itemsPerPage,
         ...this.buidParams()
       })
       .subscribe({
-        next: (res: HttpResponse<ProduitAuditingState[]>) => this.onSuccess(res.body, res.headers, pageToLoad),
-        error: err => this.onError(err)
+        next: (res: HttpResponse<ProduitAuditingState[]>) => this.onSuccess(res.body),
+        error: err => this.onError()
       });
   }
 

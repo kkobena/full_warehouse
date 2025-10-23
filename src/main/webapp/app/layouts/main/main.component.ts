@@ -1,7 +1,7 @@
 import { Component, inject, OnInit, Renderer2, RendererFactory2 } from '@angular/core';
 import { Router, RouterOutlet } from '@angular/router';
 import { LangChangeEvent, TranslateService } from '@ngx-translate/core';
-import { AsyncPipe, CommonModule, NgIf } from '@angular/common';
+import { AsyncPipe, CommonModule } from '@angular/common';
 import dayjs from 'dayjs/esm';
 
 import { AccountService } from 'app/core/auth/account.service';
@@ -13,7 +13,7 @@ import { LayoutService } from '../../core/config/layout.service';
 import { Observable } from 'rxjs';
 
 
-import { TitleBarComponent } from '../title-bar/title-bar.component';
+
 
 
 @Component({
@@ -21,7 +21,7 @@ import { TitleBarComponent } from '../title-bar/title-bar.component';
   templateUrl: './main.component.html',
   styleUrl: './main.component.scss',
   providers: [AppPageTitleStrategy, ConfirmationService],
-  imports: [RouterOutlet, ConfirmDialogModule, CommonModule, AsyncPipe, TitleBarComponent],
+  imports: [RouterOutlet, ConfirmDialogModule, CommonModule, AsyncPipe],
 })
 export default class MainComponent implements OnInit {
   private readonly renderer: Renderer2;
@@ -42,9 +42,7 @@ export default class MainComponent implements OnInit {
     this.sidebarCollapsed$ = this.layoutService.sidebarCollapsed$;
   }
 
-  public isElectron = (): boolean => {
-    return !!window.ipcRenderer;
-  }
+
 
   ngOnInit(): void {
     this.accountService.identity().subscribe();

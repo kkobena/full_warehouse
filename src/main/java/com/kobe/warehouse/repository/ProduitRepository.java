@@ -70,7 +70,7 @@ public interface ProduitRepository
     Optional<Produit> findOneByLibelle(String libelle);
 
     @Query(
-        value = "SELECT p.libelle AS libelle , o.code_cip AS codeCip,p.code_ean AS codeEan FROM produit p   JOIN fournisseur_produit  o ON o.fournisseur_produit_princial_id = p.id WHERE o.produit_id =?1 ",
+        value = "SELECT p.libelle AS libelle , o.code_cip AS codeCip,p.code_ean_labo AS codeEan FROM produit p   JOIN fournisseur_produit  o ON p.fournisseur_produit_principal_id = o.id WHERE o.produit_id =?1 ",
         nativeQuery = true
     )
     HistoriqueProduitInfo findHistoriqueProduitInfo(Long produitId);

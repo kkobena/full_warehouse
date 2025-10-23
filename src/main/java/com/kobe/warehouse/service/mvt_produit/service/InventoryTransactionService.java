@@ -32,7 +32,7 @@ public interface InventoryTransactionService {
 
     LocalDateTime fetchLastDateByTypeAndProduitId(MouvementProduit type, Long produitId);
 
-    Page<ProduitAuditingState> fetchProduitDailyTransaction(@Valid ProduitAuditingParam produitAuditingParam, Pageable pageable);
+    List<ProduitAuditingState> fetchProduitDailyTransaction(@Valid ProduitAuditingParam produitAuditingParam);
 
     List<ProduitAuditingSum> fetchProduitDailyTransactionSum(@Valid ProduitAuditingParam produitAuditingParam);
 

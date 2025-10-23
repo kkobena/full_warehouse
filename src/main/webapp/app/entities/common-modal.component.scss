@@ -5,3 +5,16 @@
   @include modal-theme;
 }
 
+.form-label {
+  color: #495057;
+}
+
+.alert {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.bi {
+  font-size: 1rem;
+}

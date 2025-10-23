@@ -28,7 +28,7 @@
   </div>
 
   <div class="col-lg-10 col-xl-10 col-md-10 col-sm-10 row produit-audit-toolbar">
-    <p-toolbar>
+    <p-toolbar class="mb-2">
       <div class=" d-flex justify-content-between " style="width: 100%">
         <div class="flex-grow-1 d-flex justify-content-between">
           <div class="mr-1 flex-grow-1">
@@ -37,6 +37,7 @@
               [(ngModel)]="produit"
               [autofocus]="true"
               [includeDetails]="true"
+              (onClear)="onClear($event)"
               [pageSize]="PRODUIT_COMBO_RESULT_SIZE">
             </jhi-produit-autocomplete>
           </div>
@@ -65,21 +66,21 @@
         </div>
         <div>
           <p-buttonGroup>
-            @if (produit) {
-              <div class="mr-1">
-                <p-button [badge]="produit?.totalQuantity | number" badgeSeverity="contrast"
-                          label="Stock" [raised]="true" />
-              </div>
-            }
+            <!--      @if (produit) {
+                  <div class="mr-1">
+                    <p-button [badge]="produit?.totalQuantity | number" badgeSeverity="contrast"
+                              label="Stock" [raised]="true" />
+                  </div>
+                } -->
 
             <p-button (click)="load()" class="mr-1" icon="pi pi-search" label="Rechercher"
                       raised="true" severity="info"></p-button>
             @if (produit) {
-              <p-button (click)="exportPdf()" class="mr-1" icon="pi pi-file-pdf" label="Imprimer"
+              <p-button (click)="exportPdf()" icon="pi pi-file-pdf" label="Imprimer"
                         raised="true" severity="warn" type="button">
               </p-button>
             }
-            <jhi-back-button></jhi-back-button>
+            <!-- <jhi-back-button></jhi-back-button> -->
           </p-buttonGroup>
         </div>
       </div>

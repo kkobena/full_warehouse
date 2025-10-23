@@ -12,7 +12,7 @@ import { Button } from 'primeng/button';
   styleUrls: ['../../entities/common-modal.component.scss'],
   template: `
     <div class="modal-header">
-      <h4 class="modal-title">Paramètres de l'Application</h4>
+      <h4 class="modal-title">Configuration du serveur</h4>
       <button type="button" class="btn-close" aria-label="Close" (click)="dismiss()"></button>
     </div>
     <p-card>
@@ -71,9 +71,11 @@ import { Button } from 'primeng/button';
             'bi-check-circle': connectionTestResult === true,
             'bi-x-circle': connectionTestResult === false
           }"></i>
-              {{ connectionTestResult ? 'Connexion réussie!' : 'Échec de la connexion. Vérifiez l\'adresse et
-              réessayez.'
+
+              {{
+                connectionTestResult ? 'Connexion réussie!' : errorMsg
               }}
+
             </div>
           }
 
@@ -107,29 +109,14 @@ import { Button } from 'primeng/button';
 
 
     </div>
-  `,
-  styles: [`
+  `
 
-
-    .form-label {
-      color: #495057;
-    }
-
-    .alert {
-      display: flex;
-      align-items: center;
-      gap: 0.5rem;
-    }
-
-    .bi {
-      font-size: 1rem;
-    }
-  `]
 })
 export class AppSettingsDialogComponent implements OnInit {
-  apiServerUrl: string = '';
-  testing = false;
-  connectionTestResult: boolean | null = null;
+ protected apiServerUrl: string = '';
+ protected errorMsg: string = "Échec de la connexion. Vérifiez l'adresse et réessayez.";
+ protected testing = false;
+ protected connectionTestResult: boolean | null = null;
 
   constructor(
     public activeModal: NgbActiveModal,

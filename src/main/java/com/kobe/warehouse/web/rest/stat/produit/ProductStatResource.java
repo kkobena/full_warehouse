@@ -61,12 +61,9 @@ public class ProductStatResource {
 
     @GetMapping("/transactions")
     public ResponseEntity<List<ProduitAuditingState>> fetchTransactions(
-        @Valid ProduitAuditingParam produitAuditingParam,
-        Pageable pageable
+        @Valid ProduitAuditingParam produitAuditingParam
     ) {
-        Page<ProduitAuditingState> page = productStatService.fetchProduitDailyTransaction(produitAuditingParam, pageable);
-        HttpHeaders headers = PaginationUtil.generatePaginationHttpHeaders(ServletUriComponentsBuilder.fromCurrentRequest(), page);
-        return ResponseEntity.ok().headers(headers).body(page.getContent());
+        return ResponseEntity.ok().body(productStatService.fetchProduitDailyTransaction(produitAuditingParam));
     }
 
     @GetMapping("/transactions/sum")
@@ -168,7 +165,7 @@ public class ProductStatResource {
         @RequestParam(name = "produitId") Long produitId,
         @RequestParam(name = "fromDate") LocalDate fromDate,
         @RequestParam(name = "toDate") LocalDate toDate,
-        @RequestParam(name = "groupBy",required = false) TemporalEnum groupBy
+        @RequestParam(name = "groupBy",required = false,defaultValue = "DAILY") TemporalEnum groupBy
 
     ) {
         return ResponseEntity.ok()

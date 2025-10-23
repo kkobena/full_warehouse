@@ -105,7 +105,7 @@ public class ProductStatServiceImpl implements ProductStatService {
     @Override
     public Resource printToPdf(ProduitAuditingParam produitAuditingParam) throws MalformedURLException {
         return this.produitAuditingReportSevice.printToPdf(
-            this.fetchProduitDailyTransaction(produitAuditingParam, Pageable.unpaged()).getContent(),
+            this.fetchProduitDailyTransaction(produitAuditingParam),
             produitRepository.getReferenceById(produitAuditingParam.produitId()),
             new ReportPeriode(produitAuditingParam.fromDate(), produitAuditingParam.toDate())
         );
@@ -116,7 +116,7 @@ public class ProductStatServiceImpl implements ProductStatService {
     public Page<HistoriqueProduitVente> getHistoriqueVente(ProduitHistoriqueParam produitHistorique, Pageable pageable) {
         HistoriqueVenteResult historiqueVenteResult = fetchHistoriqueVente(produitHistorique, pageable);
         if (Objects.nonNull(historiqueVenteResult ) && !CollectionUtils.isEmpty(historiqueVenteResult.content())) {
-            new PageImpl<>(historiqueVenteResult.content(), pageable, historiqueVenteResult.totalElements());
+          return   new PageImpl<>(historiqueVenteResult.content(), pageable, historiqueVenteResult.totalElements());
         }
         return Page.empty();
 
@@ -254,8 +254,8 @@ public class ProductStatServiceImpl implements ProductStatService {
     }
 
     @Override
-    public Page<ProduitAuditingState> fetchProduitDailyTransaction(ProduitAuditingParam produitAuditingParam, Pageable pageable) {
-        return this.inventoryTransactionService.fetchProduitDailyTransaction(produitAuditingParam, pageable);
+    public List<ProduitAuditingState> fetchProduitDailyTransaction(ProduitAuditingParam produitAuditingParam) {
+        return this.inventoryTransactionService.fetchProduitDailyTransaction(produitAuditingParam);
     }
 
     @Override
@@ -363,7 +363,7 @@ public class ProductStatServiceImpl implements ProductStatService {
         try {
             String jsonResult = salesLineRepository.getHistoriqueVenteSummary(produitHistorique.startDate(), produitHistorique.endDate(),
                 SalesStatut.getStatutForFacturation().stream().map(SalesStatut::name).toArray(String[]::new), Arrays.stream(CategorieChiffreAffaire.values()).map(CategorieChiffreAffaire::name).toArray(String[]::new), produitHistorique.produitId(), produitHistorique.groupBy().getOrder());
-
+            System.err.println("jsonResult --+ "+jsonResult);
             return objectMapper.readValue(jsonResult, new TypeReference<>() {
             });
         } catch (Exception e) {

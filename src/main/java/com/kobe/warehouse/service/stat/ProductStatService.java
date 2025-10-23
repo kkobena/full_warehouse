@@ -21,7 +21,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
 public interface ProductStatService extends CommonStatService {
-    Page<ProduitAuditingState> fetchProduitDailyTransaction(ProduitAuditingParam produitAuditingParam, Pageable pageable);
+    List<ProduitAuditingState> fetchProduitDailyTransaction(ProduitAuditingParam produitAuditingParam);
 
     List<ProduitAuditingSum> fetchProduitDailyTransactionSum(ProduitAuditingParam produitAuditingParam);
 

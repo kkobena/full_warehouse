@@ -7,26 +7,26 @@ import java.time.LocalDate;
 public class ProduitAuditingState {
 
     private LocalDate mvtDate;
-    private Integer initStock;
-    private Integer saleQuantity;
-    private Integer deleveryQuantity;
-    private Integer retourFournisseurQuantity;
-    private Integer perimeQuantity;
-    private Integer ajustementPositifQuantity;
-    private Integer ajustementNegatifQuantity;
-    private Integer deconPositifQuantity;
-    private Integer deconNegatifQuantity;
-    private Integer canceledQuantity;
-    private Integer retourDepot;
-    private Integer storeInventoryQuantity;
-    private Integer inventoryGap;
-    private Integer afterStock;
+    private int initStock;
+    private int saleQuantity;
+    private int deleveryQuantity;
+    private int retourFournisseurQuantity;
+    private int perimeQuantity;
+    private int ajustementPositifQuantity;
+    private int ajustementNegatifQuantity;
+    private int deconPositifQuantity;
+    private int deconNegatifQuantity;
+    private int canceledQuantity;
+    private int retourDepot;
+    private int storeInventoryQuantity;
+    private int inventoryGap;
+    private int afterStock;
     private String transactionDate;
 
     public ProduitAuditingState() {
     }
 
-    public ProduitAuditingState(MouvementProduit mouvementProduitType, LocalDate mvtDate, Integer initStock, Integer quantity, Integer afterStock) {
+    public ProduitAuditingState(MouvementProduit mouvementProduitType, LocalDate mvtDate, int initStock, int quantity, int afterStock) {
         this.mvtDate = mvtDate;
         this.initStock = initStock;
         this.saleQuantity = mouvementProduitType == MouvementProduit.SALE ? quantity : 0;
@@ -44,7 +44,7 @@ public class ProduitAuditingState {
         this.afterStock = afterStock;
         // this.transactionDate = transactionDate;
     }
-    public ProduitAuditingState(MouvementProduit mouvementProduitType,  Integer initStock, Integer quantity, Integer afterStock) {
+    public ProduitAuditingState(MouvementProduit mouvementProduitType,  int initStock, int quantity, int afterStock) {
 
         this.initStock = initStock;
         this.saleQuantity = mouvementProduitType == MouvementProduit.SALE ? quantity : 0;
@@ -80,128 +80,128 @@ public class ProduitAuditingState {
         return this;
     }
 
-    public Integer getInitStock() {
+    public int getInitStock() {
         return initStock;
     }
 
-    public ProduitAuditingState setInitStock(Integer initStock) {
+    public ProduitAuditingState setInitStock(int initStock) {
         this.initStock = initStock;
         return this;
     }
 
-    public Integer getSaleQuantity() {
+    public int getSaleQuantity() {
         return saleQuantity;
     }
 
-    public ProduitAuditingState setSaleQuantity(Integer saleQuantity) {
+    public ProduitAuditingState setSaleQuantity(int saleQuantity) {
         this.saleQuantity = saleQuantity;
         return this;
     }
 
-    public Integer getDeleveryQuantity() {
+    public int getDeleveryQuantity() {
         return deleveryQuantity;
     }
 
-    public ProduitAuditingState setDeleveryQuantity(Integer deleveryQuantity) {
+    public ProduitAuditingState setDeleveryQuantity(int deleveryQuantity) {
         this.deleveryQuantity = deleveryQuantity;
         return this;
     }
 
-    public Integer getRetourFournisseurQuantity() {
+    public int getRetourFournisseurQuantity() {
         return retourFournisseurQuantity;
     }
 
-    public ProduitAuditingState setRetourFournisseurQuantity(Integer retourFournisseurQuantity) {
+    public ProduitAuditingState setRetourFournisseurQuantity(int retourFournisseurQuantity) {
         this.retourFournisseurQuantity = retourFournisseurQuantity;
         return this;
     }
 
-    public Integer getPerimeQuantity() {
+    public int getPerimeQuantity() {
         return perimeQuantity;
     }
 
-    public ProduitAuditingState setPerimeQuantity(Integer perimeQuantity) {
+    public ProduitAuditingState setPerimeQuantity(int perimeQuantity) {
         this.perimeQuantity = perimeQuantity;
         return this;
     }
 
-    public Integer getAjustementPositifQuantity() {
+    public int getAjustementPositifQuantity() {
         return ajustementPositifQuantity;
     }
 
-    public ProduitAuditingState setAjustementPositifQuantity(Integer ajustementPositifQuantity) {
+    public ProduitAuditingState setAjustementPositifQuantity(int ajustementPositifQuantity) {
         this.ajustementPositifQuantity = ajustementPositifQuantity;
         return this;
     }
 
-    public Integer getAjustementNegatifQuantity() {
+    public int getAjustementNegatifQuantity() {
         return ajustementNegatifQuantity;
     }
 
-    public ProduitAuditingState setAjustementNegatifQuantity(Integer ajustementNegatifQuantity) {
+    public ProduitAuditingState setAjustementNegatifQuantity(int ajustementNegatifQuantity) {
         this.ajustementNegatifQuantity = ajustementNegatifQuantity;
         return this;
     }
 
-    public Integer getDeconPositifQuantity() {
+    public int getDeconPositifQuantity() {
         return deconPositifQuantity;
     }
 
-    public ProduitAuditingState setDeconPositifQuantity(Integer deconPositifQuantity) {
+    public ProduitAuditingState setDeconPositifQuantity(int deconPositifQuantity) {
         this.deconPositifQuantity = deconPositifQuantity;
         return this;
     }
 
-    public Integer getDeconNegatifQuantity() {
+    public int getDeconNegatifQuantity() {
         return deconNegatifQuantity;
     }
 
-    public ProduitAuditingState setDeconNegatifQuantity(Integer deconNegatifQuantity) {
+    public ProduitAuditingState setDeconNegatifQuantity(int deconNegatifQuantity) {
         this.deconNegatifQuantity = deconNegatifQuantity;
         return this;
     }
 
-    public Integer getCanceledQuantity() {
+    public int getCanceledQuantity() {
         return canceledQuantity;
     }
 
-    public ProduitAuditingState setCanceledQuantity(Integer canceledQuantity) {
+    public ProduitAuditingState setCanceledQuantity(int canceledQuantity) {
         this.canceledQuantity = canceledQuantity;
         return this;
     }
 
-    public Integer getRetourDepot() {
+    public int getRetourDepot() {
         return retourDepot;
     }
 
-    public ProduitAuditingState setRetourDepot(Integer retourDepot) {
+    public ProduitAuditingState setRetourDepot(int retourDepot) {
         this.retourDepot = retourDepot;
         return this;
     }
 
-    public Integer getStoreInventoryQuantity() {
+    public int getStoreInventoryQuantity() {
         return storeInventoryQuantity;
     }
 
-    public ProduitAuditingState setStoreInventoryQuantity(Integer storeInventoryQuantity) {
+    public ProduitAuditingState setStoreInventoryQuantity(int storeInventoryQuantity) {
         this.storeInventoryQuantity = storeInventoryQuantity;
         return this;
     }
 
-    public Integer getInventoryGap() {
+    public int getInventoryGap() {
         return inventoryGap;
     }
 
-    public ProduitAuditingState setInventoryGap(Integer inventoryGap) {
+    public ProduitAuditingState setInventoryGap(int inventoryGap) {
         this.inventoryGap = inventoryGap;
         return this;
     }
 
-    public Integer getAfterStock() {
+    public int getAfterStock() {
         return afterStock;
     }
 
-    public ProduitAuditingState setAfterStock(Integer afterStock) {
+    public ProduitAuditingState setAfterStock(int afterStock) {
         this.afterStock = afterStock;
         return this;
     }

@@ -11,9 +11,10 @@
     [value]="data"
     stripedRows="true"
     dataKey="annee"
+    class="pharma-table"
   >
     <ng-template #header>
-      <tr>
+      <tr class="pharma-table-head">
         <th>Année</th>
         <th>Janvier</th>
         <th>Février</th>
@@ -31,25 +32,25 @@
     </ng-template>
     <ng-template let-vente #body>
       <tr>
-        <td>{{ vente.annee }}</td>
-        <td class="amount-column">{{ getMonthData(vente, JANUARY) | number }}</td>
-        <td class="amount-column">{{ getMonthData(vente, FEBRUARY) | number }}</td>
-        <td class="amount-column">{{ getMonthData(vente, MARCH) | number }}</td>
-        <td class="amount-column">{{ getMonthData(vente, APRIL) | number }}</td>
-        <td class="amount-column">{{ getMonthData(vente, MAY) | number }}</td>
-        <td class="amount-column">{{ getMonthData(vente, JUNE) | number }}</td>
-        <td class="amount-column">{{ getMonthData(vente, JULY) | number }}</td>
-        <td class="amount-column">{{ getMonthData(vente, AUGUST) | number }}</td>
-        <td class="amount-column">{{ getMonthData(vente, SEPTEMBER) | number }}</td>
-        <td class="amount-column">{{ getMonthData(vente, OCTOBER) | number }}</td>
-        <td class="amount-column">{{ getMonthData(vente, NOVEMBER) | number }}</td>
-        <td class="amount-column">{{ getMonthData(vente, DECEMBER) | number }}</td>
+        <td> <span class="pharma-code">{{ vente.annee }}</span></td>
+        <td class="amount-column pharma-qty-value">{{ getMonthData(vente, JANUARY) | number }}</td>
+        <td class="amount-column pharma-qty-value">{{ getMonthData(vente, FEBRUARY) | number }}</td>
+        <td class="amount-column pharma-qty-value">{{ getMonthData(vente, MARCH) | number }}</td>
+        <td class="amount-column pharma-qty-value">{{ getMonthData(vente, APRIL) | number }}</td>
+        <td class="amount-column pharma-qty-value">{{ getMonthData(vente, MAY) | number }}</td>
+        <td class="amount-column pharma-qty-value">{{ getMonthData(vente, JUNE) | number }}</td>
+        <td class="amount-column pharma-qty-value">{{ getMonthData(vente, JULY) | number }}</td>
+        <td class="amount-column pharma-qty-value">{{ getMonthData(vente, AUGUST) | number }}</td>
+        <td class="amount-column pharma-qty-value">{{ getMonthData(vente, SEPTEMBER) | number }}</td>
+        <td class="amount-column pharma-qty-value">{{ getMonthData(vente, OCTOBER) | number }}</td>
+        <td class="amount-column pharma-qty-value">{{ getMonthData(vente, NOVEMBER) | number }}</td>
+        <td class="amount-column pharma-qty-value">{{ getMonthData(vente, DECEMBER) | number }}</td>
       </tr>
     </ng-template>
     <ng-template #footer>
       <tr>
         <td colspan="13" class="text-left">
-          Total quantité sur la période <span class="font-bold">{{ summary?.quantite | number }}</span>
+          Total quantité sur la période <span class="font-bold pharma-footer-total">{{ summary?.quantite | number }}</span>
         </td>
       </tr>
     </ng-template>

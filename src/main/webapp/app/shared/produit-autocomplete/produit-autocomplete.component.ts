@@ -16,10 +16,10 @@ import { debounceTime, Subject, Subscription } from 'rxjs';
     {
       provide: NG_VALUE_ACCESSOR,
       useExisting: forwardRef(() => ProduitAutocompleteComponent),
-      multi: true,
-    },
+      multi: true
+    }
   ],
-  templateUrl: './produit-autocomplete.component.html',
+  templateUrl: './produit-autocomplete.component.html'
 })
 export class ProduitAutocompleteComponent implements ControlValueAccessor, OnDestroy {
   produits = signal<IProduit[]>([]);
@@ -33,6 +33,7 @@ export class ProduitAutocompleteComponent implements ControlValueAccessor, OnDes
   inputStyle = input<{}>({ width: '100%' });
   selectedProduit = output<IProduit | null>();
   onKeyEnter = output<boolean>();
+  onClear = output<boolean>();
   protected readonly PRODUIT_COMBO_MIN_LENGTH = PRODUIT_COMBO_MIN_LENGTH;
   protected readonly PRODUIT_NOT_FOUND = PRODUIT_NOT_FOUND;
   protected readonly APPEND_TO = APPEND_TO;
@@ -104,6 +105,10 @@ export class ProduitAutocompleteComponent implements ControlValueAccessor, OnDes
     }
   }
 
+  clear(event: any): void {
+    this.onClear.emit(true);
+  }
+
   onNgModelChange(value: IProduit | null): void {
     this.produitSelected = value;
   }
@@ -116,9 +121,11 @@ export class ProduitAutocompleteComponent implements ControlValueAccessor, OnDes
     }, 50);
   }
 
-  private onChange: (_: any) => void = () => {};
+  private onChange: (_: any) => void = () => {
+  };
 
-  private onTouched: () => void = () => {};
+  private onTouched: () => void = () => {
+  };
 
   private loadProduits(search: string): void {
     this.produitService
@@ -126,7 +133,7 @@ export class ProduitAutocompleteComponent implements ControlValueAccessor, OnDes
         page: 0,
         size: this.pageSize(),
         withdetail: this.includeDetails(),
-        search,
+        search
       })
       .subscribe(res => {
         const result = res.body || [];

@@ -30,11 +30,12 @@ import javax.imageio.ImageIO;
 
 @Service
 public abstract class AbstractSaleReceiptService extends AbstractJava2DReceiptPrinterService {
-
+    private final AppConfigurationService appConfigurationService;
     protected int avoirCount;
 
     protected AbstractSaleReceiptService(AppConfigurationService appConfigurationService, PrinterRepository printerRepository) {
         super(appConfigurationService, printerRepository);
+        this.appConfigurationService = appConfigurationService;
     }
 
     protected abstract SaleDTO getSale();
@@ -177,6 +178,7 @@ public abstract class AbstractSaleReceiptService extends AbstractJava2DReceiptPr
      * @throws IOException if generation fails
      */
     public byte[] generateEscPosReceipt() throws IOException {
+        magasin = appConfigurationService.getMagasin();
         ByteArrayOutputStream out = new ByteArrayOutputStream();
         SaleDTO sale = getSale();
         List<? extends SaleReceiptItem> items = this.getItems();
@@ -278,6 +280,7 @@ public abstract class AbstractSaleReceiptService extends AbstractJava2DReceiptPr
      * Print ESC/POS header section (company info, customer info, etc.)
      */
     private void printEscPosHeader(ByteArrayOutputStream out) throws IOException {
+
         // Initialize printer
         escPosInitialize(out);
 

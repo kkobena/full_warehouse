@@ -7,16 +7,18 @@ import com.kobe.warehouse.domain.Produit_;
 import com.kobe.warehouse.domain.enumeration.MouvementProduit;
 import com.kobe.warehouse.domain.enumeration.TransactionType;
 import com.kobe.warehouse.service.dto.projection.LastDateProjection;
-import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.util.List;
-import java.util.Optional;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
+
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.util.List;
+import java.util.Optional;
 
 /**
  * Spring Data repository for the InventoryTransaction entity.
@@ -25,9 +27,9 @@ import org.springframework.stereotype.Repository;
 @Repository
 public interface InventoryTransactionRepository
     extends
-        JpaRepository<InventoryTransaction, ProductMvtId>,
-        JpaSpecificationExecutor<InventoryTransaction>,
-        InventoryTransactionCustomRepository {
+    JpaRepository<InventoryTransaction, ProductMvtId>,
+    JpaSpecificationExecutor<InventoryTransaction>,
+    InventoryTransactionCustomRepository {
     List<InventoryTransaction> findByProduitId(Long produitId, Sort sort);
 
     @Query("SELECT coalesce(max(e.createdAt),null) AS updatedAt from InventoryTransaction e WHERE e.mouvementType=?1 AND e.produit.id=?2")
@@ -37,6 +39,10 @@ public interface InventoryTransactionRepository
     Long quantitySold(TransactionType transactionType, Long produitId);
 
     Optional<InventoryTransaction> findInventoryTransactionById(Long id);
+
+    @Query(value = "SELECT get_product_movements_by_period(:produitId,:magasinId,:startDate, :endDate)", nativeQuery = true)
+    String fetchMouvementProduit(@Param("produitId") Long produitId, @Param("magasinId") Long magasinId, @Param("startDate") LocalDate startDate, @Param("endDate") LocalDate endDate);
+
 
     default Specification<InventoryTransaction> specialisationProduitId(Long produitId) {
         return (root, query, cb) -> cb.equal(root.get(InventoryTransaction_.produit).get(Produit_.id), produitId);

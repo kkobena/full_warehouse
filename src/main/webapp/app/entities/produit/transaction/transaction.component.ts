@@ -72,7 +72,6 @@ export class TransactionComponent implements OnInit {
   protected readonly PRODUIT_NOT_FOUND = PRODUIT_NOT_FOUND;
   protected readonly PRODUIT_COMBO_MIN_LENGTH = PRODUIT_COMBO_MIN_LENGTH;
   private readonly activatedRoute = inject(ActivatedRoute);
-  private readonly produitService = inject(ProduitService);
   private readonly produitAuditingParamService = inject(ProduitAuditingParamService);
   private readonly dateDebut = viewChild.required<DatePickerComponent>('dateDebut');
   private readonly dateFin = viewChild.required<DatePickerComponent>('dateFin');
@@ -92,7 +91,13 @@ export class TransactionComponent implements OnInit {
   load(): void {
     this.loadData();
   }
-
+resetData(): void {
+  switch (this.active) {
+    case 'auditing':
+      this.auditingComponent().resetData();
+      break;
+  }
+}
   protected get fromDate(): Date | null {
     return this.dateDebut().value;
   }
@@ -121,15 +126,13 @@ export class TransactionComponent implements OnInit {
     this.event = event;
     this.loadData();
   }
+  onClear(event: any): void {
 
-
-  previousState(): void {
-    window.history.back();
+   this.resetData();
   }
 
-  protected onProduitSuccess(data: IProduit[] | null): void {
-    this.produits = data || [];
-  }
+
+
 
   protected buildQuery(): ProduitAuditingParam {
     const params: ProduitAuditingParam = {

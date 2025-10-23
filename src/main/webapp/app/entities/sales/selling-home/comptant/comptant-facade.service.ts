@@ -171,28 +171,29 @@ export class ComptantFacadeService {
   }
 
   /**
-   * Print receipt for Tauri clients
-   * Gets receipt as PNG images and prints them to the local printer
+   * Print receipt for Tauri clients using ESC/POS
+   * Gets receipt as ESC/POS commands and prints directly to thermal printer
+   * Much more efficient than PNG method (2-5 KB vs 200-500 KB)
+   * @param saleId Sale ID and date
+   * @param isEdition Whether this is a reprint (affects number of copies)
    */
-  printReceiptForTauri(saleId: SaleId): void {
+  printReceiptForTauri(saleId: SaleId, isEdition: boolean = false): void {
     this.spinnerService.next(true);
     this.salesService
-      .getReceiptForTauri(saleId)
+      .getEscPosReceiptForTauri(saleId, isEdition)
       .pipe(finalize(() => this.spinnerService.next(false)))
       .subscribe({
-        next: async (receiptPages: string[]) => {
+        next: async (escposData: ArrayBuffer) => {
           try {
-            await this.tauriPrinterService.printReceipt(receiptPages);
-            console.log('Receipt printed successfully');
+            await this.tauriPrinterService.printEscPosFromBuffer(escposData);
+            console.log('ESC/POS receipt printed successfully');
           } catch (error) {
-            console.error('Error printing receipt:', error);
+            console.error('Error printing ESC/POS receipt:', error);
             this.onSaveError(error);
-
-
           }
         },
         error: err => {
-          console.error('Error getting receipt for Tauri:', err);
+          console.error('Error getting ESC/POS receipt for Tauri:', err);
           this.onSaveError(err);
         }
       });

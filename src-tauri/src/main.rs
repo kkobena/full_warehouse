@@ -11,7 +11,8 @@ fn main() {
         .plugin(tauri_plugin_fs::init())
         .invoke_handler(tauri::generate_handler![
             printer::get_printers,
-            printer::print_image
+            printer::print_image,
+            printer::print_escpos
         ])
         .setup(|app| {
             #[cfg(debug_assertions)]

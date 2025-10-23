@@ -101,7 +101,7 @@ public class SecurityConfiguration {
                         request -> request.getRequestURI().equals("/management/health"),
                         request -> request.getRequestURI().startsWith("/management/health/"),
                         request -> request.getRequestURI().equals("/management/info"),
-                        request -> request.getRequestURI().equals("/management/prometheus"),
+
                         request -> request.getRequestURI().equals("/index.html"),
                         request -> request.getRequestURI().equals("/")
                     )

@@ -112,6 +112,14 @@ export class SalesService {
     return this.http.get<string[]>(`${this.resourceUrl}/assurance/receipt/tauri/${id.id}/${id.saleDate}`);
   }
 
+
+  getEscPosReceiptForTauri(id: SaleId, isEdition: boolean = false): Observable<ArrayBuffer> {
+    return this.http.get(`${this.resourceUrl}/receipt/tauri/${id.id}/${id.saleDate}`, {
+      params: { isEdition: isEdition},
+      responseType: 'arraybuffer'
+    });
+  }
+
   addItemComptant(salesLine: ISalesLine): Observable<HttpResponse<ISalesLine>> {
     const copy = this.convertItemDateFromClient(salesLine);
     return this.http

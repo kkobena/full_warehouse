@@ -5,9 +5,11 @@ import com.kobe.warehouse.service.dto.CashSaleDTO;
 import com.kobe.warehouse.service.dto.ThirdPartySaleDTO;
 import com.kobe.warehouse.service.receipt.service.AssuranceSaleReceiptService;
 import com.kobe.warehouse.service.receipt.service.CashSaleReceiptService;
+import org.springframework.stereotype.Service;
+
 import javax.print.PrintService;
 import javax.print.PrintServiceLookup;
-import org.springframework.stereotype.Service;
+import java.io.IOException;
 
 @Service
 public class ReceiptPrinterService {
@@ -40,5 +42,13 @@ public class ReceiptPrinterService {
         String printerName = null;
 
         return PrintServiceLookup.lookupDefaultPrintService();
+    }
+
+    public byte[] generateEscPosReceipt(CashSaleDTO sale, boolean isEdit) throws IOException {
+        return this.cashSaleReceiptService.generateEscPosReceiptForTauri(sale, isEdit);
+    }
+
+    public byte[] generateEscPosReceipt(ThirdPartySaleDTO thirdPartySale, boolean isEdit) throws IOException {
+        return this.assuranceSaleReceiptService.generateEscPosReceiptForTauri(thirdPartySale, isEdit);
     }
 }

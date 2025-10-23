@@ -213,4 +213,129 @@ public abstract class AbstractJava2DReceiptPrinterService implements Printable {
         }
         return y;
     }
+
+    // ============================================
+    // ESC/POS Helper Methods (for thermal printing)
+    // ============================================
+
+    /**
+     * ESC/POS Alignment enumeration
+     */
+    protected enum EscPosAlignment {
+        LEFT(0), CENTER(1), RIGHT(2);
+        final int code;
+        EscPosAlignment(int code) { this.code = code; }
+    }
+
+    /**
+     * Initialize printer (ESC @)
+     */
+    protected void escPosInitialize(java.io.ByteArrayOutputStream out) throws java.io.IOException {
+        out.write(new byte[]{0x1B, 0x40}); // ESC @
+    }
+
+    /**
+     * Set text alignment (ESC a n)
+     */
+    protected void escPosSetAlignment(java.io.ByteArrayOutputStream out, EscPosAlignment alignment) throws java.io.IOException {
+        out.write(new byte[]{0x1B, 0x61, (byte) alignment.code}); // ESC a n
+    }
+
+    /**
+     * Set bold mode (ESC E n)
+     */
+    protected void escPosSetBold(java.io.ByteArrayOutputStream out, boolean enable) throws java.io.IOException {
+        out.write(new byte[]{0x1B, 0x45, (byte) (enable ? 1 : 0)}); // ESC E n
+    }
+
+    /**
+     * Set character size (GS ! n)
+     * @param width 1-8 (normal to 8x width)
+     * @param height 1-8 (normal to 8x height)
+     */
+    protected void escPosSetTextSize(java.io.ByteArrayOutputStream out, int width, int height) throws java.io.IOException {
+        int size = ((width - 1) << 4) | (height - 1);
+        out.write(new byte[]{0x1D, 0x21, (byte) size}); // GS ! n
+    }
+
+    /**
+     * Feed n lines (ESC d n)
+     */
+    protected void escPosFeedLines(java.io.ByteArrayOutputStream out, int lines) throws java.io.IOException {
+        out.write(new byte[]{0x1B, 0x64, (byte) lines}); // ESC d n
+    }
+
+    /**
+     * Print line with line feed
+     * Uses Windows-1252 encoding for French character support
+     */
+    protected void escPosPrintLine(java.io.ByteArrayOutputStream out, String text) throws java.io.IOException {
+        if (text != null) {
+            out.write(text.getBytes("Windows-1252")); // CP1252 encoding for French characters
+        }
+        out.write(0x0A); // LF (Line Feed)
+    }
+
+    /**
+     * Print separator line
+     * @param length number of dashes (typically 48 for 80mm paper, 32 for 58mm)
+     */
+    protected void escPosPrintSeparator(java.io.ByteArrayOutputStream out, int length) throws java.io.IOException {
+        StringBuilder separator = new StringBuilder(length);
+        for (int i = 0; i < length; i++) {
+            separator.append("-");
+        }
+        escPosPrintLine(out, separator.toString());
+    }
+
+    /**
+     * Cut paper (GS V A 0)
+     * Partial cut - leaves small connection for easy tearing
+     */
+    protected void escPosCutPaper(java.io.ByteArrayOutputStream out) throws java.io.IOException {
+        out.write(new byte[]{0x1D, 0x56, 0x41, 0x00}); // GS V A 0 - Partial cut
+    }
+
+    /**
+     * Set underline mode (ESC - n)
+     * @param mode 0=off, 1=1-dot thick, 2=2-dot thick
+     */
+    protected void escPosSetUnderline(java.io.ByteArrayOutputStream out, int mode) throws java.io.IOException {
+        out.write(new byte[]{0x1B, 0x2D, (byte) mode}); // ESC - n
+    }
+
+    /**
+     * Set line spacing (ESC 3 n)
+     * @param spacing line spacing in dots (default is usually 30)
+     */
+    protected void escPosSetLineSpacing(java.io.ByteArrayOutputStream out, int spacing) throws java.io.IOException {
+        out.write(new byte[]{0x1B, 0x33, (byte) spacing}); // ESC 3 n
+    }
+
+    /**
+     * Truncate string to max length
+     * Useful for fitting product names in receipt columns
+     */
+    protected String truncateString(String str, int maxLength) {
+        if (str == null) {
+            return "";
+        }
+        return str.length() > maxLength ? str.substring(0, maxLength) : str;
+    }
+
+    /**
+     * Pad string to the right with spaces
+     */
+    protected String padRight(String str, int length) {
+        if (str == null) str = "";
+        return String.format("%-" + length + "s", str);
+    }
+
+    /**
+     * Pad string to the left with spaces
+     */
+    protected String padLeft(String str, int length) {
+        if (str == null) str = "";
+        return String.format("%" + length + "s", str);
+    }
 }

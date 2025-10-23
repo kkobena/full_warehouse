@@ -25,6 +25,7 @@ import java.util.List;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
+import org.springframework.util.CollectionUtils;
 
 @Service
 public class AssuranceSaleReceiptService extends AbstractSaleReceiptService {
@@ -309,5 +310,55 @@ public class AssuranceSaleReceiptService extends AbstractSaleReceiptService {
         this.thirdPartySale = sale;
         this.isEdit = false;
         return generateTicket();
+    }
+
+    /**
+     * Generate ESC/POS receipt for direct thermal printer printing
+     * <p>
+     * This method generates raw ESC/POS commands that can be sent directly to a thermal POS printer.
+     * Much more efficient than PNG generation - produces smaller payloads and faster printing.
+     *
+     * @param sale the third-party sale to generate receipt for
+     * @return byte array containing ESC/POS commands
+     * @throws IOException if generation fails
+     */
+    public byte[] generateEscPosReceiptForTauri(ThirdPartySaleDTO sale, boolean isEdit) throws IOException {
+        this.thirdPartySale = sale;
+        this.isEdit = isEdit;
+        return generateEscPosReceipt();
+    }
+
+    /**
+     * Override to provide insurance information for ESC/POS receipts
+     */
+    @Override
+    protected String getAssuranceInfoText() {
+        if (thirdPartySale == null || CollectionUtils.isEmpty(thirdPartySale.getThirdPartySaleLines())) {
+            return null;
+        }
+
+        StringBuilder info = new StringBuilder();
+        for (ThirdPartySaleLineDTO thirdPartySaleLine : thirdPartySale.getThirdPartySaleLines()) {
+            String priorityCode = thirdPartySaleLine.getPriorite().getCode();
+            String tiersPayantName = getTiersPayantName(thirdPartySaleLine.getName());
+            String amount = NumberUtil.formatToString(thirdPartySaleLine.getMontant());
+
+            if (!thirdPartySale.isHasPriceOption()) {
+                // Display percentage
+                info.append(String.format("%-30s %8s%% %10s",
+                    priorityCode + ": " + tiersPayantName,
+                    thirdPartySaleLine.getTaux(),
+                    amount));
+            } else {
+                // Display amount
+                info.append(String.format("%-30s %10s %10s",
+                    priorityCode + ": " + tiersPayantName,
+                    NumberUtil.formatToString(thirdPartySaleLine.getMontant()),
+                    amount));
+            }
+            info.append("\n");
+        }
+
+        return info.toString().trim();
     }
 }

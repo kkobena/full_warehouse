@@ -20,6 +20,7 @@ import java.awt.print.PageFormat;
 import java.awt.print.PrinterException;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
 import org.springframework.stereotype.Service;
@@ -104,7 +105,7 @@ public abstract class AbstractSaleReceiptService extends AbstractJava2DReceiptPr
         int totalPages = (int) Math.ceil(items.size() / (double) linesPerPage);
 
         // Scale factor for high-resolution printing (300 DPI vs 72 DPI = ~4x)
-        final int SCALE_FACTOR = 4;
+        final int SCALE_FACTOR = 2;
 
         for (int pageNum = 0; pageNum < totalPages; pageNum++) {
             int startItemIndex = pageNum * linesPerPage;
@@ -118,7 +119,8 @@ public abstract class AbstractSaleReceiptService extends AbstractJava2DReceiptPr
             BufferedImage image = new BufferedImage(
                 (DEFAULT_WIDTH + (DEFAULT_MARGIN * 2)) * SCALE_FACTOR,
                 estimatedHeight * SCALE_FACTOR,
-                BufferedImage.TYPE_INT_RGB  // Better quality than TYPE_BYTE_GRAY
+                BufferedImage.TYPE_BYTE_GRAY  // au lieu de TYPE_INT_RGB
+               // BufferedImage.TYPE_INT_RGB  // Better quality than TYPE_BYTE_GRAY
             );
             Graphics2D g2d = image.createGraphics();
 
@@ -165,6 +167,265 @@ public abstract class AbstractSaleReceiptService extends AbstractJava2DReceiptPr
         }
 
         return pages;
+    }
+
+    /**
+     * Generate ESC/POS commands for thermal POS printer
+     * Supports pagination and multiple copies
+     *
+     * @return byte array containing ESC/POS commands
+     * @throws IOException if generation fails
+     */
+    public byte[] generateEscPosReceipt() throws IOException {
+        ByteArrayOutputStream out = new ByteArrayOutputStream();
+        SaleDTO sale = getSale();
+        List<? extends SaleReceiptItem> items = this.getItems();
+        int numberOfCopies = getNumberOfCopies();
+
+        try {
+            // Print multiple copies
+            for (int copyNum = 1; copyNum <= numberOfCopies; copyNum++) {
+                if (copyNum > 1) {
+                    // Add page break between copies
+                    escPosFeedLines(out, 3);
+                }
+
+                // Pagination setup
+                int linesPerPage = getMaximumLinesPerPage();
+                int totalPages = (int) Math.ceil(items.size() / (double) linesPerPage);
+
+                // Print each page
+                for (int pageNum = 0; pageNum < totalPages; pageNum++) {
+                    int startItemIndex = pageNum * linesPerPage;
+                    int endItemIndex = Math.min(startItemIndex + linesPerPage, items.size());
+                    boolean isLastPage = pageNum == totalPages - 1;
+
+                    if (pageNum > 0) {
+                        // Page break between pages
+                        escPosFeedLines(out, 2);
+                        escPosPrintSeparator(out, 48);
+                        escPosFeedLines(out, 1);
+                    }
+
+                    // Print full header on every page
+                    printEscPosHeader(out);
+
+                    // Add page indicator on continuation pages
+                    if (pageNum > 0 && totalPages > 1) {
+                        escPosSetAlignment(out, EscPosAlignment.CENTER);
+                        escPosSetBold(out, true);
+                        escPosPrintLine(out, String.format("--- Page %d/%d ---", pageNum + 1, totalPages));
+                        escPosSetBold(out, false);
+                        escPosSetAlignment(out, EscPosAlignment.LEFT);
+                        escPosFeedLines(out, 1);
+                    }
+
+                    // Table header
+                    escPosSetBold(out, true);
+                    escPosPrintLine(out, String.format("%-3s %-24s %8s %10s", "QTE", "PRODUIT", "PU", "MONTANT"));
+                    escPosSetBold(out, false);
+                    escPosPrintSeparator(out, 48);
+
+                    // Print items for this page
+                    for (int i = startItemIndex; i < endItemIndex; i++) {
+                        SaleReceiptItem item = items.get(i);
+                        String quantity = item.getQuantity();
+                        String productName = truncateString(item.getProduitName(), 24);
+                        String unitPrice = item.getUnitPrice();
+                        String totalPrice = item.getTotalPrice();
+
+                        escPosPrintLine(out, String.format("%-3s %-24s %8s %10s",
+                            quantity, productName, unitPrice, totalPrice));
+                    }
+
+                    escPosPrintSeparator(out, 48);
+
+                    // Print summary only on last page
+                    if (isLastPage) {
+                        printEscPosSummary(out, sale);
+                    } else {
+                        // Continuation indicator
+                        escPosSetAlignment(out, EscPosAlignment.CENTER);
+                        escPosSetBold(out, true);
+                        escPosPrintLine(out, String.format(">>> Suite page %d >>>", pageNum + 2));
+                        escPosSetBold(out, false);
+                        escPosSetAlignment(out, EscPosAlignment.LEFT);
+                    }
+                }
+
+                // Copy indicator
+                if (numberOfCopies > 1) {
+                    escPosFeedLines(out, 1);
+                    escPosSetAlignment(out, EscPosAlignment.CENTER);
+                    escPosPrintLine(out, String.format("*** COPIE %d/%d ***", copyNum, numberOfCopies));
+                    escPosSetAlignment(out, EscPosAlignment.LEFT);
+                }
+
+                // Cut paper after each copy
+                escPosFeedLines(out, 3);
+                escPosCutPaper(out);
+            }
+
+            return out.toByteArray();
+        } catch (Exception e) {
+            throw new IOException("Failed to generate ESC/POS receipt: " + e.getMessage(), e);
+        } finally {
+            out.close();
+        }
+    }
+
+    /**
+     * Print ESC/POS header section (company info, customer info, etc.)
+     */
+    private void printEscPosHeader(ByteArrayOutputStream out) throws IOException {
+        // Initialize printer
+        escPosInitialize(out);
+
+        // Company header (centered, bold)
+        escPosSetBold(out, true);
+        escPosSetAlignment(out, EscPosAlignment.CENTER);
+        escPosSetTextSize(out, 2, 2); // Double width and height
+        escPosPrintLine(out, magasin.getName());
+        escPosSetTextSize(out, 1, 1); // Normal size
+        escPosFeedLines(out, 1);
+
+        // Company address and contact info
+        if (magasin.getAddress() != null && !magasin.getAddress().isEmpty()) {
+            escPosPrintLine(out, magasin.getAddress());
+        }
+        if (magasin.getPhone() != null && !magasin.getPhone().isEmpty()) {
+            escPosPrintLine(out, "Tel: " + magasin.getPhone());
+        }
+        escPosSetBold(out, false);
+        escPosFeedLines(out, 1);
+
+        // Welcome message (if any)
+        if (magasin.getWelcomeMessage() != null && !magasin.getWelcomeMessage().isEmpty()) {
+            escPosPrintLine(out, magasin.getWelcomeMessage());
+            escPosFeedLines(out, 1);
+        }
+
+        // Header items (customer info, operator, etc.)
+        escPosSetAlignment(out, EscPosAlignment.LEFT);
+        for (HeaderFooterItem headerItem : getHeaderItems()) {
+            escPosPrintLine(out, headerItem.value());
+        }
+        escPosFeedLines(out, 1);
+
+        // Insurance info (if applicable)
+        String assuranceInfo = getAssuranceInfoText();
+        if (assuranceInfo != null && !assuranceInfo.isEmpty()) {
+            escPosPrintLine(out, assuranceInfo);
+            escPosFeedLines(out, 1);
+        }
+
+        // Separator line
+        escPosPrintSeparator(out, 48);
+    }
+
+    /**
+     * Print ESC/POS summary section (totals, payments, taxes, footer)
+     */
+    private void printEscPosSummary(ByteArrayOutputStream out, SaleDTO sale) throws IOException {
+        // Summary section
+        escPosSetBold(out, true);
+        escPosPrintLine(out, String.format("%-38s %10s", MONTANT_TTC,
+            NumberUtil.formatToString(sale.getSalesAmount())));
+        escPosSetBold(out, false);
+
+        // Discount (if any)
+        if (sale.getDiscountAmount() > 0) {
+            escPosPrintLine(out, String.format("%-38s %10s", REMISE,
+                NumberUtil.formatToString(sale.getDiscountAmount())));
+        }
+
+        // Total to pay
+        escPosSetBold(out, true);
+        escPosSetTextSize(out, 2, 1); // Double width
+        escPosPrintLine(out, String.format("%-19s %10s", TOTAL_A_PAYER,
+            NumberUtil.formatToString(sale.getNetAmount())));
+        escPosSetTextSize(out, 1, 1); // Normal size
+        escPosSetBold(out, false);
+        escPosFeedLines(out, 1);
+
+        // Payment section
+        if (!CollectionUtils.isEmpty(sale.getPayments())) {
+            escPosSetBold(out, true);
+            escPosSetAlignment(out, EscPosAlignment.CENTER);
+            escPosPrintLine(out, REGLEMENT);
+            escPosSetAlignment(out, EscPosAlignment.LEFT);
+            escPosSetBold(out, false);
+            escPosFeedLines(out, 1);
+
+            for (PaymentDTO payment : sale.getPayments()) {
+                PaymentModeDTO paymentMode = payment.getPaymentMode();
+                String libelle = paymentMode.getLibelle();
+                String amount = paymentMode.getCode().equals(ModePaimentCode.CASH.name())
+                    ? NumberUtil.formatToString(payment.getMontantVerse())
+                    : NumberUtil.formatToString(payment.getPaidAmount());
+
+                escPosPrintLine(out, String.format("%-38s %10s", libelle, amount));
+            }
+
+            // Cash change (if any)
+            if (sale.getRestToPay() < 0) {
+                escPosPrintLine(out, String.format("%-38s %10s", MONTANT_RENDU,
+                    NumberUtil.formatToString(Math.abs(sale.getRestToPay()))));
+            }
+
+            // Remaining to pay (if any)
+            if (sale.getRestToPay() > 0) {
+                escPosSetBold(out, true);
+                escPosPrintLine(out, String.format("%-38s %10s", RESTE_A_PAYER,
+                    NumberUtil.formatToString(sale.getRestToPay())));
+                escPosSetBold(out, false);
+            }
+
+            escPosFeedLines(out, 1);
+        }
+
+        // Tax details (if any)
+        if (!CollectionUtils.isEmpty(sale.getTvaEmbededs())) {
+            escPosSetBold(out, true);
+            escPosSetAlignment(out, EscPosAlignment.CENTER);
+            escPosPrintLine(out, TVA);
+            escPosSetAlignment(out, EscPosAlignment.LEFT);
+            escPosSetBold(out, false);
+            escPosFeedLines(out, 1);
+
+            for (TvaEmbeded tva : sale.getTvaEmbededs()) {
+                escPosPrintLine(out, String.format("%-38s %10s",
+                    "TVA " + tva.getTva() + "%",
+                    NumberUtil.formatToString(tva.getAmount())));
+            }
+            escPosFeedLines(out, 1);
+        }
+
+        // Footer items
+        for (HeaderFooterItem footerItem : getFooterItems()) {
+            escPosPrintLine(out, footerItem.value());
+        }
+
+        // Separator line
+        escPosPrintSeparator(out, 48);
+
+        // Date and time
+        escPosPrintLine(out, sale.getUpdatedAt().format(DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm:ss")));
+        escPosFeedLines(out, 1);
+
+        // Thank you message
+        if (magasin.getNote() != null && !magasin.getNote().isEmpty()) {
+            escPosSetAlignment(out, EscPosAlignment.CENTER);
+            escPosPrintLine(out, magasin.getNote());
+            escPosSetAlignment(out, EscPosAlignment.LEFT);
+        }
+    }
+
+    /**
+     * Get insurance info as text (override in subclass if needed)
+     */
+    protected String getAssuranceInfoText() {
+        return null; // Override in subclasses for insurance sales
     }
 
     /**

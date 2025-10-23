@@ -168,65 +168,6 @@ export class TauriPrinterService {
     console.log(`Successfully printed ${pages.length} page(s)`);
   }
 
-  /**
-   * Open browser print dialog with the image (fallback for web)
-   * @param pages Array of base64 encoded PNG images
-   */
-  printInBrowser(pages: string[]): void {
-    const printWindow = window.open('', '_blank');
-    if (!printWindow) {
-      console.error('Failed to open print window');
-      return;
-    }
-
-    printWindow.document.write(`
-      <html>
-        <head>
-          <title>Impression ticket</title>
-          <style>
-            @media print {
-              body { margin: 0; }
-              img {
-                display: block;
-                max-width: 100%;
-                page-break-after: always;
-              }
-              img:last-child {
-                page-break-after: auto;
-              }
-            }
-            body {
-              margin: 0;
-              padding: 10px;
-            }
-            img {
-              display: block;
-              margin-bottom: 10px;
-              max-width: 100%;
-            }
-          </style>
-        </head>
-        <body>
-    `);
-
-    pages.forEach((page, index) => {
-      printWindow.document.write(
-        `<img src="data:image/png;base64,${page}" alt="Page ${index + 1}" />`
-      );
-    });
-
-    printWindow.document.write('</body></html>');
-    printWindow.document.close();
-
-    // Wait for images to load before printing
-    printWindow.onload = () => {
-      setTimeout(() => {
-        printWindow.print();
-        // Close window after printing (optional)
-        // printWindow.close();
-      }, 500);
-    };
-  }
 
   /**
    * Utility function to add delay
@@ -243,8 +184,66 @@ export class TauriPrinterService {
   async printReceipt(pages: string[], printerName?: string): Promise<void> {
     if (this.isRunningInTauri()) {
       await this.printPages(pages, printerName);
-    } else {
-      this.printInBrowser(pages);
     }
+  }
+
+  /**
+   * Print ESC/POS receipt data directly to thermal printer
+   * This method is much more efficient than PNG printing - smaller payload and faster
+   * @param escposData Base64 encoded ESC/POS commands
+   * @param printerName Name of the printer (optional, uses default if not specified)
+   */
+  async printEscPos(escposData: string, printerName?: string): Promise<void> {
+    if (!this.isRunningInTauri()) {
+      throw new Error('ESC/POS printing is only available in Tauri application');
+    }
+
+    try {
+      const invoke = await this.getInvoke();
+
+      // If no printer specified, get the default
+      if (!printerName) {
+        const defaultPrinter = await this.getDefaultPrinter();
+        if (!defaultPrinter) {
+          throw new Error('No printer available');
+        }
+        printerName = defaultPrinter.name;
+      }
+
+      await invoke('print_escpos', {
+        escposData: escposData,
+        printerName: printerName
+      });
+
+      console.log(`ESC/POS receipt sent to printer: ${printerName}`);
+    } catch (error) {
+      console.error('Error printing ESC/POS receipt:', error);
+      throw error;
+    }
+  }
+
+  /**
+   * Convert ArrayBuffer to base64 string
+   * Used for converting binary ESC/POS data from backend
+   */
+  private arrayBufferToBase64(buffer: ArrayBuffer): string {
+    let binary = '';
+    const bytes = new Uint8Array(buffer);
+    const len = bytes.byteLength;
+    for (let i = 0; i < len; i++) {
+      binary += String.fromCharCode(bytes[i]);
+    }
+    return window.btoa(binary);
+  }
+
+  /**
+   * Print ESC/POS receipt from ArrayBuffer data
+   * Converts ArrayBuffer to base64 and sends to printer
+   * @param escposBuffer ArrayBuffer containing ESC/POS commands from backend
+   * @param printerName Name of the printer (optional, uses default if not specified)
+   */
+  async printEscPosFromBuffer(escposBuffer: ArrayBuffer, printerName?: string): Promise<void> {
+    const base64Data = this.arrayBufferToBase64(escposBuffer);
+    await this.printEscPos(base64Data, printerName);
   }
 }

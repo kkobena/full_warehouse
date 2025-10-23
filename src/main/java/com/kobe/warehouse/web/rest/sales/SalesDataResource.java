@@ -161,18 +161,20 @@ public class SalesDataResource {
      * or with status {@code 500 (Internal Server Error)} if the receipt cannot be generated
      */
     @GetMapping("/sales/receipt/tauri/{id}/{saleDate}")
-    public ResponseEntity<List<byte[]>> getReceiptForTauri(
+    public ResponseEntity<byte[]> getReceiptForTauri(
         @PathVariable("id") Long id,
-        @PathVariable("saleDate") LocalDate saleDate
+        @PathVariable("saleDate") LocalDate saleDate,
+        @RequestParam(value = "isEdition",required = false) boolean isEdition
     ) {
-        log.debug("REST request to get receipt for Tauri client: sale id {}, date {}", id, saleDate);
+        log.debug("REST request to get ESC/POS receipt for Tauri client: sale id {}, date {}", id, saleDate);
         try {
-            List<byte[]> receiptPages = saleReceiptService.generateTicketForTauri(new SaleId(id, saleDate));
+            byte[] escPosData = saleDataService.generateEscPosReceipt(new SaleId(id, saleDate), isEdition);
             return ResponseEntity.ok()
-                .header(HttpHeaders.CONTENT_TYPE, "application/json")
-                .body(receiptPages);
+                .header(HttpHeaders.CONTENT_TYPE, "application/octet-stream")
+                .header(HttpHeaders.CONTENT_DISPOSITION, "inline; filename=\"receipt.bin\"")
+                .body(escPosData);
         } catch (IOException e) {
-            log.error("Error generating receipt for Tauri client", e);
+            log.error("Error generating ESC/POS receipt for Tauri client", e);
             return ResponseEntity.internalServerError().build();
         }
     }

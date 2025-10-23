@@ -51,6 +51,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.io.IOException;
 import java.net.MalformedURLException;
 import java.time.LocalDate;
 import java.util.ArrayList;
@@ -506,5 +507,15 @@ public class SaleDataService {
         } else if (sales instanceof ThirdPartySales thirdPartySales) {
             receiptPrinterService.printVoSale(new ThirdPartySaleDTO(thirdPartySales), isEdit);
         }
+    }
+
+    public byte[] generateEscPosReceipt(SaleId saleId, boolean isEdit) throws IOException {
+        Sales sales = fetchById(saleId, isEdit);
+        if (sales instanceof CashSale g) {
+            return receiptPrinterService.generateEscPosReceipt(new CashSaleDTO(g), isEdit);
+        } else if (sales instanceof ThirdPartySales thirdPartySales) {
+            receiptPrinterService.generateEscPosReceipt(new ThirdPartySaleDTO(thirdPartySales), isEdit);
+        }
+        return null;
     }
 }

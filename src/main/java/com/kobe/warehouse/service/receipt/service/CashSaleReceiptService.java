@@ -147,4 +147,20 @@ public class CashSaleReceiptService extends AbstractSaleReceiptService {
         return generateTicket();
     }
 
+    /**
+     * Generate ESC/POS receipt for direct thermal printer printing
+     * <p>
+     * This method generates raw ESC/POS commands that can be sent directly to a thermal POS printer.
+     * Much more efficient than PNG generation - produces smaller payloads and faster printing.
+     *
+     * @param sale the cash sale to generate receipt for
+     * @return byte array containing ESC/POS commands
+     * @throws IOException if generation fails
+     */
+    public byte[] generateEscPosReceiptForTauri(CashSaleDTO sale,boolean isEdit) throws IOException {
+        this.cashSale = sale;
+        this.isEdit = isEdit;
+        return generateEscPosReceipt();
+    }
+
 }

@@ -315,4 +315,40 @@ public class SaleReceiptService {
         );
         return receiptService.generateTicketForTauri(saleDTO);
     }
+
+    public List<byte[]> generateTicketForTauri(SaleId id, boolean isEdit) throws IOException {
+        SaleDTO saleDTO = saleDataService.getOneSaleDTO(id);
+        if (saleDTO instanceof CashSaleDTO cashSaleDTO) {
+            CashSaleReceiptService receiptService = new CashSaleReceiptService(
+                appConfigurationService,
+                printerRepository
+            );
+            return receiptService.generateTicketForTauri(cashSaleDTO);
+        } else if (saleDTO instanceof ThirdPartySaleDTO thirdPartySaleDTO) {
+            AssuranceSaleReceiptService receiptService = new AssuranceSaleReceiptService(
+                appConfigurationService,
+                printerRepository
+            );
+            return receiptService.generateTicketForTauri(thirdPartySaleDTO);
+        }
+        throw new IllegalArgumentException("Unsupported sale type: " + saleDTO.getClass().getName());
+    }
+
+    public byte[] generateEscPosReceipt(SaleId id, boolean isEdit) throws IOException {
+        SaleDTO saleDTO = saleDataService.getOneSaleDTO(id);
+        if (saleDTO instanceof CashSaleDTO cashSaleDTO) {
+            CashSaleReceiptService receiptService = new CashSaleReceiptService(
+                appConfigurationService,
+                printerRepository
+            );
+            return receiptService.generateEscPosReceiptForTauri(cashSaleDTO, isEdit);
+        } else if (saleDTO instanceof ThirdPartySaleDTO thirdPartySaleDTO) {
+            AssuranceSaleReceiptService receiptService = new AssuranceSaleReceiptService(
+                appConfigurationService,
+                printerRepository
+            );
+            return receiptService.generateEscPosReceiptForTauri(thirdPartySaleDTO, isEdit);
+        }
+        throw new IllegalArgumentException("Unsupported sale type: " + saleDTO.getClass().getName());
+    }
 }

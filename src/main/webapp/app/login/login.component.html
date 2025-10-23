@@ -4,7 +4,7 @@
     <div class="branding-content">
       <div class="logo-section">
         <img src="content/images/logo.png" alt="Pharma-Smart Logo" class="brand-logo" />
-        <h1 class="brand-title">Pharma-Smart</h1>
+        <h1 class="brand-title">Pharma Smart</h1>
         <p class="brand-subtitle">Système de Gestion de Pharmacie</p>
       </div>
 
@@ -82,7 +82,7 @@
             formControlName="password"
             id="password"
             placeholder="{{ 'login.form.password.placeholder' | translate }}"
-            styleClass="modern-password"
+            class="modern-password"
           />
         </div>
 
@@ -91,18 +91,14 @@
             <p-toggleswitch formControlName="rememberMe" id="rememberMe" name="rememberMe" />
             <label for="rememberMe">Se souvenir de moi</label>
           </div>
-          <a href="#" class="forgot-link">Mot de passe oublié ?</a>
+        <!--  <a href="#" class="forgot-link">Mot de passe oublié ?</a>-->
         </div>
 
-        <p-button
+        <button
           data-cy="submit"
-          icon="pi pi-sign-in"
-          label="Se connecter"
-          severity="primary"
           type="submit"
-          [fluid]="true"
-          styleClass="login-button"
-        />
+          class="login-button"
+        ><i class="pi pi-sign-in mr-2"></i>Se connecter</button>
       </form>
 
       <div class="form-footer">

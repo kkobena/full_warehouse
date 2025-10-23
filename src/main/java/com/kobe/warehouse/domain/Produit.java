@@ -199,7 +199,7 @@ public class Produit implements Serializable {
     @NotAudited
     @OneToOne
     @JoinColumn(name = "fournisseur_produit_principal_id", referencedColumnName = "id")
-    // @JoinFormula("(SELECT o.id FROM fournisseur_produit o WHERE o.principal=true AND o.produit_id=id LIMIT 1)")
+
     private FournisseurProduit fournisseurProduitPrincipal;
 
     @NotAudited

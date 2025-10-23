@@ -25,7 +25,6 @@ import { AutoCompleteModule } from 'primeng/autocomplete';
 import { RippleModule } from 'primeng/ripple';
 import { StatSalesComponent } from '../stat-sales/stat-sales.component';
 import { StatDeliveryComponent } from '../stat-delivery/stat-delivery.component';
-import { BackButtonComponent } from '../../../shared/cta/back-button.component';
 import { ButtonGroup } from 'primeng/buttongroup';
 import { DatePickerComponent } from '../../../shared/date-picker/date-picker.component';
 import { ProduitAutocompleteComponent } from '../../../shared/produit-autocomplete/produit-autocomplete.component';
@@ -49,7 +48,6 @@ import { ProduitAutocompleteComponent } from '../../../shared/produit-autocomple
     RippleModule,
     StatSalesComponent,
     StatDeliveryComponent,
-    BackButtonComponent,
     ButtonGroup,
     DatePickerComponent,
     ProduitAutocompleteComponent

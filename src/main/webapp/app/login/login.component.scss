@@ -6,21 +6,21 @@
   left: 0;
   right: 0;
   bottom: 0;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%) !important;
+  background: linear-gradient(135deg, #008cba 0%, #5bc0de 100%) !important;
   z-index: 9999;
 }
 
-// Modern Color Palette
-$primary-gradient-start: #667eea;
-$primary-gradient-end: #764ba2;
-$secondary-gradient-start: #f093fb;
-$secondary-gradient-end: #f5576c;
-$success-color: #06d6a0;
-$error-color: #ef476f;
+// Project Color Palette (Yeti Theme)
+$primary-blue: #008cba;
+$primary-light: #5bc0de;
+$success-green: #43ac6a;
+$warning-orange: #e99002;
+$danger-red: #f04124;
 $background-light: #f8f9fa;
-$text-primary: #2d3748;
-$text-secondary: #718096;
+$text-primary: #333;
+$text-secondary: #888;
 $white: #ffffff;
+$gray-light: #eee;
 $shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.08);
 $shadow-md: 0 4px 16px rgba(0, 0, 0, 0.12);
 $shadow-lg: 0 8px 32px rgba(0, 0, 0, 0.16);
@@ -120,8 +120,13 @@ $shadow-lg: 0 8px 32px rgba(0, 0, 0, 0.16);
       &:nth-child(4) { animation-delay: 0.5s; }
 
       i {
-        font-size: 1.5rem;
-        color: $success-color;
+        font-size: 1.75rem;
+        color: $white;
+        background: rgba(255, 255, 255, 0.2);
+        border-radius: 50%;
+        padding: 0.35rem;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+        backdrop-filter: blur(4px);
       }
     }
   }
@@ -172,14 +177,14 @@ $shadow-lg: 0 8px 32px rgba(0, 0, 0, 0.16);
   align-items: flex-start;
   gap: 0.75rem;
   padding: 1rem 1.25rem;
-  background: linear-gradient(135deg, rgba($error-color, 0.1) 0%, rgba($error-color, 0.05) 100%);
-  border-left: 4px solid $error-color;
+  background: linear-gradient(135deg, rgba($danger-red, 0.1) 0%, rgba($danger-red, 0.05) 100%);
+  border-left: 4px solid $danger-red;
   border-radius: 12px;
   margin-bottom: 1.5rem;
   animation: shake 0.5s ease-out;
 
   i {
-    color: $error-color;
+    color: $danger-red;
     font-size: 1.25rem;
     margin-top: 0.125rem;
   }
@@ -189,7 +194,7 @@ $shadow-lg: 0 8px 32px rgba(0, 0, 0, 0.16);
 
     strong {
       display: block;
-      color: $error-color;
+      color: $danger-red;
       font-weight: 600;
       margin-bottom: 0.25rem;
     }
@@ -218,7 +223,7 @@ $shadow-lg: 0 8px 32px rgba(0, 0, 0, 0.16);
 
       i {
         font-size: 1rem;
-        color: $primary-gradient-start;
+        color: $primary-blue;
       }
     }
 
@@ -234,8 +239,8 @@ $shadow-lg: 0 8px 32px rgba(0, 0, 0, 0.16);
 
       &:focus {
         outline: none;
-        border-color: $primary-gradient-start;
-        box-shadow: 0 0 0 4px rgba($primary-gradient-start, 0.1);
+        border-color: $primary-blue;
+        box-shadow: 0 0 0 4px rgba($primary-blue, 0.1);
       }
 
       &::placeholder {
@@ -279,13 +284,13 @@ $shadow-lg: 0 8px 32px rgba(0, 0, 0, 0.16);
 
     .forgot-link {
       font-size: 0.9rem;
-      color: $primary-gradient-start;
+      color: $primary-blue;
       text-decoration: none;
       font-weight: 500;
       transition: all 0.3s ease;
 
       &:hover {
-        color: $primary-gradient-end;
+        color: $primary-light;
         text-decoration: underline;
       }
     }
@@ -296,15 +301,15 @@ $shadow-lg: 0 8px 32px rgba(0, 0, 0, 0.16);
     padding: 0.875rem 1.5rem;
     font-size: 1.05rem;
     font-weight: 600;
-    background: linear-gradient(135deg, $primary-gradient-start 0%, $primary-gradient-end 100%);
+    background: linear-gradient(135deg, $primary-blue 0%, $primary-light 100%);
     border: none;
     border-radius: 12px;
     transition: all 0.3s ease;
-    box-shadow: 0 4px 12px rgba($primary-gradient-start, 0.3);
+    box-shadow: 0 4px 12px rgba($primary-blue, 0.3);
 
     &:hover {
       transform: translateY(-2px);
-      box-shadow: 0 6px 20px rgba($primary-gradient-start, 0.4);
+      box-shadow: 0 6px 20px rgba($primary-blue, 0.4);
     }
 
     &:active {
@@ -334,7 +339,7 @@ $shadow-lg: 0 8px 32px rgba(0, 0, 0, 0.16);
     margin: 0;
 
     i {
-      color: $primary-gradient-start;
+      color: $primary-blue;
     }
   }
 }

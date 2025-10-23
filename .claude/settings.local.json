@@ -22,7 +22,8 @@
       "Bash(cargo build:*)",
       "Bash(npm run lint)",
       "Bash(cargo doc:*)",
-      "Bash(mvn compile:*)"
+      "Bash(mvn compile:*)",
+      "Bash(npm run webapp:build:*)"
     ],
     "deny": [],
     "ask": []

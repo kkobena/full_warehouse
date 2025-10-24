@@ -10,6 +10,8 @@ import { WarehouseCommonModule } from '../shared/warehouse-common/warehouse-comm
 import { InputTextModule } from 'primeng/inputtext';
 import { Password } from 'primeng/password';
 import { ToggleSwitchModule } from 'primeng/toggleswitch';
+import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
+import { AppSettingsDialogComponent } from '../shared/settings/app-settings-dialog.component';
 
 @Component({
   selector: 'jhi-login',
@@ -24,6 +26,7 @@ import { ToggleSwitchModule } from 'primeng/toggleswitch';
     RippleModule,
     Password,
     ToggleSwitchModule,
+
   ],
   templateUrl: './login.component.html',
   styleUrls: ['./login.component.scss'],
@@ -42,6 +45,7 @@ export default class LoginComponent implements OnInit, AfterViewInit {
   private readonly accountService = inject(AccountService);
   private readonly loginService = inject(LoginService);
   private readonly router = inject(Router);
+  private readonly modalService = inject(NgbModal);
 
   ngOnInit(): void {
     this.accountService.identity().subscribe(() => {
@@ -61,11 +65,20 @@ export default class LoginComponent implements OnInit, AfterViewInit {
     this.loginService.login(this.loginForm.getRawValue()).subscribe({
       next: () => {
         this.authenticationError.set(false);
-        if (!this.router.getCurrentNavigation()) {
+        if (!this.router.currentNavigation()) {
           this.router.navigate(['']);
         }
       },
       error: () => this.authenticationError.set(true),
+    });
+  }
+
+  openSettings(): void {
+    this.modalService.open(AppSettingsDialogComponent, {
+      size: 'lg',
+      backdrop: 'static',
+      centered: true,
+      windowClass: 'settings-modal'
     });
   }
 }

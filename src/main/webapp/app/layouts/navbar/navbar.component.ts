@@ -335,7 +335,7 @@ export default class NavbarComponent implements OnInit {
             click: () => this.openShortcutsHelp()
           },
           {
-            label: 'Mode Sidebar',
+            label: 'Menu vertical',
             faIcon: faBars,
             click: () => this.layoutService.toggleLayout()
           },
@@ -381,7 +381,7 @@ export default class NavbarComponent implements OnInit {
             click: () => this.openShortcutsHelp()
           },
           {
-            label: 'Mode Sidebar',
+            label: 'Menu vertical',
             faIcon: faBars,
             click: () => this.layoutService.toggleLayout()
           },

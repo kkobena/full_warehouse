@@ -542,5 +542,4 @@ Choose based on your deployment needs:
 #TO DO
 
 - Ajout de trays Electron pour notification
-- Generate Tauri icons from favicon
 - ESC/POS (Rust)

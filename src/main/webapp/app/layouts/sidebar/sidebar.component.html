@@ -4,9 +4,6 @@
     @if (!isCollapsed()) {
       <a class="logo-container" routerLink="/">
         <span class="logo-text">Pharma Smart</span>
-        @if (version) {
-          <span class="logo-version ms-1">{{ version }}</span>
-        }
       </a>
     }
     <button
@@ -197,6 +194,13 @@
               </option>
             }
           </select>
+        </div>
+      }
+
+      <!-- Application Version -->
+      @if (version) {
+        <div class="app-version">
+          <span class="version-number">{{ version }}</span>
         </div>
       }
     </div>

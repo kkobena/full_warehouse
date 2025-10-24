@@ -177,7 +177,7 @@ public class ProductStatResource {
         @RequestParam(name = "produitId") Long produitId,
         @RequestParam(name = "fromDate") LocalDate fromDate,
         @RequestParam(name = "toDate") LocalDate toDate,
-        @RequestParam(name = "groupBy",required = false) TemporalEnum groupBy,
+        @RequestParam(name = "groupBy",required = false,defaultValue = "DAILY") TemporalEnum groupBy,
         HttpServletRequest request
     ) {
         return Utils.printPDF(
@@ -191,10 +191,11 @@ public class ProductStatResource {
         @RequestParam(name = "produitId") Long produitId,
         @RequestParam(name = "fromDate") LocalDate fromDate,
         @RequestParam(name = "toDate") LocalDate toDate,
+        @RequestParam(name = "groupBy",defaultValue = "DAILY") TemporalEnum groupBy,
         HttpServletRequest request
     ) {
         return Utils.printPDF(
-            this.productStatService.exportHistoriqueAchatToPdf(getProduitHistoriqueParam(produitId, fromDate, toDate,TemporalEnum.DAILY)),
+            this.productStatService.exportHistoriqueAchatToPdf(getProduitHistoriqueParam(produitId, fromDate, toDate,groupBy)),
             request
         );
     }
@@ -204,7 +205,7 @@ public class ProductStatResource {
         @RequestParam(name = "produitId") Long produitId,
         @RequestParam(name = "fromDate") LocalDate fromDate,
         @RequestParam(name = "toDate") LocalDate toDate,
-        @RequestParam(name = "groupBy") TemporalEnum groupBy,
+        @RequestParam(name = "groupBy",defaultValue = "MONTHLY") TemporalEnum groupBy,
 
         HttpServletRequest request
     ) {
@@ -219,7 +220,7 @@ public class ProductStatResource {
         @RequestParam(name = "produitId") Long produitId,
         @RequestParam(name = "fromDate") LocalDate fromDate,
         @RequestParam(name = "toDate") LocalDate toDate,
-        @RequestParam(name = "groupBy") TemporalEnum groupBy,
+        @RequestParam(name = "groupBy",defaultValue = "MONTHLY") TemporalEnum groupBy,
         HttpServletRequest request
     ) {
         return Utils.printPDF(

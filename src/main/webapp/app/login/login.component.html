@@ -33,8 +33,20 @@
   <div class="login-form-panel">
     <div class="form-container">
       <div class="form-header">
-        <h2 class="form-title">Bienvenue</h2>
-        <p class="form-subtitle">Connectez-vous à votre espace</p>
+        <div class="header-content">
+          <div>
+            <h2 class="form-title">Bienvenue</h2>
+            <p class="form-subtitle">Connectez-vous à votre espace</p>
+          </div>
+          <button
+            type="button"
+            class="settings-button"
+            (click)="openSettings()"
+            title="Configuration du serveur"
+          >
+            <i class="pi pi-cog"></i>
+          </button>
+        </div>
       </div>
 
       @if (authenticationError()) {

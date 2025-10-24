@@ -387,6 +387,24 @@
       }
     }
 
+    .app-version {
+      margin-top: 0.75rem;
+      padding-top: 0.75rem;
+      border-top: 1px solid rgba(255, 255, 255, 0.1);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+
+      .version-number {
+        font-size: 0.75rem;
+        font-weight: 500;
+        color: rgba(255, 255, 255, 0.7);
+        background: rgba(52, 152, 219, 0.2);
+        padding: 0.25rem 0.5rem;
+        border-radius: 4px;
+      }
+    }
+
     .btn {
       font-size: 0.875rem;
       border-color: rgba(255, 255, 255, 0.3);

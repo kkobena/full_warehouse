@@ -94,7 +94,7 @@ export default class SidebarComponent implements OnInit {
   }
 
   ngOnInit(): void {
-    this.themes = this.themeService.getThemes();
+   // this.themes = this.themeService.getThemes();
   }
 
   protected isCollapsed(): boolean {
@@ -378,7 +378,7 @@ export default class SidebarComponent implements OnInit {
             faIcon: 'lock'
           },
           {
-            label: 'Mode Navigation',
+            label: 'Menu horizontal',
             faIcon: faBars,
             click: () => this.layoutService.toggleLayout()
           },
@@ -418,7 +418,7 @@ export default class SidebarComponent implements OnInit {
             click: () => this.openAppSettings()
           },
           {
-            label: 'Mode Navigation',
+            label: 'Menu horizontal',
             faIcon: faBars,
             click: () => this.layoutService.toggleLayout()
           },

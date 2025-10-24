@@ -28,7 +28,7 @@
                   @if(item.faIcon){
                     <fa-icon [icon]="item.faIcon"></fa-icon>
                   }
-                  <span>{{item.label}}</span>
+                  <span>{{ isAccountMenu(item) && account()?.lastName ? account()!.lastName : item.label }}</span>
                 </span>
               </a>
               <ul ngbDropdownMenu class="dropdown-menu">

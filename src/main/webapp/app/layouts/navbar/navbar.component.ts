@@ -103,6 +103,10 @@ export default class NavbarComponent implements OnInit {
     return userIdentity.authorities.some((authority: string) => authorities.includes(authority));
   }
 
+  protected isAccountMenu(item: NavItem): boolean {
+    return item.faIcon === 'user' || item.label.toLowerCase().includes('account') || item.label.toLowerCase().includes('compte');
+  }
+
   private buildNavItem(): NavItem[] {
     const account = this.account();
 

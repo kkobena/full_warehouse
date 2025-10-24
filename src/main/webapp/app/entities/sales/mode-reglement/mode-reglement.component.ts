@@ -86,11 +86,11 @@ export class ModeReglementComponent implements OnInit {
   protected readonly currentSaleService = inject(CurrentSaleService);
   readonly showModeReglementCard = computed(() => this.currentSaleService.currentSale()?.amountToBePaid > 0);
   protected readonly baseSaleService = inject(BaseSaleService);
-  protected readonly selectModeReglementService = inject(SelectModeReglementService);
+  protected  readonly selectModeReglementService = inject(SelectModeReglementService);
   readonly manageShowInfosBancaire = computed(() =>
     this.selectModeReglementService.modeReglements()?.some(element => this.bankRelatedModes.includes(element?.code as PaymentModeCode))
   );
-  //currentSaleService.currentSale()?.amountToBePaid
+
   protected paymentModeToChange: IPaymentMode | null = null;
   protected isSmallScreen = false;
   protected printReceipt: boolean = this.currentSaleService.printReceipt();
@@ -103,7 +103,8 @@ export class ModeReglementComponent implements OnInit {
     effect(() => {
       const currentModes = this.selectModeReglementService.modeReglements();
       const newCount = currentModes.length;
-      if (newCount > 0 && newCount > this.lastModesCount) {
+      // Only focus if we're adding a mode (not on initial load)
+      if (newCount > 1 && newCount > this.lastModesCount) {
         this.focusLastAddInput();
       }
       this.lastModesCount = newCount;
@@ -148,10 +149,11 @@ export class ModeReglementComponent implements OnInit {
   }
 
   manageShowAddButton(inputAmount: number): void {
+    const numericAmount = this.parseAmount(inputAmount);
     this.isShowAddBtn.set(
       this.selectModeReglementService.modeReglements().length < this.baseSaleService.maxModePayementNumber() &&
-      inputAmount > 0 &&
-      inputAmount < this.currentSaleService.currentSale().amountToBePaid
+      numericAmount > 0 &&
+      numericAmount < this.currentSaleService.currentSale().amountToBePaid
     );
   }
 
@@ -173,7 +175,7 @@ export class ModeReglementComponent implements OnInit {
 
   buildReglementInput(): void {
     this.resetCashInput();
-    this.setFirstInputFocused();
+    // Don't auto-focus on initial load
   }
 
   resetCashInput(): void {
@@ -192,23 +194,25 @@ export class ModeReglementComponent implements OnInit {
   }
 
   focusLastAddInput(): void {
-    const inputs = this.paymentModeInputs();
-    const lastInput = inputs[inputs.length - 1]?.nativeElement;
-    if (lastInput) {
-      lastInput.focus();
-      const amountOfOtherModes = this.selectModeReglementService
-        .modeReglements()
-        .filter(e => e.code !== lastInput.id)
-        .reduce((acc, e) => acc + (e.amount || 0), 0);
+    setTimeout(() => {
+      const inputs = this.paymentModeInputs();
+      const lastInput = inputs[inputs.length - 1]?.nativeElement;
+      if (lastInput) {
+        const amountOfOtherModes = this.selectModeReglementService
+          .modeReglements()
+          .filter(e => e.code !== lastInput.id)
+          .reduce((acc, e) => acc + this.parseAmount(e.amount), 0);
 
-      const newAmount = this.currentSaleService.currentSale().amountToBePaid - amountOfOtherModes;
-      const mode = this.selectModeReglementService.modeReglements().find(e => e.code === lastInput.id);
-      if (mode) {
-        mode.amount = newAmount;
+        const newAmount = this.currentSaleService.currentSale().amountToBePaid - amountOfOtherModes;
+        const mode = this.selectModeReglementService.modeReglements().find(e => e.code === lastInput.id);
+        if (mode) {
+          mode.amount = newAmount;
+        }
+        lastInput.value = String(newAmount);
+        lastInput.focus();
+        setTimeout(() => lastInput.select(), 50);
       }
-      lastInput.value = String(newAmount);
-      setTimeout(() => lastInput.select(), 50);
-    }
+    }, 0);
   }
 
   onRemovePaymentMode(newMode: IPaymentMode): void {
@@ -245,7 +249,12 @@ export class ModeReglementComponent implements OnInit {
   }
 
   getInputSum(): number {
-    return (this.selectModeReglementService.modeReglements() || []).reduce((sum, mode) => sum + (mode.amount || 0), 0);
+    const modes = this.selectModeReglementService.modeReglements() || [];
+    const total = modes.reduce((sum, mode) => {
+      const parsed = this.parseAmount(mode.amount);
+      return sum + parsed;
+    }, 0);
+    return total;
   }
 
   onSansBonChange(evt: any): void {
@@ -261,9 +270,14 @@ export class ModeReglementComponent implements OnInit {
   }
 
   buildPayment(entryAmount: number): IPayment[] {
-    return (this.selectModeReglementService.modeReglements() || [])
-      .filter(mode => (mode.amount || 0) > 0)
-      .map(mode => this.buildModePayment(mode, mode.amount, entryAmount));
+    const numericEntryAmount = this.parseAmount(entryAmount);
+    const payments = (this.selectModeReglementService.modeReglements() || [])
+      .filter(mode => this.parseAmount(mode.amount) > 0)
+      .map(mode => {
+        const numericAmount = this.parseAmount(mode.amount);
+        return this.buildModePayment(mode, numericAmount, numericEntryAmount);
+      });
+    return payments;
   }
 
   protected onClose(op: any): void {
@@ -304,5 +318,14 @@ export class ModeReglementComponent implements OnInit {
       paymentMode: mode,
       montantVerse: inputAmount
     };
+  }
+
+
+  private parseAmount(value: any): number {
+    if (value === null || value === undefined || value === '') {
+      return 0;
+    }
+    const num = typeof value === 'string' ? parseInt(value.trim(), 10) : value;
+    return isNaN(num) ? 0 : num;
   }
 }

@@ -8,9 +8,7 @@ import { WarehouseCommonModule } from '../../shared/warehouse-common/warehouse-c
 import {
   faBars,
   faKeyboard,
-  faPalette,
-  faServer,
-  faTimes
+  faServer
 } from '@fortawesome/free-solid-svg-icons';
 import { Theme, ThemeService } from '../../core/theme/theme.service';
 import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
@@ -31,18 +29,16 @@ export default class NavbarComponent implements OnInit {
   protected account = inject(AccountService).trackCurrentAccount();
   protected navItems: NavItem[] = [];
   protected menuStock: string[] = [];
-  protected readonly faTimes = faTimes;
+
   private loginService = inject(LoginService);
   private router = inject(Router);
   private themeService = inject(ThemeService);
   private modalService = inject(NgbModal);
   private navigationService = inject(NavigationService);
   protected layoutService = inject(LayoutService);
-
   themes: Theme[];
   selectedTheme: string;
-  readonly faPalette = faPalette;
-  readonly faServer = faServer;
+
 
 
   changeTheme(themeName: string): void {

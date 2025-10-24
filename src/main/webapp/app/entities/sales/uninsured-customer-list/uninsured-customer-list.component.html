@@ -1,16 +1,18 @@
 <div class="modal-header">
   <h4 class="modal-title">{{ header }}</h4>
-  <button (click)="cancel()" aria-hidden="true" class="close" data-dismiss="modal" type="button">
+  <button (click)="cancel()" aria-hidden="true" class="btn-close" data-dismiss="modal" type="button">
     &times;
   </button>
 </div>
 
 <div class="modal-body">
-  <jhi-customer-data-table (closeModalEvent)="onSelectClose($event)"></jhi-customer-data-table>
+  <p-card>
+    <jhi-customer-data-table (closeModalEvent)="onSelectClose($event)"></jhi-customer-data-table>
+  </p-card>
 </div>
 
+
 <div class="modal-footer">
-  <button (click)="cancel()" class="btn btn-danger" data-dismiss="modal" type="button">
-    <fa-icon icon="ban"></fa-icon>&nbsp;<span>Fermer</span>
-  </button>
+  <p-button (click)="cancel()" severity="secondary" icon="pi pi-times" label="Fermer" raised="true" type="button">
+  </p-button>
 </div>

@@ -8,10 +8,12 @@ import { InputTextModule } from 'primeng/inputtext';
 import { RippleModule } from 'primeng/ripple';
 import { TableModule } from 'primeng/table';
 import { CustomerDataTableComponent } from './customer-data-table.component';
+import { Card } from 'primeng/card';
 
 @Component({
   selector: 'jhi-uninsured-customer-list',
   templateUrl: './uninsured-customer-list.component.html',
+  styleUrls: ['../../common-modal.component.scss'],
   imports: [
     WarehouseCommonModule,
     FormsModule,
@@ -20,7 +22,8 @@ import { CustomerDataTableComponent } from './customer-data-table.component';
     InputTextModule,
     RippleModule,
     TableModule,
-    CustomerDataTableComponent
+    CustomerDataTableComponent,
+    Card
   ]
 })
 export class UninsuredCustomerListComponent {

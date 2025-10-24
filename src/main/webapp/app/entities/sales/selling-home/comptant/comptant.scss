@@ -23,3 +23,6 @@ $pharma-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
   border: 1px solid rgba(0, 0, 0, 0.08);
   backdrop-filter: blur(10px);
 }
+.table tr:hover {
+  cursor: pointer;
+}

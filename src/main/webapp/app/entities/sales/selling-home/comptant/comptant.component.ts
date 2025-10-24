@@ -25,19 +25,12 @@ import { SelectModeReglementService } from '../../service/select-mode-reglement.
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { UninsuredCustomerListComponent } from '../../uninsured-customer-list/uninsured-customer-list.component';
 import { take } from 'rxjs/operators';
-import { Card } from 'primeng/card';
 import { SpinnerComponent } from '../../../../shared/spinner/spinner.component';
 import { TauriPrinterService } from '../../../../shared/services/tauri-printer.service';
 
 @Component({
   selector: 'jhi-comptant',
-  styles: [
-    `
-      .table tr:hover {
-        cursor: pointer;
-      }
-    `
-  ],
+
   imports: [
     WarehouseCommonModule,
     RouterModule,
@@ -63,7 +56,6 @@ export class ComptantComponent {
   canFocusLastModeInput = input(false);
   modeReglementComponent = viewChild<ModeReglementComponent>('modeReglement');
   amountComputingComponent = viewChild<AmountComputingComponent>('amountComputing');
-  // readonly entryAmount = computed(() => this.modeReglementComponent()?.getInputSum() || 0);
   protected remise?: IRemise | null;
   protected event: any;
   protected readonly currentSaleService = inject(CurrentSaleService);
@@ -102,11 +94,11 @@ export class ComptantComponent {
     });
     this.facade.openUninsuredCustomer$.pipe(takeUntilDestroyed()).subscribe(({ isVenteDefferee, putsOnStandby }) => {
       const modalRef = this.modalService.open(UninsuredCustomerListComponent, {
-        size: '60%',
+        size: 'lg',
         backdrop: 'static',
         centered: true
       });
-      modalRef.componentInstance.header = 'CLIENTS NON ASSURES';
+      modalRef.componentInstance.header = 'CLIENTS';
       modalRef.result.then(() => {
         if (isVenteDefferee && this.selectedCustomerService.selectedCustomerSignal()) {
           this.currentSaleService.currentSale().differe = isVenteDefferee;
@@ -151,8 +143,8 @@ export class ComptantComponent {
     const entryAmount = this.entryAmount;
     const restToPay = this.currentSaleService.currentSale().amountToBePaid - entryAmount;
     this.currentSaleService.currentSale().montantVerse = this.baseSaleService.getCashAmount(entryAmount);
-    if (restToPay > 0 && this.isValidDiffere()) {
-      this.confimDialog().onConfirm(() => this.facade.confirmDiffereSale(), 'Vente différé', 'Voullez-vous regler le reste en différé ?');
+    if (restToPay > 0 && !this.isValidDiffere()) {
+      this.confimDialog().onConfirm(() => this.facade.confirmDiffereSale(entryAmount), 'Vente différé', 'Voullez-vous regler le reste en différé ?');
     } else {
       this.finalyseSale();
     }

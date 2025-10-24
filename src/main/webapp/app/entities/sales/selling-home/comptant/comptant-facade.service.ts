@@ -40,14 +40,13 @@ export class ComptantFacadeService {
   }>();
   openUninsuredCustomer$ = this.openUninsuredCustomerSubject.asObservable();
 
-  confirmDiffereSale(): void {
+  confirmDiffereSale(entryAmount:number): void {
     this.currentSaleService.currentSale().differe = true;
     if (!this.currentSaleService.currentSale().customerId) {
       this.openUninsuredCustomerSubject.next({ isVenteDefferee: true, putsOnStandby: false });
     } else {
       this.finalizeSale(
-        false,
-        0,
+        false,entryAmount,
         this.currentSaleService.currentSale().commentaire,
         this.currentSaleService.currentSale().avoir,
         this.currentSaleService.currentSale().payments,
@@ -258,8 +257,9 @@ export class ComptantFacadeService {
   }
 
   private updateSaleAmounts(sale: ISales, entryAmount: number): void {
-    const restToPay = sale.amountToBePaid - entryAmount;
-    sale.payrollAmount = restToPay <= 0 ? sale.amountToBePaid : entryAmount;
+    const numericEntryAmount = Number(entryAmount) || 0;
+    const restToPay = sale.amountToBePaid - numericEntryAmount;
+    sale.payrollAmount = restToPay <= 0 ? sale.amountToBePaid : numericEntryAmount;
     sale.restToPay = restToPay <= 0 ? 0 : restToPay;
     sale.montantRendu = sale.montantVerse - sale.amountToBePaid;
   }

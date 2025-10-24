@@ -351,14 +351,14 @@
       <version>20250517</version>
     </dependency>
     <dependency>
-      <groupId>com.github.librepdf</groupId>
       <artifactId>openpdf</artifactId>
+      <groupId>com.github.librepdf</groupId>
       <version>${openpdf.version}</version>
 
     </dependency>
     <dependency>
-      <groupId>org.apache.xmlgraphics</groupId>
       <artifactId>batik-codec</artifactId>
+      <groupId>org.apache.xmlgraphics</groupId>
       <version>${batik.version}</version>
     </dependency>
     <dependency>
@@ -411,6 +411,7 @@
     <dependency>
       <artifactId>spring-boot-loader-tools</artifactId>
       <groupId>org.springframework.boot</groupId>
+      <version>4.0.0-M3</version>
     </dependency>
     <dependency>
       <artifactId>spring-boot-starter-actuator</artifactId>
@@ -561,21 +562,20 @@
       <artifactId>jdbc</artifactId>
       <groupId>org.testcontainers</groupId>
       <scope>test</scope>
+      <version>1.21.3</version>
     </dependency>
     <dependency>
       <artifactId>junit-jupiter</artifactId>
       <groupId>org.testcontainers</groupId>
       <scope>test</scope>
+      <version>1.21.3</version>
     </dependency>
-    <dependency>
-      <artifactId>mariadb</artifactId>
-      <groupId>org.testcontainers</groupId>
-      <scope>test</scope>
-    </dependency>
+
     <dependency>
       <artifactId>testcontainers</artifactId>
       <groupId>org.testcontainers</groupId>
       <scope>test</scope>
+      <version>1.21.3</version>
     </dependency>
   </dependencies>
   <description>Description for Warehouse</description>
@@ -589,9 +589,8 @@
     <artifactId>spring-boot-starter-parent</artifactId>
     <groupId>org.springframework.boot</groupId>
     <relativePath/>
-    <version>4.0.0-M3</version> <!-- lookup parent from repository -->
+    <version>4.0.0-RC1</version>
   </parent>
-
   <profiles>
 
     <profile>
@@ -759,19 +758,18 @@
     <argLine>-Djava.security.egd=file:/dev/./urandom -Xmx1G</argLine>
 
 
-    <frontend-maven-plugin.version>1.15.1</frontend-maven-plugin.version>
+    <batik.version>1.19</batik.version>
 
+    <frontend-maven-plugin.version>1.15.1</frontend-maven-plugin.version>
     <hibernate-validator.version>9.0.1.Final</hibernate-validator.version>
     <hibernate.version>7.1.0.Final</hibernate.version>
-    <openpdf.version>3.0.0</openpdf.version>
-    <batik.version>1.19</batik.version>
     <java.version>25</java.version>
     <maven-antrun-plugin.version>3.1.0</maven-antrun-plugin.version>
-
-
     <maven-clean-plugin.version>3.4.0</maven-clean-plugin.version>
 
+
     <maven-compiler-plugin.version>3.14.0</maven-compiler-plugin.version>
+
     <maven-enforcer-plugin.version>3.5.0</maven-enforcer-plugin.version>
     <maven-failsafe-plugin.version>3.5.2</maven-failsafe-plugin.version>
     <maven-jar-plugin.version>3.4.2</maven-jar-plugin.version>
@@ -784,9 +782,10 @@
     <maven.compiler.source>${java.version}</maven.compiler.source>
     <maven.compiler.target>${java.version}</maven.compiler.target>
     <maven.version>3.6.3</maven.version>
-
     <node.version>v24.4.0</node.version>
+
     <npm.version>11.0.0</npm.version>
+    <openpdf.version>3.0.0</openpdf.version>
     <profile.api-docs/>
     <profile.e2e/>
 

@@ -4,7 +4,7 @@ import static org.springframework.security.config.Customizer.withDefaults;
 
 import com.kobe.warehouse.security.AuthoritiesConstants;
 import com.kobe.warehouse.security.jwt.JwtAuthenticationConverter;
-import org.springframework.boot.security.autoconfigure.servlet.PathRequest;
+import org.springframework.boot.security.autoconfigure.web.servlet.PathRequest;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpStatus;
@@ -23,7 +23,6 @@ import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.HttpStatusEntryPoint;
 import org.springframework.security.web.header.writers.ReferrerPolicyHeaderWriter;
 
-
 @Configuration
 @EnableAsync
 @EnableScheduling
@@ -33,10 +32,7 @@ public class SecurityConfiguration {
     private final LogProperties logProperties;
     private final JwtAuthenticationConverter jwtAuthenticationConverter;
 
-    public SecurityConfiguration(
-        LogProperties logProperties,
-        JwtAuthenticationConverter jwtAuthenticationConverter
-    ) {
+    public SecurityConfiguration(LogProperties logProperties, JwtAuthenticationConverter jwtAuthenticationConverter) {
         this.logProperties = logProperties;
         this.jwtAuthenticationConverter = jwtAuthenticationConverter;
     }
@@ -46,12 +42,10 @@ public class SecurityConfiguration {
         return new BCryptPasswordEncoder();
     }
 
-
     @Bean
     public AuthenticationManager authenticationManager(AuthenticationConfiguration authenticationConfiguration) throws Exception {
         return authenticationConfiguration.getAuthenticationManager();
     }
-
 
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
@@ -60,19 +54,13 @@ public class SecurityConfiguration {
             // Disable CSRF for stateless JWT authentication
             .csrf(AbstractHttpConfigurer::disable)
             // Stateless session management (no server-side sessions)
-            .sessionManagement(session ->
-                session.sessionCreationPolicy(SessionCreationPolicy.STATELESS)
-            )
+            .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
             // Security headers
             .headers(headers ->
                 headers
-                    .contentSecurityPolicy(csp ->
-                        csp.policyDirectives(logProperties.getSecurity().getContentSecurityPolicy())
-                    )
+                    .contentSecurityPolicy(csp -> csp.policyDirectives(logProperties.getSecurity().getContentSecurityPolicy()))
                     .frameOptions(HeadersConfigurer.FrameOptionsConfig::sameOrigin)
-                    .referrerPolicy(referrer ->
-                        referrer.policy(ReferrerPolicyHeaderWriter.ReferrerPolicy.STRICT_ORIGIN_WHEN_CROSS_ORIGIN)
-                    )
+                    .referrerPolicy(referrer -> referrer.policy(ReferrerPolicyHeaderWriter.ReferrerPolicy.STRICT_ORIGIN_WHEN_CROSS_ORIGIN))
                     .permissionsPolicyHeader(permissions ->
                         permissions.policy(
                             "camera=(), fullscreen=(self), geolocation=(), gyroscope=(), magnetometer=(), microphone=(), midi=(), payment=(), sync-xhr=()"
@@ -101,7 +89,6 @@ public class SecurityConfiguration {
                         request -> request.getRequestURI().equals("/management/health"),
                         request -> request.getRequestURI().startsWith("/management/health/"),
                         request -> request.getRequestURI().equals("/management/info"),
-
                         request -> request.getRequestURI().equals("/index.html"),
                         request -> request.getRequestURI().equals("/")
                     )
@@ -111,10 +98,11 @@ public class SecurityConfiguration {
                         request -> request.getRequestURI().startsWith("/api/admin/"),
                         request -> {
                             String uri = request.getRequestURI();
-                            return uri.startsWith("/management/")
-                                && !uri.equals("/management/health")
-                                && !uri.startsWith("/management/health/")
-                             ;
+                            return (
+                                uri.startsWith("/management/") &&
+                                !uri.equals("/management/health") &&
+                                !uri.startsWith("/management/health/")
+                            );
                         }
                     )
                     .hasAuthority(AuthoritiesConstants.ADMIN)
@@ -127,18 +115,12 @@ public class SecurityConfiguration {
             )
             // Return 401 Unauthorized for unauthenticated API requests
             .exceptionHandling(exceptionHandling ->
-                exceptionHandling.defaultAuthenticationEntryPointFor(
-                    new HttpStatusEntryPoint(HttpStatus.UNAUTHORIZED),
-                    request -> request.getRequestURI().startsWith("/api/")
+                exceptionHandling.defaultAuthenticationEntryPointFor(new HttpStatusEntryPoint(HttpStatus.UNAUTHORIZED), request ->
+                    request.getRequestURI().startsWith("/api/")
                 )
             )
             // OAuth2 Resource Server: Validate JWT tokens
-            .oauth2ResourceServer(oauth2 ->
-                oauth2.jwt(jwt ->
-                    jwt.jwtAuthenticationConverter(jwtAuthenticationConverter)
-                )
-            );
+            .oauth2ResourceServer(oauth2 -> oauth2.jwt(jwt -> jwt.jwtAuthenticationConverter(jwtAuthenticationConverter)));
         return http.build();
     }
-
 }

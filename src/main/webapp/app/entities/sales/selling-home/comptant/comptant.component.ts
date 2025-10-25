@@ -105,7 +105,8 @@ export class ComptantComponent {
           this.modeReglementComponent().commentaireInputGetFocus();
         } else {
           if (!isVenteDefferee) {
-            this.finalyseSale(putsOnStandby);
+            this.facade.onAddUninsuredCustomer();
+            // this.finalyseSale(putsOnStandby);
           }
         }
       });

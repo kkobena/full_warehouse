@@ -199,7 +199,6 @@ public class Produit implements Serializable {
     @NotAudited
     @OneToOne
     @JoinColumn(name = "fournisseur_produit_principal_id", referencedColumnName = "id")
-
     private FournisseurProduit fournisseurProduitPrincipal;
 
     @NotAudited

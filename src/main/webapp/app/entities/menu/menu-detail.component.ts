@@ -19,10 +19,12 @@ import { TagModule } from 'primeng/tag';
   imports: [WarehouseCommonModule, TagModule, PickListModule, ButtonModule, RippleModule, PanelModule, Toolbar]
 })
 export class MenuDetailComponent implements OnInit {
-  protected privillegeService = inject(PrivillegeService);
-  protected activatedRoute = inject(ActivatedRoute);
-  private cdr = inject(ChangeDetectorRef);
 
+  constructor(
+    private privillegeService: PrivillegeService,
+    private activatedRoute: ActivatedRoute,
+    private cdr: ChangeDetectorRef
+  ) {}
   entity: IAuthority | null = null;
   associes?: IMenu[];
   others?: IMenu[];
@@ -57,12 +59,13 @@ export class MenuDetailComponent implements OnInit {
   }
 
   onMoveAllToTarget(): void {
-    console.log(this.associes);
-    this.updateAuthority();
+    console.log(this.others);
+  this.updateAuthority();
   }
 
   onMoveAllToSource(): void {
-    this.updateAuthority();
+    console.log(this.associes);
+   this.updateAuthority();
   }
 
   private updateAuthority(): void {

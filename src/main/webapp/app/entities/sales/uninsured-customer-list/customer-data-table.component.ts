@@ -58,7 +58,7 @@ export class CustomerDataTableComponent {
   }
 
   protected addUninsuredCustomer(): void {
-    this.closeModalEvent.emit(true);
+
     showCommonModal(
       this.modalService,
       UninsuredCustomerFormComponent,
@@ -66,6 +66,7 @@ export class CustomerDataTableComponent {
       (resp: ICustomer) => {
         if (resp) {
           this.selectedCustomerService.setCustomer(resp);
+          this.closeModalEvent.emit(true);
         }
       }
     );

@@ -165,8 +165,8 @@ export class SalesService {
     return this.http.put(this.resourceUrl + '/comptant/add-customer', keyValue, { observe: 'response' });
   }
 
-  removeCustommerToCashSale(id: number): Observable<HttpResponse<{}>> {
-    return this.http.delete(`${this.resourceUrl}/comptant/remove-customer/${id}`, { observe: 'response' });
+  removeCustommerToCashSale(id: SaleId): Observable<HttpResponse<{}>> {
+    return this.http.delete(`${this.resourceUrl}/comptant/remove-customer/${id.id}/${id.saleDate}`, { observe: 'response' });
   }
 
   queryPrevente(req?: any): Observable<EntityArrayResponseType> {

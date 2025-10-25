@@ -14,7 +14,6 @@ import java.util.Optional;
 import java.util.Set;
 
 public interface SalesLineService {
-    Sales createSaleLine(SaleLineDTO saleLine, Sales sale, Long stockageId) throws StockException;
 
     void updateSaleLine(SaleLineDTO dto, SalesLine salesLine);
 
@@ -27,7 +26,7 @@ public interface SalesLineService {
 
     void updateItemRegularPrice(SaleLineDTO saleLineDTO, SalesLine salesLine, Long storageId);
 
-    void updateSaleLine(SaleLineDTO dto, SalesLine salesLine, Long storageId);
+    void updateSaleLine(SaleLineDTO dto, SalesLine salesLine, Long storageId) throws StockException;
 
     SalesLine create(SaleLineDTO dto, Long storageId, Sales sales);
 

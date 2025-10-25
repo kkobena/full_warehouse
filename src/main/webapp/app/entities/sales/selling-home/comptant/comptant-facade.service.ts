@@ -282,7 +282,7 @@ export class ComptantFacadeService {
     };
   }
 
-  private buildSaleId(sale: ISales): SaleId {
-    return sale.saleId;
+ onAddUninsuredCustomer(): void {
+   this.saveResponseSubject.next({ success: true });
   }
 }

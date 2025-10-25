@@ -166,6 +166,7 @@ export class SellingHomeComponent implements OnInit, AfterViewInit, OnDestroy {
   protected printTicket = true;
   protected active = 'comptant';
   protected showInsuranceDataBar = signal(true);
+  protected showInsuranceTogle = signal(false);
   protected currentSaleService = inject(CurrentSaleService);
   protected userVendeurService = inject(UserVendeurService);
   protected readonly PRODUIT_COMBO_RESULT_SIZE = PRODUIT_COMBO_RESULT_SIZE;
@@ -230,7 +231,8 @@ export class SellingHomeComponent implements OnInit, AfterViewInit, OnDestroy {
 
   onRemoveCustomer(): void {
     if (this.isComptant()) {
-      this.salesService.removeCustommerToCashSale(this.currentSaleService.currentSale().id).subscribe(() => {
+      this.salesService.removeCustommerToCashSale(this.currentSaleService.currentSale().saleId).subscribe(() => {
+        this.currentSaleService.currentSale().customerId = null;
       });
     }
   }
@@ -651,13 +653,19 @@ export class SellingHomeComponent implements OnInit, AfterViewInit, OnDestroy {
         () => {
           if (evt.nextId === SaleType.COMPTANT) {
             if (isVo(currentSale.categorie)) {
+
               this.setEnAttenteAssurance();
               this.active = SaleType.COMPTANT;
+            }else{
+              this.selectedCustomerService.setCustomer(null);
             }
           } else if (evt.nextId === SaleType.ASSURANCE) {
             this.onChangeCashSaleToVo();
             this.active = SaleType.ASSURANCE;
           } else if (evt.nextId === SaleType.CARNET) {
+            if (isVno(currentSale.categorie)) {
+              this.selectedCustomerService.setCustomer(null);
+            }
             this.onChangeCashSaleToCarnet();
             this.active = SaleType.CARNET;
           }
@@ -1007,12 +1015,13 @@ export class SellingHomeComponent implements OnInit, AfterViewInit, OnDestroy {
   }
 
   private createSalesLine(produit: ProduitSearch, quantityRequested: number): ISalesLine {
+   const quantitySold=Math.min(produit.totalQuantity, quantityRequested);
     return {
       ...new SalesLine(),
       produitId: produit.id,
       regularUnitPrice: produit.regularUnitPrice,
       saleId: this.currentSaleService.currentSale()?.id,
-      quantitySold: quantityRequested,
+      quantitySold: quantitySold>0 ? quantitySold : 0,
       quantityRequested,
       sales: this.currentSaleService.currentSale()
     };

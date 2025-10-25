@@ -155,30 +155,36 @@
       <!-- Insurance/Carnet Data Bar -->
 
       @if (active === 'assurance' || active === 'carnet') {
-        <div class="insurance-data-bar-wrapper">
-          <!-- Toggle Button -->
-          <p-button
-            (click)="toggleInsuranceDataBar()"
-            [text]="true"
-            [rounded]="true"
-            [pTooltip]="showInsuranceDataBar() ? 'Masquer les infos assurance' : 'Afficher les infos assurance'"
-            tooltipPosition="right"
-            severity="info"
-            size="small"
-            class="insurance-toggle-btn">
-            <ng-template #content>
-              <i [class]="showInsuranceDataBar() ? 'pi pi-chevron-up' : 'pi pi-chevron-down'"></i>
-              <span class="toggle-label">{{ showInsuranceDataBar() ? 'Masquer' : 'Afficher' }}</span>
-            </ng-template>
-          </p-button>
-
-          <!-- Insurance Data Bar (collapsible) -->
-          @if (showInsuranceDataBar()) {
-            <div class="insurance-data-bar">
-              <jhi-assurance-data></jhi-assurance-data>
-            </div>
-          }
+        <div class="insurance-data-bar">
+          <jhi-assurance-data></jhi-assurance-data>
         </div>
+        @if (showInsuranceTogle()){
+          <div class="insurance-data-bar-wrapper">
+            <!-- Toggle Button -->
+            <p-button
+              (click)="toggleInsuranceDataBar()"
+              [text]="true"
+              [rounded]="true"
+              [pTooltip]="showInsuranceDataBar() ? 'Masquer les infos assurance' : 'Afficher les infos assurance'"
+              tooltipPosition="right"
+              severity="info"
+              size="small"
+              class="insurance-toggle-btn">
+              <ng-template #content>
+                <i [class]="showInsuranceDataBar() ? 'pi pi-chevron-up' : 'pi pi-chevron-down'"></i>
+                <span class="toggle-label">{{ showInsuranceDataBar() ? 'Masquer' : 'Afficher' }}</span>
+              </ng-template>
+            </p-button>
+
+            <!-- Insurance Data Bar (collapsible) -->
+            @if (showInsuranceDataBar()) {
+              <div class="insurance-data-bar">
+                <jhi-assurance-data></jhi-assurance-data>
+              </div>
+            }
+          </div>
+        }
+
       }
       <!-- PRODUCT SEARCH SECTION -->
       <div class="product-search-section">

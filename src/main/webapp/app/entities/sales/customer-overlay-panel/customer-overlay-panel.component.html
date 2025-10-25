@@ -1,35 +1,69 @@
-<div class="row customer-overlay-panel">
-  <div class="col-2">
-    <p-popover #op [style]="{ width: '650px' }">
-      <ng-template pTemplate="content">
-        <jhi-customer-data-table (closeModalEvent)="onClose(op)"></jhi-customer-data-table>
-      </ng-template>
-    </p-popover>
+<!-- Modern Customer Overlay Panel -->
+<div class="customer-panel-wrapper">
+
+  <!-- Customer Popover -->
+  <p-popover #op [style]="{ width: '650px' }">
+    <ng-template pTemplate="content">
+      <jhi-customer-data-table (closeModalEvent)="onClose(op)"></jhi-customer-data-table>
+    </ng-template>
+  </p-popover>
+
+  <!-- Customer Display Card -->
+  <div class="customer-display-card">
+
+    <!-- Action Button -->
+    <div class="customer-action-btn">
+      @if (customer) {
+        <p-button
+          (click)="remove()"
+          pTooltip="Supprimer le client"
+          tooltipPosition="top"
+          icon="pi pi-times"
+          severity="danger"
+          size="small"
+          [rounded]="true"
+          class="remove-customer-btn">
+        </p-button>
+      } @else {
+        <p-button
+          (click)="op.toggle($event)"
+          [pTooltip]="getLabele()"
+          tooltipPosition="top"
+          icon="pi pi-user-plus"
+          severity="success"
+          size="small"
+          [rounded]="true"
+          class="add-customer-btn">
+        </p-button>
+      }
+    </div>
+
+    <!-- Customer Information Display -->
     @if (customer) {
-      <p-button (click)="remove()" pTooltip="Supprimer" icon="pi pi-user" severity="danger" size="small"
-                styleClass="customer"></p-button>
-    } @else {
-      <p-button
-        (click)="op.toggle($event)"
-        [pTooltip]="getLabele()"
-        icon="pi pi-user"
-        severity="success"
-        size="small"
-        [rounded]="true"
-        class="customer"
-      ></p-button>
-    }
-  </div>
-  @if (customer) {
-    <div class="col-10 row">
-      <div class="row">
-        <div class="col-md-7 row infos-cust">
-          <span>Client: &nbsp;<p-tag severity="contrast" value="{{ customer.fullName }}" /></span>
-        </div>
-        <div class="col-md-5 row infos-cust">
-          <span>Mobile:&nbsp;<p-tag severity="contrast" value="{{ customer.phone }}" /></span>
+      <div class="customer-info-display">
+        <div class="customer-info-row">
+          <div class="info-item name-info">
+            <i class="pi pi-user"></i>
+            <div class="info-content">
+              <span class="info-label">Client</span>
+              <span class="info-value">{{ customer.fullName }}</span>
+            </div>
+          </div>
+
+          <div class="info-item phone-info">
+            <i class="pi pi-phone"></i>
+            <div class="info-content">
+              <span class="info-label">Mobile</span>
+              <span class="info-value">{{ customer.phone }}</span>
+            </div>
+          </div>
         </div>
       </div>
-    </div>
-  }
+    } @else {
+      <div class="customer-placeholder">
+        <i class="pi pi-user-plus"></i>
+        <span>Sélectionner un client</span>
+      </div>
+    }
+  </div>
 </div>

@@ -26,7 +26,8 @@ import { PopoverModule } from 'primeng/popover';
     TagModule
   ],
 
-  templateUrl: './customer-overlay-panel.component.html'
+  templateUrl: './customer-overlay-panel.component.html',
+  styleUrls: ['./customer-overlay-panel.component.scss']
 })
 export class CustomerOverlayPanelComponent {
   private selectedCustomerService = inject(SelectedCustomerService);

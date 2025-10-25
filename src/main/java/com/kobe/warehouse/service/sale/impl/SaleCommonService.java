@@ -220,14 +220,15 @@ public class SaleCommonService {
         c.setNatureVente(dto.getNatureVente());
         c.setTypePrescription(dto.getTypePrescription());
         AppUser caissier = user;
-        if (user.getId().compareTo(dto.getCassierId()) != 0) {
+        c.setSeller(caissier);
+       /* if (user.getId().compareTo(dto.getCassierId()) != 0) {
             caissier = userRepository.getReferenceById(dto.getCassierId());
         }
         if (Objects.nonNull(dto.getSellerId()) && caissier.getId().compareTo(dto.getSellerId()) != 0) {
             c.setSeller(userRepository.getReferenceById(dto.getSellerId()));
         } else {
             c.setSeller(caissier);
-        }
+        }*/
         c.setImported(false);
         c.setUser(user);
         c.setLastUserEdit(c.getUser());

@@ -1,494 +1,729 @@
-.selling {
-  .p-panel {
-    .p-panel-content {
-      padding: 0;
-    }
-  }
+// ============================================
+// IMPROVED SALES INTERFACE STYLES
+// Modern, clean design for pharmacy POS system
+// ============================================
 
-  .nav-pills {
-    .nav-link {
-      padding: 0.75rem 1.25rem;
-      border-radius: 0;
-      color: var(--primary-color);
-      font-weight: 500;
-
-      &.active {
-        background-color: var(--primary-color);
-        color: var(--primary-color-text);
-      }
-    }
-  }
-
-  .sale-panel-header {
-    .p-panel-content {
-      padding: 1rem;
-    }
-  }
-
-  .p-toolbar {
-    padding: 0.5rem 1rem;
-    background-color: transparent;
-    border: none;
-  }
-
-  .p-inputgroup {
-    .p-autocomplete {
-      flex-grow: 1;
-    }
-  }
-
-  .p-tag {
-    margin-right: 0.5rem;
-  }
-}
-
-
-
-// ====================================
-// VARIABLES PHARMA SMART
-// ====================================
+// Color Variables (Pharmacy Theme)
 $pharma-primary: #5b89a6;
-$pharma-success: #5cb85c;
-$pharma-info: #5bc0de;
-$pharma-secondary: #95a5a6;
-$pharma-danger: #d9534f;
+$pharma-primary-dark: #4a7189;
+$pharma-primary-light: #e8f4f8;
+$pharma-accent: #00a86b;
+$pharma-danger: #dc3545;
+$pharma-warning: #ffc107;
+$pharma-info: #17a2b8;
+$pharma-success: #28a745;
 
-$pharma-bg: #f5f7fa;
-$pharma-white: #ffffff;
-$pharma-border: #dfe3e8;
-$pharma-text: #333333;
-$pharma-text-light: #6c757d;
+$gray-50: #f9fafb;
+$gray-100: #f3f4f6;
+$gray-200: #e5e7eb;
+$gray-300: #d1d5db;
+$gray-400: #9ca3af;
+$gray-500: #6b7280;
+$gray-600: #4b5563;
+$gray-700: #374151;
+$gray-800: #1f2937;
+$gray-900: #111827;
 
-$pharma-radius: 4px;
-$pharma-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
-$pharma-shadow-hover: 0 2px 6px rgba(0, 0, 0, 0.15);
+$white: #ffffff;
+$shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+$shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+$shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+$shadow-xl: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
 
-// ====================================
-// LAYOUT PRINCIPAL
-// ====================================
-:host {
-  display: block;
-  height: 100%;
-}
+$border-radius: 8px;
+$border-radius-sm: 6px;
+$border-radius-lg: 12px;
 
-.pharma-container {
-  background: $pharma-bg;
-  min-height: 100vh;
-  padding: 10px;
-}
+// ============================================
+// MAIN LAYOUT STRUCTURE
+// ============================================
 
-.pharma-row {
+.pharma-sales-layout {
   display: flex;
-  gap: 10px;
-  align-items: flex-start;
-}
-
-// ====================================
-// SIDEBAR - MENU TYPES DE VENTE
-// ====================================
-.pharma-sidebar {
-  flex: 0 0 220px;
-  width: 220px;
-}
-
-.pharma-card {
-  background: $pharma-white;
-  border-radius: $pharma-radius;
-  box-shadow: $pharma-shadow;
+  flex-direction: column;
+  height: 100vh;
+  background: $gray-50;
   overflow: hidden;
 }
 
-.pharma-card-header {
-  background: linear-gradient(to bottom, #6b9ab8, #5b89a6);
-  color: $pharma-white;
-  padding: 15px;
-  font-weight: 600;
-  font-size: 14px;
+// ============================================
+// HEADER TOOLBAR (Sticky)
+// ============================================
+
+.pharma-sales-header {
+  position: sticky;
+  top: 0;
+  z-index: 1000;
+  background: $white;
+  border-bottom: 1px solid $gray-200;
+  padding: 0.75rem 1rem;
   display: flex;
   align-items: center;
-  gap: 8px;
+  justify-content: space-between;
+  box-shadow: $shadow-md;
+  min-height: 60px;
+  flex-shrink: 0;
+
+  .header-left {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    flex: 1;
+    min-width: 0;
+
+    .back-button {
+      color: $gray-600;
+      transition: all 0.2s ease;
+
+      &:hover {
+        color: $pharma-primary;
+        background-color: $pharma-primary-light;
+      }
+    }
+
+    .page-title {
+      h1 {
+        margin: 0;
+        font-size: 1.25rem;
+        font-weight: 600;
+        color: $gray-900;
+        line-height: 1.2;
+      }
+
+      .subtitle {
+        margin: 0;
+        font-size: 0.8rem;
+        color: $gray-500;
+        font-weight: 400;
+      }
+    }
+  }
+
+  .header-actions {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    flex-shrink: 0;
+  }
+
+  .header-customer-wrapper {
+    min-width: 400px;
+    max-width: 600px;
+  }
+
+  .header-select-wrapper {
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+
+    .header-label {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      font-size: 0.75rem;
+      font-weight: 500;
+      color: $gray-600;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      margin: 0;
+
+      i {
+        font-size: 0.875rem;
+        color: $pharma-primary;
+      }
+    }
+  }
+
+  .pending-sales-btn {
+    ::ng-deep .p-button-label {
+      font-size: 0.875rem;
+    }
+  }
+}
+
+// ============================================
+// MAIN CONTENT AREA
+// ============================================
+
+.pharma-sales-body {
+  display: flex;
+  flex: 1;
+  overflow-y: auto;
+  overflow-x: hidden;
+  gap: 0.75rem;
+  padding: 0.75rem;
+  min-height: 0;
+  scroll-behavior: smooth;
+
+  // Custom scrollbar
+  &::-webkit-scrollbar {
+    width: 8px;
+  }
+
+  &::-webkit-scrollbar-track {
+    background: $gray-100;
+    border-radius: 4px;
+  }
+
+  &::-webkit-scrollbar-thumb {
+    background: $gray-400;
+    border-radius: 4px;
+    transition: background 0.2s ease;
+
+    &:hover {
+      background: $gray-500;
+    }
+  }
+
+  // Scrollbar for Firefox
+  scrollbar-width: thin;
+  scrollbar-color: $gray-400 $gray-100;
+}
+
+// ============================================
+// LEFT SIDEBAR - Sale Types Navigation
+// ============================================
+
+.sales-sidebar {
+  width: 240px;
+  flex-shrink: 0;
+  display: flex;
+  flex-direction: column;
+
+  .sidebar-card {
+    background: $white;
+    border-radius: $border-radius-lg;
+    box-shadow: $shadow-md;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+  }
+
+  .sidebar-header {
+    padding: 1rem;
+    background: linear-gradient(135deg, $pharma-primary 0%, $pharma-primary-dark 100%);
+    color: $white;
+    display: flex;
+    align-items: center;
+    gap: 0.625rem;
+    font-weight: 600;
+    font-size: 0.9rem;
+
+    i {
+      font-size: 1.125rem;
+    }
+  }
+
+  .sale-types-nav {
+    flex: 1;
+    padding: 0.5rem;
+    overflow-y: auto;
+
+    .nav {
+      gap: 0.375rem;
+    }
+
+    .sale-type-link {
+      display: flex;
+      align-items: center;
+      gap: 0.625rem;
+      padding: 0.75rem 0.875rem;
+      border-radius: $border-radius-sm;
+      color: $gray-700;
+      text-decoration: none;
+      transition: all 0.2s ease;
+      cursor: pointer;
+      background: $gray-50;
+      border: 1px solid transparent;
+      font-weight: 500;
+      font-size: 0.9rem;
+
+      i {
+        font-size: 1rem;
+        color: $pharma-primary;
+        transition: transform 0.2s ease;
+      }
+
+      .link-arrow {
+        margin-left: auto;
+        font-size: 1.25rem;
+        color: $gray-400;
+        transition: transform 0.2s ease;
+      }
+
+      &:hover {
+        background: $pharma-primary-light;
+        border-color: $pharma-primary;
+        color: $pharma-primary-dark;
+        transform: translateX(4px);
+
+        .link-arrow {
+          transform: translateX(4px);
+          color: $pharma-primary;
+        }
+
+        i {
+          transform: scale(1.1);
+        }
+      }
+
+      &.active {
+        background: linear-gradient(135deg, $pharma-primary 0%, $pharma-primary-dark 100%);
+        color: $white;
+        box-shadow: $shadow-md;
+
+        i, .link-arrow {
+          color: $white;
+        }
+      }
+    }
+  }
+}
+
+// ============================================
+// MAIN WORKSPACE
+// ============================================
+
+.sales-workspace {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  min-height: 0;
+}
+
+// ============================================
+// CUSTOMER / INSURANCE BAR
+// ============================================
+
+// Insurance Data Bar Wrapper (with toggle)
+.insurance-data-bar-wrapper {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+
+  .insurance-toggle-btn {
+    align-self: flex-end;
+
+    ::ng-deep .p-button {
+      display: flex;
+      align-items: center;
+      gap: 0.375rem;
+      padding: 0.375rem 0.625rem;
+      border-radius: $border-radius-sm;
+      font-size: 0.8125rem;
+      font-weight: 600;
+      transition: all 0.2s ease;
+
+      &:hover {
+        box-shadow: $shadow-sm;
+        transform: translateY(-1px);
+      }
+
+      i {
+        font-size: 0.875rem;
+        transition: transform 0.2s ease;
+        margin-right: 0.25rem;
+      }
+
+      .toggle-label {
+        font-size: 0.75rem;
+        text-transform: uppercase;
+        letter-spacing: 0.3px;
+      }
+    }
+  }
+}
+
+.insurance-data-bar {
+  background: $white;
+  border-radius: $border-radius;
+  box-shadow: $shadow-sm;
+  padding: 0.75rem 1rem;
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  border: 1px solid $gray-200;
+  transition: all 0.3s ease;
+  animation: slideDown 0.3s ease;
+
+  &:hover {
+    border-color: $pharma-primary;
+    box-shadow: $shadow-md;
+  }
+}
+
+// Slide down animation for insurance data bar
+@keyframes slideDown {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+// ============================================
+// PRODUCT SEARCH SECTION
+// ============================================
+
+.product-search-section {
+  background: $white;
+  border-radius: $border-radius-lg;
+  box-shadow: $shadow-md;
+  overflow: hidden;
+  border: 1px solid $gray-200;
+
+  .search-section-header {
+    padding: 0.75rem 1rem;
+    background: linear-gradient(135deg, $pharma-accent 0%, darken($pharma-accent, 10%) 100%);
+    color: $white;
+    display: flex;
+    align-items: center;
+    gap: 0.625rem;
+    font-weight: 600;
+    font-size: 0.9rem;
+
+    i {
+      font-size: 1.125rem;
+    }
+
+    .ml-auto {
+      margin-left: auto;
+    }
+  }
+
+  .search-controls {
+    padding: 0.875rem 1rem;
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.75rem;
+    background: $gray-50;
+
+    .product-search-input {
+      flex: 1;
+      min-width: 300px;
+    }
+
+    .quantity-input-wrapper {
+      width: 180px;
+      flex-shrink: 0;
+    }
+
+    .product-meta {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 0.5rem;
+      flex: 1;
+      min-width: 300px;
+      animation: slideIn 0.3s ease;
+
+      .meta-item {
+        display: flex;
+        align-items: center;
+        gap: 0.375rem;
+        padding: 0.375rem 0.625rem;
+        background: $white;
+        border-radius: $border-radius-sm;
+        font-size: 0.8125rem;
+        color: $gray-700;
+        border: 1px solid $gray-200;
+        white-space: nowrap;
+
+        i {
+          color: $pharma-primary;
+          font-size: 0.9rem;
+        }
+
+        strong {
+          color: $gray-900;
+          font-weight: 600;
+        }
+
+        &.low-stock {
+          background: lighten($pharma-danger, 45%);
+          border-color: lighten($pharma-danger, 25%);
+
+          i {
+            color: $pharma-danger;
+          }
+
+          strong {
+            color: $pharma-danger;
+          }
+        }
+
+        &.price-display {
+          background: lighten($pharma-success, 52%);
+          border-color: lighten($pharma-success, 35%);
+
+          i {
+            color: $pharma-success;
+          }
+
+          strong {
+            color: $pharma-success;
+            font-size: 0.875rem;
+          }
+        }
+      }
+    }
+  }
+}
+
+@keyframes slideIn {
+  from {
+    opacity: 0;
+    transform: translateX(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+// ============================================
+// SALE CONTENT AREA
+// ============================================
+
+.sale-content-area {
+  flex: 1;
+  background: $white;
+  border-radius: $border-radius-lg;
+  box-shadow: $shadow-md;
+  overflow: hidden;
+  border: 1px solid $gray-200;
+  display: flex;
+  flex-direction: column;
+
+  > div {
+    flex: 1;
+    overflow: auto;
+  }
+}
+
+// ============================================
+// DRAWER CUSTOMIZATION
+// ============================================
+
+.drawer-header-content {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
 
   i {
-    font-size: 16px;
-  }
-}
-
-.pharma-nav {
-  padding: 10px;
-}
-
-// ====================================
-// NAVIGATION PILLS
-// ====================================
-::ng-deep {
-  .pharma-nav {
-    .nav-pills {
-      .nav-link {
-        border-radius: $pharma-radius;
-        padding: 12px 15px;
-        margin-bottom: 5px;
-        color: $pharma-text;
-        font-size: 14px;
-        font-weight: 500;
-        transition: all 0.2s ease;
-        border: 1px solid transparent;
-
-        &:hover {
-          background: #f8f9fa;
-          border-color: $pharma-border;
-        }
-
-        &.active {
-          background: $pharma-primary;
-          color: $pharma-white;
-          box-shadow: $pharma-shadow;
-        }
-      }
-    }
-  }
-}
-
-// ====================================
-// ZONE DE CONTENU PRINCIPALE
-// ====================================
-.pharma-content {
-  flex: 1;
-  min-width: 0;
-}
-
-// ====================================
-// TOOLBARS
-// ====================================
-.pharma-toolbar {
-  background: $pharma-white;
-  border-radius: $pharma-radius;
-  box-shadow: $pharma-shadow;
-  padding: 15px;
-  margin-bottom: 15px;
-}
-
-.pharma-toolbar-row {
-  display: flex;
-  gap: 15px;
-  align-items: flex-end;
-  flex-wrap: wrap;
-}
-
-.pharma-toolbar-item {
-  display: flex;
-  align-items: center;
-}
-
-.pharma-toolbar-grow {
-  flex: 1;
-  min-width: 200px;
-}
-
-.pharma-toolbar-actions {
-  display: flex;
-  gap: 8px;
-  margin-left: auto;
-}
-
-.pharma-assurance-toolbar {
-  background: #f8f9fa;
-  border: 1px solid $pharma-border;
-}
-
-.pharma-product-toolbar {
-  padding: 20px;
-}
-
-// ====================================
-// ZONE DE SAISIE PRODUIT
-// ====================================
-.pharma-product-search {
-  flex: 1;
-  min-width: 300px;
-}
-
-.pharma-quantity {
-  flex: 0 0 160px;
-}
-
-.pharma-product-info {
-  display: flex;
-  gap: 8px;
-  align-items: center;
-  flex-wrap: wrap;
-}
-
-.pharma-input-label {
-  font-size: 12px;
-  color: $pharma-text-light;
-  margin-bottom: 5px;
-  font-weight: 500;
-}
-
-// ====================================
-// BUTTONS STYLE PHARMA
-// ====================================
-::ng-deep {
-  .pharma-btn {
-    border-radius: $pharma-radius;
-    padding: 10px 20px;
-    font-size: 14px;
-    font-weight: 500;
-    transition: all 0.2s ease;
-    box-shadow: $pharma-shadow;
-
-    &:hover:not(:disabled) {
-      box-shadow: $pharma-shadow-hover;
-      transform: translateY(-1px);
-    }
-
-    &:active:not(:disabled) {
-      transform: translateY(0);
-    }
-
-    .p-button-icon {
-      font-size: 14px;
-    }
+    color: $pharma-primary;
   }
 
-  .pharma-info-btn {
-    border-radius: $pharma-radius;
-    font-size: 13px;
-    padding: 8px 12px;
-
-    .p-badge {
-      font-size: 11px;
+  .drawer-header-text {
+    h3 {
+      margin: 0;
+      font-size: 1.25rem;
       font-weight: 600;
-      margin-left: 6px;
-      padding: 3px 8px;
-      border-radius: 10px;
+      color: $gray-900;
     }
-  }
 
-  .p-button-info {
-    background: $pharma-info;
-    border-color: $pharma-info;
-
-    &:hover:not(:disabled) {
-      background: darken($pharma-info, 8%);
-      border-color: darken($pharma-info, 8%);
-    }
-  }
-
-  .p-button-secondary {
-    background: $pharma-secondary;
-    border-color: $pharma-secondary;
-
-    &:hover:not(:disabled) {
-      background: darken($pharma-secondary, 8%);
-      border-color: darken($pharma-secondary, 8%);
+    .drawer-subtitle {
+      font-size: 0.875rem;
+      color: $gray-600;
+      font-weight: 400;
     }
   }
 }
 
-// ====================================
-// SELECT / FLOATLABEL
-// ====================================
-::ng-deep {
-  .p-select {
-    border: 1px solid $pharma-border;
-    border-radius: $pharma-radius;
-    box-shadow: none;
-    transition: all 0.2s ease;
+// ============================================
+// PRIMENG COMPONENT OVERRIDES
+// ============================================
 
-    &:hover {
-      border-color: $pharma-primary;
-    }
+.pharma-select-modern {
+  border-radius: $border-radius;
+  border-color: $gray-300;
+  transition: all 0.2s ease;
 
-    &.p-focus,
-    &:focus {
-      border-color: $pharma-primary;
-      box-shadow: 0 0 0 3px rgba(91, 137, 166, 0.1);
-    }
+  &:hover {
+    border-color: $pharma-primary;
   }
 
-  .p-floatlabel {
-    label {
-      color: $pharma-text-light;
-      font-size: 13px;
-      font-weight: 500;
+  &:focus,
+  &.p-focus {
+    border-color: $pharma-primary;
+    box-shadow: 0 0 0 3px rgba($pharma-primary, 0.1);
+  }
+}
+
+// ============================================
+// RESPONSIVE DESIGN
+// ============================================
+
+@media (max-width: 1400px) {
+  .sales-sidebar {
+    width: 220px;
+  }
+
+  .product-search-section .search-controls {
+    .quantity-input-wrapper {
+      width: 160px;
     }
 
-    &:has(.p-select.p-focus) label,
-    &:has(.p-select.p-filled) label {
-      color: $pharma-primary;
+    .product-meta {
+      flex-basis: 100%;
+      min-width: 100%;
     }
   }
 }
 
-// ====================================
-// CONTENU VENTE
-// ====================================
-.pharma-sale-content {
-  background: $pharma-white;
-  border-radius: $pharma-radius;
-  box-shadow: $pharma-shadow;
-  padding: 20px;
-  min-height: 500px;
-}
-
-// ====================================
-// DRAWER
-// ====================================
-::ng-deep {
-  .p-drawer {
-    .p-drawer-header {
-      background: linear-gradient(to bottom, #6b9ab8, #5b89a6);
-      color: $pharma-white;
-      padding: 20px;
-      border-bottom: none;
-    }
-
-    .p-drawer-content {
-      background: $pharma-bg;
-      padding: 20px;
-    }
-  }
-}
-
-// ====================================
-// INPUTS & AUTOCOMPLETE
-// ====================================
-::ng-deep {
-  .p-inputtext {
-    border: 1px solid $pharma-border;
-    border-radius: $pharma-radius;
-    transition: all 0.2s ease;
-
-    &:hover {
-      border-color: $pharma-primary;
-    }
-
-    &:focus {
-      border-color: $pharma-primary;
-      box-shadow: 0 0 0 3px rgba(91, 137, 166, 0.1);
-    }
-  }
-
-  .p-autocomplete {
-    width: 100%;
-
-    .p-autocomplete-input {
-      width: 100%;
-      border: 1px solid $pharma-border;
-      border-radius: $pharma-radius;
-
-      &:focus {
-        border-color: $pharma-primary;
-        box-shadow: 0 0 0 3px rgba(91, 137, 166, 0.1);
-      }
-    }
-  }
-
-  .p-badge {
-    border-radius: 10px;
-    font-weight: 600;
-  }
-}
-
-// ====================================
-// RESPONSIVE
-// ====================================
-@media (max-width: 992px) {
-  .pharma-row {
+@media (max-width: 1200px) {
+  .pharma-sales-body {
     flex-direction: column;
   }
 
-  .pharma-sidebar {
+  .sales-sidebar {
     width: 100%;
-    flex: 1;
-  }
+    max-height: 300px;
 
-  .pharma-nav {
-    ::ng-deep .nav-pills {
-      display: flex;
-      overflow-x: auto;
+    .sidebar-card {
+      flex-direction: row;
+      height: auto;
+    }
 
-      .nav-link {
-        white-space: nowrap;
-        min-width: fit-content;
+    .sale-types-nav {
+      .nav {
+        flex-direction: row;
+        flex-wrap: wrap;
       }
+    }
+
+    .quick-stats {
+      flex-direction: row;
+      border-top: none;
+      border-left: 1px solid $gray-200;
+    }
+  }
+}
+
+@media (max-width: 1024px) {
+  .pharma-sales-header {
+    .header-customer-wrapper {
+      min-width: 300px;
+      max-width: 400px;
     }
   }
 }
 
 @media (max-width: 768px) {
-  .pharma-container {
-    padding: 10px;
-  }
-
-  .pharma-toolbar-row {
+  .pharma-sales-header {
     flex-direction: column;
-    align-items: stretch;
+    gap: 0.75rem;
+    align-items: flex-start;
+    padding: 0.75rem;
+    position: sticky;
+    top: 0;
+
+    .header-left,
+    .header-actions {
+      width: 100%;
+    }
+
+    .header-left {
+      flex-wrap: wrap;
+      gap: 0.5rem;
+
+      .header-select-wrapper {
+        width: 100%;
+      }
+    }
+
+    .header-actions {
+      flex-wrap: wrap;
+      gap: 0.5rem;
+    }
+
+    .header-customer-wrapper {
+      width: 100%;
+      min-width: 100%;
+      max-width: 100%;
+    }
   }
 
-  .pharma-toolbar-item {
-    width: 100%;
+  .pharma-sales-body {
+    flex-direction: column;
+    padding: 0.5rem;
+    gap: 0.5rem;
+    -webkit-overflow-scrolling: touch;
   }
 
-  .pharma-toolbar-actions {
-    margin-left: 0;
-    justify-content: space-between;
+  .product-search-section .search-controls {
+    flex-direction: column;
+
+    .product-search-input,
+    .quantity-input-wrapper,
+    .product-meta {
+      width: 100%;
+      min-width: 100%;
+    }
   }
 
-  .pharma-product-search,
-  .pharma-quantity {
-    flex: 1;
-    min-width: 100%;
+  .insurance-data-bar-wrapper {
+    .insurance-toggle-btn {
+      align-self: stretch;
+
+      ::ng-deep .p-button {
+        width: 100%;
+        justify-content: center;
+      }
+    }
   }
 
-  .pharma-btn-label {
+  .sales-sidebar {
+    max-height: none;
+
+    .sidebar-card {
+      flex-direction: column;
+    }
+
+    .quick-stats {
+      flex-direction: column;
+      border-left: none;
+      border-top: 1px solid $gray-200;
+    }
+  }
+}
+
+// ============================================
+// UTILITY CLASSES
+// ============================================
+
+.ml-auto {
+  margin-left: auto;
+}
+
+.mr-1 {
+  margin-right: 0.25rem;
+}
+
+// ============================================
+// PRINT STYLES
+// ============================================
+
+@media print {
+  .pharma-sales-header,
+  .sales-sidebar,
+  .product-search-section .search-section-header,
+  .product-search-section .search-controls {
     display: none;
   }
 
-  .pharma-btn {
-    padding: 10px;
-  }
-}
-
-@media (max-width: 576px) {
-  .pharma-sidebar {
-    flex: 0 0 auto;
+  .pharma-sales-layout {
+    height: auto;
   }
 
-  .pharma-card-header {
-    font-size: 13px;
-    padding: 12px;
-  }
-
-  .pharma-toolbar {
-    padding: 12px;
-  }
-
-  .pharma-sale-content {
-    padding: 15px;
-  }
-}
-
-// ====================================
-// IMPRESSION
-// ====================================
-@media print {
-  .pharma-sidebar,
-  .pharma-toolbar-actions,
-  .pharma-btn {
-    display: none !important;
-  }
-
-  .pharma-container {
-    padding: 0;
-    background: white;
-  }
-
-  .pharma-card,
-  .pharma-toolbar,
-  .pharma-sale-content {
-    box-shadow: none !important;
-    border: 1px solid #ddd;
+  .sale-content-area {
+    box-shadow: none;
+    border: none;
   }
 }

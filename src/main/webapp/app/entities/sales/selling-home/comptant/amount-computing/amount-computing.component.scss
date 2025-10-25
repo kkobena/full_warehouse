@@ -1,0 +1,467 @@
+// ============================================
+// MODERN AMOUNT COMPUTING COMPONENT STYLES
+// Matches improved sales interface design
+// ============================================
+
+// Color Variables (matching pharma theme)
+$pharma-primary: #5b89a6;
+$pharma-primary-dark: #4a7189;
+$pharma-primary-light: #e8f4f8;
+$pharma-success: #28a745;
+$pharma-success-light: #d4edda;
+$pharma-danger: #dc3545;
+$pharma-danger-light: #f8d7da;
+$pharma-info: #17a2b8;
+$pharma-info-light: #d1ecf1;
+$pharma-warning: #ffc107;
+$pharma-warning-light: #fff3cd;
+
+$gray-50: #f9fafb;
+$gray-100: #f3f4f6;
+$gray-200: #e5e7eb;
+$gray-300: #d1d5db;
+$gray-400: #9ca3af;
+$gray-500: #6b7280;
+$gray-600: #4b5563;
+$gray-700: #374151;
+$gray-800: #1f2937;
+$gray-900: #111827;
+
+$white: #ffffff;
+$shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+$shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+$shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+$border-radius: 8px;
+$border-radius-sm: 6px;
+
+// ============================================
+// HOST COMPONENT
+// ============================================
+
+:host {
+  display: block;
+  width: 100%;
+}
+
+// ============================================
+// AMOUNT ROWS (General Styling)
+// ============================================
+
+.amount-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.5rem 0.75rem;
+  border-radius: $border-radius-sm;
+  margin-bottom: 0.375rem;
+  background: $white;
+  border: 1px solid $gray-200;
+  transition: all 0.2s ease;
+
+  &:hover {
+    border-color: $pharma-primary;
+    box-shadow: $shadow-sm;
+    transform: translateY(-1px);
+  }
+
+  .amount-label {
+    font-size: 0.8125rem;
+    font-weight: 500;
+    color: $gray-600;
+    text-transform: uppercase;
+    letter-spacing: 0.3px;
+    display: flex;
+    align-items: center;
+    gap: 0.375rem;
+
+    &::before {
+      content: '';
+      display: inline-block;
+      width: 4px;
+      height: 4px;
+      border-radius: 50%;
+      background: $gray-400;
+    }
+  }
+
+  .amount-value {
+    font-size: 1rem;
+    font-weight: 700;
+    color: $gray-900;
+    font-family: 'Courier New', monospace;
+    text-align: right;
+    white-space: nowrap;
+  }
+}
+
+// ============================================
+// AMOUNT TOTAL (First Row - Total Amount)
+// ============================================
+
+.amount-total {
+  background: linear-gradient(135deg, $pharma-primary-light 0%, lighten($pharma-primary-light, 3%) 100%);
+  border-color: $pharma-primary;
+  border-width: 2px;
+
+  .amount-label {
+    color: $pharma-primary-dark;
+    font-weight: 600;
+    font-size: 0.875rem;
+
+    &::before {
+      background: $pharma-primary;
+    }
+  }
+
+  .amount-value {
+    color: $pharma-primary-dark;
+    font-size: 1.125rem;
+  }
+
+  &:hover {
+    box-shadow: $shadow-md;
+    border-color: $pharma-primary-dark;
+  }
+}
+
+// ============================================
+// AMOUNT DISCOUNT (Remise)
+// ============================================
+
+.amount-discount {
+  background: linear-gradient(135deg, $pharma-warning-light 0%, lighten($pharma-warning-light, 3%) 100%);
+  border-color: $pharma-warning;
+
+  .amount-label {
+    color: darken($pharma-warning, 15%);
+
+    &::before {
+      background: $pharma-warning;
+    }
+  }
+
+  .amount-value {
+    color: darken($pharma-warning, 20%);
+    font-size: 1rem;
+  }
+
+  &:hover {
+    border-color: darken($pharma-warning, 10%);
+  }
+}
+
+// ============================================
+// AMOUNT DIVIDER (Separator)
+// ============================================
+
+.amount-divider {
+  height: 2px;
+  background: linear-gradient(90deg, transparent 0%, $pharma-primary 50%, transparent 100%);
+  margin: 0.625rem 0;
+  position: relative;
+
+  &::before {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 8px;
+    height: 8px;
+    background: $pharma-primary;
+    border-radius: 50%;
+    box-shadow: 0 0 0 3px $white;
+  }
+}
+
+// ============================================
+// AMOUNT TO PAY (Highlighted - Most Important)
+// ============================================
+
+.amount-to-pay {
+  background: #fee2e2;
+  border: 2px solid #fca5a5;
+  padding: 0.75rem 1rem;
+  margin-bottom: 0.5rem;
+  box-shadow: $shadow-sm;
+
+  .amount-label {
+    color: #991b1b;
+    font-weight: 700;
+    font-size: 0.9375rem;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+
+    &::before {
+      background: #991b1b;
+      width: 6px;
+      height: 6px;
+    }
+  }
+
+  .amount-value {
+    color: #991b1b;
+    font-size: 1.5rem;
+    font-weight: 900;
+  }
+
+  &:hover {
+    box-shadow: $shadow-md;
+    transform: translateY(-1px);
+    border-color: #f87171;
+  }
+}
+
+// ============================================
+// AMOUNT CHANGE (Monnaie)
+// ============================================
+
+.amount-change {
+  background: linear-gradient(135deg, $pharma-info-light 0%, lighten($pharma-info-light, 3%) 100%);
+  border-color: $pharma-info;
+  border-width: 2px;
+
+  .amount-label {
+    color: darken($pharma-info, 10%);
+    font-weight: 600;
+
+    &::before {
+      background: $pharma-info;
+    }
+  }
+
+  .amount-value {
+    color: darken($pharma-info, 15%);
+    font-size: 1.25rem;
+  }
+
+  &:hover {
+    border-color: darken($pharma-info, 10%);
+    box-shadow: $shadow-md;
+  }
+}
+
+// ============================================
+// AMOUNT LAST (Dernière monnaie)
+// ============================================
+
+.amount-last {
+  background: linear-gradient(135deg, $gray-100 0%, $gray-50 100%);
+  border-color: $gray-300;
+  border-style: dashed;
+
+  .amount-label {
+    color: $gray-600;
+    font-style: italic;
+    font-size: 0.75rem;
+
+    &::before {
+      background: $gray-400;
+      width: 3px;
+      height: 3px;
+    }
+  }
+
+  .amount-value {
+    color: $gray-700;
+    font-size: 0.9375rem;
+  }
+
+  &:hover {
+    background: $gray-100;
+    border-color: $gray-400;
+  }
+}
+
+// ============================================
+// RESPONSIVE DESIGN
+// ============================================
+
+@media (max-width: 1200px) {
+  .amount-row {
+    padding: 0.4rem 0.6rem;
+    margin-bottom: 0.3rem;
+
+    .amount-label {
+      font-size: 0.75rem;
+    }
+
+    .amount-value {
+      font-size: 0.9375rem;
+    }
+  }
+
+  .amount-total {
+    .amount-label {
+      font-size: 0.8125rem;
+    }
+
+    .amount-value {
+      font-size: 1rem;
+    }
+  }
+
+  .amount-to-pay {
+    padding: 0.625rem 0.75rem;
+
+    .amount-label {
+      font-size: 0.875rem;
+    }
+
+    .amount-value {
+      font-size: 1.25rem;
+    }
+  }
+
+  .amount-change {
+    .amount-value {
+      font-size: 1.125rem;
+    }
+  }
+}
+
+@media (max-width: 768px) {
+  .amount-row {
+    padding: 0.5rem 0.75rem;
+    margin-bottom: 0.5rem;
+
+    .amount-label {
+      font-size: 0.8125rem;
+    }
+
+    .amount-value {
+      font-size: 1rem;
+    }
+  }
+
+  .amount-total,
+  .amount-to-pay,
+  .amount-change {
+    .amount-value {
+      font-size: 1.125rem;
+    }
+  }
+
+  .amount-to-pay {
+    padding: 0.75rem 1rem;
+
+    .amount-value {
+      font-size: 1.375rem;
+    }
+  }
+}
+
+// ============================================
+// PRINT STYLES
+// ============================================
+
+@media print {
+  .amount-row {
+    box-shadow: none;
+    border: 1px solid $gray-300;
+    page-break-inside: avoid;
+
+    &:hover {
+      transform: none;
+    }
+  }
+
+  .amount-to-pay {
+    animation: none;
+  }
+
+  .amount-divider {
+    background: $gray-300;
+
+    &::before {
+      display: none;
+    }
+  }
+}
+
+// ============================================
+// ACCESSIBILITY
+// ============================================
+
+.amount-row:focus-visible {
+  outline: 2px solid $pharma-primary;
+  outline-offset: 2px;
+}
+
+// ============================================
+// LOADING STATE (Optional)
+// ============================================
+
+.amount-row.loading {
+  opacity: 0.6;
+  pointer-events: none;
+  position: relative;
+
+  &::after {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 16px;
+    height: 16px;
+    border: 2px solid $pharma-primary;
+    border-top-color: transparent;
+    border-radius: 50%;
+    animation: spin 0.8s linear infinite;
+  }
+}
+
+@keyframes spin {
+  to {
+    transform: translate(-50%, -50%) rotate(360deg);
+  }
+}
+
+// ============================================
+// FADE IN ANIMATION
+// ============================================
+
+.amount-row {
+  animation: fadeInUp 0.3s ease;
+}
+
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+// ============================================
+// NEGATIVE VALUES (for calculations)
+// ============================================
+
+.amount-value.negative {
+  color: $pharma-danger;
+
+  &::before {
+    content: '-';
+    margin-right: 2px;
+  }
+}
+
+// ============================================
+// ZERO VALUES (muted appearance)
+// ============================================
+
+.amount-row.zero {
+  opacity: 0.6;
+
+  .amount-value {
+    color: $gray-500;
+  }
+}
+.amount-row:hover {
+  background: #f9fafb;
+  cursor: default;
+}

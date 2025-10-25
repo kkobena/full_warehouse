@@ -378,15 +378,15 @@ export class AssuranceDataComponent implements OnInit, AfterViewInit {
   }
 
   private getDivClassForCount(count: number): string {
-    if (count === 2) return 'col-md-3 col-sm-3 col-3 bon';
-    if (count > 2) return 'col-md-2 col-sm-2 col-2 bon';
-    return 'col-md-4 col-sm-4 col-4 bon';
+    if (count === 2) return 'card-wrapper tp-card-wrapper tp-count-2';
+    if (count > 2) return 'card-wrapper tp-card-wrapper tp-count-many';
+    return 'card-wrapper tp-card-wrapper tp-count-1';
   }
 
   private getDivCustomerClassForCount(count: number): string {
     return count >= 2
-      ? 'col-md-3 col-sm-3 col-lg-3 col-xl-3 col-sm-12 '
-      : 'col-md-4 col-sm-4 col-xl-4 col-sm-12';
+      ? 'card-wrapper customer-card-wrapper customer-with-multiple-tp'
+      : 'card-wrapper customer-card-wrapper customer-with-single-tp';
   }
 
   private handleCustomerSelection(customer: ICustomer): void {

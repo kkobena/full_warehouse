@@ -8,7 +8,7 @@ import {
   inject,
   OnDestroy,
   OnInit,
-  PLATFORM_ID,
+  PLATFORM_ID, signal,
   viewChild
 } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
@@ -71,7 +71,6 @@ import { InputGroupAddonModule } from 'primeng/inputgroupaddon';
 import { DrawerModule } from 'primeng/drawer';
 import { ConfirmDialogComponent } from '../../../shared/dialog/confirm-dialog/confirm-dialog.component';
 import { ToastAlertComponent } from '../../../shared/toast-alert/toast-alert.component';
-import { FloatLabel } from 'primeng/floatlabel';
 import { QuantiteProdutSaisieComponent } from '../../../shared/quantite-produt-saisie/quantite-produt-saisie.component';
 import {
   assignCustomerToSale,
@@ -120,7 +119,6 @@ import { KeyboardShortcutsService } from './racourci/keyboard-shortcuts.service'
     DrawerModule,
     ConfirmDialogComponent,
     ToastAlertComponent,
-    FloatLabel,
     QuantiteProdutSaisieComponent,
     ProduitSearchAutocompleteScannerComponent,
     Tag
@@ -167,6 +165,7 @@ export class SellingHomeComponent implements OnInit, AfterViewInit, OnDestroy {
   protected showStock = true;
   protected printTicket = true;
   protected active = 'comptant';
+  protected showInsuranceDataBar = signal(true);
   protected currentSaleService = inject(CurrentSaleService);
   protected userVendeurService = inject(UserVendeurService);
   protected readonly PRODUIT_COMBO_RESULT_SIZE = PRODUIT_COMBO_RESULT_SIZE;
@@ -222,6 +221,9 @@ export class SellingHomeComponent implements OnInit, AfterViewInit, OnDestroy {
     });
   }
 
+  toggleInsuranceDataBar(): void {
+    this.showInsuranceDataBar.set(!this.showInsuranceDataBar());
+  }
   protected get disableButton(): boolean {
     return this.produitSelected == null || this.quantyBox().value < 1;
   }

@@ -49,7 +49,8 @@ import { showCommonModal } from '../sales/selling-home/sale-helper';
     FloatLabel,
     ToastAlertComponent
   ],
-  templateUrl: './visualisation-mvt-caisse.component.html'
+  templateUrl: './visualisation-mvt-caisse.component.html',
+  styleUrls: ['./visualisation-mvt-caisse.scss']
 })
 export class VisualisationMvtCaisseComponent implements OnInit, AfterViewInit {
   protected mvtCaisses: MvtCaisse[] = [];

@@ -100,9 +100,10 @@
             dataKey="id"
             selectionMode="multiple"
             stripedRows="true"
+            class="pharma-table"
           >
             <ng-template #header>
-              <tr>
+              <tr class="pharma-table-head">
                 <th>Type</th>
                 <th>Référence</th>
                 <th>Date</th>
@@ -117,19 +118,19 @@
             <ng-template let-mvtCaisse #body>
               <tr>
                 <td>
-                  {{ mvtCaisse.transactionType }}
+               <span class="pharma-badge pharma-badge-info">{{ mvtCaisse.transactionType }}</span>
                 </td>
                 <td>
-                  {{ mvtCaisse.reference }}
+                  <span class="pharma-code"> {{ mvtCaisse.reference }}</span>
                 </td>
                 <td>{{ mvtCaisse.date }}</td>
                 @if (mvtCaisse.type === 'SORTIE_CAISSE') {
-                  <td class="text-right text-danger amount-column">{{ mvtCaisse.montant | number }}</td>
+                  <td class=" text-danger amount-column pharma-price">{{ mvtCaisse.montant | number }}</td>
                 } @else {
-                  <td class="text-right amount-column">{{ mvtCaisse.montant | number }}</td>
+                  <td class="amount-column pharma-price">{{ mvtCaisse.montant | number }}</td>
                 }
 
-                <td>{{ mvtCaisse.paymentModeLibelle }}</td>
+                <td> <span class="pharma-badge pharma-badge-primary">{{ mvtCaisse.paymentModeLibelle }}</span>  </td>
                 <td>{{ mvtCaisse.userFullName }}</td>
                 <td>{{ mvtCaisse.organisme }}</td>
 

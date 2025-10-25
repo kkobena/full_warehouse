@@ -1,5 +1,6 @@
 package com.kobe.warehouse.service.reglement.differe.service;
 
+import com.kobe.warehouse.domain.PaymentId;
 import com.kobe.warehouse.domain.enumeration.PaymentStatus;
 import com.kobe.warehouse.service.reglement.differe.dto.ClientDiffere;
 import com.kobe.warehouse.service.reglement.differe.dto.DiffereDTO;
@@ -35,7 +36,7 @@ public interface ReglementDiffereService {
 
     ReglementDiffereResponse doReglement(NewDifferePaymentDTO differePayment);
 
-    void printReceipt(long idReglement);
+    void printReceipt(PaymentId idReglement);
 
     DiffereSummary getDiffereSummary(Long customerId, Set<PaymentStatus> paymentStatuses);
 
@@ -47,5 +48,5 @@ public interface ReglementDiffereService {
 
     Page<ReglementDiffereWrapperDTO> getReglementsDifferes(Long customerId, LocalDate fromDate, LocalDate toDate, Pageable pageable);
 
-    ReglementDiffereReceiptDTO getReglementDiffereReceipt(Long id);
+    ReglementDiffereReceiptDTO getReglementDiffereReceipt(PaymentId id);
 }

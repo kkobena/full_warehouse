@@ -104,29 +104,29 @@
                   {{ mvtCaisse.user?.abbrName }}
                 </td>
                 <td class="text-right amount-column">
-                  <span class="pharma-total">{{ mvtCaisse.cashFund | number }}</span>
+                  <span class="pharma-price">{{ mvtCaisse.cashFund | number }}</span>
                 </td>
-                <td class="text-right amount-column">
+                <td>
                   <span class="pharma-total">{{ mvtCaisse.cashAmount | number }}</span>
                 </td>
-                <td class="text-right amount-column">
-                  <span class="pharma-total">{{ mvtCaisse.estimateAmount | number }}</span>
+                <td>
+                  <span class="pharma-price">{{ mvtCaisse.estimateAmount | number }}</span>
                 </td>
-                <td class="text-right amount-column">
-                  <span class="pharma-total">{{ mvtCaisse.mobileAmount | number }}</span>
+                <td>
+                  <span class="pharma-price">{{ mvtCaisse.mobileAmount | number }}</span>
                 </td>
-                <td class="text-right amount-column">
+                <td>
                   <span class="pharma-total">{{ mvtCaisse.ticketing?.totalAmount | number }}</span>
                 </td>
                 @if (mvtCaisse.gap > 0) {
-                  <td class="text-right text-success amount-column">{{ mvtCaisse.gap | number }}</td>
+                  <td class="pharma-price ">{{ mvtCaisse.gap | number }}</td>
                 } @else if (mvtCaisse.gap === 0) {
-                  <td class="text-right amount-column">{{ mvtCaisse.gap | number }}</td>
+                  <td class=" pharma-price">{{ mvtCaisse.gap | number }}</td>
                 } @else {
-                  <td class="text-right text-danger amount-column">{{ mvtCaisse.gap | number }}</td>
+                  <td class=" text-danger pharma-price">{{ mvtCaisse.gap | number }}</td>
                 }
                 <td
-                  class="text-right text-danger amount-column">{{ mvtCaisse.canceledAmount | number }}
+                  class="text-danger pharma-price">{{ mvtCaisse.canceledAmount | number }}
                 </td>
                 <td class="text-center">
                   @if (mvtCaisse.statut === OPEN) {

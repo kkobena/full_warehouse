@@ -6,6 +6,7 @@ import com.kobe.warehouse.domain.Banque;
 import com.kobe.warehouse.domain.Customer;
 import com.kobe.warehouse.domain.DifferePayment;
 import com.kobe.warehouse.domain.DifferePaymentItem;
+import com.kobe.warehouse.domain.PaymentId;
 import com.kobe.warehouse.domain.PaymentMode;
 import com.kobe.warehouse.domain.Sales;
 import com.kobe.warehouse.domain.enumeration.PaymentStatus;
@@ -199,8 +200,8 @@ public class ReglementDiffereServiceImpl implements ReglementDiffereService {
     }
 
     @Override
-    public ReglementDiffereReceiptDTO getReglementDiffereReceipt(Long id) {
-        DifferePayment differePayment = this.differePaymentRepository.findDifferePaymentById(id).orElseThrow();
+    public ReglementDiffereReceiptDTO getReglementDiffereReceipt(PaymentId id) {
+        DifferePayment differePayment = this.differePaymentRepository.getReferenceById(id);
         AppUser user = differePayment.getCashRegister().getUser();
         Customer customer = differePayment.getDiffereCustomer();
         PaymentMode paymentMode = differePayment.getPaymentMode();
@@ -221,8 +222,8 @@ public class ReglementDiffereServiceImpl implements ReglementDiffereService {
     }
 
     @Override
-    public void printReceipt(long idReglement) {
-        this.differeReceiptService.printReceipt(null, getReglementDiffereReceipt(idReglement));
+    public void printReceipt(PaymentId id) {
+        this.differeReceiptService.printReceipt(null, getReglementDiffereReceipt(id));
     }
 
     @Override

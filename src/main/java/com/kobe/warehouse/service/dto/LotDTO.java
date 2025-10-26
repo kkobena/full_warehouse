@@ -2,6 +2,7 @@ package com.kobe.warehouse.service.dto;
 
 import com.kobe.warehouse.domain.Lot;
 import com.kobe.warehouse.domain.OrderLineId;
+import com.kobe.warehouse.domain.enumeration.StatutLot;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
@@ -150,6 +151,7 @@ public class LotDTO {
             .setExpiryDate(expiryDate)
             .setManufacturingDate(manufacturingDate)
             .setQuantity(quantityReceived + ug)
+            .setStatut(StatutLot.AVAILABLE)
             .setFreeQty(ug);
     }
 }

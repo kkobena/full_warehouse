@@ -21,6 +21,7 @@ import com.kobe.warehouse.domain.StockProduit;
 import com.kobe.warehouse.domain.StockProduit_;
 import com.kobe.warehouse.domain.Storage_;
 import com.kobe.warehouse.domain.enumeration.Status;
+import com.kobe.warehouse.domain.enumeration.StatutLot;
 import com.kobe.warehouse.service.stock.dto.LotFilterParam;
 import jakarta.persistence.criteria.Join;
 import jakarta.persistence.criteria.JoinType;
@@ -37,9 +38,9 @@ import org.springframework.stereotype.Repository;
 @Repository
 public interface LotRepository extends JpaRepository<Lot, Long>, JpaSpecificationExecutor<Lot>, SpecificationBuilder, LotCustomRepository {
     @Query(
-        "SELECT o FROM Lot o JOIN o.orderLine ord JOIN ord.fournisseurProduit fp WHERE fp.produit.id =:produitId AND o.expiryDate >:dateLimit  AND o.quantity > 0  ORDER BY o.expiryDate ASC"
+        "SELECT o FROM Lot o JOIN o.orderLine ord JOIN ord.fournisseurProduit fp WHERE fp.produit.id =:produitId AND o.expiryDate >:dateLimit  AND o.currentQuantity  > 0 AND o.statut=:lotStatut  ORDER BY o.expiryDate ASC"
     )
-    List<Lot> findByProduitId(Long produitId, LocalDate dateLimit);
+    List<Lot> findByProduitId(Long produitId, LocalDate dateLimit, StatutLot lotStatut);
 
     Optional<Lot> findByNumLot(String numLot);
 

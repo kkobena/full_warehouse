@@ -9,10 +9,10 @@ public class StoreInventoryLineFilterBuilder {
 
     public static final String BASE_QUERY =
         """
-        SELECT p.id AS produitId,p.code_ean,
+        SELECT p.id AS produitId,p.code_ean_labo,
                p.libelle,fp.code_cip,
                a.quantity_on_hand,a.gap,a.updated_at,a.id As id,fp.prix_achat,fp.prix_uni,a.updated
-        FROM produit p JOIN (SELECT fp.code_cip,fp.produit_id,fp.prix_achat,fp.prix_uni FROM fournisseur_produit fp WHERE fp.principal ) AS fp ON p.id=fp.produit_id
+        FROM produit p JOIN (SELECT fp.id, fp.code_cip,fp.produit_id,fp.prix_achat,fp.prix_uni FROM fournisseur_produit fp ) AS fp ON p.fournisseur_produit_principal_id=fp.id
         JOIN store_inventory_line a ON p.id=a.produit_id {join_statement} WHERE a.store_inventory_id=?1 {join_statement_where} %s ORDER BY fp.code_cip
 
         """;
@@ -20,11 +20,11 @@ public class StoreInventoryLineFilterBuilder {
 
     public static final String RAYON_STATEMENT_WHERE = " AND rp.rayon_id =%d ";
     public static final String STOCKAGE_STATEMENT_WHERE = " AND rp.rayon_id IN(SELECT ry.id FROM rayon ry WHERE ry.storage_id =%d ) ";
-    public static final String LIKE_STATEMENT_WHERE = " AND ( p.libelle LIKE '%s' or fp.code_cip LIKE '%s' or p.code_ean LIKE '%s' ) ";
+    public static final String LIKE_STATEMENT_WHERE = " AND ( p.libelle LIKE '%s' or fp.code_cip LIKE '%s' or p.code_ean_labo LIKE '%s' ) ";
     public static final String COUNT =
         """
         SELECT COUNT(p.id)
-        FROM produit p JOIN (SELECT fp.code_cip,fp.produit_id,fp.prix_achat,fp.prix_uni FROM fournisseur_produit fp WHERE fp.principal ) AS fp ON p.id=fp.produit_id
+        FROM produit p JOIN (SELECT fp.id,fp.code_cip,fp.produit_id,fp.prix_achat,fp.prix_uni FROM fournisseur_produit fp  ) AS fp ON p.fournisseur_produit_principal_id=fp.id
         JOIN store_inventory_line a ON p.id=a.produit_id {join_statement} WHERE a.store_inventory_id=?1 {join_statement_where} %s
         """;
     public static final String SQL_ALL_INSERT_ALL =
@@ -45,10 +45,10 @@ public class StoreInventoryLineFilterBuilder {
         """;
     public static final String EXPORT_QUERY =
         """
-        SELECT r.id as rayon_id,s.id AS storage_id, fm.code AS famillyCode, fm.libelle AS famillyLibelle,fm.id AS famillyId,  a.gap,r.code AS code_rayon,  a.inventory_value_cost,a.quantity_init,a.quantity_on_hand,a.last_unit_price,p.libelle AS produit_libelle,p.code_ean,r.libelle AS rayon_libelle,s.name AS storage_name,fp.code_cip AS produit_code_cip,fp.prix_uni ,fp.prix_achat  FROM store_inventory_line a JOIN warehouse.produit p on p.id = a.produit_id
-            JOIN warehouse.fournisseur_produit fp  ON p.id = fp.produit_id JOIN warehouse.famille_produit fm ON fm.id=p.famille_id
-            LEFT JOIN warehouse.rayon_produit rp on p.id = rp.produit_id LEFT JOIN warehouse.rayon r on rp.rayon_id = r.id LEFT JOIN warehouse.storage s  ON r.storage_id = s.id
-        WHERE  a.store_inventory_id=?1 AND fP.principal %s ORDER BY {order_by} fp.code_cip
+        SELECT r.id as rayon_id,s.id AS storage_id, fm.code AS famillyCode, fm.libelle AS famillyLibelle,fm.id AS famillyId,  a.gap,r.code AS code_rayon,  a.inventory_value_cost,a.quantity_init,a.quantity_on_hand,a.last_unit_price,p.libelle AS produit_libelle,p.code_ean_labo,r.libelle AS rayon_libelle,s.name AS storage_name,fp.code_cip AS produit_code_cip,fp.prix_uni ,fp.prix_achat  FROM store_inventory_line a JOIN produit p on p.id = a.produit_id
+            JOIN fournisseur_produit fp  ON  p.fournisseur_produit_principal_id=fp.id JOIN famille_produit fm ON fm.id=p.famille_id
+            LEFT JOIN rayon_produit rp on p.id = rp.produit_id LEFT JOIN rayon r on rp.rayon_id = r.id LEFT JOIN storage s  ON r.storage_id = s.id
+        WHERE  a.store_inventory_id=?1 %s ORDER BY {order_by} fp.code_cip
         """;
     public static final String EXPORT_RAYON_CLOSE_QUERY = " AND r.id=%d ";
     public static final String EXPORT_STORAGE_CLOSE_QUERY = " AND s.id=%d ";
@@ -60,7 +60,7 @@ public class StoreInventoryLineFilterBuilder {
             tuple.get("quantity_init", Integer.class),
             tuple.get("quantity_on_hand", Integer.class),
             tuple.get("produit_code_cip", String.class),
-            tuple.get("code_ean", String.class),
+            tuple.get("code_ean_labo", String.class),
             tuple.get("produit_libelle", String.class),
             tuple.get("rayon_libelle", String.class),
             tuple.get("storage_name", String.class),

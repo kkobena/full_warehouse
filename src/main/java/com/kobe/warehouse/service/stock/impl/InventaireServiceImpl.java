@@ -1,5 +1,6 @@
 package com.kobe.warehouse.service.stock.impl;
 
+import com.kobe.warehouse.domain.AppUser_;
 import com.kobe.warehouse.domain.FournisseurProduit;
 import com.kobe.warehouse.domain.HistoriqueInventaire;
 import com.kobe.warehouse.domain.Produit;
@@ -11,7 +12,6 @@ import com.kobe.warehouse.domain.Storage_;
 import com.kobe.warehouse.domain.StoreInventory;
 import com.kobe.warehouse.domain.StoreInventoryLine;
 import com.kobe.warehouse.domain.StoreInventory_;
-import com.kobe.warehouse.domain.AppUser_;
 import com.kobe.warehouse.domain.enumeration.InventoryCategory;
 import com.kobe.warehouse.domain.enumeration.InventoryStatut;
 import com.kobe.warehouse.repository.RayonRepository;
@@ -19,7 +19,6 @@ import com.kobe.warehouse.repository.StockProduitRepository;
 import com.kobe.warehouse.repository.StoreInventoryLineRepository;
 import com.kobe.warehouse.repository.StoreInventoryRepository;
 import com.kobe.warehouse.service.InventaireService;
-import com.kobe.warehouse.service.stock.ProduitService;
 import com.kobe.warehouse.service.StorageService;
 import com.kobe.warehouse.service.UserService;
 import com.kobe.warehouse.service.dto.InventoryExportSummary;
@@ -43,6 +42,7 @@ import com.kobe.warehouse.service.historique_inventaire.HistoriqueInventaireServ
 import com.kobe.warehouse.service.mobile.dto.RayonRecord;
 import com.kobe.warehouse.service.mvt_produit.service.InventoryTransactionService;
 import com.kobe.warehouse.service.report.InventoryReportReportService;
+import com.kobe.warehouse.service.stock.ProduitService;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.Tuple;
 import jakarta.persistence.TypedQuery;
@@ -151,7 +151,7 @@ public class InventaireServiceImpl implements InventaireService {
         storeInventory.setGapAmount(storeInventorySummaryRecord.gapAmount().intValue());
         storeInventory = storeInventoryRepository.save(storeInventory);
         this.historiqueInventaireService.save(new HistoriqueInventaire(storeInventory));
-      //  storeInventory.getStoreInventoryLines().forEach(inventoryTransactionService::save); fait dans procCloseInventory
+        //  storeInventory.getStoreInventoryLines().forEach(inventoryTransactionService::save); fait dans procCloseInventory
         return new ItemsCountRecord(closeItems(storeInventory.getId()));
     }
 
@@ -676,7 +676,7 @@ public class InventaireServiceImpl implements InventaireService {
         return new StoreInventoryLineRecord(
             tuple.get("produitId", Long.class).intValue(),
             tuple.get("code_cip", String.class),
-            tuple.get("code_ean", String.class),
+            tuple.get("code_ean_labo", String.class),
             tuple.get("libelle", String.class),
             tuple.get("id", Long.class),
             tuple.get("gap", Integer.class),
@@ -719,16 +719,14 @@ public class InventaireServiceImpl implements InventaireService {
             });
     }
 
-   // @EventListener(ApplicationReadyEvent.class)
+    // @EventListener(ApplicationReadyEvent.class)
     public void clean() {
         List<IdProjection> ids = this.storeInventoryRepository.findByStatutEquals(LocalDateTime.now().minusMonths(4));
         if (!CollectionUtils.isEmpty(ids)) {
-            ids
-                .stream()
-                .forEach(idProjection -> {
-                    this.storeInventoryLineRepository.deleteAllByStoreInventoryId(idProjection.getId());
-                    this.storeInventoryRepository.deleteById(idProjection.getId());
-                });
+            ids.forEach(idProjection -> {
+                this.storeInventoryLineRepository.deleteAllByStoreInventoryId(idProjection.getId());
+                this.storeInventoryRepository.deleteById(idProjection.getId());
+            });
         }
     }
 }

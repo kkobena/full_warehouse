@@ -1,7 +1,10 @@
 package com.kobe.warehouse.domain;
 
+import com.kobe.warehouse.domain.enumeration.StatutLot;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
@@ -23,7 +26,11 @@ import java.util.Objects;
 @Table(
     name = "lot",
     uniqueConstraints = { @UniqueConstraint(columnNames = { "num_lot", "order_line_id" }) },
-    indexes = { @Index(columnList = "num_lot", name = "num_lot_index") }
+    indexes = {
+        @Index(columnList = "expiry_date", name = "lot_expiry_date_index"),
+        @Index(columnList = "num_lot", name = "num_lot_index"),
+        @Index(columnList = "statut", name = "lot_statut_index"),
+    }
 )
 public class Lot implements Serializable {
 
@@ -40,10 +47,12 @@ public class Lot implements Serializable {
 
     @NotNull
     @ManyToOne(optional = false, fetch = FetchType.LAZY)
-    @JoinColumns({
-        @JoinColumn(name = "order_line_id", referencedColumnName = "id"),
-        @JoinColumn(name = "commande_order_date", referencedColumnName = "order_date")
-    })
+    @JoinColumns(
+        {
+            @JoinColumn(name = "order_line_id", referencedColumnName = "id"),
+            @JoinColumn(name = "commande_order_date", referencedColumnName = "order_date"),
+        }
+    )
     private OrderLine orderLine;
 
     @Column(name = "quantity", nullable = false)
@@ -70,6 +79,15 @@ public class Lot implements Serializable {
 
     @NotNull
     private Integer prixUnit;
+
+    @NotNull
+    @Column(name = "current_quantity", nullable = false)
+    private Integer currentQuantity;
+
+    @NotNull
+    @Enumerated(EnumType.STRING)
+    @Column(name = "statut", nullable = false, length = 15)
+    private StatutLot statut;
 
     public int getFreeQty() {
         return freeQty;
@@ -161,6 +179,24 @@ public class Lot implements Serializable {
         }
         Lot lot = (Lot) o;
         return id.equals(lot.id);
+    }
+
+    public Integer getCurrentQuantity() {
+        return currentQuantity;
+    }
+
+    public Lot setCurrentQuantity(Integer currentQuantity) {
+        this.currentQuantity = currentQuantity;
+        return this;
+    }
+
+    public StatutLot getStatut() {
+        return statut;
+    }
+
+    public Lot setStatut(StatutLot statut) {
+        this.statut = statut;
+        return this;
     }
 
     public Integer getPrixAchat() {

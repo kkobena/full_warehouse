@@ -13,6 +13,7 @@ import com.kobe.warehouse.domain.Produit;
 import com.kobe.warehouse.domain.Rayon;
 import com.kobe.warehouse.domain.RayonProduit;
 import com.kobe.warehouse.domain.StockProduit;
+import com.kobe.warehouse.domain.enumeration.StatutLot;
 import com.kobe.warehouse.repository.LotRepository;
 import com.kobe.warehouse.repository.ProduitRepository;
 import com.kobe.warehouse.service.AppConfigurationService;
@@ -73,6 +74,7 @@ public class LotServiceImpl implements LotService {
     public LotDTO addLot(LotDTO lot) {
         OrderLine orderLine = this.orderLineService.findOneById(lot.getReceiptItemId()).orElse(null);
         Lot lotEntity = lot.toEntity();
+        lotEntity.setCurrentQuantity(lotEntity.getQuantity());
         lotEntity.setCreatedDate(LocalDateTime.now());
         lotEntity.setPrixUnit(orderLine.getOrderUnitPrice());
         lotEntity.setPrixAchat(orderLine.getOrderCostAmount());
@@ -106,7 +108,8 @@ public class LotServiceImpl implements LotService {
     public List<Lot> findByProduitId(Long produitId) {
         return this.lotRepository.findByProduitId(
                 produitId,
-                LocalDate.now().minusDays(this.appConfigurationService.getNombreJourPeremption())
+                LocalDate.now().minusDays(this.appConfigurationService.getNombreJourPeremption()),
+                StatutLot.AVAILABLE
             );
     }
 
@@ -116,12 +119,17 @@ public class LotServiceImpl implements LotService {
         return this.lotRepository.findByProduitId(produitId);
     }
 
+    //TODO: cas des annulations de ventes
     @Override
     public void updateLots(List<LotSold> lots) {
         if (!CollectionUtils.isEmpty(lots)) {
             lots.forEach(lot -> {
                 Lot entity = this.lotRepository.getReferenceById(lot.id());
-                entity.setQuantity(entity.getQuantity() - lot.quantity());
+                int currentQty = entity.getCurrentQuantity() - lot.quantity();
+                entity.setCurrentQuantity(Math.max(currentQty, 0));
+                if (entity.getCurrentQuantity() <= entity.getQuantity()) {
+                    entity.setStatut(StatutLot.SOLD);
+                }
                 this.lotRepository.save(entity);
             });
         }

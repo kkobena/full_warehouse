@@ -320,9 +320,9 @@ public class SaleServiceImpl extends SaleCommonService implements SaleService {
         CashSale cashSale = cashSaleRepository
             .findOneWithEagerSalesLines(dto.getSaleId().getId(), dto.getSaleId().getSaleDate())
             .orElseThrow();
-        this.save(cashSale, dto);
         UninsuredCustomer uninsuredCustomer = getUninsuredCustomerById(dto.getCustomerId());
         cashSale.setCustomer(uninsuredCustomer);
+        this.save(cashSale, dto);
         cashSale.setTvaEmbeded(buildTvaData(cashSale.getSalesLines()));
         paymentService.buildPaymentFromFromPaymentDTO(cashSale, dto);
         salesRepository.save(cashSale);
@@ -340,7 +340,7 @@ public class SaleServiceImpl extends SaleCommonService implements SaleService {
         AppUser user = storageService.getUser();
         CashSale cashSale = findOne(dto.getSaleId());
         cashSale.setLastUserEdit(user);
-      //  paymentService.buildPaymentFromFromPaymentDTO(cashSale, dto, user);
+        //  paymentService.buildPaymentFromFromPaymentDTO(cashSale, dto, user);
         UninsuredCustomer uninsuredCustomer = getUninsuredCustomerById(dto.getCustomerId());
         cashSale.setCustomer(uninsuredCustomer);
         salesRepository.save(cashSale);

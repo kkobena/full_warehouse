@@ -1,4 +1,4 @@
-import { Component, computed, inject, input, signal, viewChild } from '@angular/core';
+import { Component, inject, input, signal, viewChild } from '@angular/core';
 import { ModeReglementComponent } from '../../mode-reglement/mode-reglement.component';
 import { AmountComputingComponent } from '../comptant/amount-computing/amount-computing.component';
 import { SelectedCustomerService } from '../../service/selected-customer.service';
@@ -45,9 +45,9 @@ import { TauriPrinterService } from '../../../../shared/services/tauri-printer.s
     ButtonModule,
     ConfirmDialogComponent,
     CardModule,
-    SpinnerComponent
+    SpinnerComponent,
   ],
-  styleUrls: ['./base-sale.scss']
+  styleUrls: ['./base-sale.scss'],
 })
 export class BaseSaleComponent {
   modeReglementComponent = viewChild<ModeReglementComponent>('modeReglement');
@@ -60,7 +60,6 @@ export class BaseSaleComponent {
   readonly hasAuthorityService = inject(HasAuthorityService);
   readonly canRemoveItem = signal(this.hasAuthorityService.hasAuthorities(Authority.PR_SUPPRIME_PRODUIT_VENTE));
   readonly canApplyDiscount = signal(this.hasAuthorityService.hasAuthorities(Authority.PR_AJOUTER_REMISE_VENTE));
-  readonly isValidDiffere = computed(() => this.currentSaleService.currentSale()?.differe);
 
   protected payments: IPayment[] = [];
   protected remise?: IRemise | null;
@@ -132,17 +131,18 @@ export class BaseSaleComponent {
 
   save(): void {
     this.isSaving = true;
-    if (this.currentSaleService.currentSale().amountToBePaid > 0) {
+    const sale = this.currentSaleService.currentSale();
+    if (sale.amountToBePaid > 0) {
       const entryAmount = this.entryAmount;
-      const restToPay = this.currentSaleService.currentSale().amountToBePaid - entryAmount;
-      this.currentSaleService.currentSale().montantVerse = this.baseSaleService.getCashAmount(entryAmount);
-      if (restToPay > 0 && !this.isValidDiffere()) {
+      const restToPay = sale.amountToBePaid - entryAmount;
+      sale.montantVerse = this.baseSaleService.getCashAmount(entryAmount);
+      if (restToPay > 0 && !sale.differe) {
         this.differeConfirmDialog();
       } else {
         this.finalyseSale();
       }
     } else {
-      this.currentSaleService.currentSale().montantVerse = 0;
+      sale.montantVerse = 0;
       this.finalyseSale();
     }
   }
@@ -156,8 +156,7 @@ export class BaseSaleComponent {
       'Vente différé',
       'Voullez-vous regler le reste en différé ?',
       null,
-      () => {
-      }
+      () => {},
     );
   }
 
@@ -176,11 +175,11 @@ export class BaseSaleComponent {
         finalize(() => {
           this.isSaving = false;
           this.spinner().hide();
-        })
+        }),
       )
       .subscribe({
         next: (res: HttpResponse<FinalyseSale>) => this.baseSaleService.onFinalyseSuccess(res.body),
-        error: err => this.baseSaleService.onFinalyseError(err)
+        error: err => this.baseSaleService.onFinalyseError(err),
       });
   }
 
@@ -193,11 +192,11 @@ export class BaseSaleComponent {
         finalize(() => {
           this.isSaving = false;
           this.spinner().hide();
-        })
+        }),
       )
       .subscribe({
         next: (res: HttpResponse<FinalyseSale>) => this.baseSaleService.onFinalyseSuccess(res.body, true),
-        error: err => this.baseSaleService.onFinalyseError(err)
+        error: err => this.baseSaleService.onFinalyseError(err),
       });
   }
 
@@ -213,18 +212,18 @@ export class BaseSaleComponent {
           this.userCaissierService.caissier().id,
           this.userVendeurService.vendeur().id,
           this.selectedCustomerService.selectedCustomerSignal().id,
-          this.currentSaleService.typeVo()
-        )
+          this.currentSaleService.typeVo(),
+        ),
       )
       .pipe(
         finalize(() => {
           this.isSaving = false;
           this.spinner().hide();
-        })
+        }),
       )
       .subscribe({
         next: (res: HttpResponse<ISales>) => this.baseSaleService.onSaleResponseSuccess(res.body),
-        error: (err: any) => this.baseSaleService.onSaveError(err, this.currentSaleService.currentSale())
+        error: (err: any) => this.baseSaleService.onSaveError(err, this.currentSaleService.currentSale()),
       });
   }
 
@@ -235,18 +234,18 @@ export class BaseSaleComponent {
     this.salesService
       .addItem({
         ...salesLine,
-        saleCompositeId: sale.saleId
+        saleCompositeId: sale.saleId,
       })
       .pipe(
         switchMap((res: HttpResponse<ISalesLine>) => this.salesService.find(sale.saleId)),
         finalize(() => {
           this.isSaving = false;
           this.spinner().hide();
-        })
+        }),
       )
       .subscribe({
         next: (res: HttpResponse<ISales>) => this.baseSaleService.onSaveSuccess(res.body),
-        error: (err: any) => this.baseSaleService.onSaveError(err, this.currentSaleService.currentSale())
+        error: (err: any) => this.baseSaleService.onSaveError(err, this.currentSaleService.currentSale()),
       });
   }
 
@@ -261,18 +260,18 @@ export class BaseSaleComponent {
         finalize(() => {
           this.isSaving = false;
           this.spinner().hide();
-        })
+        }),
       )
       .subscribe({
         next: (res: HttpResponse<ISales>) => this.baseSaleService.onSaveSuccess(res.body),
-        error: (err: any) => this.baseSaleService.onSaveError(err, sale)
+        error: (err: any) => this.baseSaleService.onSaveError(err, sale),
       });
   }
 
   openActionAutorisationDialog(privilege: string, entityToProccess: any): void {
     const modalRef = this.modalService.open(FormActionAutorisationComponent, {
       backdrop: 'static',
-      centered: true
+      centered: true,
     });
     modalRef.componentInstance.entity = this.currentSaleService.currentSale();
     modalRef.componentInstance.privilege = privilege;
@@ -302,14 +301,14 @@ export class BaseSaleComponent {
     this.salesService
       .updateItemQtyRequested({
         ...salesLine,
-        saleCompositeId: sale.saleId
+        saleCompositeId: sale.saleId,
       })
       .pipe(
         switchMap(() => this.salesService.find(sale.saleId)),
         finalize(() => {
           this.isSaving = false;
           this.spinner().hide();
-        })
+        }),
       )
       .subscribe({
         next: (res: HttpResponse<ISales>) => this.baseSaleService.onSaveSuccess(res.body),
@@ -319,7 +318,7 @@ export class BaseSaleComponent {
           } else {
             this.baseSaleService.onSaveError(err, sale);
           }
-        }
+        },
       });
   }
 
@@ -330,18 +329,18 @@ export class BaseSaleComponent {
     this.salesService
       .updateItemQtySold({
         ...salesLine,
-        saleCompositeId: sale.saleId
+        saleCompositeId: sale.saleId,
       })
       .pipe(
         switchMap(() => this.salesService.find(sale.saleId)),
         finalize(() => {
           this.isSaving = false;
           this.spinner().hide();
-        })
+        }),
       )
       .subscribe({
         next: (res: HttpResponse<ISales>) => this.baseSaleService.onSaveSuccess(res.body),
-        error: (err: any) => this.baseSaleService.onSaveError(err, sale)
+        error: (err: any) => this.baseSaleService.onSaveError(err, sale),
       });
   }
 
@@ -352,18 +351,18 @@ export class BaseSaleComponent {
     this.salesService
       .updateItemPrice({
         ...salesLine,
-        saleCompositeId: sale.saleId
+        saleCompositeId: sale.saleId,
       })
       .pipe(
         switchMap(() => this.salesService.find(sale.saleId)),
         finalize(() => {
           this.isSaving = false;
           this.spinner().hide();
-        })
+        }),
       )
       .subscribe({
         next: (res: HttpResponse<ISales>) => this.baseSaleService.onSaveSuccess(res.body),
-        error: (err: any) => this.baseSaleService.onSaveError(err, sale)
+        error: (err: any) => this.baseSaleService.onSaveError(err, sale),
       });
   }
 
@@ -391,34 +390,10 @@ export class BaseSaleComponent {
     }
   }
 
-  /**
-   * Print receipt for Tauri clients
-   * Gets receipt as PNG images and prints them to the local printer
-   */
-  private printSaleForTauri(saleId: SaleId): void {
-    const tauriPrinterService = inject(TauriPrinterService);
-
-    this.salesService.getReceiptForTauri(saleId).subscribe({
-      next: async (receiptPages: string[]) => {
-        try {
-          await tauriPrinterService.printReceipt(receiptPages);
-          console.log('Receipt printed successfully');
-        } catch (error) {
-          console.error('Error printing receipt:', error);
-          alert('Erreur lors de l\'impression du ticket');
-        }
-      },
-      error: err => {
-        console.error('Error getting receipt for Tauri:', err);
-        alert('Erreur lors de la récupération du ticket');
-      }
-    });
-  }
-
   onAddRmiseOpenActionAutorisationDialog(remise: IRemise): void {
     const modalRef = this.modalService.open(FormActionAutorisationComponent, {
       backdrop: 'static',
-      centered: true
+      centered: true,
     });
     modalRef.componentInstance.entity = this.currentSaleService.currentSale();
     modalRef.componentInstance.privilege = Authority.PR_AJOUTER_REMISE_VENTE;
@@ -441,11 +416,11 @@ export class BaseSaleComponent {
         finalize(() => {
           this.isSaving = false;
           this.spinner().hide();
-        })
+        }),
       )
       .subscribe({
         next: (res: HttpResponse<ISales>) => this.baseSaleService.onSaveSuccess(res.body),
-        error: (err: any) => this.baseSaleService.onSaveError(err, sale)
+        error: (err: any) => this.baseSaleService.onSaveError(err, sale),
       });
   }
 
@@ -457,5 +432,29 @@ export class BaseSaleComponent {
         this.onAddRmiseOpenActionAutorisationDialog(remise);
       }
     }
+  }
+
+  /**
+   * Print receipt for Tauri clients
+   * Gets receipt as PNG images and prints them to the local printer
+   */
+  private printSaleForTauri(saleId: SaleId): void {
+    const tauriPrinterService = inject(TauriPrinterService);
+
+    this.salesService.getReceiptForTauri(saleId).subscribe({
+      next: async (receiptPages: string[]) => {
+        try {
+          await tauriPrinterService.printReceipt(receiptPages);
+          console.log('Receipt printed successfully');
+        } catch (error) {
+          console.error('Error printing receipt:', error);
+          alert("Erreur lors de l'impression du ticket");
+        }
+      },
+      error: err => {
+        console.error('Error getting receipt for Tauri:', err);
+        alert('Erreur lors de la récupération du ticket');
+      },
+    });
   }
 }

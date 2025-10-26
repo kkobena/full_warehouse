@@ -79,21 +79,21 @@
         <div class="sale d-flex">
           @if (isLargeScreen) {
             <div>
-              <p-button class="mr-1" [raised]="true" (click)="loadPage()" severity="info"
-                        icon="pi pi-search"
-                        label="Rechercher"></p-button>
+              <p-button (click)="loadPage()" [raised]="true" class="mr-1" icon="pi pi-search"
+                        label="Rechercher"
+                        severity="info"></p-button>
 
-              <p-button [routerLink]="['/sales', false, 'new']" icon="pi pi-plus"
-                        label="Nouvelle vente" severity="primary" [raised]="true">
+              <p-button [raised]="true" [routerLink]="['/sales', false, 'new']"
+                        icon="pi pi-plus" label="Nouvelle vente" severity="primary">
               </p-button>
             </div>
           } @else {
-            <p-button class="mr-1"
-                      (click)="loadPage()"
-                      icon="pi pi-search"
-                      pTooltip="Rechercher"
+            <p-button (click)="loadPage()"
                       [raised]="true"
                       [rounded]="true"
+                      class="mr-1"
+                      icon="pi pi-search"
+                      pTooltip="Rechercher"
                       severity="info"
                       tooltipPosition="top"
             ></p-button>
@@ -102,11 +102,11 @@
               pTooltip="Exporter" styleClass="p-button-raised p-button-help"
             tooltipPosition="top"></p-splitbutton>-->
             <p-button
+              [rounded]="true"
               [routerLink]="['/sales', false, 'new']"
               icon="pi pi-plus"
               pTooltip="Nouvelle vente"
               raised="true"
-              [rounded]="true"
               severity="success"
               tooltipPosition="top"
             >
@@ -131,8 +131,8 @@
           class="pharma-table"
           currentPageReportTemplate="Affichage de {first} à {last} sur {totalRecords} ventes"
           dataKey="id"
-          stripedRows="true"
           selectionMode="single"
+          stripedRows="true"
 
         >
           <ng-template #header>
@@ -149,7 +149,7 @@
               <th style="width: 14%"></th>
             </tr>
           </ng-template>
-          <ng-template let-expanded="expanded" let-sale #body>
+          <ng-template #body let-expanded="expanded" let-sale>
             <tr>
               <td>
                 <p-button
@@ -176,48 +176,38 @@
               <td>{{ sale.cassier?.abbrName }}</td>
               <td>
                 <div class="btn-group d-flex justify-content-end">
-                  <p-button
-                    [routerLink]="['/sales', sale.id, 'view']"
-                    class="mr-1"
-                    icon="pi pi-eye"
-                    [rounded]="true"
-                    [text]="true"
-                    severity="info"
-                    size="small"
-                    pTooltip="Voir"
-                  >
-                  </p-button>
+                
                   @if (canEdit && (sale.natureVente === 'ASSURANCE' || sale.natureVente
                     === 'CARNET')) {
 
                     <p-button
-                      [routerLink]="['/sales', sale.id, false, 'edit']"
                       [rounded]="true"
-                      severity="success"
+                      [routerLink]="['/sales', sale.id, false, 'edit']"
                       [text]="true"
-                      size="small"
                       icon="pi pi-pencil"
                       pTooltip="Editer"
+                      severity="success"
+                      size="small"
                     >
                     </p-button>
                     <p-button
                       (click)="onEditCustomer(sale)"
                       [rounded]="true"
-                      severity="help"
                       [text]="true"
-                      size="small"
                       icon="pi pi-user-edit"
                       pTooltip="Modifier les informations du client"
+                      severity="help"
+                      size="small"
                     >
                     </p-button>
                     <p-button
                       (click)="editSaleUpdatedDate(sale)"
                       [rounded]="true"
-                      severity="contrast"
                       [text]="true"
-                      size="small"
                       icon="pi pi-calendar-plus"
                       pTooltip="Modifier la date"
+                      severity="contrast"
+                      size="small"
                     >
                     </p-button>
 
@@ -226,53 +216,53 @@
                   @if (sale.customer) {
                     <p-button
                       (click)="printSale(sale)"
-                      class="ml-1"
                       [rounded]="true"
                       [text]="true"
-                      severity="secondary"
-                      size="small"
+                      class="ml-1"
                       icon="pi pi-print"
                       pTooltip="Imprimer"
+                      severity="secondary"
+                      size="small"
                     ></p-button>
                     <p-button
                       (click)="print(sale)"
-                      icon="pi pi-receipt"
                       [rounded]="true"
                       [text]="true"
+                      icon="pi pi-receipt"
+                      pTooltip="Imprimer la facture"
                       severity="warn"
                       size="small"
-                      pTooltip="Imprimer la facture"
                     ></p-button>
                   }
 
                   <p-button
                     (click)="suggerer(sale)"
                     [hidden]="true"
+                    [rounded]="true"
                     [text]="true"
                     class="ml-1"
                     icon="pi pi-send"
-                    [rounded]="true"
+                    pTooltip="Suggérer"
                     severity="help"
                     size="small"
-                    pTooltip="Suggérer"
                   ></p-button>
                   @if (canCancel) {
                     <p-button
                       (click)="confirmRemove(sale)"
+                      [rounded]="true"
+                      [text]="true"
                       class="ml-1"
                       icon="pi pi-trash"
-                      [text]="true"
-                      [rounded]="true"
+                      pTooltip="Annuler"
                       severity="danger"
                       size="small"
-                      pTooltip="Annuler"
                     ></p-button>
                   }
                 </div>
               </td>
             </tr>
           </ng-template>
-          <ng-template let-elRow #expandedrow>
+          <ng-template #expandedrow let-elRow>
             <tr class="pharma-expanded-row">
               <td colspan="10">
                 <div class="pharma-sub-table-card pharma-smart">
@@ -289,35 +279,46 @@
                           [rowsPerPageOptions]="[10, 15, 20, 30, 50]"
                           [rows]="10"
                           [showCurrentPageReport]="true"
+                          [stripedRows]="true"
                           [value]="elRow.salesLines"
+                          class="pharma-table rowexpansion-table"
                           currentPageReportTemplate="Affichage de {first} à {last} sur {totalRecords} produits"
                           dataKey="id"
                           selectionMode="single"
-                          [stripedRows]="true"
-                          class="pharma-table rowexpansion-table"
                         >
                           <ng-template #header>
                             <tr class="pharma-table-head ">
                               <th style="width: 5%">#</th>
                               <th style="width: 10%">CODE</th>
                               <th style="width: 44%">LIBELLE</th>
-                              <th style="width: 8%" class="text-right">QTE.D</th>
-                              <th style="width: 8%" class="text-right">QTE.S</th>
-                              <th style="width: 9%" class="text-right">PU</th>
-                              <th style="width: 10%" class="text-right">TOTAL</th>
+                              <th class="text-right" style="width: 8%">QTE.D</th>
+                              <th class="text-right" style="width: 8%">QTE.S</th>
+                              <th class="text-right" style="width: 9%">PU</th>
+                              <th class="text-right" style="width: 10%">TOTAL</th>
                             </tr>
                           </ng-template>
-                          <ng-template let-rowIndex="rowIndex" let-saleLine #body>
-                            <tr
-                              [ngClass]="{ 'table-danger': saleLine.quantitySold < saleLine.quantityRequested }">
-                              <td style="text-align: left"><span class="pharma-row-number"> {{ rowIndex + 1 }}</span></td>
+                          <ng-template #body let-rowIndex="rowIndex" let-saleLine>
+                            <tr [ngClass]="{
+          'pharma-row-warning': saleLine.quantitySold < saleLine.quantityRequested,
+          'pharma-row-hover': true
+        }">
+                              <td style="text-align: left"><span
+                                class="pharma-row-number"> {{ rowIndex + 1 }}</span></td>
                               <td><span class="pharma-code">{{ saleLine.code }}</span></td>
-                              <td><span class="pharma-product-name">{{ saleLine.produitLibelle }}</span></td>
-                              <td class="text-right pharma-qty-value">{{ saleLine.quantityRequested | number }}</td>
-                              <td class="text-right pharma-qty-value">{{ saleLine.quantitySold | number }}</td>
-                              <td class="text-right pharma-price">{{ saleLine.regularUnitPrice | number }}</td>
+                              <td><span
+                                class="pharma-product-name">{{ saleLine.produitLibelle }}</span>
+                              </td>
+                              <td
+                                class="text-right pharma-qty-value">{{ saleLine.quantityRequested | number }}
+                              </td>
+                              <td
+                                class="text-right pharma-qty-value">{{ saleLine.quantitySold | number }}
+                              </td>
+                              <td
+                                class="text-right pharma-price">{{ saleLine.regularUnitPrice | number }}
+                              </td>
                               <td class="pharma-total"
-                                  style="text-align: right; font-weight: bold" >{{ saleLine.salesAmount | number }}
+                                  style="text-align: right; font-weight: bold">{{ saleLine.salesAmount | number }}
                               </td>
                             </tr>
                           </ng-template>
@@ -411,35 +412,46 @@
                               [rowsPerPageOptions]="[10, 15, 20, 30, 50]"
                               [rows]="10"
                               [showCurrentPageReport]="true"
+                              [stripedRows]="true"
                               [value]="elRow.salesLines"
+                              class="pharma-table rowexpansion-table"
                               currentPageReportTemplate="Affichage de {first} à {last} sur {totalRecords} produits"
                               dataKey="id"
                               selectionMode="single"
-                              [stripedRows]="true"
-                              class="pharma-table rowexpansion-table"
                             >
                               <ng-template #header>
                                 <tr class="pharma-table-head ">
                                   <th style="width: 5%">#</th>
                                   <th style="width: 10%">CODE</th>
-                                  <th style="width: 44%" >LIBELLE</th>
-                                  <th style="width: 8%" class="text-right">QTE.D</th>
-                                  <th style="width: 8%" class="text-right">QTE.S</th>
-                                  <th style="width: 9%" class="text-right">PU</th>
-                                  <th style="width: 10%" class="text-right">TOTAL</th>
+                                  <th style="width: 44%">LIBELLE</th>
+                                  <th class="text-right" style="width: 8%">QTE.D</th>
+                                  <th class="text-right" style="width: 8%">QTE.S</th>
+                                  <th class="text-right" style="width: 9%">PU</th>
+                                  <th class="text-right" style="width: 10%">TOTAL</th>
                                 </tr>
                               </ng-template>
-                              <ng-template let-rowIndex="rowIndex" let-saleLine #body>
-                                <tr
-                                  [ngClass]="{ 'table-danger': saleLine.quantitySold < saleLine.quantityRequested }">
-                                  <td style="text-align: left"><span class="pharma-row-number"> {{ rowIndex + 1 }}</span></td>
+                              <ng-template #body let-rowIndex="rowIndex" let-saleLine>
+                                <tr [ngClass]="{
+          'pharma-row-warning': saleLine.quantitySold < saleLine.quantityRequested,
+          'pharma-row-hover': true
+        }">
+                                  <td style="text-align: left"><span
+                                    class="pharma-row-number"> {{ rowIndex + 1 }}</span></td>
                                   <td><span class="pharma-code">{{ saleLine.code }}</span></td>
-                                  <td><span class="pharma-product-name">{{ saleLine.produitLibelle }}</span></td>
-                                  <td class="text-right pharma-qty-value">{{ saleLine.quantityRequested | number }}</td>
-                                  <td class="text-right pharma-qty-value">{{ saleLine.quantitySold | number }}</td>
-                                  <td class="text-right pharma-price">{{ saleLine.regularUnitPrice | number }}</td>
+                                  <td><span
+                                    class="pharma-product-name">{{ saleLine.produitLibelle }}</span>
+                                  </td>
+                                  <td
+                                    class="text-right pharma-qty-value">{{ saleLine.quantityRequested | number }}
+                                  </td>
+                                  <td
+                                    class="text-right pharma-qty-value">{{ saleLine.quantitySold | number }}
+                                  </td>
+                                  <td
+                                    class="text-right pharma-price">{{ saleLine.regularUnitPrice | number }}
+                                  </td>
                                   <td class="pharma-total"
-                                      style="text-align: right; font-weight: bold" >{{ saleLine.salesAmount | number }}
+                                      style="text-align: right; font-weight: bold">{{ saleLine.salesAmount | number }}
                                   </td>
                                 </tr>
                               </ng-template>

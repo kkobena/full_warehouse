@@ -14,7 +14,7 @@ fn main() {
             printer::print_image,
             printer::print_escpos
         ])
-        .setup(|app| {
+        .setup(|_app| {
             #[cfg(debug_assertions)]
             {
                 use tauri::Manager;
@@ -22,7 +22,7 @@ fn main() {
                 println!("Starting PharmaSmart application...");
 
                 // Get the main window (created by tauri.conf.json)
-                if let Some(window) = app.get_webview_window("main") {
+                if let Some(window) = _app.get_webview_window("main") {
                     println!("Window found successfully!");
 
                     // Open devtools in debug mode to see JavaScript errors

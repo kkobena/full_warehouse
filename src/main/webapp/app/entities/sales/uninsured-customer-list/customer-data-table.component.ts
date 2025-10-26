@@ -1,4 +1,4 @@
-import { Component, inject, output } from '@angular/core';
+import { AfterViewInit, Component, ElementRef, inject, output, viewChild } from '@angular/core';
 import { ButtonModule } from 'primeng/button';
 import { InputTextModule } from 'primeng/inputtext';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
@@ -31,18 +31,23 @@ import { showCommonModal } from '../selling-home/sale-helper';
     WarehouseCommonModule,
     FormsModule,
     IconField,
-    InputIcon
+    InputIcon,
   ],
   templateUrl: './customer-data-table.component.html',
-  styleUrls: ['./customer-data-table.scss']
+  styleUrls: ['./customer-data-table.scss'],
 })
-export class CustomerDataTableComponent {
+export class CustomerDataTableComponent implements AfterViewInit {
   customers: ICustomer[] = [];
   searchString?: string | null = '';
   readonly closeModalEvent = output<boolean>();
+  protected searchInput = viewChild.required<ElementRef>('searchInput');
   protected customerService = inject(CustomerService);
   private selectedCustomerService = inject(SelectedCustomerService);
   private readonly modalService = inject(NgbModal);
+
+  ngAfterViewInit(): void {
+    this.searchInput().nativeElement.focus();
+  }
 
   protected onSelect(customer: ICustomer): void {
     this.selectedCustomerService.setCustomer(customer);
@@ -52,23 +57,22 @@ export class CustomerDataTableComponent {
   protected loadCustomers(): void {
     this.customerService
       .queryUninsuredCustomers({
-        search: this.searchString
+        search: this.searchString,
       })
       .subscribe(res => (this.customers = res.body!));
   }
 
   protected addUninsuredCustomer(): void {
-
     showCommonModal(
       this.modalService,
       UninsuredCustomerFormComponent,
-      { header: 'FORMULAIRE D\'AJOUT DE NOUVEAU DE CLIENT ', entity: null },
+      { header: "FORMULAIRE D'AJOUT DE NOUVEAU DE CLIENT ", entity: null },
       (resp: ICustomer) => {
         if (resp) {
           this.selectedCustomerService.setCustomer(resp);
           this.closeModalEvent.emit(true);
         }
-      }
+      },
     );
   }
 }

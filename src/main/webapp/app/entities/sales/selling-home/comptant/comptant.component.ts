@@ -1,4 +1,4 @@
-import { Component, computed, inject, input, output, signal, viewChild } from '@angular/core';
+import { Component, inject, input, output, signal, viewChild } from '@angular/core';
 import { ButtonModule } from 'primeng/button';
 import { DividerModule } from 'primeng/divider';
 
@@ -41,10 +41,10 @@ import { TauriPrinterService } from '../../../../shared/services/tauri-printer.s
     AmountComputingComponent,
     ModeReglementComponent,
     ConfirmDialogComponent,
-    SpinnerComponent
+    SpinnerComponent,
   ],
   templateUrl: './comptant.component.html',
-  styleUrls: ['./comptant.scss']
+  styleUrls: ['./comptant.scss'],
 })
 export class ComptantComponent {
   readonly isPresale = input(false);
@@ -59,7 +59,6 @@ export class ComptantComponent {
   protected remise?: IRemise | null;
   protected event: any;
   protected readonly currentSaleService = inject(CurrentSaleService);
-  readonly isValidDiffere = computed(() => this.currentSaleService.currentSale()?.differe);
   protected readonly hasAuthorityService = inject(HasAuthorityService);
   readonly canRemoveItem = signal(this.hasAuthorityService.hasAuthorities(Authority.PR_SUPPRIME_PRODUIT_VENTE));
   readonly canApplyDiscount = signal(this.hasAuthorityService.hasAuthorities(Authority.PR_AJOUTER_REMISE_VENTE));
@@ -88,7 +87,6 @@ export class ComptantComponent {
       }
     });
 
-
     this.facade.finalyseSale$.pipe(takeUntilDestroyed()).subscribe(res => {
       this.responseEvent.emit(res);
     });
@@ -96,11 +94,15 @@ export class ComptantComponent {
       const modalRef = this.modalService.open(UninsuredCustomerListComponent, {
         size: 'lg',
         backdrop: 'static',
-        centered: true
+        centered: true,
       });
       modalRef.componentInstance.header = 'CLIENTS';
       modalRef.result.then(() => {
-        if (isVenteDefferee && this.selectedCustomerService.selectedCustomerSignal()) {
+        const currentCustomer = this.selectedCustomerService.selectedCustomerSignal();
+        if (currentCustomer) {
+          this.currentSaleService.currentSale().customerId = currentCustomer.id;
+        }
+        if (isVenteDefferee && currentCustomer) {
           this.currentSaleService.currentSale().differe = isVenteDefferee;
           this.modeReglementComponent().commentaireInputGetFocus();
         } else {
@@ -128,7 +130,7 @@ export class ComptantComponent {
       entryAmount,
       this.modeReglementComponent().commentaire,
       this.baseSaleService.isAvoir(),
-      this.modeReglementComponent().buildPayment(entryAmount)
+      this.modeReglementComponent().buildPayment(entryAmount),
     );
   }
 
@@ -142,10 +144,15 @@ export class ComptantComponent {
 
   save(): void {
     const entryAmount = this.entryAmount;
-    const restToPay = this.currentSaleService.currentSale().amountToBePaid - entryAmount;
-    this.currentSaleService.currentSale().montantVerse = this.baseSaleService.getCashAmount(entryAmount);
-    if (restToPay > 0 && !this.isValidDiffere()) {
-      this.confimDialog().onConfirm(() => this.facade.confirmDiffereSale(entryAmount), 'Vente différé', 'Voullez-vous regler le reste en différé ?');
+    const printedSale = this.currentSaleService.currentSale();
+    const restToPay = printedSale.amountToBePaid - entryAmount;
+    printedSale.montantVerse = this.baseSaleService.getCashAmount(entryAmount);
+    if (restToPay > 0 && !printedSale.differe) {
+      this.confimDialog().onConfirm(
+        () => this.facade.confirmDiffereSale(entryAmount),
+        'Vente différé',
+        'Voullez-vous regler le reste en différé ?',
+      );
     } else {
       this.finalyseSale();
     }
@@ -166,7 +173,7 @@ export class ComptantComponent {
   openActionAutorisationDialog(privilege: string, entityToProccess: any): void {
     const modalRef = this.modalService.open(FormActionAutorisationComponent, {
       backdrop: 'static',
-      centered: true
+      centered: true,
     });
     modalRef.componentInstance.entity = this.currentSaleService.currentSale();
     modalRef.componentInstance.privilege = privilege;
@@ -233,7 +240,6 @@ export class ComptantComponent {
   }
 
   printSale(saleId: SaleId): void {
-    // Check if running in Tauri using the proper service method
     if (this.tauriPrinterService.isRunningInTauri()) {
       this.facade.printReceiptForTauri(saleId);
     } else {
@@ -244,7 +250,7 @@ export class ComptantComponent {
   onAddRmiseOpenActionAutorisationDialog(remise: IRemise): void {
     const modalRef = this.modalService.open(FormActionAutorisationComponent, {
       backdrop: 'static',
-      centered: true
+      centered: true,
     });
     modalRef.componentInstance.entity = this.currentSaleService.currentSale();
     modalRef.componentInstance.privilege = Authority.PR_AJOUTER_REMISE_VENTE;

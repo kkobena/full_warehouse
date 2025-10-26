@@ -1,7 +1,11 @@
 @import 'app/shared/scss/table-common';
 
-.td-detail {
-  background: rgba(179, 241, 237, 0.25);
+
+.pharma-row-warning {
+  background: #fff3cd !important;
+  border-left: 3px solid $pharma-warning;
+
+  &:hover {
+    background: #ffe8a1 !important;
+  }
 }
-
-

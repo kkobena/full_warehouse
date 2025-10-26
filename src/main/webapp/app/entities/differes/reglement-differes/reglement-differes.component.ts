@@ -4,7 +4,6 @@ import { CardModule } from 'primeng/card';
 import { CommonModule } from '@angular/common';
 import { SelectModule } from 'primeng/select';
 import { TableLazyLoadEvent, TableModule } from 'primeng/table';
-import { Tag } from 'primeng/tag';
 import { Toolbar } from 'primeng/toolbar';
 import { Tooltip } from 'primeng/tooltip';
 import { FormsModule } from '@angular/forms';
@@ -35,12 +34,11 @@ import { DatePickerModule } from 'primeng/datepicker';
     TableModule,
     Tooltip,
     RouterModule,
-    Tag,
     FloatLabel,
-    DatePickerModule
+    DatePickerModule,
   ],
   templateUrl: './reglement-differes.component.html',
-  styleUrls: ['./reglement-differes.component.scss']
+  styleUrls: ['./reglement-differes.component.scss'],
 })
 export class ReglementDifferesComponent implements OnInit, OnDestroy {
   protected page = 0;
@@ -104,7 +102,7 @@ export class ReglementDifferesComponent implements OnInit, OnDestroy {
         },
         error: () => {
           this.loadingPdf = false;
-        }
+        },
       });
   }
 
@@ -117,7 +115,7 @@ export class ReglementDifferesComponent implements OnInit, OnDestroy {
         .getReglementsDifferes({
           page: this.page,
           size: event.rows,
-          ...this.buildQueryParams()
+          ...this.buildQueryParams(),
         })
         .pipe(takeUntil(this.destroy$))
         .subscribe({
@@ -125,7 +123,7 @@ export class ReglementDifferesComponent implements OnInit, OnDestroy {
           error: () => {
             this.loading = false;
             this.loadingBtn = false;
-          }
+          },
         });
     }
   }
@@ -138,7 +136,7 @@ export class ReglementDifferesComponent implements OnInit, OnDestroy {
       .getReglementsDifferes({
         page: pageToLoad,
         size: this.itemsPerPage,
-        ...this.buildQueryParams()
+        ...this.buildQueryParams(),
       })
       .pipe(takeUntil(this.destroy$))
       .subscribe({
@@ -146,7 +144,7 @@ export class ReglementDifferesComponent implements OnInit, OnDestroy {
         error: () => {
           this.loading = false;
           this.loadingBtn = false;
-        }
+        },
       });
   }
 
@@ -165,7 +163,7 @@ export class ReglementDifferesComponent implements OnInit, OnDestroy {
         },
         error: () => {
           this.clients = [];
-        }
+        },
       });
   }
 
@@ -192,7 +190,7 @@ export class ReglementDifferesComponent implements OnInit, OnDestroy {
       customerId: this.customerId,
 
       fromDate: this.modelStartDate,
-      toDate: this.modelEndDate
+      toDate: this.modelEndDate,
     });
     return params;
   }
@@ -207,7 +205,7 @@ export class ReglementDifferesComponent implements OnInit, OnDestroy {
         },
         error: () => {
           this.summary = null;
-        }
+        },
       });
   }
 }

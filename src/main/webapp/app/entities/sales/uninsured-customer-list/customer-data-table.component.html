@@ -5,29 +5,30 @@
   [rows]="10"
   [showCurrentPageReport]="true"
   [value]="customers"
+  class="pharma-table"
   currentPageReportTemplate="Affichage de {first} à {last} sur {totalRecords} produits"
   dataKey="id"
   selectionMode="single"
-  class="pharma-table"
 >
-  <ng-template  #caption>
+  <ng-template #caption>
     <div class="row">
       <div class="col-md-8">
         <p-iconfield>
           <p-inputicon class="pi pi-search" />
-          <input
-            (input)="loadCustomers()"
-            [(ngModel)]="searchString"
-            [autofocus]="true"
-            pInputText
-            placeholder="Rechercher"
-            style="width: 350px"
-            type="text"
+          <input #searchInput
+                 (input)="loadCustomers()"
+                 [(ngModel)]="searchString"
+                 [autofocus]="true"
+                 pInputText
+                 placeholder="Rechercher"
+                 style="width: 350px"
+                 type="text"
           />
         </p-iconfield>
       </div>
       <div class="col-md-4">
-        <p-button (click)="addUninsuredCustomer()" icon="pi pi-user" label="Nouveau client" severity="help"
+        <p-button (click)="addUninsuredCustomer()" icon="pi pi-user" label="Nouveau client"
+                  severity="help"
                   size="small"></p-button>
       </div>
     </div>
@@ -42,7 +43,7 @@
       <th style="width: 100px"></th>
     </tr>
   </ng-template>
-  <ng-template let-customer let-rowIndex="rowIndex" #body>
+  <ng-template #body let-customer let-rowIndex="rowIndex">
     <tr (click)="onSelect(customer)" style="cursor: pointer">
       <td style="text-align: left"><span class="pharma-code"> {{ rowIndex + 1 }}</span></td>
       <td>{{ customer.code }}</td>

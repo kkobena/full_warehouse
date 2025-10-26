@@ -1,83 +1,87 @@
 <div class="pharma-smart-content p-2">
-  <div><p-toolbar>
-    <ng-template #start>
-      <div class="d-flex justify-content-start">
-        @if (hideStatusFilter){
+  <div>
+    <p-toolbar>
+      <ng-template #start>
+        <div class="d-flex justify-content-start">
+          @if (hideStatusFilter) {
+            <div class="pt-1 ml-1">
+              <p-select
+                (onChange)="onStatutChange($event)"
+                [(ngModel)]="statut"
+                [filter]="false"
+                [fluid]="true"
+                [options]="typesDifferes"
+                [showClear]="true"
+                optionLabel="label"
+                optionValue="id"
+                placeholder="Filtrer par statut"
+                size="large"
+              >
+              </p-select>
+            </div>
+          }
+
           <div class="pt-1 ml-1">
             <p-select
-              (onChange)="onStatutChange($event)"
-              [(ngModel)]="statut"
+              (onChange)="onChange($event)"
+              [(ngModel)]="customerId"
               [filter]="false"
               [fluid]="true"
-              [options]="typesDifferes"
+              [options]="clients"
               [showClear]="true"
-              class="w-full md:w-56"
-              optionLabel="label"
+              optionLabel="fullName"
               optionValue="id"
-              placeholder="Filtrer par statut"
+              placeholder="Filtrer par clients"
+              size="large"
             >
             </p-select>
           </div>
-        }
 
-        <div class="pt-1 ml-1">
-          <p-select
-            (onChange)="onChange($event)"
-            [(ngModel)]="customerId"
-            [filter]="false"
-            [fluid]="true"
-            [options]="clients"
-            [showClear]="true"
-            class="w-full md:w-56"
-            optionLabel="fullName"
-            optionValue="id"
-            placeholder="Filtrer par clients"
-          >
-          </p-select>
+          <!--   <div class="pt-1 ml-1">
+            <p-floatlabel variant="on">
+              <p-datePicker
+                [(ngModel)]="modelStartDate"
+                [iconDisplay]="'input'"
+                [selectOtherMonths]="true"
+                [showButtonBar]="true"
+                [showIcon]="true"
+                dateFormat="dd/mm/yy"
+                id="du"
+                inputId="du"
+              />
+              <label for="du">Du</label>
+            </p-floatlabel>
+          </div>
+          <div class="pt-1 ml-1">
+            <p-floatlabel variant="on">
+              <p-datePicker
+                [(ngModel)]="modelEndDate"
+                [iconDisplay]="'input'"
+                [selectOtherMonths]="true"
+                [showButtonBar]="true"
+                [showIcon]="true"
+                dateFormat="dd/mm/yy"
+                id="au"
+                inputId="au"
+              />
+              <label for="au">Au</label>
+            </p-floatlabel>
+          </div>
+    -->
         </div>
-
-        <!--   <div class="pt-1 ml-1">
-          <p-floatlabel variant="on">
-            <p-datePicker
-              [(ngModel)]="modelStartDate"
-              [iconDisplay]="'input'"
-              [selectOtherMonths]="true"
-              [showButtonBar]="true"
-              [showIcon]="true"
-              dateFormat="dd/mm/yy"
-              id="du"
-              inputId="du"
-            />
-            <label for="du">Du</label>
-          </p-floatlabel>
+      </ng-template>
+      <ng-template #end>
+        <div>
+          <p-button (click)="onSerch()" [loading]="loadingBtn" [raised]="true" class="mr-1"
+                    icon="pi pi-search" label="Rechercher"
+                    severity="info" />
+          <p-button (click)="exportPdf()" [loading]="loadingPdf" [raised]="true"
+                    icon="pi pi-file-pdf" label="Imprimer"
+                    severity="warn" />
         </div>
-        <div class="pt-1 ml-1">
-          <p-floatlabel variant="on">
-            <p-datePicker
-              [(ngModel)]="modelEndDate"
-              [iconDisplay]="'input'"
-              [selectOtherMonths]="true"
-              [showButtonBar]="true"
-              [showIcon]="true"
-              dateFormat="dd/mm/yy"
-              id="au"
-              inputId="au"
-            />
-            <label for="au">Au</label>
-          </p-floatlabel>
-        </div>
-  -->
-      </div>
-    </ng-template>
-    <ng-template #end>
-      <div>
-        <p-button class="mr-1" (click)="onSerch()" [loading]="loadingBtn" [raised]="true" icon="pi pi-search" label="Rechercher"
-                  severity="info" />
-        <p-button (click)="exportPdf()" [loading]="loadingPdf" [raised]="true" icon="pi pi-file-pdf" label="Imprimer"
-                  severity="warn" />
-      </div>
-    </ng-template>
-  </p-toolbar></div>
+      </ng-template>
+    </p-toolbar>
+  </div>
   <div>@if (data.length) {
     <p-table
       (onLazyLoad)="lazyLoading($event)"
@@ -87,11 +91,11 @@
       [rowsPerPageOptions]="[10, 15, 20, 30, 50]"
       [rows]="itemsPerPage"
       [showCurrentPageReport]="false"
+      [showGridlines]="true"
       [totalRecords]="totalItems"
       [value]="data"
-      dataKey="customerId"
-      [showGridlines]="true"
       class="pharma-table"
+      dataKey="customerId"
 
     >
       <ng-template #header>
@@ -104,7 +108,7 @@
           <th></th>
         </tr>
       </ng-template>
-      <ng-template let-expanded="expanded" let-differe #body>
+      <ng-template #body let-differe let-expanded="expanded">
         <tr>
           <td>
             <p-button
@@ -116,21 +120,23 @@
             />
           </td>
           <td>{{ differe.firstName + ' ' + differe.lastName }}</td>
-          <td class="text-right amount-td-column pharma-price">{{ differe.saleAmount | number }}</td>
-          <td class="text-right amount-td-column pharma-price">{{ differe.paidAmount | number }}</td>
+          <td class="text-right amount-td-column pharma-price">{{ differe.saleAmount | number }}
+          </td>
+          <td class="text-right amount-td-column pharma-price">{{ differe.paidAmount | number }}
+          </td>
           <td class="text-right amount-td-column red-400">{{ differe.rest | number }}</td>
 
           <td>
             <div class="btn-group d-flex justify-content-end">
               @if (differe.rest > 0) {
                 <p-button
+                  [rounded]="true"
                   [routerLink]="['/gestion-differe', differe.customerId, 'do-reglement-differe']"
+                  [text]="true"
                   class="mr-1"
                   icon="pi pi-credit-card"
-                  [rounded]="true"
-                  [text]="true"
-                  severity="primary"
                   pTooltip="Faire un règlement"
+                  severity="primary"
                 >
                 </p-button>
               } @else {
@@ -140,7 +146,7 @@
           </td>
         </tr>
       </ng-template>
-      <ng-template let-elRow #expandedrow>
+      <ng-template #expandedrow let-elRow>
         <tr>
           <td colspan="6">
             <p-card>
@@ -159,14 +165,19 @@
                 </tr>
                 </thead>
                 <tbody>
-                  @for (differeItem of elRow.differeItems; track differeItem.saleId; let rowIndex = $index) {
+                  @for (differeItem of elRow.differeItems; track differeItem.saleId; let
+                    rowIndex = $index) {
                     <tr>
                       <td style="text-align: left">{{ rowIndex + 1 }}</td>
                       <td>{{ differeItem.mvtDate | date: 'dd/MM/yy HH:mm' }}</td>
                       <td>{{ differeItem.reference }}</td>
                       <td class="text-right amount-td-column">{{ differeItem.amount | number }}</td>
-                      <td class="text-right amount-td-column">{{ differeItem.paidAmount | number }}</td>
-                      <td class="text-right red-400 amount-td-column">{{ differeItem.restAmount | number }}</td>
+                      <td
+                        class="text-right amount-td-column">{{ differeItem.paidAmount | number }}
+                      </td>
+                      <td
+                        class="text-right red-400 amount-td-column">{{ differeItem.restAmount | number }}
+                      </td>
                     </tr>
                   }
                 </tbody>

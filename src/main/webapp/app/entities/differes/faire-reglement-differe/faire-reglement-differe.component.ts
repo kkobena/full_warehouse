@@ -1,6 +1,6 @@
 import { Component, inject, OnDestroy, OnInit, viewChild } from '@angular/core';
 import { ConfirmDialog } from 'primeng/confirmdialog';
-import { CommonModule, DatePipe, DecimalPipe } from '@angular/common';
+import { CommonModule, DatePipe } from '@angular/common';
 import { Fieldset } from 'primeng/fieldset';
 import { IconField } from 'primeng/iconfield';
 import { InputIcon } from 'primeng/inputicon';
@@ -14,7 +14,7 @@ import { acceptButtonProps, rejectButtonProps } from '../../../shared/util/modal
 import { Differe } from '../model/differe.model';
 import { ReglementDiffereFormComponent } from './reglement-differe-form/reglement-differe-form.component';
 import { DiffereService } from '../differe.service';
-import { NewReglementDiffere } from '../model/new-reglement-differe.model';
+import { NewReglementDiffere, PaymentId } from '../model/new-reglement-differe.model';
 import { ActivatedRoute } from '@angular/router';
 import { Subject } from 'rxjs';
 import { finalize, takeUntil } from 'rxjs/operators';
@@ -22,20 +22,9 @@ import { finalize, takeUntil } from 'rxjs/operators';
 @Component({
   selector: 'jhi-faire-reglement-differe',
   providers: [ConfirmationService],
-  imports: [
-    ReglementDiffereFormComponent,
-    ConfirmDialog,
-    DatePipe,
-    DecimalPipe,
-    Fieldset,
-    IconField,
-    InputIcon,
-    InputText,
-    TableModule,
-    CommonModule
-  ],
+  imports: [ReglementDiffereFormComponent, ConfirmDialog, DatePipe, Fieldset, IconField, InputIcon, InputText, TableModule, CommonModule],
   templateUrl: './faire-reglement-differe.component.html',
-  styleUrls: ['./faire-reglement-differe.component.scss']
+  styleUrls: ['./faire-reglement-differe.component.scss'],
 })
 export class FaireReglementDiffereComponent implements OnInit, OnDestroy {
   protected differe: Differe | null = null;
@@ -58,7 +47,7 @@ export class FaireReglementDiffereComponent implements OnInit, OnDestroy {
   openInfoDialog(message: string, infoClass: string): void {
     const modalRef = this.modalService.open(AlertInfoComponent, {
       backdrop: 'static',
-      centered: true
+      centered: true,
     });
     modalRef.componentInstance.message = message;
     modalRef.componentInstance.infoClass = infoClass;
@@ -89,7 +78,7 @@ export class FaireReglementDiffereComponent implements OnInit, OnDestroy {
       .doReglement(params)
       .pipe(
         finalize(() => (this.isSaving = false)),
-        takeUntil(this.destroy$)
+        takeUntil(this.destroy$),
       )
       .subscribe({
         next: res => {
@@ -97,11 +86,11 @@ export class FaireReglementDiffereComponent implements OnInit, OnDestroy {
             this.onPrintReceipt(res.body.idReglement);
           }
         },
-        error: err => this.onError(err)
+        error: err => this.onError(err),
       });
   }
 
-  private onPrintReceipt(id: number): void {
+  private onPrintReceipt(paymentId: PaymentId): void {
     this.confirmationService.confirm({
       message: ' Voullez-vous imprimer le ticket ?',
       header: 'TICKET REGLEMENT',
@@ -109,11 +98,11 @@ export class FaireReglementDiffereComponent implements OnInit, OnDestroy {
       rejectButtonProps: rejectButtonProps(),
       acceptButtonProps: acceptButtonProps(),
       accept: () => {
-        this.differeService.printReceipt(id).pipe(takeUntil(this.destroy$)).subscribe();
+        this.differeService.printReceipt(paymentId).pipe(takeUntil(this.destroy$)).subscribe();
         this.reset();
       },
       reject: () => this.reset(),
-      key: 'printReceipt'
+      key: 'printReceipt',
     });
   }
 

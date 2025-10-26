@@ -11,5 +11,9 @@ export class NewReglementDiffere {
 }
 
 export class ReglementDiffereResponse {
-  idReglement: number;
+  idReglement: PaymentId;
+}
+export class PaymentId {
+  id: number;
+  transactionDate: string;
 }

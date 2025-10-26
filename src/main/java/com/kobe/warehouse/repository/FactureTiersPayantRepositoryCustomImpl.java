@@ -113,7 +113,6 @@ public class FactureTiersPayantRepositoryCustomImpl implements FactureTiersPayan
         CriteriaBuilder cb = em.getCriteriaBuilder();
         CriteriaQuery<FactureDto> query = cb.createQuery(FactureDto.class);
         Root<FactureTiersPayant> root = query.from(FactureTiersPayant.class);
-        //   Specification<FactureTiersPayant> specification = InvoiceSpecification.aGroupedFacture(invoiceSearchParams);
         Join<FactureTiersPayant, FactureTiersPayant> details = root.join(FactureTiersPayant_.factureTiersPayants);
         Join<FactureTiersPayant, GroupeTiersPayant> groupeTp = root.join(FactureTiersPayant_.groupeTiersPayant, JoinType.LEFT);
         Join<FactureTiersPayant, ThirdPartySaleLine> detailsVenete = details.join(FactureTiersPayant_.facturesDetails);
@@ -122,7 +121,6 @@ public class FactureTiersPayantRepositoryCustomImpl implements FactureTiersPayan
         if (predicate != null) {
             query.where(predicate);
         }
-
 
         query.select(
             cb.construct(
@@ -166,7 +164,6 @@ public class FactureTiersPayantRepositoryCustomImpl implements FactureTiersPayan
         CriteriaBuilder cb = em.getCriteriaBuilder();
         CriteriaQuery<Long> query = cb.createQuery(Long.class);
         Root<FactureTiersPayant> root = query.from(FactureTiersPayant.class);
-        // Specification<FactureTiersPayant> specification = InvoiceSpecification.aFacture(invoiceSearchParams);
         Predicate predicate = specification.toPredicate(root, query, cb);
         if (predicate != null) {
             query.where(predicate);

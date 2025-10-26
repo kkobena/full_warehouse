@@ -1,7 +1,8 @@
 <div class="row reglement-dossier">
   <div class="reglement-dossier-table col-xl-8 col-sm-12 col-lg-9 col-md-9">
-    <p-table [showGridlines]="true" #differeTable [globalFilterFields]="['reference']" [value]="differe.differeItems"
-             dataKey="saleId">
+    <p-table #differeTable [globalFilterFields]="['reference']" [showGridlines]="true"
+             [value]="differe.differeItems"
+             class="pharma-table" dataKey="saleId">
       <ng-template #caption>
         <div class="d-flex justify-content-between">
           <div class="p-2"><span class="text-xl font-bold">Dossiers</span></div>
@@ -20,7 +21,7 @@
         </div>
       </ng-template>
       <ng-template #header>
-        <tr>
+        <tr class="pharma-table-head">
           <th>Référence</th>
           <th>Date vente</th>
           <th>Opérateur</th>
@@ -29,28 +30,28 @@
           <th>Montant Restant</th>
         </tr>
       </ng-template>
-      <ng-template let-item let-rowIndex="rowIndex" #body>
-        <tr [ngClass]="{ 'table-success0': item.restAmount > 0 }">
-          <td>{{ item.reference }}</td>
+      <ng-template #body let-item let-rowIndex="rowIndex">
+        <tr [ngClass]="{ 'pharma-row-success': item.restAmount == 0 }">
+          <td><span class="pharma-code">{{ item.reference }}</span></td>
           <td>{{ item.mvtDate | date: 'dd/MM/yy HH:mm' }}</td>
-          <td>{{ item.user }}</td>
-          <td class="amount-column">
+          <td>{{ (item?.firstName || '') + ' ' + (item?.lastName || '') }}</td>
+          <td class="pharma-price">
             {{ item.amount | number }}
           </td>
-          <td class="amount-column">
+          <td class="pharma-price">
             {{ item.paidAmount | number }}
           </td>
-          <td class="amount-column">
+          <td class="pharma-price red-400">
             {{ item.restAmount | number }}
           </td>
         </tr>
       </ng-template>
       <ng-template #footer>
-        <tr>
-          <td class="p-text-left" colspan="3" style="font-weight: 700">TOTAL</td>
-          <td class="amount-column text-right">{{ differe?.saleAmount | number }}</td>
-          <td class="amount-column text-right">{{ differe?.paidAmount | number }}</td>
-          <td class="amount-column text-right red-400">{{ differe?.rest | number }}</td>
+        <tr class="pharma-table-footer">
+          <td class="text-left pharma-footer-label" colspan="3" style="font-weight: 700">TOTAL</td>
+          <td class=" text-right pharma-footer-value">{{ differe?.saleAmount | number }}</td>
+          <td class=" text-right pharma-footer-value">{{ differe?.paidAmount | number }}</td>
+          <td class=" text-right red-400 pharma-footer-total ">{{ differe?.rest | number }}</td>
         </tr>
       </ng-template>
     </p-table>
@@ -65,9 +66,9 @@
 
       <jhi-reglement-differe-form
         (reglementParams)="onSaveReglement($event)"
+        (rendu)="onMonnaieChange($event)"
         [differe]="differe"
         [isSaving]="isSaving"
-        (rendu)="onMonnaieChange($event)"
       >
       </jhi-reglement-differe-form>
     </p-fieldset>
@@ -92,7 +93,8 @@
         </li>
         <li class="list-group-item d-flex justify-content-between align-items-center">
           Nombre de dossiers
-          <span class="montant-total montant text-primary">{{ differe.differeItems.length | number }}</span>
+          <span
+            class="montant-total montant text-primary">{{ differe.differeItems.length | number }}</span>
         </li>
 
         @if (monnaie) {
@@ -106,4 +108,5 @@
   </div>
 </div>
 
-<p-confirmDialog [baseZIndex]="10000" [style]="{ width: '40vw' }" key="printReceipt"></p-confirmDialog>
+<p-confirmDialog [baseZIndex]="10000" [style]="{ width: '40vw' }"
+                 key="printReceipt"></p-confirmDialog>

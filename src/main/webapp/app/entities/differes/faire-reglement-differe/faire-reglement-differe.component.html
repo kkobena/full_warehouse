@@ -36,22 +36,26 @@
           <td>{{ item.mvtDate | date: 'dd/MM/yy HH:mm' }}</td>
           <td>{{ (item?.firstName || '') + ' ' + (item?.lastName || '') }}</td>
           <td class="pharma-price">
-            {{ item.amount | number }}
+            {{ item.amount | number:'1.0-0' }}
           </td>
           <td class="pharma-price">
-            {{ item.paidAmount | number }}
+            {{ item.paidAmount | number:'1.0-0' }}
           </td>
           <td class="pharma-price red-400">
-            {{ item.restAmount | number }}
+            {{ item.restAmount | number:'1.0-0' }}
           </td>
         </tr>
       </ng-template>
       <ng-template #footer>
         <tr class="pharma-table-footer">
           <td class="text-left pharma-footer-label" colspan="3" style="font-weight: 700">TOTAL</td>
-          <td class=" text-right pharma-footer-value">{{ differe?.saleAmount | number }}</td>
-          <td class=" text-right pharma-footer-value">{{ differe?.paidAmount | number }}</td>
-          <td class=" text-right red-400 pharma-footer-total ">{{ differe?.rest | number }}</td>
+          <td class=" text-right pharma-footer-value">{{ differe?.saleAmount | number:'1.0-0' }}
+          </td>
+          <td class=" text-right pharma-footer-value">{{ differe?.paidAmount | number:'1.0-0' }}
+          </td>
+          <td
+            class=" text-right red-400 pharma-footer-total ">{{ differe?.rest | number:'1.0-0' }}
+          </td>
         </tr>
       </ng-template>
     </p-table>
@@ -81,26 +85,29 @@
 
         <li class="list-group-item d-flex justify-content-between align-items-center">
           Total achat
-          <span class="montant-total montant text-primary">{{ differe.saleAmount | number }}</span>
+          <span
+            class="montant-total montant text-primary">{{ differe.saleAmount | number:'1.0-0' }}</span>
         </li>
         <li class="list-group-item d-flex justify-content-between align-items-center">
           Total payé
-          <span class="montant-total montant text-primary">{{ differe.paidAmount | number }}</span>
+          <span
+            class="montant-total montant text-primary">{{ differe.paidAmount | number:'1.0-0' }}</span>
         </li>
         <li class="list-group-item d-flex justify-content-between align-items-center">
           Montant à payer
-          <span class="montant-payer montant red-400 font-bold">{{ differe.rest | number }}</span>
+          <span
+            class="montant-payer montant red-400 font-bold">{{ differe.rest | number:'1.0-0' }}</span>
         </li>
         <li class="list-group-item d-flex justify-content-between align-items-center">
           Nombre de dossiers
           <span
-            class="montant-total montant text-primary">{{ differe.differeItems.length | number }}</span>
+            class="montant-total montant text-primary">{{ differe.differeItems.length | number:'1.0-0' }}</span>
         </li>
 
         @if (monnaie) {
           <li class="list-group-item d-flex justify-content-between align-items-center">
             Monnaie
-            <span class="montant-total montant text-success">{{ monnaie | number }}</span>
+            <span class="montant-total montant text-success">{{ monnaie | number:'1.0-0' }}</span>
           </li>
         }
       </ul>

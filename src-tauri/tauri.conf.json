@@ -9,6 +9,7 @@
     "beforeBuildCommand": "npm run webapp:build:tauri",
     "frontendDist": "../target/classes/static"
   },
+
   "bundle": {
     "active": true,
     "targets": ["nsis", "msi"],

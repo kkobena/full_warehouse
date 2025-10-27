@@ -20,19 +20,21 @@ import { TranslateService } from '@ngx-translate/core';
 import { Subject, Subscription } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
 import { DiffereSummary } from '../model/differe-summary.model';
+import { TauriPrinterService } from '../../../shared/services/tauri-printer.service';
+import { handleBlobForTauri } from '../../../shared/util/tauri-util';
 
 @Component({
   selector: 'jhi-list-differes',
   imports: [Button, FormsModule, Toolbar, CommonModule, SelectModule, CardModule, TableModule, Tooltip, RouterModule, Tag],
   templateUrl: './list-differes.component.html',
-  styleUrls: ['./list-differes.component.scss']
+  styleUrls: ['./list-differes.component.scss'],
 })
 export class ListDifferesComponent implements OnInit, OnDestroy {
   primngtranslate: Subscription;
   protected page = 0;
   protected totalItems = 0;
   protected loading!: boolean;
-  protected readonly  hideStatusFilter = true;
+  protected readonly hideStatusFilter = true;
   protected loadingBtn = false;
   protected loadingPdf = false;
   protected clients: ClientDiffere[] = [];
@@ -40,12 +42,12 @@ export class ListDifferesComponent implements OnInit, OnDestroy {
   protected typesDifferes = [
     {
       id: StatutDiffere.PAYE,
-      label: 'Soldé'
+      label: 'Soldé',
     },
     {
       id: StatutDiffere.IMPAYE,
-      label: 'En cours'
-    }
+      label: 'En cours',
+    },
   ];
   protected customerId: number = null;
   protected statut: StatutDiffere = StatutDiffere.IMPAYE;
@@ -55,20 +57,12 @@ export class ListDifferesComponent implements OnInit, OnDestroy {
   private readonly differeService = inject(DiffereService);
   private translate = inject(TranslateService);
   private destroy$ = new Subject<void>();
-
+  private readonly tauriPrinterService = inject(TauriPrinterService);
   constructor() {
     this.translate.use('fr');
     this.primngtranslate = this.translate.stream('primeng').subscribe(data => {
       this.primeNGConfig.setTranslation(data);
     });
-  }
- protected onStatutChange(evt:any  ): void {
-
-    this.onSerch();
-  }
-  protected onChange(evt:any  ): void {
-
-    this.onSerch();
   }
 
   ngOnInit(): void {
@@ -89,19 +83,33 @@ export class ListDifferesComponent implements OnInit, OnDestroy {
     this.destroy$.complete();
   }
 
+  protected onStatutChange(evt: any): void {
+    this.onSerch();
+  }
+
+  protected onChange(evt: any): void {
+    this.onSerch();
+  }
 
   protected exportPdf(): void {
     this.loadingPdf = true;
-    this.differeService.exportListToPdf(this.buildQueryParams()).pipe(takeUntil(this.destroy$)).subscribe({
-      next: (blob: Blob) => {
-        this.loadingPdf = false;
-        const blobUrl = URL.createObjectURL(blob);
-        window.open(blobUrl);
-      },
-      error: () => {
-        this.loadingPdf = false;
-      }
-    });
+    this.differeService
+      .exportListToPdf(this.buildQueryParams())
+      .pipe(takeUntil(this.destroy$))
+      .subscribe({
+        next: (blob: Blob) => {
+          this.loadingPdf = false;
+          if (this.tauriPrinterService.isRunningInTauri()) {
+            handleBlobForTauri(blob, 'differes');
+          } else {
+            const blobUrl = URL.createObjectURL(blob);
+            window.open(blobUrl);
+          }
+        },
+        error: () => {
+          this.loadingPdf = false;
+        },
+      });
   }
 
   protected lazyLoading(event: TableLazyLoadEvent): void {
@@ -113,14 +121,15 @@ export class ListDifferesComponent implements OnInit, OnDestroy {
         .query({
           page: this.page,
           size: event.rows,
-          ...this.buildQueryParams()
-        }).pipe(takeUntil(this.destroy$))
+          ...this.buildQueryParams(),
+        })
+        .pipe(takeUntil(this.destroy$))
         .subscribe({
           next: (res: HttpResponse<Differe[]>) => this.onSuccess(res.body, res.headers, this.page),
           error: () => {
             this.loading = false;
             this.loadingBtn = false;
-          }
+          },
         });
     }
   }
@@ -133,14 +142,15 @@ export class ListDifferesComponent implements OnInit, OnDestroy {
       .query({
         page: pageToLoad,
         size: this.itemsPerPage,
-        ...this.buildQueryParams()
-      }).pipe(takeUntil(this.destroy$))
+        ...this.buildQueryParams(),
+      })
+      .pipe(takeUntil(this.destroy$))
       .subscribe({
         next: (res: HttpResponse<Differe[]>) => this.onSuccess(res.body, res.headers, pageToLoad),
         error: () => {
           this.loading = false;
           this.loadingBtn = false;
-        }
+        },
       });
   }
 
@@ -150,14 +160,17 @@ export class ListDifferesComponent implements OnInit, OnDestroy {
   }
 
   private fetchClients(): void {
-    this.differeService.findClients().pipe(takeUntil(this.destroy$)).subscribe({
-      next: res => {
-        this.clients = res.body;
-      },
-      error: () => {
-        this.clients = [];
-      }
-    });
+    this.differeService
+      .findClients()
+      .pipe(takeUntil(this.destroy$))
+      .subscribe({
+        next: res => {
+          this.clients = res.body;
+        },
+        error: () => {
+          this.clients = [];
+        },
+      });
   }
 
   private onSuccess(data: Differe[] | null, headers: HttpHeaders, page: number): void {
@@ -184,7 +197,7 @@ export class ListDifferesComponent implements OnInit, OnDestroy {
     }*/
     this.differeService.setParams({
       customerId: this.customerId,
-      statut: this.statut
+      statut: this.statut,
       // fromDate: this.modelStartDate,
       // toDate: this.modelEndDate,
     });
@@ -192,13 +205,16 @@ export class ListDifferesComponent implements OnInit, OnDestroy {
   }
 
   private loadDiffereSummary(): void {
-    this.differeService.getDiffereSummary(this.buildQueryParams()).pipe(takeUntil(this.destroy$)).subscribe({
-      next: (res: HttpResponse<DiffereSummary>) => {
-        this.summary = res.body;
-      },
-      error: () => {
-        this.summary = null;
-      }
-    });
+    this.differeService
+      .getDiffereSummary(this.buildQueryParams())
+      .pipe(takeUntil(this.destroy$))
+      .subscribe({
+        next: (res: HttpResponse<DiffereSummary>) => {
+          this.summary = res.body;
+        },
+        error: () => {
+          this.summary = null;
+        },
+      });
   }
 }

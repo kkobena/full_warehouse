@@ -29,6 +29,8 @@ import { Select } from 'primeng/select';
 import { FloatLabel } from 'primeng/floatlabel';
 import { ToastAlertComponent } from '../../shared/toast-alert/toast-alert.component';
 import { showCommonModal } from '../sales/selling-home/sale-helper';
+import { TauriPrinterService } from '../../shared/services/tauri-printer.service';
+import { handleBlobForTauri } from '../../shared/util/tauri-util';
 
 @Component({
   selector: 'jhi-visualisation-mvt-caisse',
@@ -47,10 +49,10 @@ import { showCommonModal } from '../sales/selling-home/sale-helper';
     DatePicker,
     Select,
     FloatLabel,
-    ToastAlertComponent
+    ToastAlertComponent,
   ],
   templateUrl: './visualisation-mvt-caisse.component.html',
-  styleUrls: ['./visualisation-mvt-caisse.scss']
+  styleUrls: ['./visualisation-mvt-caisse.scss'],
 })
 export class VisualisationMvtCaisseComponent implements OnInit, AfterViewInit {
   protected mvtCaisses: MvtCaisse[] = [];
@@ -77,7 +79,7 @@ export class VisualisationMvtCaisseComponent implements OnInit, AfterViewInit {
     TypeFinancialTransaction.REGLEMENT_DIFFERE,
     TypeFinancialTransaction.REGLEMENT_TIERS_PAYANT,
     TypeFinancialTransaction.CASH_SALE,
-    TypeFinancialTransaction.CREDIT_SALE
+    TypeFinancialTransaction.CREDIT_SALE,
   ];
   protected selectedTypes: TypeFinancialTransaction[] = [];
   protected paymentModes: IPaymentMode[] = [];
@@ -91,7 +93,7 @@ export class VisualisationMvtCaisseComponent implements OnInit, AfterViewInit {
   private readonly mvtParamServiceService = inject(MvtParamServiceService);
   private readonly alert = viewChild.required<ToastAlertComponent>('alert');
   private readonly modalService = inject(NgbModal);
-
+  private readonly tauriPrinterService = inject(TauriPrinterService);
   ngOnInit(): void {
     if (this.mvtParamServiceService.mvtCaisseParam()) {
       this.fromDate = this.mvtParamServiceService.mvtCaisseParam().fromDate;
@@ -126,14 +128,14 @@ export class VisualisationMvtCaisseComponent implements OnInit, AfterViewInit {
       .findAllMvts({
         page: pageToLoad,
         size: this.itemsPerPage,
-        ...this.buildParams()
+        ...this.buildParams(),
       })
       .subscribe({
         next: (res: HttpResponse<MvtCaisse[]>) => this.onSuccess(res.body, res.headers, pageToLoad),
         error: () => this.onError(),
         complete: () => {
           this.btnLoading = false;
-        }
+        },
       });
   }
 
@@ -153,11 +155,11 @@ export class VisualisationMvtCaisseComponent implements OnInit, AfterViewInit {
         .findAllMvts({
           page: this.page,
           size: event.rows,
-          ...this.buildParams()
+          ...this.buildParams(),
         })
         .subscribe({
           next: (res: HttpResponse<MvtCaisse[]>) => this.onSuccess(res.body, res.headers, this.page),
-          error: () => this.onError()
+          error: () => this.onError(),
         });
     }
   }
@@ -171,19 +173,21 @@ export class VisualisationMvtCaisseComponent implements OnInit, AfterViewInit {
     this.btnLoading = true;
     this.updateParam();
     this.mvtCaisseService.exportToPdf(this.buildParams()).subscribe({
-      next: blod => {
+      next: blob => {
         this.btnLoading = false;
-        const blobUrl = URL.createObjectURL(blod);
-        window.open(blobUrl);
+        if (this.tauriPrinterService.isRunningInTauri()) {
+          handleBlobForTauri(blob, 'visualisation-mouvements-caisse');
+        } else {
+          window.open(URL.createObjectURL(blob));
+        }
       },
       error: () => {
         this.btnLoading = false;
-
-        this.alert().showError('Erreur', 'Une erreur est survenue lors de l\'exportation');
+        this.alert().showError('Erreur', "Une erreur est survenue lors de l'exportation");
       },
       complete: () => {
         this.btnLoading = false;
-      }
+      },
     });
   }
 
@@ -191,15 +195,15 @@ export class VisualisationMvtCaisseComponent implements OnInit, AfterViewInit {
     showCommonModal(
       this.modalService,
       FormTransactionComponent,
-      { header: 'FORMULAIRE D\'AJOUT DE MOUVEMENT DE CAISSE' },
-      () => this.onSearch(), 'lg'
+      { header: "FORMULAIRE D'AJOUT DE MOUVEMENT DE CAISSE" },
+      () => this.onSearch(),
+      'lg',
     );
   }
 
   private onSuccess(data: MvtCaisse[] | null, headers: HttpHeaders, page: number): void {
     this.totalItems = Number(headers.get('X-Total-Count'));
     this.page = page;
-
 
     this.mvtCaisses = data || [];
     this.loading = false;
@@ -214,7 +218,7 @@ export class VisualisationMvtCaisseComponent implements OnInit, AfterViewInit {
       typeFinancialTransactions: this.selectedTypes?.map(type => getTypeName(type)),
       paymentModes: this.selectedModes?.map(mode => mode.code),
       userId: this.selectedUser?.id,
-      order: this.order
+      order: this.order,
     };
   }
 
@@ -243,7 +247,7 @@ export class VisualisationMvtCaisseComponent implements OnInit, AfterViewInit {
       toDate: this.toDate,
       selectedTypes: this.selectedTypes,
       paymentModes: this.selectedModes,
-      selectedUser: this.selectedUser
+      selectedUser: this.selectedUser,
     };
     this.mvtParamServiceService.setMvtCaisseParam(param);
   }

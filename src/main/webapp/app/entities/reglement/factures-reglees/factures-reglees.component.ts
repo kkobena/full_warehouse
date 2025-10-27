@@ -30,6 +30,8 @@ import { DatePicker } from 'primeng/datepicker';
 import { TranslateService } from '@ngx-translate/core';
 import { PrimeNG } from 'primeng/config';
 import { ConfirmDialogComponent } from '../../../shared/dialog/confirm-dialog/confirm-dialog.component';
+import { TauriPrinterService } from '../../../shared/services/tauri-printer.service';
+import { handleBlobForTauri } from '../../../shared/util/tauri-util';
 
 @Component({
   selector: 'jhi-factures-reglees',
@@ -48,14 +50,13 @@ import { ConfirmDialogComponent } from '../../../shared/dialog/confirm-dialog/co
     InputIcon,
     ToggleSwitch,
     DatePicker,
-    ConfirmDialogComponent
+    ConfirmDialogComponent,
   ],
 
   templateUrl: './factures-reglees.component.html',
-  styleUrl: './factures-reglees.component.scss'
+  styleUrl: './factures-reglees.component.scss',
 })
 export class FacturesRegleesComponent implements AfterViewInit {
-
   protected expandedRows = {};
   protected readonly translate = inject(TranslateService);
   protected readonly primeNGConfig = inject(PrimeNG);
@@ -83,7 +84,7 @@ export class FacturesRegleesComponent implements AfterViewInit {
   private readonly reglementService = inject(ReglementService);
   private readonly errorService = inject(ErrorService);
   private readonly modalService = inject(NgbModal);
-
+  private readonly tauriPrinterService = inject(TauriPrinterService);
   constructor() {
     this.translate.use('fr');
     this.translate.stream('primeng').subscribe(data => {
@@ -99,17 +100,21 @@ export class FacturesRegleesComponent implements AfterViewInit {
   }
 
   onRemoveAll(): void {
-    this.confimDialog().onConfirm(() => {
-      this.reglementService.deleteAll({ ids: this.selectedDatas.map(e => e.id) }).subscribe({
-        next: () => {
-          this.selectedDatas = [];
-          this.fetchData();
-        },
-        error: (err: any) => {
-          this.openInfoDialog(this.errorService.getErrorMessage(err), 'alert alert-danger');
-        }
-      });
-    }, 'SUPPRESSION DE REGLEMENT', 'Voullez-vous supprimer ces règlements ?');
+    this.confimDialog().onConfirm(
+      () => {
+        this.reglementService.deleteAll({ ids: this.selectedDatas.map(e => e.id) }).subscribe({
+          next: () => {
+            this.selectedDatas = [];
+            this.fetchData();
+          },
+          error: (err: any) => {
+            this.openInfoDialog(this.errorService.getErrorMessage(err), 'alert alert-danger');
+          },
+        });
+      },
+      'SUPPRESSION DE REGLEMENT',
+      'Voullez-vous supprimer ces règlements ?',
+    );
   }
 
   onView(item: Reglement): void {
@@ -127,34 +132,40 @@ export class FacturesRegleesComponent implements AfterViewInit {
   onPrintPdf(): void {
     this.loadingPdf = true;
     this.reglementService.onPrintPdf(this.buildSearchParams()).subscribe({
-      next: blod => {
+      next: blob => {
         this.loadingPdf = false;
-        const blobUrl = URL.createObjectURL(blod);
-        window.open(blobUrl);
+
+        if (this.tauriPrinterService.isRunningInTauri()) {
+          handleBlobForTauri(blob, 'factures-reglees');
+        } else {
+          window.open(URL.createObjectURL(blob));
+        }
       },
-      error: () => (this.loadingPdf = false)
+      error: () => (this.loadingPdf = false),
     });
   }
 
   onDelete(item: Reglement): void {
-
-    this.confimDialog().onConfirm(() => {
-      this.reglementService.delete(item.id).subscribe({
-        next: () => {
-          this.fetchData();
-        },
-        error: (err: any) => {
-          this.openInfoDialog(this.errorService.getErrorMessage(err), 'alert alert-danger');
-        }
-      });
-    }, 'SUPPRESSION DE REGLEMENT', 'Voullez-vous supprimer cet règlement ?');
-
+    this.confimDialog().onConfirm(
+      () => {
+        this.reglementService.delete(item.id).subscribe({
+          next: () => {
+            this.fetchData();
+          },
+          error: (err: any) => {
+            this.openInfoDialog(this.errorService.getErrorMessage(err), 'alert alert-danger');
+          },
+        });
+      },
+      'SUPPRESSION DE REGLEMENT',
+      'Voullez-vous supprimer cet règlement ?',
+    );
   }
 
   openInfoDialog(message: string, infoClass: string): void {
     const modalRef = this.modalService.open(AlertInfoComponent, {
       backdrop: 'static',
-      centered: true
+      centered: true,
     });
     modalRef.componentInstance.message = message;
     modalRef.componentInstance.infoClass = infoClass;
@@ -174,7 +185,7 @@ export class FacturesRegleesComponent implements AfterViewInit {
       .query({
         page: 0,
         search: query,
-        size: 10
+        size: 10,
       })
       .subscribe((res: HttpResponse<IGroupeTiersPayant[]>) => {
         this.groupeTiersPayants = res.body || [];
@@ -187,12 +198,12 @@ export class FacturesRegleesComponent implements AfterViewInit {
       .query({
         page: 0,
         search: query,
-        size: 10
+        size: 10,
       })
       .subscribe({
         next: (res: HttpResponse<ITiersPayant[]>) => {
           this.tiersPayants = res.body || [];
-        }
+        },
       });
   }
 
@@ -207,7 +218,7 @@ export class FacturesRegleesComponent implements AfterViewInit {
       size: 'xl',
       centered: true,
 
-      modalDialogClass: 'facture-modal-dialog'
+      modalDialogClass: 'facture-modal-dialog',
     });
     modalRef.componentInstance.reglement = reglement;
   }
@@ -218,7 +229,7 @@ export class FacturesRegleesComponent implements AfterViewInit {
       size: 'xl',
       centered: true,
 
-      modalDialogClass: 'facture-modal-dialog'
+      modalDialogClass: 'facture-modal-dialog',
     });
     modalRef.componentInstance.reglement = reglement;
   }
@@ -252,7 +263,7 @@ export class FacturesRegleesComponent implements AfterViewInit {
       organismeId: this.factureGroup ? this.selectedGroupeTiersPayant?.id : this.selectedTiersPayant?.id,
       fromDate: DATE_FORMAT_ISO_DATE(this.modelStartDate),
       toDate: DATE_FORMAT_ISO_DATE(this.modelEndDate),
-      grouped: this.factureGroup
+      grouped: this.factureGroup,
     };
 
     this.regelementStateService.setInvoicePaymentParam(params);
@@ -270,7 +281,7 @@ export class FacturesRegleesComponent implements AfterViewInit {
       error: () => {
         this.loadingBtn = false;
         this.datas = [];
-      }
+      },
     });
   }
 }

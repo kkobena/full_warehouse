@@ -21,6 +21,8 @@ import { ReglementDiffere } from '../model/reglement-differe.model';
 import { DATE_FORMAT_ISO_DATE } from '../../../shared/util/warehouse-util';
 import { FloatLabel } from 'primeng/floatlabel';
 import { DatePickerModule } from 'primeng/datepicker';
+import { TauriPrinterService } from '../../../shared/services/tauri-printer.service';
+import { handleBlobForTauri } from '../../../shared/util/tauri-util';
 
 @Component({
   selector: 'jhi-reglement-differes',
@@ -57,6 +59,7 @@ export class ReglementDifferesComponent implements OnInit, OnDestroy {
   protected readonly primeNGConfig = inject(PrimeNG);
   private readonly differeService = inject(DiffereService);
   private readonly translate = inject(TranslateService);
+  private readonly tauriPrinterService = inject(TauriPrinterService);
   private destroy$ = new Subject<void>();
 
   constructor() {
@@ -97,8 +100,12 @@ export class ReglementDifferesComponent implements OnInit, OnDestroy {
       .subscribe({
         next: (blob: Blob) => {
           this.loadingPdf = false;
-          const blobUrl = URL.createObjectURL(blob);
-          window.open(blobUrl);
+          if (this.tauriPrinterService.isRunningInTauri()) {
+            handleBlobForTauri(blob, 'reglements-differes');
+          } else {
+            const blobUrl = URL.createObjectURL(blob);
+            window.open(blobUrl);
+          }
         },
         error: () => {
           this.loadingPdf = false;

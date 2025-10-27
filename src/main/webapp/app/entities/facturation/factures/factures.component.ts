@@ -35,6 +35,8 @@ import { TranslateService } from '@ngx-translate/core';
 import { PrimeNG } from 'primeng/config';
 import { ConfirmDialogComponent } from '../../../shared/dialog/confirm-dialog/confirm-dialog.component';
 import { Select } from 'primeng/select';
+import { handleBlobForTauri } from '../../../shared/util/tauri-util';
+import { TauriPrinterService } from '../../../shared/services/tauri-printer.service';
 
 @Component({
   selector: 'jhi-factures',
@@ -58,7 +60,7 @@ import { Select } from 'primeng/select';
     Select,
   ],
   templateUrl: './factures.component.html',
-  styleUrl: './factures.component.scss'
+  styleUrl: './factures.component.scss',
 })
 export class FacturesComponent implements OnInit, AfterViewInit {
   minLength = 2;
@@ -92,7 +94,7 @@ export class FacturesComponent implements OnInit, AfterViewInit {
   private readonly primeNGConfig = inject(PrimeNG);
   private readonly confimDialog = viewChild.required<ConfirmDialogComponent>('confirmDialog');
   private toDateMinusOneMonth: Date = null;
-
+  private readonly tauriPrinterService = inject(TauriPrinterService);
   constructor() {
     this.translate.use('fr');
     this.translate.stream('primeng').subscribe(data => {
@@ -241,10 +243,14 @@ export class FacturesComponent implements OnInit, AfterViewInit {
   exportPdf(id: FactureId): void {
     this.exporting = true;
     this.factureService.exportToPdf(id).subscribe({
-      next: blod => {
+      next: blob => {
         this.exporting = false;
-        const blobUrl = URL.createObjectURL(blod);
-        window.open(blobUrl);
+        if (this.tauriPrinterService.isRunningInTauri()) {
+          handleBlobForTauri(blob, 'factures');
+        } else {
+          const blobUrl = URL.createObjectURL(blob);
+          window.open(blobUrl);
+        }
       },
       error: err => {
         this.exporting = false;

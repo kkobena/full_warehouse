@@ -12,20 +12,14 @@ import { Subject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
 import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
 import { Card } from 'primeng/card';
+import { handleBlobForTauri } from '../../../../shared/util/tauri-util';
+import { TauriPrinterService } from '../../../../shared/services/tauri-printer.service';
 
 @Component({
   selector: 'jhi-etiquette-delevery',
   templateUrl: './etiquette.component.html',
   styleUrls: ['../../../common-modal.component.scss'],
-  imports: [
-    WarehouseCommonModule,
-    KeyFilterModule,
-    ButtonModule,
-    FormsModule,
-    InputTextModule,
-    Card
-
-  ]
+  imports: [WarehouseCommonModule, KeyFilterModule, ButtonModule, FormsModule, InputTextModule, Card],
 })
 export class EtiquetteComponent implements AfterViewInit, OnDestroy {
   isSaving = false;
@@ -33,19 +27,17 @@ export class EtiquetteComponent implements AfterViewInit, OnDestroy {
   header = 'Impression des étiquettes';
   protected startAt = 1;
   private readonly entityService = inject(DeliveryService);
-
+  private readonly tauriPrinterService = inject(TauriPrinterService);
 
   private destroy$ = new Subject<void>();
   private readonly activeModal = inject(NgbActiveModal);
   private readonly startInput = viewChild.required<ElementRef>('startInput');
-
 
   ngAfterViewInit(): void {
     setTimeout(() => {
       this.startInput().nativeElement.focus();
     }, 100);
   }
-
 
   ngOnDestroy(): void {
     this.destroy$.next();
@@ -63,15 +55,23 @@ export class EtiquetteComponent implements AfterViewInit, OnDestroy {
   }
 
   private printEtiquette(): void {
+    this.entityService
+      .printEtiquette(this.entity.commandeId, { startAt: this.startAt })
+      .pipe(takeUntil(this.destroy$))
+      .subscribe({
+        next: (blob: Blob) => {
+          this.isSaving = false;
+          if (this.tauriPrinterService.isRunningInTauri()) {
+            handleBlobForTauri(blob, this.entity.receiptReference);
+          } else {
+            saveAs(blob, this.entity.receiptReference + '_' + DATE_FORMAT_DD_MM_YYYY_HH_MM_SS());
+          }
 
-    this.entityService.printEtiquette(this.entity.commandeId, { startAt: this.startAt }).pipe(takeUntil(this.destroy$)).subscribe({
-      next: (blod: Blob) => {
-        saveAs(blod, this.entity.receiptReference + '_' + DATE_FORMAT_DD_MM_YYYY_HH_MM_SS());
-        this.cancel();
-      },
-      error: () => {
-        this.isSaving = false;
-      }
-    });
+          this.cancel();
+        },
+        error: () => {
+          this.isSaving = false;
+        },
+      });
   }
 }

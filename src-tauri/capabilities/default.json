@@ -23,6 +23,22 @@
     "shell:allow-open",
     "http:default",
     "dialog:default",
-    "fs:default"
+        "fs:allow-read-dir",
+    "fs:allow-write-file",
+    "fs:allow-read-file",
+    {
+      "identifier": "fs:scope",
+      "allow": [
+        {
+          "path": "$DOWNLOAD/*"
+        },
+        {
+          "path": "$APPDATA/*"
+        },
+        {
+          "path": "$RESOURCE/*"
+        }
+      ]
+    }
   ]
 }

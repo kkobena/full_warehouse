@@ -26,6 +26,8 @@ import { ToastModule } from 'primeng/toast';
 import { TableModule } from 'primeng/table';
 import { ConfirmDialogModule } from 'primeng/confirmdialog';
 import { acceptButtonProps, rejectButtonProps } from '../../../shared/util/modal-button-props';
+import { TauriPrinterService } from '../../../shared/services/tauri-printer.service';
+import { handleBlobForTauri } from '../../../shared/util/tauri-util';
 
 @Component({
   selector: 'jhi-en-cours',
@@ -39,19 +41,11 @@ import { acceptButtonProps, rejectButtonProps } from '../../../shared/util/modal
     ToastModule,
     NgxSpinnerModule,
     TableModule,
-    RouterModule
+    RouterModule,
   ],
-  providers: [ConfirmationService, DialogService, MessageService]
+  providers: [ConfirmationService, DialogService, MessageService],
 })
 export class EnCoursComponent implements OnInit {
-  private spinner = inject(NgxSpinnerService);
-  private storeInventoryService = inject(StoreInventoryService);
-  protected router = inject(Router);
-  protected modalService = inject(NgbModal);
-  private errorService = inject(ErrorService);
-  private confirmationService = inject(ConfirmationService);
-  private messageService = inject(MessageService);
-
   readonly inventoryCategories = input<InventoryCategory[]>();
   readonly user = input<IUser | null>();
   protected statuts: InventoryStatut[] = ['CREATE', 'PROCESSING'];
@@ -62,7 +56,14 @@ export class EnCoursComponent implements OnInit {
   protected itemsPerPage = ITEMS_PER_PAGE;
   protected rowData: IStoreInventory[] = [];
   protected totalItems = 0;
-
+  protected router = inject(Router);
+  protected modalService = inject(NgbModal);
+  private spinner = inject(NgxSpinnerService);
+  private storeInventoryService = inject(StoreInventoryService);
+  private errorService = inject(ErrorService);
+  private confirmationService = inject(ConfirmationService);
+  private messageService = inject(MessageService);
+  private readonly tauriPrinterService = inject(TauriPrinterService);
   ngOnInit(): void {
     this.onSearch();
   }
@@ -73,11 +74,13 @@ export class EnCoursComponent implements OnInit {
 
   exportPdf(storeInventory: IStoreInventory): void {
     this.spinner.show();
-    this.storeInventoryService.exportToPdf(this.buildPdfQuery(storeInventory.id)).subscribe(blod => {
-      //  const fileName = DATE_FORMAT_DD_MM_YYYY_HH_MM_SS();
-      //  saveAs(blod, 'inventaire_' + fileName);
-      const blobUrl = URL.createObjectURL(blod);
-      window.open(blobUrl);
+    this.storeInventoryService.exportToPdf(this.buildPdfQuery(storeInventory.id)).subscribe(blob => {
+      if (this.tauriPrinterService.isRunningInTauri()) {
+        handleBlobForTauri(blob, 'inventaire');
+      } else {
+        window.open(URL.createObjectURL(blob));
+      }
+
       this.spinner.hide();
     });
   }
@@ -90,19 +93,19 @@ export class EnCoursComponent implements OnInit {
       acceptButtonProps: acceptButtonProps(),
       icon: 'pi pi-info-circle',
       accept: () => this.delete(storeInventory.id),
-      key: 'delete'
+      key: 'delete',
     });
   }
 
   confirmSave(storeInventory: IStoreInventory): void {
     this.confirmationService.confirm({
-      message: 'Voullez-vous clôturer l\'inventaire ?',
+      message: "Voullez-vous clôturer l'inventaire ?",
       header: ' CLOTURE',
       icon: 'pi pi-info-circle',
       rejectButtonProps: rejectButtonProps(),
       acceptButtonProps: acceptButtonProps(),
       accept: () => this.close(storeInventory.id),
-      key: 'saveAll'
+      key: 'saveAll',
     });
   }
 
@@ -116,7 +119,7 @@ export class EnCoursComponent implements OnInit {
       error: () => {
         this.onError();
         this.spinner.hide();
-      }
+      },
     });
   }
 
@@ -129,20 +132,20 @@ export class EnCoursComponent implements OnInit {
         this.messageService.add({
           severity: 'success',
           summary: 'Success',
-          detail: `Nombre de produits de l'inventaire ${res.body.count}`
+          detail: `Nombre de produits de l'inventaire ${res.body.count}`,
         });
       },
       error: error => {
         this.onCloseError(error);
         this.spinner.hide();
-      }
+      },
     });
   }
 
   protected openInfoDialog(message: string, infoClass: string): void {
     const modalRef = this.modalService.open(AlertInfoComponent, {
       backdrop: 'static',
-      centered: true
+      centered: true,
     });
     modalRef.componentInstance.message = message;
     modalRef.componentInstance.infoClass = infoClass;
@@ -153,7 +156,7 @@ export class EnCoursComponent implements OnInit {
     this.page = page;
     if (navigate) {
       this.router.navigate(['/store-inventory'], {
-        queryParams: this.buildQuery(page)
+        queryParams: this.buildQuery(page),
       });
     }
     this.rowData = data || [];
@@ -172,7 +175,7 @@ export class EnCoursComponent implements OnInit {
         next: translatedErrorMessage => {
           this.openInfoDialog(translatedErrorMessage, 'alert alert-danger');
         },
-        error: () => this.openInfoDialog(this.errorService.getErrorMessage(error), 'alert alert-danger')
+        error: () => this.openInfoDialog(this.errorService.getErrorMessage(error), 'alert alert-danger'),
       });
     }
   }
@@ -182,7 +185,7 @@ export class EnCoursComponent implements OnInit {
 
     this.storeInventoryService.query(this.buildQuery(page)).subscribe({
       next: (res: HttpResponse<IStoreInventory[]>) => this.onSuccess(res.body, res.headers, pageToLoad, !dontNavigate),
-      error: () => this.onError()
+      error: () => this.onError(),
     });
   }
 
@@ -193,7 +196,7 @@ export class EnCoursComponent implements OnInit {
       size: this.itemsPerPage,
       userId: this.user()?.id,
       inventoryCategories: this.inventoryCategories()?.map(e => e.name),
-      statuts: this.statuts
+      statuts: this.statuts,
     };
   }
 
@@ -202,8 +205,8 @@ export class EnCoursComponent implements OnInit {
       exportGroupBy: GROUPING_BY[0].name,
       filterRecord: {
         storeInventoryId,
-        selectedFilter: 'NONE'
-      }
+        selectedFilter: 'NONE',
+      },
     };
   }
 }

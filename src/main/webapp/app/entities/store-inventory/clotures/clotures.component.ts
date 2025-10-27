@@ -20,20 +20,19 @@ import { ToastModule } from 'primeng/toast';
 import { TableModule } from 'primeng/table';
 import { RippleModule } from 'primeng/ripple';
 import { TooltipModule } from 'primeng/tooltip';
+import { handleBlobForTauri } from '../../../shared/util/tauri-util';
+import { TauriPrinterService } from '../../../shared/services/tauri-printer.service';
 
 @Component({
   selector: 'jhi-clotures',
   templateUrl: './clotures.component.html',
-  imports: [WarehouseCommonModule, ButtonModule, RippleModule, TooltipModule, ToastModule, NgxSpinnerModule, TableModule, RouterModule]
+  imports: [WarehouseCommonModule, ButtonModule, RippleModule, TooltipModule, ToastModule, NgxSpinnerModule, TableModule, RouterModule],
 })
 export class CloturesComponent implements OnInit {
-  private spinner = inject(NgxSpinnerService);
-  private storeInventoryService = inject(StoreInventoryService);
-  protected router = inject(Router);
-  protected modalService = inject(NgbModal);
-
   readonly inventoryCategories = input<InventoryCategory[]>();
   readonly user = input<IUser | null>();
+  protected router = inject(Router);
+  protected modalService = inject(NgbModal);
   protected statuts: InventoryStatut[] = ['CLOSED'];
   protected page!: number;
   protected predicate!: string;
@@ -42,6 +41,9 @@ export class CloturesComponent implements OnInit {
   protected itemsPerPage = ITEMS_PER_PAGE;
   protected rowData: IStoreInventory[] = [];
   protected totalItems = 0;
+  private spinner = inject(NgxSpinnerService);
+  private storeInventoryService = inject(StoreInventoryService);
+  private readonly tauriPrinterService = inject(TauriPrinterService);
 
   ngOnInit(): void {
     this.onSearch();
@@ -53,11 +55,13 @@ export class CloturesComponent implements OnInit {
 
   exportPdf(storeInventory: IStoreInventory): void {
     this.spinner.show();
-    this.storeInventoryService.exportToPdf(this.buildPdfQuery(storeInventory.id)).subscribe(blod => {
-      // const fileName = DATE_FORMAT_DD_MM_YYYY_HH_MM_SS();
-      // saveAs(blod, 'inventaire_' + fileName);
-      const blobUrl = URL.createObjectURL(blod);
-      window.open(blobUrl);
+    this.storeInventoryService.exportToPdf(this.buildPdfQuery(storeInventory.id)).subscribe(blob => {
+      if (this.tauriPrinterService.isRunningInTauri()) {
+        handleBlobForTauri(blob, 'inventaire');
+      } else {
+        window.open(URL.createObjectURL(blob));
+      }
+
       this.spinner.hide();
     });
   }
@@ -65,7 +69,7 @@ export class CloturesComponent implements OnInit {
   protected openInfoDialog(message: string, infoClass: string): void {
     const modalRef = this.modalService.open(AlertInfoComponent, {
       backdrop: 'static',
-      centered: true
+      centered: true,
     });
     modalRef.componentInstance.message = message;
     modalRef.componentInstance.infoClass = infoClass;
@@ -76,7 +80,7 @@ export class CloturesComponent implements OnInit {
     this.page = page;
     if (navigate) {
       this.router.navigate(['/store-inventory'], {
-        queryParams: this.buildQuery(page)
+        queryParams: this.buildQuery(page),
       });
     }
     this.rowData = data || [];
@@ -92,7 +96,7 @@ export class CloturesComponent implements OnInit {
 
     this.storeInventoryService.query(this.buildQuery(page)).subscribe({
       next: (res: HttpResponse<IStoreInventory[]>) => this.onSuccess(res.body, res.headers, pageToLoad, !dontNavigate),
-      error: () => this.onError()
+      error: () => this.onError(),
     });
   }
 
@@ -103,7 +107,7 @@ export class CloturesComponent implements OnInit {
       size: this.itemsPerPage,
       userId: this.user()?.id,
       inventoryCategories: this.inventoryCategories()?.map(e => e.name),
-      statuts: this.statuts
+      statuts: this.statuts,
     };
   }
 
@@ -112,8 +116,8 @@ export class CloturesComponent implements OnInit {
       exportGroupBy: GROUPING_BY[0].name,
       filterRecord: {
         storeInventoryId,
-        selectedFilter: 'NONE'
-      }
+        selectedFilter: 'NONE',
+      },
     };
   }
 }

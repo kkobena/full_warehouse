@@ -39,6 +39,8 @@ import { debounceTime, Subject } from 'rxjs';
 import { ConfirmDialogComponent } from '../../shared/dialog/confirm-dialog/confirm-dialog.component';
 import { CustomerEditModalComponent } from './customer-edit-modal/customer-edit-modal.component';
 import { Card } from 'primeng/card';
+import { TauriPrinterService } from '../../shared/services/tauri-printer.service';
+import { handleBlobForTauri } from '../../shared/util/tauri-util';
 
 @Component({
   selector: 'jhi-sales',
@@ -105,7 +107,7 @@ export class SalesComponent implements OnInit, AfterViewInit {
   private readonly datePipe = inject(DatePipe);
   private searchSubject = new Subject<void>();
   private readonly confimDialog = viewChild.required<ConfirmDialogComponent>('confirmDialog');
-
+  private readonly tauriPrinterService = inject(TauriPrinterService);
   constructor() {
     this.translate.use('fr');
     this.translate.stream('primeng').subscribe(data => {
@@ -252,9 +254,12 @@ export class SalesComponent implements OnInit, AfterViewInit {
   }
 
   protected print(sales: ISales): void {
-    this.salesService.printInvoice(sales.saleId).subscribe(blod => {
-      const blobUrl = URL.createObjectURL(blod);
-      window.open(blobUrl);
+    this.salesService.printInvoice(sales.saleId).subscribe(blob => {
+      if (this.tauriPrinterService.isRunningInTauri()) {
+        handleBlobForTauri(blob, 'facture-client');
+      } else {
+        window.open(URL.createObjectURL(blob));
+      }
     });
   }
 
@@ -266,9 +271,7 @@ export class SalesComponent implements OnInit, AfterViewInit {
     }
   }
 
-  protected suggerer(sales: ISales): void {
-    console.log(sales);
-  }
+  protected suggerer(sales: ISales): void {}
 
   protected onSuccess(data: ISales[] | null, headers: HttpHeaders, page: number): void {
     this.totalItems = Number(headers.get('X-Total-Count'));

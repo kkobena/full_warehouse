@@ -6,40 +6,13 @@ export interface PrinterInfo {
 }
 
 @Injectable({
-  providedIn: 'root'
+  providedIn: 'root',
 })
 export class TauriPrinterService {
   private tauriInvoke: any = null;
 
   constructor() {
-   void this.initializeTauri();
-  }
-
-  /**
-   * Initialize Tauri invoke function
-   */
-  private async initializeTauri(): Promise<void> {
-    if (typeof window === 'undefined') {
-      return;
-    }
-
-    // Try global API first (withGlobalTauri: true)
-    // @ts-ignore
-    if (window.__TAURI__?.core?.invoke) {
-      // @ts-ignore
-      this.tauriInvoke = window.__TAURI__.core.invoke;
-      console.log('Tauri initialized via global API');
-      return;
-    }
-
-    // Fallback to modern import method
-    try {
-      const { invoke } = await import('@tauri-apps/api/core');
-      this.tauriInvoke = invoke;
-      console.log('Tauri initialized via ES module import');
-    } catch (error) {
-      console.log('Tauri not available:', error);
-    }
+    void this.initializeTauri();
   }
 
   /**
@@ -56,25 +29,6 @@ export class TauriPrinterService {
   }
 
   /**
-   * Get the Tauri invoke function
-   */
-  private async getInvoke(): Promise<any> {
-    if (this.tauriInvoke) {
-      return this.tauriInvoke;
-    }
-
-    // Wait a bit for initialization
-    await new Promise(resolve => setTimeout(resolve, 100));
-    await this.initializeTauri();
-
-    if (!this.tauriInvoke) {
-      throw new Error('Tauri is not available');
-    }
-
-    return this.tauriInvoke;
-  }
-
-  /**
    * Get list of available printers on the local machine
    */
   async getAvailablePrinters(): Promise<PrinterInfo[]> {
@@ -85,10 +39,8 @@ export class TauriPrinterService {
 
     try {
       const invoke = await this.getInvoke();
-      const printers = (await invoke('get_printers')) as PrinterInfo[];
-      return printers;
+      return (await invoke('get_printers')) as PrinterInfo[];
     } catch (error) {
-
       return [];
     }
   }
@@ -125,7 +77,7 @@ export class TauriPrinterService {
 
       await invoke('print_image', {
         imageData: imageBase64,
-        printerName: printerName
+        printerName: printerName,
       });
 
       console.log(`Image sent to printer: ${printerName}`);
@@ -168,14 +120,6 @@ export class TauriPrinterService {
     console.log(`Successfully printed ${pages.length} page(s)`);
   }
 
-
-  /**
-   * Utility function to add delay
-   */
-  private delay(ms: number): Promise<void> {
-    return new Promise(resolve => setTimeout(resolve, ms));
-  }
-
   /**
    * Print receipt - automatically detects environment and prints accordingly
    * @param pages Array of base64 encoded PNG images
@@ -212,7 +156,7 @@ export class TauriPrinterService {
 
       await invoke('print_escpos', {
         escposData: escposData,
-        printerName: printerName
+        printerName: printerName,
       });
 
       console.log(`ESC/POS receipt sent to printer: ${printerName}`);
@@ -220,6 +164,70 @@ export class TauriPrinterService {
       console.error('Error printing ESC/POS receipt:', error);
       throw error;
     }
+  }
+
+  /**
+   * Print ESC/POS receipt from ArrayBuffer data
+   * Converts ArrayBuffer to base64 and sends to printer
+   * @param escposBuffer ArrayBuffer containing ESC/POS commands from backend
+   * @param printerName Name of the printer (optional, uses default if not specified)
+   */
+  async printEscPosFromBuffer(escposBuffer: ArrayBuffer, printerName?: string): Promise<void> {
+    const base64Data = this.arrayBufferToBase64(escposBuffer);
+    await this.printEscPos(base64Data, printerName);
+  }
+
+  /**
+   * Initialize Tauri invoke function
+   */
+  private async initializeTauri(): Promise<void> {
+    if (typeof window === 'undefined') {
+      return;
+    }
+
+    // Try global API first (withGlobalTauri: true)
+    // @ts-ignore
+    if (window.__TAURI__?.core?.invoke) {
+      // @ts-ignore
+      this.tauriInvoke = window.__TAURI__.core.invoke;
+      console.log('Tauri initialized via global API');
+      return;
+    }
+
+    // Fallback to modern import method
+    try {
+      const { invoke } = await import('@tauri-apps/api/core');
+      this.tauriInvoke = invoke;
+      console.log('Tauri initialized via ES module import');
+    } catch (error) {
+      console.log('Tauri not available:', error);
+    }
+  }
+
+  /**
+   * Get the Tauri invoke function
+   */
+  private async getInvoke(): Promise<any> {
+    if (this.tauriInvoke) {
+      return this.tauriInvoke;
+    }
+
+    // Wait a bit for initialization
+    await new Promise(resolve => setTimeout(resolve, 100));
+    await this.initializeTauri();
+
+    if (!this.tauriInvoke) {
+      throw new Error('Tauri is not available');
+    }
+
+    return this.tauriInvoke;
+  }
+
+  /**
+   * Utility function to add delay
+   */
+  private delay(ms: number): Promise<void> {
+    return new Promise(resolve => setTimeout(resolve, ms));
   }
 
   /**
@@ -234,16 +242,5 @@ export class TauriPrinterService {
       binary += String.fromCharCode(bytes[i]);
     }
     return window.btoa(binary);
-  }
-
-  /**
-   * Print ESC/POS receipt from ArrayBuffer data
-   * Converts ArrayBuffer to base64 and sends to printer
-   * @param escposBuffer ArrayBuffer containing ESC/POS commands from backend
-   * @param printerName Name of the printer (optional, uses default if not specified)
-   */
-  async printEscPosFromBuffer(escposBuffer: ArrayBuffer, printerName?: string): Promise<void> {
-    const base64Data = this.arrayBufferToBase64(escposBuffer);
-    await this.printEscPos(base64Data, printerName);
   }
 }

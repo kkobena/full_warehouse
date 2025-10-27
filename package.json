@@ -34,7 +34,6 @@
     "tauri:build:debug": "npm run webapp:build:tauri && tauri build --debug",
     "tauri:build:fast": "tauri build"
   },
-
   "config": {
     "backend_port": "8080",
     "default_environment": "prod",
@@ -61,6 +60,9 @@
     "@popperjs/core": "2.11.8",
     "@primeuix/themes": "^1.2.5",
     "@tauri-apps/api": "^2.9.0",
+    "@tauri-apps/plugin-dialog": "^2.4.2",
+    "@tauri-apps/plugin-fs": "^2.4.4",
+    "@tauri-apps/plugin-shell": "^2.3.3",
     "ag-grid-angular": "^34.3.0",
     "ag-grid-community": "^34.3.0",
     "bootstrap": "~5.3.8",

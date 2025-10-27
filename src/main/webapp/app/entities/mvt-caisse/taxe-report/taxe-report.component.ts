@@ -6,7 +6,6 @@ import { PaginatorModule } from 'primeng/paginator';
 import { ToolbarModule } from 'primeng/toolbar';
 import { TooltipModule } from 'primeng/tooltip';
 import { TypeFinancialTransaction } from '../../cash-register/model/cash-register.model';
-import { ConfirmationService, MessageService } from 'primeng/api';
 import { TranslateService } from '@ngx-translate/core';
 import { HttpResponse } from '@angular/common/http';
 import { TaxeReportService } from './taxe-report.service';
@@ -20,7 +19,6 @@ import { ChartModule } from 'primeng/chart';
 import { DoughnutChart } from '../../../shared/model/doughnut-chart.model';
 import { CardModule } from 'primeng/card';
 import { MvtParamServiceService } from '../mvt-param-service.service';
-import { ToastModule } from 'primeng/toast';
 import { FormsModule } from '@angular/forms';
 import { PrimeNG } from 'primeng/config';
 import { FloatLabel } from 'primeng/floatlabel';
@@ -30,6 +28,8 @@ import { ChartColorsUtilsService } from '../../../shared/util/chart-colors-utils
 import { WarehouseCommonModule } from '../../../shared/warehouse-common/warehouse-common.module';
 import { ToastAlertComponent } from '../../../shared/toast-alert/toast-alert.component';
 import { finalize } from 'rxjs/operators';
+import { TauriPrinterService } from '../../../shared/services/tauri-printer.service';
+import { handleBlobForTauri } from '../../../shared/util/tauri-util';
 
 @Component({
   selector: 'jhi-taxe-report',
@@ -49,10 +49,10 @@ import { finalize } from 'rxjs/operators';
     FloatLabel,
     DatePickerModule,
     Select,
-    ToastAlertComponent
+    ToastAlertComponent,
   ],
   templateUrl: './taxe-report.component.html',
-  styleUrls: ['./taxe-report.component.scss']
+  styleUrls: ['./taxe-report.component.scss'],
 })
 export class TaxeReportComponent implements OnInit, AfterViewInit {
   protected fromDate: Date | undefined;
@@ -71,6 +71,7 @@ export class TaxeReportComponent implements OnInit, AfterViewInit {
   private readonly mvtParamServiceService = inject(MvtParamServiceService);
   private readonly chartColorsUtilsService = inject(ChartColorsUtilsService);
   private readonly alert = viewChild.required<ToastAlertComponent>('alert');
+  private readonly tauriPrinterService = inject(TauriPrinterService);
   ngOnInit(): void {
     const params = this.mvtParamServiceService.mvtCaisseParam();
     if (params) {
@@ -94,11 +95,11 @@ export class TaxeReportComponent implements OnInit, AfterViewInit {
     this.loading = true;
     this.taxeReportService
       .query({
-        ...this.buildParams()
+        ...this.buildParams(),
       })
       .subscribe({
         next: (res: HttpResponse<TaxeWrapper>) => this.onSuccess(res.body),
-        error: () => this.onError()
+        error: () => this.onError(),
       });
     this.updateParam();
   }
@@ -110,16 +111,20 @@ export class TaxeReportComponent implements OnInit, AfterViewInit {
   onPrint(): void {
     this.taxeReportService
       .exportToPdf({
-        ...this.buildParams()
-      }).pipe(finalize(() => this.loading = false))
+        ...this.buildParams(),
+      })
+      .pipe(finalize(() => (this.loading = false)))
       .subscribe({
-        next(blod) {
-          const blobUrl = URL.createObjectURL(blod);
-          window.open(blobUrl);
+        next: blob => {
+          if (this.tauriPrinterService.isRunningInTauri()) {
+            handleBlobForTauri(blob, 'rapport_tva');
+          } else {
+            window.open(URL.createObjectURL(blob));
+          }
         },
         error: () => {
-          this.alert().showError( 'Une erreur est survenue lors de l\'export PDF');
-        }
+          this.alert().showError("Une erreur est survenue lors de l'export PDF");
+        },
       });
     this.updateParam();
   }
@@ -144,9 +149,9 @@ export class TaxeReportComponent implements OnInit, AfterViewInit {
           {
             data: this.taxeReportWrapper?.chart.data,
             backgroundColor: this.chartColorsUtilsService.colors().slice(0, this.taxeReportWrapper?.chart.labeles.length),
-            hoverBackgroundColor: this.chartColorsUtilsService.hoverColors().slice(0, this.taxeReportWrapper?.chart.labeles.length)
-          }
-        ]
+            hoverBackgroundColor: this.chartColorsUtilsService.hoverColors().slice(0, this.taxeReportWrapper?.chart.labeles.length),
+          },
+        ],
       },
       options: {
         maintainAspectRatio: false,
@@ -154,11 +159,11 @@ export class TaxeReportComponent implements OnInit, AfterViewInit {
         plugins: {
           legend: {
             labels: {
-              color: this.chartColorsUtilsService.textColor()
-            }
-          }
-        }
-      }
+              color: this.chartColorsUtilsService.textColor(),
+            },
+          },
+        },
+      },
     };
   }
   private buildParams(): any {
@@ -167,7 +172,7 @@ export class TaxeReportComponent implements OnInit, AfterViewInit {
       toDate: DATE_FORMAT_ISO_DATE(this.toDate),
       typeVentes: getTypeVentes(this.selectedVente),
       groupBy: this.groupBy,
-      statuts: ['CLOSED']
+      statuts: ['CLOSED'],
     };
   }
 
@@ -176,7 +181,7 @@ export class TaxeReportComponent implements OnInit, AfterViewInit {
       fromDate: this.fromDate,
       toDate: this.toDate,
       selectedVente: this.selectedVente,
-      groupByTva: this.groupBy
+      groupByTva: this.groupBy,
     };
     this.mvtParamServiceService.setMvtCaisseParam(param);
   }

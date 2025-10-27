@@ -32,6 +32,8 @@ import { saveAs } from 'file-saver';
 import { extractFileName } from '../../../shared/util/file-utils';
 import { ToastAlertComponent } from '../../../shared/toast-alert/toast-alert.component';
 import { finalize } from 'rxjs/operators';
+import { handleBlobForTauri } from '../../../shared/util/tauri-util';
+import { TauriPrinterService } from '../../../shared/services/tauri-printer.service';
 
 @Component({
   selector: 'jhi-tableau-pharmacien',
@@ -55,7 +57,7 @@ import { finalize } from 'rxjs/operators';
     ToastAlertComponent,
   ],
   templateUrl: './tableau-pharmacien.component.html',
-  styleUrls: ['./tableau-pharmacien.component.scss']
+  styleUrls: ['./tableau-pharmacien.component.scss'],
 })
 export class TableauPharmacienComponent implements OnInit, AfterViewInit {
   protected exportMenus: MenuItem[];
@@ -77,7 +79,7 @@ export class TableauPharmacienComponent implements OnInit, AfterViewInit {
   protected showGrossisteChart = false;
   private primeNGConfig = inject(PrimeNG);
   private readonly translate = inject(TranslateService);
-
+  private readonly tauriPrinterService = inject(TauriPrinterService);
   private tableauPharmacienService = inject(TableauPharmacienService);
   private mvtParamServiceService = inject(MvtParamServiceService);
   private chartColorsUtilsService = inject(ChartColorsUtilsService);
@@ -180,7 +182,11 @@ export class TableauPharmacienComponent implements OnInit, AfterViewInit {
       .subscribe({
         next: resp => {
           const blob = resp.body;
-          saveAs(blob, extractFileName(resp.headers.get('content-disposition') || ''));
+          if (this.tauriPrinterService.isRunningInTauri()) {
+            handleBlobForTauri(blob, 'tableau-pharmacien');
+          } else {
+            saveAs(blob, extractFileName(resp.headers.get('content-disposition') || ''));
+          }
         },
         error: () => {
           this.alert().showError("Une erreur est survenue lors de l'export Excel");

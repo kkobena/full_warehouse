@@ -15,12 +15,14 @@ import { WarehouseCommonModule } from '../../../shared/warehouse-common/warehous
 import { ButtonModule } from 'primeng/button';
 import { TableModule } from 'primeng/table';
 import { TooltipModule } from 'primeng/tooltip';
+import { TauriPrinterService } from '../../../shared/services/tauri-printer.service';
+import { handleBlobForTauri } from '../../../shared/util/tauri-util';
 
 @Component({
   selector: 'jhi-list-ajustement',
   templateUrl: './list-ajustement.component.html',
   styleUrl: './list-ajustement.component.scss',
-  imports: [WarehouseCommonModule, ButtonModule, TableModule, TooltipModule]
+  imports: [WarehouseCommonModule, ButtonModule, TableModule, TooltipModule],
 })
 export class ListAjustementComponent implements OnInit {
   translate = inject(TranslateService);
@@ -37,8 +39,7 @@ export class ListAjustementComponent implements OnInit {
   protected ngbPaginationPage = 1;
   protected ajustements?: IAjustement[];
   private spinner = inject(NgxSpinnerService);
-
-
+  private readonly tauriPrinterService = inject(TauriPrinterService);
 
   ngOnInit(): void {
     this.onSearch();
@@ -59,14 +60,15 @@ export class ListAjustementComponent implements OnInit {
   exportPdf(delivery: IDelivery): void {
     this.spinner.show();
     this.ajustementService.exportToPdf(delivery.id).subscribe({
-      next: blod => {
+      next: blob => {
         this.spinner.hide();
-        const blobUrl = URL.createObjectURL(blod);
-        window.open(blobUrl);
-        //  saveAs(new Blob([blod], { type: 'pdf' }), `${delivery.id}.pdf`);
-        //   saveAs(blod);
+        if (this.tauriPrinterService.isRunningInTauri()) {
+          handleBlobForTauri(blob, 'ajustement');
+        } else {
+          window.open(URL.createObjectURL(blob));
+        }
       },
-      error: () => this.spinner.hide()
+      error: () => this.spinner.hide(),
     });
   }
 
@@ -75,7 +77,7 @@ export class ListAjustementComponent implements OnInit {
     this.page = page;
     if (navigate) {
       this.router.navigate(['/ajustement'], {
-        queryParams: this.buildQuery(page)
+        queryParams: this.buildQuery(page),
       });
     }
     this.rowData = data || [];
@@ -96,7 +98,7 @@ export class ListAjustementComponent implements OnInit {
       toDate: params.toDate ? moment(params.toDate).format('yyyy-MM-DD') : null,
       userId: params.userId,
       serach: params.search,
-      statut: this.ajustementStatut
+      statut: this.ajustementStatut,
     };
   }
 
@@ -105,7 +107,7 @@ export class ListAjustementComponent implements OnInit {
 
     this.ajustementService.queryAjustement(this.buildQuery(page)).subscribe({
       next: (res: HttpResponse<IAjust[]>) => this.onSuccess(res.body, res.headers, pageToLoad, !dontNavigate),
-      error: () => this.onError()
+      error: () => this.onError(),
     });
   }
 }

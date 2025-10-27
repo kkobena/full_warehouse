@@ -5,7 +5,7 @@
   <p-toolbar>
     <div class="p-toolbar-group-left p-md-7">
       <p-iconfield>
-        <p-inputicon styleClass="pi pi-search" />
+        <p-inputicon class="pi pi-search" />
         <input (keyup.enter)="search($event)" pInputText placeholder="Taper pour rechercher"
                style="width: 98%" type="text" />
       </p-iconfield>
@@ -13,7 +13,7 @@
     <div class="p-toolbar-group-right">
       <p-button
         (click)="showFileDialog()"
-        class="p-mr-2"
+        class="mr-2"
         icon="pi pi-upload"
         label="Importer"
         raised="true"
@@ -33,26 +33,26 @@
       [rows]="itemsPerPage"
       [totalRecords]="totalItems"
       [value]="entites"
+      class="pharma-table"
       dataKey="id"
       selectionMode="single"
       stripedRows="true"
-      class="pharma-table"
     >
       <ng-template #header>
         <tr class="pharma-table-head">
-          <th scope="col"><span>Libellé</span></th>
-          <th scope="col"><span>Code postale</span></th>
-          <!-- <th scope="col"><span >Email</span> </th> -->
-          <th scope="col"><span>Téléphone</span></th>
-          <th scope="col"><span>Numéro Faxe</span></th>
-          <th scope="col"><span>Ordre d'affichage</span></th>
-          <th scope="col"><span>Url PharmaMl</span></th>
-          <th scope="col"><span>Code officine PharmaMl</span></th>
-          <th scope="col"><span>Code Recepteur PharmaMl</span></th>
-          <th scope="col"></th>
+          <th><span>Libellé</span></th>
+          <th><span>Code postale</span></th>
+          <!-- <th><span >Email</span> </th> -->
+          <th><span>Téléphone</span></th>
+          <th><span>Numéro Faxe</span></th>
+          <th><span>Ordre d'affichage</span></th>
+          <th><span>Url PharmaMl</span></th>
+          <th><span>Code officine PharmaMl</span></th>
+          <th><span>Code Recepteur PharmaMl</span></th>
+          <th style="width:10%;"></th>
         </tr>
       </ng-template>
-      <ng-template let-columns="columns" let-elRow #body>
+      <ng-template #body let-columns="columns" let-elRow>
         <tr [pEditableRow]="elRow" [pSelectableRow]="elRow">
           <td>
             <div class="pharma-entity-name">{{ elRow.libelle }}</div>
@@ -66,23 +66,22 @@
           <td>{{ elRow.codeOfficePharmaMl }}</td>
           <td>{{ elRow.codeRecepteurPharmaMl }}</td>
 
-          <td style="text-align: center">
+          <td style="text-align: right">
             <p-button
               (click)="onEdit(elRow)"
-              class="mr-1"
+              [text]="true"
               icon="pi pi-pencil"
+              pTooltip="Editer"
               rounded="true"
               severity="success"
-              pTooltip="Editer"
-              [text]="true"
             ></p-button>
             <p-button
               (click)="delete(elRow)"
-              icon="pi pi-trash"
-              severity="danger"
               [rounded]="true"
-              pTooltip="Supprimer"
               [text]="true"
+              icon="pi pi-trash"
+              pTooltip="Supprimer"
+              severity="danger"
               type="button"
             ></p-button>
           </td>
@@ -96,4 +95,4 @@
   }
 </p-panel>
 
-<jhi-spinner #spinner ></jhi-spinner>
+<jhi-spinner #spinner></jhi-spinner>

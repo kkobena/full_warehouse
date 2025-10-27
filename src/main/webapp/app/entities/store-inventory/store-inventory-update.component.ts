@@ -47,6 +47,8 @@ import { Toolbar } from 'primeng/toolbar';
 import { IconField } from 'primeng/iconfield';
 import { InputIcon } from 'primeng/inputicon';
 import { AG_GRID_LOCALE_FR } from '@ag-grid-community/locale';
+import { TauriPrinterService } from '../../shared/services/tauri-printer.service';
+import { handleBlobForTauri } from '../../shared/util/tauri-util';
 
 ModuleRegistry.registerModules([AllCommunityModule, ClientSideRowModelModule]);
 
@@ -110,17 +112,7 @@ export class StoreInventoryUpdateComponent implements OnInit {
   protected search?: string;
   protected ngbPaginationPage = 1;
   protected readonly showFilterCombox: boolean = true;
-  /*   protected readonly theme = themeAlpine.withParams({
-       /!* Low spacing = very compact *!/ spacing: 2,
-       /!* Changes the color of the grid text *!/
-       foregroundColor: 'rgb(14, 68, 145)',
-       /!* Changes the color of the grid background *!/
-       backgroundColor: 'rgb(241, 247, 255)',
-       /!* Changes the header color of the top row *!/
-       headerBackgroundColor: 'rgb(228, 237, 250)',
-       /!* Changes the hover color of the row*!/
-       rowHoverColor: 'rgb(216, 226, 255)',
-    }); */
+
   protected storeInventoryLineService = inject(StoreInventoryLineService);
   protected activatedRoute = inject(ActivatedRoute);
   protected rayonService = inject(RayonService);
@@ -132,7 +124,7 @@ export class StoreInventoryUpdateComponent implements OnInit {
   private spinner = inject(NgxSpinnerService);
   private confirmationService = inject(ConfirmationService);
   private messageService = inject(MessageService);
-
+  private readonly tauriPrinterService = inject(TauriPrinterService);
   constructor() {
     this.columnDefs = [
       {
@@ -322,11 +314,13 @@ export class StoreInventoryUpdateComponent implements OnInit {
   exportPdf(): void {
     this.spinner.show();
 
-    this.storeInventoryService.exportToPdf(this.buildPdfQuery()).subscribe(blod => {
-      // const fileName = DATE_FORMAT_DD_MM_YYYY_HH_MM_SS();
-      // saveAs(blod, 'inventaire_' + fileName);
-      const blobUrl = URL.createObjectURL(blod);
-      window.open(blobUrl);
+    this.storeInventoryService.exportToPdf(this.buildPdfQuery()).subscribe(blob => {
+      if (this.tauriPrinterService.isRunningInTauri()) {
+        handleBlobForTauri(blob, 'inventaire');
+      } else {
+        window.open(URL.createObjectURL(blob));
+      }
+
       this.spinner.hide();
     });
   }

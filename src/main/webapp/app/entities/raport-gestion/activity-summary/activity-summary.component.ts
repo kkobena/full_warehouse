@@ -11,7 +11,6 @@ import { FloatLabel } from 'primeng/floatlabel';
 import { FormsModule } from '@angular/forms';
 import { TranslateService } from '@ngx-translate/core';
 import { PrimeNG } from 'primeng/config';
-import { Subscription } from 'rxjs';
 import { DATE_FORMAT_ISO_DATE } from '../../../shared/util/warehouse-util';
 import { Button } from 'primeng/button';
 import { IconField } from 'primeng/iconfield';
@@ -19,6 +18,8 @@ import { InputIcon } from 'primeng/inputicon';
 import { InputText } from 'primeng/inputtext';
 import { TableModule } from 'primeng/table';
 import { Card } from 'primeng/card';
+import { TauriPrinterService } from '../../../shared/services/tauri-printer.service';
+import { handleBlobForTauri } from '../../../shared/util/tauri-util';
 
 @Component({
   selector: 'jhi-activity-summary',
@@ -36,16 +37,16 @@ export class ActivitySummaryComponent {
   protected toDate: Date | null = new Date();
   protected searchAchat: string | null = null;
   protected searchReglement: string | null = null;
-  private readonly translate = inject(TranslateService);
-  private readonly primeNGConfig = inject(PrimeNG);
-  private readonly activitySummaryService = inject(ActivitySummaryService);
-
   // protected scrollHeight = 'calc(100vh - 350px)';
   protected loadingCa = signal(false);
   protected loadingAchat = signal(false);
   protected loadingReglement = signal(false);
   protected loadingAchatTp = signal(false);
   protected loadingBtn = computed(() => this.loadingCa() || this.loadingAchat() || this.loadingReglement() || this.loadingAchatTp());
+  private readonly translate = inject(TranslateService);
+  private readonly primeNGConfig = inject(PrimeNG);
+  private readonly activitySummaryService = inject(ActivitySummaryService);
+  private readonly tauriPrinterService = inject(TauriPrinterService);
 
   constructor() {
     this.translate.use('fr');
@@ -64,6 +65,29 @@ export class ActivitySummaryComponent {
     this.getAchatTiersPayant(query);
   }
 
+  protected printAll(): void {
+    this.loadingPdf = true;
+    this.activitySummaryService.onPrintPdf(this.buildRequest()).subscribe({
+      next: blob => {
+        this.loadingPdf = false;
+        if (this.tauriPrinterService.isRunningInTauri()) {
+          handleBlobForTauri(blob, 'rapport-activite');
+        } else {
+          window.open(URL.createObjectURL(blob));
+        }
+      },
+      error: () => (this.loadingPdf = false),
+    });
+  }
+
+  protected getRecetteTotal(): number {
+    return this.chiffreAffaire?.recettes?.reduce((acc, val) => acc + val.montantReel, 0) || 0;
+  }
+
+  protected getTotalMouvementCaisse(): number {
+    return this.chiffreAffaire?.mouvementCaisses?.reduce((acc, val) => acc + val.montant, 0) || 0;
+  }
+
   private queryCa(query: any): void {
     this.loadingCa.set(true);
     this.activitySummaryService.queryCa(query).subscribe({
@@ -71,19 +95,7 @@ export class ActivitySummaryComponent {
         this.chiffreAffaire = res.body;
         this.loadingCa.set(false);
       },
-      error: err => this.loadingCa.set(false)
-    });
-  }
-
-  protected printAll(): void {
-    this.loadingPdf = true;
-    this.activitySummaryService.onPrintPdf(this.buildRequest()).subscribe({
-      next: blod => {
-        this.loadingPdf = false;
-        const blobUrl = URL.createObjectURL(blod);
-        window.open(blobUrl);
-      },
-      error: () => (this.loadingPdf = false)
+      error: err => this.loadingCa.set(false),
     });
   }
 
@@ -94,7 +106,7 @@ export class ActivitySummaryComponent {
         this.groupeFournisseurAchats = res.body;
         this.loadingAchat.set(false);
       },
-      error: err => this.loadingAchat.set(false)
+      error: err => this.loadingAchat.set(false),
     });
   }
 
@@ -105,7 +117,7 @@ export class ActivitySummaryComponent {
         this.reglementTiersPayants = res.body;
         this.loadingReglement.set(false);
       },
-      error: err => this.loadingReglement.set(false)
+      error: err => this.loadingReglement.set(false),
     });
   }
 
@@ -116,7 +128,7 @@ export class ActivitySummaryComponent {
         this.achatTiersPayant = res.body;
         this.loadingAchatTp.set(false);
       },
-      error: err => this.loadingAchatTp.set(false)
+      error: err => this.loadingAchatTp.set(false),
     });
   }
 
@@ -127,15 +139,7 @@ export class ActivitySummaryComponent {
       searchAchat: this.searchAchat,
       searchReglement: this.searchReglement,
       page: 0,
-      size: 99999
+      size: 99999,
     };
-  }
-
-  protected getRecetteTotal(): number {
-    return this.chiffreAffaire?.recettes?.reduce((acc, val) => acc + val.montantReel, 0) || 0;
-  }
-
-  protected getTotalMouvementCaisse(): number {
-    return this.chiffreAffaire?.mouvementCaisses?.reduce((acc, val) => acc + val.montant, 0) || 0;
   }
 }

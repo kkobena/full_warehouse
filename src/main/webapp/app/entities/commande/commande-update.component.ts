@@ -58,6 +58,8 @@ import { FileResponseModalComponent } from './file-response-modal/file-response-
 import { SpinnerComponent } from '../../shared/spinner/spinner.component';
 import { CommandeId } from '../../shared/model/abstract-commande.model';
 import { Card } from 'primeng/card';
+import { TauriPrinterService } from '../../shared/services/tauri-printer.service';
+import { handleBlobForTauri } from '../../shared/util/tauri-util';
 
 @Component({
   selector: 'jhi-commande-update',
@@ -88,8 +90,8 @@ import { Card } from 'primeng/card';
     ConfirmDialogComponent,
     ToastAlertComponent,
     SpinnerComponent,
-    Card
-  ]
+    Card,
+  ],
 })
 export class CommandeUpdateComponent implements OnInit, AfterViewInit {
   protected readonly RECEIVED = OrderStatut.RECEIVED;
@@ -131,56 +133,42 @@ export class CommandeUpdateComponent implements OnInit, AfterViewInit {
   private readonly activatedRoute = inject(ActivatedRoute);
   private readonly confimDialog = viewChild.required<ConfirmDialogComponent>('confirmDialog');
   private readonly alert = viewChild.required<ToastAlertComponent>('alert');
-
+  private readonly tauriPrinterService = inject(TauriPrinterService);
   constructor() {
     this.selectedEl = [];
     this.filtres = [
-      { label: 'Prix d\'achat differents', value: 'NOT_EQUAL' },
+      { label: "Prix d'achat differents", value: 'NOT_EQUAL' },
       { label: 'Code cip  à mettre à jour', value: 'PROVISOL_CIP' },
-      { label: 'Tous', value: 'ALL' }
+      { label: 'Tous', value: 'ALL' },
     ];
     this.commandebuttons = [
       {
         label: 'IMPORTER REPONSE',
         icon: 'pi pi-upload',
-        command: () => (this.fileDialog = true)
+        command: () => (this.fileDialog = true),
       },
       {
         label: 'EXTRANET',
-        icon: 'pi pi-wifi'
+        icon: 'pi pi-wifi',
       },
       {
         label: 'PHARMA-ML',
-        icon: 'pi pi-desktop'
-      }
+        icon: 'pi pi-desktop',
+      },
     ];
 
     this.exportbuttons = [
       {
         label: 'PDF',
         icon: 'pi pi-file-pdf',
-        command: () => this.exportPdf()
+        command: () => this.exportPdf(),
       },
       {
         label: 'CSV',
         icon: 'pi pi-file-excel',
-        command: () => this.exportCSV()
-      }
+        command: () => this.exportCSV(),
+      },
     ];
-  }
-
-  protected onShowLots(orderLine: IOrderLine): void {
-    const modalRef = this.modalService.open(OrderLineLotsComponent, {
-      backdrop: 'static',
-      size: 'lg'
-    });
-    modalRef.componentInstance.lots = orderLine.lots;
-    modalRef.componentInstance.produitLibelle = orderLine?.produitLibelle;
-  }
-
-  protected onEditProduit(produitId: number): void {
-    this.commandCommonService.updateCommand(this.commande);
-    this.router.navigate(['produit', produitId, 'edit']);
   }
 
   ngOnInit(): void {
@@ -201,6 +189,35 @@ export class CommandeUpdateComponent implements OnInit, AfterViewInit {
     });
     this.loadFournisseurs();
     this.isLotActif();
+  }
+
+  openDialog(message: string): void {
+    const modalRef = this.modalService.open(AlertInfoComponent, { backdrop: 'static' });
+    modalRef.componentInstance.message = message;
+  }
+
+  ngAfterViewInit(): void {
+    if (this.commande && this.commande.id) {
+      this.focusPrdoduitBox();
+    } else {
+      setTimeout(() => {
+        this.fournisseurBox()?.inputEL?.nativeElement?.focus();
+      }, 100);
+    }
+  }
+
+  protected onShowLots(orderLine: IOrderLine): void {
+    const modalRef = this.modalService.open(OrderLineLotsComponent, {
+      backdrop: 'static',
+      size: 'lg',
+    });
+    modalRef.componentInstance.lots = orderLine.lots;
+    modalRef.componentInstance.produitLibelle = orderLine?.produitLibelle;
+  }
+
+  protected onEditProduit(produitId: number): void {
+    this.commandCommonService.updateCommand(this.commande);
+    this.router.navigate(['produit', produitId, 'edit']);
   }
 
   protected filtreFournisseur(event: any): void {
@@ -232,7 +249,7 @@ export class CommandeUpdateComponent implements OnInit, AfterViewInit {
       if (this.selectedProvider) {
         if (this.commande?.id !== undefined) {
           this.subscribeToSaveOrderLineResponse(
-            this.commandeService.createOrUpdateOrderLine(this.createOrderLine(this.produitSelected, qytMvt))
+            this.commandeService.createOrUpdateOrderLine(this.createOrderLine(this.produitSelected, qytMvt)),
           );
         } else {
           this.subscribeToSaveOrderLineResponse(this.commandeService.create(this.createCommande(this.produitSelected, qytMvt)));
@@ -313,12 +330,14 @@ export class CommandeUpdateComponent implements OnInit, AfterViewInit {
   }
 
   protected exportPdf(): void {
-    this.commandeService.exportToPdf(this.commande.commandeId).subscribe(blod => {
-      const blobUrl = URL.createObjectURL(blod);
-      window.open(blobUrl);
+    this.commandeService.exportToPdf(this.commande.commandeId).subscribe(blob => {
+      if (this.tauriPrinterService.isRunningInTauri()) {
+        handleBlobForTauri(blob, 'commande_en_cours');
+      } else {
+        window.open(URL.createObjectURL(blob));
+      }
     });
   }
-
 
   protected onCreateBon(): void {
     showCommonModal(
@@ -326,27 +345,25 @@ export class CommandeUpdateComponent implements OnInit, AfterViewInit {
       DeliveryModalComponent,
       {
         commande: this.commande,
-        header: 'CREATION DU BON DE LIVRAISON'
+        header: 'CREATION DU BON DE LIVRAISON',
       },
-      (commande) => {
+      commande => {
         if (commande) {
           this.reloadCommande();
         }
       },
-      'lg'
+      'lg',
     );
-
-  }
-
-  private reloadCommande(): void {
-    this.commandeService.find(this.commande.commandeId).subscribe(res => {
-      this.commande = res.body;
-      this.orderLines = this.commande.orderLines;
-    });
   }
 
   protected exportCSV(): void {
-    this.commandeService.exportToCsv(this.commande.commandeId).subscribe(blod => saveAs(blod));
+    this.commandeService.exportToCsv(this.commande.commandeId).subscribe(blob => {
+      if (this.tauriPrinterService.isRunningInTauri()) {
+        handleBlobForTauri(blob, 'commande_en_cours', 'csv');
+      } else {
+        saveAs(blob);
+      }
+    });
   }
 
   protected searchFn(event: any): void {
@@ -370,16 +387,6 @@ export class CommandeUpdateComponent implements OnInit, AfterViewInit {
     if (this.produitbox()) {
       this.focusAndSelectElement(this.produitbox()?.inputEL.nativeElement, 50);
     }
-
-  }
-
-  private focusAndSelectElement(element: any, delay: number): void {
-    setTimeout(() => {
-      if (element) {
-        element.focus();
-        element.select();
-      }
-    }, delay);
   }
 
   protected loadProduits(): void {
@@ -388,7 +395,7 @@ export class CommandeUpdateComponent implements OnInit, AfterViewInit {
         page: 0,
         size: 5,
         withdetail: false,
-        search: this.searchValue
+        search: this.searchValue,
       })
       .subscribe((res: HttpResponse<any[]>) => this.onProduitSuccess(res.body));
   }
@@ -398,7 +405,7 @@ export class CommandeUpdateComponent implements OnInit, AfterViewInit {
       commandeId: this.commande.id,
       search: this.search,
       filterCommaneEnCours: this.selectedFilter,
-      orderBy: this.tris
+      orderBy: this.tris,
     };
     this.commandeService.filterCommandeLines(query).subscribe(res => {
       this.orderLines = res.body!;
@@ -409,22 +416,17 @@ export class CommandeUpdateComponent implements OnInit, AfterViewInit {
     return orderLine.quantityRequested === 0;
   }
 
-  openDialog(message: string): void {
-    const modalRef = this.modalService.open(AlertInfoComponent, { backdrop: 'static' });
-    modalRef.componentInstance.message = message;
-  }
-
   protected loadFournisseurs(search?: string): void {
     const query: string = search || '';
     this.fournisseurService
       .query({
         page: 0,
         size: 9999,
-        search: query
+        search: query,
       })
       .subscribe({
         next: (res: HttpResponse<IFournisseur[]>) => (this.fournisseurs = res.body!),
-        error: () => this.onError()
+        error: () => this.onError(),
       });
   }
 
@@ -440,27 +442,36 @@ export class CommandeUpdateComponent implements OnInit, AfterViewInit {
   }
 
   protected confirmDeleteAll(): void {
-    this.confimDialog().onConfirm(() => this.deleteSelectedOrderLine(), 'Suppression', 'Voullez-vous supprimer toutes les lignes ?', null, () => this.updateProduitQtyBox());
-
+    this.confimDialog().onConfirm(
+      () => this.deleteSelectedOrderLine(),
+      'Suppression',
+      'Voullez-vous supprimer toutes les lignes ?',
+      null,
+      () => this.updateProduitQtyBox(),
+    );
   }
 
   protected confirmDeleteItem(item: IOrderLine): void {
-    this.confimDialog().onConfirm(() => this.onDeleteOrderLineById(item), 'Suppression', 'Voullez-vous supprimer de la commande  ce produit ?', null, () => this.updateProduitQtyBox());
+    this.confimDialog().onConfirm(
+      () => this.onDeleteOrderLineById(item),
+      'Suppression',
+      'Voullez-vous supprimer de la commande  ce produit ?',
+      null,
+      () => this.updateProduitQtyBox(),
+    );
   }
-
 
   protected cancel(): void {
     this.onImporterReponseCommande();
   }
 
   protected onImporterReponseCommande(): void {
-
     showCommonModal(
       this.modalService,
       FileResponseModalComponent,
       {
         commandeSelected: this.commande,
-        header: 'IMPORTER REPONSE'
+        header: 'IMPORTER REPONSE',
       },
       (responseCommande: IResponseCommande) => {
         if (responseCommande) {
@@ -468,16 +479,15 @@ export class CommandeUpdateComponent implements OnInit, AfterViewInit {
           this.openImporterReponseCommandeDialog(responseCommande);
         }
       },
-      'lg'
+      'lg',
     );
-
   }
 
   protected openImporterReponseCommandeDialog(responseCommande: IResponseCommande): void {
     const modalRef = this.modalService.open(CommandeEnCoursResponseDialogComponent, {
       size: 'xl',
       scrollable: true,
-      backdrop: 'static'
+      backdrop: 'static',
     });
     modalRef.componentInstance.responseCommande = responseCommande;
     modalRef.componentInstance.commande = this.commande;
@@ -495,14 +505,103 @@ export class CommandeUpdateComponent implements OnInit, AfterViewInit {
     }, 50);
   }
 
-  ngAfterViewInit(): void {
-    if (this.commande && this.commande.id) {
-      this.focusPrdoduitBox();
+  protected onAddLot(deliveryItem: IOrderLine): void {
+    const quantityReceived = deliveryItem.quantityReceived || deliveryItem.quantityRequested;
+    if (quantityReceived > 1 || deliveryItem.lots.length > 0) {
+      showCommonModal(
+        this.modalService,
+        ListLotComponent,
+        {
+          deliveryItem,
+          header: `GESTION DE LOTS DE LA LIGNE ${deliveryItem.produitLibelle} [${deliveryItem.produitCip}]`,
+        },
+        result => {
+          console.log(result);
+        },
+        'lg',
+      );
     } else {
-      setTimeout(() => {
-        this.fournisseurBox()?.inputEL?.nativeElement?.focus();
-      }, 100);
+      showCommonModal(
+        this.modalService,
+        FormLotComponent,
+        {
+          entity: null,
+          deliveryItem,
+          header: 'Ajout de lot',
+        },
+        result => {
+          console.log(result);
+        },
+        'lg',
+      );
     }
+    // this.ref.onClose.subscribe(() => this.onFilterReceiptItems());
+  }
+
+  protected onConfirmFinalize(): void {
+    if (this.isCommandeFinalisee()) {
+      this.confimDialog().onConfirm(() => this.onFinalize(), 'Finalisation de la commande', "Voullez-vous faire l'entrée en stock ?");
+    }
+  }
+
+  protected confirmPrintTicket(commandeId: CommandeId): void {
+    this.confimDialog().onConfirm(
+      () =>
+        this.printEtiquette({
+          ...this.commande,
+          commandeId: commandeId,
+        }),
+      'Impression',
+      'Voullez-vous imprimer les étiquettes ?',
+      null,
+      () => {
+        this.commande = null;
+        this.previousState();
+      },
+    );
+  }
+
+  protected isLotActif(): void {
+    const paramGestionLot = this.configurationService.getParamByKey(Params.APP_GESTION_LOT);
+    if (paramGestionLot) {
+      this.showLotBtn = Number(paramGestionLot.value) === 0;
+    }
+  }
+
+  protected editLigneInfos(orderLine: IOrderLine): void {
+    showCommonModal(
+      this.modalService,
+      EditProduitComponent,
+      {
+        deliveryItem: orderLine,
+        delivery: this.commande,
+        header: `EDITION DU PRODUIT ${orderLine.produitLibelle} [${orderLine.produitCip}]`,
+      },
+      result => {
+        console.log(result);
+      },
+      'xl',
+    );
+  }
+
+  protected showLotColumn(): boolean {
+    return this.showLotBtn || this.orderLines.some(orderLine => orderLine.lots.length > 0);
+  }
+
+  private reloadCommande(): void {
+    this.commandeService.find(this.commande.commandeId).subscribe(res => {
+      this.commande = res.body;
+      this.orderLines = this.commande.orderLines;
+    });
+  }
+
+  private focusAndSelectElement(element: any, delay: number): void {
+    setTimeout(() => {
+      if (element) {
+        element.focus();
+        element.select();
+      }
+    }, delay);
   }
 
   private refreshCommande(): void {
@@ -523,7 +622,6 @@ export class CommandeUpdateComponent implements OnInit, AfterViewInit {
     }
   }
 
-
   private onSaveOrderLineSuccess(commandeId: CommandeId): void {
     this.commandeService.find(commandeId).subscribe(res => {
       this.commande = res.body;
@@ -531,7 +629,6 @@ export class CommandeUpdateComponent implements OnInit, AfterViewInit {
       this.updateProduitQtyBox();
     });
   }
-
 
   private onCommonError(error: any): void {
     this.openInfoDialog(this.errorService.getErrorMessage(error), 'error', 'Erreur');
@@ -541,13 +638,12 @@ export class CommandeUpdateComponent implements OnInit, AfterViewInit {
     this.produits = data || [];
   }
 
-  private onError(): void {
-  }
+  private onError(): void {}
 
   private subscribeToSaveOrderLineResponse(result: Observable<HttpResponse<ICommande>>): void {
     result.subscribe({
       next: (res: HttpResponse<ICommande>) => this.onSaveOrderLineSuccess(res.body?.commandeId),
-      error: (err: any) => this.onCommonError(err)
+      error: (err: any) => this.onCommonError(err),
     });
   }
 
@@ -564,10 +660,10 @@ export class CommandeUpdateComponent implements OnInit, AfterViewInit {
         this.commande?.id !== undefined
           ? this.commande
           : {
-            ...new Commande(),
-            fournisseurId: this.selectedProvider
-          },
-      quantityRequested
+              ...new Commande(),
+              fournisseurId: this.selectedProvider,
+            },
+      quantityRequested,
     };
   }
 
@@ -575,7 +671,7 @@ export class CommandeUpdateComponent implements OnInit, AfterViewInit {
     return {
       ...new Commande(),
       fournisseurId: this.selectedProvider,
-      orderLines: [this.createOrderLine(produit, quantityRequested)]
+      orderLines: [this.createOrderLine(produit, quantityRequested)],
     };
   }
 
@@ -585,49 +681,6 @@ export class CommandeUpdateComponent implements OnInit, AfterViewInit {
 
   private hidePinner(): void {
     this.spinner().hide();
-  }
-
-  protected onAddLot(deliveryItem: IOrderLine): void {
-    const quantityReceived = deliveryItem.quantityReceived || deliveryItem.quantityRequested;
-    if (quantityReceived > 1 || deliveryItem.lots.length > 0) {
-
-      showCommonModal(
-        this.modalService,
-        ListLotComponent,
-        {
-          deliveryItem,
-          header: `GESTION DE LOTS DE LA LIGNE ${deliveryItem.produitLibelle} [${deliveryItem.produitCip}]`
-        },
-        (result) => {
-          console.log(result);
-        },
-        'lg'
-      );
-
-
-    } else {
-
-      showCommonModal(
-        this.modalService,
-        FormLotComponent,
-        {
-          entity: null,
-          deliveryItem,
-          header: 'Ajout de lot'
-        },
-        (result) => {
-          console.log(result);
-        },
-        'lg'
-      );
-    }
-    // this.ref.onClose.subscribe(() => this.onFilterReceiptItems());
-  }
-
-  protected onConfirmFinalize(): void {
-    if (this.isCommandeFinalisee()) {
-      this.confimDialog().onConfirm(() => this.onFinalize(), 'Finalisation de la commande', 'Voullez-vous faire l\'entrée en stock ?');
-    }
   }
 
   private onFinalize(): void {
@@ -640,46 +693,8 @@ export class CommandeUpdateComponent implements OnInit, AfterViewInit {
       error: error => {
         this.onCommonError(error);
         this.hidePinner();
-      }
-    });
-  }
-
-  protected confirmPrintTicket(commandeId: CommandeId): void {
-    this.confimDialog().onConfirm(() => this.printEtiquette({
-      ...this.commande,
-      commandeId: commandeId
-    }), 'Impression', 'Voullez-vous imprimer les étiquettes ?', null, () => {
-      this.commande = null;
-      this.previousState();
-    });
-
-  }
-
-
-  protected isLotActif(): void {
-    const paramGestionLot = this.configurationService.getParamByKey(Params.APP_GESTION_LOT);
-    if (paramGestionLot) {
-      this.showLotBtn = Number(paramGestionLot.value) === 0;
-    }
-  }
-
-  protected editLigneInfos(orderLine: IOrderLine): void {
-    showCommonModal(
-      this.modalService,
-      EditProduitComponent,
-      {
-        deliveryItem: orderLine, delivery: this.commande,
-        header: `EDITION DU PRODUIT ${orderLine.produitLibelle} [${orderLine.produitCip}]`
       },
-      (result) => {
-        console.log(result);
-      },
-      'xl'
-    );
-  }
-
-  protected showLotColumn(): boolean {
-    return this.showLotBtn || this.orderLines.some(orderLine => orderLine.lots.length > 0);
+    });
   }
 
   private changeGrossiste(): void {
@@ -691,14 +706,14 @@ export class CommandeUpdateComponent implements OnInit, AfterViewInit {
       error: error => {
         this.onCommonError(error);
         this.onSaveOrderLineSuccess(this.commande.commandeId);
-      }
+      },
     });
   }
 
   private subscribeUpdateOrderLineResponse(result: Observable<HttpResponse<{}>>): void {
     result.subscribe({
       next: () => this.onSaveOrderLineSuccess(this.commande?.commandeId),
-      error: (err: any) => this.onCommonError(err)
+      error: (err: any) => this.onCommonError(err),
     });
   }
 
@@ -720,27 +735,23 @@ export class CommandeUpdateComponent implements OnInit, AfterViewInit {
   }
 
   private printEtiquette(commande: ICommande): void {
-
-
     showCommonModal(
       this.modalService,
       EtiquetteComponent,
       {
         entity: commande,
-        header: `IMPRIMER LES ETIQUETTES DU BON DE LIVRAISON [ ${commande.receiptReference} ] `
+        header: `IMPRIMER LES ETIQUETTES DU BON DE LIVRAISON [ ${commande.receiptReference} ] `,
       },
       () => {
         this.commande = null;
         this.previousState();
       },
-      'lg', null,
+      'lg',
+      null,
       () => {
         this.commande = null;
         this.previousState();
-      }
+      },
     );
-
-
   }
-
 }

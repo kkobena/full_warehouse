@@ -1,24 +1,42 @@
 <div class="container-fluid">
   <div class="row">
     <div class="col-xl-2 col-lg-2 col-md-2 col-sm-4">
-      <p-card>
-        <div #nav="ngbNav" [(activeId)]="active" class="nav flex-column nav-pills" ngbNav
-             orientation="vertical">
-          <ng-container ngbNavItem="tiers-payant">
-            <a class="nav-link pharma-nav-link" ngbNavLink>Tiers payants</a>
-            <ng-template ngbNavContent>
-              <jhi-tiers-payant></jhi-tiers-payant>
-            </ng-template>
-          </ng-container>
-          <p-divider layout="horizontal"></p-divider>
-          <ng-container ngbNavItem="groupe-tiers-payant">
-            <a class="nav-link pharma-nav-link" ngbNavLink>Groupe de tiers payants</a>
-            <ng-template ngbNavContent>
-              <jhi-groupe-tiers-payant></jhi-groupe-tiers-payant>
-            </ng-template>
-          </ng-container>
+      <!-- Modern Navigation Sidebar -->
+      <div class="pharma-nav-sidebar">
+        <div class="pharma-nav-sidebar-card">
+          <div class="pharma-nav-sidebar-header">
+            <i class="pi pi-building"></i>
+            <span>Tiers payants</span>
+          </div>
+
+          <div class="pharma-nav-sidebar-content">
+            <div #nav="ngbNav" [(activeId)]="active" class="nav flex-column nav-pills" ngbNav
+                 orientation="vertical">
+              <ng-container ngbNavItem="tiers-payant">
+                <a class="pharma-nav-vertical-link" ngbNavLink>
+                  <i class="pi pi-shield"></i>
+                  <span>Tiers payants</span>
+                  <span class="link-arrow">›</span>
+                </a>
+                <ng-template ngbNavContent>
+                  <jhi-tiers-payant></jhi-tiers-payant>
+                </ng-template>
+              </ng-container>
+
+              <ng-container ngbNavItem="groupe-tiers-payant">
+                <a class="pharma-nav-vertical-link" ngbNavLink>
+                  <i class="pi pi-users"></i>
+                  <span>Groupe de tiers payants</span>
+                  <span class="link-arrow">›</span>
+                </a>
+                <ng-template ngbNavContent>
+                  <jhi-groupe-tiers-payant></jhi-groupe-tiers-payant>
+                </ng-template>
+              </ng-container>
+            </div>
+          </div>
         </div>
-      </p-card>
+      </div>
     </div>
     <div class="col-xl-10 col-lg-10 col-md-10 col-sm-8 row ">
       <div [ngbNavOutlet]="nav"></div>

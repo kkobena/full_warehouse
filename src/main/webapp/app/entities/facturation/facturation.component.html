@@ -1,24 +1,42 @@
 <div class="container-fluid">
   <div class="row">
     <div class="col-lg-2 col-xl-2 col-xxl-2  col-md-3 col-sm-4">
-      <p-card>
-        <div #nav="ngbNav" [(activeId)]="active" class="nav flex-column nav-pills" ngbNav
-             orientation="vertical">
-          <ng-container ngbNavItem="factures">
-            <a class="nav-link pharma-nav-link" ngbNavLink>Liste des factures</a>
-            <ng-template ngbNavContent>
-              <jhi-factures></jhi-factures>
-            </ng-template>
-          </ng-container>
-          <p-divider layout="horizontal"></p-divider>
-          <ng-container ngbNavItem="edition-facture">
-            <a class="nav-link pharma-nav-link" ngbNavLink>Edition de facture</a>
-            <ng-template ngbNavContent>
-              <jhi-edition></jhi-edition>
-            </ng-template>
-          </ng-container>
+      <!-- Modern Navigation Sidebar -->
+      <div class="pharma-nav-sidebar">
+        <div class="pharma-nav-sidebar-card">
+          <div class="pharma-nav-sidebar-header">
+            <i class="pi pi-receipt"></i>
+            <span>Facturation</span>
+          </div>
+
+          <div class="pharma-nav-sidebar-content">
+            <div #nav="ngbNav" [(activeId)]="active" class="nav flex-column nav-pills" ngbNav
+                 orientation="vertical">
+              <ng-container ngbNavItem="factures">
+                <a class="pharma-nav-vertical-link" ngbNavLink>
+                  <i class="pi pi-list"></i>
+                  <span>Liste des factures</span>
+                  <span class="link-arrow">›</span>
+                </a>
+                <ng-template ngbNavContent>
+                  <jhi-factures></jhi-factures>
+                </ng-template>
+              </ng-container>
+
+              <ng-container ngbNavItem="edition-facture">
+                <a class="pharma-nav-vertical-link" ngbNavLink>
+                  <i class="pi pi-file-edit"></i>
+                  <span>Edition de facture</span>
+                  <span class="link-arrow">›</span>
+                </a>
+                <ng-template ngbNavContent>
+                  <jhi-edition></jhi-edition>
+                </ng-template>
+              </ng-container>
+            </div>
+          </div>
         </div>
-      </p-card>
+      </div>
     </div>
     <div class="col-xl-10 col-lg-10 col-md-9 col-sm-8  row">
       <div [ngbNavOutlet]="nav"></div>

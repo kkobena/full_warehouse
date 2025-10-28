@@ -1,30 +1,52 @@
 <div class="row produit-audit-transaction">
   <div class="col-lg-2 col-xl-2 col-md-2 col-sm-2">
-    <p-card>
-      <div #nav="ngbNav" [(activeId)]="active" class="nav flex-column nav-pills" ngbNav
-           orientation="vertical">
-        <ng-container ngbNavItem="auditing">
-          <a class="nav-link pharma-nav-link" ngbNavLink>Mouvements de stock</a>
-          <ng-template ngbNavContent>
-            <jhi-auditing></jhi-auditing>
-          </ng-template>
-        </ng-container>
+    <!-- Modern Navigation Sidebar -->
+    <div class="pharma-nav-sidebar">
+      <div class="pharma-nav-sidebar-card">
+        <div class="pharma-nav-sidebar-header">
+          <i class="pi pi-history"></i>
+          <span>Transactions</span>
+        </div>
 
-        <ng-container ngbNavItem="sales">
-          <a class="nav-link pharma-nav-link" ngbNavLink>Historique des ventes</a>
-          <ng-template ngbNavContent>
-            <jhi-stat-sales></jhi-stat-sales>
-          </ng-template>
-        </ng-container>
-        <p-divider layout="horizontal"></p-divider>
-        <ng-container ngbNavItem="commande">
-          <a class="nav-link pharma-nav-link" ngbNavLink>Historique des commandes</a>
-          <ng-template ngbNavContent>
-            <jhi-stat-delivery></jhi-stat-delivery>
-          </ng-template>
-        </ng-container>
+        <div class="pharma-nav-sidebar-content">
+          <div #nav="ngbNav" [(activeId)]="active" class="nav flex-column nav-pills" ngbNav
+               orientation="vertical">
+            <ng-container ngbNavItem="auditing">
+              <a class="pharma-nav-vertical-link" ngbNavLink>
+                <i class="pi pi-arrows-alt"></i>
+                <span>Mouvements de stock</span>
+                <span class="link-arrow">›</span>
+              </a>
+              <ng-template ngbNavContent>
+                <jhi-auditing></jhi-auditing>
+              </ng-template>
+            </ng-container>
+
+            <ng-container ngbNavItem="sales">
+              <a class="pharma-nav-vertical-link" ngbNavLink>
+                <i class="pi pi-shopping-bag"></i>
+                <span>Historique des ventes</span>
+                <span class="link-arrow">›</span>
+              </a>
+              <ng-template ngbNavContent>
+                <jhi-stat-sales></jhi-stat-sales>
+              </ng-template>
+            </ng-container>
+
+            <ng-container ngbNavItem="commande">
+              <a class="pharma-nav-vertical-link" ngbNavLink>
+                <i class="pi pi-truck"></i>
+                <span>Historique des commandes</span>
+                <span class="link-arrow">›</span>
+              </a>
+              <ng-template ngbNavContent>
+                <jhi-stat-delivery></jhi-stat-delivery>
+              </ng-template>
+            </ng-container>
+          </div>
+        </div>
       </div>
-    </p-card>
+    </div>
   </div>
 
   <div class="col-lg-10 col-xl-10 col-md-10 col-sm-10 row produit-audit-toolbar">

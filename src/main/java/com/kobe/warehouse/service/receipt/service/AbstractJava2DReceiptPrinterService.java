@@ -50,7 +50,6 @@ public abstract class AbstractJava2DReceiptPrinterService implements Printable {
     private final PrinterRepository printerRepository;
     protected Magasin magasin;
     protected Printer printer;
-    protected PrinterJob printerJob;
 
     protected AbstractJava2DReceiptPrinterService(AppConfigurationService appConfigurationService, PrinterRepository printerRepository) {
         this.appConfigurationService = appConfigurationService;

@@ -3,51 +3,78 @@
 <div class="container-fluid">
   <div class="row">
     <div class="col-lg-2 col-xl-2 col-xxl-2  col-md-3 col-sm-4">
-      <p-card
-        #nav="ngbNav"
-        (navChange)="onNavChange($event)"
-        [(activeId)]="active"
-        class="nav flex-column nav-pills"
-        ngbNav
-        orientation="vertical"
-      >
-        <ng-container ngbNavItem="SUGGESTIONS">
-          <a class="nav-link pharma-nav-link" ngbNavLink>Suggestions</a>
-          <ng-template ngbNavContent>
-            <jhi-suggestion
-              (selectionLength)="updateSelectionLength($event)"
-              [fournisseurId]="selectFournisseurId"
-              [selectedtypeSuggession]="selectedtypeSuggession"
-            ></jhi-suggestion>
-          </ng-template>
-        </ng-container>
-        <p-divider layout="horizontal"></p-divider>
-        <ng-container ngbNavItem="REQUESTED">
-          <a class="nav-link pharma-nav-link" ngbNavLink>Commande en cours</a>
-          <ng-template ngbNavContent>
-            <jhi-commande-en-cours
-              (selectionLength)="updateSelectionLength($event)"
-              [searchCommande]="searchCommande"
-              [search]="search"
-            ></jhi-commande-en-cours>
-          </ng-template>
-        </ng-container>
+      <!-- Modern Navigation Sidebar -->
+      <div class="pharma-nav-sidebar">
+        <div class="pharma-nav-sidebar-card">
+          <div class="pharma-nav-sidebar-header">
+            <i class="pi pi-box"></i>
+            <span>Gestion commandes</span>
+          </div>
 
-        <p-divider layout="horizontal"></p-divider>
-        <ng-container ngbNavItem="BONS_EN_COURS">
-          <a class="nav-link pharma-nav-link" ngbNavLink>Bons en cours</a>
-          <ng-template ngbNavContent>
-            <jhi-bon-en-cours [search]="search"></jhi-bon-en-cours>
-          </ng-template>
-        </ng-container>
-        <p-divider layout="horizontal"></p-divider>
-        <ng-container ngbNavItem="LIST_BONS">
-          <a class="nav-link pharma-nav-link" ngbNavLink>Liste des bons</a>
-          <ng-template ngbNavContent>
-            <jhi-list-bons [search]="search"></jhi-list-bons>
-          </ng-template>
-        </ng-container>
-      </p-card>
+          <div class="pharma-nav-sidebar-content">
+            <div
+              #nav="ngbNav"
+              (navChange)="onNavChange($event)"
+              [(activeId)]="active"
+              class="nav flex-column nav-pills"
+              ngbNav
+              orientation="vertical"
+            >
+              <ng-container ngbNavItem="SUGGESTIONS">
+                <a class="pharma-nav-vertical-link" ngbNavLink>
+                  <i class="pi pi-lightbulb"></i>
+                  <span>Suggestions</span>
+                  <span class="link-arrow">›</span>
+                </a>
+                <ng-template ngbNavContent>
+                  <jhi-suggestion
+                    (selectionLength)="updateSelectionLength($event)"
+                    [fournisseurId]="selectFournisseurId"
+                    [selectedtypeSuggession]="selectedtypeSuggession"
+                  ></jhi-suggestion>
+                </ng-template>
+              </ng-container>
+
+              <ng-container ngbNavItem="REQUESTED">
+                <a class="pharma-nav-vertical-link" ngbNavLink>
+                  <i class="pi pi-spin pi-spinner"></i>
+                  <span>Commande en cours</span>
+                  <span class="link-arrow">›</span>
+                </a>
+                <ng-template ngbNavContent>
+                  <jhi-commande-en-cours
+                    (selectionLength)="updateSelectionLength($event)"
+                    [searchCommande]="searchCommande"
+                    [search]="search"
+                  ></jhi-commande-en-cours>
+                </ng-template>
+              </ng-container>
+
+              <ng-container ngbNavItem="BONS_EN_COURS">
+                <a class="pharma-nav-vertical-link" ngbNavLink>
+                  <i class="pi pi-file"></i>
+                  <span>Bons en cours</span>
+                  <span class="link-arrow">›</span>
+                </a>
+                <ng-template ngbNavContent>
+                  <jhi-bon-en-cours [search]="search"></jhi-bon-en-cours>
+                </ng-template>
+              </ng-container>
+
+              <ng-container ngbNavItem="LIST_BONS">
+                <a class="pharma-nav-vertical-link" ngbNavLink>
+                  <i class="pi pi-list"></i>
+                  <span>Liste des bons</span>
+                  <span class="link-arrow">›</span>
+                </a>
+                <ng-template ngbNavContent>
+                  <jhi-list-bons [search]="search"></jhi-list-bons>
+                </ng-template>
+              </ng-container>
+            </div>
+          </div>
+        </div>
+      </div>
 
     </div>
     <div class="col-lg-10 col-xl-10 col-xxl-10  col-md-9 col-sm-8">

@@ -3,36 +3,24 @@
 // Modern, clean design for pharmacy POS system
 // ============================================
 
-// Color Variables (Pharmacy Theme)
-$pharma-primary: #5b89a6;
-$pharma-primary-dark: #4a7189;
-$pharma-primary-light: #e8f4f8;
+// Import shared navigation styles
+@import '../../../shared/scss/pharma-nav';
+
+// Additional Color Variables (Pharmacy Theme)
 $pharma-accent: #00a86b;
-$pharma-danger: #dc3545;
 $pharma-warning: #ffc107;
-$pharma-info: #17a2b8;
-$pharma-success: #28a745;
 
-$gray-50: #f9fafb;
-$gray-100: #f3f4f6;
-$gray-200: #e5e7eb;
-$gray-300: #d1d5db;
-$gray-400: #9ca3af;
-$gray-500: #6b7280;
-$gray-600: #4b5563;
-$gray-700: #374151;
-$gray-800: #1f2937;
-$gray-900: #111827;
-
-$white: #ffffff;
-$shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
-$shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+// Variable aliases for compatibility with shared styles
+// Map old variable names to new shared variable names
+$white: $pharma-white;
+$shadow-sm: $pharma-shadow-sm;
+$shadow-md: $pharma-shadow-md;
 $shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
 $shadow-xl: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
 
-$border-radius: 8px;
-$border-radius-sm: 6px;
-$border-radius-lg: 12px;
+$border-radius: $pharma-radius;
+$border-radius-sm: $pharma-radius-sm;
+$border-radius-lg: $pharma-radius-lg;
 
 // ============================================
 // MAIN LAYOUT STRUCTURE
@@ -183,100 +171,29 @@ $border-radius-lg: 12px;
 // ============================================
 // LEFT SIDEBAR - Sale Types Navigation
 // ============================================
+// NOTE: Using common styles from shared/scss/_pharma-nav.scss
+// Classes: .pharma-nav-sidebar, .pharma-nav-sidebar-card,
+// .pharma-nav-sidebar-header, .pharma-nav-sidebar-content,
+// .pharma-nav-vertical-link
 
+// Component-specific sidebar adjustments
+// This component uses flexbox layout, not Bootstrap grid, so needs fixed width
 .sales-sidebar {
-  width: 240px;
-  flex-shrink: 0;
-  display: flex;
-  flex-direction: column;
-
-  .sidebar-card {
-    background: $white;
-    border-radius: $border-radius-lg;
-    box-shadow: $shadow-md;
-    overflow: hidden;
-    display: flex;
-    flex-direction: column;
-    height: 100%;
+  // Override the 100% width from shared styles for this flexbox layout
+  &.pharma-nav-sidebar {
+    width: 240px;
   }
 
-  .sidebar-header {
-    padding: 1rem;
-    background: linear-gradient(135deg, $pharma-primary 0%, $pharma-primary-dark 100%);
-    color: $white;
-    display: flex;
-    align-items: center;
-    gap: 0.625rem;
-    font-weight: 600;
-    font-size: 0.9rem;
-
-    i {
-      font-size: 1.125rem;
+  // Responsive adjustments for medium screens
+  @media (max-width: 1400px) and (min-width: 1201px) {
+    &.pharma-nav-sidebar {
+      width: 220px;
     }
   }
 
-  .sale-types-nav {
-    flex: 1;
-    padding: 0.5rem;
-    overflow-y: auto;
-
-    .nav {
-      gap: 0.375rem;
-    }
-
-    .sale-type-link {
-      display: flex;
-      align-items: center;
-      gap: 0.625rem;
-      padding: 0.75rem 0.875rem;
-      border-radius: $border-radius-sm;
-      color: $gray-700;
-      text-decoration: none;
-      transition: all 0.2s ease;
-      cursor: pointer;
-      background: $gray-50;
-      border: 1px solid transparent;
-      font-weight: 500;
-      font-size: 0.9rem;
-
-      i {
-        font-size: 1rem;
-        color: $pharma-primary;
-        transition: transform 0.2s ease;
-      }
-
-      .link-arrow {
-        margin-left: auto;
-        font-size: 1.25rem;
-        color: $gray-400;
-        transition: transform 0.2s ease;
-      }
-
-      &:hover {
-        background: $pharma-primary-light;
-        border-color: $pharma-primary;
-        color: $pharma-primary-dark;
-        transform: translateX(4px);
-
-        .link-arrow {
-          transform: translateX(4px);
-          color: $pharma-primary;
-        }
-
-        i {
-          transform: scale(1.1);
-        }
-      }
-
-      &.active {
-        background: linear-gradient(135deg, $pharma-primary 0%, $pharma-primary-dark 100%);
-        color: $white;
-        box-shadow: $shadow-md;
-
-        i, .link-arrow {
-          color: $white;
-        }
-      }
+  @media (max-width: 1200px) {
+    &.pharma-nav-sidebar {
+      width: 100%;
     }
   }
 }
@@ -561,9 +478,7 @@ $border-radius-lg: 12px;
 // ============================================
 
 @media (max-width: 1400px) {
-  .sales-sidebar {
-    width: 220px;
-  }
+  // Sidebar responsive styles handled by shared/_pharma-nav.scss
 
   .product-search-section .search-controls {
     .quantity-input-wrapper {
@@ -582,28 +497,7 @@ $border-radius-lg: 12px;
     flex-direction: column;
   }
 
-  .sales-sidebar {
-    width: 100%;
-    max-height: 300px;
-
-    .sidebar-card {
-      flex-direction: row;
-      height: auto;
-    }
-
-    .sale-types-nav {
-      .nav {
-        flex-direction: row;
-        flex-wrap: wrap;
-      }
-    }
-
-    .quick-stats {
-      flex-direction: row;
-      border-top: none;
-      border-left: 1px solid $gray-200;
-    }
-  }
+  // Sidebar responsive styles handled by shared/_pharma-nav.scss
 }
 
 @media (max-width: 1024px) {
@@ -679,19 +573,7 @@ $border-radius-lg: 12px;
     }
   }
 
-  .sales-sidebar {
-    max-height: none;
-
-    .sidebar-card {
-      flex-direction: column;
-    }
-
-    .quick-stats {
-      flex-direction: column;
-      border-left: none;
-      border-top: 1px solid $gray-200;
-    }
-  }
+  // Sidebar responsive styles handled by shared/_pharma-nav.scss
 }
 
 // ============================================

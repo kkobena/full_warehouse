@@ -1,23 +1,41 @@
 <div class="row inventory">
   <div class="col-xl-2 col-lg-2 col-md-2 col-sm-2">
-    <p-card>
-      <div #nav="ngbNav" [(activeId)]="active" class="nav flex-column nav-pills" ngbNav
-           orientation="vertical">
-        <ng-container ngbNavItem="CREATE">
-          <a class="nav-link pharma-nav-link" ngbNavLink>En cours</a>
-          <ng-template ngbNavContent>
-            <jhi-en-cours [inventoryCategories]="inventoryCategories" [user]="user"></jhi-en-cours>
-          </ng-template>
-        </ng-container>
-        <p-divider layout="horizontal"></p-divider>
-        <ng-container ngbNavItem="CLOSED">
-          <a class="nav-link pharma-nav-link" ngbNavLink>Cloturés</a>
-          <ng-template ngbNavContent>
-            <jhi-clotures [inventoryCategories]="inventoryCategories" [user]="user"></jhi-clotures>
-          </ng-template>
-        </ng-container>
+    <!-- Modern Navigation Sidebar -->
+    <div class="pharma-nav-sidebar">
+      <div class="pharma-nav-sidebar-card">
+        <div class="pharma-nav-sidebar-header">
+          <i class="pi pi-database"></i>
+          <span>Inventaires</span>
+        </div>
+
+        <div class="pharma-nav-sidebar-content">
+          <div #nav="ngbNav" [(activeId)]="active" class="nav flex-column nav-pills" ngbNav
+               orientation="vertical">
+            <ng-container ngbNavItem="CREATE">
+              <a class="pharma-nav-vertical-link" ngbNavLink>
+                <i class="pi pi-spin pi-cog"></i>
+                <span>En cours</span>
+                <span class="link-arrow">›</span>
+              </a>
+              <ng-template ngbNavContent>
+                <jhi-en-cours [inventoryCategories]="inventoryCategories" [user]="user"></jhi-en-cours>
+              </ng-template>
+            </ng-container>
+
+            <ng-container ngbNavItem="CLOSED">
+              <a class="pharma-nav-vertical-link" ngbNavLink>
+                <i class="pi pi-lock"></i>
+                <span>Cloturés</span>
+                <span class="link-arrow">›</span>
+              </a>
+              <ng-template ngbNavContent>
+                <jhi-clotures [inventoryCategories]="inventoryCategories" [user]="user"></jhi-clotures>
+              </ng-template>
+            </ng-container>
+          </div>
+        </div>
       </div>
-    </p-card>
+    </div>
   </div>
 
   <div class="col-xl-10 col-lg-10 col-md-10 col-sm-10 row">

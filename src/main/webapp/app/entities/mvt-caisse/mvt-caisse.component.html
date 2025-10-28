@@ -1,59 +1,97 @@
 <div class="container-fluid">
   <div class="row">
     <div class="col-lg-2 col-xl-2 col-md-3 col-sm-4">
-      <p-card>
-        <div #nav="ngbNav" [(activeId)]="active" class="nav flex-column nav-pills" ngbNav
-             orientation="vertical">
-          <ng-container ngbNavItem="mvt-caisse">
-            <a class="nav-link pharma-nav-link" ngbNavLink>Mouvements de caisse</a>
-            <ng-template ngbNavContent>
-              <jhi-visualisation-mvt-caisse></jhi-visualisation-mvt-caisse>
-            </ng-template>
-          </ng-container>
-          <p-divider layout="horizontal"></p-divider>
-          <ng-container ngbNavItem="balance">
-            <a class="nav-link pharma-nav-link" ngbNavLink>Balance caisse</a>
-            <ng-template ngbNavContent>
-              <jhi-balance-mvt-caisse></jhi-balance-mvt-caisse>
-            </ng-template>
-          </ng-container>
-          <p-divider layout="horizontal"></p-divider>
-          <ng-container ngbNavItem="taxe-report">
-            <a class="nav-link pharma-nav-link" ngbNavLink>Rapport Tva</a>
-            <ng-template ngbNavContent>
-              <jhi-taxe-report></jhi-taxe-report>
-            </ng-template>
-          </ng-container>
-          <p-divider layout="horizontal"></p-divider>
-          <ng-container ngbNavItem="tableau-pharmacien">
-            <a class="nav-link pharma-nav-link" ngbNavLink>Tableau pharmacien</a>
-            <ng-template ngbNavContent>
-              <jhi-tableau-pharmacien></jhi-tableau-pharmacien>
-            </ng-template>
-          </ng-container>
-          <p-divider layout="horizontal"></p-divider>
-          <ng-container ngbNavItem="recapitulatif-caisse">
-            <a class="nav-link pharma-nav-link" ngbNavLink>Recapitulatif de caisse</a>
-            <ng-template ngbNavContent>
-              <jhi-recapitualtif-caisse></jhi-recapitualtif-caisse>
-            </ng-template>
-          </ng-container>
-          <p-divider layout="horizontal"></p-divider>
-          <ng-container ngbNavItem="gestion-caisse">
-            <a class="nav-link pharma-nav-link" ngbNavLink>Gestion de caisse</a>
-            <ng-template ngbNavContent>
-              <jhi-gestion-caisse></jhi-gestion-caisse>
-            </ng-template>
-          </ng-container>
-          <p-divider layout="horizontal"></p-divider>
-          <ng-container ngbNavItem="raport-activite">
-            <a class="nav-link pharma-nav-link" ngbNavLink>Raport d'activité</a>
-            <ng-template ngbNavContent>
-              <jhi-activity-summary></jhi-activity-summary>
-            </ng-template>
-          </ng-container>
+      <!-- Modern Navigation Sidebar -->
+      <div class="pharma-nav-sidebar">
+        <div class="pharma-nav-sidebar-card">
+          <div class="pharma-nav-sidebar-header">
+            <i class="pi pi-wallet"></i>
+            <span>Gestion de caisse</span>
+          </div>
+
+          <div class="pharma-nav-sidebar-content">
+            <div #nav="ngbNav" [(activeId)]="active" class="nav flex-column nav-pills" ngbNav
+                 orientation="vertical">
+              <ng-container ngbNavItem="mvt-caisse">
+                <a class="pharma-nav-vertical-link" ngbNavLink>
+                  <i class="pi pi-arrows-h"></i>
+                  <span>Mouvements de caisse</span>
+                  <span class="link-arrow">›</span>
+                </a>
+                <ng-template ngbNavContent>
+                  <jhi-visualisation-mvt-caisse></jhi-visualisation-mvt-caisse>
+                </ng-template>
+              </ng-container>
+
+              <ng-container ngbNavItem="balance">
+                <a class="pharma-nav-vertical-link" ngbNavLink>
+                  <i class="pi pi-calculator"></i>
+                  <span>Balance caisse</span>
+                  <span class="link-arrow">›</span>
+                </a>
+                <ng-template ngbNavContent>
+                  <jhi-balance-mvt-caisse></jhi-balance-mvt-caisse>
+                </ng-template>
+              </ng-container>
+
+              <ng-container ngbNavItem="taxe-report">
+                <a class="pharma-nav-vertical-link" ngbNavLink>
+                  <i class="pi pi-file-pdf"></i>
+                  <span>Rapport Tva</span>
+                  <span class="link-arrow">›</span>
+                </a>
+                <ng-template ngbNavContent>
+                  <jhi-taxe-report></jhi-taxe-report>
+                </ng-template>
+              </ng-container>
+
+              <ng-container ngbNavItem="tableau-pharmacien">
+                <a class="pharma-nav-vertical-link" ngbNavLink>
+                  <i class="pi pi-table"></i>
+                  <span>Tableau pharmacien</span>
+                  <span class="link-arrow">›</span>
+                </a>
+                <ng-template ngbNavContent>
+                  <jhi-tableau-pharmacien></jhi-tableau-pharmacien>
+                </ng-template>
+              </ng-container>
+
+              <ng-container ngbNavItem="recapitulatif-caisse">
+                <a class="pharma-nav-vertical-link" ngbNavLink>
+                  <i class="pi pi-chart-bar"></i>
+                  <span>Recapitulatif de caisse</span>
+                  <span class="link-arrow">›</span>
+                </a>
+                <ng-template ngbNavContent>
+                  <jhi-recapitualtif-caisse></jhi-recapitualtif-caisse>
+                </ng-template>
+              </ng-container>
+
+              <ng-container ngbNavItem="gestion-caisse">
+                <a class="pharma-nav-vertical-link" ngbNavLink>
+                  <i class="pi pi-cog"></i>
+                  <span>Gestion de caisse</span>
+                  <span class="link-arrow">›</span>
+                </a>
+                <ng-template ngbNavContent>
+                  <jhi-gestion-caisse></jhi-gestion-caisse>
+                </ng-template>
+              </ng-container>
+
+              <ng-container ngbNavItem="raport-activite">
+                <a class="pharma-nav-vertical-link" ngbNavLink>
+                  <i class="pi pi-chart-line"></i>
+                  <span>Rapport d'activité</span>
+                  <span class="link-arrow">›</span>
+                </a>
+                <ng-template ngbNavContent>
+                  <jhi-activity-summary></jhi-activity-summary>
+                </ng-template>
+              </ng-container>
+            </div>
+          </div>
         </div>
-      </p-card>
+      </div>
     </div>
     <div class="col-lg-10 col-xl-10 col-md-9 col-sm-8 row">
       <div [ngbNavOutlet]="nav"></div>

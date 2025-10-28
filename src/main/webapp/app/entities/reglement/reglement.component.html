@@ -2,25 +2,43 @@
 <div class="container-fluid">
   <div class="row">
     <div class="col-lg-2 col-xl-2 col-xxl-2  col-md-3 col-sm-4">
-      <p-card>
-        <div #nav="ngbNav" [(activeId)]="active" class="nav flex-column nav-pills" ngbNav
-             orientation="vertical">
-          <ng-container ngbNavItem="factures-reglees">
-            <a class="nav-link pharma-nav-link" ngbNavLink>Les règlements</a>
-            <ng-template ngbNavContent>
-              <jhi-factures-reglees></jhi-factures-reglees>
-            </ng-template>
-          </ng-container>
-          <p-divider layout="horizontal"></p-divider>
-          <ng-container ngbNavItem="faire-reglement">
-            <a class="nav-link pharma-nav-link" ngbNavLink>Faire un règlement</a>
-            <ng-template ngbNavContent>
-              <jhi-faire-reglement [isGroupe]="isGroupe"
-                                   [reglementFactureDossiers]="reglementFactureDossiers"></jhi-faire-reglement>
-            </ng-template>
-          </ng-container>
+      <!-- Modern Navigation Sidebar -->
+      <div class="pharma-nav-sidebar">
+        <div class="pharma-nav-sidebar-card">
+          <div class="pharma-nav-sidebar-header">
+            <i class="pi pi-money-bill"></i>
+            <span>Gestion des règlements</span>
+          </div>
+
+          <div class="pharma-nav-sidebar-content">
+            <div #nav="ngbNav" [(activeId)]="active" class="nav flex-column nav-pills" ngbNav
+                 orientation="vertical">
+              <ng-container ngbNavItem="factures-reglees">
+                <a class="pharma-nav-vertical-link" ngbNavLink>
+                  <i class="pi pi-list-check"></i>
+                  <span>Les règlements</span>
+                  <span class="link-arrow">›</span>
+                </a>
+                <ng-template ngbNavContent>
+                  <jhi-factures-reglees></jhi-factures-reglees>
+                </ng-template>
+              </ng-container>
+
+              <ng-container ngbNavItem="faire-reglement">
+                <a class="pharma-nav-vertical-link" ngbNavLink>
+                  <i class="pi pi-plus-circle"></i>
+                  <span>Faire un règlement</span>
+                  <span class="link-arrow">›</span>
+                </a>
+                <ng-template ngbNavContent>
+                  <jhi-faire-reglement [isGroupe]="isGroupe"
+                                       [reglementFactureDossiers]="reglementFactureDossiers"></jhi-faire-reglement>
+                </ng-template>
+              </ng-container>
+            </div>
+          </div>
         </div>
-      </p-card>
+      </div>
     </div>
     <div class="col-xl-10 col-lg-10 col-md-9 col-sm-8  row">
       <div [ngbNavOutlet]="nav"></div>

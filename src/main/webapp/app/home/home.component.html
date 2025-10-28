@@ -3,46 +3,76 @@
     <div class="container-fluid">
       <div class="row">
         <div class="col-lg-2 col-xl-2 col-md-2 col-sm-4">
-          <p-card>
-            <div #nav="ngbNav" [(activeId)]="active" class="nav flex-column nav-pills" ngbNav
-                 orientation="vertical">
-              <ng-container ngbNavItem="daily">
-                <a class="nav-link pharma-nav-link" ngbNavLink>Journalier</a>
-                <ng-template ngbNavContent>
-                  <jhi-daily-data></jhi-daily-data>
-                </ng-template>
-              </ng-container>
-              <p-divider layout="horizontal"></p-divider>
-              <ng-container ngbNavItem="weekly">
-                <a class="nav-link pharma-nav-link" ngbNavLink>Hebdomadaire</a>
-                <ng-template ngbNavContent>
-                  <jhi-weekly-data></jhi-weekly-data>
-                </ng-template>
-              </ng-container>
-              <p-divider layout="horizontal"></p-divider>
-              <ng-container ngbNavItem="monthly">
-                <a class="nav-link pharma-nav-link" ngbNavLink>Mensuel</a>
-                <ng-template ngbNavContent>
-                  <jhi-monthly-data></jhi-monthly-data>
-                </ng-template>
-              </ng-container>
-              <p-divider layout="horizontal"></p-divider>
-              <ng-container ngbNavItem="halfyearly">
-                <a class="nav-link pharma-nav-link" ngbNavLink>Semestriel</a>
-                <ng-template ngbNavContent>
-                  <jhi-halfyearly-data></jhi-halfyearly-data>
-                </ng-template>
-              </ng-container>
-              <p-divider layout="horizontal"></p-divider>
-              <ng-container ngbNavItem="yearly">
-                <a class="nav-link pharma-nav-link" ngbNavLink>Annuel</a>
-                <ng-template ngbNavContent>
-                  <jhi-yearly-data></jhi-yearly-data>
-                </ng-template>
-              </ng-container>
+          <!-- Modern Navigation Sidebar -->
+          <div class="pharma-nav-sidebar">
+            <div class="pharma-nav-sidebar-card">
+              <div class="pharma-nav-sidebar-header">
+                <i class="pi pi-chart-line"></i>
+                <span>Tableau de bord</span>
+              </div>
 
+              <div class="pharma-nav-sidebar-content">
+                <div #nav="ngbNav" [(activeId)]="active" class="nav flex-column nav-pills" ngbNav
+                     orientation="vertical">
+                  <ng-container ngbNavItem="daily">
+                    <a class="pharma-nav-vertical-link" ngbNavLink>
+                      <i class="pi pi-calendar"></i>
+                      <span>Journalier</span>
+                      <span class="link-arrow">›</span>
+                    </a>
+                    <ng-template ngbNavContent>
+                      <jhi-daily-data></jhi-daily-data>
+                    </ng-template>
+                  </ng-container>
+
+                  <ng-container ngbNavItem="weekly">
+                    <a class="pharma-nav-vertical-link" ngbNavLink>
+                      <i class="pi pi-calendar-plus"></i>
+                      <span>Hebdomadaire</span>
+                      <span class="link-arrow">›</span>
+                    </a>
+                    <ng-template ngbNavContent>
+                      <jhi-weekly-data></jhi-weekly-data>
+                    </ng-template>
+                  </ng-container>
+
+                  <ng-container ngbNavItem="monthly">
+                    <a class="pharma-nav-vertical-link" ngbNavLink>
+                      <i class="pi pi-calendar-times"></i>
+                      <span>Mensuel</span>
+                      <span class="link-arrow">›</span>
+                    </a>
+                    <ng-template ngbNavContent>
+                      <jhi-monthly-data></jhi-monthly-data>
+                    </ng-template>
+                  </ng-container>
+
+                  <ng-container ngbNavItem="halfyearly">
+                    <a class="pharma-nav-vertical-link" ngbNavLink>
+                      <i class="pi pi-chart-bar"></i>
+                      <span>Semestriel</span>
+                      <span class="link-arrow">›</span>
+                    </a>
+                    <ng-template ngbNavContent>
+                      <jhi-halfyearly-data></jhi-halfyearly-data>
+                    </ng-template>
+                  </ng-container>
+
+                  <ng-container ngbNavItem="yearly">
+                    <a class="pharma-nav-vertical-link" ngbNavLink>
+                      <i class="pi pi-chart-line"></i>
+                      <span>Annuel</span>
+                      <span class="link-arrow">›</span>
+                    </a>
+                    <ng-template ngbNavContent>
+                      <jhi-yearly-data></jhi-yearly-data>
+                    </ng-template>
+                  </ng-container>
+
+                </div>
+              </div>
             </div>
-          </p-card>
+          </div>
         </div>
 
         <div class="col-lg-10 col-xl-10 col-md-10 col-sm-8 pharma-smart-content">

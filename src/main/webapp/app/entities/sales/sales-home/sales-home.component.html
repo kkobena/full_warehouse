@@ -1,36 +1,58 @@
 <div class="row">
   <div class="col-xl-2 col-lg-2 col-md-2 col-sm-2 sale-menu">
-    <p-card>
-      <div
-        #nav="ngbNav"
-        (navChange)="onNavChange($event)"
-        [(activeId)]="active"
-        class="nav flex-column nav-pills"
-        ngbNav
-        orientation="vertical"
-      >
-        <ng-container ngbNavItem="ventes-terminees">
-          <a class="nav-link pharma-nav-link" ngbNavLink>Journal des ventes</a>
-          <ng-template ngbNavContent>
-            <jhi-sales></jhi-sales>
-          </ng-template>
-        </ng-container>
-        <p-divider layout="horizontal"></p-divider>
-        <ng-container ngbNavItem="vente-en-cours">
-          <a class="nav-link pharma-nav-link" ngbNavLink>Ventes en cours</a>
-          <ng-template ngbNavContent>
-            <jhi-vente-en-cours></jhi-vente-en-cours>
-          </ng-template>
-        </ng-container>
-        <p-divider layout="horizontal"></p-divider>
-        <ng-container ngbNavItem="presale">
-          <a class="nav-link pharma-nav-link" ngbNavLink>Pré-ventes</a>
-          <ng-template ngbNavContent>
-            <jhi-presale></jhi-presale>
-          </ng-template>
-        </ng-container>
+    <!-- Modern Navigation Sidebar -->
+    <div class="pharma-nav-sidebar">
+      <div class="pharma-nav-sidebar-card">
+        <div class="pharma-nav-sidebar-header">
+          <i class="pi pi-shopping-cart"></i>
+          <span>Gestion des ventes</span>
+        </div>
+
+        <div class="pharma-nav-sidebar-content">
+          <div
+            #nav="ngbNav"
+            (navChange)="onNavChange($event)"
+            [(activeId)]="active"
+            class="nav flex-column nav-pills"
+            ngbNav
+            orientation="vertical"
+          >
+            <ng-container ngbNavItem="ventes-terminees">
+              <a class="pharma-nav-vertical-link" ngbNavLink>
+                <i class="pi pi-book"></i>
+                <span>Journal des ventes</span>
+                <span class="link-arrow">›</span>
+              </a>
+              <ng-template ngbNavContent>
+                <jhi-sales></jhi-sales>
+              </ng-template>
+            </ng-container>
+
+            <ng-container ngbNavItem="vente-en-cours">
+              <a class="pharma-nav-vertical-link" ngbNavLink>
+                <i class="pi pi-clock"></i>
+                <span>Ventes en cours</span>
+                <span class="link-arrow">›</span>
+              </a>
+              <ng-template ngbNavContent>
+                <jhi-vente-en-cours></jhi-vente-en-cours>
+              </ng-template>
+            </ng-container>
+
+            <ng-container ngbNavItem="presale">
+              <a class="pharma-nav-vertical-link" ngbNavLink>
+                <i class="pi pi-file-edit"></i>
+                <span>Pré-ventes</span>
+                <span class="link-arrow">›</span>
+              </a>
+              <ng-template ngbNavContent>
+                <jhi-presale></jhi-presale>
+              </ng-template>
+            </ng-container>
+          </div>
+        </div>
       </div>
-    </p-card>
+    </div>
   </div>
 
   <div class="col-xl-10 col-lg-10 col-md-10 col-sm-10 row sale-container">

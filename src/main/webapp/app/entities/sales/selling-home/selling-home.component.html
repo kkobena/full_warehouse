@@ -92,14 +92,14 @@
   <!-- MAIN CONTENT AREA -->
   <div class="pharma-sales-body">
     <!-- LEFT SIDEBAR - Sale Types Navigation -->
-    <div class="sales-sidebar">
-      <div class="sidebar-card">
-        <div class="sidebar-header">
+    <div class="sales-sidebar pharma-nav-sidebar">
+      <div class="sidebar-card pharma-nav-sidebar-card">
+        <div class="sidebar-header pharma-nav-sidebar-header">
           <i class="pi pi-shopping-cart"></i>
           <span>Type de vente</span>
         </div>
 
-        <div class="sale-types-nav">
+        <div class="sale-types-nav pharma-nav-sidebar-content">
           <div
             #nav="ngbNav"
             (navChange)="onNavChange($event)"
@@ -109,7 +109,7 @@
             orientation="vertical">
 
             <ng-container ngbNavItem="comptant">
-              <a class="sale-type-link" ngbNavLink>
+              <a class="sale-type-link pharma-nav-vertical-link" ngbNavLink>
                 <i class="pi pi-wallet"></i>
                 <span>Comptant</span>
                 <span class="link-arrow">›</span>
@@ -126,7 +126,7 @@
             </ng-container>
 
             <ng-container ngbNavItem="assurance">
-              <a class="sale-type-link" ngbNavLink>
+              <a class="sale-type-link pharma-nav-vertical-link" ngbNavLink>
                 <i class="pi pi-shield"></i>
                 <span>Assurance</span>
                 <span class="link-arrow">›</span>
@@ -137,7 +137,7 @@
             </ng-container>
 
             <ng-container ngbNavItem="carnet">
-              <a class="sale-type-link" ngbNavLink>
+              <a class="sale-type-link pharma-nav-vertical-link" ngbNavLink>
                 <i class="pi pi-book"></i>
                 <span>Carnet</span>
                 <span class="link-arrow">›</span>

@@ -1,27 +1,42 @@
 <div class="row produit-audit-transaction">
   <div class="col-2 col-md-2 col-sm-2">
-    <p-card>
-      <div #nav="ngbNav" [(activeId)]="active" class="nav flex-column nav-pills" ngbNav
-           orientation="vertical">
+    <!-- Modern Navigation Sidebar -->
+    <div class="pharma-nav-sidebar">
+      <div class="pharma-nav-sidebar-card">
+        <div class="pharma-nav-sidebar-header">
+          <i class="pi pi-exclamation-triangle"></i>
+          <span>Gestion péremption</span>
+        </div>
 
-        <ng-container ngbNavItem="lot-perimes">
-          <a class="nav-link pharma-nav-link"
-             ngbNavLink>{{ 'warehouseApp.gestionPerimes.menu.produitPerimes' | translate }}
-          </a>
-          <ng-template ngbNavContent>
-            <jhi-lot-perimes></jhi-lot-perimes>
-          </ng-template>
-        </ng-container>
-        <p-divider layout="horizontal"></p-divider>
-        <ng-container ngbNavItem="lot-a-detruire">
-          <a class="nav-link pharma-nav-link"
-             ngbNavLink>{{ 'warehouseApp.gestionPerimes.menu.lotToDestroy' | translate }}</a>
-          <ng-template ngbNavContent>
-            <jhi-lot-a-detruire></jhi-lot-a-detruire>
-          </ng-template>
-        </ng-container>
+        <div class="pharma-nav-sidebar-content">
+          <div #nav="ngbNav" [(activeId)]="active" class="nav flex-column nav-pills" ngbNav
+               orientation="vertical">
+
+            <ng-container ngbNavItem="lot-perimes">
+              <a class="pharma-nav-vertical-link" ngbNavLink>
+                <i class="pi pi-calendar-times"></i>
+                <span>{{ 'warehouseApp.gestionPerimes.menu.produitPerimes' | translate }}</span>
+                <span class="link-arrow">›</span>
+              </a>
+              <ng-template ngbNavContent>
+                <jhi-lot-perimes></jhi-lot-perimes>
+              </ng-template>
+            </ng-container>
+
+            <ng-container ngbNavItem="lot-a-detruire">
+              <a class="pharma-nav-vertical-link" ngbNavLink>
+                <i class="pi pi-trash"></i>
+                <span>{{ 'warehouseApp.gestionPerimes.menu.lotToDestroy' | translate }}</span>
+                <span class="link-arrow">›</span>
+              </a>
+              <ng-template ngbNavContent>
+                <jhi-lot-a-detruire></jhi-lot-a-detruire>
+              </ng-template>
+            </ng-container>
+          </div>
+        </div>
       </div>
-    </p-card>
+    </div>
   </div>
 
   <div class="col-10 col-md-10 col-sm-10 row">

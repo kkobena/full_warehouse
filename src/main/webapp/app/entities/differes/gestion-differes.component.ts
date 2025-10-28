@@ -6,7 +6,6 @@ import { ListDifferesComponent } from './list-differes/list-differes.component';
 import { ReglementDifferesComponent } from './reglement-differes/reglement-differes.component';
 import { WarehouseCommonModule } from '../../shared/warehouse-common/warehouse-common.module';
 import { FormsModule } from '@angular/forms';
-import { Divider } from 'primeng/divider';
 
 @Component({
   selector: 'jhi-gestion-differes',
@@ -21,8 +20,7 @@ import { Divider } from 'primeng/divider';
     PanelModule,
     FormsModule,
     ListDifferesComponent,
-    ReglementDifferesComponent,
-    Divider
+    ReglementDifferesComponent
   ],
   templateUrl: './gestion-differes.component.html',
   styleUrl: './gestion-differes.component.scss',

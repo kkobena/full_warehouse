@@ -12,7 +12,6 @@ import { PanelModule } from 'primeng/panel';
 import { AuditingComponent } from '../auditing/auditing.component';
 import { ProduitAuditingParam } from '../../../shared/model/produit-record.model';
 import { IProduit } from '../../../shared/model/produit.model';
-import { ProduitService } from '../produit.service';
 import { ProduitAuditingParamService } from './produit-auditing-param.service';
 import { BadgeModule } from 'primeng/badge';
 import {

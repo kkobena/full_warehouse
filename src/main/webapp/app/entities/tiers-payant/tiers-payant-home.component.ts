@@ -1,6 +1,4 @@
 import { Component } from '@angular/core';
-import { Card } from 'primeng/card';
-import { Divider } from 'primeng/divider';
 import {
   NgbNav,
   NgbNavContent,
@@ -15,8 +13,6 @@ import { GroupeTiersPayantComponent } from '../groupe-tiers-payant/groupe-tiers-
 @Component({
   selector: 'jhi-tiers-payant-home',
   imports: [
-    Card,
-    Divider,
     NgbNav,
     NgbNavContent,
     NgbNavItem,

@@ -21,7 +21,6 @@ import { IconField } from 'primeng/iconfield';
 import { InputIcon } from 'primeng/inputicon';
 import { BonEnCoursComponent } from './delevery/bon-en-cours/bon-en-cours.component';
 import { ListBonsComponent } from './delevery/list-bons/list-bons.component';
-import { Divider } from 'primeng/divider';
 import { SuggestionComponent } from './suggestion/suggestion.component';
 import { FournisseurService } from '../fournisseur/fournisseur.service';
 import { HttpResponse } from '@angular/common/http';
@@ -51,7 +50,6 @@ import { ConfirmDialogComponent } from '../../shared/dialog/confirm-dialog/confi
     InputIcon,
     BonEnCoursComponent,
     ListBonsComponent,
-    Divider,
     SuggestionComponent,
     ReactiveFormsModule,
     Select,

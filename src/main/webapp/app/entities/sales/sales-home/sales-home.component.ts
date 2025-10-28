@@ -8,7 +8,6 @@ import { NgbNav, NgbNavChangeEvent } from '@ng-bootstrap/ng-bootstrap';
 import { FormsModule } from '@angular/forms';
 import { RouterModule } from '@angular/router';
 import { SaleToolBarService } from '../service/sale-tool-bar.service';
-import { Divider } from 'primeng/divider';
 
 @Component({
   selector: 'jhi-sales-home',
@@ -20,8 +19,7 @@ import { Divider } from 'primeng/divider';
     RouterModule,
     SalesComponent,
     PresaleComponent,
-    VenteEnCoursComponent,
-    Divider
+    VenteEnCoursComponent
   ],
   templateUrl: './sales-home.component.html',
   styleUrl: './sales-home.component.scss',

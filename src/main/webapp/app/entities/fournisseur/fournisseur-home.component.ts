@@ -1,6 +1,4 @@
 import { Component } from '@angular/core';
-import { Card } from 'primeng/card';
-import { Divider } from 'primeng/divider';
 import {
   NgbNav,
   NgbNavContent,
@@ -15,8 +13,6 @@ import { GroupeFournisseurComponent } from '../groupe-fournisseur/groupe-fournis
 @Component({
   selector: 'jhi-fournisseur-home',
   imports: [
-    Card,
-    Divider,
     NgbNav,
     NgbNavContent,
     NgbNavItem,

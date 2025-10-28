@@ -11,7 +11,6 @@ import { YearlyDataComponent } from './yearly/yearly-data/yearly-data.component'
 import { MonthlyDataComponent } from './monthly/monthly-data/monthly-data.component';
 import { WeeklyDataComponent } from './weekly/weekly-data/weekly-data.component';
 import { DailyDataComponent } from './daily/daily-data/daily-data.component';
-import { Divider } from 'primeng/divider';
 import { Authority } from '../shared/constants/authority.constants';
 
 @Component({
@@ -27,7 +26,7 @@ import { Authority } from '../shared/constants/authority.constants';
     MonthlyDataComponent,
     WeeklyDataComponent,
     DailyDataComponent,
-    Divider,
+
   ],
 })
 export default class HomeComponent implements OnInit, OnDestroy {

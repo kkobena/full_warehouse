@@ -13,7 +13,6 @@ import { PanelModule } from 'primeng/panel';
 import { FacturesComponent } from './factures/factures.component';
 import { EditionComponent } from './edition/edition.component';
 import { ConfirmationService, MessageService } from 'primeng/api';
-import { Divider } from 'primeng/divider';
 
 @Component({
   selector: 'jhi-facturation',
@@ -35,7 +34,7 @@ import { Divider } from 'primeng/divider';
     PanelModule,
     FacturesComponent,
     EditionComponent,
-    Divider,
+
   ],
   templateUrl: './facturation.component.html',
   styleUrl: './facturation.component.scss',

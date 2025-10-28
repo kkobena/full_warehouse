@@ -27,7 +27,6 @@ import { CloturesComponent } from './clotures/clotures.component';
 import { Select } from 'primeng/select';
 import { InputGroup } from 'primeng/inputgroup';
 import { InputGroupAddon } from 'primeng/inputgroupaddon';
-import { Divider } from 'primeng/divider';
 
 @Component({
   selector: 'jhi-store-inventory',
@@ -47,7 +46,7 @@ import { Divider } from 'primeng/divider';
     Select,
     InputGroup,
     InputGroupAddon,
-    Divider,
+
   ],
 })
 export class StoreInventoryComponent implements OnInit {

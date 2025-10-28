@@ -32,6 +32,7 @@ import { handleBlobForTauri } from '../../../shared/util/tauri-util';
 @Component({
   selector: 'jhi-en-cours',
   templateUrl: './en-cours.component.html',
+  styleUrls: ['./en-cours.scss'],
   imports: [
     WarehouseCommonModule,
     ConfirmDialogModule,

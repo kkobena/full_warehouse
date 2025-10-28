@@ -25,8 +25,7 @@ import { FormsModule } from '@angular/forms';
 import { EnCoursComponent } from './en-cours/en-cours.component';
 import { CloturesComponent } from './clotures/clotures.component';
 import { Select } from 'primeng/select';
-import { InputGroup } from 'primeng/inputgroup';
-import { InputGroupAddon } from 'primeng/inputgroupaddon';
+import { FloatLabel } from 'primeng/floatlabel';
 
 @Component({
   selector: 'jhi-store-inventory',
@@ -44,10 +43,10 @@ import { InputGroupAddon } from 'primeng/inputgroupaddon';
     EnCoursComponent,
     CloturesComponent,
     Select,
-    InputGroup,
-    InputGroupAddon,
+    FloatLabel
 
-  ],
+
+  ]
 })
 export class StoreInventoryComponent implements OnInit {
   protected storeInventories: IStoreInventory[];

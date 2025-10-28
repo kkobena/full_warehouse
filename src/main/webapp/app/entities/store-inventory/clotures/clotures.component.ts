@@ -26,6 +26,7 @@ import { TauriPrinterService } from '../../../shared/services/tauri-printer.serv
 @Component({
   selector: 'jhi-clotures',
   templateUrl: './clotures.component.html',
+  styleUrls: ['./clotures.scss'],
   imports: [WarehouseCommonModule, ButtonModule, RippleModule, TooltipModule, ToastModule, NgxSpinnerModule, TableModule, RouterModule],
 })
 export class CloturesComponent implements OnInit {

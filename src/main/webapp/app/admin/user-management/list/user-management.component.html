@@ -1,25 +1,35 @@
 
 <div class="container-fluid">
   <div class="justify-content-center">
-    <p-panel>
-      <ng-template #header>
-        <h4>Liste des utilisateurs</h4>
-      </ng-template>
-      <ng-template #content>
-        <p-toolbar>
-          <div class="p-toolbar-group-left p-md-7">
-          <!--  <p-iconfield>
-              <p-inputicon styleClass="pi pi-search" />
-              <input (keyup.enter)="search($event)" pInputText placeholder="Taper pour rechercher" style="width: 98%" type="text" />
-            </p-iconfield> -->
-          </div>
-          <div class="p-toolbar-group-right">
+    <div class="pharma-smart-content p-2">
+      <div class="pharma-toolbar">
+        <div class="pharma-toolbar-header">
+          <i class="pi pi-users"></i>
+          <span class="pharma-toolbar-title">Liste des utilisateurs</span>
+        </div>
 
-            <p-button [routerLink]="['./new']" icon="pi pi-users" label="Créer un nouvel utilisateur" raised="true" severity="primary">
-            </p-button>
-          </div>
+        <p-toolbar>
+          <ng-template #start>
+            <div class="pharma-toolbar-filters">
+              <!--  <p-iconfield>
+                <p-inputicon class="pi pi-search" />
+                <input (keyup.enter)="search($event)" pInputText placeholder="Taper pour rechercher" type="text" />
+              </p-iconfield> -->
+            </div>
+          </ng-template>
+
+          <ng-template #end>
+            <div class="pharma-toolbar-actions">
+              <div class="pharma-button-group">
+                <p-button [routerLink]="['./new']" icon="pi pi-users" label="Créer un nouvel utilisateur" [raised]="true" severity="primary">
+                </p-button>
+              </div>
+            </div>
+          </ng-template>
         </p-toolbar>
-          @if (users()) {
+      </div>
+
+      @if (users()) {
             <div class="mt-2">
               <table class="table table-striped">
                 <thead class="pharma-table-head">
@@ -139,8 +149,8 @@
             </div>
           }
 
-      </ng-template>
-    </p-panel></div>
+    </div>
+  </div>
 </div>
 
 

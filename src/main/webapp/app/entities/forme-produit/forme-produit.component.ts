@@ -8,7 +8,6 @@ import { ToolbarModule } from 'primeng/toolbar';
 import { TableLazyLoadEvent, TableModule } from 'primeng/table';
 import { Tooltip } from 'primeng/tooltip';
 import { ConfirmDialogComponent } from '../../shared/dialog/confirm-dialog/confirm-dialog.component';
-import { Panel } from 'primeng/panel';
 import { IconField } from 'primeng/iconfield';
 import { InputIcon } from 'primeng/inputicon';
 import { InputText } from 'primeng/inputtext';
@@ -26,7 +25,6 @@ import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
     TableModule,
     Tooltip,
     ConfirmDialogComponent,
-    Panel,
     IconField,
     InputIcon,
     InputText

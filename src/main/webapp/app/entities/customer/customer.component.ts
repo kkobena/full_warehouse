@@ -30,13 +30,13 @@ import { PrimeNG } from 'primeng/config';
 import { Select, SelectModule } from 'primeng/select';
 import { IconField } from 'primeng/iconfield';
 import { InputIcon } from 'primeng/inputicon';
-import { Panel } from 'primeng/panel';
 import { DividerModule } from 'primeng/divider';
 import { CustomerCarnetComponent } from './carnet/customer-carnet.component';
 import { ConfirmDialogComponent } from '../../shared/dialog/confirm-dialog/confirm-dialog.component';
 import { showCommonModal } from '../sales/selling-home/sale-helper';
 import { SpinnerComponent } from '../../shared/spinner/spinner.component';
 import { Card } from 'primeng/card';
+import { FloatLabel } from 'primeng/floatlabel';
 
 @Component({
   selector: 'jhi-customer',
@@ -61,10 +61,10 @@ import { Card } from 'primeng/card';
     Select,
     IconField,
     InputIcon,
-    Panel,
     ConfirmDialogComponent,
     SpinnerComponent,
-    Card
+    Card,
+    FloatLabel
   ]
 })
 export class CustomerComponent implements OnInit, OnDestroy {

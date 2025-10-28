@@ -1,82 +1,85 @@
 <div class="container">
   <div class="justify-content-center">
-    <p-panel>
-      <ng-template #header>
-        <h4>
-          <span jhiTranslate="warehouseApp.rayon.home.title">Rayons</span>
-        </h4>
-      </ng-template>
+    <div class="pharma-smart-content p-2">
+      <div class="pharma-toolbar">
+        <div class="pharma-toolbar-header">
+          <i class="pi pi-tag"></i>
+          <span class="pharma-toolbar-title" jhiTranslate="warehouseApp.rayon.home.title">Rayons</span>
+        </div>
 
-      <p-toolbar>
-        <ng-template #start>
-          <p-select
-            (onChange)="onChange()"
-            [(ngModel)]="storage"
-            [filter]="false"
-            [fluid]="true"
-            [options]="storages"
-            [showClear]="true"
-            class="mr-2"
-            id="storageId"
-            optionLabel="storageType"
-            placeholder="Séléctionner l'emplacement "
-            size="large"
-          />
+        <p-toolbar>
+          <ng-template #start>
+            <div class="pharma-toolbar-filters">
+              <p-floatlabel variant="on" class="mr-1">
+                <p-select
+                  id="storageId"
+                  (onChange)="onChange()"
+                  [(ngModel)]="storage"
+                  [filter]="false"
+                  [options]="storages"
+                  [showClear]="true"
+                  [appendTo]="'body'"
+                  optionLabel="storageType"
+                  size="large"
+                />
+                <label for="storageId">Séléctionner l'emplacement</label>
+              </p-floatlabel>
 
-          <p-select [(ngModel)]="magasin"
-                    [filter]="false"
-                    [fluid]="true"
-                    [hidden]="true"
-                    [options]="magasins"
-                    class="mr-2"
-                    optionLabel="fullName"
-                    optionValue="id"
-                    placeholder="Séléctionner un stockage "
-                    size="large"
-          ></p-select>
+              <p-floatlabel variant="on" class="mr-1" [hidden]="true">
+                <p-select
+                  id="magasinId"
+                  [(ngModel)]="magasin"
+                  [filter]="false"
+                  [options]="magasins"
+                  [appendTo]="'body'"
+                  optionLabel="fullName"
+                  optionValue="id"
+                  size="large"
+                />
+                <label for="magasinId">Séléctionner un stockage</label>
+              </p-floatlabel>
 
+              <div class="pharma-search-input">
+                <p-iconfield>
+                  <p-inputicon class="pi pi-search" />
+                  <input (keyup.enter)="search($event)" pInputText placeholder="Taper pour rechercher"
+                         type="text" />
+                </p-iconfield>
+              </div>
+            </div>
+          </ng-template>
 
-          <p-iconfield>
-            <p-inputicon styleClass="pi pi-search" />
-            <input (keyup.enter)="search($event)" pInputText placeholder="Taper pour rechercher"
-                   style="width: 100%" type="text" />
-          </p-iconfield>
-        </ng-template>
-
-        <ng-template #end>
-          <div class="p-toolbar-group-right">
-            <p-button
-              (click)="showFileDialog()"
-              [raised]="true"
-              class="mr-2"
-              icon="pi pi-upload"
-              label="Importer"
-              severity="help"
-              type="button"
-            ></p-button>
-            @if (selectedEl?.length > 0) {
-              <p-button class="mr-2" (click)="onClone()" [raised]="true"
-                        icon="pi pi-copy"
-                        label="Cloner"
-                        severity="warn"
-                        type="button"></p-button>
-            }
-            <p-button
-              (click)="addNewEntity()"
-              [raised]="true"
-              class="mr-2"
-              icon="pi pi-check"
-              label="Nouveau"
-              severity="success"
-              type="button"
-            ></p-button>
-
-
-          </div>
-        </ng-template>
-
-
-      </p-toolbar>
+          <ng-template #end>
+            <div class="pharma-toolbar-actions">
+              <div class="pharma-button-group">
+                <p-button
+                  (click)="showFileDialog()"
+                  [raised]="true"
+                  icon="pi pi-upload"
+                  label="Importer"
+                  severity="help"
+                  type="button"
+                ></p-button>
+                @if (selectedEl?.length > 0) {
+                  <p-button (click)="onClone()" [raised]="true"
+                            icon="pi pi-copy"
+                            label="Cloner"
+                            severity="warn"
+                            type="button"></p-button>
+                }
+                <p-button
+                  (click)="addNewEntity()"
+                  [raised]="true"
+                  icon="pi pi-check"
+                  label="Nouveau"
+                  severity="success"
+                  type="button"
+                ></p-button>
+              </div>
+            </div>
+          </ng-template>
+        </p-toolbar>
+      </div>
       <p-table (onLazyLoad)="lazyLoading($event)"
                [(selection)]="selectedEl"
                [lazy]="true"
@@ -85,7 +88,7 @@
                [rows]="itemsPerPage"
                [totalRecords]="totalItems"
                [value]="entites"
-               class="pharma-table mt-2"
+               class="pharma-table"
                dataKey="id"
                stripedRows="true"
       >
@@ -128,9 +131,10 @@
           </tr>
         </ng-template>
       </p-table>
-    </p-panel>
+    </div>
   </div>
 </div>
+
 <jhi-confirm-dialog #confirmDialog></jhi-confirm-dialog>
 <jhi-toast-alert #alert></jhi-toast-alert>
 <jhi-spinner #spinner ></jhi-spinner>

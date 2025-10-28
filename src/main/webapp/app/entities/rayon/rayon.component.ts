@@ -19,7 +19,6 @@ import { IconField } from 'primeng/iconfield';
 import { InputIcon } from 'primeng/inputicon';
 import { ConfirmDialogComponent } from '../../shared/dialog/confirm-dialog/confirm-dialog.component';
 import { ToastAlertComponent } from '../../shared/toast-alert/toast-alert.component';
-import { Panel } from 'primeng/panel';
 import { Select } from 'primeng/select';
 import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { ErrorService } from '../../shared/error.service';
@@ -31,6 +30,7 @@ import { MagasinService } from '../magasin/magasin.service';
 import { StorageService } from '../storage/storage.service';
 import { Storage } from '../storage/storage.model';
 import { SpinnerComponent } from '../../shared/spinner/spinner.component';
+import { FloatLabel } from 'primeng/floatlabel';
 
 @Component({
   selector: 'jhi-rayon',
@@ -49,10 +49,10 @@ import { SpinnerComponent } from '../../shared/spinner/spinner.component';
     InputIcon,
     ConfirmDialogComponent,
     ToastAlertComponent,
-    Panel,
     Select,
     ReactiveFormsModule,
-    SpinnerComponent
+    SpinnerComponent,
+    FloatLabel
   ]
 })
 export class RayonComponent implements OnInit, OnDestroy {

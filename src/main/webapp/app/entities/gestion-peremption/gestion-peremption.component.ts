@@ -1,6 +1,5 @@
 import { Component } from '@angular/core';
 import { NgbNav, NgbNavContent, NgbNavItem, NgbNavLink, NgbNavLinkBase } from '@ng-bootstrap/ng-bootstrap';
-import { Panel } from 'primeng/panel';
 import { TranslatePipe } from '@ngx-translate/core';
 import { LotPerimesComponent } from './lot-perimes/lot-perimes.component';
 import { LotADetruireComponent } from './lot-a-detruire/lot-a-detruire.component';
@@ -14,7 +13,6 @@ import { WarehouseCommonModule } from '../../shared/warehouse-common/warehouse-c
     NgbNavItem,
     NgbNavLink,
     NgbNavLinkBase,
-    Panel,
     TranslatePipe,
     LotPerimesComponent,
     LotADetruireComponent,

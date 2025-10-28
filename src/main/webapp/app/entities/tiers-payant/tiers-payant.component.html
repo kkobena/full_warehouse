@@ -30,42 +30,61 @@
 }
 
 
-<p-panel header="Liste des tiers payants">
-  <p-toolbar>
-    <ng-template #start>
-      <p-select
-        (onChange)="onSearch()"
-        [(ngModel)]="typeSelected"
-        [filter]="false"
-        [options]="type"
-        [style]="{ width: '200px' }"
-        class="mr-1"
-        size="large"
-      >
-      </p-select>
-      <p-iconfield>
-        <p-inputicon class="pi pi-search" />
-        <input
-          (keyup.enter)="onSearch()"
-          [(ngModel)]="search"
-          [style]="{ width: '300px' }"
-          pInputText
-          placeholder="Taper pour rechercher"
-          type="text"
-        />
-      </p-iconfield>
-    </ng-template>
-    <ng-template #end>
-      <p-button (click)="loadPage()" class="mr-1" icon="pi pi-search" label="Rechercher"
-                raised="true" severity="info"></p-button>
-      <p-button [hidden]="true" icon="pi pi-upload" label="Importation" raised="true"
-                severity="help"></p-button>
+<div class="pharma-smart-content p-2">
+  <div class="pharma-toolbar">
+    <div class="pharma-toolbar-header">
+      <i class="pi pi-shield"></i>
+      <span class="pharma-toolbar-title">Liste des tiers payants</span>
+    </div>
 
-      <p-splitbutton [model]="tiersPayantSplitbuttons" icon="pi pi-user-plus"
-                     label="Nouveau tiers payant" raised="true" severity="primary">
-      </p-splitbutton>
-    </ng-template>
-  </p-toolbar>
+    <p-toolbar>
+      <ng-template #start>
+        <div class="pharma-toolbar-filters">
+          <p-floatlabel variant="on" class="mr-1">
+            <p-select
+              id="typeFilter"
+              (onChange)="onSearch()"
+              [(ngModel)]="typeSelected"
+              [filter]="false"
+              [options]="type"
+              [appendTo]="'body'"
+              size="large"
+            >
+            </p-select>
+            <label for="typeFilter">Type</label>
+          </p-floatlabel>
+
+          <div class="pharma-search-input">
+            <p-iconfield>
+              <p-inputicon class="pi pi-search" />
+              <input
+                (keyup.enter)="onSearch()"
+                [(ngModel)]="search"
+                pInputText
+                placeholder="Taper pour rechercher"
+                type="text"
+              />
+            </p-iconfield>
+          </div>
+        </div>
+      </ng-template>
+
+      <ng-template #end>
+        <div class="pharma-toolbar-actions">
+          <div class="pharma-button-group">
+            <p-button (click)="loadPage()" icon="pi pi-search" label="Rechercher"
+                      [raised]="true" severity="info"></p-button>
+            <p-button [hidden]="true" icon="pi pi-upload" label="Importation" [raised]="true"
+                      severity="help"></p-button>
+
+            <p-splitbutton [model]="tiersPayantSplitbuttons" icon="pi pi-user-plus"
+                           label="Nouveau tiers payant" [raised]="true" severity="primary">
+            </p-splitbutton>
+          </div>
+        </div>
+      </ng-template>
+    </p-toolbar>
+  </div>
 
   @if (tiersPayants && tiersPayants.length > 0) {
     <p-table
@@ -173,5 +192,6 @@
       <span>Aucune donnée trouvée</span>
     </div>
   }
-</p-panel>
+</div>
+
 <jhi-spinner #spinner ></jhi-spinner>

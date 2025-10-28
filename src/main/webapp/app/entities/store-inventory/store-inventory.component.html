@@ -38,36 +38,78 @@
     </div>
   </div>
 
-  <div class="col-xl-10 col-lg-10 col-md-10 col-sm-10 row">
-    <p-toolbar>
-      <ng-template #start>
-        <p-inputgroup [hidden]="true">
-          <p-inputgroup-addon>Opérateurs</p-inputgroup-addon>
-          <p-select (onChange)="onSelectUser()" [(ngModel)]="user" [options]="users"
-                    [showClear]="true" optionLabel="fullName"></p-select>
-        </p-inputgroup>
-        <p-inputgroup>
-          <p-inputgroup-addon>Types</p-inputgroup-addon>
-          <p-multiSelect
-            [(ngModel)]="inventoryCategories"
-            [filter]="false"
-            [options]="categories"
-            [showClear]="true"
-            [showToggleAll]="false"
-            optionLabel="label"
-            placeholder="Filter par type"
-          />
-        </p-inputgroup>
-      </ng-template>
-      <ng-template #end>
-        <p-button (click)="onSearch()" class="mr-1" icon="pi pi-search" label="Rechercher"
-                  raised="true" severity="info"></p-button>
+  <div class="col-xl-10 col-lg-10 col-md-10 col-sm-10">
+    <div class="pharma-smart-content p-2">
+      <!-- Modern Pharma Toolbar -->
+      <div class="pharma-toolbar">
+        <div class="pharma-toolbar-header">
+          <i class="pi pi-database"></i>
+          <span class="pharma-toolbar-title">Inventaires</span>
+        </div>
 
-        <p-button (click)="onCreateNew()" icon="pi pi-plus" label="Nouveau" raised="true"
-                  severity="success"></p-button>
-      </ng-template>
-    </p-toolbar>
+        <p-toolbar>
+          <ng-template #start>
+            <div class="pharma-toolbar-filters">
+              <p-floatlabel variant="on" [hidden]="true" class="mr-2">
+                <p-select
+                  (onChange)="onSelectUser()"
+                  [(ngModel)]="user"
+                  [options]="users"
+                  [showClear]="true"
+                  optionLabel="fullName"
+                  appendTo="body"
+                  id="userSelect"
+                />
+                <label for="userSelect">Opérateurs</label>
+              </p-floatlabel>
 
-    <div [ngbNavOutlet]="nav"></div>
+              <p-floatlabel variant="on" class="mr-2">
+                <p-multiSelect
+                  [(ngModel)]="inventoryCategories"
+                  [filter]="false"
+                  [options]="categories"
+                  [showClear]="true"
+                  [showToggleAll]="false"
+                  optionLabel="label"
+                  appendTo="body"
+                  id="typeSelect"
+                />
+                <label for="typeSelect">Types</label>
+              </p-floatlabel>
+            </div>
+          </ng-template>
+
+          <ng-template #end>
+            <div class="pharma-toolbar-actions">
+              <div class="pharma-button-group">
+                <p-button
+                  (click)="onSearch()"
+                  [raised]="true"
+                  icon="pi pi-search"
+                  label="Rechercher"
+                  pTooltip="Rechercher"
+                  severity="info"
+                  tooltipPosition="top"
+                />
+
+                <p-button
+                  (click)="onCreateNew()"
+                  [raised]="true"
+                  icon="pi pi-plus"
+                  label="Nouveau"
+                  pTooltip="Nouveau inventaire"
+                  severity="success"
+                  tooltipPosition="top"
+                />
+              </div>
+            </div>
+          </ng-template>
+        </p-toolbar>
+      </div>
+
+
+        <div [ngbNavOutlet]="nav"></div>
+
+    </div>
   </div>
 </div>

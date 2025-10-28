@@ -5,7 +5,6 @@ import { ITva } from '../../shared/model/tva.model';
 import { ButtonModule } from 'primeng/button';
 import { TableModule } from 'primeng/table';
 import { ConfirmDialogComponent } from '../../shared/dialog/confirm-dialog/confirm-dialog.component';
-import { Panel } from 'primeng/panel';
 import { Toolbar } from 'primeng/toolbar';
 import { Tooltip } from 'primeng/tooltip';
 import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
@@ -18,7 +17,7 @@ import { TranslatePipe } from '@ngx-translate/core';
   selector: 'jhi-tva',
   templateUrl: './tva.component.html',
   styleUrl: './tva.component.scss',
-  imports: [CommonModule, ButtonModule, TableModule, Panel, Toolbar, Tooltip, ConfirmDialogComponent, TranslatePipe]
+  imports: [CommonModule, ButtonModule, TableModule, Toolbar, Tooltip, ConfirmDialogComponent, TranslatePipe]
 })
 export class TvaComponent implements OnInit {
   protected tvas?: ITva[];

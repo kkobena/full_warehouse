@@ -1,11 +1,16 @@
 <jhi-confirm-dialog #confirmDialog></jhi-confirm-dialog>
 <jhi-toast-alert #alert></jhi-toast-alert>
+<div class=" pharma-smart-content ">
+<!-- Modern Pharma Toolbar (Compact) -->
+<div class="pharma-toolbar pharma-toolbar-compact">
+  <div class="pharma-toolbar-header">
+    <i class="pi pi-exclamation-triangle"></i>
+    <span class="pharma-toolbar-title">Lots à détruire</span>
+  </div>
 
-<div>
   <p-toolbar>
     <ng-template #start>
-      <div class="d-flex justify-content-between" style="width: 100%">
-
+      <div class="pharma-toolbar-filters">
         <p-select
           (onChange)="onFilterChange()"
           [(ngModel)]="selectedType"
@@ -16,14 +21,13 @@
           size="large"
         ></p-select>
 
-        <p-floatlabel variant="on">
+        <p-floatlabel variant="on" class="mr-1">
           <p-iconfield>
-            <p-inputicon styleClass="pi pi-search" />
+            <p-inputicon class="pi pi-search" />
             <input
               (keyup.enter)="onSearch()"
               [(ngModel)]="searchTerm"
               [style]="{'max-width': '200px'}"
-              class="mr-1"
               id="searchTerm"
               pInputText
               type="text"
@@ -39,7 +43,6 @@
         </div>
 
         <div class="mr-1">
-
           <jhi-date-picker [(ngModel)]="toDate"
                            [id]="'dateFin'"
                            [label]="'warehouseApp.labels.au'" [style]="{'max-width': '160px'}"
@@ -47,7 +50,7 @@
         </div>
 
         @if (!isMono) {
-          <p-floatlabel variant="on">
+          <p-floatlabel variant="on" class="mr-1">
             <p-select
               size="large"
               [style]="{'min-width': '150px'}"
@@ -55,13 +58,13 @@
               [(ngModel)]="selectedMagasin"
               [options]="magasins"
               [showClear]="true"
+              appendTo="body"
               optionLabel="fullName"
               id="magasins"
-              class="mr-1"
             ></p-select>
             <label for="magasins">{{ 'warehouseApp.labels.magasin' | translate }}</label>
           </p-floatlabel>
-          <p-floatlabel variant="on">
+          <p-floatlabel variant="on" class="mr-1">
             <p-select
               size="large"
               (onChange)="onStorageChange()"
@@ -69,36 +72,36 @@
               [options]="storages"
               [style]="{'min-width': '150px'}"
               id="storages"
+              appendTo="body"
               [showClear]="true"
               optionLabel="name"
-              class="mr-1"
             ></p-select>
             <label for="storages">{{ 'warehouseApp.labels.typeStockage' | translate }}</label>
           </p-floatlabel>
         }
-        <p-floatlabel>
+        <p-floatlabel variant="on" class="mr-1">
           <p-select
             (onChange)="onSearch()"
             [(ngModel)]="selectedRayon"
             [options]="rayons"
             [showClear]="true"
             [style]="{'min-width': '200px'}"
-            class="mr-1"
             filter="true"
             id="rayons"
+            appendTo="body"
             optionLabel="libelle"
             size="large"
           ></p-select>
           <label for="rayons">{{ 'warehouseApp.labels.rayons' | translate }}</label>
         </p-floatlabel>
-        <p-floatlabel variant="on">
+        <p-floatlabel variant="on" class="mr-1">
           <p-select
             (onChange)="onSearch()"
+            appendTo="body"
             [(ngModel)]="selectedFournisseur"
             [options]="fournisseurs"
             [showClear]="true"
             [style]="{'min-width': '200px'}"
-            class="mr-1"
             filter="true"
             id="fournisseurs"
             optionLabel="libelle"
@@ -106,12 +109,15 @@
           ></p-select>
           <label for="fournisseurs">{{ 'warehouseApp.labels.fournisseurs' | translate }}</label>
         </p-floatlabel>
+      </div>
+    </ng-template>
 
-        <p-buttonGroup>
+    <ng-template #end>
+      <div class="pharma-toolbar-actions">
+        <div class="pharma-button-group">
           <p-button
             (click)="onSearch()"
             [raised]="true"
-            class="mr-1"
             icon="pi pi-search"
             label="{{'warehouseApp.buttons.search' | translate}}"
             severity="info"
@@ -120,7 +126,6 @@
           <p-splitbutton
             [model]="exportMenus"
             [raised]="true"
-            class="mr-1"
             icon="pi pi-download"
             label="{{'warehouseApp.buttons.export' | translate}}"
             severity="help"
@@ -135,14 +140,13 @@
               type="button"
             ></p-button>
           }
-
-        </p-buttonGroup>
+        </div>
       </div>
     </ng-template>
-
   </p-toolbar>
+</div>
 
-  <p-divider></p-divider>
+
   @if (productToDestroySum) {
     <div class="row g-4 mb-2">
       <div class="col-12 col-md-6 col-lg-3">
@@ -192,7 +196,7 @@
   }
 
   @if (data && data.length) {
-    <div>
+
       <p-table
         class="pharma-table"
         (onLazyLoad)="lazyLoading($event)"
@@ -280,7 +284,7 @@
       </p-table>
 
 
-    </div>
+
   } @else {
 
 

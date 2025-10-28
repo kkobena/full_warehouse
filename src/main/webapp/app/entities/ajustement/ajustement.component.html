@@ -1,65 +1,89 @@
 <div class="container-fluid">
-  <p-panel header="Liste des ajustements">
-    <p-toolbar>
-      <ng-template #start>
-        <p-floatlabel variant="on">
-          <p-iconfield>
-            <p-inputicon class="pi pi-search" />
-            <input
-              (keyup.enter)="onSearch()"
-              [(ngModel)]="search"
-              class="mr-1"
-              id="searchTerm"
-              pInputText
-              type="text"
-            /></p-iconfield>
-          <label for="searchTerm">{{ 'warehouseApp.labels.searchPlaceholder' | translate }}</label>
-        </p-floatlabel>
+  <div class="pharma-smart-content p-2">
+    <!-- Modern Pharma Toolbar -->
+    <div class="pharma-toolbar">
+      <div class="pharma-toolbar-header">
+        <i class="pi pi-sliders-h"></i>
+        <span class="pharma-toolbar-title">Liste des ajustements</span>
+      </div>
 
-        <div class="mr-1">
-          <jhi-date-picker [(ngModel)]="fromDate"
-                           [id]="'dateDebut'"
-                           [label]="'warehouseApp.labels.du'"
-          ></jhi-date-picker>
-        </div>
+      <p-toolbar>
+        <ng-template #start>
+          <div class="pharma-toolbar-filters">
+            <div class="pharma-search-input mr-2">
+              <p-iconfield>
+                <p-inputicon class="pi pi-search" />
+                <input
+                  (keyup.enter)="onSearch()"
+                  [(ngModel)]="search"
+                  id="searchTerm"
+                  pInputText
+                  placeholder="{{ 'warehouseApp.labels.searchPlaceholder' | translate }}"
+                  type="text"
+                />
+              </p-iconfield>
+            </div>
 
-        <div class="mr-1">
+            <div class="mr-2">
+              <jhi-date-picker
+                [(ngModel)]="fromDate"
+                [id]="'dateDebut'"
+                [label]="'warehouseApp.labels.du'"
+              />
+            </div>
 
-          <jhi-date-picker [(ngModel)]="toDate"
-                           [id]="'dateFin'"
-                           [label]="'warehouseApp.labels.au'"
-          ></jhi-date-picker>
-        </div>
+            <div class="mr-2">
+              <jhi-date-picker
+                [(ngModel)]="toDate"
+                [id]="'dateFin'"
+                [label]="'warehouseApp.labels.au'"
+              />
+            </div>
 
+            <p-floatlabel variant="on" class="mr-2">
+              <p-select
+                (onChange)="onSelectUser()"
+                [(ngModel)]="user"
+                [options]="users"
+                appendTo="body"
+                id="users"
+                optionLabel="abbrName"
+              />
+              <label for="users">{{ 'warehouseApp.labels.operateur' | translate }}</label>
+            </p-floatlabel>
+          </div>
+        </ng-template>
 
-        <p-floatlabel variant="on">
-          <p-select
-            (onChange)="onSelectUser()"
-            [(ngModel)]="user"
-            [appendTo]="appendTo"
-            [options]="users"
-            class="mr-1"
-            fluid="true"
-            id="users"
-            optionLabel="abbrName"
-            size="large"
-          ></p-select>
-          <label for="users">{{ 'warehouseApp.labels.operateur' | translate }}</label>
-        </p-floatlabel>
+        <ng-template #end>
+          <div class="pharma-toolbar-actions">
+            <div class="pharma-button-group">
+              <p-button
+                (click)="onSearch()"
+                [raised]="true"
+                icon="pi pi-search"
+                label="Rechercher"
+                pTooltip="Rechercher"
+                severity="info"
+                tooltipPosition="top"
+              />
 
+              <p-button
+                [routerLink]="['/ajustement', 'new']"
+                [raised]="true"
+                icon="pi pi-plus"
+                label="Nouveau"
+                pTooltip="Nouveau ajustement"
+                severity="primary"
+                tooltipPosition="top"
+              />
+            </div>
+          </div>
+        </ng-template>
+      </p-toolbar>
+    </div>
 
-      </ng-template>
-      <ng-template #end>
-        <p-button (click)="onSearch()" class="ml-1 mr-1" icon="pi pi-search" label="Rechercher"
-                  raised="true" severity="info"></p-button>
-
-        <p-button [routerLink]="['/ajustement', 'new']" icon="pi pi-plus" label="Nouveau"
-                  raised="true" severity="primary"></p-button>
-      </ng-template>
-    </p-toolbar>
-
-    <jhi-list-ajustement></jhi-list-ajustement>
-  </p-panel>
-
-
+    <div class="mt-3">
+      <jhi-list-ajustement></jhi-list-ajustement>
+    </div>
+  </div>
 </div>

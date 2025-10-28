@@ -1,47 +1,76 @@
-<div class="container-fluid">
+
   <div class="pharma-smart-content p-2">
-    <p-toolbar>
-      <ng-template #start>
-        <div class="pt-1 ml-1">
-          <p-floatlabel variant="on">
-            <p-datePicker
-              [(ngModel)]="fromDate"
-              [iconDisplay]="'input'"
-              [selectOtherMonths]="true"
-              [showButtonBar]="true"
-              [showIcon]="true"
-              dateFormat="dd/mm/yy"
-              id="du"
-              inputId="du"
-            />
-            <label for="du">Date début</label>
-          </p-floatlabel>
-        </div>
-        <div class="pt-1 ml-1">
-          <p-floatlabel variant="on">
-            <p-datePicker
-              [(ngModel)]="toDate"
-              [iconDisplay]="'input'"
-              [selectOtherMonths]="true"
-              [showButtonBar]="true"
-              [showIcon]="true"
-              dateFormat="dd/mm/yy"
-              id="au"
-              inputId="du"
-            />
-            <label for="au">Date fin</label>
-          </p-floatlabel>
-        </div>
-      </ng-template>
-      <ng-template #end>
-        <div class="pt-1 ml-1">
-          <p-button class="mr-2" (click)="loadAll()" [loading]="loadingBtn()" [raised]="true" icon="pi pi-search"
-                    label="Rechercher" severity="info" />
-          <p-button (click)="printAll()" [loading]="loadingPdf" [raised]="true" icon="pi pi-file-pdf"
-                    label="Imprimer" severity="warn" />
-        </div>
-      </ng-template>
-    </p-toolbar>
+    <!-- Modern Pharma Toolbar ---->
+    <div class="pharma-toolbar">
+      <div class="pharma-toolbar-header">
+        <i class="pi pi-chart-bar"></i>
+        <span class="pharma-toolbar-title">Résumé d'activité</span>
+      </div>
+
+      <p-toolbar>
+        <ng-template #start>
+          <div class="pharma-toolbar-filters">
+            <p-floatlabel variant="on" class="mr-2">
+              <p-datePicker
+                [(ngModel)]="fromDate"
+                [iconDisplay]="'input'"
+                [selectOtherMonths]="true"
+                [showButtonBar]="true"
+                [showIcon]="true"
+                dateFormat="dd/mm/yy"
+                id="du"
+                inputId="du"
+                appendTo="body"
+              />
+              <label for="du">Du</label>
+            </p-floatlabel>
+
+            <p-floatlabel variant="on" class="mr-2">
+              <p-datePicker
+                [(ngModel)]="toDate"
+                [iconDisplay]="'input'"
+                [selectOtherMonths]="true"
+                [showButtonBar]="true"
+                [showIcon]="true"
+                dateFormat="dd/mm/yy"
+                id="au"
+                inputId="au"
+                appendTo="body"
+              />
+              <label for="au">Au</label>
+            </p-floatlabel>
+          </div>
+        </ng-template>
+
+        <ng-template #end>
+          <div class="pharma-toolbar-actions">
+            <div class="pharma-button-group">
+              <p-button
+                (click)="loadAll()"
+                [loading]="loadingBtn()"
+                [raised]="true"
+                icon="pi pi-search"
+                label="Rechercher"
+                pTooltip="Rechercher"
+                severity="info"
+                tooltipPosition="top"
+              />
+
+              <p-button
+                (click)="printAll()"
+                [loading]="loadingPdf"
+                [raised]="true"
+                icon="pi pi-file-pdf"
+                label="Imprimer"
+                pTooltip="Imprimer"
+                severity="warn"
+                tooltipPosition="top"
+              />
+            </div>
+          </div>
+        </ng-template>
+      </p-toolbar>
+    </div>
 
     <div class="mt-3 row mb3 pharma-smart">
       @if (chiffreAffaire) {
@@ -392,7 +421,7 @@
       }
 
     </div>
-  </div>
+
 
 
 </div>

@@ -36,6 +36,7 @@ import { SpinnerComponent } from '../../shared/spinner/spinner.component';
 @Component({
   selector: 'jhi-groupe-tiers-payant',
   templateUrl: './groupe-tiers-payant.component.html',
+  styleUrls: ['./group-tiers-payant.component.scss'],
   imports: [
     WarehouseCommonModule,
     ButtonModule,

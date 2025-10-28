@@ -9,6 +9,9 @@ import { InputTextModule } from 'primeng/inputtext';
 import { showCommonModal } from '../sales/selling-home/sale-helper';
 import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { FormParamettreComponent } from './form-paramettre/form-paramettre.component';
+import { Toolbar } from 'primeng/toolbar';
+import { IconField } from 'primeng/iconfield';
+import { InputIcon } from 'primeng/inputicon';
 
 @Component({
   selector: 'jhi-parametre',
@@ -17,7 +20,10 @@ import { FormParamettreComponent } from './form-paramettre/form-paramettre.compo
     CheckboxModule,
     FormsModule,
     InputTextModule,
-    ButtonModule
+    ButtonModule,
+    Toolbar,
+    IconField,
+    InputIcon
   ],
   templateUrl: './parametre.component.html',
   styleUrls: ['./parametre.component.scss']

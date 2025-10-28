@@ -1,67 +1,159 @@
-<div class="container">
-  <div class="justify-content-center">
-    <p-panel>
-      <ng-template #header>
-        <h3>Utilisateur   <span class="badge bg-info fs-5  fw-semibold">{{ user()!.login }}</span></h3>
-      </ng-template>
-      <p-toolbar>
-        <div class="p-toolbar-group-left p-md-7">
+<div class="container-fluid">
+    <div class="pharma-smart-content p-2">
+      <div class="pharma-toolbar">
+        <div class="pharma-toolbar-header">
+          <i class="pi pi-user"></i>
+          <span class="pharma-toolbar-title">Détails de l'utilisateur</span>
+          @if (user()) {
+            <p-tag class="ml-2" [value]="user()!.login" severity="info"></p-tag>
+            @if (user()!.activated) {
+              <p-tag class="ml-2" icon="pi pi-check-circle" severity="success" value="Activé"></p-tag>
+            } @else {
+              <p-tag class="ml-2" icon="pi pi-times-circle" severity="danger" value="Désactivé"></p-tag>
+            }
+          }
         </div>
-        <div class="p-toolbar-group-right">
 
-          <p-button routerLink="../../"  icon="pi pi-arrow-left" label="Retour" raised="true" severity="secondary" type="button"></p-button>
-        </div>
-      </p-toolbar>
+        <p-toolbar>
+          <ng-template #start>
+            <div class="pharma-toolbar-filters">
+            </div>
+          </ng-template>
+
+          <ng-template #end>
+            <div class="pharma-toolbar-actions">
+              <div class="pharma-button-group">
+                <p-button
+                  [raised]="true"
+                  icon="pi pi-pencil"
+                  label="Modifier"
+                  [routerLink]="['../../', user()!.login, 'edit']"
+                  severity="primary"
+                  type="button"
+                ></p-button>
+                <p-button
+                  [raised]="true"
+                  icon="pi pi-arrow-left"
+                  label="Retour"
+                  routerLink="../../"
+                  severity="secondary"
+                  type="button"
+                ></p-button>
+              </div>
+            </div>
+          </ng-template>
+        </p-toolbar>
+      </div>
 
       @if (user()) {
-        <div class="mt-2">
-          <dl class="row-md jh-entity-details">
-            <dt><span jhiTranslate="userManagement.login">Login</span></dt>
-            <dd>
-              <span>{{ user()!.login }}</span>
-              @if (user()!.activated) {
-                <span class="badge bg-success ms-3 fw-semibold" jhiTranslate="userManagement.activated">Activé</span>
-              } @else {
-                <span class="badge bg-danger ms-3 fw-semibold" jhiTranslate="userManagement.deactivated">Désactivé</span>
-              }
-            </dd>
+        <div class="user-detail-content">
+          <!-- Personal Information Card -->
+          <div class="detail-card">
+            <div class="detail-card-header">
+              <i class="pi pi-id-card"></i>
+              <span class="detail-card-title">Informations personnelles</span>
+            </div>
+            <div class="detail-card-body">
+              <div class="detail-row">
+                <div class="detail-item">
+                  <label class="detail-label">
+                    <i class="pi pi-user"></i>
+                    <span jhiTranslate="userManagement.login">Login</span>
+                  </label>
+                  <div class="detail-value">{{ user()!.login }}</div>
+                </div>
+                <div class="detail-item">
+                  <label class="detail-label">
+                    <i class="pi pi-at"></i>
+                    <span jhiTranslate="userManagement.email">Email</span>
+                  </label>
+                  <div class="detail-value">{{ user()!.email  }}</div>
+                </div>
+              </div>
+              <div class="detail-row">
+                <div class="detail-item">
+                  <label class="detail-label">
+                    <i class="pi pi-user"></i>
+                    <span jhiTranslate="userManagement.firstName">Prénom</span>
+                  </label>
+                  <div class="detail-value">{{ user()!.firstName  }}</div>
+                </div>
+                <div class="detail-item">
+                  <label class="detail-label">
+                    <i class="pi pi-user"></i>
+                    <span jhiTranslate="userManagement.lastName">Nom</span>
+                  </label>
+                  <div class="detail-value">{{ user()!.lastName  }}</div>
+                </div>
+              </div>
+            </div>
+          </div>
 
-            <dt><span jhiTranslate="userManagement.firstName">Prénom</span></dt>
-            <dd>{{ user()!.firstName }}</dd>
+          <!-- Account Information Card -->
+          <div class="detail-card">
+            <div class="detail-card-header">
+              <i class="pi pi-info-circle"></i>
+              <span class="detail-card-title">Informations du compte</span>
+            </div>
+            <div class="detail-card-body">
+              <div class="detail-row">
+                <div class="detail-item">
+                  <label class="detail-label">
+                    <i class="pi pi-user-plus"></i>
+                    <span jhiTranslate="userManagement.createdBy">Créé par</span>
+                  </label>
+                  <div class="detail-value">{{ user()!.createdBy  }}</div>
+                </div>
+                <div class="detail-item">
+                  <label class="detail-label">
+                    <i class="pi pi-calendar"></i>
+                    <span jhiTranslate="userManagement.createdDate">Créé le</span>
+                  </label>
+                  <div class="detail-value">{{ user()!.createdDate  }}</div>
+                </div>
+              </div>
+              <div class="detail-row">
+                <div class="detail-item">
+                  <label class="detail-label">
+                    <i class="pi pi-user-edit"></i>
+                    <span jhiTranslate="userManagement.lastModifiedBy">Modifié par</span>
+                  </label>
+                  <div class="detail-value">{{ user()!.lastModifiedBy  }}</div>
+                </div>
+                <div class="detail-item">
+                  <label class="detail-label">
+                    <i class="pi pi-calendar"></i>
+                    <span jhiTranslate="userManagement.lastModifiedDate">Modifié le</span>
+                  </label>
+                  <div class="detail-value">{{ user()!.lastModifiedDate  }}</div>
+                </div>
+              </div>
+            </div>
+          </div>
 
-            <dt><span jhiTranslate="userManagement.lastName">Nom</span></dt>
-            <dd>{{ user()!.lastName }}</dd>
-
-            <dt><span jhiTranslate="userManagement.email">Email</span></dt>
-            <dd>{{ user()!.email }}</dd>
-            <dt><span jhiTranslate="userManagement.createdBy">Créé par</span></dt>
-            <dd>{{ user()!.createdBy }}</dd>
-
-            <dt><span jhiTranslate="userManagement.createdDate">Créé le</span></dt>
-            <dd>{{ user()!.createdDate | date: 'dd/MM/yy HH:mm' }}</dd>
-
-            <dt><span jhiTranslate="userManagement.lastModifiedBy">Modifié par</span></dt>
-            <dd>{{ user()!.lastModifiedBy }}</dd>
-
-            <dt><span jhiTranslate="userManagement.lastModifiedDate">Modifié le</span></dt>
-            <dd>{{ user()!.lastModifiedDate | date: 'dd/MM/yy HH:mm' }}</dd>
-
-            <dt><span jhiTranslate="userManagement.profiles">Droits</span></dt>
-            <dd>
-              <ul class="list-unstyled">
-                @for (authority of user()!.authorities; track $index) {
-                  <li>
-                    <span class="badge bg-info">{{ authority }}</span>
-                  </li>
+          <!-- Roles & Permissions Card -->
+          <div class="detail-card">
+            <div class="detail-card-header">
+              <i class="pi pi-shield"></i>
+              <span class="detail-card-title" jhiTranslate="userManagement.profiles">Droits</span>
+            </div>
+            <div class="detail-card-body">
+              <div class="authorities-list">
+                @if (user()!.authorities && user()!.authorities.length > 0) {
+                  @for (authority of user()!.authorities; track $index) {
+                    <p-chip [label]="authority" icon="pi pi-key"></p-chip>
+                  }
+                } @else {
+                  <span class="text-muted">Aucun rôle assigné</span>
                 }
-              </ul>
-            </dd>
-          </dl>
+              </div>
+            </div>
+          </div>
         </div>
       }
-    </p-panel>
+    </div>
+  </div>
 
-  </div></div>
 
 
 

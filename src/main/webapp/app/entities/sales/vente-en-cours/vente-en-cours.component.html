@@ -1,45 +1,50 @@
 <div class="container-fluid">
   <div class="pharma-smart-content p-2">
-    <p-toolbar>
-      <ng-template #start>
-        <div>
-          <div class="row">
-            <div class="col">
-              <p-select
-                (onChange)="onTypeVenteChange()"
-                [(ngModel)]="typeVenteSelected"
-                [filter]="false"
-                [options]="typeVentes"
-                placeholder="Filtrer par critère"
+    <!-- Modern Pharma Toolbar (Standard) -->
+    <div class="pharma-toolbar">
+      <div class="pharma-toolbar-header">
+        <i class="pi pi-clock"></i>
+        <span class="pharma-toolbar-title">Ventes en cours</span>
+      </div>
 
-              >
-              </p-select>
-            </div>
+      <p-toolbar>
+        <ng-template #start>
+          <div class="pharma-toolbar-filters">
+            <p-select
+              (onChange)="onTypeVenteChange()"
+              [(ngModel)]="typeVenteSelected"
+              [filter]="false"
+              appendTo="body"
+              [options]="typeVentes"
+              placeholder="Filtrer par critère"
+              class="mr-2"
+            />
 
-            <div class="col">
+            <div class="pharma-search-input">
               <p-iconfield>
                 <p-inputicon class="pi pi-search" />
-                <input (keyup.enter)="onSearch()" pInputText placeholder="Taper pour rechercher" type="text" />
+                <input (keyup.enter)="onSearch()" pInputText placeholder="Rechercher..." type="text" />
               </p-iconfield>
             </div>
           </div>
-        </div>
-      </ng-template>
-      <ng-template #end>
-        <div>
-          <p-button
-            [routerLink]="['/sales', false, 'new']"
-            class="mb-2"
-            icon="pi pi-plus"
-            label="Nouvelle vente"
-            raised="true"
-            severity="success"
-            type="button"
-          >
-          </p-button>
-        </div>
-      </ng-template>
-    </p-toolbar>
+        </ng-template>
+
+        <ng-template #end>
+          <div class="pharma-toolbar-actions">
+            <div class="pharma-action-primary">
+              <p-button
+                [routerLink]="['/sales', false, 'new']"
+                [raised]="true"
+                icon="pi pi-plus"
+                label="Nouvelle vente"
+                severity="success"
+                type="button"
+              />
+            </div>
+          </div>
+        </ng-template>
+      </p-toolbar>
+    </div>
     <div class="mt-3 mb-3">
       <p-table
         [paginator]="true"

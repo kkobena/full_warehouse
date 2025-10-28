@@ -78,123 +78,144 @@
 
     </div>
     <div class="col-lg-10 col-xl-10 col-xxl-10  col-md-9 col-sm-8">
-      <p-panel header="Menu commandes">
-        <p-toolbar>
-          <ng-template #start>
-            @if (active === 'REQUESTED') {
-              <p-iconfield>
-                <p-inputicon class="pi pi-search" />
-                <input
-                  class="ms-1"
-                  (keyup.enter)="onSearch()"
-                  [(ngModel)]="searchCommande"
-                  pInputText
-                  placeholder="Recherche sur la commande"
-                  type="text"
-                /></p-iconfield
-              >
-            }
-            <p-iconfield>
-              <p-inputicon class="pi pi-search" />
-              <input
-                class="ms-1"
-                (keyup.enter)="onSearch()"
-                [(ngModel)]="search"
-                pInputText
-                placeholder="Taper pour rechercher"
-                type="text"
-              /></p-iconfield
-            >
-            @if (active === 'SUGGESTIONS') {
-              <p-select
-                class="ms-1"
-                (onChange)="onTypeSuggestionChange($event)"
-                [filter]="false"
-                [showClear]="true"
-                [fluid]="true"
-                [options]="typeSuggessions"
-                optionLabel="label"
-                optionValue="value"
-                placeholder="Séléctionner un type de suggestion "
-              >
-              </p-select
-              >
-              <p-select
-                (onChange)="onFournisseurChange($event)"
-                [filter]="false"
-                class="ms-1"
-                [fluid]="true"
-                [showClear]="true"
-                [options]="fournisseurs"
-                optionLabel="libelle"
-                optionValue="id"
-                placeholder="Séléctionner un fournisseur "
-              >
-              </p-select>
-            }
+      <div class="pharma-smart-content p-2">
+        <!-- Modern Pharma Toolbar -->
+        <div class="pharma-toolbar">
+          <div class="pharma-toolbar-header">
+            <i class="pi pi-box"></i>
+            <span class="pharma-toolbar-title">Menu commandes</span>
+          </div>
 
-          </ng-template>
-          <ng-template #end>
-            <span class="p-buttonset">
-              <p-button
-                class="ms-1"
-                (click)="onSearch()"
-                [raised]="true"
-                icon="pi pi-search"
-                label="Rechercher"
-                severity="info"
-                type="button"
-              ></p-button>
+          <p-toolbar>
+            <ng-template #start>
+              <div class="pharma-toolbar-filters">
+                @if (active === 'REQUESTED') {
+                  <div class="pharma-search-input mr-2">
+                    <p-iconfield>
+                      <p-inputicon class="pi pi-search" />
+                      <input
+                        (keyup.enter)="onSearch()"
+                        [(ngModel)]="searchCommande"
+                        pInputText
+                        placeholder="Recherche sur la commande"
+                        type="text"
+                      />
+                    </p-iconfield>
+                  </div>
+                }
 
-              @if (active === 'REQUESTED') {
-                <p-button
-                  class="ms-1"
-                  (click)="onShowNewCommandeDialog()"
-                  [raised]="true"
-                  icon="pi pi-upload"
-                  label="Importation"
-                  severity="help"
-                  type="button"
-                ></p-button>
-                <p-button
-                  (click)="onCreatNewCommande()"
-                  [raised]="true"
-                  icon="pi pi-plus"
-                  label="Nouvelle commande"
-                  severity="primary"
-                  type="button"
-                  class="ms-1"
-                ></p-button>
-              }
-              @if ((active === 'REQUESTED' || active === 'SUGGESTIONS') && selectionLength > 1) {
-                <p-button
-                  class="ms-1"
-                  (click)="fusionner()"
-                  icon="pi pi-copy"
-                  label="Fusionner"
-                  [raised]="true"
-                  severity="warn"
+                <div class="pharma-search-input mr-2">
+                  <p-iconfield>
+                    <p-inputicon class="pi pi-search" />
+                    <input
+                      (keyup.enter)="onSearch()"
+                      [(ngModel)]="search"
+                      pInputText
+                      placeholder="Taper pour rechercher"
+                      type="text"
+                    />
+                  </p-iconfield>
+                </div>
 
-                  type="button"
-                ></p-button>
-              }
-              @if (selectionLength > 0 && active !== 'RECEIVED') {
-                <p-button
-                  class="ms-1"
-                  (click)="confirmDeleteSelectedRows()"
-                  icon="pi pi-times"
-                  label="Supprimer"
-                  [raised]="true"
-                  severity="danger"
-                  type="button"
-                >
-                </p-button>
-              }
-            </span>
-          </ng-template>
-        </p-toolbar>
-        <div class="mt-2" [ngbNavOutlet]="nav"></div>
-      </p-panel>
+                @if (active === 'SUGGESTIONS') {
+                  <p-select
+                    (onChange)="onTypeSuggestionChange($event)"
+                    [filter]="false"
+                    [showClear]="true"
+                    [options]="typeSuggessions"
+                    optionLabel="label"
+                    optionValue="value"
+                    placeholder="Séléctionner un type de suggestion"
+                    appendTo="body"
+                    class="mr-2"
+                  />
+
+                  <p-select
+                    (onChange)="onFournisseurChange($event)"
+                    [filter]="false"
+                    [showClear]="true"
+                    [options]="fournisseurs"
+                    optionLabel="libelle"
+                    optionValue="id"
+                    placeholder="Séléctionner un fournisseur"
+                    appendTo="body"
+                    class="mr-2"
+                  />
+                }
+              </div>
+            </ng-template>
+
+            <ng-template #end>
+              <div class="pharma-toolbar-actions">
+                <div class="pharma-button-group">
+                  <p-button
+                    (click)="onSearch()"
+                    [raised]="true"
+                    icon="pi pi-search"
+                    label="Rechercher"
+                    pTooltip="Rechercher"
+                    severity="info"
+                    tooltipPosition="top"
+                    type="button"
+                  />
+
+                  @if (active === 'REQUESTED') {
+                    <p-button
+                      (click)="onShowNewCommandeDialog()"
+                      [raised]="true"
+                      icon="pi pi-upload"
+                      label="Importation"
+                      pTooltip="Importation"
+                      severity="help"
+                      tooltipPosition="top"
+                      type="button"
+                    />
+
+                    <p-button
+                      (click)="onCreatNewCommande()"
+                      [raised]="true"
+                      icon="pi pi-plus"
+                      label="Nouvelle commande"
+                      pTooltip="Nouvelle commande"
+                      severity="primary"
+                      tooltipPosition="top"
+                      type="button"
+                    />
+                  }
+
+                  @if ((active === 'REQUESTED' || active === 'SUGGESTIONS') && selectionLength > 1) {
+                    <p-button
+                      (click)="fusionner()"
+                      [raised]="true"
+                      icon="pi pi-copy"
+                      label="Fusionner"
+                      pTooltip="Fusionner"
+                      severity="warn"
+                      tooltipPosition="top"
+                      type="button"
+                    />
+                  }
+
+                  @if (selectionLength > 0 && active !== 'RECEIVED') {
+                    <p-button
+                      (click)="confirmDeleteSelectedRows()"
+                      [raised]="true"
+                      icon="pi pi-times"
+                      label="Supprimer"
+                      pTooltip="Supprimer"
+                      severity="danger"
+                      tooltipPosition="top"
+                      type="button"
+                    />
+                  }
+                </div>
+              </div>
+            </ng-template>
+          </p-toolbar>
+        </div>
+
+        <div class="mt-3" [ngbNavOutlet]="nav"></div>
+      </div>
     </div>
   </div>
 

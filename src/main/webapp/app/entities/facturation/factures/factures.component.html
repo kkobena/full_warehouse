@@ -1,114 +1,136 @@
-<div class="row pharma-smart-content p-2 ">
-  <div>
+<div class="row pharma-smart-content p-2">
+  <!-- Modern Pharma Toolbar (Compact) -->
+  <div class="pharma-toolbar pharma-toolbar-compact">
+    <div class="pharma-toolbar-header">
+      <i class="pi pi-file-invoice"></i>
+      <span class="pharma-toolbar-title">Factures</span>
+    </div>
+
     <p-toolbar>
       <ng-template #start>
-        <div class="d-flex justify-content-start">
-          <div class="pt-1"><label class="input-label">Groupées</label></div>
-          <div class="p-1">
+        <div class="pharma-toolbar-filters">
+          <div class="mr-1 d-flex align-items-center">
+            <label class="input-label me-1">Groupées</label>
             <p-toggleswitch (onChange)="onSearch()" [(ngModel)]="factureGroup" />
           </div>
-          <div class="pt-1"><label class="input-label">Provisoires</label></div>
-          <div class="p-1">
+
+          <div class="mr-1 d-flex align-items-center">
+            <label class="input-label me-1">Provisoires</label>
             <p-toggleswitch (onChange)="onSearch()" [(ngModel)]="factureProvisoire" />
           </div>
 
-          <div class="pt-1">
-            <p-floatlabel variant="on">
-              <p-datePicker
-                [(ngModel)]="modelStartDate"
-                [selectOtherMonths]="true"
-                [showButtonBar]="true"
-                dateFormat="dd/mm/yy"
-                id="input-label"
-                inputId="input-label"
-              />
-              <label for="input-label">Du</label>
-            </p-floatlabel>
-          </div>
+          <p-floatlabel variant="on" class="mr-1">
+            <p-datePicker
+              [(ngModel)]="modelStartDate"
+              [iconDisplay]="'input'"
+              [selectOtherMonths]="true"
+              [showButtonBar]="true"
+              dateFormat="dd/mm/yy"
+              id="fromDate"
+              inputId="fromDate"
+              appendTo="body"
+              showIcon="true"
+            />
+            <label for="fromDate">Du</label>
+          </p-floatlabel>
 
-          <div class="pt-1">
-            <p-floatlabel variant="on">
-              <p-datePicker
-                [(ngModel)]="modelEndDate"
-                [selectOtherMonths]="true"
-                [showButtonBar]="true"
-                dateFormat="dd/mm/yy"
-                id="au"
-                inputId="au"
-              />
-              <label for="au">Au</label>
-            </p-floatlabel>
-          </div>
+          <p-floatlabel variant="on" class="mr-1">
+            <p-datePicker
+              [(ngModel)]="modelEndDate"
+              [iconDisplay]="'input'"
+              [selectOtherMonths]="true"
+              [showButtonBar]="true"
+              dateFormat="dd/mm/yy"
+              id="toDate"
+              inputId="toDate"
+              appendTo="body"
+              showIcon="true"
+            />
+            <label for="toDate">Au</label>
+          </p-floatlabel>
 
-          <div class="p-1">
-            <p-floatlabel>
-              <input [(ngModel)]="search" [style]="{ width: '150px' }" id="search" pInputText
-                     type="text" />
-              <label for="search">Rechercher par numéro</label>
-            </p-floatlabel>
-          </div>
-          <div class="p-1">
+          <p-floatlabel variant="on" class="mr-1">
+            <input
+              [(ngModel)]="search"
+              id="search"
+              pInputText
+              type="text"
+              style="width: 150px"
+            />
+            <label for="search">Rechercher par numéro</label>
+          </p-floatlabel>
 
-            <p-select (onChange)="onSearch()" [(ngModel)]="statut" [fluid]="true"
-                      [options]="statuts"
-                      dataKey="code" optionLabel="value" optionValue="code" size="large"
-            >
+          <p-select
+            (onChange)="onSearch()"
+            [(ngModel)]="statut"
+            [options]="statuts"
+            dataKey="code"
+            optionLabel="value"
+            optionValue="code"
+            appendTo="body"
+            class="mr-1"
+          />
 
-            </p-select>
-          </div>
           @if (factureGroup) {
-            <div class="p-1">
-              <p-floatlabel>
-                <p-autoComplete
-                  (completeMethod)="searchGroupTiersPayant($event)"
-                  [(ngModel)]="selectedGroupeTiersPayants"
-                  [forceSelection]="true"
-                  [multiple]="true"
-                  [suggestions]="groupeTiersPayants"
-                  appendTo="body"
-                  id="groupeTiersPayants"
-                  inputId="groupeTiersPayants"
-                  optionLabel="name"
-                >
-                </p-autoComplete>
-                <label for="groupeTiersPayants">Rechercher un groupe</label>
-              </p-floatlabel>
-            </div>
+            <p-floatlabel variant="on" class="mr-1">
+              <p-autoComplete
+                (completeMethod)="searchGroupTiersPayant($event)"
+                [(ngModel)]="selectedGroupeTiersPayants"
+                [forceSelection]="true"
+                [multiple]="true"
+                [suggestions]="groupeTiersPayants"
+                appendTo="body"
+                id="groupeTiersPayants"
+                inputId="groupeTiersPayants"
+                optionLabel="name"
+              />
+              <label for="groupeTiersPayants">Rechercher un groupe</label>
+            </p-floatlabel>
           } @else {
-            <div class="p-1">
-              <p-floatlabel>
-                <p-autoComplete
-                  (completeMethod)="searchTiersPayant($event)"
-                  [(ngModel)]="selectedTiersPayants"
-                  [forceSelection]="true"
-                  [minQueryLength]="minLength"
-                  [multiple]="true"
-                  [suggestions]="tiersPayants"
-                  id="tiersPayantId"
-                  inputId="tiersPayantId"
-                  optionLabel="fullName"
-                >
-                </p-autoComplete>
-                <label for="tiersPayantId">Rechercher tiers-payants</label>
-              </p-floatlabel>
-            </div>
+            <p-floatlabel variant="on" class="mr-1">
+              <p-autoComplete
+                (completeMethod)="searchTiersPayant($event)"
+                [(ngModel)]="selectedTiersPayants"
+                [forceSelection]="true"
+                [minQueryLength]="minLength"
+                [multiple]="true"
+                [suggestions]="tiersPayants"
+                appendTo="body"
+                id="tiersPayantId"
+                inputId="tiersPayantId"
+                optionLabel="fullName"
+              />
+              <label for="tiersPayantId">Rechercher tiers-payants</label>
+            </p-floatlabel>
           }
         </div>
-        <div class="p-1">
-          <p-button
-            (click)="onSearch()"
-            [loading]="loadingBtn"
-            [raised]="true"
-            icon="pi pi-search"
-            label="Rechercher"
-            pTooltip="Rechercher"
-            severity="info"
-          />
-        </div>
-        <div [hidden]="true" class="p-1">
-          <p-splitbutton [model]="btnExports" [raised]="true" icon="pi pi-file-export"
-                         label="Exporter"
-                         pTooltip="Exporter" severity="help" />
+      </ng-template>
+
+      <ng-template #end>
+        <div class="pharma-toolbar-actions">
+          <div class="pharma-button-group">
+            <p-button
+              (click)="onSearch()"
+              [loading]="loadingBtn"
+              [raised]="true"
+              icon="pi pi-search"
+              label="Rechercher"
+              pTooltip="Rechercher"
+              severity="info"
+              tooltipPosition="top"
+            />
+
+            <p-splitbutton
+              [hidden]="true"
+              [model]="btnExports"
+              [raised]="true"
+              icon="pi pi-file-export"
+              label="Exporter"
+              pTooltip="Exporter"
+              severity="help"
+              tooltipPosition="top"
+            />
+          </div>
         </div>
       </ng-template>
     </p-toolbar>

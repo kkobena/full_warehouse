@@ -16,6 +16,7 @@ import { FormsModule } from '@angular/forms';
 import { ToastModule } from 'primeng/toast';
 import { PanelModule } from 'primeng/panel';
 import { Authority } from '../../shared/constants/authority.constants';
+import { Toolbar } from 'primeng/toolbar';
 
 @Component({
   selector: 'jhi-menu',
@@ -32,7 +33,8 @@ import { Authority } from '../../shared/constants/authority.constants';
     InputTextModule,
     TooltipModule,
     FormsModule,
-    PanelModule
+    PanelModule,
+    Toolbar
   ]
 })
 export class MenuComponent implements OnInit {

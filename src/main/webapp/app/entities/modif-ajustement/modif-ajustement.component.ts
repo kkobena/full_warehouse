@@ -12,9 +12,10 @@ import { InputTextModule } from 'primeng/inputtext';
 import { TooltipModule } from 'primeng/tooltip';
 import { FormsModule } from '@angular/forms';
 import { ConfirmDialogComponent } from '../../shared/dialog/confirm-dialog/confirm-dialog.component';
-import { Panel } from 'primeng/panel';
 import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { showCommonModal } from '../sales/selling-home/sale-helper';
+import { IconField } from 'primeng/iconfield';
+import { InputIcon } from 'primeng/inputicon';
 
 @Component({
   selector: 'jhi-modif-ajustement',
@@ -29,7 +30,8 @@ import { showCommonModal } from '../sales/selling-home/sale-helper';
     TooltipModule,
     FormsModule,
     ConfirmDialogComponent,
-    Panel
+    IconField,
+    InputIcon
   ]
 })
 export class ModifAjustementComponent implements OnInit {

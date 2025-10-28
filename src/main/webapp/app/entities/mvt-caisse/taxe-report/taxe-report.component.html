@@ -1,97 +1,126 @@
-<div class="container-fluid">
+
   <div class="pharma-smart-content p-2">
-    <p-toolbar>
-      <ng-template #start>
-        <div class="input-group">
-          <p-floatlabel variant="on">
-            <p-datePicker
+    <!-- Modern Pharma Toolbar (Compact) -->
+    <div class="pharma-toolbar pharma-toolbar-compact">
+      <div class="pharma-toolbar-header">
+        <i class="pi pi-chart-line"></i>
+        <span class="pharma-toolbar-title">Rapport TVA</span>
+      </div>
+
+      <p-toolbar>
+        <ng-template #start>
+          <div class="pharma-toolbar-filters">
+            <p-floatlabel variant="on" class="mr-1">
+              <p-datePicker
+                [(ngModel)]="fromDate"
+                [iconDisplay]="'input'"
+                [showButtonBar]="true"
+                dateFormat="dd/mm/yy"
+                id="dateDebut"
+                inputId="dateDebut"
+                appendTo="body"
+                selectOtherMonths="true"
+                showIcon="true"
+              />
+              <label for="dateDebut">Du</label>
+            </p-floatlabel>
+
+            <p-floatlabel variant="on" class="mr-1">
+              <p-datePicker
+                [(ngModel)]="toDate"
+                [iconDisplay]="'input'"
+                [showButtonBar]="true"
+                dateFormat="dd/mm/yy"
+                id="dateFin"
+                inputId="dateFin"
+                appendTo="body"
+                selectOtherMonths="true"
+                showIcon="true"
+              />
+              <label for="dateFin">Au</label>
+            </p-floatlabel>
+
+            <p-select
+              [(ngModel)]="selectedVente"
+              [filter]="false"
+              [options]="types"
+              [showClear]="true"
+              placeholder="Type de vente"
+              appendTo="body"
               class="mr-1"
-              [(ngModel)]="fromDate"
-              [iconDisplay]="'input'"
-              [showButtonBar]="true"
-              dateFormat="dd/mm/yy"
-              id="dateDebut"
-              inputId="dateDebut"
-              selectOtherMonths="true"
-              showIcon="true"
             />
-            <label for="dateDebut">Date début</label></p-floatlabel
-          >
 
-          <p-floatlabel variant="on">
-            <p-datePicker
-              [(ngModel)]="toDate"
-              [iconDisplay]="'input'"
-              [showButtonBar]="true"
-              dateFormat="dd/mm/yy"
-              id="dateFin"
-              inputId="dateFin"
-              selectOtherMonths="true"
-              showIcon="true"
-              class="mr-1"
-            ></p-datePicker
-            >&nbsp;
-            <label for="dateFin">Date fin</label>
-          </p-floatlabel>
+            <div class="tva-radio flex align-items-center mr-1">
+              <p-radioButton
+                (onClick)="onAffichageChange()"
+                [(ngModel)]="groupBy"
+                id="codeTva"
+                inputId="codeTva"
+                name="codeTva"
+                value="codeTva"
+              />
+              <label class="tva-radio-label mt-2" for="codeTva">
+                <span>Période</span>
+              </label>
+            </div>
 
-          <p-select  class="mr-1" [fluid]="true" [(ngModel)]="selectedVente" [filter]="false" [options]="types" [showClear]="true"
-                    placeholder="Type de vente"></p-select
-          >&nbsp;
-          <div class="tva-radio flex align-items-center ">
-            <p-radioButton
-              (onClick)="onAffichageChange()"
-              [(ngModel)]="groupBy"
-              id="codeTva"
-              inputId="codeTva"
-              name="codeTva"
-              value="codeTva"
-            />
-            <label class="tva-radio-label mt-2" for="codeTva">
-              <span>Période</span>
-            </label>
+            <div class="tva-radio flex align-items-center mr-1">
+              <p-radioButton
+                (onClick)="onAffichageChange()"
+                [(ngModel)]="groupBy"
+                id="daily"
+                inputId="daily"
+                name="daily"
+                value="daily"
+              />
+              <label class="tva-radio-label mt-2" for="daily">
+                <span>Journalier</span>
+              </label>
+            </div>
           </div>
-          <div class="tva-radio flex align-items-center">
-            <p-radioButton (onClick)="onAffichageChange()" [(ngModel)]="groupBy" id="daily" inputId="daily" name="daily"
-                           value="daily" />
-            <label class="tva-radio-label mt-2" for="daily">
-              <span>Journalier</span>
-            </label>
-          </div>
-        </div>
-      </ng-template>
-      <ng-template #end>
-        <div class="input-group">
-          <p-button
-            (click)="onSearch()"
-            [disabled]="loading"
-            [loading]="loading"
-            icon="pi pi-search"
-            label="Rechercher"
-            pTooltip="Rechercher"
-            class="mr-1"
-            severity="info"
-            tooltipPosition="top"
-          ></p-button
-          >
+        </ng-template>
 
-          <p-button
-            class="mr-1"
-            (click)="onPrint()"
-            [loading]="loading"
-            icon="pi pi-print"
-            label="Imprimer"
-            pTooltip="Imprimer"
-            severity="warn"
-            tooltipPosition="top"
-          />&nbsp;
-          <p-selectButton  class="mr-1" [(ngModel)]="affichage" [options]="typeAffichafes" optionLabel="icon" optionValue="value">
-            <ng-template #item let-item>
-              <i [class]="item.icon"></i>
-            </ng-template>
-          </p-selectButton>
-        </div>
-      </ng-template>
-    </p-toolbar>
+        <ng-template #end>
+          <div class="pharma-toolbar-actions">
+            <div class="pharma-button-group">
+              <p-button
+                (click)="onSearch()"
+                [disabled]="loading"
+                [loading]="loading"
+                [raised]="true"
+                icon="pi pi-search"
+                label="Rechercher"
+                pTooltip="Rechercher"
+                severity="info"
+                tooltipPosition="top"
+              />
+
+              <p-button
+                (click)="onPrint()"
+                [loading]="loading"
+                [outlined]="true"
+                icon="pi pi-print"
+                label="Imprimer"
+                pTooltip="Imprimer"
+                severity="warn"
+                tooltipPosition="top"
+              />
+
+              <p-selectButton
+                [(ngModel)]="affichage"
+                [options]="typeAffichafes"
+                optionLabel="icon"
+                optionValue="value"
+              >
+                <ng-template #item let-item>
+                  <i [class]="item.icon"></i>
+                </ng-template>
+              </p-selectButton>
+            </div>
+          </div>
+        </ng-template>
+      </p-toolbar>
+    </div>
 
 
     <div class=" mt-3 mb-3">
@@ -175,6 +204,6 @@
   </div>
 
 
-</div>
+
 
 <jhi-toast-alert #alert></jhi-toast-alert>

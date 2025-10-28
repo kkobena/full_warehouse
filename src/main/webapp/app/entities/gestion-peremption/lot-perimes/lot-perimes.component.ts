@@ -26,7 +26,6 @@ import { TranslatePipe } from '@ngx-translate/core';
 import { IFamilleProduit } from '../../../shared/model/famille-produit.model';
 import { KeyFilter } from 'primeng/keyfilter';
 import { Button } from 'primeng/button';
-import { ButtonGroup } from 'primeng/buttongroup';
 import { SplitButton } from 'primeng/splitbutton';
 import { RouterLink } from '@angular/router';
 import { DecimalPipe } from '@angular/common';
@@ -58,7 +57,6 @@ import { SpinnerComponent } from '../../../shared/spinner/spinner.component';
     TranslatePipe,
     KeyFilter,
     Button,
-    ButtonGroup,
     SplitButton,
     RouterLink,
     DecimalPipe,

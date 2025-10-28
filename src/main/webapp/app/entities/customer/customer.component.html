@@ -19,53 +19,75 @@
 </p-dialog>
 
 
-<p-panel header="Liste des clients">
-  <p-toolbar>
-    <ng-template #start>
-      <p-select
-        (onChange)="onTypeChange()"
-        [(ngModel)]="typeSelected"
-        [filter]="false"
-        [options]="types"
-        size="large"
-        [fluid]="true"
-        placeholder="Filtrer par type"
-        styleClass=" mr-1"
-      >
-      </p-select>
-      <p-divider layout="vertical"></p-divider>
-      <p-select
-        size="large"
-        [fluid]="true"
-        (onChange)="onTypeChange()"
-        [(ngModel)]="statutSelected"
-        [filter]="false"
-        [options]="statuts"
-        optionLabel="label"
-        optionValue="value"
-      >
-      </p-select>
+<div class="pharma-smart-content p-2">
+  <div class="pharma-toolbar">
+    <div class="pharma-toolbar-header">
+      <i class="pi pi-users"></i>
+      <span class="pharma-toolbar-title">Liste des clients</span>
+    </div>
 
-      <p-divider layout="vertical"></p-divider>
-      <p-iconfield>
-        <p-inputicon class="pi pi-search" />
-        <input (keyup.enter)="onSearch()" [(ngModel)]="search" pInputText
-               placeholder="Taper pour rechercher" type="text" />
-      </p-iconfield>
-    </ng-template>
-    <ng-template #end>
-      <p-button (click)="loadPage()" class="mr-1" icon="pi pi-search" label="Rechercher"
-                raised="true" severity="info"></p-button>
+    <p-toolbar>
+      <ng-template #start>
+        <div class="pharma-toolbar-filters">
+          <p-floatlabel variant="on" class="mr-1">
+            <p-select
+              id="typeFilter"
+              (onChange)="onTypeChange()"
+              [(ngModel)]="typeSelected"
+              [filter]="false"
+              [options]="types"
+              [appendTo]="'body'"
+              size="large"
+            >
+            </p-select>
+            <label for="typeFilter">Filtrer par type</label>
+          </p-floatlabel>
 
-      <p-splitbutton
-        [model]="newCustomerbuttons"
-        icon="pi pi-user-plus"
-        label="Nouveau client"
-        raised="true"
-        severity="success"
-      ></p-splitbutton>
-    </ng-template>
-  </p-toolbar>
+          <p-floatlabel variant="on" class="mr-1">
+            <p-select
+              id="statutFilter"
+              size="large"
+              (onChange)="onTypeChange()"
+              [(ngModel)]="statutSelected"
+              [filter]="false"
+              [options]="statuts"
+              [appendTo]="'body'"
+              optionLabel="label"
+              optionValue="value"
+            >
+            </p-select>
+            <label for="statutFilter">Statut</label>
+          </p-floatlabel>
+
+          <div class="pharma-search-input">
+            <p-iconfield>
+              <p-inputicon class="pi pi-search" />
+              <input (keyup.enter)="onSearch()" [(ngModel)]="search" pInputText
+                     placeholder="Taper pour rechercher" type="text" />
+            </p-iconfield>
+          </div>
+        </div>
+      </ng-template>
+
+      <ng-template #end>
+        <div class="pharma-toolbar-actions">
+          <div class="pharma-button-group">
+            <p-button (click)="loadPage()" icon="pi pi-search" label="Rechercher"
+                      [raised]="true" severity="info"></p-button>
+
+            <p-splitbutton
+              [model]="newCustomerbuttons"
+              icon="pi pi-user-plus"
+              label="Nouveau client"
+              [raised]="true"
+              severity="success"
+            ></p-splitbutton>
+          </div>
+        </div>
+      </ng-template>
+    </p-toolbar>
+  </div>
+
   <div class="mt-3 mb-3">
     @if (customers && customers.length > 0) {
       <p-table
@@ -438,8 +460,7 @@
       </div>
     }
   </div>
+</div>
 
-</p-panel>
 <jhi-confirm-dialog #confirmDialog></jhi-confirm-dialog>
-
 <jhi-spinner #spinner ></jhi-spinner>

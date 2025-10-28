@@ -1,35 +1,46 @@
 <div class="container">
+  <div class="justify-content-center">
+    <div class="pharma-smart-content p-2">
+      <div class="pharma-toolbar">
+        <div class="pharma-toolbar-header">
+          <i class="pi pi-sitemap"></i>
+          <span class="pharma-toolbar-title">Liste des familles de produit</span>
+        </div>
 
-  <div class="justify-content-center ">
-    <p-panel>
-      <ng-template #header>
-        <h3>Liste des familles de produit</h3>
-      </ng-template>
-      <ng-template #content>
         <p-toolbar>
           <ng-template #start>
-            <p-iconfield>
-              <p-inputicon class="pi pi-search" />
-              <input (keyup.enter)="search($event)" pInputText placeholder="Taper pour rechercher"
-                     style="width: 98%" type="text" />
-            </p-iconfield>
+            <div class="pharma-toolbar-filters">
+              <div class="pharma-search-input">
+                <p-iconfield>
+                  <p-inputicon class="pi pi-search" />
+                  <input (keyup.enter)="search($event)" pInputText placeholder="Taper pour rechercher"
+                         type="text" />
+                </p-iconfield>
+              </div>
+            </div>
           </ng-template>
-          <ng-template #end>
-            <p-button (click)="addNewEntity()" [raised]="true" class="mr-2" icon="pi pi-check"
-                      label="Nouveau"
-                      severity="primary" type="button"></p-button>
-            <p-button
-              (click)="showFileDialog()"
-              [raised]="true"
-              icon="pi pi-upload"
-              label="Importer"
-              severity="help"
-              type="button"
-            ></p-button>
 
+          <ng-template #end>
+            <div class="pharma-toolbar-actions">
+              <div class="pharma-button-group">
+                <p-button (click)="addNewEntity()" [raised]="true" icon="pi pi-check"
+                          label="Nouveau"
+                          severity="primary" type="button"></p-button>
+                <p-button
+                  (click)="showFileDialog()"
+                  [raised]="true"
+                  icon="pi pi-upload"
+                  label="Importer"
+                  severity="help"
+                  type="button"
+                ></p-button>
+              </div>
+            </div>
           </ng-template>
         </p-toolbar>
-        @if (entites && entites.length > 0) {
+      </div>
+
+      @if (entites && entites.length > 0) {
           <p-table
             (onLazyLoad)="lazyLoading($event)"
             [lazy]="true"
@@ -70,18 +81,15 @@
               </tr>
             </ng-template>
           </p-table>
-        } @else {
-          <div class="alert alert-warning" id="no-result">
-            <span>Aucune donnée trouvée</span>
-          </div>
-        }
-      </ng-template>
-    </p-panel>
-
-
+      } @else {
+        <div class="alert alert-warning" id="no-result">
+          <span>Aucune donnée trouvée</span>
+        </div>
+      }
+    </div>
   </div>
-
 </div>
+
 <jhi-confirm-dialog #confirmDialog></jhi-confirm-dialog>
 <jhi-toast-alert #alert></jhi-toast-alert>
 <jhi-spinner #spinner></jhi-spinner>

@@ -1,81 +1,99 @@
 <jhi-toast-alert #alert></jhi-toast-alert>
 
 <div class="container-fluid">
-  <p-panel header="Produits">
-    <p-toolbar>
-      <ng-template #start>
-        <div class="d-flex justify-content-between">
-          <div class="mr-1">
-            <p-select
-              (onChange)="filtreClik()"
-              [(ngModel)]="selectedCriteria"
-              [options]="filtesProduits"
-              optionLabel="label"
-              optionValue="value"
-              placeholder="Filtrer par critère"
-              size="large"
-              [fluid]="true"
-            >
-            </p-select>
+  <div class="pharma-smart-content p-2">
+    <!-- Modern Pharma Toolbar (Compact) -->
+    <div class="pharma-toolbar pharma-toolbar-compact">
+      <div class="pharma-toolbar-header">
+        <i class="pi pi-box"></i>
+        <span class="pharma-toolbar-title">Produits</span>
+      </div>
+
+      <p-toolbar>
+        <ng-template #start>
+          <div class="pharma-toolbar-filters">
+            <p-floatlabel variant="on" class="mr-1">
+              <p-select
+                (onChange)="filtreClik()"
+                [(ngModel)]="selectedCriteria"
+                [options]="filtesProduits"
+                optionLabel="label"
+                optionValue="value"
+                size="large"
+                id="criteria"
+                appendTo="body"
+              >
+              </p-select>
+              <label for="criteria">Filtrer par critère</label>
+            </p-floatlabel>
+
+            <p-floatlabel variant="on" class="mr-1">
+              <p-select
+                size="large"
+                (onChange)="filtreRayon($event)"
+                [(ngModel)]="selectedRayon"
+                [options]="rayons"
+                [showClear]="true"
+                optionLabel="libelle"
+                optionValue="id"
+                id="rayon"
+                appendTo="body"
+              >
+              </p-select>
+              <label for="rayon">Rayon</label>
+            </p-floatlabel>
+
+            <p-floatlabel variant="on" class="mr-1">
+              <p-select
+                (onChange)="filtreFamilleProduit($event)"
+                [(ngModel)]="selectedFamille"
+                [options]="familles"
+                [showClear]="true"
+                size="large"
+                optionLabel="libelle"
+                optionValue="id"
+                id="famille"
+                appendTo="body"
+              >
+              </p-select>
+              <label for="famille">Famille</label>
+            </p-floatlabel>
+
+            <div class="pharma-compact-search">
+              <p-iconfield>
+                <p-inputicon class="pi pi-search" />
+                <input (keyup.enter)="onSearch($event)" pInputText placeholder="Rechercher..."
+                       type="text" />
+              </p-iconfield>
+            </div>
           </div>
-          <div class="mr-1">
-            <p-select
-              size="large"
-              [fluid]="true"
-              (onChange)="filtreRayon($event)"
-              [(ngModel)]="selectedRayon"
-              [options]="rayons"
-              [showClear]="true"
-              optionLabel="libelle"
-              optionValue="id"
-              placeholder="Séléctionner un rayon "
-            >
-            </p-select>
+        </ng-template>
+
+        <ng-template #end>
+          <div class="pharma-toolbar-actions">
+            <div class="pharma-button-group">
+              <p-splitbutton
+                [model]="splitbuttons"
+                [raised]="true"
+                icon="pi pi-upload"
+                label="Importation"
+                severity="help"
+              ></p-splitbutton>
+
+              <p-button
+                [raised]="true"
+                [routerLink]="['/produit/new']"
+                icon="pi pi-plus"
+                label="Nouveau"
+                severity="success"
+                type="button"
+              >
+              </p-button>
+            </div>
           </div>
-          <div class="mr-1">
-            <p-select
-              (onChange)="filtreFamilleProduit($event)"
-              [(ngModel)]="selectedFamille"
-              [options]="familles"
-              [showClear]="true"
-              size="large"
-              [fluid]="true"
-              optionLabel="libelle"
-              optionValue="id"
-              placeholder="Séléctionner une famille"
-            >
-            </p-select>
-          </div>
-          <div>
-            <p-iconfield>
-              <p-inputicon styleClass="pi pi-search" />
-              <input (keyup.enter)="onSearch($event)" pInputText placeholder="Taper pour rechercher"
-                     type="text" />
-            </p-iconfield>
-          </div>
-        </div>
-      </ng-template>
-      <ng-template #end>
-        <p-splitbutton
-          [model]="splitbuttons"
-          [raised]="true"
-          icon="pi pi-upload"
-          label="Importation"
-          severity="help"
-          styleClass=" mr-1 mb-2"
-        ></p-splitbutton>
-        <p-button
-          [raised]="true"
-          [routerLink]="['/produit/new']"
-          class="mb-2"
-          icon="pi pi-plus"
-          label="Nouveau"
-          severity="success"
-          type="button"
-        >
-        </p-button>
-      </ng-template>
-    </p-toolbar>
+        </ng-template>
+      </p-toolbar>
+    </div>
 
     <div class="mt-2">
       @if (produits && produits.length > 0) {
@@ -534,9 +552,7 @@
         </div>
       }
     </div>
-  </p-panel>
-
-
+  </div>
 </div>
 <jhi-confirm-dialog #confirmDialog></jhi-confirm-dialog>
 

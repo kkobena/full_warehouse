@@ -21,7 +21,6 @@ import { TooltipModule } from 'primeng/tooltip';
 
 import { IconFieldModule } from 'primeng/iconfield';
 import { InputIconModule } from 'primeng/inputicon';
-import { Panel } from 'primeng/panel';
 import { ConfirmDialogComponent } from '../../shared/dialog/confirm-dialog/confirm-dialog.component';
 import { showCommonModal } from '../sales/selling-home/sale-helper';
 import { FournisseurUpdateComponent } from './fournisseur-update.component';
@@ -51,7 +50,6 @@ import { SpinnerComponent } from '../../shared/spinner/spinner.component';
     TooltipModule,
     IconFieldModule,
     InputIconModule,
-    Panel,
     ConfirmDialogComponent,
     ToastAlertComponent,
     SpinnerComponent

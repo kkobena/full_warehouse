@@ -1,23 +1,37 @@
 <div class="container">
   <div class="justify-content-center">
-    <p-panel>
-      <ng-template #header>
-        <div class="float-right" style="width: 100%">
-          <span jhiTranslate="warehouseApp.menu.home.title">Menus</span>
-          <p-button
-            [routerLink]="['/menu/new']"
-            class="float-right"
-            icon="pi pi-plus"
-            label=" Ajouter un nouveau rôle"
-            raised="true"
-            severity="success"
-            type="button"
-          ></p-button>
+    <div class="pharma-smart-content p-2">
+      <div class="pharma-toolbar">
+        <div class="pharma-toolbar-header">
+          <i class="pi pi-bars"></i>
+          <span class="pharma-toolbar-title" jhiTranslate="warehouseApp.menu.home.title">Menus</span>
         </div>
-      </ng-template>
 
+        <p-toolbar>
+          <ng-template #start>
+            <div class="pharma-toolbar-filters">
+            </div>
+          </ng-template>
 
-      <p-table [paginator]="false" [value]="authorities" dataKey="id" class="pharma-table">
+          <ng-template #end>
+            <div class="pharma-toolbar-actions">
+              <div class="pharma-button-group">
+                <p-button
+                  [routerLink]="['/menu/new']"
+                  [raised]="true"
+                  icon="pi pi-plus"
+                  label="Ajouter un nouveau rôle"
+                  severity="success"
+                  type="button"
+                ></p-button>
+              </div>
+            </div>
+          </ng-template>
+        </p-toolbar>
+      </div>
+
+      <div class="mt-2">
+        <p-table [paginator]="false" [value]="authorities" dataKey="id" class="pharma-table">
         <ng-template #header>
           <tr class="pharma-table-head">
             <th style="width: 20%">Nom</th>
@@ -74,7 +88,8 @@
           </tr>
         </ng-template>
       </p-table>
-    </p-panel>
+      </div>
+    </div>
   </div>
 </div>
 

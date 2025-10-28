@@ -1,0 +1,1068 @@
+// ====================================
+// PHARMA SMART - COMMON TOOLBAR STYLES
+// ====================================
+// This file contains the common toolbar styles for the Pharma-Smart application
+// Import this file in your component SCSS files to use the pharma-toolbar classes
+//
+// USAGE GUIDE:
+// - Use .pharma-toolbar (standard) for simple toolbars with < 4 elements
+//   → Buttons ALWAYS show labels on ALL screen sizes
+//   → Comfortable spacing, standard search input (250-400px)
+// - Use .pharma-toolbar-compact for complex toolbars with 4+ elements
+//   → Buttons become icon-only on ≤1450px screens (14-inch laptops)
+//   → Tight spacing (0.25rem gaps), fixed input widths, flex-shrink: 0:
+//      - Compact search: 110-130px
+//      - Date pickers: 135px fixed (inline-flex, icon aligned right)
+//      - Select/multiselect: 130-150px
+
+// ====================================
+// VARIABLES (Reusing from pharma-nav)
+// ====================================
+$pharma-primary: #5b89a6;
+$pharma-primary-dark: #4a7189;
+$pharma-primary-light: #e8f4f8;
+$pharma-accent: #00a86b;
+$pharma-success: #28a745;
+$pharma-info: #17a2b8;
+$pharma-warning: #ffc107;
+$pharma-danger: #dc3545;
+
+$pharma-white: #ffffff;
+$gray-50: #f9fafb;
+$gray-100: #f3f4f6;
+$gray-200: #e5e7eb;
+$gray-300: #d1d5db;
+$gray-400: #9ca3af;
+$gray-500: #6b7280;
+$gray-600: #4b5563;
+$gray-700: #374151;
+$gray-900: #111827;
+
+$pharma-radius: 8px;
+$pharma-radius-sm: 6px;
+$pharma-shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+$pharma-shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+
+// ====================================
+// MAIN TOOLBAR CONTAINER
+// ====================================
+.pharma-toolbar {
+  background: $pharma-white;
+  border-radius: $pharma-radius;
+  box-shadow: $pharma-shadow-md;
+  padding: 0;
+  margin-bottom: 1rem;
+  overflow: hidden;
+  border: 1px solid $gray-200;
+
+  ::ng-deep .p-toolbar {
+    background: transparent;
+    border: none;
+    padding: 0;
+    border-radius: 0;
+  }
+
+  // Toolbar header (optional)
+  .pharma-toolbar-header {
+    background: linear-gradient(135deg, $pharma-primary 0%, $pharma-primary-dark 100%);
+    color: $pharma-white;
+    padding: 0.75rem 1rem;
+    display: flex;
+    align-items: center;
+    gap: 0.625rem;
+    font-weight: 600;
+    font-size: 0.9rem;
+
+    i {
+      font-size: 1.125rem;
+    }
+
+    .pharma-toolbar-title {
+      flex: 1;
+      font-size: 1rem;
+      font-weight: 600;
+    }
+
+    .pharma-toolbar-subtitle {
+      font-size: 0.8125rem;
+      opacity: 0.9;
+      font-weight: 400;
+    }
+  }
+
+  // Toolbar content area
+  .pharma-toolbar-content {
+    padding: 0.875rem 1rem;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    flex-wrap: nowrap;
+    background: $gray-50;
+    overflow: hidden;
+
+    ::ng-deep .p-toolbar-group-start,
+    ::ng-deep .p-toolbar-group-end {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      flex-wrap: nowrap;
+    }
+
+    ::ng-deep .p-toolbar-group-start {
+      flex: 1 1 auto;
+      min-width: 0;
+      overflow: hidden;
+    }
+
+    ::ng-deep .p-toolbar-group-end {
+      flex-shrink: 0;
+    }
+  }
+}
+
+// ====================================
+// TOOLBAR SECTIONS (Filters & Actions)
+// ====================================
+
+// Filter section (left side)
+.pharma-toolbar-filters {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  flex-wrap: nowrap;
+  flex: 1 1 auto;
+  min-width: 0;
+  overflow: hidden;
+}
+
+// Action section (right side)
+.pharma-toolbar-actions {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  flex-wrap: nowrap;
+  flex-shrink: 1;
+  min-width: fit-content;
+}
+
+// ====================================
+// FILTER GROUPS (Styled containers for related filters)
+// ====================================
+.pharma-filter-group {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.5rem 0.75rem;
+  background: $pharma-white;
+  border-radius: $pharma-radius-sm;
+  border: 1px solid $gray-300;
+  transition: all 0.2s ease;
+
+  &:hover {
+    border-color: $pharma-primary;
+    box-shadow: $pharma-shadow-sm;
+  }
+
+  .pharma-filter-label {
+    font-size: 0.8125rem;
+    font-weight: 600;
+    color: $gray-700;
+    white-space: nowrap;
+    display: flex;
+    align-items: center;
+    gap: 0.375rem;
+
+    i {
+      color: $pharma-primary;
+      font-size: 0.9rem;
+    }
+  }
+
+  .pharma-filter-input {
+    flex: 1;
+    min-width: 150px;
+  }
+
+  // Compact mode for small filters
+  &.pharma-filter-group-compact {
+    padding: 0.375rem 0.625rem;
+
+    .pharma-filter-label {
+      font-size: 0.75rem;
+    }
+  }
+}
+
+// ====================================
+// SEARCH INPUT STYLING
+// ====================================
+.pharma-search-input {
+  position: relative;
+  flex: 1;
+  min-width: 250px;
+  max-width: 400px;
+
+  ::ng-deep {
+    .p-iconfield {
+      width: 100%;
+
+      input {
+        border-radius: $pharma-radius-sm;
+        border-color: $gray-300;
+        padding: 0.625rem 1rem 0.625rem 2.5rem;
+        transition: all 0.2s ease;
+        font-size: 0.875rem;
+
+        &:focus {
+          border-color: $pharma-primary;
+          box-shadow: 0 0 0 3px rgba($pharma-primary, 0.1);
+        }
+
+        &::placeholder {
+          color: $gray-400;
+          font-style: italic;
+        }
+      }
+
+      .p-inputicon {
+        color: $gray-500;
+        left: 0.75rem;
+      }
+    }
+  }
+}
+
+// Compact search input (for p-inputgroup with limited space)
+.pharma-compact-search {
+  flex: 1 1 auto;
+  min-width: 180px;
+  max-width: 300px;
+
+  ::ng-deep {
+    // For p-inputgroup (with checkbox addon)
+    .p-inputgroup {
+      input {
+        border-radius: $pharma-radius-sm 0 0 $pharma-radius-sm;
+        border-color: $gray-300;
+        padding: 0.4rem 0.5rem;
+        transition: all 0.2s ease;
+        font-size: 0.8125rem;
+        width: 100%;
+
+        &:focus {
+          border-color: $pharma-primary;
+          box-shadow: 0 0 0 2px rgba($pharma-primary, 0.1);
+        }
+
+        &::placeholder {
+          color: $gray-400;
+          font-style: italic;
+          font-size: 0.75rem;
+        }
+      }
+
+      .p-inputgroup-addon {
+        padding: 0.2rem 0.4rem;
+        background: $gray-50;
+        border-color: $gray-300;
+      }
+    }
+
+    // For p-iconfield (with search icon)
+    .p-iconfield {
+      width: 100%;
+
+      input {
+        border-radius: $pharma-radius-sm;
+        border-color: $gray-300;
+        padding: 0.4rem 0.5rem 0.4rem 2rem;
+        transition: all 0.2s ease;
+        font-size: 0.8125rem;
+        width: 100%;
+
+        &:focus {
+          border-color: $pharma-primary;
+          box-shadow: 0 0 0 2px rgba($pharma-primary, 0.1);
+        }
+
+        &::placeholder {
+          color: $gray-400;
+          font-style: italic;
+          font-size: 0.75rem;
+        }
+      }
+
+      .p-inputicon {
+        color: $gray-500;
+        left: 0.5rem;
+        font-size: 0.875rem;
+      }
+    }
+  }
+}
+
+// Wide product search input (for product autocomplete with more space needed)
+.pharma-product-search {
+  flex: 2 1 auto;
+  min-width: 350px;
+  max-width: 800px;
+  width: 100%;
+
+  ::ng-deep {
+    jhi-produit-autocomplete,
+    p-floatlabel,
+    p-autocomplete,
+    .p-autocomplete,
+    .p-floatlabel {
+      width: 100%;
+      display: block;
+
+      input {
+        width: 100%;
+        border-radius: $pharma-radius-sm;
+        border-color: $gray-300;
+        padding: 0.625rem 1rem;
+        transition: all 0.2s ease;
+        font-size: 0.875rem;
+
+        &:focus {
+          border-color: $pharma-primary;
+          box-shadow: 0 0 0 3px rgba($pharma-primary, 0.1);
+        }
+
+        &::placeholder {
+          color: $gray-400;
+          font-style: italic;
+        }
+      }
+    }
+  }
+}
+
+// Standard input field width (for lot number, etc.)
+.pharma-toolbar-filters {
+  ::ng-deep p-floatlabel {
+    min-width: 180px;
+    flex-shrink: 1;
+
+    input {
+      width: 100%;
+    }
+  }
+}
+
+// ====================================
+// DATE RANGE PICKER
+// ====================================
+.pharma-date-range {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  background: $pharma-white;
+  padding: 0.5rem 0.75rem;
+  border-radius: $pharma-radius-sm;
+  border: 1px solid $gray-300;
+
+  .pharma-date-separator {
+    color: $gray-500;
+    font-weight: 600;
+    font-size: 0.875rem;
+  }
+
+  ::ng-deep {
+    .p-floatlabel {
+      label {
+        font-size: 0.75rem;
+        color: $gray-600;
+        font-weight: 500;
+      }
+    }
+
+    .p-datepicker {
+      border-color: transparent;
+      background: transparent;
+      padding: 0.375rem 0.5rem;
+      font-size: 0.875rem;
+
+      &:focus {
+        border-color: $pharma-primary;
+      }
+    }
+  }
+}
+
+// ====================================
+// BUTTON GROUPS & ACTIONS
+// ====================================
+.pharma-button-group {
+  display: flex;
+  gap: 0.5rem;
+  align-items: center;
+
+  // Separator between button groups
+  .pharma-button-separator {
+    width: 1px;
+    height: 24px;
+    background: $gray-300;
+    margin: 0 0.25rem;
+  }
+}
+
+// Primary action button (main CTA)
+.pharma-action-primary {
+  ::ng-deep .p-button {
+    background: linear-gradient(135deg, $pharma-primary 0%, $pharma-primary-dark 100%);
+    border-color: $pharma-primary-dark;
+    font-weight: 600;
+    padding: 0.625rem 1.25rem;
+    transition: all 0.2s ease;
+
+    &:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 4px 12px rgba($pharma-primary, 0.3);
+    }
+
+    &:active {
+      transform: translateY(0);
+    }
+  }
+}
+
+// Secondary action buttons
+.pharma-action-secondary {
+  ::ng-deep .p-button {
+    background: $pharma-white;
+    border-color: $gray-300;
+    color: $gray-700;
+    font-weight: 500;
+
+    &:hover {
+      background: $gray-50;
+      border-color: $pharma-primary;
+      color: $pharma-primary;
+    }
+  }
+}
+
+// Icon-only buttons for toolbars
+.pharma-toolbar-icon-btn {
+  ::ng-deep .p-button {
+    width: 36px;
+    height: 36px;
+    padding: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    .p-button-icon {
+      font-size: 1rem;
+    }
+  }
+}
+
+// ====================================
+// BADGES & INDICATORS
+// ====================================
+.pharma-toolbar-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.375rem;
+  padding: 0.25rem 0.625rem;
+  background: $pharma-primary-light;
+  color: $pharma-primary-dark;
+  border-radius: 12px;
+  font-size: 0.8125rem;
+  font-weight: 600;
+
+  i {
+    font-size: 0.875rem;
+  }
+
+  &.pharma-badge-success {
+    background: lighten($pharma-success, 50%);
+    color: darken($pharma-success, 10%);
+  }
+
+  &.pharma-badge-warning {
+    background: lighten($pharma-warning, 40%);
+    color: darken($pharma-warning, 30%);
+  }
+
+  &.pharma-badge-danger {
+    background: lighten($pharma-danger, 40%);
+    color: darken($pharma-danger, 10%);
+  }
+
+  &.pharma-badge-info {
+    background: lighten($pharma-info, 50%);
+    color: darken($pharma-info, 15%);
+  }
+}
+
+// Info badge (for stock, rayon, etc. in toolbar)
+.pharma-info-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.375rem;
+  padding: 0.3rem 0.5rem;
+  background: $pharma-white;
+  border: 1px solid $gray-300;
+  border-radius: $pharma-radius-sm;
+  flex-shrink: 0;
+  transition: all 0.2s ease;
+  min-width: fit-content;
+
+  &:hover {
+    border-color: $pharma-primary;
+    box-shadow: $pharma-shadow-sm;
+  }
+
+  .pharma-info-badge-label {
+    display: flex;
+    align-items: center;
+    gap: 0.25rem;
+    font-size: 0.75rem;
+    font-weight: 600;
+    color: $gray-700;
+    white-space: nowrap;
+    flex-shrink: 0;
+
+    i {
+      font-size: 0.8125rem;
+      color: $pharma-primary;
+    }
+  }
+
+  ::ng-deep p-tag {
+    flex-shrink: 0;
+
+    .p-tag {
+      font-size: 0.75rem;
+      font-weight: 600;
+      padding: 0.2rem 0.5rem;
+      border-radius: 6px;
+      white-space: nowrap;
+      overflow: visible;
+      text-overflow: clip;
+    }
+  }
+
+  // Stock badge specific styling
+  &.pharma-info-badge-stock {
+    .pharma-info-badge-label i {
+      color: $pharma-success;
+    }
+  }
+
+  // Rayon badge specific styling
+  &.pharma-info-badge-rayon {
+    .pharma-info-badge-label i {
+      color: $pharma-info;
+    }
+
+    ::ng-deep p-tag .p-tag {
+      max-width: 150px;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+  }
+}
+
+// ====================================
+// COMPACT TOOLBAR (For tight spaces)
+// ====================================
+.pharma-toolbar-compact {
+  .pharma-toolbar-content {
+    padding: 0.5rem 0.75rem;
+    gap: 0.5rem;
+  }
+
+  .pharma-toolbar-filters {
+    gap: 0.5rem;
+    flex: 1 1 auto;
+  }
+
+  .pharma-toolbar-actions {
+    gap: 0.375rem;
+    flex-shrink: 1;
+
+    .pharma-button-group {
+      gap: 0.375rem;
+    }
+  }
+
+  .pharma-filter-group {
+    padding: 0.375rem 0.625rem;
+  }
+
+  ::ng-deep .p-button {
+    padding: 0.5rem 0.75rem;
+    font-size: 0.8125rem;
+  }
+
+  ::ng-deep .p-toolbar {
+    .p-toolbar-group-start {
+      flex: 1 1 auto;
+      min-width: 0;
+    }
+
+    .p-toolbar-group-end {
+      flex-shrink: 1;
+      min-width: fit-content;
+    }
+  }
+}
+
+// ====================================
+// RESPONSIVE DESIGN
+// ====================================
+
+// Ultra-compact mode for 14-inch screens (1366px) - ONLY for compact toolbar
+@media (max-width: 1450px) {
+  .pharma-toolbar-compact {
+    // Reduce overall padding slightly
+    .pharma-toolbar-content {
+      padding: 0.625rem 0.875rem !important;
+      overflow: hidden !important;
+    }
+
+    ::ng-deep .p-toolbar {
+      padding: 0.5rem 0.625rem !important;
+      overflow: hidden !important;
+
+      .p-toolbar-group-start,
+      .p-toolbar-group-end {
+        gap: 0.3rem !important;
+      }
+
+      .p-toolbar-group-start {
+        overflow: hidden !important;
+      }
+    }
+
+    // Scope filters to compact toolbar only
+    .pharma-toolbar-filters {
+      gap: 0.3rem !important;
+      flex-wrap: nowrap !important;
+      flex: 1 1 auto;
+      min-width: 0;
+
+      .mr-1 {
+        margin-right: 0.3rem !important;
+      }
+
+      > * {
+        flex-shrink: 2;
+      }
+
+      // Info badges should shrink less than other elements
+      .pharma-info-badge {
+        flex-shrink: 0 !important;
+      }
+
+      // Override floatlabel min-width for 14-inch screens
+      ::ng-deep p-floatlabel {
+        min-width: 150px !important;
+        flex-shrink: 2;
+      }
+    }
+
+    // Scope actions to compact toolbar only
+    .pharma-toolbar-actions {
+      gap: 0.25rem !important;
+      flex-shrink: 0;
+      min-width: fit-content;
+
+      .pharma-button-group {
+        gap: 0.25rem !important;
+      }
+
+      .mr-1 {
+        margin-right: 0.25rem !important;
+      }
+
+      // Make buttons icon-only on 14-inch screens (ONLY in compact toolbar)
+      ::ng-deep .p-button {
+        padding: 0.5rem !important;
+        min-width: auto !important;
+        width: 36px !important;
+        height: 36px !important;
+
+        .p-button-label {
+          display: none !important;
+        }
+
+        .p-button-icon {
+          margin: 0 !important;
+          font-size: 1rem !important;
+        }
+
+        &.p-button-icon-only {
+          padding: 0.5rem !important;
+          width: 36px !important;
+          height: 36px !important;
+        }
+      }
+    }
+
+    // Scope compact search to compact toolbar only
+    .pharma-compact-search {
+      min-width: 150px;
+      max-width: 220px;
+      flex-shrink: 1;
+    }
+
+    // Reduce product search width in compact mode - can shrink more than info badges
+    .pharma-product-search {
+      flex: 2 2 auto;
+      min-width: 280px;
+      max-width: 600px;
+      flex-shrink: 2;
+    }
+
+    // Make info badges more compact - show icon and value only
+    .pharma-info-badge {
+      padding: 0.25rem 0.45rem;
+      gap: 0.3rem;
+      flex-shrink: 0;
+      min-width: fit-content;
+
+      .pharma-info-badge-label {
+        font-size: 0;
+        gap: 0;
+        flex-shrink: 0;
+
+        span {
+          display: none;
+        }
+
+        i {
+          font-size: 0.8rem;
+          margin: 0;
+        }
+      }
+
+      ::ng-deep p-tag {
+        flex-shrink: 0;
+
+        .p-tag {
+          font-size: 0.75rem;
+          padding: 0.2rem 0.45rem;
+          white-space: nowrap;
+        }
+      }
+
+      &.pharma-info-badge-rayon {
+        ::ng-deep p-tag .p-tag {
+          max-width: 120px;
+          overflow: hidden;
+          text-overflow: ellipsis;
+        }
+      }
+    }
+
+    // Scope input sizing to compact toolbar only
+    ::ng-deep {
+      .p-select,
+      .p-datepicker,
+      p-floatlabel {
+        font-size: 0.8125rem;
+
+        .p-select-label,
+        input {
+          padding: 0.4rem 0.5rem !important;
+          font-size: 0.8125rem !important;
+        }
+
+        label {
+          font-size: 0.75rem !important;
+        }
+      }
+
+      // Make quantity component more compact
+      jhi-quantite-produt-saisie {
+        max-width: 150px !important;
+
+        input {
+          padding: 0.4rem 0.5rem !important;
+          font-size: 0.8125rem !important;
+        }
+      }
+
+      // Reduce datepicker width in compact mode
+      p-datepicker {
+        display: inline-flex;
+        width: 135px;
+        flex-shrink: 0;
+
+        .p-datepicker {
+          display: inline-flex !important;
+          align-items: stretch !important;
+          width: 100%;
+
+          input {
+            flex: 1 1 auto;
+            min-width: 0;
+            max-width: calc(100% - 1.75rem);
+            padding: 0.4rem 0.5rem !important;
+            font-size: 0.8125rem !important;
+            border-top-right-radius: 0 !important;
+            border-bottom-right-radius: 0 !important;
+          }
+
+          .p-datepicker-trigger {
+            flex: 0 0 1.75rem;
+            width: 1.75rem !important;
+            height: auto !important;
+            padding: 0 !important;
+            margin-left: 0 !important;
+            display: flex !important;
+            align-items: center !important;
+            justify-content: center !important;
+            border-top-left-radius: 0 !important;
+            border-bottom-left-radius: 0 !important;
+
+            .p-icon {
+              font-size: 0.875rem !important;
+            }
+          }
+        }
+      }
+
+      p-floatlabel {
+        display: inline-flex;
+        flex-shrink: 0;
+
+        p-datepicker {
+          width: 100%;
+        }
+      }
+
+      // Reduce select and multiselect width in compact mode
+      .p-select,
+      .p-multiselect {
+        max-width: 200px;
+        min-width: 160px;
+        flex-shrink: 1;
+      }
+    }
+  }
+}
+
+@media (max-width: 1400px) {
+  .pharma-toolbar-content {
+    gap: 0.625rem;
+  }
+
+  .pharma-search-input {
+    min-width: 200px;
+    max-width: 300px;
+  }
+
+  .pharma-compact-search {
+    min-width: 120px;
+    max-width: 140px;
+  }
+
+  .pharma-product-search {
+    flex: 1.8 1 auto;
+    min-width: 380px;
+    max-width: 700px;
+  }
+
+  .pharma-filter-group {
+    .pharma-filter-input {
+      min-width: 180px;
+    }
+  }
+
+  // Further reduce input widths on medium screens
+  .pharma-toolbar-compact {
+    ::ng-deep {
+      p-datepicker {
+        width: 125px;
+
+        .p-datepicker {
+          input {
+            max-width: calc(100% - 1.75rem);
+          }
+
+          .p-datepicker-trigger {
+            flex: 0 0 1.75rem;
+            width: 1.75rem !important;
+
+
+          }
+        }
+      }
+
+      p-floatlabel {
+
+      }
+
+      .p-select,
+      .p-multiselect {
+        max-width: 180px;
+        min-width: 150px;
+      }
+    }
+  }
+}
+
+@media (max-width: 1200px) {
+  .pharma-toolbar-content {
+    flex-direction: column;
+    align-items: stretch;
+    flex-wrap: wrap;
+
+    ::ng-deep .p-toolbar-group-start,
+    ::ng-deep .p-toolbar-group-end {
+      width: 100%;
+      justify-content: flex-start;
+      flex-wrap: wrap;
+    }
+  }
+
+  .pharma-toolbar-filters {
+    width: 100%;
+    flex-wrap: wrap;
+  }
+
+  .pharma-toolbar-actions {
+    width: 100%;
+    justify-content: flex-end;
+    flex-wrap: wrap;
+  }
+
+  .pharma-search-input {
+    max-width: none;
+  }
+
+  .pharma-product-search {
+    min-width: 250px;
+    max-width: 100%;
+  }
+}
+
+@media (max-width: 768px) {
+  .pharma-toolbar {
+    margin-bottom: 0.75rem;
+  }
+
+  .pharma-toolbar-content {
+    padding: 0.625rem 0.75rem;
+    gap: 0.5rem;
+  }
+
+  .pharma-toolbar-filters,
+  .pharma-toolbar-actions {
+    flex-direction: column;
+    align-items: stretch;
+    width: 100%;
+    gap: 0.5rem;
+  }
+
+  .pharma-filter-group {
+    width: 100%;
+
+    .pharma-filter-input {
+      min-width: 0;
+      flex: 1;
+    }
+  }
+
+  .pharma-button-group {
+    width: 100%;
+    justify-content: stretch;
+
+    ::ng-deep .p-button {
+      flex: 1;
+    }
+  }
+
+  .pharma-search-input {
+    width: 100%;
+    min-width: 0;
+  }
+
+  .pharma-compact-search {
+    width: 100%;
+    min-width: 0;
+    max-width: none;
+  }
+
+  .pharma-product-search {
+    width: 100%;
+    min-width: 0;
+    max-width: none;
+  }
+
+  // Hide text labels on mobile, show only icons
+  .pharma-toolbar-actions {
+    ::ng-deep .p-button-label {
+      display: none;
+    }
+
+    ::ng-deep .p-button {
+      padding: 0.625rem;
+    }
+  }
+
+  // Make info badges icon-only on mobile
+  .pharma-info-badge {
+    padding: 0.375rem 0.5rem;
+
+    .pharma-info-badge-label {
+      span {
+        display: none;
+      }
+
+      i {
+        margin: 0;
+      }
+    }
+
+    ::ng-deep p-tag .p-tag {
+      font-size: 0.75rem;
+    }
+  }
+}
+
+// ====================================
+// UTILITY CLASSES
+// ====================================
+.pharma-toolbar-divider {
+  width: 1px;
+  height: 32px;
+  background: $gray-300;
+  margin: 0 0.5rem;
+}
+
+.pharma-toolbar-spacer {
+  flex: 1;
+  min-width: 1rem;
+}
+
+// Hide on small screens
+.pharma-hide-mobile {
+  @media (max-width: 768px) {
+    display: none !important;
+  }
+}
+
+// Hide on medium screens (14-inch laptops)
+.pharma-hide-medium {
+  @media (max-width: 1450px) {
+    display: none !important;
+  }
+}
+
+// Show only on small screens
+.pharma-show-mobile {
+  display: none !important;
+
+  @media (max-width: 768px) {
+    display: flex !important;
+  }
+}

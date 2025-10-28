@@ -1,11 +1,17 @@
 
 <div class="container-fluid ">
 <div class="pharma-smart-content p-2">
-  <p-toolbar>
-    <div class=" d-flex justify-content-between " style="width: 100%">
-      <div class="flex-grow-1 d-flex justify-content-between">
-        <div class="mr-1">
-          <p-floatlabel variant="on">
+  <!-- Modern Pharma Toolbar (Compact) -->
+  <div class="pharma-toolbar pharma-toolbar-compact">
+    <div class="pharma-toolbar-header">
+      <i class="pi pi-sliders-h"></i>
+      <span class="pharma-toolbar-title">Ajustement de stock</span>
+    </div>
+
+    <p-toolbar>
+      <ng-template #start>
+        <div class="pharma-toolbar-filters">
+          <p-floatlabel variant="on" class="mr-1">
             <p-select
               #motif
               (onChange)="onSelectMotif()"
@@ -13,63 +19,72 @@
               [appendTo]="appendTo"
               [dataKey]="'id'"
               [options]="motifs"
-              [style]="{'min-width': '180px'}"
-              fluid="true"
+              [fluid]="true"
               id="motifs"
               optionLabel="libelle"
               size="large"
-              [fluid]="true"
             ></p-select>
             <label for="motifs">{{ 'warehouseApp.labels.motifsAjustement' | translate }}</label>
           </p-floatlabel>
-        </div>
-        <div class="mr-1 flex-grow-1">
-          <jhi-produit-autocomplete #produitComponent
-                                    (selectedProduit)="onSelectProduct($event)"
-                                    [(ngModel)]="produitSelected"
-                                    [autofocus]="false"
-                                    [disabled]="!motifValue"
-                                    (onKeyEnter)="onSaveKeyDown($event)"
-                                    [includeDetails]="includeDetails">
-          </jhi-produit-autocomplete>
-        </div>
-        <div class="mr-1">
-          <jhi-quantite-produt-saisie #produitQteCmpt (addQuantite)="addQuantity($event)"
-                                      [disabledButton]="disabledButton"
-                                      [isValid]="canAddQuantity"
-                                      [style]="{'max-width': '160px'}">
-          </jhi-quantite-produt-saisie>
 
-        </div>
+          <div class="pharma-product-search mr-1">
+            <jhi-produit-autocomplete #produitComponent
+                                      (selectedProduit)="onSelectProduct($event)"
+                                      [(ngModel)]="produitSelected"
+                                      [autofocus]="false"
+                                      [disabled]="!motifValue"
+                                      (onKeyEnter)="onSaveKeyDown($event)"
+                                      [includeDetails]="includeDetails">
+            </jhi-produit-autocomplete>
+          </div>
 
-        <div class="mr-1">
-          @let bageSeverty = produitSelected?.totalQuantity > 0 ? 'success' : 'danger';
-          <p-button [badgeSeverity]="bageSeverty" [badge]="produitSelected?.totalQuantity |number"
-                    [text]="true" label="Stock:" severity="info"
-          />
-        </div>
-        <div class="mr-1">
-          <p-button [badge]="produitSelected?.rayonLibelle" [text]="true" label="Rayon:"
-                    severity="info"
-          />
-        </div>
+          <div class="mr-1">
+            <jhi-quantite-produt-saisie #produitQteCmpt (addQuantite)="addQuantity($event)"
+                                        [disabledButton]="disabledButton"
+                                        [isValid]="canAddQuantity">
+            </jhi-quantite-produt-saisie>
+          </div>
 
-      </div>
-      <div>
-        <p-buttonGroup>
-          <p-button  class="mr-2"  icon="pi pi-lock"  (click)="onSave()" [disabled]="!ajustement || isSaving"
+          @if (produitSelected) {
+            <div class="pharma-info-badge pharma-info-badge-stock mr-1">
+              @let stockSeverity = produitSelected?.totalQuantity > 0 ? 'success' : 'danger';
+              <span class="pharma-info-badge-label">
+                <i class="pi pi-box"></i>
+                Stock
+              </span>
+              <p-tag [severity]="stockSeverity" [value]="produitSelected?.totalQuantity | number"></p-tag>
+            </div>
+
+            @if (produitSelected?.rayonLibelle) {
+              <div class="pharma-info-badge pharma-info-badge-rayon mr-1" [pTooltip]="'Rayon: ' + produitSelected?.rayonLibelle" tooltipPosition="bottom">
+                <span class="pharma-info-badge-label">
+                  <i class="pi pi-tag"></i>
+                  Rayon
+                </span>
+                <p-tag severity="info" [value]="produitSelected?.rayonLibelle"></p-tag>
+              </div>
+            }
+          }
+        </div>
+      </ng-template>
+
+      <ng-template #end>
+        <div class="pharma-toolbar-actions">
+          <div class="pharma-button-group">
+            <p-button icon="pi pi-lock" (click)="onSave()" [disabled]="!ajustement || isSaving"
                       [label]="'warehouseApp.buttons.closeAction' | translate"
-                    severity="info"/>
+                      [raised]="true"
+                      severity="info"/>
 
-          <jhi-remove-button (click)="confirmDeleteItems()"
-                             [disabled]="!ajustement || !selectedEl.length ||  isSaving"
-                             class="mr-1"></jhi-remove-button>
+            <jhi-remove-button (click)="confirmDeleteItems()"
+                               [disabled]="!ajustement || !selectedEl.length ||  isSaving"></jhi-remove-button>
 
-          <jhi-back-button></jhi-back-button>
-        </p-buttonGroup>
-      </div>
-    </div>
-  </p-toolbar>
+            <jhi-back-button></jhi-back-button>
+          </div>
+        </div>
+      </ng-template>
+    </p-toolbar>
+  </div>
   <div class="mt-3 mb-3">
     <p-table
       [(selection)]="selectedEl"
@@ -83,7 +98,7 @@
     >
       <ng-template #caption>
         <p-iconfield>
-          <p-inputicon styleClass="pi pi-search" />
+          <p-inputicon class="pi pi-search" />
           <input
             (keyup.enter)="onFilterItems()"
             [(ngModel)]="search"

@@ -14,7 +14,6 @@ import { RemiseProduitFormModalComponent } from '../remise-produit-form-modal/re
 import { ToggleSwitch } from 'primeng/toggleswitch';
 import { ConfirmDialogComponent } from '../../../shared/dialog/confirm-dialog/confirm-dialog.component';
 import { ToastAlertComponent } from '../../../shared/toast-alert/toast-alert.component';
-import { Panel } from 'primeng/panel';
 import { ErrorService } from '../../../shared/error.service';
 
 @Component({
@@ -27,8 +26,7 @@ import { ErrorService } from '../../../shared/error.service';
     ButtonModule,
     ToggleSwitch,
     ConfirmDialogComponent,
-    ToastAlertComponent,
-    Panel
+    ToastAlertComponent
   ],
   templateUrl: './remise-produits.component.html',
   styleUrl: './remise-produits.component.scss',

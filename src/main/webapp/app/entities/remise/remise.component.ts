@@ -13,7 +13,6 @@ import { RemiseClientFormModalComponent } from './remise-client-form-modal/remis
 import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { ConfirmDialogComponent } from '../../shared/dialog/confirm-dialog/confirm-dialog.component';
 import { ToastAlertComponent } from '../../shared/toast-alert/toast-alert.component';
-import { Panel } from 'primeng/panel';
 import { ErrorService } from '../../shared/error.service';
 import { FormsModule } from '@angular/forms';
 import { ToggleSwitchModule } from 'primeng/toggleswitch';
@@ -29,7 +28,7 @@ import { ToggleSwitchModule } from 'primeng/toggleswitch';
     ToggleSwitchModule,
     ConfirmDialogComponent,
     ToastAlertComponent,
-    Panel,
+
   ],
   templateUrl: './remise.component.html',
   styleUrl: './remise.component.scss',

@@ -25,7 +25,7 @@ import { CodeRemiseProduitComponent } from '../code-remise-produit/code-remise-p
     CodeRemiseProduitComponent
   ],
   templateUrl: './remise-nav.component.html',
-  styles: ``
+ styleUrls: ['./remise-nav.scss'],
 })
 export class RemiseNavComponent {
   protected active = 'remise-produit';

@@ -6,10 +6,11 @@ import { FaIconComponent } from '@fortawesome/angular-fontawesome';
 import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
 
 import { CodeRemiseProduitsModalComponent } from '../code-remise-produits-modal/code-remise-produits-modal.component';
+import { Toolbar } from 'primeng/toolbar';
 
 @Component({
   selector: 'jhi-code-remise-produit',
-  imports: [FaIconComponent],
+  imports: [FaIconComponent, Toolbar],
   templateUrl: './code-remise-produit.component.html',
   styleUrls: ['./code-remise-produit.component.scss']
 })

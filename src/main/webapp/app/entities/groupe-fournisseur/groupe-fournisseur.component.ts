@@ -19,7 +19,6 @@ import { TooltipModule } from 'primeng/tooltip';
 import { TextareaModule } from 'primeng/textarea';
 import { IconField } from 'primeng/iconfield';
 import { InputIcon } from 'primeng/inputicon';
-import { Panel } from 'primeng/panel';
 import { FormGroupeFournisseurComponent } from './form/form-groupe-fournisseur.component';
 import { ConfirmDialogComponent } from '../../shared/dialog/confirm-dialog/confirm-dialog.component';
 import { ToastAlertComponent } from '../../shared/toast-alert/toast-alert.component';
@@ -48,7 +47,6 @@ import { SpinnerComponent } from '../../shared/spinner/spinner.component';
     TooltipModule,
     IconField,
     InputIcon,
-    Panel,
     ConfirmDialogComponent,
     ToastAlertComponent,
     SpinnerComponent

@@ -28,7 +28,6 @@ import { HttpHeaders, HttpResponse } from '@angular/common/http';
 import { PeremptionStatut } from '../model/peremption-statut';
 import { RemoveButtonTextComponent } from '../../../shared/cta/remove-button-text.component';
 import { BackButtonComponent } from '../../../shared/cta/back-button.component';
-import { ButtonGroup } from 'primeng/buttongroup';
 import { IconField } from 'primeng/iconfield';
 import { InputIcon } from 'primeng/inputicon';
 import { DatePickerComponent } from '../../../shared/date-picker/date-picker.component';
@@ -54,7 +53,6 @@ import { SpinnerComponent } from '../../../shared/spinner/spinner.component';
     Tag,
     RemoveButtonTextComponent,
     BackButtonComponent,
-    ButtonGroup,
     IconField,
     InputIcon,
     DatePickerComponent,

@@ -23,7 +23,6 @@ import { showCommonModal } from '../sales/selling-home/sale-helper';
 import { ErrorService } from '../../shared/error.service';
 import { FileUploadDialogComponent } from '../groupe-tiers-payant/file-upload-dialog/file-upload-dialog.component';
 import { finalize } from 'rxjs/operators';
-import { Panel } from 'primeng/panel';
 import { SpinnerComponent } from '../../shared/spinner/spinner.component';
 
 @Component({
@@ -43,7 +42,6 @@ import { SpinnerComponent } from '../../shared/spinner/spinner.component';
     IconField,
     ToastAlertComponent,
     ConfirmDialogComponent,
-    Panel,
     SpinnerComponent
   ]
 })

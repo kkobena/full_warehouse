@@ -30,6 +30,7 @@ import { DATE_FORMAT_ISO_DATE } from '../util/warehouse-util';
         (ngModelChange)="onNgModelChange($event)"
         [showIcon]="true"
         [inputId]="id()"
+        appendTo="body"
         [selectOtherMonths]="true"
         [showButtonBar]="true"
         [style]="style()"

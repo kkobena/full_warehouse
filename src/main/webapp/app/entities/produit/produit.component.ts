@@ -59,8 +59,8 @@ import {
 import {
   ImportProduitReponseModalComponent
 } from './import-produit-reponse-modal/import-produit-reponse-modal.component';
-import { Panel } from 'primeng/panel';
 import { CardModule } from 'primeng/card';
+import { FloatLabel } from 'primeng/floatlabel';
 
 export type ExpandMode = 'single' | 'multiple';
 
@@ -88,9 +88,9 @@ export type ExpandMode = 'single' | 'multiple';
     ButtonGroup,
     ToastAlertComponent,
     ConfirmDialogComponent,
-    Panel,
     CardModule,
-  ],
+    FloatLabel
+  ]
 })
 export class ProduitComponent implements OnInit {
   protected selectedFamille: number = null;

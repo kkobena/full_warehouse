@@ -22,10 +22,11 @@ import { takeUntil } from 'rxjs/operators';
 import { DiffereSummary } from '../model/differe-summary.model';
 import { TauriPrinterService } from '../../../shared/services/tauri-printer.service';
 import { handleBlobForTauri } from '../../../shared/util/tauri-util';
+import { FloatLabel } from 'primeng/floatlabel';
 
 @Component({
   selector: 'jhi-list-differes',
-  imports: [Button, FormsModule, Toolbar, CommonModule, SelectModule, CardModule, TableModule, Tooltip, RouterModule, Tag],
+  imports: [Button, FormsModule, Toolbar, CommonModule, SelectModule, CardModule, TableModule, Tooltip, RouterModule, Tag, FloatLabel],
   templateUrl: './list-differes.component.html',
   styleUrls: ['./list-differes.component.scss'],
 })

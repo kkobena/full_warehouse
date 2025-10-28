@@ -1,48 +1,62 @@
 <jhi-confirm-dialog #confirmDialog></jhi-confirm-dialog>
 <jhi-toast-alert #alert></jhi-toast-alert>
 
-<p-panel header="Menu groupe de tiers payant">
-  <p-toolbar>
-    <ng-template #start>
-      <p-iconfield>
-        <p-inputicon class="pi pi-search" />
-        <input
-          (keyup.enter)="onSearch()"
-          (ngModelChange)="search.set($event)"
-          [ngModel]="search()"
-          pInputText
-          placeholder="Taper pour rechercher"
-          style="width: 98%"
-          type="text"
-        />
-      </p-iconfield>
-    </ng-template>
-    <ng-template #end>
-      <p-button
-        (click)="showFileDialog()"
-        class="mr-2"
-        icon="pi pi-upload"
-        label="Importer"
-        raised="true"
-        severity="help"
-        type="button"
-      ></p-button>
-      <p-button
-        (click)="addGroupeTiersPayant()"
-        icon="pi pi-check"
-        label="Nouveau"
-        raised="true"
-        severity="success"
-        type="button"
-      ></p-button>
-    </ng-template>
-  </p-toolbar>
+<div class="pharma-smart-content p-2">
+  <div class="pharma-toolbar">
+    <div class="pharma-toolbar-header">
+      <i class="pi pi-building"></i>
+      <span class="pharma-toolbar-title">Menu groupe de tiers payant</span>
+    </div>
+
+    <p-toolbar>
+      <ng-template #start>
+        <div class="pharma-toolbar-filters">
+          <div class="pharma-search-input">
+            <p-iconfield>
+              <p-inputicon class="pi pi-search" />
+              <input
+                (keyup.enter)="onSearch()"
+                (ngModelChange)="search.set($event)"
+                [ngModel]="search()"
+                pInputText
+                placeholder="Taper pour rechercher"
+                type="text"
+              />
+            </p-iconfield>
+          </div>
+        </div>
+      </ng-template>
+
+      <ng-template #end>
+        <div class="pharma-toolbar-actions">
+          <div class="pharma-button-group">
+            <p-button
+              (click)="showFileDialog()"
+              icon="pi pi-upload"
+              label="Importer"
+              [raised]="true"
+              severity="help"
+              type="button"
+            ></p-button>
+            <p-button
+              (click)="addGroupeTiersPayant()"
+              icon="pi pi-check"
+              label="Nouveau"
+              [raised]="true"
+              severity="success"
+              type="button"
+            ></p-button>
+          </div>
+        </div>
+      </ng-template>
+    </p-toolbar>
+  </div>
 
   <div class="mt-2">
     @if (entites() && entites()?.length > 0) {
-      <p-table [paginator]="true" [rows]="20" [value]="entites()">
+      <p-table [paginator]="true" [rows]="20" [value]="entites()" class="pharma-table">
         <ng-template #header>
-          <tr>
+          <tr class="pharma-table-head">
             <th scope="col"><span>Libellé</span></th>
             <th scope="col"><span>Ordre de tris</span></th>
             <th scope="col"><span>Adresse</span></th>
@@ -53,7 +67,7 @@
         </ng-template>
         <ng-template let-columns="columns" let-groupeTiersPayant #body>
           <tr>
-            <td>{{ groupeTiersPayant.name }}</td>
+            <td><span class="pharma-entity-name"></span>{{ groupeTiersPayant.name }}</td>
             <td>{{ groupeTiersPayant.ordreTrisFacture }}</td>
             <td>{{ groupeTiersPayant.adresse }}</td>
             <td>{{ groupeTiersPayant.telephone }}</td>
@@ -89,5 +103,6 @@
       </div>
     }
   </div>
-</p-panel>
+</div>
+
 <jhi-spinner #spinner ></jhi-spinner>

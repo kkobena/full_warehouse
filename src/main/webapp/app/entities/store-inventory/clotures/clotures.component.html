@@ -10,11 +10,12 @@
   [totalRecords]="totalItems"
   [value]="rowData"
   dataKey="id"
+  class="pharma-table"
   selectionMode="multiple"
   [showGridlines]="true"
 >
   <ng-template #header>
-    <tr>
+    <tr class="pharma-table-head">
       <th>Emplacement</th>
       <th>Date</th>
       <th>Opérateur</th>
@@ -29,15 +30,15 @@
   </ng-template>
   <ng-template let-storeInventory #body>
     <tr>
-      <td>{{ storeInventory.storage?.name }}</td>
+      <td><span class="pharma-badge pharma-badge-info"> {{ storeInventory.storage?.name }}</span></td>
       <td>{{ storeInventory.updatedAt | date: 'dd/MM/yyyy HH:mm:ss' }}</td>
       <td>{{ storeInventory.abbrName }}</td>
-      <td class="text-right">{{ storeInventory.inventoryValueCostBegin | number }}</td>
-      <td class="text-right">{{ storeInventory.inventoryAmountBegin | number }}</td>
-      <td class="text-right">{{ storeInventory.inventoryValueCostAfter | number }}</td>
-      <td class="text-right">{{ storeInventory.inventoryAmountAfter | number }}</td>
-      <td class="text-right">{{ storeInventory.gapCost | number }}</td>
-      <td class="text-right">{{ storeInventory.gapAmount | number }}</td>
+      <td class="text-right pharma-price">{{ storeInventory.inventoryValueCostBegin | number }}</td>
+      <td class="text-right pharma-price">{{ storeInventory.inventoryAmountBegin | number }}</td>
+      <td class="text-right pharma-price">{{ storeInventory.inventoryValueCostAfter | number }}</td>
+      <td class="text-right pharma-price">{{ storeInventory.inventoryAmountAfter | number }}</td>
+      <td class="text-right pharma-price">{{ storeInventory.gapCost | number }}</td>
+      <td class="text-right pharma-price">{{ storeInventory.gapAmount | number }}</td>
       <td class="text-right">
         <div class="btn-group">
           <p-button

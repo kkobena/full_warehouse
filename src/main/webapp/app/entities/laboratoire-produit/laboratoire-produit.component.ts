@@ -15,7 +15,6 @@ import { TooltipModule } from 'primeng/tooltip';
 import { FormsModule } from '@angular/forms';
 import { IconField } from 'primeng/iconfield';
 import { InputIcon } from 'primeng/inputicon';
-import { Panel } from 'primeng/panel';
 import { ConfirmDialogComponent } from '../../shared/dialog/confirm-dialog/confirm-dialog.component';
 import { showCommonModal } from '../sales/selling-home/sale-helper';
 import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
@@ -39,7 +38,6 @@ import { SpinnerComponent } from '../../shared/spinner/spinner.component';
     FormsModule,
     IconField,
     InputIcon,
-    Panel,
     ConfirmDialogComponent,
     ToastAlertComponent,
     SpinnerComponent

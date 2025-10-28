@@ -1,120 +1,148 @@
 <div class="container-fluid ">
-  <div class="pharma-smart-content p-2">
-    <p-toolbar>
-      <ng-template #start>
-        <div class="d-flex justify-content-between">
-          <div class="mr-1">
-            <p-select (onChange)="onTypeVenteChange()" [(ngModel)]="typeVenteSelected"
-                      [options]="typeVentes" size="large"></p-select>
-          </div>
-          <div class="mr-1">
+  <div class="pharma-smart-content p-1">
+    <!-- Modern Pharma Toolbar -->
+    <div class="pharma-toolbar pharma-toolbar-compact">
+      <div class="pharma-toolbar-header">
+        <i class="pi pi-shopping-cart"></i>
+        <span class="pharma-toolbar-title">Journal des ventes</span>
+      </div>
+
+      <p-toolbar>
+        <ng-template #start>
+          <div class="pharma-toolbar-filters">
+            <p-select
+              appendTo="body"
+              (onChange)="onTypeVenteChange()"
+              [(ngModel)]="typeVenteSelected"
+              [options]="typeVentes"
+              class="mr-1"
+            />
+
             <p-select
               #userControl
               [(ngModel)]="selectedUserId"
               [options]="users"
+              appendTo="body"
               id="selectedUserId"
               inputId="selectedUserId"
               optionLabel="abbrName"
               optionValue="id"
-              size="large"
+              class="mr-1"
+            />
 
-            ></p-select>
-          </div>
+            <div class="pharma-compact-search mr-1">
+              <p-inputgroup>
+                <input
+                  (keyup.enter)="onSearch()"
+                  pInputText
+                  placeholder="Rechercher..."
+                  type="text"
+                />
+                <p-inputgroup-addon>
+                  <p-checkbox
+                    [(ngModel)]="global"
+                    [binary]="true"
+                    id="global"
+                    inputId="global"
+                    pTooltip="Recherche globale"
+                  />
+                </p-inputgroup-addon>
+              </p-inputgroup>
+            </div>
 
-          <div class="mr-1">
-            <p-inputgroup>
-              <input (keyup.enter)="onSearch()" pInputText placeholder="Taper pour rechercher"
-                     type="text" />
-              <p-inputgroup-addon>
-                <p-checkbox [(ngModel)]="global" [binary]="true" id="global" inputId="global"
-                            pTooltip="Recherche globale"></p-checkbox>
-              </p-inputgroup-addon>
-            </p-inputgroup>
-          </div>
-
-          <div class="mr-1">
-            <p-floatlabel variant="on">
+            <p-floatlabel variant="on" class="mr-1">
               <p-datePicker
                 [(ngModel)]="fromDate"
                 [maxDate]="toDate"
+                appendTo="body"
                 [selectOtherMonths]="true"
                 [showButtonBar]="true"
                 dateFormat="dd/mm/yy"
-                id="toDate"
-              >
-              </p-datePicker>
-              <label for="toDate">Du</label>
+                id="fromDate"
+              />
+              <label for="fromDate">Du</label>
             </p-floatlabel>
-          </div>
-          <div class="mr-1">
-            <p-floatlabel variant="on">
+
+            <p-floatlabel variant="on" class="mr-1">
               <p-datePicker
                 [(ngModel)]="toDate"
                 [minDate]="fromDate"
                 [selectOtherMonths]="true"
+                appendTo="body"
                 [showButtonBar]="true"
                 dateFormat="dd/mm/yy"
                 id="toDate"
                 inputId="toDate"
-              ></p-datePicker>
+              />
               <label for="toDate">Au</label>
             </p-floatlabel>
-          </div>
-          <div class="mr-1">
-            <p-floatlabel variant="on">
-              <p-select [(ngModel)]="fromHour" [options]="hous" id="fromHour"
-                        size="large"></p-select>
+
+            <p-floatlabel variant="on" class="mr-1 pharma-hide-mobile">
+              <p-select [(ngModel)]="fromHour"    appendTo="body"[options]="hous" id="fromHour" />
               <label for="fromHour">De</label>
             </p-floatlabel>
-          </div>
-          <div class="mr-1">
-            <p-floatlabel variant="on">
-              <p-select [(ngModel)]="toHour" [options]="hous" id="toHour" size="large"></p-select>
-              <label for="hous">A</label>
+
+            <p-floatlabel variant="on" class="mr-1 pharma-hide-mobile">
+              <p-select [(ngModel)]="toHour"   appendTo="body" [options]="hous" id="toHour" />
+              <label for="toHour">À</label>
             </p-floatlabel>
           </div>
-        </div>
-      </ng-template>
-      <ng-template #end>
-        <div class="sale d-flex">
-          @if (isLargeScreen) {
-            <div>
-              <p-button (click)="loadPage()" [raised]="true" class="mr-1" icon="pi pi-search"
-                        label="Rechercher"
-                        severity="info"></p-button>
+        </ng-template>
 
-              <p-button [raised]="true" [routerLink]="['/sales', false, 'new']"
-                        icon="pi pi-plus" label="Nouvelle vente" severity="primary">
-              </p-button>
+        <ng-template #end>
+          <div class="pharma-toolbar-actions">
+            @if (totalItems > 0) {
+              <span class="pharma-toolbar-badge mr-1">
+                <i class="pi pi-list"></i>
+                <span>{{ totalItems }}</span>
+              </span>
+            }
+
+            <div class="pharma-button-group pharma-hide-mobile">
+              <p-button
+                (click)="loadPage()"
+                [raised]="true"
+                icon="pi pi-search"
+                label="Rechercher"
+                severity="info"
+              />
+
+              <div class="pharma-action-primary">
+                <p-button
+                  [raised]="true"
+                  [routerLink]="['/sales', false, 'new']"
+                  icon="pi pi-plus"
+                  label="Nouvelle vente"
+                  severity="success"
+                />
+              </div>
             </div>
-          } @else {
-            <p-button (click)="loadPage()"
-                      [raised]="true"
-                      [rounded]="true"
-                      class="mr-1"
-                      icon="pi pi-search"
-                      pTooltip="Rechercher"
-                      severity="info"
-                      tooltipPosition="top"
-            ></p-button>
 
-            <!--   <p-splitbutton [model]="splitbuttons" icon="pi pi-upload"
-              pTooltip="Exporter" styleClass="p-button-raised p-button-help"
-            tooltipPosition="top"></p-splitbutton>-->
-            <p-button
-              [rounded]="true"
-              [routerLink]="['/sales', false, 'new']"
-              icon="pi pi-plus"
-              pTooltip="Nouvelle vente"
-              raised="true"
-              severity="success"
-              tooltipPosition="top"
-            >
-            </p-button>
-          }
-        </div>
-      </ng-template>
-    </p-toolbar>
+            <div class="pharma-button-group pharma-show-mobile">
+              <p-button
+                (click)="loadPage()"
+                [raised]="true"
+                [rounded]="true"
+                icon="pi pi-search"
+                pTooltip="Rechercher"
+                severity="info"
+                tooltipPosition="top"
+              />
+
+              <p-button
+                [rounded]="true"
+                [routerLink]="['/sales', false, 'new']"
+                icon="pi pi-plus"
+                pTooltip="Nouvelle vente"
+                raised="true"
+                severity="success"
+                tooltipPosition="top"
+              />
+            </div>
+          </div>
+        </ng-template>
+      </p-toolbar>
+    </div>
     <div class="mt-3 -mb-3">
       @if (sales && sales.length > 0) {
         <p-table
@@ -176,7 +204,7 @@
               <td>{{ sale.cassier?.abbrName }}</td>
               <td>
                 <div class="btn-group d-flex justify-content-end">
-                
+
                   @if (canEdit && (sale.natureVente === 'ASSURANCE' || sale.natureVente
                     === 'CARNET')) {
 

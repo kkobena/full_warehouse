@@ -12,10 +12,11 @@
   [value]="rowData"
   dataKey="id"
   selectionMode="multiple"
+  class="pharma-table"
   [showGridlines]="true"
 >
   <ng-template #header>
-    <tr>
+    <tr class="pharma-table-head">
       <th>Emplacement</th>
       <th>Date</th>
       <th>Opérateur</th>
@@ -25,7 +26,7 @@
   </ng-template>
   <ng-template let-storeInventory #body>
     <tr>
-      <td>{{ storeInventory.storage?.name }}</td>
+      <td><span class="pharma-badge pharma-badge-info">{{ storeInventory.storage?.name }}</span></td>
       <td>{{ storeInventory.updatedAt | date: 'dd/MM/yyyy HH:mm:ss' }}</td>
       <td>{{ storeInventory.abbrName }}</td>
       <td class="text-right">

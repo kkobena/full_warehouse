@@ -49,68 +49,88 @@
     </div>
   </div>
 
-  <div class="col-lg-10 col-xl-10 col-md-10 col-sm-10 row produit-audit-toolbar">
-    <p-toolbar class="mb-2">
-      <div class=" d-flex justify-content-between " style="width: 100%">
-        <div class="flex-grow-1 d-flex justify-content-between">
-          <div class="mr-1 flex-grow-1">
-            <jhi-produit-autocomplete
-              (selectedProduit)="onSelect($event)"
-              [(ngModel)]="produit"
-              [autofocus]="true"
-              [includeDetails]="true"
-              (onClear)="onClear($event)"
-              [pageSize]="PRODUIT_COMBO_RESULT_SIZE">
-            </jhi-produit-autocomplete>
-          </div>
-
-          <div class="mr-1">
-            <jhi-date-picker #dateDebut
-                             [disabled]="false"
-                             [id]="'du'"
-                             [label]="'warehouseApp.labels.du'"
-                             [max]="toDate"
-            ></jhi-date-picker>
-          </div>
-
-          <div class="mr-1">
-            <jhi-date-picker #dateFin
-                             (onSelect)="updateParam()"
-                             [defaultDate]="defaultDate"
-                             [disabled]="false"
-                             [id]="'au'"
-                             [label]="'warehouseApp.labels.au'"
-                             [min]="fromDate"
-            ></jhi-date-picker>
-          </div>
-
-
+  <div class="col-lg-10 col-xl-10 col-md-10 col-sm-10">
+    <div class="pharma-smart-content p-2">
+      <!-- Modern Pharma Toolbar -->
+      <div class="pharma-toolbar">
+        <div class="pharma-toolbar-header">
+          <i class="pi pi-history"></i>
+          <span class="pharma-toolbar-title">Transactions</span>
         </div>
-        <div>
-          <p-buttonGroup>
-            <!--      @if (produit) {
-                  <div class="mr-1">
-                    <p-button [badge]="produit?.totalQuantity | number" badgeSeverity="contrast"
-                              label="Stock" [raised]="true" />
-                  </div>
-                } -->
 
-            <p-button (click)="load()" class="mr-1" icon="pi pi-search" label="Rechercher"
-                      raised="true" severity="info"></p-button>
-            @if (produit) {
-              <p-button (click)="exportPdf()" icon="pi pi-file-pdf" label="Imprimer"
-                        raised="true" severity="warn" type="button">
-              </p-button>
-            }
-            <!-- <jhi-back-button></jhi-back-button> -->
-          </p-buttonGroup>
-        </div>
+        <p-toolbar>
+          <ng-template #start>
+            <div class="pharma-toolbar-filters">
+              <div class="mr-2" style="min-width: 300px; flex: 1 1 auto;">
+                <jhi-produit-autocomplete
+                  (selectedProduit)="onSelect($event)"
+                  [(ngModel)]="produit"
+                  [autofocus]="true"
+                  [includeDetails]="true"
+                  (onClear)="onClear($event)"
+                  [pageSize]="PRODUIT_COMBO_RESULT_SIZE"
+                />
+              </div>
+
+              <div class="mr-2">
+                <jhi-date-picker
+                  #dateDebut
+                  [disabled]="false"
+                  [id]="'du'"
+                  [label]="'warehouseApp.labels.du'"
+                  [max]="toDate"
+                />
+              </div>
+
+              <div class="mr-2">
+                <jhi-date-picker
+                  #dateFin
+                  (onSelect)="updateParam()"
+                  [defaultDate]="defaultDate"
+                  [disabled]="false"
+
+                  [id]="'au'"
+                  [label]="'warehouseApp.labels.au'"
+                  [min]="fromDate"
+                />
+              </div>
+            </div>
+          </ng-template>
+
+          <ng-template #end>
+            <div class="pharma-toolbar-actions">
+              <div class="pharma-button-group">
+                <p-button
+                  (click)="load()"
+                  [raised]="true"
+                  icon="pi pi-search"
+                  label="Rechercher"
+                  pTooltip="Rechercher"
+                  severity="info"
+                  tooltipPosition="top"
+                />
+
+                @if (produit) {
+                  <p-button
+                    (click)="exportPdf()"
+                    [raised]="true"
+                    icon="pi pi-file-pdf"
+                    label="Imprimer"
+                    pTooltip="Imprimer"
+                    severity="warn"
+                    tooltipPosition="top"
+                    type="button"
+                  />
+                }
+              </div>
+            </div>
+          </ng-template>
+        </p-toolbar>
       </div>
-    </p-toolbar>
 
-    <p-panel>
-      <ng-template #header></ng-template>
-      <div [ngbNavOutlet]="nav"></div>
-    </p-panel>
+      <div class="mt-3">
+        <div [ngbNavOutlet]="nav"></div>
+      </div>
+    </div>
   </div>
 </div>

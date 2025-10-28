@@ -1,163 +1,171 @@
-<div>
-  <p-toolbar>
-    <ng-template #start>
-      <div class="d-flex justify-content-between" style="width: 100%">
-        <p-select
-          (onChange)="onFilterChange()"
-          [(ngModel)]="selectedType"
-          [options]="types"
-          [style]="{'min-width': '100px'}"
-          class="mr-1"
-          optionLabel="label"
-        ></p-select>
-        <p-floatlabel variant="on">
-          <p-iconfield>
-            <p-inputicon styleClass="pi pi-search" />
+<div class=" pharma-smart-content ">
+  <!-- Modern Pharma Toolbar (Compact) -->
+  <div class="pharma-toolbar pharma-toolbar-compact">
+    <div class="pharma-toolbar-header">
+      <i class="pi pi-calendar-times"></i>
+      <span class="pharma-toolbar-title">Lots périmés</span>
+    </div>
+
+    <p-toolbar>
+      <ng-template #start>
+        <div class="pharma-toolbar-filters">
+          <p-select
+            (onChange)="onFilterChange()"
+            [(ngModel)]="selectedType"
+            [options]="types"
+            [style]="{'min-width': '100px'}"
+            class="mr-1"
+            optionLabel="label"
+          ></p-select>
+
+          <p-floatlabel variant="on" class="mr-1">
+            <p-iconfield>
+              <p-inputicon class="pi pi-search" />
+              <input
+                (keyup.enter)="onSearch()"
+                [(ngModel)]="searchTerm"
+                [style]="{'max-width': '200px'}"
+                id="searchTerm"
+                pInputText
+                type="text"
+              /></p-iconfield>
+            <label for="searchTerm">{{ 'warehouseApp.labels.searchPlaceholder' | translate }}</label>
+          </p-floatlabel>
+
+          <p-floatlabel variant="on" class="mr-1">
             <input
               (keyup.enter)="onSearch()"
-              [(ngModel)]="searchTerm"
-              [style]="{'max-width': '200px'}"
-              class="mr-1"
-              id="searchTerm"
+              [(ngModel)]="dayCount"
+              [style]="{'max-width': '120px'}"
+              autocomplete="off"
+              id="dayCount"
               pInputText
+              pKeyFilter="int"
               type="text"
-            /></p-iconfield>
-          <label for="searchTerm">{{ 'warehouseApp.labels.searchPlaceholder' | translate }}</label>
-        </p-floatlabel>
-        <p-floatlabel variant="on">
-
-          <input
-            (keyup.enter)="onSearch()"
-            [(ngModel)]="dayCount"
-            [style]="{'max-width': '120px'}"
-            autocomplete="off"
-            class="mr-1"
-            id="dayCount"
-            pInputText
-            pKeyFilter="int"
-            type="text"
-          />
-          <label for="dayCount">{{ 'warehouseApp.labels.dayCount' | translate }}</label>
-        </p-floatlabel>
-        <div class="mr-1">
-          <jhi-date-picker [(ngModel)]="fromDate"
-                           [id]="'dateDebut'"
-                           [label]="'warehouseApp.labels.du'" [style]="{'max-width': '160px'}"
-          ></jhi-date-picker>
-        </div>
-
-        <div class="mr-1">
-
-          <jhi-date-picker [(ngModel)]="toDate"
-                           [id]="'dateFin'"
-                           [label]="'warehouseApp.labels.au'" [style]="{'max-width': '160px'}"
-          ></jhi-date-picker>
-        </div>
-
-        @if (!isMono) {
-          <p-floatlabel variant="on">
-            <p-select
-              (onChange)="onMagasinChange()"
-              [(ngModel)]="selectedMagasin"
-              [options]="magasins"
-              [showClear]="true"
-              [style]="{'min-width': '150px'}"
-              class="mr-1"
-              id="magasins"
-              optionLabel="fullName"
-            ></p-select>
-            <label for="magasins">{{ 'warehouseApp.labels.magasin' | translate }}</label>
+            />
+            <label for="dayCount">{{ 'warehouseApp.labels.dayCount' | translate }}</label>
           </p-floatlabel>
-          <p-floatlabel variant="on">
+
+          <div class="mr-1">
+            <jhi-date-picker [(ngModel)]="fromDate"
+                             [id]="'dateDebut'"
+                             [label]="'warehouseApp.labels.du'" [style]="{'max-width': '160px'}"
+            ></jhi-date-picker>
+          </div>
+
+          <div class="mr-1">
+            <jhi-date-picker [(ngModel)]="toDate"
+                             [id]="'dateFin'"
+                             [label]="'warehouseApp.labels.au'" [style]="{'max-width': '160px'}"
+            ></jhi-date-picker>
+          </div>
+
+          @if (!isMono) {
+            <p-floatlabel variant="on" class="mr-1">
+              <p-select
+                (onChange)="onMagasinChange()"
+                [(ngModel)]="selectedMagasin"
+                [options]="magasins"
+                [showClear]="true"
+                [style]="{'min-width': '150px'}"
+                appendTo="body"
+                id="magasins"
+                optionLabel="fullName"
+              ></p-select>
+              <label for="magasins">{{ 'warehouseApp.labels.magasin' | translate }}</label>
+            </p-floatlabel>
+            <p-floatlabel variant="on" class="mr-1">
+              <p-select
+                (onChange)="onStorageChange()"
+                [(ngModel)]="selectedStorage"
+                [options]="storages"
+                [showClear]="true"
+                [style]="{'min-width': '150px'}"
+                appendTo="body"
+                id="storages"
+                optionLabel="name"
+              ></p-select>
+              <label for="storages">{{ 'warehouseApp.labels.typeStockage' | translate }}</label>
+            </p-floatlabel>
+          }
+          <p-floatlabel variant="on" class="mr-1">
             <p-select
-              (onChange)="onStorageChange()"
-              [(ngModel)]="selectedStorage"
-              [options]="storages"
+              (onChange)="onSearch()"
+              [(ngModel)]="selectedRayon"
+              [options]="rayons"
               [showClear]="true"
-              [style]="{'min-width': '150px'}"
-              class="mr-1"
-              id="storages"
-              optionLabel="name"
+              [style]="{'min-width': '200px'}"
+              filter="true"
+              appendTo="body"
+              id="rayons"
+              optionLabel="libelle"
+              size="large"
             ></p-select>
-            <label for="storages">{{ 'warehouseApp.labels.typeStockage' | translate }}</label>
+            <label for="rayons">{{ 'warehouseApp.labels.rayons' | translate }}</label>
           </p-floatlabel>
-        }
-        <p-floatlabel variant="on">
-          <p-select
-            (onChange)="onSearch()"
-            [(ngModel)]="selectedRayon"
-            [options]="rayons"
-            [showClear]="true"
-            [style]="{'min-width': '200px'}"
-            class="mr-1"
-            filter="true"
-            id="rayons"
-            optionLabel="libelle"
-            size="large"
-          ></p-select>
-          <label for="rayons">{{ 'warehouseApp.labels.rayons' | translate }}</label>
-        </p-floatlabel>
-        <p-floatlabel variant="on">
-          <p-select
-            (onChange)="onSearch()"
-            [(ngModel)]="selectedFournisseur"
-            [fluid]="true"
-            [options]="fournisseurs"
-            [showClear]="true"
-            [style]="{'min-width': '200px'}"
-            class="mr-1"
-            filter="true"
-            id="fournisseurs"
-            optionLabel="libelle"
-            size="large"
-          ></p-select>
-          <label for="fournisseurs">{{ 'warehouseApp.labels.fournisseurs' | translate }}</label>
-        </p-floatlabel>
+          <p-floatlabel variant="on" class="mr-1">
+            <p-select
+              (onChange)="onSearch()"
+              [(ngModel)]="selectedFournisseur"
+              [fluid]="true"
+              [options]="fournisseurs"
+              [showClear]="true"
+              [style]="{'min-width': '200px'}"
+              filter="true"
+              appendTo="body"
+              id="fournisseurs"
+              optionLabel="libelle"
+              size="large"
+            ></p-select>
+            <label for="fournisseurs">{{ 'warehouseApp.labels.fournisseurs' | translate }}</label>
+          </p-floatlabel>
+        </div>
+      </ng-template>
 
-        <p-buttonGroup>
-          <p-button
-            (click)="onSearch()"
-            [raised]="true"
-            class="mr-1"
-            icon="pi pi-search"
-            label="{{'warehouseApp.buttons.search' | translate}}"
-            severity="info"
-            type="button"
-          ></p-button>
-
-          <p-button
-            [raised]="true"
-            [routerLink]="['/gestion-peremption',  'edit']"
-            class="mr-1"
-            icon="pi pi-plus"
-            label="{{'warehouseApp.buttons.add' | translate}}"
-            severity="success"
-            type="button"
-          ></p-button>
-          <p-splitbutton
-            [model]="exportMenus"
-            [raised]="true"
-            class="mr-1"
-            icon="pi pi-download"
-            label="{{'warehouseApp.buttons.export' | translate}}"
-            severity="help"
-          ></p-splitbutton>
-          @if (selectedLotPerimes?.length > 1) {
+      <ng-template #end>
+        <div class="pharma-toolbar-actions">
+          <div class="pharma-button-group">
             <p-button
-              (click)="confirmAll()"
+              (click)="onSearch()"
               [raised]="true"
-              icon="pi pi-trash"
-              label="{{'warehouseApp.buttons.removeAllStock' | translate}}"
-              severity="danger"
+              icon="pi pi-search"
+              label="{{'warehouseApp.buttons.search' | translate}}"
+              severity="info"
               type="button"
             ></p-button>
-          }
 
-        </p-buttonGroup>
-      </div>
-    </ng-template>
+            <p-button
+              [raised]="true"
+              [routerLink]="['/gestion-peremption',  'edit']"
+              icon="pi pi-plus"
+              label="{{'warehouseApp.buttons.add' | translate}}"
+              severity="success"
+              type="button"
+            ></p-button>
 
-  </p-toolbar>
+            <p-splitbutton
+              [model]="exportMenus"
+              [raised]="true"
+              icon="pi pi-download"
+              label="{{'warehouseApp.buttons.export' | translate}}"
+              severity="help"
+            ></p-splitbutton>
+
+            @if (selectedLotPerimes?.length > 1) {
+              <p-button
+                (click)="confirmAll()"
+                [raised]="true"
+                icon="pi pi-trash"
+                label="{{'warehouseApp.buttons.removeAllStock' | translate}}"
+                severity="danger"
+                type="button"
+              ></p-button>
+            }
+          </div>
+        </div>
+      </ng-template>
+    </p-toolbar>
+  </div>
 
   <p-divider></p-divider>
   @if (lotPerimeValeurSum) {

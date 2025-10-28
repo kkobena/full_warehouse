@@ -1,54 +1,188 @@
-<div class="container">
-  <div class="justify-content-center">
-    <p-toolbar>
-      <ng-template #start>
-        <h4 id="page-heading">
-          <span jhiTranslate="warehouseApp.menu.detail.title">Menu</span>
-          <p-tag value="{{ entity?.libelle }}"></p-tag>
-        </h4>
-      </ng-template>
-      <ng-template #end>
-        <p-button
-          (click)="previousState()"
-          [style]="{ float: 'right' }"
-          icon="pi pi-arrow-left"
-          label="Retour"
-          severity="secondary"
-          type="button"
-        ></p-button>
-      </ng-template>
-    </p-toolbar>
-    <div class="mt-2">
-      <p-panel>
-        <jhi-alert-error></jhi-alert-error>
-        <p-pickList
-          (onMoveAllToSource)="onMoveAllToSource()"
-          (onMoveAllToTarget)="onMoveAllToTarget()"
-          (onMoveToSource)="onMoveToSource()"
-          (onMoveToTarget)="onMoveToTarget()"
-          [dragdrop]="false"
-          [responsive]="true"
-          dataKey="name"
-          [scrollHeight]="scrollHeight"
-          [source]="others"
-          [target]="associes"
-          breakpoint="1400px"
-          filterBy="libelle"
-          sourceFilterPlaceholder="Rechercher par libelle"
-          sourceHeader="Privillèges"
-          targetFilterPlaceholder="Rechercher par libelle"
-          targetHeader="Privillèges associés"
-        >
-          <ng-template #item let-menu>
-            <div class="flex flex-wrap p-2 align-items-center">
-              <div class="flex-1 flex flex-column">
-                <span class="font-bold">{{ menu.libelle }}</span>
+<div class="container-fluid">
+    <div class="pharma-smart-content p-2">
+      <div class="pharma-toolbar">
+        <div class="pharma-toolbar-header">
+          <i class="pi pi-bars"></i>
+          <span class="pharma-toolbar-title" jhiTranslate="warehouseApp.menu.detail.title">Menu</span>
+          <p-tag class="ml-2" value="{{ entity?.libelle }}"></p-tag>
+        </div>
+
+        <p-toolbar>
+          <ng-template #start>
+            <div class="pharma-toolbar-filters">
+            </div>
+          </ng-template>
+
+          <ng-template #end>
+            <div class="pharma-toolbar-actions">
+              <div class="pharma-button-group">
+                <p-button
+                  (click)="previousState()"
+                  [raised]="true"
+                  icon="pi pi-arrow-left"
+                  label="Retour"
+                  severity="secondary"
+                  type="button"
+                ></p-button>
               </div>
             </div>
           </ng-template>
-        </p-pickList>
-      </p-panel>
+        </p-toolbar>
+      </div>
+
+      <div class="mt-2">
+        <jhi-alert-error></jhi-alert-error>
+
+        <div class="privilege-transfer-container">
+          <!-- Available Privileges Panel -->
+          <div class="privilege-panel">
+            <div class="privilege-panel-header">
+              <span class="privilege-panel-title">Privilèges disponibles</span>
+              <div class="privilege-search">
+                <p-iconfield>
+                  <p-inputicon class="pi pi-search" />
+                  <input
+                    [(ngModel)]="sourceFilter"
+                    pInputText
+                    placeholder="Rechercher par libellé"
+                    type="text"
+                  />
+                </p-iconfield>
+              </div>
+            </div>
+
+            <p-table
+              [(selection)]="selectedAvailable"
+              [scrollHeight]="scrollHeight"
+              [value]="filteredOthers"
+              dataKey="name"
+              selectionMode="multiple"
+              class="privilege-table"
+            >
+              <ng-template #header>
+                <tr>
+                  <th style="width: 3rem">
+                    <p-tableHeaderCheckbox />
+                  </th>
+                  <th>Libellé</th>
+                </tr>
+              </ng-template>
+              <ng-template let-privilege #body>
+                <tr [pSelectableRow]="privilege">
+                  <td>
+                    <p-tableCheckbox [value]="privilege" />
+                  </td>
+                  <td>
+                    <div class="privilege-item">
+                      <i class="pi pi-key privilege-icon"></i>
+                      <span class="privilege-label">{{ privilege.libelle }}</span>
+                    </div>
+                  </td>
+                </tr>
+              </ng-template>
+              <ng-template #emptymessage>
+                <tr>
+                  <td colspan="2" class="text-center">Aucun privilège disponible</td>
+                </tr>
+              </ng-template>
+            </p-table>
+          </div>
+
+          <!-- Transfer Buttons -->
+          <div class="privilege-transfer-buttons">
+            <p-button
+              (click)="moveToAssociated()"
+              [disabled]="!selectedAvailable || selectedAvailable.length === 0"
+              icon="pi pi-angle-right"
+              pTooltip="Ajouter la sélection"
+              [rounded]="true"
+              severity="primary"
+              tooltipPosition="top"
+            />
+            <p-button
+              (click)="moveAllToAssociated()"
+              [disabled]="!others || others.length === 0"
+              icon="pi pi-angle-double-right"
+              pTooltip="Ajouter tout"
+              [rounded]="true"
+              severity="primary"
+              tooltipPosition="top"
+            />
+            <p-button
+              (click)="moveToAvailable()"
+              [disabled]="!selectedAssociated || selectedAssociated.length === 0"
+              icon="pi pi-angle-left"
+              pTooltip="Retirer la sélection"
+              [rounded]="true"
+              severity="secondary"
+              tooltipPosition="top"
+            />
+            <p-button
+              (click)="moveAllToAvailable()"
+              [disabled]="!associes || associes.length === 0"
+              icon="pi pi-angle-double-left"
+              pTooltip="Retirer tout"
+              [rounded]="true"
+              severity="secondary"
+              tooltipPosition="top"
+            />
+          </div>
+
+          <!-- Associated Privileges Panel -->
+          <div class="privilege-panel">
+            <div class="privilege-panel-header">
+              <span class="privilege-panel-title">Privilèges associés</span>
+              <div class="privilege-search">
+                <p-iconfield>
+                  <p-inputicon class="pi pi-search" />
+                  <input
+                    [(ngModel)]="targetFilter"
+                    pInputText
+                    placeholder="Rechercher par libellé"
+                    type="text"
+                  />
+                </p-iconfield>
+              </div>
+            </div>
+
+            <p-table
+              [(selection)]="selectedAssociated"
+              [scrollHeight]="scrollHeight"
+              [value]="filteredAssocies"
+              dataKey="name"
+              selectionMode="multiple"
+              class="privilege-table"
+            >
+              <ng-template #header>
+                <tr>
+                  <th style="width: 3rem">
+                    <p-tableHeaderCheckbox />
+                  </th>
+                  <th>Libellé</th>
+                </tr>
+              </ng-template>
+              <ng-template let-privilege #body>
+                <tr [pSelectableRow]="privilege">
+                  <td>
+                    <p-tableCheckbox [value]="privilege" />
+                  </td>
+                  <td>
+                    <div class="privilege-item">
+                      <i class="pi pi-key privilege-icon"></i>
+                      <span class="privilege-label">{{ privilege.libelle }}</span>
+                    </div>
+                  </td>
+                </tr>
+              </ng-template>
+              <ng-template #emptymessage>
+                <tr>
+                  <td colspan="2" class="text-center">Aucun privilège associé</td>
+                </tr>
+              </ng-template>
+            </p-table>
+          </div>
+        </div>
+      </div>
     </div>
-  </div>
 </div>
 

@@ -15,7 +15,6 @@ import { TooltipModule } from 'primeng/tooltip';
 import { IconField } from 'primeng/iconfield';
 import { InputIcon } from 'primeng/inputicon';
 import { ConfirmDialogComponent } from '../../shared/dialog/confirm-dialog/confirm-dialog.component';
-import { Panel } from 'primeng/panel';
 import { showCommonModal } from '../sales/selling-home/sale-helper';
 import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { FileUploadDialogComponent } from '../groupe-tiers-payant/file-upload-dialog/file-upload-dialog.component';
@@ -35,7 +34,6 @@ import { SpinnerComponent } from '../../shared/spinner/spinner.component';
     IconField,
     InputIcon,
     ConfirmDialogComponent,
-    Panel,
     SpinnerComponent
   ]
 })

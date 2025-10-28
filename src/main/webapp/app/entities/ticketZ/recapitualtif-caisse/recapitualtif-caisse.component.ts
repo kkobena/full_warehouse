@@ -40,6 +40,7 @@ import { handleBlobForTauri } from '../../../shared/util/tauri-util';
     SpinnerComponent,
   ],
   templateUrl: './recapitualtif-caisse.component.html',
+  styleUrls: ['./recapitualtif-caisse.component.scss'],
 })
 export class RecapitualtifCaisseComponent implements OnInit {
   // range15 = Array.from({ length: 5 }, (_, i) => i + 1);

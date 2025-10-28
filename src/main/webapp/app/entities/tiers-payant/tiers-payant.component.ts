@@ -27,10 +27,10 @@ import { ProgressBarModule } from 'primeng/progressbar';
 import { Select } from 'primeng/select';
 import { IconField } from 'primeng/iconfield';
 import { InputIcon } from 'primeng/inputicon';
-import { Panel } from 'primeng/panel';
 import { showCommonModal } from '../sales/selling-home/sale-helper';
 import { ConfirmDialogComponent } from '../../shared/dialog/confirm-dialog/confirm-dialog.component';
 import { SpinnerComponent } from '../../shared/spinner/spinner.component';
+import { FloatLabel } from 'primeng/floatlabel';
 
 @Component({
   selector: 'jhi-tiers-payant',
@@ -55,10 +55,10 @@ import { SpinnerComponent } from '../../shared/spinner/spinner.component';
     Select,
     IconField,
     InputIcon,
-    Panel,
     ConfirmDialogComponent,
     SpinnerComponent,
-  ],
+    FloatLabel
+  ]
 })
 export class TiersPayantComponent implements OnInit {
   protected tiersPayants?: ITiersPayant[] = [];

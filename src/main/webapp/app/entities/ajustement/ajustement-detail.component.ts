@@ -34,7 +34,6 @@ import { FloatLabel } from 'primeng/floatlabel';
 import { ProduitAutocompleteComponent } from '../../shared/produit-autocomplete/produit-autocomplete.component';
 import { QuantiteProdutSaisieComponent } from '../../shared/quantite-produt-saisie/quantite-produt-saisie.component';
 import { TagModule } from 'primeng/tag';
-import { ButtonGroup } from 'primeng/buttongroup';
 import { BackButtonComponent } from '../../shared/cta/back-button.component';
 import { RemoveButtonTextComponent } from '../../shared/cta/remove-button.component';
 import { showCommonModal } from '../sales/selling-home/sale-helper';
@@ -62,7 +61,6 @@ import { showCommonModal } from '../sales/selling-home/sale-helper';
     ProduitAutocompleteComponent,
     QuantiteProdutSaisieComponent,
     TagModule,
-    ButtonGroup,
     BackButtonComponent,
     RemoveButtonTextComponent
   ]

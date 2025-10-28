@@ -22,11 +22,11 @@ import { IconField } from 'primeng/iconfield';
 import { InputIcon } from 'primeng/inputicon';
 import { DatePickerComponent } from '../../shared/date-picker/date-picker.component';
 import { FloatLabel } from 'primeng/floatlabel';
-import { Panel } from 'primeng/panel';
 
 @Component({
   selector: 'jhi-ajustement',
   templateUrl: './ajustement.component.html',
+  styleUrls: ['./ajustement.component.scss'],
   imports: [
     WarehouseCommonModule,
     DividerModule,
@@ -43,8 +43,7 @@ import { Panel } from 'primeng/panel';
     IconField,
     InputIcon,
     DatePickerComponent,
-    FloatLabel,
-    Panel
+    FloatLabel
   ]
 })
 export class AjustementComponent implements OnInit {

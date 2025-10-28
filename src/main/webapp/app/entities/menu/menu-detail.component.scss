@@ -1,0 +1,149 @@
+@import 'app/shared/scss/table-common';
+@import 'app/shared/scss/pharma-toolbar';
+
+.privilege-transfer-container {
+  display: flex;
+  gap: 1.5rem;
+  align-items: stretch;
+  margin-top: 1rem;
+  min-height: 500px;
+
+  @media (max-width: 1200px) {
+    flex-direction: column;
+    gap: 1rem;
+  }
+}
+
+.privilege-panel {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  background: var(--surface-card);
+  border: 1px solid var(--surface-border);
+  border-radius: 8px;
+  overflow: hidden;
+
+  .privilege-panel-header {
+    padding: 1rem 1.25rem;
+    background: var(--surface-50);
+    border-bottom: 1px solid var(--surface-border);
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+
+    .privilege-panel-title {
+      font-size: 1rem;
+      font-weight: 600;
+      color: var(--text-color);
+    }
+
+    .privilege-search {
+      ::ng-deep {
+        .p-iconfield {
+          width: 100%;
+
+          input {
+            width: 100%;
+          }
+        }
+      }
+    }
+  }
+
+  ::ng-deep {
+    .privilege-table {
+      border: none;
+
+      .p-datatable-wrapper {
+        border-radius: 0;
+      }
+
+      .p-datatable-thead > tr > th {
+        background: var(--surface-100);
+        color: var(--text-color);
+        font-weight: 600;
+        padding: 0.75rem 1rem;
+        border: none;
+        border-bottom: 2px solid var(--surface-border);
+      }
+
+      .p-datatable-tbody > tr {
+        background: var(--surface-card);
+        transition: all 0.2s;
+
+        &:hover {
+          background: var(--surface-hover);
+        }
+
+        &.p-highlight {
+          background: var(--highlight-bg);
+          color: var(--highlight-text-color);
+        }
+
+        > td {
+          padding: 0.75rem 1rem;
+          border-bottom: 1px solid var(--surface-border);
+        }
+      }
+
+      .p-datatable-emptymessage > td {
+        text-align: center;
+        padding: 2rem;
+        color: var(--text-color-secondary);
+        font-style: italic;
+      }
+    }
+  }
+
+  .privilege-item {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+
+    .privilege-icon {
+      color: var(--primary-color);
+      font-size: 0.875rem;
+    }
+
+    .privilege-label {
+      font-size: 0.9375rem;
+      color: var(--text-color);
+    }
+  }
+}
+
+.privilege-transfer-buttons {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  justify-content: center;
+  padding: 1rem 0;
+
+  @media (max-width: 1200px) {
+    flex-direction: row;
+    padding: 0;
+
+    ::ng-deep .p-button {
+      transform: rotate(90deg);
+    }
+  }
+
+  ::ng-deep .p-button {
+    width: 2.5rem;
+    height: 2.5rem;
+    transition: all 0.2s;
+
+    &:hover:not(:disabled) {
+      transform: scale(1.1);
+
+      @media (max-width: 1200px) {
+        transform: rotate(90deg) scale(1.1);
+      }
+    }
+
+    &:disabled {
+      opacity: 0.4;
+      cursor: not-allowed;
+    }
+  }
+}

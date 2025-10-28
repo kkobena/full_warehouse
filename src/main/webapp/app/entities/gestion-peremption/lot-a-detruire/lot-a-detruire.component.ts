@@ -13,8 +13,6 @@ import { Storage } from '../../storage/storage.model';
 import { IFournisseur } from '../../../shared/model/fournisseur.model';
 import { IRayon } from '../../../shared/model/rayon.model';
 import { Button } from 'primeng/button';
-import { ButtonGroup } from 'primeng/buttongroup';
-import { Divider } from 'primeng/divider';
 import { FloatLabel } from 'primeng/floatlabel';
 import { IconField } from 'primeng/iconfield';
 import { InputIcon } from 'primeng/inputicon';
@@ -44,8 +42,6 @@ import { SpinnerComponent } from '../../../shared/spinner/spinner.component';
   selector: 'jhi-lot-a-detruire',
   imports: [
     Button,
-    ButtonGroup,
-    Divider,
     FloatLabel,
     IconField,
     InputIcon,

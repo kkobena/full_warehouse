@@ -51,9 +51,7 @@ export class NavigationService {
   private accountService = inject(AccountService);
   private translate = inject(TranslateService);
 
-  /**
-   * Build navigation items with optional customizations
-   */
+
   buildNavItems(options: NavigationOptions = {}): NavItem[] {
     const account = this.accountService.trackCurrentAccount()();
     const allItems: NavItem[] = [];

@@ -1,71 +1,88 @@
-<div class="container-fluid">
-  <div class="pharma-smart-content p-2">
-    <p-toolbar>
-      <div class="p-toolbar-group-start">
-        <div class="input-group">
-          <p-floatlabel>
-            <p-datePicker
-              [(ngModel)]="fromDate"
-              [iconDisplay]="'input'"
-              [showButtonBar]="true"
-              dateFormat="dd/mm/yy"
-              id="dateDebut"
-              inputId="dateDebut"
-              selectOtherMonths="true"
-              showIcon="true"
-            ></p-datePicker
-            >&nbsp;
-            <label for="dateDebut">Date début</label>
-          </p-floatlabel>
-          <p-floatlabel>
-            <p-datePicker
-              [(ngModel)]="toDate"
-              [iconDisplay]="'input'"
-              [showButtonBar]="true"
-              dateFormat="dd/mm/yy"
-              id="dateFin"
-              inputId="dateFin"
-              selectOtherMonths="true"
-              showIcon="true"
-            ></p-datePicker
-            >&nbsp;
-            <label for="dateFin">Date fin</label>
-          </p-floatlabel>
 
-          <p-select
-            (onChange)="onSearch()"
-            [(ngModel)]="selectedUser"
-            [options]="users"
-            [showClear]="true"
-            optionLabel="abbrName"
-            placeholder="Opérateur"
-          ></p-select>
-        </div>
+  <div class="pharma-smart-content p-2">
+    <!-- Modern Pharma Toolbar ---->
+    <div class="pharma-toolbar">
+      <div class="pharma-toolbar-header">
+        <i class="pi pi-briefcase"></i>
+        <span class="pharma-toolbar-title">Gestion de caisse</span>
       </div>
-      <div class="p-toolbar-group-end">
-        <div class="input-group">
-          <p-button
-            (click)="onSearch()"
-            [loading]="btnLoading"
-            icon="pi pi-search"
-            label="Rechercher"
-            pTooltip="Rechercher"
-            severity="info"
-            tooltipPosition="top"
-          ></p-button
-          >&nbsp;
-          <p-button (click)="onPrint()"
-                    [hidden]="true"
-                    [loading]="btnLoading"
-                    icon="pi pi-print"
-                    label="Imprimer"
-                    pTooltip="Imprimer"
-                    severity="warn"
-                    tooltipPosition="top"
-          />
-        </div>
-      </div>
-    </p-toolbar>
+
+      <p-toolbar>
+        <ng-template #start>
+          <div class="pharma-toolbar-filters">
+            <p-floatlabel variant="on" class="mr-2">
+              <p-datePicker
+                [(ngModel)]="fromDate"
+                [iconDisplay]="'input'"
+                [showButtonBar]="true"
+                dateFormat="dd/mm/yy"
+                id="dateDebut"
+                inputId="dateDebut"
+                selectOtherMonths="true"
+                showIcon="true"
+                appendTo="body"
+              />
+              <label for="dateDebut">Du</label>
+            </p-floatlabel>
+
+            <p-floatlabel variant="on" class="mr-2">
+              <p-datePicker
+                [(ngModel)]="toDate"
+                [iconDisplay]="'input'"
+                [showButtonBar]="true"
+                dateFormat="dd/mm/yy"
+                id="dateFin"
+                inputId="dateFin"
+                selectOtherMonths="true"
+                showIcon="true"
+                appendTo="body"
+              />
+              <label for="dateFin">Au</label>
+            </p-floatlabel>
+
+            <p-select
+              (onChange)="onSearch()"
+              [(ngModel)]="selectedUser"
+              [options]="users"
+              [showClear]="true"
+              optionLabel="abbrName"
+              placeholder="Opérateur"
+              appendTo="body"
+              class="mr-2"
+            />
+          </div>
+        </ng-template>
+
+        <ng-template #end>
+          <div class="pharma-toolbar-actions">
+            <div class="pharma-button-group">
+              <p-button
+                (click)="onSearch()"
+                [loading]="btnLoading"
+                [raised]="true"
+                icon="pi pi-search"
+                label="Rechercher"
+                pTooltip="Rechercher"
+                severity="info"
+                tooltipPosition="top"
+              />
+
+              <p-button
+                (click)="onPrint()"
+                [hidden]="true"
+                [loading]="btnLoading"
+                [raised]="true"
+                icon="pi pi-print"
+                label="Imprimer"
+                pTooltip="Imprimer"
+                severity="warn"
+                tooltipPosition="top"
+              />
+            </div>
+          </div>
+        </ng-template>
+      </p-toolbar>
+    </div>
 
     <div class="mvt-caisse-data-section mt-3 mb-3">
       @if (datas && datas.length > 0) {
@@ -158,7 +175,4 @@
       }
     </div>
   </div>
-
-
-</div>
 <jhi-toast-alert #alert></jhi-toast-alert>

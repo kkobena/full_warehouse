@@ -8,12 +8,14 @@ import com.kobe.warehouse.service.dto.PaymentModeDTO;
 import com.kobe.warehouse.service.dto.SaleDTO;
 import com.kobe.warehouse.service.dto.SaleLineDTO;
 import com.kobe.warehouse.service.dto.TvaEmbeded;
-import com.kobe.warehouse.service.receipt.dto.AbstractItem;
 import com.kobe.warehouse.service.receipt.dto.CashSaleReceiptItem;
 import com.kobe.warehouse.service.receipt.dto.HeaderFooterItem;
 import com.kobe.warehouse.service.receipt.dto.SaleReceiptItem;
 import com.kobe.warehouse.service.utils.NumberUtil;
+import org.springframework.stereotype.Service;
+import org.springframework.util.CollectionUtils;
 
+import javax.imageio.ImageIO;
 import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.awt.print.PageFormat;
@@ -23,20 +25,16 @@ import java.io.IOException;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
-import org.springframework.stereotype.Service;
-import org.springframework.util.CollectionUtils;
-
-import javax.imageio.ImageIO;
 
 @Service
 public abstract class AbstractSaleReceiptService extends AbstractJava2DReceiptPrinterService {
     private final AppConfigurationService appConfigurationService;
-    protected int avoirCount;
 
     protected AbstractSaleReceiptService(AppConfigurationService appConfigurationService, PrinterRepository printerRepository) {
         super(appConfigurationService, printerRepository);
         this.appConfigurationService = appConfigurationService;
     }
+
 
     protected abstract SaleDTO getSale();
 
@@ -50,6 +48,10 @@ public abstract class AbstractSaleReceiptService extends AbstractJava2DReceiptPr
     protected abstract List<? extends SaleReceiptItem> getItems();
 
     protected abstract int drawSummary(Graphics2D graphics2D, int width, int y, int lineHeight);
+
+    protected int getAvoirCount() {
+        return 0;
+    }
 
     protected List<HeaderFooterItem> getOperateurInfos() {
         SaleDTO sale = getSale();
@@ -89,6 +91,7 @@ public abstract class AbstractSaleReceiptService extends AbstractJava2DReceiptPr
         y += 10;
         return y;
     }
+
     /**
      * Generate receipt as list of byte arrays for Tauri printing
      * This method creates PNG images for each page of the receipt
@@ -121,7 +124,7 @@ public abstract class AbstractSaleReceiptService extends AbstractJava2DReceiptPr
                 (DEFAULT_WIDTH + (DEFAULT_MARGIN * 2)) * SCALE_FACTOR,
                 estimatedHeight * SCALE_FACTOR,
                 BufferedImage.TYPE_BYTE_GRAY  // au lieu de TYPE_INT_RGB
-               // BufferedImage.TYPE_INT_RGB  // Better quality than TYPE_BYTE_GRAY
+                // BufferedImage.TYPE_INT_RGB  // Better quality than TYPE_BYTE_GRAY
             );
             Graphics2D g2d = image.createGraphics();
 
@@ -177,12 +180,12 @@ public abstract class AbstractSaleReceiptService extends AbstractJava2DReceiptPr
      * @return byte array containing ESC/POS commands
      * @throws IOException if generation fails
      */
-    public byte[] generateEscPosReceipt() throws IOException {
+    public byte[] generateEscPosReceipt(boolean isEdit) throws IOException {
         magasin = appConfigurationService.getMagasin();
         ByteArrayOutputStream out = new ByteArrayOutputStream();
         SaleDTO sale = getSale();
         List<? extends SaleReceiptItem> items = this.getItems();
-        int numberOfCopies = getNumberOfCopies();
+        int numberOfCopies = isEdit ? 1 : getNumberOfCopies();
 
         try {
             // Print multiple copies
@@ -336,6 +339,16 @@ public abstract class AbstractSaleReceiptService extends AbstractJava2DReceiptPr
             NumberUtil.formatToString(sale.getSalesAmount())));
         escPosSetBold(out, false);
 
+        // Avoir section (if any)
+        int avoirCount = getAvoirCount();
+        if (avoirCount > 0) {
+            escPosSetBold(out, true);
+            escPosSetAlignment(out, EscPosAlignment.CENTER);
+            escPosPrintLine(out, "Avoir( " + NumberUtil.formatToString(avoirCount) + " )");
+            escPosSetAlignment(out, EscPosAlignment.LEFT);
+            escPosSetBold(out, false);
+        }
+
         // Discount (if any)
         if (sale.getDiscountAmount() > 0) {
             escPosPrintLine(out, String.format("%-38s %10s", REMISE,
@@ -434,7 +447,7 @@ public abstract class AbstractSaleReceiptService extends AbstractJava2DReceiptPr
     /**
      * Estimate the height needed for a receipt page
      *
-     * @param itemCount number of items on this page
+     * @param itemCount  number of items on this page
      * @param isLastPage whether this is the last page (includes summary)
      * @return estimated height in pixels
      */
@@ -466,6 +479,7 @@ public abstract class AbstractSaleReceiptService extends AbstractJava2DReceiptPr
 
         return height;
     }
+
     @Override
     public int print(Graphics graphics, PageFormat pageFormat, int pageIndex) throws PrinterException {
         Graphics2D graphics2D = (Graphics2D) graphics;

@@ -4,8 +4,10 @@ import com.kobe.warehouse.repository.PrinterRepository;
 import com.kobe.warehouse.service.AppConfigurationService;
 import com.kobe.warehouse.service.dto.CashSaleDTO;
 import com.kobe.warehouse.service.dto.SaleDTO;
+import com.kobe.warehouse.service.dto.SaleLineDTO;
 import com.kobe.warehouse.service.dto.UninsuredCustomerDTO;
 import com.kobe.warehouse.service.receipt.dto.AbstractItem;
+import com.kobe.warehouse.service.receipt.dto.AssuranceReceiptItem;
 import com.kobe.warehouse.service.receipt.dto.CashSaleReceiptItem;
 import com.kobe.warehouse.service.receipt.dto.HeaderFooterItem;
 import com.kobe.warehouse.service.receipt.dto.SaleReceiptItem;
@@ -31,6 +33,7 @@ public class CashSaleReceiptService extends AbstractSaleReceiptService {
     private static final Logger LOG = LoggerFactory.getLogger(CashSaleReceiptService.class);
     private CashSaleDTO cashSale;
     private boolean isEdit;
+    private int avoirCount;
 
     public CashSaleReceiptService(AppConfigurationService appConfigurationService, PrinterRepository printerRepository) {
         super(appConfigurationService, printerRepository);
@@ -47,8 +50,20 @@ public class CashSaleReceiptService extends AbstractSaleReceiptService {
     }
 
     @Override
+    protected int getAvoirCount() {
+        return avoirCount;
+    }
+
+    @Override
     public List<CashSaleReceiptItem> getItems() {
-        return cashSale.getSalesLines().stream().map(saleLineDTO -> (CashSaleReceiptItem) fromSaleLine(saleLineDTO)).toList();
+        List<CashSaleReceiptItem> items = new ArrayList<>();
+        for (SaleLineDTO line : cashSale.getSalesLines()) {
+            avoirCount += (line.getQuantityRequested() - line.getQuantitySold());
+            items.add((CashSaleReceiptItem) fromSaleLine(line));
+        }
+
+        return items;
+
     }
 
     public void printReceipt(String hostName, CashSaleDTO sale, boolean isEdit) {
@@ -159,8 +174,7 @@ public class CashSaleReceiptService extends AbstractSaleReceiptService {
      */
     public byte[] generateEscPosReceiptForTauri(CashSaleDTO sale,boolean isEdit) throws IOException {
         this.cashSale = sale;
-        this.isEdit = isEdit;
-        return generateEscPosReceipt();
+        return generateEscPosReceipt(isEdit);
     }
 
 }

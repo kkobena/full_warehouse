@@ -1,7 +1,5 @@
 package com.kobe.warehouse.service.receipt.service;
 
-import static java.util.Objects.nonNull;
-
 import com.kobe.warehouse.domain.enumeration.PrioriteTiersPayant;
 import com.kobe.warehouse.repository.PrinterRepository;
 import com.kobe.warehouse.service.AppConfigurationService;
@@ -15,17 +13,18 @@ import com.kobe.warehouse.service.receipt.dto.AssuranceReceiptItem;
 import com.kobe.warehouse.service.receipt.dto.HeaderFooterItem;
 import com.kobe.warehouse.service.receipt.dto.SaleReceiptItem;
 import com.kobe.warehouse.service.utils.NumberUtil;
-import java.awt.Font;
-import java.awt.FontMetrics;
-import java.awt.Graphics2D;
-import java.awt.print.PrinterException;
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
+
+import java.awt.*;
+import java.awt.print.PrinterException;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
+
+import static java.util.Objects.nonNull;
 
 @Service
 public class AssuranceSaleReceiptService extends AbstractSaleReceiptService {
@@ -33,10 +32,13 @@ public class AssuranceSaleReceiptService extends AbstractSaleReceiptService {
     private static final Logger LOG = LoggerFactory.getLogger(AssuranceSaleReceiptService.class);
     private ThirdPartySaleDTO thirdPartySale;
     private boolean isEdit;
+    private int avoirCount;
 
     public AssuranceSaleReceiptService(AppConfigurationService appConfigurationService, PrinterRepository printerRepository) {
         super(appConfigurationService, printerRepository);
     }
+
+
 
     @Override
     protected SaleDTO getSale() {
@@ -44,8 +46,19 @@ public class AssuranceSaleReceiptService extends AbstractSaleReceiptService {
     }
 
     @Override
+    protected int getAvoirCount() {
+        return avoirCount;
+    }
+
+    @Override
     public List<AssuranceReceiptItem> getItems() {
-        return thirdPartySale.getSalesLines().stream().map(this::fromSaleLine).toList();
+        List<AssuranceReceiptItem> items = new ArrayList<>();
+        for (SaleLineDTO line : thirdPartySale.getSalesLines()) {
+            avoirCount += (line.getQuantityRequested() - line.getQuantitySold());
+            items.add(fromSaleLine(line));
+        }
+
+        return items;
     }
 
     @Override
@@ -58,6 +71,8 @@ public class AssuranceSaleReceiptService extends AbstractSaleReceiptService {
         item.setProduitName(produitName.length() > productNameWidth ? produitName.substring(0, productNameWidth) : produitName);
         item.setQuantity(NumberUtil.formatToString(saleLineDTO.getQuantityRequested()));
         item.setUnitPrice(NumberUtil.formatToString(saleLineDTO.getRegularUnitPrice()));
+
+
         return item;
     }
 
@@ -80,15 +95,15 @@ public class AssuranceSaleReceiptService extends AbstractSaleReceiptService {
         headerItems.add(
             new HeaderFooterItem(
                 "Assuré: " +
-                customer.getFullName() +
-                " | Matricule: " +
-                thirdPartySale
-                    .getTiersPayants()
-                    .stream()
-                    .filter(e -> e.getPriorite() == PrioriteTiersPayant.R0)
-                    .findFirst()
-                    .map(ClientTiersPayantDTO::getNum)
-                    .orElse(""),
+                    customer.getFullName() +
+                    " | Matricule: " +
+                    thirdPartySale
+                        .getTiersPayants()
+                        .stream()
+                        .filter(e -> e.getPriorite() == PrioriteTiersPayant.R0)
+                        .findFirst()
+                        .map(ClientTiersPayantDTO::getNum)
+                        .orElse(""),
                 1,
                 font
             )
@@ -97,10 +112,10 @@ public class AssuranceSaleReceiptService extends AbstractSaleReceiptService {
             headerItems.add(
                 new HeaderFooterItem(
                     "Bénéficiaire: " +
-                    thirdPartySale.getAyantDroitFirstName().concat(" ") +
-                    thirdPartySale.getAyantDroitLastName() +
-                    " | Matricule: " +
-                    thirdPartySale.getAyantDroitNum(),
+                        thirdPartySale.getAyantDroitFirstName().concat(" ") +
+                        thirdPartySale.getAyantDroitLastName() +
+                        " | Matricule: " +
+                        thirdPartySale.getAyantDroitNum(),
                     1,
                     font
                 )
@@ -117,7 +132,6 @@ public class AssuranceSaleReceiptService extends AbstractSaleReceiptService {
         }
         return thirdPartySale.getThirdPartySaleLines().size() + 1;
     }
-
 
 
     @Override
@@ -324,8 +338,7 @@ public class AssuranceSaleReceiptService extends AbstractSaleReceiptService {
      */
     public byte[] generateEscPosReceiptForTauri(ThirdPartySaleDTO sale, boolean isEdit) throws IOException {
         this.thirdPartySale = sale;
-        this.isEdit = isEdit;
-        return generateEscPosReceipt();
+        return generateEscPosReceipt(isEdit);
     }
 
     /**

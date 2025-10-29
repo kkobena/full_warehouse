@@ -6,8 +6,10 @@ import com.kobe.warehouse.repository.PrinterRepository;
 import com.kobe.warehouse.service.AppConfigurationService;
 import com.kobe.warehouse.service.receipt.dto.AbstractItem;
 import com.kobe.warehouse.service.receipt.dto.HeaderFooterItem;
-
-import java.awt.*;
+import java.awt.BasicStroke;
+import java.awt.Font;
+import java.awt.FontMetrics;
+import java.awt.Graphics2D;
 import java.awt.print.PageFormat;
 import java.awt.print.Paper;
 import java.awt.print.Printable;
@@ -27,14 +29,14 @@ import org.springframework.util.StringUtils;
 @Service
 public abstract class AbstractJava2DReceiptPrinterService implements Printable {
 
-    protected static final String MONTANT_RENDU = "Monnaie";
-    protected static final String MONTANT_TTC = "Montant Ttc";
-    protected static final String REMISE = "Remise";
-    protected static final String TOTAL_TVA = "Total Tva";
-    protected static final String TOTAL_A_PAYER = "Total à payer";
-    protected static final String RESTE_A_PAYER = "Reste à payer";
-    protected static final String TVA = "Taxes";
-    protected static final String REGLEMENT = "Règlement";
+    protected static final String MONTANT_RENDU = "MONNAIE RENDUE";
+    protected static final String MONTANT_TTC = "MONTANT TTC";
+    protected static final String REMISE = "REMISE";
+    protected static final String TOTAL_TVA = "TOTAL TVA";
+    protected static final String TOTAL_A_PAYER = "TOTAL A PAYER";
+    protected static final String RESTE_A_PAYER = "RESTE A PAYER";
+    protected static final String TVA = "TAXES";
+    protected static final String REGLEMENT = "REGLEMENT(S)";
     protected static final int DEFAULT_LINE_HEIGHT = 12;
     protected static final int DEFAULT_FONT_SIZE = 8;
     protected static final int DEFAULT_MARGIN = 9;
@@ -69,6 +71,7 @@ public abstract class AbstractJava2DReceiptPrinterService implements Printable {
     protected abstract List<HeaderFooterItem> getFooterItems();
 
     protected abstract int getNumberOfCopies();
+
     protected abstract List<byte[]> generateTicket() throws IOException;
 
     protected int drawWelcomeMessage(Graphics2D graphics2D, int margin, int y) {
@@ -214,33 +217,24 @@ public abstract class AbstractJava2DReceiptPrinterService implements Printable {
     // ============================================
 
     /**
-     * ESC/POS Alignment enumeration
-     */
-    protected enum EscPosAlignment {
-        LEFT(0), CENTER(1), RIGHT(2);
-        final int code;
-        EscPosAlignment(int code) { this.code = code; }
-    }
-
-    /**
      * Initialize printer (ESC @)
      */
     protected void escPosInitialize(java.io.ByteArrayOutputStream out) throws java.io.IOException {
-        out.write(new byte[]{0x1B, 0x40}); // ESC @
+        out.write(new byte[] { 0x1B, 0x40 }); // ESC @
     }
 
     /**
      * Set text alignment (ESC a n)
      */
     protected void escPosSetAlignment(java.io.ByteArrayOutputStream out, EscPosAlignment alignment) throws java.io.IOException {
-        out.write(new byte[]{0x1B, 0x61, (byte) alignment.code}); // ESC a n
+        out.write(new byte[] { 0x1B, 0x61, (byte) alignment.code }); // ESC a n
     }
 
     /**
      * Set bold mode (ESC E n)
      */
     protected void escPosSetBold(java.io.ByteArrayOutputStream out, boolean enable) throws java.io.IOException {
-        out.write(new byte[]{0x1B, 0x45, (byte) (enable ? 1 : 0)}); // ESC E n
+        out.write(new byte[] { 0x1B, 0x45, (byte) (enable ? 1 : 0) }); // ESC E n
     }
 
     /**
@@ -250,14 +244,14 @@ public abstract class AbstractJava2DReceiptPrinterService implements Printable {
      */
     protected void escPosSetTextSize(java.io.ByteArrayOutputStream out, int width, int height) throws java.io.IOException {
         int size = ((width - 1) << 4) | (height - 1);
-        out.write(new byte[]{0x1D, 0x21, (byte) size}); // GS ! n
+        out.write(new byte[] { 0x1D, 0x21, (byte) size }); // GS ! n
     }
 
     /**
      * Feed n lines (ESC d n)
      */
     protected void escPosFeedLines(java.io.ByteArrayOutputStream out, int lines) throws java.io.IOException {
-        out.write(new byte[]{0x1B, 0x64, (byte) lines}); // ESC d n
+        out.write(new byte[] { 0x1B, 0x64, (byte) lines }); // ESC d n
     }
 
     /**
@@ -276,11 +270,7 @@ public abstract class AbstractJava2DReceiptPrinterService implements Printable {
      * @param length number of dashes (typically 48 for 80mm paper, 32 for 58mm)
      */
     protected void escPosPrintSeparator(java.io.ByteArrayOutputStream out, int length) throws java.io.IOException {
-        StringBuilder separator = new StringBuilder(length);
-        for (int i = 0; i < length; i++) {
-            separator.append("-");
-        }
-        escPosPrintLine(out, separator.toString());
+        escPosPrintLine(out, "-".repeat(Math.max(0, length)));
     }
 
     /**
@@ -288,7 +278,7 @@ public abstract class AbstractJava2DReceiptPrinterService implements Printable {
      * Partial cut - leaves small connection for easy tearing
      */
     protected void escPosCutPaper(java.io.ByteArrayOutputStream out) throws java.io.IOException {
-        out.write(new byte[]{0x1D, 0x56, 0x41, 0x00}); // GS V A 0 - Partial cut
+        out.write(new byte[] { 0x1D, 0x56, 0x41, 0x00 }); // GS V A 0 - Partial cut
     }
 
     /**
@@ -296,7 +286,7 @@ public abstract class AbstractJava2DReceiptPrinterService implements Printable {
      * @param mode 0=off, 1=1-dot thick, 2=2-dot thick
      */
     protected void escPosSetUnderline(java.io.ByteArrayOutputStream out, int mode) throws java.io.IOException {
-        out.write(new byte[]{0x1B, 0x2D, (byte) mode}); // ESC - n
+        out.write(new byte[] { 0x1B, 0x2D, (byte) mode }); // ESC - n
     }
 
     /**
@@ -304,7 +294,7 @@ public abstract class AbstractJava2DReceiptPrinterService implements Printable {
      * @param spacing line spacing in dots (default is usually 30)
      */
     protected void escPosSetLineSpacing(java.io.ByteArrayOutputStream out, int spacing) throws java.io.IOException {
-        out.write(new byte[]{0x1B, 0x33, (byte) spacing}); // ESC 3 n
+        out.write(new byte[] { 0x1B, 0x33, (byte) spacing }); // ESC 3 n
     }
 
     /**
@@ -332,5 +322,20 @@ public abstract class AbstractJava2DReceiptPrinterService implements Printable {
     protected String padLeft(String str, int length) {
         if (str == null) str = "";
         return String.format("%" + length + "s", str);
+    }
+
+    /**
+     * ESC/POS Alignment enumeration
+     */
+    protected enum EscPosAlignment {
+        LEFT(0),
+        CENTER(1),
+        RIGHT(2);
+
+        final int code;
+
+        EscPosAlignment(int code) {
+            this.code = code;
+        }
     }
 }

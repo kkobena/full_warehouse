@@ -25,15 +25,11 @@ pub async fn get_printers() -> Result<Vec<PrinterInfo>, String> {
 /// Print base64-encoded PNG image to specified printer
 #[command]
 pub async fn print_image(image_data: String, printer_name: String) -> Result<(), String> {
-    println!("Printing to printer: {}", printer_name);
-
     // Decode base64 image data using the new API
     use base64::Engine;
     let image_bytes = base64::engine::general_purpose::STANDARD
         .decode(&image_data)
         .map_err(|e| format!("Failed to decode base64 image: {}", e))?;
-
-    println!("Decoded {} bytes of image data", image_bytes.len());
 
     #[cfg(target_os = "windows")]
     {
@@ -50,15 +46,11 @@ pub async fn print_image(image_data: String, printer_name: String) -> Result<(),
 /// This is much more efficient than PNG printing - smaller payload, faster execution
 #[command]
 pub async fn print_escpos(escpos_data: String, printer_name: String) -> Result<(), String> {
-    println!("Printing ESC/POS data to printer: {}", printer_name);
-
     // Decode base64 ESC/POS data
     use base64::Engine;
     let escpos_bytes = base64::engine::general_purpose::STANDARD
         .decode(&escpos_data)
         .map_err(|e| format!("Failed to decode base64 ESC/POS data: {}", e))?;
-
-    println!("Decoded {} bytes of ESC/POS data", escpos_bytes.len());
 
     #[cfg(target_os = "windows")]
     {
@@ -73,18 +65,17 @@ pub async fn print_escpos(escpos_data: String, printer_name: String) -> Result<(
 
 #[cfg(target_os = "windows")]
 mod windows_printer {
-    use super::PrinterInfo;
-    use std::ffi::OsStr;
-    use std::os::windows::ffi::OsStrExt;
-    use windows::core::{PCWSTR, PWSTR};
-    use windows::Win32::Graphics::Printing::{
-        EnumPrintersW, GetDefaultPrinterW,
-        OpenPrinterW, ClosePrinter, StartDocPrinterW, EndDocPrinter,
-        StartPagePrinter, EndPagePrinter, WritePrinter, DOC_INFO_1W,
-        PRINTER_ENUM_LOCAL, PRINTER_INFO_2W, PRINTER_HANDLE,
-    };
+  use super::PrinterInfo;
+  use std::ffi::OsStr;
+  use std::os::windows::ffi::OsStrExt;
+  use windows::core::{PCWSTR, PWSTR};
+  use windows::Win32::Graphics::Printing::{
+    ClosePrinter, EndDocPrinter, EndPagePrinter, EnumPrintersW, GetDefaultPrinterW,
+    OpenPrinterW, StartDocPrinterW, StartPagePrinter, WritePrinter, DOC_INFO_1W,
+    PRINTER_ENUM_LOCAL, PRINTER_HANDLE, PRINTER_INFO_2W,
+  };
 
-    /// Get list of available printers on Windows
+  /// Get list of available printers on Windows
     pub fn get_printers_windows() -> Result<Vec<PrinterInfo>, String> {
         unsafe {
             let mut printers = Vec::new();
@@ -174,8 +165,6 @@ mod windows_printer {
     /// Print PNG image to Windows printer
     /// Optimized for memory usage with background cleanup
     pub fn print_image_windows(image_bytes: &[u8], printer_name: &str) -> Result<(), String> {
-        println!("Preparing to print to: {}", printer_name);
-
         // Check if this is a thermal POS printer (common thermal printer names)
         let printer_lower = printer_name.to_lowercase();
         let is_thermal_printer = printer_lower.contains("tm-")      // EPSON TM series
@@ -185,7 +174,6 @@ mod windows_printer {
             || printer_lower.contains("receipt");
 
         if is_thermal_printer {
-            println!("Detected thermal POS printer, using direct printing");
             return print_to_thermal_printer(image_bytes, printer_name);
         }
 
@@ -236,7 +224,8 @@ mod windows_printer {
 
             // Convert pixels to bitmap bytes
             for x in 0..width {
-                for byte_idx in 0..3 { // 3 bytes for 24 dots
+                for byte_idx in 0..3 {
+                    // 3 bytes for 24 dots
                     let mut byte_val = 0u8;
                     for bit in 0..8 {
                         let y = y_slice + byte_idx * 8 + bit;
@@ -322,8 +311,6 @@ mod windows_printer {
             if !write_result.as_bool() {
                 return Err("Failed to write data to printer".to_string());
             }
-
-            println!("Wrote {} bytes to thermal printer", bytes_written);
             Ok(())
         }
     }
@@ -420,7 +407,6 @@ $img.Dispose()
             }
         });
 
-        println!("Successfully printed to {}", printer_name);
         Ok(())
     }
 

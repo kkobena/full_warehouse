@@ -1,6 +1,6 @@
 import { AfterViewInit, Component, inject, OnInit, viewChild } from '@angular/core';
 import { Router, RouterModule } from '@angular/router';
-import { ISales } from 'app/shared/model/sales.model';
+import { ISales, SaleId } from 'app/shared/model/sales.model';
 import { SalesService } from './sales.service';
 import { MenuItem } from 'primeng/api';
 import { TranslateService } from '@ngx-translate/core';
@@ -203,6 +203,17 @@ export class SalesComponent implements OnInit, AfterViewInit {
     this.userControl().value = this.selectedUserId;
   }
 
+  printReceiptForTauri(saleId: SaleId, isEdition: boolean = false): void {
+    this.salesService.getEscPosReceiptForTauri(saleId, isEdition).subscribe({
+      next: async (escposData: ArrayBuffer) => {
+        try {
+          await this.tauriPrinterService.printEscPosFromBuffer(escposData);
+        } catch (error) {}
+      },
+      error: () => {},
+    });
+  }
+
   protected onTypeVenteChange(): void {
     this.searchSubject.next();
   }
@@ -264,10 +275,14 @@ export class SalesComponent implements OnInit, AfterViewInit {
   }
 
   protected printSale(sale: ISales): void {
-    if (sale.categorie === 'VNO') {
-      this.salesService.rePrintReceipt(sale.saleId).subscribe();
+    if (this.tauriPrinterService.isRunningInTauri()) {
+      this.printReceiptForTauri(sale.saleId, true);
     } else {
-      this.assuranceSalesService.rePrintReceipt(sale.saleId).subscribe();
+      if (sale.categorie === 'VNO') {
+        this.salesService.rePrintReceipt(sale.saleId).subscribe();
+      } else {
+        this.assuranceSalesService.rePrintReceipt(sale.saleId).subscribe();
+      }
     }
   }
 

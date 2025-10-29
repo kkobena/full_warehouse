@@ -1,5 +1,7 @@
 package com.kobe.warehouse.service.receipt.service;
 
+import static java.util.Objects.nonNull;
+
 import com.kobe.warehouse.domain.enumeration.PrioriteTiersPayant;
 import com.kobe.warehouse.repository.PrinterRepository;
 import com.kobe.warehouse.service.AppConfigurationService;
@@ -13,18 +15,17 @@ import com.kobe.warehouse.service.receipt.dto.AssuranceReceiptItem;
 import com.kobe.warehouse.service.receipt.dto.HeaderFooterItem;
 import com.kobe.warehouse.service.receipt.dto.SaleReceiptItem;
 import com.kobe.warehouse.service.utils.NumberUtil;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.stereotype.Service;
-import org.springframework.util.CollectionUtils;
-
-import java.awt.*;
+import java.awt.Font;
+import java.awt.FontMetrics;
+import java.awt.Graphics2D;
 import java.awt.print.PrinterException;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
-
-import static java.util.Objects.nonNull;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.stereotype.Service;
+import org.springframework.util.CollectionUtils;
 
 @Service
 public class AssuranceSaleReceiptService extends AbstractSaleReceiptService {
@@ -37,8 +38,6 @@ public class AssuranceSaleReceiptService extends AbstractSaleReceiptService {
     public AssuranceSaleReceiptService(AppConfigurationService appConfigurationService, PrinterRepository printerRepository) {
         super(appConfigurationService, printerRepository);
     }
-
-
 
     @Override
     protected SaleDTO getSale() {
@@ -72,7 +71,6 @@ public class AssuranceSaleReceiptService extends AbstractSaleReceiptService {
         item.setQuantity(NumberUtil.formatToString(saleLineDTO.getQuantityRequested()));
         item.setUnitPrice(NumberUtil.formatToString(saleLineDTO.getRegularUnitPrice()));
 
-
         return item;
     }
 
@@ -94,16 +92,16 @@ public class AssuranceSaleReceiptService extends AbstractSaleReceiptService {
         AssuredCustomerDTO customer = (AssuredCustomerDTO) thirdPartySale.getCustomer();
         headerItems.add(
             new HeaderFooterItem(
-                "Assuré: " +
-                    customer.getFullName() +
-                    " | Matricule: " +
-                    thirdPartySale
-                        .getTiersPayants()
-                        .stream()
-                        .filter(e -> e.getPriorite() == PrioriteTiersPayant.R0)
-                        .findFirst()
-                        .map(ClientTiersPayantDTO::getNum)
-                        .orElse(""),
+                "ASSURE: " +
+                customer.getFullName() +
+                " | MATRICULE: " +
+                thirdPartySale
+                    .getTiersPayants()
+                    .stream()
+                    .filter(e -> e.getPriorite() == PrioriteTiersPayant.R0)
+                    .findFirst()
+                    .map(ClientTiersPayantDTO::getNum)
+                    .orElse(""),
                 1,
                 font
             )
@@ -111,11 +109,11 @@ public class AssuranceSaleReceiptService extends AbstractSaleReceiptService {
         if (!customer.getId().equals(thirdPartySale.getAyantDroitId())) {
             headerItems.add(
                 new HeaderFooterItem(
-                    "Bénéficiaire: " +
-                        thirdPartySale.getAyantDroitFirstName().concat(" ") +
-                        thirdPartySale.getAyantDroitLastName() +
-                        " | Matricule: " +
-                        thirdPartySale.getAyantDroitNum(),
+                    "BENEFICIAIRE: " +
+                    thirdPartySale.getAyantDroitFirstName().concat(" ") +
+                    thirdPartySale.getAyantDroitLastName() +
+                    " | MATRICULE: " +
+                    thirdPartySale.getAyantDroitNum(),
                     1,
                     font
                 )
@@ -132,7 +130,6 @@ public class AssuranceSaleReceiptService extends AbstractSaleReceiptService {
         }
         return thirdPartySale.getThirdPartySaleLines().size() + 1;
     }
-
 
     @Override
     public List<HeaderFooterItem> getFooterItems() {
@@ -358,16 +355,17 @@ public class AssuranceSaleReceiptService extends AbstractSaleReceiptService {
 
             if (!thirdPartySale.isHasPriceOption()) {
                 // Display percentage
-                info.append(String.format("%-30s %8s%% %10s",
-                    priorityCode + ": " + tiersPayantName,
-                    thirdPartySaleLine.getTaux(),
-                    amount));
+                info.append(String.format("%-26s %7s%% %10s", priorityCode + ": " + tiersPayantName, thirdPartySaleLine.getTaux(), amount));
             } else {
                 // Display amount
-                info.append(String.format("%-30s %10s %10s",
-                    priorityCode + ": " + tiersPayantName,
-                    NumberUtil.formatToString(thirdPartySaleLine.getMontant()),
-                    amount));
+                info.append(
+                    String.format(
+                        "%-26s %10s %10s",
+                        priorityCode + ": " + tiersPayantName,
+                        NumberUtil.formatToString(thirdPartySaleLine.getMontant()),
+                        amount
+                    )
+                );
             }
             info.append("\n");
         }

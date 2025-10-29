@@ -1,5 +1,7 @@
 package com.kobe.warehouse.service.sale;
 
+import static java.util.Objects.isNull;
+
 import com.kobe.warehouse.constant.EntityConstant;
 import com.kobe.warehouse.domain.AppUser;
 import com.kobe.warehouse.domain.AppUser_;
@@ -42,15 +44,6 @@ import jakarta.persistence.criteria.Predicate;
 import jakarta.persistence.criteria.Root;
 import jakarta.persistence.criteria.SetJoin;
 import jakarta.validation.constraints.NotNull;
-import org.apache.commons.lang3.StringUtils;
-import org.apache.commons.lang3.tuple.Pair;
-import org.springframework.core.io.Resource;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageImpl;
-import org.springframework.data.domain.Pageable;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
-
 import java.io.IOException;
 import java.net.MalformedURLException;
 import java.time.LocalDate;
@@ -60,8 +53,14 @@ import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.Collectors;
-
-import static java.util.Objects.isNull;
+import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.tuple.Pair;
+import org.springframework.core.io.Resource;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.Pageable;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @Transactional(readOnly = true)
@@ -510,11 +509,11 @@ public class SaleDataService {
     }
 
     public byte[] generateEscPosReceipt(SaleId saleId, boolean isEdit) throws IOException {
-        Sales sales = fetchById(saleId, isEdit);
+        Sales sales = fetchById(saleId, false);
         if (sales instanceof CashSale g) {
             return receiptPrinterService.generateEscPosReceipt(new CashSaleDTO(g), isEdit);
         } else if (sales instanceof ThirdPartySales thirdPartySales) {
-            receiptPrinterService.generateEscPosReceipt(new ThirdPartySaleDTO(thirdPartySales), isEdit);
+            return receiptPrinterService.generateEscPosReceipt(new ThirdPartySaleDTO(thirdPartySales), isEdit);
         }
         return null;
     }

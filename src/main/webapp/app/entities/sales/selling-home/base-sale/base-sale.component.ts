@@ -26,8 +26,12 @@ import { FormsModule } from '@angular/forms';
 import { ProductTableComponent } from '../product-table/product-table.component';
 import { Authority } from '../../../../shared/constants/authority.constants';
 import { HasAuthorityService } from '../../service/has-authority.service';
-import { FormActionAutorisationComponent } from '../../form-action-autorisation/form-action-autorisation.component';
-import { ConfirmDialogComponent } from '../../../../shared/dialog/confirm-dialog/confirm-dialog.component';
+import {
+  FormActionAutorisationComponent
+} from '../../form-action-autorisation/form-action-autorisation.component';
+import {
+  ConfirmDialogComponent
+} from '../../../../shared/dialog/confirm-dialog/confirm-dialog.component';
 import { CardModule } from 'primeng/card';
 import { SpinnerComponent } from '../../../../shared/spinner/spinner.component';
 import { TauriPrinterService } from '../../../../shared/services/tauri-printer.service';
@@ -73,7 +77,7 @@ export class BaseSaleComponent {
   private baseSaleService = inject(BaseSaleService);
   private readonly confimDialog = viewChild.required<ConfirmDialogComponent>('confirmDialog');
   private readonly spinner = viewChild.required<SpinnerComponent>('spinner');
-
+  private readonly tauriPrinterService = inject(TauriPrinterService);
   protected get entryAmount(): number {
     return this.modeReglementComponent()?.getInputSum() || 0;
   }
@@ -381,10 +385,8 @@ export class BaseSaleComponent {
   }
 
   printSale(saleId: SaleId): void {
-    // Check if running in Tauri
-    // @ts-ignore
-    if (window.__TAURI__) {
-      this.printSaleForTauri(saleId);
+    if (this.tauriPrinterService.isRunningInTauri()) {
+      this.printReceiptForTauri(saleId);
     } else {
       this.salesService.printReceipt(saleId).subscribe();
     }
@@ -434,27 +436,20 @@ export class BaseSaleComponent {
     }
   }
 
-  /**
-   * Print receipt for Tauri clients
-   * Gets receipt as PNG images and prints them to the local printer
-   */
-  private printSaleForTauri(saleId: SaleId): void {
-    const tauriPrinterService = inject(TauriPrinterService);
-
-    this.salesService.getReceiptForTauri(saleId).subscribe({
-      next: async (receiptPages: string[]) => {
-        try {
-          await tauriPrinterService.printReceipt(receiptPages);
-          console.log('Receipt printed successfully');
-        } catch (error) {
-          console.error('Error printing receipt:', error);
-          alert("Erreur lors de l'impression du ticket");
-        }
-      },
-      error: err => {
-        console.error('Error getting receipt for Tauri:', err);
-        alert('Erreur lors de la récupération du ticket');
-      },
-    });
+  printReceiptForTauri(saleId: SaleId, isEdition: boolean = false): void {
+    /*  this.spinner().show(); */
+    this.salesService
+      .getEscPosReceiptForTauri(saleId, isEdition)
+      /* .pipe(finalize(() => this.spinner().hide())) */
+      .subscribe({
+        next: async (escposData: ArrayBuffer) => {
+          try {
+            await this.tauriPrinterService.printEscPosFromBuffer(escposData);
+          } catch (error) {
+            this.baseSaleService.onSaveError(error, this.currentSaleService.currentSale());
+          }
+        },
+        error: err => this.baseSaleService.onSaveError(err, this.currentSaleService.currentSale()),
+      });
   }
 }

@@ -52,14 +52,12 @@ export class VoSalesService {
     return this.http.get(`${this.resourceUrl}/assurance/re-print/receipt/${id.id}/${id.saleDate}`, { observe: 'response' });
   }
 
-  /**
-   * Get assurance receipt as byte arrays for Tauri printing
-   * Returns a list of PNG images (as byte arrays) representing each page of the receipt
-   */
-  getReceiptForTauri(id: SaleId): Observable<string[]> {
-    return this.http.get<string[]>(`${this.resourceUrl}/assurance/receipt/tauri/${id.id}/${id.saleDate}`);
+  getEscPosReceiptForTauri(id: SaleId, isEdition: boolean = false): Observable<ArrayBuffer> {
+    return this.http.get(`${this.resourceUrl}/receipt/tauri/${id.id}/${id.saleDate}`, {
+      params: { isEdition: isEdition },
+      responseType: 'arraybuffer',
+    });
   }
-
   create(sales: ISales): Observable<EntityResponseType> {
     const copy = this.convertDateFromClient(sales);
     return this.http
@@ -103,7 +101,9 @@ export class VoSalesService {
   }
 
   removeThirdPartySaleLineToSales(id: number, saleId: SaleId): Observable<HttpResponse<{}>> {
-    return this.http.delete(`${this.resourceUrl}/remove-tiers-payant/assurance/${id}/${saleId.id}/${saleId.saleDate}`, { observe: 'response' });
+    return this.http.delete(`${this.resourceUrl}/remove-tiers-payant/assurance/${id}/${saleId.id}/${saleId.saleDate}`, {
+      observe: 'response',
+    });
   }
 
   queryPrevente(req?: any): Observable<EntityArrayResponseType> {

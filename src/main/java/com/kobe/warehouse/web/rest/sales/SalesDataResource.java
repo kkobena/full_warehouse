@@ -148,23 +148,11 @@ public class SalesDataResource {
         return ResponseEntity.ok().build();
     }
 
-    /**
-     * {@code GET /sales/receipt/tauri/:id/:saleDate} : Get receipt as byte arrays for Tauri clients
-     * <p>
-     * This endpoint generates the receipt as a list of PNG images (one per page)
-     * encoded as byte arrays. This is specifically designed for Tauri clients
-     * that need to print receipts on a different machine from the backend server.
-     *
-     * @param id the sale id
-     * @param saleDate the sale date
-     * @return the {@link ResponseEntity} with status {@code 200 (OK)} and the list of byte arrays in body,
-     * or with status {@code 500 (Internal Server Error)} if the receipt cannot be generated
-     */
     @GetMapping("/sales/receipt/tauri/{id}/{saleDate}")
     public ResponseEntity<byte[]> getReceiptForTauri(
         @PathVariable("id") Long id,
         @PathVariable("saleDate") LocalDate saleDate,
-        @RequestParam(value = "isEdition",required = false) boolean isEdition
+        @RequestParam(value = "isEdition", required = false) boolean isEdition
     ) {
         log.debug("REST request to get ESC/POS receipt for Tauri client: sale id {}, date {}", id, saleDate);
         try {
@@ -179,18 +167,6 @@ public class SalesDataResource {
         }
     }
 
-    /**
-     * {@code GET /sales/assurance/receipt/tauri/:id/:saleDate} : Get assurance receipt as byte arrays for Tauri clients
-     * <p>
-     * This endpoint generates the assurance receipt as a list of PNG images (one per page)
-     * encoded as byte arrays. This is specifically designed for Tauri clients
-     * that need to print receipts on a different machine from the backend server.
-     *
-     * @param id the sale id
-     * @param saleDate the sale date
-     * @return the {@link ResponseEntity} with status {@code 200 (OK)} and the list of byte arrays in body,
-     * or with status {@code 500 (Internal Server Error)} if the receipt cannot be generated
-     */
     @GetMapping("/sales/assurance/receipt/tauri/{id}/{saleDate}")
     public ResponseEntity<List<byte[]>> getAssuranceReceiptForTauri(
         @PathVariable("id") Long id,
@@ -199,9 +175,7 @@ public class SalesDataResource {
         log.debug("REST request to get assurance receipt for Tauri client: sale id {}, date {}", id, saleDate);
         try {
             List<byte[]> receiptPages = saleReceiptService.generateVoTicketForTauri(new SaleId(id, saleDate));
-            return ResponseEntity.ok()
-                .header(HttpHeaders.CONTENT_TYPE, "application/json")
-                .body(receiptPages);
+            return ResponseEntity.ok().header(HttpHeaders.CONTENT_TYPE, "application/json").body(receiptPages);
         } catch (IOException e) {
             log.error("Error generating assurance receipt for Tauri client", e);
             return ResponseEntity.internalServerError().build();

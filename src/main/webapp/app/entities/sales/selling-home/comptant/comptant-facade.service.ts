@@ -1,7 +1,7 @@
-import {inject, Injectable} from '@angular/core';
-import {Observable, Subject} from 'rxjs';
-import {finalize, switchMap} from 'rxjs/operators';
-import {HttpResponse} from '@angular/common/http';
+import { inject, Injectable } from '@angular/core';
+import { Observable, Subject } from 'rxjs';
+import { finalize, switchMap } from 'rxjs/operators';
+import { HttpResponse } from '@angular/common/http';
 import {
   FinalyseSale,
   ISales,
@@ -9,15 +9,15 @@ import {
   Sales,
   SaveResponse
 } from '../../../../shared/model/sales.model';
-import {ISalesLine, SaleLineId} from '../../../../shared/model/sales-line.model';
-import {IRemise} from '../../../../shared/model/remise.model';
-import {SalesService} from '../../sales.service';
-import {CurrentSaleService} from '../../service/current-sale.service';
-import {SelectedCustomerService} from '../../service/selected-customer.service';
-import {TypePrescriptionService} from '../../service/type-prescription.service';
-import {UserCaissierService} from '../../service/user-caissier.service';
-import {UserVendeurService} from '../../service/user-vendeur.service';
-import {TauriPrinterService} from '../../../../shared/services/tauri-printer.service';
+import { ISalesLine, SaleLineId } from '../../../../shared/model/sales-line.model';
+import { IRemise } from '../../../../shared/model/remise.model';
+import { SalesService } from '../../sales.service';
+import { CurrentSaleService } from '../../service/current-sale.service';
+import { SelectedCustomerService } from '../../service/selected-customer.service';
+import { TypePrescriptionService } from '../../service/type-prescription.service';
+import { UserCaissierService } from '../../service/user-caissier.service';
+import { UserVendeurService } from '../../service/user-vendeur.service';
+import { TauriPrinterService } from '../../../../shared/services/tauri-printer.service';
 
 @Injectable({
   providedIn: 'root',
@@ -175,13 +175,6 @@ export class ComptantFacadeService {
       .subscribe();
   }
 
-  /**
-   * Print receipt for Tauri clients using ESC/POS
-   * Gets receipt as ESC/POS commands and prints directly to thermal printer
-   * Much more efficient than PNG method (2-5 KB vs 200-500 KB)
-   * @param saleId Sale ID and date
-   * @param isEdition Whether this is a reprint (affects number of copies)
-   */
   printReceiptForTauri(saleId: SaleId, isEdition: boolean = false): void {
     this.spinnerService.next(true);
     this.salesService
@@ -191,14 +184,11 @@ export class ComptantFacadeService {
         next: async (escposData: ArrayBuffer) => {
           try {
             await this.tauriPrinterService.printEscPosFromBuffer(escposData);
-            console.log('ESC/POS receipt printed successfully');
           } catch (error) {
-            console.error('Error printing ESC/POS receipt:', error);
             this.onSaveError(error);
           }
         },
         error: err => {
-          console.error('Error getting ESC/POS receipt for Tauri:', err);
           this.onSaveError(err);
         },
       });

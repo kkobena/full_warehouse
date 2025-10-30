@@ -335,6 +335,98 @@ public abstract class AbstractJava2DReceiptPrinterService implements Printable {
         return String.format("%" + length + "s", str);
     }
 
+    // ============================================
+    // Common ESC/POS Header and Footer Methods
+    // ============================================
+
+    /**
+     * Print common ESC/POS company header (name, address, phone, welcome message)
+     * This centralizes the header logic used across all receipt types
+     *
+     * @param out the output stream
+     * @throws IOException if writing fails
+     */
+    protected void printEscPosCompanyHeader(java.io.ByteArrayOutputStream out) throws java.io.IOException {
+        // Initialize printer
+        escPosInitialize(out);
+
+        // Company header (centered, bold)
+        escPosSetBold(out, true);
+        escPosSetAlignment(out, EscPosAlignment.CENTER);
+        escPosSetTextSize(out, 2, 2); // Double width and height
+        escPosPrintLine(out, magasin.getName());
+        escPosSetTextSize(out, 1, 1); // Normal size
+        escPosFeedLines(out, 1);
+
+        // Company address and contact info
+        if (magasin.getAddress() != null && !magasin.getAddress().isEmpty()) {
+            escPosPrintLine(out, magasin.getAddress());
+        }
+        if (magasin.getPhone() != null && !magasin.getPhone().isEmpty()) {
+            escPosPrintLine(out, "Tel: " + magasin.getPhone());
+        }
+        escPosSetBold(out, false);
+        escPosFeedLines(out, 1);
+
+        // Welcome message (if any)
+        if (magasin.getWelcomeMessage() != null && !magasin.getWelcomeMessage().isEmpty()) {
+            escPosPrintLine(out, magasin.getWelcomeMessage());
+            escPosFeedLines(out, 1);
+        }
+
+        // Reset to left alignment for content
+        escPosSetAlignment(out, EscPosAlignment.LEFT);
+    }
+
+    /**
+     * Print common ESC/POS footer (separator, date/time, thank you message, paper cut)
+     * This centralizes the footer logic used across all receipt types
+     *
+     * @param out the output stream
+     * @throws IOException if writing fails
+     */
+    protected void printEscPosFooter(java.io.ByteArrayOutputStream out) throws java.io.IOException {
+        printEscPosFooter(out,
+            java.time.LocalDate.now().format(java.time.format.DateTimeFormatter.ofPattern("dd/MM/yyyy")) +
+            " " +
+            java.time.LocalTime.now().format(java.time.format.DateTimeFormatter.ofPattern("HH:mm:ss"))
+        );
+    }
+
+    /**
+     * Print common ESC/POS footer with custom timestamp
+     * This allows subclasses to provide their own timestamp (e.g., sale timestamp)
+     *
+     * @param out the output stream
+     * @param timestamp the formatted timestamp to print
+     * @throws IOException if writing fails
+     */
+    protected void printEscPosFooter(java.io.ByteArrayOutputStream out, String timestamp) throws java.io.IOException {
+        // Separator line
+        escPosPrintSeparator(out, 48);
+
+        // Date and time
+        escPosSetBold(out, false);
+        escPosSetAlignment(out, EscPosAlignment.LEFT);
+        escPosPrintLine(out, timestamp);
+        escPosFeedLines(out, 1);
+
+        // Thank you message (centered)
+        if (magasin.getNote() != null && !magasin.getNote().isEmpty()) {
+            escPosSetAlignment(out, EscPosAlignment.CENTER);
+            escPosPrintLine(out, magasin.getNote());
+            escPosSetAlignment(out, EscPosAlignment.LEFT);
+        }
+
+        // Cut paper
+        escPosFeedLines(out, 3);
+        escPosCutPaper(out);
+    }
+
+    // ============================================
+    // Abstract method for ESC/POS receipt generation
+    // ============================================
+
     /**
      * Generate ESC/POS receipt data
      * Subclasses must implement this method to generate their specific receipt format
@@ -344,10 +436,6 @@ public abstract class AbstractJava2DReceiptPrinterService implements Printable {
      * @throws IOException if generation fails
      */
     protected abstract byte[] generateEscPosReceipt(boolean isEdit) throws IOException;
-
-    // ============================================
-    // Abstract method for ESC/POS receipt generation
-    // ============================================
 
     /**
      * Print ESC/POS receipt directly to a thermal printer using Java Print Service

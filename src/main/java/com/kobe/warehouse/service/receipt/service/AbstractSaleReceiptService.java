@@ -205,35 +205,10 @@ public abstract class AbstractSaleReceiptService extends AbstractJava2DReceiptPr
      * Print ESC/POS header section (company info, customer info, etc.)
      */
     private void printEscPosHeader(ByteArrayOutputStream out) throws IOException {
-        // Initialize printer
-        escPosInitialize(out);
-
-        // Company header (centered, bold)
-        escPosSetBold(out, true);
-        escPosSetAlignment(out, EscPosAlignment.CENTER);
-        escPosSetTextSize(out, 2, 2); // Double width and height
-        escPosPrintLine(out, magasin.getName());
-        escPosSetTextSize(out, 1, 1); // Normal size
-        escPosFeedLines(out, 1);
-
-        // Company address and contact info
-        if (magasin.getAddress() != null && !magasin.getAddress().isEmpty()) {
-            escPosPrintLine(out, magasin.getAddress());
-        }
-        if (magasin.getPhone() != null && !magasin.getPhone().isEmpty()) {
-            escPosPrintLine(out, "Tel: " + magasin.getPhone());
-        }
-        escPosSetBold(out, false);
-        escPosFeedLines(out, 1);
-
-        // Welcome message (if any)
-        if (magasin.getWelcomeMessage() != null && !magasin.getWelcomeMessage().isEmpty()) {
-            escPosPrintLine(out, magasin.getWelcomeMessage());
-            escPosFeedLines(out, 1);
-        }
+        // Print common company header (name, address, phone, welcome message)
+        printEscPosCompanyHeader(out);
 
         // Header items (customer info, operator, etc.)
-        escPosSetAlignment(out, EscPosAlignment.LEFT);
         for (HeaderFooterItem headerItem : getHeaderItems()) {
             escPosPrintLine(out, headerItem.value());
         }
@@ -343,19 +318,8 @@ public abstract class AbstractSaleReceiptService extends AbstractJava2DReceiptPr
             escPosPrintLine(out, footerItem.value());
         }
 
-        // Separator line
-        escPosPrintSeparator(out, 48);
-
-        // Date and time
-        escPosPrintLine(out, sale.getUpdatedAt().format(DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm:ss")));
-        escPosFeedLines(out, 1);
-
-        // Thank you message
-        if (magasin.getNote() != null && !magasin.getNote().isEmpty()) {
-            escPosSetAlignment(out, EscPosAlignment.CENTER);
-            escPosPrintLine(out, magasin.getNote());
-            escPosSetAlignment(out, EscPosAlignment.LEFT);
-        }
+        // Print common footer with sale timestamp
+        printEscPosFooter(out, sale.getUpdatedAt().format(DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm:ss")));
     }
 
     /**

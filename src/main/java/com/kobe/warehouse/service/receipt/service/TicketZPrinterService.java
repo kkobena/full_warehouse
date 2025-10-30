@@ -43,35 +43,8 @@ public class TicketZPrinterService extends AbstractTicketZService {
         ByteArrayOutputStream out = new ByteArrayOutputStream();
 
         try {
-            // Initialize printer
-            escPosInitialize(out);
-
-            // Company header (centered, bold)
-            escPosSetBold(out, true);
-            escPosSetAlignment(out, EscPosAlignment.CENTER);
-            escPosSetTextSize(out, 2, 2); // Double width and height
-            escPosPrintLine(out, magasin.getName());
-            escPosSetTextSize(out, 1, 1); // Normal size
-            escPosFeedLines(out, 1);
-
-            // Company address and contact info
-            if (magasin.getAddress() != null && !magasin.getAddress().isEmpty()) {
-                escPosPrintLine(out, magasin.getAddress());
-            }
-            if (magasin.getPhone() != null && !magasin.getPhone().isEmpty()) {
-                escPosPrintLine(out, "Tel: " + magasin.getPhone());
-            }
-            escPosSetBold(out, false);
-            escPosFeedLines(out, 1);
-
-            // Welcome message (if any)
-            if (magasin.getWelcomeMessage() != null && !magasin.getWelcomeMessage().isEmpty()) {
-                escPosPrintLine(out, magasin.getWelcomeMessage());
-                escPosFeedLines(out, 1);
-            }
-
-            // Left aligned for ticket Z items
-            escPosSetAlignment(out, EscPosAlignment.LEFT);
+            // Print common company header
+            printEscPosCompanyHeader(out);
 
             // Separator line
             escPosPrintSeparator(out, 48);
@@ -97,29 +70,8 @@ public class TicketZPrinterService extends AbstractTicketZService {
                 }
             }
 
-            // Separator line
-            escPosPrintSeparator(out, 48);
-
-            // Date and time
-            escPosSetBold(out, false);
-            escPosPrintLine(
-                out,
-                LocalDate.now().format(DateTimeFormatter.ofPattern("dd/MM/yyyy")) +
-                " " +
-                java.time.LocalTime.now().format(DateTimeFormatter.ofPattern("HH:mm:ss"))
-            );
-            escPosFeedLines(out, 1);
-
-            // Thank you message
-            if (magasin.getNote() != null && !magasin.getNote().isEmpty()) {
-                escPosSetAlignment(out, EscPosAlignment.CENTER);
-                escPosPrintLine(out, magasin.getNote());
-                escPosSetAlignment(out, EscPosAlignment.LEFT);
-            }
-
-            // Cut paper
-            escPosFeedLines(out, 3);
-            escPosCutPaper(out);
+            // Print common footer
+            printEscPosFooter(out);
 
             return out.toByteArray();
         } catch (Exception e) {

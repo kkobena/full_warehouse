@@ -42,7 +42,6 @@ import { DeliveryModalComponent } from './delevery/form/delivery-modal.component
 import { DeliveryService } from './delevery/delivery.service';
 import { OrderLineLotsComponent } from './lot/order-line-lots.component';
 import { ButtonGroup } from 'primeng/buttongroup';
-import { Panel } from 'primeng/panel';
 import { ListLotComponent } from './lot/list/list-lot.component';
 import { FormLotComponent } from './lot/form-lot.component';
 import { OrderStatut } from '../../shared/model/enumerations/order-statut.model';
@@ -57,7 +56,6 @@ import { ToastAlertComponent } from '../../shared/toast-alert/toast-alert.compon
 import { FileResponseModalComponent } from './file-response-modal/file-response-modal.component';
 import { SpinnerComponent } from '../../shared/spinner/spinner.component';
 import { CommandeId } from '../../shared/model/abstract-commande.model';
-import { Card } from 'primeng/card';
 import { TauriPrinterService } from '../../shared/services/tauri-printer.service';
 import { handleBlobForTauri } from '../../shared/util/tauri-util';
 
@@ -86,12 +84,11 @@ import { handleBlobForTauri } from '../../shared/util/tauri-util';
     IconField,
     InputIcon,
     ButtonGroup,
-    Panel,
     FloatLabel,
     ConfirmDialogComponent,
     ToastAlertComponent,
     SpinnerComponent,
-    Card,
+
   ],
 })
 export class CommandeUpdateComponent implements OnInit, AfterViewInit {

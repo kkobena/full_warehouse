@@ -1782,12 +1782,70 @@ jhi-recapitualtif-caisse {
 }
 
 .p-dialog-header {
-  background-color: var(--p-primary-color);
+  background: linear-gradient(135deg, #446e9b 0%, #5a8ac0 100%);
   color: #ffffff;
-  padding: 0.5rem !important;
+  padding: 0.5rem 1rem !important;
   border-top-left-radius: var(--p-dialog-border-radius);
   border-top-right-radius: var(--p-dialog-border-radius);
+  font-weight: 600;
+  font-size: 1rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
 
+  .p-dialog-title {
+    font-weight: 600;
+    font-size: 1rem;
+    color: #ffffff;
+    margin: 0;
+  }
+
+  .p-dialog-header-icons {
+    display: flex;
+    align-items: center;
+    gap: 0.25rem;
+
+    button {
+      color: #ffffff;
+      background: transparent;
+      border: none;
+      width: 2rem;
+      height: 2rem;
+      transition: background-color 0.2s;
+
+      &:hover {
+        background-color: rgba(255, 255, 255, 0.1);
+        border-radius: var(--p-dialog-border-radius);
+      }
+
+      &:focus {
+        box-shadow: 0 0 0 0.2rem rgba(255, 255, 255, 0.3);
+        outline: none;
+      }
+    }
+  }
+
+  // Variant styles for different dialog types
+  &.p-dialog-header-info {
+    background: linear-gradient(135deg, #0ea5e9 0%, #38bdf8 100%);
+  }
+
+  &.p-dialog-header-success {
+    background: linear-gradient(135deg, #22c55e 0%, #4ade80 100%);
+  }
+
+  &.p-dialog-header-warning {
+    background: linear-gradient(135deg, #f97316 0%, #fb923c 100%);
+  }
+
+  &.p-dialog-header-danger {
+    background: linear-gradient(135deg, #ef4444 0%, #f87171 100%);
+  }
+
+  &.p-dialog-header-secondary {
+    background: linear-gradient(135deg, #64748b 0%, #94a3b8 100%);
+  }
 }
 
 .p-card .info-title {

@@ -39,17 +39,16 @@ $border-radius-lg: $pharma-radius-lg;
 // ============================================
 
 .pharma-sales-header {
-  position: sticky;
-  top: 0;
+  position: relative;
   z-index: 1000;
   background: $white;
   border-bottom: 1px solid $gray-200;
-  padding: 0.75rem 1rem;
+  padding: 0.5rem 1rem;
   display: flex;
   align-items: center;
   justify-content: space-between;
   box-shadow: $shadow-md;
-  min-height: 60px;
+  min-height: 50px;
   flex-shrink: 0;
 
   .header-left {
@@ -208,6 +207,8 @@ $border-radius-lg: $pharma-radius-lg;
   flex-direction: column;
   gap: 0.75rem;
   min-height: 0;
+  min-width: 0;
+  overflow: visible;
 }
 
 // ============================================
@@ -257,18 +258,44 @@ $border-radius-lg: $pharma-radius-lg;
   background: $white;
   border-radius: $border-radius;
   box-shadow: $shadow-sm;
-  padding: 0.75rem 1rem;
+  padding: 0.3rem 1rem;
   display: flex;
   align-items: center;
   gap: 0.75rem;
   border: 1px solid $gray-200;
   transition: all 0.3s ease;
   animation: slideDown 0.3s ease;
+  overflow-x: auto;
+  overflow-y: hidden;
+  flex-shrink: 0;
 
   &:hover {
     border-color: $pharma-primary;
     box-shadow: $shadow-md;
   }
+
+  // Custom scrollbar for horizontal scroll
+  &::-webkit-scrollbar {
+    height: 6px;
+  }
+
+  &::-webkit-scrollbar-track {
+    background: $gray-100;
+    border-radius: 3px;
+  }
+
+  &::-webkit-scrollbar-thumb {
+    background: $gray-400;
+    border-radius: 3px;
+
+    &:hover {
+      background: $gray-500;
+    }
+  }
+
+  // Scrollbar for Firefox
+  scrollbar-width: thin;
+  scrollbar-color: $gray-400 $gray-100;
 }
 
 // Slide down animation for insurance data bar
@@ -293,9 +320,10 @@ $border-radius-lg: $pharma-radius-lg;
   box-shadow: $shadow-md;
   overflow: hidden;
   border: 1px solid $gray-200;
+  flex-shrink: 0;
 
   .search-section-header {
-    padding: 0.75rem 1rem;
+    padding: 0.5rem 1rem;
     background: linear-gradient(135deg, $pharma-accent 0%, darken($pharma-accent, 10%) 100%);
     color: $white;
     display: flex;
@@ -314,7 +342,7 @@ $border-radius-lg: $pharma-radius-lg;
   }
 
   .search-controls {
-    padding: 0.875rem 1rem;
+    padding: 0.625rem 1rem;
     display: flex;
     flex-wrap: wrap;
     align-items: center;
@@ -417,10 +445,12 @@ $border-radius-lg: $pharma-radius-lg;
   border: 1px solid $gray-200;
   display: flex;
   flex-direction: column;
+  min-height: 0;
 
   > div {
     flex: 1;
     overflow: auto;
+    min-height: 0;
   }
 }
 

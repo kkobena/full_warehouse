@@ -9,7 +9,8 @@ import {
   output,
   signal,
   viewChild,
-  viewChildren
+  viewChildren,
+  ViewEncapsulation
 } from '@angular/core';
 import { WarehouseCommonModule } from '../../../shared/warehouse-common/warehouse-common.module';
 import { KeyFilterModule } from 'primeng/keyfilter';
@@ -46,7 +47,8 @@ import { Card } from 'primeng/card';
     InputGroupModule
   ],
   templateUrl: './mode-reglement.component.html',
-  styleUrls: ['./mode-reglement.scss']
+  styleUrls: ['./mode-reglement.scss'],
+  encapsulation: ViewEncapsulation.None
  /* styles: [
     `
       :host ::ng-deep .p-card .p-card-title .card-title {

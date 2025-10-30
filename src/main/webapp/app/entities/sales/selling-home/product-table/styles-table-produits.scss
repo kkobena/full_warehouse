@@ -108,8 +108,7 @@ $pharma-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
 }
 
 // Select de remise
-::ng-deep {
-  .pharma-remise-select {
+.pharma-remise-select {
     min-width: 220px;
 
     .p-select {
@@ -133,13 +132,11 @@ $pharma-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
       font-size: 14px;
     }
   }
-}
 
 // ====================================
 // TABLEAU PRIMENG
 // ====================================
-::ng-deep {
-  .pharma-table {
+.pharma-table {
     .p-datatable-wrapper {
       border-radius: 0;
     }
@@ -154,7 +151,7 @@ $pharma-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
           font-size: 13px;
           text-transform: uppercase;
           letter-spacing: 0.5px;
-          padding: 12px 15px;
+          padding: 8px 12px;
           border: none;
           border-right: 1px solid rgba(255, 255, 255, 0.1);
 
@@ -179,7 +176,7 @@ $pharma-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
         }
 
         td {
-          padding: 12px 15px;
+          padding: 8px 12px;
           border-bottom: 1px solid #e9ecef;
           font-size: 14px;
           color: $pharma-text;
@@ -204,14 +201,13 @@ $pharma-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
         border-top: 2px solid #dee2e6;
 
         td {
-          padding: 15px;
+          padding: 8px 12px;
           font-weight: 600;
           font-size: 14px;
         }
       }
     }
   }
-}
 
 // ====================================
 // STYLES DES CELLULES
@@ -284,8 +280,7 @@ $pharma-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
 // ====================================
 // INPUTS ÉDITABLES
 // ====================================
-::ng-deep {
-  .pharma-input-qty,
+.pharma-input-qty,
   .pharma-input-price {
     width: 90px !important;
     text-align: center;
@@ -305,7 +300,6 @@ $pharma-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
     background: #e8f5e9 !important;
     padding: 4px !important;
   }
-}
 
 // ====================================
 // FOOTER DU TABLEAU
@@ -373,12 +367,11 @@ $pharma-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
 // ====================================
 // PAGINATION
 // ====================================
-::ng-deep {
-  .pharma-table {
+.pharma-table {
     .p-paginator {
       background: #f8f9fa;
       border-top: 1px solid #dee2e6;
-      padding: 12px 20px;
+      padding: 1px 20px;
 
       .p-paginator-current {
         color: $pharma-text-light;
@@ -414,7 +407,6 @@ $pharma-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
       }
     }
   }
-}
 
 // ====================================
 // RESPONSIVE
@@ -438,8 +430,7 @@ $pharma-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
 }
 
 @media (max-width: 768px) {
-  ::ng-deep {
-    .pharma-table {
+  .pharma-table {
       font-size: 12px;
 
       .p-datatable-thead th {
@@ -448,10 +439,9 @@ $pharma-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
       }
 
       .p-datatable-tbody td {
-        padding: 10px 8px !important;
+        padding: 6px 8px !important;
       }
     }
-  }
 
 
 
@@ -474,8 +464,7 @@ $pharma-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
     display: none;
   }
 
-  ::ng-deep {
-    .pharma-table {
+  .pharma-table {
       .p-paginator {
         display: none;
       }
@@ -486,7 +475,6 @@ $pharma-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
         }
       }
     }
-  }
 
   .p-button {
     display: none;
@@ -499,7 +487,7 @@ $pharma-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
   display: flex;
   align-items: center;
   gap: 16px;
-  padding: 8px 10px;
+  padding: 6px 10px;
   background: linear-gradient(to bottom, #f8f9fa, #ffffff);
   border-bottom: 2px solid #e9ecef;
   flex-wrap: wrap;
@@ -512,8 +500,7 @@ $pharma-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
   flex: 1;
   min-width: 280px;
 
-  ::ng-deep {
-    .p-iconfield {
+  .p-iconfield {
       width: 100%;
       max-width: 450px;
     }
@@ -550,7 +537,6 @@ $pharma-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
         color: #adb5bd;
       }
     }
-  }
 }
 
 // ====================================
@@ -604,8 +590,7 @@ $pharma-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
 }
 
 // Sélecteur de remise compact
-::ng-deep {
-  .pharma-remise-select-compact {
+.pharma-remise-select-compact {
     min-width: 200px;
     max-width: 280px;
 
@@ -650,7 +635,7 @@ $pharma-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
     }
   }
 
-  .pharma-remise-group {
+.pharma-remise-group {
     display: flex;
     align-items: center;
     gap: 8px;
@@ -667,7 +652,6 @@ $pharma-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
       color: $pharma-primary;
     }
   }
-}
 
 // ====================================
 // RESPONSIVE
@@ -682,7 +666,7 @@ $pharma-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
     flex: 1 1 100%;
     min-width: 100%;
 
-    ::ng-deep .p-iconfield {
+    .p-iconfield {
       max-width: 100%;
     }
   }
@@ -701,7 +685,7 @@ $pharma-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
     flex: 0 1 auto;
   }
 
-  ::ng-deep .pharma-remise-select-compact {
+  .pharma-remise-select-compact {
     flex: 1 1 auto;
     min-width: 180px;
   }
@@ -722,7 +706,7 @@ $pharma-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
     justify-content: center;
   }
 
-  ::ng-deep .pharma-remise-select-compact {
+  .pharma-remise-select-compact {
     max-width: 100%;
   }
 }

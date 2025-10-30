@@ -21,7 +21,7 @@
           }
 
           @if (currentSaleService.currentSale()?.amountToBePaid > 0) {
-            <div class="row ws-mode-reglement" style="margin-top: 0.5rem">
+            <div class="row ws-mode-reglement" style="margin-top: 0.25rem">
               @for (modePay of selectModeReglementService.modeReglements(); track modePay.code) {
                 <div
                   [ngClass]="isSmallScreen ? 'col-md-12 col-sm-12' : 'col-md-6 col-lg-6 col-xl-6'">
@@ -45,7 +45,6 @@
                     @if (isShowAddBtn()) {
                       <p-inputgroup-addon [style]="{ padding: '0' }">
                         <p-button
-                          [style]="{ height: '50px' }"
                           (click)="onAddPaymentModeToggle(modePay, $event)"
                           class="add-mode-payment-btn"
                           icon="pi pi-plus"
@@ -57,7 +56,6 @@
 
                     <p-inputgroup-addon [style]="{ padding: '0' }">
                       <p-button
-                        [style]="{ height: '50px' }"
                         (click)="onRemovePaymentModeToggle(modePay, $event)"
                         severity="danger"
                         icon="pi pi-times"

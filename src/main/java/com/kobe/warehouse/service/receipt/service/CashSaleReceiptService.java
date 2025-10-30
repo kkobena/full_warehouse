@@ -8,9 +8,7 @@ import com.kobe.warehouse.service.dto.SaleLineDTO;
 import com.kobe.warehouse.service.dto.UninsuredCustomerDTO;
 import com.kobe.warehouse.service.receipt.dto.CashSaleReceiptItem;
 import com.kobe.warehouse.service.receipt.dto.HeaderFooterItem;
-import com.kobe.warehouse.service.utils.NumberUtil;
-import java.awt.FontMetrics;
-import java.awt.Graphics2D;
+
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
@@ -31,10 +29,6 @@ public class CashSaleReceiptService extends AbstractSaleReceiptService {
         super(appConfigurationService, printerRepository);
     }
 
-    @Override
-    protected int drawAssuanceInfo(Graphics2D graphics2D, int width, int margin, int y, int lineHeight) {
-        return y;
-    }
 
     @Override
     protected SaleDTO getSale() {
@@ -95,46 +89,6 @@ public class CashSaleReceiptService extends AbstractSaleReceiptService {
         return headerItems;*/
     }
 
-    @Override
-    protected int drawSummary(Graphics2D graphics2D, int width, int y, int lineHeight) {
-        SaleDTO sale = getSale();
-        int rightMargin = getRightMargin();
-        int margin = DEFAULT_MARGIN;
-
-        graphics2D.setFont(PLAIN_FONT);
-        graphics2D.drawString(MONTANT_TTC, margin, y);
-        String amount = NumberUtil.formatToString(sale.getSalesAmount());
-        if (avoirCount > 0) {
-            graphics2D.setFont(BOLD_FONT);
-            drawAndCenterText(graphics2D, "Avoir( " + NumberUtil.formatToString(avoirCount) + " )", width, margin, y);
-            graphics2D.setFont(PLAIN_FONT);
-        }
-        FontMetrics fontMetrics = graphics2D.getFontMetrics();
-        graphics2D.drawString(amount, rightMargin - fontMetrics.stringWidth(amount), y);
-        y += lineHeight;
-        if (sale.getDiscountAmount() != null && sale.getDiscountAmount() > 0) {
-            graphics2D.drawString(REMISE, margin, y);
-            String discount = NumberUtil.formatToString(sale.getDiscountAmount() * (-1));
-            graphics2D.drawString(discount, rightMargin - fontMetrics.stringWidth(discount), y);
-            y += lineHeight;
-        }
-        if (sale.getTaxAmount() != null && sale.getTaxAmount() > 0) {
-            graphics2D.drawString(TOTAL_TVA, margin, y);
-            String tax = NumberUtil.formatToString(sale.getTaxAmount());
-            graphics2D.drawString(tax, rightMargin - fontMetrics.stringWidth(tax), y);
-            y += lineHeight;
-        }
-        if (sale.getAmountToBePaid() != null) {
-            graphics2D.setFont(BOLD_FONT);
-            graphics2D.drawString(TOTAL_A_PAYER, margin, y);
-            fontMetrics = graphics2D.getFontMetrics();
-            String payroll = NumberUtil.formatToString(sale.getAmountToBePaid());
-            graphics2D.drawString(payroll, rightMargin - fontMetrics.stringWidth(payroll), y);
-            y += lineHeight;
-        }
-
-        return y;
-    }
 
     /**
      * Generate ESC/POS receipt for direct thermal printer printing

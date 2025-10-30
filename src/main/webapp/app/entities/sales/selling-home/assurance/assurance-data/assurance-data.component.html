@@ -33,15 +33,16 @@
               <i class="pi pi-user-shield"></i>
               <span>Assuré</span>
             </div>
-            <p-button
-              (click)="editAssuredCustomer()"
-              [variant]="'text'"
+
+            <p-splitbutton
+              [model]="assureBtnActions"
+              [text]="true"
               icon="pi pi-user-edit"
-              label="Éditer"
+              label="Gérer"
               severity="info"
-              size="small"
-              class="edit-btn">
-            </p-button>
+              size="small">
+            </p-splitbutton>
+
           </div>
           <div class="card-body">
             <div class="info-row">
@@ -56,23 +57,6 @@
               <span class="info-value matricule">{{ selectedCustomerService.selectedCustomerSignal().num }}</span>
             </div>
           </div>
-
-          <!-- Change Customer Button (Footer) -->
-          @if (currentSaleService.currentSale()) {
-            <div class="card-footer">
-              <p-button
-                (click)="onChangeCustomerClick()"
-                [variant]="'text'"
-                icon="pi pi-user-edit"
-                label="Changer de client"
-                severity="danger"
-                [outlined]="true"
-                [fluid]="true"
-                size="small"
-                class="change-customer-btn">
-              </p-button>
-            </div>
-          }
         </div>
       </div>
 
@@ -151,6 +135,7 @@
                   (keydown.enter)="onBonEnter(tp)"
                   [(ngModel)]="tp.numBon"
                   [fluid]="true"
+                  size="small"
                   autocomplete="off"
                   class="bon-input"
                   id="bon-{{ tp.id }}"

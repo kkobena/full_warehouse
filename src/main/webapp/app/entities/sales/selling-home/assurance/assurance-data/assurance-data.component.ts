@@ -69,6 +69,7 @@ export class AssuranceDataComponent implements OnInit, AfterViewInit {
   protected readonly selectedCustomerService = inject(SelectedCustomerService);
   protected ayantDroit: ICustomer | null = null;
   protected items: MenuItem[] | undefined;
+  protected assureBtnActions: MenuItem[] | undefined;
   protected baseSaleService = inject(BaseSaleService);
   protected readonly currentSaleService = inject(CurrentSaleService);
   protected selectedTiersPayants: WritableSignal<IClientTiersPayant[]> = signal<IClientTiersPayant[]>([]);
@@ -101,7 +102,26 @@ export class AssuranceDataComponent implements OnInit, AfterViewInit {
         }
       }
     ];
+this.assureBtnActions=[
 
+  {
+    icon: 'pi pi-pencil' ,
+    label: 'Modifier' ,
+    command: () => {
+      this.editAssuredCustomer();
+    }
+  },
+  {
+    icon: 'pi pi-times',
+    label: 'Changer de client',
+    command: () => {
+      this.onChangeCustomerClick();
+    }
+  }
+
+
+
+];
     const currSale = this.currentSaleService.currentSale();
     if (currSale) {
       this.selectedTiersPayants.set(currSale.tiersPayants || []);

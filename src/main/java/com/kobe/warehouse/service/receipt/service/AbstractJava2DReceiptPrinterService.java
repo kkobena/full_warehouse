@@ -7,23 +7,11 @@ import com.kobe.warehouse.repository.PrinterRepository;
 import com.kobe.warehouse.service.AppConfigurationService;
 import com.kobe.warehouse.service.receipt.dto.AbstractItem;
 import com.kobe.warehouse.service.receipt.dto.HeaderFooterItem;
-import java.awt.BasicStroke;
-import java.awt.Font;
-import java.awt.FontMetrics;
-import java.awt.Graphics2D;
-import java.awt.print.PageFormat;
-import java.awt.print.Paper;
-import java.awt.print.Printable;
-import java.awt.print.PrinterException;
-import java.awt.print.PrinterJob;
-import java.io.IOException;
-import java.io.OutputStream;
-import java.net.Socket;
-import java.time.LocalDate;
-import java.time.LocalTime;
-import java.time.format.DateTimeFormatter;
-import java.util.List;
-import java.util.Objects;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.stereotype.Service;
+import org.springframework.util.StringUtils;
+
 import javax.print.Doc;
 import javax.print.DocFlavor;
 import javax.print.DocPrintJob;
@@ -33,13 +21,18 @@ import javax.print.PrintServiceLookup;
 import javax.print.SimpleDoc;
 import javax.print.attribute.HashPrintRequestAttributeSet;
 import javax.print.attribute.PrintRequestAttributeSet;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.stereotype.Service;
-import org.springframework.util.StringUtils;
+import java.awt.*;
+import java.awt.print.PrinterException;
+import java.awt.print.PrinterJob;
+import java.io.IOException;
+import java.io.OutputStream;
+import java.net.Socket;
+import java.time.LocalDate;
+import java.time.LocalTime;
+import java.util.List;
 
 @Service
-public abstract class AbstractJava2DReceiptPrinterService implements Printable {
+public abstract class AbstractJava2DReceiptPrinterService {
 
     protected static final String MONTANT_RENDU = "MONNAIE RENDUE";
     protected static final String MONTANT_TTC = "MONTANT TTC";
@@ -67,17 +60,6 @@ public abstract class AbstractJava2DReceiptPrinterService implements Printable {
         this.printerRepository = printerRepository;
     }
 
-    protected void print(String hostName) throws PrinterException {
-        PrinterJob job = getPrinterJob(hostName);
-        PageFormat pageFormat = job.defaultPage();
-        Paper paper = new Paper();
-        paper.setImageableArea(DEFAULT_MARGIN, DEFAULT_LINE_HEIGHT, paper.getWidth(), paper.getHeight());
-        pageFormat.setPaper(paper);
-        pageFormat.setOrientation(PageFormat.PORTRAIT);
-        job.setPrintable(this, pageFormat);
-        job.setCopies(getNumberOfCopies());
-        job.print();
-    }
 
     protected abstract List<HeaderFooterItem> getHeaderItems();
 
@@ -85,86 +67,14 @@ public abstract class AbstractJava2DReceiptPrinterService implements Printable {
 
     protected abstract int getNumberOfCopies();
 
-    protected int drawWelcomeMessage(Graphics2D graphics2D, int margin, int y) {
-        if (StringUtils.hasText(magasin.getWelcomeMessage())) {
-            graphics2D.setFont(PLAIN_FONT);
-            graphics2D.drawString("*** " + magasin.getWelcomeMessage() + " ***", margin, y);
-            y += DEFAULT_LINE_HEIGHT;
-            return y;
-        }
-        return y;
-    }
 
     protected abstract List<? extends AbstractItem> getItems();
 
-    protected abstract int drawReglement(Graphics2D graphics2D, int width, int margin, int y, int lineHeight);
 
     protected int getMaximumLinesPerPage() {
         return this.appConfigurationService.getPrinterItemCount();
     }
 
-    protected int drawCompagnyInfo(Graphics2D graphics2D, int margin, int y) {
-        magasin = appConfigurationService.getMagasin();
-        Font font = BOLD_FONT;
-        graphics2D.setFont(font);
-        int lineHeight = DEFAULT_LINE_HEIGHT;
-        int printWidth = DEFAULT_WIDTH;
-        FontMetrics fontMetrics = graphics2D.getFontMetrics();
-        int x = margin + (printWidth - fontMetrics.stringWidth(magasin.getName())) / 3;
-        y += lineHeight;
-        graphics2D.drawString(magasin.getName(), x, y);
-        y += lineHeight;
-        graphics2D.setFont(PLAIN_FONT);
-        fontMetrics = graphics2D.getFontMetrics(font);
-
-        y = drawMagasinInfoLine(graphics2D, magasin.getAddress(), margin, y, lineHeight, printWidth, fontMetrics);
-        y = drawMagasinInfoLine(graphics2D, magasin.getEmail(), margin, y, lineHeight, printWidth, fontMetrics);
-        y = drawMagasinInfoLine(graphics2D, magasin.getPhone(), margin, y, lineHeight, printWidth, fontMetrics);
-
-        y += lineHeight;
-        return y;
-    }
-
-    protected int drawFooter(Graphics2D graphics2D, int margin, int y, int lineHeight) {
-        graphics2D.setFont(PLAIN_FONT);
-        List<HeaderFooterItem> footerItems = getFooterItems();
-        for (HeaderFooterItem headerFooterItem : footerItems) {
-            graphics2D.drawString(headerFooterItem.value(), margin, y);
-            y += (lineHeight * headerFooterItem.lineBreakNumber());
-        }
-        return y;
-    }
-
-    protected int drawHeader(Graphics2D graphics2D, int margin, int y, int lineHeight) {
-        for (HeaderFooterItem headerFooterItem : getHeaderItems()) {
-            graphics2D.drawString(headerFooterItem.value(), margin, y);
-            y += lineHeight;
-        }
-        return y;
-    }
-
-    protected int drawLineSeparator(Graphics2D graphics2D, int margin, int y, int width) {
-        graphics2D.setStroke(new BasicStroke(0.5f));
-        graphics2D.drawLine(margin, y, width, y);
-        y += 10;
-        return y;
-    }
-
-    protected int drawDate(Graphics2D graphics2D, int x, int y, int lineHeight) {
-        graphics2D.setFont(PLAIN_FONT);
-
-        graphics2D.drawString("Le " + LocalDate.now().format(DateTimeFormatter.ofPattern("dd/MM/yyyy")), x, y);
-        graphics2D.drawString("à " + LocalTime.now().format(DateTimeFormatter.ofPattern("HH:mm:ss")), x + 55, y);
-        y += lineHeight;
-        return y;
-    }
-
-    protected void drawThanksMessage(Graphics2D graphics2D, int margin, int y) {
-        if (StringUtils.hasLength(magasin.getNote())) {
-            graphics2D.setFont(PLAIN_FONT);
-            graphics2D.drawString("*** " + magasin.getNote() + " ***", margin, y);
-        }
-    }
 
     protected PrinterJob getPrinterJob(String hostName) throws PrinterException {
         String printerName = StringUtils.hasLength(hostName)
@@ -176,20 +86,6 @@ public abstract class AbstractJava2DReceiptPrinterService implements Printable {
         return printerJob;
     }
 
-    protected void drawAndCenterText(Graphics2D graphics2D, String text, int width, int margin, int y) {
-        int printWidth = width - (margin * 2);
-        FontMetrics fontMetrics = graphics2D.getFontMetrics();
-        int x = margin + (printWidth - fontMetrics.stringWidth(text)) / 3;
-        graphics2D.drawString(text, x, y);
-    }
-
-    protected void underlineText(Graphics2D graphics2D, String text, int width, int margin, int y) {
-        graphics2D.setStroke(new BasicStroke(0.5f));
-        FontMetrics fontMetrics = graphics2D.getFontMetrics();
-        int textWidth = fontMetrics.stringWidth(text);
-        int x = (width - textWidth) / 3;
-        graphics2D.drawLine(x, y, x + textWidth + margin, y);
-    }
 
     protected int getRightMargin() {
         return DEFAULT_WIDTH;
@@ -206,22 +102,6 @@ public abstract class AbstractJava2DReceiptPrinterService implements Printable {
         return PrintServiceLookup.lookupDefaultPrintService();
     }
 
-    private int drawMagasinInfoLine(
-        Graphics2D graphics2D,
-        String text,
-        int margin,
-        int y,
-        int lineHeight,
-        int printWidth,
-        FontMetrics fontMetrics
-    ) {
-        if (Objects.nonNull(text) && !text.isBlank()) {
-            int x = margin + (printWidth - fontMetrics.stringWidth(text)) / 3;
-            graphics2D.drawString(text, x, y);
-            y += lineHeight;
-        }
-        return y;
-    }
 
     // ============================================
     // ESC/POS Helper Methods (for thermal printing)
@@ -231,38 +111,39 @@ public abstract class AbstractJava2DReceiptPrinterService implements Printable {
      * Initialize printer (ESC @)
      */
     protected void escPosInitialize(java.io.ByteArrayOutputStream out) throws java.io.IOException {
-        out.write(new byte[] { 0x1B, 0x40 }); // ESC @
+        out.write(new byte[]{0x1B, 0x40}); // ESC @
     }
 
     /**
      * Set text alignment (ESC a n)
      */
     protected void escPosSetAlignment(java.io.ByteArrayOutputStream out, EscPosAlignment alignment) throws java.io.IOException {
-        out.write(new byte[] { 0x1B, 0x61, (byte) alignment.code }); // ESC a n
+        out.write(new byte[]{0x1B, 0x61, (byte) alignment.code}); // ESC a n
     }
 
     /**
      * Set bold mode (ESC E n)
      */
     protected void escPosSetBold(java.io.ByteArrayOutputStream out, boolean enable) throws java.io.IOException {
-        out.write(new byte[] { 0x1B, 0x45, (byte) (enable ? 1 : 0) }); // ESC E n
+        out.write(new byte[]{0x1B, 0x45, (byte) (enable ? 1 : 0)}); // ESC E n
     }
 
     /**
      * Set character size (GS ! n)
-     * @param width 1-8 (normal to 8x width)
+     *
+     * @param width  1-8 (normal to 8x width)
      * @param height 1-8 (normal to 8x height)
      */
     protected void escPosSetTextSize(java.io.ByteArrayOutputStream out, int width, int height) throws java.io.IOException {
         int size = ((width - 1) << 4) | (height - 1);
-        out.write(new byte[] { 0x1D, 0x21, (byte) size }); // GS ! n
+        out.write(new byte[]{0x1D, 0x21, (byte) size}); // GS ! n
     }
 
     /**
      * Feed n lines (ESC d n)
      */
     protected void escPosFeedLines(java.io.ByteArrayOutputStream out, int lines) throws java.io.IOException {
-        out.write(new byte[] { 0x1B, 0x64, (byte) lines }); // ESC d n
+        out.write(new byte[]{0x1B, 0x64, (byte) lines}); // ESC d n
     }
 
     /**
@@ -278,6 +159,7 @@ public abstract class AbstractJava2DReceiptPrinterService implements Printable {
 
     /**
      * Print separator line
+     *
      * @param length number of dashes (typically 48 for 80mm paper, 32 for 58mm)
      */
     protected void escPosPrintSeparator(java.io.ByteArrayOutputStream out, int length) throws java.io.IOException {
@@ -289,23 +171,25 @@ public abstract class AbstractJava2DReceiptPrinterService implements Printable {
      * Partial cut - leaves small connection for easy tearing
      */
     protected void escPosCutPaper(java.io.ByteArrayOutputStream out) throws java.io.IOException {
-        out.write(new byte[] { 0x1D, 0x56, 0x41, 0x00 }); // GS V A 0 - Partial cut
+        out.write(new byte[]{0x1D, 0x56, 0x41, 0x00}); // GS V A 0 - Partial cut
     }
 
     /**
      * Set underline mode (ESC - n)
+     *
      * @param mode 0=off, 1=1-dot thick, 2=2-dot thick
      */
     protected void escPosSetUnderline(java.io.ByteArrayOutputStream out, int mode) throws java.io.IOException {
-        out.write(new byte[] { 0x1B, 0x2D, (byte) mode }); // ESC - n
+        out.write(new byte[]{0x1B, 0x2D, (byte) mode}); // ESC - n
     }
 
     /**
      * Set line spacing (ESC 3 n)
+     *
      * @param spacing line spacing in dots (default is usually 30)
      */
     protected void escPosSetLineSpacing(java.io.ByteArrayOutputStream out, int spacing) throws java.io.IOException {
-        out.write(new byte[] { 0x1B, 0x33, (byte) spacing }); // ESC 3 n
+        out.write(new byte[]{0x1B, 0x33, (byte) spacing}); // ESC 3 n
     }
 
     /**
@@ -387,9 +271,9 @@ public abstract class AbstractJava2DReceiptPrinterService implements Printable {
      */
     protected void printEscPosFooter(java.io.ByteArrayOutputStream out) throws java.io.IOException {
         printEscPosFooter(out,
-            java.time.LocalDate.now().format(java.time.format.DateTimeFormatter.ofPattern("dd/MM/yyyy")) +
-            " " +
-            java.time.LocalTime.now().format(java.time.format.DateTimeFormatter.ofPattern("HH:mm:ss"))
+            LocalDate.now().format(java.time.format.DateTimeFormatter.ofPattern("dd/MM/yyyy")) +
+                " " +
+                LocalTime.now().format(java.time.format.DateTimeFormatter.ofPattern("HH:mm:ss"))
         );
     }
 
@@ -397,7 +281,7 @@ public abstract class AbstractJava2DReceiptPrinterService implements Printable {
      * Print common ESC/POS footer with custom timestamp
      * This allows subclasses to provide their own timestamp (e.g., sale timestamp)
      *
-     * @param out the output stream
+     * @param out       the output stream
      * @param timestamp the formatted timestamp to print
      * @throws IOException if writing fails
      */
@@ -442,8 +326,8 @@ public abstract class AbstractJava2DReceiptPrinterService implements Printable {
      * This method sends raw ESC/POS bytes directly to the printer without Graphics2D
      *
      * @param printerName the name of the printer (null for default printer)
-     * @param isEdit whether this is an edit print (affects number of copies)
-     * @throws IOException if ESC/POS generation fails
+     * @param isEdit      whether this is an edit print (affects number of copies)
+     * @throws IOException    if ESC/POS generation fails
      * @throws PrintException if printing fails
      */
     public void printEscPosDirect(String printerName, boolean isEdit) throws IOException, PrintException {
@@ -470,8 +354,8 @@ public abstract class AbstractJava2DReceiptPrinterService implements Printable {
      * Print ESC/POS receipt to a thermal printer via hostname lookup
      *
      * @param hostName the hostname to look up the printer
-     * @param isEdit whether this is an edit print
-     * @throws IOException if ESC/POS generation fails
+     * @param isEdit   whether this is an edit print
+     * @throws IOException    if ESC/POS generation fails
      * @throws PrintException if printing fails
      */
     public void printEscPosDirectByHost(String hostName, boolean isEdit) throws IOException, PrintException {
@@ -489,7 +373,7 @@ public abstract class AbstractJava2DReceiptPrinterService implements Printable {
      *
      * @param portName the serial port name (e.g., "COM1" on Windows, "/dev/ttyUSB0" on Linux)
      * @param baudRate the baud rate (typical values: 9600, 19200, 38400, 115200)
-     * @param isEdit whether this is an edit print
+     * @param isEdit   whether this is an edit print
      * @throws IOException if ESC/POS generation or serial communication fails
      */
     public void printEscPosToSerialPort(String portName, int baudRate, boolean isEdit) throws IOException {
@@ -528,8 +412,8 @@ public abstract class AbstractJava2DReceiptPrinterService implements Printable {
      * Print ESC/POS receipt to a network-connected thermal printer via TCP/IP socket
      *
      * @param ipAddress the printer's IP address
-     * @param port the printer's port (typically 9100 for raw printing)
-     * @param isEdit whether this is an edit print
+     * @param port      the printer's port (typically 9100 for raw printing)
+     * @param isEdit    whether this is an edit print
      * @throws IOException if ESC/POS generation or network communication fails
      */
     public void printEscPosToNetworkPrinter(String ipAddress, int port, boolean isEdit) throws IOException {
@@ -551,7 +435,7 @@ public abstract class AbstractJava2DReceiptPrinterService implements Printable {
     /**
      * Helper method to send raw bytes to a printer using Java Print Service
      *
-     * @param data the raw byte data to print
+     * @param data         the raw byte data to print
      * @param printService the print service to use
      * @throws PrintException if printing fails
      */
@@ -577,14 +461,15 @@ public abstract class AbstractJava2DReceiptPrinterService implements Printable {
      * This provides a flexible interface for printing with various options
      *
      * @param config the print configuration
-     * @throws IOException if ESC/POS generation fails
+     * @throws IOException    if ESC/POS generation fails
      * @throws PrintException if printing fails
      */
     public void printEscPosWithConfig(EscPosPrintConfig config) throws IOException, PrintException {
         switch (config.getPrintMethod()) {
             case JAVA_PRINT_SERVICE -> printEscPosDirect(config.getPrinterName(), config.isEdit());
             case SERIAL_PORT -> printEscPosToSerialPort(config.getSerialPort(), config.getBaudRate(), config.isEdit());
-            case NETWORK_SOCKET -> printEscPosToNetworkPrinter(config.getIpAddress(), config.getPort(), config.isEdit());
+            case NETWORK_SOCKET ->
+                printEscPosToNetworkPrinter(config.getIpAddress(), config.getPort(), config.isEdit());
             default -> throw new IllegalArgumentException("Unsupported print method: " + config.getPrintMethod());
         }
     }

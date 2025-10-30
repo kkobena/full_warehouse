@@ -120,8 +120,7 @@ import { KeyboardShortcutsService } from './racourci/keyboard-shortcuts.service'
     ConfirmDialogComponent,
     ToastAlertComponent,
     QuantiteProdutSaisieComponent,
-    ProduitSearchAutocompleteScannerComponent,
-    Tag
+    ProduitSearchAutocompleteScannerComponent
   ],
   templateUrl: './selling-home.component.html',
   styleUrl: './selling-home.component.scss'

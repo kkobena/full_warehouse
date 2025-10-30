@@ -50,7 +50,7 @@ $border-radius-sm: 6px;
 .assurance-data-wrapper {
   display: flex;
   flex-direction: column;
-  gap: 0.75rem;
+  gap: 0.5rem;
   width: 100%;
 }
 
@@ -91,12 +91,12 @@ $border-radius-sm: 6px;
 
 .customer-data-grid {
   display: flex;
-  gap: 0.75rem;
+  gap: 0.5rem;
   flex-wrap: nowrap;
   align-items: stretch;
   overflow-x: auto;
   overflow-y: hidden;
-  padding-bottom: 0.5rem;
+  padding-bottom: 0.15rem;
 
   // Custom scrollbar for horizontal scroll
   &::-webkit-scrollbar {
@@ -181,7 +181,7 @@ $border-radius-sm: 6px;
     display: flex;
     align-items: center;
     justify-content: space-between;
-    padding: 0.5rem 0.75rem;
+    padding: 0.175rem 0.425rem;
     border-bottom: 1px solid $gray-200;
     background: $gray-50;
 
@@ -207,17 +207,17 @@ $border-radius-sm: 6px;
   }
 
   .card-body {
-    padding: 0.5rem 0.75rem;
+    padding: 0.1rem 0.2rem;
     display: flex;
     flex-direction: column;
-    gap: 0.375rem;
+    gap: 0.25rem;
     flex: 1;
 
     .info-row {
       display: flex;
       justify-content: space-between;
       align-items: center;
-      padding: 0.25rem 0;
+      padding: 0.2rem 0;
       border-bottom: 1px solid $gray-100;
 
       &:last-child {
@@ -250,7 +250,7 @@ $border-radius-sm: 6px;
   }
 
   .card-footer {
-    padding: 0.5rem 0.75rem;
+    padding: 0.375rem 0.625rem;
     background: $gray-50;
     border-top: 1px solid $gray-200;
 
@@ -277,6 +277,7 @@ $border-radius-sm: 6px;
 
 .assured-card {
   .card-header {
+    padding: 0;
     background: linear-gradient(135deg, $pharma-primary-light 0%, lighten($pharma-primary-light, 3%) 100%);
     border-bottom-color: lighten($pharma-primary, 30%);
 
@@ -323,14 +324,14 @@ $border-radius-sm: 6px;
 
 .tiers-payant-card {
   .tp-header {
-    padding: 0.5rem 0.75rem;
+    padding: 0.375rem 0.625rem;
     background: linear-gradient(135deg, $pharma-info-light 0%, lighten($pharma-info-light, 3%) 100%);
     border-bottom: 1px solid lighten($pharma-info, 30%);
     display: flex;
     flex-wrap: nowrap;
     align-items: center;
     justify-content: space-between;
-    gap: 0.5rem;
+    gap: 0.375rem;
 
     .tp-title {
       display: flex;
@@ -398,9 +399,12 @@ $border-radius-sm: 6px;
   }
 
   .tp-input-section {
-    padding: 0.5rem 0.75rem;
+    padding: 0.175rem 0.625rem;
 
     ::ng-deep .p-inputgroup {
+      display: flex;
+      align-items: stretch;
+
       .p-inputgroup-addon {
         background: $gray-100;
         border-color: $gray-300;
@@ -410,9 +414,15 @@ $border-radius-sm: 6px;
         display: flex;
         align-items: center;
         gap: 0.25rem;
+        padding: 0 0.5rem;
+        height: 28px;
+        min-height: 28px;
+        max-height: 28px;
+        box-sizing: border-box;
 
         i {
           color: $pharma-info;
+          font-size: 0.7rem;
         }
       }
 
@@ -421,7 +431,7 @@ $border-radius-sm: 6px;
         font-weight: 500;
         border-color: $gray-300;
         transition: all 0.2s ease;
-        padding: 0.4rem 0.5rem;
+        padding: 0.1rem 0.5rem;
 
         &:focus {
           border-color: $pharma-primary;
@@ -495,7 +505,7 @@ $border-radius-sm: 6px;
 
   .data-card {
     .card-header {
-      padding: 0.375rem 0.5rem;
+      padding:0;
 
       .header-title {
         font-size: 0.7rem;
@@ -503,11 +513,11 @@ $border-radius-sm: 6px;
     }
 
     .card-body {
-      padding: 0.375rem 0.5rem;
+      padding: 0.1rem 0.2rem;
     }
 
     .card-footer {
-      padding: 0.375rem 0.5rem;
+      padding: 0.3rem 0.5rem;
 
       .change-customer-btn {
         ::ng-deep .p-button {
@@ -529,14 +539,14 @@ $border-radius-sm: 6px;
     }
 
     .tp-input-section {
-      padding: 0.375rem 0.5rem;
+      padding: 0.3rem 0.5rem;
     }
   }
 }
 
 @media (max-width: 768px) {
   .assurance-data-wrapper {
-    gap: 0.375rem;
+    gap: 0.25rem;
   }
 
   .customer-data-grid {
@@ -565,8 +575,8 @@ $border-radius-sm: 6px;
   .data-card {
     .card-header {
       flex-wrap: wrap;
-      gap: 0.375rem;
-      padding: 0.4rem 0.5rem;
+      gap: 0.25rem;
+      padding: 0.3rem 0.4rem;
 
       .header-title {
         font-size: 0.75rem;
@@ -574,13 +584,13 @@ $border-radius-sm: 6px;
     }
 
     .card-body {
-      padding: 0.4rem 0.5rem;
+      padding: 0.1rem 0.2rem;
 
       .info-row {
         flex-direction: column;
         align-items: flex-start;
-        gap: 0.2rem;
-        padding: 0.25rem 0;
+        gap: 0.15rem;
+        padding: 0.1rem 0;
 
         .info-value {
           text-align: left;
@@ -589,7 +599,7 @@ $border-radius-sm: 6px;
     }
 
     .card-footer {
-      padding: 0.4rem 0.5rem;
+      padding: 0.3rem 0.4rem;
 
       .change-customer-btn {
         ::ng-deep .p-button {
@@ -602,7 +612,7 @@ $border-radius-sm: 6px;
 
   .tiers-payant-card {
     .tp-header {
-      padding: 0.375rem 0.5rem;
+      padding: 0.3rem 0.4rem;
       flex-wrap: nowrap;
 
       .tp-title {
@@ -622,7 +632,7 @@ $border-radius-sm: 6px;
     }
 
     .tp-input-section {
-      padding: 0.4rem 0.5rem;
+      padding: 0.3rem 0.4rem;
     }
   }
 }

@@ -8,26 +8,23 @@ import com.kobe.warehouse.service.tiketz.dto.TicketZ;
 import com.kobe.warehouse.service.tiketz.dto.TicketZData;
 import com.kobe.warehouse.service.tiketz.dto.TicketZRecap;
 import com.kobe.warehouse.service.utils.DateUtil;
-import java.awt.FontMetrics;
-import java.awt.Graphics;
-import java.awt.Graphics2D;
-import java.awt.RenderingHints;
-import java.awt.print.PageFormat;
-import java.awt.print.PrinterException;
-import java.time.LocalDateTime;
-import java.util.List;
-import java.util.Objects;
-import java.util.concurrent.atomic.AtomicInteger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
 
+import javax.print.PrintException;
+import java.awt.*;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.time.LocalDateTime;
+import java.util.List;
+import java.util.concurrent.atomic.AtomicInteger;
+
 @Service
 public abstract class AbstractTicketZService extends AbstractJava2DReceiptPrinterService {
-
-    //38 *21,2
-    //   private int itemSize = 0;
+    private static final Logger LOG = LoggerFactory.getLogger(AbstractTicketZService.class);
     private String periode;
-    private TicketZ ticket;
     private List<TicketZItem> ticketZItems;
 
     protected AbstractTicketZService(AppConfigurationService appConfigurationService, PrinterRepository printerRepository) {
@@ -39,105 +36,13 @@ public abstract class AbstractTicketZService extends AbstractJava2DReceiptPrinte
         return 1; // Default to 1 copy, can be overridden by subclasses if needed
     }
 
-    protected void print(String hostName, TicketZ ticket, LocalDateTime from, LocalDateTime to) throws PrinterException {
-        this.ticket = ticket;
-        this.ticketZItems = buildTicketZItems(ticket);
-        this.periode = "DU " + DateUtil.format(from) + " AU " + DateUtil.format(to);
-        print(hostName);
-    }
 
     @Override
     protected List<HeaderFooterItem> getHeaderItems() {
         return List.of(new HeaderFooterItem("RECAPITULATIF DE CAISSE DU " + periode, 1, null));
     }
 
-    // @Override
-    public int print__(Graphics graphics, PageFormat pageFormat, int pageIndex) throws PrinterException {
-        if (pageIndex == 0) {
-            Graphics2D graphics2D = (Graphics2D) graphics;
-            graphics2D.translate(pageFormat.getImageableX(), pageFormat.getImageableY());
 
-            int lineHeight = DEFAULT_LINE_HEIGHT;
-
-            int y = lineHeight;
-            y = drawCompagnyInfo(graphics2D, DEFAULT_MARGIN, y);
-            y = drawHeader(graphics2D, DEFAULT_MARGIN, y, lineHeight);
-
-            FontMetrics fontMetrics;
-            List<TicketZData> summaries = ticket.summaries();
-            List<TicketZRecap> datas = ticket.datas();
-            for (TicketZRecap ticketZRecap : datas) {
-                graphics2D.setFont(BOLD_FONT);
-                graphics2D.drawString("Caisse de : " + ticketZRecap.userName(), DEFAULT_MARGIN, y);
-                graphics2D.setFont(PLAIN_FONT);
-                y += lineHeight;
-                for (TicketZData data : ticketZRecap.datas()) {
-                    graphics2D.drawString(data.libelle(), DEFAULT_MARGIN, y);
-                    fontMetrics = graphics2D.getFontMetrics();
-                    String montant = data.montant();
-                    graphics2D.drawString(montant, DEFAULT_WIDTH - fontMetrics.stringWidth(montant), y);
-                    y += lineHeight;
-                }
-                List<TicketZData> summariesUser = ticketZRecap.summary();
-                if (!CollectionUtils.isEmpty(summariesUser)) {
-                    graphics2D.setFont(BOLD_FONT);
-                    fontMetrics = graphics2D.getFontMetrics();
-                    for (TicketZData sum : summariesUser) {
-                        graphics2D.drawString(sum.libelle(), DEFAULT_MARGIN, y);
-                        String montant = sum.montant();
-                        graphics2D.drawString(montant, DEFAULT_WIDTH - fontMetrics.stringWidth(montant), y);
-                        y += lineHeight;
-                    }
-                }
-                y += lineHeight;
-            }
-            graphics2D.setFont(BOLD_FONT);
-            for (TicketZData summary : summaries) {
-                graphics2D.drawString(summary.libelle(), DEFAULT_MARGIN, y);
-                fontMetrics = graphics2D.getFontMetrics();
-                String montant = summary.montant();
-                graphics2D.drawString(montant, DEFAULT_WIDTH - fontMetrics.stringWidth(montant), y);
-                y += lineHeight;
-            }
-        }
-        return PAGE_EXISTS;
-    }
-
-    @Override
-    public int print(Graphics graphics, PageFormat pageFormat, int pageIndex) throws PrinterException {
-        Graphics2D graphics2D = (Graphics2D) graphics;
-        graphics2D.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
-        graphics2D.translate(pageFormat.getImageableX(), pageFormat.getImageableY());
-
-        int lineHeight = DEFAULT_LINE_HEIGHT;
-        int maximumLinesPerPage = getMaximumLinesPerPage();
-        int itemsSize = ticketZItems.size();
-        int totalPages = (int) Math.ceil((double) itemsSize / maximumLinesPerPage);
-        if (pageIndex >= totalPages) {
-            return NO_SUCH_PAGE;
-        }
-
-        int sartItemIndex = pageIndex * maximumLinesPerPage;
-        int endItemIndex = Math.min(sartItemIndex + maximumLinesPerPage, itemsSize);
-        //  boolean isLastPage = pageIndex == totalPages - 1;
-        int y = lineHeight;
-        y = drawCompagnyInfo(graphics2D, DEFAULT_MARGIN, y);
-        y = drawWelcomeMessage(graphics2D, DEFAULT_MARGIN, y);
-        FontMetrics fontMetrics;
-
-        for (int i = sartItemIndex; i < endItemIndex; i++) {
-            TicketZItem item = ticketZItems.get(i);
-            graphics2D.setFont(item.font());
-            fontMetrics = graphics2D.getFontMetrics(item.font());
-            graphics2D.drawString(item.column1(), DEFAULT_MARGIN, y);
-            if (Objects.nonNull(item.column2())) {
-                graphics2D.drawString(item.column2(), DEFAULT_WIDTH - fontMetrics.stringWidth(item.column2()), y);
-            }
-            y += (lineHeight * item.lineBreakNumber());
-        }
-
-        return PAGE_EXISTS;
-    }
 
     private List<TicketZItem> buildTicketZItems(TicketZ ticket) {
         List<TicketZItem> items = new java.util.ArrayList<>();
@@ -147,7 +52,7 @@ public abstract class AbstractTicketZService extends AbstractJava2DReceiptPrinte
         datas.forEach(data -> {
             count.incrementAndGet();
             new TicketZItem(data.userName(), null, 1, BOLD_FONT);
-            items.add(new TicketZItem("Caisse de : " + data.userName(), null, 1, BOLD_FONT));
+            items.add(new TicketZItem("CAISSE DE : " + data.userName(), null, 1, BOLD_FONT));
             data
                 .datas()
                 .forEach(d -> {
@@ -169,4 +74,59 @@ public abstract class AbstractTicketZService extends AbstractJava2DReceiptPrinte
 
         return items;
     }
+
+    public void printTicketZ(String hostName, TicketZ ticket, LocalDateTime from, LocalDateTime to) {
+        this.ticketZItems = buildTicketZItems(ticket);
+        this.periode = "DU " + DateUtil.format(from) + " AU " + DateUtil.format(to);
+        try {
+            // Use direct ESC/POS printing for better performance and reliability
+            printEscPosDirectByHost(hostName, false);
+        } catch (IOException | PrintException e) {
+            LOG.error("Error while printing ESC/POS Ticket Z: {}", e.getMessage(), e);
+        }
+    }
+    @Override
+    protected byte[] generateEscPosReceipt(boolean isEdit) throws IOException {
+        magasin = appConfigurationService.getMagasin();
+        ByteArrayOutputStream out = new ByteArrayOutputStream();
+
+        try {
+            // Print common company header
+            printEscPosCompanyHeader(out);
+
+            // Separator line
+            escPosPrintSeparator(out, 48);
+
+            // Print all ticket Z items
+            for (TicketZItem item : ticketZItems) {
+                // Set bold based on font
+                boolean isBold = item.font().equals(BOLD_FONT);
+                escPosSetBold(out, isBold);
+
+                // Format the line
+                if (item.column2() != null) {
+                    // Two columns - left and right aligned
+                    escPosPrintLine(out, String.format("%-37s %10s", item.column1(), item.column2()));
+                } else {
+                    // Single column - left aligned
+                    escPosPrintLine(out, item.column1());
+                }
+
+                // Add extra line breaks if specified
+                if (item.lineBreakNumber() > 1) {
+                    escPosFeedLines(out, item.lineBreakNumber() - 1);
+                }
+            }
+
+            // Print common footer
+            printEscPosFooter(out);
+
+            return out.toByteArray();
+        } catch (Exception e) {
+            throw new IOException("Failed to generate ESC/POS Ticket Z: " + e.getMessage(), e);
+        } finally {
+            out.close();
+        }
+    }
+
 }

@@ -1,4 +1,4 @@
-import { Component, computed, inject, output, Signal, viewChild } from '@angular/core';
+import { Component, computed, inject, output, Signal, viewChild, ViewEncapsulation } from '@angular/core';
 import { TableModule } from 'primeng/table';
 import { ISalesLine } from '../../../../shared/model/sales-line.model';
 import { WarehouseCommonModule } from '../../../../shared/warehouse-common/warehouse-common.module';
@@ -45,6 +45,7 @@ import { IconField } from 'primeng/iconfield';
   ],
   templateUrl: './product-table.component.html',
   styleUrls: ['./styles-table-produits.scss'],
+  encapsulation: ViewEncapsulation.None,
 })
 export class ProductTableComponent {
   readonly itemQtySoldEvent = output<ISalesLine>();

@@ -1,5 +1,6 @@
 package com.kobe.warehouse.service.receipt.service;
 
+import com.fazecast.jSerialComm.SerialPort;
 import com.kobe.warehouse.domain.Magasin;
 import com.kobe.warehouse.domain.Printer;
 import com.kobe.warehouse.repository.PrinterRepository;
@@ -16,13 +17,24 @@ import java.awt.print.Printable;
 import java.awt.print.PrinterException;
 import java.awt.print.PrinterJob;
 import java.io.IOException;
+import java.io.OutputStream;
+import java.net.Socket;
 import java.time.LocalDate;
 import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.Objects;
+import javax.print.Doc;
+import javax.print.DocFlavor;
+import javax.print.DocPrintJob;
+import javax.print.PrintException;
 import javax.print.PrintService;
 import javax.print.PrintServiceLookup;
+import javax.print.SimpleDoc;
+import javax.print.attribute.HashPrintRequestAttributeSet;
+import javax.print.attribute.PrintRequestAttributeSet;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 
@@ -43,9 +55,10 @@ public abstract class AbstractJava2DReceiptPrinterService implements Printable {
     protected static final Font BOLD_FONT = new Font("Arial, sans-serif", Font.BOLD, DEFAULT_FONT_SIZE);
     protected static final Font PLAIN_FONT = new Font("Arial, sans-serif", Font.PLAIN, DEFAULT_FONT_SIZE);
     protected static final int DEFAULT_WIDTH = ((int) ((8 / 2.54) * 72)) - (DEFAULT_MARGIN * 2); // 8cm soit 80mm
+    private static final Logger LOG = LoggerFactory.getLogger(AbstractJava2DReceiptPrinterService.class);
     //38 *21,2
-    private final AppConfigurationService appConfigurationService;
-    private final PrinterRepository printerRepository;
+    protected final AppConfigurationService appConfigurationService;
+    protected final PrinterRepository printerRepository;
     protected Magasin magasin;
     protected Printer printer;
 
@@ -71,8 +84,6 @@ public abstract class AbstractJava2DReceiptPrinterService implements Printable {
     protected abstract List<HeaderFooterItem> getFooterItems();
 
     protected abstract int getNumberOfCopies();
-
-    protected abstract List<byte[]> generateTicket() throws IOException;
 
     protected int drawWelcomeMessage(Graphics2D graphics2D, int margin, int y) {
         if (StringUtils.hasText(magasin.getWelcomeMessage())) {
@@ -325,6 +336,172 @@ public abstract class AbstractJava2DReceiptPrinterService implements Printable {
     }
 
     /**
+     * Generate ESC/POS receipt data
+     * Subclasses must implement this method to generate their specific receipt format
+     *
+     * @param isEdit whether this is an edit print (affects number of copies)
+     * @return byte array containing ESC/POS commands
+     * @throws IOException if generation fails
+     */
+    protected abstract byte[] generateEscPosReceipt(boolean isEdit) throws IOException;
+
+    // ============================================
+    // Abstract method for ESC/POS receipt generation
+    // ============================================
+
+    /**
+     * Print ESC/POS receipt directly to a thermal printer using Java Print Service
+     * This method sends raw ESC/POS bytes directly to the printer without Graphics2D
+     *
+     * @param printerName the name of the printer (null for default printer)
+     * @param isEdit whether this is an edit print (affects number of copies)
+     * @throws IOException if ESC/POS generation fails
+     * @throws PrintException if printing fails
+     */
+    public void printEscPosDirect(String printerName, boolean isEdit) throws IOException, PrintException {
+        // Generate ESC/POS byte array
+        byte[] escPosData = generateEscPosReceipt(isEdit);
+
+        // Get the print service
+        PrintService printService = getPrintService(printerName);
+        if (printService == null) {
+            throw new PrintException("Printer not found: " + printerName);
+        }
+
+        // Send raw bytes to printer
+        printRawBytesToPrinter(escPosData, printService);
+
+        LOG.info("ESC/POS receipt printed successfully to: {}", printService.getName());
+    }
+
+    // ============================================
+    // Direct ESC/POS Printing Methods (No Graphics2D)
+    // ============================================
+
+    /**
+     * Print ESC/POS receipt to a thermal printer via hostname lookup
+     *
+     * @param hostName the hostname to look up the printer
+     * @param isEdit whether this is an edit print
+     * @throws IOException if ESC/POS generation fails
+     * @throws PrintException if printing fails
+     */
+    public void printEscPosDirectByHost(String hostName, boolean isEdit) throws IOException, PrintException {
+        String printerName = printer != null ? printer.getName() : null;
+        if (hostName != null && !hostName.isEmpty()) {
+            printer = printerRepository.findByPosteName(hostName).orElse(null);
+            printerName = printer != null ? printer.getName() : null;
+        }
+        printEscPosDirect(printerName, isEdit);
+    }
+
+    /**
+     * Print ESC/POS receipt directly to a serial port thermal printer
+     * Uses jSerialComm library for serial communication
+     *
+     * @param portName the serial port name (e.g., "COM1" on Windows, "/dev/ttyUSB0" on Linux)
+     * @param baudRate the baud rate (typical values: 9600, 19200, 38400, 115200)
+     * @param isEdit whether this is an edit print
+     * @throws IOException if ESC/POS generation or serial communication fails
+     */
+    public void printEscPosToSerialPort(String portName, int baudRate, boolean isEdit) throws IOException {
+        // Generate ESC/POS byte array
+        byte[] escPosData = generateEscPosReceipt(isEdit);
+
+        // Open serial port
+        SerialPort serialPort = SerialPort.getCommPort(portName);
+        serialPort.setBaudRate(baudRate);
+        serialPort.setNumDataBits(8);
+        serialPort.setNumStopBits(1);
+        serialPort.setParity(SerialPort.NO_PARITY);
+        serialPort.setComPortTimeouts(SerialPort.TIMEOUT_WRITE_BLOCKING, 0, 0);
+
+        if (!serialPort.openPort()) {
+            throw new IOException("Failed to open serial port: " + portName);
+        }
+
+        try {
+            // Write ESC/POS data to serial port
+            int bytesWritten = serialPort.writeBytes(escPosData, escPosData.length);
+
+            if (bytesWritten != escPosData.length) {
+                throw new IOException(
+                    String.format("Failed to write all bytes to serial port. Written: %d, Expected: %d", bytesWritten, escPosData.length)
+                );
+            }
+
+            LOG.info("ESC/POS receipt printed successfully to serial port: {} at {} baud", portName, baudRate);
+        } finally {
+            serialPort.closePort();
+        }
+    }
+
+    /**
+     * Print ESC/POS receipt to a network-connected thermal printer via TCP/IP socket
+     *
+     * @param ipAddress the printer's IP address
+     * @param port the printer's port (typically 9100 for raw printing)
+     * @param isEdit whether this is an edit print
+     * @throws IOException if ESC/POS generation or network communication fails
+     */
+    public void printEscPosToNetworkPrinter(String ipAddress, int port, boolean isEdit) throws IOException {
+        // Generate ESC/POS byte array
+        byte[] escPosData = generateEscPosReceipt(isEdit);
+
+        // Connect to network printer and send data
+        try (Socket socket = new Socket(ipAddress, port); OutputStream out = socket.getOutputStream()) {
+            out.write(escPosData);
+            out.flush();
+
+            LOG.info("ESC/POS receipt printed successfully to network printer: {}:{}", ipAddress, port);
+        } catch (IOException e) {
+            LOG.error("Failed to print to network printer {}:{} - {}", ipAddress, port, e.getMessage());
+            throw new IOException("Failed to print to network printer at " + ipAddress + ":" + port, e);
+        }
+    }
+
+    /**
+     * Helper method to send raw bytes to a printer using Java Print Service
+     *
+     * @param data the raw byte data to print
+     * @param printService the print service to use
+     * @throws PrintException if printing fails
+     */
+    private void printRawBytesToPrinter(byte[] data, PrintService printService) throws PrintException {
+        // Create a DocFlavor for raw bytes
+        DocFlavor flavor = DocFlavor.BYTE_ARRAY.AUTOSENSE;
+
+        // Create a Doc with the ESC/POS data
+        Doc doc = new SimpleDoc(data, flavor, null);
+
+        // Create a print job
+        DocPrintJob printJob = printService.createPrintJob();
+
+        // Create print request attributes (empty for raw printing)
+        PrintRequestAttributeSet attributes = new HashPrintRequestAttributeSet();
+
+        // Print the document
+        printJob.print(doc, attributes);
+    }
+
+    /**
+     * Print ESC/POS receipt with custom configuration
+     * This provides a flexible interface for printing with various options
+     *
+     * @param config the print configuration
+     * @throws IOException if ESC/POS generation fails
+     * @throws PrintException if printing fails
+     */
+    public void printEscPosWithConfig(EscPosPrintConfig config) throws IOException, PrintException {
+        switch (config.getPrintMethod()) {
+            case JAVA_PRINT_SERVICE -> printEscPosDirect(config.getPrinterName(), config.isEdit());
+            case SERIAL_PORT -> printEscPosToSerialPort(config.getSerialPort(), config.getBaudRate(), config.isEdit());
+            case NETWORK_SOCKET -> printEscPosToNetworkPrinter(config.getIpAddress(), config.getPort(), config.isEdit());
+            default -> throw new IllegalArgumentException("Unsupported print method: " + config.getPrintMethod());
+        }
+    }
+
+    /**
      * ESC/POS Alignment enumeration
      */
     protected enum EscPosAlignment {
@@ -336,6 +513,109 @@ public abstract class AbstractJava2DReceiptPrinterService implements Printable {
 
         EscPosAlignment(int code) {
             this.code = code;
+        }
+    }
+
+    /**
+     * Configuration class for ESC/POS printing
+     */
+    public static class EscPosPrintConfig {
+
+        private PrintMethod printMethod;
+        private String printerName;
+        private String serialPort;
+        private int baudRate = 9600;
+        private String ipAddress;
+        private int port = 9100;
+        private boolean isEdit;
+
+        // Fluent builder methods
+        public static EscPosPrintConfig forPrintService(String printerName, boolean isEdit) {
+            EscPosPrintConfig config = new EscPosPrintConfig();
+            config.setPrintMethod(PrintMethod.JAVA_PRINT_SERVICE);
+            config.setPrinterName(printerName);
+            config.setEdit(isEdit);
+            return config;
+        }
+
+        public static EscPosPrintConfig forSerialPort(String portName, int baudRate, boolean isEdit) {
+            EscPosPrintConfig config = new EscPosPrintConfig();
+            config.setPrintMethod(PrintMethod.SERIAL_PORT);
+            config.setSerialPort(portName);
+            config.setBaudRate(baudRate);
+            config.setEdit(isEdit);
+            return config;
+        }
+
+        public static EscPosPrintConfig forNetworkPrinter(String ipAddress, int port, boolean isEdit) {
+            EscPosPrintConfig config = new EscPosPrintConfig();
+            config.setPrintMethod(PrintMethod.NETWORK_SOCKET);
+            config.setIpAddress(ipAddress);
+            config.setPort(port);
+            config.setEdit(isEdit);
+            return config;
+        }
+
+        public PrintMethod getPrintMethod() {
+            return printMethod;
+        }
+
+        public void setPrintMethod(PrintMethod printMethod) {
+            this.printMethod = printMethod;
+        }
+
+        public String getPrinterName() {
+            return printerName;
+        }
+
+        public void setPrinterName(String printerName) {
+            this.printerName = printerName;
+        }
+
+        public String getSerialPort() {
+            return serialPort;
+        }
+
+        public void setSerialPort(String serialPort) {
+            this.serialPort = serialPort;
+        }
+
+        public int getBaudRate() {
+            return baudRate;
+        }
+
+        public void setBaudRate(int baudRate) {
+            this.baudRate = baudRate;
+        }
+
+        public String getIpAddress() {
+            return ipAddress;
+        }
+
+        public void setIpAddress(String ipAddress) {
+            this.ipAddress = ipAddress;
+        }
+
+        public int getPort() {
+            return port;
+        }
+
+        public void setPort(int port) {
+            this.port = port;
+        }
+
+        public boolean isEdit() {
+            return isEdit;
+        }
+
+        public void setEdit(boolean edit) {
+            isEdit = edit;
+        }
+
+        public enum PrintMethod {
+            JAVA_PRINT_SERVICE,
+            SERIAL_PORT,
+            NETWORK_SOCKET,
         }
     }
 }

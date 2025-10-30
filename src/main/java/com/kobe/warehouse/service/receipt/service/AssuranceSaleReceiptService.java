@@ -18,10 +18,10 @@ import com.kobe.warehouse.service.utils.NumberUtil;
 import java.awt.Font;
 import java.awt.FontMetrics;
 import java.awt.Graphics2D;
-import java.awt.print.PrinterException;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import javax.print.PrintException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
@@ -76,12 +76,13 @@ public class AssuranceSaleReceiptService extends AbstractSaleReceiptService {
 
     public void printReceipt(String hostName, ThirdPartySaleDTO thirdPartySale, boolean isEdit) {
         this.isEdit = isEdit;
-
         this.thirdPartySale = thirdPartySale;
+
         try {
-            print(hostName);
-        } catch (PrinterException e) {
-            LOG.error("Error while printing receipt: {}", e.getMessage());
+            // Use direct ESC/POS printing for better performance and reliability
+            printEscPosDirectByHost(hostName, isEdit);
+        } catch (IOException | PrintException e) {
+            LOG.error("Error while printing ESC/POS receipt: {}", e.getMessage(), e);
         }
     }
 
@@ -305,22 +306,6 @@ public class AssuranceSaleReceiptService extends AbstractSaleReceiptService {
             return name;
         }
         return name.substring(0, 28);
-    }
-
-    /**
-     * Generate assurance receipt as byte arrays for Tauri clients
-     * <p>
-     * This method is specifically designed for Tauri clients that need to print
-     * receipts on a different machine from the backend server
-     *
-     * @param sale the third-party/assurance sale to generate receipt for
-     * @return list of byte arrays representing receipt pages as PNG images
-     * @throws IOException if image generation fails
-     */
-    public List<byte[]> generateTicketForTauri(ThirdPartySaleDTO sale) throws IOException {
-        this.thirdPartySale = sale;
-        this.isEdit = false;
-        return generateTicket();
     }
 
     /**

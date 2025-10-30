@@ -166,19 +166,4 @@ public class SalesDataResource {
             return ResponseEntity.internalServerError().build();
         }
     }
-
-    @GetMapping("/sales/assurance/receipt/tauri/{id}/{saleDate}")
-    public ResponseEntity<List<byte[]>> getAssuranceReceiptForTauri(
-        @PathVariable("id") Long id,
-        @PathVariable("saleDate") LocalDate saleDate
-    ) {
-        log.debug("REST request to get assurance receipt for Tauri client: sale id {}, date {}", id, saleDate);
-        try {
-            List<byte[]> receiptPages = saleReceiptService.generateVoTicketForTauri(new SaleId(id, saleDate));
-            return ResponseEntity.ok().header(HttpHeaders.CONTENT_TYPE, "application/json").body(receiptPages);
-        } catch (IOException e) {
-            log.error("Error generating assurance receipt for Tauri client", e);
-            return ResponseEntity.internalServerError().build();
-        }
-    }
 }

@@ -12,13 +12,11 @@ import com.kobe.warehouse.service.receipt.dto.CashSaleReceiptItem;
 import com.kobe.warehouse.service.receipt.dto.HeaderFooterItem;
 import com.kobe.warehouse.service.receipt.dto.SaleReceiptItem;
 import com.kobe.warehouse.service.utils.NumberUtil;
-import java.awt.Color;
 import java.awt.Font;
 import java.awt.FontMetrics;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.RenderingHints;
-import java.awt.image.BufferedImage;
 import java.awt.print.PageFormat;
 import java.awt.print.PrinterException;
 import java.io.ByteArrayOutputStream;
@@ -26,13 +24,15 @@ import java.io.IOException;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
-import javax.imageio.ImageIO;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
 
 @Service
 public abstract class AbstractSaleReceiptService extends AbstractJava2DReceiptPrinterService {
 
+    private static final Logger LOG = LoggerFactory.getLogger(AbstractSaleReceiptService.class);
     private final AppConfigurationService appConfigurationService;
 
     protected AbstractSaleReceiptService(AppConfigurationService appConfigurationService, PrinterRepository printerRepository) {
@@ -94,87 +94,6 @@ public abstract class AbstractSaleReceiptService extends AbstractJava2DReceiptPr
         graphics2D.drawString(total, getRightMargin() - fontMetrics.stringWidth(total), y);
         y += 10;
         return y;
-    }
-
-    /**
-     * Generate receipt as list of byte arrays for Tauri printing
-     * This method creates PNG images for each page of the receipt
-     * that can be sent to Tauri clients running on different machines
-     *
-     * @return List of byte arrays, each representing a page as PNG image
-     * @throws IOException if image generation fails
-     */
-    @Override
-    public List<byte[]> generateTicket() throws IOException {
-        List<? extends SaleReceiptItem> items = this.getItems();
-        int linesPerPage = getMaximumLinesPerPage();
-        List<byte[]> pages = new ArrayList<>();
-
-        int totalPages = (int) Math.ceil(items.size() / (double) linesPerPage);
-
-        // Scale factor for high-resolution printing (300 DPI vs 72 DPI = ~4x)
-        final int SCALE_FACTOR = 2;
-
-        for (int pageNum = 0; pageNum < totalPages; pageNum++) {
-            int startItemIndex = pageNum * linesPerPage;
-            int endItemIndex = Math.min(startItemIndex + linesPerPage, items.size());
-            boolean isLastPage = pageNum == totalPages - 1;
-
-            // Calculate page height dynamically based on content
-            int estimatedHeight = estimatePageHeight(endItemIndex - startItemIndex, isLastPage);
-
-            // Create buffered image with high resolution for better print quality
-            BufferedImage image = new BufferedImage(
-                (DEFAULT_WIDTH + (DEFAULT_MARGIN * 2)) * SCALE_FACTOR,
-                estimatedHeight * SCALE_FACTOR,
-                BufferedImage.TYPE_BYTE_GRAY // au lieu de TYPE_INT_RGB
-                // BufferedImage.TYPE_INT_RGB  // Better quality than TYPE_BYTE_GRAY
-            );
-            Graphics2D g2d = image.createGraphics();
-
-            // Scale the graphics context for high-resolution rendering
-            g2d.scale(SCALE_FACTOR, SCALE_FACTOR);
-
-            // Set rendering hints for better quality
-            g2d.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
-            g2d.setRenderingHint(RenderingHints.KEY_TEXT_ANTIALIASING, RenderingHints.VALUE_TEXT_ANTIALIAS_ON);
-            g2d.setRenderingHint(RenderingHints.KEY_RENDERING, RenderingHints.VALUE_RENDER_QUALITY);
-            g2d.setRenderingHint(RenderingHints.KEY_INTERPOLATION, RenderingHints.VALUE_INTERPOLATION_BICUBIC);
-
-            // White background
-            g2d.setColor(Color.WHITE);
-            g2d.fillRect(0, 0, image.getWidth(), image.getHeight());
-            g2d.setColor(Color.BLACK);
-
-            int y = DEFAULT_LINE_HEIGHT;
-
-            // Draw receipt header (only on first page or all pages based on preference)
-            if (pageNum == 0) {
-                y = drawReceiptHeader(g2d, y, DEFAULT_LINE_HEIGHT);
-            } else {
-                // For subsequent pages, draw minimal header
-                y = drawTableHeader(g2d, DEFAULT_MARGIN, y);
-                y = drawLineSeparator(g2d, DEFAULT_MARGIN, y, DEFAULT_WIDTH);
-            }
-
-            // Draw items for this page
-            y = drawReceiptItems(g2d, y, startItemIndex, endItemIndex, DEFAULT_LINE_HEIGHT);
-
-            // Draw summary only on last page
-            if (isLastPage) {
-                y = drawReceiptSummary(g2d, y, DEFAULT_LINE_HEIGHT);
-            }
-
-            g2d.dispose();
-
-            // Convert image to PNG byte array
-            try (ByteArrayOutputStream baos = new ByteArrayOutputStream()) {
-                ImageIO.write(image, "png", baos);
-                pages.add(baos.toByteArray());
-            }
-        }
-
-        return pages;
     }
 
     /**

@@ -500,7 +500,7 @@ public class SaleDataService {
     }
 
     public void printReceipt(SaleId saleId, boolean isEdit) {
-        Sales sales = fetchById(saleId, isEdit);
+        Sales sales = fetchById(saleId, false);
         if (sales instanceof CashSale g) {
             receiptPrinterService.printCashSale(new CashSaleDTO(g), isEdit);
         } else if (sales instanceof ThirdPartySales thirdPartySales) {

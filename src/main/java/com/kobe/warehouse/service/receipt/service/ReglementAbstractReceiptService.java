@@ -11,11 +11,17 @@ import java.awt.print.PrinterException;
 import java.util.List;
 import org.springframework.stereotype.Service;
 
+/**
+ * Abstract base class for payment receipt services (Invoice, Differe, etc.)
+ * This class provides the Graphics2D-based printing implementation.
+ * Subclasses must implement generateEscPosReceipt() for direct thermal printing.
+ */
+
 @Service
 public abstract class ReglementAbstractReceiptService extends AbstractJava2DReceiptPrinterService {
 
-    protected static final String MONTANT_ATTENDU = "Montant attendu";
-    protected static final String NOMBRE_DOSSIER = "Nombre de dossiers";
+    protected static final String MONTANT_ATTENDU = "MONTANT ATTENDU";
+    protected static final String NOMBRE_DOSSIER = "NOMBRE DE DOSSIERS";
 
     protected ReglementAbstractReceiptService(AppConfigurationService appConfigurationService, PrinterRepository printerRepository) {
         super(appConfigurationService, printerRepository);

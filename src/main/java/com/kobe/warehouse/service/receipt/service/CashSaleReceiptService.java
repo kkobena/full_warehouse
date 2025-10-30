@@ -6,33 +6,25 @@ import com.kobe.warehouse.service.dto.CashSaleDTO;
 import com.kobe.warehouse.service.dto.SaleDTO;
 import com.kobe.warehouse.service.dto.SaleLineDTO;
 import com.kobe.warehouse.service.dto.UninsuredCustomerDTO;
-import com.kobe.warehouse.service.receipt.dto.AbstractItem;
-import com.kobe.warehouse.service.receipt.dto.AssuranceReceiptItem;
 import com.kobe.warehouse.service.receipt.dto.CashSaleReceiptItem;
 import com.kobe.warehouse.service.receipt.dto.HeaderFooterItem;
-import com.kobe.warehouse.service.receipt.dto.SaleReceiptItem;
 import com.kobe.warehouse.service.utils.NumberUtil;
-
-import java.awt.*;
-import java.awt.image.BufferedImage;
-import java.awt.print.PrinterException;
-import java.io.ByteArrayOutputStream;
+import java.awt.FontMetrics;
+import java.awt.Graphics2D;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import javax.print.PrintException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
-
-import javax.imageio.ImageIO;
 
 @Service
 public class CashSaleReceiptService extends AbstractSaleReceiptService {
 
     private static final Logger LOG = LoggerFactory.getLogger(CashSaleReceiptService.class);
     private CashSaleDTO cashSale;
-    private boolean isEdit;
     private int avoirCount;
 
     public CashSaleReceiptService(AppConfigurationService appConfigurationService, PrinterRepository printerRepository) {
@@ -63,16 +55,14 @@ public class CashSaleReceiptService extends AbstractSaleReceiptService {
         }
 
         return items;
-
     }
 
     public void printReceipt(String hostName, CashSaleDTO sale, boolean isEdit) {
-        this.isEdit = isEdit;
         this.cashSale = sale;
         try {
-            print(hostName);
-        } catch (PrinterException e) {
-            LOG.error("Error while printing receipt: {}", e.getMessage());
+            printEscPosDirectByHost(hostName, isEdit);
+        } catch (IOException | PrintException e) {
+            LOG.error("Error while printing ESC/POS receipt: {}", e.getMessage(), e);
         }
     }
 
@@ -147,22 +137,6 @@ public class CashSaleReceiptService extends AbstractSaleReceiptService {
     }
 
     /**
-     * Generate receipt as byte arrays for Tauri clients
-     * <p>
-     * This method is specifically designed for Tauri clients that need to print
-     * receipts on a different machine from the backend server
-     *
-     * @param sale the cash sale to generate receipt for
-     * @return list of byte arrays representing receipt pages as PNG images
-     * @throws IOException if image generation fails
-     */
-    public List<byte[]> generateTicketForTauri(CashSaleDTO sale) throws IOException {
-        this.cashSale = sale;
-        this.isEdit = false;
-        return generateTicket();
-    }
-
-    /**
      * Generate ESC/POS receipt for direct thermal printer printing
      * <p>
      * This method generates raw ESC/POS commands that can be sent directly to a thermal POS printer.
@@ -172,9 +146,8 @@ public class CashSaleReceiptService extends AbstractSaleReceiptService {
      * @return byte array containing ESC/POS commands
      * @throws IOException if generation fails
      */
-    public byte[] generateEscPosReceiptForTauri(CashSaleDTO sale,boolean isEdit) throws IOException {
+    public byte[] generateEscPosReceiptForTauri(CashSaleDTO sale, boolean isEdit) throws IOException {
         this.cashSale = sale;
         return generateEscPosReceipt(isEdit);
     }
-
 }

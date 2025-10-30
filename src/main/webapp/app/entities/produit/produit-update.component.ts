@@ -32,10 +32,13 @@ import { RemiseService } from '../remise/remise.service';
 import { DciService } from '../dci/dci.service';
 import { SelectModule } from 'primeng/select';
 import { Card } from 'primeng/card';
+import { Checkbox } from 'primeng/checkbox';
+import { Toolbar } from 'primeng/toolbar';
 
 @Component({
   selector: 'jhi-produit-update',
   templateUrl: './produit-update.component.html',
+  styleUrl: './produit-update.component.scss',
   imports: [
     WarehouseCommonModule,
     ButtonModule,
@@ -45,7 +48,9 @@ import { Card } from 'primeng/card';
     KeyFilterModule,
     InputMaskModule,
     SelectModule,
-    Card
+    Card,
+    Checkbox,
+    Toolbar
   ]
 })
 export class ProduitUpdateComponent implements OnInit {
@@ -94,7 +99,8 @@ export class ProduitUpdateComponent implements OnInit {
     itemRegularUnitPrice: [],
     expirationDate: [],
     dciId: [],
-    categorie: []
+    categorie: [],
+    codeEanLaboratoire: []
   });
   private readonly produitService = inject(ProduitService);
   private readonly activatedRoute = inject(ActivatedRoute);

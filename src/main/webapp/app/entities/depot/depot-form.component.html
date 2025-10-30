@@ -1,0 +1,207 @@
+<div class="container-fluid">
+  <div class="pharma-smart-content p-2">
+    <div class="depot-form-container">
+      <div class="pharma-toolbar">
+        <div class="pharma-toolbar-header">
+          <i class="pi pi-building"></i>
+          <span class="pharma-toolbar-title">{{ isEditMode ? 'Modifier' : 'Nouveau' }} Dépôt</span>
+        </div>
+        <p-toolbar>
+          <ng-template #end>
+            <div class="pharma-toolbar-actions">
+              <p-button
+                icon="pi pi-arrow-left"
+                label="Retour"
+                severity="secondary"
+                [text]="true"
+                (onClick)="cancel()">
+              </p-button>
+            </div>
+          </ng-template>
+        </p-toolbar>
+      </div>
+
+      <form [formGroup]="depotForm" (ngSubmit)="save()">
+        <p-card>
+          <div class="form-grid-compact">
+            <!-- Name -->
+            <div class="form-field">
+              <p-floatlabel>
+                <input
+                  pInputText
+                  id="name"
+                  formControlName="name"
+                  class="w-full"
+                  [class.ng-invalid]="formControls['name'].invalid && formControls['name'].touched" />
+                <label for="name">Nom Court *</label>
+              </p-floatlabel>
+              @if (formControls['name'].invalid && formControls['name'].touched) {
+                <small class="p-error">Le nom court est obligatoire</small>
+              }
+            </div>
+
+            <!-- Full Name -->
+            <div class="form-field">
+              <p-floatlabel>
+                <input
+                  pInputText
+                  id="fullName"
+                  formControlName="fullName"
+                  class="w-full"
+                  [class.ng-invalid]="formControls['fullName'].invalid && formControls['fullName'].touched" />
+                <label for="fullName">Nom Complet *</label>
+              </p-floatlabel>
+              @if (formControls['fullName'].invalid && formControls['fullName'].touched) {
+                <small class="p-error">Le nom complet est obligatoire</small>
+              }
+            </div>
+
+            <!-- Type Magasin -->
+            <div class="form-field">
+              <p-floatlabel>
+                <p-select
+                  id="typeMagasin"
+                  formControlName="typeMagasin"
+                  [options]="typeMagasinOptions"
+                  optionLabel="label"
+                  optionValue="value"
+                  [style]="{ width: '100%' }"
+                  [class.ng-invalid]="formControls['typeMagasin'].invalid && formControls['typeMagasin'].touched">
+                </p-select>
+                <label for="typeMagasin">Type de Magasin *</label>
+              </p-floatlabel>
+              @if (formControls['typeMagasin'].invalid && formControls['typeMagasin'].touched) {
+                <small class="p-error">Le type de magasin est obligatoire</small>
+              }
+            </div>
+
+            <!-- Phone -->
+            <div class="form-field">
+              <p-floatlabel>
+                <input
+                  pInputText
+                  id="phone"
+                  formControlName="phone"
+                  type="tel"
+                  class="w-full" />
+                <label for="phone">Téléphone</label>
+              </p-floatlabel>
+            </div>
+
+            <!-- Email -->
+            <div class="form-field">
+              <p-floatlabel>
+                <input
+                  pInputText
+                  id="email"
+                  formControlName="email"
+                  type="email"
+                  class="w-full"
+                  [class.ng-invalid]="formControls['email'].invalid && formControls['email'].touched" />
+                <label for="email">Email</label>
+              </p-floatlabel>
+              @if (formControls['email'].invalid && formControls['email'].touched) {
+                <small class="p-error">Email invalide</small>
+              }
+            </div>
+
+            <!-- Address (Full Width) -->
+            <div class="form-field form-field-full">
+              <p-floatlabel>
+                <textarea pTextarea id="address" formControlName="address" rows="2" class="w-full"></textarea>
+                <label for="address">Adresse</label>
+              </p-floatlabel>
+            </div>
+
+            <!-- Section Divider -->
+            <div class="form-divider"></div>
+            <!-- Registre -->
+            <div class="form-field">
+              <p-floatlabel>
+                <input
+                  pInputText
+                  id="registre"
+                  formControlName="registre"
+                  class="w-full" />
+                <label for="registre">Registre de Commerce</label>
+              </p-floatlabel>
+            </div>
+
+            <!-- Compte Contribuable -->
+            <div class="form-field">
+              <p-floatlabel>
+                <input
+                  pInputText
+                  id="compteContribuable"
+                  formControlName="compteContribuable"
+                  class="w-full" />
+                <label for="compteContribuable">Compte Contribuable</label>
+              </p-floatlabel>
+            </div>
+
+            <!-- Num Comptable -->
+            <div class="form-field">
+              <p-floatlabel>
+                <input
+                  pInputText
+                  id="numComptable"
+                  formControlName="numComptable"
+                  class="w-full" />
+                <label for="numComptable">Numéro Comptable</label>
+              </p-floatlabel>
+            </div>
+
+            <!-- Compte Bancaire -->
+            <div class="form-field">
+              <p-floatlabel>
+                <input
+                  pInputText
+                  id="compteBancaire"
+                  formControlName="compteBancaire"
+                  class="w-full" />
+                <label for="compteBancaire">Compte Bancaire</label>
+              </p-floatlabel>
+            </div>
+
+            <!-- Registre Imposition -->
+            <div class="form-field form-field-full">
+              <p-floatlabel>
+                <input
+                  pInputText
+                  id="registreImposition"
+                  formControlName="registreImposition"
+                  class="w-full" />
+                <label for="registreImposition">Registre d'Imposition</label>
+              </p-floatlabel>
+            </div>
+
+            <!-- Section Divider -->
+            <div class="form-divider"></div>
+            <!-- Welcome Message -->
+            <div class="form-field">
+              <p-floatlabel>
+                <textarea pTextarea id="welcomeMessage" formControlName="welcomeMessage" rows="2" class="w-full"></textarea>
+                <label for="welcomeMessage">Message de Bienvenue</label>
+              </p-floatlabel>
+            </div>
+
+            <!-- Note -->
+            <div class="form-field">
+              <p-floatlabel>
+                <textarea pTextarea id="note" formControlName="note" rows="2" class="w-full"></textarea>
+                <label for="note">Notes</label>
+              </p-floatlabel>
+            </div>
+          </div>
+        </p-card>
+
+        <div class="form-actions-compact">
+          <p-button label="Annuler" icon="pi pi-times" severity="secondary" [text]="true" type="button" (onClick)="cancel()"></p-button>
+          <p-button [label]="isEditMode ? 'Mettre à jour' : 'Créer'" icon="pi pi-check" severity="primary" type="submit" [disabled]="depotForm.invalid || isSaving" [loading]="isSaving"></p-button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+

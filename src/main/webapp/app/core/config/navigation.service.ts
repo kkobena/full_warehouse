@@ -210,6 +210,11 @@ export class NavigationService {
         faIcon: faStore
       },
       {
+        label: this.translateLabel('entities.depot'),
+        routerLink: '/depot',
+        faIcon: faBuilding
+      },
+      {
         label: this.translateLabel('admin.userManagement'),
         routerLink: '/admin/user-management',
         faIcon: faUsers

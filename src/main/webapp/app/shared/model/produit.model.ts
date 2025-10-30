@@ -76,6 +76,7 @@ export interface IProduit {
   etatProduit?: EtatProduit;
   dciId?: number;
   categorie?: string; //categorie ABC
+  codeEanLaboratoire?: string; //categorie ABC
 }
 
 export class Produit implements IProduit {

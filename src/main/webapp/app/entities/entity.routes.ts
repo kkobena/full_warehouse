@@ -147,6 +147,13 @@ const routes: Routes = [
     data: { pageTitle: 'warehouseApp.gestionPerimes.title' },
     loadChildren: () => import('./gestion-peremption/gestion-peremtion.route')
   }
+  ,
+  {
+    path: 'depot',
+    data: { pageTitle: 'Dépôts' },
+    loadChildren: () => import('./depot/depot.route')
+  }
+
 ];
 
 export default routes;

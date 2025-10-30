@@ -1,0 +1,170 @@
+@import 'app/shared/scss/pharma-toolbar';
+
+.produit-form-container {
+  max-width: 1400px;
+  margin: 0 auto;
+
+  .pharma-toolbar {
+    margin-bottom: 1rem;
+  }
+
+  .section-header {
+    padding: 0.75rem 1rem;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-weight: 600;
+    font-size: 1.1rem;
+    color: var(--p-text-color);
+    border-bottom: 2px solid var(--p-primary-color);
+    background: linear-gradient(to right, rgba(68, 110, 155, 0.05), transparent);
+
+    i {
+      color: var(--p-primary-color);
+      font-size: 1.2rem;
+    }
+  }
+
+  .form-grid-compact {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 1rem;
+    padding: 1rem;
+
+    .form-field {
+      display: flex;
+      flex-direction: column;
+      gap: 0.25rem;
+
+      &.form-field-full {
+        grid-column: 1 / -1;
+      }
+
+      label {
+        font-weight: 500;
+        color: var(--p-text-color);
+        font-size: 0.9rem;
+        margin-bottom: 0.25rem;
+
+        .required {
+          color: var(--p-red-500);
+          font-weight: 700;
+          margin-left: 0.125rem;
+        }
+      }
+
+      .p-error {
+        color: var(--p-red-500);
+        font-size: 0.8rem;
+        margin-top: 0.125rem;
+      }
+
+      input,
+      p-select,
+      p-inputmask {
+        width: 100%;
+      }
+
+      .ng-invalid.ng-touched {
+        border-color: var(--p-red-500);
+      }
+
+      .checkbox-field {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        margin-top: 0.5rem;
+
+        p-checkbox {
+          display: flex;
+        }
+
+        label {
+          margin: 0;
+          cursor: pointer;
+          font-weight: 500;
+        }
+      }
+    }
+
+    .form-divider {
+      grid-column: 1 / -1;
+      height: 1px;
+      background: var(--p-surface-border);
+      margin: 0.5rem 0;
+    }
+  }
+
+  .form-actions-compact {
+    display: flex;
+    justify-content: flex-end;
+    gap: 0.75rem;
+    margin-top: 1.5rem;
+    padding: 0.75rem;
+    border-top: 1px solid var(--p-surface-border);
+    background-color: var(--p-surface-50);
+    position: sticky;
+    bottom: 0;
+    z-index: 100;
+  }
+
+  .mt-2 {
+    margin-top: 1rem;
+  }
+
+  .w-full {
+    width: 100%;
+  }
+
+  // Card styling
+  ::ng-deep .p-card {
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+    border: 1px solid var(--p-surface-border);
+
+    .p-card-body {
+      padding: 0;
+    }
+
+    .p-card-content {
+      padding: 0;
+    }
+  }
+}
+
+// Responsive design
+@media (max-width: 1200px) {
+  .produit-form-container {
+    .form-grid-compact {
+      grid-template-columns: repeat(2, 1fr);
+      gap: 0.75rem;
+    }
+  }
+}
+
+@media (max-width: 768px) {
+  .produit-form-container {
+    .form-grid-compact {
+      grid-template-columns: 1fr;
+      gap: 0.5rem;
+      padding: 0.5rem;
+    }
+
+    .section-header {
+      font-size: 1rem;
+      padding: 0.5rem;
+
+      i {
+        font-size: 1rem;
+      }
+    }
+
+    .form-actions-compact {
+      flex-direction: column-reverse;
+      position: static;
+
+      p-button {
+        width: 100%;
+      }
+    }
+  }
+}

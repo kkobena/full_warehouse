@@ -21,6 +21,7 @@ export interface SalesShortcutCallbacks {
   switchToComptant: () => void;
   switchToAssurance: () => void;
   switchToCarnet: () => void;
+  switchToDepotAgree: () => void;
 
   // Payment & Finalization
   finalizeSale: () => void;
@@ -195,6 +196,14 @@ export class SellingHomeShortcutsService {
       category: 'Type de vente',
       description: 'Vente Carnet',
       action: () => this.callbacks!.switchToCarnet(),
+    });
+
+    this.keyboardService.registerShortcut({
+      key: '4',
+      alt: true,
+      category: 'Type de vente',
+      description: 'Vente Dépôt Agréé',
+      action: () => this.callbacks!.switchToDepotAgree(),
     });
 
     // ==========================================

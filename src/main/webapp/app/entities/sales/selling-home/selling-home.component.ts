@@ -64,8 +64,11 @@ import { VoSalesService } from '../service/vo-sales.service';
 import { HasAuthorityService } from '../service/has-authority.service';
 import { BaseSaleService } from '../service/base-sale.service';
 import { CarnetComponent } from './carnet/carnet.component';
+import { VenteDepotAgreeComponent } from './vente-depot-agree/vente-depot-agree.component';
 import { Authority } from '../../../shared/constants/authority.constants';
 import { RemiseCacheService } from '../service/remise-cache.service';
+import { DepotAgreeService } from '../service/depot-agree.service';
+import { IMagasin } from '../../../shared/model/magasin.model';
 import { Select } from 'primeng/select';
 import { InputGroupAddonModule } from 'primeng/inputgroupaddon';
 import { DrawerModule } from 'primeng/drawer';
@@ -114,6 +117,7 @@ import { KeyboardShortcutsService } from './racourci/keyboard-shortcuts.service'
     AssuranceComponent,
     AssuranceDataComponent,
     CarnetComponent,
+    VenteDepotAgreeComponent,
     Select,
     InputGroupAddonModule,
     DrawerModule,
@@ -130,15 +134,20 @@ export class SellingHomeComponent implements OnInit, AfterViewInit, OnDestroy {
   readonly COMPTANT = 'COMPTANT';
   readonly CARNET = 'CARNET';
   readonly ASSURANCE = 'ASSURANCE';
+  readonly DEPOT_AGREE = 'depot-agree';
   comptantComponent = viewChild(ComptantComponent);
   assuranceComponent = viewChild(AssuranceComponent);
   carnetComponent = viewChild(CarnetComponent);
+  depotAgreeComponent = viewChild(VenteDepotAgreeComponent);
   assuranceDataComponent = viewChild(AssuranceDataComponent);
   userBox = viewChild<any>('userBox');
+  depotBox = viewChild<any>('depotBox');
   accountService = inject(AccountService);
   currentAccount = this.accountService.trackCurrentAccount();
   remiseCacheService = inject(RemiseCacheService);
   remises: GroupRemise[] = this.remiseCacheService.remises();
+  readonly depotAgreeService = inject(DepotAgreeService);
+  protected selectedDepot?: IMagasin | null;
   protected canFocusLastModeInput = false;
   protected isLargeScreen = true;
   protected canForceStock: boolean;
@@ -337,6 +346,8 @@ export class SellingHomeComponent implements OnInit, AfterViewInit, OnDestroy {
       this.assuranceComponent().manageAmountDiv();
     } else if (this.isCartnet()) {
       this.carnetComponent().manageAmountDiv();
+    } else if (this.isDepotAgree()) {
+      this.depotAgreeComponent().manageAmountDiv();
     }
   }
 
@@ -349,14 +360,17 @@ export class SellingHomeComponent implements OnInit, AfterViewInit, OnDestroy {
     if (this.currentSaleService.currentSale()) {
       if (this.isComptant()) {
         this.comptantComponent().save();
-      } else if (this.isAssurance() || this.isCartnet()) {
+      } else if (this.isAssurance() || this.isCartnet() || this.isDepotAgree()) {
         this.saveAssurance();
       }
     }
   }
 
   saveAssurance(): void {
-    this.currentSaleService.currentSale().tiersPayants = this.assuranceDataComponent().buildIClientTiersPayantFromInputs();
+    if (!this.isDepotAgree()) {
+      this.currentSaleService.currentSale().tiersPayants = this.assuranceDataComponent().buildIClientTiersPayantFromInputs();
+    }
+
     if (this.checkEmptyBon()) {
       if (this.baseSaleService.hasSansBon()) {
         this.confimDialog().onConfirm(
@@ -365,6 +379,8 @@ export class SellingHomeComponent implements OnInit, AfterViewInit, OnDestroy {
               this.assuranceComponent().save();
             } else if (this.isCartnet()) {
               this.carnetComponent().save();
+            } else if (this.isDepotAgree()) {
+              this.depotAgreeComponent().save();
             }
           },
           this.translateLabel('venteSansBonHeader'),
@@ -379,16 +395,22 @@ export class SellingHomeComponent implements OnInit, AfterViewInit, OnDestroy {
         this.assuranceComponent().save();
       } else if (this.isCartnet()) {
         this.carnetComponent().save();
+      } else if (this.isDepotAgree()) {
+        this.depotAgreeComponent().save();
       }
     }
   }
 
   setEnAttenteAssurance(): void {
-    this.currentSaleService.currentSale().tiersPayants = this.assuranceDataComponent().buildIClientTiersPayantFromInputs();
+    if (!this.isDepotAgree()) {
+      this.currentSaleService.currentSale().tiersPayants = this.assuranceDataComponent().buildIClientTiersPayantFromInputs();
+    }
     if (this.isAssurance()) {
       this.assuranceComponent().finalyseSale(true);
     } else if (this.isCartnet()) {
       this.carnetComponent().finalyseSale(true);
+    } else if (this.isDepotAgree()) {
+      this.depotAgreeComponent().finalyseSale(true);
     }
   }
 
@@ -457,6 +479,22 @@ export class SellingHomeComponent implements OnInit, AfterViewInit, OnDestroy {
         } else {
           this.comptantComponent().createComptant(this.createSalesLine(this.produitSelected, qytMvt));
         }
+      } else if (this.isDepotAgree()) {
+        if (this.depotAgreeService.selectedDepot()) {
+          if (this.currentSaleService.currentSale()) {
+            this.depotAgreeComponent().onAddProduit(this.createSalesLine(this.produitSelected, qytMvt));
+          } else {
+            this.depotAgreeComponent().create(
+              this.createSalesLine(this.produitSelected, qytMvt),
+              []
+            );
+          }
+        } else {
+          this.alert().showError('Veuillez sélectionner un dépôt agréé');
+          if (this.depotBox()) {
+            this.depotBox().nativeElement?.focus();
+          }
+        }
       } else if (this.isVoSale()) {
         if (this.selectedCustomerService.selectedCustomerSignal()) {
           if (this.isAssurance()) {
@@ -495,10 +533,15 @@ export class SellingHomeComponent implements OnInit, AfterViewInit, OnDestroy {
           this.assuranceComponent().print(sale);
         } else if (this.isCartnet()) {
           this.carnetComponent().print(sale);
+        } else if (this.isDepotAgree()) {
+          this.depotAgreeComponent().print(sale);
         }
       }
       this.currentSaleService.setCurrentSale(null);
       this.selectedCustomerService.setCustomer(null);
+      if (this.isDepotAgree()) {
+        this.depotAgreeService.setSelectedDepot(null);
+      }
     }
   }
 
@@ -510,6 +553,8 @@ export class SellingHomeComponent implements OnInit, AfterViewInit, OnDestroy {
         this.assuranceComponent().printSale(saleId);
       } else if (this.isCartnet()) {
         this.carnetComponent().printSale(saleId);
+      } else if (this.isDepotAgree()) {
+        this.depotAgreeComponent().printSale(saleId);
       }
     }
   }
@@ -529,6 +574,8 @@ export class SellingHomeComponent implements OnInit, AfterViewInit, OnDestroy {
     }
     this.selectModeReglementService.resetAllModeReglements();
     this.selectedCustomerService.setCustomer(null);
+    this.depotAgreeService.setSelectedDepot(null);
+    this.selectedDepot = null;
     this.typePrescription = this.typePrescriptionService.typePrescriptionDefault();
     this.userSeller = this.userCaissier;
     this.userVendeurService.setVendeur(this.userCaissier);
@@ -694,6 +741,11 @@ export class SellingHomeComponent implements OnInit, AfterViewInit, OnDestroy {
     this.produitbox().getFocus();
   }
 
+  protected onSelectDepot(): void {
+    this.depotAgreeService.setSelectedDepot(this.selectedDepot);
+    this.produitbox().getFocus();
+  }
+
   protected onSelectProduct(selectedProduit?: ProduitSearch): void {
     this.produitSelected = selectedProduit || null;
     this.quantyBox().reset(1);
@@ -785,7 +837,7 @@ export class SellingHomeComponent implements OnInit, AfterViewInit, OnDestroy {
 
   private handleCompleteSale = (response: SaleEvent<unknown>): void => {
     const content = response.content;
-    if ((this.isAssurance() || this.isCartnet()) && content === 'save') {
+    if ((this.isAssurance() || this.isCartnet() || this.isDepotAgree()) && content === 'save') {
       this.saveAssurance();
     } else if (content === 'standby') {
       this.setEnAttenteAssurance();
@@ -838,6 +890,10 @@ export class SellingHomeComponent implements OnInit, AfterViewInit, OnDestroy {
 
   private isComptant(): boolean {
     return this.active === SaleType.COMPTANT;
+  }
+
+  private isDepotAgree(): boolean {
+    return this.active === this.DEPOT_AGREE;
   }
 
   private updateProduitQtyBox(): void {
@@ -1001,7 +1057,7 @@ export class SellingHomeComponent implements OnInit, AfterViewInit, OnDestroy {
   }
 
   private isVoSale(): boolean {
-    return this.isAssurance() || this.isCartnet();
+    return this.isAssurance() || this.isCartnet() || this.isDepotAgree();
   }
 
   private loadPrevente(): void {
@@ -1013,6 +1069,8 @@ export class SellingHomeComponent implements OnInit, AfterViewInit, OnDestroy {
           this.assuranceComponent().onLoadPrevente();
         } else if (this.isCartnet()) {
           this.carnetComponent().onLoadPrevente();
+        } else if (this.isDepotAgree()) {
+          this.depotAgreeComponent().onLoadPrevente();
         }
       }
     });
@@ -1039,6 +1097,8 @@ export class SellingHomeComponent implements OnInit, AfterViewInit, OnDestroy {
         this.assuranceComponent().printInvoice();
       } else if (this.isCartnet()) {
         this.carnetComponent().printInvoice();
+      } else if (this.isDepotAgree()) {
+        this.depotAgreeComponent().printInvoice();
       }
     }
   }
@@ -1101,15 +1161,16 @@ export class SellingHomeComponent implements OnInit, AfterViewInit, OnDestroy {
       switchToCarnet: () => {
         this.active = 'carnet';
       },
+      switchToDepotAgree: () => {
+        this.active = 'depot-agree';
+      },
 
       // Payment & Finalization
       finalizeSale: () => this.manageAmountDiv(),
       savePending: () => {
         if (this.isComptant()) {
           this.comptantComponent()?.putCurrentSaleOnStandBy();
-        } else if (this.isAssurance()) {
-          this.setEnAttenteAssurance();
-        } else if (this.isCartnet()) {
+        } else if (this.isAssurance() || this.isCartnet() || this.isDepotAgree()) {
           this.setEnAttenteAssurance();
         }
       },
@@ -1132,6 +1193,8 @@ export class SellingHomeComponent implements OnInit, AfterViewInit, OnDestroy {
           //  this.assuranceComponent()?.openRemiseModal();
         } else if (this.isCartnet()) {
           // this.carnetComponent()?.openRemiseModal();
+        } else if (this.isDepotAgree()) {
+          // this.depotAgreeComponent()?.openRemiseModal();
         }
       },
       removeDiscount: () => {
@@ -1141,6 +1204,8 @@ export class SellingHomeComponent implements OnInit, AfterViewInit, OnDestroy {
           //  this.assuranceComponent()?.removeDiscount();
         } else if (this.isCartnet()) {
           //  this.carnetComponent()?.removeDiscount();
+        } else if (this.isDepotAgree()) {
+          //  this.depotAgreeComponent()?.removeDiscount();
         }
       },
 
@@ -1151,9 +1216,10 @@ export class SellingHomeComponent implements OnInit, AfterViewInit, OnDestroy {
           this.comptantComponent()?.printSale(this.currentSaleService.currentSale()?.saleId);
         } else if (this.isAssurance()) {
           this.assuranceComponent()?.printSale(this.currentSaleService.currentSale()?.saleId);
-
         } else if (this.isCartnet()) {
           this.carnetComponent()?.printSale(this.currentSaleService.currentSale()?.saleId);
+        } else if (this.isDepotAgree()) {
+          this.depotAgreeComponent()?.printSale(this.currentSaleService.currentSale()?.saleId);
         }
       },
 

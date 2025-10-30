@@ -1,0 +1,133 @@
+@import 'app/shared/scss/table-common';
+@import 'app/shared/scss/pharma-toolbar';
+
+.depot-container {
+  padding: 1.5rem;
+  max-width: 1400px;
+  margin: 0 auto;
+
+  .page-header {
+    margin-bottom: 1.5rem;
+
+    .header-content {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 1rem;
+
+      .header-title {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+
+        i.pi {
+          font-size: 2.5rem;
+          color: var(--p-primary-color);
+        }
+
+        h2 {
+          margin: 0;
+          font-size: 1.75rem;
+          color: var(--p-text-color);
+          font-weight: 600;
+        }
+
+        .subtitle {
+          margin: 0.25rem 0 0 0;
+          font-size: 0.95rem;
+          color: var(--p-text-secondary-color);
+        }
+      }
+
+      .header-actions {
+        display: flex;
+        gap: 0.75rem;
+      }
+    }
+  }
+
+  .table-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 1rem;
+    padding: 0.5rem;
+
+    .search-input {
+      width: 300px;
+    }
+  }
+
+  .action-buttons {
+    display: flex;
+    gap: 0.5rem;
+    justify-content: center;
+  }
+
+  .text-truncate {
+    display: inline-block;
+    max-width: 250px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .empty-message {
+    .empty-state {
+      text-align: center;
+      padding: 3rem 1rem;
+
+      .empty-icon {
+        font-size: 4rem;
+        color: var(--p-text-secondary-color);
+        margin-bottom: 1rem;
+      }
+
+      p {
+        margin: 0.5rem 0;
+        color: var(--p-text-secondary-color);
+
+        &:first-of-type {
+          font-size: 1.1rem;
+          font-weight: 500;
+          color: var(--p-text-color);
+        }
+      }
+
+      p-button {
+        margin-top: 1rem;
+      }
+    }
+  }
+}
+
+@media (max-width: 768px) {
+  .depot-container {
+    padding: 1rem;
+
+    .page-header {
+      .header-content {
+        flex-direction: column;
+        align-items: flex-start;
+
+        .header-actions {
+          width: 100%;
+
+          p-button {
+            width: 100%;
+          }
+        }
+      }
+    }
+
+    .table-header {
+      flex-direction: column;
+      align-items: stretch;
+
+      .search-input {
+        width: 100%;
+      }
+    }
+  }
+}

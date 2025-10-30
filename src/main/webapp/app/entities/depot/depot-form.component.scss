@@ -1,0 +1,94 @@
+@import 'app/shared/scss/pharma-toolbar';
+
+.depot-form-container {
+  max-width: 1200px;
+  margin: 0 auto;
+
+  .pharma-toolbar {
+    margin-bottom: 1rem;
+  }
+
+  .form-grid-compact {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 1rem;
+    padding: 0.75rem;
+
+    .form-field {
+      display: flex;
+      flex-direction: column;
+      gap: 0.25rem;
+
+      &.form-field-full {
+        grid-column: 1 / -1;
+      }
+
+      .p-error {
+        color: var(--p-red-500);
+        font-size: 0.8rem;
+        margin-top: 0.125rem;
+      }
+
+      input,
+      textarea,
+      p-select {
+        width: 100%;
+      }
+
+      .ng-invalid.ng-touched {
+        border-color: var(--p-red-500);
+      }
+    }
+
+    .form-divider {
+      grid-column: 1 / -1;
+      height: 1px;
+      background: var(--p-surface-border);
+      margin: 0.5rem 0;
+    }
+  }
+
+  .form-actions-compact {
+    display: flex;
+    justify-content: flex-end;
+    gap: 0.75rem;
+    margin-top: 1rem;
+    padding: 0.75rem;
+    border-top: 1px solid var(--p-surface-border);
+  }
+
+  .mt-3 {
+    margin-top: 1rem;
+  }
+
+  .w-full {
+    width: 100%;
+  }
+}
+
+@media (max-width: 992px) {
+  .depot-form-container {
+    .form-grid-compact {
+      grid-template-columns: repeat(2, 1fr);
+      gap: 0.75rem;
+    }
+  }
+}
+
+@media (max-width: 768px) {
+  .depot-form-container {
+    .form-grid-compact {
+      grid-template-columns: 1fr;
+      gap: 0.5rem;
+      padding: 0.5rem;
+    }
+
+    .form-actions-compact {
+      flex-direction: column-reverse;
+
+      p-button {
+        width: 100%;
+      }
+    }
+  }
+}

@@ -64,6 +64,7 @@
       "entities": {
         "mvtCaisse": "Mouvements de caisse",
         "main": "Facturation",
+        "depot": "Gestion des Dépôts",
         "tva": "Tva",
         "gammeProduit": "Gamme de produit",
         "laboratoire": "Laboratoire",

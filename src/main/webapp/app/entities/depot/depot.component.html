@@ -1,0 +1,132 @@
+<div class="container-fluid">
+  <div class="pharma-smart-content p-2">
+    <div class="pharma-toolbar">
+      <div class="pharma-toolbar-header">
+        <i class="pi pi-building"></i>
+        <span class="pharma-toolbar-title">Gestion des Dépôts</span>
+      </div><p-toolbar>
+
+      <ng-template #start>
+        <div class="pharma-toolbar-filters">
+
+        </div>
+      </ng-template>
+      <ng-template #end>
+        <div class="pharma-toolbar-actions">
+          <p-button
+            icon="pi pi-plus"
+            label="Nouveau Dépôt"
+            severity="primary"
+            (onClick)="onCreate()">
+          </p-button>
+        </div>
+      </ng-template>
+    </p-toolbar>
+
+    </div>
+
+     <p-table #dt
+              [value]="depots"
+              [loading]="loading"
+              [paginator]="true"
+              [rows]="10"
+              [rowsPerPageOptions]="[10, 25, 50]"
+              [showCurrentPageReport]="true"
+              currentPageReportTemplate="Affichage de {first} à {last} sur {totalRecords} dépôts"
+              [globalFilterFields]="['name', 'fullName', 'address', 'phone', 'email']"
+
+              class="p-datatable-sm p-datatable-striped pharma-table">
+
+       <ng-template #caption>
+         <div class="table-header">
+           <p-iconfield>
+             <p-inputicon class="pi pi-search" />
+             <input  #searchInput
+                     (input)="dt.filterGlobal($any($event.target).value, 'contains')" pInputText
+                    placeholder="Taper pour rechercher" type="text" />
+           </p-iconfield>
+
+         </div>
+       </ng-template>
+
+       <ng-template #header>
+         <tr class="pharma-table-head">
+           <th  style="width: 15%;">
+             Nom Court
+           </th>
+           <th style="width: 20%;">
+             Nom Complet
+
+           </th>
+           <th style="width: 10%;">
+             Type
+
+           </th>
+           <th style="width: 12%;">Téléphone</th>
+           <th style="width: 20%;">Adresse</th>
+           <th style="width: 15%;">Email</th>
+           <th style="width: 15%; text-align: center;">Actions</th>
+         </tr>
+       </ng-template>
+
+       <ng-template #body let-depot>
+         <tr>
+           <td>
+             <strong>{{ depot.name }}</strong>
+           </td>
+           <td>{{ depot.fullName }}</td>
+           <td>
+              {{ depot.typeLibelle }}
+           </td>
+           <td>
+             @if (depot.phone) {
+               <i class="pi pi-phone"></i> {{ depot.phone }}
+             }
+           </td>
+           <td>
+            <span class="text-truncate" [pTooltip]="depot.address">
+              {{ depot.address }}
+            </span>
+           </td>
+           <td>
+             @if (depot.email) {
+               <i class="pi pi-envelope"></i> {{ depot.email }}
+             }
+           </td>
+           <td style="text-align: center;">
+             <div class="action-buttons">
+               <p-button
+                 icon="pi pi-pencil"
+                 [text]="true"
+                 [rounded]="true"
+                 severity="info"
+                 (onClick)="onEdit(depot)"
+                 pTooltip="Modifier">
+               </p-button>
+
+               <p-button
+                 icon="pi pi-trash"
+                 [text]="true"
+                 [rounded]="true"
+                 severity="danger"
+                 (onClick)="onEdit(depot)"
+                 pTooltip="Supprimer">
+               </p-button>
+
+
+             </div>
+           </td>
+         </tr>
+       </ng-template>
+
+       <ng-template #emptymessage>
+         <tr>
+           <td colspan="7" > <p>Aucun dépôt trouvé</p>
+           </td>
+         </tr>
+       </ng-template>
+     </p-table>
+
+ </div>
+</div>
+<jhi-confirm-dialog #confirmDialog></jhi-confirm-dialog>

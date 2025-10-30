@@ -27,15 +27,15 @@
   <!-- HEADER TOOLBAR - Actions principales toujours visibles -->
   <div class="pharma-sales-header">
     <div class="header-left">
-      <button
+      <p-button
         class="back-button"
         (click)="previousState()"
-        pButton
+
         icon="pi pi-arrow-left"
         [text]="true"
         [rounded]="true"
         pTooltip="Retour">
-      </button>
+      </p-button>
 
       <div class="page-title">
         <h1>Point de Vente</h1>
@@ -61,6 +61,36 @@
           [placeholder]="'Sélectionner un vendeur'">
         </p-select>
       </div>
+
+      <!-- Depot Selection (Only for depot-agree) -->
+      @if (active === 'depot-agree') {
+        <div class="header-select-wrapper" style="display: flex !important; flex-direction: row !important; align-items: center !important; gap: 0.75rem !important;">
+          <label class="header-label" style="margin: 0 !important; display: inline-flex !important; align-items: center !important; gap: 0.375rem !important; white-space: nowrap !important;">
+            <i class="pi pi-building"></i>
+            <span>Dépôt Agréé</span>
+          </label>
+          <p-select
+            #depotBox
+            (onChange)="onSelectDepot()"
+            [(ngModel)]="selectedDepot"
+            [appendTo]="appendTo"
+            [dataKey]="'id'"
+            [options]="depotAgreeService.depots()"
+            [style]="{ width: '250px' }"
+            class="pharma-select-modern"
+            optionLabel="name"
+            [placeholder]="'Sélectionner un dépôt'">
+            <ng-template #item let-depot>
+              <div class="depot-option">
+                <div class="depot-name">{{ depot.name }}</div>
+                @if (depot.address) {
+                  <div class="depot-address" style="font-size: 0.85rem; color: #6c757d;">{{ depot.address }}</div>
+                }
+              </div>
+            </ng-template>
+          </p-select>
+        </div>
+      }
     </div>
 
     <div class="header-actions">
@@ -99,17 +129,17 @@
             <i class="pi pi-shopping-cart"></i>
             <span>Type de vente</span>
           }
-          <button
+          <p-button
             class="sidebar-toggle-btn"
             (click)="toggleSidebar()"
-            pButton
+
             [icon]="sidebarCollapsed() ? 'pi pi-angle-right' : 'pi pi-angle-left'"
             [text]="true"
             [rounded]="true"
             [pTooltip]="sidebarCollapsed() ? 'Afficher le menu' : 'Masquer le menu'"
             tooltipPosition="right"
             size="small">
-          </button>
+          </p-button>
         </div>
 
         <div class="sale-types-nav pharma-nav-sidebar-content" [class.hidden]="sidebarCollapsed()">
@@ -157,6 +187,17 @@
               </a>
               <ng-template ngbNavContent>
                 <jhi-carnet #carnet [isPresale]="isPresale"></jhi-carnet>
+              </ng-template>
+            </ng-container>
+
+            <ng-container ngbNavItem="depot-agree">
+              <a class="sale-type-link pharma-nav-vertical-link" ngbNavLink>
+                <i class="pi pi-building"></i>
+                <span>Dépôt Agréé</span>
+                <span class="link-arrow">›</span>
+              </a>
+              <ng-template ngbNavContent>
+                <jhi-vente-depot-agree #depotAgree [isPresale]="isPresale"></jhi-vente-depot-agree>
               </ng-template>
             </ng-container>
           </div>

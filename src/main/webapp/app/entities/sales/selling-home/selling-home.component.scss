@@ -181,6 +181,21 @@ $border-radius-lg: $pharma-radius-lg;
   // Override the 100% width from shared styles for this flexbox layout
   &.pharma-nav-sidebar {
     width: 240px;
+    transition: width 0.3s ease, min-width 0.3s ease;
+    position: relative;
+  }
+
+  // Collapsed state
+  &.collapsed {
+    width: 60px;
+    min-width: 60px;
+
+    .sidebar-card {
+      .sidebar-header {
+        justify-content: center;
+        padding: 0.75rem 0.5rem;
+      }
+    }
   }
 
   // Responsive adjustments for medium screens
@@ -188,12 +203,64 @@ $border-radius-lg: $pharma-radius-lg;
     &.pharma-nav-sidebar {
       width: 220px;
     }
+
+    &.collapsed {
+      width: 60px;
+      min-width: 60px;
+    }
   }
 
   @media (max-width: 1200px) {
     &.pharma-nav-sidebar {
       width: 100%;
     }
+
+    &.collapsed {
+      width: 100%;
+      min-width: 0;
+    }
+  }
+}
+
+// ============================================
+// SIDEBAR TOGGLE BUTTON
+// ============================================
+
+.sidebar-toggle-btn {
+  margin-left: auto;
+  transition: all 0.2s ease;
+
+  ::ng-deep .p-button {
+    color: $gray-600;
+    transition: all 0.2s ease;
+
+    &:hover {
+      color: $pharma-primary;
+      background-color: $pharma-primary-light;
+      transform: scale(1.1);
+    }
+  }
+}
+
+// Hide content when sidebar is collapsed
+.sale-types-nav.hidden {
+  display: none;
+  opacity: 0;
+  transition: opacity 0.2s ease;
+}
+
+.sale-types-nav:not(.hidden) {
+  display: block;
+  opacity: 1;
+  animation: fadeIn 0.3s ease;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
   }
 }
 

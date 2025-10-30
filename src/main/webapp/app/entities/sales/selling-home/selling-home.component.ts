@@ -166,6 +166,7 @@ export class SellingHomeComponent implements OnInit, AfterViewInit, OnDestroy {
   protected active = 'comptant';
   protected showInsuranceDataBar = signal(true);
   protected showInsuranceTogle = signal(false);
+  protected sidebarCollapsed = signal(false);
   protected currentSaleService = inject(CurrentSaleService);
   protected userVendeurService = inject(UserVendeurService);
   protected readonly PRODUIT_COMBO_RESULT_SIZE = PRODUIT_COMBO_RESULT_SIZE;
@@ -223,6 +224,10 @@ export class SellingHomeComponent implements OnInit, AfterViewInit, OnDestroy {
 
   toggleInsuranceDataBar(): void {
     this.showInsuranceDataBar.set(!this.showInsuranceDataBar());
+  }
+
+  toggleSidebar(): void {
+    this.sidebarCollapsed.set(!this.sidebarCollapsed());
   }
   protected get disableButton(): boolean {
     return this.produitSelected == null || this.quantyBox().value < 1;

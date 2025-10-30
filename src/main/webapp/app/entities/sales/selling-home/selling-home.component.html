@@ -92,14 +92,27 @@
   <!-- MAIN CONTENT AREA -->
   <div class="pharma-sales-body">
     <!-- LEFT SIDEBAR - Sale Types Navigation -->
-    <div class="sales-sidebar pharma-nav-sidebar">
+    <div class="sales-sidebar pharma-nav-sidebar" [class.collapsed]="sidebarCollapsed()">
       <div class="sidebar-card pharma-nav-sidebar-card">
         <div class="sidebar-header pharma-nav-sidebar-header">
-          <i class="pi pi-shopping-cart"></i>
-          <span>Type de vente</span>
+          @if (!sidebarCollapsed()) {
+            <i class="pi pi-shopping-cart"></i>
+            <span>Type de vente</span>
+          }
+          <button
+            class="sidebar-toggle-btn"
+            (click)="toggleSidebar()"
+            pButton
+            [icon]="sidebarCollapsed() ? 'pi pi-angle-right' : 'pi pi-angle-left'"
+            [text]="true"
+            [rounded]="true"
+            [pTooltip]="sidebarCollapsed() ? 'Afficher le menu' : 'Masquer le menu'"
+            tooltipPosition="right"
+            size="small">
+          </button>
         </div>
 
-        <div class="sale-types-nav pharma-nav-sidebar-content">
+        <div class="sale-types-nav pharma-nav-sidebar-content" [class.hidden]="sidebarCollapsed()">
           <div
             #nav="ngbNav"
             (navChange)="onNavChange($event)"

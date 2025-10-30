@@ -64,6 +64,7 @@ import { handleBlobForTauri } from '../../shared/util/tauri-util';
 @Component({
   selector: 'jhi-commande-update',
   templateUrl: './commande-update.component.html',
+  styleUrls: ['./commande-update.component.scss'],
   imports: [
     WarehouseCommonModule,
     FormsModule,
@@ -433,9 +434,9 @@ export class CommandeUpdateComponent implements OnInit, AfterViewInit {
   protected orderLineTableColor(orderLine: IOrderLine): string {
     if (orderLine) {
       if (orderLine.costAmount !== orderLine.orderCostAmount) {
-        return 'table-danger';
+        return 'pharma-row-danger';
       } else if (orderLine.regularUnitPrice !== orderLine.orderUnitPrice) {
-        return 'table-warning';
+        return 'pharma-row-warning';
       }
     }
     return '';

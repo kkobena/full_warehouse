@@ -76,6 +76,13 @@ export class CommandeComponent implements OnInit {
   protected commandes: ICommande[] = [];
   protected selectedFilter = 'REQUESTED';
   protected loading!: boolean;
+  protected readonly menuTileAndIcon = [
+    { title: 'Commandes en cours', icon: 'pi pi-spin pi-spinner',menuId: 'REQUESTED' },
+     { title: 'Suggestions de commandes', icon: 'pi pi-lightbulb',menuId: 'SUGGESTIONS' },
+    { title: 'Bons de livraison en cours', icon: 'pi pi-fw pi-truck', menuId: 'BONS_EN_COURS' },
+   { title: 'Liste des bons de livraison', icon: 'pi pi-fw pi-list', menuId: 'LIST_BONS' }
+  ];
+
   private readonly router = inject(Router);
   private readonly modalService = inject(NgbModal);
   private readonly commandCommonService = inject(CommandCommonService);
@@ -84,6 +91,7 @@ export class CommandeComponent implements OnInit {
   private readonly enCoursComponent = viewChild(BonEnCoursComponent);
   private readonly listBonsComponent = viewChild(ListBonsComponent);
   private readonly confimDialog = viewChild.required<ConfirmDialogComponent>('confirmDialog');
+
 
   ngOnInit(): void {
     this.fournisseurService
@@ -194,5 +202,12 @@ export class CommandeComponent implements OnInit {
 
   protected updateSelectionLength(lgth: number): void {
     this.selectionLength = lgth;
+  }
+
+  protected get title(): string {
+    return this.menuTileAndIcon.find(m=>m.menuId===this.active)?.title || '' ;
+  }
+  protected get icon(): string {
+    return this.menuTileAndIcon.find(m=>m.menuId===this.active)?.icon || '' ;
   }
 }

@@ -20,20 +20,6 @@
               ngbNav
               orientation="vertical"
             >
-              <ng-container ngbNavItem="SUGGESTIONS">
-                <a class="pharma-nav-vertical-link" ngbNavLink>
-                  <i class="pi pi-lightbulb"></i>
-                  <span>Suggestions</span>
-                  <span class="link-arrow">›</span>
-                </a>
-                <ng-template ngbNavContent>
-                  <jhi-suggestion
-                    (selectionLength)="updateSelectionLength($event)"
-                    [fournisseurId]="selectFournisseurId"
-                    [selectedtypeSuggession]="selectedtypeSuggession"
-                  ></jhi-suggestion>
-                </ng-template>
-              </ng-container>
 
               <ng-container ngbNavItem="REQUESTED">
                 <a class="pharma-nav-vertical-link" ngbNavLink>
@@ -52,7 +38,7 @@
 
               <ng-container ngbNavItem="BONS_EN_COURS">
                 <a class="pharma-nav-vertical-link" ngbNavLink>
-                  <i class="pi pi-file"></i>
+                  <i class="pi pi-fw pi-truck"></i>
                   <span>Bons en cours</span>
                   <span class="link-arrow">›</span>
                 </a>
@@ -71,6 +57,21 @@
                   <jhi-list-bons [search]="search"></jhi-list-bons>
                 </ng-template>
               </ng-container>
+              <ng-container ngbNavItem="SUGGESTIONS">
+                <a class="pharma-nav-vertical-link" ngbNavLink>
+                  <i class="pi pi-lightbulb"></i>
+                  <span>Suggestions</span>
+                  <span class="link-arrow">›</span>
+                </a>
+                <ng-template ngbNavContent>
+                  <jhi-suggestion
+                    (selectionLength)="updateSelectionLength($event)"
+                    [fournisseurId]="selectFournisseurId"
+                    [selectedtypeSuggession]="selectedtypeSuggession"
+                  ></jhi-suggestion>
+                </ng-template>
+              </ng-container>
+
             </div>
           </div>
         </div>
@@ -82,8 +83,8 @@
         <!-- Modern Pharma Toolbar -->
         <div class="pharma-toolbar">
           <div class="pharma-toolbar-header">
-            <i class="pi pi-box"></i>
-            <span class="pharma-toolbar-title">Menu commandes</span>
+            <i [ngClass]="icon"></i>
+            <span class="pharma-toolbar-title">{{title}}</span>
           </div>
 
           <p-toolbar>

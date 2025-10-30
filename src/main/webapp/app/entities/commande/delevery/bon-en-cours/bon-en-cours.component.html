@@ -12,11 +12,12 @@
     [value]="deliveries"
     currentPageReportTemplate="Affichage de {first} à {last} sur {totalRecords} elements"
     dataKey="id"
+    class="pharma-table"
     selectionMode="multiple"
     [stripedRows]="true"
   >
     <ng-template #header>
-      <tr>
+      <tr class="pharma-table-head">
         <th style="width: 1%"></th>
         <th style="width: 6%">#</th>
         <th style="width: 13%">Date</th>
@@ -44,14 +45,14 @@
             type="button"
           />
         </td>
-        <td>{{ row.orderReference }}</td>
+        <td><span class="pharma-code">{{ row.orderReference }}</span></td>
         <td>{{ row.createdAt | date: 'dd/MM/yyyy HH:mm:ss' }}</td>
         <td>{{ row.receiptDate | date: 'dd/MM/yyyy' }}</td>
-        <td>{{ row.receiptReference }}</td>
+        <td><span class="pharma-badge pharma-badge-info">{{ row.receiptReference }}</span></td>
 
-        <td class="text-right">{{ row.receiptAmount | number }}</td>
-        <td class="text-right">{{ row.taxAmount | number }}</td>
-        <td class="text-right">{{ row.itemSize | number }}</td>
+        <td class="text-right pharma-total">{{ row.receiptAmount | number }}</td>
+        <td class="text-right pharma-price">{{ row.taxAmount | number }}</td>
+        <td class="text-right pharma-qty-value">{{ row.itemSize | number }}</td>
         <td>{{ row.fournisseur.libelle }}</td>
         <td>{{ row.lastUserEdit?.abbrName }}</td>
 
@@ -81,42 +82,49 @@
       </tr>
     </ng-template>
     <ng-template #expandedrow let-item>
-      <tr>
+      <tr  class="pharma-expanded-row">
         <td colspan="12">
-          <div class="p-3">
-            <p-table
-              [paginator]="true"
-              [rowsPerPageOptions]="[10, 25, 50]"
-              [rows]="10"
-              [showCurrentPageReport]="true"
-              [value]="item.orderLines"
-              currentPageReportTemplate="Affichage de {first} à {last} sur {totalRecords} elements"
-            >
-              <ng-template #header>
-                <tr>
-                  <th>#</th>
-                  <th>Code</th>
-                  <th>Libellé</th>
-                  <th>Stock.Init</th>
-                  <th>Stock.final</th>
-                  <th>Qté.Livrée</th>
-                  <th>Prix.Achat</th>
-                  <th>Prix.Vente</th>
-                </tr>
-              </ng-template>
-              <ng-template let-receiptItem let-rowIndex="rowIndex" #body>
-                <tr>
-                  <td style="text-align: left">{{ rowIndex + 1 }}</td>
-                  <td>{{ receiptItem.produitCodeEan || receiptItem.produitCip }}</td>
-                  <td>{{ receiptItem.produitLibelle }}</td>
-                  <td class="text-right">{{ receiptItem.initStock | number }}</td>
-                  <td class="text-right">{{ receiptItem.afterStock | number }}</td>
-                  <td class="text-right">{{ receiptItem.quantityReceived | number }}</td>
-                  <td class="text-right">{{ receiptItem.orderCostAmount | number }}</td>
-                  <td class="text-right">{{ receiptItem.orderUnitPrice | number }}</td>
-                </tr>
-              </ng-template>
-            </p-table>
+          <div class="pharma-sub-table-container">
+            <div class="pharma-sub-table-header">
+              <i class="pi pi-list"></i>
+              <span>DÉTAILS DU BON DE LIVRAISON</span>
+            </div>
+            <div class="pharma-sub-table-body">
+              <p-table class="pharma-table"
+                       [paginator]="true"
+                       [rowsPerPageOptions]="[10, 25, 50]"
+                       [rows]="10"
+                       [showCurrentPageReport]="true"
+                       [value]="item.orderLines"
+                       currentPageReportTemplate="Affichage de {first} à {last} sur {totalRecords} elements"
+              >
+                <ng-template #header>
+                  <tr class="pharma-table-head">
+                    <th>#</th>
+                    <th>Code</th>
+                    <th>Libellé</th>
+                    <th>Stock.Init</th>
+                    <th>Stock.final</th>
+                    <th>Qté.Livrée</th>
+                    <th>Prix.Achat</th>
+                    <th>Prix.Vente</th>
+                  </tr>
+                </ng-template>
+                <ng-template let-receiptItem let-rowIndex="rowIndex" #body>
+                  <tr>
+                    <td><span class="pharma-row-number">{{ rowIndex + 1 }}</span> </td>
+                    <td><span class="pharma-code">{{ receiptItem.produitCodeEan || receiptItem.produitCip }}</span></td>
+                    <td><span class="pharma-product-name">{{ receiptItem.produitLibelle }}</span></td>
+                    <td class="text-right pharma-qty-value">{{ receiptItem.initStock | number }}</td>
+                    <td class="text-right pharma-qty-value">{{ receiptItem.afterStock | number }}</td>
+                    <td class="text-right pharma-qty-value">{{ receiptItem.quantityReceived | number }}</td>
+                    <td class="text-right pharma-price">{{ receiptItem.orderCostAmount | number }}</td>
+                    <td class="text-right pharma-price">{{ receiptItem.orderUnitPrice | number }}</td>
+                  </tr>
+                </ng-template>
+              </p-table>
+            </div>
+
           </div>
         </td>
       </tr>

@@ -1,0 +1,482 @@
+/**
+ * Centralized Form Styles
+ *
+ * This file contains shared styles for all forms in the application.
+ * Import this file in your component SCSS to use these styles.
+ *
+ * Usage:
+ *   @import '../../../shared/scss/form-styles';
+ *
+ *   :host {
+ *     @include modal-theme;
+ *   }
+ *
+ * See FORMS_README.md for detailed documentation.
+ */
+
+// ============================================================================
+// Modal Structure
+// ============================================================================
+
+// Make modal body scrollable
+.modal-body {
+  max-height: calc(100vh - 200px);
+  overflow-y: auto;
+  overflow-x: hidden;
+  padding: 1rem;
+
+  // Remove extra padding from stepper panels
+  ::ng-deep {
+    .p-step-panels {
+      overflow: visible;
+    }
+
+    .p-step-panel {
+      overflow: visible;
+    }
+
+    .p-step-panel-content {
+      padding: 0;
+      overflow: visible;
+    }
+  }
+}
+
+// Form actions footer (sticky at bottom)
+.form-actions-compact {
+  display: flex;
+  justify-content: flex-end;
+  gap: 0.75rem;
+  padding: 0.75rem 1rem;
+  border-top: 1px solid var(--p-surface-border);
+  background-color: var(--p-surface-50);
+  position: sticky;
+  bottom: 0;
+  z-index: 100;
+  box-shadow: 0 -2px 4px rgba(0, 0, 0, 0.05);
+}
+
+// ============================================================================
+// Section Headers
+// ============================================================================
+
+.section-header {
+  padding: 0.75rem 1rem;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-weight: 600;
+  font-size: 1.1rem;
+  color: var(--p-text-color);
+  border-bottom: 2px solid var(--p-primary-color);
+  background: linear-gradient(to right, rgba(68, 110, 155, 0.05), transparent);
+
+  i {
+    color: var(--p-primary-color);
+    font-size: 1.2rem;
+  }
+
+  // Required fields section (red theme)
+  &.section-header-required {
+    border-bottom-color: var(--p-red-500);
+    background: linear-gradient(to right, rgba(239, 68, 68, 0.08), transparent);
+
+    i {
+      color: var(--p-red-500);
+      animation: pulse 2s infinite;
+    }
+
+    span {
+      color: var(--p-red-700);
+    }
+  }
+
+  .ml-auto {
+    margin-left: auto;
+  }
+}
+
+// Pulse animation for required field icons
+@keyframes pulse {
+  0%, 100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.6;
+  }
+}
+
+// ============================================================================
+// Card Grid Layouts
+// ============================================================================
+
+// Two column card layout for large screens
+.card-grid-2col {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 1rem;
+  overflow: visible;
+  align-items: start;
+
+  > p-card {
+    min-width: 0; // Critical for proper grid sizing
+    height: 100%; // Make cards equal height
+  }
+}
+
+// Three column card layout for large screens
+.card-grid-3col {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1rem;
+  overflow: visible;
+  align-items: start;
+
+  > p-card {
+    min-width: 0; // Critical for proper grid sizing
+    height: 100%; // Make cards equal height
+  }
+}
+
+// ============================================================================
+// Form Grid (Inside Cards)
+// ============================================================================
+
+// Form grid - single column layout by default inside cards
+.form-grid-compact {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 1rem;
+  padding: 1rem;
+  overflow: visible;
+
+  .form-field {
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+    overflow: visible;
+    position: relative;
+    min-width: 0; // Critical for autocomplete sizing
+
+    // Full width field (default behavior in single-column layout)
+    &.form-field-full {
+      grid-column: 1 / -1;
+    }
+
+    // Two-column span (when using multi-column grid)
+    &.form-field-2col {
+      grid-column: span 2;
+    }
+
+    // Label styling
+    label {
+      font-weight: 500;
+      color: var(--p-text-color);
+      font-size: 0.9rem;
+      margin-bottom: 0.25rem;
+
+      .required {
+        color: var(--p-red-500);
+        font-weight: 700;
+        margin-left: 0.125rem;
+      }
+    }
+
+    // Error message styling
+    .p-error {
+      color: var(--p-red-500);
+      font-size: 0.8rem;
+      margin-top: 0.125rem;
+    }
+
+    // Ensure form controls take full width
+    input,
+    p-select,
+    p-input-number,
+    p-toggleswitch {
+      width: 100%;
+    }
+
+    // Special handling for p-autoComplete
+    p-autoComplete {
+      width: 100%;
+      display: block;
+      min-width: 0;
+    }
+
+    // Invalid field styling
+    .ng-invalid.ng-touched {
+      border-color: var(--p-red-500);
+    }
+
+    // Radio button group
+    .radio-group {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+      margin-top: 0.5rem;
+
+      .radio-label {
+        margin: 0 0 0 0.5rem;
+        cursor: pointer;
+        font-weight: 400;
+      }
+    }
+  }
+}
+
+// ============================================================================
+// Complementaire Grid (for insurance cards)
+// ============================================================================
+
+.complementaire-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 1rem;
+  padding: 1rem;
+  overflow: visible;
+
+  // Ensure each grid item has proper width constraints
+  > * {
+    min-width: 0; // Allow grid items to shrink below content size
+  }
+}
+
+.complementaire-card {
+  border: 1px solid var(--p-surface-border);
+  border-radius: var(--p-border-radius);
+  overflow: visible;
+  min-width: 0; // Allow card to shrink properly in grid
+
+  .complementaire-card-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0.75rem 1rem;
+    background: var(--p-surface-50);
+    border-bottom: 1px solid var(--p-surface-border);
+    min-width: 0; // Prevent header from expanding card
+
+    .complementaire-card-title {
+      font-weight: 600;
+      color: var(--p-text-color);
+    }
+  }
+
+  .complementaire-card-body {
+    padding: 0;
+    overflow: visible;
+    min-width: 0; // Allow body to shrink
+
+    .form-grid-compact {
+      // Override default grid for complementaire cards to ensure proper sizing
+      min-width: 0;
+
+      .form-field {
+        min-width: 0; // Critical for autocomplete sizing
+      }
+    }
+  }
+}
+
+// ============================================================================
+// PrimeNG Component Overrides
+// ============================================================================
+
+// Fix for p-autoComplete overlay visibility and sizing
+::ng-deep {
+  // Position autocomplete container - ensure it takes full width
+  .p-autocomplete {
+    width: 100% !important;
+    display: flex !important;
+    min-width: 0; // Allow flexbox to shrink properly
+    flex-wrap: nowrap; // Prevent wrapping
+  }
+
+  // Fix the input wrapper
+  .p-autocomplete-input-container {
+    width: 100% !important;
+    display: flex !important;
+    flex: 1;
+    min-width: 0;
+    flex-wrap: nowrap; // Prevent wrapping
+  }
+
+  // Ensure input field maintains width
+  .p-autocomplete-input {
+    width: 100% !important;
+    min-width: 0; // Allow flexbox to shrink
+    flex: 1;
+  }
+
+  // Fix overlay positioning and z-index
+  .p-autocomplete-overlay {
+    z-index: 9999 !important;
+    position: absolute !important;
+    min-width: 300px; // Minimum width for dropdown
+  }
+
+  .p-autocomplete-list-container {
+    max-height: 200px;
+    overflow-y: auto;
+  }
+
+  // Ensure dropdown button is visible and doesn't wrap
+  .p-autocomplete-dropdown {
+    z-index: 1;
+    flex-shrink: 0; // Prevent button from shrinking
+    width: auto !important;
+    margin-left: 0 !important;
+  }
+
+  // Fix for items inside overlay
+  .p-autocomplete-list {
+    padding: 0.25rem 0;
+  }
+
+  .p-autocomplete-option {
+    padding: 0.5rem 1rem;
+    cursor: pointer;
+
+    &:hover {
+      background: var(--p-primary-color);
+      color: var(--p-primary-contrast-color);
+    }
+  }
+}
+
+// Card styling - ensure overflow visible for dropdowns
+::ng-deep .p-card {
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  border: 1px solid var(--p-surface-border);
+  overflow: visible;
+
+  .p-card-body {
+    padding: 0;
+    overflow: visible;
+  }
+
+  .p-card-content {
+    padding: 0;
+    overflow: visible;
+  }
+
+  &:last-child {
+    margin-bottom: 1rem;
+  }
+}
+
+// ============================================================================
+// Utility Classes
+// ============================================================================
+
+.mt-2 {
+  margin-top: 1rem;
+}
+
+.w-full {
+  width: 100%;
+}
+
+// ============================================================================
+// Responsive Design
+// ============================================================================
+
+// Medium-large screens (1200px - 992px)
+@media (max-width: 1200px) {
+  // Stack 3-column layout to 2 columns
+  .card-grid-3col {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+// Medium screens (992px - 768px)
+@media (max-width: 992px) {
+  // Stack 2-column and 3-column layouts to single column
+  .card-grid-2col,
+  .card-grid-3col {
+    grid-template-columns: 1fr;
+    gap: 0.75rem;
+  }
+
+  .form-grid-compact {
+    gap: 0.75rem;
+
+    .form-field {
+      &.form-field-2col {
+        grid-column: 1 / -1;
+      }
+    }
+  }
+
+  .complementaire-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .section-header {
+    font-size: 1rem;
+    padding: 0.5rem;
+
+    i {
+      font-size: 1rem;
+    }
+  }
+}
+
+// Small screens / Mobile (< 768px)
+@media (max-width: 768px) {
+  // Ensure cards stack on mobile
+  .card-grid-2col,
+  .card-grid-3col {
+    grid-template-columns: 1fr;
+    gap: 0.5rem;
+  }
+
+  .form-grid-compact {
+    grid-template-columns: 1fr;
+    gap: 0.5rem;
+    padding: 0.5rem;
+
+    .form-field {
+      &.form-field-2col,
+      &.form-field-full {
+        grid-column: 1 / -1;
+      }
+    }
+  }
+
+  .form-actions-compact {
+    flex-direction: column;
+    gap: 0.5rem;
+
+    p-button {
+      width: 100%;
+    }
+  }
+
+  .modal-body {
+    max-height: calc(100vh - 250px);
+  }
+}
+
+// ============================================================================
+// Add bottom margin to last card to ensure space before footer
+// ============================================================================
+
+jhi-assure-step,
+jhi-ayant-droit-step {
+  display: block;
+
+  > form > .card-grid-2col,
+  > form > .mt-2:last-child {
+    margin-bottom: 1rem;
+  }
+}
+
+jhi-complementaire-step {
+  display: block;
+
+  > p-card {
+    margin-bottom: 1rem;
+  }
+}

@@ -22,35 +22,39 @@
       </div>
 
       <form [formGroup]="depotForm" (ngSubmit)="save()">
+        <!-- Section 1: Champs Obligatoires -->
         <p-card>
+          <ng-template #header>
+            <div class="section-header section-header-required">
+              <i class="pi pi-exclamation-circle"></i>
+              <span>Champs Obligatoires</span>
+            </div>
+          </ng-template>
+
           <div class="form-grid-compact">
             <!-- Name -->
             <div class="form-field">
-              <p-floatlabel>
-                <input
-                  pInputText
-                  id="name"
-                  formControlName="name"
-                  class="w-full"
-                  [class.ng-invalid]="formControls['name'].invalid && formControls['name'].touched" />
-                <label for="name">Nom Court *</label>
-              </p-floatlabel>
+              <label for="name">Nom Court <span class="required">*</span></label>
+              <input
+                pInputText
+                id="name"
+                formControlName="name"
+                class="w-full"
+                [class.ng-invalid]="formControls['name'].invalid && formControls['name'].touched" />
               @if (formControls['name'].invalid && formControls['name'].touched) {
                 <small class="p-error">Le nom court est obligatoire</small>
               }
             </div>
 
             <!-- Full Name -->
-            <div class="form-field">
-              <p-floatlabel>
-                <input
-                  pInputText
-                  id="fullName"
-                  formControlName="fullName"
-                  class="w-full"
-                  [class.ng-invalid]="formControls['fullName'].invalid && formControls['fullName'].touched" />
-                <label for="fullName">Nom Complet *</label>
-              </p-floatlabel>
+            <div class="form-field form-field-2col">
+              <label for="fullName">Nom Complet <span class="required">*</span></label>
+              <input
+                pInputText
+                id="fullName"
+                formControlName="fullName"
+                class="w-full"
+                [class.ng-invalid]="formControls['fullName'].invalid && formControls['fullName'].touched" />
               @if (formControls['fullName'].invalid && formControls['fullName'].touched) {
                 <small class="p-error">Le nom complet est obligatoire</small>
               }
@@ -58,48 +62,54 @@
 
             <!-- Type Magasin -->
             <div class="form-field">
-              <p-floatlabel>
-                <p-select
-                  id="typeMagasin"
-                  formControlName="typeMagasin"
-                  [options]="typeMagasinOptions"
-                  optionLabel="label"
-                  optionValue="value"
-                  [style]="{ width: '100%' }"
-                  [class.ng-invalid]="formControls['typeMagasin'].invalid && formControls['typeMagasin'].touched">
-                </p-select>
-                <label for="typeMagasin">Type de Magasin *</label>
-              </p-floatlabel>
+              <label for="typeMagasin">Type de Magasin <span class="required">*</span></label>
+              <p-select
+                id="typeMagasin"
+                formControlName="typeMagasin"
+                [options]="typeMagasinOptions"
+                optionLabel="label"
+                optionValue="value"
+                [fluid]="true"
+                [class.ng-invalid]="formControls['typeMagasin'].invalid && formControls['typeMagasin'].touched">
+              </p-select>
               @if (formControls['typeMagasin'].invalid && formControls['typeMagasin'].touched) {
                 <small class="p-error">Le type de magasin est obligatoire</small>
               }
             </div>
+          </div>
+        </p-card>
 
+        <!-- Section 2: Informations de Contact -->
+        <p-card class="mt-2">
+          <ng-template #header>
+            <div class="section-header">
+              <i class="pi pi-phone"></i>
+              <span>Informations de Contact</span>
+            </div>
+          </ng-template>
+
+          <div class="form-grid-compact">
             <!-- Phone -->
             <div class="form-field">
-              <p-floatlabel>
-                <input
-                  pInputText
-                  id="phone"
-                  formControlName="phone"
-                  type="tel"
-                  class="w-full" />
-                <label for="phone">Téléphone</label>
-              </p-floatlabel>
+              <label for="phone">Téléphone</label>
+              <input
+                pInputText
+                id="phone"
+                formControlName="phone"
+                type="tel"
+                class="w-full" />
             </div>
 
             <!-- Email -->
             <div class="form-field">
-              <p-floatlabel>
-                <input
-                  pInputText
-                  id="email"
-                  formControlName="email"
-                  type="email"
-                  class="w-full"
-                  [class.ng-invalid]="formControls['email'].invalid && formControls['email'].touched" />
-                <label for="email">Email</label>
-              </p-floatlabel>
+              <label for="email">Email</label>
+              <input
+                pInputText
+                id="email"
+                formControlName="email"
+                type="email"
+                class="w-full"
+                [class.ng-invalid]="formControls['email'].invalid && formControls['email'].touched" />
               @if (formControls['email'].invalid && formControls['email'].touched) {
                 <small class="p-error">Email invalide</small>
               }
@@ -107,90 +117,94 @@
 
             <!-- Address (Full Width) -->
             <div class="form-field form-field-full">
-              <p-floatlabel>
-                <textarea pTextarea id="address" formControlName="address" rows="2" class="w-full"></textarea>
-                <label for="address">Adresse</label>
-              </p-floatlabel>
+              <label for="address">Adresse</label>
+              <textarea pTextarea id="address" formControlName="address" rows="2" class="w-full"></textarea>
             </div>
+          </div>
+        </p-card>
 
-            <!-- Section Divider -->
-            <div class="form-divider"></div>
+        <!-- Section 3: Informations Administratives -->
+        <p-card class="mt-2">
+          <ng-template #header>
+            <div class="section-header">
+              <i class="pi pi-file-edit"></i>
+              <span>Informations Administratives</span>
+            </div>
+          </ng-template>
+
+          <div class="form-grid-compact">
             <!-- Registre -->
             <div class="form-field">
-              <p-floatlabel>
-                <input
-                  pInputText
-                  id="registre"
-                  formControlName="registre"
-                  class="w-full" />
-                <label for="registre">Registre de Commerce</label>
-              </p-floatlabel>
+              <label for="registre">Registre de Commerce</label>
+              <input
+                pInputText
+                id="registre"
+                formControlName="registre"
+                class="w-full" />
             </div>
 
             <!-- Compte Contribuable -->
             <div class="form-field">
-              <p-floatlabel>
-                <input
-                  pInputText
-                  id="compteContribuable"
-                  formControlName="compteContribuable"
-                  class="w-full" />
-                <label for="compteContribuable">Compte Contribuable</label>
-              </p-floatlabel>
+              <label for="compteContribuable">Compte Contribuable</label>
+              <input
+                pInputText
+                id="compteContribuable"
+                formControlName="compteContribuable"
+                class="w-full" />
             </div>
 
             <!-- Num Comptable -->
             <div class="form-field">
-              <p-floatlabel>
-                <input
-                  pInputText
-                  id="numComptable"
-                  formControlName="numComptable"
-                  class="w-full" />
-                <label for="numComptable">Numéro Comptable</label>
-              </p-floatlabel>
+              <label for="numComptable">Numéro Comptable</label>
+              <input
+                pInputText
+                id="numComptable"
+                formControlName="numComptable"
+                class="w-full" />
             </div>
 
             <!-- Compte Bancaire -->
             <div class="form-field">
-              <p-floatlabel>
-                <input
-                  pInputText
-                  id="compteBancaire"
-                  formControlName="compteBancaire"
-                  class="w-full" />
-                <label for="compteBancaire">Compte Bancaire</label>
-              </p-floatlabel>
+              <label for="compteBancaire">Compte Bancaire</label>
+              <input
+                pInputText
+                id="compteBancaire"
+                formControlName="compteBancaire"
+                class="w-full" />
             </div>
 
             <!-- Registre Imposition -->
-            <div class="form-field form-field-full">
-              <p-floatlabel>
-                <input
-                  pInputText
-                  id="registreImposition"
-                  formControlName="registreImposition"
-                  class="w-full" />
-                <label for="registreImposition">Registre d'Imposition</label>
-              </p-floatlabel>
+            <div class="form-field form-field-2col">
+              <label for="registreImposition">Registre d'Imposition</label>
+              <input
+                pInputText
+                id="registreImposition"
+                formControlName="registreImposition"
+                class="w-full" />
             </div>
+          </div>
+        </p-card>
 
-            <!-- Section Divider -->
-            <div class="form-divider"></div>
+        <!-- Section 4: Messages et Notes -->
+        <p-card class="mt-2">
+          <ng-template #header>
+            <div class="section-header">
+              <i class="pi pi-comment"></i>
+              <span>Messages et Notes</span>
+            </div>
+          </ng-template>
+
+          <div class="form-grid-compact">
             <!-- Welcome Message -->
             <div class="form-field">
-              <p-floatlabel>
-                <textarea pTextarea id="welcomeMessage" formControlName="welcomeMessage" rows="2" class="w-full"></textarea>
-                <label for="welcomeMessage">Message de Bienvenue</label>
-              </p-floatlabel>
+              <label for="welcomeMessage">Message de Bienvenue</label>
+              <textarea pTextarea id="welcomeMessage" formControlName="welcomeMessage" rows="2" class="w-full"></textarea>
             </div>
 
             <!-- Note -->
             <div class="form-field">
-              <p-floatlabel>
-                <textarea pTextarea id="note" formControlName="note" rows="2" class="w-full"></textarea>
-                <label for="note">Notes</label>
-              </p-floatlabel>
+              <label for="note">Notes</label>
+              <textarea pTextarea id="note" formControlName="note" rows="2" class="w-full"></textarea>
             </div>
           </div>
         </p-card>

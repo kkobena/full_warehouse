@@ -9,11 +9,8 @@ import { TableModule } from 'primeng/table';
 import { CardModule } from 'primeng/card';
 import { TagModule } from 'primeng/tag';
 import { ConfirmDialogComponent } from '../../shared/dialog/confirm-dialog/confirm-dialog.component';
-import { ToastAlertComponent } from '../../shared/toast-alert/toast-alert.component';
 import { Tooltip } from 'primeng/tooltip';
 import { Toolbar } from 'primeng/toolbar';
-import { FloatLabel } from 'primeng/floatlabel';
-import { Select } from 'primeng/select';
 import { InputText } from 'primeng/inputtext';
 import { IconField } from 'primeng/iconfield';
 import { InputIcon } from 'primeng/inputicon';
@@ -29,11 +26,8 @@ import { InputIcon } from 'primeng/inputicon';
     CardModule,
     TagModule,
     ConfirmDialogComponent,
-    ToastAlertComponent,
     Tooltip,
     Toolbar,
-    FloatLabel,
-    Select,
     InputText,
     IconField,
     InputIcon

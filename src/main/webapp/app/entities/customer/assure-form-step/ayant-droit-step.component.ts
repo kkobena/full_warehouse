@@ -13,7 +13,6 @@ import { DateNaissDirective } from '../../../shared/date-naiss.directive';
 
 @Component({
   selector: 'jhi-ayant-droit-step',
-
   imports: [
     InputMaskModule,
     InputTextModule,
@@ -25,7 +24,8 @@ import { DateNaissDirective } from '../../../shared/date-naiss.directive';
     DividerModule,
     DateNaissDirective
   ],
-  templateUrl: './ayant-droit-step.component.html'
+  templateUrl: './ayant-droit-step.component.html',
+  styleUrls: ['./assured-form-step-component.scss']
 })
 export class AyantDroitStepComponent implements OnInit {
   assure?: ICustomer;

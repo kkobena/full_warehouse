@@ -5,221 +5,291 @@
   </button>
 </div>
 
-
 <form (ngSubmit)="save()" [formGroup]="editForm" name="editForm" novalidate role="form">
   <div class="modal-body">
-    <p-card>
-      <div [hidden]="!editForm.get('id')!.value" class="form-group">
-        <input class="form-control" formControlName="id" id="id" name="id" pInputText readonly
-               type="hidden" />
-      </div>
-      <div class="form-row">
-        <div class="form-group col-md-4">
-          <label class="form-control-label" for="field_libelle">Nom abrégé </label> <span
-          style="font-weight: 900; color: red">*</span>
-          <input #name autocomplete="off" class="form-control" formControlName="name"
-                 id="field_libelle" name="name" pInputText type="text" />
-          @if (editForm.get('name')!.invalid && (editForm.get('name')!.dirty || editForm.get(
-            'name')!.touched)) {
-            <div>
-              @if (editForm.get('name')?.errors?.required) {
-                <small class="form-text text-danger" jhiTranslate="entity.validation.required"> This
-                  field is required. </small>
-              }
-            </div>
-          }
-        </div>
-        <div class="form-group col-md-5">
-          <label class="form-control-label" for="field_fullName">Nom long <span
-            style="font-weight: 900; color: red">*</span> </label>
-          <input
-            autocomplete="off"
-            class="form-control"
-            formControlName="fullName"
-            id="field_fullName"
-            name="fullName"
-            pInputText
-            type="text"
-          />
-          @if (editForm.get('fullName')!.invalid && (editForm.get('fullName')!.dirty
-            || editForm.get(
-              'fullName')!.touched)) {
-            <div>
-              @if (editForm.get('fullName')?.errors?.required) {
-                <small class="form-text text-danger" jhiTranslate="entity.validation.required"> This
-                  field is required. </small>
-              }
-            </div>
-          }
-        </div>
+    <input formControlName="id" id="id" name="id" type="hidden" />
 
-        <div class="form-group col-md-3">
-          <label class="form-control-label" for="ncc">Identifiant contribuable </label>
-          <input
-            autocomplete="off"
-            class="form-control"
-            formControlName="ncc"
-            id="ncc"
-            name="ncc"
-            pInputText
-            pKeyFilter="alphanum"
-            type="text"
-          />
-        </div>
-
-
-      </div>
-      <div class="form-row">
-        <div class="form-group col-md-4">
-          <label class="form-control-label" for="groupeTiersPayantId">Groupe tiers-payant</label>
-          <p-select
-            [filter]="false"
-            [options]="groupeTiersPayants"
-            formControlName="groupeTiersPayantId"
-            id="groupeTiersPayantId"
-            name="groupeTiersPayantId"
-            optionLabel="name"
-            optionValue="id"
-            placeholder="Sélectionner un groupe"
-            size="large"
-          >
-          </p-select>
-        </div>
-        <div class="form-group col-md-3">
-          <label class="form-control-label" for="codeOrganisme">Code organisme </label>
-          <input
-            autocomplete="off"
-            class="form-control"
-            formControlName="codeOrganisme"
-            id="codeOrganisme"
-            name="codeOrganisme"
-            pInputText
-            pKeyFilter="alphanum"
-            type="text"
-          />
-        </div>
-
-        <div class="form-group col-md-3">
-          <label class="form-control-label" for="nbreBordereaux">Nombre maxi de bordereau par
-            facture</label>
-          <p-input-number autocomplete="off" formControlName="nbreBordereaux" id="nbreBordereaux"
-                          name="nbreBordereaux" />
-        </div>
-        <div class="form-group col-md-2">
-          <label class="form-control-label" for="montantMaxParFcture">Montant maxi par
-            facture</label>
-          <p-input-number autocomplete="off" formControlName="montantMaxParFcture"
-                          id="montantMaxParFcture" name="montantMaxParFcture" />
-        </div>
-      </div>
-      <div class="form-row">
-        <div class="form-group col-md-4">
-          <label class="form-control-label" for="remiseForfaitaire">Remise forfaitaire </label>
-          <p-input-number autocomplete="off" formControlName="remiseForfaitaire"
-                          id="remiseForfaitaire" name="remiseForfaitaire" />
-        </div>
-        <div class="form-group col-md-4">
-          <label class="form-control-label" for="plafondConso">Plafond consommation </label>
-          <p-input-number autocomplete="off" formControlName="plafondConso" id="plafondConso"
-                          name="plafondConso" />
-        </div>
-        <div class="form-group col-md-4">
-          <label class="form-control-label">Le plafond est-il absolu ?</label>
-          <p-toggleswitch class="form-control" formControlName="plafondAbsolu"
-                          inputId="plafondAbsolu"></p-toggleswitch>
-        </div>
-      </div>
-      <div class="form-row">
-        <div class="form-group col-md-4">
-          <label class="form-control-label" for="groupeTiersPayantId">Modèle de facture</label>
-          <p-select
-            [filter]="false"
-            [options]="modelFacture"
-            formControlName="modelFacture"
-            id="modelFacture"
-            name="modelFacture"
-            optionLabel="value"
-            optionValue="key"
-            placeholder="Sélectionner un groupe"
-            size="large"
-          >
-          </p-select>
-        </div>
-
-        @if (categorie !== 'DEPOT') {
-          <div class="form-group col-md-4">
-            <label class="form-control-label" for="toBeExclude">Exclure du CA</label>
-            <p-toggleswitch
-              class="form-control"
-              formControlName="toBeExclude"
-              inputId="toBeExclude"
-              id="toBeExclude"
-              name="toBeExclude"
-            ></p-toggleswitch>
+    <!-- Two Column Layout: Champs Obligatoires and Informations Générales -->
+    <div class="card-grid-2col">
+      <!-- Section 1: Champs Obligatoires -->
+      <p-card>
+        <ng-template #header>
+          <div class="section-header section-header-required">
+            <i class="pi pi-exclamation-circle"></i>
+            <span>Champs Obligatoires</span>
           </div>
-        }
+        </ng-template>
 
-        <div class="form-group col-md-4">
-          <label class="form-control-label" for="telephone">Téléphone </label>
-          <input
-            autocomplete="off"
-            class="form-control"
-            formControlName="telephone"
-            id="telephone"
-            name="telephone"
-            pInputText
-            pKeyFilter="int"
-            type="text"
-          />
-        </div>
-      </div>
-      @if (categorie === 'ASSURANCE') {
-        <div class="form-row">
-          <div class="form-group col-md-4">
-            <label class="form-control-label" for="plafondJournalierClient">Plafond de vente des
-              clients</label>
-            <p-input-number
+        <div class="form-grid-compact">
+          <!-- Nom abrégé -->
+          <div class="form-field form-field-full">
+            <label for="field_libelle">Nom abrégé <span class="required">*</span></label>
+            <input
+              #name
+              pInputText
+              id="field_libelle"
+              formControlName="name"
+              class="w-full"
               autocomplete="off"
-              formControlName="plafondJournalierClient"
-              id="plafondJournalierClient"
-              name="plafondJournalierClient"
-            />
+              [class.ng-invalid]="editForm.get('name')?.invalid && editForm.get('name')?.touched" />
+            @if (editForm.get('name')?.invalid && editForm.get('name')?.touched) {
+              @if (editForm.get('name')?.errors?.required) {
+                <small class="p-error" jhiTranslate="entity.validation.required">Ce champ est obligatoire</small>
+              }
+            }
           </div>
-          <div class="form-group col-md-4">
-            <label class="form-control-label" for="plafondConsoClient">Plafond consommation des
-              clients</label>
-            <p-input-number autocomplete="off" formControlName="plafondConsoClient"
-                            id="plafondConsoClient" name="plafondConsoClient" />
-          </div>
-          <div class="form-group col-md-4">
-            <label class="form-control-label">Le plafond des clients est-il absolu ?</label>
-            <p-toggleswitch class="form-control"
-                            formControlName="plafondAbsoluClient"></p-toggleswitch>
+
+          <!-- Nom long -->
+          <div class="form-field form-field-full">
+            <label for="field_fullName">Nom long <span class="required">*</span></label>
+            <input
+              pInputText
+              id="field_fullName"
+              formControlName="fullName"
+              class="w-full"
+              autocomplete="off"
+              [class.ng-invalid]="editForm.get('fullName')?.invalid && editForm.get('fullName')?.touched" />
+            @if (editForm.get('fullName')?.invalid && editForm.get('fullName')?.touched) {
+              @if (editForm.get('fullName')?.errors?.required) {
+                <small class="p-error" jhiTranslate="entity.validation.required">Ce champ est obligatoire</small>
+              }
+            }
           </div>
         </div>
+      </p-card>
+
+      <!-- Section 2: Informations Générales -->
+      <p-card>
+        <ng-template #header>
+          <div class="section-header">
+            <i class="pi pi-info-circle"></i>
+            <span>Informations Générales</span>
+          </div>
+        </ng-template>
+
+        <div class="form-grid-compact">
+          <!-- Identifiant contribuable -->
+          <div class="form-field form-field-full">
+            <label for="ncc">Identifiant contribuable</label>
+            <input
+              pInputText
+              pKeyFilter="alphanum"
+              id="ncc"
+              formControlName="ncc"
+              class="w-full"
+              autocomplete="off" />
+          </div>
+
+          <!-- Groupe tiers-payant -->
+          <div class="form-field form-field-full">
+            <label for="groupeTiersPayantId">Groupe tiers-payant</label>
+            <p-select
+              id="groupeTiersPayantId"
+              formControlName="groupeTiersPayantId"
+              [options]="groupeTiersPayants"
+              optionLabel="name"
+              optionValue="id"
+              placeholder="Sélectionner un groupe"
+              [fluid]="true">
+            </p-select>
+          </div>
+
+          <!-- Code organisme -->
+          <div class="form-field form-field-full">
+            <label for="codeOrganisme">Code organisme</label>
+            <input
+              pInputText
+              pKeyFilter="alphanum"
+              id="codeOrganisme"
+              formControlName="codeOrganisme"
+              class="w-full"
+              autocomplete="off" />
+          </div>
+
+          <!-- Téléphone -->
+          <div class="form-field form-field-full">
+            <label for="telephone">Téléphone</label>
+            <input
+              pInputText
+              pKeyFilter="int"
+              id="telephone"
+              formControlName="telephone"
+              type="tel"
+              class="w-full"
+              autocomplete="off" />
+          </div>
+        </div>
+      </p-card>
+    </div>
+
+    <!-- Three Column Layout: Paramètres de Facturation, Plafonds et Remises, and Plafonds Clients -->
+    <div class="card-grid-3col mt-2">
+      <!-- Section 3: Paramètres de Facturation -->
+      <p-card>
+        <ng-template #header>
+          <div class="section-header">
+            <i class="pi pi-file-edit"></i>
+            <span>Paramètres de Facturation</span>
+          </div>
+        </ng-template>
+
+        <div class="form-grid-compact">
+          <!-- Nombre maxi de bordereau -->
+          <div class="form-field form-field-full">
+            <label for="nbreBordereaux">Nombre maxi de bordereau par facture</label>
+            <p-input-number
+              id="nbreBordereaux"
+              formControlName="nbreBordereaux"
+              [fluid]="true"
+              autocomplete="off">
+            </p-input-number>
+          </div>
+
+          <!-- Montant maxi par facture -->
+          <div class="form-field form-field-full">
+            <label for="montantMaxParFcture">Montant maxi par facture</label>
+            <p-input-number
+              id="montantMaxParFcture"
+              formControlName="montantMaxParFcture"
+              [fluid]="true"
+              autocomplete="off">
+            </p-input-number>
+          </div>
+
+          <!-- Modèle de facture -->
+          <div class="form-field form-field-full">
+            <label for="modelFacture">Modèle de facture</label>
+            <p-select
+              id="modelFacture"
+              formControlName="modelFacture"
+              [options]="modelFacture"
+              optionLabel="value"
+              optionValue="key"
+              placeholder="Sélectionner un modèle"
+              [fluid]="true">
+            </p-select>
+          </div>
+
+          @if (categorie !== 'DEPOT') {
+            <!-- Exclure du CA -->
+            <div class="form-field form-field-full">
+              <label for="toBeExclude">Exclure du CA</label>
+              <p-toggleswitch
+                id="toBeExclude"
+                formControlName="toBeExclude">
+              </p-toggleswitch>
+            </div>
+          }
+        </div>
+      </p-card>
+
+      <!-- Section 4: Plafonds et Remises -->
+      <p-card>
+        <ng-template #header>
+          <div class="section-header">
+            <i class="pi pi-calculator"></i>
+            <span>Plafonds et Remises</span>
+          </div>
+        </ng-template>
+
+        <div class="form-grid-compact">
+          <!-- Remise forfaitaire -->
+          <div class="form-field form-field-full">
+            <label for="remiseForfaitaire">Remise forfaitaire</label>
+            <p-input-number
+              id="remiseForfaitaire"
+              formControlName="remiseForfaitaire"
+              [fluid]="true"
+              autocomplete="off">
+            </p-input-number>
+          </div>
+
+          <!-- Plafond consommation -->
+          <div class="form-field form-field-full">
+            <label for="plafondConso">Plafond consommation</label>
+            <p-input-number
+              id="plafondConso"
+              formControlName="plafondConso"
+              [fluid]="true"
+              autocomplete="off">
+            </p-input-number>
+          </div>
+
+          <!-- Plafond absolu -->
+          <div class="form-field form-field-full">
+            <label for="plafondAbsolu">Le plafond est-il absolu ?</label>
+            <p-toggleswitch
+              id="plafondAbsolu"
+              formControlName="plafondAbsolu">
+            </p-toggleswitch>
+          </div>
+        </div>
+      </p-card>
+
+      <!-- Section 5: Plafonds Clients (only for ASSURANCE) -->
+      @if (categorie === 'ASSURANCE') {
+        <p-card>
+          <ng-template #header>
+            <div class="section-header">
+              <i class="pi pi-users"></i>
+              <span>Plafonds Clients</span>
+            </div>
+          </ng-template>
+
+          <div class="form-grid-compact">
+            <!-- Plafond de vente des clients -->
+            <div class="form-field form-field-full">
+              <label for="plafondJournalierClient">Plafond de vente des clients</label>
+              <p-input-number
+                id="plafondJournalierClient"
+                formControlName="plafondJournalierClient"
+                [fluid]="true"
+                autocomplete="off">
+              </p-input-number>
+            </div>
+
+            <!-- Plafond consommation des clients -->
+            <div class="form-field form-field-full">
+              <label for="plafondConsoClient">Plafond consommation des clients</label>
+              <p-input-number
+                id="plafondConsoClient"
+                formControlName="plafondConsoClient"
+                [fluid]="true"
+                autocomplete="off">
+              </p-input-number>
+            </div>
+
+            <!-- Plafond absolu client -->
+            <div class="form-field form-field-full">
+              <label for="plafondAbsoluClient">Le plafond des clients est-il absolu ?</label>
+              <p-toggleswitch
+                id="plafondAbsoluClient"
+                formControlName="plafondAbsoluClient">
+              </p-toggleswitch>
+            </div>
+          </div>
+        </p-card>
       }
-    </p-card>
+    </div>
   </div>
 
-  <div class="modal-footer">
+  <div class="form-actions-compact">
     <p-button
-      (click)="cancel()"
-      [raised]="true"
-      class="p-mr-2"
-      icon="pi pi-times"
       label="Annuler"
+      icon="pi pi-times"
       severity="secondary"
+      [text]="true"
       type="button"
-    ></p-button>
+      (click)="cancel()">
+    </p-button>
     <p-button
-      [disabled]="editForm.invalid || isSaving || !isValid"
-      [raised]="true"
-      class="p-mr-2"
-      icon="pi pi-check"
       label="Enregistrer"
-      severity="success"
+      icon="pi pi-check"
+      severity="primary"
       type="submit"
-    ></p-button>
+      [disabled]="editForm.invalid || isSaving || !isValid"
+      [loading]="isSaving">
+    </p-button>
   </div>
 </form>
 <jhi-toast-alert #alert></jhi-toast-alert>

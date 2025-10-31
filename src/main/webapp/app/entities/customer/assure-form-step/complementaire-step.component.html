@@ -1,104 +1,104 @@
 <p-card>
   <ng-template #header>
-    <div class="d-flex justify-content-between p-2">
-      <span class="fw-bold">Info complémentaires</span>
+    <div class="section-header">
+      <i class="pi pi-shield"></i>
+      <span>Assurances Complémentaires</span>
       @if (validSize) {
-        <span>
-          <p-button (click)="addTiersPayant()" pTooltip="Ajouter un tiers payant" severity="info"
-                    size="small" [rounded]="true"
-                    icon="pi pi-plus" type="button"></p-button>
-        </span>
+        <p-button
+          (click)="addTiersPayant()"
+          pTooltip="Ajouter un tiers payant"
+          severity="info"
+          size="small"
+          [rounded]="true"
+          icon="pi pi-plus"
+          type="button"
+          class="ml-auto">
+        </p-button>
       }
     </div>
   </ng-template>
-  <ng-template #content>
-    <form [formGroup]="editForm" name="editForm">
-      <div class="row">
-        @for (tiersPayant of editFormGroups.controls; track i; let i = $index) {
-          <div formArrayName="tiersPayants" class="col-md-6 card">
-            <ng-container [formGroupName]="i">
-              <div class="card-header d-flex justify-content-end">
-                <p-button
-                  (click)="confirmRemove(i)"
-                  severity="danger"
-                  icon="pi pi-times"
-                  size="small"
-                  pTooltip="Supprimer"
-                  [rounded]="true"
-                  type="button"
-                ></p-button>
-              </div>
-              <div class="card-body">
-                <input class="form-control" formControlName="id" type="hidden" name="id" />
-                <div class="form-row">
-                  <div class="form-group col-md-6">
-                    <label class="form-control-label">Tiers-payant<span
-                      style="font-weight: 900; color: red">*</span></label>
-                    <p-autoComplete
-                      (completeMethod)="searchTiersPayant($event)"
-                      (onSelect)="onSelectTiersPayant($event, i)"
-                      [forceSelection]="true"
-                      [inputStyle]="{ width: '100%' }"
-                      [minQueryLength]="minLength"
-                      [style]="{ width: '100%' }"
-                      [suggestions]="tiersPayants"
-                      formControlName="tiersPayant"
-                      name="tiersPayant"
-                      [dropdown]="true"
-                      optionLabel="fullName"
-                      placeholder="Taper pour rechercher"
-                    >
-                    </p-autoComplete>
-                  </div>
-                  <div class="form-group col-md-6">
-                    <label class="form-control-label">Numéro de sécurité <span
-                      style="font-weight: 900; color: red">*</span> </label>
-                    <input
-                      autocomplete="off"
-                      class="form-control"
-                      pKeyFilter="alphanum"
-                      formControlName="num"
-                      name="num"
-                      pInputText
-                      type="text"
-                    />
-                  </div>
+
+  <form [formGroup]="editForm" name="editForm">
+    <div class="complementaire-grid">
+      @for (tiersPayant of editFormGroups.controls; track i; let i = $index) {
+        <div formArrayName="tiersPayants" class="complementaire-card">
+          <ng-container [formGroupName]="i">
+            <div class="complementaire-card-header">
+              <span class="complementaire-card-title">Assurance #{{ i + 1 }}</span>
+              <p-button
+                (click)="confirmRemove(i)"
+                severity="danger"
+                icon="pi pi-times"
+                size="small"
+                pTooltip="Supprimer"
+                [rounded]="true"
+                [text]="true"
+                type="button">
+              </p-button>
+            </div>
+
+            <div class="complementaire-card-body">
+              <input formControlName="id" type="hidden" name="id" />
+
+              <div class="form-grid-compact">
+                <!-- Tiers-payant -->
+                <div class="form-field form-field-full">
+                  <label>Tiers-payant <span class="required">*</span></label>
+                  <p-autoComplete
+                    formControlName="tiersPayant"
+                    [suggestions]="tiersPayants"
+                    (completeMethod)="searchTiersPayant($event)"
+                    (onSelect)="onSelectTiersPayant($event, i)"
+                    [forceSelection]="true"
+                    [minQueryLength]="minLength"
+                    [dropdown]="true"
+                    optionLabel="fullName"
+                    placeholder="Taper pour rechercher"
+                    [fluid]="true">
+                  </p-autoComplete>
                 </div>
-                <div class="form-row">
-                  <div class="form-group col-md-6">
-                    <label class="form-control-label">Taux <span
-                      style="font-weight: 900; color: red">*</span> </label>
-                    <input
-                      autocomplete="off"
-                      class="form-control"
-                      formControlName="taux"
-                      name="taux"
-                      pInputText
-                      pKeyFilter="int"
-                      type="text"
-                    />
-                  </div>
-                  <div class="form-group col-md-6">
-                    <label class="form-control-label">Ordre <span
-                      style="font-weight: 900; color: red">*</span> </label>
-                    <p-select
-                      [options]="catgories"
-                      appendTo="body"
-                      class="form-control ngCombo"
-                      name="priorite"
-                      formControlName="priorite"
-                      optionLabel="label"
-                      optionValue="value"
-                    ></p-select>
-                  </div>
+
+                <!-- Numéro de sécurité -->
+                <div class="form-field">
+                  <label>Numéro de sécurité <span class="required">*</span></label>
+                  <input
+                    pInputText
+                    pKeyFilter="alphanum"
+                    formControlName="num"
+                    class="w-full"
+                    autocomplete="off" />
+                </div>
+
+                <!-- Taux -->
+                <div class="form-field">
+                  <label>Taux (%) <span class="required">*</span></label>
+                  <input
+                    pInputText
+                    pKeyFilter="int"
+                    formControlName="taux"
+                    class="w-full"
+                    autocomplete="off" />
+                </div>
+
+                <!-- Ordre -->
+                <div class="form-field">
+                  <label>Ordre <span class="required">*</span></label>
+                  <p-select
+                    formControlName="priorite"
+                    [options]="catgories"
+                    optionLabel="label"
+                    optionValue="value"
+                    [fluid]="true"
+                    appendTo="body">
+                  </p-select>
                 </div>
               </div>
-            </ng-container>
-          </div>
-        }
-      </div>
-    </form>
-  </ng-template>
+            </div>
+          </ng-container>
+        </div>
+      }
+    </div>
+  </form>
 </p-card>
-<jhi-toast-alert #alert></jhi-toast-alert>
+<jhi-toast-alert #alert />
 <p-confirmdialog />

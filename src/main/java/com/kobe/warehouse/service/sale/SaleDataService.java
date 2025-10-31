@@ -23,6 +23,7 @@ import com.kobe.warehouse.domain.ThirdPartySales_;
 import com.kobe.warehouse.domain.enumeration.PaymentStatus;
 import com.kobe.warehouse.domain.enumeration.SalesStatut;
 import com.kobe.warehouse.repository.SalesLineRepository;
+import com.kobe.warehouse.repository.SalesRepository;
 import com.kobe.warehouse.repository.ThirdPartySaleLineRepository;
 import com.kobe.warehouse.repository.UserRepository;
 import com.kobe.warehouse.security.SecurityUtils;
@@ -59,6 +60,7 @@ import org.springframework.core.io.Resource;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -74,6 +76,7 @@ public class SaleDataService {
     private final SalesLineRepository salesLineRepository;
     private final ThirdPartySaleLineRepository thirdPartySaleLineRepository;
     private final ReceiptPrinterService receiptPrinterService;
+    private final SalesRepository salesRepository;
 
     public SaleDataService(
         EntityManager em,
@@ -81,7 +84,7 @@ public class SaleDataService {
         SaleInvoiceReportService saleInvoiceService,
         SalesLineRepository salesLineRepository,
         ThirdPartySaleLineRepository thirdPartySaleLineRepository,
-        ReceiptPrinterService receiptPrinterService
+        ReceiptPrinterService receiptPrinterService, SalesRepository salesRepository
     ) {
         this.em = em;
         this.userRepository = userRepository;
@@ -91,28 +94,17 @@ public class SaleDataService {
 
         this.thirdPartySaleLineRepository = thirdPartySaleLineRepository;
         this.receiptPrinterService = receiptPrinterService;
+        this.salesRepository = salesRepository;
     }
 
     public List<SaleDTO> customerPurchases(Long customerId, LocalDate fromDate, LocalDate toDate) {
-        CriteriaBuilder cb = em.getCriteriaBuilder();
-        CriteriaQuery<Sales> cq = cb.createQuery(Sales.class);
-        Root<Sales> root = cq.from(Sales.class);
-        root.fetch(Sales_.SALES_LINES, JoinType.INNER);
-        root.fetch(Sales_.PAYMENTS, JoinType.LEFT);
-        cq.select(root).distinct(true).orderBy(cb.desc(root.get(Sales_.updatedAt)));
-        List<Predicate> predicates = new ArrayList<>();
-        predicates.add(cb.equal(root.get(Sales_.customer).get(Customer_.id), customerId));
-        predicates.add(root.get(Sales_.statut).in(SalesStatut.CLOSED, SalesStatut.CANCELED));
+        Specification<Sales> specification = Specification.where(salesRepository.filterByCustomerId(customerId));
         if (fromDate != null) {
-            predicates.add(cb.between(root.get(Sales_.saleDate), fromDate, toDate));
-        } else {
-            LocalDate now = LocalDate.now();
-            LocalDate from = LocalDate.now().minusYears(1);
-            predicates.add(cb.between(root.get(Sales_.saleDate), from, now));
+            specification=specification.and(salesRepository.between(fromDate, toDate));
+
         }
-        cq.where(cb.and(predicates.toArray(new Predicate[0])));
-        TypedQuery<Sales> q = em.createQuery(cq);
-        return q.getResultList().stream().map(this::buildSaleDTO).collect(Collectors.toList());
+        return salesRepository.findAll(specification
+        ).stream().map(this::buildSaleDTO).toList();
     }
 
     public SaleDTO findOne(SaleId id) {

@@ -349,10 +349,10 @@
             <!-- Date péremption checkbox -->
             <div class="form-field">
               <div class="checkbox-field">
-                <p-checkbox
+                <p-checkbox #datePeremptionCheckbox
                   inputId="dateperemption"
                   formControlName="dateperemption"
-                  (onChange)="onDatePeremtionCheck($event)"
+                  (onChange)="onDatePeremtionCheck(datePeremptionCheckbox.checked)"
                   [binary]="true">
                 </p-checkbox>
                 <label for="dateperemption">Observer la date de péremption ?</label>
@@ -389,10 +389,10 @@
             <!-- Déconditionnable checkbox -->
             <div class="form-field">
               <div class="checkbox-field">
-                <p-checkbox
+                <p-checkbox #checkbox
                   inputId="deconditionnable"
                   formControlName="deconditionnable"
-                  (onChange)="onDeconditionnable($event)"
+                  (onChange)="onDeconditionnable(checkbox.checked)"
                   [binary]="true">
                 </p-checkbox>
                 <label for="deconditionnable">Produit déconditionnable ?</label>

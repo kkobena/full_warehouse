@@ -85,7 +85,7 @@ export class SalesService {
   }
 
   print(id: SaleId): Observable<Blob> {
-    return this.http.get(`${this.resourceUrl}/print/${id.id}/${id.saleDate}`, { responseType: 'blob' });
+    return this.http.get(`${this.resourceUrl}/print/invoice/${id.id}/${id.saleDate}`, { responseType: 'blob' });
   }
 
   printReceipt(id: SaleId): Observable<{}> {

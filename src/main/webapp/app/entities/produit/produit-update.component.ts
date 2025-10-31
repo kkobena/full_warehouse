@@ -280,8 +280,8 @@ export class ProduitUpdateComponent implements OnInit {
     this.isValid = itemCostAmount < Number(value);
   }
 
-  onDatePeremtionCheck(value: any): void {
-    this.isDatePeremptionChecked = value.currentTarget.checked;
+  onDatePeremtionCheck(value: boolean): void {
+    this.isDatePeremptionChecked = value;
     if (this.isDatePeremptionChecked) {
       this.editForm.get('perimeAt').setValidators([Validators.required, Validators.min(1)]);
       this.editForm.get('perimeAt').updateValueAndValidity();
@@ -291,8 +291,9 @@ export class ProduitUpdateComponent implements OnInit {
     }
   }
 
-  onDeconditionnable(value: any): void {
-    this.isDeconditionnable = value.currentTarget.checked;
+  onDeconditionnable(value: boolean): void {
+    console.log(value);
+    this.isDeconditionnable = value;
     if (this.isDeconditionnable) {
       this.editForm.get('itemRegularUnitPrice').setValidators([Validators.required, Validators.min(1)]);
       this.editForm.get('itemRegularUnitPrice').updateValueAndValidity();
@@ -354,7 +355,8 @@ export class ProduitUpdateComponent implements OnInit {
       expirationDate: this.editForm.get(['expirationDate']).value,
       formeId: this.editForm.get(['formeId']).value,
       dciId: this.editForm.get(['dciId']).value,
-      categorie: this.editForm.get(['categorie']).value
+      categorie: this.editForm.get(['categorie']).value,
+      codeEanLaboratoire: this.editForm.get(['codeEanLaboratoire']).value
     };
   }
 }

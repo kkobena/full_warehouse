@@ -6,13 +6,13 @@
       @if (validSize) {
         <p-button
           (click)="addTiersPayant()"
+          [rounded]="true"
+          class="ml-auto"
+          icon="pi pi-plus"
           pTooltip="Ajouter un tiers payant"
           severity="info"
           size="small"
-          [rounded]="true"
-          icon="pi pi-plus"
-          type="button"
-          class="ml-auto">
+          type="button">
         </p-button>
       }
     </div>
@@ -21,40 +21,40 @@
   <form [formGroup]="editForm" name="editForm">
     <div class="complementaire-grid">
       @for (tiersPayant of editFormGroups.controls; track i; let i = $index) {
-        <div formArrayName="tiersPayants" class="complementaire-card">
+        <div class="complementaire-card" formArrayName="tiersPayants">
           <ng-container [formGroupName]="i">
             <div class="complementaire-card-header">
               <span class="complementaire-card-title">Assurance #{{ i + 1 }}</span>
               <p-button
                 (click)="confirmRemove(i)"
-                severity="danger"
-                icon="pi pi-times"
-                size="small"
-                pTooltip="Supprimer"
                 [rounded]="true"
                 [text]="true"
+                icon="pi pi-times"
+                pTooltip="Supprimer"
+                severity="danger"
+                size="small"
                 type="button">
               </p-button>
             </div>
 
             <div class="complementaire-card-body">
-              <input formControlName="id" type="hidden" name="id" />
+              <input formControlName="id" name="id" type="hidden" />
 
               <div class="form-grid-compact">
                 <!-- Tiers-payant -->
                 <div class="form-field form-field-full">
                   <label>Tiers-payant <span class="required">*</span></label>
                   <p-autoComplete
-                    formControlName="tiersPayant"
-                    [suggestions]="tiersPayants"
                     (completeMethod)="searchTiersPayant($event)"
                     (onSelect)="onSelectTiersPayant($event, i)"
+                    [dropdown]="true"
+                    [fluid]="true"
                     [forceSelection]="true"
                     [minQueryLength]="minLength"
-                    [dropdown]="true"
+                    [suggestions]="tiersPayants"
+                    formControlName="tiersPayant"
                     optionLabel="fullName"
-                    placeholder="Taper pour rechercher"
-                    [fluid]="true">
+                    placeholder="Taper pour rechercher">
                   </p-autoComplete>
                 </div>
 
@@ -62,34 +62,34 @@
                 <div class="form-field">
                   <label>Numéro de sécurité <span class="required">*</span></label>
                   <input
-                    pInputText
-                    pKeyFilter="alphanum"
-                    formControlName="num"
+                    autocomplete="off"
                     class="w-full"
-                    autocomplete="off" />
+                    formControlName="num"
+                    pInputText
+                    pKeyFilter="alphanum" />
                 </div>
 
                 <!-- Taux -->
                 <div class="form-field">
                   <label>Taux (%) <span class="required">*</span></label>
                   <input
-                    pInputText
-                    pKeyFilter="int"
-                    formControlName="taux"
+                    autocomplete="off"
                     class="w-full"
-                    autocomplete="off" />
+                    formControlName="taux"
+                    pInputText
+                    pKeyFilter="int" />
                 </div>
 
                 <!-- Ordre -->
                 <div class="form-field">
                   <label>Ordre <span class="required">*</span></label>
                   <p-select
-                    formControlName="priorite"
-                    [options]="catgories"
-                    optionLabel="label"
-                    optionValue="value"
                     [fluid]="true"
-                    appendTo="body">
+                    [options]="catgories"
+                    appendTo="body"
+                    formControlName="priorite"
+                    optionLabel="label"
+                    optionValue="value">
                   </p-select>
                 </div>
               </div>
@@ -101,4 +101,4 @@
   </form>
 </p-card>
 <jhi-toast-alert #alert />
-<p-confirmdialog />
+<p-confirmDialog />

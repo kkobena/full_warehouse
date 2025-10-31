@@ -45,7 +45,7 @@ import { takeUntil } from 'rxjs/operators';
     DateNaissDirective,
   ],
   templateUrl: './assure-step.component.html',
-  styleUrls: ['./assured-form-step-component.scss']
+  styleUrls: ['./assured-form-step-component.scss'],
 })
 export class AssureStepComponent implements OnInit, AfterViewInit, OnDestroy {
   header: string | null = null;
@@ -153,7 +153,7 @@ export class AssureStepComponent implements OnInit, AfterViewInit, OnDestroy {
       {
         entity: null,
         categorie: this.assureFormStepService.typeAssure(),
-        header: 'FORMULAIRE DE CREATION DE TIERS-PAYANT',
+        title: 'FORMULAIRE DE CREATION DE TIERS-PAYANT',
       },
       (resp: ITiersPayant) => {
         if (resp) {

@@ -1,5 +1,5 @@
 <div class="modal-header">
-  <h4 class="modal-title">{{ header }}</h4>
+  <h4 class="modal-title">{{ title }}</h4>
   <button (click)="cancel()" class="btn-close" data-dismiss="modal" type="button">
     &times;
   </button>
@@ -26,15 +26,16 @@
             <label for="field_libelle">Nom abrégé <span class="required">*</span></label>
             <input
               #name
-              pInputText
-              id="field_libelle"
-              formControlName="name"
-              class="w-full"
+              [class.ng-invalid]="editForm.get('name')?.invalid && editForm.get('name')?.touched"
               autocomplete="off"
-              [class.ng-invalid]="editForm.get('name')?.invalid && editForm.get('name')?.touched" />
+              class="w-full"
+              formControlName="name"
+              id="field_libelle"
+              pInputText />
             @if (editForm.get('name')?.invalid && editForm.get('name')?.touched) {
               @if (editForm.get('name')?.errors?.required) {
-                <small class="p-error" jhiTranslate="entity.validation.required">Ce champ est obligatoire</small>
+                <small class="p-error" jhiTranslate="entity.validation.required">Ce champ est
+                  obligatoire</small>
               }
             }
           </div>
@@ -43,15 +44,16 @@
           <div class="form-field form-field-full">
             <label for="field_fullName">Nom long <span class="required">*</span></label>
             <input
-              pInputText
-              id="field_fullName"
-              formControlName="fullName"
-              class="w-full"
+              [class.ng-invalid]="editForm.get('fullName')?.invalid && editForm.get('fullName')?.touched"
               autocomplete="off"
-              [class.ng-invalid]="editForm.get('fullName')?.invalid && editForm.get('fullName')?.touched" />
+              class="w-full"
+              formControlName="fullName"
+              id="field_fullName"
+              pInputText />
             @if (editForm.get('fullName')?.invalid && editForm.get('fullName')?.touched) {
               @if (editForm.get('fullName')?.errors?.required) {
-                <small class="p-error" jhiTranslate="entity.validation.required">Ce champ est obligatoire</small>
+                <small class="p-error" jhiTranslate="entity.validation.required">Ce champ est
+                  obligatoire</small>
               }
             }
           </div>
@@ -72,25 +74,25 @@
           <div class="form-field form-field-full">
             <label for="ncc">Identifiant contribuable</label>
             <input
-              pInputText
-              pKeyFilter="alphanum"
-              id="ncc"
-              formControlName="ncc"
+              autocomplete="off"
               class="w-full"
-              autocomplete="off" />
+              formControlName="ncc"
+              id="ncc"
+              pInputText
+              pKeyFilter="alphanum" />
           </div>
 
           <!-- Groupe tiers-payant -->
           <div class="form-field form-field-full">
             <label for="groupeTiersPayantId">Groupe tiers-payant</label>
             <p-select
-              id="groupeTiersPayantId"
-              formControlName="groupeTiersPayantId"
+              [fluid]="true"
               [options]="groupeTiersPayants"
+              formControlName="groupeTiersPayantId"
+              id="groupeTiersPayantId"
               optionLabel="name"
               optionValue="id"
-              placeholder="Sélectionner un groupe"
-              [fluid]="true">
+              placeholder="Sélectionner un groupe">
             </p-select>
           </div>
 
@@ -98,25 +100,25 @@
           <div class="form-field form-field-full">
             <label for="codeOrganisme">Code organisme</label>
             <input
-              pInputText
-              pKeyFilter="alphanum"
-              id="codeOrganisme"
-              formControlName="codeOrganisme"
+              autocomplete="off"
               class="w-full"
-              autocomplete="off" />
+              formControlName="codeOrganisme"
+              id="codeOrganisme"
+              pInputText
+              pKeyFilter="alphanum" />
           </div>
 
           <!-- Téléphone -->
           <div class="form-field form-field-full">
             <label for="telephone">Téléphone</label>
             <input
+              autocomplete="off"
+              class="w-full"
+              formControlName="telephone"
+              id="telephone"
               pInputText
               pKeyFilter="int"
-              id="telephone"
-              formControlName="telephone"
-              type="tel"
-              class="w-full"
-              autocomplete="off" />
+              type="tel" />
           </div>
         </div>
       </p-card>
@@ -138,10 +140,10 @@
           <div class="form-field form-field-full">
             <label for="nbreBordereaux">Nombre maxi de bordereau par facture</label>
             <p-input-number
-              id="nbreBordereaux"
-              formControlName="nbreBordereaux"
               [fluid]="true"
-              autocomplete="off">
+              autocomplete="off"
+              formControlName="nbreBordereaux"
+              id="nbreBordereaux">
             </p-input-number>
           </div>
 
@@ -149,10 +151,10 @@
           <div class="form-field form-field-full">
             <label for="montantMaxParFcture">Montant maxi par facture</label>
             <p-input-number
-              id="montantMaxParFcture"
-              formControlName="montantMaxParFcture"
               [fluid]="true"
-              autocomplete="off">
+              autocomplete="off"
+              formControlName="montantMaxParFcture"
+              id="montantMaxParFcture">
             </p-input-number>
           </div>
 
@@ -160,13 +162,13 @@
           <div class="form-field form-field-full">
             <label for="modelFacture">Modèle de facture</label>
             <p-select
-              id="modelFacture"
-              formControlName="modelFacture"
+              [fluid]="true"
               [options]="modelFacture"
+              formControlName="modelFacture"
+              id="modelFacture"
               optionLabel="value"
               optionValue="key"
-              placeholder="Sélectionner un modèle"
-              [fluid]="true">
+              placeholder="Sélectionner un modèle">
             </p-select>
           </div>
 
@@ -175,8 +177,8 @@
             <div class="form-field form-field-full">
               <label for="toBeExclude">Exclure du CA</label>
               <p-toggleswitch
-                id="toBeExclude"
-                formControlName="toBeExclude">
+                formControlName="toBeExclude"
+                id="toBeExclude">
               </p-toggleswitch>
             </div>
           }
@@ -197,10 +199,10 @@
           <div class="form-field form-field-full">
             <label for="remiseForfaitaire">Remise forfaitaire</label>
             <p-input-number
-              id="remiseForfaitaire"
-              formControlName="remiseForfaitaire"
               [fluid]="true"
-              autocomplete="off">
+              autocomplete="off"
+              formControlName="remiseForfaitaire"
+              id="remiseForfaitaire">
             </p-input-number>
           </div>
 
@@ -208,10 +210,10 @@
           <div class="form-field form-field-full">
             <label for="plafondConso">Plafond consommation</label>
             <p-input-number
-              id="plafondConso"
-              formControlName="plafondConso"
               [fluid]="true"
-              autocomplete="off">
+              autocomplete="off"
+              formControlName="plafondConso"
+              id="plafondConso">
             </p-input-number>
           </div>
 
@@ -219,8 +221,8 @@
           <div class="form-field form-field-full">
             <label for="plafondAbsolu">Le plafond est-il absolu ?</label>
             <p-toggleswitch
-              id="plafondAbsolu"
-              formControlName="plafondAbsolu">
+              formControlName="plafondAbsolu"
+              id="plafondAbsolu">
             </p-toggleswitch>
           </div>
         </div>
@@ -241,10 +243,10 @@
             <div class="form-field form-field-full">
               <label for="plafondJournalierClient">Plafond de vente des clients</label>
               <p-input-number
-                id="plafondJournalierClient"
-                formControlName="plafondJournalierClient"
                 [fluid]="true"
-                autocomplete="off">
+                autocomplete="off"
+                formControlName="plafondJournalierClient"
+                id="plafondJournalierClient">
               </p-input-number>
             </div>
 
@@ -252,10 +254,10 @@
             <div class="form-field form-field-full">
               <label for="plafondConsoClient">Plafond consommation des clients</label>
               <p-input-number
-                id="plafondConsoClient"
-                formControlName="plafondConsoClient"
                 [fluid]="true"
-                autocomplete="off">
+                autocomplete="off"
+                formControlName="plafondConsoClient"
+                id="plafondConsoClient">
               </p-input-number>
             </div>
 
@@ -263,8 +265,8 @@
             <div class="form-field form-field-full">
               <label for="plafondAbsoluClient">Le plafond des clients est-il absolu ?</label>
               <p-toggleswitch
-                id="plafondAbsoluClient"
-                formControlName="plafondAbsoluClient">
+                formControlName="plafondAbsoluClient"
+                id="plafondAbsoluClient">
               </p-toggleswitch>
             </div>
           </div>
@@ -275,20 +277,20 @@
 
   <div class="form-actions-compact">
     <p-button
-      label="Annuler"
-      icon="pi pi-times"
-      severity="secondary"
+      (click)="cancel()"
       [text]="true"
-      type="button"
-      (click)="cancel()">
+      icon="pi pi-times"
+      label="Annuler"
+      severity="secondary"
+      type="button">
     </p-button>
     <p-button
-      label="Enregistrer"
-      icon="pi pi-check"
-      severity="primary"
-      type="submit"
       [disabled]="editForm.invalid || isSaving || !isValid"
-      [loading]="isSaving">
+      [loading]="isSaving"
+      icon="pi pi-check"
+      label="Enregistrer"
+      severity="primary"
+      type="submit">
     </p-button>
   </div>
 </form>

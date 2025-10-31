@@ -39,10 +39,10 @@ import { acceptButtonProps, rejectButtonProps } from '../../../shared/util/modal
     Select,
     ConfirmDialog,
     ToastAlertComponent,
-    Tooltip
+    Tooltip,
   ],
   templateUrl: './complementaire-step.component.html',
-  styleUrls: ['./assured-form-step-component.scss']
+  styleUrls: ['./assured-form-step-component.scss'],
 })
 export class ComplementaireStepComponent implements OnDestroy {
   assureFormStepService = inject(AssureFormStepService);
@@ -54,11 +54,11 @@ export class ComplementaireStepComponent implements OnDestroy {
   protected catgories = [
     { label: 'RC1', value: 1 },
     { label: 'RC2', value: 2 },
-    { label: 'RC3', value: 3 }
+    { label: 'RC3', value: 3 },
   ];
   protected minLength = 3;
   protected editForm = this.fb.group({
-    tiersPayants: this.fb.array([])
+    tiersPayants: this.fb.array([]),
   });
 
   private readonly alert = viewChild.required<ToastAlertComponent>('alert');
@@ -94,8 +94,8 @@ export class ComplementaireStepComponent implements OnDestroy {
         plafondConso: [],
         plafondJournalier: [],
         plafondAbsolu: [],
-        priorite: tiersPayants.length + 1
-      })
+        priorite: tiersPayants.length + 1,
+      }),
     );
     this.validateTiersPayantSize();
   }
@@ -124,16 +124,16 @@ export class ComplementaireStepComponent implements OnDestroy {
       {
         entity: null,
         categorie: this.assureFormStepService.typeAssure(),
-        header: 'FORMULAIRE DE CREATION DE TIERS-PAYANT'
+        title: 'FORMULAIRE DE CREATION DE TIERS-PAYANT',
       },
       (resp: ITiersPayant) => {
         if (resp) {
           this.tiersPayants.push(resp);
-          this.convertFormAsFormArray().at(index).patchValue({ resp });
+          this.convertFormAsFormArray().at(index).patchValue({ tiersPayant: resp });
         }
       },
       'xl',
-      'modal-dialog-80'
+      'modal-dialog-80',
     );
   }
 
@@ -148,7 +148,7 @@ export class ComplementaireStepComponent implements OnDestroy {
         page: 0,
         size: 10,
         type: 'ASSURANCE',
-        search: query
+        search: query,
       })
       .pipe(takeUntil(this.destroy$))
       .subscribe((res: HttpResponse<ITiersPayant[]>) => {
@@ -172,8 +172,8 @@ export class ComplementaireStepComponent implements OnDestroy {
         plafondJournalier: tiersPayant.plafondJournalier,
         priorite: tiersPayant.priorite,
         categorie: tiersPayant.priorite,
-        plafondAbsolu: tiersPayant.plafondAbsolu
-      }
+        plafondAbsolu: tiersPayant.plafondAbsolu,
+      },
     ]);
   }
 
@@ -191,15 +191,14 @@ export class ComplementaireStepComponent implements OnDestroy {
             plafondJournalier: tp.plafondJournalier,
             priorite: tp.categorie,
             plafondAbsolu: tp.plafondAbsolu,
-            taux: tp.taux
-          })
+            taux: tp.taux,
+          }),
         );
       });
   }
 
   removeTiersPayant(index: number): void {
     const tiersPayants = this.convertFormAsFormArray();
-    console.error('tiersPayants', tiersPayants);
     const tiersPayant = tiersPayants.at(index).value as IClientTiersPayant;
     if (tiersPayant.id) {
       this.customerService
@@ -210,7 +209,7 @@ export class ComplementaireStepComponent implements OnDestroy {
             tiersPayants.removeAt(index);
             this.validateTiersPayantSize();
           },
-          error: err => this.onSaveError(err)
+          error: err => this.onSaveError(err),
         });
     } else {
       tiersPayants.removeAt(index);
@@ -230,12 +229,10 @@ export class ComplementaireStepComponent implements OnDestroy {
         icon: 'pi pi-info-circle',
         rejectButtonProps: rejectButtonProps(),
         acceptButtonProps: acceptButtonProps(),
-        accept: () => this.removeTiersPayant(index)
+        accept: () => this.removeTiersPayant(index),
       });
     } else {
       this.removeTiersPayant(index);
     }
-
-
   }
 }

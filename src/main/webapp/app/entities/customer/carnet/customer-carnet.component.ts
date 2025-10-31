@@ -110,7 +110,7 @@ export class CustomerCarnetComponent implements OnInit, AfterViewInit, OnDestroy
       {
         entity: null,
         categorie: this.categorie,
-        header: 'FORMULAIRE DE CREATION DE CARNET',
+        title: 'FORMULAIRE DE CREATION DE CARNET',
       },
       (resp: ITiersPayant) => {
         if (resp) {

@@ -29,31 +29,31 @@
     <p-toolbar>
       <ng-template #start>
         <div class="pharma-toolbar-filters">
-          <p-floatlabel variant="on" class="mr-1">
+          <p-floatlabel class="mr-1" variant="on">
             <p-select
-              id="typeFilter"
               (onChange)="onTypeChange()"
               [(ngModel)]="typeSelected"
+              [appendTo]="'body'"
               [filter]="false"
               [options]="types"
-              [appendTo]="'body'"
+              id="typeFilter"
               size="large"
             >
             </p-select>
             <label for="typeFilter">Filtrer par type</label>
           </p-floatlabel>
 
-          <p-floatlabel variant="on" class="mr-1">
+          <p-floatlabel class="mr-1" variant="on">
             <p-select
-              id="statutFilter"
-              size="large"
               (onChange)="onTypeChange()"
               [(ngModel)]="statutSelected"
+              [appendTo]="'body'"
               [filter]="false"
               [options]="statuts"
-              [appendTo]="'body'"
+              id="statutFilter"
               optionLabel="label"
               optionValue="value"
+              size="large"
             >
             </p-select>
             <label for="statutFilter">Statut</label>
@@ -72,14 +72,14 @@
       <ng-template #end>
         <div class="pharma-toolbar-actions">
           <div class="pharma-button-group">
-            <p-button (click)="loadPage()" icon="pi pi-search" label="Rechercher"
-                      [raised]="true" severity="info"></p-button>
+            <p-button (click)="loadPage()" [raised]="true" icon="pi pi-search"
+                      label="Rechercher" severity="info"></p-button>
 
             <p-splitbutton
               [model]="newCustomerbuttons"
+              [raised]="true"
               icon="pi pi-user-plus"
               label="Nouveau client"
-              [raised]="true"
               severity="success"
             ></p-splitbutton>
           </div>
@@ -100,11 +100,11 @@
         [showCurrentPageReport]="true"
         [totalRecords]="totalItems"
         [value]="customers"
+        class="pharma-table"
         currentPageReportTemplate="Affichage de {first} à {last} sur {totalRecords} client"
         dataKey="id"
-        stripedRows="true"
         selectionMode="single"
-        class="pharma-table"
+        stripedRows="true"
       >
         <ng-template #header>
           <tr class="pharma-table-head">
@@ -119,7 +119,7 @@
             <th style="width: 15%"></th>
           </tr>
         </ng-template>
-        <ng-template let-customer let-expanded="expanded" #body>
+        <ng-template #body let-customer let-expanded="expanded">
           <tr>
             <td>
               <p-button
@@ -147,12 +147,12 @@
             <td class="text-right">
               <div class="btn-group">
                 <p-button
-                  [routerLink]="['/customer', customer.id, 'view']"
-                  severity="info"
                   [rounded]="true"
+                  [routerLink]="['/customer', customer.id, 'view']"
                   [text]="true"
                   icon="pi pi-eye"
                   pTooltip="Voir détails"
+                  severity="info"
                   type="submit"
                 >
                 </p-button>
@@ -162,10 +162,10 @@
                     (click)="editAssureCustomer(customer)"
                     [rounded]="true"
                     [text]="true"
-                    severity="primary"
-                    icon="pi pi-pencil"
                     data-placement="left"
+                    icon="pi pi-pencil"
                     pTooltip="Editer"
+                    severity="primary"
                     type="button"
                   >
                   </p-button>
@@ -175,9 +175,9 @@
                       [rounded]="true"
                       [text]="true"
                       data-placement="left"
-                      severity="contrast"
                       icon="pi pi-users"
                       pTooltip="Ajouter un ayant droit"
+                      severity="contrast"
                       type="button"
                     >
                     </p-button>
@@ -192,12 +192,12 @@
                 @if (customer.categorie === 'STANDARD') {
                   <p-button
                     (click)="editUninsuredCustomer(customer)"
-                    severity="primary"
-                    icon="pi pi-pencil"
                     [rounded]="true"
                     [text]="true"
                     data-placement="left"
+                    icon="pi pi-pencil"
                     pTooltip="Editer"
+                    severity="primary"
                     type="button"
                   >
                   </p-button>
@@ -205,21 +205,21 @@
 
                 <p-button
                   (click)="confirmRemove(customer)"
-                  severity="danger"
-                  icon="pi pi-trash"
-                  pTooltip="Supprimer"
                   [rounded]="true"
                   [text]="true"
+                  icon="pi pi-trash"
+                  pTooltip="Supprimer"
+                  severity="danger"
                   type="button"
                 >
                 </p-button>
                 <p-button
                   (click)="confirmDesactivation(customer)"
-                  pTooltip="Désativer"
                   [rounded]="true"
                   [text]="true"
-                  severity="warn"
                   icon="pi pi-lock"
+                  pTooltip="Désativer"
+                  severity="warn"
                   type="button"
                 >
                 </p-button>
@@ -227,47 +227,47 @@
             </td>
           </tr>
         </ng-template>
-        <ng-template let-customer #expandedrow>
+        <ng-template #expandedrow let-customer>
           <tr class="pharma-expanded-row">
             <td colspan="8">
               @if (customer.type === 'ASSURE') {
-                <div class="row pharma-smart pharma-smart-content">
+                <div class="row pharma-smart">
                   <div class="col-md-5 mb-3 mt-3">
                     <p-card>
-                    <ng-template #title>
-                      <div class="card-title info-title">
-                        <i class="pi pi-info-circle mr-2"></i>
-                        INFORMATIONS COMPLEMENTAIRES DU CLIENT
-                      </div></ng-template>
-
-                    <div class="grid">
-                      <div class="col-12">
-                        <div class="field">
-                          <label>Date de naissance</label>
-                          <span>{{ customer?.datNaiss | date: 'dd/MM/yyyy' }}</span>
+                      <ng-template #title>
+                        <div class="card-title info-title">
+                          <i class="pi pi-info-circle mr-2"></i>
+                          INFORMATIONS COMPLEMENTAIRES DU CLIENT
                         </div>
-                        <div class="field">
-                          <label>Date de création</label>
-                          <span>{{ customer?.createdAt | date: 'dd/MM/yyyy' }}</span>
+                      </ng-template>
+
+                      <div class="grid">
+                        <div class="col-12">
+                          <div class="field">
+                            <label>Date de naissance</label>
+                            <span>{{ customer?.datNaiss | date: 'dd/MM/yyyy' }}</span>
+                          </div>
+                          <div class="field">
+                            <label>Date de création</label>
+                            <span>{{ customer?.createdAt | date: 'dd/MM/yyyy' }}</span>
+                          </div>
+
+                          <div class="field">
+                            <label>Date de modification</label>
+                            <span>{{ customer?.updatedAt | date: 'dd/MM/yyyy' }}</span>
+                          </div>
+                          <div class="field">
+                            <label>Sexe</label>
+                            <span>{{ customer?.sexe }}</span>
+                          </div>
+
                         </div>
-
-                        <div class="field">
-                          <label>Date de modification</label>
-                          <span>{{ customer?.updatedAt | date: 'dd/MM/yyyy' }}</span>
-                        </div>
-                        <div class="field">
-                          <label>Sexe</label>
-                          <span>{{ customer?.sexe  }}</span>
-                        </div>
-
-                      </div></div>
+                      </div>
 
 
-
-                  </p-card>
+                    </p-card>
 
                   </div>
-
 
 
                   <div class="row col-md-7 mb-3 mt-3">
@@ -278,7 +278,8 @@
                             <div class="card-title primary-title">
                               <i class="pi pi-users mr-2"></i>
                               AYANTS DROITS
-                            </div></ng-template>
+                            </div>
+                          </ng-template>
                           <table class="table table-striped">
                             <thead class="pharma-table-head">
                             <tr>
@@ -289,11 +290,11 @@
                               <th style="width: 15%; text-align: right">
                                 <p-button
                                   (click)="addAyantDroit(customer)"
-                                  [text]="true"
-                                  severity="info"
                                   [rounded]="true"
+                                  [text]="true"
                                   icon="pi pi-plus"
                                   pTooltip="Ajouter un ayant droit"
+                                  severity="info"
                                 ></p-button>
                               </th>
                             </tr>
@@ -309,21 +310,21 @@
                                     <div class="btn-group">
                                       <p-button
                                         (click)="editAyantDroit(customer, ayantDroit)"
+                                        [rounded]="true"
+                                        [text]="true"
                                         class="p-mb-3 mr-1"
                                         icon="pi pi-pencil"
-                                        [text]="true"
-                                        severity="success"
-                                        [rounded]="true"
                                         pTooltip="Editer"
+                                        severity="success"
                                       ></p-button>
                                       <p-button
                                         (click)="confirmRemoveAyantDroit(ayantDroit)"
-                                        class="p-mb-3"
-                                        [text]="true"
-                                        severity="danger"
                                         [rounded]="true"
+                                        [text]="true"
+                                        class="p-mb-3"
                                         icon="pi pi-trash"
                                         pTooltip="Supprimer"
+                                        severity="danger"
                                       ></p-button>
                                     </div>
                                   </td>
@@ -341,7 +342,8 @@
                           <div class="card-title secondary-title">
                             <i class="pi pi-building mr-2"></i>
                             TIERS PAYANTS
-                          </div></ng-template>
+                          </div>
+                        </ng-template>
                         <table class="table table-striped">
                           <thead class="pharma-table-head">
                           <tr>
@@ -356,11 +358,11 @@
                               <th style="width: 11%; text-align: right">
                                 <p-button
                                   (click)="onAddNewTiersPayant(customer)"
-                                  severity="info"
                                   [rounded]="true"
                                   [text]="true"
                                   icon="pi pi-plus"
                                   pTooltip="Ajouter un tiers-payant"
+                                  severity="info"
                                 ></p-button>
                               </th>
                             }
@@ -381,24 +383,24 @@
                                   <td class="text-right">
                                     <div class="btn-group">
                                       <p-button
-                                        class="p-mb-3 mr-1"
                                         (click)="onEditTiersPayant(customer, tierspayant)"
-                                        icon="pi pi-pencil"
-                                        severity="success"
                                         [rounded]="true"
                                         [text]="true"
+                                        class="p-mb-3 mr-1"
+                                        icon="pi pi-pencil"
                                         pTooltip="Editer les infos du tierspayant"
+                                        severity="success"
                                       ></p-button>
                                       @if (customer.typeTiersPayant === 'ASSURANCE'
                                       && customer.tiersPayants.length > 1) {
                                         <p-button
-                                          class="p-mb-3"
-                                          icon="pi pi-trash"
-                                          severity="danger"
+                                          (click)="onRemoveTiersPayant(tierspayant)"
                                           [rounded]="true"
                                           [text]="true"
+                                          class="p-mb-3"
+                                          icon="pi pi-trash"
                                           pTooltip="Supprimer"
-                                          (click)="onRemoveTiersPayant(tierspayant)"
+                                          severity="danger"
                                         ></p-button>
                                       }
                                     </div>
@@ -421,7 +423,8 @@
                       <div class="card-title info-title">
                         <i class="pi pi-info-circle mr-2"></i>
                         INFORMATIONS COMPLEMENTAIRES DU CLIENT
-                      </div></ng-template>
+                      </div>
+                    </ng-template>
 
                     <div class="grid">
                       <div class="col-12">
@@ -440,11 +443,11 @@
                         </div>
                         <div class="field">
                           <label>Sexe</label>
-                          <span>{{ customer?.sexe  }}</span>
+                          <span>{{ customer?.sexe }}</span>
                         </div>
 
-                      </div></div>
-
+                      </div>
+                    </div>
 
 
                   </p-card>
@@ -463,4 +466,4 @@
 </div>
 
 <jhi-confirm-dialog #confirmDialog></jhi-confirm-dialog>
-<jhi-spinner #spinner ></jhi-spinner>
+<jhi-spinner #spinner></jhi-spinner>

@@ -43,12 +43,12 @@ import { Card } from 'primeng/card';
     ToggleSwitch,
     InputNumber,
     ToastAlertComponent,
-    Card
-  ]
+    Card,
+  ],
 })
 export class FormTiersPayantComponent implements OnInit, AfterViewInit {
   entity?: ITiersPayant;
-  header?: string;
+  title?: string;
   categorie?: string | null = null;
   protected fb = inject(UntypedFormBuilder);
   protected name = viewChild.required<ElementRef>('name');
@@ -74,7 +74,7 @@ export class FormTiersPayantComponent implements OnInit, AfterViewInit {
     toBeExclude: [],
     plafondConsoClient: [],
     plafondJournalierClient: [],
-    plafondAbsoluClient: []
+    plafondAbsoluClient: [],
   });
   private readonly errorService = inject(ErrorService);
   private readonly tiersPayantService = inject(TiersPayantService);
@@ -125,7 +125,7 @@ export class FormTiersPayantComponent implements OnInit, AfterViewInit {
   protected subscribeToSaveResponse(result: Observable<HttpResponse<ITiersPayant>>): void {
     result.subscribe({
       next: (res: HttpResponse<ITiersPayant>) => this.onSaveSuccess(res.body),
-      error: (res: any) => this.onSaveError(res)
+      error: (res: any) => this.onSaveError(res),
     });
   }
 
@@ -160,7 +160,7 @@ export class FormTiersPayantComponent implements OnInit, AfterViewInit {
       plafondConsoClient: tiersPayant.plafondConsoClient,
       plafondJournalierClient: tiersPayant.plafondJournalierClient,
       plafondAbsoluClient: tiersPayant.plafondAbsoluClient,
-      ncc: tiersPayant.ncc
+      ncc: tiersPayant.ncc,
     });
   }
 
@@ -185,7 +185,7 @@ export class FormTiersPayantComponent implements OnInit, AfterViewInit {
       plafondConsoClient: this.editForm.get(['plafondConsoClient']).value,
       plafondJournalierClient: this.editForm.get(['plafondJournalierClient']).value,
       plafondAbsoluClient: this.editForm.get(['plafondAbsoluClient']).value,
-      ncc: this.editForm.get(['ncc']).value
+      ncc: this.editForm.get(['ncc']).value,
     };
   }
 }

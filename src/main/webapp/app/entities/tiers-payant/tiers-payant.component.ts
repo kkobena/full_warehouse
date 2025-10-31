@@ -57,8 +57,8 @@ import { FloatLabel } from 'primeng/floatlabel';
     InputIcon,
     ConfirmDialogComponent,
     SpinnerComponent,
-    FloatLabel
-  ]
+    FloatLabel,
+  ],
 })
 export class TiersPayantComponent implements OnInit {
   protected tiersPayants?: ITiersPayant[] = [];
@@ -168,7 +168,7 @@ export class TiersPayantComponent implements OnInit {
       {
         entity: null,
         categorie: 'ASSURANCE',
-        header: 'FORMULAIRE DE CREATION DE TIERS-PAYANT ASSURANCE',
+        title: 'FORMULAIRE DE CREATION DE TIERS-PAYANT ASSURANCE',
       },
       () => {
         this.loadPage();
@@ -185,7 +185,7 @@ export class TiersPayantComponent implements OnInit {
       {
         entity: null,
         categorie: 'CARNET',
-        header: 'FORMULAIRE DE CREATION DE TIERS-PAYANT CARNET',
+        title: 'FORMULAIRE DE CREATION DE TIERS-PAYANT CARNET',
       },
       () => {
         this.loadPage();
@@ -202,7 +202,7 @@ export class TiersPayantComponent implements OnInit {
       {
         entity: null,
         categorie: 'DEPOT',
-        header: 'FORMULAIRE DE CREATION DE COMME DEPOT',
+        title: 'FORMULAIRE DE CREATION DE COMME DEPOT',
       },
       () => {
         this.loadPage();
@@ -219,7 +219,7 @@ export class TiersPayantComponent implements OnInit {
       {
         entity: tiersPayant,
         categorie: tiersPayant.categorie,
-        header: `MODIFICATION DU TIERS-PAYANT [ ${tiersPayant.fullName}  ]`,
+        title: `MODIFICATION DU TIERS-PAYANT [ ${tiersPayant.fullName}  ]`,
       },
       () => {
         this.loadPage();

@@ -162,3 +162,4 @@ coverage/
 ######################
 /src-tauri/target/
 /src-tauri/Cargo.lock
+/script_bat/

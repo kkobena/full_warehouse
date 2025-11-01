@@ -22,425 +22,434 @@
         </p-toolbar>
       </div>
 
+
       <form [formGroup]="editForm" (ngSubmit)="save()" novalidate>
         <jhi-alert-error></jhi-alert-error>
         <input type="hidden" formControlName="id" />
         <input type="hidden" formControlName="createdAt" />
-
-        <!-- Section 1: Champs Obligatoires -->
-        <p-card>
-          <ng-template #header>
-            <div class="section-header section-header-required">
-              <i class="pi pi-exclamation-circle"></i>
-              <span>Champs Obligatoires</span>
-            </div>
-          </ng-template>
-
-          <div class="form-grid-compact">
-            <!-- Libellé -->
-            <div class="form-field form-field-full">
-              <label for="field_libelle">Libellé <span class="required">*</span></label>
-              <input
-                pInputText
-                id="field_libelle"
-                formControlName="libelle"
-                class="w-full"
-                autocomplete="off"
-                [class.ng-invalid]="editForm.get('libelle')?.invalid && editForm.get('libelle')?.touched" />
-              @if (editForm.get('libelle')?.invalid && editForm.get('libelle')?.touched) {
-                @if (editForm.get('libelle')?.errors?.required) {
-                  <small class="p-error">Ce champ est obligatoire</small>
-                }
-              }
-            </div>
-
-            <!-- Code CIP -->
-            <div class="form-field">
-              <label for="field_codeCip">Code CIP <span class="required">*</span></label>
-              <input
-                pInputText
-                pKeyFilter="int"
-                id="field_codeCip"
-                formControlName="codeCip"
-                class="w-full"
-                autocomplete="off"
-                [class.ng-invalid]="editForm.get('codeCip')?.invalid && editForm.get('codeCip')?.touched" />
-              @if (editForm.get('codeCip')?.invalid && editForm.get('codeCip')?.touched) {
-                @if (editForm.get('codeCip')?.errors?.required) {
-                  <small class="p-error">Ce champ est obligatoire</small>
-                }
-              }
-            </div>
-
-            <!-- Fournisseur -->
-            <div class="form-field form-field-2col">
-              <label for="fournisseurId">Fournisseur <span class="required">*</span></label>
-              <p-select
-                id="fournisseurId"
-                formControlName="fournisseurId"
-                [options]="fournisseurs"
-                [filter]="true"
-                filterBy="libelle"
-                optionLabel="libelle"
-                optionValue="id"
-                placeholder="Sélectionner un fournisseur"
-                [fluid]="true"
-                appendTo="body">
-              </p-select>
-            </div>
-
-            <!-- Famille -->
-            <div class="form-field">
-              <label for="familleId">Famille <span class="required">*</span></label>
-              <p-select
-                id="familleId"
-                formControlName="familleId"
-                [options]="familleProduits"
-                [filter]="true"
-                filterBy="libelle"
-                optionLabel="libelle"
-                optionValue="id"
-                placeholder="Sélectionner une famille"
-                [fluid]="true"
-                appendTo="body">
-              </p-select>
-            </div>
-
-            <!-- Rayon -->
-            <div class="form-field">
-              <label for="rayonId">Rayon <span class="required">*</span></label>
-              <p-select
-                id="rayonId"
-                formControlName="rayonId"
-                [options]="rayons"
-                [filter]="true"
-                filterBy="libelle"
-                optionLabel="libelle"
-                optionValue="id"
-                placeholder="Sélectionner un rayon"
-                [fluid]="true"
-                appendTo="body">
-              </p-select>
-            </div>
-
-            <!-- Prix d'achat -->
-            <div class="form-field">
-              <label for="field_costAmount">Prix d'achat (HT) <span class="required">*</span></label>
-              <input
-                pInputText
-                pKeyFilter="int"
-                id="field_costAmount"
-                formControlName="costAmount"
-                (keyup)="handleCostInput($event)"
-                class="w-full"
-                autocomplete="off"
-                [class.ng-invalid]="editForm.get('costAmount')?.invalid && editForm.get('costAmount')?.touched" />
-              @if (editForm.get('costAmount')?.invalid && editForm.get('costAmount')?.touched) {
-                @if (editForm.get('costAmount')?.errors?.required) {
-                  <small class="p-error">Ce champ est obligatoire</small>
-                }
-                @if (editForm.get('costAmount')?.errors?.number) {
-                  <small class="p-error">Doit être un nombre</small>
-                }
-              }
-            </div>
-
-            <!-- Prix de vente -->
-            <div class="form-field">
-              <label for="field_regularUnitPrice">Prix de vente (TTC) <span class="required">*</span></label>
-              <input
-                pInputText
-                pKeyFilter="int"
-                id="field_regularUnitPrice"
-                formControlName="regularUnitPrice"
-                (keyup)="handleUnitPriceInput($event)"
-                class="w-full"
-                autocomplete="off"
-                [class.ng-invalid]="editForm.get('regularUnitPrice')?.invalid && editForm.get('regularUnitPrice')?.touched" />
-              @if (editForm.get('regularUnitPrice')?.invalid && editForm.get('regularUnitPrice')?.touched) {
-                @if (editForm.get('regularUnitPrice')?.errors?.required) {
-                  <small class="p-error">Ce champ est obligatoire</small>
-                }
-                @if (editForm.get('regularUnitPrice')?.errors?.number) {
-                  <small class="p-error">Doit être un nombre</small>
-                }
-              }
-            </div>
-
-            <!-- TVA -->
-            <div class="form-field">
-              <label for="tvaId">TVA <span class="required">*</span></label>
-              <p-select
-                id="tvaId"
-                formControlName="tvaId"
-                [options]="tvas"
-                optionLabel="tva"
-                optionValue="id"
-                placeholder="Sélectionner une TVA"
-                [fluid]="true"
-                appendTo="body">
-              </p-select>
-            </div>
-          </div>
-        </p-card>
-
-        <!-- Section 2: Informations Complémentaires -->
-        <p-card class="mt-2">
-          <ng-template #header>
-            <div class="section-header">
-              <i class="pi pi-info-circle"></i>
-              <span>Informations Complémentaires</span>
-            </div>
-          </ng-template>
-
-          <div class="form-grid-compact">
-            <!-- Code EAN -->
-            <div class="form-field">
-              <label for="field_codeEan">Code EAN</label>
-              <input
-                pInputText
-                pKeyFilter="int"
-                id="field_codeEan"
-                formControlName="codeEan"
-                class="w-full"
-                autocomplete="off" />
-            </div>
-
-            <!-- Code EAN Laboratoire -->
-            <div class="form-field">
-              <label for="field_codeEanLaboratoire">Code EAN Labo</label>
-              <input
-                pInputText
-                pKeyFilter="int"
-                id="field_codeEanLaboratoire"
-                formControlName="codeEanLaboratoire"
-                class="w-full"
-                autocomplete="off" />
-            </div>
-
-            <!-- Catégorie ABC -->
-            <div class="form-field">
-              <label for="categorie">Catégorie ABC</label>
-              <p-select
-                id="categorie"
-                formControlName="categorie"
-                [options]="categories"
-                optionLabel="libelle"
-                optionValue="code"
-                placeholder="Sélectionner une catégorie"
-                [fluid]="true"
-                appendTo="body">
-              </p-select>
-            </div>
-
-            <!-- DCI -->
-            <div class="form-field">
-              <label for="dciId">DCI</label>
-              <p-select
-                id="dciId"
-                formControlName="dciId"
-                [options]="dcis"
-                [filter]="true"
-                filterBy="libelle"
-                optionLabel="libelle"
-                optionValue="id"
-                placeholder="Sélectionner un DCI"
-                [fluid]="true"
-                appendTo="body">
-              </p-select>
-            </div>
-
-            <!-- Forme -->
-            <div class="form-field">
-              <label for="formeId">Forme</label>
-              <p-select
-                id="formeId"
-                formControlName="formeId"
-                [options]="formeProduits"
-                optionLabel="libelle"
-                optionValue="id"
-                placeholder="Sélectionner une forme"
-                [fluid]="true"
-                appendTo="body">
-              </p-select>
-            </div>
-
-            <!-- Laboratoire -->
-            <div class="form-field">
-              <label for="laboratoireId">Laboratoire</label>
-              <p-select
-                id="laboratoireId"
-                formControlName="laboratoireId"
-                [options]="laboratoires"
-                optionLabel="libelle"
-                optionValue="id"
-                placeholder="Sélectionner un laboratoire"
-                [fluid]="true"
-                appendTo="body">
-              </p-select>
-            </div>
-
-            <!-- Gamme -->
-            <div class="form-field">
-              <label for="gammeId">Gamme</label>
-              <p-select
-                id="gammeId"
-                formControlName="gammeId"
-                [options]="gammes"
-                optionLabel="libelle"
-                optionValue="id"
-                placeholder="Sélectionner une gamme"
-                [fluid]="true"
-                appendTo="body">
-              </p-select>
-            </div>
-
-            <!-- Remise -->
-            <div class="form-field">
-              <label for="remiseCode">Code Remise</label>
-              <p-select
-                id="remiseCode"
-                formControlName="remiseCode"
-                [options]="remisesCodes"
-                optionLabel="value"
-                optionValue="value"
-                placeholder="Sélectionner le code de remise"
-                [fluid]="true"
-                appendTo="body">
-              </p-select>
-            </div>
-          </div>
-        </p-card>
-
-        <!-- Section 4: Gestion des Stocks -->
-        <p-card class="mt-2">
-          <ng-template #header>
-            <div class="section-header">
-              <i class="pi pi-chart-bar"></i>
-              <span>Gestion des Stocks</span>
-            </div>
-          </ng-template>
-
-          <div class="form-grid-compact">
-            <!-- Quantité réappro -->
-            <div class="form-field">
-              <label for="qtyAppro">Quantité de réapprovisionnement</label>
-              <input
-                pInputText
-                pKeyFilter="int"
-                id="qtyAppro"
-                formControlName="qtyAppro"
-                class="w-full"
-                autocomplete="off" />
-            </div>
-
-            <!-- Quantité seuil mini -->
-            <div class="form-field">
-              <label for="qtySeuilMini">Quantité seuil minimum</label>
-              <input
-                pInputText
-                pKeyFilter="int"
-                id="qtySeuilMini"
-                formControlName="qtySeuilMini"
-                class="w-full"
-                autocomplete="off" />
-            </div>
-
-            <!-- Date péremption checkbox -->
-            <div class="form-field">
-              <div class="checkbox-field">
-                <p-checkbox #datePeremptionCheckbox
-                  inputId="dateperemption"
-                  formControlName="dateperemption"
-                  (onChange)="onDatePeremtionCheck(datePeremptionCheckbox.checked)"
-                  [binary]="true">
-                </p-checkbox>
-                <label for="dateperemption">Observer la date de péremption ?</label>
+        <div class="card-grid-2col">
+          <!-- Section 1: Champs Obligatoires -->
+          <p-card>
+            <ng-template #header>
+              <div class="section-header section-header-required">
+                <i class="pi pi-exclamation-circle"></i>
+                <span>Champs Obligatoires</span>
               </div>
-            </div>
+            </ng-template>
 
-            @if (isDatePeremptionChecked) {
-              <!-- Date de péremption -->
+            <div class="form-grid-compact">
+              <!-- Libellé -->
+              <div class="form-field form-field-full">
+                <label for="field_libelle">Libellé <span class="required">*</span></label>
+                <input
+                  pInputText
+                  id="field_libelle"
+                  formControlName="libelle"
+                  class="w-full"
+                  autocomplete="off"
+                  [class.ng-invalid]="editForm.get('libelle')?.invalid && editForm.get('libelle')?.touched" />
+                @if (editForm.get('libelle')?.invalid && editForm.get('libelle')?.touched) {
+                  @if (editForm.get('libelle')?.errors?.required) {
+                    <small class="p-error">Ce champ est obligatoire</small>
+                  }
+                }
+              </div>
+
+              <!-- Code CIP -->
               <div class="form-field">
-                <label for="field_perimeAt">Date de péremption</label>
-                <p-inputmask
-                  id="field_perimeAt"
-                  formControlName="expirationDate"
-                  mask="99/99/9999"
-                  slotChar="jj/mm/aaaa"
-                  styleClass="w-full"
-                  autocomplete="off">
-                </p-inputmask>
-              </div>
-            }
-          </div>
-        </p-card>
-
-        <!-- Section 5: Déconditionnement -->
-        <p-card class="mt-2">
-          <ng-template #header>
-            <div class="section-header">
-              <i class="pi pi-th-large"></i>
-              <span>Déconditionnement</span>
-            </div>
-          </ng-template>
-
-          <div class="form-grid-compact">
-            <!-- Déconditionnable checkbox -->
-            <div class="form-field">
-              <div class="checkbox-field">
-                <p-checkbox #checkbox
-                  inputId="deconditionnable"
-                  formControlName="deconditionnable"
-                  (onChange)="onDeconditionnable(checkbox.checked)"
-                  [binary]="true">
-                </p-checkbox>
-                <label for="deconditionnable">Produit déconditionnable ?</label>
-              </div>
-            </div>
-
-            @if (isDeconditionnable) {
-              <!-- Quantité par unité -->
-              <div class="form-field">
-                <label for="field_itemQty">Quantité par unité</label>
+                <label for="field_codeCip">Code CIP <span class="required">*</span></label>
                 <input
                   pInputText
                   pKeyFilter="int"
-                  id="field_itemQty"
-                  formControlName="itemQty"
-                  (keyup)="handleItemQty($event)"
+                  id="field_codeCip"
+                  formControlName="codeCip"
+                  class="w-full"
+                  autocomplete="off"
+                  [class.ng-invalid]="editForm.get('codeCip')?.invalid && editForm.get('codeCip')?.touched" />
+                @if (editForm.get('codeCip')?.invalid && editForm.get('codeCip')?.touched) {
+                  @if (editForm.get('codeCip')?.errors?.required) {
+                    <small class="p-error">Ce champ est obligatoire</small>
+                  }
+                }
+              </div>
+
+              <!-- Fournisseur -->
+              <div class="form-field form-field-2col">
+                <label for="fournisseurId">Fournisseur <span class="required">*</span></label>
+                <p-select
+                  id="fournisseurId"
+                  formControlName="fournisseurId"
+                  [options]="fournisseurs"
+                  [filter]="true"
+                  filterBy="libelle"
+                  optionLabel="libelle"
+                  optionValue="id"
+                  placeholder="Sélectionner un fournisseur"
+                  [fluid]="true"
+                  appendTo="body">
+                </p-select>
+              </div>
+
+              <!-- Famille -->
+              <div class="form-field">
+                <label for="familleId">Famille <span class="required">*</span></label>
+                <p-select
+                  id="familleId"
+                  formControlName="familleId"
+                  [options]="familleProduits"
+                  [filter]="true"
+                  filterBy="libelle"
+                  optionLabel="libelle"
+                  optionValue="id"
+                  placeholder="Sélectionner une famille"
+                  [fluid]="true"
+                  appendTo="body">
+                </p-select>
+              </div>
+
+              <!-- Rayon -->
+              <div class="form-field">
+                <label for="rayonId">Rayon <span class="required">*</span></label>
+                <p-select
+                  id="rayonId"
+                  formControlName="rayonId"
+                  [options]="rayons"
+                  [filter]="true"
+                  filterBy="libelle"
+                  optionLabel="libelle"
+                  optionValue="id"
+                  placeholder="Sélectionner un rayon"
+                  [fluid]="true"
+                  appendTo="body">
+                </p-select>
+              </div>
+
+              <!-- Prix d'achat -->
+              <div class="form-field">
+                <label for="field_costAmount">Prix d'achat (HT) <span class="required">*</span></label>
+                <input
+                  pInputText
+                  pKeyFilter="int"
+                  id="field_costAmount"
+                  formControlName="costAmount"
+                  (keyup)="handleCostInput($event)"
+                  class="w-full"
+                  autocomplete="off"
+                  [class.ng-invalid]="editForm.get('costAmount')?.invalid && editForm.get('costAmount')?.touched" />
+                @if (editForm.get('costAmount')?.invalid && editForm.get('costAmount')?.touched) {
+                  @if (editForm.get('costAmount')?.errors?.required) {
+                    <small class="p-error">Ce champ est obligatoire</small>
+                  }
+                  @if (editForm.get('costAmount')?.errors?.number) {
+                    <small class="p-error">Doit être un nombre</small>
+                  }
+                }
+              </div>
+
+              <!-- Prix de vente -->
+              <div class="form-field">
+                <label for="field_regularUnitPrice">Prix de vente (TTC) <span class="required">*</span></label>
+                <input
+                  pInputText
+                  pKeyFilter="int"
+                  id="field_regularUnitPrice"
+                  formControlName="regularUnitPrice"
+                  (keyup)="handleUnitPriceInput($event)"
+                  class="w-full"
+                  autocomplete="off"
+                  [class.ng-invalid]="editForm.get('regularUnitPrice')?.invalid && editForm.get('regularUnitPrice')?.touched" />
+                @if (editForm.get('regularUnitPrice')?.invalid && editForm.get('regularUnitPrice')?.touched) {
+                  @if (editForm.get('regularUnitPrice')?.errors?.required) {
+                    <small class="p-error">Ce champ est obligatoire</small>
+                  }
+                  @if (editForm.get('regularUnitPrice')?.errors?.number) {
+                    <small class="p-error">Doit être un nombre</small>
+                  }
+                }
+              </div>
+
+              <!-- TVA -->
+              <div class="form-field">
+                <label for="tvaId">TVA <span class="required">*</span></label>
+                <p-select
+                  id="tvaId"
+                  formControlName="tvaId"
+                  [options]="tvas"
+                  optionLabel="tva"
+                  optionValue="id"
+                  placeholder="Sélectionner une TVA"
+                  [fluid]="true"
+                  appendTo="body">
+                </p-select>
+              </div>
+            </div>
+          </p-card>
+          <!-- Section 2: Informations Complémentaires -->
+          <p-card>
+            <ng-template #header>
+              <div class="section-header">
+                <i class="pi pi-info-circle"></i>
+                <span>Informations Complémentaires</span>
+              </div>
+            </ng-template>
+
+            <div class="form-grid-compact">
+              <!-- Code EAN -->
+              <div class="form-field">
+                <label for="field_codeEan">Code EAN</label>
+                <input
+                  pInputText
+                  pKeyFilter="int"
+                  id="field_codeEan"
+                  formControlName="codeEan"
                   class="w-full"
                   autocomplete="off" />
               </div>
 
-              <!-- Prix d'achat unitaire -->
+              <!-- Code EAN Laboratoire -->
               <div class="form-field">
-                <label for="field_itemCostAmount">Prix d'achat unitaire</label>
+                <label for="field_codeEanLaboratoire">Code EAN Labo</label>
                 <input
                   pInputText
                   pKeyFilter="int"
-                  id="field_itemCostAmount"
-                  formControlName="itemCostAmount"
-                  (keyup)="handleItemCost($event)"
+                  id="field_codeEanLaboratoire"
+                  formControlName="codeEanLaboratoire"
                   class="w-full"
                   autocomplete="off" />
               </div>
 
-              <!-- Prix de vente unitaire -->
+              <!-- Catégorie ABC -->
               <div class="form-field">
-                <label for="field_itemRegularUnitPrice">Prix de vente unitaire</label>
+                <label for="categorie">Catégorie ABC</label>
+                <p-select
+                  id="categorie"
+                  formControlName="categorie"
+                  [options]="categories"
+                  optionLabel="libelle"
+                  optionValue="code"
+                  placeholder="Sélectionner une catégorie"
+                  [fluid]="true"
+                  appendTo="body">
+                </p-select>
+              </div>
+
+              <!-- DCI -->
+              <div class="form-field">
+                <label for="dciId">DCI</label>
+                <p-select
+                  id="dciId"
+                  formControlName="dciId"
+                  [options]="dcis"
+                  [filter]="true"
+                  filterBy="libelle"
+                  optionLabel="libelle"
+                  optionValue="id"
+                  placeholder="Sélectionner un DCI"
+                  [fluid]="true"
+                  appendTo="body">
+                </p-select>
+              </div>
+
+              <!-- Forme -->
+              <div class="form-field">
+                <label for="formeId">Forme</label>
+                <p-select
+                  id="formeId"
+                  formControlName="formeId"
+                  [options]="formeProduits"
+                  optionLabel="libelle"
+                  optionValue="id"
+                  placeholder="Sélectionner une forme"
+                  [fluid]="true"
+                  appendTo="body">
+                </p-select>
+              </div>
+
+              <!-- Laboratoire -->
+              <div class="form-field">
+                <label for="laboratoireId">Laboratoire</label>
+                <p-select
+                  id="laboratoireId"
+                  formControlName="laboratoireId"
+                  [options]="laboratoires"
+                  optionLabel="libelle"
+                  optionValue="id"
+                  placeholder="Sélectionner un laboratoire"
+                  [fluid]="true"
+                  appendTo="body">
+                </p-select>
+              </div>
+
+              <!-- Gamme -->
+              <div class="form-field">
+                <label for="gammeId">Gamme</label>
+                <p-select
+                  id="gammeId"
+                  formControlName="gammeId"
+                  [options]="gammes"
+                  optionLabel="libelle"
+                  optionValue="id"
+                  placeholder="Sélectionner une gamme"
+                  [fluid]="true"
+                  appendTo="body">
+                </p-select>
+              </div>
+
+              <!-- Remise -->
+              <div class="form-field">
+                <label for="remiseCode">Code Remise</label>
+                <p-select
+                  id="remiseCode"
+                  formControlName="remiseCode"
+                  [options]="remisesCodes"
+                  optionLabel="value"
+                  optionValue="value"
+                  placeholder="Sélectionner le code de remise"
+                  [fluid]="true"
+                  appendTo="body">
+                </p-select>
+              </div>
+            </div>
+          </p-card>
+
+        </div>
+
+
+
+        <div class="card-grid-2col mt-2">
+
+          <!-- Section 4: Gestion des Stocks -->
+          <p-card>
+            <ng-template #header>
+              <div class="section-header">
+                <i class="pi pi-chart-bar"></i>
+                <span>Gestion des Stocks</span>
+              </div>
+            </ng-template>
+
+            <div class="form-grid-compact">
+              <!-- Quantité réappro -->
+              <div class="form-field">
+                <label for="qtyAppro">Quantité de réapprovisionnement</label>
                 <input
                   pInputText
                   pKeyFilter="int"
-                  id="field_itemRegularUnitPrice"
-                  formControlName="itemRegularUnitPrice"
-                  (keyup)="handleItemPrice($event)"
+                  id="qtyAppro"
+                  formControlName="qtyAppro"
                   class="w-full"
                   autocomplete="off" />
               </div>
-            }
-          </div>
-        </p-card>
+
+              <!-- Quantité seuil mini -->
+              <div class="form-field">
+                <label for="qtySeuilMini">Quantité seuil minimum</label>
+                <input
+                  pInputText
+                  pKeyFilter="int"
+                  id="qtySeuilMini"
+                  formControlName="qtySeuilMini"
+                  class="w-full"
+                  autocomplete="off" />
+              </div>
+
+              <!-- Date péremption checkbox -->
+              <div class="form-field">
+                <div class="checkbox-field">
+                  <p-checkbox #datePeremptionCheckbox
+                              inputId="dateperemption"
+                              formControlName="dateperemption"
+                              (onChange)="onDatePeremtionCheck(datePeremptionCheckbox.checked)"
+                              [binary]="true">
+                  </p-checkbox>
+                  <label for="dateperemption">Observer la date de péremption ?</label>
+                </div>
+              </div>
+
+              @if (isDatePeremptionChecked) {
+                <!-- Date de péremption -->
+                <div class="form-field">
+                  <label for="field_perimeAt">Date de péremption</label>
+                  <p-inputmask
+                    id="field_perimeAt"
+                    formControlName="expirationDate"
+                    mask="99/99/9999"
+                    slotChar="jj/mm/aaaa"
+                    styleClass="w-full"
+                    autocomplete="off">
+                  </p-inputmask>
+                </div>
+              }
+            </div>
+          </p-card>
+
+          <!-- Section 5: Déconditionnement -->
+          <p-card>
+            <ng-template #header>
+              <div class="section-header">
+                <i class="pi pi-th-large"></i>
+                <span>Déconditionnement</span>
+              </div>
+            </ng-template>
+
+            <div class="form-grid-compact ">
+              <!-- Déconditionnable checkbox -->
+              <div class="form-field">
+                <div class="checkbox-field">
+                  <p-checkbox #checkbox
+                              inputId="deconditionnable"
+                              formControlName="deconditionnable"
+                              (onChange)="onDeconditionnable(checkbox.checked)"
+                              [binary]="true">
+                  </p-checkbox>
+                  <label for="deconditionnable">Produit déconditionnable ?</label>
+                </div>
+              </div>
+
+              @if (isDeconditionnable) {
+                <!-- Quantité par unité -->
+                <div class="form-field">
+                  <label for="field_itemQty">Quantité par unité</label>
+                  <input
+                    pInputText
+                    pKeyFilter="int"
+                    id="field_itemQty"
+                    formControlName="itemQty"
+                    (keyup)="handleItemQty($event)"
+                    class="w-full"
+                    autocomplete="off" />
+                </div>
+
+                <!-- Prix d'achat unitaire -->
+                <div class="form-field">
+                  <label for="field_itemCostAmount">Prix d'achat unitaire</label>
+                  <input
+                    pInputText
+                    pKeyFilter="int"
+                    id="field_itemCostAmount"
+                    formControlName="itemCostAmount"
+                    (keyup)="handleItemCost($event)"
+                    class="w-full"
+                    autocomplete="off" />
+                </div>
+
+                <!-- Prix de vente unitaire -->
+                <div class="form-field">
+                  <label for="field_itemRegularUnitPrice">Prix de vente unitaire</label>
+                  <input
+                    pInputText
+                    pKeyFilter="int"
+                    id="field_itemRegularUnitPrice"
+                    formControlName="itemRegularUnitPrice"
+                    (keyup)="handleItemPrice($event)"
+                    class="w-full"
+                    autocomplete="off" />
+                </div>
+              }
+            </div>
+          </p-card>
+
+
+        </div>
 
         <!-- Form Actions -->
         <div class="form-actions-compact">

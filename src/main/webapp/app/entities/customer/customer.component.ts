@@ -240,7 +240,7 @@ export class CustomerComponent implements OnInit, OnDestroy {
       {
         entity: null,
         categorie: categorie,
-        header: `FORMULAIRE DE CREATION DE CLIENT [ ${categorie} ]`
+        title: `FORMULAIRE DE CREATION DE CLIENT [ ${categorie} ]`
       },
       (resp: ICustomer) => {
         if (resp) {
@@ -304,7 +304,7 @@ export class CustomerComponent implements OnInit, OnDestroy {
       UninsuredCustomerFormComponent,
       {
         entity: null,
-        header: 'FORMULAIRE DE CREATION DE CLIENT '
+        title: 'FORMULAIRE DE CREATION DE CLIENT '
       },
       (resp: ICustomer) => {
         if (resp) {
@@ -321,7 +321,7 @@ export class CustomerComponent implements OnInit, OnDestroy {
       UninsuredCustomerFormComponent,
       {
         entity: customer,
-        header: `FORMULAIRE DE MODIFICATION DE CLIENT  [ ${customer.fullName}  ]`
+        title: `FORMULAIRE DE MODIFICATION DE CLIENT  [ ${customer.fullName}  ]`
       },
       (resp: ICustomer) => {
         if (resp) {

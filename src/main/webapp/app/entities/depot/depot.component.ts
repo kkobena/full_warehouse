@@ -49,7 +49,7 @@ export class DepotComponent implements OnInit {
 
   loadAll(): void {
     this.loading = true;
-    this.magasinService.fetchAll().subscribe({
+    this.magasinService.fetchAllDepots().subscribe({
       next: (res: HttpResponse<IMagasin[]>) => {
         this.depots = res.body || [];
         this.loading = false;

@@ -27,6 +27,8 @@ export class MagasinService {
 
   fetchAll(): Observable<EntityArrayResponseType> {
     return this.http.get<IMagasin[]>(this.resourceUrl, { observe: 'response' });
+  }  fetchAllDepots(): Observable<EntityArrayResponseType> {
+    return this.http.get<IMagasin[]>(this.resourceUrl+'/depots', { observe: 'response' });
   }
 
   delete(id: number): Observable<HttpResponse<{}>> {

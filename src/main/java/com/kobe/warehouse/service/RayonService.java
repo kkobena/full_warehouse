@@ -1,10 +1,13 @@
 package com.kobe.warehouse.service;
 
+import com.kobe.warehouse.domain.Storage;
 import com.kobe.warehouse.service.dto.RayonDTO;
 import com.kobe.warehouse.service.dto.ResponseDTO;
 import java.io.InputStream;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
+
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
@@ -48,4 +51,6 @@ public interface RayonService {
     ResponseDTO importation(InputStream inputStream, Long magasinId);
 
     ResponseDTO cloner(List<RayonDTO> rayonIds, Long magasinId);
+
+    void initDefaultRayon(Set<Storage> storages);
 }

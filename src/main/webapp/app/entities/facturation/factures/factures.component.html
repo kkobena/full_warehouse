@@ -19,9 +19,9 @@
             <p-toggleswitch (onChange)="onSearch()" [(ngModel)]="factureProvisoire" />
           </div>
 
-          <p-floatlabel variant="on" class="mr-1">
-            <p-datePicker
-              [(ngModel)]="modelStartDate"
+          <p-floatlabel variant="on">
+            <p-datePicker [style]="'max-width: 140px;'"
+                          [(ngModel)]="modelStartDate"
               [iconDisplay]="'input'"
               [selectOtherMonths]="true"
               [showButtonBar]="true"
@@ -34,9 +34,9 @@
             <label for="fromDate">Du</label>
           </p-floatlabel>
 
-          <p-floatlabel variant="on" class="mr-1">
-            <p-datePicker
-              [(ngModel)]="modelEndDate"
+          <p-floatlabel variant="on" >
+            <p-datePicker [style]="'max-width: 140px;'"
+                          [(ngModel)]="modelEndDate"
               [iconDisplay]="'input'"
               [selectOtherMonths]="true"
               [showButtonBar]="true"
@@ -49,13 +49,13 @@
             <label for="toDate">Au</label>
           </p-floatlabel>
 
-          <p-floatlabel variant="on" class="mr-1">
+          <p-floatlabel variant="on" >
             <input
               [(ngModel)]="search"
               id="search"
               pInputText
               type="text"
-              style="width: 150px"
+
             />
             <label for="search">Rechercher par numéro</label>
           </p-floatlabel>
@@ -68,11 +68,11 @@
             optionLabel="value"
             optionValue="code"
             appendTo="body"
-            class="mr-1"
+
           />
 
           @if (factureGroup) {
-            <p-floatlabel variant="on" class="mr-1">
+            <p-floatlabel variant="on" >
               <p-autoComplete
                 (completeMethod)="searchGroupTiersPayant($event)"
                 [(ngModel)]="selectedGroupeTiersPayants"
@@ -87,7 +87,7 @@
               <label for="groupeTiersPayants">Rechercher un groupe</label>
             </p-floatlabel>
           } @else {
-            <p-floatlabel variant="on" class="mr-1">
+            <p-floatlabel variant="on" >
               <p-autoComplete
                 (completeMethod)="searchTiersPayant($event)"
                 [(ngModel)]="selectedTiersPayants"
@@ -136,7 +136,7 @@
     </p-toolbar>
   </div>
 
-  <div class="row mt-2">
+
     @if (datas && datas.length > 0) {
       <p-table
         (onLazyLoad)="lazyLoading($event)"
@@ -255,5 +255,5 @@
       </div>
     }
   </div>
-</div>
+
 <jhi-confirm-dialog #confirmDialog></jhi-confirm-dialog>

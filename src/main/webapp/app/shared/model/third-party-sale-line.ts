@@ -11,6 +11,7 @@ export interface IThirdPartySaleLine {
   numBon?: string;
   num?: string;
   tiersPayantFullName?: string;
+  name?: string;
 }
 
 export class ThirdPartySaleLine implements IThirdPartySaleLine {

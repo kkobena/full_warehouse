@@ -66,7 +66,7 @@ export class CustomerDataTableComponent implements AfterViewInit {
     showCommonModal(
       this.modalService,
       UninsuredCustomerFormComponent,
-      { header: "FORMULAIRE D'AJOUT DE NOUVEAU DE CLIENT ", entity: null },
+      { title: "FORMULAIRE D'AJOUT DE NOUVEAU DE CLIENT ", entity: null },
       (resp: ICustomer) => {
         if (resp) {
           this.selectedCustomerService.setCustomer(resp);

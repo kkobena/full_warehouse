@@ -50,7 +50,7 @@ import { ToastAlertComponent } from '../../../shared/toast-alert/toast-alert.com
   styleUrls: ['./customer-carnet-component.scss'],
 })
 export class CustomerCarnetComponent implements OnInit, AfterViewInit, OnDestroy {
-  header: string | null = null;
+  title: string | null = null;
   entity?: ICustomer;
   categorie: string | null = null;
 

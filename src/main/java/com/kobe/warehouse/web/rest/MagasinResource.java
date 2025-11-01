@@ -1,16 +1,12 @@
 package com.kobe.warehouse.web.rest;
 
-import com.kobe.warehouse.domain.Magasin;
+import com.kobe.warehouse.domain.enumeration.TypeMagasin;
 import com.kobe.warehouse.service.dto.MagasinDTO;
 import com.kobe.warehouse.service.errors.BadRequestAlertException;
 import com.kobe.warehouse.service.referential.magasin.MagasinService;
 import com.kobe.warehouse.web.util.HeaderUtil;
 import com.kobe.warehouse.web.util.ResponseUtil;
 import jakarta.validation.Valid;
-import java.net.URI;
-import java.net.URISyntaxException;
-import java.util.List;
-import java.util.Optional;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
@@ -23,6 +19,12 @@ import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.util.List;
+import java.util.Optional;
+import java.util.Set;
 
 /**
  * REST controller for managing {@link com.kobe.warehouse.domain.Magasin}.
@@ -51,12 +53,12 @@ public class MagasinResource {
      * @throws URISyntaxException if the Location URI syntax is incorrect.
      */
     @PostMapping("/magasins")
-    public ResponseEntity<Magasin> createMagasin(@Valid @RequestBody Magasin magasin) throws URISyntaxException {
+    public ResponseEntity<MagasinDTO> createMagasin(@Valid @RequestBody MagasinDTO magasin) throws URISyntaxException {
         log.debug("REST request to save Magasin : {}", magasin);
         if (magasin.getId() != null) {
             throw new BadRequestAlertException("A new magasin cannot already have an ID", ENTITY_NAME, "idexists");
         }
-        Magasin result = magasinService.save(magasin);
+        MagasinDTO result = magasinService.save(magasin);
         return ResponseEntity.created(new URI("/api/magasins/" + result.getId()))
             .headers(HeaderUtil.createEntityCreationAlert(applicationName, true, ENTITY_NAME, result.getId().toString()))
             .body(result);
@@ -71,12 +73,12 @@ public class MagasinResource {
      * {@code 500 (Internal Server Error)} if the magasin couldn't be updated.
      */
     @PutMapping("/magasins")
-    public ResponseEntity<Magasin> updateMagasin(@Valid @RequestBody Magasin magasin) {
+    public ResponseEntity<MagasinDTO> updateMagasin(@Valid @RequestBody MagasinDTO magasin) {
         log.debug("REST request to update Magasin : {}", magasin);
         if (magasin.getId() == null) {
             throw new BadRequestAlertException("Invalid id", ENTITY_NAME, "idnull");
         }
-        Magasin result = magasinService.save(magasin);
+        MagasinDTO result = magasinService.save(magasin);
         return ResponseEntity.ok()
             .headers(HeaderUtil.createEntityUpdateAlert(applicationName, true, ENTITY_NAME, magasin.getId().toString()))
             .body(result);
@@ -126,6 +128,13 @@ public class MagasinResource {
 
     @GetMapping("/magasins")
     public ResponseEntity<List<MagasinDTO>> getAllMagasins() {
-        return ResponseEntity.ok().body(magasinService.findAll());
+        return ResponseEntity.ok().body(magasinService.findAll(Set.of()));
     }
+
+    @GetMapping("/magasins/depots")
+    public ResponseEntity<List<MagasinDTO>> getAllDepots() {
+        return ResponseEntity.ok().body(magasinService.findAll(Set.of(TypeMagasin.DEPOT, TypeMagasin.DEPOT_AGGREE)));
+    }
+
+
 }

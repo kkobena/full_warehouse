@@ -14,12 +14,15 @@ public class StorageDTO {
     public StorageDTO() {}
 
     public StorageDTO(Storage storage) {
-        this.name = storage.getName();
-        this.id = storage.getId();
-        this.storageType = storage.getStorageType().getValue();
-        Magasin magasin = storage.getMagasin();
-        this.magasinName = magasin.getName();
-        this.magasinId = magasin.getId();
+        if (storage != null) {
+            this.name = storage.getName();
+            this.id = storage.getId();
+            this.storageType = storage.getStorageType().getValue();
+            Magasin magasin = storage.getMagasin();
+            this.magasinName = magasin.getName();
+            this.magasinId = magasin.getId();
+        }
+
     }
 
     public String getName() {

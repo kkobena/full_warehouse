@@ -1,13 +1,10 @@
 package com.kobe.warehouse.service.sale;
 
-import static java.util.Objects.isNull;
-
 import com.kobe.warehouse.constant.EntityConstant;
 import com.kobe.warehouse.domain.AppUser;
 import com.kobe.warehouse.domain.AppUser_;
 import com.kobe.warehouse.domain.CashSale;
 import com.kobe.warehouse.domain.CashSale_;
-import com.kobe.warehouse.domain.Customer_;
 import com.kobe.warehouse.domain.FournisseurProduit;
 import com.kobe.warehouse.domain.FournisseurProduit_;
 import com.kobe.warehouse.domain.Produit;
@@ -45,15 +42,6 @@ import jakarta.persistence.criteria.Predicate;
 import jakarta.persistence.criteria.Root;
 import jakarta.persistence.criteria.SetJoin;
 import jakarta.validation.constraints.NotNull;
-import java.io.IOException;
-import java.net.MalformedURLException;
-import java.time.LocalDate;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.Objects;
-import java.util.Optional;
-import java.util.stream.Collectors;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.tuple.Pair;
 import org.springframework.core.io.Resource;
@@ -63,6 +51,18 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.io.IOException;
+import java.net.MalformedURLException;
+import java.time.LocalDate;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.EnumSet;
+import java.util.List;
+import java.util.Objects;
+import java.util.Optional;
+
+import static java.util.Objects.isNull;
 
 @Service
 @Transactional(readOnly = true)
@@ -99,8 +99,9 @@ public class SaleDataService {
 
     public List<SaleDTO> customerPurchases(Long customerId, LocalDate fromDate, LocalDate toDate) {
         Specification<Sales> specification = Specification.where(salesRepository.filterByCustomerId(customerId));
+        specification = specification.and(salesRepository.hasStatut(EnumSet.of(SalesStatut.CLOSED)));
         if (fromDate != null) {
-            specification=specification.and(salesRepository.between(fromDate, toDate));
+            specification = specification.and(salesRepository.between(fromDate, toDate));
 
         }
         return salesRepository.findAll(specification

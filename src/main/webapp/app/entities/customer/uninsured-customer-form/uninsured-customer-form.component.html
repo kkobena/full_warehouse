@@ -1,20 +1,26 @@
 <p-toast position="center"></p-toast>
 <div class="modal-header">
-  <h4 class="modal-title">{{ header }}</h4>
+  <h4 class="modal-title">{{ title }}</h4>
   <button (click)="cancel()" aria-hidden="true" class="btn-close" data-dismiss="modal"
           type="button"></button>
 </div>
 
 <form (ngSubmit)="save()" [formGroup]="editForm" name="editForm" novalidate>
   <div class="modal-body">
-    <p-card>
-      <div [hidden]="true" class="form-group">
-        <input class="form-control" formControlName="id" id="id" name="id" readonly type="hidden" />
-      </div>
+    <div [hidden]="true" class="form-group">
+      <input class="form-control" formControlName="id" id="id" name="id" readonly type="hidden" />
+    </div>
 
-      <div class="form-row">
-        <div class="form-group col">
-          <label class="form-control-label" for="field_firstName">Nom</label>
+    <p-card>
+      <ng-template #header>
+        <div class="section-header section-header-required">
+          <i class="pi pi-exclamation-circle"></i>
+          <span>Champs Obligatoires</span>
+        </div>
+      </ng-template>
+      <div class="form-grid-compact">
+        <div class="form-field form-field-full">
+          <label class="form-control-label" for="field_firstName">Nom<span class="required">*</span></label>
           <input
             #firstName
             autocomplete="off"
@@ -35,11 +41,11 @@
             </div>
           }
         </div>
-      </div>
 
-      <div class="form-row">
-        <div class="form-group col">
-          <label class="form-control-label" for="field_lastName">Prénom(s)</label>
+
+
+        <div class="form-field form-field-full">
+          <label class="form-control-label" for="field_lastName">Prénom(s)<span class="required">*</span></label>
           <input
             autocomplete="off"
             class="form-control"
@@ -60,10 +66,10 @@
             </div>
           }
         </div>
-      </div>
-      <div class="form-row">
-        <div class="form-group col">
-          <label class="form-control-label" for="field_phone">Téléphone</label>
+
+
+        <div class="form-field form-field-full">
+          <label class="form-control-label" for="field_phone">Téléphone<span class="required">*</span></label>
           <input
             autocomplete="off"
             class="form-control"
@@ -84,10 +90,20 @@
               }
             </div>
           }
+
+      </div></div>
+
+    </p-card>
+    <p-card class="mt-2">
+      <ng-template #header>
+        <div class="section-header">
+          <i class="pi pi-info-circle"></i>
+          <span>Informations Complémentaires</span>
         </div>
-      </div>
-      <div class="form-row">
-        <div class="form-group col">
+
+      </ng-template>
+      <div class="form-grid-compact">
+        <div class="form-field form-field-full">
           <label class="form-control-label" for="field_email">E-mail</label>
           <input autocomplete="off" class="form-control" formControlName="email" id="field_email"
                  name="email" pInputText type="email" />
@@ -96,7 +112,7 @@
     </p-card>
   </div>
 
-  <div class="modal-footer">
+  <div class="form-actions-compact">
     <p-button
       (click)="cancel()"
       [raised]="true"

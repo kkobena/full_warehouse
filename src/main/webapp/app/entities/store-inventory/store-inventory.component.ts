@@ -56,17 +56,20 @@ export class StoreInventoryComponent implements OnInit {
   protected page: number;
   protected predicate: string;
   protected ascending: boolean;
-  protected readonly showUserCombo: boolean = false;
   protected columnDefs: any[];
   protected rowData: any = [];
   protected event: any;
-  protected searchValue?: string;
   protected search = '';
   protected fromDate: Date = new Date();
   protected toDate: Date = new Date();
   protected users: IUser[] = [];
   protected user?: IUser | null;
   protected active = 'CREATE';
+  protected readonly menuTileAndIcon = [
+    { title: 'Inventaires en cours', icon: 'pi pi-spin pi-cog',menuId: 'CREATE' },
+    { title: 'Inventaires clôturés', icon: 'pi pi-lock',menuId: 'CLOSED' }
+  ];
+
   protected ref?: DynamicDialogRef;
   protected categories: InventoryCategory[] = CATEGORY_INVENTORY;
   protected inventoryCategories?: InventoryCategory[];
@@ -228,5 +231,11 @@ export class StoreInventoryComponent implements OnInit {
 
   protected onSelectUser(): void {
     this.onSearch();
+  }
+  protected get title(): string {
+    return this.menuTileAndIcon.find(m=>m.menuId===this.active)?.title || '' ;
+  }
+  protected get icon(): string {
+    return this.menuTileAndIcon.find(m=>m.menuId===this.active)?.icon || '' ;
   }
 }

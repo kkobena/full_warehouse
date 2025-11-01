@@ -194,6 +194,6 @@ public class TiersPayantCalculationService {
 
     private int calculateFinalTaux(BigDecimal actualShare, BigDecimal totalAmount) {
         if (totalAmount.compareTo(BigDecimal.ZERO) == 0) return 0;
-        return actualShare.multiply(BigDecimal.valueOf(100)).divide(totalAmount, 0, RoundingMode.CEILING).intValue();
+        return actualShare.multiply(BigDecimal.valueOf(100)).divide(totalAmount, 0, RoundingMode.HALF_DOWN).intValue();
     }
 }

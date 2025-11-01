@@ -1,6 +1,7 @@
 package com.kobe.warehouse.service.impl;
 
 import static com.kobe.warehouse.constant.EntityConstant.SANS_EMPLACEMENT_CODE;
+import static com.kobe.warehouse.constant.EntityConstant.SANS_EMPLACEMENT_LIBELLE;
 
 import com.kobe.warehouse.domain.Rayon;
 import com.kobe.warehouse.domain.Storage;
@@ -16,6 +17,7 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 import java.util.concurrent.atomic.AtomicInteger;
 import org.apache.commons.csv.CSVFormat;
 import org.apache.commons.csv.CSVRecord;
@@ -149,5 +151,17 @@ public class RayonServiceImpl implements RayonService {
             count++;
         }
         return new ResponseDTO().size(count);
+    }
+
+    @Override
+    public void initDefaultRayon(Set<Storage> storages) {
+        storages.forEach(storage -> {
+            Rayon rayon = new Rayon();
+            rayon.setCode(SANS_EMPLACEMENT_CODE);
+            rayon.setLibelle(SANS_EMPLACEMENT_LIBELLE);
+            rayon.setExclude(false);
+            rayon.setStorage(storage);
+            rayonRepository.save(rayon);
+        });
     }
 }

@@ -15,7 +15,6 @@ import { Toolbar } from 'primeng/toolbar';
 
 @Component({
   selector: 'jhi-depot-form',
-  standalone: true,
   imports: [
     WarehouseCommonModule,
     ReactiveFormsModule,
@@ -32,14 +31,14 @@ import { Toolbar } from 'primeng/toolbar';
   styleUrl: './depot-form.component.scss'
 })
 export class DepotFormComponent implements OnInit {
-  depotForm!: FormGroup;
-  isEditMode = false;
-  isSaving = false;
-  depotId?: number;
+ protected depotForm!: FormGroup;
+  protected isEditMode = false;
+  protected isSaving = false;
+  protected depotId?: number;
 
-  typeMagasinOptions = [
-    { label: 'Officine', value: TypeMagasin.OFFICINE },
-    { label: 'Dépôt', value: TypeMagasin.DEPOT },
+  protected typeMagasinOptions = [
+/*    { label: 'Officine', value: TypeMagasin.OFFICINE },*/
+    { label: 'Dépôt extension', value: TypeMagasin.DEPOT },
     { label: 'Dépôt Agréé', value: TypeMagasin.DEPOT_AGGREE }
   ];
 

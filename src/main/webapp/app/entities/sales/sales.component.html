@@ -15,7 +15,7 @@
               (onChange)="onTypeVenteChange()"
               [(ngModel)]="typeVenteSelected"
               [options]="typeVentes"
-              class="mr-1"
+
             />
 
             <p-select
@@ -27,7 +27,7 @@
               inputId="selectedUserId"
               optionLabel="abbrName"
               optionValue="id"
-              class="mr-1"
+
             />
 
             <div class="pharma-compact-search mr-1">
@@ -50,8 +50,9 @@
               </p-inputgroup>
             </div>
 
-            <p-floatlabel variant="on" class="mr-1">
+            <p-floatlabel variant="on" >
               <p-datePicker
+                [style]="'max-width: 140px;'"
                 [(ngModel)]="fromDate"
                 [maxDate]="toDate"
                 appendTo="body"
@@ -63,8 +64,8 @@
               <label for="fromDate">Du</label>
             </p-floatlabel>
 
-            <p-floatlabel variant="on" class="mr-1">
-              <p-datePicker
+            <p-floatlabel variant="on" >
+              <p-datePicker [style]="'max-width: 140px;'"
                 [(ngModel)]="toDate"
                 [minDate]="fromDate"
                 [selectOtherMonths]="true"
@@ -77,13 +78,13 @@
               <label for="toDate">Au</label>
             </p-floatlabel>
 
-            <p-floatlabel variant="on" class="mr-1 pharma-hide-mobile">
-              <p-select [(ngModel)]="fromHour"    appendTo="body"[options]="hous" id="fromHour" />
+            <p-floatlabel variant="on" class=" pharma-hide-mobile" >
+              <p-select [(ngModel)]="fromHour" [style]="'max-width: 110px;'"   appendTo="body"[options]="hous" id="fromHour" />
               <label for="fromHour">De</label>
             </p-floatlabel>
 
-            <p-floatlabel variant="on" class="mr-1 pharma-hide-mobile">
-              <p-select [(ngModel)]="toHour"   appendTo="body" [options]="hous" id="toHour" />
+            <p-floatlabel variant="on" class=" pharma-hide-mobile" >
+              <p-select [(ngModel)]="toHour"  [style]="'max-width: 110px;'"  appendTo="body" [options]="hous" id="toHour" />
               <label for="toHour">À</label>
             </p-floatlabel>
           </div>
@@ -107,7 +108,7 @@
                 severity="info"
               />
 
-              <div class="pharma-action-primary">
+              <div>
                 <p-button
                   [raised]="true"
                   [routerLink]="['/sales', false, 'new']"

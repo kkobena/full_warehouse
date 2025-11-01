@@ -1,6 +1,7 @@
 package com.kobe.warehouse.service.dto;
 
 import com.kobe.warehouse.domain.Magasin;
+import com.kobe.warehouse.domain.enumeration.TypeMagasin;
 import jakarta.validation.constraints.NotNull;
 import java.io.Serializable;
 import org.slf4j.Logger;
@@ -9,12 +10,12 @@ import org.slf4j.LoggerFactory;
 public class MagasinDTO implements Serializable {
 
     private static final long serialVersionUID = 1L;
-    private final Logger LOG = LoggerFactory.getLogger(MagasinDTO.class);
     private Long id;
 
     @NotNull
     private String name;
-
+    private TypeMagasin typeMagasin;
+    private String typeLibelle;
     private String phone;
     private String address;
     private String note;
@@ -25,7 +26,8 @@ public class MagasinDTO implements Serializable {
     private StorageDTO pointOfSale;
     private String welcomeMessage;
     private String fullName;
-
+    private String compteBancaire;
+    private String registreImposition;
     public MagasinDTO() {}
 
     public MagasinDTO(Magasin magasin) {
@@ -41,6 +43,28 @@ public class MagasinDTO implements Serializable {
         pointOfSale = new StorageDTO(magasin.getPointOfSale());
         welcomeMessage = magasin.getWelcomeMessage();
         fullName = magasin.getFullName();
+        typeMagasin = magasin.getTypeMagasin();
+        typeLibelle = typeMagasin.getLibelle();
+        registreImposition = magasin.getRegistreImposition();
+        compteBancaire = magasin.getCompteBancaire();
+    }
+
+    public TypeMagasin getTypeMagasin() {
+        return typeMagasin;
+    }
+
+    public MagasinDTO setTypeMagasin(TypeMagasin typeMagasin) {
+        this.typeMagasin = typeMagasin;
+        return this;
+    }
+
+    public String getTypeLibelle() {
+        return typeLibelle;
+    }
+
+    public MagasinDTO setTypeLibelle(String typeLibelle) {
+        this.typeLibelle = typeLibelle;
+        return this;
     }
 
     public Long getId() {
@@ -129,6 +153,24 @@ public class MagasinDTO implements Serializable {
 
     public MagasinDTO setWelcomeMessage(String welcomeMessage) {
         this.welcomeMessage = welcomeMessage;
+        return this;
+    }
+
+    public String getRegistreImposition() {
+        return registreImposition;
+    }
+
+    public MagasinDTO setRegistreImposition(String registreImposition) {
+        this.registreImposition = registreImposition;
+        return this;
+    }
+
+    public String getCompteBancaire() {
+        return compteBancaire;
+    }
+
+    public MagasinDTO setCompteBancaire(String compteBancaire) {
+        this.compteBancaire = compteBancaire;
         return this;
     }
 

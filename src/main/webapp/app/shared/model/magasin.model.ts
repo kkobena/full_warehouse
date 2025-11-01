@@ -16,7 +16,7 @@ export interface IMagasin {
   compteContribuable?: string;
   numComptable?: string;
   typeMagasin?: TypeMagasin;
-  typeLibelle?: TypeMagasin;
+  typeLibelle?: string;
   email?: string;
   compteBancaire?: string;
   registreImposition?: string;

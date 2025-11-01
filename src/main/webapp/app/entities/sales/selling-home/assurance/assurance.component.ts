@@ -26,7 +26,8 @@ import { SpinnerComponent } from '../../../../shared/spinner/spinner.component';
     ConfirmDialogComponent,
     CardModule,SpinnerComponent
   ],
-  templateUrl: '../base-sale/base-sale.component.html'
+  templateUrl: '../base-sale/base-sale.component.html',
+  styleUrls: ['../base-sale/base-sale.scss']
 })
 export class AssuranceComponent extends BaseSaleComponent {
   constructor() {

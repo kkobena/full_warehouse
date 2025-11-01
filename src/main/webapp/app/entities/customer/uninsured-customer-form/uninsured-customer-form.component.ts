@@ -34,7 +34,7 @@ import { Card } from 'primeng/card';
   ]
 })
 export class UninsuredCustomerFormComponent implements OnInit, AfterViewInit, OnDestroy {
-  header: string | null = null;
+  title: string | null = null;
   entity?: ICustomer;
   protected isSaving = false;
   protected isValid = true;

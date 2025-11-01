@@ -1,6 +1,6 @@
 @if (currentSaleService.currentSale()) {
   <div class="row">
-    <div class=" col-lg-9 col-sm-12 col-md-12 col-xl-9 sale-products-table mb-1">
+    <div class=" col-lg-9 col-sm-12 col-md-12 col-xl-9 col-xxl-9">
         <jhi-product-table
           (deleteItemEvent)="confirmDeleteItem($event)"
           (itemPriceEvent)="updateItemPrice($event)"
@@ -11,8 +11,7 @@
         </jhi-product-table>
 
     </div>
-
-    <div class=" col-lg-3 col-sm-12 col-md-12 col-xl-3  amounts-summary">
+    <div class="amounts-summary col-lg-3 col-sm-12 col-md-12 col-xl-3 col-xxl-3">
         <div class="grid">
           <div class="col-12">
             <jhi-amount-computing #amountComputing

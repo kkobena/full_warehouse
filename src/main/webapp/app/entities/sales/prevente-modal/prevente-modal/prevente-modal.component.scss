@@ -1,6 +1,11 @@
 @import 'app/shared/scss/table-common';
 
 // Additional styles for prevente modal
+
+tr{
+  cursor: pointer;
+}
+
 .active {
   background-color: #e3f2fd !important;
   border-left: 3px solid #5b89a6 !important;

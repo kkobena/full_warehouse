@@ -34,8 +34,6 @@ public class SalesDataResource {
     private final SaleDataService saleDataService;
     private final SaleReceiptService saleReceiptService;
 
-    @Value("${pharma-smart.clientApp.name}")
-    private String applicationName;
 
     public SalesDataResource(SaleDataService saleDataService, SaleReceiptService saleReceiptService) {
         this.saleDataService = saleDataService;

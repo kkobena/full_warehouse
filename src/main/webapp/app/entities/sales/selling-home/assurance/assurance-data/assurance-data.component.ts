@@ -222,7 +222,7 @@ this.assureBtnActions=[
         CustomerCarnetComponent,
         {
           entity: null,
-          header: 'FORMULAIRE D\'AJOUT DE NOUVEAU DE CLIENT',
+          title: 'FORMULAIRE D\'AJOUT DE NOUVEAU DE CLIENT',
           categorie: 'CARNET'
         },
         (resp: ICustomer) => {

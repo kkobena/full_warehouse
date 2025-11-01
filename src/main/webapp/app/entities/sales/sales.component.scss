@@ -36,6 +36,7 @@
       }
 
       .p-floatlabel {
+        min-width: 90px !important;
         label {
           font-size: 0.7rem !important;
         }
@@ -52,4 +53,15 @@
       }
     }
   }
+}
+/*.p-datepicker-input {
+  min-width: 90px;
+  max-width: 110px;
+  padding: 0.375rem 0.5rem !important;
+  font-size: 0.8125rem !important;
+}
+*/
+.p-floatlabel {
+  min-width: 90px !important;
+
 }

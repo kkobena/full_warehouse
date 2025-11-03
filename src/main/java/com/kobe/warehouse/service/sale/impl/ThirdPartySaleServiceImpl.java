@@ -113,7 +113,6 @@ public class ThirdPartySaleServiceImpl extends SaleCommonService implements Thir
     private final RemiseRepository remiseRepository;
     private final PrixRererenceService prixRererenceService;
     private final LogsService logService;
-    private final DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern("yyyyMM").withZone(ZoneId.systemDefault());
     private final TiersPayantCalculationService tiersPayantCalculationService;
     private final SaleIdGeneratorService idGeneratorService;
     private final ConsommationService consommationService;

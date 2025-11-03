@@ -1,13 +1,16 @@
 package com.kobe.warehouse.service.dto;
 
 import com.kobe.warehouse.domain.AssuredCustomer;
+import com.kobe.warehouse.domain.Sales;
 import com.kobe.warehouse.domain.ThirdPartySaleLine;
 import com.kobe.warehouse.domain.ThirdPartySales;
+import com.kobe.warehouse.domain.VenteDepot;
 import com.kobe.warehouse.domain.enumeration.PrioriteTiersPayant;
+import org.apache.commons.lang3.StringUtils;
+
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
-import org.apache.commons.lang3.StringUtils;
 
 public class ThirdPartySaleDTO extends SaleDTO {
 

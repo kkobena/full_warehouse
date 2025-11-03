@@ -21,7 +21,10 @@ import java.io.Serializable;
 import java.util.Objects;
 
 @Entity
-@Table(name = "storage", uniqueConstraints = @UniqueConstraint(columnNames = { "storage_type", "magasin_id" }))
+@Table(name = "storage", uniqueConstraints = {
+    @UniqueConstraint(columnNames = { "storage_type", "magasin_id" }),
+    @UniqueConstraint(columnNames = { "name", "magasin_id" }),
+})
 @JsonIgnoreProperties(value = { "magasin" })
 @Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
 public class Storage implements Serializable {
@@ -39,7 +42,7 @@ public class Storage implements Serializable {
     private StorageType storageType;
 
     @NotNull
-    @Column(name = "name", nullable = false, unique = true)
+    @Column(name = "name", nullable = false)
     private String name;
 
     @ManyToOne(optional = false)

@@ -7,7 +7,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
 public interface CustomizedRayonService {
-    Page<RayonDTO> listRayonsByStorageId(Long magasinId, String query, Pageable pageable);
+    Page<RayonDTO> listRayonsByStorageId(Long magasinId,Long storageId, String query, Pageable pageable);
 
     RayonDTO save(RayonDTO dto);
 

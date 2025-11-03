@@ -4,6 +4,7 @@ import { firstValueFrom, Observable } from 'rxjs';
 
 import { SERVER_API_URL } from 'app/app.constants';
 import { IMagasin } from 'app/shared/model/magasin.model';
+import { createRequestOptions } from '../../shared/util/request-util';
 
 type EntityResponseType = HttpResponse<IMagasin>;
 type EntityArrayResponseType = HttpResponse<IMagasin[]>;
@@ -27,8 +28,10 @@ export class MagasinService {
 
   fetchAll(): Observable<EntityArrayResponseType> {
     return this.http.get<IMagasin[]>(this.resourceUrl, { observe: 'response' });
-  }  fetchAllDepots(): Observable<EntityArrayResponseType> {
-    return this.http.get<IMagasin[]>(this.resourceUrl+'/depots', { observe: 'response' });
+  }
+  fetchAllDepots(req?: any): Observable<EntityArrayResponseType> {
+    const options = createRequestOptions(req);
+    return this.http.get<IMagasin[]>(this.resourceUrl+'/depots', { params: options, observe: 'response' } );
   }
 
   delete(id: number): Observable<HttpResponse<{}>> {

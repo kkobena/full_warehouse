@@ -31,7 +31,7 @@ public interface RayonService {
      * @param pageable the pagination information.
      * @return the list of entities.
      */
-    Page<RayonDTO> findAll(Long magasinId, String query, Pageable pageable);
+    Page<RayonDTO> findAll(Long magasinId,Long storageId, String query, Pageable pageable);
 
     /**
      * Get the "id" rayon.
@@ -53,4 +53,6 @@ public interface RayonService {
     ResponseDTO cloner(List<RayonDTO> rayonIds, Long magasinId);
 
     void initDefaultRayon(Set<Storage> storages);
+
+    void deleteByStorage(Storage storage);
 }

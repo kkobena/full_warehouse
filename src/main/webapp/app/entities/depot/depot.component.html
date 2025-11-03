@@ -76,7 +76,7 @@
            </td>
            <td>{{ depot.fullName }}</td>
            <td>
-              {{ depot.typeLibelle }}
+            <span class="pharma-badge pharma-badge-info">{{ depot.typeLibelle }}</span>
            </td>
            <td>
              @if (depot.phone) {
@@ -109,7 +109,7 @@
                  [text]="true"
                  [rounded]="true"
                  severity="danger"
-                 (onClick)="onEdit(depot)"
+                 (onClick)="onDelete(depot)"
                  pTooltip="Supprimer">
                </p-button>
 

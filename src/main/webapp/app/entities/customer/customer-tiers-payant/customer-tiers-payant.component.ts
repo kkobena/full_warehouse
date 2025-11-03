@@ -53,7 +53,7 @@ import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
   styleUrls: ['./customer-tiers-payant-component.scss'],
 })
 export class CustomerTiersPayantComponent implements OnInit, OnDestroy {
-  header: string = '';
+  title: string = '';
   entity: IClientTiersPayant | null = null;
   customer: ICustomer | null = null;
 

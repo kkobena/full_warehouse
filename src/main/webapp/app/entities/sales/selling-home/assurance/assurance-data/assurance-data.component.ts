@@ -359,7 +359,7 @@ this.assureBtnActions=[
       {
         entity: ayantDroit,
         assure: this.selectedCustomerService.selectedCustomerSignal(),
-        header: 'FORMULAIRE DE MODIFICATION '
+        title: 'FORMULAIRE DE MODIFICATION '
       },
       (resp: ICustomer) => {
         if (resp) {

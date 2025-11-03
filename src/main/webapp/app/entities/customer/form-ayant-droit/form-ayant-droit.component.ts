@@ -18,6 +18,7 @@ import { DATE_FORMAT_FROM_STRING_FR, FORMAT_ISO_DATE_TO_STRING_FR } from '../../
 import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
 import { ToastAlertComponent } from '../../../shared/toast-alert/toast-alert.component';
 import { Card } from 'primeng/card';
+import { DateNaissDirective } from '../../../shared/date-naiss.directive';
 
 @Component({
   selector: 'jhi-form-ayant-droit',
@@ -36,10 +37,11 @@ import { Card } from 'primeng/card';
     InputMaskModule,
     ToastAlertComponent,
     Card,
-  ],
+    DateNaissDirective
+  ]
 })
 export class FormAyantDroitComponent implements OnInit, AfterViewInit, OnDestroy {
-  header: string;
+  title: string;
   entity?: ICustomer;
   assure?: ICustomer;
   protected firstName = viewChild.required<ElementRef>('firstName');

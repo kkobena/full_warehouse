@@ -10,6 +10,7 @@ import com.kobe.warehouse.repository.StorageRepository;
 import com.kobe.warehouse.repository.UserRepository;
 import com.kobe.warehouse.security.SecurityUtils;
 import com.kobe.warehouse.service.dto.StorageDTO;
+import com.kobe.warehouse.service.dto.projection.IdProjection;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -18,6 +19,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 @Service
 @Transactional
@@ -57,12 +59,12 @@ public class StorageService {
         return userService.getUser();
     }
 
-    @Cacheable(value = EntityConstant.USER_MAIN_STORAGE_CACHE,key = "#root.target.getUser().getMagasin().getId()")
+    @Cacheable(value = EntityConstant.USER_MAIN_STORAGE_CACHE, key = "#root.target.getUser().getMagasin().getId()")
     public Storage getDefaultConnectedUserMainStorage() {
         return getStorageByMagasinIdAndType(getUser().getMagasin().getId(), StorageType.PRINCIPAL);
     }
 
-    @Cacheable(value =EntityConstant.POINT_DE_VENTE_CACHE,key = "#root.target.getUser().getMagasin().getId()")
+    @Cacheable(value = EntityConstant.POINT_DE_VENTE_CACHE, key = "#root.target.getUser().getMagasin().getId()")
     public Storage getDefaultConnectedUserPointOfSaleStorage() {
         if (appConfigurationService.isMono()) {
             return getStorageByMagasinIdAndType(getUser().getMagasin().getId(), StorageType.PRINCIPAL);
@@ -71,7 +73,7 @@ public class StorageService {
         return getStorageByMagasinIdAndType(getUser().getMagasin().getId(), StorageType.POINT_DE_VENTE);
     }
 
-    @Cacheable( value =EntityConstant.USER_RESERVE_STORAGE_CACHE,key = "#root.target.getUser().getMagasin().getId()")
+    @Cacheable(value = EntityConstant.USER_RESERVE_STORAGE_CACHE, key = "#root.target.getUser().getMagasin().getId()")
     public Storage getDefaultConnectedUserReserveStorage() {
         return getStorageByMagasinIdAndType(getUser().getMagasin().getId(), StorageType.SAFETY_STOCK);
     }
@@ -110,9 +112,26 @@ public class StorageService {
             storage.setMagasin(magasin);
             storage.setName(storageType.getValue());
             storage.setStorageType(storageType);
-            storages.add(storageRepository.save(storage)) ;
+            storages.add(storageRepository.save(storage));
         }
         return storages;
 
+    }
+
+    public List<Storage> findAllByMagasin(Magasin magasin) {
+        return storageRepository.findAllByMagasin(magasin);
+    }
+
+    public void deleteAll(List<Storage> storages) {
+        storageRepository.deleteAll(storages);
+
+    }
+
+    public Set<Long> findIds(Long magasinId) {
+        return storageRepository.findIds(magasinId).stream().map(IdProjection::getId).collect(Collectors.toSet());
+    }
+
+    public Long findByMagasinIdAndStorageType(Long magasinId, StorageType storageType) {
+        return storageRepository.findByMagasinIdAndStorageType(magasinId, storageType).getId();
     }
 }

@@ -49,8 +49,8 @@ import java.util.Set;
         @Index(columnList = "ca", name = "vente_ca_index"),
         @Index(columnList = "imported", name = "vente_imported_index"),
         @Index(columnList = "to_ignore", name = "vente_to_ignore_index"),
-        @Index(columnList = "payment_status", name = "vente_payment_status_index"),
-        @Index(columnList = "nature_vente", name = "vente_nature_vente_index"),
+        @Index(columnList = "payment_status", name = "vente_payment_status_index")
+      ,
     }
 )
 @Inheritance(strategy = InheritanceType.SINGLE_TABLE)
@@ -166,7 +166,7 @@ public class Sales implements Persistable<SaleId>, Serializable, Cloneable {
     @NotNull
     @Enumerated(EnumType.STRING)
     @Column(name = "nature_vente", nullable = false, length = 15)
-    private NatureVente natureVente;
+    private NatureVente natureVente;//TODO : remove this column and use each child class
     @NotNull
     @Enumerated(EnumType.STRING)
     @Column(name = "origine_vente", nullable = false)

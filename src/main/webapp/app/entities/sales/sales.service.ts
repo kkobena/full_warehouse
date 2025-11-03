@@ -16,8 +16,8 @@ type EntityArrayResponseType = HttpResponse<ISales[]>;
 
 @Injectable({ providedIn: 'root' })
 export class SalesService {
-  public resourceUrl = SERVER_API_URL + 'api/sales';
-  protected http = inject(HttpClient);
+  private readonly resourceUrl = SERVER_API_URL + 'api/sales';
+  private readonly  http = inject(HttpClient);
 
   createComptant(sales: ISales): Observable<EntityResponseType> {
     const copy = this.convertDateFromClient(sales);

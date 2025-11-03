@@ -1,0 +1,62 @@
+<div class="row">
+  <div class="col-xl-2 col-lg-2 col-md-2 col-sm-2">
+    <!-- Modern Navigation Sidebar -->
+    <div class="pharma-nav-sidebar">
+      <div class="pharma-nav-sidebar-card">
+        <div class="pharma-nav-sidebar-header">
+          <i class="pi pi-building"></i>
+          <span>Gestion des dépôts</span>
+        </div>
+
+        <div class="pharma-nav-sidebar-content">
+          <div
+            #nav="ngbNav"
+
+            [(activeId)]="active"
+            class="nav flex-column nav-pills"
+            ngbNav
+            orientation="vertical"
+          >
+            <ng-container ngbNavItem="liste-depots">
+              <a class="pharma-nav-vertical-link" ngbNavLink>
+                <i class="pi pi-book"></i>
+                <span>Liste des dépôts</span>
+                <span class="link-arrow">›</span>
+              </a>
+              <ng-template ngbNavContent>
+                <jhi-depot></jhi-depot>
+              </ng-template>
+            </ng-container>
+            <ng-container ngbNavItem="stock-depot">
+              <a class="pharma-nav-vertical-link" ngbNavLink>
+                <i class="pi pi-box"></i>
+                <span>Stock dépôt</span>
+                <span class="link-arrow">›</span>
+              </a>
+              <ng-template ngbNavContent>
+                <jhi-stock-depot></jhi-stock-depot>
+              </ng-template>
+            </ng-container>
+            <ng-container ngbNavItem="achat-depot">
+              <a class="pharma-nav-vertical-link" ngbNavLink>
+                <i class="pi pi-fw pi-truck"></i>
+                <span>Achats dépôt</span>
+                <span class="link-arrow">›</span>
+              </a>
+              <ng-template ngbNavContent>
+                <jhi-achat-depot></jhi-achat-depot>
+              </ng-template>
+            </ng-container>
+
+
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="col-xl-10 col-lg-10 col-md-10 col-sm-10 ">
+    <div [ngbNavOutlet]="nav"></div>
+  </div>
+</div>
+

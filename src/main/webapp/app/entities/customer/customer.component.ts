@@ -339,7 +339,7 @@ export class CustomerComponent implements OnInit, OnDestroy {
       {
         entity: null,
         assure: customer,
-        header: 'FORMULAIRE D\'AJOUT D\'AYANT DROIT '
+        title: 'FORMULAIRE D\'AJOUT D\'AYANT DROIT '
       },
       (resp: ICustomer) => {
         if (resp) {
@@ -356,7 +356,7 @@ export class CustomerComponent implements OnInit, OnDestroy {
       {
         entity: ayantDroit,
         assure: customer,
-        header: `FORMULAIRE DE MODIFICATION D'AYANT DROIT [ ${ayantDroit.fullName}  ]`
+        title: `FORMULAIRE DE MODIFICATION D'AYANT DROIT [ ${ayantDroit.fullName}  ]`
       },
       (resp: ICustomer) => {
         if (resp) {
@@ -389,7 +389,7 @@ export class CustomerComponent implements OnInit, OnDestroy {
       {
         entity: null,
         customer: customer,
-        header: 'FORMULAIRE D\'AJOUT DE TIERS PAYANT '
+        title: 'FORMULAIRE D\'AJOUT DE TIERS PAYANT '
       },
       (resp: ICustomer) => {
         if (resp) {
@@ -407,7 +407,7 @@ export class CustomerComponent implements OnInit, OnDestroy {
       {
         entity: clientTiersPayant,
         customer: customer,
-        header: 'FORMULAIRE DE MODIFICATION DE TIERS PAYANT [ ' + clientTiersPayant.tiersPayantName + ' ]'
+        title: 'FORMULAIRE DE MODIFICATION DE TIERS PAYANT [ ' + clientTiersPayant.tiersPayantName + ' ]'
       },
       (resp: ICustomer) => {
         if (resp) {

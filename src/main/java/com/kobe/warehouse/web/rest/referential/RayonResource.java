@@ -100,12 +100,13 @@ public class RayonResource {
      */
     @GetMapping(value = "/rayons")
     public ResponseEntity<List<RayonDTO>> getAllRayons(
+        @RequestParam(name = "magasinId", required = false) Long magasinId,
         @RequestParam(name = "storageId", required = false) Long storageId,
         @RequestParam(value = "search", required = false, defaultValue = "") String search,
         Pageable pageable
     ) {
         log.debug("REST request to get a page of Rayons");
-        Page<RayonDTO> page = rayonService.findAll(storageId, search, pageable);
+        Page<RayonDTO> page = rayonService.findAll(magasinId,storageId, search, pageable);
         HttpHeaders headers = PaginationUtil.generatePaginationHttpHeaders(ServletUriComponentsBuilder.fromCurrentRequest(), page);
         return ResponseEntity.ok().headers(headers).body(page.getContent());
     }

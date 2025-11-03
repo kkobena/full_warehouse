@@ -189,7 +189,7 @@ export class CustomerEditModalComponent implements OnInit {
       {
         entity: ayantDroit,
         assure: this.customer,
-        header: 'FORMULAIRE D\'AJOUT D\'UN AYANT DROIT'
+        title: 'FORMULAIRE D\'AJOUT D\'UN AYANT DROIT'
       },
       (resp: ICustomer) => {
         if (resp) {

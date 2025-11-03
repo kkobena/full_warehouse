@@ -26,12 +26,7 @@ export class SalesLineService {
       .pipe(map((res: EntityResponseType) => this.convertDateFromServer(res)));
   }
 
-  update(salesLine: ISalesLine): Observable<EntityResponseType> {
-    const copy = this.convertDateFromClient(salesLine);
-    return this.http
-      .put<ISalesLine>(`${this.saleUrl}/update-item`, copy, { observe: 'response' })
-      .pipe(map((res: EntityResponseType) => this.convertDateFromServer(res)));
-  }
+
 
   query(req?: any): Observable<EntityArrayResponseType> {
     const options = createRequestOption(req);

@@ -12,28 +12,31 @@
       <p-toolbar>
         <ng-template #start>
           <div class="pharma-toolbar-filters">
-            <p-floatlabel variant="on" class="mr-1">
-              <p-select
-                (onChange)="filtreClik()"
-                [(ngModel)]="selectedCriteria"
-                [options]="filtesProduits"
-                optionLabel="label"
-                optionValue="value"
-                size="large"
-                id="criteria"
-                appendTo="body"
+            <p-floatlabel variant="on">
+              <p-select [style]="{'min-width': '130px'}"
+                        (onChange)="filtreClik()"
+                        [(ngModel)]="selectedCriteria"
+                        [options]="filtesProduits"
+                        optionLabel="label"
+                        optionValue="value"
+                        size="large"
+                        [fluid]="true"
+                        id="criteria"
+                        appendTo="body"
               >
               </p-select>
               <label for="criteria">Filtrer par critère</label>
             </p-floatlabel>
 
-            <p-floatlabel variant="on" class="mr-1">
+            <p-floatlabel variant="on">
               <p-select
                 size="large"
+                [fluid]="true"
                 (onChange)="filtreRayon($event)"
                 [(ngModel)]="selectedRayon"
                 [options]="rayons"
                 [showClear]="true"
+                [style]="{'min-width': '150px'}"
                 optionLabel="libelle"
                 optionValue="id"
                 id="rayon"
@@ -43,12 +46,14 @@
               <label for="rayon">Rayon</label>
             </p-floatlabel>
 
-            <p-floatlabel variant="on" class="mr-1">
+            <p-floatlabel variant="on">
               <p-select
                 (onChange)="filtreFamilleProduit($event)"
                 [(ngModel)]="selectedFamille"
                 [options]="familles"
+                [fluid]="true"
                 [showClear]="true"
+                [style]="{'min-width': '150px'}"
                 size="large"
                 optionLabel="libelle"
                 optionValue="id"

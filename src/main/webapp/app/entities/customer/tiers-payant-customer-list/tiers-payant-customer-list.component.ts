@@ -14,6 +14,7 @@ import { IconField } from 'primeng/iconfield';
 import { InputIcon } from 'primeng/inputicon';
 import { Subject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
+import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
 
 @Component({
   selector: 'jhi-tiers-payant-customer-list',
@@ -31,23 +32,18 @@ import { takeUntil } from 'rxjs/operators';
   ]
 })
 export class TiersPayantCustomerListComponent implements OnInit, OnDestroy {
-  ref = inject(DynamicDialogRef);
-  config = inject(DynamicDialogConfig);
+  title: string = 'Tiers Payants Disponibles';
   tiersPayants: IClientTiersPayant[] = [];
   assure?: ICustomer | null;
   tiersPayantsExisting: IClientTiersPayant[] = [];
   protected customerService = inject(CustomerService);
   private destroy$ = new Subject<void>();
+  private readonly activeModal = inject(NgbActiveModal);
 
-  /** Inserted by Angular inject() migration for backwards compatibility */
-  constructor(...args: unknown[]);
-
-  constructor() {
-  }
 
   ngOnInit(): void {
-    this.assure = this.config.data.assure;
-    this.tiersPayantsExisting = this.config.data.tiersPayants;
+  //  this.assure = this.config.data.assure;
+   // this.tiersPayantsExisting = this.config.data.tiersPayants;
     this.load();
   }
 
@@ -61,11 +57,11 @@ export class TiersPayantCustomerListComponent implements OnInit, OnDestroy {
   }
 
   onSelect(tiersPayant: IClientTiersPayant): void {
-    this.ref.close(tiersPayant);
+    this.activeModal.close(tiersPayant);
   }
 
   cancel(): void {
-    this.ref.close();
+    this.activeModal.dismiss();
   }
 
   load(): void {
@@ -81,6 +77,6 @@ export class TiersPayantCustomerListComponent implements OnInit, OnDestroy {
   }
 
   add(): void {
-    this.ref.close(new ClientTiersPayant());
+    this.activeModal.close(new ClientTiersPayant());
   }
 }

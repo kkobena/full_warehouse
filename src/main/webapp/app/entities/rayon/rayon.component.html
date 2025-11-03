@@ -1,5 +1,5 @@
-<div class="container">
-  <div class="justify-content-center">
+<div class="container-fluid">
+
     <div class="pharma-smart-content p-2">
       <div class="pharma-toolbar">
         <div class="pharma-toolbar-header">
@@ -10,13 +10,14 @@
         <p-toolbar>
           <ng-template #start>
             <div class="pharma-toolbar-filters">
-              <p-floatlabel variant="on" class="mr-1">
-                <p-select
+              <p-floatlabel variant="on" >
+                <p-select  [style]="{'min-width': '160px'}"
                   id="storageId"
                   (onChange)="onChange()"
                   [(ngModel)]="storage"
                   [filter]="false"
                   [options]="storages"
+                  [fluid]="true"
                   [showClear]="true"
                   [appendTo]="'body'"
                   optionLabel="storageType"
@@ -25,8 +26,8 @@
                 <label for="storageId">Séléctionner l'emplacement</label>
               </p-floatlabel>
 
-              <p-floatlabel variant="on" class="mr-1" [hidden]="true">
-                <p-select
+              <p-floatlabel variant="on"  [hidden]="true">
+                <p-select [style]="{'min-width': '160px'}"
                   id="magasinId"
                   [(ngModel)]="magasin"
                   [filter]="false"
@@ -132,7 +133,7 @@
         </ng-template>
       </p-table>
     </div>
-  </div>
+
 </div>
 
 <jhi-confirm-dialog #confirmDialog></jhi-confirm-dialog>

@@ -1,5 +1,12 @@
+
+<div class="modal-header">
+  <h4 class="modal-title">{{ title }}</h4>
+  <button (click)="cancel()" class="btn-close" data-dismiss="modal" type="button">
+  </button>
+</div>
 <div class="modal-body">
-  <p-toolbar styleClass="mb-1">
+
+  <p-toolbar class="mb-1">
     <ng-template pTemplate="left">
       <button (click)="add()" class="mr-2" pButton pButtonIcon="pi pi-plus" pButtonLabel="Nouveau"
               severity="success"></button>
@@ -14,10 +21,10 @@
     dataKey="id"
     selectionMode="single"
   >
-    <ng-template pTemplate="caption">
+    <ng-template #caption>
       <span class="mr-lg-5">LA LISTE DES AYANT DROITS</span>
       <p-iconfield>
-        <p-inputicon styleClass="pi pi-search" />
+        <p-inputicon class="pi pi-search" />
         <input
           (input)="tiersPayantTable.filterGlobal($event.target.value, 'contains')"
           pInputText
@@ -26,7 +33,7 @@
         />
       </p-iconfield>
     </ng-template>
-    <ng-template pTemplate="header">
+    <ng-template #header>
       <tr>
         <th style="width: 3%">#</th>
         <th>TIERS-PAYANT</th>
@@ -36,7 +43,7 @@
         <th style="width: 7%"></th>
       </tr>
     </ng-template>
-    <ng-template let-rowIndex="rowIndex" let-tiersPayant pTemplate="body">
+    <ng-template let-rowIndex="rowIndex" let-tiersPayant #body>
       <tr (dblclick)="onDbleClick(tiersPayant)" style="cursor: pointer">
         <td style="text-align: left">{{ rowIndex + 1 }}</td>
         <td>{{ tiersPayant.tiersPayantFullName }}</td>

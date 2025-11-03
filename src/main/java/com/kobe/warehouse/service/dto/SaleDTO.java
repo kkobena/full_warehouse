@@ -17,20 +17,23 @@ import com.kobe.warehouse.domain.enumeration.NatureVente;
 import com.kobe.warehouse.domain.enumeration.PaymentStatus;
 import com.kobe.warehouse.domain.enumeration.SalesStatut;
 import com.kobe.warehouse.domain.enumeration.TypePrescription;
+import org.apache.commons.lang3.StringUtils;
+
 import java.io.Serializable;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Objects;
-import org.apache.commons.lang3.StringUtils;
 
 @JsonTypeInfo(use = JsonTypeInfo.Id.NAME, property = "type")
 @JsonSubTypes(
-    { @JsonSubTypes.Type(value = CashSaleDTO.class, name = "VNO"), @JsonSubTypes.Type(value = ThirdPartySaleDTO.class, name = "VO") }
+    {@JsonSubTypes.Type(value = CashSaleDTO.class, name = "VNO"), @JsonSubTypes.Type(value = ThirdPartySaleDTO.class, name = "VO")
+        , @JsonSubTypes.Type(value = DepotExtensionSaleDTO.class, name = "DEPOT")
+    }
 )
 public class SaleDTO implements Serializable {
-
+    protected MagasinDTO magasin;
     private Long id;
     private SaleId saleId;
     private Integer discountAmount;
@@ -74,7 +77,8 @@ public class SaleDTO implements Serializable {
     private TypePrescription typePrescription;
     private PaymentStatus paymentStatus;
     private CustomerDTO customer;
-    private UserDTO cassier;private UserDTO seller;
+    private UserDTO cassier;
+    private UserDTO seller;
     private Long cassierId;
     private Long sellerId;
     private String caisseEndNum;
@@ -85,7 +89,9 @@ public class SaleDTO implements Serializable {
     private String commentaire;
 
 
-    public SaleDTO() {}
+
+    public SaleDTO() {
+    }
 
     public SaleDTO(Sales sale) {
         this.saleId = sale.getId();
@@ -221,6 +227,15 @@ public class SaleDTO implements Serializable {
 
     public SaleDTO setHtAmount(Integer htAmount) {
         this.htAmount = htAmount;
+        return this;
+    }
+
+    public MagasinDTO getMagasin() {
+        return magasin;
+    }
+
+    public SaleDTO setMagasin(MagasinDTO magasin) {
+        this.magasin = magasin;
         return this;
     }
 

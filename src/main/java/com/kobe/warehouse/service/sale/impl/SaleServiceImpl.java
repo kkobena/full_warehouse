@@ -234,10 +234,10 @@ public class SaleServiceImpl extends SaleCommonService implements SaleService {
         upddateCashSaleAmounts(cashSale);
 
         CashSale sale = salesRepository.save(cashSale);
-        saleLine.setSales(cashSale);
+        saleLine.setSales(sale);
 
         salesLineService.saveSalesLine(saleLine);
-        this.displayNet(cashSale.getNetAmount());
+        this.displayNet(sale.getNetAmount());
         return new CashSaleDTO(sale);
     }
 

@@ -86,6 +86,29 @@ public class Magasin implements Serializable {
 
     @Column(name = "registre_imposition")
     private String registreImposition;
+    @Column(name = "manager_first_name")
+    private String managerFirstName;
+
+    @Column(name = "manager_last_name")
+    private String managerLastName;
+
+    public String getManagerFirstName() {
+        return managerFirstName;
+    }
+
+    public Magasin setManagerFirstName(String managerFirstName) {
+        this.managerFirstName = managerFirstName;
+        return this;
+    }
+
+    public String getManagerLastName() {
+        return managerLastName;
+    }
+
+    public Magasin setManagerLastName(String managerLastName) {
+        this.managerLastName = managerLastName;
+        return this;
+    }
 
     public String getCompteBancaire() {
         return compteBancaire;

@@ -413,6 +413,6 @@ public abstract class SalesLineServiceImpl implements SalesLineService {
             .findBySalesIdAndSalesSaleDateOrderByProduitLibelle(salesId, saleDate)
             .stream()
             .map(SaleLineDTO::new)
-            .collect(Collectors.toList());
+            .toList();
     }
 }

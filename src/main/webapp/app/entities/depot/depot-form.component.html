@@ -36,7 +36,7 @@
               <!-- Name -->
               <div class="form-field">
                 <label for="name">Nom Court <span class="required">*</span></label>
-                <input
+                <input #name
                   pInputText
                   id="name"
                   formControlName="name"
@@ -71,6 +71,7 @@
                   optionLabel="label"
                   optionValue="value"
                   [fluid]="true"
+                  [disabled]="true"
                   [class.ng-invalid]="formControls['typeMagasin'].invalid && formControls['typeMagasin'].touched">
                 </p-select>
                 @if (formControls['typeMagasin'].invalid && formControls['typeMagasin'].touched) {

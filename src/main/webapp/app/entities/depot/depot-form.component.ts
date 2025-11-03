@@ -1,4 +1,4 @@
-import { Component, OnInit, inject } from '@angular/core';
+import { Component, OnInit, inject, viewChild, ElementRef, AfterViewInit } from '@angular/core';
 import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
 import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 import { HttpResponse } from '@angular/common/http';
@@ -30,7 +30,7 @@ import { Toolbar } from 'primeng/toolbar';
   templateUrl: './depot-form.component.html',
   styleUrl: './depot-form.component.scss'
 })
-export class DepotFormComponent implements OnInit {
+export class DepotFormComponent implements OnInit,AfterViewInit {
  protected depotForm!: FormGroup;
   protected isEditMode = false;
   protected isSaving = false;
@@ -38,15 +38,15 @@ export class DepotFormComponent implements OnInit {
 
   protected typeMagasinOptions = [
 /*    { label: 'Officine', value: TypeMagasin.OFFICINE },*/
-    { label: 'Dépôt extension', value: TypeMagasin.DEPOT },
-    { label: 'Dépôt Agréé', value: TypeMagasin.DEPOT_AGGREE }
+    { label: 'Dépôt extension', value: TypeMagasin.DEPOT }
+
   ];
 
   private fb = inject(FormBuilder);
-  private magasinService = inject(MagasinService);
-  private route = inject(ActivatedRoute);
-  private router = inject(Router);
-
+  private readonly magasinService = inject(MagasinService);
+  private readonly route = inject(ActivatedRoute);
+  private readonly router = inject(Router);
+  private readonly name = viewChild.required<ElementRef>('name');
   ngOnInit(): void {
     this.createForm();
 
@@ -58,7 +58,11 @@ export class DepotFormComponent implements OnInit {
       }
     });
   }
-
+  ngAfterViewInit(): void {
+    setTimeout(() => {
+      this.name().nativeElement.focus();
+    }, 100);
+  }
   createForm(): void {
     this.depotForm = this.fb.group({
       id: [null],

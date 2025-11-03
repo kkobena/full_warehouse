@@ -9,7 +9,9 @@ import com.kobe.warehouse.domain.RemiseProduit;
 import com.kobe.warehouse.domain.Sales;
 import com.kobe.warehouse.domain.SalesLine;
 import com.kobe.warehouse.domain.ThirdPartySales;
+import com.kobe.warehouse.domain.VenteDepot;
 import com.kobe.warehouse.domain.enumeration.CodeRemise;
+import com.kobe.warehouse.domain.enumeration.OrigineVente;
 import com.kobe.warehouse.domain.enumeration.PaymentStatus;
 import com.kobe.warehouse.domain.enumeration.SalesStatut;
 import com.kobe.warehouse.domain.enumeration.TypeVente;
@@ -248,17 +250,23 @@ public class SaleCommonService {
         });
 
         c.setPaymentStatus(PaymentStatus.IMPAYE);
+        c.setOrigineVente(OrigineVente.DIRECT);
         c.setMagasin(c.getCaissier().getMagasin());
     }
 
     public void save(Sales c, SaleDTO dto) throws SaleAlreadyCloseException {
+        prevalideSale(c);
+        finalizeSale(c, dto);
+    }
+
+    public void prevalideSale(Sales c) throws SaleAlreadyCloseException {
         if (CollectionUtils.isEmpty(c.getSalesLines())) {
             return;
         }
         if (c.getStatut() == SalesStatut.CLOSED) {
             throw new SaleAlreadyCloseException();
         }
-        finalizeSale(c, dto);
+
     }
 
     public void editSale(Sales c, SaleDTO dto) {
@@ -277,7 +285,7 @@ public class SaleCommonService {
         getSaleLineService(c).save(c.getSalesLines(), user, id);
         c.setStatut(SalesStatut.CLOSED);
         c.setDiffere(dto.isDiffere());
-        c.setLastUserEdit(storageService.getUser());
+        c.setLastUserEdit(user);
         c.setCommentaire(dto.getCommentaire());
         if (!c.isDiffere() && dto.getPayrollAmount() < dto.getAmountToBePaid()) {
             throw new PaymentAmountException();
@@ -387,7 +395,11 @@ public class SaleCommonService {
             return TypeVente.CashSale;
         } else if (sales instanceof ThirdPartySales) {
             return TypeVente.ThirdPartySales;
+        } else if (sales instanceof VenteDepot) {
+            return TypeVente.VenteDepot;
         }
         return null;
     }
+
+
 }

@@ -7,6 +7,7 @@ import { IUser } from '../../core/user/user.model';
 import { IClientTiersPayant } from 'app/shared/model/client-tiers-payant.model';
 import { IThirdPartySaleLine } from 'app/shared/model/third-party-sale-line';
 import { IRemise } from './remise.model';
+import { IMagasin } from './magasin.model';
 
 export interface ISales {
   id?: number;
@@ -55,6 +56,7 @@ export interface ISales {
   avoir?: boolean;
   saleId?: SaleId;
   remise?: IRemise;
+  magasin?:IMagasin
 }
 
 export class Sales implements ISales {

@@ -28,6 +28,9 @@ public class MagasinDTO implements Serializable {
     private String fullName;
     private String compteBancaire;
     private String registreImposition;
+    private String managerFirstName;
+    private String email;
+    private String managerLastName;
     public MagasinDTO() {}
 
     public MagasinDTO(Magasin magasin) {
@@ -47,6 +50,9 @@ public class MagasinDTO implements Serializable {
         typeLibelle = typeMagasin.getLibelle();
         registreImposition = magasin.getRegistreImposition();
         compteBancaire = magasin.getCompteBancaire();
+        managerFirstName = magasin.getManagerFirstName();
+        managerLastName = magasin.getManagerLastName();
+        email = magasin.getEmail();
     }
 
     public TypeMagasin getTypeMagasin() {
@@ -141,6 +147,33 @@ public class MagasinDTO implements Serializable {
 
     public StorageDTO getPointOfSale() {
         return pointOfSale;
+    }
+
+    public String getManagerFirstName() {
+        return managerFirstName;
+    }
+
+    public MagasinDTO setManagerFirstName(String managerFirstName) {
+        this.managerFirstName = managerFirstName;
+        return this;
+    }
+
+    public String getEmail() {
+        return email;
+    }
+
+    public MagasinDTO setEmail(String email) {
+        this.email = email;
+        return this;
+    }
+
+    public String getManagerLastName() {
+        return managerLastName;
+    }
+
+    public MagasinDTO setManagerLastName(String managerLastName) {
+        this.managerLastName = managerLastName;
+        return this;
     }
 
     public void setPointOfSale(StorageDTO pointOfSale) {

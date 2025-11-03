@@ -4,12 +4,16 @@ import com.kobe.warehouse.domain.FournisseurProduit;
 import com.kobe.warehouse.domain.Produit;
 import com.kobe.warehouse.domain.SalesLine;
 import com.kobe.warehouse.domain.StockProduit;
+import com.kobe.warehouse.domain.Storage;
 import com.kobe.warehouse.domain.enumeration.TransactionType;
 import com.kobe.warehouse.repository.StockProduitRepository;
 import com.kobe.warehouse.service.LogsService;
-import java.time.LocalDateTime;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.time.LocalDateTime;
+
+import static java.util.Objects.isNull;
 
 /**
  * Service responsible for stock update operations.
@@ -58,6 +62,7 @@ public class StockUpdateService {
         stockProduit.setQtyStock(stockProduit.getQtyStock() - (salesLine.getQuantityRequested() - salesLine.getQuantityUg()));
         stockProduit.setQtyUG(stockProduit.getQtyUG() - salesLine.getQuantityUg());
         stockProduit.setUpdatedAt(LocalDateTime.now());
+        stockProduit.setQtyVirtual(stockProduit.getQtyStock());
         stockProduitRepository.save(stockProduit);
 
         return new StockUpdateResult(quantityBefore, quantityAfter);
@@ -84,6 +89,41 @@ public class StockUpdateService {
             );
         }
     }
+
+
+    public StockUpdateResult updateStockDepot(SalesLine salesLine, Storage storage) {
+        Produit produit = salesLine.getProduit();
+        StockProduit stockProduit = stockProduitRepository.findOneByProduitIdAndStockageId(produit.getId(), storage.getId());
+        int quantityBefore=0;
+        if (isNull(stockProduit)) {
+            stockProduit = createStockProduitIfAbsent(produit, storage);
+        }else {
+             quantityBefore = stockProduit.getTotalStockQuantity();
+        }
+
+        int quantityAfter = quantityBefore + salesLine.getQuantityRequested();
+
+
+        // Update stock quantities
+        stockProduit.setQtyStock(quantityAfter);
+        stockProduit.setQtyVirtual(stockProduit.getQtyStock());
+        stockProduitRepository.save(stockProduit);
+
+        return new StockUpdateResult(quantityBefore, quantityAfter);
+    }
+
+    private StockProduit createStockProduitIfAbsent(Produit produit, Storage storage) {
+        StockProduit newStockProduit = new StockProduit();
+        newStockProduit.setProduit(produit);
+        newStockProduit.setStorage(storage);
+        newStockProduit.setQtyStock(0);
+        newStockProduit.setQtyUG(0);
+        newStockProduit.setQtyVirtual(0);
+        newStockProduit.setCreatedAt(LocalDateTime.now());
+        newStockProduit.setUpdatedAt(LocalDateTime.now());
+        return newStockProduit;
+    }
+
 
     /**
      * Result of a stock update operation containing quantity information.

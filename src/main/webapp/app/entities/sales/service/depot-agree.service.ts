@@ -20,7 +20,9 @@ export class DepotAgreeService {
   }
 
   loadAllDepots(): void {
-    this.magasinService.fetchAll().subscribe((res: HttpResponse<IMagasin[]>) => {
+    this.magasinService.fetchAllDepots({
+      types: ['DEPOT_AGGREE']
+    }).subscribe((res: HttpResponse<IMagasin[]>) => {
       this.depots.set(res.body || []);
     });
   }

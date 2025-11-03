@@ -1,4 +1,4 @@
-import { Component, OnInit, inject } from '@angular/core';
+import { Component, OnInit, inject, viewChild } from '@angular/core';
 import { HttpResponse } from '@angular/common/http';
 import { Router, RouterModule } from '@angular/router';
 import { IMagasin, TypeMagasin } from '../../shared/model/magasin.model';
@@ -39,10 +39,9 @@ export class DepotComponent implements OnInit {
  protected depots: IMagasin[] = [];
   protected loading = false;
   protected readonly TypeMagasin = TypeMagasin;
-
   private magasinService = inject(MagasinService);
   private router = inject(Router);
-
+  private readonly confimDialog = viewChild.required<ConfirmDialogComponent>('confirmDialog');
   ngOnInit(): void {
     this.loadAll();
   }
@@ -69,33 +68,19 @@ export class DepotComponent implements OnInit {
   }
 
   onDelete(depot: IMagasin): void {
-    // Implement delete functionality with confirmation
-    // You'll need to add a delete confirmation dialog
+    this.confimDialog().onConfirm(
+      () => {
+        this.magasinService.delete(depot.id!).subscribe({
+          next: () => {
+            this.loadAll();
+          }
+        });},
+      'Suppression du dépôt',
+      'Etes-vous sûr de vouloir changer le dépôt ?',
+      null
+    );
   }
 
-  getTypeMagasinLabel(type: TypeMagasin): string {
-    switch (type) {
-      case TypeMagasin.OFFICINE:
-        return 'Officine';
-      case TypeMagasin.DEPOT:
-        return 'Dépôt';
-      case TypeMagasin.DEPOT_AGGREE:
-        return 'Dépôt Agréé';
-      default:
-        return type;
-    }
-  }
 
-  getTypeMagasinSeverity(type: TypeMagasin): string {
-    switch (type) {
-      case TypeMagasin.OFFICINE:
-        return 'info';
-      case TypeMagasin.DEPOT:
-        return 'warning';
-      case TypeMagasin.DEPOT_AGGREE:
-        return 'success';
-      default:
-        return 'secondary';
-    }
-  }
+
 }

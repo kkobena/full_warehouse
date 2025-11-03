@@ -14,6 +14,8 @@ export interface IMagasin {
   registre?: string;
   welcomeMessage?: string;
   compteContribuable?: string;
+  managerLastName?: string;
+  managerFirstName?: string;
   numComptable?: string;
   typeMagasin?: TypeMagasin;
   typeLibelle?: string;
@@ -22,6 +24,7 @@ export interface IMagasin {
   registreImposition?: string;
   primaryStorage?: IStorage;
   pointOfSale?: IStorage;
+
 }
 
 export class Magasin implements IMagasin {

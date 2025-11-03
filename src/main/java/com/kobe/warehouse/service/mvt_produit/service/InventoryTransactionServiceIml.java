@@ -3,7 +3,9 @@ package com.kobe.warehouse.service.mvt_produit.service;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.kobe.warehouse.domain.InventoryTransaction;
+import com.kobe.warehouse.domain.Magasin;
 import com.kobe.warehouse.domain.OrderLine;
+import com.kobe.warehouse.domain.SalesLine;
 import com.kobe.warehouse.domain.enumeration.MouvementProduit;
 import com.kobe.warehouse.domain.enumeration.TransactionType;
 import com.kobe.warehouse.repository.InventoryTransactionRepository;
@@ -17,6 +19,7 @@ import com.kobe.warehouse.service.dto.produit.ProduitAuditingSum;
 import com.kobe.warehouse.service.dto.projection.LastDateProjection;
 import com.kobe.warehouse.service.id_generator.MvtProduitIdGeneratorService;
 import com.kobe.warehouse.service.mvt_produit.builder.InventoryTransactionBuilder;
+import com.kobe.warehouse.service.sale.dto.VenteDepotTransactionRecord;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.data.domain.Page;
@@ -172,5 +175,31 @@ public class InventoryTransactionServiceIml implements InventoryTransactionServi
         if (CollectionUtils.isEmpty(entities)) {
             entities.forEach(this::save);
         }
+    }
+
+    @Override
+    public void saveVenteDepotExtensionInventoryTransactions(Magasin depot, List<VenteDepotTransactionRecord> venteDepotTransactionRecords) {
+        if (CollectionUtils.isEmpty(venteDepotTransactionRecords)) {
+            return;
+        }
+        venteDepotTransactionRecords.forEach(record -> {
+            SalesLine salesLine = record.salesLine();
+            InventoryTransaction inventoryTransaction = new InventoryTransaction()
+                .setCreatedAt(salesLine.getUpdatedAt())
+                .setProduit(salesLine.getProduit())
+                .setMouvementType(MouvementProduit.ENTREE_STOCK)
+                .setQuantity(salesLine.getQuantityRequested())
+                .setQuantityBefor(record.quantityBefore())
+                .setQuantityAfter(record.quantityAfter())
+                .setCostAmount(salesLine.getCostAmount())
+                .setEntityId(salesLine.getId().getId())
+                .setUser(salesLine.getSales().getUser())
+                .setMagasin(depot)
+                .setRegularUnitPrice(salesLine.getRegularUnitPrice());
+            ;
+            inventoryTransaction.setId(mvtProduitIdGeneratorService.nextId());
+            inventoryTransactionRepository.save(inventoryTransaction);
+        });
+
     }
 }

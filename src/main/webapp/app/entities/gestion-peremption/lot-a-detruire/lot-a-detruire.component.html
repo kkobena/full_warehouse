@@ -16,12 +16,11 @@
           [(ngModel)]="selectedType"
           [options]="types"
           [style]="{'min-width': '100px'}"
-          class="mr-1"
           optionLabel="label"
           size="large"
         ></p-select>
 
-        <p-floatlabel variant="on" class="mr-1">
+        <p-floatlabel variant="on"  >
           <p-iconfield>
             <p-inputicon class="pi pi-search" />
             <input
@@ -35,22 +34,22 @@
           <label for="searchTerm">{{ 'warehouseApp.labels.searchPlaceholder' | translate }}</label>
         </p-floatlabel>
 
-        <div class="mr-1">
+
           <jhi-date-picker [(ngModel)]="fromDate"
                            [id]="'dateDebut'"
-                           [label]="'warehouseApp.labels.du'" [style]="{'max-width': '160px'}"
+                           [label]="'warehouseApp.labels.du'" [style]="{'max-width': '140px'}"
           ></jhi-date-picker>
-        </div>
 
-        <div class="mr-1">
+
+
           <jhi-date-picker [(ngModel)]="toDate"
                            [id]="'dateFin'"
-                           [label]="'warehouseApp.labels.au'" [style]="{'max-width': '160px'}"
+                           [label]="'warehouseApp.labels.au'" [style]="{'max-width': '140px'}"
           ></jhi-date-picker>
-        </div>
+
 
         @if (!isMono) {
-          <p-floatlabel variant="on" class="mr-1">
+          <p-floatlabel variant="on" >
             <p-select
               size="large"
               [style]="{'min-width': '150px'}"
@@ -64,7 +63,7 @@
             ></p-select>
             <label for="magasins">{{ 'warehouseApp.labels.magasin' | translate }}</label>
           </p-floatlabel>
-          <p-floatlabel variant="on" class="mr-1">
+          <p-floatlabel variant="on" >
             <p-select
               size="large"
               (onChange)="onStorageChange()"

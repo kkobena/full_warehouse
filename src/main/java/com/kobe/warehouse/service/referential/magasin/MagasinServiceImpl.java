@@ -14,6 +14,7 @@ import org.springframework.util.CollectionUtils;
 
 import java.util.EnumSet;
 import java.util.List;
+import java.util.Objects;
 import java.util.Set;
 
 @Service
@@ -35,7 +36,7 @@ public class MagasinServiceImpl implements MagasinService {
     @Override
     public MagasinDTO save(MagasinDTO magasinDto) {
         Magasin magasin = magasinRepository.save(toEntity(magasinDto));
-        if(magasinDto.getId() != null){
+        if (magasinDto.getId() != null) {
             return new MagasinDTO(magasin);
         }
         Set<Storage> storages = storageService.createStorageForNewMagasin(magasin);
@@ -56,7 +57,11 @@ public class MagasinServiceImpl implements MagasinService {
 
     @Override
     public void delete(Long id) {
-        magasinRepository.deleteById(id);
+        Magasin magasin = magasinRepository.findById(id).orElseThrow();
+        List<Storage> storages = storageService.findAllByMagasin(magasin);
+        storages.forEach(rayonService::deleteByStorage);
+        storageService.deleteAll(storages);
+        magasinRepository.delete(magasin);
     }
 
     @Override
@@ -69,7 +74,10 @@ public class MagasinServiceImpl implements MagasinService {
 
     private Magasin toEntity(MagasinDTO dto) {
         Magasin magasin = new Magasin();
-        magasin.setId(dto.getId());
+        if (Objects.nonNull(dto.getId())) {
+            magasin.setId(dto.getId());
+        }
+        magasin.setEmail(dto.getEmail());
         magasin.setName(dto.getName());
         magasin.setFullName(dto.getFullName());
         magasin.setPhone(dto.getPhone());
@@ -81,6 +89,8 @@ public class MagasinServiceImpl implements MagasinService {
         magasin.setNumComptable(dto.getNumComptable());
         magasin.setRegistreImposition(dto.getRegistreImposition());
         magasin.setTypeMagasin(dto.getTypeMagasin());
+        magasin.setManagerLastName(dto.getManagerLastName());
+        magasin.setManagerFirstName(dto.getManagerFirstName());
         return magasin;
     }
 }

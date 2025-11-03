@@ -74,8 +74,8 @@ public class RayonServiceImpl implements RayonService {
      */
     @Override
     @Transactional(readOnly = true)
-    public Page<RayonDTO> findAll(Long storageId, String query, Pageable pageable) {
-        return customizedRayonService.listRayonsByStorageId(storageId, query, pageable);
+    public Page<RayonDTO> findAll(Long magasinId,Long storageId, String query, Pageable pageable) {
+        return customizedRayonService.listRayonsByStorageId(magasinId,storageId, query, pageable);
     }
 
     /**
@@ -163,5 +163,10 @@ public class RayonServiceImpl implements RayonService {
             rayon.setStorage(storage);
             rayonRepository.save(rayon);
         });
+    }
+
+    @Override
+    public void deleteByStorage(Storage storage) {
+        rayonRepository.deleteAllByStorage(storage);
     }
 }

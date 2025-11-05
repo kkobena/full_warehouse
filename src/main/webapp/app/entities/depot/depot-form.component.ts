@@ -1,5 +1,5 @@
-import { Component, OnInit, inject, viewChild, ElementRef, AfterViewInit } from '@angular/core';
-import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
+import { AfterViewInit, Component, ElementRef, inject, OnInit, viewChild } from '@angular/core';
+import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 import { HttpResponse } from '@angular/common/http';
 import { IMagasin, Magasin, TypeMagasin } from '../../shared/model/magasin.model';
@@ -25,21 +25,20 @@ import { Toolbar } from 'primeng/toolbar';
     Select,
     TextareaModule,
     FloatLabelModule,
-    Toolbar
+    Toolbar,
   ],
   templateUrl: './depot-form.component.html',
-  styleUrl: './depot-form.component.scss'
+  styleUrl: './depot-form.component.scss',
 })
-export class DepotFormComponent implements OnInit,AfterViewInit {
- protected depotForm!: FormGroup;
+export class DepotFormComponent implements OnInit, AfterViewInit {
+  protected depotForm!: FormGroup;
   protected isEditMode = false;
   protected isSaving = false;
   protected depotId?: number;
 
   protected typeMagasinOptions = [
-/*    { label: 'Officine', value: TypeMagasin.OFFICINE },*/
-    { label: 'Dépôt extension', value: TypeMagasin.DEPOT }
-
+    /*    { label: 'Officine', value: TypeMagasin.OFFICINE },*/
+    { label: 'Dépôt extension', value: TypeMagasin.DEPOT },
   ];
 
   private fb = inject(FormBuilder);
@@ -47,6 +46,11 @@ export class DepotFormComponent implements OnInit,AfterViewInit {
   private readonly route = inject(ActivatedRoute);
   private readonly router = inject(Router);
   private readonly name = viewChild.required<ElementRef>('name');
+
+  get formControls() {
+    return this.depotForm.controls;
+  }
+
   ngOnInit(): void {
     this.createForm();
 
@@ -58,11 +62,13 @@ export class DepotFormComponent implements OnInit,AfterViewInit {
       }
     });
   }
+
   ngAfterViewInit(): void {
     setTimeout(() => {
       this.name().nativeElement.focus();
     }, 100);
   }
+
   createForm(): void {
     this.depotForm = this.fb.group({
       id: [null],
@@ -78,7 +84,9 @@ export class DepotFormComponent implements OnInit,AfterViewInit {
       compteBancaire: ['', [Validators.maxLength(100)]],
       registreImposition: ['', [Validators.maxLength(100)]],
       welcomeMessage: ['', [Validators.maxLength(500)]],
-      note: ['', [Validators.maxLength(1000)]]
+      note: ['', [Validators.maxLength(1000)]],
+      managerLastName: ['', [Validators.maxLength(100)]],
+      managerFirstName: ['', [Validators.maxLength(200)]],
     });
   }
 
@@ -91,7 +99,7 @@ export class DepotFormComponent implements OnInit,AfterViewInit {
       },
       error: () => {
         this.router.navigate(['/depot']);
-      }
+      },
     });
   }
 
@@ -110,7 +118,9 @@ export class DepotFormComponent implements OnInit,AfterViewInit {
       compteBancaire: depot.compteBancaire,
       registreImposition: depot.registreImposition,
       welcomeMessage: depot.welcomeMessage,
-      note: depot.note
+      note: depot.note,
+      managerLastName: depot.managerLastName,
+      managerFirstName: depot.managerFirstName,
     });
   }
 
@@ -127,7 +137,7 @@ export class DepotFormComponent implements OnInit,AfterViewInit {
           },
           error: () => {
             this.isSaving = false;
-          }
+          },
         });
       } else {
         this.magasinService.create(depot).subscribe({
@@ -137,7 +147,7 @@ export class DepotFormComponent implements OnInit,AfterViewInit {
           },
           error: () => {
             this.isSaving = false;
-          }
+          },
         });
       }
     }
@@ -159,15 +169,13 @@ export class DepotFormComponent implements OnInit,AfterViewInit {
       compteBancaire: this.depotForm.get(['compteBancaire'])!.value,
       registreImposition: this.depotForm.get(['registreImposition'])!.value,
       welcomeMessage: this.depotForm.get(['welcomeMessage'])!.value,
-      note: this.depotForm.get(['note'])!.value
+      note: this.depotForm.get(['note'])!.value,
+      managerLastName: this.depotForm.get(['managerLastName'])!.value,
+      managerFirstName: this.depotForm.get(['managerFirstName'])!.value,
     };
   }
 
   cancel(): void {
     this.router.navigate(['/depot']);
-  }
-
-  get formControls() {
-    return this.depotForm.controls;
   }
 }

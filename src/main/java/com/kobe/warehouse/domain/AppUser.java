@@ -56,8 +56,8 @@ public class AppUser extends AbstractAuditingEntity<Long> implements Serializabl
     @Column(name = "password_hash", length = 60, nullable = false)
     private String password;
 
-    @Size(max = 70)
-    @Column(name = "first_name", length = 70)
+    @Size(max = 100)
+    @Column(name = "first_name", length = 100)
     private String firstName;
 
     @Size(max = 100)
@@ -65,8 +65,7 @@ public class AppUser extends AbstractAuditingEntity<Long> implements Serializabl
     private String lastName;
 
     @Email
-    @Size(min = 5, max = 254)
-    @Column(length = 254, unique = true)
+    @Column(length = 254)
     private String email;
 
     @NotNull

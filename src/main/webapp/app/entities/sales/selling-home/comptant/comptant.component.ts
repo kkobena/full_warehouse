@@ -113,6 +113,7 @@ export class ComptantComponent {
         }
       });
     });
+
   }
 
   protected get entryAmount(): number {

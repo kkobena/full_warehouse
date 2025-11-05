@@ -1,16 +1,15 @@
-
 <!-- Interface principale -->
 <div class="pharma-sales-layout">
   <!-- HEADER TOOLBAR - Actions principales toujours visibles -->
   <div class="pharma-sales-header">
     <div class="header-left">
       <p-button
-        class="back-button"
         (click)="previousState()"
-
-        icon="pi pi-arrow-left"
-        [text]="true"
         [rounded]="true"
+
+        [text]="true"
+        class="back-button"
+        icon="pi pi-arrow-left"
         pTooltip="Retour">
       </p-button>
 
@@ -20,8 +19,10 @@
       </div>
 
       <!-- Vendeur Selection (Left Side) -->
-      <div class="header-select-wrapper" style="display: flex !important; flex-direction: row !important; align-items: center !important; gap: 0.75rem !important;">
-        <label class="header-label" style="margin: 0 !important; display: inline-flex !important; align-items: center !important; gap: 0.375rem !important; white-space: nowrap !important;">
+      <div class="header-select-wrapper"
+           style="display: flex !important; flex-direction: row !important; align-items: center !important; gap: 0.75rem !important;">
+        <label class="header-label"
+               style="margin: 0 !important; display: inline-flex !important; align-items: center !important; gap: 0.375rem !important; white-space: nowrap !important;">
           <i class="pi pi-user"></i>
           <span>Vendeur</span>
         </label>
@@ -32,40 +33,44 @@
           [appendTo]="appendTo"
           [dataKey]="'id'"
           [options]="this.userVendeurService.vendeurs()"
+          [placeholder]="'Sélectionner un vendeur'"
           [style]="{ width: '200px' }"
           class="pharma-select-modern"
-          optionLabel="abbrName"
-          [placeholder]="'Sélectionner un vendeur'">
+          optionLabel="abbrName">
         </p-select>
       </div>
 
 
-        <div class="header-select-wrapper" style="display: flex !important; flex-direction: row !important; align-items: center !important; gap: 0.75rem !important;">
-          <label class="header-label" style="margin: 0 !important; display: inline-flex !important; align-items: center !important; gap: 0.375rem !important; white-space: nowrap !important;">
-            <i class="pi pi-building"></i>
-            <span>Dépôt</span>
-          </label>
-          <p-select
-            #depotBox
-            (onChange)="onSelectDepot()"
-            [(ngModel)]="selectedDepot"
-            [appendTo]="appendTo"
-            [dataKey]="'id'"
-            [options]="depotService.depots()"
-            [style]="{ width: '250px' }"
-            class="pharma-select-modern"
-            optionLabel="name"
-            [placeholder]="'Sélectionner un dépôt'">
-            <ng-template #item let-depot>
-              <div class="depot-option">
-                <div class="depot-name">{{ depot.name }}</div>
-                @if (depot.address) {
-                  <div class="depot-address" style="font-size: 0.85rem; color: #6c757d;">{{ depot.address }}</div>
-                }
-              </div>
-            </ng-template>
-          </p-select>
-        </div>
+      <div class="header-select-wrapper"
+           style="display: flex !important; flex-direction: row !important; align-items: center !important; gap: 0.75rem !important;">
+        <label class="header-label"
+               style="margin: 0 !important; display: inline-flex !important; align-items: center !important; gap: 0.375rem !important; white-space: nowrap !important;">
+          <i class="pi pi-building"></i>
+          <span>Dépôt</span>
+        </label>
+        <p-select
+          #depotBox
+          (onChange)="onSelectDepot()"
+          [(ngModel)]="selectedDepot"
+          [appendTo]="appendTo"
+          [dataKey]="'id'"
+          [options]="depotService.depots()"
+          [placeholder]="'Sélectionner un dépôt'"
+          [style]="{ width: '250px' }"
+          class="pharma-select-modern"
+          optionLabel="name">
+          <ng-template #item let-depot>
+            <div class="depot-option">
+              <div class="depot-name">{{ depot.name }}</div>
+              @if (depot.address) {
+                <div class="depot-address"
+                     style="font-size: 0.85rem; color: #6c757d;">{{ depot.address }}
+                </div>
+              }
+            </div>
+          </ng-template>
+        </p-select>
+      </div>
 
     </div>
 
@@ -120,7 +125,8 @@
           @if (produitSelected) {
             <div class="product-meta">
               @if (showStock) {
-                <div class="meta-item" [class.low-stock]="(produitSelected?.totalQuantity || 0) < 10">
+                <div [class.low-stock]="(produitSelected?.totalQuantity || 0) < 10"
+                     class="meta-item">
                   <i class="pi pi-database"></i>
                   <span>Stock: <strong>{{ produitSelected?.totalQuantity | number }}</strong></span>
                 </div>
@@ -135,7 +141,8 @@
 
               <div class="meta-item price-display">
                 <i class="pi pi-tag"></i>
-                <span>Prix: <strong>{{ produitSelected?.regularUnitPrice | number }} F</strong></span>
+                <span>Prix: <strong>{{ produitSelected?.regularUnitPrice | number }}
+                  F</strong></span>
               </div>
             </div>
           }
@@ -144,7 +151,24 @@
 
       <!-- SALES CONTENT -->
       <div class="sale-content-area">
+        @if (this.depotService.currentSale()) {
 
+          <jhi-vente-depot-table
+            (addRemiseEvent)="onAddRemise($event)"
+            (deleteItemEvent)="confirmDeleteItem($event)"
+            (itemPriceEvent)="updateItemPrice($event)"
+            (itemQtyRequestedEvent)="updateItemQtyRequested($event)"
+            (itemQtySoldEvent)="updateItemQtySold($event)"
+            [canApplyDiscount]="canApplyDiscount()"
+            [canModifyPrice]="canModifyPrice()"
+            [canRemoveItem]="canRemoveItem()"
+            [quantityMax]="depotService.quantityMax()"
+            [sale]="depotService.currentSale()"
+          >
+          </jhi-vente-depot-table>
+
+
+        }
       </div>
 
 
@@ -157,3 +181,4 @@
 <jhi-confirm-dialog #confirmDialog></jhi-confirm-dialog>
 <jhi-toast-alert #alert></jhi-toast-alert>
 
+<jhi-spinner #spinner></jhi-spinner>

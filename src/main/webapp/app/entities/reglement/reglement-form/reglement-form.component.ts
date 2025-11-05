@@ -36,6 +36,7 @@ import { KeyFilter } from 'primeng/keyfilter';
     KeyFilter,
   ],
   templateUrl: './reglement-form.component.html',
+  styleUrl: './reglement-form.component.scss',
 })
 export class ReglementFormComponent implements AfterViewInit {
   readonly CASH = 'CASH';

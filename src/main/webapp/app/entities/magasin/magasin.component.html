@@ -1,49 +1,203 @@
-<div class="container">
-  <div class="justify-content-center">
+<div class="container-fluid">
+  <div class="pharma-smart-content p-2">
     @if (magasin) {
-      <div class="magasin-detail">
-        <p-panel header="Informations du magasin">
-          <dl class="row-md jh-entity-details">
-            <dt><span jhiTranslate="warehouseApp.magasin.name">Name</span></dt>
-            <dd>
-              <span>{{ magasin.fullName }}</span>
-            </dd>
-            <dt><span>Nom abrégé</span></dt>
-            <dd>
-              <span>{{ magasin.name }}</span>
-            </dd>
-            <dt><span jhiTranslate="warehouseApp.magasin.phone">Phone</span></dt>
-            <dd>
-              <span>{{ magasin.phone }}</span>
-            </dd>
-            <dt><span jhiTranslate="warehouseApp.magasin.address">Address</span></dt>
-            <dd>
-              <span>{{ magasin.address }}</span>
-            </dd>
-            <dt><span jhiTranslate="warehouseApp.magasin.registre">Registre</span></dt>
-            <dd>
-              <span>{{ magasin.registre }}</span>
-            </dd>
-            <dt><span jhiTranslate="warehouseApp.magasin.note">Note</span></dt>
-            <dd>
-              <span>{{ magasin.note }}</span>
-            </dd>
-            <dt><span jhiTranslate="warehouseApp.magasin.welcomeMessage">welcome Message</span></dt>
-            <dd>
-              <span>{{ magasin.welcomeMessage }}</span>
-            </dd>
-          </dl>
-          <div class="text-end">
-            <p-button raised="true"
-                      [routerLink]="['/magasin', magasin.id, 'edit']"
-                      severity="primary"
-                      icon="pi pi-pencil" label="Modifier"
-            >
-
-            </p-button>
+      <div class="magasin-detail-container">
+        <!-- Toolbar Header -->
+        <div class="pharma-toolbar">
+          <div class="pharma-toolbar-header">
+            <i class="pi pi-building"></i>
+            <span class="pharma-toolbar-title">{{
+                magasin.fullName || 'Informations du Magasin'
+              }}</span>
+            @if (magasin.typeLibelle) {
+              <span class="pharma-toolbar-subtitle">{{ magasin.typeLibelle }}</span>
+            }
           </div>
+     
+        </div>
 
-        </p-panel>
+        <!-- Content Cards -->
+        <div class="card-grid-2col">
+          <!-- General Information -->
+          <p-card>
+            <ng-template #header>
+              <div class="section-header">
+                <i class="pi pi-info-circle"></i>
+                <span>Informations Générales</span>
+              </div>
+            </ng-template>
+
+            <div class="detail-grid">
+              <div class="detail-item">
+                <label>Nom Complet</label>
+                <div class="detail-value">
+                  <i class="pi pi-building detail-icon"></i>
+                  <span>{{ magasin.fullName }}</span>
+                </div>
+              </div>
+
+              <div class="detail-item">
+                <label>Nom Abrégé</label>
+                <div class="detail-value">
+                  <i class="pi pi-tag detail-icon"></i>
+                  <span>{{ magasin.name }}</span>
+                </div>
+              </div>
+
+              <div class="detail-item">
+                <label>Type de Magasin</label>
+                <div class="detail-value">
+                  <i class="pi pi-home detail-icon"></i>
+                  <p-tag [value]="magasin.typeLibelle || magasin.typeMagasin "
+                         severity="info" />
+                </div>
+              </div>
+            </div>
+          </p-card>
+
+          <!-- Contact Information -->
+          <p-card>
+            <ng-template #header>
+              <div class="section-header">
+                <i class="pi pi-phone"></i>
+                <span>Informations de Contact</span>
+              </div>
+            </ng-template>
+
+            <div class="detail-grid">
+              <div class="detail-item">
+                <label jhiTranslate="warehouseApp.magasin.phone">Téléphone</label>
+                <div class="detail-value">
+                  <i class="pi pi-phone detail-icon"></i>
+                  @if (magasin.phone) {
+                    <a [href]="'tel:' + magasin.phone" class="detail-link">{{ magasin.phone }}</a>
+                  } @else {
+                    <span>-</span>
+                  }
+                </div>
+              </div>
+
+              <div class="detail-item">
+                <label>Email</label>
+                <div class="detail-value">
+                  <i class="pi pi-envelope detail-icon"></i>
+                  @if (magasin.email) {
+                    <a [href]="'mailto:' + magasin.email"
+                       class="detail-link">{{ magasin.email }}</a>
+                  } @else {
+                    <span>-</span>
+                  }
+                </div>
+              </div>
+
+              <div class="detail-item detail-item-full">
+                <label jhiTranslate="warehouseApp.magasin.address">Adresse</label>
+                <div class="detail-value">
+                  <i class="pi pi-map-marker detail-icon"></i>
+                  <span>{{ magasin.address }}</span>
+                </div>
+              </div>
+            </div>
+          </p-card>
+        </div>
+
+        <div class="card-grid-2col mt-2">
+
+
+          <!-- Administrative Information -->
+          <p-card>
+            <ng-template #header>
+              <div class="section-header">
+                <i class="pi pi-file-edit"></i>
+                <span>Informations Administratives</span>
+              </div>
+            </ng-template>
+
+            <div class="detail-grid">
+              <div class="detail-item">
+                <label jhiTranslate="warehouseApp.magasin.registre">Registre de Commerce</label>
+                <div class="detail-value">
+                  <i class="pi pi-file detail-icon"></i>
+                  <span>{{ magasin.registre }}</span>
+                </div>
+              </div>
+
+              <div class="detail-item">
+                <label>Compte Contribuable</label>
+                <div class="detail-value">
+                  <i class="pi pi-id-card detail-icon"></i>
+                  <span>{{ magasin.compteContribuable }}</span>
+                </div>
+              </div>
+
+              <div class="detail-item">
+                <label>Numéro Comptable</label>
+                <div class="detail-value">
+                  <i class="pi pi-calculator detail-icon"></i>
+                  <span>{{ magasin.numComptable }}</span>
+                </div>
+              </div>
+
+              <div class="detail-item">
+                <label>Compte Bancaire</label>
+                <div class="detail-value">
+                  <i class="pi pi-credit-card detail-icon"></i>
+                  <span>{{ magasin.compteBancaire }}</span>
+                </div>
+              </div>
+
+              <div class="detail-item detail-item-full">
+                <label>Registre d'Imposition</label>
+                <div class="detail-value">
+                  <i class="pi pi-file-edit detail-icon"></i>
+                  <span>{{ magasin.registreImposition }}</span>
+                </div>
+              </div>
+            </div>
+          </p-card>
+          <p-card>
+            <ng-template #header>
+              <div class="section-header">
+                <i class="pi pi-comment"></i>
+                <span>Messages et Notes</span>
+              </div>
+            </ng-template>
+
+            <div class="detail-grid">
+              @if (magasin.welcomeMessage) {
+                <div class="detail-item detail-item-full">
+                  <label jhiTranslate="warehouseApp.magasin.welcomeMessage">Message de
+                    Bienvenue</label>
+                  <div class="detail-value detail-value-multiline">
+                    <i class="pi pi-comment detail-icon"></i>
+                    <span>{{ magasin.welcomeMessage }}</span>
+                  </div>
+                </div>
+              }
+
+              @if (magasin.note) {
+                <div class="detail-item detail-item-full">
+                  <label jhiTranslate="warehouseApp.magasin.note">Notes</label>
+                  <div class="detail-value detail-value-multiline">
+                    <i class="pi pi-file-edit detail-icon"></i>
+                    <span>{{ magasin.note }}</span>
+                  </div>
+                </div>
+              }
+            </div>
+          </p-card>
+        </div>
+
+
+      </div>
+
+      <div class="form-actions-compact">
+        <p-button
+          [routerLink]="['/magasin', magasin.id, 'edit']"
+          icon="pi pi-pencil"
+          label="Modifier"
+          severity="primary"
+        />
       </div>
     }
   </div>

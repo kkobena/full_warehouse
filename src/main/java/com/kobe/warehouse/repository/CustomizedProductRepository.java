@@ -1,5 +1,7 @@
 package com.kobe.warehouse.repository;
 
+import static java.util.Objects.nonNull;
+
 import com.kobe.warehouse.domain.FamilleProduit;
 import com.kobe.warehouse.domain.FamilleProduit_;
 import com.kobe.warehouse.domain.FormProduit;
@@ -85,6 +87,7 @@ public class CustomizedProductRepository implements CustomizedProductService {
     private final OrderLineRepository orderLineRepository;
     private final InventoryTransactionService inventoryTransactionService;
     private final EntityManager em;
+    private final MagasinRepository magasinRepository;
 
     public CustomizedProductRepository(
         StockProduitRepository stockProduitRepository,
@@ -96,7 +99,8 @@ public class CustomizedProductRepository implements CustomizedProductService {
         SalesLineRepository salesLineRepository,
         OrderLineRepository orderLineRepository,
         InventoryTransactionService inventoryTransactionService,
-        EntityManager em
+        EntityManager em,
+        MagasinRepository magasinRepository
     ) {
         this.stockProduitRepository = stockProduitRepository;
         this.logsService = logsService;
@@ -108,6 +112,7 @@ public class CustomizedProductRepository implements CustomizedProductService {
         this.orderLineRepository = orderLineRepository;
         this.inventoryTransactionService = inventoryTransactionService;
         this.em = em;
+        this.magasinRepository = magasinRepository;
     }
 
     @Override
@@ -290,9 +295,18 @@ public class CustomizedProductRepository implements CustomizedProductService {
     @Override
     @Transactional(readOnly = true)
     public Page<ProduitDTO> findAll(ProduitCriteria produitCriteria, Pageable pageable) throws Exception {
-        Magasin magasin = storageService.getConnectedUserMagasin();
-        Storage userStorage = storageService.getDefaultConnectedUserPointOfSaleStorage();
-        produitCriteria.setMagasinId(magasin.getId());
+        Magasin magasin;
+        if (nonNull(produitCriteria.getMagasinId())) {
+            magasin = magasinRepository.getReferenceById(produitCriteria.getMagasinId());
+        } else {
+            magasin = storageService.getConnectedUserMagasin();
+            produitCriteria.setMagasinId(magasin.getId());
+        }
+
+        Storage userStorage = magasin.getPointOfSale();
+
+        //  storageService.getDefaultConnectedUserPointOfSaleStorage();
+
         long total = 0;
         if (pageable.isPaged()) {
             total = findAllCount(produitCriteria);

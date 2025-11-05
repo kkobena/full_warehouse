@@ -24,6 +24,7 @@ import { IconField } from 'primeng/iconfield';
 import { InputIcon } from 'primeng/inputicon';
 import { ConfirmDialogComponent } from '../../../shared/dialog/confirm-dialog/confirm-dialog.component';
 import { FactureId } from '../../facturation/facture.model';
+import { CardModule } from 'primeng/card';
 
 @Component({
   selector: 'jhi-faire-groupe-reglement',
@@ -46,6 +47,7 @@ import { FactureId } from '../../facturation/facture.model';
     IconField,
     InputIcon,
     ConfirmDialogComponent,
+    CardModule,
   ],
   templateUrl: './faire-groupe-reglement.component.html',
   styleUrl: './faire-groupe-reglement.component.scss',

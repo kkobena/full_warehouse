@@ -9,18 +9,15 @@ import { Observable } from 'rxjs';
 import { createRequestOptions } from '../../shared/util/request-util';
 import { ISalesLine, SaleLineId } from '../../shared/model/sales-line.model';
 import { IUser } from '../../core/user/user.model';
+import { ConfigurationService } from '../../shared/configuration.service';
 
 type EntityResponseType = HttpResponse<ISales>;
 type EntityArrayResponseType = HttpResponse<ISales[]>;
 
 @Injectable({
-  providedIn: 'root'
+  providedIn: 'root',
 })
 export class DepotService {
-  private readonly resourceUrl = SERVER_API_URL + 'api/vente-depot';
-  private readonly http = inject(HttpClient);
-  private readonly magasinService = inject(MagasinService);
-  private readonly salesService = inject(SalesService);
   selectedDepot: WritableSignal<IMagasin | null> = signal<IMagasin | null>(null);
   depots: WritableSignal<IMagasin[]> = signal<IMagasin[]>([]);
   currentSale: WritableSignal<ISales> = signal<ISales>(null);
@@ -28,6 +25,18 @@ export class DepotService {
   vendeur: WritableSignal<IUser> = signal<IUser>(null);
   canInvoice: WritableSignal<boolean> = signal<boolean>(false);
   canReceipt: WritableSignal<boolean> = signal<boolean>(true);
+  quantityMax: WritableSignal<number> = signal<number>(null);
+  private readonly resourceUrl = SERVER_API_URL + 'api/vente-depot';
+  private readonly http = inject(HttpClient);
+  private readonly magasinService = inject(MagasinService);
+  private readonly salesService = inject(SalesService);
+  private readonly configurationService = inject(ConfigurationService);
+
+  constructor() {
+    this.loadAllDepots();
+    this.getMaxToSale();
+  }
+
   setVendeur(user: IUser): void {
     this.vendeur.set(user);
   }
@@ -39,11 +48,6 @@ export class DepotService {
   reset(): void {
     this.currentSale.set(null);
     this.selectedDepot.set(null);
-
-  }
-
-  constructor() {
-    this.loadAllDepots();
   }
 
   setCurrentSale(sales: ISales): void {
@@ -55,11 +59,13 @@ export class DepotService {
   }
 
   loadAllDepots(): void {
-    this.magasinService.fetchAllDepots({
-      types: ['DEPOT']
-    }).subscribe((res: HttpResponse<IMagasin[]>) => {
-      this.depots.set(res.body || []);
-    });
+    this.magasinService
+      .fetchAllDepots({
+        types: ['DEPOT'],
+      })
+      .subscribe((res: HttpResponse<IMagasin[]>) => {
+        this.depots.set(res.body || []);
+      });
   }
 
   find(id: SaleId): Observable<EntityResponseType> {
@@ -67,16 +73,12 @@ export class DepotService {
   }
 
   findForEdit(id: number): Observable<EntityResponseType> {
-    return this.http
-      .get<ISales>(`${this.resourceUrl}/edit/${id}`, { observe: 'response' })
-      ;
+    return this.http.get<ISales>(`${this.resourceUrl}/edit/${id}`, { observe: 'response' });
   }
 
   query(req?: any): Observable<EntityArrayResponseType> {
     const options = createRequestOptions(req);
-    return this.http
-      .get<ISales[]>(this.resourceUrl, { params: options, observe: 'response' })
-      ;
+    return this.http.get<ISales[]>(this.resourceUrl, { params: options, observe: 'response' });
   }
 
   delete(id: SaleId): Observable<HttpResponse<{}>> {
@@ -84,7 +86,6 @@ export class DepotService {
   }
 
   save(sales: ISales): Observable<HttpResponse<FinalyseSale>> {
-
     return this.http.put<FinalyseSale>(this.resourceUrl + '/save', sales, { observe: 'response' });
   }
 
@@ -105,32 +106,23 @@ export class DepotService {
   }
 
   addItem(salesLine: ISalesLine): Observable<HttpResponse<ISalesLine>> {
-
-    return this.http
-      .post<ISalesLine>(`${this.resourceUrl}/add-item`, salesLine, { observe: 'response' });
+    return this.http.post<ISalesLine>(`${this.resourceUrl}/add-item`, salesLine, { observe: 'response' });
   }
 
   create(sales: ISales): Observable<EntityResponseType> {
-    return this.http
-      .post<ISales>(this.resourceUrl, sales, { observe: 'response' });
+    return this.http.post<ISales>(this.resourceUrl, sales, { observe: 'response' });
   }
 
   updateItemPrice(salesLine: ISalesLine): Observable<HttpResponse<ISalesLine>> {
-    return this.http
-      .put<ISalesLine>(`${this.resourceUrl}/update-item/price`, salesLine, { observe: 'response' })
-      ;
+    return this.http.put<ISalesLine>(`${this.resourceUrl}/update-item/price`, salesLine, { observe: 'response' });
   }
 
   updateItemQtyRequested(salesLine: ISalesLine): Observable<HttpResponse<ISalesLine>> {
-    return this.http
-      .put<ISalesLine>(`${this.resourceUrl}/update-item/quantity-requested`, salesLine, { observe: 'response' })
-      ;
+    return this.http.put<ISalesLine>(`${this.resourceUrl}/update-item/quantity-requested`, salesLine, { observe: 'response' });
   }
 
   updateItemQtySold(salesLine: ISalesLine): Observable<HttpResponse<ISalesLine>> {
-    return this.http
-      .put<ISalesLine>(`${this.resourceUrl}/update-item/quantity-sold`, salesLine, { observe: 'response' })
-      ;
+    return this.http.put<ISalesLine>(`${this.resourceUrl}/update-item/quantity-sold`, salesLine, { observe: 'response' });
   }
 
   deleteItem(id: SaleLineId): Observable<HttpResponse<{}>> {
@@ -144,11 +136,18 @@ export class DepotService {
   printInvoice(id: SaleId): Observable<Blob> {
     return this.http.get(`${this.resourceUrl}/print/invoice/${id.id}/${id.saleDate}`, { responseType: 'blob' });
   }
+  changeDepot(id: SaleId, depotId: number): Observable<HttpResponse<SaleId>> {
+    const options = createRequestOptions({
+      depotId,
+      saleId: id.id,
+      saleDate: id.saleDate,
+    });
+    return this.http.get<SaleId>(`${this.resourceUrl}/change-depot`, { params: options, observe: 'response' });
+  }
 
   cancel(id: SaleId): Observable<HttpResponse<{}>> {
     return this.http.delete(`${this.resourceUrl}/cancel/${id.id}/${id.saleDate}`, { observe: 'response' });
   }
-
 
   removeRemise(saleId: SaleId): Observable<HttpResponse<{}>> {
     return this.http.delete(`${this.resourceUrl}/remove-remise/${saleId.id}/${saleId.saleDate}`, { observe: 'response' });
@@ -158,5 +157,12 @@ export class DepotService {
     return this.http.put(this.resourceUrl + '/add-remise', key, { observe: 'response' });
   }
 
-
+  private getMaxToSale(): void {
+    this.configurationService.find('APP_QTY_MAX').subscribe({
+      next: res => {
+        this.quantityMax.set(Number(res.body?.value ?? 10000));
+      },
+      error: () => this.quantityMax.set(10000),
+    });
+  }
 }

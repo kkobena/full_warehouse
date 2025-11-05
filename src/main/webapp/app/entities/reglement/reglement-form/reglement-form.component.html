@@ -1,14 +1,15 @@
-<form (ngSubmit)="save()" [formGroup]="reglementForm">
-  <div class="row mb-2">
-    <div class=" col-4 col-sm-12 col-md-4 d-flex align-items-center">
+<form (ngSubmit)="save()" [formGroup]="reglementForm" class="reglement-form">
+  <!-- Payment Settings Row -->
+  <div class="payment-settings">
+    <div class="toggle-field">
       <p-toggleswitch formControlName="partialPayment" inputId="partialPayment"></p-toggleswitch>
-      <label class="ms-2 fw-bold" for="partialPayment">Tout régler</label>
+      <label for="partialPayment">Tout régler</label>
     </div>
 
-    <div class="col-8 col-sm-12 col-md-8 ">
+    <div class="date-field">
       <p-inputgroup>
         <p-inputgroup-addon>
-          Date
+          <i class="pi pi-calendar"></i>
         </p-inputgroup-addon>
         <p-datePicker
           [defaultDate]="maxDate"
@@ -21,15 +22,15 @@
           selectOtherMonths="true"
         />
       </p-inputgroup>
-
-
     </div>
   </div>
 
-  <div class="mb-2">
-
+  <!-- Payment Mode -->
+  <div class="form-field-full">
     <p-inputgroup>
-      <p-inputgroup-addon>Mode de paiement</p-inputgroup-addon>
+      <p-inputgroup-addon>
+        <i class="pi pi-credit-card"></i>
+      </p-inputgroup-addon>
       <p-select
         [fluid]="true"
         [options]="paymentModes"
@@ -37,85 +38,116 @@
         formControlName="modePaimentCode"
         optionLabel="libelle"
         optionValue="code"
-        size="large"
-      >
-      </p-select>
+        placeholder="Sélectionner un mode de paiement"
+      />
     </p-inputgroup>
-
   </div>
-  <div class="mb-2">
+
+  <!-- Amount -->
+  <div class="form-field-full">
     <p-inputgroup>
-      <p-inputgroup-addon>Montant</p-inputgroup-addon>
-      <input [fluid]="true" [readonly]="isReadOnly" formControlName="amount" pInputText
-             pKeyFilter="int"
-             size="large" />
+      <p-inputgroup-addon>
+        <i class="pi pi-money-bill"></i>
+      </p-inputgroup-addon>
+      <input
+        [fluid]="true"
+        [readonly]="isReadOnly"
+        class="text-right"
+        formControlName="amount"
+        pInputText
+        pKeyFilter="int"
+        placeholder="Montant"
+      />
     </p-inputgroup>
-
   </div>
+
+  <!-- Bank Information Section -->
   @if (showBanqueInfo) {
-    <div formGroupName="banqueInfo">
-      <p-divider align="center" type="solid">
-        <b>Infos sur la banque</b>
+    <div class="bank-info-section" formGroupName="banqueInfo">
+      <p-divider align="left">
+        <div class="divider-content">
+          <i class="pi pi-building"></i>
+          <span>Informations bancaires</span>
+        </div>
       </p-divider>
 
-
-      <div class="mb-1">
-        <p-inputgroup>
-          <p-inputgroup-addon>Nom <span style="color: red">*</span></p-inputgroup-addon>
-          <input [fluid]="true" formControlName="nom" pInputText
-                 size="large" />
-        </p-inputgroup>
-      </div>
-      @if (reglementForm.get('banqueInfo').get('nom')!.invalid &&
-      (reglementForm.get('banqueInfo').get('nom')!.dirty || reglementForm.get('banqueInfo').get(
-        'nom')!.touched)) {
-        <div>
-          @if (reglementForm.get('banqueInfo').get('nom')?.errors?.required) {
-            <small class="form-text text-danger" style="color: red"> Ce champ est
-              obligatoire. </small>
+      <div class="bank-fields">
+        <!-- Bank Name -->
+        <div class="form-field-full">
+          <p-inputgroup>
+            <p-inputgroup-addon>
+              <i class="pi pi-building"></i>
+              <span class="addon-label">Nom</span>
+            </p-inputgroup-addon>
+            <input
+              [fluid]="true"
+              formControlName="nom"
+              pInputText
+              placeholder="Nom de la banque"
+            />
+          </p-inputgroup>
+          @if (reglementForm.get('banqueInfo').get('nom')!.invalid &&
+          (reglementForm.get('banqueInfo').get('nom')!.dirty || reglementForm.get('banqueInfo').get('nom')!.touched)) {
+            @if (reglementForm.get('banqueInfo').get('nom')?.errors?.required) {
+              <small class="p-error">Ce champ est obligatoire.</small>
+            }
           }
         </div>
-      }
 
-      @if (reglementForm.get('modePaimentCode')!.value === CH) {
-        <div class="mb-1">
-
-          <p-inputgroup>
-            <p-inputgroup-addon>Numéro <span style="color: red">*</span></p-inputgroup-addon>
-            <input [fluid]="true" formControlName="code" pInputText pKeyFilter="alphanum"
-                   size="large" />
-          </p-inputgroup>
-
-        </div>
-        @if (reglementForm.get('banqueInfo').get('code')!.invalid &&
-        (reglementForm.get('banqueInfo').get('code')!.dirty || reglementForm.get(
-          'banqueInfo').get(
-          'code')!.touched)) {
-          <div>
-            @if (reglementForm.get('banqueInfo').get('code')?.errors?.required) {
-              <small class="form-text text-danger" style="color: red"> Ce champ est
-                obligatoire. </small>
+        <!-- Check/Wire Number (conditional) -->
+        @if (reglementForm.get('modePaimentCode')!.value === CH) {
+          <div class="form-field-full">
+            <p-inputgroup>
+              <p-inputgroup-addon>
+                <i class="pi pi-hashtag"></i>
+                <span class="addon-label">Numéro</span>
+              </p-inputgroup-addon>
+              <input
+                [fluid]="true"
+                formControlName="code"
+                pInputText
+                pKeyFilter="alphanum"
+                placeholder="Numéro de chèque"
+              />
+            </p-inputgroup>
+            @if (reglementForm.get('banqueInfo').get('code')!.invalid &&
+            (reglementForm.get('banqueInfo').get('code')!.dirty || reglementForm.get('banqueInfo').get('code')!.touched)) {
+              @if (reglementForm.get('banqueInfo').get('code')?.errors?.required) {
+                <small class="p-error">Ce champ est obligatoire.</small>
+              }
             }
           </div>
         }
-      }
 
-      <div class="mb-2">
-        <p-inputgroup>
-          <p-inputgroup-addon>Bénéficiare</p-inputgroup-addon>
-          <input [fluid]="true" formControlName="beneficiaire" pInputText
-                 size="large" />
-        </p-inputgroup>
-
+        <!-- Beneficiary -->
+        <div class="form-field-full">
+          <p-inputgroup>
+            <p-inputgroup-addon>
+              <i class="pi pi-user"></i>
+              <span class="addon-label">Bénéficiaire</span>
+            </p-inputgroup-addon>
+            <input
+              [fluid]="true"
+              formControlName="beneficiaire"
+              pInputText
+              placeholder="Nom du bénéficiaire"
+            />
+          </p-inputgroup>
+        </div>
       </div>
     </div>
   }
-  <div class="d-flex justify-content-end">
-    <p-button [disabled]="!valid || !validMontantSaisi() || isSaving()" [loading]="isSaving()"
-              icon="pi pi-check" label="Valider"
-              loadingIcon="pi pi-spinner" severity="danger" type="submit">
 
-    </p-button>
+  <!-- Submit Button -->
+  <div class="form-actions">
+    <p-button
+      [disabled]="!valid || !validMontantSaisi() || isSaving()"
+      [loading]="isSaving()"
+      icon="pi pi-check"
+      label="Valider"
+      severity="success"
+      type="submit"
+    />
   </div>
 </form>
 

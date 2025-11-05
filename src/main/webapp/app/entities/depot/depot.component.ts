@@ -1,4 +1,4 @@
-import { Component, OnInit, inject, viewChild } from '@angular/core';
+import { Component, inject, OnInit, viewChild } from '@angular/core';
 import { HttpResponse } from '@angular/common/http';
 import { Router, RouterModule } from '@angular/router';
 import { IMagasin, TypeMagasin } from '../../shared/model/magasin.model';
@@ -30,13 +30,13 @@ import { InputIcon } from 'primeng/inputicon';
     Toolbar,
     InputText,
     IconField,
-    InputIcon
+    InputIcon,
   ],
   templateUrl: './depot.component.html',
-  styleUrl: './depot.component.scss'
+  styleUrl: './depot.component.scss',
 })
 export class DepotComponent implements OnInit {
- protected depots: IMagasin[] = [];
+  protected depots: IMagasin[] = [];
   protected loading = false;
   protected readonly TypeMagasin = TypeMagasin;
   private magasinService = inject(MagasinService);
@@ -55,7 +55,7 @@ export class DepotComponent implements OnInit {
       },
       error: () => {
         this.loading = false;
-      }
+      },
     });
   }
 
@@ -67,20 +67,22 @@ export class DepotComponent implements OnInit {
     this.router.navigate(['/depot', 'new']);
   }
 
+  onNewVente(): void {
+    this.router.navigate(['/depot', 'new-vente']);
+  }
+
   onDelete(depot: IMagasin): void {
     this.confimDialog().onConfirm(
       () => {
         this.magasinService.delete(depot.id!).subscribe({
           next: () => {
             this.loadAll();
-          }
-        });},
+          },
+        });
+      },
       'Suppression du dépôt',
       'Etes-vous sûr de vouloir changer le dépôt ?',
-      null
+      null,
     );
   }
-
-
-
 }

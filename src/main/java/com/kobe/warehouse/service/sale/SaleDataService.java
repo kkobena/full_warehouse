@@ -1,5 +1,7 @@
 package com.kobe.warehouse.service.sale;
 
+import static java.util.Objects.isNull;
+
 import com.kobe.warehouse.constant.EntityConstant;
 import com.kobe.warehouse.domain.AppUser;
 import com.kobe.warehouse.domain.AppUser_;
@@ -17,6 +19,7 @@ import com.kobe.warehouse.domain.Sales_;
 import com.kobe.warehouse.domain.ThirdPartySaleLine;
 import com.kobe.warehouse.domain.ThirdPartySales;
 import com.kobe.warehouse.domain.ThirdPartySales_;
+import com.kobe.warehouse.domain.VenteDepot;
 import com.kobe.warehouse.domain.enumeration.PaymentStatus;
 import com.kobe.warehouse.domain.enumeration.SalesStatut;
 import com.kobe.warehouse.repository.SalesLineRepository;
@@ -27,6 +30,7 @@ import com.kobe.warehouse.security.SecurityUtils;
 import com.kobe.warehouse.service.ReceiptPrinterService;
 import com.kobe.warehouse.service.dto.CashSaleDTO;
 import com.kobe.warehouse.service.dto.ClientTiersPayantDTO;
+import com.kobe.warehouse.service.dto.DepotExtensionSaleDTO;
 import com.kobe.warehouse.service.dto.SaleDTO;
 import com.kobe.warehouse.service.dto.ThirdPartySaleDTO;
 import com.kobe.warehouse.service.dto.ThirdPartySaleLineDTO;
@@ -42,16 +46,6 @@ import jakarta.persistence.criteria.Predicate;
 import jakarta.persistence.criteria.Root;
 import jakarta.persistence.criteria.SetJoin;
 import jakarta.validation.constraints.NotNull;
-import org.apache.commons.lang3.StringUtils;
-import org.apache.commons.lang3.tuple.Pair;
-import org.springframework.core.io.Resource;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageImpl;
-import org.springframework.data.domain.Pageable;
-import org.springframework.data.jpa.domain.Specification;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
-
 import java.io.IOException;
 import java.net.MalformedURLException;
 import java.time.LocalDate;
@@ -61,8 +55,15 @@ import java.util.EnumSet;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
-
-import static java.util.Objects.isNull;
+import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.tuple.Pair;
+import org.springframework.core.io.Resource;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.domain.Specification;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @Transactional(readOnly = true)
@@ -84,7 +85,8 @@ public class SaleDataService {
         SaleInvoiceReportService saleInvoiceService,
         SalesLineRepository salesLineRepository,
         ThirdPartySaleLineRepository thirdPartySaleLineRepository,
-        ReceiptPrinterService receiptPrinterService, SalesRepository salesRepository
+        ReceiptPrinterService receiptPrinterService,
+        SalesRepository salesRepository
     ) {
         this.em = em;
         this.userRepository = userRepository;
@@ -102,10 +104,8 @@ public class SaleDataService {
         specification = specification.and(salesRepository.hasStatut(EnumSet.of(SalesStatut.CLOSED)));
         if (fromDate != null) {
             specification = specification.and(salesRepository.between(fromDate, toDate));
-
         }
-        return salesRepository.findAll(specification
-        ).stream().map(this::buildSaleDTO).toList();
+        return salesRepository.findAll(specification).stream().map(this::buildSaleDTO).toList();
     }
 
     public SaleDTO findOne(SaleId id) {
@@ -157,11 +157,12 @@ public class SaleDataService {
             return Optional.empty();
         }
 
-        if (sales instanceof ThirdPartySales thirdPartySales) {
-            return Optional.of(buildFromEntity(thirdPartySales));
-        } else {
-            return Optional.of(new CashSaleDTO((CashSale) sales));
-        }
+        return switch (sales) {
+            case ThirdPartySales thirdPartySales -> Optional.of(buildFromEntity(thirdPartySales));
+            case CashSale cashSale -> Optional.of(new CashSaleDTO(cashSale));
+            case VenteDepot venteDepot -> Optional.of(new DepotExtensionSaleDTO(venteDepot));
+            default -> Optional.empty();
+        };
     }
 
     @Transactional(readOnly = true)

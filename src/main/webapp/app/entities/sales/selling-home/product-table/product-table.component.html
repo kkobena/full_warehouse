@@ -109,12 +109,15 @@
           </td>
 
           <!-- Quantité demandée - Éditable -->
-          <td class="text-right" pEditableColumn>
+
+          <td [pEditableColumn]="saleLine.quantityRequested" class="text-right"
+              pEditableColumnField="quantityRequested">
             <p-cellEditor>
               <ng-template #input>
                 <input
                   (focus)="$event.target.select()"
                   (keydown.enter)="updateItemQtyRequested(saleLine, $event)"
+                  [value]="saleLine.quantityRequested"
                   class="pharma-input-qty"
                   pInputText
                   required
@@ -128,12 +131,14 @@
           </td>
 
           <!-- Quantité servie - Éditable -->
-          <td class="text-right" pEditableColumn>
+          <td [pEditableColumn]="saleLine.quantitySold" class="text-right"
+              pEditableColumnField="quantitySold">
             <p-cellEditor>
               <ng-template #input>
                 <input
                   (focus)="$event.target.select()"
                   (keydown.enter)="updateItemQtySold(saleLine, $event)"
+                  [value]="saleLine.quantitySold"
                   class="pharma-input-qty"
                   pInputText
                   required
@@ -149,12 +154,14 @@
 
           <!-- Prix unitaire - Éditable si autorisé -->
           @if (canModifiePrice) {
-            <td class="text-right" pEditableColumn>
+            <td [pEditableColumn]="saleLine.regularUnitPrice" class="text-right"
+                pEditableColumnField="regularUnitPrice">
               <p-cellEditor>
                 <ng-template #input>
                   <input
                     (focus)="$event.target.select()"
                     (keydown.enter)="updateItemPrice(saleLine, $event)"
+                    [value]="saleLine.regularUnitPrice"
                     class="pharma-input-price"
                     pInputText
                     required

@@ -1,24 +1,11 @@
-import {
-  AfterViewInit,
-  Component,
-  DestroyRef,
-  HostListener,
-  inject,
-  OnDestroy,
-  OnInit,
-  PLATFORM_ID,
-  viewChild
-} from '@angular/core';
+import { AfterViewInit, Component, DestroyRef, HostListener, inject, OnDestroy, OnInit, signal, viewChild } from '@angular/core';
 import { MagasinService } from '../../magasin/magasin.service';
 import { DepotService } from '../depot.service';
 import { Button } from 'primeng/button';
-import { ComptantComponent } from '../../sales/selling-home/comptant/comptant.component';
 import { ConfirmDialogComponent } from '../../../shared/dialog/confirm-dialog/confirm-dialog.component';
-import { DecimalPipe } from '@angular/common';
+import { CommonModule } from '@angular/common';
 import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
-import {
-  ProduitSearchAutocompleteScannerComponent
-} from '../../../shared/produit-search-autocomplete-scanner/produit-search-autocomplete-scanner.component';
+import { ProduitSearchAutocompleteScannerComponent } from '../../../shared/produit-search-autocomplete-scanner/produit-search-autocomplete-scanner.component';
 import { QuantiteProdutSaisieComponent } from '../../../shared/quantite-produt-saisie/quantite-produt-saisie.component';
 import { Select } from 'primeng/select';
 import { ToastAlertComponent } from '../../../shared/toast-alert/toast-alert.component';
@@ -31,7 +18,6 @@ import { IUser } from '../../../core/user/user.model';
 import { ProduitSearch } from '../../../shared/model/produit.model';
 import { UserVendeurService } from '../../sales/service/user-vendeur.service';
 import { HasAuthorityService } from '../../sales/service/has-authority.service';
-import { BaseSaleService } from '../../sales/service/base-sale.service';
 import { ProduitService } from '../../produit/produit.service';
 import { ActivatedRoute, Router } from '@angular/router';
 import { ErrorService } from '../../../shared/error.service';
@@ -44,14 +30,7 @@ import { SellingHomeShortcutsService } from '../../sales/selling-home/racourci/s
 import { KeyboardShortcutsService } from '../../sales/selling-home/racourci/keyboard-shortcuts.service';
 import { Authority } from '../../../shared/constants/authority.constants';
 import { handleSaleEvents } from '../../sales/selling-home/sale-event-helper';
-import {
-  FinalyseSale,
-  InputToFocus,
-  ISales,
-  SaleId,
-  SaveResponse,
-  StockError
-} from '../../../shared/model/sales.model';
+import { FinalyseSale, InputToFocus, ISales, SaleId, SaveResponse, StockError } from '../../../shared/model/sales.model';
 import { SalesStatut } from '../../../shared/model/enumerations/sales-statut.model';
 import { showCommonError, translateSalesLabel } from '../../sales/selling-home/sale-helper';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
@@ -63,44 +42,47 @@ import { PRODUIT_COMBO_RESULT_SIZE } from '../../../shared/constants/pagination.
 import { DepotFacadeService } from './depot-facade.service';
 import { TauriPrinterService } from '../../../shared/services/tauri-printer.service';
 import { FormsModule } from '@angular/forms';
+import { FormActionAutorisationComponent } from '../../sales/form-action-autorisation/form-action-autorisation.component';
+import { take } from 'rxjs/operators';
+import { SpinnerComponent } from '../../../shared/spinner/spinner.component';
+import { VenteDepotTableComponent } from '../vente-depot-table/vente-depot-table.component';
 
 @Component({
   selector: 'jhi-vente-depot',
   imports: [
+    CommonModule,
     Button,
     ConfirmDialogComponent,
-    DecimalPipe,
     ProduitSearchAutocompleteScannerComponent,
     QuantiteProdutSaisieComponent,
     Select,
     ToastAlertComponent,
     Tooltip,
-    FormsModule
+    FormsModule,
+    SpinnerComponent,
+    VenteDepotTableComponent,
   ],
   templateUrl: './vente-depot.component.html',
-  styleUrl: './vente-depot.component.scss'
+  styleUrl: './vente-depot.component.scss',
 })
 export class VenteDepotComponent implements OnInit, AfterViewInit, OnDestroy {
-  private readonly magasinService = inject(MagasinService);
-  protected readonly depotFacadeService = inject(DepotFacadeService);
-  protected readonly userVendeurService = inject(UserVendeurService);
-  protected readonly depotService = inject(DepotService);
-  protected readonly baseSaleService = inject(BaseSaleService);
-  private readonly tauriPrinterService = inject(TauriPrinterService);
-  comptantComponent = viewChild(ComptantComponent);
-
   userBox = viewChild<any>('userBox');
   depotBox = viewChild<any>('depotBox');
   accountService = inject(AccountService);
   currentAccount = this.accountService.trackCurrentAccount();
   remiseCacheService = inject(RemiseCacheService);
   remises: GroupRemise[] = this.remiseCacheService.remises();
+  // readonly canRemoveItem = signal(this.hasAuthorityService.hasAuthorities(Authority.PR_SUPPRIME_PRODUIT_VENTE));
+  readonly canRemoveItem = signal<boolean>(true);
+  readonly canApplyDiscount = signal<boolean>(false);
+  readonly canModifyPrice = signal<boolean>(false);
+  readonly canForceStock = signal<boolean>(false);
+
+  protected readonly depotFacadeService = inject(DepotFacadeService);
+  protected readonly userVendeurService = inject(UserVendeurService);
+  protected readonly depotService = inject(DepotService);
   protected selectedDepot?: IMagasin | null;
-
   protected isLargeScreen = true;
-  protected canForceStock: boolean;
-
-
   protected userCaissier?: IUser | null;
   protected userSeller?: IUser;
   protected produitSelected?: ProduitSearch | null = null;
@@ -112,6 +94,8 @@ export class VenteDepotComponent implements OnInit, AfterViewInit, OnDestroy {
   protected isSaving = false;
   protected showStock = true;
   protected readonly PRODUIT_COMBO_RESULT_SIZE = PRODUIT_COMBO_RESULT_SIZE;
+  private readonly magasinService = inject(MagasinService);
+  private readonly tauriPrinterService = inject(TauriPrinterService);
   private readonly hasAuthorityService = inject(HasAuthorityService);
   private readonly produitService = inject(ProduitService);
   private readonly activatedRoute = inject(ActivatedRoute);
@@ -126,16 +110,18 @@ export class VenteDepotComponent implements OnInit, AfterViewInit, OnDestroy {
   private readonly produitbox = viewChild.required<ProduitSearchAutocompleteScannerComponent>('produitbox');
   private readonly saleEventManager = inject(SaleEventSignal);
   private readonly destroyRef = inject(DestroyRef);
-  private readonly platformId = inject(PLATFORM_ID);
   private readonly saleStockValidator = inject(SaleStockValidator);
   private readonly deconditionnementService = inject(DeconditionnementService);
   private readonly forceStockService = inject(ForceStockService);
   private readonly shortcutsService = inject(SellingHomeShortcutsService);
   private readonly keyboardService = inject(KeyboardShortcutsService);
-
+  private readonly spinner = viewChild.required<SpinnerComponent>('spinner');
   constructor() {
-    this.canForceStock = this.hasAuthorityService.hasAuthorities(Authority.PR_FORCE_STOCK);
     this.quantityMessage = this.translateLabel('stockInsuffisant');
+    this.canApplyDiscount.set(this.hasAuthorityService.hasAuthorities(Authority.PR_AJOUTER_REMISE_VENTE));
+    this.canModifyPrice.set(this.hasAuthorityService.hasAuthorities(Authority.PR_MODIFIER_PRIX));
+    this.canForceStock.set(this.hasAuthorityService.hasAuthorities(Authority.PR_FORCE_STOCK));
+
     handleSaleEvents(this.saleEventManager, ['saveResponse', 'completeSale', 'responseEvent', 'inputBoxFocus'], event => {
       switch (event.name) {
         case 'saveResponse':
@@ -149,6 +135,23 @@ export class VenteDepotComponent implements OnInit, AfterViewInit, OnDestroy {
           this.handleInputBoxFocus(event);
           break;
       }
+      console.log(event, 'handled in VenteDepotComponent');
+    });
+
+    this.depotFacadeService.saveResponse$.pipe(takeUntilDestroyed()).subscribe(res => {
+      this.onSave(res);
+    });
+
+    this.depotFacadeService.spinnerService$.pipe(takeUntilDestroyed()).subscribe(res => {
+      if (res) {
+        this.spinner().show();
+      } else {
+        this.spinner().hide();
+      }
+    });
+
+    this.depotFacadeService.finalyseSale$.pipe(takeUntilDestroyed()).subscribe(res => {
+      this.onFinalyse(res);
     });
   }
 
@@ -156,10 +159,12 @@ export class VenteDepotComponent implements OnInit, AfterViewInit, OnDestroy {
     return this.produitSelected == null || this.quantyBox().value < 1;
   }
 
+  protected get entryAmount(): number {
+    return 0;
+  }
 
   onLoadPrevente(sales: ISales): void {
     if (sales.statut === SalesStatut.CLOSED) {
-
       this.router.navigate(['/depot', 'new-vente']);
     } else {
       this.depotService.setCurrentSale(sales);
@@ -183,7 +188,7 @@ export class VenteDepotComponent implements OnInit, AfterViewInit, OnDestroy {
     this.registerKeyboardShortcuts();
 
     this.activatedRoute.data.pipe(takeUntilDestroyed(this.destroyRef)).subscribe(({ sales }) => {
-      if (sales.id) {
+      if (sales && sales.id) {
         this.magasinService
           .find(sales.magasin.id)
           .pipe(takeUntilDestroyed(this.destroyRef))
@@ -192,7 +197,6 @@ export class VenteDepotComponent implements OnInit, AfterViewInit, OnDestroy {
         this.onLoadPrevente(sales);
       }
     });
-
   }
 
   ngAfterViewInit(): void {
@@ -209,9 +213,7 @@ export class VenteDepotComponent implements OnInit, AfterViewInit, OnDestroy {
     this.keyboardService.handleKeyboardEvent(event);
   }
 
-  manageAmountDiv(): void {
-
-  }
+  manageAmountDiv(): void {}
 
   previousState(): void {
     this.resetAll();
@@ -224,7 +226,6 @@ export class VenteDepotComponent implements OnInit, AfterViewInit, OnDestroy {
     }
   }
 
-
   totalItemQty(): number {
     if (this.produitSelected) {
       return this.depotService.currentSale()?.salesLines.find(e => e.produitId === this.produitSelected.id)?.quantityRequested || 0;
@@ -233,16 +234,22 @@ export class VenteDepotComponent implements OnInit, AfterViewInit, OnDestroy {
   }
 
   onAddNewQty(qytMvt: number): void {
-    const qtyMaxToSel = this.baseSaleService.quantityMax();
+    const qtyMaxToSel = this.depotService.quantityMax();
+    console.log('qtyMaxToSel', qtyMaxToSel);
     const qtyAlreadyRequested = this.totalItemQty() + qytMvt;
-    const validation = this.saleStockValidator.validate(this.produitSelected, qytMvt, qtyAlreadyRequested, this.canForceStock, qtyMaxToSel);
+    const validation = this.saleStockValidator.validate(
+      this.produitSelected,
+      qytMvt,
+      qtyAlreadyRequested,
+      this.canForceStock(),
+      qtyMaxToSel,
+    );
     if (validation.isValid) {
       this.onAddProduit(qytMvt);
     } else {
       this.handleInvalidStock(validation.reason, qytMvt);
     }
   }
-
 
   onAddProduit(qytMvt: number): void {
     if (this.produitSelected) {
@@ -251,7 +258,6 @@ export class VenteDepotComponent implements OnInit, AfterViewInit, OnDestroy {
       } else {
         this.depotFacadeService.create(this.createSalesLine(this.produitSelected, qytMvt));
       }
-
     }
   }
 
@@ -285,7 +291,6 @@ export class VenteDepotComponent implements OnInit, AfterViewInit, OnDestroy {
     this.goToNew();
     this.updateProduitQtyBox();
   }
-
 
   onSave(saveResponse: SaveResponse): void {
     if (saveResponse.success) {
@@ -323,18 +328,117 @@ export class VenteDepotComponent implements OnInit, AfterViewInit, OnDestroy {
     }
   }
 
-
-  protected addQuantity(qte: number): void {
-    this.onAddNewQty(qte);
+  ngOnDestroy(): void {
+    this.shortcutsService.unregisterAll();
   }
 
+  onKeyDown(event: any): void {
+    this.save();
+  }
+
+  removeLine(salesLine: ISalesLine): void {
+    this.depotFacadeService.removeItemFromSale(salesLine.saleLineId);
+  }
+
+  confirmDeleteItem(item: ISalesLine): void {
+    if (item) {
+      this.removeLine(item);
+    } else {
+      this.produitbox().getFocus();
+    }
+  }
+
+  updateItemQtyRequested(salesLine: ISalesLine): void {
+    if (salesLine) {
+      this.depotFacadeService.updateItemQtyRequested(salesLine);
+    }
+  }
+
+  updateItemQtySold(salesLine: ISalesLine): void {
+    this.depotFacadeService.updateItemQtySold(salesLine);
+  }
+
+  updateItemPrice(salesLine: ISalesLine): void {
+    this.depotFacadeService.updateItemPrice(salesLine);
+  }
+
+  onAddRmiseOpenActionAutorisationDialog(remise: IRemise): void {
+    const modalRef = this.modalService.open(FormActionAutorisationComponent, {
+      backdrop: 'static',
+      centered: true,
+    });
+    modalRef.componentInstance.entity = this.depotService.currentSale();
+    modalRef.componentInstance.privilege = Authority.PR_AJOUTER_REMISE_VENTE;
+    modalRef.closed.pipe(take(1)).subscribe(reason => {
+      if (reason === true) {
+        this.addRemise(remise);
+      }
+    });
+  }
+
+  onAddRemise(remise: IRemise): void {
+    if (this.canApplyDiscount()) {
+      this.addRemise(remise);
+    } else {
+      if (remise) {
+        this.onAddRmiseOpenActionAutorisationDialog(remise);
+      } else {
+        if (this.depotService.currentSale().remise) {
+          this.onAddRmiseOpenActionAutorisationDialog(remise);
+        }
+      }
+    }
+  }
+
+  addRemise(remise: IRemise): void {
+    this.depotFacadeService.updateRemise(remise);
+  }
+
+  protected addQuantity(qte: number): void {
+    if (this.selectedDepot) {
+      this.onAddNewQty(qte);
+    } else {
+      this.showError('Veuillez sélectionner un dépôt');
+      this.focusDepotBox();
+    }
+  }
+  protected focusDepotBox(): void {
+    setTimeout(() => {
+      const el = this.depotBox().inputEL?.nativeElement;
+      el.focus();
+      el.select();
+    }, 50);
+  }
   protected onSelectUser(): void {
     this.produitbox().getFocus();
   }
 
   protected onSelectDepot(): void {
-    this.depotService.setSelectedDepot(this.selectedDepot);
-    this.produitbox().getFocus();
+    if (this.depotService.currentSale()) {
+      this.confimDialog().onConfirm(
+        () => {
+          this.depotService.changeDepot(this.depotService.currentSale().saleId, this.selectedDepot!.id!).subscribe({
+            next: () => {
+              this.depotService.setSelectedDepot(this.selectedDepot);
+              this.produitbox().getFocus();
+            },
+            error: error => {
+              this.onCommonError(error);
+            },
+          });
+        },
+        'Modification Dépôt',
+        'Voulez-vous vraiment changer le dépôt de la vente en cours ?',
+        null,
+        () => {
+          this.depotService.setSelectedDepot(this.selectedDepot);
+          this.produitbox().getFocus();
+        },
+      );
+    } else {
+      this.depotService.setSelectedDepot(this.selectedDepot);
+      this.produitbox().getFocus();
+    }
   }
 
   protected onSelectProduct(selectedProduit?: ProduitSearch): void {
@@ -369,7 +473,7 @@ export class VenteDepotComponent implements OnInit, AfterViewInit, OnDestroy {
           this.translateLabel('quantityGreatherMaxCanContinue'),
           this.confimDialog(),
           this.onAddProduit.bind(this),
-          this.updateProduitQtyBox.bind(this)
+          this.updateProduitQtyBox.bind(this),
         );
         break;
       case 'deconditionnement':
@@ -380,7 +484,7 @@ export class VenteDepotComponent implements OnInit, AfterViewInit, OnDestroy {
           null,
           this.onAddProduit.bind(this),
           this.processQtyRequested.bind(this),
-          this.updateProduitQtyBox.bind(this)
+          this.updateProduitQtyBox.bind(this),
         );
         break;
       case 'forceStock':
@@ -389,7 +493,7 @@ export class VenteDepotComponent implements OnInit, AfterViewInit, OnDestroy {
           this.translateLabel('quantityGreatherThanStock'),
           this.confimDialog(),
           this.onAddProduit.bind(this),
-          this.updateProduitQtyBox.bind(this)
+          this.updateProduitQtyBox.bind(this),
         );
         break;
       case 'stockInsuffisant':
@@ -422,7 +526,6 @@ export class VenteDepotComponent implements OnInit, AfterViewInit, OnDestroy {
     }
   };
 
-
   private updateProduitQtyBox(): void {
     if (this.quantyBox()) {
       this.quantyBox().reset(1);
@@ -435,11 +538,10 @@ export class VenteDepotComponent implements OnInit, AfterViewInit, OnDestroy {
     this.processQtyRequestedDepot(salesLine);
   }
 
-
   private subscribeToSaveResponse(result: Observable<HttpResponse<ISales>>): void {
     result.subscribe({
       next: (res: HttpResponse<ISales>) => this.onSaveSuccess(res.body),
-      error: () => this.onSaveError()
+      error: () => this.onSaveError(),
     });
   }
 
@@ -458,12 +560,10 @@ export class VenteDepotComponent implements OnInit, AfterViewInit, OnDestroy {
         if (this.depotService.currentSale()) {
           this.subscribeToSaveResponse(this.depotService.find(this.depotService.currentSale().saleId));
         }
-
       },
       error: error => {
-
         this.onStockError(salesLine, error);
-      }
+      },
     });
   }
 
@@ -476,19 +576,18 @@ export class VenteDepotComponent implements OnInit, AfterViewInit, OnDestroy {
   private onStockError(salesLine: ISalesLine, error: any): void {
     if (error.error) {
       if (error.error.errorKey === 'stock') {
-        if (this.canForceStock) {
+        if (this.canForceStock()) {
           salesLine.forceStock = true;
           this.forceStockService.onUpdateConfirmForceStock(
             salesLine,
             this.translateLabel('quantityGreatherThanStock'),
             this.confimDialog(),
             this.processQtyRequested.bind(this),
-            this.updateProduitQtyBox.bind(this)
+            this.updateProduitQtyBox.bind(this),
           );
         } else {
           this.openInfoDialog(this.errorService.getErrorMessage(error));
           this.subscribeToSaveResponse(this.depotService.find(this.depotService.currentSale().saleId));
-
         }
       } else if (error.error.errorKey === 'stockChInsufisant') {
         this.produitService.find(Number(error.error.payload)).subscribe(res => {
@@ -502,7 +601,7 @@ export class VenteDepotComponent implements OnInit, AfterViewInit, OnDestroy {
               salesLine,
               this.onAddProduit.bind(this),
               this.processQtyRequested.bind(this),
-              this.updateProduitQtyBox.bind(this)
+              this.updateProduitQtyBox.bind(this),
             );
           } else {
             this.openInfoDialog(this.translateLabel('stockInsuffisant'));
@@ -520,16 +619,13 @@ export class VenteDepotComponent implements OnInit, AfterViewInit, OnDestroy {
   private onCommonError(error: any): void {
     if (error.error.status === 412) {
       this.updateProduitQtyBox();
-
     } else {
       this.openInfoDialog(this.errorService.getErrorMessage(error.error));
     }
   }
 
-
   private loadPrevente(): void {
     queueMicrotask(() => {
-
       this.produitbox().getFocus();
     });
   }
@@ -541,10 +637,10 @@ export class VenteDepotComponent implements OnInit, AfterViewInit, OnDestroy {
       ...new SalesLine(),
       produitId: produit.id,
       regularUnitPrice: produit.regularUnitPrice,
-      saleId: currentSale.id,
+      saleId: currentSale?.id,
       quantitySold: quantitySold > 0 ? quantitySold : 0,
       quantityRequested,
-      sales: currentSale
+      sales: currentSale,
     };
   }
 
@@ -563,27 +659,18 @@ export class VenteDepotComponent implements OnInit, AfterViewInit, OnDestroy {
     this.router.navigate(['/depot', 'new-vente']);
   }
 
-  ngOnDestroy(): void {
-    this.shortcutsService.unregisterAll();
-  }
-
   private registerKeyboardShortcuts(): void {
     this.shortcutsService.registerAll({
       // Navigation
       focusProductSearch: () => this.produitbox()?.getFocus(),
       focusQuantity: () => this.quantyBox()?.focusProduitControl(),
-      focusCustomer: () => {
-
-      },
+      focusCustomer: () => {},
       focusVendor: () => this.userBox()?.nativeElement?.focus(),
 
       // Product actions
       //addProduct: () => this.onAddProduit(),
-      addProduct: () => {
-      },
-      removeSelectedLine: () => {
-
-      },
+      addProduct: () => {},
+      removeSelectedLine: () => {},
       clearProduct: () => {
         this.produitSelected = null;
         this.produitbox()?.getFocus();
@@ -596,26 +683,15 @@ export class VenteDepotComponent implements OnInit, AfterViewInit, OnDestroy {
       },
 
       // Sale types
-      switchToComptant: () => {
-
-      },
-      switchToAssurance: () => {
-
-      },
-      switchToCarnet: () => {
-
-      },
-      switchToDepotAgree: () => {
-
-      },
+      switchToComptant: () => {},
+      switchToAssurance: () => {},
+      switchToCarnet: () => {},
+      switchToDepotAgree: () => {},
 
       // Payment & Finalization
       finalizeSale: () => this.manageAmountDiv(),
-      savePending: () => {
-
-      },
-      viewPendingSales: () => {
-      },
+      savePending: () => {},
+      viewPendingSales: () => {},
       cancelSale: () => this.resetAll(),
 
       // Quantity
@@ -627,24 +703,20 @@ export class VenteDepotComponent implements OnInit, AfterViewInit, OnDestroy {
       },
 
       // Discounts
-      applyDiscount: () => {
-
-      },
-      removeDiscount: () => {
-
-      },
+      applyDiscount: () => {},
+      removeDiscount: () => {},
 
       // Printing
       printInvoice: () => this.onPrintInvoice(),
       printReceipt: () => this.printSale(this.depotService.currentSale().saleId),
 
       // Tauri-specific (optional, only if user has permission)
-      forceStock: this.canForceStock ? () => {
-        console.log('Force stock activated');
-        // Force stock logic would go here
-      } : undefined
+      forceStock: this.canForceStock()
+        ? () => {
+            console.log('Force stock activated');
+            // Force stock logic would go here
+          }
+        : undefined,
     });
   }
-
-
 }

@@ -1,0 +1,284 @@
+@let currentSale = sale();
+
+@if (currentSale) {
+  <div class="row depot-table-container">
+    <div class=" col-lg-9 col-sm-12 col-md-12 col-xl-9 col-xxl-9">
+      <div class="pharma-table-wrapper">
+        <!-- En-tête du tableau avec actions - VERSION COMPACTE -->
+        <div class="pharma-table-header-compact">
+
+          <!-- Recherche produit -->
+          <div class="pharma-filter-search">
+            <p-iconfield>
+              <p-inputicon class="pi pi-search" />
+              <input
+                #filterInput
+                (input)="produitTable.filterGlobal($event.target.value, 'contains')"
+                class="pharma-search-input"
+                pInputText
+                placeholder="Rechercher un produit..."
+                type="text"
+              />
+            </p-iconfield>
+          </div>
+
+          <!-- Séparateur vertical -->
+          <div class="pharma-divider"></div>
+
+          <!-- Section Remise -->
+          <div class="pharma-remise-section">
+
+            <!-- Badge Remise Info -->
+            @if (currentSale?.remise) {
+              <div class="pharma-remise-info">
+                <i class="pi pi-percentage"></i>
+                <span class="remise-label">Remise:</span>
+                <strong class="remise-value">{{ remiseTaux() }}</strong>
+              </div>
+            }
+
+            <!-- Sélecteur de remise -->
+            @let remises = remiseCacheService.remises();
+            @if (remises?.length > 0) {
+              <p-select
+                (onChange)="onSelectRemise()"
+                [(ngModel)]="selectedRemise"
+                [group]="true"
+                [options]="remises"
+                [showClear]="true"
+                class="pharma-remise-select-compact"
+                optionLabel="valeur"
+                placeholder="Choisir une remise">
+                <ng-template #group let-group>
+                  <div class="pharma-remise-group">
+                    <i class="pi pi-tag"></i>
+                    <span>{{ group.typeLibelle }}</span>
+                  </div>
+                </ng-template>
+              </p-select>
+            }
+          </div>
+        </div>
+
+        <!-- Tableau principal -->
+        <p-table
+          #produitTable
+          [globalFilterFields]="['code', 'produitLibelle']"
+          [paginator]="true"
+          [rowsPerPageOptions]="[5, 10, 20, 50]"
+          [rows]="10"
+          [showCurrentPageReport]="true"
+          [tableStyle]="{ 'min-width': '100%' }"
+          [value]="sale().salesLines"
+          class="pharma-table"
+          currentPageReportTemplate="Affichage de {first} à {last} sur {totalRecords} produits"
+          dataKey="id"
+          selectionMode="single">
+
+          <ng-template #header>
+
+            <tr class="pharma-table-head">
+              <th style="width: 15px; text-align: center; padding: 6px 5px">#</th>
+              <th>CODE</th>
+              <th>LIBELLÉ</th>
+              <th style="width: 110px; text-align: center">QTÉ.D</th>
+              <th style="width: 110px; text-align: center">QTÉ.S</th>
+              <th style="width: 110px; text-align: right">PU</th>
+              <th style="width: 130px; text-align: right">TOTAL</th>
+              <th style="width: 50px; text-align: center"></th>
+            </tr>
+
+          </ng-template>
+
+          <ng-template #body let-rowIndex="rowIndex" let-saleLine>
+            <tr [ngClass]="{
+          'pharma-row-warning': saleLine.quantitySold < saleLine.quantityRequested,
+          'pharma-row-hover': true
+        }">
+              <!-- Numéro -->
+              <td style="text-align: center">
+                <span class="pharma-row-number">{{ rowIndex + 1 }}</span>
+              </td>
+
+              <!-- Code -->
+              <td>
+                <span class="pharma-code">{{ saleLine.code }}</span>
+              </td>
+
+              <!-- Libellé -->
+              <td>
+                <div class="pharma-product-name">
+                  {{ saleLine.produitLibelle }}
+                </div>
+              </td>
+
+              <!-- Quantité demandée - Éditable -->
+              <td [pEditableColumn]="saleLine.quantityRequested" class="text-right"
+                  pEditableColumnField="quantityRequested">
+                <p-cellEditor>
+                  <ng-template #input>
+                    <input
+                      (focus)="$event.target.select()"
+                      (keydown.enter)="updateItemQtyRequested(saleLine, $event)"
+                      [value]="saleLine.quantityRequested"
+                      class="pharma-input-qty"
+                      pInputText
+                      required
+                      type="number"
+                    />
+                  </ng-template>
+                  <ng-template #output>
+                    <span class="pharma-qty-value">{{ saleLine.quantityRequested | number }}</span>
+                  </ng-template>
+                </p-cellEditor>
+              </td>
+
+              <!-- Quantité servie - Éditable -->
+              <td [pEditableColumn]="saleLine.quantitySold" class="text-right"
+                  pEditableColumnField="quantitySold">
+                <p-cellEditor>
+                  <ng-template #input>
+                    <input
+                      (focus)="$event.target.select()"
+                      (keydown.enter)="updateItemQtySold(saleLine, $event)"
+                      [value]="saleLine.quantitySold"
+                      class="pharma-input-qty"
+                      pInputText
+                      required
+                      type="number"
+                    />
+                  </ng-template>
+                  <ng-template #output>
+                <span
+                  class="pharma-qty-value text-right">{{ saleLine.quantitySold | number }}</span>
+                  </ng-template>
+                </p-cellEditor>
+              </td>
+
+              <!-- Prix unitaire - Éditable si autorisé -->
+              @if (canModifyPrice()) {
+                <td [pEditableColumn]="saleLine.regularUnitPrice" class="text-right"
+                    pEditableColumnField="regularUnitPrice">
+                  <p-cellEditor>
+                    <ng-template #input>
+                      <input
+                        (focus)="$event.target.select()"
+                        (keydown.enter)="updateItemPrice(saleLine, $event)"
+                        [value]="saleLine.regularUnitPrice"
+                        class="pharma-input-price"
+                        pInputText
+                        required
+                        type="number"
+                      />
+                    </ng-template>
+                    <ng-template #output>
+                  <span
+                    class="pharma-price text-right">{{ saleLine.regularUnitPrice | number }}</span>
+                    </ng-template>
+                  </p-cellEditor>
+                </td>
+              } @else {
+                <td style="text-align: right">
+                  <span
+                    class="pharma-price text-right">{{ saleLine.regularUnitPrice | number }}</span>
+                </td>
+              }
+
+
+              <td style="text-align: right">
+                <span class="pharma-total">{{ saleLine.salesAmount | number }}</span>
+              </td>
+
+              <!-- Actions -->
+              <td style="text-align: center">
+                <p-button
+                  (click)="onDeleteItem(saleLine)"
+                  [rounded]="true"
+                  [text]="true"
+                  icon="pi pi-trash"
+                  pTooltip="Supprimer"
+                  severity="danger"
+                  size="small"
+                  tooltipPosition="left"
+                />
+              </td>
+            </tr>
+          </ng-template>
+
+          <ng-template #footer>
+            @if (sale().salesLines.length > 0) {
+
+              <tr class="pharma-table-footer">
+                <td class="pharma-footer-label" colspan="3" style="text-align: left">
+                  <i class="pi pi-calculator"></i>
+                  <span>TOTAUX</span>
+                </td>
+
+                <td class="text-right">
+                  <span class="pharma-footer-value">{{ totalQtyProduit() | number }}</span>
+                </td>
+                <td class="text-right">
+                  <span class="pharma-footer-value">{{ totalQtyServi() | number }}</span>
+                </td>
+
+                <td class="text-right" colspan="2">
+                  <span class="pharma-footer-total">{{ totalTtc() | number }} </span>
+                </td>
+                <td></td>
+              </tr>
+
+
+            }
+          </ng-template>
+        </p-table>
+      </div>
+    </div>
+    <div class="amounts-summary col-lg-3 col-sm-12 col-md-12 col-xl-3 col-xxl-3">
+      <div class="grid">
+        <div class="col-12">
+          <!-- Montant principal -->
+          <div class="amount-row amount-total">
+            <span class="amount-label">Total</span>
+            <span class="amount-value">{{ currentSale.salesAmount | number }}</span>
+          </div>
+
+          <!-- TVA si applicable -->
+          @if (currentSale.taxAmount! > 0) {
+            <div class="amount-row">
+              <span class="amount-label">TVA</span>
+              <span class="amount-value">{{ currentSale.taxAmount | number }}</span>
+            </div>
+          }
+
+          <!-- Remise si applicable -->
+          @if (currentSale.discountAmount! > 0) {
+            <div class="amount-row amount-discount">
+              <span class="amount-label">Remise</span>
+              <span
+                class="amount-value">-{{ currentSale.discountAmount | number }}</span>
+            </div>
+          }
+          <!-- Séparateur -->
+          <div class="amount-divider"></div>
+
+          <!-- Montant à payer (mis en évidence) -->
+          <div class="amount-row amount-to-pay">
+            <span class="amount-label">à payer</span>
+            <span class="amount-value">{{ currentSale.amountToBePaid | number }}</span>
+          </div>
+
+          <div class="amount-divider"></div>
+          <div class="d-flex justify-content-end mt-4">
+            <p-button (click)="save()" [raised]="true" icon="pi pi-check" label="Terminer"
+                      severity="success"></p-button>
+
+          </div>
+        </div>
+      </div>
+
+
+    </div>
+  </div>
+}
+<jhi-confirm-dialog #confirmDialog></jhi-confirm-dialog>
+

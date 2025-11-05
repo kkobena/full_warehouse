@@ -1,124 +1,220 @@
+<div class="container-fluid">
+  <div class="pharma-smart-content p-2">
+    <div class="user-form-container">
+      <div class="pharma-toolbar">
+        <div class="pharma-toolbar-header">
+          <i class="pi pi-user"></i>
+          <span class="pharma-toolbar-title" jhiTranslate="userManagement.home.createOrEditLabel">
+            Créer ou éditer un utilisateur
+          </span>
+        </div>
+        <p-toolbar>
+          <ng-template #end>
+            <div class="pharma-toolbar-actions">
+              <p-button
+                (onClick)="previousState()"
+                [text]="true"
+                icon="pi pi-arrow-left"
+                label="Retour"
+                severity="secondary"
+              />
+            </div>
+          </ng-template>
+        </p-toolbar>
+      </div>
 
-<div class="container">
-  <div class="justify-content-center">
-    <p-panel
-      header="Créer ou éditer un
-          utilisateur"
-    >
       <form (ngSubmit)="save()" [formGroup]="editForm" name="editForm" novalidate role="form">
         <jhi-alert-error></jhi-alert-error>
 
-        <div [hidden]="true" class="mb-3">
-          <label jhiTranslate="global.field.id">ID</label>
-          <input class="form-control" formControlName="id" name="id" readonly type="text" />
+        <div [hidden]="true">
+          <input formControlName="id" name="id" readonly type="text" />
         </div>
 
-        <div class="mb-3">
-          <label class="form-label" for="field_login" jhiTranslate="userManagement.login">Login</label>
-          <input autocomplete="off" class="form-control" formControlName="login" id="field_login" name="login" pInputText type="text" />
+        <div class="card-grid-2col">
+          <!-- Required Fields Section -->
+          <p-card>
+            <ng-template #header>
+              <div class="section-header section-header-required">
+                <i class="pi pi-exclamation-circle"></i>
+                <span>Champs Obligatoires</span>
+              </div>
+            </ng-template>
 
-          @if (editForm.get('login')!.invalid && (editForm.get('login')!.dirty || editForm.get('login')!.touched)) {
-            <div>
-              @if (editForm.get('login')?.errors?.required) {
-                <small class="form-text text-danger" jhiTranslate="entity.validation.required">Ce champ est obligatoire.</small>
-              }
+            <div class="form-grid-compact">
+              <!-- Login Field -->
+              <div class="form-field form-field-full">
+                <label for="field_login">
+                  Login <span class="required">*</span>
+                </label>
+                <input
+                  autocomplete="off"
+                  class="w-full"
+                  formControlName="login"
+                  id="field_login"
+                  name="login"
+                  pInputText
+                  type="text"
+                />
+                @if (editForm.get('login')?.invalid && editForm.get('login')?.touched) {
+                  @if (editForm.get('login')?.errors?.required) {
+                    <small class="p-error" jhiTranslate="entity.validation.required">Ce champ est
+                      obligatoire.</small>
+                  }
+                  @if (editForm.get('login')?.errors?.maxlength) {
+                    <small [translateValues]="{ max: '50' }" class="p-error"
+                           jhiTranslate="entity.validation.maxlength">
+                      Ce champ doit faire moins de 50 caractères.
+                    </small>
+                  }
+                  @if (editForm.get('login')?.errors?.pattern) {
+                    <small class="p-error" jhiTranslate="entity.validation.patternLogin">
+                      Ce champ ne peut contenir que des lettres, des chiffres ou des adresses
+                      e-mail.
+                    </small>
+                  }
+                }
+              </div>
+              <!-- Last Name Field -->
+              <div class="form-field form-field-full">
+                <label for="field_lastName">Nom<span class="required">*</span></label>
+                <input
+                  autocomplete="off"
+                  class="w-full"
+                  formControlName="lastName"
+                  id="field_lastName"
+                  name="lastName"
+                  pInputText
+                  type="text"
+                />
+                @if (editForm.get('lastName')?.invalid && editForm.get('lastName')?.touched) {
+                  @if (editForm.get('lastName')?.errors?.required) {
+                    <small class="p-error" jhiTranslate="entity.validation.required">Ce champ est
+                      obligatoire.</small>
+                  }
+                  @if (editForm.get('lastName')?.errors?.maxlength) {
+                    <small [translateValues]="{ max: '100' }" class="p-error"
+                           jhiTranslate="entity.validation.maxlength">
+                      Ce champ doit faire moins de 100 caractères.
+                    </small>
+                  }
+                }
+              </div>
+              <div class="form-field form-field-full">
+                <label for="field_firstName">Prénom <span class="required">*</span></label>
+                <input
+                  autocomplete="off"
+                  class="w-full"
+                  formControlName="firstName"
+                  id="field_firstName"
+                  name="firstName"
+                  pInputText
+                  type="text"
+                />
+                @if (editForm.get('firstName')?.invalid && editForm.get('firstName')?.touched) {
+                  @if (editForm.get('lastName')?.errors?.required) {
+                    <small class="p-error" jhiTranslate="entity.validation.required">Ce champ est
+                      obligatoire.</small>
+                  }
+                  @if (editForm.get('firstName')?.errors?.maxlength) {
+                    <small [translateValues]="{ max: '100' }" class="p-error"
+                           jhiTranslate="entity.validation.maxlength">
+                      Ce champ doit faire moins de 100 caractères.
+                    </small>
+                  }
+                }
+              </div>
 
-              @if (editForm.get('login')?.errors?.maxlength) {
-                <small class="form-text text-danger" jhiTranslate="entity.validation.maxlength" [translateValues]="{ max: '50' }"
-                >Ce champ doit faire moins de 50 caractères.</small
-                >
-              }
-
-              @if (editForm.get('login')?.errors?.pattern) {
-                <small class="form-text text-danger" jhiTranslate="entity.validation.patternLogin"
-                >Ce champ ne peut contenir que des lettres, des chiffres ou des adresses e-mail.</small
-                >
+              @if (!isAdmin) {
+                <div class="form-field form-field-full">
+                  <label for="field_authority" jhiTranslate="userManagement.profiles">Droits<span
+                    class="required">*</span></label>
+                  <select
+                    class="form-control w-full"
+                    formControlName="authorities"
+                    id="field_authority"
+                    multiple
+                    name="authority"
+                  >
+                    @for (authority of authorities(); track $index) {
+                      <option [value]="authority">{{ authority }}</option>
+                    }
+                  </select>
+                </div>
               }
             </div>
-          }
-        </div>
-        <div class="mb-3">
-          <label class="form-label" for="field_firstName" jhiTranslate="userManagement.firstName">Prénom</label>
-          <input autocomplete="off" class="form-control" formControlName="firstName" id="field_firstName" name="firstName" pInputText type="text" />
+          </p-card>
 
-          @if (editForm.get('firstName')!.invalid && (editForm.get('firstName')!.dirty || editForm.get('firstName')!.touched)) {
-            <div>
-              @if (editForm.get('firstName')?.errors?.maxlength) {
-                <small class="form-text text-danger" jhiTranslate="entity.validation.maxlength" [translateValues]="{ max: '50' }"
-                >Ce champ doit faire moins de 50 caractères.</small
-                >
-              }
+          <!-- Optional Information Section -->
+          <p-card>
+            <ng-template #header>
+              <div class="section-header">
+                <i class="pi pi-user"></i>
+                <span>Informations Complémentaires</span>
+              </div>
+            </ng-template>
+
+            <div class="form-grid-compact">
+
+
+              <!-- Email Field -->
+              <div class="form-field form-field-full">
+                <label for="field_email" jhiTranslate="userManagement.email">
+                  Email
+                </label>
+                <input
+                  autocomplete="off"
+                  class="w-full"
+                  formControlName="email"
+                  id="field_email"
+                  name="email"
+                  pInputText
+                  type="email"
+                />
+                @if (editForm.get('email')?.invalid && editForm.get('email')?.touched) {
+
+                  @if (editForm.get('email')?.errors?.minlength) {
+                    <small [translateValues]="{ min: '5' }" class="p-error"
+                           jhiTranslate="entity.validation.minlength">
+                      Ce champ doit faire au minimum 5 caractères.
+                    </small>
+                  }
+                  @if (editForm.get('email')?.errors?.maxlength) {
+                    <small [translateValues]="{ max: '254' }" class="p-error"
+                           jhiTranslate="entity.validation.maxlength">
+                      Ce champ doit faire moins de 254 caractères.
+                    </small>
+                  }
+                  @if (editForm.get('email')?.errors?.email) {
+                    <small class="p-error" jhiTranslate="global.messages.validate.email.invalid">
+                      Votre email n'est pas valide.
+                    </small>
+                  }
+                }
+              </div>
             </div>
-          }
+          </p-card>
         </div>
 
-        <div class="mb-3">
-          <label class="form-label" for="field_lastName" jhiTranslate="userManagement.lastName">Nom</label>
-          <input autocomplete="off" class="form-control" formControlName="lastName" id="field_lastName" name="lastName" pInputText type="text" />
-
-          @if (editForm.get('lastName')!.invalid && (editForm.get('lastName')!.dirty || editForm.get('lastName')!.touched)) {
-            <div>
-              @if (editForm.get('lastName')?.errors?.maxlength) {
-                <small class="form-text text-danger" jhiTranslate="entity.validation.maxlength" [translateValues]="{ max: '50' }"
-                >Ce champ doit faire moins de 50 caractères.</small
-                >
-              }
-            </div>
-          }
+        <div class="form-actions-compact">
+          <p-button
+            (onClick)="previousState()"
+            [text]="true"
+            icon="pi pi-times"
+            label="Annuler"
+            severity="secondary"
+            type="button"
+          />
+          <p-button
+            [disabled]="editForm.invalid || isSaving()"
+            [loading]="isSaving()"
+            icon="pi pi-check"
+            label="Enregistrer"
+            severity="primary"
+            type="submit"
+          />
         </div>
-
-        <div [hidden]="isAdmin" class="mb-3">
-          <label class="form-label" for="field_authority" jhiTranslate="userManagement.profiles">Droits</label>
-          <select class="form-control" formControlName="authorities" id="field_authority" multiple name="authority">
-            @for (authority of authorities(); track $index) {
-              <option [value]="authority">{{ authority }}</option>
-            }
-          </select>
-        </div>
-        <div class="mb-3">
-          <label class="form-label" for="field_email" jhiTranslate="userManagement.email">Email</label>
-          <input autocomplete="off"  class="form-control" formControlName="email" id="field_email" name="email" pInputText type="email" />
-
-          @if (editForm.get('email')!.invalid && (editForm.get('email')!.dirty || editForm.get('email')!.touched)) {
-            <div>
-              @if (editForm.get('email')?.errors?.required) {
-                <small class="form-text text-danger" jhiTranslate="entity.validation.required">Ce champ est obligatoire.</small>
-              }
-
-              @if (editForm.get('email')?.errors?.maxlength) {
-                <small class="form-text text-danger" jhiTranslate="entity.validation.maxlength" [translateValues]="{ max: '100' }"
-                >Ce champ doit faire moins de 100 caractères.</small
-                >
-              }
-
-              @if (editForm.get('email')?.errors?.minlength) {
-                <small class="form-text text-danger" jhiTranslate="entity.validation.minlength" [translateValues]="{ min: '5' }"
-                >Ce champ doit faire au minimum 5 caractères.</small
-                >
-              }
-
-              @if (editForm.get('email')?.errors?.email) {
-                <small class="form-text text-danger" jhiTranslate="global.messages.validate.email.invalid"
-                >Votre email n&apos;est pas valide.</small
-                >
-              }
-            </div>
-          }
-        </div>
-       <div class="text-end">
-         <p-button (click)="previousState()"  class="mr-2" icon="pi pi-ban" label="Annuler" raised="true" severity="secondary" type="button"> </p-button>
-
-         <p-button
-           [disabled]="editForm.invalid || isSaving()"
-           icon="pi pi-save"
-           label="Enregister"
-           raised="true"
-           severity="primary"
-           type="submit"
-         >
-         </p-button>
-       </div>
       </form>
-    </p-panel>
-  </div></div>
+    </div>
+  </div>
+</div>
 

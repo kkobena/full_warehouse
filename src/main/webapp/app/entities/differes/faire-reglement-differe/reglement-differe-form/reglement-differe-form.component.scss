@@ -1,0 +1,124 @@
+/**
+ * Reglement Differe Form Component Styles
+ *
+ * Payment form for deferred payment settlement with bank information section
+ */
+
+:host {
+  display: block;
+}
+
+// Main Form Container
+.reglement-differe-form {
+  display: flex;
+  padding: 1rem;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+// Header Row (Date + Back Button)
+.header-row {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 1rem;
+  align-items: start;
+
+
+  .date-field {
+    flex: 1;
+  }
+
+  .back-button {
+    display: flex;
+    align-items: flex-start;
+  }
+}
+
+// Full-width Form Fields
+.form-field-full {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+// Bank Information Section
+.bank-info-section {
+
+
+  .divider-content {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-weight: 600;
+    color: var(--p-text-color);
+
+    i {
+      color: var(--p-primary-color);
+      font-size: 1.125rem;
+    }
+  }
+
+  .bank-fields {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+
+  }
+}
+
+// Input Group Addon Label
+::ng-deep {
+  .p-inputgroup-addon {
+    .addon-label {
+      margin-left: 0.5rem;
+      font-weight: 500;
+    }
+  }
+
+  // Error messages
+  .p-error {
+    display: block;
+    margin-top: 0.25rem;
+    color: var(--p-red-500);
+    font-size: 0.875rem;
+  }
+
+  // FloatLabel styling
+  .p-floatlabel {
+    width: 100%;
+
+    label {
+      font-weight: 500;
+      color: var(--p-text-color);
+    }
+  }
+}
+
+// Form Actions (Submit Button)
+.form-actions {
+  display: flex;
+  justify-content: flex-end;
+  border-top: 1px solid var(--p-surface-border);
+}
+
+// Responsive Design
+@media (max-width: 768px) {
+  .header-row {
+    grid-template-columns: 1fr;
+    gap: 0.75rem;
+
+    .back-button {
+      justify-content: flex-start;
+
+      p-button {
+        width: 100%;
+      }
+    }
+  }
+
+  .form-actions {
+    p-button {
+      width: 100%;
+    }
+  }
+}

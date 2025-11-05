@@ -1,7 +1,6 @@
 import { Component, inject, OnDestroy, OnInit, viewChild } from '@angular/core';
 import { ConfirmDialog } from 'primeng/confirmdialog';
-import { CommonModule, DatePipe } from '@angular/common';
-import { Fieldset } from 'primeng/fieldset';
+import { DatePipe } from '@angular/common';
 import { IconField } from 'primeng/iconfield';
 import { InputIcon } from 'primeng/inputicon';
 import { InputText } from 'primeng/inputtext';
@@ -18,11 +17,23 @@ import { NewReglementDiffere, PaymentId } from '../model/new-reglement-differe.m
 import { ActivatedRoute } from '@angular/router';
 import { Subject } from 'rxjs';
 import { finalize, takeUntil } from 'rxjs/operators';
+import { Card } from 'primeng/card';
+import { WarehouseCommonModule } from '../../../shared/warehouse-common/warehouse-common.module';
 
 @Component({
   selector: 'jhi-faire-reglement-differe',
   providers: [ConfirmationService],
-  imports: [ReglementDiffereFormComponent, ConfirmDialog, DatePipe, Fieldset, IconField, InputIcon, InputText, TableModule, CommonModule],
+  imports: [
+    ReglementDiffereFormComponent,
+    WarehouseCommonModule,
+    ConfirmDialog,
+    DatePipe,
+    IconField,
+    InputIcon,
+    InputText,
+    TableModule,
+    Card,
+  ],
   templateUrl: './faire-reglement-differe.component.html',
   styleUrls: ['./faire-reglement-differe.component.scss'],
 })

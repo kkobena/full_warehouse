@@ -1,0 +1,240 @@
+/**
+ * Magasin Detail Component Styles
+ *
+ * Professional detail view with card-based layout and modern styling
+ */
+
+@import 'app/shared/scss/pharma-toolbar';
+@import 'app/shared/scss/form-styles';
+
+:host {
+  display: block;
+}
+
+.magasin-detail-container {
+  margin: 0 auto;
+
+  .pharma-toolbar {
+    margin-bottom: 1rem;
+  }
+}
+
+// Detail Grid Layout
+.detail-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 1.25rem;
+  padding: 1.5rem;
+
+  .detail-item {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+
+    &.detail-item-full {
+      grid-column: 1 / -1;
+    }
+
+    label {
+      font-weight: 600;
+      font-size: 0.875rem;
+      color: var(--p-text-color-secondary);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      margin-bottom: 0.25rem;
+    }
+
+    .detail-value {
+      display: flex;
+      align-items: center;
+      gap: 0.625rem;
+      font-size: 1rem;
+      color: var(--p-text-color);
+      padding: 0.75rem;
+      background: var(--p-surface-50);
+      border-radius: 6px;
+      border: 1px solid var(--p-surface-border);
+      transition: all 0.2s ease;
+
+      &:hover {
+        background: var(--p-surface-100);
+        border-color: var(--p-primary-color);
+      }
+
+      .detail-icon {
+        color: var(--p-primary-color);
+        font-size: 1.125rem;
+        flex-shrink: 0;
+      }
+
+      span {
+        flex: 1;
+        word-break: break-word;
+      }
+
+      p-tag {
+        flex-shrink: 0;
+      }
+
+      // For multiline content
+      &.detail-value-multiline {
+        align-items: flex-start;
+        min-height: 4rem;
+        padding: 1rem;
+
+        .detail-icon {
+          margin-top: 0.125rem;
+        }
+
+        span {
+          line-height: 1.6;
+          white-space: pre-wrap;
+        }
+      }
+    }
+
+    .detail-link {
+      color: var(--p-primary-color);
+      text-decoration: none;
+      font-weight: 500;
+      transition: all 0.2s ease;
+
+      &:hover {
+        color: var(--p-primary-600);
+        text-decoration: underline;
+      }
+
+      &:active {
+        color: var(--p-primary-700);
+      }
+    }
+  }
+}
+
+// Card styling
+::ng-deep .p-card {
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  border: 1px solid var(--p-surface-border);
+  transition: all 0.3s ease;
+
+  &:hover {
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+  }
+
+  .p-card-body {
+    padding: 0;
+  }
+
+  .p-card-content {
+    padding: 0;
+  }
+}
+
+// Empty State
+.empty-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 4rem 2rem;
+  text-align: center;
+  color: var(--p-text-color-secondary);
+
+  i {
+    font-size: 4rem;
+    color: var(--p-surface-400);
+    margin-bottom: 1.5rem;
+    opacity: 0.5;
+  }
+
+  h3 {
+    font-size: 1.5rem;
+    font-weight: 600;
+    color: var(--p-text-color);
+    margin-bottom: 0.5rem;
+  }
+
+  p {
+    font-size: 1rem;
+    color: var(--p-text-color-secondary);
+    margin: 0;
+  }
+}
+
+// Spacing utility
+.mt-2 {
+  margin-top: 1rem;
+}
+
+// Responsive Design
+@media (max-width: 992px) {
+  .detail-grid {
+    grid-template-columns: 1fr;
+    gap: 1rem;
+    padding: 1rem;
+
+    .detail-item {
+      &.detail-item-full {
+        grid-column: 1 / -1;
+      }
+    }
+  }
+}
+
+@media (max-width: 768px) {
+  .magasin-detail-container {
+    .pharma-toolbar {
+      margin-bottom: 0.75rem;
+    }
+  }
+
+  .detail-grid {
+    gap: 0.75rem;
+    padding: 0.75rem;
+
+    .detail-item {
+      .detail-value {
+        padding: 0.625rem;
+        font-size: 0.9375rem;
+
+        .detail-icon {
+          font-size: 1rem;
+        }
+      }
+    }
+  }
+
+  .card-grid-2col {
+    gap: 0.75rem;
+  }
+
+  .empty-state {
+    padding: 3rem 1.5rem;
+
+    i {
+      font-size: 3rem;
+      margin-bottom: 1rem;
+    }
+
+    h3 {
+      font-size: 1.25rem;
+    }
+
+    p {
+      font-size: 0.9375rem;
+    }
+  }
+}
+
+.form-actions-compact {
+  display: flex;
+  justify-content: flex-end;
+  gap: 0.75rem;
+  margin-top: 1.5rem;
+  padding: 0.75rem;
+  border-top: 1px solid var(--p-surface-border);
+  background-color: var(--p-surface-50);
+  position: sticky;
+  bottom: 0;
+  z-index: 100;
+}

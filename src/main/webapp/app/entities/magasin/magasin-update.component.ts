@@ -7,15 +7,30 @@ import { Observable } from 'rxjs';
 
 import { IMagasin, Magasin } from 'app/shared/model/magasin.model';
 import { MagasinService } from './magasin.service';
-import { PanelModule } from 'primeng/panel';
 import { ButtonModule } from 'primeng/button';
+import { CardModule } from 'primeng/card';
+import { InputTextModule } from 'primeng/inputtext';
+import { ToolbarModule } from 'primeng/toolbar';
 import { ToastAlertComponent } from '../../shared/toast-alert/toast-alert.component';
 import { ErrorService } from '../../shared/error.service';
+import { WarehouseCommonModule } from '../../shared/warehouse-common/warehouse-common.module';
+import { Textarea } from 'primeng/textarea';
 
 @Component({
   selector: 'jhi-magasin-update',
   templateUrl: './magasin-update.component.html',
-  imports: [PanelModule, RouterModule, ReactiveFormsModule, ButtonModule, ToastAlertComponent]
+  styleUrl: './magasin-update.component.scss',
+  imports: [
+    RouterModule,
+    ReactiveFormsModule,
+    CardModule,
+    ButtonModule,
+    InputTextModule,
+    ToolbarModule,
+    ToastAlertComponent,
+    WarehouseCommonModule,
+    Textarea,
+  ],
 })
 export class MagasinUpdateComponent implements OnInit {
   protected fb = inject(UntypedFormBuilder);
@@ -28,7 +43,7 @@ export class MagasinUpdateComponent implements OnInit {
     address: [],
     note: [],
     registre: [],
-    welcomeMessage: []
+    welcomeMessage: [],
   });
   private readonly magasinService = inject(MagasinService);
   private readonly activatedRoute = inject(ActivatedRoute);
@@ -50,7 +65,7 @@ export class MagasinUpdateComponent implements OnInit {
       address: magasin.address,
       note: magasin.note,
       registre: magasin.registre,
-      welcomeMessage: magasin.welcomeMessage
+      welcomeMessage: magasin.welcomeMessage,
     });
   }
 
@@ -71,7 +86,7 @@ export class MagasinUpdateComponent implements OnInit {
   private subscribeToSaveResponse(result: Observable<HttpResponse<IMagasin>>): void {
     result.subscribe({
       next: () => this.onSaveSuccess(),
-      error: (err) => this.onSaveError(err)
+      error: err => this.onSaveError(err),
     });
   }
 
@@ -95,7 +110,7 @@ export class MagasinUpdateComponent implements OnInit {
       address: this.editForm.get(['address']).value,
       note: this.editForm.get(['note']).value,
       registre: this.editForm.get(['registre']).value,
-      welcomeMessage: this.editForm.get(['welcomeMessage']).value
+      welcomeMessage: this.editForm.get(['welcomeMessage']).value,
     };
   }
 }

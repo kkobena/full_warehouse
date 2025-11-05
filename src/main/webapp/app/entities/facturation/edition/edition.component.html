@@ -1,245 +1,311 @@
-
 <div class="container-fluid">
-  <div class="row pharma-smart-content">
-    <div class="col-lg-3 col-xl-3 col-sm-4 col-md-3 mt-2 mb-3">
-      <p-card>
-        <div class="mb-3">
-          <label class="form-label">Edition de factures provisoires ?</label>
-          <div class="flex justify-content-center">
-            <p-toggleswitch [(ngModel)]="factureProvisoire" />
-          </div>
-        </div>
-        <div class="mb-3">
-          <label class="form-label" for="startDate">Date de début</label>
-
-          <p-datePicker
-            [(ngModel)]="modelStartDate"
-            [fluid]="true"
-            [selectOtherMonths]="true"
-            [showButtonBar]="true"
-            [showIcon]="true"
-            dateFormat="dd/mm/yy"
-            id="startDate"
-            inputId="startDate"
-          />
-        </div>
-        <div class="mb-3">
-          <label class="form-label" for="endDate">Date de fin</label>
-          <p-datePicker
-            [(ngModel)]="modelEndDate"
-            [fluid]="true"
-            [selectOtherMonths]="true"
-            [showButtonBar]="true"
-            [showIcon]="true"
-            dateFormat="dd/mm/yy"
-            id="endDate"
-            inputId="endDate"
-          />
-        </div>
-
-        <div class="mb-3">
-          <label class="form-label" for="endDate">Sélectionner le mode d'édition</label>
-          <p-select (onChange)="onModeEditionChange()" [(ngModel)]="modeEdition" [fluid]="true"
-                    [options]="modeEditions" dataKey="code" id="modeEdition"
-                    optionLabel="value" optionValue="code" size="large">
-          </p-select>
-          <!-- <select (change)="onModeEditionChange()" [(ngModel)]="modeEdition" class="form-select"
-                   id="modeEdition">
-             <option selected value="ALL"></option>
-             @for (mode of modeEditions; track mode.code) {
-               <option [ngValue]="mode.code">{{ mode.value }}</option>
-             }
-           </select>-->
-        </div>
-        @if (modeEdition === 'TYPE') {
-          <div class="mb-3">
-            <label class="form-label" for="typeTiersPayant">Types tiers payant</label>
-            <p-select [(ngModel)]="typeTiersPayant" [fluid]="true" [options]="typeTiersPayants"
-                      dataKey="code"
-                      id="typeTiersPayant" optionLabel="value" optionValue="code"
-                      size="large">
-            </p-select>
-
-          </div>
-        }
-        @if (modeEdition === 'GROUP') {
-          <div class="mb-3">
-            <label class="form-label" for="groupeTiersPayantId">Groupe tiers-payants</label>
-
-            <p-autoComplete
-              (completeMethod)="searchGroupTiersPayant($event)"
-              [(ngModel)]="selectedGroupeTiersPayants"
-              [forceSelection]="true"
-              [inputStyle]="{ width: '100%' }"
-              [minQueryLength]="minLength"
-              [multiple]="true"
-              [style]="{ width: '100%' }"
-              [suggestions]="groupeTiersPayants"
-              appendTo="body"
-              id="groupeTiersPayantId"
-              optionLabel="name"
-              placeholder="Taper pour rechercher"
-
-            >
-            </p-autoComplete>
-          </div>
-        }
-
-        @if (modeEdition === 'TIERS_PAYANT') {
-          <div class="mb-3">
-            <label class="form-label" for="tiersPayants">Tiers payants</label>
-
-            <p-autoComplete
-              (completeMethod)="searchTiersPayant($event)"
-              [(ngModel)]="selectedTiersPayants"
-              [forceSelection]="true"
-              [inputStyle]="{ width: '100%' }"
-              [minQueryLength]="minLength"
-              [multiple]="true"
-              [style]="{ width: '100%' }"
-              [suggestions]="tiersPayants"
-              appendTo="body"
-              id="tiersPayants"
-              optionLabel="fullName"
-              placeholder="Taper pour rechercher"
-            >
-            </p-autoComplete>
-          </div>
-        }
-
-        <div class="card-footer">
-          <div class="d-flex align-items-center justify-content-center">
-            <p-button (click)="onSearch()" [loading]="searching" [raised]="true" class="mr-1"
-                      icon="pi pi-search"
-                      label="Rechercher" severity="info" />
-            <p-button (click)="onEdit()" [loading]="editing" [raised]="true" icon="pi pi-check"
-                      label="Editer" severity="primary" />
-          </div>
-        </div>
-      </p-card>
-
+  <div class="pharma-smart-content p-2">
+    <!-- Toolbar Header -->
+    <div class="pharma-toolbar">
+      <div class="pharma-toolbar-header">
+        <i class="pi pi-file-edit"></i>
+        <span class="pharma-toolbar-title">Édition de Factures</span>
+        <span class="pharma-toolbar-subtitle">Gestion des factures tiers-payants</span>
+      </div>
     </div>
-    <div class="col-lg-9 col-xl-9 col-md-9 col-sm-8 mt-2 mb-3">
-      <p-card>
-        @if (modeEdition !== 'SELECTION_BON') {
-          <p-table
-            #dt
-            [(selection)]="selectedTiersPayantDossiers"
-            [paginator]="true"
-            [rowsPerPageOptions]="[15, 20, 30, 50]"
-            [rows]="itemsPerPage"
-            [showCurrentPageReport]="false"
-            [stripedRows]="true"
-            [totalRecords]="totalItems"
-            [value]="tiersPayantDossierFactures"
-            class="pharma-table"
-            dataKey="id"
-          >
-            <ng-template #caption>
-              <div class="d-flex align-items-end justify-content-end">
-                <p-button (click)="onEdit()" [loading]="editing" [raised]="true" icon="pi pi-check"
-                          label="Editer" severity="primary" />
+
+    <div class="edition-container">
+      <!-- Filter Sidebar -->
+      <aside class="edition-sidebar">
+        <p-card>
+          <ng-template #header>
+            <div class="section-header section-header-required">
+              <i class="pi pi-filter"></i>
+              <span>Critères de Recherche</span>
+            </div>
+          </ng-template>
+
+          <div class="filter-grid">
+            <!-- Provisional Invoices Toggle -->
+            <div class="filter-item filter-item-full">
+              <label class="filter-label">
+                <i class="pi pi-question-circle"></i>
+                Édition de factures provisoires ?
+              </label>
+              <div class="toggle-container">
+                <p-toggleswitch [(ngModel)]="factureProvisoire" />
+                <span class="toggle-label">{{ factureProvisoire ? 'Oui' : 'Non' }}</span>
               </div>
-            </ng-template>
-            <ng-template #header>
-              <tr class="pharma-table-head">
-                <th>Tiers-payant</th>
-                <th>Nombre de dossiers</th>
-                <th>Montant</th>
-                @if (modeEdition && (modeEdition === 'SELECTED' || modeEdition === 'GROUP')) {
+            </div>
+
+            <!-- Date Range -->
+            <div class="filter-item">
+              <label for="startDate">
+                <i class="pi pi-calendar"></i>
+                Date de début
+              </label>
+              <p-datePicker
+                [(ngModel)]="modelStartDate"
+                [fluid]="true"
+                [selectOtherMonths]="true"
+                [showButtonBar]="true"
+                [showIcon]="true"
+                dateFormat="dd/mm/yy"
+                id="startDate"
+                inputId="startDate"
+              />
+            </div>
+
+            <div class="filter-item">
+              <label for="endDate">
+                <i class="pi pi-calendar"></i>
+                Date de fin
+              </label>
+              <p-datePicker
+                [(ngModel)]="modelEndDate"
+                [fluid]="true"
+                [selectOtherMonths]="true"
+                [showButtonBar]="true"
+                [showIcon]="true"
+                dateFormat="dd/mm/yy"
+                id="endDate"
+                inputId="endDate"
+              />
+            </div>
+
+            <!-- Edition Mode -->
+            <div class="filter-item filter-item-full">
+              <label for="modeEdition">
+                <i class="pi pi-cog"></i>
+                Mode d'édition
+              </label>
+              <p-select
+                (onChange)="onModeEditionChange()"
+                [(ngModel)]="modeEdition"
+                [fluid]="true"
+                [options]="modeEditions"
+                dataKey="code"
+                id="modeEdition"
+                optionLabel="value"
+                optionValue="code"
+              />
+            </div>
+
+            <!-- Conditional Filters -->
+            @if (modeEdition === 'TYPE') {
+              <div class="filter-item filter-item-full">
+                <label for="typeTiersPayant">
+                  <i class="pi pi-tags"></i>
+                  Types tiers-payant
+                </label>
+                <p-select
+                  [(ngModel)]="typeTiersPayant"
+                  [fluid]="true"
+                  [options]="typeTiersPayants"
+                  dataKey="code"
+                  id="typeTiersPayant"
+                  optionLabel="value"
+                  optionValue="code"
+                />
+              </div>
+            }
+
+            @if (modeEdition === 'GROUP') {
+              <div class="filter-item filter-item-full">
+                <label for="groupeTiersPayantId">
+                  <i class="pi pi-users"></i>
+                  Groupe tiers-payants
+                </label>
+                <p-autoComplete
+                  (completeMethod)="searchGroupTiersPayant($event)"
+                  [(ngModel)]="selectedGroupeTiersPayants"
+                  [forceSelection]="true"
+                  [inputStyle]="{ width: '100%' }"
+                  [minQueryLength]="minLength"
+                  [multiple]="true"
+                  [style]="{ width: '100%' }"
+                  [suggestions]="groupeTiersPayants"
+                  appendTo="body"
+                  id="groupeTiersPayantId"
+                  optionLabel="name"
+                  placeholder="Taper pour rechercher..."
+                />
+              </div>
+            }
+
+            @if (modeEdition === 'TIERS_PAYANT') {
+              <div class="filter-item filter-item-full">
+                <label for="tiersPayants">
+                  <i class="pi pi-building"></i>
+                  Tiers-payants
+                </label>
+                <p-autoComplete
+                  (completeMethod)="searchTiersPayant($event)"
+                  [(ngModel)]="selectedTiersPayants"
+                  [forceSelection]="true"
+                  [inputStyle]="{ width: '100%' }"
+                  [minQueryLength]="minLength"
+                  [multiple]="true"
+                  [style]="{ width: '100%' }"
+                  [suggestions]="tiersPayants"
+                  appendTo="body"
+                  id="tiersPayants"
+                  optionLabel="fullName"
+                  placeholder="Taper pour rechercher..."
+                />
+              </div>
+            }
+          </div>
+
+          <!-- Action Buttons -->
+          <div class="filter-actions">
+            <p-button
+              (onClick)="onSearch()"
+              [loading]="searching"
+              icon="pi pi-search"
+              label="Rechercher"
+              severity="info"
+
+            />
+            <p-button
+              (onClick)="onEdit()"
+              [loading]="editing"
+              icon="pi pi-check"
+              label="Éditer"
+              severity="primary"
+
+            />
+          </div>
+        </p-card>
+      </aside>
+
+      <!-- Main Content -->
+      <main class="edition-content">
+        <p-card>
+          <ng-template #header>
+            <div class="section-header">
+              <i class="pi pi-table"></i>
+              <span>Résultats de Recherche</span>
+            </div>
+          </ng-template>
+
+          @if (modeEdition !== 'SELECTION_BON') {
+            <p-table
+              #dt
+              [(selection)]="selectedTiersPayantDossiers"
+              [paginator]="true"
+              [rowsPerPageOptions]="[15, 20, 30, 50]"
+              [rows]="itemsPerPage"
+              [showCurrentPageReport]="false"
+              [stripedRows]="true"
+              [totalRecords]="totalItems"
+              [value]="tiersPayantDossierFactures"
+              class="pharma-table"
+              dataKey="id"
+            >
+              <ng-template #caption>
+                <div class="d-flex align-items-end justify-content-end">
+                  <p-button (click)="onEdit()" [loading]="editing" [raised]="true"
+                            icon="pi pi-check"
+                            label="Editer" severity="primary" />
+                </div>
+              </ng-template>
+              <ng-template #header>
+                <tr class="pharma-table-head">
+                  <th>Tiers-payant</th>
+                  <th>Nombre de dossiers</th>
+                  <th>Montant</th>
+                  @if (modeEdition && (modeEdition === 'SELECTED' || modeEdition === 'GROUP')) {
+                    <th style="width: 4rem">
+                      <p-tableHeaderCheckbox />
+                    </th>
+                  }
+                </tr>
+              </ng-template>
+
+              <ng-template #body let-data>
+                <tr>
+                  <td class="pharma-entity-name">
+                    {{ data.name }}
+                  </td>
+                  <td class="text-right amount-column">
+                    {{ data.factureItemCount | number }}
+                  </td>
+                  <td
+                    class="text-right amount-column pharma-total">{{ data.totalAmount | number }}
+                  </td>
+                  @if (modeEdition && (modeEdition === 'SELECTED' || modeEdition === 'GROUP')) {
+                    <td>
+                      <p-tableCheckbox [value]="data" />
+                    </td>
+                  }
+                </tr>
+              </ng-template>
+            </p-table>
+          }
+
+          @if (modeEdition && modeEdition === 'SELECTION_BON') {
+            <p-table
+              #bonDt
+              [(selection)]="selectedDossiers"
+              [paginator]="true"
+              [rowsPerPageOptions]="[15, 20, 30, 50]"
+              [rows]="itemsPerPage"
+              [showCurrentPageReport]="false"
+              [stripedRows]="true"
+              [totalRecords]="totalItems"
+              [value]="dossierFactures"
+              class="pharma-table"
+              dataKey="id"
+            >
+              <ng-template #caption>
+                <div class="d-flex align-items-center justify-content-between">
+                  <p-iconfield>
+                    <p-inputicon class="pi pi-search" />
+                    <input (input)="bonDt.filterGlobal($event.target.value, 'contains')" pInputText
+                           placeholder="Rechercher..." type="text" />
+                  </p-iconfield>
+
+                  <p-button (click)="onEdit()" [loading]="editing" [raised]="true"
+                            icon="pi pi-check"
+                            label="Editer" severity="success" />
+                </div>
+              </ng-template>
+              <ng-template #header>
+                <tr class="pharma-table-head">
+                  <th>Clients</th>
+                  <th>Date</th>
+                  <th>Référence bon</th>
+                  <th>Montant vente</th>
+                  <th>Montant</th>
                   <th style="width: 4rem">
                     <p-tableHeaderCheckbox />
                   </th>
-                }
-              </tr>
-            </ng-template>
-
-            <ng-template #body let-data>
-              <tr>
-                <td class="pharma-entity-name">
-                  {{ data.name }}
-                </td>
-                <td class="text-right amount-column">
-                  {{ data.factureItemCount | number }}
-                </td>
-                <td class="text-right amount-column pharma-total">{{ data.totalAmount | number }}</td>
-                @if (modeEdition && (modeEdition === 'SELECTED' || modeEdition === 'GROUP')) {
-                  <td>
-                    <p-tableCheckbox [value]="data" />
+                </tr>
+              </ng-template>
+              <ng-template #body let-dossier>
+                <tr>
+                  <td
+                    class="pharma-entity-name">{{ dossier.assuredCustomer.firstName }} {{ dossier.assuredCustomer.lastName }}
                   </td>
-                }
-              </tr>
-            </ng-template>
-          </p-table>
-        }
-
-        @if (modeEdition && modeEdition === 'SELECTION_BON') {
-          <p-table
-            #bonDt
-            [(selection)]="selectedDossiers"
-            [paginator]="true"
-            [rowsPerPageOptions]="[15, 20, 30, 50]"
-            [rows]="itemsPerPage"
-            [showCurrentPageReport]="false"
-            [stripedRows]="true"
-            [totalRecords]="totalItems"
-            [value]="dossierFactures"
-            class="pharma-table"
-            dataKey="id"
-          >
-            <ng-template #caption>
-              <div class="d-flex align-items-center justify-content-between">
-                <p-iconfield>
-                  <p-inputicon class="pi pi-search" />
-                  <input (input)="bonDt.filterGlobal($event.target.value, 'contains')" pInputText
-                         placeholder="Rechercher..." type="text" />
-                </p-iconfield>
-
-                <p-button (click)="onEdit()" [loading]="editing" [raised]="true" icon="pi pi-check"
-                          label="Editer" severity="success" />
-              </div>
-            </ng-template>
-            <ng-template #header>
-              <tr class="pharma-table-head">
-                <th>Clients</th>
-                <th>Date</th>
-                <th>Référence bon</th>
-                <th>Montant vente</th>
-                <th>Montant</th>
-                <th style="width: 4rem">
-                  <p-tableHeaderCheckbox />
-                </th>
-              </tr>
-            </ng-template>
-            <ng-template #body let-dossier>
-              <tr>
-                <td
-                  class="pharma-entity-name">{{ dossier.assuredCustomer.firstName }} {{ dossier.assuredCustomer.lastName }}
-                </td>
-                <td>
-                  {{ dossier.createdAt | date: 'dd/MM/yyyy HH:mm:ss' }}
-                </td>
-                <td class="pharma-code">
-                  {{ dossier.numBon }}
-                </td>
-                <td class="text-right amount-column pharma-price">
-                  {{ dossier.montantVente | number }}
-                </td>
-                <td class="text-right amount-column pharma-total">{{ dossier.montantBon | number }}
-                </td>
-                <td>
-                  <p-tableCheckbox [value]="dossier" />
-                </td>
-              </tr>
-            </ng-template>
-          </p-table>
-        }
-      </p-card>
-
+                  <td>
+                    {{ dossier.createdAt | date: 'dd/MM/yyyy HH:mm:ss' }}
+                  </td>
+                  <td class="pharma-code">
+                    {{ dossier.numBon }}
+                  </td>
+                  <td class="text-right amount-column pharma-price">
+                    {{ dossier.montantVente | number }}
+                  </td>
+                  <td
+                    class="text-right amount-column pharma-total">{{ dossier.montantBon | number }}
+                  </td>
+                  <td>
+                    <p-tableCheckbox [value]="dossier" />
+                  </td>
+                </tr>
+              </ng-template>
+            </p-table>
+          }
+        </p-card>
+      </main>
     </div>
   </div>
 </div>
-
-
 
 <p-confirmDialog />

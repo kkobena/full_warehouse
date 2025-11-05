@@ -1,103 +1,213 @@
-<div class="container">
-  <div class="justify-content-center">
-    <p-panel header="Editer les informations du magasin">
+<div class="container-fluid">
+  <div class="pharma-smart-content p-2">
+    <div class="magasin-form-container">
+      <div class="pharma-toolbar">
+        <div class="pharma-toolbar-header">
+          <i class="pi pi-building"></i>
+          <span class="pharma-toolbar-title">Éditer les Informations du Magasin</span>
+        </div>
+        <p-toolbar>
+          <ng-template #end>
+            <div class="pharma-toolbar-actions">
+              <p-button
+                (onClick)="previousState()"
+                [text]="true"
+                icon="pi pi-arrow-left"
+                label="Retour"
+                severity="secondary"
+              />
+            </div>
+          </ng-template>
+        </p-toolbar>
+      </div>
+
       <form (ngSubmit)="save()" [formGroup]="editForm" name="editForm" novalidate role="form">
-        <div>
-
-
-          <div [hidden]="!editForm.get('id')!.value" class="form-group">
-            <input class="form-control" formControlName="id" id="id" name="id" readonly type="hidden" />
-          </div>
-
-          <div class="form-group">
-            <label class="form-control-label form-label" for="field_fullName" jhiTranslate="warehouseApp.magasin.name">Raison
-              sociale</label>
-            <input class="form-control" formControlName="fullName" id="field_fullName" name="fullName" type="text" />
-            @if (editForm.get('fullName')!.invalid && (editForm.get('fullName')!.dirty || editForm.get('fullName')!.touched)) {
-              <div>
-                @if (editForm.get('fullName')?.errors?.required) {
-                  <small class="form-text text-danger" jhiTranslate="entity.validation.required"> This field is
-                    required. </small>
-                }
-              </div>
-            }
-          </div>
-
-          <div class="form-group">
-            <label class="form-control-label form-label" for="field_name">Nom abrégé</label>
-            <input class="form-control" formControlName="name" id="field_name" name="name" type="text" />
-            @if (editForm.get('name')!.invalid && (editForm.get('name')!.dirty || editForm.get('name')!.touched)) {
-              <div>
-                @if (editForm.get('name')?.errors?.required) {
-                  <small class="form-text text-danger" jhiTranslate="entity.validation.required"> This field is
-                    required. </small>
-                }
-              </div>
-            }
-          </div>
-
-          <div class="form-group">
-            <label class="form-control-label form-label" for="field_phone" jhiTranslate="warehouseApp.magasin.phone">Phone</label>
-            <input class="form-control" formControlName="phone" id="field_phone" name="phone" type="text" />
-            @if (editForm.get('phone')!.invalid && (editForm.get('phone')!.dirty || editForm.get('phone')!.touched)) {
-              <div>
-                @if (editForm.get('phone')?.errors?.required) {
-                  <small class="form-text text-danger" jhiTranslate="entity.validation.required"> This field is
-                    required. </small>
-                }
-              </div>
-            }
-          </div>
-
-          <div class="form-group">
-            <label class="form-control-label form-label" for="field_address"
-                   jhiTranslate="warehouseApp.magasin.address">Address</label>
-            <input class="form-control" formControlName="address" id="field_address" name="address" type="text" />
-          </div>
-          <div class="form-group">
-            <label class="form-control-label form-label" for="field_registre"
-                   jhiTranslate="warehouseApp.magasin.registre">Registre</label>
-            <input class="form-control" formControlName="registre" id="field_registre" name="registre" type="text" />
-          </div>
-          <div class="form-group">
-            <label class="form-control-label form-label" for="field_note"
-                   jhiTranslate="warehouseApp.magasin.note">Note</label>
-            <input class="form-control" formControlName="note" id="field_note" name="note" type="text" />
-          </div>
-          <div class="form-group">
-            <label class="form-control-label" for="field_welcomeMessage"
-                   jhiTranslate="warehouseApp.magasin.welcomeMessage">Note</label>
-            <input class="form-control" formControlName="welcomeMessage" id="field_welcomeMessage" name="welcomeMessage"
-                   type="text" />
-          </div>
+        <div [hidden]="true">
+          <input formControlName="id" id="id" name="id" readonly type="hidden" />
         </div>
 
-        <div class="text-end">
+        <!-- Section 1: Required Fields -->
+        <div class="card-grid-2col">
+          <p-card>
+            <ng-template #header>
+              <div class="section-header section-header-required">
+                <i class="pi pi-exclamation-circle"></i>
+                <span>Champs Obligatoires</span>
+              </div>
+            </ng-template>
+
+            <div class="form-grid-compact">
+              <!-- Full Name -->
+              <div class="form-field form-field-full">
+                <label for="field_fullName" jhiTranslate="warehouseApp.magasin.name">
+                  Raison Sociale <span class="required">*</span>
+                </label>
+                <input
+                  pInputText
+                  class="w-full"
+                  formControlName="fullName"
+                  id="field_fullName"
+                  name="fullName"
+                  type="text"
+                />
+                @if (editForm.get('fullName')?.invalid && editForm.get('fullName')?.touched) {
+                  @if (editForm.get('fullName')?.errors?.required) {
+                    <small class="p-error" jhiTranslate="entity.validation.required">
+                      Ce champ est obligatoire.
+                    </small>
+                  }
+                }
+              </div>
+
+              <!-- Short Name -->
+              <div class="form-field form-field-full">
+                <label for="field_name">
+                  Nom Abrégé <span class="required">*</span>
+                </label>
+                <input
+                  pInputText
+                  class="w-full"
+                  formControlName="name"
+                  id="field_name"
+                  name="name"
+                  type="text"
+                />
+                @if (editForm.get('name')?.invalid && editForm.get('name')?.touched) {
+                  @if (editForm.get('name')?.errors?.required) {
+                    <small class="p-error" jhiTranslate="entity.validation.required">
+                      Ce champ est obligatoire.
+                    </small>
+                  }
+                }
+              </div>
+
+              <!-- Phone -->
+              <div class="form-field form-field-full">
+                <label for="field_phone" jhiTranslate="warehouseApp.magasin.phone">
+                  Téléphone <span class="required">*</span>
+                </label>
+                <input
+                  pInputText
+                  class="w-full"
+                  formControlName="phone"
+                  id="field_phone"
+                  name="phone"
+                  type="tel"
+                />
+                @if (editForm.get('phone')?.invalid && editForm.get('phone')?.touched) {
+                  @if (editForm.get('phone')?.errors?.required) {
+                    <small class="p-error" jhiTranslate="entity.validation.required">
+                      Ce champ est obligatoire.
+                    </small>
+                  }
+                }
+              </div>
+            </div>
+          </p-card>
+
+          <!-- Section 2: Optional Information -->
+          <p-card>
+            <ng-template #header>
+              <div class="section-header">
+                <i class="pi pi-info-circle"></i>
+                <span>Informations Complémentaires</span>
+              </div>
+            </ng-template>
+
+            <div class="form-grid-compact">
+              <!-- Address -->
+              <div class="form-field form-field-full">
+                <label for="field_address" jhiTranslate="warehouseApp.magasin.address">Adresse</label>
+                <textarea
+                  pTextarea
+                  class="w-full"
+                  formControlName="address"
+                  id="field_address"
+                  name="address"
+                  rows="3"
+                ></textarea>
+              </div>
+
+              <!-- Registre -->
+              <div class="form-field form-field-full">
+                <label for="field_registre" jhiTranslate="warehouseApp.magasin.registre">
+                  Registre de Commerce
+                </label>
+                <input
+                  pInputText
+                  class="w-full"
+                  formControlName="registre"
+                  id="field_registre"
+                  name="registre"
+                  type="text"
+                />
+              </div>
+            </div>
+          </p-card>
+        </div>
+
+        <!-- Section 3: Messages and Notes -->
+        <div class="mt-2">
+          <p-card>
+            <ng-template #header>
+              <div class="section-header">
+                <i class="pi pi-comment"></i>
+                <span>Messages et Notes</span>
+              </div>
+            </ng-template>
+
+            <div class="form-grid-compact">
+              <!-- Welcome Message -->
+              <div class="form-field">
+                <label for="field_welcomeMessage" jhiTranslate="warehouseApp.magasin.welcomeMessage">
+                  Message de Bienvenue
+                </label>
+                <input
+                  pInputText
+                  class="w-full"
+                  formControlName="welcomeMessage"
+                  id="field_welcomeMessage"
+                  name="welcomeMessage"
+                  type="text"
+                />
+              </div>
+
+              <!-- Note -->
+              <div class="form-field">
+                <label for="field_note" jhiTranslate="warehouseApp.magasin.note">Notes</label>
+                <input
+                  pInputText
+                  class="w-full"
+                  formControlName="note"
+                  id="field_note"
+                  name="note"
+                  type="text"
+                />
+              </div>
+            </div>
+          </p-card>
+        </div>
+
+        <div class="form-actions-compact">
           <p-button
-            (click)="previousState()"
+            (onClick)="previousState()"
+            [text]="true"
             icon="pi pi-times"
-            id="cancel-save"
-            class="mr-2"
             label="Annuler"
-            raised="true"
             severity="secondary"
             type="button"
-          >
-          </p-button>
-
+          />
           <p-button
             [disabled]="editForm.invalid || isSaving"
-            icon="pi pi-save"
-            id="save-entity"
+            [loading]="isSaving"
+            icon="pi pi-check"
             label="Enregistrer"
-            raised="true"
             severity="primary"
             type="submit"
-          >
-          </p-button>
+          />
         </div>
       </form>
-    </p-panel>
+    </div>
   </div>
 </div>
 

@@ -1,4 +1,4 @@
-import { Injectable, inject } from '@angular/core';
+import { inject, Injectable } from '@angular/core';
 import { AccountService } from 'app/core/auth/account.service';
 import { TranslateService } from '@ngx-translate/core';
 import { NavItem } from 'app/layouts/navbar/navbar-item.model';
@@ -35,7 +35,7 @@ import {
   faTruck,
   faTruckFast,
   faUsers,
-  faWallet
+  faWallet,
 } from '@fortawesome/free-solid-svg-icons';
 
 export interface NavigationOptions {
@@ -45,12 +45,11 @@ export interface NavigationOptions {
 }
 
 @Injectable({
-  providedIn: 'root'
+  providedIn: 'root',
 })
 export class NavigationService {
   private accountService = inject(AccountService);
   private translate = inject(TranslateService);
-
 
   buildNavItems(options: NavigationOptions = {}): NavItem[] {
     const account = this.accountService.trackCurrentAccount()();
@@ -62,7 +61,7 @@ export class NavigationService {
         label: this.translateLabel('nouvelleVente'),
         faIcon: faBasketShopping,
         authorities: [Authority.ADMIN, Authority.ROLE_CAISSIER],
-        routerLink: '/sales/false/new'
+        routerLink: '/sales/false/new',
       });
     }
 
@@ -75,55 +74,66 @@ export class NavigationService {
         {
           label: this.translateLabel('entities.sales'),
           routerLink: '/sales',
-          faIcon: faShoppingBag
+          faIcon: faShoppingBag,
         },
         {
           label: this.translateLabel('mvtCaisse'),
           routerLink: '/mvt-caisse',
           faIcon: faCoins,
-          authorities: [Authority.PAYMENT, Authority.ADMIN, Authority.MVT_CAISSE, Authority.BALANCE_CAISSE, Authority.TABLEAU_PHARMACIEN]
-        }
-      ]
+          authorities: [Authority.PAYMENT, Authority.ADMIN, Authority.MVT_CAISSE, Authority.BALANCE_CAISSE, Authority.TABLEAU_PHARMACIEN],
+        },
+      ],
     });
 
     // Gestion Stock
     allItems.push({
       label: this.translateLabel('menuGestionStock'),
       faIcon: faTruckFast,
-      authorities: [Authority.ROLE_RESPONSABLE_COMMANDE, Authority.GESTION_STOCK, Authority.GESTION_ENTREE_STOCK, Authority.ADMIN, Authority.COMMANDE],
+      authorities: [
+        Authority.ROLE_RESPONSABLE_COMMANDE,
+        Authority.GESTION_STOCK,
+        Authority.GESTION_ENTREE_STOCK,
+        Authority.ADMIN,
+        Authority.COMMANDE,
+      ],
       children: [
         {
           label: this.translateLabel('entities.produit'),
           routerLink: '/produit',
-          faIcon: faBoxOpen
+          faIcon: faBoxOpen,
         },
         {
           label: this.translateLabel('entities.commande'),
           routerLink: '/commande',
-          faIcon: faShippingFast
+          faIcon: faShippingFast,
         },
         {
           label: this.translateLabel('entities.inventoryTransaction'),
           routerLink: '/produit/transaction',
-          faIcon: faEye
+          faIcon: faEye,
         },
         {
           label: this.translateLabel('ajustement'),
           routerLink: '/ajustement',
-          faIcon: faSlidersH
+          faIcon: faSlidersH,
         },
         {
           label: this.translateFullLabel('gestionPerimes.title'),
           routerLink: '/gestion-peremption',
-          faIcon: faCalendarTimes
+          faIcon: faCalendarTimes,
         },
         {
           label: this.translateLabel('entities.storeInventory'),
           routerLink: '/store-inventory',
           faIcon: faClipboardList,
-          authorities: [Authority.STORE_INVENTORY, Authority.ADMIN]
-        }
-      ]
+          authorities: [Authority.STORE_INVENTORY, Authority.ADMIN],
+        },
+        {
+          label: this.translateLabel('entities.depot'),
+          routerLink: '/depot',
+          faIcon: faBuilding,
+        },
+      ],
     });
 
     // Facturation
@@ -135,29 +145,29 @@ export class NavigationService {
         {
           label: this.translateLabel('facturation.factures'),
           routerLink: '/edition-factures',
-          faIcon: faFileInvoice
+          faIcon: faFileInvoice,
         },
         {
           label: this.translateLabel('facturation.reglements'),
           routerLink: '/reglement-facture',
-          faIcon: faMoneyBill
+          faIcon: faMoneyBill,
         },
         {
           label: this.translateLabel('facturation.differes'),
           routerLink: '/gestion-differe',
-          faIcon: faMoneyCheckAlt
+          faIcon: faMoneyCheckAlt,
         },
         {
           label: this.translateLabel('facturation.tiersPayant'),
           routerLink: '/tiers-payant',
-          faIcon: faLink
+          faIcon: faLink,
         },
         {
           label: this.translateLabel('facturation.client'),
           routerLink: '/customer',
-          faIcon: faUsers
-        }
-      ]
+          faIcon: faUsers,
+        },
+      ],
     });
 
     // Référentiel
@@ -171,7 +181,7 @@ export class NavigationService {
           label: this.translateLabel('entities.remise'),
           routerLink: '/remises',
           authorities: [Authority.ADMIN, Authority.REMISE],
-          faIcon: faPercent
+          faIcon: faPercent,
         },
         { label: this.translateLabel('entities.tableau'), routerLink: '/tableaux', faIcon: faTable },
         { label: this.translateLabel('entities.fournisseur'), routerLink: '/fournisseur', faIcon: faTruck },
@@ -179,27 +189,27 @@ export class NavigationService {
         {
           label: this.translateLabel('entities.formeProduit'),
           routerLink: '/forme-produit',
-          faIcon: faPills
+          faIcon: faPills,
         },
         {
           label: this.translateLabel('entities.familleProduit'),
           routerLink: '/famille-produit',
-          faIcon: faBoxes
+          faIcon: faBoxes,
         },
         { label: this.translateLabel('gammeProduit'), routerLink: '/gamme-produit', faIcon: faMapMarker },
         { label: this.translateLabel('laboratoire'), routerLink: '/laboratoire', faIcon: faBuilding },
         {
           label: this.translateLabel('motifAjustement'),
           routerLink: '/motif-ajustement',
-          faIcon: faExclamationTriangle
+          faIcon: faExclamationTriangle,
         },
         {
           label: this.translateLabel('parametre'),
           routerLink: '/parametre',
           authorities: [Authority.ADMIN, 'parametre'],
-          faIcon: faCog
-        }
-      ]
+          faIcon: faCog,
+        },
+      ],
     });
 
     // Admin Section
@@ -207,23 +217,19 @@ export class NavigationService {
       {
         label: this.translateLabel('entities.magasin'),
         routerLink: '/magasin',
-        faIcon: faStore
+        faIcon: faStore,
       },
-      {
-        label: this.translateLabel('entities.depot'),
-        routerLink: '/depot',
-        faIcon: faBuilding
-      },
+
       {
         label: this.translateLabel('admin.userManagement'),
         routerLink: '/admin/user-management',
-        faIcon: faUsers
+        faIcon: faUsers,
       },
       {
         label: this.translateLabel('entities.menu'),
         routerLink: '/menu',
-        faIcon: faCogs
-      }
+        faIcon: faCogs,
+      },
     ];
 
     // Add additional admin menu items if provided
@@ -235,7 +241,7 @@ export class NavigationService {
       label: this.translateLabel('admin.main'),
       faIcon: faCogs,
       authorities: [Authority.ADMIN, Authority.MENU_ADMIN, Authority.USER_MANAGEMENT, Authority.MAGASIN],
-      children: adminChildren
+      children: adminChildren,
     });
 
     // Account Section
@@ -243,19 +249,19 @@ export class NavigationService {
       {
         label: this.translateLabel('account.settings'),
         routerLink: '/account/settings',
-        faIcon: 'wrench'
+        faIcon: 'wrench',
       },
       {
         authorities: [Authority.ADMIN, Authority.ROLE_CAISSIER, Authority.ROLE_VENDEUR, Authority.MY_CASH_REGISTER],
         label: this.translateLabel('account.cashRegister'),
         routerLink: '/my-cash-register',
-        faIcon: faCashRegister
+        faIcon: faCashRegister,
       },
       {
         label: this.translateLabel('account.password'),
         routerLink: '/account/password',
-        faIcon: 'lock'
-      }
+        faIcon: 'lock',
+      },
     ];
 
     // Add additional account menu items if provided
@@ -266,7 +272,7 @@ export class NavigationService {
     allItems.push({
       label: this.translateLabel('account.main'),
       faIcon: 'user',
-      children: accountChildren
+      children: accountChildren,
     });
 
     // Filter by authority if user is authenticated
@@ -286,8 +292,8 @@ export class NavigationService {
       {
         label: this.translateLabel('account.main'),
         faIcon: 'user',
-        children: additionalItems
-      }
+        children: additionalItems,
+      },
     ];
   }
 
@@ -313,7 +319,7 @@ export class NavigationService {
         }
         return item;
       })
-      .filter(item => item.children ? item.children.length > 0 : true);
+      .filter(item => (item.children ? item.children.length > 0 : true));
   }
 
   /**

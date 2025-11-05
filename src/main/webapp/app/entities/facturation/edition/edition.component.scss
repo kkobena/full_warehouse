@@ -1,1 +1,188 @@
+/**
+ * Edition Component Styles
+ *
+ * Modern layout with sidebar filters and main content area
+ */
+
+@import 'app/shared/scss/pharma-toolbar';
+@import 'app/shared/scss/form-styles';
 @import 'app/shared/scss/table-common';
+
+:host {
+  display: block;
+}
+
+// Main Layout Container
+.edition-container {
+  display: grid;
+  grid-template-columns: 350px 1fr;
+  gap: 1rem;
+  margin-top: 1rem;
+}
+
+// Sidebar Filters
+.edition-sidebar {
+  position: sticky;
+  top: 1rem;
+  align-self: start;
+
+  .filter-grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 1rem;
+    padding: 1rem;
+
+    .filter-item {
+      display: flex;
+      flex-direction: column;
+      gap: 0.5rem;
+
+      &.filter-item-full {
+        grid-column: 1 / -1;
+      }
+
+      label {
+        font-weight: 600;
+        font-size: 0.875rem;
+        color: var(--p-text-color);
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+
+        i {
+          color: var(--p-primary-color);
+          font-size: 1rem;
+        }
+      }
+
+      .filter-label {
+        font-weight: 600;
+        font-size: 0.875rem;
+        color: var(--p-text-color);
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        margin-bottom: 0.5rem;
+
+        i {
+          color: var(--p-primary-color);
+        }
+      }
+
+      .toggle-container {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 1rem;
+        padding: 0.75rem;
+        background: var(--p-surface-50);
+        border-radius: 8px;
+        border: 1px solid var(--p-surface-border);
+
+        .toggle-label {
+          font-weight: 600;
+          font-size: 0.9375rem;
+          color: var(--p-text-color);
+        }
+      }
+    }
+  }
+
+  .filter-actions {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 0.75rem;
+    padding: 1rem;
+    border-top: 1px solid var(--p-surface-border);
+    background: var(--p-surface-50);
+  }
+}
+
+// Main Content Area
+.edition-content {
+  min-width: 0; // Prevent grid overflow
+
+  ::ng-deep {
+    .p-datatable {
+      .p-datatable-header {
+        background: var(--p-surface-0);
+        border-bottom: 1px solid var(--p-surface-border);
+        padding: 1rem;
+      }
+
+      .pharma-table-head {
+        background: linear-gradient(135deg, var(--p-primary-color) 0%, var(--p-primary-600) 100%);
+        color: var(--p-primary-contrast-color);
+
+        th {
+          font-weight: 600;
+          text-transform: uppercase;
+          font-size: 0.875rem;
+          letter-spacing: 0.5px;
+        }
+      }
+    }
+  }
+}
+
+// Card Styling
+::ng-deep .p-card {
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  border: 1px solid var(--p-surface-border);
+
+  .p-card-body {
+    padding: 0;
+  }
+
+  .p-card-content {
+    padding: 0;
+  }
+}
+
+// Responsive Design
+@media (max-width: 1200px) {
+  .edition-container {
+    grid-template-columns: 300px 1fr;
+  }
+}
+
+@media (max-width: 992px) {
+  .edition-container {
+    grid-template-columns: 1fr;
+    gap: 0.75rem;
+  }
+
+  .edition-sidebar {
+    position: relative;
+    top: 0;
+
+    .filter-grid {
+      grid-template-columns: repeat(2, 1fr);
+      gap: 0.75rem;
+
+      .filter-item {
+        &.filter-item-full {
+          grid-column: 1 / -1;
+        }
+      }
+    }
+
+    .filter-actions {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 0.75rem;
+    }
+  }
+}
+
+@media (max-width: 768px) {
+  .edition-sidebar {
+    .filter-grid {
+      grid-template-columns: 1fr;
+    }
+
+    .filter-actions {
+      grid-template-columns: 1fr;
+    }
+  }
+}

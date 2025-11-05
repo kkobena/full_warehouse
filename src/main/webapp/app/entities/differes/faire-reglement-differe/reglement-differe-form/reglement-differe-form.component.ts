@@ -44,7 +44,8 @@ import { DatePicker } from 'primeng/datepicker';
     Button,
     DatePicker
   ],
-  templateUrl: './reglement-differe-form.component.html'
+  templateUrl: './reglement-differe-form.component.html',
+  styleUrl: './reglement-differe-form.component.scss'
 })
 export class ReglementDiffereFormComponent implements AfterViewInit, OnDestroy {
   readonly CASH = 'CASH';

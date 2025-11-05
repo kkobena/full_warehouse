@@ -1,0 +1,83 @@
+/**
+ * Magasin Update Component Styles
+ *
+ * Uses centralized form styles for consistent form design.
+ * See FORMS_README.md for detailed documentation.
+ */
+
+@import 'app/shared/scss/pharma-toolbar';
+@import 'app/shared/scss/form-styles';
+
+:host {
+  display: block;
+}
+
+.magasin-form-container {
+  margin: 0 auto;
+
+  .pharma-toolbar {
+    margin-bottom: 1rem;
+  }
+
+  // Override form-grid-compact for the messages section to show 2 columns
+  .mt-2 .form-grid-compact {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .form-actions-compact {
+    display: flex;
+    justify-content: flex-end;
+    gap: 0.75rem;
+    margin-top: 1.5rem;
+    padding: 0.75rem;
+    border-top: 1px solid var(--p-surface-border);
+    background-color: var(--p-surface-50);
+    position: sticky;
+    bottom: 0;
+    z-index: 100;
+  }
+
+  .mt-2 {
+    margin-top: 1rem;
+  }
+
+  .w-full {
+    width: 100%;
+  }
+}
+
+// Card styling
+::ng-deep .p-card {
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  border: 1px solid var(--p-surface-border);
+
+  .p-card-body {
+    padding: 0;
+  }
+
+  .p-card-content {
+    padding: 0;
+  }
+}
+
+// Responsive design
+@media (max-width: 992px) {
+  .magasin-form-container {
+    // Stack messages section to single column on tablets
+    .mt-2 .form-grid-compact {
+      grid-template-columns: 1fr;
+    }
+  }
+}
+
+@media (max-width: 768px) {
+  .magasin-form-container {
+    .form-actions-compact {
+      flex-direction: column-reverse;
+
+      p-button {
+        width: 100%;
+      }
+    }
+  }
+}

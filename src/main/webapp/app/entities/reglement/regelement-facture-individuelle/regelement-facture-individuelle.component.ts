@@ -25,6 +25,7 @@ import { FactureId } from '../../facturation/facture.model';
 import { ConfirmDialog } from 'primeng/confirmdialog';
 import { ConfirmationService } from 'primeng/api';
 import { acceptButtonProps, rejectButtonProps } from '../../../shared/util/modal-button-props';
+import { Card } from 'primeng/card';
 
 @Component({
   selector: 'jhi-regelement-facture-individuelle',
@@ -46,6 +47,7 @@ import { acceptButtonProps, rejectButtonProps } from '../../../shared/util/modal
     IconField,
     InputIcon,
     ConfirmDialog,
+    Card,
   ],
   templateUrl: './regelement-facture-individuelle.component.html',
   styleUrl: './regelement-facture-individuelle.component.scss',

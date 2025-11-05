@@ -1,7 +1,9 @@
 <p-drawer [(visible)]="showSidebar" [style]="drawerWidth" position="right">
   <ng-template #header>
-    <i class="pi pi-clock text-xl"></i>
-    <span class="font-bold text-xl">Factures</span>
+    <div class="drawer-header">
+      <i class="pi pi-file-edit"></i>
+      <span>Recherche de Factures</span>
+    </div>
   </ng-template>
   <ng-template #content>
     <jhi-factues-modal (selectedFacture)="onSelectFacture($event)"
@@ -9,8 +11,20 @@
   </ng-template>
 </p-drawer>
 
-<div class="row reglement-dossier">
-  <div class="reglement-dossier-table col-xl-8 col-sm-12 col-lg-9 col-md-9">
+<div class="container-fluid">
+  <div class="pharma-smart-content p-2">
+    <!-- Toolbar Header -->
+    <div class="pharma-toolbar">
+      <div class="pharma-toolbar-header">
+        <i class="pi pi-money-bill"></i>
+        <span class="pharma-toolbar-title">Règlement de Factures Individuelles</span>
+        <span class="pharma-toolbar-subtitle">Gestion des règlements par dossier</span>
+      </div>
+    </div>
+
+    <div class="reglement-container">
+      <!-- Main Table Section -->
+      <main class="reglement-content">
     <p-table
       #factureDossierTable
       (selectionChange)="onSelectChange($event)"
@@ -86,37 +100,58 @@
         </tr>
       </ng-template>
     </p-table>
-  </div>
-  <div class="col-sm-12 col-lg-3 col-xl-4 col-md-3 formulaire">
-    <div class="col-12 mb-2">
-      <p-fieldset>
-        <ng-template #header>
-          <div class="d-flex d-flex justify-content-between form-reglement-toolbar">
-            <span>Formulaire réglement</span>
-            @if (!this.dossierFactureProjection()) {
-              <p-button (click)="openSideBar()" icon="pi pi-search" label="Recherche"
-                        severity="info"></p-button>
-            }
-          </div>
-        </ng-template>
+      </main>
 
-        <jhi-reglement-form
-          (partialPayment)="onPartielReglement($event)"
-          (reglementParams)="onSaveReglement($event)"
-          [allSelection]="checkbox()?.checked"
-          [dossierIds]="dossierIds()"
-          [facture]="dossierFactureProjectionSignal()"
-          [isSaving]="isSaving"
-          [montantAPayer]="totalAmount"
-          [typeFacture]="ModeEditionReglement.SINGLE"
-        >
-        </jhi-reglement-form>
-      </p-fieldset>
-    </div>
-    <div class="col-12">
-      <jhi-dossier-reglement-info [dossierFactureProjection]="dossierFactureProjectionSignal()"
-                                  [totalApayer]="montantAPayer()">
-      </jhi-dossier-reglement-info>
+      <!-- Sidebar Payment Form -->
+      <aside class="reglement-sidebar">
+        <!-- Payment Form Card -->
+        <p-card class="mb-2">
+          <ng-template #header>
+            <div class="section-header section-header-required">
+              <i class="pi pi-money-bill"></i>
+              <span>Formulaire de Règlement</span>
+              @if (!this.dossierFactureProjection()) {
+                <p-button
+                  (onClick)="openSideBar()"
+                  icon="pi pi-search"
+                  label="Recherche"
+                  severity="info"
+                  size="small"
+                  styleClass="ml-auto"
+                />
+              }
+            </div>
+          </ng-template>
+
+          <jhi-reglement-form
+            (partialPayment)="onPartielReglement($event)"
+            (reglementParams)="onSaveReglement($event)"
+            [allSelection]="checkbox()?.checked"
+            [dossierIds]="dossierIds()"
+            [facture]="dossierFactureProjectionSignal()"
+            [isSaving]="isSaving"
+            [montantAPayer]="totalAmount"
+            [typeFacture]="ModeEditionReglement.SINGLE"
+          >
+          </jhi-reglement-form>
+        </p-card>
+
+        <!-- Payment Info Card -->
+        <p-card>
+          <ng-template #header>
+            <div class="section-header">
+              <i class="pi pi-info-circle"></i>
+              <span>Informations de Règlement</span>
+            </div>
+          </ng-template>
+
+          <jhi-dossier-reglement-info
+            [dossierFactureProjection]="dossierFactureProjectionSignal()"
+            [totalApayer]="montantAPayer()"
+          >
+          </jhi-dossier-reglement-info>
+        </p-card>
+      </aside>
     </div>
   </div>
 </div>

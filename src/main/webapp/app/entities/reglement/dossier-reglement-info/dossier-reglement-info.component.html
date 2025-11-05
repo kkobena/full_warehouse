@@ -1,57 +1,65 @@
 @if (dossierFactureProjection()) {
-  <p-fieldset [toggleable]="true" legend="Infos facture">
-    @if (dossierFactureProjection().categorie) {
-      <div class="grid">
-        <div class="col-12">
-          <div class="field">
-            <label>Type tiers payant</label>
-            <span>{{ dossierFactureProjection().categorie }}</span>
-          </div>
-          <div class="field">
-            <label>Tiers payant</label>
-            <span>{{ dossierFactureProjection().name }}</span>
-          </div>
-
-          <div class="field">
-            <label>Code facture</label>
-            <span>{{ dossierFactureProjection().numFacture }}</span>
-          </div>
-          <div class="field">
-            <label>Dossiers</label>
-            <span class="text-danger">{{ dossierFactureProjection().itemCount | number }}</span>
-          </div>
-          <div class="field">
-            <label>Montant total</label>
-            <span class="text-primary">{{ dossierFactureProjection().montantTotal | number }}</span>
-          </div>
-          @if (dossierFactureProjection().montantDetailRegle > 0) {
-            <div class="field">
-              <label>Montant payé</label>
-              <span
-                class="text-success">{{ dossierFactureProjection().montantDetailRegle | number }}</span>
-            </div>
-
-          }
-          <div class="field">
-            <label>Montant restant</label>
-            <span class="montant text-primary">{{
-                dossierFactureProjection().montantTotal
-                - dossierFactureProjection().montantDetailRegle | number
-              }}</span>
-          </div>
-
-          <div class="field">
-            <label>Montant à payer</label>
-            <span class="montant-payer montant text-danger">{{ montantApayer | number }}</span>
-          </div>
-
-          <div class="field">
-            <label>Monnaie</label>
-            <span class="montant-payer montant text-danger">{{ monnaie() | number }}</span>
-          </div>
-
-        </div>
+  @if (dossierFactureProjection().categorie) {
+    <div class="info-grid">
+      <!-- Type tiers payant -->
+      <div class="info-item">
+        <label>Type tiers payant</label>
+        <span class="info-value">{{ dossierFactureProjection().categorie }}</span>
       </div>
-    }
-  </p-fieldset>
+
+      <!-- Tiers payant -->
+      <div class="info-item">
+        <label>Tiers payant</label>
+        <span class="info-value info-name">{{ dossierFactureProjection().name }}</span>
+      </div>
+
+      <!-- Code facture -->
+      <div class="info-item">
+        <label>Code facture</label>
+        <span class="info-value info-code">{{ dossierFactureProjection().numFacture }}</span>
+      </div>
+
+      <!-- Dossiers -->
+      <div class="info-item">
+        <label>Nombre de dossiers</label>
+        <span class="info-value info-count">{{ dossierFactureProjection().itemCount | number }}</span>
+      </div>
+
+      <!-- Montant total -->
+      <div class="info-item">
+        <label>Montant total</label>
+        <span class="info-value info-amount">{{ dossierFactureProjection().montantTotal | number }}</span>
+      </div>
+
+      <!-- Montant payé (conditional) -->
+      @if (dossierFactureProjection().montantDetailRegle > 0) {
+        <div class="info-item">
+          <label>Montant payé</label>
+          <span class="info-value info-paid">{{ dossierFactureProjection().montantDetailRegle | number }}</span>
+        </div>
+      }
+
+      <!-- Montant restant -->
+      <div class="info-item">
+        <label>Montant restant</label>
+        <span class="info-value info-amount">{{
+            dossierFactureProjection().montantTotal - dossierFactureProjection().montantDetailRegle | number
+          }}</span>
+      </div>
+
+      <!-- Montant à payer (highlighted) -->
+      <div class="info-item info-highlight">
+        <label>Montant à payer</label>
+        <span class="info-value info-total">{{ montantApayer | number }}</span>
+      </div>
+
+      <!-- Monnaie (conditional, success style) -->
+      @if (monnaie() && monnaie() > 0) {
+        <div class="info-item info-success">
+          <label>Monnaie</label>
+          <span class="info-value info-change">{{ monnaie() | number }}</span>
+        </div>
+      }
+    </div>
+  }
 }

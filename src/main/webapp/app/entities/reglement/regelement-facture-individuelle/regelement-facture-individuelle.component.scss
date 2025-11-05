@@ -1,1 +1,145 @@
+/**
+ * Reglement Facture Individuelle Component Styles
+ *
+ * Modern layout with main table and sidebar payment form
+ */
+
+@import 'app/shared/scss/pharma-toolbar';
+@import 'app/shared/scss/form-styles';
 @import 'app/shared/scss/table-common';
+
+:host {
+  display: block;
+}
+
+// Main Layout Container
+.reglement-container {
+  display: grid;
+  grid-template-columns: 1fr 400px;
+  gap: 1rem;
+  margin-top: 1rem;
+}
+
+// Main Content (Table)
+.reglement-content {
+  min-width: 0; // Prevent grid overflow
+
+  ::ng-deep {
+    .p-datatable {
+      .p-datatable-header {
+        background: var(--p-surface-0);
+        border-bottom: 1px solid var(--p-surface-border);
+        padding: 1rem;
+      }
+
+      .pharma-table-head {
+        background: linear-gradient(135deg, var(--p-primary-color) 0%, var(--p-primary-600) 100%);
+        color: var(--p-primary-contrast-color);
+
+        th {
+          font-weight: 600;
+          text-transform: uppercase;
+          font-size: 0.875rem;
+          letter-spacing: 0.5px;
+        }
+      }
+
+      // Paid rows highlight
+      .table-success0 {
+        background: rgba(40, 167, 69, 0.08) !important;
+        border-left: 3px solid var(--p-green-500);
+      }
+    }
+  }
+}
+
+// Sidebar Payment Form
+.reglement-sidebar {
+  position: sticky;
+  top: 1rem;
+  align-self: start;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+
+  .mb-2 {
+    margin-bottom: 0 !important;
+  }
+}
+
+// Drawer Header
+.drawer-header {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  font-weight: 600;
+  font-size: 1.125rem;
+  color: var(--p-text-color);
+
+  i {
+    color: var(--p-primary-color);
+    font-size: 1.25rem;
+  }
+}
+
+// Card Styling
+::ng-deep .p-card {
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  border: 1px solid var(--p-surface-border);
+
+  .p-card-body {
+    padding: 0;
+  }
+
+  .p-card-content {
+    padding: 0;
+  }
+}
+
+// Section Header with Button
+.section-header {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+
+  .ml-auto {
+    margin-left: auto;
+  }
+}
+
+// Responsive Design
+@media (max-width: 1400px) {
+  .reglement-container {
+    grid-template-columns: 1fr 350px;
+  }
+}
+
+@media (max-width: 1200px) {
+  .reglement-container {
+    grid-template-columns: 1fr 320px;
+  }
+}
+
+@media (max-width: 992px) {
+  .reglement-container {
+    grid-template-columns: 1fr;
+    gap: 0.75rem;
+  }
+
+  .reglement-sidebar {
+    position: relative;
+    top: 0;
+  }
+}
+
+@media (max-width: 768px) {
+  ::ng-deep {
+    .p-datatable {
+      font-size: 0.875rem;
+
+      .amount-column {
+        font-size: 0.8125rem;
+      }
+    }
+  }
+}

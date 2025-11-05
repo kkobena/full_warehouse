@@ -1,117 +1,146 @@
-<div class="row reglement-dossier">
-  <div class="reglement-dossier-table col-xl-8 col-sm-12 col-lg-9 col-md-9">
-    <p-table #differeTable [globalFilterFields]="['reference']" [showGridlines]="true"
-             [value]="differe.differeItems"
-             class="pharma-table" dataKey="saleId">
-      <ng-template #caption>
-        <div class="d-flex justify-content-between">
-          <div class="p-2"><span class="text-xl font-bold">Dossiers</span></div>
-          <div class="p-0">
-            <p-iconfield>
-              <p-inputicon class="pi pi-search" />
-              <input
-                (input)="differeTable.filterGlobal($event.target.value, 'contains')"
-                [style]="{ width: '300px' }"
-                pInputText
-                placeholder="Taper pour filter "
-                type="text"
-              />
-            </p-iconfield>
+<div class="container-fluid">
+  <div class="pharma-smart-content p-2">
+    <!-- Toolbar Header -->
+    <div class="pharma-toolbar">
+      <div class="pharma-toolbar-header">
+        <i class="pi pi-calendar-clock"></i>
+        <span class="pharma-toolbar-title">Règlement de Paiement Différé</span>
+        <span class="pharma-toolbar-subtitle">Gestion des règlements différés</span>
+      </div>
+    </div>
+
+    <div class="reglement-container">
+      <!-- Main Table Section -->
+      <main class="reglement-content">
+        <p-table
+          #differeTable
+          [globalFilterFields]="['reference']"
+          [showGridlines]="true"
+          [value]="differe.differeItems"
+          class="pharma-table"
+          dataKey="saleId"
+        >
+          <ng-template #caption>
+            <div class="d-flex justify-content-between">
+              <div class="p-2"><span class="text-xl font-bold">Dossiers de Ventes</span></div>
+              <div class="p-0">
+                <p-iconfield>
+                  <p-inputicon class="pi pi-search" />
+                  <input
+                    (input)="differeTable.filterGlobal($event.target.value, 'contains')"
+                    [style]="{ width: '300px' }"
+                    pInputText
+                    placeholder="Taper pour filtrer"
+                    type="text"
+                  />
+                </p-iconfield>
+              </div>
+            </div>
+          </ng-template>
+          <ng-template #header>
+            <tr class="pharma-table-head">
+              <th>Référence</th>
+              <th>Date vente</th>
+              <th>Opérateur</th>
+              <th>Montant vente</th>
+              <th>Montant payé</th>
+              <th>Montant Restant</th>
+            </tr>
+          </ng-template>
+          <ng-template #body let-item let-rowIndex="rowIndex">
+            <tr [ngClass]="{ 'pharma-row-success': item.restAmount == 0 }">
+              <td><span class="pharma-code">{{ item.reference }}</span></td>
+              <td>{{ item.mvtDate | date: 'dd/MM/yy HH:mm' }}</td>
+              <td><span class="pharma-operator">{{
+                  (item?.firstName || '') + ' ' + (item?.lastName || '')
+                }}</span></td>
+              <td class="amount-column">
+                <span class="pharma-price">{{ item.amount | number }}</span>
+              </td>
+              <td class="amount-column">
+                <span class="pharma-price">{{ item.paidAmount | number }}</span>
+              </td>
+              <td class="amount-column">
+                <span class="pharma-total">{{ item.restAmount | number }}</span>
+              </td>
+            </tr>
+          </ng-template>
+          <ng-template #footer>
+            <tr class="pharma-table-footer">
+              <td class="text-left pharma-footer-label" colspan="3">TOTAL</td>
+              <td class="text-right pharma-footer-value">{{ differe?.saleAmount | number }}</td>
+              <td class="text-right pharma-footer-value">{{ differe?.paidAmount | number }}</td>
+              <td class="text-right pharma-footer-total">{{ differe?.rest | number }}</td>
+            </tr>
+          </ng-template>
+        </p-table>
+      </main>
+
+      <!-- Sidebar -->
+      <aside class="reglement-sidebar">
+        <!-- Payment Form Card -->
+        <p-card class="mb-2">
+          <ng-template #header>
+            <div class="section-header section-header-required">
+              <i class="pi pi-money-bill"></i>
+              <span>Formulaire de Règlement</span>
+            </div>
+          </ng-template>
+
+          <jhi-reglement-differe-form
+            (reglementParams)="onSaveReglement($event)"
+            (rendu)="onMonnaieChange($event)"
+            [differe]="differe"
+            [isSaving]="isSaving"
+          >
+          </jhi-reglement-differe-form>
+        </p-card>
+
+        <!-- Client Info Card -->
+        <p-card>
+          <ng-template #header>
+            <div class="section-header">
+              <i class="pi pi-receipt"></i>
+              <span>Informations Vente</span>
+            </div>
+          </ng-template>
+
+          <div class="info-grid">
+            <div class="info-item">
+              <label>Client</label>
+              <span class="info-value">{{ differe.firstName + ' ' + differe.lastName }}</span>
+            </div>
+
+            <div class="info-item">
+              <label>Total achat</label>
+              <span class="info-value info-amount">{{ differe.saleAmount | number }}</span>
+            </div>
+
+            <div class="info-item">
+              <label>Total payé</label>
+              <span class="info-value info-amount">{{ differe.paidAmount | number }}</span>
+            </div>
+
+            <div class="info-item info-highlight">
+              <label>Montant à payer</label>
+              <span class="info-value info-total">{{ differe.rest | number }}</span>
+            </div>
+
+            <div class="info-item">
+              <label>Nombre de dossiers</label>
+              <span class="info-value info-count">{{ differe.differeItems.length | number }}</span>
+            </div>
+
+            @if (monnaie) {
+              <div class="info-item info-success">
+                <label>Monnaie</label>
+                <span class="info-value info-change">{{ monnaie | number }}</span>
+              </div>
+            }
           </div>
-        </div>
-      </ng-template>
-      <ng-template #header>
-        <tr class="pharma-table-head">
-          <th>Référence</th>
-          <th>Date vente</th>
-          <th>Opérateur</th>
-          <th>Montant vente</th>
-          <th>Montant payé</th>
-          <th>Montant Restant</th>
-        </tr>
-      </ng-template>
-      <ng-template #body let-item let-rowIndex="rowIndex">
-        <tr [ngClass]="{ 'pharma-row-success': item.restAmount == 0 }">
-          <td><span class="pharma-code">{{ item.reference }}</span></td>
-          <td>{{ item.mvtDate | date: 'dd/MM/yy HH:mm' }}</td>
-          <td>{{ (item?.firstName || '') + ' ' + (item?.lastName || '') }}</td>
-          <td class="pharma-price">
-            {{ item.amount | number:'1.0-0' }}
-          </td>
-          <td class="pharma-price">
-            {{ item.paidAmount | number:'1.0-0' }}
-          </td>
-          <td class="pharma-price red-400">
-            {{ item.restAmount | number:'1.0-0' }}
-          </td>
-        </tr>
-      </ng-template>
-      <ng-template #footer>
-        <tr class="pharma-table-footer">
-          <td class="text-left pharma-footer-label" colspan="3" style="font-weight: 700">TOTAL</td>
-          <td class=" text-right pharma-footer-value">{{ differe?.saleAmount | number:'1.0-0' }}
-          </td>
-          <td class=" text-right pharma-footer-value">{{ differe?.paidAmount | number:'1.0-0' }}
-          </td>
-          <td
-            class=" text-right red-400 pharma-footer-total ">{{ differe?.rest | number:'1.0-0' }}
-          </td>
-        </tr>
-      </ng-template>
-    </p-table>
-  </div>
-  <div class="col-sm-12 col-lg-3 col-xl-4 col-md-3 formulaire">
-    <p-fieldset>
-      <ng-template #header>
-        <div class="d-flex d-flex justify-content-between form-reglement-toolbar">
-          <span>Formulaire réglement</span>
-        </div>
-      </ng-template>
-
-      <jhi-reglement-differe-form
-        (reglementParams)="onSaveReglement($event)"
-        (rendu)="onMonnaieChange($event)"
-        [differe]="differe"
-        [isSaving]="isSaving"
-      >
-      </jhi-reglement-differe-form>
-    </p-fieldset>
-    <p-fieldset [toggleable]="true" legend="Infos client">
-      <ul class="list-group">
-        <li class="list-group-item d-flex justify-content-between align-items-center">
-          Client
-          <span>{{ differe.firstName + ' ' + differe.lastName }}</span>
-        </li>
-
-        <li class="list-group-item d-flex justify-content-between align-items-center">
-          Total achat
-          <span
-            class="montant-total montant text-primary">{{ differe.saleAmount | number:'1.0-0' }}</span>
-        </li>
-        <li class="list-group-item d-flex justify-content-between align-items-center">
-          Total payé
-          <span
-            class="montant-total montant text-primary">{{ differe.paidAmount | number:'1.0-0' }}</span>
-        </li>
-        <li class="list-group-item d-flex justify-content-between align-items-center">
-          Montant à payer
-          <span
-            class="montant-payer montant red-400 font-bold">{{ differe.rest | number:'1.0-0' }}</span>
-        </li>
-        <li class="list-group-item d-flex justify-content-between align-items-center">
-          Nombre de dossiers
-          <span
-            class="montant-total montant text-primary">{{ differe.differeItems.length | number:'1.0-0' }}</span>
-        </li>
-
-        @if (monnaie) {
-          <li class="list-group-item d-flex justify-content-between align-items-center">
-            Monnaie
-            <span class="montant-total montant text-success">{{ monnaie | number:'1.0-0' }}</span>
-          </li>
-        }
-      </ul>
-    </p-fieldset>
+        </p-card>
+      </aside>
+    </div>
   </div>
 </div>
 

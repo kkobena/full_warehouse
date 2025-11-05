@@ -4,8 +4,6 @@ import com.kobe.warehouse.domain.Magasin;
 import com.kobe.warehouse.domain.enumeration.TypeMagasin;
 import jakarta.validation.constraints.NotNull;
 import java.io.Serializable;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 public class MagasinDTO implements Serializable {
 
@@ -14,6 +12,7 @@ public class MagasinDTO implements Serializable {
 
     @NotNull
     private String name;
+
     private TypeMagasin typeMagasin;
     private String typeLibelle;
     private String phone;
@@ -31,6 +30,7 @@ public class MagasinDTO implements Serializable {
     private String managerFirstName;
     private String email;
     private String managerLastName;
+
     public MagasinDTO() {}
 
     public MagasinDTO(Magasin magasin) {
@@ -40,6 +40,7 @@ public class MagasinDTO implements Serializable {
         address = magasin.getAddress();
         note = magasin.getNote();
         registre = magasin.getRegistre();
+        System.err.println("MagasinDTO Magasin registre=" + registre);
         compteContribuable = magasin.getCompteContribuable();
         numComptable = magasin.getNumComptable();
         primaryStorage = new StorageDTO(magasin.getPrimaryStorage());
@@ -149,6 +150,10 @@ public class MagasinDTO implements Serializable {
         return pointOfSale;
     }
 
+    public void setPointOfSale(StorageDTO pointOfSale) {
+        this.pointOfSale = pointOfSale;
+    }
+
     public String getManagerFirstName() {
         return managerFirstName;
     }
@@ -174,10 +179,6 @@ public class MagasinDTO implements Serializable {
     public MagasinDTO setManagerLastName(String managerLastName) {
         this.managerLastName = managerLastName;
         return this;
-    }
-
-    public void setPointOfSale(StorageDTO pointOfSale) {
-        this.pointOfSale = pointOfSale;
     }
 
     public String getWelcomeMessage() {

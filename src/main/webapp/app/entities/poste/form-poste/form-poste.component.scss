@@ -1,0 +1,16 @@
+/**
+ * Poste Form Component Styles
+ *
+ * This component uses centralized form styles from shared/scss/form-styles.scss
+ * See FORMS_README.md for documentation on the form pattern.
+ */
+
+@import '../../../shared/scss/modal-theme';
+@import '../../../shared/scss/form-styles';
+
+:host {
+  @include modal-theme;
+}
+
+// Component-specific styles (if any) can be added below
+// Currently, all styles are inherited from centralized form-styles.scss

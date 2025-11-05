@@ -30,6 +30,12 @@ export class RecapitulatifCaisseService {
     const options = createRequestOptions(req);
     return this.http.get(`${this.resourceUrl}/print`, { params: options, observe: 'response' });
   }
+  getEscPosReceiptForTauri(req: RecapParam): Observable<ArrayBuffer> {
+    const options = createRequestOptions(req);
+    return this.http.get(`${this.resourceUrl}/print-tauri`, { params: options,
+      responseType: 'arraybuffer'
+    });
+  }
 
   sendMail(req: RecapParam): Observable<HttpResponse<{}>> {
     const options = createRequestOptions(req);

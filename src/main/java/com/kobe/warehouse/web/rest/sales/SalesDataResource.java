@@ -2,18 +2,12 @@ package com.kobe.warehouse.web.rest.sales;
 
 import com.kobe.warehouse.domain.SaleId;
 import com.kobe.warehouse.service.dto.SaleDTO;
-import com.kobe.warehouse.service.report.SaleReceiptService;
 import com.kobe.warehouse.service.sale.SaleDataService;
 import com.kobe.warehouse.web.rest.Utils;
 import com.kobe.warehouse.web.util.PaginationUtil;
 import jakarta.servlet.http.HttpServletRequest;
-import java.io.IOException;
-import java.time.LocalDate;
-import java.util.List;
-import java.util.Optional;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.Resource;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -26,18 +20,22 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
+import java.io.IOException;
+import java.time.LocalDate;
+import java.util.List;
+import java.util.Optional;
+
 @RestController
 @RequestMapping("/api")
 public class SalesDataResource {
 
     private final Logger log = LoggerFactory.getLogger(SalesDataResource.class);
     private final SaleDataService saleDataService;
-    private final SaleReceiptService saleReceiptService;
 
 
-    public SalesDataResource(SaleDataService saleDataService, SaleReceiptService saleReceiptService) {
+    public SalesDataResource(SaleDataService saleDataService) {
         this.saleDataService = saleDataService;
-        this.saleReceiptService = saleReceiptService;
+
     }
 
     /**
@@ -112,15 +110,6 @@ public class SalesDataResource {
         return ResponseEntity.ok().headers(headers).body(page.getContent());
     }
 
-    @GetMapping("/sales/print/invoices/{id}/{saleDate}")
-    public ResponseEntity<Resource> printInvoices(
-        @PathVariable("id") Long id,
-        @PathVariable("saleDate") LocalDate saleDate,
-        HttpServletRequest request
-    ) throws IOException {
-        String gereratefilePath = saleReceiptService.printCashReceipt(new SaleId(id, saleDate));
-        return Utils.printPDF(gereratefilePath, request);
-    }
 
     @GetMapping("/sales/print/receipt/{id}/{saleDate}")
     public ResponseEntity<Void> printCashReceipt(@PathVariable("id") Long id, @PathVariable("saleDate") LocalDate saleDate) {

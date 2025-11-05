@@ -7,7 +7,7 @@ import com.kobe.warehouse.domain.AppConfiguration;
 import com.kobe.warehouse.domain.Produit;
 import com.kobe.warehouse.domain.Produit_;
 import com.kobe.warehouse.repository.SalesRepository;
-import com.kobe.warehouse.service.AppConfigurationService;
+import com.kobe.warehouse.service.settings.AppConfigurationService;
 import com.kobe.warehouse.service.stock.dto.ProduitQuantitySold;
 import com.kobe.warehouse.service.utils.DateUtil;
 import jakarta.persistence.EntityManager;

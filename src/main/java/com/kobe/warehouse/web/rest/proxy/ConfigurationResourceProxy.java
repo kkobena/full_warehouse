@@ -1,7 +1,7 @@
 package com.kobe.warehouse.web.rest.proxy;
 
 import com.kobe.warehouse.domain.AppConfiguration;
-import com.kobe.warehouse.service.AppConfigurationService;
+import com.kobe.warehouse.service.settings.AppConfigurationService;
 import com.kobe.warehouse.web.util.ResponseUtil;
 import jakarta.validation.Valid;
 import java.util.List;

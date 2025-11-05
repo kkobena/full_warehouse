@@ -10,7 +10,7 @@ import com.kobe.warehouse.domain.FournisseurProduit_;
 import com.kobe.warehouse.domain.Produit;
 import com.kobe.warehouse.domain.Produit_;
 import com.kobe.warehouse.domain.enumeration.AjustementStatut;
-import com.kobe.warehouse.service.FileResourceService;
+import com.kobe.warehouse.service.settings.FileResourceService;
 import com.kobe.warehouse.service.dto.AjustDTO;
 import com.kobe.warehouse.service.dto.AjustementDTO;
 import com.kobe.warehouse.service.dto.filter.AjustementFilterRecord;

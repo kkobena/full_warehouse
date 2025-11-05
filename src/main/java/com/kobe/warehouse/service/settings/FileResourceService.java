@@ -1,4 +1,4 @@
-package com.kobe.warehouse.service;
+package com.kobe.warehouse.service.settings;
 
 import java.net.MalformedURLException;
 import java.nio.file.Paths;

@@ -1,9 +1,9 @@
 package com.kobe.warehouse.service.receipt.service;
 
-import com.kobe.warehouse.repository.PrinterRepository;
-import com.kobe.warehouse.service.AppConfigurationService;
 import com.kobe.warehouse.service.receipt.dto.HeaderFooterItem;
 import com.kobe.warehouse.service.receipt.dto.TicketZItem;
+import com.kobe.warehouse.service.reglement.dto.InvoicePaymentReceiptDTO;
+import com.kobe.warehouse.service.settings.AppConfigurationService;
 import com.kobe.warehouse.service.tiketz.dto.TicketZ;
 import com.kobe.warehouse.service.tiketz.dto.TicketZData;
 import com.kobe.warehouse.service.tiketz.dto.TicketZRecap;
@@ -14,7 +14,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
 
 import javax.print.PrintException;
-import java.awt.*;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.time.LocalDateTime;
@@ -27,8 +26,8 @@ public abstract class AbstractTicketZService extends AbstractJava2DReceiptPrinte
     private String periode;
     private List<TicketZItem> ticketZItems;
 
-    protected AbstractTicketZService(AppConfigurationService appConfigurationService, PrinterRepository printerRepository) {
-        super(appConfigurationService, printerRepository);
+    protected AbstractTicketZService(AppConfigurationService appConfigurationService) {
+        super(appConfigurationService);
     }
 
     @Override
@@ -41,7 +40,6 @@ public abstract class AbstractTicketZService extends AbstractJava2DReceiptPrinte
     protected List<HeaderFooterItem> getHeaderItems() {
         return List.of(new HeaderFooterItem("RECAPITULATIF DE CAISSE DU " + periode, 1, null));
     }
-
 
 
     private List<TicketZItem> buildTicketZItems(TicketZ ticket) {
@@ -85,6 +83,7 @@ public abstract class AbstractTicketZService extends AbstractJava2DReceiptPrinte
             LOG.error("Error while printing ESC/POS Ticket Z: {}", e.getMessage(), e);
         }
     }
+
     @Override
     protected byte[] generateEscPosReceipt(boolean isEdit) throws IOException {
         magasin = appConfigurationService.getMagasin();
@@ -128,5 +127,9 @@ public abstract class AbstractTicketZService extends AbstractJava2DReceiptPrinte
             out.close();
         }
     }
-
+    public byte[] generateEscPosReceiptForTauri( TicketZ ticket, LocalDateTime from, LocalDateTime to) throws IOException {
+        this.ticketZItems = buildTicketZItems(ticket);
+        this.periode = "DU " + DateUtil.format(from) + " AU " + DateUtil.format(to);
+        return generateEscPosReceipt(true);
+    }
 }

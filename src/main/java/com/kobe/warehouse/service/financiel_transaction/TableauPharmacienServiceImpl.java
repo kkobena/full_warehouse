@@ -7,7 +7,7 @@ import com.kobe.warehouse.domain.enumeration.CategorieChiffreAffaire;
 import com.kobe.warehouse.domain.enumeration.SalesStatut;
 import com.kobe.warehouse.repository.GroupeFournisseurRepository;
 import com.kobe.warehouse.repository.SalesRepository;
-import com.kobe.warehouse.service.AppConfigurationService;
+import com.kobe.warehouse.service.settings.AppConfigurationService;
 import com.kobe.warehouse.service.dto.GroupeFournisseurDTO;
 import com.kobe.warehouse.service.dto.ReportPeriode;
 import com.kobe.warehouse.service.excel.ExcelExportService;

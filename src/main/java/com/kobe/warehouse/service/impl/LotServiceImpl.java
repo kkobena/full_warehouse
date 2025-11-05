@@ -16,7 +16,7 @@ import com.kobe.warehouse.domain.StockProduit;
 import com.kobe.warehouse.domain.enumeration.StatutLot;
 import com.kobe.warehouse.repository.LotRepository;
 import com.kobe.warehouse.repository.ProduitRepository;
-import com.kobe.warehouse.service.AppConfigurationService;
+import com.kobe.warehouse.service.settings.AppConfigurationService;
 import com.kobe.warehouse.service.OrderLineService;
 import com.kobe.warehouse.service.dto.LotDTO;
 import com.kobe.warehouse.service.excel.ExcelExportUtil;

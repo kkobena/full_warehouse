@@ -8,29 +8,31 @@ import com.kobe.warehouse.service.dto.AdminUserDTO;
 import com.kobe.warehouse.service.dto.PasswordChangeDTO;
 import com.kobe.warehouse.service.errors.EmailAlreadyUsedException;
 import com.kobe.warehouse.service.errors.InvalidPasswordException;
-import com.kobe.warehouse.service.utils.AfficheurPosService;
+import com.kobe.warehouse.service.utils.CustomerDisplayService;
 import com.kobe.warehouse.web.rest.vm.KeyAndPasswordVM;
 import com.kobe.warehouse.web.rest.vm.ManagedUserVM;
-import java.util.Optional;
 import org.apache.commons.lang3.StringUtils;
+
+import java.util.Optional;
 
 public class AccountResourcesProxy {
 
     private final UserRepository userRepository;
     private final UserService userService;
-    private final AfficheurPosService afficheurPosService;
+    private final CustomerDisplayService customerDisplayService;
 
-    public AccountResourcesProxy(UserRepository userRepository, UserService userService, AfficheurPosService afficheurPosService) {
+    public AccountResourcesProxy(UserRepository userRepository, UserService userService, CustomerDisplayService customerDisplayService) {
         this.userRepository = userRepository;
         this.userService = userService;
-        this.afficheurPosService = afficheurPosService;
+        this.customerDisplayService = customerDisplayService;
+
     }
 
     private static boolean isPasswordLengthInvalid(String password) {
         return (
             StringUtils.isEmpty(password) ||
-            password.length() < ManagedUserVM.PASSWORD_MIN_LENGTH ||
-            password.length() > ManagedUserVM.PASSWORD_MAX_LENGTH
+                password.length() < ManagedUserVM.PASSWORD_MIN_LENGTH ||
+                password.length() > ManagedUserVM.PASSWORD_MAX_LENGTH
         );
     }
 
@@ -38,7 +40,7 @@ public class AccountResourcesProxy {
         AdminUserDTO userDTO = userService
             .getUserConnectedWithAuthorities()
             .orElseThrow(() -> new AccountResourceException("User could not be found"));
-        afficheurPosService.connectedUserMessage(userDTO.getLastName());
+        customerDisplayService.connectedUserMessage(userDTO.getLastName());
         return userDTO;
     }
 

@@ -10,7 +10,7 @@ import com.kobe.warehouse.service.dto.AdminUserDTO;
 import com.kobe.warehouse.service.dto.PasswordChangeDTO;
 import com.kobe.warehouse.service.errors.EmailAlreadyUsedException;
 import com.kobe.warehouse.service.errors.InvalidPasswordException;
-import com.kobe.warehouse.service.utils.AfficheurPosService;
+import com.kobe.warehouse.service.utils.CustomerDisplayService;
 import com.kobe.warehouse.web.rest.proxy.AccountResourcesProxy;
 import com.kobe.warehouse.web.rest.vm.KeyAndPasswordVM;
 import com.kobe.warehouse.web.rest.vm.ManagedUserVM;
@@ -50,9 +50,10 @@ public class AccountResource extends AccountResourcesProxy {
         UserService userService,
         // MailService mailService,
         PersistentTokenRepository persistentTokenRepository,
-        AfficheurPosService afficheurPosService
+        CustomerDisplayService customerDisplayService
+
     ) {
-        super(userRepository, userService, afficheurPosService);
+        super(userRepository, userService,customerDisplayService);
         this.userRepository = userRepository;
         this.userService = userService;
         // this.mailService = mailService;

@@ -1,8 +1,7 @@
 package com.kobe.warehouse.service.receipt.service;
 
 import com.kobe.warehouse.domain.enumeration.ModePaimentCode;
-import com.kobe.warehouse.repository.PrinterRepository;
-import com.kobe.warehouse.service.AppConfigurationService;
+import com.kobe.warehouse.service.settings.AppConfigurationService;
 import com.kobe.warehouse.service.dto.PaymentDTO;
 import com.kobe.warehouse.service.dto.PaymentModeDTO;
 import com.kobe.warehouse.service.dto.SaleDTO;
@@ -13,8 +12,6 @@ import com.kobe.warehouse.service.receipt.dto.HeaderFooterItem;
 import com.kobe.warehouse.service.receipt.dto.SaleReceiptItem;
 import com.kobe.warehouse.service.utils.NumberUtil;
 import java.awt.Font;
-import java.awt.FontMetrics;
-import java.awt.Graphics2D;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.time.format.DateTimeFormatter;
@@ -29,8 +26,8 @@ public abstract class AbstractSaleReceiptService extends AbstractJava2DReceiptPr
 
     private final AppConfigurationService appConfigurationService;
 
-    protected AbstractSaleReceiptService(AppConfigurationService appConfigurationService, PrinterRepository printerRepository) {
-        super(appConfigurationService, printerRepository);
+    protected AbstractSaleReceiptService(AppConfigurationService appConfigurationService) {
+        super(appConfigurationService);
         this.appConfigurationService = appConfigurationService;
     }
 
@@ -73,20 +70,7 @@ public abstract class AbstractSaleReceiptService extends AbstractJava2DReceiptPr
         return item;
     }
 
-    protected int drawTableHeader(Graphics2D graphics2D, int margin, int y) {
-        Font font = BOLD_FONT;
-        FontMetrics fontMetrics = graphics2D.getFontMetrics(font);
-        graphics2D.setFont(font);
 
-        String pu = "Prix";
-        String total = "Montant";
-        graphics2D.drawString("Qté", margin, y); //sur 3 chiffres 30pixels //40
-        graphics2D.drawString("Produit", 20 + margin, y); //90
-        graphics2D.drawString(pu, getPuRightMargin() - fontMetrics.stringWidth(pu), y); //390 PU sur 6 chiffres 60pixels
-        graphics2D.drawString(total, getRightMargin() - fontMetrics.stringWidth(total), y);
-        y += 10;
-        return y;
-    }
 
     /**
      * Generate ESC/POS commands for thermal POS printer
@@ -357,8 +341,6 @@ public abstract class AbstractSaleReceiptService extends AbstractJava2DReceiptPr
         return height;
     }
 
-    protected int getPuRightMargin() {
-        return 160 + DEFAULT_MARGIN;
-    }
+
 
 }

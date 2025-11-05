@@ -7,16 +7,12 @@ import { ClientDiffere } from './model/client-differe.model';
 import { Differe } from './model/differe.model';
 import { DiffereParam } from './model/differe-param.model';
 import { ReglementDiffere } from './model/reglement-differe.model';
-import {
-  NewReglementDiffere,
-  PaymentId,
-  ReglementDiffereResponse
-} from './model/new-reglement-differe.model';
+import { NewReglementDiffere, PaymentId, ReglementDiffereResponse } from './model/new-reglement-differe.model';
 import { DiffereSummary } from './model/differe-summary.model';
 import { ReglementDiffereSummary } from './model/reglement-differe-summary.model';
 
 @Injectable({
-  providedIn: 'root',
+  providedIn: 'root'
 })
 export class DiffereService {
   differeParams: WritableSignal<DiffereParam> = signal<DiffereParam>(null);
@@ -28,13 +24,13 @@ export class DiffereService {
     const options = createRequestOptions(req);
     return this.http.get<Differe[]>(this.resourceUrl, {
       params: options,
-      observe: 'response',
+      observe: 'response'
     });
   }
 
   findClients(): Observable<HttpResponse<ClientDiffere[]>> {
     return this.http.get<ClientDiffere[]>(this.resourceUrl + '/customers', {
-      observe: 'response',
+      observe: 'response'
     });
   }
 
@@ -55,7 +51,7 @@ export class DiffereService {
     const options = createRequestOptions(req);
     return this.http.get<ReglementDiffere[]>(this.resourceUrl + '/reglements', {
       params: options,
-      observe: 'response',
+      observe: 'response'
     });
   }
 
@@ -63,11 +59,17 @@ export class DiffereService {
     return this.http.get(`${this.resourceUrl}/print-receipt/${paymentId.id}/${paymentId.transactionDate}`, { observe: 'response' });
   }
 
+  getEscPosReceiptForTauri(paymentId: PaymentId): Observable<ArrayBuffer> {
+    return this.http.get(`${this.resourceUrl}/print-tauri/${paymentId.id}/${paymentId.transactionDate}`, {
+      responseType: 'arraybuffer'
+    });
+  }
+
   getDiffereSummary(req?: any): Observable<HttpResponse<DiffereSummary>> {
     const options = createRequestOptions(req);
     return this.http.get<DiffereSummary>(this.resourceUrl + '/summary', {
       params: options,
-      observe: 'response',
+      observe: 'response'
     });
   }
 
@@ -79,7 +81,7 @@ export class DiffereService {
     const options = createRequestOptions(req);
     return this.http.get<ReglementDiffereSummary>(this.resourceUrl + '/reglements/summary', {
       params: options,
-      observe: 'response',
+      observe: 'response'
     });
   }
 

@@ -11,7 +11,13 @@ import { NgbAlertModule, NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { FieldsetModule } from 'primeng/fieldset';
 import { DossierReglementInfoComponent } from '../dossier-reglement-info/dossier-reglement-info.component';
 import { ReglementFormComponent } from '../reglement-form/reglement-form.component';
-import { ModeEditionReglement, ReglementParams, ResponseReglement, SelectedFacture } from '../model/reglement.model';
+import {
+  ModeEditionReglement,
+  PaymentId,
+  ReglementParams,
+  ResponseReglement,
+  SelectedFacture
+} from '../model/reglement.model';
 import { AlertInfoComponent } from '../../../shared/alert/alert-info.component';
 import { ErrorService } from '../../../shared/error.service';
 import { ReglementService } from '../reglement.service';
@@ -26,6 +32,7 @@ import { ConfirmDialog } from 'primeng/confirmdialog';
 import { ConfirmationService } from 'primeng/api';
 import { acceptButtonProps, rejectButtonProps } from '../../../shared/util/modal-button-props';
 import { Card } from 'primeng/card';
+import { TauriPrinterService } from '../../../shared/services/tauri-printer.service';
 
 @Component({
   selector: 'jhi-regelement-facture-individuelle',
@@ -47,11 +54,11 @@ import { Card } from 'primeng/card';
     IconField,
     InputIcon,
     ConfirmDialog,
-    Card,
+    Card
   ],
   templateUrl: './regelement-facture-individuelle.component.html',
   styleUrl: './regelement-facture-individuelle.component.scss',
-  providers: [ConfirmationService],
+  providers: [ConfirmationService]
 })
 export class RegelementFactureIndividuelleComponent implements OnInit {
   readonly reglementFactureDossiers = input<ReglementFactureDossier[]>([]);
@@ -77,6 +84,7 @@ export class RegelementFactureIndividuelleComponent implements OnInit {
   private readonly reglementService = inject(ReglementService);
   private readonly factureService = inject(FactureService);
   private readonly confirmationService = inject(ConfirmationService);
+  private readonly tauriPrinterService = inject(TauriPrinterService);
 
   constructor() {
     effect(() => {
@@ -122,7 +130,7 @@ export class RegelementFactureIndividuelleComponent implements OnInit {
   openInfoDialog(message: string, infoClass: string): void {
     const modalRef = this.modalService.open(AlertInfoComponent, {
       backdrop: 'static',
-      centered: true,
+      centered: true
     });
     modalRef.componentInstance.message = message;
     modalRef.componentInstance.infoClass = infoClass;
@@ -156,7 +164,7 @@ export class RegelementFactureIndividuelleComponent implements OnInit {
           this.onPrintReceipt(res.body);
         }
       },
-      error: err => this.onError(err),
+      error: err => this.onError(err)
     });
   }
 
@@ -168,10 +176,30 @@ export class RegelementFactureIndividuelleComponent implements OnInit {
       rejectButtonProps: rejectButtonProps(),
       acceptButtonProps: acceptButtonProps(),
       accept: () => {
-        this.reglementService.printReceipt(response.id).subscribe();
+
+        if (this.tauriPrinterService.isRunningInTauri()) {
+          this.printReceiptForTauri(response.id);
+
+        } else {
+          this.reglementService.printReceipt(response.id).subscribe();
+        }
+
         this.reset(response);
       },
-      reject: () => this.reset(response),
+      reject: () => this.reset(response)
+    });
+  }
+
+  printReceiptForTauri(item: PaymentId): void {
+    this.reglementService.getEscPosReceiptForTauri(item).subscribe({
+      next: async (escposData: ArrayBuffer) => {
+        try {
+          await this.tauriPrinterService.printEscPosFromBuffer(escposData);
+        } catch (error) {
+        }
+      },
+      error: () => {
+      }
     });
   }
 
@@ -187,7 +215,7 @@ export class RegelementFactureIndividuelleComponent implements OnInit {
     return {
       ...params,
       mode: this.getModeEditionReglement(),
-      dossierIds: this.dossierIds(),
+      dossierIds: this.dossierIds()
     };
   }
 
@@ -202,7 +230,7 @@ export class RegelementFactureIndividuelleComponent implements OnInit {
       this.fetchFacture();
       const factureId: FactureId = {
         id: this.dossierFactureProjection().id,
-        invoiceDate: this.dossierFactureProjection().invoiceDate,
+        invoiceDate: this.dossierFactureProjection().invoiceDate
       };
 
       this.reload(factureId);
@@ -213,7 +241,7 @@ export class RegelementFactureIndividuelleComponent implements OnInit {
     this.factureService
       .findDossierReglement(id, 'individuelle', {
         page: 0,
-        size: 999999,
+        size: 999999
       })
       .subscribe({
         next: (res: HttpResponse<ReglementFactureDossier[]>) => {
@@ -223,7 +251,7 @@ export class RegelementFactureIndividuelleComponent implements OnInit {
         error: () => {
           this.reglementFactureDossiersSignal.set([]);
           this.dossierFactureProjectionSignal.set(null);
-        },
+        }
       });
   }
 
@@ -231,7 +259,7 @@ export class RegelementFactureIndividuelleComponent implements OnInit {
     const factureId = this.dossierFactureProjection().factureItemId;
     this.factureService
       .findDossierFactureProjection(factureId, {
-        isGroup: false,
+        isGroup: false
       })
       .subscribe(res => {
         this.dossierFactureProjectionSignal.set(res.body);

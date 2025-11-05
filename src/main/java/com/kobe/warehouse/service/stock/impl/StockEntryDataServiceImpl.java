@@ -11,7 +11,7 @@ import com.kobe.warehouse.domain.OrderLine_;
 import com.kobe.warehouse.domain.Produit_;
 import com.kobe.warehouse.repository.CommandeRepository;
 import com.kobe.warehouse.repository.OrderLineRepository;
-import com.kobe.warehouse.service.FileResourceService;
+import com.kobe.warehouse.service.settings.FileResourceService;
 import com.kobe.warehouse.service.dto.DeliveryReceiptDTO;
 import com.kobe.warehouse.service.dto.filter.DeliveryReceiptFilterDTO;
 import com.kobe.warehouse.service.stock.DeliveryReceiptReportReportService;

@@ -26,7 +26,7 @@ import com.kobe.warehouse.service.errors.SaleAlreadyCloseException;
 import com.kobe.warehouse.service.errors.SaleNotFoundCustomerException;
 import com.kobe.warehouse.service.id_generator.SaleIdGeneratorService;
 import com.kobe.warehouse.service.sale.SalesLineService;
-import com.kobe.warehouse.service.utils.AfficheurPosService;
+import com.kobe.warehouse.service.utils.CustomerDisplayService;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -48,7 +48,7 @@ public class SaleCommonService {
     private final SaleLineServiceFactory saleLineServiceFactory;
     private final CashRegisterService cashRegisterService;
     private final PosteRepository posteRepository;
-    private final AfficheurPosService afficheurPosService;
+    private final CustomerDisplayService afficheurPosService;
     private final SaleIdGeneratorService idGeneratorService;
 
     public SaleCommonService(
@@ -59,7 +59,7 @@ public class SaleCommonService {
         CashRegisterService cashRegisterService,
 
         PosteRepository posteRepository,
-        AfficheurPosService afficheurPosService, SaleIdGeneratorService idGeneratorService
+        CustomerDisplayService afficheurPosService, SaleIdGeneratorService idGeneratorService
     ) {
         this.referenceService = referenceService;
 
@@ -244,7 +244,7 @@ public class SaleCommonService {
         c.setDiffere(dto.isDiffere());
         this.buildPreventeReference(c);
         c.setStatut(SalesStatut.ACTIVE);
-        this.posteRepository.findFirstByAddress(dto.getCaisseNum()).ifPresent(poste -> {
+        this.posteRepository.findFirstByAddressOrName(dto.getCaisseNum(),dto.getCaisseNum()).ifPresent(poste -> {
             c.setCaisse(poste);
             c.setLastCaisse(poste);
         });
@@ -294,7 +294,7 @@ public class SaleCommonService {
             throw new SaleNotFoundCustomerException();
         }
         c.setPayrollAmount(dto.getPayrollAmount());
-        this.posteRepository.findFirstByAddress(dto.getCaisseEndNum()).ifPresent(c::setLastCaisse);
+        this.posteRepository.findFirstByAddressOrName(dto.getCaisseEndNum(),dto.getCaisseNum()).ifPresent(c::setLastCaisse);
         c.setRestToPay(dto.getRestToPay());
         c.setUpdatedAt(LocalDateTime.now());
         c.setMonnaie(dto.getMontantRendu());

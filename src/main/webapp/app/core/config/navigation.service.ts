@@ -35,7 +35,7 @@ import {
   faTruck,
   faTruckFast,
   faUsers,
-  faWallet,
+  faWallet,faDesktop
 } from '@fortawesome/free-solid-svg-icons';
 
 export interface NavigationOptions {
@@ -224,6 +224,11 @@ export class NavigationService {
         label: this.translateLabel('admin.userManagement'),
         routerLink: '/admin/user-management',
         faIcon: faUsers,
+      },
+      {
+        label: 'Poste de Travail',
+        routerLink: '/poste',
+        faIcon: faDesktop,
       },
       {
         label: this.translateLabel('entities.menu'),

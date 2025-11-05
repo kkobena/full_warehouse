@@ -40,7 +40,7 @@ import com.kobe.warehouse.service.sale.SaleDepotExtensionService;
 import com.kobe.warehouse.service.sale.SalesLineService;
 import com.kobe.warehouse.service.sale.dto.FinalyseSaleDTO;
 import com.kobe.warehouse.service.sale.dto.VenteDepotTransactionRecord;
-import com.kobe.warehouse.service.utils.AfficheurPosService;
+import com.kobe.warehouse.service.utils.CustomerDisplayService;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -72,7 +72,7 @@ public class SaleDepotExtensionImpl extends SaleCommonService implements SaleDep
         SaleLineServiceFactory saleLineServiceFactory,
         CashRegisterService cashRegisterService,
         PosteRepository posteRepository,
-        AfficheurPosService afficheurPosService,
+        CustomerDisplayService afficheurPosService,
         SaleIdGeneratorService idGeneratorService,
         VenteDepotRepository venteDepotRepository,
         StockUpdateService stockUpdateService,

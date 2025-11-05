@@ -3,7 +3,7 @@ package com.kobe.warehouse.service.facturation.service;
 import com.kobe.warehouse.domain.ThirdPartySaleLine;
 import com.kobe.warehouse.repository.FacturationRepository;
 import com.kobe.warehouse.repository.ThirdPartySaleLineRepository;
-import com.kobe.warehouse.service.AppConfigurationService;
+import com.kobe.warehouse.service.settings.AppConfigurationService;
 import com.kobe.warehouse.service.UserService;
 import com.kobe.warehouse.service.facturation.dto.EditionSearchParams;
 import com.kobe.warehouse.service.id_generator.FactureIdGeneratorService;

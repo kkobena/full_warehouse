@@ -2,9 +2,7 @@ package com.kobe.warehouse.service.receipt.service;
 
 import com.fazecast.jSerialComm.SerialPort;
 import com.kobe.warehouse.domain.Magasin;
-import com.kobe.warehouse.domain.Printer;
-import com.kobe.warehouse.repository.PrinterRepository;
-import com.kobe.warehouse.service.AppConfigurationService;
+import com.kobe.warehouse.service.settings.AppConfigurationService;
 import com.kobe.warehouse.service.receipt.dto.AbstractItem;
 import com.kobe.warehouse.service.receipt.dto.HeaderFooterItem;
 import org.slf4j.Logger;
@@ -22,8 +20,6 @@ import javax.print.SimpleDoc;
 import javax.print.attribute.HashPrintRequestAttributeSet;
 import javax.print.attribute.PrintRequestAttributeSet;
 import java.awt.*;
-import java.awt.print.PrinterException;
-import java.awt.print.PrinterJob;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.net.Socket;
@@ -37,7 +33,6 @@ public abstract class AbstractJava2DReceiptPrinterService {
     protected static final String MONTANT_RENDU = "MONNAIE RENDUE";
     protected static final String MONTANT_TTC = "MONTANT TTC";
     protected static final String REMISE = "REMISE";
-    protected static final String TOTAL_TVA = "TOTAL TVA";
     protected static final String TOTAL_A_PAYER = "TOTAL A PAYER";
     protected static final String RESTE_A_PAYER = "RESTE A PAYER";
     protected static final String TVA = "TAXES";
@@ -47,17 +42,17 @@ public abstract class AbstractJava2DReceiptPrinterService {
     protected static final int DEFAULT_MARGIN = 9;
     protected static final Font BOLD_FONT = new Font("Arial, sans-serif", Font.BOLD, DEFAULT_FONT_SIZE);
     protected static final Font PLAIN_FONT = new Font("Arial, sans-serif", Font.PLAIN, DEFAULT_FONT_SIZE);
-    protected static final int DEFAULT_WIDTH = ((int) ((8 / 2.54) * 72)) - (DEFAULT_MARGIN * 2); // 8cm soit 80mm
+
     private static final Logger LOG = LoggerFactory.getLogger(AbstractJava2DReceiptPrinterService.class);
     //38 *21,2
     protected final AppConfigurationService appConfigurationService;
-    protected final PrinterRepository printerRepository;
-    protected Magasin magasin;
-    protected Printer printer;
 
-    protected AbstractJava2DReceiptPrinterService(AppConfigurationService appConfigurationService, PrinterRepository printerRepository) {
+    protected Magasin magasin;
+
+
+    protected AbstractJava2DReceiptPrinterService(AppConfigurationService appConfigurationService) {
         this.appConfigurationService = appConfigurationService;
-        this.printerRepository = printerRepository;
+
     }
 
 
@@ -75,21 +70,6 @@ public abstract class AbstractJava2DReceiptPrinterService {
         return this.appConfigurationService.getPrinterItemCount();
     }
 
-
-    protected PrinterJob getPrinterJob(String hostName) throws PrinterException {
-        String printerName = StringUtils.hasLength(hostName)
-            ? printerRepository.findByPosteName(hostName).map(Printer::getName).orElse(null)
-            : null;
-        PrintService selectedService = getPrintService(printerName);
-        PrinterJob printerJob = PrinterJob.getPrinterJob();
-        printerJob.setPrintService(selectedService);
-        return printerJob;
-    }
-
-
-    protected int getRightMargin() {
-        return DEFAULT_WIDTH;
-    }
 
     protected PrintService getPrintService(String printerName) {
         if (StringUtils.hasLength(printerName)) {
@@ -359,12 +339,8 @@ public abstract class AbstractJava2DReceiptPrinterService {
      * @throws PrintException if printing fails
      */
     public void printEscPosDirectByHost(String hostName, boolean isEdit) throws IOException, PrintException {
-        String printerName = printer != null ? printer.getName() : null;
-        if (hostName != null && !hostName.isEmpty()) {
-            printer = printerRepository.findByPosteName(hostName).orElse(null);
-            printerName = printer != null ? printer.getName() : null;
-        }
-        printEscPosDirect(printerName, isEdit);
+
+        printEscPosDirect(hostName, isEdit);
     }
 
     /**

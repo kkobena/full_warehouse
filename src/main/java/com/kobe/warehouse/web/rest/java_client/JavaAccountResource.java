@@ -5,7 +5,7 @@ import com.kobe.warehouse.service.UserService;
 import com.kobe.warehouse.service.dto.AdminUserDTO;
 import com.kobe.warehouse.service.dto.PasswordChangeDTO;
 import com.kobe.warehouse.service.errors.InvalidPasswordException;
-import com.kobe.warehouse.service.utils.AfficheurPosService;
+import com.kobe.warehouse.service.utils.CustomerDisplayService;
 import com.kobe.warehouse.web.rest.proxy.AccountResourcesProxy;
 import com.kobe.warehouse.web.rest.vm.KeyAndPasswordVM;
 import com.kobe.warehouse.web.util.ResponseUtil;
@@ -26,8 +26,8 @@ public class JavaAccountResource extends AccountResourcesProxy {
 
     final UserService userService;
 
-    public JavaAccountResource(UserRepository userRepository, UserService userService, AfficheurPosService afficheurPosService) {
-        super(userRepository, userService, afficheurPosService);
+    public JavaAccountResource(UserRepository userRepository, UserService userService, CustomerDisplayService customerDisplayService) {
+        super(userRepository, userService, customerDisplayService);
         this.userService = userService;
     }
 

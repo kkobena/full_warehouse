@@ -1,8 +1,7 @@
 package com.kobe.warehouse.service.receipt.service;
 
 import com.kobe.warehouse.domain.enumeration.PrioriteTiersPayant;
-import com.kobe.warehouse.repository.PrinterRepository;
-import com.kobe.warehouse.service.AppConfigurationService;
+import com.kobe.warehouse.service.settings.AppConfigurationService;
 import com.kobe.warehouse.service.dto.AssuredCustomerDTO;
 import com.kobe.warehouse.service.dto.ClientTiersPayantDTO;
 import com.kobe.warehouse.service.dto.SaleDTO;
@@ -31,8 +30,8 @@ public class AssuranceSaleReceiptService extends AbstractSaleReceiptService {
     private boolean isEdit;
     private int avoirCount;
 
-    public AssuranceSaleReceiptService(AppConfigurationService appConfigurationService, PrinterRepository printerRepository) {
-        super(appConfigurationService, printerRepository);
+    public AssuranceSaleReceiptService(AppConfigurationService appConfigurationService) {
+        super(appConfigurationService);
     }
 
     @Override

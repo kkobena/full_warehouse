@@ -5,24 +5,21 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
-import jakarta.persistence.Index;
-import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 import jakarta.persistence.UniqueConstraint;
 import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Pattern;
 import org.hibernate.annotations.Cache;
 import org.hibernate.annotations.CacheConcurrencyStrategy;
+import org.hibernate.annotations.ColumnDefault;
 
 import java.io.Serializable;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Objects;
 
 @Entity
 @Table(
     name = "poste",
-    uniqueConstraints = { @UniqueConstraint(columnNames = { "name" }) },
-    indexes = { @Index(columnList = "name", name = "poste_name_index") }
+    uniqueConstraints = {@UniqueConstraint(columnNames = {"name"})}
 )
 @Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
 public class Poste implements Serializable {
@@ -34,18 +31,41 @@ public class Poste implements Serializable {
     private Long id;
 
     @NotNull
-    @Column(name = "name", nullable = false)
+    @Column(name = "name", nullable = false, length = 100)
     private String name;
-
+    @Column(name = "poste_number", length = 20)
     private String posteNumber;
 
     @NotNull
-    @Column(name = "address", nullable = false)
+    @Column(name = "address", nullable = false, unique = true)
+    @Pattern(
+        regexp = "^((25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\\.){3}(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)$",
+        message = "L'adresse doit être une adresse IP valide"
+    )
     private String address;
+    @ColumnDefault("false")
+    @Column(name = "customer_display")
+    private boolean customerDisplay;
+    @Column(name = "customer_display_port", length = 10)
+    private String customerDisplayPort;
 
-    @OneToMany(mappedBy = "poste")
-    @Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
-    private List<Printer> printers = new ArrayList<>();
+    public boolean isCustomerDisplay() {
+        return customerDisplay;
+    }
+
+    public String getCustomerDisplayPort() {
+        return customerDisplayPort;
+    }
+
+    public Poste setCustomerDisplayPort(String customerDisplayPort) {
+        this.customerDisplayPort = customerDisplayPort;
+        return this;
+    }
+
+    public Poste setCustomerDisplay(boolean customerDisplay) {
+        this.customerDisplay = customerDisplay;
+        return this;
+    }
 
     public String getPosteNumber() {
         return posteNumber;
@@ -65,14 +85,6 @@ public class Poste implements Serializable {
         return this;
     }
 
-    public List<Printer> getPrinters() {
-        return printers;
-    }
-
-    public Poste setPrinters(List<Printer> printers) {
-        this.printers = printers;
-        return this;
-    }
 
     public String getName() {
         return name;

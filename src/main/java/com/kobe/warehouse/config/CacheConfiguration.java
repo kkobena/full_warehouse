@@ -18,30 +18,32 @@ public class CacheConfiguration {
     @Bean
     public CacheManager cacheManager() {
         SimpleCacheManager manager = new SimpleCacheManager();
+        int defaultTtl = 24;
+        int defaultMaxSize = 5;
         manager.setCaches(
             Arrays.asList(
-                buildCache(EntityConstant.CURRENT_USER_CACHE, 24, TimeUnit.HOURS, 100),
-                buildCache(EntityConstant.APP_MONO_STOCK, 24, TimeUnit.HOURS, 100),
-                buildCache(EntityConstant.USER_STORAGE_CACHE, 24, TimeUnit.HOURS, 100),
-                buildCache(EntityConstant.USER_RESERVE_STORAGE_CACHE, 24, TimeUnit.HOURS, 100),
-                buildCache(EntityConstant.USER_MAIN_STORAGE_CACHE, 24, TimeUnit.HOURS, 100),
-                buildCache(EntityConstant.CURRENT_USER_MAGASIN_CACHE, 24, TimeUnit.HOURS, 100),
-                buildCache(EntityConstant.EXCLUDE_FREE_UNIT, 24, TimeUnit.HOURS, 100),
-                buildCache(EntityConstant.APP_NOMBRE_JOUR_AVANT_PEREMPTION, 24, TimeUnit.HOURS, 100),
-                buildCache(EntityConstant.APP_EXPIRY_ALERT_DAYS_BEFORE, 24, TimeUnit.HOURS, 100),
-                buildCache(EntityConstant.USER_MAGASIN, 24, TimeUnit.HOURS, 100),
-                buildCache(EntityConstant.APP_POS_PRINTER_ITEM_COUNT_PER_PAGE, 24, TimeUnit.HOURS, 100),
-                buildCache(EntityConstant.APP_POS_PRINTER_MARGIN, 24, TimeUnit.HOURS, 100),
-                buildCache(EntityConstant.APP_POS_PRINTER_WIDTH, 24, TimeUnit.HOURS, 100),
-                buildCache(EntityConstant.APP_SUGGESTION_RETENTION, 24, TimeUnit.HOURS, 100),
-                buildCache(EntityConstant.APP_RESET_INVOICE_NUMBER, 24, TimeUnit.HOURS, 100),
-                buildCache(EntityConstant.APP_GESTION_LOT, 24, TimeUnit.HOURS, 100),
-                buildCache(EntityConstant.APP_GESTION_STOCK, 24, TimeUnit.HOURS, 100),
-                buildCache(EntityConstant.DEFAULT_MAIN_STORAGE, 24, TimeUnit.HOURS, 100),
-                buildCache(EntityConstant.APP_MODE_PAYMENTS, 24, TimeUnit.HOURS, 100),
-                buildCache(EntityConstant.APP_NBRE_JOUR_RETENTION_COMMANDE, 24, TimeUnit.HOURS, 100),
-                buildCache(EntityConstant.APP_NBRE_JOUR_RETENTION_SUGGESTION, 24, TimeUnit.HOURS, 100),
-                buildCache(EntityConstant.POINT_DE_VENTE_CACHE, 24, TimeUnit.HOURS, 100)
+                buildCache(EntityConstant.APP_POST_CONFIG, defaultTtl, TimeUnit.HOURS, defaultMaxSize),
+                buildCache(EntityConstant.APP_CUSTOMER_DISPLAY, defaultTtl, TimeUnit.HOURS, defaultMaxSize),
+                buildCache(EntityConstant.CURRENT_USER_CACHE, defaultTtl, TimeUnit.HOURS, defaultMaxSize),
+                buildCache(EntityConstant.APP_MONO_STOCK, defaultTtl, TimeUnit.HOURS, defaultMaxSize),
+                buildCache(EntityConstant.USER_STORAGE_CACHE, defaultTtl, TimeUnit.HOURS, defaultMaxSize),
+                buildCache(EntityConstant.USER_RESERVE_STORAGE_CACHE, defaultTtl, TimeUnit.HOURS, defaultMaxSize),
+                buildCache(EntityConstant.USER_MAIN_STORAGE_CACHE, defaultTtl, TimeUnit.HOURS, defaultMaxSize),
+                buildCache(EntityConstant.CURRENT_USER_MAGASIN_CACHE, defaultTtl, TimeUnit.HOURS, defaultMaxSize),
+                buildCache(EntityConstant.EXCLUDE_FREE_UNIT, defaultTtl, TimeUnit.HOURS, defaultMaxSize),
+                buildCache(EntityConstant.APP_NOMBRE_JOUR_AVANT_PEREMPTION, defaultTtl, TimeUnit.HOURS, defaultMaxSize),
+                buildCache(EntityConstant.APP_EXPIRY_ALERT_DAYS_BEFORE, defaultTtl, TimeUnit.HOURS, defaultMaxSize),
+                buildCache(EntityConstant.USER_MAGASIN, defaultTtl, TimeUnit.HOURS, defaultMaxSize),
+                buildCache(EntityConstant.APP_POS_PRINTER_ITEM_COUNT_PER_PAGE, defaultTtl, TimeUnit.HOURS, defaultMaxSize),
+                buildCache(EntityConstant.APP_SUGGESTION_RETENTION, defaultTtl, TimeUnit.HOURS, defaultMaxSize),
+                buildCache(EntityConstant.APP_RESET_INVOICE_NUMBER, defaultTtl, TimeUnit.HOURS, defaultMaxSize),
+                buildCache(EntityConstant.APP_GESTION_LOT, defaultTtl, TimeUnit.HOURS, defaultMaxSize),
+                buildCache(EntityConstant.APP_GESTION_STOCK, defaultTtl, TimeUnit.HOURS, defaultMaxSize),
+                buildCache(EntityConstant.DEFAULT_MAIN_STORAGE, defaultTtl, TimeUnit.HOURS, defaultMaxSize),
+                buildCache(EntityConstant.APP_MODE_PAYMENTS, defaultTtl, TimeUnit.HOURS, defaultMaxSize),
+                buildCache(EntityConstant.APP_NBRE_JOUR_RETENTION_COMMANDE, defaultTtl, TimeUnit.HOURS, defaultMaxSize),
+                buildCache(EntityConstant.APP_NBRE_JOUR_RETENTION_SUGGESTION, defaultTtl, TimeUnit.HOURS, defaultMaxSize),
+                buildCache(EntityConstant.POINT_DE_VENTE_CACHE, defaultTtl, TimeUnit.HOURS, defaultMaxSize)
             )
         );
         return manager;

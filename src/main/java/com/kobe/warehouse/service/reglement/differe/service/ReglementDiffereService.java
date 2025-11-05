@@ -11,6 +11,8 @@ import com.kobe.warehouse.service.reglement.differe.dto.NewDifferePaymentDTO;
 import com.kobe.warehouse.service.reglement.differe.dto.ReglementDiffereReceiptDTO;
 import com.kobe.warehouse.service.reglement.differe.dto.ReglementDiffereResponse;
 import com.kobe.warehouse.service.reglement.differe.dto.ReglementDiffereWrapperDTO;
+
+import java.io.IOException;
 import java.time.LocalDate;
 import java.util.Optional;
 import java.util.Set;
@@ -49,4 +51,5 @@ public interface ReglementDiffereService {
     Page<ReglementDiffereWrapperDTO> getReglementsDifferes(Long customerId, LocalDate fromDate, LocalDate toDate, Pageable pageable);
 
     ReglementDiffereReceiptDTO getReglementDiffereReceipt(PaymentId id);
+    byte[] generateEscPosReceiptForTauri(PaymentId idReglement) throws IOException;
 }

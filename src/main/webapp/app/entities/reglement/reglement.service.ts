@@ -53,7 +53,11 @@ export class ReglementService {
   printReceipt(paymentId: PaymentId): Observable<{}> {
     return this.http.get(`${this.resourceUrl}/print-receipt/${paymentId.id}/${paymentId.transactionDate}`, { observe: 'response' });
   }
-
+  getEscPosReceiptForTauri(paymentId: PaymentId): Observable<ArrayBuffer> {
+    return this.http.get(`${this.resourceUrl}/print-tauri/${paymentId.id}/${paymentId.transactionDate}`, {
+      responseType: 'arraybuffer'
+    });
+  }
   delete(paymentId: PaymentId): Observable<HttpResponse<{}>> {
     return this.http.delete(`${this.resourceUrl}/${paymentId.id}/${paymentId.transactionDate}`, { observe: 'response' });
   }

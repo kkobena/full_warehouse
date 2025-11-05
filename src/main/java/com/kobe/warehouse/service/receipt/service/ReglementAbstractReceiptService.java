@@ -1,7 +1,6 @@
 package com.kobe.warehouse.service.receipt.service;
 
-import com.kobe.warehouse.repository.PrinterRepository;
-import com.kobe.warehouse.service.AppConfigurationService;
+import com.kobe.warehouse.service.settings.AppConfigurationService;
 import com.kobe.warehouse.service.receipt.dto.AbstractItem;
 import org.springframework.stereotype.Service;
 
@@ -19,8 +18,8 @@ public abstract class ReglementAbstractReceiptService extends AbstractJava2DRece
     protected static final String MONTANT_ATTENDU = "MONTANT ATTENDU";
     protected static final String NOMBRE_DOSSIER = "NOMBRE DE DOSSIERS";
 
-    protected ReglementAbstractReceiptService(AppConfigurationService appConfigurationService, PrinterRepository printerRepository) {
-        super(appConfigurationService, printerRepository);
+    protected ReglementAbstractReceiptService(AppConfigurationService appConfigurationService) {
+        super(appConfigurationService);
     }
 
 

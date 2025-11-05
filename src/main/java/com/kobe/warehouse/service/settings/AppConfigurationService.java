@@ -1,9 +1,10 @@
-package com.kobe.warehouse.service;
+package com.kobe.warehouse.service.settings;
 
 import com.kobe.warehouse.constant.EntityConstant;
 import com.kobe.warehouse.domain.AppConfiguration;
 import com.kobe.warehouse.domain.Magasin;
 import com.kobe.warehouse.repository.AppConfigurationRepository;
+import com.kobe.warehouse.service.UserService;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
@@ -101,25 +102,7 @@ public class AppConfigurationService {
             .orElse(90);
     }
 
-    @Transactional(readOnly = true)
-    @Cacheable(EntityConstant.APP_POS_PRINTER_WIDTH)
-    public int getPrinterWidth() {
-        return appConfigurationRepository
-            .findById(EntityConstant.APP_POS_PRINTER_WIDTH)
-            .map(AppConfiguration::getValue)
-            .map(Integer::parseInt)
-            .orElse(576);
-    }
 
-    @Transactional(readOnly = true)
-    @Cacheable(EntityConstant.APP_POS_PRINTER_MARGIN)
-    public int getPrinterMargin() {
-        return appConfigurationRepository
-            .findById(EntityConstant.APP_POS_PRINTER_MARGIN)
-            .map(AppConfiguration::getValue)
-            .map(Integer::parseInt)
-            .orElse(9);
-    }
 
     @Transactional(readOnly = true)
     @Cacheable(EntityConstant.APP_POS_PRINTER_ITEM_COUNT_PER_PAGE)
@@ -186,5 +169,13 @@ public class AppConfigurationService {
             .map(AppConfiguration::getValue)
             .map(Integer::parseInt)
             .orElse(30);
+    }
+
+    @Transactional(readOnly = true)
+    @Cacheable(EntityConstant.APP_CUSTOMER_DISPLAY)
+    public boolean isCustomerDisplayActif() {
+
+        Optional<AppConfiguration> appConfiguration = appConfigurationRepository.findById(EntityConstant.APP_CUSTOMER_DISPLAY);
+        return appConfiguration.map(configuration -> Integer.parseInt(configuration.getValue().trim()) == 0).orElse(false);
     }
 }

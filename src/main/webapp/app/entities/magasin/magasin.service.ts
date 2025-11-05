@@ -5,6 +5,7 @@ import { firstValueFrom, Observable } from 'rxjs';
 import { SERVER_API_URL } from 'app/app.constants';
 import { IMagasin } from 'app/shared/model/magasin.model';
 import { createRequestOptions } from '../../shared/util/request-util';
+import { IPoste } from '../../shared/model/poste.model';
 
 type EntityResponseType = HttpResponse<IMagasin>;
 type EntityArrayResponseType = HttpResponse<IMagasin[]>;
@@ -41,4 +42,10 @@ export class MagasinService {
   async findCurrentUserMagasin(): Promise<IMagasin> {
     return await firstValueFrom(this.http.get<IMagasin>(this.resourceUrl + '/current-user-magasin'));
   }
+
+
+  getCurrenttUserMagasin(): Observable<EntityResponseType> {
+    return this.http.get<IMagasin>(`${this.resourceUrl}/current`, { observe: 'response' });
+  }
+
 }

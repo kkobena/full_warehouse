@@ -8,7 +8,7 @@ import com.kobe.warehouse.domain.enumeration.SalesStatut;
 import com.kobe.warehouse.domain.enumeration.TransactionTypeAffichage;
 import com.kobe.warehouse.repository.PaymentTransactionRepository;
 import com.kobe.warehouse.repository.SalesRepository;
-import com.kobe.warehouse.service.AppConfigurationService;
+import com.kobe.warehouse.service.settings.AppConfigurationService;
 import com.kobe.warehouse.service.dto.ReportPeriode;
 import com.kobe.warehouse.service.dto.enumeration.TypeVenteDTO;
 import com.kobe.warehouse.service.financiel_transaction.dto.BalanceCaisseDTO;

@@ -1,7 +1,5 @@
 package com.kobe.warehouse.service.reglement.differe.service;
 
-import static java.util.Objects.nonNull;
-
 import com.kobe.warehouse.domain.AppUser;
 import com.kobe.warehouse.domain.Banque;
 import com.kobe.warehouse.domain.Customer;
@@ -32,6 +30,14 @@ import com.kobe.warehouse.service.reglement.differe.dto.ReglementDiffereReceiptD
 import com.kobe.warehouse.service.reglement.differe.dto.ReglementDiffereResponse;
 import com.kobe.warehouse.service.reglement.differe.dto.ReglementDiffereWrapperDTO;
 import com.kobe.warehouse.service.reglement.dto.BanqueInfoDTO;
+import org.springframework.core.io.Resource;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.domain.Specification;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+import java.io.IOException;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.EnumSet;
@@ -40,12 +46,8 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicInteger;
-import org.springframework.core.io.Resource;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
-import org.springframework.data.jpa.domain.Specification;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
+
+import static java.util.Objects.nonNull;
 
 @Service
 @Transactional
@@ -112,25 +114,25 @@ public class ReglementDiffereServiceImpl implements ReglementDiffereService {
     @Transactional(readOnly = true)
     public Page<DiffereDTO> getDiffere(Long customerId, Set<PaymentStatus> paymentStatuses, Pageable pageable) {
         return this.salesRepository.getDiffere(buildSpecification(customerId, paymentStatuses), pageable).map(differe -> {
-                List<DiffereItem> differeItems =
-                    this.salesRepository.getDiffereItems(
-                            this.salesRepository.filterByCustomerId(differe.customerId()).and(
-                                    this.salesRepository.hasStatut(EnumSet.of(SalesStatut.CLOSED)).and(
-                                            this.salesRepository.filterByPaymentStatus(paymentStatuses)
-                                        )
-                                ),
-                            Pageable.unpaged()
-                        ).getContent();
-                return new DiffereDTO(
-                    differe.customerId(),
-                    differe.firstName(),
-                    differe.lastName(),
-                    differe.saleAmount(),
-                    differe.paidAmount(),
-                    differe.rest(),
-                    differeItems
-                );
-            });
+            List<DiffereItem> differeItems =
+                this.salesRepository.getDiffereItems(
+                    this.salesRepository.filterByCustomerId(differe.customerId()).and(
+                        this.salesRepository.hasStatut(EnumSet.of(SalesStatut.CLOSED)).and(
+                            this.salesRepository.filterByPaymentStatus(paymentStatuses)
+                        )
+                    ),
+                    Pageable.unpaged()
+                ).getContent();
+            return new DiffereDTO(
+                differe.customerId(),
+                differe.firstName(),
+                differe.lastName(),
+                differe.saleAmount(),
+                differe.paidAmount(),
+                differe.rest(),
+                differeItems
+            );
+        });
     }
 
     @Override
@@ -207,6 +209,12 @@ public class ReglementDiffereServiceImpl implements ReglementDiffereService {
     }
 
     @Override
+    public byte[] generateEscPosReceiptForTauri(PaymentId idReglement) throws IOException {
+        return this.differeReceiptService.generateEscPosReceiptForTauri(getReglementDiffereReceipt(idReglement));
+
+    }
+
+    @Override
     public void printReceipt(PaymentId id) {
         this.differeReceiptService.printReceipt(null, getReglementDiffereReceipt(id));
     }
@@ -245,21 +253,21 @@ public class ReglementDiffereServiceImpl implements ReglementDiffereService {
         Pageable pageable
     ) {
         return this.differePaymentRepository.getDifferePayments(buildSpecification(customerId, startDate, endDate), pageable).map(
-                differePayment -> {
-                    List<ReglementDiffereDTO> differePaymentItems =
-                        this.differePaymentRepository.getDifferePaymentsByCustomerId(
-                                this.differePaymentRepository.filterByCustomerId(differePayment.id())
-                            );
-                    return new ReglementDiffereWrapperDTO(
-                        differePayment.id(),
-                        differePayment.firstName(),
-                        differePayment.lastName(),
-                        differePayment.paidAmount(),
-                        this.salesRepository.getSolde(soldePredicate(differePayment.id(), Set.of(PaymentStatus.IMPAYE))).solde(),
-                        differePaymentItems
+            differePayment -> {
+                List<ReglementDiffereDTO> differePaymentItems =
+                    this.differePaymentRepository.getDifferePaymentsByCustomerId(
+                        this.differePaymentRepository.filterByCustomerId(differePayment.id())
                     );
-                }
-            );
+                return new ReglementDiffereWrapperDTO(
+                    differePayment.id(),
+                    differePayment.firstName(),
+                    differePayment.lastName(),
+                    differePayment.paidAmount(),
+                    this.salesRepository.getSolde(soldePredicate(differePayment.id(), Set.of(PaymentStatus.IMPAYE))).solde(),
+                    differePaymentItems
+                );
+            }
+        );
     }
 
     private Specification<Sales> soldePredicate(Long customerId, Set<PaymentStatus> paymentStatuses) {

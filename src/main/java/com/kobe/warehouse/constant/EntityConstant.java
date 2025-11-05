@@ -60,4 +60,6 @@ public final class EntityConstant {
     public static final String CURRENT_USER_MAGASIN_CACHE = "CURRENT_USER_MAGASIN_CACHE";
     public static final String APP_NBRE_JOUR_RETENTION_SUGGESTION= "APP_RETENTION_SUGGESTION" ;// Nombre de jour de retention des suggestions
     public static final String APP_NBRE_JOUR_RETENTION_COMMANDE= "APP_RETENTION_COMMANDE" ;// Nombre de jour de retention des suggestions
+    public static final String APP_CUSTOMER_DISPLAY= "APP_CUSTOMER_DISPLAY" ;// Est-ce que le afficheur client est actif
+    public static final String APP_POST_CONFIG= "APP_POST_CONFIG" ;
 }

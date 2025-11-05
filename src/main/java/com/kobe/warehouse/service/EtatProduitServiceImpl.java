@@ -6,6 +6,7 @@ import com.kobe.warehouse.domain.enumeration.OrderStatut;
 import com.kobe.warehouse.repository.OrderLineRepository;
 import com.kobe.warehouse.repository.SuggestionLineRepository;
 import com.kobe.warehouse.service.dto.EtatProduit;
+import com.kobe.warehouse.service.settings.AppConfigurationService;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 

@@ -28,6 +28,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
+import java.io.IOException;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.Set;
@@ -69,7 +70,22 @@ public class DiffereResource {
         this.reglementDiffereService.printReceipt(new PaymentId(id, transactionDate));
         return ResponseEntity.ok().build();
     }
+    @GetMapping("/print-tauri/{id}/{transactionDate}")
+    public ResponseEntity<byte[]> getReceiptForTauri(@PathVariable(name = "id") long idReglement,
+                                                     @PathVariable(name = "transactionDate") LocalDate transactionDate
+    ) {
 
+        try {
+            byte[] escPosData = reglementDiffereService.generateEscPosReceiptForTauri(new PaymentId(idReglement, transactionDate));
+            return ResponseEntity.ok()
+                .header(HttpHeaders.CONTENT_TYPE, "application/octet-stream")
+                .header(HttpHeaders.CONTENT_DISPOSITION, "inline; filename=\"receipt.bin\"")
+                .body(escPosData);
+        } catch (IOException e) {
+
+            return ResponseEntity.internalServerError().build();
+        }
+    }
     @GetMapping("/pdf")
     public ResponseEntity<Resource> exportList(
         HttpServletRequest request,

@@ -1,4 +1,4 @@
-package com.kobe.warehouse.web.rest;
+package com.kobe.warehouse.web.rest.settings;
 
 import com.kobe.warehouse.domain.Menu;
 import com.kobe.warehouse.repository.MenuRepository;

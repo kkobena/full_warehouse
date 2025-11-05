@@ -1,7 +1,7 @@
 package com.kobe.warehouse.service.receipt.service;
 
-import com.kobe.warehouse.repository.PrinterRepository;
-import com.kobe.warehouse.service.AppConfigurationService;
+import com.kobe.warehouse.service.dto.CashSaleDTO;
+import com.kobe.warehouse.service.settings.AppConfigurationService;
 import com.kobe.warehouse.service.receipt.dto.HeaderFooterItem;
 import com.kobe.warehouse.service.reglement.dto.InvoicePaymentReceiptDTO;
 import org.slf4j.Logger;
@@ -22,8 +22,8 @@ public class InvoiceReceiptService extends ReglementAbstractReceiptService {
     private static final Logger LOG = LoggerFactory.getLogger(InvoiceReceiptService.class);
     private InvoicePaymentReceiptDTO invoicePaymentReceipt;
 
-    public InvoiceReceiptService(AppConfigurationService appConfigurationService, PrinterRepository printerRepository) {
-        super(appConfigurationService, printerRepository);
+    public InvoiceReceiptService(AppConfigurationService appConfigurationService) {
+        super(appConfigurationService);
     }
 
     @Override
@@ -103,9 +103,14 @@ public class InvoiceReceiptService extends ReglementAbstractReceiptService {
         this.invoicePaymentReceipt = invoicePaymentReceipt;
         try {
             // Use direct ESC/POS printing for better performance and reliability
-            printEscPosDirectByHost(hostName, false);
+            printEscPosDirectByHost(hostName, true);
         } catch (IOException | PrintException e) {
             LOG.error("Error while printing ESC/POS receipt: {}", e.getMessage(), e);
         }
+    }
+
+    public byte[] generateEscPosReceiptForTauri(InvoicePaymentReceiptDTO invoicePaymentReceipt) throws IOException {
+        this.invoicePaymentReceipt = invoicePaymentReceipt;
+        return generateEscPosReceipt(true);
     }
 }

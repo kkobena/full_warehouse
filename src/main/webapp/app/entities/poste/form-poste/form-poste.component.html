@@ -1,0 +1,149 @@
+<div class="modal-header">
+  <h4 class="modal-title">{{ title }}</h4>
+  <button (click)="cancel()" class="btn-close" type="button">&times;</button>
+</div>
+
+<form [formGroup]="editForm" (ngSubmit)="save()" name="editForm" novalidate role="form">
+  <div class="modal-body">
+    <input formControlName="id" id="id" name="id" type="hidden" />
+
+    <!-- Two Column Layout: Champs Obligatoires and Informations Complémentaires -->
+    <div class="card-grid-2col">
+      <!-- Section 1: Champs Obligatoires -->
+      <p-card>
+        <ng-template #header>
+          <div class="section-header section-header-required">
+            <i class="pi pi-exclamation-circle"></i>
+            <span>Champs Obligatoires</span>
+          </div>
+        </ng-template>
+
+        <div class="form-grid-compact">
+          <!-- Nom du Poste -->
+          <div class="form-field form-field-full">
+            <label for="field_name">Nom du Poste <span class="required">*</span></label>
+            <input
+              #nameInput
+              [class.ng-invalid]="editForm.get('name')?.invalid && editForm.get('name')?.touched"
+              autocomplete="off"
+              class="w-full"
+              formControlName="name"
+              id="field_name"
+              pInputText
+              placeholder="Ex: Poste Caisse 1" />
+            @if (editForm.get('name')?.invalid && editForm.get('name')?.touched) {
+              @if (editForm.get('name')?.errors?.required) {
+                <small class="p-error" jhiTranslate="entity.validation.required">Ce champ est obligatoire</small>
+              }
+              @if (editForm.get('name')?.errors?.maxlength) {
+                <small class="p-error">Le nom ne doit pas dépasser 100 caractères</small>
+              }
+            }
+          </div>
+
+          <!-- Adresse IP -->
+          <div class="form-field form-field-full">
+            <label for="field_address">Adresse IP <span class="required">*</span></label>
+            <input
+              [class.ng-invalid]="editForm.get('address')?.invalid && editForm.get('address')?.touched"
+              autocomplete="off"
+              class="w-full"
+              formControlName="address"
+              id="field_address"
+              pInputText
+              placeholder="Ex: 192.168.1.100" />
+            @if (editForm.get('address')?.invalid && editForm.get('address')?.touched) {
+              @if (editForm.get('address')?.errors?.required) {
+                <small class="p-error" jhiTranslate="entity.validation.required">Ce champ est obligatoire</small>
+              }
+              @if (editForm.get('address')?.errors?.pattern) {
+                <small class="p-error">L'adresse doit être une adresse IP valide</small>
+              }
+            }
+          </div>
+        </div>
+      </p-card>
+
+      <!-- Section 2: Informations Complémentaires -->
+      <p-card>
+        <ng-template #header>
+          <div class="section-header">
+            <i class="pi pi-info-circle"></i>
+            <span>Informations Complémentaires</span>
+          </div>
+        </ng-template>
+
+        <div class="form-grid-compact">
+          <!-- Numéro du Poste -->
+          <div class="form-field form-field-full">
+            <label for="field_posteNumber">
+              Numéro du Poste
+              @if (editForm.get('customerDisplay')?.value) {
+                <span class="required">*</span>
+              }
+            </label>
+            <input
+              autocomplete="off"
+              class="w-full"
+              formControlName="posteNumber"
+              id="field_posteNumber"
+              pInputText
+              placeholder="Ex: P001" />
+            @if (editForm.get('posteNumber')?.invalid && editForm.get('posteNumber')?.touched) {
+              @if (editForm.get('posteNumber')?.errors?.required) {
+                <small class="p-error" jhiTranslate="entity.validation.required">Ce champ est obligatoire lorsque l'afficheur client est activé</small>
+              }
+              @if (editForm.get('posteNumber')?.errors?.maxlength) {
+                <small class="p-error">Le numéro ne doit pas dépasser 20 caractères</small>
+              }
+            }
+          </div>
+
+          <!-- Activer l'afficheur client -->
+          <div class="form-field form-field-full">
+            <div class="p-field-checkbox">
+              <p-checkbox
+                formControlName="customerDisplay"
+                [binary]="true"
+                inputId="customerDisplay"
+              ></p-checkbox>
+              <label for="customerDisplay" class="ml-2">Activer l'afficheur client</label>
+            </div>
+          </div>
+
+          <!-- Port de l'Afficheur Client -->
+          <div class="form-field form-field-full">
+            <label for="field_customerDisplayPort">
+              Port de l'Afficheur Client
+              @if (editForm.get('customerDisplay')?.value) {
+                <span class="required">*</span>
+              }
+            </label>
+            <input
+              autocomplete="off"
+              class="w-full"
+              formControlName="customerDisplayPort"
+              id="field_customerDisplayPort"
+              pInputText
+              placeholder="Ex: COM3" />
+            @if (editForm.get('customerDisplayPort')?.invalid && editForm.get('customerDisplayPort')?.touched) {
+              @if (editForm.get('customerDisplayPort')?.errors?.required) {
+                <small class="p-error" jhiTranslate="entity.validation.required">Ce champ est obligatoire lorsque l'afficheur client est activé</small>
+              }
+              @if (editForm.get('customerDisplayPort')?.errors?.maxlength) {
+                <small class="p-error">Le port ne doit pas dépasser 10 caractères</small>
+              }
+            }
+          </div>
+        </div>
+      </p-card>
+    </div>
+  </div>
+
+  <div class="form-actions-compact">
+    <p-button icon="pi pi-times" label="Annuler" severity="secondary"  type="button" (click)="cancel()"></p-button>
+    <p-button label="Enregistrer" severity="primary" type="submit"
+              [disabled]="editForm.invalid" [loading]="isSaving"></p-button>
+  </div>
+</form>
+<jhi-toast-alert #alert></jhi-toast-alert>

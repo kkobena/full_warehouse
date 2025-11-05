@@ -15,7 +15,7 @@ import com.kobe.warehouse.domain.enumeration.TypeSuggession;
 import com.kobe.warehouse.repository.FournisseurProduitRepository;
 import com.kobe.warehouse.repository.SuggestionLineRepository;
 import com.kobe.warehouse.repository.SuggestionRepository;
-import com.kobe.warehouse.service.AppConfigurationService;
+import com.kobe.warehouse.service.settings.AppConfigurationService;
 import com.kobe.warehouse.service.EtatProduitService;
 import com.kobe.warehouse.service.ReferenceService;
 import com.kobe.warehouse.service.StorageService;

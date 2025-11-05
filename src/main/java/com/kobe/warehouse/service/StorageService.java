@@ -11,6 +11,7 @@ import com.kobe.warehouse.repository.UserRepository;
 import com.kobe.warehouse.security.SecurityUtils;
 import com.kobe.warehouse.service.dto.StorageDTO;
 import com.kobe.warehouse.service.dto.projection.IdProjection;
+import com.kobe.warehouse.service.settings.AppConfigurationService;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;

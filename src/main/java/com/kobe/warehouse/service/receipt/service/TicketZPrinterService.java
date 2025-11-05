@@ -1,9 +1,8 @@
 package com.kobe.warehouse.service.receipt.service;
 
-import com.kobe.warehouse.repository.PrinterRepository;
-import com.kobe.warehouse.service.AppConfigurationService;
 import com.kobe.warehouse.service.receipt.dto.AbstractItem;
 import com.kobe.warehouse.service.receipt.dto.HeaderFooterItem;
+import com.kobe.warehouse.service.settings.AppConfigurationService;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -12,8 +11,8 @@ import java.util.List;
 public class TicketZPrinterService extends AbstractTicketZService {
 
 
-    protected TicketZPrinterService(AppConfigurationService appConfigurationService, PrinterRepository printerRepository) {
-        super(appConfigurationService, printerRepository);
+    protected TicketZPrinterService(AppConfigurationService appConfigurationService) {
+        super(appConfigurationService);
     }
 
 

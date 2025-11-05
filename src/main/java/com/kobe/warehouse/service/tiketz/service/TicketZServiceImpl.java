@@ -27,6 +27,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
 
 import java.awt.print.PrinterException;
+import java.io.IOException;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.util.ArrayList;
@@ -93,6 +94,16 @@ public class TicketZServiceImpl implements TicketZService {
     @Override
     public void sentToEmail(TicketZParam param) {
         this.ticketZReportService.sentToEmail(this.getTicketZ(param), getPeriode(param));
+    }
+
+    @Override
+    public byte[] generateEscPosReceiptForTauri(TicketZParam param) throws IOException {
+        Pair periode = getPeriode(param);
+        return  this.ticketZPrinterService.generateEscPosReceiptForTauri(
+            getTicketZ(param),
+            (LocalDateTime) periode.key(),
+            (LocalDateTime) periode.value()
+        );
     }
 
     private TicketZ combineAll(TicketZParam param) {

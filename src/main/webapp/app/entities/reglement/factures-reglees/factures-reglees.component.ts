@@ -32,6 +32,7 @@ import { PrimeNG } from 'primeng/config';
 import { ConfirmDialogComponent } from '../../../shared/dialog/confirm-dialog/confirm-dialog.component';
 import { TauriPrinterService } from '../../../shared/services/tauri-printer.service';
 import { handleBlobForTauri } from '../../../shared/util/tauri-util';
+import { RecapParam } from '../../ticketZ/model/recap-param.model';
 
 @Component({
   selector: 'jhi-factures-reglees',
@@ -126,9 +127,23 @@ export class FacturesRegleesComponent implements AfterViewInit {
   }
 
   onPrint(item: Reglement): void {
-    this.reglementService.printReceipt(item.id).subscribe();
-  }
+    if (this.tauriPrinterService.isRunningInTauri()) {
+      this.printReceiptForTauri(item);
+    }else{
+      this.reglementService.printReceipt(item.id).subscribe();
+    }
 
+  }
+  printReceiptForTauri(item: Reglement): void {
+    this.reglementService.getEscPosReceiptForTauri(item.id).subscribe({
+      next: async (escposData: ArrayBuffer) => {
+        try {
+          await this.tauriPrinterService.printEscPosFromBuffer(escposData);
+        } catch (error) {}
+      },
+      error: () => {},
+    });
+  }
   onPrintPdf(): void {
     this.loadingPdf = true;
     this.reglementService.onPrintPdf(this.buildSearchParams()).subscribe({

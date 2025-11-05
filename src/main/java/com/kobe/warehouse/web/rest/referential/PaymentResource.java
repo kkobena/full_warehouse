@@ -1,4 +1,4 @@
-package com.kobe.warehouse.web.rest;
+package com.kobe.warehouse.web.rest.referential;
 
 import com.kobe.warehouse.domain.SalePayment;
 import com.kobe.warehouse.repository.SalePaymentRepository;

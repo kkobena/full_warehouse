@@ -1,7 +1,14 @@
 import { Component, computed, inject, input, OnInit, output, signal, viewChild } from '@angular/core';
 import { DossierFactureProjection, ReglementFactureDossier } from '../model/reglement-facture-dossier.model';
 import { TableHeaderCheckbox, TableModule } from 'primeng/table';
-import { LigneSelectionnes, ModeEditionReglement, ReglementParams, ResponseReglement, SelectedFacture } from '../model/reglement.model';
+import {
+  LigneSelectionnes,
+  ModeEditionReglement, PaymentId,
+  Reglement,
+  ReglementParams,
+  ResponseReglement,
+  SelectedFacture
+} from '../model/reglement.model';
 import { ButtonModule } from 'primeng/button';
 import { DossierReglementInfoComponent } from '../dossier-reglement-info/dossier-reglement-info.component';
 import { FieldsetModule } from 'primeng/fieldset';
@@ -25,6 +32,7 @@ import { InputIcon } from 'primeng/inputicon';
 import { ConfirmDialogComponent } from '../../../shared/dialog/confirm-dialog/confirm-dialog.component';
 import { FactureId } from '../../facturation/facture.model';
 import { CardModule } from 'primeng/card';
+import { TauriPrinterService } from '../../../shared/services/tauri-printer.service';
 
 @Component({
   selector: 'jhi-faire-groupe-reglement',
@@ -76,7 +84,7 @@ export class FaireGroupeReglementComponent implements OnInit {
   private readonly errorService = inject(ErrorService);
   private readonly factureService = inject(FactureService);
   private readonly confimDialog = viewChild.required<ConfirmDialogComponent>('confirmDialog');
-
+  private readonly tauriPrinterService = inject(TauriPrinterService);
   constructor() {
     if (this.dossierFactureProjection()) {
       this.dossierFactureProjectionWritable.set(this.dossierFactureProjection());
@@ -151,7 +159,11 @@ export class FaireGroupeReglementComponent implements OnInit {
   private onPrintReceipt(response: ResponseReglement): void {
     this.confimDialog().onConfirm(
       () => {
-        this.reglementService.printReceipt(response.id).subscribe();
+        if (this.tauriPrinterService.isRunningInTauri()){
+          this.printReceiptForTauri(response.id);
+        }else{
+          this.reglementService.printReceipt(response.id).subscribe();
+        }
         this.reset(response);
       },
       'TICKET REGLEMENT',
@@ -160,7 +172,16 @@ export class FaireGroupeReglementComponent implements OnInit {
       () => this.reset(response),
     );
   }
-
+  printReceiptForTauri(item: PaymentId): void {
+    this.reglementService.getEscPosReceiptForTauri(item).subscribe({
+      next: async (escposData: ArrayBuffer) => {
+        try {
+          await this.tauriPrinterService.printEscPosFromBuffer(escposData);
+        } catch (error) {}
+      },
+      error: () => {},
+    });
+  }
   private computeMontantRestant(d: ReglementFactureDossier): number {
     return d.montantVerse;
   }

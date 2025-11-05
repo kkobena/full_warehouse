@@ -1,7 +1,7 @@
 package com.kobe.warehouse.web.rest.java_client;
 
 import com.kobe.warehouse.domain.AppConfiguration;
-import com.kobe.warehouse.service.AppConfigurationService;
+import com.kobe.warehouse.service.settings.AppConfigurationService;
 import com.kobe.warehouse.web.rest.proxy.ConfigurationResourceProxy;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;

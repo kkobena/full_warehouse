@@ -19,6 +19,8 @@ import { Subject } from 'rxjs';
 import { finalize, takeUntil } from 'rxjs/operators';
 import { Card } from 'primeng/card';
 import { WarehouseCommonModule } from '../../../shared/warehouse-common/warehouse-common.module';
+import { TauriPrinterService } from '../../../shared/services/tauri-printer.service';
+import { SaleId } from '../../../shared/model/sales.model';
 
 @Component({
   selector: 'jhi-faire-reglement-differe',
@@ -42,7 +44,7 @@ export class FaireReglementDiffereComponent implements OnInit, OnDestroy {
   protected reglementFormComponent = viewChild(ReglementDiffereFormComponent);
   protected isSaving = false;
   protected monnaie = 0;
-
+  private readonly tauriPrinterService = inject(TauriPrinterService);
   private readonly modalService = inject(NgbModal);
   private readonly confirmationService = inject(ConfirmationService);
   private readonly errorService = inject(ErrorService);
@@ -109,7 +111,12 @@ export class FaireReglementDiffereComponent implements OnInit, OnDestroy {
       rejectButtonProps: rejectButtonProps(),
       acceptButtonProps: acceptButtonProps(),
       accept: () => {
-        this.differeService.printReceipt(paymentId).pipe(takeUntil(this.destroy$)).subscribe();
+        if (this.tauriPrinterService.isRunningInTauri()) {
+          this.printReceiptForTauri(paymentId);
+        }else{
+          this.differeService.printReceipt(paymentId).pipe(takeUntil(this.destroy$)).subscribe();
+        }
+
         this.reset();
       },
       reject: () => this.reset(),
@@ -121,5 +128,16 @@ export class FaireReglementDiffereComponent implements OnInit, OnDestroy {
     this.reglementFormComponent().reset();
     this.differe = null;
     this.previousState();
+  }
+
+  printReceiptForTauri(paymentId: PaymentId): void {
+    this.differeService.getEscPosReceiptForTauri(paymentId).subscribe({
+      next: async (escposData: ArrayBuffer) => {
+        try {
+          await this.tauriPrinterService.printEscPosFromBuffer(escposData);
+        } catch (error) {}
+      },
+      error: () => {},
+    });
   }
 }

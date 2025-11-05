@@ -11,10 +11,8 @@ import com.kobe.warehouse.service.reglement.service.ReglementDataService;
 import com.kobe.warehouse.web.rest.Utils;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
-import java.time.LocalDate;
-import java.util.List;
-import java.util.Set;
 import org.springframework.core.io.Resource;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -25,6 +23,11 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+
+import java.io.IOException;
+import java.time.LocalDate;
+import java.util.List;
+import java.util.Set;
 
 @RestController
 @RequestMapping("/api")
@@ -108,5 +111,23 @@ public class ReglementFactureTpResource {
             reglementDataService.printToPdf(new InvoicePaymentParam(search, organismeId, fromDate, toDate, grouped)),
             request
         );
+    }
+
+
+    @GetMapping("/reglements/print-tauri/{idReglement}/{transactionDate}")
+    public ResponseEntity<byte[]> getReceiptForTauri(@PathVariable(name = "idReglement") long idReglement,
+                                                     @PathVariable(name = "transactionDate") LocalDate transactionDate
+    ) {
+
+        try {
+            byte[] escPosData = reglementDataService.generateEscPosReceiptForTauri(new PaymentId(idReglement, transactionDate));
+            return ResponseEntity.ok()
+                .header(HttpHeaders.CONTENT_TYPE, "application/octet-stream")
+                .header(HttpHeaders.CONTENT_DISPOSITION, "inline; filename=\"receipt.bin\"")
+                .body(escPosData);
+        } catch (IOException e) {
+
+            return ResponseEntity.internalServerError().build();
+        }
     }
 }

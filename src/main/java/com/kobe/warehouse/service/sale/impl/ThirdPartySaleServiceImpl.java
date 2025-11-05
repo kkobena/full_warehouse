@@ -44,8 +44,6 @@ import com.kobe.warehouse.service.UtilisationCleSecuriteService;
 import com.kobe.warehouse.service.cash_register.CashRegisterService;
 import com.kobe.warehouse.service.dto.AssuredCustomerDTO;
 import com.kobe.warehouse.service.dto.ClientTiersPayantDTO;
-import com.kobe.warehouse.service.dto.Consommation;
-import com.kobe.warehouse.service.dto.KeyValue;
 import com.kobe.warehouse.service.dto.ResponseDTO;
 import com.kobe.warehouse.service.dto.SaleLineDTO;
 import com.kobe.warehouse.service.dto.ThirdPartySaleDTO;
@@ -75,12 +73,10 @@ import com.kobe.warehouse.service.sale.calculation.dto.TiersPayantLineOutput;
 import com.kobe.warehouse.service.sale.calculation.dto.TiersPayantPrixInput;
 import com.kobe.warehouse.service.sale.dto.FinalyseSaleDTO;
 import com.kobe.warehouse.service.sale.dto.UpdateSale;
-import com.kobe.warehouse.service.utils.AfficheurPosService;
+import com.kobe.warehouse.service.utils.CustomerDisplayService;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.time.ZoneId;
-import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
@@ -133,7 +129,7 @@ public class ThirdPartySaleServiceImpl extends SaleCommonService implements Thir
         CashSaleRepository cashSaleRepository,
         UtilisationCleSecuriteService utilisationCleSecuriteService,
         RemiseRepository remiseRepository,
-        AfficheurPosService afficheurPosService,
+        CustomerDisplayService afficheurPosService,
         PrixRererenceService prixRererenceService,
         LogsService logService,
         TiersPayantCalculationService tiersPayantCalculationService,

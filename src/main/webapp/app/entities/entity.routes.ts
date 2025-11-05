@@ -128,6 +128,11 @@ const routes: Routes = [
     loadChildren: () => import('./parametre/app.route')
   },
   {
+    path: 'poste',
+    data: { pageTitle: 'Gestion des Postes' },
+    loadChildren: () => import('./poste/poste.route')
+  },
+  {
     path: 'edition-factures',
     data: { pageTitle: 'Gestion facturation' },
     loadChildren: () => import('./facturation/facture.route')

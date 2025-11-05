@@ -1,11 +1,10 @@
 package com.kobe.warehouse.service.utils;
 
-public interface AfficheurPosService {
+public interface CustomerDisplayService {
     void sendDataToAfficheurPos(String data);
 
     void sendDataToAfficheurPos(String data, String position);
 
-    boolean isAfficheurPosEnabled();
 
     void displaySalesData(String produitName, int qty, int price);
 

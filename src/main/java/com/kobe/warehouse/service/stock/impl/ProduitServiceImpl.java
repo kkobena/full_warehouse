@@ -9,7 +9,7 @@ import com.kobe.warehouse.repository.CustomizedProductService;
 import com.kobe.warehouse.repository.MagasinRepository;
 import com.kobe.warehouse.repository.ProduitRepository;
 import com.kobe.warehouse.repository.RayonRepository;
-import com.kobe.warehouse.service.AppConfigurationService;
+import com.kobe.warehouse.service.settings.AppConfigurationService;
 import com.kobe.warehouse.service.dto.ProduitCriteria;
 import com.kobe.warehouse.service.dto.ProduitDTO;
 import com.kobe.warehouse.service.dto.builder.ProduitBuilder;

@@ -1,9 +1,8 @@
 package com.kobe.warehouse.service.receipt.service;
 
-import com.kobe.warehouse.repository.PrinterRepository;
-import com.kobe.warehouse.service.AppConfigurationService;
 import com.kobe.warehouse.service.receipt.dto.HeaderFooterItem;
 import com.kobe.warehouse.service.reglement.differe.dto.ReglementDiffereReceiptDTO;
+import com.kobe.warehouse.service.settings.AppConfigurationService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
@@ -21,8 +20,8 @@ public class DiffereReceiptService extends ReglementAbstractReceiptService {
     private static final Logger LOG = LoggerFactory.getLogger(DiffereReceiptService.class);
     private ReglementDiffereReceiptDTO differeReceipt;
 
-    public DiffereReceiptService(AppConfigurationService appConfigurationService, PrinterRepository printerRepository) {
-        super(appConfigurationService, printerRepository);
+    public DiffereReceiptService(AppConfigurationService appConfigurationService) {
+        super(appConfigurationService);
     }
 
     @Override
@@ -97,9 +96,14 @@ public class DiffereReceiptService extends ReglementAbstractReceiptService {
         this.differeReceipt = reglementDiffereReceipt;
         try {
             // Use direct ESC/POS printing for better performance and reliability
-            printEscPosDirectByHost(hostName, false);
+            printEscPosDirectByHost(hostName, true);
         } catch (IOException | PrintException e) {
             LOG.error("Error while printing ESC/POS receipt: {}", e.getMessage(), e);
         }
+    }
+
+  public   byte[] generateEscPosReceiptForTauri(ReglementDiffereReceiptDTO reglementDiffereReceipt) throws IOException {
+        this.differeReceipt = reglementDiffereReceipt;
+        return generateEscPosReceipt(true);
     }
 }

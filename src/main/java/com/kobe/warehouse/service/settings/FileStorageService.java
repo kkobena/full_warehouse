@@ -1,4 +1,4 @@
-package com.kobe.warehouse.service;
+package com.kobe.warehouse.service.settings;
 
 import com.kobe.warehouse.config.FileStorageProperties;
 import java.io.File;

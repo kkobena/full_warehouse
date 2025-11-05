@@ -1,7 +1,6 @@
 package com.kobe.warehouse.service.receipt.service;
 
-import com.kobe.warehouse.repository.PrinterRepository;
-import com.kobe.warehouse.service.AppConfigurationService;
+import com.kobe.warehouse.service.settings.AppConfigurationService;
 import com.kobe.warehouse.service.dto.CashSaleDTO;
 import com.kobe.warehouse.service.dto.SaleDTO;
 import com.kobe.warehouse.service.dto.SaleLineDTO;
@@ -25,8 +24,8 @@ public class CashSaleReceiptService extends AbstractSaleReceiptService {
     private CashSaleDTO cashSale;
     private int avoirCount;
 
-    public CashSaleReceiptService(AppConfigurationService appConfigurationService, PrinterRepository printerRepository) {
-        super(appConfigurationService, printerRepository);
+    public CashSaleReceiptService(AppConfigurationService appConfigurationService) {
+        super(appConfigurationService);
     }
 
 

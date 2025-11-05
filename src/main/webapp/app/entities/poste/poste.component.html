@@ -1,0 +1,89 @@
+<div class="container-fluid">
+  <div class="pharma-smart-content p-2">
+    <div class="pharma-toolbar">
+      <div class="pharma-toolbar-header">
+        <i class="pi pi-desktop"></i>
+        <span class="pharma-toolbar-title">Gestion des Postes</span>
+      </div>
+
+      <p-toolbar>
+        <ng-template #start>
+          <div class="pharma-toolbar-filters">
+            <div class="pharma-search-input">
+              <p-iconfield>
+                <p-inputicon class="pi pi-search" />
+                <input (keyup)="search($event)" pInputText placeholder="Rechercher par nom, adresse ou numéro"
+                       type="text" />
+              </p-iconfield>
+            </div>
+          </div>
+        </ng-template>
+
+        <ng-template #end>
+          <div class="pharma-toolbar-actions">
+            <div class="pharma-button-group">
+              <p-button
+                (click)="addNewEntity()"
+                [raised]="true"
+                icon="pi pi-plus"
+                label="Nouveau Poste"
+                severity="success"
+                type="button"
+              ></p-button>
+            </div>
+          </div>
+        </ng-template>
+      </p-toolbar>
+    </div>
+
+    <p-table
+      [loading]="loading"
+      [value]="filteredEntities"
+      class="pharma-table"
+      dataKey="id"
+      stripedRows="true"
+    >
+      <ng-template #header>
+        <tr class="pharma-table-head">
+          <th scope="col" style="width: 20%;"><span>Nom</span></th>
+          <th scope="col" style="width: 15%;"><span>Numéro</span></th>
+          <th scope="col" style="width: 20%;"><span>Adresse IP</span></th>
+          <th scope="col" style="width: 15%;"><span>Afficheur Client</span></th>
+          <th scope="col" style="width: 15%;"><span>Port Afficheur</span></th>
+          <th scope="col" style="text-align: center;width: 10rem;">Actions</th>
+        </tr>
+      </ng-template>
+      <ng-template #body let-elRow>
+        <tr>
+          <td><span class="pharma-entity-name">{{ elRow.name }}</span></td>
+          <td><span class="pharma-code">{{ elRow.posteNumber  }}</span></td>
+          <td><span class="pharma-entity-name">{{ elRow.address }}</span></td>
+          <td>
+            @if (elRow.customerDisplay) {
+              <p-tag severity="success" value="Activé"></p-tag>
+            } @else {
+              <p-tag severity="secondary" value="Désactivé"></p-tag>
+            }
+          </td>
+          <td><span class="pharma-code">{{ elRow.customerDisplayPort  }}</span></td>
+          <td style="text-align: right">
+            <p-button (click)="onEdit(elRow)" [rounded]="true" [text]="true"
+                      icon="pi pi-pencil" pTooltip="Modifier" severity="success">
+            </p-button>
+            <p-button (click)="delete(elRow)" [rounded]="true" [text]="true"
+                      icon="pi pi-trash" pTooltip="Supprimer" severity="danger">
+            </p-button>
+          </td>
+        </tr>
+      </ng-template>
+      <ng-template #emptymessage>
+        <tr>
+          <td [attr.colspan]="6" style="text-align: center;">Aucun poste trouvé</td>
+        </tr>
+      </ng-template>
+    </p-table>
+  </div>
+</div>
+
+<jhi-confirm-dialog #confirmDialog></jhi-confirm-dialog>
+<jhi-toast-alert #alert></jhi-toast-alert>

@@ -15,7 +15,7 @@ import com.kobe.warehouse.web.util.HeaderUtil;
 import com.kobe.warehouse.web.util.PaginationUtil;
 import com.kobe.warehouse.web.util.ResponseUtil;
 import jakarta.validation.Valid;
-import java.net.URISyntaxException;
+
 import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;

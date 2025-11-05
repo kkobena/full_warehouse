@@ -47,7 +47,7 @@ import com.kobe.warehouse.service.sale.SaleService;
 import com.kobe.warehouse.service.sale.SalesLineService;
 import com.kobe.warehouse.service.sale.ThirdPartySaleService;
 import com.kobe.warehouse.service.sale.dto.FinalyseSaleDTO;
-import com.kobe.warehouse.service.utils.AfficheurPosService;
+import com.kobe.warehouse.service.utils.CustomerDisplayService;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.Collections;
@@ -86,7 +86,7 @@ public class SaleServiceImpl extends SaleCommonService implements SaleService {
         PosteRepository posteRepository,
         UtilisationCleSecuriteService utilisationCleSecuriteService,
         RemiseRepository remiseRepository,
-        AfficheurPosService afficheurPosService,
+        CustomerDisplayService afficheurPosService,
         SaleIdGeneratorService idGeneratorService
     ) {
         super(

@@ -7,5 +7,6 @@ import org.springframework.stereotype.Repository;
 
 @Repository
 public interface PosteRepository extends JpaRepository<Poste, Long> {
-    Optional<Poste> findFirstByAddress(String address);
+
+    Optional<Poste> findFirstByAddressOrName(String address, String name);
 }

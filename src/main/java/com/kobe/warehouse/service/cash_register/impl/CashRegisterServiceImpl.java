@@ -14,7 +14,7 @@ import com.kobe.warehouse.domain.enumeration.CategorieChiffreAffaire;
 import com.kobe.warehouse.domain.enumeration.SalesStatut;
 import com.kobe.warehouse.domain.enumeration.TypeFinancialTransaction;
 import com.kobe.warehouse.repository.CashRegisterRepository;
-import com.kobe.warehouse.service.AppConfigurationService;
+import com.kobe.warehouse.service.settings.AppConfigurationService;
 import com.kobe.warehouse.service.UserService;
 import com.kobe.warehouse.service.cash_register.CashFundService;
 import com.kobe.warehouse.service.cash_register.CashRegisterService;

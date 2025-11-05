@@ -22,6 +22,7 @@ import { Card } from 'primeng/card';
 import { SpinnerComponent } from '../../../shared/spinner/spinner.component';
 import { TauriPrinterService } from '../../../shared/services/tauri-printer.service';
 import { handleBlobForTauri } from '../../../shared/util/tauri-util';
+import { PaymentId } from '../../differes/model/new-reglement-differe.model';
 
 @Component({
   selector: 'jhi-recapitualtif-caisse',
@@ -141,12 +142,18 @@ export class RecapitualtifCaisseComponent implements OnInit {
 
   private print(): void {
     this.spinner().show();
-    this.recapitulatifCaisseService.print(this.buildParams()).subscribe({
-      next: () => {
-        this.spinner().hide();
-      },
-      error: () => this.spinner().hide(),
-    });
+    const params = this.buildParams();
+    if (this.tauriPrinterService.isRunningInTauri()) {
+      this.printReceiptForTauri(params);
+    }else{
+      this.recapitulatifCaisseService.print(params).subscribe({
+        next: () => {
+          this.spinner().hide();
+        },
+        error: () => this.spinner().hide(),
+      });
+    }
+
   }
 
   private sentMail(): void {
@@ -168,5 +175,15 @@ export class RecapitualtifCaisseComponent implements OnInit {
       onlyVente: this.onlyVente,
       usersId: this.selectedUsersId.length > 0 ? this.selectedUsersId : null,
     };
+  }
+  printReceiptForTauri(param: RecapParam): void {
+    this.recapitulatifCaisseService.getEscPosReceiptForTauri(param).subscribe({
+      next: async (escposData: ArrayBuffer) => {
+        try {
+          await this.tauriPrinterService.printEscPosFromBuffer(escposData);
+        } catch (error) {}
+      },
+      error: () => {},
+    });
   }
 }

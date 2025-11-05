@@ -62,4 +62,5 @@ export enum Authority {
   HOME_DASHBOARD = 'HOME_DASHBOARD',
   MY_CASH_REGISTER = 'my-cash-register',
   PR_MENU_DEPOT = 'PR_MENU_DEPOT',
+  PR_MENU_POSTE = 'PR_MENU_POSTE',
 }

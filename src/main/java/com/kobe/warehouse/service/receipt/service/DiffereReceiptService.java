@@ -10,7 +10,6 @@ import org.springframework.stereotype.Service;
 import javax.print.PrintException;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.List;
 
 @Service
@@ -26,12 +25,13 @@ public class DiffereReceiptService extends ReglementAbstractReceiptService {
 
     @Override
     protected List<HeaderFooterItem> getHeaderItems() {
-        List<HeaderFooterItem> headerItems = new ArrayList<>();
+        return List.of();
+      /*  List<HeaderFooterItem> headerItems = new ArrayList<>();
 
         headerItems.add(new HeaderFooterItem("CLIENT: " + differeReceipt.customerfullName(), 1, PLAIN_FONT));
         headerItems.add(new HeaderFooterItem("OPERATEUR: " + differeReceipt.userfullName(), 1, PLAIN_FONT));
 
-        return headerItems;
+        return headerItems;*/
     }
 
 
@@ -53,6 +53,7 @@ public class DiffereReceiptService extends ReglementAbstractReceiptService {
             // Header items (differe specific)
             escPosPrintLine(out, "CLIENT: " + differeReceipt.customerfullName());
             escPosPrintLine(out, "OPERATEUR: " + differeReceipt.userfullName());
+            escPosPrintLine(out, "TICKET: " + differeReceipt.reference());
             escPosFeedLines(out, 1);
 
             // Separator line

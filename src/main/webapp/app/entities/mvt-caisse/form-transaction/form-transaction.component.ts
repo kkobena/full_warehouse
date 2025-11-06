@@ -24,6 +24,7 @@ import { ToastAlertComponent } from '../../../shared/toast-alert/toast-alert.com
 import { Card } from 'primeng/card';
 import { InputGroup } from 'primeng/inputgroup';
 import { InputGroupAddon } from 'primeng/inputgroupaddon';
+import { PaymentId } from '../../reglement/model/reglement.model';
 
 @Component({
   selector: 'jhi-form-transaction',
@@ -105,7 +106,7 @@ export class FormTransactionComponent implements OnInit, AfterViewInit {
   }
 
   ngAfterViewInit(): void {
-    // this.editForm.get(['transactionDate'])!.setValue(new Date());
+
     this.editForm.get(['paymentMode']).setValue({ code: 'CASH', libelle: 'ESPECE' });
   }
 
@@ -120,16 +121,16 @@ export class FormTransactionComponent implements OnInit, AfterViewInit {
     };
   }
 
-  protected subscribeToSaveResponse(result: Observable<HttpResponse<FinancialTransaction>>): void {
+  protected subscribeToSaveResponse(result: Observable<HttpResponse<PaymentId>>): void {
     result.subscribe({
       next: res => this.onSaveSuccess(res.body),
       error: error => this.onSaveError(error)
     });
   }
 
-  protected onSaveSuccess(financialTransaction: FinancialTransaction | null): void {
+  protected onSaveSuccess(paymentId: PaymentId | null): void {
     this.isSaving = false;
-    this.activeModal.close(financialTransaction);
+    this.activeModal.close(paymentId);
   }
 
   protected onSaveError(error: any): void {

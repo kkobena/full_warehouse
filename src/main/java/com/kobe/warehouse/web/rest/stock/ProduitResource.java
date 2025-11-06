@@ -1,4 +1,4 @@
-package com.kobe.warehouse.web.rest;
+package com.kobe.warehouse.web.rest.stock;
 
 import com.kobe.warehouse.domain.enumeration.Status;
 import com.kobe.warehouse.repository.ProduitRepository;

@@ -24,6 +24,7 @@ public final class EntityConstant {
     public static final String TOUT = "TOUT";
     public static final String VNO = "VNO";
     public static final String VO = "VO";
+    public static final String VDE = "VDE";
     public static final String ASSURE = "ASSURE";
     public static final String CARNET = "CARNET";
     public static final String STANDARD = "STANDARD";

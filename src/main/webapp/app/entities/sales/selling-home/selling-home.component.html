@@ -60,39 +60,7 @@
         </p-select>
       </div>
 
-      <!-- Depot Selection (Only for depot-agree) -->
-      @if (active === 'depot-agree') {
-        <div class="header-select-wrapper"
-             style="display: flex !important; flex-direction: row !important; align-items: center !important; gap: 0.75rem !important;">
-          <label class="header-label"
-                 style="margin: 0 !important; display: inline-flex !important; align-items: center !important; gap: 0.375rem !important; white-space: nowrap !important;">
-            <i class="pi pi-building"></i>
-            <span>Dépôt Agréé</span>
-          </label>
-          <p-select
-            #depotBox
-            (onChange)="onSelectDepot()"
-            [(ngModel)]="selectedDepot"
-            [appendTo]="appendTo"
-            [dataKey]="'id'"
-            [options]="depotAgreeService.depots()"
-            [placeholder]="'Sélectionner un dépôt'"
-            [style]="{ width: '250px' }"
-            class="pharma-select-modern"
-            optionLabel="name">
-            <ng-template #item let-depot>
-              <div class="depot-option">
-                <div class="depot-name">{{ depot.name }}</div>
-                @if (depot.address) {
-                  <div class="depot-address"
-                       style="font-size: 0.85rem; color: #6c757d;">{{ depot.address }}
-                  </div>
-                }
-              </div>
-            </ng-template>
-          </p-select>
-        </div>
-      }
+
     </div>
 
     <div class="header-actions">

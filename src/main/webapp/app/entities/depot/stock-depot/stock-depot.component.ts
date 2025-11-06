@@ -17,26 +17,27 @@ import { Tooltip } from 'primeng/tooltip';
 import TranslateDirective from '../../../shared/language/translate.directive';
 import { IProduit } from '../../../shared/model/produit.model';
 import { SelectItem } from 'primeng/api';
-import { IRayon } from '../../../shared/model/rayon.model';
-import { IFamilleProduit } from '../../../shared/model/famille-produit.model';
 import { ITEMS_PER_PAGE } from '../../../shared/constants/pagination.constants';
 import { TypeProduit } from '../../../shared/model/enumerations/type-produit.model';
 import { IResponseDto } from '../../../shared/util/response-dto';
 import { IProduitCriteria, ProduitCriteria } from '../../../shared/model/produit-criteria.model';
 import { IConfiguration } from '../../../shared/model/configuration.model';
 import { ActivatedRoute, Data, ParamMap, RouterLink } from '@angular/router';
-import { RayonService } from '../../rayon/rayon.service';
-import { FamilleProduitService } from '../../famille-produit/famille-produit.service';
 import { Statut } from '../../../shared/model/enumerations/statut.model';
 import { ImportProduitModalComponent } from '../../produit/import-produit-modal/import-produit-modal.component';
 import { HttpHeaders, HttpResponse } from '@angular/common/http';
 import { showCommonModal } from '../../sales/selling-home/sale-helper';
-import { ImportProduitReponseModalComponent } from '../../produit/import-produit-reponse-modal/import-produit-reponse-modal.component';
+import {
+  ImportProduitReponseModalComponent
+} from '../../produit/import-produit-reponse-modal/import-produit-reponse-modal.component';
 import { combineLatest } from 'rxjs';
 import { FormsModule } from '@angular/forms';
 import { StockDepotService } from './stock-depot.service';
+import { MagasinService } from '../../magasin/magasin.service';
+import { IMagasin } from '../../../shared/model/magasin.model';
 
 export type ExpandMode = 'single' | 'multiple';
+
 @Component({
   selector: 'jhi-stock-depot',
   imports: [
@@ -59,19 +60,18 @@ export type ExpandMode = 'single' | 'multiple';
     Tooltip,
     TranslateDirective,
     RouterLink,
-    FormsModule,
+    FormsModule
   ],
   templateUrl: './stock-depot.component.html',
-  styleUrl: './stock-depot.component.scss',
+  styleUrl: './stock-depot.component.scss'
 })
 export class StockDepotComponent implements OnInit {
-  protected selectedFamille: number = null;
   protected produits!: IProduit[];
+  protected selectedDepot: IMagasin | null = null;
   protected selectedCriteria = 0;
   protected selectedRayon = 0;
   protected filtesProduits: SelectItem[] = [];
-  protected rayons: IRayon[] = [];
-  protected familles: IFamilleProduit[] = [];
+  protected depots: IMagasin[] = [];
   protected totalItems = 0;
   protected itemsPerPage = ITEMS_PER_PAGE;
   protected page!: number;
@@ -89,9 +89,9 @@ export class StockDepotComponent implements OnInit {
   protected typeImportation: string | null = null;
   private readonly activatedRoute = inject(ActivatedRoute);
   private readonly modalService = inject(NgbModal);
-  private readonly rayonService = inject(RayonService);
-  private readonly familleService = inject(FamilleProduitService);
   private readonly stockDepotService = inject(StockDepotService);
+  private readonly magasinService = inject(MagasinService);
+
 
   constructor() {
     this.criteria = new ProduitCriteria();
@@ -101,7 +101,7 @@ export class StockDepotComponent implements OnInit {
       { label: 'Produits désactifs', value: 1 },
       { label: 'Déconditionnables', value: 2 },
       { label: 'Déconditionnés', value: 3 },
-      { label: 'Tous', value: 10 },
+      { label: 'Tous', value: 10 }
     ];
 
     this.search = '';
@@ -112,7 +112,7 @@ export class StockDepotComponent implements OnInit {
     const modalRef = this.modalService.open(ImportProduitModalComponent, {
       backdrop: 'static',
       size: 'lg',
-      centered: true,
+      centered: true
     });
     modalRef.componentInstance.type = this.typeImportation;
     modalRef.closed.subscribe(reason => {
@@ -123,56 +123,48 @@ export class StockDepotComponent implements OnInit {
     });
   }
 
-  populate(): void {
-    this.familleService.query({ search: '' }).subscribe({
-      next: res => {
-        this.familles = res.body;
-      },
-    });
+  protected onSelectDepot(): void {
+    this.loadPage(0);
+  }
 
-    this.rayonService
-      .query({
-        search: '',
-        page: 0,
-        size: 9999,
-      })
-      .subscribe({
-        next: rayonsResponse => {
-          this.rayons = rayonsResponse.body;
-        },
-      });
+  populate(): void {
+    this.magasinService.fetchAllDepots().subscribe((res: HttpResponse<IMagasin[]>) => {
+      this.depots = res.body || [];
+
+    });
   }
 
   loadPage(page?: number, dontNavigate?: boolean): void {
-    const pageToLoad: number = page || this.page || 1;
-    let statut = 'ENABLE';
-    if (this.criteria) {
-      if (this.criteria.status) {
-        if (this.criteria.status === Statut.DISABLE) {
-          statut = 'DISABLE';
-        } else if (this.criteria.status === Statut.DELETED) {
-          statut = 'DELETED';
+    if (this.selectedDepot !== null) {
+      const pageToLoad: number = page || this.page || 1;
+      let statut = 'ENABLE';
+      if (this.criteria) {
+        if (this.criteria.status) {
+          if (this.criteria.status === Statut.DISABLE) {
+            statut = 'DISABLE';
+          } else if (this.criteria.status === Statut.DELETED) {
+            statut = 'DELETED';
+          }
         }
       }
-    }
 
-    this.stockDepotService
-      .query({
-        page: pageToLoad - 1,
-        size: this.itemsPerPage,
-        sort: this.sort(),
-        search: this.search || '',
-        storageId: this.criteria.storageId,
-        rayonId: this.criteria.rayonId,
-        deconditionne: this.criteria.deconditionne,
-        deconditionnable: this.criteria.deconditionnable,
-        status: statut,
-        familleId: this.criteria.familleId,
-      })
-      .subscribe({
-        next: (res: HttpResponse<IProduit[]>) => this.onSuccess(res.body, res.headers, pageToLoad, !dontNavigate),
-        error: () => this.onError(),
-      });
+      this.stockDepotService
+        .query({
+          page: pageToLoad - 1,
+          size: this.itemsPerPage,
+          sort: this.sort(),
+          search: this.search || '',
+          deconditionne: this.criteria.deconditionne,
+          deconditionnable: this.criteria.deconditionnable,
+          status: statut,
+          magasinId: this.selectedDepot ? this.selectedDepot.id : undefined
+
+        })
+        .subscribe({
+          next: (res: HttpResponse<IProduit[]>) => this.onSuccess(res.body, res.headers, pageToLoad, !dontNavigate),
+          error: () => this.onError()
+        });
+    }
   }
 
   ngOnInit(): void {
@@ -231,7 +223,8 @@ export class StockDepotComponent implements OnInit {
   }
 
   private showResponse(responsedto: IResponseDto): void {
-    showCommonModal(this.modalService, ImportProduitReponseModalComponent, { responsedto }, () => {}, 'lg');
+    showCommonModal(this.modalService, ImportProduitReponseModalComponent, { responsedto }, () => {
+    }, 'lg');
   }
 
   private onError(): void {
@@ -250,12 +243,10 @@ export class StockDepotComponent implements OnInit {
     combineLatest(this.activatedRoute.data, this.activatedRoute.queryParamMap, (data: Data, params: ParamMap) => {
       const page = params.get('page');
       const pageNumber = page !== null ? +page : 1;
-      const sort = (params.get('sort') ?? data['defaultSort']).split(',');
-      const predicate = sort[0];
-      const ascending = sort[1] === 'asc';
-      if (pageNumber !== this.page || predicate !== this.predicate || ascending !== this.ascending) {
-        this.predicate = predicate;
-        this.ascending = ascending;
+
+
+      if (pageNumber !== this.page ) {
+
         this.loadPage(pageNumber, true);
       }
     }).subscribe();

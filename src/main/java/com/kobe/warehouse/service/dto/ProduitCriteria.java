@@ -36,6 +36,7 @@ public class ProduitCriteria implements Serializable {
     private TypeProduit typeProduit;
     private Long tableauNot;
     private Long rayonNot;
+    private boolean depot;
 
     public Long getId() {
         return id;
@@ -43,6 +44,15 @@ public class ProduitCriteria implements Serializable {
 
     public ProduitCriteria setId(Long id) {
         this.id = id;
+        return this;
+    }
+
+    public boolean isDepot() {
+        return depot;
+    }
+
+    public ProduitCriteria setDepot(boolean depot) {
+        this.depot = depot;
         return this;
     }
 

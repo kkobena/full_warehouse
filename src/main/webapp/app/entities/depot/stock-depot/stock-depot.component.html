@@ -12,6 +12,32 @@
       <p-toolbar>
         <ng-template #start>
           <div class="pharma-toolbar-filters">
+
+            <p-select
+              id="depots"
+              (onChange)="onSelectDepot()"
+              [(ngModel)]="selectedDepot"
+              [appendTo]="'body'"
+              [dataKey]="'id'"
+              [options]="depots"
+              [placeholder]="'Sélectionner un dépôt'"
+              [style]="{ 'min-width': '200px' }"
+              class="pharma-select-modern"
+              optionLabel="name">
+              <ng-template #item let-depot>
+                <div class="depot-option">
+                  <div class="depot-name">{{ depot.name }}</div>
+                  @if (depot.address) {
+                    <div class="depot-address"
+                         style="font-size: 0.85rem; color: #6c757d;">{{ depot.address }}
+                    </div>
+                  }
+                </div>
+              </ng-template>
+            </p-select>
+
+
+
             <p-floatlabel variant="on">
               <p-select (onChange)="filtreClik()"
                         [(ngModel)]="selectedCriteria"
@@ -26,42 +52,6 @@
               >
               </p-select>
               <label for="criteria">Filtrer par critère</label>
-            </p-floatlabel>
-
-            <p-floatlabel variant="on">
-              <p-select
-                (onChange)="filtreRayon($event)"
-                [(ngModel)]="selectedRayon"
-                [fluid]="true"
-                [options]="rayons"
-                [showClear]="true"
-                [style]="{'min-width': '150px'}"
-                appendTo="body"
-                id="rayon"
-                optionLabel="libelle"
-                optionValue="id"
-                size="large"
-              >
-              </p-select>
-              <label for="rayon">Rayon</label>
-            </p-floatlabel>
-
-            <p-floatlabel variant="on">
-              <p-select
-                (onChange)="filtreFamilleProduit($event)"
-                [(ngModel)]="selectedFamille"
-                [fluid]="true"
-                [options]="familles"
-                [showClear]="true"
-                [style]="{'min-width': '150px'}"
-                appendTo="body"
-                id="famille"
-                optionLabel="libelle"
-                optionValue="id"
-                size="large"
-              >
-              </p-select>
-              <label for="famille">Famille</label>
             </p-floatlabel>
 
             <div class="pharma-compact-search">
@@ -84,16 +74,6 @@
                 label="Importation"
                 severity="help"
               ></p-button>
-
-              <p-button
-                [raised]="true"
-                [routerLink]="['/produit/new']"
-                icon="pi pi-plus"
-                label="Nouveau"
-                severity="success"
-                type="button"
-              >
-              </p-button>
             </div>
           </div>
         </ng-template>

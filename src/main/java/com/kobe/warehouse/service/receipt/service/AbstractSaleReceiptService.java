@@ -1,7 +1,7 @@
 package com.kobe.warehouse.service.receipt.service;
 
 import com.kobe.warehouse.domain.enumeration.ModePaimentCode;
-import com.kobe.warehouse.service.settings.AppConfigurationService;
+import com.kobe.warehouse.service.dto.DepotExtensionSaleDTO;
 import com.kobe.warehouse.service.dto.PaymentDTO;
 import com.kobe.warehouse.service.dto.PaymentModeDTO;
 import com.kobe.warehouse.service.dto.SaleDTO;
@@ -10,16 +10,17 @@ import com.kobe.warehouse.service.dto.TvaEmbeded;
 import com.kobe.warehouse.service.receipt.dto.CashSaleReceiptItem;
 import com.kobe.warehouse.service.receipt.dto.HeaderFooterItem;
 import com.kobe.warehouse.service.receipt.dto.SaleReceiptItem;
+import com.kobe.warehouse.service.settings.AppConfigurationService;
 import com.kobe.warehouse.service.utils.NumberUtil;
-import java.awt.Font;
+import org.springframework.stereotype.Service;
+import org.springframework.util.CollectionUtils;
+
+import java.awt.*;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
-
-import org.springframework.stereotype.Service;
-import org.springframework.util.CollectionUtils;
 
 @Service
 public abstract class AbstractSaleReceiptService extends AbstractJava2DReceiptPrinterService {
@@ -69,7 +70,6 @@ public abstract class AbstractSaleReceiptService extends AbstractJava2DReceiptPr
 
         return item;
     }
-
 
 
     /**
@@ -272,6 +272,17 @@ public abstract class AbstractSaleReceiptService extends AbstractJava2DReceiptPr
             }
 
             escPosFeedLines(out, 1);
+        } else {
+            // Remaining to pay (if any)
+            if (!(sale instanceof DepotExtensionSaleDTO) && sale.getRestToPay() > 0) {
+                escPosSetBold(out, true);
+                escPosPrintLine(out, String.format("%-37s %10s", RESTE_A_PAYER, NumberUtil.formatToString(sale.getRestToPay())));
+                escPosSetBold(out, false);
+
+                escPosFeedLines(out, 1);
+            }
+
+
         }
 
         // Tax details (if any)
@@ -340,7 +351,6 @@ public abstract class AbstractSaleReceiptService extends AbstractJava2DReceiptPr
 
         return height;
     }
-
 
 
 }

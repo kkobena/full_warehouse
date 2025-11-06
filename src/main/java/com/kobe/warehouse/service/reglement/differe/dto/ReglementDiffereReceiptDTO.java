@@ -13,7 +13,8 @@ public record ReglementDiffereReceiptDTO(
     int paidAmount,
     String mode,
     String libelleMode,
-    int solde
+    int solde,
+    String reference
 ) {
     public String userfullName() {
         return String.format("%s.%s", userFirstName.charAt(0), userLastName);

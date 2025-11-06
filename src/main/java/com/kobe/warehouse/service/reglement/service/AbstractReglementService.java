@@ -16,6 +16,7 @@ import com.kobe.warehouse.repository.BanqueRepository;
 import com.kobe.warehouse.repository.FacturationRepository;
 import com.kobe.warehouse.repository.InvoicePaymentRepository;
 import com.kobe.warehouse.repository.ThirdPartySaleLineRepository;
+import com.kobe.warehouse.service.ReferenceService;
 import com.kobe.warehouse.service.UserService;
 import com.kobe.warehouse.service.cash_register.CashRegisterService;
 import com.kobe.warehouse.service.id_generator.TransactionIdGeneratorService;
@@ -40,6 +41,7 @@ public abstract class AbstractReglementService implements ReglementService {
     private final BanqueRepository banqueRepository;
     private final TransactionIdGeneratorService transactionIdGeneratorService;
     private final InvoicePaymentItemService invoicePaymentItemService;
+    private final ReferenceService referenceService;
 
     protected AbstractReglementService(
         CashRegisterService cashRegisterService,
@@ -49,7 +51,7 @@ public abstract class AbstractReglementService implements ReglementService {
         ThirdPartySaleLineRepository thirdPartySaleLineRepository,
         BanqueRepository banqueRepository,
         TransactionIdGeneratorService transactionIdGeneratorService,
-        InvoicePaymentItemService invoicePaymentItemService
+        InvoicePaymentItemService invoicePaymentItemService, ReferenceService referenceService
     ) {
         this.cashRegisterService = cashRegisterService;
         this.invoicePaymentRepository = invoicePaymentRepository;
@@ -60,7 +62,7 @@ public abstract class AbstractReglementService implements ReglementService {
         this.banqueRepository = banqueRepository;
         this.transactionIdGeneratorService = transactionIdGeneratorService;
         this.invoicePaymentItemService = invoicePaymentItemService;
-
+        this.referenceService = referenceService;
     }
 
     protected CashRegister getCashRegister() {
@@ -85,6 +87,7 @@ public abstract class AbstractReglementService implements ReglementService {
     private InvoicePayment getNew() {
         InvoicePayment invoice = new InvoicePayment();
         invoice.setId(this.transactionIdGeneratorService.nextId());
+        invoice.setTransactionNumber(referenceService.buildNumTransaction());
         return invoice;
     }
 

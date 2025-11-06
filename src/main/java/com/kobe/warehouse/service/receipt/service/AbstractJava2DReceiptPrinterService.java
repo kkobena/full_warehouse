@@ -2,9 +2,9 @@ package com.kobe.warehouse.service.receipt.service;
 
 import com.fazecast.jSerialComm.SerialPort;
 import com.kobe.warehouse.domain.Magasin;
-import com.kobe.warehouse.service.settings.AppConfigurationService;
 import com.kobe.warehouse.service.receipt.dto.AbstractItem;
 import com.kobe.warehouse.service.receipt.dto.HeaderFooterItem;
+import com.kobe.warehouse.service.settings.AppConfigurationService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
@@ -25,6 +25,7 @@ import java.io.OutputStream;
 import java.net.Socket;
 import java.time.LocalDate;
 import java.time.LocalTime;
+import java.time.format.DateTimeFormatter;
 import java.util.List;
 
 @Service
@@ -70,6 +71,13 @@ public abstract class AbstractJava2DReceiptPrinterService {
         return this.appConfigurationService.getPrinterItemCount();
     }
 
+    protected boolean printHeaderWelcomeMessage() {
+        return true;
+    }
+
+    protected boolean printFooterNote() {
+        return true;
+    }
 
     protected PrintService getPrintService(String printerName) {
         if (StringUtils.hasLength(printerName)) {
@@ -233,7 +241,7 @@ public abstract class AbstractJava2DReceiptPrinterService {
         escPosFeedLines(out, 1);
 
         // Welcome message (if any)
-        if (magasin.getWelcomeMessage() != null && !magasin.getWelcomeMessage().isEmpty()) {
+        if (printHeaderWelcomeMessage() && (magasin.getWelcomeMessage() != null && !magasin.getWelcomeMessage().isEmpty())) {
             escPosPrintLine(out, magasin.getWelcomeMessage());
             escPosFeedLines(out, 1);
         }
@@ -251,9 +259,9 @@ public abstract class AbstractJava2DReceiptPrinterService {
      */
     protected void printEscPosFooter(java.io.ByteArrayOutputStream out) throws java.io.IOException {
         printEscPosFooter(out,
-            LocalDate.now().format(java.time.format.DateTimeFormatter.ofPattern("dd/MM/yyyy")) +
+            LocalDate.now().format(DateTimeFormatter.ofPattern("dd/MM/yyyy")) +
                 " " +
-                LocalTime.now().format(java.time.format.DateTimeFormatter.ofPattern("HH:mm:ss"))
+                LocalTime.now().format(DateTimeFormatter.ofPattern("HH:mm:ss"))
         );
     }
 
@@ -276,7 +284,7 @@ public abstract class AbstractJava2DReceiptPrinterService {
         escPosFeedLines(out, 1);
 
         // Thank you message (centered)
-        if (magasin.getNote() != null && !magasin.getNote().isEmpty()) {
+        if (printFooterNote() && (magasin.getNote() != null && !magasin.getNote().isEmpty())) {
             escPosSetAlignment(out, EscPosAlignment.CENTER);
             escPosPrintLine(out, magasin.getNote());
             escPosSetAlignment(out, EscPosAlignment.LEFT);

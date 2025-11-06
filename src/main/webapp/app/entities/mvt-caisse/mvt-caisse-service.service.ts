@@ -5,6 +5,7 @@ import { SERVER_API_URL } from '../../app.constants';
 import { Observable } from 'rxjs';
 import { createRequestOptions } from '../../shared/util/request-util';
 import { Pair } from '../../shared/model/configuration.model';
+import { PaymentId } from '../reglement/model/reglement.model';
 
 type EntityResponseType = HttpResponse<FinancialTransaction>;
 type EntityArrayResponseType = HttpResponse<FinancialTransaction[]>;
@@ -21,8 +22,8 @@ export class MvtCaisseServiceService {
     return this.http.get<FinancialTransaction>(`${this.resourceUrl}/${id}`, { observe: 'response' });
   }
 
-  create(entity: FinancialTransaction): Observable<EntityResponseType> {
-    return this.http.post<FinancialTransaction>(this.resourceUrl, entity, { observe: 'response' });
+  create(entity: FinancialTransaction): Observable<HttpResponse<PaymentId>> {
+    return this.http.post<PaymentId>(this.resourceUrl, entity, { observe: 'response' });
   }
 
   query(req?: any): Observable<EntityArrayResponseType> {
@@ -56,5 +57,15 @@ export class MvtCaisseServiceService {
 
   findAllMvtsTypes(): Observable<HttpResponse<Pair[]>> {
     return this.http.get<Pair[]>(this.resourceUrl + '/types', { observe: 'response' });
+  }
+
+  printReceipt(paymentId: PaymentId): Observable<{}> {
+    return this.http.get(`${this.resourceUrl}/print-receipt/${paymentId.id}/${paymentId.transactionDate}`, { observe: 'response' });
+  }
+
+  getEscPosReceiptForTauri(paymentId: PaymentId): Observable<ArrayBuffer> {
+    return this.http.get(`${this.resourceUrl}/print-tauri/${paymentId.id}/${paymentId.transactionDate}`, {
+      responseType: 'arraybuffer'
+    });
   }
 }

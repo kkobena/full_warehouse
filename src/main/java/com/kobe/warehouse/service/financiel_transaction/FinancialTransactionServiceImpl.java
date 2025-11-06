@@ -1,9 +1,11 @@
 package com.kobe.warehouse.service.financiel_transaction;
 
+import com.kobe.warehouse.domain.AppUser;
 import com.kobe.warehouse.domain.AppUser_;
 import com.kobe.warehouse.domain.CashRegister;
 import com.kobe.warehouse.domain.CashRegister_;
 import com.kobe.warehouse.domain.DefaultPayment;
+import com.kobe.warehouse.domain.PaymentId;
 import com.kobe.warehouse.domain.PaymentTransaction;
 import com.kobe.warehouse.domain.PaymentTransaction_;
 import com.kobe.warehouse.domain.enumeration.CategorieChiffreAffaire;
@@ -11,6 +13,7 @@ import com.kobe.warehouse.domain.enumeration.TransactionTypeAffichage;
 import com.kobe.warehouse.repository.DefaultTransactionRepository;
 import com.kobe.warehouse.repository.PaymentTransactionRepository;
 import com.kobe.warehouse.repository.SalesRepository;
+import com.kobe.warehouse.service.ReferenceService;
 import com.kobe.warehouse.service.UserService;
 import com.kobe.warehouse.service.cash_register.CashRegisterService;
 import com.kobe.warehouse.service.dto.FinancialTransactionDTO;
@@ -18,14 +21,14 @@ import com.kobe.warehouse.service.dto.Pair;
 import com.kobe.warehouse.service.dto.ReportPeriode;
 import com.kobe.warehouse.service.dto.filter.FinancielTransactionFilterDTO;
 import com.kobe.warehouse.service.dto.filter.TransactionFilterDTO;
-import com.kobe.warehouse.service.dto.projection.MouvementCaisse;
-import com.kobe.warehouse.service.dto.projection.MouvementCaisseGroupByMode;
 import com.kobe.warehouse.service.financiel_transaction.dto.MvtCaisseDTO;
 import com.kobe.warehouse.service.financiel_transaction.dto.MvtCaisseProjection;
 import com.kobe.warehouse.service.financiel_transaction.dto.MvtCaisseSumProjection;
 import com.kobe.warehouse.service.financiel_transaction.dto.MvtCaisseWrapper;
 import com.kobe.warehouse.service.financiel_transaction.dto.SaleInfo;
 import com.kobe.warehouse.service.id_generator.TransactionIdGeneratorService;
+import com.kobe.warehouse.service.receipt.service.MouvementCaisseReceiptService;
+import com.kobe.warehouse.service.reglement.dto.DefaultPaymentRecord;
 import com.kobe.warehouse.service.utils.DateUtil;
 import com.kobe.warehouse.service.utils.ServiceUtil;
 import jakarta.persistence.EntityManager;
@@ -67,6 +70,8 @@ public class FinancialTransactionServiceImpl implements FinancialTransactionServ
     private final MvtCaisseReportReportService mvtCaisseReportService;
     private final DefaultTransactionRepository defaultTransactionRepository;
     private final TransactionIdGeneratorService transactionIdGeneratorService;
+    private final MouvementCaisseReceiptService mouvementCaisseReceiptService;
+    private final ReferenceService referenceService;
 
     public FinancialTransactionServiceImpl(
         PaymentTransactionRepository paymentTransactionRepository,
@@ -75,7 +80,7 @@ public class FinancialTransactionServiceImpl implements FinancialTransactionServ
         CashRegisterService cashRegisterService,
         EntityManager em,
         MvtCaisseReportReportService mvtCaisseReportService,
-        DefaultTransactionRepository defaultTransactionRepository, TransactionIdGeneratorService transactionIdGeneratorService
+        DefaultTransactionRepository defaultTransactionRepository, TransactionIdGeneratorService transactionIdGeneratorService, MouvementCaisseReceiptService mouvementCaisseReceiptService, ReferenceService referenceService
     ) {
         this.paymentTransactionRepository = paymentTransactionRepository;
         this.userService = userService;
@@ -85,11 +90,13 @@ public class FinancialTransactionServiceImpl implements FinancialTransactionServ
         this.mvtCaisseReportService = mvtCaisseReportService;
         this.defaultTransactionRepository = defaultTransactionRepository;
         this.transactionIdGeneratorService = transactionIdGeneratorService;
+        this.mouvementCaisseReceiptService = mouvementCaisseReceiptService;
+        this.referenceService = referenceService;
     }
 
     @Override
-    public void create(FinancialTransactionDTO financialTransactionDTO) {
-        defaultTransactionRepository.save(fromDTO(financialTransactionDTO));
+    public PaymentId create(FinancialTransactionDTO financialTransactionDTO) {
+        return defaultTransactionRepository.save(fromDTO(financialTransactionDTO)).getId();
     }
 
     @Override
@@ -122,7 +129,7 @@ public class FinancialTransactionServiceImpl implements FinancialTransactionServ
     }
 
     @Override
-    public Optional<FinancialTransactionDTO> findById(Long id) {
+    public Optional<FinancialTransactionDTO> findById(PaymentId id) {
         return this.paymentTransactionRepository.findById(id).map(this::toDTO);
     }
 
@@ -139,18 +146,25 @@ public class FinancialTransactionServiceImpl implements FinancialTransactionServ
     }
 
     @Override
-    public List<MouvementCaisse> findMouvementsCaisse(LocalDate fromDate, LocalDate toDate) {
-        return this.paymentTransactionRepository.findMouvementsCaisse(fromDate, toDate);
+    public byte[] generateEscPosReceiptForTauri(PaymentId idReglement) throws IOException {
+        return mouvementCaisseReceiptService.generateEscPosReceiptForTauri(buildPaymentRecord(idReglement));
     }
 
     @Override
-    public List<MouvementCaisseGroupByMode> findMouvementsCaisseGroupBYModeReglement(LocalDate fromDate, LocalDate toDate) {
-        return this.paymentTransactionRepository.findMouvementsCaisseGroupBYModeReglement(fromDate, toDate);
+    public void printReceipt(PaymentId idReglement) {
+        mouvementCaisseReceiptService.printReceipt(buildPaymentRecord(idReglement));
+    }
+
+    private DefaultPaymentRecord buildPaymentRecord(PaymentId idReglement) {
+        DefaultPayment paymentTransaction = defaultTransactionRepository.findById(idReglement).orElseThrow();
+        AppUser user = paymentTransaction.getCashRegister().getUser();
+        return new DefaultPaymentRecord(user.getFirstName().concat(" ").concat(user.getLastName()), paymentTransaction.getCreatedAt(), paymentTransaction.getPaymentMode().getLibelle(), paymentTransaction.getPaidAmount(), paymentTransaction.getTransactionNumber(), paymentTransaction.getTypeFinancialTransaction());
     }
 
     private DefaultPayment fromDTO(FinancialTransactionDTO financialTransaction) {
         var user = userService.getUser();
         DefaultPayment paymentTransaction = new DefaultPayment();
+        paymentTransaction.setTransactionNumber(referenceService.buildNumTransaction());
         paymentTransaction.setId(transactionIdGeneratorService.nextId());
 
         paymentTransaction.setCreatedAt(LocalDateTime.now());

@@ -1,11 +1,269 @@
-import { Component } from '@angular/core';
+import { AfterViewInit, Component, inject, OnInit, viewChild } from '@angular/core';
+import { Button } from 'primeng/button';
+import { Checkbox } from 'primeng/checkbox';
+import { ConfirmDialogComponent } from '../../../shared/dialog/confirm-dialog/confirm-dialog.component';
+import { DatePicker } from 'primeng/datepicker';
+import { DatePipe, DecimalPipe } from '@angular/common';
+import { FloatLabel } from 'primeng/floatlabel';
+import { InputGroup } from 'primeng/inputgroup';
+import { InputGroupAddon } from 'primeng/inputgroupaddon';
+import { InputText } from 'primeng/inputtext';
+import { Select } from 'primeng/select';
+import { TableLazyLoadEvent, TableModule } from 'primeng/table';
+import { Toolbar } from 'primeng/toolbar';
+import { Tooltip } from 'primeng/tooltip';
+import { ITEMS_PER_PAGE } from '../../../shared/constants/pagination.constants';
+import { ISales, SaleId } from '../../../shared/model/sales.model';
+import { IUser } from '../../../core/user/user.model';
+import { MenuItem } from 'primeng/api';
+import { HasAuthorityService } from '../../sales/service/has-authority.service';
+import { TranslateService } from '@ngx-translate/core';
+import { PrimeNG } from 'primeng/config';
+import { SalesService } from '../../sales/sales.service';
+import { UserService } from '../../../core/user/user.service';
+import { debounceTime, Subject } from 'rxjs';
+import { TauriPrinterService } from '../../../shared/services/tauri-printer.service';
+import { Authority } from '../../../shared/constants/authority.constants';
+import { HttpHeaders, HttpResponse } from '@angular/common/http';
+import { handleBlobForTauri } from '../../../shared/util/tauri-util';
+import { WarehouseCommonModule } from '../../../shared/warehouse-common/warehouse-common.module';
+import { IMagasin } from '../../../shared/model/magasin.model';
+import { FormsModule } from '@angular/forms';
+import { MagasinService } from '../../magasin/magasin.service';
+import { Router, RouterLink } from '@angular/router';
 
 @Component({
   selector: 'jhi-achat-depot',
-  imports: [],
+  imports: [
+    Button,
+    WarehouseCommonModule,
+    Checkbox,
+    ConfirmDialogComponent,
+    DatePicker,
+    DatePipe,
+    DecimalPipe,
+    FloatLabel,
+    InputGroup,
+    InputGroupAddon,
+    InputText,
+    Select,
+    TableModule,
+    Toolbar,
+    Tooltip,
+    FormsModule,
+    RouterLink
+  ],
   templateUrl: './achat-depot.component.html',
-  styleUrl: './achat-depot.component.scss',
+  styleUrl: './achat-depot.component.scss'
 })
-export class AchatDepotComponent {
+export class AchatDepotComponent implements OnInit, AfterViewInit {
+  protected selectedDepot: IMagasin | null = null;
+  protected totalItems = 0;
+  protected loading!: boolean;
+  protected canCancel = false;
+  protected page = 0;
+  protected itemsPerPage = ITEMS_PER_PAGE;
+  protected sales: ISales[] = [];
+  protected selectedEl?: ISales;
+  protected users: IUser[] = [];
+  protected selectedUserId: number | null;
+  protected search = '';
+  protected global = true;
+  protected fromDate: Date = new Date();
+  protected toDate: Date = new Date();
+  protected isLargeScreen = true;
+  protected splitbuttons: MenuItem[];
+  protected depots: IMagasin[] = [];
+  protected hasAuthorityService = inject(HasAuthorityService);
+  protected userControl = viewChild<Select>('userControl');
+  protected actions: MenuItem[] | undefined;
+  private readonly translate = inject(TranslateService);
+  private readonly primeNGConfig = inject(PrimeNG);
+  private readonly salesService = inject(SalesService);
+  private readonly userService = inject(UserService);
+  private readonly datePipe = inject(DatePipe);
+  private searchSubject = new Subject<void>();
+  private readonly confimDialog = viewChild.required<ConfirmDialogComponent>('confirmDialog');
+  private readonly tauriPrinterService = inject(TauriPrinterService);
+  private readonly magasinService = inject(MagasinService);
+  private router = inject(Router);
+  constructor() {
+    this.translate.use('fr');
+    this.translate.stream('primeng').subscribe(data => {
+      this.primeNGConfig.setTranslation(data);
+    });
+    this.splitbuttons = [
+      {
+        label: 'Fiche à partir csv',
+        icon: 'pi pi-file-pdf',
+        command: () => console.error('print all record')
+      }
+    ];
+  }
+  onNewVente(): void {
+    this.router.navigate(['/depot', 'new-vente']);
+  }
 
+  protected onSelectDepot(): void {
+    this.searchSubject.next();
+  }
+
+  populate(): void {
+    this.magasinService.fetchAllDepots().subscribe((res: HttpResponse<IMagasin[]>) => {
+      this.depots = res.body || [];
+
+    });
+  }
+
+  ngOnInit(): void {
+    const width = window.innerWidth;
+    if (width < 1800) {
+      this.isLargeScreen = false;
+    }
+
+    this.canCancel = this.hasAuthorityService.hasAuthorities(Authority.PR_ANNULATION_VENTE);
+
+    this.loadAllUsers();
+    this.populate();
+    this.loadPage();
+
+    this.searchSubject.pipe(debounceTime(300)).subscribe(() => {
+      this.loadPage();
+    });
+    this.actions = [
+      {
+        label: 'Options',
+        items: [
+          {
+            label: 'Modifier la vente',
+            icon: 'pi pi-pencil'
+          },
+          {
+            label: 'Modifier la date de vente',
+            icon: 'pi pi-calendar-plus'
+          },
+          {
+            label: 'Modifier les informations du client',
+            icon: 'pi pi-user-edit'
+          }
+        ]
+      }
+    ];
+  }
+
+  loadAllUsers(): void {
+    this.userService.query().subscribe((res: HttpResponse<IUser[]>) => {
+      if (res.body) {
+        this.users = [{ id: null, abbrName: 'TOUT' }];
+        this.users = [...this.users, ...res.body];
+      }
+    });
+  }
+
+  onSelectUser(evt: { value: number | null }): void {
+    this.selectedUserId = evt.value;
+    this.searchSubject.next();
+  }
+
+  ngAfterViewInit(): void {
+    this.userControl().value = this.selectedUserId;
+  }
+
+  printReceiptForTauri(saleId: SaleId, isEdition: boolean = false): void {
+    this.salesService.getEscPosReceiptForTauri(saleId, isEdition).subscribe({
+      next: async (escposData: ArrayBuffer) => {
+        try {
+          await this.tauriPrinterService.printEscPosFromBuffer(escposData);
+        } catch (error) {
+        }
+      },
+      error: () => {
+      }
+    });
+  }
+
+
+  protected loadPage(page?: number): void {
+    const pageToLoad: number = page || this.page;
+    this.fetchSales(pageToLoad, this.itemsPerPage);
+
+  }
+
+  protected lazyLoading(event: TableLazyLoadEvent): void {
+    if (event) {
+      this.page = event.first / event.rows;
+      this.itemsPerPage = event.rows;
+      this.fetchSales(this.page, this.itemsPerPage);
+    }
+  }
+
+  protected onSearch(): void {
+    this.searchSubject.next();
+  }
+
+  protected delete(sale: ISales): void {
+    if (sale) {
+      //  this.salesService.cancelComptant(sale.saleId).subscribe(() => this.loadPage());
+    }
+  }
+
+  protected confirmRemove(sale: ISales): void {
+    this.confimDialog().onConfirm(() => this.delete(sale), 'ANNULATION DE VENTE', 'Voulez-vous vraiment annuler cette vente ?');
+  }
+
+  protected print(sales: ISales): void {
+    this.salesService.printInvoice(sales.saleId).subscribe(blob => {
+      if (this.tauriPrinterService.isRunningInTauri()) {
+        handleBlobForTauri(blob, 'facture-client');
+      } else {
+        window.open(URL.createObjectURL(blob));
+      }
+    });
+  }
+
+  protected printSale(sale: ISales): void {
+    if (this.tauriPrinterService.isRunningInTauri()) {
+      this.printReceiptForTauri(sale.saleId, true);
+    } else {
+      this.salesService.rePrintReceipt(sale.saleId).subscribe();
+    }
+  }
+
+
+  protected onSuccess(data: ISales[] | null, headers: HttpHeaders, page: number): void {
+    this.totalItems = Number(headers.get('X-Total-Count'));
+    this.page = page;
+
+    this.sales = data || [];
+    this.loading = false;
+  }
+
+  protected onError(): void {
+    this.loading = false;
+  }
+
+  private fetchSales(page: number, size: number): void {
+    this.loading = true;
+    this.salesService
+      .query({
+        page,
+        size,
+        ...this.buildCriteria()
+      })
+      .subscribe({
+        next: (res: HttpResponse<ISales[]>) => this.onSuccess(res.body, res.headers, page),
+        error: () => this.onError()
+      });
+  }
+
+  private buildCriteria(): any {
+    return {
+      search: this.search,
+      fromDate: this.fromDate ? this.datePipe.transform(this.fromDate, 'yyyy-MM-dd') : null,
+      toDate: this.toDate ? this.datePipe.transform(this.toDate, 'yyyy-MM-dd') : null,
+      magasinId: this.selectedDepot ? this.selectedDepot.id : null,
+      global: this.global,
+      userId: this.selectedUserId
+    };
+  }
 }

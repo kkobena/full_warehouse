@@ -1,0 +1,19 @@
+@import 'app/shared/scss/table-common';
+@import 'app/shared/scss/pharma-toolbar';
+$pharma-primary: #5b89a6;
+$border-radius: $pharma-radius;
+.pharma-select-modern {
+  border-radius: $border-radius;
+  border-color: $gray-300;
+  transition: all 0.2s ease;
+
+  &:hover {
+    border-color: $pharma-primary;
+  }
+
+  &:focus,
+  &.p-focus {
+    border-color: $pharma-primary;
+    box-shadow: 0 0 0 3px rgba($pharma-primary, 0.1);
+  }
+}

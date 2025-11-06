@@ -1,37 +1,48 @@
 package com.kobe.warehouse.service.receipt.service;
 
-import com.kobe.warehouse.service.settings.AppConfigurationService;
 import com.kobe.warehouse.service.dto.CashSaleDTO;
+import com.kobe.warehouse.service.dto.DepotExtensionSaleDTO;
+import com.kobe.warehouse.service.dto.MagasinDTO;
 import com.kobe.warehouse.service.dto.SaleDTO;
 import com.kobe.warehouse.service.dto.SaleLineDTO;
 import com.kobe.warehouse.service.dto.UninsuredCustomerDTO;
 import com.kobe.warehouse.service.receipt.dto.CashSaleReceiptItem;
 import com.kobe.warehouse.service.receipt.dto.HeaderFooterItem;
-
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
-import javax.print.PrintException;
+import com.kobe.warehouse.service.settings.AppConfigurationService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 
-@Service
-public class CashSaleReceiptService extends AbstractSaleReceiptService {
+import javax.print.PrintException;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 
-    private static final Logger LOG = LoggerFactory.getLogger(CashSaleReceiptService.class);
-    private CashSaleDTO cashSale;
+@Service
+public class VenteDepotReceiptService extends AbstractSaleReceiptService {
+
+    private static final Logger LOG = LoggerFactory.getLogger(VenteDepotReceiptService.class);
+    private DepotExtensionSaleDTO depotExtensionSale;
     private int avoirCount;
 
-    public CashSaleReceiptService(AppConfigurationService appConfigurationService) {
+    public VenteDepotReceiptService(AppConfigurationService appConfigurationService) {
         super(appConfigurationService);
     }
 
+    @Override
+    protected boolean printHeaderWelcomeMessage() {
+        return false;
+    }
+
+    @Override
+    protected boolean printFooterNote() {
+        return false;
+    }
 
     @Override
     protected SaleDTO getSale() {
-        return cashSale;
+        return depotExtensionSale;
     }
 
     @Override
@@ -42,7 +53,7 @@ public class CashSaleReceiptService extends AbstractSaleReceiptService {
     @Override
     public List<CashSaleReceiptItem> getItems() {
         List<CashSaleReceiptItem> items = new ArrayList<>();
-        for (SaleLineDTO line : cashSale.getSalesLines()) {
+        for (SaleLineDTO line : depotExtensionSale.getSalesLines()) {
             avoirCount += (line.getQuantityRequested() - line.getQuantitySold());
             items.add((CashSaleReceiptItem) fromSaleLine(line));
         }
@@ -50,8 +61,8 @@ public class CashSaleReceiptService extends AbstractSaleReceiptService {
         return items;
     }
 
-    public void printReceipt(String hostName, CashSaleDTO sale, boolean isEdit) {
-        this.cashSale = sale;
+    public void printReceipt(String hostName, DepotExtensionSaleDTO sale, boolean isEdit) {
+        this.depotExtensionSale = sale;
         try {
             printEscPosDirectByHost(hostName, isEdit);
         } catch (IOException | PrintException e) {
@@ -62,13 +73,13 @@ public class CashSaleReceiptService extends AbstractSaleReceiptService {
     @Override
     public List<HeaderFooterItem> getHeaderItems() {
         List<HeaderFooterItem> headerItems = new ArrayList<>();
-        if (cashSale.getCustomer() != null) {
-            UninsuredCustomerDTO customer = (UninsuredCustomerDTO) cashSale.getCustomer();
-            headerItems.add(new HeaderFooterItem("Client: " + customer.getFullName(), 1, PLAIN_FONT));
-            if (StringUtils.hasLength(customer.getPhone())) {
-                headerItems.add(new HeaderFooterItem("Tél: " + customer.getPhone(), 1, PLAIN_FONT));
+        MagasinDTO depot = depotExtensionSale.getMagasin();
+
+            headerItems.add(new HeaderFooterItem("DEPOT: " + depot.getName(), 1, PLAIN_FONT));
+            if (StringUtils.hasLength(depot.getPhone())) {
+                headerItems.add(new HeaderFooterItem("TEL: " + depot.getPhone(), 1, PLAIN_FONT));
             }
-        }
+
         headerItems.addAll(getOperateurInfos());
 
         return headerItems;
@@ -82,16 +93,13 @@ public class CashSaleReceiptService extends AbstractSaleReceiptService {
     @Override
     public List<HeaderFooterItem> getFooterItems() {
         return List.of();
-        /* List<HeaderFooterItem> headerItems = new ArrayList<>();
-        Font font = getBodyFont();
-        headerItems.add(new HeaderFooterItem("Montants exprimés en FCFA", 1, font));
-        return headerItems;*/
+
     }
 
 
 
-    public byte[] generateEscPosReceiptForTauri(CashSaleDTO sale, boolean isEdit) throws IOException {
-        this.cashSale = sale;
+    public byte[] generateEscPosReceiptForTauri(DepotExtensionSaleDTO sale, boolean isEdit) throws IOException {
+        this.depotExtensionSale = sale;
         return generateEscPosReceipt(isEdit);
     }
 }

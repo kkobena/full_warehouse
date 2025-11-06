@@ -32,6 +32,7 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
@@ -351,9 +352,10 @@ public class SuggestionProduitServiceImpl implements SuggestionProduitService {
             suggestionExist.set(true);
             suggestion = suggestionOpt.get();
         } else {
+
             suggestionExist.set(false);
             suggestion = new Suggestion()
-                .setSuggessionReference(this.referenceService.buildSuggestionReference())
+                .setSuggessionReference(LocalDate.now().format(DateTimeFormatter.ofPattern("yyyyMMdd")).concat(this.referenceService.buildSuggestionReference()))
                 .createdAt(LocalDateTime.now());
         }
 

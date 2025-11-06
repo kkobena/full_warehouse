@@ -87,17 +87,19 @@ public class PaymentTransaction implements Persistable<PaymentId>, Serializable 
 
     @NotNull
     @Enumerated(EnumType.STRING)
-    @Column(name = "categorie_ca", nullable = false)
+    @Column(name = "categorie_ca", nullable = false, length = 20)
     private CategorieChiffreAffaire categorieChiffreAffaire = CategorieChiffreAffaire.CA;
 
     private boolean credit;
 
     @NotNull
     @Enumerated(EnumType.STRING)
-    @Column(name = "type_transaction", nullable = false)
+    @Column(name = "type_transaction", nullable = false,length = 50)
     private TypeFinancialTransaction typeFinancialTransaction;
 
     private String commentaire;
+    @Column(name = "transaction_number", nullable = false,length = 13)
+    private String transactionNumber;
 
     @Column(name = "dtype", insertable = false, updatable = false)
     private String type;
@@ -111,6 +113,15 @@ public class PaymentTransaction implements Persistable<PaymentId>, Serializable 
 
     public PaymentTransaction setExpectedAmount(Integer expectedAmount) {
         this.expectedAmount = expectedAmount;
+        return this;
+    }
+
+    public String getTransactionNumber() {
+        return transactionNumber;
+    }
+
+    public PaymentTransaction setTransactionNumber(String transactionNumber) {
+        this.transactionNumber = transactionNumber;
         return this;
     }
 

@@ -103,7 +103,7 @@ public class SalesDataResource {
             userId,
             type,
             null,
-            null,
+            null, null,
             pageable
         );
         HttpHeaders headers = PaginationUtil.generatePaginationHttpHeaders(ServletUriComponentsBuilder.fromCurrentRequest(), page);

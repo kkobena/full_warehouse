@@ -1,7 +1,5 @@
 package com.kobe.warehouse.service.sale;
 
-import static java.util.Objects.isNull;
-
 import com.kobe.warehouse.constant.EntityConstant;
 import com.kobe.warehouse.domain.AppUser;
 import com.kobe.warehouse.domain.AppUser_;
@@ -9,6 +7,8 @@ import com.kobe.warehouse.domain.CashSale;
 import com.kobe.warehouse.domain.CashSale_;
 import com.kobe.warehouse.domain.FournisseurProduit;
 import com.kobe.warehouse.domain.FournisseurProduit_;
+import com.kobe.warehouse.domain.Magasin;
+import com.kobe.warehouse.domain.Magasin_;
 import com.kobe.warehouse.domain.Produit;
 import com.kobe.warehouse.domain.Produit_;
 import com.kobe.warehouse.domain.SaleId;
@@ -20,8 +20,10 @@ import com.kobe.warehouse.domain.ThirdPartySaleLine;
 import com.kobe.warehouse.domain.ThirdPartySales;
 import com.kobe.warehouse.domain.ThirdPartySales_;
 import com.kobe.warehouse.domain.VenteDepot;
+import com.kobe.warehouse.domain.VenteDepot_;
 import com.kobe.warehouse.domain.enumeration.PaymentStatus;
 import com.kobe.warehouse.domain.enumeration.SalesStatut;
+import com.kobe.warehouse.domain.enumeration.TypeVente;
 import com.kobe.warehouse.repository.SalesLineRepository;
 import com.kobe.warehouse.repository.SalesRepository;
 import com.kobe.warehouse.repository.ThirdPartySaleLineRepository;
@@ -46,15 +48,6 @@ import jakarta.persistence.criteria.Predicate;
 import jakarta.persistence.criteria.Root;
 import jakarta.persistence.criteria.SetJoin;
 import jakarta.validation.constraints.NotNull;
-import java.io.IOException;
-import java.net.MalformedURLException;
-import java.time.LocalDate;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.EnumSet;
-import java.util.List;
-import java.util.Objects;
-import java.util.Optional;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.tuple.Pair;
 import org.springframework.core.io.Resource;
@@ -64,6 +57,19 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.io.IOException;
+import java.net.MalformedURLException;
+import java.time.LocalDate;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.EnumSet;
+import java.util.List;
+import java.util.Objects;
+import java.util.Optional;
+import java.util.Set;
+
+import static java.util.Objects.isNull;
 
 @Service
 @Transactional(readOnly = true)
@@ -265,18 +271,20 @@ public class SaleDataService {
         String type,
         PaymentStatus paymentStatus,
         Boolean isDiffere,
+        Long depotId,
         Pageable pageable
     ) {
-        var totalCount = countVentesTerminees(search, fromDate, toDate, fromHour, toHour, global, userId, paymentStatus, isDiffere);
+        var totalCount = countVentesTerminees(search, fromDate, toDate, fromHour, toHour, global, userId, paymentStatus, isDiffere, type, depotId);
         if (totalCount == 0) {
             return new PageImpl<>(Collections.emptyList(), pageable, totalCount);
         }
         CriteriaBuilder cb = em.getCriteriaBuilder();
         CriteriaQuery<Sales> cq = cb.createQuery(Sales.class);
         Root<Sales> root = cq.from(Sales.class);
-        if (StringUtils.isNotEmpty(type) && !type.equals(EntityConstant.TOUT)) {
+       /* if (StringUtils.isNotEmpty(type) && !type.equals(EntityConstant.TOUT)) {
             if (type.equals(EntityConstant.VO)) {
                 Root<ThirdPartySales> thirdPartySalesRoot = cb.treat(root, ThirdPartySales.class);
+
                 cq.select(thirdPartySalesRoot).distinct(true).orderBy(cb.desc(root.get(Sales_.updatedAt)));
             } else {
                 Root<CashSale> cashSaleRoot = cb.treat(root, CashSale.class);
@@ -284,7 +292,17 @@ public class SaleDataService {
             }
         } else {
             cq.select(root).distinct(true).orderBy(cb.desc(root.get(Sales_.updatedAt)));
+        }*/
+        Root<VenteDepot> venteDepotRoot;
+        Join<VenteDepot, Magasin> depotJoin = null;
+        if (depotId != null) {
+            venteDepotRoot = cb.treat(root, VenteDepot.class);
+            depotJoin = venteDepotRoot.join(VenteDepot_.depot);
+            cq.select(venteDepotRoot).distinct(true).orderBy(cb.desc(venteDepotRoot.get(VenteDepot_.updatedAt)));
+        } else {
+            cq.select(root).distinct(true).orderBy(cb.desc(root.get(Sales_.updatedAt)));
         }
+
         List<Predicate> predicates = new ArrayList<>();
         predicatesVentesTerminees(
             search,
@@ -298,7 +316,7 @@ public class SaleDataService {
             isDiffere,
             predicates,
             cb,
-            root
+            root, type, depotId, depotJoin
         );
         cq.where(cb.and(predicates.toArray(new Predicate[0])));
         TypedQuery<Sales> q = em.createQuery(cq);
@@ -322,12 +340,19 @@ public class SaleDataService {
         Boolean global,
         Long userId,
         PaymentStatus paymentStatus,
-        Boolean isDiffere
+        Boolean isDiffere, String type, Long depotId
     ) {
         List<Predicate> predicates = new ArrayList<>();
         CriteriaBuilder cb = em.getCriteriaBuilder();
         CriteriaQuery<Long> cq = cb.createQuery(Long.class);
         Root<Sales> root = cq.from(Sales.class);
+        Root<VenteDepot> venteDepotRoot;
+        Join<VenteDepot, Magasin> depotJoin = null;
+        if (depotId != null) {
+            venteDepotRoot = cb.treat(root, VenteDepot.class);
+            depotJoin = venteDepotRoot.join(VenteDepot_.depot);
+
+        }
         predicatesVentesTerminees(
             search,
             fromDate,
@@ -340,7 +365,7 @@ public class SaleDataService {
             isDiffere,
             predicates,
             cb,
-            root
+            root, type, depotId, depotJoin
         );
         cq.select(cb.countDistinct(root));
         cq.where(cb.and(predicates.toArray(new Predicate[0])));
@@ -405,7 +430,7 @@ public class SaleDataService {
         Boolean isDiffere,
         List<Predicate> predicates,
         CriteriaBuilder cb,
-        Root<Sales> root
+        Root<Sales> root, String type, Long depotId, Join<VenteDepot, Magasin> depotJoin
     ) {
         if (global) {
             lineSetJoin(search, cb, predicates, root);
@@ -419,6 +444,16 @@ public class SaleDataService {
         // predicates.add(cb.isFalse(root.get(Sales_.canceled)));
         predicates.add(root.get(Sales_.statut).in(SalesStatut.CLOSED, SalesStatut.CANCELED));
         predicates.add(cb.equal(root.get(Sales_.user).get(AppUser_.magasin), getUser().getMagasin()));
+        if (StringUtils.isNotEmpty(type) && !type.equals(EntityConstant.TOUT)) {
+            if (type.equals(EntityConstant.VO)) {
+                predicates.add(root.get(Sales_.type).in(Set.of(TypeVente.ThirdPartySales.name(), TypeVente.VenteDepot.name())));
+            } else if (type.equals(EntityConstant.VDE) && depotId == null) {
+                predicates.add(root.get(Sales_.type).in(Set.of(TypeVente.VenteDepot.name())));
+            } else if (type.equals(EntityConstant.VNO)){
+                predicates.add(cb.equal(root.get(Sales_.type), TypeVente.CashSale.name()));
+            }
+
+        }
         impayePredicats(predicates, cb, root, paymentStatus);
         if (isDiffere != null) {
             if (isDiffere) {
@@ -426,6 +461,10 @@ public class SaleDataService {
             } else {
                 predicates.add(cb.isFalse(root.get(Sales_.differe)));
             }
+        }
+        if (depotId != null) {
+
+            predicates.add(cb.equal(depotJoin.get(Magasin_.id), depotId));
         }
     }
 
@@ -488,9 +527,12 @@ public class SaleDataService {
     private SaleDTO buildSaleDTO(Sales s) {
         if (s instanceof ThirdPartySales thirdPartySales) {
             return buildFromEntity(thirdPartySales);
-        } else {
-            return new CashSaleDTO((CashSale) s);
+        } else if (s instanceof CashSale cashSale) {
+            return new CashSaleDTO(cashSale);
+        } else if (s instanceof VenteDepot venteDepot) {
+            return new DepotExtensionSaleDTO(venteDepot);
         }
+        return new SaleDTO(s);
     }
 
     public void printReceipt(SaleId saleId, boolean isEdit) {
@@ -499,6 +541,8 @@ public class SaleDataService {
             receiptPrinterService.printCashSale(new CashSaleDTO(g), isEdit);
         } else if (sales instanceof ThirdPartySales thirdPartySales) {
             receiptPrinterService.printVoSale(new ThirdPartySaleDTO(thirdPartySales), isEdit);
+        } else if (sales instanceof VenteDepot venteDepot) {
+            receiptPrinterService.printVenteDepot(new DepotExtensionSaleDTO(venteDepot), isEdit);
         }
     }
 
@@ -508,7 +552,9 @@ public class SaleDataService {
             return receiptPrinterService.generateEscPosReceipt(new CashSaleDTO(g), isEdit);
         } else if (sales instanceof ThirdPartySales thirdPartySales) {
             return receiptPrinterService.generateEscPosReceipt(new ThirdPartySaleDTO(thirdPartySales), isEdit);
+        } else if (sales instanceof VenteDepot venteDepot) {
+            return receiptPrinterService.generateEscPosReceipt(new DepotExtensionSaleDTO(venteDepot), isEdit);
         }
-        return null;
+        return new byte[0];
     }
 }

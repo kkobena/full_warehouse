@@ -1,4 +1,4 @@
-import { AfterViewInit, Component, inject, OnInit, viewChild } from '@angular/core';
+import { AfterViewInit, Component, inject, OnDestroy, OnInit, viewChild } from '@angular/core';
 import { ToolbarModule } from 'primeng/toolbar';
 import { FormsModule } from '@angular/forms';
 import { ButtonModule } from 'primeng/button';
@@ -31,9 +31,16 @@ import { ToastAlertComponent } from '../../shared/toast-alert/toast-alert.compon
 import { showCommonModal } from '../sales/selling-home/sale-helper';
 import { TauriPrinterService } from '../../shared/services/tauri-printer.service';
 import { handleBlobForTauri } from '../../shared/util/tauri-util';
+import { PaymentId } from '../reglement/model/reglement.model';
+import { ConfirmDialog } from 'primeng/confirmdialog';
+import { acceptButtonProps, rejectButtonProps } from '../../shared/util/modal-button-props';
+import { takeUntil } from 'rxjs/operators';
+import { ConfirmationService } from 'primeng/api';
+import { Subject } from 'rxjs';
 
 @Component({
   selector: 'jhi-visualisation-mvt-caisse',
+  providers: [ConfirmationService],
   imports: [
     WarehouseCommonModule,
     ToolbarModule,
@@ -50,11 +57,12 @@ import { handleBlobForTauri } from '../../shared/util/tauri-util';
     Select,
     FloatLabel,
     ToastAlertComponent,
+    ConfirmDialog
   ],
   templateUrl: './visualisation-mvt-caisse.component.html',
-  styleUrls: ['./visualisation-mvt-caisse.scss'],
+  styleUrls: ['./visualisation-mvt-caisse.scss']
 })
-export class VisualisationMvtCaisseComponent implements OnInit, AfterViewInit {
+export class VisualisationMvtCaisseComponent implements OnInit, AfterViewInit, OnDestroy {
   protected mvtCaisses: MvtCaisse[] = [];
   protected mvtCaisseSum: MvtCaisseWrapper | null = null;
   protected totalItems = 0;
@@ -79,12 +87,11 @@ export class VisualisationMvtCaisseComponent implements OnInit, AfterViewInit {
     TypeFinancialTransaction.REGLEMENT_DIFFERE,
     TypeFinancialTransaction.REGLEMENT_TIERS_PAYANT,
     TypeFinancialTransaction.CASH_SALE,
-    TypeFinancialTransaction.CREDIT_SALE,
+    TypeFinancialTransaction.CREDIT_SALE
   ];
   protected selectedTypes: TypeFinancialTransaction[] = [];
   protected paymentModes: IPaymentMode[] = [];
-  private readonly colors: string[] = ['bg-primary', 'bg-info', 'bg-success', 'bg-warning', 'bg-danger', 'bg-secondary'];
-  private readonly colorsByTypes: string[] = ['bg-primary', 'bg-info', 'bg-success', 'bg-warning', 'bg-secondary'];
+
   private readonly userService = inject(UserService);
   private readonly mvtCaisseService = inject(MvtCaisseServiceService);
   private readonly modeService = inject(ModePaymentService);
@@ -94,6 +101,9 @@ export class VisualisationMvtCaisseComponent implements OnInit, AfterViewInit {
   private readonly alert = viewChild.required<ToastAlertComponent>('alert');
   private readonly modalService = inject(NgbModal);
   private readonly tauriPrinterService = inject(TauriPrinterService);
+  private readonly confirmationService = inject(ConfirmationService);
+  private destroy$ = new Subject<void>();
+
   ngOnInit(): void {
     if (this.mvtParamServiceService.mvtCaisseParam()) {
       this.fromDate = this.mvtParamServiceService.mvtCaisseParam().fromDate;
@@ -114,6 +124,11 @@ export class VisualisationMvtCaisseComponent implements OnInit, AfterViewInit {
     });
   }
 
+  ngOnDestroy(): void {
+    this.destroy$.next();
+    this.destroy$.complete();
+  }
+
   onSearch(): void {
     this.btnLoading = true;
     this.loadPage();
@@ -128,24 +143,17 @@ export class VisualisationMvtCaisseComponent implements OnInit, AfterViewInit {
       .findAllMvts({
         page: pageToLoad,
         size: this.itemsPerPage,
-        ...this.buildParams(),
+        ...this.buildParams()
       })
       .subscribe({
         next: (res: HttpResponse<MvtCaisse[]>) => this.onSuccess(res.body, res.headers, pageToLoad),
         error: () => this.onError(),
         complete: () => {
           this.btnLoading = false;
-        },
+        }
       });
   }
 
-  protected getColorClass(index: number): string {
-    return this.colors[index % this.colors.length];
-  }
-
-  protected getColorClassForTypeMvts(index: number): string {
-    return this.colorsByTypes[index % this.colors.length];
-  }
 
   protected lazyLoading(event: TableLazyLoadEvent): void {
     if (event) {
@@ -155,11 +163,11 @@ export class VisualisationMvtCaisseComponent implements OnInit, AfterViewInit {
         .findAllMvts({
           page: this.page,
           size: event.rows,
-          ...this.buildParams(),
+          ...this.buildParams()
         })
         .subscribe({
           next: (res: HttpResponse<MvtCaisse[]>) => this.onSuccess(res.body, res.headers, this.page),
-          error: () => this.onError(),
+          error: () => this.onError()
         });
     }
   }
@@ -183,11 +191,11 @@ export class VisualisationMvtCaisseComponent implements OnInit, AfterViewInit {
       },
       error: () => {
         this.btnLoading = false;
-        this.alert().showError('Erreur', "Une erreur est survenue lors de l'exportation");
+        this.alert().showError('Erreur', 'Une erreur est survenue lors de l\'exportation');
       },
       complete: () => {
         this.btnLoading = false;
-      },
+      }
     });
   }
 
@@ -195,9 +203,14 @@ export class VisualisationMvtCaisseComponent implements OnInit, AfterViewInit {
     showCommonModal(
       this.modalService,
       FormTransactionComponent,
-      { header: "FORMULAIRE D'AJOUT DE MOUVEMENT DE CAISSE" },
-      () => this.onSearch(),
-      'lg',
+      { header: 'FORMULAIRE D\'AJOUT DE MOUVEMENT DE CAISSE' },
+      (paymentId: PaymentId) => {
+        if (paymentId) {
+          this.onPrintReceipt(paymentId);
+          this.onSearch();
+        }
+      },
+      'lg'
     );
   }
 
@@ -218,7 +231,7 @@ export class VisualisationMvtCaisseComponent implements OnInit, AfterViewInit {
       typeFinancialTransactions: this.selectedTypes?.map(type => getTypeName(type)),
       paymentModes: this.selectedModes?.map(mode => mode.code),
       userId: this.selectedUser?.id,
-      order: this.order,
+      order: this.order
     };
   }
 
@@ -247,7 +260,7 @@ export class VisualisationMvtCaisseComponent implements OnInit, AfterViewInit {
       toDate: this.toDate,
       selectedTypes: this.selectedTypes,
       paymentModes: this.selectedModes,
-      selectedUser: this.selectedUser,
+      selectedUser: this.selectedUser
     };
     this.mvtParamServiceService.setMvtCaisseParam(param);
   }
@@ -264,5 +277,36 @@ export class VisualisationMvtCaisseComponent implements OnInit, AfterViewInit {
     } else {
       this.setParam();
     }
+  }
+
+
+  private onPrintReceipt(paymentId: PaymentId): void {
+    this.confirmationService.confirm({
+      message: ' Voullez-vous imprimer le ticket ?',
+      header: 'TICKET REGLEMENT',
+      icon: 'pi pi-info-circle',
+      rejectButtonProps: rejectButtonProps(),
+      acceptButtonProps: acceptButtonProps(),
+      accept: () => {
+        if (this.tauriPrinterService.isRunningInTauri()) {
+          this.printReceiptForTauri(paymentId);
+        } else {
+          this.mvtCaisseService.printReceipt(paymentId).pipe(takeUntil(this.destroy$)).subscribe();
+        }
+      }
+    });
+  }
+
+  printReceiptForTauri(paymentId: PaymentId): void {
+    this.mvtCaisseService.getEscPosReceiptForTauri(paymentId).subscribe({
+      next: async (escposData: ArrayBuffer) => {
+        try {
+          await this.tauriPrinterService.printEscPosFromBuffer(escposData);
+        } catch (error) {
+        }
+      },
+      error: () => {
+      }
+    });
   }
 }

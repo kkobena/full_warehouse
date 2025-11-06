@@ -7,6 +7,7 @@ import com.kobe.warehouse.repository.BanqueRepository;
 import com.kobe.warehouse.repository.FacturationRepository;
 import com.kobe.warehouse.repository.InvoicePaymentRepository;
 import com.kobe.warehouse.repository.ThirdPartySaleLineRepository;
+import com.kobe.warehouse.service.ReferenceService;
 import com.kobe.warehouse.service.UserService;
 import com.kobe.warehouse.service.cash_register.CashRegisterService;
 import com.kobe.warehouse.service.errors.CashRegisterException;
@@ -35,7 +36,7 @@ public class ReglementGroupeFactureService extends AbstractReglementService {
         BanqueRepository banqueRepository,
         ReglementFactureModeAllService reglementFactureModeAllService,
         TransactionIdGeneratorService transactionIdGeneratorService,
-        InvoicePaymentItemService invoicePaymentItemService
+        InvoicePaymentItemService invoicePaymentItemService, ReferenceService referenceService
     ) {
         super(
             cashRegisterService,
@@ -45,7 +46,7 @@ public class ReglementGroupeFactureService extends AbstractReglementService {
             thirdPartySaleLineRepository,
             banqueRepository,
             transactionIdGeneratorService,
-            invoicePaymentItemService
+            invoicePaymentItemService,referenceService
         );
         this.facturationRepository = facturationRepository;
         this.reglementFactureModeAllService = reglementFactureModeAllService;

@@ -144,7 +144,6 @@ export class SellingHomeComponent implements OnInit, AfterViewInit, OnDestroy {
   currentAccount = this.accountService.trackCurrentAccount();
   remiseCacheService = inject(RemiseCacheService);
   remises: GroupRemise[] = this.remiseCacheService.remises();
-  readonly depotAgreeService = inject(DepotAgreeService);
   protected selectedDepot?: IMagasin | null;
   protected canFocusLastModeInput = false;
   protected isLargeScreen = true;
@@ -553,7 +552,7 @@ export class SellingHomeComponent implements OnInit, AfterViewInit, OnDestroy {
     }
     this.selectModeReglementService.resetAllModeReglements();
     this.selectedCustomerService.setCustomer(null);
-    this.depotAgreeService.setSelectedDepot(null);
+
     this.selectedDepot = null;
     this.typePrescription = this.typePrescriptionService.typePrescriptionDefault();
     this.userSeller = this.userCaissier;
@@ -740,10 +739,7 @@ export class SellingHomeComponent implements OnInit, AfterViewInit, OnDestroy {
     this.produitbox().getFocus();
   }
 
-  protected onSelectDepot(): void {
-    this.depotAgreeService.setSelectedDepot(this.selectedDepot);
-    this.produitbox().getFocus();
-  }
+
 
   protected onSelectProduct(selectedProduit?: ProduitSearch): void {
     this.produitSelected = selectedProduit || null;

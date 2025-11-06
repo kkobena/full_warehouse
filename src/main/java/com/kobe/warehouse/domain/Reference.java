@@ -28,7 +28,7 @@ public class Reference implements Serializable {
     private Long id;
 
     @NotNull
-    @Column(name = "num", nullable = false)
+    @Column(name = "num", nullable = false,length = 20)
     private String num;
 
     @NotNull

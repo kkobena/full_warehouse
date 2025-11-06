@@ -1,1 +1,329 @@
-<p>achat-depot works!</p>
+<div class="container-fluid ">
+  <div class="pharma-smart-content p-1">
+    <!-- Modern Pharma Toolbar -->
+    <div class="pharma-toolbar pharma-toolbar-compact">
+      <div class="pharma-toolbar-header">
+        <i class="pi pi-shopping-cart"></i>
+        <span class="pharma-toolbar-title">Ventes aux dépôts</span>
+      </div>
+
+      <p-toolbar>
+        <ng-template #start>
+          <div class="pharma-toolbar-filters">
+            <p-select
+              id="depots"
+              (onChange)="onSelectDepot()"
+              [(ngModel)]="selectedDepot"
+              [appendTo]="'body'"
+              [dataKey]="'id'"
+              [options]="depots"
+              [placeholder]="'Sélectionner un dépôt'"
+              [style]="{ 'min-width': '200px' }"
+              class="pharma-select-modern"
+              optionLabel="name">
+              <ng-template #item let-depot>
+                <div class="depot-option">
+                  <div class="depot-name">{{ depot.name }}</div>
+                  @if (depot.address) {
+                    <div class="depot-address"
+                         style="font-size: 0.85rem; color: #6c757d;">{{ depot.address }}
+                    </div>
+                  }
+                </div>
+              </ng-template>
+            </p-select>
+
+            <p-select
+              #userControl
+              [(ngModel)]="selectedUserId"
+              [options]="users"
+              appendTo="body"
+              id="selectedUserId"
+              inputId="selectedUserId"
+              optionLabel="abbrName"
+              optionValue="id"
+
+            />
+
+            <div class="pharma-compact-search mr-1">
+              <p-inputgroup>
+                <input
+                  (keyup.enter)="onSearch()"
+                  pInputText
+                  placeholder="Rechercher..."
+                  type="text"
+                />
+                <p-inputgroup-addon>
+                  <p-checkbox
+                    [(ngModel)]="global"
+                    [binary]="true"
+                    id="global"
+                    inputId="global"
+                    pTooltip="Recherche globale"
+                  />
+                </p-inputgroup-addon>
+              </p-inputgroup>
+            </div>
+
+            <p-floatlabel variant="on">
+              <p-datePicker
+                [style]="'max-width: 140px;'"
+                [(ngModel)]="fromDate"
+                [maxDate]="toDate"
+                appendTo="body"
+                [selectOtherMonths]="true"
+                [showButtonBar]="true"
+                dateFormat="dd/mm/yy"
+                id="fromDate"
+              />
+              <label for="fromDate">Du</label>
+            </p-floatlabel>
+
+            <p-floatlabel variant="on">
+              <p-datePicker [style]="'max-width: 140px;'"
+                            [(ngModel)]="toDate"
+                            [minDate]="fromDate"
+                            [selectOtherMonths]="true"
+                            appendTo="body"
+                            [showButtonBar]="true"
+                            dateFormat="dd/mm/yy"
+                            id="toDate"
+                            inputId="toDate"
+              />
+              <label for="toDate">Au</label>
+            </p-floatlabel>
+
+
+          </div>
+        </ng-template>
+
+        <ng-template #end>
+          <div class="pharma-toolbar-actions">
+            @if (totalItems > 0) {
+              <span class="pharma-toolbar-badge mr-1">
+                <i class="pi pi-list"></i>
+                <span>{{ totalItems }}</span>
+              </span>
+            }
+
+            <div class="pharma-button-group pharma-hide-mobile">
+              <p-button
+                (click)="loadPage()"
+                [raised]="true"
+                icon="pi pi-search"
+                label="Rechercher"
+                severity="info"
+              />
+
+              <div>
+                <p-button
+                  [raised]="true"
+                  [routerLink]="['/sales', false, 'new']"
+                  icon="pi pi-plus"
+                  label="Nouvelle vente"
+                  severity="success"
+                />
+              </div>
+            </div>
+
+            <div class="pharma-button-group pharma-show-mobile">
+              <p-button
+                (click)="loadPage()"
+                [raised]="true"
+                [rounded]="true"
+                icon="pi pi-search"
+                pTooltip="Rechercher"
+                severity="info"
+                tooltipPosition="top"
+              />
+
+              <p-button
+                (onClick)="onNewVente()"
+                icon="pi pi-shopping-cart"
+                label="Nouvelle vente dépôt"
+                severity="info">
+              </p-button>
+            </div>
+          </div>
+        </ng-template>
+      </p-toolbar>
+    </div>
+    <div class="mt-3 -mb-3">
+      @if (sales && sales.length > 0) {
+        <p-table
+          (onLazyLoad)="lazyLoading($event)"
+          [(selection)]="selectedEl"
+          [lazy]="true"
+          [loading]="loading"
+          [paginator]="true"
+          [rowsPerPageOptions]="[5, 10, 15, 20, 30, 50]"
+          [rows]="itemsPerPage"
+          [showCurrentPageReport]="true"
+          [totalRecords]="totalItems"
+          [value]="sales"
+          class="pharma-table"
+          currentPageReportTemplate="Affichage de {first} à {last} sur {totalRecords} ventes"
+          dataKey="id"
+          selectionMode="single"
+          stripedRows="true"
+
+        >
+          <ng-template #header>
+            <tr class="pharma-table-head">
+              <th style="width: 3%"></th>
+              <th>Date</th>
+              <th>Référence</th>
+              <th>Nbre d'articles</th>
+              <th>Montant</th>
+              <th style="width: 20%">Dépôt</th>
+
+              <th>Caissier</th>
+              <th style="width: 10%"></th>
+            </tr>
+          </ng-template>
+          <ng-template #body let-expanded="expanded" let-sale>
+            <tr>
+              <td>
+                <p-button
+                  [icon]="expanded ? 'pi pi-chevron-down' : 'pi pi-chevron-right'"
+                  [pRowToggler]="sale"
+                  [rounded]="true"
+                  [text]="true"
+                  type="button"
+                />
+              </td>
+              <td>{{ sale.updatedAt | date: 'dd/MM/yyyy HH:mm:ss' }}</td>
+
+              <td><span class="pharma-code">{{ sale.numberTransaction }}</span></td>
+              <td class="text-right">{{ sale.salesLines.length | number }}</td>
+              <td class="pharma-total">{{ sale.salesAmount | number }}</td>
+              <td class="pharma-entity-name">{{ sale.customer?.fullName }}</td>
+
+              <td>{{ sale.cassier?.abbrName }}</td>
+              <td>
+                <div class="btn-group d-flex justify-content-end">
+
+
+                  @if (sale.customer) {
+                    <p-button
+                      (click)="printSale(sale)"
+                      [rounded]="true"
+                      [text]="true"
+                      class="ml-1"
+                      icon="pi pi-print"
+                      pTooltip="Imprimer"
+                      severity="secondary"
+                      size="small"
+                    ></p-button>
+                    <p-button
+                      (click)="print(sale)"
+                      [rounded]="true"
+                      [text]="true"
+                      icon="pi pi-receipt"
+                      pTooltip="Imprimer la facture"
+                      severity="warn"
+                      size="small"
+                    ></p-button>
+                  }
+
+
+                  @if (canCancel) {
+                    <p-button
+                      (click)="confirmRemove(sale)"
+                      [rounded]="true"
+                      [text]="true"
+                      class="ml-1"
+                      icon="pi pi-trash"
+                      pTooltip="Annuler"
+                      severity="danger"
+                      size="small"
+                    ></p-button>
+                  }
+                </div>
+              </td>
+            </tr>
+          </ng-template>
+          <ng-template #expandedrow let-elRow>
+            <tr class="pharma-expanded-row">
+              <td colspan="10">
+                <div class="pharma-sub-table-card pharma-smart">
+
+
+                  <div class="card">
+                    <div class="card-header bg-info text-white">
+                      <i class="pi pi-list"></i>
+                      LISTES DES PRODUITS
+                    </div>
+                    <div class="card-body">
+                      <p-table
+                        [paginator]="true"
+                        [rowsPerPageOptions]="[10, 15, 20, 30, 50]"
+                        [rows]="10"
+                        [showCurrentPageReport]="true"
+                        [stripedRows]="true"
+                        [value]="elRow.salesLines"
+                        class="pharma-table rowexpansion-table"
+                        currentPageReportTemplate="Affichage de {first} à {last} sur {totalRecords} produits"
+                        dataKey="id"
+                        selectionMode="single"
+                      >
+                        <ng-template #header>
+                          <tr class="pharma-table-head ">
+                            <th style="width: 5%">#</th>
+                            <th style="width: 10%">CODE</th>
+                            <th style="width: 44%">LIBELLE</th>
+                            <th class="text-right" style="width: 8%">QTE.D</th>
+                            <th class="text-right" style="width: 8%">QTE.S</th>
+                            <th class="text-right" style="width: 9%">PU</th>
+                            <th class="text-right" style="width: 10%">TOTAL</th>
+                          </tr>
+                        </ng-template>
+                        <ng-template #body let-rowIndex="rowIndex" let-saleLine>
+                          <tr [ngClass]="{
+          'pharma-row-warning': saleLine.quantitySold < saleLine.quantityRequested,
+          'pharma-row-hover': true
+        }">
+                            <td style="text-align: left"><span
+                              class="pharma-row-number"> {{ rowIndex + 1 }}</span></td>
+                            <td><span class="pharma-code">{{ saleLine.code }}</span></td>
+                            <td><span
+                              class="pharma-product-name">{{ saleLine.produitLibelle }}</span>
+                            </td>
+                            <td
+                              class="text-right pharma-qty-value">{{ saleLine.quantityRequested | number }}
+                            </td>
+                            <td
+                              class="text-right pharma-qty-value">{{ saleLine.quantitySold | number }}
+                            </td>
+                            <td
+                              class="text-right pharma-price">{{ saleLine.regularUnitPrice | number }}
+                            </td>
+                            <td class="pharma-total"
+                                style="text-align: right; font-weight: bold">{{ saleLine.salesAmount | number }}
+                            </td>
+                          </tr>
+                        </ng-template>
+                      </p-table>
+
+                    </div>
+                  </div>
+
+
+                </div>
+
+              </td>
+            </tr>
+          </ng-template>
+        </p-table>
+      } @else {
+        <div class="alert alert-warning" id="no-result">
+          <span>Aucune donnée trouvée</span>
+        </div>
+      }
+    </div>
+  </div>
+
+
+</div>
+<jhi-confirm-dialog #confirmDialog></jhi-confirm-dialog>
+

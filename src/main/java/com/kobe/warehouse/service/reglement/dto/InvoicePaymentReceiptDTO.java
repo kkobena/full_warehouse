@@ -26,6 +26,7 @@ public class InvoicePaymentReceiptDTO {
     private String paymentMode;
     private String paymentModeCode;
     private String change;
+    private String transactionNumber;
 
     private String user;
 
@@ -52,7 +53,7 @@ public class InvoicePaymentReceiptDTO {
             TiersPayant tiersPayant = factureTiersPayant.getTiersPayant();
             this.organisme = tiersPayant.getName();
         }
-
+this.transactionNumber= invoicePayment.getTransactionNumber();
         PaymentMode mode = invoicePayment.getPaymentMode();
         this.paymentMode = mode.getLibelle();
         this.paymentModeCode = mode.getCode();
@@ -182,6 +183,15 @@ public class InvoicePaymentReceiptDTO {
 
     public String getPaymentModeCode() {
         return paymentModeCode;
+    }
+
+    public String getTransactionNumber() {
+        return transactionNumber;
+    }
+
+    public InvoicePaymentReceiptDTO setTransactionNumber(String transactionNumber) {
+        this.transactionNumber = transactionNumber;
+        return this;
     }
 
     public void setPaymentModeCode(String paymentModeCode) {

@@ -51,5 +51,6 @@ public interface ReglementDiffereService {
     Page<ReglementDiffereWrapperDTO> getReglementsDifferes(Long customerId, LocalDate fromDate, LocalDate toDate, Pageable pageable);
 
     ReglementDiffereReceiptDTO getReglementDiffereReceipt(PaymentId id);
+
     byte[] generateEscPosReceiptForTauri(PaymentId idReglement) throws IOException;
 }

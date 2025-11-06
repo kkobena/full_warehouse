@@ -14,6 +14,7 @@ import com.kobe.warehouse.repository.BanqueRepository;
 import com.kobe.warehouse.repository.CustomerRepository;
 import com.kobe.warehouse.repository.DifferePaymentRepository;
 import com.kobe.warehouse.repository.SalesRepository;
+import com.kobe.warehouse.service.ReferenceService;
 import com.kobe.warehouse.service.cash_register.CashRegisterService;
 import com.kobe.warehouse.service.dto.ReportPeriode;
 import com.kobe.warehouse.service.id_generator.TransactionIdGeneratorService;
@@ -61,6 +62,7 @@ public class ReglementDiffereServiceImpl implements ReglementDiffereService {
     private final BanqueRepository banqueRepository;
     private final DiffereReceiptService differeReceiptService;
     private final TransactionIdGeneratorService transactionIdGeneratorService;
+    private final ReferenceService referenceService;
 
     public ReglementDiffereServiceImpl(
         DifferePaymentRepository differePaymentRepository,
@@ -70,7 +72,7 @@ public class ReglementDiffereServiceImpl implements ReglementDiffereService {
         ReglementDiffereReportService reglementDiffereReportService,
         BanqueRepository banqueRepository,
         DiffereReceiptService differeReceiptService,
-        TransactionIdGeneratorService transactionIdGeneratorService
+        TransactionIdGeneratorService transactionIdGeneratorService, ReferenceService referenceService
     ) {
         this.differePaymentRepository = differePaymentRepository;
         this.salesRepository = salesRepository;
@@ -80,6 +82,7 @@ public class ReglementDiffereServiceImpl implements ReglementDiffereService {
         this.banqueRepository = banqueRepository;
         this.differeReceiptService = differeReceiptService;
         this.transactionIdGeneratorService = transactionIdGeneratorService;
+        this.referenceService = referenceService;
     }
 
     @Override
@@ -145,6 +148,7 @@ public class ReglementDiffereServiceImpl implements ReglementDiffereService {
         Customer customer = this.customerRepository.getReferenceById(differePayment.customerId());
         List<Sales> sales = this.salesRepository.findSalesByIdIn(differePayment.saleIds());
         DifferePayment differePaymentEntity = new DifferePayment();
+        differePaymentEntity.setTransactionNumber(referenceService.buildNumTransaction());
         differePaymentEntity.setId(this.transactionIdGeneratorService.nextId());
         differePaymentEntity.setDiffereCustomer(customer);
         differePaymentEntity.setMontantVerse(differePayment.amount());
@@ -204,7 +208,8 @@ public class ReglementDiffereServiceImpl implements ReglementDiffereService {
             differePayment.getPaidAmount(),
             paymentMode.getCode(),
             paymentMode.getLibelle(),
-            nonNull(solde) ? solde.intValue() : 0
+            nonNull(solde) ? solde.intValue() : 0,
+            differePayment.getTransactionNumber()
         );
     }
 

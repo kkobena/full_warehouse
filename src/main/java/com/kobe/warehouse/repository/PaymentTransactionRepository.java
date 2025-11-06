@@ -1,6 +1,7 @@
 package com.kobe.warehouse.repository;
 
 import com.kobe.warehouse.domain.CashRegister_;
+import com.kobe.warehouse.domain.PaymentId;
 import com.kobe.warehouse.domain.PaymentMode_;
 import com.kobe.warehouse.domain.PaymentTransaction;
 import com.kobe.warehouse.domain.PaymentTransaction_;
@@ -29,7 +30,7 @@ import org.springframework.util.CollectionUtils;
 @SuppressWarnings("unused")
 @Repository
 public interface PaymentTransactionRepository
-    extends JpaRepository<PaymentTransaction, Long>, JpaSpecificationExecutor<PaymentTransaction>, PaymentTransactionCustomRepository {
+    extends JpaRepository<PaymentTransaction, PaymentId>, JpaSpecificationExecutor<PaymentTransaction>, PaymentTransactionCustomRepository {
     @Query(
         value = "SELECT  SUM(p.paidAmount) AS montant,p.typeFinancialTransaction AS type  FROM PaymentTransaction p WHERE  p.transactionDate BETWEEN :fromDate AND :toDate GROUP BY p.typeFinancialTransaction"
     )

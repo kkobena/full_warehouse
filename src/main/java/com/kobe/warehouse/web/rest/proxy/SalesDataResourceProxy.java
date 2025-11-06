@@ -67,7 +67,7 @@ public class SalesDataResourceProxy {
             userId,
             type,
             null,
-            null,
+            null,null,
             pageable
         );
         HttpHeaders headers = PaginationUtil.generatePaginationHttpHeaders(ServletUriComponentsBuilder.fromCurrentRequest(), page);

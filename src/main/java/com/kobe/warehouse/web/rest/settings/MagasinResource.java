@@ -1,4 +1,4 @@
-package com.kobe.warehouse.web.rest;
+package com.kobe.warehouse.web.rest.settings;
 
 import com.kobe.warehouse.domain.enumeration.TypeMagasin;
 import com.kobe.warehouse.service.dto.MagasinDTO;

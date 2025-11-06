@@ -1,4 +1,4 @@
-package com.kobe.warehouse.web.rest;
+package com.kobe.warehouse.web.rest.stock;
 
 import com.kobe.warehouse.service.dto.LotDTO;
 import com.kobe.warehouse.service.excel.model.ExportFormat;

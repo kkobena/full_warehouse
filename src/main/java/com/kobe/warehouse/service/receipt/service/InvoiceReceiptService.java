@@ -1,9 +1,8 @@
 package com.kobe.warehouse.service.receipt.service;
 
-import com.kobe.warehouse.service.dto.CashSaleDTO;
-import com.kobe.warehouse.service.settings.AppConfigurationService;
 import com.kobe.warehouse.service.receipt.dto.HeaderFooterItem;
 import com.kobe.warehouse.service.reglement.dto.InvoicePaymentReceiptDTO;
+import com.kobe.warehouse.service.settings.AppConfigurationService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
@@ -56,6 +55,7 @@ public class InvoiceReceiptService extends ReglementAbstractReceiptService {
             // Header items (invoice specific)
             escPosPrintLine(out, "ORGANISME: " + invoicePaymentReceipt.getOrganisme());
             escPosPrintLine(out, "FACTURE#: " + invoicePaymentReceipt.getCodeFacture());
+            escPosPrintLine(out, "REF#: " + invoicePaymentReceipt.getTransactionNumber());
             escPosPrintLine(out, "OPERATEUR: " + invoicePaymentReceipt.getUser());
             escPosFeedLines(out, 1);
 

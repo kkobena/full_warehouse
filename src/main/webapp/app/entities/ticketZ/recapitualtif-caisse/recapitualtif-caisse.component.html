@@ -11,26 +11,28 @@
         <ng-template #start>
           <div class="pharma-toolbar-filters">
             <p-select
+              size="large"
               (onChange)="onSelectedUsersChange()"
               [(ngModel)]="onlyVente"
               [options]="mvts"
               appendTo="body"
-              class="mr-1"
+
             />
 
             <p-multiSelect
               [(ngModel)]="selectedUsersId"
+              size="large"
               [options]="users"
               id="selectedUserId"
               inputId="selectedUserId"
               optionLabel="abbrName"
               optionValue="id"
               appendTo="body"
-              class="mr-1"
+
             />
 
-            <p-floatlabel variant="on" class="mr-1">
-              <p-datePicker
+            <p-floatlabel variant="on" >
+              <p-datePicker   [style]="{ 'max-width': '140px' }"
                 [(ngModel)]="fromDate"
                 [maxDate]="toDate"
                 [selectOtherMonths]="true"
@@ -43,8 +45,8 @@
               <label for="fromDate">Du</label>
             </p-floatlabel>
 
-            <p-floatlabel variant="on" class="mr-1">
-              <p-datePicker
+            <p-floatlabel variant="on" >
+              <p-datePicker  [style]="{ 'max-width': '140px' }"
                 [(ngModel)]="toDate"
                 [minDate]="fromDate"
                 [selectOtherMonths]="true"
@@ -57,21 +59,23 @@
               <label for="toDate">Au</label>
             </p-floatlabel>
 
-            <p-floatlabel variant="on" class="mr-1 pharma-hide-mobile">
+            <p-floatlabel variant="on" class=" pharma-hide-mobile">
               <p-select
                 [(ngModel)]="fromTime"
                 [options]="hous"
                 id="fromHour"
+                size="large"
                 appendTo="body"
               />
               <label for="fromHour">De</label>
             </p-floatlabel>
 
-            <p-floatlabel variant="on" class="mr-1 pharma-hide-mobile">
+            <p-floatlabel variant="on" class=" pharma-hide-mobile">
               <p-select
                 [(ngModel)]="toTime"
                 [options]="hous"
                 id="toHour"
+                size="large"
                 appendTo="body"
               />
               <label for="toHour">À</label>

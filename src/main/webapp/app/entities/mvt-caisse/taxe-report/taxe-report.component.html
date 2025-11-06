@@ -10,8 +10,8 @@
       <p-toolbar>
         <ng-template #start>
           <div class="pharma-toolbar-filters">
-            <p-floatlabel variant="on" class="mr-1">
-              <p-datePicker
+            <p-floatlabel variant="on" >
+              <p-datePicker  [style]="{ 'max-width': '160px' }"
                 [(ngModel)]="fromDate"
                 [iconDisplay]="'input'"
                 [showButtonBar]="true"
@@ -25,8 +25,8 @@
               <label for="dateDebut">Du</label>
             </p-floatlabel>
 
-            <p-floatlabel variant="on" class="mr-1">
-              <p-datePicker
+            <p-floatlabel variant="on" >
+              <p-datePicker  [style]="{ 'max-width': '160px' }"
                 [(ngModel)]="toDate"
                 [iconDisplay]="'input'"
                 [showButtonBar]="true"
@@ -44,10 +44,11 @@
               [(ngModel)]="selectedVente"
               [filter]="false"
               [options]="types"
+
               [showClear]="true"
               placeholder="Type de vente"
               appendTo="body"
-              class="mr-1"
+
             />
 
             <div class="tva-radio flex align-items-center mr-1">
@@ -59,7 +60,7 @@
                 name="codeTva"
                 value="codeTva"
               />
-              <label class="tva-radio-label mt-2" for="codeTva">
+              <label class="tva-radio-label mt-2 ml-1" for="codeTva">
                 <span>Période</span>
               </label>
             </div>
@@ -73,7 +74,7 @@
                 name="daily"
                 value="daily"
               />
-              <label class="tva-radio-label mt-2" for="daily">
+              <label class="tva-radio-label mt-2 ml-1" for="daily">
                 <span>Journalier</span>
               </label>
             </div>
@@ -99,6 +100,7 @@
                 (click)="onPrint()"
                 [loading]="loading"
                 [outlined]="true"
+                [raised]="true"
                 icon="pi pi-print"
                 label="Imprimer"
                 pTooltip="Imprimer"

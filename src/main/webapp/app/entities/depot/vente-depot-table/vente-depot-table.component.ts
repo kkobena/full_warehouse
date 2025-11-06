@@ -15,10 +15,11 @@ import { TableModule } from 'primeng/table';
 import { Tooltip } from 'primeng/tooltip';
 import { FormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
+import { WarehouseCommonModule } from '../../../shared/warehouse-common/warehouse-common.module';
 
 @Component({
   selector: 'jhi-vente-depot-table',
-  imports: [Button, CommonModule, ConfirmDialogComponent, IconField, InputIcon, InputText, Select, TableModule, Tooltip, FormsModule],
+  imports: [Button, WarehouseCommonModule, ConfirmDialogComponent, IconField, InputIcon, InputText, Select, TableModule, Tooltip, FormsModule],
   templateUrl: './vente-depot-table.component.html',
   styleUrl: './vente-depot-table.component.scss',
   encapsulation: ViewEncapsulation.None,

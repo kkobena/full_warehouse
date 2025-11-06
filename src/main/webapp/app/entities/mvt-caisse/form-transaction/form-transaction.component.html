@@ -1,126 +1,162 @@
 <jhi-toast-alert #alert></jhi-toast-alert>
 <div class="modal-header">
   <h4 class="modal-title">{{ header }}</h4>
-  <button (click)="cancel()" aria-hidden="true" class="btn-close" data-dismiss="modal"
-          type="button"></button>
+  <button (click)="cancel()" aria-label="Close" class="btn-close" type="button"></button>
 </div>
 
-<form (ngSubmit)="save()" [formGroup]="editForm" name="editForm" novalidate role="form">
+<form (ngSubmit)="save()" [formGroup]="editForm" class="transaction-form" name="editForm" novalidate role="form">
   <div class="modal-body">
     <p-card>
-      <div class="form-row">
-        <div class="form-group col">
-          <label class="form-control-label" for="field_typeFinancialTransaction">Type Mouvements</label>
-
+      <!-- Type de mouvement -->
+      <div class="form-field">
+        <label class="field-label" for="field_typeFinancialTransaction">
+          <i class="pi pi-arrows-h"></i>
+          Type de mouvement
+        </label>
+        <p-inputgroup>
+          <p-inputgroup-addon>
+            <i class="pi pi-list"></i>
+          </p-inputgroup-addon>
           <p-select
+            [fluid]="true"
             [options]="types"
             formControlName="typeFinancialTransaction"
             id="field_typeFinancialTransaction"
             name="typeFinancialTransaction"
-            placeholder="Séléctionner un type "
-          >
-          </p-select>
-
-          @if (editForm.get('typeFinancialTransaction')!.invalid &&
-          (editForm.get('typeFinancialTransaction')!.dirty || editForm.get('typeFinancialTransaction')!.touched)) {
-            <div>
-              @if (editForm.get('typeFinancialTransaction')?.errors?.required) {
-                <small class="form-text text-danger" jhiTranslate="entity.validation.required"> This field is
-                  required. </small>
-              }
-            </div>
+            placeholder="Sélectionner un type"
+          />
+        </p-inputgroup>
+        @if (editForm.get('typeFinancialTransaction')!.invalid &&
+        (editForm.get('typeFinancialTransaction')!.dirty || editForm.get('typeFinancialTransaction')!.touched)) {
+          @if (editForm.get('typeFinancialTransaction')?.errors?.required) {
+            <small class="p-error">Ce champ est obligatoire.</small>
           }
-        </div>
+        }
       </div>
-      <div class="form-row">
-        <div class="form-group col">
-          <label class="form-control-label" for="field_paymentMode">Mode règlements</label>
 
+      <!-- Mode de règlement -->
+      <div class="form-field">
+        <label class="field-label" for="field_paymentMode">
+          <i class="pi pi-credit-card"></i>
+          Mode de règlement
+        </label>
+        <p-inputgroup>
+          <p-inputgroup-addon>
+            <i class="pi pi-wallet"></i>
+          </p-inputgroup-addon>
           <p-select
+            [fluid]="true"
             [options]="paymentModes"
             formControlName="paymentMode"
             id="field_paymentMode"
             name="paymentMode"
             optionLabel="libelle"
-            placeholder="Séléctionner un mode de règlement "
-          >
-          </p-select>
-
-          @if (editForm.get('paymentMode')!.invalid && (editForm.get('paymentMode')!.dirty || editForm.get('paymentMode')!.touched)) {
-            <div>
-              @if (editForm.get('paymentMode')?.errors?.required) {
-                <small class="form-text text-danger" jhiTranslate="entity.validation.required"> This field is
-                  required. </small>
-              }
-            </div>
+            placeholder="Sélectionner un mode de règlement"
+          />
+        </p-inputgroup>
+        @if (editForm.get('paymentMode')!.invalid && (editForm.get('paymentMode')!.dirty || editForm.get('paymentMode')!.touched)) {
+          @if (editForm.get('paymentMode')?.errors?.required) {
+            <small class="p-error">Ce champ est obligatoire.</small>
           }
-        </div>
+        }
       </div>
 
-      <div class="form-row">
-        <div class="form-group col">
-          <label class="form-control-label">Montant</label>
-
-          <p-inputNumber [max]="90000000" [min]="0" autocomplete="off" formControlName="amount" inputId="field_amount"
-                         name="amount" />
-          @if (editForm.get('amount')!.invalid && (editForm.get('amount')!.dirty || editForm.get('amount')!.touched)) {
-            <div>
-              @if (editForm.get('amount')?.errors?.required) {
-                <small class="form-text text-danger" jhiTranslate="entity.validation.required"> This field is
-                  required. </small>
-              }
-            </div>
+      <!-- Montant -->
+      <div class="form-field">
+        <label class="field-label" for="field_amount">
+          <i class="pi pi-money-bill"></i>
+          Montant
+        </label>
+        <p-inputgroup>
+          <p-inputgroup-addon>
+            <i class="pi pi-dollar"></i>
+          </p-inputgroup-addon>
+          <p-inputNumber
+            [fluid]="true"
+            [max]="90000000"
+            [min]="0"
+            autocomplete="off"
+            formControlName="amount"
+            inputId="field_amount"
+            name="amount"
+            placeholder="Entrer le montant"
+          />
+        </p-inputgroup>
+        @if (editForm.get('amount')!.invalid && (editForm.get('amount')!.dirty || editForm.get('amount')!.touched)) {
+          @if (editForm.get('amount')?.errors?.required) {
+            <small class="p-error">Ce champ est obligatoire.</small>
           }
-        </div>
+        }
       </div>
-      <div class="form-row">
-        <div class="form-group col">
-          <label class="form-control-label" for="transactionDate">Date transaction</label>
 
+      <!-- Date de transaction -->
+      <div class="form-field">
+        <label class="field-label" for="transactionDate">
+          <i class="pi pi-calendar"></i>
+          Date de transaction
+        </label>
+        <p-inputgroup>
+          <p-inputgroup-addon>
+            <i class="pi pi-calendar"></i>
+          </p-inputgroup-addon>
           <p-datePicker
+            [fluid]="true"
             [maxDate]="maxDate"
             [selectOtherMonths]="true"
             [showButtonBar]="true"
-            appendTo="body"
             dateFormat="dd/mm/yy"
             formControlName="transactionDate"
             id="transactionDate"
             inputId="transactionDate"
             name="transactionDate"
-          ></p-datePicker>
-        </div>
+            placeholder="Sélectionner une date"
+          />
+        </p-inputgroup>
       </div>
 
-      <div class="form-row">
-        <div class="form-group col">
-          <label class="form-control-label" for="field_commentaire">Commentaire</label>
+      <!-- Commentaire -->
+      <div class="form-field">
+        <label class="field-label" for="field_commentaire">
+          <i class="pi pi-comment"></i>
+          Commentaire
+        </label>
+        <p-inputgroup>
+          <p-inputgroup-addon>
+            <i class="pi pi-pencil"></i>
+          </p-inputgroup-addon>
           <input
+            [fluid]="true"
             autocomplete="off"
-            class="form-control"
             formControlName="commentaire"
             id="field_commentaire"
             name="commentaire"
             pInputText
+            placeholder="Ajouter un commentaire (optionnel)"
             type="text"
           />
-        </div>
+        </p-inputgroup>
       </div>
     </p-card>
   </div>
 
   <div class="modal-footer">
-    <p-button (click)="cancel()" [raised]="true" icon="pi pi-times" label="Annuler" severity="secondary"
-              type="button"></p-button>
-
+    <p-button
+      (click)="cancel()"
+      [raised]="true"
+      icon="pi pi-times"
+      label="Annuler"
+      severity="secondary"
+      type="button"
+    />
     <p-button
       [disabled]="editForm.invalid || isSaving || !isValid"
+      [loading]="isSaving"
       [raised]="true"
       icon="pi pi-check"
       id="save-entity"
       label="Valider"
       severity="primary"
       type="submit"
-    >
-    </p-button>
+    />
   </div>
 </form>

@@ -11,9 +11,10 @@
       <p-toolbar>
         <ng-template #start>
           <div class="pharma-toolbar-filters">
-            <p-floatlabel variant="on" class="mr-1">
+            <p-floatlabel variant="on" >
               <p-datePicker
                 [(ngModel)]="fromDate"
+                [style]="{ 'max-width': '160px' }"
                 [iconDisplay]="'input'"
                 [showButtonBar]="true"
                 dateFormat="dd/mm/yy"
@@ -26,8 +27,9 @@
               <label for="dateDebut">Du</label>
             </p-floatlabel>
 
-            <p-floatlabel variant="on" class="mr-1">
+            <p-floatlabel variant="on" >
               <p-datePicker
+                [style]="{ 'max-width': '160px' }"
                 [(ngModel)]="toDate"
                 [iconDisplay]="'input'"
                 [showButtonBar]="true"
@@ -36,6 +38,7 @@
                 inputId="dateFin"
                 appendTo="body"
                 showIcon="true"
+
                 selectOtherMonths="true"
               />
               <label for="dateFin">Au</label>
@@ -48,9 +51,9 @@
               [showClear]="true"
               display="chip"
               id="typeMvr"
+              [fluid]="true"
               appendTo="body"
               placeholder="Type de mouvement"
-              class="mr-1"
             />
 
             <p-multiSelect
@@ -58,11 +61,11 @@
               [options]="paymentModes"
               [showClear]="true"
               display="chip"
+              [fluid]="true"
               id="modeR"
               optionLabel="libelle"
               appendTo="body"
               placeholder="Mode de règlement"
-              class="mr-1"
             />
 
             <p-select
@@ -70,10 +73,11 @@
               [options]="users"
               [showClear]="true"
               id="op"
+              [fluid]="true"
               optionLabel="abbrName"
               appendTo="body"
               placeholder="Opérateur"
-              class="mr-1"
+
             />
           </div>
         </ng-template>
@@ -96,7 +100,7 @@
                 (click)="addNew()"
                 [raised]="true"
                 icon="pi pi-plus"
-                label="Nouveau mouvement"
+                label="Nouveau"
                 pTooltip="Nouveau mouvement"
                 severity="success"
                 tooltipPosition="top"
@@ -105,6 +109,7 @@
               <p-button
                 (click)="onPrint()"
                 [loading]="btnLoading"
+                [raised]="true"
                 [outlined]="true"
                 icon="pi pi-print"
                 label="Imprimer"

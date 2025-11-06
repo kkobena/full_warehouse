@@ -22,6 +22,8 @@ import { Button } from 'primeng/button';
 import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
 import { ToastAlertComponent } from '../../../shared/toast-alert/toast-alert.component';
 import { Card } from 'primeng/card';
+import { InputGroup } from 'primeng/inputgroup';
+import { InputGroupAddon } from 'primeng/inputgroupaddon';
 
 @Component({
   selector: 'jhi-form-transaction',
@@ -30,13 +32,14 @@ import { Card } from 'primeng/card';
     InputTextModule,
     KeyFilterModule,
     ReactiveFormsModule,
-    TranslateDirective,
     InputNumberModule,
     Select,
     DatePicker,
     Button,
     ToastAlertComponent,
-    Card
+    Card,
+    InputGroup,
+    InputGroupAddon
   ],
   templateUrl: './form-transaction.component.html',
   styleUrls: ['../../common-modal.component.scss'],

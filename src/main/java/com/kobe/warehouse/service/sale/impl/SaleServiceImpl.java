@@ -337,9 +337,7 @@ public class SaleServiceImpl extends SaleCommonService implements SaleService {
     @Override
     public ResponseDTO putCashSaleOnHold(CashSaleDTO dto) {
         ResponseDTO response = new ResponseDTO();
-        AppUser user = storageService.getUser();
         CashSale cashSale = findOne(dto.getSaleId());
-        cashSale.setLastUserEdit(user);
         //  paymentService.buildPaymentFromFromPaymentDTO(cashSale, dto, user);
         UninsuredCustomer uninsuredCustomer = getUninsuredCustomerById(dto.getCustomerId());
         cashSale.setCustomer(uninsuredCustomer);
@@ -355,7 +353,6 @@ public class SaleServiceImpl extends SaleCommonService implements SaleService {
         sales.removeSalesLine(salesLine);
         upddateCashSaleAmountsOnRemovingItem(sales, salesLine);
         sales.setUpdatedAt(LocalDateTime.now());
-        sales.setLastUserEdit(storageService.getUser());
         sales.setEffectiveUpdateDate(sales.getUpdatedAt());
         cashSaleRepository.save(sales);
         salesLineService.deleteSaleLine(salesLine);
@@ -386,7 +383,7 @@ public class SaleServiceImpl extends SaleCommonService implements SaleService {
                 sales.setEffectiveUpdateDate(LocalDateTime.now());
                 sales.setCanceled(true);
                 copy.setCanceled(true);
-                sales.setLastUserEdit(user);
+
                 cashSaleRepository.save(sales);
                 cashSaleRepository.save(copy);
                 paymentService.findAllBySale(sales).forEach(payment -> paymentService.clonePayment(payment, copy));
@@ -417,7 +414,7 @@ public class SaleServiceImpl extends SaleCommonService implements SaleService {
         copy.setDiscountAmount(copy.getDiscountAmount() * (-1));
         copy.setTaxAmount(copy.getTaxAmount() * (-1));
         copy.setUser(sales.getUser());
-        copy.setLastUserEdit(storageService.getUser());
+
         copy.setPayments(Collections.emptySet());
         copy.setSalesLines(Collections.emptySet());
     }

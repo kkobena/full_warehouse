@@ -233,7 +233,6 @@ public class SaleCommonService {
         }
         c.setImported(false);
         c.setUser(user);
-        c.setLastUserEdit(c.getUser());
         c.setCaissier(caissier);
         c.setCopy(dto.getCopy());
         c.setCreatedAt(LocalDateTime.now());
@@ -285,7 +284,6 @@ public class SaleCommonService {
         getSaleLineService(c).save(c.getSalesLines(), user, id);
         c.setStatut(SalesStatut.CLOSED);
         c.setDiffere(dto.isDiffere());
-        c.setLastUserEdit(user);
         c.setCommentaire(dto.getCommentaire());
         if (!c.isDiffere() && dto.getPayrollAmount() < dto.getAmountToBePaid()) {
             throw new PaymentAmountException();

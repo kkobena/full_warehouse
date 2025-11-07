@@ -2,7 +2,7 @@ import { AfterViewInit, Component, inject, OnInit, viewChild } from '@angular/co
 import { Button } from 'primeng/button';
 import { ConfirmDialogComponent } from '../../../shared/dialog/confirm-dialog/confirm-dialog.component';
 import { DatePicker } from 'primeng/datepicker';
-import { DatePipe, DecimalPipe } from '@angular/common';
+import { DecimalPipe } from '@angular/common';
 import { FloatLabel } from 'primeng/floatlabel';
 import { InputGroup } from 'primeng/inputgroup';
 import { InputText } from 'primeng/inputtext';
@@ -21,7 +21,6 @@ import { SalesService } from '../../sales/sales.service';
 import { UserService } from '../../../core/user/user.service';
 import { debounceTime, Subject } from 'rxjs';
 import { TauriPrinterService } from '../../../shared/services/tauri-printer.service';
-import { Authority } from '../../../shared/constants/authority.constants';
 import { HttpHeaders, HttpResponse } from '@angular/common/http';
 import { handleBlobForTauri } from '../../../shared/util/tauri-util';
 import { WarehouseCommonModule } from '../../../shared/warehouse-common/warehouse-common.module';
@@ -30,15 +29,14 @@ import { FormsModule } from '@angular/forms';
 import { MagasinService } from '../../magasin/magasin.service';
 import { Router, RouterLink } from '@angular/router';
 import { StockDepotService } from '../stock-depot/stock-depot.service';
+import { DATE_FORMAT_ISO_DATE } from '../../../shared/util/warehouse-util';
 
 @Component({
   selector: 'jhi-achat-depot',
   imports: [
-    Button,
-    WarehouseCommonModule,
+    Button, WarehouseCommonModule,
     ConfirmDialogComponent,
     DatePicker,
-    DatePipe,
     DecimalPipe,
     FloatLabel,
     InputGroup,
@@ -70,14 +68,14 @@ export class AchatDepotComponent implements OnInit, AfterViewInit {
   protected splitbuttons: MenuItem[];
   protected depots: IMagasin[] = [];
   protected hasAuthorityService = inject(HasAuthorityService);
-  protected userControl = viewChild<Select>('userControl');
+
   protected actions: MenuItem[] | undefined;
   private readonly translate = inject(TranslateService);
   private readonly primeNGConfig = inject(PrimeNG);
   private readonly salesService = inject(SalesService);
   private readonly stockDepotService = inject(StockDepotService);
   private readonly userService = inject(UserService);
-  private readonly datePipe = inject(DatePipe);
+
   private searchSubject = new Subject<void>();
   private readonly confimDialog = viewChild.required<ConfirmDialogComponent>('confirmDialog');
   private readonly tauriPrinterService = inject(TauriPrinterService);
@@ -143,7 +141,7 @@ export class AchatDepotComponent implements OnInit, AfterViewInit {
   }
 
   ngAfterViewInit(): void {
-    this.userControl().value = this.selectedUserId;
+
   }
 
   printReceiptForTauri(saleId: SaleId, isEdition: boolean = false): void {
@@ -230,8 +228,8 @@ export class AchatDepotComponent implements OnInit, AfterViewInit {
   private buildCriteria(): any {
     return {
       search: this.search,
-      fromDate: this.fromDate ? this.datePipe.transform(this.fromDate, 'yyyy-MM-dd') : null,
-      toDate: this.toDate ? this.datePipe.transform(this.toDate, 'yyyy-MM-dd') : null,
+      fromDate: this.fromDate ? DATE_FORMAT_ISO_DATE(this.fromDate) : null,
+      toDate: this.toDate ? DATE_FORMAT_ISO_DATE(this.toDate) : null,
       magasinId: this.selectedDepot ? this.selectedDepot.id : null,
       userId: this.selectedUserId
     };

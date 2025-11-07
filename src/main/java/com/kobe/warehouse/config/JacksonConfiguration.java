@@ -13,6 +13,7 @@ import java.io.IOException;
 import java.time.LocalTime;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import tools.jackson.databind.json.JsonMapper;
 
 @Configuration
 public class JacksonConfiguration {
@@ -37,7 +38,7 @@ public class JacksonConfiguration {
     }
 
     @Bean
-    public ObjectMapper objectMapper() {
+    public ObjectMapper objectMapper() { //TODO replace by JsonMapper.builder() when migrating to Jackson 3
         ObjectMapper mapper = new ObjectMapper();
         mapper.registerModule(new JavaTimeModule());
         mapper.configure(MapperFeature.ACCEPT_CASE_INSENSITIVE_ENUMS, true);

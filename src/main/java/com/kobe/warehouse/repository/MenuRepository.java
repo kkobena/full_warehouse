@@ -17,8 +17,8 @@ public interface MenuRepository extends JpaRepository<Menu, Long> {
     Optional<Menu> findMenuByName(String name);
 
     @Query(
-        value = "SELECT m.id,m.libelle, m.name,m.racine AS root, m.parent_id AS parent, m.icon_java_client AS iconJavaClient, m.icon_web AS iconWeb, m.type_menu AS typeMenu FROM menu m JOIN warehouse.authority_menu am on m.id = am.menu_id WHERE am.authority_name IN ?1 AND m.enable = true AND m.type_menu IN ?2 ORDER BY m.ordre",
+        value = "SELECT m.id,m.libelle, m.name,m.racine AS root, m.parent_id AS parent FROM menu m JOIN authority_menu am on m.id = am.menu_id WHERE am.authority_name IN ?1 AND m.enable = true ORDER BY m.ordre",
         nativeQuery = true
     )
-    List<MenuSpecialisation> getRoleMenus(Set<String> roleNames, Set<String> typeMenus);
+    List<MenuSpecialisation> getRoleMenus(Set<String> roleNames);
 }

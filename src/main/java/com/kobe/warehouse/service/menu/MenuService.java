@@ -1,7 +1,6 @@
 package com.kobe.warehouse.service.menu;
 
 import com.kobe.warehouse.domain.Authority;
-import com.kobe.warehouse.domain.enumeration.TypeMenu;
 import com.kobe.warehouse.repository.MenuRepository;
 import com.kobe.warehouse.service.UserService;
 import com.kobe.warehouse.service.dto.MenuDTO;
@@ -31,9 +30,9 @@ public class MenuService {
             .ifPresent(user -> {
                 menuSpecialisations.addAll(
                     this.menuRepository.getRoleMenus(
-                            user.getAuthorities().stream().map(Authority::getName).collect(Collectors.toSet()),
-                            Set.of(TypeMenu.ALL.name(), TypeMenu.JAVA_CLIENT.name())
-                        )
+                            user.getAuthorities().stream().map(Authority::getName).collect(Collectors.toSet())
+                           )
+
                 );
             });
         Map<Boolean, List<MenuSpecialisation>> partitioned = menuSpecialisations
@@ -46,9 +45,7 @@ public class MenuService {
 
             menu.setLibelle(root.getLibelle());
             menu.setName(root.getName());
-            menu.setIconJavaClient(root.getIconJavaClient());
-            menu.setIconWeb(root.getIconWeb());
-            menu.setTypeMenu(root.getTypeMenu());
+
             menu.setMenus(
                 children
                     .stream()
@@ -59,9 +56,7 @@ public class MenuService {
                         MenuDTO child = new MenuDTO();
                         child.setLibelle(menuSpecialisation.getLibelle());
                         child.setName(menuSpecialisation.getName());
-                        child.setIconJavaClient(menuSpecialisation.getIconJavaClient());
-                        child.setIconWeb(menuSpecialisation.getIconWeb());
-                        child.setTypeMenu(menuSpecialisation.getTypeMenu());
+
                         return child;
                     })
                     .collect(Collectors.toSet())

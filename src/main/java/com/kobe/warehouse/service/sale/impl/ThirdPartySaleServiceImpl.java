@@ -228,7 +228,6 @@ public class ThirdPartySaleServiceImpl extends SaleCommonService implements Thir
         clone.setSaleDate(LocalDate.now());
         clone.setStatut(ThirdPartySaleStatut.DELETE);
         clone.setMontant(clone.getMontant() * (-1));
-        copy.setLastUserEdit(storageService.getUser());
         clone.setSale(copy);
         thirdPartySaleLineService.save(clone);
         original.setStatut(ThirdPartySaleStatut.DELETE);
@@ -240,7 +239,6 @@ public class ThirdPartySaleServiceImpl extends SaleCommonService implements Thir
     public void copySale(ThirdPartySales sales, ThirdPartySales copy) {
         copy.setPartAssure(sales.getPartAssure() * (-1));
         copy.setPartTiersPayant(sales.getPartTiersPayant() * (-1));
-        copy.setLastUserEdit(storageService.getUser());
         copy.getThirdPartySaleLines().clear();
     }
 
@@ -350,7 +348,6 @@ public class ThirdPartySaleServiceImpl extends SaleCommonService implements Thir
         sales.removeSalesLine(salesLine);
         sales.setUpdatedAt(LocalDateTime.now());
         sales.setEffectiveUpdateDate(sales.getUpdatedAt());
-        sales.setLastUserEdit(storageService.getUser());
         salesLineService.deleteSaleLine(salesLine);
         upddateSaleAmountsOnRemovingItem(sales);
         this.displayNet(sales.getPartAssure());
@@ -409,7 +406,6 @@ public class ThirdPartySaleServiceImpl extends SaleCommonService implements Thir
                 sales.setUpdatedAt(LocalDateTime.now());
                 sales.setEffectiveUpdateDate(sales.getUpdatedAt());
                 sales.setCanceled(true);
-                sales.setLastUserEdit(user);
                 thirdPartySaleRepository.save(sales);
                 thirdPartySaleRepository.save(copy);
                 paymentService.findAllBySales(sales.getId()).forEach(payment -> paymentService.clonePayment(payment, copy));
@@ -558,7 +554,6 @@ public class ThirdPartySaleServiceImpl extends SaleCommonService implements Thir
             .findFirstByClientTiersPayantIdAndSaleId(clientTiersPayantId, saleId)
             .ifPresent(thirdPartySaleLine -> {
                 ThirdPartySales thirdPartySales = thirdPartySaleLine.getSale();
-                thirdPartySales.setLastUserEdit(storageService.getUser());
                 thirdPartySaleLine.setSale(null);
                 thirdPartySales.getThirdPartySaleLines().remove(thirdPartySaleLine);
                 thirdPartySaleLineService.delete(thirdPartySaleLine);
@@ -594,7 +589,6 @@ public class ThirdPartySaleServiceImpl extends SaleCommonService implements Thir
         ThirdPartySales thirdPartySales = findById(dto.getSaleId());
         AssuredCustomer assuredCustomer = assuredCustomerRepository.getReferenceById(dto.getCustomerId());
         thirdPartySales.setCustomer(assuredCustomer);
-        thirdPartySales.setLastUserEdit(storageService.getUser());
         thirdPartySales.setAyantDroit(assuredCustomer);
         thirdPartySales.setUpdatedAt(LocalDateTime.now());
         thirdPartySales.setEffectiveUpdateDate(thirdPartySales.getUpdatedAt());
@@ -618,7 +612,6 @@ public class ThirdPartySaleServiceImpl extends SaleCommonService implements Thir
         c.setSeller(cashSale.getSeller());
         c.setImported(false);
         c.setUser(cashSale.getUser());
-        c.setLastUserEdit(this.storageService.getUser());
         c.setCaissier(cashSale.getCaissier());
         c.setCopy(false);
         c.setCreatedAt(cashSale.getCreatedAt());
@@ -685,7 +678,6 @@ public class ThirdPartySaleServiceImpl extends SaleCommonService implements Thir
         List<ThirdPartySaleLine> thirdPartySaleLines = thirdPartySales.getThirdPartySaleLines();
         thirdPartySaleLineService.deleteAll(thirdPartySaleLines);
         thirdPartySales.getThirdPartySaleLines().clear();
-        thirdPartySales.setLastUserEdit(storageService.getUser());
         thirdPartySales.setAyantDroit(assuredCustomer);
         thirdPartySales.setUpdatedAt(LocalDateTime.now());
         thirdPartySales.setEffectiveUpdateDate(thirdPartySales.getUpdatedAt());
@@ -797,7 +789,7 @@ public class ThirdPartySaleServiceImpl extends SaleCommonService implements Thir
                 .orElseThrow(() -> new GenericError("La ligne n'existe pas"));
             updateThirdPartySaleLine(thirdPartySaleLine, updateSale.customer(), thirdPartySaleLineDTO);
         });
-        thirdPartySales.setLastUserEdit(this.storageService.getUser());
+
         thirdPartySaleRepository.save(thirdPartySales);
         ObjectMapper objectMapper = new ObjectMapper();
         this.logService.create(

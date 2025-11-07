@@ -1,7 +1,7 @@
 flyway:
-  enabled: false
-  schemas: warehouse
-  table: warehouse_history
+  enabled: true
+  schemas: pharma_smart
+  table: pharma_smart_history
 
 
 spring:
@@ -33,7 +33,7 @@ spring:
         format_sql: true
         generate_statistics: false
         dialect: org.hibernate.dialect.PostgreSQLDialect
-        default_schema: warehouse
+        default_schema: pharma_smart
         cache:
           region.factory_class: org.hibernate.cache.jcache.JCacheRegionFactory
         use_sql_comments: true

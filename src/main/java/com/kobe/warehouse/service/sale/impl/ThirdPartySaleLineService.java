@@ -42,7 +42,6 @@ public class ThirdPartySaleLineService {
         clone.setSaleDate(LocalDate.now());
         clone.setStatut(ThirdPartySaleStatut.DELETE);
         clone.setMontant(clone.getMontant() * (-1));
-        copy.setLastUserEdit(storageService.getUser());
         clone.setSale(copy);
         thirdPartySaleLineRepository.save(clone);
         original.setStatut(ThirdPartySaleStatut.DELETE);

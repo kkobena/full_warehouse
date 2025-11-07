@@ -67,7 +67,7 @@ BEGIN
     SELECT *,
            ROW_NUMBER() OVER (
              PARTITION BY transaction_date, produit_id, magasin_id
-             ORDER BY id ASC
+             ORDER BY id
              ) AS rn_debut,
            ROW_NUMBER() OVER (
              PARTITION BY transaction_date, produit_id, magasin_id
@@ -100,7 +100,7 @@ BEGIN
            jsonb_object_agg(mouvement_type, quantite) AS mouvements
          FROM mouvements_detail
          GROUP BY transaction_date, magasin_id, produit_id
-         ORDER BY transaction_date ASC
+         ORDER BY transaction_date
        )
   SELECT jsonb_agg(
            jsonb_build_object(
@@ -109,7 +109,7 @@ BEGIN
              'afterStock', quantite_fin,
              'mouvements', mouvements
            )
-             ORDER BY transaction_date ASC
+             ORDER BY transaction_date
          )
   INTO result
   FROM mouvements_agg;

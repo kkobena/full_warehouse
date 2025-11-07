@@ -1,6 +1,6 @@
 INSERT INTO magasin (id, address, full_name, name, note, phone, registre, type_magasin)
 VALUES (1, '85 boulevard de l Europe, 69310', 'Pharma Smart', 'Pharma Smart', 'Bienvenue !',
-        '+33652926383', '',
+        '+33652936284', '',
         'OFFICINE') ON CONFLICT (id) DO NOTHING;
 
 INSERT INTO authority (name, libelle)
@@ -35,6 +35,15 @@ INSERT INTO user_authority (user_id, authority_name)
 VALUES (3, 'ROLE_ADMIN') ON CONFLICT (user_id, authority_name) DO NOTHING;
 INSERT INTO user_authority (user_id, authority_name)
 VALUES (3, 'ROLE_USER') ON CONFLICT (user_id, authority_name) DO NOTHING;
+INSERT INTO authority (name, libelle)
+VALUES ('ROLE_VENDEUR', 'Vendeur') ON CONFLICT (name) DO NOTHING;
+INSERT INTO authority (name, libelle)
+VALUES ('ROLE_CAISSIER', 'Caissier') ON CONFLICT (name) DO NOTHING;
+INSERT INTO authority (name, libelle)
+VALUES ('ROLE_RESPONSABLE_COMMANDE', 'Responsable de commande') ON CONFLICT (name) DO NOTHING;
+
+INSERT INTO authority (name, libelle)
+VALUES ('ROLE_SUPER_USER', 'Super user dev') ON CONFLICT (name) DO NOTHING;
 
 
 INSERT INTO storage("id", "name", "storage_type", "magasin_id")
@@ -218,9 +227,23 @@ values ('APP_EXPIRY_ALERT_DAYS_BEFORE',
         '30,7', null,
         'LIST') ON CONFLICT (name) DO NOTHING;
 
-INSERT INTO authority (name, libelle)
-VALUES ('ROLE_VENDEUR', 'Vendeur') ON CONFLICT (name) DO NOTHING;
-INSERT INTO authority (name, libelle)
-VALUES ('ROLE_CAISSIER', 'Caissier') ON CONFLICT (name) DO NOTHING;
-INSERT INTO authority (name, libelle)
-VALUES ('ROLE_RESPONSABLE_COMMANDE', 'Responsable de commande') ON CONFLICT (name) DO NOTHING;
+INSERT INTO app_configuration(name, description, value, other_value, "value_type")
+values ('APP_CUSTOMER_DISPLAY',
+        'Activer afficheur client',
+        '0', null,
+        'BOOLEAN') ON CONFLICT (name) DO NOTHING;
+INSERT INTO app_configuration(name, description, value, other_value, "value_type")
+values ('EXCLUDE_FREE_UNIT',
+        'Exclure les unités gratuites dans le calcul chiffre d affaires',
+        '0', null,
+        'BOOLEAN') ON CONFLICT (name) DO NOTHING;
+
+
+INSERT INTO app_configuration(name, description, value, other_value, "value_type")
+values ('APP_RETENTION_COMMANDE',
+        'Nombre de jour de retention des commandes en cours dans votre pharmacie',
+        '30', null,
+        'NUMBER') ON CONFLICT (name) DO NOTHING;
+
+
+

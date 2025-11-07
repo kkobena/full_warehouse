@@ -1,12 +1,9 @@
 package com.kobe.warehouse.domain;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-import com.kobe.warehouse.domain.enumeration.TypeMenu;
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
-import jakarta.persistence.EnumType;
-import jakarta.persistence.Enumerated;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
@@ -16,7 +13,7 @@ import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 import jakarta.persistence.UniqueConstraint;
 import jakarta.validation.constraints.NotNull;
-import jakarta.validation.constraints.Size;
+
 import java.io.Serial;
 import java.io.Serializable;
 import java.util.HashSet;
@@ -61,17 +58,6 @@ public class Menu implements Serializable {
     @Column(name = "enable", nullable = false)
     private boolean enable = true;
 
-    @NotNull
-    @Enumerated(EnumType.STRING)
-    @Column(name = "type_menu", nullable = false, length = 15)
-    @Size(max = 15)
-    private TypeMenu typeMenu = TypeMenu.WEB;
-
-    @Column(name = "icon_web")
-    private String iconWeb;
-
-    @Column(name = "icon_java_client")
-    private String iconJavaClient;
 
     private int ordre;
 
@@ -83,14 +69,6 @@ public class Menu implements Serializable {
         this.ordre = ordre;
     }
 
-    public String getIconWeb() {
-        return iconWeb;
-    }
-
-    public Menu setIconWeb(String iconWeb) {
-        this.iconWeb = iconWeb;
-        return this;
-    }
 
     public boolean isRoot() {
         return root;
@@ -140,14 +118,7 @@ public class Menu implements Serializable {
         return this;
     }
 
-    public TypeMenu getTypeMenu() {
-        return typeMenu;
-    }
 
-    public Menu setTypeMenu(TypeMenu typeMenu) {
-        this.typeMenu = typeMenu;
-        return this;
-    }
 
     public String getName() {
         return name;
@@ -162,14 +133,6 @@ public class Menu implements Serializable {
         return this;
     }
 
-    public String getIconJavaClient() {
-        return iconJavaClient;
-    }
-
-    public Menu setIconJavaClient(String iconJavaClient) {
-        this.iconJavaClient = iconJavaClient;
-        return this;
-    }
 
     public boolean isEnable() {
         return enable;

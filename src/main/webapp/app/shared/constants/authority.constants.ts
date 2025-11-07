@@ -35,7 +35,7 @@ export enum Authority {
   GESTION_STOCK = 'gestion-stock',
   TIERS_PAYANT = 'tiers-payant',
   LABORATOIRE = 'laboratoire',
-  TYPE_ETIQUETTE = 'type-etiquette',
+
   MENU_RAYON = 'rayon',
   SALE_LINE = 'sales-line',
   CLIENT = 'customer',
@@ -61,6 +61,7 @@ export enum Authority {
   REMISE = 'remise',
   HOME_DASHBOARD = 'HOME_DASHBOARD',
   MY_CASH_REGISTER = 'my-cash-register',
-  PR_MENU_DEPOT = 'PR_MENU_DEPOT',
-  PR_MENU_POSTE = 'PR_MENU_POSTE',
+  MENU_DEPOT = 'MENU_DEPOT',
+  MENU_POSTE = 'MENU_POSTE',
+
 }

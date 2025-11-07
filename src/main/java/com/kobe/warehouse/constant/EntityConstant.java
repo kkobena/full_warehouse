@@ -30,7 +30,7 @@ public final class EntityConstant {
     public static final String STANDARD = "STANDARD";
     public static final String APP_CASH_FUND = "APP_CASH_FUND";
     public static final String RECEIPT_MAXI_ROW = "RECEIPT_MAXI_ROW";
-    public static final String ENTREE_STOCK_SANS_EXPIRY_DATE = "APP_ENTREE_STOCK_SANS_EXPIRY_DATE";
+
     public static final String ENTREE_STOCK_SEQUENCE_ID = "ENTREE_STOCK";
     public static final int LEFTPAD_SIZE = 4;
     public static final String APP_DAY_STOCK = "APP_DAY_STOCK";
@@ -43,10 +43,7 @@ public final class EntityConstant {
     public static final String CASH_CODE = "CASH";
     public static final String APP_RESET_INVOICE_NUMBER = "APP_RESET_INVOICE_NUMBER"; // Reset invoice number at the beginning of each Year
     public static final String SANS_EMPLACEMENT_CODE = "SANS";
-    public static final Long DEFAULT_TYPE_ETIQUETTES = 2L;
     public static final String APP_SUGGESTION_RETENTION = "APP_SUGGESTION_RETENTION"; // nombre de jours de conservation des suggestions
-    public static final String APP_POS_PRINTER_WIDTH = "APP_POS_PRINTER_WIDTH";
-    public static final String APP_POS_PRINTER_MARGIN = "APP_POS_PRINTER_MARGIN";
     public static final String APP_POS_PRINTER_ITEM_COUNT_PER_PAGE = "APP_POS_PRINTER_ITEM_COUNT_PER_PAGE";
     public static final String USER_MAGASIN = "USER_MAGASIN";
     public static final String APP_NOMBRE_JOUR_AVANT_PEREMPTION = "APP_NOMBRE_JOUR_AVANT_PEREMPTION"; // nombre de jour avant la date de peremption pour la vente d'un produit,
@@ -59,7 +56,6 @@ public final class EntityConstant {
     public static final String USER_MAIN_STORAGE_CACHE = "USER_MAIN_STORAGE_CACHE";
     public static final String CURRENT_USER_CACHE = "CURRENT_USER_CACHE";
     public static final String CURRENT_USER_MAGASIN_CACHE = "CURRENT_USER_MAGASIN_CACHE";
-    public static final String APP_NBRE_JOUR_RETENTION_SUGGESTION= "APP_RETENTION_SUGGESTION" ;// Nombre de jour de retention des suggestions
     public static final String APP_NBRE_JOUR_RETENTION_COMMANDE= "APP_RETENTION_COMMANDE" ;// Nombre de jour de retention des suggestions
     public static final String APP_CUSTOMER_DISPLAY= "APP_CUSTOMER_DISPLAY" ;// Est-ce que le afficheur client est actif
     public static final String APP_POST_CONFIG= "APP_POST_CONFIG" ;

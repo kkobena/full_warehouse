@@ -69,7 +69,7 @@ public class CustomizedAjustRepository extends FileResourceService implements Aj
             TypedQuery<Ajust> q = em.createQuery(cq);
             q.setFirstResult((int) pageable.getOffset());
             q.setMaxResults(pageable.getPageSize());
-            list = q.getResultList().stream().map(e -> new AjustDTO(e).setAjustements(items(e.getId()))).collect(Collectors.toList());
+            list = q.getResultList().stream().map(e -> new AjustDTO(e).setAjustements(items(e.getId()))).toList();
         }
         return new PageImpl<>(list, pageable, total);
     }
@@ -81,7 +81,7 @@ public class CustomizedAjustRepository extends FileResourceService implements Aj
                 Ajustement.class
             );
             q.setParameter(1, id);
-            return q.getResultList().stream().map(AjustementDTO::new).collect(Collectors.toList());
+            return q.getResultList().stream().map(AjustementDTO::new).toList();
         } catch (Exception e) {
             return Collections.emptyList();
         }
@@ -149,7 +149,7 @@ public class CustomizedAjustRepository extends FileResourceService implements Aj
                     .stream()
                     .map(AjustementDTO::new)
                     .sorted(Comparator.comparing(AjustementDTO::getCodeCip))
-                    .collect(Collectors.toList())
+                    .toList()
             )
         );
     }

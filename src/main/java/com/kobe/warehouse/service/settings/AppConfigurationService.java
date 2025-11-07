@@ -150,15 +150,7 @@ public class AppConfigurationService {
             .orElse(false);
     }
 
-    @Transactional(readOnly = true)
-    @Cacheable(EntityConstant.APP_NBRE_JOUR_RETENTION_SUGGESTION)
-    public int getNombreJourRetentionSuggestion() {
-        return appConfigurationRepository
-            .findById(EntityConstant.APP_NBRE_JOUR_RETENTION_SUGGESTION)
-            .map(AppConfiguration::getValue)
-            .map(Integer::parseInt)
-            .orElse(30);
-    }
+
 
 
     @Transactional(readOnly = true)

@@ -50,7 +50,7 @@ const commandeRoute: Routes = [
     path: '',
     loadComponent: () => import('./commande.component').then(m => m.CommandeComponent),
     data: {
-      authorities: [Authority.ADMIN, Authority.COMMANDE],
+      authorities: [Authority.ADMIN, Authority.COMMANDE,Authority.ROLE_RESPONSABLE_COMMANDE],
       defaultSort: 'id,asc',
       pageTitle: 'warehouseApp.commande.home.title'
     },
@@ -69,7 +69,7 @@ const commandeRoute: Routes = [
       commande: CommandeResolve
     },
     data: {
-      authorities: [Authority.ADMIN, Authority.COMMANDE],
+      authorities: [Authority.ADMIN, Authority.COMMANDE,Authority.ROLE_RESPONSABLE_COMMANDE],
       pageTitle: 'warehouseApp.commande.home.title'
     },
     canActivate: [UserRouteAccessService]
@@ -81,7 +81,7 @@ const commandeRoute: Routes = [
       commande: CommandeResolve
     },
     data: {
-      authorities: [Authority.ADMIN, Authority.COMMANDE],
+      authorities: [Authority.ADMIN, Authority.COMMANDE,Authority.ROLE_RESPONSABLE_COMMANDE],
       pageTitle: 'warehouseApp.commande.home.title'
     },
     canActivate: [UserRouteAccessService]
@@ -95,7 +95,7 @@ const commandeRoute: Routes = [
       suggestion: SuggestionResolver
     },
     data: {
-      authorities: [Authority.ADMIN, Authority.COMMANDE],
+      authorities: [Authority.ADMIN, Authority.COMMANDE,Authority.ROLE_RESPONSABLE_COMMANDE],
       pageTitle: 'warehouseApp.commande.home.title'
     },
     canActivate: [UserRouteAccessService]
@@ -104,7 +104,7 @@ const commandeRoute: Routes = [
     path: 'retour-fournisseur/new',
     loadComponent: () => import('./retour_fournisseur/supplier-returns.component').then(m => m.SupplierReturnsComponent),
     data: {
-      authorities: [Authority.ADMIN, Authority.COMMANDE],
+      authorities: [Authority.ADMIN, Authority.COMMANDE,Authority.ROLE_RESPONSABLE_COMMANDE],
       pageTitle: 'Nouveau Retour Fournisseur'
     },
     canActivate: [UserRouteAccessService]

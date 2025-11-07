@@ -1,6 +1,6 @@
 <div class="container-fluid">
   <p-toast />
-
+<div class="pharma-smart-content">
   <!-- Pharma Toolbar Header -->
   <div class="pharma-toolbar">
     <div class="pharma-toolbar-header">
@@ -10,7 +10,7 @@
         <p-button
           icon="pi pi-arrow-left"
           label="Retour à la liste"
-          severity="secondary"
+          severity="primary"
           [outlined]="true"
           (onClick)="navigateToList()"
           size="small"
@@ -38,7 +38,7 @@
               class="w-100"
               inputId="supplier-select"
             />
-            <label for="supplier-select">Fournisseur</label>
+
           </p-floatlabel>
         </div>
 
@@ -65,7 +65,7 @@
                 </div>
               </ng-template>
             </p-select>
-            <label for="order-select">Commande</label>
+
           </p-floatlabel>
         </div>
       </div>
@@ -258,4 +258,6 @@
       </div>
     </div>
   </div>
+</div>
+
 </div>

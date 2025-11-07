@@ -32,9 +32,9 @@ spring:
   datasource:
     type: com.zaxxer.hikari.HikariDataSource
     driver-class-name: org.postgresql.Driver
-    url: jdbc:postgresql://localhost:5432/warehouse
-    username: warehouse
-    password: warehouse2802
+    url: jdbc:postgresql://localhost:5432/pharma_smart
+    username: pharma_smart
+    password: 2802_pharma_smart
     hikari:
         poolName: Hikari
         auto-commit: false

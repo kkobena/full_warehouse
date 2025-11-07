@@ -32,7 +32,6 @@ BEGIN
                                        ELSE 'S2' END
                          WHEN 4 THEN to_char(s.sale_date, 'YYYY')
                          END                                            AS mvt_date,
-                       MIN(s.sale_date)                                 AS min_date,
                        CEIL(SUM((o.quantity_requested * o.regular_unit_price) /
                                 NULLIF(1 + (o.tax_value / 100), 0)))    AS montant_ht,
                        SUM(o.quantity_requested)                        AS quantite,

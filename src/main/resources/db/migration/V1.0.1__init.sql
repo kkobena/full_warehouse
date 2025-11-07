@@ -1,7 +1,7 @@
 create sequence revinfo_seq
   increment by 50;
 
-alter sequence revinfo_seq owner to warehouse;
+alter sequence revinfo_seq owner to pharma_smart;
 
 
 create table authority
@@ -12,7 +12,7 @@ create table authority
 );
 
 alter table authority
-  owner to warehouse;
+  owner to pharma_smart;
 
 create table banque
 (
@@ -25,7 +25,7 @@ create table banque
 );
 
 alter table banque
-  owner to warehouse;
+  owner to pharma_smart;
 
 create table categorie
 (
@@ -38,7 +38,7 @@ create table categorie
 );
 
 alter table categorie
-  owner to warehouse;
+  owner to pharma_smart;
 
 create table dci
 (
@@ -53,7 +53,7 @@ create table dci
 );
 
 alter table dci
-  owner to warehouse;
+  owner to pharma_smart;
 
 create index dci_libelle_index
   on dci (libelle);
@@ -72,7 +72,7 @@ create table famille_produit
 );
 
 alter table famille_produit
-  owner to warehouse;
+  owner to pharma_smart;
 
 create table form_produit
 (
@@ -84,7 +84,7 @@ create table form_produit
 );
 
 alter table form_produit
-  owner to warehouse;
+  owner to pharma_smart;
 
 create table gamme_produit
 (
@@ -97,7 +97,7 @@ create table gamme_produit
 );
 
 alter table gamme_produit
-  owner to warehouse;
+  owner to pharma_smart;
 
 create table groupe_fournisseur
 (
@@ -118,7 +118,7 @@ create table groupe_fournisseur
 );
 
 alter table groupe_fournisseur
-  owner to warehouse;
+  owner to pharma_smart;
 
 create table fournisseur
 (
@@ -140,7 +140,7 @@ create table fournisseur
 );
 
 alter table fournisseur
-  owner to warehouse;
+  owner to pharma_smart;
 
 create table fournisseur_produit
 (
@@ -163,7 +163,7 @@ create table fournisseur_produit
 );
 
 alter table fournisseur_produit
-  owner to warehouse;
+  owner to pharma_smart;
 
 create index code_cip_index
   on fournisseur_produit (code_cip);
@@ -188,7 +188,7 @@ create table groupe_tiers_payant
 );
 
 alter table groupe_tiers_payant
-  owner to warehouse;
+  owner to pharma_smart;
 
 create table historique_inventaire
 (
@@ -205,7 +205,7 @@ create table historique_inventaire
 );
 
 alter table historique_inventaire
-  owner to warehouse;
+  owner to pharma_smart;
 
 create table importation_echouee
 (
@@ -217,7 +217,7 @@ create table importation_echouee
 );
 
 alter table importation_echouee
-  owner to warehouse;
+  owner to pharma_smart;
 
 create table importation_echouee_ligne
 (
@@ -245,7 +245,7 @@ create table importation_echouee_ligne
 );
 
 alter table importation_echouee_ligne
-  owner to warehouse;
+  owner to pharma_smart;
 
 create table laboratoire
 (
@@ -257,7 +257,7 @@ create table laboratoire
 );
 
 alter table laboratoire
-  owner to warehouse;
+  owner to pharma_smart;
 
 create table magasin
 (
@@ -270,6 +270,8 @@ create table magasin
   full_name           varchar(255) not null
     constraint ukjn6wxi7t8rmrg6rbcemf4yr1h
       unique,
+  manager_first_name  varchar(255),
+  manager_last_name   varchar(255),
   name                varchar(255) not null
     constraint ukjj7fulne1dmx3boof0itbmj8n
       unique,
@@ -281,12 +283,12 @@ create table magasin
   type_magasin        varchar(20)  not null
     constraint magasin_type_magasin_check
       check ((type_magasin)::text = ANY
-             ((ARRAY ['OFFICINE'::character varying, 'DEPOT'::character varying, 'DEPOT_AGGREE'::character varying])::text[])),
+             ((ARRAY ['OFFICINE'::character varying, 'DEPOT'::character varying])::text[])),
   welcome_message     varchar(255)
 );
 
 alter table magasin
-  owner to warehouse;
+  owner to pharma_smart;
 
 create table app_user
 (
@@ -299,9 +301,7 @@ create table app_user
   action_authority_key varchar(255),
   activated            boolean     not null,
   activation_key       varchar(20),
-  email                varchar(254)
-    constraint uk1j9d9a06i600gd43uu3km82jw
-      unique,
+  email                varchar(254),
   first_name           varchar(50),
   image_url            varchar(256),
   lang_key             varchar(10),
@@ -318,7 +318,7 @@ create table app_user
 );
 
 alter table app_user
-  owner to warehouse;
+  owner to pharma_smart;
 
 create table app_configuration
 (
@@ -339,7 +339,7 @@ create table app_configuration
 );
 
 alter table app_configuration
-  owner to warehouse;
+  owner to pharma_smart;
 
 create table cash_register
 (
@@ -365,7 +365,7 @@ create table cash_register
 );
 
 alter table cash_register
-  owner to warehouse;
+  owner to pharma_smart;
 
 create table cash_fund
 (
@@ -396,7 +396,7 @@ create table cash_fund
 );
 
 alter table cash_fund
-  owner to warehouse;
+  owner to pharma_smart;
 
 create table commande
 (
@@ -438,7 +438,7 @@ create table commande
 ) PARTITION BY RANGE (order_date);
 
 alter table commande
-  owner to warehouse;
+  owner to pharma_smart;
 
 create index order_status_index
   on commande (order_status);
@@ -476,7 +476,7 @@ create table importation
 );
 
 alter table importation
-  owner to warehouse;
+  owner to pharma_smart;
 
 create index importation_status_index
   on importation (importation_status);
@@ -506,7 +506,7 @@ create table logs
 );
 
 alter table logs
-  owner to warehouse;
+  owner to pharma_smart;
 
 create index transaction_type_index
   on logs (transaction_type);
@@ -519,28 +519,22 @@ create index indentitykey_index
 
 create table menu
 (
-  id               bigint generated by default as identity
+  id        bigint generated by default as identity
     primary key,
-  enable           boolean      not null,
-  icon_java_client varchar(255),
-  icon_web         varchar(255),
-  libelle          varchar(255) not null,
-  name             varchar(70)  not null
+  enable    boolean      not null,
+  libelle   varchar(255) not null,
+  name      varchar(70)  not null
     constraint ukm05sb1hgsv38qjb4ksyh5eat2
       unique,
-  ordre            integer      not null,
-  racine           boolean      not null,
-  type_menu        varchar(15)  not null
-    constraint menu_type_menu_check
-      check ((type_menu)::text = ANY
-             ((ARRAY ['WEB'::character varying, 'JAVA_CLIENT'::character varying, 'ALL'::character varying, 'MOBILE'::character varying])::text[])),
-  parent_id        bigint
+  ordre     integer      not null,
+  racine    boolean      not null,
+  parent_id bigint
     constraint fkgeupubdqncc1lpgf2cn4fqwbc
       references menu
 );
 
 alter table menu
-  owner to warehouse;
+  owner to pharma_smart;
 
 create table authority_menu
 (
@@ -554,7 +548,7 @@ create table authority_menu
 );
 
 alter table authority_menu
-  owner to warehouse;
+  owner to pharma_smart;
 
 create table motif_ajustement
 (
@@ -566,7 +560,7 @@ create table motif_ajustement
 );
 
 alter table motif_ajustement
-  owner to warehouse;
+  owner to pharma_smart;
 
 create table motif_retour_produit
 (
@@ -578,7 +572,7 @@ create table motif_retour_produit
 );
 
 alter table motif_retour_produit
-  owner to warehouse;
+  owner to pharma_smart;
 
 create table payment_mode
 (
@@ -593,11 +587,12 @@ create table payment_mode
   libelle       varchar(255) not null
     constraint uktfqn29lfkm2lkujuptvoiiyki
       unique,
-  ordre_tri     smallint     not null
+  ordre_tri     smallint     not null,
+  qr_code       bytea
 );
 
 alter table payment_mode
-  owner to warehouse;
+  owner to pharma_smart;
 
 create table cash_register_item
 (
@@ -619,7 +614,7 @@ create table cash_register_item
 );
 
 alter table cash_register_item
-  owner to warehouse;
+  owner to pharma_smart;
 
 create table persistent_audit_event
 (
@@ -631,7 +626,7 @@ create table persistent_audit_event
 );
 
 alter table persistent_audit_event
-  owner to warehouse;
+  owner to pharma_smart;
 
 create table persistent_audit_evt_data
 (
@@ -644,7 +639,7 @@ create table persistent_audit_evt_data
 );
 
 alter table persistent_audit_evt_data
-  owner to warehouse;
+  owner to pharma_smart;
 
 create table persistent_token
 (
@@ -660,49 +655,25 @@ create table persistent_token
 );
 
 alter table persistent_token
-  owner to warehouse;
+  owner to pharma_smart;
 
 create table poste
 (
-  id          bigint generated by default as identity
+  id                    bigint generated by default as identity
     primary key,
-  address     varchar(255) not null,
-  name        varchar(255) not null
+  address               varchar(255) not null
+    constraint ukl0m98oygt0eo9t52j6mrdv3w3
+      unique,
+  customer_display      boolean default false,
+  customer_display_port varchar(10),
+  name                  varchar(100) not null
     constraint ukk7d8e8fhttgpyrppl6unbvybx
       unique,
-  postenumber varchar(255)
+  poste_number          varchar(20)
 );
 
 alter table poste
-  owner to warehouse;
-
-create index poste_name_index
-  on poste (name);
-
-create table printer
-(
-  id                    bigint generated by default as identity
-    primary key,
-  address               varchar(255),
-  length                integer             not null,
-  margin_left_and_right integer default 10  not null,
-  margin_top            integer default 15  not null,
-  name                  varchar(255)        not null
-    constraint ukrr7bfntxwxqe91dsa9458f582
-      unique,
-  width                 integer default 576 not null,
-  poste_id              bigint              not null
-    constraint fkcip3p5i9uwm6mgqpsnrfk5vcu
-      references poste,
-  constraint ukh8bxb2mqx8w24n0jh4vymkk0
-    unique (name, poste_id)
-);
-
-alter table printer
-  owner to warehouse;
-
-create index name_index
-  on printer (name);
+  owner to pharma_smart;
 
 create table privilege
 (
@@ -715,7 +686,7 @@ create table privilege
 );
 
 alter table privilege
-  owner to warehouse;
+  owner to pharma_smart;
 
 create table authority_privilege
 (
@@ -732,7 +703,7 @@ create table authority_privilege
 );
 
 alter table authority_privilege
-  owner to warehouse;
+  owner to pharma_smart;
 
 create table products_to_destroy
 (
@@ -765,24 +736,24 @@ create table products_to_destroy
 );
 
 alter table products_to_destroy
-  owner to warehouse;
+  owner to pharma_smart;
 
 create table reference
 (
   id             bigint generated by default as identity
     primary key,
-  mvt_date       date         not null,
-  num            varchar(255) not null,
-  number_transac integer      not null
+  mvt_date       date        not null,
+  num            varchar(20) not null,
+  number_transac integer     not null
     constraint reference_number_transac_check
       check (number_transac >= 0),
-  d_type         integer      not null,
+  d_type         integer     not null,
   constraint ukpj0iecdrn6o15jiuqnbj5l80o
     unique (mvt_date, d_type, num)
 );
 
 alter table reference
-  owner to warehouse;
+  owner to pharma_smart;
 
 create table remise
 (
@@ -798,7 +769,7 @@ create table remise
 );
 
 alter table remise
-  owner to warehouse;
+  owner to pharma_smart;
 
 create table customer
 (
@@ -837,7 +808,7 @@ create table customer
 );
 
 alter table customer
-  owner to warehouse;
+  owner to pharma_smart;
 
 create index client_first_name_index
   on customer (first_name);
@@ -866,7 +837,7 @@ create table customer_account
 );
 
 alter table customer_account
-  owner to warehouse;
+  owner to pharma_smart;
 
 create table grille_remise
 (
@@ -888,7 +859,7 @@ create table grille_remise
 );
 
 alter table grille_remise
-  owner to warehouse;
+  owner to pharma_smart;
 
 create table revinfo
 (
@@ -898,7 +869,7 @@ create table revinfo
 );
 
 alter table revinfo
-  owner to warehouse;
+  owner to pharma_smart;
 
 create table produit_aud
 (
@@ -947,20 +918,20 @@ create table produit_aud
 );
 
 alter table produit_aud
-  owner to warehouse;
+  owner to pharma_smart;
 
 create table sales
 (
   dtype                           varchar(31)  not null
     constraint sales_dtype_check
       check ((dtype)::text = ANY
-             ((ARRAY ['Sales'::character varying, 'CashSale'::character varying, 'ThirdPartySales'::character varying, 'VenteDepot'::character varying, 'VenteDepotAgree'::character varying])::text[])),
+             ((ARRAY ['Sales'::character varying, 'CashSale'::character varying, 'ThirdPartySales'::character varying, 'VenteDepot'::character varying])::text[])),
   id                              bigint       not null,
   sale_date                       date         not null,
   amount_to_be_paid               integer      not null,
   amount_to_be_taken_into_account integer      not null,
   canceled                        boolean      not null,
-  ca                              varchar(255) not null
+  ca                              varchar(15)  not null
     constraint sales_ca_check
       check ((ca)::text = ANY
              ((ARRAY ['CA'::character varying, 'CA_DEPOT'::character varying, 'CALLEBASE'::character varying, 'TO_IGNORE'::character varying])::text[])),
@@ -977,7 +948,7 @@ create table sales
       check ((nature_vente)::text = ANY
              ((ARRAY ['COMPTANT'::character varying, 'ASSURANCE'::character varying, 'CARNET'::character varying])::text[])),
   number_transaction              varchar(255) not null,
-  origine_vente                   varchar(255) not null
+  origine_vente                   varchar(15)  not null
     constraint sales_origine_vente_check
       check ((origine_vente)::text = ANY
              ((ARRAY ['DIRECT'::character varying, 'DIVIS'::character varying, 'IMPORTE'::character varying])::text[])),
@@ -1020,9 +991,6 @@ create table sales
   lastcaisse_id                   bigint
     constraint fk8def8xcxhikgkjyjimrumwrry
       references poste,
-  lastuseredit_id                 bigint       not null
-    constraint fklxb35l9jpvad0by7bwqcfwfaj
-      references app_user,
   magasin_id                      bigint       not null
     constraint fkd98rul87ffrih39pgn4xh0x3i
       references magasin,
@@ -1044,9 +1012,6 @@ create table sales
   depot_id                        bigint
     constraint fk21r69rm6qvqoecj2qn8dodi7w
       references magasin,
-  depot_agree_id                  bigint
-    constraint fk8jn843nshbh0rxx99oil0xbev
-      references magasin,
   primary key (id, sale_date),
   constraint fkaro8sv31dad5c0h1l12j80w16
     foreign key (canceled_sale_id, canceled_sale_date) references sales,
@@ -1055,7 +1020,7 @@ create table sales
 ) PARTITION BY RANGE (sale_date);
 
 alter table sales
-  owner to warehouse;
+  owner to pharma_smart;
 
 create index vente_dtype_index
   on sales (dtype);
@@ -1081,9 +1046,6 @@ create index vente_to_ignore_index
 create index vente_payment_status_index
   on sales (payment_status);
 
-create index vente_nature_vente_index
-  on sales (nature_vente);
-
 create table stock_produit_aud
 (
   id               bigint  not null,
@@ -1103,15 +1065,13 @@ create table stock_produit_aud
 );
 
 alter table stock_produit_aud
-  owner to warehouse;
+  owner to pharma_smart;
 
 create table storage
 (
   id           bigint generated by default as identity
     primary key,
-  name         varchar(255) not null
-    constraint uk5fe37ity4pov1usxcqr3b03nd
-      unique,
+  name         varchar(255) not null,
   storage_type varchar(255) not null
     constraint storage_storage_type_check
       check ((storage_type)::text = ANY
@@ -1120,11 +1080,13 @@ create table storage
     constraint fkn1jj5tjhmgepsc4nwqsf1db9r
       references magasin,
   constraint uk8hgum32rc3fpeusaibc8e608s
-    unique (storage_type, magasin_id)
+    unique (storage_type, magasin_id),
+  constraint uk29mdivo3gotbqc27fy7je2jxm
+    unique (name, magasin_id)
 );
 
 alter table storage
-  owner to warehouse;
+  owner to pharma_smart;
 
 create table ajust
 (
@@ -1134,8 +1096,7 @@ create table ajust
   date_mtv    timestamp(6) not null,
   statut      varchar(255) not null
     constraint ajust_statut_check
-      check ((statut)::text = ANY
-             ((ARRAY ['PENDING'::character varying, 'CLOSED'::character varying])::text[])),
+      check ((statut)::text = ANY ((ARRAY ['PENDING'::character varying, 'CLOSED'::character varying])::text[])),
   storage_id  bigint       not null
     constraint fkbkc3o0mx6q4799rpbpgcd0e89
       references storage,
@@ -1145,7 +1106,7 @@ create table ajust
 );
 
 alter table ajust
-  owner to warehouse;
+  owner to pharma_smart;
 
 create table rayon
 (
@@ -1164,7 +1125,7 @@ create table rayon
 );
 
 alter table rayon
-  owner to warehouse;
+  owner to pharma_smart;
 
 create table store_inventory
 (
@@ -1203,7 +1164,7 @@ create table store_inventory
 );
 
 alter table store_inventory
-  owner to warehouse;
+  owner to pharma_smart;
 
 create table suggestion
 (
@@ -1212,8 +1173,7 @@ create table suggestion
   created_at           timestamp(6) not null,
   statut               varchar(15)
     constraint suggestion_statut_check
-      check ((statut)::text = ANY
-             ((ARRAY ['OPEN'::character varying, 'CLOSED'::character varying])::text[])),
+      check ((statut)::text = ANY ((ARRAY ['OPEN'::character varying, 'CLOSED'::character varying])::text[])),
   suggession_reference varchar(255),
   type_suggession      varchar(10)
     constraint suggestion_type_suggession_check
@@ -1232,7 +1192,7 @@ create table suggestion
 );
 
 alter table suggestion
-  owner to warehouse;
+  owner to pharma_smart;
 
 create index type_suggession_index
   on suggestion (type_suggession);
@@ -1255,7 +1215,7 @@ create table suggestion_line
 );
 
 alter table suggestion_line
-  owner to warehouse;
+  owner to pharma_smart;
 
 create table tableau
 (
@@ -1268,7 +1228,7 @@ create table tableau
 );
 
 alter table tableau
-  owner to warehouse;
+  owner to pharma_smart;
 
 create index code_index
   on tableau (code);
@@ -1300,7 +1260,7 @@ create table ticketing
 );
 
 alter table ticketing
-  owner to warehouse;
+  owner to pharma_smart;
 
 create table tiers_payant
 (
@@ -1350,7 +1310,7 @@ create table tiers_payant
 );
 
 alter table tiers_payant
-  owner to warehouse;
+  owner to pharma_smart;
 
 create table client_tiers_payant
 (
@@ -1379,7 +1339,7 @@ create table client_tiers_payant
 );
 
 alter table client_tiers_payant
-  owner to warehouse;
+  owner to pharma_smart;
 
 create index client_num_index
   on client_tiers_payant (num);
@@ -1423,7 +1383,7 @@ create table facture_tiers_payant
 ) PARTITION BY RANGE (invoice_date);
 
 alter table facture_tiers_payant
-  owner to warehouse;
+  owner to pharma_smart;
 
 create index num_facture_index
   on facture_tiers_payant (num_facture);
@@ -1439,7 +1399,7 @@ create table payment_transaction
              ((ARRAY ['PaymentTransaction'::character varying, 'AccountTransaction'::character varying, 'DefaultPayment'::character varying, 'DifferePayment'::character varying, 'InvoicePayment'::character varying, 'PaymentFournisseur'::character varying, 'SalePayment'::character varying])::text[])),
   id                               bigint       not null,
   transaction_date                 date         not null,
-  categorie_ca                     varchar(255) not null
+  categorie_ca                     varchar(20)  not null
     constraint payment_transaction_categorie_ca_check
       check ((categorie_ca)::text = ANY
              ((ARRAY ['CA'::character varying, 'CA_DEPOT'::character varying, 'CALLEBASE'::character varying, 'TO_IGNORE'::character varying])::text[])),
@@ -1450,7 +1410,8 @@ create table payment_transaction
   montant_verse                    integer      not null,
   paid_amount                      integer      not null,
   reel_amount                      integer      not null,
-  type_transaction                 varchar(255) not null
+  transaction_number               varchar(13)  not null,
+  type_transaction                 varchar(50)  not null
     constraint payment_transaction_type_transaction_check
       check ((type_transaction)::text = ANY
              ((ARRAY ['CASH_SALE'::character varying, 'CREDIT_SALE'::character varying, 'VENTES_DEPOTS'::character varying, 'VENTES_DEPOTS_AGREE'::character varying, 'REGLEMENT_DIFFERE'::character varying, 'REGLEMENT_TIERS_PAYANT'::character varying, 'SORTIE_CAISSE'::character varying, 'ENTREE_CAISSE'::character varying, 'FONDS_CAISSE'::character varying, 'REGLMENT_FOURNISSEUR'::character varying, 'CAUTION'::character varying])::text[])),
@@ -1494,7 +1455,7 @@ create table payment_transaction
 ) PARTITION BY RANGE (transaction_date);
 
 alter table payment_transaction
-  owner to warehouse;
+  owner to pharma_smart;
 
 create table differe_payment_item
 (
@@ -1513,7 +1474,7 @@ create table differe_payment_item
 );
 
 alter table differe_payment_item
-  owner to warehouse;
+  owner to pharma_smart;
 
 create index pt_categorie_ca_id_index
   on payment_transaction (categorie_ca);
@@ -1556,7 +1517,7 @@ create table third_party_sale_line
 ) PARTITION BY RANGE (sale_date);
 
 alter table third_party_sale_line
-  owner to warehouse;
+  owner to pharma_smart;
 
 create table invoice_payment_item
 (
@@ -1576,7 +1537,7 @@ create table invoice_payment_item
 ) PARTITION BY RANGE (transaction_date);
 
 alter table invoice_payment_item
-  owner to warehouse;
+  owner to pharma_smart;
 
 create index third_party_sale_line_num_bon
   on third_party_sale_line (num_bon);
@@ -1603,7 +1564,7 @@ create table tva
 );
 
 alter table tva
-  owner to warehouse;
+  owner to pharma_smart;
 
 create table order_line
 (
@@ -1642,13 +1603,14 @@ create table order_line
 ) PARTITION BY RANGE (order_date);
 
 alter table order_line
-  owner to warehouse;
+  owner to pharma_smart;
 
 create table lot
 (
   id                   bigint generated by default as identity
     primary key,
   created_date         timestamp(6) not null,
+  current_quantity     integer      not null,
   expiry_date          date,
   quantity_received_ug integer      not null,
   manufacturing_date   date,
@@ -1656,6 +1618,10 @@ create table lot
   prixachat            integer      not null,
   prixunit             integer      not null,
   quantity             integer      not null,
+  statut               varchar(15)  not null
+    constraint lot_statut_check
+      check ((statut)::text = ANY
+             ((ARRAY ['AVAILABLE'::character varying, 'SOLD'::character varying, 'EXPIRED'::character varying, 'DESTROYED'::character varying])::text[])),
   updated              timestamp(6),
   order_line_id        bigint       not null,
   commande_order_date  date         not null,
@@ -1666,88 +1632,94 @@ create table lot
 );
 
 alter table lot
-  owner to warehouse;
+  owner to pharma_smart;
+
+create index lot_expiry_date_index
+  on lot (expiry_date);
 
 create index num_lot_index
   on lot (num_lot);
 
+create index lot_statut_index
+  on lot (statut);
+
 create table produit
 (
-  id                              bigint generated by default as identity
+  id                               bigint generated by default as identity
     primary key,
-  categorie                       varchar(255)      not null
+  categorie                        varchar(255)      not null
     constraint produit_categorie_check
       check ((categorie)::text = ANY
              ((ARRAY ['A'::character varying, 'B'::character varying, 'C'::character varying])::text[])),
-  check_expiry_date               boolean default false,
-  chiffre                         boolean default true,
-  code_ean_labo                   varchar(255),
-  code_remise                     varchar(6)
+  check_expiry_date                boolean default false,
+  chiffre                          boolean default true,
+  code_ean_labo                    varchar(255),
+  code_remise                      varchar(6)
     constraint produit_code_remise_check
       check ((code_remise)::text = ANY
              ((ARRAY ['NONE'::character varying, 'CODE_0'::character varying, 'CODE_1'::character varying, 'CODE_2'::character varying, 'CODE_3'::character varying, 'CODE_4'::character varying, 'CODE_5'::character varying, 'CODE_6'::character varying, 'CODE_7'::character varying, 'CODE_8'::character varying])::text[])),
-  cost_amount                     integer           not null,
-  created_at                      timestamp(6)      not null,
-  deconditionnable                boolean           not null,
-  item_cost_amount                integer           not null
+  cost_amount                      integer           not null,
+  created_at                       timestamp(6)      not null,
+  deconditionnable                 boolean           not null,
+  item_cost_amount                 integer           not null
     constraint produit_item_cost_amount_check
       check (item_cost_amount >= 0),
-  item_qty                        integer           not null
+  item_qty                         integer           not null
     constraint produit_item_qty_check
       check (item_qty >= 0),
-  item_regular_unit_price         integer           not null
+  item_regular_unit_price          integer           not null
     constraint produit_item_regular_unit_price_check
       check (item_regular_unit_price >= 0),
-  libelle                         varchar(255)      not null,
-  net_unit_price                  integer           not null,
-  perime_at                       date,
-  prix_mnp                        integer default 0 not null,
-  qty_appro                       integer default 0,
-  qty_seuil_mini                  integer default 0,
-  regular_unit_price              integer           not null,
-  scheduled                       boolean default false,
-  seuil_decond                    integer
+  libelle                          varchar(255)      not null,
+  net_unit_price                   integer           not null,
+  perime_at                        date,
+  prix_mnp                         integer default 0 not null,
+  qty_appro                        integer default 0,
+  qty_seuil_mini                   integer default 0,
+  regular_unit_price               integer           not null,
+  scheduled                        boolean default false,
+  seuil_decond                     integer
     constraint produit_seuil_decond_check
       check (seuil_decond >= 0),
-  seuil_reassort                  integer
+  seuil_reassort                   integer
     constraint produit_seuil_reassort_check
       check (seuil_reassort >= 0),
-  status                          varchar(255)      not null
+  status                           varchar(255)      not null
     constraint produit_status_check
       check ((status)::text = ANY
              ((ARRAY ['ENABLE'::character varying, 'DISABLE'::character varying, 'DELETED'::character varying, 'CLOSED'::character varying])::text[])),
-  type_produit                    varchar(255)      not null
+  type_produit                     varchar(255)      not null
     constraint produit_type_produit_check
       check ((type_produit)::text = ANY
              ((ARRAY ['DETAIL'::character varying, 'PACKAGE'::character varying])::text[])),
-  updated_at                      timestamp(6)      not null,
-  dci_id                          bigint
+  updated_at                       timestamp(6)      not null,
+  dci_id                           bigint
     constraint fk1a3bimdll1wc7by0ng16rl58y
       references dci,
-  famille_id                      bigint            not null
+  famille_id                       bigint            not null
     constraint fk5m918v7ukauswsdgdo3pv74fa
       references famille_produit,
-  forme_id                        bigint
+  forme_id                         bigint
     constraint fkl718rk1riol8vlo4ynew1bv08
       references form_produit,
   fournisseur_produit_principal_id bigint
-    constraint ukahch43l6nvdao4pggfqbmpime
+    constraint ukm2p66juij0ov57h7gty1fh0fh
       unique
-    constraint fk5yhxmomhxho35n3cv97x4xq5c
+    constraint fkfde4m12t5kd1g5c0s6j4ttj05
       references fournisseur_produit,
-  gamme_id                        bigint
+  gamme_id                         bigint
     constraint fk5nonk9ie64lu7b27m1a8fs741
       references gamme_produit,
-  laboratoire_id                  bigint
+  laboratoire_id                   bigint
     constraint fkhowc8u7evv6pewlrvhs0q1lap
       references laboratoire,
-  parent_id                       bigint
+  parent_id                        bigint
     constraint fkchxb0k9i70n6x9sa3mcpgfqei
       references produit,
-  tableau_id                      bigint
+  tableau_id                       bigint
     constraint fkh4p706en3rc1tbafjh6goa7yp
       references tableau,
-  tva_id                          bigint            not null
+  tva_id                           bigint            not null
     constraint fkabkfkm5f6kst7099gv3dafaac
       references tva,
   constraint ukhaaprmfc9pf1bp3n5g9dnkx91
@@ -1761,7 +1733,7 @@ comment on column produit.seuil_decond is 'seuil minimun du detail en point de v
 comment on column produit.seuil_reassort is 'seuil minimun en point de vente pour declencher un reassort';
 
 alter table produit
-  owner to warehouse;
+  owner to pharma_smart;
 
 create table ajustement
 (
@@ -1789,7 +1761,7 @@ create table ajustement
 );
 
 alter table ajustement
-  owner to warehouse;
+  owner to pharma_smart;
 
 create table decondition
 (
@@ -1812,7 +1784,7 @@ create table decondition
 );
 
 alter table decondition
-  owner to warehouse;
+  owner to pharma_smart;
 
 alter table fournisseur_produit
   add constraint fkd2gc16hsakliy5idekx467yip
@@ -1848,7 +1820,7 @@ create table inventory_transaction
 ) PARTITION BY RANGE (transaction_date);
 
 alter table inventory_transaction
-  owner to warehouse;
+  owner to pharma_smart;
 
 create index inventory_mouvement_type_type_index
   on inventory_transaction (mouvement_type);
@@ -1890,7 +1862,7 @@ create table produit_perime
 );
 
 alter table produit_perime
-  owner to warehouse;
+  owner to pharma_smart;
 
 create index produit_perime_index
   on produit_perime (peremption_date);
@@ -1924,7 +1896,7 @@ create table produit_tiers_payant_prix
 );
 
 alter table produit_tiers_payant_prix
-  owner to warehouse;
+  owner to pharma_smart;
 
 create table rayon_produit
 (
@@ -1941,7 +1913,7 @@ create table rayon_produit
 );
 
 alter table rayon_produit
-  owner to warehouse;
+  owner to pharma_smart;
 
 create table retour_bon
 (
@@ -1952,7 +1924,7 @@ create table retour_bon
   statut                 varchar(255) not null
     constraint retour_bon_statut_check
       check ((statut)::text = ANY
-             ((ARRAY ['PROCESSING'::character varying, 'CLOSED'::character varying])::text[])),
+             ((ARRAY ['PROCESSING'::character varying, 'CLOSED'::character varying, 'VALIDATED'::character varying])::text[])),
   productstilloutofstock boolean      not null,
   qty                    integer      not null,
   commande_id            bigint       not null,
@@ -1971,7 +1943,7 @@ create table retour_bon
 );
 
 alter table retour_bon
-  owner to warehouse;
+  owner to pharma_smart;
 
 create table reponse_retour_bon
 (
@@ -1982,7 +1954,7 @@ create table reponse_retour_bon
   modified_date timestamp(6) not null,
   statut        char         not null
     constraint reponse_retour_bon_statut_check
-      check (statut = ANY (ARRAY ['PROCESSING'::bpchar, 'CLOSED'::bpchar])),
+      check (statut = ANY (ARRAY ['PROCESSING'::bpchar, 'CLOSED'::bpchar, 'VALIDATED'::bpchar])),
   retourbon_id  bigint       not null
     constraint fkl8i9koworq3emtl9vo2vcndf9
       references retour_bon,
@@ -1992,7 +1964,7 @@ create table reponse_retour_bon
 );
 
 alter table reponse_retour_bon
-  owner to warehouse;
+  owner to pharma_smart;
 
 create table retour_bon_item
 (
@@ -2020,7 +1992,7 @@ create table retour_bon_item
 );
 
 alter table retour_bon_item
-  owner to warehouse;
+  owner to pharma_smart;
 
 create table reponse_retour_bon_item
 (
@@ -2041,7 +2013,7 @@ create table reponse_retour_bon_item
 );
 
 alter table reponse_retour_bon_item
-  owner to warehouse;
+  owner to pharma_smart;
 
 create table sales_line
 (
@@ -2082,7 +2054,7 @@ create table sales_line
 ) PARTITION BY RANGE (sale_date);
 
 alter table sales_line
-  owner to warehouse;
+  owner to pharma_smart;
 
 create table stock_produit
 (
@@ -2107,7 +2079,7 @@ create table stock_produit
 );
 
 alter table stock_produit
-  owner to warehouse;
+  owner to pharma_smart;
 
 create table repartition_stock_produit
 (
@@ -2134,7 +2106,7 @@ create table repartition_stock_produit
 );
 
 alter table repartition_stock_produit
-  owner to warehouse;
+  owner to pharma_smart;
 
 create table store_inventory_line
 (
@@ -2159,7 +2131,7 @@ create table store_inventory_line
 );
 
 alter table store_inventory_line
-  owner to warehouse;
+  owner to pharma_smart;
 
 create table substitut
 (
@@ -2180,7 +2152,7 @@ create table substitut
 );
 
 alter table substitut
-  owner to warehouse;
+  owner to pharma_smart;
 
 create table user_authority
 (
@@ -2194,7 +2166,7 @@ create table user_authority
 );
 
 alter table user_authority
-  owner to warehouse;
+  owner to pharma_smart;
 
 create table utilisation_cle_securite
 (
@@ -2217,18 +2189,7 @@ create table utilisation_cle_securite
 );
 
 alter table utilisation_cle_securite
-  owner to warehouse;
-
-create table warehouse_calendar
-(
-  workday   date    not null
-    primary key,
-  workmonth integer not null,
-  workyear  integer not null
-);
-
-alter table warehouse_calendar
-  owner to warehouse;
+  owner to pharma_smart;
 
 create table warehouse_sequence
 (
@@ -2239,5 +2200,6 @@ create table warehouse_sequence
 );
 
 alter table warehouse_sequence
-  owner to warehouse;
+  owner to pharma_smart;
+
 

@@ -215,7 +215,6 @@ public class SaleDepotExtensionImpl extends SaleCommonService implements SaleDep
         sales.removeSalesLine(salesLine);
         upddateAmountsOnRemovingItem(sales, salesLine);
         sales.setUpdatedAt(LocalDateTime.now());
-        sales.setLastUserEdit(storageService.getUser());
         sales.setEffectiveUpdateDate(sales.getUpdatedAt());
         venteDepotRepository.save(sales);
         salesLineService.deleteSaleLine(salesLine);
@@ -240,7 +239,6 @@ public class SaleDepotExtensionImpl extends SaleCommonService implements SaleDep
         venteDepot.setEffectiveUpdateDate(LocalDateTime.now());
         venteDepot.setCanceled(true);
         copy.setCanceled(true);
-        venteDepot.setLastUserEdit(user);
         venteDepotRepository.save(venteDepot);
         venteDepotRepository.save(copy);
 
@@ -270,7 +268,6 @@ public class SaleDepotExtensionImpl extends SaleCommonService implements SaleDep
         copy.setDiscountAmount(copy.getDiscountAmount() * (-1));
         copy.setTaxAmount(copy.getTaxAmount() * (-1));
         copy.setUser(sales.getUser());
-        copy.setLastUserEdit(storageService.getUser());
         copy.setPayments(Collections.emptySet());
         copy.setSalesLines(Collections.emptySet());
     }
@@ -361,7 +358,6 @@ public class SaleDepotExtensionImpl extends SaleCommonService implements SaleDep
         salesLineService.save(c.getSalesLines(), user, id);
         updateDepotStockOnSaleFinalization(c);
         c.setStatut(SalesStatut.CLOSED);
-        c.setLastUserEdit(user);
         c.setPayrollAmount(dto.getPayrollAmount());
         c.setRestToPay(dto.getRestToPay());
         c.setUpdatedAt(LocalDateTime.now());

@@ -8,7 +8,7 @@ const posteRoute: Routes = [
     path: '',
     loadComponent: () => import('./poste.component').then(m => m.PosteComponent),
     data: {
-      authorities: [Authority.ADMIN, Authority.PR_MENU_POSTE],
+      authorities: [Authority.ADMIN, Authority.MENU_POSTE],
       defaultSort: 'id,asc'
     },
     canActivate: [UserRouteAccessService]

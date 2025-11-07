@@ -6,6 +6,7 @@ import { SERVER_API_URL } from 'app/app.constants';
 import { createRequestOptions } from 'app/shared/util/request-util';
 import { IProduit } from 'app/shared/model/produit.model';
 import { IResponseDto } from '../../../shared/util/response-dto';
+import { ISales } from '../../../shared/model/sales.model';
 
 
 type EntityArrayResponseType = HttpResponse<IProduit[]>;
@@ -29,5 +30,9 @@ export class StockDepotService {
   findImortation(): Observable<HttpResponse<IResponseDto>> {
     return this.http.get<IResponseDto>(`${this.importationResourceUrl}/result`, { observe: 'response' });
   }
-
+  fetchSales(req?: any): Observable< HttpResponse<ISales[]>> {
+    const options = createRequestOptions(req);
+    return this.http
+      .get<ISales[]>(this.resourceUrl, { params: options, observe: 'response' });
+  }
 }

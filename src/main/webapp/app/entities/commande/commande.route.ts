@@ -99,6 +99,15 @@ const commandeRoute: Routes = [
       pageTitle: 'warehouseApp.commande.home.title'
     },
     canActivate: [UserRouteAccessService]
+  },
+  {
+    path: 'retour-fournisseur/new',
+    loadComponent: () => import('./retour_fournisseur/supplier-returns.component').then(m => m.SupplierReturnsComponent),
+    data: {
+      authorities: [Authority.ADMIN, Authority.COMMANDE],
+      pageTitle: 'Nouveau Retour Fournisseur'
+    },
+    canActivate: [UserRouteAccessService]
   }
 ];
 

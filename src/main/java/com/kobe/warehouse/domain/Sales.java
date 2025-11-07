@@ -147,9 +147,7 @@ public class Sales implements Persistable<SaleId>, Serializable, Cloneable {
         @JoinColumn(name = "canceled_sale_date", referencedColumnName = "sale_date")
     })
     private Sales canceledSale;
-    @ManyToOne(optional = false, fetch = FetchType.LAZY)
-    @NotNull
-    private AppUser lastUserEdit;
+
     @NotNull
     @Column(name = "effective_update_date", nullable = false)
     private LocalDateTime effectiveUpdateDate = LocalDateTime.now();
@@ -169,7 +167,7 @@ public class Sales implements Persistable<SaleId>, Serializable, Cloneable {
     private NatureVente natureVente;//TODO : remove this column and use each child class
     @NotNull
     @Enumerated(EnumType.STRING)
-    @Column(name = "origine_vente", nullable = false)
+    @Column(name = "origine_vente", nullable = false, length = 15)
     private OrigineVente origineVente;
     @NotNull
     @Enumerated(EnumType.STRING)
@@ -180,7 +178,7 @@ public class Sales implements Persistable<SaleId>, Serializable, Cloneable {
     private boolean differe = false;
     @NotNull
     @Enumerated(EnumType.STRING)
-    @Column(name = "ca", nullable = false)
+    @Column(name = "ca", nullable = false, length = 15)
     private CategorieChiffreAffaire categorieChiffreAffaire = CategorieChiffreAffaire.CA;
     @ManyToOne(fetch = FetchType.LAZY)
     private Poste caisse;
@@ -416,14 +414,7 @@ public class Sales implements Persistable<SaleId>, Serializable, Cloneable {
         return this;
     }
 
-    public @NotNull AppUser getLastUserEdit() {
-        return lastUserEdit;
-    }
 
-    public Sales setLastUserEdit(AppUser lastUserEdit) {
-        this.lastUserEdit = lastUserEdit;
-        return this;
-    }
 
     public @NotNull LocalDateTime getEffectiveUpdateDate() {
         return effectiveUpdateDate;

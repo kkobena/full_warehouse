@@ -549,3 +549,8 @@ psql -U warehouse -d warehouse
 - Flyway migrations are versioned and immutable
 - Use stored procedures for complex queries (see `V1.0.3__procedures.sql`)
 - Indexes on foreign keys and frequently queried columns
+- Code_Writer
+- responsiveLayout is deprecated
+- styleClass is deprecated
+- InputTextareaModule not exists in primeng 20+
+- not use styleClass

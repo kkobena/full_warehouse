@@ -66,8 +66,7 @@ export class SalesService {
   query(req?: any): Observable<EntityArrayResponseType> {
     const options = createRequestOptions(req);
     return this.http
-      .get<ISales[]>(this.resourceUrl, { params: options, observe: 'response' })
-      .pipe(map((res: EntityArrayResponseType) => this.convertDateArrayFromServer(res)));
+      .get<ISales[]>(this.resourceUrl, { params: options, observe: 'response' });
   }
 
   delete(id: SaleId): Observable<HttpResponse<{}>> {

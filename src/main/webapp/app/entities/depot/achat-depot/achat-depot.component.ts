@@ -1,12 +1,10 @@
 import { AfterViewInit, Component, inject, OnInit, viewChild } from '@angular/core';
 import { Button } from 'primeng/button';
-import { Checkbox } from 'primeng/checkbox';
 import { ConfirmDialogComponent } from '../../../shared/dialog/confirm-dialog/confirm-dialog.component';
 import { DatePicker } from 'primeng/datepicker';
 import { DatePipe, DecimalPipe } from '@angular/common';
 import { FloatLabel } from 'primeng/floatlabel';
 import { InputGroup } from 'primeng/inputgroup';
-import { InputGroupAddon } from 'primeng/inputgroupaddon';
 import { InputText } from 'primeng/inputtext';
 import { Select } from 'primeng/select';
 import { TableLazyLoadEvent, TableModule } from 'primeng/table';
@@ -31,20 +29,19 @@ import { IMagasin } from '../../../shared/model/magasin.model';
 import { FormsModule } from '@angular/forms';
 import { MagasinService } from '../../magasin/magasin.service';
 import { Router, RouterLink } from '@angular/router';
+import { StockDepotService } from '../stock-depot/stock-depot.service';
 
 @Component({
   selector: 'jhi-achat-depot',
   imports: [
     Button,
     WarehouseCommonModule,
-    Checkbox,
     ConfirmDialogComponent,
     DatePicker,
     DatePipe,
     DecimalPipe,
     FloatLabel,
     InputGroup,
-    InputGroupAddon,
     InputText,
     Select,
     TableModule,
@@ -60,7 +57,6 @@ export class AchatDepotComponent implements OnInit, AfterViewInit {
   protected selectedDepot: IMagasin | null = null;
   protected totalItems = 0;
   protected loading!: boolean;
-  protected canCancel = false;
   protected page = 0;
   protected itemsPerPage = ITEMS_PER_PAGE;
   protected sales: ISales[] = [];
@@ -68,7 +64,6 @@ export class AchatDepotComponent implements OnInit, AfterViewInit {
   protected users: IUser[] = [];
   protected selectedUserId: number | null;
   protected search = '';
-  protected global = true;
   protected fromDate: Date = new Date();
   protected toDate: Date = new Date();
   protected isLargeScreen = true;
@@ -80,6 +75,7 @@ export class AchatDepotComponent implements OnInit, AfterViewInit {
   private readonly translate = inject(TranslateService);
   private readonly primeNGConfig = inject(PrimeNG);
   private readonly salesService = inject(SalesService);
+  private readonly stockDepotService = inject(StockDepotService);
   private readonly userService = inject(UserService);
   private readonly datePipe = inject(DatePipe);
   private searchSubject = new Subject<void>();
@@ -87,6 +83,7 @@ export class AchatDepotComponent implements OnInit, AfterViewInit {
   private readonly tauriPrinterService = inject(TauriPrinterService);
   private readonly magasinService = inject(MagasinService);
   private router = inject(Router);
+
   constructor() {
     this.translate.use('fr');
     this.translate.stream('primeng').subscribe(data => {
@@ -100,6 +97,7 @@ export class AchatDepotComponent implements OnInit, AfterViewInit {
       }
     ];
   }
+
   onNewVente(): void {
     this.router.navigate(['/depot', 'new-vente']);
   }
@@ -120,9 +118,6 @@ export class AchatDepotComponent implements OnInit, AfterViewInit {
     if (width < 1800) {
       this.isLargeScreen = false;
     }
-
-    this.canCancel = this.hasAuthorityService.hasAuthorities(Authority.PR_ANNULATION_VENTE);
-
     this.loadAllUsers();
     this.populate();
     this.loadPage();
@@ -130,25 +125,7 @@ export class AchatDepotComponent implements OnInit, AfterViewInit {
     this.searchSubject.pipe(debounceTime(300)).subscribe(() => {
       this.loadPage();
     });
-    this.actions = [
-      {
-        label: 'Options',
-        items: [
-          {
-            label: 'Modifier la vente',
-            icon: 'pi pi-pencil'
-          },
-          {
-            label: 'Modifier la date de vente',
-            icon: 'pi pi-calendar-plus'
-          },
-          {
-            label: 'Modifier les informations du client',
-            icon: 'pi pi-user-edit'
-          }
-        ]
-      }
-    ];
+
   }
 
   loadAllUsers(): void {
@@ -201,14 +178,9 @@ export class AchatDepotComponent implements OnInit, AfterViewInit {
     this.searchSubject.next();
   }
 
-  protected delete(sale: ISales): void {
-    if (sale) {
-      //  this.salesService.cancelComptant(sale.saleId).subscribe(() => this.loadPage());
-    }
-  }
 
-  protected confirmRemove(sale: ISales): void {
-    this.confimDialog().onConfirm(() => this.delete(sale), 'ANNULATION DE VENTE', 'Voulez-vous vraiment annuler cette vente ?');
+  protected exportToCsv(sale: ISales): void {
+
   }
 
   protected print(sales: ISales): void {
@@ -233,7 +205,6 @@ export class AchatDepotComponent implements OnInit, AfterViewInit {
   protected onSuccess(data: ISales[] | null, headers: HttpHeaders, page: number): void {
     this.totalItems = Number(headers.get('X-Total-Count'));
     this.page = page;
-
     this.sales = data || [];
     this.loading = false;
   }
@@ -244,8 +215,8 @@ export class AchatDepotComponent implements OnInit, AfterViewInit {
 
   private fetchSales(page: number, size: number): void {
     this.loading = true;
-    this.salesService
-      .query({
+    this.stockDepotService
+      .fetchSales({
         page,
         size,
         ...this.buildCriteria()
@@ -262,7 +233,6 @@ export class AchatDepotComponent implements OnInit, AfterViewInit {
       fromDate: this.fromDate ? this.datePipe.transform(this.fromDate, 'yyyy-MM-dd') : null,
       toDate: this.toDate ? this.datePipe.transform(this.toDate, 'yyyy-MM-dd') : null,
       magasinId: this.selectedDepot ? this.selectedDepot.id : null,
-      global: this.global,
       userId: this.selectedUserId
     };
   }

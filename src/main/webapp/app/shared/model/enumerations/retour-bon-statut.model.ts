@@ -1,0 +1,5 @@
+export enum RetourBonStatut {
+  PROCESSING = 'PROCESSING',
+  VALIDATED = 'VALIDATED',
+  CANCELLED = 'CANCELLED',
+}

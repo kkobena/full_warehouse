@@ -1,6 +1,7 @@
 package com.kobe.warehouse.web.rest.sales;
 
 import com.kobe.warehouse.domain.SaleId;
+import com.kobe.warehouse.domain.enumeration.CategorieChiffreAffaire;
 import com.kobe.warehouse.service.dto.SaleDTO;
 import com.kobe.warehouse.service.sale.SaleDataService;
 import com.kobe.warehouse.web.rest.Utils;
@@ -24,6 +25,7 @@ import java.io.IOException;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 
 @RestController
 @RequestMapping("/api")
@@ -90,6 +92,7 @@ public class SalesDataResource {
         @RequestParam(name = "global", required = false) Boolean global,
         @RequestParam(name = "userId", required = false) Long userId,
         @RequestParam(name = "type", required = false) String type,
+        @RequestParam(name = "categorieChiffreAffaires", required = false) Set<CategorieChiffreAffaire> categorieChiffreAffaires,
         Pageable pageable
     ) {
         log.debug("REST request to get a page of Sales");
@@ -103,7 +106,7 @@ public class SalesDataResource {
             userId,
             type,
             null,
-            null, null,
+            null, categorieChiffreAffaires,
             pageable
         );
         HttpHeaders headers = PaginationUtil.generatePaginationHttpHeaders(ServletUriComponentsBuilder.fromCurrentRequest(), page);

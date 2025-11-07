@@ -33,35 +33,17 @@
               </ng-template>
             </p-select>
 
-            <p-select
-              #userControl
-              [(ngModel)]="selectedUserId"
-              [options]="users"
-              appendTo="body"
-              id="selectedUserId"
-              inputId="selectedUserId"
-              optionLabel="abbrName"
-              optionValue="id"
-
-            />
 
             <div class="pharma-compact-search mr-1">
               <p-inputgroup>
                 <input
                   (keyup.enter)="onSearch()"
+                  [(ngModel)]="search"
                   pInputText
                   placeholder="Rechercher..."
                   type="text"
                 />
-                <p-inputgroup-addon>
-                  <p-checkbox
-                    [(ngModel)]="global"
-                    [binary]="true"
-                    id="global"
-                    inputId="global"
-                    pTooltip="Recherche globale"
-                  />
-                </p-inputgroup-addon>
+
               </p-inputgroup>
             </div>
 
@@ -226,19 +208,16 @@
                     ></p-button>
                   }
 
+                  <p-button
+                    (click)="exportToCsv(sale)"
+                    [rounded]="true"
+                    [text]="true"
+                    icon="pi pi-file-excel"
+                    pTooltip="Exporter en CSV"
+                    severity="primary"
+                    size="small"
+                  ></p-button>
 
-                  @if (canCancel) {
-                    <p-button
-                      (click)="confirmRemove(sale)"
-                      [rounded]="true"
-                      [text]="true"
-                      class="ml-1"
-                      icon="pi pi-trash"
-                      pTooltip="Annuler"
-                      severity="danger"
-                      size="small"
-                    ></p-button>
-                  }
                 </div>
               </td>
             </tr>

@@ -17,7 +17,7 @@ type EntityArrayResponseType = HttpResponse<IMotifRetourProduit[]>;
 export class ModifRetourProduitService {
   protected http = inject(HttpClient);
 
-  public resourceUrl = SERVER_API_URL + 'api/modif-retour-produits';
+  public resourceUrl = SERVER_API_URL + 'api/motif-retour-produits';
 
   /** Inserted by Angular inject() migration for backwards compatibility */
   constructor(...args: unknown[]);

@@ -1,0 +1,27 @@
+@import 'app/shared/scss/table-common';
+
+.badge {
+  padding: 0.25rem 0.5rem;
+  border-radius: 0.25rem;
+  font-size: 0.75rem;
+  font-weight: 500;
+}
+
+.bg-secondary {
+  background-color: #6c757d;
+  color: white;
+}
+
+:host ::ng-deep {
+  .p-tag {
+    font-size: 0.75rem;
+    padding: 0.25rem 0.5rem;
+  }
+
+  // Ensure row expansion works smoothly
+  .p-datatable-row-expansion {
+    td {
+      padding: 0 !important;
+    }
+  }
+}

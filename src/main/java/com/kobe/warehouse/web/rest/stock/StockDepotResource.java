@@ -1,9 +1,10 @@
 package com.kobe.warehouse.web.rest.stock;
 
+import com.kobe.warehouse.domain.enumeration.PaymentStatus;
 import com.kobe.warehouse.domain.enumeration.Status;
+import com.kobe.warehouse.service.dto.DepotExtensionSaleDTO;
 import com.kobe.warehouse.service.dto.ProduitCriteria;
 import com.kobe.warehouse.service.dto.ProduitDTO;
-import com.kobe.warehouse.service.dto.SaleDTO;
 import com.kobe.warehouse.service.stock.GestionStockDepotService;
 import com.kobe.warehouse.web.util.PaginationUtil;
 import org.springframework.data.domain.Page;
@@ -57,26 +58,20 @@ public class StockDepotResource {
     }
 
     @GetMapping("/sales")
-    public ResponseEntity<List<SaleDTO>> getAllSales(
-        @RequestParam(name = "magasinId",required = false) Long magasinId,
+    public ResponseEntity<List<DepotExtensionSaleDTO>> getAllSales(
+        @RequestParam(name = "magasinId", required = false) Long magasinId,
         @RequestParam(name = "search", required = false) String search,
         @RequestParam(name = "fromDate", required = false) LocalDate fromDate,
         @RequestParam(name = "toDate", required = false) LocalDate toDate,
-        @RequestParam(name = "fromHour", required = false) String fromHour,
-        @RequestParam(name = "toHour", required = false) String toHour,
-        @RequestParam(name = "global", required = false) Boolean global,
         @RequestParam(name = "userId", required = false) Long userId,
-
+        @RequestParam(name = "paymentStatus", required = false) PaymentStatus paymentStatus,
         Pageable pageable
     ) {
 
-        Page<SaleDTO> page = gestionStockDepotService.getVenteDepot(null, magasinId,
+        Page<DepotExtensionSaleDTO> page = gestionStockDepotService.getVenteDepot(paymentStatus, magasinId,
             search,
             fromDate,
             toDate,
-            fromHour,
-            toHour,
-            global,
             userId,
             pageable
         );

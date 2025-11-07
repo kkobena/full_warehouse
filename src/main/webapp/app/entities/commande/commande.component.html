@@ -72,6 +72,17 @@
                 </ng-template>
               </ng-container>
 
+              <ng-container ngbNavItem="RETOUR_FOURNISSEUR">
+                <a class="pharma-nav-vertical-link" ngbNavLink>
+                  <i class="pi pi-replay"></i>
+                  <span>Retours fournisseur</span>
+                  <span class="link-arrow">›</span>
+                </a>
+                <ng-template ngbNavContent>
+                  <jhi-retour-bon-list></jhi-retour-bon-list>
+                </ng-template>
+              </ng-container>
+
             </div>
           </div>
         </div>
@@ -178,6 +189,19 @@
                       icon="pi pi-plus"
                       label="Nouvelle commande"
                       pTooltip="Nouvelle commande"
+                      severity="primary"
+                      tooltipPosition="top"
+                      type="button"
+                    />
+                  }
+
+                  @if (active === 'RETOUR_FOURNISSEUR') {
+                    <p-button
+                      (click)="onCreateRetourFournisseur()"
+                      [raised]="true"
+                      icon="pi pi-plus"
+                      label="Nouveau retour"
+                      pTooltip="Créer un nouveau retour fournisseur"
                       severity="primary"
                       tooltipPosition="top"
                       type="button"

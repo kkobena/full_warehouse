@@ -1,10 +1,9 @@
 package com.kobe.warehouse.service.stock.impl;
 
-import com.kobe.warehouse.constant.EntityConstant;
 import com.kobe.warehouse.domain.enumeration.PaymentStatus;
+import com.kobe.warehouse.service.dto.DepotExtensionSaleDTO;
 import com.kobe.warehouse.service.dto.ProduitCriteria;
 import com.kobe.warehouse.service.dto.ProduitDTO;
-import com.kobe.warehouse.service.dto.SaleDTO;
 import com.kobe.warehouse.service.sale.SaleDataService;
 import com.kobe.warehouse.service.stock.GestionStockDepotService;
 import com.kobe.warehouse.service.stock.ProduitService;
@@ -32,17 +31,7 @@ public class GestionStockDepotImpl implements GestionStockDepotService {
     }
 
     @Override
-    public Page<SaleDTO> getVenteDepot(PaymentStatus paymentStatus, Long depotId, String search, LocalDate fromDate, LocalDate toDate, String fromHour, String toHour, Boolean global, Long userId, Pageable pageable) {
-        return saleDataService.listVenteTerminees(search,
-            fromDate,
-            toDate,
-            fromHour,
-            toHour,
-            global,
-            userId,
-            EntityConstant.VDE,
-            paymentStatus,
-            null,
-            depotId, pageable);
+    public Page<DepotExtensionSaleDTO> getVenteDepot(PaymentStatus paymentStatus, Long depotId, String search, LocalDate fromDate, LocalDate toDate, Long userId, Pageable pageable) {
+        return saleDataService.fetchVenteDepot(search, fromDate, toDate, userId,paymentStatus, depotId,pageable);
     }
 }

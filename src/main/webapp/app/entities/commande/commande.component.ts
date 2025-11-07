@@ -1,5 +1,5 @@
 import { Component, inject, OnInit, viewChild } from '@angular/core';
-import { Router, RouterModule } from '@angular/router';
+import { Router, RouterModule, ActivatedRoute } from '@angular/router';
 import { NgbModal, NgbNavChangeEvent } from '@ng-bootstrap/ng-bootstrap';
 import { ICommande } from 'app/shared/model/commande.model';
 import { CommandeImportResponseDialogComponent } from './commande-import-response-dialog.component';
@@ -28,6 +28,7 @@ import { IFournisseur } from '../../shared/model/fournisseur.model';
 import { Select } from 'primeng/select';
 import { showCommonModal } from '../sales/selling-home/sale-helper';
 import { ConfirmDialogComponent } from '../../shared/dialog/confirm-dialog/confirm-dialog.component';
+import { RetourBonListComponent } from './retour_fournisseur/retour-bon-list.component';
 
 @Component({
   selector: 'jhi-commande',
@@ -53,7 +54,8 @@ import { ConfirmDialogComponent } from '../../shared/dialog/confirm-dialog/confi
     SuggestionComponent,
     ReactiveFormsModule,
     Select,
-    ConfirmDialogComponent
+    ConfirmDialogComponent,
+    RetourBonListComponent
   ],
   styleUrl: './commande.component.scss',
 })
@@ -80,10 +82,12 @@ export class CommandeComponent implements OnInit {
     { title: 'Commandes en cours', icon: 'pi pi-spin pi-spinner',menuId: 'REQUESTED' },
      { title: 'Suggestions de commandes', icon: 'pi pi-lightbulb',menuId: 'SUGGESTIONS' },
     { title: 'Bons de livraison en cours', icon: 'pi pi-fw pi-truck', menuId: 'BONS_EN_COURS' },
-   { title: 'Liste des bons de livraison', icon: 'pi pi-fw pi-list', menuId: 'LIST_BONS' }
+   { title: 'Liste des bons de livraison', icon: 'pi pi-fw pi-list', menuId: 'LIST_BONS' },
+   { title: 'Retours fournisseur', icon: 'pi pi-replay', menuId: 'RETOUR_FOURNISSEUR' }
   ];
 
   private readonly router = inject(Router);
+  private readonly route = inject(ActivatedRoute);
   private readonly modalService = inject(NgbModal);
   private readonly commandCommonService = inject(CommandCommonService);
   private readonly commandeEnCoursComponent = viewChild(CommandeEnCoursComponent);
@@ -102,7 +106,16 @@ export class CommandeComponent implements OnInit {
       .subscribe((res: HttpResponse<IFournisseur[]>) => {
         this.fournisseurs = res.body || [];
       });
-    this.active = this.commandCommonService.commandPreviousActiveNav();
+
+    // Check for tab query parameter
+    this.route.queryParams.subscribe(params => {
+      if (params['tab']) {
+        this.active = params['tab'];
+        this.commandCommonService.updateCommandPreviousActiveNav(this.active);
+      } else {
+        this.active = this.commandCommonService.commandPreviousActiveNav();
+      }
+    });
   }
 
   protected onNavChange(evt: NgbNavChangeEvent): void {
@@ -145,6 +158,10 @@ export class CommandeComponent implements OnInit {
     this.commandCommonService.updateCommand(null);
     this.commandCommonService.updateCommandPreviousActiveNav(this.active);
     this.router.navigate(['/commande/new']);
+  }
+
+  protected onCreateRetourFournisseur(): void {
+    this.router.navigate(['/commande/retour-fournisseur/new']);
   }
 
   protected fusionner(): void {

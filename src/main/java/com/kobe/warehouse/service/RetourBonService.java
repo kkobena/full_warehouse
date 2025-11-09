@@ -1,6 +1,6 @@
 package com.kobe.warehouse.service;
 
-import com.kobe.warehouse.domain.enumeration.RetourBonStatut;
+import com.kobe.warehouse.domain.enumeration.RetourStatut;
 import com.kobe.warehouse.service.dto.RetourBonDTO;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -45,7 +45,7 @@ public interface RetourBonService {
      * @param pageable the pagination information.
      * @return the list of entities.
      */
-    Page<RetourBonDTO> findAllByStatut(RetourBonStatut statut, Pageable pageable);
+    Page<RetourBonDTO> findAllByStatut(RetourStatut statut, Pageable pageable);
 
     /**
      * Get retour bons by commande ID.

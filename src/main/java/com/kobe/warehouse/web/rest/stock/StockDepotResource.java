@@ -1,22 +1,27 @@
 package com.kobe.warehouse.web.rest.stock;
 
+import com.kobe.warehouse.domain.SaleId;
 import com.kobe.warehouse.domain.enumeration.PaymentStatus;
 import com.kobe.warehouse.domain.enumeration.Status;
 import com.kobe.warehouse.service.dto.DepotExtensionSaleDTO;
 import com.kobe.warehouse.service.dto.ProduitCriteria;
 import com.kobe.warehouse.service.dto.ProduitDTO;
+import com.kobe.warehouse.service.excel.model.ExportFormat;
 import com.kobe.warehouse.service.stock.GestionStockDepotService;
 import com.kobe.warehouse.web.util.PaginationUtil;
+import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
+import java.io.IOException;
 import java.time.LocalDate;
 import java.util.List;
 
@@ -77,5 +82,15 @@ public class StockDepotResource {
         );
         HttpHeaders headers = PaginationUtil.generatePaginationHttpHeaders(ServletUriComponentsBuilder.fromCurrentRequest(), page);
         return ResponseEntity.ok().headers(headers).body(page.getContent());
+    }
+
+    @GetMapping("/export/{id}/{saleDate}/{format}")
+    public void export(
+        @PathVariable("format") ExportFormat type,
+        @PathVariable("id") Long id,
+        @PathVariable("saleDate") LocalDate saleDate,
+        HttpServletResponse response
+    ) throws IOException {
+        gestionStockDepotService.export(response, type, new SaleId(id, saleDate));
     }
 }

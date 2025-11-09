@@ -37,6 +37,7 @@ import com.kobe.warehouse.service.dto.SaleDTO;
 import com.kobe.warehouse.service.dto.ThirdPartySaleDTO;
 import com.kobe.warehouse.service.dto.ThirdPartySaleLineDTO;
 import com.kobe.warehouse.service.report.SaleInvoiceReportService;
+import com.kobe.warehouse.service.stock.dto.StockDepotExportDTO;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.TypedQuery;
 import jakarta.persistence.criteria.CriteriaBuilder;
@@ -671,5 +672,35 @@ public class SaleDataService {
             return receiptPrinterService.generateEscPosReceipt(new DepotExtensionSaleDTO(venteDepot), isEdit);
         }
         return new byte[0];
+    }
+
+    public List<StockDepotExportDTO> exportVenteDepotStock(SaleId venteDepotId) {
+        CriteriaBuilder cb = em.getCriteriaBuilder();
+        CriteriaQuery<StockDepotExportDTO> cq = cb.createQuery(StockDepotExportDTO.class);
+        Root<SalesLine> root = cq.from(SalesLine.class);
+        Join<SalesLine, Produit> produitJoin = root.join(SalesLine_.produit);
+        Join<SalesLine, Sales> saleJoin = root.join(SalesLine_.sales);
+        Join<Produit, FournisseurProduit> fournisseurProduitJoin = produitJoin.join(Produit_.fournisseurProduitPrincipal);
+        //Long produitId, String code, String produitLibelle, String codeEan, Integer quantitySold, Integer quantityRequested, Integer regularUnitPrice, Integer taxValue, Integer costAmount
+        cq.select(
+            cb.construct(
+                StockDepotExportDTO.class,
+                produitJoin.get(Produit_.id),
+                fournisseurProduitJoin.get(FournisseurProduit_.codeCip),
+                produitJoin.get(Produit_.codeEanLaboratoire),
+                produitJoin.get(Produit_.libelle),
+                root.get(SalesLine_.quantitySold),
+                root.get(SalesLine_.quantityRequested),
+                root.get(SalesLine_.regularUnitPrice),
+                root.get(SalesLine_.taxValue),
+                root.get(SalesLine_.costAmount)
+            )
+        ).orderBy(cb.asc(produitJoin.get(Produit_.libelle)));
+        List<Predicate> predicates = new ArrayList<>();
+        predicates.add(cb.equal(saleJoin.get(Sales_.id), venteDepotId.getId()));
+        predicates.add(cb.equal(saleJoin.get(Sales_.saleDate), venteDepotId.getSaleDate()));
+        cq.where(cb.and(predicates.toArray(new Predicate[0])));
+        TypedQuery<StockDepotExportDTO> q = em.createQuery(cq);
+        return q.getResultList();
     }
 }

@@ -1,7 +1,7 @@
 package com.kobe.warehouse.service.dto;
 
 import com.kobe.warehouse.domain.RetourBon;
-import com.kobe.warehouse.domain.enumeration.RetourBonStatut;
+import com.kobe.warehouse.domain.enumeration.RetourStatut;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -12,7 +12,7 @@ public class RetourBonDTO {
     private Long id;
     private LocalDateTime dateMtv;
     private UserDTO user;
-    private RetourBonStatut statut;
+    private RetourStatut statut;
     private String commentaire;
     private Long commandeId;
     private LocalDate commandeOrderDate;
@@ -70,11 +70,11 @@ public class RetourBonDTO {
         return this;
     }
 
-    public RetourBonStatut getStatut() {
+    public RetourStatut getStatut() {
         return statut;
     }
 
-    public RetourBonDTO setStatut(RetourBonStatut statut) {
+    public RetourBonDTO setStatut(RetourStatut statut) {
         this.statut = statut;
         return this;
     }

@@ -10,7 +10,7 @@ import { SelectModule } from 'primeng/select';
 import { FloatLabel } from 'primeng/floatlabel';
 import { InputTextModule } from 'primeng/inputtext';
 import { InputNumberModule } from 'primeng/inputnumber';
-import { AutoComplete } from 'primeng/autocomplete';
+import { AutoComplete, AutoCompleteCompleteEvent } from 'primeng/autocomplete';
 import { ToastModule } from 'primeng/toast';
 import { MessageService } from 'primeng/api';
 import { WarehouseCommonModule } from 'app/shared/warehouse-common/warehouse-common.module';
@@ -59,12 +59,12 @@ export class SupplierReturnsComponent implements OnInit, OnDestroy {
   private readonly messageService = inject(MessageService);
   private readonly router = inject(Router);
 
-  @ViewChild('supplierSelect') supplierSelect: any;
-  @ViewChild('orderSelect') orderSelect: any;
+  @ViewChild('orderSelect') orderSelect: AutoComplete | undefined;
   @ViewChild('orderLineAutoComplete') orderLineAutoComplete: AutoComplete | undefined;
 
   protected fournisseurs = signal<IFournisseur[]>([]);
   protected commandes = signal<ICommande[]>([]);
+  protected filteredCommandes = signal<ICommande[]>([]);
   protected motifRetours = signal<IMotifRetourProduit[]>([]);
   protected selectedFournisseur = signal<IFournisseur | null>(null);
   protected selectedCommande = signal<ICommande | null>(null);
@@ -79,20 +79,29 @@ export class SupplierReturnsComponent implements OnInit, OnDestroy {
   protected itemsPerPage = ITEMS_PER_PAGE;
 
   private readonly searchTrigger$ = new Subject<string>();
+  private readonly commandeSearchTrigger$ = new Subject<string>();
   private searchSubscription: Subscription | undefined;
+  private commandeSearchSubscription: Subscription | undefined;
 
   ngOnInit(): void {
     this.loadFournisseurs();
     this.loadMotifRetours();
+    this.loadAllCommandes();
 
     // Setup debounced search for order lines
     this.searchSubscription = this.searchTrigger$
       .pipe(debounceTime(300))
       .subscribe(search => this.filterOrderLines(search));
+
+    // Setup debounced search for commandes
+    this.commandeSearchSubscription = this.commandeSearchTrigger$
+      .pipe(debounceTime(300))
+      .subscribe(search => this.filterCommandes(search));
   }
 
   ngOnDestroy(): void {
     this.searchSubscription?.unsubscribe();
+    this.commandeSearchSubscription?.unsubscribe();
   }
 
   protected loadFournisseurs(search?: string): void {
@@ -163,6 +172,57 @@ export class SupplierReturnsComponent implements OnInit, OnDestroy {
             severity: 'error',
             summary: 'Erreur',
             detail: 'Erreur lors du chargement des commandes',
+          });
+        },
+      });
+  }
+
+  protected loadAllCommandes(): void {
+    this.commandeService
+      .query({
+        page: 0,
+        size: 1000,
+      })
+      .subscribe({
+        next: (res: HttpResponse<ICommande[]>) => {
+          this.commandes.set(res.body || []);
+          this.filteredCommandes.set(res.body || []);
+        },
+        error: () => {
+          this.messageService.add({
+            severity: 'error',
+            summary: 'Erreur',
+            detail: 'Erreur lors du chargement des commandes',
+          });
+        },
+      });
+  }
+
+  protected searchCommandes(event: AutoCompleteCompleteEvent): void {
+    this.commandeSearchTrigger$.next(event.query);
+  }
+
+  protected filterCommandes(search: string): void {
+    if (!search || search.trim() === '') {
+      this.filteredCommandes.set(this.commandes());
+      return;
+    }
+
+    this.commandeService
+      .query({
+        page: 0,
+        size: 100,
+        search: search.trim(),
+      })
+      .subscribe({
+        next: (res: HttpResponse<ICommande[]>) => {
+          this.filteredCommandes.set(res.body || []);
+        },
+        error: () => {
+          this.messageService.add({
+            severity: 'error',
+            summary: 'Erreur',
+            detail: 'Erreur lors de la recherche des commandes',
           });
         },
       });
@@ -378,11 +438,12 @@ export class SupplierReturnsComponent implements OnInit, OnDestroy {
     this.selectedCommande.set(null);
     this.orderLines.set([]);
     this.filteredOrderLines.set([]);
+    this.filteredCommandes.set([]);
     this.selectedOrderLine.set(null);
     this.returnQuantity.set(1);
     this.retourBonItems.set([]);
     this.commentaire.set('');
-    this.commandes.set([]);
+    this.loadAllCommandes();
   }
 
   protected getMaxReturnQuantity(item: IRetourBonItem): number {

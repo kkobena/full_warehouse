@@ -21,129 +21,110 @@
 
   <div class="card">
     <div class="card-body">
-      <!-- Supplier and Order Selection -->
-      <div class="row g-3 mb-4">
-        <div class="col-md-6">
-          <p-floatlabel>
-            <p-select
-              #supplierSelect
-              [(ngModel)]="selectedFournisseur"
-              [options]="fournisseurs()"
-              optionLabel="libelle"
-              [filter]="true"
-              filterBy="libelle"
-              placeholder="Sélectionner un fournisseur"
-              [showClear]="true"
-              (onChange)="onFournisseurChange()"
-              class="w-100"
-              inputId="supplier-select"
-            />
-
-          </p-floatlabel>
-        </div>
-
-        <div class="col-md-6">
-          <p-floatlabel>
-            <p-select
-              #orderSelect
-              [(ngModel)]="selectedCommande"
-              [options]="commandes()"
-              optionLabel="orderReference"
-              [filter]="true"
-              filterBy="orderReference"
-              placeholder="Sélectionner une commande"
-              [showClear]="true"
-              [disabled]="!selectedFournisseur()"
-              (onChange)="onCommandeChange()"
-              class="w-100"
-              inputId="order-select"
-            >
-              <ng-template let-commande #item>
-                <div>
-                  <div> {{ commande.receiptReference }}</div>
-                  <small class="text-muted">Date: {{ commande.orderDate | date: 'dd/MM/yyyy' }}</small>
-                </div>
-              </ng-template>
-            </p-select>
-
-          </p-floatlabel>
-        </div>
-      </div>
-
       <!-- Order Line Selection with AutoComplete -->
-      @if (selectedCommande() && orderLines().length > 0) {
-        <div class="mb-4">
-          <h5 class="mb-3">Ajouter une ligne de retour</h5>
-          <div class="card">
-            <div class="card-body">
-              <div class="row g-3 align-items-end">
-                <div class="col-md-6">
-                  <p-floatlabel>
-                    <p-autoComplete
-                      #orderLineAutoComplete
-                      [(ngModel)]="selectedOrderLine"
-                      [suggestions]="filteredOrderLines()"
-                      (completeMethod)="searchOrderLines($event)"
-                      (onSelect)="onOrderLineSelect()"
-                      [dataKey]="'id'"
-                      [forceSelection]="true"
-                      [minQueryLength]="1"
-                      [showEmptyMessage]="true"
-                      [emptyMessage]="'Aucune ligne de commande trouvée'"
-                      optionLabel="produitLibelle"
-                      [showClear]="true"
-                      inputId="order-line-search"
-                      class="w-100"
-                    >
-                      <ng-template let-orderLine #item>
-                        <div class="d-flex justify-content-between align-items-center w-100">
-                          <div class="flex-grow-1">
-                            <div>
-                              <span class="pharma-code me-2">{{ orderLine.produitCip }}</span>
-                              <span>{{ orderLine.produitLibelle }}</span>
-                            </div>
-                            <small class="text-muted">
-                              Commandé: {{ orderLine.quantityRequested | number }} |
-                              Reçu: {{ orderLine.quantityReceived | number }}
-                            </small>
+      <div class="mb-4">
+        <h5 class="mb-3">Ajouter une ligne de retour</h5>
+        <div class="card">
+          <div class="card-body">
+            <div class="row g-3 align-items-end">
+              <div class="col-md-4">
+                <p-floatlabel>
+                  <p-autoComplete
+                    #orderSelect
+                    [(ngModel)]="selectedCommande"
+                    [suggestions]="filteredCommandes()"
+                    (completeMethod)="searchCommandes($event)"
+                    (onSelect)="onCommandeChange()"
+                    [dataKey]="'id'"
+                    [forceSelection]="true"
+                    [minQueryLength]="1"
+                    [showEmptyMessage]="true"
+                    [emptyMessage]="'Aucune commande trouvée'"
+                    optionLabel="orderReference"
+                    [showClear]="true"
+                    inputId="order-select"
+                    class="w-100"
+                  >
+                    <ng-template let-commande #item>
+                      <div>
+                        <div>{{ commande.receiptReference }}</div>
+                        <small class="text-muted">Date: {{ commande.orderDate | date: 'dd/MM/yyyy' }}</small>
+                      </div>
+                    </ng-template>
+                  </p-autoComplete>
+                  <label for="order-select">Rechercher une commande</label>
+                </p-floatlabel>
+              </div>
+
+              <div class="col-md-4">
+                <p-floatlabel>
+                  <p-autoComplete
+                    #orderLineAutoComplete
+                    [(ngModel)]="selectedOrderLine"
+                    [suggestions]="filteredOrderLines()"
+                    (completeMethod)="searchOrderLines($event)"
+                    (onSelect)="onOrderLineSelect()"
+                    [dataKey]="'id'"
+                    [forceSelection]="true"
+                    [minQueryLength]="1"
+                    [showEmptyMessage]="true"
+                    [emptyMessage]="'Aucune ligne de commande trouvée'"
+                    optionLabel="produitLibelle"
+                    [showClear]="true"
+                    [disabled]="!selectedCommande()"
+                    inputId="order-line-search"
+                    class="w-100"
+                  >
+                    <ng-template let-orderLine #item>
+                      <div class="d-flex justify-content-between align-items-center w-100">
+                        <div class="flex-grow-1">
+                          <div>
+                            <span class="pharma-code me-2">{{ orderLine.produitCip }}</span>
+                            <span>{{ orderLine.produitLibelle }}</span>
                           </div>
+                          <small class="text-muted">
+                            Commandé: {{ orderLine.quantityRequested | number }} |
+                            Reçu: {{ orderLine.quantityReceived | number }}
+                          </small>
                         </div>
-                      </ng-template>
-                    </p-autoComplete>
-                    <label for="order-line-search">Rechercher une ligne de commande</label>
-                  </p-floatlabel>
-                </div>
+                      </div>
+                    </ng-template>
+                  </p-autoComplete>
+                  <label for="order-line-search">Rechercher une ligne de commande</label>
+                </p-floatlabel>
+              </div>
 
-                <div class="col-md-3">
-                  <p-floatlabel>
-                    <p-inputNumber
-                      [(ngModel)]="returnQuantity"
-                      [min]="1"
-                      [max]="getSelectedOrderLineMaxQuantity()"
-                      [showButtons]="true"
-                      [disabled]="!selectedOrderLine()"
-                      inputId="return-quantity"
-                      class="w-100"
-                    />
-                    <label for="return-quantity">Quantité à retourner</label>
-                  </p-floatlabel>
-                </div>
-
-                <div class="col-md-3">
-                  <p-button
-                    label="Ajouter"
-                    icon="pi pi-plus"
-                    severity="success"
-                    [disabled]="!selectedOrderLine() || returnQuantity() < 1"
-                    (onClick)="addReturnLine()"
+              <div class="col-md-4">
+                <p-floatlabel>
+                  <p-inputNumber
+                    [(ngModel)]="returnQuantity"
+                    [min]="1"
+                    [max]="getSelectedOrderLineMaxQuantity()"
+                    [showButtons]="true"
+                    [disabled]="!selectedOrderLine()"
+                    inputId="return-quantity"
                     class="w-100"
                   />
-                </div>
+                  <label for="return-quantity">Quantité à retourner</label>
+                </p-floatlabel>
+              </div>
+            </div>
+
+            <div class="row g-3 mt-2">
+              <div class="col-12">
+                <p-button
+                  label="Ajouter"
+                  icon="pi pi-plus"
+                  severity="success"
+                  [disabled]="!selectedOrderLine() || returnQuantity() < 1"
+                  (onClick)="addReturnLine()"
+                  class="w-100"
+                />
               </div>
             </div>
           </div>
         </div>
-      }
+      </div>
 
       <!-- Return Lines Table -->
       @if (retourBonItems().length > 0) {
@@ -156,10 +137,10 @@
           >
             <ng-template #header>
               <tr class="pharma-table-head">
-                <th>CIP</th>
+                <th>>CIP</th>
                 <th>Produit</th>
                 <th class="text-end">Qté Disponible</th>
-                <th class="text-end">Qté à Retourner</th>
+                <th class="text-end pharma-qty-value">Qté à Retourner</th>
                 <th>Motif de Retour</th>
                 <th class="text-center">Action</th>
               </tr>

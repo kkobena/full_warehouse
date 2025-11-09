@@ -209,11 +209,11 @@
                   }
 
                   <p-button
-                    (click)="exportToCsv(sale)"
+                    (click)="onExportMenu($event, sale)"
                     [rounded]="true"
                     [text]="true"
-                    icon="pi pi-file-excel"
-                    pTooltip="Exporter en CSV"
+                    icon="pi pi-file-export"
+                    pTooltip="Exporter"
                     severity="primary"
                     size="small"
                   ></p-button>
@@ -305,4 +305,5 @@
 
 </div>
 <jhi-confirm-dialog #confirmDialog></jhi-confirm-dialog>
+<p-menu #exportMenu [model]="exportMenuItems" [popup]="true"></p-menu>
 

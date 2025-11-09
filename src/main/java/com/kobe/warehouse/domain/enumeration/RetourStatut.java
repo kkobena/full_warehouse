@@ -1,6 +1,6 @@
 package com.kobe.warehouse.domain.enumeration;
 
-public enum RetourBonStatut {
+public enum RetourStatut {
     PROCESSING,
     CLOSED,
     VALIDATED

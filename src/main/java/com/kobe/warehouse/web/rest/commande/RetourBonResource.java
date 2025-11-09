@@ -1,6 +1,6 @@
 package com.kobe.warehouse.web.rest.commande;
 
-import com.kobe.warehouse.domain.enumeration.RetourBonStatut;
+import com.kobe.warehouse.domain.enumeration.RetourStatut;
 import com.kobe.warehouse.service.RetourBonService;
 import com.kobe.warehouse.service.dto.RetourBonDTO;
 import com.kobe.warehouse.web.util.HeaderUtil;
@@ -101,7 +101,7 @@ public class RetourBonResource {
      */
     @GetMapping("/retour-bons")
     public ResponseEntity<List<RetourBonDTO>> getAllRetourBons(
-        @RequestParam(required = false) RetourBonStatut statut,
+        @RequestParam(required = false) RetourStatut statut,
         Pageable pageable
     ) {
         log.debug("REST request to get a page of RetourBons");

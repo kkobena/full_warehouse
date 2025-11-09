@@ -11,7 +11,7 @@ import java.io.Serializable;
 import java.util.Objects;
 
 @Entity
-@Table(name = "warehouse_sequence")
+@Table(name = "sequence")
 public class WarehouseSequence implements Serializable {
 
     @Serial

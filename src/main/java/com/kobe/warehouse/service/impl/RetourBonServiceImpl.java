@@ -1,7 +1,7 @@
 package com.kobe.warehouse.service.impl;
 
 import com.kobe.warehouse.domain.*;
-import com.kobe.warehouse.domain.enumeration.RetourBonStatut;
+import com.kobe.warehouse.domain.enumeration.RetourStatut;
 import com.kobe.warehouse.repository.*;
 import com.kobe.warehouse.security.SecurityUtils;
 import com.kobe.warehouse.service.RetourBonService;
@@ -58,7 +58,7 @@ public class RetourBonServiceImpl implements RetourBonService {
 
         RetourBon retourBon = new RetourBon();
         retourBon.setDateMtv(LocalDateTime.now());
-        retourBon.setStatut(RetourBonStatut.PROCESSING);
+        retourBon.setStatut(RetourStatut.PROCESSING);
         retourBon.setCommentaire(retourBonDTO.getCommentaire());
 
         // Set user
@@ -130,7 +130,7 @@ public class RetourBonServiceImpl implements RetourBonService {
 
     @Override
     @Transactional(readOnly = true)
-    public Page<RetourBonDTO> findAllByStatut(RetourBonStatut statut, Pageable pageable) {
+    public Page<RetourBonDTO> findAllByStatut(RetourStatut statut, Pageable pageable) {
         log.debug("Request to get all RetourBons by status : {}", statut);
         return retourBonRepository.findAllByStatutOrderByDateMtvDesc(statut, pageable).map(RetourBonDTO::new);
     }
@@ -174,7 +174,7 @@ public class RetourBonServiceImpl implements RetourBonService {
             .findById(id)
             .orElseThrow(() -> new RuntimeException("RetourBon not found"));
 
-        retourBon.setStatut(RetourBonStatut.VALIDATED);
+        retourBon.setStatut(RetourStatut.VALIDATED);
         retourBon = retourBonRepository.save(retourBon);
 
         return new RetourBonDTO(retourBon);

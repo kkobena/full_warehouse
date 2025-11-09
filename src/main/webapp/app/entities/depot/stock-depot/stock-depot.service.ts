@@ -6,7 +6,8 @@ import { SERVER_API_URL } from 'app/app.constants';
 import { createRequestOptions } from 'app/shared/util/request-util';
 import { IProduit } from 'app/shared/model/produit.model';
 import { IResponseDto } from '../../../shared/util/response-dto';
-import { ISales } from '../../../shared/model/sales.model';
+import { ISales, SaleId } from '../../../shared/model/sales.model';
+import { ProductToDestroyFilter } from '../../gestion-peremption/model/product-to-destroy';
 
 
 type EntityArrayResponseType = HttpResponse<IProduit[]>;
@@ -34,5 +35,12 @@ export class StockDepotService {
     const options = createRequestOptions(req);
     return this.http
       .get<ISales[]>(this.resourceUrl, { params: options, observe: 'response' });
+  }
+
+  export(format: string, saleId: SaleId): Observable<HttpResponse<Blob>> {
+    return this.http.get(`${this.resourceUrl}/export/${saleId.id}/${saleId.saleDate}/${format}`, {
+      observe: 'response',
+      responseType: 'blob'
+    });
   }
 }

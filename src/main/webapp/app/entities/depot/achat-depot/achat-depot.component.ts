@@ -30,6 +30,9 @@ import { MagasinService } from '../../magasin/magasin.service';
 import { Router, RouterLink } from '@angular/router';
 import { StockDepotService } from '../stock-depot/stock-depot.service';
 import { DATE_FORMAT_ISO_DATE } from '../../../shared/util/warehouse-util';
+import { saveAs } from 'file-saver';
+import { extractFileName2 } from '../../../shared/util/file-utils';
+import { Menu } from 'primeng/menu';
 
 @Component({
   selector: 'jhi-achat-depot',
@@ -46,7 +49,8 @@ import { DATE_FORMAT_ISO_DATE } from '../../../shared/util/warehouse-util';
     Toolbar,
     Tooltip,
     FormsModule,
-    RouterLink
+    RouterLink,
+    Menu
   ],
   templateUrl: './achat-depot.component.html',
   styleUrl: './achat-depot.component.scss'
@@ -70,6 +74,9 @@ export class AchatDepotComponent implements OnInit, AfterViewInit {
   protected hasAuthorityService = inject(HasAuthorityService);
 
   protected actions: MenuItem[] | undefined;
+  protected exportMenuItems: MenuItem[] = [];
+  protected currentSaleForExport?: ISales;
+
   private readonly translate = inject(TranslateService);
   private readonly primeNGConfig = inject(PrimeNG);
   private readonly salesService = inject(SalesService);
@@ -78,6 +85,7 @@ export class AchatDepotComponent implements OnInit, AfterViewInit {
 
   private searchSubject = new Subject<void>();
   private readonly confimDialog = viewChild.required<ConfirmDialogComponent>('confirmDialog');
+  private readonly exportMenu = viewChild.required<Menu>('exportMenu');
   private readonly tauriPrinterService = inject(TauriPrinterService);
   private readonly magasinService = inject(MagasinService);
   private router = inject(Router);
@@ -92,6 +100,25 @@ export class AchatDepotComponent implements OnInit, AfterViewInit {
         label: 'Fiche à partir csv',
         icon: 'pi pi-file-pdf',
         command: () => console.error('print all record')
+      }
+    ];
+
+    // Initialize export menu items
+    this.exportMenuItems = [
+      {
+        label: 'Exporter en CSV',
+        icon: 'pi pi-file',
+        command: () => this.exportWithFormat('CSV')
+      },
+      {
+        label: 'Exporter en Excel',
+        icon: 'pi pi-file-excel',
+        command: () => this.exportWithFormat('EXCEL')
+      },
+      {
+        label: 'Exporter en PDF',
+        icon: 'pi pi-file-pdf',
+        command: () => this.exportWithFormat('PDF')
       }
     ];
   }
@@ -178,7 +205,18 @@ export class AchatDepotComponent implements OnInit, AfterViewInit {
 
 
   protected exportToCsv(sale: ISales): void {
+    this.onExport('CSV', sale.saleId);
+  }
 
+  protected onExportMenu(event: Event, sale: ISales): void {
+    this.currentSaleForExport = sale;
+    this.exportMenu().toggle(event);
+  }
+
+  protected exportWithFormat(format: string): void {
+    if (this.currentSaleForExport) {
+      this.onExport(format, this.currentSaleForExport.saleId);
+    }
   }
 
   protected print(sales: ISales): void {
@@ -233,5 +271,38 @@ export class AchatDepotComponent implements OnInit, AfterViewInit {
       magasinId: this.selectedDepot ? this.selectedDepot.id : null,
       userId: this.selectedUserId
     };
+  }
+
+  private async onExport(format: string, saleId: SaleId): Promise<void> {
+    this.stockDepotService.export(format, saleId).subscribe({
+      next: async resp => {
+        const blob = resp.body;
+        if (!blob) {
+          console.error('Aucune donnée reçue pour l\'exportation');
+          return;
+        }
+
+        const fileName = extractFileName2(
+          resp.headers.get('Content-disposition'),
+          format,
+          `vente_depot_stock_${saleId.id}_${saleId.saleDate}`
+        );
+
+        if (this.tauriPrinterService.isRunningInTauri()) {
+          // Tauri version - save file using dialog
+          try {
+            handleBlobForTauri(blob, fileName);
+          } catch (error) {
+            console.error('Erreur lors de la sauvegarde du fichier dans Tauri:', error);
+          }
+        } else {
+          // Web version - download file directly
+          saveAs(blob, fileName);
+        }
+      },
+      error: (err) => {
+        console.error('Erreur lors de l\'exportation:', err);
+      }
+    });
   }
 }

@@ -1,7 +1,7 @@
 package com.kobe.warehouse.repository;
 
 import com.kobe.warehouse.domain.RetourBon;
-import com.kobe.warehouse.domain.enumeration.RetourBonStatut;
+import com.kobe.warehouse.domain.enumeration.RetourStatut;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -15,7 +15,7 @@ import java.util.List;
 @SuppressWarnings("unused")
 @Repository
 public interface RetourBonRepository extends JpaRepository<RetourBon, Long> {
-    Page<RetourBon> findAllByStatutOrderByDateMtvDesc(RetourBonStatut statut, Pageable pageable);
+    Page<RetourBon> findAllByStatutOrderByDateMtvDesc(RetourStatut statut, Pageable pageable);
 
     Page<RetourBon> findAllByOrderByDateMtvDesc(Pageable pageable);
 

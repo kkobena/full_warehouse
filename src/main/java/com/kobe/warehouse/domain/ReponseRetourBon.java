@@ -1,6 +1,6 @@
 package com.kobe.warehouse.domain;
 
-import com.kobe.warehouse.domain.enumeration.RetourBonStatut;
+import com.kobe.warehouse.domain.enumeration.RetourStatut;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
@@ -48,7 +48,7 @@ public class ReponseRetourBon implements Serializable {
     @NotNull
     @Enumerated(EnumType.STRING)
     @Column(name = "statut", nullable = false, length = 1)
-    private RetourBonStatut statut = RetourBonStatut.PROCESSING;
+    private RetourStatut statut = RetourStatut.PROCESSING;
 
     @Column(name = "commentaire", length = 150)
     private String commentaire;
@@ -103,11 +103,11 @@ public class ReponseRetourBon implements Serializable {
         return this;
     }
 
-    public @NotNull RetourBonStatut getStatut() {
+    public @NotNull RetourStatut getStatut() {
         return statut;
     }
 
-    public ReponseRetourBon setStatut(@NotNull RetourBonStatut statut) {
+    public ReponseRetourBon setStatut(@NotNull RetourStatut statut) {
         this.statut = statut;
         return this;
     }

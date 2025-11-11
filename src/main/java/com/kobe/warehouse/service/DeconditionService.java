@@ -165,7 +165,7 @@ public class DeconditionService {
      * @return the entity.
      */
     @Transactional(readOnly = true)
-    public Optional<Decondition> findOne(Long id) {
+    public Optional<Decondition> findOne(Integer id) {
         log.debug("Request to get Decondition : {}", id);
         return deconditionRepository.findById(id);
     }
@@ -175,7 +175,7 @@ public class DeconditionService {
      *
      * @param id the id of the entity.
      */
-    public void delete(Long id) {
+    public void delete(Integer id) {
         log.debug("Request to delete Decondition : {}", id);
         deconditionRepository.deleteById(id);
     }

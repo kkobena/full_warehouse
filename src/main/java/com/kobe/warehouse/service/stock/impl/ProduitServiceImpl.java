@@ -1,7 +1,7 @@
 package com.kobe.warehouse.service.stock.impl;
 
 import com.fasterxml.jackson.core.type.TypeReference;
-import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.json.JsonMapper;
 import com.kobe.warehouse.domain.Produit;
 import com.kobe.warehouse.domain.StockProduit;
 import com.kobe.warehouse.domain.Storage;
@@ -42,14 +42,14 @@ public class ProduitServiceImpl implements ProduitService {
     private final ProduitRepository produitRepository;
     private final CustomizedProductService customizedProductService;
     private final RayonRepository rayonRepository;
-    private final ObjectMapper objectMapper;
+    private final JsonMapper objectMapper;
     private final AppConfigurationService appConfigurationService;
 
     public ProduitServiceImpl(
         MagasinRepository magasinRepository,
         ProduitRepository produitRepository,
         CustomizedProductService customizedProductService,
-        RayonRepository rayonRepository, ObjectMapper objectMapper, AppConfigurationService appConfigurationService
+        RayonRepository rayonRepository, JsonMapper objectMapper, AppConfigurationService appConfigurationService
     ) {
         this.magasinRepository = magasinRepository;
         this.produitRepository = produitRepository;
@@ -96,7 +96,7 @@ public class ProduitServiceImpl implements ProduitService {
      */
     @Override
     @Transactional(readOnly = true)
-    public Optional<ProduitDTO> findOne(Long id) {
+    public Optional<ProduitDTO> findOne(Integer id) {
         LOG.debug("Request to get Produit : {}", id);
         return customizedProductService.findOneById(id);
     }
@@ -107,7 +107,7 @@ public class ProduitServiceImpl implements ProduitService {
      * @param id the id of the entity.
      */
     @Override
-    public void delete(Long id) {
+    public void delete(Integer id) {
         LOG.debug("Request to delete Produit : {}", id);
 
         produitRepository.deleteById(id);
@@ -193,7 +193,7 @@ public class ProduitServiceImpl implements ProduitService {
     }
 
     @Override
-    public int getProductTotalStock(Long productId) {
+    public int getProductTotalStock(Integer productId) {
         return customizedProductService.produitTotalStockWithQantityUg(produitRepository.getReferenceById(productId));
     }
 
@@ -212,25 +212,20 @@ public class ProduitServiceImpl implements ProduitService {
         this.customizedProductService.updateFromCommande(produitDTO, produit);
     }
 
-    @Override
-    public void updatePeremption(Long produitId, LocalDate peremptionDate) {
-        Produit produit = produitRepository.getReferenceById(produitId);
-        produit.setPerimeAt(peremptionDate);
-    }
 
     @Override
-    public Produit findReferenceById(Long id) {
+    public Produit findReferenceById(Integer id) {
         return produitRepository.getReferenceById(id);
     }
 
     @Override
     @Transactional(readOnly = true)
-    public List<ProduitSearch> searchProducts(String search, Long magasinId, Pageable pageable) {
+    public List<ProduitSearch> searchProducts(String search, Integer magasinId, Pageable pageable) {
         if (isNull(magasinId)) {
             magasinId = appConfigurationService.getMagasin().getId();
         }
 
-        String jsonResult = produitRepository.searchProduitsJson(search,magasinId.intValue(), pageable.getPageSize());
+        String jsonResult = produitRepository.searchProduitsJson(search,magasinId, pageable.getPageSize());
         try {
             return objectMapper.readValue(jsonResult, new TypeReference<>() {
             });
@@ -240,7 +235,5 @@ public class ProduitServiceImpl implements ProduitService {
         }
     }
 
-    private Storage getPointOfSale() {
-        return magasinRepository.getReferenceById(1L).getPointOfSale();
-    }
+
 }

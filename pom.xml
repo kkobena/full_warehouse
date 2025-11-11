@@ -306,12 +306,7 @@
       <version>4.0.4</version>
     </dependency>
 
-    <dependency>
-      <artifactId>flyway-database-postgresql</artifactId>
-      <groupId>org.flywaydb</groupId>
-      <version>11.11.2</version>
-      <!-- <scope>runtime</scope>-->
-    </dependency>
+
     <dependency>
       <artifactId>flyway-core</artifactId>
       <groupId>org.flywaydb</groupId>
@@ -411,7 +406,7 @@
     <dependency>
       <artifactId>spring-boot-loader-tools</artifactId>
       <groupId>org.springframework.boot</groupId>
-      <version>4.0.0-M3</version>
+      <version>4.0.0-RC2</version>
     </dependency>
     <dependency>
       <artifactId>spring-boot-starter-actuator</artifactId>
@@ -582,14 +577,14 @@
   <groupId>com.kobe.warehouse</groupId>
   <modelVersion>4.0.0</modelVersion>
 
-  <name>Warehouse</name>
+  <name>PharmaSmart</name>
   <packaging>jar</packaging>
 
   <parent>
     <artifactId>spring-boot-starter-parent</artifactId>
     <groupId>org.springframework.boot</groupId>
     <relativePath/>
-    <version>4.0.0-RC1</version>
+    <version>4.0.0-RC2</version>
   </parent>
   <profiles>
 
@@ -846,7 +841,7 @@
     <batik.version>1.19</batik.version>
     <frontend-maven-plugin.version>1.15.1</frontend-maven-plugin.version>
     <hibernate-validator.version>9.0.1.Final</hibernate-validator.version>
-    <hibernate.version>7.1.0.Final</hibernate.version>
+    <hibernate.version>7.1.7.Final</hibernate.version>
     <java.version>25</java.version>
     <maven-antrun-plugin.version>3.1.0</maven-antrun-plugin.version>
     <maven-clean-plugin.version>3.4.0</maven-clean-plugin.version>

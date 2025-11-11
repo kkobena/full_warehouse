@@ -116,7 +116,7 @@ public interface TiersPayantMapper {
      * @param groupeTiersPayantId the ID of the group
      * @return a GroupeTiersPayant with only the ID set, or null if the ID is null
      */
-    default GroupeTiersPayant fromId(Long groupeTiersPayantId) {
+    default GroupeTiersPayant fromId(Integer groupeTiersPayantId) {
         if (groupeTiersPayantId == null) {
             return null;
         }

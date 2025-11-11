@@ -229,7 +229,6 @@ public class ImportationProduitService {
         produit.setDeconditionnable(false);
         produit.setQtyAppro(0);
         produit.setQtySeuilMini(produitDTO.getQtySeuilMini());
-        produit.setPerimeAt(produitDTO.getPerimeAt());
         produit.setTva(parent.getTva());
         produit.setLaboratoire(parent.getLaboratoire());
         produit.setFamille(parent.getFamille());
@@ -265,7 +264,6 @@ public class ImportationProduitService {
         produit.setDeconditionnable(produitDTO.getDeconditionnable());
         produit.setQtyAppro(produitDTO.getQtyAppro());
         produit.setQtySeuilMini(produitDTO.getQtySeuilMini());
-        produit.setPerimeAt(produitDTO.getPerimeAt());
         if (ObjectUtils.isNotEmpty(produitDTO.getTvaTaux())) {
             tvaRepository.findFirstByTauxEquals(produitDTO.getTvaTaux()).ifPresent(produit::setTva);
         }
@@ -378,10 +376,10 @@ public class ImportationProduitService {
         AtomicInteger errorSize = new AtomicInteger();
         FamilleProduit familleProduit = findFamilleProduit(DEFAULT_CODE_FAMILLE);
 
-        Map<String, Long> tableauCode =
+        Map<String, Integer> tableauCode =
             this.tableauRepository.findAll().stream().collect(HashMap::new, (map, t) -> map.put(t.getCode(), t.getId()), HashMap::putAll);
         ResponseDTO response = new ResponseDTO();
-        Map<Integer, Long> codeTvaMap =
+        Map<Integer, Integer> codeTvaMap =
             this.tvaRepository.findAll().stream().collect(HashMap::new, (map, t) -> map.put(t.getTaux(), t.getId()), HashMap::putAll);
         try (BufferedReader br = new BufferedReader(new InputStreamReader(inputStream, StandardCharsets.UTF_8))) {
             Iterable<CSVRecord> records = CSVFormat.DEFAULT.builder().setDelimiter(';').build().parse(br);
@@ -395,7 +393,7 @@ public class ImportationProduitService {
                                 var codeTva = record.get(5);
                                 var cip = record.get(0);
 
-                                Long tvaId = null;
+                                Integer tvaId = null;
                                 if (org.springframework.util.StringUtils.hasText(codeTva)) {
                                     tvaId = switch (codeTva) {
                                         case "1" -> codeTvaMap.get(18);
@@ -459,15 +457,15 @@ public class ImportationProduitService {
         ResponseDTO response = new ResponseDTO();
         List<Record> errorList = new ArrayList<>();
         AtomicInteger errorSize = new AtomicInteger();
-        Long defaultRayonId = rayon.getId();
-        Map<String, Long> rayonCodes =
+        Integer defaultRayonId = rayon.getId();
+        Map<String, Integer> rayonCodes =
             this.rayonRepository.findAll().stream().collect(HashMap::new, (map, t) -> map.put(t.getCode(), t.getId()), HashMap::putAll);
         AtomicInteger count = new AtomicInteger();
-        Map<String, Long> familleCode =
+        Map<String, Integer> familleCode =
             this.familleProduitRepository.findAll()
                 .stream()
                 .collect(HashMap::new, (map, t) -> map.put(t.getCode(), t.getId()), HashMap::putAll);
-        Map<Integer, Long> codeTvaMap =
+        Map<Integer, Integer> codeTvaMap =
             this.tvaRepository.findAll().stream().collect(HashMap::new, (map, t) -> map.put(t.getTaux(), t.getId()), HashMap::putAll);
 
         try (BufferedReader br = new BufferedReader(new InputStreamReader(inputStream, StandardCharsets.UTF_8))) {
@@ -480,7 +478,7 @@ public class ImportationProduitService {
                             Record produitRecord = null;
                             try {
                                 var codeTva = record.get(5);
-                                Long tvaId = null;
+                                Integer tvaId = null;
                                 if (org.springframework.util.StringUtils.hasText(codeTva)) {
                                     tvaId = switch (codeTva) {
                                         case "1" -> codeTvaMap.get(18);
@@ -490,7 +488,7 @@ public class ImportationProduitService {
                                 }
 
                                 var codeFamille = record.get(6);
-                                Long familleId = null;
+                                Integer familleId = null;
                                 if (org.springframework.util.StringUtils.hasText(codeFamille)) {
                                     familleId = switch (codeFamille) {
                                         case "2" -> familleCode.get("2000");
@@ -506,7 +504,7 @@ public class ImportationProduitService {
                                 }
                                 var rayonCode = record.get(7);
                                 var cip = record.get(0);
-                                Long rayonId = defaultRayonId;
+                                Integer rayonId = defaultRayonId;
                                 if (rayonCodes.containsKey(rayonCode)) {
                                     rayonId = rayonCodes.get(rayonCode);
                                 }
@@ -564,21 +562,21 @@ public class ImportationProduitService {
         Rayon rayon = rayonRepository.findFirstByCodeAndStorageId(EntityConstant.SANS_EMPLACEMENT_CODE, storage.getId()).orElseThrow();
         ResponseDTO response = new ResponseDTO();
         List<Record> errorList = new ArrayList<>();
-        Map<String, Long> tableauCode =
+        Map<String, Integer> tableauCode =
             this.tableauRepository.findAll().stream().collect(HashMap::new, (map, t) -> map.put(t.getCode(), t.getId()), HashMap::putAll);
 
-        Long defaultRayonId = rayon.getId();
-        Map<String, Long> rayonCodes =
+        Integer defaultRayonId = rayon.getId();
+        Map<String, Integer> rayonCodes =
             this.rayonRepository.findAll().stream().collect(HashMap::new, (map, t) -> map.put(t.getCode(), t.getId()), HashMap::putAll);
         AtomicInteger count = new AtomicInteger();
         AtomicInteger errorSize = new AtomicInteger();
-        Map<String, Long> familleCode =
+        Map<String, Integer> familleCode =
             this.familleProduitRepository.findAll()
                 .stream()
                 .collect(HashMap::new, (map, t) -> map.put(t.getCode(), t.getId()), HashMap::putAll);
-        Map<Integer, Long> codeTvaMap =
+        Map<Integer, Integer> codeTvaMap =
             this.tvaRepository.findAll().stream().collect(HashMap::new, (map, t) -> map.put(t.getTaux(), t.getId()), HashMap::putAll);
-        Map<String, Long> fournisseurCodes =
+        Map<String, Integer> fournisseurCodes =
             this.fournisseurRepository.findAll()
                 .stream()
                 .collect(HashMap::new, (map, t) -> map.put(t.getCode(), t.getId()), HashMap::putAll);
@@ -599,7 +597,7 @@ public class ImportationProduitService {
                             try {
                                 //2175198
                                 var codeTva = record.get(11);
-                                Long tvaId;
+                                Integer tvaId;
                                 if (
                                     org.springframework.util.StringUtils.hasText(codeTva) &&
                                     codeTvaMap.containsKey(NumberUtil.parseInt(codeTva))
@@ -609,18 +607,18 @@ public class ImportationProduitService {
                                     tvaId = codeTvaMap.get(0);
                                 }
                                 var codeFamille = record.get(15);
-                                Long familleId;
+                                Integer familleId;
                                 if (familleCode.containsKey(codeFamille)) {
                                     familleId = familleCode.get(codeFamille);
                                 } else {
                                     familleId = familleCode.get(DEFAULT_CODE_FAMILLE);
                                 }
                                 var rayonCode = record.get(14);
-                                Long rayonId = defaultRayonId;
+                                Integer rayonId = defaultRayonId;
                                 if (rayonCodes.containsKey(rayonCode)) {
                                     rayonId = rayonCodes.get(rayonCode);
                                 }
-                                Long fournisseurId = fournisseurCodes.get(record.get(16));
+                                Integer fournisseurId = fournisseurCodes.get(record.get(16));
                                 if (fournisseurId == null) {
                                     fournisseurId = fournisseur.getId();
                                 }
@@ -795,9 +793,7 @@ public class ImportationProduitService {
         if (nonNull(record.checkExpiryDate())) {
             produit.setCheckExpiryDate(record.checkExpiryDate());
         }
-        if (nonNull(record.perimeAt())) {
-            produit.setPerimeAt(record.perimeAt());
-        }
+
         if (nonNull(record.chiffre())) {
             produit.setChiffre(record.chiffre());
         }
@@ -923,22 +919,22 @@ public class ImportationProduitService {
     }
 
     private record Record(
-        Long tableauId,
+        Integer tableauId,
         String cip,
         String codeEan,
         String nom,
-        Long familleId,
-        Long rayonId,
+        Integer familleId,
+        Integer rayonId,
         String codeRemise,
-        Long fournisseurId,
+        Integer fournisseurId,
         int prixAchat,
         int prixVente,
         int qty,
-        Long tvaId,
+        Integer tvaId,
         int seuil,
         int qtyReappro,
-        Long laboratoireId,
-        Long gammeId,
+        Integer laboratoireId,
+        Integer gammeId,
         Boolean chiffre,
         Boolean scheduled,
         int cmu,

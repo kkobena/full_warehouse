@@ -71,8 +71,8 @@ class SalesLineServiceBaseImplTest {
     @DisplayName("Should create sales line from DTO with all required fields")
     void testCreateSaleLineFromDTO_Success() {
         // Given
-        Long storageId = 1L;
-        Long produitId = 100L;
+        int storageId = 1;
+        int produitId = 100;
         int regularUnitPrice = 500;
         int quantityRequested = 10;
         int quantitySold = 10;
@@ -114,8 +114,8 @@ class SalesLineServiceBaseImplTest {
     @DisplayName("Should process UG (Gestion d'Urgence) when stock has UG quantity")
     void testCreateSaleLineFromDTO_WithUG() {
         // Given
-        Long storageId = 1L;
-        Long produitId = 100L;
+        int storageId = 1;
+        int produitId = 100;
         int quantitySold = 15;
 
         SaleLineDTO dto = new SaleLineDTO();
@@ -143,8 +143,8 @@ class SalesLineServiceBaseImplTest {
     @DisplayName("Should not set UG when quantity sold is less than UG stock")
     void testCreateSaleLineFromDTO_LessQuantityThanUG() {
         // Given
-        Long storageId = 1L;
-        Long produitId = 100L;
+        int storageId = 1;
+        int produitId = 100;
         int quantitySold = 5; // Less than UG available
 
         SaleLineDTO dto = new SaleLineDTO();
@@ -172,8 +172,8 @@ class SalesLineServiceBaseImplTest {
     @DisplayName("Should not set UG when stock has no UG")
     void testCreateSaleLineFromDTO_NoUG() {
         // Given
-        Long storageId = 1L;
-        Long produitId = 100L;
+        int storageId = 1;
+        int produitId = 100;
 
         SaleLineDTO dto = new SaleLineDTO();
         dto.setProduitId(produitId);
@@ -200,8 +200,8 @@ class SalesLineServiceBaseImplTest {
     @DisplayName("Should calculate sales amount correctly")
     void testCreateSaleLineFromDTO_SalesAmountCalculation() {
         // Given
-        Long storageId = 1L;
-        Long produitId = 100L;
+        int storageId = 1;
+        int produitId = 100;
         int regularUnitPrice = 250;
         int quantityRequested = 12;
 
@@ -231,8 +231,8 @@ class SalesLineServiceBaseImplTest {
     @DisplayName("Should set correct tax value from product TVA")
     void testCreateSaleLineFromDTO_TaxValue() {
         // Given
-        Long storageId = 1L;
-        Long produitId = 100L;
+        int storageId = 1;
+        int produitId = 100;
         int tvaRate = 18; // 18% TVA
 
         SaleLineDTO dto = new SaleLineDTO();
@@ -261,8 +261,8 @@ class SalesLineServiceBaseImplTest {
     @DisplayName("Should verify repository interactions")
     void testCreateSaleLineFromDTO_RepositoryInteractions() {
         // Given
-        Long storageId = 1L;
-        Long produitId = 100L;
+        int storageId = 1;
+        int produitId = 100;
 
         SaleLineDTO dto = new SaleLineDTO();
         dto.setProduitId(produitId);
@@ -289,7 +289,7 @@ class SalesLineServiceBaseImplTest {
 
     // Helper methods
 
-    private Produit createProduit(Long id, String libelle, int costAmount) {
+    private Produit createProduit(Integer id, String libelle, int costAmount) {
         Produit produit = new Produit();
         produit.setId(id);
         produit.setLibelle(libelle);

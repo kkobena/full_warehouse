@@ -19,7 +19,7 @@ public class Banque implements Serializable {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+    private Integer id;
 
     @NotNull
     @Column(name = "nom", nullable = false, length = 100)
@@ -54,11 +54,11 @@ public class Banque implements Serializable {
         return this;
     }
 
-    public Long getId() {
+    public Integer getId() {
         return id;
     }
 
-    public void setId(Long id) {
+    public void setId(Integer id) {
         this.id = id;
     }
 

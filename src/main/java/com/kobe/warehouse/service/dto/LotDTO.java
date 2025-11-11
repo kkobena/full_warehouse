@@ -10,7 +10,7 @@ import java.util.Optional;
 
 public class LotDTO {
 
-    private Long id;
+    private Integer id;
 
     private String numLot;
 
@@ -45,11 +45,11 @@ public class LotDTO {
 
     public LotDTO() {}
 
-    public Long getId() {
+    public Integer getId() {
         return id;
     }
 
-    public LotDTO setId(Long id) {
+    public LotDTO setId(Integer id) {
         this.id = id;
         return this;
     }

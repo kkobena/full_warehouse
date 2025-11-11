@@ -39,10 +39,10 @@ public class Lot implements Serializable {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+    private Integer id;
 
     @NotNull
-    @Column(name = "num_lot", nullable = false)
+    @Column(name = "num_lot", nullable = false, length = 20)
     private String numLot;
 
     @NotNull
@@ -106,11 +106,11 @@ public class Lot implements Serializable {
         this.updated = updated;
     }
 
-    public Long getId() {
+    public Integer getId() {
         return id;
     }
 
-    public Lot setId(Long id) {
+    public Lot setId(Integer id) {
         this.id = id;
         return this;
     }

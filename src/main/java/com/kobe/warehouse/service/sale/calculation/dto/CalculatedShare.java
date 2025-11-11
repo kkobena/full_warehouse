@@ -13,7 +13,7 @@ public class CalculatedShare {
     private BigDecimal pharmacyPrice;
     private BigDecimal totalSalesAmount = BigDecimal.ZERO;
     private Integer calculationBasePrice;
-    private Map<Long, BigDecimal> tiersPayants = new HashMap<>();
+    private Map<Integer, BigDecimal> tiersPayants = new HashMap<>();
     private BigDecimal totalReimbursedAmount = BigDecimal.ZERO;
     private BigDecimal discountAmount = BigDecimal.ZERO;
     private List<Rate> rates = new ArrayList<>();
@@ -63,11 +63,11 @@ public class CalculatedShare {
         this.calculationBasePrice = calculationBasePrice;
     }
 
-    public Map<Long, BigDecimal> getTiersPayants() {
+    public Map<Integer, BigDecimal> getTiersPayants() {
         return tiersPayants;
     }
 
-    public void setTiersPayants(Map<Long, BigDecimal> tiersPayants) {
+    public void setTiersPayants(Map<Integer, BigDecimal> tiersPayants) {
         this.tiersPayants = tiersPayants;
     }
 

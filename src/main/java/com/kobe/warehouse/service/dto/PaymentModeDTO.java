@@ -15,7 +15,7 @@ public class PaymentModeDTO {
         this.code = paymentMode.getCode();
         this.libelle = paymentMode.getLibelle();
         this.group = paymentMode.getGroup().name();
-        this.qrCode = paymentMode.getQrCode();
+       // this.qrCode = paymentMode.getQrCode();
     }
 
     public String getCode() {

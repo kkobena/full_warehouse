@@ -37,7 +37,7 @@ import org.springframework.stereotype.Repository;
 @SuppressWarnings("unused")
 @Repository
 public interface ProduitRepository
-    extends JpaRepository<Produit, Long>, JpaSpecificationExecutor<Produit>, SpecificationBuilder, ProduitCustomRepository {
+    extends JpaRepository<Produit, Integer>, JpaSpecificationExecutor<Produit>, SpecificationBuilder, ProduitCustomRepository {
     @Query(value = "SELECT * FROM gettopqty80percentproducts(:startDate, :endDate, :caList, :statutList)", nativeQuery = true)
     List<Object[]> getTopQty80PercentProducts(
         @Param("startDate") LocalDate startDate,
@@ -63,7 +63,7 @@ public interface ProduitRepository
         @Param("limitResult") Integer limitResult
     );
 
-    Produit findFirstByParentId(Long parentId);
+    Produit findFirstByParentId(Integer parentId);
 
     List<Produit> findAllByParentIdIsNull();
 
@@ -73,7 +73,7 @@ public interface ProduitRepository
         value = "SELECT p.libelle AS libelle , o.code_cip AS codeCip,p.code_ean_labo AS codeEan FROM produit p   JOIN fournisseur_produit  o ON p.fournisseur_produit_principal_id = o.id WHERE o.produit_id =?1 ",
         nativeQuery = true
     )
-    HistoriqueProduitInfo findHistoriqueProduitInfo(Long produitId);
+    HistoriqueProduitInfo findHistoriqueProduitInfo(Integer produitId);
 
     default Specification<Produit> filterByStock() {
         return (root, query, cb) -> {
@@ -86,15 +86,13 @@ public interface ProduitRepository
         };
     }
 
-    default Specification<Produit> filterByDatePeremptionNotNul() {
-        return (root, _, cb) -> cb.isNotNull(root.get(Produit_.perimeAt));
-    }
+
 
     default Specification<Produit> filterByProduitStatut() {
         return (root, _, cb) -> cb.equal(root.get(Produit_.status), Status.ENABLE);
     }
 
-    default Specification<Produit> filterByProduitId(Long produitId) {
+    default Specification<Produit> filterByProduitId(Integer produitId) {
         if (isNull(produitId)) {
             return null;
         }
@@ -117,28 +115,7 @@ public interface ProduitRepository
         };
     }
 
-    default Specification<Produit> filterByDayCount(int dayCount) {
-        if (dayCount <= 0) {
-            return null;
-        }
-        return (root, _, cb) -> cb.lessThanOrEqualTo(root.get(Produit_.perimeAt), LocalDate.now().plusDays(dayCount));
-    }
-
-    default Specification<Produit> filterByFromDate(LocalDate fromDate) {
-        if (isNull(fromDate)) {
-            return null;
-        }
-        return (root, _, cb) -> cb.greaterThanOrEqualTo(root.get(Produit_.perimeAt), fromDate);
-    }
-
-    default Specification<Produit> filterByDateRange(LocalDate fromDate, LocalDate toDate) {
-        if (isNull(fromDate) || isNull(toDate)) {
-            return null;
-        }
-        return (root, _, cb) -> cb.between(root.get(Produit_.perimeAt), fromDate, toDate);
-    }
-
-    default Specification<Produit> filterByFournisseurId(Long fournisseurId) {
+    default Specification<Produit> filterByFournisseurId(Integer fournisseurId) {
         if (isNull(fournisseurId)) {
             return null;
         }
@@ -149,7 +126,7 @@ public interface ProduitRepository
         };
     }
 
-    default Specification<Produit> filterByRayonId(Long rayonId) {
+    default Specification<Produit> filterByRayonId(Integer rayonId) {
         if (isNull(rayonId)) {
             return null;
         }
@@ -161,7 +138,7 @@ public interface ProduitRepository
         };
     }
 
-    default Specification<Produit> filterByFamilleProduitId(Long familleProduitId) {
+    default Specification<Produit> filterByFamilleProduitId(Integer familleProduitId) {
         if (isNull(familleProduitId)) {
             return null;
         }
@@ -170,21 +147,11 @@ public interface ProduitRepository
 
     default Specification<Produit> buildCombinedSpecification(LotFilterParam param) {
         Specification<Produit> spec = filterByProduitStatut();
-        spec = add(spec, filterByDatePeremptionNotNul());
         spec = add(spec, filterByStock());
         spec = add(spec, filterByProduitId(param.getProduitId()));
         spec = add(spec, filterByFournisseurId(param.getFournisseurId()));
         spec = add(spec, filterByRayonId(param.getRayonId()));
         spec = add(spec, filterBySearhTerm(param.getSearchTerm()));
-        if (nonNull(param.getDayCount())) {
-            spec = add(spec, filterByDayCount(param.getDayCount()));
-        } else {
-            if (nonNull(param.getFromDate()) && nonNull(param.getToDate())) {
-                spec = add(spec, filterByDateRange(param.getFromDate(), param.getToDate()));
-            } else {
-                spec = add(spec, filterByFromDate(param.getFromDate()));
-            }
-        }
         spec = add(spec, filterByFamilleProduitId(param.getFamilleProduitId()));
 
         return spec;

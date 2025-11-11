@@ -10,7 +10,7 @@ import java.io.Serializable;
 public class GammeProduitDTO implements Serializable {
 
     private static final long serialVersionUID = -605218151933409039L;
-    private Long id;
+    private Integer id;
     private String code;
 
     @NotNull
@@ -24,11 +24,11 @@ public class GammeProduitDTO implements Serializable {
         libelle = g.getLibelle();
     }
 
-    public Long getId() {
+    public Integer getId() {
         return id;
     }
 
-    public GammeProduitDTO setId(Long id) {
+    public GammeProduitDTO setId(Integer id) {
         this.id = id;
         return this;
     }

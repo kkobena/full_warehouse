@@ -9,18 +9,18 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 
 @Repository
-public interface PrixReferenceRepository extends JpaRepository<OptionPrixProduit, Long> {
+public interface PrixReferenceRepository extends JpaRepository<OptionPrixProduit, Integer> {
     @Query(
         "select prixReference from OptionPrixProduit prixReference where prixReference.produit.id =:produitId and prixReference.tiersPayant.id =:tiersPayantId and prixReference.enabled = true"
     )
-    Optional<OptionPrixProduit> findOneActifByProduitIdAndTiersPayantId(Long produitId, Long tiersPayantId);
+    Optional<OptionPrixProduit> findOneActifByProduitIdAndTiersPayantId(Integer produitId, Integer tiersPayantId);
 
-    List<OptionPrixProduit> findAllByProduitIdAndTiersPayantId(Long produitId, Long tiersPayantId);
+    List<OptionPrixProduit> findAllByProduitIdAndTiersPayantId(Integer produitId, Integer tiersPayantId);
 
     @Query(
         "select prixReference from OptionPrixProduit prixReference where prixReference.produit.id =:produitId and prixReference.tiersPayant.id IN(:tiersPayantIds)  and prixReference.enabled = true"
     )
-    List<OptionPrixProduit> findByProduitIdAndTiersPayantIds(Long produitId, Set<Long> tiersPayantIds);
+    List<OptionPrixProduit> findByProduitIdAndTiersPayantIds(Integer produitId, Set<Integer> tiersPayantIds);
 
-    List<OptionPrixProduit> findAllByProduitId(Long produitId);
+    List<OptionPrixProduit> findAllByProduitId(Integer produitId);
 }

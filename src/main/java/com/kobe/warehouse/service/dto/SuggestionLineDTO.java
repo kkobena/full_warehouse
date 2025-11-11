@@ -3,15 +3,15 @@ package com.kobe.warehouse.service.dto;
 import java.time.LocalDateTime;
 
 public record SuggestionLineDTO(
-    long id,
+    Integer id,
     int quantity,
     LocalDateTime createdAt,
     LocalDateTime updatedAt,
     String fournisseurProduitLibelle,
     String fournisseurProduitCip,
     String fournisseurProduitCodeEan,
-    long produitId,
-    long fournisseurProduitId,
+    Integer produitId,
+    Integer fournisseurProduitId,
     int currentStock,
     EtatProduit etatProduit,
     int prixAchat,

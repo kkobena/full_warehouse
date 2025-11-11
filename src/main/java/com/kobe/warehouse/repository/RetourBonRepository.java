@@ -14,13 +14,13 @@ import java.util.List;
 
 @SuppressWarnings("unused")
 @Repository
-public interface RetourBonRepository extends JpaRepository<RetourBon, Long> {
+public interface RetourBonRepository extends JpaRepository<RetourBon, Integer> {
     Page<RetourBon> findAllByStatutOrderByDateMtvDesc(RetourStatut statut, Pageable pageable);
 
     Page<RetourBon> findAllByOrderByDateMtvDesc(Pageable pageable);
 
     @Query("SELECT r FROM RetourBon r WHERE r.commande.id = :commandeId ORDER BY r.dateMtv DESC")
-    List<RetourBon> findAllByCommandeId(@Param("commandeId") Long commandeId);
+    List<RetourBon> findAllByCommandeId(@Param("commandeId") Integer commandeId);
 
     @Query("SELECT r FROM RetourBon r WHERE r.dateMtv BETWEEN :startDate AND :endDate ORDER BY r.dateMtv DESC")
     Page<RetourBon> findAllByDateMtvBetween(

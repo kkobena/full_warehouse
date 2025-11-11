@@ -26,7 +26,7 @@ public class Ticketing implements Serializable {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+    private Integer id;
 
     private int numberOf10Thousand;
     private int numberOf5Thousand;
@@ -52,11 +52,11 @@ public class Ticketing implements Serializable {
     @JoinColumn(name = "cash_register_id", referencedColumnName = "id")
     private CashRegister cashRegister;
 
-    public Long getId() {
+    public Integer getId() {
         return id;
     }
 
-    public Ticketing setId(Long id) {
+    public Ticketing setId(Integer id) {
         this.id = id;
         return this;
     }

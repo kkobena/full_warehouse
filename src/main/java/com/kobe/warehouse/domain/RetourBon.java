@@ -27,7 +27,7 @@ public class RetourBon implements Serializable {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+    private Integer id;
 
     @NotNull
     @Column(name = "date_mtv", nullable = false)
@@ -39,7 +39,7 @@ public class RetourBon implements Serializable {
 
     @NotNull
     @Enumerated(EnumType.STRING)
-    @Column(name = "statut", nullable = false)
+    @Column(name = "statut", nullable = false,length = 15)
     private RetourStatut statut = RetourStatut.PROCESSING;
 
     @Column(name = "commentaire", length = 150)
@@ -55,11 +55,11 @@ public class RetourBon implements Serializable {
     @OneToMany(mappedBy = "retourBon")
     private List<ReponseRetourBon> reponseRetourBons = new ArrayList<>();
 
-    public Long getId() {
+    public Integer getId() {
         return id;
     }
 
-    public RetourBon setId(Long id) {
+    public RetourBon setId(Integer id) {
         this.id = id;
         return this;
     }

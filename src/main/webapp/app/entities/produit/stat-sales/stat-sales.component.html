@@ -1,20 +1,25 @@
-<div class="row">
-  <div #nav="ngbNav" [(activeId)]="active" class="nav-pills" ngbNav orientation="horizontal"
-       style="padding-bottom: 10px">
+<div class="pharma-nav-tabs-container">
+  <div #nav="ngbNav" [(activeId)]="active" class="nav pharma-nav-tabs" ngbNav orientation="horizontal">
     <ng-container ngbNavItem="daily">
-      <a class="nav-link" ngbNavLink>Historiques par jour</a>
+      <a class="pharma-nav-tab-link" ngbNavLink>
+        <i class="pi pi-calendar"></i>
+        <span>Historiques par jour</span>
+      </a>
       <ng-template ngbNavContent>
         <jhi-daily-sale-produit-historique></jhi-daily-sale-produit-historique>
       </ng-template>
     </ng-container>
     <ng-container ngbNavItem="yearly">
-      <a class="nav-link" ngbNavLink>Historiques par mois</a>
+      <a class="pharma-nav-tab-link" ngbNavLink>
+        <i class="pi pi-calendar-plus"></i>
+        <span>Historiques par mois</span>
+      </a>
       <ng-template ngbNavContent>
         <jhi-yearly-sale-produit-historique></jhi-yearly-sale-produit-historique>
       </ng-template>
     </ng-container>
   </div>
-  <div class="row">
+  <div class="pharma-nav-tabs-outlet">
     <div [ngbNavOutlet]="nav"></div>
   </div>
 </div>

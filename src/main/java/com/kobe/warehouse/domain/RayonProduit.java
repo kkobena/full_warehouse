@@ -26,7 +26,7 @@ public class RayonProduit implements Serializable {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+    private Integer id;
 
     @ManyToOne(optional = false,fetch = FetchType.LAZY)
     @NotNull
@@ -39,11 +39,11 @@ public class RayonProduit implements Serializable {
 
     public RayonProduit() {}
 
-    public Long getId() {
+    public Integer getId() {
         return id;
     }
 
-    public RayonProduit setId(Long id) {
+    public RayonProduit setId(Integer id) {
         this.id = id;
         return this;
     }

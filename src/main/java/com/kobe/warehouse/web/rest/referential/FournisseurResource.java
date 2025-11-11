@@ -120,7 +120,7 @@ public class FournisseurResource {
      * fournisseurDTO, or with status {@code 404 (Not Found)}.
      */
     @GetMapping("/fournisseurs/{id}")
-    public ResponseEntity<FournisseurDTO> getFournisseur(@PathVariable Long id) {
+    public ResponseEntity<FournisseurDTO> getFournisseur(@PathVariable Integer id) {
         log.debug("REST request to get Fournisseur : {}", id);
         Optional<FournisseurDTO> fournisseurDTO = fournisseurService.findOne(id);
         return ResponseUtil.wrapOrNotFound(fournisseurDTO);
@@ -133,7 +133,7 @@ public class FournisseurResource {
      * @return the {@link ResponseEntity} with status {@code 204 (NO_CONTENT)}.
      */
     @DeleteMapping("/fournisseurs/{id}")
-    public ResponseEntity<Void> deleteFournisseur(@PathVariable Long id) {
+    public ResponseEntity<Void> deleteFournisseur(@PathVariable Integer id) {
         log.debug("REST request to delete Fournisseur : {}", id);
 
         fournisseurService.delete(id);

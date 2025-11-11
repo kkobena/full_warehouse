@@ -25,10 +25,10 @@ public class AssuredCustomerDTO extends CustomerDTO {
     private LocalDate datNaiss;
 
     private String num;
-    private Long assureId;
+    private Integer assureId;
     private String numAyantDroit;
-    private Long remiseId;
-    private Long tiersPayantId;
+    private Integer remiseId;
+    private Integer tiersPayantId;
     private Integer plafondConso;
     private Integer plafondJournalier;
     private PrioriteTiersPayant priorite;
@@ -120,20 +120,20 @@ public class AssuredCustomerDTO extends CustomerDTO {
             .setFullName(tiersPayant.getTiersPayantFullName());
     }
 
-    public Long getRemiseId() {
+    public Integer getRemiseId() {
         return remiseId;
     }
 
-    public AssuredCustomerDTO setRemiseId(Long remiseId) {
+    public AssuredCustomerDTO setRemiseId(Integer remiseId) {
         this.remiseId = remiseId;
         return this;
     }
 
-    public Long getTiersPayantId() {
+    public Integer getTiersPayantId() {
         return tiersPayantId;
     }
 
-    public AssuredCustomerDTO setTiersPayantId(Long tiersPayantId) {
+    public AssuredCustomerDTO setTiersPayantId(Integer tiersPayantId) {
         this.tiersPayantId = tiersPayantId;
         return this;
     }
@@ -218,11 +218,11 @@ public class AssuredCustomerDTO extends CustomerDTO {
         return this;
     }
 
-    public Long getAssureId() {
+    public Integer getAssureId() {
         return assureId;
     }
 
-    public AssuredCustomerDTO setAssureId(Long assureId) {
+    public AssuredCustomerDTO setAssureId(Integer assureId) {
         this.assureId = assureId;
         return this;
     }

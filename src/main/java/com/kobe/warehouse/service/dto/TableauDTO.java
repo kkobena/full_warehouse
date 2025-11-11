@@ -5,7 +5,7 @@ import jakarta.validation.constraints.NotNull;
 
 public class TableauDTO {
 
-    private Long id;
+    private Integer id;
 
     @NotNull
     private String code;
@@ -21,11 +21,11 @@ public class TableauDTO {
         this.value = tableau.getValue();
     }
 
-    public Long getId() {
+    public Integer getId() {
         return id;
     }
 
-    public TableauDTO setId(Long id) {
+    public TableauDTO setId(Integer id) {
         this.id = id;
         return this;
     }

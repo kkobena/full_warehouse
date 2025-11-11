@@ -668,13 +668,13 @@ public class InventaireServiceImpl implements InventaireService {
     }
 
     StoreInventoryLineRecord buildStoreInventoryLineRecordRecord(Tuple tuple, StoreInventory storeInventory) {
-        if (Objects.isNull(tuple.get("produitId", Long.class))) {
+        if (Objects.isNull(tuple.get("produitId", Integer.class))) {
             return null;
         }
         boolean updated = tuple.get("updated", Boolean.class);
-        int currentStock = getStock(storeInventory, tuple.get("produitId", Long.class));
+        int currentStock = getStock(storeInventory, tuple.get("produitId", Integer.class));
         return new StoreInventoryLineRecord(
-            tuple.get("produitId", Long.class).intValue(),
+            tuple.get("produitId", Integer.class).intValue(),
             tuple.get("code_cip", String.class),
             tuple.get("code_ean_labo", String.class),
             tuple.get("libelle", String.class),
@@ -688,7 +688,7 @@ public class InventaireServiceImpl implements InventaireService {
         );
     }
 
-    private int getStock(StoreInventory storeInventory, long produitId) {
+    private int getStock(StoreInventory storeInventory, Integer produitId) {
         StockProduit stockProduit =
             this.stockProduitRepository.findOneByProduitIdAndStockageId(produitId, storeInventory.getStorage().getId());
         return Objects.nonNull(stockProduit.getQtyUG()) ? stockProduit.getQtyUG() + stockProduit.getQtyStock() : stockProduit.getQtyStock();
@@ -713,7 +713,7 @@ public class InventaireServiceImpl implements InventaireService {
                 dto.setId(storeInventory.getId());
                 dto.setQuantitySold(0);
                 dto.setQuantityInit(0);
-                dto.setProduitId(0L);
+                dto.setProduitId(0);
                 dto.setQuantityOnHand(atomicInteger.getAndIncrement());
                 updateQuantityOnHand(dto);
             });
@@ -724,8 +724,8 @@ public class InventaireServiceImpl implements InventaireService {
         List<IdProjection> ids = this.storeInventoryRepository.findByStatutEquals(LocalDateTime.now().minusMonths(4));
         if (!CollectionUtils.isEmpty(ids)) {
             ids.forEach(idProjection -> {
-                this.storeInventoryLineRepository.deleteAllByStoreInventoryId(idProjection.getId());
-                this.storeInventoryRepository.deleteById(idProjection.getId());
+                this.storeInventoryLineRepository.deleteAllByStoreInventoryId(idProjection.getId().longValue());
+                this.storeInventoryRepository.deleteById(idProjection.getId().longValue());
             });
         }
     }

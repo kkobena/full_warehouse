@@ -16,7 +16,7 @@ public class StoreInventoryLineDTO implements Serializable {
     private Integer inventoryValueCost;
     private Integer inventoryValueLatestSellingPrice;
     private Long storeInventoryId;
-    private Long produitId;
+    private Integer produitId;
     private String produitLibelle;
     private int inventoryValueTotalCost;
     private int inventoryValueAmount;
@@ -184,11 +184,11 @@ public class StoreInventoryLineDTO implements Serializable {
         this.storeInventoryId = storeInventoryId;
     }
 
-    public Long getProduitId() {
+    public Integer getProduitId() {
         return produitId;
     }
 
-    public void setProduitId(Long produitId) {
+    public void setProduitId(Integer produitId) {
         this.produitId = produitId;
     }
 

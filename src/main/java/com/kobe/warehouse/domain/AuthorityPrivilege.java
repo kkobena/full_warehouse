@@ -25,7 +25,7 @@ public class AuthorityPrivilege implements Serializable {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+    private Integer id;
 
     @ManyToOne(optional = false)
     @NotNull
@@ -35,11 +35,11 @@ public class AuthorityPrivilege implements Serializable {
     @NotNull
     private Authority authority;
 
-    public Long getId() {
+    public Integer getId() {
         return id;
     }
 
-    public AuthorityPrivilege setId(Long id) {
+    public AuthorityPrivilege setId(Integer id) {
         this.id = id;
         return this;
     }

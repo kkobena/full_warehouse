@@ -10,7 +10,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 
 /** Spring Data JPA repository for the {@link Menu} entity. */
-public interface MenuRepository extends JpaRepository<Menu, Long> {
+public interface MenuRepository extends JpaRepository<Menu, Integer> {
     @EntityGraph(attributePaths = "menus")
     List<Menu> findAll();
 

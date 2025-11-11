@@ -48,7 +48,7 @@ public class PosteResource {
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> delete(@PathVariable Long id) {
+    public ResponseEntity<Void> delete(@PathVariable Integer id) {
 
         posteService.delete(id);
         return ResponseEntity.noContent()

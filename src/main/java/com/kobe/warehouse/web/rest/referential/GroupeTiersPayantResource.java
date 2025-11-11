@@ -83,14 +83,14 @@ public class GroupeTiersPayantResource {
     }
 
     @GetMapping("/groupe-tierspayants/{id}")
-    public ResponseEntity<GroupeTiersPayant> getOne(@PathVariable Long id) {
+    public ResponseEntity<GroupeTiersPayant> getOne(@PathVariable Integer id) {
         log.debug("REST request to get GroupeTiersPayant : {}", id);
         Optional<GroupeTiersPayant> groupeTiersPayant = groupeTiersPayantService.getOne(id);
         return ResponseUtil.wrapOrNotFound(groupeTiersPayant);
     }
 
     @DeleteMapping("/groupe-tierspayants/{id}")
-    public ResponseEntity<Void> delete(@PathVariable Long id) {
+    public ResponseEntity<Void> delete(@PathVariable Integer id) {
         log.debug("REST request to delete GroupeTiersPayant : {}", id);
         groupeTiersPayantService.delete(id);
         return ResponseEntity.noContent()

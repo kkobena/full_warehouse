@@ -77,7 +77,7 @@ class TiersPayantCalculationServiceTest {
         input.setSaleItems(Collections.singletonList(saleItem));
 
         TiersPayantInput tiersPayant = new TiersPayantInput();
-        tiersPayant.setClientTiersPayantId(1L);
+        tiersPayant.setClientTiersPayantId(1);
         tiersPayant.setTaux(0.8f);
         tiersPayant.setPriorite(PrioriteTiersPayant.R0);
         input.setTiersPayants(Collections.singletonList(tiersPayant));
@@ -107,7 +107,7 @@ class TiersPayantCalculationServiceTest {
         input.setSaleItems(Collections.singletonList(saleItem));
 
         TiersPayantInput tiersPayant = new TiersPayantInput();
-        tiersPayant.setClientTiersPayantId(1L);
+        tiersPayant.setClientTiersPayantId(1);
         tiersPayant.setTaux(0.8f);
         tiersPayant.setPriorite(PrioriteTiersPayant.R0);
         input.setTiersPayants(Collections.singletonList(tiersPayant));
@@ -137,12 +137,12 @@ class TiersPayantCalculationServiceTest {
         input.setSaleItems(Collections.singletonList(saleItem));
 
         TiersPayantInput tp1 = new TiersPayantInput();
-        tp1.setClientTiersPayantId(1L);
+        tp1.setClientTiersPayantId(1);
         tp1.setTaux(0.8f);
         tp1.setPriorite(PrioriteTiersPayant.R0);
 
         TiersPayantInput tp2 = new TiersPayantInput();
-        tp2.setClientTiersPayantId(2L);
+        tp2.setClientTiersPayantId(2);
         tp2.setTaux(0.2f);
         tp2.setPriorite(PrioriteTiersPayant.R1);
 
@@ -173,7 +173,7 @@ class TiersPayantCalculationServiceTest {
         input.setSaleItems(Collections.singletonList(saleItem));
 
         TiersPayantInput tiersPayant = new TiersPayantInput();
-        tiersPayant.setClientTiersPayantId(1L);
+        tiersPayant.setClientTiersPayantId(1);
         tiersPayant.setTaux(0.8f);
         tiersPayant.setPriorite(PrioriteTiersPayant.R0);
         tiersPayant.setPlafondConso(BigDecimal.valueOf(1000));
@@ -202,7 +202,7 @@ class TiersPayantCalculationServiceTest {
         saleItem.setQuantity(1);
         saleItem.setTotalSalesAmount(BigDecimal.valueOf(2000));
         TiersPayantPrixInput prixInput = new TiersPayantPrixInput();
-        prixInput.setCompteTiersPayantId(1L);
+        prixInput.setCompteTiersPayantId(1);
         prixInput.setPrice(1500);
         prixInput.setRate(80.0f);
         prixInput.setOptionPrixType(OptionPrixType.MIXED_REFERENCE_POURCENTAGE);
@@ -210,7 +210,7 @@ class TiersPayantCalculationServiceTest {
         input.setSaleItems(Collections.singletonList(saleItem));
 
         TiersPayantInput tiersPayant = new TiersPayantInput();
-        tiersPayant.setClientTiersPayantId(1L);
+        tiersPayant.setClientTiersPayantId(1);
         tiersPayant.setTaux(0.8f);
         tiersPayant.setPriorite(PrioriteTiersPayant.R0);
         input.setTiersPayants(Collections.singletonList(tiersPayant));
@@ -241,7 +241,7 @@ class TiersPayantCalculationServiceTest {
         input.setSaleItems(Collections.singletonList(saleItem));
 
         TiersPayantInput tiersPayant = new TiersPayantInput();
-        tiersPayant.setClientTiersPayantId(1L);
+        tiersPayant.setClientTiersPayantId(1);
         tiersPayant.setTaux(0.0f);
         tiersPayant.setPriorite(PrioriteTiersPayant.R0);
         input.setTiersPayants(Collections.singletonList(tiersPayant));
@@ -280,7 +280,7 @@ class TiersPayantCalculationServiceTest {
         input.setSaleItems(List.of(saleItem, saleItem2));
 
         TiersPayantInput tiersPayant = new TiersPayantInput();
-        tiersPayant.setClientTiersPayantId(1L);
+        tiersPayant.setClientTiersPayantId(1);
         tiersPayant.setTaux(100.0f);
         tiersPayant.setPriorite(PrioriteTiersPayant.R0);
         input.setTiersPayants(Collections.singletonList(tiersPayant));
@@ -319,7 +319,7 @@ class TiersPayantCalculationServiceTest {
         input.setSaleItems(List.of(saleItem, saleItem2));
 
         TiersPayantInput tiersPayant = new TiersPayantInput();
-        tiersPayant.setClientTiersPayantId(1L);
+        tiersPayant.setClientTiersPayantId(1);
         tiersPayant.setTaux(100.0f);
         tiersPayant.setPriorite(PrioriteTiersPayant.R0);
         input.setTiersPayants(Collections.singletonList(tiersPayant));
@@ -346,14 +346,14 @@ class TiersPayantCalculationServiceTest {
         saleItem.setRegularUnitPrice(BigDecimal.valueOf(2000));
         saleItem.setDiscountAmount(BigDecimal.ZERO);
         TiersPayantPrixInput prixInput = new TiersPayantPrixInput();
-        prixInput.setCompteTiersPayantId(1L);
+        prixInput.setCompteTiersPayantId(1);
         prixInput.setPrice(1500);
         prixInput.setRate(80.0f);
         prixInput.setOptionPrixType(OptionPrixType.MIXED_REFERENCE_POURCENTAGE);
         saleItem.setPrixAssurances(Collections.singletonList(prixInput));
         input.setSaleItems(Collections.singletonList(saleItem));
         TiersPayantInput tiersPayant = new TiersPayantInput();
-        tiersPayant.setClientTiersPayantId(1L);
+        tiersPayant.setClientTiersPayantId(1);
         tiersPayant.setTaux(0.7f);
         tiersPayant.setPriorite(PrioriteTiersPayant.R0);
         input.setTiersPayants(Collections.singletonList(tiersPayant));
@@ -378,7 +378,7 @@ class TiersPayantCalculationServiceTest {
         saleItem.setRegularUnitPrice(BigDecimal.valueOf(2000));
         saleItem.setDiscountAmount(BigDecimal.ZERO);
         TiersPayantPrixInput prixInput = new TiersPayantPrixInput();
-        prixInput.setCompteTiersPayantId(1L);
+        prixInput.setCompteTiersPayantId(1);
         prixInput.setPrice(1500);
         prixInput.setRate(80.0f);
         prixInput.setOptionPrixType(OptionPrixType.MIXED_REFERENCE_POURCENTAGE);
@@ -393,7 +393,7 @@ class TiersPayantCalculationServiceTest {
 
         input.setSaleItems(List.of(saleItem, saleItem2));
         TiersPayantInput tiersPayant = new TiersPayantInput();
-        tiersPayant.setClientTiersPayantId(1L);
+        tiersPayant.setClientTiersPayantId(1);
         tiersPayant.setTaux(0.7f);
         tiersPayant.setPriorite(PrioriteTiersPayant.R0);
         input.setTiersPayants(Collections.singletonList(tiersPayant));
@@ -418,13 +418,13 @@ class TiersPayantCalculationServiceTest {
         saleItem.setRegularUnitPrice(BigDecimal.valueOf(5750));
         saleItem.setDiscountAmount(BigDecimal.ZERO);
         TiersPayantPrixInput prixInput = new TiersPayantPrixInput();
-        prixInput.setCompteTiersPayantId(1L);
+        prixInput.setCompteTiersPayantId(1);
         prixInput.setPrice(4750);
         prixInput.setRate(80.0f);
         prixInput.setOptionPrixType(OptionPrixType.MIXED_REFERENCE_POURCENTAGE);
 
         TiersPayantPrixInput prixInput2 = new TiersPayantPrixInput();
-        prixInput2.setCompteTiersPayantId(1L);
+        prixInput2.setCompteTiersPayantId(1);
         prixInput2.setPrice(4250);
         prixInput2.setRate(20.0f);
         prixInput2.setOptionPrixType(OptionPrixType.MIXED_REFERENCE_POURCENTAGE);
@@ -432,12 +432,12 @@ class TiersPayantCalculationServiceTest {
         input.setSaleItems(Collections.singletonList(saleItem));
 
         TiersPayantInput tiersPayant = new TiersPayantInput();
-        tiersPayant.setClientTiersPayantId(1L);
+        tiersPayant.setClientTiersPayantId(1);
         tiersPayant.setTaux(0.7f);
         tiersPayant.setPriorite(PrioriteTiersPayant.R0);
 
         TiersPayantInput tiersPayant1 = new TiersPayantInput();
-        tiersPayant1.setClientTiersPayantId(2L);
+        tiersPayant1.setClientTiersPayantId(2);
         tiersPayant1.setTaux(0.20f);
         tiersPayant1.setPriorite(PrioriteTiersPayant.R1);
         input.setTiersPayants(new ArrayList<>(List.of(tiersPayant, tiersPayant1)));
@@ -468,7 +468,7 @@ class TiersPayantCalculationServiceTest {
         input.setSaleItems(Collections.singletonList(saleItem));
 
         TiersPayantInput tiersPayant = new TiersPayantInput();
-        tiersPayant.setClientTiersPayantId(1L);
+        tiersPayant.setClientTiersPayantId(1);
         tiersPayant.setTaux(0.8f);
         tiersPayant.setPriorite(PrioriteTiersPayant.R0);
         tiersPayant.setPlafondConso(BigDecimal.valueOf(1000));
@@ -501,7 +501,7 @@ class TiersPayantCalculationServiceTest {
         input.setSaleItems(Collections.singletonList(saleItem));
 
         TiersPayantInput tiersPayant = new TiersPayantInput();
-        tiersPayant.setClientTiersPayantId(1L);
+        tiersPayant.setClientTiersPayantId(1);
         tiersPayant.setTaux(0.8f);
         tiersPayant.setPriorite(PrioriteTiersPayant.R0);
         tiersPayant.setPlafondJournalierClient(BigDecimal.valueOf(1000));
@@ -530,13 +530,13 @@ class TiersPayantCalculationServiceTest {
         saleItem.setQuantity(1);
         saleItem.setTotalSalesAmount(BigDecimal.valueOf(5750));
         TiersPayantPrixInput prixInput = new TiersPayantPrixInput();
-        prixInput.setCompteTiersPayantId(1L);
+        prixInput.setCompteTiersPayantId(1);
         prixInput.setPrice(4750);
         prixInput.setRate(80.0f);
         prixInput.setOptionPrixType(OptionPrixType.MIXED_REFERENCE_POURCENTAGE);
 
         TiersPayantPrixInput prixInput2 = new TiersPayantPrixInput();
-        prixInput2.setCompteTiersPayantId(1L);
+        prixInput2.setCompteTiersPayantId(1);
         prixInput2.setPrice(4250);
         prixInput2.setRate(100.f);
         prixInput2.setOptionPrixType(OptionPrixType.MIXED_REFERENCE_POURCENTAGE);
@@ -544,12 +544,12 @@ class TiersPayantCalculationServiceTest {
         input.setSaleItems(Collections.singletonList(saleItem));
 
         TiersPayantInput tiersPayant = new TiersPayantInput();
-        tiersPayant.setClientTiersPayantId(1L);
+        tiersPayant.setClientTiersPayantId(1);
         tiersPayant.setTaux(0.7f);
         tiersPayant.setPriorite(PrioriteTiersPayant.R0);
 
         TiersPayantInput tiersPayant1 = new TiersPayantInput();
-        tiersPayant1.setClientTiersPayantId(2L);
+        tiersPayant1.setClientTiersPayantId(2);
         tiersPayant1.setTaux(1.0f);
         tiersPayant1.setPriorite(PrioriteTiersPayant.R1);
         input.setTiersPayants(new ArrayList<>(List.of(tiersPayant, tiersPayant1)));
@@ -580,7 +580,7 @@ class TiersPayantCalculationServiceTest {
         input.setSaleItems(Collections.singletonList(saleItem));
 
         TiersPayantInput tiersPayant = new TiersPayantInput();
-        tiersPayant.setClientTiersPayantId(1L);
+        tiersPayant.setClientTiersPayantId(1);
         tiersPayant.setTaux(0.8f);
         tiersPayant.setPriorite(PrioriteTiersPayant.R0);
         tiersPayant.setPlafondConso(BigDecimal.valueOf(1000));

@@ -38,5 +38,5 @@ public interface SaleDepotExtensionService {
 
     List<SaleLineDTO> findBySalesIdAndSalesSaleDateOrderByProduitLibelle(Long salesId, LocalDate saleDate);
 
-    void changeDepot(SaleId saleId, Long depotId);
+    void changeDepot(SaleId saleId, Integer depotId);
 }

@@ -44,7 +44,7 @@ public interface SalePaymentRepository
     )
     List<Recette> findRecettes(@Param("fromDate") LocalDate fromDate, @Param("toDate") LocalDate toDate);
 
-    default Specification<SalePayment> filterByCaissierId(Set<Long> caissierIds) {
+    default Specification<SalePayment> filterByCaissierId(Set<Integer> caissierIds) {
         if (caissierIds == null || caissierIds.isEmpty()) {
             return null; // No filter applied
         }

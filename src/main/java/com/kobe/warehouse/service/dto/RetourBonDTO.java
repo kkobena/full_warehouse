@@ -9,12 +9,12 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class RetourBonDTO {
-    private Long id;
+    private Integer id;
     private LocalDateTime dateMtv;
     private UserDTO user;
     private RetourStatut statut;
     private String commentaire;
-    private Long commandeId;
+    private Integer commandeId;
     private LocalDate commandeOrderDate;
     private String commandeOrderReference;
     private String fournisseurLibelle;
@@ -43,11 +43,11 @@ public class RetourBonDTO {
             .toList();
     }
 
-    public Long getId() {
+    public Integer getId() {
         return id;
     }
 
-    public RetourBonDTO setId(Long id) {
+    public RetourBonDTO setId(Integer id) {
         this.id = id;
         return this;
     }
@@ -88,11 +88,11 @@ public class RetourBonDTO {
         return this;
     }
 
-    public Long getCommandeId() {
+    public Integer getCommandeId() {
         return commandeId;
     }
 
-    public RetourBonDTO setCommandeId(Long commandeId) {
+    public RetourBonDTO setCommandeId(Integer commandeId) {
         this.commandeId = commandeId;
         return this;
     }

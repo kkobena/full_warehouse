@@ -6,10 +6,10 @@ import java.io.Serializable;
 
 public class RayonDTO implements Serializable {
 
-    private Long id;
+    private Integer id;
     private String code;
     private String libelle;
-    private Long storageId;
+    private Integer storageId;
     private boolean exclude;
     private String storageLibelle;
     private String storageType;
@@ -46,11 +46,11 @@ public class RayonDTO implements Serializable {
         return this;
     }
 
-    public Long getId() {
+    public Integer getId() {
         return id;
     }
 
-    public void setId(Long id) {
+    public void setId(Integer id) {
         this.id = id;
     }
 
@@ -70,11 +70,11 @@ public class RayonDTO implements Serializable {
         this.libelle = libelle;
     }
 
-    public Long getStorageId() {
+    public Integer getStorageId() {
         return storageId;
     }
 
-    public void setStorageId(Long storageId) {
+    public void setStorageId(Integer storageId) {
         this.storageId = storageId;
     }
 

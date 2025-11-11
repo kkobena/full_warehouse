@@ -27,7 +27,7 @@ public class EtatProduitServiceImpl implements EtatProduitService {
     }
 
     @Override
-    public EtatProduit getEtatProduit(Long idProduit, int currentStock) {
+    public EtatProduit getEtatProduit(Integer idProduit, int currentStock) {
         return buildEtatProduit(idProduit, currentStock);
     }
 
@@ -38,11 +38,11 @@ public class EtatProduitServiceImpl implements EtatProduitService {
     }
 
     @Override
-    public boolean canSuggere(Long idProduit) {
+    public boolean canSuggere(Integer idProduit) {
         return getCommandeCount(idProduit, OrderStatut.REQUESTED) == 0 && getCommandeCount(idProduit, OrderStatut.RECEIVED) == 0;
     }
 
-    private EtatProduit buildEtatProduit(Long idProduit, int currentStock) {
+    private EtatProduit buildEtatProduit(Integer idProduit, int currentStock) {
         boolean stockPositif = currentStock > 0;
         boolean stockNegatif = currentStock < 0;
         boolean stockZero = currentStock == 0;
@@ -65,7 +65,7 @@ public class EtatProduitServiceImpl implements EtatProduitService {
         return LocalDate.now().plusDays(appConfigurationService.getNombreJourRetentionCommande());
     }
 
-    private int getCommandeCount(Long idProduit, OrderStatut orderStatut) {
+    private int getCommandeCount(Integer idProduit, OrderStatut orderStatut) {
         LocalDate dateRetentionCommande = getDateRetentionCommande();
         return orderLineRepository.countByFournisseurProduitProduitIdAndCommandeOrderStatusAndCommandeOrderDateGreaterThan(idProduit, orderStatut, dateRetentionCommande);
     }

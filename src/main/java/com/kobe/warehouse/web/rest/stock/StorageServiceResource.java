@@ -25,7 +25,7 @@ public class StorageServiceResource {
     }
 
     @GetMapping("/storages")
-    public ResponseEntity<List<StorageDTO>> fetchAllByMagasin(@RequestParam(name = "magasinId", required = false) Long magasinId) {
+    public ResponseEntity<List<StorageDTO>> fetchAllByMagasin(@RequestParam(name = "magasinId", required = false) Integer magasinId) {
         return ResponseEntity.ok().body(this.storageService.fetchAllByMagasin(magasinId));
     }
 }

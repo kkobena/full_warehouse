@@ -24,7 +24,7 @@ public class ProductsToDestroy implements Serializable {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+    private Integer id;
     @NotNull
     private String numLot;
 
@@ -107,11 +107,11 @@ public class ProductsToDestroy implements Serializable {
         this.destroyed = destroyed;
     }
 
-    public Long getId() {
+    public Integer getId() {
         return id;
     }
 
-    public void setId(Long id) {
+    public void setId(Integer id) {
         this.id = id;
     }
 

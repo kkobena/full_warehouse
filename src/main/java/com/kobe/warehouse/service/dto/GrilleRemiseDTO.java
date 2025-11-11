@@ -6,7 +6,7 @@ import com.kobe.warehouse.domain.enumeration.CodeRemise;
 
 public class GrilleRemiseDTO {
 
-    private Long id;
+    private Integer id;
     private boolean enable;
     private Float remiseValue;
     private String code;
@@ -53,11 +53,11 @@ public class GrilleRemiseDTO {
         return this;
     }
 
-    public Long getId() {
+    public Integer getId() {
         return id;
     }
 
-    public GrilleRemiseDTO setId(Long id) {
+    public GrilleRemiseDTO setId(Integer id) {
         this.id = id;
         return this;
     }

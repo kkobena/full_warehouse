@@ -89,7 +89,7 @@ public class GammeProduitServiceImpl implements GammeProduitService {
      */
     @Override
     @Transactional(readOnly = true)
-    public Optional<GammeProduitDTO> findOne(Long id) {
+    public Optional<GammeProduitDTO> findOne(Integer id) {
         log.debug("Request to get GammeProduit : {}", id);
         return gammeProduitRepository.findById(id).map(GammeProduitDTO::new);
     }
@@ -100,7 +100,7 @@ public class GammeProduitServiceImpl implements GammeProduitService {
      * @param id the id of the entity.
      */
     @Override
-    public void delete(Long id) {
+    public void delete(Integer id) {
         log.debug("Request to delete GammeProduit : {}", id);
         gammeProduitRepository.deleteById(id);
     }

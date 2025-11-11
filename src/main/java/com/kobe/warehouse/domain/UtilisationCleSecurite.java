@@ -21,7 +21,7 @@ public class UtilisationCleSecurite implements Serializable {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+    private Integer id;
 
     @NotNull
     @ManyToOne(optional = false)
@@ -51,11 +51,11 @@ public class UtilisationCleSecurite implements Serializable {
     @Column(name = "entity_name")
     private String entityName;
 
-    public Long getId() {
+    public Integer getId() {
         return id;
     }
 
-    public UtilisationCleSecurite setId(Long id) {
+    public UtilisationCleSecurite setId(Integer id) {
         this.id = id;
         return this;
     }

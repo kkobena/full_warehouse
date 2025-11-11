@@ -27,7 +27,7 @@ public class GroupeTiersPayant implements Serializable {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+    private Integer id;
 
     @Column(name = "name", nullable = false, length = 100)
     @NotNull
@@ -43,16 +43,16 @@ public class GroupeTiersPayant implements Serializable {
     private String telephoneFixe;
 
     @Enumerated(EnumType.STRING)
-    @Column(name = "ordre_tris_facture")
+    @Column(name = "ordre_tris_facture",length = 20)
     private OrdreTrisFacture ordreTrisFacture;
 
     public GroupeTiersPayant() {}
 
-    public Long getId() {
+    public Integer getId() {
         return id;
     }
 
-    public GroupeTiersPayant setId(Long id) {
+    public GroupeTiersPayant setId(Integer id) {
         this.id = id;
         return this;
     }

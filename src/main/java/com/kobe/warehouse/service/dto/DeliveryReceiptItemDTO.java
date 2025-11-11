@@ -16,7 +16,7 @@ import org.apache.commons.lang3.BooleanUtils;
 
 public class DeliveryReceiptItemDTO {
 
-    private final Long id;
+    private final Integer id;
     private final Integer freeQty;
     private final Integer quantityReceived;
     private final Integer initStock;
@@ -43,7 +43,7 @@ public class DeliveryReceiptItemDTO {
     private final Integer costAmount;
     private final Integer afterStock;
     private final OrderLineId orderLineId;
-    private Long tvaId;
+    private Integer tvaId;
     private TvaDTO tva;
 
     public DeliveryReceiptItemDTO(OrderLine orderLine) {
@@ -84,7 +84,7 @@ public class DeliveryReceiptItemDTO {
         quantityReceivedTmp = BooleanUtils.isFalse(updated) ? quantityRequested : quantityReceived;
     }
 
-    public Long getId() {
+    public Integer getId() {
         return id;
     }
 
@@ -184,11 +184,11 @@ public class DeliveryReceiptItemDTO {
         return afterStock;
     }
 
-    public Long getTvaId() {
+    public Integer getTvaId() {
         return tvaId;
     }
 
-    public void setTvaId(Long tvaId) {
+    public void setTvaId(Integer tvaId) {
         this.tvaId = tvaId;
     }
 

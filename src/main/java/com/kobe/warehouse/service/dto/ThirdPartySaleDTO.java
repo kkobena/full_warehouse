@@ -14,7 +14,7 @@ import java.util.List;
 
 public class ThirdPartySaleDTO extends SaleDTO {
 
-    private Long ayantDroitId;
+    private Integer ayantDroitId;
     private String ayantDroitFirstName;
     private String ayantDroitLastName;
     private String ayantDroitNum;
@@ -97,11 +97,11 @@ public class ThirdPartySaleDTO extends SaleDTO {
         this.setTiersPayants(clientTiersPayantDTOS);
     }
 
-    public Long getAyantDroitId() {
+    public Integer getAyantDroitId() {
         return ayantDroitId;
     }
 
-    public ThirdPartySaleDTO setAyantDroitId(Long ayantDroitId) {
+    public ThirdPartySaleDTO setAyantDroitId(Integer ayantDroitId) {
         this.ayantDroitId = ayantDroitId;
         return this;
     }

@@ -44,8 +44,8 @@ public class RetourDepot implements Serializable {
     @Enumerated(EnumType.STRING)
     @Column(name = "statut_retour", nullable = false, length = 15)
     private RetourStatut statut = RetourStatut.PROCESSING;
-    @OneToMany(mappedBy = "retourBon")
-    private List<RetourBonItem> retourBonItems = new ArrayList<>();
+    @OneToMany(mappedBy = "retourDepot")
+    private List<RetourDepotItem> retourDepotItems = new ArrayList<>();
 
     @ManyToOne
     @JoinColumns({
@@ -61,6 +61,14 @@ public class RetourDepot implements Serializable {
 
     public Long getId() {
         return id;
+    }
+
+    public List<RetourDepotItem> getRetourDepotItems() {
+        return retourDepotItems;
+    }
+
+    public void setRetourDepotItems(List<RetourDepotItem> retourDepotItems) {
+        this.retourDepotItems = retourDepotItems;
     }
 
     public RetourDepot setId(Long id) {
@@ -95,14 +103,7 @@ public class RetourDepot implements Serializable {
         return this;
     }
 
-    public List<RetourBonItem> getRetourBonItems() {
-        return retourBonItems;
-    }
 
-    public RetourDepot setRetourBonItems(List<RetourBonItem> retourBonItems) {
-        this.retourBonItems = retourBonItems;
-        return this;
-    }
 
     public VenteDepot getVenteDepot() {
         return venteDepot;

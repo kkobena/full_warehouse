@@ -28,12 +28,12 @@ public interface FormProduitService {
      * @param id the id of the entity.
      * @return the entity.
      */
-    Optional<FormProduitDTO> findOne(Long id);
+    Optional<FormProduitDTO> findOne(Integer id);
 
     /**
      * Delete the "id" formProduit.
      *
      * @param id the id of the entity.
      */
-    void delete(Long id);
+    void delete(Integer id);
 }

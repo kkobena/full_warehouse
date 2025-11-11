@@ -14,18 +14,18 @@ import java.util.Optional;
  */
 @SuppressWarnings("unused")
 @Repository
-public interface StockProduitRepository extends JpaRepository<StockProduit, Long> {
-    Optional<StockProduit> findStockProduitByStorageIdAndProduitId(Long storageId, Long produitId);
+public interface StockProduitRepository extends JpaRepository<StockProduit, Integer> {
+    Optional<StockProduit> findStockProduitByStorageIdAndProduitId(Integer storageId, Integer produitId);
 
-    List<StockProduit> findStockProduitByStorageMagasinIdAndProduitId(Long magasinId,
-                                                                      Long produitId);
+    List<StockProduit> findStockProduitByStorageMagasinIdAndProduitId(Integer magasinId,
+                                                                      Integer produitId);
 
     @Query("SELECT o FROM StockProduit o WHERE  o.produit.id=?1 AND o.storage.id = ?2")
-    StockProduit findOneByProduitIdAndStockageId(Long produitId, Long stockageId);
+    StockProduit findOneByProduitIdAndStockageId(Integer produitId, Integer stockageId);
 
     @Query(value =
         "SELECT SUM(sp.qtyStock)+SUM(sp.qtyUG)  as totalQuantity FROM StockProduit sp WHERE sp.produit.id =:produitId AND sp.storage.magasin.id =:magasinId "
     )
-    Integer findTotalQuantityByMagasinIdIdAndProduitId(@Param("magasinId") Long magasinId, @Param("produitId") Long produitId);
+    Integer findTotalQuantityByMagasinIdIdAndProduitId(@Param("magasinId") Integer magasinId, @Param("produitId") Integer produitId);
 
 }

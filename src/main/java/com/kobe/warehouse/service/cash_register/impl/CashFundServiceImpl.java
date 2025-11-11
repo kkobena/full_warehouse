@@ -60,13 +60,13 @@ public class CashFundServiceImpl implements CashFundService {
     }
 
     @Override
-    public CashFund getLastPendingCashFundByCashRegister(Long cashRegisterId) {
+    public CashFund getLastPendingCashFundByCashRegister(Integer cashRegisterId) {
         return cashFundRepository.findOneByCashRegisterIdAndStatut(cashRegisterId, CashRegisterStatut.PENDING);
     }
 
     @Override
     @Transactional(readOnly = true)
-    public CashFund findById(Long id) {
+    public CashFund findById(Integer id) {
         return cashFundRepository.getReferenceById(id);
     }
 

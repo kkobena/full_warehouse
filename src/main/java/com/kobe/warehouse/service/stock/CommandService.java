@@ -44,7 +44,7 @@ public interface CommandService {
 
     VerificationResponseCommandeDTO importerReponseCommande(CommandeId commandeId, MultipartFile multipartFile);
 
-    CommandeResponseDTO uploadNewCommande(Long fournisseurId, CommandeModel commandeModel, MultipartFile multipartFile);
+    CommandeResponseDTO uploadNewCommande(Integer fournisseurId, CommandeModel commandeModel, MultipartFile multipartFile);
 
     void createCommandeFromSuggestion(Suggestion suggestion);
 

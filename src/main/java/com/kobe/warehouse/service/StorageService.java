@@ -42,11 +42,11 @@ public class StorageService {
         this.userService = userService;
     }
 
-    public Storage getStorageByMagasinIdAndType(Long magasinId, StorageType storageType) {
+    public Storage getStorageByMagasinIdAndType(Integer magasinId, StorageType storageType) {
         return storageRepository.findFirstByMagasinIdAndStorageType(magasinId, storageType);
     }
 
-    public Storage getOne(Long id) {
+    public Storage getOne(Integer id) {
         return storageRepository.getReferenceById(id);
     }
 
@@ -97,7 +97,7 @@ public class StorageService {
         return userRepository.findOneByLogin(Constants.SYSTEM).orElse(getUser());
     }
 
-    public List<StorageDTO> fetchAllByMagasin(Long magasinId) {
+    public List<StorageDTO> fetchAllByMagasin(Integer magasinId) {
         return this.storageRepository.findAllByMagasinId(magasinId).stream().map(StorageDTO::new).toList();
     }
 
@@ -128,11 +128,7 @@ public class StorageService {
 
     }
 
-    public Set<Long> findIds(Long magasinId) {
-        return storageRepository.findIds(magasinId).stream().map(IdProjection::getId).collect(Collectors.toSet());
-    }
-
-    public Long findByMagasinIdAndStorageType(Long magasinId, StorageType storageType) {
-        return storageRepository.findByMagasinIdAndStorageType(magasinId, storageType).getId();
+    public Integer findByMagasinIdAndStorageType(Integer magasinId, StorageType storageType) {
+        return storageRepository.findByMagasinIdAndStorageType(magasinId, storageType).getId().intValue();
     }
 }

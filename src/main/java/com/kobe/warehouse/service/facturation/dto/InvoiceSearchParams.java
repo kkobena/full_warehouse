@@ -7,8 +7,8 @@ import java.util.Set;
 public record InvoiceSearchParams(
     LocalDate startDate,
     LocalDate endDate,
-    Set<Long> groupIds,
-    Set<Long> tiersPayantIds,
+    Set<Integer> groupIds,
+    Set<Integer> tiersPayantIds,
     boolean factureProvisoire,
     Set<InvoiceStatut> statuts,
     String search

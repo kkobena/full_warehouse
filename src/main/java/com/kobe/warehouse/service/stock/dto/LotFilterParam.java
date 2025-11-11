@@ -5,16 +5,16 @@ import java.time.LocalDate;
 public class LotFilterParam {
 
     private  Integer dayCount;
-    private Long produitId;
+    private Integer produitId;
     private String numLot;
     private String searchTerm;
     private LocalDate fromDate = LocalDate.now().plusMonths(1);
     private LocalDate toDate;
-    private Long fournisseurId;
-    private Long rayonId;
-    private Long familleProduitId;
-    private Long magasinId;
-    private Long storageId;
+    private Integer fournisseurId;
+    private Integer rayonId;
+    private Integer familleProduitId;
+    private Integer magasinId;
+    private Integer storageId;
     private TypeFilter type;
 
     public Integer getDayCount() {
@@ -26,27 +26,27 @@ public class LotFilterParam {
         return this;
     }
 
-    public Long getStorageId() {
+    public Integer getStorageId() {
         return storageId;
     }
 
-    public void setStorageId(Long storageId) {
+    public void setStorageId(Integer storageId) {
         this.storageId = storageId;
     }
 
-    public Long getFournisseurId() {
+    public Integer getFournisseurId() {
         return fournisseurId;
     }
 
-    public void setFournisseurId(Long fournisseurId) {
+    public void setFournisseurId(Integer fournisseurId) {
         this.fournisseurId = fournisseurId;
     }
 
-    public Long getFamilleProduitId() {
+    public Integer getFamilleProduitId() {
         return familleProduitId;
     }
 
-    public void setFamilleProduitId(Long familleProduitId) {
+    public void setFamilleProduitId(Integer familleProduitId) {
         this.familleProduitId = familleProduitId;
     }
 
@@ -74,19 +74,19 @@ public class LotFilterParam {
         this.numLot = numLot;
     }
 
-    public Long getProduitId() {
+    public Integer getProduitId() {
         return produitId;
     }
 
-    public void setProduitId(Long produitId) {
+    public void setProduitId(Integer produitId) {
         this.produitId = produitId;
     }
 
-    public Long getRayonId() {
+    public Integer getRayonId() {
         return rayonId;
     }
 
-    public void setRayonId(Long rayonId) {
+    public void setRayonId(Integer rayonId) {
         this.rayonId = rayonId;
     }
 
@@ -106,11 +106,11 @@ public class LotFilterParam {
         this.toDate = toDate;
     }
 
-    public Long getMagasinId() {
+    public Integer getMagasinId() {
         return magasinId;
     }
 
-    public void setMagasinId(Long magasinId) {
+    public void setMagasinId(Integer magasinId) {
         this.magasinId = magasinId;
     }
 }

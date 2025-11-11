@@ -5,7 +5,7 @@ import java.time.LocalDate;
 import java.util.Set;
 
 public record FetchCashRegisterParams(
-    Long userId,
+    Integer userId,
     Set<CashRegisterStatut> statuts,
     LocalDate fromDate,
     LocalDate toDate,

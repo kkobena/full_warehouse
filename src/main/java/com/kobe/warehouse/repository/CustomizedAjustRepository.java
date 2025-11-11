@@ -74,7 +74,7 @@ public class CustomizedAjustRepository extends FileResourceService implements Aj
         return new PageImpl<>(list, pageable, total);
     }
 
-    private List<AjustementDTO> items(Long id) {
+    private List<AjustementDTO> items(Integer id) {
         try {
             TypedQuery<Ajustement> q = em.createQuery(
                 "SELECT o FROM Ajustement o WHERE o.ajust.id=?1 ORDER BY o.produit.fournisseurProduitPrincipal.codeCip",
@@ -129,15 +129,15 @@ public class CustomizedAjustRepository extends FileResourceService implements Aj
         return predicates;
     }
 
-    private Ajust findbyId(Long id) {
+    private Ajust findbyId(Integer id) {
         return this.em.find(Ajust.class, id);
     }
 
-    public Resource exportToPdf(Long id) throws IOException {
+    public Resource exportToPdf(Integer id) throws IOException {
         return this.getResource(this.ajustementReportService.print(findbyId(id)));
     }
 
-    public Optional<AjustDTO> getOneById(Long id) {
+    public Optional<AjustDTO> getOneById(Integer id) {
         Ajust ajust = findbyId(id);
         if (ajust.getStatut() == AjustementStatut.CLOSED) {
             return Optional.empty();

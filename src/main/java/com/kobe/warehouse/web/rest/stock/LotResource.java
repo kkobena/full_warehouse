@@ -57,7 +57,7 @@ public class LotResource {
     }
 
     @DeleteMapping("/lot/{id}")
-    public ResponseEntity<Void> delete(@PathVariable Long id) {
+    public ResponseEntity<Void> delete(@PathVariable Integer id) {
         lotService.remove(id);
         return ResponseEntity.ok().build();
     }

@@ -70,9 +70,7 @@ public final class ProduitBuilder {
         produit.setDeconditionnable(produitDTO.getDeconditionnable());
         produit.setQtyAppro(produitDTO.getQtyAppro());
         produit.setQtySeuilMini(produitDTO.getQtySeuilMini());
-        if (StringUtils.isNotEmpty(produitDTO.getExpirationDate())) {
-            produit.setPerimeAt(LocalDate.parse(produitDTO.getExpirationDate(), DateTimeFormatter.ofPattern(PERIME_DATE_PATERN)));
-        }
+
         produit.setTva(tvaFromId(produitDTO.getTvaId()));
         produit.setLaboratoire(laboratoireFromId(produitDTO.getLaboratoireId()));
         produit.setFamille(familleProduitFromId(produitDTO.getFamilleId()));
@@ -108,7 +106,6 @@ public final class ProduitBuilder {
         produit.setDeconditionnable(produitDTO.getDeconditionnable());
         produit.setQtyAppro(produitDTO.getQtyAppro());
         produit.setQtySeuilMini(produitDTO.getQtySeuilMini());
-        produit.setPerimeAt(produitDTO.getPerimeAt());
         produit.setTva(tvaFromId(produitDTO.getTvaId()));
         produit.setLaboratoire(laboratoireFromId(produitDTO.getLaboratoireId()));
         produit.setFamille(familleProduitFromId(produitDTO.getFamilleId()));
@@ -119,7 +116,7 @@ public final class ProduitBuilder {
         return produit;
     }
 
-    public static Produit fromId(Long produitId) {
+    public static Produit fromId(Integer produitId) {
         if (produitId == null) {
             return null;
         }
@@ -181,7 +178,7 @@ public final class ProduitBuilder {
         return produitDTO;
     }
 
-    public static ProduitDTO stockProduits(ProduitDTO produitDTO, Produit produit, Long magasinId) {
+    public static ProduitDTO stockProduits(ProduitDTO produitDTO, Produit produit, Integer magasinId) {
         produitDTO.setStockProduits(
             produit
                 .getStockProduits()
@@ -213,7 +210,7 @@ public final class ProduitBuilder {
         return produitDTO;
     }
 
-    public static ProduitDTO rayonProduits(ProduitDTO produitDTO, Produit produit, Long magasinId) {
+    public static ProduitDTO rayonProduits(ProduitDTO produitDTO, Produit produit, Integer magasinId) {
         Set<RayonProduit> rayonProduits = produit.getRayonProduits();
         if (!CollectionUtils.isEmpty(rayonProduits)) {
             produitDTO.setRayonProduits(rayonProduits.stream().map(RayonProduitDTO::new).toList());
@@ -295,9 +292,7 @@ public final class ProduitBuilder {
         produitDTO.setDateperemption(produit.getCheckExpiryDate());
         produitDTO.setChiffre(produit.getChiffre());
         produitDTO.setDeconditionnable(produit.getDeconditionnable()).setCodeEan(produit.getCodeEanLaboratoire());
-        if (produit.getPerimeAt() != null) {
-            produitDTO.expirationDate(produit.getPerimeAt().format(DateTimeFormatter.ofPattern(PERIME_DATE_PATERN)));
-        }
+
         produitDTO.setStatus(produit.getStatus().ordinal());
         produitDTO.displayStatut(produit.getStatus().name());
         if (!CollectionUtils.isEmpty(produitDTO.getHistoriqueProduitInventaires())) {
@@ -379,7 +374,7 @@ public final class ProduitBuilder {
         return dto;
     }
 
-    public static Dci dciFromId(Long id) {
+    public static Dci dciFromId(Integer id) {
         if (id == null) {
             return null;
         }
@@ -388,7 +383,7 @@ public final class ProduitBuilder {
         return entity;
     }
 
-    public static Tva tvaFromId(Long tvaId) {
+    public static Tva tvaFromId(Integer tvaId) {
         if (tvaId == null) {
             return null;
         }
@@ -397,7 +392,7 @@ public final class ProduitBuilder {
         return tva;
     }
 
-    public static Laboratoire laboratoireFromId(Long id) {
+    public static Laboratoire laboratoireFromId(Integer id) {
         if (id == null) {
             return null;
         }
@@ -406,7 +401,7 @@ public final class ProduitBuilder {
         return entity;
     }
 
-    public static FormProduit formProduitFromId(Long id) {
+    public static FormProduit formProduitFromId(Integer id) {
         if (id == null) {
             return null;
         }
@@ -415,7 +410,7 @@ public final class ProduitBuilder {
         return entity;
     }
 
-    public static Fournisseur fournisseurFromId(Long id) {
+    public static Fournisseur fournisseurFromId(Integer id) {
         if (id == null) {
             return null;
         }
@@ -424,7 +419,7 @@ public final class ProduitBuilder {
         return entity;
     }
 
-    public static FamilleProduit familleProduitFromId(Long id) {
+    public static FamilleProduit familleProduitFromId(Integer id) {
         if (id == null) {
             return null;
         }
@@ -433,7 +428,7 @@ public final class ProduitBuilder {
         return entity;
     }
 
-    public static GammeProduit gammeFromId(Long id) {
+    public static GammeProduit gammeFromId(Integer id) {
         if (id == null) {
             return null;
         }
@@ -490,9 +485,7 @@ public final class ProduitBuilder {
         produit.setDeconditionnable(produitDTO.getDeconditionnable());
         produit.setQtyAppro(produitDTO.getQtyAppro());
         produit.setQtySeuilMini(produitDTO.getQtySeuilMini());
-        if (StringUtils.isNotEmpty(produitDTO.getExpirationDate())) {
-            produit.setPerimeAt(LocalDate.parse(produitDTO.getExpirationDate(), DateTimeFormatter.ofPattern("dd/MM/yyyy")));
-        }
+
         produit.setTva(tvaFromId(produitDTO.getTvaId()));
         produit.setLaboratoire(laboratoireFromId(produitDTO.getLaboratoireId()));
         produit.setFamille(familleProduitFromId(produitDTO.getFamilleId()));

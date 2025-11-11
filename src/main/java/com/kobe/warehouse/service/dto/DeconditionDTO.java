@@ -12,7 +12,7 @@ public class DeconditionDTO {
     private int qtyMvt;
 
     @NotNull
-    private Long produitId;
+    private Integer produitId;
 
     public DeconditionDTO() {}
 
@@ -31,11 +31,11 @@ public class DeconditionDTO {
         this.qtyMvt = qtyMvt;
     }
 
-    public Long getProduitId() {
+    public Integer getProduitId() {
         return produitId;
     }
 
-    public void setProduitId(Long produitId) {
+    public void setProduitId(Integer produitId) {
         this.produitId = produitId;
     }
 

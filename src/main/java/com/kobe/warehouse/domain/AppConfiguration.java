@@ -33,7 +33,7 @@ public class AppConfiguration implements Serializable {
     private String name;
 
     @NotNull
-    @Column(name = "value", nullable = false)
+    @Column(name = "value", nullable = false,length = 20)
     private String value;
 
     @NotNull
@@ -50,12 +50,12 @@ public class AppConfiguration implements Serializable {
     @JoinColumn(name = "validated_by_id", referencedColumnName = "id")
     private AppUser validatedBy;
 
-    @Column(name = "other_value")
+    @Column(name = "other_value", length = 20)
     private String otherValue;
 
     @NotNull
     @Enumerated(EnumType.STRING)
-    @Column(name = "value_type", nullable = false, length = 20)
+    @Column(name = "value_type", nullable = false, length = 11)
     private ParametreValueType valueType;
 
     public String getOtherValue() {

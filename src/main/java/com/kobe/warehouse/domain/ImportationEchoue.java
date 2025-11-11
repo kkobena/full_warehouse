@@ -23,12 +23,12 @@ public class ImportationEchoue implements Serializable {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+    private Integer id;
 
     @Column(name = "created", nullable = false)
     private LocalDateTime created = LocalDateTime.now();
 
-    private Long objectId;
+    private Integer objectId;
 
     @OneToMany(mappedBy = "importationEchoue", orphanRemoval = true, cascade = { CascadeType.REMOVE, CascadeType.PERSIST })
     private List<ImportationEchoueLigne> importationEchoueLignes = new ArrayList<>();
@@ -36,19 +36,19 @@ public class ImportationEchoue implements Serializable {
     @Column(name = "is_commande", nullable = false)
     private boolean isCommande;
 
-    public Long getId() {
+    public Integer getId() {
         return id;
     }
 
-    public void setId(Long id) {
+    public void setId(Integer id) {
         this.id = id;
     }
 
-    public Long getObjectId() {
+    public Integer getObjectId() {
         return objectId;
     }
 
-    public void setObjectId(Long objectId) {
+    public void setObjectId(Integer objectId) {
         this.objectId = objectId;
     }
 

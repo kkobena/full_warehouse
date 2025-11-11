@@ -29,7 +29,7 @@ public class Dci implements Serializable {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+    private Integer id;
 
     @NotNull
     @Column(name = "code", nullable = false, length = 20)
@@ -41,11 +41,11 @@ public class Dci implements Serializable {
 
     public Dci() {}
 
-    public Long getId() {
+    public Integer getId() {
         return id;
     }
 
-    public void setId(Long id) {
+    public void setId(Integer id) {
         this.id = id;
     }
 

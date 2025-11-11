@@ -123,7 +123,7 @@ public class RetourBonResource {
      * or with status {@code 404 (Not Found)}.
      */
     @GetMapping("/retour-bons/{id}")
-    public ResponseEntity<RetourBonDTO> getRetourBon(@PathVariable Long id) {
+    public ResponseEntity<RetourBonDTO> getRetourBon(@PathVariable Integer id) {
         log.debug("REST request to get RetourBon : {}", id);
         Optional<RetourBonDTO> retourBonDTO = retourBonService.findOne(id);
         return ResponseUtil.wrapOrNotFound(retourBonDTO);
@@ -138,7 +138,7 @@ public class RetourBonResource {
      */
     @GetMapping("/retour-bons/by-commande/{commandeId}/{orderDate}")
     public ResponseEntity<List<RetourBonDTO>> getRetourBonsByCommande(
-        @PathVariable Long commandeId,
+        @PathVariable Integer commandeId,
         @PathVariable @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate orderDate
     ) {
         log.debug("REST request to get RetourBons by commande : {}, {}", commandeId, orderDate);
@@ -173,7 +173,7 @@ public class RetourBonResource {
      * @return the {@link ResponseEntity} with status {@code 204 (NO_CONTENT)}.
      */
     @DeleteMapping("/retour-bons/{id}")
-    public ResponseEntity<Void> deleteRetourBon(@PathVariable Long id) {
+    public ResponseEntity<Void> deleteRetourBon(@PathVariable Integer id) {
         log.debug("REST request to delete RetourBon : {}", id);
         retourBonService.delete(id);
         return ResponseEntity
@@ -189,7 +189,7 @@ public class RetourBonResource {
      * @return the {@link ResponseEntity} with status {@code 200 (OK)} and with body the updated retourBonDTO.
      */
     @PutMapping("/retour-bons/{id}/validate")
-    public ResponseEntity<RetourBonDTO> validateRetourBon(@PathVariable Long id) {
+    public ResponseEntity<RetourBonDTO> validateRetourBon(@PathVariable Integer id) {
         log.debug("REST request to validate RetourBon : {}", id);
         RetourBonDTO result = retourBonService.validate(id);
         return ResponseEntity

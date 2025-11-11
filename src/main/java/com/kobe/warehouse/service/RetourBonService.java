@@ -54,7 +54,7 @@ public interface RetourBonService {
      * @param orderDate  the order date.
      * @return the list of entities.
      */
-    List<RetourBonDTO> findAllByCommande(Long commandeId, LocalDate orderDate);
+    List<RetourBonDTO> findAllByCommande(Integer commandeId, LocalDate orderDate);
 
     /**
      * Get retour bons within date range.
@@ -72,14 +72,14 @@ public interface RetourBonService {
      * @param id the id of the entity.
      * @return the entity.
      */
-    Optional<RetourBonDTO> findOne(Long id);
+    Optional<RetourBonDTO> findOne(Integer id);
 
     /**
      * Delete the retour bon by id.
      *
      * @param id the id of the entity.
      */
-    void delete(Long id);
+    void delete(Integer id);
 
     /**
      * Validate a retour bon (change status to VALIDATED).
@@ -87,5 +87,5 @@ public interface RetourBonService {
      * @param id the id of the entity.
      * @return the updated entity.
      */
-    RetourBonDTO validate(Long id);
+    RetourBonDTO validate(Integer id);
 }

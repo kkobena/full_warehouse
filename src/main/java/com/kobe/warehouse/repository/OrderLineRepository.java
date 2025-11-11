@@ -25,24 +25,24 @@ import org.springframework.stereotype.Repository;
 public interface OrderLineRepository extends JpaRepository<OrderLine, OrderLineId> {
 
 
-    Optional<OrderLine> findFirstByFournisseurProduitIdAndCommandeIdAndCommandeOrderDate(Long fournisseurProduitId, Long commandeId, LocalDate orderDate);
+    Optional<OrderLine> findFirstByFournisseurProduitIdAndCommandeIdAndCommandeOrderDate(Integer fournisseurProduitId, Integer commandeId, LocalDate orderDate);
 
-    Page<OrderLine> findByCommandeIdAndCommandeOrderDate(Long commandeId,LocalDate orderDate, Pageable pageable);
+    Page<OrderLine> findByCommandeIdAndCommandeOrderDate(Integer commandeId,LocalDate orderDate, Pageable pageable);
 
-    int countByCommandeIdAndCommandeOrderDate(Long commandeId,LocalDate orderDate);
+    int countByCommandeIdAndCommandeOrderDate(Integer commandeId,LocalDate orderDate);
 
 
-    boolean existsByFournisseurProduitProduitIdAndCommandeOrderStatusAndCommandeOrderDateGreaterThan(Long produitId, OrderStatut orderStatus,LocalDate periodeBegin);
+    boolean existsByFournisseurProduitProduitIdAndCommandeOrderStatusAndCommandeOrderDateGreaterThan(Integer produitId, OrderStatut orderStatus,LocalDate periodeBegin);
 
-    int countByFournisseurProduitProduitIdAndCommandeOrderStatusAndCommandeOrderDateGreaterThan(Long produitId, OrderStatut orderStatus, LocalDate periodeBegin);
+    int countByFournisseurProduitProduitIdAndCommandeOrderStatusAndCommandeOrderDateGreaterThan(Integer produitId, OrderStatut orderStatus, LocalDate periodeBegin);
 
-    List<OrderLine> findAllByCommandeIdAndCommandeOrderDate(Long deliveryReceiptId,LocalDate orderDate);
+    List<OrderLine> findAllByCommandeIdAndCommandeOrderDate(Integer deliveryReceiptId,LocalDate orderDate);
 
     @Query(
         value = "SELECT MAX(o.updated_at) AS updatedAt FROM order_line o JOIN fournisseur_produit fp ON o.fournisseur_produit_id = fp.id JOIN commande d ON o.commande_id = d.id WHERE fp.produit_id = ?1 AND d.order_status=?2",
         nativeQuery = true
     )
-    LastDateProjection findLastUpdatedAtByFournisseurProduitProduitId(Long produitId, String receiptStatut);
+    LastDateProjection findLastUpdatedAtByFournisseurProduitProduitId(Integer produitId, String receiptStatut);
 
     @Query(
         value = "SELECT o.updated_at AS mvtDate,d.receipt_reference AS reference,o.quantity_received AS quantite,o.order_cost_amount AS prixAchat,u.first_name AS firstName,u.last_name AS lastName FROM order_line o JOIN fournisseur_produit fp ON o.fournisseur_produit_id = fp.id JOIN commande d ON o.commande_id = d.id AND o.commande_order_date=d.order_date  JOIN app_user u ON d.user_id = u.id WHERE fp.produit_id =:produitId AND d.order_status=:statut AND d.order_date BETWEEN :startDate AND :endDate ORDER BY o.updated_at  ",
@@ -50,7 +50,7 @@ public interface OrderLineRepository extends JpaRepository<OrderLine, OrderLineI
         countQuery = "SELECT COUNT(o.id) as orderCount  FROM order_line o JOIN fournisseur_produit fp ON o.fournisseur_produit_id = fp.id JOIN commande d ON o.commande_id = d.id AND o.commande_order_date=d.order_date  JOIN app_user u ON d.user_id = u.id WHERE fp.produit_id =:produitId AND d.order_status=:statut AND d.order_date BETWEEN :startDate AND :endDate ORDER BY o.updated_at  "
     )
     Page<HistoriqueProduitAchats> getHistoriqueAchat(
-        @Param("produitId") long produitId,
+        @Param("produitId") Integer produitId,
         @Param("startDate") LocalDate startDate,
         @Param("endDate") LocalDate endDate,
         @Param("statut") String statut,
@@ -67,7 +67,7 @@ public interface OrderLineRepository extends JpaRepository<OrderLine, OrderLineI
         @Param("startDate") LocalDate startDate,
         @Param("endDate") LocalDate endDate,
         @Param("statut") String statut,
-        @Param("produitId") Long produitId
+        @Param("produitId") Integer produitId
     );
 
 
@@ -77,7 +77,7 @@ public interface OrderLineRepository extends JpaRepository<OrderLine, OrderLineI
         nativeQuery = true
     )
     HistoriqueProduitAchatsSummary getHistoriqueAchatSummary(
-        @Param("produitId") long produitId,
+        @Param("produitId") Integer produitId,
         @Param("startDate") LocalDate startDate,
         @Param("endDate") LocalDate endDate,
         @Param("statut") String statut

@@ -35,7 +35,7 @@ public interface OrderLineService {
 
     OrderLine save(OrderLine orderLine);
 
-    Optional<OrderLine> findOneFromCommande(Long produitId, CommandeId  commandeId, Long fournisseurId);
+    Optional<OrderLine> findOneFromCommande(Integer produitId, CommandeId  commandeId, Integer fournisseurId);
 
     void updateCodeCip(OrderLineDTO orderLineDTO);
 
@@ -53,7 +53,7 @@ public interface OrderLineService {
 
     OrderLine createOrderLine(Commande commande, OrderLineDTO orderLineDTO);
 
-    Optional<FournisseurProduit> getFournisseurProduitByCriteria(String criteria, Long fournisseurId);
+    Optional<FournisseurProduit> getFournisseurProduitByCriteria(String criteria, Integer fournisseurId);
 
 
     int produitTotalStockWithQantitUg(Produit produit);
@@ -62,7 +62,7 @@ public interface OrderLineService {
 
     OrderLine buildOrderLine(SuggestionLine suggestionLine);
 
-    void changeFournisseurProduit(OrderLine orderLine, Long fournisseurId);
+    void changeFournisseurProduit(OrderLine orderLine, Integer fournisseurId);
 
     void delete(OrderLine orderLine);
     OrderLine buildDeliveryReceiptItemFromRecord(

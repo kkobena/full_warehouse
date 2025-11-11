@@ -66,7 +66,7 @@ public class FournisseurServiceImpl implements FournisseurService {
             .phone(fournisseurDTO.getPhone())
             .site(fournisseurDTO.getSite())
             .groupeFournisseur(
-                new GroupeFournisseur().id(fournisseurDTO.getGroupeFournisseurId() != null ? fournisseurDTO.getGroupeFournisseurId() : 5L)
+                new GroupeFournisseur().id(fournisseurDTO.getGroupeFournisseurId() != null ? fournisseurDTO.getGroupeFournisseurId() : 5)
             );
         fournisseur = fournisseurRepository.save(fournisseur);
         return new FournisseurDTO(fournisseur);
@@ -101,7 +101,7 @@ public class FournisseurServiceImpl implements FournisseurService {
      */
     @Override
     @Transactional(readOnly = true)
-    public Optional<FournisseurDTO> findOne(Long id) {
+    public Optional<FournisseurDTO> findOne(Integer id) {
         log.debug("Request to get Fournisseur : {}", id);
         return fournisseurRepository.findById(id).map(FournisseurDTO::new);
     }
@@ -112,7 +112,7 @@ public class FournisseurServiceImpl implements FournisseurService {
      * @param id the id of the entity.
      */
     @Override
-    public void delete(Long id) {
+    public void delete(Integer id) {
         log.debug("Request to delete Fournisseur : {}", id);
         fournisseurRepository.deleteById(id);
     }
@@ -162,7 +162,7 @@ public class FournisseurServiceImpl implements FournisseurService {
     }
 
     @Override
-    public Fournisseur findOneById(Long id) {
+    public Fournisseur findOneById(Integer id) {
         return this.fournisseurRepository.getReferenceById(id);
     }
 }

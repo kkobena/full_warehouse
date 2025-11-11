@@ -22,7 +22,7 @@ import org.springframework.data.domain.Pageable;
 
 public interface ReglementDiffereService {
     Page<DiffereItem> getDiffereItems(
-        Long customerId,
+        Integer customerId,
         String search,
         LocalDate fromDate,
         LocalDate toDate,
@@ -32,23 +32,23 @@ public interface ReglementDiffereService {
 
     Page<ClientDiffere> getClientDiffere();
 
-    Page<DiffereDTO> getDiffere(Long customerId, Set<PaymentStatus> paymentStatuses, Pageable pageable);
+    Page<DiffereDTO> getDiffere(Integer customerId, Set<PaymentStatus> paymentStatuses, Pageable pageable);
 
-    Optional<DiffereDTO> getOne(Long id);
+    Optional<DiffereDTO> getOne(Integer id);
 
     ReglementDiffereResponse doReglement(NewDifferePaymentDTO differePayment);
 
     void printReceipt(PaymentId idReglement);
 
-    DiffereSummary getDiffereSummary(Long customerId, Set<PaymentStatus> paymentStatuses);
+    DiffereSummary getDiffereSummary(Integer customerId, Set<PaymentStatus> paymentStatuses);
 
-    DifferePaymentSummaryDTO getDifferePaymentSummary(Long customerId, LocalDate fromDate, LocalDate toDate);
+    DifferePaymentSummaryDTO getDifferePaymentSummary(Integer customerId, LocalDate fromDate, LocalDate toDate);
 
-    Resource printListToPdf(Long customerId, Set<PaymentStatus> paymentStatuses);
+    Resource printListToPdf(Integer customerId, Set<PaymentStatus> paymentStatuses);
 
-    Resource printReglementToPdf(Long customerId, LocalDate fromDate, LocalDate toDate);
+    Resource printReglementToPdf(Integer customerId, LocalDate fromDate, LocalDate toDate);
 
-    Page<ReglementDiffereWrapperDTO> getReglementsDifferes(Long customerId, LocalDate fromDate, LocalDate toDate, Pageable pageable);
+    Page<ReglementDiffereWrapperDTO> getReglementsDifferes(Integer customerId, LocalDate fromDate, LocalDate toDate, Pageable pageable);
 
     ReglementDiffereReceiptDTO getReglementDiffereReceipt(PaymentId id);
 

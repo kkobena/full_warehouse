@@ -14,9 +14,9 @@ public interface CashFundService {
 
     void validateCashFund(CashRegister cashRegister);
 
-    CashFund getLastPendingCashFundByCashRegister(Long cashRegisterId);
+    CashFund getLastPendingCashFundByCashRegister(Integer cashRegisterId);
 
-    CashFund findById(Long id);
+    CashFund findById(Integer id);
 
     void updateCashFund(CashFund cashFund, CashRegister cashRegister);
 

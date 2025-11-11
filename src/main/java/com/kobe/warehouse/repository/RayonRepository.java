@@ -10,14 +10,14 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
 @Repository
-public interface RayonRepository extends JpaRepository<Rayon, Long> {
+public interface RayonRepository extends JpaRepository<Rayon, Integer> {
     Page<Rayon> findAllByStorageId(Long storageId, Pageable pageable);
 
     Optional<Rayon> findFirstByLibelleEquals(String libelle);
 
-    Optional<Rayon> findFirstByLibelleAndStorageId(String libelle, Long storageId);
+    Optional<Rayon> findFirstByLibelleAndStorageId(String libelle, Integer storageId);
 
-    Optional<Rayon> findFirstByCodeAndStorageId(String code, Long storageId);
+    Optional<Rayon> findFirstByCodeAndStorageId(String code, Integer storageId);
 
     Rayon findByCodeEquals(String code);
 

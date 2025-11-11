@@ -85,12 +85,12 @@ public class TiersPayantResource {
 
     @GetMapping(value = "/tiers-payants")
     public ResponseEntity<List<TiersPayantDto>> getAll(
-        @RequestParam(name = "groupeTiersPayantId", required = false) Long groupeTiersPayantId,
+        @RequestParam(name = "groupeTiersPayantId", required = false) Integer groupeTiersPayantId,
         @RequestParam(value = "search", required = false, defaultValue = "") String search,
         @RequestParam(value = "type", required = false, defaultValue = "") String type,
         Pageable pageable
     ) {
-        Page<TiersPayantDto> page = tiersPayantDataService.list(search, type, TiersPayantStatut.ACTIF, groupeTiersPayantId, pageable);
+        Page<TiersPayantDto> page = tiersPayantDataService.fetchList(search, type, TiersPayantStatut.ACTIF, groupeTiersPayantId, pageable);
         HttpHeaders headers = PaginationUtil.generatePaginationHttpHeaders(ServletUriComponentsBuilder.fromCurrentRequest(), page);
         return ResponseEntity.ok().headers(headers).body(page.getContent());
     }
@@ -111,7 +111,7 @@ public class TiersPayantResource {
     }
 
     @DeleteMapping("/tiers-payants/{id}")
-    public ResponseEntity<Void> delete(@PathVariable Long id) {
+    public ResponseEntity<Void> delete(@PathVariable Integer id) {
         tiersPayantService.delete(id);
         return ResponseEntity.noContent()
             .headers(HeaderUtil.createEntityDeletionAlert(applicationName, true, ENTITY_NAME, id.toString()))
@@ -119,7 +119,7 @@ public class TiersPayantResource {
     }
 
     @DeleteMapping("/tiers-payants/desable/{id}")
-    public ResponseEntity<Void> desable(@PathVariable Long id) {
+    public ResponseEntity<Void> desable(@PathVariable Integer id) {
         tiersPayantService.desable(id);
         return ResponseEntity.noContent()
             .headers(HeaderUtil.createEntityDeletionAlert(applicationName, true, ENTITY_NAME, id.toString()))

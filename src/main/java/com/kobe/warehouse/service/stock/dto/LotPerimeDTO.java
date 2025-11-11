@@ -6,9 +6,9 @@ import com.alibaba.excel.annotation.ExcelProperty;
 @ExcelIgnoreUnannotated
 public class LotPerimeDTO {
 
-    private Long produitId;
+    private Integer produitId;
 
-    private Long id;
+    private Integer id;
 
     @ExcelProperty("Numéro de lot")
     private String numLot;
@@ -164,19 +164,19 @@ public class LotPerimeDTO {
         this.peremptionStatut = peremptionStatut;
     }
 
-    public Long getProduitId() {
+    public Integer getProduitId() {
         return produitId;
     }
 
-    public void setProduitId(Long produitId) {
+    public void setProduitId(Integer produitId) {
         this.produitId = produitId;
     }
 
-    public Long getId() {
+    public Integer getId() {
         return id;
     }
 
-    public void setId(Long id) {
+    public void setId(Integer id) {
         this.id = id;
     }
 }

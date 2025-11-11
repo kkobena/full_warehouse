@@ -25,7 +25,7 @@ public class ImportationEchoueService {
         this.importationEchoueLigneRepository = importationEchoueLigneRepository;
     }
 
-    public void save(Long objectId, boolean isCommande, List<OrderItem> items) {
+    public void save(Integer objectId, boolean isCommande, List<OrderItem> items) {
         ImportationEchoue importationEchoue = new ImportationEchoue();
         importationEchoue.setObjectId(objectId);
         importationEchoue.setCommande(isCommande);

@@ -18,7 +18,7 @@ import java.util.EnumSet;
  */
 @SuppressWarnings("unused")
 @Repository
-public interface MagasinRepository extends JpaRepository<Magasin, Long>,JpaSpecificationExecutor<Magasin> {
+public interface MagasinRepository extends JpaRepository<Magasin, Integer>,JpaSpecificationExecutor<Magasin> {
 
     default Specification<Magasin> hasTypes(EnumSet<TypeMagasin> typeMagasins) {
         return (root, query, cb) -> root.get(Magasin_.typeMagasin).in(typeMagasins);

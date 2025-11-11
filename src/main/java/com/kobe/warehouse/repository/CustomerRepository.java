@@ -15,8 +15,8 @@ import org.springframework.stereotype.Repository;
  * Spring Data  repository for the Customer entity.
  */
 @Repository
-public interface CustomerRepository extends JpaRepository<Customer, Long>, JpaSpecificationExecutor<Customer> {
-    Optional<Customer> findOneByCode(String code);
+public interface CustomerRepository extends JpaRepository<Customer, Integer>, JpaSpecificationExecutor<Customer> {
+
 
     default Specification<Customer> specialisationQueryString(String queryValue) {
         return (root, query, cb) ->

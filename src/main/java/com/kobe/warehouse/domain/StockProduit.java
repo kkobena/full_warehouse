@@ -36,7 +36,7 @@ public class StockProduit implements Serializable {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+    private Integer id;
 
     @NotNull
     @Column(name = "qty_stock", nullable = false)
@@ -76,11 +76,11 @@ public class StockProduit implements Serializable {
     @Column(name = "last_modified_by", length = 50)
     private String lastModifiedBy;
 
-    public Long getId() {
+    public Integer getId() {
         return id;
     }
 
-    public void setId(Long id) {
+    public void setId(Integer id) {
         this.id = id;
     }
 

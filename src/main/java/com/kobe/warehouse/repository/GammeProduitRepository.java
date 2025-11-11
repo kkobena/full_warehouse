@@ -11,6 +11,6 @@ import org.springframework.stereotype.Repository;
  */
 @SuppressWarnings("unused")
 @Repository
-public interface GammeProduitRepository extends JpaRepository<GammeProduit, Long>, JpaSpecificationExecutor<GammeProduit> {
+public interface GammeProduitRepository extends JpaRepository<GammeProduit, Integer>, JpaSpecificationExecutor<GammeProduit> {
     Optional<GammeProduit> findFirstByLibelleEquals(String libelle);
 }

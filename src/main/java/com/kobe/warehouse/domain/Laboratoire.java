@@ -28,7 +28,7 @@ public class Laboratoire implements Serializable {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+    private Integer id;
 
     @NotNull
     @Column(name = "libelle", nullable = false, unique = true)
@@ -38,11 +38,11 @@ public class Laboratoire implements Serializable {
     @Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
     private Set<Produit> produits = new HashSet<>();
 
-    public Long getId() {
+    public Integer getId() {
         return id;
     }
 
-    public Laboratoire setId(Long id) {
+    public Laboratoire setId(Integer id) {
         this.id = id;
         return this;
     }
@@ -60,7 +60,7 @@ public class Laboratoire implements Serializable {
         return this;
     }
 
-    public Laboratoire id(Long id) {
+    public Laboratoire id(Integer id) {
         this.id = id;
         return this;
     }

@@ -85,7 +85,7 @@ public class CustomerResourceProxy {
     }
 
     @GetMapping("/customers/{id}")
-    public ResponseEntity<CustomerDTO> getCustomer(@PathVariable Long id) {
+    public ResponseEntity<CustomerDTO> getCustomer(@PathVariable Integer id) {
         log.debug("REST request to get Customer : {}", id);
         Optional<CustomerDTO> customer = customerDataService.getOneCustomer(id);
         return ResponseUtil.wrapOrNotFound(customer);
@@ -93,7 +93,7 @@ public class CustomerResourceProxy {
 
     @GetMapping("/customers/purchases")
     public ResponseEntity<List<SaleDTO>> customerPurchases(
-        @RequestParam(value = "customerId") long id,
+        @RequestParam(value = "customerId") Integer id,
         @RequestParam(value = "fromDate", required = false) LocalDate fromDate,
         @RequestParam(value = "toDate", required = false) LocalDate toDate
     ) {
@@ -136,7 +136,7 @@ public class CustomerResourceProxy {
     }
 
     @DeleteMapping("/customers/{id}")
-    public ResponseEntity<Void> deleteCustomer(@PathVariable Long id) {
+    public ResponseEntity<Void> deleteCustomer(@PathVariable Integer id) {
         log.debug("REST request to delete Customer : {}", id);
         uninsuredCustomerService.deleteCustomerById(id);
         return ResponseEntity.noContent()
@@ -162,12 +162,12 @@ public class CustomerResourceProxy {
     }
 
     @GetMapping("/customers/tiers-payants/{id}")
-    public ResponseEntity<List<ClientTiersPayantDTO>> getAssuredTiersPayants(@PathVariable("id") Long id) {
+    public ResponseEntity<List<ClientTiersPayantDTO>> getAssuredTiersPayants(@PathVariable("id") Integer id) {
         return ResponseEntity.ok().body(customerDataService.fetchCustomersTiersPayant(id));
     }
 
     @GetMapping("/customers/ayant-droits/{id}")
-    public ResponseEntity<List<AssuredCustomerDTO>> getAyantDroits(@PathVariable("id") Long id) {
+    public ResponseEntity<List<AssuredCustomerDTO>> getAyantDroits(@PathVariable("id") Integer id) {
         return ResponseEntity.ok().body(customerDataService.fetchAyantDroit(id));
     }
 }

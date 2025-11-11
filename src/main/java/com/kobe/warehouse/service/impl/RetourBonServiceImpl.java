@@ -114,7 +114,7 @@ public class RetourBonServiceImpl implements RetourBonService {
             RetourBon finalRetourBon = retourBon;
             List<RetourBonItem> items = retourBonDTO.getRetourBonItems().stream()
                 .map(itemDTO -> createRetourBonItem(itemDTO, finalRetourBon))
-                .collect(Collectors.toList());
+                .toList();
             retourBonItemRepository.saveAll(items);
         }
 
@@ -137,11 +137,11 @@ public class RetourBonServiceImpl implements RetourBonService {
 
     @Override
     @Transactional(readOnly = true)
-    public List<RetourBonDTO> findAllByCommande(Long commandeId, LocalDate orderDate) {
+    public List<RetourBonDTO> findAllByCommande(Integer commandeId, LocalDate orderDate) {
         log.debug("Request to get all RetourBons by commande : {}, {}", commandeId, orderDate);
         return retourBonRepository.findAllByCommandeId(commandeId).stream()
             .map(RetourBonDTO::new)
-            .collect(Collectors.toList());
+            .toList();
     }
 
     @Override
@@ -153,13 +153,13 @@ public class RetourBonServiceImpl implements RetourBonService {
 
     @Override
     @Transactional(readOnly = true)
-    public Optional<RetourBonDTO> findOne(Long id) {
+    public Optional<RetourBonDTO> findOne(Integer id) {
         log.debug("Request to get RetourBon : {}", id);
         return retourBonRepository.findById(id).map(RetourBonDTO::new);
     }
 
     @Override
-    public void delete(Long id) {
+    public void delete(Integer id) {
         log.debug("Request to delete RetourBon : {}", id);
         // Delete all items first
         retourBonItemRepository.deleteAll(retourBonItemRepository.findAllByRetourBonId(id));
@@ -168,7 +168,7 @@ public class RetourBonServiceImpl implements RetourBonService {
     }
 
     @Override
-    public RetourBonDTO validate(Long id) {
+    public RetourBonDTO validate(Integer id) {
         log.debug("Request to validate RetourBon : {}", id);
         RetourBon retourBon = retourBonRepository
             .findById(id)

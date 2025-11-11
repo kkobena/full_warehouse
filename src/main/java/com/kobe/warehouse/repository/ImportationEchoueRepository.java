@@ -9,6 +9,5 @@ import org.springframework.stereotype.Repository;
  * Spring Data  repository for the ImportationEchoue entity.
  */
 @Repository
-public interface ImportationEchoueRepository extends JpaRepository<ImportationEchoue, Long> {
-    List<ImportationEchoue> findAllByObjectId(Long id);
+public interface ImportationEchoueRepository extends JpaRepository<ImportationEchoue, Integer> {
 }

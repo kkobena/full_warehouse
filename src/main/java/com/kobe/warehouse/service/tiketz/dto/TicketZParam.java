@@ -5,7 +5,7 @@ import java.time.LocalTime;
 import java.util.Set;
 
 public record TicketZParam(
-    Set<Long> usersId,
+    Set<Integer> usersId,
     boolean onlyVente,
     LocalDate fromDate,
     LocalDate toDate,

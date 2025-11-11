@@ -15,11 +15,11 @@ import org.springframework.transaction.annotation.Transactional;
  */
 @SuppressWarnings("unused")
 @Repository
-public interface GrilleRemiseRepository extends JpaRepository<GrilleRemise, Long> {
+public interface GrilleRemiseRepository extends JpaRepository<GrilleRemise, Integer> {
     @Modifying
     @Transactional
     @Query("DELETE FROM GrilleRemise g WHERE g.remiseProduit.id=:remiseId")
-    void deleteByRemiseProduitId(@Param("remiseId") Long remiseId);
+    void deleteByRemiseProduitId(@Param("remiseId") Integer remiseId);
 
     List<GrilleRemise> findAllByCodeIn(List<CodeGrilleRemise> codes);
 }

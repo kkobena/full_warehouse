@@ -7,7 +7,7 @@ import java.time.LocalDateTime;
 
 public class SuggestionDTO {
 
-    private Long id;
+    private Integer id;
 
     private String suggessionReference;
 
@@ -32,11 +32,11 @@ public class SuggestionDTO {
         return this;
     }
 
-    public Long getId() {
+    public Integer getId() {
         return id;
     }
 
-    public SuggestionDTO setId(Long id) {
+    public SuggestionDTO setId(Integer id) {
         this.id = id;
         return this;
     }

@@ -3,7 +3,7 @@ CREATE OR REPLACE FUNCTION get_product_sales_summary(
   p_end_date date,
   p_statuts text[],
   p_cas text[],
-  p_produit_id bigint,
+  p_produit_id INT,
   p_group_by int DEFAULT 0
 )
   RETURNS jsonb AS
@@ -65,7 +65,7 @@ CREATE OR REPLACE FUNCTION get_product_order_summary(
   p_start_date date,
   p_end_date date,
   p_statut text,
-  p_produit_id bigint,
+  p_produit_id INT,
   p_group_by int DEFAULT 0
 )
   RETURNS jsonb AS
@@ -121,7 +121,7 @@ CREATE OR REPLACE FUNCTION get_product_order_summary_monthly(
   p_start_date date,
   p_end_date date,
   p_statut text,
-  p_produit_id bigint
+  p_produit_id INT
 )
   RETURNS jsonb AS
 $$
@@ -157,7 +157,7 @@ CREATE OR REPLACE FUNCTION get_product_sales_summary_monthly(
   p_end_date date,
   p_statuts text[],
   p_cas text[],
-  p_produit_id bigint
+  p_produit_id INT
 )
   RETURNS jsonb AS
 $$
@@ -188,7 +188,7 @@ $$ LANGUAGE plpgsql STABLE;
 
 
 CREATE OR REPLACE FUNCTION get_historique_vente(
-  p_produit_id bigint,
+  p_produit_id INT,
   p_start_date date,
   p_end_date date,
   p_statuts text[],

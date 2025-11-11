@@ -18,7 +18,7 @@ import java.util.Optional;
 @Repository
 public interface DifferePaymentRepository
     extends JpaRepository<DifferePayment, PaymentId>, JpaSpecificationExecutor<DifferePayment>, DifferePaymentDataRepository {
-    default Specification<DifferePayment> filterByCustomerId(Long customerId) {
+    default Specification<DifferePayment> filterByCustomerId(Integer customerId) {
         if (customerId == null) {
             return null;
         }
@@ -26,9 +26,8 @@ public interface DifferePaymentRepository
     }
 
     default Specification<DifferePayment> filterByPeriode(LocalDate fromDate, LocalDate toDate) {
-        return (root, _, cb) -> cb.between(cb.function("DATE", LocalDate.class, root.get(DifferePayment_.createdAt)), fromDate, toDate);
+        return (root, _, cb) -> cb.between(root.get(DifferePayment_.transactionDate), fromDate, toDate);
     }
 
-    @Deprecated(forRemoval = true)
-    Optional<DifferePayment> findDifferePaymentById(Long id);
+
 }

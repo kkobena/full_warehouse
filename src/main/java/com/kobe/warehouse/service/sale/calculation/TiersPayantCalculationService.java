@@ -29,7 +29,7 @@ public class TiersPayantCalculationService {
         BigDecimal totalAmountAssurance = BigDecimal.ZERO;
 
         BigDecimal discountAmount = BigDecimal.ZERO;
-        Map<Long, BigDecimal> tiersPayants = new HashMap<>();
+        Map<Integer, BigDecimal> tiersPayants = new HashMap<>();
         if (CollectionUtils.isEmpty(input.getSaleItems())) return null;
         for (SaleItemInput saleItemInput : input.getSaleItems()) {
             CalculatedShare itemShare = calculateSaleItem(saleItemInput, input.getTiersPayants(), input.getNatureVente());

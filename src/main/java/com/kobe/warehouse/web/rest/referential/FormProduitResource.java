@@ -112,7 +112,7 @@ public class FormProduitResource {
      * formProduitDTO, or with status {@code 404 (Not Found)}.
      */
     @GetMapping("/form-produits/{id}")
-    public ResponseEntity<FormProduitDTO> getFormProduit(@PathVariable Long id) {
+    public ResponseEntity<FormProduitDTO> getFormProduit(@PathVariable Integer id) {
         log.debug("REST request to get FormProduit : {}", id);
         Optional<FormProduitDTO> formProduitDTO = formProduitService.findOne(id);
         return ResponseUtil.wrapOrNotFound(formProduitDTO);
@@ -125,7 +125,7 @@ public class FormProduitResource {
      * @return the {@link ResponseEntity} with status {@code 204 (NO_CONTENT)}.
      */
     @DeleteMapping("/form-produits/{id}")
-    public ResponseEntity<Void> deleteFormProduit(@PathVariable Long id) {
+    public ResponseEntity<Void> deleteFormProduit(@PathVariable Integer id) {
         log.debug("REST request to delete FormProduit : {}", id);
 
         formProduitService.delete(id);

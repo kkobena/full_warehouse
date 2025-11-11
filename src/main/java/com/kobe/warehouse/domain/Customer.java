@@ -49,23 +49,23 @@ public class Customer implements Serializable {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+    private Integer id;
 
     @NotNull
     @NotEmpty
-    @Column(name = "first_name", nullable = false)
+    @Column(name = "first_name", nullable = false, length = 100)
     private String firstName;
 
     @NotNull
     @NotEmpty
-    @Column(name = "last_name", nullable = false)
+    @Column(name = "last_name", nullable = false, length = 100)
     private String lastName;
 
-    @Column(name = "phone")
+    @Column(name = "phone", length = 15)
     private String phone;
 
     @Email
-    @Column(name = "email")
+    @Column(name = "email",length = 100)
     private String email;
 
     @Column(name = "created_at", nullable = false)
@@ -76,11 +76,11 @@ public class Customer implements Serializable {
 
     @NotNull
     @Enumerated(EnumType.STRING)
-    @Column(name = "status", nullable = false)
+    @Column(name = "status", nullable = false, length = 8)
     private Status status = Status.ENABLE;
 
     @NotNull
-    @Column(name = "code", nullable = false, unique = true)
+    @Column(name = "code", nullable = false, unique = true, length = 20)
     private String code;
 
     @NotNull
@@ -96,11 +96,11 @@ public class Customer implements Serializable {
         this.remiseClient = remiseClient;
     }
 
-    public Long getId() {
+    public Integer getId() {
         return id;
     }
 
-    public void setId(Long id) {
+    public void setId(Integer id) {
         this.id = id;
     }
 

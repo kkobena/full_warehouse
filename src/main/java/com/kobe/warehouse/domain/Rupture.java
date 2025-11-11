@@ -21,7 +21,7 @@ public class Rupture implements Serializable {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+    private Integer id;
 
     @NotNull
     @Column(name = "date_mtv", nullable = false)
@@ -67,11 +67,11 @@ public class Rupture implements Serializable {
         return this;
     }
 
-    public Long getId() {
+    public Integer getId() {
         return id;
     }
 
-    public Rupture setId(Long id) {
+    public Rupture setId(Integer id) {
         this.id = id;
         return this;
     }

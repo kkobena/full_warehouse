@@ -143,8 +143,8 @@ public class ProductsToDestroyServiceImpl implements ProductsToDestroyService {
             productsToDestroy.setNumLot(lot.getNumLot());
             productsToDestroy.setDatePeremption(lot.getExpiryDate());
         } else {
-            Produit product = fournisseurProduit.getProduit();
-            productsToDestroy.setDatePeremption(product.getPerimeAt());
+           // Produit product = fournisseurProduit.getProduit();
+           // productsToDestroy.setDatePeremption(product.getPerimeAt());
             productsToDestroy.setPrixAchat(fournisseurProduit.getPrixAchat());
             productsToDestroy.setPrixUnit(fournisseurProduit.getPrixUni());
             //a revoir
@@ -297,7 +297,7 @@ public class ProductsToDestroyServiceImpl implements ProductsToDestroyService {
             );
     }
 
-    private List<StockProduit> findStockProduits(Long magasinId, Long produitId) {
+    private List<StockProduit> findStockProduits(Integer magasinId, Integer produitId) {
         return this.stockProduitRepository.findStockProduitByStorageMagasinIdAndProduitId(magasinId, produitId);
     }
 

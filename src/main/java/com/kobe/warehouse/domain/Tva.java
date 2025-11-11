@@ -30,17 +30,17 @@ public class Tva implements Serializable {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+    private Integer id;
 
     @NotNull
     @Column(name = "taux", nullable = false, unique = true)
-    private Integer taux = 0;
+    private Integer taux ;
 
-    public Long getId() {
+    public Integer getId() {
         return id;
     }
 
-    public Tva setId(Long id) {
+    public Tva setId(Integer id) {
         this.id = id;
         return this;
     }

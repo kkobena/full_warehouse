@@ -34,7 +34,7 @@ public class SuggestionResource {
     public ResponseEntity<List<SuggestionProjection>> getAll(
         @RequestParam(required = false, name = "typeSuggession") TypeSuggession typeSuggession,
         @RequestParam(required = false, name = "search") String search,
-        @RequestParam(required = false, name = "fournisseurId") Long fournisseurId,
+        @RequestParam(required = false, name = "fournisseurId") Integer fournisseurId,
         Pageable pageable
     ) {
         Page<SuggestionProjection> page = suggestionProduitService.getAllSuggestion(search, fournisseurId, typeSuggession, pageable);
@@ -43,13 +43,13 @@ public class SuggestionResource {
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<SuggestionDTO> getCommande(@PathVariable Long id) {
+    public ResponseEntity<SuggestionDTO> getCommande(@PathVariable Integer id) {
         return ResponseUtil.wrapOrNotFound(suggestionProduitService.getSuggestionById(id));
     }
 
     @GetMapping("/items")
     public ResponseEntity<List<SuggestionLineDTO>> getItems(
-        @RequestParam(name = "suggestionId") long suggestionId,
+        @RequestParam(name = "suggestionId") Integer suggestionId,
         @RequestParam(required = false, name = "search") String search,
         Pageable pageable
     ) {
@@ -71,7 +71,7 @@ public class SuggestionResource {
     }
 
     @DeleteMapping("/sanitize/{id}")
-    public ResponseEntity<Void> sanitize(@PathVariable Long id) {
+    public ResponseEntity<Void> sanitize(@PathVariable Integer id) {
         suggestionProduitService.sanitize(id);
         return ResponseEntity.noContent().build();
     }
@@ -83,7 +83,7 @@ public class SuggestionResource {
     }
 
     @PostMapping("/add-item/{id}")
-    public ResponseEntity<Void> addItem(@PathVariable Long id, @RequestBody SuggestionLineDTO suggestionLine) {
+    public ResponseEntity<Void> addItem(@PathVariable Integer id, @RequestBody SuggestionLineDTO suggestionLine) {
         suggestionProduitService.addSuggestionLine(id, suggestionLine);
         return ResponseEntity.ok().build();
     }
@@ -95,13 +95,13 @@ public class SuggestionResource {
     }
 
     @GetMapping("/csv/{id}")
-    public ResponseEntity<Resource> exportToCsv(@PathVariable Long id, HttpServletRequest request) throws IOException {
+    public ResponseEntity<Resource> exportToCsv(@PathVariable Integer id, HttpServletRequest request) throws IOException {
         final Resource resource = suggestionProduitService.exportToCsv(id);
         return Utils.exportCsv(resource, request);
     }
 
     @GetMapping("/commander/{id}")
-    public ResponseEntity<Void> commander(@PathVariable Long id) {
+    public ResponseEntity<Void> commander(@PathVariable Integer id) {
         suggestionProduitService.commander(id);
         return ResponseEntity.ok().build();
     }

@@ -14,6 +14,7 @@ import java.io.Serial;
 import java.io.Serializable;
 import org.hibernate.annotations.Cache;
 import org.hibernate.annotations.CacheConcurrencyStrategy;
+import org.hibernate.validator.internal.util.stereotypes.Lazy;
 
 /**
  * A PaymentMode.
@@ -42,15 +43,15 @@ public class PaymentMode implements Serializable {
 
     @NotNull
     @Enumerated(EnumType.STRING)
-    @Column(name = "payment_group", nullable = false)
+    @Column(name = "payment_group", nullable = false,length = 15)
     private PaymentGroup group;
 
     @NotNull
     @Column(name = "enable", nullable = false)
     private boolean enable = true;
-
+    @Column(name = "icon_url", length = 70)
     private String iconUrl;
-
+    @Lazy
     @Lob
     @Column(name = "qr_code", columnDefinition = "BYTEA")
     private byte[] qrCode;

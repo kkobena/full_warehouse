@@ -119,7 +119,7 @@ public class AjustementService extends FileResourceService {
         ajustementRepository.save(ajustement);
     }
 
-    public void deleteAll(List<Long> ids) {
+    public void deleteAll(List<Integer> ids) {
         ids.forEach(this.ajustementRepository::deleteById);
     }
 
@@ -201,7 +201,7 @@ public class AjustementService extends FileResourceService {
         return new AjustementDTO(ajustementRepository.save(ajustement));
     }
 
-    private MotifAjustement fromMotifId(Long motifId) {
+    private MotifAjustement fromMotifId(Integer motifId) {
         if (motifId == null) {
             return null;
         }
@@ -211,7 +211,7 @@ public class AjustementService extends FileResourceService {
     }
 
     @Transactional(readOnly = true)
-    public List<AjustementDTO> findAll(Long id, String search) {
+    public List<AjustementDTO> findAll(Integer id, String search) {
         log.debug("Request to get all Ajustements");
         Comparator<Ajustement> ajustementComparator = (Comparator.comparing(Ajustement::getDateMtv, Comparator.reverseOrder()));
 
@@ -224,11 +224,11 @@ public class AjustementService extends FileResourceService {
                 .toList()
                 .stream()
                 .map(AjustementDTO::new)
-                .collect(Collectors.toList());
+                .toList();
         }
         List<Ajustement> ajustements = ajustementRepository.findAllByAjustId(id);
         ajustements.sort(ajustementComparator);
-        return ajustements.stream().map(AjustementDTO::new).collect(Collectors.toList());
+        return ajustements.stream().map(AjustementDTO::new).toList();
     }
 
     @Transactional(readOnly = true)
@@ -237,11 +237,11 @@ public class AjustementService extends FileResourceService {
         return ajustementRepository.findAll();
     }
 
-    public void deleteItem(Long id) {
+    public void deleteItem(Integer id) {
         ajustementRepository.deleteById(id);
     }
 
-    public void delete(Long id) {
+    public void delete(Integer id) {
         Ajust ajust = this.ajustRepository.getReferenceById(id);
         if (ajust.getStatut() == AjustementStatut.PENDING) {
             this.ajustRepository.deleteById(id);

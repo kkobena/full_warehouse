@@ -2,16 +2,16 @@ package com.kobe.warehouse.service.dto.filter;
 
 public class InventoryTransactionFilterDTO {
 
-    private Long produitId;
+    private Integer produitId;
     private String startDate;
     private String endDate;
     private Integer type;
 
-    public Long getProduitId() {
+    public Integer getProduitId() {
         return produitId;
     }
 
-    public InventoryTransactionFilterDTO setProduitId(Long produitId) {
+    public InventoryTransactionFilterDTO setProduitId(Integer produitId) {
         this.produitId = produitId;
         return this;
     }

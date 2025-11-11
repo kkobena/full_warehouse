@@ -10,8 +10,8 @@ import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.stereotype.Repository;
 
 @Repository
-public interface AssuredCustomerRepository extends JpaRepository<AssuredCustomer, Long>, JpaSpecificationExecutor<AssuredCustomer> {
-    List<AssuredCustomer> findAllByAssurePrincipalId(Long asssureId);
+public interface AssuredCustomerRepository extends JpaRepository<AssuredCustomer, Integer>, JpaSpecificationExecutor<AssuredCustomer> {
+    List<AssuredCustomer> findAllByAssurePrincipalId(Integer asssureId);
 
     default Specification<AssuredCustomer> specialisationQueryString(String queryValue) {
         return (root, query, cb) ->

@@ -30,7 +30,7 @@ public class Fournisseur implements Serializable {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+    private Integer id;
 
     @NotNull
     @Column(name = "libelle", nullable = false, unique = true)
@@ -68,11 +68,11 @@ public class Fournisseur implements Serializable {
     @Column(name = "identifiant_repartiteur")
     private String identifiantRepartiteur;
 
-    public Long getId() {
+    public Integer getId() {
         return id;
     }
 
-    public void setId(Long id) {
+    public void setId(Integer id) {
         this.id = id;
     }
 
@@ -89,7 +89,7 @@ public class Fournisseur implements Serializable {
         return this;
     }
 
-    public Fournisseur id(Long id) {
+    public Fournisseur id(Integer id) {
         this.id = id;
         return this;
     }

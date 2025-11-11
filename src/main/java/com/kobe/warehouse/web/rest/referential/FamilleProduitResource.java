@@ -122,7 +122,7 @@ public class FamilleProduitResource {
      * familleProduitDTO, or with status {@code 404 (Not Found)}.
      */
     @GetMapping("/famille-produits/{id}")
-    public ResponseEntity<FamilleProduitDTO> getFamilleProduit(@PathVariable Long id) {
+    public ResponseEntity<FamilleProduitDTO> getFamilleProduit(@PathVariable Integer id) {
         log.debug("REST request to get FamilleProduit : {}", id);
         Optional<FamilleProduitDTO> familleProduitDTO = familleProduitService.findOne(id);
         return ResponseUtil.wrapOrNotFound(familleProduitDTO);
@@ -135,7 +135,7 @@ public class FamilleProduitResource {
      * @return the {@link ResponseEntity} with status {@code 204 (NO_CONTENT)}.
      */
     @DeleteMapping("/famille-produits/{id}")
-    public ResponseEntity<Void> deleteFamilleProduit(@PathVariable Long id) {
+    public ResponseEntity<Void> deleteFamilleProduit(@PathVariable Integer id) {
         log.debug("REST request to delete FamilleProduit : {}", id);
         familleProduitService.delete(id);
         return ResponseEntity.noContent()

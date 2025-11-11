@@ -28,7 +28,7 @@ public class FormProduit implements Serializable {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+    private Integer id;
 
     @NotNull
     @Column(name = "libelle", nullable = false, unique = true)
@@ -38,11 +38,11 @@ public class FormProduit implements Serializable {
     @Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
     private Set<Produit> produits = new HashSet<>();
 
-    public Long getId() {
+    public Integer getId() {
         return id;
     }
 
-    public FormProduit setId(Long id) {
+    public FormProduit setId(Integer id) {
         this.id = id;
         return this;
     }

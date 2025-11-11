@@ -28,9 +28,9 @@ public class GammeProduit implements Serializable {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+    private Integer id;
 
-    @Column(name = "code")
+    @Column(name = "code",length = 20)
     private String code;
 
     @NotNull
@@ -39,11 +39,11 @@ public class GammeProduit implements Serializable {
 
 
 
-    public Long getId() {
+    public Integer getId() {
         return id;
     }
 
-    public GammeProduit setId(Long id) {
+    public GammeProduit setId(Integer id) {
         this.id = id;
         return this;
     }
@@ -74,7 +74,7 @@ public class GammeProduit implements Serializable {
         return this;
     }
 
-    public GammeProduit id(Long id) {
+    public GammeProduit id(Integer id) {
         this.id = id;
         return this;
     }

@@ -20,19 +20,19 @@ import java.util.Optional;
 public interface InventoryTransactionService {
     void save(Object entity); // Generic save method for all entities
 
-    long quantitySold(Long produitId);
+    long quantitySold(Integer produitId);
 
     Optional<InventoryTransaction> findById(Long id);
 
     Page<InventoryTransactionDTO> getAllInventoryTransactions(
         Pageable pageable,
-        Long produitId,
+        Integer produitId,
         String startDate,
         String endDate,
         Integer type
     );
 
-    LocalDateTime fetchLastDateByTypeAndProduitId(MouvementProduit type, Long produitId);
+    LocalDateTime fetchLastDateByTypeAndProduitId(MouvementProduit type, Integer produitId);
 
     List<ProduitAuditingState> fetchProduitDailyTransaction(@Valid ProduitAuditingParam produitAuditingParam);
 

@@ -93,7 +93,7 @@ public interface PaymentTransactionRepository
         };
     }
 
-    default Specification<PaymentTransaction> filterByCaissierId(Set<Long> caissierIds) {
+    default Specification<PaymentTransaction> filterByCaissierId(Set<Integer> caissierIds) {
         if (caissierIds == null || caissierIds.isEmpty()) {
             return null; // No filter applied
         }

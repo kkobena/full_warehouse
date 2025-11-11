@@ -1,8 +1,8 @@
 package com.kobe.warehouse.service.cash_register.dto;
 
 public record TicketingDTO(
-    Long id,
-    Long cashRegisterId,
+    Integer id,
+    Integer cashRegisterId,
     int numberOf10Thousand,
     int numberOf5Thousand,
     int numberOf2Thousand,

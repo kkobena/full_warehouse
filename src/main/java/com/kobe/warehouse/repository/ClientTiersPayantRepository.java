@@ -8,12 +8,12 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
 @Repository
-public interface ClientTiersPayantRepository extends JpaRepository<ClientTiersPayant, Long> {
-    List<ClientTiersPayant> findAllByAssuredCustomerId(Long customerId);
+public interface ClientTiersPayantRepository extends JpaRepository<ClientTiersPayant, Integer> {
+    List<ClientTiersPayant> findAllByAssuredCustomerId(Integer customerId);
 
-    List<ClientTiersPayant> findAllByAssuredCustomerIdAndTiersPayantCategorie(Long customerId, TiersPayantCategorie categorie);
+    List<ClientTiersPayant> findAllByAssuredCustomerIdAndTiersPayantCategorie(Integer customerId, TiersPayantCategorie categorie);
 
-    List<ClientTiersPayant> findAllByIdIn(Set<Long> ids);
+    List<ClientTiersPayant> findAllByIdIn(Set<Integer> ids);
 
-    List<ClientTiersPayant> findAllByTiersPayantId(Long tiersPayantId);
+    List<ClientTiersPayant> findAllByTiersPayantId(Integer tiersPayantId);
 }

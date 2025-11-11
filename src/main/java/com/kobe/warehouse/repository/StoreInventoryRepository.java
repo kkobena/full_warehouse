@@ -1,7 +1,6 @@
 package com.kobe.warehouse.repository;
 
 import com.kobe.warehouse.domain.StoreInventory;
-import com.kobe.warehouse.domain.enumeration.InventoryStatut;
 import com.kobe.warehouse.service.dto.StoreInventoryExport;
 import com.kobe.warehouse.service.dto.projection.IdProjection;
 import org.springframework.data.jpa.repository.*;

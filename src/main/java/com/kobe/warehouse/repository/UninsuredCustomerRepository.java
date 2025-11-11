@@ -11,7 +11,7 @@ import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.stereotype.Repository;
 
 @Repository
-public interface UninsuredCustomerRepository extends JpaRepository<UninsuredCustomer, Long>, JpaSpecificationExecutor<UninsuredCustomer> {
+public interface UninsuredCustomerRepository extends JpaRepository<UninsuredCustomer, Integer>, JpaSpecificationExecutor<UninsuredCustomer> {
     Optional<UninsuredCustomer> findOneByCode(String code);
 
     default Specification<UninsuredCustomer> specialisationQueryString(String queryValue) {

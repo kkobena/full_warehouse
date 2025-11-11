@@ -30,21 +30,21 @@ public interface InventoryTransactionRepository
     JpaRepository<InventoryTransaction, ProductMvtId>,
     JpaSpecificationExecutor<InventoryTransaction>,
     InventoryTransactionCustomRepository {
-    List<InventoryTransaction> findByProduitId(Long produitId, Sort sort);
+    List<InventoryTransaction> findByProduitId(Integer produitId, Sort sort);
 
     @Query("SELECT coalesce(max(e.createdAt),null) AS updatedAt from InventoryTransaction e WHERE e.mouvementType=?1 AND e.produit.id=?2")
-    Optional<LastDateProjection> fetchLastDateByTypeAndProduitId(MouvementProduit type, Long produitId);
+    Optional<LastDateProjection> fetchLastDateByTypeAndProduitId(MouvementProduit type, Integer produitId);
 
     @Query("SELECT coalesce(sum(e.quantity),0 ) from InventoryTransaction e WHERE e.mouvementType=?1 AND e.produit.id=?2")
-    Long quantitySold(TransactionType transactionType, Long produitId);
+    Long quantitySold(TransactionType transactionType, Integer produitId);
 
     Optional<InventoryTransaction> findInventoryTransactionById(Long id);
 
     @Query(value = "SELECT get_product_movements_by_period(:produitId,:magasinId,:startDate, :endDate)", nativeQuery = true)
-    String fetchMouvementProduit(@Param("produitId") Long produitId, @Param("magasinId") Long magasinId, @Param("startDate") LocalDate startDate, @Param("endDate") LocalDate endDate);
+    String fetchMouvementProduit(@Param("produitId") Integer produitId, @Param("magasinId") Integer magasinId, @Param("startDate") LocalDate startDate, @Param("endDate") LocalDate endDate);
 
 
-    default Specification<InventoryTransaction> specialisationProduitId(Long produitId) {
+    default Specification<InventoryTransaction> specialisationProduitId(Integer produitId) {
         return (root, query, cb) -> cb.equal(root.get(InventoryTransaction_.produit).get(Produit_.id), produitId);
     }
 
@@ -68,7 +68,7 @@ public interface InventoryTransactionRepository
         return (root, query, cb) -> cb.equal(root.get(InventoryTransaction_.mouvementType), typeTransaction);
     }
 
-    default Specification<InventoryTransaction> combineSpecifications(Long produitId, LocalDate startDate, LocalDate endDate) {
+    default Specification<InventoryTransaction> combineSpecifications(Integer produitId, LocalDate startDate, LocalDate endDate) {
         Specification<InventoryTransaction> specification = specialisationProduitId(produitId);
         if (startDate != null && endDate != null) {
             specification = specification.and(specialisationMvtTransaction(startDate, endDate));

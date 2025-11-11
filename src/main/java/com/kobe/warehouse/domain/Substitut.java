@@ -19,7 +19,7 @@ public class Substitut implements Serializable {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+    private Integer id;
 
     @ManyToOne(optional = false,fetch = FetchType.LAZY)
     private Produit produit;
@@ -28,14 +28,14 @@ public class Substitut implements Serializable {
     private Produit substitut;
 
     @Enumerated(EnumType.STRING)
-    @Column(name = "type_substitut", nullable = false)
+    @Column(name = "type_substitut", nullable = false,length = 15)
     private TypeSubstitut type;
 
-    public Long getId() {
+    public Integer getId() {
         return id;
     }
 
-    public void setId(Long id) {
+    public void setId(Integer id) {
         this.id = id;
     }
 

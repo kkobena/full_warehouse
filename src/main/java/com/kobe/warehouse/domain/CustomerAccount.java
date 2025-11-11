@@ -26,7 +26,7 @@ public class CustomerAccount implements Serializable {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+    private Integer id;
 
     @Column(name = "balance", nullable = false)
     private int balance; // solde
@@ -43,7 +43,7 @@ public class CustomerAccount implements Serializable {
 
     @NotNull
     @Enumerated(EnumType.STRING)
-    @Column(name = "account_type", nullable = false)
+    @Column(name = "account_type", nullable = false,length = 10)
     private AccountType accountType;
 
     public AccountType accountType() {
@@ -88,11 +88,11 @@ public class CustomerAccount implements Serializable {
         this.enabled = enabled;
     }
 
-    public Long id() {
+    public Integer id() {
         return id;
     }
 
-    public void setId(Long id) {
+    public void setId(Integer id) {
         this.id = id;
     }
 

@@ -60,7 +60,7 @@ public class FormProduitServiceImpl implements FormProduitService {
      */
     @Override
     @Transactional(readOnly = true)
-    public Optional<FormProduitDTO> findOne(Long id) {
+    public Optional<FormProduitDTO> findOne(Integer id) {
         log.debug("Request to get FormProduit : {}", id);
         return formProduitRepository.findById(id).map(FormProduitDTO::new);
     }
@@ -71,7 +71,7 @@ public class FormProduitServiceImpl implements FormProduitService {
      * @param id the id of the entity.
      */
     @Override
-    public void delete(Long id) {
+    public void delete(Integer id) {
         log.debug("Request to delete FormProduit : {}", id);
         formProduitRepository.deleteById(id);
     }

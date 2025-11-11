@@ -51,12 +51,12 @@ public class MagasinServiceImpl implements MagasinService {
     }
 
     @Override
-    public MagasinDTO findById(Long id) {
+    public MagasinDTO findById(Integer id) {
         return magasinRepository.findById(id).map(MagasinDTO::new).orElse(null);
     }
 
     @Override
-    public void delete(Long id) {
+    public void delete(Integer id) {
         Magasin magasin = magasinRepository.findById(id).orElseThrow();
         List<Storage> storages = storageService.findAllByMagasin(magasin);
         storages.forEach(rayonService::deleteByStorage);

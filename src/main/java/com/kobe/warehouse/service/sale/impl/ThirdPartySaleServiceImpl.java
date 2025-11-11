@@ -217,7 +217,7 @@ public class ThirdPartySaleServiceImpl extends SaleCommonService implements Thir
         return upddateThirdPartySaleAmounts(thirdPartySales, true, clientTiersPayants);
     }
 
-    private List<ClientTiersPayant> getClientTiersPayants(Set<Long> ids) {
+    private List<ClientTiersPayant> getClientTiersPayants(Set<Integer> ids) {
         return clientTiersPayantRepository.findAllByIdIn(ids);
     }
 
@@ -286,7 +286,7 @@ public class ThirdPartySaleServiceImpl extends SaleCommonService implements Thir
         return thirdPartySaleLineService.findAllBySaleId(saleId);
     }
 
-    private boolean checkIfNumBonIsAlReadyUse(String numBon, Long clientTiersPayantId, Long currentSaleId) {
+    private boolean checkIfNumBonIsAlReadyUse(String numBon, Integer clientTiersPayantId, Long currentSaleId) {
         if (!StringUtils.hasLength(numBon)) {
             return false;
         }
@@ -314,7 +314,7 @@ public class ThirdPartySaleServiceImpl extends SaleCommonService implements Thir
     @Transactional(noRollbackFor = { PlafondVenteException.class })
     public SaleLineDTO createOrUpdateSaleLine(SaleLineDTO dto) throws PlafondVenteException {
         Optional<SalesLine> salesLineOp = salesLineService.findBySalesIdAndProduitId(dto.getSaleCompositeId(), dto.getProduitId());
-        long storageId = storageService.getDefaultConnectedUserPointOfSaleStorage().getId();
+        int storageId = storageService.getDefaultConnectedUserPointOfSaleStorage().getId();
         ThirdPartySales thirdPartySales;
         if (salesLineOp.isPresent()) {
             SalesLine salesLine = salesLineOp.get();
@@ -443,7 +443,7 @@ public class ThirdPartySaleServiceImpl extends SaleCommonService implements Thir
         if (thirdPartySaleLines.isEmpty() && dto.getTiersPayants().isEmpty()) {
             throw new ThirdPartySalesTiersPayantException();
         }
-        Map<Long, String> numBonMap = dto
+        Map<Integer, String> numBonMap = dto
             .getTiersPayants()
             .stream()
             .collect(Collectors.toMap(ClientTiersPayantDTO::getId, ClientTiersPayantDTO::getNumBon, (_, b) -> b));
@@ -549,7 +549,7 @@ public class ThirdPartySaleServiceImpl extends SaleCommonService implements Thir
 
     @Override
     @Transactional(noRollbackFor = { PlafondVenteException.class })
-    public void removeThirdPartySaleLineToSales(Long clientTiersPayantId, SaleId saleId) throws PlafondVenteException {
+    public void removeThirdPartySaleLineToSales(Integer clientTiersPayantId, SaleId saleId) throws PlafondVenteException {
         thirdPartySaleLineService
             .findFirstByClientTiersPayantIdAndSaleId(clientTiersPayantId, saleId)
             .ifPresent(thirdPartySaleLine -> {
@@ -660,7 +660,7 @@ public class ThirdPartySaleServiceImpl extends SaleCommonService implements Thir
         return c;
     }
 
-    private Optional<AssuredCustomer> getAyantDroitFromId(Long ayantDroitId) {
+    private Optional<AssuredCustomer> getAyantDroitFromId(Integer ayantDroitId) {
         AssuredCustomer ayantDroit = null;
         if (ayantDroitId != null) {
             ayantDroit = new AssuredCustomer();
@@ -721,7 +721,7 @@ public class ThirdPartySaleServiceImpl extends SaleCommonService implements Thir
                 ClientTiersPayant clientTiersPayant = thirdPartySaleLine.getClientTiersPayant();
                 if (clientTiersPayant.getId().compareTo(clientTiersPayantDTO.getId()) == 0) {
                     if (
-                        checkIfNumBonIsAlReadyUse(clientTiersPayantDTO.getNumBon(), thirdPartySaleLine.getId().getId(), p.getId().getId())
+                        checkIfNumBonIsAlReadyUse(clientTiersPayantDTO.getNumBon(), clientTiersPayantDTO.getId(), p.getId().getId())
                     ) {
                         throw new NumBonAlreadyUseException(clientTiersPayantDTO.getNumBon());
                     }
@@ -918,7 +918,7 @@ public class ThirdPartySaleServiceImpl extends SaleCommonService implements Thir
     private List<SaleItemInput> buildSaleItemInputs(
         ThirdPartySales sale,
         CalculationInput input,
-        Set<Long> tiersPayantIds,
+        Set<Integer> tiersPayantIds,
         List<TiersPayantInput> tiersPayantInputs
     ) {
         return sale
@@ -956,7 +956,7 @@ public class ThirdPartySaleServiceImpl extends SaleCommonService implements Thir
         input.setNatureVente(sale.getNatureVente());
         input.setDiscountAmount(BigDecimal.valueOf(sale.getDiscountAmount()));
 
-        Set<Long> tiersPayantIds = new HashSet<>();
+        Set<Integer> tiersPayantIds = new HashSet<>();
         List<TiersPayantInput> tiersPayantInputs = buildTiersPayantInputs(clientTiersPayants, tiersPayantIds);
         input.setTiersPayants(tiersPayantInputs);
 
@@ -966,7 +966,7 @@ public class ThirdPartySaleServiceImpl extends SaleCommonService implements Thir
         return input;
     }
 
-    private List<TiersPayantInput> buildTiersPayantInputs(List<ClientTiersPayant> clientTiersPayants, Set<Long> tiersPayantIds) {
+    private List<TiersPayantInput> buildTiersPayantInputs(List<ClientTiersPayant> clientTiersPayants, Set<Integer> tiersPayantIds) {
         if (CollectionUtils.isEmpty(clientTiersPayants)) {
             return Collections.emptyList();
         }
@@ -991,7 +991,7 @@ public class ThirdPartySaleServiceImpl extends SaleCommonService implements Thir
             .collect(Collectors.toList());
     }
 
-    private Optional<ThirdPartySaleLine> findSaleLineByClientTiersPayantId(ThirdPartySales sale, Long clientTiersPayantId) {
+    private Optional<ThirdPartySaleLine> findSaleLineByClientTiersPayantId(ThirdPartySales sale, Integer clientTiersPayantId) {
         return sale
             .getThirdPartySaleLines()
             .stream()

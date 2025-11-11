@@ -36,7 +36,7 @@ public interface ThirdPartySaleLineRepository
     JpaRepository<ThirdPartySaleLine, AssuranceSaleId>,
     JpaSpecificationExecutor<ThirdPartySaleLine>,
     ThirdPartySaleLineCustomRepository {
-    long countByClientTiersPayantId(Long clientTiersPayantId);
+    long countByClientTiersPayantId(Integer clientTiersPayantId);
 
     List<ThirdPartySaleLine> findAllBySaleIdAndSaleSaleDate(Long saleId, LocalDate saleDate);
 
@@ -45,7 +45,7 @@ public interface ThirdPartySaleLineRepository
     )
     long countThirdPartySaleLineByNumBonAndClientTiersPayantId(
         @Param("numBon") String numBon,
-        @Param("clientTiersPayantId") Long clientTiersPayantId,
+        @Param("clientTiersPayantId") Integer clientTiersPayantId,
         @Param("statut") SalesStatut statut,
         @Param("startOfDay") LocalDate startOfDay
     );
@@ -56,14 +56,14 @@ public interface ThirdPartySaleLineRepository
     long countThirdPartySaleLineByNumBonAndClientTiersPayantIdAndSaleId(
         @Param("numBon") String numBon,
         @Param("clientTiersPayantId") Long saleId,
-        @Param("saleId") Long clientTiersPayantId,
+        @Param("saleId") Integer clientTiersPayantId,
         @Param("statut") SalesStatut statut,
         @Param("startOfDay") LocalDate startOfDay
     );
 
 
     @Query("SELECT o FROM ThirdPartySaleLine o WHERE o.clientTiersPayant.id=:clientTiersPayantId AND o.sale.id=:saleId AND o.saleDate=:saleDate")
-    Optional<ThirdPartySaleLine> findFirstByClientTiersPayantIdAndSaleIdAndSaleSaleDate(Long clientTiersPayantId, Long saleId, LocalDate saleDate);
+    Optional<ThirdPartySaleLine> findFirstByClientTiersPayantIdAndSaleIdAndSaleSaleDate(Integer clientTiersPayantId, Long saleId, LocalDate saleDate);
 
     default Specification<ThirdPartySaleLine> periodeCriteria(LocalDate startDate, LocalDate endDate) {
         return (root, _, cb) -> cb.between(root.get(ThirdPartySaleLine_.sale).get(ThirdPartySales_.saleDate), startDate, endDate);
@@ -77,9 +77,9 @@ public interface ThirdPartySaleLineRepository
         };
     }
 
-    default Specification<ThirdPartySaleLine> tiersPayantIdsCriteria(Set<Long> tiersPayantIds) {
+    default Specification<ThirdPartySaleLine> tiersPayantIdsCriteria(Set<Integer> tiersPayantIds) {
         return (root, _, cb) -> {
-            In<Long> selectionIds = cb.in(
+            In<Integer> selectionIds = cb.in(
                 root.get(ThirdPartySaleLine_.clientTiersPayant).get(ClientTiersPayant_.tiersPayant).get(TiersPayant_.id)
             );
             tiersPayantIds.forEach(selectionIds::value);
@@ -87,9 +87,9 @@ public interface ThirdPartySaleLineRepository
         };
     }
 
-    default Specification<ThirdPartySaleLine> groupIdsCriteria(Set<Long> groupIds) {
+    default Specification<ThirdPartySaleLine> groupIdsCriteria(Set<Integer> groupIds) {
         return (root, _, cb) -> {
-            In<Long> selectionIds = cb.in(
+            In<Integer> selectionIds = cb.in(
                 root
                     .get(ThirdPartySaleLine_.clientTiersPayant)
                     .get(ClientTiersPayant_.tiersPayant)

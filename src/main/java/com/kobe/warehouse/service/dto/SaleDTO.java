@@ -38,7 +38,7 @@ public class SaleDTO implements Serializable {
     private SaleId saleId;
     private Integer discountAmount;
     private String numberTransaction;
-    private Long customerId;
+    private Integer customerId;
     private Integer salesAmount;
     private String userFullName;
     private Integer htAmount;
@@ -79,8 +79,8 @@ public class SaleDTO implements Serializable {
     private CustomerDTO customer;
     private UserDTO cassier;
     private UserDTO seller;
-    private Long cassierId;
-    private Long sellerId;
+    private Integer cassierId;
+    private Integer sellerId;
     private String caisseEndNum;
     private String caisseNum;
     private String categorie;
@@ -197,11 +197,11 @@ public class SaleDTO implements Serializable {
         this.numberTransaction = numberTransaction;
     }
 
-    public Long getCustomerId() {
+    public Integer getCustomerId() {
         return customerId;
     }
 
-    public void setCustomerId(Long customerId) {
+    public void setCustomerId(Integer customerId) {
         this.customerId = customerId;
     }
 
@@ -566,20 +566,20 @@ public class SaleDTO implements Serializable {
         return this;
     }
 
-    public Long getCassierId() {
+    public Integer getCassierId() {
         return cassierId;
     }
 
-    public SaleDTO setCassierId(Long cassierId) {
+    public SaleDTO setCassierId(Integer cassierId) {
         this.cassierId = cassierId;
         return this;
     }
 
-    public Long getSellerId() {
+    public Integer getSellerId() {
         return sellerId;
     }
 
-    public SaleDTO setSellerId(Long sellerId) {
+    public SaleDTO setSellerId(Integer sellerId) {
         this.sellerId = sellerId;
         return this;
     }

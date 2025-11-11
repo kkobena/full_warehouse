@@ -11,7 +11,7 @@ import java.util.List;
 
 public class DeliveryReceiptDTO {
 
-    private final Long id;
+    private final Integer id;
     private final CommandeId commandeId;
 
     private final String receiptReference;
@@ -27,7 +27,7 @@ public class DeliveryReceiptDTO {
     private final LocalDateTime modifiedDate;
 
     private final String createdUser;
-    private final Long fournisseurId;
+    private final Integer fournisseurId;
     private final String fournisseurLibelle;
     private final Integer netAmount;
 
@@ -63,7 +63,7 @@ public class DeliveryReceiptDTO {
         itemSize = receiptItems.size();
     }
 
-    public Long getId() {
+    public Integer getId() {
         return id;
     }
 
@@ -95,7 +95,7 @@ public class DeliveryReceiptDTO {
         return createdUser;
     }
 
-    public Long getFournisseurId() {
+    public Integer getFournisseurId() {
         return fournisseurId;
     }
 

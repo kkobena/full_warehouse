@@ -3,14 +3,15 @@ package com.kobe.warehouse.service.sale.calculation.dto;
 import java.math.BigDecimal;
 
 public class TiersPayantLineOutput {
-    private Long clientTiersPayantId;
+    private Integer clientTiersPayantId;
     private BigDecimal montant;
     private int finalTaux;
 
-    public Long getClientTiersPayantId() {
+    public Integer getClientTiersPayantId() {
         return clientTiersPayantId;
     }
-    public void setClientTiersPayantId(Long clientTiersPayantId) {
+
+    public void setClientTiersPayantId(Integer clientTiersPayantId) {
         this.clientTiersPayantId = clientTiersPayantId;
     }
 

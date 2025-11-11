@@ -57,13 +57,13 @@ public class RemiseResourceProxy {
         return ResponseEntity.status(HttpStatus.ACCEPTED).body(result);
     }
 
-    public ResponseEntity<RemiseDTO> getOne(Long id) {
+    public ResponseEntity<RemiseDTO> getOne(Integer id) {
         log.debug("REST request to get Remise : {}", id);
         Optional<RemiseDTO> remiseDTO = this.remiseService.findOne(id);
         return ResponseUtil.wrapOrNotFound(remiseDTO);
     }
 
-    public ResponseEntity<Void> delete(Long id) {
+    public ResponseEntity<Void> delete(Integer id) {
         log.debug("REST request to delete Remise : {}", id);
 
         this.remiseService.delete(id);

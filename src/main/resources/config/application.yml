@@ -61,13 +61,13 @@ spring:
 
   task:
     execution:
-      thread-name-prefix: warehouse-task-
+      thread-name-prefix: pharma-smart-task-
       pool:
         core-size: 2
         max-size: 50
         queue-capacity: 10000
     scheduling:
-      thread-name-prefix: warehouse-scheduling-
+      thread-name-prefix: pharma-smart-scheduling-
       pool:
         size: 2
   thymeleaf:

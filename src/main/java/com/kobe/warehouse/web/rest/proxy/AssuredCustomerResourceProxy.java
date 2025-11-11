@@ -84,7 +84,7 @@ public class AssuredCustomerResourceProxy {
     }
 
     @DeleteMapping("/customers/assured/{id}")
-    public ResponseEntity<Void> deleteCustomer(@PathVariable Long id) {
+    public ResponseEntity<Void> deleteCustomer(@PathVariable Integer id) {
         log.debug("REST request to delete Customer : {}", id);
         assuredCustomerService.deleteCustomerById(id);
         return ResponseEntity.noContent()
@@ -120,7 +120,7 @@ public class AssuredCustomerResourceProxy {
     }
 
     @DeleteMapping("/customers/assured/tiers-payants/{id}")
-    public ResponseEntity<Void> deleteTiersPayant(@PathVariable Long id) {
+    public ResponseEntity<Void> deleteTiersPayant(@PathVariable Integer id) {
         log.debug("REST request to delete deleteTiersPayant : {}", id);
         assuredCustomerService.deleteTiersPayant(id);
         return ResponseEntity.noContent()

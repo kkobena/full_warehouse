@@ -121,7 +121,7 @@ public class GammeProduitResource {
      * gammeProduitDTO, or with status {@code 404 (Not Found)}.
      */
     @GetMapping("/gamme-produits/{id}")
-    public ResponseEntity<GammeProduitDTO> getGammeProduit(@PathVariable Long id) {
+    public ResponseEntity<GammeProduitDTO> getGammeProduit(@PathVariable Integer id) {
         log.debug("REST request to get GammeProduit : {}", id);
         Optional<GammeProduitDTO> gammeProduitDTO = gammeProduitService.findOne(id);
         return ResponseUtil.wrapOrNotFound(gammeProduitDTO);
@@ -134,7 +134,7 @@ public class GammeProduitResource {
      * @return the {@link ResponseEntity} with status {@code 204 (NO_CONTENT)}.
      */
     @DeleteMapping("/gamme-produits/{id}")
-    public ResponseEntity<Void> deleteGammeProduit(@PathVariable Long id) {
+    public ResponseEntity<Void> deleteGammeProduit(@PathVariable Integer id) {
         log.debug("REST request to delete GammeProduit : {}", id);
 
         gammeProduitService.delete(id);

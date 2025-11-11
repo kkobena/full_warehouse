@@ -4,7 +4,7 @@ import com.kobe.warehouse.service.utils.NumberUtil;
 import java.util.List;
 
 public record ReglementDiffereWrapperDTO(
-    Long id,
+    Integer id,
     String firstName,
     String lastName,
     long paidAmount,

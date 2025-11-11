@@ -21,7 +21,7 @@ public class ProduitResourceProxy {
         return ResponseEntity.ok().body(produitService.productsLiteList(produitCriteria, pageable));
     }
 
-    public ResponseEntity<List<ProduitSearch>> search(String search ,Long magasinId, Pageable pageable) {
+    public ResponseEntity<List<ProduitSearch>> search(String search ,Integer magasinId, Pageable pageable) {
         return ResponseEntity.ok().body(produitService.searchProducts( search , magasinId, pageable));
     }
 }

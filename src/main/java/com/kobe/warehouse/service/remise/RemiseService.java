@@ -13,9 +13,9 @@ public interface RemiseService {
 
     RemiseDTO changeStatus(RemiseDTO remiseDTO);
 
-    Optional<RemiseDTO> findOne(Long id);
+    Optional<RemiseDTO> findOne(Integer id);
 
-    void delete(Long id);
+    void delete(Integer id);
 
     List<RemiseDTO> findAll(TypeRemise typeRemise);
 

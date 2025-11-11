@@ -69,12 +69,12 @@ public class TableauResource {
     }
 
     @GetMapping("/tableaux/{id}")
-    public ResponseEntity<TableauDTO> getOne(@PathVariable Long id) {
+    public ResponseEntity<TableauDTO> getOne(@PathVariable Integer id) {
         return ResponseUtil.wrapOrNotFound(tableauService.findOne(id));
     }
 
     @DeleteMapping("/tableaux/{id}")
-    public ResponseEntity<Void> delete(@PathVariable Long id) {
+    public ResponseEntity<Void> delete(@PathVariable Integer id) {
         tableauService.delete(id);
         return ResponseEntity.noContent()
             .headers(HeaderUtil.createEntityDeletionAlert(applicationName, true, ENTITY_NAME, id.toString()))
@@ -82,13 +82,13 @@ public class TableauResource {
     }
 
     @PutMapping("/tableaux/associer/{id}")
-    public ResponseEntity<Void> associer(@PathVariable Long id, @RequestBody List<Long> produitIds) {
+    public ResponseEntity<Void> associer(@PathVariable Integer id, @RequestBody List<Integer> produitIds) {
         this.tableauService.associer(id, produitIds);
         return ResponseEntity.ok().build();
     }
 
     @PutMapping("/tableaux/dissocier")
-    public ResponseEntity<Void> dissocier(@RequestBody List<Long> produitIds) {
+    public ResponseEntity<Void> dissocier(@RequestBody List<Integer> produitIds) {
         this.tableauService.dissocier(produitIds);
         return ResponseEntity.ok().build();
     }

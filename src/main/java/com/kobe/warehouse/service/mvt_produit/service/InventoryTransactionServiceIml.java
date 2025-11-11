@@ -1,7 +1,7 @@
 package com.kobe.warehouse.service.mvt_produit.service;
 
 import com.fasterxml.jackson.core.type.TypeReference;
-import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.json.JsonMapper;
 import com.kobe.warehouse.domain.InventoryTransaction;
 import com.kobe.warehouse.domain.Magasin;
 import com.kobe.warehouse.domain.OrderLine;
@@ -44,13 +44,13 @@ public class InventoryTransactionServiceIml implements InventoryTransactionServi
     private final InventoryTransactionRepository inventoryTransactionRepository;
     private final InventoryTransactionSpec inventoryTransactionSpec;
     private final MvtProduitIdGeneratorService mvtProduitIdGeneratorService;
-    private final ObjectMapper objectMapper;
+    private final JsonMapper objectMapper;
     private final StorageService storageService;
 
     public InventoryTransactionServiceIml(
         InventoryTransactionRepository inventoryTransactionRepository,
         InventoryTransactionSpec inventoryTransactionSpec,
-        MvtProduitIdGeneratorService mvtProduitIdGeneratorService, ObjectMapper objectMapper, StorageService storageService
+        MvtProduitIdGeneratorService mvtProduitIdGeneratorService, JsonMapper objectMapper, StorageService storageService
     ) {
         this.inventoryTransactionRepository = inventoryTransactionRepository;
         this.inventoryTransactionSpec = inventoryTransactionSpec;
@@ -66,7 +66,7 @@ public class InventoryTransactionServiceIml implements InventoryTransactionServi
     }
 
     @Transactional(readOnly = true)
-    public long quantitySold(Long produitId) {
+    public long quantitySold(Integer produitId) {
         Long aLong = inventoryTransactionRepository.quantitySold(TransactionType.SALE, produitId);
         return (aLong != null ? aLong : 0);
     }
@@ -79,7 +79,7 @@ public class InventoryTransactionServiceIml implements InventoryTransactionServi
     @Transactional(readOnly = true)
     public Page<InventoryTransactionDTO> getAllInventoryTransactions(
         Pageable pageable,
-        Long produitId,
+        Integer produitId,
         String startDate,
         String endDate,
         Integer type
@@ -92,7 +92,7 @@ public class InventoryTransactionServiceIml implements InventoryTransactionServi
     }
 
     @Override
-    public LocalDateTime fetchLastDateByTypeAndProduitId(MouvementProduit type, Long produitId) {
+    public LocalDateTime fetchLastDateByTypeAndProduitId(MouvementProduit type, Integer produitId) {
         return inventoryTransactionRepository
             .fetchLastDateByTypeAndProduitId(type, produitId)
             .map(LastDateProjection::getUpdatedAt)
@@ -103,13 +103,13 @@ public class InventoryTransactionServiceIml implements InventoryTransactionServi
     public List<ProduitAuditingState> fetchProduitDailyTransaction(ProduitAuditingParam produitAuditingParam) {
         var startDate = nonNull(produitAuditingParam.fromDate()) ? produitAuditingParam.fromDate() : LocalDate.now();
         var endDate = nonNull(produitAuditingParam.toDate()) ? produitAuditingParam.toDate() : LocalDate.now();
-        Long magasinId = produitAuditingParam.magasinId();
+        Integer magasinId = produitAuditingParam.magasinId();
         magasinId = magasinId == null ? storageService.getConnectedUserMagasin().getId() : magasinId;
         return fetchMouvementProduit(produitAuditingParam.produitId(), magasinId, startDate, endDate);
 
     }
 
-    private List<ProduitAuditingState> fetchMouvementProduit(Long produitId, Long magasinId, LocalDate startDate, LocalDate endDate) {
+    private List<ProduitAuditingState> fetchMouvementProduit(Integer produitId, Integer magasinId, LocalDate startDate, LocalDate endDate) {
         List<ProduitAuditingState> produitAuditingStates = new ArrayList<>();
         record ProductMouvement(LocalDate mvtDate, int initStock, int afterStock,
                                 Map<MouvementProduit, Integer> mouvements) {
@@ -196,7 +196,6 @@ public class InventoryTransactionServiceIml implements InventoryTransactionServi
                 .setUser(salesLine.getSales().getUser())
                 .setMagasin(depot)
                 .setRegularUnitPrice(salesLine.getRegularUnitPrice());
-            ;
             inventoryTransaction.setId(mvtProduitIdGeneratorService.nextId());
             inventoryTransactionRepository.save(inventoryTransaction);
         });

@@ -18,6 +18,7 @@ public class WarehouseSequence implements Serializable {
     private static final long serialVersionUID = 1L;
 
     @Id
+    @Column(name = "name", nullable = false, length = 100)
     private String name;
     @ColumnDefault("0")
     @Column(name = "seq_value")

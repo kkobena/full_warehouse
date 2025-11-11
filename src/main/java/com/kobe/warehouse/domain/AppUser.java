@@ -35,14 +35,14 @@ import org.hibernate.annotations.CacheConcurrencyStrategy;
 @Entity
 @Table(name = "app_user")
 @Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
-public class AppUser extends AbstractAuditingEntity<Long> implements Serializable {
+public class AppUser extends AbstractAuditingEntity<Integer> implements Serializable {
 
     @Serial
     private static final long serialVersionUID = 1L;
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+    private Integer id;
 
     @NotNull
     @Pattern(regexp = Constants.LOGIN_REGEX)
@@ -119,11 +119,11 @@ public class AppUser extends AbstractAuditingEntity<Long> implements Serializabl
     private String actionAuthorityKey;
 
     @Override
-    public Long getId() {
+    public Integer getId() {
         return id;
     }
 
-    public void setId(Long id) {
+    public void setId(Integer id) {
         this.id = id;
     }
 

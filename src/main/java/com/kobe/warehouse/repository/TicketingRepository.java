@@ -6,4 +6,4 @@ import org.springframework.stereotype.Repository;
 
 /** Spring Data repository for the Ticketing entity. */
 @Repository
-public interface TicketingRepository extends JpaRepository<Ticketing, Long> {}
+public interface TicketingRepository extends JpaRepository<Ticketing, Integer> {}

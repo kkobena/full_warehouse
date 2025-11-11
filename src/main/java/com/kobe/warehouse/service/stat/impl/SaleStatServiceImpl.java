@@ -1,7 +1,7 @@
 package com.kobe.warehouse.service.stat.impl;
 
 import com.fasterxml.jackson.core.type.TypeReference;
-import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.json.JsonMapper;
 import com.kobe.warehouse.domain.SalePayment;
 import com.kobe.warehouse.domain.Sales;
 import com.kobe.warehouse.domain.enumeration.SalesStatut;
@@ -33,9 +33,9 @@ public class SaleStatServiceImpl implements SaleStatService {
     private final Logger LOG = LoggerFactory.getLogger(SaleStatServiceImpl.class);
     private final SalesRepository salesRepository;
     private final SalePaymentRepository salePaymentRepository;
-    private final ObjectMapper objectMapper;
+    private final JsonMapper objectMapper;
 
-    public SaleStatServiceImpl(SalesRepository salesRepository, SalePaymentRepository salePaymentRepository, ObjectMapper objectMapper) {
+    public SaleStatServiceImpl(SalesRepository salesRepository, SalePaymentRepository salePaymentRepository, JsonMapper objectMapper) {
         this.salesRepository = salesRepository;
         this.salePaymentRepository = salePaymentRepository;
         this.objectMapper = objectMapper;

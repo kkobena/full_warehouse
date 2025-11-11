@@ -22,7 +22,7 @@ public class RetourBonItem implements Serializable {
     private static final long serialVersionUID = 1L;
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+    private Integer id;
 
     @NotNull
     @Column(name = "date_mtv", nullable = false)
@@ -56,11 +56,11 @@ public class RetourBonItem implements Serializable {
     @Column(name = "after_stock", length = 8)
     private Integer afterStock;
 
-    public Long getId() {
+    public Integer getId() {
         return id;
     }
 
-    public void setId(Long id) {
+    public void setId(Integer id) {
         this.id = id;
     }
 

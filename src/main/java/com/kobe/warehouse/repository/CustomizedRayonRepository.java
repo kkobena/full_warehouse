@@ -41,7 +41,7 @@ public class CustomizedRayonRepository implements CustomizedRayonService {
 
     @Override
     @Transactional(readOnly = true)
-    public Page<RayonDTO> listRayonsByStorageId(Long magasinId, Long storageId, String query, Pageable pageable) {
+    public Page<RayonDTO> listRayonsByStorageId(Integer magasinId, Integer storageId, String query, Pageable pageable) {
         long total = findAllCount(magasinId, storageId, query);
         List<RayonDTO> list = new ArrayList<>();
         if (total > 0) {
@@ -59,7 +59,7 @@ public class CustomizedRayonRepository implements CustomizedRayonService {
         return new PageImpl<>(list, pageable, total);
     }
 
-    private long findAllCount(Long magasinId, Long storageId, String query) {
+    private long findAllCount(Integer magasinId, Integer storageId, String query) {
         CriteriaBuilder cb = em.getCriteriaBuilder();
         CriteriaQuery<Long> cq = cb.createQuery(Long.class);
         Root<Rayon> root = cq.from(Rayon.class);
@@ -71,7 +71,7 @@ public class CustomizedRayonRepository implements CustomizedRayonService {
         return v != null ? v : 0;
     }
 
-    private List<Predicate> produitPredicate(CriteriaBuilder cb, Root<Rayon> root, Long magasinId, Long storageId, String query) {
+    private List<Predicate> produitPredicate(CriteriaBuilder cb, Root<Rayon> root, Integer magasinId, Integer storageId, String query) {
         List<Predicate> predicates = new ArrayList<>();
         if (StringUtils.hasLength(query)) {
             String search = query.toUpperCase() + "%";

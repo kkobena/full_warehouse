@@ -51,7 +51,7 @@ public class Commande implements Persistable<CommandeId>, Serializable, Cloneabl
     private static final long serialVersionUID = 1L;
 
     @Id
-    private Long id;
+    private Integer id;
 
     @Id
     @Column(name = "order_date")
@@ -99,7 +99,7 @@ public class Commande implements Persistable<CommandeId>, Serializable, Cloneabl
 
     @NotNull
     @Enumerated(EnumType.STRING)
-    @Column(name = "order_status")
+    @Column(name = "order_status",length = 12, nullable = false)
     private OrderStatut orderStatus = OrderStatut.REQUESTED;
 
     @OneToMany(mappedBy = "commande", cascade = { CascadeType.PERSIST, CascadeType.REMOVE })
@@ -107,12 +107,12 @@ public class Commande implements Persistable<CommandeId>, Serializable, Cloneabl
 
     @NotNull
     @Enumerated(EnumType.STRING)
-    @Column(name = "paiment_status")
+    @Column(name = "paiment_status", length = 10, nullable = false)
     private PaimentStatut paimentStatut = PaimentStatut.UNPAID;
 
     @NotNull
     @Enumerated(EnumType.STRING)
-    @Column(name = "receipt_type")
+    @Column(name = "receipt_type", length = 10, nullable = false)
     private TypeDeliveryReceipt type = TypeDeliveryReceipt.ORDER;
 
     @ManyToOne(optional = false)
@@ -150,7 +150,7 @@ public class Commande implements Persistable<CommandeId>, Serializable, Cloneabl
         return new CommandeId(id, orderDate);
     }
 
-    public void setId(Long id) {
+    public void setId(Integer id) {
         this.id = id;
     }
 

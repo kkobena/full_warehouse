@@ -46,19 +46,19 @@ public class TableauServiceImpl implements TableauService {
     }
 
     @Override
-    public Optional<TableauDTO> findOne(Long id) {
+    public Optional<TableauDTO> findOne(Integer id) {
         return this.tableauRepository.findById(id).map(TableauDTO::new);
     }
 
     @Override
     @Transactional
-    public void delete(Long id) {
+    public void delete(Integer id) {
         this.tableauRepository.deleteById(id);
     }
 
     @Override
     @Transactional
-    public void associer(Long id, List<Long> produitIds) {
+    public void associer(Integer id, List<Integer> produitIds) {
         Tableau tableau = this.tableauRepository.getReferenceById(id);
 
         produitIds.forEach(p -> {
@@ -80,7 +80,7 @@ public class TableauServiceImpl implements TableauService {
 
     @Override
     @Transactional
-    public void dissocier(List<Long> produitIds) {
+    public void dissocier(List<Integer> produitIds) {
         produitIds.forEach(p -> {
             Produit produit = this.produitRepository.getReferenceById(p);
             try {

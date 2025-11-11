@@ -46,7 +46,7 @@ public class RayonProduitService {
         return Optional.ofNullable(rayonProduitRepository.saveAndFlush(rayonProduit)).map(RayonProduitDTO::new);
     }
 
-    public void delete(long id) throws GenericError {
+    public void delete(Integer id) throws GenericError {
         RayonProduit rayonProduit = rayonProduitRepository.getReferenceById(id);
         StockProduit stockProduit = stockProduitRepository.findOneByProduitIdAndStockageId(
             id,

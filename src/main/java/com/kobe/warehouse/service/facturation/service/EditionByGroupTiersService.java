@@ -52,7 +52,7 @@ public class EditionByGroupTiersService extends AbstractEditionFactureService {
         if (!CollectionUtils.isEmpty(editionSearchParams.ids())) {
             return super
                 .buildFetchSpecification(editionSearchParams)
-                .and(this.thirdPartySaleLineRepository.groupIdsCriteria(editionSearchParams.ids()));
+                .and(this.thirdPartySaleLineRepository.selectionBonCriteria(editionSearchParams.ids()));
         } else if (!CollectionUtils.isEmpty(editionSearchParams.groupIds())) {
             return super
                 .buildFetchSpecification(editionSearchParams)

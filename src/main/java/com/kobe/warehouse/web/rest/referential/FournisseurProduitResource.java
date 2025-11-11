@@ -53,7 +53,7 @@ public class FournisseurProduitResource {
     }
 
     @DeleteMapping("/fournisseur-produits/{id}")
-    public ResponseEntity<Void> delete(@PathVariable Long id) throws Exception {
+    public ResponseEntity<Void> delete(@PathVariable Integer id) throws Exception {
         log.debug("REST request to delete FournisseurProduit : {}", id);
         fournisseurProduitService.delete(id);
         return ResponseEntity.noContent()
@@ -62,14 +62,14 @@ public class FournisseurProduitResource {
     }
 
     @PutMapping("/fournisseur-produits/{id}/{prodduitId}")
-    public ResponseEntity<Void> updateDefaultFournisseur(@PathVariable("id") Long id, @PathVariable("prodduitId") Long prodduitId) {
-        log.debug("REST request to delete FournisseurProduit : {}", id);
+    public ResponseEntity<Void> updateDefaultFournisseur(@PathVariable("id") Integer id, @PathVariable("prodduitId") Integer prodduitId) {
+
         fournisseurProduitService.updateDefaultFournisseur(id, prodduitId);
         return ResponseEntity.accepted().build();
     }
 
     @GetMapping("/fournisseur-produits/{id}")
-    public ResponseEntity<FournisseurProduitDTO> getOne(@PathVariable Long id) {
+    public ResponseEntity<FournisseurProduitDTO> getOne(@PathVariable Integer id) {
         return ResponseUtil.wrapOrNotFound(fournisseurProduitService.findOneById(id));
     }
 

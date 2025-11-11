@@ -6,10 +6,10 @@ public record ProductToDestroyFilter(
     LocalDate fromDate,
     LocalDate toDate,
     Boolean destroyed,
-    Long userId,
-    Long rayonId,
-    Long fournisseurId,
+    Integer userId,
+    Integer rayonId,
+    Integer fournisseurId,
     String searchTerm,
-    Long magasinId,
+    Integer magasinId,
     Boolean editing
 ) {}

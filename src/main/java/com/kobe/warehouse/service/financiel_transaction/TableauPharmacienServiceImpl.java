@@ -1,7 +1,7 @@
 package com.kobe.warehouse.service.financiel_transaction;
 
 import com.fasterxml.jackson.core.type.TypeReference;
-import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.json.JsonMapper;
 import com.kobe.warehouse.domain.GroupeFournisseur;
 import com.kobe.warehouse.domain.enumeration.CategorieChiffreAffaire;
 import com.kobe.warehouse.domain.enumeration.SalesStatut;
@@ -46,14 +46,14 @@ import java.util.stream.Collectors;
 public class TableauPharmacienServiceImpl implements TableauPharmacienService {
 
     private static final Logger LOG = LoggerFactory.getLogger(TableauPharmacienServiceImpl.class);
-    private static final long GROUP_OTHER_ID = -1L;
+    private static final int GROUP_OTHER_ID = -1;
 
     private final GroupeFournisseurRepository groupeFournisseurRepository;
-    private final Set<Long> groupeFournisseurs = new HashSet<>();
+    private final Set<Integer> groupeFournisseurs = new HashSet<>();
     private final TableauPharmacienReportReportService reportService;
     private final ExcelExportService excelExportService;
     private final AppConfigurationService appConfigurationService;
-    private final ObjectMapper objectMapper;
+    private final JsonMapper objectMapper;
     private final SalesRepository salesRepository;
     private final CommandeDataService commandeDataService;
 
@@ -61,7 +61,7 @@ public class TableauPharmacienServiceImpl implements TableauPharmacienService {
     public TableauPharmacienServiceImpl(
         GroupeFournisseurRepository groupeFournisseurRepository,
         TableauPharmacienReportReportService reportService,
-        ExcelExportService excelExportService, AppConfigurationService appConfigurationService, ObjectMapper objectMapper, SalesRepository salesRepository, CommandeDataService commandeDataService
+        ExcelExportService excelExportService, AppConfigurationService appConfigurationService, JsonMapper objectMapper, SalesRepository salesRepository, CommandeDataService commandeDataService
     ) {
 
         this.groupeFournisseurRepository = groupeFournisseurRepository;
@@ -85,7 +85,7 @@ public class TableauPharmacienServiceImpl implements TableauPharmacienService {
         return achatDTO;
     }
 
-    public Set<Long> getGroupeFournisseurs() {
+    public Set<Integer> getGroupeFournisseurs() {
         groupeFournisseurs.addAll(fetchGroupGrossisteToDisplay().stream().map(GroupeFournisseurDTO::getId).collect(Collectors.toSet()));//TODO a revoir
         return groupeFournisseurs;
     }
@@ -252,8 +252,8 @@ public class TableauPharmacienServiceImpl implements TableauPharmacienService {
             .stream()
             .collect(Collectors.groupingBy(AchatDTO::getGroupeGrossisteId))
             .forEach((key, value) -> {
-                Long topKey = null;
-                for (Long groupeFournisseur : getGroupeFournisseurs()) {
+                Integer topKey = null;
+                for (Integer groupeFournisseur : getGroupeFournisseurs()) {
                     if (Objects.equals(groupeFournisseur, key)) {
                         topKey = key;
                         break;
@@ -286,7 +286,7 @@ public class TableauPharmacienServiceImpl implements TableauPharmacienService {
         return fournisseurAchats.stream().toList();
     }
 
-    private FournisseurAchat newGroupFournisseurAchat(Long key, String libelle) {
+    private FournisseurAchat newGroupFournisseurAchat(Integer key, String libelle) {
         FournisseurAchat fournisseurAchat = new FournisseurAchat();
         fournisseurAchat.setId(key);
         fournisseurAchat.setLibelle(libelle);

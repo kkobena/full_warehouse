@@ -5,8 +5,8 @@ import com.kobe.warehouse.domain.enumeration.PrioriteTiersPayant;
 import java.math.BigDecimal;
 
 public class TiersPayantInput {
-    private Long clientTiersPayantId;
-    private Long tiersPayantId;
+    private Integer clientTiersPayantId;
+    private Integer tiersPayantId;
     private String tiersPayantFullName;
     private float taux;
     private BigDecimal plafondConso;
@@ -14,11 +14,11 @@ public class TiersPayantInput {
     private BigDecimal plafondJournalierClient;
     private PrioriteTiersPayant priorite;
 
-    public Long getClientTiersPayantId() {
+    public Integer getClientTiersPayantId() {
         return clientTiersPayantId;
     }
 
-    public void setClientTiersPayantId(Long clientTiersPayantId) {
+    public void setClientTiersPayantId(Integer clientTiersPayantId) {
         this.clientTiersPayantId = clientTiersPayantId;
     }
 
@@ -62,11 +62,11 @@ public class TiersPayantInput {
         this.plafondJournalierClient = plafondJournalierClient;
     }
 
-    public Long getTiersPayantId() {
+    public Integer getTiersPayantId() {
         return tiersPayantId;
     }
 
-    public void setTiersPayantId(Long tiersPayantId) {
+    public void setTiersPayantId(Integer tiersPayantId) {
         this.tiersPayantId = tiersPayantId;
     }
 

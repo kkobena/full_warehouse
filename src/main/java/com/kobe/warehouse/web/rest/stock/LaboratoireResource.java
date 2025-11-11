@@ -120,7 +120,7 @@ public class LaboratoireResource {
      * laboratoireDTO, or with status {@code 404 (Not Found)}.
      */
     @GetMapping("/laboratoires/{id}")
-    public ResponseEntity<LaboratoireDTO> getLaboratoire(@PathVariable Long id) {
+    public ResponseEntity<LaboratoireDTO> getLaboratoire(@PathVariable Integer id) {
         log.debug("REST request to get Laboratoire : {}", id);
         Optional<LaboratoireDTO> laboratoireDTO = laboratoireService.findOne(id);
         return ResponseUtil.wrapOrNotFound(laboratoireDTO);
@@ -133,7 +133,7 @@ public class LaboratoireResource {
      * @return the {@link ResponseEntity} with status {@code 204 (NO_CONTENT)}.
      */
     @DeleteMapping("/laboratoires/{id}")
-    public ResponseEntity<Void> deleteLaboratoire(@PathVariable Long id) {
+    public ResponseEntity<Void> deleteLaboratoire(@PathVariable Integer id) {
         log.debug("REST request to delete Laboratoire : {}", id);
 
         laboratoireService.delete(id);

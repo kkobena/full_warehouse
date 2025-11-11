@@ -7,7 +7,7 @@ import com.kobe.warehouse.service.stock.dto.PeremptionStatut;
 @ExcelIgnoreUnannotated
 public class ProductToDestroyDTO {
 
-    private Long id;
+    private Integer id;
 
     @ExcelProperty("Nom du produit")
     private String produitName;
@@ -172,11 +172,11 @@ public class ProductToDestroyDTO {
         this.peremptionStatut = peremptionStatut;
     }
 
-    public Long getId() {
+    public Integer getId() {
         return id;
     }
 
-    public void setId(Long id) {
+    public void setId(Integer id) {
         this.id = id;
     }
 }

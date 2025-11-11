@@ -45,7 +45,7 @@ class StockUpdateServiceTest {
     @DisplayName("Should update stock successfully with sufficient quantity")
     void testUpdateStock_SuccessfulUpdate() {
         // Given
-        Long storageId = 1L;
+        int storageId = 1;
         int initialQtyStock = 100;
         int initialQtyUG = 10;
         int quantityRequested = 5;
@@ -54,7 +54,7 @@ class StockUpdateServiceTest {
         SalesLine salesLine = createSalesLine(quantityRequested, quantityUg, 1000);
         StockProduit stockProduit = createStockProduit(initialQtyStock, initialQtyUG);
 
-        when(stockProduitRepository.findOneByProduitIdAndStockageId(anyLong(), eq(storageId)))
+        when(stockProduitRepository.findOneByProduitIdAndStockageId(anyInt(), eq(storageId)))
             .thenReturn(stockProduit);
 
         // When
@@ -76,7 +76,7 @@ class StockUpdateServiceTest {
     @DisplayName("Should log force stock when quantity is insufficient")
     void testUpdateStock_ForceStockLogged() {
         // Given
-        Long storageId = 1L;
+        int storageId = 1;
         int initialQtyStock = 5;
         int initialQtyUG = 0;
         int quantityRequested = 10; // More than available
@@ -84,7 +84,7 @@ class StockUpdateServiceTest {
         SalesLine salesLine = createSalesLine(quantityRequested, 0, 1000);
         StockProduit stockProduit = createStockProduit(initialQtyStock, initialQtyUG);
 
-        when(stockProduitRepository.findOneByProduitIdAndStockageId(anyLong(), eq(storageId)))
+        when(stockProduitRepository.findOneByProduitIdAndStockageId(anyInt(), eq(storageId)))
             .thenReturn(stockProduit);
 
         // When
@@ -105,7 +105,7 @@ class StockUpdateServiceTest {
     @DisplayName("Should log price modification when sale price exceeds usual price")
     void testUpdateStock_PriceModificationLogged() {
         // Given
-        Long storageId = 1L;
+        int storageId = 1;
         int usualPrice = 100;
         int salePrice = 150; // Higher than usual
 
@@ -114,7 +114,7 @@ class StockUpdateServiceTest {
 
         StockProduit stockProduit = createStockProduit(100, 10);
 
-        when(stockProduitRepository.findOneByProduitIdAndStockageId(anyLong(), eq(storageId)))
+        when(stockProduitRepository.findOneByProduitIdAndStockageId(anyInt(), eq(storageId)))
             .thenReturn(stockProduit);
 
         // When
@@ -138,7 +138,7 @@ class StockUpdateServiceTest {
     @DisplayName("Should not log price modification when sale price is equal or lower")
     void testUpdateStock_NoPriceModificationWhenPriceLower() {
         // Given
-        Long storageId = 1L;
+        int storageId = 1;
         int usualPrice = 150;
         int salePrice = 100; // Lower than usual
 
@@ -147,7 +147,7 @@ class StockUpdateServiceTest {
 
         StockProduit stockProduit = createStockProduit(100, 10);
 
-        when(stockProduitRepository.findOneByProduitIdAndStockageId(anyLong(), eq(storageId)))
+        when(stockProduitRepository.findOneByProduitIdAndStockageId(anyInt(), eq(storageId)))
             .thenReturn(stockProduit);
 
         // When
@@ -165,7 +165,7 @@ class StockUpdateServiceTest {
     @DisplayName("Should handle UG (Gestion d'Urgence) quantities correctly")
     void testUpdateStock_WithUGQuantities() {
         // Given
-        Long storageId = 1L;
+        int storageId = 1;
         int initialQtyStock = 100;
         int initialQtyUG = 20;
         int quantityRequested = 10;
@@ -174,7 +174,7 @@ class StockUpdateServiceTest {
         SalesLine salesLine = createSalesLine(quantityRequested, quantityUg, 1000);
         StockProduit stockProduit = createStockProduit(initialQtyStock, initialQtyUG);
 
-        when(stockProduitRepository.findOneByProduitIdAndStockageId(anyLong(), eq(storageId)))
+        when(stockProduitRepository.findOneByProduitIdAndStockageId(anyInt(), eq(storageId)))
             .thenReturn(stockProduit);
 
         // When
@@ -191,12 +191,12 @@ class StockUpdateServiceTest {
     @DisplayName("Should update timestamp on stock")
     void testUpdateStock_TimestampUpdated() {
         // Given
-        Long storageId = 1L;
+        int storageId = 1;
         SalesLine salesLine = createSalesLine(5, 0, 1000);
         StockProduit stockProduit = createStockProduit(100, 10);
         LocalDateTime oldTimestamp = stockProduit.getUpdatedAt();
 
-        when(stockProduitRepository.findOneByProduitIdAndStockageId(anyLong(), eq(storageId)))
+        when(stockProduitRepository.findOneByProduitIdAndStockageId(anyInt(), eq(storageId)))
             .thenReturn(stockProduit);
 
         // When
@@ -220,7 +220,7 @@ class StockUpdateServiceTest {
         salesLine.setRegularUnitPrice(regularUnitPrice);
 
         Produit produit = new Produit();
-        produit.setId(1L);
+        produit.setId(1);
         produit.setLibelle("Test Product");
         salesLine.setProduit(produit);
 

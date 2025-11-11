@@ -65,55 +65,55 @@ VALUES (1, '01', 'Grand Public'),
        (6, '20', 'Parfumerie') ON CONFLICT (id) DO NOTHING;
 
 INSERT INTO famille_produit (id, code, libelle, categorie_id)
-VALUES (150002, '1050', 'MEDICAMENTS FRANCE', 1) ON CONFLICT (id) DO NOTHING;
+VALUES (nextval('famille_produit_id_seq'), '1050', 'MEDICAMENTS FRANCE', 1) ON CONFLICT (id) DO NOTHING;
 INSERT INTO famille_produit (id, code, libelle, categorie_id)
-VALUES (150003, '1041', 'H', 1) ON CONFLICT (id) DO NOTHING;
+VALUES (nextval('famille_produit_id_seq'), '1041', 'H', 1) ON CONFLICT (id) DO NOTHING;
 INSERT INTO famille_produit (id, code, libelle, categorie_id)
-VALUES (150004, '3020', 'PRODUITS CLARINS', 1) ON CONFLICT (id) DO NOTHING;
+VALUES (nextval('famille_produit_id_seq'), '3020', 'PRODUITS CLARINS', 1) ON CONFLICT (id) DO NOTHING;
 INSERT INTO famille_produit (id, code, libelle, categorie_id)
-VALUES (150005, '3040', 'PRODUITS BUCCO-DENTAIRES', 1) ON CONFLICT (id) DO NOTHING;
+VALUES (nextval('famille_produit_id_seq'), '3040', 'PRODUITS BUCCO-DENTAIRES', 1) ON CONFLICT (id) DO NOTHING;
 INSERT INTO famille_produit (id, code, libelle, categorie_id)
-VALUES (150006, '1060', 'PRODUITS CANCERO ROCHE', 1) ON CONFLICT (id) DO NOTHING;
+VALUES (nextval('famille_produit_id_seq'), '1060', 'PRODUITS CANCERO ROCHE', 1) ON CONFLICT (id) DO NOTHING;
 INSERT INTO famille_produit (id, code, libelle, categorie_id)
-VALUES (150007, '8010', 'OSTEO-SYNTHESE', 1) ON CONFLICT (id) DO NOTHING;
+VALUES (nextval('famille_produit_id_seq'), '8010', 'OSTEO-SYNTHESE', 1) ON CONFLICT (id) DO NOTHING;
 INSERT INTO famille_produit (id, code, libelle, categorie_id)
-VALUES (150008, '6002', 'PIECES MONNAIE MESURE', 1) ON CONFLICT (id) DO NOTHING;
+VALUES (nextval('famille_produit_id_seq'), '6002', 'PIECES MONNAIE MESURE', 1) ON CONFLICT (id) DO NOTHING;
 INSERT INTO famille_produit (id, code, libelle, categorie_id)
-VALUES (150009, '1070', 'PRODUITS CANCERO AVENTIS', 1) ON CONFLICT (id) DO NOTHING;
+VALUES (nextval('famille_produit_id_seq'), '1070', 'PRODUITS CANCERO AVENTIS', 1) ON CONFLICT (id) DO NOTHING;
 INSERT INTO famille_produit (id, code, libelle, categorie_id)
-VALUES (150010, '1080', 'MEDICAMENTS MARGE REDUITE', 1) ON CONFLICT (id) DO NOTHING;
+VALUES (nextval('famille_produit_id_seq'), '1080', 'MEDICAMENTS MARGE REDUITE', 1) ON CONFLICT (id) DO NOTHING;
 INSERT INTO famille_produit (id, code, libelle, categorie_id)
-VALUES (150011, '1000', 'SPECIALITES PUBLIQUES', 1) ON CONFLICT (id) DO NOTHING;
+VALUES (nextval('famille_produit_id_seq'), '1000', 'SPECIALITES PUBLIQUES', 1) ON CONFLICT (id) DO NOTHING;
 INSERT INTO famille_produit (id, code, libelle, categorie_id)
-VALUES (150012, '1010', 'SPECIALITES HOPITAL', 1) ON CONFLICT (id) DO NOTHING;
+VALUES (nextval('famille_produit_id_seq'), '1010', 'SPECIALITES HOPITAL', 1) ON CONFLICT (id) DO NOTHING;
 INSERT INTO famille_produit (id, code, libelle, categorie_id)
-VALUES (150013, '1020', 'DECONDITIONNES', 1) ON CONFLICT (id) DO NOTHING;
+VALUES (nextval('famille_produit_id_seq'), '1020', 'DECONDITIONNES', 1) ON CONFLICT (id) DO NOTHING;
 INSERT INTO famille_produit (id, code, libelle, categorie_id)
-VALUES (150014, '1030', 'GENERIQUES', 1) ON CONFLICT (id) DO NOTHING;
+VALUES (nextval('famille_produit_id_seq'), '1030', 'GENERIQUES', 1) ON CONFLICT (id) DO NOTHING;
 INSERT INTO famille_produit (id, code, libelle, categorie_id)
-VALUES (150015, '1040', 'HOMEOPATHIE', 1) ON CONFLICT (id) DO NOTHING;
+VALUES (nextval('famille_produit_id_seq'), '1040', 'HOMEOPATHIE', 1) ON CONFLICT (id) DO NOTHING;
 INSERT INTO famille_produit (id, code, libelle, categorie_id)
-VALUES (150016, '1900', 'PART 1/3 PAYANT', 1) ON CONFLICT (id) DO NOTHING;
+VALUES (nextval('famille_produit_id_seq'), '1900', 'PART 1/3 PAYANT', 1) ON CONFLICT (id) DO NOTHING;
 INSERT INTO famille_produit (id, code, libelle, categorie_id)
-VALUES (150017, '2000', 'VETERINAIRES', 1) ON CONFLICT (id) DO NOTHING;
+VALUES (nextval('famille_produit_id_seq'), '2000', 'VETERINAIRES', 1) ON CONFLICT (id) DO NOTHING;
 INSERT INTO famille_produit (id, code, libelle, categorie_id)
-VALUES (150018, '3000', 'PARFUMERIE LOCALE N1', 1) ON CONFLICT (id) DO NOTHING;
+VALUES (nextval('famille_produit_id_seq'), '3000', 'PARFUMERIE LOCALE N1', 1) ON CONFLICT (id) DO NOTHING;
 INSERT INTO famille_produit (id, code, libelle, categorie_id)
-VALUES (150019, '3010', 'PARFUMERIE LOCALE N2', 1) ON CONFLICT (id) DO NOTHING;
+VALUES (nextval('famille_produit_id_seq'), '3010', 'PARFUMERIE LOCALE N2', 1) ON CONFLICT (id) DO NOTHING;
 INSERT INTO famille_produit (id, code, libelle, categorie_id)
-VALUES (150020, '4000', 'ORTHOPEDIE', 1) ON CONFLICT (id) DO NOTHING;
+VALUES (nextval('famille_produit_id_seq'), '4000', 'ORTHOPEDIE', 1) ON CONFLICT (id) DO NOTHING;
 INSERT INTO famille_produit (id, code, libelle, categorie_id)
-VALUES (150021, '5000', 'LAITS/ FARINES/ DIETETIQUE INF.', 1) ON CONFLICT (id) DO NOTHING;
+VALUES (nextval('famille_produit_id_seq'), '5000', 'LAITS/ FARINES/ DIETETIQUE INF.', 1) ON CONFLICT (id) DO NOTHING;
 INSERT INTO famille_produit (id, code, libelle, categorie_id)
-VALUES (150022, '7000', 'CHIMIQUES', 1) ON CONFLICT (id) DO NOTHING;
+VALUES (nextval('famille_produit_id_seq'), '7000', 'CHIMIQUES', 1) ON CONFLICT (id) DO NOTHING;
 INSERT INTO famille_produit (id, code, libelle, categorie_id)
-VALUES (150023, '6000', 'DIETETIQUE ADULTE', 1) ON CONFLICT (id) DO NOTHING;
+VALUES (nextval('famille_produit_id_seq'), '6000', 'DIETETIQUE ADULTE', 1) ON CONFLICT (id) DO NOTHING;
 INSERT INTO famille_produit (id, code, libelle, categorie_id)
-VALUES (150024, '8000', 'ACCESSOIRES', 1) ON CONFLICT (id) DO NOTHING;
+VALUES (nextval('famille_produit_id_seq'), '8000', 'ACCESSOIRES', 1) ON CONFLICT (id) DO NOTHING;
 INSERT INTO famille_produit (id, code, libelle, categorie_id)
-VALUES (150025, '9000', 'DIVERS', 1) ON CONFLICT (id) DO NOTHING;
+VALUES (nextval('famille_produit_id_seq'), '9000', 'DIVERS', 1) ON CONFLICT (id) DO NOTHING;
 INSERT INTO famille_produit (id, code, libelle, categorie_id)
-VALUES (150026, '3030', 'PARFUMERIE FRANCE', 6) ON CONFLICT (id) DO NOTHING;
+VALUES (nextval('famille_produit_id_seq'), '3030', 'PARFUMERIE FRANCE', 6) ON CONFLICT (id) DO NOTHING;
 
 INSERT INTO groupe_fournisseur (id, libelle, odre)
 VALUES (1, 'LABOREX-CI', 1) ON CONFLICT (id) DO NOTHING;
@@ -185,9 +185,6 @@ INSERT
 INTO app_configuration(name, description, value, other_value, "value_type")
 values ('APP_ENTREE_STOCK_SANS_EXPIRY_DATE',
         'Autorisation entrée stock sans control date péremption', '0', null, 'BOOLEAN') ON CONFLICT (name) DO NOTHING;
-INSERT
-INTO warehouse_sequence("name", "increment", "seq_value")
-VALUES ('ENTREE_STOCK', 1, 1) ON CONFLICT (name) DO NOTHING;
 
 INSERT INTO app_configuration(name, description, value, other_value, "value_type")
 values ('APP_DAY_STOCK',

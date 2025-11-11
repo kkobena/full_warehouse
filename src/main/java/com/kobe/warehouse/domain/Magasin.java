@@ -33,7 +33,7 @@ public class Magasin implements Serializable {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+    private Integer id;
 
     @NotNull
     @Column(name = "name", nullable = false, unique = true)
@@ -43,7 +43,7 @@ public class Magasin implements Serializable {
     @Column(name = "full_name", nullable = false, unique = true)
     private String fullName;
 
-    @Column(name = "phone")
+    @Column(name = "phone", length = 20)
     private String phone;
 
     @Column(name = "address")
@@ -55,10 +55,10 @@ public class Magasin implements Serializable {
     @Column(name = "registre")
     private String registre;
 
-    @Column(name = "compte_contribuable")
+    @Column(name = "compte_contribuable",length = 50)
     private String compteContribuable;
 
-    @Column(name = "num_comptable")
+    @Column(name = "num_comptable",length = 50)
     private String numComptable;
 
     @ManyToOne(fetch = FetchType.EAGER)
@@ -77,19 +77,19 @@ public class Magasin implements Serializable {
     @Column(name = "type_magasin", nullable = false, length = 20)
     private TypeMagasin typeMagasin = TypeMagasin.OFFICINE;
 
-    @Column(name = "email")
+    @Column(name = "email", length = 100)
     @Email
     private String email;
 
-    @Column(name = "compte_bancaire")
+    @Column(name = "compte_bancaire", length = 100)
     private String compteBancaire;
 
-    @Column(name = "registre_imposition")
+    @Column(name = "registre_imposition", length = 100)
     private String registreImposition;
-    @Column(name = "manager_first_name")
+    @Column(name = "manager_first_name", length = 100)
     private String managerFirstName;
 
-    @Column(name = "manager_last_name")
+    @Column(name = "manager_last_name", length = 100)
     private String managerLastName;
 
     public String getManagerFirstName() {
@@ -168,11 +168,11 @@ public class Magasin implements Serializable {
         this.primaryStorage = primaryStorage;
     }
 
-    public Long getId() {
+    public Integer getId() {
         return id;
     }
 
-    public void setId(Long id) {
+    public void setId(Integer id) {
         this.id = id;
     }
 

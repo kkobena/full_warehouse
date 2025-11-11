@@ -26,7 +26,7 @@ public class ProduitDTO {
     private List<RayonProduitDTO> rayonProduits;
     private List<ParcoursProduit> parcoursProduits;
     private String codeCip = "";
-    private Long id;
+    private Integer id;
     private String libelle;
     private int itemQuantity;
     private int qtyUG;
@@ -40,25 +40,25 @@ public class ProduitDTO {
     private Integer itemQty;
     private Integer itemCostAmount;
     private Integer itemRegularUnitPrice;
-    private Long produitId;
+    private Integer produitId;
     private String produitLibelle;
     private int quantityReceived;
     private List<ProduitDTO> produits = new ArrayList<>();
     private LocalDateTime lastDateOfSale;
     private LocalDateTime lastOrderDate;
     private LocalDateTime lastInventoryDate;
-    private Long parentId;
-    private Long fournisseurId;
+    private Integer parentId;
+    private Integer fournisseurId;
     private String parentLibelle;
-    private Long laboratoireId;
+    private Integer laboratoireId;
     private String laboratoireLibelle;
-    private Long formeId;
+    private Integer formeId;
     private String formeLibelle;
-    private Long familleId;
+    private Integer familleId;
     private String familleLibelle;
-    private Long gammeId;
+    private Integer gammeId;
     private String gammeLibelle;
-    private Long tvaId;
+    private Integer tvaId;
     private Integer tvaTaux;
     private StockProduitDTO stockProduit;
     private FournisseurProduitDTO fournisseurProduit;
@@ -70,8 +70,8 @@ public class ProduitDTO {
     private Boolean deconditionnable = false;
     private String codeEan;
     private String rayonLibelle;
-    private long rayonId;
-    private long storageId;
+    private Integer rayonId;
+    private Integer storageId;
     private List<PrixReferenceDTO> prixReference = new ArrayList<>();
 
     @JsonDeserialize(using = LocalDateDeserializer.class)
@@ -90,7 +90,7 @@ public class ProduitDTO {
     private int unitPrice;
     private String remiseCode;
     private EtatProduit etatProduit;
-    private Long dciId;
+    private Integer dciId;
     private String dciLibelle;
     private String dciCode;
     private String categorie;
@@ -119,7 +119,7 @@ public class ProduitDTO {
         return this;
     }
 
-    public ProduitDTO laboratoireId(Long laboratoireId) {
+    public ProduitDTO laboratoireId(Integer laboratoireId) {
         this.laboratoireId = laboratoireId;
         return this;
     }
@@ -129,26 +129,26 @@ public class ProduitDTO {
         return this;
     }
 
-    public ProduitDTO formeId(Long formeId) {
+    public ProduitDTO formeId(Integer formeId) {
         this.formeId = formeId;
         return this;
     }
 
-    public ProduitDTO familleId(Long familleId) {
+    public ProduitDTO familleId(Integer familleId) {
         this.familleId = familleId;
         return this;
     }
 
-    public ProduitDTO gammeId(Long gammeId) {
+    public ProduitDTO gammeId(Integer gammeId) {
         this.gammeId = gammeId;
         return this;
     }
 
-    public Long getDciId() {
+    public Integer getDciId() {
         return dciId;
     }
 
-    public ProduitDTO setDciId(Long dciId) {
+    public ProduitDTO setDciId(Integer dciId) {
         this.dciId = dciId;
         return this;
     }
@@ -180,7 +180,7 @@ public class ProduitDTO {
         return this;
     }
 
-    public ProduitDTO tvaId(Long tvaId) {
+    public ProduitDTO tvaId(Integer tvaId) {
         this.tvaId = tvaId;
         return this;
     }
@@ -229,11 +229,11 @@ public class ProduitDTO {
         return this;
     }
 
-    public Long getId() {
+    public Integer getId() {
         return id;
     }
 
-    public ProduitDTO setId(Long id) {
+    public ProduitDTO setId(Integer id) {
         this.id = id;
         return this;
     }
@@ -364,11 +364,11 @@ public class ProduitDTO {
         return this;
     }
 
-    public Long getProduitId() {
+    public Integer getProduitId() {
         return produitId;
     }
 
-    public ProduitDTO setProduitId(Long produitId) {
+    public ProduitDTO setProduitId(Integer produitId) {
         this.produitId = produitId;
         return this;
     }
@@ -436,19 +436,19 @@ public class ProduitDTO {
         return this;
     }
 
-    public Long getParentId() {
+    public Integer getParentId() {
         return parentId;
     }
 
-    public void setParentId(Long parentId) {
+    public void setParentId(Integer parentId) {
         this.parentId = parentId;
     }
 
-    public Long getFournisseurId() {
+    public Integer getFournisseurId() {
         return fournisseurId;
     }
 
-    public ProduitDTO setFournisseurId(Long fournisseurId) {
+    public ProduitDTO setFournisseurId(Integer fournisseurId) {
         this.fournisseurId = fournisseurId;
         return this;
     }
@@ -465,11 +465,11 @@ public class ProduitDTO {
         this.parentLibelle = parentLibelle;
     }
 
-    public Long getLaboratoireId() {
+    public Integer getLaboratoireId() {
         return laboratoireId;
     }
 
-    public void setLaboratoireId(Long laboratoireId) {
+    public void setLaboratoireId(Integer laboratoireId) {
         this.laboratoireId = laboratoireId;
     }
 
@@ -481,11 +481,11 @@ public class ProduitDTO {
         this.laboratoireLibelle = laboratoireLibelle;
     }
 
-    public Long getFormeId() {
+    public Integer getFormeId() {
         return formeId;
     }
 
-    public void setFormeId(Long formeId) {
+    public void setFormeId(Integer formeId) {
         this.formeId = formeId;
     }
 
@@ -497,11 +497,11 @@ public class ProduitDTO {
         this.formeLibelle = formeLibelle;
     }
 
-    public Long getFamilleId() {
+    public Integer getFamilleId() {
         return familleId;
     }
 
-    public void setFamilleId(Long familleId) {
+    public void setFamilleId(Integer familleId) {
         this.familleId = familleId;
     }
 
@@ -513,11 +513,11 @@ public class ProduitDTO {
         this.familleLibelle = familleLibelle;
     }
 
-    public Long getGammeId() {
+    public Integer getGammeId() {
         return gammeId;
     }
 
-    public void setGammeId(Long gammeId) {
+    public void setGammeId(Integer gammeId) {
         this.gammeId = gammeId;
     }
 
@@ -529,11 +529,11 @@ public class ProduitDTO {
         this.gammeLibelle = gammeLibelle;
     }
 
-    public Long getTvaId() {
+    public Integer getTvaId() {
         return tvaId;
     }
 
-    public void setTvaId(Long tvaId) {
+    public void setTvaId(Integer tvaId) {
         this.tvaId = tvaId;
     }
 
@@ -672,41 +672,28 @@ public class ProduitDTO {
         return this;
     }
 
-    public long getRayonId() {
+    public Integer getRayonId() {
         return rayonId;
     }
 
-    public ProduitDTO setRayonId(Long rayonId) {
+    public ProduitDTO setRayonId(Integer rayonId) {
         this.rayonId = rayonId;
         return this;
     }
 
-    public ProduitDTO setRayonId(long rayonId) {
-        this.rayonId = rayonId;
-        return this;
-    }
 
-    public long getStorageId() {
+
+    public Integer getStorageId() {
         return storageId;
     }
 
-    public ProduitDTO setStorageId(Long storageId) {
+    public ProduitDTO setStorageId(Integer storageId) {
         this.storageId = storageId;
         return this;
     }
 
-    public ProduitDTO setStorageId(long storageId) {
-        this.storageId = storageId;
-        return this;
-    }
 
-    public LocalDate getPerimeAt() {
-        return perimeAt;
-    }
 
-    public void setPerimeAt(LocalDate perimeAt) {
-        this.perimeAt = perimeAt;
-    }
 
     public int getStatus() {
         return status;

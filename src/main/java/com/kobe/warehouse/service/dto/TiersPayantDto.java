@@ -14,7 +14,7 @@ import java.util.Objects;
 
 public class TiersPayantDto implements Serializable {
 
-    private Long id;
+    private Integer id;
     private String name;
     private String fullName;
     private Integer nbreBons;
@@ -42,7 +42,7 @@ public class TiersPayantDto implements Serializable {
     private LocalDateTime updated;
     private GroupeTiersPayant groupeTiersPayant;
     private String groupeTiersPayantName;
-    private Long groupeTiersPayantId;
+    private Integer groupeTiersPayantId;
     private String modelFacture;
     private OrdreTrisFacture ordreTrisFacture;
     private List<AssuredCustomerDTO> clients = new ArrayList<>();
@@ -69,11 +69,11 @@ public class TiersPayantDto implements Serializable {
         return this;
     }
 
-    public Long getId() {
+    public Integer getId() {
         return id;
     }
 
-    public TiersPayantDto setId(Long id) {
+    public TiersPayantDto setId(Integer id) {
         this.id = id;
         return this;
     }
@@ -312,11 +312,11 @@ public class TiersPayantDto implements Serializable {
         return this;
     }
 
-    public Long getGroupeTiersPayantId() {
+    public Integer getGroupeTiersPayantId() {
         return groupeTiersPayantId;
     }
 
-    public TiersPayantDto setGroupeTiersPayantId(Long groupeTiersPayantId) {
+    public TiersPayantDto setGroupeTiersPayantId(Integer groupeTiersPayantId) {
         this.groupeTiersPayantId = groupeTiersPayantId;
         return this;
     }

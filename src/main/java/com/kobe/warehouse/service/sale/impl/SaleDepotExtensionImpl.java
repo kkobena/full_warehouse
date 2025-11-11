@@ -164,7 +164,7 @@ public class SaleDepotExtensionImpl extends SaleCommonService implements SaleDep
 
     private SalesLine createOrUpdateSaleLine(SaleLineDTO dto) {
         Optional<SalesLine> salesLineOp = salesLineService.findBySalesIdAndProduitId(dto.getSaleCompositeId(), dto.getProduitId());
-        Long storageId = storageService.getDefaultConnectedUserPointOfSaleStorage().getId();
+        int storageId = storageService.getDefaultConnectedUserPointOfSaleStorage().getId();
         if (salesLineOp.isPresent()) {
             SalesLine salesLine = salesLineOp.get();
             salesLineService.updateSaleLine(dto, salesLine, storageId);
@@ -317,7 +317,7 @@ public class SaleDepotExtensionImpl extends SaleCommonService implements SaleDep
     }
 
     @Override
-    public void changeDepot(SaleId saleId, Long depotId) {
+    public void changeDepot(SaleId saleId, Integer depotId) {
         venteDepotRepository
             .findById(saleId)
             .ifPresentOrElse(
@@ -354,7 +354,7 @@ public class SaleDepotExtensionImpl extends SaleCommonService implements SaleDep
             cashRegister = cashRegisterService.openCashRegister(user, user);
         }
         c.setCashRegister(cashRegister);
-        Long id = storageService.getDefaultConnectedUserPointOfSaleStorage().getId();
+        int id = storageService.getDefaultConnectedUserPointOfSaleStorage().getId();
         salesLineService.save(c.getSalesLines(), user, id);
         updateDepotStockOnSaleFinalization(c);
         c.setStatut(SalesStatut.CLOSED);

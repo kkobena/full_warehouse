@@ -33,14 +33,14 @@ public interface LaboratoireService {
      * @param id the id of the entity.
      * @return the entity.
      */
-    Optional<LaboratoireDTO> findOne(Long id);
+    Optional<LaboratoireDTO> findOne(Integer id);
 
     /**
      * Delete the "id" laboratoire.
      *
      * @param id the id of the entity.
      */
-    void delete(Long id);
+    void delete(Integer id);
 
     ResponseDTO importation(InputStream inputStream);
 }

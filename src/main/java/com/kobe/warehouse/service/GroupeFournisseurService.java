@@ -37,14 +37,14 @@ public interface GroupeFournisseurService {
      * @param id the id of the entity.
      * @return the entity.
      */
-    Optional<GroupeFournisseurDTO> findOne(Long id);
+    Optional<GroupeFournisseurDTO> findOne(Integer id);
 
     /**
      * Delete the "id" groupeFournisseur.
      *
      * @param id the id of the entity.
      */
-    void delete(Long id);
+    void delete(Integer id);
 
     ResponseDTO importation(InputStream inputStream) throws IOException;
 

@@ -12,17 +12,17 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 
 @Repository
-public interface StorageRepository extends JpaRepository<Storage, Long> {
-    List<Storage> findAllByMagasinId(Long magasinId);
+public interface StorageRepository extends JpaRepository<Storage, Integer> {
+    List<Storage> findAllByMagasinId(Integer magasinId);
 
-    Storage findFirstByMagasinIdAndStorageType(Long magasinId, StorageType storageType);
+    Storage findFirstByMagasinIdAndStorageType(Integer magasinId, StorageType storageType);
 
     Storage findFirstByStorageType(StorageType storageType);
 
     List<Storage> findAllByMagasin(Magasin magasin);
     @Query("SELECT s.id AS id FROM Storage s WHERE s.magasin.id = :magasinId")
-    Set<IdProjection> findIds(Long magasinId);
+    Set<IdProjection> findIds(Integer magasinId);
 
     @Query("SELECT s.id AS id FROM Storage s WHERE s.magasin.id = :magasinId AND s.storageType =:storageType")
-    IdProjection findByMagasinIdAndStorageType(Long magasinId, StorageType storageType);
+    IdProjection findByMagasinIdAndStorageType(Integer magasinId, StorageType storageType);
 }

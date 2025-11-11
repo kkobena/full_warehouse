@@ -95,7 +95,7 @@ public class ReglementDiffereServiceImpl implements ReglementDiffereService {
     @Override
     @Transactional(readOnly = true)
     public Page<DiffereItem> getDiffereItems(
-        Long customerId,
+        Integer customerId,
         String search,
         LocalDate startDate,
         LocalDate endDate,
@@ -105,7 +105,7 @@ public class ReglementDiffereServiceImpl implements ReglementDiffereService {
         return this.salesRepository.getDiffereItems(buildSpecification(customerId, paymentStatuses), pageable);
     }
 
-    private Specification<Sales> buildSpecification(Long customerId, Set<PaymentStatus> paymentStatuses) {
+    private Specification<Sales> buildSpecification(Integer customerId, Set<PaymentStatus> paymentStatuses) {
         Specification<Sales> specification = this.salesRepository.hasStatut(EnumSet.of(SalesStatut.CLOSED));
         if (nonNull(customerId)) {
             specification = specification.and(this.salesRepository.filterByCustomerId(customerId));
@@ -115,7 +115,7 @@ public class ReglementDiffereServiceImpl implements ReglementDiffereService {
 
     @Override
     @Transactional(readOnly = true)
-    public Page<DiffereDTO> getDiffere(Long customerId, Set<PaymentStatus> paymentStatuses, Pageable pageable) {
+    public Page<DiffereDTO> getDiffere(Integer customerId, Set<PaymentStatus> paymentStatuses, Pageable pageable) {
         return this.salesRepository.getDiffere(buildSpecification(customerId, paymentStatuses), pageable).map(differe -> {
             List<DiffereItem> differeItems =
                 this.salesRepository.getDiffereItems(
@@ -139,7 +139,7 @@ public class ReglementDiffereServiceImpl implements ReglementDiffereService {
     }
 
     @Override
-    public Optional<DiffereDTO> getOne(Long customerId) {
+    public Optional<DiffereDTO> getOne(Integer customerId) {
         return Optional.of(getDiffere(customerId, Set.of(PaymentStatus.IMPAYE), Pageable.unpaged()).getContent().getFirst());
     }
 
@@ -225,26 +225,26 @@ public class ReglementDiffereServiceImpl implements ReglementDiffereService {
     }
 
     @Override
-    public DifferePaymentSummaryDTO getDifferePaymentSummary(Long customerId, LocalDate startDate, LocalDate endDate) {
+    public DifferePaymentSummaryDTO getDifferePaymentSummary(Integer customerId, LocalDate startDate, LocalDate endDate) {
         DifferePaymentSummary differePaymentSummary =
             this.differePaymentRepository.getDiffereSummary(buildSpecification(customerId, startDate, endDate));
         return new DifferePaymentSummaryDTO(differePaymentSummary.paidAmount(), null);
     }
 
     @Override
-    public DiffereSummary getDiffereSummary(Long customerId, Set<PaymentStatus> paymentStatuses) {
+    public DiffereSummary getDiffereSummary(Integer customerId, Set<PaymentStatus> paymentStatuses) {
         return this.salesRepository.getDiffereSummary(buildSpecification(customerId, paymentStatuses));
     }
 
     @Override
-    public Resource printListToPdf(Long customerId, Set<PaymentStatus> paymentStatuses) {
+    public Resource printListToPdf(Integer customerId, Set<PaymentStatus> paymentStatuses) {
         DiffereSummary differeSummary = this.getDiffereSummary(customerId, paymentStatuses);
         List<DiffereDTO> differe = this.getDiffere(customerId, paymentStatuses, Pageable.unpaged()).getContent();
         return this.reglementDiffereReportService.printListToPdf(differe, differeSummary);
     }
 
     @Override
-    public Resource printReglementToPdf(Long customerId, LocalDate startDate, LocalDate endDate) {
+    public Resource printReglementToPdf(Integer customerId, LocalDate startDate, LocalDate endDate) {
         DifferePaymentSummaryDTO differePaymentSummary = this.getDifferePaymentSummary(customerId, startDate, endDate);
         List<ReglementDiffereWrapperDTO> list = getReglementsDifferes(customerId, startDate, endDate, Pageable.unpaged()).getContent();
         return this.reglementDiffereReportService.printReglementToPdf(list, differePaymentSummary, new ReportPeriode(startDate, endDate));
@@ -252,7 +252,7 @@ public class ReglementDiffereServiceImpl implements ReglementDiffereService {
 
     @Override
     public Page<ReglementDiffereWrapperDTO> getReglementsDifferes(
-        Long customerId,
+        Integer customerId,
         LocalDate startDate,
         LocalDate endDate,
         Pageable pageable
@@ -275,7 +275,7 @@ public class ReglementDiffereServiceImpl implements ReglementDiffereService {
         );
     }
 
-    private Specification<Sales> soldePredicate(Long customerId, Set<PaymentStatus> paymentStatuses) {
+    private Specification<Sales> soldePredicate(Integer customerId, Set<PaymentStatus> paymentStatuses) {
         Specification<Sales> specification = this.salesRepository.hasStatut(EnumSet.of(SalesStatut.CLOSED));
         if (nonNull(customerId)) {
             specification = specification.and(this.salesRepository.filterByCustomerId(customerId));
@@ -292,7 +292,7 @@ public class ReglementDiffereServiceImpl implements ReglementDiffereService {
         );
     }
 
-    private Specification<DifferePayment> buildSpecification(Long customerId, LocalDate startDate, LocalDate endDate) {
+    private Specification<DifferePayment> buildSpecification(Integer customerId, LocalDate startDate, LocalDate endDate) {
         startDate = Objects.requireNonNullElse(startDate, LocalDate.now());
         endDate = Objects.requireNonNullElse(endDate, LocalDate.now());
         Specification<DifferePayment> specification = this.differePaymentRepository.filterByPeriode(startDate, endDate);

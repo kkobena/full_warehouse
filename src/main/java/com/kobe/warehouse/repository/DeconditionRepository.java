@@ -10,7 +10,7 @@ import org.springframework.stereotype.Repository;
  */
 @SuppressWarnings("unused")
 @Repository
-public interface DeconditionRepository extends JpaRepository<Decondition, Long> {
+public interface DeconditionRepository extends JpaRepository<Decondition, Integer> {
     @Query("select decondition from Decondition decondition where decondition.user.login = ?#{principal.username}")
     List<Decondition> findByUserIsCurrentUser();
 }

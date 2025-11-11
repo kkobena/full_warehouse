@@ -36,18 +36,18 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 
 @Repository
-public interface LotRepository extends JpaRepository<Lot, Long>, JpaSpecificationExecutor<Lot>, SpecificationBuilder, LotCustomRepository {
+public interface LotRepository extends JpaRepository<Lot, Integer>, JpaSpecificationExecutor<Lot>, SpecificationBuilder, LotCustomRepository {
     @Query(
         "SELECT o FROM Lot o JOIN o.orderLine ord JOIN ord.fournisseurProduit fp WHERE fp.produit.id =:produitId AND o.expiryDate >:dateLimit  AND o.currentQuantity  > 0 AND o.statut=:lotStatut  ORDER BY o.expiryDate ASC"
     )
-    List<Lot> findByProduitId(Long produitId, LocalDate dateLimit, StatutLot lotStatut);
+    List<Lot> findByProduitId(Integer produitId, LocalDate dateLimit, StatutLot lotStatut);
 
     Optional<Lot> findByNumLot(String numLot);
 
     @Query(
         "SELECT o FROM Lot o JOIN o.orderLine ord JOIN ord.fournisseurProduit fp WHERE fp.produit.id =:produitId   AND o.quantity > 0  ORDER BY o.expiryDate ASC"
     )
-    List<Lot> findByProduitId(Long produitId);
+    List<Lot> findByProduitId(Integer produitId);
 
     default Specification<Lot> filterByStock() {
         return (root, _, cb) -> cb.greaterThan(root.get(Lot_.quantity), 0);
@@ -61,7 +61,7 @@ public interface LotRepository extends JpaRepository<Lot, Long>, JpaSpecificatio
             );
     }
 
-    default Specification<Lot> filterByProduitId(Long produitId) {
+    default Specification<Lot> filterByProduitId(Integer produitId) {
         if (isNull(produitId)) {
             return null; // No filter if id is null
         }
@@ -127,7 +127,7 @@ public interface LotRepository extends JpaRepository<Lot, Long>, JpaSpecificatio
         return (root, _, cb) -> cb.between(root.get(Lot_.expiryDate), fromDate, toDate);
     }
 
-    default Specification<Lot> filterByFournisseurId(Long fournisseurId) {
+    default Specification<Lot> filterByFournisseurId(Integer fournisseurId) {
         if (isNull(fournisseurId)) {
             return null; // No filter if fournisseurId is null
         }
@@ -138,7 +138,7 @@ public interface LotRepository extends JpaRepository<Lot, Long>, JpaSpecificatio
             );
     }
 
-    default Specification<Lot> filterByRayonId(Long rayonId) {
+    default Specification<Lot> filterByRayonId(Integer rayonId) {
         if (isNull(rayonId)) {
             return null; // No filter if rayonId is null
         }
@@ -153,7 +153,7 @@ public interface LotRepository extends JpaRepository<Lot, Long>, JpaSpecificatio
         };
     }
 
-    default Specification<Lot> filterByFamilleProduitId(Long familleProduitId) {
+    default Specification<Lot> filterByFamilleProduitId(Integer familleProduitId) {
         if (isNull(familleProduitId)) {
             return null; // No filter if familleProduitId is null
         }
@@ -169,7 +169,7 @@ public interface LotRepository extends JpaRepository<Lot, Long>, JpaSpecificatio
             );
     }
 
-    default Specification<Lot> filterByMagasinId(Long magasinId) {
+    default Specification<Lot> filterByMagasinId(Integer magasinId) {
         if (isNull(magasinId)) {
             return null; // No filter if id is null
         }

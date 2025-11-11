@@ -12,10 +12,10 @@ public class RayonProduitDTO {
     private String libelleStorage;
     private String storageType;
     private String magasin;
-    private Long magasinId;
-    private Long rayonId;
-    private Long id;
-    private Long produitId;
+    private Integer magasinId;
+    private Integer rayonId;
+    private Integer id;
+    private Integer produitId;
 
     public RayonProduitDTO(RayonProduit produit) {
         Rayon rayon = produit.getRayon();
@@ -32,20 +32,20 @@ public class RayonProduitDTO {
         this.produitId = produit.getProduit().getId();
     }
 
-    public Long getProduitId() {
+    public Integer getProduitId() {
         return produitId;
     }
 
-    public RayonProduitDTO setProduitId(Long produitId) {
+    public RayonProduitDTO setProduitId(Integer produitId) {
         this.produitId = produitId;
         return this;
     }
 
-    public Long getRayonId() {
+    public Integer getRayonId() {
         return rayonId;
     }
 
-    public RayonProduitDTO setRayonId(Long rayonId) {
+    public RayonProduitDTO setRayonId(Integer rayonId) {
         this.rayonId = rayonId;
         return this;
     }
@@ -59,11 +59,11 @@ public class RayonProduitDTO {
         return this;
     }
 
-    public Long getMagasinId() {
+    public Integer getMagasinId() {
         return magasinId;
     }
 
-    public RayonProduitDTO setMagasinId(Long magasinId) {
+    public RayonProduitDTO setMagasinId(Integer magasinId) {
         this.magasinId = magasinId;
         return this;
     }
@@ -104,11 +104,11 @@ public class RayonProduitDTO {
         return this;
     }
 
-    public Long getId() {
+    public Integer getId() {
         return id;
     }
 
-    public RayonProduitDTO setId(Long id) {
+    public RayonProduitDTO setId(Integer id) {
         this.id = id;
         return this;
     }

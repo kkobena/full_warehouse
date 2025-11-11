@@ -18,9 +18,9 @@ public interface TiersPayantService extends TiersPayantMapper {
 
     TiersPayantDto updateFromDto(TiersPayantDto dto) throws GenericError;
 
-    void desable(Long id);
+    void desable(Integer id);
 
-    void delete(Long id) throws GenericError;
+    void delete(Integer id) throws GenericError;
 
     List<Pair> getModelFacture();
 

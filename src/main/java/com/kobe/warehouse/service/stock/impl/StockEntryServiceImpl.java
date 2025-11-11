@@ -236,7 +236,7 @@ public class StockEntryServiceImpl implements StockEntryService {
     private Commande cloneCommande(Commande commande) {
         Commande cloned = new Commande();
         cloned.setOrderDate(LocalDate.now());
-        cloned.setId(commandeIdGeneratorService.nextId());
+        cloned.setId(commandeIdGeneratorService.getNextIdAsInt());
         cloned.setCreatedAt(LocalDateTime.now());
         cloned.setUpdatedAt(cloned.getCreatedAt());
         cloned.setUser(storageService.getUser());
@@ -260,7 +260,7 @@ public class StockEntryServiceImpl implements StockEntryService {
 
     private void cloneOrderLine(OrderLine orderLine, Commande commande) {
         OrderLine cloned = new OrderLine();
-        cloned.setId(orderLineIdGeneratorService.nextId());
+        cloned.setId(orderLineIdGeneratorService.getNextIdAsInt());
         cloned.setOrderDate(LocalDate.now());
         cloned.setCreatedAt(LocalDateTime.now());
         cloned.setUpdatedAt(cloned.getCreatedAt());
@@ -429,7 +429,7 @@ public class StockEntryServiceImpl implements StockEntryService {
     private Commande importNewBon(UploadDeleiveryReceiptDTO uploadDeleiveryReceipt) {
         DeliveryReceiptLiteDTO deliveryReceipt = uploadDeleiveryReceipt.getDeliveryReceipt();
         Commande commande = new Commande();
-        commande.setId(commandeIdGeneratorService.nextId());
+        commande.setId(commandeIdGeneratorService.getNextIdAsInt());
         commande.setOrderDate(LocalDate.now());
         commande.setType(TypeDeliveryReceipt.DIRECT);
         commande.setCreatedAt(LocalDateTime.now());
@@ -449,7 +449,7 @@ public class StockEntryServiceImpl implements StockEntryService {
         return commande;
     }
 
-    private Optional<OrderLine> findInMap(Map<Long, OrderLine> longOrderLineMap, Long fourniseurProduitId) {
+    private Optional<OrderLine> findInMap(Map<Integer, OrderLine> longOrderLineMap, Integer fourniseurProduitId) {
         if (longOrderLineMap.containsKey(fourniseurProduitId)) {
             return Optional.of(longOrderLineMap.get(fourniseurProduitId));
         }
@@ -507,7 +507,7 @@ public class StockEntryServiceImpl implements StockEntryService {
     }
 
     private void createInRecord(
-        Map<Long, OrderLine> longOrderLineMap,
+        Map<Integer, OrderLine> longOrderLineMap,
         Commande deliveryReceipt,
         FournisseurProduit fournisseurProduit,
         int quantityRequested,
@@ -539,7 +539,7 @@ public class StockEntryServiceImpl implements StockEntryService {
         throws IOException {
         CommandeResponseDTO commandeResponseDTO;
         List<OrderItem> items = new ArrayList<>();
-        Map<Long, OrderLine> longOrderLineMap = new HashMap<>();
+        Map<Integer, OrderLine> longOrderLineMap = new HashMap<>();
 
         commandeResponseDTO = switch (commandeModel) {
             case LABOREX ->
@@ -558,19 +558,19 @@ public class StockEntryServiceImpl implements StockEntryService {
 
     private CommandeResponseDTO uploadTXTFormat(Commande commande, MultipartFile multipartFile) throws IOException {
         List<OrderItem> items = new ArrayList<>();
-        Map<Long, OrderLine> longOrderLineMap = new HashMap<>();
-        Long fournisseurId = commande.getFournisseur().getId();
+        Map<Integer, OrderLine> longOrderLineMap = new HashMap<>();
+        int fournisseurId = commande.getFournisseur().getId();
         int totalItemCount = 0;
         int succesCount = 0;
         try (BufferedReader reader = new BufferedReader(new InputStreamReader(multipartFile.getInputStream()))) {
             String line;
             while ((line = reader.readLine()) != null) {
-                String[] record = line.split("\t");
-                String codeProduit = record[0];
+                String[] re = line.split("\t");
+                String codeProduit = re[0];
                 totalItemCount++;
-                int quantityReceived = Integer.parseInt(record[3]);
-                int orderCostAmount = Integer.parseInt(record[2]);
-                int orderUnitPrice = Integer.parseInt(record[5]);
+                int quantityReceived = Integer.parseInt(re[3]);
+                int orderCostAmount = Integer.parseInt(re[2]);
+                int orderUnitPrice = Integer.parseInt(re[5]);
                 Optional<FournisseurProduit> fournisseurProduitOptional = orderLineService.getFournisseurProduitByCriteria(
                     codeProduit,
                     fournisseurId
@@ -580,9 +580,7 @@ public class StockEntryServiceImpl implements StockEntryService {
 
                     int currentStock = orderLineService.produitTotalStockWithQantitUg(fournisseurProduit.getProduit());
                     findInMap(longOrderLineMap, fournisseurProduit.getId()).ifPresentOrElse(
-                        orderLine -> {
-                            updateInRecord(orderLine, quantityReceived, 0, 0);
-                        },
+                        orderLine -> updateInRecord(orderLine, quantityReceived, 0, 0),
                         () ->
                             createInRecord(
                                 longOrderLineMap,
@@ -630,12 +628,12 @@ public class StockEntryServiceImpl implements StockEntryService {
         Commande commande,
         MultipartFile multipartFile,
         List<OrderItem> items,
-        Map<Long, OrderLine> longOrderLineMap,
+        Map<Integer, OrderLine> longOrderLineMap,
         java.util.function.BiFunction<CSVRecord, Integer, OrderItem> recordParser
     ) throws IOException {
         int totalItemCount = 0;
         int succesCount = 0;
-        long fournisseurId = commande.getFournisseur().getId();
+        int fournisseurId = commande.getFournisseur().getId();
 
         try (
             CSVParser parser = new CSVParser(
@@ -643,8 +641,8 @@ public class StockEntryServiceImpl implements StockEntryService {
                 CSVFormat.EXCEL.builder().setDelimiter(';').build()
             )
         ) {
-            for (CSVRecord record : parser) {
-                OrderItem orderItem = recordParser.apply(record, totalItemCount);
+            for (CSVRecord csvRecord : parser) {
+                OrderItem orderItem = recordParser.apply(csvRecord, totalItemCount);
                 totalItemCount++;
                 if (orderItem == null) { // Skip header
                     continue;
@@ -823,7 +821,7 @@ public class StockEntryServiceImpl implements StockEntryService {
         return item;
     }
 
-    private void saveLignesBonEchouees(CommandeResponseDTO commandeResponse, Long deliveryReceiptId) {
+    private void saveLignesBonEchouees(CommandeResponseDTO commandeResponse, Integer deliveryReceiptId) {
         if (Objects.isNull(commandeResponse) || commandeResponse.getItems().isEmpty()) {
             return;
         }

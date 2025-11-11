@@ -66,14 +66,14 @@ public class Produit implements Serializable {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+    private Integer id;
 
     @NotNull
     @Column(name = "libelle", nullable = false)
     private String libelle;
 
     @Enumerated(EnumType.STRING)
-    @Column(name = "type_produit", nullable = false)
+    @Column(name = "type_produit", nullable = false, length = 15)
     private TypeProduit typeProduit;
 
     @NotNull
@@ -162,7 +162,7 @@ public class Produit implements Serializable {
     @ManyToOne(fetch = FetchType.LAZY)
     private FormProduit forme;
 
-    @Column(name = "code_ean_labo")
+    @Column(name = "code_ean_labo", length = 13)
     private String codeEanLaboratoire;
 
     @NotNull
@@ -180,16 +180,15 @@ public class Produit implements Serializable {
 
     @NotNull
     @Enumerated(EnumType.STRING)
-    @Column(name = "status", nullable = false)
+    @Column(name = "status", nullable = false, length = 10)
     private Status status = Status.ENABLE;
 
     @NotNull
     @Enumerated(EnumType.STRING)
-    @Column(name = "categorie", nullable = false)
+    @Column(name = "categorie", nullable = false, length = 2)
     private CategorieABC categorie = CategorieABC.C;
 
-    @Column(name = "perime_at")
-    private LocalDate perimeAt;
+
 
     @NotAudited
     @OneToMany(mappedBy = "produit", fetch = FetchType.LAZY, cascade = {CascadeType.PERSIST, CascadeType.MERGE, CascadeType.REMOVE})
@@ -294,11 +293,11 @@ public class Produit implements Serializable {
         this.dci = dci;
     }
 
-    public Long getId() {
+    public Integer getId() {
         return id;
     }
 
-    public void setId(Long id) {
+    public void setId(Integer id) {
         this.id = id;
     }
 
@@ -498,14 +497,7 @@ public class Produit implements Serializable {
         return this;
     }
 
-    public LocalDate getPerimeAt() {
-        return perimeAt;
-    }
 
-    public Produit setPerimeAt(LocalDate perimeAt) {
-        this.perimeAt = perimeAt;
-        return this;
-    }
 
     public Set<FournisseurProduit> getFournisseurProduits() {
         return fournisseurProduits;
@@ -553,7 +545,7 @@ public class Produit implements Serializable {
         return this;
     }
 
-    public Produit id(Long id) {
+    public Produit id(Integer id) {
         this.id = id;
         return this;
     }

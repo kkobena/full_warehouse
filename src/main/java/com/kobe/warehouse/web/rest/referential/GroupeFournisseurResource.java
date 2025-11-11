@@ -121,7 +121,7 @@ public class GroupeFournisseurResource {
      * groupeFournisseurDTO, or with status {@code 404 (Not Found)}.
      */
     @GetMapping("/groupe-fournisseurs/{id}")
-    public ResponseEntity<GroupeFournisseurDTO> getGroupeFournisseur(@PathVariable Long id) {
+    public ResponseEntity<GroupeFournisseurDTO> getGroupeFournisseur(@PathVariable Integer id) {
         log.debug("REST request to get GroupeFournisseur : {}", id);
         Optional<GroupeFournisseurDTO> groupeFournisseurDTO = groupeFournisseurService.findOne(id);
         return ResponseUtil.wrapOrNotFound(groupeFournisseurDTO);
@@ -134,7 +134,7 @@ public class GroupeFournisseurResource {
      * @return the {@link ResponseEntity} with status {@code 204 (NO_CONTENT)}.
      */
     @DeleteMapping("/groupe-fournisseurs/{id}")
-    public ResponseEntity<Void> deleteGroupeFournisseur(@PathVariable Long id) {
+    public ResponseEntity<Void> deleteGroupeFournisseur(@PathVariable Integer id) {
         log.debug("REST request to delete GroupeFournisseur : {}", id);
 
         groupeFournisseurService.delete(id);

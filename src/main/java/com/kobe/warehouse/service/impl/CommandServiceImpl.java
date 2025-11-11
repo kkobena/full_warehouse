@@ -136,7 +136,7 @@ public class CommandServiceImpl implements CommandService {
     private Commande buildCommandeFromCommandeDTO(CommandeDTO commandeDTO) {
         AppUser user = storageService.getUser();
         Commande commande = new Commande();
-        commande.setId(this.commandeIdGeneratorService.nextId());
+        commande.setId(this.commandeIdGeneratorService.getNextIdAsInt());
         commande.setCreatedAt(LocalDateTime.now());
         commande.setUpdatedAt(commande.getCreatedAt());
         commande.setUser(user);
@@ -317,7 +317,7 @@ public class CommandServiceImpl implements CommandService {
     }
 
     @Override
-    public CommandeResponseDTO uploadNewCommande(Long fournisseurId, CommandeModel commandeModel, MultipartFile multipartFile) {
+    public CommandeResponseDTO uploadNewCommande(Integer fournisseurId, CommandeModel commandeModel, MultipartFile multipartFile) {
         String extension = FileUtil.getFileExtension(multipartFile.getOriginalFilename());
         Commande commande = buildCommande(fournisseurId);
         CommandeResponseDTO commandeResponse =
@@ -338,7 +338,7 @@ public class CommandServiceImpl implements CommandService {
         buildNew(suggestion);
     }
 
-    private void saveLignesBonEchouees(CommandeResponseDTO commandeResponse, Long commandeId) {
+    private void saveLignesBonEchouees(CommandeResponseDTO commandeResponse, Integer commandeId) {
         if (Objects.isNull(commandeResponse) || commandeResponse.getItems().isEmpty()) {
             return;
         }
@@ -351,9 +351,9 @@ public class CommandServiceImpl implements CommandService {
         }
     }
 
-    private Commande buildCommande(Long fournisseurId) {
+    private Commande buildCommande(Integer fournisseurId) {
         Commande commande = new Commande();
-        commande.setId(this.commandeIdGeneratorService.nextId());
+        commande.setId(this.commandeIdGeneratorService.getNextIdAsInt());
         commande.setTaxAmount(0);
         commande.setHtAmount(0);
         commande.setOrderStatus(OrderStatut.REQUESTED);
@@ -373,8 +373,8 @@ public class CommandServiceImpl implements CommandService {
     private CommandeResponseDTO uploadCSVFormat(Commande commande, CommandeModel commandeModel, MultipartFile multipartFile) {
         CommandeResponseDTO commandeResponseDTO;
         List<OrderItem> items = new ArrayList<>();
-        Map<Long, OrderLine> longOrderLineMap = new HashMap<>();
-        long fournisseurId = commande.getFournisseur().getId();
+        Map<Integer, OrderLine> longOrderLineMap = new HashMap<>();
+        int fournisseurId = commande.getFournisseur().getId();
         commandeResponseDTO = switch (commandeModel) {
             case LABOREX -> uploadLaborexCSVFormat(commande, multipartFile, items, longOrderLineMap, fournisseurId);
             case COPHARMED -> uploadCOPHARMEDCSVFormat(commande, multipartFile, items, longOrderLineMap, fournisseurId);
@@ -390,19 +390,19 @@ public class CommandServiceImpl implements CommandService {
 
     private CommandeResponseDTO uploadTXTFormat(Commande commande, MultipartFile multipartFile) {
         List<OrderItem> items = new ArrayList<>();
-        Map<Long, OrderLine> longOrderLineMap = new HashMap<>();
-        long fournisseurId = commande.getFournisseur().getId();
+        Map<Integer, OrderLine> longOrderLineMap = new HashMap<>();
+        Integer fournisseurId = commande.getFournisseur().getId();
         int totalItemCount = 0;
         int succesCount = 0;
         try (BufferedReader reader = new BufferedReader(new InputStreamReader(multipartFile.getInputStream()))) {
             String line;
             while ((line = reader.readLine()) != null) {
-                String[] record = line.split("\t");
-                String codeProduit = record[0];
+                String[] re = line.split("\t");
+                String codeProduit = re[0];
                 totalItemCount++;
-                int quantityReceived = Integer.parseInt(record[3]);
-                int orderCostAmount = Integer.parseInt(record[2]);
-                int orderUnitPrice = Integer.parseInt(record[5]);
+                int quantityReceived = Integer.parseInt(re[3]);
+                int orderCostAmount = Integer.parseInt(re[2]);
+                int orderUnitPrice = Integer.parseInt(re[5]);
                 Optional<FournisseurProduit> fournisseurProduitOptional = orderLineService.getFournisseurProduitByCriteria(
                     codeProduit,
                     fournisseurId
@@ -442,7 +442,7 @@ public class CommandServiceImpl implements CommandService {
 
     private int getSuccesCount(
         Commande commande,
-        Map<Long, OrderLine> longOrderLineMap,
+        Map<Integer, OrderLine> longOrderLineMap,
         int succesCount,
         int quantityReceived,
         int orderCostAmount,
@@ -485,8 +485,8 @@ public class CommandServiceImpl implements CommandService {
         Commande commande,
         MultipartFile multipartFile,
         List<OrderItem> items,
-        Map<Long, OrderLine> longOrderLineMap,
-        long fournisseurId
+        Map<Integer, OrderLine> longOrderLineMap,
+        Integer fournisseurId
     ) {
         int totalItemCount = 0;
         int succesCount = 0;
@@ -497,19 +497,19 @@ public class CommandServiceImpl implements CommandService {
                 CSVFormat.EXCEL.builder().setDelimiter(';').get()
             )
         ) {
-            for (CSVRecord record : parser) {
+            for (CSVRecord csvRecord : parser) {
                 if (totalItemCount > 0) {
                     // String codeProduit = record.get(2);
-                    String codeProduit = record.get(3);
+                    String codeProduit = csvRecord.get(3);
                     // String lgFamilleId, int qty, int intPafDetail, int pu, int ug
                     //int quantityReceived = Integer.parseInt(record.get(5));
-                    int quantityReceived = Integer.parseInt(record.get(7));
+                    int quantityReceived = Integer.parseInt(csvRecord.get(7));
                     // int orderCostAmount = (int) Double.parseDouble(record.get(6));
-                    int orderCostAmount = (int) Double.parseDouble(record.get(8));
+                    int orderCostAmount = (int) Double.parseDouble(csvRecord.get(8));
                     //  int orderUnitPrice = (int) Double.parseDouble(record.get(7));
-                    int orderUnitPrice = (int) Double.parseDouble(record.get(9));
-                    int taxAmount = (int) Double.parseDouble(record.get(11));
-                    int quantityUg = Integer.parseInt(record.get(6));
+                    int orderUnitPrice = (int) Double.parseDouble(csvRecord.get(9));
+                    int taxAmount = (int) Double.parseDouble(csvRecord.get(11));
+                    int quantityUg = Integer.parseInt(csvRecord.get(6));
                     Optional<FournisseurProduit> fournisseurProduitOptional = orderLineService.getFournisseurProduitByCriteria(
                         codeProduit,
                         fournisseurId
@@ -546,7 +546,7 @@ public class CommandServiceImpl implements CommandService {
                     } else {
                         addModelLaborexLigneExistant(
                             items,
-                            record,
+                            csvRecord,
                             codeProduit,
                             quantityReceived,
                             quantityUg,
@@ -571,8 +571,8 @@ public class CommandServiceImpl implements CommandService {
         Commande commande,
         MultipartFile multipartFile,
         List<OrderItem> items,
-        Map<Long, OrderLine> longOrderLineMap,
-        long fournisseurId
+        Map<Integer, OrderLine> longOrderLineMap,
+        Integer fournisseurId
     ) {
         int totalItemCount = 0;
         int succesCount = 0;
@@ -583,15 +583,15 @@ public class CommandServiceImpl implements CommandService {
                 CSVFormat.EXCEL.builder().setDelimiter(';').get()
             )
         ) {
-            for (CSVRecord record : parser) {
+            for (CSVRecord csvRecord : parser) {
                 if (totalItemCount > 0) {
-                    String codeProduit = record.get(4);
+                    String codeProduit = csvRecord.get(4);
 
-                    int quantityReceived = Integer.parseInt(record.get(9));
-                    int orderCostAmount = (int) Double.parseDouble(record.get(11));
-                    int orderUnitPrice = (int) Double.parseDouble(record.get(13));
-                    int quantityUg = Integer.parseInt(record.get(10));
-                    int quantityRequested = Integer.parseInt(record.get(8));
+                    int quantityReceived = Integer.parseInt(csvRecord.get(9));
+                    int orderCostAmount = (int) Double.parseDouble(csvRecord.get(11));
+                    int orderUnitPrice = (int) Double.parseDouble(csvRecord.get(13));
+                    int quantityUg = Integer.parseInt(csvRecord.get(10));
+                    int quantityRequested = Integer.parseInt(csvRecord.get(8));
                     Optional<FournisseurProduit> fournisseurProduitOptional = orderLineService.getFournisseurProduitByCriteria(
                         codeProduit,
                         fournisseurId
@@ -627,12 +627,12 @@ public class CommandServiceImpl implements CommandService {
                     } else {
                         items.add(
                             new OrderItem()
-                                .setFacture(record.get(1))
-                                .setDateBonLivraison(record.get(0))
+                                .setFacture(csvRecord.get(1))
+                                .setDateBonLivraison(csvRecord.get(0))
                                 .setUg(quantityUg)
-                                .setLigne(Integer.parseInt(record.get(2)))
+                                .setLigne(Integer.parseInt(csvRecord.get(2)))
                                 .setProduitCip(codeProduit)
-                                .setProduitLibelle(record.get(6))
+                                .setProduitLibelle(csvRecord.get(6))
                                 .setQuantityRequested(quantityRequested)
                                 .setQuantityReceived(quantityReceived)
                                 .setPrixUn(orderUnitPrice)
@@ -656,8 +656,8 @@ public class CommandServiceImpl implements CommandService {
         Commande commande,
         MultipartFile multipartFile,
         List<OrderItem> items,
-        Map<Long, OrderLine> longOrderLineMap,
-        long fournisseurId
+        Map<Integer, OrderLine> longOrderLineMap,
+        int fournisseurId
     ) {
         int totalItemCount = 0;
         int succesCount = 0;
@@ -668,14 +668,14 @@ public class CommandServiceImpl implements CommandService {
                 CSVFormat.EXCEL.builder().setDelimiter(';').get()
             )
         ) {
-            for (CSVRecord record : parser) {
-                String codeProduit = record.get(1);
+            for (CSVRecord csvRecord : parser) {
+                String codeProduit = csvRecord.get(1);
                 totalItemCount++;
-                int quantityReceived = new BigDecimal(record.get(3)).intValue();
-                int orderCostAmount = new BigDecimal(record.get(2)).intValue();
-                int orderUnitPrice = new BigDecimal(record.get(5)).intValue();
-                String lotNumero = record.get(6);
-                String dateP = record.get(7);
+                int quantityReceived = new BigDecimal(csvRecord.get(3)).intValue();
+                int orderCostAmount = new BigDecimal(csvRecord.get(2)).intValue();
+                int orderUnitPrice = new BigDecimal(csvRecord.get(5)).intValue();
+                String lotNumero = csvRecord.get(6);
+                String dateP = csvRecord.get(7);
                 LocalDate datePeremption = DateUtil.fromYyyyMmDd(dateP);
 
                 Optional<FournisseurProduit> fournisseurProduitOptional = orderLineService.getFournisseurProduitByCriteria(
@@ -701,7 +701,7 @@ public class CommandServiceImpl implements CommandService {
                 } else {
                     items.add(
                         new OrderItem()
-                            .setLigne(Integer.parseInt(record.get(0)))
+                            .setLigne(Integer.parseInt(csvRecord.get(0)))
                             .setProduitCip(codeProduit)
                             .setProduitEan(codeProduit)
                             .setPrixUn(orderUnitPrice)
@@ -726,8 +726,8 @@ public class CommandServiceImpl implements CommandService {
         Commande commande,
         MultipartFile multipartFile,
         List<OrderItem> items,
-        Map<Long, OrderLine> longOrderLineMap,
-        long fournisseurId
+        Map<Integer, OrderLine> longOrderLineMap,
+        Integer fournisseurId
     ) {
         int totalItemCount = 0;
         int succesCount = 0;
@@ -738,14 +738,14 @@ public class CommandServiceImpl implements CommandService {
                 CSVFormat.EXCEL.builder().setDelimiter(';').get()
             )
         ) {
-            for (CSVRecord record : parser) {
-                String codeProduit = record.get(2);
+            for (CSVRecord csvRecord : parser) {
+                String codeProduit = csvRecord.get(2);
                 totalItemCount++;
-                int quantityReceived = Integer.parseInt(record.get(6));
-                int orderCostAmount = (int) Double.parseDouble(record.get(3));
-                int orderUnitPrice = (int) Double.parseDouble(record.get(4));
-                int quantityRequested = Integer.parseInt(record.get(7));
-                double taxAmount = Double.parseDouble(record.get(5));
+                int quantityReceived = Integer.parseInt(csvRecord.get(6));
+                int orderCostAmount = (int) Double.parseDouble(csvRecord.get(3));
+                int orderUnitPrice = (int) Double.parseDouble(csvRecord.get(4));
+                int quantityRequested = Integer.parseInt(csvRecord.get(7));
+                double taxAmount = Double.parseDouble(csvRecord.get(5));
                 Optional<FournisseurProduit> fournisseurProduitOptional = orderLineService.getFournisseurProduitByCriteria(
                     codeProduit,
                     fournisseurId
@@ -781,11 +781,11 @@ public class CommandServiceImpl implements CommandService {
                 } else {
                     items.add(
                         new OrderItem()
-                            .setReferenceBonLivraison(record.get(8))
+                            .setReferenceBonLivraison(csvRecord.get(8))
                             .setTva(taxAmount)
-                            .setLigne(Integer.parseInt(record.get(0)))
+                            .setLigne(Integer.parseInt(csvRecord.get(0)))
                             .setProduitCip(codeProduit)
-                            .setProduitLibelle(record.get(1))
+                            .setProduitLibelle(csvRecord.get(1))
                             .setQuantityRequested(quantityRequested)
                             .setQuantityReceived(quantityReceived)
                             .setPrixUn(orderUnitPrice)
@@ -829,7 +829,7 @@ public class CommandServiceImpl implements CommandService {
     }
 
     private void createInRecord(
-        Map<Long, OrderLine> longOrderLineMap,
+        Map<Integer, OrderLine> longOrderLineMap,
         Commande commande,
         FournisseurProduit fournisseurProduit,
         int quantityRequested,
@@ -864,7 +864,7 @@ public class CommandServiceImpl implements CommandService {
         longOrderLineMap.put(fournisseurProduit.getId(), orderLineNew);
     }
 
-    private Optional<OrderLine> findInCommandeMap(Map<Long, OrderLine> longOrderLineMap, Long fourniseurProduitId) {
+    private Optional<OrderLine> findInCommandeMap(Map<Integer, OrderLine> longOrderLineMap, Integer fourniseurProduitId) {
         if (longOrderLineMap.containsKey(fourniseurProduitId)) {
             return Optional.of(longOrderLineMap.get(fourniseurProduitId));
         }
@@ -934,7 +934,7 @@ public class CommandServiceImpl implements CommandService {
         return commandeRepository.saveAndFlush(commande);
     }
 
-    private Fournisseur buildFournisseurFromId(Long id) {
+    private Fournisseur buildFournisseurFromId(Integer id) {
         return new Fournisseur().id(id);
     }
 
@@ -1134,8 +1134,8 @@ public class CommandServiceImpl implements CommandService {
         Commande commande,
         MultipartFile multipartFile,
         List<OrderItem> items,
-        Map<Long, OrderLine> longOrderLineMap,
-        long fournisseurId
+        Map<Integer, OrderLine> longOrderLineMap,
+        int fournisseurId
     ) {
         int totalItemCount = 0;
         int succesCount = 0;
@@ -1146,13 +1146,13 @@ public class CommandServiceImpl implements CommandService {
                 CSVFormat.EXCEL.builder().setDelimiter(';').get()
             )
         ) {
-            for (CSVRecord record : parser) {
-                isFirstLigne = skipFirstLigne(record, totalItemCount);
+            for (CSVRecord csvRecord : parser) {
+                isFirstLigne = skipFirstLigne(csvRecord, totalItemCount);
                 if (isFirstLigne < 0) {
                     continue;
                 }
-                String codeProduit = record.get(0);
-                int quantityReceived = Integer.parseInt(record.get(1));
+                String codeProduit = csvRecord.get(0);
+                int quantityReceived = Integer.parseInt(csvRecord.get(1));
                 Optional<FournisseurProduit> fournisseurProduitOptional = orderLineService.getFournisseurProduitByCriteria(
                     codeProduit,
                     fournisseurId
@@ -1216,8 +1216,8 @@ public class CommandServiceImpl implements CommandService {
         Commande commande,
         MultipartFile multipartFile,
         List<OrderItem> items,
-        Map<Long, OrderLine> longOrderLineMap,
-        long fournisseurId
+        Map<Integer, OrderLine> longOrderLineMap,
+        Integer fournisseurId
     ) {
         int totalItemCount = 0;
         int succesCount = 0;
@@ -1228,14 +1228,14 @@ public class CommandServiceImpl implements CommandService {
                 CSVFormat.EXCEL.builder().setDelimiter(';').get()
             )
         ) {
-            for (CSVRecord record : parser) {
-                isFirstLigne = skipFirstLigne(record, totalItemCount);
+            for (CSVRecord csvRecord : parser) {
+                isFirstLigne = skipFirstLigne(csvRecord, totalItemCount);
                 if (isFirstLigne < 0) {
                     continue;
                 }
-                String codeProduit = record.get(0);
-                int quantityReceived = Integer.parseInt(record.get(3));
-                int prixAchat = Integer.parseInt(record.get(4));
+                String codeProduit = csvRecord.get(0);
+                int quantityReceived = Integer.parseInt(csvRecord.get(3));
+                int prixAchat = Integer.parseInt(csvRecord.get(4));
                 Optional<FournisseurProduit> fournisseurProduitOptional = orderLineService.getFournisseurProduitByCriteria(
                     codeProduit,
                     fournisseurId
@@ -1271,7 +1271,7 @@ public class CommandServiceImpl implements CommandService {
                 } else {
                     items.add(
                         new OrderItem()
-                            .setQuantityRequested(Integer.parseInt(record.get(1)))
+                            .setQuantityRequested(Integer.parseInt(csvRecord.get(1)))
                             .setPrixAchat(prixAchat)
                             .setProduitCip(codeProduit)
                             .setQuantityReceived(quantityReceived)

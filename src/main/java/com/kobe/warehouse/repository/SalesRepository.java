@@ -55,7 +55,7 @@ public interface SalesRepository extends JpaSpecificationExecutor<Sales>, JpaRep
     @Query(
         "SELECT SUM(o.restToPay)   FROM Sales o  JOIN o.customer c  WHERE o.differe AND o.statut='CLOSED' AND o.canceled =FALSE  AND c.id =:customerId"
     )
-    BigDecimal getDiffereSoldeByCustomerId(Long customerId);
+    BigDecimal getDiffereSoldeByCustomerId(Integer customerId);
 
     @Query(value = "SELECT sales_summary_json(:startDate, :endDate, :statuts,:caterorieChiffreAffaire)", nativeQuery = true)
     String fetchSalesSummary(
@@ -154,7 +154,7 @@ public interface SalesRepository extends JpaSpecificationExecutor<Sales>, JpaRep
     @Query(value = "SELECT fetch_product_quantity_sold_json(:startDate, :endDate)", nativeQuery = true)
     String fetchProductQuantitySold(@Param("startDate") LocalDate startDate, @Param("endDate") LocalDate endDate);
 
-    default Specification<Sales> filterByCustomerId(Long customerId) {
+    default Specification<Sales> filterByCustomerId(Integer customerId) {
         if (customerId == null) {
             return null;
         }
@@ -175,7 +175,7 @@ public interface SalesRepository extends JpaSpecificationExecutor<Sales>, JpaRep
         return (root, query, cb) -> cb.like(root.get(Sales_.numberTransaction), numberTransaction + "%");
     }
 
-    default Specification<Sales> filterByCaissierId(Set<Long> caissierIds) {
+    default Specification<Sales> filterByCaissierId(Set<Integer> caissierIds) {
         if (caissierIds == null || caissierIds.isEmpty()) {
             return null; // No filter applied
         }

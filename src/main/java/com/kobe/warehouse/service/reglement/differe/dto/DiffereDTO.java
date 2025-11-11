@@ -4,7 +4,7 @@ import com.kobe.warehouse.service.utils.NumberUtil;
 import java.util.List;
 
 public record DiffereDTO(
-    Long customerId,
+    Integer customerId,
     String firstName,
     String lastName,
     Long saleAmount,

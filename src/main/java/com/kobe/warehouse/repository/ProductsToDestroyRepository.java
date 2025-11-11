@@ -32,14 +32,14 @@ import static org.springframework.util.StringUtils.hasText;
 @Repository
 public interface ProductsToDestroyRepository
     extends
-    JpaRepository<ProductsToDestroy, Long>,
+    JpaRepository<ProductsToDestroy, Integer>,
     JpaSpecificationExecutor<ProductsToDestroy>,
     SpecificationBuilder,
     ProductsToDestroyCustomRepository {
     @Query("SELECT o FROM ProductsToDestroy o WHERE o.editing  AND FUNCTION('DATE',o.created) =:toDay AND o.user.id =:userId")
-    List<ProductsToDestroy> findAllByEditingTrueAndCreatedEquals( LocalDate toDay,Long userId);
+    List<ProductsToDestroy> findAllByEditingTrueAndCreatedEquals( LocalDate toDay,Integer userId);
 
-    Optional<ProductsToDestroy> findByNumLotAndFournisseurProduitProduitId(String numLot, Long produitId);
+    Optional<ProductsToDestroy> findByNumLotAndFournisseurProduitProduitId(String numLot, Integer produitId);
 
     default Specification<ProductsToDestroy> isDestroyed(Boolean destroyed) {
         if (nonNull(destroyed)) {
@@ -71,7 +71,7 @@ public interface ProductsToDestroyRepository
         return null;
     }
 
-    default Specification<ProductsToDestroy> filterByFournisseurId(Long fournisseurId) {
+    default Specification<ProductsToDestroy> filterByFournisseurId(Integer fournisseurId) {
         if (isNull(fournisseurId)) {
             return null;
         }
@@ -83,7 +83,7 @@ public interface ProductsToDestroyRepository
             );
     }
 
-    default Specification<ProductsToDestroy> filterByUserId(Long userId) {
+    default Specification<ProductsToDestroy> filterByUserId(Integer userId) {
         if (isNull(userId)) {
             return null;
         }
@@ -91,7 +91,7 @@ public interface ProductsToDestroyRepository
         return (root, _, cb) -> cb.equal(root.get(ProductsToDestroy_.user).get(AppUser_.id), userId);
     }
 
-    default Specification<ProductsToDestroy> filterByRayonId(Long rayonId) {
+    default Specification<ProductsToDestroy> filterByRayonId(Integer rayonId) {
         if (isNull(rayonId)) {
             return null;
         }
@@ -114,7 +114,7 @@ public interface ProductsToDestroyRepository
         return (root, _, cb) -> cb.between(root.get(ProductsToDestroy_.created), createdFrom, createdTo);
     }
 
-    default Specification<ProductsToDestroy> filterByMagasinId(Long magasinId) {
+    default Specification<ProductsToDestroy> filterByMagasinId(Integer magasinId) {
         if (isNull(magasinId)) {
             return null; // No filter if id is null
         }
@@ -137,7 +137,7 @@ public interface ProductsToDestroyRepository
         return spec;
     }
 
-    default Specification<ProductsToDestroy> buildEditing(Long userId, String searchTerm) {
+    default Specification<ProductsToDestroy> buildEditing(Integer userId, String searchTerm) {
         Specification<ProductsToDestroy> spec = filterByUserId(userId);
         spec = add(spec, filterBySearchTerm(searchTerm));
         spec = add(spec, isEditing(true));

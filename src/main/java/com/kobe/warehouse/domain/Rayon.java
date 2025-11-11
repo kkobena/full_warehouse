@@ -32,14 +32,14 @@ public class Rayon implements Serializable {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+    private Integer id;
 
     @NotNull
-    @Column(name = "code", nullable = false)
+    @Column(name = "code", nullable = false, length = 20)
     private String code;
 
     @NotNull
-    @Column(name = "libelle", nullable = false)
+    @Column(name = "libelle", nullable = false, length = 100)
     private String libelle;
 
     @ManyToOne(optional = false)
@@ -49,16 +49,16 @@ public class Rayon implements Serializable {
     @Column(name = "to_exclude")
     private boolean exclude;
 
-    public Rayon id(Long id) {
+    public Rayon id(Integer id) {
         this.id = id;
         return this;
     }
 
-    public Long getId() {
+    public Integer getId() {
         return id;
     }
 
-    public void setId(Long id) {
+    public void setId(Integer id) {
         this.id = id;
     }
 

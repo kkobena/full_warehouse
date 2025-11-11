@@ -15,10 +15,10 @@ public class PaymentDTO {
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
     private PaymentModeDTO paymentMode;
-    private Long userId;
+    private Integer userId;
     private Customer customer;
     private String saleNumberTransaction;
-    private Long customerId;
+    private Integer customerId;
     private Long salesId;
     private Integer salesAmount;
     private Integer salesNetAmount;
@@ -107,11 +107,11 @@ public class PaymentDTO {
         return this;
     }
 
-    public Long getUserId() {
+    public Integer getUserId() {
         return userId;
     }
 
-    public void setUserId(Long userId) {
+    public void setUserId(Integer userId) {
         this.userId = userId;
     }
 
@@ -131,11 +131,11 @@ public class PaymentDTO {
         this.saleNumberTransaction = saleNumberTransaction;
     }
 
-    public Long getCustomerId() {
+    public Integer getCustomerId() {
         return customerId;
     }
 
-    public void setCustomerId(Long customerId) {
+    public void setCustomerId(Integer customerId) {
         this.customerId = customerId;
     }
 

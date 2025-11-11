@@ -27,19 +27,19 @@ public class PrixRererenceServiceImpl implements PrixRererenceService {
     }
 
     @Override
-    public List<OptionPrixProduit> findByProduitIdAndTiersPayantIds(Long produitId, Set<Long> tiersPayantIds) {
+    public List<OptionPrixProduit> findByProduitIdAndTiersPayantIds(Integer produitId, Set<Integer> tiersPayantIds) {
         return this.prixReferenceRepository.findByProduitIdAndTiersPayantIds(produitId, tiersPayantIds);
     }
 
     @Override
     @Transactional(readOnly = true)
-    public Optional<OptionPrixProduit> findOneActifByProduitIdAndTiersPayantId(Long produitId, Long tiersPayantId) {
+    public Optional<OptionPrixProduit> findOneActifByProduitIdAndTiersPayantId(Integer produitId, Integer tiersPayantId) {
         return this.prixReferenceRepository.findOneActifByProduitIdAndTiersPayantId(produitId, tiersPayantId);
     }
 
     @Override
     @Transactional(readOnly = true)
-    public Optional<PrixReferenceDTO> findActif(Long produitId, Long tiersPayantId) {
+    public Optional<PrixReferenceDTO> findActif(Integer produitId, Integer tiersPayantId) {
         return this.findOneActifByProduitIdAndTiersPayantId(produitId, tiersPayantId)
             .map(prixReference -> {
                 PrixReferenceDTO dto = new PrixReferenceDTO();
@@ -56,13 +56,13 @@ public class PrixRererenceServiceImpl implements PrixRererenceService {
 
     @Override
     @Transactional(readOnly = true)
-    public Optional<PrixReferenceDTO> findById(Long id) {
+    public Optional<PrixReferenceDTO> findById(Integer id) {
         return this.prixReferenceRepository.findById(id).map(PrixReferenceDTO::new);
     }
 
     @Override
     @Transactional(readOnly = true)
-    public List<OptionPrixProduit> findAllByProduitIdAndTiersPayantId(Long produitId, Long tiersPayantId) {
+    public List<OptionPrixProduit> findAllByProduitIdAndTiersPayantId(Integer produitId, Integer tiersPayantId) {
         return this.prixReferenceRepository.findAllByProduitIdAndTiersPayantId(produitId, tiersPayantId);
     }
 
@@ -91,13 +91,13 @@ public class PrixRererenceServiceImpl implements PrixRererenceService {
     }
 
     @Override
-    public void delete(Long id) {
+    public void delete(Integer id) {
         this.prixReferenceRepository.deleteById(id);
     }
 
     @Override
     @Transactional(readOnly = true)
-    public List<PrixReferenceDTO> findAllByProduitIddAndTiersPayantId(Long produitId, Long tiersPayantId) {
+    public List<PrixReferenceDTO> findAllByProduitIddAndTiersPayantId(Integer produitId, Integer tiersPayantId) {
         return this.findAllByProduitIdAndTiersPayantId(produitId, tiersPayantId).stream().map(PrixReferenceDTO::new).toList();
     }
 
@@ -108,7 +108,7 @@ public class PrixRererenceServiceImpl implements PrixRererenceService {
     }
 
     @Override
-    public List<PrixReferenceDTO> findAllByProduitId(Long produitId) {
+    public List<PrixReferenceDTO> findAllByProduitId(Integer produitId) {
         return this.prixReferenceRepository.findAllByProduitId(produitId)
             .stream()
             .map(prixReference -> {

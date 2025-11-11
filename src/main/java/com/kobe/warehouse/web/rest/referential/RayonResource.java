@@ -100,8 +100,8 @@ public class RayonResource {
      */
     @GetMapping(value = "/rayons")
     public ResponseEntity<List<RayonDTO>> getAllRayons(
-        @RequestParam(name = "magasinId", required = false) Long magasinId,
-        @RequestParam(name = "storageId", required = false) Long storageId,
+        @RequestParam(name = "magasinId", required = false) Integer magasinId,
+        @RequestParam(name = "storageId", required = false) Integer storageId,
         @RequestParam(value = "search", required = false, defaultValue = "") String search,
         Pageable pageable
     ) {
@@ -119,7 +119,7 @@ public class RayonResource {
      * or with status {@code 404 (Not Found)}.
      */
     @GetMapping("/rayons/{id}")
-    public ResponseEntity<RayonDTO> getRayon(@PathVariable Long id) {
+    public ResponseEntity<RayonDTO> getRayon(@PathVariable Integer id) {
         log.debug("REST request to get Rayon : {}", id);
         Optional<RayonDTO> rayonDTO = rayonService.findOne(id);
         return ResponseUtil.wrapOrNotFound(rayonDTO);
@@ -132,7 +132,7 @@ public class RayonResource {
      * @return the {@link ResponseEntity} with status {@code 204 (NO_CONTENT)}.
      */
     @DeleteMapping("/rayons/{id}")
-    public ResponseEntity<Void> deleteRayon(@PathVariable Long id) {
+    public ResponseEntity<Void> deleteRayon(@PathVariable Integer id) {
         log.debug("REST request to delete Rayon : {}", id);
         rayonService.delete(id);
         return ResponseEntity.noContent()
@@ -143,7 +143,7 @@ public class RayonResource {
     @PostMapping("/rayons/importcsv/{storageId}")
     public ResponseEntity<ResponseDTO> uploadFile(
         @RequestPart("importcsv") MultipartFile file,
-        @PathVariable(name = "storageId") Long storageId
+        @PathVariable(name = "storageId") Integer storageId
     ) throws URISyntaxException, IOException {
         ResponseDTO responseDTO = rayonService.importation(file.getInputStream(), storageId);
         return ResponseUtil.wrapOrNotFound(Optional.of(responseDTO));
@@ -151,7 +151,7 @@ public class RayonResource {
 
     @PostMapping("/rayons/clone/{storageId}")
     public ResponseEntity<ResponseDTO> clonerRayons(
-        @PathVariable(name = "storageId", required = false) Long storageId,
+        @PathVariable(name = "storageId", required = false) Integer storageId,
         @RequestBody List<RayonDTO> rayonIds
     ) {
         ResponseDTO responseDTO = rayonService.cloner(rayonIds, storageId);

@@ -99,13 +99,13 @@ public class LotServiceImpl implements LotService {
     }
 
     @Override
-    public void remove(Long lotId) {
+    public void remove(Integer lotId) {
         this.lotRepository.deleteById(lotId);
     }
 
     @Override
     @Transactional(readOnly = true)
-    public List<Lot> findByProduitId(Long produitId) {
+    public List<Lot> findByProduitId(Integer produitId) {
         return this.lotRepository.findByProduitId(
                 produitId,
                 LocalDate.now().minusDays(this.appConfigurationService.getNombreJourPeremption()),
@@ -115,7 +115,7 @@ public class LotServiceImpl implements LotService {
 
     @Override
     @Transactional(readOnly = true)
-    public List<Lot> findProduitLots(Long produitId) {
+    public List<Lot> findProduitLots(Integer produitId) {
         return this.lotRepository.findByProduitId(produitId);
     }
 
@@ -220,8 +220,8 @@ public class LotServiceImpl implements LotService {
                 lotPerime.setProduitId(produit.getId());
                 lotPerime.setId(produit.getId());
                 lotPerime.setQuantity(stockProduits.stream().mapToInt(StockProduit::getQtyStock).sum());
-                lotPerime.setDatePeremption(produit.getPerimeAt().format(dateFormatter));
-                lotPerime.setPeremptionStatut(buildPeremptionStatut(produit.getPerimeAt()));
+              //  lotPerime.setDatePeremption(produit.getPerimeAt().format(dateFormatter));
+              //  lotPerime.setPeremptionStatut(buildPeremptionStatut(produit.getPerimeAt()));
                 buildCommon(lotPerime, produit, fournisseurProduit);
 
                 return lotPerime;

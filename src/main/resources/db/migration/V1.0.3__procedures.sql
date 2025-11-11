@@ -4,15 +4,15 @@ create procedure proc_close_inventory(IN p_store_inventory_id bigint, INOUT p_no
 as
 $$
 DECLARE
-  v_produit_id bigint;
-  v_storage_id bigint;
+  v_produit_id INT;
+  v_storage_id INT;
   v_entity_id bigint;
   v_quantity_on_hand INT;
   v_quantity_init INT;
   v_inventory_value_cost INT;
   v_last_unit_price INT;
-  v_user_id bigint;
-  v_magasin_id bigint;
+  v_user_id INT;
+  v_magasin_id INT;
   v_updated_at TIMESTAMP;
   curbl CURSOR FOR
     SELECT a.quantity_on_hand,

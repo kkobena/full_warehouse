@@ -29,10 +29,10 @@ public class Tableau implements Serializable {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+    private Integer id;
 
     @NotNull
-    @Column(name = "code", nullable = false)
+    @Column(name = "code", nullable = false,length = 50)
     private String code;
 
     @NotNull
@@ -41,11 +41,11 @@ public class Tableau implements Serializable {
 
     public Tableau() {}
 
-    public Long getId() {
+    public Integer getId() {
         return id;
     }
 
-    public Tableau setId(Long id) {
+    public Tableau setId(Integer id) {
         this.id = id;
         return this;
     }

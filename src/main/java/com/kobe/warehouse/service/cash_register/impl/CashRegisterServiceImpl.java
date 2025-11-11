@@ -85,7 +85,7 @@ public class CashRegisterServiceImpl implements CashRegisterService {
     }
 
     @Override
-    public CashRegister openCashRegister(AppUser user, Long cashFundId) {
+    public CashRegister openCashRegister(AppUser user, Integer cashFundId) {
         CashRegister cashRegister = create(user);
         cashRegister.setCashFund(this.cashFundService.findById(cashFundId));
         this.cashRegisterRepository.save(cashRegister);
@@ -161,12 +161,12 @@ public class CashRegisterServiceImpl implements CashRegisterService {
     }
 
     @Override
-    public CashRegister getCashRegisterById(Long id) {
+    public CashRegister getCashRegisterById(Integer id) {
         return this.cashRegisterRepository.getReferenceById(id);
     }
 
     @Override
-    public Optional<CashRegisterDTO> findOne(Long id) {
+    public Optional<CashRegisterDTO> findOne(Integer id) {
         return Optional.of(this.cashRegisterRepository.getReferenceById(id)).map(CashRegisterDTO::new);
     }
 

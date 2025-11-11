@@ -31,7 +31,7 @@ public interface RayonService {
      * @param pageable the pagination information.
      * @return the list of entities.
      */
-    Page<RayonDTO> findAll(Long magasinId,Long storageId, String query, Pageable pageable);
+    Page<RayonDTO> findAll(Integer magasinId,Integer storageId, String query, Pageable pageable);
 
     /**
      * Get the "id" rayon.
@@ -39,18 +39,18 @@ public interface RayonService {
      * @param id the id of the entity.
      * @return the entity.
      */
-    Optional<RayonDTO> findOne(Long id);
+    Optional<RayonDTO> findOne(Integer id);
 
     /**
      * Delete the "id" rayon.
      *
      * @param id the id of the entity.
      */
-    void delete(Long id);
+    void delete(Integer id);
 
-    ResponseDTO importation(InputStream inputStream, Long magasinId);
+    ResponseDTO importation(InputStream inputStream, Integer magasinId);
 
-    ResponseDTO cloner(List<RayonDTO> rayonIds, Long magasinId);
+    ResponseDTO cloner(List<RayonDTO> rayons, Integer magasinId);
 
     void initDefaultRayon(Set<Storage> storages);
 

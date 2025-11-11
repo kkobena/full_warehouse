@@ -107,7 +107,7 @@ public class SaleDataService {
         this.salesRepository = salesRepository;
     }
 
-    public List<SaleDTO> customerPurchases(Long customerId, LocalDate fromDate, LocalDate toDate) {
+    public List<SaleDTO> customerPurchases(Integer customerId, LocalDate fromDate, LocalDate toDate) {
         Specification<Sales> specification = Specification.where(salesRepository.filterByCustomerId(customerId));
         specification = specification.and(salesRepository.hasStatut(EnumSet.of(SalesStatut.CLOSED)));
         if (fromDate != null) {

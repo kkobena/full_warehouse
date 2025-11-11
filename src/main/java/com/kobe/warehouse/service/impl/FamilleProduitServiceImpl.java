@@ -75,7 +75,7 @@ public class FamilleProduitServiceImpl implements FamilleProduitService {
      */
     @Override
     @Transactional(readOnly = true)
-    public Optional<FamilleProduitDTO> findOne(Long id) {
+    public Optional<FamilleProduitDTO> findOne(Integer id) {
         log.debug("Request to get FamilleProduit : {}", id);
         return familleProduitRepository.findById(id).map(FamilleProduitDTO::new);
     }
@@ -86,7 +86,7 @@ public class FamilleProduitServiceImpl implements FamilleProduitService {
      * @param id the id of the entity.
      */
     @Override
-    public void delete(Long id) {
+    public void delete(Integer id) {
         log.debug("Request to delete FamilleProduit : {}", id);
 
         familleProduitRepository.deleteById(id);
@@ -114,7 +114,7 @@ public class FamilleProduitServiceImpl implements FamilleProduitService {
         return new ResponseDTO().size(count.get());
     }
 
-    private Categorie fromId(Long categorieId) {
+    private Categorie fromId(Integer categorieId) {
         return new Categorie().id(categorieId);
     }
 }

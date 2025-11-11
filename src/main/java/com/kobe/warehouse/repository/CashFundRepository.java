@@ -6,6 +6,6 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
 @Repository
-public interface CashFundRepository extends JpaRepository<CashFund, Long> {
-    CashFund findOneByCashRegisterIdAndStatut(Long cashRegisterId, CashRegisterStatut statut);
+public interface CashFundRepository extends JpaRepository<CashFund, Integer> {
+    CashFund findOneByCashRegisterIdAndStatut(Integer cashRegisterId, CashRegisterStatut statut);
 }

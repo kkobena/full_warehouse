@@ -18,7 +18,7 @@ public class RemiseDTO implements Serializable {
     @Serial
     private static final long serialVersionUID = 1L;
 
-    protected Long id;
+    protected Integer id;
 
     protected String valeur;
 
@@ -51,11 +51,11 @@ public class RemiseDTO implements Serializable {
         return displayName;
     }
 
-    public Long getId() {
+    public Integer getId() {
         return id;
     }
 
-    public void setId(Long id) {
+    public void setId(Integer id) {
         this.id = id;
     }
 

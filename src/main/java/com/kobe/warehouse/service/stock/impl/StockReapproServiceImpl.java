@@ -1,7 +1,7 @@
 package com.kobe.warehouse.service.stock.impl;
 
 import com.fasterxml.jackson.core.type.TypeReference;
-import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.json.JsonMapper;
 import com.kobe.warehouse.constant.EntityConstant;
 import com.kobe.warehouse.domain.AppConfiguration;
 import com.kobe.warehouse.domain.Produit;
@@ -38,14 +38,14 @@ public class StockReapproServiceImpl {
     private final AppConfigurationService appConfigurationService;
     private final TransactionTemplate transactionTemplate;
     private final SalesRepository salesRepository;
-    private final ObjectMapper objectMapper;
+    private final JsonMapper objectMapper;
 
     public StockReapproServiceImpl(
         EntityManager entityManager,
         AppConfigurationService appConfigurationService,
         TransactionTemplate transactionTemplate,
         SalesRepository salesRepository,
-        ObjectMapper objectMapper
+        JsonMapper objectMapper
     ) {
         this.entityManager = entityManager;
         this.appConfigurationService = appConfigurationService;

@@ -215,7 +215,7 @@ public class SaleServiceImpl extends SaleCommonService implements SaleService {
         c.setAmountToBeTakenIntoAccount(0);
     }
 
-    private UninsuredCustomer getUninsuredCustomerById(Long id) {
+    private UninsuredCustomer getUninsuredCustomerById(Integer id) {
         return id != null ? uninsuredCustomerRepository.getReferenceById(id) : null;
     }
 
@@ -290,7 +290,7 @@ public class SaleServiceImpl extends SaleCommonService implements SaleService {
 
     private SalesLine createOrUpdateSaleLine(SaleLineDTO dto) {
         Optional<SalesLine> salesLineOp = salesLineService.findBySalesIdAndProduitId(dto.getSaleCompositeId(), dto.getProduitId());
-        Long storageId = storageService.getDefaultConnectedUserPointOfSaleStorage().getId();
+        int storageId = storageService.getDefaultConnectedUserPointOfSaleStorage().getId();
         if (salesLineOp.isPresent()) {
             SalesLine salesLine = salesLineOp.get();
             salesLineService.updateSaleLine(dto, salesLine, storageId);

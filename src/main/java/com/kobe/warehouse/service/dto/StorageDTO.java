@@ -6,10 +6,10 @@ import com.kobe.warehouse.domain.Storage;
 public class StorageDTO {
 
     private String name;
-    private Long id;
+    private Integer id;
     private String storageType;
     private String magasinName;
-    private Long magasinId;
+    private Integer magasinId;
 
     public StorageDTO() {}
 
@@ -34,11 +34,11 @@ public class StorageDTO {
         return this;
     }
 
-    public Long getId() {
+    public Integer getId() {
         return id;
     }
 
-    public StorageDTO setId(Long id) {
+    public StorageDTO setId(Integer id) {
         this.id = id;
         return this;
     }
@@ -61,11 +61,11 @@ public class StorageDTO {
         return this;
     }
 
-    public Long getMagasinId() {
+    public Integer getMagasinId() {
         return magasinId;
     }
 
-    public StorageDTO setMagasinId(Long magasinId) {
+    public StorageDTO setMagasinId(Integer magasinId) {
         this.magasinId = magasinId;
         return this;
     }

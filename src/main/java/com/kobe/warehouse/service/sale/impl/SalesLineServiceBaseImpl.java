@@ -44,7 +44,7 @@ public class SalesLineServiceBaseImpl extends SalesLineServiceImpl {
     }
 
     @Override
-    public SalesLine createSaleLineFromDTO(SaleLineDTO dto, Long stockageId) {
+    public SalesLine createSaleLineFromDTO(SaleLineDTO dto, Integer stockageId) {
         return super.setCommonSaleLine(dto, stockageId);
     }
 }

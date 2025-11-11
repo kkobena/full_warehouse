@@ -25,7 +25,7 @@ public class Reference implements Serializable {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+    private Integer id;
 
     @NotNull
     @Column(name = "num", nullable = false,length = 20)
@@ -44,11 +44,11 @@ public class Reference implements Serializable {
     @Column(name = "d_type", nullable = false)
     private Integer type;
 
-    public Long getId() {
+    public Integer getId() {
         return id;
     }
 
-    public void setId(Long id) {
+    public void setId(Integer id) {
         this.id = id;
     }
 

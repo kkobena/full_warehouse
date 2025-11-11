@@ -34,16 +34,16 @@ public interface FournisseurService {
      * @param id the id of the entity.
      * @return the entity.
      */
-    Optional<FournisseurDTO> findOne(Long id);
+    Optional<FournisseurDTO> findOne(Integer id);
 
     /**
      * Delete the "id" fournisseur.
      *
      * @param id the id of the entity.
      */
-    void delete(Long id);
+    void delete(Integer id);
 
     ResponseDTO importation(InputStream inputStream);
 
-    Fournisseur findOneById(Long id);
+    Fournisseur findOneById(Integer id);
 }

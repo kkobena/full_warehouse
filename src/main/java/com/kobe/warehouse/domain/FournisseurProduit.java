@@ -41,12 +41,12 @@ public class FournisseurProduit implements Serializable {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+    private Integer id;
 
-    @Column(name = "code_cip")
+    @Column(name = "code_cip",length = 10)
     private String codeCip;
 
-    @Column(name = "code_ean")
+    @Column(name = "code_ean", length = 13)
     private String codeEan;
 
     @NotNull
@@ -76,11 +76,11 @@ public class FournisseurProduit implements Serializable {
     @Column(name = "last_modified_date")
     private LocalDateTime lastModifiedDate = LocalDateTime.now();
 
-    public Long getId() {
+    public Integer getId() {
         return id;
     }
 
-    public void setId(Long id) {
+    public void setId(Integer id) {
         this.id = id;
     }
 

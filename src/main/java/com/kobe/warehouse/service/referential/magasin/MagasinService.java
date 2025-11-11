@@ -10,9 +10,9 @@ public interface MagasinService {
 
     MagasinDTO currentUserMagasin();
 
-    MagasinDTO findById(Long id);
+    MagasinDTO findById(Integer id);
 
-    void delete(Long id);
+    void delete(Integer id);
 
     List<MagasinDTO> findAll(Set<TypeMagasin> types);
 }

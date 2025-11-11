@@ -10,13 +10,13 @@ import java.time.LocalDateTime;
 
 public class AjustementDTO {
 
-    private Long id;
+    private Integer id;
     private int qtyMvt;
 
     @NotNull
-    private Long produitId;
+    private Integer produitId;
 
-    private Long ajustId;
+    private Integer ajustId;
     private Long storageId;
     private LocalDateTime dateMtv;
     private int stockBefore;
@@ -24,7 +24,7 @@ public class AjustementDTO {
     private String produitLibelle;
     private String codeCip;
     private String userFullName;
-    private Long motifAjustementId;
+    private Integer motifAjustementId;
     private String motifAjustementLibelle;
     private String commentaire;
 
@@ -58,11 +58,11 @@ public class AjustementDTO {
         produitLibelle = produitlibelle;
     }
 
-    public Long getId() {
+    public Integer getId() {
         return id;
     }
 
-    public void setId(Long id) {
+    public void setId(Integer id) {
         this.id = id;
     }
 
@@ -74,19 +74,19 @@ public class AjustementDTO {
         this.qtyMvt = qtyMvt;
     }
 
-    public Long getProduitId() {
+    public Integer getProduitId() {
         return produitId;
     }
 
-    public void setProduitId(Long produitId) {
+    public void setProduitId(Integer produitId) {
         this.produitId = produitId;
     }
 
-    public Long getAjustId() {
+    public Integer getAjustId() {
         return ajustId;
     }
 
-    public void setAjustId(Long ajustId) {
+    public void setAjustId(Integer ajustId) {
         this.ajustId = ajustId;
     }
 
@@ -149,11 +149,11 @@ public class AjustementDTO {
         this.userFullName = userFullName;
     }
 
-    public Long getMotifAjustementId() {
+    public Integer getMotifAjustementId() {
         return motifAjustementId;
     }
 
-    public AjustementDTO setMotifAjustementId(Long motifAjustementId) {
+    public AjustementDTO setMotifAjustementId(Integer motifAjustementId) {
         this.motifAjustementId = motifAjustementId;
         return this;
     }

@@ -111,12 +111,12 @@ public class AssuredCustomerServiceImpl implements AssuredCustomerService {
     }
 
     @Override
-    public void delete(Long id) {
+    public void delete(Integer id) {
         assuredCustomerRepository.deleteById(id);
     }
 
     @Override
-    public void desable(Long id) {
+    public void desable(Integer id) {
         AssuredCustomer assuredCustomer = assuredCustomerRepository.getReferenceById(id);
         assuredCustomer.setStatus(Status.DISABLE);
         assuredCustomerRepository.save(assuredCustomer);
@@ -164,7 +164,7 @@ public class AssuredCustomerServiceImpl implements AssuredCustomerService {
     }
 
     @Override
-    public void deleteCustomerById(Long id) throws GenericError {
+    public void deleteCustomerById(Integer id) throws GenericError {
         try {
             AssuredCustomer assuredCustomer = assuredCustomerRepository.getReferenceById(id);
             List<AssuredCustomer> ayantDroits = assuredCustomerRepository.findAllByAssurePrincipalId(id);
@@ -193,7 +193,7 @@ public class AssuredCustomerServiceImpl implements AssuredCustomerService {
     }
 
     @Override
-    public void deleteTiersPayant(Long id) throws GenericError {
+    public void deleteTiersPayant(Integer id) throws GenericError {
         canModifyTiersPayant(id);
         clientTiersPayantRepository.deleteById(id);
     }
@@ -203,7 +203,7 @@ public class AssuredCustomerServiceImpl implements AssuredCustomerService {
         return customerDataService.loadAllAsuredCustomers(query, typeTiersPayant, pageable);
     }
 
-    private void canModifyTiersPayant(Long id) throws GenericError {
+    private void canModifyTiersPayant(Integer id) throws GenericError {
         long countSales = thirdPartySaleLineRepository.countByClientTiersPayantId(id);
         if (countSales > 0) {
             throw new GenericError("Il existe des ventes avec tiers-payant. Veuillez basculer les ventes ");

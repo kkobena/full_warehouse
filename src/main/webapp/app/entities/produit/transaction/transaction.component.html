@@ -61,7 +61,7 @@
         <p-toolbar>
           <ng-template #start>
             <div class="pharma-toolbar-filters">
-              <div class="mr-2" style="min-width: 300px; flex: 1 1 auto;">
+              <div  style="min-width: 300px; flex: 1 1 auto;">
                 <jhi-produit-autocomplete
                   (selectedProduit)="onSelect($event)"
                   [(ngModel)]="produit"
@@ -72,28 +72,24 @@
                 />
               </div>
 
-              <div class="mr-2">
-                <jhi-date-picker
+
+                <jhi-date-picker [style]="{ 'max-width': '150px' }"
                   #dateDebut
                   [disabled]="false"
                   [id]="'du'"
                   [label]="'warehouseApp.labels.du'"
                   [max]="toDate"
                 />
-              </div>
-
-              <div class="mr-2">
-                <jhi-date-picker
+                <jhi-date-picker [style]="{ 'max-width': '150px' }"
                   #dateFin
                   (onSelect)="updateParam()"
                   [defaultDate]="defaultDate"
                   [disabled]="false"
-
                   [id]="'au'"
                   [label]="'warehouseApp.labels.au'"
                   [min]="fromDate"
                 />
-              </div>
+
             </div>
           </ng-template>
 

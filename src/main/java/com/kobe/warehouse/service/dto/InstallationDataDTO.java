@@ -3,13 +3,13 @@ package com.kobe.warehouse.service.dto;
 public class InstallationDataDTO {
 
     private TypeImportationProduit typeImportation;
-    private Long fournisseurId;
+    private Integer fournisseurId;
 
-    public Long getFournisseurId() {
+    public Integer getFournisseurId() {
         return fournisseurId;
     }
 
-    public InstallationDataDTO setFournisseurId(Long fournisseurId) {
+    public InstallationDataDTO setFournisseurId(Integer fournisseurId) {
         this.fournisseurId = fournisseurId;
         return this;
     }

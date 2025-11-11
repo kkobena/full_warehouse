@@ -7,7 +7,7 @@ import java.io.Serializable;
 public class TvaDTO implements Serializable {
 
     private static final long serialVersionUID = -656800366874873921L;
-    private Long id;
+    private Integer id;
 
     @NotNull
     private Integer taux;
@@ -21,11 +21,11 @@ public class TvaDTO implements Serializable {
 
     public TvaDTO() {}
 
-    public Long getId() {
+    public Integer getId() {
         return id;
     }
 
-    public void setId(Long id) {
+    public void setId(Integer id) {
         this.id = id;
     }
 

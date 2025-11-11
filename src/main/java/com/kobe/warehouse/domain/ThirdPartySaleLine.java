@@ -72,7 +72,7 @@ public class ThirdPartySaleLine implements Persistable<AssuranceSaleId>, Seriali
 
     @NotNull
     @Enumerated(EnumType.STRING)
-    @Column(name = "statut", nullable = false)
+    @Column(name = "statut", nullable = false,length =11 )
     private ThirdPartySaleStatut statut = ThirdPartySaleStatut.ACTIF;
 
     @NotNull

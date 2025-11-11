@@ -1,8 +1,5 @@
 package com.kobe.warehouse.service.impl;
 
-import static com.kobe.warehouse.constant.EntityConstant.SANS_EMPLACEMENT_CODE;
-import static com.kobe.warehouse.constant.EntityConstant.SANS_EMPLACEMENT_LIBELLE;
-
 import com.kobe.warehouse.domain.Rayon;
 import com.kobe.warehouse.domain.Storage;
 import com.kobe.warehouse.repository.CustomizedRayonService;
@@ -11,14 +8,6 @@ import com.kobe.warehouse.service.RayonService;
 import com.kobe.warehouse.service.StorageService;
 import com.kobe.warehouse.service.dto.RayonDTO;
 import com.kobe.warehouse.service.dto.ResponseDTO;
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.util.List;
-import java.util.Optional;
-import java.util.Set;
-import java.util.concurrent.atomic.AtomicInteger;
 import org.apache.commons.csv.CSVFormat;
 import org.apache.commons.csv.CSVRecord;
 import org.slf4j.Logger;
@@ -27,6 +16,18 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.util.List;
+import java.util.Optional;
+import java.util.Set;
+import java.util.concurrent.atomic.AtomicInteger;
+
+import static com.kobe.warehouse.constant.EntityConstant.SANS_EMPLACEMENT_CODE;
+import static com.kobe.warehouse.constant.EntityConstant.SANS_EMPLACEMENT_LIBELLE;
 
 /**
  * Service Implementation for managing {@link Rayon}.
@@ -74,8 +75,8 @@ public class RayonServiceImpl implements RayonService {
      */
     @Override
     @Transactional(readOnly = true)
-    public Page<RayonDTO> findAll(Long magasinId,Long storageId, String query, Pageable pageable) {
-        return customizedRayonService.listRayonsByStorageId(magasinId,storageId, query, pageable);
+    public Page<RayonDTO> findAll(Integer magasinId, Integer storageId, String query, Pageable pageable) {
+        return customizedRayonService.listRayonsByStorageId(magasinId, storageId, query, pageable);
     }
 
     /**
@@ -86,7 +87,7 @@ public class RayonServiceImpl implements RayonService {
      */
     @Override
     @Transactional(readOnly = true)
-    public Optional<RayonDTO> findOne(Long id) {
+    public Optional<RayonDTO> findOne(Integer id) {
         log.debug("Request to get Rayon : {}", id);
         return rayonRepository.findById(id).map(RayonDTO::new);
     }
@@ -97,14 +98,14 @@ public class RayonServiceImpl implements RayonService {
      * @param id the id of the entity.
      */
     @Override
-    public void delete(Long id) {
+    public void delete(Integer id) {
         log.debug("Request to delete Rayon : {}", id);
         rayonRepository.deleteById(id);
     }
 
     @Override
-    public ResponseDTO importation(InputStream inputStream, Long storageId) {
-        final Long storageId2 = (storageId == null || storageId == 0)
+    public ResponseDTO importation(InputStream inputStream, Integer storageId) {
+        final Integer storageId2 = (storageId == null || storageId == 0)
             ? storageService.getDefaultConnectedUserMainStorage().getId()
             : storageId;
         AtomicInteger count = new AtomicInteger(0);
@@ -137,11 +138,11 @@ public class RayonServiceImpl implements RayonService {
     }
 
     @Override
-    public ResponseDTO cloner(List<RayonDTO> rayonIds, Long storageId) {
+    public ResponseDTO cloner(List<RayonDTO> rayons, Integer storageId) {
         int count = 0;
 
         Storage storage = storageService.getOne(storageId);
-        for (RayonDTO rayonDTO : rayonIds) {
+        for (RayonDTO rayonDTO : rayons) {
             Rayon rayon = customizedRayonService.buildRayonFromRayonDTO(rayonDTO);
             if (rayon.getCode().equals(SANS_EMPLACEMENT_CODE)) {
                 continue;

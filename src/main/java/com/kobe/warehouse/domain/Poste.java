@@ -28,7 +28,7 @@ public class Poste implements Serializable {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+    private Integer id;
 
     @NotNull
     @Column(name = "name", nullable = false, length = 100)
@@ -76,11 +76,11 @@ public class Poste implements Serializable {
         return this;
     }
 
-    public Long getId() {
+    public Integer getId() {
         return id;
     }
 
-    public Poste setId(Long id) {
+    public Poste setId(Integer id) {
         this.id = id;
         return this;
     }

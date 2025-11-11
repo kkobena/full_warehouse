@@ -7,14 +7,14 @@ import java.io.Serializable;
 
 public class FamilleProduitDTO implements Serializable {
 
-    private Long id;
+    private Integer id;
 
     private String code;
 
     @NotNull
     private String libelle;
 
-    private Long categorieId;
+    private Integer categorieId;
 
     private String categorieLibelle;
 
@@ -31,11 +31,11 @@ public class FamilleProduitDTO implements Serializable {
 
     public FamilleProduitDTO() {}
 
-    public Long getId() {
+    public Integer getId() {
         return id;
     }
 
-    public void setId(Long id) {
+    public void setId(Integer id) {
         this.id = id;
     }
 
@@ -55,11 +55,11 @@ public class FamilleProduitDTO implements Serializable {
         this.libelle = libelle;
     }
 
-    public Long getCategorieId() {
+    public Integer getCategorieId() {
         return categorieId;
     }
 
-    public void setCategorieId(Long categorieProduitId) {
+    public void setCategorieId(Integer categorieProduitId) {
         categorieId = categorieProduitId;
     }
 

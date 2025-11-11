@@ -52,8 +52,8 @@ END;
 $$ LANGUAGE plpgsql;
 
 CREATE OR REPLACE FUNCTION get_product_movements_by_period(
-  p_produit_id BIGINT,
-  p_magasin_id BIGINT,
+  p_produit_id INT,
+  p_magasin_id INT,
   p_date_debut DATE,
   p_date_fin DATE
 )

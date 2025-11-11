@@ -28,7 +28,7 @@ public class DifferePaymentItem implements Serializable {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+    private Integer id;
 
     @NotNull
     @Column(name = "expected_amount", nullable = false)
@@ -52,11 +52,11 @@ public class DifferePaymentItem implements Serializable {
     )
     private DifferePayment differePayment;
 
-    public Long getId() {
+    public Integer getId() {
         return id;
     }
 
-    public DifferePaymentItem setId(Long id) {
+    public DifferePaymentItem setId(Integer id) {
         this.id = id;
         return this;
     }

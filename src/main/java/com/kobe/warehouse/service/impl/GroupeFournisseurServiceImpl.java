@@ -104,7 +104,7 @@ public class GroupeFournisseurServiceImpl implements GroupeFournisseurService {
      */
     @Override
     @Transactional(readOnly = true)
-    public Optional<GroupeFournisseurDTO> findOne(Long id) {
+    public Optional<GroupeFournisseurDTO> findOne(Integer id) {
         log.debug("Request to get GroupeFournisseur : {}", id);
         return groupeFournisseurRepository.findById(id).map(GroupeFournisseurDTO::new);
     }
@@ -115,7 +115,7 @@ public class GroupeFournisseurServiceImpl implements GroupeFournisseurService {
      * @param id the id of the entity.
      */
     @Override
-    public void delete(Long id) {
+    public void delete(Integer id) {
         log.debug("Request to delete GroupeFournisseur : {}", id);
 
         groupeFournisseurRepository.deleteById(id);

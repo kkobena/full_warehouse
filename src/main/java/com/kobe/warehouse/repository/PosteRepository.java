@@ -6,7 +6,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
 @Repository
-public interface PosteRepository extends JpaRepository<Poste, Long> {
+public interface PosteRepository extends JpaRepository<Poste, Integer> {
 
     Optional<Poste> findFirstByAddressOrName(String address, String name);
 }

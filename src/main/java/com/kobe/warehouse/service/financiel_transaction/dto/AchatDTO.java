@@ -8,7 +8,7 @@ public class AchatDTO {
     private long montantTtc;
     private long montantHt;
     private long montantTaxe;
-    private Long groupeGrossisteId;
+    private Integer groupeGrossisteId;
     private String groupeGrossiste;
     private long montantRemise;
     private int ordreAffichage;
@@ -77,11 +77,11 @@ public class AchatDTO {
         return this;
     }
 
-    public Long getGroupeGrossisteId() {
+    public Integer getGroupeGrossisteId() {
         return groupeGrossisteId;
     }
 
-    public AchatDTO setGroupeGrossisteId(Long groupeGrossisteId) {
+    public AchatDTO setGroupeGrossisteId(Integer groupeGrossisteId) {
         this.groupeGrossisteId = groupeGrossisteId;
         return this;
     }
@@ -98,7 +98,7 @@ public class AchatDTO {
     public AchatDTO() {
     }
 
-    public AchatDTO(LocalDate mvtDate, Long montantNet, Long montantTaxe, Long montantTtc, Long montantRemise, Long groupeGrossisteId, String groupeGrossiste, Integer ordreAffichage) {
+    public AchatDTO(LocalDate mvtDate, Long montantNet, Long montantTaxe, Long montantTtc, Long montantRemise, Integer groupeGrossisteId, String groupeGrossiste, Integer ordreAffichage) {
         this.mvtDate = mvtDate;
         this.montantNet = montantNet;
         this.montantTaxe = montantTaxe;

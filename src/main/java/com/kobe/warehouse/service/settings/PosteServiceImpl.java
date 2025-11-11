@@ -46,7 +46,7 @@ public class PosteServiceImpl implements PosteService {
 
     @Override
     @Transactional
-    public void delete(Long id) {
+    public void delete(Integer id) {
         posteRepository.deleteById(id);
     }
 

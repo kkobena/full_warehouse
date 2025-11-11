@@ -7,14 +7,14 @@ import java.time.LocalDateTime;
 
 public class StockProduitDTO {
 
-    private Long id;
+    private Integer id;
     private int qtyStock;
     private int qtyVirtual;
     private int qtyUG;
-    private Long storageId;
+    private Integer storageId;
     private String storageName;
     private String storageType;
-    private Long produitId;
+    private Integer produitId;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
     private String produitLibelle;
@@ -64,11 +64,11 @@ public class StockProduitDTO {
         return this;
     }
 
-    public Long getProduitId() {
+    public Integer getProduitId() {
         return produitId;
     }
 
-    public StockProduitDTO setProduitId(Long produitId) {
+    public StockProduitDTO setProduitId(Integer produitId) {
         this.produitId = produitId;
         return this;
     }
@@ -91,11 +91,11 @@ public class StockProduitDTO {
         return this;
     }
 
-    public Long getStorageId() {
+    public Integer getStorageId() {
         return storageId;
     }
 
-    public StockProduitDTO setStorageId(Long storageId) {
+    public StockProduitDTO setStorageId(Integer storageId) {
         this.storageId = storageId;
         return this;
     }
@@ -127,11 +127,11 @@ public class StockProduitDTO {
         return this;
     }
 
-    public Long getId() {
+    public Integer getId() {
         return id;
     }
 
-    public StockProduitDTO setId(Long id) {
+    public StockProduitDTO setId(Integer id) {
         this.id = id;
         return this;
     }

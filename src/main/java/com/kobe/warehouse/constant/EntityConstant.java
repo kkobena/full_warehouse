@@ -7,8 +7,8 @@ public final class EntityConstant {
     public static final String KEY_MENU_COLOR = "KEY_MENU_COLOR";
     public static final String KEY_THEME = "KEY_THEME";
     public static final String AUTRES_FOURNISSEURS = "AUTRES";
-    public static final long SANS_EMPLACEMENT = 1L;
-    public static final long DEFAULT_STORAGE = 1L;
+    public static final long SANS_EMPLACEMENT = 1;
+    public static final int DEFAULT_STORAGE = 1;
     public static final String DEFAULT_MAIN_STORAGE = "DEFAULT_MAIN_STORAGE";
     public static final long POINT_OF_STORAGE = 2L;
     public static final long DEFAULT_MAGASIN = 1L;

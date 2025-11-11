@@ -31,7 +31,7 @@ public class CashRegister implements Serializable {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+    private Integer id;
 
     @ManyToOne(optional = false,fetch = FetchType.LAZY)
     @NotNull
@@ -64,7 +64,7 @@ public class CashRegister implements Serializable {
 
     @NotNull
     @Enumerated(EnumType.STRING)
-    @Column(name = "statut", nullable = false)
+    @Column(name = "statut", nullable = false,length = 10)
     private CashRegisterStatut statut;
 
     @NotNull
@@ -90,11 +90,11 @@ public class CashRegister implements Serializable {
         return this;
     }
 
-    public Long getId() {
+    public Integer getId() {
         return id;
     }
 
-    public CashRegister setId(Long id) {
+    public CashRegister setId(Integer id) {
         this.id = id;
         return this;
     }

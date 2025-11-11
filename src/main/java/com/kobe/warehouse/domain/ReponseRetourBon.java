@@ -27,7 +27,7 @@ public class ReponseRetourBon implements Serializable {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+    private Integer id;
 
     @NotNull
     @Column(name = "date_mtv", nullable = false)
@@ -58,11 +58,11 @@ public class ReponseRetourBon implements Serializable {
     @OneToMany(mappedBy = "reponseRetourBon")
     private List<ReponseRetourBonItem> reponseRetourBonItems = new ArrayList<>();
 
-    public Long getId() {
+    public Integer getId() {
         return id;
     }
 
-    public ReponseRetourBon setId(Long id) {
+    public ReponseRetourBon setId(Integer id) {
         this.id = id;
         return this;
     }

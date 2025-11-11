@@ -15,7 +15,6 @@ import com.kobe.warehouse.domain.enumeration.TypeSuggession;
 import com.kobe.warehouse.repository.FournisseurProduitRepository;
 import com.kobe.warehouse.repository.SuggestionLineRepository;
 import com.kobe.warehouse.repository.SuggestionRepository;
-import com.kobe.warehouse.service.settings.AppConfigurationService;
 import com.kobe.warehouse.service.EtatProduitService;
 import com.kobe.warehouse.service.ReferenceService;
 import com.kobe.warehouse.service.StorageService;
@@ -25,8 +24,23 @@ import com.kobe.warehouse.service.dto.SuggestionProjection;
 import com.kobe.warehouse.service.dto.records.QuantitySuggestion;
 import com.kobe.warehouse.service.errors.FileStorageException;
 import com.kobe.warehouse.service.errors.GenericError;
+import com.kobe.warehouse.service.settings.AppConfigurationService;
 import com.kobe.warehouse.service.stock.CommandService;
 import com.kobe.warehouse.service.stock.SuggestionProduitService;
+import org.apache.commons.csv.CSVFormat;
+import org.apache.commons.csv.CSVPrinter;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.core.io.Resource;
+import org.springframework.core.io.UrlResource;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.domain.Specification;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.CollectionUtils;
+import org.springframework.util.StringUtils;
+
 import java.io.FileWriter;
 import java.io.IOException;
 import java.nio.file.Files;
@@ -43,19 +57,6 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.stream.Collectors;
-import org.apache.commons.csv.CSVFormat;
-import org.apache.commons.csv.CSVPrinter;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.core.io.Resource;
-import org.springframework.core.io.UrlResource;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
-import org.springframework.data.jpa.domain.Specification;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
-import org.springframework.util.CollectionUtils;
-import org.springframework.util.StringUtils;
 
 @Service
 @Transactional
@@ -142,13 +143,14 @@ public class SuggestionProduitServiceImpl implements SuggestionProduitService {
     }
 
     @Override
-    public void suggerer(Produit produit) {}
+    public void suggerer(Produit produit) {
+    }
 
     @Override
     @Transactional(readOnly = true)
     public Page<SuggestionProjection> getAllSuggestion(
         String search,
-        Long fournisseurId,
+        Integer fournisseurId,
         TypeSuggession typeSuggession,
         Pageable pageable
     ) {
@@ -168,7 +170,7 @@ public class SuggestionProduitServiceImpl implements SuggestionProduitService {
 
     @Override
     @Transactional(readOnly = true)
-    public Optional<SuggestionDTO> getSuggestionById(long id) {
+    public Optional<SuggestionDTO> getSuggestionById(Integer id) {
         return suggestionRepository
             .findById(id)
             .map(suggestion ->
@@ -178,7 +180,7 @@ public class SuggestionProduitServiceImpl implements SuggestionProduitService {
 
     @Override
     @Transactional(readOnly = true)
-    public Page<SuggestionLineDTO> getSuggestionLinesById(long suggestionId, String search, Pageable pageable) {
+    public Page<SuggestionLineDTO> getSuggestionLinesById(Integer suggestionId, String search, Pageable pageable) {
         Storage storage = storageService.getDefaultMagasinMainStorage();
         Specification<SuggestionLine> specification = suggestionLineRepository.filterBySuggestionId(suggestionId);
         if (StringUtils.hasLength(search)) {
@@ -220,7 +222,7 @@ public class SuggestionProduitServiceImpl implements SuggestionProduitService {
     }
 
     @Override
-    public void fusionnerSuggestion(Set<Long> ids) throws GenericError {
+    public void fusionnerSuggestion(Set<Integer> ids) throws GenericError {
         List<Suggestion> suggestions = suggestionRepository.findAllById(ids);
         if (!CollectionUtils.isEmpty(suggestions)) {
             suggestions.sort(Comparator.comparing(Suggestion::getUpdatedAt, Comparator.reverseOrder()));
@@ -251,17 +253,17 @@ public class SuggestionProduitServiceImpl implements SuggestionProduitService {
     }
 
     @Override
-    public void deleteSuggestion(Set<Long> ids) {
+    public void deleteSuggestion(Set<Integer> ids) {
         suggestionRepository.deleteAllById(ids);
     }
 
     @Override
-    public void deleteSuggestionLine(Set<Long> ids) {
+    public void deleteSuggestionLine(Set<Integer> ids) {
         suggestionLineRepository.deleteAllById(ids);
     }
 
     @Override
-    public void sanitize(long suggestionId) {
+    public void sanitize(Integer suggestionId) {
         Storage storage = storageService.getDefaultMagasinMainStorage();
         suggestionRepository
             .findById(suggestionId)
@@ -293,12 +295,12 @@ public class SuggestionProduitServiceImpl implements SuggestionProduitService {
     }
 
     @Override
-    public void commander(long suggestionId) {
+    public void commander(Integer suggestionId) {
         commandService.createCommandeFromSuggestion(suggestionRepository.findById(suggestionId).orElseThrow());
     }
 
     @Override
-    public void addSuggestionLine(long suggestionId, SuggestionLineDTO suggestionLine) {
+    public void addSuggestionLine(Integer suggestionId, SuggestionLineDTO suggestionLine) {
         Suggestion suggestion = suggestionRepository.findById(suggestionId).orElseThrow();
         suggestionLineRepository
             .findBySuggestionIdAndFournisseurProduitProduitId(suggestionId, suggestionLine.produitId())
@@ -336,7 +338,7 @@ public class SuggestionProduitServiceImpl implements SuggestionProduitService {
     }
 
     @Override
-    public Resource exportToCsv(Long id) throws IOException {
+    public Resource exportToCsv(Integer id) throws IOException {
         return new UrlResource(Paths.get(exportToCsv(this.suggestionRepository.getReferenceById(id))).toUri());
     }
 
@@ -388,12 +390,12 @@ public class SuggestionProduitServiceImpl implements SuggestionProduitService {
         boolean suggestionExist
     ) {
         this.suggestionLineRepository.findBySuggestionTypeSuggessionAndFournisseurProduitId(
-                TypeSuggession.AUTO,
-                fournisseurProduit.getId()
-            ).ifPresentOrElse(
-                line -> updateLine(produit, stockProduit, line),
-                () -> buildLine(produit, stockProduit, fournisseurProduit, suggestion, suggestionExist)
-            );
+            TypeSuggession.AUTO,
+            fournisseurProduit.getId()
+        ).ifPresentOrElse(
+            line -> updateLine(produit, stockProduit, line),
+            () -> buildLine(produit, stockProduit, fournisseurProduit, suggestion, suggestionExist)
+        );
     }
 
     private void buildLine(
@@ -429,10 +431,10 @@ public class SuggestionProduitServiceImpl implements SuggestionProduitService {
         String filename =
             this.fileStorageLocation.resolve(
                     "suggestion_" +
-                    suggestion.getSuggessionReference() +
-                    "_" +
-                    LocalDateTime.now().format(DateTimeFormatter.ofPattern("dd_MM_yyyy_H_mm_ss")) +
-                    ".csv"
+                        suggestion.getSuggessionReference() +
+                        "_" +
+                        LocalDateTime.now().format(DateTimeFormatter.ofPattern("dd_MM_yyyy_H_mm_ss")) +
+                        ".csv"
                 )
                 .toFile()
                 .getAbsolutePath();

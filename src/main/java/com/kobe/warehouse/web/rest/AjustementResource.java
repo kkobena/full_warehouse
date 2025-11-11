@@ -51,7 +51,7 @@ public class AjustementResource {
 
     @GetMapping("/ajustements")
     public List<AjustementDTO> getAllAjustements(
-        @RequestParam(name = "ajustementId") Long id,
+        @RequestParam(name = "ajustementId") Integer id,
         @RequestParam(required = false, name = "search") String search
     ) {
         log.debug("REST request to get all Ajustements");
@@ -87,13 +87,13 @@ public class AjustementResource {
     }
 
     @DeleteMapping("/ajustements/item/{id}")
-    public ResponseEntity<Void> deleteItem(@PathVariable Long id) {
+    public ResponseEntity<Void> deleteItem(@PathVariable Integer id) {
         ajustementService.deleteItem(id);
         return ResponseEntity.ok().build();
     }
 
     @DeleteMapping("/ajustements/{id}")
-    public ResponseEntity<Void> delete(@PathVariable Long id) {
+    public ResponseEntity<Void> delete(@PathVariable Integer id) {
         ajustementService.delete(id);
         return ResponseEntity.noContent()
             .headers(HeaderUtil.createEntityDeletionAlert(applicationName, true, "ajustement", id.toString()))
@@ -108,19 +108,19 @@ public class AjustementResource {
     }
 
     @PutMapping("/ajustements/delete/items")
-    public ResponseEntity<Void> deleteAll(@RequestBody List<Long> ids) {
+    public ResponseEntity<Void> deleteAll(@RequestBody List<Integer> ids) {
         ajustementService.deleteAll(ids);
         return ResponseEntity.ok().build();
     }
 
     @GetMapping("/ajustements/pdf/{id}")
-    public ResponseEntity<Resource> getPdf(@PathVariable Long id, HttpServletRequest request) throws IOException {
+    public ResponseEntity<Resource> getPdf(@PathVariable Integer id, HttpServletRequest request) throws IOException {
         final Resource resource = this.ajustService.exportToPdf(id);
         return Utils.printPDF(resource, request);
     }
 
     @GetMapping("/ajustements/{id}")
-    public ResponseEntity<AjustDTO> getOne(@PathVariable Long id) {
+    public ResponseEntity<AjustDTO> getOne(@PathVariable Integer id) {
         return ResponseUtil.wrapOrNotFound(ajustService.getOneById(id));
     }
 }

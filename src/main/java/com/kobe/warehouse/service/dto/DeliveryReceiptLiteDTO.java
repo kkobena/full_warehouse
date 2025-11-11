@@ -8,7 +8,7 @@ import java.time.LocalDateTime;
 public class DeliveryReceiptLiteDTO {
 
     private CommandeId commandeId;
-    private Long id;
+    private Integer id;
 
     @NotNull
     private Integer receiptAmount;
@@ -32,11 +32,11 @@ public class DeliveryReceiptLiteDTO {
         return this;
     }
 
-    public Long getId() {
+    public Integer getId() {
         return id;
     }
 
-    public DeliveryReceiptLiteDTO setId(Long id) {
+    public DeliveryReceiptLiteDTO setId(Integer id) {
         this.id = id;
         return this;
     }

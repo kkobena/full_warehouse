@@ -23,7 +23,7 @@ public interface ThirdPartySaleRepository
 
     ThirdPartySales findOneById(Long id);
 
-    default Specification<ThirdPartySales> filterByCaissierId(Set<Long> caissierIds) {
+    default Specification<ThirdPartySales> filterByCaissierId(Set<Integer> caissierIds) {
         if (caissierIds == null || caissierIds.isEmpty()) {
             return null; // No filter applied
         }

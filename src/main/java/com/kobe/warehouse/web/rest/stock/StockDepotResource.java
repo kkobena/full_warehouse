@@ -37,13 +37,13 @@ public class StockDepotResource {
     @GetMapping
     public ResponseEntity<List<ProduitDTO>> getStock(
         @RequestParam(required = false, name = "search") String search,
-        @RequestParam(name = "magasinId") Long magasinId,
-        @RequestParam(required = false, name = "storageId") Long storageId,
-        @RequestParam(required = false, name = "rayonId") Long rayonId,
+        @RequestParam(name = "magasinId") Integer magasinId,
+        @RequestParam(required = false, name = "storageId") Integer storageId,
+        @RequestParam(required = false, name = "rayonId") Integer rayonId,
         @RequestParam(required = false, name = "deconditionne") Boolean deconditionne,
         @RequestParam(required = false, name = "deconditionnable") Boolean deconditionnable,
         @RequestParam(required = false, name = "status") Status status,
-        @RequestParam(required = false, name = "tableauNot") Long tableauNot,
+        @RequestParam(required = false, name = "tableauNot") Integer tableauNot,
         Pageable pageable
     ) {
         Page<ProduitDTO> page = gestionStockDepotService.findAll(

@@ -163,7 +163,7 @@ public class ThirdPartySaleResource {
     @DeleteMapping("/sales/remove-tiers-payant/assurance/{id}/{saleId}/{saleDate}")
     @Transactional(noRollbackFor = {PlafondVenteException.class})
     public ResponseEntity<Void> removeThirdPartySaleLineToSales(
-        @PathVariable("id") Long clientTiersPayantId,
+        @PathVariable("id") Integer clientTiersPayantId,
         @PathVariable("saleId") Long saleId,
         @PathVariable("saleDate") LocalDate saleDate
     ) {

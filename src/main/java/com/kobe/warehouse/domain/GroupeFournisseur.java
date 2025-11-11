@@ -26,7 +26,7 @@ public class GroupeFournisseur implements Serializable {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+    private Integer id;
 
     @NotNull
     @Column(name = "libelle", nullable = false, unique = true)
@@ -41,7 +41,7 @@ public class GroupeFournisseur implements Serializable {
     @Column(name = "email")
     private String email;
 
-    @Column(name = "tel")
+    @Column(name = "tel",length = 15)
     private String tel;
 
     @NotNull
@@ -70,11 +70,11 @@ public class GroupeFournisseur implements Serializable {
     @Column(name = "id_recepteur_pharma_ml", length = 50)
     private String idRecepteurPharmaMl; // Code de l'officine chez le grossiste dans EMETTEUR(id,Id_Client)
 
-    public Long getId() {
+    public Integer getId() {
         return id;
     }
 
-    public void setId(Long id) {
+    public void setId(Integer id) {
         this.id = id;
     }
 
@@ -127,7 +127,7 @@ public class GroupeFournisseur implements Serializable {
         return this;
     }
 
-    public GroupeFournisseur id(Long id) {
+    public GroupeFournisseur id(Integer id) {
         this.id = id;
         return this;
     }

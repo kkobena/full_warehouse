@@ -27,7 +27,7 @@ public class Decondition implements Serializable {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+    private Integer id;
 
     @NotNull
     @Column(name = "qty_mvt", nullable = false)
@@ -56,16 +56,16 @@ public class Decondition implements Serializable {
 
     @NotNull
     @Enumerated(EnumType.STRING)
-    @Column(name = "type_deconditionnement", nullable = false)
+    @Column(name = "type_deconditionnement", nullable = false,length = 16)
     private TypeDeconditionnement typeDeconditionnement;
 
 
 
-    public Long getId() {
+    public Integer getId() {
         return id;
     }
 
-    public void setId(Long id) {
+    public void setId(Integer id) {
         this.id = id;
     }
 

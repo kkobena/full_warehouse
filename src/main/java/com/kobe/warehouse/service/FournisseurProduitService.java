@@ -36,14 +36,14 @@ public class FournisseurProduitService {
         this.produitService = produitService;
     }
 
-    private Produit produitFromId(Long idProduit) {
+    private Produit produitFromId(Integer idProduit) {
         if (idProduit == null) {
             return null;
         }
         return new Produit().id(idProduit);
     }
 
-    private Fournisseur fournisseurFromId(Long id) {
+    private Fournisseur fournisseurFromId(Integer id) {
         if (id == null) {
             return null;
         }
@@ -120,18 +120,18 @@ public class FournisseurProduitService {
         return Optional.of(fournisseurProduitRepository.saveAndFlush(fournisseurProduit)).map(FournisseurProduitDTO::new);
     }
 
-    public void delete(long id) throws Exception {
+    public void delete(Integer id) throws Exception {
         fournisseurProduitRepository.delete(fournisseurProduitRepository.getReferenceById(id));
     }
 
-    public void updateDefaultFournisseur(long id, long produitId) throws DefaultFournisseurException {
+    public void updateDefaultFournisseur(Integer id, Integer produitId) throws DefaultFournisseurException {
         FournisseurProduit fournisseurProduit = fournisseurProduitRepository.getReferenceById(id);
         Produit produit = produitService.findReferenceById(produitId);
         produit.setFournisseurProduitPrincipal(fournisseurProduit);
         produitService.update(produit);
     }
 
-    public Optional<FournisseurProduit> findFirstByProduitIdAndFournisseurId(Long produitId, Long fournissieurId) {
+    public Optional<FournisseurProduit> findFirstByProduitIdAndFournisseurId(Integer produitId, Integer fournissieurId) {
         return fournisseurProduitRepository.findOneByProduitIdAndFournisseurId(produitId, fournissieurId);
     }
 
@@ -154,16 +154,14 @@ public class FournisseurProduitService {
         fournisseurProduitRepository.saveAndFlush(fournisseurProduit);
     }
 
-    public List<FournisseurProduit> getFournisseurProduitsByFournisseur(Long founisseurId, Pageable pageable) {
-        return fournisseurProduitRepository.findAllByFournisseurIdAndProduitParentIsNull(founisseurId, pageable);
-    }
+
 
     public FournisseurProduit update(FournisseurProduit fournisseurProduit) {
         return fournisseurProduitRepository.save(fournisseurProduit);
     }
 
 
-    public Optional<FournisseurProduitDTO> findOneById(Long id) {
+    public Optional<FournisseurProduitDTO> findOneById(Integer id) {
         return this.fournisseurProduitRepository.findById(id).map(FournisseurProduitDTO::fromEntity);
     }
 

@@ -107,7 +107,7 @@ public class MagasinResource {
      * with status {@code 404 (Not Found)}.
      */
     @GetMapping("/magasins/{id}")
-    public ResponseEntity<MagasinDTO> getMagasin(@PathVariable Long id) {
+    public ResponseEntity<MagasinDTO> getMagasin(@PathVariable Integer id) {
         log.debug("REST request to get Magasin : {}", id);
 
         return ResponseUtil.wrapOrNotFound(Optional.ofNullable(magasinService.findById(id)));
@@ -120,7 +120,7 @@ public class MagasinResource {
      * @return the {@link ResponseEntity} with status {@code 204 (NO_CONTENT)}.
      */
     @DeleteMapping("/magasins/{id}")
-    public ResponseEntity<Void> deleteMagasin(@PathVariable Long id) {
+    public ResponseEntity<Void> deleteMagasin(@PathVariable Integer id) {
         log.debug("REST request to delete Magasin : {}", id);
         magasinService.delete(id);
         return ResponseEntity.noContent()

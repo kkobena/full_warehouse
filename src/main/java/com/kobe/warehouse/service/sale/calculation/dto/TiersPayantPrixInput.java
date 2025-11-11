@@ -6,7 +6,7 @@ public class TiersPayantPrixInput {
     private Integer price;
     private OptionPrixType optionPrixType;
     private float rate ;
-    private Long compteTiersPayantId;
+    private Integer compteTiersPayantId;
 
     public float getRate() {
         return rate;
@@ -16,11 +16,11 @@ public class TiersPayantPrixInput {
         this.rate = rate;
     }
 
-    public Long getCompteTiersPayantId() {
+    public Integer getCompteTiersPayantId() {
         return compteTiersPayantId;
     }
 
-    public void setCompteTiersPayantId(Long compteTiersPayantId) {
+    public void setCompteTiersPayantId(Integer compteTiersPayantId) {
         this.compteTiersPayantId = compteTiersPayantId;
     }
 

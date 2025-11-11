@@ -21,11 +21,11 @@ public interface LotService {
 
     void remove(LotDTO lot);
 
-    void remove(Long lotId);
+    void remove(Integer lotId);
 
-    List<Lot> findByProduitId(Long produitId);
+    List<Lot> findByProduitId(Integer produitId);
 
-    List<Lot> findProduitLots(Long produitId);
+    List<Lot> findProduitLots(Integer produitId);
 
     void updateLots(List<LotSold> lots);
 

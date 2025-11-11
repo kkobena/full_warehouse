@@ -39,7 +39,7 @@ public class OptionPrixProduit implements Serializable {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+    private Integer id;
     private int price;
 
     @NotNull
@@ -103,11 +103,11 @@ public class OptionPrixProduit implements Serializable {
         this.created = created;
     }
 
-    public Long getId() {
+    public Integer getId() {
         return id;
     }
 
-    public OptionPrixProduit setId(Long id) {
+    public OptionPrixProduit setId(Integer id) {
         this.id = id;
         return this;
     }

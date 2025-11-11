@@ -33,14 +33,14 @@ public interface FamilleProduitService {
      * @param id the id of the entity.
      * @return the entity.
      */
-    Optional<FamilleProduitDTO> findOne(Long id);
+    Optional<FamilleProduitDTO> findOne(Integer id);
 
     /**
      * Delete the "id" familleProduit.
      *
      * @param id the id of the entity.
      */
-    void delete(Long id);
+    void delete(Integer id);
 
     ResponseDTO importation(InputStream inputStream);
 }

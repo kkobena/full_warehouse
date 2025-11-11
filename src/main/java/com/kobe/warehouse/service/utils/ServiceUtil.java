@@ -10,11 +10,6 @@ import java.time.format.DateTimeFormatter;
 
 public class ServiceUtil {
 
-    public static Produit produitFromId(Long id) {
-        Produit produit = new Produit();
-        produit.setId(id);
-        return produit;
-    }
 
     public static PaymentMode getPaymentMode(String code) {
         PaymentMode paymentMode = new PaymentMode();

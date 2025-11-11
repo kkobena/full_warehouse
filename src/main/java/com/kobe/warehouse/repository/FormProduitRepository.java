@@ -10,6 +10,6 @@ import org.springframework.stereotype.Repository;
  */
 @SuppressWarnings("unused")
 @Repository
-public interface FormProduitRepository extends JpaRepository<FormProduit, Long> {
+public interface FormProduitRepository extends JpaRepository<FormProduit, Integer> {
     Optional<FormProduit> findFirstByLibelleEquals(String libelle);
 }

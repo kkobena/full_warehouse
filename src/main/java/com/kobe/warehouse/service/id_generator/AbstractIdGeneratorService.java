@@ -7,21 +7,28 @@ import org.springframework.stereotype.Service;
 public abstract class AbstractIdGeneratorService {
 
     private final EntityManager entityManager;
-    protected abstract String getSequenceName();
-
 
     protected AbstractIdGeneratorService(EntityManager entityManager) {
         this.entityManager = entityManager;
     }
 
-    public Long nextId() {
+    protected abstract String getSequenceName();
+
+    public Number getNextId() {
         return (
             (Number) entityManager
                 .createNativeQuery("SELECT nextval(:seqName)")
                 .setParameter("seqName", getSequenceName())
                 .getSingleResult()
-        ).longValue();
+        );
+    }
 
+    public long nextId() {
+      return   getNextId().longValue();
+    }
+
+    public int getNextIdAsInt() {
+        return   getNextId().intValue();
     }
 
 

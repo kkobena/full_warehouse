@@ -18,7 +18,7 @@ public class Ajust implements Serializable {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+    private Integer id;
 
     @NotNull
     @Column(name = "date_mtv", nullable = false)
@@ -30,7 +30,7 @@ public class Ajust implements Serializable {
 
     @NotNull
     @Enumerated(EnumType.STRING)
-    @Column(name = "statut", nullable = false)
+    @Column(name = "statut", nullable = false,length = 8)
     private AjustementStatut statut = AjustementStatut.PENDING;
 
     @ManyToOne(optional = false)
@@ -43,11 +43,11 @@ public class Ajust implements Serializable {
     @OneToMany(mappedBy = "ajust", cascade = { CascadeType.REMOVE })
     private List<Ajustement> ajustements = new ArrayList<>();
 
-    public Long getId() {
+    public Integer getId() {
         return id;
     }
 
-    public void setId(Long id) {
+    public void setId(Integer id) {
         this.id = id;
     }
 

@@ -3,7 +3,7 @@ package com.kobe.warehouse.service.dto;
 public class UploadDeleiveryReceiptDTO {
 
     private CommandeModel model;
-    private Long fournisseurId;
+    private Integer fournisseurId;
     private DeliveryReceiptLiteDTO deliveryReceipt;
 
     public CommandeModel getModel() {
@@ -15,11 +15,11 @@ public class UploadDeleiveryReceiptDTO {
         return this;
     }
 
-    public Long getFournisseurId() {
+    public Integer getFournisseurId() {
         return fournisseurId;
     }
 
-    public UploadDeleiveryReceiptDTO setFournisseurId(Long fournisseurId) {
+    public UploadDeleiveryReceiptDTO setFournisseurId(Integer fournisseurId) {
         this.fournisseurId = fournisseurId;
         return this;
     }

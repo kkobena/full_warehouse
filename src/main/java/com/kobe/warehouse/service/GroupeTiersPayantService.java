@@ -87,7 +87,7 @@ public class GroupeTiersPayantService {
         );
     }
 
-    public void delete(Long id) throws GenericError {
+    public void delete(Integer id) throws GenericError {
         List<TiersPayant> tiersPayants = tiersPayantRepository.findAllByGroupeTiersPayantId(id);
         if (!tiersPayants.isEmpty()) {
             throw new GenericError("Il  y'a des tierspants associés à ce groupe", "groupeTiersPayantAssocies");
@@ -119,7 +119,7 @@ public class GroupeTiersPayantService {
         return new ResponseDTO().size(count.get());
     }
 
-    public Optional<GroupeTiersPayant> getOne(Long id) {
+    public Optional<GroupeTiersPayant> getOne(Integer id) {
         return groupeTiersPayantRepository.findById(id);
     }
 

@@ -10,10 +10,10 @@ import java.util.List;
 
 @SuppressWarnings("unused")
 @Repository
-public interface RetourBonItemRepository extends JpaRepository<RetourBonItem, Long> {
+public interface RetourBonItemRepository extends JpaRepository<RetourBonItem, Integer> {
     @Query("SELECT r FROM RetourBonItem r WHERE r.retourBon.id = :retourBonId")
-    List<RetourBonItem> findAllByRetourBonId(@Param("retourBonId") Long retourBonId);
+    List<RetourBonItem> findAllByRetourBonId(@Param("retourBonId") Integer retourBonId);
 
     @Query("SELECT r FROM RetourBonItem r WHERE r.orderLine.id = :orderLineId")
-    List<RetourBonItem> findAllByOrderLineId(@Param("orderLineId") Long orderLineId);
+    List<RetourBonItem> findAllByOrderLineId(@Param("orderLineId") Integer orderLineId);
 }

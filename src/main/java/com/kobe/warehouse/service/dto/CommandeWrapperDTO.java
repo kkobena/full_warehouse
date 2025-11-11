@@ -8,7 +8,7 @@ import java.time.LocalDateTime;
 
 public abstract class CommandeWrapperDTO {
 
-    private Long id;
+    private Integer id;
     private CommandeId commandeId;
     private String orderReference;
     private String receiptReference;
@@ -21,7 +21,7 @@ public abstract class CommandeWrapperDTO {
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
     private OrderStatut orderStatus;
-    private Long fournisseurId;
+    private Integer fournisseurId;
     private int totalProduits;
     private Integer receiptAmount;
     private String sequenceBon;
@@ -48,11 +48,11 @@ public abstract class CommandeWrapperDTO {
         hasBeenSubmittedToPharmaML = commande.isHasBeenSubmittedToPharmaML();
     }
 
-    public Long getId() {
+    public Integer getId() {
         return id;
     }
 
-    public CommandeWrapperDTO setId(Long id) {
+    public CommandeWrapperDTO setId(Integer id) {
         this.id = id;
         return this;
     }
@@ -156,11 +156,11 @@ public abstract class CommandeWrapperDTO {
         return this;
     }
 
-    public Long getFournisseurId() {
+    public Integer getFournisseurId() {
         return fournisseurId;
     }
 
-    public CommandeWrapperDTO setFournisseurId(Long fournisseurId) {
+    public CommandeWrapperDTO setFournisseurId(Integer fournisseurId) {
         this.fournisseurId = fournisseurId;
         return this;
     }

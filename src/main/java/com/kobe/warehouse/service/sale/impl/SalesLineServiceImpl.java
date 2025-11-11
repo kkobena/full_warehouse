@@ -85,7 +85,7 @@ public abstract class SalesLineServiceImpl implements SalesLineService {
         return salesLine;
     }
 
-    protected SalesLine setCommonSaleLine(SaleLineDTO dto, Long stockageId) {
+    protected SalesLine setCommonSaleLine(SaleLineDTO dto, Integer stockageId) {
         Produit produit = produitRepository.getReferenceById(dto.getProduitId());
         Tva tva = produit.getTva();
         SalesLine salesLine = getNew();
@@ -117,7 +117,7 @@ public abstract class SalesLineServiceImpl implements SalesLineService {
     }
 
     @Override
-    public void updateItemQuantitySold(SalesLine salesLine, SaleLineDTO saleLineDTO, Long storageId) {
+    public void updateItemQuantitySold(SalesLine salesLine, SaleLineDTO saleLineDTO, Integer storageId) {
         updateItemQuantitySold(saleLineDTO, salesLine, storageId);
         salesLineRepository.save(salesLine);
     }
@@ -128,7 +128,7 @@ public abstract class SalesLineServiceImpl implements SalesLineService {
     }
 
     @Override
-    public void processUg(SalesLine salesLine, SaleLineDTO dto, Long stockageId) {
+    public void processUg(SalesLine salesLine, SaleLineDTO dto, Integer stockageId) {
         StockProduit stockProduit = stockProduitRepository.findOneByProduitIdAndStockageId(dto.getProduitId(), stockageId);
         if (stockProduit.getQtyUG() > 0) {
             if (salesLine.getQuantitySold() >= stockProduit.getQtyUG()) {
@@ -194,7 +194,7 @@ public abstract class SalesLineServiceImpl implements SalesLineService {
     }
 
     @Override
-    public SalesLine create(SaleLineDTO dto, Long storageId, Sales sales) {
+    public SalesLine create(SaleLineDTO dto, Integer storageId, Sales sales) {
         SalesLine salesLine = createSaleLineFromDTO(dto, storageId);
         salesLine.setSales(sales);
         salesLine = salesLineRepository.save(salesLine);
@@ -202,7 +202,7 @@ public abstract class SalesLineServiceImpl implements SalesLineService {
         return salesLine;
     }
 
-    private void updateSalesLine(SalesLine salesLine, SaleLineDTO dto, Long stockageId) throws StockException {
+    private void updateSalesLine(SalesLine salesLine, SaleLineDTO dto, Integer stockageId) throws StockException {
         int quantitySold = salesLine.getQuantitySold() + dto.getQuantitySold();
         Sales sales = salesLine.getSales();
         Magasin magasin = sales.getMagasin();
@@ -225,7 +225,7 @@ public abstract class SalesLineServiceImpl implements SalesLineService {
     }
 
     @Override
-    public Optional<SalesLine> findBySalesIdAndProduitId(SaleId salesId, Long produitId) {
+    public Optional<SalesLine> findBySalesIdAndProduitId(SaleId salesId, Integer produitId) {
         return salesLineRepository.findBySalesIdAndProduitIdAndSalesSaleDate(salesId.getId(), produitId, salesId.getSaleDate());
     }
 
@@ -235,13 +235,13 @@ public abstract class SalesLineServiceImpl implements SalesLineService {
     }
 
     @Override
-    public void updateSaleLine(SaleLineDTO dto, SalesLine salesLine, Long storageId) throws StockException {
+    public void updateSaleLine(SaleLineDTO dto, SalesLine salesLine, Integer storageId) throws StockException {
         updateSalesLine(salesLine, dto, storageId);
         salesLineRepository.save(salesLine);
     }
 
     @Override
-    public void updateItemRegularPrice(SaleLineDTO saleLineDTO, SalesLine salesLine, Long storageId) {
+    public void updateItemRegularPrice(SaleLineDTO saleLineDTO, SalesLine salesLine, Integer storageId) {
         salesLine.setUpdatedAt(LocalDateTime.now());
         salesLine.setEffectiveUpdateDate(salesLine.getUpdatedAt());
         salesLine.setRegularUnitPrice(saleLineDTO.getRegularUnitPrice());
@@ -252,7 +252,7 @@ public abstract class SalesLineServiceImpl implements SalesLineService {
     }
 
     @Override
-    public void cloneSalesLine(Set<SalesLine> salesLines, Sales copy, AppUser user, Long storageId) {
+    public void cloneSalesLine(Set<SalesLine> salesLines, Sales copy, AppUser user, Integer storageId) {
         salesLines.forEach(salesLine -> {
             salesLine.setUpdatedAt(LocalDateTime.now());
             salesLine.setEffectiveUpdateDate(salesLine.getUpdatedAt());
@@ -261,7 +261,7 @@ public abstract class SalesLineServiceImpl implements SalesLineService {
     }
 
     @Override
-    public void createInventory(SalesLine salesLine, AppUser user, Long storageId) {
+    public void createInventory(SalesLine salesLine, AppUser user, Integer storageId) {
         //   InventoryTransaction inventoryTransaction = inventoryTransactionRepository.buildInventoryTransaction(salesLine, user);
         Produit p = salesLine.getProduit();
         StockProduit stockProduit = stockProduitRepository.findOneByProduitIdAndStockageId(p.getId(), storageId);
@@ -293,14 +293,14 @@ public abstract class SalesLineServiceImpl implements SalesLineService {
 
     @Async
     @Override
-    public void createInventory(Set<SalesLine> salesLines, AppUser user, Long storageId) {
+    public void createInventory(Set<SalesLine> salesLines, AppUser user, Integer storageId) {
         if (!CollectionUtils.isEmpty(salesLines)) {
             salesLines.forEach(salesLine -> createInventory(salesLine, user, storageId));
         }
     }
 
     @Override
-    public void save(Set<SalesLine> salesLines, AppUser user, Long storageId) {
+    public void save(Set<SalesLine> salesLines, AppUser user, Integer storageId) {
         List<QuantitySuggestion> quantitySuggestions = new ArrayList<>();
         if (!CollectionUtils.isEmpty(salesLines)) {
             salesLines.forEach(salesLine -> {
@@ -336,14 +336,14 @@ public abstract class SalesLineServiceImpl implements SalesLineService {
         this.lotService.updateLots(salesLine.getLots());
     }
 
-    private void save(SalesLine salesLine, Long storageId) {
+    private void save(SalesLine salesLine, Integer storageId) {
         StockUpdateService.StockUpdateResult result = stockUpdateService.updateStock(salesLine, storageId);
         salesLine.setInitStock(result.getQuantityBefore());
         salesLine.setAfterStock(result.getQuantityAfter());
         this.salesLineRepository.save(salesLine);
     }
 
-    private SalesLine cloneSalesLine(SalesLine salesLine, Sales copy, Long storageId) {
+    private SalesLine cloneSalesLine(SalesLine salesLine, Sales copy, Integer storageId) {
         SalesLine salesLineCopy = (SalesLine) salesLine.clone();
         salesLineCopy.setId(null);
         salesLineCopy.setCreatedAt(LocalDateTime.now());
@@ -376,7 +376,7 @@ public abstract class SalesLineServiceImpl implements SalesLineService {
         stockProduitRepository.save(stockProduit);
     }
 
-    private void updateItemQuantitySold(SaleLineDTO saleLineDTO, SalesLine salesLine, Long storageId) {
+    private void updateItemQuantitySold(SaleLineDTO saleLineDTO, SalesLine salesLine, Integer storageId) {
         salesLine.setQuantitySold(saleLineDTO.getQuantitySold());
         salesLine.setUpdatedAt(LocalDateTime.now());
         salesLine.setEffectiveUpdateDate(salesLine.getUpdatedAt());
@@ -386,7 +386,7 @@ public abstract class SalesLineServiceImpl implements SalesLineService {
     }
 
     @Override
-    public void updateItemQuantityRequested(SaleLineDTO saleLineDTO, SalesLine salesLine, Long storageId)
+    public void updateItemQuantityRequested(SaleLineDTO saleLineDTO, SalesLine salesLine, Integer storageId)
         throws StockException, DeconditionnementStockOut {
         StockProduit stockProduit = stockProduitRepository.findOneByProduitIdAndStockageId(saleLineDTO.getProduitId(), storageId);
         int quantity = stockProduit.getQtyStock();

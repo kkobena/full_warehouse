@@ -40,7 +40,7 @@ public interface SalesLineRepository
     extends JpaRepository<SalesLine, SaleLineId>, JpaSpecificationExecutor<SalesLine>, SalesLineRepositoryCustom {
     List<SalesLine> findBySalesIdAndSalesSaleDateOrderByProduitLibelle(Long salesId, LocalDate saleDate);
 
-    Optional<SalesLine> findBySalesIdAndProduitIdAndSalesSaleDate(Long salesId, Long produitId, LocalDate saleDate);
+    Optional<SalesLine> findBySalesIdAndProduitIdAndSalesSaleDate(Long salesId, Integer produitId, LocalDate saleDate);
 
     List<SalesLine> findAllByQuantityAvoirGreaterThan(Integer zero);
 
@@ -48,14 +48,14 @@ public interface SalesLineRepository
         value = "SELECT MAX(s.updated_at) AS updatedAt FROM sales_line o JOIN sales s ON o.sales_id = s.id WHERE o.produit_id =:produitId AND s.statut=:statut",
         nativeQuery = true
     )
-    LastDateProjection findLastUpdatedAtByProduitIdAndSalesStatut(@Param("produitId") Long produitId, @Param("statut") String statut);
+    LastDateProjection findLastUpdatedAtByProduitIdAndSalesStatut(@Param("produitId") Integer produitId, @Param("statut") String statut);
 
     @Query(
         value = "SELECT get_historique_vente(:produitId,:startDate, :endDate, :statuts,:caterorieChiffreAffaire,:offset,:limit)",
         nativeQuery = true
     )
     String getHistoriqueVente(
-        @Param("produitId") Long produitId,
+        @Param("produitId") Integer produitId,
         @Param("startDate") LocalDate startDate,
         @Param("endDate") LocalDate endDate,
         @Param("statuts") String[] statuts,
@@ -74,7 +74,7 @@ public interface SalesLineRepository
         @Param("endDate") LocalDate endDate,
         @Param("statuts") String[] statuts,
         @Param("caterorieChiffreAffaire") String[] caterorieChiffreAffaire,
-        @Param("produitId") Long produitId
+        @Param("produitId") Integer produitId
     );
 
     @Query(
@@ -86,7 +86,7 @@ public interface SalesLineRepository
         @Param("endDate") LocalDate endDate,
         @Param("statuts") String[] statuts,
         @Param("caterorieChiffreAffaire") String[] caterorieChiffreAffaire,
-        @Param("produitId") Long produitId,
+        @Param("produitId") Integer produitId,
         @Param("groupBy") int groupBy
     );
 
@@ -95,7 +95,7 @@ public interface SalesLineRepository
         nativeQuery = true
     )
     HistoriqueProduitVenteMensuelleSummary getHistoriqueVenteMensuelleSummary(
-        @Param("produitId") Long produitId,
+        @Param("produitId") Integer produitId,
         @Param("startDate") LocalDate startDate,
         @Param("endDate") LocalDate endDate,
         @Param("statuts") Set<String> statuts
@@ -117,7 +117,7 @@ public interface SalesLineRepository
 
     default Specification<SalesLine> filterByPeriode(LocalDate fromDate, LocalDate toDate) {
         return (root, query, cb) ->
-            cb.between(cb.function("DATE", LocalDate.class, root.get(SalesLine_.sales).get(Sales_.updatedAt)), fromDate, toDate);
+            cb.between( root.get(SalesLine_.sales).get(Sales_.saleDate), fromDate, toDate);
     }
 
     default Specification<SalesLine> filterByStatut(EnumSet<SalesStatut> statuts) {
@@ -132,19 +132,19 @@ public interface SalesLineRepository
         return (root, query, cb) -> cb.equal(root.get(SalesLine_.sales).get(Sales_.imported), differeOnly);
     }
 
-    default Specification<SalesLine> filterByStorageId(Long magasinId) {
+    default Specification<SalesLine> filterByStorageId(Integer magasinId) {
         return (root, query, cb) -> cb.equal(root.get(SalesLine_.sales).get(Sales_.magasin).get(Magasin_.id), magasinId);
     }
 
-    default Specification<SalesLine> filterByUserId(Long userId) {
+    default Specification<SalesLine> filterByUserId(Integer userId) {
         return (root, query, cb) -> cb.equal(root.get(SalesLine_.sales).get(Sales_.caissier).get(AppUser_.id), userId);
     }
 
-    default Specification<SalesLine> filterByProduitId(Long produitId) {
+    default Specification<SalesLine> filterByProduitId(Integer produitId) {
         return (root, query, cb) -> cb.equal(root.get(SalesLine_.produit).get(Produit_.id), produitId);
     }
 
-    default Specification<SalesLine> filterByRayonId(Long rayonId) {
+    default Specification<SalesLine> filterByRayonId(Integer rayonId) {
         return (root, query, cb) -> {
             Join<SalesLine, Produit> produitJoin = root.join(SalesLine_.produit);
             SetJoin<Produit, RayonProduit> rayonProduitProduitSetJoin = produitJoin.joinSet(Produit_.RAYON_PRODUITS);

@@ -50,7 +50,7 @@ public class ClientTiersPayant implements Serializable, ConsommationService.HasC
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+    private Integer id;
 
     @NotNull
     @ManyToOne(optional = false)
@@ -61,7 +61,7 @@ public class ClientTiersPayant implements Serializable, ConsommationService.HasC
     @JoinColumn(name = "assured_customer_id", referencedColumnName = "id")
     private AssuredCustomer assuredCustomer;
 
-    @Column(name = "num", nullable = false, length = 100)
+    @Column(name = "num", nullable = false, length = 20)
     @NotNull
     private String num;
 
@@ -73,12 +73,12 @@ public class ClientTiersPayant implements Serializable, ConsommationService.HasC
 
     @NotNull
     @Enumerated(EnumType.STRING)
-    @Column(name = "priorite", nullable = false)
+    @Column(name = "priorite", nullable = false, length = 2)
     private PrioriteTiersPayant priorite = PrioriteTiersPayant.R0;
 
     @NotNull
     @Enumerated(EnumType.STRING)
-    @Column(name = "statut", nullable = false)
+    @Column(name = "statut", nullable = false, length = 10)
     private TiersPayantStatut statut = TiersPayantStatut.ACTIF;
 
     @NotNull
@@ -96,11 +96,11 @@ public class ClientTiersPayant implements Serializable, ConsommationService.HasC
 
     public ClientTiersPayant() {}
 
-    public Long getId() {
+    public Integer getId() {
         return id;
     }
 
-    public ClientTiersPayant setId(Long id) {
+    public ClientTiersPayant setId(Integer id) {
         this.id = id;
         return this;
     }

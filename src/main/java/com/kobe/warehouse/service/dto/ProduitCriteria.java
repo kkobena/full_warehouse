@@ -8,7 +8,7 @@ public class ProduitCriteria implements Serializable {
 
     private static final long serialVersionUID = 1L;
 
-    private Long id;
+    private Integer id;
     private String codeEan;
     private String codeCip;
     private String libelle;
@@ -17,32 +17,32 @@ public class ProduitCriteria implements Serializable {
     private Boolean deconditionnable;
     private Long qtySeuilMini;
     private Integer qtyAppro;
-    private Long parentId;
+    private Integer parentId;
     private Integer prixPaf;
     private Integer prixUni;
-    private Long formeId;
-    private Long familleId;
-    private Long gammeId;
-    private Long fabriquantId;
-    private Long laboratoireId;
-    private Long tvaId;
-    private Long magasinId;
-    private Long rayonId;
+    private Integer formeId;
+    private Integer familleId;
+    private Integer gammeId;
+    private Integer fabriquantId;
+    private Integer laboratoireId;
+    private Integer tvaId;
+    private Integer magasinId;
+    private Integer rayonId;
     private String search;
     private Boolean deconditionne;
     private Boolean remisable;
-    private Long tableauId;
-    private Long storageId;
+    private Integer tableauId;
+    private Integer storageId;
     private TypeProduit typeProduit;
-    private Long tableauNot;
-    private Long rayonNot;
+    private Integer tableauNot;
+    private Integer rayonNot;
     private boolean depot;
 
-    public Long getId() {
+    public Integer getId() {
         return id;
     }
 
-    public ProduitCriteria setId(Long id) {
+    public ProduitCriteria setId(Integer id) {
         this.id = id;
         return this;
     }
@@ -128,11 +128,11 @@ public class ProduitCriteria implements Serializable {
         return this;
     }
 
-    public Long getParentId() {
+    public Integer getParentId() {
         return parentId;
     }
 
-    public ProduitCriteria setParentId(Long parentId) {
+    public ProduitCriteria setParentId(Integer parentId) {
         this.parentId = parentId;
         return this;
     }
@@ -155,74 +155,74 @@ public class ProduitCriteria implements Serializable {
         return this;
     }
 
-    public Long getFormeId() {
+    public Integer getFormeId() {
         return formeId;
     }
 
-    public ProduitCriteria setFormeId(Long formeId) {
+    public ProduitCriteria setFormeId(Integer formeId) {
         this.formeId = formeId;
         return this;
     }
 
-    public Long getFamilleId() {
+    public Integer getFamilleId() {
         return familleId;
     }
 
-    public ProduitCriteria setFamilleId(Long familleId) {
+    public ProduitCriteria setFamilleId(Integer familleId) {
         this.familleId = familleId;
         return this;
     }
 
-    public Long getGammeId() {
+    public Integer getGammeId() {
         return gammeId;
     }
 
-    public ProduitCriteria setGammeId(Long gammeId) {
+    public ProduitCriteria setGammeId(Integer gammeId) {
         this.gammeId = gammeId;
         return this;
     }
 
-    public Long getFabriquantId() {
+    public Integer getFabriquantId() {
         return fabriquantId;
     }
 
-    public ProduitCriteria setFabriquantId(Long fabriquantId) {
+    public ProduitCriteria setFabriquantId(Integer fabriquantId) {
         this.fabriquantId = fabriquantId;
         return this;
     }
 
-    public Long getLaboratoireId() {
+    public Integer getLaboratoireId() {
         return laboratoireId;
     }
 
-    public ProduitCriteria setLaboratoireId(Long laboratoireId) {
+    public ProduitCriteria setLaboratoireId(Integer laboratoireId) {
         this.laboratoireId = laboratoireId;
         return this;
     }
 
-    public Long getTvaId() {
+    public Integer getTvaId() {
         return tvaId;
     }
 
-    public ProduitCriteria setTvaId(Long tvaId) {
+    public ProduitCriteria setTvaId(Integer tvaId) {
         this.tvaId = tvaId;
         return this;
     }
 
-    public Long getMagasinId() {
+    public Integer getMagasinId() {
         return magasinId;
     }
 
-    public ProduitCriteria setMagasinId(Long magasinId) {
+    public ProduitCriteria setMagasinId(Integer magasinId) {
         this.magasinId = magasinId;
         return this;
     }
 
-    public Long getRayonId() {
+    public Integer getRayonId() {
         return rayonId;
     }
 
-    public ProduitCriteria setRayonId(Long rayonId) {
+    public ProduitCriteria setRayonId(Integer rayonId) {
         this.rayonId = rayonId;
         return this;
     }
@@ -245,20 +245,20 @@ public class ProduitCriteria implements Serializable {
         return this;
     }
 
-    public Long getTableauId() {
+    public Integer getTableauId() {
         return tableauId;
     }
 
-    public ProduitCriteria setTableauId(Long tableauId) {
+    public ProduitCriteria setTableauId(Integer tableauId) {
         this.tableauId = tableauId;
         return this;
     }
 
-    public Long getStorageId() {
+    public Integer getStorageId() {
         return storageId;
     }
 
-    public ProduitCriteria setStorageId(Long storageId) {
+    public ProduitCriteria setStorageId(Integer storageId) {
         this.storageId = storageId;
         return this;
     }
@@ -272,20 +272,20 @@ public class ProduitCriteria implements Serializable {
         return this;
     }
 
-    public Long getTableauNot() {
+    public Integer getTableauNot() {
         return tableauNot;
     }
 
-    public ProduitCriteria setTableauNot(Long tableauNot) {
+    public ProduitCriteria setTableauNot(Integer tableauNot) {
         this.tableauNot = tableauNot;
         return this;
     }
 
-    public Long getRayonNot() {
+    public Integer getRayonNot() {
         return rayonNot;
     }
 
-    public ProduitCriteria setRayonNot(Long rayonNot) {
+    public ProduitCriteria setRayonNot(Integer rayonNot) {
         this.rayonNot = rayonNot;
         return this;
     }

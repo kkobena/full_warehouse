@@ -19,12 +19,12 @@ import org.apache.commons.lang3.BooleanUtils;
 
 public class OrderLineDTO {
 
-    private Long tvaId;
+    private Integer tvaId;
     private TvaDTO tva;
     private int totalQuantity;
     private int regularUnitPrice;
     private int orderUnitPrice;
-    private Long id;
+    private Integer id;
     private LocalDateTime receiptDate;
     private Integer quantityReceived;
     private Integer quantityRequested;
@@ -38,14 +38,14 @@ public class OrderLineDTO {
     private LocalDateTime updatedAt;
     private Integer costAmount;
     private CommandeDTO commande;
-    private Long produitId;
-    private Long fournisseurProduitId;
+    private Integer produitId;
+    private Integer fournisseurProduitId;
     private String produitLibelle;
     private String produitCip;
     private String produitCodeEan;
     private int orderCostAmount;
     private int initStock;
-    private long commandeId;
+    private Integer commandeId;
     private String commandeOrderRefernce;
     private String commandeReceiptRefernce;
     private Boolean provisionalCode;
@@ -104,11 +104,11 @@ public class OrderLineDTO {
         quantityReceivedTmp = BooleanUtils.isFalse(updated) ? quantityRequested : quantityReceived;
     }
 
-    public Long getTvaId() {
+    public Integer getTvaId() {
         return tvaId;
     }
 
-    public OrderLineDTO setTvaId(Long tvaId) {
+    public OrderLineDTO setTvaId(Integer tvaId) {
         this.tvaId = tvaId;
         return this;
     }
@@ -175,11 +175,11 @@ public class OrderLineDTO {
         return this;
     }
 
-    public Long getId() {
+    public Integer getId() {
         return id;
     }
 
-    public OrderLineDTO setId(Long id) {
+    public OrderLineDTO setId(Integer id) {
         this.id = id;
         return this;
     }
@@ -301,20 +301,20 @@ public class OrderLineDTO {
         return this;
     }
 
-    public Long getProduitId() {
+    public Integer getProduitId() {
         return produitId;
     }
 
-    public OrderLineDTO setProduitId(Long produitId) {
+    public OrderLineDTO setProduitId(Integer produitId) {
         this.produitId = produitId;
         return this;
     }
 
-    public Long getFournisseurProduitId() {
+    public Integer getFournisseurProduitId() {
         return fournisseurProduitId;
     }
 
-    public OrderLineDTO setFournisseurProduitId(Long fournisseurProduitId) {
+    public OrderLineDTO setFournisseurProduitId(Integer fournisseurProduitId) {
         this.fournisseurProduitId = fournisseurProduitId;
         return this;
     }
@@ -368,7 +368,7 @@ public class OrderLineDTO {
         return commandeId;
     }
 
-    public OrderLineDTO setCommandeId(long commandeId) {
+    public OrderLineDTO setCommandeId(Integer commandeId) {
         this.commandeId = commandeId;
         return this;
     }

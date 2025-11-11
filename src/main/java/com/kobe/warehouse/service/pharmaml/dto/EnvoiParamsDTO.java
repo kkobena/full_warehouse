@@ -6,12 +6,12 @@ import java.time.LocalDate;
 
 public class EnvoiParamsDTO {
 
-    private Long grossisteId;
+    private Integer grossisteId;
     private CommandeId commandeId;
     private LocalDate dateLivraisonSouhaitee;
     private TypeCommande typeCommande;
     private String commentaire;
-    private Long ruptureId;
+    private Integer ruptureId;
 
     public CommandeId getCommandeId() {
         return commandeId;
@@ -49,20 +49,20 @@ public class EnvoiParamsDTO {
         return this;
     }
 
-    public Long getRuptureId() {
+    public Integer getRuptureId() {
         return ruptureId;
     }
 
-    public EnvoiParamsDTO setRuptureId(Long ruptureId) {
+    public EnvoiParamsDTO setRuptureId(Integer ruptureId) {
         this.ruptureId = ruptureId;
         return this;
     }
 
-    public Long getGrossisteId() {
+    public Integer getGrossisteId() {
         return grossisteId;
     }
 
-    public EnvoiParamsDTO setGrossisteId(Long grossisteId) {
+    public EnvoiParamsDTO setGrossisteId(Integer grossisteId) {
         this.grossisteId = grossisteId;
         return this;
     }

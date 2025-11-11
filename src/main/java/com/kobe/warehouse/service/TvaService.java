@@ -28,12 +28,12 @@ public interface TvaService {
      * @param id the id of the entity.
      * @return the entity.
      */
-    Optional<TvaDTO> findOne(Long id);
+    Optional<TvaDTO> findOne(Integer id);
 
     /**
      * Delete the "id" tva.
      *
      * @param id the id of the entity.
      */
-    void delete(Long id);
+    void delete(Integer id);
 }

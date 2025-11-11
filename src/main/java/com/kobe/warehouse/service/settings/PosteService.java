@@ -14,6 +14,6 @@ public interface PosteService {
 
 
 
-    void delete(Long id);
+    void delete(Integer id);
 
 }

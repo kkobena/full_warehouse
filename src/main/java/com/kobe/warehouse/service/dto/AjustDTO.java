@@ -11,11 +11,11 @@ import java.util.List;
 public class AjustDTO {
 
     private LocalDateTime dateMtv;
-    private Long id;
-    private Long storageId;
+    private Integer id;
+    private Integer storageId;
     private String commentaire;
     private String storageLibelle;
-    private Long userId;
+    private Integer userId;
     private String userFullName;
     private List<AjustementDTO> ajustements = new ArrayList<>();
 
@@ -44,20 +44,20 @@ public class AjustDTO {
         return this;
     }
 
-    public Long getId() {
+    public Integer getId() {
         return id;
     }
 
-    public AjustDTO setId(Long id) {
+    public AjustDTO setId(Integer id) {
         this.id = id;
         return this;
     }
 
-    public Long getStorageId() {
+    public Integer getStorageId() {
         return storageId;
     }
 
-    public AjustDTO setStorageId(Long storageId) {
+    public AjustDTO setStorageId(Integer storageId) {
         this.storageId = storageId;
         return this;
     }
@@ -80,11 +80,11 @@ public class AjustDTO {
         return this;
     }
 
-    public Long getUserId() {
+    public Integer getUserId() {
         return userId;
     }
 
-    public AjustDTO setUserId(Long userId) {
+    public AjustDTO setUserId(Integer userId) {
         this.userId = userId;
         return this;
     }

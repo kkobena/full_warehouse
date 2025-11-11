@@ -10,6 +10,6 @@ import org.springframework.stereotype.Repository;
  */
 @SuppressWarnings("unused")
 @Repository
-public interface TvaRepository extends JpaRepository<Tva, Long> {
+public interface TvaRepository extends JpaRepository<Tva, Integer> {
     Optional<Tva> findFirstByTauxEquals(Integer taux);
 }

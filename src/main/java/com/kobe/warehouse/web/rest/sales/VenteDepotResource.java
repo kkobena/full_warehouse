@@ -125,7 +125,7 @@ public class VenteDepotResource {
     public ResponseEntity<SaleId> changeDepot(
         @RequestParam(name = "saleId") Long saleId,
         @RequestParam(name = "saleDate") LocalDate SaleDate,
-        @RequestParam(name = "depotId") Long depotId
+        @RequestParam(name = "depotId") Integer depotId
     ) {
         if (saleId == null) {
             throw new BadRequestAlertException("Invalid id", ENTITY_NAME, "idnull");

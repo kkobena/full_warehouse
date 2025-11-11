@@ -32,7 +32,7 @@ public class CashFund implements Serializable {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+    private Integer id;
 
     @NotNull
     @Column(name = "amount")
@@ -51,7 +51,7 @@ public class CashFund implements Serializable {
 
     @NotNull
     @Enumerated(EnumType.STRING)
-    @Column(name = "cash_fund_type", nullable = false)
+    @Column(name = "cash_fund_type", nullable = false,length = 8)
     private CashFundType cashFundType;
 
     @OneToOne
@@ -60,7 +60,7 @@ public class CashFund implements Serializable {
 
     @NotNull
     @Enumerated(EnumType.STRING)
-    @Column(name = "statut", nullable = false)
+    @Column(name = "statut", nullable = false,length = 15)
     private CashFundStatut statut;
 
     @ManyToOne(fetch = FetchType.LAZY)
@@ -85,11 +85,11 @@ public class CashFund implements Serializable {
         return this;
     }
 
-    public Long getId() {
+    public Integer getId() {
         return id;
     }
 
-    public CashFund setId(Long id) {
+    public CashFund setId(Integer id) {
         this.id = id;
         return this;
     }

@@ -19,12 +19,12 @@ import java.util.List;
 import java.util.Set;
 
 @Repository
-public interface CashRegisterRepository extends JpaRepository<CashRegister, Long>, JpaSpecificationExecutor<CashRegister> {
-    List<CashRegister> findOneByUserIdAndStatut(Long id, CashRegisterStatut statut);
+public interface CashRegisterRepository extends JpaRepository<CashRegister, Integer>, JpaSpecificationExecutor<CashRegister> {
+    List<CashRegister> findOneByUserIdAndStatut(Integer id, CashRegisterStatut statut);
 
     @Query("SELECT o FROM CashRegister  o WHERE  o.user.id=:userId AND o.statut=:statut AND o.beginTime BETWEEN :beginDate  AND :toDay ")
     List<CashRegister> findOneByUserIdAndStatutAndAndBeginTime(
-        @Param("userId") Long id,
+        @Param("userId") Integer id,
         @Param("statut") CashRegisterStatut statut,
         @Param("beginDate") LocalDateTime beginDate,
         @Param("toDay") LocalDateTime now
@@ -36,7 +36,7 @@ public interface CashRegisterRepository extends JpaRepository<CashRegister, Long
         nativeQuery = true
     )
     List<CashRegisterVenteSpecialisation> findCashRegisterSalesDataById(
-        @Param("cashRegisterId") Long cashRegisterId,
+        @Param("cashRegisterId") Integer cashRegisterId,
         @Param("categorieChiffreAffaires") Set<String> categorieChiffreAffaires,
         @Param("statuts") Set<String> statuts
     );
@@ -47,12 +47,12 @@ public interface CashRegisterRepository extends JpaRepository<CashRegister, Long
         nativeQuery = true
     )
     List<CashRegisterTransactionSpecialisation> findCashRegisterMvtDataById(
-        @Param("cashRegisterId") Long cashRegisterId,
+        @Param("cashRegisterId") Integer cashRegisterId,
         @Param("categorieChiffreAffaires") Set<String> categorieChiffreAffaires,
         @Param("transactionTypes") Set<String> transactionTypes
     );
 
-    default Specification<CashRegister> specialisation(Long userId) {
+    default Specification<CashRegister> specialisation(Integer userId) {
         return (root, _, cb) -> cb.equal(root.get(CashRegister_.user).get(AppUser_.id), userId);
     }
 

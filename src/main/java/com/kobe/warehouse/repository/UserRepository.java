@@ -18,7 +18,7 @@ import org.springframework.stereotype.Repository;
  * Spring Data JPA repository for the {@link AppUser} entity.
  */
 @Repository
-public interface UserRepository extends JpaRepository<AppUser, Long>, JpaSpecificationExecutor<AppUser> {
+public interface UserRepository extends JpaRepository<AppUser, Integer>, JpaSpecificationExecutor<AppUser> {
     Optional<AppUser> findOneByActivationKey(String activationKey);
 
     List<AppUser> findAllByActivatedIsFalseAndActivationKeyIsNotNullAndCreatedDateBefore(LocalDateTime dateTime);

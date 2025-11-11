@@ -8,7 +8,7 @@ import java.io.Serializable;
 public class MagasinDTO implements Serializable {
 
     private static final long serialVersionUID = 1L;
-    private Long id;
+    private Integer id;
 
     @NotNull
     private String name;
@@ -40,7 +40,6 @@ public class MagasinDTO implements Serializable {
         address = magasin.getAddress();
         note = magasin.getNote();
         registre = magasin.getRegistre();
-        System.err.println("MagasinDTO Magasin registre=" + registre);
         compteContribuable = magasin.getCompteContribuable();
         numComptable = magasin.getNumComptable();
         primaryStorage = new StorageDTO(magasin.getPrimaryStorage());
@@ -74,11 +73,11 @@ public class MagasinDTO implements Serializable {
         return this;
     }
 
-    public Long getId() {
+    public Integer getId() {
         return id;
     }
 
-    public void setId(Long id) {
+    public void setId(Integer id) {
         this.id = id;
     }
 

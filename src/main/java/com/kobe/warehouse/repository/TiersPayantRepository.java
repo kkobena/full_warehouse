@@ -13,18 +13,18 @@ import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.stereotype.Repository;
 
 @Repository
-public interface TiersPayantRepository extends JpaRepository<TiersPayant, Long>, JpaSpecificationExecutor<TiersPayant> {
+public interface TiersPayantRepository extends JpaRepository<TiersPayant, Integer>, JpaSpecificationExecutor<TiersPayant> {
     Optional<TiersPayant> findOneByNameOrFullNameOrCodeOrganisme(String name, String fullName, String codeOrganisme);
 
     Optional<TiersPayant> findOneByNameOrFullName(String name, String fullName);
 
-    List<TiersPayant> findAllByGroupeTiersPayantId(Long groupeTiersPayantId);
+    List<TiersPayant> findAllByGroupeTiersPayantId(Integer groupeTiersPayantId);
 
     default Specification<TiersPayant> specialisationStatut(TiersPayantStatut statut) {
         return (root, _, cb) -> cb.equal(root.get(TiersPayant_.statut), statut);
     }
 
-    default Specification<TiersPayant> specialisationByGroup(long groupId) {
+    default Specification<TiersPayant> specialisationByGroup(Integer groupId) {
         return (root, _, cb) -> cb.equal(root.get(TiersPayant_.groupeTiersPayant).get(GroupeTiersPayant_.id), groupId);
     }
 

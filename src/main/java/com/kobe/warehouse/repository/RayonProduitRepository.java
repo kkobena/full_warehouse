@@ -10,12 +10,12 @@ import org.springframework.stereotype.Repository;
 
 @SuppressWarnings("unused")
 @Repository
-public interface RayonProduitRepository extends JpaRepository<RayonProduit, Long> {
-    Set<RayonProduit> findAllByProduitId(Long produitId);
+public interface RayonProduitRepository extends JpaRepository<RayonProduit, Integer> {
+    Set<RayonProduit> findAllByProduitId(Integer produitId);
 
     @Query("SELECT COUNT(o) FROM RayonProduit o WHERE  o.produit.id=?1 AND o.rayon.id = ?2")
-    long countRayonProduitByProduitIdAndRayonId(Long produitId, Long rayonId);
+    long countRayonProduitByProduitIdAndRayonId(Integer produitId, Integer rayonId);
 
     @Query("SELECT COUNT(o) FROM RayonProduit o WHERE  o.produit.id=?1 AND o.rayon.storage.id = ?2")
-    long countRayonProduitByProduitIdAndStockageId(Long produitId, Long stockageId);
+    long countRayonProduitByProduitIdAndStockageId(Integer produitId, Integer stockageId);
 }

@@ -1,7 +1,7 @@
 package com.kobe.warehouse.service.financiel_transaction;
 
 import com.fasterxml.jackson.core.type.TypeReference;
-import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.json.JsonMapper;
 import com.kobe.warehouse.domain.enumeration.CategorieChiffreAffaire;
 import com.kobe.warehouse.domain.enumeration.ModePaimentCode;
 import com.kobe.warehouse.domain.enumeration.SalesStatut;
@@ -37,12 +37,12 @@ public class BalanceCaisseServiceImpl implements BalanceCaisseService {
     private static final Logger LOG = LoggerFactory.getLogger(BalanceCaisseServiceImpl.class);
     private final BalanceReportReportService balanceReportService;
     private final SalesRepository salesRepository;
-    private final ObjectMapper objectMapper;
+    private final JsonMapper objectMapper;
     private final PaymentTransactionRepository paymentTransactionRepository;
     private final AppConfigurationService appConfigurationService;
 
 
-    public BalanceCaisseServiceImpl(BalanceReportReportService balanceReportService, SalesRepository salesRepository, PaymentTransactionRepository paymentTransactionRepository, AppConfigurationService appConfigurationService, ObjectMapper objectMapper) {
+    public BalanceCaisseServiceImpl(BalanceReportReportService balanceReportService, SalesRepository salesRepository, PaymentTransactionRepository paymentTransactionRepository, AppConfigurationService appConfigurationService, JsonMapper objectMapper) {
 
         this.balanceReportService = balanceReportService;
         this.salesRepository = salesRepository;

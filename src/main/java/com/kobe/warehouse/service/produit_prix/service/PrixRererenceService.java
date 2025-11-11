@@ -8,27 +8,27 @@ import java.util.Optional;
 import java.util.Set;
 
 public interface PrixRererenceService {
-    Optional<OptionPrixProduit> findOneActifByProduitIdAndTiersPayantId(Long produitId, Long tiersPayantId);
+    Optional<OptionPrixProduit> findOneActifByProduitIdAndTiersPayantId(Integer produitId, Integer tiersPayantId);
 
-    Optional<PrixReferenceDTO> findActif(Long produitId, Long tiersPayantId);
+    Optional<PrixReferenceDTO> findActif(Integer produitId, Integer tiersPayantId);
 
-    Optional<PrixReferenceDTO> findById(Long id);
+    Optional<PrixReferenceDTO> findById(Integer id);
 
-    List<OptionPrixProduit> findAllByProduitIdAndTiersPayantId(Long produitId, Long tiersPayantId);
+    List<OptionPrixProduit> findAllByProduitIdAndTiersPayantId(Integer produitId, Integer tiersPayantId);
 
     void add(PrixReferenceDTO dto);
 
     void update(PrixReferenceDTO dto);
 
-    void delete(Long id);
+    void delete(Integer id);
 
-    List<PrixReferenceDTO> findAllByProduitIddAndTiersPayantId(Long produitId, Long tiersPayantId);
+    List<PrixReferenceDTO> findAllByProduitIddAndTiersPayantId(Integer produitId, Integer tiersPayantId);
 
-    List<PrixReferenceDTO> findAllByProduitId(Long produitId);
+    List<PrixReferenceDTO> findAllByProduitId(Integer produitId);
 
 
 
-    List<OptionPrixProduit> findByProduitIdAndTiersPayantIds(Long produitId, Set<Long> tiersPayantIds);
+    List<OptionPrixProduit> findByProduitIdAndTiersPayantIds(Integer produitId, Set<Integer> tiersPayantIds);
 
     void save(OptionPrixProduit optionPrixProduit);
 

@@ -23,7 +23,7 @@ public interface CustomizedProductService {
 
     Page<ProduitDTO> findAll(ProduitCriteria produitCriteria, Pageable pageable) throws Exception;
 
-    Optional<ProduitDTO> findOneById(Long ProduitId);
+    Optional<ProduitDTO> findOneById(Integer ProduitId);
 
     void save(ProduitDTO dto, Rayon rayon) throws Exception;
 
@@ -39,9 +39,9 @@ public interface CustomizedProductService {
 
     void update(FournisseurProduitDTO dto) throws Exception;
 
-    void removeFournisseurProduit(Long id) throws Exception;
+    void removeFournisseurProduit(Integer id) throws Exception;
 
-    Optional<FournisseurProduit> getFournisseurProduitByCriteria(String criteteria, Long fournisseurId);
+    Optional<FournisseurProduit> getFournisseurProduitByCriteria(String criteteria, Integer fournisseurId);
 
     int produitTotalStock(Produit produit);
 
@@ -64,7 +64,7 @@ public interface CustomizedProductService {
 
     List<Produit> find(ProduitCriteria produitCriteria);
 
-    List<Produit> findByIds(Set<Long> ids);
+    List<Produit> findByIds(Set<Integer> ids);
 
     default FournisseurProduit buildFournisseurProduitFromFournisseurProduitDTO(FournisseurProduitDTO dto) {
         FournisseurProduit fournisseurProduit = new FournisseurProduit();
@@ -75,7 +75,7 @@ public interface CustomizedProductService {
         return fournisseurProduit;
     }
 
-    default Fournisseur fournisseurFromId(Long id) {
+    default Fournisseur fournisseurFromId(Integer id) {
         Fournisseur fournisseur = new Fournisseur();
         fournisseur.setId(id);
         return fournisseur;
@@ -112,7 +112,7 @@ public interface CustomizedProductService {
         return stockProduit;
     }
 
-    default Storage storageFromId(Long id) {
+    default Storage storageFromId(Integer id) {
         if (id == null) {
             return null;
         }
@@ -121,7 +121,7 @@ public interface CustomizedProductService {
         return storage;
     }
 
-    default Rayon rayonFromId(Long id) {
+    default Rayon rayonFromId(Integer id) {
         if (id == null) {
             return null;
         }
@@ -130,7 +130,7 @@ public interface CustomizedProductService {
         return rayon;
     }
 
-    default Tva tvaFromId(Long id) {
+    default Tva tvaFromId(Integer id) {
         if (id == null) {
             return null;
         }

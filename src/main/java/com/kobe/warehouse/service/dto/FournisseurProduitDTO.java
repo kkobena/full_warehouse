@@ -10,7 +10,7 @@ import java.time.LocalDateTime;
 
 public class FournisseurProduitDTO {
 
-    private Long id;
+    private Integer id;
     private String codeCip;
 
     @NotNull
@@ -23,9 +23,9 @@ public class FournisseurProduitDTO {
 
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
-    private Long produitId;
+    private Integer produitId;
     private String produitLibelle;
-    private Long fournisseurId;
+    private Integer fournisseurId;
     private String fournisseurLibelle;
     private boolean principal;
     private ProduitDTO produit;
@@ -72,11 +72,11 @@ public class FournisseurProduitDTO {
         return this;
     }
 
-    public Long getId() {
+    public Integer getId() {
         return id;
     }
 
-    public FournisseurProduitDTO setId(Long id) {
+    public FournisseurProduitDTO setId(Integer id) {
         this.id = id;
         return this;
     }
@@ -126,11 +126,11 @@ public class FournisseurProduitDTO {
         return this;
     }
 
-    public Long getProduitId() {
+    public Integer getProduitId() {
         return produitId;
     }
 
-    public FournisseurProduitDTO setProduitId(Long produitId) {
+    public FournisseurProduitDTO setProduitId(Integer produitId) {
         this.produitId = produitId;
         return this;
     }
@@ -144,11 +144,11 @@ public class FournisseurProduitDTO {
         return this;
     }
 
-    public Long getFournisseurId() {
+    public Integer getFournisseurId() {
         return fournisseurId;
     }
 
-    public FournisseurProduitDTO setFournisseurId(Long fournisseurId) {
+    public FournisseurProduitDTO setFournisseurId(Integer fournisseurId) {
         this.fournisseurId = fournisseurId;
         return this;
     }

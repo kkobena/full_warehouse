@@ -71,12 +71,12 @@ public class RemiseServiceImpl implements RemiseService {
     }
 
     @Override
-    public Optional<RemiseDTO> findOne(Long id) {
+    public Optional<RemiseDTO> findOne(Integer id) {
         return Optional.of(toDTO(this.remiseRepository.findById(id).orElse(null)));
     }
 
     @Override
-    public void delete(Long id) {
+    public void delete(Integer id) {
         this.remiseRepository.deleteById(id);
     }
 

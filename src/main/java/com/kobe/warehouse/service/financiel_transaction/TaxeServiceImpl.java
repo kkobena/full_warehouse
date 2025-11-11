@@ -1,7 +1,7 @@
 package com.kobe.warehouse.service.financiel_transaction;
 
 import com.fasterxml.jackson.core.type.TypeReference;
-import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.json.JsonMapper;
 import com.kobe.warehouse.domain.enumeration.CategorieChiffreAffaire;
 import com.kobe.warehouse.domain.enumeration.SalesStatut;
 import com.kobe.warehouse.repository.SalesRepository;
@@ -28,9 +28,9 @@ public class TaxeServiceImpl implements TaxeService, MvtCommonService {
     private static final Logger LOG = LoggerFactory.getLogger(TaxeServiceImpl.class);
     private final TvaReportReportService tvaReportService;
     private final SalesRepository salesRepository;
-    private final ObjectMapper objectMapper;
+    private final JsonMapper objectMapper;
 
-    public TaxeServiceImpl(TvaReportReportService tvaReportService, SalesRepository salesRepository, ObjectMapper objectMapper) {
+    public TaxeServiceImpl(TvaReportReportService tvaReportService, SalesRepository salesRepository, JsonMapper objectMapper) {
 
         this.tvaReportService = tvaReportService;
 

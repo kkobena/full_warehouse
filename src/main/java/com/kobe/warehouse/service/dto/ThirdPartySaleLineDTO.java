@@ -15,9 +15,9 @@ public class ThirdPartySaleLineDTO {
     private Long id;
     private String numBon;
     private Integer montant;
-    private Long clientTiersPayantId;
-    private Long customerId;
-    private Long tiersPayantId;
+    private Integer clientTiersPayantId;
+    private Integer customerId;
+    private Integer tiersPayantId;
     private String customerFullName;
     private String tiersPayantFullName;
     private String name;
@@ -126,29 +126,29 @@ public class ThirdPartySaleLineDTO {
         return this;
     }
 
-    public Long getClientTiersPayantId() {
+    public Integer getClientTiersPayantId() {
         return clientTiersPayantId;
     }
 
-    public ThirdPartySaleLineDTO setClientTiersPayantId(Long clientTiersPayantId) {
+    public ThirdPartySaleLineDTO setClientTiersPayantId(Integer clientTiersPayantId) {
         this.clientTiersPayantId = clientTiersPayantId;
         return this;
     }
 
-    public Long getCustomerId() {
+    public Integer getCustomerId() {
         return customerId;
     }
 
-    public ThirdPartySaleLineDTO setCustomerId(Long customerId) {
+    public ThirdPartySaleLineDTO setCustomerId(Integer customerId) {
         this.customerId = customerId;
         return this;
     }
 
-    public Long getTiersPayantId() {
+    public Integer getTiersPayantId() {
         return tiersPayantId;
     }
 
-    public ThirdPartySaleLineDTO setTiersPayantId(Long tiersPayantId) {
+    public ThirdPartySaleLineDTO setTiersPayantId(Integer tiersPayantId) {
         this.tiersPayantId = tiersPayantId;
         return this;
     }

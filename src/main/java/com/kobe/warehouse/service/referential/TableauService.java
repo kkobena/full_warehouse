@@ -26,16 +26,16 @@ public interface TableauService {
      * @param id the id of the entity.
      * @return the entity.
      */
-    Optional<TableauDTO> findOne(Long id);
+    Optional<TableauDTO> findOne(Integer id);
 
     /**
      * Delete the "id" formProduit.
      *
      * @param id the id of the entity.
      */
-    void delete(Long id);
+    void delete(Integer id);
 
-    void associer(Long id, List<Long> produitIds);
+    void associer(Integer id, List<Integer> produitIds);
 
-    void dissocier(List<Long> produitIds);
+    void dissocier(List<Integer> produitIds);
 }

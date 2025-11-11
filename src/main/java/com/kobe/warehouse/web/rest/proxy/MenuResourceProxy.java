@@ -44,7 +44,7 @@ public class MenuResourceProxy {
             .body(result);
     }
 
-    public ResponseEntity<Menu> updateMenu(Menu menu) throws URISyntaxException {
+    public ResponseEntity<Menu> updateMenu(Menu menu) {
         log.debug("REST request to update Menu : {}", menu);
         if (menu.getId() == null) {
             throw new BadRequestAlertException("Invalid id", ENTITY_NAME, "idnull");
@@ -60,13 +60,13 @@ public class MenuResourceProxy {
         return menuRepository.findAll();
     }
 
-    public ResponseEntity<Menu> getMenu(Long id) {
+    public ResponseEntity<Menu> getMenu(Integer id) {
         log.debug("REST request to get Menu : {}", id);
         Optional<Menu> menu = menuRepository.findById(id);
         return ResponseUtil.wrapOrNotFound(menu);
     }
 
-    public ResponseEntity<Void> deleteMenu(Long id) {
+    public ResponseEntity<Void> deleteMenu(Integer id) {
         log.debug("REST request to delete Menu : {}", id);
         menuRepository.deleteById(id);
         return ResponseEntity.noContent()

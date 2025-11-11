@@ -26,11 +26,11 @@ public class TiersPayantDataService implements TiersPayantMapper {
         this.tiersPayantRepository = tiersPayantRepository;
     }
 
-    public Page<TiersPayantDto> list(
+    public Page<TiersPayantDto> fetchList(
         String search,
         String categorie,
         TiersPayantStatut statut,
-        Long groupeTiersPayantId,
+        Integer groupeTiersPayantId,
         Pageable pageable
     ) {
         Specification<TiersPayant> specification = this.tiersPayantRepository.specialisationStatut(statut);

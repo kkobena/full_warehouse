@@ -60,8 +60,8 @@ public class EditionFactureResource {
         @RequestParam(name = "startDate") LocalDate startDate,
         @RequestParam(name = "endDate") LocalDate endDate,
         @RequestParam(name = "modeEdition", required = false, defaultValue = "ALL") ModeEditionEnum modeEdition,
-        @RequestParam(name = "groupIds", required = false) Set<Long> groupIds,
-        @RequestParam(name = "tiersPayantIds", required = false) Set<Long> tiersPayantIds,
+        @RequestParam(name = "groupIds", required = false) Set<Integer> groupIds,
+        @RequestParam(name = "tiersPayantIds", required = false) Set<Integer> tiersPayantIds,
         @RequestParam(name = "categorieTiersPayants", required = false) Set<TiersPayantCategorie> categorieTiersPayants,
         @RequestParam(name = "all", required = false, defaultValue = "false") Boolean all,
         @RequestParam(name = "factureProvisoire", required = false, defaultValue = "false") Boolean factureProvisoire,
@@ -92,8 +92,8 @@ public class EditionFactureResource {
         @RequestParam(name = "startDate") LocalDate startDate,
         @RequestParam(name = "endDate") LocalDate endDate,
         @RequestParam(name = "modeEdition", required = false) ModeEditionEnum modeEdition,
-        @RequestParam(name = "groupIds", required = false) Set<Long> groupIds,
-        @RequestParam(name = "tiersPayantIds", required = false) Set<Long> tiersPayantIds,
+        @RequestParam(name = "groupIds", required = false) Set<Integer> groupIds,
+        @RequestParam(name = "tiersPayantIds", required = false) Set<Integer> tiersPayantIds,
         @RequestParam(name = "categorieTiersPayants", required = false) Set<TiersPayantCategorie> categorieTiersPayants,
         @RequestParam(name = "all", required = false, defaultValue = "false") Boolean all,
         @RequestParam(name = "factureProvisoire", required = false, defaultValue = "false") Boolean factureProvisoire,
@@ -147,7 +147,7 @@ public class EditionFactureResource {
         @RequestParam(name = "search", required = false) String search,
         @RequestParam(name = "endDate", required = false) LocalDate endDate,
         @RequestParam(name = "statuts", required = false) Set<InvoiceStatut> statuts,
-        @RequestParam(name = "tiersPayantIds", required = false) Set<Long> tiersPayantIds,
+        @RequestParam(name = "tiersPayantIds", required = false) Set<Integer> tiersPayantIds,
         @RequestParam(name = "factureProvisoire", required = false, defaultValue = "false") Boolean factureProvisoire,
         Pageable pageable
     ) {
@@ -165,7 +165,7 @@ public class EditionFactureResource {
         @RequestParam(name = "search", required = false) String search,
         @RequestParam(name = "endDate", required = false) LocalDate endDate,
         @RequestParam(name = "statuts", required = false) Set<InvoiceStatut> statuts,
-        @RequestParam(name = "groupIds", required = false) Set<Long> groupIds,
+        @RequestParam(name = "groupIds", required = false) Set<Integer> groupIds,
         @RequestParam(name = "factureProvisoire", required = false, defaultValue = "false") Boolean factureProvisoire,
         Pageable pageable
     ) {

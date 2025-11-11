@@ -10,7 +10,7 @@ import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 @Repository
-public interface AuthorityPrivilegeRepository extends JpaRepository<AuthorityPrivilege, Long> {
+public interface AuthorityPrivilegeRepository extends JpaRepository<AuthorityPrivilege, Integer> {
     @Query(
         "select distinct new com.kobe.warehouse.service.dto.ActionPrivilegeDTO(p.privilege.name,p.privilege.libelle) from AuthorityPrivilege p WHERE p.authority.name=:authorityName order by p.privilege.libelle"
     )

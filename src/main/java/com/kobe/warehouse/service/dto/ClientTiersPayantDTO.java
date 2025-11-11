@@ -9,10 +9,10 @@ import java.time.LocalDateTime;
 
 public class ClientTiersPayantDTO {
 
-    private Long id;
+    private Integer id;
     private String tiersPayantName;
     private String tiersPayantFullName;
-    private Long tiersPayantId;
+    private Integer tiersPayantId;
     private String num;
     private Integer plafondConso;
     private Integer plafondJournalier;
@@ -26,7 +26,7 @@ public class ClientTiersPayantDTO {
     private TiersPayantDto tiersPayant;
     private TiersPayantCategorie typeTiersPayant;
     private String numBon;
-    private long customerId;
+    private Integer customerId;
     private boolean newClientTiersPayant;
 
     public ClientTiersPayantDTO() {}
@@ -64,20 +64,20 @@ public class ClientTiersPayantDTO {
         return this;
     }
 
-    public long getCustomerId() {
+    public Integer getCustomerId() {
         return customerId;
     }
 
-    public ClientTiersPayantDTO setCustomerId(long customerId) {
+    public ClientTiersPayantDTO setCustomerId(Integer customerId) {
         this.customerId = customerId;
         return this;
     }
 
-    public Long getId() {
+    public Integer getId() {
         return id;
     }
 
-    public ClientTiersPayantDTO setId(Long id) {
+    public ClientTiersPayantDTO setId(Integer id) {
         this.id = id;
         return this;
     }
@@ -100,11 +100,11 @@ public class ClientTiersPayantDTO {
         return this;
     }
 
-    public Long getTiersPayantId() {
+    public Integer getTiersPayantId() {
         return tiersPayantId;
     }
 
-    public ClientTiersPayantDTO setTiersPayantId(Long tiersPayantId) {
+    public ClientTiersPayantDTO setTiersPayantId(Integer tiersPayantId) {
         this.tiersPayantId = tiersPayantId;
         return this;
     }

@@ -102,7 +102,7 @@ public class UninsuredCustomerService {
         return uninsuredCustomerRepository.findOne(specification);
     }
 
-    public void deleteCustomerById(Long id) throws GenericError {
+    public void deleteCustomerById(Integer id) throws GenericError {
         try {
             uninsuredCustomerRepository.deleteById(id);
         } catch (Exception e) {

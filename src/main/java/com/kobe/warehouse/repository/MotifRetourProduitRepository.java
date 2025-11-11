@@ -8,6 +8,6 @@ import org.springframework.stereotype.Repository;
 
 @SuppressWarnings("unused")
 @Repository
-public interface MotifRetourProduitRepository extends JpaRepository<MotifRetourProduit, Long> {
+public interface MotifRetourProduitRepository extends JpaRepository<MotifRetourProduit, Integer> {
     Page<MotifRetourProduit> findAllByLibelleContainingIgnoreCaseOrderByLibelleAsc(String libelle, Pageable pageable);
 }

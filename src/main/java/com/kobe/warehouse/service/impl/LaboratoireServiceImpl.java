@@ -84,7 +84,7 @@ public class LaboratoireServiceImpl implements LaboratoireService {
      */
     @Override
     @Transactional(readOnly = true)
-    public Optional<LaboratoireDTO> findOne(Long id) {
+    public Optional<LaboratoireDTO> findOne(Integer id) {
         log.debug("Request to get Laboratoire : {}", id);
         return laboratoireRepository.findById(id).map(LaboratoireDTO::new);
     }
@@ -95,7 +95,7 @@ public class LaboratoireServiceImpl implements LaboratoireService {
      * @param id the id of the entity.
      */
     @Override
-    public void delete(Long id) {
+    public void delete(Integer id) {
         log.debug("Request to delete Laboratoire : {}", id);
 
         laboratoireRepository.deleteById(id);

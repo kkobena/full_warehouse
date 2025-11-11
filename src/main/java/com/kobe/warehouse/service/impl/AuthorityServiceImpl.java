@@ -245,7 +245,7 @@ public class AuthorityServiceImpl implements AuthorityService {
         );
     }
 
-    private PrivillegesDTO buildPrivilleges(Menu menu, Long parentId) {
+    private PrivillegesDTO buildPrivilleges(Menu menu, Integer parentId) {
         return new PrivillegesDTO(
             menu.getId(),
             menu.getName(),

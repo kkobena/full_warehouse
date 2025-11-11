@@ -6,4 +6,4 @@ import org.springframework.stereotype.Repository;
 
 @SuppressWarnings("unused")
 @Repository
-public interface RemiseRepository extends JpaRepository<Remise, Long> {}
+public interface RemiseRepository extends JpaRepository<Remise, Integer> {}

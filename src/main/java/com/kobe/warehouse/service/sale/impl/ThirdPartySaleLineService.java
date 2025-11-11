@@ -73,14 +73,14 @@ public class ThirdPartySaleLineService {
         thirdPartySaleLineRepository.deleteAll(thirdPartySaleLines);
     }
 
-    public Optional<ThirdPartySaleLine> findFirstByClientTiersPayantIdAndSaleId(Long clientTiersPayantId, SaleId saleId) {
+    public Optional<ThirdPartySaleLine> findFirstByClientTiersPayantIdAndSaleId(Integer clientTiersPayantId, SaleId saleId) {
         return thirdPartySaleLineRepository.findFirstByClientTiersPayantIdAndSaleIdAndSaleSaleDate(clientTiersPayantId, saleId.getId(), saleId.getSaleDate());
     }
 
     public long countThirdPartySaleLineByNumBonAndClientTiersPayantIdAndSaleId(
         String numBon,
         Long saleId,
-        Long clientTiersPayantId,
+        Integer clientTiersPayantId,
         SalesStatut salesStatut
     ) {
         return thirdPartySaleLineRepository.countThirdPartySaleLineByNumBonAndClientTiersPayantIdAndSaleId(
@@ -92,7 +92,7 @@ public class ThirdPartySaleLineService {
         );
     }
 
-    public long countThirdPartySaleLineByNumBonAndClientTiersPayantId(String numBon, Long clientTiersPayantId, SalesStatut salesStatut) {
+    public long countThirdPartySaleLineByNumBonAndClientTiersPayantId(String numBon, Integer clientTiersPayantId, SalesStatut salesStatut) {
         return thirdPartySaleLineRepository.countThirdPartySaleLineByNumBonAndClientTiersPayantId(
             numBon,
             clientTiersPayantId,

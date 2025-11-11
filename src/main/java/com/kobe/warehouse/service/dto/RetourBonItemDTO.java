@@ -6,20 +6,20 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 
 public class RetourBonItemDTO {
-    private Long id;
+    private Integer id;
     private LocalDateTime dateMtv;
-    private Long retourBonId;
-    private Long motifRetourId;
+    private Integer retourBonId;
+    private Integer motifRetourId;
     private String motifRetourLibelle;
-    private Long orderLineId;
+    private Integer orderLineId;
     private LocalDate orderLineOrderDate;
     private String produitLibelle;
     private String produitCip;
-    private Long produitId;
+    private Integer produitId;
     private Integer qtyMvt;
     private Integer initStock;
     private Integer afterStock;
-    private Long lotId;
+    private Integer lotId;
     private String lotNumero;
     private Integer orderLineQuantityRequested;
     private Integer orderLineQuantityReceived;
@@ -59,11 +59,11 @@ public class RetourBonItemDTO {
         this.afterStock = item.getAfterStock();
     }
 
-    public Long getId() {
+    public Integer getId() {
         return id;
     }
 
-    public RetourBonItemDTO setId(Long id) {
+    public RetourBonItemDTO setId(Integer id) {
         this.id = id;
         return this;
     }
@@ -77,20 +77,20 @@ public class RetourBonItemDTO {
         return this;
     }
 
-    public Long getRetourBonId() {
+    public Integer getRetourBonId() {
         return retourBonId;
     }
 
-    public RetourBonItemDTO setRetourBonId(Long retourBonId) {
+    public RetourBonItemDTO setRetourBonId(Integer retourBonId) {
         this.retourBonId = retourBonId;
         return this;
     }
 
-    public Long getMotifRetourId() {
+    public Integer getMotifRetourId() {
         return motifRetourId;
     }
 
-    public RetourBonItemDTO setMotifRetourId(Long motifRetourId) {
+    public RetourBonItemDTO setMotifRetourId(Integer motifRetourId) {
         this.motifRetourId = motifRetourId;
         return this;
     }
@@ -104,11 +104,11 @@ public class RetourBonItemDTO {
         return this;
     }
 
-    public Long getOrderLineId() {
+    public Integer getOrderLineId() {
         return orderLineId;
     }
 
-    public RetourBonItemDTO setOrderLineId(Long orderLineId) {
+    public RetourBonItemDTO setOrderLineId(Integer orderLineId) {
         this.orderLineId = orderLineId;
         return this;
     }
@@ -140,11 +140,11 @@ public class RetourBonItemDTO {
         return this;
     }
 
-    public Long getProduitId() {
+    public Integer getProduitId() {
         return produitId;
     }
 
-    public RetourBonItemDTO setProduitId(Long produitId) {
+    public RetourBonItemDTO setProduitId(Integer produitId) {
         this.produitId = produitId;
         return this;
     }
@@ -176,11 +176,11 @@ public class RetourBonItemDTO {
         return this;
     }
 
-    public Long getLotId() {
+    public Integer getLotId() {
         return lotId;
     }
 
-    public RetourBonItemDTO setLotId(Long lotId) {
+    public RetourBonItemDTO setLotId(Integer lotId) {
         this.lotId = lotId;
         return this;
     }

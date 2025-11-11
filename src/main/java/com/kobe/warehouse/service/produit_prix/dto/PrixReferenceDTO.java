@@ -7,10 +7,10 @@ import jakarta.validation.constraints.NotNull;
 public class PrixReferenceDTO {
 
     private int price;
-    private long id;
+    private Integer id;
     private boolean enabled;
-    private Long tiersPayantId;
-    private Long produitId;
+    private Integer tiersPayantId;
+    private Integer produitId;
 
     @NotNull
     private OptionPrixType type;
@@ -80,11 +80,11 @@ public class PrixReferenceDTO {
         this.price = price;
     }
 
-    public long getId() {
+    public Integer getId() {
         return id;
     }
 
-    public void setId(long id) {
+    public void setId(Integer id) {
         this.id = id;
     }
 
@@ -96,19 +96,19 @@ public class PrixReferenceDTO {
         this.enabled = enabled;
     }
 
-    public Long getTiersPayantId() {
+    public Integer getTiersPayantId() {
         return tiersPayantId;
     }
 
-    public void setTiersPayantId(Long tiersPayantId) {
+    public void setTiersPayantId(Integer tiersPayantId) {
         this.tiersPayantId = tiersPayantId;
     }
 
-    public Long getProduitId() {
+    public Integer getProduitId() {
         return produitId;
     }
 
-    public void setProduitId(Long produitId) {
+    public void setProduitId(Integer produitId) {
         this.produitId = produitId;
     }
 

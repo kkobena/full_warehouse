@@ -114,7 +114,7 @@ public class TiersPayantServiceImpl implements TiersPayantService, CommonStatSer
     }
 
     @Override
-    public void desable(Long id) {
+    public void desable(Integer id) {
         var tp = tiersPayantRepository.getReferenceById(id);
         tp
             .setStatut(TiersPayantStatut.DISABLED)
@@ -126,7 +126,7 @@ public class TiersPayantServiceImpl implements TiersPayantService, CommonStatSer
     }
 
     @Override
-    public void delete(Long id) throws GenericError {
+    public void delete(Integer id) throws GenericError {
         try {
             clientTiersPayantRepository.deleteAll(clientTiersPayantRepository.findAllByTiersPayantId(id));
             tiersPayantRepository.deleteById(id);

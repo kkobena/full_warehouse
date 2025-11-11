@@ -28,7 +28,7 @@ public class Remise implements Serializable {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+    private Integer id;
 
     @Column(name = "libelle", length = 100)
     private String valeur;
@@ -37,11 +37,11 @@ public class Remise implements Serializable {
     @Column(name = "enable", nullable = false, columnDefinition = "boolean default true")
     private boolean enable = true;
 
-    public Long getId() {
+    public Integer getId() {
         return id;
     }
 
-    public void setId(Long id) {
+    public void setId(Integer id) {
         this.id = id;
     }
 

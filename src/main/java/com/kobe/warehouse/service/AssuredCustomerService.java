@@ -110,9 +110,9 @@ public interface AssuredCustomerService {
 
     AssuredCustomer updateFromDto(AssuredCustomerDTO dto) throws InvalidPhoneNumberException;
 
-    void delete(Long id);
+    void delete(Integer id);
 
-    void desable(Long id);
+    void desable(Integer id);
 
     AssuredCustomer createAyantDroitFromDto(AssuredCustomerDTO dto);
 
@@ -181,7 +181,7 @@ public interface AssuredCustomerService {
         return assuredCustomer;
     }
 
-    default AssuredCustomer buildAssureFromId(Long id) {
+    default AssuredCustomer buildAssureFromId(Integer id) {
         AssuredCustomer assuredCustomer = new AssuredCustomer();
         assuredCustomer.setId(id);
         return assuredCustomer;
@@ -195,11 +195,11 @@ public interface AssuredCustomerService {
 
     Page<AssuredCustomerDTO> fetch(String query, TiersPayantCategorie typeTiersPayant, Pageable pageable);
 
-    void deleteCustomerById(Long id) throws GenericError;
+    void deleteCustomerById(Integer id) throws GenericError;
 
     AssuredCustomer addTiersPayant(ClientTiersPayantDTO dto) throws GenericError;
 
     AssuredCustomer updateTiersPayant(ClientTiersPayantDTO dto) throws GenericError;
 
-    void deleteTiersPayant(Long id) throws GenericError;
+    void deleteTiersPayant(Integer id) throws GenericError;
 }

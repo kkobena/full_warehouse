@@ -8,7 +8,7 @@ import java.util.Set;
 import org.springframework.util.CollectionUtils;
 
 public record NewDifferePaymentDTO(
-    long customerId,
+    Integer customerId,
     Set<Long> saleIds,
     int expectedAmount,
     int amount,

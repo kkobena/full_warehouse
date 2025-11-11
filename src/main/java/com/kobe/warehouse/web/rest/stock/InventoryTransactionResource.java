@@ -32,7 +32,7 @@ public class InventoryTransactionResource {
 
     @GetMapping("/inventory-transactions")
     public ResponseEntity<List<InventoryTransactionDTO>> getAllInventoryTransactions(
-        @RequestParam(name = "produitId", required = false) Long produitId,
+        @RequestParam(name = "produitId", required = false) Integer produitId,
         @RequestParam(name = "endDate", required = false) String endDate,
         @RequestParam(name = "startDate", required = false) String startDate,
         @RequestParam(name = "type", required = false) Integer type,

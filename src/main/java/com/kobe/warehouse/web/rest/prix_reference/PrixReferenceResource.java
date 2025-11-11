@@ -25,7 +25,7 @@ public class PrixReferenceResource {
     }
 
     @GetMapping("/{produitId}")
-    public ResponseEntity<List<PrixReferenceDTO>> getAll(@PathVariable(name = "produitId") Long produitId) {
+    public ResponseEntity<List<PrixReferenceDTO>> getAll(@PathVariable(name = "produitId") Integer produitId) {
         return ResponseEntity.ok().body(this.prixRererenceService.findAllByProduitId(produitId));
     }
 
@@ -42,7 +42,7 @@ public class PrixReferenceResource {
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> delete(@PathVariable Long id) {
+    public ResponseEntity<Void> delete(@PathVariable Integer id) {
         this.prixRererenceService.delete(id);
         return ResponseEntity.accepted().build();
     }

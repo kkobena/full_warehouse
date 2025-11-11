@@ -39,7 +39,7 @@ public class StockUpdateService {
      * @param storageId the storage location ID
      * @return StockUpdateResult containing quantity before and after the update
      */
-    public StockUpdateResult updateStock(SalesLine salesLine, Long storageId) {
+    public StockUpdateResult updateStock(SalesLine salesLine, Integer storageId) {
         Produit produit = salesLine.getProduit();
         StockProduit stockProduit = stockProduitRepository.findOneByProduitIdAndStockageId(produit.getId(), storageId);
 

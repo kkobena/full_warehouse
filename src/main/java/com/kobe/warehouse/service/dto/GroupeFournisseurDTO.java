@@ -11,7 +11,7 @@ public class GroupeFournisseurDTO implements Serializable {
 
     private static final long serialVersionUID = -6447988428721557444L;
 
-    private Long id;
+    private Integer id;
 
     @NotNull
     private String libelle;
@@ -53,11 +53,11 @@ public class GroupeFournisseurDTO implements Serializable {
         return this;
     }
 
-    public Long getId() {
+    public Integer getId() {
         return id;
     }
 
-    public GroupeFournisseurDTO setId(Long id) {
+    public GroupeFournisseurDTO setId(Integer id) {
         this.id = id;
         return this;
     }

@@ -71,7 +71,7 @@ public class FactureTiersPayant implements Persistable<FactureItemId>, Serializa
 
     @NotNull
     @Enumerated(EnumType.STRING)
-    @Column(name = "statut", nullable = false)
+    @Column(name = "statut", nullable = false, length = 20)
     private InvoiceStatut statut = InvoiceStatut.NOT_PAID;
 
     @ManyToOne

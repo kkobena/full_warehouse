@@ -33,9 +33,9 @@ public class Suggestion implements Serializable {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+    private Integer id;
 
-    @Column(name = "suggession_reference")
+    @Column(name = "suggession_reference",length = 20)
     private String suggessionReference;
 
     @NotNull
@@ -68,11 +68,11 @@ public class Suggestion implements Serializable {
     @NotNull
     private Fournisseur fournisseur;
 
-    public Long getId() {
+    public Integer getId() {
         return id;
     }
 
-    public void setId(Long id) {
+    public void setId(Integer id) {
         this.id = id;
     }
 

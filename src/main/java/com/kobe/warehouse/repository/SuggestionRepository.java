@@ -22,18 +22,18 @@ import org.springframework.stereotype.Repository;
 @SuppressWarnings("unused")
 @Repository
 public interface SuggestionRepository
-    extends JpaRepository<Suggestion, Long>, JpaSpecificationExecutor<Suggestion>, SuggestionCustomRepository {
+    extends JpaRepository<Suggestion, Integer>, JpaSpecificationExecutor<Suggestion>, SuggestionCustomRepository {
     Optional<Suggestion> findByTypeSuggessionAndFournisseurIdAndMagasinId(
         TypeSuggession typeSuggession,
-        Long fournisseurId,
-        Long magasinId
+        Integer fournisseurId,
+        Integer magasinId
     );
 
     default Specification<Suggestion> filterByType(TypeSuggession typeSuggession) {
         return (root, query, cb) -> cb.equal(root.get(Suggestion_.typeSuggession), typeSuggession);
     }
 
-    default Specification<Suggestion> filterByFournisseurId(Long fournisseurId) {
+    default Specification<Suggestion> filterByFournisseurId(Integer fournisseurId) {
         return (root, query, cb) -> cb.equal(root.get(Suggestion_.fournisseur).get(Fournisseur_.id), fournisseurId);
     }
 

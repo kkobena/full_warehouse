@@ -34,7 +34,7 @@ public class EditionBySelectionService extends AbstractEditionFactureService {
         if (!CollectionUtils.isEmpty(editionSearchParams.ids())) {
             return super
                 .buildFetchSpecification(editionSearchParams)
-                .and(this.thirdPartySaleLineRepository.tiersPayantIdsCriteria(editionSearchParams.ids()));
+                .and(this.thirdPartySaleLineRepository.tiersPayantIdsCriteria(editionSearchParams.tiersPayantIds()));
         }
         return super.buildFetchSpecification(editionSearchParams);
     }

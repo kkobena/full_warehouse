@@ -7,7 +7,7 @@ import java.io.Serializable;
 public class FournisseurDTO implements Serializable {
 
     private static final long serialVersionUID = 1L;
-    private Long id;
+    private Integer id;
 
     private String libelle;
     private String addresspostale;
@@ -23,7 +23,7 @@ public class FournisseurDTO implements Serializable {
     private String site;
     private String code;
 
-    private Long groupeFournisseurId;
+    private Integer groupeFournisseurId;
 
     private String groupeFournisseurLibelle;
 
@@ -46,11 +46,11 @@ public class FournisseurDTO implements Serializable {
         }
     }
 
-    public Long getId() {
+    public Integer getId() {
         return id;
     }
 
-    public void setId(Long id) {
+    public void setId(Integer id) {
         this.id = id;
     }
 
@@ -118,11 +118,11 @@ public class FournisseurDTO implements Serializable {
         this.code = code;
     }
 
-    public Long getGroupeFournisseurId() {
+    public Integer getGroupeFournisseurId() {
         return groupeFournisseurId;
     }
 
-    public void setGroupeFournisseurId(Long groupeFournisseurId) {
+    public void setGroupeFournisseurId(Integer groupeFournisseurId) {
         this.groupeFournisseurId = groupeFournisseurId;
     }
 

@@ -39,14 +39,14 @@ public interface ProduitService {
      * @param id the id of the entity.
      * @return the entity.
      */
-    Optional<ProduitDTO> findOne(Long id);
+    Optional<ProduitDTO> findOne(Integer id);
 
     /**
      * Delete the "id" produit.
      *
      * @param id the id of the entity.
      */
-    void delete(Long id);
+    void delete(Integer id);
 
     Page<ProduitDTO> findAll(ProduitCriteria produitCriteria, Pageable pageable);
 
@@ -66,7 +66,7 @@ public interface ProduitService {
 
     void updateDetail(ProduitDTO produitDTO);
 
-    int getProductTotalStock(Long productId);
+    int getProductTotalStock(Integer productId);
 
     StockProduit updateTotalStock(Produit produit, int stockIn, int stockUg);
 
@@ -78,9 +78,8 @@ public interface ProduitService {
 
     void updateFromCommande(ProduitDTO produitDTO, Produit produit);
 
-    void updatePeremption(Long produitId, LocalDate peremptionDate);
 
-    Produit findReferenceById(Long id);
+    Produit findReferenceById(Integer id);
 
-    List<ProduitSearch> searchProducts(String search ,Long magasinId, Pageable pageable);
+    List<ProduitSearch> searchProducts(String search, Integer magasinId, Pageable pageable);
 }

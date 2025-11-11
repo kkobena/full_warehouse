@@ -33,7 +33,7 @@ public class RepartitionStockProduit implements Serializable {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+    private Integer id;
 
     @ManyToOne(optional = false)
     @NotNull
@@ -85,11 +85,11 @@ public class RepartitionStockProduit implements Serializable {
         return this;
     }
 
-    public Long getId() {
+    public Integer getId() {
         return id;
     }
 
-    public RepartitionStockProduit setId(Long id) {
+    public RepartitionStockProduit setId(Integer id) {
         this.id = id;
         return this;
     }

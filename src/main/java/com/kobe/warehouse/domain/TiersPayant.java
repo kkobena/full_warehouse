@@ -49,7 +49,7 @@ public class TiersPayant implements Serializable, ConsommationService.HasConsomm
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+    private Integer id;
 
     @NotEmpty
     @Column(name = "name", nullable = false, length = 150)
@@ -99,12 +99,12 @@ public class TiersPayant implements Serializable, ConsommationService.HasConsomm
 
     @NotNull
     @Enumerated(EnumType.STRING)
-    @Column(name = "statut", nullable = false)
+    @Column(name = "statut", nullable = false, length = 10)
     private TiersPayantStatut statut = TiersPayantStatut.ACTIF;
 
     @NotNull
     @Enumerated(EnumType.STRING)
-    @Column(name = "categorie", nullable = false)
+    @Column(name = "categorie", nullable = false, length = 10)
     private TiersPayantCategorie categorie;
 
     @ColumnDefault("0")
@@ -164,11 +164,11 @@ public class TiersPayant implements Serializable, ConsommationService.HasConsomm
         return this;
     }
 
-    public Long getId() {
+    public Integer getId() {
         return id;
     }
 
-    public TiersPayant setId(Long id) {
+    public TiersPayant setId(Integer id) {
         this.id = id;
         return this;
     }

@@ -104,7 +104,7 @@ public class MenuResource {
      * with status {@code 404 (Not Found)}.
      */
     @GetMapping("/menus/{id}")
-    public ResponseEntity<Menu> getMenu(@PathVariable Long id) {
+    public ResponseEntity<Menu> getMenu(@PathVariable Integer id) {
         log.debug("REST request to get Menu : {}", id);
         Optional<Menu> menu = menuRepository.findById(id);
         return ResponseUtil.wrapOrNotFound(menu);
@@ -117,7 +117,7 @@ public class MenuResource {
      * @return the {@link ResponseEntity} with status {@code 204 (NO_CONTENT)}.
      */
     @DeleteMapping("/menus/{id}")
-    public ResponseEntity<Void> deleteMenu(@PathVariable Long id) {
+    public ResponseEntity<Void> deleteMenu(@PathVariable Integer id) {
         log.debug("REST request to delete Menu : {}", id);
         menuRepository.deleteById(id);
         return ResponseEntity.noContent()

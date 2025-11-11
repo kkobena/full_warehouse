@@ -6,21 +6,21 @@ import java.util.Objects;
 
 public class OrderLineId implements Serializable {
 
-    private Long id;
+    private Integer id;
     private LocalDate orderDate;
 
     public OrderLineId() {}
 
-    public OrderLineId(Long id, LocalDate orderDate) {
+    public OrderLineId(Integer id, LocalDate orderDate) {
         this.id = id;
         this.orderDate = orderDate;
     }
 
-    public Long getId() {
+    public Integer getId() {
         return id;
     }
 
-    public void setId(Long id) {
+    public void setId(Integer id) {
         this.id = id;
     }
 

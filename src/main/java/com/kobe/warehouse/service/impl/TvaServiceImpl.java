@@ -64,7 +64,7 @@ public class TvaServiceImpl implements TvaService {
      */
     @Override
     @Transactional(readOnly = true)
-    public Optional<TvaDTO> findOne(Long id) {
+    public Optional<TvaDTO> findOne(Integer id) {
         log.debug("Request to get Tva : {}", id);
         return tvaRepository.findById(id).map(TvaDTO::new);
     }
@@ -75,7 +75,7 @@ public class TvaServiceImpl implements TvaService {
      * @param id the id of the entity.
      */
     @Override
-    public void delete(Long id) {
+    public void delete(Integer id) {
         log.debug("Request to delete Tva : {}", id);
 
         tvaRepository.deleteById(id);

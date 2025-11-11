@@ -42,7 +42,7 @@ public class InventoryTransactionBuilder {
                 .setQuantityBefor(orderLine.getInitStock())
                 .setQuantityAfter(orderLine.getFinalStock())
                 .setCostAmount(orderLine.getOrderCostAmount())
-                .setEntityId(orderLine.getId().getId())
+                .setEntityId(Long.parseLong(orderLine.getId().getId()+""))
                 .setUser(orderLine.getCommande().getUser())
                 .setMagasin(orderLine.getCommande().getUser().getMagasin())
                 .setRegularUnitPrice(orderLine.getOrderUnitPrice());
@@ -57,7 +57,7 @@ public class InventoryTransactionBuilder {
                 .setQuantityBefor(ajustement.getStockBefore())
                 .setQuantityAfter(ajustement.getStockAfter())
                 .setCostAmount(fournisseurProduit.getPrixAchat())
-                .setEntityId(ajustement.getId())
+                .setEntityId(Long.parseLong(ajustement.getId()+""))
                 .setUser(ajustement.getAjust().getUser())
                 .setMagasin(ajustement.getAjust().getUser().getMagasin())
                 .setRegularUnitPrice(fournisseurProduit.getPrixUni());
@@ -78,7 +78,7 @@ public class InventoryTransactionBuilder {
                 .setUser(decondition.getUser())
                 .setMagasin(decondition.getUser().getMagasin())
                 .setCostAmount(fournisseurProduit.getPrixAchat())
-                .setEntityId(decondition.getId())
+                .setEntityId(Long.parseLong(decondition.getId()+""))
                 .setRegularUnitPrice(fournisseurProduit.getPrixUni());
         } else if (entity instanceof ProductsToDestroy productsToDestroy) {
             FournisseurProduit fournisseurProduit = productsToDestroy.getFournisseurProduit();
@@ -91,7 +91,7 @@ public class InventoryTransactionBuilder {
                 .setQuantityBefor(productsToDestroy.getStockInitial())
                 .setQuantityAfter(productsToDestroy.getStockInitial() - productsToDestroy.getQuantity())
                 .setCostAmount(productsToDestroy.getPrixAchat())
-                .setEntityId(productsToDestroy.getId())
+                .setEntityId(Long.parseLong(productsToDestroy.getId()+""))
                 .setUser(productsToDestroy.getUser())
                 .setMagasin(productsToDestroy.getMagasin())
                 .setRegularUnitPrice(productsToDestroy.getPrixUnit());
@@ -101,12 +101,12 @@ public class InventoryTransactionBuilder {
             inventoryTransaction = new InventoryTransaction()
                 .setCreatedAt(retourBonItem.getDateMtv())
                 .setProduit(produit)
-                .setMouvementType(MouvementProduit.INVENTAIRE)
+                .setMouvementType(MouvementProduit.RETOUR_FOURNISSEUR)
                 .setQuantity(retourBonItem.getQtyMvt())
                 .setQuantityBefor(retourBonItem.getInitStock())
                 .setQuantityAfter(retourBonItem.getAfterStock())
                 .setCostAmount(orderLine.getOrderCostAmount())
-                .setEntityId(retourBonItem.getId())
+                .setEntityId(Long.parseLong(retourBonItem.getId()+""))
                 .setUser(retourBonItem.getRetourBon().getUser())
                 .setMagasin(retourBonItem.getRetourBon().getUser().getMagasin())
                 .setRegularUnitPrice(orderLine.getOrderUnitPrice());

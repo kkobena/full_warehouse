@@ -1,7 +1,7 @@
 package com.kobe.warehouse.service.stat.impl;
 
 import com.fasterxml.jackson.core.type.TypeReference;
-import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.json.JsonMapper;
 import com.kobe.warehouse.domain.SalesLine;
 import com.kobe.warehouse.domain.enumeration.CategorieChiffreAffaire;
 import com.kobe.warehouse.domain.enumeration.OrderStatut;
@@ -67,7 +67,7 @@ public class ProductStatServiceImpl implements ProductStatService {
     private final OrderLineRepository orderLineRepository;
     private final InventoryTransactionService inventoryTransactionService;
     private final ProduitRepository produitRepository;
-    private final ObjectMapper objectMapper;
+    private final JsonMapper objectMapper;
 
     public ProductStatServiceImpl(
         ProduitAuditingReportSevice produitAuditingReportSevice,
@@ -75,7 +75,7 @@ public class ProductStatServiceImpl implements ProductStatService {
         HistoriqueVenteReportReportService historiqueVenteReportReportService,
         OrderLineRepository orderLineRepository,
         InventoryTransactionService inventoryTransactionService,
-        ProduitRepository produitRepository, ObjectMapper objectMapper
+        ProduitRepository produitRepository, JsonMapper objectMapper
     ) {
         this.produitAuditingReportSevice = produitAuditingReportSevice;
         this.salesLineRepository = salesLineRepository;

@@ -24,7 +24,7 @@ public class ProduitPerime implements Serializable {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+    private Integer id;
 
     @ManyToOne(optional = false)
     @NotNull
@@ -57,11 +57,11 @@ public class ProduitPerime implements Serializable {
     @Column(name = "after_stock", nullable = false)
     private int afterStock;
 
-    public Long getId() {
+    public Integer getId() {
         return id;
     }
 
-    public ProduitPerime setId(Long id) {
+    public ProduitPerime setId(Integer id) {
         this.id = id;
         return this;
     }

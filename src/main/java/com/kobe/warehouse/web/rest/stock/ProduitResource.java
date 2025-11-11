@@ -110,14 +110,14 @@ public class ProduitResource extends ProduitResourceProxy {
     @GetMapping("/produits")
     public ResponseEntity<List<ProduitDTO>> getAllProduits(
         @RequestParam(required = false, name = "search") String search,
-        @RequestParam(required = false, name = "storageId") Long storageId,
-        @RequestParam(required = false, name = "rayonId") Long rayonId,
+        @RequestParam(required = false, name = "storageId") Integer storageId,
+        @RequestParam(required = false, name = "rayonId") Integer rayonId,
         @RequestParam(required = false, name = "deconditionne") Boolean deconditionne,
         @RequestParam(required = false, name = "deconditionnable") Boolean deconditionnable,
         @RequestParam(required = false, name = "status") Status status,
-        @RequestParam(required = false, name = "familleId") Long familleId,
-        @RequestParam(required = false, name = "tableauId") Long tableauId,
-        @RequestParam(required = false, name = "tableauNot") Long tableauNot,
+        @RequestParam(required = false, name = "familleId") Integer familleId,
+        @RequestParam(required = false, name = "tableauId") Integer tableauId,
+        @RequestParam(required = false, name = "tableauNot") Integer tableauNot,
         Pageable pageable
     ) {
         Page<ProduitDTO> page = produitService.findAll(
@@ -146,7 +146,7 @@ public class ProduitResource extends ProduitResourceProxy {
      */
 
     @GetMapping("/produits/{id}")
-    public ResponseEntity<ProduitDTO> getProduit(@PathVariable Long id) {
+    public ResponseEntity<ProduitDTO> getProduit(@PathVariable Integer id) {
         log.debug("REST request to get Produit : {}", id);
         Optional<ProduitDTO> produit = produitService.findOne(id);
         return ResponseUtil.wrapOrNotFound(produit);
@@ -159,7 +159,7 @@ public class ProduitResource extends ProduitResourceProxy {
      * @return the {@link ResponseEntity} with status {@code 204 (NO_CONTENT)}.
      */
     @DeleteMapping("/produits/{id}")
-    public ResponseEntity<Void> deleteProduit(@PathVariable Long id) {
+    public ResponseEntity<Void> deleteProduit(@PathVariable Integer id) {
         log.debug("REST request to delete Produit : {}", id);
         produitRepository.deleteById(id);
         return ResponseEntity.noContent()
@@ -181,14 +181,14 @@ public class ProduitResource extends ProduitResourceProxy {
     @GetMapping("/produits/lite")
     public ResponseEntity<List<ProduitDTO>> getAllLite(
         @RequestParam(required = false, name = "search") String search,
-        @RequestParam(required = false, name = "storageId") Long storageId,
-        @RequestParam(required = false, name = "rayonId") Long rayonId,
+        @RequestParam(required = false, name = "storageId") Integer storageId,
+        @RequestParam(required = false, name = "rayonId") Integer rayonId,
         @RequestParam(required = false, name = "deconditionne") Boolean deconditionne,
         @RequestParam(required = false, name = "deconditionnable") Boolean deconditionnable,
         @RequestParam(required = false, name = "status") Status status,
-        @RequestParam(required = false, name = "familleId") Long familleId,
-        @RequestParam(required = false, name = "tableauId") Long tableauId,
-        @RequestParam(required = false, name = "tableauNot") Long tableauNot,
+        @RequestParam(required = false, name = "familleId") Integer familleId,
+        @RequestParam(required = false, name = "tableauId") Integer tableauId,
+        @RequestParam(required = false, name = "tableauNot") Integer tableauNot,
         @RequestParam(required = false, name = "remisable") Boolean remisable,
         Pageable pageable
     ) {
@@ -213,7 +213,7 @@ public class ProduitResource extends ProduitResourceProxy {
     @GetMapping("/produits/search")
     public ResponseEntity<List<ProduitSearch>> search(
         @RequestParam( name = "search") String search,
-        @RequestParam(required = false, name = "magasinId") Long magasinId,
+        @RequestParam(required = false, name = "magasinId") Integer magasinId,
         Pageable pageable
     ) {
         return super.search(search,magasinId,
@@ -230,13 +230,5 @@ public class ProduitResource extends ProduitResourceProxy {
         return ResponseEntity.ok().body(this.productActivityService.getProductActivity(produitId, fromDate, toDate));
     }
 
-    @PutMapping("/produits/{id}/peremption-date")
-    public ResponseEntity<Void> updatePeremptionDate(@PathVariable Long id, @RequestBody DatePeremtion preremptionDate) {
-        log.debug("REST request to update Preremption Date for Produit : {}, preremptionDate: {}", id, preremptionDate);
-        if (id == null) {
-            throw new BadRequestAlertException("Invalid id", ENTITY_NAME, "idnull");
-        }
-        produitService.updatePeremption(id, preremptionDate.datePeremption());
-        return ResponseEntity.ok().build();
-    }
+
 }

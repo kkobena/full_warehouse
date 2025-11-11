@@ -49,7 +49,7 @@ public class InventoryTransaction implements Persistable<ProductMvtId>, Serializ
 
     @NotNull
     @Enumerated(EnumType.STRING)
-    @Column(name = "mouvement_type", nullable = false)
+    @Column(name = "mouvement_type", nullable = false,length = 30)
     private MouvementProduit mouvementType;
 
     @NotNull

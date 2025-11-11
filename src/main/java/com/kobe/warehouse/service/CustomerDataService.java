@@ -250,7 +250,7 @@ public class CustomerDataService {
         return new UninsuredCustomerDTO((UninsuredCustomer) customer);
     }
 
-    public Optional<CustomerDTO> getOneCustomer(Long id) {
+    public Optional<CustomerDTO> getOneCustomer(Integer id) {
         return customerRepository.findById(id).map(this::mapFromEntity);
     }
 
@@ -319,7 +319,7 @@ public class CustomerDataService {
         }
     }
 
-    public List<ClientTiersPayantDTO> fetchCustomersTiersPayant(Long id) {
+    public List<ClientTiersPayantDTO> fetchCustomersTiersPayant(Integer id) {
         return clientTiersPayantRepository
             .findAllByAssuredCustomerId(id)
             .stream()
@@ -328,7 +328,7 @@ public class CustomerDataService {
             .collect(Collectors.toList());
     }
 
-    public List<AssuredCustomerDTO> fetchAyantDroit(Long id) {
+    public List<AssuredCustomerDTO> fetchAyantDroit(Integer id) {
         return assuredCustomerRepository
             .findAllByAssurePrincipalId(id)
             .stream()

@@ -11,7 +11,7 @@ public class CommandeFilterDTO {
 
     private String search;
     private String searchCommande;
-    private Long commandeId;
+    private Integer commandeId;
     private Set<OrderStatut> orderStatuts;
     private FilterCommaneEnCours filterCommaneEnCours;
     private String typeSuggession;
@@ -45,11 +45,11 @@ public class CommandeFilterDTO {
         return this;
     }
 
-    public Long getCommandeId() {
+    public Integer getCommandeId() {
         return commandeId;
     }
 
-    public CommandeFilterDTO setCommandeId(Long commandeId) {
+    public CommandeFilterDTO setCommandeId(Integer commandeId) {
         this.commandeId = commandeId;
         return this;
     }

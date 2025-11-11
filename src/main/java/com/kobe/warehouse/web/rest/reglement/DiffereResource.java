@@ -50,7 +50,7 @@ public class DiffereResource {
 
     @GetMapping
     public ResponseEntity<List<DiffereDTO>> getAllDifferes(
-        @RequestParam(name = "customerId", required = false) Long customerId,
+        @RequestParam(name = "customerId", required = false) Integer customerId,
         Pageable pageable
     ) {
         Page<DiffereDTO> page = reglementDiffereService.getDiffere(customerId, Set.of(PaymentStatus.IMPAYE), pageable);
@@ -60,7 +60,7 @@ public class DiffereResource {
     }
 
     @GetMapping("/customers/{id}")
-    public ResponseEntity<DiffereDTO> getDiffere(@PathVariable Long id) {
+    public ResponseEntity<DiffereDTO> getDiffere(@PathVariable Integer id) {
 
         return ResponseUtil.wrapOrNotFound(reglementDiffereService.getOne(id));
     }
@@ -89,7 +89,7 @@ public class DiffereResource {
     @GetMapping("/pdf")
     public ResponseEntity<Resource> exportList(
         HttpServletRequest request,
-        @RequestParam(name = "customerId", required = false) Long customerId
+        @RequestParam(name = "customerId", required = false) Integer customerId
     ) {
         return Utils.printPDF(reglementDiffereService.printListToPdf(customerId, Set.of(PaymentStatus.IMPAYE)), request);
     }
@@ -97,7 +97,7 @@ public class DiffereResource {
     @GetMapping("/reglements/pdf")
     public ResponseEntity<Resource> printReglementToPdf(
         HttpServletRequest request,
-        @RequestParam(name = "customerId", required = false) Long customerId,
+        @RequestParam(name = "customerId", required = false) Integer customerId,
         @RequestParam(name = "fromDate", required = false) LocalDate fromDate,
         @RequestParam(name = "toDate", required = false) LocalDate toDate
     ) {
@@ -106,7 +106,7 @@ public class DiffereResource {
 
     @GetMapping("/reglements")
     public ResponseEntity<List<ReglementDiffereWrapperDTO>> getReglementsDifferes(
-        @RequestParam(name = "customerId", required = false) Long customerId,
+        @RequestParam(name = "customerId", required = false) Integer customerId,
         @RequestParam(name = "fromDate", required = false) LocalDate fromDate,
         @RequestParam(name = "toDate", required = false) LocalDate toDate,
         Pageable pageable
@@ -123,7 +123,7 @@ public class DiffereResource {
 
     @GetMapping("/reglements/summary")
     public ResponseEntity<DifferePaymentSummaryDTO> getReglementDiffereSummary(
-        @RequestParam(name = "customerId", required = false) Long customerId,
+        @RequestParam(name = "customerId", required = false) Integer customerId,
         @RequestParam(name = "fromDate", required = false) LocalDate fromDate,
         @RequestParam(name = "toDate", required = false) LocalDate toDate
     ) {
@@ -132,7 +132,7 @@ public class DiffereResource {
 
     @GetMapping("/summary")
     public ResponseEntity<DiffereSummary> getDiffereSummary(
-        @RequestParam(name = "customerId", required = false) Long customerId
+        @RequestParam(name = "customerId", required = false) Integer customerId
     ) {
         return ResponseEntity.ok().body(reglementDiffereService.getDiffereSummary(customerId, Set.of(PaymentStatus.IMPAYE)));
     }

@@ -19,7 +19,7 @@ public interface CashRegisterService {
 
     CashRegister getLastOpiningUserCashRegisterByUser(AppUser user);
 
-    CashRegister openCashRegister(AppUser user, Long cashFundId);
+    CashRegister openCashRegister(AppUser user, Integer cashFundId);
 
     Optional<CashRegisterDTO> openCashRegister(int cashFundAmount) throws NonClosedCashRegisterException;
 
@@ -29,9 +29,9 @@ public interface CashRegisterService {
 
     void checkIfCashRegisterIsOpen(AppUser user, AppUser admin) throws CashRegisterException;
 
-    CashRegister getCashRegisterById(Long id);
+    CashRegister getCashRegisterById(Integer id);
 
-    Optional<CashRegisterDTO> findOne(Long id);
+    Optional<CashRegisterDTO> findOne(Integer id);
 
     void buildCashRegisterItems(CashRegister cashRegister);
 

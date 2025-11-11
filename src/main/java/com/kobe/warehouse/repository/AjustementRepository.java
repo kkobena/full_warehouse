@@ -10,8 +10,8 @@ import org.springframework.stereotype.Repository;
  * Spring Data  repository for the Ajustement entity.
  */
 @Repository
-public interface AjustementRepository extends JpaRepository<Ajustement, Long> {
-    List<Ajustement> findAllByAjustId(Long id);
+public interface AjustementRepository extends JpaRepository<Ajustement, Integer> {
+    List<Ajustement> findAllByAjustId(Integer id);
 
-    Optional<Ajustement> findFirstByAjustIdAndProduitId(Long ajustId, Long produitId);
+    Optional<Ajustement> findFirstByAjustIdAndProduitId(Integer ajustId, Integer produitId);
 }

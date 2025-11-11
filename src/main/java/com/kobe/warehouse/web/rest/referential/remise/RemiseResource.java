@@ -38,12 +38,12 @@ public class RemiseResource extends RemiseResourceProxy {
     }
 
     @GetMapping("/remises/{id}")
-    public ResponseEntity<RemiseDTO> getOne(@PathVariable Long id) {
+    public ResponseEntity<RemiseDTO> getOne(@PathVariable Integer id) {
         return super.getOne(id);
     }
 
     @DeleteMapping("/remises/{id}")
-    public ResponseEntity<Void> delete(@PathVariable Long id) {
+    public ResponseEntity<Void> delete(@PathVariable Integer id) {
         return super.delete(id);
     }
 

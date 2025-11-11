@@ -30,9 +30,9 @@ public class FamilleProduit implements Serializable {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+    private Integer id;
 
-    @Column(name = "code")
+    @Column(name = "code",length = 20)
     private String code;
 
     @NotNull
@@ -55,11 +55,11 @@ public class FamilleProduit implements Serializable {
         categorie = new Categorie().id(familleProduitDTO.getId());
     }
 
-    public Long getId() {
+    public Integer getId() {
         return id;
     }
 
-    public FamilleProduit setId(Long id) {
+    public FamilleProduit setId(Integer id) {
         this.id = id;
         return this;
     }

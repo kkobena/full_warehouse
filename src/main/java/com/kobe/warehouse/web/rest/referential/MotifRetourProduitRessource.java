@@ -56,7 +56,7 @@ public class MotifRetourProduitRessource {
     }
 
     @DeleteMapping("/motif-retour-produits/{id}")
-    public ResponseEntity<Void> deleter(@PathVariable Long id) throws Exception {
+    public ResponseEntity<Void> deleter(@PathVariable Integer id) {
         motifRetourProduitRepository.deleteById(id);
         return ResponseEntity.noContent()
             .headers(HeaderUtil.createEntityDeletionAlert(applicationName, true, ENTITY_NAME, id.toString()))

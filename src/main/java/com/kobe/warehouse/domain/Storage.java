@@ -34,11 +34,11 @@ public class Storage implements Serializable {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+    private Integer id;
 
     @NotNull
     @Enumerated(EnumType.STRING)
-    @Column(name = "storage_type", nullable = false)
+    @Column(name = "storage_type", nullable = false, length = 20)
     private StorageType storageType;
 
     @NotNull
@@ -49,15 +49,15 @@ public class Storage implements Serializable {
     @NotNull
     private Magasin magasin;
 
-    public Long getId() {
+    public Integer getId() {
         return id;
     }
 
-    public void setId(Long id) {
+    public void setId(Integer id) {
         this.id = id;
     }
 
-    public Storage id(Long id) {
+    public Storage id(Integer id) {
         this.id = id;
         return this;
     }

@@ -8,7 +8,7 @@ import java.util.List;
 public class DeliveryReceiptItemLiteDTO {
 
     @NotNull
-    private Long id;
+    private Integer id;
 
     private Integer quantityUG;
     private Integer quantityReceived;
@@ -19,7 +19,7 @@ public class DeliveryReceiptItemLiteDTO {
     private Integer quantityReceivedTmp;
     private Integer orderUnitPrice;
     private Integer tva;
-    private Long tvaId;
+    private Integer tvaId;
     private LocalDate datePeremption;
     private LocalDate datePeremptionTmp;
     private OrderLineId orderLineId;
@@ -33,11 +33,11 @@ public class DeliveryReceiptItemLiteDTO {
         return this;
     }
 
-    public @NotNull Long getId() {
+    public @NotNull Integer getId() {
         return id;
     }
 
-    public DeliveryReceiptItemLiteDTO setId(@NotNull Long id) {
+    public DeliveryReceiptItemLiteDTO setId(@NotNull Integer id) {
         this.id = id;
         return this;
     }
@@ -51,11 +51,11 @@ public class DeliveryReceiptItemLiteDTO {
         return this;
     }
 
-    public Long getTvaId() {
+    public Integer getTvaId() {
         return tvaId;
     }
 
-    public DeliveryReceiptItemLiteDTO setTvaId(Long tvaId) {
+    public DeliveryReceiptItemLiteDTO setTvaId(Integer tvaId) {
         this.tvaId = tvaId;
         return this;
     }

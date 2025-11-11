@@ -43,7 +43,7 @@ public class SaleLineDTO {
     @ExcelProperty("Code CIP")
     private String code;
     @ExcelProperty("Produit ID")
-    private Long produitId;
+    private Integer produitId;
     private Long saleId;
     @ExcelProperty("Qté initiale en stock")
     private Integer quantityStock;
@@ -256,11 +256,11 @@ public class SaleLineDTO {
         this.calculationBasePrice = calculationBasePrice;
     }
 
-    public Long getProduitId() {
+    public Integer getProduitId() {
         return produitId;
     }
 
-    public void setProduitId(Long produitId) {
+    public void setProduitId(Integer produitId) {
         this.produitId = produitId;
     }
 

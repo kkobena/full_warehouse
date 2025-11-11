@@ -71,7 +71,7 @@ public class Sales implements Persistable<SaleId>, Serializable, Cloneable {
     private String type;
 
     @NotNull
-    @Column(name = "number_transaction", nullable = false)
+    @Column(name = "number_transaction", nullable = false,length = 20)
     private String numberTransaction;
 
     @NotNull
@@ -112,7 +112,7 @@ public class Sales implements Persistable<SaleId>, Serializable, Cloneable {
 
     @NotNull
     @Enumerated(EnumType.STRING)
-    @Column(name = "statut", nullable = false)
+    @Column(name = "statut", nullable = false, length = 11)
     private SalesStatut statut;
 
     @NotNull
@@ -154,7 +154,7 @@ public class Sales implements Persistable<SaleId>, Serializable, Cloneable {
     @Column(name = "to_ignore", nullable = false)
     private boolean toIgnore = false;
     @Column(name = "copy", nullable = false)
-    private Boolean copy = false;
+    private boolean copy = false;
     @Column(name = "imported", nullable = false)
     private boolean imported = false;
     @NotNull
@@ -187,7 +187,7 @@ public class Sales implements Persistable<SaleId>, Serializable, Cloneable {
     @ManyToOne
     private Customer customer;
     @Column(name = "canceled", nullable = false)
-    private Boolean canceled = false;
+    private boolean canceled = false;
     @Column(length = 100)
     private String tvaEmbeded;
     @Column(name = "commentaire")
@@ -434,11 +434,12 @@ public class Sales implements Persistable<SaleId>, Serializable, Cloneable {
         return this;
     }
 
-    public Boolean getCopy() {
+
+    public boolean isCopy() {
         return copy;
     }
 
-    public Sales setCopy(Boolean copy) {
+    public Sales setCopy(boolean copy) {
         this.copy = copy;
         return this;
     }
@@ -534,11 +535,12 @@ public class Sales implements Persistable<SaleId>, Serializable, Cloneable {
         return this;
     }
 
-    public Boolean getCanceled() {
+
+    public boolean isCanceled() {
         return canceled;
     }
 
-    public Sales setCanceled(Boolean canceled) {
+    public Sales setCanceled(boolean canceled) {
         this.canceled = canceled;
         return this;
     }

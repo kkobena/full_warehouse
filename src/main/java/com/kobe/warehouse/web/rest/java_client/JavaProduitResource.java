@@ -30,14 +30,14 @@ public class JavaProduitResource extends ProduitResourceProxy {
     @GetMapping("/produits/lite")
     public ResponseEntity<List<ProduitDTO>> getAllLite(
         @RequestParam(required = false, name = "search") String search,
-        @RequestParam(required = false, name = "storageId") Long storageId,
-        @RequestParam(required = false, name = "rayonId") Long rayonId,
+        @RequestParam(required = false, name = "storageId") Integer storageId,
+        @RequestParam(required = false, name = "rayonId") Integer rayonId,
         @RequestParam(required = false, name = "deconditionne") Boolean deconditionne,
         @RequestParam(required = false, name = "deconditionnable") Boolean deconditionnable,
         @RequestParam(required = false, name = "status") Status status,
-        @RequestParam(required = false, name = "familleId") Long familleId,
-        @RequestParam(required = false, name = "tableauId") Long tableauId,
-        @RequestParam(required = false, name = "tableauNot") Long tableauNot,
+        @RequestParam(required = false, name = "familleId") Integer familleId,
+        @RequestParam(required = false, name = "tableauId") Integer tableauId,
+        @RequestParam(required = false, name = "tableauNot") Integer tableauNot,
         @RequestParam(required = false, name = "remisable") Boolean remisable,
         Pageable pageable
     ) {
@@ -60,7 +60,7 @@ public class JavaProduitResource extends ProduitResourceProxy {
     @GetMapping("/produits/search")
     public ResponseEntity<List<ProduitSearch>> search(
         @RequestParam(name = "search") String search,
-        @RequestParam(required = false, name = "magasinId") Long magasinId,
+        @RequestParam(required = false, name = "magasinId") Integer magasinId,
         Pageable pageable
     ) {
         return super.search(search, magasinId,

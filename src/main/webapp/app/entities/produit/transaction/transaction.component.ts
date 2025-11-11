@@ -1,4 +1,4 @@
-import { Component, inject, OnInit, viewChild } from '@angular/core';
+import { AfterViewInit, Component, inject, OnInit, viewChild } from '@angular/core';
 import { ButtonModule } from 'primeng/button';
 import { CardModule } from 'primeng/card';
 import { DividerModule } from 'primeng/divider';
@@ -53,7 +53,12 @@ import { ProduitAutocompleteComponent } from '../../../shared/produit-autocomple
   styleUrls: ['./transaction.scss'],
   providers: [ProduitAuditingParamService]
 })
-export class TransactionComponent implements OnInit {
+export class TransactionComponent implements OnInit, AfterViewInit {
+  ngAfterViewInit(): void {
+    this.dateDebut().value = this.defaultDate;
+    this.dateFin().value = this.defaultDate;
+  }
+
   readonly auditingComponent = viewChild(AuditingComponent);
   readonly statSalesComponent = viewChild(StatSalesComponent);
   readonly delivery = viewChild(StatDeliveryComponent);
@@ -68,12 +73,12 @@ export class TransactionComponent implements OnInit {
   protected readonly PRODUIT_COMBO_MIN_LENGTH = PRODUIT_COMBO_MIN_LENGTH;
   private readonly activatedRoute = inject(ActivatedRoute);
   private readonly produitAuditingParamService = inject(ProduitAuditingParamService);
-  private readonly dateDebut = viewChild.required<DatePickerComponent>('dateDebut');
-  private readonly dateFin = viewChild.required<DatePickerComponent>('dateFin');
+  private readonly dateDebut = viewChild<DatePickerComponent>('dateDebut');
+  private readonly dateFin = viewChild<DatePickerComponent>('dateFin');
 
   ngOnInit(): void {
-    this.dateDebut().value = this.defaultDate;
-    this.dateFin().value = this.defaultDate;
+
+
     this.activatedRoute.data.subscribe(({ produit }) => {
       if (produit?.id) {
         this.produit = produit;
@@ -86,13 +91,15 @@ export class TransactionComponent implements OnInit {
   load(): void {
     this.loadData();
   }
-resetData(): void {
-  switch (this.active) {
-    case 'auditing':
-      this.auditingComponent().resetData();
-      break;
+
+  resetData(): void {
+    switch (this.active) {
+      case 'auditing':
+        this.auditingComponent().resetData();
+        break;
+    }
   }
-}
+
   protected get fromDate(): Date | null {
     return this.dateDebut().value;
   }
@@ -121,19 +128,18 @@ resetData(): void {
     this.event = event;
     this.loadData();
   }
+
   onClear(event: any): void {
 
-   this.resetData();
+    this.resetData();
   }
-
-
 
 
   protected buildQuery(): ProduitAuditingParam {
     const params: ProduitAuditingParam = {
       produitId: this.produit.id,
-      fromDate: this.dateDebut().submitValue,
-      toDate: this.dateFin().submitValue
+      fromDate: this.dateDebut()?.submitValue,
+      toDate: this.dateFin()?.submitValue
     };
     this.produitAuditingParamService.setParameter(params);
     return params;

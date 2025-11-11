@@ -17,7 +17,7 @@ public class CashRegisterDTO {
 
     private List<CashRegisterItemDTO> cashRegisterItems = new ArrayList<>();
     private TicketingDTO ticketing;
-    private Long id;
+    private Integer id;
     private UserDTO user;
     private Long initAmount;
     private Long finalAmount;
@@ -109,11 +109,11 @@ public class CashRegisterDTO {
         return this;
     }
 
-    public Long getId() {
+    public Integer getId() {
         return id;
     }
 
-    public CashRegisterDTO setId(Long id) {
+    public CashRegisterDTO setId(Integer id) {
         this.id = id;
         return this;
     }

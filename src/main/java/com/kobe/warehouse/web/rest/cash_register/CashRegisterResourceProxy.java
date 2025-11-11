@@ -47,7 +47,7 @@ public class CashRegisterResourceProxy {
 
     @GetMapping("/cash-registers")
     public ResponseEntity<List<CashRegisterDTO>> fetchCashRegisters(
-        @RequestParam(required = false, name = "userId") Long userId,
+        @RequestParam(required = false, name = "userId") Integer userId,
         @RequestParam(required = false, name = "statuts") Set<CashRegisterStatut> statuts,
         @RequestParam(required = false, name = "fromDate") LocalDate fromDate,
         @RequestParam(required = false, name = "toDate") LocalDate toDate,
@@ -64,7 +64,7 @@ public class CashRegisterResourceProxy {
     }
 
     @GetMapping("/cash-registers/{id}")
-    public ResponseEntity<CashRegisterDTO> getCashRegister(@PathVariable Long id) {
+    public ResponseEntity<CashRegisterDTO> getCashRegister(@PathVariable Integer id) {
         Optional<CashRegisterDTO> cashRegister = cashRegisterService.findOne(id);
         return ResponseUtil.wrapOrNotFound(cashRegister);
     }

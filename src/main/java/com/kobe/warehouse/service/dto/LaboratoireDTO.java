@@ -9,7 +9,7 @@ import java.io.Serializable;
  */
 public class LaboratoireDTO implements Serializable {
 
-    private Long id;
+    private Integer id;
 
     @NotNull
     private String libelle;
@@ -21,11 +21,11 @@ public class LaboratoireDTO implements Serializable {
         libelle = laboratoire.getLibelle();
     }
 
-    public Long getId() {
+    public Integer getId() {
         return id;
     }
 
-    public LaboratoireDTO setId(Long id) {
+    public LaboratoireDTO setId(Integer id) {
         this.id = id;
         return this;
     }

@@ -6,15 +6,15 @@ import com.kobe.warehouse.service.errors.GenericError;
 import java.time.LocalDate;
 
 public record ProductToDestroyPayload(
-    Long lotId,
-    Long produitId,
+    Integer lotId,
+    Integer produitId,
     int quantity,
     LocalDate datePeremption,
-    Long fournisseurId,
+    Integer fournisseurId,
     String numLot,
     boolean editing,
-    Long magasinId,
-    Long id,
+    Integer magasinId,
+    Integer id,
     Integer stockInitial
 ) {
     public ProductToDestroyPayload {

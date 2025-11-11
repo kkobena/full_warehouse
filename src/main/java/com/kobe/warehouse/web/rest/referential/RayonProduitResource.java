@@ -41,7 +41,7 @@ public class RayonProduitResource {
     }
 
     @DeleteMapping("/rayon-produits/{id}")
-    public ResponseEntity<Void> deleter(@PathVariable Long id) throws Exception {
+    public ResponseEntity<Void> deleter(@PathVariable Integer id) {
         log.debug("REST request to delete rayonProduit : {}", id);
         rayonProduitService.delete(id);
         return ResponseEntity.noContent()

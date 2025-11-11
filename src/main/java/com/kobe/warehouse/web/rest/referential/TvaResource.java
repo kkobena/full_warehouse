@@ -84,7 +84,7 @@ public class TvaResource {
      * with status {@code 404 (Not Found)}.
      */
     @GetMapping("/tvas/{id}")
-    public ResponseEntity<TvaDTO> getTva(@PathVariable Long id) {
+    public ResponseEntity<TvaDTO> getTva(@PathVariable Integer id) {
         log.debug("REST request to get Tva : {}", id);
         Optional<TvaDTO> tvaDTO = tvaService.findOne(id);
         return ResponseUtil.wrapOrNotFound(tvaDTO);
@@ -97,7 +97,7 @@ public class TvaResource {
      * @return the {@link ResponseEntity} with status {@code 204 (NO_CONTENT)}.
      */
     @DeleteMapping("/tvas/{id}")
-    public ResponseEntity<Void> deleteTva(@PathVariable Long id) {
+    public ResponseEntity<Void> deleteTva(@PathVariable Integer id) {
         log.debug("REST request to delete Tva : {}", id);
 
         tvaService.delete(id);

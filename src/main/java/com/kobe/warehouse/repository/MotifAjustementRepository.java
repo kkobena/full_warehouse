@@ -8,6 +8,6 @@ import org.springframework.stereotype.Repository;
 
 @SuppressWarnings("unused")
 @Repository
-public interface MotifAjustementRepository extends JpaRepository<MotifAjustement, Long> {
+public interface MotifAjustementRepository extends JpaRepository<MotifAjustement, Integer> {
     Page<MotifAjustement> findAllByLibelleContainingIgnoreCaseOrderByLibelleAsc(String libelle, Pageable pageable);
 }

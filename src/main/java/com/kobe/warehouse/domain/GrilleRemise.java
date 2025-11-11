@@ -40,7 +40,7 @@ public class GrilleRemise implements Serializable {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+    private Integer id;
 
     @NotNull
     @Column(name = "enable", nullable = false, columnDefinition = "boolean default true")
@@ -81,11 +81,11 @@ public class GrilleRemise implements Serializable {
         return this;
     }
 
-    public Long getId() {
+    public Integer getId() {
         return id;
     }
 
-    public GrilleRemise setId(Long id) {
+    public GrilleRemise setId(Integer id) {
         this.id = id;
         return this;
     }

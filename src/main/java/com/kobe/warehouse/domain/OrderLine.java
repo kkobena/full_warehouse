@@ -1,6 +1,5 @@
 package com.kobe.warehouse.domain;
 
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
@@ -39,7 +38,7 @@ public class OrderLine implements Persistable<OrderLineId>, Serializable, Clonea
     private static final long serialVersionUID = 1L;
 
     @Id
-    private Long id;
+    private Integer id;
 
     @Column(name = "quantity_received")
     private Integer quantityReceived;
@@ -148,7 +147,7 @@ public class OrderLine implements Persistable<OrderLineId>, Serializable, Clonea
         return new OrderLineId(id, orderDate);
     }
 
-    public void setId(Long id) {
+    public void setId(Integer id) {
         this.id = id;
     }
 

@@ -81,7 +81,7 @@ public class OrderLineServiceImpl implements OrderLineService {
     @Override
     public OrderLine buildOrderLine(OrderLineDTO orderLineDTO, FournisseurProduit fournisseurProduit) {
         OrderLine orderLine = new OrderLine();
-        orderLine.setId(this.orderLineIdGeneratorService.nextId());
+        orderLine.setId(this.orderLineIdGeneratorService.getNextIdAsInt());
         orderLine.createdAt(LocalDateTime.now());
         orderLine.setUpdatedAt(orderLine.getCreatedAt());
         orderLine.setInitStock(orderLineDTO.getTotalQuantity());
@@ -176,7 +176,7 @@ public class OrderLineServiceImpl implements OrderLineService {
         return createNewFromOne(fournisseurProduit, orderLineDTO.getCommande().getFournisseurId(), produit.getId());
     }
 
-    private FournisseurProduit createNewFromOne(FournisseurProduit fournisseurProduit, Long fournisseurId, Long produitId) {
+    private FournisseurProduit createNewFromOne(FournisseurProduit fournisseurProduit, Integer fournisseurId, Integer produitId) {
         return fournisseurProduitService.createNewFournisseurProduit(
             new FournisseurProduitDTO()
                 .setCodeCip(fournisseurProduit.getCodeCip())
@@ -204,7 +204,7 @@ public class OrderLineServiceImpl implements OrderLineService {
     }
 
     @Override
-    public Optional<OrderLine> findOneFromCommande(Long produitId, CommandeId commandeId, Long fournisseurId) {
+    public Optional<OrderLine> findOneFromCommande(Integer produitId, CommandeId commandeId, Integer fournisseurId) {
         Optional<FournisseurProduit> fournisseurProduitOptional = fournisseurProduitService.findFirstByProduitIdAndFournisseurId(
             produitId,
             fournisseurId
@@ -230,7 +230,7 @@ public class OrderLineServiceImpl implements OrderLineService {
     }
 
     @Override
-    public Optional<FournisseurProduit> getFournisseurProduitByCriteria(String criteria, Long fournisseurId) {
+    public Optional<FournisseurProduit> getFournisseurProduitByCriteria(String criteria, Integer fournisseurId) {
         return customizedProductService.getFournisseurProduitByCriteria(criteria, fournisseurId);
     }
 
@@ -243,7 +243,7 @@ public class OrderLineServiceImpl implements OrderLineService {
 
     private OrderLine buildOrderLine(Commande commande, OrderLineDTO orderLineDTO) {
         OrderLine orderLine = new OrderLine();
-        orderLine.setId(this.orderLineIdGeneratorService.nextId());
+        orderLine.setId(this.orderLineIdGeneratorService.getNextIdAsInt());
         orderLine.setCreatedAt(commande.getCreatedAt());
         orderLine.setUpdatedAt(commande.getCreatedAt());
         orderLine.setQuantityReceived(orderLineDTO.getQuantityReceived());
@@ -267,7 +267,7 @@ public class OrderLineServiceImpl implements OrderLineService {
             .map(StockProduit::getTotalStockQuantity)
             .reduce(0, Integer::sum);
         OrderLine orderLine = new OrderLine();
-        orderLine.setId(this.orderLineIdGeneratorService.nextId());
+        orderLine.setId(this.orderLineIdGeneratorService.getNextIdAsInt());
         orderLine.setCreatedAt(LocalDateTime.now());
         orderLine.setUpdatedAt(orderLine.getCreatedAt());
         orderLine.setQuantityReceived(0);
@@ -282,7 +282,7 @@ public class OrderLineServiceImpl implements OrderLineService {
     }
 
     @Override
-    public void changeFournisseurProduit(OrderLine orderLine, Long fournisseurId) {
+    public void changeFournisseurProduit(OrderLine orderLine, Integer fournisseurId) {
         Produit produit = orderLine.getFournisseurProduit().getProduit();
         this.fournisseurProduitService.findFirstByProduitIdAndFournisseurId(produit.getId(), fournisseurId).ifPresentOrElse(
             newFournisseurProduit -> {
@@ -327,7 +327,7 @@ public class OrderLineServiceImpl implements OrderLineService {
         Commande commande
     ) {
         OrderLine orderLine = new OrderLine();
-        orderLine.setId(this.orderLineIdGeneratorService.nextId());
+        orderLine.setId(this.orderLineIdGeneratorService.getNextIdAsInt());
         orderLine.setFreeQty(quantityUg);
         orderLine.setCreatedAt(commande.getCreatedAt());
         orderLine.setQuantityReceived(quantityReceived);

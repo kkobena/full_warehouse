@@ -7,13 +7,14 @@ import com.kobe.warehouse.service.dto.SuggestionLineDTO;
 import com.kobe.warehouse.service.dto.SuggestionProjection;
 import com.kobe.warehouse.service.dto.records.QuantitySuggestion;
 import com.kobe.warehouse.service.errors.GenericError;
+import org.springframework.core.io.Resource;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+
 import java.io.IOException;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
-import org.springframework.core.io.Resource;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
 
 public interface SuggestionProduitService {
     void suggerer(List<QuantitySuggestion> quantitySuggestions);
@@ -22,21 +23,25 @@ public interface SuggestionProduitService {
 
     void suggerer(Produit produit);
 
-    Page<SuggestionProjection> getAllSuggestion(String search, Long fournisseurId, TypeSuggession typeSuggession, Pageable pageable);
+    Page<SuggestionProjection> getAllSuggestion(String search, Integer fournisseurId, TypeSuggession typeSuggession, Pageable pageable);
 
-    Optional<SuggestionDTO> getSuggestionById(long id);
+    Optional<SuggestionDTO> getSuggestionById(Integer id);
 
-    Page<SuggestionLineDTO> getSuggestionLinesById(long suggestionId, String search, Pageable pageable);
+    Page<SuggestionLineDTO> getSuggestionLinesById(Integer suggestionId, String search, Pageable pageable);
 
-    void fusionnerSuggestion(Set<Long> ids) throws GenericError;
+    void fusionnerSuggestion(Set<Integer> ids) throws GenericError;
 
-    void deleteSuggestion(Set<Long> ids);
+    void deleteSuggestion(Set<Integer> ids);
 
-    void deleteSuggestionLine(Set<Long> ids);
+    void deleteSuggestionLine(Set<Integer> ids);
 
-    void sanitize(long suggestionId);
-    void commander(long suggestionId);
-    void addSuggestionLine(long suggestionId, SuggestionLineDTO suggestionLine);
+    void sanitize(Integer suggestionId);
+
+    void commander(Integer suggestionId);
+
+    void addSuggestionLine(Integer suggestionId, SuggestionLineDTO suggestionLine);
+
     void updateSuggestionLinQuantity(SuggestionLineDTO suggestionLine);
-    Resource exportToCsv(Long id) throws IOException;
+
+    Resource exportToCsv(Integer id) throws IOException;
 }

@@ -31,7 +31,7 @@ public class Ajustement implements Serializable {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+    private Integer id;
 
     @NotNull
     @Column(name = "qty_mvt", nullable = false)
@@ -47,7 +47,7 @@ public class Ajustement implements Serializable {
 
     @NotNull
     @Enumerated(EnumType.STRING)
-    @Column(name = "type_ajust", nullable = false)
+    @Column(name = "type_ajust", nullable = false,length = 15)
     private AjustType type;
 
     @NotNull
@@ -68,11 +68,11 @@ public class Ajustement implements Serializable {
     @JoinColumn(name = "motif_ajustement_id", referencedColumnName = "id")
     private MotifAjustement motifAjustement;
 
-    public Long getId() {
+    public Integer getId() {
         return id;
     }
 
-    public void setId(Long id) {
+    public void setId(Integer id) {
         this.id = id;
     }
 

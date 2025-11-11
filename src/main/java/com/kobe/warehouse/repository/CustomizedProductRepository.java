@@ -154,7 +154,7 @@ public class CustomizedProductRepository implements CustomizedProductService {
     }
 
     @Override
-    public void removeFournisseurProduit(Long id) {
+    public void removeFournisseurProduit(Integer id) {
         FournisseurProduit fournisseurProduit = em.find(FournisseurProduit.class, id);
         em.remove(fournisseurProduit);
     }
@@ -230,9 +230,6 @@ public class CustomizedProductRepository implements CustomizedProductService {
     @Override
     public void updateFromCommande(ProduitDTO dto, Produit produit) {
         produit.setTva(this.tvaFromId(dto.getTvaId()));
-        if (StringUtils.hasLength(dto.getExpirationDate())) {
-            produit.setPerimeAt(LocalDate.parse(dto.getExpirationDate(), DateTimeFormatter.ofPattern("dd/MM/yyyy")));
-        }
         if (StringUtils.hasLength(dto.getCodeEanLaboratoire())) {
             produit.setCodeEanLaboratoire(dto.getCodeEanLaboratoire());
         }
@@ -290,7 +287,7 @@ public class CustomizedProductRepository implements CustomizedProductService {
     }
 
     @Override
-    public List<Produit> findByIds(Set<Long> ids) {
+    public List<Produit> findByIds(Set<Integer> ids) {
         return this.produitRepository.findAllById(ids);
     }
 
@@ -355,7 +352,7 @@ public class CustomizedProductRepository implements CustomizedProductService {
     }
 
     @Override
-    public Optional<ProduitDTO> findOneById(Long produitId) {
+    public Optional<ProduitDTO> findOneById(Integer produitId) {
         Magasin magasin = storageService.getConnectedUserMagasin();
         Storage userStorage = storageService.getDefaultConnectedUserPointOfSaleStorage();
         return produitRepository
@@ -418,7 +415,7 @@ public class CustomizedProductRepository implements CustomizedProductService {
 
     @Override
     @Transactional(readOnly = true)
-    public Optional<FournisseurProduit> getFournisseurProduitByCriteria(String criteteria, Long fournisseurId) {
+    public Optional<FournisseurProduit> getFournisseurProduitByCriteria(String criteteria, Integer fournisseurId) {
         try {
             CriteriaBuilder cb = em.getCriteriaBuilder();
             CriteriaQuery<FournisseurProduit> cq = cb.createQuery(FournisseurProduit.class);

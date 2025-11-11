@@ -11,7 +11,8 @@ import { WarehouseCommonModule } from '../../../shared/warehouse-common/warehous
 @Component({
   selector: 'jhi-stat-delivery',
   imports: [WarehouseCommonModule, DailyDeleveryProduitHistoriqueComponent, YearlyDeleveryProduitHistoriqueComponent],
-  templateUrl: './stat-delivery.component.html'
+  templateUrl: './stat-delivery.component.html',
+  styleUrl: './stat-delivery.component.scss'
 })
 export class StatDeliveryComponent {
   protected readonly daily = viewChild.required(DailyDeleveryProduitHistoriqueComponent);

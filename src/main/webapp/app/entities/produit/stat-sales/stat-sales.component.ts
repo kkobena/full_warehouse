@@ -11,7 +11,8 @@ import { ProduitAuditingParam } from '../../../shared/model/produit-record.model
 @Component({
   selector: 'jhi-stat-sales',
   imports: [WarehouseCommonModule, DailySaleProduitHistoriqueComponent, YearlySaleProduitHistoriqueComponent],
-  templateUrl: './stat-sales.component.html'
+  templateUrl: './stat-sales.component.html',
+  styleUrl: './stat-sales.component.scss'
 })
 export class StatSalesComponent {
   readonly dailySaleProduitHistoriqueComponent = viewChild(DailySaleProduitHistoriqueComponent);

@@ -3,6 +3,8 @@ package com.kobe.warehouse.web.rest.commande;
 import com.kobe.warehouse.domain.CommandeId;
 import com.kobe.warehouse.service.dto.DeliveryReceiptDTO;
 import com.kobe.warehouse.service.dto.filter.DeliveryReceiptFilterDTO;
+import com.kobe.warehouse.service.dto.projection.DeliveryReceiptItemProjection;
+import com.kobe.warehouse.service.dto.projection.DeliveryReceiptProjection;
 import com.kobe.warehouse.service.stock.StockEntryDataService;
 import com.kobe.warehouse.web.rest.Utils;
 import com.kobe.warehouse.web.util.PaginationUtil;
@@ -61,5 +63,15 @@ public class StockEntryDataResource {
     public ResponseEntity<Resource> getPdf(@PathVariable Integer id, @PathVariable LocalDate orderDate, HttpServletRequest request) throws IOException {
         final Resource resource = stockEntryDataServicetryService.exportToPdf(new CommandeId(id, orderDate));
         return Utils.printPDF(resource, request);
+    }
+
+    @GetMapping("/commandes/data/entree-stock/list-bon-livraison")
+    public ResponseEntity<List<DeliveryReceiptProjection>> fetchListBons(@RequestParam("search") String search) {
+        return ResponseEntity.ok().body(stockEntryDataServicetryService.fetchAllReceipts(search).getContent());
+    }
+
+    @GetMapping("/commandes/data/entree-stock/filter-items/{id}/{orderDate}")
+    public ResponseEntity<List<DeliveryReceiptItemProjection>> fetchDetailBons(@PathVariable Integer id, @PathVariable LocalDate orderDate) {
+        return ResponseEntity.ok().body(stockEntryDataServicetryService.findAllByCommandeIdAndCommandeOrderDate(new CommandeId(id, orderDate)));
     }
 }

@@ -1,130 +1,241 @@
 <div class="container-fluid">
   <p-toast />
 <div class="pharma-smart-content">
-  <!-- Pharma Toolbar Header -->
-  <div class="pharma-toolbar">
-    <div class="pharma-toolbar-header">
-      <i class="pi pi-replay"></i>
-      <span class="pharma-toolbar-title">Gestion des Retours Fournisseur</span>
-      <div class="ms-auto">
-        <p-button
-          icon="pi pi-arrow-left"
-          label="Retour à la liste"
-          severity="primary"
-          [outlined]="true"
-          (onClick)="navigateToList()"
-          size="small"
-        />
+  <!-- HEADER TOOLBAR - Actions principales toujours visibles -->
+  <div class="pharma-sales-header">
+    <div class="header-left">
+      <p-button
+        (click)="navigateToList()"
+        [rounded]="true"
+        [text]="true"
+        class="back-button"
+        icon="pi pi-arrow-left"
+        pTooltip="Retour à la liste">
+      </p-button>
+
+      <div class="page-title">
+        <h1>Retours Fournisseur</h1>
+        <p class="subtitle">Gestion des retours de marchandises</p>
       </div>
+    </div>
+
+    <div class="header-actions">
+      <!-- Lot Selection Mode Toggle -->
+      <p-button
+        (onClick)="toggleLotSelectionMode()"
+        [outlined]="true"
+        class="mode-toggle-btn"
+        [icon]="lotSelectionMode() === 'dialog' ? 'pi pi-window-maximize' : 'pi pi-list'"
+        [label]="lotSelectionMode() === 'dialog' ? 'Mode: Dialog' : 'Mode: Inline'"
+        severity="secondary"
+        size="small"
+        [pTooltip]="lotSelectionMode() === 'dialog' ? 'Passer au mode inline' : 'Passer au mode dialog'"
+        tooltipPosition="bottom">
+      </p-button>
+
+      <!-- Save Button -->
+      <p-button
+        (onClick)="save()"
+        [disabled]="!canSave() || isSaving()"
+        [loading]="isSaving()"
+        [outlined]="false"
+        class="save-btn"
+        icon="pi pi-save"
+        label="Enregistrer"
+        severity="primary"
+        size="small">
+      </p-button>
+
+      <!-- Cancel Button -->
+      <p-button
+        (onClick)="reset()"
+        [outlined]="true"
+        class="cancel-btn"
+        icon="pi pi-times"
+        label="Annuler"
+        severity="secondary"
+        size="small">
+      </p-button>
     </div>
   </div>
 
+  <!-- ORDER LINE SELECTION SECTION -->
+  <div class="order-search-section">
+    <div class="search-section-header">
+      <i class="pi pi-search"></i>
+      <span>Sélection de la commande</span>
+    </div>
+
+    <div class="search-controls">
+      <!-- Order Search Autocomplete -->
+      <div class="order-search-input">
+        <p-autoComplete
+          [dropdown]="false"
+          #orderSelect
+          [(ngModel)]="selectedCommande"
+          [suggestions]="filteredCommandes()"
+          (completeMethod)="searchCommandes($event)"
+          (onSelect)="onCommandeChange()"
+          [dataKey]="'id'"
+          appendTo="body"
+          [fluid]="true"
+          size="large"
+          [forceSelection]="true"
+          [minQueryLength]="3"
+          [showEmptyMessage]="true"
+          [emptyMessage]="'Aucune commande trouvée'"
+          optionLabel="receiptReference"
+          [showClear]="true"
+          inputId="order-select"
+          placeholder="Rechercher une commande..."
+          class="w-100 pharma-autocomplete"
+        >
+          <ng-template let-commande #item>
+            <div>
+              <div>{{ commande.receiptReference }}</div>
+              <small class="text-muted">Date: {{ commande.orderDate | date: 'dd/MM/yyyy' }}</small>
+            </div>
+          </ng-template>
+        </p-autoComplete>
+      </div>
+
+      <!-- Order Line Search Autocomplete -->
+      <div class="orderline-search-input">
+        <p-autoComplete
+          [dropdown]="true"
+          #orderLineAutoComplete
+          [(ngModel)]="selectedOrderLine"
+          [suggestions]="filteredOrderLines()"
+          (completeMethod)="searchOrderLines($event)"
+          (onSelect)="onOrderLineSelect()"
+          [dataKey]="'id'"
+          size="large"
+          appendTo="body"
+          [fluid]="true"
+          [forceSelection]="true"
+          [minQueryLength]="3"
+          [showEmptyMessage]="true"
+          [emptyMessage]="'Aucune ligne de commande trouvée'"
+          optionLabel="produitLibelle"
+          [showClear]="true"
+          [disabled]="!selectedCommande()"
+          inputId="order-line-search"
+          placeholder="Rechercher un produit..."
+          class="w-100 pharma-autocomplete"
+        >
+          <ng-template let-orderLine #item>
+            <div class="d-flex justify-content-between align-items-center w-100">
+              <div class="flex-grow-1">
+                <div>
+                  <span class="pharma-code me-2">{{ orderLine.produitCip }}</span>
+                  <span>{{ orderLine.produitLibelle }}</span>
+                </div>
+                <div class="mt-1">
+                  <span class="badge bg-primary">
+                    <i class="pi pi-box me-1"></i>
+                    Reçu: <strong>{{ orderLine.quantityReceived | number }}</strong>
+                  </span>
+                </div>
+              </div>
+            </div>
+          </ng-template>
+        </p-autoComplete>
+      </div>
+
+      <!-- Motif Retour Select -->
+      <div class="motif-select-input">
+        <p-select
+          #motifSelect
+          [(ngModel)]="selectedMotifRetourId"
+          [options]="motifRetours()"
+          optionLabel="libelle"
+          optionValue="id"
+          [filter]="true"
+          size="large"
+          appendTo="body"
+          filterBy="libelle"
+          placeholder="Motif de retour..."
+          [disabled]="!selectedOrderLine()"
+          (onChange)="onMotifSelect()"
+          inputId="motif-select"
+          class="w-100"
+        />
+      </div>
+
+      <!-- Quantity Input with Add Button -->
+      <div class="quantity-input-wrapper">
+        <jhi-quantite-produt-saisie
+          #quantiteBox
+          (addQuantite)="onAddReturnLine($event)"
+          [isValid]="!!selectedOrderLine()"
+          [disabledButton]="!selectedOrderLine() || !selectedMotifRetourId()"
+          class="pharma-quantity-input">
+        </jhi-quantite-produt-saisie>
+      </div>
+    </div>
+
+    <!-- Order Meta Information -->
+    @if (selectedCommande()) {
+      <div class="order-meta">
+        <div class="meta-item">
+          <i class="pi pi-file"></i>
+          <span>Réf: <strong>{{ selectedCommande()?.receiptReference }}</strong></span>
+        </div>
+
+        <div class="meta-item">
+          <i class="pi pi-calendar"></i>
+          <span>Date: <strong>{{ selectedCommande()?.orderDate | date: 'dd/MM/yyyy' }}</strong></span>
+        </div>
+        <div class="meta-item">
+          <i class="pi pi-box"></i>
+          <span>Fournisseur: <strong>{{ selectedCommande()?.fournisseurLibelle  }}</strong></span>
+        </div>
+
+        @if (selectedOrderLine()) {
+          <div class="meta-item">
+            <i class="pi pi-box"></i>
+            <span>CIP: <strong>{{ selectedOrderLine()?.produitCip }}</strong></span>
+          </div>
+
+          <div class="meta-item" style="background-color: #e3f2fd; padding: 0.5rem; border-radius: 4px;">
+            <i class="pi pi-inbox text-primary"></i>
+            <span class="text-primary">Qté Reçue: <strong style="font-size: 1.1rem;">{{ selectedOrderLine()?.quantityReceived | number }}</strong></span>
+          </div>
+
+       <!--   <div class="meta-item quantity-display">
+            <i class="pi pi-hashtag"></i>
+            <span>Disponible: <strong>{{ getSelectedOrderLineMaxQuantity() | number }}</strong></span>
+          </div>-->
+
+          @if (selectedOrderLine()?.lots && selectedOrderLine()!.lots!.length > 0) {
+            <div class="meta-item">
+              <i class="pi pi-tag text-primary"></i>
+              <span class="text-primary">
+                <strong>{{ selectedOrderLine()!.lots!.length }} lot(s) disponible(s)</strong>
+              </span>
+            </div>
+          }
+        }
+      </div>
+    }
+  </div>
+
+  <!-- Inline Lot Selection (only shown in inline mode) -->
+  @if (showInlineLotSelection() && lotSelectionMode() === 'inline') {
+    <div class="inline-lot-section">
+      <jhi-inline-lot-selection
+        [lots]="tempSelectedOrderLine()?.lots || []"
+        [requestedQuantity]="tempReturnQuantity()"
+        [productLabel]="tempSelectedOrderLine()?.produitLibelle || ''"
+        [expanded]="true"
+        (lotsConfirmed)="onLotsConfirmed($event)"
+        (cancelled)="onLotSelectionCancelled()"
+      />
+    </div>
+  }
+
   <div class="card">
     <div class="card-body">
-      <!-- Order Line Selection with AutoComplete -->
-      <div class="mb-4">
-        <h5 class="mb-3">Ajouter une ligne de retour</h5>
-        <div class="card">
-          <div class="card-body">
-            <div class="row g-3 align-items-end">
-              <div class="col-md-4">
-                <p-floatlabel>
-                  <p-autoComplete
-                    #orderSelect
-                    [(ngModel)]="selectedCommande"
-                    [suggestions]="filteredCommandes()"
-                    (completeMethod)="searchCommandes($event)"
-                    (onSelect)="onCommandeChange()"
-                    [dataKey]="'id'"
-                    [forceSelection]="true"
-                    [minQueryLength]="1"
-                    [showEmptyMessage]="true"
-                    [emptyMessage]="'Aucune commande trouvée'"
-                    optionLabel="orderReference"
-                    [showClear]="true"
-                    inputId="order-select"
-                    class="w-100"
-                  >
-                    <ng-template let-commande #item>
-                      <div>
-                        <div>{{ commande.receiptReference }}</div>
-                        <small class="text-muted">Date: {{ commande.orderDate | date: 'dd/MM/yyyy' }}</small>
-                      </div>
-                    </ng-template>
-                  </p-autoComplete>
-                  <label for="order-select">Rechercher une commande</label>
-                </p-floatlabel>
-              </div>
-
-              <div class="col-md-4">
-                <p-floatlabel>
-                  <p-autoComplete
-                    #orderLineAutoComplete
-                    [(ngModel)]="selectedOrderLine"
-                    [suggestions]="filteredOrderLines()"
-                    (completeMethod)="searchOrderLines($event)"
-                    (onSelect)="onOrderLineSelect()"
-                    [dataKey]="'id'"
-                    [forceSelection]="true"
-                    [minQueryLength]="1"
-                    [showEmptyMessage]="true"
-                    [emptyMessage]="'Aucune ligne de commande trouvée'"
-                    optionLabel="produitLibelle"
-                    [showClear]="true"
-                    [disabled]="!selectedCommande()"
-                    inputId="order-line-search"
-                    class="w-100"
-                  >
-                    <ng-template let-orderLine #item>
-                      <div class="d-flex justify-content-between align-items-center w-100">
-                        <div class="flex-grow-1">
-                          <div>
-                            <span class="pharma-code me-2">{{ orderLine.produitCip }}</span>
-                            <span>{{ orderLine.produitLibelle }}</span>
-                          </div>
-                          <small class="text-muted">
-                            Commandé: {{ orderLine.quantityRequested | number }} |
-                            Reçu: {{ orderLine.quantityReceived | number }}
-                          </small>
-                        </div>
-                      </div>
-                    </ng-template>
-                  </p-autoComplete>
-                  <label for="order-line-search">Rechercher une ligne de commande</label>
-                </p-floatlabel>
-              </div>
-
-              <div class="col-md-4">
-                <p-floatlabel>
-                  <p-inputNumber
-                    [(ngModel)]="returnQuantity"
-                    [min]="1"
-                    [max]="getSelectedOrderLineMaxQuantity()"
-                    [showButtons]="true"
-                    [disabled]="!selectedOrderLine()"
-                    inputId="return-quantity"
-                    class="w-100"
-                  />
-                  <label for="return-quantity">Quantité à retourner</label>
-                </p-floatlabel>
-              </div>
-            </div>
-
-            <div class="row g-3 mt-2">
-              <div class="col-12">
-                <p-button
-                  label="Ajouter"
-                  icon="pi pi-plus"
-                  severity="success"
-                  [disabled]="!selectedOrderLine() || returnQuantity() < 1"
-                  (onClick)="addReturnLine()"
-                  class="w-100"
-                />
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
 
       <!-- Return Lines Table -->
       @if (retourBonItems().length > 0) {
@@ -137,11 +248,15 @@
           >
             <ng-template #header>
               <tr class="pharma-table-head">
-                <th>>CIP</th>
+                <th>CIP</th>
                 <th>Produit</th>
-                <th class="text-end">Qté Disponible</th>
+                <th>N° Lot</th>
+                <th class="text-end" >
+                  <i class="pi pi-inbox me-1"></i>
+                  <span class="text-primaryD">Qté Reçue</span>
+                </th>
                 <th class="text-end pharma-qty-value">Qté à Retourner</th>
-                <th>Motif de Retour</th>
+
                 <th class="text-center">Action</th>
               </tr>
             </ng-template>
@@ -149,7 +264,19 @@
               <tr>
                 <td><span class="pharma-code">{{ item.produitCip }}</span>  </td>
                 <td><span class="pharma-product-name">{{ item.produitLibelle }}</span></td>
-                <td class="text-end">{{ getMaxReturnQuantity(item) | number }}</td>
+                <td>
+                  @if (item.lotNumero) {
+                    <span class="pharma-code">
+                      <i class="pi pi-tag me-1 text-primary"></i>
+                      {{ item.lotNumero }}
+                    </span>
+                  } @else {
+                    <span class="text-muted">-</span>
+                  }
+                </td>
+                <td class="text-end" style="background-color: #f5f9fc; font-weight: 600; color: #1976d2;">
+                  {{ getMaxReturnQuantity(item) | number }}
+                </td>
                 <td class="text-end pharma-qty-value" pEditableColumn>
                   <p-cellEditor>
                     <ng-template #input>
@@ -168,25 +295,7 @@
                     </ng-template>
                   </p-cellEditor>
                 </td>
-                <td pEditableColumn>
-                  <p-cellEditor>
-                    <ng-template #input>
-                      <p-select
-                        [(ngModel)]="item.motifRetourId"
-                        [options]="motifRetours()"
-                        optionLabel="libelle"
-                        optionValue="id"
-                        [filter]="true"
-                        filterBy="libelle"
-                        placeholder="Sélectionner un motif"
-                        class="w-100"
-                      />
-                    </ng-template>
-                    <ng-template #output>
-                      <span>{{ item.motifRetourLibelle || 'Non défini' }}</span>
-                    </ng-template>
-                  </p-cellEditor>
-                </td>
+
                 <td class="text-center">
                   <p-button
                     icon="pi pi-trash"
@@ -218,25 +327,6 @@
           </p-floatlabel>
         </div>
       }
-
-      <!-- Action Buttons -->
-      <div class="d-flex justify-content-end gap-2">
-        <p-button
-          label="Annuler"
-          icon="pi pi-times"
-          severity="secondary"
-          [outlined]="true"
-          (onClick)="reset()"
-        />
-        <p-button
-          label="Enregistrer"
-          icon="pi pi-save"
-          severity="primary"
-          (onClick)="save()"
-          [disabled]="!canSave() || isSaving()"
-          [loading]="isSaving()"
-        />
-      </div>
     </div>
   </div>
 </div>

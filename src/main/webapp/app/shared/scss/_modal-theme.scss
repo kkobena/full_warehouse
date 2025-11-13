@@ -7,6 +7,32 @@
   $white: #ffffff;
   $border-color: #dee2e6;
   $box-shadow-color: rgba(0, 0, 0, 0.1);
+  $pharma-primary: #5b89a6;
+  $pharma-primary-dark: #4a7189;
+
+  // Modal header styling
+  .modal-header {
+    background: linear-gradient(135deg, $pharma-primary 0%, $pharma-primary-dark 100%);
+    color: white;
+    border-bottom: none;
+
+    .modal-title {
+      display: flex;
+      align-items: center;
+      margin: 0;
+      font-size: 1.125rem;
+      font-weight: 600;
+    }
+
+    .btn-close {
+      filter: brightness(0) invert(1);
+      opacity: 0.8;
+
+      &:hover {
+        opacity: 1;
+      }
+    }
+  }
 
   .modal-body {
     background: linear-gradient(to bottom, $medium-gray, $light-gray);
@@ -70,12 +96,16 @@
       background-color: $medium-gray;
       opacity: 1;
     }
+  }
 
-    .modal-footer {
-      padding: 1rem;
-      background-color: $white;
-      border-top: 1px solid $border-color;
-    }
+  // Modal footer styling
+  .modal-footer {
+    border-top: 1px solid #e5e7eb;
+    padding: 1rem 1.5rem;
+    display: flex;
+    justify-content: flex-end;
+    gap: 0.5rem;
+    background-color: $white;
 
     .p-button.p-button-sm {
       background-color: $primary-color;

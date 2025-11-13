@@ -13,7 +13,7 @@ import java.io.Serializable;
 import java.time.LocalDateTime;
 
 @Entity
-@Table(name = "retour_bon")
+@Table(name = "rupture")
 public class Rupture implements Serializable {
 
     @Serial
@@ -37,7 +37,7 @@ public class Rupture implements Serializable {
 
     @Column(name = "qty", nullable = false)
     private int qty;
-
+    @Column(name = "product_still_out_of_stock", nullable = false)
     private boolean productStillOutOfStock = true;
 
     public boolean isProductStillOutOfStock() {

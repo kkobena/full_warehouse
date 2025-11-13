@@ -4,7 +4,7 @@
 
   <div class="card">
     <div class="card-body p-0">
-      <!-- Table -->
+
       <div class="pharma-table">
         <p-table
           #dt
@@ -18,192 +18,166 @@
           (onLazyLoad)="onPageChange($event)"
           [globalFilterFields]="['id', 'commandeOrderReference', 'fournisseurLibelle', 'commentaire']"
           dataKey="id"
-          [(expandedRowKeys)]="expandedRows"
+          [rowExpandMode]="rowExpandMode"
           currentPageReportTemplate="Affichage de {first} à {last} sur {totalRecords} entrées"
           [showCurrentPageReport]="true"
-          [tableStyle]="{'min-width': '60rem'}"
+
         >
-        <ng-template #header>
-          <tr class="pharma-table-head">
-            <th style="width: 3rem"></th>
-            <th pSortableColumn="id">
-              <div class="flex align-items-center">
-                N° Retour
-                <p-sortIcon field="id" />
-              </div>
-            </th>
-            <th pSortableColumn="dateMtv">
-              <div class="flex align-items-center">
-                Date
-                <p-sortIcon field="dateMtv" />
-              </div>
-            </th>
-            <th>Commande</th>
-            <th>Fournisseur</th>
-            <th class="text-center">Nb. Lignes</th>
-            <th class="text-center">Qté Totale</th>
-            <th pSortableColumn="statut">
-              <div class="flex align-items-center">
-                Statut
-                <p-sortIcon field="statut" />
-              </div>
-            </th>
-            <th>Commentaire</th>
-            <th class="text-center">Actions</th>
-          </tr>
-        </ng-template>
+          <ng-template #header>
+            <tr class="pharma-table-head">
+              <th style="width: 3rem"></th>
 
-        <ng-template #body let-retourBon let-expanded="expanded">
-          <tr>
-            <td>
-              <p-button
-                [icon]="expanded ? 'pi pi-chevron-down' : 'pi pi-chevron-right'"
-                [pRowToggler]="retourBon"
-                [rounded]="true"
-                [text]="true"
-                type="button"
-              />
-
-            </td>
-            <td>
-              <span class="font-weight-bold">#{{ retourBon.id }}</span>
-            </td>
-            <td>
-              <small>{{ formatDate(retourBon.dateMtv) }}</small>
-            </td>
-            <td>
-              <div>
-                <div class="font-weight-bold">{{ retourBon.commandeOrderReference }}</div>
-                <small class="text-muted">{{ retourBon.commandeOrderDate | date: 'dd/MM/yyyy' }}</small>
-              </div>
-            </td>
-            <td>{{ retourBon.fournisseurLibelle }}</td>
-            <td class="text-center">
-              <span class="badge bg-secondary">{{ getTotalItems(retourBon) }}</span>
-            </td>
-            <td class="text-center">
-              <span class="pharma-price">{{ getTotalQuantity(retourBon) | number }}</span>
-            </td>
-            <td>
-              <p-tag
-                [value]="getStatusLabel(retourBon.statut!)"
-                [severity]="getStatusSeverity(retourBon.statut!)"
-              />
-            </td>
-            <td>
-              <small class="text-muted">{{ retourBon.commentaire || '-' }}</small>
-            </td>
-            <td class="text-center">
-              <div class="d-flex justify-content-center gap-1">
-                <p-button
-                  icon="pi pi-eye"
-                  [text]="true"
-                  [rounded]="true"
-                  severity="info"
-                  size="small"
-                  (onClick)="viewDetails(retourBon)"
-                  pTooltip="Voir les détails"
-                  tooltipPosition="top"
-                />
-
-                @if (retourBon.statut === RetourBonStatut.PROCESSING) {
-                  <p-button
-                    icon="pi pi-check"
-                    [text]="true"
-                    [rounded]="true"
-                    severity="success"
-                    size="small"
-                    (onClick)="validateRetour(retourBon)"
-                    pTooltip="Valider le retour"
-                    tooltipPosition="top"
-                  />
-                }
-
-                @if (retourBon.statut === RetourBonStatut.PROCESSING) {
-                  <p-button
-                    icon="pi pi-trash"
-                    [text]="true"
-                    [rounded]="true"
-                    severity="danger"
-                    size="small"
-                    (onClick)="deleteRetour(retourBon)"
-                    pTooltip="Supprimer"
-                    tooltipPosition="top"
-                  />
-                }
-              </div>
-            </td>
-          </tr>
-        </ng-template>
-
-        <ng-template #emptymessage>
-          <tr>
-            <td colspan="10" class="pharma-empty-message">
-              <div class="pharma-empty-content">
-                <i class="pi pi-inbox"></i>
-                <p>Aucun retour fournisseur trouvé</p>
-                <small>Utilisez le bouton "Nouveau retour" pour créer un retour</small>
-              </div>
-            </td>
-          </tr>
-        </ng-template>
-
-        <ng-template #rowexpansion let-retourBon>
-          <tr class="pharma-expanded-row">
-            <td colspan="10">
-              <div class="pharma-sub-table-container">
-                <div class="pharma-sub-table-header">
-                  <i class="pi pi-list"></i>
-                  <span>Détails du retour #{{ retourBon.id }}</span>
+              <th>
+                <div class="flex align-items-center">
+                  Date
                 </div>
-                <div class="pharma-sub-table-body">
-                  @if (retourBon.retourBonItems && retourBon.retourBonItems.length > 0) {
-                    <table class="table table-sm mb-0">
-                      <thead class="pharma-table-head">
+              </th>
+              <th>Commande</th>
+              <th>Fournisseur</th>
+              <th class="text-center">Nb. Lignes</th>
+              <th class="text-center">Qté Totale</th>
+              <th class="text-center">Qté Accepté</th>
+              <th>
+                <div class="flex align-items-center">
+                  Statut
+                </div>
+              </th>
+              <th>Commentaire</th>
+              <th class="text-center">Actions</th>
+            </tr>
+          </ng-template>
+
+          <ng-template #body let-expanded="expanded" let-retourBon>
+            <tr>
+              <td>
+                <p-button
+                  [icon]="expanded ? 'pi pi-chevron-down' : 'pi pi-chevron-right'"
+                  [pRowToggler]="retourBon"
+                  [rounded]="true"
+                  [text]="true"
+                  type="button"
+                />
+              </td>
+
+              <td>
+                <small>{{ formatDate(retourBon.dateMtv) }}</small>
+              </td>
+              <td>
+                <div>
+                  <div class="font-weight-bold">{{ retourBon.receiptReference }}</div>
+                  <small class="text-muted">{{ retourBon.receiptDate | date: 'dd/MM/yyyy' }}</small>
+                </div>
+              </td>
+              <td>{{ retourBon.fournisseurLibelle }}</td>
+              <td class="text-center">
+                <span class="pharma-price">{{ getTotalItems(retourBon) }}</span>
+              </td>
+              <td class="text-center">
+                <span class="pharma-qty-value">{{ getTotalQuantity(retourBon) | number }}</span>
+              </td>
+              <td class="text-center">
+                <span class="pharma-qty-value">{{ getTotalAccepted(retourBon) | number }}</span>
+              </td>
+              <td>
+                <p-tag
+                  [value]="getStatusLabel(retourBon.statut!)"
+                  [severity]="getStatusSeverity(retourBon.statut!)"
+                />
+              </td>
+              <td>
+                <small class="text-muted">{{ retourBon.commentaire }}</small>
+              </td>
+              <td class="text-center">
+                <div class="d-flex justify-content-center gap-1">
+
+
+                  @if (retourBon.statut === RetourBonStatut.VALIDATED) {
+                    <p-button
+                      icon="pi pi-pencil"
+                      [text]="true"
+                      [rounded]="true"
+                      severity="success"
+                      size="small"
+                      (onClick)="setSupplierResponse(retourBon)"
+                      pTooltip="Saisir la réponse fournisseur"
+                      tooltipPosition="top"
+                    />
+                  } @else {
+                    <i class="pi pi-check-circle text-success" pTooltip="Accepté" tooltipPosition="top"></i>
+                  }
+
+
+                </div>
+              </td>
+            </tr>
+          </ng-template>
+
+          <ng-template #emptymessage>
+            <tr>
+              <td colspan="10" class="pharma-empty-message">
+                <div class="pharma-empty-content">
+                  <i class="pi pi-inbox"></i>
+                  <p>Aucun retour fournisseur trouvé</p>
+                  <small>Utilisez le bouton "Nouveau retour" pour créer un retour</small>
+                </div>
+              </td>
+            </tr>
+          </ng-template>
+
+          <ng-template #expandedrow let-retourBon>
+            <tr class="pharma-expanded-row">
+              <td colspan="10">
+                <div class="pharma-sub-table-container">
+                  <div class="pharma-sub-table-header">
+                    <i class="pi pi-list"></i>
+                    <span>Détails du retour #{{ retourBon.id }}</span>
+                  </div>
+                  <div class="pharma-sub-table-body">
+                    @if (retourBon.retourBonItems && retourBon.retourBonItems.length > 0) {
+                      <table class="table table-sm mb-0">
+                        <thead class="pharma-table-head">
                         <tr>
                           <th style="width: 3rem" class="text-center">#</th>
                           <th style="width: 100px">CIP</th>
                           <th>Produit</th>
                           <th style="width: 120px">Lot</th>
                           <th class="text-center" style="width: 100px">Qté Retournée</th>
-                          <th class="text-center" style="width: 120px">Stock Initial</th>
-                          <th class="text-center" style="width: 120px">Stock Final</th>
+
+                          <th class="text-center" style="width: 100px">Qté Accepté</th>
                           <th style="width: 200px">Motif de retour</th>
                         </tr>
-                      </thead>
-                      <tbody>
-                        @for (item of retourBon.retourBonItems; track item.id; let idx = $index) {
-                          <tr>
-                            <td class="text-center">
-                              <span class="pharma-row-number">{{ idx + 1 }}</span>
-                            </td>
-                            <td>
-                              <span class="pharma-code">{{ item.produitCip }}</span>
-                            </td>
-                            <td>
-                              <span class="pharma-product-name">{{ item.produitLibelle }}</span>
-                            </td>
-                            <td>
-                              <small class="text-muted">{{ item.lotNumero || '-' }}</small>
-                            </td>
-                            <td class="text-center">
-                              <span class="pharma-qty-value">{{ item.qtyMvt | number }}</span>
-                            </td>
-                            <td class="text-center">
-                              <span class="pharma-price">{{ item.initStock | number }}</span>
-                            </td>
-                            <td class="text-center">
-                              <span class="pharma-price">{{ item.afterStock | number }}</span>
-                            </td>
-                            <td>
-                              <span class="pharma-badge pharma-badge-info">{{ item.motifRetourLibelle }}</span>
-                            </td>
-                          </tr>
-                        }
-                      </tbody>
-                      <tfoot class="pharma-table-footer">
+                        </thead>
+                        <tbody>
+                          @for (item of retourBon.retourBonItems; track item.id; let idx = $index) {
+                            <tr>
+                              <td class="text-center">
+                                <span class="pharma-row-number">{{ idx + 1 }}</span>
+                              </td>
+                              <td>
+                                <span class="pharma-code">{{ item.produitCip }}</span>
+                              </td>
+                              <td>
+                                <span class="pharma-product-name">{{ item.produitLibelle }}</span>
+                              </td>
+                              <td>
+                                <small class="text-muted">{{ item.lotNumero }}</small>
+                              </td>
+                              <td class="text-center">
+                                <span class="pharma-qty-value">{{ item.qtyMvt | number }}</span>
+                              </td>
+                              <td class="text-center">
+                                <span class="pharma-price">{{ item.acceptedQty | number }}</span>
+                              </td>
+
+                              <td>
+                                {{ item.motifRetourLibelle }}
+                              </td>
+                            </tr>
+                          }
+                        </tbody>
+                        <tfoot class="pharma-table-footer">
                         <tr>
-                          <td colspan="4" class="text-end">
+                          <td colspan="4" class="text-start">
                             <span class="pharma-footer-label">
                               <i class="pi pi-calculator"></i>
                               <span>Total:</span>
@@ -212,21 +186,24 @@
                           <td class="text-center">
                             <span class="pharma-footer-total">{{ getTotalQuantity(retourBon) | number }}</span>
                           </td>
-                          <td colspan="3"></td>
+                          <td class="text-center">
+                            <span class="pharma-footer-total">{{ getTotalAccepted(retourBon) | number }}</span>
+                          </td>
+                          <td></td>
                         </tr>
-                      </tfoot>
-                    </table>
-                  } @else {
-                    <div class="p-3 text-center text-muted">
-                      <i class="pi pi-info-circle me-2"></i>
-                      Aucune ligne de retour
-                    </div>
-                  }
+                        </tfoot>
+                      </table>
+                    } @else {
+                      <div class="p-3 text-center text-muted">
+                        <i class="pi pi-info-circle me-2"></i>
+                        Aucune ligne de retour
+                      </div>
+                    }
+                  </div>
                 </div>
-              </div>
-            </td>
-          </tr>
-        </ng-template>
+              </td>
+            </tr>
+          </ng-template>
         </p-table>
       </div>
     </div>

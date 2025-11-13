@@ -217,7 +217,7 @@ public class StockEntryServiceImpl implements StockEntryService {
             TransactionType.ENTREE_STOCK,
             "order.entry",
             new Object[]{deliveryReceipt.getReceiptReference()},
-            deliveryReceipt.getId().toString()
+            deliveryReceipt.getId().getId().toString()
         );
         deliveryReceipt.setOrderStatus(OrderStatut.CLOSED);
         deliveryReceipt.setUpdatedAt(LocalDateTime.now());

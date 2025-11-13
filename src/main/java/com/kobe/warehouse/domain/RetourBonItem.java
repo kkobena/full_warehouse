@@ -10,6 +10,7 @@ import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotNull;
+
 import java.io.Serial;
 import java.io.Serializable;
 import java.time.LocalDateTime;
@@ -55,6 +56,20 @@ public class RetourBonItem implements Serializable {
 
     @Column(name = "after_stock", length = 8)
     private Integer afterStock;
+
+    @Column(name = "accepted_qty", length = 8)
+    private Integer acceptedQty;
+    @NotNull
+    @Column(name = "prix_achat", length = 8)
+    private Integer prixAchat;
+
+    public Integer getPrixAchat() {
+        return prixAchat;
+    }
+
+    public void setPrixAchat(Integer prixAchat) {
+        this.prixAchat = prixAchat;
+    }
 
     public Integer getId() {
         return id;
@@ -118,6 +133,14 @@ public class RetourBonItem implements Serializable {
 
     public void setInitStock(Integer initStock) {
         this.initStock = initStock;
+    }
+
+    public Integer getAcceptedQty() {
+        return acceptedQty;
+    }
+
+    public void setAcceptedQty(Integer acceptedQty) {
+        this.acceptedQty = acceptedQty;
     }
 
     public Integer getAfterStock() {

@@ -2,137 +2,275 @@
   <div class="pharma-smart-content p-2">
     @let isReceiption = commande?.orderStatus === RECEIVED;
     @if (!isReceiption) {
-      <div class="pharma-toolbar">
-        <div class="pharma-toolbar-header">
-          <i class="pi pi-shopping-cart"></i>
-          <span class="pharma-toolbar-title">Saisie de commande</span>
+      <!-- HEADER TOOLBAR - Actions principales toujours visibles -->
+      <div class="pharma-sales-header">
+        <div class="header-left">
+          <p-button
+            (click)="previousState()"
+            [rounded]="true"
+            [text]="true"
+            class="back-button"
+            icon="pi pi-arrow-left"
+            pTooltip="Retour">
+          </p-button>
+
+          <div class="page-title">
+            <h1>Saisie de commande</h1>
+            <p class="subtitle">Création et modification de commande</p>
+          </div>
         </div>
-        <p-toolbar>
-          <ng-template #start>
-            <div class="pharma-toolbar-filters">
 
-              <div class="mr-1">
-                <p-inputgroup>
-                  <p-inputgroup-addon>Fournisseurs</p-inputgroup-addon>
-                  <p-select
-                    #fournisseurBox
-                    (onChange)="onProviderSelect()"
-                    [(ngModel)]="selectedProvider"
-                    [appendTo]="'body'"
-                    [filter]="true"
-                    [fluid]="true"
-                    [options]="fournisseurs"
-                    optionLabel="libelle"
-                    optionValue="id"
-                    placeholder="Séléctionner un fournisseur "
-                    size="large"
-                  >
-                  </p-select>
-                </p-inputgroup>
-              </div>
+        <div class="header-actions">
+          <!-- Save Button -->
+          <p-button
+            (click)="onCreateBon()"
+            [outlined]="false"
+            class="action-btn"
+            icon="pi pi-truck"
+            label="Créer le bon"
+            severity="primary"
+            size="small">
+          </p-button>
 
+          <!-- Import Response Button -->
+         <!-- <p-button
+            (click)="fileDialog = true"
+            [outlined]="true"
+            class="action-btn"
+            icon="pi pi-download"
+            label="Importer"
+            severity="info"
+            size="small">
+          </p-button>
+-->
 
-                <div [style]="{ width: '100%' }" class="input-group  ">
-                  <span class="input-group-text">Produits</span>
+          <!-- Cancel Button -->
+          <p-button
+            (onClick)="cancel()"
+            [outlined]="true"
+            class="cancel-btn"
+            icon="pi pi-times"
+            label="Annuler"
+            severity="secondary"
+            size="small">
+          </p-button>
+        </div>
+      </div>
 
-                  <p-autoComplete
-                    #produitbox
-                    [forceSelection]="true"
-                    (completeMethod)="searchFn($event)"
-                    (onSelect)="onSelect()"
-                    [(ngModel)]="produitSelected"
-                    [appendTo]="APPEND_TO"
-                    [dataKey]="'id'"
-                    [fluid]="true"
-                    [dropdown]="true"
-                    [emptyMessage]="PRODUIT_NOT_FOUND"
-                    [minQueryLength]="PRODUIT_COMBO_MIN_LENGTH"
-                    [showEmptyMessage]="true"
-                    [suggestions]="produits"
-                    class="form-control"
-                    optionLabel="libelle"
-                  >
-                    <ng-template let-item #item>
-                      @if (item.totalQuantity > 0) {
-                        <div [style]="{ width: '100%' }">
-                        <span
-                          style="width: 20%; display: inline-block">{{ item.fournisseurProduit?.codeCip }}</span
-                        ><span> {{ item.libelle }}</span>
-                          <span class="float-right">{{ item.regularUnitPrice | number }}</span>
-                        </div>
-                      }
-                      @if (item.totalQuantity <= 0) {
-                        <div [style]="{ width: '100%' }">
-                        <span class="stockless"
-                              style="width: 20%; display: inline-block">{{ item.fournisseurProduit?.codeCip }}</span
-                        ><span class="stockless"> {{ item.libelle }}</span>
-                          <span
-                            class="float-right stockless">{{ item.regularUnitPrice | number }}</span>
-                        </div>
-                      }
-                    </ng-template>
-                  </p-autoComplete>
-                </div>
+      <!-- ORDER LINE SELECTION SECTION -->
+      <div class="order-search-section">
+        <div class="search-section-header">
+          <i class="pi pi-search"></i>
+          <span>Recherche de produits</span>
+        </div>
 
-              <!--<ng-template #start>-->
-              <div>
-                <p-inputgroup>
-                  <p-inputgroup-addon>Qté</p-inputgroup-addon>
-                  <input
-                    #quantityBox
-                    (keydown.enter)="onQuantityBoxAction($event)"
-                    [(ngModel)]="quantiteSaisie"
-                    [style]="{ 'min-width': '120px' }"
-                    class="form-control"
-                    [fluid]="true"
-                    pInputText
-                    type="number"
-                  />
-                  <p-inputgroup-addon>
-                    <p-button
-                      (click)="onQuantity()"
-                      [disabled]="!produitSelected"
-                      [raised]="true"
-                      icon="pi pi-plus"
-                      severity="info"
-                      type="button"
-                    ></p-button>
-                  </p-inputgroup-addon>
-                </p-inputgroup>
-              </div>
-            </div>
-          </ng-template>
-          <ng-template #end>
-            <div class="pharma-toolbar-actions">
+        <div class="search-controls">
+          <!-- Fournisseur Select -->
+          <div class="fournisseur-select-input">
+            <p-select
+              size="large"
+              #fournisseurBox
+              (onChange)="onProviderSelect()"
+              [(ngModel)]="selectedProvider"
+              [appendTo]="'body'"
+              [filter]="true"
+              [options]="fournisseurs"
+              optionLabel="libelle"
+              optionValue="id"
+              placeholder="Sélectionner un fournisseur..."
+              inputId="fournisseur-select"
+              class="w-100"
+            >
+            </p-select>
+          </div>
 
-              <div class="pharma-button-group">
+          <!-- Product Search Autocomplete -->
+          <div class="product-search-input">
+            <p-autoComplete
+              #produitbox
+              (completeMethod)="searchFn($event)"
+              (onSelect)="onSelect()"
+              [(ngModel)]="produitSelected"
+              [appendTo]="APPEND_TO"
+              [dataKey]="'id'"
+              [dropdown]="true"
+              [emptyMessage]="PRODUIT_NOT_FOUND"
+              [forceSelection]="true"
+              [minQueryLength]="PRODUIT_COMBO_MIN_LENGTH"
+              [showEmptyMessage]="true"
+              [suggestions]="produits"
+              optionLabel="libelle"
+              placeholder="Rechercher un produit..."
+              inputId="product-search"
+              class="w-100 pharma-autocomplete"
+            >
+              <ng-template let-item #item>
+                @if (item.totalQuantity > 0) {
+                  <div class="d-flex justify-content-between align-items-center w-100">
+                    <div class="flex-grow-1">
+                      <span class="pharma-code me-2">{{ item.fournisseurProduit?.codeCip }}</span>
+                      <span>{{ item.libelle }}</span>
+                    </div>
+                    <span class="pharma-price">{{ item.regularUnitPrice | number }} F</span>
+                  </div>
+                }
+                @if (item.totalQuantity <= 0) {
+                  <div class="d-flex justify-content-between align-items-center w-100">
+                    <div class="flex-grow-1 stockless">
+                      <span class="pharma-code me-2">{{ item.fournisseurProduit?.codeCip }}</span>
+                      <span>{{ item.libelle }}</span>
+                    </div>
+                    <span class="pharma-price stockless">{{ item.regularUnitPrice | number }} F</span>
+                  </div>
+                }
+              </ng-template>
+            </p-autoComplete>
+          </div>
 
+          <!-- Quantity Input with Add Button -->
+          <div class="quantity-input-wrapper">
+            <p-inputgroup>
+              <input
+                #quantityBox
+                (keydown.enter)="onQuantityBoxAction($event)"
+                [(ngModel)]="quantiteSaisie"
+                pInputText
+                type="number"
+                placeholder="Quantité"
+                class="form-control"
+              />
+              <p-inputgroup-addon>
                 <p-button
-                  (click)="previousState()"
-                  icon="pi pi-arrow-left"
-                  id="cancel-save"
-                  label="Retour"
-                  raised="true"
-                  severity="secondary"
-                />
-              </div>
+                  (click)="onQuantity()"
+                  [disabled]="!produitSelected"
+                  icon="pi pi-plus"
+                  severity="primary"
+                  type="button"
+                ></p-button>
+              </p-inputgroup-addon>
+            </p-inputgroup>
+          </div>
+        </div>
+
+        <!-- Product Meta Information -->
+        @if (produitSelected) {
+          <div class="order-meta">
+            <div class="meta-item">
+              <i class="pi pi-barcode"></i>
+              <span>CIP: <strong>{{ produitSelected?.fournisseurProduit?.codeCip }}</strong></span>
             </div>
 
-          </ng-template>
+            <div class="meta-item">
+              <i class="pi pi-tag"></i>
+              <span>Prix: <strong>{{ produitSelected?.regularUnitPrice | number }} F</strong></span>
+            </div>
 
-        </p-toolbar>
+            @if (produitSelected?.totalQuantity !== undefined) {
+              <div class="meta-item" [class.low-stock]="produitSelected.totalQuantity < 10">
+                <i class="pi pi-database"></i>
+                <span>Stock: <strong>{{ produitSelected?.totalQuantity | number }}</strong></span>
+              </div>
+            }
+          </div>
+        }
       </div>
     }
     @if (isReceiption) {
-      <div class="pharma-toolbar">
-        <div class="pharma-toolbar-header">
-          <i class="pi pi-truck"></i>
-          <span class="pharma-toolbar-title">Réception de commande</span>
+      <!-- HEADER TOOLBAR - Actions principales toujours visibles -->
+      <div class="pharma-sales-header">
+        <div class="header-left">
+          <p-button
+            (click)="previousState()"
+            [rounded]="true"
+            [text]="true"
+            class="back-button"
+            icon="pi pi-arrow-left"
+            pTooltip="Retour">
+          </p-button>
+
+          <div class="page-title">
+            <h1>Réception de commande</h1>
+            <p class="subtitle">Validation et traitement des réceptions</p>
+          </div>
         </div>
+
+        <div class="header-actions">
+          @if (!isReceiption) {
+            <!-- Create Bon Button -->
+            <p-button
+              (click)="onCreateBon()"
+              [outlined]="false"
+              class="action-btn"
+              icon="pi pi-truck"
+              label="Créer le bon"
+              severity="primary"
+              size="small">
+            </p-button>
+
+            <!-- Import Response Button -->
+           <!-- <p-button
+              (click)="fileDialog = true"
+              [outlined]="true"
+              class="action-btn"
+              icon="pi pi-download"
+              label="Importer"
+              severity="info"
+              size="small">
+            </p-button>-->
+          } @else {
+            <!-- Validate Button -->
+            <p-button
+              (click)="onConfirmFinalize()"
+              [outlined]="false"
+              class="action-btn"
+              icon="pi pi-check-circle"
+              label="Valider"
+              severity="primary"
+              size="small">
+            </p-button>
+          }
+
+          <!-- Export Splitbutton -->
+          <p-splitbutton
+            [model]="exportbuttons"
+            icon="pi pi-file-export"
+            appendTo="body"
+            label="Exporter"
+            severity="warn"
+            size="small">
+          </p-splitbutton>
+
+          @if (!isReceiption && selectedEl!.length > 0) {
+            <!-- Delete Button -->
+            <p-button
+              (click)="confirmDeleteAll()"
+              [outlined]="true"
+              class="action-btn"
+              icon="pi pi-times"
+              label="Supprimer"
+              severity="danger"
+              size="small">
+            </p-button>
+          }
+
+          <!-- Back Button -->
+          <p-button
+            (click)="previousState()"
+            [outlined]="true"
+            class="cancel-btn"
+            icon="pi pi-arrow-left"
+            label="Retour"
+            severity="secondary"
+            size="small">
+          </p-button>
+        </div>
+      </div>
+
+      <div class="pharma-toolbar ">
         <p-toolbar>
           <ng-template #start>
-            <div class="pharma-toolbar-filters">
-              <div class="mr-1">
+            <div class="pharma-toolbar-filters py-1">
+              <div >
                 <p-iconfield>
                   <p-inputicon class="pi pi-search" />
                   <input
@@ -144,7 +282,7 @@
                   />
                 </p-iconfield>
               </div>
-              <div class="mr-1">
+              <div>
                 <p-floatlabel variant="on">
                   <p-select
                     size="large"
@@ -183,52 +321,6 @@
             </div>
 
           </ng-template>
-          <ng-template #end>
-            <div class="pharma-toolbar-actions">
-
-              <div class="pharma-button-group">
-
-
-                  @if (!isReceiption) {
-                    <p-button class="mr-1" (click)="onCreateBon()" severity="primary"
-                              icon="pi pi-truck"
-                              label="Créer le bon"
-                              [raised]="true"></p-button>
-
-                    <p-button class="mr-1"
-                              label="Importer la réponse"
-                              icon="pi pi-download"
-                              [raised]="true"
-                              severity="info"
-                              (click)="fileDialog = true"
-                    />
-                  } @else {
-                    <p-button class="mr-1"
-                              (click)="onConfirmFinalize()"
-                              [raised]="true"
-                              icon="pi pi-check-circle"
-                              label="Valider"
-                              severity="primary"
-                              type="button"
-                    ></p-button>
-                  }
-
-                  <p-splitbutton class="mr-1" [model]="exportbuttons" icon="pi pi-file-export"
-                                 label="Exporter"
-                                 severity="warn"
-                                 [raised]="true" />
-
-                  @if (!isReceiption && selectedEl!.length > 0) {
-                    <p-button [raised]="true" label="Supprimer" icon="pi pi-times"
-                              severity="danger"
-                              (click)="confirmDeleteAll()">
-                    </p-button>
-                  }
-
-              </div>
-            </div>
-
-          </ng-template>
         </p-toolbar>
 
 
@@ -239,32 +331,54 @@
     <div class="row">
       @if (isReceiption) {
         <div class="col-md-3 col-sm-12 col-lg-3 col-xl-3">
+          <!-- Reception Summary Card -->
+          <div class="reception-summary-card">
+            <div class="summary-header">
+              <i class="pi pi-info-circle"></i>
+              <span>Détails de la réception</span>
+            </div>
+            <div class="summary-content">
+              <div class="summary-item">
+                <div class="summary-label">
+                  <i class="pi pi-building"></i>
+                  <span>Grossiste</span>
+                </div>
+                <div class="summary-value">{{ commande?.fournisseur?.libelle }}</div>
+              </div>
 
-            <ul class="list-group">
-              <li class="list-group-item d-flex justify-content-between align-items-center">
-                <span style="margin-right: 5px">Grossiste</span>
-                <span class="text-primary fw-bold">{{ commande?.fournisseur?.libelle }}</span>
-              </li>
-              <li class="list-group-item d-flex justify-content-between align-items-center">
-                <span style="margin-right: 5px">Référence bon</span>
-                <span class="text-primary fw-bold">{{ commande?.receiptReference }}</span>
-              </li>
-              <li class="list-group-item d-flex justify-content-between align-items-center">
-                <span style="margin-right: 5px">Date Bon</span>
-                <span
-                  class="text-primary fw-bold">{{ commande?.receiptDate | date: 'dd/MM/yyyy' }}</span>
-              </li>
-              <li class="list-group-item d-flex justify-content-between align-items-center">
-                Montant HT
-                <span class="text-primary fw-bold">{{ commande?.receiptAmount | number }}</span>
-              </li>
-              <li class="list-group-item d-flex justify-content-between align-items-center">
-                Taxe
-                <span class="text-primary fw-bold">{{ commande?.taxAmount | number }}</span>
-              </li>
-            </ul>
+              <div class="summary-item">
+                <div class="summary-label">
+                  <i class="pi pi-file"></i>
+                  <span>Référence bon</span>
+                </div>
+                <div class="summary-value">{{ commande?.receiptReference }}</div>
+              </div>
 
+              <div class="summary-item">
+                <div class="summary-label">
+                  <i class="pi pi-calendar"></i>
+                  <span>Date Bon</span>
+                </div>
+                <div class="summary-value">{{ commande?.receiptDate | date: 'dd/MM/yyyy' }}</div>
+              </div>
 
+              <div class="summary-item highlight">
+                <div class="summary-label">
+                  <i class="pi pi-wallet"></i>
+                  <span>Montant HT</span>
+                </div>
+                <div class="summary-value amount">{{ commande?.receiptAmount | number }} F</div>
+              </div>
+
+              <div class="summary-item highlight">
+                <div class="summary-label">
+                  <i class="pi pi-percentage"></i>
+                  <span>Taxe</span>
+                </div>
+                <div class="summary-value amount">{{ commande?.taxAmount | number }} F</div>
+              </div>
+            </div>
+          </div>
         </div>
       }
 
@@ -516,10 +630,6 @@
           }
 
       </div>
-
-
-
-
 
     </div></div>
 

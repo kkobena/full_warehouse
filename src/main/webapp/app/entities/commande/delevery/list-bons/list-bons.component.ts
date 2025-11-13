@@ -15,6 +15,7 @@ import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { SpinnerComponent } from '../../../../shared/spinner/spinner.component';
 import { TauriPrinterService } from '../../../../shared/services/tauri-printer.service';
 import { handleBlobForTauri } from '../../../../shared/util/tauri-util';
+import { DATE_FORMAT_ISO_DATE } from '../../../../shared/util/warehouse-util';
 
 export type ExpandMode = 'single' | 'multiple';
 
@@ -22,10 +23,13 @@ export type ExpandMode = 'single' | 'multiple';
   selector: 'jhi-list-bons',
   templateUrl: './list-bons.component.html',
   styleUrl: './list-bons.component.scss',
-  imports: [WarehouseCommonModule, ButtonModule, RouterModule, RippleModule, TableModule, TooltipModule, SpinnerComponent],
+  imports: [WarehouseCommonModule, ButtonModule, RouterModule, RippleModule, TableModule, TooltipModule, SpinnerComponent]
 })
 export class ListBonsComponent implements OnInit {
   readonly search = input('');
+  readonly fournisseurId = input<number | null>(null);
+  readonly dtStart = input<Date | null>(null);
+  readonly dtEnd = input<Date | null>(null);
   protected deliveries: IDelivery[] = [];
   protected rowExpandMode: ExpandMode = 'single';
   protected loading!: boolean;
@@ -39,6 +43,7 @@ export class ListBonsComponent implements OnInit {
   private readonly spinner = viewChild.required<SpinnerComponent>('spinner');
   private readonly modalService = inject(NgbModal);
   private readonly tauriPrinterService = inject(TauriPrinterService);
+
   ngOnInit(): void {
     this.onSearch();
   }
@@ -66,10 +71,11 @@ export class ListBonsComponent implements OnInit {
       EtiquetteComponent,
       {
         entity: delivery,
-        header: `IMPRIMER LES ETIQUETTES DU BON DE LIVRAISON [ ${delivery.receiptReference} ] `,
+        header: `IMPRIMER LES ETIQUETTES DU BON DE LIVRAISON [ ${delivery.receiptReference} ] `
       },
-      () => {},
-      'lg',
+      () => {
+      },
+      'lg'
     );
   }
 
@@ -85,7 +91,7 @@ export class ListBonsComponent implements OnInit {
           window.open(URL.createObjectURL(blob));
         }
       },
-      error: () => this.spinner().hide(),
+      error: () => this.spinner().hide()
     });
   }
 
@@ -102,16 +108,31 @@ export class ListBonsComponent implements OnInit {
 
   private fetchDeliveries(page: number, size: number): void {
     this.loading = true;
+    const query: any = {
+      page,
+      size,
+      search: this.search(),
+      statut: this.selectedFilter
+    };
+
+
+    if (this.fournisseurId()) {
+      query.fournisseurId = this.fournisseurId();
+    }
+    if (this.dtStart()) {
+      query.dtStart = DATE_FORMAT_ISO_DATE(this.dtStart());
+    }
+    if (this.dtEnd()) {
+      query.dtEnd = DATE_FORMAT_ISO_DATE(this.dtEnd());
+    }
+
     this.entityService
-      .query({
-        page,
-        size,
-        search: this.search(),
-        statut: this.selectedFilter,
-      })
+      .query(query)
       .subscribe({
         next: (res: HttpResponse<IDelivery[]>) => this.onSuccess(res.body, res.headers, page),
-        error: () => this.onError(),
+        error: () => this.onError()
       });
   }
+
+
 }

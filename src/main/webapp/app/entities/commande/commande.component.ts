@@ -29,6 +29,11 @@ import { Select } from 'primeng/select';
 import { showCommonModal } from '../sales/selling-home/sale-helper';
 import { ConfirmDialogComponent } from '../../shared/dialog/confirm-dialog/confirm-dialog.component';
 import { RetourBonListComponent } from './retour_fournisseur/retour-bon-list.component';
+import { DatePicker } from 'primeng/datepicker';
+import { FloatLabel } from 'primeng/floatlabel';
+import { RetourBonStatut } from '../../shared/model/enumerations/retour-bon-statut.model';
+import { TranslateService } from '@ngx-translate/core';
+import { PrimeNG } from 'primeng/config';
 
 @Component({
   selector: 'jhi-commande',
@@ -55,7 +60,9 @@ import { RetourBonListComponent } from './retour_fournisseur/retour-bon-list.com
     ReactiveFormsModule,
     Select,
     ConfirmDialogComponent,
-    RetourBonListComponent
+    RetourBonListComponent,
+    DatePicker,
+    FloatLabel
   ],
   styleUrl: './commande.component.scss',
 })
@@ -73,6 +80,13 @@ export class CommandeComponent implements OnInit {
     // { label: 'Tous', value: 'ALL' },
     { label: 'Auto', value: 'AUTO' },
     { label: 'Manuelle', value: 'MANUELLE' }
+  ];
+  protected selectedStatut: RetourBonStatut | null = null;
+  protected dtStart: Date | null = null;
+  protected dtEnd: Date | null = null;
+  protected statutOptions = [
+    { label: 'En attente de réponse', value: RetourBonStatut.VALIDATED },
+    { label: 'Clôturé', value: RetourBonStatut.CLOSED }
   ];
 
   protected commandes: ICommande[] = [];
@@ -94,14 +108,19 @@ export class CommandeComponent implements OnInit {
   private readonly suggestion = viewChild(SuggestionComponent);
   private readonly enCoursComponent = viewChild(BonEnCoursComponent);
   private readonly listBonsComponent = viewChild(ListBonsComponent);
+  private readonly retourBonListComponent = viewChild(RetourBonListComponent);
   private readonly confimDialog = viewChild.required<ConfirmDialogComponent>('confirmDialog');
-
-
+  private readonly translate = inject(TranslateService);
+  private readonly primeNGConfig = inject(PrimeNG);
   ngOnInit(): void {
+    this.translate.use('fr');
+    this.translate.stream('primeng').subscribe(data => {
+      this.primeNGConfig.setTranslation(data);
+    });
     this.fournisseurService
       .query({
         page: 0,
-        size: 9999
+        size: 999
       })
       .subscribe((res: HttpResponse<IFournisseur[]>) => {
         this.fournisseurs = res.body || [];
@@ -133,7 +152,11 @@ export class CommandeComponent implements OnInit {
   protected onFournisseurChange(event: any): void {
     this.selectFournisseurId = event.value;
     setTimeout(() => {
-      this.suggestion().onSearch();
+      if (this.active === 'SUGGESTIONS') {
+        this.suggestion().onSearch();
+      } else if (this.active === 'LIST_BONS') {
+        this.listBonsComponent().onSearch();
+      }
     }, 50);
   }
 
@@ -150,6 +173,9 @@ export class CommandeComponent implements OnInit {
         break;
       case 'LIST_BONS':
         this.listBonsComponent().onSearch();
+        break;
+      case 'RETOUR_FOURNISSEUR':
+        this.retourBonListComponent().onSearch();
         break;
     }
   }

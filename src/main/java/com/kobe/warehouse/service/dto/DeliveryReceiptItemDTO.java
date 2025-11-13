@@ -31,8 +31,8 @@ public class DeliveryReceiptItemDTO {
     private final Integer orderCostAmount;
     private final Integer effectifGrossIncome;
     private final Integer effectifOrderAmount;
-    private final long fournisseurProduitId;
-    private final long produitId;
+    private final Integer fournisseurProduitId;
+    private final Integer produitId;
     private final String fournisseurProduitLibelle;
     private final String fournisseurProduitCip;
     private final String fournisseurProduitEan;
@@ -144,11 +144,11 @@ public class DeliveryReceiptItemDTO {
         return effectifOrderAmount;
     }
 
-    public long getFournisseurProduitId() {
+    public Integer getFournisseurProduitId() {
         return fournisseurProduitId;
     }
 
-    public long getProduitId() {
+    public Integer getProduitId() {
         return produitId;
     }
 

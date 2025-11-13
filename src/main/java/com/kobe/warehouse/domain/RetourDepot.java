@@ -43,7 +43,7 @@ public class RetourDepot implements Serializable {
     @NotNull
     @Enumerated(EnumType.STRING)
     @Column(name = "statut_retour", nullable = false, length = 15)
-    private RetourStatut statut = RetourStatut.PROCESSING;
+    private RetourStatut statut = RetourStatut.VALIDATED;
     @OneToMany(mappedBy = "retourDepot")
     private List<RetourDepotItem> retourDepotItems = new ArrayList<>();
 

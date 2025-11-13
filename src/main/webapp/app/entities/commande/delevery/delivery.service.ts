@@ -64,17 +64,21 @@ export class DeliveryService {
       observe: 'response'
     });
   }
-
+  queryWithoutDetail(req?: any): Observable<EntityArrayResponseType> {
+    const options = createRequestOptions(req);
+    return this.http.get<IDelivery[]>(this.resourceUrl + '/list-bon-livraison', {
+      params: options,
+      observe: 'response'
+    });
+  }
   uploadNew(data: any): Observable<HttpResponse<ICommandeResponse>> {
     return this.http.post<ICommandeResponse>(`${this.resourceUrlTransac}/upload-new`, data, {
       observe: 'response'
     });
   }
 
-  filterItems(req?: any): Observable<HttpResponse<IDeliveryItem[]>> {
-    const options = createRequestOptions(req);
-    return this.http.get<IDeliveryItem[]>(`${this.resourceUrl}/filter-items`, {
-      params: options,
+  filterItems(commandeId: CommandeId): Observable<HttpResponse<IDeliveryItem[]>> {
+    return this.http.get<IDeliveryItem[]>(`${this.resourceUrl}/filter-items/${commandeId.id}/${commandeId.orderDate}`, {
       observe: 'response'
     });
   }

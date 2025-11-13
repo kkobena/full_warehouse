@@ -13,6 +13,7 @@ export interface ILot {
   quantityReceived?: number;
   linkedId?: number;
   freeQuantity?: number;
+  freeQty?: number;
 }
 
 export class Lot implements ILot {

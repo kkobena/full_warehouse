@@ -35,7 +35,7 @@ import {
   faTruck,
   faTruckFast,
   faUsers,
-  faWallet,faDesktop
+  faWallet, faDesktop, faSchoolCircleExclamation
 } from '@fortawesome/free-solid-svg-icons';
 
 export interface NavigationOptions {
@@ -198,11 +198,20 @@ export class NavigationService {
         },
         { label: this.translateLabel('gammeProduit'), routerLink: '/gamme-produit', faIcon: faMapMarker },
         { label: this.translateLabel('laboratoire'), routerLink: '/laboratoire', faIcon: faBuilding },
+
         {
           label: this.translateLabel('motifAjustement'),
           routerLink: '/motif-ajustement',
           faIcon: faExclamationTriangle,
         },
+        {
+          label:'Motif Retour Produit',
+          routerLink: '/motif-retour-produit',
+          faIcon: faSchoolCircleExclamation,
+        },
+
+
+
         {
           label: this.translateLabel('parametre'),
           routerLink: '/parametre',

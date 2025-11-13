@@ -6,14 +6,16 @@ import { Router } from '@angular/router';
 import { ButtonModule } from 'primeng/button';
 import { TableModule } from 'primeng/table';
 import { ToolbarModule } from 'primeng/toolbar';
-import { SelectModule } from 'primeng/select';
+import { Select, SelectModule } from 'primeng/select';
 import { FloatLabel } from 'primeng/floatlabel';
 import { InputTextModule } from 'primeng/inputtext';
 import { InputNumberModule } from 'primeng/inputnumber';
 import { AutoComplete, AutoCompleteCompleteEvent } from 'primeng/autocomplete';
 import { ToastModule } from 'primeng/toast';
 import { MessageService } from 'primeng/api';
+import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { WarehouseCommonModule } from 'app/shared/warehouse-common/warehouse-common.module';
+import { QuantiteProdutSaisieComponent } from 'app/shared/quantite-produt-saisie/quantite-produt-saisie.component';
 import { IFournisseur } from 'app/shared/model/fournisseur.model';
 import { ICommande } from 'app/shared/model/commande.model';
 import { RetourBon } from 'app/shared/model/retour-bon.model';
@@ -21,13 +23,16 @@ import { IRetourBonItem, RetourBonItem } from 'app/shared/model/retour-bon-item.
 import { IMotifRetourProduit } from 'app/shared/model/motif-retour-produit.model';
 import { AbstractOrderItem } from 'app/shared/model/abstract-order-item.model';
 import { RetourBonService } from './retour-bon.service';
-import { FournisseurService } from 'app/entities/fournisseur/fournisseur.service';
-import { CommandeService } from '../commande.service';
 import { ModifRetourProduitService } from 'app/entities/motif-retour-produit/motif-retour-produit.service';
 import { ITEMS_PER_PAGE } from 'app/shared/constants/pagination.constants';
 import { debounceTime, Subject, Subscription } from 'rxjs';
 import { Textarea } from 'primeng/textarea';
 import { Tooltip } from 'primeng/tooltip';
+import { DeliveryService } from '../delevery/delivery.service';
+import { IDeliveryItem } from '../../../shared/model/delivery-item';
+import { LotSelection, LotSelectionDialogComponent } from './lot-selection-dialog.component';
+import { InlineLotSelection, InlineLotSelectionComponent } from './inline-lot-selection.component';
+import { finalize } from 'rxjs/operators';
 
 @Component({
   selector: 'jhi-supplier-returns',
@@ -44,23 +49,27 @@ import { Tooltip } from 'primeng/tooltip';
     AutoComplete,
     ToastModule,
     WarehouseCommonModule,
+    QuantiteProdutSaisieComponent,
     Textarea,
-    Tooltip
+    Tooltip,
+    InlineLotSelectionComponent
   ],
   providers: [MessageService],
   templateUrl: './supplier-returns.component.html',
-  styleUrl: './supplier-returns.component.scss',
+  styleUrl: './supplier-returns.component.scss'
 })
 export class SupplierReturnsComponent implements OnInit, OnDestroy {
   private readonly retourBonService = inject(RetourBonService);
-  private readonly fournisseurService = inject(FournisseurService);
-  private readonly commandeService = inject(CommandeService);
+  private readonly commandeService = inject(DeliveryService);
   private readonly motifRetourProduitService = inject(ModifRetourProduitService);
   private readonly messageService = inject(MessageService);
   private readonly router = inject(Router);
+  private readonly modalService = inject(NgbModal);
 
   @ViewChild('orderSelect') orderSelect: AutoComplete | undefined;
   @ViewChild('orderLineAutoComplete') orderLineAutoComplete: AutoComplete | undefined;
+  @ViewChild('motifSelect') motifSelect: Select | undefined;
+  @ViewChild('quantiteBox') quantiteBox: QuantiteProdutSaisieComponent | undefined;
 
   protected fournisseurs = signal<IFournisseur[]>([]);
   protected commandes = signal<ICommande[]>([]);
@@ -71,6 +80,7 @@ export class SupplierReturnsComponent implements OnInit, OnDestroy {
   protected orderLines = signal<AbstractOrderItem[]>([]);
   protected filteredOrderLines = signal<AbstractOrderItem[]>([]);
   protected selectedOrderLine = signal<AbstractOrderItem | null>(null);
+  protected selectedMotifRetourId = signal<number | null>(null);
   protected returnQuantity = signal<number>(1);
   protected retourBonItems = signal<IRetourBonItem[]>([]);
   protected commentaire = signal<string>('');
@@ -78,15 +88,23 @@ export class SupplierReturnsComponent implements OnInit, OnDestroy {
   protected totalRecords = signal<number>(0);
   protected itemsPerPage = ITEMS_PER_PAGE;
 
+  // Lot selection mode: 'dialog' or 'inline'
+  protected lotSelectionMode = signal<'dialog' | 'inline'>('dialog');
+
+  // Temporary values for lot selection
+  protected tempReturnQuantity = signal<number>(0);
+  protected tempSelectedOrderLine = signal<AbstractOrderItem | null>(null);
+  protected tempMotifRetourId = signal<number | null>(null);
+  protected showInlineLotSelection = signal<boolean>(false);
+
   private readonly searchTrigger$ = new Subject<string>();
   private readonly commandeSearchTrigger$ = new Subject<string>();
   private searchSubscription: Subscription | undefined;
   private commandeSearchSubscription: Subscription | undefined;
 
   ngOnInit(): void {
-    this.loadFournisseurs();
     this.loadMotifRetours();
-    this.loadAllCommandes();
+
 
     // Setup debounced search for order lines
     this.searchSubscription = this.searchTrigger$
@@ -104,34 +122,10 @@ export class SupplierReturnsComponent implements OnInit, OnDestroy {
     this.commandeSearchSubscription?.unsubscribe();
   }
 
-  protected loadFournisseurs(search?: string): void {
-    this.fournisseurService
-      .query({
-        page: 0,
-        size: 9999,
-        search: search || '',
-      })
-      .subscribe({
-        next: (res: HttpResponse<IFournisseur[]>) => {
-          this.fournisseurs.set(res.body || []);
-        },
-        error: () => {
-          this.messageService.add({
-            severity: 'error',
-            summary: 'Erreur',
-            detail: 'Erreur lors du chargement des fournisseurs',
-          });
-        },
-      });
-  }
 
-  protected loadMotifRetours(search?: string): void {
+  protected loadMotifRetours(): void {
     this.motifRetourProduitService
-      .query({
-        page: 0,
-        size: 9999,
-        search: search || '',
-      })
+      .query()
       .subscribe({
         next: (res: HttpResponse<IMotifRetourProduit[]>) => {
           this.motifRetours.set(res.body || []);
@@ -140,63 +134,12 @@ export class SupplierReturnsComponent implements OnInit, OnDestroy {
           this.messageService.add({
             severity: 'error',
             summary: 'Erreur',
-            detail: 'Erreur lors du chargement des motifs de retour',
+            detail: 'Erreur lors du chargement des motifs de retour'
           });
-        },
+        }
       });
   }
 
-  protected onFournisseurChange(): void {
-    const fournisseur = this.selectedFournisseur();
-    if (fournisseur) {
-      this.loadCommandesByFournisseur(fournisseur.id!);
-      this.selectedCommande.set(null);
-      this.orderLines.set([]);
-      this.retourBonItems.set([]);
-    }
-  }
-
-  protected loadCommandesByFournisseur(fournisseurId: number): void {
-    this.commandeService
-      .query({
-        page: 0,
-        size: 100,
-        fournisseurId: fournisseurId,
-      })
-      .subscribe({
-        next: (res: HttpResponse<ICommande[]>) => {
-          this.commandes.set(res.body || []);
-        },
-        error: () => {
-          this.messageService.add({
-            severity: 'error',
-            summary: 'Erreur',
-            detail: 'Erreur lors du chargement des commandes',
-          });
-        },
-      });
-  }
-
-  protected loadAllCommandes(): void {
-    this.commandeService
-      .query({
-        page: 0,
-        size: 1000,
-      })
-      .subscribe({
-        next: (res: HttpResponse<ICommande[]>) => {
-          this.commandes.set(res.body || []);
-          this.filteredCommandes.set(res.body || []);
-        },
-        error: () => {
-          this.messageService.add({
-            severity: 'error',
-            summary: 'Erreur',
-            detail: 'Erreur lors du chargement des commandes',
-          });
-        },
-      });
-  }
 
   protected searchCommandes(event: AutoCompleteCompleteEvent): void {
     this.commandeSearchTrigger$.next(event.query);
@@ -209,10 +152,10 @@ export class SupplierReturnsComponent implements OnInit, OnDestroy {
     }
 
     this.commandeService
-      .query({
+      .queryWithoutDetail({
         page: 0,
-        size: 100,
-        search: search.trim(),
+        size: 10,
+        search: search.trim()
       })
       .subscribe({
         next: (res: HttpResponse<ICommande[]>) => {
@@ -222,9 +165,9 @@ export class SupplierReturnsComponent implements OnInit, OnDestroy {
           this.messageService.add({
             severity: 'error',
             summary: 'Erreur',
-            detail: 'Erreur lors de la recherche des commandes',
+            detail: 'Erreur lors de la recherche des commandes'
           });
-        },
+        }
       });
   }
 
@@ -234,25 +177,25 @@ export class SupplierReturnsComponent implements OnInit, OnDestroy {
       this.loadOrderLines(commande.id, commande.orderDate);
       this.retourBonItems.set([]);
       this.selectedOrderLine.set(null);
+      this.selectedMotifRetourId.set(null);
       this.returnQuantity.set(1);
+
+      this.focusOrderLineInput();
     }
   }
 
   protected loadOrderLines(commandeId: number, orderDate: string): void {
-    this.commandeService.find({ id: commandeId, orderDate: orderDate }).subscribe({
-      next: (res: HttpResponse<ICommande>) => {
-        const commande = res.body;
-        if (commande && commande.orderLines) {
-          this.orderLines.set(commande.orderLines);
-        }
+    this.commandeService.filterItems({ id: commandeId, orderDate: orderDate }).subscribe({
+      next: (res: HttpResponse<IDeliveryItem[]>) => {
+        this.orderLines.set(res.body);
       },
       error: () => {
         this.messageService.add({
           severity: 'error',
           summary: 'Erreur',
-          detail: 'Erreur lors du chargement des lignes de commande',
+          detail: 'Erreur lors du chargement des lignes de commande'
         });
-      },
+      }
     });
   }
 
@@ -277,18 +220,48 @@ export class SupplierReturnsComponent implements OnInit, OnDestroy {
       // Reset quantity to default when selecting a new line
       const maxQuantity = orderLine.quantityReceived || orderLine.quantityRequested || 1;
       this.returnQuantity.set(Math.min(1, maxQuantity));
+      // Reset motif selection
+      this.selectedMotifRetourId.set(null);
+
+      // Set focus to motif select
+      setTimeout(() => {
+        this.motifSelect?.focus();
+      }, 100);
     }
+  }
+
+  protected onMotifSelect(): void {
+    // Set focus to quantity box when motif is selected
+    setTimeout(() => {
+      this.quantiteBox?.focusProduitControl();
+    }, 100);
+  }
+
+  protected onAddReturnLine(quantity: number): void {
+    this.returnQuantity.set(quantity);
+    this.addReturnLine();
+    // Note: Focus is handled in addReturnLine() for both lot and non-lot cases
   }
 
   protected addReturnLine(): void {
     const orderLine = this.selectedOrderLine();
     const quantity = this.returnQuantity();
+    const motifRetourId = this.selectedMotifRetourId();
 
     if (!orderLine) {
       this.messageService.add({
         severity: 'warn',
         summary: 'Attention',
-        detail: 'Veuillez sélectionner une ligne de commande',
+        detail: 'Veuillez sélectionner une ligne de commande'
+      });
+      return;
+    }
+
+    if (!motifRetourId) {
+      this.messageService.add({
+        severity: 'warn',
+        summary: 'Attention',
+        detail: 'Veuillez sélectionner un motif de retour'
       });
       return;
     }
@@ -297,7 +270,7 @@ export class SupplierReturnsComponent implements OnInit, OnDestroy {
       this.messageService.add({
         severity: 'warn',
         summary: 'Attention',
-        detail: 'La quantité doit être supérieure à 0',
+        detail: 'La quantité doit être supérieure à 0'
       });
       return;
     }
@@ -307,48 +280,173 @@ export class SupplierReturnsComponent implements OnInit, OnDestroy {
       this.messageService.add({
         severity: 'warn',
         summary: 'Attention',
-        detail: `La quantité ne peut pas dépasser ${maxQuantity}`,
+        detail: `La quantité ne peut pas dépasser ${maxQuantity}`
       });
       return;
     }
 
-    // Check if this order line is already in the return items
-    const existingIndex = this.retourBonItems().findIndex(
-      item => item.orderLineId === orderLine.id && item.orderLineOrderDate === orderLine.orderDate,
-    );
+    // Check if lots exist
+    if (orderLine.lots && orderLine.lots.length > 0) {
+      // Store temporary values
+      this.tempReturnQuantity.set(quantity);
+      this.tempSelectedOrderLine.set(orderLine);
+      this.tempMotifRetourId.set(motifRetourId);
 
-    if (existingIndex !== -1) {
+      // Show lot selection based on mode
+      if (this.lotSelectionMode() === 'dialog') {
+        this.openLotSelectionDialog();
+      } else {
+        this.showInlineLotSelection.set(true);
+      }
+    } else {
+      // No lots - add directly
+      this.createReturnItem(orderLine, quantity, motifRetourId, null, null);
+      this.resetSelection();
       this.messageService.add({
-        severity: 'warn',
-        summary: 'Attention',
-        detail: 'Cette ligne est déjà ajoutée aux retours',
+        severity: 'success',
+        summary: 'Succès',
+        detail: 'Ligne ajoutée aux retours'
       });
-      return;
+
+      this.focusOrderLineInput();
     }
+  }
 
-    const newItem = new RetourBonItem();
-    newItem.orderLineId = orderLine.id;
-    newItem.orderLineOrderDate = orderLine.orderDate;
-    newItem.produitLibelle = orderLine.produitLibelle;
-    newItem.produitCip = orderLine.produitCip;
-    newItem.produitId = orderLine.produitId;
-    newItem.orderLineQuantityRequested = orderLine.quantityRequested;
-    newItem.orderLineQuantityReceived = orderLine.quantityReceived;
-    newItem.qtyMvt = quantity;
-    newItem.initStock = 0;
-    newItem.afterStock = 0;
+  protected openLotSelectionDialog(): void {
+    const orderLine = this.tempSelectedOrderLine();
+    if (!orderLine) return;
 
-    this.retourBonItems.update(items => [...items, newItem]);
+    const modalRef = this.modalService.open(LotSelectionDialogComponent, {
+      size: 'lg',
+      backdrop: 'static',
+      centered: true
+    });
+
+    modalRef.componentInstance.lots = orderLine.lots || [];
+    modalRef.componentInstance.requestedQuantity = this.tempReturnQuantity();
+    modalRef.componentInstance.productLabel = orderLine.produitLibelle || '';
+
+    modalRef.result.then(
+      (selectedLots: LotSelection[]) => {
+        this.onLotsConfirmed(selectedLots);
+      },
+      () => {
+        // Dismissed
+        this.onLotSelectionCancelled();
+      }
+    );
+  }
+
+  protected onLotsConfirmed(lotSelections: LotSelection[] | InlineLotSelection[]): void {
+    const orderLine = this.tempSelectedOrderLine();
+    const motifRetourId = this.tempMotifRetourId();
+
+    if (!orderLine || !motifRetourId) return;
+
+    // Create one return item per lot
+    lotSelections.forEach(selection => {
+      if (selection.selectedQuantity > 0) {
+        this.createReturnItem(
+          orderLine,
+          selection.selectedQuantity,
+          motifRetourId,
+          selection.lot.id,
+          selection.lot.numLot
+        );
+      }
+    });
 
     // Reset selection
-    this.selectedOrderLine.set(null);
-    this.returnQuantity.set(1);
+    this.resetSelection();
+    this.showInlineLotSelection.set(false);
 
     this.messageService.add({
       severity: 'success',
       summary: 'Succès',
-      detail: 'Ligne ajoutée aux retours',
+      detail: `${lotSelections.length} ligne(s) ajoutée(s) aux retours`
     });
+
+    this.focusOrderLineInput();
+  }
+
+  protected onLotSelectionCancelled(): void {
+    this.tempReturnQuantity.set(0);
+    this.tempSelectedOrderLine.set(null);
+    this.tempMotifRetourId.set(null);
+    this.showInlineLotSelection.set(false);
+  }
+
+  private createReturnItem(
+    orderLine: AbstractOrderItem,
+    quantity: number,
+    motifRetourId: number,
+    lotId: number | null | undefined,
+    lotNumero: string | null | undefined
+  ): void {
+    // Check if an item with the same orderLineId, lotId, and motifRetourId already exists
+    const existingItemIndex = this.retourBonItems().findIndex(item =>
+      item.orderLineId === orderLine.id &&
+      item.orderLineOrderDate === orderLine.orderDate &&
+      item.motifRetourId === motifRetourId &&
+      (item.lotId === lotId || (item.lotId == null && lotId == null))
+    );
+
+    if (existingItemIndex !== -1) {
+      // Item exists - increment the quantity
+      this.retourBonItems.update(items => {
+        const updatedItems = [...items];
+        const existingItem = updatedItems[existingItemIndex];
+        const maxQuantity = existingItem.orderLineQuantityReceived || existingItem.orderLineQuantityRequested || 0;
+        const newQuantity = (existingItem.qtyMvt || 0) + quantity;
+
+        // Check if new quantity exceeds max
+        if (newQuantity > maxQuantity) {
+          this.messageService.add({
+            severity: 'warn',
+            summary: 'Attention',
+            detail: `La quantité totale ne peut pas dépasser ${maxQuantity}. Quantité ajustée.`
+          });
+          existingItem.qtyMvt = maxQuantity;
+        } else {
+          existingItem.qtyMvt = newQuantity;
+        }
+
+        return updatedItems;
+      });
+    } else {
+      // Item doesn't exist - create new
+      const selectedMotif = this.motifRetours().find(m => m.id === motifRetourId);
+
+      const newItem = new RetourBonItem();
+      newItem.orderLineId = orderLine.id;
+      newItem.orderLineOrderDate = orderLine.orderDate;
+      newItem.produitLibelle = orderLine.produitLibelle;
+      newItem.produitCip = orderLine.produitCip;
+      newItem.produitId = orderLine.produitId;
+      newItem.orderLineQuantityRequested = orderLine.quantityRequested;
+      newItem.orderLineQuantityReceived = orderLine.quantityReceived;
+      newItem.qtyMvt = quantity;
+      newItem.motifRetourId = motifRetourId;
+      newItem.motifRetourLibelle = selectedMotif?.libelle;
+      newItem.lotId = lotId || undefined;
+      newItem.lotNumero = lotNumero || undefined;
+
+      this.retourBonItems.update(items => [...items, newItem]);
+    }
+  }
+
+  private resetSelection(): void {
+    this.selectedOrderLine.set(null);
+    this.selectedMotifRetourId.set(null);
+    this.returnQuantity.set(1);
+
+    if (this.quantiteBox) {
+      this.quantiteBox.reset();
+    }
+  }
+
+  protected toggleLotSelectionMode(): void {
+    this.lotSelectionMode.update(mode => mode === 'dialog' ? 'inline' : 'dialog');
   }
 
   protected removeReturnLine(index: number): void {
@@ -362,7 +460,7 @@ export class SupplierReturnsComponent implements OnInit, OnDestroy {
       this.messageService.add({
         severity: 'warn',
         summary: 'Attention',
-        detail: `La quantité de retour ne peut pas dépasser ${maxQuantity}`,
+        detail: `La quantité de retour ne peut pas dépasser ${maxQuantity}`
       });
     }
     if (item.qtyMvt && item.qtyMvt < 1) {
@@ -389,7 +487,7 @@ export class SupplierReturnsComponent implements OnInit, OnDestroy {
       this.messageService.add({
         severity: 'error',
         summary: 'Erreur',
-        detail: 'Veuillez remplir tous les champs requis (quantité et motif de retour)',
+        detail: 'Veuillez remplir tous les champs requis (quantité et motif de retour)'
       });
       return;
     }
@@ -403,12 +501,12 @@ export class SupplierReturnsComponent implements OnInit, OnDestroy {
 
     this.isSaving.set(true);
 
-    this.retourBonService.create(retourBon).subscribe({
+    this.retourBonService.create(retourBon).pipe(finalize(() => this.isSaving.set(false))).subscribe({
       next: () => {
         this.messageService.add({
           severity: 'success',
           summary: 'Succès',
-          detail: 'Retour fournisseur créé avec succès',
+          detail: 'Retour fournisseur créé avec succès'
         });
         this.reset();
         // Navigate back to the list
@@ -420,12 +518,9 @@ export class SupplierReturnsComponent implements OnInit, OnDestroy {
         this.messageService.add({
           severity: 'error',
           summary: 'Erreur',
-          detail: 'Erreur lors de la création du retour fournisseur',
+          detail: 'Erreur lors de la création du retour fournisseur'
         });
-      },
-      complete: () => {
-        this.isSaving.set(false);
-      },
+      }
     });
   }
 
@@ -440,21 +535,24 @@ export class SupplierReturnsComponent implements OnInit, OnDestroy {
     this.filteredOrderLines.set([]);
     this.filteredCommandes.set([]);
     this.selectedOrderLine.set(null);
+    this.selectedMotifRetourId.set(null);
     this.returnQuantity.set(1);
     this.retourBonItems.set([]);
     this.commentaire.set('');
-    this.loadAllCommandes();
+
+    // Reset the quantity component
+    if (this.quantiteBox) {
+      this.quantiteBox.reset();
+    }
   }
 
   protected getMaxReturnQuantity(item: IRetourBonItem): number {
     return item.orderLineQuantityReceived || item.orderLineQuantityRequested || 0;
   }
 
-  protected getSelectedOrderLineMaxQuantity(): number {
-    const orderLine = this.selectedOrderLine();
-    if (!orderLine) {
-      return 1;
-    }
-    return orderLine.quantityReceived || orderLine.quantityRequested || 1;
+  private focusOrderLineInput(): void {
+    setTimeout(() => {
+      this.orderLineAutoComplete?.inputEL?.nativeElement?.focus();
+    }, 100);
   }
 }

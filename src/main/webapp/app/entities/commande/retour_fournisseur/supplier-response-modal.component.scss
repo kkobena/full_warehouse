@@ -1,0 +1,53 @@
+@import 'app/shared/scss/modal-theme';
+@import 'app/shared/scss/table-common';
+
+@include modal-theme;
+
+.modal-body {
+  padding: 1.5rem;
+  max-height: 70vh;
+  overflow-y: auto;
+}
+
+// Row styling based on status - using pharma-table common styles
+::ng-deep {
+  .pharma-table {
+    .accepted-row {
+      background: #d4edda !important;
+      border-left: 3px solid $pharma-success;
+
+      &:hover {
+        background: #c3e6cb !important;
+      }
+    }
+
+    .partial-row {
+      background: #fff3cd !important;
+      border-left: 3px solid $pharma-warning;
+
+      &:hover {
+        background: #ffe8a1 !important;
+      }
+    }
+
+    .rejected-row {
+      background: #f8d7da !important;
+      border-left: 3px solid $pharma-danger;
+
+      &:hover {
+        background: #f5c6cb !important;
+      }
+    }
+  }
+}
+
+.legend-item {
+  display: flex;
+  align-items: center;
+  font-size: 0.875rem;
+  color: #6c757d;
+}
+
+.text-sm {
+  font-size: 0.875rem;
+}

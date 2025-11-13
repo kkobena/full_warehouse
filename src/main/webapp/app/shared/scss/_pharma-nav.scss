@@ -249,26 +249,6 @@ $pharma-shadow-hover: 0 2px 6px rgba(0, 0, 0, 0.15);
   }
 }
 
-// ====================================
-// HORIZONTAL NAVIGATION STYLES (Clean Tabs)
-// ====================================
-// Usage:
-// <div class="pharma-nav-tabs-container">
-//   <div #nav="ngbNav" [(activeId)]="active" class="nav pharma-nav-tabs" ngbNav orientation="horizontal">
-//     <ng-container ngbNavItem="item1">
-//       <a class="pharma-nav-tab-link" ngbNavLink>
-//         <i class="pi pi-icon"></i>
-//         <span>Item 1</span>
-//       </a>
-//       <ng-template ngbNavContent>
-//         <!-- Content here -->
-//       </ng-template>
-//     </ng-container>
-//   </div>
-//   <div class="pharma-nav-tabs-outlet">
-//     <div [ngbNavOutlet]="nav"></div>
-//   </div>
-// </div>
 
 .pharma-nav-tabs-container {
   margin-bottom: 1rem;

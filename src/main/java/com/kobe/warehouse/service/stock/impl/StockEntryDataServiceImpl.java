@@ -11,6 +11,8 @@ import com.kobe.warehouse.domain.OrderLine_;
 import com.kobe.warehouse.domain.Produit_;
 import com.kobe.warehouse.repository.CommandeRepository;
 import com.kobe.warehouse.repository.OrderLineRepository;
+import com.kobe.warehouse.service.dto.projection.DeliveryReceiptItemProjection;
+import com.kobe.warehouse.service.dto.projection.DeliveryReceiptProjection;
 import com.kobe.warehouse.service.settings.FileResourceService;
 import com.kobe.warehouse.service.dto.DeliveryReceiptDTO;
 import com.kobe.warehouse.service.dto.filter.DeliveryReceiptFilterDTO;
@@ -26,11 +28,13 @@ import org.springframework.core.io.Resource;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Slice;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
 
 import java.io.IOException;
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -196,5 +200,15 @@ public class StockEntryDataServiceImpl extends FileResourceService implements St
     @Override
     public Resource printEtiquette(CommandeId commandeId, int startAt) throws IOException {
         return this.etiquetteExportService.print(this.orderLineRepository.findAllByCommandeIdAndCommandeOrderDate(commandeId.getId(), commandeId.getOrderDate()), startAt);
+    }
+
+    @Override
+    public Slice<DeliveryReceiptProjection> fetchAllReceipts(String searchTerm) {
+        return commandeRepository.fetchAllReceipts(searchTerm, LocalDate.now().minusMonths(6), Pageable.ofSize(10));
+    }
+
+    @Override
+    public List<DeliveryReceiptItemProjection> findAllByCommandeIdAndCommandeOrderDate(CommandeId commandeId) {
+        return orderLineRepository.findDetailAllByCommandeIdAndCommandeOrderDate(commandeId.getId(), commandeId.getOrderDate());
     }
 }

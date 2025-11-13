@@ -364,7 +364,7 @@ public class OrderLineDTO {
         return this;
     }
 
-    public long getCommandeId() {
+    public Integer getCommandeId() {
         return commandeId;
     }
 

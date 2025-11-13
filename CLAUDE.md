@@ -554,3 +554,5 @@ psql -U warehouse -d warehouse
 - styleClass is deprecated
 - InputTextareaModule not exists in primeng 20+
 - not use styleClass
+- not use p-dialog
+- not use prime Dialog use ngbModal

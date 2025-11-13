@@ -31,8 +31,9 @@ public abstract class CommandeWrapperDTO {
     protected CommandeWrapperDTO() {}
 
     protected CommandeWrapperDTO(Commande commande) {
-        id = commande.getId().getId();
         commandeId = commande.getId();
+        id =commandeId.getId();
+
         orderReference = commande.getOrderReference();
         receiptReference = commande.getReceiptReference();
         receiptDate = commande.getReceiptDate();

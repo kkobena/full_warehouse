@@ -4,10 +4,12 @@ import { Observable } from 'rxjs';
 import { SERVER_API_URL } from 'app/app.constants';
 import { createRequestOptions } from 'app/shared/util/request-util';
 import { IRetourBon } from 'app/shared/model/retour-bon.model';
+import { IReponseRetourBon } from 'app/shared/model/reponse-retour-bon.model';
 import { RetourBonStatut } from 'app/shared/model/enumerations/retour-bon-statut.model';
 
 type EntityResponseType = HttpResponse<IRetourBon>;
 type EntityArrayResponseType = HttpResponse<IRetourBon[]>;
+type ResponseEntityResponseType = HttpResponse<IReponseRetourBon>;
 
 @Injectable({ providedIn: 'root' })
 export class RetourBonService {
@@ -43,27 +45,7 @@ export class RetourBonService {
     });
   }
 
-  findByCommande(commandeId: number, orderDate: string): Observable<EntityArrayResponseType> {
-    return this.http.get<IRetourBon[]>(`${this.resourceUrl}/by-commande/${commandeId}/${orderDate}`, {
-      observe: 'response',
-    });
-  }
-
-  findByDateRange(startDate: string, endDate: string, req?: any): Observable<EntityArrayResponseType> {
-    const options = createRequestOptions(req);
-    options.set('startDate', startDate);
-    options.set('endDate', endDate);
-    return this.http.get<IRetourBon[]>(`${this.resourceUrl}/by-date-range`, {
-      params: options,
-      observe: 'response',
-    });
-  }
-
-  delete(id: number): Observable<HttpResponse<{}>> {
-    return this.http.delete(`${this.resourceUrl}/${id}`, { observe: 'response' });
-  }
-
-  validate(id: number): Observable<EntityResponseType> {
-    return this.http.put<IRetourBon>(`${this.resourceUrl}/${id}/validate`, {}, { observe: 'response' });
+  createSupplierResponse(reponseRetourBon: IReponseRetourBon): Observable<ResponseEntityResponseType> {
+    return this.http.post<IReponseRetourBon>(`${this.resourceUrl}/supplier-response`, reponseRetourBon, { observe: 'response' });
   }
 }

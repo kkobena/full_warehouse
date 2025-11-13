@@ -105,7 +105,10 @@ public class UserService {
         if (StringUtils.hasText(userDTO.getEmail())) {
             user.setEmail(userDTO.getEmail().toLowerCase());
         }
-        Magasin magasin = this.getUser().getMagasin();
+        AppUser currentUser = userRepository
+            .findOneByLogin(SecurityUtils.getCurrentUserLogin().orElseThrow())
+            .orElseThrow(() -> new RuntimeException("Current user not found"));
+        Magasin magasin = currentUser.getMagasin();
         user.setMagasin(magasin);
         user.setImageUrl(userDTO.getImageUrl());
         user.setLangKey(Constants.DEFAULT_LANGUAGE);

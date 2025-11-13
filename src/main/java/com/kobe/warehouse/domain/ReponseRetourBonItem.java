@@ -5,10 +5,12 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotNull;
+
 import java.io.Serial;
 import java.io.Serializable;
 import java.time.LocalDateTime;
@@ -30,22 +32,29 @@ public class ReponseRetourBonItem implements Serializable {
 
     @ManyToOne(optional = false)
     @NotNull
+    @JoinColumn(name = "reponse_retour_bon_id", nullable = false, referencedColumnName = "id")
     private ReponseRetourBon reponseRetourBon;
 
     @ManyToOne(optional = false)
     @NotNull
+    @JoinColumn(name = "retour_bon_item_id", nullable = false, referencedColumnName = "id")
     private RetourBonItem retourBonItem;
 
     @NotNull
     @Min(0)
     @Column(name = "qty_mvt", nullable = false, length = 5)
     private Integer qtyMvt;
+    @NotNull
+    @Column(name = "prix_achat", length = 8, nullable = false)
+    private Integer prixAchat;
 
-    @Column(name = "init_stock", nullable = false, length = 8)
-    private Integer initStock;
+    public Integer getPrixAchat() {
+        return prixAchat;
+    }
 
-    @Column(name = "after_stock", length = 8)
-    private Integer afterStock;
+    public void setPrixAchat(Integer prixAchat) {
+        this.prixAchat = prixAchat;
+    }
 
     public Integer getId() {
         return id;
@@ -92,21 +101,5 @@ public class ReponseRetourBonItem implements Serializable {
         return this;
     }
 
-    public Integer getInitStock() {
-        return initStock;
-    }
 
-    public ReponseRetourBonItem setInitStock(Integer initStock) {
-        this.initStock = initStock;
-        return this;
-    }
-
-    public Integer getAfterStock() {
-        return afterStock;
-    }
-
-    public ReponseRetourBonItem setAfterStock(Integer afterStock) {
-        this.afterStock = afterStock;
-        return this;
-    }
 }

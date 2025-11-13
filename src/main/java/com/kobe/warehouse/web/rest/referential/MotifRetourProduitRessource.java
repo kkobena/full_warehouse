@@ -10,6 +10,7 @@ import java.util.List;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Slice;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -65,14 +66,8 @@ public class MotifRetourProduitRessource {
 
     @GetMapping(value = "/motif-retour-produits")
     public ResponseEntity<List<MotifRetourProduit>> getAll(
-        @RequestParam(value = "search", required = false) String search,
-        Pageable pageable
+
     ) {
-        Page<MotifRetourProduit> page = motifRetourProduitRepository.findAllByLibelleContainingIgnoreCaseOrderByLibelleAsc(
-            search,
-            pageable
-        );
-        HttpHeaders headers = PaginationUtil.generatePaginationHttpHeaders(ServletUriComponentsBuilder.fromCurrentRequest(), page);
-        return ResponseEntity.ok().headers(headers).body(page.getContent());
+        return ResponseEntity.ok( motifRetourProduitRepository.findAll());
     }
 }

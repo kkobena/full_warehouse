@@ -5,9 +5,11 @@ import com.kobe.warehouse.domain.CommandeId;
 import com.kobe.warehouse.domain.Commande_;
 import com.kobe.warehouse.domain.enumeration.OrderStatut;
 import com.kobe.warehouse.service.dto.projection.ChiffreAffaireAchat;
+import com.kobe.warehouse.service.dto.projection.DeliveryReceiptProjection;
 import com.kobe.warehouse.service.dto.projection.GroupeFournisseurAchat;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Slice;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
@@ -64,6 +66,10 @@ public interface CommandeRepository extends JpaRepository<Commande, CommandeId>,
         @Param("endDate") LocalDate endDate,
         @Param("orderStatut") String statuts
     );
+    @Query(
+        value = "SELECT c.id AS id, c.orderDate AS orderDate, c.receiptReference AS receiptReference, c.receiptDate AS receiptDate, c.orderAmount AS orderAmount,c.finalAmount AS receiptAmount, f.libelle AS fournisseurLibelle FROM Commande c JOIN c.fournisseur f WHERE LOWER(c.receiptReference) LIKE LOWER(CONCAT('%', :searchTerm, '%')) AND c.orderDate>=:orderDateLimit  ORDER BY c.orderDate DESC"
+    )
+    Slice<DeliveryReceiptProjection> fetchAllReceipts(@Param("searchTerm") String searchTerm,@Param("orderDateLimit")  LocalDate orderDateLimit, Pageable pageable);
 
     default Specification<Commande> hasOrderStatut(OrderStatut orderStatut) {
         return (root, query, cb) -> cb.equal(root.get(Commande_.orderStatus), orderStatut);

@@ -23,6 +23,7 @@ public class RetourBonItemDTO {
     private String lotNumero;
     private Integer orderLineQuantityRequested;
     private Integer orderLineQuantityReceived;
+    private Integer acceptedQty;
 
     public RetourBonItemDTO() {
     }
@@ -57,6 +58,7 @@ public class RetourBonItemDTO {
         this.qtyMvt = item.getQtyMvt();
         this.initStock = item.getInitStock();
         this.afterStock = item.getAfterStock();
+        this.acceptedQty= item.getAcceptedQty();
     }
 
     public Integer getId() {
@@ -66,6 +68,14 @@ public class RetourBonItemDTO {
     public RetourBonItemDTO setId(Integer id) {
         this.id = id;
         return this;
+    }
+
+    public Integer getAcceptedQty() {
+        return acceptedQty;
+    }
+
+    public void setAcceptedQty(Integer acceptedQty) {
+        this.acceptedQty = acceptedQty;
     }
 
     public LocalDateTime getDateMtv() {

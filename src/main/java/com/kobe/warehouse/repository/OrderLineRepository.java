@@ -6,16 +6,19 @@ import com.kobe.warehouse.domain.OrderLineId;
 import com.kobe.warehouse.domain.enumeration.OrderStatut;
 import com.kobe.warehouse.service.dto.HistoriqueProduitAchats;
 import com.kobe.warehouse.service.dto.HistoriqueProduitAchatsSummary;
+import com.kobe.warehouse.service.dto.projection.DeliveryReceiptItemProjection;
 import com.kobe.warehouse.service.dto.projection.LastDateProjection;
-import java.time.LocalDate;
-import java.util.List;
-import java.util.Optional;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Slice;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
+
+import java.time.LocalDate;
+import java.util.List;
+import java.util.Optional;
 
 /**
  * Spring Data repository for the OrderLine entity.
@@ -27,16 +30,19 @@ public interface OrderLineRepository extends JpaRepository<OrderLine, OrderLineI
 
     Optional<OrderLine> findFirstByFournisseurProduitIdAndCommandeIdAndCommandeOrderDate(Integer fournisseurProduitId, Integer commandeId, LocalDate orderDate);
 
-    Page<OrderLine> findByCommandeIdAndCommandeOrderDate(Integer commandeId,LocalDate orderDate, Pageable pageable);
+    Page<OrderLine> findByCommandeIdAndCommandeOrderDate(Integer commandeId, LocalDate orderDate, Pageable pageable);
 
-    int countByCommandeIdAndCommandeOrderDate(Integer commandeId,LocalDate orderDate);
+    int countByCommandeIdAndCommandeOrderDate(Integer commandeId, LocalDate orderDate);
 
 
-    boolean existsByFournisseurProduitProduitIdAndCommandeOrderStatusAndCommandeOrderDateGreaterThan(Integer produitId, OrderStatut orderStatus,LocalDate periodeBegin);
+    boolean existsByFournisseurProduitProduitIdAndCommandeOrderStatusAndCommandeOrderDateGreaterThan(Integer produitId, OrderStatut orderStatus, LocalDate periodeBegin);
 
     int countByFournisseurProduitProduitIdAndCommandeOrderStatusAndCommandeOrderDateGreaterThan(Integer produitId, OrderStatut orderStatus, LocalDate periodeBegin);
 
-    List<OrderLine> findAllByCommandeIdAndCommandeOrderDate(Integer deliveryReceiptId,LocalDate orderDate);
+    List<OrderLine> findAllByCommandeIdAndCommandeOrderDate(Integer deliveryReceiptId, LocalDate orderDate);
+
+    @Query("SELECT o.fournisseurProduit.produit.libelle AS produitLibelle,o.fournisseurProduit.codeCip AS produitCip,o.id AS id,o.orderDate AS orderDate,o.quantityReceived AS quantityReceived,o.quantityRequested AS quantityRequested,o.freeQty AS freeQty,o.fournisseurProduit.produit.id AS produitId,l AS lots FROM OrderLine o LEFT JOIN o.lots l WHERE o.commande.id = ?1 AND o.commande.orderDate = ?2 ORDER BY  o.fournisseurProduit.produit.libelle ASC")
+    List<DeliveryReceiptItemProjection> findDetailAllByCommandeIdAndCommandeOrderDate(Integer commandeId, LocalDate orderDate);
 
     @Query(
         value = "SELECT MAX(o.updated_at) AS updatedAt FROM order_line o JOIN fournisseur_produit fp ON o.fournisseur_produit_id = fp.id JOIN commande d ON o.commande_id = d.id WHERE fp.produit_id = ?1 AND d.order_status=?2",
@@ -58,7 +64,7 @@ public interface OrderLineRepository extends JpaRepository<OrderLine, OrderLineI
     );
 
 
-// List<HistoriqueProduitAchatMensuelle>
+    // List<HistoriqueProduitAchatMensuelle>
     @Query(
         value = "SELECT get_product_order_summary_monthly(:startDate, :endDate, :statut,:produitId)",
         nativeQuery = true
@@ -69,7 +75,6 @@ public interface OrderLineRepository extends JpaRepository<OrderLine, OrderLineI
         @Param("statut") String statut,
         @Param("produitId") Integer produitId
     );
-
 
 
     @Query(

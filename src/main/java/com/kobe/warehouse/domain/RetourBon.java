@@ -40,7 +40,7 @@ public class RetourBon implements Serializable {
     @NotNull
     @Enumerated(EnumType.STRING)
     @Column(name = "statut", nullable = false,length = 15)
-    private RetourStatut statut = RetourStatut.PROCESSING;
+    private RetourStatut statut = RetourStatut.VALIDATED;
 
     @Column(name = "commentaire", length = 150)
     private String commentaire;

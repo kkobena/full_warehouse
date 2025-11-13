@@ -306,7 +306,12 @@
       <version>4.0.4</version>
     </dependency>
 
-
+    <dependency>
+      <artifactId>flyway-database-postgresql</artifactId>
+      <groupId>org.flywaydb</groupId>
+      <version>11.11.2</version>
+      <!-- <scope>runtime</scope>-->
+    </dependency>
     <dependency>
       <artifactId>flyway-core</artifactId>
       <groupId>org.flywaydb</groupId>

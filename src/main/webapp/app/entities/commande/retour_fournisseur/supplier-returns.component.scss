@@ -1,5 +1,303 @@
 @import 'app/shared/scss/table-common';
 @import 'app/shared/scss/pharma-toolbar';
+@import 'app/shared/scss/pharma-nav';
+
+// Import pharma-sales-header styles
+$pharma-white: #ffffff;
+$gray-50: #f9fafb;
+$gray-200: #e5e7eb;
+$gray-500: #6b7280;
+$gray-600: #4b5563;
+$gray-900: #111827;
+$pharma-primary: #5b89a6;
+$pharma-primary-light: #e8f4f8;
+$pharma-shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+
+// ============================================
+// HEADER TOOLBAR (Sticky)
+// ============================================
+
+.pharma-sales-header {
+  position: relative;
+  z-index: 1000;
+  background: $pharma-white;
+  border-bottom: 1px solid $gray-200;
+  padding: 0.5rem 1rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  box-shadow: $pharma-shadow-md;
+  min-height: 50px;
+  flex-shrink: 0;
+
+  .header-left {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    flex: 1;
+    min-width: 0;
+
+    .back-button {
+      color: $gray-600;
+      transition: all 0.2s ease;
+
+      &:hover {
+        color: $pharma-primary;
+        background-color: $pharma-primary-light;
+      }
+    }
+
+    .page-title {
+      h1 {
+        margin: 0;
+        font-size: 1.25rem;
+        font-weight: 600;
+        color: $gray-900;
+        line-height: 1.2;
+      }
+
+      .subtitle {
+        margin: 0;
+        font-size: 0.8rem;
+        color: $gray-500;
+        font-weight: 400;
+      }
+    }
+  }
+
+  .header-actions {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    flex-shrink: 0;
+  }
+}
+
+// Responsive adjustments
+@media (max-width: 768px) {
+  .pharma-sales-header {
+    flex-direction: column;
+    gap: 0.75rem;
+    align-items: flex-start;
+    padding: 0.75rem;
+
+    .header-left,
+    .header-actions {
+      width: 100%;
+    }
+
+    .header-actions {
+      flex-wrap: wrap;
+      gap: 0.5rem;
+    }
+  }
+}
+
+// ============================================
+// ORDER SEARCH SECTION (Similar to Product Search)
+// ============================================
+
+$pharma-accent: #00a86b;
+$pharma-success: #5cb85c;
+$pharma-border: #dfe3e8;
+$border-radius: 4px;
+$border-radius-sm: 6px;
+$border-radius-lg: 12px;
+
+.order-search-section {
+  background: $pharma-white;
+  border-radius: $border-radius-lg;
+  box-shadow: $pharma-shadow-md;
+  overflow: hidden;
+  border: 1px solid $gray-200;
+  flex-shrink: 0;
+  margin: 0.75rem;
+
+  .search-section-header {
+    padding: 0.5rem 1rem;
+    background: linear-gradient(135deg, $pharma-accent 0%, darken($pharma-accent, 10%) 100%);
+    color: $pharma-white;
+    display: flex;
+    align-items: center;
+    gap: 0.625rem;
+    font-weight: 600;
+    font-size: 0.9rem;
+
+    i {
+      font-size: 1.125rem;
+    }
+  }
+
+  .search-controls {
+    padding: 0.5rem 0.75rem;
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.375rem;
+    background: $gray-50;
+
+    .order-search-input {
+      flex: 1;
+      min-width: 180px;
+
+      ::ng-deep p-autoComplete,
+      ::ng-deep .p-autocomplete,
+      ::ng-deep .p-autocomplete-input {
+        width: 100%;
+      }
+    }
+
+    .orderline-search-input {
+      flex: 2;
+      min-width: 220px;
+
+      ::ng-deep p-autoComplete,
+      ::ng-deep .p-autocomplete,
+      ::ng-deep .p-autocomplete-input {
+        width: 100%;
+      }
+    }
+
+    .motif-select-input {
+      flex: 1.2;
+      min-width: 180px;
+
+      ::ng-deep p-select,
+      ::ng-deep .p-select,
+      ::ng-deep .p-select-label {
+        width: 100%;
+      }
+    }
+
+    .quantity-input-wrapper {
+      flex: 0 0 170px;
+    }
+  }
+
+  // Order Meta Information (similar to product-meta)
+  .order-meta {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.375rem;
+    padding: 0.5rem 0.75rem;
+    background: $gray-50;
+    border-top: 1px solid $gray-200;
+    animation: slideIn 0.3s ease;
+
+    .meta-item {
+      display: flex;
+      align-items: center;
+      gap: 0.375rem;
+      padding: 0.375rem 0.625rem;
+      background: $pharma-white;
+      border-radius: $border-radius-sm;
+      font-size: 0.8125rem;
+      color: $gray-600;
+      border: 1px solid $gray-200;
+      white-space: nowrap;
+
+      i {
+        color: $pharma-primary;
+        font-size: 0.9rem;
+      }
+
+      strong {
+        color: $gray-900;
+        font-weight: 600;
+      }
+
+      &.quantity-display {
+        background: lighten($pharma-success, 52%);
+        border-color: lighten($pharma-success, 35%);
+
+        i {
+          color: $pharma-success;
+        }
+
+        strong {
+          color: $pharma-success;
+          font-size: 0.875rem;
+        }
+      }
+    }
+  }
+}
+
+@keyframes slideIn {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+// Responsive adjustments for order search section
+@media (max-width: 1400px) {
+  .order-search-section .search-controls {
+    .order-search-input,
+    .motif-select-input {
+      flex: 1;
+      min-width: 160px;
+    }
+
+    .orderline-search-input {
+      flex: 1.5;
+      min-width: 200px;
+    }
+
+    .quantity-input-wrapper {
+      flex: 0 0 150px;
+    }
+  }
+}
+
+@media (max-width: 1024px) {
+  .order-search-section .search-controls {
+    .order-search-input,
+    .orderline-search-input,
+    .motif-select-input {
+      flex: 1 1 calc(50% - 0.1875rem);
+      min-width: 180px;
+    }
+
+    .quantity-input-wrapper {
+      flex: 1 1 calc(50% - 0.1875rem);
+      min-width: 150px;
+    }
+  }
+}
+
+@media (max-width: 768px) {
+  .order-search-section {
+    margin: 0.5rem;
+
+    .search-controls {
+      flex-direction: column;
+
+      .order-search-input,
+      .orderline-search-input,
+      .motif-select-input,
+      .quantity-input-wrapper {
+        flex: 1 1 100%;
+        width: 100%;
+        min-width: 100%;
+      }
+    }
+
+    .order-meta {
+      flex-direction: column;
+      align-items: stretch;
+
+      .meta-item {
+        width: 100%;
+      }
+    }
+  }
+}
 
 .pharma-price {
   font-weight: 500;
@@ -11,4 +309,37 @@
 
 .text-center {
   text-align: center;
+}
+
+// ============================================
+// LOT SELECTION STYLES
+// ============================================
+
+.inline-lot-section {
+  margin: 0.75rem;
+  animation: slideIn 0.3s ease;
+}
+
+.mode-toggle-btn {
+  transition: all 0.2s ease;
+
+  &:hover {
+    transform: translateY(-1px);
+  }
+}
+
+// Lot number badge in table
+.pharma-code {
+  i.pi-tag {
+    font-size: 0.875rem;
+  }
+}
+
+// Highlight row with lot
+tr {
+  transition: background-color 0.2s ease;
+
+  &:has(.pi-tag) {
+    background-color: rgba(91, 137, 166, 0.02);
+  }
 }

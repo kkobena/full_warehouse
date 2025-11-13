@@ -15,14 +15,9 @@ type EntityArrayResponseType = HttpResponse<IMotifRetourProduit[]>;
   providedIn: 'root'
 })
 export class ModifRetourProduitService {
-  protected http = inject(HttpClient);
+  private readonly http = inject(HttpClient);
 
-  public resourceUrl = SERVER_API_URL + 'api/motif-retour-produits';
-
-  /** Inserted by Angular inject() migration for backwards compatibility */
-  constructor(...args: unknown[]);
-  constructor() {
-  }
+  private readonly resourceUrl = SERVER_API_URL + 'api/motif-retour-produits';
 
   create(modifAjustement: IMotifRetourProduit): Observable<EntityResponseType> {
     return this.http.post<IMotifRetourProduit>(this.resourceUrl, modifAjustement, { observe: 'response' });

@@ -1,8 +1,9 @@
 package com.kobe.warehouse.web.rest.commande;
 
 import com.kobe.warehouse.domain.enumeration.RetourStatut;
-import com.kobe.warehouse.service.RetourBonService;
+import com.kobe.warehouse.service.dto.ReponseRetourBonDTO;
 import com.kobe.warehouse.service.dto.RetourBonDTO;
+import com.kobe.warehouse.service.stock.RetourBonService;
 import com.kobe.warehouse.web.util.HeaderUtil;
 import com.kobe.warehouse.web.util.PaginationUtil;
 import com.kobe.warehouse.web.util.ResponseUtil;
@@ -15,13 +16,18 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.time.LocalDate;
-import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
@@ -32,14 +38,11 @@ import java.util.Optional;
 @RequestMapping("/api")
 public class RetourBonResource {
 
-    private final Logger log = LoggerFactory.getLogger(RetourBonResource.class);
-
     private static final String ENTITY_NAME = "retourBon";
-
+    private final Logger log = LoggerFactory.getLogger(RetourBonResource.class);
+    private final RetourBonService retourBonService;
     @Value("${pharma-smart.clientApp.name}")
     private String applicationName;
-
-    private final RetourBonService retourBonService;
 
     public RetourBonResource(RetourBonService retourBonService) {
         this.retourBonService = retourBonService;
@@ -69,28 +72,6 @@ public class RetourBonResource {
             .body(result);
     }
 
-    /**
-     * {@code PUT  /retour-bons} : Updates an existing retour bon.
-     *
-     * @param retourBonDTO the retourBonDTO to update.
-     * @return the {@link ResponseEntity} with status {@code 200 (OK)} and with body the updated retourBonDTO,
-     * or with status {@code 400 (Bad Request)} if the retourBonDTO is not valid,
-     * or with status {@code 500 (Internal Server Error)} if the retourBonDTO couldn't be updated.
-     */
-    @PutMapping("/retour-bons")
-    public ResponseEntity<RetourBonDTO> updateRetourBon(@Valid @RequestBody RetourBonDTO retourBonDTO) {
-        log.debug("REST request to update RetourBon : {}", retourBonDTO);
-        if (retourBonDTO.getId() == null) {
-            return ResponseEntity.badRequest()
-                .headers(HeaderUtil.createFailureAlert(applicationName, true, ENTITY_NAME, "idnull", "Invalid id"))
-                .body(null);
-        }
-        RetourBonDTO result = retourBonService.update(retourBonDTO);
-        return ResponseEntity
-            .ok()
-            .headers(HeaderUtil.createEntityUpdateAlert(applicationName, true, ENTITY_NAME, retourBonDTO.getId().toString()))
-            .body(result);
-    }
 
     /**
      * {@code GET  /retour-bons} : get all the retour bons.
@@ -101,16 +82,15 @@ public class RetourBonResource {
      */
     @GetMapping("/retour-bons")
     public ResponseEntity<List<RetourBonDTO>> getAllRetourBons(
-        @RequestParam(required = false) RetourStatut statut,
+        @RequestParam(required = false, name = "") RetourStatut statut,
+        @RequestParam(required = false,name = "dtStart") LocalDate dtStart,
+        @RequestParam(required = false,name = "dtEnd") LocalDate dtEnd,
+
         Pageable pageable
     ) {
         log.debug("REST request to get a page of RetourBons");
-        Page<RetourBonDTO> page;
-        if (statut != null) {
-            page = retourBonService.findAllByStatut(statut, pageable);
-        } else {
-            page = retourBonService.findAll(pageable);
-        }
+        Page<RetourBonDTO> page = retourBonService.findAll(pageable);
+
         HttpHeaders headers = PaginationUtil.generatePaginationHttpHeaders(ServletUriComponentsBuilder.fromCurrentRequest(), page);
         return ResponseEntity.ok().headers(headers).body(page.getContent());
     }
@@ -146,55 +126,28 @@ public class RetourBonResource {
         return ResponseEntity.ok().body(result);
     }
 
-    /**
-     * {@code GET  /retour-bons/by-date-range} : get retour bons by date range.
-     *
-     * @param startDate the start date.
-     * @param endDate   the end date.
-     * @param pageable  the pagination information.
-     * @return the {@link ResponseEntity} with status {@code 200 (OK)} and with body the list of retour bons.
-     */
-    @GetMapping("/retour-bons/by-date-range")
-    public ResponseEntity<List<RetourBonDTO>> getRetourBonsByDateRange(
-        @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime startDate,
-        @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime endDate,
-        Pageable pageable
-    ) {
-        log.debug("REST request to get RetourBons by date range : {} - {}", startDate, endDate);
-        Page<RetourBonDTO> page = retourBonService.findAllByDateRange(startDate, endDate, pageable);
-        HttpHeaders headers = PaginationUtil.generatePaginationHttpHeaders(ServletUriComponentsBuilder.fromCurrentRequest(), page);
-        return ResponseEntity.ok().headers(headers).body(page.getContent());
-    }
 
     /**
-     * {@code DELETE  /retour-bons/:id} : delete the "id" retour bon.
+     * {@code POST  /retour-bons/supplier-response} : Create a supplier response for a retour bon.
      *
-     * @param id the id of the retourBonDTO to delete.
-     * @return the {@link ResponseEntity} with status {@code 204 (NO_CONTENT)}.
+     * @param reponseRetourBonDTO the supplier response to create.
+     * @return the {@link ResponseEntity} with status {@code 201 (Created)} and with body the new reponseRetourBonDTO,
+     * or with status {@code 400 (Bad Request)} if the reponse has already an ID.
+     * @throws URISyntaxException if the Location URI syntax is incorrect.
      */
-    @DeleteMapping("/retour-bons/{id}")
-    public ResponseEntity<Void> deleteRetourBon(@PathVariable Integer id) {
-        log.debug("REST request to delete RetourBon : {}", id);
-        retourBonService.delete(id);
+    @PostMapping("/retour-bons/supplier-response")
+    public ResponseEntity<ReponseRetourBonDTO> createSupplierResponse(@Valid @RequestBody ReponseRetourBonDTO reponseRetourBonDTO)
+        throws URISyntaxException {
+        log.debug("REST request to create supplier response for RetourBon : {}", reponseRetourBonDTO.getRetourBonId());
+        if (reponseRetourBonDTO.getId() != null) {
+            return ResponseEntity.badRequest()
+                .headers(HeaderUtil.createFailureAlert(applicationName, true, "reponseRetourBon", "idexists", "A new supplier response cannot already have an ID"))
+                .body(null);
+        }
+        ReponseRetourBonDTO result = retourBonService.createSupplierResponse(reponseRetourBonDTO);
         return ResponseEntity
-            .noContent()
-            .headers(HeaderUtil.createEntityDeletionAlert(applicationName, true, ENTITY_NAME, id.toString()))
-            .build();
-    }
-
-    /**
-     * {@code PUT  /retour-bons/:id/validate} : validate the "id" retour bon.
-     *
-     * @param id the id of the retourBonDTO to validate.
-     * @return the {@link ResponseEntity} with status {@code 200 (OK)} and with body the updated retourBonDTO.
-     */
-    @PutMapping("/retour-bons/{id}/validate")
-    public ResponseEntity<RetourBonDTO> validateRetourBon(@PathVariable Integer id) {
-        log.debug("REST request to validate RetourBon : {}", id);
-        RetourBonDTO result = retourBonService.validate(id);
-        return ResponseEntity
-            .ok()
-            .headers(HeaderUtil.createEntityUpdateAlert(applicationName, true, ENTITY_NAME, id.toString()))
+            .created(new URI("/api/retour-bons/supplier-response/" + result.getId()))
+            .headers(HeaderUtil.createEntityCreationAlert(applicationName, true, "reponseRetourBon", result.getId().toString()))
             .body(result);
     }
 }

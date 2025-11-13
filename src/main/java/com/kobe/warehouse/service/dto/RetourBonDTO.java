@@ -1,5 +1,7 @@
 package com.kobe.warehouse.service.dto;
 
+import com.kobe.warehouse.domain.Commande;
+import com.kobe.warehouse.domain.Fournisseur;
 import com.kobe.warehouse.domain.RetourBon;
 import com.kobe.warehouse.domain.enumeration.RetourStatut;
 
@@ -16,7 +18,8 @@ public class RetourBonDTO {
     private String commentaire;
     private Integer commandeId;
     private LocalDate commandeOrderDate;
-    private String commandeOrderReference;
+    private LocalDate receiptDate;
+    private String receiptReference;
     private String fournisseurLibelle;
     private List<RetourBonItemDTO> retourBonItems = new ArrayList<>();
 
@@ -29,14 +32,13 @@ public class RetourBonDTO {
         this.user = new UserDTO(retourBon.getUser());
         this.statut = retourBon.getStatut();
         this.commentaire = retourBon.getCommentaire();
-        if (retourBon.getCommande() != null) {
-            this.commandeId = retourBon.getCommande().getId().getId();
-            this.commandeOrderDate = retourBon.getCommande().getId().getOrderDate();
-            this.commandeOrderReference = retourBon.getCommande().getOrderReference();
-            if (retourBon.getCommande().getFournisseur() != null) {
-                this.fournisseurLibelle = retourBon.getCommande().getFournisseur().getLibelle();
-            }
-        }
+        Commande commande = retourBon.getCommande();
+        Fournisseur fournisseur = commande.getFournisseur();
+        this.commandeId = commande.getId().getId();
+        this.commandeOrderDate = commande.getOrderDate();
+        this.receiptDate = commande.getReceiptDate();
+        this.receiptReference = commande.getReceiptReference();
+        this.fournisseurLibelle = fournisseur.getLibelle();
         this.retourBonItems = retourBon.getRetourBonItems()
             .stream()
             .map(RetourBonItemDTO::new)
@@ -88,6 +90,14 @@ public class RetourBonDTO {
         return this;
     }
 
+    public LocalDate getReceiptDate() {
+        return receiptDate;
+    }
+
+    public void setReceiptDate(LocalDate receiptDate) {
+        this.receiptDate = receiptDate;
+    }
+
     public Integer getCommandeId() {
         return commandeId;
     }
@@ -106,12 +116,12 @@ public class RetourBonDTO {
         return this;
     }
 
-    public String getCommandeOrderReference() {
-        return commandeOrderReference;
+    public String getReceiptReference() {
+        return receiptReference;
     }
 
-    public RetourBonDTO setCommandeOrderReference(String commandeOrderReference) {
-        this.commandeOrderReference = commandeOrderReference;
+    public RetourBonDTO setReceiptReference(String receiptReference) {
+        this.receiptReference = receiptReference;
         return this;
     }
 

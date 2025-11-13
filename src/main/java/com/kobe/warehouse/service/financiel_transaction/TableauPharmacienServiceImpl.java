@@ -6,7 +6,9 @@ import com.kobe.warehouse.domain.GroupeFournisseur;
 import com.kobe.warehouse.domain.enumeration.CategorieChiffreAffaire;
 import com.kobe.warehouse.domain.enumeration.SalesStatut;
 import com.kobe.warehouse.repository.GroupeFournisseurRepository;
+import com.kobe.warehouse.repository.ReponseRetourBonItemRepository;
 import com.kobe.warehouse.repository.SalesRepository;
+import com.kobe.warehouse.service.dto.projection.ReponseRetourBonItemProjection;
 import com.kobe.warehouse.service.settings.AppConfigurationService;
 import com.kobe.warehouse.service.dto.GroupeFournisseurDTO;
 import com.kobe.warehouse.service.dto.ReportPeriode;
@@ -31,6 +33,7 @@ import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.net.MalformedURLException;
 import java.time.LocalDate;
+import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
@@ -56,12 +59,13 @@ public class TableauPharmacienServiceImpl implements TableauPharmacienService {
     private final JsonMapper objectMapper;
     private final SalesRepository salesRepository;
     private final CommandeDataService commandeDataService;
+    private final ReponseRetourBonItemRepository reponseRetourBonItemRepository;
 
 
     public TableauPharmacienServiceImpl(
         GroupeFournisseurRepository groupeFournisseurRepository,
         TableauPharmacienReportReportService reportService,
-        ExcelExportService excelExportService, AppConfigurationService appConfigurationService, JsonMapper objectMapper, SalesRepository salesRepository, CommandeDataService commandeDataService
+        ExcelExportService excelExportService, AppConfigurationService appConfigurationService, JsonMapper objectMapper, SalesRepository salesRepository, CommandeDataService commandeDataService, ReponseRetourBonItemRepository reponseRetourBonItemRepository
     ) {
 
         this.groupeFournisseurRepository = groupeFournisseurRepository;
@@ -71,6 +75,7 @@ public class TableauPharmacienServiceImpl implements TableauPharmacienService {
         this.objectMapper = objectMapper;
         this.salesRepository = salesRepository;
         this.commandeDataService = commandeDataService;
+        this.reponseRetourBonItemRepository = reponseRetourBonItemRepository;
     }
 
     private static AchatDTO getAchatDTO(List<AchatDTO> value, FournisseurAchat achatFournisseur) {
@@ -150,10 +155,7 @@ public class TableauPharmacienServiceImpl implements TableauPharmacienService {
 
     private void buildAchatsFromProjection(List<AchatDTO> projections, TableauPharmacienWrapper tableauPharmacienWrapper) {
         projections
-            .forEach(achatDTO -> {
-                updateTableauPharmacienWrapper(tableauPharmacienWrapper, achatDTO);
-
-            });
+            .forEach(achatDTO -> updateTableauPharmacienWrapper(tableauPharmacienWrapper, achatDTO));
     }
 
     private void updateTableauPharmacienWrapper(TableauPharmacienWrapper tableauPharmacienWrapper, AchatDTO achatDTO) {
@@ -204,15 +206,16 @@ public class TableauPharmacienServiceImpl implements TableauPharmacienService {
         tableauPharmacienWrapper.setNumberCount(tableauPharmacienWrapper.getNumberCount() + tableauPharmacienDTO.getNombreVente());
     }
 
-    private List<TableauPharmacienDTO> addAchatsToTableauPharmacien(List<TableauPharmacienDTO> tableauPharmaciens, List<AchatDTO> achats) {
-        if (achats.isEmpty()) {
+    private List<TableauPharmacienDTO> addAchatsToTableauPharmacien(List<TableauPharmacienDTO> tableauPharmaciens, List<AchatDTO> achats,List<ReponseRetourBonItemProjection> avoirs) {
+        if (achats.isEmpty() && avoirs.isEmpty()) {
             return tableauPharmaciens;
         }
         achats.sort(Comparator.comparing(AchatDTO::getOrdreAffichage));
         Map<LocalDate, List<AchatDTO>> map = achats.stream().collect(Collectors.groupingBy(AchatDTO::getMvtDate));
+        Map<LocalDate, List<ReponseRetourBonItemProjection>> avoirMap = avoirs.stream().collect(Collectors.groupingBy(ReponseRetourBonItemProjection::getDateMtv));
 
         if (tableauPharmaciens.isEmpty()) {
-            updateTableauPharmaciens(map, tableauPharmaciens);
+            updateTableauPharmaciens(map, tableauPharmaciens,avoirMap);
             return tableauPharmaciens;
         }
 
@@ -230,7 +233,7 @@ public class TableauPharmacienServiceImpl implements TableauPharmacienService {
             tableauPharmacien.setAchatFournisseurs(computeMapGroupFournisseurAchat(tableauPharmacien.getGroupAchats()));
         }
         if (!map.isEmpty()) {
-            updateTableauPharmaciens(map, tableauPharmaciens);
+            updateTableauPharmaciens(map, tableauPharmaciens,avoirMap);
         }
 
         return tableauPharmaciens;
@@ -294,7 +297,7 @@ public class TableauPharmacienServiceImpl implements TableauPharmacienService {
         return fournisseurAchat;
     }
 
-    private void updateTableauPharmaciens(Map<LocalDate, List<AchatDTO>> map, List<TableauPharmacienDTO> tableauPharmaciens) {
+    private void updateTableauPharmaciens(Map<LocalDate, List<AchatDTO>> map, List<TableauPharmacienDTO> tableauPharmaciens,Map<LocalDate, List<ReponseRetourBonItemProjection>> avoirMap) {
 
 
         map.forEach((k, v) -> {
@@ -319,8 +322,9 @@ public class TableauPharmacienServiceImpl implements TableauPharmacienService {
             tableauPharmacienWrapper
         );
         List<AchatDTO> achats = commandeDataService.fetchReportTableauPharmacienData(mvtParam);
+        List<ReponseRetourBonItemProjection> avoirs = reponseRetourBonItemRepository.findByDateRange(mvtParam.getFromDate().atStartOfDay(), mvtParam.getToDate().atTime(LocalTime.MAX));
         buildAchatsFromProjection(achats, tableauPharmacienWrapper);
-        List<TableauPharmacienDTO> result = addAchatsToTableauPharmacien(tableauPharmaciens, new ArrayList<>(achats));
+        List<TableauPharmacienDTO> result = addAchatsToTableauPharmacien(tableauPharmaciens, new ArrayList<>(achats),avoirs);
 
         tableauPharmacienWrapper.setTableauPharmaciens(result);
         computeAchats(tableauPharmacienWrapper);

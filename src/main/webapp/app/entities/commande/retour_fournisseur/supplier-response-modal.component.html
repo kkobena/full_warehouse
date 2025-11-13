@@ -1,0 +1,142 @@
+<div class="modal-header">
+  <h4 class="modal-title">
+    <i class="pi pi-check-circle me-2"></i>
+    {{ title }}
+  </h4>
+  <button (click)="cancel()" aria-label="Close" class="btn-close" type="button"></button>
+</div>
+
+<div class="modal-body">
+  <p-toast />
+
+  <!-- Summary Card -->
+  <div class="alert alert-info mb-2">
+    <div class="d-flex justify-content-between align-items-center">
+      <div>
+        <strong>{{ retourBon?.receiptReference }}</strong>
+        <span class="ms-2 text-muted">{{ retourBon?.fournisseurLibelle }}</span>
+      </div>
+      <div class="text-end">
+        <div class="text-sm">
+          Total Retourné: <strong>{{ getTotalRequested() | number }}</strong>
+        </div>
+        <div class="text-sm">
+          Total accepté: <strong class="text-primary">{{ getTotalAccepted() | number }}</strong>
+        </div>
+      </div>
+    </div>
+  </div>
+
+
+  <!-- Response Items Table -->
+  <p-table
+    [value]="responseItems()"
+    class="pharma-table"
+    editMode="cell"
+    [scrollable]="true"
+    scrollHeight="400px"
+    [showGridlines]="true"
+  >
+    <ng-template #header>
+      <tr class="pharma-table-head">
+        <th style="width: 50px">#</th>
+        <th style="width: 100px">CIP</th>
+        <th>Produit</th>
+        <th style="width: 100px">Lot</th>
+        <th style="width: 120px" class="text-center">Qté Retournée</th>
+        <th style="width: 150px" class="text-center">Qté Acceptée</th>
+        <th style="width: 80px" class="text-center">Statut</th>
+      </tr>
+    </ng-template>
+    <ng-template #body let-item let-rowIndex="rowIndex">
+      @let alreadyProcessed = isItemAlreadyProcessed(item);
+      <tr [ngClass]="getRowClass(item)">
+        <td>
+          <span class="pharma-row-number">{{ rowIndex + 1 }}</span>
+        </td>
+        <td>
+          <span class="pharma-code">{{ item.produitCip }}</span>
+        </td>
+        <td>
+          <span class="pharma-product-name">{{ item.produitLibelle }}</span>
+        </td>
+        <td>
+          @if (item.lotNumero) {
+            <span class="pharma-badge pharma-badge-info">
+
+              {{ item.lotNumero }}
+            </span>
+          }
+        </td>
+        <td class="text-center">
+          <span class="badge bg-info">{{ item.requestedQty | number }}</span>
+        </td>
+        @if (!alreadyProcessed) {
+          <td class="text-center" pEditableColumn>
+            <p-cellEditor>
+              <ng-template #input>
+                <p-inputNumber
+                  [(ngModel)]="item.qtyMvt"
+                  (ngModelChange)="onQuantityChange(item)"
+                  [min]="0"
+                  [max]="item.requestedQty"
+                  [showButtons]="true"
+                  buttonLayout="horizontal"
+                  incrementButtonIcon="pi pi-plus"
+                  decrementButtonIcon="pi pi-minus"
+                  [inputStyle]="{ 'text-align': 'center', 'width': '100px' }"
+                  (keydown.enter)="$event.preventDefault()"
+                />
+              </ng-template>
+              <ng-template #output>
+              <span class="pharma-qty-value" [ngClass]="item.qtyMvt === 0 ? 'text-danger' : ''">
+                {{ item.qtyMvt | number }}
+              </span>
+              </ng-template>
+            </p-cellEditor>
+          </td>
+        } @else {
+          <td class="text-center">
+            <span class="pharma-qty-value" [ngClass]="item.qtyMvt === 0 ? 'text-danger' : ''">
+                {{ item.qtyMvt | number }}
+              </span>
+          </td>
+        }
+
+        <td class="text-center">
+          @if (!alreadyProcessed) {
+            @if (item.qtyMvt === 0) {
+              <i class="pi pi-times-circle text-danger" pTooltip="Refusé" tooltipPosition="top"></i>
+            } @else if (item.qtyMvt && item.requestedQty && item.qtyMvt < item.requestedQty) {
+              <i class="pi pi-exclamation-triangle text-warning" pTooltip="Partiel" tooltipPosition="top"></i>
+            } @else {
+              <i class="pi pi-check-circle text-success" pTooltip="Accepté" tooltipPosition="top"></i>
+            }
+          } @else {
+            <i class="pi pi-check-circle text-success" pTooltip="Accepté" tooltipPosition="top"></i>
+          }
+
+
+        </td>
+      </tr>
+    </ng-template>
+  </p-table>
+</div>
+
+<div class="modal-footer">
+  <p-button
+    (onClick)="cancel()"
+    icon="pi pi-times"
+    label="Annuler"
+    severity="secondary"
+    [outlined]="true"
+  />
+  <p-button
+    (onClick)="save()"
+    [disabled]="!canSave() || isSaving()"
+    [loading]="isSaving()"
+    icon="pi pi-save"
+    label="Enregistrer"
+    severity="primary"
+  />
+</div>

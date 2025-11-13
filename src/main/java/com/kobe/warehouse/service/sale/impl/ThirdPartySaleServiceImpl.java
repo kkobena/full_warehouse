@@ -486,7 +486,7 @@ public class ThirdPartySaleServiceImpl extends SaleCommonService implements Thir
         this.logService.create(
                 TransactionType.MODIFICATION_DATE_DE_VENTE,
                 TransactionType.MODIFICATION_DATE_DE_VENTE.getValue(),
-                sales.getId().toString(),
+                sales.getId().getId().toString(),
                 sales.getUpdatedAt().toString(),
                 dto.getUpdatedAt().toString()
             );
@@ -795,7 +795,7 @@ public class ThirdPartySaleServiceImpl extends SaleCommonService implements Thir
         this.logService.create(
                 TransactionType.MODIFICATION_INFO_CLIENT,
                 TransactionType.MODIFICATION_INFO_CLIENT.getValue(),
-                thirdPartySales.getId().toString(),
+                thirdPartySales.getId().getId().toString(),
                 objectMapper.writeValueAsString(updateSale.initialValue()),
                 objectMapper.writeValueAsString(updateSale.finalValue())
             );

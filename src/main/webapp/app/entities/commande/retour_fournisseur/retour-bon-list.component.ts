@@ -1,64 +1,68 @@
-import { Component, inject, OnInit, signal, ViewChild } from '@angular/core';
+import { Component, inject, input, OnInit, signal, ViewChild } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { FormsModule } from '@angular/forms';
 import { HttpResponse } from '@angular/common/http';
 import { Router } from '@angular/router';
+import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { ButtonModule } from 'primeng/button';
-import { TableModule, Table } from 'primeng/table';
-import { ToolbarModule } from 'primeng/toolbar';
+import { Table, TableModule } from 'primeng/table';
 import { TooltipModule } from 'primeng/tooltip';
 import { TagModule } from 'primeng/tag';
-import { InputTextModule } from 'primeng/inputtext';
 import { ToastModule } from 'primeng/toast';
-import { IconField } from 'primeng/iconfield';
-import { InputIcon } from 'primeng/inputicon';
-import { MessageService, ConfirmationService } from 'primeng/api';
+import { ConfirmationService, MessageService } from 'primeng/api';
 import { ConfirmDialogModule } from 'primeng/confirmdialog';
 import { RippleModule } from 'primeng/ripple';
 import { WarehouseCommonModule } from 'app/shared/warehouse-common/warehouse-common.module';
 import { IRetourBon } from 'app/shared/model/retour-bon.model';
+import { IReponseRetourBon } from 'app/shared/model/reponse-retour-bon.model';
 import { RetourBonStatut } from 'app/shared/model/enumerations/retour-bon-statut.model';
 import { RetourBonService } from './retour-bon.service';
 import { ITEMS_PER_PAGE } from 'app/shared/constants/pagination.constants';
 import moment from 'moment';
+import { SupplierResponseModalComponent } from './supplier-response-modal.component';
+import { showCommonModal } from '../../sales/selling-home/sale-helper';
+import { DATE_FORMAT_ISO_DATE } from '../../../shared/util/warehouse-util';
+
+export type ExpandMode = 'single' | 'multiple';
 
 @Component({
   selector: 'jhi-retour-bon-list',
   imports: [
     CommonModule,
-    FormsModule,
     ButtonModule,
     TableModule,
-    ToolbarModule,
     TooltipModule,
     TagModule,
-    InputTextModule,
     ToastModule,
     ConfirmDialogModule,
     RippleModule,
-    WarehouseCommonModule,
+    WarehouseCommonModule
   ],
   providers: [MessageService, ConfirmationService],
   templateUrl: './retour-bon-list.component.html',
-  styleUrl: './retour-bon-list.component.scss',
+  styleUrl: './retour-bon-list.component.scss'
 })
 export class RetourBonListComponent implements OnInit {
   private readonly retourBonService = inject(RetourBonService);
   private readonly router = inject(Router);
   private readonly messageService = inject(MessageService);
   private readonly confirmationService = inject(ConfirmationService);
+  private readonly modalService = inject(NgbModal);
 
   @ViewChild('dt') table: Table | undefined;
+
+  // Inputs from parent component
+  readonly search = input('');
+  readonly selectedStatut = input<RetourBonStatut | null>(null);
+  readonly dtStart = input<Date | null>(null);
+  readonly dtEnd = input<Date | null>(null);
 
   protected retourBons = signal<IRetourBon[]>([]);
   protected loading = signal<boolean>(false);
   protected totalRecords = signal<number>(0);
   protected itemsPerPage = ITEMS_PER_PAGE;
   protected page = signal<number>(0);
-  protected searchValue = '';
-  protected selectedStatut: RetourBonStatut | null = null;
-  protected expandedRows: { [key: string]: boolean } = {};
 
+  readonly rowExpandMode: ExpandMode;
   protected readonly RetourBonStatut = RetourBonStatut;
 
   ngOnInit(): void {
@@ -67,13 +71,24 @@ export class RetourBonListComponent implements OnInit {
 
   protected loadAll(): void {
     this.loading.set(true);
-    const query = {
+    const query: any = {
       page: this.page(),
-      size: this.itemsPerPage,
+      size: this.itemsPerPage
     };
 
-    const observable = this.selectedStatut
-      ? this.retourBonService.queryByStatut(this.selectedStatut, query)
+    if (this.dtStart()) {
+      query.dtStart = DATE_FORMAT_ISO_DATE(this.dtStart());
+    }
+    if (this.dtEnd()) {
+      query.dtEnd = DATE_FORMAT_ISO_DATE(this.dtEnd());
+    }
+
+    if (this.search()) {
+      query.search = this.search();
+    }
+
+    const observable = this.selectedStatut()
+      ? this.retourBonService.queryByStatut(this.selectedStatut(), query)
       : this.retourBonService.query(query);
 
     observable.subscribe({
@@ -85,7 +100,7 @@ export class RetourBonListComponent implements OnInit {
       },
       complete: () => {
         this.loading.set(false);
-      },
+      }
     });
   }
 
@@ -98,7 +113,7 @@ export class RetourBonListComponent implements OnInit {
     this.messageService.add({
       severity: 'error',
       summary: 'Erreur',
-      detail: 'Erreur lors du chargement des retours',
+      detail: 'Erreur lors du chargement des retours'
     });
   }
 
@@ -107,99 +122,60 @@ export class RetourBonListComponent implements OnInit {
     this.loadAll();
   }
 
-  protected onSearch(): void {
-    if (this.table) {
-      this.table.filterGlobal(this.searchValue, 'contains');
-    }
+   onSearch(): void {
+    this.page.set(0);
+    this.loadAll();
   }
 
-  protected clearSearch(): void {
-    this.searchValue = '';
-    if (this.table) {
-      this.table.clear();
-    }
+
+  protected setSupplierResponse(retourBon: IRetourBon): void {
+    showCommonModal(
+      this.modalService,
+      SupplierResponseModalComponent,
+      {
+        retourBon: retourBon,
+        title: `Saisir la réponse fournisseur - ${retourBon.receiptReference}`,
+      },
+      (reponseRetourBon: IReponseRetourBon) => {
+        if (reponseRetourBon) {
+          this.saveSupplierResponse(reponseRetourBon);
+        }
+      },
+      'xl',
+    );
   }
 
-  protected viewDetails(retourBon: IRetourBon): void {
-    // Navigate to details view or open modal
-    this.messageService.add({
-      severity: 'info',
-      summary: 'Détails',
-      detail: `Voir les détails du retour #${retourBon.id}`,
-    });
-  }
-
-  protected validateRetour(retourBon: IRetourBon): void {
-    this.confirmationService.confirm({
-      message: `Voulez-vous valider le retour #${retourBon.id} ?`,
-      header: 'Confirmation',
-      icon: 'pi pi-exclamation-triangle',
-      acceptLabel: 'Oui',
-      rejectLabel: 'Non',
-      accept: () => {
-        this.retourBonService.validate(retourBon.id!).subscribe({
-          next: () => {
-            this.messageService.add({
-              severity: 'success',
-              summary: 'Succès',
-              detail: 'Retour validé avec succès',
-            });
-            this.loadAll();
-          },
-          error: () => {
-            this.messageService.add({
-              severity: 'error',
-              summary: 'Erreur',
-              detail: 'Erreur lors de la validation du retour',
-            });
-          },
+  private saveSupplierResponse(reponseRetourBon: IReponseRetourBon): void {
+    this.loading.set(true);
+    this.retourBonService.createSupplierResponse(reponseRetourBon).subscribe({
+      next: () => {
+        this.messageService.add({
+          severity: 'success',
+          summary: 'Succès',
+          detail: 'Réponse fournisseur enregistrée avec succès',
         });
+        this.loadAll();
+      },
+      error: () => {
+        this.messageService.add({
+          severity: 'error',
+          summary: 'Erreur',
+          detail: "Erreur lors de l'enregistrement de la réponse fournisseur",
+        });
+        this.loading.set(false);
       },
     });
   }
 
-  protected deleteRetour(retourBon: IRetourBon): void {
-    this.confirmationService.confirm({
-      message: `Voulez-vous supprimer le retour #${retourBon.id} ?`,
-      header: 'Confirmation de suppression',
-      icon: 'pi pi-exclamation-triangle',
-      acceptLabel: 'Oui',
-      rejectLabel: 'Non',
-      acceptButtonStyleClass: 'p-button-danger',
-      accept: () => {
-        this.retourBonService.delete(retourBon.id!).subscribe({
-          next: () => {
-            this.messageService.add({
-              severity: 'success',
-              summary: 'Succès',
-              detail: 'Retour supprimé avec succès',
-            });
-            this.loadAll();
-          },
-          error: () => {
-            this.messageService.add({
-              severity: 'error',
-              summary: 'Erreur',
-              detail: 'Erreur lors de la suppression du retour',
-            });
-          },
-        });
-      },
-    });
-  }
 
-  protected navigateToCreate(): void {
-    this.router.navigate(['/commande/retour-fournisseur']);
-  }
-
-  protected getStatusSeverity(statut: RetourBonStatut): 'success' | 'info' | 'warn' | 'danger' {
+  protected getStatusSeverity(statut: RetourBonStatut): 'success' | 'info' | 'warn' | 'danger' | 'secondary' {
     switch (statut) {
       case RetourBonStatut.VALIDATED:
-        return 'success';
-      case RetourBonStatut.PROCESSING:
         return 'info';
-      case RetourBonStatut.CANCELLED:
-        return 'danger';
+      case RetourBonStatut.PROCESSING:
+        return 'secondary';
+      case RetourBonStatut.CLOSED:
+        return 'success';
       default:
         return 'info';
     }
@@ -208,11 +184,11 @@ export class RetourBonListComponent implements OnInit {
   protected getStatusLabel(statut: RetourBonStatut): string {
     switch (statut) {
       case RetourBonStatut.VALIDATED:
-        return 'Validé';
+        return 'En attente de réponse';
       case RetourBonStatut.PROCESSING:
         return 'En cours';
-      case RetourBonStatut.CANCELLED:
-        return 'Annulé';
+      case RetourBonStatut.CLOSED:
+        return 'Clôturé';
       default:
         return statut;
     }
@@ -229,6 +205,12 @@ export class RetourBonListComponent implements OnInit {
   protected getTotalQuantity(retourBon: IRetourBon): number {
     return (
       retourBon.retourBonItems?.reduce((sum, item) => sum + (item.qtyMvt || 0), 0) || 0
+    );
+  }
+
+  protected getTotalAccepted(retourBon: IRetourBon): number {
+    return (
+      retourBon.retourBonItems?.reduce((sum, item) => sum + (item.acceptedQty || 0), 0) || 0
     );
   }
 

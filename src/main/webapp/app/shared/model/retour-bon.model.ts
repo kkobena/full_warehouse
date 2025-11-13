@@ -9,8 +9,10 @@ export interface IRetourBon {
   statut?: RetourBonStatut;
   commentaire?: string;
   commandeId?: number;
+  receiptDate?: string;
   commandeOrderDate?: string;
   commandeOrderReference?: string;
+  receiptReference?: string;
   fournisseurLibelle?: string;
   retourBonItems?: IRetourBonItem[];
 }

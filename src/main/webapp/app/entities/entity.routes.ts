@@ -157,6 +157,11 @@ const routes: Routes = [
     path: 'depot',
     data: { pageTitle: 'Dépôts' },
     loadChildren: () => import('./depot/depot.route')
+  }  ,
+  {
+    path: 'motif-retour-produit',
+    data: { pageTitle: 'Motifs rétours produits' },
+    loadChildren: () => import('./motif-retour-produit/motif-retour-produit.route')
   }
 
 ];

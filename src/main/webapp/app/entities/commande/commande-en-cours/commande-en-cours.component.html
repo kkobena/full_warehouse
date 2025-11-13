@@ -49,11 +49,11 @@
           />
         </td>
         <td>{{ commande.updatedAt | date: 'dd/MM/yyyy HH:mm:ss' }}</td>
-        <td class="pharma-code">{{ commande.orderReference }}</td>
+        <td><span class="pharma-code">{{ commande.orderReference }}</span></td>
         <td class="text-right"><span class="pharma-qty-value">{{ commande.itemSize | number }}</span></td>
         <td class="text-right"><span class="pharma-total">{{ commande.grossAmount | number }}</span></td>
-        <td class="text-right"><span class="pharma-total">{{ commande.orderAmount | number }}</span></td>
-        <td class="pharma-entity-name">{{ commande.fournisseur?.libelle }}</td>
+        <td class="text-right"><span class="pharma-price">{{ commande.orderAmount | number }}</span></td>
+        <td><span class="pharma-entity-name">{{ commande.fournisseur?.libelle }}</span></td>
         <td>{{ commande.lastUserEdit?.abbrName }}</td>
         <td class="text-center">
           <p-tableCheckbox [value]="commande"></p-tableCheckbox>

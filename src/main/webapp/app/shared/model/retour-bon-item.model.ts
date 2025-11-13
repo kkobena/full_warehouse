@@ -10,6 +10,8 @@ export interface IRetourBonItem {
   produitCip?: string;
   produitId?: number;
   qtyMvt?: number;
+  acceptedQty?: number;
+  prixAchat?: number;
   initStock?: number;
   afterStock?: number;
   lotId?: number;

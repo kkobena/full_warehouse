@@ -60,7 +60,7 @@ public class RetourBonItem implements Serializable {
     @Column(name = "accepted_qty", length = 8)
     private Integer acceptedQty;
     @NotNull
-    @Column(name = "prix_achat", length = 8)
+    @Column(name = "prix_achat", length = 8, nullable = false)
     private Integer prixAchat;
 
     public Integer getPrixAchat() {

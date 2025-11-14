@@ -24,6 +24,7 @@ import com.kobe.warehouse.service.stock.CommandeDataService;
 import org.apache.commons.lang3.BooleanUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.core.io.Resource;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
@@ -46,6 +47,7 @@ import java.util.concurrent.atomic.AtomicLong;
 import java.util.stream.Collectors;
 
 @Service
+@Qualifier("tableauPharmacienServiceImpl")
 public class TableauPharmacienServiceImpl implements TableauPharmacienService {
 
     private static final Logger LOG = LoggerFactory.getLogger(TableauPharmacienServiceImpl.class);
@@ -239,7 +241,7 @@ public class TableauPharmacienServiceImpl implements TableauPharmacienService {
         return tableauPharmaciens;
     }
 
-    Map<Long, Long> computeMapGroupFournisseurAchat(List<FournisseurAchat> groupAchats) {
+    Map<Integer, Long> computeMapGroupFournisseurAchat(List<FournisseurAchat> groupAchats) {
         if (CollectionUtils.isEmpty(groupAchats)) {
             return Collections.emptyMap();
         }

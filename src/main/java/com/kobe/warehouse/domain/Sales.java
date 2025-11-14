@@ -50,7 +50,7 @@ import java.util.Set;
         @Index(columnList = "imported", name = "vente_imported_index"),
         @Index(columnList = "to_ignore", name = "vente_to_ignore_index"),
         @Index(columnList = "payment_status", name = "vente_payment_status_index")
-      ,
+        ,
     }
 )
 @Inheritance(strategy = InheritanceType.SINGLE_TABLE)
@@ -71,7 +71,7 @@ public class Sales implements Persistable<SaleId>, Serializable, Cloneable {
     private String type;
 
     @NotNull
-    @Column(name = "number_transaction", nullable = false,length = 20)
+    @Column(name = "number_transaction", nullable = false, length = 20)
     private String numberTransaction;
 
     @NotNull
@@ -413,7 +413,6 @@ public class Sales implements Persistable<SaleId>, Serializable, Cloneable {
         this.canceledSale = canceledSale;
         return this;
     }
-
 
 
     public @NotNull LocalDateTime getEffectiveUpdateDate() {

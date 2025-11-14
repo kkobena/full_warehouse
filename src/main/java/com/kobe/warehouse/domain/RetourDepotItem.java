@@ -25,9 +25,7 @@ public class RetourDepotItem implements Serializable {
     private Integer id;
 
 
-
-    @ManyToOne(optional = false)
-    @NotNull
+    @ManyToOne
     @JoinColumn(name = "retour_depot_id", referencedColumnName = "id")
     private RetourDepot retourDepot;
 
@@ -42,6 +40,14 @@ public class RetourDepotItem implements Serializable {
 
     @Column(name = "after_stock", length = 8)
     private Integer afterStock;
+
+    @NotNull
+    @Column(name = "regular_unit_price", nullable = false)
+    private Integer regularUnitPrice;
+    @ManyToOne(optional = false)
+    @NotNull
+    private Produit produit;
+
 
     public Integer getId() {
         return id;
@@ -58,6 +64,22 @@ public class RetourDepotItem implements Serializable {
     public RetourDepotItem setRetourDepot(RetourDepot retourDepot) {
         this.retourDepot = retourDepot;
         return this;
+    }
+
+    public Produit getProduit() {
+        return produit;
+    }
+
+    public void setProduit(Produit produit) {
+        this.produit = produit;
+    }
+
+    public Integer getRegularUnitPrice() {
+        return regularUnitPrice;
+    }
+
+    public void setRegularUnitPrice(Integer regularUnitPrice) {
+        this.regularUnitPrice = regularUnitPrice;
     }
 
     public @NotNull @Min(1) Integer getQtyMvt() {

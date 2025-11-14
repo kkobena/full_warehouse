@@ -57,10 +57,15 @@ public class RetourDepot implements Serializable {
 
     @ManyToOne(optional = false)
     @NotNull
-    private Magasin  depot;
+    private Magasin depot;
 
     public Long getId() {
         return id;
+    }
+
+    public RetourDepot setId(Long id) {
+        this.id = id;
+        return this;
     }
 
     public List<RetourDepotItem> getRetourDepotItems() {
@@ -69,11 +74,6 @@ public class RetourDepot implements Serializable {
 
     public void setRetourDepotItems(List<RetourDepotItem> retourDepotItems) {
         this.retourDepotItems = retourDepotItems;
-    }
-
-    public RetourDepot setId(Long id) {
-        this.id = id;
-        return this;
     }
 
     public LocalDateTime getDateMtv() {
@@ -102,7 +102,6 @@ public class RetourDepot implements Serializable {
         this.statut = statut;
         return this;
     }
-
 
 
     public VenteDepot getVenteDepot() {

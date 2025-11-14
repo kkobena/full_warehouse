@@ -6,16 +6,16 @@ import java.util.Objects;
 
 public class FournisseurAchat {
 
-    private long id;
+    private Integer id;
     private String libelle;
     private AchatDTO achat;
     private List<AchatDTO> achats = new ArrayList<>();
 
-    public long getId() {
+    public Integer getId() {
         return id;
     }
 
-    public void setId(long id) {
+    public void setId(Integer id) {
         this.id = id;
     }
 

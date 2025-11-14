@@ -26,7 +26,7 @@ public class TableauPharmacienWrapper {
     private long montantAchatTtc;
     private long montantAchatHt;
     private long montantAvoirFournisseur;
-    private Map<Long, Long> achatFournisseurs = new HashMap<>();
+    private Map<Integer, Long> achatFournisseurs = new HashMap<>();
 
     public List<FournisseurAchat> getGroupAchats() {
         return groupAchats;
@@ -36,11 +36,11 @@ public class TableauPharmacienWrapper {
         this.groupAchats = groupAchats;
     }
 
-    public Map<Long, Long> getAchatFournisseurs() {
+    public Map<Integer, Long> getAchatFournisseurs() {
         return achatFournisseurs;
     }
 
-    public void setAchatFournisseurs(Map<Long, Long> achatFournisseurs) {
+    public void setAchatFournisseurs(Map<Integer, Long> achatFournisseurs) {
         this.achatFournisseurs = achatFournisseurs;
     }
 

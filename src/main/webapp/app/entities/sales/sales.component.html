@@ -92,13 +92,6 @@
 
         <ng-template #end>
           <div class="pharma-toolbar-actions">
-            @if (totalItems > 0) {
-              <span class="pharma-toolbar-badge mr-1">
-                <i class="pi pi-list"></i>
-                <span>{{ totalItems }}</span>
-              </span>
-            }
-
             <div class="pharma-button-group pharma-hide-mobile">
               <p-button
                 (click)="loadPage()"

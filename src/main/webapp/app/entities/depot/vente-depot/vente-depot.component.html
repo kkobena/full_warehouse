@@ -6,7 +6,6 @@
       <p-button
         (click)="previousState()"
         [rounded]="true"
-
         [text]="true"
         class="back-button"
         icon="pi pi-arrow-left"
@@ -15,7 +14,6 @@
 
       <div class="page-title">
         <h1>Ventes dépôts</h1>
-
       </div>
 
       <!-- Vendeur Selection (Left Side) -->
@@ -88,9 +86,7 @@
         <div class="search-section-header">
           <i class="pi pi-search"></i>
           <span>Recherche de produit</span>
-          <!-- <p-tag severity="info" class="ml-auto" icon="pi pi-barcode">
-             <span>Scanner activé</span>
-           </p-tag>-->
+
         </div>
 
         <div class="search-controls">
@@ -164,6 +160,7 @@
             [canRemoveItem]="canRemoveItem()"
             [quantityMax]="depotService.quantityMax()"
             [sale]="depotService.currentSale()"
+            (onSave)="onSaveAction($event)"
           >
           </jhi-vente-depot-table>
 

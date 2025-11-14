@@ -19,7 +19,6 @@ import com.kobe.warehouse.service.stock.CommandeDataService;
 import org.apache.commons.lang3.BooleanUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Primary;
 import org.springframework.core.io.Resource;
 import org.springframework.stereotype.Service;
@@ -28,7 +27,11 @@ import java.io.IOException;
 import java.net.MalformedURLException;
 import java.time.LocalDate;
 import java.time.LocalTime;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Comparator;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 import static com.kobe.warehouse.service.financiel_transaction.TableauPharmacienConstants.GROUPING_MONTHLY;
@@ -115,7 +118,7 @@ public class TableauPharmacienServiceRefactored implements TableauPharmacienServ
 
     /**
      * Main computation orchestrator
-     *
+     * <p>
      * Flow:
      * 1. Fetch and process sales data
      * 2. Fetch purchases data
@@ -131,7 +134,7 @@ public class TableauPharmacienServiceRefactored implements TableauPharmacienServ
     private TableauPharmacienWrapper computeTableauPharmacien(MvtParam mvtParam) {
         TableauPharmacienWrapper wrapper = new TableauPharmacienWrapper();
         Set<Integer> displayedGroupIds = groupeFournisseurManager.getDisplayedGroupIds();
-
+        System.err.println("fetchSalesData called with mvtParam: " + mvtParam);
         // 1. Fetch and process sales data
         List<TableauPharmacienDTO> salesData = fetchAndProcessSalesData(mvtParam, wrapper);
 
@@ -225,7 +228,8 @@ public class TableauPharmacienServiceRefactored implements TableauPharmacienServ
                 );
             }
 
-            return objectMapper.readValue(jsonResult, new TypeReference<>() {});
+            return objectMapper.readValue(jsonResult, new TypeReference<>() {
+            });
         } catch (Exception e) {
             LOG.error("Error fetching sales data: {}", e.getMessage(), e);
             return new ArrayList<>();
@@ -245,6 +249,12 @@ public class TableauPharmacienServiceRefactored implements TableauPharmacienServ
      * Fetch supplier returns (avoirs)
      */
     private List<ReponseRetourBonItemProjection> fetchSupplierReturns(MvtParam mvtParam) {
+        if (GROUPING_MONTHLY.equals(mvtParam.getGroupeBy())) {
+            return reponseRetourBonItemRepository.findByDateRangeGroupByMonth(
+                mvtParam.getFromDate().atStartOfDay(),
+                mvtParam.getToDate().atTime(LocalTime.MAX)
+            );
+        }
         return reponseRetourBonItemRepository.findByDateRange(
             mvtParam.getFromDate().atStartOfDay(),
             mvtParam.getToDate().atTime(LocalTime.MAX)
@@ -294,7 +304,8 @@ public class TableauPharmacienServiceRefactored implements TableauPharmacienServ
             long totalNetPurchase = aggregatedGroups.stream()
                 .mapToLong(f -> f.getAchat().getMontantNet())
                 .sum();
-            wrapper.setMontantAchatNet(totalNetPurchase);
+            // Subtract montantAvoirFournisseur from montantAchatNet
+            wrapper.setMontantAchatNet(totalNetPurchase - wrapper.getMontantAvoirFournisseur());
 
             // Map for frontend
             Map<Integer, Long> achatFournisseurs = aggregator.aggregateFournisseurAchatsByGroup(

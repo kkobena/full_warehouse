@@ -4,7 +4,7 @@
     <div class="pharma-toolbar pharma-toolbar-compact">
       <div class="pharma-toolbar-header">
         <i class="pi pi-shopping-cart"></i>
-        <span class="pharma-toolbar-title">Ventes aux dépôts</span>
+        <span class="pharma-toolbar-title">Achats dépôts</span>
       </div>
 
       <p-toolbar>
@@ -16,6 +16,7 @@
               [(ngModel)]="selectedDepot"
               [appendTo]="'body'"
               [dataKey]="'id'"
+              size="large"
               [options]="depots"
               [placeholder]="'Sélectionner un dépôt'"
               [style]="{ 'min-width': '200px' }"
@@ -34,7 +35,7 @@
             </p-select>
 
 
-            <div class="pharma-compact-search mr-1">
+            <div class="pharma-compact-search">
               <p-inputgroup>
                 <input
                   (keyup.enter)="onSearch()"
@@ -81,13 +82,6 @@
 
         <ng-template #end>
           <div class="pharma-toolbar-actions">
-            @if (totalItems > 0) {
-              <span class="pharma-toolbar-badge mr-1">
-                <i class="pi pi-list"></i>
-                <span>{{ totalItems }}</span>
-              </span>
-            }
-
             <div class="pharma-button-group pharma-hide-mobile">
               <p-button
                 (click)="loadPage()"
@@ -100,7 +94,7 @@
               <div>
                 <p-button
                   [raised]="true"
-                  [routerLink]="['/sales', false, 'new']"
+                  [routerLink]="['/depot',  'new-vente']"
                   icon="pi pi-plus"
                   label="Nouvelle vente"
                   severity="success"
@@ -174,46 +168,33 @@
                   type="button"
                 />
               </td>
-              <td>{{ sale.updatedAt }}</td>
+              <td>{{ sale.updatedAt | date: 'dd/MM/yyyy HH:mm' }}</td>
 
               <td><span class="pharma-code">{{ sale.numberTransaction }}</span></td>
               <td class="text-right">{{ sale.salesLines.length | number }}</td>
               <td class="pharma-total">{{ sale.salesAmount | number }}</td>
-              <td class="pharma-entity-name">{{ sale.customer?.fullName }}</td>
+              <td class="pharma-entity-name">{{ sale.magasin?.fullName }}</td>
 
               <td>{{ sale.cassier?.abbrName }}</td>
               <td>
                 <div class="btn-group d-flex justify-content-end">
-
-
-                  @if (sale.customer) {
-                    <p-button
-                      (click)="printSale(sale)"
-                      [rounded]="true"
-                      [text]="true"
-                      class="ml-1"
-                      icon="pi pi-print"
-                      pTooltip="Imprimer"
-                      severity="secondary"
-                      size="small"
-                    ></p-button>
-                    <p-button
-                      (click)="print(sale)"
-                      [rounded]="true"
-                      [text]="true"
-                      icon="pi pi-receipt"
-                      pTooltip="Imprimer la facture"
-                      severity="warn"
-                      size="small"
-                    ></p-button>
-                  }
-
+                  <p-button
+                    (click)="printSale(sale)"
+                    [rounded]="true"
+                    [text]="true"
+                    icon="pi pi-print"
+                    pTooltip="Imprimer"
+                    severity="secondary"
+                    size="small"
+                    tooltipPosition="top"
+                  ></p-button>
                   <p-button
                     (click)="onExportMenu($event, sale)"
                     [rounded]="true"
                     [text]="true"
                     icon="pi pi-file-export"
                     pTooltip="Exporter"
+                    tooltipPosition="top"
                     severity="primary"
                     size="small"
                   ></p-button>
@@ -226,8 +207,6 @@
             <tr class="pharma-expanded-row">
               <td colspan="10">
                 <div class="pharma-sub-table-card pharma-smart">
-
-
                   <div class="card">
                     <div class="card-header bg-info text-white">
                       <i class="pi pi-list"></i>
@@ -277,7 +256,7 @@
                             <td
                               class="text-right pharma-price">{{ saleLine.regularUnitPrice | number }}
                             </td>
-                            <td class="pharma-total"
+                            <td class="pharma-total px-1"
                                 style="text-align: right; font-weight: bold">{{ saleLine.salesAmount | number }}
                             </td>
                           </tr>
@@ -305,5 +284,5 @@
 
 </div>
 <jhi-confirm-dialog #confirmDialog></jhi-confirm-dialog>
-<p-menu #exportMenu [model]="exportMenuItems" [popup]="true"></p-menu>
+<p-menu #exportMenu [model]="exportMenuItems" [popup]="true" appendTo="body"></p-menu>
 

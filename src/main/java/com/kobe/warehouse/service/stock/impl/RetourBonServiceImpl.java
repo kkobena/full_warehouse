@@ -128,20 +128,13 @@ public class RetourBonServiceImpl implements RetourBonService {
 
     @Override
     public ReponseRetourBonDTO createSupplierResponse(ReponseRetourBonDTO reponseRetourBonDTO) {
-        log.debug("Request to create supplier response for RetourBon : {}", reponseRetourBonDTO.getRetourBonId());
-
-        // Get the current user
         AppUser currentUser = userService.getUser();
-
-        // Find the RetourBon
         RetourBon retourBon = retourBonRepository.findById(reponseRetourBonDTO.getRetourBonId()).orElseThrow(() -> new GenericError("RetourBon not found"));
 
-        // Validate that the retour bon is in VALIDATED status
         if (retourBon.getStatut() != RetourStatut.VALIDATED) {
             throw new GenericError("Ce retour est déjà traité ");
         }
 
-        // Create the ReponseRetourBon
         ReponseRetourBon reponseRetourBon = new ReponseRetourBon();
         reponseRetourBon.setDateMtv(LocalDateTime.now());
         reponseRetourBon.setUser(currentUser);
@@ -184,14 +177,15 @@ public class RetourBonServiceImpl implements RetourBonService {
 
         // Create the response item
 
+        int acceptedQty = Objects.requireNonNullElse(retourBonItem.getAcceptedQty(), 0) ;
         ReponseRetourBonItem responseItem = new ReponseRetourBonItem();
         responseItem.setDateMtv(LocalDateTime.now());
         responseItem.setReponseRetourBon(reponseRetourBon);
         responseItem.setRetourBonItem(retourBonItem);
-        responseItem.setQtyMvt(itemDTO.getQtyMvt());
+        responseItem.setQtyMvt(itemDTO.getQtyMvt()-acceptedQty);
         responseItem.setPrixAchat(retourBonItem.getPrixAchat());
         reponseRetourBonItemRepository.save(responseItem);
-        retourBonItem.setAcceptedQty(Objects.requireNonNullElse(retourBonItem.getAcceptedQty(),0) + itemDTO.getQtyMvt());
+        retourBonItem.setAcceptedQty(Objects.requireNonNullElse(retourBonItem.getAcceptedQty(),0) + responseItem.getQtyMvt());
         retourBonItemRepository.save(retourBonItem);
         return itemDTO.getQtyMvt().compareTo(retourBonItem.getQtyMvt()) == 0;
 

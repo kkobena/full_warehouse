@@ -24,4 +24,21 @@ public interface ReponseRetourBonItemRepository extends JpaRepository<ReponseRet
     """)
     List<ReponseRetourBonItemProjection> findByDateRange(LocalDateTime startDate, LocalDateTime endDate);
 
+
+
+    @Query("""
+                SELECT
+                    SUM(rbi.qtyMvt) AS acceptedQty,
+                    rrb.retourBon.commande.fournisseur.id  AS fournisseurId,
+                    SUM(rbi.prixAchat * rbi.qtyMvt) AS valeurAchat,
+                  DATE(DATE_TRUNC('MONTH', rrb.dateMtv))  AS dateMtv
+
+
+                FROM ReponseRetourBonItem rbi
+                JOIN rbi.reponseRetourBon rrb
+                WHERE rrb.dateMtv BETWEEN :startDate AND :endDate
+                GROUP BY fournisseurId, dateMtv
+        """)
+    List<ReponseRetourBonItemProjection> findByDateRangeGroupByMonth(LocalDateTime startDate, LocalDateTime endDate);
+
 }

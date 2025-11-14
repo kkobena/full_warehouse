@@ -98,7 +98,7 @@ public class PaymentTransaction implements Persistable<PaymentId>, Serializable 
     private TypeFinancialTransaction typeFinancialTransaction;
 
     private String commentaire;
-    @Column(name = "transaction_number", nullable = false,length = 13)
+    @Column(name = "transaction_number",length = 13)
     private String transactionNumber;
 
     @Column(name = "dtype", insertable = false, updatable = false)

@@ -4,7 +4,7 @@ import com.alibaba.excel.annotation.ExcelProperty;
 
 public class StockDepotExportDTO {
     @ExcelProperty("Produit ID")
-    private Long produitId;
+    private Integer produitId;
     @ExcelProperty("Code CIP")
     private String code;
     @ExcelProperty("Produit")
@@ -22,11 +22,11 @@ public class StockDepotExportDTO {
     @ExcelProperty("Prix achat")
     private Integer costAmount;
 
-    public Long getProduitId() {
+    public Integer getProduitId() {
         return produitId;
     }
 
-    public void setProduitId(Long produitId) {
+    public void setProduitId(Integer produitId) {
         this.produitId = produitId;
     }
 
@@ -97,7 +97,7 @@ public class StockDepotExportDTO {
     public StockDepotExportDTO() {
     }
 
-    public StockDepotExportDTO(Long produitId, String code, String produitLibelle, String codeEan, Integer quantitySold, Integer quantityRequested, Integer regularUnitPrice, Integer taxValue, Integer costAmount) {
+    public StockDepotExportDTO(Integer produitId, String code, String produitLibelle, String codeEan, Integer quantitySold, Integer quantityRequested, Integer regularUnitPrice, Integer taxValue, Integer costAmount) {
         this.produitId = produitId;
         this.code = code;
         this.produitLibelle = produitLibelle;

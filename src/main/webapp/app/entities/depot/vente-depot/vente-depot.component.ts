@@ -235,7 +235,6 @@ export class VenteDepotComponent implements OnInit, AfterViewInit, OnDestroy {
 
   onAddNewQty(qytMvt: number): void {
     const qtyMaxToSel = this.depotService.quantityMax();
-    console.log('qtyMaxToSel', qtyMaxToSel);
     const qtyAlreadyRequested = this.totalItemQty() + qytMvt;
     const validation = this.saleStockValidator.validate(
       this.produitSelected,
@@ -244,6 +243,7 @@ export class VenteDepotComponent implements OnInit, AfterViewInit, OnDestroy {
       this.canForceStock(),
       qtyMaxToSel,
     );
+
     if (validation.isValid) {
       this.onAddProduit(qytMvt);
     } else {
@@ -332,9 +332,7 @@ export class VenteDepotComponent implements OnInit, AfterViewInit, OnDestroy {
     this.shortcutsService.unregisterAll();
   }
 
-  onKeyDown(event: any): void {
-    this.save();
-  }
+
 
   removeLine(salesLine: ISalesLine): void {
     this.depotFacadeService.removeItemFromSale(salesLine.saleLineId);
@@ -457,12 +455,11 @@ export class VenteDepotComponent implements OnInit, AfterViewInit, OnDestroy {
       this.save();
     }
   }
-
+protected onSaveAction(onSave: boolean): void {
+  this.onSaveKeyDown(onSave);
+}
   protected onBarcodeScanned(barcode: string): void {
-    // Optional: Log or handle barcode scan event
-    console.log('Barcode scanned:', barcode);
-    // The product will be automatically selected by the autocomplete component
-    // No additional action needed here unless you want to add custom logic
+
   }
 
   private handleInvalidStock(reason: string, qytMvt: number): void {

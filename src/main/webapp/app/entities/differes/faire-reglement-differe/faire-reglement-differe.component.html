@@ -50,7 +50,7 @@
           <ng-template #body let-item let-rowIndex="rowIndex">
             <tr [ngClass]="{ 'pharma-row-success': item.restAmount == 0 }">
               <td><span class="pharma-code">{{ item.reference }}</span></td>
-              <td>{{ item.mvtDate | date: 'dd/MM/yy HH:mm' }}</td>
+              <td>{{ item.mvtDate | date: 'dd/MM/yyyy HH:mm' }}</td>
               <td><span class="pharma-operator">{{
                   (item?.firstName || '') + ' ' + (item?.lastName || '')
                 }}</span></td>

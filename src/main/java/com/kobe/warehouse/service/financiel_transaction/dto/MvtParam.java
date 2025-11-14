@@ -127,4 +127,13 @@ public class MvtParam {
 
         return new MvtParam(fromDate, toDate, categorieChiffreAffaires, statuts, typeVentes, groupeBy);
     }
+
+    @Override
+    public String toString() {
+        return "MvtParam{" +
+            "toDate=" + toDate +
+            ", fromDate=" + fromDate +
+            ", groupeBy='" + groupeBy + '\'' +
+            '}';
+    }
 }

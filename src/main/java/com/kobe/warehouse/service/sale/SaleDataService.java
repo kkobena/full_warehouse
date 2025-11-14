@@ -682,6 +682,7 @@ public class SaleDataService {
         Join<SalesLine, Sales> saleJoin = root.join(SalesLine_.sales);
         Join<Produit, FournisseurProduit> fournisseurProduitJoin = produitJoin.join(Produit_.fournisseurProduitPrincipal);
         //Long produitId, String code, String produitLibelle, String codeEan, Integer quantitySold, Integer quantityRequested, Integer regularUnitPrice, Integer taxValue, Integer costAmount
+        //java.lang.Integer, java.lang.String, java.lang.String, java.lang.String, java.lang.Integer, java.lang.Integer, java.lang.Integer, java.lang.Integer, java.lang.Integer
         cq.select(
             cb.construct(
                 StockDepotExportDTO.class,

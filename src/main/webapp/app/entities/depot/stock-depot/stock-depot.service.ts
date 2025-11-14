@@ -34,7 +34,7 @@ export class StockDepotService {
   fetchSales(req?: any): Observable< HttpResponse<ISales[]>> {
     const options = createRequestOptions(req);
     return this.http
-      .get<ISales[]>(this.resourceUrl, { params: options, observe: 'response' });
+      .get<ISales[]>(this.resourceUrl+'/sales', { params: options, observe: 'response' });
   }
 
   export(format: string, saleId: SaleId): Observable<HttpResponse<Blob>> {

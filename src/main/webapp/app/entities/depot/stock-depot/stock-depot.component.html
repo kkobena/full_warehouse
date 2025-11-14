@@ -19,6 +19,7 @@
               [(ngModel)]="selectedDepot"
               [appendTo]="'body'"
               [dataKey]="'id'"
+              size="large"
               [options]="depots"
               [placeholder]="'Sélectionner un dépôt'"
               [style]="{ 'min-width': '200px' }"
@@ -35,24 +36,6 @@
                 </div>
               </ng-template>
             </p-select>
-
-
-
-            <p-floatlabel variant="on">
-              <p-select (onChange)="filtreClik()"
-                        [(ngModel)]="selectedCriteria"
-                        [fluid]="true"
-                        [options]="filtesProduits"
-                        [style]="{'min-width': '130px'}"
-                        appendTo="body"
-                        id="criteria"
-                        optionLabel="label"
-                        optionValue="value"
-                        size="large"
-              >
-              </p-select>
-              <label for="criteria">Filtrer par critère</label>
-            </p-floatlabel>
 
             <div class="pharma-compact-search">
               <p-iconfield>
@@ -81,12 +64,11 @@
     </div>
 
     <div class="mt-2">
-      @if (produits && produits.length > 0) {
-        <p-table [rowExpandMode]="rowExpandMode" [value]="produits" class="pharma-table"
+
+        <p-table  [value]="produits" class="pharma-table"
                  dataKey="id">
           <ng-template #header>
             <tr class="pharma-table-head">
-              <th style="width:2rem"></th>
               <th style="width: 8%">Cip</th>
               <th style="width: 11%">Code EAN</th>
               <th style="width: 24%"><span
@@ -99,23 +81,12 @@
                 jhiTranslate="warehouseApp.produit.costAmount">Prix achat </span></th>
               <th style="text-align: right; width: 8%"><span
                 jhiTranslate="warehouseApp.produit.regularUnitPrice">Regular Unit Price</span></th>
-              <th style="text-align: right; width: 6%">Qté.Reap</th>
-              <th style="text-align: right; width: 6%">Qté Mini</th>
 
-              <th style="width: 13%"></th>
             </tr>
           </ng-template>
-          <ng-template #body let-expanded="expanded" let-produit>
+          <ng-template #body let-produit>
             <tr>
-              <td>
-                <p-button
-                  [icon]="expanded ? 'pi pi-chevron-down' : 'pi pi-chevron-right'"
-                  [pRowToggler]="produit"
-                  [rounded]="true"
-                  [text]="true"
-                  type="button"
-                />
-              </td>
+
               <td>
                 <span class="pharma-code">{{ produit.codeCip }}</span>
               </td>
@@ -145,169 +116,18 @@
               <td style="text-align: right">
                 <span class="pharma-price">{{ produit.regularUnitPrice | number }}</span>
               </td>
-              <td style="text-align: right">
-                <span class="pharma-qty-value">{{ produit.qtyAppro | number }}</span>
-              </td>
-              <td style="text-align: right">
-                <span class="pharma-qty-value">{{ produit.qtySeuilMini | number }}</span>
-              </td>
 
-              <td class="text-right">
-                <p-buttonGroup>
-                  <p-button
-                    [rounded]="true"
-                    [routerLink]="['/produit', produit.id, 'view']"
-                    [text]="true"
-                    icon="pi pi-eye"
-                    pTooltip="Voir détail"
-                    severity="info"
-                    tooltipPosition="left"
-                    type="button"
-                  >
-                  </p-button>
-
-                </p-buttonGroup>
-              </td>
             </tr>
           </ng-template>
-          <ng-template #expandedrow let-elRow>
-            <tr class="pharma-expanded-row">
-              <td colspan="10">
-                <div class="p-3  expanded-content">
-                  <div class="row">
-                    <div class="mb-3 col-md-12 col-sm-12 col-lg-6 col-xl-4 col-xxl-4">
-                      <p-card>
-                        <ng-template #title>
-                          <div class="card-title pharma-smart-card-title primary-title ">
-                            <i class="pi pi-info-circle mr-2"></i>
-                            Informations Générales
-                          </div>
-                        </ng-template>
-                        <div class="grid">
-                          <div class="col-12">
-                            <div class="field">
-                              <label>PMP</label>
-                              <span>{{ elRow?.prixMnp | number }}</span>
-                            </div>
-                            <div class="field">
-                              <label>Date dernière vente</label>
-                              <span>{{ elRow?.lastDateOfSale | date: 'dd/MM/yyyy HH:mm' }}</span>
-                            </div>
-                            <div class="field">
-                              <label>Date de création</label>
-                              <span>{{ elRow?.createdAt | date: 'dd/MM/yyyy HH:mm' }}</span>
-                            </div>
-                            <div class="field">
-                              <label>Date péremption</label>
-                              <span>{{ elRow?.expirationDate }}</span>
-                            </div>
-                            <div class="field">
-                              <label>Gamme</label>
-                              <span>{{ elRow?.gammeLibelle }}</span>
-                            </div>
-                            <div class="field">
-                              <label>Date dernière entrée en stock</label>
-                              <span>{{ elRow?.lastOrderDate | date: 'dd/MM/yyyy HH:mm' }}</span>
-                            </div>
-                            <div class="field">
-                              <label>Date dernière inventaire</label>
-                              <span>{{ elRow?.lastInventoryDate | date: 'dd/MM/yyyy HH:mm' }}</span>
-                            </div>
-                            <div class="field">
-                              <label>Tva</label>
-                              <span>{{ elRow?.tvaTaux }}</span>
-                            </div>
-                            <div class="field">
-                              <label>Quantité détail</label>
-                              <span>{{ elRow?.itemQty }}</span>
-                            </div>
-                            <div class="field">
-                              <label>Famille</label>
-                              <span>{{ elRow?.familleLibelle }}</span>
-                            </div>
-                            <div class="field">
-                              <label>Forme</label>
-                              <span>{{ elRow?.formeLibelle }}</span>
-                            </div>
-                            <div class="field">
-                              <label>Laboratoire</label>
-                              <span>{{ elRow?.laboratoireLibelle }}</span>
-                            </div>
-                          </div>
-                        </div>
-                      </p-card>
-                    </div>
-
-                    <div class="col-md-6 col-sm-12 col-lg-6 col-xl-8 col-xxl-8 row">
-                      <div class="mb-3 col-md-6 col-sm-12 col-lg-6 col-xl-6 col-xxl-6">
-                        <p-card>
-                          <ng-template #title>
-                            <div class="card-title warn-title">
-                              <i class="pi pi-sitemap mr-2"></i>
-                              Gestion des Rayons
-                            </div>
-                          </ng-template>
-                          <p-table [value]="elRow?.rayonProduits">
-                            <ng-template #header>
-                              <tr>
-                                <th>Code rayon</th>
-                                <th>Libelle rayon</th>
 
 
-                              </tr>
-                            </ng-template>
-                            <ng-template #body let-rayon>
-                              <tr>
-                                <td>{{ rayon.codeRayon }}</td>
-                                <td>{{ rayon.libelleRayon }}</td>
-
-                              </tr>
-                            </ng-template>
-
-                          </p-table>
-                        </p-card>
-                      </div>
-                      <div class="mb-3 col-md-6 col-sm-12 col-lg-6 col-xl-6 col-xxl-6">
-                        <p-card>
-                          <ng-template #title>
-                            <div class="card-title info-title">
-                              <i class="pi pi-cog mr-2"></i>
-                              Liste des fournisseurs
-                            </div>
-
-                          </ng-template>
-                          <p-table [value]="elRow?.fournisseurProduits">
-                            <ng-template #header>
-                              <tr>
-                                <th>Grossiste</th>
-                                <th>Cip</th>
-                                <th>Prix.A</th>
-                                <th>Prix.U</th>
-
-                              </tr>
-                            </ng-template>
-                            <ng-template #body let-four>
-                              <tr>
-                                <td>{{ four.fournisseurLibelle }}</td>
-                                <td>{{ four.codeCip }}</td>
-                                <td>{{ four.prixAchat | number }}</td>
-                                <td>{{ four.prixUni | number }}</td>
-
-                              </tr>
-                            </ng-template>
-                            <ng-template #emptymessage>
-                              <tr>
-                                <td colspan="5">Aucun fournisseur.</td>
-                              </tr>
-                            </ng-template>
-                          </p-table>
-                        </p-card>
-                      </div>
-
-
-                    </div>
-
-                  </div>
+          <ng-template #emptymessage>
+            <tr>
+              <td colspan="10" class="pharma-empty-message">
+                <div class="pharma-empty-content">
+                  <i class="pi pi-inbox"></i>
+                  <p>Aucune donnée trouvée</p>
+                  <small>Sélectionner un dépôt pour afficher ses produits</small>
                 </div>
               </td>
             </tr>
@@ -326,11 +146,7 @@
             ></ngb-pagination>
           </div>
         </div>
-      } @else {
-        <div class="alert alert-warning" id="no-result">
-          <span jhiTranslate="warehouseApp.produit.home.notFound">No produits found</span>
-        </div>
-      }
+
     </div>
   </div>
 </div>

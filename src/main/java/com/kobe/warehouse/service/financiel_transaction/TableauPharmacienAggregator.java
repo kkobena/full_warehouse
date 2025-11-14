@@ -238,6 +238,8 @@ public class TableauPharmacienAggregator {
             Long avoirAmount = avoirsByDate.remove(dto.getMvtDate());
             if (avoirAmount != null) {
                 dto.setMontantAvoirFournisseur(avoirAmount);
+                // Subtract montantAvoirFournisseur from montantBonAchat
+                dto.setMontantBonAchat(dto.getMontantBonAchat() - avoirAmount);
             }
         }
 
@@ -259,6 +261,8 @@ public class TableauPharmacienAggregator {
             TableauPharmacienDTO dto = new TableauPharmacienDTO();
             dto.setMvtDate(date);
             dto.setMontantAvoirFournisseur(avoirAmount);
+            // Subtract montantAvoirFournisseur from montantBonAchat (which is 0 by default)
+            dto.setMontantBonAchat(-avoirAmount);
             newEntries.add(dto);
         });
 

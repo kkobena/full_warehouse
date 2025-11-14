@@ -1,4 +1,4 @@
-import { AfterViewInit, Component, inject, OnInit, viewChild } from '@angular/core';
+import { Component, inject, OnInit, viewChild } from '@angular/core';
 import { Button } from 'primeng/button';
 import { ConfirmDialogComponent } from '../../../shared/dialog/confirm-dialog/confirm-dialog.component';
 import { DatePicker } from 'primeng/datepicker';
@@ -14,7 +14,6 @@ import { ITEMS_PER_PAGE } from '../../../shared/constants/pagination.constants';
 import { ISales, SaleId } from '../../../shared/model/sales.model';
 import { IUser } from '../../../core/user/user.model';
 import { MenuItem } from 'primeng/api';
-import { HasAuthorityService } from '../../sales/service/has-authority.service';
 import { TranslateService } from '@ngx-translate/core';
 import { PrimeNG } from 'primeng/config';
 import { SalesService } from '../../sales/sales.service';
@@ -55,7 +54,7 @@ import { Menu } from 'primeng/menu';
   templateUrl: './achat-depot.component.html',
   styleUrl: './achat-depot.component.scss'
 })
-export class AchatDepotComponent implements OnInit, AfterViewInit {
+export class AchatDepotComponent implements OnInit {
   protected selectedDepot: IMagasin | null = null;
   protected totalItems = 0;
   protected loading!: boolean;
@@ -71,8 +70,6 @@ export class AchatDepotComponent implements OnInit, AfterViewInit {
   protected isLargeScreen = true;
   protected splitbuttons: MenuItem[];
   protected depots: IMagasin[] = [];
-  protected hasAuthorityService = inject(HasAuthorityService);
-
   protected actions: MenuItem[] | undefined;
   protected exportMenuItems: MenuItem[] = [];
   protected currentSaleForExport?: ISales;
@@ -84,7 +81,7 @@ export class AchatDepotComponent implements OnInit, AfterViewInit {
   private readonly userService = inject(UserService);
 
   private searchSubject = new Subject<void>();
-  private readonly confimDialog = viewChild.required<ConfirmDialogComponent>('confirmDialog');
+
   private readonly exportMenu = viewChild.required<Menu>('exportMenu');
   private readonly tauriPrinterService = inject(TauriPrinterService);
   private readonly magasinService = inject(MagasinService);
@@ -103,7 +100,6 @@ export class AchatDepotComponent implements OnInit, AfterViewInit {
       }
     ];
 
-    // Initialize export menu items
     this.exportMenuItems = [
       {
         label: 'Exporter en CSV',
@@ -118,7 +114,7 @@ export class AchatDepotComponent implements OnInit, AfterViewInit {
       {
         label: 'Exporter en PDF',
         icon: 'pi pi-file-pdf',
-        command: () => this.exportWithFormat('PDF')
+        command: () => this.print()
       }
     ];
   }
@@ -167,9 +163,6 @@ export class AchatDepotComponent implements OnInit, AfterViewInit {
     this.searchSubject.next();
   }
 
-  ngAfterViewInit(): void {
-
-  }
 
   printReceiptForTauri(saleId: SaleId, isEdition: boolean = false): void {
     this.salesService.getEscPosReceiptForTauri(saleId, isEdition).subscribe({
@@ -204,10 +197,6 @@ export class AchatDepotComponent implements OnInit, AfterViewInit {
   }
 
 
-  protected exportToCsv(sale: ISales): void {
-    this.onExport('CSV', sale.saleId);
-  }
-
   protected onExportMenu(event: Event, sale: ISales): void {
     this.currentSaleForExport = sale;
     this.exportMenu().toggle(event);
@@ -219,8 +208,8 @@ export class AchatDepotComponent implements OnInit, AfterViewInit {
     }
   }
 
-  protected print(sales: ISales): void {
-    this.salesService.printInvoice(sales.saleId).subscribe(blob => {
+  protected print(): void {
+    this.salesService.printInvoice(this.currentSaleForExport.saleId).subscribe(blob => {
       if (this.tauriPrinterService.isRunningInTauri()) {
         handleBlobForTauri(blob, 'facture-client');
       } else {
@@ -278,7 +267,7 @@ export class AchatDepotComponent implements OnInit, AfterViewInit {
       next: async resp => {
         const blob = resp.body;
         if (!blob) {
-          console.error('Aucune donnée reçue pour l\'exportation');
+
           return;
         }
 

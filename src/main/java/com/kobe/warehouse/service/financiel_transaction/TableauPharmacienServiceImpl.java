@@ -449,6 +449,7 @@ public class TableauPharmacienServiceImpl implements TableauPharmacienService {
 
 
     private List<TableauPharmacienDTO> fetchSalesData(MvtParam mvtParam) {
+
         try {
             String jsonResult;
             if ("month".equals(mvtParam.getGroupeBy())) {

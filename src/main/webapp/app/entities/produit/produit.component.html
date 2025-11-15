@@ -11,18 +11,18 @@
 
       <p-toolbar>
         <ng-template #start>
-          <div class="pharma-toolbar-filters">
+          <div class="pharma-toolbar-filters py-1">
             <p-floatlabel variant="on">
-              <p-select [style]="{'min-width': '130px'}"
-                        (onChange)="filtreClik()"
+              <p-select (onChange)="filtreClik()"
                         [(ngModel)]="selectedCriteria"
+                        [fluid]="true"
                         [options]="filtesProduits"
+                        [style]="{'min-width': '130px'}"
+                        appendTo="body"
+                        id="criteria"
                         optionLabel="label"
                         optionValue="value"
                         size="large"
-                        [fluid]="true"
-                        id="criteria"
-                        appendTo="body"
               >
               </p-select>
               <label for="criteria">Filtrer par critère</label>
@@ -30,17 +30,17 @@
 
             <p-floatlabel variant="on">
               <p-select
-                size="large"
-                [fluid]="true"
                 (onChange)="filtreRayon($event)"
                 [(ngModel)]="selectedRayon"
+                [fluid]="true"
                 [options]="rayons"
                 [showClear]="true"
                 [style]="{'min-width': '150px'}"
+                appendTo="body"
+                id="rayon"
                 optionLabel="libelle"
                 optionValue="id"
-                id="rayon"
-                appendTo="body"
+                size="large"
               >
               </p-select>
               <label for="rayon">Rayon</label>
@@ -50,15 +50,15 @@
               <p-select
                 (onChange)="filtreFamilleProduit($event)"
                 [(ngModel)]="selectedFamille"
-                [options]="familles"
                 [fluid]="true"
+                [options]="familles"
                 [showClear]="true"
                 [style]="{'min-width': '150px'}"
-                size="large"
+                appendTo="body"
+                id="famille"
                 optionLabel="libelle"
                 optionValue="id"
-                id="famille"
-                appendTo="body"
+                size="large"
               >
               </p-select>
               <label for="famille">Famille</label>
@@ -102,13 +102,15 @@
 
     <div class="mt-2">
       @if (produits && produits.length > 0) {
-        <p-table [rowExpandMode]="rowExpandMode" [value]="produits" dataKey="id" class="pharma-table">
+        <p-table [rowExpandMode]="rowExpandMode" [value]="produits" class="pharma-table"
+                 dataKey="id">
           <ng-template #header>
             <tr class="pharma-table-head">
               <th style="width:2rem"></th>
               <th style="width: 8%">Cip</th>
               <th style="width: 11%">Code EAN</th>
-              <th style="width: 24%"><span jhiTranslate="warehouseApp.produit.libelle">Libelle</span>
+              <th style="width: 24%"><span
+                jhiTranslate="warehouseApp.produit.libelle">Libelle</span>
               </th>
               <th style="text-align: right; width: 6%"><span
                 jhiTranslate="warehouseApp.produit.quantity">Quantity</span></th>
@@ -123,7 +125,7 @@
               <th style="width: 13%"></th>
             </tr>
           </ng-template>
-          <ng-template let-expanded="expanded" let-produit #body>
+          <ng-template #body let-expanded="expanded" let-produit>
             <tr>
               <td>
                 <p-button
@@ -144,16 +146,16 @@
                 <div class="pharma-product-name">{{ produit.libelle }}</div>
               </td>
               @if (produit.totalQuantity < 0) {
-                <td style="text-align: right"
-                    class="amount-column red-400">{{ produit.totalQuantity | number }}
+                <td class="amount-column red-400"
+                    style="text-align: right">{{ produit.totalQuantity | number }}
                 </td>
               } @else if (produit.totalQuantity === 0) {
-                <td style="text-align: right"
-                    class="amount-column orange-400">{{ produit.totalQuantity | number }}
+                <td class="amount-column orange-400"
+                    style="text-align: right">{{ produit.totalQuantity | number }}
                 </td>
               } @else {
-                <td style="text-align: right"
-                    class="amount-column">{{ produit.totalQuantity | number }}
+                <td class="amount-column"
+                    style="text-align: right">{{ produit.totalQuantity | number }}
                 </td>
               }
 
@@ -176,39 +178,39 @@
               <td class="text-right">
                 <p-buttonGroup>
                   <p-button
-                    tooltipPosition="left"
+                    [rounded]="true"
                     [routerLink]="['/produit', produit.id, 'view']"
-                    severity="info"
+                    [text]="true"
                     icon="pi pi-eye"
                     pTooltip="Voir détail"
-                    [rounded]="true"
-                    [text]="true"
+                    severity="info"
+                    tooltipPosition="left"
                     type="button"
                   >
                   </p-button>
 
                   @if (produit.typeProduit === 'PACKAGE') {
                     <p-button
-                      tooltipPosition="left"
+                      [rounded]="true"
                       [routerLink]="['/produit', produit.id, 'edit']"
-                      severity="success"
+                      [text]="true"
                       icon="pi pi-pencil"
                       pTooltip="Editer"
-                      [rounded]="true"
-                      [text]="true"
+                      severity="success"
+                      tooltipPosition="left"
                       type="button"
                     >
                     </p-button>
                   }
                   @if (produit.typeProduit === 'DETAIL') {
                     <p-button
-                      tooltipPosition="left"
                       (click)="editDetail(produit)"
-                      severity="primary"
-                      icon="pi pi-pencil"
-                      pTooltip="Editer"
                       [rounded]="true"
                       [text]="true"
+                      icon="pi pi-pencil"
+                      pTooltip="Editer"
+                      severity="primary"
+                      tooltipPosition="left"
                       type="button"
                     >
                     </p-button>
@@ -216,26 +218,26 @@
 
                   <p-button
                     (click)="addPrixReference(produit)"
-                    severity="secondary"
                     [rounded]="true"
                     [text]="true"
-                    tooltipPosition="left"
-                    type="button"
                     icon="pi pi-cart-plus"
                     pTooltip="Ajouter des prix de référence"
+                    severity="secondary"
+                    tooltipPosition="left"
+                    type="button"
                   >
                   </p-button>
 
 
-                  <p-button
-                    (click)="addPeremptionDate(produit)"
-                    severity="help"
-                    [rounded]="true"
-                    [text]="true"
-                    tooltipPosition="left"
-                    type="button"
-                    icon="pi pi-calendar-plus"
-                    pTooltip="Modifier la date de péremption"
+                  <p-button (click)="addPeremptionDate(produit)"
+                            [hidden]="true"
+                            [rounded]="true"
+                            [text]="true"
+                            icon="pi pi-box"
+                            pTooltip="Ajout de lot"
+                            severity="help"
+                            tooltipPosition="left"
+                            type="button"
                   >
                   </p-button>
 
@@ -244,12 +246,12 @@
                   @if (produit.deconditionnable && produit.produits?.length == 0) {
                     <p-button
                       (click)="addDetail(produit)"
-                      severity="help"
-                      tooltipPosition="left"
-                      icon="pi pi-plus"
-                      pTooltip="Ajouter un détail"
                       [rounded]="true"
                       [text]="true"
+                      icon="pi pi-plus"
+                      pTooltip="Ajouter un détail"
+                      severity="help"
+                      tooltipPosition="left"
                       type="button"
                     >
                     </p-button>
@@ -257,32 +259,32 @@
                   @if (produit.deconditionnable) {
                     <p-button
                       (click)="decondition(produit)"
-                      severity="secondary"
                       [rounded]="true"
                       [text]="true"
-                      tooltipPosition="left"
-                      type="button"
                       icon="pi pi-wrench"
                       pTooltip="Déconditionner"
+                      severity="secondary"
+                      tooltipPosition="left"
+                      type="button"
                     >
                     </p-button>
                   }
 
                   <p-button
-                    tooltipPosition="left"
                     (click)="confirmDelete(produit)"
-                    severity="danger"
                     [rounded]="true"
                     [text]="true"
                     icon="pi pi-trash"
                     pTooltip="Supprimer"
+                    severity="danger"
+                    tooltipPosition="left"
                   >
                   </p-button>
                 </p-buttonGroup>
               </td>
             </tr>
           </ng-template>
-          <ng-template let-elRow #expandedrow>
+          <ng-template #expandedrow let-elRow>
             <tr class="pharma-expanded-row">
               <td colspan="11">
                 <div class="p-3  expanded-content">
@@ -359,9 +361,9 @@
                               Gestion des Rayons
                             </div>
                           </ng-template>
-                          <p-table [value]="elRow?.rayonProduits">
+                          <p-table [value]="elRow?.rayonProduits" class="pharma-table">
                             <ng-template #header>
-                              <tr>
+                              <tr class="pharma-table-head">
                                 <th>Code rayon</th>
                                 <th>Libelle rayon</th>
                                 @if (!isMono) {
@@ -371,10 +373,10 @@
                                   <th style="text-align: right">
                                     <p-button
                                       [text]="true"
-                                      rounded="true"
                                       icon="pi pi-plus"
-                                      severity="primary"
                                       pTooltip="Ajouter un rayon"
+                                      rounded="true"
+                                      severity="primary"
                                     ></p-button>
                                   </th>
                                 }
@@ -390,12 +392,12 @@
                                 @if (!isMono) {
                                   <td style="text-align: right">
                                     <p-button
-                                      class="mb-2"
-                                      [text]="true"
-                                      icon="pi pi-trash"
                                       [rounded]="true"
-                                      severity="danger"
+                                      [text]="true"
+                                      class="mb-2"
+                                      icon="pi pi-trash"
                                       pTooltip="Supprimer"
+                                      severity="danger"
                                     ></p-button>
                                   </td>
                                 }
@@ -418,9 +420,9 @@
                             </div>
 
                           </ng-template>
-                          <p-table [value]="elRow?.fournisseurProduits">
+                          <p-table [value]="elRow?.fournisseurProduits" class="pharma-table">
                             <ng-template #header>
-                              <tr>
+                              <tr class="pharma-table-head">
                                 <th>Grossiste</th>
                                 <th>Cip</th>
                                 <th>Prix.A</th>
@@ -428,12 +430,12 @@
                                 <th style="text-align: right">
                                   <p-button
                                     (click)="addFournisseur(elRow)"
-                                    severity="info"
-                                    size="small"
                                     [rounded]="true"
                                     [text]="true"
                                     icon="pi pi-plus"
                                     pTooltip="Ajouter un fournisseur"
+                                    severity="info"
+                                    size="small"
                                   ></p-button>
                                 </th>
                               </tr>
@@ -441,34 +443,35 @@
                             <ng-template #body let-four>
                               <tr>
                                 <td>{{ four.fournisseurLibelle }}</td>
-                                <td>{{ four.codeCip }}</td>
-                                <td>{{ four.prixAchat | number }}</td>
-                                <td>{{ four.prixUni | number }}</td>
+                                <td><span class="pharma-code">{{ four.codeCip }}</span></td>
+                                <td class="pharma-price">{{ four.prixAchat | number }}</td>
+                                <td class="pharma-price">{{ four.prixUni | number }}</td>
                                 <td style="text-align: right">
-                                  <p-toggleswitch [disabled]="four.principal"
-                                                  (onChange)="onChangeDefaultProduitFournisseur($event, four)"
-                                                  [(ngModel)]="four.principal"
-                                                  [pTooltip]="getToolTip(four)"
+                                  <p-toggleswitch
+                                    (onChange)="onChangeDefaultProduitFournisseur($event, four)"
+                                    [(ngModel)]="four.principal"
+                                    [disabled]="four.principal"
+                                    [pTooltip]="getToolTip(four)"
                                   >
                                   </p-toggleswitch>
                                   <p-button
                                     (click)="editFournisseur(elRow, four)"
                                     [rounded]="true"
                                     [text]="true"
-                                    size="small"
-                                    severity="success"
                                     class="p-mr-2 p-ml-2"
                                     icon="pi pi-pencil"
                                     pTooltip="Editer"
+                                    severity="success"
+                                    size="small"
                                   ></p-button>
                                   <p-button
                                     (click)="confirmDeleteProduitFournisseur(four, elRow)"
-                                    icon="pi pi-trash"
-                                    severity="danger"
-                                    size="small"
                                     [rounded]="true"
                                     [text]="true"
+                                    icon="pi pi-trash"
                                     pTooltip="Supprimer"
+                                    severity="danger"
+                                    size="small"
                                   ></p-button>
                                 </td>
                               </tr>
@@ -492,32 +495,35 @@
                               </div>
 
                             </ng-template>
-                            <p-table [value]="elRow?.stockProduits">
+                            <p-table [value]="elRow?.stockProduits" class="pharma-table">
 
                               <ng-template #header>
                                 <tr>
                                   <th>Stockage</th>
                                   <th>Stock</th>
                                   <th style="text-align: right">
-                                    <p-button size="small" icon="pi pi-plus" severity="primary" [rounded]="true"
-                                              [text]="true" pTooltip="Repartir le stock"></p-button>
+                                    <p-button [rounded]="true" [text]="true" icon="pi pi-plus"
+                                              pTooltip="Repartir le stock"
+                                              severity="primary" size="small"></p-button>
                                   </th>
                                 </tr>
                               </ng-template>
                               <ng-template #body let-stock>
-                                <tr>
+                                <tr class="pharma-table-head">
                                   <td>{{ stock.storageName }}</td>
-                                  <td>{{ stock.qtyStock | number }}</td>
+                                  <td><span
+                                    class="pharma-qty-value">{{ stock.qtyStock | number }}</span>
+                                  </td>
                                   <td style="text-align: right">
                                     <p-button
+                                      [rounded]="true"
+                                      [text]="true"
                                       class="mr-2"
                                       icon="pi pi-pencil"
                                       severity="success"
-                                      [rounded]="true"
-                                      [text]="true"
                                     ></p-button>
-                                    <p-button icon="pi pi-trash" [text]="true" severity="danger"
-                                              [rounded]="true"></p-button>
+                                    <p-button [rounded]="true" [text]="true" icon="pi pi-trash"
+                                              severity="danger"></p-button>
                                   </td>
                                 </tr>
                               </ng-template>

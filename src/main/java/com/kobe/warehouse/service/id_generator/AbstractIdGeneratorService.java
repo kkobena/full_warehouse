@@ -24,12 +24,14 @@ public abstract class AbstractIdGeneratorService {
     }
 
     public long nextId() {
-      return   getNextId().longValue();
+        return getNextId().longValue();
     }
 
     public int getNextIdAsInt() {
-        return   getNextId().intValue();
+        return getNextId().intValue();
     }
 
-
+    public String getNextIdAsString() {
+        return getNextId().intValue() + "";
+    }
 }

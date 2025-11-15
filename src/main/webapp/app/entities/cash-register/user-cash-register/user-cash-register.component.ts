@@ -31,11 +31,10 @@ import { Tag } from 'primeng/tag';
     InputTextModule,
     ConfirmDialogComponent,
     ToastAlertComponent,
-    Tag
+    Tag,
   ],
-  templateUrl: './user-cash-register-improved.html',
-  styleUrls: ['./user-cash-register-improved.scss']
-
+  templateUrl: './user-cash-register.html',
+  styleUrls: ['./user-cash-register.scss'],
 })
 export class UserCashRegisterComponent implements OnInit, AfterViewInit {
   protected cashFundAmountInput = viewChild<ElementRef>('cashFundAmountInput');
@@ -48,8 +47,8 @@ export class UserCashRegisterComponent implements OnInit, AfterViewInit {
   protected editForm = this.fb.group({
     cashFundAmount: new FormControl<number | null>(null, {
       validators: [Validators.required, Validators.min(0), Validators.max(1000000)],
-      nonNullable: true
-    })
+      nonNullable: true,
+    }),
   });
 
   protected readonly left = left;
@@ -93,15 +92,13 @@ export class UserCashRegisterComponent implements OnInit, AfterViewInit {
     this.entityService.doTicketing({ cashRegisterId: cashRegister.id }).subscribe({
       next: res => {
         if (res.body) {
-
           this.alert().showInfo('Billetage effectué avec succès');
           this.fetchCashRegisters();
         }
       },
       error: () => {
-
         this.alert().showError('Impossible de faire le ticketing');
-      }
+      },
     });
   }
 
@@ -110,15 +107,14 @@ export class UserCashRegisterComponent implements OnInit, AfterViewInit {
       this.entityService.openCashRegister({ cashFundAmount: this.editForm.get(['cashFundAmount']).value }).subscribe({
         next: res => {
           if (res.body) {
-
             this.alert().showInfo('Caisse ouverte avec succès');
             this.openCaisse = false;
             this.fetchCashRegisters();
           }
         },
-        error: (err) => {
+        error: err => {
           this.alert().showError(this.errorService.getErrorMessage(err));
-        }
+        },
       });
     }
   }
@@ -133,18 +129,22 @@ export class UserCashRegisterComponent implements OnInit, AfterViewInit {
   }
 
   protected closeCashRegister(cashRegister: CashRegister): void {
-    this.confimDialog().onConfirm(() =>  () => {
-      this.entityService.closeCashRegister(cashRegister.id).subscribe({
-        next: () => {
-
-          this.alert().showInfo('Caisse fermée avec succès');
-          this.fetchCashRegisters();
-        },
-        error: (err) => {
-          this.alert().showError(this.errorService.getErrorMessage(err));
-        }
-      });
-    },'Fermeture de caisse', 'Êtes-vous sûr de vouloir fermer cette caisse sans billetage ?', 'pi pi-exclamation-triangle');
+    this.confimDialog().onConfirm(
+      () => () => {
+        this.entityService.closeCashRegister(cashRegister.id).subscribe({
+          next: () => {
+            this.alert().showInfo('Caisse fermée avec succès');
+            this.fetchCashRegisters();
+          },
+          error: err => {
+            this.alert().showError(this.errorService.getErrorMessage(err));
+          },
+        });
+      },
+      'Fermeture de caisse',
+      'Êtes-vous sûr de vouloir fermer cette caisse sans billetage ?',
+      'pi pi-exclamation-triangle',
+    );
   }
 
   protected hasOpingCashRegister(): boolean {

@@ -18,8 +18,8 @@ type EntityArrayResponseType = HttpResponse<Facture[]>;
   providedIn: 'root',
 })
 export class FactureService {
-  public resourceUrl = SERVER_API_URL + 'api/edition-factures';
-  protected http = inject(HttpClient);
+  private readonly resourceUrl = SERVER_API_URL + 'api/edition-factures';
+  private readonly http = inject(HttpClient);
 
   find(factureId: FactureId): Observable<EntityResponseType> {
     return this.http.get<Facture>(`${this.resourceUrl}/${factureId.id}/${factureId.invoiceDate}`, { observe: 'response' });

@@ -25,12 +25,9 @@ if not defined PG_ADMIN_PASS (
 )
 echo.
 
-:: Demander les details du nouvel utilisateur et de la base de donnees
-set /p "NEW_DB_NAME=Entrez le nom de la nouvelle base de donnees [%DEFAULT_DB_NAME%]: Valider pour la valeur par defaut. "
-if not defined NEW_DB_NAME set "NEW_DB_NAME=%DEFAULT_DB_NAME%"
-
-set /p "NEW_USER=Entrez le nom d'utilisateur du nouvel utilisateur [%DEFAULT_USER%]: Valider pour la valeur par defaut. "
-if not defined NEW_USER set "NEW_USER=%DEFAULT_USER%"
+:: Utiliser les valeurs constantes pour le nouvel utilisateur et la base de donnees
+set "NEW_DB_NAME=%DEFAULT_DB_NAME%"
+set "NEW_USER=%DEFAULT_USER%"
 
 :GetNewPass
 set /p "NEW_PASS=Entrez le mot de passe du nouvel utilisateur: "

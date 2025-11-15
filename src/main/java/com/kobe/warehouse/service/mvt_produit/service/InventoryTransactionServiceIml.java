@@ -1,5 +1,7 @@
 package com.kobe.warehouse.service.mvt_produit.service;
 
+import static java.util.Objects.nonNull;
+
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.json.JsonMapper;
 import com.kobe.warehouse.domain.InventoryTransaction;
@@ -20,6 +22,12 @@ import com.kobe.warehouse.service.dto.projection.LastDateProjection;
 import com.kobe.warehouse.service.id_generator.MvtProduitIdGeneratorService;
 import com.kobe.warehouse.service.mvt_produit.builder.InventoryTransactionBuilder;
 import com.kobe.warehouse.service.sale.dto.VenteDepotTransactionRecord;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.data.domain.Page;
@@ -28,18 +36,10 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
 
-import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
-
-import static java.util.Objects.nonNull;
-
 @Service
 @Transactional
 public class InventoryTransactionServiceIml implements InventoryTransactionService {
+
     private final Logger log = LoggerFactory.getLogger(InventoryTransactionServiceIml.class);
     private final InventoryTransactionRepository inventoryTransactionRepository;
     private final InventoryTransactionSpec inventoryTransactionSpec;
@@ -50,7 +50,9 @@ public class InventoryTransactionServiceIml implements InventoryTransactionServi
     public InventoryTransactionServiceIml(
         InventoryTransactionRepository inventoryTransactionRepository,
         InventoryTransactionSpec inventoryTransactionSpec,
-        MvtProduitIdGeneratorService mvtProduitIdGeneratorService, JsonMapper objectMapper, StorageService storageService
+        MvtProduitIdGeneratorService mvtProduitIdGeneratorService,
+        JsonMapper objectMapper,
+        StorageService storageService
     ) {
         this.inventoryTransactionRepository = inventoryTransactionRepository;
         this.inventoryTransactionSpec = inventoryTransactionSpec;
@@ -85,8 +87,8 @@ public class InventoryTransactionServiceIml implements InventoryTransactionServi
         Integer type
     ) {
         this.inventoryTransactionSpec.setInventoryTransactionFilter(
-            new InventoryTransactionFilterDTO().setEndDate(endDate).setProduitId(produitId).setStartDate(startDate).setType(type)
-        );
+                new InventoryTransactionFilterDTO().setEndDate(endDate).setProduitId(produitId).setStartDate(startDate).setType(type)
+            );
 
         return inventoryTransactionRepository.findAll(this.inventoryTransactionSpec, pageable).map(InventoryTransactionDTO::new);
     }
@@ -106,20 +108,18 @@ public class InventoryTransactionServiceIml implements InventoryTransactionServi
         Integer magasinId = produitAuditingParam.magasinId();
         magasinId = magasinId == null ? storageService.getConnectedUserMagasin().getId() : magasinId;
         return fetchMouvementProduit(produitAuditingParam.produitId(), magasinId, startDate, endDate);
-
     }
 
     private List<ProduitAuditingState> fetchMouvementProduit(Integer produitId, Integer magasinId, LocalDate startDate, LocalDate endDate) {
         List<ProduitAuditingState> produitAuditingStates = new ArrayList<>();
-        record ProductMouvement(LocalDate mvtDate, int initStock, int afterStock,
-                                Map<MouvementProduit, Integer> mouvements) {
-        }
+        record ProductMouvement(LocalDate mvtDate, int initStock, int afterStock, Map<MouvementProduit, Integer> mouvements) {}
 
         try {
+            List<ProductMouvement> productMouvements = objectMapper.readValue(
+                inventoryTransactionRepository.fetchMouvementProduit(produitId, magasinId, startDate, endDate),
+                new TypeReference<>() {}
+            );
 
-            List<ProductMouvement> productMouvements = objectMapper.readValue(inventoryTransactionRepository.fetchMouvementProduit(produitId, magasinId, startDate, endDate), new TypeReference<>() {
-            });
-            System.err.println(productMouvements);
             productMouvements.forEach(productMouvement -> {
                 ProduitAuditingState produitAuditingState = new ProduitAuditingState();
                 produitAuditingState.setMvtDate(productMouvement.mvtDate());
@@ -142,22 +142,15 @@ public class InventoryTransactionServiceIml implements InventoryTransactionServi
                             case INVENTAIRE -> {
                                 produitAuditingState.setStoreInventoryQuantity(quantity);
                                 produitAuditingState.setInventoryGap(productMouvement.initStock() - quantity);
-
                             }
-
                         }
                     });
-
-
                 }
 
                 produitAuditingStates.add(produitAuditingState);
             });
-
-
         } catch (Exception e) {
             log.info(e.getMessage());
-
         }
         return produitAuditingStates;
     }
@@ -166,9 +159,11 @@ public class InventoryTransactionServiceIml implements InventoryTransactionServi
     public List<ProduitAuditingSum> fetchProduitDailyTransactionSum(ProduitAuditingParam produitAuditingParam) {
         var startDate = nonNull(produitAuditingParam.fromDate()) ? produitAuditingParam.fromDate() : null;
         var endDate = nonNull(produitAuditingParam.toDate()) ? produitAuditingParam.toDate() : null;
+        Integer magasinId = produitAuditingParam.magasinId();
+        magasinId = magasinId == null ? storageService.getConnectedUserMagasin().getId() : magasinId;
         return this.inventoryTransactionRepository.fetchProduitDailyTransactionSum(
-            inventoryTransactionRepository.combineSpecifications(produitAuditingParam.produitId(), startDate, endDate)
-        );
+                inventoryTransactionRepository.combineSpecifications(magasinId, produitAuditingParam.produitId(), startDate, endDate)
+            );
     }
 
     @Override
@@ -179,7 +174,10 @@ public class InventoryTransactionServiceIml implements InventoryTransactionServi
     }
 
     @Override
-    public void saveVenteDepotExtensionInventoryTransactions(Magasin depot, List<VenteDepotTransactionRecord> venteDepotTransactionRecords) {
+    public void saveVenteDepotExtensionInventoryTransactions(
+        Magasin depot,
+        List<VenteDepotTransactionRecord> venteDepotTransactionRecords
+    ) {
         if (CollectionUtils.isEmpty(venteDepotTransactionRecords)) {
             return;
         }
@@ -200,6 +198,5 @@ public class InventoryTransactionServiceIml implements InventoryTransactionServi
             inventoryTransaction.setId(mvtProduitIdGeneratorService.nextId());
             inventoryTransactionRepository.save(inventoryTransaction);
         });
-
     }
 }

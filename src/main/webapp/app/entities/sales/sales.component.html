@@ -11,10 +11,10 @@
         <ng-template #start>
           <div class="pharma-toolbar-filters">
             <p-select
-              appendTo="body"
               (onChange)="onTypeVenteChange()"
               [(ngModel)]="typeVenteSelected"
               [options]="typeVentes"
+              appendTo="body"
 
             />
 
@@ -50,41 +50,43 @@
               </p-inputgroup>
             </div>
 
-            <p-floatlabel variant="on" >
+            <p-floatlabel variant="on">
               <p-datePicker
-                [style]="'max-width: 140px;'"
                 [(ngModel)]="fromDate"
                 [maxDate]="toDate"
-                appendTo="body"
                 [selectOtherMonths]="true"
                 [showButtonBar]="true"
+                [style]="'max-width: 140px;'"
+                appendTo="body"
                 dateFormat="dd/mm/yy"
                 id="fromDate"
               />
               <label for="fromDate">Du</label>
             </p-floatlabel>
 
-            <p-floatlabel variant="on" >
-              <p-datePicker [style]="'max-width: 140px;'"
-                [(ngModel)]="toDate"
-                [minDate]="fromDate"
-                [selectOtherMonths]="true"
-                appendTo="body"
-                [showButtonBar]="true"
-                dateFormat="dd/mm/yy"
-                id="toDate"
-                inputId="toDate"
+            <p-floatlabel variant="on">
+              <p-datePicker [(ngModel)]="toDate"
+                            [minDate]="fromDate"
+                            [selectOtherMonths]="true"
+                            [showButtonBar]="true"
+                            [style]="'max-width: 140px;'"
+                            appendTo="body"
+                            dateFormat="dd/mm/yy"
+                            id="toDate"
+                            inputId="toDate"
               />
               <label for="toDate">Au</label>
             </p-floatlabel>
 
-            <p-floatlabel variant="on" class=" pharma-hide-mobile" >
-              <p-select [(ngModel)]="fromHour" [style]="'max-width: 110px;'"   appendTo="body"[options]="hous" id="fromHour" />
+            <p-floatlabel class=" pharma-hide-mobile" variant="on">
+              <p-select [(ngModel)]="fromHour" [options]="hous" [style]="'max-width: 110px;'"
+                        appendTo="body" id="fromHour" />
               <label for="fromHour">De</label>
             </p-floatlabel>
 
-            <p-floatlabel variant="on" class=" pharma-hide-mobile" >
-              <p-select [(ngModel)]="toHour"  [style]="'max-width: 110px;'"  appendTo="body" [options]="hous" id="toHour" />
+            <p-floatlabel class=" pharma-hide-mobile" variant="on">
+              <p-select [(ngModel)]="toHour" [options]="hous" [style]="'max-width: 110px;'"
+                        appendTo="body" id="toHour" />
               <label for="toHour">À</label>
             </p-floatlabel>
           </div>
@@ -105,9 +107,9 @@
                 <p-button
                   [raised]="true"
                   [routerLink]="['/sales', false, 'new']"
-                  icon="pi pi-plus"
+                  icon="pi pi-shopping-cart"
                   label="Nouvelle vente"
-                  severity="success"
+                  severity="primary"
                 />
               </div>
             </div>

@@ -12,7 +12,6 @@ import com.kobe.warehouse.service.facturation.dto.FactureDtoWrapper;
 import com.kobe.warehouse.service.facturation.dto.FactureEditionResponse;
 import com.kobe.warehouse.service.facturation.dto.InvoiceSearchParams;
 import com.kobe.warehouse.service.facturation.dto.TiersPayantDossierFactureDto;
-import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
@@ -37,7 +36,7 @@ public interface EditionDataService {
 
     FactureTiersPayant getFactureTiersPayant(FactureItemId id);
 
-    List<FactureTiersPayant> getFactureTiersPayant(LocalDateTime created, boolean isGroup);
+    List<FactureTiersPayant> getFactureTiersPayant(Integer generationCode, boolean isGroup);
 
     Resource printToPdf(FactureEditionResponse factureEditionResponse);
 

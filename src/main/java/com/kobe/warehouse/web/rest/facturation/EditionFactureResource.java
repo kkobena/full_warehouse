@@ -185,10 +185,10 @@ public class EditionFactureResource {
     @GetMapping("/edition-factures/pdf")
     public ResponseEntity<Resource> exportAllInvoices(
         HttpServletRequest request,
-        @RequestParam(name = "createdDate") LocalDateTime createdDate,
+        @RequestParam(name = "generationCode") Integer generationCode,
         @RequestParam(name = "isGroup", required = false, defaultValue = "false") Boolean isGroup
     ) {
-        return Utils.printPDF(editionService.printToPdf(new FactureEditionResponse(createdDate, isGroup)), request);
+        return Utils.printPDF(editionService.printToPdf(new FactureEditionResponse(generationCode, isGroup)), request);
     }
 
     @GetMapping("/edition-factures/{id}/{invoiceDate}")

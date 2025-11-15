@@ -17,6 +17,12 @@ import com.kobe.warehouse.web.util.PaginationUtil;
 import com.kobe.warehouse.web.util.ResponseUtil;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
+import java.io.IOException;
+import java.net.URISyntaxException;
+import java.time.LocalDate;
+import java.time.LocalTime;
+import java.util.List;
+import java.util.Set;
 import org.springframework.core.io.Resource;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -31,13 +37,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
-
-import java.io.IOException;
-import java.net.URISyntaxException;
-import java.time.LocalDate;
-import java.time.LocalTime;
-import java.util.List;
-import java.util.Set;
 
 @RestController
 @RequestMapping("/api")
@@ -196,7 +195,7 @@ public class FinancialTransactionResource {
 
 
     @GetMapping("/payment-transactions/print-receipt/{id}/{transactionDate}")
-    public ResponseEntity<Void> printReceipt(@PathVariable(name = "id") long id, LocalDate transactionDate) {
+    public ResponseEntity<Void> printReceipt(@PathVariable(name = "id") long id,@PathVariable(name = "transactionDate") LocalDate transactionDate) {
         this.financialTransactionService.printReceipt(new PaymentId(id, transactionDate));
         return ResponseEntity.ok().build();
     }
@@ -207,7 +206,8 @@ public class FinancialTransactionResource {
     ) {
 
         try {
-            byte[] escPosData = financialTransactionService.generateEscPosReceiptForTauri(new PaymentId(idReglement, transactionDate));
+            byte[] escPosData = financialTransactionService.
+                generateEscPosReceiptForTauri(new PaymentId(idReglement, transactionDate));
             return ResponseEntity.ok()
                 .header(HttpHeaders.CONTENT_TYPE, "application/octet-stream")
                 .header(HttpHeaders.CONTENT_DISPOSITION, "inline; filename=\"receipt.bin\"")

@@ -11,6 +11,10 @@ import com.kobe.warehouse.service.reglement.service.ReglementDataService;
 import com.kobe.warehouse.web.rest.Utils;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
+import java.io.IOException;
+import java.time.LocalDate;
+import java.util.List;
+import java.util.Set;
 import org.springframework.core.io.Resource;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
@@ -23,11 +27,6 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
-
-import java.io.IOException;
-import java.time.LocalDate;
-import java.util.List;
-import java.util.Set;
 
 @RestController
 @RequestMapping("/api")
@@ -53,7 +52,7 @@ public class ReglementFactureTpResource {
         @RequestParam(required = false, name = "fromDate") LocalDate fromDate,
         @RequestParam(required = false, name = "toDate") LocalDate toDate,
         @RequestParam(required = false, name = "search") String search,
-        @RequestParam(required = false, name = "organismeId") Long organismeId,
+        @RequestParam(required = false, name = "organismeId") Integer organismeId,
         @RequestParam(required = false, name = "grouped", defaultValue = "false") boolean grouped
     ) {
         return ResponseEntity.ok(
@@ -104,7 +103,7 @@ public class ReglementFactureTpResource {
         @RequestParam(required = false, name = "fromDate") LocalDate fromDate,
         @RequestParam(required = false, name = "toDate") LocalDate toDate,
         @RequestParam(required = false, name = "search") String search,
-        @RequestParam(required = false, name = "organismeId") Long organismeId,
+        @RequestParam(required = false, name = "organismeId") Integer organismeId,
         @RequestParam(required = false, name = "grouped", defaultValue = "false") boolean grouped
     ) {
         return Utils.printPDF(
@@ -113,12 +112,11 @@ public class ReglementFactureTpResource {
         );
     }
 
-
     @GetMapping("/reglements/print-tauri/{idReglement}/{transactionDate}")
-    public ResponseEntity<byte[]> getReceiptForTauri(@PathVariable(name = "idReglement") long idReglement,
-                                                     @PathVariable(name = "transactionDate") LocalDate transactionDate
+    public ResponseEntity<byte[]> getReceiptForTauri(
+        @PathVariable(name = "idReglement") long idReglement,
+        @PathVariable(name = "transactionDate") LocalDate transactionDate
     ) {
-
         try {
             byte[] escPosData = reglementDataService.generateEscPosReceiptForTauri(new PaymentId(idReglement, transactionDate));
             return ResponseEntity.ok()
@@ -126,7 +124,6 @@ public class ReglementFactureTpResource {
                 .header(HttpHeaders.CONTENT_DISPOSITION, "inline; filename=\"receipt.bin\"")
                 .body(escPosData);
         } catch (IOException e) {
-
             return ResponseEntity.internalServerError().build();
         }
     }

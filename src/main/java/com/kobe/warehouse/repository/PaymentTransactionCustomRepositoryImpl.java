@@ -32,14 +32,13 @@ import jakarta.persistence.criteria.JoinType;
 import jakarta.persistence.criteria.Path;
 import jakarta.persistence.criteria.Predicate;
 import jakarta.persistence.criteria.Root;
+import java.util.List;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
-
-import java.util.List;
 
 @Repository
 @Transactional(readOnly = true)
@@ -57,7 +56,7 @@ public class PaymentTransactionCustomRepositoryImpl implements PaymentTransactio
         CriteriaQuery<MvtCaisseProjection> query = cb.createQuery(MvtCaisseProjection.class);
 
         Root<PaymentTransaction> root = query.from(PaymentTransaction.class);
-        Join<PaymentTransaction,PaymentMode> paymentModeJoin = root.join(PaymentTransaction_.paymentMode, JoinType.INNER);
+        Join<PaymentTransaction, PaymentMode> paymentModeJoin = root.join(PaymentTransaction_.paymentMode, JoinType.INNER);
         Join<PaymentTransaction, CashRegister> cashRegisterJoin = root.join(PaymentTransaction_.cashRegister, JoinType.INNER);
         Join<CashRegister, AppUser> appUserJoin = cashRegisterJoin.join(CashRegister_.user, JoinType.INNER);
         Path<SalePayment> salePaymentPath = cb.treat(root, SalePayment.class);
@@ -85,7 +84,8 @@ public class PaymentTransactionCustomRepositoryImpl implements PaymentTransactio
                     appUserJoin.get(AppUser_.firstName),
                     appUserJoin.get(AppUser_.lastName),
                     root.get(PaymentTransaction_.reelAmount),
-                    salePaymentPath.get(SalePayment_.sale).get(Sales_.saleDate)
+                    salePaymentPath.get(SalePayment_.sale).get(Sales_.saleDate),
+                    root.get(PaymentTransaction_.transactionNumber)
                 )
             )
             .orderBy(cb.desc(root.get(PaymentTransaction_.createdAt)));
@@ -122,7 +122,7 @@ public class PaymentTransactionCustomRepositoryImpl implements PaymentTransactio
         CriteriaBuilder cb = entityManager.getCriteriaBuilder();
         CriteriaQuery<MvtCaisseSumProjection> query = cb.createQuery(MvtCaisseSumProjection.class);
         Root<PaymentTransaction> root = query.from(PaymentTransaction.class);
-        Join<PaymentTransaction,PaymentMode> paymentModeJoin = root.join(PaymentTransaction_.paymentMode, JoinType.INNER);
+        Join<PaymentTransaction, PaymentMode> paymentModeJoin = root.join(PaymentTransaction_.paymentMode, JoinType.INNER);
         query
             .select(
                 cb.construct(
@@ -151,7 +151,7 @@ public class PaymentTransactionCustomRepositoryImpl implements PaymentTransactio
         CriteriaBuilder cb = entityManager.getCriteriaBuilder();
         CriteriaQuery<TicketZProjection> query = cb.createQuery(TicketZProjection.class);
         Root<PaymentTransaction> root = query.from(PaymentTransaction.class);
-        Join<PaymentTransaction,PaymentMode> paymentModeJoin = root.join(PaymentTransaction_.paymentMode, JoinType.INNER);
+        Join<PaymentTransaction, PaymentMode> paymentModeJoin = root.join(PaymentTransaction_.paymentMode, JoinType.INNER);
         Join<PaymentTransaction, CashRegister> cashRegisterJoin = root.join(PaymentTransaction_.cashRegister, JoinType.INNER);
         Join<CashRegister, AppUser> appUserJoin = cashRegisterJoin.join(CashRegister_.user, JoinType.INNER);
         query
@@ -191,19 +191,29 @@ public class PaymentTransactionCustomRepositoryImpl implements PaymentTransactio
         Root<PaymentTransaction> root = cq.from(PaymentTransaction.class);
         Join<PaymentTransaction, PaymentMode> paymentMode = root.join(PaymentTransaction_.paymentMode, JoinType.INNER);
         cq.select(createBalanceCaisseDTOResult(cb, root, paymentMode));
-        cq.where(cb.and(
-            cb.between(root.get(PaymentTransaction_.transactionDate), mvtParam.getFromDate(), mvtParam.getToDate()),
-            root.get(PaymentTransaction_.categorieChiffreAffaire).in(mvtParam.getCategorieChiffreAffaires()),
-            root.get(PaymentTransaction_.type).notEqualTo(SalePayment.class.getName())
-
-        ));
-        cq.groupBy(paymentMode.get(PaymentMode_.code), paymentMode.get(PaymentMode_.libelle), root.get(PaymentTransaction_.typeFinancialTransaction));
+        cq.where(
+            cb.and(
+                cb.between(root.get(PaymentTransaction_.transactionDate), mvtParam.getFromDate(), mvtParam.getToDate()),
+                root.get(PaymentTransaction_.categorieChiffreAffaire).in(mvtParam.getCategorieChiffreAffaires()),
+                root.get(PaymentTransaction_.type).notEqualTo(SalePayment.class.getName())
+            )
+        );
+        cq.groupBy(
+            paymentMode.get(PaymentMode_.code),
+            paymentMode.get(PaymentMode_.libelle),
+            root.get(PaymentTransaction_.typeFinancialTransaction)
+        );
 
         return entityManager.createQuery(cq).getResultList();
     }
 
-    private CompoundSelection<BalanceCaisseDTO> createBalanceCaisseDTOResult(CriteriaBuilder cb, Root<PaymentTransaction> root, Join<PaymentTransaction, PaymentMode> paymentMode) {
-        return cb.construct(BalanceCaisseDTO.class,
+    private CompoundSelection<BalanceCaisseDTO> createBalanceCaisseDTOResult(
+        CriteriaBuilder cb,
+        Root<PaymentTransaction> root,
+        Join<PaymentTransaction, PaymentMode> paymentMode
+    ) {
+        return cb.construct(
+            BalanceCaisseDTO.class,
             cb.sumAsLong(root.get(PaymentTransaction_.paidAmount)),
             cb.sumAsLong(root.get(PaymentTransaction_.reelAmount)),
             paymentMode.get(PaymentMode_.code),

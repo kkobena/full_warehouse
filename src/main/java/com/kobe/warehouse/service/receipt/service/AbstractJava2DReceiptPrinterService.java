@@ -5,11 +5,14 @@ import com.kobe.warehouse.domain.Magasin;
 import com.kobe.warehouse.service.receipt.dto.AbstractItem;
 import com.kobe.warehouse.service.receipt.dto.HeaderFooterItem;
 import com.kobe.warehouse.service.settings.AppConfigurationService;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.stereotype.Service;
-import org.springframework.util.StringUtils;
-
+import java.awt.Font;
+import java.io.IOException;
+import java.io.OutputStream;
+import java.net.Socket;
+import java.time.LocalDate;
+import java.time.LocalTime;
+import java.time.format.DateTimeFormatter;
+import java.util.List;
 import javax.print.Doc;
 import javax.print.DocFlavor;
 import javax.print.DocPrintJob;
@@ -19,14 +22,10 @@ import javax.print.PrintServiceLookup;
 import javax.print.SimpleDoc;
 import javax.print.attribute.HashPrintRequestAttributeSet;
 import javax.print.attribute.PrintRequestAttributeSet;
-import java.awt.*;
-import java.io.IOException;
-import java.io.OutputStream;
-import java.net.Socket;
-import java.time.LocalDate;
-import java.time.LocalTime;
-import java.time.format.DateTimeFormatter;
-import java.util.List;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.stereotype.Service;
+import org.springframework.util.StringUtils;
 
 @Service
 public abstract class AbstractJava2DReceiptPrinterService {
@@ -50,12 +49,9 @@ public abstract class AbstractJava2DReceiptPrinterService {
 
     protected Magasin magasin;
 
-
     protected AbstractJava2DReceiptPrinterService(AppConfigurationService appConfigurationService) {
         this.appConfigurationService = appConfigurationService;
-
     }
-
 
     protected abstract List<HeaderFooterItem> getHeaderItems();
 
@@ -63,9 +59,7 @@ public abstract class AbstractJava2DReceiptPrinterService {
 
     protected abstract int getNumberOfCopies();
 
-
     protected abstract List<? extends AbstractItem> getItems();
-
 
     protected int getMaximumLinesPerPage() {
         return this.appConfigurationService.getPrinterItemCount();
@@ -90,7 +84,6 @@ public abstract class AbstractJava2DReceiptPrinterService {
         return PrintServiceLookup.lookupDefaultPrintService();
     }
 
-
     // ============================================
     // ESC/POS Helper Methods (for thermal printing)
     // ============================================
@@ -99,21 +92,21 @@ public abstract class AbstractJava2DReceiptPrinterService {
      * Initialize printer (ESC @)
      */
     protected void escPosInitialize(java.io.ByteArrayOutputStream out) throws java.io.IOException {
-        out.write(new byte[]{0x1B, 0x40}); // ESC @
+        out.write(new byte[] { 0x1B, 0x40 }); // ESC @
     }
 
     /**
      * Set text alignment (ESC a n)
      */
     protected void escPosSetAlignment(java.io.ByteArrayOutputStream out, EscPosAlignment alignment) throws java.io.IOException {
-        out.write(new byte[]{0x1B, 0x61, (byte) alignment.code}); // ESC a n
+        out.write(new byte[] { 0x1B, 0x61, (byte) alignment.code }); // ESC a n
     }
 
     /**
      * Set bold mode (ESC E n)
      */
     protected void escPosSetBold(java.io.ByteArrayOutputStream out, boolean enable) throws java.io.IOException {
-        out.write(new byte[]{0x1B, 0x45, (byte) (enable ? 1 : 0)}); // ESC E n
+        out.write(new byte[] { 0x1B, 0x45, (byte) (enable ? 1 : 0) }); // ESC E n
     }
 
     /**
@@ -124,23 +117,33 @@ public abstract class AbstractJava2DReceiptPrinterService {
      */
     protected void escPosSetTextSize(java.io.ByteArrayOutputStream out, int width, int height) throws java.io.IOException {
         int size = ((width - 1) << 4) | (height - 1);
-        out.write(new byte[]{0x1D, 0x21, (byte) size}); // GS ! n
+        out.write(new byte[] { 0x1D, 0x21, (byte) size }); // GS ! n
     }
 
     /**
      * Feed n lines (ESC d n)
      */
     protected void escPosFeedLines(java.io.ByteArrayOutputStream out, int lines) throws java.io.IOException {
-        out.write(new byte[]{0x1B, 0x64, (byte) lines}); // ESC d n
+        out.write(new byte[] { 0x1B, 0x64, (byte) lines }); // ESC d n
+    }
+
+    /**
+     * Set character code table (ESC t n)
+     * This must be called to enable proper French accent support
+     *
+     * @param codeTable the code table number (16 = CP1252 for Western Europe, 0 = CP437)
+     */
+    protected void escPosSetCharacterCodeTable(java.io.ByteArrayOutputStream out, int codeTable) throws java.io.IOException {
+        out.write(new byte[] { 0x1B, 0x74, (byte) codeTable }); // ESC t n
     }
 
     /**
      * Print line with line feed
-     * Uses Windows-1252 encoding for French character support
+     * Uses CP1252 encoding for French character support (accents: é, è, à, ê, etc.)
      */
     protected void escPosPrintLine(java.io.ByteArrayOutputStream out, String text) throws java.io.IOException {
         if (text != null) {
-            out.write(text.getBytes("Windows-1252")); // CP1252 encoding for French characters
+            out.write(text.getBytes("CP1252")); // CP850 encoding for French characters
         }
         out.write(0x0A); // LF (Line Feed)
     }
@@ -159,7 +162,7 @@ public abstract class AbstractJava2DReceiptPrinterService {
      * Partial cut - leaves small connection for easy tearing
      */
     protected void escPosCutPaper(java.io.ByteArrayOutputStream out) throws java.io.IOException {
-        out.write(new byte[]{0x1D, 0x56, 0x41, 0x00}); // GS V A 0 - Partial cut
+        out.write(new byte[] { 0x1D, 0x56, 0x41, 0x00 }); // GS V A 0 - Partial cut
     }
 
     /**
@@ -168,7 +171,7 @@ public abstract class AbstractJava2DReceiptPrinterService {
      * @param mode 0=off, 1=1-dot thick, 2=2-dot thick
      */
     protected void escPosSetUnderline(java.io.ByteArrayOutputStream out, int mode) throws java.io.IOException {
-        out.write(new byte[]{0x1B, 0x2D, (byte) mode}); // ESC - n
+        out.write(new byte[] { 0x1B, 0x2D, (byte) mode }); // ESC - n
     }
 
     /**
@@ -177,7 +180,7 @@ public abstract class AbstractJava2DReceiptPrinterService {
      * @param spacing line spacing in dots (default is usually 30)
      */
     protected void escPosSetLineSpacing(java.io.ByteArrayOutputStream out, int spacing) throws java.io.IOException {
-        out.write(new byte[]{0x1B, 0x33, (byte) spacing}); // ESC 3 n
+        out.write(new byte[] { 0x1B, 0x33, (byte) spacing }); // ESC 3 n
     }
 
     /**
@@ -222,6 +225,9 @@ public abstract class AbstractJava2DReceiptPrinterService {
         // Initialize printer
         escPosInitialize(out);
 
+        // Set character code table to CP850 (Western Europe) for French accents
+        escPosSetCharacterCodeTable(out, 16); // 16 = CP850
+
         // Company header (centered, bold)
         escPosSetBold(out, true);
         escPosSetAlignment(out, EscPosAlignment.CENTER);
@@ -258,10 +264,11 @@ public abstract class AbstractJava2DReceiptPrinterService {
      * @throws IOException if writing fails
      */
     protected void printEscPosFooter(java.io.ByteArrayOutputStream out) throws java.io.IOException {
-        printEscPosFooter(out,
+        printEscPosFooter(
+            out,
             LocalDate.now().format(DateTimeFormatter.ofPattern("dd/MM/yyyy")) +
-                " " +
-                LocalTime.now().format(DateTimeFormatter.ofPattern("HH:mm:ss"))
+            " " +
+            LocalTime.now().format(DateTimeFormatter.ofPattern("HH:mm:ss"))
         );
     }
 
@@ -347,7 +354,6 @@ public abstract class AbstractJava2DReceiptPrinterService {
      * @throws PrintException if printing fails
      */
     public void printEscPosDirectByHost(String hostName, boolean isEdit) throws IOException, PrintException {
-
         printEscPosDirect(hostName, isEdit);
     }
 
@@ -452,8 +458,7 @@ public abstract class AbstractJava2DReceiptPrinterService {
         switch (config.getPrintMethod()) {
             case JAVA_PRINT_SERVICE -> printEscPosDirect(config.getPrinterName(), config.isEdit());
             case SERIAL_PORT -> printEscPosToSerialPort(config.getSerialPort(), config.getBaudRate(), config.isEdit());
-            case NETWORK_SOCKET ->
-                printEscPosToNetworkPrinter(config.getIpAddress(), config.getPort(), config.isEdit());
+            case NETWORK_SOCKET -> printEscPosToNetworkPrinter(config.getIpAddress(), config.getPort(), config.isEdit());
             default -> throw new IllegalArgumentException("Unsupported print method: " + config.getPrintMethod());
         }
     }

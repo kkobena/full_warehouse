@@ -2,15 +2,13 @@ package com.kobe.warehouse.service.utils;
 
 import com.fazecast.jSerialComm.SerialPort;
 import com.kobe.warehouse.service.settings.AppConfigurationService;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.boot.context.event.ApplicationReadyEvent;
-import org.springframework.context.event.EventListener;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
-import org.springframework.util.StringUtils;
-
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.OutputStream;
+import java.net.Socket;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Objects;
 import javax.print.Doc;
 import javax.print.DocFlavor;
 import javax.print.DocPrintJob;
@@ -20,13 +18,14 @@ import javax.print.PrintServiceLookup;
 import javax.print.SimpleDoc;
 import javax.print.attribute.HashPrintRequestAttributeSet;
 import javax.print.attribute.PrintRequestAttributeSet;
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
-import java.io.OutputStream;
-import java.net.Socket;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Objects;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.boot.context.event.ApplicationReadyEvent;
+import org.springframework.context.event.EventListener;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.StringUtils;
 
 /**
  * ESC/POS implementation of CustomerDisplayService for VFD/Customer Pole Displays
@@ -50,13 +49,14 @@ public class CustomerDisplayEscPosServiceImpl implements CustomerDisplayService 
     private final AppConfigurationService appConfigurationService;
     private final ConnectionType currentConnectionType = ConnectionType.SERIAL;
 
-  /*  @Value("${customer-display.connection-type:SERIAL}")
+    /*  @Value("${customer-display.connection-type:SERIAL}")
     private String connectionType;
 
     @Value("${customer-display.usb-printer-name:}")
     private String usbPrinterName;*/
     @Value("${port-com:}")
     private String portName;
+
     private SerialPort serialPort;
     private OutputStream outputStream;
 
@@ -68,7 +68,7 @@ public class CustomerDisplayEscPosServiceImpl implements CustomerDisplayService 
     @EventListener(ApplicationReadyEvent.class)
     public void init() {
         initializeSerialPort();
-      /*  switch (currentConnectionType) {
+        /*  switch (currentConnectionType) {
             case SERIAL -> initializeSerialPort();
             case USB_PRINT_SERVICE -> {
                 LOG.info("Customer display configured for USB Print Service: {}", usbPrinterName);
@@ -91,7 +91,7 @@ public class CustomerDisplayEscPosServiceImpl implements CustomerDisplayService 
      * Resets the display to default state
      */
     private void escPosInitialize(ByteArrayOutputStream out) throws IOException {
-        out.write(new byte[]{0x1B, 0x40}); // ESC @
+        out.write(new byte[] { 0x1B, 0x40 }); // ESC @
     }
 
     /**
@@ -104,7 +104,6 @@ public class CustomerDisplayEscPosServiceImpl implements CustomerDisplayService 
     private void escPosClearDisplay(ByteArrayOutputStream out) throws IOException {
         // Try standard form feed (most common)
         out.write(0x0C); // FF (Form Feed) - clears screen
-
         // Alternative: Some displays use ESC q
         // out.write(new byte[]{0x1B, 0x71}); // ESC q
     }
@@ -114,7 +113,7 @@ public class CustomerDisplayEscPosServiceImpl implements CustomerDisplayService 
      * ESC H or CR (Carriage Return)
      */
     private void escPosMoveCursorHome(ByteArrayOutputStream out) throws IOException {
-        out.write(new byte[]{0x1B, 0x48}); // ESC H
+        out.write(new byte[] { 0x1B, 0x48 }); // ESC H
         // Alternative: out.write(0x0D); // CR
     }
 
@@ -131,7 +130,7 @@ public class CustomerDisplayEscPosServiceImpl implements CustomerDisplayService 
         // Move cursor to beginning of specified line
         // Different displays use different commands:
         // ESC l (0x1B, 0x6C) for some displays
-        out.write(new byte[]{0x1B, 0x6C, (byte) line}); // ESC l n
+        out.write(new byte[] { 0x1B, 0x6C, (byte) line }); // ESC l n
     }
 
     /**
@@ -144,8 +143,7 @@ public class CustomerDisplayEscPosServiceImpl implements CustomerDisplayService 
     private void escPosSetCursorPosition(ByteArrayOutputStream out, int row, int col) throws IOException {
         // ESC Y command (used by some VFD displays)
         // Format: ESC Y row col
-        out.write(new byte[]{0x1B, 0x59, (byte) row, (byte) col});
-
+        out.write(new byte[] { 0x1B, 0x59, (byte) row, (byte) col });
         // Alternative for displays that use different positioning:
         // Some displays use: ESC $ nL nH (horizontal position)
         // out.write(new byte[]{0x1B, 0x24, (byte)(col & 0xFF), (byte)((col >> 8) & 0xFF)});
@@ -160,7 +158,7 @@ public class CustomerDisplayEscPosServiceImpl implements CustomerDisplayService 
     private void escPosSetBrightness(ByteArrayOutputStream out, int level) throws IOException {
         if (level < 1) level = 1;
         if (level > 4) level = 4;
-        out.write(new byte[]{0x1B, 0x2A, (byte) level}); // ESC * n
+        out.write(new byte[] { 0x1B, 0x2A, (byte) level }); // ESC * n
     }
 
     /**
@@ -168,7 +166,7 @@ public class CustomerDisplayEscPosServiceImpl implements CustomerDisplayService 
      * ESC C n (n=0: hide, n=1: show)
      */
     private void escPosSetCursorVisibility(ByteArrayOutputStream out, boolean visible) throws IOException {
-        out.write(new byte[]{0x1B, 0x43, (byte) (visible ? 1 : 0)}); // ESC C n
+        out.write(new byte[] { 0x1B, 0x43, (byte) (visible ? 1 : 0) }); // ESC C n
     }
 
     /**
@@ -176,21 +174,21 @@ public class CustomerDisplayEscPosServiceImpl implements CustomerDisplayService 
      * ESC B n (n=0: no blink, n=1: blink)
      */
     private void escPosSetCursorBlink(ByteArrayOutputStream out, boolean blink) throws IOException {
-        out.write(new byte[]{0x1B, 0x42, (byte) (blink ? 1 : 0)}); // ESC B n
+        out.write(new byte[] { 0x1B, 0x42, (byte) (blink ? 1 : 0) }); // ESC B n
     }
 
     /**
      * Scroll display left
      */
     private void escPosScrollLeft(ByteArrayOutputStream out) throws IOException {
-        out.write(new byte[]{0x1B, 0x73}); // ESC s
+        out.write(new byte[] { 0x1B, 0x73 }); // ESC s
     }
 
     /**
      * Scroll display right
      */
     private void escPosScrollRight(ByteArrayOutputStream out) throws IOException {
-        out.write(new byte[]{0x1B, 0x74}); // ESC t
+        out.write(new byte[] { 0x1B, 0x74 }); // ESC t
     }
 
     /**
@@ -200,15 +198,15 @@ public class CustomerDisplayEscPosServiceImpl implements CustomerDisplayService 
         // Speed typically 0-7 (0=fastest)
         if (speed < 0) speed = 0;
         if (speed > 7) speed = 7;
-        out.write(new byte[]{0x1B, 0x55, (byte) speed}); // ESC U n
+        out.write(new byte[] { 0x1B, 0x55, (byte) speed }); // ESC U n
     }
 
     /**
-     * Write text to display (Windows-1252 encoding for French characters)
+     * Write text to display (CP1252 encoding for French characters)
      */
     private void escPosWriteText(ByteArrayOutputStream out, String text) throws IOException {
         if (text != null && !text.isEmpty()) {
-            out.write(text.getBytes("Windows-1252")); // CP1252 for French characters
+            out.write(text.getBytes("CP1252")); // CP1252 for French characters
         }
     }
 
@@ -343,7 +341,7 @@ public class CustomerDisplayEscPosServiceImpl implements CustomerDisplayService 
         try {
             byte[] data = commands.toByteArray();
             sendToSerialPort(data);
-          /*  switch (currentConnectionType) {
+            /*  switch (currentConnectionType) {
                 case SERIAL -> sendToSerialPort(data);
                 case USB_PRINT_SERVICE -> sendToUsbPrintService(data);
                 case NETWORK -> {
@@ -372,7 +370,7 @@ public class CustomerDisplayEscPosServiceImpl implements CustomerDisplayService 
         outputStream.flush();
     }
 
-   /*
+    /*
     private void sendToUsbPrintService(byte[] data) throws PrintException {
         PrintService printService = getUsbPrintService(usbPrinterName);
         if (printService == null) {
@@ -719,8 +717,7 @@ public class CustomerDisplayEscPosServiceImpl implements CustomerDisplayService 
      * @throws IOException if network communication fails
      */
     public void sendToNetworkDisplay(byte[] data, String ipAddress, int port) throws IOException {
-        try (Socket socket = new Socket(ipAddress, port);
-             OutputStream out = socket.getOutputStream()) {
+        try (Socket socket = new Socket(ipAddress, port); OutputStream out = socket.getOutputStream()) {
             out.write(data);
             out.flush();
             LOG.info("Data sent to network display: {}:{}", ipAddress, port);
@@ -775,9 +772,7 @@ public class CustomerDisplayEscPosServiceImpl implements CustomerDisplayService 
         try {
             int bytesWritten = tempPort.writeBytes(data, data.length);
             if (bytesWritten != data.length) {
-                throw new IOException(
-                    String.format("Failed to write all bytes. Written: %d, Expected: %d", bytesWritten, data.length)
-                );
+                throw new IOException(String.format("Failed to write all bytes. Written: %d, Expected: %d", bytesWritten, data.length));
             }
             LOG.info("Data sent to serial port: {} at {} baud", portName, baudRate);
         } finally {
@@ -787,9 +782,7 @@ public class CustomerDisplayEscPosServiceImpl implements CustomerDisplayService 
 
     public List<String> listAvailableSerialPorts() {
         SerialPort[] ports = SerialPort.getCommPorts();
-        List<String> portNames = Arrays.stream(ports)
-            .map(SerialPort::getSystemPortName)
-            .toList();
+        List<String> portNames = Arrays.stream(ports).map(SerialPort::getSystemPortName).toList();
 
         LOG.info("Found {} serial ports: {}", portNames.size(), portNames);
         return portNames;
@@ -813,11 +806,9 @@ public class CustomerDisplayEscPosServiceImpl implements CustomerDisplayService 
         }
     }
 
-
     private boolean handleRequest() {
         return isDisplayEnabled() && requestOrigineService.isLocalAndNotTauriRequest();
     }
-
 
     /**
      * Connection type enumeration
@@ -837,10 +828,11 @@ public class CustomerDisplayEscPosServiceImpl implements CustomerDisplayService 
         /**
          * Network connection via TCP/IP socket
          */
-        NETWORK
+        NETWORK,
     }
 
     public static class DisplayConnectionConfig {
+
         private ConnectionType connectionType;
         private String serialPort;
         private int baudRate = DEFAULT_BAUD_RATE;

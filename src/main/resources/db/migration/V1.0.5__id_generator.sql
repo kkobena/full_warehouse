@@ -32,6 +32,8 @@ alter sequence id_transaction_seq owner to pharma_smart;
 CREATE SEQUENCE id_mvt_produit_seq START 1;
 alter sequence id_mvt_produit_seq owner to pharma_smart;
 
+CREATE SEQUENCE invoice_generation_code_seq START 1;
+alter sequence invoice_generation_code_seq owner to pharma_smart;
 
 alter sequence magasin_id_seq restart with 5;
 alter sequence storage_id_seq restart with 10;

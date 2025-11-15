@@ -13,7 +13,7 @@ public record DiffereItem(
     int restAmount,
     LocalDateTime mvtDate,
     Long saleId,
-    Long customerId
+    Integer customerId
 ) {
     public String user() {
         return String.format("%s.%s", firstName.charAt(0), lastName);

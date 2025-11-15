@@ -37,15 +37,6 @@ import jakarta.persistence.criteria.CriteriaBuilder;
 import jakarta.persistence.criteria.CriteriaQuery;
 import jakarta.persistence.criteria.Predicate;
 import jakarta.persistence.criteria.Root;
-import org.apache.commons.lang3.ObjectUtils;
-import org.springframework.core.io.Resource;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageImpl;
-import org.springframework.data.domain.Pageable;
-import org.springframework.data.jpa.domain.Specification;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
-
 import java.io.IOException;
 import java.math.BigDecimal;
 import java.time.LocalDate;
@@ -58,6 +49,14 @@ import java.util.Map.Entry;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.Collectors;
+import org.apache.commons.lang3.ObjectUtils;
+import org.springframework.core.io.Resource;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.domain.Specification;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 @Transactional
 @Service
@@ -156,6 +155,7 @@ public class FinancialTransactionServiceImpl implements FinancialTransactionServ
     }
 
     private DefaultPaymentRecord buildPaymentRecord(PaymentId idReglement) {
+
         DefaultPayment paymentTransaction = defaultTransactionRepository.findById(idReglement).orElseThrow();
         AppUser user = paymentTransaction.getCashRegister().getUser();
         return new DefaultPaymentRecord(user.getFirstName().concat(" ").concat(user.getLastName()), paymentTransaction.getCreatedAt(), paymentTransaction.getPaymentMode().getLibelle(), paymentTransaction.getPaidAmount(), paymentTransaction.getTransactionNumber(), paymentTransaction.getTypeFinancialTransaction());
@@ -320,6 +320,7 @@ public class FinancialTransactionServiceImpl implements FinancialTransactionServ
         mvtCaisseDTO.setPaymentModeLibelle(mvtCaisseProjection.paymentModeLibelle());
         mvtCaisseDTO.setType(mvtCaisseProjection.typeFinancialTransaction());
         mvtCaisseDTO.setDate(DateUtil.format(mvtCaisseProjection.createdAt()));
+        mvtCaisseDTO.setReference(mvtCaisseProjection.transactionNumber());
         mvtCaisseDTO.setUserFullName(mvtCaisseProjection.firstName().charAt(0) + "".toUpperCase() + ". " + mvtCaisseProjection.lastName());
         switch (mvtCaisseProjection.paymentType()) {
             case SalePayment -> {

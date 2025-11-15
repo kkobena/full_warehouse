@@ -31,7 +31,9 @@ import org.springframework.data.domain.Persistable;
     name = "facture_tiers_payant",
     uniqueConstraints = { @UniqueConstraint(columnNames = { "num_facture", "invoice_date" }) },
     indexes = {
-        @Index(columnList = "num_facture", name = "num_facture_index"), @Index(columnList = "invoice_date", name = "invoice_date_index"),
+        @Index(columnList = "generation_code", name = "generation_code_index"),
+        @Index(columnList = "num_facture", name = "num_facture_index"),
+        @Index(columnList = "invoice_date", name = "invoice_date_index"),
     }
 )
 @IdClass(FactureItemId.class)
@@ -51,14 +53,20 @@ public class FactureTiersPayant implements Persistable<FactureItemId>, Serializa
     @Column(name = "num_facture", nullable = false, length = 20)
     private String numFacture;
 
+    @Column(name = "remise_forfetaire")
     private int remiseForfetaire;
 
     @ManyToOne
     @JoinColumn(name = "tiers_payant_id", referencedColumnName = "id")
     private TiersPayant tiersPayant;
 
+    @Column(name = "facture_provisoire")
     private boolean factureProvisoire;
+
+    @Column(name = "debut_periode")
     private LocalDate debutPeriode;
+
+    @Column(name = "fin_periode")
     private LocalDate finPeriode;
 
     @NotNull
@@ -81,6 +89,9 @@ public class FactureTiersPayant implements Persistable<FactureItemId>, Serializa
     @NotNull
     @ManyToOne(optional = false)
     private AppUser user;
+
+    @Column(name = "generation_code")
+    private Integer generationCode;
 
     @OneToMany(mappedBy = "groupeFactureTiersPayant")
     private List<FactureTiersPayant> factureTiersPayants = new ArrayList<>();
@@ -109,6 +120,15 @@ public class FactureTiersPayant implements Persistable<FactureItemId>, Serializa
 
     public FactureTiersPayant setCreated(LocalDateTime created) {
         this.created = created;
+        return this;
+    }
+
+    public Integer getGenerationCode() {
+        return generationCode;
+    }
+
+    public FactureTiersPayant setGenerationCode(Integer generationCode) {
+        this.generationCode = generationCode;
         return this;
     }
 

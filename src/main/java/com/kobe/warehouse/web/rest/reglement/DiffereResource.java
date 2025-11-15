@@ -14,6 +14,10 @@ import com.kobe.warehouse.web.rest.Utils;
 import com.kobe.warehouse.web.util.PaginationUtil;
 import com.kobe.warehouse.web.util.ResponseUtil;
 import jakarta.servlet.http.HttpServletRequest;
+import java.io.IOException;
+import java.time.LocalDate;
+import java.util.List;
+import java.util.Set;
 import org.springframework.core.io.Resource;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -27,11 +31,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
-
-import java.io.IOException;
-import java.time.LocalDate;
-import java.util.List;
-import java.util.Set;
 
 @RestController
 @RequestMapping("/api/differes")
@@ -61,20 +60,23 @@ public class DiffereResource {
 
     @GetMapping("/customers/{id}")
     public ResponseEntity<DiffereDTO> getDiffere(@PathVariable Integer id) {
-
         return ResponseUtil.wrapOrNotFound(reglementDiffereService.getOne(id));
     }
 
     @GetMapping("/print-receipt/{id}/{transactionDate}")
-    public ResponseEntity<Void> printReceipt(@PathVariable(name = "id") long id, LocalDate transactionDate) {
+    public ResponseEntity<Void> printReceipt(
+        @PathVariable(name = "id") Long id,
+        @PathVariable(name = "transactionDate") LocalDate transactionDate
+    ) {
         this.reglementDiffereService.printReceipt(new PaymentId(id, transactionDate));
         return ResponseEntity.ok().build();
     }
-    @GetMapping("/print-tauri/{id}/{transactionDate}")
-    public ResponseEntity<byte[]> getReceiptForTauri(@PathVariable(name = "id") long idReglement,
-                                                     @PathVariable(name = "transactionDate") LocalDate transactionDate
-    ) {
 
+    @GetMapping("/print-tauri/{id}/{transactionDate}")
+    public ResponseEntity<byte[]> getReceiptForTauri(
+        @PathVariable(name = "id") long idReglement,
+        @PathVariable(name = "transactionDate") LocalDate transactionDate
+    ) {
         try {
             byte[] escPosData = reglementDiffereService.generateEscPosReceiptForTauri(new PaymentId(idReglement, transactionDate));
             return ResponseEntity.ok()
@@ -82,10 +84,10 @@ public class DiffereResource {
                 .header(HttpHeaders.CONTENT_DISPOSITION, "inline; filename=\"receipt.bin\"")
                 .body(escPosData);
         } catch (IOException e) {
-
             return ResponseEntity.internalServerError().build();
         }
     }
+
     @GetMapping("/pdf")
     public ResponseEntity<Resource> exportList(
         HttpServletRequest request,
@@ -131,9 +133,7 @@ public class DiffereResource {
     }
 
     @GetMapping("/summary")
-    public ResponseEntity<DiffereSummary> getDiffereSummary(
-        @RequestParam(name = "customerId", required = false) Integer customerId
-    ) {
+    public ResponseEntity<DiffereSummary> getDiffereSummary(@RequestParam(name = "customerId", required = false) Integer customerId) {
         return ResponseEntity.ok().body(reglementDiffereService.getDiffereSummary(customerId, Set.of(PaymentStatus.IMPAYE)));
     }
 }

@@ -28,7 +28,9 @@ import com.kobe.warehouse.service.facturation.dto.ModeEditionEnum;
 import com.kobe.warehouse.service.facturation.dto.TiersPayantDossierFactureDto;
 import com.kobe.warehouse.service.facturation.specification.EditionDataSpecification;
 import com.kobe.warehouse.service.utils.NumberUtil;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Objects;
@@ -165,15 +167,20 @@ public class EditionDataServiceImpl implements EditionDataService {
     }
 
     @Override
-    public List<FactureTiersPayant> getFactureTiersPayant(LocalDateTime created, boolean isGroup) {
+    public List<FactureTiersPayant> getFactureTiersPayant(Integer generationCode, boolean isGroup) {
+        String codeStr = String.valueOf(generationCode);
+        int yyyymm = Integer.parseInt(codeStr.substring(0, Math.min(6, codeStr.length())));
+        var generatedDate = LocalDate.parse(yyyymm + "01", DateTimeFormatter.ofPattern("yyyyMMdd"));
         if (isGroup) {
-            return this.facturationRepository.findAllByCreatedEqualsAndGroupeFactureTiersPayantIsNull(
-                    created,
+            return this.facturationRepository.findAllByGenerationCodeAndGroupeFactureTiersPayantIsNull(
+                    generationCode,
+                    generatedDate,
                     Sort.by(Direction.DESC, "created").and(Sort.by(Direction.ASC, "groupeTiersPayant.name"))
                 );
         }
-        return this.facturationRepository.findAllByCreatedEquals(
-                created,
+        return this.facturationRepository.findAll(
+                generationCode,
+                generatedDate,
                 Sort.by(Direction.DESC, "created").and(Sort.by(Direction.ASC, "tiersPayant.fullName"))
             );
     }
@@ -182,14 +189,14 @@ public class EditionDataServiceImpl implements EditionDataService {
     public Resource printToPdf(FactureEditionResponse factureEditionResponse) {
         if (factureEditionResponse.isGroup()) {
             return groupeFactureReportService.printToPdf(
-                getFactureTiersPayant(factureEditionResponse.createdDate(), true)
+                getFactureTiersPayant(factureEditionResponse.generationCode(), true)
                     .stream()
                     .map(this::buildGroupeFactureDtoFromEntity)
                     .toList()
             );
         }
 
-        return this.facturationReportService.printToPdf(getFactureTiersPayant(factureEditionResponse.createdDate(), false));
+        return this.facturationReportService.printToPdf(getFactureTiersPayant(factureEditionResponse.generationCode(), false));
     }
 
     @Override

@@ -1,18 +1,20 @@
 package com.kobe.warehouse.service.facturation.service;
 
-
 import com.kobe.warehouse.domain.FactureTiersPayant;
 import com.kobe.warehouse.domain.ThirdPartySaleLine;
 import com.kobe.warehouse.domain.TiersPayant;
 import com.kobe.warehouse.domain.enumeration.SalesStatut;
 import com.kobe.warehouse.repository.FacturationRepository;
 import com.kobe.warehouse.repository.ThirdPartySaleLineRepository;
-import com.kobe.warehouse.service.settings.AppConfigurationService;
 import com.kobe.warehouse.service.UserService;
 import com.kobe.warehouse.service.facturation.dto.EditionSearchParams;
 import com.kobe.warehouse.service.facturation.dto.FactureEditionResponse;
 import com.kobe.warehouse.service.id_generator.FactureIdGeneratorService;
+import com.kobe.warehouse.service.id_generator.InvoiceGenerationCodeGeneratorService;
+import com.kobe.warehouse.service.settings.AppConfigurationService;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -32,28 +34,31 @@ public abstract class AbstractEditionFactureService implements EditionService {
     private final AppConfigurationService appConfigurationService;
     private final UserService userService;
     private final FactureIdGeneratorService factureIdGeneratorService;
+    private final InvoiceGenerationCodeGeneratorService invoiceGenerationCodeGeneratorService;
 
     protected AbstractEditionFactureService(
         ThirdPartySaleLineRepository thirdPartySaleLineRepository,
         FacturationRepository facturationRepository,
         AppConfigurationService appConfigurationService,
         UserService userService,
-        FactureIdGeneratorService factureIdGeneratorService
+        FactureIdGeneratorService factureIdGeneratorService,
+        InvoiceGenerationCodeGeneratorService invoiceGenerationCodeGeneratorService
     ) {
         this.thirdPartySaleLineRepository = thirdPartySaleLineRepository;
         this.facturationRepository = facturationRepository;
         this.appConfigurationService = appConfigurationService;
         this.userService = userService;
         this.factureIdGeneratorService = factureIdGeneratorService;
-
+        this.invoiceGenerationCodeGeneratorService = invoiceGenerationCodeGeneratorService;
     }
 
     @Override
     @Transactional
     public FactureEditionResponse createFactureEdition(EditionSearchParams editionSearchParams) {
         LocalDateTime dateCreation = LocalDateTime.now();
-        saveAll(editionSearchParams, dateCreation);
-        return new FactureEditionResponse(dateCreation, false);
+        int generationCode = getGenerationCode();
+        saveAll(editionSearchParams, dateCreation, generationCode);
+        return new FactureEditionResponse(generationCode, false);
     }
 
     protected abstract Specification<ThirdPartySaleLine> buildCriteria(EditionSearchParams editionSearchParams);
@@ -85,20 +90,35 @@ public abstract class AbstractEditionFactureService implements EditionService {
         return thirdPartySaleLines.stream().collect(Collectors.groupingBy(t -> t.getClientTiersPayant().getTiersPayant()));
     }
 
-    private void saveAll(EditionSearchParams editionSearchParams, LocalDateTime dateCreation) {
+    private void saveAll(EditionSearchParams editionSearchParams, LocalDateTime dateCreation, int generationCode) {
         var year = dateCreation.getYear();
         var lastFactureNumero = getLastFactureNumero();
         AtomicInteger numero = new AtomicInteger(lastFactureNumero);
-        List<ThirdPartySaleLine> thirdPartySaleLines = this.getDatas(editionSearchParams);
+        List<ThirdPartySaleLine> thirdPartySaleLines = getDatas(editionSearchParams);
 
-        Map<TiersPayant, List<ThirdPartySaleLine>> groupByTiersPayant = this.groupByTiersPayant(thirdPartySaleLines);
+        Map<TiersPayant, List<ThirdPartySaleLine>> groupByTiersPayant = groupByTiersPayant(thirdPartySaleLines);
         groupByTiersPayant.forEach((tiersPayant, saleLines) ->
-            this.buildAndSaveFacture(null, tiersPayant, saleLines, dateCreation, year, numero.incrementAndGet(), editionSearchParams)
+            this.buildAndSaveFacture(
+                    null,
+                    tiersPayant,
+                    saleLines,
+                    dateCreation,
+                    year,
+                    numero.incrementAndGet(),
+                    generationCode,
+                    editionSearchParams
+                )
         );
     }
 
     protected String getFactureNumber(int year, int count) {
         return year + "_" + StringUtils.leftPad(count + "", 4, "0");
+    }
+
+    protected int getGenerationCode() {
+        return Integer.parseInt(
+            LocalDate.now().format(DateTimeFormatter.ofPattern("yyyyMM")).concat(invoiceGenerationCodeGeneratorService.getNextIdAsString())
+        );
     }
 
     protected void buildAndSaveFacture(
@@ -108,11 +128,13 @@ public abstract class AbstractEditionFactureService implements EditionService {
         LocalDateTime dateCreation,
         int year,
         int lastFactureNumero,
+        int generationCode,
         EditionSearchParams editionSearchParams
     ) {
         FactureTiersPayant factureTiersPayant = new FactureTiersPayant()
             .setId(this.factureIdGeneratorService.nextId())
             .setCreated(dateCreation)
+            .setGenerationCode(generationCode)
             .setRemiseForfetaire(tiersPayant.getRemiseForfaitaire())
             .setUpdated(dateCreation)
             .setGroupeFactureTiersPayant(factureGroup)

@@ -1,4 +1,4 @@
 export class FactureEditionResponse {
-  invoiceCount?: number;
-  success?: boolean;
+  generationCode?: number;
+  isGroup?: boolean;
 }

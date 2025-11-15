@@ -14,16 +14,17 @@
               (onChange)="onTypeVenteChange()"
               [(ngModel)]="typeVenteSelected"
               [filter]="false"
-              appendTo="body"
               [options]="typeVentes"
-              placeholder="Filtrer par critère"
+              appendTo="body"
               class="mr-2"
+              placeholder="Filtrer par critère"
             />
 
             <div class="pharma-search-input">
               <p-iconfield>
                 <p-inputicon class="pi pi-search" />
-                <input (keyup.enter)="onSearch()" pInputText placeholder="Rechercher..." type="text" />
+                <input (keyup.enter)="onSearch()" pInputText placeholder="Rechercher..."
+                       type="text" />
               </p-iconfield>
             </div>
           </div>
@@ -33,11 +34,11 @@
           <div class="pharma-toolbar-actions">
             <div>
               <p-button
-                [routerLink]="['/sales', false, 'new']"
                 [raised]="true"
-                icon="pi pi-plus"
+                [routerLink]="['/sales', false, 'new']"
+                icon="pi pi-shopping-cart"
                 label="Nouvelle vente"
-                severity="success"
+                severity="primary"
                 type="button"
               />
             </div>
@@ -134,11 +135,11 @@
                     [rowsPerPageOptions]="[10, 15, 20, 30, 50]"
                     [rows]="10"
                     [showCurrentPageReport]="true"
+                    [stripedRows]="true"
                     [value]="elRow.salesLines"
+                    class="pharma-table"
                     currentPageReportTemplate="Affichage de {first} à {last} sur {totalRecords} produits"
                     dataKey="id"
-                    class="pharma-table"
-                    [stripedRows]="true"
                     selectionMode="single"
                   >
                     <ng-template #header>
@@ -152,16 +153,26 @@
                         <th style="width: 10%">TOTAL</th>
                       </tr>
                     </ng-template>
-                    <ng-template let-rowIndex="rowIndex" let-saleLine #body>
-                      <tr [ngClass]="{ 'table-danger': saleLine.quantitySold < saleLine.quantityRequested }">
-                        <td style="text-align: left"><span class="pharma-row-number">{{ rowIndex + 1 }}</span></td>
+                    <ng-template #body let-rowIndex="rowIndex" let-saleLine>
+                      <tr
+                        [ngClass]="{ 'table-danger': saleLine.quantitySold < saleLine.quantityRequested }">
+                        <td style="text-align: left"><span class="pharma-row-number">{{
+                            rowIndex + 1
+                          }}</span></td>
                         <td><span class="pharma-code">{{ saleLine.code }} </span></td>
-                        <td><span class="pharma-product-name"> {{ saleLine.produitLibelle }}</span></td>
-                        <td class="text-right pharma-qty-valu">{{ saleLine.quantityRequested | number }}</td>
-                        <td class="text-right pharma-qty-value">{{ saleLine.quantitySold | number }}</td>
-                        <td class="text-right pharma-price">{{ saleLine.regularUnitPrice | number }}</td>
-                        <td style="text-align: right; font-weight: bold"
-                            class="pharma-total">{{ saleLine.salesAmount | number }}
+                        <td><span class="pharma-product-name"> {{ saleLine.produitLibelle }}</span>
+                        </td>
+                        <td
+                          class="text-right pharma-qty-valu">{{ saleLine.quantityRequested | number }}
+                        </td>
+                        <td
+                          class="text-right pharma-qty-value">{{ saleLine.quantitySold | number }}
+                        </td>
+                        <td
+                          class="text-right pharma-price">{{ saleLine.regularUnitPrice | number }}
+                        </td>
+                        <td class="pharma-total"
+                            style="text-align: right; font-weight: bold">{{ saleLine.salesAmount | number }}
                         </td>
                       </tr>
                     </ng-template>

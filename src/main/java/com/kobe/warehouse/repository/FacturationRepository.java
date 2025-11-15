@@ -13,7 +13,6 @@ import com.kobe.warehouse.service.facturation.dto.InvoiceSearchParams;
 import jakarta.persistence.criteria.CriteriaBuilder.In;
 import jakarta.persistence.criteria.Predicate;
 import java.time.LocalDate;
-import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
@@ -36,9 +35,21 @@ public interface FacturationRepository
     @Query(value = "SELECT f.num_facture FROM facture_tiers_payant f  ORDER BY f.id DESC LIMIT 1", nativeQuery = true)
     String findLatestFactureNumber();
 
-    List<FactureTiersPayant> findAllByCreatedEquals(LocalDateTime created, Sort sort);
+    @Query("SELECT o FROM  FactureTiersPayant o WHERE o.generationCode=:generationCode AND o.invoiceDate >=:invoiceDate  ")
+    List<FactureTiersPayant> findAll(
+        @Param("generationCode") Integer generationCode,
+        @Param("invoiceDate") LocalDate invoiceDate,
+        Sort sort
+    );
 
-    List<FactureTiersPayant> findAllByCreatedEqualsAndGroupeFactureTiersPayantIsNull(LocalDateTime created, Sort sort);
+    @Query(
+        "SELECT o FROM  FactureTiersPayant o WHERE o.generationCode=:generationCode AND o.invoiceDate >=:invoiceDate AND o.groupeFactureTiersPayant IS NULL "
+    )
+    List<FactureTiersPayant> findAllByGenerationCodeAndGroupeFactureTiersPayantIsNull(
+        @Param("generationCode") Integer generationCode,
+        @Param("invoiceDate") LocalDate invoiceDate,
+        Sort sort
+    );
 
     default Specification<FactureTiersPayant> fetchByIs(Set<FactureItemId> ids) {
         return (root, _, cb) -> {

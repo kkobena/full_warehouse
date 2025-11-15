@@ -119,6 +119,7 @@ public class InventoryTransactionServiceIml implements InventoryTransactionServi
 
             List<ProductMouvement> productMouvements = objectMapper.readValue(inventoryTransactionRepository.fetchMouvementProduit(produitId, magasinId, startDate, endDate), new TypeReference<>() {
             });
+            System.err.println(productMouvements);
             productMouvements.forEach(productMouvement -> {
                 ProduitAuditingState produitAuditingState = new ProduitAuditingState();
                 produitAuditingState.setMvtDate(productMouvement.mvtDate());
@@ -129,7 +130,7 @@ public class InventoryTransactionServiceIml implements InventoryTransactionServi
                     mvts.forEach((mouvementProduit, quantity) -> {
                         switch (mouvementProduit) {
                             case SALE -> produitAuditingState.setSaleQuantity(quantity);
-                            case COMMANDE -> produitAuditingState.setDeleveryQuantity(quantity);
+                            case ENTREE_STOCK -> produitAuditingState.setDeleveryQuantity(quantity);
                             case RETOUR_FOURNISSEUR -> produitAuditingState.setRetourFournisseurQuantity(quantity);
                             case RETRAIT_PERIME -> produitAuditingState.setPerimeQuantity(quantity);
                             case AJUSTEMENT_IN -> produitAuditingState.setAjustementPositifQuantity(quantity);
@@ -172,7 +173,7 @@ public class InventoryTransactionServiceIml implements InventoryTransactionServi
 
     @Override
     public void saveAll(List<OrderLine> entities) {
-        if (CollectionUtils.isEmpty(entities)) {
+        if (!CollectionUtils.isEmpty(entities)) {
             entities.forEach(this::save);
         }
     }

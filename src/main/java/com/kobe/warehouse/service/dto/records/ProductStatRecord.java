@@ -6,7 +6,7 @@ import java.math.BigDecimal;
 import java.math.RoundingMode;
 
 public record ProductStatRecord(
-    Long id,
+    Integer id,
     Long produitCount,
     String codeCip,
     String codeEan,

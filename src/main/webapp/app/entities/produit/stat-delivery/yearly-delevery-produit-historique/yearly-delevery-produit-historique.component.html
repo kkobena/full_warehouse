@@ -10,10 +10,11 @@
     [totalRecords]="totalItems"
     [value]="data"
     dataKey="annee"
+    class="pharma-table"
     stripedRows="true"
   >
     <ng-template #header>
-      <tr>
+      <tr class="pharma-table-head">
         <th>Année</th>
         <th>Janvier</th>
         <th>Février</th>
@@ -47,7 +48,7 @@
       </tr>
     </ng-template>
     <ng-template #footer>
-      <tr>
+      <tr class="pharma-table-footer">
         <td colspan="13" class="text-left">
           Total quantité sur la période <span class="font-bold">{{ summary?.quantite | number }}</span>
         </td>

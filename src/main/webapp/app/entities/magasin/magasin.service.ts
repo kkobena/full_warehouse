@@ -48,4 +48,8 @@ export class MagasinService {
     return this.http.get<IMagasin>(`${this.resourceUrl}/current`, { observe: 'response' });
   }
 
+  hasDepot(): Observable<HttpResponse<boolean>> {
+    return this.http.get<boolean>(`${this.resourceUrl}/has-depot`, { observe: 'response' });
+  }
+
 }

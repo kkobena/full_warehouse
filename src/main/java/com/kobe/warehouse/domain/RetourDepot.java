@@ -1,10 +1,7 @@
 package com.kobe.warehouse.domain;
 
-import com.kobe.warehouse.domain.enumeration.RetourStatut;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
-import jakarta.persistence.EnumType;
-import jakarta.persistence.Enumerated;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
@@ -30,7 +27,7 @@ public class RetourDepot implements Serializable {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+    private Integer id;
 
     @NotNull
     @Column(name = "date_mtv", nullable = false)
@@ -40,10 +37,6 @@ public class RetourDepot implements Serializable {
     @NotNull
     private AppUser user;
 
-    @NotNull
-    @Enumerated(EnumType.STRING)
-    @Column(name = "statut_retour", nullable = false, length = 15)
-    private RetourStatut statut = RetourStatut.VALIDATED;
     @OneToMany(mappedBy = "retourDepot")
     private List<RetourDepotItem> retourDepotItems = new ArrayList<>();
 
@@ -59,11 +52,11 @@ public class RetourDepot implements Serializable {
     @NotNull
     private Magasin depot;
 
-    public Long getId() {
+    public Integer getId() {
         return id;
     }
 
-    public RetourDepot setId(Long id) {
+    public RetourDepot setId(Integer id) {
         this.id = id;
         return this;
     }
@@ -91,15 +84,6 @@ public class RetourDepot implements Serializable {
 
     public RetourDepot setUser(AppUser user) {
         this.user = user;
-        return this;
-    }
-
-    public RetourStatut getStatut() {
-        return statut;
-    }
-
-    public RetourDepot setStatut(RetourStatut statut) {
-        this.statut = statut;
         return this;
     }
 

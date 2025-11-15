@@ -15,7 +15,7 @@ import { TableLazyLoadEvent, TableModule } from 'primeng/table';
   selector: 'jhi-daily-delevery-produit-historique',
   imports: [CommonModule, TableModule],
   templateUrl: './daily-delevery-produit-historique.component.html',
-  styleUrls: ['./daily-delevery-produit-historique.component.scss']
+  styleUrl: './daily-delevery-produit-historique.component.scss'
 })
 export class DailyDeleveryProduitHistoriqueComponent implements OnInit {
   protected totalItems = 0;

@@ -2,8 +2,10 @@ package com.kobe.warehouse.service.stat.impl;
 
 import com.kobe.warehouse.config.FileStorageProperties;
 import com.kobe.warehouse.domain.Magasin;
+import com.kobe.warehouse.repository.MagasinRepository;
 import com.kobe.warehouse.service.StorageService;
 import com.kobe.warehouse.service.dto.produit.ProduitAuditingState;
+import com.kobe.warehouse.service.referential.magasin.MagasinService;
 import com.kobe.warehouse.service.report.CommonReportService;
 import com.kobe.warehouse.service.report.Constant;
 import java.net.MalformedURLException;
@@ -20,6 +22,7 @@ public class SuiviArticleReportReportService extends CommonReportService {
 
     private final SpringTemplateEngine templateEngine;
     private final StorageService storageService;
+    private final MagasinService magasinService;
 
     private final Map<String, Object> variablesMap = new HashMap<>();
 
@@ -29,12 +32,13 @@ public class SuiviArticleReportReportService extends CommonReportService {
     public SuiviArticleReportReportService(
         SpringTemplateEngine templateEngine,
         FileStorageProperties fileStorageProperties,
-        StorageService storageService
+        StorageService storageService, MagasinService magasinService
     ) {
         super(fileStorageProperties, storageService);
         this.templateEngine = templateEngine;
 
         this.storageService = storageService;
+        this.magasinService = magasinService;
     }
 
     private String print(List<ProduitAuditingState> datas, String title) {
@@ -43,6 +47,7 @@ public class SuiviArticleReportReportService extends CommonReportService {
         int itemSize = items.size();
         templateFile = Constant.SUIVI_ARTICLE_TEMPLATE_FILE;
         getParameters().put(Constant.MAGASIN, magasin);
+        getParameters().put(Constant.HAS_DEPOT, magasinService.hasDepot());
         getParameters().put(Constant.REPORT_TITLE, title);
         getParameters().put(Constant.ITEM_SIZE, itemSize);
         getParameters().put(Constant.FOOTER, "\"" + super.builderFooter(magasin) + "\"");

@@ -1,4 +1,4 @@
-import { Component, inject, OnInit } from '@angular/core';
+import { Component, inject, OnInit, signal } from '@angular/core';
 import { WarehouseCommonModule } from '../../../shared/warehouse-common/warehouse-common.module';
 import { ButtonModule } from 'primeng/button';
 import { RippleModule } from 'primeng/ripple';
@@ -18,6 +18,7 @@ import { ProduitStatService } from '../stat/produit-stat.service';
 import { ProduitAuditingParamService } from '../transaction/produit-auditing-param.service';
 import { ITEMS_PER_PAGE } from '../../../shared/constants/pagination.constants';
 import { MouvementProduit } from '../../../shared/model/enumerations/mouvement-produit.model';
+import { MagasinService } from '../../magasin/magasin.service';
 
 @Component({
   selector: 'jhi-auditing',
@@ -38,6 +39,7 @@ import { MouvementProduit } from '../../../shared/model/enumerations/mouvement-p
 export class AuditingComponent implements OnInit {
   protected saleQuantity?: number;
   protected deleveryQuantity?: number;
+  protected retourDepot?: number;
   protected retourFournisseurQuantity?: number;
   protected perimeQuantity?: number;
   protected ajustementPositifQuantity?: number;
@@ -45,7 +47,6 @@ export class AuditingComponent implements OnInit {
   protected deconPositifQuantity?: number;
   protected deconNegatifQuantity?: number;
   protected canceledQuantity?: number;
-  protected retourDepot?: number;
   protected storeInventoryQuantity?: number;
   protected entites: ProduitAuditingState[] = [];
   protected summaries: ProduitAuditingSum[] = [];
@@ -53,10 +54,15 @@ export class AuditingComponent implements OnInit {
   protected page!: number;
   protected loading!: boolean;
   protected totalItems = 0;
+  protected hasDepot= signal<boolean>(false);
   private readonly produitStatService = inject(ProduitStatService);
   private readonly produitAuditingParamService = inject(ProduitAuditingParamService);
+  private readonly magasinService = inject(MagasinService);
 
   ngOnInit(): void {
+    this.magasinService.hasDepot().subscribe(hasDepot => {
+      this.hasDepot.set(hasDepot.body || false);
+    })
     const param = this.produitAuditingParamService.produitAuditingParam;
     if (param && param.produitId) {
       this.loadPage();
@@ -156,7 +162,7 @@ export class AuditingComponent implements OnInit {
   private computeTotaux(): void {
     const saleSum = this.summaries.find(sum => sum.mouvementProduitType === MouvementProduit.SALE);
     this.saleQuantity = saleSum ? saleSum.quantity : null;
-    const deliverySum = this.summaries.find(sum => sum.mouvementProduitType === MouvementProduit.COMMANDE);
+    const deliverySum = this.summaries.find(sum => sum.mouvementProduitType === MouvementProduit.ENTREE_STOCK);
     this.deleveryQuantity = deliverySum ? deliverySum.quantity : null;
     const retourFournisseurSum = this.summaries.find(sum => sum.mouvementProduitType === MouvementProduit.RETOUR_FOURNISSEUR);
     this.retourFournisseurQuantity = retourFournisseurSum ? retourFournisseurSum.quantity : null;

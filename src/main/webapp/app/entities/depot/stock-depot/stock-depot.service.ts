@@ -7,7 +7,6 @@ import { createRequestOptions } from 'app/shared/util/request-util';
 import { IProduit } from 'app/shared/model/produit.model';
 import { IResponseDto } from '../../../shared/util/response-dto';
 import { ISales, SaleId } from '../../../shared/model/sales.model';
-import { ProductToDestroyFilter } from '../../gestion-peremption/model/product-to-destroy';
 
 
 type EntityArrayResponseType = HttpResponse<IProduit[]>;

@@ -15,4 +15,6 @@ public interface MagasinService {
     void delete(Integer id);
 
     List<MagasinDTO> findAll(Set<TypeMagasin> types);
+
+    boolean hasDepot();
 }

@@ -9,11 +9,14 @@ import com.kobe.warehouse.domain.OrderLine;
 import com.kobe.warehouse.domain.ProductsToDestroy;
 import com.kobe.warehouse.domain.Produit;
 import com.kobe.warehouse.domain.RetourBonItem;
+import com.kobe.warehouse.domain.RetourDepotItem;
 import com.kobe.warehouse.domain.SalesLine;
 import com.kobe.warehouse.domain.StoreInventory;
 import com.kobe.warehouse.domain.StoreInventoryLine;
 import com.kobe.warehouse.domain.enumeration.MouvementProduit;
 import com.kobe.warehouse.domain.enumeration.TypeDeconditionnement;
+
+import java.time.LocalDateTime;
 
 public class InventoryTransactionBuilder {
 
@@ -34,17 +37,18 @@ public class InventoryTransactionBuilder {
                 .setMagasin(salesLine.getSales().getUser().getMagasin())
                 .setRegularUnitPrice(salesLine.getRegularUnitPrice());
         } else if (entity instanceof OrderLine orderLine) {
+            AppUser appUser = orderLine.getCommande().getUser();
             inventoryTransaction = new InventoryTransaction()
                 .setCreatedAt(orderLine.getUpdatedAt())
                 .setProduit(orderLine.getFournisseurProduit().getProduit())
-                .setMouvementType(MouvementProduit.COMMANDE)
+                .setMouvementType(MouvementProduit.ENTREE_STOCK)
                 .setQuantity(orderLine.getQuantityReceived())
                 .setQuantityBefor(orderLine.getInitStock())
                 .setQuantityAfter(orderLine.getFinalStock())
                 .setCostAmount(orderLine.getOrderCostAmount())
                 .setEntityId(Long.parseLong(orderLine.getId().getId()+""))
-                .setUser(orderLine.getCommande().getUser())
-                .setMagasin(orderLine.getCommande().getUser().getMagasin())
+                .setUser(appUser)
+                .setMagasin(appUser.getMagasin())
                 .setRegularUnitPrice(orderLine.getOrderUnitPrice());
         } else if (entity instanceof Ajustement ajustement) {
             Produit produit = ajustement.getProduit();
@@ -126,6 +130,21 @@ public class InventoryTransactionBuilder {
                 .setUser(user)
                 .setMagasin(user.getMagasin())
                 .setRegularUnitPrice(storeInventoryLine.getLastUnitPrice());
+        }else if (entity instanceof RetourDepotItem retourDepotItem) {
+            Produit produit = retourDepotItem.getProduit();
+            AppUser user = retourDepotItem.getRetourDepot().getUser();
+            inventoryTransaction = new InventoryTransaction()
+                .setCreatedAt(LocalDateTime.now())
+                .setProduit(produit)
+                .setMouvementType(MouvementProduit.RETOUR_DEPOT)
+                .setQuantity(retourDepotItem.getQtyMvt())
+                .setQuantityBefor(retourDepotItem.getOfficineInitStock())
+                .setQuantityAfter(retourDepotItem.getOfficineFinalStock())
+                .setCostAmount(retourDepotItem.getPrixAchat())
+                .setEntityId(Long.parseLong(retourDepotItem.getId()+""))
+                .setUser(user)
+                .setMagasin(user.getMagasin())
+                .setRegularUnitPrice(retourDepotItem.getRegularUnitPrice());
         }
     }
 

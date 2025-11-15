@@ -1,0 +1,265 @@
+<div class="container-fluid">
+  <p-toast />
+  <p-confirmDialog />
+
+  <div class="pharma-smart-content p-1">
+    <!-- Modern Pharma Toolbar -->
+    <div class="pharma-toolbar">
+      <div class="pharma-toolbar-header">
+        <i class="pi pi-undo"></i>
+        <span class="pharma-toolbar-title">Retours dépôt</span>
+      </div>
+
+      <p-toolbar>
+        <ng-template #start>
+          <div class="pharma-toolbar-filters">
+            <p-select
+              id="depots"
+              (onChange)="onDepotChange()"
+              [(ngModel)]="selectedDepot"
+              [appendTo]="'body'"
+              [dataKey]="'id'"
+              size="large"
+              [options]="depots()"
+              [placeholder]="'Tous les dépôts'"
+              [style]="{ 'min-width': '200px' }"
+              class="pharma-select-modern"
+              optionLabel="name"
+              [showClear]="true">
+              <ng-template #item let-depot>
+                <div class="depot-option">
+                  <div class="depot-name">{{ depot.name }}</div>
+                  @if (depot.address) {
+                    <div class="depot-address"
+                         style="font-size: 0.85rem; color: #6c757d;">{{ depot.address }}
+                    </div>
+                  }
+                </div>
+              </ng-template>
+            </p-select>
+
+            <p-floatlabel variant="on">
+              <p-datePicker
+                [style]="'max-width: 150px;'"
+                [(ngModel)]="fromDate"
+                [maxDate]="toDate"
+                appendTo="body"
+                [showIcon]="true"
+                [selectOtherMonths]="true"
+                [showButtonBar]="true"
+                dateFormat="dd/mm/yy"
+                id="fromDate"
+              />
+              <label for="fromDate">Du</label>
+            </p-floatlabel>
+
+            <p-floatlabel variant="on">
+              <p-datePicker
+                [showIcon]="true"
+                [style]="'max-width: 150px;'"
+                [(ngModel)]="toDate"
+                [minDate]="fromDate"
+                [selectOtherMonths]="true"
+                appendTo="body"
+                [showButtonBar]="true"
+                dateFormat="dd/mm/yy"
+                id="toDate"
+                inputId="toDate"
+              />
+              <label for="toDate">Au</label>
+            </p-floatlabel>
+
+           <!-- <div class="pharma-compact-search">
+              <p-iconfield>
+                <p-inputicon class="pi pi-search" />
+                <input
+                  [(ngModel)]="search"
+                  (keyup.enter)="onSearch()"
+                  pInputText
+                  placeholder="Rechercher..."
+                  type="text"
+                />
+              </p-iconfield>
+            </div>-->
+          </div>
+        </ng-template>
+
+        <ng-template #end>
+          <div class="pharma-toolbar-actions">
+            <p-button
+              (click)="loadAll()"
+              [raised]="true"
+              icon="pi pi-search"
+              label="Rechercher"
+              severity="info"
+            />
+            <p-button
+              [raised]="true"
+              [routerLink]="['/depot', 'new-return']"
+              icon="pi pi-undo"
+              label="Retour dépôt"
+              severity="warn"
+            />
+          </div>
+        </ng-template>
+      </p-toolbar>
+    </div>
+
+    <div class="card mt-2">
+      <div class="card-body p-0">
+
+        <div class="pharma-table">
+        <p-table
+          #dt
+          [value]="retourDepots()"
+          [rows]="itemsPerPage"
+          [totalRecords]="totalRecords()"
+          [loading]="loading()"
+          [paginator]="true"
+          [rowsPerPageOptions]="[10, 20, 30, 50]"
+          [lazy]="true"
+          (onLazyLoad)="onPageChange($event)"
+          [globalFilterFields]="['id', 'depotName', 'user.firstName', 'user.lastName']"
+          dataKey="id"
+          [rowExpandMode]="rowExpandMode"
+          currentPageReportTemplate="Affichage de {first} à {last} sur {totalRecords} entrées"
+          [showCurrentPageReport]="true"
+
+        >
+          <ng-template #header>
+            <tr class="pharma-table-head">
+              <th style="width: 3rem"></th>
+
+              <th>
+                <div class="flex align-items-center">
+                  Date
+                </div>
+              </th>
+              <th>Dépôt</th>
+              <th>Opérateur</th>
+              <th class="text-center">Nb. Lignes</th>
+              <th class="text-center">Qté Totale</th>
+
+            </tr>
+          </ng-template>
+
+          <ng-template #body let-expanded="expanded" let-retourDepot>
+            <tr>
+              <td>
+                <p-button
+                  [icon]="expanded ? 'pi pi-chevron-down' : 'pi pi-chevron-right'"
+                  [pRowToggler]="retourDepot"
+                  [rounded]="true"
+                  [text]="true"
+                  type="button"
+                />
+              </td>
+
+              <td>
+                <small>{{ formatDate(retourDepot.dateMtv) }}</small>
+              </td>
+              <td>{{ retourDepot.depotName }}</td>
+              <td>{{ retourDepot.userFullName }} </td>
+              <td class="text-center">
+                <span class="pharma-price">{{ getTotalItems(retourDepot) }}</span>
+              </td>
+              <td class="text-center">
+                <span class="pharma-qty-value">{{ getTotalQuantity(retourDepot) | number }}</span>
+              </td>
+
+            </tr>
+          </ng-template>
+
+          <ng-template #emptymessage>
+            <tr>
+              <td colspan="10" class="pharma-empty-message">
+                <div class="pharma-empty-content">
+                  <i class="pi pi-inbox"></i>
+                  <p>Aucun retour dépôt trouvé</p>
+                  <small>Utilisez le bouton "Retour dépôt" pour créer un retour</small>
+                </div>
+              </td>
+            </tr>
+          </ng-template>
+
+          <ng-template #expandedrow let-retourDepot>
+            <tr class="pharma-expanded-row">
+              <td colspan="10">
+                <div class="pharma-sub-table-container">
+                  <div class="pharma-sub-table-header">
+                    <i class="pi pi-list"></i>
+                    <span>Détails du retour #{{ retourDepot.id }}</span>
+                  </div>
+                  <div class="pharma-sub-table-body">
+                    @if (retourDepot.retourDepotItems && retourDepot.retourDepotItems.length > 0) {
+                      <table class="table table-sm mb-0">
+                        <thead class="pharma-table-head">
+                        <tr>
+                          <th style="width: 3rem" class="text-center">#</th>
+                          <th style="width: 100px">CIP</th>
+                          <th>Produit</th>
+                          <th class="text-center" style="width: 100px">Qté Retournée</th>
+                          <th class="text-center" style="width: 100px">Stock Initial</th>
+                          <th class="text-center" style="width: 100px">Stock Après</th>
+                          <th class="text-end" style="width: 120px">Prix Unitaire</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                          @for (item of retourDepot.retourDepotItems; track item.id; let idx = $index) {
+                            <tr>
+                              <td class="text-center">
+                                <span class="pharma-row-number">{{ idx + 1 }}</span>
+                              </td>
+                              <td>
+                                <span class="pharma-code">{{ item.produitCip }}</span>
+                              </td>
+                              <td>
+                                <span class="pharma-product-name">{{ item.produitLibelle }}</span>
+                              </td>
+                              <td class="text-center">
+                                <span class="pharma-qty-value">{{ item.qtyMvt | number }}</span>
+                              </td>
+                              <td class="text-center">
+                                <span class="pharma-qty-value">{{ item.initStock | number }}</span>
+                              </td>
+                              <td class="text-center">
+                                <span class="pharma-qty-value">{{ item.afterStock | number }}</span>
+                              </td>
+                              <td class="text-end">
+                                <span class="pharma-price">{{ item.regularUnitPrice | number }}</span>
+                              </td>
+                            </tr>
+                          }
+                        </tbody>
+                        <tfoot class="pharma-table-footer">
+                        <tr>
+                          <td colspan="3" class="text-start">
+                            <span class="pharma-footer-label">
+                              <i class="pi pi-calculator"></i>
+                              <span>Total:</span>
+                            </span>
+                          </td>
+                          <td class="text-center">
+                            <span class="pharma-footer-total">{{ getTotalQuantity(retourDepot) | number }}</span>
+                          </td>
+                          <td colspan="3"></td>
+                        </tr>
+                        </tfoot>
+                      </table>
+                    } @else {
+                      <div class="p-3 text-center text-muted">
+                        <i class="pi pi-info-circle me-2"></i>
+                        Aucune ligne de retour
+                      </div>
+                    }
+                  </div>
+                </div>
+              </td>
+            </tr>
+          </ng-template>
+        </p-table>
+      </div>
+    </div>
+  </div>
+  </div>
+</div>

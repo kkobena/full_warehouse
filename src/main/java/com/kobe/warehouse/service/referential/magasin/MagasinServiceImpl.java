@@ -72,6 +72,11 @@ public class MagasinServiceImpl implements MagasinService {
         return magasinRepository.findAll(magasinRepository.hasTypes(EnumSet.copyOf(types))).stream().map(MagasinDTO::new).toList();
     }
 
+    @Override
+    public boolean hasDepot() {
+        return magasinRepository.existsByTypeMagasin(TypeMagasin.DEPOT);
+    }
+
     private Magasin toEntity(MagasinDTO dto) {
         Magasin magasin = new Magasin();
         if (Objects.nonNull(dto.getId())) {

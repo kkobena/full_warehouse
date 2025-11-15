@@ -140,5 +140,9 @@ public class MagasinResource {
         return ResponseEntity.ok().body(magasinService.findAll(CollectionUtils.isEmpty(types)?Set.of(TypeMagasin.DEPOT):types));
     }
 
+    @GetMapping("/magasins/has-depot")
+    public ResponseEntity<Boolean> hasDepot() {
+        return ResponseEntity.ok().body(magasinService.hasDepot());
+    }
 
 }

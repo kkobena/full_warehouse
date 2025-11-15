@@ -1,0 +1,220 @@
+<div class="container-fluid">
+  <p-toast />
+  <div class="pharma-smart-content">
+    <!-- HEADER TOOLBAR -->
+    <div class="pharma-sales-header">
+      <div class="header-left">
+        <p-button
+          (click)="navigateToList()"
+          [rounded]="true"
+          [text]="true"
+          class="back-button"
+          icon="pi pi-arrow-left"
+          pTooltip="Retour à la liste">
+        </p-button>
+
+        <div class="page-title">
+          <h1>Retours Dépôt</h1>
+          <p class="subtitle">Gestion des retours dépôt</p>
+        </div>
+      </div>
+
+      <div class="header-actions">
+        <!-- Save Button -->
+        <p-button
+          (onClick)="save()"
+          [disabled]="!canSave() || isSaving()"
+          [loading]="isSaving()"
+          [outlined]="false"
+          class="save-btn"
+          icon="pi pi-save"
+          label="Enregistrer"
+          severity="primary"
+          size="small">
+        </p-button>
+
+        <!-- Cancel Button -->
+        <p-button
+          (onClick)="reset()"
+          [outlined]="true"
+          class="cancel-btn"
+          icon="pi pi-times"
+          label="Annuler"
+          severity="secondary"
+          size="small">
+        </p-button>
+      </div>
+    </div>
+
+    <!-- DEPOT AND PRODUCT SELECTION SECTION -->
+    <div class="order-search-section">
+      <div class="search-section-header">
+        <i class="pi pi-search"></i>
+        <span>Sélection du dépôt et des produits</span>
+      </div>
+
+      <div class="search-controls">
+        <!-- Depot Select -->
+        <div class="depot-select-input">
+          <p-select
+            #depotSelect
+            [(ngModel)]="selectedDepot"
+            [options]="depots()"
+            optionLabel="name"
+            [filter]="true"
+            size="large"
+            appendTo="body"
+            filterBy="name"
+            placeholder="Sélectionner un dépôt..."
+            (onChange)="onDepotChange()"
+            inputId="depot-select"
+            class="w-100"
+          />
+        </div>
+
+        <!-- Product Search Autocomplete -->
+        <div class="product-search-input">
+          <p-autoComplete
+            [dropdown]="true"
+            #productAutoComplete
+            [(ngModel)]="selectedProduct"
+            [suggestions]="filteredProducts()"
+            (completeMethod)="searchProducts($event)"
+            (onSelect)="onProductSelect()"
+            [dataKey]="'id'"
+            size="large"
+            appendTo="body"
+            [fluid]="true"
+            [forceSelection]="true"
+            [minQueryLength]="2"
+            [showEmptyMessage]="true"
+            [emptyMessage]="'Aucun produit trouvé'"
+            optionLabel="libelle"
+            [showClear]="true"
+            [disabled]="!selectedDepot()"
+            inputId="product-search"
+            placeholder="Rechercher un produit..."
+            class="w-100 pharma-autocomplete"
+          >
+            <ng-template let-product #item>
+              <div class="d-flex justify-content-between align-items-center w-100">
+                <div class="flex-grow-1">
+                  <div>
+                    <span class="pharma-code me-2">{{ product.codeCip }}</span>
+                    <span>{{ product.libelle }}</span>
+                  </div>
+                  <div class="mt-1">
+                    <span class="badge bg-primary">
+                      <i class="pi pi-box me-1"></i>
+                      Stock: <strong>{{ product.totalQuantity | number }}</strong>
+                    </span>
+                  </div>
+                </div>
+              </div>
+            </ng-template>
+          </p-autoComplete>
+        </div>
+
+        <!-- Quantity Input with Add Button -->
+        <div class="quantity-input-wrapper">
+          <jhi-quantite-produt-saisie
+            #quantiteBox
+            (addQuantite)="onAddReturnLine($event)"
+            [isValid]="!!selectedProduct()"
+            [disabledButton]="!selectedProduct()"
+            class="pharma-quantity-input">
+          </jhi-quantite-produt-saisie>
+        </div>
+      </div>
+
+      <!-- Meta Information -->
+      @if (selectedDepot()) {
+        <div class="order-meta">
+          <div class="meta-item">
+            <i class="pi pi-building"></i>
+            <span>Dépôt: <strong>{{ selectedDepot()?.name }}</strong></span>
+          </div>
+
+          @if (selectedProduct()) {
+            <div class="meta-item">
+              <i class="pi pi-box"></i>
+              <span>CIP: <strong>{{ selectedProduct()?.codeCip }}</strong></span>
+            </div>
+
+            <div class="meta-item" style="background-color: #e3f2fd; padding: 0.5rem; border-radius: 4px;">
+              <i class="pi pi-inbox text-primary"></i>
+              <span class="text-primary">Stock Dépôt: <strong style="font-size: 1.1rem;">{{ selectedProduct()?.totalQuantity | number }}</strong></span>
+            </div>
+          }
+        </div>
+      }
+    </div>
+
+    <div class="card">
+      <div class="card-body">
+        <!-- Return Lines Table -->
+        @if (retourDepotItems().length > 0) {
+          <div class="mb-4">
+            <h5>Produits à retourner</h5>
+            <p-table
+              [value]="retourDepotItems()"
+              class="pharma-table"
+              editMode="cell"
+            >
+              <ng-template #header>
+                <tr class="pharma-table-head">
+                  <th>CIP</th>
+                  <th>Produit</th>
+                  <th class="text-end">
+                    <i class="pi pi-inbox me-1"></i>
+                    <span class="text-primary">Stock Dépôt</span>
+                  </th>
+                  <th class="text-end pharma-qty-value">Qté à Retourner</th>
+                  <th class="text-center">Action</th>
+                </tr>
+              </ng-template>
+              <ng-template #body let-item let-rowIndex="rowIndex">
+                <tr>
+                  <td><span class="pharma-code">{{ item.produitCip }}</span></td>
+                  <td><span class="pharma-product-name">{{ item.produitLibelle }}</span></td>
+                  <td class="text-end" style="background-color: #f5f9fc; font-weight: 600; color: #1976d2;">
+                    {{ getMaxReturnQuantity(item) | number }}
+                  </td>
+                  <td class="text-end pharma-qty-value" pEditableColumn>
+                    <p-cellEditor>
+                      <ng-template #input>
+                        <input
+                          type="number"
+                          [(ngModel)]="item.qtyMvt"
+                          (ngModelChange)="onQuantityChange(item)"
+                          [min]="1"
+                          [max]="getMaxReturnQuantity(item)"
+                          class="form-control form-control-sm text-end"
+                          (focus)="$event.target.select()"
+                        />
+                      </ng-template>
+                      <ng-template #output>
+                        <span class="pharma-price">{{ item.qtyMvt | number }}</span>
+                      </ng-template>
+                    </p-cellEditor>
+                  </td>
+                  <td class="text-center">
+                    <p-button
+                      icon="pi pi-trash"
+                      severity="danger"
+                      [text]="true"
+                      [rounded]="true"
+                      (onClick)="removeReturnLine(rowIndex)"
+                      pTooltip="Supprimer"
+                      tooltipPosition="top"
+                    />
+                  </td>
+                </tr>
+              </ng-template>
+            </p-table>
+          </div>
+        }
+      </div>
+    </div>
+  </div>
+</div>

@@ -363,7 +363,6 @@ public class ProductStatServiceImpl implements ProductStatService {
         try {
             String jsonResult = salesLineRepository.getHistoriqueVenteSummary(produitHistorique.startDate(), produitHistorique.endDate(),
                 SalesStatut.getStatutForFacturation().stream().map(SalesStatut::name).toArray(String[]::new), Arrays.stream(CategorieChiffreAffaire.values()).map(CategorieChiffreAffaire::name).toArray(String[]::new), produitHistorique.produitId(), produitHistorique.groupBy().getOrder());
-            System.err.println("jsonResult --+ "+jsonResult);
             return objectMapper.readValue(jsonResult, new TypeReference<>() {
             });
         } catch (Exception e) {

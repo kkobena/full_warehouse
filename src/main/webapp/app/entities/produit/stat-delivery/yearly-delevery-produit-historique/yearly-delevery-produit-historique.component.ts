@@ -16,7 +16,7 @@ import { TableLazyLoadEvent, TableModule } from 'primeng/table';
   selector: 'jhi-yearly-delevery-produit-historique',
   imports: [CommonModule, TableModule],
   templateUrl: './yearly-delevery-produit-historique.component.html',
-  styleUrls: ['./yearly-delevery-produit-historique.component.scss']
+  styleUrl: './yearly-delevery-produit-historique.component.scss'
 })
 export class YearlyDeleveryProduitHistoriqueComponent implements OnInit {
   protected readonly JANUARY = MonthEnum.JANUARY;

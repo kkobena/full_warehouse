@@ -4,7 +4,12 @@
       <th rowspan="2">Date</th>
       <th rowspan="2">Qté.init</th>
       <th class="text-center" colspan="5">Sortie</th>
-      <th class="text-center" colspan="4">Entrée</th>
+      @if (hasDepot()) {
+        <th class="text-center" colspan="5">Entrée</th>
+      } @else {
+        <th class="text-center" colspan="4">Entrée</th>
+      }
+
       <th rowspan="2">Qté.inv</th>
       <th rowspan="2">Ecart.inv</th>
       <th rowspan="2">Stock</th>
@@ -19,10 +24,14 @@
       <th>Qté.ajustée</th>
       <th>Qté.décon</th>
       <th>Qté.annullée</th>
+      @if (hasDepot()) {
+        <th>Retour.dépôt</th>
+      }
+
     </tr>
   </ng-template>
   <ng-template let-columns="columns" let-elRow #body>
-    <tr [pEditableRow]="elRow" [pSelectableRow]="elRow">
+    <tr  [pSelectableRow]="elRow">
       <td class="text-center">{{ elRow.mvtDate | date: 'dd/MM/yyyy' }}</td>
       <td class="text-right"><span class="pharma-qty-value">{{ elRow.initStock | number }}</span></td>
       <td class="text-right"><span class="pharma-qty-value">{{ elRow.saleQuantity }}</span></td>
@@ -33,7 +42,13 @@
       <td class="text-right"><span class="pharma-qty-value">{{ elRow.deleveryQuantity | number }}</span></td>
       <td class="text-right"><span class="pharma-qty-value">{{ elRow.ajustementPositifQuantity | number }}</span></td>
       <td class="text-right"><span class="pharma-qty-value">{{ elRow.deconPositifQuantity | number }}</span></td>
-      <td class="text-right text-danger"><span class="pharma-qty-value">{{ elRow.canceledQuantity | number }}</span></td>
+      <td class="text-right text-danger"><span class="pharma-qty-value">{{ elRow.canceledQuantity | number }}</span>
+      </td>
+      @if (hasDepot()) {
+        <td class="text-right"><span class="pharma-qty-value">{{ elRow.retourDepot | number }}</span>
+        </td>
+      }
+
       <td class="text-right"><span class="pharma-qty-value">{{ elRow.storeInventoryQuantity | number }}</span></td>
       <td class="text-right"><span class="pharma-qty-value">{{ elRow.inventoryGap | number }}</span></td>
       <td class="text-right"><span class="pharma-total">{{ elRow.afterStock | number }}</span></td>
@@ -70,13 +85,23 @@
         <td class="text-right text-danger">
           <span class="pharma-footer-value">{{ canceledQuantity | number }}</span>
         </td>
+        @if (hasDepot()) {
+          <td class="text-right text-danger">
+            <span class="pharma-footer-value">{{ retourDepot | number }}</span>
+          </td>
+        }
         <td colspan="3"></td>
       </tr>
     }
   </ng-template>
   <ng-template let-columns #emptymessage>
     <tr>
-      <td [attr.colspan]="14">Aucune donnée trouvée</td>
+      @if (hasDepot()) {
+        <td [attr.colspan]="15">Aucune donnée trouvée</td>
+      } @else {
+        <td [attr.colspan]="14">Aucune donnée trouvée</td>
+      }
+
     </tr>
   </ng-template>
 </p-table>

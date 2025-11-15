@@ -17,7 +17,7 @@ import { TypeProduit } from '../../../shared/model/enumerations/type-produit.mod
 import { IResponseDto } from '../../../shared/util/response-dto';
 import { IProduitCriteria, ProduitCriteria } from '../../../shared/model/produit-criteria.model';
 import { IConfiguration } from '../../../shared/model/configuration.model';
-import { ActivatedRoute, Data, ParamMap } from '@angular/router';
+import { ActivatedRoute, Data, ParamMap, RouterLink } from '@angular/router';
 import { Statut } from '../../../shared/model/enumerations/statut.model';
 import { ImportProduitModalComponent } from '../../produit/import-produit-modal/import-produit-modal.component';
 import { HttpHeaders, HttpResponse } from '@angular/common/http';
@@ -48,7 +48,8 @@ import { IMagasin } from '../../../shared/model/magasin.model';
     ToastAlertComponent,
     Toolbar,
     TranslateDirective,
-    FormsModule
+    FormsModule,
+    RouterLink
   ],
   templateUrl: './stock-depot.component.html',
   styleUrl: './stock-depot.component.scss'
@@ -167,15 +168,7 @@ export class StockDepotComponent implements OnInit {
     this.loadPage(0);
   }
 
-  filtreRayon(event: any): void {
-    this.criteria.rayonId = event.value;
-    this.loadPage(0);
-  }
 
-  filtreFamilleProduit(event: any): void {
-    this.criteria.familleId = event.value;
-    this.loadPage(0);
-  }
 
 
   private showResponse(responsedto: IResponseDto): void {

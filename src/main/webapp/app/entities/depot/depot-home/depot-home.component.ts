@@ -10,6 +10,7 @@ import {
 import { DepotComponent } from '../depot.component';
 import { AchatDepotComponent } from '../achat-depot/achat-depot.component';
 import { StockDepotComponent } from '../stock-depot/stock-depot.component';
+import { DepotRetourListComponent } from '../depot-retour-list/depot-retour-list.component';
 import { CommonModule } from '@angular/common';
 
 @Component({
@@ -24,6 +25,7 @@ import { CommonModule } from '@angular/common';
     DepotComponent,
     AchatDepotComponent,
     StockDepotComponent,
+    DepotRetourListComponent,
     CommonModule
   ],
   templateUrl: './depot-home.component.html',

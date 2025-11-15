@@ -10,9 +10,11 @@
     [totalRecords]="totalItems"
     [value]="data"
     dataKey="mvtDate"
+    class="pharma-table"
+
   >
-    <ng-template pTemplate="header">
-      <tr>
+    <ng-template #header>
+      <tr class="pharma-table-head">
         <th>Date</th>
         <th>Référence</th>
         <th>Quantité</th>
@@ -21,7 +23,7 @@
         <th>Opérateur</th>
       </tr>
     </ng-template>
-    <ng-template let-achat pTemplate="body">
+    <ng-template let-achat #body>
       <tr>
         <td>{{ achat.mvtDate | date: 'dd/MM/yyyy HH:mm:ss' }}</td>
         <td>{{ achat.reference }}</td>
@@ -34,7 +36,7 @@
       </tr>
     </ng-template>
     <ng-template #footer>
-      <tr>
+      <tr class="pharma-table-footer">
         <td colspan="2" class="text-left font-bold p-3 pb-0">Totaux</td>
         <td class="amount-column">{{ summary.quantite | number }}</td>
         <td colspan="2" class="amount-column">{{ summary.montantAchat | number }}</td>

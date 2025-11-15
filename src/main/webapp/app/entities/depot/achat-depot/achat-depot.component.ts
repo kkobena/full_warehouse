@@ -4,8 +4,6 @@ import { ConfirmDialogComponent } from '../../../shared/dialog/confirm-dialog/co
 import { DatePicker } from 'primeng/datepicker';
 import { DecimalPipe } from '@angular/common';
 import { FloatLabel } from 'primeng/floatlabel';
-import { InputGroup } from 'primeng/inputgroup';
-import { InputText } from 'primeng/inputtext';
 import { Select } from 'primeng/select';
 import { TableLazyLoadEvent, TableModule } from 'primeng/table';
 import { Toolbar } from 'primeng/toolbar';
@@ -26,7 +24,7 @@ import { WarehouseCommonModule } from '../../../shared/warehouse-common/warehous
 import { IMagasin } from '../../../shared/model/magasin.model';
 import { FormsModule } from '@angular/forms';
 import { MagasinService } from '../../magasin/magasin.service';
-import { Router, RouterLink } from '@angular/router';
+import { RouterLink } from '@angular/router';
 import { StockDepotService } from '../stock-depot/stock-depot.service';
 import { DATE_FORMAT_ISO_DATE } from '../../../shared/util/warehouse-util';
 import { saveAs } from 'file-saver';
@@ -36,13 +34,12 @@ import { Menu } from 'primeng/menu';
 @Component({
   selector: 'jhi-achat-depot',
   imports: [
-    Button, WarehouseCommonModule,
+    Button,
+    WarehouseCommonModule,
     ConfirmDialogComponent,
     DatePicker,
     DecimalPipe,
     FloatLabel,
-    InputGroup,
-    InputText,
     Select,
     TableModule,
     Toolbar,
@@ -85,7 +82,6 @@ export class AchatDepotComponent implements OnInit {
   private readonly exportMenu = viewChild.required<Menu>('exportMenu');
   private readonly tauriPrinterService = inject(TauriPrinterService);
   private readonly magasinService = inject(MagasinService);
-  private router = inject(Router);
 
   constructor() {
     this.translate.use('fr');
@@ -119,9 +115,6 @@ export class AchatDepotComponent implements OnInit {
     ];
   }
 
-  onNewVente(): void {
-    this.router.navigate(['/depot', 'new-vente']);
-  }
 
   protected onSelectDepot(): void {
     this.searchSubject.next();

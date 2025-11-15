@@ -15,17 +15,26 @@
         <ng-template #end>
           <div class="pharma-toolbar-actions">
             <p-button
-              (onClick)="onCreate()"
-              icon="pi pi-plus"
-              label="Nouveau Dépôt"
-              severity="primary">
-            </p-button>
-            <p-button
+              [raised]="true"
               (onClick)="onNewVente()"
               icon="pi pi-shopping-cart"
               label="Nouvelle vente dépôt"
+              severity="primary">
+            </p-button>
+            <p-button
+              [raised]="true"
+              (onClick)="onCreate()"
+              icon="pi pi-plus"
+              label="Nouveau Dépôt"
               severity="info">
             </p-button>
+            <p-button
+              [raised]="true"
+              [routerLink]="['/depot', 'new-return']"
+              icon="pi pi-undo"
+              label="Retour dépôt"
+              severity="warn"
+            />
           </div>
         </ng-template>
       </p-toolbar>

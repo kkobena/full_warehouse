@@ -3,7 +3,7 @@
 <div class="container-fluid">
   <div class="pharma-smart-content p-2">
     <!-- Modern Pharma Toolbar (Compact) -->
-    <div class="pharma-toolbar pharma-toolbar-compact">
+    <div class="pharma-toolbar">
       <div class="pharma-toolbar-header">
         <i class="pi pi-box"></i>
         <span class="pharma-toolbar-title">Produits</span>
@@ -12,7 +12,6 @@
       <p-toolbar>
         <ng-template #start>
           <div class="pharma-toolbar-filters">
-
             <p-select
               id="depots"
               (onChange)="onSelectDepot()"
@@ -48,17 +47,31 @@
         </ng-template>
 
         <ng-template #end>
+
           <div class="pharma-toolbar-actions">
-            <div class="pharma-button-group">
-              <p-button
-                (click)="onOpenImportDialog()"
-                [raised]="true"
-                icon="pi pi-upload"
-                label="Importation"
-                severity="help"
-              ></p-button>
-            </div>
+            <p-button
+              [raised]="true"
+              [routerLink]="['/depot',  'new-vente']"
+              icon="pi pi-shopping-cart"
+              label="Nouvelle vente"
+              severity="primary"
+            />
+            <p-button
+              (click)="onOpenImportDialog()"
+              icon="pi pi-upload"
+              label="Importation"
+              severity="help"
+            ></p-button>
+
+            <p-button
+              [routerLink]="['/depot', 'new-return']"
+              icon="pi pi-undo"
+              label="Retour dépôt"
+              severity="warn"
+            ></p-button>
+
           </div>
+
         </ng-template>
       </p-toolbar>
     </div>

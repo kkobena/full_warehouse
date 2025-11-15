@@ -4,7 +4,7 @@
       <th rowspan="2">Date</th>
       <th rowspan="2">Qté.init</th>
       <th class="text-center" colspan="5">Sortie</th>
-      <th class="text-center" colspan="4">Entrée</th>
+      <th class="text-center"  th:attr="colspan=${hasDepot} ? 5 : 4">Entrée</th>
       <th rowspan="2">Qté.inv</th>
       <th rowspan="2">Ecart.inv</th>
       <th rowspan="2">Stock</th>
@@ -19,6 +19,7 @@
       <th>Qté.ajustée</th>
       <th>Qté.décon</th>
       <th>Qté.annullée</th>
+      <th th:if="${hasDepot}">Retour.Dépôt</th>
     </tr>
   </thead>
   <tbody>
@@ -80,7 +81,7 @@
         th:text="${#numbers.formatInteger(itm.canceledQuantity,3,'WHITESPACE')}"
       ></td>
       <td class="unit" th:if="${itm.canceledQuantity lt 1000}" th:text="${itm.canceledQuantity}"></td>
-
+      <td class="unit" th:if="${hasDepot}" th:text="${itm.retourDepot}"></td>
       <td
         class="unit"
         th:if="${itm.storeInventoryQuantity ge 1000}"
@@ -156,6 +157,11 @@
       <td class="unit" th:with="canceledQuantity=${#aggregates.sum(items.?[canceledQuantity ne null].![canceledQuantity])}">
         <span th:if="${canceledQuantity ge 1000}" th:text="${#numbers.formatInteger(canceledQuantity,3,'WHITESPACE')}"></span>
         <span th:if="${canceledQuantity lt 1000}" th:text="${canceledQuantity}"></span>
+      </td>
+
+      <td class="unit" th:if="${hasDepot}" th:with="retourDepot=${#aggregates.sum(items.?[retourDepot ne null].![retourDepot])}">
+        <span th:if="${retourDepot ge 1000}" th:text="${#numbers.formatInteger(retourDepot,3,'WHITESPACE')}"></span>
+        <span th:if="${retourDepot lt 1000}" th:text="${retourDepot}"></span>
       </td>
       <td colspan="3"></td>
     </tr>

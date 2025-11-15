@@ -1,7 +1,7 @@
 <div class="container-fluid ">
   <div class="pharma-smart-content p-1">
     <!-- Modern Pharma Toolbar -->
-    <div class="pharma-toolbar pharma-toolbar-compact">
+    <div class="pharma-toolbar">
       <div class="pharma-toolbar-header">
         <i class="pi pi-shopping-cart"></i>
         <span class="pharma-toolbar-title">Achats dépôts</span>
@@ -35,7 +35,7 @@
             </p-select>
 
 
-            <div class="pharma-compact-search">
+          <!--  <div class="pharma-compact-search">
               <p-inputgroup>
                 <input
                   (keyup.enter)="onSearch()"
@@ -47,10 +47,10 @@
 
               </p-inputgroup>
             </div>
-
+-->
             <p-floatlabel variant="on">
               <p-datePicker
-                [style]="'max-width: 140px;'"
+                [style]="'max-width: 130px;'"
                 [(ngModel)]="fromDate"
                 [maxDate]="toDate"
                 appendTo="body"
@@ -63,7 +63,7 @@
             </p-floatlabel>
 
             <p-floatlabel variant="on">
-              <p-datePicker [style]="'max-width: 140px;'"
+              <p-datePicker [style]="'max-width: 130px;'"
                             [(ngModel)]="toDate"
                             [minDate]="fromDate"
                             [selectOtherMonths]="true"
@@ -81,45 +81,29 @@
         </ng-template>
 
         <ng-template #end>
+
           <div class="pharma-toolbar-actions">
-            <div class="pharma-button-group pharma-hide-mobile">
-              <p-button
-                (click)="loadPage()"
-                [raised]="true"
-                icon="pi pi-search"
-                label="Rechercher"
-                severity="info"
-              />
-
-              <div>
-                <p-button
-                  [raised]="true"
-                  [routerLink]="['/depot',  'new-vente']"
-                  icon="pi pi-plus"
-                  label="Nouvelle vente"
-                  severity="success"
-                />
-              </div>
-            </div>
-
-            <div class="pharma-button-group pharma-show-mobile">
-              <p-button
-                (click)="loadPage()"
-                [raised]="true"
-                [rounded]="true"
-                icon="pi pi-search"
-                pTooltip="Rechercher"
-                severity="info"
-                tooltipPosition="top"
-              />
-
-              <p-button
-                (onClick)="onNewVente()"
-                icon="pi pi-shopping-cart"
-                label="Nouvelle vente dépôt"
-                severity="info">
-              </p-button>
-            </div>
+            <p-button
+              (click)="loadPage()"
+              [raised]="true"
+              icon="pi pi-search"
+              label="Rechercher"
+              severity="info"
+            />
+            <p-button
+              [raised]="true"
+              [routerLink]="['/depot',  'new-vente']"
+              icon="pi pi-shopping-cart"
+              label="Nouvelle vente"
+              severity="primary"
+            />
+            <p-button
+              [raised]="true"
+              [routerLink]="['/depot', 'new-return']"
+              icon="pi pi-undo"
+              label="Retour dépôt"
+              severity="warn"
+            />
           </div>
         </ng-template>
       </p-toolbar>

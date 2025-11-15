@@ -60,7 +60,7 @@ export default class SettingsComponent implements OnInit {
 
       this.accountService.authenticate(account);
 
-      if (account.langKey !== this.translateService.currentLang) {
+      if (account.langKey !== this.translateService.getFallbackLang()) {
         this.translateService.use(account.langKey);
       }
     });

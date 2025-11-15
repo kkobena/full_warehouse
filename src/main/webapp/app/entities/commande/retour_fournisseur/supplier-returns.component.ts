@@ -299,15 +299,8 @@ export class SupplierReturnsComponent implements OnInit, OnDestroy {
         this.showInlineLotSelection.set(true);
       }
     } else {
-      // No lots - add directly
       this.createReturnItem(orderLine, quantity, motifRetourId, null, null);
       this.resetSelection();
-      this.messageService.add({
-        severity: 'success',
-        summary: 'Succès',
-        detail: 'Ligne ajoutée aux retours'
-      });
-
       this.focusOrderLineInput();
     }
   }

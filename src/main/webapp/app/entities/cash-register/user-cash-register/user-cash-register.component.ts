@@ -15,6 +15,7 @@ import { left } from '@popperjs/core';
 import { ConfirmDialogComponent } from '../../../shared/dialog/confirm-dialog/confirm-dialog.component';
 import { ToastAlertComponent } from '../../../shared/toast-alert/toast-alert.component';
 import { ErrorService } from '../../../shared/error.service';
+import { Tag } from 'primeng/tag';
 
 @Component({
   selector: 'jhi-user-cash-register',
@@ -29,10 +30,12 @@ import { ErrorService } from '../../../shared/error.service';
     KeyFilterModule,
     InputTextModule,
     ConfirmDialogComponent,
-    ToastAlertComponent
+    ToastAlertComponent,
+    Tag
   ],
-  templateUrl: './user-cash-register.component.html',
-  styleUrls: ['./user-cash-register.component.scss']
+  templateUrl: './user-cash-register-improved.html',
+  styleUrls: ['./user-cash-register-improved.scss']
+
 })
 export class UserCashRegisterComponent implements OnInit, AfterViewInit {
   protected cashFundAmountInput = viewChild<ElementRef>('cashFundAmountInput');

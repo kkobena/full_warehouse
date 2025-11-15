@@ -1,0 +1,585 @@
+// ============================================
+// VARIABLES
+// ============================================
+$pharma-white: #ffffff;
+$pharma-primary: #5b89a6;
+$pharma-primary-light: #e8f4f8;
+$pharma-success: #22c55e;
+$pharma-success-light: #dcfce7;
+$pharma-success-dark: #16a34a;
+$pharma-warning: #f59e0b;
+$pharma-info: #3b82f6;
+$gray-50: #f9fafb;
+$gray-100: #f3f4f6;
+$gray-200: #e5e7eb;
+$gray-300: #d1d5db;
+$gray-600: #4b5563;
+$gray-700: #374151;
+$gray-900: #111827;
+$pharma-shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+$pharma-shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+$pharma-shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+$border-radius: 8px;
+$border-radius-lg: 12px;
+
+// Denomination colors
+$bill-10000: #8b5cf6;
+$bill-5000: #3b82f6;
+$bill-2000: #06b6d4;
+$bill-1000: #10b981;
+$coin-500: #f59e0b;
+$other: #6b7280;
+
+// ============================================
+// CARD STRUCTURE
+// ============================================
+.pharma-card-modern {
+  background: $pharma-white;
+  border-radius: $border-radius-lg;
+  box-shadow: $pharma-shadow-lg;
+  overflow: visible;
+  border: 1px solid $gray-200;
+  transition: all 0.3s ease;
+}
+
+.pharma-ticketing-card {
+  .pharma-card-header {
+    position: sticky;
+    top: 0;
+    z-index: 10;
+    background: linear-gradient(135deg, $pharma-success-light 0%, $pharma-white 100%);
+    padding: 0.875rem 1.5rem;
+    border-bottom: 2px solid $gray-200;
+    border-top-left-radius: $border-radius-lg;
+    border-top-right-radius: $border-radius-lg;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    flex-wrap: wrap;
+  }
+
+  .pharma-card-icon {
+    width: 56px;
+    height: 56px;
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.5rem;
+    color: $pharma-white;
+    flex-shrink: 0;
+    box-shadow: $pharma-shadow-md;
+
+    &.bg-success {
+      background: linear-gradient(135deg, $pharma-success 0%, $pharma-success-dark 100%);
+    }
+  }
+
+  .pharma-card-title-section {
+    flex: 1;
+    min-width: 200px;
+  }
+
+  .pharma-card-title {
+    margin: 0;
+    font-size: 1.25rem;
+    font-weight: 600;
+    color: $gray-900;
+    line-height: 1.4;
+  }
+
+  .pharma-card-subtitle {
+    margin: 0.25rem 0 0 0;
+    font-size: 0.875rem;
+    color: $gray-600;
+    font-weight: 400;
+    display: flex;
+    align-items: center;
+    gap: 0.25rem;
+  }
+}
+
+// ============================================
+// LIVE TOTAL DISPLAY
+// ============================================
+.pharma-live-total {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  background: $pharma-white;
+  padding: 0.75rem 1.25rem;
+  border-radius: $border-radius;
+  border: 2px solid $gray-200;
+  min-width: 180px;
+  box-shadow: $pharma-shadow-sm;
+}
+
+.pharma-live-total-label {
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: $gray-600;
+  font-weight: 600;
+  margin-bottom: 0.25rem;
+}
+
+.pharma-live-total-amount {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: $pharma-success;
+  line-height: 1;
+  transition: all 0.3s ease;
+}
+
+.pharma-amount-animated {
+  animation: amountPulse 0.5s ease;
+}
+
+@keyframes amountPulse {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.05); }
+}
+
+// ============================================
+// TICKETING BODY
+// ============================================
+.pharma-ticketing-body {
+  padding: 0;
+  overflow-x: auto;
+}
+
+// ============================================
+// TICKETING TABLE STRUCTURE
+// ============================================
+.pharma-ticketing-header {
+  display: grid;
+  grid-template-columns: 90px 130px 1fr 160px;
+  gap: 0.75rem;
+  padding: 0.625rem 1.25rem;
+  background: linear-gradient(135deg, $gray-100 0%, $gray-50 100%);
+  border-bottom: 2px solid $gray-300;
+  font-weight: 600;
+  font-size: 0.875rem;
+  text-transform: uppercase;
+  letter-spacing: 0.025em;
+  color: $gray-700;
+}
+
+.pharma-ticketing-col {
+  display: flex;
+  align-items: center;
+
+  &.pharma-col-value {
+    justify-content: center;
+  }
+
+  &.pharma-col-qty {
+    justify-content: center;
+  }
+
+  &.pharma-col-subtotal {
+    justify-content: flex-end;
+  }
+}
+
+// ============================================
+// SECTION GROUPING
+// ============================================
+.pharma-ticketing-section {
+  border-bottom: 1px solid $gray-200;
+
+  &:last-of-type {
+    border-bottom: none;
+  }
+}
+
+.pharma-section-label {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.625rem 1.25rem;
+  background: $gray-50;
+  font-weight: 600;
+  color: $gray-700;
+  font-size: 0.9375rem;
+  border-bottom: 1px solid $gray-200;
+
+  i {
+    color: $pharma-primary;
+    font-size: 1.125rem;
+  }
+}
+
+// ============================================
+// TICKETING ROWS
+// ============================================
+.pharma-ticketing-row {
+  display: grid;
+  grid-template-columns: 90px 130px 1fr 160px;
+  gap: 0.75rem;
+  padding: 0.5rem 1.25rem;
+  border-bottom: 1px solid $gray-100;
+  transition: all 0.2s ease;
+  align-items: center;
+
+  &:hover {
+    background: $gray-50;
+  }
+
+  &:last-child {
+    border-bottom: none;
+  }
+
+  &.pharma-other-row {
+    background: lighten($pharma-primary-light, 3%);
+
+    &:hover {
+      background: $pharma-primary-light;
+    }
+  }
+}
+
+// ============================================
+// DENOMINATION BADGES
+// ============================================
+.pharma-denomination-badge {
+  width: 56px;
+  height: 38px;
+  border-radius: 6px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: $pharma-white;
+  font-size: 1.125rem;
+  font-weight: 600;
+  box-shadow: $pharma-shadow-sm;
+  transition: all 0.2s ease;
+
+  &:hover {
+    transform: translateY(-2px);
+    box-shadow: $pharma-shadow-md;
+  }
+
+  &.pharma-bill-10000 {
+    background: linear-gradient(135deg, $bill-10000, darken($bill-10000, 10%));
+  }
+
+  &.pharma-bill-5000 {
+    background: linear-gradient(135deg, $bill-5000, darken($bill-5000, 10%));
+  }
+
+  &.pharma-bill-2000 {
+    background: linear-gradient(135deg, $bill-2000, darken($bill-2000, 10%));
+  }
+
+  &.pharma-bill-1000 {
+    background: linear-gradient(135deg, $bill-1000, darken($bill-1000, 10%));
+  }
+
+  &.pharma-coin-500 {
+    background: linear-gradient(135deg, $coin-500, darken($coin-500, 10%));
+  }
+
+  &.pharma-other {
+    background: linear-gradient(135deg, $other, darken($other, 10%));
+  }
+}
+
+.pharma-denomination-value {
+  font-size: 0.9375rem;
+  font-weight: 600;
+  color: $gray-900;
+}
+
+// ============================================
+// INPUT NUMBER STYLING
+// ============================================
+::ng-deep {
+  .pharma-input-number {
+    max-width: 160px !important;
+
+    .p-inputnumber {
+      width: 100%;
+    }
+
+    .p-inputnumber-input {
+      text-align: center;
+      font-weight: 600;
+      font-size: 0.9375rem;
+      border: 2px solid $gray-200;
+      transition: all 0.3s ease;
+
+      &:focus {
+        border-color: $pharma-success;
+        box-shadow: 0 0 0 3px rgba($pharma-success, 0.1);
+      }
+    }
+
+    .p-inputnumber-button {
+      width: 2rem;
+      background: $gray-100;
+      border-color: $gray-200;
+      color: $gray-700;
+
+      &:hover {
+        background: $pharma-success;
+        border-color: $pharma-success;
+        color: $pharma-white;
+      }
+
+      &.p-inputnumber-button-up {
+        border-top-right-radius: 6px;
+        border-bottom-right-radius: 6px;
+      }
+
+      &.p-inputnumber-button-down {
+        border-top-left-radius: 6px;
+        border-bottom-left-radius: 6px;
+      }
+    }
+  }
+}
+
+// ============================================
+// SUBTOTAL DISPLAY
+// ============================================
+.pharma-subtotal-amount {
+  font-size: 1.125rem;
+  font-weight: 700;
+  color: $pharma-success;
+  white-space: nowrap;
+  transition: color 0.2s ease;
+
+  .pharma-ticketing-row:hover & {
+    color: darken($pharma-success, 10%);
+  }
+}
+
+// ============================================
+// TOTAL SUMMARY
+// ============================================
+.pharma-ticketing-total {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1rem 1.5rem;
+  background: linear-gradient(135deg, $pharma-success-light 0%, lighten($pharma-success-light, 3%) 100%);
+  border-top: 3px solid $pharma-success;
+  margin: 0;
+}
+
+.pharma-total-label {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 1.125rem;
+  font-weight: 600;
+  color: $gray-900;
+  text-transform: uppercase;
+  letter-spacing: 0.025em;
+
+  i {
+    color: $pharma-success;
+    font-size: 1.25rem;
+  }
+}
+
+.pharma-total-amount {
+  font-size: 2rem;
+  font-weight: 700;
+  color: $pharma-success;
+  line-height: 1;
+  transition: all 0.3s ease;
+
+  .pharma-currency {
+    font-size: 1.25rem;
+    font-weight: 600;
+    margin-left: 0.25rem;
+    color: $gray-700;
+  }
+}
+
+.pharma-amount-pulse {
+  animation: totalPulse 1s ease infinite;
+}
+
+@keyframes totalPulse {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.02); }
+}
+
+// ============================================
+// FOOTER
+// ============================================
+.pharma-card-footer {
+  position: sticky;
+  bottom: 0;
+  z-index: 10;
+  padding: 0.875rem 1.5rem;
+  background: $gray-50;
+  border-top: 1px solid $gray-200;
+  border-bottom-left-radius: $border-radius-lg;
+  border-bottom-right-radius: $border-radius-lg;
+  box-shadow: 0 -2px 4px rgba(0, 0, 0, 0.05);
+}
+
+.pharma-button-group-flex {
+  display: flex;
+  gap: 0.75rem;
+  justify-content: flex-end;
+
+  ::ng-deep .p-button {
+    min-width: 140px;
+  }
+}
+
+// ============================================
+// RESPONSIVE
+// ============================================
+@media (max-width: 992px) {
+  .pharma-ticketing-header,
+  .pharma-ticketing-row {
+    grid-template-columns: 70px 110px 1fr 140px;
+    gap: 0.5rem;
+    padding: 0.5rem 1rem;
+  }
+
+  .pharma-section-label {
+    padding: 0.5rem 1rem;
+  }
+
+  .pharma-denomination-badge {
+    width: 48px;
+    height: 34px;
+    font-size: 1rem;
+  }
+
+  .pharma-live-total {
+    min-width: 150px;
+  }
+
+  .pharma-live-total-amount {
+    font-size: 1.25rem;
+  }
+
+  .pharma-subtotal-amount {
+    font-size: 1rem;
+  }
+
+  ::ng-deep .pharma-input-number {
+    max-width: 140px !important;
+
+    .p-inputnumber-input {
+      font-size: 0.875rem;
+    }
+
+    .p-inputnumber-button {
+      width: 1.75rem;
+    }
+  }
+}
+
+@media (max-width: 768px) {
+  .pharma-ticketing-card .pharma-card-header {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .pharma-live-total {
+    width: 100%;
+    flex-direction: row;
+    justify-content: space-between;
+  }
+
+  .pharma-ticketing-header {
+    display: none;
+  }
+
+  .pharma-ticketing-row {
+    grid-template-columns: 1fr;
+    gap: 0.75rem;
+    padding: 1rem;
+  }
+
+  .pharma-ticketing-col {
+    justify-content: space-between !important;
+
+    &::before {
+      content: attr(data-label);
+      font-weight: 600;
+      color: $gray-600;
+      font-size: 0.875rem;
+    }
+  }
+
+  .pharma-col-type {
+    &::before {
+      content: 'Type';
+    }
+  }
+
+  .pharma-col-value {
+    &::before {
+      content: 'Valeur';
+    }
+  }
+
+  .pharma-col-qty {
+    &::before {
+      content: 'Quantité';
+    }
+  }
+
+  .pharma-col-subtotal {
+    &::before {
+      content: 'Sous-total';
+    }
+  }
+
+  .pharma-ticketing-total {
+    flex-direction: column;
+    gap: 0.75rem;
+    align-items: flex-start;
+  }
+
+  .pharma-total-amount {
+    font-size: 1.75rem;
+  }
+
+  .pharma-button-group-flex {
+    flex-direction: column;
+
+    ::ng-deep .p-button {
+      width: 100%;
+    }
+  }
+}
+
+@media (max-width: 576px) {
+  .pharma-denomination-badge {
+    width: 42px;
+    height: 30px;
+    font-size: 0.875rem;
+  }
+
+  .pharma-denomination-value {
+    font-size: 0.875rem;
+  }
+
+  .pharma-subtotal-amount {
+    font-size: 0.9375rem;
+  }
+
+  ::ng-deep .pharma-input-number {
+    max-width: 130px !important;
+
+    .p-inputnumber-input {
+      font-size: 0.8125rem;
+    }
+
+    .p-inputnumber-button {
+      width: 1.5rem;
+    }
+  }
+}

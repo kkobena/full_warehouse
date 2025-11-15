@@ -117,7 +117,7 @@ public class TicketZServiceImpl implements TicketZService {
 
     private TicketZ combineCreditPerUser(List<TicketZProjection> ticketZProjections, List<TicketZCreditProjection> creditProjections) {
         AtomicInteger userCount = new AtomicInteger(0);
-        Map<Long, List<TicketZCreditProjection>> creditProjectionsMap = creditProjections
+        Map<Integer, List<TicketZCreditProjection>> creditProjectionsMap = creditProjections
             .stream()
             .collect(Collectors.groupingBy(TicketZCreditProjection::userId));
         AtomicInteger montantMobileCountG = new AtomicInteger(0);

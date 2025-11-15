@@ -43,23 +43,8 @@ import { InputGroupAddonModule } from 'primeng/inputgroupaddon';
     InputGroupAddonModule
   ],
 
-  templateUrl: './ticketing.component.html',
-  styles: [`
-    .form-header {
-      background-color: #f8f9fa;
-      border-bottom: 2px solid #dee2e6;
-      padding: 0.75rem 0;
-      margin-bottom: 1.5rem !important;
-    }
-    .subtotal-value {
-      font-size: 1.1rem;
-      font-weight: bold;
-      color: #495057;
-      padding: 0.5rem;
-      display: block;
-    }
-    `]
-
+  templateUrl: './ticketing-improved.html',
+  styleUrls: ['./ticketing-improved.scss']
 })
 export class TicketingComponent implements OnInit {
   readonly numberOf10ThousandInput = viewChild<InputNumber>('numberOf10Thousand');

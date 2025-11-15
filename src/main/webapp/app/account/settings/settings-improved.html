@@ -1,0 +1,214 @@
+<div class="container-fluid">
+  <div class="pharma-smart-content p-3">
+    <div class="row justify-content-center">
+      <div class="col-12 col-xl-6 col-lg-8 col-md-10">
+
+        <!-- Main Settings Card -->
+        <div class="pharma-card-modern pharma-settings-card">
+
+          <!-- Header -->
+          <div class="pharma-card-header">
+            <div class="pharma-card-icon bg-primary">
+              <i class="pi pi-user"></i>
+            </div>
+            <div class="pharma-card-title-section">
+              @if (settingsForm.value.login) {
+                <h3 class="pharma-card-title">Profil de l'utilisateur</h3>
+                <p class="pharma-card-subtitle">
+                  <i class="pi pi-at mr-1"></i>
+                  <strong>{{ settingsForm.value.login }}</strong>
+                </p>
+              }
+            </div>
+          </div>
+
+          <!-- Success Message -->
+          @if (success()) {
+            <div class="pharma-success-banner">
+              <i class="pi pi-check-circle"></i>
+              <span>Votre profil a été sauvegardé avec succès !</span>
+            </div>
+          }
+
+          <!-- Error Messages -->
+          <jhi-alert-error></jhi-alert-error>
+
+          <!-- Form Body -->
+          @if (settingsForm.value.login) {
+            <div class="pharma-card-body">
+              <form name="form" (ngSubmit)="save()" [formGroup]="settingsForm" novalidate>
+
+                <!-- First Name -->
+                <div class="pharma-form-group">
+                  <label class="pharma-label" for="firstName">
+                    <i class="pi pi-user"></i>
+                    Prénom
+                  </label>
+                  <input
+                    pInputText
+                    type="text"
+                    class="pharma-input-modern"
+                    id="firstName"
+                    name="firstName"
+                    placeholder="Entrez votre prénom"
+                    formControlName="firstName"
+                    data-cy="firstname"
+                  />
+                  @if (settingsForm.get('firstName')!.invalid && (settingsForm.get('firstName')!.dirty || settingsForm.get('firstName')!.touched)) {
+                    <div class="pharma-error-messages">
+                      @if (settingsForm.get('firstName')?.errors?.required) {
+                        <small class="pharma-error-text">
+                          <i class="pi pi-exclamation-circle"></i>
+                          Votre prénom est requis.
+                        </small>
+                      }
+                      @if (settingsForm.get('firstName')?.errors?.minlength) {
+                        <small class="pharma-error-text">
+                          <i class="pi pi-exclamation-circle"></i>
+                          Votre prénom doit comporter au moins un caractère.
+                        </small>
+                      }
+                      @if (settingsForm.get('firstName')?.errors?.maxlength) {
+                        <small class="pharma-error-text">
+                          <i class="pi pi-exclamation-circle"></i>
+                          Votre prénom ne doit pas comporter plus de 50 caractères.
+                        </small>
+                      }
+                    </div>
+                  }
+                </div>
+
+                <!-- Last Name -->
+                <div class="pharma-form-group">
+                  <label class="pharma-label" for="lastName">
+                    <i class="pi pi-user"></i>
+                    Nom
+                  </label>
+                  <input
+                    pInputText
+                    type="text"
+                    class="pharma-input-modern"
+                    id="lastName"
+                    name="lastName"
+                    placeholder="Entrez votre nom"
+                    formControlName="lastName"
+                    data-cy="lastname"
+                  />
+                  @if (settingsForm.get('lastName')!.invalid && (settingsForm.get('lastName')!.dirty || settingsForm.get('lastName')!.touched)) {
+                    <div class="pharma-error-messages">
+                      @if (settingsForm.get('lastName')?.errors?.required) {
+                        <small class="pharma-error-text">
+                          <i class="pi pi-exclamation-circle"></i>
+                          Votre nom est requis.
+                        </small>
+                      }
+                      @if (settingsForm.get('lastName')?.errors?.minlength) {
+                        <small class="pharma-error-text">
+                          <i class="pi pi-exclamation-circle"></i>
+                          Votre nom doit comporter au moins un caractère.
+                        </small>
+                      }
+                      @if (settingsForm.get('lastName')?.errors?.maxlength) {
+                        <small class="pharma-error-text">
+                          <i class="pi pi-exclamation-circle"></i>
+                          Votre nom ne doit pas comporter plus de 50 caractères.
+                        </small>
+                      }
+                    </div>
+                  }
+                </div>
+
+                <!-- Email -->
+                <div class="pharma-form-group">
+                  <label class="pharma-label" for="email">
+                    <i class="pi pi-envelope"></i>
+                    Email
+                  </label>
+                  <input
+                    pInputText
+                    type="email"
+                    class="pharma-input-modern"
+                    id="email"
+                    name="email"
+                    placeholder="Entrez votre email"
+                    formControlName="email"
+                    data-cy="email"
+                  />
+                  @if (settingsForm.get('email')!.invalid && (settingsForm.get('email')!.dirty || settingsForm.get('email')!.touched)) {
+                    <div class="pharma-error-messages">
+                      @if (settingsForm.get('email')?.errors?.required) {
+                        <small class="pharma-error-text">
+                          <i class="pi pi-exclamation-circle"></i>
+                          Votre email est requis.
+                        </small>
+                      }
+                      @if (settingsForm.get('email')?.errors?.email) {
+                        <small class="pharma-error-text">
+                          <i class="pi pi-exclamation-circle"></i>
+                          Votre email n'est pas valide.
+                        </small>
+                      }
+                      @if (settingsForm.get('email')?.errors?.minlength) {
+                        <small class="pharma-error-text">
+                          <i class="pi pi-exclamation-circle"></i>
+                          Votre email doit comporter au moins 5 caractères.
+                        </small>
+                      }
+                      @if (settingsForm.get('email')?.errors?.maxlength) {
+                        <small class="pharma-error-text">
+                          <i class="pi pi-exclamation-circle"></i>
+                          Votre email ne doit pas comporter plus de 50 caractères.
+                        </small>
+                      }
+                    </div>
+                  }
+                </div>
+
+                <!-- Language -->
+                @if (languages && languages.length > 1) {
+                  <div class="pharma-form-group">
+                    <label class="pharma-label" for="langKey">
+                      <i class="pi pi-globe"></i>
+                      Langue
+                    </label>
+                    <select
+                      class="pharma-select-modern"
+                      id="langKey"
+                      name="langKey"
+                      formControlName="langKey"
+                      data-cy="langKey"
+                    >
+                      @for (language of languages; track $index) {
+                        <option [value]="language">{{ language | findLanguageFromKey }}</option>
+                      }
+                    </select>
+                  </div>
+                }
+
+              </form>
+            </div>
+
+            <!-- Footer Actions -->
+            <div class="pharma-card-footer">
+              <div class="pharma-button-group-flex">
+                <p-button
+                  (click)="save()"
+                  [disabled]="settingsForm.invalid"
+                  icon="pi pi-save"
+                  label="Enregistrer"
+                  severity="success"
+                  [raised]="true"
+                  type="submit"
+                  data-cy="submit"
+                  class="w-full"
+                />
+              </div>
+            </div>
+          }
+
+        </div>
+
+      </div>
+    </div>
+  </div>
+</div>

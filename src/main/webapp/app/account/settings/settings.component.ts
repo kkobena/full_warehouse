@@ -12,7 +12,8 @@ const initialAccount: Account = {} as Account;
 @Component({
   selector: 'jhi-settings',
   imports: [WarehouseCommonModule, FormsModule, ReactiveFormsModule, PrimeNgCommonModule],
-  templateUrl: './settings.component.html',
+  templateUrl: './settings-improved.html',
+  styleUrls: ['./settings-improved.scss'],
 })
 export default class SettingsComponent implements OnInit {
   success = signal(false);

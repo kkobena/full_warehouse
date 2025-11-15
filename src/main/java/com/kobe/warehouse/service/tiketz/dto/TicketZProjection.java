@@ -5,7 +5,7 @@ import com.kobe.warehouse.domain.enumeration.ModePaimentCode;
 public record TicketZProjection(
     String codeModePaiment,
     String libelle,
-    Long userId,
+    Integer userId,
     String firstName,
     String lastName,
     Long montant,

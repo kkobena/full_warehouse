@@ -1,0 +1,271 @@
+<div class="container-fluid">
+  <div class="pharma-smart-content p-3">
+
+    <!-- CASE 1: Open Cash Register Form -->
+    @if (openCaisse || cashRegisters.length === 0) {
+      <div class="row justify-content-center">
+        <div class="col-xl-5 col-lg-6 col-md-8 col-sm-10">
+          <div class="pharma-card-modern">
+            <div class="pharma-card-header">
+              <div class="pharma-card-icon bg-success">
+                <i class="pi pi-wallet"></i>
+              </div>
+              <div class="pharma-card-title-section">
+                <h3 class="pharma-card-title">Ouverture de caisse</h3>
+                <p class="pharma-card-subtitle">Saisissez le fonds de caisse pour démarrer</p>
+              </div>
+            </div>
+
+            <div class="pharma-card-body">
+              <form [formGroup]="editForm" (ngSubmit)="openCashRegister()">
+                <div class="pharma-form-group">
+                  <label for="cashFundAmount" class="pharma-label">
+                    <i class="pi pi-money-bill"></i>
+                    Fonds de caisse (FCFA)
+                  </label>
+                  <input
+                    #cashFundAmountInput
+                    type="text"
+                    pInputText
+                    pKeyFilter="int"
+                    class="pharma-input-modern"
+                    id="cashFundAmount"
+                    formControlName="cashFundAmount"
+                    placeholder="Entrez le montant du fonds"
+                    autocomplete="off"
+                  />
+                  @if (editForm.get('cashFundAmount')?.invalid && editForm.get('cashFundAmount')?.touched) {
+                    <small class="pharma-error-text">
+                      <i class="pi pi-exclamation-circle"></i>
+                      Veuillez saisir un montant valide
+                    </small>
+                  }
+                </div>
+
+                <div class="pharma-card-actions">
+                  <p-button
+                    [disabled]="editForm.invalid || isSaving"
+                    [loading]="isSaving"
+                    (click)="openCashRegister()"
+                    label="Ouvrir la caisse"
+                    type="submit"
+                    severity="success"
+                    icon="pi pi-check-circle"
+                    [raised]="true"
+                    styleClass="w-full"
+                  />
+                </div>
+              </form>
+            </div>
+          </div>
+        </div>
+      </div>
+    }
+    @else if (cashRegisters.length === 1) {
+      <div class="row justify-content-center">
+        <div class="col-xl-6 col-lg-8 col-md-10">
+          <div class="pharma-card-modern">
+            <div class="pharma-card-header">
+              <div class="pharma-card-icon bg-primary">
+                <i class="pi pi-wallet"></i>
+              </div>
+              <div class="pharma-card-title-section">
+                <h3 class="pharma-card-title">Ma caisse en cours</h3>
+                <p class="pharma-card-subtitle">Informations sur votre session de caisse</p>
+              </div>
+            </div>
+
+            <div class="pharma-card-body">
+              <!-- Cash Register Info Grid -->
+              <div class="pharma-info-grid">
+                <!-- Cash Fund -->
+                <div class="pharma-info-item">
+                  <div class="pharma-info-icon bg-primary-light">
+                    <i class="pi pi-money-bill text-primary"></i>
+                  </div>
+                  <div class="pharma-info-content">
+                    <span class="pharma-info-label">Fonds de caisse</span>
+                    <span class="pharma-info-value">{{ cashRegisters[0]?.cashFund | number }} FCFA</span>
+                  </div>
+                </div>
+
+                <!-- Opening Date -->
+                <div class="pharma-info-item">
+                  <div class="pharma-info-icon bg-success-light">
+                    <i class="pi pi-calendar text-success"></i>
+                  </div>
+                  <div class="pharma-info-content">
+                    <span class="pharma-info-label">Date d'ouverture</span>
+                    <span class="pharma-info-value">{{ cashRegisters[0]?.created | date: 'dd/MM/yyyy HH:mm' }}</span>
+                  </div>
+                </div>
+
+                <!-- Status -->
+                <div class="pharma-info-item pharma-info-item-full">
+                  <div class="pharma-info-icon"
+                       [ngClass]="{
+                         'bg-warning-light': cashRegisters[0].statut === OPEN || cashRegisters[0].statut === PENDING,
+                         'bg-secondary-light': cashRegisters[0].statut === CLOSED,
+                         'bg-info-light': cashRegisters[0].statut === VALIDATED
+                       }">
+                    <i class="pi"
+                       [ngClass]="{
+                         'pi-clock text-warning': cashRegisters[0].statut === OPEN || cashRegisters[0].statut === PENDING,
+                         'pi-lock text-secondary': cashRegisters[0].statut === CLOSED,
+                         'pi-check-circle text-info': cashRegisters[0].statut === VALIDATED
+                       }"></i>
+                  </div>
+                  <div class="pharma-info-content">
+                    <span class="pharma-info-label">Statut de la caisse</span>
+                    @if (cashRegisters[0].statut === OPEN) {
+                      <p-tag value="En cours" severity="warn" icon="pi pi-clock"></p-tag>
+                    } @else if (cashRegisters[0].statut === CLOSED) {
+                      <p-tag value="Fermée" severity="secondary" icon="pi pi-lock"></p-tag>
+                    } @else if (cashRegisters[0].statut === PENDING) {
+                      <p-tag value="En attente" severity="warn" icon="pi pi-hourglass"></p-tag>
+                    } @else if (cashRegisters[0].statut === VALIDATED) {
+                      <p-tag value="Validée" severity="success" icon="pi pi-check-circle"></p-tag>
+                    }
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div class="pharma-card-footer">
+              <div class="pharma-button-group-flex">
+                <p-button
+                  icon="pi pi-arrow-left"
+                  label="Retour"
+                  severity="secondary"
+                  (click)="previousState()"
+                  [outlined]="true"
+                />
+                <p-button
+                  label="Nouvelle caisse"
+                  [hidden]="hasOpingCashRegister()"
+                  (click)="onOpenCashRegister()"
+                  severity="info"
+                  icon="pi pi-plus-circle"
+                  [raised]="true"
+                />
+                <p-button
+                  [routerLink]="['/my-cash-register', cashRegisters[0].id, 'billetage']"
+                  label="Fermer la caisse"
+                  severity="primary"
+                  icon="pi pi-wallet"
+                  [raised]="true"
+                />
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    }
+    @else {
+      <div class="row justify-content-center">
+        <div class="col-12 col-xl-10">
+          <div class="pharma-card-modern">
+            <div class="pharma-card-header">
+              <div class="pharma-card-icon bg-primary">
+                <i class="pi pi-wallet"></i>
+              </div>
+              <div class="pharma-card-title-section">
+                <h3 class="pharma-card-title">Mes caisses en cours</h3>
+                <p class="pharma-card-subtitle">Liste de vos sessions de caisse</p>
+              </div>
+            </div>
+
+            <div class="pharma-card-body p-0">
+              <div class="pharma-table">
+                <p-table
+                  [value]="cashRegisters"
+                  [rows]="10"
+                  [paginator]="true"
+                  [rowsPerPageOptions]="[10, 15, 20]"
+                  [showCurrentPageReport]="true"
+                  currentPageReportTemplate="Affichage de {first} à {last} sur {totalRecords} caisses"
+                  dataKey="id"
+                  class="pharma-table"
+                >
+                  <ng-template #header>
+                    <tr class="pharma-table-head">
+                      <th>
+                        <i class="pi pi-calendar mr-2"></i>
+                        Date d'ouverture
+                      </th>
+                      <th class="text-end">
+                        <i class="pi pi-money-bill mr-2"></i>
+                        Fonds de caisse
+                      </th>
+                      <th class="text-center">
+                        <i class="pi pi-info-circle mr-2"></i>
+                        Statut
+                      </th>
+                      <th class="text-center" style="width: 150px">Actions</th>
+                    </tr>
+                  </ng-template>
+
+                  <ng-template #body let-cashRegister>
+                    <tr>
+                      <td>
+                        <div class="pharma-date-display">
+                          <i class="pi pi-calendar text-primary"></i>
+                          {{ cashRegister.created | date: 'dd/MM/yyyy HH:mm' }}
+                        </div>
+                      </td>
+                      <td class="text-end">
+                        <span class="pharma-price">{{ cashRegister.initAmount | number }}</span>
+                      </td>
+                      <td class="text-center">
+                        @if (cashRegister.statut === 'OPEN' || cashRegister.statut === 'En cours') {
+                          <p-tag value="En cours" severity="success" icon="pi pi-clock"></p-tag>
+                        } @else if (cashRegister.statut === 'CLOSED' || cashRegister.statut === 'Fermée') {
+                          <p-tag value="Fermée" severity="secondary" icon="pi pi-lock"></p-tag>
+                        } @else if (cashRegister.statut === 'PENDING' || cashRegister.statut === 'En attente') {
+                          <p-tag value="En attente" severity="warn" icon="pi pi-hourglass"></p-tag>
+                        } @else {
+                          <p-tag value="Validée" severity="info" icon="pi pi-check-circle"></p-tag>
+                        }
+                      </td>
+                      <td class="text-center">
+                        @if (cashRegister.statut === 'OPEN' ||
+                        cashRegister.statut === 'En cours' ||
+                        cashRegister.statut === 'PENDING' ||
+                        cashRegister.statut === 'En attente') {
+                          <p-button
+                            [routerLink]="['/my-cash-register', cashRegister.id, 'billetage']"
+                            label="Fermer"
+                            icon="pi pi-wallet"
+                            severity="primary"
+                            size="small"
+                            [raised]="true"
+                          />
+                        }
+                      </td>
+                    </tr>
+                  </ng-template>
+
+                  <ng-template #emptymessage>
+                    <tr>
+                      <td colspan="4" class="pharma-empty-message">
+                        <div class="pharma-empty-content">
+                          <i class="pi pi-inbox"></i>
+                          <p>Aucune caisse trouvée</p>
+                          <small>Ouvrez une nouvelle caisse pour commencer</small>
+                        </div>
+                      </td>
+                    </tr>
+                  </ng-template>
+                </p-table>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    }
+
+  </div>
+</div>
+
+<jhi-toast-alert #alert></jhi-toast-alert>
+<jhi-confirm-dialog #confirmDialog></jhi-confirm-dialog>

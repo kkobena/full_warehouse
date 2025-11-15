@@ -1,0 +1,295 @@
+<div class="container-fluid">
+  <div class="pharma-smart-content p-2">
+    <div class="row justify-content-center">
+      <div class="col-12 col-xl-8 col-lg-10">
+
+        <!-- Main Ticketing Card -->
+        <div class="pharma-card-modern pharma-ticketing-card">
+
+          <!-- Header -->
+          <div class="pharma-card-header">
+            <div class="pharma-card-icon bg-success">
+              <i class="pi pi-wallet"></i>
+            </div>
+            <div class="pharma-card-title-section">
+              <h3 class="pharma-card-title">Billetage de caisse</h3>
+              <p class="pharma-card-subtitle">
+                <i class="pi pi-calendar mr-1"></i>
+                Session du {{ selectedCashRegister?.created | date: 'dd/MM/yyyy HH:mm' }}
+              </p>
+            </div>
+
+            <!-- Real-time Total Display -->
+            <div class="pharma-live-total">
+              <span class="pharma-live-total-label">Total</span>
+              <span class="pharma-live-total-amount" [class.pharma-amount-animated]="totalAmount > 0">
+                {{ totalAmount | number }} FCFA
+              </span>
+            </div>
+          </div>
+
+          <!-- Form Body -->
+          <div class="pharma-card-body pharma-ticketing-body">
+            <form (ngSubmit)="save()" [formGroup]="editForm" novalidate>
+
+              <!-- Table Header -->
+              <div class="pharma-ticketing-header">
+                <div class="pharma-ticketing-col pharma-col-type">Type</div>
+                <div class="pharma-ticketing-col pharma-col-value">Valeur</div>
+                <div class="pharma-ticketing-col pharma-col-qty">Quantité</div>
+                <div class="pharma-ticketing-col pharma-col-subtotal">Sous-total</div>
+              </div>
+
+              <!-- Bills Section -->
+              <div class="pharma-ticketing-section">
+                <div class="pharma-section-label">
+                  <i class="pi pi-money-bill"></i>
+                  <span>Billets</span>
+                </div>
+
+                <!-- 10000 FCFA -->
+                <div class="pharma-ticketing-row">
+                  <div class="pharma-ticketing-col pharma-col-type">
+                    <div class="pharma-denomination-badge pharma-bill-10000">
+                      <i class="pi pi-money-bill"></i>
+                    </div>
+                  </div>
+                  <div class="pharma-ticketing-col pharma-col-value">
+                    <span class="pharma-denomination-value">10 000</span>
+                  </div>
+                  <div class="pharma-ticketing-col pharma-col-qty">
+                    <p-inputNumber
+                      #numberOf10Thousand
+                      inputId="numberOf10Thousand"
+                      formControlName="numberOf10Thousand"
+                      [autofocus]="true"
+                      [showButtons]="true"
+                      [min]="0"
+                      [step]="1"
+                      buttonLayout="horizontal"
+                      incrementButtonIcon="pi pi-plus"
+                      decrementButtonIcon="pi pi-minus"
+                      (onInput)="onInputChange()"
+                      placeholder="0"
+                      autocomplete="off"
+                      class="pharma-input-number"
+                    />
+                  </div>
+                  <div class="pharma-ticketing-col pharma-col-subtotal">
+                    <span class="pharma-subtotal-amount">
+                      {{ ((editForm.get('numberOf10Thousand')!.value || 0) * 10000) | number }}
+                    </span>
+                  </div>
+                </div>
+
+                <!-- 5000 FCFA -->
+                <div class="pharma-ticketing-row">
+                  <div class="pharma-ticketing-col pharma-col-type">
+                    <div class="pharma-denomination-badge pharma-bill-5000">
+                      <i class="pi pi-money-bill"></i>
+                    </div>
+                  </div>
+                  <div class="pharma-ticketing-col pharma-col-value">
+                    <span class="pharma-denomination-value">5 000</span>
+                  </div>
+                  <div class="pharma-ticketing-col pharma-col-qty">
+                    <p-inputNumber
+                      inputId="numberOf5Thousand"
+                      formControlName="numberOf5Thousand"
+                      [showButtons]="true"
+                      [min]="0"
+                      [step]="1"
+                      buttonLayout="horizontal"
+                      incrementButtonIcon="pi pi-plus"
+                      decrementButtonIcon="pi pi-minus"
+                      (onInput)="onInputChange()"
+                      placeholder="0"
+                      autocomplete="off"
+                      class="pharma-input-number"
+                    />
+                  </div>
+                  <div class="pharma-ticketing-col pharma-col-subtotal">
+                    <span class="pharma-subtotal-amount">
+                      {{ ((editForm.get('numberOf5Thousand')!.value || 0) * 5000) | number }}
+                    </span>
+                  </div>
+                </div>
+
+                <!-- 2000 FCFA -->
+                <div class="pharma-ticketing-row">
+                  <div class="pharma-ticketing-col pharma-col-type">
+                    <div class="pharma-denomination-badge pharma-bill-2000">
+                      <i class="pi pi-money-bill"></i>
+                    </div>
+                  </div>
+                  <div class="pharma-ticketing-col pharma-col-value">
+                    <span class="pharma-denomination-value">2 000</span>
+                  </div>
+                  <div class="pharma-ticketing-col pharma-col-qty">
+                    <p-inputNumber
+                      inputId="numberOf2Thousand"
+                      formControlName="numberOf2Thousand"
+                      [showButtons]="true"
+                      [min]="0"
+                      [step]="1"
+                      buttonLayout="horizontal"
+                      incrementButtonIcon="pi pi-plus"
+                      decrementButtonIcon="pi pi-minus"
+                      (onInput)="onInputChange()"
+                      placeholder="0"
+                      autocomplete="off"
+                      class="pharma-input-number"
+                    />
+                  </div>
+                  <div class="pharma-ticketing-col pharma-col-subtotal">
+                    <span class="pharma-subtotal-amount">
+                      {{ ((editForm.get('numberOf2Thousand')!.value || 0) * 2000) | number }}
+                    </span>
+                  </div>
+                </div>
+
+                <!-- 1000 FCFA -->
+                <div class="pharma-ticketing-row">
+                  <div class="pharma-ticketing-col pharma-col-type">
+                    <div class="pharma-denomination-badge pharma-bill-1000">
+                      <i class="pi pi-money-bill"></i>
+                    </div>
+                  </div>
+                  <div class="pharma-ticketing-col pharma-col-value">
+                    <span class="pharma-denomination-value">1 000</span>
+                  </div>
+                  <div class="pharma-ticketing-col pharma-col-qty">
+                    <p-inputNumber
+                      inputId="numberOf1Thousand"
+                      formControlName="numberOf1Thousand"
+                      [showButtons]="true"
+                      [min]="0"
+                      [step]="1"
+                      buttonLayout="horizontal"
+                      incrementButtonIcon="pi pi-plus"
+                      decrementButtonIcon="pi pi-minus"
+                      (onInput)="onInputChange()"
+                      placeholder="0"
+                      autocomplete="off"
+                      class="pharma-input-number"
+                    />
+                  </div>
+                  <div class="pharma-ticketing-col pharma-col-subtotal">
+                    <span class="pharma-subtotal-amount">
+                      {{ ((editForm.get('numberOf1Thousand')!.value || 0) * 1000) | number }}
+                    </span>
+                  </div>
+                </div>
+                <!-- 500 FCFA -->
+                <div class="pharma-ticketing-row">
+                  <div class="pharma-ticketing-col pharma-col-type">
+                    <div class="pharma-denomination-badge pharma-coin-500">
+                      <i class="pi pi-circle"></i>
+                    </div>
+                  </div>
+                  <div class="pharma-ticketing-col pharma-col-value">
+                    <span class="pharma-denomination-value">500</span>
+                  </div>
+                  <div class="pharma-ticketing-col pharma-col-qty">
+                    <p-inputNumber
+                      inputId="numberOf500Hundred"
+                      formControlName="numberOf500Hundred"
+                      [showButtons]="true"
+                      [min]="0"
+                      [step]="1"
+                      buttonLayout="horizontal"
+                      incrementButtonIcon="pi pi-plus"
+                      decrementButtonIcon="pi pi-minus"
+                      (onInput)="onInputChange()"
+                      placeholder="0"
+                      autocomplete="off"
+                      class="pharma-input-number"
+                    />
+                  </div>
+                  <div class="pharma-ticketing-col pharma-col-subtotal">
+                    <span class="pharma-subtotal-amount">
+                      {{ ((editForm.get('numberOf500Hundred')!.value || 0) * 500) | number }}
+                    </span>
+                  </div>
+                </div>
+                <div class="pharma-ticketing-row pharma-other-row">
+                  <div class="pharma-ticketing-col pharma-col-type">
+                    <div class="pharma-denomination-badge pharma-other">
+                      <i class="pi pi-ellipsis-h"></i>
+                    </div>
+                  </div>
+                  <div class="pharma-ticketing-col pharma-col-value">
+                    <span class="pharma-denomination-value">Autre montant</span>
+                  </div>
+                  <div class="pharma-ticketing-col pharma-col-qty">
+                    <p-inputNumber
+                      inputId="otherAmount"
+                      formControlName="otherAmount"
+                      [showButtons]="true"
+                      [min]="0"
+                      buttonLayout="horizontal"
+                      incrementButtonIcon="pi pi-plus"
+                      decrementButtonIcon="pi pi-minus"
+                      (onInput)="onInputChange()"
+                      placeholder="0"
+                      autocomplete="off"
+                      mode="currency"
+                      currency="XOF"
+                      class="pharma-input-number"
+                    />
+                  </div>
+                  <div class="pharma-ticketing-col pharma-col-subtotal">
+                    <span class="pharma-subtotal-amount">
+                      {{ (editForm.get('otherAmount')!.value || 0) | number }}
+                    </span>
+                  </div>
+                </div>
+              </div>
+
+
+              <!-- Total Summary -->
+              <div class="pharma-ticketing-total">
+                <div class="pharma-total-label">
+                  <i class="pi pi-calculator"></i>
+                  Montant Total
+                </div>
+                <div class="pharma-total-amount" [class.pharma-amount-pulse]="totalAmount > 0">
+                  {{ totalAmount | number }} <span class="pharma-currency">FCFA</span>
+                </div>
+              </div>
+
+            </form>
+          </div>
+
+          <!-- Footer Actions -->
+          <div class="pharma-card-footer">
+            <div class="pharma-button-group-flex">
+              <p-button
+                (click)="previousState()"
+                icon="pi pi-arrow-left"
+                label="Retour"
+                severity="secondary"
+                [outlined]="true"
+              />
+              <p-button
+                (click)="save()"
+                [disabled]="editForm.invalid || isSaving"
+                [loading]="isSaving"
+                icon="pi pi-check-circle"
+                label="Valider le billetage"
+                severity="success"
+                [raised]="true"
+                type="submit"
+              />
+            </div>
+          </div>
+
+        </div>
+
+      </div>
+    </div>
+  </div>
+</div>
+
+<jhi-confirm-dialog #confirmDialog></jhi-confirm-dialog>
+<jhi-toast-alert #alert></jhi-toast-alert>

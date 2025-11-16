@@ -79,13 +79,23 @@
               <p-button (click)="loadPage()" [raised]="true" icon="pi pi-search" label="Rechercher" severity="info" />
 
               <div>
-                <p-button
-                  [raised]="true"
-                  [routerLink]="['/sales', false, 'new']"
-                  icon="pi pi-shopping-cart"
-                  label="Nouvelle vente"
-                  severity="primary"
-                />
+                @if (useSimpleSale) {
+                  <p-button
+                    [raised]="true"
+                    [routerLink]="['/sales/comptant', false, 'new']"
+                    icon="pi pi-wallet"
+                    label="Vente Comptant"
+                    severity="success"
+                  />
+                } @else {
+                  <p-button
+                    [raised]="true"
+                    [routerLink]="['/sales', false, 'new']"
+                    icon="pi pi-shopping-cart"
+                    label="Nouvelle vente"
+                    severity="primary"
+                  />
+                }
               </div>
             </div>
 
@@ -100,15 +110,27 @@
                 tooltipPosition="top"
               />
 
-              <p-button
-                [rounded]="true"
-                [routerLink]="['/sales', false, 'new']"
-                icon="pi pi-plus"
-                pTooltip="Nouvelle vente"
-                raised="true"
-                severity="success"
-                tooltipPosition="top"
-              />
+              @if (useSimpleSale) {
+                <p-button
+                  [rounded]="true"
+                  [routerLink]="['/sales/comptant', false, 'new']"
+                  icon="pi pi-wallet"
+                  pTooltip="Vente Comptant"
+                  raised="true"
+                  severity="success"
+                  tooltipPosition="top"
+                />
+              } @else {
+                <p-button
+                  [rounded]="true"
+                  [routerLink]="['/sales', false, 'new']"
+                  icon="pi pi-plus"
+                  pTooltip="Nouvelle vente"
+                  raised="true"
+                  severity="success"
+                  tooltipPosition="top"
+                />
+              }
             </div>
           </div>
         </ng-template>

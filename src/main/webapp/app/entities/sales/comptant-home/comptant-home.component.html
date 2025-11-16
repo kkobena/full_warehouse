@@ -1,0 +1,178 @@
+<!-- Drawer pour ventes en attente -->
+<p-drawer [(visible)]="pendingSalesSidebar" [style]="{ width: '70vw' }" position="right">
+  <ng-template #header>
+    <div class="drawer-header-content">
+      <i class="pi pi-clock text-xl"></i>
+      <div class="drawer-header-text">
+        <h3>Ventes en attente</h3>
+        <span class="drawer-subtitle">Reprendre une vente en cours</span>
+      </div>
+    </div>
+  </ng-template>
+  <ng-template #content>
+    <jhi-prevente-modal (pendingSalesSidebarChange)="closeSideBar($event)" [user]="userCaissier"> </jhi-prevente-modal>
+  </ng-template>
+</p-drawer>
+
+<!-- Interface principale - Vente Comptant Simplifiée -->
+<div class="pharma-sales-layout comptant-only">
+  <!-- HEADER TOOLBAR - Actions principales -->
+  <div class="pharma-sales-header">
+    <div class="header-left">
+      <p-button (click)="previousState()" [rounded]="true" [text]="true" class="back-button" icon="pi pi-arrow-left" pTooltip="Retour">
+      </p-button>
+
+      <div class="page-title">
+        <h1>Vente Comptant</h1>
+        <p class="subtitle">Caisse - Paiement immédiat</p>
+      </div>
+
+      <!-- Vendeur Selection -->
+      <div
+        class="header-select-wrapper"
+        style="display: flex !important; flex-direction: row !important; align-items: center !important; gap: 0.75rem !important"
+      >
+        <label
+          class="header-label"
+          style="
+            margin: 0 !important;
+            display: inline-flex !important;
+            align-items: center !important;
+            gap: 0.375rem !important;
+            white-space: nowrap !important;
+          "
+        >
+          <i class="pi pi-user"></i>
+          <span>Vendeur</span>
+        </label>
+        <p-select
+          #userBox
+          (onChange)="onSelectUser()"
+          [(ngModel)]="userSeller"
+          [appendTo]="appendTo"
+          [dataKey]="'id'"
+          [options]="this.userVendeurService.vendeurs()"
+          [placeholder]="'Sélectionner un vendeur'"
+          [style]="{ width: '200px' }"
+          class="pharma-select-modern"
+          optionLabel="abbrName"
+        >
+        </p-select>
+      </div>
+    </div>
+
+    <div class="header-actions">
+      <!-- Customer Selection (Cash Sales Only) -->
+      @if (currentSaleService.currentSale()) {
+        <div class="header-customer-wrapper">
+          <jhi-customer-overlay-panel (onCloseEvent)="onCustomerOverlay($event)"> </jhi-customer-overlay-panel>
+        </div>
+      }
+
+      <!-- Pending Sales Button -->
+      <p-button
+        (click)="openPindingSide()"
+        [badge]="'1'"
+        [disabled]="currentSaleService.currentSale() || isPresale"
+        [outlined]="true"
+        badgeSeverity="danger"
+        class="pending-sales-btn"
+        icon="pi pi-clock"
+        label="En attente"
+        severity="info"
+        size="small"
+      >
+      </p-button>
+    </div>
+  </div>
+
+  <!-- MAIN CONTENT AREA -->
+  <div class="pharma-sales-body">
+    <!-- MAIN WORKSPACE (No sidebar - full width) -->
+    <div class="sales-workspace full-width">
+      <!-- PRODUCT SEARCH SECTION -->
+      <div class="product-search-section">
+        <div class="search-section-header">
+          <i class="pi pi-search"></i>
+          <span>Recherche de produit</span>
+        </div>
+
+        <div class="search-controls">
+          <!-- Product Search Autocomplete -->
+          <div class="product-search-input">
+            <jhi-produit-search-autocomplete-scanner
+              #produitbox
+              (onBarcodeScanned)="onBarcodeScanned($event)"
+              (onKeyEnter)="onSaveKeyDown($event)"
+              (selectedProduit)="onSelectProduct($event)"
+              [(ngModel)]="produitSelected"
+              [autofocus]="true"
+              [enableScanner]="true"
+              [includeDetails]="true"
+              [pageSize]="PRODUIT_COMBO_RESULT_SIZE"
+              class="pharma-autocomplete"
+            >
+            </jhi-produit-search-autocomplete-scanner>
+          </div>
+
+          <!-- Quantity Input -->
+          <div class="quantity-input-wrapper">
+            <jhi-quantite-produt-saisie
+              #produitQteCmpt
+              (addQuantite)="addQuantity($event)"
+              [disabledButton]="disableButton"
+              [isValid]="!!produitSelected"
+              class="pharma-quantity-input"
+            >
+            </jhi-quantite-produt-saisie>
+          </div>
+
+          <!-- Product Meta Information -->
+          @if (produitSelected) {
+            <div class="product-meta">
+              @if (showStock) {
+                <div [class.low-stock]="(produitSelected?.totalQuantity || 0) < 10" class="meta-item">
+                  <i class="pi pi-database"></i>
+                  <span
+                    >Stock: <strong>{{ produitSelected?.totalQuantity | number }}</strong></span
+                  >
+                </div>
+              }
+
+              @for (rayon of produitSelected?.rayons || []; track rayon.code) {
+                <div class="meta-item">
+                  <i class="pi pi-map-marker"></i>
+                  <span>{{ rayon.libelle }}</span>
+                </div>
+              }
+
+              <div class="meta-item price-display">
+                <i class="pi pi-tag"></i>
+                <span
+                  >Prix: <strong>{{ produitSelected?.regularUnitPrice | number }} F</strong></span
+                >
+              </div>
+            </div>
+          }
+        </div>
+      </div>
+
+      <!-- SALES CONTENT - Comptant Only -->
+      <div class="sale-content-area">
+        <jhi-comptant
+          #comptant
+          (inputToFocusEvent)="getControlToFocus($event)"
+          (responseEvent)="onFinalyse($event)"
+          (saveResponse)="onSave($event)"
+          [canFocusLastModeInput]="canFocusLastModeInput"
+          [isPresale]="isPresale"
+        >
+        </jhi-comptant>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Composants de notification -->
+<jhi-confirm-dialog #confirmDialog></jhi-confirm-dialog>
+<jhi-toast-alert #alert></jhi-toast-alert>

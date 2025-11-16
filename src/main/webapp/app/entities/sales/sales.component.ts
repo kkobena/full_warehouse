@@ -41,6 +41,7 @@ import { CustomerEditModalComponent } from './customer-edit-modal/customer-edit-
 import { Card } from 'primeng/card';
 import { TauriPrinterService } from '../../shared/services/tauri-printer.service';
 import { handleBlobForTauri } from '../../shared/util/tauri-util';
+import { ConfigurationService } from '../../shared/configuration.service';
 
 @Component({
   selector: 'jhi-sales',
@@ -97,7 +98,9 @@ export class SalesComponent implements OnInit, AfterViewInit {
   protected saleToolBarService = inject(SaleToolBarService);
   protected userControl = viewChild<Select>('userControl');
   protected actions: MenuItem[] | undefined;
+  protected useSimpleSale = false;
   private readonly translate = inject(TranslateService);
+  private readonly configService = inject(ConfigurationService);
   private readonly primeNGConfig = inject(PrimeNG);
   private readonly assuranceSalesService = inject(VoSalesService);
   private readonly salesService = inject(SalesService);
@@ -146,6 +149,11 @@ export class SalesComponent implements OnInit, AfterViewInit {
 
     this.canEdit = this.hasAuthorityService.hasAuthorities(Authority.PR_MODIFICATION_VENTE);
     this.canCancel = this.hasAuthorityService.hasAuthorities(Authority.PR_ANNULATION_VENTE);
+
+    // Load simple sale configuration
+    this.configService.getSimpleSaleConfig().subscribe(enabled => {
+      this.useSimpleSale = enabled;
+    });
 
     this.loadAllUsers();
     const lastPram = this.saleToolBarService.toolBarParam();

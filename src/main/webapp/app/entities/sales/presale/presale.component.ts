@@ -13,6 +13,7 @@ import { IconField } from 'primeng/iconfield';
 import { InputIcon } from 'primeng/inputicon';
 import { Select } from 'primeng/select';
 import { ConfirmDialogComponent } from '../../../shared/dialog/confirm-dialog/confirm-dialog.component';
+import { ConfigurationService } from '../../../shared/configuration.service';
 
 @Component({
   selector: 'jhi-presale',
@@ -39,11 +40,18 @@ export class PresaleComponent implements OnInit {
   typeVenteSelected = '';
   sales: ISales[] = [];
   search = '';
+  useSimpleSale = false;
   private readonly salesService = inject(SalesService);
   private readonly confimDialog = viewChild.required<ConfirmDialogComponent>('confirmDialog');
+  private readonly configService = inject(ConfigurationService);
   ngOnInit(): void {
     this.typeVenteSelected = 'TOUT';
     this.loadPreventes();
+
+    // Load simple sale configuration
+    this.configService.getSimpleSaleConfig().subscribe(enabled => {
+      this.useSimpleSale = enabled;
+    });
   }
 
   onTypeVenteChange(): void {

@@ -32,14 +32,25 @@
         <ng-template #end>
           <div class="pharma-toolbar-actions">
             <div>
-              <p-button
-                [raised]="true"
-                [routerLink]="['/sales', true, 'new']"
-                icon="pi pi-shopping-cart"
-                label="Nouvelle pré-vente"
-                severity="primary"
-                type="button"
-              />
+              @if (useSimpleSale) {
+                <p-button
+                  [raised]="true"
+                  [routerLink]="['/sales/comptant', true, 'new']"
+                  icon="pi pi-wallet"
+                  label="Pré-vente Comptant"
+                  severity="success"
+                  type="button"
+                />
+              } @else {
+                <p-button
+                  [raised]="true"
+                  [routerLink]="['/sales', true, 'new']"
+                  icon="pi pi-shopping-cart"
+                  label="Nouvelle pré-vente"
+                  severity="primary"
+                  type="button"
+                />
+              }
             </div>
           </div>
         </ng-template>

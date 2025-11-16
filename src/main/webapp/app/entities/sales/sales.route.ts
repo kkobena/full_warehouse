@@ -96,5 +96,30 @@ const salesRoute: Routes = [
     },
     canActivate: [UserRouteAccessService],
   },
+  {
+    path: 'comptant/:isPresale/new',
+    loadComponent: () => import('./comptant-home/comptant-home.component').then(m => m.ComptantHomeComponent),
+    resolve: {
+      sales: SalesResolve,
+    },
+    data: {
+      authorities: [Authority.ADMIN, Authority.SALES, Authority.ROLE_CAISSIER, Authority.ROLE_VENDEUR],
+      pageTitle: 'Vente Comptant',
+    },
+    canActivate: [UserRouteAccessService],
+  },
+  {
+    path: 'comptant/:id/:saleDate/:isPresale/edit',
+    loadComponent: () => import('./comptant-home/comptant-home.component').then(m => m.ComptantHomeComponent),
+    resolve: {
+      sales: SalesResolve,
+    },
+    data: {
+      authorities: [Authority.ADMIN, Authority.SALES, Authority.ROLE_CAISSIER, Authority.ROLE_VENDEUR],
+      pageTitle: 'Vente Comptant',
+      mode: 'edit',
+    },
+    canActivate: [UserRouteAccessService],
+  },
 ];
 export default salesRoute;

@@ -33,11 +33,15 @@ export default class MainComponent implements OnInit {
 
   layoutMode$: Observable<string>;
   sidebarCollapsed$: Observable<boolean>;
+  isTauriMode = false;
 
   constructor() {
     this.renderer = this.rootRenderer.createRenderer(document.querySelector('html'), null);
     this.layoutMode$ = this.layoutService.layoutMode$;
     this.sidebarCollapsed$ = this.layoutService.sidebarCollapsed$;
+
+    // Detect if running in Tauri
+    this.isTauriMode = typeof window !== 'undefined' && '__TAURI__' in window;
   }
 
   ngOnInit(): void {

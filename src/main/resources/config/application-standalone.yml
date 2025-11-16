@@ -1,0 +1,102 @@
+# ===================================================================
+# Spring Boot configuration for the "standalone" profile.
+#
+# This configuration overrides the application.yml file.
+#
+
+# ===================================================================
+# Standard Spring Boot properties.
+# Full reference is available at:
+# http://docs.spring.io/spring-boot/docs/current/reference/html/common-application-properties.html
+# ===================================================================
+
+logging:
+  level:
+    ROOT: INFO
+
+    com.kobe.warehouse: DEBUG
+    javax:
+      management:
+        remote:
+          rmi: OFF
+
+spring:
+  jmx:
+    enabled: false
+
+  datasource:
+    type: com.zaxxer.hikari.HikariDataSource
+    driver-class-name: org.postgresql.Driver
+    url: jdbc:postgresql://localhost:5432/pharma_smart
+    username: pharma_smart
+    password: 2802_pharma_smart
+    hikari:
+      poolName: Hikari
+      auto-commit: false
+      maximum-pool-size: 50 # plus de connexions pour prod
+      minimum-idle: 10
+      idle-timeout: 600000 # 10 min
+      max-lifetime: 1800000 # 30 min
+      connection-timeout: 30000 # 30 sec
+      validation-timeout: 5000 # 5 sec
+      leak-detection-threshold: 20000
+
+  thymeleaf:
+    cache: true
+  threads:
+    virtual:
+      enabled: true
+
+server:
+  port: 9080
+  shutdown: graceful # see https://docs.spring.io/spring-boot/docs/current/reference/html/spring-boot-features.html#boot-features-graceful-shutdown
+  compression:
+    enabled: true
+    mime-types: text/html,text/xml,text/plain,text/css,application/javascript,application/json,image/svg+xml
+    min-response-size: 1024
+
+pharma-smart-log:
+  # CORS configuration for production - allow LAN access
+  cors:
+    # Allow all origins on local network for LAN deployments
+    allowed-origin-patterns:
+      - 'http://localhost:*'
+      - 'https://localhost:*'
+      - 'http://127.0.0.1:*'
+      - 'https://127.0.0.1:*'
+      - 'http://192.168.*.*:*'
+      - 'https://192.168.*.*:*'
+      - 'http://10.*.*.*:*'
+      - 'https://10.*.*.*:*'
+      - 'file://*'
+      - 'tauri://*'
+      - 'http://tauri.localhost'
+      - 'https://tauri.localhost'
+    allowed-methods: '*'
+    allowed-headers: '*'
+    exposed-headers: 'Link,X-Total-Count,X-${pharma-smart.clientApp.name}-alert,X-${pharma-smart.clientApp.name}-error,X-${pharma-smart.clientApp.name}-params'
+    allow-credentials: true
+    max-age: 1800
+  http:
+    cache: # Used by the CachingHttpHeadersFilter
+      timeToLiveInDays: 1461
+  security:
+    remember-me:
+      # security key (this key should be unique for your application, and kept secret)
+      key: e6272562f8e92c219ee0e4fdf0820bdc06a1058f6e8ab97bc7b89d9d85558881306da57607f52c5bf545f38982946add9428
+
+# application:
+file:
+  report: ./reports
+  images: ./images
+  import:
+    json: ./json
+    csv: ./csv
+    excel: ./excel
+  pharmaml: ./pharmaml
+fne:
+  # FNE URL
+  url: http://54.247.95.108/ws/external/invoices/sign
+  # FNE API Key
+  api-key: nSXimInFusKqICZaJ95QZvQT85FOZvHW
+  point-of-sale:

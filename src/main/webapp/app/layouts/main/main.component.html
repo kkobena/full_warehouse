@@ -1,5 +1,7 @@
 <!-- Custom Titlebar (Tauri only) -->
-<app-titlebar></app-titlebar>
+@if (isTauriMode) {
+  <app-titlebar></app-titlebar>
+}
 
 <!-- Conditional Layout: Navbar or Sidebar -->
 @if (layoutMode$ | async; as layoutMode) {

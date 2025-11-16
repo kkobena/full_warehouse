@@ -4,6 +4,7 @@ use tauri_plugin_shell::ShellExt;
 use std::time::Duration;
 use std::path::PathBuf;
 use serde::Serialize;
+use crate::config::AppConfig;
 
 #[derive(Clone, Serialize)]
 pub struct BackendStatus {
@@ -161,8 +162,16 @@ fn find_jar_file(app: &AppHandle) -> Result<PathBuf, String> {
 }
 
 /// Start the Spring Boot backend by launching Java directly
-pub async fn start_backend(app: &AppHandle, port: u16) -> Result<u32, String> {
+pub async fn start_backend(app: &AppHandle, _default_port: u16) -> Result<u32, String> {
+    // Load configuration from file (or use defaults)
+    let config = AppConfig::load(app);
+    let port = config.server.port;
+
     println!("Starting Spring Boot backend on port {}...", port);
+    println!("Configuration loaded:");
+    println!("  - Port: {}", config.server.port);
+    println!("  - Log directory: {}", config.logging.directory);
+    println!("  - Log file: {}", config.logging.file);
 
     let state = app.state::<BackendState>();
 
@@ -203,20 +212,12 @@ pub async fn start_backend(app: &AppHandle, port: u16) -> Result<u32, String> {
     // Build Java command
     let java_command = app.shell().command(&java_executable);
 
-    // Configure log file location
-    let log_dir = if let Some(home_dir) = dirs::home_dir() {
-        home_dir.join("PharmaSmart").join("logs")
-    } else {
-        // Fallback to temp directory
-        std::env::temp_dir().join("PharmaSmart").join("logs")
-    };
-
-    // Ensure log directory exists
-    if let Err(e) = std::fs::create_dir_all(&log_dir) {
+    // Ensure log directory exists (from config)
+    if let Err(e) = config.ensure_log_dir() {
         eprintln!("Warning: Failed to create log directory: {}", e);
     }
 
-    let log_file = log_dir.join("pharmasmart.log");
+    let log_file = config.get_log_path();
     println!("Backend logs will be written to: {:?}", log_file);
 
     // Spawn the Java process with Spring Boot arguments
@@ -224,7 +225,7 @@ pub async fn start_backend(app: &AppHandle, port: u16) -> Result<u32, String> {
         .args([
             "-jar",
             jar_path.to_str().ok_or("Invalid JAR path")?,
-            "--spring.profiles.active=tauri,prod",
+            "--spring.profiles.active=standalone,tauri,prod",
             &format!("--server.port={}", port),
             &format!("--logging.file.name={}", log_file.to_str().unwrap_or("pharmasmart.log")),
         ])

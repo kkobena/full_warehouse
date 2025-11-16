@@ -7,6 +7,9 @@ mod printer;
 mod backend_manager;
 
 #[cfg(feature = "bundled-backend")]
+mod config;
+
+#[cfg(feature = "bundled-backend")]
 use backend_manager::{BackendState, start_backend};
 
 #[cfg(feature = "bundled-backend")]

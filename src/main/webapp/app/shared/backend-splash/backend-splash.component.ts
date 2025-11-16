@@ -23,28 +23,18 @@ export class BackendSplashComponent implements OnInit, OnDestroy {
   private subscription?: Subscription;
 
   ngOnInit(): void {
-    // Detect mode from status messages
     this.subscription = this.backendStatusService.getBackendStatus().subscribe(status => {
-      console.log('[BackendSplash] Status update:', status);
       this.status = status;
 
-      // Update title based on mode
       if (status.message.includes('Waiting for backend server')) {
         this.title = 'PharmaSmart Client';
       } else if (status.status === 'checking_java' || status.status === 'starting' || status.status === 'launched') {
-        this.title = 'PharmaSmart Standalone';
+        this.title = 'PharmaSmart';
       }
 
-      // Show splash screen only when backend is not ready
-      const shouldBeVisible = status.status !== 'ready';
-      console.log('[BackendSplash] Status:', status.status, 'Should be visible:', shouldBeVisible);
+      this.visible = status.status !== 'ready';
 
-      this.visible = shouldBeVisible;
-
-      // Force change detection to ensure view updates
       this.cdr.detectChanges();
-
-      console.log('[BackendSplash] Splash visible after update:', this.visible);
     });
   }
 

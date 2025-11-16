@@ -1,6 +1,9 @@
 // Customer display module for ESC/POS communication
 mod customer_display;
 
+// Configuration module for loading app settings
+mod config;
+
 // Learn more about Tauri commands at https://tauri.app/develop/calling-rust/
 #[tauri::command]
 fn greet(name: &str) -> String {

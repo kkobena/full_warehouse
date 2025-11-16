@@ -2,24 +2,34 @@
 
 ## 📍 Where Are My Logs?
 
+**Logs are now stored in the application installation directory!**
+
 ### Windows
 
 ```
-C:\Users\[YourUsername]\PharmaSmart\logs\pharmasmart.log
+C:\Program Files\PharmaSmart\logs\pharmasmart.log
 ```
 
-**Quick Access:** Press `Windows + R`, type `%USERPROFILE%\PharmaSmart\logs`, press Enter
+**Or if installed locally:**
+```
+[Installation Directory]\logs\pharmasmart.log
+```
+
+**Quick Access:**
+- Navigate to where you installed PharmaSmart
+- Open the `logs` folder
+- Open `pharmasmart.log`
 
 ### Linux
 
 ```
-~/PharmaSmart/logs/pharmasmart.log
+[Installation Directory]/logs/pharmasmart.log
 ```
 
 ### macOS
 
 ```
-~/PharmaSmart/logs/pharmasmart.log
+[Installation Directory]/logs/pharmasmart.log
 ```
 
 ---
@@ -79,7 +89,8 @@ C:\Users\[YourUsername]\PharmaSmart\logs\pharmasmart.log
 **Step 1:** Open the log file
 
 ```
-Windows: %USERPROFILE%\PharmaSmart\logs\pharmasmart.log
+Windows: [Installation Directory]\logs\pharmasmart.log
+Example: C:\Program Files\PharmaSmart\logs\pharmasmart.log
 ```
 
 **Step 2:** Look for these messages
@@ -104,25 +115,31 @@ Windows: %USERPROFILE%\PharmaSmart\logs\pharmasmart.log
 ### View Current Log (Windows)
 
 ```batch
-notepad %USERPROFILE%\PharmaSmart\logs\pharmasmart.log
+# Navigate to installation directory first
+cd "C:\Program Files\PharmaSmart"
+notepad logs\pharmasmart.log
 ```
 
 ### View Current Log (Linux/macOS)
 
 ```bash
-cat ~/PharmaSmart/logs/pharmasmart.log
+# Navigate to installation directory first
+cd /path/to/PharmaSmart
+cat logs/pharmasmart.log
 ```
 
 ### Watch Log Live (Linux/macOS)
 
 ```bash
-tail -f ~/PharmaSmart/logs/pharmasmart.log
+cd /path/to/PharmaSmart
+tail -f logs/pharmasmart.log
 ```
 
 ### Open Log Directory (Windows)
 
 ```batch
-explorer %USERPROFILE%\PharmaSmart\logs
+# Replace with your actual installation path
+explorer "C:\Program Files\PharmaSmart\logs"
 ```
 
 ### Delete Old Logs (Manual Cleanup)
@@ -130,13 +147,15 @@ explorer %USERPROFILE%\PharmaSmart\logs
 **Windows:**
 
 ```batch
-del /Q %USERPROFILE%\PharmaSmart\logs\*.gz
+cd "C:\Program Files\PharmaSmart\logs"
+del /Q *.gz
 ```
 
 **Linux/macOS:**
 
 ```bash
-rm ~/PharmaSmart/logs/*.gz
+cd /path/to/PharmaSmart/logs
+rm *.gz
 ```
 
 ---
@@ -164,7 +183,8 @@ If you need to send logs to support:
 
 1. **Locate the log file:**
 
-   - Windows: `%USERPROFILE%\PharmaSmart\logs\pharmasmart.log`
+   - Windows: `[Installation Directory]\logs\pharmasmart.log`
+   - Example: `C:\Program Files\PharmaSmart\logs\pharmasmart.log`
 
 2. **Compress it (optional):**
 
@@ -197,19 +217,21 @@ If you need to send logs to support:
 
 ### Change Log Location
 
-**Location:** `src-tauri/src/backend_manager.rs` (line ~178)
+**Location:** `src-tauri/src/config.rs` (in `default_with_app_dir` method)
 
-**Default:**
+**Default:** Logs are stored in the application installation directory
 
 ```rust
-let log_dir = home_dir.join("PharmaSmart").join("logs");
+let log_dir = app_dir.join("logs");
 ```
 
-**Custom location:**
+**Custom location:** Modify to use a different directory:
 
 ```rust
 let log_dir = PathBuf::from("C:\\MyLogs\\PharmaSmart");
 ```
+
+Or create a `config.json` file next to the application executable with custom paths.
 
 ### Change Log Retention (Keep Logs Longer)
 
@@ -232,7 +254,7 @@ let log_dir = PathBuf::from("C:\\MyLogs\\PharmaSmart");
 ## ✅ Checklist: Is Logging Working?
 
 - [ ] Application started successfully
-- [ ] Log directory exists: `~/PharmaSmart/logs`
+- [ ] Log directory exists: `[Installation Directory]/logs`
 - [ ] Current log file exists: `pharmasmart.log`
 - [ ] Log file has today's date/time entries
 - [ ] Can open and read the log file

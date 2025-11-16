@@ -4,11 +4,10 @@ import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
-import org.hibernate.annotations.ColumnDefault;
-
 import java.io.Serial;
 import java.io.Serializable;
 import java.util.Objects;
+import org.hibernate.annotations.ColumnDefault;
 
 @Entity
 @Table(name = "sequence")
@@ -20,9 +19,11 @@ public class WarehouseSequence implements Serializable {
     @Id
     @Column(name = "name", nullable = false, length = 100)
     private String name;
+
     @ColumnDefault("0")
     @Column(name = "seq_value")
     private Integer value;
+
     @ColumnDefault("1")
     @Column(name = "increment")
     private short increment = 1;

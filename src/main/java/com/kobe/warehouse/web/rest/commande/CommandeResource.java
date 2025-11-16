@@ -11,6 +11,10 @@ import com.kobe.warehouse.service.dto.VerificationResponseCommandeDTO;
 import com.kobe.warehouse.service.stock.CommandService;
 import com.kobe.warehouse.web.util.HeaderUtil;
 import jakarta.validation.Valid;
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.time.LocalDate;
+import java.util.List;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -22,11 +26,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestPart;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
-
-import java.net.URI;
-import java.net.URISyntaxException;
-import java.time.LocalDate;
-import java.util.List;
 
 /**
  * REST controller for managing {@link com.kobe.warehouse.domain.Commande}.
@@ -96,7 +95,11 @@ public class CommandeResource {
     }
 
     @PutMapping("/commandes/delete/order-lines/{id}/{orderDate}")
-    public ResponseEntity<Void> deleteOrderLinesByIds(@PathVariable Integer id, @PathVariable LocalDate orderDate, @RequestBody List<OrderLineId> ids) {
+    public ResponseEntity<Void> deleteOrderLinesByIds(
+        @PathVariable Integer id,
+        @PathVariable LocalDate orderDate,
+        @RequestBody List<OrderLineId> ids
+    ) {
         commandService.deleteOrderLinesByIds(new CommandeId(id, orderDate), ids);
         return ResponseEntity.noContent()
             .headers(HeaderUtil.createEntityDeletionAlert(applicationName, true, ENTITY_NAME, id.toString()))
@@ -133,10 +136,14 @@ public class CommandeResource {
 
     @PostMapping("/commandes/verification-commande-en-cours/{id}/{orderDate}")
     public ResponseEntity<VerificationResponseCommandeDTO> importerReponseCommande(
-        @PathVariable("id") Integer id, @PathVariable("orderDate") LocalDate orderDate,
+        @PathVariable("id") Integer id,
+        @PathVariable("orderDate") LocalDate orderDate,
         @RequestPart("commande") MultipartFile file
     ) {
-        VerificationResponseCommandeDTO verificationResponseCommandeDTO = commandService.importerReponseCommande(new CommandeId(id, orderDate), file);
+        VerificationResponseCommandeDTO verificationResponseCommandeDTO = commandService.importerReponseCommande(
+            new CommandeId(id, orderDate),
+            file
+        );
         return ResponseEntity.ok(verificationResponseCommandeDTO);
     }
 

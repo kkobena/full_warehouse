@@ -1,6 +1,5 @@
 package com.kobe.warehouse.service.impl;
 
-
 import com.kobe.warehouse.domain.Commande;
 import com.kobe.warehouse.domain.CommandeId;
 import com.kobe.warehouse.domain.FournisseurProduit;
@@ -18,15 +17,14 @@ import com.kobe.warehouse.service.dto.FournisseurProduitDTO;
 import com.kobe.warehouse.service.dto.OrderLineDTO;
 import com.kobe.warehouse.service.errors.GenericError;
 import com.kobe.warehouse.service.id_generator.OrderLineIdGeneratorService;
-import org.apache.commons.lang3.ObjectUtils;
-import org.springframework.data.util.Pair;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
-
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
+import org.apache.commons.lang3.ObjectUtils;
+import org.springframework.data.util.Pair;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @Transactional
@@ -50,7 +48,6 @@ public class OrderLineServiceImpl implements OrderLineService {
         this.produitRepository = produitRepository;
         this.customizedProductService = customizedProductService;
         this.orderLineIdGeneratorService = orderLineIdGeneratorService;
-
     }
 
     @Override
@@ -59,8 +56,7 @@ public class OrderLineServiceImpl implements OrderLineService {
     }
 
     @Override
-    public void updateOrderLine(OrderLine orderLine) {
-    }
+    public void updateOrderLine(OrderLine orderLine) {}
 
     @Override
     public OrderLine buildOrderLineFromOrderLineDTO(OrderLineDTO orderLineDTO) {
@@ -166,7 +162,6 @@ public class OrderLineServiceImpl implements OrderLineService {
         orderLineRepository.delete(orderLine);
     }
 
-
     private FournisseurProduit createNewFournisseurProduit(OrderLineDTO orderLineDTO, Produit produit) throws GenericError {
         FournisseurProduit fournisseurProduit = produit.getFournisseurProduitPrincipal();
         if (fournisseurProduit == null) {
@@ -212,7 +207,11 @@ public class OrderLineServiceImpl implements OrderLineService {
         if (fournisseurProduitOptional.isEmpty()) {
             return Optional.empty();
         }
-        return orderLineRepository.findFirstByFournisseurProduitIdAndCommandeIdAndCommandeOrderDate(fournisseurProduitOptional.get().getId(), commandeId.getId(), commandeId.getOrderDate());
+        return orderLineRepository.findFirstByFournisseurProduitIdAndCommandeIdAndCommandeOrderDate(
+            fournisseurProduitOptional.get().getId(),
+            commandeId.getId(),
+            commandeId.getOrderDate()
+        );
     }
 
     @Override
@@ -234,12 +233,10 @@ public class OrderLineServiceImpl implements OrderLineService {
         return customizedProductService.getFournisseurProduitByCriteria(criteria, fournisseurId);
     }
 
-
     @Override
     public int produitTotalStockWithQantitUg(Produit produit) {
         return customizedProductService.produitTotalStock(produit);
     }
-
 
     private OrderLine buildOrderLine(Commande commande, OrderLineDTO orderLineDTO) {
         OrderLine orderLine = new OrderLine();
@@ -285,22 +282,22 @@ public class OrderLineServiceImpl implements OrderLineService {
     public void changeFournisseurProduit(OrderLine orderLine, Integer fournisseurId) {
         Produit produit = orderLine.getFournisseurProduit().getProduit();
         this.fournisseurProduitService.findFirstByProduitIdAndFournisseurId(produit.getId(), fournisseurId).ifPresentOrElse(
-            newFournisseurProduit -> {
-                orderLine.setFournisseurProduit(newFournisseurProduit);
-                orderLine.setProvisionalCode(false);
-                updateOrderLineAmount(orderLine, newFournisseurProduit);
-            },
-            () -> {
-                FournisseurProduit fournisseurProduit = createNewFromOne(
-                    produit.getFournisseurProduitPrincipal(),
-                    fournisseurId,
-                    produit.getId()
-                );
-                orderLine.setFournisseurProduit(fournisseurProduit);
-                orderLine.setProvisionalCode(true);
-                updateOrderLineAmount(orderLine, fournisseurProduit);
-            }
-        );
+                newFournisseurProduit -> {
+                    orderLine.setFournisseurProduit(newFournisseurProduit);
+                    orderLine.setProvisionalCode(false);
+                    updateOrderLineAmount(orderLine, newFournisseurProduit);
+                },
+                () -> {
+                    FournisseurProduit fournisseurProduit = createNewFromOne(
+                        produit.getFournisseurProduitPrincipal(),
+                        fournisseurId,
+                        produit.getId()
+                    );
+                    orderLine.setFournisseurProduit(fournisseurProduit);
+                    orderLine.setProvisionalCode(true);
+                    updateOrderLineAmount(orderLine, fournisseurProduit);
+                }
+            );
     }
 
     @Override

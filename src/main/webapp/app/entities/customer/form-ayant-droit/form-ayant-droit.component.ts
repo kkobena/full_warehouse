@@ -37,8 +37,8 @@ import { DateNaissDirective } from '../../../shared/date-naiss.directive';
     InputMaskModule,
     ToastAlertComponent,
     Card,
-    DateNaissDirective
-  ]
+    DateNaissDirective,
+  ],
 })
 export class FormAyantDroitComponent implements OnInit, AfterViewInit, OnDestroy {
   title: string;

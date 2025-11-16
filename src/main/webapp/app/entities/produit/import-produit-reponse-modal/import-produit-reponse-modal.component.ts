@@ -9,12 +9,9 @@ import { finalize } from 'rxjs/operators';
 
 @Component({
   selector: 'jhi-import-produit-reponse-modal',
-  imports: [
-    Card,
-    Button
-  ],
+  imports: [Card, Button],
   templateUrl: './import-produit-reponse-modal.component.html',
-  styleUrls: ['../../common-modal.component.scss']
+  styleUrls: ['../../common-modal.component.scss'],
 })
 export class ImportProduitReponseModalComponent {
   header = '';
@@ -27,11 +24,13 @@ export class ImportProduitReponseModalComponent {
   }
 
   protected onClickLink(): void {
-    this.produitService.getRejectCsv(this.responsedto.rejectFileUrl).pipe(finalize(() => this.activeModal.dismiss())).subscribe({
-      next: blod => {
-        saveAs(new Blob([blod], { type: 'text/csv' }), this.responsedto.rejectFileUrl);
-
-      }
-    });
+    this.produitService
+      .getRejectCsv(this.responsedto.rejectFileUrl)
+      .pipe(finalize(() => this.activeModal.dismiss()))
+      .subscribe({
+        next: blod => {
+          saveAs(new Blob([blod], { type: 'text/csv' }), this.responsedto.rejectFileUrl);
+        },
+      });
   }
 }

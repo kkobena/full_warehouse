@@ -1,12 +1,11 @@
 package com.kobe.warehouse.service.dto.records;
 
+import static java.util.Objects.nonNull;
+
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.kobe.warehouse.domain.enumeration.SalesStatut;
-
 import java.math.BigDecimal;
 import java.math.RoundingMode;
-
-import static java.util.Objects.nonNull;
 
 public record VenteRecord(
     Integer salesAmount,
@@ -40,8 +39,6 @@ public record VenteRecord(
         return 0;
     }
 
-
-
     @JsonProperty("htAmount")
     public BigDecimal htAmount() {
         if (nonNull(montantHt)) return BigDecimal.valueOf(montantHt).setScale(0, RoundingMode.HALF_UP);
@@ -55,6 +52,4 @@ public record VenteRecord(
         }
         return BigDecimal.ZERO;
     }
-
-
 }

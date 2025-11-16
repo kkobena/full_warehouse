@@ -1,8 +1,6 @@
 <div class="modal-header">
   <h4 class="modal-title">{{ header }}</h4>
-  <button (click)="cancel()" aria-label="Close" class="btn-close" type="button">
-
-  </button>
+  <button (click)="cancel()" aria-label="Close" class="btn-close" type="button"></button>
 </div>
 <div class="modal-body">
   <p-card>
@@ -12,7 +10,7 @@
       </div>
       <h4>
         <p-button [link]="true" (click)="onClickLink()"
-        >Cliquer pour télécharger le fichier des produits qui ne sont pas pris en compte
+          >Cliquer pour télécharger le fichier des produits qui ne sont pas pris en compte
         </p-button>
       </h4>
     } @else {
@@ -24,7 +22,5 @@
 </div>
 
 <div class="modal-footer">
-  <p-button (click)="cancel()" icon="pi pi-times" label="Annuler" severity="secondary"
-            type="button">
-  </p-button>
+  <p-button (click)="cancel()" icon="pi pi-times" label="Annuler" severity="secondary" type="button"> </p-button>
 </div>

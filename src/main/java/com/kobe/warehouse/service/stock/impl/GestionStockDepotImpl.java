@@ -12,12 +12,11 @@ import com.kobe.warehouse.service.stock.GestionStockDepotService;
 import com.kobe.warehouse.service.stock.ProduitService;
 import com.kobe.warehouse.service.stock.dto.StockDepotExportDTO;
 import jakarta.servlet.http.HttpServletResponse;
+import java.io.IOException;
+import java.time.LocalDate;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
-
-import java.io.IOException;
-import java.time.LocalDate;
 
 @Service
 public class GestionStockDepotImpl implements GestionStockDepotService {
@@ -32,12 +31,19 @@ public class GestionStockDepotImpl implements GestionStockDepotService {
 
     @Override
     public Page<ProduitDTO> findAll(ProduitCriteria produitCriteria, Pageable pageable) {
-
         return produitService.findAll(produitCriteria.setDepot(true), pageable);
     }
 
     @Override
-    public Page<DepotExtensionSaleDTO> getVenteDepot(PaymentStatus paymentStatus, Long depotId, String search, LocalDate fromDate, LocalDate toDate, Long userId, Pageable pageable) {
+    public Page<DepotExtensionSaleDTO> getVenteDepot(
+        PaymentStatus paymentStatus,
+        Long depotId,
+        String search,
+        LocalDate fromDate,
+        LocalDate toDate,
+        Long userId,
+        Pageable pageable
+    ) {
         return saleDataService.fetchVenteDepot(search, fromDate, toDate, userId, paymentStatus, depotId, pageable);
     }
 

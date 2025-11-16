@@ -11,11 +11,10 @@ import jakarta.persistence.Id;
 import jakarta.persistence.Table;
 import jakarta.persistence.UniqueConstraint;
 import jakarta.validation.constraints.NotNull;
-import org.hibernate.annotations.Cache;
-import org.hibernate.annotations.CacheConcurrencyStrategy;
-
 import java.io.Serial;
 import java.io.Serializable;
+import org.hibernate.annotations.Cache;
+import org.hibernate.annotations.CacheConcurrencyStrategy;
 
 @Entity
 @Table(name = "groupe_tiers_payant", uniqueConstraints = { @UniqueConstraint(columnNames = { "name" }) })
@@ -43,7 +42,7 @@ public class GroupeTiersPayant implements Serializable {
     private String telephoneFixe;
 
     @Enumerated(EnumType.STRING)
-    @Column(name = "ordre_tris_facture",length = 20)
+    @Column(name = "ordre_tris_facture", length = 20)
     private OrdreTrisFacture ordreTrisFacture;
 
     public GroupeTiersPayant() {}

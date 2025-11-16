@@ -13,43 +13,35 @@ public class BadRequestAlertException extends RuntimeException {
     private final Object payload;
 
     public BadRequestAlertException(String defaultMessage, String entityName, String errorKey) {
-        super(defaultMessage
-        );
+        super(defaultMessage);
         this.errorKey = errorKey;
         this.entityName = entityName;
         this.payload = null;
     }
 
-
     public BadRequestAlertException(String defaultMessage) {
-        super(defaultMessage
-        );
+        super(defaultMessage);
         this.errorKey = null;
         this.entityName = null;
         this.payload = null;
     }
 
     public BadRequestAlertException(String defaultMessage, Object payload) {
-        super(defaultMessage
-        );
+        super(defaultMessage);
         this.errorKey = null;
         this.entityName = null;
         this.payload = payload;
     }
 
     public BadRequestAlertException(String defaultMessage, String errorKey) {
-        super(defaultMessage
-        );
+        super(defaultMessage);
         this.entityName = null;
         this.errorKey = errorKey;
         this.payload = null;
     }
 
-
     public BadRequestAlertException(String defaultMessage, String errorKey, Object payload) {
-        super(defaultMessage
-
-        );
+        super(defaultMessage);
         this.errorKey = errorKey;
         this.entityName = null;
         this.payload = payload;

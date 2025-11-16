@@ -16,11 +16,11 @@ import com.kobe.warehouse.domain.StockProduit;
 import com.kobe.warehouse.domain.enumeration.StatutLot;
 import com.kobe.warehouse.repository.LotRepository;
 import com.kobe.warehouse.repository.ProduitRepository;
-import com.kobe.warehouse.service.settings.AppConfigurationService;
 import com.kobe.warehouse.service.OrderLineService;
 import com.kobe.warehouse.service.dto.LotDTO;
 import com.kobe.warehouse.service.excel.ExcelExportUtil;
 import com.kobe.warehouse.service.excel.model.ExportFormat;
+import com.kobe.warehouse.service.settings.AppConfigurationService;
 import com.kobe.warehouse.service.stock.LotService;
 import com.kobe.warehouse.service.stock.LotServiceReportService;
 import com.kobe.warehouse.service.stock.dto.LotFilterParam;
@@ -220,8 +220,8 @@ public class LotServiceImpl implements LotService {
                 lotPerime.setProduitId(produit.getId());
                 lotPerime.setId(produit.getId());
                 lotPerime.setQuantity(stockProduits.stream().mapToInt(StockProduit::getQtyStock).sum());
-              //  lotPerime.setDatePeremption(produit.getPerimeAt().format(dateFormatter));
-              //  lotPerime.setPeremptionStatut(buildPeremptionStatut(produit.getPerimeAt()));
+                //  lotPerime.setDatePeremption(produit.getPerimeAt().format(dateFormatter));
+                //  lotPerime.setPeremptionStatut(buildPeremptionStatut(produit.getPerimeAt()));
                 buildCommon(lotPerime, produit, fournisseurProduit);
 
                 return lotPerime;

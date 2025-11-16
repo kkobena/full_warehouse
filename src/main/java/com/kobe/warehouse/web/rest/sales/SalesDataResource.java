@@ -7,6 +7,11 @@ import com.kobe.warehouse.service.sale.SaleDataService;
 import com.kobe.warehouse.web.rest.Utils;
 import com.kobe.warehouse.web.util.PaginationUtil;
 import jakarta.servlet.http.HttpServletRequest;
+import java.io.IOException;
+import java.time.LocalDate;
+import java.util.List;
+import java.util.Optional;
+import java.util.Set;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.core.io.Resource;
@@ -21,12 +26,6 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
-import java.io.IOException;
-import java.time.LocalDate;
-import java.util.List;
-import java.util.Optional;
-import java.util.Set;
-
 @RestController
 @RequestMapping("/api")
 public class SalesDataResource {
@@ -34,10 +33,8 @@ public class SalesDataResource {
     private final Logger log = LoggerFactory.getLogger(SalesDataResource.class);
     private final SaleDataService saleDataService;
 
-
     public SalesDataResource(SaleDataService saleDataService) {
         this.saleDataService = saleDataService;
-
     }
 
     /**
@@ -106,13 +103,13 @@ public class SalesDataResource {
             userId,
             type,
             null,
-            null, categorieChiffreAffaires,
+            null,
+            categorieChiffreAffaires,
             pageable
         );
         HttpHeaders headers = PaginationUtil.generatePaginationHttpHeaders(ServletUriComponentsBuilder.fromCurrentRequest(), page);
         return ResponseEntity.ok().headers(headers).body(page.getContent());
     }
-
 
     @GetMapping("/sales/print/receipt/{id}/{saleDate}")
     public ResponseEntity<Void> printCashReceipt(@PathVariable("id") Long id, @PathVariable("saleDate") LocalDate saleDate) {

@@ -24,16 +24,10 @@
         </plugin>
 
         <plugin>
-          <artifactId>frontend-maven-plugin</artifactId>
-          <configuration>
-            <installDirectory>target</installDirectory>
-            <nodeVersion>${node.version}</nodeVersion>
-            <npmVersion>${npm.version}</npmVersion>
-          </configuration>
-          <groupId>com.github.eirslett</groupId>
-          <version>${frontend-maven-plugin.version}</version>
+          <artifactId>exec-maven-plugin</artifactId>
+          <groupId>org.codehaus.mojo</groupId>
+          <version>${exec-maven-plugin.version}</version>
         </plugin>
-
 
         <plugin>
           <artifactId>maven-antrun-plugin</artifactId>
@@ -650,49 +644,27 @@
           </plugin>
 
           <plugin>
-            <artifactId>frontend-maven-plugin</artifactId>
+            <artifactId>exec-maven-plugin</artifactId>
             <executions>
               <execution>
+                <id>webapp build prod</id>
+                <phase>generate-resources</phase>
                 <goals>
-                  <goal>install-node-and-npm</goal>
+                  <goal>exec</goal>
                 </goals>
-                <id>install-node-and-npm</id>
-              </execution>
-              <execution>
-                <goals>
-                  <goal>npm</goal>
-                </goals>
-                <id>npm install</id>
-              </execution>
-              <execution>
                 <configuration>
-                  <arguments>run webapp:test</arguments>
-                  <npmInheritsProxyConfigFromMaven>false
-                  </npmInheritsProxyConfigFromMaven>
-                </configuration>
-                <goals>
-                  <goal>npm</goal>
-                </goals>
-                <id>webapp build test</id>
-                <phase>test</phase>
-              </execution>
-              <execution>
-                <configuration>
-                  <arguments>run webapp:prod</arguments>
+                  <executable>npm</executable>
+                  <arguments>
+                    <argument>run</argument>
+                    <argument>webapp:prod</argument>
+                  </arguments>
                   <environmentVariables>
                     <APP_VERSION>${project.version}</APP_VERSION>
                   </environmentVariables>
-                  <npmInheritsProxyConfigFromMaven>false
-                  </npmInheritsProxyConfigFromMaven>
                 </configuration>
-                <goals>
-                  <goal>npm</goal>
-                </goals>
-                <id>webapp build prod</id>
-                <phase>generate-resources</phase>
               </execution>
             </executions>
-            <groupId>com.github.eirslett</groupId>
+            <groupId>org.codehaus.mojo</groupId>
           </plugin>
         </plugins>
       </build>
@@ -708,7 +680,6 @@
     </profile>
 
     <profile>
-
       <build>
         <plugins>
           <plugin>
@@ -735,49 +706,27 @@
           </plugin>
 
           <plugin>
-            <artifactId>frontend-maven-plugin</artifactId>
+            <artifactId>exec-maven-plugin</artifactId>
             <executions>
               <execution>
+                <id>webapp build tauri</id>
+                <phase>generate-resources</phase>
                 <goals>
-                  <goal>install-node-and-npm</goal>
+                  <goal>exec</goal>
                 </goals>
-                <id>install-node-and-npm</id>
-              </execution>
-              <execution>
-                <goals>
-                  <goal>npm</goal>
-                </goals>
-                <id>npm install</id>
-              </execution>
-              <execution>
                 <configuration>
-                  <arguments>run webapp:test</arguments>
-                  <npmInheritsProxyConfigFromMaven>false
-                  </npmInheritsProxyConfigFromMaven>
-                </configuration>
-                <goals>
-                  <goal>npm</goal>
-                </goals>
-                <id>webapp build test</id>
-                <phase>test</phase>
-              </execution>
-              <execution>
-                <configuration>
-                  <arguments>run tauri:build</arguments>
+                  <executable>npm</executable>
+                  <arguments>
+                    <argument>run</argument>
+                    <argument>tauri:build</argument>
+                  </arguments>
                   <environmentVariables>
                     <APP_VERSION>${project.version}</APP_VERSION>
                   </environmentVariables>
-                  <npmInheritsProxyConfigFromMaven>false
-                  </npmInheritsProxyConfigFromMaven>
                 </configuration>
-                <goals>
-                  <goal>npm</goal>
-                </goals>
-                <id>webapp build tauri</id>
-                <phase>generate-resources</phase>
               </execution>
             </executions>
-            <groupId>com.github.eirslett</groupId>
+            <groupId>org.codehaus.mojo</groupId>
           </plugin>
         </plugins>
       </build>
@@ -792,6 +741,66 @@
       </properties>
     </profile>
 
+    <profile>
+      <build>
+        <plugins>
+          <plugin>
+            <artifactId>maven-clean-plugin</artifactId>
+            <configuration>
+              <filesets>
+                <fileset>
+                  <directory>target/classes/static/</directory>
+                </fileset>
+              </filesets>
+            </configuration>
+            <groupId>org.apache.maven.plugins</groupId>
+          </plugin>
+          <plugin>
+            <artifactId>spring-boot-maven-plugin</artifactId>
+            <executions>
+              <execution>
+                <goals>
+                  <goal>build-info</goal>
+                </goals>
+              </execution>
+            </executions>
+            <groupId>org.springframework.boot</groupId>
+          </plugin>
+
+          <plugin>
+            <artifactId>exec-maven-plugin</artifactId>
+            <executions>
+              <execution>
+                <id>webapp build tauri bundled-jre</id>
+                <phase>generate-resources</phase>
+                <goals>
+                  <goal>exec</goal>
+                </goals>
+                <configuration>
+                  <executable>npm</executable>
+                  <arguments>
+                    <argument>run</argument>
+                    <argument>tauri:build:bundled-jre</argument>
+                  </arguments>
+                  <environmentVariables>
+                    <APP_VERSION>${project.version}</APP_VERSION>
+                  </environmentVariables>
+                </configuration>
+              </execution>
+            </executions>
+            <groupId>org.codehaus.mojo</groupId>
+          </plugin>
+        </plugins>
+      </build>
+      <id>standalone</id>
+      <properties>
+        <!-- default Spring profiles -->
+        <spring.profiles.active>
+          standalone
+        </spring.profiles.active>
+
+      </properties>
+    </profile>
 
 
     <profile>
@@ -808,31 +817,27 @@
       <build>
         <plugins>
           <plugin>
-            <artifactId>frontend-maven-plugin</artifactId>
+            <artifactId>exec-maven-plugin</artifactId>
             <executions>
               <execution>
+                <id>webapp build dev</id>
+                <phase>generate-resources</phase>
                 <goals>
-                  <goal>install-node-and-npm</goal>
+                  <goal>exec</goal>
                 </goals>
-                <id>install-node-and-npm</id>
-              </execution>
-              <execution>
                 <configuration>
-                  <arguments>run webapp:build</arguments>
+                  <executable>npm</executable>
+                  <arguments>
+                    <argument>run</argument>
+                    <argument>webapp:build</argument>
+                  </arguments>
                   <environmentVariables>
                     <APP_VERSION>${project.version}</APP_VERSION>
                   </environmentVariables>
-                  <npmInheritsProxyConfigFromMaven>false
-                  </npmInheritsProxyConfigFromMaven>
                 </configuration>
-                <goals>
-                  <goal>npm</goal>
-                </goals>
-                <id>webapp build dev</id>
-                <phase>generate-resources</phase>
               </execution>
             </executions>
-            <groupId>com.github.eirslett</groupId>
+            <groupId>org.codehaus.mojo</groupId>
           </plugin>
         </plugins>
       </build>
@@ -844,7 +849,7 @@
   <properties>
     <argLine>-Djava.security.egd=file:/dev/./urandom -Xmx1G</argLine>
     <batik.version>1.19</batik.version>
-    <frontend-maven-plugin.version>1.15.1</frontend-maven-plugin.version>
+    <exec-maven-plugin.version>3.5.0</exec-maven-plugin.version>
     <hibernate-validator.version>9.0.1.Final</hibernate-validator.version>
     <hibernate.version>7.1.7.Final</hibernate.version>
     <java.version>25</java.version>
@@ -863,9 +868,6 @@
     <maven.compiler.source>${java.version}</maven.compiler.source>
     <maven.compiler.target>${java.version}</maven.compiler.target>
     <maven.version>3.6.3</maven.version>
-    <node.version>v24.4.0</node.version>
-
-    <npm.version>11.0.0</npm.version>
     <openpdf.version>3.0.0</openpdf.version>
     <profile.api-docs/>
     <profile.e2e/>

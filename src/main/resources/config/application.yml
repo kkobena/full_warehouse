@@ -3,7 +3,6 @@ flyway:
   schemas: pharma_smart
   table: pharma_smart_history
 
-
 spring:
   application:
     name: pharma-smart
@@ -16,8 +15,6 @@ spring:
     deserialization:
       fail-on-null-for-primitives: false
       fail-on-unknown-properties: false
-
-
 
   cache:
     type: jcache
@@ -54,10 +51,8 @@ spring:
         physical-strategy: org.hibernate.boot.model.naming.PhysicalNamingStrategyStandardImpl
         implicit-strategy: org.hibernate.boot.model.naming.ImplicitNamingStrategyJpaCompliantImpl
 
-
   messages:
     basename: i18n/messages
-
 
   task:
     execution:
@@ -73,12 +68,10 @@ spring:
   thymeleaf:
     mode: HTML
 
-
-
   mail:
     host: smtp.gmail.com
     port: 587
-    username: "easyshopws@gmail.com"
+    username: 'easyshopws@gmail.com'
     password:
     protocol: smtp
     properties:
@@ -88,7 +81,6 @@ spring:
           starttls:
             enable: true
             required: true
-
 
   servlet:
     multipart:
@@ -115,7 +107,6 @@ management:
 
   endpoint:
     health:
-
       show-details: when_authorized
       roles: 'ROLE_ADMIN'
       probes:
@@ -135,10 +126,8 @@ server:
 springdoc:
   show-actuator: false
 
-
 info:
   display-ribbon-on-profiles: 'dev'
-
 
 pharma-smart:
   clientApp:
@@ -148,22 +137,18 @@ pharma-smart:
     issuer-uri: http://localhost:8080
     # Access token expiration times (in seconds)
     access-token-validity:
-      web: 7200      # 2 hours
-      mobile: 28800  # 8 hours
+      web: 7200 # 2 hours
+      mobile: 28800 # 8 hours
       desktop: 43200 # 12 hours
-      service: 3600  # 1 hour
+      service: 3600 # 1 hour
     # Refresh token expiration times (in seconds)
     refresh-token-validity:
-      web: 2592000      # 30 days
-      mobile: 7776000   # 90 days
+      web: 2592000 # 30 days
+      mobile: 7776000 # 90 days
       desktop: 31536000 # 365 days
-
-
 
 # application:
 port-com:
 legacy-url: http://localhost:9090/laborex
 mail:
   email: badoukobena@gmail.com
-
-

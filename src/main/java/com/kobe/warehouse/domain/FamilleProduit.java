@@ -32,7 +32,7 @@ public class FamilleProduit implements Serializable {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
 
-    @Column(name = "code",length = 20)
+    @Column(name = "code", length = 20)
     private String code;
 
     @NotNull

@@ -1,6 +1,5 @@
 package com.kobe.warehouse.service.impl;
 
-
 import com.kobe.warehouse.domain.AppUser;
 import com.kobe.warehouse.domain.CashSale;
 import com.kobe.warehouse.domain.PaymentMode;
@@ -16,13 +15,12 @@ import com.kobe.warehouse.service.PaymentService;
 import com.kobe.warehouse.service.dto.PaymentDTO;
 import com.kobe.warehouse.service.dto.SaleDTO;
 import com.kobe.warehouse.service.id_generator.TransactionIdGeneratorService;
-import org.springframework.stereotype.Service;
-import org.springframework.util.CollectionUtils;
-
 import java.time.LocalDateTime;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import org.springframework.stereotype.Service;
+import org.springframework.util.CollectionUtils;
 
 @Service
 public class PaymentServiceImpl implements PaymentService {
@@ -31,12 +29,14 @@ public class PaymentServiceImpl implements PaymentService {
     private final PaymentModeRepository paymentModeRepository;
     private final TransactionIdGeneratorService transactionIdGeneratorService;
 
-    public PaymentServiceImpl(SalePaymentRepository paymentRepository, PaymentModeRepository paymentModeRepository, TransactionIdGeneratorService transactionIdGeneratorService) {
+    public PaymentServiceImpl(
+        SalePaymentRepository paymentRepository,
+        PaymentModeRepository paymentModeRepository,
+        TransactionIdGeneratorService transactionIdGeneratorService
+    ) {
         this.paymentRepository = paymentRepository;
         this.paymentModeRepository = paymentModeRepository;
         this.transactionIdGeneratorService = transactionIdGeneratorService;
-
-
     }
 
     @Override
@@ -53,7 +53,6 @@ public class PaymentServiceImpl implements PaymentService {
         paymentRepository.save(paymentCopy);
         paymentRepository.save(payment);
     }
-
 
     @Override
     public List<SalePayment> findAllBySales(SaleId id) {
@@ -130,6 +129,4 @@ public class PaymentServiceImpl implements PaymentService {
         }
         return payment;
     }
-
-
 }

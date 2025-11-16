@@ -17,14 +17,7 @@
     </div>
 
     <div class="back-button">
-      <p-button
-        (click)="previousState()"
-        icon="pi pi-arrow-left"
-        label="Retour"
-        raised="true"
-        severity="secondary"
-        type="button"
-      />
+      <p-button (click)="previousState()" icon="pi pi-arrow-left" label="Retour" raised="true" severity="secondary" type="button" />
     </div>
   </div>
 
@@ -53,13 +46,7 @@
       <p-inputgroup-addon>
         <i class="pi pi-money-bill"></i>
       </p-inputgroup-addon>
-      <p-inputNumber
-        autocomplete="off"
-        formControlName="amount"
-        id="amount"
-        placeholder="Montant"
-        type="number"
-      />
+      <p-inputNumber autocomplete="off" formControlName="amount" id="amount" placeholder="Montant" type="number" />
     </p-inputgroup>
   </div>
 
@@ -81,17 +68,12 @@
               <i class="pi pi-building"></i>
               <span class="addon-label">Nom</span>
             </p-inputgroup-addon>
-            <input
-              autocomplete="off"
-              formControlName="nom"
-              id="nom"
-              pInputText
-              placeholder="Nom de la banque"
-            />
+            <input autocomplete="off" formControlName="nom" id="nom" pInputText placeholder="Nom de la banque" />
           </p-inputgroup>
-          @if (reglementForm.get('banqueInfo').get('nom')!.invalid &&
-          (reglementForm.get('banqueInfo').get('nom')!.dirty || reglementForm.get('banqueInfo').get(
-            'nom')!.touched)) {
+          @if (
+            reglementForm.get('banqueInfo').get('nom')!.invalid &&
+            (reglementForm.get('banqueInfo').get('nom')!.dirty || reglementForm.get('banqueInfo').get('nom')!.touched)
+          ) {
             @if (reglementForm.get('banqueInfo').get('nom')?.errors?.required) {
               <small class="p-error">Ce champ est obligatoire.</small>
             }
@@ -106,17 +88,12 @@
                 <i class="pi pi-hashtag"></i>
                 <span class="addon-label">Numéro</span>
               </p-inputgroup-addon>
-              <input
-                autocomplete="off"
-                formControlName="code"
-                id="code"
-                pInputText
-                placeholder="Numéro de chèque"
-              />
+              <input autocomplete="off" formControlName="code" id="code" pInputText placeholder="Numéro de chèque" />
             </p-inputgroup>
-            @if (reglementForm.get('banqueInfo').get('code')!.invalid &&
-            (reglementForm.get('banqueInfo').get('code')!.dirty || reglementForm.get(
-              'banqueInfo').get('code')!.touched)) {
+            @if (
+              reglementForm.get('banqueInfo').get('code')!.invalid &&
+              (reglementForm.get('banqueInfo').get('code')!.dirty || reglementForm.get('banqueInfo').get('code')!.touched)
+            ) {
               @if (reglementForm.get('banqueInfo').get('code')?.errors?.required) {
                 <small class="p-error">Ce champ est obligatoire.</small>
               }
@@ -131,13 +108,7 @@
               <i class="pi pi-user"></i>
               <span class="addon-label">Bénéficiaire</span>
             </p-inputgroup-addon>
-            <input
-              autocomplete="off"
-              formControlName="beneficiaire"
-              id="beneficiaire"
-              pInputText
-              placeholder="Nom du bénéficiaire"
-            />
+            <input autocomplete="off" formControlName="beneficiaire" id="beneficiaire" pInputText placeholder="Nom du bénéficiaire" />
           </p-inputgroup>
         </div>
       </div>

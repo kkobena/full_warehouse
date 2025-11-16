@@ -16,8 +16,6 @@ import org.springframework.stereotype.Repository;
  */
 @Repository
 public interface CustomerRepository extends JpaRepository<Customer, Integer>, JpaSpecificationExecutor<Customer> {
-
-
     default Specification<Customer> specialisationQueryString(String queryValue) {
         return (root, query, cb) ->
             cb.or(

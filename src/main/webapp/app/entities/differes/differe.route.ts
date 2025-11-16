@@ -21,7 +21,7 @@ export const DiffereResolve = (route: ActivatedRouteSnapshot): Observable<null |
             inject(Router).navigate(['404']);
             return EMPTY;
           }
-        })
+        }),
       );
   }
   return EMPTY;
@@ -32,20 +32,20 @@ const differeRoute: Routes = [
     path: '',
     loadComponent: () => import('./gestion-differes.component').then(m => m.GestionDifferesComponent),
     data: {
-      authorities: [Authority.ADMIN, Authority.GESTION_DIFFERE]
+      authorities: [Authority.ADMIN, Authority.GESTION_DIFFERE],
     },
-    canActivate: [UserRouteAccessService]
+    canActivate: [UserRouteAccessService],
   },
   {
     path: ':id/do-reglement-differe',
     loadComponent: () => import('./faire-reglement-differe/faire-reglement-differe.component').then(m => m.FaireReglementDiffereComponent),
     resolve: {
-      differe: DiffereResolve
+      differe: DiffereResolve,
     },
     data: {
-      authorities: [Authority.ADMIN, Authority.GESTION_DIFFERE]
+      authorities: [Authority.ADMIN, Authority.GESTION_DIFFERE],
     },
-    canActivate: [UserRouteAccessService]
-  }
+    canActivate: [UserRouteAccessService],
+  },
 ];
 export default differeRoute;

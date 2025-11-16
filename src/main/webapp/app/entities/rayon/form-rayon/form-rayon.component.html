@@ -1,21 +1,17 @@
 <div class="modal-header">
   <h4 class="modal-title">{{ header }}</h4>
-  <button (click)="cancel()" aria-label="Close" class="btn-close" type="button">
-
-  </button>
+  <button (click)="cancel()" aria-label="Close" class="btn-close" type="button"></button>
 </div>
 <form (ngSubmit)="save()" [formGroup]="editForm" name="editForm" novalidate role="form">
   <div class="modal-body">
     <p-card>
       <div class="p-col-12">
         <div [hidden]="!editForm.get('id')!.value" class="form-group">
-          <input class="form-control" formControlName="id" id="id" name="id" readonly
-                 type="hidden" />
+          <input class="form-control" formControlName="id" id="id" name="id" readonly type="hidden" />
         </div>
         <div class="p-fluid p-formgrid p-grid">
           <div class="p-field p-col">
-            <label class="col-auto col-form-label">Emplacement<span
-              style="font-weight: 900; color: red">*</span></label>
+            <label class="col-auto col-form-label">Emplacement<span style="font-weight: 900; color: red">*</span></label>
 
             <p-select
               [fluid]="true"
@@ -29,12 +25,10 @@
               size="large"
             >
             </p-select>
-            @if (editForm.get('storageId')!.invalid && (editForm.get('storageId')!.dirty
-              || editForm.get('storageId')!.touched)) {
+            @if (editForm.get('storageId')!.invalid && (editForm.get('storageId')!.dirty || editForm.get('storageId')!.touched)) {
               <div>
                 @if (editForm.get('storageId')?.errors?.required) {
-                  <small class="form-text text-danger" style="color: red"> Ce champ est
-                    obligatoire. </small>
+                  <small class="form-text text-danger" style="color: red"> Ce champ est obligatoire. </small>
                 }
               </div>
             }
@@ -42,18 +36,12 @@
         </div>
         <div class="p-fluid p-formgrid p-grid">
           <div class="p-field p-col">
-            <label class="col-auto col-form-label">Libellé<span
-              style="font-weight: 900; color: red">*</span></label>
-            <input #libelleInput autocomplete="off" class="form-control" formControlName="libelle"
-                   name="libelle"
-                   pInputText type="text" />
-            @if (editForm.get('libelle')!.invalid && (editForm.get('libelle')!.dirty
-              || editForm.get(
-                'libelle')!.touched)) {
+            <label class="col-auto col-form-label">Libellé<span style="font-weight: 900; color: red">*</span></label>
+            <input #libelleInput autocomplete="off" class="form-control" formControlName="libelle" name="libelle" pInputText type="text" />
+            @if (editForm.get('libelle')!.invalid && (editForm.get('libelle')!.dirty || editForm.get('libelle')!.touched)) {
               <div>
                 @if (editForm.get('libelle')?.errors?.required) {
-                  <small class="form-text text-danger" style="color: red"> Ce champ est
-                    obligatoire. </small>
+                  <small class="form-text text-danger" style="color: red"> Ce champ est obligatoire. </small>
                 }
               </div>
             }
@@ -61,17 +49,20 @@
         </div>
         <div class="p-fluid p-formgrid p-grid">
           <div class="p-field p-col">
-            <label class="col-auto col-form-label">Code<span
-              style="font-weight: 900; color: red">*</span></label>
-            <input autocomplete="off" class="form-control" formControlName="code" name="code"
-                   pInputText
-                   pKeyFilter="alphanum" type="text" />
-            @if (editForm.get('code')!.invalid && (editForm.get('code')!.dirty || editForm.get(
-              'code')!.touched)) {
+            <label class="col-auto col-form-label">Code<span style="font-weight: 900; color: red">*</span></label>
+            <input
+              autocomplete="off"
+              class="form-control"
+              formControlName="code"
+              name="code"
+              pInputText
+              pKeyFilter="alphanum"
+              type="text"
+            />
+            @if (editForm.get('code')!.invalid && (editForm.get('code')!.dirty || editForm.get('code')!.touched)) {
               <div>
                 @if (editForm.get('code')?.errors?.required) {
-                  <small class="form-text text-danger" style="color: red"> Ce champ est
-                    obligatoire. </small>
+                  <small class="form-text text-danger" style="color: red"> Ce champ est obligatoire. </small>
                 }
               </div>
             }
@@ -81,9 +72,15 @@
     </p-card>
   </div>
   <div class="modal-footer">
-    <p-button (click)="cancel()" class="mr-2" icon="pi pi-times" label="Annuler" raised="true"
-              severity="secondary"
-              type="button"></p-button>
+    <p-button
+      (click)="cancel()"
+      class="mr-2"
+      icon="pi pi-times"
+      label="Annuler"
+      raised="true"
+      severity="secondary"
+      type="button"
+    ></p-button>
     <p-button
       [disabled]="editForm.invalid || isSaving"
       icon="pi pi-check"
@@ -92,7 +89,6 @@
       severity="primary"
       type="submit"
     ></p-button>
-
   </div>
 </form>
 <jhi-toast-alert #alert></jhi-toast-alert>

@@ -65,9 +65,7 @@ public class MotifRetourProduitRessource {
     }
 
     @GetMapping(value = "/motif-retour-produits")
-    public ResponseEntity<List<MotifRetourProduit>> getAll(
-
-    ) {
-        return ResponseEntity.ok( motifRetourProduitRepository.findAll());
+    public ResponseEntity<List<MotifRetourProduit>> getAll() {
+        return ResponseEntity.ok(motifRetourProduitRepository.findAll());
     }
 }

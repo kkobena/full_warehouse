@@ -13,15 +13,9 @@ import { SpinnerComponent } from '../../../shared/spinner/spinner.component';
 
 @Component({
   selector: 'jhi-file-response-modal',
-  imports: [
-    Button,
-    Card,
-    FileUpload,
-    SpinnerComponent,
-    ToastAlertComponent
-  ],
+  imports: [Button, Card, FileUpload, SpinnerComponent, ToastAlertComponent],
   templateUrl: './file-response-modal.component.html',
-  styleUrls: ['../../common-modal.component.scss']
+  styleUrls: ['../../common-modal.component.scss'],
 })
 export class FileResponseModalComponent {
   header: string = '';
@@ -29,10 +23,9 @@ export class FileResponseModalComponent {
 
   private readonly commandeService = inject(CommandeService);
   private readonly activeModal = inject(NgbActiveModal);
-   private readonly spinner = viewChild.required<SpinnerComponent>('spinner');
+  private readonly spinner = viewChild.required<SpinnerComponent>('spinner');
   private readonly alert = viewChild.required<ToastAlertComponent>('alert');
   private readonly errorService = inject(ErrorService);
-
 
   protected cancel(): void {
     this.activeModal.dismiss();
@@ -51,10 +44,9 @@ export class FileResponseModalComponent {
       error: error => {
         this.spinner().hide();
         this.onCommonError(error);
-      }
+      },
     });
   }
-
 
   private onCommonError(error: HttpErrorResponse): void {
     this.alert().showError(this.errorService.getErrorMessage(error));

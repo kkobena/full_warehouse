@@ -12,27 +12,23 @@
           <jhi-alert-error></jhi-alert-error>
           <div class="form-group">
             <label class="form-control-label" for="field_name" jhiTranslate="warehouseApp.menu.name">Name</label>
-            <input class="form-control" formControlName="name" id="field_name" name="name" pInputText
-                   pKeyFilter="alpha" />
+            <input class="form-control" formControlName="name" id="field_name" name="name" pInputText pKeyFilter="alpha" />
             @if (editForm.get('name')!.invalid && (editForm.get('name')!.dirty || editForm.get('name')!.touched)) {
               <div>
                 @if (editForm.get('name')?.errors?.required) {
-                  <small class="form-text text-danger" jhiTranslate="entity.validation.required"> This field is
-                    required. </small>
+                  <small class="form-text text-danger" jhiTranslate="entity.validation.required"> This field is required. </small>
                 }
               </div>
             }
           </div>
 
           <div class="form-group">
-            <label class="form-control-label" for="field_libelle"
-                   jhiTranslate="warehouseApp.menu.libelle">Libelle</label>
+            <label class="form-control-label" for="field_libelle" jhiTranslate="warehouseApp.menu.libelle">Libelle</label>
             <input class="form-control" formControlName="libelle" id="field_libelle" name="libelle" pInputText />
             @if (editForm.get('libelle')!.invalid && (editForm.get('libelle')!.dirty || editForm.get('libelle')!.touched)) {
               <div>
                 @if (editForm.get('libelle')?.errors?.required) {
-                  <small class="form-text text-danger" jhiTranslate="entity.validation.required"> This field is
-                    required. </small>
+                  <small class="form-text text-danger" jhiTranslate="entity.validation.required"> This field is required. </small>
                 }
               </div>
             }
@@ -40,8 +36,15 @@
         </div>
 
         <div class="text-center">
-          <p-button class="mr-2" (click)="previousState()" icon="pi pi-times" id="cancel-save" label="Annuler"
-                    severity="secondary" type="button">
+          <p-button
+            class="mr-2"
+            (click)="previousState()"
+            icon="pi pi-times"
+            id="cancel-save"
+            label="Annuler"
+            severity="secondary"
+            type="button"
+          >
           </p-button>
 
           <p-button

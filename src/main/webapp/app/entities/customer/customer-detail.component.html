@@ -1,22 +1,19 @@
-
 <div class="container-fluid">
-  <div class="pharma-smart-content row ">
+  <div class="pharma-smart-content row">
     <div class="col-4 master">
       @if (customer) {
-        <h4><span
-          jhiTranslate="warehouseApp.customer.detail.title">Customer</span> {{ customer.firstName + ' ' + customer.lastName }}
-        </h4>
+        <h4><span jhiTranslate="warehouseApp.customer.detail.title">Customer</span> {{ customer.firstName + ' ' + customer.lastName }}</h4>
       }
 
       @if (sales && sales.length > 0) {
         <div class="table-responsive table-sm table-hover">
           <table class="table table-striped">
             <thead class="pharma-table-head">
-            <tr>
-              <th scope="col"><span jhiTranslate="warehouseApp.sales.numberTransaction">numberTransaction</span></th>
-              <th scope="col"><span jhiTranslate="warehouseApp.sales.updatedAt">Date</span></th>
-              <th scope="col"><span jhiTranslate="warehouseApp.sales.netAmount">Montant</span></th>
-            </tr>
+              <tr>
+                <th scope="col"><span jhiTranslate="warehouseApp.sales.numberTransaction">numberTransaction</span></th>
+                <th scope="col"><span jhiTranslate="warehouseApp.sales.updatedAt">Date</span></th>
+                <th scope="col"><span jhiTranslate="warehouseApp.sales.netAmount">Montant</span></th>
+              </tr>
             </thead>
             <tbody>
               @for (sale of sales; track sale; let first = $first; let last = $last) {
@@ -57,9 +54,7 @@
                       <div class="invoice-details">
                         <div class="invoice-label">DATE</div>
                         <div class="invoice-value">{{ saleSelected?.updatedAt | date: 'dd/MM/yyyy' }}</div>
-                        <div class="invoice-label"><span
-                          jhiTranslate="warehouseApp.customer.detail.invoice">FACTURE</span> #
-                        </div>
+                        <div class="invoice-label"><span jhiTranslate="warehouseApp.customer.detail.invoice">FACTURE</span> #</div>
                         <div class="invoice-value">{{ saleSelected?.numberTransaction }}</div>
                       </div>
                     </div>
@@ -74,19 +69,21 @@
                   <div class="invoice-items">
                     <table>
                       <thead class="pharma-table-head">
-                      <tr>
-                        <th><span jhiTranslate="warehouseApp.produit.libelle">Libellé</span></th>
-                        <th><span jhiTranslate="warehouseApp.salesLine.quantitySold">Qunatité</span></th>
-                        <th><span jhiTranslate="warehouseApp.salesLine.regularUnitPrice">Prix.Unitaire</span></th>
-                        <th><span jhiTranslate="warehouseApp.salesLine.salesAmount">Montant</span></th>
-                      </tr>
+                        <tr>
+                          <th><span jhiTranslate="warehouseApp.produit.libelle">Libellé</span></th>
+                          <th><span jhiTranslate="warehouseApp.salesLine.quantitySold">Qunatité</span></th>
+                          <th><span jhiTranslate="warehouseApp.salesLine.regularUnitPrice">Prix.Unitaire</span></th>
+                          <th><span jhiTranslate="warehouseApp.salesLine.salesAmount">Montant</span></th>
+                        </tr>
                       </thead>
                       <tbody>
                         @for (saleLine of selectedRowSaleLines; track saleLine; let first = $first; let last = $last) {
                           <tr>
-                            <td><span class="pharma-product-name">{{ saleLine.produitLibelle }}</span> </td>
+                            <td>
+                              <span class="pharma-product-name">{{ saleLine.produitLibelle }}</span>
+                            </td>
                             <td class="pharma-qty-value">{{ saleLine.quantitySold | number }}</td>
-                            <td  class="pharma-price">{{ saleLine.regularUnitPrice | number }}</td>
+                            <td class="pharma-price">{{ saleLine.regularUnitPrice | number }}</td>
                             <td class="pharma-total">{{ saleLine.salesAmount | number }}</td>
                           </tr>
                         }
@@ -108,13 +105,10 @@
               </div>
             </div>
           }
-          <div style="text-align: center;" class="mt-2">
-            <p-button (click)="previousState()" class=" mr-2" severity="secondary" icon="pi pi-arrow-left"
-                      label="Retour">
-            </p-button>
+          <div style="text-align: center" class="mt-2">
+            <p-button (click)="previousState()" class="mr-2" severity="secondary" icon="pi pi-arrow-left" label="Retour"> </p-button>
             @if (saleSelected) {
-              <p-button (click)="print()" severity="warn" type="button" icon="pi pi-print" label="Imprimer">
-              </p-button>
+              <p-button (click)="print()" severity="warn" type="button" icon="pi pi-print" label="Imprimer"> </p-button>
             }
           </div>
         </div>
@@ -122,4 +116,3 @@
     </div>
   </div>
 </div>
-

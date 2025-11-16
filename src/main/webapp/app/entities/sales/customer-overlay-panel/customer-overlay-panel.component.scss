@@ -76,7 +76,8 @@ $border-radius-sm: 6px;
 }
 
 @keyframes pulse-subtle {
-  0%, 100% {
+  0%,
+  100% {
     transform: scale(1);
   }
   50% {

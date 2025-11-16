@@ -16,7 +16,7 @@ import { WarehouseCommonModule } from '../../shared/warehouse-common/warehouse-c
     TranslatePipe,
     LotPerimesComponent,
     LotADetruireComponent,
-    WarehouseCommonModule
+    WarehouseCommonModule,
   ],
   templateUrl: './gestion-peremption.component.html',
   styleUrls: ['./gestion-peremption.scss'],

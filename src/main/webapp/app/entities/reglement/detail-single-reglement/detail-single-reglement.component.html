@@ -7,7 +7,7 @@
 
 <div class="modal-body">
   <p-card class="mb-2">
-    <div class=" p-3 border rounded-3 ">
+    <div class="p-3 border rounded-3">
       <div class="row g-3">
         <div class="col-sm-6 col-lg-3">
           <label class="text-muted d-block mb-1 small">Date règlement</label>
@@ -63,25 +63,28 @@
       </ng-template>
       <ng-template #header>
         <tr class="pharma-table-head">
-          <th style="width:8%">Num. Bon</th>
-          <th style="width:10%">Date</th>
-          <th style="width:6%">Heure</th>
-          <th style="width:17%">Assuré</th>
-          <th style="width:14%">Matricule</th>
-          <th style="width:12%; text-align: end">Montant</th>
-          <th style="width:12%; text-align: end">Attendu</th>
-          <th style="width:12%; text-align: end">Réglé</th>
-          <th style="width:10%; text-align: end">Restant</th>
+          <th style="width: 8%">Num. Bon</th>
+          <th style="width: 10%">Date</th>
+          <th style="width: 6%">Heure</th>
+          <th style="width: 17%">Assuré</th>
+          <th style="width: 14%">Matricule</th>
+          <th style="width: 12%; text-align: end">Montant</th>
+          <th style="width: 12%; text-align: end">Attendu</th>
+          <th style="width: 12%; text-align: end">Réglé</th>
+          <th style="width: 10%; text-align: end">Restant</th>
         </tr>
       </ng-template>
       <ng-template #body let-factureDetail>
         <tr>
-          <td><span class="pharma-code">{{ factureDetail.numBon }}</span></td>
+          <td>
+            <span class="pharma-code">{{ factureDetail.numBon }}</span>
+          </td>
           <td>{{ factureDetail.created }}</td>
           <td>{{ factureDetail.heure }}</td>
           <td class="pharma-entity-name">{{ factureDetail.customer }}</td>
-          <td><span
-            class="pharma-badge pharma-badge-info">{{ factureDetail.customerMatricule }}</span></td>
+          <td>
+            <span class="pharma-badge pharma-badge-info">{{ factureDetail.customerMatricule }}</span>
+          </td>
           <td class="text-end pharma-price">{{ factureDetail.montantVente }}</td>
           <td class="text-end pharma-price">{{ factureDetail.montantAttendu }}</td>
           <td class="text-end pharma-total">{{ factureDetail.montant }}</td>
@@ -97,14 +100,9 @@
       </ng-template>
     </p-table>
   </p-card>
-
-
 </div>
 
 <div class="modal-footer">
-  <p-button (click)="cancel()" [raised]="true" data-dismiss="modal" icon="pi pi-times"
-            label="Annuler"
-            severity="secondary" type="button">
+  <p-button (click)="cancel()" [raised]="true" data-dismiss="modal" icon="pi pi-times" label="Annuler" severity="secondary" type="button">
   </p-button>
 </div>
-

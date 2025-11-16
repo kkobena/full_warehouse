@@ -22,7 +22,7 @@ export const AjustementResolve = (route: ActivatedRouteSnapshot): Observable<nul
             inject(Router).navigate(['404']);
             return EMPTY;
           }
-        })
+        }),
       );
   }
   return of(new Ajust());
@@ -32,20 +32,20 @@ const ajustementRoute: Routes = [
     path: '',
     loadComponent: () => import('./ajustement.component').then(m => m.AjustementComponent),
     data: {
-      authorities: [Authority.ADMIN, Authority.AJUSTEMENT]
+      authorities: [Authority.ADMIN, Authority.AJUSTEMENT],
     },
-    canActivate: [UserRouteAccessService]
+    canActivate: [UserRouteAccessService],
   },
   {
     path: 'new',
     loadComponent: () => import('./ajustement-detail.component').then(m => m.AjustementDetailComponent),
     resolve: {
-      ajustement: AjustementResolve
+      ajustement: AjustementResolve,
     },
     data: {
-      authorities: [Authority.ADMIN, Authority.AJUSTEMENT]
+      authorities: [Authority.ADMIN, Authority.AJUSTEMENT],
     },
-    canActivate: [UserRouteAccessService]
-  }
+    canActivate: [UserRouteAccessService],
+  },
 ];
 export default ajustementRoute;

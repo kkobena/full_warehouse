@@ -63,7 +63,7 @@ public class StoreInventoryDTO implements Serializable {
             this.gapAmount = storeInventory.getGapAmount();
         }
         this.description = storeInventory.getDescription();
-        if(Objects.isNull(storeInventory.getDescription())) {
+        if (Objects.isNull(storeInventory.getDescription())) {
             this.description = "Inventaire du " + storeInventory.getCreatedAt().format(DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm"));
         }
     }

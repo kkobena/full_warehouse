@@ -1,22 +1,21 @@
 package com.kobe.warehouse.service.financiel_transaction;
 
+import static org.junit.jupiter.api.Assertions.*;
+
 import com.kobe.warehouse.service.dto.GroupeFournisseurDTO;
 import com.kobe.warehouse.service.excel.ExcelExportService;
 import com.kobe.warehouse.service.financiel_transaction.dto.AchatDTO;
 import com.kobe.warehouse.service.financiel_transaction.dto.FournisseurAchat;
 import com.kobe.warehouse.service.financiel_transaction.dto.TableauPharmacienDTO;
 import com.kobe.warehouse.service.financiel_transaction.dto.TableauPharmacienWrapper;
+import java.time.LocalDate;
+import java.util.ArrayList;
+import java.util.List;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-
-import java.time.LocalDate;
-import java.util.ArrayList;
-import java.util.List;
-
-import static org.junit.jupiter.api.Assertions.*;
 
 @ExtendWith(MockitoExtension.class)
 class TableauPharmacienExportServiceTest {
@@ -65,9 +64,7 @@ class TableauPharmacienExportServiceTest {
         TableauPharmacienWrapper wrapper = createWrapper();
 
         // Should throw NullPointerException when trying to process null supplier groups
-        assertThrows(NullPointerException.class, () ->
-            exportService.exportToExcel(wrapper, null)
-        );
+        assertThrows(NullPointerException.class, () -> exportService.exportToExcel(wrapper, null));
     }
 
     @Test
@@ -75,9 +72,7 @@ class TableauPharmacienExportServiceTest {
         List<GroupeFournisseurDTO> supplierGroups = createSupplierGroups();
 
         // Should throw NullPointerException when wrapper is null
-        assertThrows(NullPointerException.class, () ->
-            exportService.exportToExcel(null, supplierGroups)
-        );
+        assertThrows(NullPointerException.class, () -> exportService.exportToExcel(null, supplierGroups));
     }
 
     @Test
@@ -106,16 +101,10 @@ class TableauPharmacienExportServiceTest {
         TableauPharmacienWrapper wrapper = new TableauPharmacienWrapper();
         List<TableauPharmacienDTO> tableauPharmaciens = new ArrayList<>();
 
-        TableauPharmacienDTO dto1 = createTableauDTO(
-            LocalDate.of(2025, 1, 1),
-            10000L, 5000L, 5000L, 500L, 9500L, 5
-        );
+        TableauPharmacienDTO dto1 = createTableauDTO(LocalDate.of(2025, 1, 1), 10000L, 5000L, 5000L, 500L, 9500L, 5);
         dto1.setGroupAchats(createGroupAchats());
 
-        TableauPharmacienDTO dto2 = createTableauDTO(
-            LocalDate.of(2025, 1, 2),
-            15000L, 7000L, 8000L, 1000L, 14000L, 8
-        );
+        TableauPharmacienDTO dto2 = createTableauDTO(LocalDate.of(2025, 1, 2), 15000L, 7000L, 8000L, 1000L, 14000L, 8);
         dto2.setGroupAchats(createGroupAchats());
 
         tableauPharmaciens.add(dto1);
@@ -129,10 +118,7 @@ class TableauPharmacienExportServiceTest {
         TableauPharmacienWrapper wrapper = new TableauPharmacienWrapper();
         List<TableauPharmacienDTO> tableauPharmaciens = new ArrayList<>();
 
-        TableauPharmacienDTO dto = createTableauDTO(
-            LocalDate.of(2025, 1, 1),
-            10000L, 5000L, 5000L, 500L, 9500L, 5
-        );
+        TableauPharmacienDTO dto = createTableauDTO(LocalDate.of(2025, 1, 1), 10000L, 5000L, 5000L, 500L, 9500L, 5);
 
         List<FournisseurAchat> groupAchats = new ArrayList<>();
         groupAchats.add(createFournisseurAchat(1, "Supplier A", 1000L));
@@ -170,10 +156,15 @@ class TableauPharmacienExportServiceTest {
         return wrapper;
     }
 
-    private TableauPharmacienDTO createTableauDTO(LocalDate date, long montantNet,
-                                                   long montantComptant, long montantCredit,
-                                                   long montantRemise, long montantBonAchat,
-                                                   int nombreVente) {
+    private TableauPharmacienDTO createTableauDTO(
+        LocalDate date,
+        long montantNet,
+        long montantComptant,
+        long montantCredit,
+        long montantRemise,
+        long montantBonAchat,
+        int nombreVente
+    ) {
         TableauPharmacienDTO dto = new TableauPharmacienDTO();
         dto.setMvtDate(date);
         dto.setMontantNet(montantNet);

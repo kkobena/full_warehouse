@@ -10,7 +10,6 @@ import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotNull;
-
 import java.io.Serial;
 import java.io.Serializable;
 import java.time.LocalDateTime;
@@ -21,6 +20,7 @@ public class RetourBonItem implements Serializable {
 
     @Serial
     private static final long serialVersionUID = 1L;
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
@@ -59,6 +59,7 @@ public class RetourBonItem implements Serializable {
 
     @Column(name = "accepted_qty", length = 8)
     private Integer acceptedQty;
+
     @NotNull
     @Column(name = "prix_achat", length = 8, nullable = false)
     private Integer prixAchat;

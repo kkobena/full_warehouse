@@ -13,7 +13,6 @@ import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 import jakarta.persistence.UniqueConstraint;
 import jakarta.validation.constraints.NotNull;
-
 import java.io.Serial;
 import java.io.Serializable;
 import java.util.HashSet;
@@ -58,7 +57,6 @@ public class Menu implements Serializable {
     @Column(name = "enable", nullable = false)
     private boolean enable = true;
 
-
     private int ordre;
 
     public int getOrdre() {
@@ -68,7 +66,6 @@ public class Menu implements Serializable {
     public void setOrdre(int ordre) {
         this.ordre = ordre;
     }
-
 
     public boolean isRoot() {
         return root;
@@ -118,8 +115,6 @@ public class Menu implements Serializable {
         return this;
     }
 
-
-
     public String getName() {
         return name;
     }
@@ -132,7 +127,6 @@ public class Menu implements Serializable {
         this.name = name;
         return this;
     }
-
 
     public boolean isEnable() {
         return enable;

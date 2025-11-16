@@ -4,13 +4,12 @@ import com.kobe.warehouse.domain.Customer_;
 import com.kobe.warehouse.domain.DifferePayment;
 import com.kobe.warehouse.domain.DifferePayment_;
 import com.kobe.warehouse.domain.PaymentId;
+import java.time.LocalDate;
+import java.util.Optional;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.stereotype.Repository;
-
-import java.time.LocalDate;
-import java.util.Optional;
 
 /**
  * Spring Data  repository for the DifferePayment entity.
@@ -28,6 +27,4 @@ public interface DifferePaymentRepository
     default Specification<DifferePayment> filterByPeriode(LocalDate fromDate, LocalDate toDate) {
         return (root, _, cb) -> cb.between(root.get(DifferePayment_.transactionDate), fromDate, toDate);
     }
-
-
 }

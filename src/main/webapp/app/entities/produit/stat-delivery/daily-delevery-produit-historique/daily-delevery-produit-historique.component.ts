@@ -3,7 +3,7 @@ import { ITEMS_PER_PAGE } from '../../../../shared/constants/pagination.constant
 import {
   HistoriqueProduitAchats,
   HistoriqueProduitAchatsSummary,
-  ProduitAuditingParam
+  ProduitAuditingParam,
 } from '../../../../shared/model/produit-record.model';
 import { ProduitStatService } from '../../stat/produit-stat.service';
 import { ProduitAuditingParamService } from '../../transaction/produit-auditing-param.service';
@@ -15,7 +15,7 @@ import { TableLazyLoadEvent, TableModule } from 'primeng/table';
   selector: 'jhi-daily-delevery-produit-historique',
   imports: [CommonModule, TableModule],
   templateUrl: './daily-delevery-produit-historique.component.html',
-  styleUrl: './daily-delevery-produit-historique.component.scss'
+  styleUrl: './daily-delevery-produit-historique.component.scss',
 })
 export class DailyDeleveryProduitHistoriqueComponent implements OnInit {
   protected totalItems = 0;
@@ -43,10 +43,10 @@ export class DailyDeleveryProduitHistoriqueComponent implements OnInit {
       .getProduitHistoriqueAchat({
         page: pageToLoad,
         size: this.itemsPerPage,
-        ...produitAuditingParam
+        ...produitAuditingParam,
       })
       .subscribe({
-        next: (res: HttpResponse<HistoriqueProduitAchats[]>) => this.onSuccess(res.body, res.headers, pageToLoad)
+        next: (res: HttpResponse<HistoriqueProduitAchats[]>) => this.onSuccess(res.body, res.headers, pageToLoad),
       });
   }
 
@@ -58,10 +58,10 @@ export class DailyDeleveryProduitHistoriqueComponent implements OnInit {
         .getProduitHistoriqueAchat({
           page: this.page,
           size: event.rows,
-          ...this.produitAuditingParamService.produitAuditingParam
+          ...this.produitAuditingParamService.produitAuditingParam,
         })
         .subscribe({
-          next: (res: HttpResponse<HistoriqueProduitAchats[]>) => this.onSuccess(res.body, res.headers, this.page)
+          next: (res: HttpResponse<HistoriqueProduitAchats[]>) => this.onSuccess(res.body, res.headers, this.page),
         });
     }
   }
@@ -71,7 +71,7 @@ export class DailyDeleveryProduitHistoriqueComponent implements OnInit {
       next: blod => {
         const blobUrl = URL.createObjectURL(blod);
         window.open(blobUrl);
-      }
+      },
     });
   }
 
@@ -79,7 +79,7 @@ export class DailyDeleveryProduitHistoriqueComponent implements OnInit {
     this.produitStatService.getHistoriqueAchatSummary(produitAuditingParam).subscribe({
       next: res => {
         this.summary = res.body;
-      }
+      },
     });
   }
 

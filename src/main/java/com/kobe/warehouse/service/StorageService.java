@@ -12,15 +12,14 @@ import com.kobe.warehouse.security.SecurityUtils;
 import com.kobe.warehouse.service.dto.StorageDTO;
 import com.kobe.warehouse.service.dto.projection.IdProjection;
 import com.kobe.warehouse.service.settings.AppConfigurationService;
-import org.springframework.cache.annotation.Cacheable;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
-
 import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
+import org.springframework.cache.annotation.Cacheable;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @Transactional
@@ -34,7 +33,8 @@ public class StorageService {
     public StorageService(
         StorageRepository storageRepository,
         AppConfigurationService appConfigurationService,
-        UserRepository userRepository, UserService userService
+        UserRepository userRepository,
+        UserService userService
     ) {
         this.storageRepository = storageRepository;
         this.appConfigurationService = appConfigurationService;
@@ -54,7 +54,6 @@ public class StorageService {
     public Storage getDefaultMagasinMainStorage() {
         return storageRepository.getReferenceById(EntityConstant.DEFAULT_STORAGE);
     }
-
 
     public AppUser getUser() {
         return userService.getUser();
@@ -78,7 +77,6 @@ public class StorageService {
     public Storage getDefaultConnectedUserReserveStorage() {
         return getStorageByMagasinIdAndType(getUser().getMagasin().getId(), StorageType.SAFETY_STOCK);
     }
-
 
     public Magasin getConnectedUserMagasin() {
         return getUser().getMagasin();
@@ -116,7 +114,6 @@ public class StorageService {
             storages.add(storageRepository.save(storage));
         }
         return storages;
-
     }
 
     public List<Storage> findAllByMagasin(Magasin magasin) {
@@ -125,7 +122,6 @@ public class StorageService {
 
     public void deleteAll(List<Storage> storages) {
         storageRepository.deleteAll(storages);
-
     }
 
     public Integer findByMagasinIdAndStorageType(Integer magasinId, StorageType storageType) {

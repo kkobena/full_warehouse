@@ -1,5 +1,7 @@
 package com.kobe.warehouse.repository;
 
+import static java.util.Objects.nonNull;
+
 import com.kobe.warehouse.domain.FamilleProduit;
 import com.kobe.warehouse.domain.FamilleProduit_;
 import com.kobe.warehouse.domain.FormProduit;
@@ -52,16 +54,6 @@ import jakarta.persistence.criteria.JoinType;
 import jakarta.persistence.criteria.Predicate;
 import jakarta.persistence.criteria.Root;
 import jakarta.persistence.criteria.SetJoin;
-import org.apache.commons.lang3.ObjectUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageImpl;
-import org.springframework.data.domain.Pageable;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
-import org.springframework.util.StringUtils;
-
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
@@ -71,8 +63,15 @@ import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
-
-import static java.util.Objects.nonNull;
+import org.apache.commons.lang3.ObjectUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.Pageable;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.StringUtils;
 
 @Service
 @Transactional
@@ -497,7 +496,6 @@ public class CustomizedProductRepository implements CustomizedProductService {
             predicates.add(cb.equal(magasinJoin.get(Magasin_.id), produitCriteria.getMagasinId()));
 
             if (produitCriteria.getStorageId() != null || produitCriteria.getRayonId() != null) {
-
                 if (produitCriteria.getStorageId() != null) {
                     predicates.add(cb.equal(st.get(StockProduit_.storage).get(Storage_.id), produitCriteria.getStorageId()));
                 }
@@ -506,8 +504,6 @@ public class CustomizedProductRepository implements CustomizedProductService {
                     predicates.add(cb.equal(rp.get(RayonProduit_.rayon).get(Rayon_.id), produitCriteria.getRayonId()));
                 }
             }
-
-
         } else {
             if (produitCriteria.getStorageId() != null || produitCriteria.getRayonId() != null) {
                 SetJoin<Produit, StockProduit> st = root.joinSet(Produit_.STOCK_PRODUITS, JoinType.INNER);
@@ -523,7 +519,6 @@ public class CustomizedProductRepository implements CustomizedProductService {
         if (!ObjectUtils.isEmpty(produitCriteria.getStatus())) {
             predicates.add(cb.equal(root.get(Produit_.status), produitCriteria.getStatus()));
         }
-
 
         if (produitCriteria.getFamilleId() != null) {
             Join<Produit, FamilleProduit> familleJoin = root.join(Produit_.FAMILLE, JoinType.INNER);

@@ -12,7 +12,7 @@ type EntityResponseType = HttpResponse<IMotifRetourProduit>;
 type EntityArrayResponseType = HttpResponse<IMotifRetourProduit[]>;
 
 @Injectable({
-  providedIn: 'root'
+  providedIn: 'root',
 })
 export class ModifRetourProduitService {
   private readonly http = inject(HttpClient);

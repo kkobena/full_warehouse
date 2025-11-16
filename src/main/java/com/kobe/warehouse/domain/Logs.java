@@ -36,7 +36,7 @@ public class Logs implements Serializable {
 
     @NotNull
     @Enumerated(EnumType.STRING)
-    @Column(name = "transaction_type", nullable = false,length = 30)
+    @Column(name = "transaction_type", nullable = false, length = 30)
     private TransactionType transactionType;
 
     @NotNull
@@ -52,7 +52,7 @@ public class Logs implements Serializable {
     private AppUser user;
 
     @NotNull
-    @Column(name = "indentity_key", nullable = false,length = 20)
+    @Column(name = "indentity_key", nullable = false, length = 20)
     private String indentityKey;
 
     @Column(name = "old_object", columnDefinition = "TEXT")

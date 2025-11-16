@@ -9,13 +9,7 @@
         <p-toolbar>
           <ng-template #end>
             <div class="pharma-toolbar-actions">
-              <p-button
-                (onClick)="cancel()"
-                [text]="true"
-                icon="pi pi-arrow-left"
-                label="Retour"
-                severity="secondary">
-              </p-button>
+              <p-button (onClick)="cancel()" [text]="true" icon="pi pi-arrow-left" label="Retour" severity="secondary"> </p-button>
             </div>
           </ng-template>
         </p-toolbar>
@@ -36,12 +30,14 @@
               <!-- Name -->
               <div class="form-field">
                 <label for="name">Nom Court <span class="required">*</span></label>
-                <input #name
-                       [class.ng-invalid]="formControls['name'].invalid && formControls['name'].touched"
-                       class="w-full"
-                       formControlName="name"
-                       id="name"
-                       pInputText />
+                <input
+                  #name
+                  [class.ng-invalid]="formControls['name'].invalid && formControls['name'].touched"
+                  class="w-full"
+                  formControlName="name"
+                  id="name"
+                  pInputText
+                />
                 @if (formControls['name'].invalid && formControls['name'].touched) {
                   <small class="p-error">Le nom court est obligatoire</small>
                 }
@@ -55,7 +51,8 @@
                   class="w-full"
                   formControlName="fullName"
                   id="fullName"
-                  pInputText />
+                  pInputText
+                />
                 @if (formControls['fullName'].invalid && formControls['fullName'].touched) {
                   <small class="p-error">Le nom complet est obligatoire</small>
                 }
@@ -72,7 +69,8 @@
                   formControlName="typeMagasin"
                   id="typeMagasin"
                   optionLabel="label"
-                  optionValue="value">
+                  optionValue="value"
+                >
                 </p-select>
                 @if (formControls['typeMagasin'].invalid && formControls['typeMagasin'].touched) {
                   <small class="p-error">Le type de magasin est obligatoire</small>
@@ -91,35 +89,19 @@
             </ng-template>
 
             <div class="form-grid-compact">
-
               <div class="form-field">
                 <label for="managerLastName">Nom du Gérant</label>
-                <input
-                  class="w-full"
-                  formControlName="managerLastName"
-                  id="managerLastName"
-                  pInputText
-                  type="text" />
+                <input class="w-full" formControlName="managerLastName" id="managerLastName" pInputText type="text" />
               </div>
               <div class="form-field">
                 <label for="managerFirstName">Prénom(s) du Gérant</label>
-                <input
-                  class="w-full"
-                  formControlName="managerFirstName"
-                  id="managerFirstName"
-                  pInputText
-                  type="text" />
+                <input class="w-full" formControlName="managerFirstName" id="managerFirstName" pInputText type="text" />
               </div>
 
               <!-- Phone -->
               <div class="form-field">
                 <label for="phone">Téléphone</label>
-                <input
-                  class="w-full"
-                  formControlName="phone"
-                  id="phone"
-                  pInputText
-                  type="tel" />
+                <input class="w-full" formControlName="phone" id="phone" pInputText type="tel" />
               </div>
 
               <!-- Email -->
@@ -131,7 +113,8 @@
                   formControlName="email"
                   id="email"
                   pInputText
-                  type="email" />
+                  type="email"
+                />
                 @if (formControls['email'].invalid && formControls['email'].touched) {
                   <small class="p-error">Email invalide</small>
                 }
@@ -140,15 +123,13 @@
               <!-- Address (Full Width) -->
               <div class="form-field form-field-full">
                 <label for="address">Adresse</label>
-                <textarea class="w-full" formControlName="address" id="address" pTextarea
-                          rows="2"></textarea>
+                <textarea class="w-full" formControlName="address" id="address" pTextarea rows="2"></textarea>
               </div>
             </div>
           </p-card>
         </div>
 
         <div class="card-grid-2col mt-2">
-
           <!-- Section 3: Informations Administratives -->
           <p-card>
             <ng-template #header>
@@ -162,51 +143,31 @@
               <!-- Registre -->
               <div class="form-field">
                 <label for="registre">Registre de Commerce</label>
-                <input
-                  class="w-full"
-                  formControlName="registre"
-                  id="registre"
-                  pInputText />
+                <input class="w-full" formControlName="registre" id="registre" pInputText />
               </div>
 
               <!-- Compte Contribuable -->
               <div class="form-field">
                 <label for="compteContribuable">Compte Contribuable</label>
-                <input
-                  class="w-full"
-                  formControlName="compteContribuable"
-                  id="compteContribuable"
-                  pInputText />
+                <input class="w-full" formControlName="compteContribuable" id="compteContribuable" pInputText />
               </div>
 
               <!-- Num Comptable -->
               <div class="form-field">
                 <label for="numComptable">Numéro Comptable</label>
-                <input
-                  class="w-full"
-                  formControlName="numComptable"
-                  id="numComptable"
-                  pInputText />
+                <input class="w-full" formControlName="numComptable" id="numComptable" pInputText />
               </div>
 
               <!-- Compte Bancaire -->
               <div class="form-field">
                 <label for="compteBancaire">Compte Bancaire</label>
-                <input
-                  class="w-full"
-                  formControlName="compteBancaire"
-                  id="compteBancaire"
-                  pInputText />
+                <input class="w-full" formControlName="compteBancaire" id="compteBancaire" pInputText />
               </div>
 
               <!-- Registre Imposition -->
               <div class="form-field form-field-2col">
                 <label for="registreImposition">Registre d'Imposition</label>
-                <input
-                  class="w-full"
-                  formControlName="registreImposition"
-                  id="registreImposition"
-                  pInputText />
+                <input class="w-full" formControlName="registreImposition" id="registreImposition" pInputText />
               </div>
             </div>
           </p-card>
@@ -224,32 +185,30 @@
               <!-- Welcome Message -->
               <div class="form-field">
                 <label for="welcomeMessage">Message de Bienvenue</label>
-                <textarea class="w-full" formControlName="welcomeMessage" id="welcomeMessage" pTextarea
-                          rows="2"></textarea>
+                <textarea class="w-full" formControlName="welcomeMessage" id="welcomeMessage" pTextarea rows="2"></textarea>
               </div>
 
               <!-- Note -->
               <div class="form-field">
                 <label for="note">Notes</label>
-                <textarea class="w-full" formControlName="note" id="note" pTextarea
-                          rows="2"></textarea>
+                <textarea class="w-full" formControlName="note" id="note" pTextarea rows="2"></textarea>
               </div>
             </div>
           </p-card>
-
         </div>
 
-
         <div class="form-actions-compact">
-          <p-button (onClick)="cancel()" [text]="true" icon="pi pi-times" label="Annuler"
-                    severity="secondary" type="button"></p-button>
-          <p-button [disabled]="depotForm.invalid || isSaving" [label]="isEditMode ? 'Mettre à jour' : 'Créer'"
-                    [loading]="isSaving" icon="pi pi-check" severity="primary"
-                    type="submit"></p-button>
+          <p-button (onClick)="cancel()" [text]="true" icon="pi pi-times" label="Annuler" severity="secondary" type="button"></p-button>
+          <p-button
+            [disabled]="depotForm.invalid || isSaving"
+            [label]="isEditMode ? 'Mettre à jour' : 'Créer'"
+            [loading]="isSaving"
+            icon="pi pi-check"
+            severity="primary"
+            type="submit"
+          ></p-button>
         </div>
       </form>
     </div>
   </div>
 </div>
-
-

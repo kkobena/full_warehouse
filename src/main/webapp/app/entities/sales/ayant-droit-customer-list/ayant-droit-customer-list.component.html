@@ -1,32 +1,28 @@
 <div class="modal-header">
   <h4 class="modal-title">{{ header }}</h4>
 
-  <button (click)="cancel()" class="btn-close" data-dismiss="modal" type="button">
-    &times;
-  </button>
+  <button (click)="cancel()" class="btn-close" data-dismiss="modal" type="button">&times;</button>
 </div>
-
 
 <div class="modal-body">
   <p-card>
     <p-toolbar>
       <ng-template #end>
-        <p-button (click)="addAyantDroit()" icon="pi pi-user-plus" label="Ajouter un ayant droit"
-                  severity="primary" />
+        <p-button (click)="addAyantDroit()" icon="pi pi-user-plus" label="Ajouter un ayant droit" severity="primary" />
       </ng-template>
     </p-toolbar>
     @if (customers.length > 0) {
       <div class="table-responsive mt-1">
         <table class="table table-striped table-bordered table-hover">
           <thead class="pharma-table-head">
-          <tr>
-            <th style="width: 3%">#</th>
-            <th>Nom</th>
-            <th>Prénom(s)</th>
-            <th>Matricule</th>
-            <th>Date de naissance</th>
-            <th style="width: 8%">Actions</th>
-          </tr>
+            <tr>
+              <th style="width: 3%">#</th>
+              <th>Nom</th>
+              <th>Prénom(s)</th>
+              <th>Matricule</th>
+              <th>Date de naissance</th>
+              <th style="width: 8%">Actions</th>
+            </tr>
           </thead>
           <tbody>
             @for (ayantDroit of customers; track ayantDroit.id; let i = $index) {
@@ -37,8 +33,7 @@
                 <td>{{ ayantDroit.num }}</td>
                 <td>{{ ayantDroit.datNaiss | date: 'dd/MM/yyyy' }}</td>
                 <td class="text-center">
-                  <button type="button" class="btn btn-success btn-sm"
-                          (click)="onSelect(ayantDroit)">
+                  <button type="button" class="btn btn-success btn-sm" (click)="onSelect(ayantDroit)">
                     <i class="pi pi-check"></i>
                   </button>
                 </td>
@@ -51,11 +46,10 @@
       <div class="alert alert-warning">
         <strong>Aucun ayant droit trouvé.</strong>
       </div>
-    }</p-card>
+    }
+  </p-card>
 </div>
 
 <div class="modal-footer">
-  <p-button (click)="cancel()" [raised]="true" data-dismiss="modal" icon="pi pi-times"
-            label="Fermer"
-            severity="secondary" type="button" />
+  <p-button (click)="cancel()" [raised]="true" data-dismiss="modal" icon="pi pi-times" label="Fermer" severity="secondary" type="button" />
 </div>

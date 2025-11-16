@@ -4,7 +4,7 @@ import { MagasinService } from '../../magasin/magasin.service';
 import { HttpResponse } from '@angular/common/http';
 
 @Injectable({
-  providedIn: 'root'
+  providedIn: 'root',
 })
 export class DepotAgreeService {
   private magasinService = inject(MagasinService);
@@ -20,10 +20,12 @@ export class DepotAgreeService {
   }
 
   loadAllDepots(): void {
-    this.magasinService.fetchAllDepots({
-      types: ['DEPOT_AGGREE']
-    }).subscribe((res: HttpResponse<IMagasin[]>) => {
-      this.depots.set(res.body || []);
-    });
+    this.magasinService
+      .fetchAllDepots({
+        types: ['DEPOT_AGGREE'],
+      })
+      .subscribe((res: HttpResponse<IMagasin[]>) => {
+        this.depots.set(res.body || []);
+      });
   }
 }

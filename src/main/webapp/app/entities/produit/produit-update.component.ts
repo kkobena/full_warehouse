@@ -50,8 +50,8 @@ import { Toolbar } from 'primeng/toolbar';
     SelectModule,
     Card,
     Checkbox,
-    Toolbar
-  ]
+    Toolbar,
+  ],
 })
 export class ProduitUpdateComponent implements OnInit {
   protected isSaving = false;
@@ -70,7 +70,7 @@ export class ProduitUpdateComponent implements OnInit {
   protected categories = [
     { code: 'A', libelle: 'Produits à forte rotation', z: 1.96 },
     { code: 'B', libelle: 'Produits à rotation moyenne', z: 1.65 },
-    { code: 'C', libelle: 'Produits à faible rotation', z: 1.28 }
+    { code: 'C', libelle: 'Produits à faible rotation', z: 1.28 },
   ];
 
   protected readonly fb = inject(UntypedFormBuilder);
@@ -100,7 +100,7 @@ export class ProduitUpdateComponent implements OnInit {
     expirationDate: [],
     dciId: [],
     categorie: [],
-    codeEanLaboratoire: []
+    codeEanLaboratoire: [],
   });
   private readonly produitService = inject(ProduitService);
   private readonly activatedRoute = inject(ActivatedRoute);
@@ -140,7 +140,7 @@ export class ProduitUpdateComponent implements OnInit {
     this.tvaService
       .query({
         page: 0,
-        size: 9999
+        size: 9999,
       })
       .subscribe((res: HttpResponse<ITva[]>) => {
         this.tvas = res.body;
@@ -149,7 +149,7 @@ export class ProduitUpdateComponent implements OnInit {
     this.fournisseurService
       .query({
         page: 0,
-        size: 9999
+        size: 9999,
       })
       .subscribe((res: HttpResponse<IFournisseur[]>) => {
         this.fournisseurs = res.body;
@@ -157,7 +157,7 @@ export class ProduitUpdateComponent implements OnInit {
     this.rayonService
       .query({
         page: 0,
-        size: 9999
+        size: 9999,
       })
       .subscribe((res: HttpResponse<IRayon[]>) => {
         this.rayons = res.body;
@@ -168,7 +168,7 @@ export class ProduitUpdateComponent implements OnInit {
     this.gammeProduitService
       .query({
         page: 0,
-        size: 9999
+        size: 9999,
       })
       .subscribe((res: HttpResponse<IGammeProduit[]>) => {
         this.gammes = res.body || [];
@@ -176,7 +176,7 @@ export class ProduitUpdateComponent implements OnInit {
     this.familleService
       .query({
         page: 0,
-        size: 9999
+        size: 9999,
       })
       .subscribe((res: HttpResponse<IFamilleProduit[]>) => {
         this.familleProduits = res.body;
@@ -184,7 +184,7 @@ export class ProduitUpdateComponent implements OnInit {
     this.formeProduitService
       .query({
         page: 0,
-        size: 9999
+        size: 9999,
       })
       .subscribe((res: HttpResponse<IFormProduit[]>) => {
         this.formeProduits = res.body;
@@ -223,7 +223,7 @@ export class ProduitUpdateComponent implements OnInit {
       expirationDate: produit.expirationDate,
       formeId: produit.formeId,
       dciId: produit.dciId,
-      categorie: produit.categorie
+      categorie: produit.categorie,
     });
   }
 
@@ -314,7 +314,7 @@ export class ProduitUpdateComponent implements OnInit {
   protected subscribeToSaveResponse(result: Observable<HttpResponse<IProduit>>): void {
     result.subscribe({
       next: () => this.onSaveSuccess(),
-      error: () => this.onSaveError()
+      error: () => this.onSaveError(),
     });
   }
 
@@ -356,7 +356,7 @@ export class ProduitUpdateComponent implements OnInit {
       formeId: this.editForm.get(['formeId']).value,
       dciId: this.editForm.get(['dciId']).value,
       categorie: this.editForm.get(['categorie']).value,
-      codeEanLaboratoire: this.editForm.get(['codeEanLaboratoire']).value
+      codeEanLaboratoire: this.editForm.get(['codeEanLaboratoire']).value,
     };
   }
 }

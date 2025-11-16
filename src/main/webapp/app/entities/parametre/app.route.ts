@@ -8,9 +8,9 @@ const formeRoute: Routes = [
     loadComponent: () => import('./parametre.component').then(m => m.ParametreComponent),
     data: {
       authorities: [Authority.ADMIN, Authority.PARAMETRE],
-      defaultSort: 'id,asc'
+      defaultSort: 'id,asc',
     },
-    canActivate: [UserRouteAccessService]
-  }
+    canActivate: [UserRouteAccessService],
+  },
 ];
 export default formeRoute;

@@ -20,6 +20,8 @@ import jakarta.persistence.criteria.Join;
 import jakarta.persistence.criteria.JoinType;
 import jakarta.persistence.criteria.Predicate;
 import jakarta.persistence.criteria.Root;
+import java.util.ArrayList;
+import java.util.List;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
@@ -27,9 +29,6 @@ import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
-
-import java.util.ArrayList;
-import java.util.List;
 
 @Repository
 @Transactional(readOnly = true)
@@ -55,7 +54,10 @@ public class ThirdPartySaleLineCustomRepositoryImpl implements ThirdPartySaleLin
                     cb.sumAsLong(root.get(ThirdPartySaleLine_.montant))
                 )
             )
-            .groupBy(root.get(ThirdPartySaleLine_.clientTiersPayant).get(ClientTiersPayant_.tiersPayant).get(TiersPayant_.id), root.get(ThirdPartySaleLine_.clientTiersPayant).get(ClientTiersPayant_.tiersPayant).get(TiersPayant_.name))
+            .groupBy(
+                root.get(ThirdPartySaleLine_.clientTiersPayant).get(ClientTiersPayant_.tiersPayant).get(TiersPayant_.id),
+                root.get(ThirdPartySaleLine_.clientTiersPayant).get(ClientTiersPayant_.tiersPayant).get(TiersPayant_.name)
+            )
             .orderBy(cb.desc(sumExpr));
 
         Predicate predicate = specification.toPredicate(root, query, cb);
@@ -76,7 +78,10 @@ public class ThirdPartySaleLineCustomRepositoryImpl implements ThirdPartySaleLin
             query.where(predicate);
         }
 
-        Join<ThirdPartySaleLine, ClientTiersPayant> clientTiersPayantJoin = root.join(ThirdPartySaleLine_.clientTiersPayant, JoinType.INNER);
+        Join<ThirdPartySaleLine, ClientTiersPayant> clientTiersPayantJoin = root.join(
+            ThirdPartySaleLine_.clientTiersPayant,
+            JoinType.INNER
+        );
         Join<ClientTiersPayant, TiersPayant> tiersPayantJoin = clientTiersPayantJoin.join(ClientTiersPayant_.tiersPayant, JoinType.INNER);
         query.groupBy(tiersPayantJoin.get(TiersPayant_.id), tiersPayantJoin.get(TiersPayant_.fullName));
         query.select(
@@ -88,7 +93,6 @@ public class ThirdPartySaleLineCustomRepositoryImpl implements ThirdPartySaleLin
                 cb.count(root.get(ThirdPartySaleLine_.id))
             )
         );
-
 
         TypedQuery<TiersPayantDossierFactureDto> typedQuery = entityManager.createQuery(query);
         typedQuery.setFirstResult((int) pageable.getOffset());
@@ -106,7 +110,10 @@ public class ThirdPartySaleLineCustomRepositoryImpl implements ThirdPartySaleLin
         if (predicate != null) {
             query.where(predicate);
         }
-        Join<ThirdPartySaleLine, ClientTiersPayant> clientTiersPayantJoin = root.join(ThirdPartySaleLine_.clientTiersPayant, JoinType.INNER);
+        Join<ThirdPartySaleLine, ClientTiersPayant> clientTiersPayantJoin = root.join(
+            ThirdPartySaleLine_.clientTiersPayant,
+            JoinType.INNER
+        );
         Join<ClientTiersPayant, TiersPayant> tiersPayantJoin = clientTiersPayantJoin.join(ClientTiersPayant_.tiersPayant, JoinType.INNER);
         query.select(cb.countDistinct(tiersPayantJoin.get(TiersPayant_.id)));
 
@@ -122,7 +129,10 @@ public class ThirdPartySaleLineCustomRepositoryImpl implements ThirdPartySaleLin
         if (predicate != null) {
             query.where(predicate);
         }
-        Join<ThirdPartySaleLine, ClientTiersPayant> clientTiersPayantJoin = root.join(ThirdPartySaleLine_.clientTiersPayant, JoinType.INNER);
+        Join<ThirdPartySaleLine, ClientTiersPayant> clientTiersPayantJoin = root.join(
+            ThirdPartySaleLine_.clientTiersPayant,
+            JoinType.INNER
+        );
         Join<ClientTiersPayant, TiersPayant> tiersPayantJoin = clientTiersPayantJoin.join(ClientTiersPayant_.tiersPayant, JoinType.INNER);
         Join<TiersPayant, GroupeTiersPayant> groupeTiersPayantJoin = tiersPayantJoin.join(TiersPayant_.groupeTiersPayant, JoinType.INNER);
         query.select(cb.countDistinct(groupeTiersPayantJoin.get(GroupeTiersPayant_.id)));
@@ -140,7 +150,10 @@ public class ThirdPartySaleLineCustomRepositoryImpl implements ThirdPartySaleLin
         if (predicate != null) {
             query.where(predicate);
         }
-        Join<ThirdPartySaleLine, ClientTiersPayant> clientTiersPayantJoin = root.join(ThirdPartySaleLine_.clientTiersPayant, JoinType.INNER);
+        Join<ThirdPartySaleLine, ClientTiersPayant> clientTiersPayantJoin = root.join(
+            ThirdPartySaleLine_.clientTiersPayant,
+            JoinType.INNER
+        );
         Join<ClientTiersPayant, TiersPayant> tiersPayantJoin = clientTiersPayantJoin.join(ClientTiersPayant_.tiersPayant, JoinType.INNER);
         Join<TiersPayant, GroupeTiersPayant> groupeTiersPayantJoin = tiersPayantJoin.join(TiersPayant_.groupeTiersPayant, JoinType.INNER);
         query.groupBy(groupeTiersPayantJoin.get(GroupeTiersPayant_.id), groupeTiersPayantJoin.get(GroupeTiersPayant_.name));
@@ -153,7 +166,6 @@ public class ThirdPartySaleLineCustomRepositoryImpl implements ThirdPartySaleLin
                 cb.count(root.get(ThirdPartySaleLine_.id))
             )
         );
-
 
         TypedQuery<TiersPayantDossierFactureDto> typedQuery = entityManager.createQuery(query);
         typedQuery.setFirstResult((int) pageable.getOffset());
@@ -170,7 +182,6 @@ public class ThirdPartySaleLineCustomRepositoryImpl implements ThirdPartySaleLin
         Root<ThirdPartySaleLine> root = cq.from(ThirdPartySaleLine.class);
         Predicate predicate = specification.toPredicate(root, cq, cb);
 
-
         cq.select(
             cb.construct(
                 AchatTiersPayant.class,
@@ -182,16 +193,16 @@ public class ThirdPartySaleLineCustomRepositoryImpl implements ThirdPartySaleLin
             )
         );
 
-
-
         if (predicate != null) {
             cq.where(predicate);
         }
 
         // Group by
-        cq.groupBy(root.get(ThirdPartySaleLine_.clientTiersPayant).get(ClientTiersPayant_.tiersPayant).get(TiersPayant_.fullName),
+        cq.groupBy(
+            root.get(ThirdPartySaleLine_.clientTiersPayant).get(ClientTiersPayant_.tiersPayant).get(TiersPayant_.fullName),
             root.get(ThirdPartySaleLine_.clientTiersPayant).get(ClientTiersPayant_.tiersPayant).get(TiersPayant_.id),
-            root.get(ThirdPartySaleLine_.clientTiersPayant).get(ClientTiersPayant_.tiersPayant).get(TiersPayant_.categorie));
+            root.get(ThirdPartySaleLine_.clientTiersPayant).get(ClientTiersPayant_.tiersPayant).get(TiersPayant_.categorie)
+        );
 
         // Query
         TypedQuery<AchatTiersPayant> query = entityManager.createQuery(cq);
@@ -202,7 +213,7 @@ public class ThirdPartySaleLineCustomRepositoryImpl implements ThirdPartySaleLin
         return new PageImpl<>(resultList, pageable, fetchAchatsTiersPayant(specification));
     }
 
-    private  long fetchAchatsTiersPayant(Specification<ThirdPartySaleLine> specification){
+    private long fetchAchatsTiersPayant(Specification<ThirdPartySaleLine> specification) {
         CriteriaBuilder cb = entityManager.getCriteriaBuilder();
 
         CriteriaQuery<Long> cq = cb.createQuery(Long.class);
@@ -212,6 +223,6 @@ public class ThirdPartySaleLineCustomRepositoryImpl implements ThirdPartySaleLin
             cq.where(predicate);
         }
         cq.select(cb.count(root));
-    return     entityManager.createQuery(cq).getSingleResult();
+        return entityManager.createQuery(cq).getSingleResult();
     }
 }

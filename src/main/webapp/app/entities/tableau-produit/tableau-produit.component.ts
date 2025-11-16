@@ -30,8 +30,8 @@ import { FormTableauComponent } from './form-tableau/form-tableau.component';
     TableModule,
     TooltipModule,
     Panel,
-    ConfirmDialogComponent
-  ]
+    ConfirmDialogComponent,
+  ],
 })
 export class TableauProduitComponent implements OnInit {
   protected fileDialog?: boolean;
@@ -59,7 +59,7 @@ export class TableauProduitComponent implements OnInit {
     this.loading = true;
     this.entityService.query().subscribe({
       next: (res: HttpResponse<ITableau[]>) => this.onSuccess(res.body),
-      error: () => this.onError()
+      error: () => this.onError(),
     });
   }
 
@@ -75,7 +75,7 @@ export class TableauProduitComponent implements OnInit {
         });
       },
       'Confirmation',
-      'Voulez-vous supprimer cet enregistrement ?'
+      'Voulez-vous supprimer cet enregistrement ?',
     );
   }
 
@@ -83,7 +83,7 @@ export class TableauProduitComponent implements OnInit {
     const modalRef = this.ngModalService.open(FormTableauComponent, {
       backdrop: 'static',
       size: 'lg',
-      centered: true
+      centered: true,
     });
     modalRef.componentInstance.entity = null;
     modalRef.componentInstance.header = 'Ajouter un tableau';
@@ -97,7 +97,7 @@ export class TableauProduitComponent implements OnInit {
     const modalRef = this.ngModalService.open(FormTableauComponent, {
       backdrop: 'static',
       size: 'lg',
-      centered: true
+      centered: true,
     });
     modalRef.componentInstance.entity = entity;
     modalRef.componentInstance.header = `Modifier un tableau [ ${entity.code} ]`;

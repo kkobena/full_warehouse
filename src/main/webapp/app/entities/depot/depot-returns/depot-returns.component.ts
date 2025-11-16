@@ -41,11 +41,11 @@ import { StockDepotService } from '../stock-depot/stock-depot.service';
     ToastModule,
     WarehouseCommonModule,
     QuantiteProdutSaisieComponent,
-    Tooltip
+    Tooltip,
   ],
   providers: [MessageService],
   templateUrl: './depot-returns.component.html',
-  styleUrl: './depot-returns.component.scss'
+  styleUrl: './depot-returns.component.scss',
 })
 export class DepotReturnsComponent implements OnInit, OnDestroy {
   private readonly retourDepotService = inject(RetourDepotService);
@@ -76,9 +76,7 @@ export class DepotReturnsComponent implements OnInit, OnDestroy {
     this.loadDepots();
 
     // Setup debounced search for products
-    this.searchSubscription = this.searchTrigger$
-      .pipe(debounceTime(300))
-      .subscribe(search => this.filterProducts(search));
+    this.searchSubscription = this.searchTrigger$.pipe(debounceTime(300)).subscribe(search => this.filterProducts(search));
   }
 
   ngOnDestroy(): void {
@@ -86,20 +84,18 @@ export class DepotReturnsComponent implements OnInit, OnDestroy {
   }
 
   protected loadDepots(): void {
-    this.magasinService
-      .fetchAllDepots()
-      .subscribe({
-        next: (res: HttpResponse<IMagasin[]>) => {
-          this.depots.set(res.body || []);
-        },
-        error: () => {
-          this.messageService.add({
-            severity: 'error',
-            summary: 'Erreur',
-            detail: 'Erreur lors du chargement des dépôts'
-          });
-        }
-      });
+    this.magasinService.fetchAllDepots().subscribe({
+      next: (res: HttpResponse<IMagasin[]>) => {
+        this.depots.set(res.body || []);
+      },
+      error: () => {
+        this.messageService.add({
+          severity: 'error',
+          summary: 'Erreur',
+          detail: 'Erreur lors du chargement des dépôts',
+        });
+      },
+    });
   }
 
   protected onDepotChange(): void {
@@ -114,21 +110,19 @@ export class DepotReturnsComponent implements OnInit, OnDestroy {
   }
 
   protected loadProducts(depotId: number): void {
-    this.stockDepotService
-      .query({ magasinId: depotId })
-      .subscribe({
-        next: (res: HttpResponse<IProduit[]>) => {
-          this.products.set(res.body || []);
-          this.filteredProducts.set(res.body || []);
-        },
-        error: () => {
-          this.messageService.add({
-            severity: 'error',
-            summary: 'Erreur',
-            detail: 'Erreur lors du chargement des produits'
-          });
-        }
-      });
+    this.stockDepotService.query({ magasinId: depotId }).subscribe({
+      next: (res: HttpResponse<IProduit[]>) => {
+        this.products.set(res.body || []);
+        this.filteredProducts.set(res.body || []);
+      },
+      error: () => {
+        this.messageService.add({
+          severity: 'error',
+          summary: 'Erreur',
+          detail: 'Erreur lors du chargement des produits',
+        });
+      },
+    });
   }
 
   protected searchProducts(event: any): void {
@@ -138,10 +132,7 @@ export class DepotReturnsComponent implements OnInit, OnDestroy {
   protected filterProducts(search: string): void {
     const searchLower = search.toLowerCase();
     const filtered = this.products().filter(product => {
-      return (
-        product.codeCip?.toLowerCase().includes(searchLower) ||
-        product.libelle?.toLowerCase().includes(searchLower)
-      );
+      return product.codeCip?.toLowerCase().includes(searchLower) || product.libelle?.toLowerCase().includes(searchLower);
     });
     this.filteredProducts.set(filtered);
   }
@@ -171,7 +162,7 @@ export class DepotReturnsComponent implements OnInit, OnDestroy {
       this.messageService.add({
         severity: 'warn',
         summary: 'Attention',
-        detail: 'Veuillez sélectionner un produit'
+        detail: 'Veuillez sélectionner un produit',
       });
       return;
     }
@@ -180,7 +171,7 @@ export class DepotReturnsComponent implements OnInit, OnDestroy {
       this.messageService.add({
         severity: 'warn',
         summary: 'Attention',
-        detail: 'La quantité doit être supérieure à 0'
+        detail: 'La quantité doit être supérieure à 0',
       });
       return;
     }
@@ -190,7 +181,7 @@ export class DepotReturnsComponent implements OnInit, OnDestroy {
       this.messageService.add({
         severity: 'warn',
         summary: 'Attention',
-        detail: `La quantité ne peut pas dépasser ${maxQuantity}`
+        detail: `La quantité ne peut pas dépasser ${maxQuantity}`,
       });
       return;
     }
@@ -200,16 +191,14 @@ export class DepotReturnsComponent implements OnInit, OnDestroy {
     this.messageService.add({
       severity: 'success',
       summary: 'Succès',
-      detail: 'Ligne ajoutée aux retours'
+      detail: 'Ligne ajoutée aux retours',
     });
 
     this.focusProductInput();
   }
 
   private createReturnItem(product: IProduit, quantity: number): void {
-    const existingItemIndex = this.retourDepotItems().findIndex(item =>
-      item.produitId === product.id
-    );
+    const existingItemIndex = this.retourDepotItems().findIndex(item => item.produitId === product.id);
 
     if (existingItemIndex !== -1) {
       this.retourDepotItems.update(items => {
@@ -222,7 +211,7 @@ export class DepotReturnsComponent implements OnInit, OnDestroy {
           this.messageService.add({
             severity: 'warn',
             summary: 'Attention',
-            detail: `La quantité totale ne peut pas dépasser ${maxQuantity}. Quantité ajustée.`
+            detail: `La quantité totale ne peut pas dépasser ${maxQuantity}. Quantité ajustée.`,
           });
           existingItem.qtyMvt = maxQuantity;
         } else {
@@ -264,7 +253,7 @@ export class DepotReturnsComponent implements OnInit, OnDestroy {
       this.messageService.add({
         severity: 'warn',
         summary: 'Attention',
-        detail: `La quantité de retour ne peut pas dépasser ${maxQuantity}`
+        detail: `La quantité de retour ne peut pas dépasser ${maxQuantity}`,
       });
     }
     if (item.qtyMvt && item.qtyMvt < 1) {
@@ -288,7 +277,7 @@ export class DepotReturnsComponent implements OnInit, OnDestroy {
       this.messageService.add({
         severity: 'error',
         summary: 'Erreur',
-        detail: 'Veuillez remplir tous les champs requis'
+        detail: 'Veuillez remplir tous les champs requis',
       });
       return;
     }
@@ -300,26 +289,29 @@ export class DepotReturnsComponent implements OnInit, OnDestroy {
 
     this.isSaving.set(true);
 
-    this.retourDepotService.create(retourDepot).pipe(finalize(() => this.isSaving.set(false))).subscribe({
-      next: () => {
-        this.messageService.add({
-          severity: 'success',
-          summary: 'Succès',
-          detail: 'Retour dépôt créé avec succès'
-        });
-        this.reset();
-        setTimeout(() => {
-          this.navigateToList();
-        }, 1500);
-      },
-      error: () => {
-        this.messageService.add({
-          severity: 'error',
-          summary: 'Erreur',
-          detail: 'Erreur lors de la création du retour dépôt'
-        });
-      }
-    });
+    this.retourDepotService
+      .create(retourDepot)
+      .pipe(finalize(() => this.isSaving.set(false)))
+      .subscribe({
+        next: () => {
+          this.messageService.add({
+            severity: 'success',
+            summary: 'Succès',
+            detail: 'Retour dépôt créé avec succès',
+          });
+          this.reset();
+          setTimeout(() => {
+            this.navigateToList();
+          }, 1500);
+        },
+        error: () => {
+          this.messageService.add({
+            severity: 'error',
+            summary: 'Erreur',
+            detail: 'Erreur lors de la création du retour dépôt',
+          });
+        },
+      });
   }
 
   protected navigateToList(): void {

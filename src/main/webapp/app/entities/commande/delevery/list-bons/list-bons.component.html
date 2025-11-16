@@ -70,10 +70,8 @@
         <td class="text-right">
           <div class="btn-group">
             @if (row.statut === 'PENDING0') {
-              <p-button [text]="true" icon="pi pi-pencil" severity="success" [rounded]="true"
-                        pTooltip="Editer"></p-button>
+              <p-button [text]="true" icon="pi pi-pencil" severity="success" [rounded]="true" pTooltip="Editer"></p-button>
             }
-
 
             <p-button
               [text]="true"
@@ -108,63 +106,61 @@
               <span>DÉTAILS DU BON DE LIVRAISON</span>
             </div>
             <div class="pharma-sub-table-body">
-            <p-table
-              [paginator]="true"
-              [rowsPerPageOptions]="[10, 25, 50]"
-              [rows]="10"
-              [showCurrentPageReport]="true"
-              [value]="item.receiptItems"
-              currentPageReportTemplate="Affichage de {first} à {last} sur {totalRecords} elements"
-            >
-              <ng-template #header>
-                <tr class="pharma-table-head">
-                  <th>#</th>
-                  <th pSortableColumn="fournisseurProduitCip">
-                    Code
-                    <p-sortIcon field="fournisseurProduitCip"></p-sortIcon>
-                  </th>
-                  <th pSortableColumn="fournisseurProduitLibelle">
-                    Libellé
-                    <p-sortIcon field="fournisseurProduitLibelle"></p-sortIcon>
-                  </th>
-                  <th>Stock.Init</th>
-                  <th>Stock.final</th>
-                  <th>Qté.Livrée</th>
-                  <th>Prix.Achat</th>
-                  <th>Prix.Vente</th>
-                </tr>
-              </ng-template>
-              <ng-template let-receiptItem let-rowIndex="rowIndex" #body>
-                <tr>
-                  <td style="text-align: left">
-                    <span class="pharma-row-number">{{ rowIndex + 1 }}</span>
-                  </td>
-                  <td>
-                    <span class="pharma-code">{{
-                      receiptItem.fournisseurProduitEan || receiptItem.fournisseurProduitCip
-                    }}</span>
-                  </td>
-                  <td>
-                    <div class="pharma-product-name">{{ receiptItem.fournisseurProduitLibelle }}</div>
-                  </td>
-                  <td class="text-right">
-                    <span class="pharma-qty-value">{{ receiptItem.initStock | number }}</span>
-                  </td>
-                  <td class="text-right">
-                    <span class="pharma-qty-value">{{ receiptItem.afterStock | number }}</span>
-                  </td>
-                  <td class="text-right">
-                    <span class="pharma-qty-value">{{ receiptItem.quantityReceived | number }}</span>
-                  </td>
-                  <td class="text-right">
-                    <span class="pharma-price">{{ receiptItem.orderCostAmount | number }}</span>
-                  </td>
-                  <td class="text-right">
-                    <span class="pharma-price">{{ receiptItem.orderUnitPrice | number }}</span>
-                  </td>
-                </tr>
-              </ng-template>
-            </p-table>
+              <p-table
+                [paginator]="true"
+                [rowsPerPageOptions]="[10, 25, 50]"
+                [rows]="10"
+                [showCurrentPageReport]="true"
+                [value]="item.receiptItems"
+                currentPageReportTemplate="Affichage de {first} à {last} sur {totalRecords} elements"
+              >
+                <ng-template #header>
+                  <tr class="pharma-table-head">
+                    <th>#</th>
+                    <th pSortableColumn="fournisseurProduitCip">
+                      Code
+                      <p-sortIcon field="fournisseurProduitCip"></p-sortIcon>
+                    </th>
+                    <th pSortableColumn="fournisseurProduitLibelle">
+                      Libellé
+                      <p-sortIcon field="fournisseurProduitLibelle"></p-sortIcon>
+                    </th>
+                    <th>Stock.Init</th>
+                    <th>Stock.final</th>
+                    <th>Qté.Livrée</th>
+                    <th>Prix.Achat</th>
+                    <th>Prix.Vente</th>
+                  </tr>
+                </ng-template>
+                <ng-template let-receiptItem let-rowIndex="rowIndex" #body>
+                  <tr>
+                    <td style="text-align: left">
+                      <span class="pharma-row-number">{{ rowIndex + 1 }}</span>
+                    </td>
+                    <td>
+                      <span class="pharma-code">{{ receiptItem.fournisseurProduitEan || receiptItem.fournisseurProduitCip }}</span>
+                    </td>
+                    <td>
+                      <div class="pharma-product-name">{{ receiptItem.fournisseurProduitLibelle }}</div>
+                    </td>
+                    <td class="text-right">
+                      <span class="pharma-qty-value">{{ receiptItem.initStock | number }}</span>
+                    </td>
+                    <td class="text-right">
+                      <span class="pharma-qty-value">{{ receiptItem.afterStock | number }}</span>
+                    </td>
+                    <td class="text-right">
+                      <span class="pharma-qty-value">{{ receiptItem.quantityReceived | number }}</span>
+                    </td>
+                    <td class="text-right">
+                      <span class="pharma-price">{{ receiptItem.orderCostAmount | number }}</span>
+                    </td>
+                    <td class="text-right">
+                      <span class="pharma-price">{{ receiptItem.orderUnitPrice | number }}</span>
+                    </td>
+                  </tr>
+                </ng-template>
+              </p-table>
             </div>
           </div>
         </td>

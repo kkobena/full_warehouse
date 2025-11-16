@@ -1,20 +1,21 @@
 package com.kobe.warehouse.service.stock.dto;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+import java.util.List;
 import org.springframework.util.CollectionUtils;
 
-import java.util.List;
-
-public record ProduitSearch(Long id,
-                            Long codecipprincipalid,
-                            String libelle,
-                            String codeeanlabo,
-                            Long parentid,
-                            boolean deconditionnable,
-                            Integer itemqty,
-                            List<ProduitFournisseurSearch> fournisseurs,
-                            List<ProduitRayonSearch> rayons,
-                            List<ProduitStockSearch> stocks) {
+public record ProduitSearch(
+    Long id,
+    Long codecipprincipalid,
+    String libelle,
+    String codeeanlabo,
+    Long parentid,
+    boolean deconditionnable,
+    Integer itemqty,
+    List<ProduitFournisseurSearch> fournisseurs,
+    List<ProduitRayonSearch> rayons,
+    List<ProduitStockSearch> stocks
+) {
     @JsonProperty("totalQuantity")
     public int totalQuantity() {
         return CollectionUtils.isEmpty(stocks) ? 0 : stocks.stream().mapToInt(ProduitStockSearch::quantite).sum();
@@ -49,5 +50,4 @@ public record ProduitSearch(Long id,
     public Long parentId() {
         return parentid;
     }
-
 }

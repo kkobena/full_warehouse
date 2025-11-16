@@ -1,427 +1,434 @@
+<div class="pharma-smart-content p-2">
+  <!-- Modern Pharma Toolbar ---->
+  <div class="pharma-toolbar">
+    <div class="pharma-toolbar-header">
+      <i class="pi pi-chart-bar"></i>
+      <span class="pharma-toolbar-title">Résumé d'activité</span>
+    </div>
 
-  <div class="pharma-smart-content p-2">
-    <!-- Modern Pharma Toolbar ---->
-    <div class="pharma-toolbar">
-      <div class="pharma-toolbar-header">
-        <i class="pi pi-chart-bar"></i>
-        <span class="pharma-toolbar-title">Résumé d'activité</span>
+    <p-toolbar>
+      <ng-template #start>
+        <div class="pharma-toolbar-filters">
+          <p-floatlabel variant="on" class="mr-2">
+            <p-datePicker
+              [(ngModel)]="fromDate"
+              [iconDisplay]="'input'"
+              [selectOtherMonths]="true"
+              [showButtonBar]="true"
+              [showIcon]="true"
+              dateFormat="dd/mm/yy"
+              id="du"
+              inputId="du"
+              appendTo="body"
+            />
+            <label for="du">Du</label>
+          </p-floatlabel>
+
+          <p-floatlabel variant="on" class="mr-2">
+            <p-datePicker
+              [(ngModel)]="toDate"
+              [iconDisplay]="'input'"
+              [selectOtherMonths]="true"
+              [showButtonBar]="true"
+              [showIcon]="true"
+              dateFormat="dd/mm/yy"
+              id="au"
+              inputId="au"
+              appendTo="body"
+            />
+            <label for="au">Au</label>
+          </p-floatlabel>
+        </div>
+      </ng-template>
+
+      <ng-template #end>
+        <div class="pharma-toolbar-actions">
+          <div class="pharma-button-group">
+            <p-button
+              (click)="loadAll()"
+              [loading]="loadingBtn()"
+              [raised]="true"
+              icon="pi pi-search"
+              label="Rechercher"
+              pTooltip="Rechercher"
+              severity="info"
+              tooltipPosition="top"
+            />
+
+            <p-button
+              (click)="printAll()"
+              [loading]="loadingPdf"
+              [raised]="true"
+              icon="pi pi-file-pdf"
+              label="Imprimer"
+              pTooltip="Imprimer"
+              severity="warn"
+              tooltipPosition="top"
+            />
+          </div>
+        </div>
+      </ng-template>
+    </p-toolbar>
+  </div>
+
+  <div class="mt-3 row mb3 pharma-smart">
+    @if (chiffreAffaire) {
+      <div class="row mb-3">
+        @let ca = chiffreAffaire.chiffreAffaire;
+        @if (ca) {
+          <div class="col">
+            <p-card>
+              <ng-template #title>
+                <div class="card-title primary-title">
+                  <i class="pi pi-money-bill mr-2"></i>
+                  Chiffre d'affaires
+                </div>
+              </ng-template>
+              <div class="grid">
+                <div class="col-12">
+                  <div class="field">
+                    <label>Montant Ttc</label>
+                    <span>{{ ca.montantTtc | number }}</span>
+                  </div>
+
+                  <div class="field">
+                    <label>Montant Tva</label>
+                    <span>{{ ca.montantTva | number }}</span>
+                  </div>
+                  <div class="field">
+                    <label>Montant Ht</label>
+                    <span>{{ ca.montantHt | number }}</span>
+                  </div>
+                  <div class="field">
+                    <label>Montant remise</label>
+                    <span>{{ ca.montantRemise | number }}</span>
+                  </div>
+
+                  <div class="field">
+                    <label>Montant net</label>
+                    <span>{{ ca.montantNet | number }}</span>
+                  </div>
+                  <div class="field">
+                    <label>Montant espèce</label>
+                    <span>{{ ca.montantEspece | number }}</span>
+                  </div>
+                  <div class="field">
+                    <label>Montant autres règlement</label>
+                    <span>{{ ca.montantAutreModePaiement | number }}</span>
+                  </div>
+                  <div class="field">
+                    <label>Montant crédit</label>
+                    <span>{{ ca.montantCredit | number }}</span>
+                  </div>
+                  <div class="field">
+                    <label>Marge</label>
+                    <span>{{ ca.marge | number }}</span>
+                  </div>
+                </div>
+              </div>
+            </p-card>
+          </div>
+        }
+        @let achat = chiffreAffaire.achats;
+        @if (achat) {
+          <div class="col">
+            <p-card>
+              <ng-template #title>
+                <div class="card-title secondary-title">
+                  <i class="pi pi-truck mr-2"></i>
+                  Total des achats
+                </div>
+              </ng-template>
+              <div class="grid">
+                <div class="col-12">
+                  <div class="field">
+                    <label>Montant Ttc</label>
+                    <span>{{ achat.montantTtc | number }}</span>
+                  </div>
+
+                  <div class="field">
+                    <label>Montant Tva</label>
+                    <span>{{ achat.montantTva | number }}</span>
+                  </div>
+
+                  <div class="field">
+                    <label>Montant Ht</label>
+                    <span>{{ achat.montantHt | number }}</span>
+                  </div>
+                </div>
+              </div>
+            </p-card>
+          </div>
+        }
+        @let recettes = chiffreAffaire.recettes;
+        @if (recettes) {
+          <div class="col">
+            <p-card>
+              <ng-template #title>
+                <div class="card-title info-title">
+                  <i class="pi pi-wallet mr-2"></i>
+                  Recettes
+                </div>
+              </ng-template>
+              <div class="grid">
+                <div class="col-12">
+                  @for (recette of recettes; track $index) {
+                    <div class="field">
+                      <label>{{ recette.modePaimentLibelle }}</label>
+                      <span>{{ recette.montantReel | number }}</span>
+                    </div>
+                  }
+                </div>
+              </div>
+
+              @let total = getRecetteTotal();
+              @if (total) {
+                <div class="ws-card-footer">
+                  <div class="grid">
+                    <div class="col-12">
+                      <div class="field">
+                        <label class="fs-4">Total</label>
+                        <span class="fs-4">{{ total | number }}</span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              }
+            </p-card>
+          </div>
+        }
+        @let mvts = chiffreAffaire.mouvementCaisses;
+        @if (mvts) {
+          <div class="col">
+            <p-card>
+              <ng-template #title>
+                <div class="card-title warn-title">
+                  <i class="pi pi-info-circle mr-2"></i>
+                  Mouvements de caisse
+                </div>
+              </ng-template>
+              <div class="grid">
+                <div class="col-12">
+                  @for (mvt of mvts; track $index) {
+                    <div class="field">
+                      <label>{{ mvt.libelle }}</label>
+                      <span>{{ mvt.montant | number }}</span>
+                    </div>
+                  }
+                </div>
+              </div>
+
+              @let totalMvts = getTotalMouvementCaisse();
+              @if (totalMvts) {
+                <div class="ws-card-footer">
+                  <div class="grid">
+                    <div class="col-12">
+                      <div class="field">
+                        <label class="fs-4">Total</label>
+                        <span class="fs-4">{{ totalMvts | number }}</span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              }
+            </p-card>
+          </div>
+        }
       </div>
+    }
 
-      <p-toolbar>
-        <ng-template #start>
-          <div class="pharma-toolbar-filters">
-            <p-floatlabel variant="on" class="mr-2">
-              <p-datePicker
-                [(ngModel)]="fromDate"
-                [iconDisplay]="'input'"
-                [selectOtherMonths]="true"
-                [showButtonBar]="true"
-                [showIcon]="true"
-                dateFormat="dd/mm/yy"
-                id="du"
-                inputId="du"
-                appendTo="body"
-              />
-              <label for="du">Du</label>
-            </p-floatlabel>
+    @if (groupeFournisseurAchats && groupeFournisseurAchats.length) {
+      <div class="row mb-3">
+        <p-card>
+          <ng-template #title>
+            <div class="card-title primary-title">
+              <i class="pi pi-building mr-2"></i>
+              Achats par groupe fournisseur
+            </div>
+          </ng-template>
 
-            <p-floatlabel variant="on" class="mr-2">
-              <p-datePicker
-                [(ngModel)]="toDate"
-                [iconDisplay]="'input'"
-                [selectOtherMonths]="true"
-                [showButtonBar]="true"
-                [showIcon]="true"
-                dateFormat="dd/mm/yy"
-                id="au"
-                inputId="au"
-                appendTo="body"
-              />
-              <label for="au">Au</label>
-            </p-floatlabel>
+          <p-table
+            class="pharma-table"
+            #tbGroupeFournisseur
+            [globalFilterFields]="['libelle']"
+            [value]="groupeFournisseurAchats"
+            dataKey="libelle"
+            [rows]="10"
+            [paginator]="true"
+            [rowsPerPageOptions]="[10, 15, 20]"
+          >
+            <ng-template #header>
+              <tr class="pharma-table-head">
+                <th scope="col">Groupe fournisseur</th>
+                <th scope="col">Montant Ttc</th>
+                <th scope="col">Montant Tva</th>
+                <th scope="col">Montant Ht</th>
+              </tr>
+            </ng-template>
+            <ng-template let-groupe #body>
+              <tr>
+                <td>
+                  <span class="pharma-entity-name">{{ groupe.libelle }}</span>
+                </td>
+
+                <td class="text-right">
+                  <span class="pharma-price">{{ groupe.montantTtc | number }}</span>
+                </td>
+                <td class="text-right">
+                  <span class="pharma-price">{{ groupe.montantTva | number }}</span>
+                </td>
+                <td class="text-right">
+                  <span class="pharma-price">{{ groupe.montantHt | number }}</span>
+                </td>
+              </tr>
+            </ng-template>
+          </p-table>
+        </p-card>
+      </div>
+    }
+    @if (reglementTiersPayants && reglementTiersPayants.length) {
+      <div class="row mb-3">
+        <p-card>
+          <ng-template #title>
+            <div class="card-title info-title">
+              <i class="pi pi-lightbulb mr-2"></i>
+              Règlements tiers payants
+            </div>
+          </ng-template>
+
+          <div class="card-body">
+            <div class="table-responsive">
+              <p-table
+                class="pharma-table"
+                #tbReglementTiersPayants
+                [globalFilterFields]="['libelle']"
+                [value]="reglementTiersPayants"
+                dataKey="libelle"
+                [rows]="10"
+                [paginator]="true"
+                stripedRows="true"
+                [rowsPerPageOptions]="[10, 15, 20]"
+              >
+                <ng-template #caption>
+                  <div class="d-flex">
+                    <p-iconfield>
+                      <p-inputicon styleClass="pi pi-search" />
+                      <input
+                        (input)="tbReglementTiersPayants.filterGlobal($event.target.value, 'contains')"
+                        pInputText
+                        placeholder="Filtrer"
+                        type="text"
+                        [(ngModel)]="searchReglement"
+                      />
+                    </p-iconfield>
+                  </div>
+                </ng-template>
+                <ng-template #header>
+                  <tr class="pharma-table-head">
+                    <th scope="col">Tiers-payant</th>
+                    <th scope="col">Catégorie</th>
+                    <th scope="col">Numéro facture</th>
+                    <th scope="col">Montant facture</th>
+                    <th scope="col">Montant règlé</th>
+                    <th scope="col">Montant restant</th>
+                  </tr>
+                </ng-template>
+                <ng-template let-reglement #body>
+                  <tr>
+                    <td>
+                      <span class="pharma-entity-name">{{ reglement.libelle }}</span>
+                    </td>
+                    <td>{{ reglement.type }}</td>
+
+                    <td class="text-right">
+                      <span class="pharma-code">{{ reglement.factureNumber }}</span>
+                    </td>
+                    <td class="text-right">
+                      <span class="pharma-price">{{ reglement.montantFacture | number }}</span>
+                    </td>
+                    <td class="text-right">
+                      <span class="pharma-price">{{ reglement.montantReglement | number }}</span>
+                    </td>
+                    <td class="text-right">
+                      <span class="pharma-total">{{ reglement.montantRestant | number }}</span>
+                    </td>
+                  </tr>
+                </ng-template>
+              </p-table>
+            </div>
           </div>
-        </ng-template>
+        </p-card>
+      </div>
+    }
 
-        <ng-template #end>
-          <div class="pharma-toolbar-actions">
-            <div class="pharma-button-group">
-              <p-button
-                (click)="loadAll()"
-                [loading]="loadingBtn()"
-                [raised]="true"
-                icon="pi pi-search"
-                label="Rechercher"
-                pTooltip="Rechercher"
-                severity="info"
-                tooltipPosition="top"
-              />
+    @if (achatTiersPayant && achatTiersPayant.length) {
+      <div class="row">
+        <p-card>
+          <ng-template #title>
+            <div class="card-title warn-title">
+              <i class="pi pi-credit-card mr-2"></i>
+              Crédits accordés
+            </div>
+          </ng-template>
 
-              <p-button
-                (click)="printAll()"
-                [loading]="loadingPdf"
-                [raised]="true"
-                icon="pi pi-file-pdf"
-                label="Imprimer"
-                pTooltip="Imprimer"
-                severity="warn"
-                tooltipPosition="top"
-              />
+          <div class="card-body">
+            <div class="table-responsive">
+              <p-table
+                class="pharma-table"
+                #tb
+                [globalFilterFields]="['libelle']"
+                [value]="achatTiersPayant"
+                dataKey="libelle"
+                [rows]="10"
+                [paginator]="true"
+                [rowsPerPageOptions]="[10, 15, 20]"
+              >
+                <ng-template #caption>
+                  <div class="d-flex">
+                    <p-iconfield>
+                      <p-inputicon styleClass="pi pi-search" />
+                      <input
+                        [(ngModel)]="searchAchat"
+                        (input)="tb.filterGlobal($event.target.value, 'contains')"
+                        pInputText
+                        placeholder="Filtrer"
+                        type="text"
+                      />
+                    </p-iconfield>
+                  </div>
+                </ng-template>
+                <ng-template #header>
+                  <tr class="pharma-table-head">
+                    <th scope="col">Tiers-payant</th>
+                    <th scope="col">Catégorie</th>
+                    <th scope="col">Nombre de bon</th>
+                    <th scope="col">Montant</th>
+                    <th scope="col">Nombre de client</th>
+                  </tr>
+                </ng-template>
+                <ng-template let-tp #body>
+                  <tr>
+                    <td>
+                      <span class="pharma-entity-name">{{ tp.libelle }}</span>
+                    </td>
+                    <td>{{ tp.categorie }}</td>
+
+                    <td class="text-right">
+                      <span class="pharma-qty-value">{{ tp.bonsCount }}</span>
+                    </td>
+                    <td class="text-right">
+                      <span class="pharma-price">{{ tp.montant | number }}</span>
+                    </td>
+                    <td class="text-right">
+                      <span class="pharma-qty-value">{{ tp.clientCount | number }}</span>
+                    </td>
+                  </tr>
+                </ng-template>
+              </p-table>
             </div>
           </div>
-        </ng-template>
-      </p-toolbar>
-    </div>
-
-    <div class="mt-3 row mb3 pharma-smart">
-      @if (chiffreAffaire) {
-        <div class="row mb-3">
-          @let ca = chiffreAffaire.chiffreAffaire;
-          @if (ca) {
-            <div class="col">
-              <p-card>
-                <ng-template #title>
-                  <div class="card-title primary-title">
-                    <i class="pi pi-money-bill mr-2"></i>
-                    Chiffre d'affaires
-                  </div>
-                </ng-template>
-                <div class="grid">
-                  <div class="col-12">
-
-                    <div class="field">
-                      <label>Montant Ttc</label>
-                      <span>{{ ca.montantTtc | number }}</span>
-                    </div>
-
-                    <div class="field">
-                      <label>Montant Tva</label>
-                      <span>{{ ca.montantTva | number }}</span>
-                    </div>
-                    <div class="field">
-                      <label>Montant Ht</label>
-                      <span>{{ ca.montantHt | number }}</span>
-                    </div>
-                    <div class="field">
-                      <label>Montant remise</label>
-                      <span>{{ ca.montantRemise | number }}</span>
-                    </div>
-
-                    <div class="field">
-                      <label>Montant net</label>
-                      <span>{{ ca.montantNet | number }}</span>
-                    </div>
-                    <div class="field">
-                      <label>Montant espèce</label>
-                      <span>{{ ca.montantEspece | number }}</span>
-                    </div>
-                    <div class="field">
-                      <label>Montant autres règlement</label>
-                      <span>{{ ca.montantAutreModePaiement | number }}</span>
-                    </div>
-                    <div class="field">
-                      <label>Montant crédit</label>
-                      <span>{{ ca.montantCredit | number }}</span>
-                    </div>
-                    <div class="field">
-                      <label>Marge</label>
-                      <span>{{ ca.marge | number }}</span>
-                    </div>
-
-                  </div>
-                </div>
-
-
-              </p-card>
-
-            </div>
-          }
-          @let achat = chiffreAffaire.achats;
-          @if (achat) {
-            <div class="col">
-              <p-card>
-                <ng-template #title>
-                  <div class="card-title secondary-title">
-                    <i class="pi pi-truck mr-2"></i>
-                    Total des achats
-                  </div>
-                </ng-template>
-                <div class="grid">
-                  <div class="col-12">
-                    <div class="field">
-                      <label>Montant Ttc</label>
-                      <span>{{ achat.montantTtc | number }}</span>
-                    </div>
-
-                    <div class="field">
-                      <label>Montant Tva</label>
-                      <span>{{ achat.montantTva | number }}</span>
-                    </div>
-
-                    <div class="field">
-                      <label>Montant Ht</label>
-                      <span>{{ achat.montantHt | number }}</span>
-                    </div>
-
-                  </div></div>
-
-
-              </p-card>
-            </div>
-          }
-          @let recettes = chiffreAffaire.recettes;
-          @if (recettes) {
-            <div class="col">
-              <p-card>
-                <ng-template #title>
-                  <div class="card-title info-title">
-                    <i class="pi pi-wallet mr-2"></i>
-                    Recettes
-                  </div>
-                </ng-template>
-                <div class="grid">
-                  <div class="col-12">
-                    @for (recette of recettes; track $index) {
-                      <div class="field">
-                        <label>{{ recette.modePaimentLibelle }}</label>
-                        <span>{{ recette.montantReel | number }}</span>
-                      </div>
-                    }
-                  </div>
-                </div>
-
-                @let total = getRecetteTotal();
-                @if (total) {
-                  <div class="ws-card-footer">
-                    <div class="grid">
-                      <div class="col-12">
-                        <div class="field">
-                          <label class="fs-4">Total</label>
-                          <span class="fs-4">{{ total | number }}</span>
-                        </div>
-                      </div>
-                    </div>
-
-                  </div>
-                }
-
-              </p-card>
-            </div>
-          }
-          @let mvts = chiffreAffaire.mouvementCaisses;
-          @if (mvts) {
-            <div class="col">
-              <p-card>
-                <ng-template #title>
-                  <div class="card-title warn-title">
-                    <i class="pi pi-info-circle mr-2"></i>
-                    Mouvements de caisse
-                  </div>
-                </ng-template>
-                <div class="grid">
-                  <div class="col-12">
-                    @for (mvt of mvts; track $index) {
-                      <div class="field">
-                        <label>{{ mvt.libelle }}</label>
-                        <span>{{ mvt.montant | number }}</span>
-                      </div>
-                    }
-                  </div>
-                </div>
-
-                @let totalMvts = getTotalMouvementCaisse();
-                @if (totalMvts) {
-                  <div class="ws-card-footer">
-                    <div class="grid">
-                      <div class="col-12">
-                        <div class="field">
-                          <label class="fs-4">Total</label>
-                          <span class="fs-4">{{ totalMvts | number }}</span>
-                        </div>
-                      </div>
-                    </div>
-
-                  </div>
-                }
-
-              </p-card>
-            </div>
-          }
-        </div>
-      }
-
-      @if (groupeFournisseurAchats && groupeFournisseurAchats.length) {
-        <div class="row mb-3">
-          <p-card>
-            <ng-template #title>
-              <div class="card-title primary-title">
-                <i class="pi pi-building mr-2"></i>
-                Achats par groupe fournisseur
-              </div>
-            </ng-template>
-
-            <p-table
-              class="pharma-table"
-              #tbGroupeFournisseur
-              [globalFilterFields]="['libelle']"
-              [value]="groupeFournisseurAchats"
-              dataKey="libelle"
-              [rows]="10"
-              [paginator]="true"
-              [rowsPerPageOptions]="[10, 15, 20]"
-            >
-              <ng-template #header>
-                <tr class="pharma-table-head">
-                  <th scope="col">Groupe fournisseur</th>
-                  <th scope="col">Montant Ttc</th>
-                  <th scope="col">Montant Tva</th>
-                  <th scope="col">Montant Ht</th>
-                </tr>
-              </ng-template>
-              <ng-template let-groupe #body>
-                <tr>
-                  <td><span class="pharma-entity-name">{{ groupe.libelle }}</span></td>
-
-                  <td class="text-right"><span class="pharma-price">{{ groupe.montantTtc | number }}</span></td>
-                  <td class="text-right"><span class="pharma-price">{{ groupe.montantTva | number }}</span></td>
-                  <td class="text-right"><span class="pharma-price">{{ groupe.montantHt | number }}</span></td>
-                </tr>
-              </ng-template>
-            </p-table>
-
-          </p-card>
-        </div>
-      }
-      @if (reglementTiersPayants && reglementTiersPayants.length) {
-        <div class="row mb-3">
-          <p-card>
-            <ng-template #title>
-              <div class="card-title info-title">
-                <i class="pi pi-lightbulb mr-2"></i>
-                Règlements tiers payants
-              </div>
-            </ng-template>
-
-            <div class="card-body">
-              <div class="table-responsive">
-                <p-table
-                  class="pharma-table"
-                  #tbReglementTiersPayants
-                  [globalFilterFields]="['libelle']"
-                  [value]="reglementTiersPayants"
-                  dataKey="libelle"
-                  [rows]="10"
-                  [paginator]="true"
-                  stripedRows="true"
-                  [rowsPerPageOptions]="[10, 15, 20]"
-                >
-                  <ng-template #caption>
-                    <div class="d-flex">
-                      <p-iconfield>
-                        <p-inputicon styleClass="pi pi-search" />
-                        <input
-                          (input)="tbReglementTiersPayants.filterGlobal($event.target.value, 'contains')"
-                          pInputText
-                          placeholder="Filtrer"
-                          type="text"
-                          [(ngModel)]="searchReglement"
-                        />
-                      </p-iconfield>
-                    </div>
-                  </ng-template>
-                  <ng-template #header>
-                    <tr class="pharma-table-head">
-                      <th scope="col">Tiers-payant</th>
-                      <th scope="col">Catégorie</th>
-                      <th scope="col">Numéro facture</th>
-                      <th scope="col">Montant facture</th>
-                      <th scope="col">Montant règlé</th>
-                      <th scope="col">Montant restant</th>
-                    </tr>
-                  </ng-template>
-                  <ng-template let-reglement #body>
-                    <tr>
-                      <td><span class="pharma-entity-name">{{ reglement.libelle }}</span></td>
-                      <td>{{ reglement.type }}</td>
-
-                      <td class="text-right"><span class="pharma-code">{{ reglement.factureNumber }}</span></td>
-                      <td class="text-right"><span class="pharma-price">{{ reglement.montantFacture | number }}</span></td>
-                      <td class="text-right"><span class="pharma-price">{{ reglement.montantReglement | number }}</span></td>
-                      <td class="text-right"><span class="pharma-total">{{ reglement.montantRestant | number }}</span></td>
-                    </tr>
-                  </ng-template>
-                </p-table>
-              </div>
-            </div>
-
-          </p-card>
-        </div>
-      }
-
-      @if (achatTiersPayant && achatTiersPayant.length) {
-        <div class="row">
-          <p-card>
-            <ng-template #title>
-              <div class="card-title warn-title">
-                <i class="pi pi-credit-card mr-2"></i>
-                Crédits accordés
-              </div>
-            </ng-template>
-
-            <div class="card-body">
-              <div class="table-responsive">
-                <p-table
-                  class="pharma-table"
-                  #tb
-                  [globalFilterFields]="['libelle']"
-                  [value]="achatTiersPayant"
-                  dataKey="libelle"
-                  [rows]="10"
-                  [paginator]="true"
-                  [rowsPerPageOptions]="[10, 15, 20]"
-                >
-                  <ng-template #caption>
-                    <div class="d-flex">
-                      <p-iconfield>
-                        <p-inputicon styleClass="pi pi-search" />
-                        <input
-                          [(ngModel)]="searchAchat"
-                          (input)="tb.filterGlobal($event.target.value, 'contains')"
-                          pInputText
-                          placeholder="Filtrer"
-                          type="text"
-                        />
-                      </p-iconfield>
-                    </div>
-                  </ng-template>
-                  <ng-template #header>
-                    <tr class="pharma-table-head">
-                      <th scope="col">Tiers-payant</th>
-                      <th scope="col">Catégorie</th>
-                      <th scope="col">Nombre de bon</th>
-                      <th scope="col">Montant</th>
-                      <th scope="col">Nombre de client</th>
-                    </tr>
-                  </ng-template>
-                  <ng-template let-tp #body>
-                    <tr>
-                      <td><span class="pharma-entity-name">{{ tp.libelle }}</span></td>
-                      <td>{{ tp.categorie }}</td>
-
-                      <td class="text-right"><span class="pharma-qty-value">{{ tp.bonsCount }}</span></td>
-                      <td class="text-right"><span class="pharma-price">{{ tp.montant | number }}</span></td>
-                      <td class="text-right"><span class="pharma-qty-value">{{ tp.clientCount | number }}</span></td>
-                    </tr>
-                  </ng-template>
-                </p-table>
-              </div>
-            </div>
-
-          </p-card>
-        </div>
-      }
-
-    </div>
-
-
-
+        </p-card>
+      </div>
+    }
+  </div>
 </div>

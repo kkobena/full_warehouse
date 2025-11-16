@@ -48,7 +48,6 @@ public class StoreInventoryLineDTO implements Serializable {
             this.inventoryValueTotalCost = produit.getCostAmount() * storeInventoryLine.getQuantityOnHand();
             this.inventoryValueAmount = storeInventoryLine.getQuantityOnHand() * storeInventoryLine.getLastUnitPrice();
         }
-
     }
 
     public long getRayonId() {

@@ -43,7 +43,7 @@ public class CustomerAccount implements Serializable {
 
     @NotNull
     @Enumerated(EnumType.STRING)
-    @Column(name = "account_type", nullable = false,length = 10)
+    @Column(name = "account_type", nullable = false, length = 10)
     private AccountType accountType;
 
     public AccountType accountType() {

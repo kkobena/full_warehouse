@@ -1,9 +1,7 @@
-
-@let currentSale=currentSaleService.currentSale();
-
+@let currentSale = currentSaleService.currentSale();
 
 @if (currentSale) {
-@let tiersPayants=currentSale?.thirdPartySaleLines||[];
+  @let tiersPayants = currentSale?.thirdPartySaleLines || [];
   <!-- Montant principal -->
   <div class="amount-row amount-total">
     <span class="amount-label">Total</span>
@@ -22,27 +20,24 @@
   @if (currentSale.discountAmount! > 0) {
     <div class="amount-row amount-discount">
       <span class="amount-label">Remise</span>
-      <span
-        class="amount-value">-{{ currentSale.discountAmount | number }}</span>
+      <span class="amount-value">-{{ currentSale.discountAmount | number }}</span>
     </div>
   }
 
   <!-- Part assurance -->
 
   @if (currentSale?.natureVente !== 'COMPTANT') {
-    @if (tiersPayants.length>1){
-      @for ( tp of tiersPayants; track tp.id;) {
+    @if (tiersPayants.length > 1) {
+      @for (tp of tiersPayants; track tp.id) {
         <div class="amount-row">
           <span class="amount-label">{{ tp.name }}</span>
-          <span
-            class="amount-value">{{ tp.montant | number }}</span>
+          <span class="amount-value">{{ tp.montant | number }}</span>
         </div>
       }
     }
     <div class="amount-row">
       <span class="amount-label">Total assurance</span>
-      <span
-        class="amount-value">{{ currentSale.partTiersPayant | number }}</span>
+      <span class="amount-value">{{ currentSale.partTiersPayant | number }}</span>
     </div>
   }
 
@@ -70,5 +65,4 @@
       <span class="amount-value">{{ lastCurrencyGivenService.lastCurrency() | number }}</span>
     </div>
   }
-
 }

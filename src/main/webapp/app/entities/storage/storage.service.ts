@@ -10,7 +10,7 @@ type EntityResponseType = HttpResponse<Storage>;
 type EntityArrayResponseType = HttpResponse<Storage[]>;
 
 @Injectable({
-  providedIn: 'root'
+  providedIn: 'root',
 })
 export class StorageService {
   private readonly resourceUrl = SERVER_API_URL + 'api/storages';
@@ -29,7 +29,7 @@ export class StorageService {
     const options = createRequestOption(req);
     return this.http.get<Storage[]>(this.resourceUrl + '/user-storages', {
       params: options,
-      observe: 'response'
+      observe: 'response',
     });
   }
 }

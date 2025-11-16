@@ -3,19 +3,18 @@ package com.kobe.warehouse.web.rest.stock;
 import com.kobe.warehouse.domain.enumeration.Status;
 import com.kobe.warehouse.repository.ProduitRepository;
 import com.kobe.warehouse.service.ProductActivityService;
-import com.kobe.warehouse.service.stock.ProduitService;
 import com.kobe.warehouse.service.dto.DatePeremtion;
 import com.kobe.warehouse.service.dto.ProductActivityDTO;
 import com.kobe.warehouse.service.dto.ProduitCriteria;
 import com.kobe.warehouse.service.dto.ProduitDTO;
 import com.kobe.warehouse.service.errors.BadRequestAlertException;
+import com.kobe.warehouse.service.stock.ProduitService;
 import com.kobe.warehouse.service.stock.dto.ProduitSearch;
 import com.kobe.warehouse.web.rest.proxy.ProduitResourceProxy;
 import com.kobe.warehouse.web.util.HeaderUtil;
 import com.kobe.warehouse.web.util.PaginationUtil;
 import com.kobe.warehouse.web.util.ResponseUtil;
 import jakarta.validation.Valid;
-
 import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
@@ -90,7 +89,7 @@ public class ProduitResource extends ProduitResourceProxy {
      * {@code 500 (Internal Server Error)} if the produit couldn't be updated.
      */
     @PutMapping("/produits")
-    public ResponseEntity<Void> updateProduit(@Valid @RequestBody ProduitDTO produitDTO)  {
+    public ResponseEntity<Void> updateProduit(@Valid @RequestBody ProduitDTO produitDTO) {
         log.debug("REST request to update Produit : {}", produitDTO);
         if (produitDTO.getId() == null) {
             throw new BadRequestAlertException("Invalid id", ENTITY_NAME, "idnull");
@@ -177,7 +176,6 @@ public class ProduitResource extends ProduitResourceProxy {
         return ResponseEntity.ok().build();
     }
 
-
     @GetMapping("/produits/lite")
     public ResponseEntity<List<ProduitDTO>> getAllLite(
         @RequestParam(required = false, name = "search") String search,
@@ -208,17 +206,13 @@ public class ProduitResource extends ProduitResourceProxy {
         );
     }
 
-
-
     @GetMapping("/produits/search")
     public ResponseEntity<List<ProduitSearch>> search(
-        @RequestParam( name = "search") String search,
+        @RequestParam(name = "search") String search,
         @RequestParam(required = false, name = "magasinId") Integer magasinId,
         Pageable pageable
     ) {
-        return super.search(search,magasinId,
-            pageable
-        );
+        return super.search(search, magasinId, pageable);
     }
 
     @GetMapping("/produits/activity")
@@ -229,6 +223,4 @@ public class ProduitResource extends ProduitResourceProxy {
     ) {
         return ResponseEntity.ok().body(this.productActivityService.getProductActivity(produitId, fromDate, toDate));
     }
-
-
 }

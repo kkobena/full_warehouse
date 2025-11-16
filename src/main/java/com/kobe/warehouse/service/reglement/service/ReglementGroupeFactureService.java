@@ -36,7 +36,8 @@ public class ReglementGroupeFactureService extends AbstractReglementService {
         BanqueRepository banqueRepository,
         ReglementFactureModeAllService reglementFactureModeAllService,
         TransactionIdGeneratorService transactionIdGeneratorService,
-        InvoicePaymentItemService invoicePaymentItemService, ReferenceService referenceService
+        InvoicePaymentItemService invoicePaymentItemService,
+        ReferenceService referenceService
     ) {
         super(
             cashRegisterService,
@@ -46,7 +47,8 @@ public class ReglementGroupeFactureService extends AbstractReglementService {
             thirdPartySaleLineRepository,
             banqueRepository,
             transactionIdGeneratorService,
-            invoicePaymentItemService,referenceService
+            invoicePaymentItemService,
+            referenceService
         );
         this.facturationRepository = facturationRepository;
         this.reglementFactureModeAllService = reglementFactureModeAllService;

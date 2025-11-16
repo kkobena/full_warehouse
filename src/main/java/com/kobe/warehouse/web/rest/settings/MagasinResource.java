@@ -7,6 +7,11 @@ import com.kobe.warehouse.service.referential.magasin.MagasinService;
 import com.kobe.warehouse.web.util.HeaderUtil;
 import com.kobe.warehouse.web.util.ResponseUtil;
 import jakarta.validation.Valid;
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.util.List;
+import java.util.Optional;
+import java.util.Set;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
@@ -21,12 +26,6 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
-
-import java.net.URI;
-import java.net.URISyntaxException;
-import java.util.List;
-import java.util.Optional;
-import java.util.Set;
 
 /**
  * REST controller for managing {@link com.kobe.warehouse.domain.Magasin}.
@@ -134,15 +133,12 @@ public class MagasinResource {
     }
 
     @GetMapping("/magasins/depots")
-    public ResponseEntity<List<MagasinDTO>> getAllDepots(
-        @RequestParam(required = false, name = "types") Set<TypeMagasin> types
-    ) {
-        return ResponseEntity.ok().body(magasinService.findAll(CollectionUtils.isEmpty(types)?Set.of(TypeMagasin.DEPOT):types));
+    public ResponseEntity<List<MagasinDTO>> getAllDepots(@RequestParam(required = false, name = "types") Set<TypeMagasin> types) {
+        return ResponseEntity.ok().body(magasinService.findAll(CollectionUtils.isEmpty(types) ? Set.of(TypeMagasin.DEPOT) : types));
     }
 
     @GetMapping("/magasins/has-depot")
     public ResponseEntity<Boolean> hasDepot() {
         return ResponseEntity.ok().body(magasinService.hasDepot());
     }
-
 }

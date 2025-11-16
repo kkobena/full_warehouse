@@ -5,13 +5,12 @@ import com.kobe.warehouse.domain.StockProduit;
 import com.kobe.warehouse.service.dto.ProduitCriteria;
 import com.kobe.warehouse.service.dto.ProduitDTO;
 import com.kobe.warehouse.service.stock.dto.ProduitSearch;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
-
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 
 /**
  * Service Interface for managing {@link com.kobe.warehouse.domain.Produit}.
@@ -52,7 +51,6 @@ public interface ProduitService {
 
     LocalDateTime lastSale(ProduitCriteria produitCriteria);
 
-
     LocalDateTime lastOrder(ProduitCriteria produitCriteria);
 
     ProduitDTO findOne(ProduitCriteria produitCriteria);
@@ -60,7 +58,6 @@ public interface ProduitService {
     List<ProduitDTO> findWithCriteria(ProduitCriteria produitCriteria);
 
     void update(ProduitDTO produitDTO);
-
 
     List<ProduitDTO> productsLiteList(ProduitCriteria produitCriteria, Pageable pageable);
 
@@ -77,7 +74,6 @@ public interface ProduitService {
     }
 
     void updateFromCommande(ProduitDTO produitDTO, Produit produit);
-
 
     Produit findReferenceById(Integer id);
 

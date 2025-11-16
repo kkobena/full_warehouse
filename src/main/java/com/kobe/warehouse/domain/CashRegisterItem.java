@@ -13,14 +13,13 @@ import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 import jakarta.persistence.UniqueConstraint;
 import jakarta.validation.constraints.NotNull;
-
 import java.io.Serial;
 import java.io.Serializable;
 
 @Entity
 @Table(
     name = "cash_register_item",
-    uniqueConstraints = {@UniqueConstraint(columnNames = {"cash_register_id", "payment_mode_code", "type_transaction"})}
+    uniqueConstraints = { @UniqueConstraint(columnNames = { "cash_register_id", "payment_mode_code", "type_transaction" }) }
 )
 public class CashRegisterItem implements Serializable {
 
@@ -97,17 +96,17 @@ public class CashRegisterItem implements Serializable {
     public String toString() {
         return (
             "CashRegisterItem{" +
-                "amount=" +
-                amount +
-                ", id=" +
-                id +
-                ", cashRegister=" +
-                cashRegister +
-                ", paymentMode=" +
-                paymentMode +
-                ", typeFinancialTransaction=" +
-                typeFinancialTransaction +
-                '}'
+            "amount=" +
+            amount +
+            ", id=" +
+            id +
+            ", cashRegister=" +
+            cashRegister +
+            ", paymentMode=" +
+            paymentMode +
+            ", typeFinancialTransaction=" +
+            typeFinancialTransaction +
+            '}'
         );
     }
 }

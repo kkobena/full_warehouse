@@ -36,7 +36,8 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 
 @Repository
-public interface LotRepository extends JpaRepository<Lot, Integer>, JpaSpecificationExecutor<Lot>, SpecificationBuilder, LotCustomRepository {
+public interface LotRepository
+    extends JpaRepository<Lot, Integer>, JpaSpecificationExecutor<Lot>, SpecificationBuilder, LotCustomRepository {
     @Query(
         "SELECT o FROM Lot o JOIN o.orderLine ord JOIN ord.fournisseurProduit fp WHERE fp.produit.id =:produitId AND o.expiryDate >:dateLimit  AND o.currentQuantity  > 0 AND o.statut=:lotStatut  ORDER BY o.expiryDate ASC"
     )

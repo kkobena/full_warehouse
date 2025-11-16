@@ -77,15 +77,15 @@ export class TauriKeyboardService {
     }
 
     return [
-      'ctrl+s',      // Save (we can override)
-      'ctrl+p',      // Print (we control it)
-      'ctrl+f',      // Find (we can implement custom)
-      'ctrl+n',      // New sale
-      'ctrl+w',      // Close/Cancel
+      'ctrl+s', // Save (we can override)
+      'ctrl+p', // Print (we control it)
+      'ctrl+f', // Find (we can implement custom)
+      'ctrl+n', // New sale
+      'ctrl+w', // Close/Cancel
       'ctrl+shift+s', // Save as pending
-      'ctrl+enter',  // Quick finalize
-      'ctrl+q',      // Quick quantity
-      'ctrl+d',      // Discount
+      'ctrl+enter', // Quick finalize
+      'ctrl+q', // Quick quantity
+      'ctrl+d', // Discount
       'ctrl+shift+p', // Print invoice
       'ctrl+shift+f', // Force stock
     ];
@@ -102,8 +102,25 @@ export class TauriKeyboardService {
 
     // In browser, check against safe shortcuts
     const browserSafeShortcuts = [
-      'f1', 'f2', 'f3', 'f4', 'f5', 'f6', 'f7', 'f8', 'f9', 'f10', 'f11', 'f12',
-      'escape', 'delete', 'insert', 'home', 'end', 'pageup', 'pagedown',
+      'f1',
+      'f2',
+      'f3',
+      'f4',
+      'f5',
+      'f6',
+      'f7',
+      'f8',
+      'f9',
+      'f10',
+      'f11',
+      'f12',
+      'escape',
+      'delete',
+      'insert',
+      'home',
+      'end',
+      'pageup',
+      'pagedown',
     ];
 
     const isAltCombo = shortcutKey.includes('alt+');

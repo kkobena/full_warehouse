@@ -1,4 +1,4 @@
-<div class=" pharma-smart-content ">
+<div class="pharma-smart-content">
   <!-- Modern Pharma Toolbar (Compact) -->
   <div class="pharma-toolbar pharma-toolbar-compact">
     <div class="pharma-toolbar-header">
@@ -15,13 +15,7 @@
           </div>
 
           <p-floatlabel variant="on" class="mr-1">
-            <input
-              [(ngModel)]="search"
-              pInputText
-              id="searchInput"
-              type="text"
-              style="width: 180px"
-            />
+            <input [(ngModel)]="search" pInputText id="searchInput" type="text" style="width: 180px" />
             <label for="searchInput">Taper pour rechercher</label>
           </p-floatlabel>
 
@@ -119,7 +113,7 @@
       </ng-template>
     </p-toolbar>
   </div>
-  <div class="row px-2 ">
+  <div class="row px-2">
     <p-table
       #factureDossierTable
       [(selection)]="selectedDatas"
@@ -202,7 +196,7 @@
             <span class="font-bold ml-2 group-title">{{ reglement.organisme }}</span>
           </td>
           <td class="text-right">
-          <span class="font-bold ml-2 group-title total-group text-right">{{
+            <span class="font-bold ml-2 group-title total-group text-right">{{
               'Total: ' + getTotalAmountByGroup(reglement.organismeId)
             }}</span>
           </td>
@@ -212,9 +206,12 @@
 
       <ng-template #expandedrow let-reglement>
         <tr>
-          <td class="text-center " colspan="2"><span
-            class="pharma-code">{{ reglement.codeFacture }}</span></td>
-          <td><span class="pharma-badge pharma-badge-info">{{ reglement.paymentMode }}</span></td>
+          <td class="text-center" colspan="2">
+            <span class="pharma-code">{{ reglement.codeFacture }}</span>
+          </td>
+          <td>
+            <span class="pharma-badge pharma-badge-info">{{ reglement.paymentMode }}</span>
+          </td>
 
           <td class="pharma-price">
             {{ reglement.montantAttendu }}
@@ -228,18 +225,14 @@
           <td class="text-center">{{ reglement.created }}</td>
           <td>{{ reglement.user }}</td>
           <td class="text-right">
-            <p-button (click)="onView(reglement)" [rounded]="true" [text]="true" icon="pi pi-eye"
-                      severity="info"
-            ></p-button>
-            <p-button (click)="onPrint(reglement)" [rounded]="true" [text]="true" icon="pi pi-print"
-                      severity="secondary"
-            ></p-button>
+            <p-button (click)="onView(reglement)" [rounded]="true" [text]="true" icon="pi pi-eye" severity="info"></p-button>
+            <p-button (click)="onPrint(reglement)" [rounded]="true" [text]="true" icon="pi pi-print" severity="secondary"></p-button>
             <p-button
               (click)="onDelete(reglement)"
               [rounded]="true"
               [text]="true"
-              icon="pi pi-trash" severity="danger"
-
+              icon="pi pi-trash"
+              severity="danger"
               styleClass="p-button-danger"
             ></p-button>
           </td>
@@ -251,6 +244,5 @@
     </p-table>
   </div>
 </div>
-
 
 <jhi-confirm-dialog #confirmDialog></jhi-confirm-dialog>

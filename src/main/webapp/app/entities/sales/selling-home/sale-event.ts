@@ -3,9 +3,8 @@ import { computed, Injectable, signal } from '@angular/core';
 export class SaleEvent<T = any> {
   constructor(
     public name: string,
-    public content: T
-  ) {
-  }
+    public content: T,
+  ) {}
 }
 
 @Injectable({ providedIn: 'root' })
@@ -24,8 +23,6 @@ export class SaleEventSignal {
 
   filterEvents(names: string | string[]) {
     const nameArray = Array.isArray(names) ? names : [names];
-    return computed(() =>
-      this._events().filter(e => nameArray.includes(e.name))
-    );
+    return computed(() => this._events().filter(e => nameArray.includes(e.name)));
   }
 }

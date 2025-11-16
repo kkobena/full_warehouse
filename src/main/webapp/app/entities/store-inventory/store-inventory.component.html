@@ -9,8 +9,7 @@
         </div>
 
         <div class="pharma-nav-sidebar-content">
-          <div #nav="ngbNav" [(activeId)]="active" class="nav flex-column nav-pills" ngbNav
-               orientation="vertical">
+          <div #nav="ngbNav" [(activeId)]="active" class="nav flex-column nav-pills" ngbNav orientation="vertical">
             <ng-container ngbNavItem="CREATE">
               <a class="pharma-nav-vertical-link" ngbNavLink>
                 <i class="pi pi-spin pi-cog"></i>
@@ -44,7 +43,7 @@
       <div class="pharma-toolbar">
         <div class="pharma-toolbar-header">
           <i [ngClass]="icon"></i>
-          <span class="pharma-toolbar-title">{{title}}</span>
+          <span class="pharma-toolbar-title">{{ title }}</span>
         </div>
 
         <p-toolbar>
@@ -107,9 +106,7 @@
         </p-toolbar>
       </div>
 
-
-        <div [ngbNavOutlet]="nav"></div>
-
+      <div [ngbNavOutlet]="nav"></div>
     </div>
   </div>
 </div>

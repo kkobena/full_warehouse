@@ -6,6 +6,11 @@ import com.kobe.warehouse.web.util.HeaderUtil;
 import com.kobe.warehouse.web.util.PaginationUtil;
 import com.kobe.warehouse.web.util.ResponseUtil;
 import jakarta.validation.Valid;
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.time.LocalDate;
+import java.util.List;
+import java.util.Optional;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
@@ -21,12 +26,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
-
-import java.net.URI;
-import java.net.URISyntaxException;
-import java.time.LocalDate;
-import java.util.List;
-import java.util.Optional;
 
 /**
  * REST controller for managing {@link com.kobe.warehouse.domain.RetourDepot}.
@@ -55,23 +54,26 @@ public class RetourDepotResource {
      * @throws URISyntaxException if the Location URI syntax is incorrect.
      */
     @PostMapping("/retour-depots")
-    public ResponseEntity<RetourDepotDTO> createRetourDepot(@Valid @RequestBody RetourDepotDTO retourDepotDTO)
-        throws URISyntaxException {
+    public ResponseEntity<RetourDepotDTO> createRetourDepot(@Valid @RequestBody RetourDepotDTO retourDepotDTO) throws URISyntaxException {
         log.debug("REST request to save RetourDepot : {}", retourDepotDTO);
         if (retourDepotDTO.getId() != null) {
             return ResponseEntity.badRequest()
-                .headers(HeaderUtil.createFailureAlert(applicationName, true, ENTITY_NAME, "idexists",
-                    "A new retour depot cannot already have an ID"))
+                .headers(
+                    HeaderUtil.createFailureAlert(
+                        applicationName,
+                        true,
+                        ENTITY_NAME,
+                        "idexists",
+                        "A new retour depot cannot already have an ID"
+                    )
+                )
                 .body(null);
         }
         RetourDepotDTO result = retourDepotService.create(retourDepotDTO);
-        return ResponseEntity
-            .created(new URI("/api/retour-depots/" + result.getId()))
-            .headers(HeaderUtil.createEntityCreationAlert(applicationName, true, ENTITY_NAME,
-                result.getId().toString()))
+        return ResponseEntity.created(new URI("/api/retour-depots/" + result.getId()))
+            .headers(HeaderUtil.createEntityCreationAlert(applicationName, true, ENTITY_NAME, result.getId().toString()))
             .body(result);
     }
-
 
     /**
      * {@code GET  /retour-depots/:id} : get the "id" retour depot.
@@ -87,19 +89,15 @@ public class RetourDepotResource {
         return ResponseUtil.wrapOrNotFound(retourDepotDTO);
     }
 
-
     @GetMapping("/retour-depots")
     public ResponseEntity<List<RetourDepotDTO>> getRetourDepots(
         @RequestParam(name = "depotId", required = false) Integer depotId,
         @RequestParam(name = "dtStart", required = false) LocalDate dtStart,
         @RequestParam(name = "dtEnd", required = false) LocalDate dtEnd,
         Pageable pageable
-
     ) {
         Page page = retourDepotService.findAllByDateRange(depotId, dtStart, dtEnd, pageable);
         HttpHeaders headers = PaginationUtil.generatePaginationHttpHeaders(ServletUriComponentsBuilder.fromCurrentRequest(), page);
         return ResponseEntity.ok().headers(headers).body(page.getContent());
-
     }
-
 }

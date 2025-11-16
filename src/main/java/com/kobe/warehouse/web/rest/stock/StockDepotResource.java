@@ -10,6 +10,9 @@ import com.kobe.warehouse.service.excel.model.ExportFormat;
 import com.kobe.warehouse.service.stock.GestionStockDepotService;
 import com.kobe.warehouse.web.util.PaginationUtil;
 import jakarta.servlet.http.HttpServletResponse;
+import java.io.IOException;
+import java.time.LocalDate;
+import java.util.List;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpHeaders;
@@ -21,13 +24,10 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
-import java.io.IOException;
-import java.time.LocalDate;
-import java.util.List;
-
 @RestController
 @RequestMapping("/api/stock-depots")
 public class StockDepotResource {
+
     private final GestionStockDepotService gestionStockDepotService;
 
     public StockDepotResource(GestionStockDepotService gestionStockDepotService) {
@@ -72,8 +72,9 @@ public class StockDepotResource {
         @RequestParam(name = "paymentStatus", required = false) PaymentStatus paymentStatus,
         Pageable pageable
     ) {
-
-        Page<DepotExtensionSaleDTO> page = gestionStockDepotService.getVenteDepot(paymentStatus, magasinId,
+        Page<DepotExtensionSaleDTO> page = gestionStockDepotService.getVenteDepot(
+            paymentStatus,
+            magasinId,
             search,
             fromDate,
             toDate,

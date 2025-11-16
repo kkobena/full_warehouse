@@ -48,10 +48,9 @@ public class FinancialTransactionResource {
         this.financialTransactionService = financialTransactionService;
     }
 
-
     @PostMapping("/payment-transactions")
-    public ResponseEntity<PaymentId> createEvent(@Valid @RequestBody FinancialTransactionDTO financialTransaction) throws URISyntaxException {
-
+    public ResponseEntity<PaymentId> createEvent(@Valid @RequestBody FinancialTransactionDTO financialTransaction)
+        throws URISyntaxException {
         if (financialTransaction.getId() != null) {
             throw new BadRequestAlertException("A new financialTransaction cannot already have an ID", "financialTransaction", "idexists");
         }
@@ -73,26 +72,25 @@ public class FinancialTransactionResource {
         @RequestParam(value = "toTime", required = false) LocalTime toTime,
         Pageable pageable
     ) {
-        Page<MvtCaisseDTO> page = this.financialTransactionService.findAll(new TransactionFilterDTO(
-            fromDate,
-            toDate,
-            userId,
-            search,
-            typeFinancialTransactions,
-            categorieChiffreAffaires,
-            paymentModes,
-            order,
-            fromTime,
-            toTime
-        ), pageable);
+        Page<MvtCaisseDTO> page =
+            this.financialTransactionService.findAll(
+                    new TransactionFilterDTO(
+                        fromDate,
+                        toDate,
+                        userId,
+                        search,
+                        typeFinancialTransactions,
+                        categorieChiffreAffaires,
+                        paymentModes,
+                        order,
+                        fromTime,
+                        toTime
+                    ),
+                    pageable
+                );
         HttpHeaders headers = PaginationUtil.generatePaginationHttpHeaders(ServletUriComponentsBuilder.fromCurrentRequest(), page);
         return ResponseEntity.ok().headers(headers).body(page.getContent());
     }
-
-
-
-
-
 
     @GetMapping("/payment-transactions/pdf")
     public ResponseEntity<Resource> exportToPdf(
@@ -110,19 +108,19 @@ public class FinancialTransactionResource {
     ) throws IOException {
         final Resource resource =
             this.financialTransactionService.exportToPdf(
-                new TransactionFilterDTO(
-                    fromDate,
-                    toDate,
-                    userId,
-                    search,
-                    typeFinancialTransactions,
-                    categorieChiffreAffaires,
-                    paymentModes,
-                    order,
-                    fromTime,
-                    toTime
-                )
-            );
+                    new TransactionFilterDTO(
+                        fromDate,
+                        toDate,
+                        userId,
+                        search,
+                        typeFinancialTransactions,
+                        categorieChiffreAffaires,
+                        paymentModes,
+                        order,
+                        fromTime,
+                        toTime
+                    )
+                );
         return Utils.printPDF(resource, request);
     }
 
@@ -138,17 +136,20 @@ public class FinancialTransactionResource {
         @RequestParam(value = "organismeId", required = false) String organismeId,
         Pageable pageable
     ) {
-
-        Page<FinancialTransactionDTO> page = this.financialTransactionService.findAll(new FinancielTransactionFilterDTO(
-            fromDate,
-            toDate,
-            userId,
-            search,
-            typeFinancialTransaction,
-            categorieChiffreAffaire,
-            paymentMode,
-            organismeId
-        ), pageable);
+        Page<FinancialTransactionDTO> page =
+            this.financialTransactionService.findAll(
+                    new FinancielTransactionFilterDTO(
+                        fromDate,
+                        toDate,
+                        userId,
+                        search,
+                        typeFinancialTransaction,
+                        categorieChiffreAffaire,
+                        paymentMode,
+                        organismeId
+                    ),
+                    pageable
+                );
         HttpHeaders headers = PaginationUtil.generatePaginationHttpHeaders(ServletUriComponentsBuilder.fromCurrentRequest(), page);
         return ResponseEntity.ok().headers(headers).body(page.getContent());
     }
@@ -157,7 +158,6 @@ public class FinancialTransactionResource {
     public ResponseEntity<List<Pair>> fetchTypes() {
         return ResponseEntity.ok(financialTransactionService.getTypes());
     }
-
 
     @GetMapping("/payment-transactions/mvt-caisses/sum")
     public ResponseEntity<MvtCaisseWrapper> fetchMvtCaisseSum(
@@ -172,48 +172,53 @@ public class FinancialTransactionResource {
         @RequestParam(value = "fromTime", required = false) LocalTime fromTime,
         @RequestParam(value = "toTime", required = false) LocalTime toTime
     ) {
-
-        return ResponseEntity.ok(financialTransactionService.getMvtCaisseSum(new TransactionFilterDTO(
-            fromDate,
-            toDate,
-            userId,
-            search,
-            typeFinancialTransactions,
-            categorieChiffreAffaires,
-            paymentModes,
-            order,
-            fromTime,
-            toTime
-        )));
+        return ResponseEntity.ok(
+            financialTransactionService.getMvtCaisseSum(
+                new TransactionFilterDTO(
+                    fromDate,
+                    toDate,
+                    userId,
+                    search,
+                    typeFinancialTransactions,
+                    categorieChiffreAffaires,
+                    paymentModes,
+                    order,
+                    fromTime,
+                    toTime
+                )
+            )
+        );
     }
 
     @GetMapping("/payment-transactions/{id}/{transactionDate}")
-    public ResponseEntity<FinancialTransactionDTO> getOne(@PathVariable("id") Long id, @PathVariable("transactionDate") LocalDate transactionDate) {
+    public ResponseEntity<FinancialTransactionDTO> getOne(
+        @PathVariable("id") Long id,
+        @PathVariable("transactionDate") LocalDate transactionDate
+    ) {
         return ResponseUtil.wrapOrNotFound(this.financialTransactionService.findById(new PaymentId(id, transactionDate)));
-
     }
 
-
     @GetMapping("/payment-transactions/print-receipt/{id}/{transactionDate}")
-    public ResponseEntity<Void> printReceipt(@PathVariable(name = "id") long id,@PathVariable(name = "transactionDate") LocalDate transactionDate) {
+    public ResponseEntity<Void> printReceipt(
+        @PathVariable(name = "id") long id,
+        @PathVariable(name = "transactionDate") LocalDate transactionDate
+    ) {
         this.financialTransactionService.printReceipt(new PaymentId(id, transactionDate));
         return ResponseEntity.ok().build();
     }
 
     @GetMapping("/payment-transactions/print-tauri/{id}/{transactionDate}")
-    public ResponseEntity<byte[]> getReceiptForTauri(@PathVariable(name = "id") long idReglement,
-                                                     @PathVariable(name = "transactionDate") LocalDate transactionDate
+    public ResponseEntity<byte[]> getReceiptForTauri(
+        @PathVariable(name = "id") long idReglement,
+        @PathVariable(name = "transactionDate") LocalDate transactionDate
     ) {
-
         try {
-            byte[] escPosData = financialTransactionService.
-                generateEscPosReceiptForTauri(new PaymentId(idReglement, transactionDate));
+            byte[] escPosData = financialTransactionService.generateEscPosReceiptForTauri(new PaymentId(idReglement, transactionDate));
             return ResponseEntity.ok()
                 .header(HttpHeaders.CONTENT_TYPE, "application/octet-stream")
                 .header(HttpHeaders.CONTENT_DISPOSITION, "inline; filename=\"receipt.bin\"")
                 .body(escPosData);
         } catch (IOException e) {
-
             return ResponseEntity.internalServerError().build();
         }
     }

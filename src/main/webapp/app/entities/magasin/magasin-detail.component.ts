@@ -8,7 +8,7 @@ import { PanelModule } from 'primeng/panel';
 @Component({
   selector: 'jhi-magasin-detail',
   templateUrl: './magasin-detail.component.html',
-  imports: [WarehouseCommonModule, PanelModule, RouterModule]
+  imports: [WarehouseCommonModule, PanelModule, RouterModule],
 })
 export class MagasinDetailComponent implements OnInit {
   protected activatedRoute = inject(ActivatedRoute);

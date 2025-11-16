@@ -3,6 +3,7 @@
 ## What's New
 
 The CustomerDisplayEscPosServiceImpl now supports **three connection types**:
+
 1. **Serial Port** (USB-to-Serial) - Traditional COM port connection
 2. **USB Print Service** - Direct USB connection for displays that register as printers
 3. **Network** - TCP/IP socket connection for Ethernet/WiFi displays
@@ -10,10 +11,12 @@ The CustomerDisplayEscPosServiceImpl now supports **three connection types**:
 ## Files Added
 
 ### Core Implementation
+
 - `CustomerDisplayEscPosServiceImpl.java` - Main service with USB support
 - `CustomerDisplayResource.java` - REST API for testing and management
 
 ### Documentation & Testing
+
 - `CUSTOMER_DISPLAY_CONFIGURATION.md` - Detailed configuration guide
 - `CUSTOMER_DISPLAY_USB_QUICKSTART.md` - This file
 - `test-customer-display.bat` - Windows testing script
@@ -24,11 +27,12 @@ The CustomerDisplayEscPosServiceImpl now supports **three connection types**:
 ### Step 1: Identify Your Connection Type
 
 #### USB-to-Serial (Most Common)
+
 If your USB display creates a COM port:
 
 ```yaml
 # application.yml or application-dev.yml
-port-com: COM3  # Windows
+port-com: COM3 # Windows
 # port-com: /dev/ttyUSB0  # Linux
 
 customer-display:
@@ -36,21 +40,23 @@ customer-display:
 ```
 
 #### USB Print Service
+
 If your USB display registers as a printer:
 
 ```yaml
-port-com: ""
+port-com: ''
 
 customer-display:
   connection-type: USB_PRINT_SERVICE
-  usb-printer-name: "Customer Display VFD"
+  usb-printer-name: 'Customer Display VFD'
 ```
 
 #### Network
+
 For Ethernet/WiFi displays:
 
 ```yaml
-port-com: ""
+port-com: ''
 
 customer-display:
   connection-type: NETWORK
@@ -61,16 +67,19 @@ customer-display:
 #### Windows
 
 **List USB Displays:**
+
 ```bash
 test-customer-display.bat list-usb
 ```
 
 **List Serial Ports:**
+
 ```bash
 test-customer-display.bat list-serial
 ```
 
 **Or use PowerShell:**
+
 ```powershell
 # List printers/displays
 Get-Printer | Select-Object Name
@@ -82,11 +91,13 @@ Get-WmiObject Win32_SerialPort | Select-Object Name, DeviceID
 #### Linux/Mac
 
 **List USB Displays:**
+
 ```bash
 ./test-customer-display.sh list-usb
 ```
 
 **List Serial Ports:**
+
 ```bash
 ./test-customer-display.sh list-serial
 # Or directly:
@@ -100,11 +111,11 @@ Example for USB Print Service:
 ```yaml
 # src/main/resources/application-dev.yml
 
-port-com: ""
+port-com: ''
 
 customer-display:
   connection-type: USB_PRINT_SERVICE
-  usb-printer-name: "EPSON VFD Display"  # Use exact name from list-usb
+  usb-printer-name: 'EPSON VFD Display' # Use exact name from list-usb
 ```
 
 Example for USB-to-Serial (COM port):
@@ -112,7 +123,7 @@ Example for USB-to-Serial (COM port):
 ```yaml
 # src/main/resources/application-dev.yml
 
-port-com: COM3  # Or /dev/ttyUSB0 on Linux
+port-com: COM3 # Or /dev/ttyUSB0 on Linux
 
 customer-display:
   connection-type: SERIAL
@@ -123,11 +134,13 @@ customer-display:
 #### Start Backend
 
 **Windows:**
+
 ```bash
 mvnw.cmd
 ```
 
 **Linux/Mac:**
+
 ```bash
 ./mvnw
 ```
@@ -135,6 +148,7 @@ mvnw.cmd
 #### Run Tests
 
 **Windows:**
+
 ```bash
 # Full test suite
 test-customer-display.bat full-test
@@ -146,6 +160,7 @@ test-customer-display.bat message "HELLO" "WORLD"
 ```
 
 **Linux/Mac:**
+
 ```bash
 chmod +x test-customer-display.sh
 
@@ -162,18 +177,18 @@ chmod +x test-customer-display.sh
 
 All endpoints are available at `/api/customer-display`:
 
-| Method | Endpoint | Description |
-|--------|----------|-------------|
-| GET | `/usb-devices` | List USB displays |
-| GET | `/serial-ports` | List serial ports |
-| GET | `/test` | Test connection |
-| POST | `/clear` | Clear display |
-| POST | `/welcome` | Show welcome message |
-| POST | `/test-message` | Display custom message |
-| POST | `/brightness` | Set brightness (1-4) |
-| POST | `/display-total` | Display sale total |
-| POST | `/display-change` | Display change |
-| POST | `/reset` | Reset display |
+| Method | Endpoint          | Description            |
+| ------ | ----------------- | ---------------------- |
+| GET    | `/usb-devices`    | List USB displays      |
+| GET    | `/serial-ports`   | List serial ports      |
+| GET    | `/test`           | Test connection        |
+| POST   | `/clear`          | Clear display          |
+| POST   | `/welcome`        | Show welcome message   |
+| POST   | `/test-message`   | Display custom message |
+| POST   | `/brightness`     | Set brightness (1-4)   |
+| POST   | `/display-total`  | Display sale total     |
+| POST   | `/display-change` | Display change         |
+| POST   | `/reset`          | Reset display          |
 
 ### Examples Using curl
 
@@ -263,6 +278,7 @@ boolean connected = displayService.testConnection();
 ### Problem: "USB display not found"
 
 **Solution:**
+
 1. Run device discovery:
    ```bash
    test-customer-display.bat list-usb
@@ -271,12 +287,13 @@ boolean connected = displayService.testConnection();
 3. Update `application.yml`:
    ```yaml
    customer-display:
-     usb-printer-name: "Exact Display Name From List"
+     usb-printer-name: 'Exact Display Name From List'
    ```
 
 ### Problem: Display works but shows garbled text
 
 **Solution:**
+
 - Check character encoding (Windows-1252 is used for French)
 - Try resetting display:
   ```bash
@@ -287,6 +304,7 @@ boolean connected = displayService.testConnection();
 ### Problem: Connection test fails
 
 **Solution:**
+
 1. Verify display is powered on
 2. Check USB cable connection
 3. On Windows: Check Device Manager for driver issues
@@ -295,6 +313,7 @@ boolean connected = displayService.testConnection();
 ### Problem: Linux permission denied
 
 **Solution:**
+
 ```bash
 # Add user to dialout group
 sudo usermod -a -G dialout $USER
@@ -308,14 +327,14 @@ newgrp dialout
 
 ## Common Display Models & Settings
 
-| Model | Connection | Config |
-|-------|-----------|--------|
-| Epson DM-D30 | USB Printer | `USB_PRINT_SERVICE` |
-| Bixolon BCD-1100 | USB-Serial | `SERIAL` (COM port) |
+| Model                  | Connection  | Config              |
+| ---------------------- | ----------- | ------------------- |
+| Epson DM-D30           | USB Printer | `USB_PRINT_SERVICE` |
+| Bixolon BCD-1100       | USB-Serial  | `SERIAL` (COM port) |
 | Star Micronics SCD222U | USB Printer | `USB_PRINT_SERVICE` |
-| Logic Controls LD9900U | USB-Serial | `SERIAL` (COM port) |
-| Aures OCD | USB Printer | `USB_PRINT_SERVICE` |
-| Partner Tech CD-7220U | USB-Serial | `SERIAL` (COM port) |
+| Logic Controls LD9900U | USB-Serial  | `SERIAL` (COM port) |
+| Aures OCD              | USB Printer | `USB_PRINT_SERVICE` |
+| Partner Tech CD-7220U  | USB-Serial  | `SERIAL` (COM port) |
 
 ## Testing Checklist
 
@@ -339,6 +358,7 @@ See `CUSTOMER_DISPLAY_CONFIGURATION.md` for detailed configuration options.
 ## Support
 
 If you encounter issues:
+
 1. Check the logs for detailed error messages
 2. Verify the display works with manufacturer's software
 3. Try the test scripts to isolate the problem
@@ -347,6 +367,7 @@ If you encounter issues:
 ## Architecture
 
 The implementation follows the same pattern as `AbstractJava2DReceiptPrinterService`:
+
 - ESC/POS helper methods for low-level commands
 - Multiple transport methods (Serial, USB, Network)
 - Configuration class for flexible setup

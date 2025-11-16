@@ -33,7 +33,6 @@ import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
-
 import org.hibernate.annotations.Cache;
 import org.hibernate.annotations.CacheConcurrencyStrategy;
 import org.hibernate.annotations.Generated;
@@ -47,11 +46,10 @@ import org.hibernate.envers.RelationTargetAuditMode;
  * not an ignored comment
  */
 @Audited(targetAuditMode = RelationTargetAuditMode.NOT_AUDITED)
-
 @Entity
 @Table(
     name = "produit",
-    uniqueConstraints = {@UniqueConstraint(columnNames = {"libelle", "type_produit"})},
+    uniqueConstraints = { @UniqueConstraint(columnNames = { "libelle", "type_produit" }) },
     indexes = {
         @Index(columnList = "libelle", name = "libelle_index"),
         @Index(columnList = "code_ean_labo", name = "code_ean_labo_index"),
@@ -117,7 +115,7 @@ public class Produit implements Serializable {
     private Integer itemCostAmount = 0;
 
     @Column(name = "scheduled", columnDefinition = "boolean default false")
-    private Boolean scheduled = false;//pour les produits avec une obligation ordonnance
+    private Boolean scheduled = false; //pour les produits avec une obligation ordonnance
 
     @NotNull
     @Min(value = 0)
@@ -125,7 +123,7 @@ public class Produit implements Serializable {
     private Integer itemRegularUnitPrice = 0;
 
     @NotAudited
-    @OneToMany(mappedBy = "produit", fetch = FetchType.LAZY, cascade = {CascadeType.REMOVE})
+    @OneToMany(mappedBy = "produit", fetch = FetchType.LAZY, cascade = { CascadeType.REMOVE })
     @Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
     private List<OptionPrixProduit> optionPrixProduit = new ArrayList<>();
 
@@ -142,11 +140,11 @@ public class Produit implements Serializable {
     private Produit parent;
 
     @NotAudited
-    @OneToMany(mappedBy = "parent", fetch = FetchType.LAZY, cascade = {CascadeType.REMOVE})
+    @OneToMany(mappedBy = "parent", fetch = FetchType.LAZY, cascade = { CascadeType.REMOVE })
     private List<Produit> produits = new ArrayList<>();
 
     @NotAudited
-    @OneToMany(mappedBy = "produit", fetch = FetchType.LAZY, cascade = {CascadeType.REMOVE})
+    @OneToMany(mappedBy = "produit", fetch = FetchType.LAZY, cascade = { CascadeType.REMOVE })
     private Set<StockProduit> stockProduits = new HashSet<>();
 
     @NotAudited
@@ -188,10 +186,8 @@ public class Produit implements Serializable {
     @Column(name = "categorie", nullable = false, length = 2)
     private CategorieABC categorie = CategorieABC.C;
 
-
-
     @NotAudited
-    @OneToMany(mappedBy = "produit", fetch = FetchType.LAZY, cascade = {CascadeType.PERSIST, CascadeType.MERGE, CascadeType.REMOVE})
+    @OneToMany(mappedBy = "produit", fetch = FetchType.LAZY, cascade = { CascadeType.PERSIST, CascadeType.MERGE, CascadeType.REMOVE })
     @Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
     private Set<FournisseurProduit> fournisseurProduits = new HashSet<>();
 
@@ -206,8 +202,9 @@ public class Produit implements Serializable {
     private StockProduit stockProduitPointOfSale;
 
     @NotAudited
-    @OneToMany(mappedBy = "produit", fetch = FetchType.LAZY, cascade = {CascadeType.PERSIST, CascadeType.MERGE, CascadeType.REMOVE})
+    @OneToMany(mappedBy = "produit", fetch = FetchType.LAZY, cascade = { CascadeType.PERSIST, CascadeType.MERGE, CascadeType.REMOVE })
     private Set<RayonProduit> rayonProduits = new HashSet<>();
+
     @ManyToOne(fetch = FetchType.LAZY)
     private Tableau tableau;
 
@@ -215,23 +212,19 @@ public class Produit implements Serializable {
     seuil minimun en point de vente pour declencher un reassort
      */
     @Min(value = 0)
-    @Column(name = "seuil_reassort",comment = "seuil minimun en point de vente pour declencher un reassort")
+    @Column(name = "seuil_reassort", comment = "seuil minimun en point de vente pour declencher un reassort")
     private Integer seuilReassort;
 
     /*
     seuil minimun du detail en point de vente pour declencher un deconditionnement
      */
     @Min(value = 0)
-    @Column(name = "seuil_decond",comment = "seuil minimun du detail en point de vente pour declencher un deconditionnement")
+    @Column(name = "seuil_decond", comment = "seuil minimun du detail en point de vente pour declencher un deconditionnement")
     private Integer seuilDeconditionnement;
 
     @Enumerated(EnumType.STRING)
-    @Column(
-        name = "code_remise",
-        length = 6,comment = "Code de remise qui seront mappés sur les grilles de remises"
-    )
-    private CodeRemise codeRemise = CodeRemise.CODE_0;//Code de remise qui seront mappés sur les grilles de remises
-
+    @Column(name = "code_remise", length = 6, comment = "Code de remise qui seront mappés sur les grilles de remises")
+    private CodeRemise codeRemise = CodeRemise.CODE_0; //Code de remise qui seront mappés sur les grilles de remises
 
     public CodeRemise getCodeRemise() {
         return codeRemise;
@@ -471,7 +464,6 @@ public class Produit implements Serializable {
         this.forme = forme;
     }
 
-
     public FamilleProduit getFamille() {
         return famille;
     }
@@ -496,8 +488,6 @@ public class Produit implements Serializable {
         this.status = status;
         return this;
     }
-
-
 
     public Set<FournisseurProduit> getFournisseurProduits() {
         return fournisseurProduits;
@@ -534,7 +524,6 @@ public class Produit implements Serializable {
         this.rayonProduits = rayonProduits;
         return this;
     }
-
 
     public Tableau getTableau() {
         return tableau;

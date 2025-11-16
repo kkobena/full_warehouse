@@ -31,10 +31,6 @@ export class AssuranceService {
       .pipe(map((res: EntityArrayResponseType) => this.convertDateArrayFromServer(res)));
   }
 
-
-
-
-
   private convertDateArrayFromServer(res: EntityArrayResponseType): EntityArrayResponseType {
     if (res.body) {
       res.body.forEach((sales: ISales) => {
@@ -44,8 +40,4 @@ export class AssuranceService {
     }
     return res;
   }
-
-
-
-
 }

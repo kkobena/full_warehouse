@@ -28,8 +28,8 @@ import { Card } from 'primeng/card';
     DynamicDialogModule,
     TableModule,
     ToolbarModule,
-    Card
-  ]
+    Card,
+  ],
 })
 export class AyantDroitCustomerListComponent implements OnInit {
   customers: ICustomer[] = [];

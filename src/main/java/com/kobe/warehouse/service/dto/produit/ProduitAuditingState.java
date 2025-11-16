@@ -1,7 +1,6 @@
 package com.kobe.warehouse.service.dto.produit;
 
 import com.kobe.warehouse.domain.enumeration.MouvementProduit;
-
 import java.time.LocalDate;
 
 public class ProduitAuditingState {
@@ -23,8 +22,7 @@ public class ProduitAuditingState {
     private int afterStock;
     private String transactionDate;
 
-    public ProduitAuditingState() {
-    }
+    public ProduitAuditingState() {}
 
     public ProduitAuditingState(MouvementProduit mouvementProduitType, LocalDate mvtDate, int initStock, int quantity, int afterStock) {
         this.mvtDate = mvtDate;
@@ -37,15 +35,15 @@ public class ProduitAuditingState {
         this.ajustementNegatifQuantity = mouvementProduitType == MouvementProduit.AJUSTEMENT_OUT ? quantity : 0;
         this.deconPositifQuantity = mouvementProduitType == MouvementProduit.DECONDTION_IN ? quantity : 0;
         this.deconNegatifQuantity = mouvementProduitType == MouvementProduit.DECONDTION_OUT ? quantity : 0;
-        this.canceledQuantity = mouvementProduitType == MouvementProduit.CANCEL_SALE  ? quantity : 0;
+        this.canceledQuantity = mouvementProduitType == MouvementProduit.CANCEL_SALE ? quantity : 0;
         this.retourDepot = mouvementProduitType == MouvementProduit.RETOUR_DEPOT ? quantity : 0;
         this.storeInventoryQuantity = mouvementProduitType == MouvementProduit.INVENTAIRE ? quantity : 0;
         this.inventoryGap = mouvementProduitType == MouvementProduit.INVENTAIRE ? initStock - quantity : 0;
         this.afterStock = afterStock;
         // this.transactionDate = transactionDate;
     }
-    public ProduitAuditingState(MouvementProduit mouvementProduitType,  int initStock, int quantity, int afterStock) {
 
+    public ProduitAuditingState(MouvementProduit mouvementProduitType, int initStock, int quantity, int afterStock) {
         this.initStock = initStock;
         this.saleQuantity = mouvementProduitType == MouvementProduit.SALE ? quantity : 0;
         this.deleveryQuantity = mouvementProduitType == MouvementProduit.COMMANDE ? quantity : 0;
@@ -55,13 +53,14 @@ public class ProduitAuditingState {
         this.ajustementNegatifQuantity = mouvementProduitType == MouvementProduit.AJUSTEMENT_OUT ? quantity : 0;
         this.deconPositifQuantity = mouvementProduitType == MouvementProduit.DECONDTION_IN ? quantity : 0;
         this.deconNegatifQuantity = mouvementProduitType == MouvementProduit.DECONDTION_OUT ? quantity : 0;
-        this.canceledQuantity = mouvementProduitType == MouvementProduit.CANCEL_SALE  ? quantity : 0;
+        this.canceledQuantity = mouvementProduitType == MouvementProduit.CANCEL_SALE ? quantity : 0;
         this.retourDepot = mouvementProduitType == MouvementProduit.RETOUR_DEPOT ? quantity : 0;
         this.storeInventoryQuantity = mouvementProduitType == MouvementProduit.INVENTAIRE ? quantity : 0;
         this.inventoryGap = mouvementProduitType == MouvementProduit.INVENTAIRE ? initStock - quantity : 0;
         this.afterStock = afterStock;
         // this.transactionDate = transactionDate;
     }
+
     public String getTransactionDate() {
         return transactionDate;
     }
@@ -205,6 +204,4 @@ public class ProduitAuditingState {
         this.afterStock = afterStock;
         return this;
     }
-
-
 }

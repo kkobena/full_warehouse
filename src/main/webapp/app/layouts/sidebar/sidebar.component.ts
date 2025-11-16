@@ -6,13 +6,7 @@ import { AccountService } from 'app/core/auth/account.service';
 import { LoginService } from 'app/login/login.service';
 import { NavItem } from '../navbar/navbar-item.model';
 import { WarehouseCommonModule } from '../../shared/warehouse-common/warehouse-common.module';
-import {
-  faServer,
-  faBars,
-  faChevronDown,
-  faChevronRight,
-  faUserCircle
-} from '@fortawesome/free-solid-svg-icons';
+import { faServer, faBars, faChevronDown, faChevronRight, faUserCircle } from '@fortawesome/free-solid-svg-icons';
 import { Theme, ThemeService } from '../../core/theme/theme.service';
 import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { AppSettingsDialogComponent } from '../../shared/settings/app-settings-dialog.component';
@@ -25,7 +19,7 @@ import { NavigationService } from '../../core/config/navigation.service';
   standalone: true,
   imports: [CommonModule, RouterModule, WarehouseCommonModule, FormsModule],
   templateUrl: './sidebar.component.html',
-  styleUrl: './sidebar.component.scss'
+  styleUrl: './sidebar.component.scss',
 })
 export default class SidebarComponent implements OnInit {
   protected account = inject(AccountService).trackCurrentAccount();
@@ -43,7 +37,6 @@ export default class SidebarComponent implements OnInit {
   themes: Theme[];
   selectedTheme: string;
 
-
   readonly faBars = faBars;
   readonly faChevronDown = faChevronDown;
   readonly faChevronRight = faChevronRight;
@@ -60,7 +53,7 @@ export default class SidebarComponent implements OnInit {
   }
 
   ngOnInit(): void {
-   // this.themes = this.themeService.getThemes();
+    // this.themes = this.themeService.getThemes();
   }
 
   protected isCollapsed(): boolean {
@@ -169,21 +162,21 @@ export default class SidebarComponent implements OnInit {
           {
             label: 'Paramètres Serveur',
             faIcon: faServer,
-            click: () => this.openAppSettings()
-          }
+            click: () => this.openAppSettings(),
+          },
         ],
         additionalAccountMenuItems: [
           {
             label: 'Menu horizontal',
             faIcon: faBars,
-            click: () => this.layoutService.toggleLayout()
+            click: () => this.layoutService.toggleLayout(),
           },
           {
             label: 'Se déconnecter',
             faIcon: 'sign-out-alt',
-            click: () => this.logout()
-          }
-        ]
+            click: () => this.logout(),
+          },
+        ],
       });
     }
 
@@ -192,18 +185,18 @@ export default class SidebarComponent implements OnInit {
       {
         label: 'Paramètres Serveur',
         faIcon: faServer,
-        click: () => this.openAppSettings()
+        click: () => this.openAppSettings(),
       },
       {
         label: 'Menu horizontal',
         faIcon: faBars,
-        click: () => this.layoutService.toggleLayout()
+        click: () => this.layoutService.toggleLayout(),
       },
       {
         label: 'Se connecter',
         faIcon: 'sign-out-alt',
-        click: () => this.login()
-      }
+        click: () => this.login(),
+      },
     ]);
   }
 }

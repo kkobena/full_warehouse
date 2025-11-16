@@ -32,7 +32,6 @@ import org.springframework.util.StringUtils;
 @Transactional
 public class AssuredCustomerServiceImpl implements AssuredCustomerService {
 
-
     private final AssuredCustomerRepository assuredCustomerRepository;
     private final ClientTiersPayantRepository clientTiersPayantRepository;
     private final ThirdPartySaleLineRepository thirdPartySaleLineRepository;

@@ -10,7 +10,8 @@
           [text]="true"
           class="back-button"
           icon="pi pi-arrow-left"
-          pTooltip="Retour à la liste">
+          pTooltip="Retour à la liste"
+        >
         </p-button>
 
         <div class="page-title">
@@ -30,7 +31,8 @@
           icon="pi pi-save"
           label="Enregistrer"
           severity="primary"
-          size="small">
+          size="small"
+        >
         </p-button>
 
         <!-- Cancel Button -->
@@ -41,7 +43,8 @@
           icon="pi pi-times"
           label="Annuler"
           severity="secondary"
-          size="small">
+          size="small"
+        >
         </p-button>
       </div>
     </div>
@@ -122,7 +125,8 @@
             (addQuantite)="onAddReturnLine($event)"
             [isValid]="!!selectedProduct()"
             [disabledButton]="!selectedProduct()"
-            class="pharma-quantity-input">
+            class="pharma-quantity-input"
+          >
           </jhi-quantite-produt-saisie>
         </div>
       </div>
@@ -132,18 +136,24 @@
         <div class="order-meta">
           <div class="meta-item">
             <i class="pi pi-building"></i>
-            <span>Dépôt: <strong>{{ selectedDepot()?.name }}</strong></span>
+            <span
+              >Dépôt: <strong>{{ selectedDepot()?.name }}</strong></span
+            >
           </div>
 
           @if (selectedProduct()) {
             <div class="meta-item">
               <i class="pi pi-box"></i>
-              <span>CIP: <strong>{{ selectedProduct()?.codeCip }}</strong></span>
+              <span
+                >CIP: <strong>{{ selectedProduct()?.codeCip }}</strong></span
+              >
             </div>
 
-            <div class="meta-item" style="background-color: #e3f2fd; padding: 0.5rem; border-radius: 4px;">
+            <div class="meta-item" style="background-color: #e3f2fd; padding: 0.5rem; border-radius: 4px">
               <i class="pi pi-inbox text-primary"></i>
-              <span class="text-primary">Stock Dépôt: <strong style="font-size: 1.1rem;">{{ selectedProduct()?.totalQuantity | number }}</strong></span>
+              <span class="text-primary"
+                >Stock Dépôt: <strong style="font-size: 1.1rem">{{ selectedProduct()?.totalQuantity | number }}</strong></span
+              >
             </div>
           }
         </div>
@@ -156,11 +166,7 @@
         @if (retourDepotItems().length > 0) {
           <div class="mb-4">
             <h5>Produits à retourner</h5>
-            <p-table
-              [value]="retourDepotItems()"
-              class="pharma-table"
-              editMode="cell"
-            >
+            <p-table [value]="retourDepotItems()" class="pharma-table" editMode="cell">
               <ng-template #header>
                 <tr class="pharma-table-head">
                   <th>CIP</th>
@@ -175,9 +181,13 @@
               </ng-template>
               <ng-template #body let-item let-rowIndex="rowIndex">
                 <tr>
-                  <td><span class="pharma-code">{{ item.produitCip }}</span></td>
-                  <td><span class="pharma-product-name">{{ item.produitLibelle }}</span></td>
-                  <td class="text-end" style="background-color: #f5f9fc; font-weight: 600; color: #1976d2;">
+                  <td>
+                    <span class="pharma-code">{{ item.produitCip }}</span>
+                  </td>
+                  <td>
+                    <span class="pharma-product-name">{{ item.produitLibelle }}</span>
+                  </td>
+                  <td class="text-end" style="background-color: #f5f9fc; font-weight: 600; color: #1976d2">
                     {{ getMaxReturnQuantity(item) | number }}
                   </td>
                   <td class="text-end pharma-qty-value" pEditableColumn>

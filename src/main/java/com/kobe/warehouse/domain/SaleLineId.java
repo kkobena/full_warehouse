@@ -5,11 +5,11 @@ import java.time.LocalDate;
 import java.util.Objects;
 
 public class SaleLineId implements Serializable {
+
     private Long id;
     private LocalDate saleDate;
 
-    public SaleLineId() {
-    }
+    public SaleLineId() {}
 
     public Long getId() {
         return id;

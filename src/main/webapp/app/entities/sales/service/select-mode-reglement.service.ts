@@ -4,7 +4,7 @@ import { ModePaymentService } from '../../mode-payments/mode-payment.service';
 import { HttpResponse } from '@angular/common/http';
 
 @Injectable({
-  providedIn: 'root'
+  providedIn: 'root',
 })
 export class SelectModeReglementService {
   private modePaymentService = inject(ModePaymentService);

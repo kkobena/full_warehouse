@@ -8,11 +8,7 @@ import { TableLazyLoadEvent, TableModule } from 'primeng/table';
 import { BadgeModule } from 'primeng/badge';
 import { DividerModule } from 'primeng/divider';
 import { NgxSpinnerModule } from 'ngx-spinner';
-import {
-  ProduitAuditingParam,
-  ProduitAuditingState,
-  ProduitAuditingSum
-} from '../../../shared/model/produit-record.model';
+import { ProduitAuditingParam, ProduitAuditingState, ProduitAuditingSum } from '../../../shared/model/produit-record.model';
 import { HttpHeaders, HttpResponse } from '@angular/common/http';
 import { ProduitStatService } from '../stat/produit-stat.service';
 import { ProduitAuditingParamService } from '../transaction/produit-auditing-param.service';
@@ -31,10 +27,10 @@ import { MagasinService } from '../../magasin/magasin.service';
     TableModule,
     BadgeModule,
     DividerModule,
-    NgxSpinnerModule
+    NgxSpinnerModule,
   ],
   templateUrl: './auditing.component.html',
-  styleUrl: './auditing.component.scss'
+  styleUrl: './auditing.component.scss',
 })
 export class AuditingComponent implements OnInit {
   protected saleQuantity?: number;
@@ -54,7 +50,7 @@ export class AuditingComponent implements OnInit {
   protected page!: number;
   protected loading!: boolean;
   protected totalItems = 0;
-  protected hasDepot= signal<boolean>(false);
+  protected hasDepot = signal<boolean>(false);
   private readonly produitStatService = inject(ProduitStatService);
   private readonly produitAuditingParamService = inject(ProduitAuditingParamService);
   private readonly magasinService = inject(MagasinService);
@@ -62,7 +58,7 @@ export class AuditingComponent implements OnInit {
   ngOnInit(): void {
     this.magasinService.hasDepot().subscribe(hasDepot => {
       this.hasDepot.set(hasDepot.body || false);
-    })
+    });
     const param = this.produitAuditingParamService.produitAuditingParam;
     if (param && param.produitId) {
       this.loadPage();
@@ -91,7 +87,7 @@ export class AuditingComponent implements OnInit {
       },
       error: () => {
         this.summaries = [];
-      }
+      },
     });
   }
 
@@ -102,11 +98,9 @@ export class AuditingComponent implements OnInit {
         // saveAs(blod, 'suivi_mvt_article_' + fileName);
         const blobUrl = URL.createObjectURL(blod);
         window.open(blobUrl);
-      }
+      },
     });
   }
-
-
 
   private onError(): void {
     this.entites = [];
@@ -123,14 +117,13 @@ export class AuditingComponent implements OnInit {
   }
 
   private loadPage(): void {
-
     this.produitStatService
       .fetchTransactions({
-        ...this.buidParams()
+        ...this.buidParams(),
       })
       .subscribe({
         next: (res: HttpResponse<ProduitAuditingState[]>) => this.onSuccess(res.body),
-        error: err => this.onError()
+        error: err => this.onError(),
       });
   }
 
@@ -141,7 +134,7 @@ export class AuditingComponent implements OnInit {
       fromDate: param.fromDate,
       toDate: param.toDate,
       page: this.page,
-      size: this.itemsPerPage
+      size: this.itemsPerPage,
     };
   }
 

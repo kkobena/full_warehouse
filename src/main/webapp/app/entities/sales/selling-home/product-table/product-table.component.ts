@@ -1,12 +1,4 @@
-import {
-  Component,
-  computed,
-  inject,
-  output,
-  Signal,
-  viewChild,
-  ViewEncapsulation
-} from '@angular/core';
+import { Component, computed, inject, output, Signal, viewChild, ViewEncapsulation } from '@angular/core';
 import { TableModule } from 'primeng/table';
 import { ISalesLine } from '../../../../shared/model/sales-line.model';
 import { WarehouseCommonModule } from '../../../../shared/warehouse-common/warehouse-common.module';
@@ -27,9 +19,7 @@ import { FormsModule } from '@angular/forms';
 import { InputGroupAddonModule } from 'primeng/inputgroupaddon';
 import { InputGroupModule } from 'primeng/inputgroup';
 import { Select } from 'primeng/select';
-import {
-  ConfirmDialogComponent
-} from '../../../../shared/dialog/confirm-dialog/confirm-dialog.component';
+import { ConfirmDialogComponent } from '../../../../shared/dialog/confirm-dialog/confirm-dialog.component';
 import { showCommonError } from '../sale-helper';
 import { InputIcon } from 'primeng/inputicon';
 import { IconField } from 'primeng/iconfield';

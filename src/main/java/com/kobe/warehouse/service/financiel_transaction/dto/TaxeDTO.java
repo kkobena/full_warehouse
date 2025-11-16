@@ -1,9 +1,9 @@
 package com.kobe.warehouse.service.financiel_transaction.dto;
 
+import static java.util.Objects.isNull;
+
 import java.time.LocalDate;
 import java.util.Objects;
-
-import static java.util.Objects.isNull;
 
 public class TaxeDTO {
 
@@ -17,10 +17,16 @@ public class TaxeDTO {
     private Integer codeTva;
     private Long amountToBeTakenIntoAccount = 0L;
 
-    public TaxeDTO() {
-    }
+    public TaxeDTO() {}
 
-    public TaxeDTO(LocalDate mvtDate, Integer codeTva, Long montantTtc, Long montantAchat, Double montantHt, Long amountToBeTakenIntoAccount) {
+    public TaxeDTO(
+        LocalDate mvtDate,
+        Integer codeTva,
+        Long montantTtc,
+        Long montantAchat,
+        Double montantHt,
+        Long amountToBeTakenIntoAccount
+    ) {
         this.mvtDate = mvtDate;
         this.codeTva = codeTva;
         this.montantTtc = montantTtc;
@@ -112,5 +118,4 @@ public class TaxeDTO {
     public void setAmountToBeTakenIntoAccount(Long amountToBeTakenIntoAccount) {
         this.amountToBeTakenIntoAccount = amountToBeTakenIntoAccount;
     }
-
 }

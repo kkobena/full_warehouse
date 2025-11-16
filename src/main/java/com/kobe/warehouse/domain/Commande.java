@@ -26,7 +26,6 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
-
 import org.hibernate.annotations.ColumnDefault;
 import org.springframework.data.domain.Persistable;
 
@@ -36,7 +35,7 @@ import org.springframework.data.domain.Persistable;
 @Entity
 @Table(
     name = "commande",
-    uniqueConstraints = { @UniqueConstraint(columnNames = { "receipt_reference", "fournisseur_id", "order_date","order_status" }) },
+    uniqueConstraints = { @UniqueConstraint(columnNames = { "receipt_reference", "fournisseur_id", "order_date", "order_status" }) },
     indexes = {
         @Index(columnList = "order_status", name = "order_status_index"),
         @Index(columnList = "order_date", name = "cmd_order_date_index"),
@@ -99,7 +98,7 @@ public class Commande implements Persistable<CommandeId>, Serializable, Cloneabl
 
     @NotNull
     @Enumerated(EnumType.STRING)
-    @Column(name = "order_status",length = 12, nullable = false)
+    @Column(name = "order_status", length = 12, nullable = false)
     private OrderStatut orderStatus = OrderStatut.REQUESTED;
 
     @OneToMany(mappedBy = "commande", cascade = { CascadeType.PERSIST, CascadeType.REMOVE })
@@ -372,7 +371,6 @@ public class Commande implements Persistable<CommandeId>, Serializable, Cloneabl
     public void setOrderDate(LocalDate orderDate) {
         this.orderDate = orderDate;
     }
-
 
     @Override
     public boolean equals(Object o) {

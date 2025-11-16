@@ -12,7 +12,7 @@ public record TicketZProjection(
     Long montantReel,
     boolean credit
 ) {
-    public ModePaimentCode modePaimentCode(){
+    public ModePaimentCode modePaimentCode() {
         return ModePaimentCode.valueOf(codeModePaiment);
     }
 }

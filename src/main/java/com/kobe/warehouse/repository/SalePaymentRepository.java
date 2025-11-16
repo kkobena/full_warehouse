@@ -1,12 +1,12 @@
 package com.kobe.warehouse.repository;
 
 import com.kobe.warehouse.domain.AppUser;
+import com.kobe.warehouse.domain.AppUser_;
 import com.kobe.warehouse.domain.CashRegister_;
 import com.kobe.warehouse.domain.SalePayment;
 import com.kobe.warehouse.domain.SalePayment_;
 import com.kobe.warehouse.domain.Sales;
 import com.kobe.warehouse.domain.Sales_;
-import com.kobe.warehouse.domain.AppUser_;
 import com.kobe.warehouse.domain.enumeration.CategorieChiffreAffaire;
 import com.kobe.warehouse.domain.enumeration.SalesStatut;
 import com.kobe.warehouse.domain.enumeration.TypeVente;
@@ -31,11 +31,9 @@ import org.springframework.stereotype.Repository;
 @Repository
 public interface SalePaymentRepository
     extends JpaRepository<SalePayment, Long>, JpaSpecificationExecutor<SalePayment>, SalePaymentCustomRepository {
-
     List<SalePayment> findAllBySale(Sales sale);
 
     List<SalePayment> findAllBySaleIdAndSaleSaleDate(Long id, LocalDate date);
-
 
     @Query(
         value = "SELECT  SUM(p.reel_amount) AS montantReel,SUM(p.paid_amount) AS montantPaye,pm.libelle AS modePaimentLibelle,pm.code AS modePaimentCode FROM payment_transaction p JOIN payment_mode pm ON p.payment_mode_code = pm.code " +
@@ -55,39 +53,39 @@ public interface SalePaymentRepository
         return (root, _, cb) -> cb.between(root.get(SalePayment_.createdAt), fromDate, toDate);
     }
 
-
     default Specification<SalePayment> between(LocalDate fromDate, LocalDate toDate) {
-        return (root, query, cb) -> cb.between( root.get(SalePayment_.sale).get(Sales_.saleDate), fromDate, toDate);
+        return (root, query, cb) -> cb.between(root.get(SalePayment_.sale).get(Sales_.saleDate), fromDate, toDate);
     }
+
     default Specification<SalePayment> paymentBetween(LocalDate fromDate, LocalDate toDate) {
-        return (root, query, cb) -> cb.between( root.get(SalePayment_.transactionDate), fromDate, toDate);
+        return (root, query, cb) -> cb.between(root.get(SalePayment_.transactionDate), fromDate, toDate);
     }
 
     default Specification<SalePayment> hasStatut(EnumSet<SalesStatut> statut) {
-        return (root, query, cb) ->  root.get(SalePayment_.sale).get(Sales_.statut).in(statut);
+        return (root, query, cb) -> root.get(SalePayment_.sale).get(Sales_.statut).in(statut);
     }
 
     default Specification<SalePayment> notImported() {
-        return (root, query, cb) -> cb.equal( root.get(SalePayment_.sale).get(Sales_.imported), false);
+        return (root, query, cb) -> cb.equal(root.get(SalePayment_.sale).get(Sales_.imported), false);
     }
 
     default Specification<SalePayment> hasType(TypeVente typeVente) {
-        return (root, query, cb) -> cb.equal( root.get(SalePayment_.sale).get(Sales_.type), typeVente.name());
+        return (root, query, cb) -> cb.equal(root.get(SalePayment_.sale).get(Sales_.type), typeVente.name());
     }
 
     default Specification<SalePayment> hasCaissier(AppUser caissier) {
-        return (root, query, cb) -> cb.equal( root.get(SalePayment_.sale).get(Sales_.caissier), caissier);
+        return (root, query, cb) -> cb.equal(root.get(SalePayment_.sale).get(Sales_.caissier), caissier);
     }
 
     default Specification<SalePayment> hasVendeur(AppUser vendeur) {
-        return (root, query, cb) -> cb.equal( root.get(SalePayment_.sale).get(Sales_.seller), vendeur);
+        return (root, query, cb) -> cb.equal(root.get(SalePayment_.sale).get(Sales_.seller), vendeur);
     }
 
     default Specification<SalePayment> isDiffere() {
-        return (root, query, cb) -> cb.isNull( root.get(SalePayment_.sale).get(Sales_.differe));
+        return (root, query, cb) -> cb.isNull(root.get(SalePayment_.sale).get(Sales_.differe));
     }
 
     default Specification<SalePayment> hasCategorieCa(EnumSet<CategorieChiffreAffaire> categorieChiffreAffaires) {
-        return (root, query, cb) ->  root.get(SalePayment_.sale).get(Sales_.categorieChiffreAffaire).in(categorieChiffreAffaires);
+        return (root, query, cb) -> root.get(SalePayment_.sale).get(Sales_.categorieChiffreAffaire).in(categorieChiffreAffaires);
     }
 }

@@ -1,12 +1,9 @@
 <jhi-toast-alert #alert></jhi-toast-alert>
 <div class="modal-header">
   <h4 class="modal-title">{{ header }}</h4>
-  <button (click)="cancel()" class="btn-close" data-dismiss="modal" type="button">
-    &times;
-  </button>
+  <button (click)="cancel()" class="btn-close" data-dismiss="modal" type="button">&times;</button>
 </div>
 <form (ngSubmit)="save()" [formGroup]="editForm" name="editForm" novalidate role="form">
-
   <div class="modal-body">
     <p-card>
       <div [hidden]="!editForm.get('id')!.value" class="form-group">
@@ -15,22 +12,22 @@
       <div class="ui-g form-group">
         <label for="field_libelle">Libellé</label>
         <div class="ui-g-12">
-          <input #libelleInput
-                 autocomplete="off"
-                 class="form-control"
-                 formControlName="libelle"
-                 id="field_libelle"
-                 name="libelle"
-                 pInputText
-                 style="width: 100%"
+          <input
+            #libelleInput
+            autocomplete="off"
+            class="form-control"
+            formControlName="libelle"
+            id="field_libelle"
+            name="libelle"
+            pInputText
+            style="width: 100%"
           />
         </div>
         @let libelle = editForm.get('libelle');
         @if (libelle!.invalid && (libelle!.dirty || libelle!.touched)) {
           <div>
             @if (libelle?.errors?.required) {
-              <small class="form-text text-danger" style="color: red"> Ce champ est
-                obligatoire. </small>
+              <small class="form-text text-danger" style="color: red"> Ce champ est obligatoire. </small>
             }
           </div>
         }
@@ -55,8 +52,7 @@
           @if (code!.invalid && (code!.dirty || code!.touched)) {
             <div>
               @if (code?.errors?.required) {
-                <small class="form-text text-danger" style="color: red"> Ce champ est
-                  obligatoire. </small>
+                <small class="form-text text-danger" style="color: red"> Ce champ est obligatoire. </small>
               }
             </div>
           }
@@ -95,7 +91,6 @@
             />
           </div>
         </div>
-
       </div>
       <div class="ui-g form-group">
         <label for="field_addresspostale">Adresse postale</label>
@@ -115,8 +110,7 @@
   </div>
 
   <div class="modal-footer">
-    <p-button (click)="cancel()" class="p-mr-2" icon="pi pi-times" label="Annuler"
-              severity="secondary" type="button"></p-button>
+    <p-button (click)="cancel()" class="p-mr-2" icon="pi pi-times" label="Annuler" severity="secondary" type="button"></p-button>
     <p-button
       [disabled]="editForm.invalid || isSaving"
       class="p-mr-2"
@@ -125,7 +119,5 @@
       severity="success"
       type="submit"
     ></p-button>
-
   </div>
-
 </form>

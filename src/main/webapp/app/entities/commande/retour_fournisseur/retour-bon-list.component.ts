@@ -35,11 +35,11 @@ export type ExpandMode = 'single' | 'multiple';
     ToastModule,
     ConfirmDialogModule,
     RippleModule,
-    WarehouseCommonModule
+    WarehouseCommonModule,
   ],
   providers: [MessageService, ConfirmationService],
   templateUrl: './retour-bon-list.component.html',
-  styleUrl: './retour-bon-list.component.scss'
+  styleUrl: './retour-bon-list.component.scss',
 })
 export class RetourBonListComponent implements OnInit {
   private readonly retourBonService = inject(RetourBonService);
@@ -73,7 +73,7 @@ export class RetourBonListComponent implements OnInit {
     this.loading.set(true);
     const query: any = {
       page: this.page(),
-      size: this.itemsPerPage
+      size: this.itemsPerPage,
     };
 
     if (this.dtStart()) {
@@ -100,7 +100,7 @@ export class RetourBonListComponent implements OnInit {
       },
       complete: () => {
         this.loading.set(false);
-      }
+      },
     });
   }
 
@@ -113,7 +113,7 @@ export class RetourBonListComponent implements OnInit {
     this.messageService.add({
       severity: 'error',
       summary: 'Erreur',
-      detail: 'Erreur lors du chargement des retours'
+      detail: 'Erreur lors du chargement des retours',
     });
   }
 
@@ -122,11 +122,10 @@ export class RetourBonListComponent implements OnInit {
     this.loadAll();
   }
 
-   onSearch(): void {
+  onSearch(): void {
     this.page.set(0);
     this.loadAll();
   }
-
 
   protected setSupplierResponse(retourBon: IRetourBon): void {
     showCommonModal(
@@ -167,7 +166,6 @@ export class RetourBonListComponent implements OnInit {
     });
   }
 
-
   protected getStatusSeverity(statut: RetourBonStatut): 'success' | 'info' | 'warn' | 'danger' | 'secondary' {
     switch (statut) {
       case RetourBonStatut.VALIDATED:
@@ -203,15 +201,10 @@ export class RetourBonListComponent implements OnInit {
   }
 
   protected getTotalQuantity(retourBon: IRetourBon): number {
-    return (
-      retourBon.retourBonItems?.reduce((sum, item) => sum + (item.qtyMvt || 0), 0) || 0
-    );
+    return retourBon.retourBonItems?.reduce((sum, item) => sum + (item.qtyMvt || 0), 0) || 0;
   }
 
   protected getTotalAccepted(retourBon: IRetourBon): number {
-    return (
-      retourBon.retourBonItems?.reduce((sum, item) => sum + (item.acceptedQty || 0), 0) || 0
-    );
+    return retourBon.retourBonItems?.reduce((sum, item) => sum + (item.acceptedQty || 0), 0) || 0;
   }
-
 }

@@ -33,7 +33,6 @@ import java.util.List;
 import java.util.Optional;
 import java.util.function.BiPredicate;
 import java.util.stream.Collectors;
-
 import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
@@ -57,7 +56,7 @@ public class CommandeDataServiceImpl implements CommandeDataService {
     private final CommandeReportReportService commandeReportService;
     private final CustomizedCommandeService customizedCommandeService;
     private final OrderLineRepository orderLineRepository;
-    private  final ObjectMapper objectMapper;
+    private final ObjectMapper objectMapper;
 
     private final BiPredicate<OrderLine, String> searchPredicate = (orderLine, s) ->
         StringUtils.isEmpty(s) ||
@@ -78,7 +77,8 @@ public class CommandeDataServiceImpl implements CommandeDataService {
         ExportationCsvService exportationCsvService,
         CommandeReportReportService commandeReportService,
         CustomizedCommandeService customizedCommandeService,
-        OrderLineRepository orderLineRepository, ObjectMapper objectMapper
+        OrderLineRepository orderLineRepository,
+        ObjectMapper objectMapper
     ) {
         this.commandeRepository = commandeRepository;
         this.exportationCsvService = exportationCsvService;
@@ -97,8 +97,6 @@ public class CommandeDataServiceImpl implements CommandeDataService {
         return new CommandeDTO(findId(id));
     }
 
-
-
     @Override
     public Optional<CommandeEntryDTO> getCommandeById(CommandeId id) {
         return Optional.ofNullable(findId(id)).map(CommandeEntryDTO::new);
@@ -116,7 +114,7 @@ public class CommandeDataServiceImpl implements CommandeDataService {
 
     @Override
     public List<OrderLineDTO> filterCommandeLines(CommandeFilterDTO commandeFilter) {
-        List<OrderLine> orderLines = findId(new CommandeId(commandeFilter.getCommandeId(),commandeFilter.getOrderDate())).getOrderLines();
+        List<OrderLine> orderLines = findId(new CommandeId(commandeFilter.getCommandeId(), commandeFilter.getOrderDate())).getOrderLines();
 
         if (StringUtils.isNotEmpty(commandeFilter.getSearch())) {
             if (commandeFilter.getFilterCommaneEnCours() != null && commandeFilter.getFilterCommaneEnCours() != FilterCommaneEnCours.ALL) {
@@ -186,7 +184,9 @@ public class CommandeDataServiceImpl implements CommandeDataService {
 
     @Override
     public Page<OrderLineDTO> filterCommandeLines(CommandeId commandeId, Pageable pageable) {
-        return orderLineRepository.findByCommandeIdAndCommandeOrderDate(commandeId.getId(),commandeId.getOrderDate(), pageable).map(OrderLineDTO::new);
+        return orderLineRepository
+            .findByCommandeIdAndCommandeOrderDate(commandeId.getId(), commandeId.getOrderDate(), pageable)
+            .map(OrderLineDTO::new);
     }
 
     @Override
@@ -204,16 +204,22 @@ public class CommandeDataServiceImpl implements CommandeDataService {
         try {
             String jsonResult;
             if ("month".equals(mvtParam.getGroupeBy())) {
-                jsonResult = commandeRepository.fetchTableauPharmacienReportMensuel(mvtParam.getFromDate(), mvtParam.getToDate(), OrderStatut.CLOSED.name());
+                jsonResult = commandeRepository.fetchTableauPharmacienReportMensuel(
+                    mvtParam.getFromDate(),
+                    mvtParam.getToDate(),
+                    OrderStatut.CLOSED.name()
+                );
             } else {
-                jsonResult = commandeRepository.fetchTableauPharmacienReport(mvtParam.getFromDate(), mvtParam.getToDate(),  OrderStatut.CLOSED.name());
+                jsonResult = commandeRepository.fetchTableauPharmacienReport(
+                    mvtParam.getFromDate(),
+                    mvtParam.getToDate(),
+                    OrderStatut.CLOSED.name()
+                );
             }
             if (StringUtils.isEmpty(jsonResult)) {
                 return new ArrayList<>();
             }
-            return objectMapper.readValue(jsonResult, new TypeReference<>() {
-            });
-
+            return objectMapper.readValue(jsonResult, new TypeReference<>() {});
         } catch (Exception e) {
             LOG.error(null, e);
             return new ArrayList<>();

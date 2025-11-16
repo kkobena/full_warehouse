@@ -74,7 +74,11 @@ public class ThirdPartySaleLineService {
     }
 
     public Optional<ThirdPartySaleLine> findFirstByClientTiersPayantIdAndSaleId(Integer clientTiersPayantId, SaleId saleId) {
-        return thirdPartySaleLineRepository.findFirstByClientTiersPayantIdAndSaleIdAndSaleSaleDate(clientTiersPayantId, saleId.getId(), saleId.getSaleDate());
+        return thirdPartySaleLineRepository.findFirstByClientTiersPayantIdAndSaleIdAndSaleSaleDate(
+            clientTiersPayantId,
+            saleId.getId(),
+            saleId.getSaleDate()
+        );
     }
 
     public long countThirdPartySaleLineByNumBonAndClientTiersPayantIdAndSaleId(

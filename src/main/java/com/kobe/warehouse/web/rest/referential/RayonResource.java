@@ -106,7 +106,7 @@ public class RayonResource {
         Pageable pageable
     ) {
         log.debug("REST request to get a page of Rayons");
-        Page<RayonDTO> page = rayonService.findAll(magasinId,storageId, search, pageable);
+        Page<RayonDTO> page = rayonService.findAll(magasinId, storageId, search, pageable);
         HttpHeaders headers = PaginationUtil.generatePaginationHttpHeaders(ServletUriComponentsBuilder.fromCurrentRequest(), page);
         return ResponseEntity.ok().headers(headers).body(page.getContent());
     }

@@ -1,12 +1,4 @@
-import {
-  computed,
-  Directive,
-  effect,
-  inject,
-  input,
-  TemplateRef,
-  ViewContainerRef
-} from '@angular/core';
+import { computed, Directive, effect, inject, input, TemplateRef, ViewContainerRef } from '@angular/core';
 
 import { AccountService } from 'app/core/auth/account.service';
 

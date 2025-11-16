@@ -10,27 +10,16 @@
     </div>
   </ng-template>
   <ng-template #content>
-    <jhi-prevente-modal
-      (pendingSalesSidebarChange)="closeSideBar($event)"
-      [user]="userCaissier">
-    </jhi-prevente-modal>
+    <jhi-prevente-modal (pendingSalesSidebarChange)="closeSideBar($event)" [user]="userCaissier"> </jhi-prevente-modal>
   </ng-template>
 </p-drawer>
-
 
 <!-- Interface principale -->
 <div class="pharma-sales-layout">
   <!-- HEADER TOOLBAR - Actions principales toujours visibles -->
   <div class="pharma-sales-header">
     <div class="header-left">
-      <p-button
-        (click)="previousState()"
-        [rounded]="true"
-
-        [text]="true"
-        class="back-button"
-        icon="pi pi-arrow-left"
-        pTooltip="Retour">
+      <p-button (click)="previousState()" [rounded]="true" [text]="true" class="back-button" icon="pi pi-arrow-left" pTooltip="Retour">
       </p-button>
 
       <div class="page-title">
@@ -39,10 +28,20 @@
       </div>
 
       <!-- Vendeur Selection (Left Side) -->
-      <div class="header-select-wrapper"
-           style="display: flex !important; flex-direction: row !important; align-items: center !important; gap: 0.75rem !important;">
-        <label class="header-label"
-               style="margin: 0 !important; display: inline-flex !important; align-items: center !important; gap: 0.375rem !important; white-space: nowrap !important;">
+      <div
+        class="header-select-wrapper"
+        style="display: flex !important; flex-direction: row !important; align-items: center !important; gap: 0.75rem !important"
+      >
+        <label
+          class="header-label"
+          style="
+            margin: 0 !important;
+            display: inline-flex !important;
+            align-items: center !important;
+            gap: 0.375rem !important;
+            white-space: nowrap !important;
+          "
+        >
           <i class="pi pi-user"></i>
           <span>Vendeur</span>
         </label>
@@ -56,20 +55,17 @@
           [placeholder]="'Sélectionner un vendeur'"
           [style]="{ width: '200px' }"
           class="pharma-select-modern"
-          optionLabel="abbrName">
+          optionLabel="abbrName"
+        >
         </p-select>
       </div>
-
-
     </div>
 
     <div class="header-actions">
       <!-- Customer Selection (Only for Comptant) -->
       @if (active === 'comptant' && currentSaleService.currentSale()) {
         <div class="header-customer-wrapper">
-          <jhi-customer-overlay-panel
-            (onCloseEvent)="onCustomerOverlay($event)">
-          </jhi-customer-overlay-panel>
+          <jhi-customer-overlay-panel (onCloseEvent)="onCustomerOverlay($event)"> </jhi-customer-overlay-panel>
         </div>
       }
 
@@ -84,7 +80,8 @@
         icon="pi pi-clock"
         label="En attente"
         severity="info"
-        size="small">
+        size="small"
+      >
       </p-button>
     </div>
   </div>
@@ -102,13 +99,13 @@
           <p-button
             (click)="toggleSidebar()"
             [icon]="sidebarCollapsed() ? 'pi pi-angle-right' : 'pi pi-angle-left'"
-
             [pTooltip]="sidebarCollapsed() ? 'Afficher le menu' : 'Masquer le menu'"
             [rounded]="true"
             [text]="true"
             class="sidebar-toggle-btn"
             size="small"
-            tooltipPosition="right">
+            tooltipPosition="right"
+          >
           </p-button>
         </div>
 
@@ -119,8 +116,8 @@
             [(activeId)]="active"
             class="nav flex-column nav-pills"
             ngbNav
-            orientation="vertical">
-
+            orientation="vertical"
+          >
             <ng-container ngbNavItem="comptant">
               <a class="sale-type-link pharma-nav-vertical-link" ngbNavLink>
                 <i class="pi pi-wallet"></i>
@@ -128,12 +125,14 @@
                 <span class="link-arrow">›</span>
               </a>
               <ng-template ngbNavContent>
-                <jhi-comptant #comptant
-                              (inputToFocusEvent)="getControlToFocus($event)"
-                              (responseEvent)="onFinalyse($event)"
-                              (saveResponse)="onSave($event)"
-                              [canFocusLastModeInput]="canFocusLastModeInput"
-                              [isPresale]="isPresale">
+                <jhi-comptant
+                  #comptant
+                  (inputToFocusEvent)="getControlToFocus($event)"
+                  (responseEvent)="onFinalyse($event)"
+                  (saveResponse)="onSave($event)"
+                  [canFocusLastModeInput]="canFocusLastModeInput"
+                  [isPresale]="isPresale"
+                >
                 </jhi-comptant>
               </ng-template>
             </ng-container>
@@ -159,8 +158,6 @@
                 <jhi-carnet #carnet [isPresale]="isPresale"></jhi-carnet>
               </ng-template>
             </ng-container>
-
-
           </div>
         </div>
       </div>
@@ -184,12 +181,11 @@
               class="insurance-toggle-btn"
               severity="info"
               size="small"
-              tooltipPosition="right">
+              tooltipPosition="right"
+            >
               <ng-template #content>
                 <i [class]="showInsuranceDataBar() ? 'pi pi-chevron-up' : 'pi pi-chevron-down'"></i>
-                <span class="toggle-label">{{
-                    showInsuranceDataBar() ? 'Masquer' : 'Afficher'
-                  }}</span>
+                <span class="toggle-label">{{ showInsuranceDataBar() ? 'Masquer' : 'Afficher' }}</span>
               </ng-template>
             </p-button>
 
@@ -201,7 +197,6 @@
             }
           </div>
         }
-
       }
       <!-- PRODUCT SEARCH SECTION -->
       <div class="product-search-section">
@@ -226,7 +221,8 @@
               [enableScanner]="true"
               [includeDetails]="true"
               [pageSize]="PRODUIT_COMBO_RESULT_SIZE"
-              class="pharma-autocomplete">
+              class="pharma-autocomplete"
+            >
             </jhi-produit-search-autocomplete-scanner>
           </div>
 
@@ -237,7 +233,8 @@
               (addQuantite)="addQuantity($event)"
               [disabledButton]="disableButton"
               [isValid]="!!produitSelected"
-              class="pharma-quantity-input">
+              class="pharma-quantity-input"
+            >
             </jhi-quantite-produt-saisie>
           </div>
 
@@ -245,10 +242,11 @@
           @if (produitSelected) {
             <div class="product-meta">
               @if (showStock) {
-                <div [class.low-stock]="(produitSelected?.totalQuantity || 0) < 10"
-                     class="meta-item">
+                <div [class.low-stock]="(produitSelected?.totalQuantity || 0) < 10" class="meta-item">
                   <i class="pi pi-database"></i>
-                  <span>Stock: <strong>{{ produitSelected?.totalQuantity | number }}</strong></span>
+                  <span
+                    >Stock: <strong>{{ produitSelected?.totalQuantity | number }}</strong></span
+                  >
                 </div>
               }
 
@@ -261,8 +259,9 @@
 
               <div class="meta-item price-display">
                 <i class="pi pi-tag"></i>
-                <span>Prix: <strong>{{ produitSelected?.regularUnitPrice | number }}
-                  F</strong></span>
+                <span
+                  >Prix: <strong>{{ produitSelected?.regularUnitPrice | number }} F</strong></span
+                >
               </div>
             </div>
           }
@@ -273,11 +272,8 @@
       <div class="sale-content-area">
         <div [ngbNavOutlet]="nav"></div>
       </div>
-
-
     </div>
   </div>
-
 </div>
 
 <!-- Composants de notification -->

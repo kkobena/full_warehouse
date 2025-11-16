@@ -6,8 +6,7 @@
       <p-toolbar>
         <div class="p-toolbar-group-left"></div>
         <div class="p-toolbar-group-right">
-          <p-button (click)="addNewEntity()" icon="pi pi-plus" label="Nouveau" raised="true"
-                    severity="success" type="button"></p-button>
+          <p-button (click)="addNewEntity()" icon="pi pi-plus" label="Nouveau" raised="true" severity="success" type="button"></p-button>
         </div>
       </p-toolbar>
       @if (entites && entites?.length > 0) {
@@ -31,9 +30,15 @@
           </ng-template>
           <ng-template let-columns="columns" let-elRow let-rowIndex="rowIndex" #body>
             <tr [pSelectableRow]="elRow">
-              <td><span class="pharma-row-number">{{ rowIndex + 1 }}</span></td>
-              <td><span class="pharma-code">{{ elRow.code }}</span></td>
-              <td style="text-align: right"><span class="pharma-entity-name">{{ elRow.value }}</span></td>
+              <td>
+                <span class="pharma-row-number">{{ rowIndex + 1 }}</span>
+              </td>
+              <td>
+                <span class="pharma-code">{{ elRow.code }}</span>
+              </td>
+              <td style="text-align: right">
+                <span class="pharma-entity-name">{{ elRow.value }}</span>
+              </td>
 
               <td style="text-align: center">
                 <p-button
@@ -53,7 +58,6 @@
                   icon="pi pi-box"
                   pTooltip="Associer des produits"
                   rounded="true"
-
                   severity="help"
                   type="button"
                 ></p-button>
@@ -78,5 +82,3 @@
     </p-panel>
   </div>
 </div>
-
-

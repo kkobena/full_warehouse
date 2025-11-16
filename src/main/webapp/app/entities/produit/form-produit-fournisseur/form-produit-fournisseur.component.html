@@ -1,8 +1,6 @@
 <div class="modal-header">
   <h4 class="modal-title">{{ header }}</h4>
-  <button (click)="cancel()" aria-label="Close" class="btn-close" type="button">
-
-  </button>
+  <button (click)="cancel()" aria-label="Close" class="btn-close" type="button"></button>
 </div>
 <form (ngSubmit)="save()" [formGroup]="editForm" name="editForm" novalidate role="form">
   <div class="modal-body">
@@ -13,24 +11,24 @@
       <div class="form-row">
         <div class="form-group col">
           <label class="form-control-label" for="field_fournisseurId">Fournisseurs</label>
-          <p-select #fournisseurSelect
-                    (onChange)="onChange($event)"
-                    [filter]="false"
-                    [options]="fournisseurs"
-                    [style]="{ width: '100%' }"
-                    class="form-control ngCombo"
-                    formControlName="fournisseurId"
-                    id="field_fournisseurId"
-                    optionLabel="libelle"
-                    optionValue="id"
-                    placeholder="Séléctionner un fournisseur "
+          <p-select
+            #fournisseurSelect
+            (onChange)="onChange($event)"
+            [filter]="false"
+            [options]="fournisseurs"
+            [style]="{ width: '100%' }"
+            class="form-control ngCombo"
+            formControlName="fournisseurId"
+            id="field_fournisseurId"
+            optionLabel="libelle"
+            optionValue="id"
+            placeholder="Séléctionner un fournisseur "
           >
           </p-select>
           @if (editForm.get('fournisseurId')!.invalid && (editForm.get('fournisseurId')!.dirty || editForm.get('fournisseurId')!.touched)) {
             <div>
               @if (editForm.get('fournisseurId')?.errors?.required) {
-                <small class="form-text text-danger" jhiTranslate="entity.validation.required"> This field is
-                  required. </small>
+                <small class="form-text text-danger" jhiTranslate="entity.validation.required"> This field is required. </small>
               }
             </div>
           }
@@ -53,8 +51,7 @@
           @if (editForm.get('codeCip')!.invalid && (editForm.get('codeCip')!.dirty || editForm.get('codeCip')!.touched)) {
             <div>
               @if (editForm.get('codeCip')?.errors?.required) {
-                <small class="form-text text-danger" jhiTranslate="entity.validation.required"> This field is
-                  required. </small>
+                <small class="form-text text-danger" jhiTranslate="entity.validation.required"> This field is required. </small>
               }
             </div>
           }
@@ -76,8 +73,7 @@
           @if (editForm.get('prixAchat')!.invalid && (editForm.get('prixAchat')!.dirty || editForm.get('prixAchat')!.touched)) {
             <div>
               @if (editForm.get('prixAchat')?.errors?.required) {
-                <small class="form-text text-danger" jhiTranslate="entity.validation.required"> This field is
-                  required. </small>
+                <small class="form-text text-danger" jhiTranslate="entity.validation.required"> This field is required. </small>
               }
             </div>
           }
@@ -99,8 +95,7 @@
           @if (editForm.get('prixUni')!.invalid && (editForm.get('prixUni')!.dirty || editForm.get('prixUni')!.touched)) {
             <div>
               @if (editForm.get('prixUni')?.errors?.required) {
-                <small class="form-text text-danger" jhiTranslate="entity.validation.required"> This field is
-                  required. </small>
+                <small class="form-text text-danger" jhiTranslate="entity.validation.required"> This field is required. </small>
               }
             </div>
           }
@@ -109,17 +104,22 @@
       <div class="form-row">
         <div class="form-check pt-1">
           <p-toggleswitch [disabled]="hasPrincipal()" formControlName="principal" id="principal"></p-toggleswitch>
-          <label class="form-check-label form-control-label ml-3" for="principal">Est-il le fournisseur principal
-            ?</label>
+          <label class="form-check-label form-control-label ml-3" for="principal">Est-il le fournisseur principal ?</label>
         </div>
       </div>
     </p-card>
   </div>
 
   <div class="modal-footer">
-    <p-button (click)="cancel()" class="mr-2" icon="pi pi-times" label="Annuler" raised="true"
-              severity="secondary"
-              type="button"></p-button>
+    <p-button
+      (click)="cancel()"
+      class="mr-2"
+      icon="pi pi-times"
+      label="Annuler"
+      raised="true"
+      severity="secondary"
+      type="button"
+    ></p-button>
     <p-button
       [disabled]="editForm.invalid || isSaving || !isValid"
       icon="pi pi-check"

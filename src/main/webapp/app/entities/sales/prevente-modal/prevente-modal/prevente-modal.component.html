@@ -1,10 +1,8 @@
 <p-toolbar>
-  <div [style]="{ 'width': '90%' }" class="d-flex justify-content-between">
+  <div [style]="{ width: '90%' }" class="d-flex justify-content-between">
     <div class="mr-1">
       <p-inputgroup>
-        <p-inputgroup-addon>
-          Vendeurs
-        </p-inputgroup-addon>
+        <p-inputgroup-addon> Vendeurs </p-inputgroup-addon>
         <p-select
           (onChange)="onSelectUser()"
           [(ngModel)]="userSeller"
@@ -21,25 +19,15 @@
     <div class="flex-grow-1">
       <p-iconfield>
         <p-inputicon class="pi pi-search" />
-        <input (keyup.enter)="onSearch($event)" [style]="{ 'width': '95%' }" pInputText
-               placeholder="Taper pour rechercher"
-               type="text" />
+        <input (keyup.enter)="onSearch($event)" [style]="{ width: '95%' }" pInputText placeholder="Taper pour rechercher" type="text" />
       </p-iconfield>
     </div>
   </div>
-
 </p-toolbar>
 
 <p-divider></p-divider>
 <div class="pharma-table-wrapper">
-  <p-table
-    [metaKeySelection]="true"
-    [paginator]="true"
-    [rows]="10"
-    [value]="preventes"
-    dataKey="id"
-    class="pharma-table"
-  >
+  <p-table [metaKeySelection]="true" [paginator]="true" [rows]="10" [value]="preventes" dataKey="id" class="pharma-table">
     <ng-template #header>
       <tr class="pharma-table-head">
         <th style="width: 2%"></th>
@@ -50,10 +38,8 @@
         <th style="width: 15%">Vendeur</th>
       </tr>
     </ng-template>
-    <ng-template #body  let-expanded="expanded" let-rowIndex="rowIndex"
-                 let-sale>
-      <tr (click)="onSelect(sale)" (dblclick)="onDbleSelect(sale)"
-          [ngClass]="{ active: selectedRowIndex == sale.id }">
+    <ng-template #body let-expanded="expanded" let-rowIndex="rowIndex" let-sale>
+      <tr (click)="onSelect(sale)" (dblclick)="onDbleSelect(sale)" [ngClass]="{ active: selectedRowIndex == sale.id }">
         <td>
           <p-button
             [icon]="expanded ? 'pi pi-chevron-down' : 'pi pi-chevron-right'"
@@ -109,8 +95,7 @@
                   </tr>
                 </ng-template>
                 <ng-template #body let-rowIndex="rowIndex" let-saleLine>
-                  <tr
-                    [ngClass]="{ 'table-danger': saleLine.quantitySold < saleLine.quantityRequested }">
+                  <tr [ngClass]="{ 'table-danger': saleLine.quantitySold < saleLine.quantityRequested }">
                     <td style="text-align: center">
                       <span class="pharma-row-number">{{ rowIndex + 1 }}</span>
                     </td>
@@ -142,4 +127,3 @@
     </ng-template>
   </p-table>
 </div>
-

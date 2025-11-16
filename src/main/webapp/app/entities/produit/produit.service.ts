@@ -57,7 +57,7 @@ export class ProduitService {
     const options = createRequestOption(req);
     return this.http.get<IProduit[]>(this.resourceUrl + '/criteria', {
       params: options,
-      observe: 'response'
+      observe: 'response',
     });
   }
 
@@ -124,8 +124,7 @@ export class ProduitService {
   }
   search(req?: any): Observable<HttpResponse<ProduitSearch[]>> {
     const options = createRequestOptions(req);
-    return this.http
-      .get<ProduitSearch[]>(`${this.resourceUrl}/search`, { params: options, observe: 'response' });
+    return this.http.get<ProduitSearch[]>(`${this.resourceUrl}/search`, { params: options, observe: 'response' });
   }
   updatePeremptionDate(id: number, datePeremption: any): Observable<HttpResponse<{}>> {
     return this.http.put<{}>(`${this.resourceUrl}/${id}/peremption-date`, datePeremption, { observe: 'response' });
@@ -134,7 +133,7 @@ export class ProduitService {
   private convertDateFromClient(produit: IProduit): IProduit {
     return Object.assign({}, produit, {
       createdAt: produit.createdAt && produit.createdAt.isValid() ? produit.createdAt.toJSON() : undefined,
-      updatedAt: produit.updatedAt && produit.updatedAt.isValid() ? produit.updatedAt.toJSON() : undefined
+      updatedAt: produit.updatedAt && produit.updatedAt.isValid() ? produit.updatedAt.toJSON() : undefined,
     });
   }
 

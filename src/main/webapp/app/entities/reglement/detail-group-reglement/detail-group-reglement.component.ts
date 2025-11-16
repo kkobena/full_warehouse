@@ -14,7 +14,7 @@ import { InputIcon } from 'primeng/inputicon';
   selector: 'jhi-detail-group-reglement',
   imports: [InputTextModule, PanelModule, ReactiveFormsModule, TableModule, IconField, InputIcon],
   templateUrl: './detail-group-reglement.component.html',
-  styleUrls: ['./detail-group-reglement.component.scss']
+  styleUrls: ['./detail-group-reglement.component.scss'],
 })
 export class DetailGroupReglementComponent implements OnInit {
   modalService = inject(NgbModal);

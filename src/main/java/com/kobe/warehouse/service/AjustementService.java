@@ -19,6 +19,7 @@ import com.kobe.warehouse.security.SecurityUtils;
 import com.kobe.warehouse.service.dto.AjustDTO;
 import com.kobe.warehouse.service.dto.AjustementDTO;
 import com.kobe.warehouse.service.mvt_produit.service.InventoryTransactionService;
+import com.kobe.warehouse.service.settings.FileResourceService;
 import java.time.LocalDateTime;
 import java.util.Comparator;
 import java.util.List;
@@ -26,8 +27,6 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.function.BiPredicate;
 import java.util.stream.Collectors;
-
-import com.kobe.warehouse.service.settings.FileResourceService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;

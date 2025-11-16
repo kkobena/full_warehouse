@@ -2,7 +2,6 @@ package com.kobe.warehouse.service.dto;
 
 import com.kobe.warehouse.domain.GrilleRemise;
 import com.kobe.warehouse.domain.RemiseProduit;
-
 import java.util.ArrayList;
 import java.util.List;
 

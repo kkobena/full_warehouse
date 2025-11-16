@@ -1,17 +1,16 @@
 package com.kobe.warehouse.service.financiel_transaction;
 
+import static com.kobe.warehouse.service.financiel_transaction.TableauPharmacienConstants.*;
+
 import com.kobe.warehouse.service.dto.GroupeFournisseurDTO;
 import com.kobe.warehouse.service.excel.ExcelExportService;
 import com.kobe.warehouse.service.excel.GenericExcelDTO;
 import com.kobe.warehouse.service.financiel_transaction.dto.TableauPharmacienDTO;
 import com.kobe.warehouse.service.financiel_transaction.dto.TableauPharmacienWrapper;
-import org.springframework.stereotype.Service;
-
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
-
-import static com.kobe.warehouse.service.financiel_transaction.TableauPharmacienConstants.*;
+import org.springframework.stereotype.Service;
 
 /**
  * Handles Excel export for TableauPharmacien
@@ -28,10 +27,8 @@ public class TableauPharmacienExportService {
     /**
      * Export tableau to Excel format
      */
-    public org.springframework.core.io.Resource exportToExcel(
-        TableauPharmacienWrapper wrapper,
-        List<GroupeFournisseurDTO> supplierGroups
-    ) throws IOException {
+    public org.springframework.core.io.Resource exportToExcel(TableauPharmacienWrapper wrapper, List<GroupeFournisseurDTO> supplierGroups)
+        throws IOException {
         GenericExcelDTO excel = buildExcelData(wrapper, supplierGroups);
         return excelExportService.generate(excel, EXCEL_SHEET_NAME, EXCEL_FILE_NAME);
     }
@@ -39,19 +36,18 @@ public class TableauPharmacienExportService {
     /**
      * Build Excel data structure
      */
-    private GenericExcelDTO buildExcelData(
-        TableauPharmacienWrapper wrapper,
-        List<GroupeFournisseurDTO> supplierGroups
-    ) {
+    private GenericExcelDTO buildExcelData(TableauPharmacienWrapper wrapper, List<GroupeFournisseurDTO> supplierGroups) {
         GenericExcelDTO excel = new GenericExcelDTO();
 
         // Add column headers
         excel.addColumn(buildColumnHeaders(supplierGroups));
 
         // Add data rows
-        wrapper.getTableauPharmaciens().forEach(dto -> {
-            excel.addRow(buildDataRow(dto, supplierGroups));
-        });
+        wrapper
+            .getTableauPharmaciens()
+            .forEach(dto -> {
+                excel.addRow(buildDataRow(dto, supplierGroups));
+            });
 
         return excel;
     }
@@ -60,14 +56,9 @@ public class TableauPharmacienExportService {
      * Build column headers
      */
     private String[] buildColumnHeaders(List<GroupeFournisseurDTO> supplierGroups) {
-        List<String> headers = new ArrayList<>(List.of(
-            COL_DATE,
-            COL_COMPTANT,
-            COL_CREDIT,
-            COL_REMISE,
-            COL_MONTANT_NET,
-            COL_NOMBRE_CLIENTS
-        ));
+        List<String> headers = new ArrayList<>(
+            List.of(COL_DATE, COL_COMPTANT, COL_CREDIT, COL_REMISE, COL_MONTANT_NET, COL_NOMBRE_CLIENTS)
+        );
 
         // Add supplier group columns
         supplierGroups.forEach(group -> headers.add(group.getLibelle()));
@@ -81,10 +72,7 @@ public class TableauPharmacienExportService {
     /**
      * Build data row for a single TableauPharmacienDTO
      */
-    private Object[] buildDataRow(
-        TableauPharmacienDTO dto,
-        List<GroupeFournisseurDTO> supplierGroups
-    ) {
+    private Object[] buildDataRow(TableauPharmacienDTO dto, List<GroupeFournisseurDTO> supplierGroups) {
         List<Object> row = new ArrayList<>();
 
         // Sales data
@@ -97,7 +85,9 @@ public class TableauPharmacienExportService {
 
         // Supplier group amounts
         supplierGroups.forEach(group -> {
-            long amount = dto.getGroupAchats().stream()
+            long amount = dto
+                .getGroupAchats()
+                .stream()
                 .filter(f -> f.getId() == group.getId())
                 .mapToLong(f -> f.getAchat().getMontantNet())
                 .sum();

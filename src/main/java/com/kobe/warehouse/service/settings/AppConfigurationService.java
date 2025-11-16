@@ -5,14 +5,13 @@ import com.kobe.warehouse.domain.AppConfiguration;
 import com.kobe.warehouse.domain.Magasin;
 import com.kobe.warehouse.repository.AppConfigurationRepository;
 import com.kobe.warehouse.service.UserService;
+import java.time.LocalDateTime;
+import java.util.List;
+import java.util.Optional;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
-import java.time.LocalDateTime;
-import java.util.List;
-import java.util.Optional;
 
 @Service
 @Transactional
@@ -29,7 +28,6 @@ public class AppConfigurationService {
     @Transactional(readOnly = true)
     @Cacheable(EntityConstant.APP_MONO_STOCK)
     public boolean isMono() {
-
         Optional<AppConfiguration> appConfiguration = appConfigurationRepository.findById(EntityConstant.APP_GESTION_STOCK);
         return appConfiguration.map(configuration -> Integer.parseInt(configuration.getValue().trim()) == 0).orElse(true);
     }
@@ -102,8 +100,6 @@ public class AppConfigurationService {
             .orElse(90);
     }
 
-
-
     @Transactional(readOnly = true)
     @Cacheable(EntityConstant.APP_POS_PRINTER_ITEM_COUNT_PER_PAGE)
     public int getPrinterItemCount() {
@@ -150,9 +146,6 @@ public class AppConfigurationService {
             .orElse(false);
     }
 
-
-
-
     @Transactional(readOnly = true)
     @Cacheable(EntityConstant.APP_NBRE_JOUR_RETENTION_COMMANDE)
     public int getNombreJourRetentionCommande() {
@@ -166,7 +159,6 @@ public class AppConfigurationService {
     @Transactional(readOnly = true)
     @Cacheable(EntityConstant.APP_CUSTOMER_DISPLAY)
     public boolean isCustomerDisplayActif() {
-
         Optional<AppConfiguration> appConfiguration = appConfigurationRepository.findById(EntityConstant.APP_CUSTOMER_DISPLAY);
         return appConfiguration.map(configuration -> Integer.parseInt(configuration.getValue().trim()) == 0).orElse(false);
     }

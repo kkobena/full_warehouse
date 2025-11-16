@@ -3,7 +3,7 @@ import { InvoiceSearchParams } from '../facturation/edition-search-params.model'
 import { InvoicePaymentParam } from './model/reglement.model';
 
 @Injectable({
-  providedIn: 'root'
+  providedIn: 'root',
 })
 export class RegelementStateService {
   invoiceSearchParams: WritableSignal<InvoiceSearchParams> = signal<InvoiceSearchParams>(null);

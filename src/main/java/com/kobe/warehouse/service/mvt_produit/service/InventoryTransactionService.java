@@ -10,12 +10,11 @@ import com.kobe.warehouse.service.dto.produit.ProduitAuditingState;
 import com.kobe.warehouse.service.dto.produit.ProduitAuditingSum;
 import com.kobe.warehouse.service.sale.dto.VenteDepotTransactionRecord;
 import jakarta.validation.Valid;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
-
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 
 public interface InventoryTransactionService {
     void save(Object entity); // Generic save method for all entities

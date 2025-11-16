@@ -6,14 +6,11 @@
         <div class="pharma-toolbar">
           <div class="pharma-toolbar-header">
             <i class="pi pi-building"></i>
-            <span class="pharma-toolbar-title">{{
-                magasin.fullName || 'Informations du Magasin'
-              }}</span>
+            <span class="pharma-toolbar-title">{{ magasin.fullName || 'Informations du Magasin' }}</span>
             @if (magasin.typeLibelle) {
               <span class="pharma-toolbar-subtitle">{{ magasin.typeLibelle }}</span>
             }
           </div>
-     
         </div>
 
         <!-- Content Cards -->
@@ -48,8 +45,7 @@
                 <label>Type de Magasin</label>
                 <div class="detail-value">
                   <i class="pi pi-home detail-icon"></i>
-                  <p-tag [value]="magasin.typeLibelle || magasin.typeMagasin "
-                         severity="info" />
+                  <p-tag [value]="magasin.typeLibelle || magasin.typeMagasin" severity="info" />
                 </div>
               </div>
             </div>
@@ -82,8 +78,7 @@
                 <div class="detail-value">
                   <i class="pi pi-envelope detail-icon"></i>
                   @if (magasin.email) {
-                    <a [href]="'mailto:' + magasin.email"
-                       class="detail-link">{{ magasin.email }}</a>
+                    <a [href]="'mailto:' + magasin.email" class="detail-link">{{ magasin.email }}</a>
                   } @else {
                     <span>-</span>
                   }
@@ -102,8 +97,6 @@
         </div>
 
         <div class="card-grid-2col mt-2">
-
-
           <!-- Administrative Information -->
           <p-card>
             <ng-template #header>
@@ -166,8 +159,7 @@
             <div class="detail-grid">
               @if (magasin.welcomeMessage) {
                 <div class="detail-item detail-item-full">
-                  <label jhiTranslate="warehouseApp.magasin.welcomeMessage">Message de
-                    Bienvenue</label>
+                  <label jhiTranslate="warehouseApp.magasin.welcomeMessage">Message de Bienvenue</label>
                   <div class="detail-value detail-value-multiline">
                     <i class="pi pi-comment detail-icon"></i>
                     <span>{{ magasin.welcomeMessage }}</span>
@@ -187,17 +179,10 @@
             </div>
           </p-card>
         </div>
-
-
       </div>
 
       <div class="form-actions-compact">
-        <p-button
-          [routerLink]="['/magasin', magasin.id, 'edit']"
-          icon="pi pi-pencil"
-          label="Modifier"
-          severity="primary"
-        />
+        <p-button [routerLink]="['/magasin', magasin.id, 'edit']" icon="pi pi-pencil" label="Modifier" severity="primary" />
       </div>
     }
   </div>

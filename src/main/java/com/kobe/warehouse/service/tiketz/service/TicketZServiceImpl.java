@@ -1,5 +1,7 @@
 package com.kobe.warehouse.service.tiketz.service;
 
+import static java.util.Objects.isNull;
+
 import com.kobe.warehouse.domain.PaymentMode;
 import com.kobe.warehouse.domain.PaymentTransaction;
 import com.kobe.warehouse.domain.SalePayment;
@@ -21,11 +23,6 @@ import com.kobe.warehouse.service.tiketz.dto.TicketZData;
 import com.kobe.warehouse.service.tiketz.dto.TicketZParam;
 import com.kobe.warehouse.service.tiketz.dto.TicketZProjection;
 import com.kobe.warehouse.service.tiketz.dto.TicketZRecap;
-import org.springframework.data.jpa.domain.Specification;
-import org.springframework.http.ResponseEntity;
-import org.springframework.stereotype.Service;
-import org.springframework.util.CollectionUtils;
-
 import java.awt.print.PrinterException;
 import java.io.IOException;
 import java.time.LocalDateTime;
@@ -38,8 +35,10 @@ import java.util.Map;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.stream.Collectors;
-
-import static java.util.Objects.isNull;
+import org.springframework.data.jpa.domain.Specification;
+import org.springframework.http.ResponseEntity;
+import org.springframework.stereotype.Service;
+import org.springframework.util.CollectionUtils;
 
 @Service
 public class TicketZServiceImpl implements TicketZService {
@@ -79,11 +78,11 @@ public class TicketZServiceImpl implements TicketZService {
     public void printTicketZ(String hostName, TicketZParam param) throws PrinterException {
         Pair periode = getPeriode(param);
         this.ticketZPrinterService.printTicketZ(
-            hostName,
-            getTicketZ(param),
-            (LocalDateTime) periode.key(),
-            (LocalDateTime) periode.value()
-        );
+                hostName,
+                getTicketZ(param),
+                (LocalDateTime) periode.key(),
+                (LocalDateTime) periode.value()
+            );
     }
 
     @Override
@@ -99,11 +98,11 @@ public class TicketZServiceImpl implements TicketZService {
     @Override
     public byte[] generateEscPosReceiptForTauri(TicketZParam param) throws IOException {
         Pair periode = getPeriode(param);
-        return  this.ticketZPrinterService.generateEscPosReceiptForTauri(
-            getTicketZ(param),
-            (LocalDateTime) periode.key(),
-            (LocalDateTime) periode.value()
-        );
+        return this.ticketZPrinterService.generateEscPosReceiptForTauri(
+                getTicketZ(param),
+                (LocalDateTime) periode.key(),
+                (LocalDateTime) periode.value()
+            );
     }
 
     private TicketZ combineAll(TicketZParam param) {
@@ -248,10 +247,11 @@ public class TicketZServiceImpl implements TicketZService {
     }
 
     private Specification<Sales> getTicketZDiffereSpecification(TicketZParam param, Pair periode) {
-        Specification<Sales> specification =
-            this.salesRepository.between(param.fromDate(), param.toDate());
+        Specification<Sales> specification = this.salesRepository.between(param.fromDate(), param.toDate());
         if (!param.isMinDate()) {
-            specification = specification.and(this.salesRepository.filterByPeriode((LocalDateTime) periode.key(), (LocalDateTime) periode.value()));
+            specification = specification.and(
+                this.salesRepository.filterByPeriode((LocalDateTime) periode.key(), (LocalDateTime) periode.value())
+            );
         }
 
         if (!CollectionUtils.isEmpty(param.usersId())) {
@@ -261,10 +261,11 @@ public class TicketZServiceImpl implements TicketZService {
     }
 
     private Specification<ThirdPartySales> getTicketZCreditSpecification(TicketZParam param, Pair periode) {
-        Specification<ThirdPartySales> specification =
-            this.thirdPartySaleRepository.filterByPeriode(param.fromDate(), param.toDate());
+        Specification<ThirdPartySales> specification = this.thirdPartySaleRepository.filterByPeriode(param.fromDate(), param.toDate());
         if (!param.isMinDate()) {
-            specification = specification.and(this.thirdPartySaleRepository.filterByPeriode((LocalDateTime) periode.key(), (LocalDateTime) periode.value()));
+            specification = specification.and(
+                this.thirdPartySaleRepository.filterByPeriode((LocalDateTime) periode.key(), (LocalDateTime) periode.value())
+            );
         }
 
         if (!CollectionUtils.isEmpty(param.usersId())) {
@@ -274,11 +275,12 @@ public class TicketZServiceImpl implements TicketZService {
     }
 
     private Specification<SalePayment> getTicketZSalePaymentSpecification(TicketZParam param, Pair periode) {
-        Specification<SalePayment> specification =
-            this.salePaymentRepository.paymentBetween(param.fromDate(), param.toDate());
+        Specification<SalePayment> specification = this.salePaymentRepository.paymentBetween(param.fromDate(), param.toDate());
 
         if (!param.isMinDate()) {
-            specification = specification.and(this.salePaymentRepository.filterByPeriode((LocalDateTime) periode.key(), (LocalDateTime) periode.value()));
+            specification = specification.and(
+                this.salePaymentRepository.filterByPeriode((LocalDateTime) periode.key(), (LocalDateTime) periode.value())
+            );
         }
 
         if (!CollectionUtils.isEmpty(param.usersId())) {
@@ -288,10 +290,16 @@ public class TicketZServiceImpl implements TicketZService {
     }
 
     private Specification<PaymentTransaction> getTicketZAllPaymentSpecification(TicketZParam param, Pair periode) {
-        Specification<PaymentTransaction> specification = this.paymentTransactionRepository.filterByPeriode(((LocalDateTime) periode.key()).toLocalDate(), ((LocalDateTime) periode.value()).toLocalDate());
+        Specification<PaymentTransaction> specification =
+            this.paymentTransactionRepository.filterByPeriode(
+                    ((LocalDateTime) periode.key()).toLocalDate(),
+                    ((LocalDateTime) periode.value()).toLocalDate()
+                );
 
         if (!param.isMinDate()) {
-            specification = specification.and(this.paymentTransactionRepository.filterByPeriode((LocalDateTime) periode.key(), (LocalDateTime) periode.value()));
+            specification = specification.and(
+                this.paymentTransactionRepository.filterByPeriode((LocalDateTime) periode.key(), (LocalDateTime) periode.value())
+            );
         }
         if (!CollectionUtils.isEmpty(param.usersId())) {
             specification = specification.and(this.paymentTransactionRepository.filterByCaissierId(param.usersId()));

@@ -13,7 +13,6 @@ public record TicketZParam(
     LocalTime toTime
 ) {
     public TicketZParam {
-
         if (fromTime == null) {
             fromTime = LocalTime.MIN;
         }

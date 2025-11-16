@@ -10,7 +10,7 @@ type EntityResponseType = HttpResponse<ITableau>;
 type EntityArrayResponseType = HttpResponse<ITableau[]>;
 
 @Injectable({
-  providedIn: 'root'
+  providedIn: 'root',
 })
 export class TableauProduitService {
   protected http = inject(HttpClient);

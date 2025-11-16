@@ -281,7 +281,11 @@ public class UserService {
     public List<String> getAuthorities() {
         return authorityRepository.findAll().stream().map(Authority::getName).collect(Collectors.toList());
     }
-    @Cacheable(value = EntityConstant.CURRENT_USER_CACHE, key = "T(com.kobe.warehouse.security.SecurityUtils).getCurrentUserLogin().orElse('anonymous')")
+
+    @Cacheable(
+        value = EntityConstant.CURRENT_USER_CACHE,
+        key = "T(com.kobe.warehouse.security.SecurityUtils).getCurrentUserLogin().orElse('anonymous')"
+    )
     public AppUser getUser() {
         return SecurityUtils.getCurrentUserLogin().flatMap(userRepository::findOneByLogin).orElse(null);
     }

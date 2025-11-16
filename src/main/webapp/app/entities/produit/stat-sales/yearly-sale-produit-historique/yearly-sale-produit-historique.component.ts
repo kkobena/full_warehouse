@@ -2,7 +2,7 @@ import { Component, inject, OnInit } from '@angular/core';
 import {
   HistoriqueProduitDonneesMensuelles,
   HistoriqueProduitVenteMensuelleSummary,
-  ProduitAuditingParam
+  ProduitAuditingParam,
 } from '../../../../shared/model/produit-record.model';
 import { ProduitStatService } from '../../stat/produit-stat.service';
 import { ProduitAuditingParamService } from '../../transaction/produit-auditing-param.service';
@@ -16,7 +16,7 @@ import { MonthEnum } from '../../../../shared/model/enumerations/month-enum';
   selector: 'jhi-yearly-sale-produit-historique',
   imports: [CommonModule, TableModule],
   templateUrl: './yearly-sale-produit-historique.component.html',
-  styleUrls: ['./yearly-sale-produit-historique.component.scss']
+  styleUrls: ['./yearly-sale-produit-historique.component.scss'],
 })
 export class YearlySaleProduitHistoriqueComponent implements OnInit {
   protected readonly JANUARY = MonthEnum.JANUARY;
@@ -56,10 +56,10 @@ export class YearlySaleProduitHistoriqueComponent implements OnInit {
       .getProduitHistoriqueVenteMensuelle({
         page: pageToLoad,
         size: this.itemsPerPage,
-        ...produitAuditingParam
+        ...produitAuditingParam,
       })
       .subscribe({
-        next: (res: HttpResponse<HistoriqueProduitDonneesMensuelles[]>) => this.onSuccess(res.body, res.headers, pageToLoad)
+        next: (res: HttpResponse<HistoriqueProduitDonneesMensuelles[]>) => this.onSuccess(res.body, res.headers, pageToLoad),
       });
   }
 
@@ -71,10 +71,10 @@ export class YearlySaleProduitHistoriqueComponent implements OnInit {
         .getProduitHistoriqueVenteMensuelle({
           page: this.page,
           size: event.rows,
-          ...this.produitAuditingParamService.produitAuditingParam
+          ...this.produitAuditingParamService.produitAuditingParam,
         })
         .subscribe({
-          next: (res: HttpResponse<HistoriqueProduitDonneesMensuelles[]>) => this.onSuccess(res.body, res.headers, this.page)
+          next: (res: HttpResponse<HistoriqueProduitDonneesMensuelles[]>) => this.onSuccess(res.body, res.headers, this.page),
         });
     }
   }
@@ -84,7 +84,7 @@ export class YearlySaleProduitHistoriqueComponent implements OnInit {
       next: blod => {
         const blobUrl = URL.createObjectURL(blod);
         window.open(blobUrl);
-      }
+      },
     });
   }
 
@@ -92,7 +92,7 @@ export class YearlySaleProduitHistoriqueComponent implements OnInit {
     this.produitStatService.getHistoriqueVenteMensuelleSummary(produitAuditingParam).subscribe({
       next: res => {
         this.summary = res.body;
-      }
+      },
     });
   }
 

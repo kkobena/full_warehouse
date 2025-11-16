@@ -31,8 +31,8 @@ import { Card } from 'primeng/card';
     Select,
     IconField,
     InputIcon,
-    ConfirmDialogComponent
-  ]
+    ConfirmDialogComponent,
+  ],
 })
 export class VenteEnCoursComponent implements OnInit {
   typeVentes: string[] = ['TOUT', 'VNO', 'VO'];
@@ -55,7 +55,7 @@ export class VenteEnCoursComponent implements OnInit {
     this.salesService
       .queryPrevente({
         search: this.search,
-        type: this.typeVenteSelected
+        type: this.typeVenteSelected,
       })
       .subscribe(res => {
         this.sales = res.body ?? [];

@@ -15,6 +15,10 @@ import com.kobe.warehouse.service.dto.projection.AchatTiersPayant;
 import jakarta.persistence.criteria.CriteriaBuilder.In;
 import jakarta.persistence.criteria.Join;
 import jakarta.persistence.criteria.JoinType;
+import java.time.LocalDate;
+import java.util.List;
+import java.util.Optional;
+import java.util.Set;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
@@ -25,17 +29,12 @@ import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 import org.springframework.util.StringUtils;
 
-import java.time.LocalDate;
-import java.util.List;
-import java.util.Optional;
-import java.util.Set;
-
 @Repository
 public interface ThirdPartySaleLineRepository
     extends
-    JpaRepository<ThirdPartySaleLine, AssuranceSaleId>,
-    JpaSpecificationExecutor<ThirdPartySaleLine>,
-    ThirdPartySaleLineCustomRepository {
+        JpaRepository<ThirdPartySaleLine, AssuranceSaleId>,
+        JpaSpecificationExecutor<ThirdPartySaleLine>,
+        ThirdPartySaleLineCustomRepository {
     long countByClientTiersPayantId(Integer clientTiersPayantId);
 
     List<ThirdPartySaleLine> findAllBySaleIdAndSaleSaleDate(Long saleId, LocalDate saleDate);
@@ -61,9 +60,14 @@ public interface ThirdPartySaleLineRepository
         @Param("startOfDay") LocalDate startOfDay
     );
 
-
-    @Query("SELECT o FROM ThirdPartySaleLine o WHERE o.clientTiersPayant.id=:clientTiersPayantId AND o.sale.id=:saleId AND o.saleDate=:saleDate")
-    Optional<ThirdPartySaleLine> findFirstByClientTiersPayantIdAndSaleIdAndSaleSaleDate(Integer clientTiersPayantId, Long saleId, LocalDate saleDate);
+    @Query(
+        "SELECT o FROM ThirdPartySaleLine o WHERE o.clientTiersPayant.id=:clientTiersPayantId AND o.sale.id=:saleId AND o.saleDate=:saleDate"
+    )
+    Optional<ThirdPartySaleLine> findFirstByClientTiersPayantIdAndSaleIdAndSaleSaleDate(
+        Integer clientTiersPayantId,
+        Long saleId,
+        LocalDate saleDate
+    );
 
     default Specification<ThirdPartySaleLine> periodeCriteria(LocalDate startDate, LocalDate endDate) {
         return (root, _, cb) -> cb.between(root.get(ThirdPartySaleLine_.sale).get(ThirdPartySales_.saleDate), startDate, endDate);
@@ -152,14 +156,21 @@ public interface ThirdPartySaleLineRepository
             return (root, _, cb) -> {
                 String likePattern = "%" + searchTerm.toLowerCase() + "%";
                 return cb.or(
-                    cb.like(cb.lower(root.get(ThirdPartySaleLine_.clientTiersPayant).get(ClientTiersPayant_.tiersPayant).get(TiersPayant_.name)), likePattern),
-                    cb.like(cb.lower(root.get(ThirdPartySaleLine_.clientTiersPayant).get(ClientTiersPayant_.tiersPayant).get(TiersPayant_.fullName)), likePattern)
+                    cb.like(
+                        cb.lower(
+                            root.get(ThirdPartySaleLine_.clientTiersPayant).get(ClientTiersPayant_.tiersPayant).get(TiersPayant_.name)
+                        ),
+                        likePattern
+                    ),
+                    cb.like(
+                        cb.lower(
+                            root.get(ThirdPartySaleLine_.clientTiersPayant).get(ClientTiersPayant_.tiersPayant).get(TiersPayant_.fullName)
+                        ),
+                        likePattern
+                    )
                 );
             };
         }
         return (root, _, cb) -> cb.conjunction();
-
     }
-
-
 }

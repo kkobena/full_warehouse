@@ -34,12 +34,13 @@ import org.hibernate.type.SqlTypes;
 
 @Entity
 @Table(
-    name = "tiers_payant",  indexes = {
-    @Index(columnList = "full_name", name = "tiers_payant_full_name_index"),
-    @Index(columnList = "name", name = "tiers_payant_name_index"),
-    @Index(columnList = "statut", name = "tiers_payant_statut_index"),
-    @Index(columnList = "categorie", name = "tiers_payant_categorie_index"),
-},
+    name = "tiers_payant",
+    indexes = {
+        @Index(columnList = "full_name", name = "tiers_payant_full_name_index"),
+        @Index(columnList = "name", name = "tiers_payant_name_index"),
+        @Index(columnList = "statut", name = "tiers_payant_statut_index"),
+        @Index(columnList = "categorie", name = "tiers_payant_categorie_index"),
+    },
     uniqueConstraints = { @UniqueConstraint(columnNames = { "name" }), @UniqueConstraint(columnNames = { "full_name" }) }
 )
 public class TiersPayant implements Serializable, ConsommationService.HasConsommation {
@@ -145,10 +146,9 @@ public class TiersPayant implements Serializable, ConsommationService.HasConsomm
     @Column(name = "plafond_absolu_client")
     private boolean plafondAbsoluClient;
 
-
     @Pattern(regexp = "^[a-zA-Z0-9]*$")
     @Column(name = "ncc", length = 100)
-    private String ncc;//Identifiant contribuable
+    private String ncc; //Identifiant contribuable
 
     @Transient
     private String modelFilePath;
@@ -365,7 +365,6 @@ public class TiersPayant implements Serializable, ConsommationService.HasConsomm
 
     public void setUpdated(LocalDateTime updated) {
         this.updated = updated;
-
     }
 
     public AppUser getUser() {
@@ -383,7 +382,7 @@ public class TiersPayant implements Serializable, ConsommationService.HasConsomm
 
     public void setConsommations(Set<Consommation> consommations) {
         this.consommations = consommations;
-      //  return this;
+        //  return this;
     }
 
     public Integer getPlafondConsoClient() {

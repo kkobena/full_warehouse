@@ -1,62 +1,63 @@
 @if (isTauri) {
-<div class="titlebar" data-tauri-drag-region>
-  <!-- App Icon and Title -->
-  <div class="titlebar-left" data-tauri-drag-region>
-    <div class="app-icon" data-tauri-drag-region>
-      <svg width="20" height="20" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-        <path
-          d="M12 2L2 7V17L12 22L22 17V7L12 2Z"
-          stroke="currentColor"
-          stroke-width="2"
-          stroke-linecap="round"
-          stroke-linejoin="round" />
-        <path d="M12 22V12" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
-        <path d="M2 7L12 12L22 7" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
-      </svg>
+  <div class="titlebar" data-tauri-drag-region>
+    <!-- App Icon and Title -->
+    <div class="titlebar-left" data-tauri-drag-region>
+      <div class="app-icon" data-tauri-drag-region>
+        <svg width="20" height="20" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+          <path
+            d="M12 2L2 7V17L12 22L22 17V7L12 2Z"
+            stroke="currentColor"
+            stroke-width="2"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+          />
+          <path d="M12 22V12" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+          <path d="M2 7L12 12L22 7" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+        </svg>
+      </div>
+      <span class="app-title" data-tauri-drag-region>{{ title }}</span>
+      <span class="route-divider" data-tauri-drag-region>-</span>
+      <span class="current-route" data-tauri-drag-region>{{ currentRoute }}</span>
     </div>
-    <span class="app-title" data-tauri-drag-region>{{ title }}</span>
-    <span class="route-divider" data-tauri-drag-region>-</span>
-    <span class="current-route" data-tauri-drag-region>{{ currentRoute }}</span>
-  </div>
 
-  <!-- Titlebar Actions -->
-  <div class="titlebar-center">
-    <button class="titlebar-action-button new-instance" (click)="openNewInstance()" title="Nouvelle fenêtre" type="button">
-      <svg width="16" height="16" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-        <rect x="3" y="3" width="18" height="18" rx="2" stroke="currentColor" stroke-width="2"/>
-        <line x1="12" y1="8" x2="12" y2="16" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
-        <line x1="8" y1="12" x2="16" y2="12" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
-      </svg>
-    </button>
-  </div>
-
-  <!-- Window Controls -->
-  <div class="titlebar-right">
-    <button class="titlebar-button minimize" (click)="minimizeWindow()" title="Minimize" type="button">
-      <svg width="12" height="12" viewBox="0 0 12 12">
-        <rect width="10" height="1" x="1" y="6"/>
-      </svg>
-    </button>
-
-    <button class="titlebar-button maximize" (click)="maximizeWindow()" [title]="isMaximized ? 'Restore' : 'Maximize'" type="button">
-      @if (!isMaximized) {
-        <svg width="12" height="12" viewBox="0 0 12 12">
-          <rect width="9" height="9" x="1.5" y="1.5" stroke="currentColor" stroke-width="1" />
+    <!-- Titlebar Actions -->
+    <div class="titlebar-center">
+      <button class="titlebar-action-button new-instance" (click)="openNewInstance()" title="Nouvelle fenêtre" type="button">
+        <svg width="16" height="16" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+          <rect x="3" y="3" width="18" height="18" rx="2" stroke="currentColor" stroke-width="2" />
+          <line x1="12" y1="8" x2="12" y2="16" stroke="currentColor" stroke-width="2" stroke-linecap="round" />
+          <line x1="8" y1="12" x2="16" y2="12" stroke="currentColor" stroke-width="2" stroke-linecap="round" />
         </svg>
-      }
-      @if (isMaximized) {
-        <svg width="12" height="12" viewBox="0 0 12 12">
-          <rect width="7" height="7" x="3" y="2" stroke="currentColor" stroke-width="1" />
-          <rect width="7" height="7" x="2" y="3" stroke="currentColor" stroke-width="1" />
-        </svg>
-      }
-    </button>
+      </button>
+    </div>
 
-    <button class="titlebar-button close" (click)="closeWindow()" title="Close" type="button">
-      <svg width="12" height="12" viewBox="0 0 12 12">
-        <path d="M1 1 L11 11 M11 1 L1 11" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" />
-      </svg>
-    </button>
+    <!-- Window Controls -->
+    <div class="titlebar-right">
+      <button class="titlebar-button minimize" (click)="minimizeWindow()" title="Minimize" type="button">
+        <svg width="12" height="12" viewBox="0 0 12 12">
+          <rect width="10" height="1" x="1" y="6" />
+        </svg>
+      </button>
+
+      <button class="titlebar-button maximize" (click)="maximizeWindow()" [title]="isMaximized ? 'Restore' : 'Maximize'" type="button">
+        @if (!isMaximized) {
+          <svg width="12" height="12" viewBox="0 0 12 12">
+            <rect width="9" height="9" x="1.5" y="1.5" stroke="currentColor" stroke-width="1" />
+          </svg>
+        }
+        @if (isMaximized) {
+          <svg width="12" height="12" viewBox="0 0 12 12">
+            <rect width="7" height="7" x="3" y="2" stroke="currentColor" stroke-width="1" />
+            <rect width="7" height="7" x="2" y="3" stroke="currentColor" stroke-width="1" />
+          </svg>
+        }
+      </button>
+
+      <button class="titlebar-button close" (click)="closeWindow()" title="Close" type="button">
+        <svg width="12" height="12" viewBox="0 0 12 12">
+          <path d="M1 1 L11 11 M11 1 L1 11" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" />
+        </svg>
+      </button>
+    </div>
   </div>
-</div>
 }

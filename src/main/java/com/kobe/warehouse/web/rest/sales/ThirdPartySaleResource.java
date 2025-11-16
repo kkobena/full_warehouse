@@ -19,6 +19,9 @@ import com.kobe.warehouse.service.sale.dto.UpdateSale;
 import com.kobe.warehouse.web.util.HeaderUtil;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.time.LocalDate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
@@ -33,10 +36,6 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
-
-import java.net.URI;
-import java.net.URISyntaxException;
-import java.time.LocalDate;
 
 /**
  * REST controller for managing {@link Sales}.
@@ -57,7 +56,7 @@ public class ThirdPartySaleResource {
     }
 
     @PutMapping("/sales/assurance/put-on-hold")
-    @Transactional(noRollbackFor = {PlafondVenteException.class})
+    @Transactional(noRollbackFor = { PlafondVenteException.class })
     public ResponseEntity<ResponseDTO> putSaleOnHold(@Valid @RequestBody ThirdPartySaleDTO sale) {
         if (sale.getId() == null) {
             throw new BadRequestAlertException("Invalid id", ENTITY_NAME, "idnull");
@@ -69,7 +68,7 @@ public class ThirdPartySaleResource {
     }
 
     @PostMapping("/sales/assurance")
-    @Transactional(noRollbackFor = {PlafondVenteException.class})
+    @Transactional(noRollbackFor = { PlafondVenteException.class })
     public ResponseEntity<ThirdPartySaleDTO> createSale(
         @Valid @RequestBody ThirdPartySaleDTO thirdPartySaleDTO,
         HttpServletRequest request
@@ -88,7 +87,7 @@ public class ThirdPartySaleResource {
     }
 
     @PutMapping("/sales/assurance/save")
-    @Transactional(noRollbackFor = {PlafondVenteException.class})
+    @Transactional(noRollbackFor = { PlafondVenteException.class })
     public ResponseEntity<FinalyseSaleDTO> closeSale(@Valid @RequestBody ThirdPartySaleDTO thirdPartySaleDTO) {
         if (thirdPartySaleDTO.getId() == null) {
             throw new BadRequestAlertException("Invalid id", ENTITY_NAME, "idnull");
@@ -100,7 +99,7 @@ public class ThirdPartySaleResource {
     }
 
     @PostMapping("/sales/add-item/assurance")
-    @Transactional(noRollbackFor = {PlafondVenteException.class})
+    @Transactional(noRollbackFor = { PlafondVenteException.class })
     public ResponseEntity<SaleLineDTO> addItem(@Valid @RequestBody SaleLineDTO saleLineDTO) throws URISyntaxException {
         SaleLineDTO result = saleService.createOrUpdateSaleLine(saleLineDTO);
         return ResponseEntity.created(new URI("/api/sales/add-item/assurance/" + result.getId()))
@@ -109,7 +108,7 @@ public class ThirdPartySaleResource {
     }
 
     @PutMapping("/sales/update-item/quantity-requested/assurance")
-    @Transactional(noRollbackFor = {PlafondVenteException.class})
+    @Transactional(noRollbackFor = { PlafondVenteException.class })
     public ResponseEntity<SaleLineDTO> updateItemQtyRequested(@Valid @RequestBody SaleLineDTO saleLineDTO) throws URISyntaxException {
         SaleLineDTO result = saleService.updateItemQuantityRequested(saleLineDTO);
         return ResponseEntity.created(new URI("/api/sales/update-item/quantity-requested/assurance" + result.getId()))
@@ -118,7 +117,7 @@ public class ThirdPartySaleResource {
     }
 
     @PutMapping("/sales/update-item/price/assurance")
-    @Transactional(noRollbackFor = {PlafondVenteException.class})
+    @Transactional(noRollbackFor = { PlafondVenteException.class })
     public ResponseEntity<SaleLineDTO> updateItemPrice(@Valid @RequestBody SaleLineDTO saleLineDTO) throws URISyntaxException {
         SaleLineDTO result = saleService.updateItemRegularPrice(saleLineDTO);
         return ResponseEntity.created(new URI("/api/sales/update-item/price/assurance" + result.getId()))
@@ -127,7 +126,7 @@ public class ThirdPartySaleResource {
     }
 
     @PutMapping("/sales/update-item/quantity-sold/assurance")
-    @Transactional(noRollbackFor = {PlafondVenteException.class})
+    @Transactional(noRollbackFor = { PlafondVenteException.class })
     public ResponseEntity<SaleLineDTO> updateItemQtySold(@Valid @RequestBody SaleLineDTO saleLineDTO) throws URISyntaxException {
         SaleLineDTO result = saleService.updateItemQuantitySold(saleLineDTO);
         return ResponseEntity.created(new URI("/api/sales/update-item/quantity-sold/assurance" + result.getId()))
@@ -136,7 +135,7 @@ public class ThirdPartySaleResource {
     }
 
     @DeleteMapping("/sales/delete-item/assurance/{id}")
-    @Transactional(noRollbackFor = {PlafondVenteException.class})
+    @Transactional(noRollbackFor = { PlafondVenteException.class })
     public ResponseEntity<Void> deleteSaleItem(@PathVariable SaleLineId id) {
         saleService.deleteSaleLineById(id);
         return ResponseEntity.noContent()
@@ -161,7 +160,7 @@ public class ThirdPartySaleResource {
     }
 
     @DeleteMapping("/sales/remove-tiers-payant/assurance/{id}/{saleId}/{saleDate}")
-    @Transactional(noRollbackFor = {PlafondVenteException.class})
+    @Transactional(noRollbackFor = { PlafondVenteException.class })
     public ResponseEntity<Void> removeThirdPartySaleLineToSales(
         @PathVariable("id") Integer clientTiersPayantId,
         @PathVariable("saleId") Long saleId,
@@ -174,7 +173,7 @@ public class ThirdPartySaleResource {
     }
 
     @PutMapping("/sales/add-assurance/assurance/{id}")
-    @Transactional(noRollbackFor = {PlafondVenteException.class})
+    @Transactional(noRollbackFor = { PlafondVenteException.class })
     public ResponseEntity<Void> addThirdPartySaleLineToSales(@PathVariable Long id, @Valid @RequestBody ClientTiersPayantDTO dto) {
         saleService.addThirdPartySaleLineToSales(dto, id);
         return ResponseEntity.accepted().build();
@@ -190,26 +189,25 @@ public class ThirdPartySaleResource {
             throw new BadRequestAlertException("Invalid id", ENTITY_NAME, "idnull");
         }
 
-        return ResponseEntity.ok()
-            .body(saleService.changeCashSaleToThirdPartySale(new SaleId(saleId, SaleDate), natureVente));
+        return ResponseEntity.ok().body(saleService.changeCashSaleToThirdPartySale(new SaleId(saleId, SaleDate), natureVente));
     }
 
     @PutMapping("/sales/assurance/transform/add-customer")
-    @Transactional(noRollbackFor = {PlafondVenteException.class})
+    @Transactional(noRollbackFor = { PlafondVenteException.class })
     public ResponseEntity<Void> updateTransformedSale(@Valid @RequestBody ThirdPartySaleDTO thirdPartySale) {
         saleService.updateTransformedSale(thirdPartySale);
         return ResponseEntity.accepted().build();
     }
 
     @PutMapping("/sales/assurance/change/customer")
-    @Transactional(noRollbackFor = {PlafondVenteException.class})
+    @Transactional(noRollbackFor = { PlafondVenteException.class })
     public ResponseEntity<Void> changeCustomer(@Valid @RequestBody UpdateSaleInfo updateSaleInfo) {
         saleService.changeCustomer(updateSaleInfo);
         return ResponseEntity.accepted().build();
     }
 
     @PutMapping("/sales/assurance/save/completed-sale")
-    @Transactional(noRollbackFor = {PlafondVenteException.class})
+    @Transactional(noRollbackFor = { PlafondVenteException.class })
     public ResponseEntity<FinalyseSaleDTO> editSale(@Valid @RequestBody ThirdPartySaleDTO thirdPartySaleDTO) {
         if (thirdPartySaleDTO.getId() == null) {
             throw new BadRequestAlertException("Invalid id", ENTITY_NAME, "idnull");

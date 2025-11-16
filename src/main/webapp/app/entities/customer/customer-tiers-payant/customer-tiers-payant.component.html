@@ -1,11 +1,9 @@
 <p-toast position="center"></p-toast>
 <div class="modal-header">
   <h4 class="modal-title">{{ title }}</h4>
-  <button (click)="cancel()" class="btn-close" data-dismiss="modal" type="button">
-  </button>
+  <button (click)="cancel()" class="btn-close" data-dismiss="modal" type="button"></button>
 </div>
 <form (ngSubmit)="save()" [formGroup]="editForm" name="editForm">
-
   <div class="modal-body">
     <div class="card-grid-2col">
       <p-card>
@@ -33,18 +31,15 @@
             >
             </p-autoComplete>
 
-            @if (editForm.get('tiersPayant')!.invalid && (editForm.get('tiersPayant')!.dirty
-              || editForm.get('tiersPayant')!.touched)) {
+            @if (editForm.get('tiersPayant')!.invalid && (editForm.get('tiersPayant')!.dirty || editForm.get('tiersPayant')!.touched)) {
               <div>
                 @if (editForm.get('tiersPayant')?.errors?.required) {
-                  <small class="form-text text-danger" jhiTranslate="entity.validation.required"> This
-                    field is required. </small>
+                  <small class="form-text text-danger" jhiTranslate="entity.validation.required"> This field is required. </small>
                 }
               </div>
             }
           </div>
           <div class="form-field form-field-full">
-
             <label for="field_num">Numéro <span class="required">*</span></label>
             <input
               autocomplete="off"
@@ -56,12 +51,10 @@
               pKeyFilter="alphanum"
               type="text"
             />
-            @if (editForm.get('num')!.invalid && (editForm.get('num')!.dirty || editForm.get(
-              'num')!.touched)) {
+            @if (editForm.get('num')!.invalid && (editForm.get('num')!.dirty || editForm.get('num')!.touched)) {
               <div>
                 @if (editForm.get('num')?.errors?.required) {
-                  <small class="form-text text-danger" jhiTranslate="entity.validation.required"> This
-                    field is required. </small>
+                  <small class="form-text text-danger" jhiTranslate="entity.validation.required"> This field is required. </small>
                 }
               </div>
             }
@@ -69,7 +62,6 @@
 
           <div class="form-field form-field-full">
             <label for="field_num">Numéro <span class="required">*</span></label>
-
 
             <input
               autocomplete="off"
@@ -81,19 +73,16 @@
               pKeyFilter="alphanum"
               type="text"
             />
-            @if (editForm.get('num')!.invalid && (editForm.get('num')!.dirty || editForm.get(
-              'num')!.touched)) {
+            @if (editForm.get('num')!.invalid && (editForm.get('num')!.dirty || editForm.get('num')!.touched)) {
               <div>
                 @if (editForm.get('num')?.errors?.required) {
-                  <small class="form-text text-danger" jhiTranslate="entity.validation.required"> This
-                    field is required. </small>
+                  <small class="form-text text-danger" jhiTranslate="entity.validation.required"> This field is required. </small>
                 }
               </div>
             }
           </div>
 
           <div class="form-field form-field-full">
-
             <label for="field_taux">Taux(%) <span class="required">*</span></label>
             <input
               autocomplete="off"
@@ -105,12 +94,10 @@
               pKeyFilter="int"
               type="text"
             />
-            @if (editForm.get('taux')!.invalid && (editForm.get('taux')!.dirty || editForm.get(
-              'taux')!.touched)) {
+            @if (editForm.get('taux')!.invalid && (editForm.get('taux')!.dirty || editForm.get('taux')!.touched)) {
               <div>
                 @if (editForm.get('taux')?.errors?.required) {
-                  <small class="form-text text-danger" jhiTranslate="entity.validation.required"> This
-                    field is required. </small>
+                  <small class="form-text text-danger" jhiTranslate="entity.validation.required"> This field is required. </small>
                 }
               </div>
             }
@@ -126,7 +113,7 @@
         </ng-template>
         <div class="form-grid-compact">
           <div class="form-field form-field-full">
-            <label  for="plafondJournalier">Plafond de vente</label>
+            <label for="plafondJournalier">Plafond de vente</label>
             <input
               autocomplete="off"
               class="form-control"
@@ -139,9 +126,8 @@
             />
           </div>
 
-
           <div class="form-field form-field-full">
-            <label  for="plafondConso">Plafond consommation</label>
+            <label for="plafondConso">Plafond consommation</label>
             <input
               autocomplete="off"
               class="form-control"
@@ -154,24 +140,14 @@
             />
           </div>
 
-
           <div class="form-field form-field-full">
-            <label  for="plafondAbsolu">Le plafond est-il absolu ?</label>
+            <label for="plafondAbsolu">Le plafond est-il absolu ?</label>
 
-            <p-toggleswitch  formControlName="plafondAbsolu"
-                            id="plafondAbsolu"></p-toggleswitch>
+            <p-toggleswitch formControlName="plafondAbsolu" id="plafondAbsolu"></p-toggleswitch>
           </div>
-
-
-
-
         </div>
       </p-card>
     </div>
-
-
-
-
   </div>
 
   <div class="form-actions-compact">

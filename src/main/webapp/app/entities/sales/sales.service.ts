@@ -17,7 +17,7 @@ type EntityArrayResponseType = HttpResponse<ISales[]>;
 @Injectable({ providedIn: 'root' })
 export class SalesService {
   private readonly resourceUrl = SERVER_API_URL + 'api/sales';
-  private readonly  http = inject(HttpClient);
+  private readonly http = inject(HttpClient);
 
   createComptant(sales: ISales): Observable<EntityResponseType> {
     const copy = this.convertDateFromClient(sales);
@@ -65,8 +65,7 @@ export class SalesService {
 
   query(req?: any): Observable<EntityArrayResponseType> {
     const options = createRequestOptions(req);
-    return this.http
-      .get<ISales[]>(this.resourceUrl, { params: options, observe: 'response' });
+    return this.http.get<ISales[]>(this.resourceUrl, { params: options, observe: 'response' });
   }
 
   delete(id: SaleId): Observable<HttpResponse<{}>> {
@@ -111,11 +110,10 @@ export class SalesService {
     return this.http.get<string[]>(`${this.resourceUrl}/assurance/receipt/tauri/${id.id}/${id.saleDate}`);
   }
 
-
   getEscPosReceiptForTauri(id: SaleId, isEdition: boolean = false): Observable<ArrayBuffer> {
     return this.http.get(`${this.resourceUrl}/receipt/tauri/${id.id}/${id.saleDate}`, {
-      params: { isEdition: isEdition},
-      responseType: 'arraybuffer'
+      params: { isEdition: isEdition },
+      responseType: 'arraybuffer',
     });
   }
 
@@ -195,7 +193,7 @@ export class SalesService {
     const options = createRequestOption(req);
     return this.http.get<SaleId>(this.resourceUrl + '/assurance/transform', {
       params: options,
-      observe: 'response'
+      observe: 'response',
     });
   }
 
@@ -210,7 +208,7 @@ export class SalesService {
   private convertDateFromClient(sales: ISales): ISales {
     return Object.assign({}, sales, {
       createdAt: sales.createdAt && sales.createdAt.isValid() ? sales.createdAt.toJSON() : undefined,
-      updatedAt: sales.updatedAt && sales.updatedAt.isValid() ? sales.updatedAt.toJSON() : undefined
+      updatedAt: sales.updatedAt && sales.updatedAt.isValid() ? sales.updatedAt.toJSON() : undefined,
     });
   }
 
@@ -235,7 +233,7 @@ export class SalesService {
   private convertItemDateFromClient(salesLine: ISalesLine): ISalesLine {
     const copy: ISalesLine = Object.assign({}, salesLine, {
       createdAt: salesLine.createdAt && salesLine.createdAt.isValid() ? salesLine.createdAt.toJSON() : undefined,
-      updatedAt: salesLine.updatedAt && salesLine.updatedAt.isValid() ? salesLine.updatedAt.toJSON() : undefined
+      updatedAt: salesLine.updatedAt && salesLine.updatedAt.isValid() ? salesLine.updatedAt.toJSON() : undefined,
     });
     return copy;
   }

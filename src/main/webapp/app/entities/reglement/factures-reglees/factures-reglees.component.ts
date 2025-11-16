@@ -129,10 +129,9 @@ export class FacturesRegleesComponent implements AfterViewInit {
   onPrint(item: Reglement): void {
     if (this.tauriPrinterService.isRunningInTauri()) {
       this.printReceiptForTauri(item);
-    }else{
+    } else {
       this.reglementService.printReceipt(item.id).subscribe();
     }
-
   }
   printReceiptForTauri(item: Reglement): void {
     this.reglementService.getEscPosReceiptForTauri(item.id).subscribe({

@@ -10,8 +10,7 @@
 
     <p-toolbar>
       <ng-template #start>
-        <div class="pharma-toolbar-filters">
-        </div>
+        <div class="pharma-toolbar-filters"></div>
       </ng-template>
 
       <ng-template #end>
@@ -32,14 +31,7 @@
   </div>
 
   @if (entites && entites?.length > 0) {
-    <p-table
-      class="pharma-table"
-      [loading]="loading"
-      [paginator]="false"
-      [value]="entites"
-      dataKey="id"
-      showGridlines="true"
-    >
+    <p-table class="pharma-table" [loading]="loading" [paginator]="false" [value]="entites" dataKey="id" showGridlines="true">
       <ng-template #header>
         <tr class="pharma-table-head">
           <th scope="col" style="width: 30px">#</th>
@@ -52,10 +44,16 @@
       </ng-template>
       <ng-template let-columns="columns" let-elRow let-rowIndex="rowIndex" #body>
         <tr [pSelectableRow]="elRow">
-          <td><span class="pharma-row-number">{{ rowIndex + 1 }}</span></td>
+          <td>
+            <span class="pharma-row-number">{{ rowIndex + 1 }}</span>
+          </td>
 
-          <td><span class="pharma-entity-name">{{ elRow.valeur }}</span></td>
-          <td style="text-align: right"><span class="pharma-qty-value">{{ elRow.remiseValue }}</span></td>
+          <td>
+            <span class="pharma-entity-name">{{ elRow.valeur }}</span>
+          </td>
+          <td style="text-align: right">
+            <span class="pharma-qty-value">{{ elRow.remiseValue }}</span>
+          </td>
 
           <td class="text-right">
             <p-toggleswitch (onChange)="onStatusChange(elRow)" [(ngModel)]="elRow.enable" />

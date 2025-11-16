@@ -11,7 +11,7 @@ import { ICellRendererAngularComp } from 'ag-grid-angular';
     <div class="progress" style="width: 100%;text-align:center;height: 8px;">
       <div [ngClass]="getStatus()" role="progressbar" style="width:100%" aria-valuenow="100" aria-valuemin="0" aria-valuemax="100"></div>
     </div>
-  `
+  `,
 })
 export class ReceiptStatusComponent implements ICellRendererAngularComp, OnChanges {
   params!: any;
@@ -42,6 +42,5 @@ export class ReceiptStatusComponent implements ICellRendererAngularComp, OnChang
     }
   }
 
-  ngOnChanges(changes: SimpleChanges): void {
-  }
+  ngOnChanges(changes: SimpleChanges): void {}
 }

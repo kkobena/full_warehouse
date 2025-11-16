@@ -22,7 +22,7 @@ import { SpinnerComponent } from '../../../shared/spinner/spinner.component';
   selector: 'jhi-suggestion',
   imports: [Button, CommonModule, RouterModule, TableModule, Tooltip, ConfirmDialogComponent, SpinnerComponent],
   templateUrl: './suggestion.component.html',
-  styleUrl: './suggestion.component.scss'
+  styleUrl: './suggestion.component.scss',
 })
 export class SuggestionComponent implements OnInit, OnDestroy {
   readonly search = input('');
@@ -46,7 +46,7 @@ export class SuggestionComponent implements OnInit, OnDestroy {
 
   private readonly modalService = inject(NgbModal);
   private readonly confimDialog = viewChild.required<ConfirmDialogComponent>('confirmDialog');
-   private readonly spinner = viewChild.required<SpinnerComponent>('spinner');
+  private readonly spinner = viewChild.required<SpinnerComponent>('spinner');
 
   constructor() {
     this.rowExpandMode = 'single';
@@ -68,11 +68,11 @@ export class SuggestionComponent implements OnInit, OnDestroy {
       .query({
         page: pageToLoad,
         size: this.itemsPerPage,
-        ...this.buildParameters()
+        ...this.buildParameters(),
       })
       .subscribe({
         next: (res: HttpResponse<Suggestion[]>) => this.onSuccess(res.body, res.headers, pageToLoad),
-        error: () => this.onError()
+        error: () => this.onError(),
       });
   }
 
@@ -84,11 +84,14 @@ export class SuggestionComponent implements OnInit, OnDestroy {
   }
 
   delete(suggestionId: number): void {
-
-    this.confimDialog().onConfirm(() =>
-      this.onDelete({
-        ids: [suggestionId]
-      }), 'Suppression', 'Êtes-vous sûr de vouloir supprimer ?');
+    this.confimDialog().onConfirm(
+      () =>
+        this.onDelete({
+          ids: [suggestionId],
+        }),
+      'Suppression',
+      'Êtes-vous sûr de vouloir supprimer ?',
+    );
   }
 
   sort(): string[] {
@@ -112,7 +115,7 @@ export class SuggestionComponent implements OnInit, OnDestroy {
           this.selections = [];
           this.loadPage();
         },
-        'fusionner-spinner'
+        'fusionner-spinner',
       );
     }
   }
@@ -137,11 +140,11 @@ export class SuggestionComponent implements OnInit, OnDestroy {
         .query({
           page: this.page,
           size: event.rows,
-          ...this.buildParameters()
+          ...this.buildParameters(),
         })
         .subscribe({
           next: (res: HttpResponse<Suggestion[]>) => this.onSuccess(res.body, res.headers, this.page),
-          error: () => this.onError()
+          error: () => this.onError(),
         });
     }
   }
@@ -163,7 +166,7 @@ export class SuggestionComponent implements OnInit, OnDestroy {
       sort: this.sort(),
       search: this.search(),
       fournisseurId: this.fournisseurId(),
-      typeSuggession: this.selectedtypeSuggession() ? this.selectedtypeSuggession() : null
+      typeSuggession: this.selectedtypeSuggession() ? this.selectedtypeSuggession() : null,
     };
   }
 
@@ -178,7 +181,7 @@ export class SuggestionComponent implements OnInit, OnDestroy {
       error: error => {
         this.spinner().hide();
         this.onCommonError(error);
-      }
+      },
     });
   }
 
@@ -193,7 +196,7 @@ export class SuggestionComponent implements OnInit, OnDestroy {
           next: translatedErrorMessage => {
             this.openInfoDialog(translatedErrorMessage, 'alert alert-danger');
           },
-          error: () => this.openInfoDialog(error.error.title, 'alert alert-danger')
+          error: () => this.openInfoDialog(error.error.title, 'alert alert-danger'),
         });
     }
   }
@@ -201,7 +204,7 @@ export class SuggestionComponent implements OnInit, OnDestroy {
   private openInfoDialog(message: string, infoClass: string): void {
     const modalRef = this.modalService.open(AlertInfoComponent, {
       backdrop: 'static',
-      centered: true
+      centered: true,
     });
     modalRef.componentInstance.message = message;
     modalRef.componentInstance.infoClass = infoClass;
@@ -228,7 +231,7 @@ export class SuggestionComponent implements OnInit, OnDestroy {
       error: error => {
         this.spinner().hide();
         this.onCommonError(error);
-      }
+      },
     });
   }
 }

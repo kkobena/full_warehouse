@@ -5,13 +5,13 @@ import static java.util.Objects.isNull;
 import static java.util.Objects.nonNull;
 import static org.springframework.util.StringUtils.hasText;
 
+import com.kobe.warehouse.domain.AppUser;
 import com.kobe.warehouse.domain.FournisseurProduit;
 import com.kobe.warehouse.domain.Lot;
 import com.kobe.warehouse.domain.Magasin;
 import com.kobe.warehouse.domain.ProductsToDestroy;
 import com.kobe.warehouse.domain.Produit;
 import com.kobe.warehouse.domain.StockProduit;
-import com.kobe.warehouse.domain.AppUser;
 import com.kobe.warehouse.domain.enumeration.StorageType;
 import com.kobe.warehouse.repository.FournisseurProduitRepository;
 import com.kobe.warehouse.repository.LotRepository;
@@ -143,8 +143,8 @@ public class ProductsToDestroyServiceImpl implements ProductsToDestroyService {
             productsToDestroy.setNumLot(lot.getNumLot());
             productsToDestroy.setDatePeremption(lot.getExpiryDate());
         } else {
-           // Produit product = fournisseurProduit.getProduit();
-           // productsToDestroy.setDatePeremption(product.getPerimeAt());
+            // Produit product = fournisseurProduit.getProduit();
+            // productsToDestroy.setDatePeremption(product.getPerimeAt());
             productsToDestroy.setPrixAchat(fournisseurProduit.getPrixAchat());
             productsToDestroy.setPrixUnit(fournisseurProduit.getPrixUni());
             //a revoir

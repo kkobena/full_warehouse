@@ -29,10 +29,7 @@ public class MenuService {
         this.userService.getUserWithAuthorities()
             .ifPresent(user -> {
                 menuSpecialisations.addAll(
-                    this.menuRepository.getRoleMenus(
-                            user.getAuthorities().stream().map(Authority::getName).collect(Collectors.toSet())
-                           )
-
+                    this.menuRepository.getRoleMenus(user.getAuthorities().stream().map(Authority::getName).collect(Collectors.toSet()))
                 );
             });
         Map<Boolean, List<MenuSpecialisation>> partitioned = menuSpecialisations

@@ -1,17 +1,16 @@
 package com.kobe.warehouse.service.financiel_transaction;
 
+import static com.kobe.warehouse.service.financiel_transaction.TableauPharmacienConstants.*;
+
 import com.kobe.warehouse.domain.GroupeFournisseur;
 import com.kobe.warehouse.repository.GroupeFournisseurRepository;
 import com.kobe.warehouse.service.dto.GroupeFournisseurDTO;
-import org.springframework.stereotype.Component;
-
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
-
-import static com.kobe.warehouse.service.financiel_transaction.TableauPharmacienConstants.*;
+import org.springframework.stereotype.Component;
 
 /**
  * Manages supplier group display logic
@@ -35,10 +34,7 @@ public class GroupeFournisseurManager {
         if (allGroups.size() > MAX_DISPLAYED_GROUPS) {
             return buildTopGroupsWithOthers(allGroups);
         } else {
-            return allGroups.stream()
-                .sorted(Comparator.comparing(GroupeFournisseur::getOdre))
-                .map(GroupeFournisseurDTO::new)
-                .toList();
+            return allGroups.stream().sorted(Comparator.comparing(GroupeFournisseur::getOdre)).map(GroupeFournisseurDTO::new).toList();
         }
     }
 
@@ -46,7 +42,8 @@ public class GroupeFournisseurManager {
      * Get IDs of groups to display individually (not grouped as "Autres")
      */
     public Set<Integer> getDisplayedGroupIds() {
-        return getDisplayedSupplierGroups().stream()
+        return getDisplayedSupplierGroups()
+            .stream()
             .map(GroupeFournisseurDTO::getId)
             .filter(id -> id != GROUP_OTHER_ID) // Exclude "Autres" virtual group
             .collect(Collectors.toSet());
@@ -59,10 +56,7 @@ public class GroupeFournisseurManager {
         List<GroupeFournisseurDTO> displayedGroups = new ArrayList<>();
 
         // Add top N groups
-        allGroups.stream()
-            .limit(MAX_DISPLAYED_GROUPS)
-            .map(GroupeFournisseurDTO::new)
-            .forEach(displayedGroups::add);
+        allGroups.stream().limit(MAX_DISPLAYED_GROUPS).map(GroupeFournisseurDTO::new).forEach(displayedGroups::add);
 
         // Add "Autres" virtual group
         GroupeFournisseurDTO othersGroup = new GroupeFournisseurDTO()

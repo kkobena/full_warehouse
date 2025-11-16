@@ -1,10 +1,10 @@
 logging:
   level:
     ROOT: DEBUG
-    org.hibernate.SQL: DEBUG           # Affiche toutes les requêtes SQL générées
+    org.hibernate.SQL: DEBUG # Affiche toutes les requêtes SQL générées
     org.hibernate.type.descriptor.sql: DEBUG
 
-    org.hibernate.type.descriptor.sql.BasicBinder: DEBUG   # Affiche les valeurs des paramètres liés
+    org.hibernate.type.descriptor.sql.BasicBinder: DEBUG # Affiche les valeurs des paramètres liés
     org.springframework: DEBUG
     com.kobe.warehouse: DEBUG
     javax:
@@ -54,7 +54,6 @@ server:
   # make sure requests the proxy uri instead of the server one
   forward-headers-strategy: native
 
-
 pharma-smart-log:
   # CORS is only enabled by default with the "dev" profile
   cors:
@@ -82,8 +81,6 @@ pharma-smart-log:
       # security key (this key should be unique for your application, and kept secret)
       key: e6272562f8e92c219ee0e4fdf0820bdc06a1058f6e8ab97bc7b89d9d85558881306da57607f52c5bf545f38982946add9428
 
-
-
 # application:
 file:
   report: ./reports
@@ -94,7 +91,6 @@ file:
     excel: ./excel
   pharmaml: ./pharmaml
 
-
 # FNE FACTURE NORMALE ELECTRONIQUE
 
 fne:
@@ -103,5 +99,3 @@ fne:
   # FNE API Key
   api-key: nSXimInFusKqICZaJ95QZvQT85FOZvHW
   pointOfSale:
-
-

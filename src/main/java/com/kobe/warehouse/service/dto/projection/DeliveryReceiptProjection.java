@@ -1,11 +1,9 @@
 package com.kobe.warehouse.service.dto.projection;
 
 import com.kobe.warehouse.domain.CommandeId;
-
 import java.time.LocalDate;
 
 public interface DeliveryReceiptProjection {
-
     Integer getId();
 
     String getReceiptReference();
@@ -22,7 +20,6 @@ public interface DeliveryReceiptProjection {
     default CommandeId getCommandeId() {
         return new CommandeId(getId(), getOrderDate());
     }
-
     /*
      private final Integer id;
     private final CommandeId commandeId;

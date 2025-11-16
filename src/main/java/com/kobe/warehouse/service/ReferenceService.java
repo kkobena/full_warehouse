@@ -28,6 +28,7 @@ public class ReferenceService {
     public String buildNumCommande() {
         return buildReference(Constants.REFERENCE_TYPE_COMMANDE, this::formatWithDatePrefix);
     }
+
     public String buildNumTransaction() {
         return buildReference(Constants.REFERENCE_TYPE_TRANSACTION, this::formatWithDatePrefix);
     }

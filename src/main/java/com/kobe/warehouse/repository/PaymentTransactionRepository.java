@@ -1,11 +1,11 @@
 package com.kobe.warehouse.repository;
 
+import com.kobe.warehouse.domain.AppUser_;
 import com.kobe.warehouse.domain.CashRegister_;
 import com.kobe.warehouse.domain.PaymentId;
 import com.kobe.warehouse.domain.PaymentMode_;
 import com.kobe.warehouse.domain.PaymentTransaction;
 import com.kobe.warehouse.domain.PaymentTransaction_;
-import com.kobe.warehouse.domain.AppUser_;
 import com.kobe.warehouse.domain.enumeration.CategorieChiffreAffaire;
 import com.kobe.warehouse.domain.enumeration.TypeFinancialTransaction;
 import com.kobe.warehouse.service.dto.projection.MouvementCaisse;
@@ -54,6 +54,7 @@ public interface PaymentTransactionRepository
     default Specification<PaymentTransaction> filterByPeriode(LocalDateTime fromDate, LocalDateTime toDate) {
         return (root, _, cb) -> cb.between(root.get(PaymentTransaction_.createdAt), fromDate, toDate);
     }
+
     default Specification<PaymentTransaction> filterByPeriode(LocalDate fromDate, LocalDate toDate) {
         return (root, _, cb) -> cb.between(root.get(PaymentTransaction_.transactionDate), fromDate, toDate);
     }
@@ -99,6 +100,4 @@ public interface PaymentTransactionRepository
         }
         return (root, query, cb) -> root.get(PaymentTransaction_.cashRegister).get(CashRegister_.user).get(AppUser_.id).in(caissierIds);
     }
-
-
 }

@@ -1,53 +1,43 @@
 @if (this.currentSaleService.currentSale()) {
   <div class="row">
-    <div class=" col-lg-9 col-sm-12 col-md-12 col-xl-9 col-xxl-9">
-
-        <jhi-product-table
-          (deleteItemEvent)="confirmDeleteItem($event)"
-          (itemPriceEvent)="updateItemPrice($event)"
-          (itemQtyRequestedEvent)="updateItemQtyRequested($event)"
-          (itemQtySoldEvent)="updateItemQtySold($event)"
-          (addRemiseEvent)="onAddRemise($event)"
-        >
-        </jhi-product-table>
-
-
+    <div class="col-lg-9 col-sm-12 col-md-12 col-xl-9 col-xxl-9">
+      <jhi-product-table
+        (deleteItemEvent)="confirmDeleteItem($event)"
+        (itemPriceEvent)="updateItemPrice($event)"
+        (itemQtyRequestedEvent)="updateItemQtyRequested($event)"
+        (itemQtySoldEvent)="updateItemQtySold($event)"
+        (addRemiseEvent)="onAddRemise($event)"
+      >
+      </jhi-product-table>
     </div>
 
     <div class="amounts-summary col-lg-3 col-sm-12 col-md-12 col-xl-3 col-xxl-3">
-        <div class="grid">
-          <div class="col-12">
-            <jhi-amount-computing #amountComputing
-                                  [entryAmount]="entryAmount"></jhi-amount-computing>
-          </div>
-          <div class="col-12 d-flex justify-content-center">
-            <p-button class="mr-1" [raised]="true" (click)="save()" icon="pi pi-check" label="Terminer"
-                      severity="success"></p-button>
-            <p-button
-              [raised]="true"
-              (click)="putCurrentSaleOnStandBy()"
-              icon="pi pi-times"
-              label="En attente"
-              severity="secondary"
-            ></p-button>
-
-          </div>
+      <div class="grid">
+        <div class="col-12">
+          <jhi-amount-computing #amountComputing [entryAmount]="entryAmount"></jhi-amount-computing>
         </div>
-
-
+        <div class="col-12 d-flex justify-content-center">
+          <p-button class="mr-1" [raised]="true" (click)="save()" icon="pi pi-check" label="Terminer" severity="success"></p-button>
+          <p-button
+            [raised]="true"
+            (click)="putCurrentSaleOnStandBy()"
+            icon="pi pi-times"
+            label="En attente"
+            severity="secondary"
+          ></p-button>
+        </div>
+      </div>
     </div>
   </div>
 
-  <jhi-mode-reglement #modeReglement
-
-                      [isDiffere]="currentSaleService.currentSale()?.differe"
-                      (paymentModeControlEvent)="manageCashPaymentMode($event)"
-                      (onSaveEvent)="onKeyDown($event)"
-
+  <jhi-mode-reglement
+    #modeReglement
+    [isDiffere]="currentSaleService.currentSale()?.differe"
+    (paymentModeControlEvent)="manageCashPaymentMode($event)"
+    (onSaveEvent)="onKeyDown($event)"
   ></jhi-mode-reglement>
-
 }
 
 <jhi-confirm-dialog #confirmDialog></jhi-confirm-dialog>
 
-<jhi-spinner #spinner ></jhi-spinner>
+<jhi-spinner #spinner></jhi-spinner>

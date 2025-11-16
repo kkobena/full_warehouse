@@ -6,9 +6,7 @@ import org.springframework.stereotype.Service;
 @Service
 public class TransactionItemIdGeneratorService extends AbstractIdGeneratorService {
 
-
     public TransactionItemIdGeneratorService(EntityManager entityManager) {
-
         super(entityManager);
     }
 
@@ -16,6 +14,4 @@ public class TransactionItemIdGeneratorService extends AbstractIdGeneratorServic
     public String getSequenceName() {
         return "id_transaction_item_seq";
     }
-
-
 }

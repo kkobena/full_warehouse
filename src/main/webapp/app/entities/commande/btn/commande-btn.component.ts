@@ -34,7 +34,7 @@ import { Tooltip } from 'primeng/tooltip';
         ></p-button>
       }
     </div>
-  `
+  `,
 })
 export class CommandeBtnComponent implements ICellRendererAngularComp {
   params!: any;

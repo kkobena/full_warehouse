@@ -65,9 +65,6 @@ public class JwtAuthenticationConverter implements Converter<Jwt, AbstractAuthen
             }
         }
 
-        return authorities
-            .stream()
-            .map(SimpleGrantedAuthority::new)
-            .collect(Collectors.toList());
+        return authorities.stream().map(SimpleGrantedAuthority::new).collect(Collectors.toList());
     }
 }

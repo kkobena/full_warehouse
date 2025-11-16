@@ -34,8 +34,8 @@ import { Storage } from '../../storage/storage.model';
     KeyFilter,
     ToastAlertComponent,
     Card,
-    Select
-  ]
+    Select,
+  ],
 })
 export class FormRayonComponent implements OnInit, AfterViewInit {
   header: string = '';
@@ -48,7 +48,7 @@ export class FormRayonComponent implements OnInit, AfterViewInit {
     id: [],
     code: [null, [Validators.required]],
     storageId: [null, [Validators.required]],
-    libelle: [null, [Validators.required]]
+    libelle: [null, [Validators.required]],
   });
   private readonly entityService = inject(RayonService);
   private readonly alert = viewChild.required<ToastAlertComponent>('alert');
@@ -86,14 +86,14 @@ export class FormRayonComponent implements OnInit, AfterViewInit {
       id: entity.id,
       code: entity.code,
       libelle: entity.libelle,
-      storageId: entity.storageId
+      storageId: entity.storageId,
     });
   }
 
   private subscribeToSaveResponse(result: Observable<HttpResponse<IRayon>>): void {
     result.subscribe({
       next: (res: HttpResponse<IRayon>) => this.onSaveSuccess(res.body),
-      error: err => this.onSaveError(err)
+      error: err => this.onSaveError(err),
     });
   }
 
@@ -112,14 +112,14 @@ export class FormRayonComponent implements OnInit, AfterViewInit {
       id: this.editForm.get(['id']).value,
       code: this.editForm.get(['code']).value,
       libelle: this.editForm.get(['libelle']).value,
-      storageId: this.editForm.get(['storageId']).value
+      storageId: this.editForm.get(['storageId']).value,
     };
   }
 
   private findMagsinStorage(magasinId: number): void {
     this.storageService
       .fetchStorages({
-        magasinId
+        magasinId,
       })
 
       .subscribe((res: HttpResponse<Storage[]>) => {

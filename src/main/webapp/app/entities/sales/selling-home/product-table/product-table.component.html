@@ -2,7 +2,6 @@
   <div class="pharma-table-wrapper">
     <!-- En-tête du tableau avec actions - VERSION COMPACTE -->
     <div class="pharma-table-header-compact">
-
       <!-- Recherche produit -->
       <div class="pharma-filter-search">
         <p-iconfield>
@@ -23,7 +22,6 @@
 
       <!-- Section Remise -->
       <div class="pharma-remise-section">
-
         <!-- Badge Remise Info -->
         @if (currentSaleService.currentSale()?.remise) {
           <div class="pharma-remise-info">
@@ -44,7 +42,8 @@
             [showClear]="true"
             class="pharma-remise-select-compact"
             optionLabel="valeur"
-            placeholder="Choisir une remise">
+            placeholder="Choisir une remise"
+          >
             <ng-template #group let-group>
               <div class="pharma-remise-group">
                 <i class="pi pi-tag"></i>
@@ -69,10 +68,9 @@
       class="pharma-table"
       currentPageReportTemplate="Affichage de {first} à {last} sur {totalRecords} produits"
       dataKey="id"
-      selectionMode="single">
-
+      selectionMode="single"
+    >
       <ng-template #header>
-
         <tr class="pharma-table-head">
           <th style="width: 15px; text-align: center; padding: 6px 5px">#</th>
           <th>CODE</th>
@@ -83,14 +81,15 @@
           <th style="width: 130px; text-align: right">TOTAL</th>
           <th style="width: 50px; text-align: center"></th>
         </tr>
-
       </ng-template>
 
       <ng-template #body let-rowIndex="rowIndex" let-saleLine>
-        <tr [ngClass]="{
-          'pharma-row-warning': saleLine.quantitySold < saleLine.quantityRequested,
-          'pharma-row-hover': true
-        }">
+        <tr
+          [ngClass]="{
+            'pharma-row-warning': saleLine.quantitySold < saleLine.quantityRequested,
+            'pharma-row-hover': true,
+          }"
+        >
           <!-- Numéro -->
           <td style="text-align: center">
             <span class="pharma-row-number">{{ rowIndex + 1 }}</span>
@@ -110,8 +109,7 @@
 
           <!-- Quantité demandée - Éditable -->
 
-          <td [pEditableColumn]="saleLine.quantityRequested" class="text-right"
-              pEditableColumnField="quantityRequested">
+          <td [pEditableColumn]="saleLine.quantityRequested" class="text-right" pEditableColumnField="quantityRequested">
             <p-cellEditor>
               <ng-template #input>
                 <input
@@ -131,8 +129,7 @@
           </td>
 
           <!-- Quantité servie - Éditable -->
-          <td [pEditableColumn]="saleLine.quantitySold" class="text-right"
-              pEditableColumnField="quantitySold">
+          <td [pEditableColumn]="saleLine.quantitySold" class="text-right" pEditableColumnField="quantitySold">
             <p-cellEditor>
               <ng-template #input>
                 <input
@@ -146,16 +143,14 @@
                 />
               </ng-template>
               <ng-template #output>
-                <span
-                  class="pharma-qty-value text-right">{{ saleLine.quantitySold | number }}</span>
+                <span class="pharma-qty-value text-right">{{ saleLine.quantitySold | number }}</span>
               </ng-template>
             </p-cellEditor>
           </td>
 
           <!-- Prix unitaire - Éditable si autorisé -->
           @if (canModifiePrice) {
-            <td [pEditableColumn]="saleLine.regularUnitPrice" class="text-right"
-                pEditableColumnField="regularUnitPrice">
+            <td [pEditableColumn]="saleLine.regularUnitPrice" class="text-right" pEditableColumnField="regularUnitPrice">
               <p-cellEditor>
                 <ng-template #input>
                   <input
@@ -169,8 +164,7 @@
                   />
                 </ng-template>
                 <ng-template #output>
-                  <span
-                    class="pharma-price text-right">{{ saleLine.regularUnitPrice | number }}</span>
+                  <span class="pharma-price text-right">{{ saleLine.regularUnitPrice | number }}</span>
                 </ng-template>
               </p-cellEditor>
             </td>
@@ -211,7 +205,6 @@
 
       <ng-template #footer>
         @if (sale().salesLines.length > 0) {
-
           <tr class="pharma-table-footer">
             <td class="pharma-footer-label" colspan="3" style="text-align: left">
               <i class="pi pi-calculator"></i>
@@ -230,14 +223,11 @@
             </td>
             <td></td>
           </tr>
-
-
         }
       </ng-template>
     </p-table>
   </div>
 } @else {
-
   <div class="pharma-empty-content">
     <i class="pi pi-shopping-cart"></i>
     <p>Aucun produit ajouté</p>

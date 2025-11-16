@@ -1,16 +1,16 @@
 package com.kobe.warehouse.service.sale.calculation.dto;
 
 import com.kobe.warehouse.domain.enumeration.PrioriteTiersPayant;
-
 import java.math.BigDecimal;
 
 public class TiersPayantInput {
+
     private Integer clientTiersPayantId;
     private Integer tiersPayantId;
     private String tiersPayantFullName;
     private float taux;
     private BigDecimal plafondConso;
-    private BigDecimal consoMensuelle= BigDecimal.ZERO;
+    private BigDecimal consoMensuelle = BigDecimal.ZERO;
     private BigDecimal plafondJournalierClient;
     private PrioriteTiersPayant priorite;
 

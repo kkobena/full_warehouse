@@ -49,11 +49,13 @@
           </ng-template>
           <ng-template #body let-item let-rowIndex="rowIndex">
             <tr [ngClass]="{ 'pharma-row-success': item.restAmount == 0 }">
-              <td><span class="pharma-code">{{ item.reference }}</span></td>
+              <td>
+                <span class="pharma-code">{{ item.reference }}</span>
+              </td>
               <td>{{ item.mvtDate | date: 'dd/MM/yyyy HH:mm' }}</td>
-              <td><span class="pharma-operator">{{
-                  (item?.firstName || '') + ' ' + (item?.lastName || '')
-                }}</span></td>
+              <td>
+                <span class="pharma-operator">{{ (item?.firstName || '') + ' ' + (item?.lastName || '') }}</span>
+              </td>
               <td class="amount-column">
                 <span class="pharma-price">{{ item.amount | number }}</span>
               </td>
@@ -144,5 +146,4 @@
   </div>
 </div>
 
-<p-confirmDialog [baseZIndex]="10000" [style]="{ width: '40vw' }"
-                 key="printReceipt"></p-confirmDialog>
+<p-confirmDialog [baseZIndex]="10000" [style]="{ width: '40vw' }" key="printReceipt"></p-confirmDialog>

@@ -1,9 +1,8 @@
 package com.kobe.warehouse.repository;
 
 import com.kobe.warehouse.domain.Rayon;
-import java.util.Optional;
-
 import com.kobe.warehouse.domain.Storage;
+import java.util.Optional;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;

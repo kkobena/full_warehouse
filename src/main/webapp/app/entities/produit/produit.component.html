@@ -13,16 +13,17 @@
         <ng-template #start>
           <div class="pharma-toolbar-filters py-1">
             <p-floatlabel variant="on">
-              <p-select (onChange)="filtreClik()"
-                        [(ngModel)]="selectedCriteria"
-                        [fluid]="true"
-                        [options]="filtesProduits"
-                        [style]="{'min-width': '130px'}"
-                        appendTo="body"
-                        id="criteria"
-                        optionLabel="label"
-                        optionValue="value"
-                        size="large"
+              <p-select
+                (onChange)="filtreClik()"
+                [(ngModel)]="selectedCriteria"
+                [fluid]="true"
+                [options]="filtesProduits"
+                [style]="{ 'min-width': '130px' }"
+                appendTo="body"
+                id="criteria"
+                optionLabel="label"
+                optionValue="value"
+                size="large"
               >
               </p-select>
               <label for="criteria">Filtrer par critère</label>
@@ -35,7 +36,7 @@
                 [fluid]="true"
                 [options]="rayons"
                 [showClear]="true"
-                [style]="{'min-width': '150px'}"
+                [style]="{ 'min-width': '150px' }"
                 appendTo="body"
                 id="rayon"
                 optionLabel="libelle"
@@ -53,7 +54,7 @@
                 [fluid]="true"
                 [options]="familles"
                 [showClear]="true"
-                [style]="{'min-width': '150px'}"
+                [style]="{ 'min-width': '150px' }"
                 appendTo="body"
                 id="famille"
                 optionLabel="libelle"
@@ -67,8 +68,7 @@
             <div class="pharma-compact-search">
               <p-iconfield>
                 <p-inputicon class="pi pi-search" />
-                <input (keyup.enter)="onSearch($event)" pInputText placeholder="Rechercher..."
-                       type="text" />
+                <input (keyup.enter)="onSearch($event)" pInputText placeholder="Rechercher..." type="text" />
               </p-iconfield>
             </div>
           </div>
@@ -77,22 +77,9 @@
         <ng-template #end>
           <div class="pharma-toolbar-actions">
             <div class="pharma-button-group">
-              <p-splitbutton
-                [model]="splitbuttons"
-                [raised]="true"
-                icon="pi pi-upload"
-                label="Importation"
-                severity="help"
-              ></p-splitbutton>
+              <p-splitbutton [model]="splitbuttons" [raised]="true" icon="pi pi-upload" label="Importation" severity="help"></p-splitbutton>
 
-              <p-button
-                [raised]="true"
-                [routerLink]="['/produit/new']"
-                icon="pi pi-plus"
-                label="Nouveau"
-                severity="success"
-                type="button"
-              >
+              <p-button [raised]="true" [routerLink]="['/produit/new']" icon="pi pi-plus" label="Nouveau" severity="success" type="button">
               </p-button>
             </div>
           </div>
@@ -102,23 +89,19 @@
 
     <div class="mt-2">
       @if (produits && produits.length > 0) {
-        <p-table [rowExpandMode]="rowExpandMode" [value]="produits" class="pharma-table"
-                 dataKey="id">
+        <p-table [rowExpandMode]="rowExpandMode" [value]="produits" class="pharma-table" dataKey="id">
           <ng-template #header>
             <tr class="pharma-table-head">
-              <th style="width:2rem"></th>
+              <th style="width: 2rem"></th>
               <th style="width: 8%">Cip</th>
               <th style="width: 11%">Code EAN</th>
-              <th style="width: 24%"><span
-                jhiTranslate="warehouseApp.produit.libelle">Libelle</span>
-              </th>
-              <th style="text-align: right; width: 6%"><span
-                jhiTranslate="warehouseApp.produit.quantity">Quantity</span></th>
+              <th style="width: 24%"><span jhiTranslate="warehouseApp.produit.libelle">Libelle</span></th>
+              <th style="text-align: right; width: 6%"><span jhiTranslate="warehouseApp.produit.quantity">Quantity</span></th>
 
-              <th style="text-align: right; width: 8%"><span
-                jhiTranslate="warehouseApp.produit.costAmount">Prix achat </span></th>
-              <th style="text-align: right; width: 8%"><span
-                jhiTranslate="warehouseApp.produit.regularUnitPrice">Regular Unit Price</span></th>
+              <th style="text-align: right; width: 8%"><span jhiTranslate="warehouseApp.produit.costAmount">Prix achat </span></th>
+              <th style="text-align: right; width: 8%">
+                <span jhiTranslate="warehouseApp.produit.regularUnitPrice">Regular Unit Price</span>
+              </th>
               <th style="text-align: right; width: 6%">Qté.Reap</th>
               <th style="text-align: right; width: 6%">Qté Mini</th>
               <th style="width: 7%; text-align: center">Status</th>
@@ -146,17 +129,11 @@
                 <div class="pharma-product-name">{{ produit.libelle }}</div>
               </td>
               @if (produit.totalQuantity < 0) {
-                <td class="amount-column red-400"
-                    style="text-align: right">{{ produit.totalQuantity | number }}
-                </td>
+                <td class="amount-column red-400" style="text-align: right">{{ produit.totalQuantity | number }}</td>
               } @else if (produit.totalQuantity === 0) {
-                <td class="amount-column orange-400"
-                    style="text-align: right">{{ produit.totalQuantity | number }}
-                </td>
+                <td class="amount-column orange-400" style="text-align: right">{{ produit.totalQuantity | number }}</td>
               } @else {
-                <td class="amount-column"
-                    style="text-align: right">{{ produit.totalQuantity | number }}
-                </td>
+                <td class="amount-column" style="text-align: right">{{ produit.totalQuantity | number }}</td>
               }
 
               <td style="text-align: right">
@@ -172,8 +149,7 @@
                 <span class="pharma-qty-value">{{ produit.qtySeuilMini | number }}</span>
               </td>
               <td>
-                <jhi-eta-produit [etatProduit]="produit.etatProduit"
-                                 [showLabel]="false"></jhi-eta-produit>
+                <jhi-eta-produit [etatProduit]="produit.etatProduit" [showLabel]="false"></jhi-eta-produit>
               </td>
               <td class="text-right">
                 <p-buttonGroup>
@@ -228,20 +204,18 @@
                   >
                   </p-button>
 
-
-                  <p-button (click)="addPeremptionDate(produit)"
-                            [hidden]="true"
-                            [rounded]="true"
-                            [text]="true"
-                            icon="pi pi-box"
-                            pTooltip="Ajout de lot"
-                            severity="help"
-                            tooltipPosition="left"
-                            type="button"
+                  <p-button
+                    (click)="addPeremptionDate(produit)"
+                    [hidden]="true"
+                    [rounded]="true"
+                    [text]="true"
+                    icon="pi pi-box"
+                    pTooltip="Ajout de lot"
+                    severity="help"
+                    tooltipPosition="left"
+                    type="button"
                   >
                   </p-button>
-
-
 
                   @if (produit.deconditionnable && produit.produits?.length == 0) {
                     <p-button
@@ -287,12 +261,12 @@
           <ng-template #expandedrow let-elRow>
             <tr class="pharma-expanded-row">
               <td colspan="11">
-                <div class="p-3  expanded-content">
+                <div class="p-3 expanded-content">
                   <div class="row">
                     <div class="mb-3 col-md-12 col-sm-12 col-lg-6 col-xl-4 col-xxl-4">
                       <p-card>
                         <ng-template #title>
-                          <div class="card-title pharma-smart-card-title primary-title ">
+                          <div class="card-title pharma-smart-card-title primary-title">
                             <i class="pi pi-info-circle mr-2"></i>
                             Informations Générales
                           </div>
@@ -418,7 +392,6 @@
                               <i class="pi pi-cog mr-2"></i>
                               Liste des fournisseurs
                             </div>
-
                           </ng-template>
                           <p-table [value]="elRow?.fournisseurProduits" class="pharma-table">
                             <ng-template #header>
@@ -443,7 +416,9 @@
                             <ng-template #body let-four>
                               <tr>
                                 <td>{{ four.fournisseurLibelle }}</td>
-                                <td><span class="pharma-code">{{ four.codeCip }}</span></td>
+                                <td>
+                                  <span class="pharma-code">{{ four.codeCip }}</span>
+                                </td>
                                 <td class="pharma-price">{{ four.prixAchat | number }}</td>
                                 <td class="pharma-price">{{ four.prixUni | number }}</td>
                                 <td style="text-align: right">
@@ -486,44 +461,40 @@
                       </div>
 
                       @if (!isMono) {
-                        <div class=" col-md-6 col-sm-12 col-lg-6 col-xl-6 col-xxl-6">
+                        <div class="col-md-6 col-sm-12 col-lg-6 col-xl-6 col-xxl-6">
                           <p-card>
                             <ng-template #title>
                               <div class="card-title secondary-title">
                                 <i class="pi pi-cog mr-2"></i>
                                 Répartition du stock
                               </div>
-
                             </ng-template>
                             <p-table [value]="elRow?.stockProduits" class="pharma-table">
-
                               <ng-template #header>
                                 <tr>
                                   <th>Stockage</th>
                                   <th>Stock</th>
                                   <th style="text-align: right">
-                                    <p-button [rounded]="true" [text]="true" icon="pi pi-plus"
-                                              pTooltip="Repartir le stock"
-                                              severity="primary" size="small"></p-button>
+                                    <p-button
+                                      [rounded]="true"
+                                      [text]="true"
+                                      icon="pi pi-plus"
+                                      pTooltip="Repartir le stock"
+                                      severity="primary"
+                                      size="small"
+                                    ></p-button>
                                   </th>
                                 </tr>
                               </ng-template>
                               <ng-template #body let-stock>
                                 <tr class="pharma-table-head">
                                   <td>{{ stock.storageName }}</td>
-                                  <td><span
-                                    class="pharma-qty-value">{{ stock.qtyStock | number }}</span>
+                                  <td>
+                                    <span class="pharma-qty-value">{{ stock.qtyStock | number }}</span>
                                   </td>
                                   <td style="text-align: right">
-                                    <p-button
-                                      [rounded]="true"
-                                      [text]="true"
-                                      class="mr-2"
-                                      icon="pi pi-pencil"
-                                      severity="success"
-                                    ></p-button>
-                                    <p-button [rounded]="true" [text]="true" icon="pi pi-trash"
-                                              severity="danger"></p-button>
+                                    <p-button [rounded]="true" [text]="true" class="mr-2" icon="pi pi-pencil" severity="success"></p-button>
+                                    <p-button [rounded]="true" [text]="true" icon="pi pi-trash" severity="danger"></p-button>
                                   </td>
                                 </tr>
                               </ng-template>
@@ -537,7 +508,6 @@
                         </div>
                       }
                     </div>
-
                   </div>
                 </div>
               </td>
@@ -566,4 +536,3 @@
   </div>
 </div>
 <jhi-confirm-dialog #confirmDialog></jhi-confirm-dialog>
-

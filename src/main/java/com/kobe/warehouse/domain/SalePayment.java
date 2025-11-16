@@ -18,10 +18,9 @@ public class SalePayment extends PaymentTransaction implements Serializable, Clo
 
     @NotNull
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumns({
-        @JoinColumn(name = "sale_id", referencedColumnName = "id"),
-        @JoinColumn(name = "sale_date", referencedColumnName = "sale_date")
-    })
+    @JoinColumns(
+        { @JoinColumn(name = "sale_id", referencedColumnName = "id"), @JoinColumn(name = "sale_date", referencedColumnName = "sale_date") }
+    )
     private Sales sale;
 
     @NotNull

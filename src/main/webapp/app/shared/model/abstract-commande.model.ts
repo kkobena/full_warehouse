@@ -32,7 +32,6 @@ export interface AbstractCommande {
   orderReference?: string;
   itemSize?: number;
   statut?: string;
-
 }
 
 export class CommandeId {

@@ -9,7 +9,7 @@ import { Card } from 'primeng/card';
   selector: 'jhi-file-upload-dialog',
   templateUrl: './file-upload-dialog.component.html',
   styleUrls: ['./file-upload-dialog.component.scss'],
-  imports: [CommonModule, FileUploadModule, ButtonModule, Card]
+  imports: [CommonModule, FileUploadModule, ButtonModule, Card],
 })
 export class FileUploadDialogComponent {
   private readonly activeModal = inject(NgbActiveModal);

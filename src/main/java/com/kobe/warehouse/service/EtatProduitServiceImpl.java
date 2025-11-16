@@ -7,10 +7,9 @@ import com.kobe.warehouse.repository.OrderLineRepository;
 import com.kobe.warehouse.repository.SuggestionLineRepository;
 import com.kobe.warehouse.service.dto.EtatProduit;
 import com.kobe.warehouse.service.settings.AppConfigurationService;
+import java.time.LocalDate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
-import java.time.LocalDate;
 
 @Service
 @Transactional(readOnly = true)
@@ -20,7 +19,11 @@ public class EtatProduitServiceImpl implements EtatProduitService {
     private final OrderLineRepository orderLineRepository;
     private final AppConfigurationService appConfigurationService;
 
-    public EtatProduitServiceImpl(SuggestionLineRepository suggestionLineRepository, OrderLineRepository orderLineRepository, AppConfigurationService appConfigurationService) {
+    public EtatProduitServiceImpl(
+        SuggestionLineRepository suggestionLineRepository,
+        OrderLineRepository orderLineRepository,
+        AppConfigurationService appConfigurationService
+    ) {
         this.suggestionLineRepository = suggestionLineRepository;
         this.orderLineRepository = orderLineRepository;
         this.appConfigurationService = appConfigurationService;
@@ -48,7 +51,11 @@ public class EtatProduitServiceImpl implements EtatProduitService {
         boolean stockZero = currentStock == 0;
         int suggestionCount = suggestionLineRepository.countByFournisseurProduitProduitId(idProduit);
         int commandeCount = getCommandeCount(idProduit, OrderStatut.REQUESTED);
-        boolean entree = orderLineRepository.existsByFournisseurProduitProduitIdAndCommandeOrderStatusAndCommandeOrderDateGreaterThan(idProduit, OrderStatut.RECEIVED, getDateRetentionCommande());
+        boolean entree = orderLineRepository.existsByFournisseurProduitProduitIdAndCommandeOrderStatusAndCommandeOrderDateGreaterThan(
+            idProduit,
+            OrderStatut.RECEIVED,
+            getDateRetentionCommande()
+        );
         return new EtatProduit(
             stockPositif,
             stockNegatif,
@@ -67,6 +74,10 @@ public class EtatProduitServiceImpl implements EtatProduitService {
 
     private int getCommandeCount(Integer idProduit, OrderStatut orderStatut) {
         LocalDate dateRetentionCommande = getDateRetentionCommande();
-        return orderLineRepository.countByFournisseurProduitProduitIdAndCommandeOrderStatusAndCommandeOrderDateGreaterThan(idProduit, orderStatut, dateRetentionCommande);
+        return orderLineRepository.countByFournisseurProduitProduitIdAndCommandeOrderStatusAndCommandeOrderDateGreaterThan(
+            idProduit,
+            orderStatut,
+            dateRetentionCommande
+        );
     }
 }

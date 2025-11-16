@@ -2,12 +2,11 @@ package com.kobe.warehouse.service.stock;
 
 import com.kobe.warehouse.service.dto.ReponseRetourBonDTO;
 import com.kobe.warehouse.service.dto.RetourBonDTO;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
-
 import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 
 /**
  * Service Interface for managing {@link com.kobe.warehouse.domain.RetourBon}.
@@ -21,7 +20,6 @@ public interface RetourBonService {
      */
     RetourBonDTO create(RetourBonDTO retourBonDTO);
 
-
     /**
      * Get all retour bons.
      *
@@ -29,7 +27,6 @@ public interface RetourBonService {
      * @return the list of entities.
      */
     Page<RetourBonDTO> findAll(Pageable pageable);
-
 
     /**
      * Get retour bons by commande ID.
@@ -40,7 +37,6 @@ public interface RetourBonService {
      */
     List<RetourBonDTO> findAllByCommande(Integer commandeId, LocalDate orderDate);
 
-
     /**
      * Get the retour bon by id.
      *
@@ -48,7 +44,6 @@ public interface RetourBonService {
      * @return the entity.
      */
     Optional<RetourBonDTO> findOne(Integer id);
-
 
     /**
      * Create a supplier response for a retour bon.

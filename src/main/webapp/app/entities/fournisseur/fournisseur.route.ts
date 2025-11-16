@@ -8,9 +8,9 @@ const fournisseurRoute: Routes = [
     loadComponent: () => import('./fournisseur-home.component').then(m => m.FournisseurHomeComponent),
     data: {
       authorities: [Authority.ADMIN, Authority.FOURNISSEUR],
-      defaultSort: 'id,asc'
+      defaultSort: 'id,asc',
     },
-    canActivate: [UserRouteAccessService]
-  }
+    canActivate: [UserRouteAccessService],
+  },
 ];
 export default fournisseurRoute;

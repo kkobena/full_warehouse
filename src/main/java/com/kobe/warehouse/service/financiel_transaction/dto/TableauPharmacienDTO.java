@@ -1,5 +1,7 @@
 package com.kobe.warehouse.service.financiel_transaction.dto;
 
+import static java.util.Objects.isNull;
+
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.ArrayList;
@@ -7,8 +9,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
-
-import static java.util.Objects.isNull;
 
 public class TableauPharmacienDTO {
 
@@ -18,7 +18,7 @@ public class TableauPharmacienDTO {
     private long montantTtc;
     private long montantCredit;
     private long montantRemise;
-    private long  montantReel;
+    private long montantReel;
     private long montantNet;
     private long montantAchat;
     private long montantAchatNet;
@@ -57,8 +57,6 @@ public class TableauPharmacienDTO {
         this.amountToBeTakenIntoAccount = amountToBeTakenIntoAccount;
         return this;
     }
-
-
 
     public int getMontantDiffere() {
         return montantDiffere;
@@ -233,8 +231,6 @@ public class TableauPharmacienDTO {
         return nombreVente;
     }
 
-
-
     public long getMontantAvoir() {
         return montantAvoir;
     }
@@ -270,6 +266,7 @@ public class TableauPharmacienDTO {
         this.montantBonAchat = montantBonAchat;
         return this;
     }
+
     private Integer getDiscountAsInteger(Object montantDiscount) {
         if (isNull(montantDiscount)) {
             return 0;
@@ -298,8 +295,7 @@ public class TableauPharmacienDTO {
         this.nombreVente = nombreVente;
     }
 
-    public TableauPharmacienDTO() {
-    }
+    public TableauPharmacienDTO() {}
 
     public List<PaymentDTO> getPayments() {
         return payments;
@@ -309,7 +305,20 @@ public class TableauPharmacienDTO {
         this.payments = payments;
     }
 
-    public TableauPharmacienDTO(LocalDate mvtDate, Long numberCount, Object discount, Long montantTtc, Long montantPaye, Long montantReel, Double montantHt, Long montantAchat, Integer montantDiffere, Long amountToBeTakenIntoAccount, Long partTiersPayant, Long partAssure) {
+    public TableauPharmacienDTO(
+        LocalDate mvtDate,
+        Long numberCount,
+        Object discount,
+        Long montantTtc,
+        Long montantPaye,
+        Long montantReel,
+        Double montantHt,
+        Long montantAchat,
+        Integer montantDiffere,
+        Long amountToBeTakenIntoAccount,
+        Long partTiersPayant,
+        Long partAssure
+    ) {
         this.mvtDate = mvtDate;
         this.nombreVente = numberCount;
         this.montantRemise = getDiscountAsInteger(discount);
@@ -318,7 +327,7 @@ public class TableauPharmacienDTO {
         this.montantHt = isNull(montantHt) ? null : montantHt.longValue();
         this.montantNet = montantTtc - this.montantRemise;
         this.montantAchat = montantAchat;
-        this.montantCredit = Objects .requireNonNullElse(partTiersPayant,0L) + Objects.requireNonNullElse(montantDiffere,0) ;
+        this.montantCredit = Objects.requireNonNullElse(partTiersPayant, 0L) + Objects.requireNonNullElse(montantDiffere, 0);
         this.amountToBeTakenIntoAccount = amountToBeTakenIntoAccount;
         this.partAssure = partAssure;
         this.montantReel = montantReel;

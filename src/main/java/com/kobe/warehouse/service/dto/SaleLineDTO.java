@@ -8,63 +8,82 @@ import com.kobe.warehouse.domain.SaleId;
 import com.kobe.warehouse.domain.SaleLineId;
 import com.kobe.warehouse.domain.SalesLine;
 import com.kobe.warehouse.service.sale.calculation.dto.Rate;
-
 import java.time.LocalDateTime;
 import java.util.List;
 
 @ExcelIgnoreUnannotated
 public class SaleLineDTO {
+
     @ExcelProperty("ID")
     private Long id;
+
     @ExcelProperty("Qté vendue")
     private Integer quantitySold;
+
     @ExcelProperty("Qté demandée")
     private Integer quantityRequested;
+
     @ExcelProperty("Prix unitaire")
     private Integer regularUnitPrice;
+
     private Integer discountUnitPrice;
     private Integer netUnitPrice;
+
     @ExcelProperty("Montant remise")
     private Integer discountAmount;
+
     @ExcelProperty("Montant vente")
     private Integer salesAmount;
+
     @ExcelProperty("Montant HT")
     private Integer htAmount;
+
     @ExcelProperty("Montant net")
     private Integer netAmount;
+
     @ExcelProperty("Montant TVA")
     private Integer taxAmount;
+
     @ExcelProperty("Prix achat")
     private Integer costAmount;
+
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
+
     @ExcelProperty("Produit")
     private String produitLibelle;
+
     @ExcelProperty("Code CIP")
     private String code;
+
     @ExcelProperty("Produit ID")
     private Integer produitId;
+
     private Long saleId;
+
     @ExcelProperty("Qté initiale en stock")
     private Integer quantityStock;
+
     @ExcelProperty("Qté avoir")
     private Integer quantiyAvoir;
+
     private Integer calculationBasePrice;
     private Integer montantTvaUg = 0;
     private Integer quantityUg;
     private Integer amountToBeTakenIntoAccount;
     private boolean toIgnore;
     private LocalDateTime effectiveUpdateDate;
+
     @ExcelProperty("Valeur taxe")
     private Integer taxValue;
+
     private boolean forceStock; // mis pour forcer le stock a la vente
     private SaleLineId saleLineId;
     private SaleId saleCompositeId;
 
     private List<Rate> rates;
 
-    public SaleLineDTO() {
-    }
+    public SaleLineDTO() {}
 
     public SaleLineDTO(SalesLine salesLine) {
         super();
@@ -89,8 +108,7 @@ public class SaleLineDTO {
         produitId = produit.getId();
         quantiyAvoir = salesLine.getQuantityAvoir();
         calculationBasePrice = salesLine.getCalculationBasePrice();
-        rates = salesLine
-            .getRates();
+        rates = salesLine.getRates();
     }
 
     public SaleId getSaleCompositeId() {

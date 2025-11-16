@@ -3,7 +3,6 @@ package com.kobe.warehouse.service.financiel_transaction.dto;
 import com.kobe.warehouse.domain.enumeration.CategorieChiffreAffaire;
 import com.kobe.warehouse.domain.enumeration.SalesStatut;
 import com.kobe.warehouse.service.cash_register.dto.TypeVente;
-
 import java.time.LocalDate;
 import java.util.Objects;
 import java.util.Set;
@@ -43,8 +42,7 @@ public class MvtParam {
         this.groupeBy = groupeBy;
     }
 
-    public MvtParam() {
-    }
+    public MvtParam() {}
 
     public boolean isExcludeFreeUnit() {
         return excludeFreeUnit;
@@ -130,10 +128,6 @@ public class MvtParam {
 
     @Override
     public String toString() {
-        return "MvtParam{" +
-            "toDate=" + toDate +
-            ", fromDate=" + fromDate +
-            ", groupeBy='" + groupeBy + '\'' +
-            '}';
+        return "MvtParam{" + "toDate=" + toDate + ", fromDate=" + fromDate + ", groupeBy='" + groupeBy + '\'' + '}';
     }
 }

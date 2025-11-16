@@ -27,23 +27,31 @@ import org.springframework.data.domain.Persistable;
 
 @Entity
 @IdClass(AssuranceSaleId.class)
-@Table(name = "third_party_sale_line", indexes = {@Index(columnList = "num_bon", name = "third_party_sale_line_num_bon")}, uniqueConstraints = {@UniqueConstraint(columnNames = {"client_tiers_payant_id", "sale_id", "sale_date"})})
+@Table(
+    name = "third_party_sale_line",
+    indexes = { @Index(columnList = "num_bon", name = "third_party_sale_line_num_bon") },
+    uniqueConstraints = { @UniqueConstraint(columnNames = { "client_tiers_payant_id", "sale_id", "sale_date" }) }
+)
 public class ThirdPartySaleLine implements Persistable<AssuranceSaleId>, Serializable, Cloneable {
 
     @Serial
     private static final long serialVersionUID = 1L;
+
     @Id
     private Long id;
+
     @Id
     @Column(name = "sale_date")
     private LocalDate saleDate = LocalDate.now();
 
     @NotNull
     @ManyToOne(optional = false)
-    @JoinColumns({
-        @JoinColumn(name = "sale_id", referencedColumnName = "id"),
-        @JoinColumn(name = "sale_sale_date", referencedColumnName = "sale_date")
-    })
+    @JoinColumns(
+        {
+            @JoinColumn(name = "sale_id", referencedColumnName = "id"),
+            @JoinColumn(name = "sale_sale_date", referencedColumnName = "sale_date"),
+        }
+    )
     private ThirdPartySales sale;
 
     @Column(name = "num_bon", length = 50)
@@ -72,7 +80,7 @@ public class ThirdPartySaleLine implements Persistable<AssuranceSaleId>, Seriali
 
     @NotNull
     @Enumerated(EnumType.STRING)
-    @Column(name = "statut", nullable = false,length =11 )
+    @Column(name = "statut", nullable = false, length = 11)
     private ThirdPartySaleStatut statut = ThirdPartySaleStatut.ACTIF;
 
     @NotNull
@@ -83,13 +91,17 @@ public class ThirdPartySaleLine implements Persistable<AssuranceSaleId>, Seriali
     private Integer montantRegle = 0;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumns({
-        @JoinColumn(name = "facture_tiers_payant_id", referencedColumnName = "id"),
-        @JoinColumn(name = "invoice_date", referencedColumnName = "invoice_date")
-    })
+    @JoinColumns(
+        {
+            @JoinColumn(name = "facture_tiers_payant_id", referencedColumnName = "id"),
+            @JoinColumn(name = "invoice_date", referencedColumnName = "invoice_date"),
+        }
+    )
     private FactureTiersPayant factureTiersPayant;
+
     @Transient
     private boolean isNew = true;
+
     public AssuranceSaleId getId() {
         return new AssuranceSaleId(id, saleDate);
     }

@@ -1,11 +1,9 @@
 package com.kobe.warehouse.service.pdf;
 
-
 import java.awt.Color;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
-
 import org.openpdf.text.Image;
 import org.openpdf.text.pdf.Barcode39;
 import org.slf4j.Logger;

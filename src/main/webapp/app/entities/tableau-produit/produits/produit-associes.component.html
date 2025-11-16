@@ -1,5 +1,5 @@
 <div class="container-fluid">
-  <div class=" justify-content-center">
+  <div class="justify-content-center">
     <p-toolbar>
       <div style="width: 100%">
         <p-button
@@ -36,17 +36,17 @@
       >
         <ng-template #sourceFilter let-options="options">
           <div>
-            <input (keyup.enter)="onSourceFilter()"
-                   [(ngModel)]="searchSource"
-                   [style]="{ width: '30rem' }"
-                   class="p-inputtext p-component p-listbox-filter p-filled"
-                   pInputText
-                   role="textbox"
-                   type="text"
+            <input
+              (keyup.enter)="onSourceFilter()"
+              [(ngModel)]="searchSource"
+              [style]="{ width: '30rem' }"
+              class="p-inputtext p-component p-listbox-filter p-filled"
+              pInputText
+              role="textbox"
+              type="text"
             />
             @if (searchSource) {
-              <span (click)="searchSource = ''; onSourceFilter()"
-                    class="p-picklist-filter-icon pi pi-times"> </span>
+              <span (click)="searchSource = ''; onSourceFilter()" class="p-picklist-filter-icon pi pi-times"> </span>
             }
           </div>
         </ng-template>
@@ -63,23 +63,19 @@
               type="text"
             />
             @if (searchTarget) {
-              <span (click)="searchTarget = ''; onTargetFilter()"
-                    class="p-picklist-filter-icon pi pi-times"> </span>
+              <span (click)="searchTarget = ''; onTargetFilter()" class="p-picklist-filter-icon pi pi-times"> </span>
             }
           </div>
         </ng-template>
 
         <ng-template #item let-index="index" let-item>
           <div style="width: 100%">
-          <span
-            style="width: 18%; display: inline-block">{{ item.fournisseurProduit?.codeCip }}</span
-          ><span> {{ item.libelle }}</span>
+            <span style="width: 18%; display: inline-block">{{ item.fournisseurProduit?.codeCip }}</span
+            ><span> {{ item.libelle }}</span>
             <span class="float-right font-bold text-900">{{ item.unitPrice | number }}</span>
           </div>
         </ng-template>
       </p-pickList>
     </div>
-
   </div>
 </div>
-

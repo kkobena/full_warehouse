@@ -18,9 +18,7 @@ import { Statut } from '../../shared/model/enumerations/statut.model';
 import { TypeProduit } from '../../shared/model/enumerations/type-produit.model';
 import { IFournisseurProduit } from '../../shared/model/fournisseur-produit.model';
 import { ErrorService } from '../../shared/error.service';
-import {
-  FormProduitFournisseurComponent
-} from './form-produit-fournisseur/form-produit-fournisseur.component';
+import { FormProduitFournisseurComponent } from './form-produit-fournisseur/form-produit-fournisseur.component';
 import { ConfigurationService } from '../../shared/configuration.service';
 import { IConfiguration } from '../../shared/model/configuration.model';
 import { Params } from '../../shared/model/enumerations/params.model';
@@ -43,22 +41,14 @@ import { EtaProduitComponent } from '../../shared/eta-produit/eta-produit.compon
 import { IFamilleProduit } from '../../shared/model/famille-produit.model';
 import { IRayon } from '../../shared/model/rayon.model';
 import { ButtonGroup } from 'primeng/buttongroup';
-import {
-  ListPrixReferenceComponent
-} from '../prix-reference/list-prix-reference/list-prix-reference.component';
+import { ListPrixReferenceComponent } from '../prix-reference/list-prix-reference/list-prix-reference.component';
 import { DatePeremptionFormComponent } from './date-peremption-form/date-peremption-form.component';
 import { ToastAlertComponent } from '../../shared/toast-alert/toast-alert.component';
-import {
-  ConfirmDialogComponent
-} from '../../shared/dialog/confirm-dialog/confirm-dialog.component';
+import { ConfirmDialogComponent } from '../../shared/dialog/confirm-dialog/confirm-dialog.component';
 import { showCommonModal } from '../sales/selling-home/sale-helper';
 import { finalize } from 'rxjs/operators';
-import {
-  FileUploadDialogComponent
-} from '../groupe-tiers-payant/file-upload-dialog/file-upload-dialog.component';
-import {
-  ImportProduitReponseModalComponent
-} from './import-produit-reponse-modal/import-produit-reponse-modal.component';
+import { FileUploadDialogComponent } from '../groupe-tiers-payant/file-upload-dialog/file-upload-dialog.component';
+import { ImportProduitReponseModalComponent } from './import-produit-reponse-modal/import-produit-reponse-modal.component';
 import { CardModule } from 'primeng/card';
 import { FloatLabel } from 'primeng/floatlabel';
 
@@ -89,8 +79,8 @@ export type ExpandMode = 'single' | 'multiple';
     ToastAlertComponent,
     ConfirmDialogComponent,
     CardModule,
-    FloatLabel
-  ]
+    FloatLabel,
+  ],
 })
 export class ProduitComponent implements OnInit {
   protected selectedFamille: number = null;

@@ -9,7 +9,7 @@ type EntityResponseType = HttpResponse<PrixReference>;
 type EntityArrayResponseType = HttpResponse<PrixReference[]>;
 
 @Injectable({
-  providedIn: 'root'
+  providedIn: 'root',
 })
 export class PrixReferenceService {
   private http = inject(HttpClient);

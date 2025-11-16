@@ -44,17 +44,16 @@ export type ExpandMode = 'single' | 'multiple';
     SelectModule,
     DatePicker,
     FloatLabel,
-    RouterLink
+    RouterLink,
   ],
   providers: [MessageService, ConfirmationService],
   templateUrl: './depot-retour-list.component.html',
-  styleUrl: './depot-retour-list.component.scss'
+  styleUrl: './depot-retour-list.component.scss',
 })
 export class DepotRetourListComponent implements OnInit {
   private readonly retourDepotService = inject(RetourDepotService);
   private readonly magasinService = inject(MagasinService);
   private readonly messageService = inject(MessageService);
-
 
   @ViewChild('dt') table: Table | undefined;
 
@@ -86,9 +85,9 @@ export class DepotRetourListComponent implements OnInit {
         this.messageService.add({
           severity: 'error',
           summary: 'Erreur',
-          detail: 'Erreur lors du chargement des dépôts'
+          detail: 'Erreur lors du chargement des dépôts',
         });
-      }
+      },
     });
   }
 
@@ -106,7 +105,7 @@ export class DepotRetourListComponent implements OnInit {
     this.loading.set(true);
     const query: any = {
       page: this.page(),
-      size: this.itemsPerPage
+      size: this.itemsPerPage,
     };
 
     if (this.fromDate) {
@@ -133,7 +132,7 @@ export class DepotRetourListComponent implements OnInit {
       },
       complete: () => {
         this.loading.set(false);
-      }
+      },
     });
   }
 
@@ -146,7 +145,7 @@ export class DepotRetourListComponent implements OnInit {
     this.messageService.add({
       severity: 'error',
       summary: 'Erreur',
-      detail: 'Erreur lors du chargement des retours dépôt'
+      detail: 'Erreur lors du chargement des retours dépôt',
     });
   }
 
@@ -154,7 +153,6 @@ export class DepotRetourListComponent implements OnInit {
     this.page.set(event.page);
     this.loadAll();
   }
-
 
   protected formatDate(date: string | undefined): string {
     return date ? moment(date).format('DD/MM/YYYY HH:mm') : '';
@@ -165,8 +163,6 @@ export class DepotRetourListComponent implements OnInit {
   }
 
   protected getTotalQuantity(retourDepot: IRetourDepot): number {
-    return (
-      retourDepot.retourDepotItems?.reduce((sum, item) => sum + (item.qtyMvt || 0), 0) || 0
-    );
+    return retourDepot.retourDepotItems?.reduce((sum, item) => sum + (item.qtyMvt || 0), 0) || 0;
   }
 }

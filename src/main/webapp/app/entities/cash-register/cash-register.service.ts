@@ -10,7 +10,7 @@ type EntityResponseType = HttpResponse<CashRegister>;
 type EntityArrayResponseType = HttpResponse<CashRegister[]>;
 
 @Injectable({
-  providedIn: 'root'
+  providedIn: 'root',
 })
 export class CashRegisterService {
   private readonly http = inject(HttpClient);
@@ -24,13 +24,13 @@ export class CashRegisterService {
     const options = createRequestOptions(req);
     return this.http.get<CashRegister[]>(this.resourceUrl, {
       params: options,
-      observe: 'response'
+      observe: 'response',
     });
   }
 
   getConnectedUserNonClosedCashRegisters(): Observable<EntityArrayResponseType> {
     return this.http.get<CashRegister[]>(this.resourceUrl + '/connected-user-non-closed-cash-registers', {
-      observe: 'response'
+      observe: 'response',
     });
   }
 
@@ -42,7 +42,7 @@ export class CashRegisterService {
     const options = createRequestOption(req);
     return this.http.get<CashRegister>(this.resourceUrl + '/open-cash-register', {
       params: options,
-      observe: 'response'
+      observe: 'response',
     });
   }
 

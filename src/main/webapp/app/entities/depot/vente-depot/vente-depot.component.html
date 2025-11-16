@@ -3,13 +3,7 @@
   <!-- HEADER TOOLBAR - Actions principales toujours visibles -->
   <div class="pharma-sales-header">
     <div class="header-left">
-      <p-button
-        (click)="previousState()"
-        [rounded]="true"
-        [text]="true"
-        class="back-button"
-        icon="pi pi-arrow-left"
-        pTooltip="Retour">
+      <p-button (click)="previousState()" [rounded]="true" [text]="true" class="back-button" icon="pi pi-arrow-left" pTooltip="Retour">
       </p-button>
 
       <div class="page-title">
@@ -17,10 +11,20 @@
       </div>
 
       <!-- Vendeur Selection (Left Side) -->
-      <div class="header-select-wrapper"
-           style="display: flex !important; flex-direction: row !important; align-items: center !important; gap: 0.75rem !important;">
-        <label class="header-label"
-               style="margin: 0 !important; display: inline-flex !important; align-items: center !important; gap: 0.375rem !important; white-space: nowrap !important;">
+      <div
+        class="header-select-wrapper"
+        style="display: flex !important; flex-direction: row !important; align-items: center !important; gap: 0.75rem !important"
+      >
+        <label
+          class="header-label"
+          style="
+            margin: 0 !important;
+            display: inline-flex !important;
+            align-items: center !important;
+            gap: 0.375rem !important;
+            white-space: nowrap !important;
+          "
+        >
           <i class="pi pi-user"></i>
           <span>Vendeur</span>
         </label>
@@ -34,15 +38,25 @@
           [placeholder]="'Sélectionner un vendeur'"
           [style]="{ width: '200px' }"
           class="pharma-select-modern"
-          optionLabel="abbrName">
+          optionLabel="abbrName"
+        >
         </p-select>
       </div>
 
-
-      <div class="header-select-wrapper"
-           style="display: flex !important; flex-direction: row !important; align-items: center !important; gap: 0.75rem !important;">
-        <label class="header-label"
-               style="margin: 0 !important; display: inline-flex !important; align-items: center !important; gap: 0.375rem !important; white-space: nowrap !important;">
+      <div
+        class="header-select-wrapper"
+        style="display: flex !important; flex-direction: row !important; align-items: center !important; gap: 0.75rem !important"
+      >
+        <label
+          class="header-label"
+          style="
+            margin: 0 !important;
+            display: inline-flex !important;
+            align-items: center !important;
+            gap: 0.375rem !important;
+            white-space: nowrap !important;
+          "
+        >
           <i class="pi pi-building"></i>
           <span>Dépôt</span>
         </label>
@@ -56,37 +70,30 @@
           [placeholder]="'Sélectionner un dépôt'"
           [style]="{ width: '250px' }"
           class="pharma-select-modern"
-          optionLabel="name">
+          optionLabel="name"
+        >
           <ng-template #item let-depot>
             <div class="depot-option">
               <div class="depot-name">{{ depot.name }}</div>
               @if (depot.address) {
-                <div class="depot-address"
-                     style="font-size: 0.85rem; color: #6c757d;">{{ depot.address }}
-                </div>
+                <div class="depot-address" style="font-size: 0.85rem; color: #6c757d">{{ depot.address }}</div>
               }
             </div>
           </ng-template>
         </p-select>
       </div>
-
     </div>
-
-
   </div>
 
   <!-- MAIN CONTENT AREA -->
   <div class="pharma-sales-body">
-
     <!-- MAIN WORK AREA -->
     <div class="sales-workspace">
-
       <!-- PRODUCT SEARCH SECTION -->
       <div class="product-search-section">
         <div class="search-section-header">
           <i class="pi pi-search"></i>
           <span>Recherche de produit</span>
-
         </div>
 
         <div class="search-controls">
@@ -102,7 +109,8 @@
               [enableScanner]="true"
               [includeDetails]="true"
               [pageSize]="PRODUIT_COMBO_RESULT_SIZE"
-              class="pharma-autocomplete">
+              class="pharma-autocomplete"
+            >
             </jhi-produit-search-autocomplete-scanner>
           </div>
 
@@ -113,7 +121,8 @@
               (addQuantite)="addQuantity($event)"
               [disabledButton]="disableButton"
               [isValid]="!!produitSelected"
-              class="pharma-quantity-input">
+              class="pharma-quantity-input"
+            >
             </jhi-quantite-produt-saisie>
           </div>
 
@@ -121,10 +130,11 @@
           @if (produitSelected) {
             <div class="product-meta">
               @if (showStock) {
-                <div [class.low-stock]="(produitSelected?.totalQuantity || 0) < 10"
-                     class="meta-item">
+                <div [class.low-stock]="(produitSelected?.totalQuantity || 0) < 10" class="meta-item">
                   <i class="pi pi-database"></i>
-                  <span>Stock: <strong>{{ produitSelected?.totalQuantity | number }}</strong></span>
+                  <span
+                    >Stock: <strong>{{ produitSelected?.totalQuantity | number }}</strong></span
+                  >
                 </div>
               }
 
@@ -137,8 +147,9 @@
 
               <div class="meta-item price-display">
                 <i class="pi pi-tag"></i>
-                <span>Prix: <strong>{{ produitSelected?.regularUnitPrice | number }}
-                  F</strong></span>
+                <span
+                  >Prix: <strong>{{ produitSelected?.regularUnitPrice | number }} F</strong></span
+                >
               </div>
             </div>
           }
@@ -148,7 +159,6 @@
       <!-- SALES CONTENT -->
       <div class="sale-content-area">
         @if (this.depotService.currentSale()) {
-
           <jhi-vente-depot-table
             (addRemiseEvent)="onAddRemise($event)"
             (deleteItemEvent)="confirmDeleteItem($event)"
@@ -163,15 +173,10 @@
             (onSave)="onSaveAction($event)"
           >
           </jhi-vente-depot-table>
-
-
         }
       </div>
-
-
     </div>
   </div>
-
 </div>
 
 <!-- Composants de notification -->

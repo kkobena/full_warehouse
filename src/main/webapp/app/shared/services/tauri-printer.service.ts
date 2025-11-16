@@ -124,7 +124,6 @@ export class TauriPrinterService {
 
     // Print each page sequentially
     for (let i = 0; i < pages.length; i++) {
-
       await this.printImage(pages[i], printerName);
 
       // Small delay between pages to avoid overwhelming the printer
@@ -172,7 +171,6 @@ export class TauriPrinterService {
         escposData: escposData,
         printerName: printerName,
       });
-
     } catch (error) {
       console.error('Error printing ESC/POS receipt:', error);
       throw error;
@@ -342,11 +340,7 @@ export class TauriPrinterService {
     // Check for serial port identifiers
     // Windows: COM1, COM2, etc.
     // Linux/Mac: /dev/ttyUSB0, /dev/ttyS0, /dev/tty.usbserial, etc.
-    if (
-      portUpper.startsWith('COM') ||
-      portUpper.includes('/DEV/TTY') ||
-      portUpper.includes('SERIAL')
-    ) {
+    if (portUpper.startsWith('COM') || portUpper.includes('/DEV/TTY') || portUpper.includes('SERIAL')) {
       return 'SERIAL';
     }
 

@@ -4,7 +4,6 @@ import com.kobe.warehouse.service.tiketz.dto.TicketZ;
 import com.kobe.warehouse.service.tiketz.dto.TicketZParam;
 import java.awt.print.PrinterException;
 import java.io.IOException;
-
 import org.springframework.http.ResponseEntity;
 
 public interface TicketZService {
@@ -18,5 +17,5 @@ public interface TicketZService {
     void sentToEmail(TicketZParam param);
     // sent to sms
 
-    byte[] generateEscPosReceiptForTauri(TicketZParam param)  throws IOException;
+    byte[] generateEscPosReceiptForTauri(TicketZParam param) throws IOException;
 }

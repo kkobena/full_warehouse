@@ -16,14 +16,7 @@ import { Card } from 'primeng/card';
   selector: 'jhi-form-motif-ajustement',
   templateUrl: './form-motif-ajustement.component.html',
   styleUrls: ['../../common-modal.component.scss'],
-  imports: [
-    FormsModule,
-    ReactiveFormsModule,
-    ButtonModule,
-    InputTextModule,
-    ToastAlertComponent,
-    Card
-  ]
+  imports: [FormsModule, ReactiveFormsModule, ButtonModule, InputTextModule, ToastAlertComponent, Card],
 })
 export class FormMotifAjustementComponent implements OnInit, AfterViewInit {
   header: string;
@@ -33,7 +26,7 @@ export class FormMotifAjustementComponent implements OnInit, AfterViewInit {
   protected isSaving = false;
   protected editForm = this.fb.group({
     id: [],
-    libelle: [null, [Validators.required]]
+    libelle: [null, [Validators.required]],
   });
   private readonly activeModal = inject(NgbActiveModal);
   private readonly alert = viewChild.required<ToastAlertComponent>('alert');
@@ -55,7 +48,7 @@ export class FormMotifAjustementComponent implements OnInit, AfterViewInit {
   protected updateForm(entity: IMotifAjustement): void {
     this.editForm.patchValue({
       id: entity.id,
-      libelle: entity.libelle
+      libelle: entity.libelle,
     });
   }
 
@@ -74,9 +67,9 @@ export class FormMotifAjustementComponent implements OnInit, AfterViewInit {
   }
 
   private subscribeToSaveResponse(result: Observable<HttpResponse<IMotifAjustement>>): void {
-    result.pipe(finalize(() => this.isSaving = false)).subscribe({
+    result.pipe(finalize(() => (this.isSaving = false))).subscribe({
       next: (response: HttpResponse<IMotifAjustement>) => this.onSaveSuccess(response.body),
-      error: (err) => this.onSaveError(err)
+      error: err => this.onSaveError(err),
     });
   }
 
@@ -92,7 +85,7 @@ export class FormMotifAjustementComponent implements OnInit, AfterViewInit {
     return {
       ...new MotifAjustement(),
       id: this.editForm.get(['id']).value,
-      libelle: this.editForm.get(['libelle']).value
+      libelle: this.editForm.get(['libelle']).value,
     };
   }
 }

@@ -1,25 +1,22 @@
 <div class="modal-header">
   <h5 class="modal-title">AJOUT DE PRIX DE REFERENCE SUR LE PRODUIT</h5>
 
-  <button (click)="cancel()" aria-hidden="true" class="btn-close" data-dismiss="modal"
-          type="button"></button>
+  <button (click)="cancel()" aria-hidden="true" class="btn-close" data-dismiss="modal" type="button"></button>
 </div>
 
 <form (ngSubmit)="save()" [formGroup]="editForm" name="editForm" novalidate role="form">
-
   <div class="modal-body">
     <p-card>
       <div [hidden]="true">
         <input formControlName="id" id="id" name="id" readonly type="hidden" />
       </div>
       <div class="row m-3">
-        <span class="fs-5 fw-semibold ">{{ produit?.libelle }}</span>
+        <span class="fs-5 fw-semibold">{{ produit?.libelle }}</span>
       </div>
       <div class="row">
-
         <div class="col-6">
           <div class="field">
-            <label class="fs-6 fw-semibold ">Code Cip</label>
+            <label class="fs-6 fw-semibold">Code Cip</label>
             <span>{{ produit?.codeCip }}</span>
           </div>
         </div>
@@ -27,15 +24,12 @@
           <div class="field">
             <label class="fs-6 fw-semibold">Prix de vente</label>
             <span class="badge text-bg-secondary fs-4 rounded-pill">{{ produit?.regularUnitPrice | number }}</span>
-
           </div>
         </div>
       </div>
       <div class="form-row">
         <div class="form-group col">
-
-          <label class="form-control-label" for="type">Option de prix <span class="red-400"
-                                                                            style="font-weight: 900">*</span></label>
+          <label class="form-control-label" for="type">Option de prix <span class="red-400" style="font-weight: 900">*</span></label>
           <p-select
             [options]="pricesType"
             formControlName="type"
@@ -50,8 +44,7 @@
           @if (typePrix!.invalid && (typePrix!.dirty || typePrix!.touched)) {
             <div>
               @if (typePrix?.errors?.required) {
-                <small class="form-text text-danger" style="color: red"> Ce champ est
-                  obligatoire. </small>
+                <small class="form-text text-danger" style="color: red"> Ce champ est obligatoire. </small>
               }
             </div>
           }
@@ -60,9 +53,8 @@
 
       <div [hidden]="!isFromProduit" class="form-row">
         <div class="form-group col">
-
           <label class="form-control-label" for="tiersPayantId"
-          >Tiers payants <span class="red-400" style="font-weight: 900">*</span></label
+            >Tiers payants <span class="red-400" style="font-weight: 900">*</span></label
           >
           <p-select
             [options]="tiersPayants"
@@ -78,15 +70,13 @@
           @if (tiersPayantId!.invalid && (tiersPayantId!.dirty || tiersPayantId!.touched)) {
             <div>
               @if (tiersPayantId?.errors?.required) {
-                <small class="form-text text-danger" style="color: red"> Ce champ est
-                  obligatoire. </small>
+                <small class="form-text text-danger" style="color: red"> Ce champ est obligatoire. </small>
               }
             </div>
           }
         </div>
         <div [hidden]="isFromProduit" class="form-row">
-          <label class="form-control-label" for="tiersPayantId">Produits <span class="red-400"
-                                                                               style="font-weight: 900">*</span></label>
+          <label class="form-control-label" for="tiersPayantId">Produits <span class="red-400" style="font-weight: 900">*</span></label>
 
           <p-select
             [options]="produits"
@@ -102,27 +92,24 @@
           @if (produitId!.invalid && (produitId!.dirty || produitId!.touched)) {
             <div>
               @if (produitId?.errors?.required) {
-                <small class="form-text text-danger" style="color: red"> Ce champ est
-                  obligatoire. </small>
+                <small class="form-text text-danger" style="color: red"> Ce champ est obligatoire. </small>
               }
             </div>
-          }</div>
+          }
+        </div>
       </div>
 
       @if (shouldShowPriceControl) {
         <div class="form-row">
           <div class="form-group col">
-            <label class="form-control-label" for="price">Prix de référence<span class="red-400"
-                                                                                 style="font-weight: 900">*</span></label>
+            <label class="form-control-label" for="price">Prix de référence<span class="red-400" style="font-weight: 900">*</span></label>
 
-            <p-inputNumber autocomplete="off" formControlName="price" id="price"
-                           name="price"></p-inputNumber>
+            <p-inputNumber autocomplete="off" formControlName="price" id="price" name="price"></p-inputNumber>
             @let price = editForm.get('price');
             @if (price!.invalid && (price!.dirty || price!.touched)) {
               <div>
                 @if (price?.errors?.required) {
-                  <small class="form-text text-danger" style="color: red"> Ce champ est
-                    obligatoire. </small>
+                  <small class="form-text text-danger" style="color: red"> Ce champ est obligatoire. </small>
                 }
               </div>
             }
@@ -133,17 +120,16 @@
       @if (shouldShowRateControl) {
         <div class="form-row">
           <div class="form-group col">
-            <label class="form-control-label" for="rate">Taux de remboursement<span class="red-400"
-                                                                                    style="font-weight: 900">*</span></label>
+            <label class="form-control-label" for="rate"
+              >Taux de remboursement<span class="red-400" style="font-weight: 900">*</span></label
+            >
 
-            <p-inputNumber autocomplete="off" formControlName="rate" id="rate"
-                           name="rate"></p-inputNumber>
+            <p-inputNumber autocomplete="off" formControlName="rate" id="rate" name="rate"></p-inputNumber>
             @let rate = editForm.get('rate');
             @if (rate!.invalid && (rate!.dirty || rate!.touched)) {
               <div>
                 @if (rate?.errors?.required) {
-                  <small class="form-text text-danger" style="color: red"> Ce champ est
-                    obligatoire. </small>
+                  <small class="form-text text-danger" style="color: red"> Ce champ est obligatoire. </small>
                 }
               </div>
             }
@@ -153,9 +139,9 @@
 
       <div class="form-row">
         <div class="form-group col">
-          <label class="form-control-label" for="enabled" style="margin-right: 3rem;">Activer/Désactiver<span
-            class="red-400"
-            style="font-weight: 900">*</span></label>
+          <label class="form-control-label" for="enabled" style="margin-right: 3rem"
+            >Activer/Désactiver<span class="red-400" style="font-weight: 900">*</span></label
+          >
 
           <p-toggleswitch formControlName="enabled" styleClass="mt-3" />
         </div>
@@ -164,8 +150,15 @@
   </div>
 
   <div class="modal-footer">
-    <p-button class="mr-2" (click)="cancel()" icon="pi pi-times" label="Annuler" raised="true" severity="secondary"
-              type="button"></p-button>
+    <p-button
+      class="mr-2"
+      (click)="cancel()"
+      icon="pi pi-times"
+      label="Annuler"
+      raised="true"
+      severity="secondary"
+      type="button"
+    ></p-button>
     <p-button
       [disabled]="editForm.invalid || isSaving"
       class="mr-1"
@@ -175,7 +168,6 @@
       severity="primary"
       type="submit"
     ></p-button>
-
   </div>
 </form>
 <jhi-toast-alert #alert></jhi-toast-alert>

@@ -10,7 +10,6 @@ import java.time.format.DateTimeFormatter;
 
 public class ServiceUtil {
 
-
     public static PaymentMode getPaymentMode(String code) {
         PaymentMode paymentMode = new PaymentMode();
         paymentMode.setCode(code);

@@ -473,7 +473,7 @@ public class ThirdPartySaleServiceImpl extends SaleCommonService implements Thir
     public ResponseDTO putThirdPartySaleOnHold(ThirdPartySaleDTO dto) {
         ResponseDTO response = new ResponseDTO();
         ThirdPartySales thirdPartySales = thirdPartySaleRepository.findOneById(dto.getId());
-      //  paymentService.buildPaymentFromFromPaymentDTO(thirdPartySales, dto, storageService.getUser());
+        //  paymentService.buildPaymentFromFromPaymentDTO(thirdPartySales, dto, storageService.getUser());
         thirdPartySaleRepository.save(thirdPartySales);
         response.setSuccess(true);
         return response;
@@ -671,7 +671,7 @@ public class ThirdPartySaleServiceImpl extends SaleCommonService implements Thir
 
     @Override
     @Transactional(noRollbackFor = { PlafondVenteException.class })
-    public void changeCustomer(UpdateSaleInfo updateSaleInfo ) throws GenericError, PlafondVenteException {
+    public void changeCustomer(UpdateSaleInfo updateSaleInfo) throws GenericError, PlafondVenteException {
         ThirdPartySales thirdPartySales = findById(updateSaleInfo.id());
         AssuredCustomer assuredCustomer = assuredCustomerRepository.getReferenceById(updateSaleInfo.value());
         thirdPartySales.setCustomer(assuredCustomer);
@@ -720,9 +720,7 @@ public class ThirdPartySaleServiceImpl extends SaleCommonService implements Thir
             for (ClientTiersPayantDTO clientTiersPayantDTO : dto.getTiersPayants()) {
                 ClientTiersPayant clientTiersPayant = thirdPartySaleLine.getClientTiersPayant();
                 if (clientTiersPayant.getId().compareTo(clientTiersPayantDTO.getId()) == 0) {
-                    if (
-                        checkIfNumBonIsAlReadyUse(clientTiersPayantDTO.getNumBon(), clientTiersPayantDTO.getId(), p.getId().getId())
-                    ) {
+                    if (checkIfNumBonIsAlReadyUse(clientTiersPayantDTO.getNumBon(), clientTiersPayantDTO.getId(), p.getId().getId())) {
                         throw new NumBonAlreadyUseException(clientTiersPayantDTO.getNumBon());
                     }
                     thirdPartySaleLine.setNumBon(clientTiersPayantDTO.getNumBon());

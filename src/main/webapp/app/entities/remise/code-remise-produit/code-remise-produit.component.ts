@@ -12,7 +12,7 @@ import { Toolbar } from 'primeng/toolbar';
   selector: 'jhi-code-remise-produit',
   imports: [FaIconComponent, Toolbar],
   templateUrl: './code-remise-produit.component.html',
-  styleUrls: ['./code-remise-produit.component.scss']
+  styleUrls: ['./code-remise-produit.component.scss'],
 })
 export class CodeRemiseProduitComponent implements OnInit {
   entites?: CodeRemise[];
@@ -23,7 +23,7 @@ export class CodeRemiseProduitComponent implements OnInit {
     this.entityService.queryFullCodes().subscribe({
       next: (res: HttpResponse<CodeRemise[]>) => {
         this.entites = res.body || [];
-      }
+      },
     });
   }
 
@@ -31,7 +31,7 @@ export class CodeRemiseProduitComponent implements OnInit {
     const modalRef = this.ngModalService.open(CodeRemiseProduitsModalComponent, {
       backdrop: 'static',
       size: 'xl',
-      centered: true
+      centered: true,
     });
     modalRef.componentInstance.codeRemise = codeRemise;
 

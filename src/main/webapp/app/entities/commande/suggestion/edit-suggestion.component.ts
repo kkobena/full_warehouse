@@ -4,12 +4,7 @@ import { SuggestionService } from './suggestion.service';
 import { MenuItem, PrimeIcons } from 'primeng/api';
 import { HttpHeaders, HttpResponse } from '@angular/common/http';
 import { SuggestionLine } from './model/suggestion-line.model';
-import {
-  APPEND_TO,
-  ITEMS_PER_PAGE,
-  PRODUIT_COMBO_MIN_LENGTH,
-  PRODUIT_NOT_FOUND
-} from '../../../shared/constants/pagination.constants';
+import { APPEND_TO, ITEMS_PER_PAGE, PRODUIT_COMBO_MIN_LENGTH, PRODUIT_NOT_FOUND } from '../../../shared/constants/pagination.constants';
 import { Button } from 'primeng/button';
 import { CommonModule } from '@angular/common';
 import { ActivatedRoute, Router, RouterModule } from '@angular/router';
@@ -60,11 +55,10 @@ import { SpinnerComponent } from '../../../shared/spinner/spinner.component';
     FormsModule,
     FloatLabelModule,
     ConfirmDialogComponent,
-    SpinnerComponent
+    SpinnerComponent,
   ],
   templateUrl: './edit-suggestion.component.html',
-  styleUrl: './edit-suggestion.component.scss'
-
+  styleUrl: './edit-suggestion.component.scss',
 })
 export class EditSuggestionComponent implements OnInit {
   private readonly suggestionService = inject(SuggestionService);
@@ -101,14 +95,13 @@ export class EditSuggestionComponent implements OnInit {
 
         command: () => {
           this.exportCSV();
-        }
+        },
       },
       {
         label: 'Pdf',
         icon: PrimeIcons.FILE_PDF,
-        command: () => {
-        }
-      }
+        command: () => {},
+      },
     ];
   }
 
@@ -146,7 +139,7 @@ export class EditSuggestionComponent implements OnInit {
         page: 0,
         size: 5,
         withdetail: false,
-        search: this.searchProduit
+        search: this.searchProduit,
       })
       .subscribe((res: HttpResponse<any[]>) => this.onProduitSuccess(res.body));
   }
@@ -154,7 +147,7 @@ export class EditSuggestionComponent implements OnInit {
   private buildParameters(): any {
     return {
       search: this.search,
-      suggestionId: this.writableSignal()?.id
+      suggestionId: this.writableSignal()?.id,
     };
   }
 
@@ -172,7 +165,7 @@ export class EditSuggestionComponent implements OnInit {
       error: err => {
         this.spinner().hide();
         this.onCommonError(err);
-      }
+      },
     });
   }
 
@@ -186,7 +179,7 @@ export class EditSuggestionComponent implements OnInit {
       error: err => {
         this.spinner().hide();
         this.onCommonError(err);
-      }
+      },
     });
   }
 
@@ -198,11 +191,14 @@ export class EditSuggestionComponent implements OnInit {
   }
 
   deleteAll(): void {
-
-    this.confimDialog().onConfirm(() =>
-      this.onDelete({
-        ids: this.selections.map(suggestion => suggestion.id)
-      }), 'Suppression', 'Êtes-vous sûr de vouloir supprimer ?');
+    this.confimDialog().onConfirm(
+      () =>
+        this.onDelete({
+          ids: this.selections.map(suggestion => suggestion.id),
+        }),
+      'Suppression',
+      'Êtes-vous sûr de vouloir supprimer ?',
+    );
   }
 
   previousState(): void {
@@ -216,11 +212,11 @@ export class EditSuggestionComponent implements OnInit {
       .queryItems({
         page: pageToLoad,
         size: this.itemsPerPage,
-        ...this.buildParameters()
+        ...this.buildParameters(),
       })
       .subscribe({
         next: (res: HttpResponse<SuggestionLine[]>) => this.onSuccess(res.body, res.headers, pageToLoad),
-        error: () => this.onError()
+        error: () => this.onError(),
       });
   }
 
@@ -251,14 +247,14 @@ export class EditSuggestionComponent implements OnInit {
     return {
       ...new SuggestionLine(),
       produitId: produit.id,
-      quantity
+      quantity,
     };
   }
 
   onAddOrderLine(qytMvt: number): void {
     if (this.produitSelected) {
       this.subscribeToSaveLineResponse(
-        this.suggestionService.createOrUpdateItem(this.createItem(this.produitSelected, qytMvt), this.writableSignal().id)
+        this.suggestionService.createOrUpdateItem(this.createItem(this.produitSelected, qytMvt), this.writableSignal().id),
       );
     }
   }
@@ -266,7 +262,7 @@ export class EditSuggestionComponent implements OnInit {
   private subscribeToSaveLineResponse(result: Observable<HttpResponse<{}>>): void {
     result.subscribe({
       next: () => this.onSaveLineSuccess(),
-      error: (err: any) => this.onCommonError(err)
+      error: (err: any) => this.onCommonError(err),
     });
   }
 
@@ -312,18 +308,21 @@ export class EditSuggestionComponent implements OnInit {
       error: error => {
         this.spinner().hide();
         this.onCommonError(error);
-      }
+      },
     });
   }
 
-  private onCommonError(error: any): void {
-  }
+  private onCommonError(error: any): void {}
 
   delete(id: number): void {
-    this.confimDialog().onConfirm(() =>
-      this.onDelete({
-        ids: [id]
-      }), 'Suppression', 'Êtes-vous sûr de vouloir supprimer ?');
+    this.confimDialog().onConfirm(
+      () =>
+        this.onDelete({
+          ids: [id],
+        }),
+      'Suppression',
+      'Êtes-vous sûr de vouloir supprimer ?',
+    );
   }
 
   protected lazyLoading(event: TableLazyLoadEvent): void {
@@ -334,11 +333,11 @@ export class EditSuggestionComponent implements OnInit {
         .queryItems({
           page: this.page,
           size: event.rows,
-          ...this.buildParameters()
+          ...this.buildParameters(),
         })
         .subscribe({
           next: (res: HttpResponse<SuggestionLine[]>) => this.onSuccess(res.body, res.headers, this.page),
-          error: () => this.onError()
+          error: () => this.onError(),
         });
     }
   }

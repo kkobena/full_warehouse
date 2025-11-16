@@ -7,11 +7,10 @@ import com.kobe.warehouse.service.dto.ThirdPartySaleDTO;
 import com.kobe.warehouse.service.receipt.service.AssuranceSaleReceiptService;
 import com.kobe.warehouse.service.receipt.service.CashSaleReceiptService;
 import com.kobe.warehouse.service.receipt.service.VenteDepotReceiptService;
-import org.springframework.stereotype.Service;
-
+import java.io.IOException;
 import javax.print.PrintService;
 import javax.print.PrintServiceLookup;
-import java.io.IOException;
+import org.springframework.stereotype.Service;
 
 @Service
 public class ReceiptPrinterService {
@@ -24,7 +23,8 @@ public class ReceiptPrinterService {
     public ReceiptPrinterService(
         StorageService storageService,
         CashSaleReceiptService cashSaleReceiptService,
-        AssuranceSaleReceiptService assuranceSaleReceiptService, VenteDepotReceiptService venteDepotReceiptService
+        AssuranceSaleReceiptService assuranceSaleReceiptService,
+        VenteDepotReceiptService venteDepotReceiptService
     ) {
         this.storageService = storageService;
         this.cashSaleReceiptService = cashSaleReceiptService;
@@ -63,5 +63,4 @@ public class ReceiptPrinterService {
     public void printVenteDepot(DepotExtensionSaleDTO depotExtensionSaleDTO, boolean isEdit) {
         this.venteDepotReceiptService.printReceipt(null, depotExtensionSaleDTO, isEdit);
     }
-
 }

@@ -1,91 +1,90 @@
 <table class="main-table">
   <thead>
-  <tr>
-    <th class="text-left" style="width: 25%">Libellé produit</th>
-    <th class="text-left" style="width: 7%">Code</th>
-    <th class="text-left" style="width: 8%">Numéro lot</th>
-    <th class="text-left" style="width: 11%">Date de péremption</th>
-    <th class="text-center" style="width: 7%">Quantité</th>
-    <th class="text-center" style="width: 7%">Prix.Achat</th>
-    <th class="text-center" style="width: 7%">Prix.vente</th>
-    <th class="text-center" style="width: 17%">Statut</th>
-    <th class="text-left" style="width: 11%">Rayon</th>
-  </tr>
+    <tr>
+      <th class="text-left" style="width: 25%">Libellé produit</th>
+      <th class="text-left" style="width: 7%">Code</th>
+      <th class="text-left" style="width: 8%">Numéro lot</th>
+      <th class="text-left" style="width: 11%">Date de péremption</th>
+      <th class="text-center" style="width: 7%">Quantité</th>
+      <th class="text-center" style="width: 7%">Prix.Achat</th>
+      <th class="text-center" style="width: 7%">Prix.vente</th>
+      <th class="text-center" style="width: 17%">Statut</th>
+      <th class="text-left" style="width: 11%">Rayon</th>
+    </tr>
   </thead>
   <tbody>
-  <tr th:class="${itmStat.last}?'last-inner-item':''" th:each="itm : ${items}">
-    <td class="text-left" th:text="${itm.produitName}"></td>
-    <td class="text-left" th:text="${itm.produitCode}"></td>
-    <td class="text-left" th:text="${itm.numLot}"></td>
-    <td class="text-left" th:text="${itm.datePeremption}"></td>
+    <tr th:class="${itmStat.last}?'last-inner-item':''" th:each="itm : ${items}">
+      <td class="text-left" th:text="${itm.produitName}"></td>
+      <td class="text-left" th:text="${itm.produitCode}"></td>
+      <td class="text-left" th:text="${itm.numLot}"></td>
+      <td class="text-left" th:text="${itm.datePeremption}"></td>
 
-    <td class="unit" th:if="${itm.quantity ge 1000}"
-        th:text="${#numbers.formatInteger(itm.quantity,3,'WHITESPACE')}"></td>
-    <td class="unit" th:if="${itm.quantity lt 1000}" th:text="${itm.quantity}"></td>
+      <td class="unit" th:if="${itm.quantity ge 1000}" th:text="${#numbers.formatInteger(itm.quantity,3,'WHITESPACE')}"></td>
+      <td class="unit" th:if="${itm.quantity lt 1000}" th:text="${itm.quantity}"></td>
 
-    <td class="qty" th:if="${itm.prixAchat ge 1000}"
-        th:text="${#numbers.formatInteger(itm.prixAchat,3,'WHITESPACE')}"></td>
-    <td class="qty" th:if="${itm.prixAchat lt 1000}" th:text="${itm.prixAchat}"></td>
+      <td class="qty" th:if="${itm.prixAchat ge 1000}" th:text="${#numbers.formatInteger(itm.prixAchat,3,'WHITESPACE')}"></td>
+      <td class="qty" th:if="${itm.prixAchat lt 1000}" th:text="${itm.prixAchat}"></td>
 
-    <td class="unit" th:if="${itm.prixVente ge 1000}"
-        th:text="${#numbers.formatInteger(itm.prixVente,3,'WHITESPACE')}"></td>
-    <td class="unit" th:if="${itm.prixVente lt 1000}" th:text="${itm.prixVente}"></td>
+      <td class="unit" th:if="${itm.prixVente ge 1000}" th:text="${#numbers.formatInteger(itm.prixVente,3,'WHITESPACE')}"></td>
+      <td class="unit" th:if="${itm.prixVente lt 1000}" th:text="${itm.prixVente}"></td>
 
-    <td class="text-left"
-        th:text="itm.peremptionStatut.libelle"></td>
+      <td class="text-left" th:text="itm.peremptionStatut.libelle"></td>
 
-    <td class="text-left" th:text="${itm.rayonName}"></td>
-  </tr>
+      <td class="text-left" th:text="${itm.rayonName}"></td>
+    </tr>
   </tbody>
   <tfoot class="datatable-footer">
-  <tr class="tr-footer">
+    <tr class="tr-footer">
+      <td class="text-right" colspan="9">
+        <table class="ticketz-sumary" style="width: 50%; margin: 15px auto">
+          <thead>
+            <tr>
+              <th class="text-center" colspan="2">TOTAL GENERAL</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <th class="text-left">Nombre de produits</th>
 
+              <th
+                class="unit"
+                th:if="${reportSummary.count ge 1000}"
+                th:text="${#numbers.formatInteger(reportSummary.count,3,'WHITESPACE')}"
+              ></th>
+              <th class="unit" th:if="${reportSummary.count lt 1000}" th:text="${reportSummary.count}"></th>
+            </tr>
+            <tr>
+              <th class="text-left">Quantié</th>
+              <th
+                class="unit dt-number-column"
+                th:if="${reportSummary.quantite ge 1000}"
+                th:text="${#numbers.formatInteger(reportSummary.quantite,3,'WHITESPACE')}"
+              ></th>
+              <th class="unit dt-number-column" th:if="${reportSummary.quantite lt 1000}" th:text="${reportSummary.quantite}"></th>
+            </tr>
+            <tr>
+              <th class="text-left">Valeur d'achat</th>
 
-    <td class="text-right" colspan="9">
-      <table class="ticketz-sumary" style="width: 50%;margin: 15px auto;">
-        <thead>
-        <tr>
-          <th class="text-center" colspan="2">TOTAL GENERAL</th>
-        </tr>
-        </thead>
-        <tbody>
-        <tr>
-          <th class="text-left">Nombre de produits</th>
+              <th
+                class="unit dt-number-column"
+                th:if="${reportSummary.valeurAchat ge 1000}"
+                th:text="${#numbers.formatInteger(reportSummary.valeurAchat,3,'WHITESPACE')}"
+              ></th>
+              <th class="unit dt-number-column" th:if="${reportSummary.valeurAchat lt 1000}" th:text="${reportSummary.valeurAchat}"></th>
+            </tr>
+            <tr>
+              <th class="text-left">Valeur de vente</th>
 
-          <th class="unit" th:if="${reportSummary.count ge 1000}"
-              th:text="${#numbers.formatInteger(reportSummary.count,3,'WHITESPACE')}"></th>
-          <th class="unit" th:if="${reportSummary.count lt 1000}"
-              th:text="${reportSummary.count}"></th>
-
-        </tr>
-        <tr>
-          <th class="text-left">Quantié</th>
-          <th class="unit dt-number-column" th:if="${reportSummary.quantite ge 1000}"
-              th:text="${#numbers.formatInteger(reportSummary.quantite,3,'WHITESPACE')}"></th>
-          <th class="unit dt-number-column" th:if="${reportSummary.quantite lt 1000}"
-              th:text="${reportSummary.quantite}"></th>
-        </tr>
-        <tr>
-          <th class="text-left">Valeur d'achat</th>
-
-          <th class="unit dt-number-column" th:if="${reportSummary.valeurAchat ge 1000}"
-              th:text="${#numbers.formatInteger(reportSummary.valeurAchat,3,'WHITESPACE')}"></th>
-          <th class="unit dt-number-column" th:if="${reportSummary.valeurAchat lt 1000}"
-              th:text="${reportSummary.valeurAchat}"></th>
-        </tr>
-        <tr>
-          <th class="text-left">Valeur de vente</th>
-
-          <th class="unit dt-number-column" th:if="${reportSummary.valeurVente ge 1000}"
-              th:text="${#numbers.formatInteger(reportSummary.valeurVente,3,'WHITESPACE')}"></th>
-          <th class="unit dt-number-column" th:if="${reportSummary.valeurVente lt 1000}"
-              th:text="${reportSummary.valeurVente}"></th>
-        </tr>
-        </tbody>
-      </table>
-
-    </td>
-
-  </tr>
+              <th
+                class="unit dt-number-column"
+                th:if="${reportSummary.valeurVente ge 1000}"
+                th:text="${#numbers.formatInteger(reportSummary.valeurVente,3,'WHITESPACE')}"
+              ></th>
+              <th class="unit dt-number-column" th:if="${reportSummary.valeurVente lt 1000}" th:text="${reportSummary.valeurVente}"></th>
+            </tr>
+          </tbody>
+        </table>
+      </td>
+    </tr>
   </tfoot>
 </table>

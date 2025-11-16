@@ -21,14 +21,13 @@ export class AjustementService {
     fromDate: new Date(),
     toDate: new Date(),
     search: null,
-    userId: null
+    userId: null,
   });
 
   /** Inserted by Angular inject() migration for backwards compatibility */
   constructor(...args: unknown[]);
 
-  constructor() {
-  }
+  constructor() {}
 
   find(id: number): Observable<EntityResponseType> {
     return this.http
@@ -98,7 +97,7 @@ export class AjustementService {
 
   protected convertDateFromClient(ajustement: IAjustement): IAjustement {
     const copy: IAjustement = Object.assign({}, ajustement, {
-      dateMtv: ajustement.dateMtv && ajustement.dateMtv.isValid() ? ajustement.dateMtv.toJSON() : undefined
+      dateMtv: ajustement.dateMtv && ajustement.dateMtv.isValid() ? ajustement.dateMtv.toJSON() : undefined,
     });
     return copy;
   }

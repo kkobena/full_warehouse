@@ -6,7 +6,7 @@ public enum TemporalEnum {
     SEMESTERLY(2),
     YEARLY(4);
 
-    private final int  order ;
+    private final int order;
 
     TemporalEnum(int order) {
         this.order = order;

@@ -13,10 +13,6 @@ public class UninsuredCustomer extends Customer {
     @JoinFormula("(SELECT o.id FROM customer_account o WHERE  o.customer_id=id AND o.enabled LIMIT  1)")
     private CustomerAccount account;
 
-
-
-
-
     public CustomerAccount account() {
         return account;
     }

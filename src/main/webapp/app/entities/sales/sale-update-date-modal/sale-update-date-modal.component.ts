@@ -45,7 +45,7 @@ import { TagModule } from 'primeng/tag';
       </div>
     </div>
   `,
-  imports: [WarehouseCommonModule, ReactiveFormsModule, ButtonModule, DatePickerComponent, TagModule]
+  imports: [WarehouseCommonModule, ReactiveFormsModule, ButtonModule, DatePickerComponent, TagModule],
 })
 export class SaleUpdateDateModalComponent {
   sale: ISales | null = null; ///*const modalData = (this as any).sale;
@@ -57,8 +57,8 @@ export class SaleUpdateDateModalComponent {
   protected editForm = this.fb.group({
     updatedAt: new FormControl<Date | null>(null, {
       validators: [Validators.required],
-      nonNullable: true
-    })
+      nonNullable: true,
+    }),
   });
   private readonly salesService = inject(SalesService);
 
@@ -76,7 +76,7 @@ export class SaleUpdateDateModalComponent {
   protected subscribeToSaveResponse(result: Observable<HttpResponse<ISales>>): void {
     result.pipe(finalize(() => (this.isSaving = false))).subscribe({
       next: res => this.onSaveSuccess(res.body),
-      error: () => this.onSaveError()
+      error: () => this.onSaveError(),
     });
   }
 

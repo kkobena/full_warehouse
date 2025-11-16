@@ -1,8 +1,7 @@
 <p-toast position="center"></p-toast>
 <div class="modal-header">
   <h4 class="modal-title">{{ title }}</h4>
-  <button (click)="cancel()" aria-hidden="true" class="btn-close" data-dismiss="modal"
-          type="button"></button>
+  <button (click)="cancel()" aria-hidden="true" class="btn-close" data-dismiss="modal" type="button"></button>
 </div>
 
 <form (ngSubmit)="save()" [formGroup]="editForm" name="editForm" novalidate>
@@ -31,18 +30,14 @@
             pInputText
             type="text"
           />
-          @if (editForm.get('firstName')!.invalid && (editForm.get('firstName')!.dirty
-            || editForm.get('firstName')!.touched)) {
+          @if (editForm.get('firstName')!.invalid && (editForm.get('firstName')!.dirty || editForm.get('firstName')!.touched)) {
             <div>
               @if (editForm.get('firstName')?.errors?.required) {
-                <small class="form-text text-danger" jhiTranslate="entity.validation.required"> This
-                  field is required. </small>
+                <small class="form-text text-danger" jhiTranslate="entity.validation.required"> This field is required. </small>
               }
             </div>
           }
         </div>
-
-
 
         <div class="form-field form-field-full">
           <label class="form-control-label" for="field_lastName">Prénom(s)<span class="required">*</span></label>
@@ -55,18 +50,14 @@
             pInputText
             type="text"
           />
-          @if (editForm.get('lastName')!.invalid && (editForm.get('lastName')!.dirty
-            || editForm.get(
-              'lastName')!.touched)) {
+          @if (editForm.get('lastName')!.invalid && (editForm.get('lastName')!.dirty || editForm.get('lastName')!.touched)) {
             <div>
               @if (editForm.get('lastName')?.errors?.required) {
-                <small class="form-text text-danger" jhiTranslate="entity.validation.required"> This
-                  field is required. </small>
+                <small class="form-text text-danger" jhiTranslate="entity.validation.required"> This field is required. </small>
               }
             </div>
           }
         </div>
-
 
         <div class="form-field form-field-full">
           <label class="form-control-label" for="field_phone">Téléphone<span class="required">*</span></label>
@@ -81,18 +72,15 @@
             type="text"
           />
 
-          @if (editForm.get('phone')!.invalid && (editForm.get('phone')!.dirty || editForm.get(
-            'phone')!.touched)) {
+          @if (editForm.get('phone')!.invalid && (editForm.get('phone')!.dirty || editForm.get('phone')!.touched)) {
             <div>
               @if (editForm.get('phone')?.errors?.required) {
-                <small class="form-text text-danger" jhiTranslate="entity.validation.required"> This
-                  field is required. </small>
+                <small class="form-text text-danger" jhiTranslate="entity.validation.required"> This field is required. </small>
               }
             </div>
           }
-
-      </div></div>
-
+        </div>
+      </div>
     </p-card>
     <p-card class="mt-2">
       <ng-template #header>
@@ -100,13 +88,11 @@
           <i class="pi pi-info-circle"></i>
           <span>Informations Complémentaires</span>
         </div>
-
       </ng-template>
       <div class="form-grid-compact">
         <div class="form-field form-field-full">
           <label class="form-control-label" for="field_email">E-mail</label>
-          <input autocomplete="off" class="form-control" formControlName="email" id="field_email"
-                 name="email" pInputText type="email" />
+          <input autocomplete="off" class="form-control" formControlName="email" id="field_email" name="email" pInputText type="email" />
         </div>
       </div>
     </p-card>

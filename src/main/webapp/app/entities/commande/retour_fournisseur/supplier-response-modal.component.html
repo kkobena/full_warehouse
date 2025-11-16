@@ -27,16 +27,8 @@
     </div>
   </div>
 
-
   <!-- Response Items Table -->
-  <p-table
-    [value]="responseItems()"
-    class="pharma-table"
-    editMode="cell"
-    [scrollable]="true"
-    scrollHeight="400px"
-    [showGridlines]="true"
-  >
+  <p-table [value]="responseItems()" class="pharma-table" editMode="cell" [scrollable]="true" scrollHeight="400px" [showGridlines]="true">
     <ng-template #header>
       <tr class="pharma-table-head">
         <th style="width: 50px">#</th>
@@ -63,7 +55,6 @@
         <td>
           @if (item.lotNumero) {
             <span class="pharma-badge pharma-badge-info">
-
               {{ item.lotNumero }}
             </span>
           }
@@ -84,22 +75,22 @@
                   buttonLayout="horizontal"
                   incrementButtonIcon="pi pi-plus"
                   decrementButtonIcon="pi pi-minus"
-                  [inputStyle]="{ 'text-align': 'center', 'width': '100px' }"
+                  [inputStyle]="{ 'text-align': 'center', width: '100px' }"
                   (keydown.enter)="$event.preventDefault()"
                 />
               </ng-template>
               <ng-template #output>
-              <span class="pharma-qty-value" [ngClass]="item.qtyMvt === 0 ? 'text-danger' : ''">
-                {{ item.qtyMvt | number }}
-              </span>
+                <span class="pharma-qty-value" [ngClass]="item.qtyMvt === 0 ? 'text-danger' : ''">
+                  {{ item.qtyMvt | number }}
+                </span>
               </ng-template>
             </p-cellEditor>
           </td>
         } @else {
           <td class="text-center">
             <span class="pharma-qty-value" [ngClass]="item.qtyMvt === 0 ? 'text-danger' : ''">
-                {{ item.qtyMvt | number }}
-              </span>
+              {{ item.qtyMvt | number }}
+            </span>
           </td>
         }
 
@@ -115,8 +106,6 @@
           } @else {
             <i class="pi pi-check-circle text-success" pTooltip="Accepté" tooltipPosition="top"></i>
           }
-
-
         </td>
       </tr>
     </ng-template>
@@ -124,13 +113,7 @@
 </div>
 
 <div class="modal-footer">
-  <p-button
-    (onClick)="cancel()"
-    icon="pi pi-times"
-    label="Annuler"
-    severity="secondary"
-    [outlined]="true"
-  />
+  <p-button (onClick)="cancel()" icon="pi pi-times" label="Annuler" severity="secondary" [outlined]="true" />
   <p-button
     (onClick)="save()"
     [disabled]="!canSave() || isSaving()"

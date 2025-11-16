@@ -6,8 +6,7 @@
     </div>
   </ng-template>
   <ng-template #content>
-    <jhi-factues-modal (selectedFacture)="onSelectFacture($event)"
-                       [factureGroup]="false"></jhi-factues-modal>
+    <jhi-factues-modal (selectedFacture)="onSelectFacture($event)" [factureGroup]="false"></jhi-factues-modal>
   </ng-template>
 </p-drawer>
 
@@ -25,81 +24,87 @@
     <div class="reglement-container">
       <!-- Main Table Section -->
       <main class="reglement-content">
-    <p-table
-      #factureDossierTable
-      (selectionChange)="onSelectChange($event)"
-      [(selection)]="factureDossierSelectionnes"
-      [globalFilterFields]="['bonNumber', 'customerFullName', 'matricule']"
-      [paginator]="true"
-      [rowsPerPageOptions]="[10, 20, 30, 50, 100]"
-      [rows]="20"
-      [showCurrentPageReport]="true"
-      [stripedRows]="true"
-      [value]="reglementFactureDossiersSignal()"
-      class="pharma-table"
-      currentPageReportTemplate="Affichage de {first} à {last} sur {totalRecords} dossisiers"
-      dataKey="id"
-      selectionMode="multiple"
-    >
-      <ng-template #caption>
-        <div class="d-flex justify-content-between">
-          <div class="p-2"><span class="text-xl font-bold">Dossiers</span></div>
-          <div class="p-0">
-            <p-iconfield>
-              <p-inputicon class="pi pi-search" />
-              <input
-                (input)="factureDossierTable.filterGlobal($event.target.value, 'contains')"
-                [style]="{ width: '300px' }"
-                pInputText
-                placeholder="Taper pour filter "
-                type="text"
-              />
-            </p-iconfield>
-          </div>
-        </div>
-      </ng-template>
-      <ng-template #header>
-        <tr class="pharma-table-head">
-          <th>Réf.Bon</th>
-          <th>Nom/Prénom(s)</th>
-          <th>Matricule</th>
-          <th>Date vente</th>
-          <th>Montant</th>
-          <th>Montant payé</th>
-          <th>Montant Restant</th>
+        <p-table
+          #factureDossierTable
+          (selectionChange)="onSelectChange($event)"
+          [(selection)]="factureDossierSelectionnes"
+          [globalFilterFields]="['bonNumber', 'customerFullName', 'matricule']"
+          [paginator]="true"
+          [rowsPerPageOptions]="[10, 20, 30, 50, 100]"
+          [rows]="20"
+          [showCurrentPageReport]="true"
+          [stripedRows]="true"
+          [value]="reglementFactureDossiersSignal()"
+          class="pharma-table"
+          currentPageReportTemplate="Affichage de {first} à {last} sur {totalRecords} dossisiers"
+          dataKey="id"
+          selectionMode="multiple"
+        >
+          <ng-template #caption>
+            <div class="d-flex justify-content-between">
+              <div class="p-2"><span class="text-xl font-bold">Dossiers</span></div>
+              <div class="p-0">
+                <p-iconfield>
+                  <p-inputicon class="pi pi-search" />
+                  <input
+                    (input)="factureDossierTable.filterGlobal($event.target.value, 'contains')"
+                    [style]="{ width: '300px' }"
+                    pInputText
+                    placeholder="Taper pour filter "
+                    type="text"
+                  />
+                </p-iconfield>
+              </div>
+            </div>
+          </ng-template>
+          <ng-template #header>
+            <tr class="pharma-table-head">
+              <th>Réf.Bon</th>
+              <th>Nom/Prénom(s)</th>
+              <th>Matricule</th>
+              <th>Date vente</th>
+              <th>Montant</th>
+              <th>Montant payé</th>
+              <th>Montant Restant</th>
 
-          @if (partialPayment) {
-            <ng-container>
-              <th class="table-all-checkbos">
-                <p-tableHeaderCheckbox #checkbox></p-tableHeaderCheckbox>
-              </th>
-            </ng-container>
-          }
-        </tr>
-      </ng-template>
-      <ng-template #body let-item let-rowIndex="rowIndex">
-        <tr [ngClass]="{ 'table-success0': item.montantPaye > 0 }">
-          <td><span class="pharma-code">{{ item.bonNumber }}</span></td>
-          <td><span class="pharma-entity-name">{{ item.customerFullName }}</span></td>
-          <td><span class="pharma-badge pharma-badge-info">{{ item.matricule }}</span></td>
-          <td>{{ item.saleDate | date: 'dd/MM/yyyy HH:mm' }}</td>
-          <td class="amount-column">
-            <span class="pharma-price">{{ item.montantTotal | number }}</span>
-          </td>
-          <td class="amount-column">
-            <span class="pharma-price">{{ item.montantPaye | number }}</span>
-          </td>
-          <td class="amount-column">
-            <span class="pharma-total">{{ item.montantTotal - item.montantPaye | number }}</span>
-          </td>
-          @if (partialPayment) {
-            <td class="text-center">
-              <p-tableCheckbox [value]="item"></p-tableCheckbox>
-            </td>
-          }
-        </tr>
-      </ng-template>
-    </p-table>
+              @if (partialPayment) {
+                <ng-container>
+                  <th class="table-all-checkbos">
+                    <p-tableHeaderCheckbox #checkbox></p-tableHeaderCheckbox>
+                  </th>
+                </ng-container>
+              }
+            </tr>
+          </ng-template>
+          <ng-template #body let-item let-rowIndex="rowIndex">
+            <tr [ngClass]="{ 'table-success0': item.montantPaye > 0 }">
+              <td>
+                <span class="pharma-code">{{ item.bonNumber }}</span>
+              </td>
+              <td>
+                <span class="pharma-entity-name">{{ item.customerFullName }}</span>
+              </td>
+              <td>
+                <span class="pharma-badge pharma-badge-info">{{ item.matricule }}</span>
+              </td>
+              <td>{{ item.saleDate | date: 'dd/MM/yyyy HH:mm' }}</td>
+              <td class="amount-column">
+                <span class="pharma-price">{{ item.montantTotal | number }}</span>
+              </td>
+              <td class="amount-column">
+                <span class="pharma-price">{{ item.montantPaye | number }}</span>
+              </td>
+              <td class="amount-column">
+                <span class="pharma-total">{{ item.montantTotal - item.montantPaye | number }}</span>
+              </td>
+              @if (partialPayment) {
+                <td class="text-center">
+                  <p-tableCheckbox [value]="item"></p-tableCheckbox>
+                </td>
+              }
+            </tr>
+          </ng-template>
+        </p-table>
       </main>
 
       <!-- Sidebar Payment Form -->
@@ -145,10 +150,7 @@
             </div>
           </ng-template>
 
-          <jhi-dossier-reglement-info
-            [dossierFactureProjection]="dossierFactureProjectionSignal()"
-            [totalApayer]="montantAPayer()"
-          >
+          <jhi-dossier-reglement-info [dossierFactureProjection]="dossierFactureProjectionSignal()" [totalApayer]="montantAPayer()">
           </jhi-dossier-reglement-info>
         </p-card>
       </aside>

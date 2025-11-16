@@ -45,10 +45,14 @@
             type="button"
           />
         </td>
-        <td><span class="pharma-code">{{ row.orderReference }}</span></td>
+        <td>
+          <span class="pharma-code">{{ row.orderReference }}</span>
+        </td>
         <td>{{ row.createdAt | date: 'dd/MM/yyyy HH:mm:ss' }}</td>
         <td>{{ row.receiptDate | date: 'dd/MM/yyyy' }}</td>
-        <td><span class="pharma-badge pharma-badge-info">{{ row.receiptReference }}</span></td>
+        <td>
+          <span class="pharma-badge pharma-badge-info">{{ row.receiptReference }}</span>
+        </td>
 
         <td class="text-right pharma-total">{{ row.receiptAmount | number }}</td>
         <td class="text-right pharma-price">{{ row.taxAmount | number }}</td>
@@ -59,7 +63,7 @@
         <td class="text-right">
           <div class="btn-group">
             <p-button
-              [routerLink]="['/commande', row.commandeId.id,row.commandeId.orderDate, 'edit']"
+              [routerLink]="['/commande', row.commandeId.id, row.commandeId.orderDate, 'edit']"
               severity="help"
               [rounded]="true"
               [text]="true"
@@ -82,7 +86,7 @@
       </tr>
     </ng-template>
     <ng-template #expandedrow let-item>
-      <tr  class="pharma-expanded-row">
+      <tr class="pharma-expanded-row">
         <td colspan="12">
           <div class="pharma-sub-table-container">
             <div class="pharma-sub-table-header">
@@ -90,13 +94,14 @@
               <span>DÉTAILS DU BON DE LIVRAISON</span>
             </div>
             <div class="pharma-sub-table-body">
-              <p-table class="pharma-table"
-                       [paginator]="true"
-                       [rowsPerPageOptions]="[10, 25, 50]"
-                       [rows]="10"
-                       [showCurrentPageReport]="true"
-                       [value]="item.orderLines"
-                       currentPageReportTemplate="Affichage de {first} à {last} sur {totalRecords} elements"
+              <p-table
+                class="pharma-table"
+                [paginator]="true"
+                [rowsPerPageOptions]="[10, 25, 50]"
+                [rows]="10"
+                [showCurrentPageReport]="true"
+                [value]="item.orderLines"
+                currentPageReportTemplate="Affichage de {first} à {last} sur {totalRecords} elements"
               >
                 <ng-template #header>
                   <tr class="pharma-table-head">
@@ -112,9 +117,15 @@
                 </ng-template>
                 <ng-template let-receiptItem let-rowIndex="rowIndex" #body>
                   <tr>
-                    <td><span class="pharma-row-number">{{ rowIndex + 1 }}</span> </td>
-                    <td><span class="pharma-code">{{ receiptItem.produitCodeEan || receiptItem.produitCip }}</span></td>
-                    <td><span class="pharma-product-name">{{ receiptItem.produitLibelle }}</span></td>
+                    <td>
+                      <span class="pharma-row-number">{{ rowIndex + 1 }}</span>
+                    </td>
+                    <td>
+                      <span class="pharma-code">{{ receiptItem.produitCodeEan || receiptItem.produitCip }}</span>
+                    </td>
+                    <td>
+                      <span class="pharma-product-name">{{ receiptItem.produitLibelle }}</span>
+                    </td>
                     <td class="text-right pharma-qty-value">{{ receiptItem.initStock | number }}</td>
                     <td class="text-right pharma-qty-value">{{ receiptItem.afterStock | number }}</td>
                     <td class="text-right pharma-qty-value">{{ receiptItem.quantityReceived | number }}</td>
@@ -124,11 +135,10 @@
                 </ng-template>
               </p-table>
             </div>
-
           </div>
         </td>
       </tr>
     </ng-template>
   </p-table>
 }
-<jhi-spinner #spinner ></jhi-spinner>
+<jhi-spinner #spinner></jhi-spinner>

@@ -40,7 +40,7 @@ public class TiersPayantDataService implements TiersPayantMapper {
         if (groupeTiersPayantId != null) {
             specification = specification.and(this.tiersPayantRepository.specialisationByGroup(groupeTiersPayantId));
         }
-        TiersPayantCategorie tiersPayantCategorie ;
+        TiersPayantCategorie tiersPayantCategorie;
         if (StringUtils.hasLength(categorie) && !categorie.equals(EntityConstant.TOUT)) {
             tiersPayantCategorie = TiersPayantCategorie.valueOf(categorie);
             specification = specification.and(this.tiersPayantRepository.specialisationCategorie(tiersPayantCategorie));

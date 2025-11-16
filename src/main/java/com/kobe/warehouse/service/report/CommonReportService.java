@@ -233,7 +233,7 @@ public Response generatePdf() {
             e.printStackTrace();
         }
              */
-        } catch (IOException  e) {
+        } catch (IOException e) {
             log.debug("printOneReceiptPage", e);
         }
         return filePath;

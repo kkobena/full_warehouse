@@ -34,7 +34,6 @@ import { ConfirmationService, MessageService } from 'primeng/api';
     PanelModule,
     FacturesComponent,
     EditionComponent,
-
   ],
   templateUrl: './facturation.component.html',
   styleUrl: './facturation.component.scss',

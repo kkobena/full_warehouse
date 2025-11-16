@@ -38,14 +38,12 @@ export class AuthServerProvider {
       password: credentials.password,
     };
 
-    return this.http
-      .post<JwtTokenResponse>(this.applicationConfigService.getEndpointFor('api/auth/login'), loginRequest)
-      .pipe(
-        tap(response => {
-          // Store JWT tokens in localStorage
-          this.jwtTokenService.storeTokens(response);
-        }),
-      );
+    return this.http.post<JwtTokenResponse>(this.applicationConfigService.getEndpointFor('api/auth/login'), loginRequest).pipe(
+      tap(response => {
+        // Store JWT tokens in localStorage
+        this.jwtTokenService.storeTokens(response);
+      }),
+    );
   }
 
   /**

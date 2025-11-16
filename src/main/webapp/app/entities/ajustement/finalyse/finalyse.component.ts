@@ -20,7 +20,17 @@ import { InputText } from 'primeng/inputtext';
   templateUrl: './finalyse.component.html',
   styleUrls: ['../../common-modal.component.scss'],
 
-  imports: [WarehouseCommonModule, RouterModule, ButtonModule, FormsModule, ReactiveFormsModule, ToastAlertComponent, SpinnerComponent, Card, InputText]
+  imports: [
+    WarehouseCommonModule,
+    RouterModule,
+    ButtonModule,
+    FormsModule,
+    ReactiveFormsModule,
+    ToastAlertComponent,
+    SpinnerComponent,
+    Card,
+    InputText,
+  ],
 })
 export class FinalyseComponent implements AfterViewInit {
   header: string | null = null;
@@ -30,15 +40,14 @@ export class FinalyseComponent implements AfterViewInit {
   protected editForm = this.fb.group({
     commentaire: new FormControl<string | null>(null, {
       validators: [Validators.required],
-      nonNullable: true
-    })
+      nonNullable: true,
+    }),
   });
   private commentaire = viewChild.required<ElementRef>('commentaire');
   private readonly ajustementService = inject(AjustementService);
   private readonly spinner = viewChild.required<SpinnerComponent>('spinner');
   private alert = viewChild.required<ToastAlertComponent>('alert');
   private readonly activeModal = inject(NgbActiveModal);
-
 
   ngAfterViewInit(): void {
     setTimeout(() => {
@@ -59,7 +68,7 @@ export class FinalyseComponent implements AfterViewInit {
   protected subscribeToSaveResponse(result: Observable<HttpResponse<{}>>): void {
     result.pipe(finalize(() => this.spinner().hide())).subscribe({
       next: () => this.onSaveSuccess(),
-      error: () => this.onSaveError()
+      error: () => this.onSaveError(),
     });
   }
 
@@ -69,13 +78,13 @@ export class FinalyseComponent implements AfterViewInit {
 
   protected onSaveError(): void {
     this.isSaving = false;
-    this.alert().showError('Erreur d\'enregistrement', 'Erreur d\'enregistrement');
+    this.alert().showError("Erreur d'enregistrement", "Erreur d'enregistrement");
   }
 
   private createFromForm(): IAjust {
     return {
       ...this.entity,
-      commentaire: this.editForm.get(['commentaire']).value
+      commentaire: this.editForm.get(['commentaire']).value,
     };
   }
 }

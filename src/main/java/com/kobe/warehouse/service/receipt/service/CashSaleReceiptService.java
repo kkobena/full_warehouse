@@ -1,13 +1,12 @@
 package com.kobe.warehouse.service.receipt.service;
 
-import com.kobe.warehouse.service.settings.AppConfigurationService;
 import com.kobe.warehouse.service.dto.CashSaleDTO;
 import com.kobe.warehouse.service.dto.SaleDTO;
 import com.kobe.warehouse.service.dto.SaleLineDTO;
 import com.kobe.warehouse.service.dto.UninsuredCustomerDTO;
 import com.kobe.warehouse.service.receipt.dto.CashSaleReceiptItem;
 import com.kobe.warehouse.service.receipt.dto.HeaderFooterItem;
-
+import com.kobe.warehouse.service.settings.AppConfigurationService;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
@@ -27,7 +26,6 @@ public class CashSaleReceiptService extends AbstractSaleReceiptService {
     public CashSaleReceiptService(AppConfigurationService appConfigurationService) {
         super(appConfigurationService);
     }
-
 
     @Override
     protected SaleDTO getSale() {
@@ -87,8 +85,6 @@ public class CashSaleReceiptService extends AbstractSaleReceiptService {
         headerItems.add(new HeaderFooterItem("Montants exprimés en FCFA", 1, font));
         return headerItems;*/
     }
-
-
 
     public byte[] generateEscPosReceiptForTauri(CashSaleDTO sale, boolean isEdit) throws IOException {
         this.cashSale = sale;

@@ -44,8 +44,6 @@ export class CommandeService {
     return this.http.delete(`${this.resourceUrl}/${commandeId.id}/${commandeId.orderDate}`, { observe: 'response' });
   }
 
-
-
   createOrUpdateOrderLine(orderLine: IOrderLine): Observable<EntityResponseType> {
     return this.http
       .post<ICommande>(this.resourceUrl + '/add-order-line', orderLine, { observe: 'response' })
@@ -82,7 +80,6 @@ export class CommandeService {
     return this.http.put<IOrderLine>(this.resourceUrl + '/update-provisional-cip', orderLine, { observe: 'response' });
   }
 
-
   exportToCsv(commandeId: CommandeId): Observable<Blob> {
     return this.http.get(`${this.resourceUrl}/csv/${commandeId.id}/${commandeId.orderDate}`, { responseType: 'blob' });
   }
@@ -95,14 +92,14 @@ export class CommandeService {
     const options = createRequestOptions(req);
     return this.http.get<IOrderLine[]>(`${this.resourceUrl}/filter-order-lines`, {
       params: options,
-      observe: 'response'
+      observe: 'response',
     });
   }
 
   fetchOrderLinesByCommandeId(commandeId: CommandeId): Observable<HttpResponse<IOrderLine[]>> {
     return this.http.get<IOrderLine[]>(`${this.resourceUrl}/pageable-order-lines/${commandeId.id}/${commandeId.orderDate}`, {
       params: { size: '99999', sort: 'fournisseurProduit_produit_libelle' },
-      observe: 'response'
+      observe: 'response',
     });
   }
 
@@ -111,7 +108,7 @@ export class CommandeService {
     return this.http
       .get<ICommande[]>(this.resourceUrl + '/commandes-without-order-lines', {
         params: options,
-        observe: 'response'
+        observe: 'response',
       })
       .pipe(map((res: EntityArrayResponseType) => this.convertDateArrayFromServer(res)));
   }
@@ -125,14 +122,18 @@ export class CommandeService {
   }
 
   importerReponseCommande(commandeId: CommandeId, file: any): Observable<HttpResponse<IResponseCommande>> {
-    return this.http.post<IResponseCommande>(`${this.resourceUrl}/verification-commande-en-cours/${commandeId.id}/${commandeId.orderDate}`, file, {
-      observe: 'response'
-    });
+    return this.http.post<IResponseCommande>(
+      `${this.resourceUrl}/verification-commande-en-cours/${commandeId.id}/${commandeId.orderDate}`,
+      file,
+      {
+        observe: 'response',
+      },
+    );
   }
 
   uploadNewCommande(fournisseurId: number, model: string, file: any): Observable<HttpResponse<ICommandeResponse>> {
     return this.http.post<ICommandeResponse>(`${this.resourceUrl}/upload-new-commande/${fournisseurId}/${model}`, file, {
-      observe: 'response'
+      observe: 'response',
     });
   }
 
@@ -142,7 +143,7 @@ export class CommandeService {
 
   updateQuantityReceived(orderLine: IOrderLine): Observable<{}> {
     return this.http.put(this.resourceUrl + '/update-order-line-quantity-received', orderLine, {
-      observe: 'response'
+      observe: 'response',
     });
   }
 
@@ -185,7 +186,7 @@ export class CommandeService {
   private convertDateFromClient(commande: ICommande): ICommande {
     return Object.assign({}, commande, {
       createdAt: commande.createdAt && commande.createdAt.isValid() ? commande.createdAt.toJSON() : undefined,
-      updatedAt: commande.updatedAt && commande.updatedAt.isValid() ? commande.updatedAt.toJSON() : undefined
+      updatedAt: commande.updatedAt && commande.updatedAt.isValid() ? commande.updatedAt.toJSON() : undefined,
     });
   }
 

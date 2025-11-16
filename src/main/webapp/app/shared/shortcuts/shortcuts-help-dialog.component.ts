@@ -21,9 +21,7 @@ interface Shortcut {
   styleUrls: ['../../entities/common-modal.component.scss'],
   template: `
     <div class="modal-header">
-      <h4 class="modal-title">
-        <i class="bi bi-keyboard"></i> Raccourcis Clavier - PharmaSmart
-      </h4>
+      <h4 class="modal-title"><i class="bi bi-keyboard"></i> Raccourcis Clavier - PharmaSmart</h4>
       <button type="button" class="btn-close" aria-label="Close" (click)="dismiss()"></button>
     </div>
 
@@ -63,9 +61,7 @@ interface Shortcut {
       </div>
 
       <div class="tips-section mt-4 p-3 bg-light rounded">
-        <h6 class="mb-3">
-          <i class="bi bi-star"></i> Conseils d'Utilisation
-        </h6>
+        <h6 class="mb-3"><i class="bi bi-star"></i> Conseils d'Utilisation</h6>
         <ul class="small mb-0">
           <li><strong>Débutants :</strong> Commencez par F2 (produit) → F3 (quantité) → F9 (finaliser)</li>
           <li><strong>Experts :</strong> Utilisez Alt + touches pour éviter les conflits avec le navigateur</li>
@@ -85,161 +81,156 @@ interface Shortcut {
         severity="secondary"
         type="button"
       ></p-button>
-      <p-button
-        (click)="dismiss()"
-        icon="pi pi-times"
-        label="Fermer"
-        raised="true"
-        severity="primary"
-        type="button"
-      ></p-button>
+      <p-button (click)="dismiss()" icon="pi pi-times" label="Fermer" raised="true" severity="primary" type="button"></p-button>
     </div>
   `,
-  styles: [`
-    .modal-body {
-      max-height: 70vh;
-      overflow-y: auto;
-    }
-
-    .shortcuts-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-      gap: 1.5rem;
-    }
-
-    .shortcut-category {
-      border: 1px solid #dee2e6;
-      border-radius: 8px;
-      padding: 1rem;
-      background: #ffffff;
-    }
-
-    .category-title {
-      font-size: 1rem;
-      font-weight: 600;
-      color: #2c3e50;
-      margin-bottom: 1rem;
-      padding-bottom: 0.5rem;
-      border-bottom: 2px solid #3498db;
-    }
-
-    .category-title i {
-      color: #3498db;
-      margin-right: 0.5rem;
-    }
-
-    .shortcuts-list {
-      display: flex;
-      flex-direction: column;
-      gap: 0.75rem;
-    }
-
-    .shortcut-item {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      padding: 0.5rem;
-      border-radius: 4px;
-      transition: background-color 0.2s;
-    }
-
-    .shortcut-item:hover {
-      background-color: #f8f9fa;
-    }
-
-    .shortcut-keys {
-      display: flex;
-      align-items: center;
-      gap: 0.25rem;
-      min-width: 120px;
-    }
-
-    kbd {
-      display: inline-block;
-      padding: 0.25rem 0.5rem;
-      font-size: 0.85rem;
-      font-weight: 600;
-      line-height: 1;
-      color: #495057;
-      background-color: #f8f9fa;
-      border: 1px solid #ced4da;
-      border-radius: 4px;
-      box-shadow: 0 1px 2px rgba(0,0,0,0.1);
-      font-family: 'Courier New', monospace;
-    }
-
-    .key-separator {
-      font-weight: bold;
-      color: #6c757d;
-      padding: 0 0.25rem;
-    }
-
-    .shortcut-description {
-      flex: 1;
-      text-align: right;
-      font-size: 0.9rem;
-      color: #495057;
-    }
-
-    .tips-section {
-      border: 1px solid #d4edda;
-    }
-
-    .tips-section h6 {
-      color: #155724;
-      font-weight: 600;
-    }
-
-    .tips-section h6 i {
-      color: #ffc107;
-    }
-
-    .tips-section ul {
-      list-style: none;
-      padding-left: 0;
-    }
-
-    .tips-section li {
-      padding: 0.25rem 0;
-      color: #495057;
-    }
-
-    .tips-section li::before {
-      content: "▸ ";
-      color: #28a745;
-      font-weight: bold;
-      margin-right: 0.5rem;
-    }
-
-    .alert {
-      display: flex;
-      align-items: center;
-      gap: 0.5rem;
-    }
-
-    .bi {
-      font-size: 1rem;
-    }
-
-    @media print {
-      .modal-header,
-      .modal-footer {
-        display: none;
-      }
-
+  styles: [
+    `
       .modal-body {
-        max-height: none;
+        max-height: 70vh;
+        overflow-y: auto;
       }
 
       .shortcuts-grid {
-        grid-template-columns: repeat(2, 1fr);
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+        gap: 1.5rem;
+      }
+
+      .shortcut-category {
+        border: 1px solid #dee2e6;
+        border-radius: 8px;
+        padding: 1rem;
+        background: #ffffff;
+      }
+
+      .category-title {
+        font-size: 1rem;
+        font-weight: 600;
+        color: #2c3e50;
+        margin-bottom: 1rem;
+        padding-bottom: 0.5rem;
+        border-bottom: 2px solid #3498db;
+      }
+
+      .category-title i {
+        color: #3498db;
+        margin-right: 0.5rem;
+      }
+
+      .shortcuts-list {
+        display: flex;
+        flex-direction: column;
+        gap: 0.75rem;
       }
 
       .shortcut-item {
-        page-break-inside: avoid;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 0.5rem;
+        border-radius: 4px;
+        transition: background-color 0.2s;
       }
-    }
-  `]
+
+      .shortcut-item:hover {
+        background-color: #f8f9fa;
+      }
+
+      .shortcut-keys {
+        display: flex;
+        align-items: center;
+        gap: 0.25rem;
+        min-width: 120px;
+      }
+
+      kbd {
+        display: inline-block;
+        padding: 0.25rem 0.5rem;
+        font-size: 0.85rem;
+        font-weight: 600;
+        line-height: 1;
+        color: #495057;
+        background-color: #f8f9fa;
+        border: 1px solid #ced4da;
+        border-radius: 4px;
+        box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+        font-family: 'Courier New', monospace;
+      }
+
+      .key-separator {
+        font-weight: bold;
+        color: #6c757d;
+        padding: 0 0.25rem;
+      }
+
+      .shortcut-description {
+        flex: 1;
+        text-align: right;
+        font-size: 0.9rem;
+        color: #495057;
+      }
+
+      .tips-section {
+        border: 1px solid #d4edda;
+      }
+
+      .tips-section h6 {
+        color: #155724;
+        font-weight: 600;
+      }
+
+      .tips-section h6 i {
+        color: #ffc107;
+      }
+
+      .tips-section ul {
+        list-style: none;
+        padding-left: 0;
+      }
+
+      .tips-section li {
+        padding: 0.25rem 0;
+        color: #495057;
+      }
+
+      .tips-section li::before {
+        content: '▸ ';
+        color: #28a745;
+        font-weight: bold;
+        margin-right: 0.5rem;
+      }
+
+      .alert {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+      }
+
+      .bi {
+        font-size: 1rem;
+      }
+
+      @media print {
+        .modal-header,
+        .modal-footer {
+          display: none;
+        }
+
+        .modal-body {
+          max-height: none;
+        }
+
+        .shortcuts-grid {
+          grid-template-columns: repeat(2, 1fr);
+        }
+
+        .shortcut-item {
+          page-break-inside: avoid;
+        }
+      }
+    `,
+  ],
 })
 export class ShortcutsHelpDialogComponent {
   shortcutCategories: ShortcutCategory[] = [
@@ -247,13 +238,13 @@ export class ShortcutsHelpDialogComponent {
       title: 'Navigation Principale',
       icon: 'bi-compass',
       shortcuts: [
-        { keys: 'F1', description: 'Afficher l\'aide des raccourcis', badge: 'Essentiel' },
+        { keys: 'F1', description: "Afficher l'aide des raccourcis", badge: 'Essentiel' },
         { keys: 'F2', description: 'Rechercher un produit' },
         { keys: 'F3', description: 'Modifier la quantité' },
         { keys: 'F4', description: 'Sélectionner un client' },
         { keys: 'F5', description: 'Ajouter le produit au panier' },
-        { keys: 'Échap', description: 'Annuler/Quitter' }
-      ]
+        { keys: 'Échap', description: 'Annuler/Quitter' },
+      ],
     },
     {
       title: 'Types de Vente',
@@ -261,8 +252,8 @@ export class ShortcutsHelpDialogComponent {
       shortcuts: [
         { keys: 'Alt+1', description: 'Vente Comptant' },
         { keys: 'Alt+2', description: 'Vente Assurance' },
-        { keys: 'Alt+3', description: 'Vente Carnet' }
-      ]
+        { keys: 'Alt+3', description: 'Vente Carnet' },
+      ],
     },
     {
       title: 'Finalisation',
@@ -270,8 +261,8 @@ export class ShortcutsHelpDialogComponent {
       shortcuts: [
         { keys: 'F9', description: 'Finaliser la vente (paiement)', badge: 'Important' },
         { keys: 'F10', description: 'Mettre en attente' },
-        { keys: 'F11', description: 'Voir ventes en attente' }
-      ]
+        { keys: 'F11', description: 'Voir ventes en attente' },
+      ],
     },
     {
       title: 'Gestion Quantité',
@@ -280,8 +271,8 @@ export class ShortcutsHelpDialogComponent {
         { keys: 'Alt+↑', description: 'Augmenter de +1' },
         { keys: 'Alt+↓', description: 'Diminuer de -1' },
         { keys: 'Alt+Shift+↑', description: 'Augmenter de +10' },
-        { keys: 'Alt+Shift+↓', description: 'Diminuer de -10' }
-      ]
+        { keys: 'Alt+Shift+↓', description: 'Diminuer de -10' },
+      ],
     },
     {
       title: 'Actions Produit',
@@ -289,16 +280,16 @@ export class ShortcutsHelpDialogComponent {
       shortcuts: [
         { keys: 'Suppr', description: 'Retirer ligne sélectionnée' },
         { keys: 'F6', description: 'Effacer sélection produit' },
-        { keys: 'F7', description: 'Voir détails stock' }
-      ]
+        { keys: 'F7', description: 'Voir détails stock' },
+      ],
     },
     {
       title: 'Remises',
       icon: 'bi-percent',
       shortcuts: [
         { keys: 'Alt+R', description: 'Appliquer remise' },
-        { keys: 'Alt+Shift+R', description: 'Retirer remise' }
-      ]
+        { keys: 'Alt+Shift+R', description: 'Retirer remise' },
+      ],
     },
     {
       title: 'Navigation Rapide',
@@ -307,17 +298,17 @@ export class ShortcutsHelpDialogComponent {
         { keys: 'Alt+V', description: 'Champ vendeur' },
         { keys: 'Alt+C', description: 'Recherche client' },
         { keys: 'Alt+P', description: 'Recherche produit' },
-        { keys: 'Alt+Q', description: 'Champ quantité' }
-      ]
+        { keys: 'Alt+Q', description: 'Champ quantité' },
+      ],
     },
     {
       title: 'Impression',
       icon: 'bi-printer',
       shortcuts: [
         { keys: 'Alt+I', description: 'Imprimer facture' },
-        { keys: 'Alt+T', description: 'Imprimer ticket' }
-      ]
-    }
+        { keys: 'Alt+T', description: 'Imprimer ticket' },
+      ],
+    },
   ];
 
   constructor(public activeModal: NgbActiveModal) {}

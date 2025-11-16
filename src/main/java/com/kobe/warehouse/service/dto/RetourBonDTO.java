@@ -4,13 +4,13 @@ import com.kobe.warehouse.domain.Commande;
 import com.kobe.warehouse.domain.Fournisseur;
 import com.kobe.warehouse.domain.RetourBon;
 import com.kobe.warehouse.domain.enumeration.RetourStatut;
-
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
 public class RetourBonDTO {
+
     private Integer id;
     private LocalDateTime dateMtv;
     private UserDTO user;
@@ -23,8 +23,7 @@ public class RetourBonDTO {
     private String fournisseurLibelle;
     private List<RetourBonItemDTO> retourBonItems = new ArrayList<>();
 
-    public RetourBonDTO() {
-    }
+    public RetourBonDTO() {}
 
     public RetourBonDTO(RetourBon retourBon) {
         this.id = retourBon.getId();
@@ -39,10 +38,7 @@ public class RetourBonDTO {
         this.receiptDate = commande.getReceiptDate();
         this.receiptReference = commande.getReceiptReference();
         this.fournisseurLibelle = fournisseur.getLibelle();
-        this.retourBonItems = retourBon.getRetourBonItems()
-            .stream()
-            .map(RetourBonItemDTO::new)
-            .toList();
+        this.retourBonItems = retourBon.getRetourBonItems().stream().map(RetourBonItemDTO::new).toList();
     }
 
     public Integer getId() {

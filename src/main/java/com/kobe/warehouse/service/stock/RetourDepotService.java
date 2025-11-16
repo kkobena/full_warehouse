@@ -1,11 +1,10 @@
 package com.kobe.warehouse.service.stock;
 
 import com.kobe.warehouse.service.dto.RetourDepotDTO;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
-
 import java.time.LocalDate;
 import java.util.Optional;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 
 /**
  * Service Interface for managing {@link com.kobe.warehouse.domain.RetourDepot}.
@@ -19,7 +18,6 @@ public interface RetourDepotService {
      */
     RetourDepotDTO create(RetourDepotDTO retourDepotDTO);
 
-
     /**
      * Get all retour depots by date range.
      *
@@ -30,8 +28,5 @@ public interface RetourDepotService {
      */
     Page<RetourDepotDTO> findAllByDateRange(Integer depotId, LocalDate dtStart, LocalDate dtEnd, Pageable pageable);
 
-
     Optional<RetourDepotDTO> findOne(Integer id);
-
-
 }

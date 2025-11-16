@@ -16,11 +16,7 @@
         <!-- Progress Bar -->
         @if (status.status !== 'error') {
           <div class="backend-splash-progress">
-            <p-progressBar
-              [showValue]="true"
-              [value]="status.progress"
-              class="custom-progress-bar"
-            ></p-progressBar>
+            <p-progressBar [showValue]="true" [value]="status.progress" class="custom-progress-bar"></p-progressBar>
           </div>
         }
 
@@ -32,9 +28,7 @@
               Backend failed to start
             </p>
             <small class="text-muted">{{ status.message }}</small>
-            <button type="button" class="btn btn-outline-danger btn-sm mt-3" (click)="close()">
-              <i class="fa fa-times"></i> Close
-            </button>
+            <button type="button" class="btn btn-outline-danger btn-sm mt-3" (click)="close()"><i class="fa fa-times"></i> Close</button>
           </div>
         }
       </div>

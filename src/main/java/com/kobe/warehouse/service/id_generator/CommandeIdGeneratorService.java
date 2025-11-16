@@ -6,9 +6,7 @@ import org.springframework.stereotype.Service;
 @Service
 public class CommandeIdGeneratorService extends AbstractIdGeneratorService {
 
-
     public CommandeIdGeneratorService(EntityManager entityManager) {
-
         super(entityManager);
     }
 
@@ -16,6 +14,4 @@ public class CommandeIdGeneratorService extends AbstractIdGeneratorService {
     public String getSequenceName() {
         return "id_commande_seq";
     }
-
-
 }

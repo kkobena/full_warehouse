@@ -1,5 +1,5 @@
 <jhi-confirm-dialog #confirmDialog></jhi-confirm-dialog>
-<div class="container-fluid ">
+<div class="container-fluid">
   <div class="pharma-smart-content p-2">
     <div class="pharma-toolbar">
       <div class="pharma-toolbar-header">
@@ -33,19 +33,16 @@
                   <ng-template #item let-item>
                     @if (item.totalQuantity > 0) {
                       <div [style]="{ width: '100%' }">
-                      <span
-                        style="width: 20%; display: inline-block">{{ item.fournisseurProduit?.codeCip }}</span
-                      ><span> {{ item.libelle }}</span>
+                        <span style="width: 20%; display: inline-block">{{ item.fournisseurProduit?.codeCip }}</span
+                        ><span> {{ item.libelle }}</span>
                         <span class="float-right">{{ item.regularUnitPrice | number }}</span>
                       </div>
                     }
                     @if (item.totalQuantity <= 0) {
                       <div [style]="{ width: '100%' }">
-                      <span class="stockless"
-                            style="width: 20%; display: inline-block">{{ item.fournisseurProduit?.codeCip }}</span
-                      ><span class="stockless"> {{ item.libelle }}</span>
-                        <span
-                          class="float-right stockless">{{ item.regularUnitPrice | number }}</span>
+                        <span class="stockless" style="width: 20%; display: inline-block">{{ item.fournisseurProduit?.codeCip }}</span
+                        ><span class="stockless"> {{ item.libelle }}</span>
+                        <span class="float-right stockless">{{ item.regularUnitPrice | number }}</span>
                       </div>
                     }
                   </ng-template>
@@ -81,12 +78,9 @@
           </div>
         </ng-template>
         <ng-template #end>
-          <p-button (onClick)="previousState()" icon="pi pi-arrow-left" label="Retour"
-                    severity="secondary" />
+          <p-button (onClick)="previousState()" icon="pi pi-arrow-left" label="Retour" severity="secondary" />
         </ng-template>
       </p-toolbar>
-
-
     </div>
     <div class="row">
       <div class="col-sm-12 col-sm-4 col-lg-3 col-xl-3 col-md-4">
@@ -107,8 +101,7 @@
               </li>
               <li class="list-group-item d-flex justify-content-between align-items-center">
                 Date
-                <span
-                  class="badge text-bg-secondary fw-bold">{{ sug.updatedAt | date: 'dd/MM/yyyy HH:mm:ss' }}</span>
+                <span class="badge text-bg-secondary fw-bold">{{ sug.updatedAt | date: 'dd/MM/yyyy HH:mm:ss' }}</span>
               </li>
               <li class="list-group-item d-flex justify-content-between align-items-center">
                 Type de suggestion
@@ -116,25 +109,21 @@
               </li>
               <li class="list-group-item d-flex justify-content-between align-items-center">
                 Nombre de produits
-                <span
-                  class="badge text-bg-primary fw-bold">{{ sug.suggestionAggregator?.itemsCount | number }}</span>
+                <span class="badge text-bg-primary fw-bold">{{ sug.suggestionAggregator?.itemsCount | number }}</span>
               </li>
               <li class="list-group-item d-flex justify-content-between align-items-center">
                 Valeur achat
-                <span
-                  class="badge text-bg-primary fw-bold">{{ sug.suggestionAggregator?.montantAchat | number }}</span>
+                <span class="badge text-bg-primary fw-bold">{{ sug.suggestionAggregator?.montantAchat | number }}</span>
               </li>
               <li class="list-group-item d-flex justify-content-between align-items-center">
                 Valeur vente
-                <span
-                  class="badge text-bg-primary fw-bold">{{ sug.suggestionAggregator?.montantVente | number }}</span>
+                <span class="badge text-bg-primary fw-bold">{{ sug.suggestionAggregator?.montantVente | number }}</span>
               </li>
             </ul>
           </div>
         </div>
       </div>
       <div class="col-sm-12 col-sm-8 col-lg-9 col-xl-9 col-md-8">
-
         @if (suggestions && suggestions.length > 0) {
           <p-table
             class="pharma-table"
@@ -157,8 +146,7 @@
                 <div>
                   <p-iconfield>
                     <p-inputicon class="pi pi-search" />
-                    <input (keyup.enter)="onSearch($event.target.value)" pInputText
-                           placeholder="Taper pour rechercher" type="text" />
+                    <input (keyup.enter)="onSearch($event.target.value)" pInputText placeholder="Taper pour rechercher" type="text" />
                   </p-iconfield>
                 </div>
                 <div class="d-flex justify-content-end">
@@ -171,8 +159,7 @@
                     severity="primary"
                     type="button"
                   ></p-button>
-                  <p-button class="mr-1" [raised]="true" label="Exporter" severity="help"
-                            icon="pi pi-file-excel" (onClick)="exportCSV()" />
+                  <p-button class="mr-1" [raised]="true" label="Exporter" severity="help" icon="pi pi-file-excel" (onClick)="exportCSV()" />
                   <p-splitbutton
                     [hidden]="true"
                     class="mr-1"
@@ -223,24 +210,21 @@
             <ng-template let-suggestion #body>
               <tr>
                 <td>
-                  <jhi-eta-produit [isSuggestion]="true"
-                                   [etatProduit]="suggestion.etatProduit"></jhi-eta-produit>
+                  <jhi-eta-produit [isSuggestion]="true" [etatProduit]="suggestion.etatProduit"></jhi-eta-produit>
                 </td>
                 <td class="pharma-code">{{ suggestion.fournisseurProduitCip }}</td>
                 <td class="pharma-product-name">{{ suggestion.fournisseurProduitLibelle }}</td>
                 @if (suggestion.currentStock < 0) {
-                  <td style="text-align: right"
-                      class="amount-column red-400"><span
-                    class="pharma-qty-value">{{ suggestion.currentStock | number }}</span>
+                  <td style="text-align: right" class="amount-column red-400">
+                    <span class="pharma-qty-value">{{ suggestion.currentStock | number }}</span>
                   </td>
                 } @else if (suggestion.currentStock === 0) {
-                  <td style="text-align: right"
-                      class="amount-column orange-400"><span
-                    class="pharma-qty-value">{{ suggestion.currentStock | number }}</span>
+                  <td style="text-align: right" class="amount-column orange-400">
+                    <span class="pharma-qty-value">{{ suggestion.currentStock | number }}</span>
                   </td>
                 } @else {
-                  <td style="text-align: right"
-                      class="amount-column"><span class="pharma-qty-value">{{ suggestion.currentStock | number }}</span>
+                  <td style="text-align: right" class="amount-column">
+                    <span class="pharma-qty-value">{{ suggestion.currentStock | number }}</span>
                   </td>
                 }
                 <td pEditableColumn style="text-align: right" class="amount-column">
@@ -260,11 +244,11 @@
                     </ng-template>
                   </p-cellEditor>
                 </td>
-                <td style="text-align: right"
-                    class="amount-column"><span class="pharma-price">{{ suggestion.prixAchat | number }}</span>
+                <td style="text-align: right" class="amount-column">
+                  <span class="pharma-price">{{ suggestion.prixAchat | number }}</span>
                 </td>
-                <td style="text-align: right"
-                    class="amount-column"><span class="pharma-price">{{ suggestion.prixVente | number }}</span>
+                <td style="text-align: right" class="amount-column">
+                  <span class="pharma-price">{{ suggestion.prixVente | number }}</span>
                 </td>
                 <td class="text-center">
                   <p-tableCheckbox [value]="suggestion"></p-tableCheckbox>
@@ -281,8 +265,14 @@
                     >
                     </p-button>
 
-                    <p-button (click)="delete(suggestion.id)" [rounded]="true" severity="danger"
-                              icon="pi pi-trash" pTooltip="Supprimer" text />
+                    <p-button
+                      (click)="delete(suggestion.id)"
+                      [rounded]="true"
+                      severity="danger"
+                      icon="pi pi-trash"
+                      pTooltip="Supprimer"
+                      text
+                    />
                   </div>
                 </td>
               </tr>

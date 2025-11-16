@@ -27,7 +27,8 @@
       "Bash(mvnw.cmd clean compile:*)",
       "Bash(cargo check:*)",
       "WebSearch",
-      "Bash(npx tsc:*)"
+      "Bash(npx tsc:*)",
+      "Bash(npm install:*)"
     ],
     "deny": [],
     "ask": []

@@ -6,13 +6,10 @@
     </h4>
   </div>
 
-  <button (click)="cancel()" aria-hidden="true" class="btn-close" data-dismiss="modal"
-          type="button">&times;
-  </button>
+  <button (click)="cancel()" aria-hidden="true" class="btn-close" data-dismiss="modal" type="button">&times;</button>
 </div>
 <div class="modal-body">
   <p-card>
-
     <p-table
       class="pharma-table"
       (onLazyLoad)="lazyLoading($event)"
@@ -30,12 +27,16 @@
       <ng-template #caption>
         <div class="row" style="margin: 0">
           <div class="col-md-7" style="margin: 0; padding-left: 3px; padding-right: 3px">
-            <p-select (onChange)="loadData()" [(ngModel)]="selectedRayon" [autofocus]="true"
-                      [fluid]="true" [options]="rayons"
-                      optionLabel="libelle" size="large">
-
+            <p-select
+              (onChange)="loadData()"
+              [(ngModel)]="selectedRayon"
+              [autofocus]="true"
+              [fluid]="true"
+              [options]="rayons"
+              optionLabel="libelle"
+              size="large"
+            >
             </p-select>
-
           </div>
           <div class="col-md-5" style="margin: 0; padding-left: 3px; padding-right: 3px">
             <input
@@ -62,10 +63,18 @@
       </ng-template>
       <ng-template #body let-produit let-rowIndex="rowIndex">
         <tr>
-          <td style="text-align: left"><span class="pharma-row-number">{{ rowIndex + 1 }}</span></td>
-          <td><span class="pharma-code">{{ produit.codeCip }}</span></td>
-          <td><span class="pharma-product-name">{{ produit.libelle }}</span></td>
-          <td><span class="pharma-code">{{ produit.remiseCode }}</span></td>
+          <td style="text-align: left">
+            <span class="pharma-row-number">{{ rowIndex + 1 }}</span>
+          </td>
+          <td>
+            <span class="pharma-code">{{ produit.codeCip }}</span>
+          </td>
+          <td>
+            <span class="pharma-product-name">{{ produit.libelle }}</span>
+          </td>
+          <td>
+            <span class="pharma-code">{{ produit.remiseCode }}</span>
+          </td>
 
           <td class="text-center">
             <p-tableCheckbox [value]="produit"></p-tableCheckbox>
@@ -76,9 +85,7 @@
   </p-card>
 </div>
 <div class="modal-footer">
-  <p-button (click)="cancel()" class="p-mr-2" icon="pi pi-times" label="Annuler"
-            severity="secondary"
-            type="button"></p-button>
+  <p-button (click)="cancel()" class="p-mr-2" icon="pi pi-times" label="Annuler" severity="secondary" type="button"></p-button>
   <p-button
     (click)="onSave()"
     [disabled]="selectedProduits.length === 0 || isSaving"

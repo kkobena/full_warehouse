@@ -138,9 +138,8 @@ export class Produit implements IProduit {
     public rayonId?: number,
     public expirationDate?: string,
     public displayField?: string,
-    public rayonProduits?: IRayonProduit[]
-  ) {
-  }
+    public rayonProduits?: IRayonProduit[],
+  ) {}
 }
 
 export class Dci {
@@ -155,13 +154,11 @@ export class ProduitFournisseurSearch {
   codeEan: string;
   prixUni: number;
   prixAchat: number;
-
 }
 
 export class ProduitRayonSearch {
   code: string;
   libelle: string;
-
 }
 
 export class ProduitStockSearch {
@@ -169,7 +166,6 @@ export class ProduitStockSearch {
   qteUg: number;
   storage: number;
   storageType: StorageType;
-
 }
 
 export class ProduitSearch {
@@ -186,5 +182,4 @@ export class ProduitSearch {
   stocks: ProduitStockSearch[];
   totalQuantity: number;
   regularUnitPrice: number;
-
 }

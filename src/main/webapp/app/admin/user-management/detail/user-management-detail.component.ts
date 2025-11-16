@@ -12,7 +12,7 @@ import { ChipModule } from 'primeng/chip';
   selector: 'jhi-user-mgmt-detail',
   templateUrl: './user-management-detail.component.html',
   styleUrl: './user-management-detail.component.scss',
-  imports: [WarehouseCommonModule, ButtonModule, RouterLink, Toolbar, TagModule, ChipModule]
+  imports: [WarehouseCommonModule, ButtonModule, RouterLink, Toolbar, TagModule, ChipModule],
 })
 export default class UserManagementDetailComponent {
   user = input<User | null>(null);

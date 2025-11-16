@@ -23,8 +23,8 @@ import { Card } from 'primeng/card';
     RippleModule,
     TableModule,
     CustomerDataTableComponent,
-    Card
-  ]
+    Card,
+  ],
 })
 export class UninsuredCustomerListComponent {
   header: string = null;

@@ -11,13 +11,7 @@ import { ModifRetourProduitService } from './motif-retour-produit.service';
 @Component({
   selector: 'jhi-motif-retour-produit-form-modal',
   standalone: true,
-  imports: [
-    CommonModule,
-    FormsModule,
-    ButtonModule,
-    InputText,
-    FloatLabel,
-  ],
+  imports: [CommonModule, FormsModule, ButtonModule, InputText, FloatLabel],
   styleUrl: '../common-modal.component.scss',
   template: `
     <div class="modal-header">
@@ -25,27 +19,13 @@ import { ModifRetourProduitService } from './motif-retour-produit.service';
         <i class="pi pi-tag me-2"></i>
         {{ isEditing() ? 'Modifier le motif de retour' : 'Nouveau motif de retour' }}
       </h4>
-      <button
-        type="button"
-        class="btn-close"
-        aria-label="Close"
-        (click)="dismiss()"
-        [disabled]="isSaving()"
-      ></button>
+      <button type="button" class="btn-close" aria-label="Close" (click)="dismiss()" [disabled]="isSaving()"></button>
     </div>
 
     <div class="modal-body">
       <div class="form-group">
         <p-floatlabel>
-          <input
-            pInputText
-            id="libelle"
-            [(ngModel)]="motif().libelle"
-            [disabled]="isSaving()"
-            class="w-100"
-            maxlength="100"
-            autofocus
-          />
+          <input pInputText id="libelle" [(ngModel)]="motif().libelle" [disabled]="isSaving()" class="w-100" maxlength="100" autofocus />
           <label for="libelle">Libellé *</label>
         </p-floatlabel>
         <small class="text-muted">Maximum 100 caractères</small>
@@ -60,13 +40,7 @@ import { ModifRetourProduitService } from './motif-retour-produit.service';
     </div>
 
     <div class="modal-footer">
-      <p-button
-        (onClick)="dismiss()"
-        [outlined]="true"
-        [disabled]="isSaving()"
-        icon="pi pi-times"
-        label="Annuler"
-        severity="secondary">
+      <p-button (onClick)="dismiss()" [outlined]="true" [disabled]="isSaving()" icon="pi pi-times" label="Annuler" severity="secondary">
       </p-button>
       <p-button
         (onClick)="save()"
@@ -74,21 +48,24 @@ import { ModifRetourProduitService } from './motif-retour-produit.service';
         [disabled]="!motif().libelle || motif().libelle.trim() === ''"
         icon="pi pi-check"
         label="Enregistrer"
-        severity="primary">
+        severity="primary"
+      >
       </p-button>
     </div>
   `,
-  styles: [`
-    .form-group {
-      margin-bottom: 1.5rem;
+  styles: [
+    `
+      .form-group {
+        margin-bottom: 1.5rem;
 
-      small {
-        display: block;
-        margin-top: 0.375rem;
-        font-size: 0.75rem;
+        small {
+          display: block;
+          margin-top: 0.375rem;
+          font-size: 0.75rem;
+        }
       }
-    }
-  `],
+    `,
+  ],
 })
 export class MotifRetourProduitFormModalComponent implements OnInit {
   private readonly activeModal = inject(NgbActiveModal);
@@ -118,16 +95,14 @@ export class MotifRetourProduitFormModalComponent implements OnInit {
     this.isSaving.set(true);
     this.errorMessage.set('');
 
-    const request = this.isEditing()
-      ? this.motifRetourService.update(motifData)
-      : this.motifRetourService.create(motifData);
+    const request = this.isEditing() ? this.motifRetourService.update(motifData) : this.motifRetourService.create(motifData);
 
     request.subscribe({
-      next: (response) => {
+      next: response => {
         this.activeModal.close(response.body);
       },
       error: () => {
-        this.errorMessage.set('Erreur lors de l\'enregistrement du motif de retour');
+        this.errorMessage.set("Erreur lors de l'enregistrement du motif de retour");
         this.isSaving.set(false);
       },
     });

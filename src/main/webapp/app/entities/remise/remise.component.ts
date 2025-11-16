@@ -28,7 +28,6 @@ import { ToggleSwitchModule } from 'primeng/toggleswitch';
     ToggleSwitchModule,
     ConfirmDialogComponent,
     ToastAlertComponent,
-
   ],
   templateUrl: './remise.component.html',
   styleUrl: './remise.component.scss',

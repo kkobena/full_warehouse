@@ -63,5 +63,4 @@ export enum Authority {
   MY_CASH_REGISTER = 'my-cash-register',
   MENU_DEPOT = 'MENU_DEPOT',
   MENU_POSTE = 'MENU_POSTE',
-
 }

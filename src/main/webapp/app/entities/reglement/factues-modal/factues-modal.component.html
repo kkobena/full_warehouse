@@ -38,8 +38,7 @@
       </div>
       <div class="p-1">
         <p-floatlabel>
-          <input [(ngModel)]="search" [style]="{ width: '200px' }" id="search" pInputText
-                 type="text" />
+          <input [(ngModel)]="search" [style]="{ width: '200px' }" id="search" pInputText type="text" />
           <label for="search">Rechercher par numéro</label>
         </p-floatlabel>
       </div>
@@ -85,9 +84,7 @@
 
     <div class="d-flex justify-content-end">
       <div class="pt-1">
-        <p-button (click)="onSearch()" [loading]="loadingBtn" [raised]="true" icon="pi pi-search"
-                  label="Rechercher"
-                  severity="info" />
+        <p-button (click)="onSearch()" [loading]="loadingBtn" [raised]="true" icon="pi pi-search" label="Rechercher" severity="info" />
       </div>
     </div>
   </div>
@@ -107,7 +104,6 @@
       dataKey="factureId"
       selectionMode="single"
       stripedRows="true"
-
     >
       <ng-template #header>
         <tr class="pharma-table-head">
@@ -125,16 +121,19 @@
       </ng-template>
       <ng-template #body let-columns="columns" let-elRow>
         <tr (dblclick)="onSelectFacture(elRow)" [pEditableRow]="elRow" [pSelectableRow]="elRow">
-          <td><span class="pharma-code">{{ elRow.numFacture }}</span></td>
-          <td><span class="pharma-entity-name">{{ elRow.tiersPayantName }}</span></td>
+          <td>
+            <span class="pharma-code">{{ elRow.numFacture }}</span>
+          </td>
+          <td>
+            <span class="pharma-entity-name">{{ elRow.tiersPayantName }}</span>
+          </td>
           <td class="text-right">{{ elRow.itemsCount | number }}</td>
           <td class="text-right pharma-price">{{ elRow.montantAttendu | number }}</td>
           <td class="text-right pharma-price">{{ elRow.montantRemiseVente | number }}</td>
           <td class="text-right pharma-price">{{ elRow.remiseForfetaire | number }}</td>
           <td class="text-right pharma-price">{{ elRow.montantNet | number }}</td>
           <td class="text-right pharma-price">{{ elRow.montantRegle | number }}</td>
-          <td class="text-right amount-column  pharma-total">{{ elRow.montantRestant | number }}
-          </td>
+          <td class="text-right amount-column pharma-total">{{ elRow.montantRestant | number }}</td>
           <td>{{ elRow.created | date: 'dd/MM/yyyy HH:mm' }}</td>
         </tr>
       </ng-template>

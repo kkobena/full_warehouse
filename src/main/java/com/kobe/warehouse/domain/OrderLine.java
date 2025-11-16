@@ -88,10 +88,12 @@ public class OrderLine implements Persistable<OrderLineId>, Serializable, Clonea
     private LocalDateTime receiptDate;
 
     @ManyToOne(optional = false)
-    @JoinColumns({
-        @JoinColumn(name = "commande_id", referencedColumnName = "id"),
-        @JoinColumn(name = "commande_order_date", referencedColumnName = "order_date")
-    })
+    @JoinColumns(
+        {
+            @JoinColumn(name = "commande_id", referencedColumnName = "id"),
+            @JoinColumn(name = "commande_order_date", referencedColumnName = "order_date"),
+        }
+    )
     private Commande commande;
 
     @NotNull

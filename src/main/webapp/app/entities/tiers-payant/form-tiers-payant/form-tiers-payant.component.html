@@ -1,8 +1,6 @@
 <div class="modal-header">
   <h4 class="modal-title">{{ title }}</h4>
-  <button (click)="cancel()" class="btn-close" data-dismiss="modal" type="button">
-    &times;
-  </button>
+  <button (click)="cancel()" class="btn-close" data-dismiss="modal" type="button">&times;</button>
 </div>
 
 <form (ngSubmit)="save()" [formGroup]="editForm" name="editForm" novalidate role="form">
@@ -31,11 +29,11 @@
               class="w-full"
               formControlName="name"
               id="field_libelle"
-              pInputText />
+              pInputText
+            />
             @if (editForm.get('name')?.invalid && editForm.get('name')?.touched) {
               @if (editForm.get('name')?.errors?.required) {
-                <small class="p-error" jhiTranslate="entity.validation.required">Ce champ est
-                  obligatoire</small>
+                <small class="p-error" jhiTranslate="entity.validation.required">Ce champ est obligatoire</small>
               }
             }
           </div>
@@ -49,11 +47,11 @@
               class="w-full"
               formControlName="fullName"
               id="field_fullName"
-              pInputText />
+              pInputText
+            />
             @if (editForm.get('fullName')?.invalid && editForm.get('fullName')?.touched) {
               @if (editForm.get('fullName')?.errors?.required) {
-                <small class="p-error" jhiTranslate="entity.validation.required">Ce champ est
-                  obligatoire</small>
+                <small class="p-error" jhiTranslate="entity.validation.required">Ce champ est obligatoire</small>
               }
             }
           </div>
@@ -73,13 +71,7 @@
           <!-- Identifiant contribuable -->
           <div class="form-field form-field-full">
             <label for="ncc">Identifiant contribuable</label>
-            <input
-              autocomplete="off"
-              class="w-full"
-              formControlName="ncc"
-              id="ncc"
-              pInputText
-              pKeyFilter="alphanum" />
+            <input autocomplete="off" class="w-full" formControlName="ncc" id="ncc" pInputText pKeyFilter="alphanum" />
           </div>
 
           <!-- Groupe tiers-payant -->
@@ -92,33 +84,21 @@
               id="groupeTiersPayantId"
               optionLabel="name"
               optionValue="id"
-              placeholder="Sélectionner un groupe">
+              placeholder="Sélectionner un groupe"
+            >
             </p-select>
           </div>
 
           <!-- Code organisme -->
           <div class="form-field form-field-full">
             <label for="codeOrganisme">Code organisme</label>
-            <input
-              autocomplete="off"
-              class="w-full"
-              formControlName="codeOrganisme"
-              id="codeOrganisme"
-              pInputText
-              pKeyFilter="alphanum" />
+            <input autocomplete="off" class="w-full" formControlName="codeOrganisme" id="codeOrganisme" pInputText pKeyFilter="alphanum" />
           </div>
 
           <!-- Téléphone -->
           <div class="form-field form-field-full">
             <label for="telephone">Téléphone</label>
-            <input
-              autocomplete="off"
-              class="w-full"
-              formControlName="telephone"
-              id="telephone"
-              pInputText
-              pKeyFilter="int"
-              type="tel" />
+            <input autocomplete="off" class="w-full" formControlName="telephone" id="telephone" pInputText pKeyFilter="int" type="tel" />
           </div>
         </div>
       </p-card>
@@ -139,22 +119,13 @@
           <!-- Nombre maxi de bordereau -->
           <div class="form-field form-field-full">
             <label for="nbreBordereaux">Nombre maxi de bordereau par facture</label>
-            <p-input-number
-              [fluid]="true"
-              autocomplete="off"
-              formControlName="nbreBordereaux"
-              id="nbreBordereaux">
-            </p-input-number>
+            <p-input-number [fluid]="true" autocomplete="off" formControlName="nbreBordereaux" id="nbreBordereaux"> </p-input-number>
           </div>
 
           <!-- Montant maxi par facture -->
           <div class="form-field form-field-full">
             <label for="montantMaxParFcture">Montant maxi par facture</label>
-            <p-input-number
-              [fluid]="true"
-              autocomplete="off"
-              formControlName="montantMaxParFcture"
-              id="montantMaxParFcture">
+            <p-input-number [fluid]="true" autocomplete="off" formControlName="montantMaxParFcture" id="montantMaxParFcture">
             </p-input-number>
           </div>
 
@@ -168,7 +139,8 @@
               id="modelFacture"
               optionLabel="value"
               optionValue="key"
-              placeholder="Sélectionner un modèle">
+              placeholder="Sélectionner un modèle"
+            >
             </p-select>
           </div>
 
@@ -176,10 +148,7 @@
             <!-- Exclure du CA -->
             <div class="form-field form-field-full">
               <label for="toBeExclude">Exclure du CA</label>
-              <p-toggleswitch
-                formControlName="toBeExclude"
-                id="toBeExclude">
-              </p-toggleswitch>
+              <p-toggleswitch formControlName="toBeExclude" id="toBeExclude"> </p-toggleswitch>
             </div>
           }
         </div>
@@ -198,32 +167,19 @@
           <!-- Remise forfaitaire -->
           <div class="form-field form-field-full">
             <label for="remiseForfaitaire">Remise forfaitaire</label>
-            <p-input-number
-              [fluid]="true"
-              autocomplete="off"
-              formControlName="remiseForfaitaire"
-              id="remiseForfaitaire">
-            </p-input-number>
+            <p-input-number [fluid]="true" autocomplete="off" formControlName="remiseForfaitaire" id="remiseForfaitaire"> </p-input-number>
           </div>
 
           <!-- Plafond consommation -->
           <div class="form-field form-field-full">
             <label for="plafondConso">Plafond consommation</label>
-            <p-input-number
-              [fluid]="true"
-              autocomplete="off"
-              formControlName="plafondConso"
-              id="plafondConso">
-            </p-input-number>
+            <p-input-number [fluid]="true" autocomplete="off" formControlName="plafondConso" id="plafondConso"> </p-input-number>
           </div>
 
           <!-- Plafond absolu -->
           <div class="form-field form-field-full">
             <label for="plafondAbsolu">Le plafond est-il absolu ?</label>
-            <p-toggleswitch
-              formControlName="plafondAbsolu"
-              id="plafondAbsolu">
-            </p-toggleswitch>
+            <p-toggleswitch formControlName="plafondAbsolu" id="plafondAbsolu"> </p-toggleswitch>
           </div>
         </div>
       </p-card>
@@ -242,32 +198,21 @@
             <!-- Plafond de vente des clients -->
             <div class="form-field form-field-full">
               <label for="plafondJournalierClient">Plafond de vente des clients</label>
-              <p-input-number
-                [fluid]="true"
-                autocomplete="off"
-                formControlName="plafondJournalierClient"
-                id="plafondJournalierClient">
+              <p-input-number [fluid]="true" autocomplete="off" formControlName="plafondJournalierClient" id="plafondJournalierClient">
               </p-input-number>
             </div>
 
             <!-- Plafond consommation des clients -->
             <div class="form-field form-field-full">
               <label for="plafondConsoClient">Plafond consommation des clients</label>
-              <p-input-number
-                [fluid]="true"
-                autocomplete="off"
-                formControlName="plafondConsoClient"
-                id="plafondConsoClient">
+              <p-input-number [fluid]="true" autocomplete="off" formControlName="plafondConsoClient" id="plafondConsoClient">
               </p-input-number>
             </div>
 
             <!-- Plafond absolu client -->
             <div class="form-field form-field-full">
               <label for="plafondAbsoluClient">Le plafond des clients est-il absolu ?</label>
-              <p-toggleswitch
-                formControlName="plafondAbsoluClient"
-                id="plafondAbsoluClient">
-              </p-toggleswitch>
+              <p-toggleswitch formControlName="plafondAbsoluClient" id="plafondAbsoluClient"> </p-toggleswitch>
             </div>
           </div>
         </p-card>
@@ -276,21 +221,15 @@
   </div>
 
   <div class="form-actions-compact">
-    <p-button
-      (click)="cancel()"
-      [text]="true"
-      icon="pi pi-times"
-      label="Annuler"
-      severity="secondary"
-      type="button">
-    </p-button>
+    <p-button (click)="cancel()" [text]="true" icon="pi pi-times" label="Annuler" severity="secondary" type="button"> </p-button>
     <p-button
       [disabled]="editForm.invalid || isSaving || !isValid"
       [loading]="isSaving"
       icon="pi pi-check"
       label="Enregistrer"
       severity="primary"
-      type="submit">
+      type="submit"
+    >
     </p-button>
   </div>
 </form>

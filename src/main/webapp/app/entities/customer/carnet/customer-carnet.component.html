@@ -1,17 +1,13 @@
 <div class="modal-header">
   <h4 class="modal-title">{{ title }}</h4>
 
-  <button (click)="cancel()" class="btn-close" data-dismiss="modal" type="button">
-  </button>
+  <button (click)="cancel()" class="btn-close" data-dismiss="modal" type="button"></button>
 </div>
 
 <form (ngSubmit)="save()" [formGroup]="editForm" name="editForm">
-
   <div [hidden]="true" class="form-group">
-    <input class="form-control" formControlName="id" id="id" name="id" pInputText readonly
-           type="hidden" />
+    <input class="form-control" formControlName="id" id="id" name="id" pInputText readonly type="hidden" />
   </div>
-
 
   <div class="modal-body">
     <div class="card-grid-2col">
@@ -26,31 +22,27 @@
           <div class="form-field form-field-full">
             <label for="field_libelle">Nom<span class="required">*</span></label>
 
-              <input
-                #firstName
-                autocomplete="off"
-                class="form-control"
-                formControlName="firstName"
-                id="field_firstName"
-                name="firstName"
-                pInputText
-                type="text"
-              />
-              @if (editForm.get('firstName')!.invalid && (editForm.get('firstName')!.dirty
-                || editForm.get('firstName')!.touched)) {
-                <div>
-                  @if (editForm.get('firstName')?.errors?.required) {
-                    <small class="form-text text-danger" jhiTranslate="entity.validation.required"> This
-                      field is
-                      required. </small>
-                  }
-                </div>
-              }
-            </div>
+            <input
+              #firstName
+              autocomplete="off"
+              class="form-control"
+              formControlName="firstName"
+              id="field_firstName"
+              name="firstName"
+              pInputText
+              type="text"
+            />
+            @if (editForm.get('firstName')!.invalid && (editForm.get('firstName')!.dirty || editForm.get('firstName')!.touched)) {
+              <div>
+                @if (editForm.get('firstName')?.errors?.required) {
+                  <small class="form-text text-danger" jhiTranslate="entity.validation.required"> This field is required. </small>
+                }
+              </div>
+            }
+          </div>
 
           <div class="form-field form-field-full">
-            <label for="field_lastName">Prénom(s) <span
-              class="required">*</span> </label>
+            <label for="field_lastName">Prénom(s) <span class="required">*</span> </label>
             <input
               autocomplete="off"
               class="form-control"
@@ -60,20 +52,16 @@
               pInputText
               type="text"
             />
-            @if (editForm.get('lastName')!.invalid && (editForm.get('lastName')!.dirty
-              || editForm.get('lastName')!.touched)) {
+            @if (editForm.get('lastName')!.invalid && (editForm.get('lastName')!.dirty || editForm.get('lastName')!.touched)) {
               <div>
                 @if (editForm.get('lastName')?.errors?.required) {
-                  <small class="form-text text-danger" jhiTranslate="entity.validation.required"> This
-                    field is
-                    required. </small>
+                  <small class="form-text text-danger" jhiTranslate="entity.validation.required"> This field is required. </small>
                 }
               </div>
             }
           </div>
           <div class="form-field form-field-full">
-            <label class="form-control-label" for="tiersPayantId">Tiers-payant<span
-              class="required">*</span></label>
+            <label class="form-control-label" for="tiersPayantId">Tiers-payant<span class="required">*</span></label>
 
             <p-autoComplete
               (completeMethod)="searchTiersPayant($event)"
@@ -91,20 +79,18 @@
             >
             </p-autoComplete>
 
-            @if (editForm.get('tiersPayantId')!.invalid && (editForm.get('tiersPayantId')!.dirty
-              || editForm.get('tiersPayantId')!.touched)) {
+            @if (
+              editForm.get('tiersPayantId')!.invalid && (editForm.get('tiersPayantId')!.dirty || editForm.get('tiersPayantId')!.touched)
+            ) {
               <div>
                 @if (editForm.get('tiersPayantId')?.errors?.required) {
-                  <small class="form-text text-danger" jhiTranslate="entity.validation.required"> This
-                    field is
-                    required. </small>
+                  <small class="form-text text-danger" jhiTranslate="entity.validation.required"> This field is required. </small>
                 }
               </div>
             }
           </div>
           <div class="form-field form-field-full">
-            <label class="form-control-label" for="field_num">Numéro de sécurité <span
-              class="required">*</span> </label>
+            <label class="form-control-label" for="field_num">Numéro de sécurité <span class="required">*</span> </label>
             <input
               autocomplete="off"
               class="form-control"
@@ -115,22 +101,17 @@
               pKeyFilter="alphanum"
               type="text"
             />
-            @if (editForm.get('num')!.invalid && (editForm.get('num')!.dirty || editForm.get(
-              'num')!.touched)) {
+            @if (editForm.get('num')!.invalid && (editForm.get('num')!.dirty || editForm.get('num')!.touched)) {
               <div>
                 @if (editForm.get('num')?.errors?.required) {
-                  <small class="form-text text-danger" jhiTranslate="entity.validation.required"> This
-                    field is
-                    required. </small>
+                  <small class="form-text text-danger" jhiTranslate="entity.validation.required"> This field is required. </small>
                 }
               </div>
             }
           </div>
 
-
           <div class="form-field form-field-full">
-            <label class="form-control-label" for="field_taux">Taux(%)<span
-              class="required">*</span></label>
+            <label class="form-control-label" for="field_taux">Taux(%)<span class="required">*</span></label>
             <input
               autocomplete="off"
               class="form-control"
@@ -141,21 +122,14 @@
               pKeyFilter="int"
               type="text"
             />
-            @if (editForm.get('taux')!.invalid && (editForm.get('taux')!.dirty || editForm.get(
-              'taux')!.touched)) {
+            @if (editForm.get('taux')!.invalid && (editForm.get('taux')!.dirty || editForm.get('taux')!.touched)) {
               <div>
                 @if (editForm.get('taux')?.errors?.required) {
-                  <small class="form-text text-danger" jhiTranslate="entity.validation.required"> This
-                    field is
-                    required. </small>
+                  <small class="form-text text-danger" jhiTranslate="entity.validation.required"> This field is required. </small>
                 }
               </div>
             }
           </div>
-
-
-
-
         </div>
       </p-card>
       <p-card>
@@ -180,28 +154,24 @@
             />
           </div>
 
-            @let datNaiss = editForm.get('datNaiss');
-            <div  class="form-field form-field-full">
-              <label class="form-control-label">Date de naissance</label>
-              <input [style]="{ width: '100%' }" formControlName="datNaiss" jhiDateNaiss pInputText
-                     placeholder="jj/mm/aaaa"
-              />
-              @if (datNaiss!.invalid && (datNaiss!.dirty || datNaiss!.touched)) {
-                <div>
-                  @let errors = datNaiss?.errors;
-                  @if (errors?.invalidDate || errors?.outOfRange) {
-                    <small class="form-text text-danger"> Veuillez saisir une date valide</small>
-                  }
-                </div>
-              }
-            </div>
+          @let datNaiss = editForm.get('datNaiss');
+          <div class="form-field form-field-full">
+            <label class="form-control-label">Date de naissance</label>
+            <input [style]="{ width: '100%' }" formControlName="datNaiss" jhiDateNaiss pInputText placeholder="jj/mm/aaaa" />
+            @if (datNaiss!.invalid && (datNaiss!.dirty || datNaiss!.touched)) {
+              <div>
+                @let errors = datNaiss?.errors;
+                @if (errors?.invalidDate || errors?.outOfRange) {
+                  <small class="form-text text-danger"> Veuillez saisir une date valide</small>
+                }
+              </div>
+            }
+          </div>
 
-            <div class="form-field form-field-full">
-              <label class="form-control-label" for="email">E-mail</label>
-              <input autocomplete="off" class="form-control" formControlName="email" id="email"
-                     name="email" pInputText
-                     type="email" />
-            </div>
+          <div class="form-field form-field-full">
+            <label class="form-control-label" for="email">E-mail</label>
+            <input autocomplete="off" class="form-control" formControlName="email" id="email" name="email" pInputText type="email" />
+          </div>
           <div class="form-field form-field-full">
             <label>Sexe</label>
             <div class="radio-group">
@@ -211,23 +181,30 @@
               <label for="feminin" class="radio-label">Feminin</label>
             </div>
           </div>
-
-
         </div>
       </p-card>
-
     </div>
-
-
   </div>
 
-  <div class="form-actions-compact" >
-    <p-button (click)="cancel()" [raised]="true" data-dismiss="modal" icon="pi pi-times"
-              label="Annuler"
-              severity="secondary" type="button" />
+  <div class="form-actions-compact">
+    <p-button
+      (click)="cancel()"
+      [raised]="true"
+      data-dismiss="modal"
+      icon="pi pi-times"
+      label="Annuler"
+      severity="secondary"
+      type="button"
+    />
 
-    <p-button [disabled]="editForm.invalid || isSaving " [raised]="true" icon="pi pi-check"
-              label="Enregistrer" severity="primary" type="submit" />
+    <p-button
+      [disabled]="editForm.invalid || isSaving"
+      [raised]="true"
+      icon="pi pi-check"
+      label="Enregistrer"
+      severity="primary"
+      type="submit"
+    />
   </div>
 </form>
 <jhi-toast-alert #alert></jhi-toast-alert>

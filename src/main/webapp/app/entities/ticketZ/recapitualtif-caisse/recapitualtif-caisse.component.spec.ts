@@ -8,9 +8,8 @@ describe('RecapitualtifCaisseComponent', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [RecapitualtifCaisseComponent]
-    })
-      .compileComponents();
+      imports: [RecapitualtifCaisseComponent],
+    }).compileComponents();
 
     fixture = TestBed.createComponent(RecapitualtifCaisseComponent);
     component = fixture.componentInstance;

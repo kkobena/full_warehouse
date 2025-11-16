@@ -11,7 +11,7 @@ import { takeUntil } from 'rxjs/operators';
 @Component({
   templateUrl: './commande-import-response-dialog.component.html',
   styleUrls: ['./commande-import-response-dialog.component.scss'],
-  imports: [WarehouseCommonModule, ButtonModule]
+  imports: [WarehouseCommonModule, ButtonModule],
 })
 export class CommandeImportResponseDialogComponent implements OnDestroy {
   responseCommande?: ICommandeResponse;
@@ -30,11 +30,14 @@ export class CommandeImportResponseDialogComponent implements OnDestroy {
   }
 
   onClickLink(): void {
-    this.commandeService.getRuptureCsv(this.responseCommande.reference).pipe(takeUntil(this.destroy$)).subscribe({
-      next: blod => {
-        saveAs(new Blob([blod], { type: 'text/csv' }), `${this.responseCommande.reference}.csv`);
-        this.hiddenInfo = false;
-      }
-    });
+    this.commandeService
+      .getRuptureCsv(this.responseCommande.reference)
+      .pipe(takeUntil(this.destroy$))
+      .subscribe({
+        next: blod => {
+          saveAs(new Blob([blod], { type: 'text/csv' }), `${this.responseCommande.reference}.csv`);
+          this.hiddenInfo = false;
+        },
+      });
   }
 }

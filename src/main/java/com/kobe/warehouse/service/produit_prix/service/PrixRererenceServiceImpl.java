@@ -7,12 +7,11 @@ import com.kobe.warehouse.domain.enumeration.OptionPrixType;
 import com.kobe.warehouse.repository.PrixReferenceRepository;
 import com.kobe.warehouse.service.UserService;
 import com.kobe.warehouse.service.produit_prix.dto.PrixReferenceDTO;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
-
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @Transactional
@@ -82,12 +81,12 @@ public class PrixRererenceServiceImpl implements PrixRererenceService {
     @Override
     public void update(PrixReferenceDTO dto) {
         this.prixReferenceRepository.findById(dto.getId()).ifPresent(prixReference -> {
-            prixReference.setPrice(dto.getPrice());
-            prixReference.setEnabled(dto.isEnabled());
-            prixReference.setRate(dto.getRate());
-            prixReference.setType(dto.getType());
-            this.prixReferenceRepository.save(prixReference);
-        });
+                prixReference.setPrice(dto.getPrice());
+                prixReference.setEnabled(dto.isEnabled());
+                prixReference.setRate(dto.getRate());
+                prixReference.setType(dto.getType());
+                this.prixReferenceRepository.save(prixReference);
+            });
     }
 
     @Override
@@ -100,7 +99,6 @@ public class PrixRererenceServiceImpl implements PrixRererenceService {
     public List<PrixReferenceDTO> findAllByProduitIddAndTiersPayantId(Integer produitId, Integer tiersPayantId) {
         return this.findAllByProduitIdAndTiersPayantId(produitId, tiersPayantId).stream().map(PrixReferenceDTO::new).toList();
     }
-
 
     @Override
     public void save(OptionPrixProduit optionPrixProduit) {

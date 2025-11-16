@@ -1,5 +1,4 @@
-<p-dialog [(visible)]="jsonDialog" [focusOnShow]="false" [modal]="true" [style]="{ width: '50vw' }"
-          header="Importer un fichier json">
+<p-dialog [(visible)]="jsonDialog" [focusOnShow]="false" [modal]="true" [style]="{ width: '50vw' }" header="Importer un fichier json">
   <div class="ui-g form-group">
     <p-fileupload
       (uploadHandler)="onUploadJson($event)"
@@ -13,8 +12,7 @@
     </p-fileupload>
   </div>
   <ng-template #footer>
-    <p-button (click)="cancel()" [raised]="true" class="mr-2" icon="pi pi-times" label="Annuler"
-              severity="danger" type="button"></p-button>
+    <p-button (click)="cancel()" [raised]="true" class="mr-2" icon="pi pi-times" label="Annuler" severity="danger" type="button"></p-button>
   </ng-template>
 </p-dialog>
 
@@ -62,8 +60,7 @@
             <div class="pharma-search-input">
               <p-iconfield>
                 <p-inputicon class="pi pi-search" />
-                <input (keyup.enter)="onSearch()" [(ngModel)]="search" pInputText
-                       placeholder="Taper pour rechercher" type="text" />
+                <input (keyup.enter)="onSearch()" [(ngModel)]="search" pInputText placeholder="Taper pour rechercher" type="text" />
               </p-iconfield>
             </div>
           </div>
@@ -72,8 +69,7 @@
         <ng-template #end>
           <div class="pharma-toolbar-actions">
             <div class="pharma-button-group">
-              <p-button (click)="loadPage()" [raised]="true" icon="pi pi-search"
-                        label="Rechercher" severity="info"></p-button>
+              <p-button (click)="loadPage()" [raised]="true" icon="pi pi-search" label="Rechercher" severity="info"></p-button>
 
               <p-splitbutton
                 [model]="newCustomerbuttons"
@@ -260,15 +256,10 @@
                               <label>Sexe</label>
                               <span>{{ customer?.sexe }}</span>
                             </div>
-
                           </div>
                         </div>
-
-
                       </p-card>
-
                     </div>
-
 
                     <div class="row col-md-7 mb-3 mt-3">
                       @if (customer.typeTiersPayant === 'ASSURANCE') {
@@ -282,22 +273,22 @@
                             </ng-template>
                             <table class="table table-striped">
                               <thead class="pharma-table-head">
-                              <tr>
-                                <th style="width: 40%">Nom et prenom(s)</th>
-                                <th style="width: 20%">N° Sécu</th>
-                                <th style="width: 17%">Date de naissance</th>
-                                <th style="width: 8%">Sexe</th>
-                                <th style="width: 15%; text-align: right">
-                                  <p-button
-                                    (click)="addAyantDroit(customer)"
-                                    [rounded]="true"
-                                    [text]="true"
-                                    icon="pi pi-plus"
-                                    pTooltip="Ajouter un ayant droit"
-                                    severity="info"
-                                  ></p-button>
-                                </th>
-                              </tr>
+                                <tr>
+                                  <th style="width: 40%">Nom et prenom(s)</th>
+                                  <th style="width: 20%">N° Sécu</th>
+                                  <th style="width: 17%">Date de naissance</th>
+                                  <th style="width: 8%">Sexe</th>
+                                  <th style="width: 15%; text-align: right">
+                                    <p-button
+                                      (click)="addAyantDroit(customer)"
+                                      [rounded]="true"
+                                      [text]="true"
+                                      icon="pi pi-plus"
+                                      pTooltip="Ajouter un ayant droit"
+                                      severity="info"
+                                    ></p-button>
+                                  </th>
+                                </tr>
                               </thead>
                               <tbody>
                                 @for (ayantDroit of customer.ayantDroits; track ayantDroit?.id) {
@@ -333,7 +324,6 @@
                               </tbody>
                             </table>
                           </p-card>
-
                         </div>
                       }
                       <div class="mb-3">
@@ -346,31 +336,30 @@
                           </ng-template>
                           <table class="table table-striped">
                             <thead class="pharma-table-head">
-                            <tr>
-                              <th style="width: 28%">Tiers-payant</th>
-                              <th style="width: 14%">N° Sécu</th>
-                              <th style="width: 7%">Taux</th>
-                              <th style="width: 8%">Catégorie</th>
-                              <th style="width: 13%">Plafond encours</th>
-                              <th style="width: 13%">Plafond vente</th>
-                              <!--                                            <th style="width:8%;">Plafond absolu ?</th>-->
-                              @if (displayTiersPayantAddBtn(customer)) {
-                                <th style="width: 11%; text-align: right">
-                                  <p-button
-                                    (click)="onAddNewTiersPayant(customer)"
-                                    [rounded]="true"
-                                    [text]="true"
-                                    icon="pi pi-plus"
-                                    pTooltip="Ajouter un tiers-payant"
-                                    severity="info"
-                                  ></p-button>
-                                </th>
-                              }
-                            </tr>
+                              <tr>
+                                <th style="width: 28%">Tiers-payant</th>
+                                <th style="width: 14%">N° Sécu</th>
+                                <th style="width: 7%">Taux</th>
+                                <th style="width: 8%">Catégorie</th>
+                                <th style="width: 13%">Plafond encours</th>
+                                <th style="width: 13%">Plafond vente</th>
+                                <!--                                            <th style="width:8%;">Plafond absolu ?</th>-->
+                                @if (displayTiersPayantAddBtn(customer)) {
+                                  <th style="width: 11%; text-align: right">
+                                    <p-button
+                                      (click)="onAddNewTiersPayant(customer)"
+                                      [rounded]="true"
+                                      [text]="true"
+                                      icon="pi pi-plus"
+                                      pTooltip="Ajouter un tiers-payant"
+                                      severity="info"
+                                    ></p-button>
+                                  </th>
+                                }
+                              </tr>
                             </thead>
                             <tbody>
-                              @for (tierspayant of customer.tiersPayants; track tierspayant?.id; let
-                                i = $index) {
+                              @for (tierspayant of customer.tiersPayants; track tierspayant?.id; let i = $index) {
                                 <tr>
                                   <td>{{ tierspayant?.tiersPayantFullName }}</td>
                                   <td>{{ tierspayant?.num }}</td>
@@ -391,8 +380,7 @@
                                           pTooltip="Editer les infos du tierspayant"
                                           severity="success"
                                         ></p-button>
-                                        @if (customer.typeTiersPayant === 'ASSURANCE'
-                                        && customer.tiersPayants.length > 1) {
+                                        @if (customer.typeTiersPayant === 'ASSURANCE' && customer.tiersPayants.length > 1) {
                                           <p-button
                                             (click)="onRemoveTiersPayant(tierspayant)"
                                             [rounded]="true"
@@ -412,8 +400,6 @@
                           </table>
                         </p-card>
                       </div>
-
-
                     </div>
                   </div>
                 } @else {
@@ -445,11 +431,8 @@
                             <label>Sexe</label>
                             <span>{{ customer?.sexe }}</span>
                           </div>
-
                         </div>
                       </div>
-
-
                     </p-card>
                   </div>
                 }
@@ -464,7 +447,6 @@
       }
     </div>
   </div>
-
 </div>
 
 <jhi-confirm-dialog #confirmDialog></jhi-confirm-dialog>

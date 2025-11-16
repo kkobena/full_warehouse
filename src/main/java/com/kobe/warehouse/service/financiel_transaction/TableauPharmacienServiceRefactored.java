@@ -1,5 +1,7 @@
 package com.kobe.warehouse.service.financiel_transaction;
 
+import static com.kobe.warehouse.service.financiel_transaction.TableauPharmacienConstants.GROUPING_MONTHLY;
+
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.json.JsonMapper;
 import com.kobe.warehouse.domain.enumeration.CategorieChiffreAffaire;
@@ -16,13 +18,6 @@ import com.kobe.warehouse.service.financiel_transaction.dto.TableauPharmacienDTO
 import com.kobe.warehouse.service.financiel_transaction.dto.TableauPharmacienWrapper;
 import com.kobe.warehouse.service.settings.AppConfigurationService;
 import com.kobe.warehouse.service.stock.CommandeDataService;
-import org.apache.commons.lang3.BooleanUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.context.annotation.Primary;
-import org.springframework.core.io.Resource;
-import org.springframework.stereotype.Service;
-
 import java.io.IOException;
 import java.net.MalformedURLException;
 import java.time.LocalDate;
@@ -33,8 +28,12 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
-
-import static com.kobe.warehouse.service.financiel_transaction.TableauPharmacienConstants.GROUPING_MONTHLY;
+import org.apache.commons.lang3.BooleanUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.context.annotation.Primary;
+import org.springframework.core.io.Resource;
+import org.springframework.stereotype.Service;
 
 /**
  * Refactored TableauPharmacien Service with improved maintainability
@@ -148,11 +147,7 @@ public class TableauPharmacienServiceRefactored implements TableauPharmacienServ
         purchasesData.forEach(achat -> aggregator.aggregatePurchasesToWrapper(wrapper, achat));
 
         // 5. Merge purchases with sales by date
-        List<TableauPharmacienDTO> mergedData = mergePurchasesWithSales(
-            salesData,
-            purchasesData,
-            displayedGroupIds
-        );
+        List<TableauPharmacienDTO> mergedData = mergePurchasesWithSales(salesData, purchasesData, displayedGroupIds);
 
         // 6. Merge supplier returns (avoirs) by date into TableauPharmacienDTO
         Map<LocalDate, Long> unmatchedAvoirs = aggregator.mergeSupplierReturnsIntoTableau(mergedData, supplerReturns);
@@ -178,10 +173,7 @@ public class TableauPharmacienServiceRefactored implements TableauPharmacienServ
     /**
      * Fetch and process sales data
      */
-    private List<TableauPharmacienDTO> fetchAndProcessSalesData(
-        MvtParam mvtParam,
-        TableauPharmacienWrapper wrapper
-    ) {
+    private List<TableauPharmacienDTO> fetchAndProcessSalesData(MvtParam mvtParam, TableauPharmacienWrapper wrapper) {
         List<TableauPharmacienDTO> salesData = fetchSalesFromDatabase(mvtParam);
 
         // Process each sales entry
@@ -201,12 +193,8 @@ public class TableauPharmacienServiceRefactored implements TableauPharmacienServ
     private List<TableauPharmacienDTO> fetchSalesFromDatabase(MvtParam mvtParam) {
         try {
             String jsonResult;
-            String[] statuts = mvtParam.getStatuts().stream()
-                .map(SalesStatut::name)
-                .toArray(String[]::new);
-            String[] categories = mvtParam.getCategorieChiffreAffaires().stream()
-                .map(CategorieChiffreAffaire::name)
-                .toArray(String[]::new);
+            String[] statuts = mvtParam.getStatuts().stream().map(SalesStatut::name).toArray(String[]::new);
+            String[] categories = mvtParam.getCategorieChiffreAffaires().stream().map(CategorieChiffreAffaire::name).toArray(String[]::new);
 
             if (GROUPING_MONTHLY.equals(mvtParam.getGroupeBy())) {
                 jsonResult = salesRepository.fetchTableauPharmacienReportMensuel(
@@ -228,8 +216,7 @@ public class TableauPharmacienServiceRefactored implements TableauPharmacienServ
                 );
             }
 
-            return objectMapper.readValue(jsonResult, new TypeReference<>() {
-            });
+            return objectMapper.readValue(jsonResult, new TypeReference<>() {});
         } catch (Exception e) {
             LOG.error("Error fetching sales data: {}", e.getMessage(), e);
             return new ArrayList<>();
@@ -274,17 +261,13 @@ public class TableauPharmacienServiceRefactored implements TableauPharmacienServ
         }
 
         // Group purchases by date
-        Map<LocalDate, List<AchatDTO>> purchasesByDate = purchases.stream()
-            .collect(Collectors.groupingBy(AchatDTO::getMvtDate));
+        Map<LocalDate, List<AchatDTO>> purchasesByDate = purchases.stream().collect(Collectors.groupingBy(AchatDTO::getMvtDate));
 
         // Merge with existing sales data
         aggregator.mergeAchatsIntoTableau(salesData, purchasesByDate, displayedGroupIds);
 
         // Create entries for dates with purchases but no sales
-        List<TableauPharmacienDTO> purchaseOnlyEntries = aggregator.createEntriesForAchatsOnly(
-            purchasesByDate,
-            displayedGroupIds
-        );
+        List<TableauPharmacienDTO> purchaseOnlyEntries = aggregator.createEntriesForAchatsOnly(purchasesByDate, displayedGroupIds);
         salesData.addAll(purchaseOnlyEntries);
 
         return salesData;
@@ -296,22 +279,17 @@ public class TableauPharmacienServiceRefactored implements TableauPharmacienServ
     private void computeFinalAggregations(TableauPharmacienWrapper wrapper) {
         // Aggregate all supplier purchases
         if (wrapper.getTableauPharmaciens() != null && !wrapper.getTableauPharmaciens().isEmpty()) {
-            List<FournisseurAchat> aggregatedGroups =
-                aggregator.aggregateFournisseurAchatsAcrossDays(wrapper.getTableauPharmaciens());
+            List<FournisseurAchat> aggregatedGroups = aggregator.aggregateFournisseurAchatsAcrossDays(wrapper.getTableauPharmaciens());
             wrapper.setGroupAchats(aggregatedGroups);
 
             // Compute total net purchase amount
-            long totalNetPurchase = aggregatedGroups.stream()
-                .mapToLong(f -> f.getAchat().getMontantNet())
-                .sum();
+            long totalNetPurchase = aggregatedGroups.stream().mapToLong(f -> f.getAchat().getMontantNet()).sum();
             // Subtract montantAvoirFournisseur from montantAchatNet
             wrapper.setMontantAchatNet(totalNetPurchase - wrapper.getMontantAvoirFournisseur());
 
             // Map for frontend
             Map<Integer, Long> achatFournisseurs = aggregator.aggregateFournisseurAchatsByGroup(
-                wrapper.getTableauPharmaciens().stream()
-                    .flatMap(t -> t.getGroupAchats().stream())
-                    .toList()
+                wrapper.getTableauPharmaciens().stream().flatMap(t -> t.getGroupAchats().stream()).toList()
             );
             wrapper.setAchatFournisseurs(achatFournisseurs);
         }

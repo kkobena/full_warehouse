@@ -49,11 +49,21 @@
           />
         </td>
         <td>{{ commande.updatedAt | date: 'dd/MM/yyyy HH:mm:ss' }}</td>
-        <td><span class="pharma-code">{{ commande.orderReference }}</span></td>
-        <td class="text-right"><span class="pharma-qty-value">{{ commande.itemSize | number }}</span></td>
-        <td class="text-right"><span class="pharma-total">{{ commande.grossAmount | number }}</span></td>
-        <td class="text-right"><span class="pharma-price">{{ commande.orderAmount | number }}</span></td>
-        <td><span class="pharma-entity-name">{{ commande.fournisseur?.libelle }}</span></td>
+        <td>
+          <span class="pharma-code">{{ commande.orderReference }}</span>
+        </td>
+        <td class="text-right">
+          <span class="pharma-qty-value">{{ commande.itemSize | number }}</span>
+        </td>
+        <td class="text-right">
+          <span class="pharma-total">{{ commande.grossAmount | number }}</span>
+        </td>
+        <td class="text-right">
+          <span class="pharma-price">{{ commande.orderAmount | number }}</span>
+        </td>
+        <td>
+          <span class="pharma-entity-name">{{ commande.fournisseur?.libelle }}</span>
+        </td>
         <td>{{ commande.lastUserEdit?.abbrName }}</td>
         <td class="text-center">
           <p-tableCheckbox [value]="commande"></p-tableCheckbox>
@@ -61,7 +71,7 @@
         <td class="text-right">
           <div class="btn-group">
             <p-button
-              [routerLink]="['/commande', commande.commandeId.id,commande.commandeId.orderDate, 'edit']"
+              [routerLink]="['/commande', commande.commandeId.id, commande.commandeId.orderDate, 'edit']"
               severity="success"
               icon="pi pi-pencil"
               [rounded]="true"
@@ -94,11 +104,23 @@
               pTooltip="Exporter en CSV"
             />
 
-            <p-button [text]="true" (click)="exportPdf(commande)" icon="pi pi-print"
-                      severity="secondary" [rounded]="true" pTooltip="Imprimer" />
+            <p-button
+              [text]="true"
+              (click)="exportPdf(commande)"
+              icon="pi pi-print"
+              severity="secondary"
+              [rounded]="true"
+              pTooltip="Imprimer"
+            />
             @if (commande.orderStatus === REQUESTED) {
-              <p-button (click)="confirmDelete(commande)" [rounded]="true" severity="danger"
-                        icon="pi pi-trash" pTooltip="Supprimer" [text]="true" />
+              <p-button
+                (click)="confirmDelete(commande)"
+                [rounded]="true"
+                severity="danger"
+                icon="pi pi-trash"
+                pTooltip="Supprimer"
+                [text]="true"
+              />
             }
           </div>
         </td>
@@ -109,9 +131,8 @@
         <td colspan="10">
           <div class="pharma-sub-table-container">
             <div class="pharma-sub-table-header">
-              Détails de la commande : {{ elRow.orderReference }} -
-              Fournisseur : {{ elRow.fournisseur?.libelle }} -
-              Date : {{ elRow.updatedAt | date: 'dd/MM/yyyy HH:mm:ss' }}
+              Détails de la commande : {{ elRow.orderReference }} - Fournisseur : {{ elRow.fournisseur?.libelle }} - Date :
+              {{ elRow.updatedAt | date: 'dd/MM/yyyy HH:mm:ss' }}
             </div>
             <div class="pharma-sub-table-body">
               <p-table
@@ -122,7 +143,6 @@
                 [value]="elRow.orderLines"
                 dataKey="id"
                 [stripedRows]="true"
-
               >
                 <ng-template #header>
                   <tr class="pharma-table-head">
@@ -140,37 +160,47 @@
                 </ng-template>
                 <ng-template let-orderLine let-rowIndex="rowIndex" #body>
                   <tr [ngClass]="orderLineTableColor(orderLine)">
-                    <td><span class="pharma-row-number">{{ rowIndex + 1 }}</span></td>
-                    <td><span class="pharma-code">{{ orderLine.produitCip }}</span></td>
+                    <td>
+                      <span class="pharma-row-number">{{ rowIndex + 1 }}</span>
+                    </td>
+                    <td>
+                      <span class="pharma-code">{{ orderLine.produitCip }}</span>
+                    </td>
 
-                    <td><span class="pharma-product-name">{{ orderLine.produitLibelle }}</span></td>
-                    <td style="text-align: right"><span class="pharma-qty-value">{{ orderLine.initStock | number }}</span></td>
+                    <td>
+                      <span class="pharma-product-name">{{ orderLine.produitLibelle }}</span>
+                    </td>
+                    <td style="text-align: right">
+                      <span class="pharma-qty-value">{{ orderLine.initStock | number }}</span>
+                    </td>
 
                     <td style="text-align: right">
                       <span class="pharma-price">{{ orderLine.orderCostAmount | number }}</span>
                     </td>
-                    <td style="text-align: right"><span class="pharma-price">{{ orderLine.costAmount | number }}</span></td>
+                    <td style="text-align: right">
+                      <span class="pharma-price">{{ orderLine.costAmount | number }}</span>
+                    </td>
 
                     <td style="text-align: right">
                       <span class="pharma-price">{{ orderLine.orderUnitPrice | number }}</span>
                     </td>
-                    <td style="text-align: right"><span class="pharma-price">{{ orderLine.regularUnitPrice | number }}</span></td>
+                    <td style="text-align: right">
+                      <span class="pharma-price">{{ orderLine.regularUnitPrice | number }}</span>
+                    </td>
                     <td style="text-align: right">
                       <span class="pharma-qty-value">{{ orderLine.quantityRequested | number }}</span>
                     </td>
-                    <td style="text-align: right"><span class="pharma-total">{{
-                        orderLine.quantityRequested * orderLine.orderCostAmount | number
-                      }}</span>
+                    <td style="text-align: right">
+                      <span class="pharma-total">{{ orderLine.quantityRequested * orderLine.orderCostAmount | number }}</span>
                     </td>
                   </tr>
                 </ng-template>
               </p-table>
             </div>
-
           </div>
         </td>
       </tr>
     </ng-template>
   </p-table>
 }
-<jhi-spinner #spinner ></jhi-spinner>
+<jhi-spinner #spinner></jhi-spinner>

@@ -13,18 +13,19 @@ import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 import jakarta.persistence.UniqueConstraint;
 import jakarta.validation.constraints.NotNull;
-import org.hibernate.annotations.Cache;
-import org.hibernate.annotations.CacheConcurrencyStrategy;
-
 import java.io.Serial;
 import java.io.Serializable;
 import java.util.Objects;
+import org.hibernate.annotations.Cache;
+import org.hibernate.annotations.CacheConcurrencyStrategy;
 
 @Entity
-@Table(name = "storage", uniqueConstraints = {
-    @UniqueConstraint(columnNames = { "storage_type", "magasin_id" }),
-    @UniqueConstraint(columnNames = { "name", "magasin_id" }),
-})
+@Table(
+    name = "storage",
+    uniqueConstraints = {
+        @UniqueConstraint(columnNames = { "storage_type", "magasin_id" }), @UniqueConstraint(columnNames = { "name", "magasin_id" }),
+    }
+)
 @JsonIgnoreProperties(value = { "magasin" })
 @Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
 public class Storage implements Serializable {

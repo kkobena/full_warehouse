@@ -27,20 +27,6 @@ import com.kobe.warehouse.service.errors.GenericError;
 import com.kobe.warehouse.service.settings.AppConfigurationService;
 import com.kobe.warehouse.service.stock.CommandService;
 import com.kobe.warehouse.service.stock.SuggestionProduitService;
-import org.apache.commons.csv.CSVFormat;
-import org.apache.commons.csv.CSVPrinter;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.core.io.Resource;
-import org.springframework.core.io.UrlResource;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
-import org.springframework.data.jpa.domain.Specification;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
-import org.springframework.util.CollectionUtils;
-import org.springframework.util.StringUtils;
-
 import java.io.FileWriter;
 import java.io.IOException;
 import java.nio.file.Files;
@@ -57,6 +43,19 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.stream.Collectors;
+import org.apache.commons.csv.CSVFormat;
+import org.apache.commons.csv.CSVPrinter;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.core.io.Resource;
+import org.springframework.core.io.UrlResource;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.domain.Specification;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.CollectionUtils;
+import org.springframework.util.StringUtils;
 
 @Service
 @Transactional
@@ -143,8 +142,7 @@ public class SuggestionProduitServiceImpl implements SuggestionProduitService {
     }
 
     @Override
-    public void suggerer(Produit produit) {
-    }
+    public void suggerer(Produit produit) {}
 
     @Override
     @Transactional(readOnly = true)
@@ -354,10 +352,11 @@ public class SuggestionProduitServiceImpl implements SuggestionProduitService {
             suggestionExist.set(true);
             suggestion = suggestionOpt.get();
         } else {
-
             suggestionExist.set(false);
             suggestion = new Suggestion()
-                .setSuggessionReference(LocalDate.now().format(DateTimeFormatter.ofPattern("yyyyMMdd")).concat(this.referenceService.buildSuggestionReference()))
+                .setSuggessionReference(
+                    LocalDate.now().format(DateTimeFormatter.ofPattern("yyyyMMdd")).concat(this.referenceService.buildSuggestionReference())
+                )
                 .createdAt(LocalDateTime.now());
         }
 
@@ -390,12 +389,12 @@ public class SuggestionProduitServiceImpl implements SuggestionProduitService {
         boolean suggestionExist
     ) {
         this.suggestionLineRepository.findBySuggestionTypeSuggessionAndFournisseurProduitId(
-            TypeSuggession.AUTO,
-            fournisseurProduit.getId()
-        ).ifPresentOrElse(
-            line -> updateLine(produit, stockProduit, line),
-            () -> buildLine(produit, stockProduit, fournisseurProduit, suggestion, suggestionExist)
-        );
+                TypeSuggession.AUTO,
+                fournisseurProduit.getId()
+            ).ifPresentOrElse(
+                line -> updateLine(produit, stockProduit, line),
+                () -> buildLine(produit, stockProduit, fournisseurProduit, suggestion, suggestionExist)
+            );
     }
 
     private void buildLine(
@@ -431,10 +430,10 @@ public class SuggestionProduitServiceImpl implements SuggestionProduitService {
         String filename =
             this.fileStorageLocation.resolve(
                     "suggestion_" +
-                        suggestion.getSuggessionReference() +
-                        "_" +
-                        LocalDateTime.now().format(DateTimeFormatter.ofPattern("dd_MM_yyyy_H_mm_ss")) +
-                        ".csv"
+                    suggestion.getSuggessionReference() +
+                    "_" +
+                    LocalDateTime.now().format(DateTimeFormatter.ofPattern("dd_MM_yyyy_H_mm_ss")) +
+                    ".csv"
                 )
                 .toFile()
                 .getAbsolutePath();

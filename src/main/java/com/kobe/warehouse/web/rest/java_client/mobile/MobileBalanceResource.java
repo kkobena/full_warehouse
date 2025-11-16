@@ -11,6 +11,7 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 @RequestMapping("/java-client/mobile/balance")
 public class MobileBalanceResource {
+
     private final MobileBalanceService mobileBalanceService;
 
     public MobileBalanceResource(MobileBalanceService mobileBalanceService) {

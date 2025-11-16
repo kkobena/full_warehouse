@@ -7,7 +7,7 @@ import { IAuthority } from '../authority.model';
 @Component({
   selector: 'jhi-authority-detail',
   templateUrl: './authority-detail.component.html',
-  imports: [SharedModule, RouterModule]
+  imports: [SharedModule, RouterModule],
 })
 export class AuthorityDetailComponent {
   authority = input<IAuthority | null>(null);

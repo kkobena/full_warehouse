@@ -1,19 +1,16 @@
 <div class="modal-header">
   <h4 class="modal-title">{{ header }}</h4>
-  <button (click)="cancel()" aria-label="Close" class="btn-close" type="button">
-  </button>
+  <button (click)="cancel()" aria-label="Close" class="btn-close" type="button"></button>
 </div>
 <div class="modal-body">
   <p-card>
     <div class="p-fluid p-formgrid p-grid">
       <div class="p-field p-col">
         <label class="col-auto col-form-label">Quantité<span style="font-weight: 900; color: red">*</span></label>
-        <input #startInput [(ngModel)]="startAt" [pKeyFilter]="'int'" autocomplete="off" class="form-control" pInputText
-               type="text" />
+        <input #startInput [(ngModel)]="startAt" [pKeyFilter]="'int'" autocomplete="off" class="form-control" pInputText type="text" />
         @if (startAt === 0 || startAt > 64) {
           <div>
-            <small class="form-text text-danger" style="color: red"> Le nombre saisi doit être compris entre 0 et
-              64 </small>
+            <small class="form-text text-danger" style="color: red"> Le nombre saisi doit être compris entre 0 et 64 </small>
           </div>
         }
       </div>
@@ -22,8 +19,15 @@
 </div>
 
 <div class="modal-footer">
-  <p-button (click)="cancel()" class="p-mr-2" icon="pi pi-times" label="Annuler" raised="true" severity="secondary"
-            type="button"></p-button>
+  <p-button
+    (click)="cancel()"
+    class="p-mr-2"
+    icon="pi pi-times"
+    label="Annuler"
+    raised="true"
+    severity="secondary"
+    type="button"
+  ></p-button>
   <p-button
     (click)="save()"
     [disabled]="isSaving || startAt === 0 || startAt > 64"
@@ -35,4 +39,3 @@
     type="submit"
   ></p-button>
 </div>
-

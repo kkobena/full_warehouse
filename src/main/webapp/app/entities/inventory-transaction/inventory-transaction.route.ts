@@ -9,9 +9,9 @@ const inventoryTransactionRoute: Routes = [
     loadComponent: () => import('./inventory-transaction.component').then(m => m.InventoryTransactionComponent),
     data: {
       authorities: [Authority.ADMIN, Authority.INVENTORY_TRANSACTION],
-      defaultSort: 'id,asc'
+      defaultSort: 'id,asc',
     },
-    canActivate: [UserRouteAccessService]
-  }
+    canActivate: [UserRouteAccessService],
+  },
 ];
 export default inventoryTransactionRoute;

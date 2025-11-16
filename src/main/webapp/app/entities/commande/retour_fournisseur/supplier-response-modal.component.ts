@@ -15,16 +15,7 @@ import { Tooltip } from 'primeng/tooltip';
 
 @Component({
   selector: 'jhi-supplier-response-modal',
-  imports: [
-    CommonModule,
-    FormsModule,
-    ButtonModule,
-    TableModule,
-    InputNumberModule,
-    ToastModule,
-    WarehouseCommonModule,
-    Tooltip
-  ],
+  imports: [CommonModule, FormsModule, ButtonModule, TableModule, InputNumberModule, ToastModule, WarehouseCommonModule, Tooltip],
   providers: [MessageService],
   templateUrl: './supplier-response-modal.component.html',
   styleUrl: './supplier-response-modal.component.scss',
@@ -50,7 +41,7 @@ export class SupplierResponseModalComponent implements OnInit {
         responseItem.lotNumero = item.lotNumero;
         responseItem.requestedQty = item.qtyMvt;
         responseItem.qtyMvt = item.qtyMvt; // Default to requested quantity
-        responseItem.acceptedQty= item.acceptedQty;
+        responseItem.acceptedQty = item.acceptedQty;
         return responseItem;
       });
       this.responseItems.set(items);
@@ -117,7 +108,6 @@ export class SupplierResponseModalComponent implements OnInit {
   protected cancel(): void {
     this.activeModal.dismiss();
   }
-
 
   protected getRowClass(item: IReponseRetourBonItem): string {
     if (item.qtyMvt === 0) {

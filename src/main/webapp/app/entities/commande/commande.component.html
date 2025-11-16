@@ -2,7 +2,7 @@
 
 <div class="container-fluid">
   <div class="row">
-    <div class="col-lg-2 col-xl-2 col-xxl-2  col-md-3 col-sm-4">
+    <div class="col-lg-2 col-xl-2 col-xxl-2 col-md-3 col-sm-4">
       <!-- Modern Navigation Sidebar -->
       <div class="pharma-nav-sidebar">
         <div class="pharma-nav-sidebar-card">
@@ -20,7 +20,6 @@
               ngbNav
               orientation="vertical"
             >
-
               <ng-container ngbNavItem="REQUESTED">
                 <a class="pharma-nav-vertical-link" ngbNavLink>
                   <i class="pi pi-spin pi-spinner"></i>
@@ -92,14 +91,12 @@
                   ></jhi-retour-bon-list>
                 </ng-template>
               </ng-container>
-
             </div>
           </div>
         </div>
       </div>
-
     </div>
-    <div class="col-lg-10 col-xl-10 col-xxl-10  col-md-9 col-sm-8">
+    <div class="col-lg-10 col-xl-10 col-xxl-10 col-md-9 col-sm-8">
       <div class="pharma-smart-content p-2">
         <!-- Modern Pharma Toolbar -->
         <div class="pharma-toolbar">
@@ -128,73 +125,68 @@
                   <div class="pharma-search-input">
                     <p-iconfield>
                       <p-inputicon class="pi pi-search" />
-                      <input
-                        (keyup.enter)="onSearch()"
-                        [(ngModel)]="search"
-                        pInputText
-                        placeholder="Taper pour rechercher"
-                        type="text"
-                      />
+                      <input (keyup.enter)="onSearch()" [(ngModel)]="search" pInputText placeholder="Taper pour rechercher" type="text" />
                     </p-iconfield>
                   </div>
                 }
-                @if (active === 'RETOUR_FOURNISSEUR' ) {
+                @if (active === 'RETOUR_FOURNISSEUR') {
                   <p-floatlabel variant="on">
-                    <p-select [style]="{'max-width': '150px','min-width': '120px'}"
-                              [(ngModel)]="selectedStatut"
-                              (onChange)="onSearch()"
-                              [options]="statutOptions"
-                              optionLabel="label"
-                              optionValue="value"
-                              [showClear]="true"
-                              appendTo="body"
-                              inputId="statut"
+                    <p-select
+                      [style]="{ 'max-width': '150px', 'min-width': '120px' }"
+                      [(ngModel)]="selectedStatut"
+                      (onChange)="onSearch()"
+                      [options]="statutOptions"
+                      optionLabel="label"
+                      optionValue="value"
+                      [showClear]="true"
+                      appendTo="body"
+                      inputId="statut"
                     />
                     <label for="statut">Statut</label>
                   </p-floatlabel>
                 }
 
-                @if (active === 'RETOUR_FOURNISSEUR' ||  active === 'LIST_BONS') {
+                @if (active === 'RETOUR_FOURNISSEUR' || active === 'LIST_BONS') {
                   <p-floatlabel variant="on">
-                    <p-datePicker [style]="{'max-width': '150px'}"
-                                  [(ngModel)]="dtStart"
-                                  (onSelect)="onSearch()"
-                                  [showIcon]="true"
-                                  [showButtonBar]="true"
-                                  dateFormat="dd/mm/yy"
-                                  inputId="dtStart"
-                                  appendTo="body"
+                    <p-datePicker
+                      [style]="{ 'max-width': '150px' }"
+                      [(ngModel)]="dtStart"
+                      (onSelect)="onSearch()"
+                      [showIcon]="true"
+                      [showButtonBar]="true"
+                      dateFormat="dd/mm/yy"
+                      inputId="dtStart"
+                      appendTo="body"
                     />
                     <label for="dtStart">Date début</label>
                   </p-floatlabel>
                   <p-floatlabel variant="on">
-                    <p-datePicker [style]="{'max-width': '150px'}"
-                                  [(ngModel)]="dtEnd"
-                                  (onSelect)="onSearch()"
-                                  [showIcon]="true"
-                                  [showButtonBar]="true"
-                                  dateFormat="dd/mm/yy"
-                                  inputId="dtEnd"
-                                  appendTo="body"
+                    <p-datePicker
+                      [style]="{ 'max-width': '150px' }"
+                      [(ngModel)]="dtEnd"
+                      (onSelect)="onSearch()"
+                      [showIcon]="true"
+                      [showButtonBar]="true"
+                      dateFormat="dd/mm/yy"
+                      inputId="dtEnd"
+                      appendTo="body"
                     />
                     <label for="dtEnd">Date fin</label>
                   </p-floatlabel>
-
                 }
 
                 @if (active === 'SUGGESTIONS') {
-                  <p-select [style]="{'max-width': '170px'}"
-                            (onChange)="onTypeSuggestionChange($event)"
-                            [filter]="false"
-                            [showClear]="true"
-                            [options]="typeSuggessions"
-                            optionLabel="label"
-                            optionValue="value"
-                            placeholder="Séléctionner un type de suggestion"
-                            appendTo="body"
+                  <p-select
+                    [style]="{ 'max-width': '170px' }"
+                    (onChange)="onTypeSuggestionChange($event)"
+                    [filter]="false"
+                    [showClear]="true"
+                    [options]="typeSuggessions"
+                    optionLabel="label"
+                    optionValue="value"
+                    placeholder="Séléctionner un type de suggestion"
+                    appendTo="body"
                   />
-
-
                 }
                 @if (active === 'SUGGESTIONS' || active === 'LIST_BONS') {
                   <p-select
@@ -206,7 +198,6 @@
                     optionValue="id"
                     placeholder="Séléctionner un fournisseur"
                     appendTo="body"
-
                   />
                 }
               </div>
@@ -298,7 +289,4 @@
       </div>
     </div>
   </div>
-
 </div>
-
-

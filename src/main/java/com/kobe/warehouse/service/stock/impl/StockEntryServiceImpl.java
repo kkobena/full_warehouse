@@ -1,5 +1,7 @@
 package com.kobe.warehouse.service.stock.impl;
 
+import static java.util.Objects.nonNull;
+
 import com.kobe.warehouse.constant.EntityConstant;
 import com.kobe.warehouse.domain.Commande;
 import com.kobe.warehouse.domain.CommandeId;
@@ -37,18 +39,6 @@ import com.kobe.warehouse.service.stock.ProduitService;
 import com.kobe.warehouse.service.stock.StockEntryService;
 import com.kobe.warehouse.service.utils.FileUtil;
 import com.kobe.warehouse.service.utils.ServiceUtil;
-import org.apache.commons.csv.CSVFormat;
-import org.apache.commons.csv.CSVParser;
-import org.apache.commons.csv.CSVRecord;
-import org.apache.commons.lang3.BooleanUtils;
-import org.apache.commons.lang3.StringUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
-import org.springframework.util.CollectionUtils;
-import org.springframework.web.multipart.MultipartFile;
-
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
@@ -62,8 +52,17 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.function.Predicate;
-
-import static java.util.Objects.nonNull;
+import org.apache.commons.csv.CSVFormat;
+import org.apache.commons.csv.CSVParser;
+import org.apache.commons.csv.CSVRecord;
+import org.apache.commons.lang3.BooleanUtils;
+import org.apache.commons.lang3.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.CollectionUtils;
+import org.springframework.web.multipart.MultipartFile;
 
 @Service
 @Transactional
@@ -97,8 +96,8 @@ public class StockEntryServiceImpl implements StockEntryService {
         if (BooleanUtils.isTrue(orderLine.getFournisseurProduit().getProduit().getCheckExpiryDate())) {
             return (
                 !CollectionUtils.isEmpty(orderLine.getLots()) &&
-                    orderLine.getLots().stream().map(Lot::getExpiryDate).allMatch(Objects::nonNull) &&
-                    orderLine.getLots().stream().mapToInt(Lot::getQuantity).sum() >= orderLine.getQuantityReceived()
+                orderLine.getLots().stream().map(Lot::getExpiryDate).allMatch(Objects::nonNull) &&
+                orderLine.getLots().stream().mapToInt(Lot::getQuantity).sum() >= orderLine.getQuantityReceived()
             );
         }
         return true;
@@ -116,7 +115,9 @@ public class StockEntryServiceImpl implements StockEntryService {
         LogsService logsService,
         WarehouseSequenceRepository warehouseSequenceRepository,
         FournisseurRepository fournisseurRepository,
-        OrderLineService orderLineService, CommandeIdGeneratorService commandeIdGeneratorService, OrderLineIdGeneratorService orderLineIdGeneratorService,
+        OrderLineService orderLineService,
+        CommandeIdGeneratorService commandeIdGeneratorService,
+        OrderLineIdGeneratorService orderLineIdGeneratorService,
         ImportationEchoueService importationEchoueService,
         InventoryTransactionService inventoryTransactionService
     ) {
@@ -145,9 +146,8 @@ public class StockEntryServiceImpl implements StockEntryService {
     }
 
     private CommandeId finalizeSaisie(DeliveryReceiptLiteDTO deliveryReceiptLite) {
-        record Pair(Commande origin, Commande cloned) {
-        }
-        Commande deliveryReceipt =getReferenceById(deliveryReceiptLite.getCommandeId());
+        record Pair(Commande origin, Commande cloned) {}
+        Commande deliveryReceipt = getReferenceById(deliveryReceiptLite.getCommandeId());
         Pair pair = null;
         if (!deliveryReceipt.getOrderDate().isEqual(LocalDate.now())) {
             pair = new Pair(deliveryReceipt, cloneCommande(deliveryReceipt));
@@ -216,7 +216,7 @@ public class StockEntryServiceImpl implements StockEntryService {
         logsService.create(
             TransactionType.ENTREE_STOCK,
             "order.entry",
-            new Object[]{deliveryReceipt.getReceiptReference()},
+            new Object[] { deliveryReceipt.getReceiptReference() },
             deliveryReceipt.getId().getId().toString()
         );
         deliveryReceipt.setOrderStatus(OrderStatut.CLOSED);
@@ -230,7 +230,6 @@ public class StockEntryServiceImpl implements StockEntryService {
         }
         inventoryTransactionService.saveAll(deliveryReceipt.getOrderLines());
         return deliveryReceipt.getId();
-
     }
 
     private Commande cloneCommande(Commande commande) {
@@ -253,10 +252,7 @@ public class StockEntryServiceImpl implements StockEntryService {
         cloned.setType(commande.getType());
         commande.getOrderLines().forEach(orderLine -> cloneOrderLine(orderLine, cloned));
         return cloned;
-
-
     }
-
 
     private void cloneOrderLine(OrderLine orderLine, Commande commande) {
         OrderLine cloned = new OrderLine();
@@ -277,7 +273,6 @@ public class StockEntryServiceImpl implements StockEntryService {
         cloned.setTaxAmount(orderLine.getTaxAmount());
         orderLine.getLots().forEach(lot -> cloneLot(lot, cloned));
         commande.getOrderLines().add(cloned);
-
     }
 
     private void cloneLot(Lot lot, OrderLine orderLine) {
@@ -294,7 +289,6 @@ public class StockEntryServiceImpl implements StockEntryService {
         cloned.setOrderLine(orderLine);
         orderLine.getLots().add(cloned);
     }
-
 
     @Override
     public DeliveryReceiptLiteDTO createBon(DeliveryReceiptLiteDTO deliveryReceiptLite) {
@@ -490,16 +484,16 @@ public class StockEntryServiceImpl implements StockEntryService {
     ) {
         OrderLine orderLine =
             this.orderLineService.buildDeliveryReceiptItemFromRecord(
-                fournisseurProduit,
-                quantityRequested,
-                quantityReceived,
-                orderCostAmount,
-                orderUnitPrice,
-                quantityUg,
-                stock,
-                taxeAmount,
-                commande
-            );
+                    fournisseurProduit,
+                    quantityRequested,
+                    quantityReceived,
+                    orderCostAmount,
+                    orderUnitPrice,
+                    quantityUg,
+                    stock,
+                    taxeAmount,
+                    commande
+                );
 
         commande.getOrderLines().add(orderLine);
 
@@ -520,18 +514,18 @@ public class StockEntryServiceImpl implements StockEntryService {
     ) {
         OrderLine orderLineNew =
             this.orderLineService.save(
-                buildDeliveryReceiptItemFromRecord(
-                    fournisseurProduit,
-                    quantityRequested,
-                    quantityReceived,
-                    orderCostAmount,
-                    orderUnitPrice,
-                    quantityUg,
-                    currentStock,
-                    taxAmount,
-                    deliveryReceipt
-                )
-            );
+                    buildDeliveryReceiptItemFromRecord(
+                        fournisseurProduit,
+                        quantityRequested,
+                        quantityReceived,
+                        orderCostAmount,
+                        orderUnitPrice,
+                        quantityUg,
+                        currentStock,
+                        taxAmount,
+                        deliveryReceipt
+                    )
+                );
         longOrderLineMap.put(fournisseurProduit.getId(), orderLineNew);
     }
 
@@ -542,14 +536,11 @@ public class StockEntryServiceImpl implements StockEntryService {
         Map<Integer, OrderLine> longOrderLineMap = new HashMap<>();
 
         commandeResponseDTO = switch (commandeModel) {
-            case LABOREX ->
-                processCsvUpload(commande, multipartFile, items, longOrderLineMap, this::parseLaborexRecord);
-            case COPHARMED ->
-                processCsvUpload(commande, multipartFile, items, longOrderLineMap, this::parseCopharmedRecord);
+            case LABOREX -> processCsvUpload(commande, multipartFile, items, longOrderLineMap, this::parseLaborexRecord);
+            case COPHARMED -> processCsvUpload(commande, multipartFile, items, longOrderLineMap, this::parseCopharmedRecord);
             case DPCI -> processCsvUpload(commande, multipartFile, items, longOrderLineMap, this::parseDpciRecord);
             case TEDIS -> processCsvUpload(commande, multipartFile, items, longOrderLineMap, this::parseTedisRecord);
-            case CIP_QTE_PA ->
-                processCsvUpload(commande, multipartFile, items, longOrderLineMap, this::parseCipQtePrixAchatRecord);
+            case CIP_QTE_PA -> processCsvUpload(commande, multipartFile, items, longOrderLineMap, this::parseCipQtePrixAchatRecord);
             case CIP_QTE -> processCsvUpload(commande, multipartFile, items, longOrderLineMap, this::parseCipQteRecord);
         };
         assert commandeResponseDTO != null;
@@ -841,7 +832,6 @@ public class StockEntryServiceImpl implements StockEntryService {
             produit.setTva(orderLine.getTva());
             produitService.update(produit);
         }
-
         //  orderLineService.save(orderLine);
     }
 

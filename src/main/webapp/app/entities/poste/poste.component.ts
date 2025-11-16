@@ -37,8 +37,8 @@ import { Tag } from 'primeng/tag';
     InputIcon,
     ConfirmDialogComponent,
     ToastAlertComponent,
-    Tag
-  ]
+    Tag,
+  ],
 })
 export class PosteComponent implements OnInit {
   protected loading?: boolean;
@@ -59,7 +59,7 @@ export class PosteComponent implements OnInit {
     this.loading = true;
     this.entityService.fetchAll().subscribe({
       next: (res: HttpResponse<IPoste[]>) => this.onSuccess(res.body),
-      error: err => this.onError(err)
+      error: err => this.onError(err),
     });
   }
 
@@ -69,12 +69,12 @@ export class PosteComponent implements OnInit {
       FormPosteComponent,
       {
         entity: null,
-        title: 'Ajouter un nouveau poste'
+        title: 'Ajouter un nouveau poste',
       },
       () => {
         this.loadAll();
       },
-      'lg'
+      'lg',
     );
   }
 
@@ -84,12 +84,12 @@ export class PosteComponent implements OnInit {
       FormPosteComponent,
       {
         entity: entity,
-        title: 'Modification de ' + entity.name
+        title: 'Modification de ' + entity.name,
       },
       () => {
         this.loadAll();
       },
-      'lg'
+      'lg',
     );
   }
 
@@ -107,7 +107,7 @@ export class PosteComponent implements OnInit {
         });
       },
       'Suppression',
-      'Êtes-vous sûr de vouloir supprimer ce poste ?'
+      'Êtes-vous sûr de vouloir supprimer ce poste ?',
     );
   }
 
@@ -124,7 +124,7 @@ export class PosteComponent implements OnInit {
         entity =>
           entity.name?.toLowerCase().includes(this.searchQuery) ||
           entity.address?.toLowerCase().includes(this.searchQuery) ||
-          entity.posteNumber?.toLowerCase().includes(this.searchQuery)
+          entity.posteNumber?.toLowerCase().includes(this.searchQuery),
       );
     }
   }

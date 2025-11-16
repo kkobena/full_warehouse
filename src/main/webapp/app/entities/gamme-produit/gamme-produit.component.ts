@@ -34,11 +34,10 @@ import { SpinnerComponent } from '../../shared/spinner/spinner.component';
     IconField,
     InputIcon,
     ConfirmDialogComponent,
-    SpinnerComponent
-  ]
+    SpinnerComponent,
+  ],
 })
 export class GammeProduitComponent implements OnInit {
-
   protected responsedto!: IResponseDto;
   protected entites: IGammeProduit[] = [];
   protected totalItems = 0;
@@ -50,7 +49,7 @@ export class GammeProduitComponent implements OnInit {
   private readonly entityService = inject(GammeProduitService);
   private readonly confimDialog = viewChild.required<ConfirmDialogComponent>('confirmDialog');
   private readonly modalService = inject(NgbModal);
-   private readonly spinner = viewChild.required<SpinnerComponent>('spinner');
+  private readonly spinner = viewChild.required<SpinnerComponent>('spinner');
 
   ngOnInit(): void {
     this.loadPage();
@@ -64,11 +63,11 @@ export class GammeProduitComponent implements OnInit {
       .query({
         page: pageToLoad,
         size: this.itemsPerPage,
-        search: query
+        search: query,
       })
       .subscribe({
         next: (res: HttpResponse<IGammeProduit[]>) => this.onSuccess(res.body, res.headers, pageToLoad),
-        error: () => this.onError()
+        error: () => this.onError(),
       });
   }
 
@@ -79,11 +78,11 @@ export class GammeProduitComponent implements OnInit {
       .query({
         page: this.page,
         size: event.rows,
-        search: ''
+        search: '',
       })
       .subscribe({
         next: (res: HttpResponse<IGammeProduit[]>) => this.onSuccess(res.body, res.headers, this.page),
-        error: () => this.onError()
+        error: () => this.onError(),
       });
   }
 
@@ -95,11 +94,9 @@ export class GammeProduitComponent implements OnInit {
         });
       },
       'Suppression',
-      'Êtes-vous sûr de vouloir supprimer ?'
+      'Êtes-vous sûr de vouloir supprimer ?',
     );
-
   }
-
 
   protected delete(entity: IGammeProduit): void {
     this.confirmDelete(entity.id);
@@ -108,7 +105,6 @@ export class GammeProduitComponent implements OnInit {
   protected confirmDelete(id: number): void {
     this.confirmDialog(id);
   }
-
 
   protected search(event: any): void {
     this.loadPage(0, event.target.value);
@@ -123,7 +119,7 @@ export class GammeProduitComponent implements OnInit {
         this.spinner().show();
         this.uploadFileResponse(this.entityService.uploadFile(result));
       },
-      'lg'
+      'lg',
     );
   }
 
@@ -133,12 +129,12 @@ export class GammeProduitComponent implements OnInit {
       FormGammeComponent,
       {
         gamme: null,
-        header: 'Ajout d\'une nouvelle gamme de produit'
+        header: "Ajout d'une nouvelle gamme de produit",
       },
       () => {
         this.loadPage(0);
       },
-      'lg'
+      'lg',
     );
   }
 
@@ -148,12 +144,12 @@ export class GammeProduitComponent implements OnInit {
       FormGammeComponent,
       {
         gamme: entity,
-        header: 'Modification de ' + entity.libelle
+        header: 'Modification de ' + entity.libelle,
       },
       () => {
         this.loadPage(0);
       },
-      'lg'
+      'lg',
     );
   }
 
@@ -168,16 +164,14 @@ export class GammeProduitComponent implements OnInit {
     this.loading = false;
   }
 
-
   private onSaveError(): void {
     this.isSaving = false;
   }
 
-
   private uploadFileResponse(result: Observable<HttpResponse<IResponseDto>>): void {
     result.pipe(finalize(() => this.spinner().hide())).subscribe({
       next: (res: HttpResponse<IResponseDto>) => this.onPocesCsvSuccess(res.body),
-      error: () => this.onSaveError()
+      error: () => this.onSaveError(),
     });
   }
 

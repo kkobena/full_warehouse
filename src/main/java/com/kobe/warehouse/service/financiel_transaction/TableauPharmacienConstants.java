@@ -28,7 +28,5 @@ public final class TableauPharmacienConstants {
     public static final String EXCEL_SHEET_NAME = "Tableau pharmacien";
     public static final String EXCEL_FILE_NAME = "tableau_pharmacien";
 
-    private TableauPharmacienConstants() {
-
-    }
+    private TableauPharmacienConstants() {}
 }

@@ -11,18 +11,18 @@ import jakarta.persistence.criteria.CriteriaQuery;
 import jakarta.persistence.criteria.Expression;
 import jakarta.persistence.criteria.Predicate;
 import jakarta.persistence.criteria.Root;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.util.List;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Repository;
 
-import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.util.List;
-
 @Repository
 public class InventoryTransactionCustomRepositoryImpl implements InventoryTransactionCustomRepository {
+
     private final EntityManager entityManager;
 
     public InventoryTransactionCustomRepositoryImpl(EntityManager entityManager) {
@@ -39,21 +39,25 @@ public class InventoryTransactionCustomRepositoryImpl implements InventoryTransa
         // Subquery to find the minimum createdAt (first transaction) per day
         var subqueryMin = query.subquery(LocalDateTime.class);
         var rootMin = subqueryMin.from(InventoryTransaction.class);
-        subqueryMin.select(cb.least(rootMin.get(InventoryTransaction_.createdAt)))
+        subqueryMin
+            .select(cb.least(rootMin.get(InventoryTransaction_.createdAt)))
             .where(cb.equal(rootMin.get(InventoryTransaction_.transactionDate), dateExpr));
 
         // Subquery to find the maximum createdAt (last transaction) per day
         var subqueryMax = query.subquery(LocalDateTime.class);
         var rootMax = subqueryMax.from(InventoryTransaction.class);
-        subqueryMax.select(cb.greatest(rootMax.get(InventoryTransaction_.createdAt)))
+        subqueryMax
+            .select(cb.greatest(rootMax.get(InventoryTransaction_.createdAt)))
             .where(cb.equal(rootMax.get(InventoryTransaction_.transactionDate), dateExpr));
 
         // Use CASE expressions to extract start and end quantities based on transaction timing
-        Expression<Integer> startQuantity = cb.<Integer>selectCase()
+        Expression<Integer> startQuantity = cb
+            .<Integer>selectCase()
             .when(cb.equal(root.get(InventoryTransaction_.createdAt), subqueryMin), root.get(InventoryTransaction_.quantityBefor))
             .otherwise((Integer) null);
 
-        Expression<Integer> endQuantity = cb.<Integer>selectCase()
+        Expression<Integer> endQuantity = cb
+            .<Integer>selectCase()
             .when(cb.equal(root.get(InventoryTransaction_.createdAt), subqueryMax), root.get(InventoryTransaction_.quantityAfter))
             .otherwise((Integer) null);
 
@@ -68,10 +72,7 @@ public class InventoryTransactionCustomRepositoryImpl implements InventoryTransa
                     cb.max(endQuantity) // End quantity from last transaction of the day
                 )
             )
-            .groupBy(
-                root.get(InventoryTransaction_.mouvementType),
-                root.get(InventoryTransaction_.transactionDate)
-            )
+            .groupBy(root.get(InventoryTransaction_.mouvementType), root.get(InventoryTransaction_.transactionDate))
             .orderBy(cb.asc(root.get(InventoryTransaction_.transactionDate)));
 
         Predicate predicate = specification.toPredicate(root, query, cb);
@@ -102,9 +103,7 @@ public class InventoryTransactionCustomRepositoryImpl implements InventoryTransa
                     cb.sum(root.get(InventoryTransaction_.quantity))
                 )
             )
-            .groupBy(
-                root.get(InventoryTransaction_.mouvementType)
-            );
+            .groupBy(root.get(InventoryTransaction_.mouvementType));
         Predicate predicate = specification.toPredicate(root, query, cb);
         query.where(predicate);
 
@@ -118,12 +117,14 @@ public class InventoryTransactionCustomRepositoryImpl implements InventoryTransa
         Root<InventoryTransaction> root = countQuery.from(InventoryTransaction.class);
 
         // Count distinct combinations of (movementType, transactionDate)
-        countQuery.select(cb.countDistinct(
-            cb.concat(
-                cb.concat(root.get(InventoryTransaction_.mouvementType).as(String.class), "-"),
-                root.get(InventoryTransaction_.transactionDate).as(String.class)
+        countQuery.select(
+            cb.countDistinct(
+                cb.concat(
+                    cb.concat(root.get(InventoryTransaction_.mouvementType).as(String.class), "-"),
+                    root.get(InventoryTransaction_.transactionDate).as(String.class)
+                )
             )
-        ));
+        );
 
         Predicate predicate = specification.toPredicate(root, countQuery, cb);
         if (predicate != null) {

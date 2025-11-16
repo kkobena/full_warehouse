@@ -11,11 +11,11 @@ import com.kobe.warehouse.domain.OrderLine_;
 import com.kobe.warehouse.domain.Produit_;
 import com.kobe.warehouse.repository.CommandeRepository;
 import com.kobe.warehouse.repository.OrderLineRepository;
+import com.kobe.warehouse.service.dto.DeliveryReceiptDTO;
+import com.kobe.warehouse.service.dto.filter.DeliveryReceiptFilterDTO;
 import com.kobe.warehouse.service.dto.projection.DeliveryReceiptItemProjection;
 import com.kobe.warehouse.service.dto.projection.DeliveryReceiptProjection;
 import com.kobe.warehouse.service.settings.FileResourceService;
-import com.kobe.warehouse.service.dto.DeliveryReceiptDTO;
-import com.kobe.warehouse.service.dto.filter.DeliveryReceiptFilterDTO;
 import com.kobe.warehouse.service.stock.DeliveryReceiptReportReportService;
 import com.kobe.warehouse.service.stock.StockEntryDataService;
 import jakarta.persistence.EntityManager;
@@ -24,6 +24,13 @@ import jakarta.persistence.criteria.CriteriaBuilder;
 import jakarta.persistence.criteria.CriteriaQuery;
 import jakarta.persistence.criteria.Predicate;
 import jakarta.persistence.criteria.Root;
+import java.io.IOException;
+import java.time.LocalDate;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+import java.util.Objects;
+import java.util.Optional;
 import org.springframework.core.io.Resource;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
@@ -32,14 +39,6 @@ import org.springframework.data.domain.Slice;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
-
-import java.io.IOException;
-import java.time.LocalDate;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.Objects;
-import java.util.Optional;
 
 @Service
 @Transactional(readOnly = true)
@@ -180,26 +179,19 @@ public class StockEntryDataServiceImpl extends FileResourceService implements St
                 )
             );
         } else if (Objects.nonNull(deliveryReceiptFilterDTO.getFromDate())) {
-            predicates.add(
-                cb.equal(
-                    root.get(OrderLine_.commande).get(Commande_.orderDate),
-                    deliveryReceiptFilterDTO.getFromDate()
-                )
-            );
+            predicates.add(cb.equal(root.get(OrderLine_.commande).get(Commande_.orderDate), deliveryReceiptFilterDTO.getFromDate()));
         } else if (Objects.nonNull(deliveryReceiptFilterDTO.getToDate())) {
-            predicates.add(
-                cb.equal(
-                    root.get(OrderLine_.commande).get(Commande_.orderDate),
-                    deliveryReceiptFilterDTO.getToDate()
-                )
-            );
+            predicates.add(cb.equal(root.get(OrderLine_.commande).get(Commande_.orderDate), deliveryReceiptFilterDTO.getToDate()));
         }
         return predicates;
     }
 
     @Override
     public Resource printEtiquette(CommandeId commandeId, int startAt) throws IOException {
-        return this.etiquetteExportService.print(this.orderLineRepository.findAllByCommandeIdAndCommandeOrderDate(commandeId.getId(), commandeId.getOrderDate()), startAt);
+        return this.etiquetteExportService.print(
+                this.orderLineRepository.findAllByCommandeIdAndCommandeOrderDate(commandeId.getId(), commandeId.getOrderDate()),
+                startAt
+            );
     }
 
     @Override

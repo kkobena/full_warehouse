@@ -21,7 +21,7 @@ import { SpinnerComponent } from '../../shared/spinner/spinner.component';
   selector: 'jhi-importation-new-commande',
   templateUrl: './importation-new-commande.component.html',
   styleUrls: ['../common-modal.component.scss'],
-  imports: [WarehouseCommonModule, FormsModule, FileUploadModule, Select, Button, ToastAlertComponent, Card, SpinnerComponent]
+  imports: [WarehouseCommonModule, FormsModule, FileUploadModule, Select, Button, ToastAlertComponent, Card, SpinnerComponent],
 })
 export class ImportationNewCommandeComponent implements OnInit {
   header: string = '';
@@ -35,7 +35,7 @@ export class ImportationNewCommandeComponent implements OnInit {
   private readonly commandeService = inject(CommandeService);
   private readonly fournisseurService = inject(FournisseurService);
   protected readonly modalService = inject(NgbModal);
-   private readonly spinner = viewChild.required<SpinnerComponent>('spinner');
+  private readonly spinner = viewChild.required<SpinnerComponent>('spinner');
   private readonly alert = viewChild.required<ToastAlertComponent>('alert');
   private readonly errorService = inject(ErrorService);
   private readonly activeModal = inject(NgbActiveModal);
@@ -47,7 +47,7 @@ export class ImportationNewCommandeComponent implements OnInit {
       { label: 'DPCI', value: 'DPCI' },
       { label: 'TEDIS', value: 'TEDIS' },
       { label: 'Cip  quantité', value: 'CIP_QTE' },
-      { label: 'Cip quantité prix achat', value: 'CIP_QTE_PA' }
+      { label: 'Cip quantité prix achat', value: 'CIP_QTE_PA' },
     ];
   }
 
@@ -62,11 +62,14 @@ export class ImportationNewCommandeComponent implements OnInit {
 
     formData.append('commande', file, file.name);
     this.spinner().show();
-    this.commandeService.uploadNewCommande(this.fournisseurSelectedId, this.modelSelected, formData)
-      .pipe(finalize(() => {
-        this.spinner().hide();
-        this.isSaving = false;
-      }))
+    this.commandeService
+      .uploadNewCommande(this.fournisseurSelectedId, this.modelSelected, formData)
+      .pipe(
+        finalize(() => {
+          this.spinner().hide();
+          this.isSaving = false;
+        }),
+      )
       .subscribe({
         next: res => {
           this.commandeResponse = res.body;
@@ -74,7 +77,7 @@ export class ImportationNewCommandeComponent implements OnInit {
         },
         error: error => {
           this.onCommonError(error);
-        }
+        },
       });
   }
 
@@ -100,6 +103,4 @@ export class ImportationNewCommandeComponent implements OnInit {
   private onCommonError(error: HttpErrorResponse): void {
     this.alert().showError(this.errorService.getErrorMessage(error));
   }
-
-
 }

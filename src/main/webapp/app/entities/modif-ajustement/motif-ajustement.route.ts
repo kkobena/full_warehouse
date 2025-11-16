@@ -8,9 +8,9 @@ const motifAjustementRoute: Routes = [
     loadComponent: () => import('./modif-ajustement.component').then(m => m.ModifAjustementComponent),
     data: {
       authorities: [Authority.ADMIN, Authority.REFERENTIEL, Authority.MOTIF_AJUSTEMENT],
-      defaultSort: 'id,asc'
+      defaultSort: 'id,asc',
     },
-    canActivate: [UserRouteAccessService]
-  }
+    canActivate: [UserRouteAccessService],
+  },
 ];
 export default motifAjustementRoute;

@@ -20,16 +20,7 @@ import { acceptButtonProps, rejectButtonProps } from '../../shared/util/modal-bu
 @Component({
   selector: 'jhi-motif-retour-produit',
   standalone: true,
-  imports: [
-    CommonModule,
-    FormsModule,
-    ButtonModule,
-    TableModule,
-    InputTextModule,
-    ConfirmDialogModule,
-    ToastModule,
-    Tooltip,
-  ],
+  imports: [CommonModule, FormsModule, ButtonModule, TableModule, InputTextModule, ConfirmDialogModule, ToastModule, Tooltip],
   providers: [ConfirmationService, MessageService],
   templateUrl: './motif-retour-produit.component.html',
   styleUrl: './motif-retour-produit.component.scss',
@@ -51,21 +42,18 @@ export class MotifRetourProduitComponent implements OnInit {
 
   protected loadAll(): void {
     this.loading.set(true);
-    this.motifRetourService
-      .query()
-      .subscribe({
-        next: (res: HttpResponse<IMotifRetourProduit[]>) => {
-          this.motifRetours.set(res.body || []);
-          this.totalRecords.set(res.body?.length || 0);
-          this.loading.set(false);
-        },
-        error: () => {
-          this.loading.set(false);
-          this.showError('Erreur lors du chargement des motifs de retour');
-        },
-      });
+    this.motifRetourService.query().subscribe({
+      next: (res: HttpResponse<IMotifRetourProduit[]>) => {
+        this.motifRetours.set(res.body || []);
+        this.totalRecords.set(res.body?.length || 0);
+        this.loading.set(false);
+      },
+      error: () => {
+        this.loading.set(false);
+        this.showError('Erreur lors du chargement des motifs de retour');
+      },
+    });
   }
-
 
   protected openNew(): void {
     const modalRef = this.modalService.open(MotifRetourProduitFormModalComponent, {
@@ -77,12 +65,11 @@ export class MotifRetourProduitComponent implements OnInit {
 
     modalRef.result.then(
       () => {
-          this.loadAll();
-
+        this.loadAll();
       },
       () => {
         // Modal dismissed
-      }
+      },
     );
   }
 
@@ -97,11 +84,11 @@ export class MotifRetourProduitComponent implements OnInit {
 
     modalRef.result.then(
       () => {
-          this.loadAll();
+        this.loadAll();
       },
       () => {
         // Modal dismissed
-      }
+      },
     );
   }
 

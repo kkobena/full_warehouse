@@ -31,8 +31,8 @@ import { Select } from 'primeng/select';
     KeyFilterModule,
     ToastAlertComponent,
     Card,
-    Select
-  ]
+    Select,
+  ],
 })
 export class FormGroupeTiersPayantComponent implements OnInit, AfterViewInit {
   header: string = '';
@@ -48,7 +48,7 @@ export class FormGroupeTiersPayantComponent implements OnInit, AfterViewInit {
     adresse: [],
     telephone: [],
     telephoneFixe: [],
-    ordreTrisFacture: []
+    ordreTrisFacture: [],
   });
   private readonly errorService = inject(ErrorService);
   private readonly groupeTiersPayantService = inject(GroupeTiersPayantService);
@@ -82,7 +82,7 @@ export class FormGroupeTiersPayantComponent implements OnInit, AfterViewInit {
       adresse: groupeTiersPayant.adresse,
       telephone: groupeTiersPayant.telephone,
       telephoneFixe: groupeTiersPayant.telephoneFixe,
-      ordreTrisFacture: groupeTiersPayant.ordreTrisFacture
+      ordreTrisFacture: groupeTiersPayant.ordreTrisFacture,
     });
   }
 
@@ -108,14 +108,14 @@ export class FormGroupeTiersPayantComponent implements OnInit, AfterViewInit {
       adresse: this.editForm.get(['adresse']).value,
       telephone: this.editForm.get(['telephone']).value,
       telephoneFixe: this.editForm.get(['telephoneFixe']).value,
-      ordreTrisFacture: this.editForm.get(['ordreTrisFacture']).value
+      ordreTrisFacture: this.editForm.get(['ordreTrisFacture']).value,
     };
   }
 
   protected subscribeToSaveResponse(result: Observable<HttpResponse<IGroupeTiersPayant>>): void {
     result.subscribe({
       next: res => this.onSaveSuccess(res.body),
-      error: error => this.onSaveError(error)
+      error: error => this.onSaveError(error),
     });
   }
 

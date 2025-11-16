@@ -15,7 +15,6 @@ import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotNull;
 import java.io.Serial;
 import java.io.Serializable;
-
 import org.hibernate.annotations.Cache;
 import org.hibernate.annotations.CacheConcurrencyStrategy;
 import org.hibernate.annotations.JoinFormula;
@@ -55,10 +54,10 @@ public class Magasin implements Serializable {
     @Column(name = "registre")
     private String registre;
 
-    @Column(name = "compte_contribuable",length = 50)
+    @Column(name = "compte_contribuable", length = 50)
     private String compteContribuable;
 
-    @Column(name = "num_comptable",length = 50)
+    @Column(name = "num_comptable", length = 50)
     private String numComptable;
 
     @ManyToOne(fetch = FetchType.EAGER)
@@ -86,6 +85,7 @@ public class Magasin implements Serializable {
 
     @Column(name = "registre_imposition", length = 100)
     private String registreImposition;
+
     @Column(name = "manager_first_name", length = 100)
     private String managerFirstName;
 

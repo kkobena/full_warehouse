@@ -1,4 +1,3 @@
-
 import { Component, OnInit, OnDestroy, HostListener, ViewChild, ElementRef, inject, signal, effect } from '@angular/core';
 import { KeyboardShortcut, KeyboardShortcutsService } from './keyboard-shortcuts.service';
 
@@ -6,9 +5,8 @@ import { KeyboardShortcut, KeyboardShortcutsService } from './keyboard-shortcuts
   selector: 'jhi-racourci',
   imports: [],
   templateUrl: './racourci.component.html',
-  styleUrl: './racourci.component.scss'
+  styleUrl: './racourci.component.scss',
 })
-
 export class RacourciComponent implements OnInit, OnDestroy {
   @ViewChild('productSearchInput') productSearchInput!: ElementRef;
   @ViewChild('quantityInput') quantityInput!: ElementRef;
@@ -54,9 +52,7 @@ export class RacourciComponent implements OnInit, OnDestroy {
   @HostListener('document:keydown', ['$event'])
   handleKeyboardEvent(event: KeyboardEvent): void {
     const target = event.target as HTMLElement;
-    const isInputField = target.tagName === 'INPUT' ||
-                        target.tagName === 'TEXTAREA' ||
-                        target.isContentEditable;
+    const isInputField = target.tagName === 'INPUT' || target.tagName === 'TEXTAREA' || target.isContentEditable;
 
     // Touches fonctionnelles qui marchent partout
     const globalKeys = ['f1', 'f2', 'f3', 'f4', 'f9', 'f10', 'f11', 'escape'];
@@ -80,28 +76,28 @@ export class RacourciComponent implements OnInit, OnDestroy {
       key: 'F1',
       category: 'Navigation',
       description: 'Afficher les raccourcis clavier',
-      action: () => this.toggleShortcutsModal()
+      action: () => this.toggleShortcutsModal(),
     });
 
     this.keyboardShortcutsService.registerShortcut({
       key: 'F2',
       category: 'Navigation',
       description: 'Rechercher un produit',
-      action: () => this.focusProductSearch()
+      action: () => this.focusProductSearch(),
     });
 
     this.keyboardShortcutsService.registerShortcut({
       key: 'F3',
       category: 'Navigation',
       description: 'Modifier la quantité',
-      action: () => this.focusQuantity()
+      action: () => this.focusQuantity(),
     });
 
     this.keyboardShortcutsService.registerShortcut({
       key: 'F4',
       category: 'Navigation',
       description: 'Sélectionner un client',
-      action: () => this.openCustomerModal()
+      action: () => this.openCustomerModal(),
     });
 
     // ==========================================
@@ -113,7 +109,7 @@ export class RacourciComponent implements OnInit, OnDestroy {
       alt: true,
       category: 'Types de vente',
       description: 'Vente Comptant',
-      action: () => this.selectSaleType('COMPTANT')
+      action: () => this.selectSaleType('COMPTANT'),
     });
 
     this.keyboardShortcutsService.registerShortcut({
@@ -121,7 +117,7 @@ export class RacourciComponent implements OnInit, OnDestroy {
       alt: true,
       category: 'Types de vente',
       description: 'Vente Assurance',
-      action: () => this.selectSaleType('ASSURANCE')
+      action: () => this.selectSaleType('ASSURANCE'),
     });
 
     this.keyboardShortcutsService.registerShortcut({
@@ -129,7 +125,7 @@ export class RacourciComponent implements OnInit, OnDestroy {
       alt: true,
       category: 'Types de vente',
       description: 'Vente Carnet',
-      action: () => this.selectSaleType('CARNET')
+      action: () => this.selectSaleType('CARNET'),
     });
 
     // ==========================================
@@ -141,7 +137,7 @@ export class RacourciComponent implements OnInit, OnDestroy {
       alt: true,
       category: 'Remises',
       description: 'Appliquer une remise',
-      action: () => this.openDiscountModal()
+      action: () => this.openDiscountModal(),
     });
 
     this.keyboardShortcutsService.registerShortcut({
@@ -150,7 +146,7 @@ export class RacourciComponent implements OnInit, OnDestroy {
       shift: true,
       category: 'Remises',
       description: 'Supprimer la remise',
-      action: () => this.removeDiscount()
+      action: () => this.removeDiscount(),
     });
 
     // ==========================================
@@ -161,28 +157,28 @@ export class RacourciComponent implements OnInit, OnDestroy {
       key: 'F6',
       category: 'Paiement',
       description: 'Paiement Espèces',
-      action: () => this.focusPaymentMode('ESPECE')
+      action: () => this.focusPaymentMode('ESPECE'),
     });
 
     this.keyboardShortcutsService.registerShortcut({
       key: 'F7',
       category: 'Paiement',
       description: 'Paiement Carte Bancaire',
-      action: () => this.focusPaymentMode('CB')
+      action: () => this.focusPaymentMode('CB'),
     });
 
     this.keyboardShortcutsService.registerShortcut({
       key: 'F8',
       category: 'Paiement',
       description: 'Paiement Chèque',
-      action: () => this.focusPaymentMode('CHEQUE')
+      action: () => this.focusPaymentMode('CHEQUE'),
     });
 
     this.keyboardShortcutsService.registerShortcut({
       key: 'F11', // F11 en plein écran, mais on peut l'utiliser si besoin
       category: 'Paiement',
       description: 'Paiement Virement',
-      action: () => this.focusPaymentMode('VIREMENT')
+      action: () => this.focusPaymentMode('VIREMENT'),
     });
 
     this.keyboardShortcutsService.registerShortcut({
@@ -190,7 +186,7 @@ export class RacourciComponent implements OnInit, OnDestroy {
       alt: true,
       category: 'Paiement',
       description: 'Ajouter un mode de paiement',
-      action: () => this.addPaymentMode()
+      action: () => this.addPaymentMode(),
     });
 
     // ==========================================
@@ -201,7 +197,7 @@ export class RacourciComponent implements OnInit, OnDestroy {
       key: 'F9',
       category: 'Actions',
       description: 'Terminer la vente (Enter)',
-      action: () => this.save()
+      action: () => this.save(),
     });
 
     // Alternative avec Enter sur le montant payé
@@ -215,14 +211,14 @@ export class RacourciComponent implements OnInit, OnDestroy {
         if (activeElement.classList.contains('payment-mode-input')) {
           this.save();
         }
-      }
+      },
     });
 
     this.keyboardShortcutsService.registerShortcut({
       key: 'F10',
       category: 'Actions',
       description: 'Mettre en attente',
-      action: () => this.putOnHold()
+      action: () => this.putOnHold(),
     });
 
     this.keyboardShortcutsService.registerShortcut({
@@ -230,14 +226,14 @@ export class RacourciComponent implements OnInit, OnDestroy {
       alt: true,
       category: 'Actions',
       description: 'Nouvelle vente',
-      action: () => this.newSale()
+      action: () => this.newSale(),
     });
 
     this.keyboardShortcutsService.registerShortcut({
       key: 'Escape',
       category: 'Actions',
       description: 'Annuler / Fermer',
-      action: () => this.cancel()
+      action: () => this.cancel(),
     });
 
     // ==========================================
@@ -249,7 +245,7 @@ export class RacourciComponent implements OnInit, OnDestroy {
       alt: true,
       category: 'Produits',
       description: 'Supprimer le dernier produit',
-      action: () => this.removeLastProduct()
+      action: () => this.removeLastProduct(),
     });
 
     this.keyboardShortcutsService.registerShortcut({
@@ -257,7 +253,7 @@ export class RacourciComponent implements OnInit, OnDestroy {
       alt: true,
       category: 'Produits',
       description: 'Augmenter la quantité',
-      action: () => this.incrementLastProductQuantity()
+      action: () => this.incrementLastProductQuantity(),
     });
 
     this.keyboardShortcutsService.registerShortcut({
@@ -265,7 +261,7 @@ export class RacourciComponent implements OnInit, OnDestroy {
       alt: true,
       category: 'Produits',
       description: 'Diminuer la quantité',
-      action: () => this.decrementLastProductQuantity()
+      action: () => this.decrementLastProductQuantity(),
     });
 
     // ==========================================
@@ -277,7 +273,7 @@ export class RacourciComponent implements OnInit, OnDestroy {
       alt: true,
       category: 'Impression',
       description: 'Imprimer le ticket',
-      action: () => this.printReceipt()
+      action: () => this.printReceipt(),
     });
 
     this.keyboardShortcutsService.registerShortcut({
@@ -286,7 +282,7 @@ export class RacourciComponent implements OnInit, OnDestroy {
       shift: true,
       category: 'Impression',
       description: 'Imprimer la facture',
-      action: () => this.printInvoice()
+      action: () => this.printInvoice(),
     });
 
     // ==========================================
@@ -298,7 +294,7 @@ export class RacourciComponent implements OnInit, OnDestroy {
       alt: true,
       category: 'Navigation',
       description: 'Sélectionner produit précédent',
-      action: () => this.selectPreviousProduct()
+      action: () => this.selectPreviousProduct(),
     });
 
     this.keyboardShortcutsService.registerShortcut({
@@ -306,7 +302,7 @@ export class RacourciComponent implements OnInit, OnDestroy {
       alt: true,
       category: 'Navigation',
       description: 'Sélectionner produit suivant',
-      action: () => this.selectNextProduct()
+      action: () => this.selectNextProduct(),
     });
   }
 
@@ -417,7 +413,7 @@ export class RacourciComponent implements OnInit, OnDestroy {
 
   private canSave(): boolean {
     return true;
- //   return this.currentSaleService.currentSale()?.amountToBePaid === 0;
+    //   return this.currentSaleService.currentSale()?.amountToBePaid === 0;
   }
 
   // Helper pour le template
@@ -430,15 +426,15 @@ export class RacourciComponent implements OnInit, OnDestroy {
     // Conversion des caractères spéciaux français
     const keyMap: Record<string, string> = {
       '&': '1',
-      'é': '2',
+      é: '2',
       '"': '3',
       "'": '4',
       '(': '5',
       '-': '6',
-      'è': '7',
-      '_': '8',
-      'ç': '9',
-      'à': '0'
+      è: '7',
+      _: '8',
+      ç: '9',
+      à: '0',
     };
 
     const displayKey = keyMap[shortcut.key] || shortcut.key;
@@ -447,8 +443,7 @@ export class RacourciComponent implements OnInit, OnDestroy {
   }
 
   getShortcutsByCategory(category: string) {
-    return this.keyboardShortcutsService.shortcutsList()
-      .filter(s => s.category === category);
+    return this.keyboardShortcutsService.shortcutsList().filter(s => s.category === category);
   }
 }
 /*

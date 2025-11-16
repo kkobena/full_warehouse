@@ -3,11 +3,12 @@ import { DossierFactureProjection, ReglementFactureDossier } from '../model/regl
 import { TableHeaderCheckbox, TableModule } from 'primeng/table';
 import {
   LigneSelectionnes,
-  ModeEditionReglement, PaymentId,
+  ModeEditionReglement,
+  PaymentId,
   Reglement,
   ReglementParams,
   ResponseReglement,
-  SelectedFacture
+  SelectedFacture,
 } from '../model/reglement.model';
 import { ButtonModule } from 'primeng/button';
 import { DossierReglementInfoComponent } from '../dossier-reglement-info/dossier-reglement-info.component';
@@ -159,9 +160,9 @@ export class FaireGroupeReglementComponent implements OnInit {
   private onPrintReceipt(response: ResponseReglement): void {
     this.confimDialog().onConfirm(
       () => {
-        if (this.tauriPrinterService.isRunningInTauri()){
+        if (this.tauriPrinterService.isRunningInTauri()) {
           this.printReceiptForTauri(response.id);
-        }else{
+        } else {
           this.reglementService.printReceipt(response.id).subscribe();
         }
         this.reset(response);

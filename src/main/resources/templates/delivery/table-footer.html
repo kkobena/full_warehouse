@@ -1,28 +1,24 @@
 <table class="footer-table" th:if="${isLastPage}">
   <tbody class="tbody-footer">
-  <tr>
-    <td colspan="2">TOTAL TTC</td>
-    <td th:if="${entity.htAmount ge 1000}"
-        th:text="${#numbers.formatInteger(entity.htAmount+entity.taxAmount,3,'WHITESPACE')}"></td>
-    <td th:if="${entity.htAmount lt 1000}" th:text="${commande.htAmount+entity.taxAmount }"></td>
-  </tr>
-  <tr>
-    <td colspan="2">TOTAL TVA</td>
-    <td th:if="${entity.taxAmount ge 1000}"
-        th:text="${#numbers.formatInteger(entity.taxAmount,3,'WHITESPACE') }"></td>
-    <td th:if="${entity.taxAmount lt 1000}" th:text="${entity.taxAmount}"></td>
-  </tr>
-  <tr>
-    <td colspan="2">TOTAL HT</td>
-    <td th:if="${entity.htAmount ge 1000}"
-        th:text="${#numbers.formatInteger(entity.htAmount,3,'WHITESPACE') }"></td>
-    <td th:if="${entity.htAmount lt 1000}" th:text="${entity.htAmount}"></td>
-  </tr>
+    <tr>
+      <td colspan="2">TOTAL TTC</td>
+      <td th:if="${entity.htAmount ge 1000}" th:text="${#numbers.formatInteger(entity.htAmount+entity.taxAmount,3,'WHITESPACE')}"></td>
+      <td th:if="${entity.htAmount lt 1000}" th:text="${commande.htAmount+entity.taxAmount }"></td>
+    </tr>
+    <tr>
+      <td colspan="2">TOTAL TVA</td>
+      <td th:if="${entity.taxAmount ge 1000}" th:text="${#numbers.formatInteger(entity.taxAmount,3,'WHITESPACE') }"></td>
+      <td th:if="${entity.taxAmount lt 1000}" th:text="${entity.taxAmount}"></td>
+    </tr>
+    <tr>
+      <td colspan="2">TOTAL HT</td>
+      <td th:if="${entity.htAmount ge 1000}" th:text="${#numbers.formatInteger(entity.htAmount,3,'WHITESPACE') }"></td>
+      <td th:if="${entity.htAmount lt 1000}" th:text="${entity.htAmount}"></td>
+    </tr>
   </tbody>
 </table>
 <div style="clear: both"></div>
 
 <div style="padding-top: 5px">
-  <p style="text-align: center; font-weight: 900">TOUS LES MONTANTS SONT EXPRIMES EN <span
-    th:text="${devise}"></span></p>
+  <p style="text-align: center; font-weight: 900">TOUS LES MONTANTS SONT EXPRIMES EN <span th:text="${devise}"></span></p>
 </div>

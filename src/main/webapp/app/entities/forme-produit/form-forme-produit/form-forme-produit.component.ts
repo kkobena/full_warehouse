@@ -18,17 +18,16 @@ import { ErrorService } from '../../../shared/error.service';
   selector: 'jhi-form-famille',
   templateUrl: './form-forme-produit.component.html',
   styleUrls: ['../../common-modal.component.scss'],
-  imports: [CommonModule, FormsModule, ReactiveFormsModule, ButtonModule, InputTextModule, RippleModule, ToastAlertComponent, Card]
+  imports: [CommonModule, FormsModule, ReactiveFormsModule, ButtonModule, InputTextModule, RippleModule, ToastAlertComponent, Card],
 })
 export class FormFormeProduitComponent implements OnInit, AfterViewInit {
-
   entity: IFormProduit | null = null;
   header: string = '';
   protected isSaving = false;
   protected fb = inject(UntypedFormBuilder);
   protected editForm = this.fb.group({
     id: [],
-    libelle: [null, [Validators.required]]
+    libelle: [null, [Validators.required]],
   });
 
   private readonly entityService = inject(FormeProduitService);
@@ -52,10 +51,9 @@ export class FormFormeProduitComponent implements OnInit, AfterViewInit {
   protected updateForm(entity: IFormProduit): void {
     this.editForm.patchValue({
       id: entity.id,
-      libelle: entity.libelle
+      libelle: entity.libelle,
     });
   }
-
 
   protected save(): void {
     this.isSaving = true;
@@ -79,7 +77,7 @@ export class FormFormeProduitComponent implements OnInit, AfterViewInit {
   private subscribeToSaveResponse(result: Observable<HttpResponse<IFormProduit>>): void {
     result.subscribe({
       next: (res: HttpResponse<IFormProduit>) => this.onSaveSuccess(res.body),
-      error: (err) => this.onSaveError(err)
+      error: err => this.onSaveError(err),
     });
   }
 
@@ -91,7 +89,7 @@ export class FormFormeProduitComponent implements OnInit, AfterViewInit {
     return {
       ...new FamilleProduit(),
       id: this.editForm.get(['id']).value,
-      libelle: this.editForm.get(['libelle']).value
+      libelle: this.editForm.get(['libelle']).value,
     };
   }
 }

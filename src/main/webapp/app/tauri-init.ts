@@ -26,8 +26,8 @@ export async function initializeTauri(): Promise<void> {
     // @ts-ignore
     window.__TAURI__ = {
       core: {
-        invoke
-      }
+        invoke,
+      },
     };
 
     console.log('✅ Tauri initialized successfully');

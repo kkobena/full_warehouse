@@ -1,5 +1,8 @@
 package com.kobe.warehouse.repository;
 
+import static java.util.Objects.isNull;
+import static java.util.Objects.nonNull;
+
 import com.kobe.warehouse.domain.AppUser;
 import com.kobe.warehouse.domain.AppUser_;
 import com.kobe.warehouse.domain.CashRegister;
@@ -37,6 +40,11 @@ import jakarta.persistence.criteria.Predicate;
 import jakarta.persistence.criteria.Root;
 import jakarta.persistence.criteria.Selection;
 import jakarta.persistence.criteria.SetJoin;
+import java.time.LocalDate;
+import java.time.Month;
+import java.time.Year;
+import java.time.format.DateTimeFormatter;
+import java.util.List;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.data.domain.Page;
@@ -46,22 +54,12 @@ import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.time.LocalDate;
-import java.time.Month;
-import java.time.Year;
-import java.time.format.DateTimeFormatter;
-import java.util.List;
-
-import static java.util.Objects.isNull;
-import static java.util.Objects.nonNull;
-
 @Repository
 @Transactional(readOnly = true)
 public class CustomSalesRepositoryImpl implements CustomSalesRepository {
 
     private static final Logger LOG = LoggerFactory.getLogger(CustomSalesRepositoryImpl.class);
     private final EntityManager entityManager;
-
 
     public CustomSalesRepositoryImpl(EntityManager entityManager) {
         this.entityManager = entityManager;
@@ -129,16 +127,15 @@ public class CustomSalesRepositoryImpl implements CustomSalesRepository {
                     cb.sumAsLong(root.get(Sales_.restToPay))
                 )
             )
-            .groupBy(salesCustomerJoin.get(Customer_.id),salesCustomerJoin.get(Customer_.firstName),
-                salesCustomerJoin.get(Customer_.lastName))
-            .orderBy(
-                cb.desc(salesCustomerJoin.get(Customer_.firstName)),
-                cb.desc(salesCustomerJoin.get(Customer_.lastName))
-            );
+            .groupBy(
+                salesCustomerJoin.get(Customer_.id),
+                salesCustomerJoin.get(Customer_.firstName),
+                salesCustomerJoin.get(Customer_.lastName)
+            )
+            .orderBy(cb.desc(salesCustomerJoin.get(Customer_.firstName)), cb.desc(salesCustomerJoin.get(Customer_.lastName)));
 
-            Predicate predicate = specification.toPredicate(root, query, cb);
-            query.where(predicate);
-
+        Predicate predicate = specification.toPredicate(root, query, cb);
+        query.where(predicate);
 
         TypedQuery<Differe> typedQuery = entityManager.createQuery(query);
         if (pageable.isPaged()) {
@@ -160,8 +157,8 @@ public class CustomSalesRepositoryImpl implements CustomSalesRepository {
         Root<Sales> root = countQuery.from(Sales.class);
         countQuery.select(cb.countDistinct(root.get(Sales_.customer)));
 
-            Predicate predicate = specification.toPredicate(root, countQuery, cb);
-            countQuery.where(predicate);
+        Predicate predicate = specification.toPredicate(root, countQuery, cb);
+        countQuery.where(predicate);
 
         return entityManager.createQuery(countQuery).getSingleResult();
     }
@@ -224,8 +221,8 @@ public class CustomSalesRepositoryImpl implements CustomSalesRepository {
         CriteriaBuilder cb = entityManager.getCriteriaBuilder();
         CriteriaQuery<TicketZCreditProjection> query = cb.createQuery(TicketZCreditProjection.class);
         Root<Sales> root = query.from(Sales.class);
-        Join<Sales,CashRegister> cashRegisterSalesJoin = root.join(Sales_.cashRegister);
-        Join<CashRegister,AppUser> userCashRegisterJoin = cashRegisterSalesJoin.join(CashRegister_.user);
+        Join<Sales, CashRegister> cashRegisterSalesJoin = root.join(Sales_.cashRegister);
+        Join<CashRegister, AppUser> userCashRegisterJoin = cashRegisterSalesJoin.join(CashRegister_.user);
         query
             .select(
                 cb.construct(
@@ -236,9 +233,11 @@ public class CustomSalesRepositoryImpl implements CustomSalesRepository {
                     cb.sumAsLong(root.get(Sales_.restToPay))
                 )
             )
-            .groupBy(userCashRegisterJoin.get(AppUser_.id),
+            .groupBy(
+                userCashRegisterJoin.get(AppUser_.id),
                 userCashRegisterJoin.get(AppUser_.firstName),
-                userCashRegisterJoin.get(AppUser_.lastName));
+                userCashRegisterJoin.get(AppUser_.lastName)
+            );
 
         Predicate predicate = specification.toPredicate(root, query, cb);
         query.where(predicate);
@@ -246,7 +245,6 @@ public class CustomSalesRepositoryImpl implements CustomSalesRepository {
         TypedQuery<TicketZCreditProjection> typedQuery = entityManager.createQuery(query);
         return typedQuery.getResultList();
     }
-
 
     private List<VenteRecord> fetch(Specification<Sales> specification, StatGroupBy statGroupBy) {
         CriteriaBuilder cb = entityManager.getCriteriaBuilder();
@@ -263,7 +261,6 @@ public class CustomSalesRepositoryImpl implements CustomSalesRepository {
         return entityManager.createQuery(cq).getResultList();
     }
 
-
     @Override
     public List<VentePeriodeRecord> fetchVentePeriodeRecords(Specification<Sales> specification, StatGroupBy statGroupBy) {
         try {
@@ -277,7 +274,6 @@ public class CustomSalesRepositoryImpl implements CustomSalesRepository {
             return List.of();
         }
     }
-
 
     private Selection<VenteRecord> buildVenteRecord(
         Root<Sales> root,
@@ -294,7 +290,6 @@ public class CustomSalesRepositoryImpl implements CustomSalesRepository {
             cb.sum(root.get(Sales_.amountToBePaid)),
             cb.sum(root.get(Sales_.discountAmount)),
             cb.sum(cb.prod(salesLineSetJoin.get(SalesLine_.quantityRequested), salesLineSetJoin.get(SalesLine_.costAmount))),
-
             cb.sum(root.get(Sales_.amountToBeTakenIntoAccount)),
             cb.diff(cb.sum(root.get(Sales_.salesAmount)), cb.sum(root.get(Sales_.discountAmount))),
             cb.ceiling(
@@ -304,7 +299,7 @@ public class CustomSalesRepositoryImpl implements CustomSalesRepository {
                         cb.sum(1, cb.quot(salesLineSetJoin.get(SalesLine_.taxValue), 100.0d))
                     )
                 )
-            ),//postgres
+            ), //postgres
             cb.sum(thirdPartySalesPath.get(ThirdPartySales_.partAssure)),
             cb.sum(thirdPartySalesPath.get(ThirdPartySales_.partTiersPayant)),
             cb.sum(root.get(Sales_.restToPay)),
@@ -319,7 +314,6 @@ public class CustomSalesRepositoryImpl implements CustomSalesRepository {
             nonNull(groupingExpression) ? groupingExpression.cast(String.class) : cb.literal("")
         );
     }
-
 
     private String buildMvtDate(VenteRecord venteRecord, StatGroupBy statGroupBy) {
         if (isNull(statGroupBy)) {
@@ -336,10 +330,8 @@ public class CustomSalesRepositoryImpl implements CustomSalesRepository {
 
     private Expression<?> getGroupingExpression(Root<Sales> root, StatGroupBy statGroupBy) {
         return switch (statGroupBy) {
-            case DAY ->
-                entityManager.getCriteriaBuilder().function("date", LocalDate.class, root.get(Sales_.updatedAt));
-            case MONTH ->
-                entityManager.getCriteriaBuilder().function("month", Integer.class, root.get(Sales_.updatedAt));
+            case DAY -> entityManager.getCriteriaBuilder().function("date", LocalDate.class, root.get(Sales_.updatedAt));
+            case MONTH -> entityManager.getCriteriaBuilder().function("month", Integer.class, root.get(Sales_.updatedAt));
             case YEAR -> entityManager.getCriteriaBuilder().function("year", Integer.class, root.get(Sales_.updatedAt));
             case HOUR -> entityManager.getCriteriaBuilder().function("hour", Integer.class, root.get(Sales_.updatedAt));
             case null -> null;

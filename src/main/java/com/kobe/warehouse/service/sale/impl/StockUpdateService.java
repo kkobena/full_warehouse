@@ -1,5 +1,7 @@
 package com.kobe.warehouse.service.sale.impl;
 
+import static java.util.Objects.isNull;
+
 import com.kobe.warehouse.domain.FournisseurProduit;
 import com.kobe.warehouse.domain.Produit;
 import com.kobe.warehouse.domain.SalesLine;
@@ -8,12 +10,9 @@ import com.kobe.warehouse.domain.Storage;
 import com.kobe.warehouse.domain.enumeration.TransactionType;
 import com.kobe.warehouse.repository.StockProduitRepository;
 import com.kobe.warehouse.service.LogsService;
+import java.time.LocalDateTime;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
-import java.time.LocalDateTime;
-
-import static java.util.Objects.isNull;
 
 /**
  * Service responsible for stock update operations.
@@ -48,11 +47,7 @@ public class StockUpdateService {
 
         // Log force stock if needed
         if (quantityBefore < salesLine.getQuantityRequested()) {
-            logsService.create(
-                TransactionType.FORCE_STOCK,
-                TransactionType.FORCE_STOCK.getValue(),
-                salesLine.getId().getId().toString()
-            );
+            logsService.create(TransactionType.FORCE_STOCK, TransactionType.FORCE_STOCK.getValue(), salesLine.getId().getId().toString());
         }
 
         // Log price modification if applicable
@@ -82,27 +77,21 @@ public class StockUpdateService {
                 fournisseurProduitPrincipal.getPrixUni(),
                 salesLine.getRegularUnitPrice()
             );
-            logsService.create(
-                TransactionType.MODIFICATION_PRIX_PRODUCT_A_LA_VENTE,
-                description,
-                salesLine.getId().getId().toString()
-            );
+            logsService.create(TransactionType.MODIFICATION_PRIX_PRODUCT_A_LA_VENTE, description, salesLine.getId().getId().toString());
         }
     }
-
 
     public StockUpdateResult updateStockDepot(SalesLine salesLine, Storage storage) {
         Produit produit = salesLine.getProduit();
         StockProduit stockProduit = stockProduitRepository.findOneByProduitIdAndStockageId(produit.getId(), storage.getId());
-        int quantityBefore=0;
+        int quantityBefore = 0;
         if (isNull(stockProduit)) {
             stockProduit = createStockProduitIfAbsent(produit, storage);
-        }else {
-             quantityBefore = stockProduit.getTotalStockQuantity();
+        } else {
+            quantityBefore = stockProduit.getTotalStockQuantity();
         }
 
         int quantityAfter = quantityBefore + salesLine.getQuantityRequested();
-
 
         // Update stock quantities
         stockProduit.setQtyStock(quantityAfter);
@@ -123,7 +112,6 @@ public class StockUpdateService {
         newStockProduit.setUpdatedAt(LocalDateTime.now());
         return newStockProduit;
     }
-
 
     /**
      * Result of a stock update operation containing quantity information.

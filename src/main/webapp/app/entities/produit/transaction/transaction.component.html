@@ -9,8 +9,7 @@
         </div>
 
         <div class="pharma-nav-sidebar-content">
-          <div #nav="ngbNav" [(activeId)]="active" class="nav flex-column nav-pills" ngbNav
-               orientation="vertical">
+          <div #nav="ngbNav" [(activeId)]="active" class="nav flex-column nav-pills" ngbNav orientation="vertical">
             <ng-container ngbNavItem="auditing">
               <a class="pharma-nav-vertical-link" ngbNavLink>
                 <i class="pi pi-arrows-alt"></i>
@@ -61,7 +60,7 @@
         <p-toolbar>
           <ng-template #start>
             <div class="pharma-toolbar-filters">
-              <div  style="min-width: 300px; flex: 1 1 auto;">
+              <div style="min-width: 300px; flex: 1 1 auto">
                 <jhi-produit-autocomplete
                   (selectedProduit)="onSelect($event)"
                   [(ngModel)]="produit"
@@ -72,24 +71,24 @@
                 />
               </div>
 
-
-                <jhi-date-picker [style]="{ 'max-width': '150px' }"
-                  #dateDebut
-                  [disabled]="false"
-                  [id]="'du'"
-                  [label]="'warehouseApp.labels.du'"
-                  [max]="toDate"
-                />
-                <jhi-date-picker [style]="{ 'max-width': '150px' }"
-                  #dateFin
-                  (onSelect)="updateParam()"
-                  [defaultDate]="defaultDate"
-                  [disabled]="false"
-                  [id]="'au'"
-                  [label]="'warehouseApp.labels.au'"
-                  [min]="fromDate"
-                />
-
+              <jhi-date-picker
+                [style]="{ 'max-width': '150px' }"
+                #dateDebut
+                [disabled]="false"
+                [id]="'du'"
+                [label]="'warehouseApp.labels.du'"
+                [max]="toDate"
+              />
+              <jhi-date-picker
+                [style]="{ 'max-width': '150px' }"
+                #dateFin
+                (onSelect)="updateParam()"
+                [defaultDate]="defaultDate"
+                [disabled]="false"
+                [id]="'au'"
+                [label]="'warehouseApp.labels.au'"
+                [min]="fromDate"
+              />
             </div>
           </ng-template>
 

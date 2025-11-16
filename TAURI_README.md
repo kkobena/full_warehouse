@@ -13,6 +13,7 @@ Tauri is a modern framework for building smaller, faster, and more secure deskto
 Tauri requires Rust to be installed on your system.
 
 **Windows:**
+
 ```bash
 # Install Rust using rustup
 # Download from: https://rustup.rs/
@@ -21,6 +22,7 @@ winget install Rustlang.Rustup
 ```
 
 **Verify Rust installation:**
+
 ```bash
 rustc --version
 cargo --version
@@ -29,15 +31,18 @@ cargo --version
 ### 2. System Dependencies
 
 **Windows:**
+
 - Microsoft Visual C++ Build Tools
 - WebView2 Runtime (usually pre-installed on Windows 10/11)
 
 **macOS:**
+
 ```bash
 xcode-select --install
 ```
 
 **Linux (Debian/Ubuntu):**
+
 ```bash
 sudo apt update
 sudo apt install libwebkit2gtk-4.1-dev \
@@ -77,6 +82,7 @@ npm run tauri:dev
 ```
 
 This command will:
+
 1. Start the Angular dev server on `http://localhost:4200`
 2. Launch Tauri with the dev server URL
 3. Enable Rust DevTools (in debug mode)
@@ -112,6 +118,7 @@ npm run tauri -- icon [path]   # Generate icons from image
 Key configuration sections:
 
 #### Build Settings
+
 ```json
 {
   "build": {
@@ -124,21 +131,25 @@ Key configuration sections:
 ```
 
 #### Window Settings
+
 ```json
 {
   "app": {
-    "windows": [{
-      "title": "PharmaSmart",
-      "width": 1280,
-      "height": 800,
-      "minWidth": 1024,
-      "minHeight": 768
-    }]
+    "windows": [
+      {
+        "title": "PharmaSmart",
+        "width": 1280,
+        "height": 800,
+        "minWidth": 1024,
+        "minHeight": 768
+      }
+    ]
   }
 }
 ```
 
 #### Bundle Settings
+
 ```json
 {
   "bundle": {
@@ -155,6 +166,7 @@ Key configuration sections:
 ### Cargo Configuration (`src-tauri/Cargo.toml`)
 
 Dependencies include:
+
 - `tauri` - Core framework
 - `tauri-plugin-shell` - Execute shell commands
 - `tauri-plugin-http` - HTTP requests
@@ -173,6 +185,7 @@ npm run tauri icon src/main/webapp/favicon.ico
 ```
 
 This creates all required sizes:
+
 - 32x32.png
 - 128x128.png
 - 128x128@2x.png
@@ -186,7 +199,9 @@ Icons are stored in `src-tauri/icons/`
 Tauri has a strict security model by default:
 
 ### Content Security Policy (CSP)
+
 Configured in `tauri.conf.json`:
+
 ```json
 {
   "app": {
@@ -198,7 +213,9 @@ Configured in `tauri.conf.json`:
 ```
 
 ### Allowlist
+
 Only explicitly allowed APIs are available to the frontend. Currently enabled:
+
 - Shell commands
 - HTTP requests
 - File system access
@@ -211,6 +228,7 @@ Only explicitly allowed APIs are available to the frontend. Currently enabled:
 The Tauri app expects the Spring Boot backend to run on `http://localhost:8080`.
 
 **Development workflow:**
+
 ```bash
 # Terminal 1: Start Spring Boot backend
 ./mvnw
@@ -247,15 +265,15 @@ fn main() {
 
 ## Tauri vs Electron Comparison
 
-| Feature | Tauri | Electron |
-|---------|-------|----------|
-| **Binary Size** | ~3-5 MB | ~100-150 MB |
-| **Memory Usage** | ~50-100 MB | ~150-300 MB |
-| **Runtime** | Native WebView | Bundled Chromium + Node.js |
-| **Startup Time** | Faster | Slower |
-| **Security** | Rust + strict CSP | Node.js vulnerabilities possible |
-| **Backend Language** | Rust | JavaScript/Node.js |
-| **Platform Support** | Windows, macOS, Linux | Windows, macOS, Linux |
+| Feature              | Tauri                 | Electron                         |
+| -------------------- | --------------------- | -------------------------------- |
+| **Binary Size**      | ~3-5 MB               | ~100-150 MB                      |
+| **Memory Usage**     | ~50-100 MB            | ~150-300 MB                      |
+| **Runtime**          | Native WebView        | Bundled Chromium + Node.js       |
+| **Startup Time**     | Faster                | Slower                           |
+| **Security**         | Rust + strict CSP     | Node.js vulnerabilities possible |
+| **Backend Language** | Rust                  | JavaScript/Node.js               |
+| **Platform Support** | Windows, macOS, Linux | Windows, macOS, Linux            |
 
 ## Build Outputs
 
@@ -272,6 +290,7 @@ src-tauri/target/release/bundle/
 ## Troubleshooting
 
 ### "Rust not found"
+
 ```bash
 # Ensure Rust is installed
 rustup --version
@@ -281,21 +300,26 @@ rustup update
 ```
 
 ### "WebView2 not found" (Windows)
+
 Download and install WebView2 Runtime:
 https://developer.microsoft.com/en-us/microsoft-edge/webview2/
 
 ### Build fails with OpenSSL errors
+
 **Windows:**
+
 ```bash
 # Install OpenSSL via vcpkg or use precompiled binaries
 ```
 
 **Linux:**
+
 ```bash
 sudo apt install libssl-dev
 ```
 
 ### Port 4200 already in use
+
 ```bash
 # Kill the process using port 4200
 # Windows:
@@ -318,18 +342,21 @@ lsof -ti:4200 | xargs kill -9
 Both Electron and Tauri can coexist in the project:
 
 **Use Electron:**
+
 ```bash
 npm run electron:dev
 npm run electron:build
 ```
 
 **Use Tauri:**
+
 ```bash
 npm run tauri:dev
 npm run tauri:build
 ```
 
 Choose based on your requirements:
+
 - **Tauri**: Smaller size, better performance, better security
 - **Electron**: More mature ecosystem, easier Node.js integration
 
@@ -344,14 +371,17 @@ Choose based on your requirements:
 ## Support
 
 For issues specific to:
+
 - **Tauri**: https://github.com/tauri-apps/tauri/issues
 - **PharmaSmart**: Contact your development team
   To install Rust on Windows:
 
   1. Download and run rustup-init.exe:
+
   - Visit: https://rustup.rs/
   - Or download directly: https://win.rustup.rs/x86_64
   - Run the installer and follow the prompts
+
   2. After installation, restart your terminal (MINGW64/Git Bash) to refresh the
      PATH
   3. Verify the installation:
@@ -371,8 +401,8 @@ For issues specific to:
   Quick installation steps:
 
   1. Open PowerShell as Administrator and run:
+
   # Install Rust
+
   Invoke-WebRequest -Uri https://win.rustup.rs/x86_64 -OutFile rustup-init.exe
-  .\rustup-init.exe
-  2. Restart your MINGW64 terminal
-  3. Then try building again:
+  .\rustup-init.exe 2. Restart your MINGW64 terminal 3. Then try building again:

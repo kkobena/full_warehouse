@@ -1,8 +1,12 @@
 <div class="row">
   @if (showModeReglementCard()) {
     <div
-      [ngClass]="currentSaleService.currentSale()?.amountToBePaid > 0 ? ' col-md-7 col-xl-7 col-lg-7 col-sm-12 mt-2' : ' col-md-10 col-xl-10 col-lg-10 col-sm-12 mt-2'">
-
+      [ngClass]="
+        currentSaleService.currentSale()?.amountToBePaid > 0
+          ? ' col-md-7 col-xl-7 col-lg-7 col-sm-12 mt-2'
+          : ' col-md-10 col-xl-10 col-lg-10 col-sm-12 mt-2'
+      "
+    >
       <div class="payment-modes-card">
         <div class="payment-modes-header">
           <div class="header-content">
@@ -15,32 +19,31 @@
           @if (currentSaleService.currentSale()?.type === 'VO' && baseSaleService.hasSansBon()) {
             <div class="toggle-option">
               <label for="sansBon">Vente sans bon</label>
-              <p-toggleswitch inputId="sansBon" [(ngModel)]="isVenteSansBon"
-                              (onChange)="onSansBonChange($event)"></p-toggleswitch>
+              <p-toggleswitch inputId="sansBon" [(ngModel)]="isVenteSansBon" (onChange)="onSansBonChange($event)"></p-toggleswitch>
             </div>
           }
 
           @if (currentSaleService.currentSale()?.amountToBePaid > 0) {
             <div class="row ws-mode-reglement" style="margin-top: 0.25rem">
               @for (modePay of selectModeReglementService.modeReglements(); track modePay.code) {
-                <div
-                  [ngClass]="isSmallScreen ? 'col-md-12 col-sm-12' : 'col-md-6 col-lg-6 col-xl-6'">
+                <div [ngClass]="isSmallScreen ? 'col-md-12 col-sm-12' : 'col-md-6 col-lg-6 col-xl-6'">
                   <p-inputgroup>
                     <p-inputgroup-addon [style]="{ padding: '0' }">
                       <span class="{{ modePay.styleBtnClass }}"></span>
                     </p-inputgroup-addon>
-                    <input #paymentModeInput
-                           autocomplete="off"
-                           autofocus
-                           (input)="manageCashPaymentMode($event, modePay)"
-                           (keydown.enter)="save()"
-                           size="large"
-                           [(ngModel)]="modePay.amount"
-                           [id]="modePay.code"
-                           [pKeyFilter]="'int'"
-                           [readOnly]="modePay.isReadonly"
-                           class="payment-mode-input"
-                           pInputText
+                    <input
+                      #paymentModeInput
+                      autocomplete="off"
+                      autofocus
+                      (input)="manageCashPaymentMode($event, modePay)"
+                      (keydown.enter)="save()"
+                      size="large"
+                      [(ngModel)]="modePay.amount"
+                      [id]="modePay.code"
+                      [pKeyFilter]="'int'"
+                      [readOnly]="modePay.isReadonly"
+                      class="payment-mode-input"
+                      pInputText
                     />
                     @if (isShowAddBtn()) {
                       <p-inputgroup-addon [style]="{ padding: '0' }">
@@ -70,7 +73,6 @@
           }
         </div>
       </div>
-
     </div>
 
     @if (manageShowInfosBancaire() || isDiffere()) {
@@ -87,13 +89,15 @@
             @if (isDiffere()) {
               <div class="info-field">
                 <label>Commentaire</label>
-                <input #commentaireInput
-                       [(ngModel)]="commentaire"
-                       pInputText
-                       type="text"
-                       [autofocus]="true"
-                       (keydown.enter)="save()"
-                       placeholder="Saisir un commentaire" />
+                <input
+                  #commentaireInput
+                  [(ngModel)]="commentaire"
+                  pInputText
+                  type="text"
+                  [autofocus]="true"
+                  (keydown.enter)="save()"
+                  placeholder="Saisir un commentaire"
+                />
               </div>
             }
 
@@ -101,29 +105,17 @@
               <div class="bank-info-fields">
                 <div class="info-field mb-1">
                   <label>Référence</label>
-                  <input #referenceInput
-                         [(ngModel)]="referenceBancaire"
-                         pInputText
-                         type="text"
-                         placeholder="Référence bancaire" />
+                  <input #referenceInput [(ngModel)]="referenceBancaire" pInputText type="text" placeholder="Référence bancaire" />
                 </div>
 
                 <div class="info-field mb-1">
                   <label>Banque</label>
-                  <input #banqueInput
-                         [(ngModel)]="banque"
-                         pInputText
-                         type="text"
-                         placeholder="Nom de la banque" />
+                  <input #banqueInput [(ngModel)]="banque" pInputText type="text" placeholder="Nom de la banque" />
                 </div>
 
                 <div class="info-field">
                   <label>Lieu</label>
-                  <input #lieuxInput
-                         [(ngModel)]="lieux"
-                         pInputText
-                         type="text"
-                         placeholder="Lieu" />
+                  <input #lieuxInput [(ngModel)]="lieux" pInputText type="text" placeholder="Lieu" />
                 </div>
               </div>
             }

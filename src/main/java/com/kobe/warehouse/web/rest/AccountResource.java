@@ -1,7 +1,7 @@
 package com.kobe.warehouse.web.rest;
 
-import com.kobe.warehouse.domain.PersistentToken;
 import com.kobe.warehouse.domain.AppUser;
+import com.kobe.warehouse.domain.PersistentToken;
 import com.kobe.warehouse.repository.PersistentTokenRepository;
 import com.kobe.warehouse.repository.UserRepository;
 import com.kobe.warehouse.security.SecurityUtils;
@@ -51,9 +51,8 @@ public class AccountResource extends AccountResourcesProxy {
         // MailService mailService,
         PersistentTokenRepository persistentTokenRepository,
         CustomerDisplayService customerDisplayService
-
     ) {
-        super(userRepository, userService,customerDisplayService);
+        super(userRepository, userService, customerDisplayService);
         this.userRepository = userRepository;
         this.userService = userService;
         // this.mailService = mailService;

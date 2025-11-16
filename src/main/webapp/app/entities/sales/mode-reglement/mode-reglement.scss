@@ -127,7 +127,7 @@
   transform: translateY(-1px);
 }
 
-.ws-mode-reglement .p-button[severity="danger"] {
+.ws-mode-reglement .p-button[severity='danger'] {
   background: #d9534f;
   border-color: #d9534f;
   transition: all 0.2s ease;
@@ -135,7 +135,7 @@
   height: 100%;
 }
 
-.ws-mode-reglement .p-button[severity="danger"]:hover {
+.ws-mode-reglement .p-button[severity='danger']:hover {
   background: #c9302c;
   border-color: #c9302c;
   box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
@@ -186,7 +186,6 @@
   background: #ffffff;
 }
 
-
 .info-field:last-child {
   margin-bottom: 0;
 }
@@ -206,7 +205,6 @@
   font-size: 1rem;
   transition: all 0.2s ease;
 }
-
 
 .info-field input::placeholder {
   color: #95a5a6;

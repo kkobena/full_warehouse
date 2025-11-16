@@ -25,6 +25,7 @@ public class ProductsToDestroy implements Serializable {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
+
     @NotNull
     private String numLot;
 
@@ -41,6 +42,7 @@ public class ProductsToDestroy implements Serializable {
     @Column(name = "quantity", nullable = false)
     @Min(1)
     private int quantity;
+
     @Column(name = "stock_initial", nullable = false)
     @Min(1)
     private int stockInitial;
@@ -49,6 +51,7 @@ public class ProductsToDestroy implements Serializable {
     private LocalDate datePeremption;
 
     private LocalDate dateDestuction;
+
     @NotNull
     @ManyToOne(optional = false)
     private AppUser user;

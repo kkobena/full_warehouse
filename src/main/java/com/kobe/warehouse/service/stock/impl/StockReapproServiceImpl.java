@@ -55,8 +55,8 @@ public class StockReapproServiceImpl {
         this.objectMapper = objectMapper;
     }
 
-       @Scheduled(cron = "0 0 9-11 * * *")
-  //  @Scheduled(cron = "0 0/30 * * * *")
+    @Scheduled(cron = "0 0 9-11 * * *")
+    //  @Scheduled(cron = "0 0/30 * * * *")
     public void computeStockReapprovisionnement() {
         Optional<AppConfiguration> appConfiguration = getLastReapproDate();
         appConfiguration.ifPresent(configuration -> {

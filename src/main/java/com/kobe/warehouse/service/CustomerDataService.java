@@ -76,7 +76,7 @@ public class CustomerDataService {
         if (!StringUtils.hasLength(categorie) || categorie.equalsIgnoreCase(EntityConstant.TOUT)) {
             return loadAll(search, status, pageable);
         }
-        if (categorie.equalsIgnoreCase(EntityConstant.ASSURE) || EntityConstant.CARNET.equalsIgnoreCase(categorie)  ) {
+        if (categorie.equalsIgnoreCase(EntityConstant.ASSURE) || EntityConstant.CARNET.equalsIgnoreCase(categorie)) {
             return loadAllAsuredCustomers(search, status, pageable);
         }
         return loadAllUninsuredCustomers(search, status, pageable);
@@ -88,7 +88,7 @@ public class CustomerDataService {
             pageable.getPageSize(),
             Sort.by(Sort.Direction.ASC, "firstName", "lastName")
         );
-        Specification<UninsuredCustomer> specification =uninsuredCustomerRepository.specialisation(status);
+        Specification<UninsuredCustomer> specification = uninsuredCustomerRepository.specialisation(status);
         if (StringUtils.hasLength(search)) {
             specification = uninsuredCustomerRepository.specialisationQueryString(search.toUpperCase() + "%");
         }
@@ -132,7 +132,8 @@ public class CustomerDataService {
             .orderBy(
                 cb.asc(assuredCustomerRoot.get(AssuredCustomer_.firstName)),
                 cb.asc(assuredCustomerRoot.get(AssuredCustomer_.lastName))
-            ).groupBy(root);
+            )
+            .groupBy(root);
         cq.where(cb.and(predicates.toArray(new Predicate[0])));
         TypedQuery<Customer> q = entityManager.createQuery(cq);
         if (pageable != null) {
@@ -270,7 +271,8 @@ public class CustomerDataService {
             .orderBy(
                 cb.asc(assuredCustomerRoot.get(AssuredCustomer_.firstName)),
                 cb.asc(assuredCustomerRoot.get(AssuredCustomer_.lastName))
-            ).groupBy(root);
+            )
+            .groupBy(root);
         cq.where(cb.and(predicates.toArray(new Predicate[0])));
         TypedQuery<Customer> q = entityManager.createQuery(cq);
         if (pageable != null) {

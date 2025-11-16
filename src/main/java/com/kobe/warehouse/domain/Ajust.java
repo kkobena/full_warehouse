@@ -30,7 +30,7 @@ public class Ajust implements Serializable {
 
     @NotNull
     @Enumerated(EnumType.STRING)
-    @Column(name = "statut", nullable = false,length = 8)
+    @Column(name = "statut", nullable = false, length = 8)
     private AjustementStatut statut = AjustementStatut.PENDING;
 
     @ManyToOne(optional = false)

@@ -7,7 +7,6 @@ import java.io.InputStream;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
-
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
@@ -31,7 +30,7 @@ public interface RayonService {
      * @param pageable the pagination information.
      * @return the list of entities.
      */
-    Page<RayonDTO> findAll(Integer magasinId,Integer storageId, String query, Pageable pageable);
+    Page<RayonDTO> findAll(Integer magasinId, Integer storageId, String query, Pageable pageable);
 
     /**
      * Get the "id" rayon.

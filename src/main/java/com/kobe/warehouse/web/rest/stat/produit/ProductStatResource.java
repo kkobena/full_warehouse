@@ -20,6 +20,9 @@ import com.kobe.warehouse.web.rest.Utils;
 import com.kobe.warehouse.web.util.PaginationUtil;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
+import java.net.MalformedURLException;
+import java.time.LocalDate;
+import java.util.List;
 import org.springframework.core.io.Resource;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -32,10 +35,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
-
-import java.net.MalformedURLException;
-import java.time.LocalDate;
-import java.util.List;
 
 @RestController
 @RequestMapping("/api/produits/stat")
@@ -60,9 +59,7 @@ public class ProductStatResource {
     }
 
     @GetMapping("/transactions")
-    public ResponseEntity<List<ProduitAuditingState>> fetchTransactions(
-        @Valid ProduitAuditingParam produitAuditingParam
-    ) {
+    public ResponseEntity<List<ProduitAuditingState>> fetchTransactions(@Valid ProduitAuditingParam produitAuditingParam) {
         return ResponseEntity.ok().body(productStatService.fetchProduitDailyTransaction(produitAuditingParam));
     }
 
@@ -96,7 +93,12 @@ public class ProductStatResource {
         return ResponseEntity.ok().headers(headers).body(page.getContent());
     }
 
-    private ProduitHistoriqueParam getProduitHistoriqueParam(Integer produitId, LocalDate fromDate, LocalDate toDate, TemporalEnum groupBy) {
+    private ProduitHistoriqueParam getProduitHistoriqueParam(
+        Integer produitId,
+        LocalDate fromDate,
+        LocalDate toDate,
+        TemporalEnum groupBy
+    ) {
         return new ProduitHistoriqueParam(produitId, fromDate, toDate, groupBy);
     }
 
@@ -166,7 +168,6 @@ public class ProductStatResource {
         @RequestParam(name = "fromDate") LocalDate fromDate,
         @RequestParam(name = "toDate") LocalDate toDate,
         @RequestParam(name = "groupBy", required = false, defaultValue = "DAILY") TemporalEnum groupBy
-
     ) {
         return ResponseEntity.ok()
             .body(productStatService.getHistoriqueVenteSummary(getProduitHistoriqueParam(produitId, fromDate, toDate, groupBy)));
@@ -206,7 +207,6 @@ public class ProductStatResource {
         @RequestParam(name = "fromDate") LocalDate fromDate,
         @RequestParam(name = "toDate") LocalDate toDate,
         @RequestParam(name = "groupBy", defaultValue = "MONTHLY") TemporalEnum groupBy,
-
         HttpServletRequest request
     ) {
         return Utils.printPDF(

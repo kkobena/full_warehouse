@@ -21,9 +21,7 @@ export class RetourDepotService {
     const options = createRequestOptions(req);
     return this.http.get<IRetourDepot[]>(this.resourceUrl, {
       params: options,
-      observe: 'response'
+      observe: 'response',
     });
   }
-
-
 }

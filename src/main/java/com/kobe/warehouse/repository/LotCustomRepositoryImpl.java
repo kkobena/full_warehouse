@@ -31,23 +31,13 @@ public class LotCustomRepositoryImpl implements LotCustomRepository {
         CriteriaBuilder cb = entityManager.getCriteriaBuilder();
         CriteriaQuery<LotPerimeValeurSum> query = cb.createQuery(LotPerimeValeurSum.class);
         Root<Lot> root = query.from(Lot.class);
-        Join<Lot,OrderLine> fournisseurProduitJoin = root.join(Lot_.orderLine);
-        Join<OrderLine,FournisseurProduit> orderLineJoin = fournisseurProduitJoin.join(OrderLine_.fournisseurProduit);
+        Join<Lot, OrderLine> fournisseurProduitJoin = root.join(Lot_.orderLine);
+        Join<OrderLine, FournisseurProduit> orderLineJoin = fournisseurProduitJoin.join(OrderLine_.fournisseurProduit);
         query.select(
             cb.construct(
                 LotPerimeValeurSum.class,
-                cb.sumAsLong(
-                    cb.prod(
-                        root.get(Lot_.quantity),
-                        orderLineJoin.get(FournisseurProduit_.prixAchat)
-                    )
-                ),
-                cb.sumAsLong(
-                    cb.prod(
-                        root.get(Lot_.quantity),
-                        orderLineJoin.get(FournisseurProduit_.prixUni)
-                    )
-                ),
+                cb.sumAsLong(cb.prod(root.get(Lot_.quantity), orderLineJoin.get(FournisseurProduit_.prixAchat))),
+                cb.sumAsLong(cb.prod(root.get(Lot_.quantity), orderLineJoin.get(FournisseurProduit_.prixUni))),
                 cb.sum(root.get(Lot_.quantity)),
                 cb.count(root)
             )

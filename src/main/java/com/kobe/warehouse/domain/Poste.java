@@ -9,18 +9,14 @@ import jakarta.persistence.Table;
 import jakarta.persistence.UniqueConstraint;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Pattern;
+import java.io.Serializable;
+import java.util.Objects;
 import org.hibernate.annotations.Cache;
 import org.hibernate.annotations.CacheConcurrencyStrategy;
 import org.hibernate.annotations.ColumnDefault;
 
-import java.io.Serializable;
-import java.util.Objects;
-
 @Entity
-@Table(
-    name = "poste",
-    uniqueConstraints = {@UniqueConstraint(columnNames = {"name"})}
-)
+@Table(name = "poste", uniqueConstraints = { @UniqueConstraint(columnNames = { "name" }) })
 @Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
 public class Poste implements Serializable {
 
@@ -33,6 +29,7 @@ public class Poste implements Serializable {
     @NotNull
     @Column(name = "name", nullable = false, length = 100)
     private String name;
+
     @Column(name = "poste_number", length = 20)
     private String posteNumber;
 
@@ -43,9 +40,11 @@ public class Poste implements Serializable {
         message = "L'adresse doit être une adresse IP valide"
     )
     private String address;
+
     @ColumnDefault("false")
     @Column(name = "customer_display")
     private boolean customerDisplay;
+
     @Column(name = "customer_display_port", length = 10)
     private String customerDisplayPort;
 
@@ -84,7 +83,6 @@ public class Poste implements Serializable {
         this.id = id;
         return this;
     }
-
 
     public String getName() {
         return name;

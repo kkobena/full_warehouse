@@ -38,12 +38,7 @@
             <h2 class="form-title">Bienvenue</h2>
             <p class="form-subtitle">Connectez-vous à votre espace</p>
           </div>
-          <button
-            type="button"
-            class="settings-button"
-            (click)="openSettings()"
-            title="Configuration du serveur"
-          >
+          <button type="button" class="settings-button" (click)="openSettings()" title="Configuration du serveur">
             <i class="pi pi-cog"></i>
           </button>
         </div>
@@ -103,14 +98,10 @@
             <p-toggleswitch formControlName="rememberMe" id="rememberMe" name="rememberMe" />
             <label for="rememberMe">Se souvenir de moi</label>
           </div>
-        <!--  <a href="#" class="forgot-link">Mot de passe oublié ?</a>-->
+          <!--  <a href="#" class="forgot-link">Mot de passe oublié ?</a>-->
         </div>
 
-        <button
-          data-cy="submit"
-          type="submit"
-          class="login-button"
-        ><i class="pi pi-sign-in mr-2"></i>Se connecter</button>
+        <button data-cy="submit" type="submit" class="login-button"><i class="pi pi-sign-in mr-2"></i>Se connecter</button>
       </form>
 
       <div class="form-footer">

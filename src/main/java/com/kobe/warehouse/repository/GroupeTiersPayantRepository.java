@@ -9,7 +9,8 @@ import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.stereotype.Repository;
 
 @Repository
-public interface GroupeTiersPayantRepository extends JpaRepository<GroupeTiersPayant, Integer>, JpaSpecificationExecutor<GroupeTiersPayant> {
+public interface GroupeTiersPayantRepository
+    extends JpaRepository<GroupeTiersPayant, Integer>, JpaSpecificationExecutor<GroupeTiersPayant> {
     Optional<GroupeTiersPayant> findOneByName(String String);
 
     default Specification<GroupeTiersPayant> specialisationQueryString(String queryValue) {

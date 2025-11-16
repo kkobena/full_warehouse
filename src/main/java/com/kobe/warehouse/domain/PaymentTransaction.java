@@ -94,11 +94,12 @@ public class PaymentTransaction implements Persistable<PaymentId>, Serializable 
 
     @NotNull
     @Enumerated(EnumType.STRING)
-    @Column(name = "type_transaction", nullable = false,length = 50)
+    @Column(name = "type_transaction", nullable = false, length = 50)
     private TypeFinancialTransaction typeFinancialTransaction;
 
     private String commentaire;
-    @Column(name = "transaction_number",length = 13)
+
+    @Column(name = "transaction_number", length = 13)
     private String transactionNumber;
 
     @Column(name = "dtype", insertable = false, updatable = false)

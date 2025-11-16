@@ -31,9 +31,7 @@ body,
 
 body {
   // background-color: rgba(179, 241, 237, 0.25);
-
 }
-
 
 a:hover {
   /* make sure browsers use the pointer cursor for anchors, even with no href */
@@ -224,7 +222,6 @@ ui bootstrap tweaks
   padding-left: 0;
 }
 
-
 .ribbon {
   left: -3.5em;
   -moz-transform: rotate(-45deg);
@@ -288,7 +285,6 @@ body .ui-dropdown {
   padding-left: 1.5em;
   margin-bottom: 0.125rem;
 }
-
 
 .form-check-input:checked {
   background-color: #446e9b;
@@ -590,7 +586,6 @@ label {
 .commande-entry .card-body {
   padding: 0 !important;
 }
-
 
 .text-right {
   text-align: right !important;
@@ -895,7 +890,6 @@ li .icon-holder .icon i {
   padding: 0;
 }
 
-
 .p-datatable .p-datatable-thead > tr > th {
   padding: 0.2rem 0.2rem;
   font-size: 0.8rem;
@@ -941,7 +935,6 @@ li .icon-holder .icon i {
     }
   }
 }
-
 
 .mr-1 {
   margin-right: 0.2rem !important;
@@ -1091,7 +1084,6 @@ li .icon-holder .icon i {
     }
   }
 }
-
 
 .customer-overlay-panel {
   padding: 0;
@@ -1703,7 +1695,10 @@ jhi-recapitualtif-caisse {
   .ticketz-container {
     padding: 15px 8px !important;
 
-    .col-md-4, .col-lg-4, .col-sm-12, .col-xl-3 {
+    .col-md-4,
+    .col-lg-4,
+    .col-sm-12,
+    .col-xl-3 {
       padding: 0 !important;
 
       .p-card-body {
@@ -1728,26 +1723,20 @@ jhi-recapitualtif-caisse {
   align-items: normal !important;
 }
 
-
 .p-autocomplete-list-container .p-focus {
   font-weight: 600 !important;
   background-color: var(--bs-info-bg-subtle) !important;
 }
 
 .modal-dialog-80 {
-
   max-width: 80%;
   width: 80%;
-
 }
 
 .modal-dialog-70 {
-
   max-width: 70%;
   width: 70%;
-
 }
-
 
 .p-panel {
   // background-color: transparent;
@@ -1760,7 +1749,6 @@ jhi-recapitualtif-caisse {
 
   .card-body {
     background-color: transparent;
-
   }
 
   .main-card-body {
@@ -1850,17 +1838,14 @@ jhi-recapitualtif-caisse {
 
 .p-card .info-title {
   background-color: var(--p-sky-400);
-
 }
 
 .p-card .warn-title {
   background-color: var(--p-orange-400);
-
 }
 
 .p-card .secondary-title {
   background-color: var(--p-slate-400);
-
 }
 
 .p-card .primary-title {
@@ -1888,7 +1873,6 @@ jhi-recapitualtif-caisse {
   }
 }
 
-
 .field {
   display: flex;
   flex-direction: row;
@@ -1915,7 +1899,6 @@ jhi-recapitualtif-caisse {
 
 .my-cash-register-container {
   .pharma-smart-primary-text {
-
     font-weight: 600;
   }
 }

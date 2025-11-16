@@ -1,15 +1,11 @@
-
 <div class="modal-header">
   <h4 class="modal-title">{{ title }}</h4>
-  <button (click)="cancel()" class="btn-close" data-dismiss="modal" type="button">
-  </button>
+  <button (click)="cancel()" class="btn-close" data-dismiss="modal" type="button"></button>
 </div>
 <div class="modal-body">
-
   <p-toolbar class="mb-1">
     <ng-template pTemplate="left">
-      <button (click)="add()" class="mr-2" pButton pButtonIcon="pi pi-plus" pButtonLabel="Nouveau"
-              severity="success"></button>
+      <button (click)="add()" class="mr-2" pButton pButtonIcon="pi pi-plus" pButtonLabel="Nouveau" severity="success"></button>
     </ng-template>
   </p-toolbar>
   <p-table

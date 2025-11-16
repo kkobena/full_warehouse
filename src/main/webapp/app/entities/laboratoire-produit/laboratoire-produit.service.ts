@@ -10,7 +10,7 @@ type EntityResponseType = HttpResponse<ILaboratoire>;
 type EntityArrayResponseType = HttpResponse<ILaboratoire[]>;
 
 @Injectable({
-  providedIn: 'root'
+  providedIn: 'root',
 })
 export class LaboratoireProduitService {
   protected http = inject(HttpClient);

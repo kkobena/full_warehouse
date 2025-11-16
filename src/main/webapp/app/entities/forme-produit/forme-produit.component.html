@@ -12,8 +12,7 @@
               <div class="pharma-search-input">
                 <p-iconfield>
                   <p-inputicon class="pi pi-search" />
-                  <input (keyup.enter)="search($event)" pInputText placeholder="Taper pour rechercher"
-                         type="text" />
+                  <input (keyup.enter)="search($event)" pInputText placeholder="Taper pour rechercher" type="text" />
                 </p-iconfield>
               </div>
             </div>
@@ -22,59 +21,60 @@
           <ng-template #end>
             <div class="pharma-toolbar-actions">
               <div class="pharma-button-group">
-                <p-button (click)="addNewEntity()" [raised]="true" icon="pi pi-check"
-                          label="Nouveau"
-                          severity="primary" type="button"></p-button>
+                <p-button
+                  (click)="addNewEntity()"
+                  [raised]="true"
+                  icon="pi pi-check"
+                  label="Nouveau"
+                  severity="primary"
+                  type="button"
+                ></p-button>
               </div>
             </div>
           </ng-template>
         </p-toolbar>
       </div>
 
+      @if (entites && entites?.length > 0) {
+        <p-table
+          (onLazyLoad)="lazyLoading($event)"
+          [lazy]="true"
+          [loading]="loading"
+          [paginator]="true"
+          [rows]="itemsPerPage"
+          [totalRecords]="totalItems"
+          [value]="entites"
+          dataKey="id"
+          stripedRows="true"
+          selectionMode="single"
+          class="pharma-table"
+        >
+          <ng-template #header>
+            <tr class="pharma-table-head">
+              <th scope="col"><span>Libellé</span></th>
+              <th scope="col"></th>
+            </tr>
+          </ng-template>
+          <ng-template let-columns="columns" let-elRow #body>
+            <tr [pSelectableRow]="elRow">
+              <td>
+                <div class="pharma-entity-name">{{ elRow.libelle }}</div>
+              </td>
+              <td class="text-right">
+                <p-button (click)="onEdit(elRow)" [rounded]="true" [text]="true" severity="success" pTooltip="Modifier" icon="pi pi-pencil">
+                </p-button>
 
-        @if (entites && entites?.length > 0) {
-          <p-table
-            (onLazyLoad)="lazyLoading($event)"
-            [lazy]="true"
-            [loading]="loading"
-            [paginator]="true"
-            [rows]="itemsPerPage"
-            [totalRecords]="totalItems"
-            [value]="entites"
-            dataKey="id"
-            stripedRows="true"
-            selectionMode="single"
-            class="pharma-table"
-          >
-            <ng-template #header>
-              <tr class="pharma-table-head">
-                <th scope="col"><span>Libellé</span></th>
-                <th scope="col"></th>
-              </tr>
-            </ng-template>
-            <ng-template let-columns="columns" let-elRow #body>
-              <tr [pSelectableRow]="elRow">
-                <td>
-                  <div class="pharma-entity-name">{{ elRow.libelle }}</div>
-                </td>
-                <td class="text-right">
-                  <p-button (click)="onEdit(elRow)" [rounded]="true" [text]="true" severity="success"
-                            pTooltip="Modifier" icon="pi pi-pencil">
-                  </p-button>
-
-                  <p-button (click)="delete(elRow)" [rounded]="true" [text]="true" severity="danger"
-                            pTooltip="Supprimer" icon="pi pi-trash">
-                  </p-button>
-                </td>
-              </tr>
-            </ng-template>
-          </p-table>
-        } @else {
-          <div class="alert alert-warning" id="no-result">
-            <span>Aucune donnée trouvée</span>
-          </div>
-        }
-
+                <p-button (click)="delete(elRow)" [rounded]="true" [text]="true" severity="danger" pTooltip="Supprimer" icon="pi pi-trash">
+                </p-button>
+              </td>
+            </tr>
+          </ng-template>
+        </p-table>
+      } @else {
+        <div class="alert alert-warning" id="no-result">
+          <span>Aucune donnée trouvée</span>
+        </div>
+      }
     </div>
   </div>
 </div>

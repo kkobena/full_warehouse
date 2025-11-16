@@ -18,17 +18,16 @@
   }
 
   <!-- Main Content Area -->
-  <div class="main-content"
-       [class.with-sidebar]="layoutMode === 'sidebar'"
-       [class.with-navbar]="layoutMode === 'navbar'"
-       [class.sidebar-collapsed]="layoutMode === 'sidebar' && (sidebarCollapsed$ | async)">
+  <div
+    class="main-content"
+    [class.with-sidebar]="layoutMode === 'sidebar'"
+    [class.with-navbar]="layoutMode === 'navbar'"
+    [class.sidebar-collapsed]="layoutMode === 'sidebar' && (sidebarCollapsed$ | async)"
+  >
     <div class="container-fluid">
       <div class="card mt-2 main border border-0">
         <div class="card-body main-card-body">
-          <p-confirmDialog
-            [style]="{ width: '40vw' }"
-            styleClass="ws-dialog"
-          ></p-confirmDialog>
+          <p-confirmDialog [style]="{ width: '40vw' }" styleClass="ws-dialog"></p-confirmDialog>
 
           <router-outlet></router-outlet>
         </div>

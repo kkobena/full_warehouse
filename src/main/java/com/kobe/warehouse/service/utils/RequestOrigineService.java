@@ -8,9 +8,7 @@ import org.springframework.web.context.request.ServletRequestAttributes;
 @Service
 public class RequestOrigineService {
 
-
     private static final String TAURI_HEADER = "X-Tauri-App";
-
 
     public boolean isLocalHostRequest() {
         HttpServletRequest request = getCurrentRequest();
@@ -29,7 +27,6 @@ public class RequestOrigineService {
         // Also check for standard localhost addresses
         return isLocalhostAddress(remoteAddr);
     }
-
 
     public boolean isTauriRequest() {
         HttpServletRequest request = getCurrentRequest();
@@ -50,7 +47,6 @@ public class RequestOrigineService {
         return false;
     }
 
-
     public boolean isLocalTauriRequest() {
         return isTauriRequest() && isLocalHostRequest();
     }
@@ -59,8 +55,6 @@ public class RequestOrigineService {
         return !isTauriRequest() && isLocalHostRequest();
     }
 
-
-
     /**
      * Check if request has custom Tauri header
      */
@@ -68,7 +62,6 @@ public class RequestOrigineService {
         String tauriHeader = request.getHeader(TAURI_HEADER);
         return tauriHeader != null && "true".equalsIgnoreCase(tauriHeader);
     }
-
 
     private boolean hasTauriUserAgent(HttpServletRequest request) {
         String userAgent = request.getHeader("User-Agent");
@@ -79,9 +72,11 @@ public class RequestOrigineService {
         userAgent = userAgent.toLowerCase();
 
         // Check for Tauri-specific patterns
-        return userAgent.contains("tauri") ||
-               userAgent.contains("wry") ||  // Tauri's webview library
-               userAgent.contains("pharma-smart-desktop"); // Your custom app name
+        return (
+            userAgent.contains("tauri") ||
+            userAgent.contains("wry") || // Tauri's webview library
+            userAgent.contains("pharma-smart-desktop")
+        ); // Your custom app name
     }
 
     /**
@@ -92,10 +87,12 @@ public class RequestOrigineService {
             return false;
         }
 
-        return "127.0.0.1".equals(address) ||
-               "0:0:0:0:0:0:0:1".equals(address) || // IPv6 localhost
-               "::1".equals(address) ||             // IPv6 localhost short form
-               "localhost".equalsIgnoreCase(address);
+        return (
+            "127.0.0.1".equals(address) ||
+            "0:0:0:0:0:0:0:1".equals(address) || // IPv6 localhost
+            "::1".equals(address) || // IPv6 localhost short form
+            "localhost".equalsIgnoreCase(address)
+        );
     }
 
     /**

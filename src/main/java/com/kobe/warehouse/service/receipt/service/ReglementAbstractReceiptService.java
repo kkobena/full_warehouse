@@ -1,10 +1,9 @@
 package com.kobe.warehouse.service.receipt.service;
 
-import com.kobe.warehouse.service.settings.AppConfigurationService;
 import com.kobe.warehouse.service.receipt.dto.AbstractItem;
-import org.springframework.stereotype.Service;
-
+import com.kobe.warehouse.service.settings.AppConfigurationService;
 import java.util.List;
+import org.springframework.stereotype.Service;
 
 /**
  * Abstract base class for payment receipt services (Invoice, Differe, etc.)
@@ -22,12 +21,10 @@ public abstract class ReglementAbstractReceiptService extends AbstractJava2DRece
         super(appConfigurationService);
     }
 
-
     @Override
     protected int getNumberOfCopies() {
         return 1;
     }
-
 
     @Override
     protected List<? extends AbstractItem> getItems() {

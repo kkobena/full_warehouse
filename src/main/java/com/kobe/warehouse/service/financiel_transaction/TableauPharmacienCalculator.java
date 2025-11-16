@@ -5,13 +5,12 @@ import com.kobe.warehouse.service.financiel_transaction.dto.FournisseurAchat;
 import com.kobe.warehouse.service.financiel_transaction.dto.PaymentDTO;
 import com.kobe.warehouse.service.financiel_transaction.dto.TableauPharmacienDTO;
 import com.kobe.warehouse.service.financiel_transaction.dto.TableauPharmacienWrapper;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.stereotype.Component;
-
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.util.List;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.stereotype.Component;
 
 /**
  * Calculator for TableauPharmacien ratios and aggregations

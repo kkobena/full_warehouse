@@ -16,6 +16,7 @@ This document outlines the standardized form design patterns used throughout the
 ## Overview
 
 All forms in the application follow a consistent pattern:
+
 - **Required fields first**: Critical information at the top with red-themed headers
 - **Logical grouping**: Related fields organized into sections with p-card components
 - **Multi-column layouts**: Responsive grid layouts that adapt to screen size
@@ -25,6 +26,7 @@ All forms in the application follow a consistent pattern:
 ## Section Organization
 
 ### Required Fields Section
+
 Always place required fields in the first section with a distinctive red theme:
 
 ```html
@@ -41,17 +43,16 @@ Always place required fields in the first section with a distinctive red theme:
     <div class="form-field form-field-full">
       <label for="field_name">Field Name <span class="required">*</span></label>
       <input pInputText id="field_name" formControlName="name" class="w-full" />
-      @if (editForm.get('name')?.invalid && editForm.get('name')?.touched) {
-        @if (editForm.get('name')?.errors?.required) {
-          <small class="p-error" jhiTranslate="entity.validation.required">Ce champ est obligatoire</small>
-        }
-      }
+      @if (editForm.get('name')?.invalid && editForm.get('name')?.touched) { @if (editForm.get('name')?.errors?.required) {
+      <small class="p-error" jhiTranslate="entity.validation.required">Ce champ est obligatoire</small>
+      } }
     </div>
   </div>
 </p-card>
 ```
 
 ### Optional/Informational Sections
+
 Use blue-themed headers for optional or informational sections:
 
 ```html
@@ -70,7 +71,9 @@ Use blue-themed headers for optional or informational sections:
 ```
 
 ### Section Header Icons
+
 Use appropriate PrimeIcons based on section purpose:
+
 - `pi-exclamation-circle`: Required fields
 - `pi-info-circle`: General information
 - `pi-user`: User/customer information
@@ -82,6 +85,7 @@ Use appropriate PrimeIcons based on section purpose:
 ## Layout Patterns
 
 ### Two-Column Layout
+
 For forms with primary and secondary sections side-by-side:
 
 ```html
@@ -97,11 +101,13 @@ For forms with primary and secondary sections side-by-side:
 ```
 
 **Use cases**:
+
 - Required fields + Optional fields
 - Primary info + Secondary info
 - Main data + Metadata
 
 ### Three-Column Layout
+
 For forms with multiple equal-weight sections:
 
 ```html
@@ -121,11 +127,13 @@ For forms with multiple equal-weight sections:
 ```
 
 **Use cases**:
+
 - Multiple parameter sections
 - Detailed configuration forms
 - Dashboard-style layouts
 
 ### Single-Column Inside Cards
+
 **Important**: Inside each card, use single-column layout with `form-field-full`:
 
 ```html
@@ -143,6 +151,7 @@ For forms with multiple equal-weight sections:
 ```
 
 ### Form Grid for Multiple Columns Inside Cards
+
 If you need multiple columns inside a single card:
 
 ```html
@@ -162,6 +171,7 @@ If you need multiple columns inside a single card:
 ## Styling Guidelines
 
 ### Import Centralized Styles
+
 All form components should import the centralized form styles:
 
 ```scss
@@ -173,6 +183,7 @@ All form components should import the centralized form styles:
 ```
 
 ### Modal Structure
+
 Forms inside modals should follow this structure:
 
 ```html
@@ -188,13 +199,13 @@ Forms inside modals should follow this structure:
 
   <div class="form-actions-compact">
     <p-button label="Annuler" [text]="true" (click)="cancel()"></p-button>
-    <p-button label="Enregistrer" severity="primary" type="submit"
-              [disabled]="editForm.invalid" [loading]="isSaving"></p-button>
+    <p-button label="Enregistrer" severity="primary" type="submit" [disabled]="editForm.invalid" [loading]="isSaving"></p-button>
   </div>
 </form>
 ```
 
 ### Required Field Indicator
+
 Always add asterisk with the `required` class:
 
 ```html
@@ -202,22 +213,21 @@ Always add asterisk with the `required` class:
 ```
 
 ### Error Messages
+
 Use PrimeNG's `p-error` class with Angular control flow:
 
 ```html
-@if (editForm.get('fieldName')?.invalid && editForm.get('fieldName')?.touched) {
-  @if (editForm.get('fieldName')?.errors?.required) {
-    <small class="p-error" jhiTranslate="entity.validation.required">Ce champ est obligatoire</small>
-  }
-  @if (editForm.get('fieldName')?.errors?.min || editForm.get('fieldName')?.errors?.max) {
-    <small class="p-error">La valeur doit être entre {{ min }} et {{ max }}</small>
-  }
-}
+@if (editForm.get('fieldName')?.invalid && editForm.get('fieldName')?.touched) { @if (editForm.get('fieldName')?.errors?.required) {
+<small class="p-error" jhiTranslate="entity.validation.required">Ce champ est obligatoire</small>
+} @if (editForm.get('fieldName')?.errors?.min || editForm.get('fieldName')?.errors?.max) {
+<small class="p-error">La valeur doit être entre {{ min }} et {{ max }}</small>
+} }
 ```
 
 ## Component Structure
 
 ### Standalone Component
+
 Use Angular 20 standalone components with signals:
 
 ```typescript
@@ -234,7 +244,7 @@ Use Angular 20 standalone components with signals:
     // ... other PrimeNG modules
   ],
   templateUrl: './entity-form.component.html',
-  styleUrl: './entity-form.component.scss'
+  styleUrl: './entity-form.component.scss',
 })
 export class EntityFormComponent implements OnInit {
   editForm = inject(FormBuilder).nonNullable.group({
@@ -250,6 +260,7 @@ export class EntityFormComponent implements OnInit {
 ```
 
 ### Form Validation
+
 Use reactive forms with validators:
 
 ```typescript
@@ -264,6 +275,7 @@ editForm = inject(FormBuilder).nonNullable.group({
 ## Responsive Behavior
 
 ### Breakpoints
+
 The form layouts adapt at these breakpoints:
 
 - **Large screens (>1200px)**: Full multi-column layout
@@ -272,7 +284,9 @@ The form layouts adapt at these breakpoints:
 - **Mobile (<768px)**: Optimized spacing, stacked buttons
 
 ### Testing Responsiveness
+
 Test your forms at these widths:
+
 - 1920px (desktop)
 - 1200px (laptop)
 - 992px (tablet landscape)
@@ -286,6 +300,7 @@ Test your forms at these widths:
 **Problem**: p-select or p-autoComplete dropdown is hidden behind modal or card borders.
 
 **Solution**:
+
 ```scss
 ::ng-deep .p-card {
   overflow: visible;
@@ -298,7 +313,7 @@ Test your forms at these widths:
 
 .modal-body {
   overflow-x: hidden; // Prevent horizontal scroll
-  overflow-y: auto;   // Allow vertical scroll
+  overflow-y: auto; // Allow vertical scroll
 }
 ```
 
@@ -313,6 +328,7 @@ Test your forms at these widths:
 **Problem**: Autocomplete fields become too narrow in grid layouts.
 
 **Solution**: Use `min-width: 0` on grid containers (already in centralized styles):
+
 ```scss
 .form-grid-compact {
   .form-field {
@@ -326,6 +342,7 @@ Test your forms at these widths:
 **Problem**: Long forms extend beyond viewport.
 
 **Solution**:
+
 ```scss
 .modal-body {
   max-height: calc(100vh - 200px);
@@ -350,6 +367,7 @@ Test your forms at these widths:
 ### Example 1: Simple Two-Section Form
 
 **Template** (`simple-form.component.html`):
+
 ```html
 <div class="modal-header">
   <h4 class="modal-title">Create Item</h4>
@@ -397,13 +415,13 @@ Test your forms at these widths:
 
   <div class="form-actions-compact">
     <p-button label="Annuler" [text]="true" type="button" (click)="cancel()"></p-button>
-    <p-button label="Enregistrer" severity="primary" type="submit"
-              [disabled]="editForm.invalid" [loading]="isSaving"></p-button>
+    <p-button label="Enregistrer" severity="primary" type="submit" [disabled]="editForm.invalid" [loading]="isSaving"></p-button>
   </div>
 </form>
 ```
 
 **Styles** (`simple-form.component.scss`):
+
 ```scss
 @import '../../../shared/scss/form-styles';
 
@@ -417,6 +435,7 @@ Test your forms at these widths:
 ### Example 2: Complex Multi-Section Form
 
 See `form-tiers-payant.component.html` for a complete example with:
+
 - 2-column layout (Required + General Info)
 - 3-column layout (Parameters + Limits + Client Limits)
 - Conditional sections
@@ -425,6 +444,7 @@ See `form-tiers-payant.component.html` for a complete example with:
 ### Example 3: Stepper Form
 
 See `assure-form-step.component.html` for a complete example with:
+
 - Multi-step wizard
 - Form validation per step
 - Sticky footer with step navigation
@@ -463,6 +483,7 @@ When updating an existing form to use this pattern:
 ## Questions or Issues?
 
 If you encounter issues not covered here, check:
+
 - `src/main/webapp/app/shared/scss/form-styles.scss` - Centralized styles
 - `src/main/webapp/app/entities/tiers-payant/form-tiers-payant/` - Reference implementation
 - `src/main/webapp/app/entities/customer/assure-form-step/` - Stepper reference implementation

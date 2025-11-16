@@ -20,7 +20,7 @@ import { FormsModule } from '@angular/forms';
     PanelModule,
     FormsModule,
     ListDifferesComponent,
-    ReglementDifferesComponent
+    ReglementDifferesComponent,
   ],
   templateUrl: './gestion-differes.component.html',
   styleUrl: './gestion-differes.component.scss',

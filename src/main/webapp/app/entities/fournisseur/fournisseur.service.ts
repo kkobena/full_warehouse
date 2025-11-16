@@ -10,7 +10,7 @@ type EntityResponseType = HttpResponse<IFournisseur>;
 type EntityArrayResponseType = HttpResponse<IFournisseur[]>;
 
 @Injectable({
-  providedIn: 'root'
+  providedIn: 'root',
 })
 export class FournisseurService {
   protected http = inject(HttpClient);
@@ -20,8 +20,7 @@ export class FournisseurService {
   /** Inserted by Angular inject() migration for backwards compatibility */
   constructor(...args: unknown[]);
 
-  constructor() {
-  }
+  constructor() {}
 
   create(fournisseur: IFournisseur): Observable<EntityResponseType> {
     return this.http.post<IFournisseur>(this.resourceUrl, fournisseur, { observe: 'response' });
@@ -39,7 +38,7 @@ export class FournisseurService {
     const options = createRequestOption(req);
     return this.http.get<IFournisseur[]>(this.resourceUrl, {
       params: options,
-      observe: 'response'
+      observe: 'response',
     });
   }
 

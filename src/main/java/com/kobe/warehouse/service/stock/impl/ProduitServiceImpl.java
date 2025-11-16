@@ -1,5 +1,7 @@
 package com.kobe.warehouse.service.stock.impl;
 
+import static java.util.Objects.isNull;
+
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.json.JsonMapper;
 import com.kobe.warehouse.domain.Produit;
@@ -9,26 +11,23 @@ import com.kobe.warehouse.repository.CustomizedProductService;
 import com.kobe.warehouse.repository.MagasinRepository;
 import com.kobe.warehouse.repository.ProduitRepository;
 import com.kobe.warehouse.repository.RayonRepository;
-import com.kobe.warehouse.service.settings.AppConfigurationService;
 import com.kobe.warehouse.service.dto.ProduitCriteria;
 import com.kobe.warehouse.service.dto.ProduitDTO;
 import com.kobe.warehouse.service.dto.builder.ProduitBuilder;
+import com.kobe.warehouse.service.settings.AppConfigurationService;
 import com.kobe.warehouse.service.stock.ProduitService;
 import com.kobe.warehouse.service.stock.dto.ProduitSearch;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.util.Collections;
+import java.util.List;
+import java.util.Optional;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
-import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.util.Collections;
-import java.util.List;
-import java.util.Optional;
-
-import static java.util.Objects.isNull;
 
 /**
  * Service Implementation for managing {@link com.kobe.warehouse.domain.Produit}.
@@ -49,7 +48,9 @@ public class ProduitServiceImpl implements ProduitService {
         MagasinRepository magasinRepository,
         ProduitRepository produitRepository,
         CustomizedProductService customizedProductService,
-        RayonRepository rayonRepository, JsonMapper objectMapper, AppConfigurationService appConfigurationService
+        RayonRepository rayonRepository,
+        JsonMapper objectMapper,
+        AppConfigurationService appConfigurationService
     ) {
         this.magasinRepository = magasinRepository;
         this.produitRepository = produitRepository;
@@ -146,7 +147,6 @@ public class ProduitServiceImpl implements ProduitService {
         return customizedProductService.lastSale(produitCriteria);
     }
 
-
     @Override
     @Transactional(readOnly = true)
     public LocalDateTime lastOrder(ProduitCriteria produitCriteria) {
@@ -174,7 +174,6 @@ public class ProduitServiceImpl implements ProduitService {
             LOG.error("Request to update Produit : {}", e);
         }
     }
-
 
     @Override
     @Transactional(readOnly = true)
@@ -212,7 +211,6 @@ public class ProduitServiceImpl implements ProduitService {
         this.customizedProductService.updateFromCommande(produitDTO, produit);
     }
 
-
     @Override
     public Produit findReferenceById(Integer id) {
         return produitRepository.getReferenceById(id);
@@ -225,15 +223,12 @@ public class ProduitServiceImpl implements ProduitService {
             magasinId = appConfigurationService.getMagasin().getId();
         }
 
-        String jsonResult = produitRepository.searchProduitsJson(search,magasinId, pageable.getPageSize());
+        String jsonResult = produitRepository.searchProduitsJson(search, magasinId, pageable.getPageSize());
         try {
-            return objectMapper.readValue(jsonResult, new TypeReference<>() {
-            });
+            return objectMapper.readValue(jsonResult, new TypeReference<>() {});
         } catch (Exception e) {
             LOG.error(null, e);
             return List.of();
         }
     }
-
-
 }

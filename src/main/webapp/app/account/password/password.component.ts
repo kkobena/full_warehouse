@@ -15,7 +15,7 @@ import { Button } from 'primeng/button';
 @Component({
   selector: 'jhi-password',
   imports: [SharedModule, FormsModule, ReactiveFormsModule, Panel, PasswordModule, Button],
-  templateUrl: './password.component.html'
+  templateUrl: './password.component.html',
 })
 export default class PasswordComponent implements OnInit {
   doNotMatch = signal(false);
@@ -26,12 +26,12 @@ export default class PasswordComponent implements OnInit {
     currentPassword: new FormControl('', { nonNullable: true, validators: Validators.required }),
     newPassword: new FormControl('', {
       nonNullable: true,
-      validators: [Validators.required, Validators.minLength(4), Validators.maxLength(50)]
+      validators: [Validators.required, Validators.minLength(4), Validators.maxLength(50)],
     }),
     confirmPassword: new FormControl('', {
       nonNullable: true,
-      validators: [Validators.required, Validators.minLength(4), Validators.maxLength(50)]
-    })
+      validators: [Validators.required, Validators.minLength(4), Validators.maxLength(50)],
+    }),
   });
 
   private readonly passwordService = inject(PasswordService);
@@ -61,7 +61,7 @@ export default class PasswordComponent implements OnInit {
     } else {
       this.passwordService.save(newPassword, currentPassword).subscribe({
         next: () => this.success.set(true),
-        error: () => this.error.set(true)
+        error: () => this.error.set(true),
       });
     }
   }

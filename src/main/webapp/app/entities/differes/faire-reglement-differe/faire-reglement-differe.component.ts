@@ -113,7 +113,7 @@ export class FaireReglementDiffereComponent implements OnInit, OnDestroy {
       accept: () => {
         if (this.tauriPrinterService.isRunningInTauri()) {
           this.printReceiptForTauri(paymentId);
-        }else{
+        } else {
           this.differeService.printReceipt(paymentId).pipe(takeUntil(this.destroy$)).subscribe();
         }
 

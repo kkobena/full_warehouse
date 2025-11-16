@@ -7,14 +7,13 @@ export interface AppSettings {
 }
 
 const DEFAULT_SETTINGS: AppSettings = {
-  apiServerUrl: environment.apiServerUrl
+  apiServerUrl: environment.apiServerUrl,
 };
 
 const SETTINGS_STORAGE_KEY = 'pharmasmart_app_settings';
 
-
 @Injectable({
-  providedIn: 'root'
+  providedIn: 'root',
 })
 export class AppSettingsService {
   private settingsSubject: BehaviorSubject<AppSettings>;
@@ -126,7 +125,7 @@ export class AppSettingsService {
     try {
       const response = await fetch(`${testUrl}/management/health`, {
         method: 'GET',
-        mode: 'cors'
+        mode: 'cors',
       });
       return response.ok;
     } catch (error) {

@@ -8,7 +8,7 @@ import { FormsModule } from '@angular/forms';
 
 @Component({
   templateUrl: './store-inventory-delete-dialog.component.html',
-  imports: [WarehouseCommonModule, FormsModule]
+  imports: [WarehouseCommonModule, FormsModule],
 })
 export class StoreInventoryDeleteDialogComponent {
   protected storeInventoryService = inject(StoreInventoryService);

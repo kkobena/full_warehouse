@@ -2,15 +2,12 @@
 
 <div class="modal-header">
   <h4 class="modal-title">{{ title }}</h4>
-  <button (click)="cancel()" aria-label="Close" class="btn-close" type="button">
-
-  </button>
+  <button (click)="cancel()" aria-label="Close" class="btn-close" type="button"></button>
 </div>
 <div class="modal-body">
   <p-card>
     <div class="ui-g form-group">
-      <label class="form-control-label" for="fournisseurId">Fournisseurs<span
-        style="font-weight: 900; color: red">*</span></label>
+      <label class="form-control-label" for="fournisseurId">Fournisseurs<span style="font-weight: 900; color: red">*</span></label>
       <p-select
         #fournisseur
         [filter]="true"
@@ -47,9 +44,15 @@
 </div>
 
 <div class="modal-footer">
-  <p-button (click)="cancel()" class="mr-2" data-dismiss="modal" icon="pi pi-times" label="Fermer"
-            severity="secondary"
-            type="button"></p-button>
+  <p-button
+    (click)="cancel()"
+    class="mr-2"
+    data-dismiss="modal"
+    icon="pi pi-times"
+    label="Fermer"
+    severity="secondary"
+    type="button"
+  ></p-button>
 
   <p-button
     (click)="onUpload()"
@@ -61,6 +64,5 @@
   >
   </p-button>
 </div>
-
 
 <jhi-spinner #spinner></jhi-spinner>

@@ -12,6 +12,7 @@ import java.util.List;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
 //@ConditionalOnProperty(name = "sarenov.act.convertion.enable", havingValue = "true")
 public final class Util {
 
@@ -58,27 +59,4 @@ public final class Util {
             return false;
         }
     }
-    /*
-   1- à partir de l'identifiant clavis à la rod (liste des packs de la structure)
-    2- Liste consolidée des structures qui comportent un identifiant clavis
-         - à jouter un champs clavis (du fichier open data)
-         - appel d'une api côte rod
-         - à la saisie de dans bddrenove (clavis), un appel sera fait à rod pour envoyer les infos de la structure
-         cas erreur on renouvelle l'appel  j+1 (on ne stocke pas le clavis)
-ch
-      nNou
-
-         ?? Est-ce que la mission est modfiable
-         ??
-
-
-api pacte 0::n
-[
-{
-id:
-code:
-libelle
-}
-]
-     */
 }

@@ -1,10 +1,9 @@
 package com.kobe.warehouse.service.stat;
 
 import com.kobe.warehouse.service.dto.VenteRecordParamDTO;
-import org.apache.commons.lang3.tuple.Pair;
-
 import java.time.LocalDate;
 import java.util.Objects;
+import org.apache.commons.lang3.tuple.Pair;
 
 public interface CommonStatService {
     default Pair<LocalDate, LocalDate> buildPeriode(VenteRecordParamDTO venteRecordParam) {
@@ -25,6 +24,4 @@ public interface CommonStatService {
             case yearly -> Pair.of(now.minusYears(1), now);
         };
     }
-
-
 }

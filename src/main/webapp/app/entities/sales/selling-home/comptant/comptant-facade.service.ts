@@ -2,13 +2,7 @@ import { inject, Injectable } from '@angular/core';
 import { Observable, Subject } from 'rxjs';
 import { finalize, switchMap } from 'rxjs/operators';
 import { HttpResponse } from '@angular/common/http';
-import {
-  FinalyseSale,
-  ISales,
-  SaleId,
-  Sales,
-  SaveResponse
-} from '../../../../shared/model/sales.model';
+import { FinalyseSale, ISales, SaleId, Sales, SaveResponse } from '../../../../shared/model/sales.model';
 import { ISalesLine, SaleLineId } from '../../../../shared/model/sales-line.model';
 import { IRemise } from '../../../../shared/model/remise.model';
 import { SalesService } from '../../sales.service';

@@ -23,7 +23,8 @@
             formControlName="firstName"
             class="w-full"
             autocomplete="off"
-            [class.ng-invalid]="editForm.get('firstName')?.invalid && editForm.get('firstName')?.touched" />
+            [class.ng-invalid]="editForm.get('firstName')?.invalid && editForm.get('firstName')?.touched"
+          />
           @if (editForm.get('firstName')?.invalid && editForm.get('firstName')?.touched) {
             @if (editForm.get('firstName')?.errors?.required) {
               <small class="p-error" jhiTranslate="entity.validation.required">Ce champ est obligatoire</small>
@@ -40,7 +41,8 @@
             formControlName="lastName"
             class="w-full"
             autocomplete="off"
-            [class.ng-invalid]="editForm.get('lastName')?.invalid && editForm.get('lastName')?.touched" />
+            [class.ng-invalid]="editForm.get('lastName')?.invalid && editForm.get('lastName')?.touched"
+          />
           @if (editForm.get('lastName')?.invalid && editForm.get('lastName')?.touched) {
             @if (editForm.get('lastName')?.errors?.required) {
               <small class="p-error" jhiTranslate="entity.validation.required">Ce champ est obligatoire</small>
@@ -61,7 +63,8 @@
             [dropdown]="true"
             optionLabel="fullName"
             placeholder="Taper pour rechercher"
-            [fluid]="true">
+            [fluid]="true"
+          >
           </p-autoComplete>
           @if (editForm.get('tiersPayantId')?.invalid && editForm.get('tiersPayantId')?.touched) {
             @if (editForm.get('tiersPayantId')?.errors?.required) {
@@ -79,15 +82,14 @@
             formControlName="num"
             class="w-full"
             autocomplete="off"
-            [class.ng-invalid]="editForm.get('num')?.invalid && editForm.get('num')?.touched" />
+            [class.ng-invalid]="editForm.get('num')?.invalid && editForm.get('num')?.touched"
+          />
           @if (editForm.get('num')?.invalid && editForm.get('num')?.touched) {
             @if (editForm.get('num')?.errors?.required) {
               <small class="p-error" jhiTranslate="entity.validation.required">Ce champ est obligatoire</small>
             }
           }
         </div>
-
-
 
         <!-- Taux -->
         <div class="form-field form-field-full">
@@ -99,7 +101,8 @@
             formControlName="taux"
             class="w-full"
             autocomplete="off"
-            [class.ng-invalid]="editForm.get('taux')?.invalid && editForm.get('taux')?.touched" />
+            [class.ng-invalid]="editForm.get('taux')?.invalid && editForm.get('taux')?.touched"
+          />
           @if (editForm.get('taux')?.invalid && editForm.get('taux')?.touched) {
             @if (editForm.get('taux')?.errors?.required) {
               <small class="p-error">Ce champ est obligatoire</small>
@@ -125,26 +128,13 @@
         <!-- Téléphone -->
         <div class="form-field form-field-full">
           <label for="field_phone">Téléphone</label>
-          <input
-            pInputText
-            pKeyFilter="int"
-            id="field_phone"
-            formControlName="phone"
-            type="tel"
-            class="w-full"
-            autocomplete="off" />
+          <input pInputText pKeyFilter="int" id="field_phone" formControlName="phone" type="tel" class="w-full" autocomplete="off" />
         </div>
 
         <!-- Email -->
         <div class="form-field form-field-full">
           <label for="email">E-mail</label>
-          <input
-            pInputText
-            id="email"
-            formControlName="email"
-            type="email"
-            class="w-full"
-            autocomplete="off" />
+          <input pInputText id="email" formControlName="email" type="email" class="w-full" autocomplete="off" />
         </div>
 
         <!-- Date de naissance -->
@@ -158,7 +148,8 @@
             formControlName="datNaiss"
             placeholder="jj/mm/aaaa"
             class="w-full"
-            [class.ng-invalid]="datNaiss?.invalid && datNaiss?.touched" />
+            [class.ng-invalid]="datNaiss?.invalid && datNaiss?.touched"
+          />
           @if (datNaiss?.invalid && datNaiss?.touched) {
             @let errors = datNaiss?.errors;
             @if (errors?.invalidDate || errors?.outOfRange) {

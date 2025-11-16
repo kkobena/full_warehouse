@@ -1,14 +1,7 @@
 import { Component, inject, Input, OnInit, viewChild } from '@angular/core';
 import { NgbActiveModal, NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { ICustomer } from '../../../shared/model/customer.model';
-import {
-  AbstractControl,
-  FormArray,
-  FormsModule,
-  ReactiveFormsModule,
-  UntypedFormBuilder,
-  Validators
-} from '@angular/forms';
+import { AbstractControl, FormArray, FormsModule, ReactiveFormsModule, UntypedFormBuilder, Validators } from '@angular/forms';
 import { WarehouseCommonModule } from '../../../shared/warehouse-common/warehouse-common.module';
 import { ButtonModule } from 'primeng/button';
 import { InputTextModule } from 'primeng/inputtext';
@@ -44,8 +37,8 @@ import { FormAyantDroitComponent } from '../../customer/form-ayant-droit/form-ay
     TableModule,
     CardModule,
     KeyFilter,
-    ToastAlertComponent
-  ]
+    ToastAlertComponent,
+  ],
 })
 export class CustomerEditModalComponent implements OnInit {
   @Input() sale: ISales;
@@ -59,8 +52,8 @@ export class CustomerEditModalComponent implements OnInit {
       num: [null, [Validators.required]],
       firstName: [null, [Validators.required]],
       lastName: [null, [Validators.required]],
-      phone: []
-    })
+      phone: [],
+    }),
   });
   protected isSaving = false;
   private initialFormValue: any;
@@ -94,8 +87,8 @@ export class CustomerEditModalComponent implements OnInit {
             taux: [line.taux],
             montant: [line.montant],
             tiersPayantFullName: [line.tiersPayantFullName],
-            clientTiersPayantId: [line.clientTiersPayantId]
-          })
+            clientTiersPayantId: [line.clientTiersPayantId],
+          }),
         );
       });
     }
@@ -125,7 +118,7 @@ export class CustomerEditModalComponent implements OnInit {
       this.modalService,
       AssuredCustomerListComponent,
       {
-        headerLibelle: 'CLIENTS ASSURES'
+        headerLibelle: 'CLIENTS ASSURES',
       },
       (resp: ICustomer) => {
         if (resp) {
@@ -135,7 +128,7 @@ export class CustomerEditModalComponent implements OnInit {
         }
       },
       '70%',
-      'modal-dialog-70'
+      'modal-dialog-70',
     );
   }
 
@@ -146,17 +139,17 @@ export class CustomerEditModalComponent implements OnInit {
       AddComplementaireComponent,
       {
         tiersPayantsExisting: [],
-        assure: this.customer
+        assure: this.customer,
       },
       (resp: IClientTiersPayant) => {
         if (resp) {
           tps.patchValue({
             clientTiersPayantId: resp.id,
-            taux: resp.taux
+            taux: resp.taux,
           });
         }
       },
-      'xl'
+      'xl',
     );
   }
 
@@ -166,7 +159,7 @@ export class CustomerEditModalComponent implements OnInit {
       AyantDroitCustomerListComponent,
       {
         assure: this.customer,
-        header: 'LISTE DES AYANTS DROITS DU CLIENT [' + this.customer.fullName + ']'
+        header: 'LISTE DES AYANTS DROITS DU CLIENT [' + this.customer.fullName + ']',
       },
       (resp: ICustomer) => {
         if (resp) {
@@ -178,7 +171,7 @@ export class CustomerEditModalComponent implements OnInit {
           }
         }
       },
-      'xl'
+      'xl',
     );
   }
 
@@ -189,7 +182,7 @@ export class CustomerEditModalComponent implements OnInit {
       {
         entity: ayantDroit,
         assure: this.customer,
-        title: 'FORMULAIRE D\'AJOUT D\'UN AYANT DROIT'
+        title: "FORMULAIRE D'AJOUT D'UN AYANT DROIT",
       },
       (resp: ICustomer) => {
         if (resp) {
@@ -197,7 +190,7 @@ export class CustomerEditModalComponent implements OnInit {
           this.patchAyantDroitForm();
         }
       },
-      'xl'
+      'xl',
     );
   }
 
@@ -214,17 +207,17 @@ export class CustomerEditModalComponent implements OnInit {
         firstName: customerFromForm.firstName,
         lastName: customerFromForm.lastName,
         phone: customerFromForm.phone,
-        type: 'ASSURE'
+        type: 'ASSURE',
       },
       ayantDroit: this.buildAyantDroit(),
-      thirdPartySaleLines: this.buildTiersPayant()
+      thirdPartySaleLines: this.buildTiersPayant(),
     };
   }
 
   private subscribeToSaveResponse(result: Observable<HttpResponse<{}>>): void {
     result.subscribe({
       next: () => this.onSaveSuccess(),
-      error: err => this.onSaveError(err)
+      error: err => this.onSaveError(err),
     });
   }
 
@@ -247,7 +240,7 @@ export class CustomerEditModalComponent implements OnInit {
         num: ayantDroit.num,
         firstName: ayantDroit.firstName,
         lastName: ayantDroit.lastName,
-        type: 'ASSURE'
+        type: 'ASSURE',
       };
     }
     return null;
@@ -261,7 +254,7 @@ export class CustomerEditModalComponent implements OnInit {
           id: tiersPayant.id,
           numBon: tiersPayant.numBon,
           clientTiersPayantId: tiersPayant.clientTiersPayantId,
-          taux: tiersPayant.taux
+          taux: tiersPayant.taux,
         };
       });
     }
@@ -280,8 +273,8 @@ export class CustomerEditModalComponent implements OnInit {
           montant: tpData?.montant,
           taux: [line.taux],
           tiersPayantFullName: [line.tiersPayantName],
-          clientTiersPayantId: [line.id]
-        })
+          clientTiersPayantId: [line.id],
+        }),
       );
     });
   }
@@ -311,8 +304,8 @@ export class CustomerEditModalComponent implements OnInit {
             id: [null, [Validators.required]],
             num: [null, [Validators.required]],
             firstName: [null, [Validators.required]],
-            lastName: [null, [Validators.required]]
-          })
+            lastName: [null, [Validators.required]],
+          }),
         );
       }
 
@@ -321,8 +314,8 @@ export class CustomerEditModalComponent implements OnInit {
           id: this.ayantDroit.id,
           num: this.ayantDroit.numAyantDroit,
           firstName: this.ayantDroit.firstName,
-          lastName: this.ayantDroit.lastName
-        }
+          lastName: this.ayantDroit.lastName,
+        },
       });
     }
   }
@@ -335,8 +328,8 @@ export class CustomerEditModalComponent implements OnInit {
         num: tiersPayants.length > 0 ? tiersPayants[0].num : this.sale.tiersPayants.at(0).num,
         firstName: this.customer.firstName,
         lastName: this.customer.lastName,
-        phone: this.customer.phone
-      }
+        phone: this.customer.phone,
+      },
     });
   }
 }

@@ -17,7 +17,7 @@ import { TranslatePipe } from '@ngx-translate/core';
   selector: 'jhi-tva',
   templateUrl: './tva.component.html',
   styleUrl: './tva.component.scss',
-  imports: [CommonModule, ButtonModule, TableModule, Toolbar, Tooltip, ConfirmDialogComponent, TranslatePipe]
+  imports: [CommonModule, ButtonModule, TableModule, Toolbar, Tooltip, ConfirmDialogComponent, TranslatePipe],
 })
 export class TvaComponent implements OnInit {
   protected tvas?: ITva[];
@@ -51,7 +51,7 @@ export class TvaComponent implements OnInit {
         });
       },
       'Confirmation',
-      'Voulez-vous supprimer cet enregistrement ?'
+      'Voulez-vous supprimer cet enregistrement ?',
     );
   }
 
@@ -60,11 +60,11 @@ export class TvaComponent implements OnInit {
     this.tvaService
       .query({
         page: 0,
-        size: 100
+        size: 100,
       })
       .subscribe({
         next: (res: HttpResponse<ITva[]>) => this.onSuccess(res.body),
-        error: () => this.onError()
+        error: () => this.onError(),
       });
   }
 
@@ -73,12 +73,12 @@ export class TvaComponent implements OnInit {
       this.modalService,
       FormTvaComponent,
       {
-        header: 'Ajouter un taux tva'
+        header: 'Ajouter un taux tva',
       },
       () => {
         this.loadPage();
       },
-      'sm'
+      'sm',
     );
   }
 

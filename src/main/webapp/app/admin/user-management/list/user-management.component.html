@@ -1,4 +1,3 @@
-
 <div class="container-fluid">
   <div class="justify-content-center">
     <div class="pharma-smart-content p-2">
@@ -21,7 +20,13 @@
           <ng-template #end>
             <div class="pharma-toolbar-actions">
               <div class="pharma-button-group">
-                <p-button [routerLink]="['./new']" icon="pi pi-users" label="Créer un nouvel utilisateur" [raised]="true" severity="primary">
+                <p-button
+                  [routerLink]="['./new']"
+                  icon="pi pi-users"
+                  label="Créer un nouvel utilisateur"
+                  [raised]="true"
+                  severity="primary"
+                >
                 </p-button>
               </div>
             </div>
@@ -30,129 +35,133 @@
       </div>
 
       @if (users()) {
-            <div class="mt-2">
-              <table class="table table-striped">
-                <thead class="pharma-table-head">
-                <tr >
-                  <th scope="col" >
-                    <span jhiTranslate="userManagement.login">Login</span>
+        <div class="mt-2">
+          <table class="table table-striped">
+            <thead class="pharma-table-head">
+              <tr>
+                <th scope="col">
+                  <span jhiTranslate="userManagement.login">Login</span>
+                </th>
+                <th scope="col">
+                  <span>Nom</span>
+                </th>
+                <th scope="col">
+                  <span>Prénom</span>
+                </th>
+                <th scope="col"></th>
+                <th scope="col"><span jhiTranslate="userManagement.profiles">Droits</span></th>
+                <th scope="col">
+                  <span jhiTranslate="userManagement.createdDate">Créé le</span>
+                </th>
+                <th scope="col">
+                  <span jhiTranslate="userManagement.lastModifiedBy">Modifié par</span>
+                </th>
+                <th scope="col">
+                  <span jhiTranslate="userManagement.lastModifiedDate">Modifié le</span>
+                </th>
+                <th scope="col">
+                  <span jhiTranslate="userManagement.email">Email</span>
+                </th>
+                <th scope="col"></th>
+              </tr>
+            </thead>
+            <tbody>
+              @for (user of users(); track trackIdentity) {
+                <tr>
+                  <td>
+                    <a [routerLink]="['./', user.login, 'view']">{{ user.login }}</a>
+                  </td>
 
-                  </th>
-                  <th scope="col" >
-                    <span>Nom</span>
+                  <td>{{ user.firstName }}</td>
+                  <td>{{ user.lastName }}</td>
+                  <td>
+                    @if (!user.activated) {
+                      <button class="btn btn-danger btn-sm" (click)="setActive(user, true)" jhiTranslate="userManagement.deactivated">
+                        Désactivé
+                      </button>
+                    } @else {
+                      <button
+                        class="btn btn-success btn-sm"
+                        (click)="setActive(user, false)"
+                        [disabled]="!currentAccount() || currentAccount()?.login === user.login"
+                        jhiTranslate="userManagement.activated"
+                      >
+                        Activé
+                      </button>
+                    }
+                  </td>
+                  <td>
+                    @for (authority of user.authorities; track $index) {
+                      <div>
+                        <span class="badge bg-info">{{ authority }}</span>
+                      </div>
+                    }
+                  </td>
+                  <td>{{ user.createdDate | date: 'dd/MM/yyyy HH:mm' }}</td>
+                  <td>{{ user.lastModifiedBy }}</td>
+                  <td>{{ user.lastModifiedDate | date: 'dd/MM/yyyy HH:mm' }}</td>
+                  <td>{{ user.email }}</td>
+                  <td class="text-end">
+                    <div class="btn-group">
+                      <p-button
+                        [rounded]="true"
+                        [text]="true"
+                        [routerLink]="['./', user.login, 'view']"
+                        pTooltip="Voir détails"
+                        icon="pi pi-eye"
+                        severity="info"
+                      >
+                      </p-button>
 
-                  </th>
-                  <th scope="col" >
-                    <span>Prénom</span>
+                      <p-button
+                        [rounded]="true"
+                        [text]="true"
+                        [routerLink]="['./', user.login, 'edit']"
+                        queryParamsHandling="merge"
+                        severity="primary"
+                        icon="pi pi-pencil"
+                        pTooltip="Editer"
+                        type="button"
+                      >
+                      </p-button>
 
-                  </th>
-                  <th scope="col"></th>
-                  <th scope="col"><span jhiTranslate="userManagement.profiles">Droits</span></th>
-                  <th scope="col" >
-                    <span jhiTranslate="userManagement.createdDate">Créé le</span>
-
-                  </th>
-                  <th scope="col" >
-                    <span jhiTranslate="userManagement.lastModifiedBy">Modifié par</span>
-
-                  </th>
-                  <th scope="col" >
-                    <span jhiTranslate="userManagement.lastModifiedDate">Modifié le</span>
-
-                  </th>
-                  <th scope="col" >
-                    <span jhiTranslate="userManagement.email">Email</span>
-
-                  </th>
-                  <th scope="col"></th>
+                      <p-button
+                        [rounded]="true"
+                        [text]="true"
+                        type="button"
+                        (click)="deleteUser(user)"
+                        icon="pi pi-trash"
+                        pTooltip="Supprimer"
+                        severity="danger"
+                        [disabled]="!currentAccount() || currentAccount()?.login === user.login"
+                      >
+                      </p-button>
+                    </div>
+                  </td>
                 </tr>
-                </thead>
-                <tbody>
-                  @for (user of users(); track trackIdentity) {
-                    <tr>
-                      <td>
-                        <a [routerLink]="['./', user.login, 'view']">{{ user.login }}</a>
-                      </td>
+              }
+            </tbody>
+          </table>
+        </div>
 
-                      <td>{{ user.firstName }}</td>
-                      <td>{{ user.lastName }}</td>
-                      <td>
-                        @if (!user.activated) {
-                          <button class="btn btn-danger btn-sm" (click)="setActive(user, true)" jhiTranslate="userManagement.deactivated">
-                            Désactivé
-                          </button>
-                        } @else {
-                          <button
-                            class="btn btn-success btn-sm"
-                            (click)="setActive(user, false)"
-                            [disabled]="!currentAccount() || currentAccount()?.login === user.login"
-                            jhiTranslate="userManagement.activated"
-                          >
-                            Activé
-                          </button>
-                        }
-                      </td>
-                      <td>
-                        @for (authority of user.authorities; track $index) {
-                          <div>
-                            <span class="badge bg-info">{{ authority }}</span>
-                          </div>
-                        }
-                      </td>
-                      <td>{{ user.createdDate | date: 'dd/MM/yyyy HH:mm' }}</td>
-                      <td>{{ user.lastModifiedBy }}</td>
-                      <td>{{ user.lastModifiedDate | date: 'dd/MM/yyyy HH:mm' }}</td>
-                      <td>{{ user.email }}</td>
-                      <td class="text-end">
-                        <div class="btn-group">
-                          <p-button [rounded]="true" [text]="true"  [routerLink]="['./', user.login, 'view']" pTooltip="Voir détails" icon="pi pi-eye" severity="info">
-                          </p-button>
+        <div>
+          <div class="d-flex justify-content-center">
+            <jhi-item-count [params]="{ page: page, totalItems: totalItems(), itemsPerPage: itemsPerPage }"></jhi-item-count>
+          </div>
 
-                          <p-button [rounded]="true" [text]="true"
-                                    [routerLink]="['./', user.login, 'edit']"
-                            queryParamsHandling="merge"
-                           severity="primary" icon="pi pi-pencil" pTooltip="Editer" type="button"
-                          >
-                          </p-button>
-
-                          <p-button [rounded]="true" [text]="true"
-                                  type="button"
-                            (click)="deleteUser(user)" icon="pi pi-trash" pTooltip="Supprimer"
-                           severity="danger"
-                            [disabled]="!currentAccount() || currentAccount()?.login === user.login"
-                          >
-                          </p-button>
-                        </div>
-                      </td>
-                    </tr>
-                  }
-                </tbody>
-              </table>
-            </div>
-
-            <div>
-              <div class="d-flex justify-content-center">
-                <jhi-item-count [params]="{ page: page, totalItems: totalItems(), itemsPerPage: itemsPerPage }"></jhi-item-count>
-              </div>
-
-              <div class="d-flex justify-content-center">
-                <ngb-pagination
-                  [collectionSize]="totalItems()"
-                  [(page)]="page"
-                  [pageSize]="itemsPerPage"
-                  [maxSize]="5"
-                  [rotate]="true"
-                  [boundaryLinks]="true"
-                  (pageChange)="transition()"
-                ></ngb-pagination>
-              </div>
-            </div>
-          }
-
+          <div class="d-flex justify-content-center">
+            <ngb-pagination
+              [collectionSize]="totalItems()"
+              [(page)]="page"
+              [pageSize]="itemsPerPage"
+              [maxSize]="5"
+              [rotate]="true"
+              [boundaryLinks]="true"
+              (pageChange)="transition()"
+            ></ngb-pagination>
+          </div>
+        </div>
+      }
     </div>
   </div>
 </div>
-
-
-
-

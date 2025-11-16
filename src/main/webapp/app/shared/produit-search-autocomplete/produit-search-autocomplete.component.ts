@@ -16,10 +16,10 @@ import { debounceTime, Subject, Subscription } from 'rxjs';
     {
       provide: NG_VALUE_ACCESSOR,
       useExisting: forwardRef(() => ProduitSearchAutocompleteComponent),
-      multi: true
-    }
+      multi: true,
+    },
   ],
-  templateUrl: './produit-search-autocomplete.component.html'
+  templateUrl: './produit-search-autocomplete.component.html',
 })
 export class ProduitSearchAutocompleteComponent implements ControlValueAccessor, OnDestroy {
   produits = signal<ProduitSearch[]>([]);
@@ -116,18 +116,16 @@ export class ProduitSearchAutocompleteComponent implements ControlValueAccessor,
     }, 50);
   }
 
-  private onChange: (_: any) => void = () => {
-  };
+  private onChange: (_: any) => void = () => {};
 
-  private onTouched: () => void = () => {
-  };
+  private onTouched: () => void = () => {};
 
   private loadProduits(search: string): void {
     this.produitService
       .search({
         page: 0,
         size: this.pageSize(),
-        search
+        search,
       })
       .subscribe(res => {
         const result = res.body || [];

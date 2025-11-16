@@ -40,8 +40,6 @@ export default class MainComponent implements OnInit {
     this.sidebarCollapsed$ = this.layoutService.sidebarCollapsed$;
   }
 
-
-
   ngOnInit(): void {
     this.accountService.identity().subscribe();
 

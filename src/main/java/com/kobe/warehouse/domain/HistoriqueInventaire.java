@@ -5,7 +5,6 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
 import jakarta.validation.constraints.NotNull;
-
 import java.io.Serializable;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
@@ -16,36 +15,46 @@ import java.util.Objects;
 public class HistoriqueInventaire implements Serializable {
 
     private static final long serialVersionUID = 1L;
+
     @Id
     private Long id;
+
     @NotNull
     @Column(name = "description")
     private String description;
+
     @NotNull
     @Column(name = "inventory_value_cost_begin", nullable = false)
     private long inventoryValueCostBegin;
+
     @NotNull
     @Column(name = "inventory_amount_begin", nullable = false)
     private long inventoryAmountBegin;
+
     @NotNull
     @Column(name = "created_at", nullable = false)
     private LocalDateTime created;
+
     @Column(name = "inventory_value_cost_after", nullable = false)
     private long inventoryValueCostAfter;
+
     @NotNull
     @Column(name = "inventory_amount_after", nullable = false)
     private long inventoryAmountAfter;
+
     @Column(name = "gap_cost")
     private long gapCost;
+
     @Column(name = "gap_amount")
     private long gapAmount;
 
-    public HistoriqueInventaire() {
-    }
+    public HistoriqueInventaire() {}
 
     public HistoriqueInventaire(StoreInventory storeInventory) {
         this.id = storeInventory.getId();
-        this.description = Objects.isNull(storeInventory.getDescription()) ? "Inventaire du "+storeInventory.getCreatedAt().format(DateTimeFormatter.ofPattern("dd/MM/YYYY HH:mm:")) : storeInventory.getDescription();
+        this.description = Objects.isNull(storeInventory.getDescription())
+            ? "Inventaire du " + storeInventory.getCreatedAt().format(DateTimeFormatter.ofPattern("dd/MM/YYYY HH:mm:"))
+            : storeInventory.getDescription();
         this.inventoryValueCostBegin = storeInventory.getInventoryValueCostBegin();
         this.inventoryAmountBegin = storeInventory.getInventoryAmountBegin();
         this.created = storeInventory.getCreatedAt();

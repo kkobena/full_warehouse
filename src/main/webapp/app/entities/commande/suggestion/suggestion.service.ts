@@ -10,7 +10,7 @@ import { SuggestionLine } from './model/suggestion-line.model';
 type EntityArrayResponseType = HttpResponse<Suggestion[]>;
 
 @Injectable({
-  providedIn: 'root'
+  providedIn: 'root',
 })
 export class SuggestionService {
   protected http = inject(HttpClient);
@@ -21,7 +21,7 @@ export class SuggestionService {
     const options = createRequestOptions(req);
     return this.http.get<Suggestion[]>(this.resourceUrl, {
       params: options,
-      observe: 'response'
+      observe: 'response',
     });
   }
 
@@ -29,7 +29,7 @@ export class SuggestionService {
     const options = createRequestOptions(req);
     return this.http.get<SuggestionLine[]>(this.resourceUrl + '/items', {
       params: options,
-      observe: 'response'
+      observe: 'response',
     });
   }
 

@@ -50,16 +50,19 @@ The Tauri integration allows the desktop app to communicate directly with custom
 ```
 
 **Key Difference from Backend Approach:**
+
 - ❌ OLD: Frontend → Backend REST API → Generate ESC/POS → Return to Frontend → Tauri → Display
 - ✅ NEW: Frontend generates ESC/POS → Tauri → Display (no backend involved)
 
 ## Why Frontend Generation?
 
 In a Tauri desktop app, the frontend and backend can run on **different machines**:
+
 - Frontend (Tauri app) runs on the cashier's workstation with the display
 - Backend (Spring Boot server) runs on a central server
 
 Calling the backend to generate ESC/POS commands for a local display makes no sense because:
+
 1. Backend doesn't know what display hardware is available on the client
 2. Backend configuration is for the server's display, not the client's
 3. Adds unnecessary network latency
@@ -72,6 +75,7 @@ Calling the backend to generate ESC/POS commands for a local display makes no se
 Located in `src/main/webapp/app/shared/customer-display/customer-display-escpos.service.ts`
 
 This service:
+
 - Generates ESC/POS commands entirely in TypeScript
 - Handles text formatting, padding, alignment
 - Sends commands to Tauri via IPC
@@ -124,12 +128,7 @@ export class CashRegisterComponent {
   async onProductAdded(product: Product, qty: number) {
     try {
       // Generate ESC/POS in frontend and send to display
-      await this.displayService.displaySalesData(
-        product.name,
-        qty,
-        product.price,
-        this.displayConfig
-      );
+      await this.displayService.displaySalesData(product.name, qty, product.price, this.displayConfig);
     } catch (error) {
       console.error('Failed to update display:', error);
     }
@@ -140,25 +139,28 @@ export class CashRegisterComponent {
 ### Configuration Examples
 
 #### Serial Port (USB-to-Serial)
+
 ```typescript
 const config: CustomerDisplayConnectionConfig = {
   connectionType: 'SERIAL',
-  serialPort: 'COM3',      // Windows
+  serialPort: 'COM3', // Windows
   // serialPort: '/dev/ttyUSB0', // Linux
   baudRate: 9600,
 };
 ```
 
 #### USB (via Virtual COM Port)
+
 ```typescript
 const config: CustomerDisplayConnectionConfig = {
   connectionType: 'USB',
-  serialPort: 'COM4',  // USB creates virtual COM port
+  serialPort: 'COM4', // USB creates virtual COM port
   baudRate: 9600,
 };
 ```
 
 #### Network (TCP/IP)
+
 ```typescript
 const config: CustomerDisplayConnectionConfig = {
   connectionType: 'NETWORK',
@@ -171,12 +173,7 @@ const config: CustomerDisplayConnectionConfig = {
 
 ```typescript
 // Generate ESC/POS data locally (no backend call)
-const escPosData = this.displayService.generateTwoLines(
-  'PROMO SPECIAL',
-  '-50% REDUCTION',
-  'center',
-  'center'
-);
+const escPosData = this.displayService.generateTwoLines('PROMO SPECIAL', '-50% REDUCTION', 'center', 'center');
 
 // Send to display via Tauri
 await this.displayService.sendToDisplayViaTauri(escPosData, this.displayConfig);
@@ -326,7 +323,7 @@ export class POSComponent {
 
   constructor(
     private displayService: CustomerDisplayEscPosService,
-    private store: Store
+    private store: Store,
   ) {}
 
   async ngOnInit() {
@@ -342,12 +339,7 @@ export class POSComponent {
 
   async onProductScanned(product: Product, qty: number) {
     // Update display with product info
-    await this.displayService.displaySalesData(
-      product.name,
-      qty,
-      product.price,
-      this.config
-    );
+    await this.displayService.displaySalesData(product.name, qty, product.price, this.config);
   }
 
   async onCheckout(total: number) {
@@ -374,14 +366,14 @@ export class POSComponent {
 
 ## Performance Comparison
 
-| Aspect | Frontend Generation | Backend Generation (Wrong) |
-|--------|-------------------|--------------------------|
-| **Network calls** | 0 | 1 per operation |
-| **Payload size** | 20-50 bytes | ~200B HTTP request + response |
-| **Latency** | 5-10ms | 50-100ms+ |
-| **Offline support** | ✅ Yes | ❌ No |
-| **Server load** | 0 | High on busy systems |
-| **Scalability** | Perfect | Poor |
+| Aspect              | Frontend Generation | Backend Generation (Wrong)    |
+| ------------------- | ------------------- | ----------------------------- |
+| **Network calls**   | 0                   | 1 per operation               |
+| **Payload size**    | 20-50 bytes         | ~200B HTTP request + response |
+| **Latency**         | 5-10ms              | 50-100ms+                     |
+| **Offline support** | ✅ Yes              | ❌ No                         |
+| **Server load**     | 0                   | High on busy systems          |
+| **Scalability**     | Perfect             | Poor                          |
 
 ## Troubleshooting
 
@@ -389,6 +381,7 @@ export class POSComponent {
 
 **Solution:**
 This service only works in Tauri desktop apps, not in browsers.
+
 ```typescript
 if ((window as any).__TAURI__) {
   // Tauri app - display available
@@ -402,6 +395,7 @@ if ((window as any).__TAURI__) {
 ### Issue: COM port access denied (Windows)
 
 **Solution:**
+
 1. Close any other applications using the port
 2. Check Device Manager for port conflicts
 3. Verify the port name is correct (use `list_serial_ports`)
@@ -409,6 +403,7 @@ if ((window as any).__TAURI__) {
 ### Issue: Permission denied (Linux)
 
 **Solution:**
+
 ```bash
 sudo usermod -a -G dialout $USER
 sudo chmod 666 /dev/ttyUSB0
@@ -418,6 +413,7 @@ newgrp dialout
 ### Issue: Display not responding
 
 **Solution:**
+
 1. Verify display is powered on
 2. Check cable connections
 3. Test with device discovery:

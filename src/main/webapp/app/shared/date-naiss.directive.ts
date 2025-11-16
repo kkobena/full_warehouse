@@ -1,4 +1,4 @@
-import {Directive, ElementRef, forwardRef, HostListener, Input, OnInit} from '@angular/core';
+import { Directive, ElementRef, forwardRef, HostListener, Input, OnInit } from '@angular/core';
 import { AbstractControl, ControlValueAccessor, NG_VALIDATORS, NG_VALUE_ACCESSOR, ValidationErrors, Validator } from '@angular/forms';
 import dayjs from 'dayjs/esm';
 import { FORMAT_ISO_DATE_TO_STRING_FR } from './util/warehouse-util';
@@ -21,8 +21,8 @@ import { FORMAT_ISO_DATE_TO_STRING_FR } from './util/warehouse-util';
 export class DateNaissDirective implements ControlValueAccessor, Validator, OnInit {
   private _disabled = false;
   private _value: string | null = null;
-  @Input() minDate?: string= '1930-01-01';// ISO format (YYYY-MM-DD)
-  @Input() maxDate?: string= new Date().toISOString().split('T')[0]; // Default to today
+  @Input() minDate?: string = '1930-01-01'; // ISO format (YYYY-MM-DD)
+  @Input() maxDate?: string = new Date().toISOString().split('T')[0]; // Default to today
 
   constructor(private el: ElementRef<HTMLInputElement>) {}
 
@@ -139,7 +139,7 @@ export class DateNaissDirective implements ControlValueAccessor, Validator, OnIn
         return { invalidDate: true };
       }
     }
-   /* if (yyyy < 1920 || yyyy > new Date().getFullYear()) {
+    /* if (yyyy < 1920 || yyyy > new Date().getFullYear()) {
       return { outOfRange: true };
     }*/
 

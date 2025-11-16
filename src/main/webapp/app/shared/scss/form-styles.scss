@@ -98,7 +98,8 @@
 
 // Pulse animation for required field icons
 @keyframes pulse {
-  0%, 100% {
+  0%,
+  100% {
     opacity: 1;
   }
   50% {

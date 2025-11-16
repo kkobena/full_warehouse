@@ -22,7 +22,6 @@ public class StorageDTO {
             this.magasinName = magasin.getName();
             this.magasinId = magasin.getId();
         }
-
     }
 
     public String getName() {

@@ -1,8 +1,8 @@
 package com.kobe.warehouse.service.dto;
 
 import com.kobe.warehouse.config.Constants;
-import com.kobe.warehouse.domain.Authority;
 import com.kobe.warehouse.domain.AppUser;
+import com.kobe.warehouse.domain.Authority;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Pattern;

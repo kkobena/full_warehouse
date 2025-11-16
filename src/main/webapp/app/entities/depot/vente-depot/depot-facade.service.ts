@@ -10,7 +10,7 @@ import { ISalesLine, SaleLineId } from '../../../shared/model/sales-line.model';
 import { IRemise } from '../../../shared/model/remise.model';
 
 @Injectable({
-  providedIn: 'root'
+  providedIn: 'root',
 })
 export class DepotFacadeService {
   private readonly depotService = inject(DepotService);
@@ -23,9 +23,7 @@ export class DepotFacadeService {
 
   private spinnerService = new Subject<boolean>();
   spinnerService$ = this.spinnerService.asObservable();
-  totalQtyProduit = computed(() =>
-    this.depotService.currentSale().salesLines.reduce((sum, current) => sum + current.quantityRequested, 0)
-  );
+  totalQtyProduit = computed(() => this.depotService.currentSale().salesLines.reduce((sum, current) => sum + current.quantityRequested, 0));
   totalQtyServi = computed(() => this.depotService.currentSale().salesLines.reduce((sum, current) => sum + current.quantitySold, 0));
   isAvoir(): boolean {
     return this.totalQtyProduit() - this.totalQtyServi() != 0;
@@ -47,7 +45,7 @@ export class DepotFacadeService {
       .pipe(finalize(() => this.spinnerService.next(false)))
       .subscribe({
         next: (res: HttpResponse<ISales>) => this.onSaleComptantResponseSuccess(res.body),
-        error: error => this.onSaveSaveError(error, this.depotService.currentSale())
+        error: error => this.onSaveSaveError(error, this.depotService.currentSale()),
       });
   }
 
@@ -57,9 +55,9 @@ export class DepotFacadeService {
       this.depotService
         .addItem({
           ...salesLine,
-          saleCompositeId: sale.saleId
+          saleCompositeId: sale.saleId,
         })
-        .pipe(switchMap(res => this.depotService.find(sale.saleId)))
+        .pipe(switchMap(res => this.depotService.find(sale.saleId))),
     );
   }
 
@@ -74,14 +72,14 @@ export class DepotFacadeService {
       this.depotService
         .updateItemQtyRequested({
           ...salesLine,
-          saleCompositeId: sale.saleId
+          saleCompositeId: sale.saleId,
         })
         .pipe(
           switchMap(() => {
             return this.depotService.find(sale.saleId);
-          })
+          }),
         ),
-      salesLine
+      salesLine,
     );
   }
 
@@ -91,9 +89,9 @@ export class DepotFacadeService {
       this.depotService
         .updateItemQtySold({
           ...salesLine,
-          saleCompositeId: sale.saleId
+          saleCompositeId: sale.saleId,
         })
-        .pipe(switchMap(() => this.depotService.find(sale.saleId)))
+        .pipe(switchMap(() => this.depotService.find(sale.saleId))),
     );
   }
 
@@ -103,9 +101,9 @@ export class DepotFacadeService {
       this.depotService
         .updateItemPrice({
           ...salesLine,
-          saleCompositeId: sale.saleId
+          saleCompositeId: sale.saleId,
         })
-        .pipe(switchMap(() => this.depotService.find(sale.saleId)))
+        .pipe(switchMap(() => this.depotService.find(sale.saleId))),
     );
   }
 
@@ -151,10 +149,9 @@ export class DepotFacadeService {
         },
         error: err => {
           this.onSaveError(err);
-        }
+        },
       });
   }
-
 
   private onSaveSuccess(sale: ISales | null): void {
     this.depotService.setCurrentSale(sale);
@@ -192,37 +189,34 @@ export class DepotFacadeService {
       .pipe(finalize(() => this.spinnerService.next(false)))
       .subscribe({
         next: (res: HttpResponse<FinalyseSale>) => this.onFinalyseSuccess(res.body),
-        error: err => this.onFinalyseError(err)
+        error: err => this.onFinalyseError(err),
       });
   }
-
 
   private handleSaleUpdate(observable: Observable<HttpResponse<ISales>>, payload: any = null): void {
     this.spinnerService.next(true);
     observable.pipe(finalize(() => this.spinnerService.next(false))).subscribe({
       next: (res: HttpResponse<ISales>) => this.onSaveSuccess(res.body),
-      error: err => this.onSaveSaveError(err, this.depotService.currentSale(), payload)
+      error: err => this.onSaveSaveError(err, this.depotService.currentSale(), payload),
     });
   }
 
   private updateSaleAmounts(sale: ISales): void {
     sale.payrollAmount = sale.amountToBePaid;
     sale.restToPay = sale.amountToBePaid;
-
   }
 
   private createSale(salesLine: ISalesLine): ISales {
-
     return {
       ...new Sales(),
       salesLines: [salesLine],
-      natureVente: 'ASSURANCE',//TODO A SUPPRIMER
+      natureVente: 'ASSURANCE', //TODO A SUPPRIMER
       magasin: { id: this.depotService.selectedDepot()?.id },
       typePrescription: 'DEPOT',
       cassierId: this.depotService.caissier()?.id,
       sellerId: this.depotService.vendeur()?.id,
       type: 'DEPOT',
-      categorie: 'VO'
+      categorie: 'VO',
     };
   }
 }

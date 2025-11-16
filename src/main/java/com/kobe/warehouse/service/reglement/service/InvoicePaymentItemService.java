@@ -13,7 +13,6 @@ public class InvoicePaymentItemService {
 
     public InvoicePaymentItemService(TransactionItemIdGeneratorService transactionItemIdGeneratorService) {
         this.transactionItemIdGeneratorService = transactionItemIdGeneratorService;
-
     }
 
     protected InvoicePaymentItem buildInvoicePaymentItem(ThirdPartySaleLine thirdPartySaleLine, InvoicePayment invoicePayment, int amount) {

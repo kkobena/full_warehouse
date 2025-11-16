@@ -116,8 +116,7 @@ public interface SalesLineRepository
     }
 
     default Specification<SalesLine> filterByPeriode(LocalDate fromDate, LocalDate toDate) {
-        return (root, query, cb) ->
-            cb.between( root.get(SalesLine_.sales).get(Sales_.saleDate), fromDate, toDate);
+        return (root, query, cb) -> cb.between(root.get(SalesLine_.sales).get(Sales_.saleDate), fromDate, toDate);
     }
 
     default Specification<SalesLine> filterByStatut(EnumSet<SalesStatut> statuts) {

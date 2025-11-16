@@ -27,16 +27,16 @@ export class AuthorityFormService {
   createAuthorityFormGroup(authority: AuthorityFormGroupInput = { name: null }): AuthorityFormGroup {
     const authorityRawValue = {
       ...this.getFormDefaults(),
-      ...authority
+      ...authority,
     };
     return new FormGroup<AuthorityFormGroupContent>({
       name: new FormControl(
         { value: authorityRawValue.name, disabled: authorityRawValue.name !== null },
         {
           nonNullable: true,
-          validators: [Validators.required, Validators.maxLength(50)]
-        }
-      )
+          validators: [Validators.required, Validators.maxLength(50)],
+        },
+      ),
     });
   }
 
@@ -49,14 +49,14 @@ export class AuthorityFormService {
     form.reset(
       {
         ...authorityRawValue,
-        name: { value: authorityRawValue.name, disabled: authorityRawValue.name !== null }
-      } as any /* cast to workaround https://github.com/angular/angular/issues/46458 */
+        name: { value: authorityRawValue.name, disabled: authorityRawValue.name !== null },
+      } as any /* cast to workaround https://github.com/angular/angular/issues/46458 */,
     );
   }
 
   private getFormDefaults(): AuthorityFormDefaults {
     return {
-      name: null
+      name: null,
     };
   }
 }

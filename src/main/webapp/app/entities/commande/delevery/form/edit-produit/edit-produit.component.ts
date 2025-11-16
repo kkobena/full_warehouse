@@ -39,8 +39,8 @@ import { Card } from 'primeng/card';
     InputMaskModule,
     Select,
     ToastAlertComponent,
-    Card
-  ]
+    Card,
+  ],
 })
 export class EditProduitComponent implements OnInit {
   deliveryItem: IOrderLine | null;
@@ -61,7 +61,7 @@ export class EditProduitComponent implements OnInit {
     prixAchat: [null, [Validators.required]],
     prixUni: [null, [Validators.required]],
     codeEan: [],
-    expirationDate: []
+    expirationDate: [],
     //    principal: [],
   });
   private readonly produitService = inject(ProduitService);
@@ -77,14 +77,13 @@ export class EditProduitComponent implements OnInit {
   }
 
   ngOnInit(): void {
-
     this.produitService.findFournisseurProduit(this.deliveryItem.fournisseurProduitId).subscribe({
       next: (res: HttpResponse<IFournisseurProduit>) => {
         this.fournisseurPrduit = res.body;
         this.produit = this.fournisseurPrduit.produit;
         this.updateForm(this.fournisseurPrduit);
         this.populate();
-      }
+      },
     });
   }
 
@@ -99,7 +98,7 @@ export class EditProduitComponent implements OnInit {
       codeEan: this.produit.codeEan,
       expirationDate: this.produit.expirationDate,
       tvaId: this.produit.tvaId,
-      rayonId: this.produit.rayonId
+      rayonId: this.produit.rayonId,
     });
   }
 
@@ -110,7 +109,7 @@ export class EditProduitComponent implements OnInit {
     this.rayonService
       .query({
         page: 0,
-        size: 9999
+        size: 9999,
       })
       .subscribe((res: HttpResponse<IRayon[]>) => {
         this.rayons = res.body || [];
@@ -132,7 +131,7 @@ export class EditProduitComponent implements OnInit {
   private subscribeToSaveResponse(result: Observable<HttpResponse<{}>>): void {
     result.pipe(finalize(() => (this.isSaving = false))).subscribe({
       next: () => this.onSaveSuccess(),
-      error: error => this.onSaveError(error)
+      error: error => this.onSaveError(error),
     });
   }
 
@@ -159,8 +158,8 @@ export class EditProduitComponent implements OnInit {
         expirationDate: this.editForm.get(['expirationDate']).value,
         tvaId: this.editForm.get(['tvaId']).value,
         rayonId: this.editForm.get(['rayonId']).value,
-        id: this.produit.id
-      }
+        id: this.produit.id,
+      },
     };
   }
 
@@ -168,4 +167,3 @@ export class EditProduitComponent implements OnInit {
     this.isValid = prixAchat < prixUni;
   }
 }
-

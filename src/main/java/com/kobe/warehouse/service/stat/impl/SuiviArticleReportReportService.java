@@ -32,7 +32,8 @@ public class SuiviArticleReportReportService extends CommonReportService {
     public SuiviArticleReportReportService(
         SpringTemplateEngine templateEngine,
         FileStorageProperties fileStorageProperties,
-        StorageService storageService, MagasinService magasinService
+        StorageService storageService,
+        MagasinService magasinService
     ) {
         super(fileStorageProperties, storageService);
         this.templateEngine = templateEngine;

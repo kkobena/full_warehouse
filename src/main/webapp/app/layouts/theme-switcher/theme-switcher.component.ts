@@ -7,14 +7,12 @@ import { faPalette } from '@fortawesome/free-solid-svg-icons';
   selector: 'jhi-theme-switcher',
   templateUrl: './theme-switcher.component.html',
   styleUrls: ['./theme-switcher.component.scss'],
-  imports: [
-    FaIconComponent, FontAwesomeModule,
-  ]
+  imports: [FaIconComponent, FontAwesomeModule],
 })
 export class ThemeSwitcherComponent implements OnInit {
   themes: Theme[];
   selectedTheme: string;
-  readonly faPalette=faPalette;
+  readonly faPalette = faPalette;
 
   constructor(private themeService: ThemeService) {}
 

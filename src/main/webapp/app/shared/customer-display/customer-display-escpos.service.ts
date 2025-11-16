@@ -153,7 +153,7 @@ export class CustomerDisplayEscPosService {
       this.escPosSetCursorPosition(0, 0),
       this.escPosWriteText(this.padToDisplayWidth(this.truncateToDisplayWidth(storeName), 'center')),
       this.escPosSetCursorPosition(1, 0),
-      this.escPosWriteText(this.padToDisplayWidth(welcomeText, 'center'))
+      this.escPosWriteText(this.padToDisplayWidth(welcomeText, 'center')),
     );
   }
 
@@ -172,7 +172,7 @@ export class CustomerDisplayEscPosService {
       this.escPosSetCursorPosition(0, 0),
       this.escPosWriteText(this.padToDisplayWidth(line1, 'left')),
       this.escPosSetCursorPosition(1, 0),
-      this.escPosWriteText(this.padToDisplayWidth(line2, 'begin'))
+      this.escPosWriteText(this.padToDisplayWidth(line2, 'begin')),
     );
   }
 
@@ -185,7 +185,7 @@ export class CustomerDisplayEscPosService {
       this.escPosSetCursorPosition(0, 0),
       this.escPosWriteText(this.padToDisplayWidth('NET A PAYER:', 'left')),
       this.escPosSetCursorPosition(1, 0),
-      this.escPosWriteText(this.padToDisplayWidth(this.formatNumber(total), 'begin'))
+      this.escPosWriteText(this.padToDisplayWidth(this.formatNumber(total), 'begin')),
     );
   }
 
@@ -198,7 +198,7 @@ export class CustomerDisplayEscPosService {
       this.escPosSetCursorPosition(0, 0),
       this.escPosWriteText(this.padToDisplayWidth('MONNAIE:', 'left')),
       this.escPosSetCursorPosition(1, 0),
-      this.escPosWriteText(this.padToDisplayWidth(this.formatNumber(change), 'begin'))
+      this.escPosWriteText(this.padToDisplayWidth(this.formatNumber(change), 'begin')),
     );
   }
 
@@ -210,7 +210,7 @@ export class CustomerDisplayEscPosService {
     const message = `Caisse: ${userName.toUpperCase()}`;
     return this.combineBytes(
       this.escPosSetCursorPosition(1, 0),
-      this.escPosWriteText(this.padToDisplayWidth(this.truncateToDisplayWidth(message), 'left'))
+      this.escPosWriteText(this.padToDisplayWidth(this.truncateToDisplayWidth(message), 'left')),
     );
   }
 
@@ -227,7 +227,7 @@ export class CustomerDisplayEscPosService {
       this.escPosSetCursorPosition(0, 0),
       this.escPosWriteText(this.padToDisplayWidth(this.truncateToDisplayWidth(line1), align1)),
       this.escPosSetCursorPosition(1, 0),
-      this.escPosWriteText(this.padToDisplayWidth(this.truncateToDisplayWidth(line2), align2))
+      this.escPosWriteText(this.padToDisplayWidth(this.truncateToDisplayWidth(line2), align2)),
     );
   }
 
@@ -245,7 +245,7 @@ export class CustomerDisplayEscPosService {
     return this.combineBytes(
       this.escPosInitialize(),
       this.escPosClearDisplay(),
-      this.escPosSetCursorVisibility(false) // Hide cursor
+      this.escPosSetCursorVisibility(false), // Hide cursor
     );
   }
 
@@ -302,12 +302,7 @@ export class CustomerDisplayEscPosService {
   /**
    * Display sales data on customer display
    */
-  async displaySalesData(
-    productName: string,
-    qty: number,
-    price: number,
-    config: CustomerDisplayConnectionConfig
-  ): Promise<void> {
+  async displaySalesData(productName: string, qty: number, price: number, config: CustomerDisplayConnectionConfig): Promise<void> {
     const escPosData = this.generateSalesData(productName, qty, price);
     await this.sendToDisplayViaTauri(escPosData, config);
   }
@@ -344,7 +339,7 @@ export class CustomerDisplayEscPosService {
     line2: string,
     config: CustomerDisplayConnectionConfig,
     align1 = 'left',
-    align2 = 'left'
+    align2 = 'left',
   ): Promise<void> {
     const escPosData = this.generateTwoLines(line1, line2, align1, align2);
     await this.sendToDisplayViaTauri(escPosData, config);

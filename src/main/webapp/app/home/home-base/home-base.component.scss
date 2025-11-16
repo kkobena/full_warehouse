@@ -20,7 +20,6 @@ $gray-border: #e2e8f0;
 
 // Custom iOS-Style Segmented Control
 .dashboard-toggle {
-
   display: flex;
   justify-content: flex-end;
 }
@@ -36,7 +35,9 @@ $gray-border: #e2e8f0;
   background: rgba($gray-border, 0.3);
   border-radius: 14px;
   padding: 4px;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08), inset 0 1px 2px rgba(0, 0, 0, 0.05);
+  box-shadow:
+    0 2px 8px rgba(0, 0, 0, 0.08),
+    inset 0 1px 2px rgba(0, 0, 0, 0.05);
   backdrop-filter: blur(10px);
 }
 
@@ -49,9 +50,10 @@ $gray-border: #e2e8f0;
   width: calc(50% - 4px);
   background: linear-gradient(135deg, $primary-blue 0%, $primary-light 100%);
   border-radius: 10px;
-  box-shadow: 0 4px 12px rgba($primary-blue, 0.4),
-              0 2px 4px rgba($primary-blue, 0.2),
-              inset 0 1px 2px rgba(255, 255, 255, 0.3);
+  box-shadow:
+    0 4px 12px rgba($primary-blue, 0.4),
+    0 2px 4px rgba($primary-blue, 0.2),
+    inset 0 1px 2px rgba(255, 255, 255, 0.3);
   transition: all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1); // Bouncy easing
   z-index: 0;
 

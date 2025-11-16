@@ -5,6 +5,7 @@ This guide explains how to configure the ESC/POS Customer Display Service with d
 ## Overview
 
 The `CustomerDisplayEscPosServiceImpl` supports three connection types:
+
 1. **Serial Port** (COM port, USB-to-Serial)
 2. **USB Print Service** (USB displays that register as printers)
 3. **Network** (TCP/IP socket connection)
@@ -33,12 +34,12 @@ For USB customer displays that register as USB printers in the system:
 
 ```yaml
 # Disable serial port if not using it
-port-com: ""
+port-com: ''
 
 # Configure USB connection
 customer-display:
   connection-type: USB_PRINT_SERVICE
-  usb-printer-name: "Customer Display VFD"  # Exact name from system
+  usb-printer-name: 'Customer Display VFD' # Exact name from system
 ```
 
 **Finding USB Printer Names:**
@@ -55,10 +56,12 @@ System.out.println("Available USB displays: " + usbDisplays);
 ```
 
 On Windows, you can also check:
+
 - Control Panel → Devices and Printers
 - Device Manager → Printers
 
 On Linux:
+
 ```bash
 lpstat -p -d
 ```
@@ -68,7 +71,7 @@ lpstat -p -d
 For network-connected customer displays (Ethernet/WiFi):
 
 ```yaml
-port-com: ""
+port-com: ''
 
 customer-display:
   connection-type: NETWORK
@@ -109,18 +112,21 @@ displayService.sendWithConfig(escPosData, usbConfig);
 ### 1. USB-to-Serial (Virtual COM Port)
 
 **How it works:**
+
 - Display has USB port but uses serial protocol internally
 - USB driver creates a virtual COM port (e.g., COM3, /dev/ttyUSB0)
 - Configure as `SERIAL` connection type
 
 **Advantages:**
+
 - Most common for customer displays
 - Simple configuration
 - Works with existing serial code
 
 **Configuration:**
+
 ```yaml
-port-com: COM3  # Or /dev/ttyUSB0 on Linux
+port-com: COM3 # Or /dev/ttyUSB0 on Linux
 customer-display:
   connection-type: SERIAL
 ```
@@ -128,30 +134,35 @@ customer-display:
 ### 2. USB Print Service (USB Printer)
 
 **How it works:**
+
 - Display registers as USB printer device
 - Uses Java Print Service API
 - No virtual COM port needed
 
 **Advantages:**
+
 - No driver installation required (uses generic USB printer driver)
 - Cross-platform support
 - Direct USB communication
 
 **Configuration:**
+
 ```yaml
 customer-display:
   connection-type: USB_PRINT_SERVICE
-  usb-printer-name: "POS Pole Display"
+  usb-printer-name: 'POS Pole Display'
 ```
 
 **Identifying USB Print Service Displays:**
 
 Windows PowerShell:
+
 ```powershell
 Get-Printer | Select-Object Name, DriverName, PortName
 ```
 
 Linux:
+
 ```bash
 lpinfo -v
 lpstat -a
@@ -193,11 +204,11 @@ serialPorts.forEach(System.out::println);
 
 ```yaml
 # src/main/resources/application-dev.yml
-port-com: ""
+port-com: ''
 
 customer-display:
   connection-type: USB_PRINT_SERVICE
-  usb-printer-name: "EPSON VFD Display"
+  usb-printer-name: 'EPSON VFD Display'
 ```
 
 ### Example 2: USB-to-Serial Display
@@ -216,13 +227,14 @@ customer-display:
 ### Example 3: Network Display
 
 ```yaml
-port-com: ""
+port-com: ''
 
 customer-display:
   connection-type: NETWORK
 ```
 
 Then in code:
+
 ```java
 ByteArrayOutputStream out = new ByteArrayOutputStream();
 // Build ESC/POS commands...
@@ -231,20 +243,21 @@ displayService.sendToNetworkDisplay(out.toByteArray(), "192.168.1.50", 9100);
 
 ## Common USB Display Models
 
-| Model | Connection Type | Configuration |
-|-------|----------------|---------------|
-| Epson DM-D30 | USB_PRINT_SERVICE | Use USB printer name |
-| Bixolon BCD-1100 | SERIAL | USB creates COM port |
-| Star Micronics SCD222U | USB_PRINT_SERVICE | Use USB printer name |
-| Logic Controls LD9900U | SERIAL | USB-to-Serial adapter |
-| Aures OCD | USB_PRINT_SERVICE | Use USB printer name |
-| Partner Tech CD-7220U | SERIAL | Virtual COM port |
+| Model                  | Connection Type   | Configuration         |
+| ---------------------- | ----------------- | --------------------- |
+| Epson DM-D30           | USB_PRINT_SERVICE | Use USB printer name  |
+| Bixolon BCD-1100       | SERIAL            | USB creates COM port  |
+| Star Micronics SCD222U | USB_PRINT_SERVICE | Use USB printer name  |
+| Logic Controls LD9900U | SERIAL            | USB-to-Serial adapter |
+| Aures OCD              | USB_PRINT_SERVICE | Use USB printer name  |
+| Partner Tech CD-7220U  | SERIAL            | Virtual COM port      |
 
 ## Troubleshooting
 
 ### Issue: USB display not detected
 
 **Solution:**
+
 1. Check if driver is installed
 2. Verify device appears in Device Manager (Windows) or `lsusb` (Linux)
 3. Try listing available devices:
@@ -256,6 +269,7 @@ displayService.sendToNetworkDisplay(out.toByteArray(), "192.168.1.50", 9100);
 ### Issue: "USB display not found" error
 
 **Solution:**
+
 1. Verify exact printer name (case-sensitive):
    ```java
    displayService.listAvailableUsbDisplays();
@@ -265,6 +279,7 @@ displayService.sendToNetworkDisplay(out.toByteArray(), "192.168.1.50", 9100);
 ### Issue: Connection works but no display
 
 **Solution:**
+
 1. Check display is powered on
 2. Verify ESC/POS commands are correct for your display model
 3. Some displays require initialization sequence:
@@ -276,6 +291,7 @@ displayService.sendToNetworkDisplay(out.toByteArray(), "192.168.1.50", 9100);
 ### Issue: Windows COM port changes
 
 **Solution:**
+
 - Fix COM port number in Device Manager:
   1. Device Manager → Ports (COM & LPT)
   2. Right-click device → Properties → Port Settings → Advanced
@@ -285,6 +301,7 @@ displayService.sendToNetworkDisplay(out.toByteArray(), "192.168.1.50", 9100);
 
 **Solution:**
 Add user to dialout group:
+
 ```bash
 sudo usermod -a -G dialout $USER
 sudo chmod 666 /dev/ttyUSB0
@@ -311,6 +328,7 @@ displayService.sendWithConfig(data2, display2);
 ```java
 // For high-speed serial displays
 DisplayConnectionConfig config = DisplayConnectionConfig.forSerialPort("COM3", 115200);
+
 ```
 
 ## References

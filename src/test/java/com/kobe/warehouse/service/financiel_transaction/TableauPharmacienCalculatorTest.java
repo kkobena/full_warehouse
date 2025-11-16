@@ -1,16 +1,15 @@
 package com.kobe.warehouse.service.financiel_transaction;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+
 import com.kobe.warehouse.service.financiel_transaction.dto.AchatDTO;
 import com.kobe.warehouse.service.financiel_transaction.dto.PaymentDTO;
 import com.kobe.warehouse.service.financiel_transaction.dto.TableauPharmacienDTO;
 import com.kobe.warehouse.service.financiel_transaction.dto.TableauPharmacienWrapper;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
-
 import java.util.ArrayList;
 import java.util.List;
-
-import static org.junit.jupiter.api.Assertions.assertEquals;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 class TableauPharmacienCalculatorTest {
 

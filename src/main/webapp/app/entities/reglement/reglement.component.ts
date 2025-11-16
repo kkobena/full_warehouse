@@ -23,7 +23,6 @@ import { ReglementFactureDossier } from './model/reglement-facture-dossier.model
     NgbNavLinkBase,
     PanelModule,
     FormsModule,
-
   ],
   templateUrl: './reglement.component.html',
   styleUrls: ['./reglement.component.scss'],

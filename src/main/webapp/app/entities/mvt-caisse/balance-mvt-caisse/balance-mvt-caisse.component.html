@@ -1,84 +1,83 @@
-
-  <div class="pharma-smart-content p-2">
-    <!-- Modern Pharma Toolbar ---->
-    <div class="pharma-toolbar">
-      <div class="pharma-toolbar-header">
-        <i class="pi pi-balance-scale"></i>
-        <span class="pharma-toolbar-title">Balance de caisse</span>
-      </div>
-
-      <p-toolbar>
-        <ng-template #start>
-          <div class="pharma-toolbar-filters">
-            <p-floatlabel variant="on" class="mr-2">
-              <p-datePicker
-                [(ngModel)]="fromDate"
-                [iconDisplay]="'input'"
-                [showButtonBar]="true"
-                dateFormat="dd/mm/yy"
-                id="dateDebut"
-                inputId="dateDebut"
-                selectOtherMonths="true"
-                showIcon="true"
-                appendTo="body"
-              />
-              <label for="dateDebut">Du</label>
-            </p-floatlabel>
-
-            <p-floatlabel variant="on" class="mr-2">
-              <p-datePicker
-                [(ngModel)]="toDate"
-                [iconDisplay]="'input'"
-                [showButtonBar]="true"
-                dateFormat="dd/mm/yy"
-                id="dateFin"
-                inputId="dateFin"
-                selectOtherMonths="true"
-                showIcon="true"
-                appendTo="body"
-              />
-              <label for="dateFin">Au</label>
-            </p-floatlabel>
-          </div>
-        </ng-template>
-
-        <ng-template #end>
-          <div class="pharma-toolbar-actions">
-            <div class="pharma-button-group">
-              <p-button
-                (click)="onSearch()"
-                [disabled]="loading"
-                [loading]="loading"
-                [raised]="true"
-                icon="pi pi-search"
-                label="Rechercher"
-                pTooltip="Rechercher"
-                severity="info"
-                tooltipPosition="top"
-              />
-
-              <p-button
-                (click)="onPrint()"
-                [loading]="loading"
-                [outlined]="true"
-                icon="pi pi-print"
-                label="Imprimer"
-                pTooltip="Imprimer"
-                severity="warn"
-                tooltipPosition="top"
-              />
-            </div>
-          </div>
-        </ng-template>
-      </p-toolbar>
+<div class="pharma-smart-content p-2">
+  <!-- Modern Pharma Toolbar ---->
+  <div class="pharma-toolbar">
+    <div class="pharma-toolbar-header">
+      <i class="pi pi-balance-scale"></i>
+      <span class="pharma-toolbar-title">Balance de caisse</span>
     </div>
-    <div class="row mt-3 mb-3 px-2">
-      @if (balanceMvtCaisseWrapper) {
-        @if (balanceMvtCaisseWrapper.balanceCaisses.length > 0) {
-          <div class="col-12">
-            <div class="table-responsive">
-              <table class="table table-secondary table-striped table-bordered table-hover">
-                <thead class="pharma-table-head">
+
+    <p-toolbar>
+      <ng-template #start>
+        <div class="pharma-toolbar-filters">
+          <p-floatlabel variant="on" class="mr-2">
+            <p-datePicker
+              [(ngModel)]="fromDate"
+              [iconDisplay]="'input'"
+              [showButtonBar]="true"
+              dateFormat="dd/mm/yy"
+              id="dateDebut"
+              inputId="dateDebut"
+              selectOtherMonths="true"
+              showIcon="true"
+              appendTo="body"
+            />
+            <label for="dateDebut">Du</label>
+          </p-floatlabel>
+
+          <p-floatlabel variant="on" class="mr-2">
+            <p-datePicker
+              [(ngModel)]="toDate"
+              [iconDisplay]="'input'"
+              [showButtonBar]="true"
+              dateFormat="dd/mm/yy"
+              id="dateFin"
+              inputId="dateFin"
+              selectOtherMonths="true"
+              showIcon="true"
+              appendTo="body"
+            />
+            <label for="dateFin">Au</label>
+          </p-floatlabel>
+        </div>
+      </ng-template>
+
+      <ng-template #end>
+        <div class="pharma-toolbar-actions">
+          <div class="pharma-button-group">
+            <p-button
+              (click)="onSearch()"
+              [disabled]="loading"
+              [loading]="loading"
+              [raised]="true"
+              icon="pi pi-search"
+              label="Rechercher"
+              pTooltip="Rechercher"
+              severity="info"
+              tooltipPosition="top"
+            />
+
+            <p-button
+              (click)="onPrint()"
+              [loading]="loading"
+              [outlined]="true"
+              icon="pi pi-print"
+              label="Imprimer"
+              pTooltip="Imprimer"
+              severity="warn"
+              tooltipPosition="top"
+            />
+          </div>
+        </div>
+      </ng-template>
+    </p-toolbar>
+  </div>
+  <div class="row mt-3 mb-3 px-2">
+    @if (balanceMvtCaisseWrapper) {
+      @if (balanceMvtCaisseWrapper.balanceCaisses.length > 0) {
+        <div class="col-12">
+          <div class="table-responsive">
+            <table class="table table-secondary table-striped table-bordered table-hover">
+              <thead class="pharma-table-head">
                 <tr>
                   <th rowspan="2" class="text-center">Type</th>
                   <th rowspan="2" class="text-center">Nombre</th>
@@ -99,28 +98,28 @@
                   <th class="text-center">Virement</th>
                   <th class="text-center">Mobile</th>
                 </tr>
-                </thead>
-                <tbody>
-                  @for (item of balanceMvtCaisseWrapper.balanceCaisses; track $index) {
-                    <tr>
-                      <td>{{ item.typeVeTypeAffichage }}</td>
-                      <td class="amount-td-column">{{ item.count | number }}</td>
-                      <td class="amount-td-column">{{ item.montantTtc | number }}</td>
-                      <td class="amount-td-column">{{ item.montantDiscount | number }}</td>
-                      <td class="amount-td-column">{{ item.montantNet | number }}</td>
-                      <td class="amount-td-column">{{ item.typeSalePercent | number }}</td>
-                      <td class="amount-td-column">{{ item.panierMoyen | number }}</td>
-                      <td class="amount-td-column">{{ item.montantCash | number }}</td>
-                      <td class="amount-td-column">{{ item.montantCheck | number }}</td>
-                      <td class="amount-td-column">{{ item.montantCard | number }}</td>
-                      <td class="amount-td-column">{{ item.montantVirement | number }}</td>
-                      <td class="amount-td-column">{{ item.montantMobileMoney | number }}</td>
-                      <td class="amount-td-column">{{ item.montantDiffere | number }}</td>
-                      <td class="amount-td-column">{{ item.partTiersPayant | number }}</td>
-                    </tr>
-                  }
-                </tbody>
-                <tfoot>
+              </thead>
+              <tbody>
+                @for (item of balanceMvtCaisseWrapper.balanceCaisses; track $index) {
+                  <tr>
+                    <td>{{ item.typeVeTypeAffichage }}</td>
+                    <td class="amount-td-column">{{ item.count | number }}</td>
+                    <td class="amount-td-column">{{ item.montantTtc | number }}</td>
+                    <td class="amount-td-column">{{ item.montantDiscount | number }}</td>
+                    <td class="amount-td-column">{{ item.montantNet | number }}</td>
+                    <td class="amount-td-column">{{ item.typeSalePercent | number }}</td>
+                    <td class="amount-td-column">{{ item.panierMoyen | number }}</td>
+                    <td class="amount-td-column">{{ item.montantCash | number }}</td>
+                    <td class="amount-td-column">{{ item.montantCheck | number }}</td>
+                    <td class="amount-td-column">{{ item.montantCard | number }}</td>
+                    <td class="amount-td-column">{{ item.montantVirement | number }}</td>
+                    <td class="amount-td-column">{{ item.montantMobileMoney | number }}</td>
+                    <td class="amount-td-column">{{ item.montantDiffere | number }}</td>
+                    <td class="amount-td-column">{{ item.partTiersPayant | number }}</td>
+                  </tr>
+                }
+              </tbody>
+              <tfoot>
                 <tr>
                   <td class="tf-column">Total</td>
                   <td class="amount-column">{{ balanceMvtCaisseWrapper.count | number }}</td>
@@ -137,126 +136,118 @@
                   <td class="amount-column">{{ balanceMvtCaisseWrapper.montantDiffere | number }}</td>
                   <td class="amount-column">{{ balanceMvtCaisseWrapper.partTiersPayant | number }}</td>
                 </tr>
-                </tfoot>
-              </table>
-            </div>
+              </tfoot>
+            </table>
           </div>
-        }
-        <div class="row col-md-12 col-12 pharma-smart">
-          <div class="col-md-4 col-4 ">
+        </div>
+      }
+      <div class="row col-md-12 col-12 pharma-smart">
+        <div class="col-md-4 col-4">
+          <p-card>
+            <ng-template #title>
+              <div class="card-title primary-title">
+                <i class="pi pi-info-circle mr-2"></i>
+                Information sur la vente
+              </div>
+            </ng-template>
+            <div class="grid">
+              <div class="col-12">
+                <div class="field">
+                  <label>Total TTC</label>
+                  <span>{{ balanceMvtCaisseWrapper.montantTtc | number }}</span>
+                </div>
+
+                <div class="field">
+                  <label>Total TVA</label>
+                  <span>{{ balanceMvtCaisseWrapper.montantTaxe | number }}</span>
+                </div>
+
+                <div class="field">
+                  <label>Total TH</label>
+                  <span>{{ balanceMvtCaisseWrapper.montantHt | number }}</span>
+                </div>
+
+                <div class="field">
+                  <label>Total comptant</label>
+                  <span>{{ balanceMvtCaisseWrapper.montantPaye | number }}</span>
+                </div>
+                <div class="field">
+                  <label>Total achat</label>
+                  <span>{{ balanceMvtCaisseWrapper.montantAchat | number }}</span>
+                </div>
+
+                <div class="field">
+                  <label>Marge</label>
+                  <span>{{ balanceMvtCaisseWrapper.montantMarge | number }}</span>
+                </div>
+                <div class="field">
+                  <label>Ratio V/A</label>
+                  <span>{{ balanceMvtCaisseWrapper.ratioVenteAchat | number }}</span>
+                </div>
+                <div class="field">
+                  <label>Ratio A/V</label>
+                  <span>{{ balanceMvtCaisseWrapper.ratioAchatVente | number }}</span>
+                </div>
+              </div>
+            </div>
+          </p-card>
+        </div>
+        @if (balanceMvtCaisseWrapper.mvtCaissesByModes.length > 0) {
+          <div class="col-md-4 col-4">
             <p-card>
               <ng-template #title>
-                <div class="card-title  primary-title ">
-                  <i class="pi pi-info-circle mr-2"></i>
-                  Information sur la vente
+                <div class="card-title info-title">
+                  <i class="pi pi-wallet mr-2"></i>
+                  Montant ventes par modes règlement
                 </div>
               </ng-template>
               <div class="grid">
                 <div class="col-12">
-                  <div class="field">
-                    <label>Total TTC</label>
-                    <span>{{ balanceMvtCaisseWrapper.montantTtc  | number }}</span>
-                  </div>
-
-                  <div class="field">
-                    <label>Total TVA</label>
-                    <span>{{ balanceMvtCaisseWrapper.montantTaxe  | number }}</span>
-                  </div>
-
-                  <div class="field">
-                    <label>Total TH</label>
-                    <span>{{ balanceMvtCaisseWrapper.montantHt  | number }}</span>
-                  </div>
-
-
-                  <div class="field">
-                    <label>Total comptant</label>
-                    <span>{{ balanceMvtCaisseWrapper.montantPaye  | number }}</span>
-                  </div>
-                  <div class="field">
-                    <label>Total achat</label>
-                    <span>{{ balanceMvtCaisseWrapper.montantAchat  | number }}</span>
-                  </div>
-
-                  <div class="field">
-                    <label>Marge</label>
-                    <span>{{ balanceMvtCaisseWrapper.montantMarge  | number }}</span>
-                  </div>
-                  <div class="field">
-                    <label>Ratio V/A</label>
-                    <span>{{ balanceMvtCaisseWrapper.ratioVenteAchat  | number }}</span>
-                  </div>
-                  <div class="field">
-                    <label>Ratio A/V</label>
-                    <span>{{ balanceMvtCaisseWrapper.ratioAchatVente  | number }}</span>
-                  </div>
-
+                  @for (mvtCaisse of balanceMvtCaisseWrapper.mvtCaissesByModes; track mvtCaisse.key) {
+                    <div class="field">
+                      <label>{{ mvtCaisse.libelle }}</label>
+                      <span>{{ mvtCaisse.value | number }}</span>
+                    </div>
+                  }
                 </div>
               </div>
             </p-card>
-
-
           </div>
-          @if (balanceMvtCaisseWrapper.mvtCaissesByModes.length > 0) {
-            <div class="col-md-4 col-4">
-              <p-card>
-                <ng-template #title>
-                  <div class="card-title  info-title ">
-                    <i class="pi pi-wallet mr-2"></i>
-                    Montant ventes par modes règlement
-                  </div>
-                </ng-template>
-                <div class="grid">
-                  <div class="col-12">
-                    @for (mvtCaisse of balanceMvtCaisseWrapper.mvtCaissesByModes; track mvtCaisse.key) {
+        }
+        @if (balanceMvtCaisseWrapper.mvtCaisses.length > 0) {
+          <div class="col-md-4 col-4">
+            <p-card>
+              <ng-template #title>
+                <div class="card-title secondary-title">
+                  <i class="pi pi-money-bill mr-2"></i>
+                  Information sur les mouvements de caisse
+                </div>
+              </ng-template>
+              <div class="grid">
+                <div class="col-12">
+                  @for (mvtCaisse of balanceMvtCaisseWrapper.mvtCaisses; track mvtCaisse.key) {
+                    @if (mvtCaisse.key == 'SORTIE_CAISSE') {
+                      <div class="field">
+                        <label>{{ mvtCaisse.libelle }}</label>
+                        <span class="text-danger">{{ mvtCaisse.value * -1 | number }}</span>
+                      </div>
+                    } @else {
                       <div class="field">
                         <label>{{ mvtCaisse.libelle }}</label>
                         <span>{{ mvtCaisse.value | number }}</span>
                       </div>
                     }
-                  </div></div>
-              </p-card>
-
-
-
-            </div>
-          }
-          @if (balanceMvtCaisseWrapper.mvtCaisses.length > 0) {
-            <div class="col-md-4 col-4">
-
-              <p-card>
-                <ng-template #title>
-                  <div class="card-title  secondary-title ">
-                    <i class="pi pi-money-bill mr-2"></i>
-                    Information sur les mouvements de caisse
-                  </div>
-                </ng-template>
-                <div class="grid">
-                  <div class="col-12">
-                    @for (mvtCaisse of balanceMvtCaisseWrapper.mvtCaisses; track mvtCaisse.key) {
-                      @if (mvtCaisse.key == 'SORTIE_CAISSE') {
-                        <div class="field">
-                          <label>{{ mvtCaisse.libelle }}</label>
-                          <span class="text-danger">{{ mvtCaisse.value * -1 | number }}</span>
-                        </div>
-                      } @else {
-                        <div class="field">
-                          <label>{{ mvtCaisse.libelle }}</label>
-                          <span>{{ mvtCaisse.value | number }}</span>
-                        </div>
-                      }
-
-                    }
-                  </div></div>
-              </p-card>
-
-            </div>
-          }
-        </div>
-      } @else {
-        <div class="alert alert-warning" role="alert"><strong>Information!</strong> Aucune donnée à afficher.</div>
-      }
-    </div>
+                  }
+                </div>
+              </div>
+            </p-card>
+          </div>
+        }
+      </div>
+    } @else {
+      <div class="alert alert-warning" role="alert"><strong>Information!</strong> Aucune donnée à afficher.</div>
+    }
   </div>
+</div>
 
 <jhi-toast-alert #alert></jhi-toast-alert>

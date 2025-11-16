@@ -14,16 +14,15 @@ import com.kobe.warehouse.service.dto.records.StoreInventoryLineRecord;
 import com.kobe.warehouse.service.dto.records.StoreInventoryRecord;
 import com.kobe.warehouse.service.errors.InventoryException;
 import com.kobe.warehouse.service.mobile.dto.RayonRecord;
+import java.net.MalformedURLException;
+import java.util.List;
+import java.util.Objects;
+import java.util.Optional;
 import org.springframework.core.io.Resource;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.util.StringUtils;
 import org.springframework.web.multipart.MultipartFile;
-
-import java.net.MalformedURLException;
-import java.util.List;
-import java.util.Objects;
-import java.util.Optional;
 
 public interface InventaireService {
     Page<StoreInventoryLineRecord> getInventoryItems(StoreInventoryLineFilterRecord storeInventoryLineFilterRecord, Pageable pageable);
@@ -58,9 +57,7 @@ public interface InventaireService {
 
     List<StoreInventoryLineDTO> getItemsByRayonId(Long storeInventoryId, Long rayonId);
 
-    void synchronizeStoreInventoryLine(
-        List<StoreInventoryLineDTO> storeInventoryLines
-    );
+    void synchronizeStoreInventoryLine(List<StoreInventoryLineDTO> storeInventoryLines);
 
     default String buildBaseQuery(String baseQuery, StoreInventoryLineFilterRecord storeInventoryLineFilterRecord) {
         if (Objects.nonNull(storeInventoryLineFilterRecord.storageId()) || Objects.nonNull(storeInventoryLineFilterRecord.rayonId())) {

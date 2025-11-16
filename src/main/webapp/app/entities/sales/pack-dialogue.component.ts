@@ -19,7 +19,7 @@ import { Card } from 'primeng/card';
   selector: 'jhi-pack-dialogue',
   templateUrl: './pack-dialogue.component.html',
   styleUrls: ['./pack-dialogue.component.scss'],
-  imports: [WarehouseCommonModule, FormsModule, ReactiveFormsModule, InputText, Button, Card]
+  imports: [WarehouseCommonModule, FormsModule, ReactiveFormsModule, InputText, Button, Card],
 })
 export class PackDialogueComponent implements OnInit {
   activeModal = inject(NgbActiveModal);
@@ -31,13 +31,12 @@ export class PackDialogueComponent implements OnInit {
   isNotValid = false;
   private fb = inject(FormBuilder);
   editForm = this.fb.group({
-    quantitySold: [null, [Validators.required, Validators.min(1)]]
+    quantitySold: [null, [Validators.required, Validators.min(1)]],
   });
   private salesService = inject(SalesService);
   private saleItemService = inject(SalesLineService);
 
-  ngOnInit(): void {
-  }
+  ngOnInit(): void {}
 
   cancel(): void {
     this.activeModal.dismiss();
@@ -66,7 +65,7 @@ export class PackDialogueComponent implements OnInit {
   protected subscribeToSaveResponse(result: Observable<HttpResponse<ISales>>): void {
     result.subscribe({
       next: (res: HttpResponse<ISales>) => this.onSave(res.body),
-      error: () => this.onSaveError()
+      error: () => this.onSaveError(),
     });
   }
   private onSave(sale: ISales): void {
@@ -85,7 +84,7 @@ export class PackDialogueComponent implements OnInit {
   protected subscribeToSaveLineResponse(result: Observable<HttpResponse<ISalesLine>>): void {
     result.subscribe({
       next: (res: HttpResponse<ISalesLine>) => this.onSaveSuccess(res.body),
-      error: () => this.onSaveError()
+      error: () => this.onSaveError(),
     });
   }
 
@@ -96,7 +95,7 @@ export class PackDialogueComponent implements OnInit {
       regularUnitPrice: this.produit.regularUnitPrice,
       costAmount: this.produit.costAmount,
       quantitySold: this.editForm.get(['quantitySold']).value,
-      saleId: this.sale.id
+      saleId: this.sale.id,
     };
   }
 
@@ -104,7 +103,7 @@ export class PackDialogueComponent implements OnInit {
     return {
       ...new Sales(),
       customerId: this.customer.id,
-      salesLines: [this.createFromForm()]
+      salesLines: [this.createFromForm()],
     };
   }
 }

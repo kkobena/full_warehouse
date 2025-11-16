@@ -1,6 +1,5 @@
 <jhi-confirm-dialog #confirmDialog></jhi-confirm-dialog>
-<p-dialog [(visible)]="jsonDialog" [focusOnShow]="false" [modal]="true" [style]="{ width: '50vw' }"
-          header="Importer un fichier json">
+<p-dialog [(visible)]="jsonDialog" [focusOnShow]="false" [modal]="true" [style]="{ width: '50vw' }" header="Importer un fichier json">
   <div class="ui-g form-group">
     <p-fileupload
       (uploadHandler)="onUploadJson($event)"
@@ -14,21 +13,18 @@
     </p-fileupload>
   </div>
   <ng-template #footer>
-    <p-button (click)="cancel()" icon="pi pi-times" label="Annuler" raised="true" severity="danger"
-              type="button"></p-button>
+    <p-button (click)="cancel()" icon="pi pi-times" label="Annuler" raised="true" severity="danger" type="button"></p-button>
   </ng-template>
 </p-dialog>
 
 @if (responseDialog) {
   <div class="mb-2">
-    <span
-      [ngClass]="responsedto?.size === responsedto?.totalSize ? 'text-success fw-bold' : 'text-danger fw-bold'">{{
-        jsonFileUploadStatutProgress
-      }}</span>
+    <span [ngClass]="responsedto?.size === responsedto?.totalSize ? 'text-success fw-bold' : 'text-danger fw-bold'">{{
+      jsonFileUploadStatutProgress
+    }}</span>
     <p-progressBar [value]="jsonFileUploadProgress"></p-progressBar>
   </div>
 }
-
 
 <div class="pharma-smart-content p-2">
   <div class="pharma-toolbar">
@@ -57,13 +53,7 @@
           <div class="pharma-search-input">
             <p-iconfield>
               <p-inputicon class="pi pi-search" />
-              <input
-                (keyup.enter)="onSearch()"
-                [(ngModel)]="search"
-                pInputText
-                placeholder="Taper pour rechercher"
-                type="text"
-              />
+              <input (keyup.enter)="onSearch()" [(ngModel)]="search" pInputText placeholder="Taper pour rechercher" type="text" />
             </p-iconfield>
           </div>
         </div>
@@ -72,13 +62,16 @@
       <ng-template #end>
         <div class="pharma-toolbar-actions">
           <div class="pharma-button-group">
-            <p-button (click)="loadPage()" icon="pi pi-search" label="Rechercher"
-                      [raised]="true" severity="info"></p-button>
-            <p-button [hidden]="true" icon="pi pi-upload" label="Importation" [raised]="true"
-                      severity="help"></p-button>
+            <p-button (click)="loadPage()" icon="pi pi-search" label="Rechercher" [raised]="true" severity="info"></p-button>
+            <p-button [hidden]="true" icon="pi pi-upload" label="Importation" [raised]="true" severity="help"></p-button>
 
-            <p-splitbutton [model]="tiersPayantSplitbuttons" icon="pi pi-user-plus"
-                           label="Nouveau tiers payant" [raised]="true" severity="primary">
+            <p-splitbutton
+              [model]="tiersPayantSplitbuttons"
+              icon="pi pi-user-plus"
+              label="Nouveau tiers payant"
+              [raised]="true"
+              severity="primary"
+            >
             </p-splitbutton>
           </div>
         </div>
@@ -100,7 +93,6 @@
       currentPageReportTemplate="Affichage de {first} à {last} sur {totalRecords}"
       dataKey="id"
       selectionMode="single"
-
       class="pharma-table"
     >
       <ng-template #header>
@@ -194,4 +186,4 @@
   }
 </div>
 
-<jhi-spinner #spinner ></jhi-spinner>
+<jhi-spinner #spinner></jhi-spinner>

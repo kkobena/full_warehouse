@@ -2,7 +2,7 @@ import { Injectable, signal, WritableSignal } from '@angular/core';
 import { ToolBarParam } from './tool-bar-param.model';
 
 @Injectable({
-  providedIn: 'root'
+  providedIn: 'root',
 })
 export class SaleToolBarService {
   toolBarParam: WritableSignal<ToolBarParam> = signal<ToolBarParam>({
@@ -14,7 +14,7 @@ export class SaleToolBarService {
     fromHour: '01:00',
     toHour: '23:59',
     selectedUserId: null,
-    activeTab: 'ventes-terminees'
+    activeTab: 'ventes-terminees',
   });
 
   updateToolBarParam(param: ToolBarParam): void {

@@ -1,7 +1,7 @@
 package com.kobe.warehouse.repository;
 
-import com.kobe.warehouse.domain.PersistentToken;
 import com.kobe.warehouse.domain.AppUser;
+import com.kobe.warehouse.domain.PersistentToken;
 import java.time.LocalDate;
 import java.util.List;
 import org.springframework.data.jpa.repository.JpaRepository;

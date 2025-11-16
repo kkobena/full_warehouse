@@ -1,10 +1,10 @@
 package com.kobe.warehouse.service.cash_register.dto;
 
+import com.kobe.warehouse.domain.AppUser;
 import com.kobe.warehouse.domain.CashFund;
 import com.kobe.warehouse.domain.CashRegister;
 import com.kobe.warehouse.domain.PaymentMode;
 import com.kobe.warehouse.domain.Ticketing;
-import com.kobe.warehouse.domain.AppUser;
 import com.kobe.warehouse.domain.enumeration.CashRegisterStatut;
 import com.kobe.warehouse.domain.enumeration.PaymentGroup;
 import com.kobe.warehouse.service.dto.UserDTO;

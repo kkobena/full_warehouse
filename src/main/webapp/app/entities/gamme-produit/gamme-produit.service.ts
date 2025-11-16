@@ -10,7 +10,7 @@ type EntityResponseType = HttpResponse<IGammeProduit>;
 type EntityArrayResponseType = HttpResponse<IGammeProduit[]>;
 
 @Injectable({
-  providedIn: 'root'
+  providedIn: 'root',
 })
 export class GammeProduitService {
   protected http = inject(HttpClient);
@@ -20,8 +20,7 @@ export class GammeProduitService {
   /** Inserted by Angular inject() migration for backwards compatibility */
   constructor(...args: unknown[]);
 
-  constructor() {
-  }
+  constructor() {}
 
   create(gammeProduit: IGammeProduit): Observable<EntityResponseType> {
     return this.http.post<IGammeProduit>(this.resourceUrl, gammeProduit, { observe: 'response' });

@@ -63,7 +63,6 @@ public class FournisseurProduitResource {
 
     @PutMapping("/fournisseur-produits/{id}/{prodduitId}")
     public ResponseEntity<Void> updateDefaultFournisseur(@PathVariable("id") Integer id, @PathVariable("prodduitId") Integer prodduitId) {
-
         fournisseurProduitService.updateDefaultFournisseur(id, prodduitId);
         return ResponseEntity.accepted().build();
     }

@@ -40,11 +40,13 @@ npm install
 ### 2. Start Backend Server
 
 **Windows (Command Prompt):**
+
 ```bash
 mvnw.cmd
 ```
 
 **Windows (Git Bash) / Linux / macOS:**
+
 ```bash
 ./mvnw
 ```
@@ -227,11 +229,13 @@ Flyway automatically runs database migrations on application startup.
   - `V1.0.5__id_generator.sql` - ID generation functions
 
 **Check migration status:**
+
 ```bash
 ./mvnw flyway:info
 ```
 
 **Run pending migrations:**
+
 ```bash
 ./mvnw flyway:migrate
 ```
@@ -246,6 +250,7 @@ Flyway automatically runs database migrations on application startup.
 ```
 
 This creates:
+
 - Backend JAR: `target/warehouse-*.jar`
 - Frontend assets: Bundled in JAR at `target/classes/static/`
 
@@ -262,6 +267,7 @@ Pharma-Smart supports desktop deployment via **Tauri** for a native desktop expe
 ### Tauri Desktop
 
 **Modern, lightweight framework (Recommended)**
+
 - Bundle size: ~5MB
 - Rust backend
 - Native webview
@@ -304,6 +310,7 @@ For detailed Tauri setup and configuration, see [TAURI_README.md](TAURI_README.m
 - **webapp**: Build frontend during Maven lifecycle
 
 **Set profile:**
+
 ```bash
 ./mvnw -Dspring.profiles.active=prod
 # or via environment variable
@@ -315,6 +322,7 @@ export SPRING_PROFILES_ACTIVE=prod
 Main configuration file: `src/main/resources/application.yml`
 
 Key settings:
+
 - **Server port:** 8080 (backend)
 - **Frontend dev port:** 4200
 - **Database schema:** `warehouse`
@@ -334,6 +342,7 @@ Key settings:
 For comprehensive documentation, see:
 
 - **[CLAUDE.md](CLAUDE.md)** - Complete development guide covering:
+
   - Project architecture
   - Technology stack details
   - Code conventions and patterns
@@ -346,6 +355,7 @@ For comprehensive documentation, see:
 ### Key Technologies
 
 **Backend:**
+
 - Spring Boot 4.0.0-RC1
 - Hibernate 7.1.0 with JPA
 - PostgreSQL with Flyway migrations
@@ -354,6 +364,7 @@ For comprehensive documentation, see:
 - jSerialComm for thermal printer integration
 
 **Frontend:**
+
 - Angular 20.3.7 with TypeScript 5.9.2
 - PrimeNG 20.2.0 (UI components)
 - ng-bootstrap 19.0.1

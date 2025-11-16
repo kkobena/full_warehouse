@@ -26,12 +26,8 @@ import { FormsModule } from '@angular/forms';
 import { ProductTableComponent } from '../product-table/product-table.component';
 import { Authority } from '../../../../shared/constants/authority.constants';
 import { HasAuthorityService } from '../../service/has-authority.service';
-import {
-  FormActionAutorisationComponent
-} from '../../form-action-autorisation/form-action-autorisation.component';
-import {
-  ConfirmDialogComponent
-} from '../../../../shared/dialog/confirm-dialog/confirm-dialog.component';
+import { FormActionAutorisationComponent } from '../../form-action-autorisation/form-action-autorisation.component';
+import { ConfirmDialogComponent } from '../../../../shared/dialog/confirm-dialog/confirm-dialog.component';
 import { CardModule } from 'primeng/card';
 import { SpinnerComponent } from '../../../../shared/spinner/spinner.component';
 import { TauriPrinterService } from '../../../../shared/services/tauri-printer.service';

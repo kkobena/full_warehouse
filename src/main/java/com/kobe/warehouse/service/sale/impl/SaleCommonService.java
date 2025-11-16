@@ -27,21 +27,21 @@ import com.kobe.warehouse.service.errors.SaleNotFoundCustomerException;
 import com.kobe.warehouse.service.id_generator.SaleIdGeneratorService;
 import com.kobe.warehouse.service.sale.SalesLineService;
 import com.kobe.warehouse.service.utils.CustomerDisplayService;
-import org.json.JSONArray;
-import org.json.JSONException;
-import org.json.JSONObject;
-import org.springframework.stereotype.Service;
-import org.springframework.util.CollectionUtils;
-
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+import org.springframework.stereotype.Service;
+import org.springframework.util.CollectionUtils;
 
 @Service
 public class SaleCommonService {
+
     private final ReferenceService referenceService;
     private final StorageService storageService;
     private final UserRepository userRepository;
@@ -57,9 +57,9 @@ public class SaleCommonService {
         UserRepository userRepository,
         SaleLineServiceFactory saleLineServiceFactory,
         CashRegisterService cashRegisterService,
-
         PosteRepository posteRepository,
-        CustomerDisplayService afficheurPosService, SaleIdGeneratorService idGeneratorService
+        CustomerDisplayService afficheurPosService,
+        SaleIdGeneratorService idGeneratorService
     ) {
         this.referenceService = referenceService;
 
@@ -70,7 +70,6 @@ public class SaleCommonService {
         this.posteRepository = posteRepository;
         this.afficheurPosService = afficheurPosService;
         this.idGeneratorService = idGeneratorService;
-
     }
 
     public void computeSaleEagerAmount(Sales c) {
@@ -84,7 +83,6 @@ public class SaleCommonService {
         int htAmount = 0;
         int discount = 0;
 
-
         for (SalesLine salesLine : c.getSalesLines()) {
             int saleItemAmount = salesLine.getQuantityRequested() * salesLine.getRegularUnitPrice();
             int costAmountItem = salesLine.getQuantityRequested() * salesLine.getCostAmount();
@@ -95,7 +93,6 @@ public class SaleCommonService {
             int montantTva = saleItemAmount - htAmont;
             taxableAmount += montantTva;
             discount += Objects.requireNonNullElse(salesLine.getDiscountAmount(), 0);
-
         }
 
         c.setSalesAmount(salesAmount);
@@ -105,10 +102,7 @@ public class SaleCommonService {
         c.setDiscountAmount(discount);
         c.setNetAmount(salesAmount - discount);
         c.setAmountToBeTakenIntoAccount(salesAmount);
-
-
     }
-
 
     public void processDiscountCash(CashSale c, int discountAmount) {
         c.setNetAmount(c.getSalesAmount() - discountAmount);
@@ -119,14 +113,12 @@ public class SaleCommonService {
 
         for (SalesLine saleLine : c.getSalesLines()) {
             discountAmount += saleLine.getDiscountAmount();
-
         }
         c.setDiscountAmount(discountAmount);
         if (c instanceof CashSale cashSale) {
             processDiscountCash(cashSale, discountAmount);
         }
     }
-
 
     private int computeHtAmount(Integer amount, Integer taxValue) {
         int tax = Objects.requireNonNullElse(taxValue, 0);
@@ -138,7 +130,6 @@ public class SaleCommonService {
         return (int) Math.ceil(ttc / valeurTva);
     }
 
-
     public void computeSaleEagerAmountOnRemovingItem(Sales c, SalesLine saleLine) {
         c.setSalesAmount(c.getSalesAmount() - saleLine.getSalesAmount());
     }
@@ -146,7 +137,6 @@ public class SaleCommonService {
     public void computeSaleLazyAmountOnRemovingItem(Sales c, SalesLine saleLine) {
         c.setCostAmount(c.getCostAmount() - (saleLine.getQuantityRequested() * saleLine.getCostAmount()));
     }
-
 
     public void computeTvaAmountOnRemovingItem(Sales c, SalesLine saleLine) {
         if (saleLine.getTaxValue().compareTo(0) == 0) {
@@ -189,8 +179,7 @@ public class SaleCommonService {
                         json.put("tva", k);
                         json.put("amount", totalTva);
                         array.put(json);
-                    } catch (JSONException _) {
-                    }
+                    } catch (JSONException _) {}
                 });
             if (!array.isEmpty()) {
                 return array.toString();
@@ -243,10 +232,10 @@ public class SaleCommonService {
         c.setDiffere(dto.isDiffere());
         this.buildPreventeReference(c);
         c.setStatut(SalesStatut.ACTIVE);
-        this.posteRepository.findFirstByAddressOrName(dto.getCaisseNum(),dto.getCaisseNum()).ifPresent(poste -> {
-            c.setCaisse(poste);
-            c.setLastCaisse(poste);
-        });
+        this.posteRepository.findFirstByAddressOrName(dto.getCaisseNum(), dto.getCaisseNum()).ifPresent(poste -> {
+                c.setCaisse(poste);
+                c.setLastCaisse(poste);
+            });
 
         c.setPaymentStatus(PaymentStatus.IMPAYE);
         c.setOrigineVente(OrigineVente.DIRECT);
@@ -265,7 +254,6 @@ public class SaleCommonService {
         if (c.getStatut() == SalesStatut.CLOSED) {
             throw new SaleAlreadyCloseException();
         }
-
     }
 
     public void editSale(Sales c, SaleDTO dto) {
@@ -292,7 +280,7 @@ public class SaleCommonService {
             throw new SaleNotFoundCustomerException();
         }
         c.setPayrollAmount(dto.getPayrollAmount());
-        this.posteRepository.findFirstByAddressOrName(dto.getCaisseEndNum(),dto.getCaisseNum()).ifPresent(c::setLastCaisse);
+        this.posteRepository.findFirstByAddressOrName(dto.getCaisseEndNum(), dto.getCaisseNum()).ifPresent(c::setLastCaisse);
         c.setRestToPay(dto.getRestToPay());
         c.setUpdatedAt(LocalDateTime.now());
         c.setMonnaie(dto.getMontantRendu());
@@ -304,7 +292,6 @@ public class SaleCommonService {
         }
         c.setRestToPay(c.getRestToPay() < 0 ? 0 : c.getRestToPay());
         this.buildReference(c);
-
     }
 
     public void arrondirMontantCaisse(Sales sales) {
@@ -398,6 +385,4 @@ public class SaleCommonService {
         }
         return null;
     }
-
-
 }

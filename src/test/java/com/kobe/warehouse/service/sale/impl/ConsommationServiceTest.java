@@ -39,7 +39,7 @@ class ConsommationServiceTest {
         // Then
         assertEquals(1, entity.getConsommations().size(), "Should create one consommation");
         Consommation conso = entity.getConsommations().iterator().next();
-       // assertEquals(montant, conso.getConsommation());
+        // assertEquals(montant, conso.getConsommation());
         assertEquals(10, conso.getMonth());
         assertEquals(2025, conso.getYear());
         assertEquals(202510, conso.getId());
@@ -228,6 +228,7 @@ class ConsommationServiceTest {
     // Test entities
 
     private static class TestEntity implements ConsommationService.HasConsommation {
+
         private Set<Consommation> consommations = new HashSet<>();
         private Number consoMensuelle;
         private LocalDateTime updated;
@@ -268,6 +269,7 @@ class ConsommationServiceTest {
     }
 
     private static class TestEntityWithInteger implements ConsommationService.HasConsommation {
+
         private Set<Consommation> consommations = new HashSet<>();
         private Number consoMensuelle;
         private LocalDateTime updated;

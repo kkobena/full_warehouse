@@ -19,15 +19,6 @@ import com.kobe.warehouse.service.reglement.dto.InvoicePaymentItemDTO;
 import com.kobe.warehouse.service.reglement.dto.InvoicePaymentParam;
 import com.kobe.warehouse.service.reglement.dto.InvoicePaymentReceiptDTO;
 import com.kobe.warehouse.service.reglement.dto.InvoicePaymentWrapper;
-import org.springframework.core.io.Resource;
-import org.springframework.data.domain.Sort;
-import org.springframework.data.domain.Sort.Direction;
-import org.springframework.data.jpa.domain.Specification;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
-import org.springframework.util.CollectionUtils;
-import org.springframework.util.StringUtils;
-
 import java.io.IOException;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -37,6 +28,14 @@ import java.util.List;
 import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
+import org.springframework.core.io.Resource;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.domain.Sort.Direction;
+import org.springframework.data.jpa.domain.Specification;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.CollectionUtils;
+import org.springframework.util.StringUtils;
 
 @Service
 @Transactional(readOnly = true)
@@ -257,9 +256,9 @@ public class ReglementDataServiceImpl implements ReglementDataService {
         }
         return (
             " DU " +
-                startDate.format(DateTimeFormatter.ofPattern("dd/MM/yyyy")) +
-                " AU " +
-                endDate.format(DateTimeFormatter.ofPattern("dd/MM/yyyy"))
+            startDate.format(DateTimeFormatter.ofPattern("dd/MM/yyyy")) +
+            " AU " +
+            endDate.format(DateTimeFormatter.ofPattern("dd/MM/yyyy"))
         );
     }
 }

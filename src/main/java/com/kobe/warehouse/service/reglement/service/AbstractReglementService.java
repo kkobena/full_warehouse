@@ -1,6 +1,5 @@
 package com.kobe.warehouse.service.reglement.service;
 
-
 import com.kobe.warehouse.domain.Banque;
 import com.kobe.warehouse.domain.CashRegister;
 import com.kobe.warehouse.domain.FactureTiersPayant;
@@ -51,7 +50,8 @@ public abstract class AbstractReglementService implements ReglementService {
         ThirdPartySaleLineRepository thirdPartySaleLineRepository,
         BanqueRepository banqueRepository,
         TransactionIdGeneratorService transactionIdGeneratorService,
-        InvoicePaymentItemService invoicePaymentItemService, ReferenceService referenceService
+        InvoicePaymentItemService invoicePaymentItemService,
+        ReferenceService referenceService
     ) {
         this.cashRegisterService = cashRegisterService;
         this.invoicePaymentRepository = invoicePaymentRepository;

@@ -53,15 +53,9 @@ public interface ProduitRepository
         @Param("caList") String caList,
         @Param("statutList") String statutList
     );
-    @Query(
-        value = "SELECT search_produits_json(:qtext, :magasin, :limitResult)",
-        nativeQuery = true
-    )
-    String searchProduitsJson(
-        @Param("qtext") String qtext,
-        @Param("magasin") Integer magasin,
-        @Param("limitResult") Integer limitResult
-    );
+
+    @Query(value = "SELECT search_produits_json(:qtext, :magasin, :limitResult)", nativeQuery = true)
+    String searchProduitsJson(@Param("qtext") String qtext, @Param("magasin") Integer magasin, @Param("limitResult") Integer limitResult);
 
     Produit findFirstByParentId(Integer parentId);
 
@@ -85,8 +79,6 @@ public interface ProduitRepository
             return cb.conjunction();
         };
     }
-
-
 
     default Specification<Produit> filterByProduitStatut() {
         return (root, _, cb) -> cb.equal(root.get(Produit_.status), Status.ENABLE);

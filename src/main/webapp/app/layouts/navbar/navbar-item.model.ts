@@ -1,6 +1,4 @@
-
 import { IconProp } from '@fortawesome/fontawesome-svg-core';
-
 
 export interface NavItem {
   label: string;
@@ -8,8 +6,5 @@ export interface NavItem {
   authorities?: string[];
   faIcon?: IconProp;
   children?: NavItem[];
-  click?:()=> void;
+  click?: () => void;
 }
-
-
-

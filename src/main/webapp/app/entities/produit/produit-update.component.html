@@ -10,18 +10,11 @@
         <p-toolbar>
           <ng-template #end>
             <div class="pharma-toolbar-actions">
-              <p-button
-                icon="pi pi-arrow-left"
-                label="Retour"
-                severity="secondary"
-                [text]="true"
-                (click)="previousState()">
-              </p-button>
+              <p-button icon="pi pi-arrow-left" label="Retour" severity="secondary" [text]="true" (click)="previousState()"> </p-button>
             </div>
           </ng-template>
         </p-toolbar>
       </div>
-
 
       <form [formGroup]="editForm" (ngSubmit)="save()" novalidate>
         <jhi-alert-error></jhi-alert-error>
@@ -47,7 +40,8 @@
                   formControlName="libelle"
                   class="w-full"
                   autocomplete="off"
-                  [class.ng-invalid]="editForm.get('libelle')?.invalid && editForm.get('libelle')?.touched" />
+                  [class.ng-invalid]="editForm.get('libelle')?.invalid && editForm.get('libelle')?.touched"
+                />
                 @if (editForm.get('libelle')?.invalid && editForm.get('libelle')?.touched) {
                   @if (editForm.get('libelle')?.errors?.required) {
                     <small class="p-error">Ce champ est obligatoire</small>
@@ -65,7 +59,8 @@
                   formControlName="codeCip"
                   class="w-full"
                   autocomplete="off"
-                  [class.ng-invalid]="editForm.get('codeCip')?.invalid && editForm.get('codeCip')?.touched" />
+                  [class.ng-invalid]="editForm.get('codeCip')?.invalid && editForm.get('codeCip')?.touched"
+                />
                 @if (editForm.get('codeCip')?.invalid && editForm.get('codeCip')?.touched) {
                   @if (editForm.get('codeCip')?.errors?.required) {
                     <small class="p-error">Ce champ est obligatoire</small>
@@ -86,7 +81,8 @@
                   optionValue="id"
                   placeholder="Sélectionner un fournisseur"
                   [fluid]="true"
-                  appendTo="body">
+                  appendTo="body"
+                >
                 </p-select>
               </div>
 
@@ -103,7 +99,8 @@
                   optionValue="id"
                   placeholder="Sélectionner une famille"
                   [fluid]="true"
-                  appendTo="body">
+                  appendTo="body"
+                >
                 </p-select>
               </div>
 
@@ -120,7 +117,8 @@
                   optionValue="id"
                   placeholder="Sélectionner un rayon"
                   [fluid]="true"
-                  appendTo="body">
+                  appendTo="body"
+                >
                 </p-select>
               </div>
 
@@ -135,7 +133,8 @@
                   (keyup)="handleCostInput($event)"
                   class="w-full"
                   autocomplete="off"
-                  [class.ng-invalid]="editForm.get('costAmount')?.invalid && editForm.get('costAmount')?.touched" />
+                  [class.ng-invalid]="editForm.get('costAmount')?.invalid && editForm.get('costAmount')?.touched"
+                />
                 @if (editForm.get('costAmount')?.invalid && editForm.get('costAmount')?.touched) {
                   @if (editForm.get('costAmount')?.errors?.required) {
                     <small class="p-error">Ce champ est obligatoire</small>
@@ -157,7 +156,8 @@
                   (keyup)="handleUnitPriceInput($event)"
                   class="w-full"
                   autocomplete="off"
-                  [class.ng-invalid]="editForm.get('regularUnitPrice')?.invalid && editForm.get('regularUnitPrice')?.touched" />
+                  [class.ng-invalid]="editForm.get('regularUnitPrice')?.invalid && editForm.get('regularUnitPrice')?.touched"
+                />
                 @if (editForm.get('regularUnitPrice')?.invalid && editForm.get('regularUnitPrice')?.touched) {
                   @if (editForm.get('regularUnitPrice')?.errors?.required) {
                     <small class="p-error">Ce champ est obligatoire</small>
@@ -179,7 +179,8 @@
                   optionValue="id"
                   placeholder="Sélectionner une TVA"
                   [fluid]="true"
-                  appendTo="body">
+                  appendTo="body"
+                >
                 </p-select>
               </div>
             </div>
@@ -197,13 +198,7 @@
               <!-- Code EAN -->
               <div class="form-field">
                 <label for="field_codeEan">Code EAN</label>
-                <input
-                  pInputText
-                  pKeyFilter="int"
-                  id="field_codeEan"
-                  formControlName="codeEan"
-                  class="w-full"
-                  autocomplete="off" />
+                <input pInputText pKeyFilter="int" id="field_codeEan" formControlName="codeEan" class="w-full" autocomplete="off" />
               </div>
 
               <!-- Code EAN Laboratoire -->
@@ -215,7 +210,8 @@
                   id="field_codeEanLaboratoire"
                   formControlName="codeEanLaboratoire"
                   class="w-full"
-                  autocomplete="off" />
+                  autocomplete="off"
+                />
               </div>
 
               <!-- Catégorie ABC -->
@@ -229,7 +225,8 @@
                   optionValue="code"
                   placeholder="Sélectionner une catégorie"
                   [fluid]="true"
-                  appendTo="body">
+                  appendTo="body"
+                >
                 </p-select>
               </div>
 
@@ -246,7 +243,8 @@
                   optionValue="id"
                   placeholder="Sélectionner un DCI"
                   [fluid]="true"
-                  appendTo="body">
+                  appendTo="body"
+                >
                 </p-select>
               </div>
 
@@ -261,7 +259,8 @@
                   optionValue="id"
                   placeholder="Sélectionner une forme"
                   [fluid]="true"
-                  appendTo="body">
+                  appendTo="body"
+                >
                 </p-select>
               </div>
 
@@ -276,7 +275,8 @@
                   optionValue="id"
                   placeholder="Sélectionner un laboratoire"
                   [fluid]="true"
-                  appendTo="body">
+                  appendTo="body"
+                >
                 </p-select>
               </div>
 
@@ -291,7 +291,8 @@
                   optionValue="id"
                   placeholder="Sélectionner une gamme"
                   [fluid]="true"
-                  appendTo="body">
+                  appendTo="body"
+                >
                 </p-select>
               </div>
 
@@ -306,18 +307,15 @@
                   optionValue="value"
                   placeholder="Sélectionner le code de remise"
                   [fluid]="true"
-                  appendTo="body">
+                  appendTo="body"
+                >
                 </p-select>
               </div>
             </div>
           </p-card>
-
         </div>
 
-
-
         <div class="card-grid-2col mt-2">
-
           <!-- Section 4: Gestion des Stocks -->
           <p-card>
             <ng-template #header>
@@ -331,35 +329,25 @@
               <!-- Quantité réappro -->
               <div class="form-field">
                 <label for="qtyAppro">Quantité de réapprovisionnement</label>
-                <input
-                  pInputText
-                  pKeyFilter="int"
-                  id="qtyAppro"
-                  formControlName="qtyAppro"
-                  class="w-full"
-                  autocomplete="off" />
+                <input pInputText pKeyFilter="int" id="qtyAppro" formControlName="qtyAppro" class="w-full" autocomplete="off" />
               </div>
 
               <!-- Quantité seuil mini -->
               <div class="form-field">
                 <label for="qtySeuilMini">Quantité seuil minimum</label>
-                <input
-                  pInputText
-                  pKeyFilter="int"
-                  id="qtySeuilMini"
-                  formControlName="qtySeuilMini"
-                  class="w-full"
-                  autocomplete="off" />
+                <input pInputText pKeyFilter="int" id="qtySeuilMini" formControlName="qtySeuilMini" class="w-full" autocomplete="off" />
               </div>
 
               <!-- Date péremption checkbox -->
               <div class="form-field">
                 <div class="checkbox-field">
-                  <p-checkbox #datePeremptionCheckbox
-                              inputId="dateperemption"
-                              formControlName="dateperemption"
-                              (onChange)="onDatePeremtionCheck(datePeremptionCheckbox.checked)"
-                              [binary]="true">
+                  <p-checkbox
+                    #datePeremptionCheckbox
+                    inputId="dateperemption"
+                    formControlName="dateperemption"
+                    (onChange)="onDatePeremtionCheck(datePeremptionCheckbox.checked)"
+                    [binary]="true"
+                  >
                   </p-checkbox>
                   <label for="dateperemption">Observer la date de péremption ?</label>
                 </div>
@@ -375,7 +363,8 @@
                     mask="99/99/9999"
                     slotChar="jj/mm/aaaa"
                     styleClass="w-full"
-                    autocomplete="off">
+                    autocomplete="off"
+                  >
                   </p-inputmask>
                 </div>
               }
@@ -391,15 +380,17 @@
               </div>
             </ng-template>
 
-            <div class="form-grid-compact ">
+            <div class="form-grid-compact">
               <!-- Déconditionnable checkbox -->
               <div class="form-field">
                 <div class="checkbox-field">
-                  <p-checkbox #checkbox
-                              inputId="deconditionnable"
-                              formControlName="deconditionnable"
-                              (onChange)="onDeconditionnable(checkbox.checked)"
-                              [binary]="true">
+                  <p-checkbox
+                    #checkbox
+                    inputId="deconditionnable"
+                    formControlName="deconditionnable"
+                    (onChange)="onDeconditionnable(checkbox.checked)"
+                    [binary]="true"
+                  >
                   </p-checkbox>
                   <label for="deconditionnable">Produit déconditionnable ?</label>
                 </div>
@@ -416,7 +407,8 @@
                     formControlName="itemQty"
                     (keyup)="handleItemQty($event)"
                     class="w-full"
-                    autocomplete="off" />
+                    autocomplete="off"
+                  />
                 </div>
 
                 <!-- Prix d'achat unitaire -->
@@ -429,7 +421,8 @@
                     formControlName="itemCostAmount"
                     (keyup)="handleItemCost($event)"
                     class="w-full"
-                    autocomplete="off" />
+                    autocomplete="off"
+                  />
                 </div>
 
                 <!-- Prix de vente unitaire -->
@@ -442,24 +435,17 @@
                     formControlName="itemRegularUnitPrice"
                     (keyup)="handleItemPrice($event)"
                     class="w-full"
-                    autocomplete="off" />
+                    autocomplete="off"
+                  />
                 </div>
               }
             </div>
           </p-card>
-
-
         </div>
 
         <!-- Form Actions -->
         <div class="form-actions-compact">
-          <p-button
-            label="Annuler"
-            icon="pi pi-times"
-            severity="secondary"
-            [text]="true"
-            type="button"
-            (click)="previousState()">
+          <p-button label="Annuler" icon="pi pi-times" severity="secondary" [text]="true" type="button" (click)="previousState()">
           </p-button>
           <p-button
             label="Enregistrer"
@@ -467,7 +453,8 @@
             severity="primary"
             type="submit"
             [disabled]="editForm.invalid || isSaving || !isValid"
-            [loading]="isSaving">
+            [loading]="isSaving"
+          >
           </p-button>
         </div>
       </form>

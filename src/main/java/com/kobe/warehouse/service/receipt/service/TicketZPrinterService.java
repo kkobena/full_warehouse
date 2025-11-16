@@ -3,18 +3,15 @@ package com.kobe.warehouse.service.receipt.service;
 import com.kobe.warehouse.service.receipt.dto.AbstractItem;
 import com.kobe.warehouse.service.receipt.dto.HeaderFooterItem;
 import com.kobe.warehouse.service.settings.AppConfigurationService;
-import org.springframework.stereotype.Service;
-
 import java.util.List;
+import org.springframework.stereotype.Service;
 
 @Service
 public class TicketZPrinterService extends AbstractTicketZService {
 
-
     protected TicketZPrinterService(AppConfigurationService appConfigurationService) {
         super(appConfigurationService);
     }
-
 
     @Override
     protected List<HeaderFooterItem> getFooterItems() {
@@ -25,6 +22,4 @@ public class TicketZPrinterService extends AbstractTicketZService {
     protected List<? extends AbstractItem> getItems() {
         return List.of();
     }
-
-
 }

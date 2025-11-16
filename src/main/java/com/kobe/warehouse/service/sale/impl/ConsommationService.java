@@ -33,19 +33,12 @@ public class ConsommationService {
      * @param saver consumer function to save the entity
      * @param <T> the type of entity that has consumption tracking
      */
-    public <T extends HasConsommation> void updateConsommation(
-        T entity,
-        Integer montant,
-        LocalDateTime dateTime,
-        Consumer<T> saver
-    ) {
+    public <T extends HasConsommation> void updateConsommation(T entity, Integer montant, LocalDateTime dateTime, Consumer<T> saver) {
         if (montant == null) {
             return;
         }
 
-        Set<Consommation> consommations = CollectionUtils.isEmpty(entity.getConsommations())
-            ? new HashSet<>()
-            : entity.getConsommations();
+        Set<Consommation> consommations = CollectionUtils.isEmpty(entity.getConsommations()) ? new HashSet<>() : entity.getConsommations();
 
         int consommationId = buildConsommationId(dateTime);
 

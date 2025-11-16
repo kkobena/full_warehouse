@@ -9,14 +9,7 @@
         </div>
 
         <div class="pharma-nav-sidebar-content">
-          <div
-            #nav="ngbNav"
-
-            [(activeId)]="active"
-            class="nav flex-column nav-pills"
-            ngbNav
-            orientation="vertical"
-          >
+          <div #nav="ngbNav" [(activeId)]="active" class="nav flex-column nav-pills" ngbNav orientation="vertical">
             <ng-container ngbNavItem="liste-depots">
               <a class="pharma-nav-vertical-link" ngbNavLink>
                 <i class="pi pi-book"></i>
@@ -58,15 +51,13 @@
                 <jhi-depot-retour-list></jhi-depot-retour-list>
               </ng-template>
             </ng-container>
-
           </div>
         </div>
       </div>
     </div>
   </div>
 
-  <div class="col-xl-10 col-lg-10 col-md-10 col-sm-10 ">
+  <div class="col-xl-10 col-lg-10 col-md-10 col-sm-10">
     <div [ngbNavOutlet]="nav"></div>
   </div>
 </div>
-

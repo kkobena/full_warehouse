@@ -37,48 +37,39 @@ import { Button } from 'primeng/button';
               required
               pattern="http?://.+"
             />
-            <div class="form-text">
-              Exemples: http://localhost:8080, http://192.168.1.100:8080
-            </div>
+            <div class="form-text">Exemples: http://localhost:8080, http://192.168.1.100:8080</div>
           </div>
 
           <div class="d-flex gap-2 mb-3">
-            <button
-              type="button"
-              class="btn btn-sm btn-outline-primary"
-              (click)="testConnection()"
-              [disabled]="testing || !apiServerUrl"
-            >
+            <button type="button" class="btn btn-sm btn-outline-primary" (click)="testConnection()" [disabled]="testing || !apiServerUrl">
               <i class="bi" [ngClass]="testing ? 'bi-hourglass-split' : 'bi-wifi'"></i>
               {{ testing ? 'Test en cours...' : 'Tester la connexion' }}
             </button>
 
-            <button
-              type="button"
-              class="btn btn-sm btn-outline-secondary"
-              (click)="resetToDefaults()"
-            >
+            <button type="button" class="btn btn-sm btn-outline-secondary" (click)="resetToDefaults()">
               <i class="bi bi-arrow-counterclockwise"></i>
               Réinitialiser
             </button>
           </div>
           @if (connectionTestResult !== null) {
-            <div class="alert" [ngClass]="{
-          'alert-success': connectionTestResult === true,
-          'alert-danger': connectionTestResult === false
-        }">
-              <i class="bi" [ngClass]="{
-            'bi-check-circle': connectionTestResult === true,
-            'bi-x-circle': connectionTestResult === false
-          }"></i>
+            <div
+              class="alert"
+              [ngClass]="{
+                'alert-success': connectionTestResult === true,
+                'alert-danger': connectionTestResult === false,
+              }"
+            >
+              <i
+                class="bi"
+                [ngClass]="{
+                  'bi-check-circle': connectionTestResult === true,
+                  'bi-x-circle': connectionTestResult === false,
+                }"
+              ></i>
 
-              {{
-                connectionTestResult ? 'Connexion réussie!' : errorMsg
-              }}
-
+              {{ connectionTestResult ? 'Connexion réussie!' : errorMsg }}
             </div>
           }
-
         </form>
 
         <div class="mt-4 pt-3 border-top">
@@ -93,9 +84,15 @@ import { Button } from 'primeng/button';
     </p-card>
 
     <div class="modal-footer">
-
-      <p-button class="mr-2" (click)="dismiss()" icon="pi pi-times" label="Annuler" raised="true" severity="secondary"
-                type="button"></p-button>
+      <p-button
+        class="mr-2"
+        (click)="dismiss()"
+        icon="pi pi-times"
+        label="Annuler"
+        raised="true"
+        severity="secondary"
+        type="button"
+      ></p-button>
       <p-button
         [disabled]="!apiServerUrl || testing"
         class="mr-1"
@@ -106,21 +103,18 @@ import { Button } from 'primeng/button';
         (click)="save()"
         type="button"
       ></p-button>
-
-
     </div>
-  `
-
+  `,
 })
 export class AppSettingsDialogComponent implements OnInit {
- protected apiServerUrl: string = '';
- protected errorMsg: string = "Échec de la connexion. Vérifiez l'adresse et réessayez.";
- protected testing = false;
- protected connectionTestResult: boolean | null = null;
+  protected apiServerUrl: string = '';
+  protected errorMsg: string = "Échec de la connexion. Vérifiez l'adresse et réessayez.";
+  protected testing = false;
+  protected connectionTestResult: boolean | null = null;
 
   constructor(
     public activeModal: NgbActiveModal,
-    private appSettingsService: AppSettingsService
+    private appSettingsService: AppSettingsService,
   ) {}
 
   ngOnInit(): void {

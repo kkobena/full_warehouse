@@ -5,11 +5,7 @@ import { AccountService } from 'app/core/auth/account.service';
 import { LoginService } from 'app/login/login.service';
 import { NavItem } from './navbar-item.model';
 import { WarehouseCommonModule } from '../../shared/warehouse-common/warehouse-common.module';
-import {
-  faBars,
-  faKeyboard,
-  faServer
-} from '@fortawesome/free-solid-svg-icons';
+import { faBars, faKeyboard, faServer } from '@fortawesome/free-solid-svg-icons';
 import { Theme, ThemeService } from '../../core/theme/theme.service';
 import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { AppSettingsDialogComponent } from '../../shared/settings/app-settings-dialog.component';
@@ -21,7 +17,7 @@ import { NavigationService } from '../../core/config/navigation.service';
   selector: 'jhi-navbar',
   templateUrl: './navbar.component.html',
   styleUrl: './navbar.component.scss',
-  imports: [RouterModule, WarehouseCommonModule]
+  imports: [RouterModule, WarehouseCommonModule],
 })
 export default class NavbarComponent implements OnInit {
   protected isNavbarCollapsed = signal(true);
@@ -38,8 +34,6 @@ export default class NavbarComponent implements OnInit {
   protected layoutService = inject(LayoutService);
   themes: Theme[];
   selectedTheme: string;
-
-
 
   changeTheme(themeName: string): void {
     this.selectedTheme = themeName;
@@ -59,7 +53,6 @@ export default class NavbarComponent implements OnInit {
 
   ngOnInit(): void {
     this.themes = this.themeService.getThemes();
-
   }
 
   protected collapseNavbar(): void {
@@ -113,19 +106,19 @@ export default class NavbarComponent implements OnInit {
           {
             label: 'Raccourcis Clavier',
             faIcon: faKeyboard,
-            click: () => this.openShortcutsHelp()
+            click: () => this.openShortcutsHelp(),
           },
           {
             label: 'Menu vertical',
             faIcon: faBars,
-            click: () => this.layoutService.toggleLayout()
+            click: () => this.layoutService.toggleLayout(),
           },
           {
             label: 'Se déconnecter',
             faIcon: 'sign-out-alt',
-            click: () => this.logout()
-          }
-        ]
+            click: () => this.logout(),
+          },
+        ],
       });
     }
 
@@ -134,24 +127,23 @@ export default class NavbarComponent implements OnInit {
       {
         label: 'Paramètres Serveur',
         faIcon: faServer,
-        click: () => this.openAppSettings()
+        click: () => this.openAppSettings(),
       },
       {
         label: 'Raccourcis Clavier',
         faIcon: faKeyboard,
-        click: () => this.openShortcutsHelp()
+        click: () => this.openShortcutsHelp(),
       },
       {
         label: 'Menu vertical',
         faIcon: faBars,
-        click: () => this.layoutService.toggleLayout()
+        click: () => this.layoutService.toggleLayout(),
       },
       {
         label: 'Se connecter',
         faIcon: 'sign-out-alt',
-        click: () => this.login()
-      }
+        click: () => this.login(),
+      },
     ]);
   }
-
 }

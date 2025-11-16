@@ -36,23 +36,21 @@ spring:
     username: pharma_smart
     password: 2802_pharma_smart
     hikari:
-        poolName: Hikari
-        auto-commit: false
-        maximum-pool-size: 50         # plus de connexions pour prod
-        minimum-idle: 10
-        idle-timeout: 600000          # 10 min
-        max-lifetime: 1800000         # 30 min
-        connection-timeout: 30000     # 30 sec
-        validation-timeout: 5000      # 5 sec
-        leak-detection-threshold: 20000
-
+      poolName: Hikari
+      auto-commit: false
+      maximum-pool-size: 50 # plus de connexions pour prod
+      minimum-idle: 10
+      idle-timeout: 600000 # 10 min
+      max-lifetime: 1800000 # 30 min
+      connection-timeout: 30000 # 30 sec
+      validation-timeout: 5000 # 5 sec
+      leak-detection-threshold: 20000
 
   thymeleaf:
     cache: true
   threads:
     virtual:
       enabled: true
-
 
 # server:
 #   port: 443
@@ -71,7 +69,6 @@ server:
     enabled: true
     mime-types: text/html,text/xml,text/plain,text/css,application/javascript,application/json,image/svg+xml
     min-response-size: 1024
-
 
 pharma-smart-log:
   # CORS configuration for production - allow LAN access
@@ -102,8 +99,6 @@ pharma-smart-log:
     remember-me:
       # security key (this key should be unique for your application, and kept secret)
       key: e6272562f8e92c219ee0e4fdf0820bdc06a1058f6e8ab97bc7b89d9d85558881306da57607f52c5bf545f38982946add9428
-
-
 
 # application:
 file:

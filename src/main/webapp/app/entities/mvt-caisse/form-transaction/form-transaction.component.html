@@ -26,8 +26,10 @@
             placeholder="Sélectionner un type"
           />
         </p-inputgroup>
-        @if (editForm.get('typeFinancialTransaction')!.invalid &&
-        (editForm.get('typeFinancialTransaction')!.dirty || editForm.get('typeFinancialTransaction')!.touched)) {
+        @if (
+          editForm.get('typeFinancialTransaction')!.invalid &&
+          (editForm.get('typeFinancialTransaction')!.dirty || editForm.get('typeFinancialTransaction')!.touched)
+        ) {
           @if (editForm.get('typeFinancialTransaction')?.errors?.required) {
             <small class="p-error">Ce champ est obligatoire.</small>
           }
@@ -140,14 +142,7 @@
   </div>
 
   <div class="modal-footer">
-    <p-button
-      (click)="cancel()"
-      [raised]="true"
-      icon="pi pi-times"
-      label="Annuler"
-      severity="secondary"
-      type="button"
-    />
+    <p-button (click)="cancel()" [raised]="true" icon="pi pi-times" label="Annuler" severity="secondary" type="button" />
     <p-button
       [disabled]="editForm.invalid || isSaving || !isValid"
       [loading]="isSaving"

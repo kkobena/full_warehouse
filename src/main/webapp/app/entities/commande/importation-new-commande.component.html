@@ -1,7 +1,6 @@
 <div class="modal-header">
   <h4 class="modal-title">{{ header }}</h4>
-  <button (click)="cancel()" aria-label="Close" class="btn-close" type="button">
-  </button>
+  <button (click)="cancel()" aria-label="Close" class="btn-close" type="button"></button>
 </div>
 <div class="modal-body">
   <p-card>
@@ -54,9 +53,16 @@
 </div>
 
 <div class="modal-footer">
-  <p-button (click)="cancel()" class="mr-2" data-dismiss="modal" icon="pi pi-times" label="Annuler"
-            raised="true"
-            severity="secondary" type="button">
+  <p-button
+    (click)="cancel()"
+    class="mr-2"
+    data-dismiss="modal"
+    icon="pi pi-times"
+    label="Annuler"
+    raised="true"
+    severity="secondary"
+    type="button"
+  >
   </p-button>
 
   <p-button

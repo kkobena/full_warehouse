@@ -5,16 +5,15 @@ import com.kobe.warehouse.service.receipt.dto.HeaderFooterItem;
 import com.kobe.warehouse.service.reglement.dto.DefaultPaymentRecord;
 import com.kobe.warehouse.service.settings.AppConfigurationService;
 import com.kobe.warehouse.service.utils.NumberUtil;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.stereotype.Service;
-
-import javax.print.PrintException;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
+import javax.print.PrintException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.stereotype.Service;
 
 @Service
 public class MouvementCaisseReceiptService extends AbstractJava2DReceiptPrinterService {
@@ -85,7 +84,10 @@ public class MouvementCaisseReceiptService extends AbstractJava2DReceiptPrinterS
             escPosFeedLines(out, 1);
 
             // Transaction details
-            escPosPrintLine(out, String.format("%-28s %19s", "DATE", paymentRecord.mvtDate().format(DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm"))));
+            escPosPrintLine(
+                out,
+                String.format("%-28s %19s", "DATE", paymentRecord.mvtDate().format(DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm")))
+            );
             escPosPrintLine(out, String.format("%-28s %19s", "REFERENCE", paymentRecord.reference()));
             escPosFeedLines(out, 1);
 
@@ -103,7 +105,6 @@ public class MouvementCaisseReceiptService extends AbstractJava2DReceiptPrinterS
     public void printReceipt(DefaultPaymentRecord paymentRecord) {
         this.paymentRecord = paymentRecord;
         try {
-
             printEscPosDirectByHost(null, true);
         } catch (IOException | PrintException e) {
             LOG.error("Error while printing ESC/POS receipt: {}", e.getMessage(), e);

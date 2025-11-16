@@ -33,10 +33,10 @@ import { ErrorService } from '../../../shared/error.service';
     ButtonModule,
     ToastAlertComponent,
     Select,
-    Card
+    Card,
   ],
   templateUrl: './code-remise-produits-modal.component.html',
-  styleUrls: ['../../common-modal.component.scss']
+  styleUrls: ['../../common-modal.component.scss'],
 })
 export class CodeRemiseProduitsModalComponent implements AfterViewInit {
   checkbox = viewChild<TableHeaderCheckbox>('checkbox');
@@ -68,11 +68,11 @@ export class CodeRemiseProduitsModalComponent implements AfterViewInit {
           search: this.search,
           page: pageToLoad,
           size: this.itemsPerPage,
-          rayonId: this.selectedRayon
+          rayonId: this.selectedRayon,
         })
         .subscribe({
           next: (res: HttpResponse<IProduit[]>) => this.onSuccess(res.body, res.headers, pageToLoad),
-          error: err => this.onSaveError(err)
+          error: err => this.onSaveError(err),
         });
     } else {
       this.produits = [];
@@ -91,12 +91,12 @@ export class CodeRemiseProduitsModalComponent implements AfterViewInit {
     this.rayonService
       .query({
         page: 0,
-        size: 9999
+        size: 9999,
       })
       .subscribe({
         next: (res: HttpResponse<IRayon[]>) => {
           this.rayons = res.body || [];
-        }
+        },
       });
   }
 
@@ -109,11 +109,11 @@ export class CodeRemiseProduitsModalComponent implements AfterViewInit {
           search: this.search,
           page: this.page,
           size: event.rows,
-          rayonId: this.selectedRayon
+          rayonId: this.selectedRayon,
         })
         .subscribe({
           next: (res: HttpResponse<IProduit[]>) => this.onSuccess(res.body, res.headers, this.page),
-          error: err => this.onSaveError(err)
+          error: err => this.onSaveError(err),
         });
     }
   }
@@ -129,7 +129,7 @@ export class CodeRemiseProduitsModalComponent implements AfterViewInit {
       },
       error: error => {
         this.onSaveError(error);
-      }
+      },
     });
   }
 

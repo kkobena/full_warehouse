@@ -32,7 +32,9 @@
     </ng-template>
     <ng-template let-vente #body>
       <tr>
-        <td> <span class="pharma-code">{{ vente.annee }}</span></td>
+        <td>
+          <span class="pharma-code">{{ vente.annee }}</span>
+        </td>
         <td class="amount-column pharma-qty-value">{{ getMonthData(vente, JANUARY) | number }}</td>
         <td class="amount-column pharma-qty-value">{{ getMonthData(vente, FEBRUARY) | number }}</td>
         <td class="amount-column pharma-qty-value">{{ getMonthData(vente, MARCH) | number }}</td>

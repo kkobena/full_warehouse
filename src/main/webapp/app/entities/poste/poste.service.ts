@@ -8,7 +8,7 @@ type EntityResponseType = HttpResponse<IPoste>;
 type EntityArrayResponseType = HttpResponse<IPoste[]>;
 
 @Injectable({
-  providedIn: 'root'
+  providedIn: 'root',
 })
 export class PosteService {
   protected http = inject(HttpClient);

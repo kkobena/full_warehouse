@@ -46,10 +46,10 @@ import { Menu } from 'primeng/menu';
     Tooltip,
     FormsModule,
     RouterLink,
-    Menu
+    Menu,
   ],
   templateUrl: './achat-depot.component.html',
-  styleUrl: './achat-depot.component.scss'
+  styleUrl: './achat-depot.component.scss',
 })
 export class AchatDepotComponent implements OnInit {
   protected selectedDepot: IMagasin | null = null;
@@ -92,29 +92,28 @@ export class AchatDepotComponent implements OnInit {
       {
         label: 'Fiche à partir csv',
         icon: 'pi pi-file-pdf',
-        command: () => console.error('print all record')
-      }
+        command: () => console.error('print all record'),
+      },
     ];
 
     this.exportMenuItems = [
       {
         label: 'Exporter en CSV',
         icon: 'pi pi-file',
-        command: () => this.exportWithFormat('CSV')
+        command: () => this.exportWithFormat('CSV'),
       },
       {
         label: 'Exporter en Excel',
         icon: 'pi pi-file-excel',
-        command: () => this.exportWithFormat('EXCEL')
+        command: () => this.exportWithFormat('EXCEL'),
       },
       {
         label: 'Exporter en PDF',
         icon: 'pi pi-file-pdf',
-        command: () => this.print()
-      }
+        command: () => this.print(),
+      },
     ];
   }
-
 
   protected onSelectDepot(): void {
     this.searchSubject.next();
@@ -123,7 +122,6 @@ export class AchatDepotComponent implements OnInit {
   populate(): void {
     this.magasinService.fetchAllDepots().subscribe((res: HttpResponse<IMagasin[]>) => {
       this.depots = res.body || [];
-
     });
   }
 
@@ -139,7 +137,6 @@ export class AchatDepotComponent implements OnInit {
     this.searchSubject.pipe(debounceTime(300)).subscribe(() => {
       this.loadPage();
     });
-
   }
 
   loadAllUsers(): void {
@@ -156,25 +153,20 @@ export class AchatDepotComponent implements OnInit {
     this.searchSubject.next();
   }
 
-
   printReceiptForTauri(saleId: SaleId, isEdition: boolean = false): void {
     this.salesService.getEscPosReceiptForTauri(saleId, isEdition).subscribe({
       next: async (escposData: ArrayBuffer) => {
         try {
           await this.tauriPrinterService.printEscPosFromBuffer(escposData);
-        } catch (error) {
-        }
+        } catch (error) {}
       },
-      error: () => {
-      }
+      error: () => {},
     });
   }
-
 
   protected loadPage(page?: number): void {
     const pageToLoad: number = page || this.page;
     this.fetchSales(pageToLoad, this.itemsPerPage);
-
   }
 
   protected lazyLoading(event: TableLazyLoadEvent): void {
@@ -188,7 +180,6 @@ export class AchatDepotComponent implements OnInit {
   protected onSearch(): void {
     this.searchSubject.next();
   }
-
 
   protected onExportMenu(event: Event, sale: ISales): void {
     this.currentSaleForExport = sale;
@@ -219,7 +210,6 @@ export class AchatDepotComponent implements OnInit {
     }
   }
 
-
   protected onSuccess(data: ISales[] | null, headers: HttpHeaders, page: number): void {
     this.totalItems = Number(headers.get('X-Total-Count'));
     this.page = page;
@@ -237,11 +227,11 @@ export class AchatDepotComponent implements OnInit {
       .fetchSales({
         page,
         size,
-        ...this.buildCriteria()
+        ...this.buildCriteria(),
       })
       .subscribe({
         next: (res: HttpResponse<ISales[]>) => this.onSuccess(res.body, res.headers, page),
-        error: () => this.onError()
+        error: () => this.onError(),
       });
   }
 
@@ -251,7 +241,7 @@ export class AchatDepotComponent implements OnInit {
       fromDate: this.fromDate ? DATE_FORMAT_ISO_DATE(this.fromDate) : null,
       toDate: this.toDate ? DATE_FORMAT_ISO_DATE(this.toDate) : null,
       magasinId: this.selectedDepot ? this.selectedDepot.id : null,
-      userId: this.selectedUserId
+      userId: this.selectedUserId,
     };
   }
 
@@ -260,14 +250,13 @@ export class AchatDepotComponent implements OnInit {
       next: async resp => {
         const blob = resp.body;
         if (!blob) {
-
           return;
         }
 
         const fileName = extractFileName2(
           resp.headers.get('Content-disposition'),
           format,
-          `vente_depot_stock_${saleId.id}_${saleId.saleDate}`
+          `vente_depot_stock_${saleId.id}_${saleId.saleDate}`,
         );
 
         if (this.tauriPrinterService.isRunningInTauri()) {
@@ -282,9 +271,9 @@ export class AchatDepotComponent implements OnInit {
           saveAs(blob, fileName);
         }
       },
-      error: (err) => {
-        console.error('Erreur lors de l\'exportation:', err);
-      }
+      error: err => {
+        console.error("Erreur lors de l'exportation:", err);
+      },
     });
   }
 }

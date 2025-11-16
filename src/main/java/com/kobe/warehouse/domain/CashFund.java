@@ -15,12 +15,11 @@ import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
 import jakarta.validation.constraints.NotNull;
-import org.hibernate.annotations.Cache;
-import org.hibernate.annotations.CacheConcurrencyStrategy;
-
 import java.io.Serial;
 import java.io.Serializable;
 import java.time.LocalDateTime;
+import org.hibernate.annotations.Cache;
+import org.hibernate.annotations.CacheConcurrencyStrategy;
 
 @Entity
 @Table(name = "cash_fund")
@@ -51,7 +50,7 @@ public class CashFund implements Serializable {
 
     @NotNull
     @Enumerated(EnumType.STRING)
-    @Column(name = "cash_fund_type", nullable = false,length = 8)
+    @Column(name = "cash_fund_type", nullable = false, length = 8)
     private CashFundType cashFundType;
 
     @OneToOne
@@ -60,7 +59,7 @@ public class CashFund implements Serializable {
 
     @NotNull
     @Enumerated(EnumType.STRING)
-    @Column(name = "statut", nullable = false,length = 15)
+    @Column(name = "statut", nullable = false, length = 15)
     private CashFundStatut statut;
 
     @ManyToOne(fetch = FetchType.LAZY)

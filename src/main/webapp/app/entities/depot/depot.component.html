@@ -6,79 +6,57 @@
         <span class="pharma-toolbar-title">Gestion des Dépôts</span>
       </div>
       <p-toolbar>
-
         <ng-template #start>
-          <div class="pharma-toolbar-filters">
-
-          </div>
+          <div class="pharma-toolbar-filters"></div>
         </ng-template>
         <ng-template #end>
           <div class="pharma-toolbar-actions">
-            <p-button
-              [raised]="true"
-              (onClick)="onNewVente()"
-              icon="pi pi-shopping-cart"
-              label="Nouvelle vente dépôt"
-              severity="primary">
+            <p-button [raised]="true" (onClick)="onNewVente()" icon="pi pi-shopping-cart" label="Nouvelle vente dépôt" severity="primary">
             </p-button>
-            <p-button
-              [raised]="true"
-              (onClick)="onCreate()"
-              icon="pi pi-plus"
-              label="Nouveau Dépôt"
-              severity="info">
-            </p-button>
-            <p-button
-              [raised]="true"
-              [routerLink]="['/depot', 'new-return']"
-              icon="pi pi-undo"
-              label="Retour dépôt"
-              severity="warn"
-            />
+            <p-button [raised]="true" (onClick)="onCreate()" icon="pi pi-plus" label="Nouveau Dépôt" severity="info"> </p-button>
+            <p-button [raised]="true" [routerLink]="['/depot', 'new-return']" icon="pi pi-undo" label="Retour dépôt" severity="warn" />
           </div>
         </ng-template>
       </p-toolbar>
-
     </div>
 
-    <p-table #dt
-             [globalFilterFields]="['name', 'fullName', 'address', 'phone', 'email']"
-             [loading]="loading"
-             [paginator]="true"
-             [rowsPerPageOptions]="[10, 25, 50]"
-             [rows]="10"
-             [showCurrentPageReport]="true"
-             [value]="depots"
-             class="p-datatable-sm p-datatable-striped pharma-table"
-             currentPageReportTemplate="Affichage de {first} à {last} sur {totalRecords} dépôts">
-
+    <p-table
+      #dt
+      [globalFilterFields]="['name', 'fullName', 'address', 'phone', 'email']"
+      [loading]="loading"
+      [paginator]="true"
+      [rowsPerPageOptions]="[10, 25, 50]"
+      [rows]="10"
+      [showCurrentPageReport]="true"
+      [value]="depots"
+      class="p-datatable-sm p-datatable-striped pharma-table"
+      currentPageReportTemplate="Affichage de {first} à {last} sur {totalRecords} dépôts"
+    >
       <ng-template #caption>
         <div class="table-header">
           <p-iconfield>
             <p-inputicon class="pi pi-search" />
-            <input #searchInput
-                   (input)="dt.filterGlobal($any($event.target).value, 'contains')" pInputText
-                   placeholder="Taper pour rechercher" type="text" />
+            <input
+              #searchInput
+              (input)="dt.filterGlobal($any($event.target).value, 'contains')"
+              pInputText
+              placeholder="Taper pour rechercher"
+              type="text"
+            />
           </p-iconfield>
-
         </div>
       </ng-template>
 
       <ng-template #header>
         <tr class="pharma-table-head">
-          <th style="width: 15%;">
-            Nom Court
-          </th>
-          <th style="width: 20%;">
-            Nom Complet
+          <th style="width: 15%">Nom Court</th>
+          <th style="width: 20%">Nom Complet</th>
 
-          </th>
+          <th style="width: 12%">Téléphone</th>
+          <th style="width: 20%">Email</th>
+          <th style="width: 20%">Adresse</th>
 
-          <th style="width: 12%;">Téléphone</th>
-          <th style="width: 20%;">Email</th>
-          <th style="width: 20%;">Adresse</th>
-
-          <th style="width: 20%; text-align: center;">Actions</th>
+          <th style="width: 20%; text-align: center">Actions</th>
         </tr>
       </ng-template>
 
@@ -103,15 +81,9 @@
             </span>
           </td>
 
-          <td style="text-align: center;">
+          <td style="text-align: center">
             <div class="action-buttons">
-              <p-button
-                (onClick)="onEdit(depot)"
-                [rounded]="true"
-                [text]="true"
-                icon="pi pi-pencil"
-                pTooltip="Modifier"
-                severity="info">
+              <p-button (onClick)="onEdit(depot)" [rounded]="true" [text]="true" icon="pi pi-pencil" pTooltip="Modifier" severity="info">
               </p-button>
 
               <p-button
@@ -120,10 +92,9 @@
                 [text]="true"
                 icon="pi pi-trash"
                 pTooltip="Supprimer"
-                severity="danger">
+                severity="danger"
+              >
               </p-button>
-
-
             </div>
           </td>
         </tr>
@@ -131,12 +102,10 @@
 
       <ng-template #emptymessage>
         <tr>
-          <td colspan="6"><p>Aucun dépôt trouvé</p>
-          </td>
+          <td colspan="6"><p>Aucun dépôt trouvé</p></td>
         </tr>
       </ng-template>
     </p-table>
-
   </div>
 </div>
 <jhi-confirm-dialog #confirmDialog></jhi-confirm-dialog>

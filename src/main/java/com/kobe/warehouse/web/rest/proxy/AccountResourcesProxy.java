@@ -11,9 +11,8 @@ import com.kobe.warehouse.service.errors.InvalidPasswordException;
 import com.kobe.warehouse.service.utils.CustomerDisplayService;
 import com.kobe.warehouse.web.rest.vm.KeyAndPasswordVM;
 import com.kobe.warehouse.web.rest.vm.ManagedUserVM;
-import org.apache.commons.lang3.StringUtils;
-
 import java.util.Optional;
+import org.apache.commons.lang3.StringUtils;
 
 public class AccountResourcesProxy {
 
@@ -25,14 +24,13 @@ public class AccountResourcesProxy {
         this.userRepository = userRepository;
         this.userService = userService;
         this.customerDisplayService = customerDisplayService;
-
     }
 
     private static boolean isPasswordLengthInvalid(String password) {
         return (
             StringUtils.isEmpty(password) ||
-                password.length() < ManagedUserVM.PASSWORD_MIN_LENGTH ||
-                password.length() > ManagedUserVM.PASSWORD_MAX_LENGTH
+            password.length() < ManagedUserVM.PASSWORD_MIN_LENGTH ||
+            password.length() > ManagedUserVM.PASSWORD_MAX_LENGTH
         );
     }
 

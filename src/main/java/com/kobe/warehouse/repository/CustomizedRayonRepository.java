@@ -1,5 +1,8 @@
 package com.kobe.warehouse.repository;
 
+import static java.util.Objects.isNull;
+import static java.util.Objects.nonNull;
+
 import com.kobe.warehouse.domain.Rayon;
 import com.kobe.warehouse.domain.Rayon_;
 import com.kobe.warehouse.domain.Storage_;
@@ -12,18 +15,14 @@ import jakarta.persistence.criteria.CriteriaBuilder;
 import jakarta.persistence.criteria.CriteriaQuery;
 import jakarta.persistence.criteria.Predicate;
 import jakarta.persistence.criteria.Root;
+import java.util.ArrayList;
+import java.util.List;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
-
-import java.util.ArrayList;
-import java.util.List;
-
-import static java.util.Objects.isNull;
-import static java.util.Objects.nonNull;
 
 @Repository
 @Transactional
@@ -83,7 +82,6 @@ public class CustomizedRayonRepository implements CustomizedRayonService {
             } else {
                 storageId = storageService.getDefaultConnectedUserMainStorage().getId();
             }
-
         }
         predicates.add(cb.equal(root.get(Rayon_.storage).get(Storage_.id), storageId));
         return predicates;

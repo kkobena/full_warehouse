@@ -137,8 +137,13 @@ $other: #6b7280;
 }
 
 @keyframes amountPulse {
-  0%, 100% { transform: scale(1); }
-  50% { transform: scale(1.05); }
+  0%,
+  100% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.05);
+  }
 }
 
 // ============================================
@@ -405,8 +410,13 @@ $other: #6b7280;
 }
 
 @keyframes totalPulse {
-  0%, 100% { transform: scale(1); }
-  50% { transform: scale(1.02); }
+  0%,
+  100% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.02);
+  }
 }
 
 // ============================================

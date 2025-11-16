@@ -9,7 +9,7 @@ type EntityResponseType = HttpResponse<IRemise>;
 type EntityArrayResponseType = HttpResponse<IRemise[]>;
 
 @Injectable({
-  providedIn: 'root'
+  providedIn: 'root',
 })
 export class RemiseService {
   protected http = inject(HttpClient);

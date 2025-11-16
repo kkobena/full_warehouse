@@ -30,14 +30,12 @@ public class GammeProduit implements Serializable {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
 
-    @Column(name = "code",length = 20)
+    @Column(name = "code", length = 20)
     private String code;
 
     @NotNull
     @Column(name = "libelle", nullable = false, unique = true)
     private String libelle;
-
-
 
     public Integer getId() {
         return id;
@@ -78,8 +76,6 @@ public class GammeProduit implements Serializable {
         this.id = id;
         return this;
     }
-
-
 
     @Override
     public boolean equals(Object o) {

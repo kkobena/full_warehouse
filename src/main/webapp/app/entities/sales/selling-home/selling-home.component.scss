@@ -181,7 +181,9 @@ $border-radius-lg: $pharma-radius-lg;
   // Override the 100% width from shared styles for this flexbox layout
   &.pharma-nav-sidebar {
     width: 240px;
-    transition: width 0.3s ease, min-width 0.3s ease;
+    transition:
+      width 0.3s ease,
+      min-width 0.3s ease;
     position: relative;
   }
 

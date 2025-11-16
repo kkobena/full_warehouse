@@ -10,6 +10,7 @@ import org.springframework.transaction.annotation.Transactional;
 @Service
 @Transactional
 public class HistoriqueInventaireServiceImpl implements HistoriqueInventaireService {
+
     private final HistoriqueInventaireRepository historiqueInventaireRepository;
 
     public HistoriqueInventaireServiceImpl(HistoriqueInventaireRepository historiqueInventaireRepository) {

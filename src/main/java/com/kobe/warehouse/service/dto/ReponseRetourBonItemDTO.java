@@ -1,10 +1,10 @@
 package com.kobe.warehouse.service.dto;
 
 import com.kobe.warehouse.domain.ReponseRetourBonItem;
-
 import java.time.LocalDateTime;
 
 public class ReponseRetourBonItemDTO {
+
     private Integer id;
     private LocalDateTime dateMtv;
     private Integer reponseRetourBonId;
@@ -18,8 +18,7 @@ public class ReponseRetourBonItemDTO {
     private Integer requestedQty;
     private Integer prixAchat;
 
-    public ReponseRetourBonItemDTO() {
-    }
+    public ReponseRetourBonItemDTO() {}
 
     public ReponseRetourBonItemDTO(ReponseRetourBonItem item) {
         this.id = item.getId();
@@ -32,7 +31,6 @@ public class ReponseRetourBonItemDTO {
         }
         this.qtyMvt = item.getQtyMvt();
         this.prixAchat = item.getPrixAchat();
-
     }
 
     public Integer getId() {
@@ -79,7 +77,6 @@ public class ReponseRetourBonItemDTO {
         this.qtyMvt = qtyMvt;
         return this;
     }
-
 
     public Integer getPrixAchat() {
         return prixAchat;

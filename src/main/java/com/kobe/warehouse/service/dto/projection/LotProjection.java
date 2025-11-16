@@ -8,6 +8,4 @@ public interface LotProjection {
     Integer getQuantity();
 
     Integer getFreeQty();
-
-
 }

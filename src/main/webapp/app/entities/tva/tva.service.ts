@@ -9,7 +9,7 @@ type EntityResponseType = HttpResponse<ITva>;
 type EntityArrayResponseType = HttpResponse<ITva[]>;
 
 @Injectable({
-  providedIn: 'root'
+  providedIn: 'root',
 })
 export class TvaService {
   protected http = inject(HttpClient);

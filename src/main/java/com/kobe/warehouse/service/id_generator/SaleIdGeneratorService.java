@@ -7,7 +7,6 @@ import org.springframework.stereotype.Service;
 public class SaleIdGeneratorService extends AbstractIdGeneratorService {
 
     public SaleIdGeneratorService(EntityManager entityManager) {
-
         super(entityManager);
     }
 
@@ -15,6 +14,4 @@ public class SaleIdGeneratorService extends AbstractIdGeneratorService {
     public String getSequenceName() {
         return "id_sale_seq";
     }
-
-
 }

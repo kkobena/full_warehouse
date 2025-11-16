@@ -1,8 +1,8 @@
 package com.kobe.warehouse.repository;
 
+import com.kobe.warehouse.domain.AppUser_;
 import com.kobe.warehouse.domain.ThirdPartySales;
 import com.kobe.warehouse.domain.ThirdPartySales_;
-import com.kobe.warehouse.domain.AppUser_;
 import com.kobe.warehouse.service.tiketz.dto.TicketZCreditProjection;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.TypedQuery;
@@ -40,9 +40,11 @@ public class ThirdPartySaleCustomRepositoryImpl implements ThirdPartySaleCustomR
                     cb.sumAsLong(root.get(ThirdPartySales_.partTiersPayant))
                 )
             )
-            .groupBy( root.get(ThirdPartySales_.caissier).get(AppUser_.id),
+            .groupBy(
+                root.get(ThirdPartySales_.caissier).get(AppUser_.id),
                 root.get(ThirdPartySales_.caissier).get(AppUser_.firstName),
-                root.get(ThirdPartySales_.caissier).get(AppUser_.lastName));
+                root.get(ThirdPartySales_.caissier).get(AppUser_.lastName)
+            );
 
         Predicate predicate = specification.toPredicate(root, query, cb);
         query.where(predicate);

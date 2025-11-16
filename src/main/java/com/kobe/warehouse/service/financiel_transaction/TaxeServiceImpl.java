@@ -10,6 +10,11 @@ import com.kobe.warehouse.service.dto.ReportPeriode;
 import com.kobe.warehouse.service.financiel_transaction.dto.MvtParam;
 import com.kobe.warehouse.service.financiel_transaction.dto.TaxeDTO;
 import com.kobe.warehouse.service.financiel_transaction.dto.TaxeWrapperDTO;
+import java.net.MalformedURLException;
+import java.util.ArrayList;
+import java.util.Comparator;
+import java.util.List;
+import java.util.stream.Collectors;
 import org.apache.commons.lang3.BooleanUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -17,21 +22,15 @@ import org.springframework.core.io.Resource;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 
-import java.net.MalformedURLException;
-import java.util.ArrayList;
-import java.util.Comparator;
-import java.util.List;
-import java.util.stream.Collectors;
-
 @Service
 public class TaxeServiceImpl implements TaxeService, MvtCommonService {
+
     private static final Logger LOG = LoggerFactory.getLogger(TaxeServiceImpl.class);
     private final TvaReportReportService tvaReportService;
     private final SalesRepository salesRepository;
     private final JsonMapper objectMapper;
 
     public TaxeServiceImpl(TvaReportReportService tvaReportService, SalesRepository salesRepository, JsonMapper objectMapper) {
-
         this.tvaReportService = tvaReportService;
 
         this.salesRepository = salesRepository;
@@ -56,23 +55,35 @@ public class TaxeServiceImpl implements TaxeService, MvtCommonService {
     @Override
     public Resource exportToPdf(MvtParam mvtParam) throws MalformedURLException {
         return this.tvaReportService.exportToPdf(
-            this.fetchTaxe(mvtParam, true),
-            new ReportPeriode(mvtParam.getFromDate(), mvtParam.getToDate()),
-            StringUtils.hasText(mvtParam.getGroupeBy()) && "daily".equals(mvtParam.getGroupeBy())
-        );
+                this.fetchTaxe(mvtParam, true),
+                new ReportPeriode(mvtParam.getFromDate(), mvtParam.getToDate()),
+                StringUtils.hasText(mvtParam.getGroupeBy()) && "daily".equals(mvtParam.getGroupeBy())
+            );
     }
 
     private List<TaxeDTO> fetchTaxe(MvtParam mvtParam) {
         try {
             String jsonResult;
             if ("daily".equals(mvtParam.getGroupeBy())) {
-                jsonResult = salesRepository.fetchSalesTvaReportJournalier(mvtParam.getFromDate(), mvtParam.getToDate(), mvtParam.getStatuts().stream().map(SalesStatut::name).toArray(String[]::new), mvtParam.getCategorieChiffreAffaires().stream().map(CategorieChiffreAffaire::name).toArray(String[]::new), mvtParam.isExcludeFreeUnit(), BooleanUtils.toBoolean(mvtParam.getToIgnore()));
+                jsonResult = salesRepository.fetchSalesTvaReportJournalier(
+                    mvtParam.getFromDate(),
+                    mvtParam.getToDate(),
+                    mvtParam.getStatuts().stream().map(SalesStatut::name).toArray(String[]::new),
+                    mvtParam.getCategorieChiffreAffaires().stream().map(CategorieChiffreAffaire::name).toArray(String[]::new),
+                    mvtParam.isExcludeFreeUnit(),
+                    BooleanUtils.toBoolean(mvtParam.getToIgnore())
+                );
             } else {
-                jsonResult = salesRepository.fetchSalesTvaReport(mvtParam.getFromDate(), mvtParam.getToDate(), mvtParam.getStatuts().stream().map(SalesStatut::name).toArray(String[]::new), mvtParam.getCategorieChiffreAffaires().stream().map(CategorieChiffreAffaire::name).toArray(String[]::new), mvtParam.isExcludeFreeUnit(), BooleanUtils.toBoolean(mvtParam.getToIgnore()));
+                jsonResult = salesRepository.fetchSalesTvaReport(
+                    mvtParam.getFromDate(),
+                    mvtParam.getToDate(),
+                    mvtParam.getStatuts().stream().map(SalesStatut::name).toArray(String[]::new),
+                    mvtParam.getCategorieChiffreAffaires().stream().map(CategorieChiffreAffaire::name).toArray(String[]::new),
+                    mvtParam.isExcludeFreeUnit(),
+                    BooleanUtils.toBoolean(mvtParam.getToIgnore())
+                );
             }
-            return objectMapper.readValue(jsonResult, new TypeReference<>() {
-            });
-
+            return objectMapper.readValue(jsonResult, new TypeReference<>() {});
         } catch (Exception e) {
             LOG.error(null, e);
             return List.of();

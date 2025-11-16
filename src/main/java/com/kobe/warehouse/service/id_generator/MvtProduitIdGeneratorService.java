@@ -6,9 +6,7 @@ import org.springframework.stereotype.Service;
 @Service
 public class MvtProduitIdGeneratorService extends AbstractIdGeneratorService {
 
-
     public MvtProduitIdGeneratorService(EntityManager entityManager) {
-
         super(entityManager);
     }
 
@@ -16,6 +14,4 @@ public class MvtProduitIdGeneratorService extends AbstractIdGeneratorService {
     public String getSequenceName() {
         return "id_mvt_produit_seq";
     }
-
-
 }

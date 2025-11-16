@@ -1,6 +1,5 @@
 import { HttpInterceptorFn } from '@angular/common/http';
 
-
 export const tauriHeadersInterceptor: HttpInterceptorFn = (req, next) => {
   // Only add headers if running in Tauri environment
   if (!isRunningInTauri()) {
@@ -10,8 +9,8 @@ export const tauriHeadersInterceptor: HttpInterceptorFn = (req, next) => {
   // Clone request and add Tauri identification headers
   const modifiedRequest = req.clone({
     setHeaders: {
-      'X-Tauri-App': 'true'
-    }
+      'X-Tauri-App': 'true',
+    },
   });
 
   return next(modifiedRequest);
@@ -29,5 +28,3 @@ function isRunningInTauri(): boolean {
   // @ts-ignore - __TAURI_INTERNALS__ is injected by Tauri at runtime
   return !!window.__TAURI_INTERNALS__;
 }
-
-

@@ -6,7 +6,7 @@ import { createRequestOption } from '../../shared/util/request-util';
 import { Dci } from '../../shared/model/produit.model';
 
 @Injectable({
-  providedIn: 'root'
+  providedIn: 'root',
 })
 export class DciService {
   private http = inject(HttpClient);

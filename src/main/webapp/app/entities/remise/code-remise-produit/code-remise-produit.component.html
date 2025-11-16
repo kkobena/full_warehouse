@@ -7,14 +7,12 @@
 
     <p-toolbar>
       <ng-template #start>
-        <div class="pharma-toolbar-filters">
-        </div>
+        <div class="pharma-toolbar-filters"></div>
       </ng-template>
 
       <ng-template #end>
         <div class="pharma-toolbar-actions">
-          <div class="pharma-button-group">
-          </div>
+          <div class="pharma-button-group"></div>
         </div>
       </ng-template>
     </p-toolbar>
@@ -23,13 +21,13 @@
   <div class="mt-2">
     <table class="table table-striped table-hover">
       <thead class="pharma-table-head">
-      <tr>
-        <th scope="col">Code</th>
-        <th scope="col">Remise associé</th>
-        <th scope="col">Remise VNO</th>
-        <th scope="col">Remise VO</th>
-        <th scope="col"></th>
-      </tr>
+        <tr>
+          <th scope="col">Code</th>
+          <th scope="col">Remise associé</th>
+          <th scope="col">Remise VNO</th>
+          <th scope="col">Remise VO</th>
+          <th scope="col"></th>
+        </tr>
       </thead>
       <tbody class="table-group-divider">
         @for (code of entites; track code.value; let i = $index) {

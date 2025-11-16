@@ -34,11 +34,7 @@ public class TaxeProxy {
         @RequestParam(value = "groupBy", required = false, defaultValue = "codeTva") String groupeBy
     ) {
         return ResponseEntity.ok(
-            taxeService.fetchTaxe(
-                new MvtParam(fromDate, toDate, categorieChiffreAffaires, statuts, typeVentes, groupeBy).build(),
-
-                false
-            )
+            taxeService.fetchTaxe(new MvtParam(fromDate, toDate, categorieChiffreAffaires, statuts, typeVentes, groupeBy).build(), false)
         );
     }
 

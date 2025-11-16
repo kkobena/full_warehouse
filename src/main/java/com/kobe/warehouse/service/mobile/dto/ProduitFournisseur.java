@@ -1,4 +1,3 @@
 package com.kobe.warehouse.service.mobile.dto;
 
-public record ProduitFournisseur() {
-}
+public record ProduitFournisseur() {}

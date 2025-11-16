@@ -12,7 +12,7 @@ type EntityResponseType = HttpResponse<IMotifAjustement>;
 type EntityArrayResponseType = HttpResponse<IMotifAjustement[]>;
 
 @Injectable({
-  providedIn: 'root'
+  providedIn: 'root',
 })
 export class ModifAjustementService {
   protected http = inject(HttpClient);
@@ -35,7 +35,7 @@ export class ModifAjustementService {
     const options = createRequestOption(req);
     return this.http.get<IMotifAjustement[]>(this.resourceUrl, {
       params: options,
-      observe: 'response'
+      observe: 'response',
     });
   }
 

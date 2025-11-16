@@ -11,7 +11,7 @@ const SIDEBAR_COLLAPSED_KEY = 'pharmasmart_sidebar_collapsed';
  * Layout preference is persisted in localStorage.
  */
 @Injectable({
-  providedIn: 'root'
+  providedIn: 'root',
 })
 export class LayoutService {
   private layoutModeSubject: BehaviorSubject<LayoutMode>;

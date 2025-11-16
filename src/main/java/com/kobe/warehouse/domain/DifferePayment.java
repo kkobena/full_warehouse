@@ -24,7 +24,7 @@ public class DifferePayment extends PaymentTransaction implements Serializable {
     @ManyToOne(fetch = FetchType.LAZY)
     private Customer differeCustomer;
 
-    @OneToMany(mappedBy = "differePayment",fetch = FetchType.LAZY, cascade = { CascadeType.PERSIST, CascadeType.REMOVE })
+    @OneToMany(mappedBy = "differePayment", fetch = FetchType.LAZY, cascade = { CascadeType.PERSIST, CascadeType.REMOVE })
     private List<DifferePaymentItem> differePaymentItems = new ArrayList<>();
 
     public List<DifferePaymentItem> getDifferePaymentItems() {

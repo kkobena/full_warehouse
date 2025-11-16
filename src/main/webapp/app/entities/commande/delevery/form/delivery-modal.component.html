@@ -1,8 +1,7 @@
 <jhi-toast-alert #alert></jhi-toast-alert>
 <div class="modal-header">
   <h5 class="modal-title">{{ header }}</h5>
-  <button (click)="cancel()" aria-label="Close" class="btn-close" type="button">
-  </button>
+  <button (click)="cancel()" aria-label="Close" class="btn-close" type="button"></button>
 </div>
 <form (ngSubmit)="save()" [formGroup]="editForm" name="editForm" novalidate role="form">
   <div class="modal-body">
@@ -33,8 +32,7 @@
       <div class="p-col-12">
         <div class="form-row">
           <div class="p-field col-md-6">
-            <label class="col-auto col-form-label">Date de livraison<span
-              style="font-weight: 900; color: red">*</span></label>
+            <label class="col-auto col-form-label">Date de livraison<span style="font-weight: 900; color: red">*</span></label>
             <p-datePicker
               [fluid]="true"
               [maxDate]="maxDate"
@@ -45,40 +43,41 @@
               formControlName="receiptDate"
               name="receiptDate"
             ></p-datePicker>
-            @if (editForm.get('receiptDate')!.invalid && (editForm.get('receiptDate')!.dirty
-              || editForm.get('receiptDate')!.touched)) {
+            @if (editForm.get('receiptDate')!.invalid && (editForm.get('receiptDate')!.dirty || editForm.get('receiptDate')!.touched)) {
               <div>
                 @if (editForm.get('receiptDate')?.errors?.required) {
-                  <small class="form-text text-danger" style="color: red"> Ce champ est
-                    obligatoire. </small>
+                  <small class="form-text text-danger" style="color: red"> Ce champ est obligatoire. </small>
                 }
               </div>
             }
           </div>
           <div class="p-field col-md-6">
-            <label class="col-auto col-form-label">Référence Bon<span
-              style="font-weight: 900; color: red">*</span></label>
+            <label class="col-auto col-form-label">Référence Bon<span style="font-weight: 900; color: red">*</span></label>
 
-            <input autocomplete="off" class="form-control" formControlName="receiptReference"
-                   name="receiptReference"
-                   pInputText type="text" />
-            @if (editForm.get('receiptReference')!.invalid && (editForm.get(
-              'receiptReference')!.dirty || editForm.get('receiptReference')!.touched)) {
+            <input
+              autocomplete="off"
+              class="form-control"
+              formControlName="receiptReference"
+              name="receiptReference"
+              pInputText
+              type="text"
+            />
+            @if (
+              editForm.get('receiptReference')!.invalid &&
+              (editForm.get('receiptReference')!.dirty || editForm.get('receiptReference')!.touched)
+            ) {
               <div>
                 @if (editForm.get('receiptReference')?.errors?.required) {
-                  <small class="form-text text-danger" style="color: red"> Ce champ est
-                    obligatoire. </small>
+                  <small class="form-text text-danger" style="color: red"> Ce champ est obligatoire. </small>
                 }
               </div>
             }
           </div>
         </div>
 
-
         <div class="form-row">
           <div class="p-field col-md-6">
-            <label class="col-auto col-form-label">Montant HT<span
-              style="font-weight: 900; color: red">*</span></label>
+            <label class="col-auto col-form-label">Montant HT<span style="font-weight: 900; color: red">*</span></label>
 
             <input
               [pKeyFilter]="'int'"
@@ -89,20 +88,19 @@
               pInputText
               type="text"
             />
-            @if (editForm.get('receiptAmount')!.invalid && (editForm.get('receiptAmount')!.dirty
-              || editForm.get('receiptAmount')!.touched)) {
+            @if (
+              editForm.get('receiptAmount')!.invalid && (editForm.get('receiptAmount')!.dirty || editForm.get('receiptAmount')!.touched)
+            ) {
               <div>
                 @if (editForm.get('receiptAmount')?.errors?.required) {
-                  <small class="form-text text-danger" style="color: red"> Ce champ est
-                    obligatoire. </small>
+                  <small class="form-text text-danger" style="color: red"> Ce champ est obligatoire. </small>
                 }
               </div>
             }
           </div>
 
           <div class="p-field col-md-6">
-            <label class="col-auto col-form-label">Montant Taxe<span
-              style="font-weight: 900; color: red">*</span></label>
+            <label class="col-auto col-form-label">Montant Taxe<span style="font-weight: 900; color: red">*</span></label>
 
             <input
               [pKeyFilter]="'int'"
@@ -113,12 +111,10 @@
               pInputText
               type="text"
             />
-            @if (editForm.get('taxAmount')!.invalid && (editForm.get('taxAmount')!.dirty
-              || editForm.get('taxAmount')!.touched)) {
+            @if (editForm.get('taxAmount')!.invalid && (editForm.get('taxAmount')!.dirty || editForm.get('taxAmount')!.touched)) {
               <div>
                 @if (editForm.get('taxAmount')?.errors?.required) {
-                  <small class="form-text text-danger" style="color: red"> Ce champ est
-                    obligatoire. </small>
+                  <small class="form-text text-danger" style="color: red"> Ce champ est obligatoire. </small>
                 }
               </div>
             }
@@ -129,9 +125,16 @@
   </div>
 
   <div class="modal-footer">
-    <p-button (click)="cancel()" class="mr-2" data-dismiss="modal" icon="pi pi-times"
-              label="Annuler" raised="true"
-              severity="secondary" type="button">
+    <p-button
+      (click)="cancel()"
+      class="mr-2"
+      data-dismiss="modal"
+      icon="pi pi-times"
+      label="Annuler"
+      raised="true"
+      severity="secondary"
+      type="button"
+    >
     </p-button>
 
     <p-button

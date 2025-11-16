@@ -12,10 +12,10 @@ Angular — Deliver web apps with confidence 🚀
 
 ## Stack Technique
 
-* **Backend**: Java 24, Spring Boot 3, Spring Data JPA, Spring Security
-* **Frontend**: Angular 19, TypeScript,primeng,ag-grid-angular, RxJS,
-* **Base de données**: Mariadb (ou la base de données que vous utilisez)
-* **Build Tools**: Maven (pour le backend), Angular CLI (pour le frontend)
+- **Backend**: Java 24, Spring Boot 3, Spring Data JPA, Spring Security
+- **Frontend**: Angular 19, TypeScript,primeng,ag-grid-angular, RxJS,
+- **Base de données**: Mariadb (ou la base de données que vous utilisez)
+- **Build Tools**: Maven (pour le backend), Angular CLI (pour le frontend)
 
 ## Components
 

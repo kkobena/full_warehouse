@@ -39,7 +39,8 @@ public class ReglementFactureSelectionneesService extends AbstractReglementServi
         ThirdPartySaleLineRepository thirdPartySaleLineRepository,
         BanqueRepository banqueRepository,
         TransactionIdGeneratorService transactionIdGeneratorService,
-        InvoicePaymentItemService invoicePaymentItemService, ReferenceService referenceService
+        InvoicePaymentItemService invoicePaymentItemService,
+        ReferenceService referenceService
     ) {
         super(
             cashRegisterService,
@@ -49,7 +50,8 @@ public class ReglementFactureSelectionneesService extends AbstractReglementServi
             thirdPartySaleLineRepository,
             banqueRepository,
             transactionIdGeneratorService,
-            invoicePaymentItemService,referenceService
+            invoicePaymentItemService,
+            referenceService
         );
         this.facturationRepository = facturationRepository;
         this.thirdPartySaleLineRepository = thirdPartySaleLineRepository;

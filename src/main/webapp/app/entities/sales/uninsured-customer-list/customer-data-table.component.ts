@@ -9,9 +9,7 @@ import { TooltipModule } from 'primeng/tooltip';
 import { WarehouseCommonModule } from '../../../shared/warehouse-common/warehouse-common.module';
 import { ICustomer } from '../../../shared/model/customer.model';
 import { CustomerService } from '../../customer/customer.service';
-import {
-  UninsuredCustomerFormComponent
-} from '../../customer/uninsured-customer-form/uninsured-customer-form.component';
+import { UninsuredCustomerFormComponent } from '../../customer/uninsured-customer-form/uninsured-customer-form.component';
 import { SelectedCustomerService } from '../service/selected-customer.service';
 import { IconField } from 'primeng/iconfield';
 import { InputIcon } from 'primeng/inputicon';

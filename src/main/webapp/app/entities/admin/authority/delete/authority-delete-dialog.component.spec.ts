@@ -18,7 +18,7 @@ describe('Authority Management Delete Component', () => {
   beforeEach(() => {
     TestBed.configureTestingModule({
       imports: [AuthorityDeleteDialogComponent],
-      providers: [provideHttpClient(), NgbActiveModal]
+      providers: [provideHttpClient(), NgbActiveModal],
     })
       .overrideTemplate(AuthorityDeleteDialogComponent, '')
       .compileComponents();
@@ -42,7 +42,7 @@ describe('Authority Management Delete Component', () => {
         // THEN
         expect(service.delete).toHaveBeenCalledWith('ABC');
         expect(mockActiveModal.close).toHaveBeenCalledWith('deleted');
-      })
+      }),
     ));
 
     it('Should not call delete service on clear', () => {

@@ -4,12 +4,12 @@ import java.io.Serializable;
 import java.time.LocalDate;
 import java.util.Objects;
 
-public class SaleId  implements Serializable {
+public class SaleId implements Serializable {
+
     private Long id;
     private LocalDate saleDate;
 
-    public SaleId() {
-    }
+    public SaleId() {}
 
     public SaleId(Long id, LocalDate saleDate) {
         this.id = id;
@@ -41,10 +41,7 @@ public class SaleId  implements Serializable {
 
     @Override
     public String toString() {
-        return "{" +
-            "id:" + id +
-            ", saleDate:" + saleDate +
-            '}';
+        return "{" + "id:" + id + ", saleDate:" + saleDate + '}';
     }
 
     @Override

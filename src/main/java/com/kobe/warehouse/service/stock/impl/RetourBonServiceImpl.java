@@ -30,18 +30,17 @@ import com.kobe.warehouse.service.dto.RetourBonItemDTO;
 import com.kobe.warehouse.service.errors.GenericError;
 import com.kobe.warehouse.service.mvt_produit.service.InventoryTransactionService;
 import com.kobe.warehouse.service.stock.RetourBonService;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.util.List;
+import java.util.Objects;
+import java.util.Optional;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
-import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.util.List;
-import java.util.Objects;
-import java.util.Optional;
 
 /**
  * Service Implementation for managing {@link RetourBon}.
@@ -63,7 +62,18 @@ public class RetourBonServiceImpl implements RetourBonService {
     private final ReponseRetourBonItemRepository reponseRetourBonItemRepository;
     private final LotRepository lotRepository;
 
-    public RetourBonServiceImpl(RetourBonRepository retourBonRepository, RetourBonItemRepository retourBonItemRepository, CommandeRepository commandeRepository, OrderLineRepository orderLineRepository, UserService userService, StockProduitRepository stockProduitRepository, InventoryTransactionService inventoryTransactionService, ReponseRetourBonRepository reponseRetourBonRepository, ReponseRetourBonItemRepository reponseRetourBonItemRepository, LotRepository lotRepository) {
+    public RetourBonServiceImpl(
+        RetourBonRepository retourBonRepository,
+        RetourBonItemRepository retourBonItemRepository,
+        CommandeRepository commandeRepository,
+        OrderLineRepository orderLineRepository,
+        UserService userService,
+        StockProduitRepository stockProduitRepository,
+        InventoryTransactionService inventoryTransactionService,
+        ReponseRetourBonRepository reponseRetourBonRepository,
+        ReponseRetourBonItemRepository reponseRetourBonItemRepository,
+        LotRepository lotRepository
+    ) {
         this.retourBonRepository = retourBonRepository;
         this.retourBonItemRepository = retourBonItemRepository;
         this.commandeRepository = commandeRepository;
@@ -101,14 +111,12 @@ public class RetourBonServiceImpl implements RetourBonService {
         return new RetourBonDTO(retourBon);
     }
 
-
     @Override
     @Transactional(readOnly = true)
     public Page<RetourBonDTO> findAll(Pageable pageable) {
         log.debug("Request to get all RetourBons");
         return retourBonRepository.findAllByOrderByDateMtvDesc(pageable).map(RetourBonDTO::new);
     }
-
 
     @Override
     @Transactional(readOnly = true)
@@ -117,7 +125,6 @@ public class RetourBonServiceImpl implements RetourBonService {
         return retourBonRepository.findAllByCommandeId(commandeId).stream().map(RetourBonDTO::new).toList();
     }
 
-
     @Override
     @Transactional(readOnly = true)
     public Optional<RetourBonDTO> findOne(Integer id) {
@@ -125,11 +132,12 @@ public class RetourBonServiceImpl implements RetourBonService {
         return retourBonRepository.findById(id).map(RetourBonDTO::new);
     }
 
-
     @Override
     public ReponseRetourBonDTO createSupplierResponse(ReponseRetourBonDTO reponseRetourBonDTO) {
         AppUser currentUser = userService.getUser();
-        RetourBon retourBon = retourBonRepository.findById(reponseRetourBonDTO.getRetourBonId()).orElseThrow(() -> new GenericError("RetourBon not found"));
+        RetourBon retourBon = retourBonRepository
+            .findById(reponseRetourBonDTO.getRetourBonId())
+            .orElseThrow(() -> new GenericError("RetourBon not found"));
 
         if (retourBon.getStatut() != RetourStatut.VALIDATED) {
             throw new GenericError("Ce retour est déjà traité ");
@@ -162,7 +170,9 @@ public class RetourBonServiceImpl implements RetourBonService {
 
     private boolean createReponseRetourBonItem(ReponseRetourBonItemDTO itemDTO, ReponseRetourBon reponseRetourBon) {
         // Find the RetourBonItem
-        RetourBonItem retourBonItem = retourBonItemRepository.findById(itemDTO.getRetourBonItemId()).orElseThrow(() -> new GenericError("RetourBonItem not found"));
+        RetourBonItem retourBonItem = retourBonItemRepository
+            .findById(itemDTO.getRetourBonItemId())
+            .orElseThrow(() -> new GenericError("RetourBonItem not found"));
         if (retourBonItem.getAcceptedQty() != null && retourBonItem.getAcceptedQty().compareTo(retourBonItem.getQtyMvt()) == 0) {
             return true;
         }
@@ -177,23 +187,29 @@ public class RetourBonServiceImpl implements RetourBonService {
 
         // Create the response item
 
-        int acceptedQty = Objects.requireNonNullElse(retourBonItem.getAcceptedQty(), 0) ;
+        int acceptedQty = Objects.requireNonNullElse(retourBonItem.getAcceptedQty(), 0);
         ReponseRetourBonItem responseItem = new ReponseRetourBonItem();
         responseItem.setDateMtv(LocalDateTime.now());
         responseItem.setReponseRetourBon(reponseRetourBon);
         responseItem.setRetourBonItem(retourBonItem);
-        responseItem.setQtyMvt(itemDTO.getQtyMvt()-acceptedQty);
+        responseItem.setQtyMvt(itemDTO.getQtyMvt() - acceptedQty);
         responseItem.setPrixAchat(retourBonItem.getPrixAchat());
         reponseRetourBonItemRepository.save(responseItem);
-        retourBonItem.setAcceptedQty(Objects.requireNonNullElse(retourBonItem.getAcceptedQty(),0) + responseItem.getQtyMvt());
+        retourBonItem.setAcceptedQty(Objects.requireNonNullElse(retourBonItem.getAcceptedQty(), 0) + responseItem.getQtyMvt());
         retourBonItemRepository.save(retourBonItem);
         return itemDTO.getQtyMvt().compareTo(retourBonItem.getQtyMvt()) == 0;
-
     }
 
     private void createRetourBonItem(RetourBonItemDTO itemDTO, RetourBon retourBon, int magasinId) {
-        List<StockProduit> stockProduits = stockProduitRepository.findStockProduitByStorageMagasinIdAndProduitId(magasinId, itemDTO.getProduitId());
-        StockProduit stockProduit = stockProduits.stream().filter(st -> st.getStorage().getStorageType() == StorageType.PRINCIPAL).findFirst().orElse(stockProduits.getFirst());
+        List<StockProduit> stockProduits = stockProduitRepository.findStockProduitByStorageMagasinIdAndProduitId(
+            magasinId,
+            itemDTO.getProduitId()
+        );
+        StockProduit stockProduit = stockProduits
+            .stream()
+            .filter(st -> st.getStorage().getStorageType() == StorageType.PRINCIPAL)
+            .findFirst()
+            .orElse(stockProduits.getFirst());
         int initStock = stockProduits.stream().mapToInt(StockProduit::getTotalStockQuantity).sum();
         if (itemDTO.getQtyMvt() > initStock) {
             throw new GenericError("Stock insuffisant pour le produit: " + itemDTO.getProduitCip());
@@ -209,11 +225,12 @@ public class RetourBonServiceImpl implements RetourBonService {
         motifRetourProduit.setId(itemDTO.getMotifRetourId());
         item.setMotifRetour(motifRetourProduit);
 
-
         // Set order line
         if (itemDTO.getOrderLineId() != null && itemDTO.getOrderLineOrderDate() != null) {
             OrderLineId orderLineId = new OrderLineId(itemDTO.getOrderLineId(), itemDTO.getOrderLineOrderDate());
-            OrderLine orderLine = orderLineRepository.findById(orderLineId).orElseThrow(() -> new RuntimeException("ligne de commande introuvable"));
+            OrderLine orderLine = orderLineRepository
+                .findById(orderLineId)
+                .orElseThrow(() -> new RuntimeException("ligne de commande introuvable"));
             item.setOrderLine(orderLine);
             item.setPrixAchat(orderLine.getOrderCostAmount());
         }
@@ -228,11 +245,9 @@ public class RetourBonServiceImpl implements RetourBonService {
             lotRepository.save(lot);
         }
 
-
         item = retourBonItemRepository.save(item);
         stockProduit.setQtyStock(finalAfterStock);
         stockProduitRepository.save(stockProduit);
         inventoryTransactionService.save(item);
-
     }
 }

@@ -4,16 +4,16 @@ import com.kobe.warehouse.constant.EntityConstant;
 import com.kobe.warehouse.domain.Poste;
 import com.kobe.warehouse.repository.PosteRepository;
 import com.kobe.warehouse.service.settings.dto.PosteRecord;
+import java.util.List;
+import java.util.Optional;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.List;
-import java.util.Optional;
-
 @Service
 @Transactional(readOnly = true)
 public class PosteServiceImpl implements PosteService {
+
     private final PosteRepository posteRepository;
 
     public PosteServiceImpl(PosteRepository posteRepository) {
@@ -22,19 +22,13 @@ public class PosteServiceImpl implements PosteService {
 
     @Override
     public List<PosteRecord> findAll() {
-        return posteRepository.findAll().stream()
-            .map(this::buildRecordFromEntity)
-            .toList();
+        return posteRepository.findAll().stream().map(this::buildRecordFromEntity).toList();
     }
 
     @Override
-    @Cacheable(
-        value = EntityConstant.APP_POST_CONFIG,
-        key = "#address + '-' + #name"
-    )
+    @Cacheable(value = EntityConstant.APP_POST_CONFIG, key = "#address + '-' + #name")
     public Optional<PosteRecord> findFirstByAddressOrName(String address, String name) {
-        return posteRepository.findFirstByAddressOrName(address, name)
-            .map(this::buildRecordFromEntity);
+        return posteRepository.findFirstByAddressOrName(address, name).map(this::buildRecordFromEntity);
     }
 
     @Override
@@ -42,7 +36,6 @@ public class PosteServiceImpl implements PosteService {
     public void create(PosteRecord posteRecord) {
         posteRepository.save(buildEntityFromRecord(posteRecord));
     }
-
 
     @Override
     @Transactional
@@ -62,7 +55,6 @@ public class PosteServiceImpl implements PosteService {
     }
 
     private Poste buildEntityFromRecord(PosteRecord posteRecord) {
-
         Poste poste = new Poste()
             .setName(posteRecord.name())
             .setPosteNumber(posteRecord.posteNumber())

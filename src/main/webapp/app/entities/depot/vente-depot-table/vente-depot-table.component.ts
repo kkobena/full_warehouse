@@ -19,7 +19,18 @@ import { WarehouseCommonModule } from '../../../shared/warehouse-common/warehous
 
 @Component({
   selector: 'jhi-vente-depot-table',
-  imports: [Button, WarehouseCommonModule, ConfirmDialogComponent, IconField, InputIcon, InputText, Select, TableModule, Tooltip, FormsModule],
+  imports: [
+    Button,
+    WarehouseCommonModule,
+    ConfirmDialogComponent,
+    IconField,
+    InputIcon,
+    InputText,
+    Select,
+    TableModule,
+    Tooltip,
+    FormsModule,
+  ],
   templateUrl: './vente-depot-table.component.html',
   styleUrl: './vente-depot-table.component.scss',
   encapsulation: ViewEncapsulation.None,

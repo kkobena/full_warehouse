@@ -1,8 +1,6 @@
 <div class="modal-header">
-  <h4 class="modal-title">AJOUTER UN TIERS PAYANT </h4>
-  <button (click)="cancel()" class="btn-close" data-dismiss="modal" type="button">
-    &times;
-  </button>
+  <h4 class="modal-title">AJOUTER UN TIERS PAYANT</h4>
+  <button (click)="cancel()" class="btn-close" data-dismiss="modal" type="button">&times;</button>
 </div>
 
 <form (ngSubmit)="save()" [formGroup]="editForm" name="editForm" novalidate role="form">
@@ -12,13 +10,10 @@
         <input class="form-control" formControlName="id" id="id" name="id" readonly type="hidden" />
       </div>
       <div [hidden]="true" class="form-group">
-        <input class="form-control" formControlName="categorie" id="categorie" name="categorie"
-               pInputText readonly type="hidden" />
+        <input class="form-control" formControlName="categorie" id="categorie" name="categorie" pInputText readonly type="hidden" />
       </div>
       <div class="mb-2 row">
-        <label class="col-sm-5 col-md-5 col-form-label form-label" for="tiersPayant">Sélectionnez un
-          tiers
-          payant</label>
+        <label class="col-sm-5 col-md-5 col-form-label form-label" for="tiersPayant">Sélectionnez un tiers payant</label>
         <div class="col-sm-7 col-md-7">
           <p-select
             #tiersPayant
@@ -34,31 +29,29 @@
             optionValue="id"
             size="large"
           />
-
         </div>
       </div>
       <div class="mb-1 row">
         <label class="col-sm-5 col-md-5 col-form-label form-label" for="numBon">Bon</label>
         <div class="col-sm-7 col-md-7">
-          <input #numBon
-                 autocomplete="off"
-                 class="form-control"
-                 formControlName="numBon"
-                 id="numBon"
-                 name="numBon"
-                 pInputText
-                 pKeyFilter="alphanum"
-                 type="text"
+          <input
+            #numBon
+            autocomplete="off"
+            class="form-control"
+            formControlName="numBon"
+            id="numBon"
+            name="numBon"
+            pInputText
+            pKeyFilter="alphanum"
+            type="text"
           />
         </div>
       </div>
       <div class="mb-1 row">
-        <label class="col-sm-5 col-md-5 col-form-label form-label" for="tiersPayantFullName">Complémentaire
-          sélectionné</label>
+        <label class="col-sm-5 col-md-5 col-form-label form-label" for="tiersPayantFullName">Complémentaire sélectionné</label>
         <div class="col-sm-7 col-md-7 text-right">
           @if (selectedTiersPayant) {
-            <p-button [badge]="selectedTiersPayant.tiersPayantFullName" badgeSeverity="secondary"
-                      variant="outlined"></p-button>
+            <p-button [badge]="selectedTiersPayant.tiersPayantFullName" badgeSeverity="secondary" variant="outlined"></p-button>
           }
           <input
             [hidden]="true"
@@ -75,34 +68,35 @@
         <label class="col-sm-5 col-md-5 col-form-label form-label" for="taux">Taux</label>
         <div class="col-sm-7 col-md-7 text-right">
           @if (selectedTiersPayant) {
-            <p-button [badge]="selectedTiersPayant.taux | number" badgeSeverity="secondary"
-                      variant="outlined"></p-button>
+            <p-button [badge]="selectedTiersPayant.taux | number" badgeSeverity="secondary" variant="outlined"></p-button>
           }
 
-          <input [hidden]="true" [readonly]="true" class="form-control-plaintext"
-                 formControlName="taux" id="taux" name="taux" type="text" />
+          <input
+            [hidden]="true"
+            [readonly]="true"
+            class="form-control-plaintext"
+            formControlName="taux"
+            id="taux"
+            name="taux"
+            type="text"
+          />
         </div>
       </div>
       <div class="mb-1 row">
         <label class="col-sm-5 col-md-5 col-form-label form-label" for="num">Matricule</label>
         <div class="col-sm-7 col-md-7 text-right">
           @if (selectedTiersPayant) {
-            <p-button [badge]="selectedTiersPayant.num" badgeSeverity="secondary"
-                      variant="outlined"></p-button>
+            <p-button [badge]="selectedTiersPayant.num" badgeSeverity="secondary" variant="outlined"></p-button>
           }
-          <input [hidden]="true" [readonly]="true" class="form-control-plaintext"
-                 formControlName="num" id="num" name="num" type="text" />
+          <input [hidden]="true" [readonly]="true" class="form-control-plaintext" formControlName="num" id="num" name="num" type="text" />
         </div>
       </div>
     </p-card>
   </div>
 
   <div class="modal-footer">
-    <p-button (click)="cancel()" data-dismiss="modal" icon="pi pi-times" label="Annuler"
-              severity="secondary" type="button" />
+    <p-button (click)="cancel()" data-dismiss="modal" icon="pi pi-times" label="Annuler" severity="secondary" type="button" />
 
-    <p-button [disabled]="editForm.invalid || isSaving || !isValid" icon="pi pi-check"
-              label="Ajouter" severity="primary" type="submit" />
+    <p-button [disabled]="editForm.invalid || isSaving || !isValid" icon="pi pi-check" label="Ajouter" severity="primary" type="submit" />
   </div>
 </form>
-

@@ -13,7 +13,6 @@ import com.kobe.warehouse.domain.StockProduit;
 import com.kobe.warehouse.domain.enumeration.TransactionType;
 import com.kobe.warehouse.repository.StockProduitRepository;
 import com.kobe.warehouse.service.LogsService;
-
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import org.junit.jupiter.api.BeforeEach;
@@ -54,8 +53,7 @@ class StockUpdateServiceTest {
         SalesLine salesLine = createSalesLine(quantityRequested, quantityUg, 1000);
         StockProduit stockProduit = createStockProduit(initialQtyStock, initialQtyUG);
 
-        when(stockProduitRepository.findOneByProduitIdAndStockageId(anyInt(), eq(storageId)))
-            .thenReturn(stockProduit);
+        when(stockProduitRepository.findOneByProduitIdAndStockageId(anyInt(), eq(storageId))).thenReturn(stockProduit);
 
         // When
         StockUpdateService.StockUpdateResult result = stockUpdateService.updateStock(salesLine, storageId);
@@ -64,10 +62,12 @@ class StockUpdateServiceTest {
         assertEquals(110, result.getQuantityBefore(), "Quantity before should be sum of stock and UG");
         assertEquals(105, result.getQuantityAfter(), "Quantity after should be reduced by requested amount");
 
-        verify(stockProduitRepository).save(argThat(sp ->
-            sp.getQtyStock() == (initialQtyStock - (quantityRequested - quantityUg)) &&
-            sp.getQtyUG() == (initialQtyUG - quantityUg)
-        ));
+        verify(stockProduitRepository).save(
+            argThat(
+                sp ->
+                    sp.getQtyStock() == (initialQtyStock - (quantityRequested - quantityUg)) && sp.getQtyUG() == (initialQtyUG - quantityUg)
+            )
+        );
 
         verify(logsService, never()).create(eq(TransactionType.FORCE_STOCK), anyString(), anyString());
     }
@@ -84,8 +84,7 @@ class StockUpdateServiceTest {
         SalesLine salesLine = createSalesLine(quantityRequested, 0, 1000);
         StockProduit stockProduit = createStockProduit(initialQtyStock, initialQtyUG);
 
-        when(stockProduitRepository.findOneByProduitIdAndStockageId(anyInt(), eq(storageId)))
-            .thenReturn(stockProduit);
+        when(stockProduitRepository.findOneByProduitIdAndStockageId(anyInt(), eq(storageId))).thenReturn(stockProduit);
 
         // When
         StockUpdateService.StockUpdateResult result = stockUpdateService.updateStock(salesLine, storageId);
@@ -94,11 +93,7 @@ class StockUpdateServiceTest {
         assertEquals(5, result.getQuantityBefore());
         assertEquals(-5, result.getQuantityAfter());
 
-        verify(logsService).create(
-            eq(TransactionType.FORCE_STOCK),
-            eq(TransactionType.FORCE_STOCK.getValue()),
-            anyString()
-        );
+        verify(logsService).create(eq(TransactionType.FORCE_STOCK), eq(TransactionType.FORCE_STOCK.getValue()), anyString());
     }
 
     @Test
@@ -114,19 +109,14 @@ class StockUpdateServiceTest {
 
         StockProduit stockProduit = createStockProduit(100, 10);
 
-        when(stockProduitRepository.findOneByProduitIdAndStockageId(anyInt(), eq(storageId)))
-            .thenReturn(stockProduit);
+        when(stockProduitRepository.findOneByProduitIdAndStockageId(anyInt(), eq(storageId))).thenReturn(stockProduit);
 
         // When
         stockUpdateService.updateStock(salesLine, storageId);
 
         // Then
         ArgumentCaptor<String> descriptionCaptor = ArgumentCaptor.forClass(String.class);
-        verify(logsService).create(
-            eq(TransactionType.MODIFICATION_PRIX_PRODUCT_A_LA_VENTE),
-            descriptionCaptor.capture(),
-            anyString()
-        );
+        verify(logsService).create(eq(TransactionType.MODIFICATION_PRIX_PRODUCT_A_LA_VENTE), descriptionCaptor.capture(), anyString());
 
         String description = descriptionCaptor.getValue();
         assertTrue(description.contains("modifié"), "Description should mention price modification");
@@ -147,18 +137,13 @@ class StockUpdateServiceTest {
 
         StockProduit stockProduit = createStockProduit(100, 10);
 
-        when(stockProduitRepository.findOneByProduitIdAndStockageId(anyInt(), eq(storageId)))
-            .thenReturn(stockProduit);
+        when(stockProduitRepository.findOneByProduitIdAndStockageId(anyInt(), eq(storageId))).thenReturn(stockProduit);
 
         // When
         stockUpdateService.updateStock(salesLine, storageId);
 
         // Then
-        verify(logsService, never()).create(
-            eq(TransactionType.MODIFICATION_PRIX_PRODUCT_A_LA_VENTE),
-            anyString(),
-            anyString()
-        );
+        verify(logsService, never()).create(eq(TransactionType.MODIFICATION_PRIX_PRODUCT_A_LA_VENTE), anyString(), anyString());
     }
 
     @Test
@@ -174,17 +159,19 @@ class StockUpdateServiceTest {
         SalesLine salesLine = createSalesLine(quantityRequested, quantityUg, 1000);
         StockProduit stockProduit = createStockProduit(initialQtyStock, initialQtyUG);
 
-        when(stockProduitRepository.findOneByProduitIdAndStockageId(anyInt(), eq(storageId)))
-            .thenReturn(stockProduit);
+        when(stockProduitRepository.findOneByProduitIdAndStockageId(anyInt(), eq(storageId))).thenReturn(stockProduit);
 
         // When
         stockUpdateService.updateStock(salesLine, storageId);
 
         // Then
-        verify(stockProduitRepository).save(argThat(sp ->
-            sp.getQtyStock() == (initialQtyStock - (quantityRequested - quantityUg)) && // 100 - 5 = 95
-            sp.getQtyUG() == (initialQtyUG - quantityUg) // 20 - 5 = 15
-        ));
+        verify(stockProduitRepository).save(
+            argThat(
+                sp ->
+                    sp.getQtyStock() == (initialQtyStock - (quantityRequested - quantityUg)) && // 100 - 5 = 95
+                    sp.getQtyUG() == (initialQtyUG - quantityUg) // 20 - 5 = 15
+            )
+        );
     }
 
     @Test
@@ -196,17 +183,15 @@ class StockUpdateServiceTest {
         StockProduit stockProduit = createStockProduit(100, 10);
         LocalDateTime oldTimestamp = stockProduit.getUpdatedAt();
 
-        when(stockProduitRepository.findOneByProduitIdAndStockageId(anyInt(), eq(storageId)))
-            .thenReturn(stockProduit);
+        when(stockProduitRepository.findOneByProduitIdAndStockageId(anyInt(), eq(storageId))).thenReturn(stockProduit);
 
         // When
         stockUpdateService.updateStock(salesLine, storageId);
 
         // Then
-        verify(stockProduitRepository).save(argThat(sp ->
-            sp.getUpdatedAt() != null &&
-            (oldTimestamp == null || sp.getUpdatedAt().isAfter(oldTimestamp))
-        ));
+        verify(stockProduitRepository).save(
+            argThat(sp -> sp.getUpdatedAt() != null && (oldTimestamp == null || sp.getUpdatedAt().isAfter(oldTimestamp)))
+        );
     }
 
     // Helper methods

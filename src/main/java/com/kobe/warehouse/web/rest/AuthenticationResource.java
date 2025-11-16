@@ -54,10 +54,7 @@ public class AuthenticationResource {
         try {
             // Authenticate user credentials against database
             Authentication authentication = authenticationManager.authenticate(
-                new UsernamePasswordAuthenticationToken(
-                    loginRequest.username(),
-                    loginRequest.password()
-                )
+                new UsernamePasswordAuthenticationToken(loginRequest.username(), loginRequest.password())
             );
 
             // Generate JWT tokens
@@ -72,7 +69,6 @@ public class AuthenticationResource {
 
             log.debug("User {} authenticated successfully", loginRequest.username());
             return ResponseEntity.ok(tokenResponse);
-
         } catch (BadCredentialsException e) {
             log.debug("Authentication failed for user: {}", loginRequest.username());
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();

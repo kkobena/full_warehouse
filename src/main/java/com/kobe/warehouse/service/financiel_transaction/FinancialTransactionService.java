@@ -8,14 +8,13 @@ import com.kobe.warehouse.service.dto.filter.FinancielTransactionFilterDTO;
 import com.kobe.warehouse.service.dto.filter.TransactionFilterDTO;
 import com.kobe.warehouse.service.financiel_transaction.dto.MvtCaisseDTO;
 import com.kobe.warehouse.service.financiel_transaction.dto.MvtCaisseWrapper;
-import org.springframework.core.io.Resource;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
-
 import java.io.IOException;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Stream;
+import org.springframework.core.io.Resource;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 
 public interface FinancialTransactionService {
     default List<Pair> getTypes() {
@@ -37,5 +36,4 @@ public interface FinancialTransactionService {
     byte[] generateEscPosReceiptForTauri(PaymentId idReglement) throws IOException;
 
     void printReceipt(PaymentId idReglement);
-
 }

@@ -27,7 +27,7 @@ import { ConfirmDialog } from 'primeng/confirmdialog';
 const PriceTypes = {
   REFERENCE: 'REFERENCE',
   POURCENTAGE: 'POURCENTAGE',
-  MIXED_REFERENCE_POURCENTAGE: 'MIXED_REFERENCE_POURCENTAGE'
+  MIXED_REFERENCE_POURCENTAGE: 'MIXED_REFERENCE_POURCENTAGE',
 } as const;
 
 type PriceType = (typeof PriceTypes)[keyof typeof PriceTypes];
@@ -37,7 +37,7 @@ type PriceType = (typeof PriceTypes)[keyof typeof PriceTypes];
   imports: [ButtonModule, ReactiveFormsModule, Select, InputNumber, ToggleSwitch, Card, ToastAlertComponent, DecimalPipe, ConfirmDialog],
   templateUrl: './add-prix-form.component.html',
   styleUrls: ['../../common-modal.component.scss'],
-  providers: [ConfirmationService]
+  providers: [ConfirmationService],
 })
 export class AddPrixFormComponent implements OnInit, AfterViewInit {
   // Component Inputs
@@ -53,10 +53,10 @@ export class AddPrixFormComponent implements OnInit, AfterViewInit {
   protected pricesType: { code: PriceType; libelle: string }[] = [
     {
       code: PriceTypes.REFERENCE,
-      libelle: 'Prix de référence assurance'
+      libelle: 'Prix de référence assurance',
     },
-    { code: PriceTypes.POURCENTAGE, libelle: 'Pourcentage appliqué par l\'assureur' },
-    { code: PriceTypes.MIXED_REFERENCE_POURCENTAGE, libelle: 'Pourcentage appliqué au prix de référence' }
+    { code: PriceTypes.POURCENTAGE, libelle: "Pourcentage appliqué par l'assureur" },
+    { code: PriceTypes.MIXED_REFERENCE_POURCENTAGE, libelle: 'Pourcentage appliqué au prix de référence' },
   ];
 
   // Form definition
@@ -68,12 +68,12 @@ export class AddPrixFormComponent implements OnInit, AfterViewInit {
     produitId: new FormControl<number | null>(null),
     type: new FormControl<PriceType | null>(PriceTypes.REFERENCE, {
       validators: [Validators.required],
-      nonNullable: true
+      nonNullable: true,
     }),
     enabled: new FormControl<boolean | null>(true, {
       validators: [Validators.required],
-      nonNullable: true
-    })
+      nonNullable: true,
+    }),
   });
 
   // Injected services
@@ -106,12 +106,12 @@ export class AddPrixFormComponent implements OnInit, AfterViewInit {
     if (this.editForm.invalid) {
       this.alert().showError('Formulaire invalide');
       return;
-    }  this.alert().showError('Formulaire invalide');
+    }
+    this.alert().showError('Formulaire invalide');
     this.isSaving = true;
     const prixReference = this.createFromForm();
     if (prixReference.type !== PriceTypes.POURCENTAGE && prixReference.price > this.produit?.regularUnitPrice) {
       const message = `Le prix que vous avez saisi  <span class="fs-4 fw-semibold text-danger"> (${formatNumber(prixReference.price)})</span> est supérieur au prix de vente au public <span class="fs-4 fw-semibold text-success">(${formatNumber(this.produit?.regularUnitPrice)})</span>. Voulez-vous continuer ?`;
-
 
       this.confirmationService.confirm({
         message: message,
@@ -119,14 +119,11 @@ export class AddPrixFormComponent implements OnInit, AfterViewInit {
         icon: 'pi pi-info-circle',
         rejectButtonProps: rejectButtonProps(),
         acceptButtonProps: acceptButtonProps(),
-        accept: () => this.onConfirmSave(prixReference)
+        accept: () => this.onConfirmSave(prixReference),
       });
-
     } else {
       this.onConfirmSave(prixReference);
     }
-
-
   }
 
   private onConfirmSave(prixReference: PrixReference): void {
@@ -141,21 +138,21 @@ export class AddPrixFormComponent implements OnInit, AfterViewInit {
       tiersPayantId: entity.tiersPayantId,
       price: entity.price,
       produitId: entity.produitId,
-      enabled: entity.enabled
+      enabled: entity.enabled,
     });
   }
 
   private createFromForm(): PrixReference {
     return {
       ...new PrixReference(),
-      ...this.editForm.getRawValue()
+      ...this.editForm.getRawValue(),
     };
   }
 
   private subscribeToSaveResponse(result: Observable<HttpResponse<{}>>): void {
     result.pipe(finalize(() => (this.isSaving = false))).subscribe({
       next: () => this.onSaveSuccess(),
-      error: (err: any) => this.onSaveError(err)
+      error: (err: any) => this.onSaveError(err),
     });
   }
 
@@ -202,12 +199,12 @@ export class AddPrixFormComponent implements OnInit, AfterViewInit {
       ?.valueChanges.pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe(value => {
         this.updateValidatorsBasedOnType(value);
-      }); this.editForm
+      });
+    this.editForm
       .get('tiersPayantId')
       ?.valueChanges.pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe(value => {
-        this.updateValidatorsBasedOnType(this.editForm
-          .get('type').value);
+        this.updateValidatorsBasedOnType(this.editForm.get('type').value);
       });
   }
 
@@ -224,11 +221,9 @@ export class AddPrixFormComponent implements OnInit, AfterViewInit {
 
     if (type === PriceTypes.POURCENTAGE || type === PriceTypes.MIXED_REFERENCE_POURCENTAGE) {
       rateControl.setValidators([Validators.required, Validators.min(0), Validators.max(100)]);
-
     }
     if (type !== PriceTypes.POURCENTAGE) {
       priceControl.setValidators([Validators.required]);
-
     }
 
     priceControl.updateValueAndValidity();
@@ -240,13 +235,13 @@ export class AddPrixFormComponent implements OnInit, AfterViewInit {
       .query({
         page: 0,
         size: 9999,
-        sort: ['fullName,asc']
+        sort: ['fullName,asc'],
       })
       .subscribe({
         next: (res: HttpResponse<ITiersPayant[]>) => {
           this.tiersPayants = res.body || [];
         },
-        error: (err: HttpErrorResponse) => this.onSaveError(err)
+        error: (err: HttpErrorResponse) => this.onSaveError(err),
       });
   }
 
@@ -255,13 +250,13 @@ export class AddPrixFormComponent implements OnInit, AfterViewInit {
       .query({
         page: 0,
         size: 99999,
-        sort: ['libelle,asc']
+        sort: ['libelle,asc'],
       })
       .subscribe({
         next: (res: HttpResponse<IProduit[]>) => {
           this.produits = res.body || [];
         },
-        error: (err: HttpErrorResponse) => this.onSaveError(err)
+        error: (err: HttpErrorResponse) => this.onSaveError(err),
       });
   }
 }

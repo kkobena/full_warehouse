@@ -8,6 +8,11 @@ import com.kobe.warehouse.web.util.HeaderUtil;
 import com.kobe.warehouse.web.util.PaginationUtil;
 import com.kobe.warehouse.web.util.ResponseUtil;
 import jakarta.validation.Valid;
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.time.LocalDate;
+import java.util.List;
+import java.util.Optional;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
@@ -25,12 +30,6 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
-import java.net.URI;
-import java.net.URISyntaxException;
-import java.time.LocalDate;
-import java.util.List;
-import java.util.Optional;
-
 /**
  * REST controller for managing {@link com.kobe.warehouse.domain.RetourBon}.
  */
@@ -41,6 +40,7 @@ public class RetourBonResource {
     private static final String ENTITY_NAME = "retourBon";
     private final Logger log = LoggerFactory.getLogger(RetourBonResource.class);
     private final RetourBonService retourBonService;
+
     @Value("${pharma-smart.clientApp.name}")
     private String applicationName;
 
@@ -57,21 +57,26 @@ public class RetourBonResource {
      * @throws URISyntaxException if the Location URI syntax is incorrect.
      */
     @PostMapping("/retour-bons")
-    public ResponseEntity<RetourBonDTO> createRetourBon(@Valid @RequestBody RetourBonDTO retourBonDTO)
-        throws URISyntaxException {
+    public ResponseEntity<RetourBonDTO> createRetourBon(@Valid @RequestBody RetourBonDTO retourBonDTO) throws URISyntaxException {
         log.debug("REST request to save RetourBon : {}", retourBonDTO);
         if (retourBonDTO.getId() != null) {
             return ResponseEntity.badRequest()
-                .headers(HeaderUtil.createFailureAlert(applicationName, true, ENTITY_NAME, "idexists", "A new retour bon cannot already have an ID"))
+                .headers(
+                    HeaderUtil.createFailureAlert(
+                        applicationName,
+                        true,
+                        ENTITY_NAME,
+                        "idexists",
+                        "A new retour bon cannot already have an ID"
+                    )
+                )
                 .body(null);
         }
         RetourBonDTO result = retourBonService.create(retourBonDTO);
-        return ResponseEntity
-            .created(new URI("/api/retour-bons/" + result.getId()))
+        return ResponseEntity.created(new URI("/api/retour-bons/" + result.getId()))
             .headers(HeaderUtil.createEntityCreationAlert(applicationName, true, ENTITY_NAME, result.getId().toString()))
             .body(result);
     }
-
 
     /**
      * {@code GET  /retour-bons} : get all the retour bons.
@@ -83,9 +88,8 @@ public class RetourBonResource {
     @GetMapping("/retour-bons")
     public ResponseEntity<List<RetourBonDTO>> getAllRetourBons(
         @RequestParam(required = false, name = "") RetourStatut statut,
-        @RequestParam(required = false,name = "dtStart") LocalDate dtStart,
-        @RequestParam(required = false,name = "dtEnd") LocalDate dtEnd,
-
+        @RequestParam(required = false, name = "dtStart") LocalDate dtStart,
+        @RequestParam(required = false, name = "dtEnd") LocalDate dtEnd,
         Pageable pageable
     ) {
         log.debug("REST request to get a page of RetourBons");
@@ -126,7 +130,6 @@ public class RetourBonResource {
         return ResponseEntity.ok().body(result);
     }
 
-
     /**
      * {@code POST  /retour-bons/supplier-response} : Create a supplier response for a retour bon.
      *
@@ -141,12 +144,19 @@ public class RetourBonResource {
         log.debug("REST request to create supplier response for RetourBon : {}", reponseRetourBonDTO.getRetourBonId());
         if (reponseRetourBonDTO.getId() != null) {
             return ResponseEntity.badRequest()
-                .headers(HeaderUtil.createFailureAlert(applicationName, true, "reponseRetourBon", "idexists", "A new supplier response cannot already have an ID"))
+                .headers(
+                    HeaderUtil.createFailureAlert(
+                        applicationName,
+                        true,
+                        "reponseRetourBon",
+                        "idexists",
+                        "A new supplier response cannot already have an ID"
+                    )
+                )
                 .body(null);
         }
         ReponseRetourBonDTO result = retourBonService.createSupplierResponse(reponseRetourBonDTO);
-        return ResponseEntity
-            .created(new URI("/api/retour-bons/supplier-response/" + result.getId()))
+        return ResponseEntity.created(new URI("/api/retour-bons/supplier-response/" + result.getId()))
             .headers(HeaderUtil.createEntityCreationAlert(applicationName, true, "reponseRetourBon", result.getId().toString()))
             .body(result);
     }

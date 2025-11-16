@@ -3,6 +3,7 @@ package com.kobe.warehouse.service.dto;
 import java.math.BigDecimal;
 
 public class TopProduitDTO {
+
     private Long id;
     private String libelle;
     private String codeCip;
@@ -13,7 +14,15 @@ public class TopProduitDTO {
 
     public TopProduitDTO() {}
 
-    public TopProduitDTO(Long id, String libelle, String codeCip, Long quantiteTotale, BigDecimal cumul, BigDecimal totalGlobal, Integer salesAmount) {
+    public TopProduitDTO(
+        Long id,
+        String libelle,
+        String codeCip,
+        Long quantiteTotale,
+        BigDecimal cumul,
+        BigDecimal totalGlobal,
+        Integer salesAmount
+    ) {
         this.id = id;
         this.libelle = libelle;
         this.codeCip = codeCip;

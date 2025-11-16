@@ -12,16 +12,9 @@ import { ErrorService } from '../../../shared/error.service';
 
 @Component({
   selector: 'jhi-date-peremption-form',
-  imports: [
-    Button,
-    ReactiveFormsModule,
-    DateNaissDirective,
-    InputText,
-    ToastAlertComponent,
-    Card
-  ],
+  imports: [Button, ReactiveFormsModule, DateNaissDirective, InputText, ToastAlertComponent, Card],
   templateUrl: './date-peremption-form.component.html',
-  styleUrls: ['../../common-modal.component.scss']
+  styleUrls: ['../../common-modal.component.scss'],
 })
 export class DatePeremptionFormComponent {
   produit?: IProduit;
@@ -31,7 +24,7 @@ export class DatePeremptionFormComponent {
   protected isValid = true;
   protected fb = inject(UntypedFormBuilder);
   protected editForm = this.fb.group({
-    datePeremption: [null, [Validators.required]]
+    datePeremption: [null, [Validators.required]],
   });
   private readonly produitService = inject(ProduitService);
   private readonly alert = viewChild.required<ToastAlertComponent>('alert');
@@ -40,8 +33,7 @@ export class DatePeremptionFormComponent {
 
   private createFrom(): any {
     return {
-      datePeremption: this.editForm.get(['datePeremption']).value
-
+      datePeremption: this.editForm.get(['datePeremption']).value,
     };
   }
 
@@ -58,12 +50,11 @@ export class DatePeremptionFormComponent {
         this.alert().showInfo('Date de péremption mise à jour avec succès.');
         this.cancel();
       },
-      error: (error) => {
+      error: error => {
         this.isSaving = false;
         this.isValid = false;
         this.alert().showError(this.errorService.getErrorMessage(error));
-      }
+      },
     });
   }
-
 }

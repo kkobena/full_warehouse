@@ -20,17 +20,7 @@ import { KeyFilter } from 'primeng/keyfilter';
   selector: 'jhi-form-laboratoire',
   templateUrl: './form-paramettre.component.html',
   styleUrls: ['../../common-modal.component.scss'],
-  imports: [
-    FormsModule,
-    ReactiveFormsModule,
-    ButtonModule,
-    InputTextModule,
-    ToastAlertComponent,
-    Card,
-    Checkbox,
-    Textarea,
-    KeyFilter
-  ]
+  imports: [FormsModule, ReactiveFormsModule, ButtonModule, InputTextModule, ToastAlertComponent, Card, Checkbox, Textarea, KeyFilter],
 })
 export class FormParamettreComponent implements OnInit {
   header = '';
@@ -40,7 +30,7 @@ export class FormParamettreComponent implements OnInit {
   protected editForm = this.fb.group({
     name: [Validators.required],
     description: [null, [Validators.required]],
-    value: [null, [Validators.required]]
+    value: [null, [Validators.required]],
   });
   private readonly activeModal = inject(NgbActiveModal);
   private readonly alert = viewChild.required<ToastAlertComponent>('alert');
@@ -48,18 +38,15 @@ export class FormParamettreComponent implements OnInit {
   private readonly configurationService = inject(ConfigurationService);
 
   ngOnInit(): void {
-
     this.updateForm(this.entity);
-
   }
-
 
   protected updateForm(entity: IConfiguration): void {
     const value = entity.valueType === 'BOOLEAN' ? entity.value === '1' : entity.value;
     this.editForm.patchValue({
       value,
       name: entity.name,
-      description: entity.description
+      description: entity.description,
     });
   }
 
@@ -69,17 +56,15 @@ export class FormParamettreComponent implements OnInit {
     this.subscribeToSaveResponse(this.configurationService.update(entity));
   }
 
-
   protected cancel(): void {
     this.activeModal.dismiss();
   }
 
   private subscribeToSaveResponse(result: Observable<HttpResponse<ILaboratoire>>): void {
-    result.pipe(finalize(() => this.isSaving = false)).subscribe({
-        next: (res: HttpResponse<ILaboratoire>) => this.onSaveSuccess(res.body),
-        error: (err) => this.onSaveError(err)
-      }
-    );
+    result.pipe(finalize(() => (this.isSaving = false))).subscribe({
+      next: (res: HttpResponse<ILaboratoire>) => this.onSaveSuccess(res.body),
+      error: err => this.onSaveError(err),
+    });
   }
 
   private onSaveSuccess(response: ILaboratoire | null): void {
@@ -94,7 +79,7 @@ export class FormParamettreComponent implements OnInit {
     return {
       ...this.entity,
       description: this.editForm.get(['description']).value,
-      value: this.editForm.get(['value']).value
+      value: this.editForm.get(['value']).value,
     };
   }
 }

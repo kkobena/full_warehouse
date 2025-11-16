@@ -95,7 +95,7 @@ export class SellingHomeShortcutsService {
     this.keyboardService.registerShortcut({
       key: 'F1',
       category: 'Aide',
-      description: 'Afficher l\'aide des raccourcis clavier',
+      description: "Afficher l'aide des raccourcis clavier",
       action: () => this.openShortcutsHelp(),
     });
 
@@ -377,7 +377,6 @@ export class SellingHomeShortcutsService {
   private registerWebShortcuts(): void {
     // In web, we stick to safe shortcuts only
     // Most are already registered in registerCommonShortcuts
-
     // Add any web-specific shortcuts here if needed
   }
 
@@ -411,7 +410,7 @@ export class SellingHomeShortcutsService {
     this.modalService.open(ShortcutsHelpDialogComponent, {
       size: 'xl',
       backdrop: 'static',
-      scrollable: true
+      scrollable: true,
     });
   }
 }

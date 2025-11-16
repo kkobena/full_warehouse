@@ -25,8 +25,6 @@ import jakarta.persistence.PrePersist;
 import jakarta.persistence.Table;
 import jakarta.persistence.Transient;
 import jakarta.validation.constraints.NotNull;
-import org.springframework.data.domain.Persistable;
-
 import java.io.Serial;
 import java.io.Serializable;
 import java.time.LocalDate;
@@ -34,6 +32,7 @@ import java.time.LocalDateTime;
 import java.util.HashSet;
 import java.util.Objects;
 import java.util.Set;
+import org.springframework.data.domain.Persistable;
 
 /**
  * A Sales.
@@ -49,8 +48,7 @@ import java.util.Set;
         @Index(columnList = "ca", name = "vente_ca_index"),
         @Index(columnList = "imported", name = "vente_imported_index"),
         @Index(columnList = "to_ignore", name = "vente_to_ignore_index"),
-        @Index(columnList = "payment_status", name = "vente_payment_status_index")
-        ,
+        @Index(columnList = "payment_status", name = "vente_payment_status_index"),
     }
 )
 @Inheritance(strategy = InheritanceType.SINGLE_TABLE)
@@ -59,10 +57,13 @@ public class Sales implements Persistable<SaleId>, Serializable, Cloneable {
 
     @Serial
     private static final long serialVersionUID = 1L;
+
     @Transient
     private boolean isNew = true;
+
     @Id
     private Long id;
+
     @Id
     @Column(name = "sale_date")
     private LocalDate saleDate = LocalDate.now();
@@ -109,7 +110,6 @@ public class Sales implements Persistable<SaleId>, Serializable, Cloneable {
     @Column(name = "amount_to_be_taken_into_account", nullable = false)
     private Integer amountToBeTakenIntoAccount;
 
-
     @NotNull
     @Enumerated(EnumType.STRING)
     @Column(name = "statut", nullable = false, length = 11)
@@ -125,80 +125,105 @@ public class Sales implements Persistable<SaleId>, Serializable, Cloneable {
 
     @OneToMany(mappedBy = "sales")
     private Set<SalesLine> salesLines = new HashSet<>();
+
     @ManyToOne
     private Remise remise;
+
     @NotNull
     @ManyToOne(optional = false, fetch = FetchType.LAZY)
     private AppUser user;
+
     @NotNull
     @ManyToOne(optional = false, fetch = FetchType.LAZY)
     private AppUser seller;
+
     @NotNull
     @ManyToOne(optional = false, fetch = FetchType.LAZY)
     private AppUser caissier;
+
     @OneToMany(mappedBy = "sale", fetch = FetchType.LAZY)
     private Set<SalePayment> payments = new HashSet<>();
+
     @ManyToOne(optional = false, fetch = FetchType.LAZY)
     @NotNull
     private Magasin magasin;
+
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumns({
-        @JoinColumn(name = "canceled_sale_id", referencedColumnName = "id"),
-        @JoinColumn(name = "canceled_sale_date", referencedColumnName = "sale_date")
-    })
+    @JoinColumns(
+        {
+            @JoinColumn(name = "canceled_sale_id", referencedColumnName = "id"),
+            @JoinColumn(name = "canceled_sale_date", referencedColumnName = "sale_date"),
+        }
+    )
     private Sales canceledSale;
 
     @NotNull
     @Column(name = "effective_update_date", nullable = false)
     private LocalDateTime effectiveUpdateDate = LocalDateTime.now();
+
     @Column(name = "to_ignore", nullable = false)
     private boolean toIgnore = false;
+
     @Column(name = "copy", nullable = false)
     private boolean copy = false;
+
     @Column(name = "imported", nullable = false)
     private boolean imported = false;
+
     @NotNull
     @Enumerated(EnumType.STRING)
     @Column(name = "payment_status", nullable = false, length = 15)
     private PaymentStatus paymentStatus;
+
     @NotNull
     @Enumerated(EnumType.STRING)
     @Column(name = "nature_vente", nullable = false, length = 15)
-    private NatureVente natureVente;//TODO : remove this column and use each child class
+    private NatureVente natureVente; //TODO : remove this column and use each child class
+
     @NotNull
     @Enumerated(EnumType.STRING)
     @Column(name = "origine_vente", nullable = false, length = 15)
     private OrigineVente origineVente;
+
     @NotNull
     @Enumerated(EnumType.STRING)
     @Column(name = "type_prescription", nullable = false, length = 15)
     private TypePrescription typePrescription;
+
     @NotNull
     @Column(name = "differe", nullable = false)
     private boolean differe = false;
+
     @NotNull
     @Enumerated(EnumType.STRING)
     @Column(name = "ca", nullable = false, length = 15)
     private CategorieChiffreAffaire categorieChiffreAffaire = CategorieChiffreAffaire.CA;
+
     @ManyToOne(fetch = FetchType.LAZY)
     private Poste caisse;
+
     @ManyToOne(fetch = FetchType.LAZY)
     private Poste lastCaisse;
+
     @ManyToOne
     private Customer customer;
+
     @Column(name = "canceled", nullable = false)
     private boolean canceled = false;
+
     @Column(length = 100)
     private String tvaEmbeded;
+
     @Column(name = "commentaire")
     private String commentaire;
+
     @NotNull
     @Column(name = "monnaie", nullable = false)
     private Integer monnaie = 0;
+
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "cash_register_id", referencedColumnName = "id")
     private CashRegister cashRegister;
-
 
     public SaleId getId() {
         return new SaleId(id, saleDate);
@@ -244,7 +269,6 @@ public class Sales implements Persistable<SaleId>, Serializable, Cloneable {
     public @NotNull Integer getNetAmount() {
         netAmount = Objects.requireNonNullElse(salesAmount, 0) - Objects.requireNonNullElse(discountAmount, 0);
         return netAmount;
-
     }
 
     public void setNetAmount(Integer netAmount) {
@@ -313,7 +337,6 @@ public class Sales implements Persistable<SaleId>, Serializable, Cloneable {
         this.amountToBeTakenIntoAccount = amountToBeTakenIntoAccount;
         return this;
     }
-
 
     public @NotNull SalesStatut getStatut() {
         return statut;
@@ -414,7 +437,6 @@ public class Sales implements Persistable<SaleId>, Serializable, Cloneable {
         return this;
     }
 
-
     public @NotNull LocalDateTime getEffectiveUpdateDate() {
         return effectiveUpdateDate;
     }
@@ -432,7 +454,6 @@ public class Sales implements Persistable<SaleId>, Serializable, Cloneable {
         this.toIgnore = toIgnore;
         return this;
     }
-
 
     public boolean isCopy() {
         return copy;
@@ -534,7 +555,6 @@ public class Sales implements Persistable<SaleId>, Serializable, Cloneable {
         return this;
     }
 
-
     public boolean isCanceled() {
         return canceled;
     }
@@ -574,7 +594,6 @@ public class Sales implements Persistable<SaleId>, Serializable, Cloneable {
         return this;
     }
 
-
     public CashRegister getCashRegister() {
         return cashRegister;
     }
@@ -583,7 +602,6 @@ public class Sales implements Persistable<SaleId>, Serializable, Cloneable {
         this.cashRegister = cashRegister;
         return this;
     }
-
 
     public Sales discountAmount(Integer discountAmount) {
         this.discountAmount = discountAmount;

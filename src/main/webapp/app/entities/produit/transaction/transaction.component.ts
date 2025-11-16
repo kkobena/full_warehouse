@@ -18,7 +18,7 @@ import {
   APPEND_TO,
   PRODUIT_COMBO_MIN_LENGTH,
   PRODUIT_COMBO_RESULT_SIZE,
-  PRODUIT_NOT_FOUND
+  PRODUIT_NOT_FOUND,
 } from '../../../shared/constants/pagination.constants';
 import { AutoCompleteModule } from 'primeng/autocomplete';
 import { RippleModule } from 'primeng/ripple';
@@ -47,11 +47,11 @@ import { ProduitAutocompleteComponent } from '../../../shared/produit-autocomple
     StatSalesComponent,
     StatDeliveryComponent,
     DatePickerComponent,
-    ProduitAutocompleteComponent
+    ProduitAutocompleteComponent,
   ],
   templateUrl: './transaction.component.html',
   styleUrls: ['./transaction.scss'],
-  providers: [ProduitAuditingParamService]
+  providers: [ProduitAuditingParamService],
 })
 export class TransactionComponent implements OnInit, AfterViewInit {
   ngAfterViewInit(): void {
@@ -77,8 +77,6 @@ export class TransactionComponent implements OnInit, AfterViewInit {
   private readonly dateFin = viewChild<DatePickerComponent>('dateFin');
 
   ngOnInit(): void {
-
-
     this.activatedRoute.data.subscribe(({ produit }) => {
       if (produit?.id) {
         this.produit = produit;
@@ -123,23 +121,20 @@ export class TransactionComponent implements OnInit, AfterViewInit {
     }
   }
 
-
   onSelect(event: any): void {
     this.event = event;
     this.loadData();
   }
 
   onClear(event: any): void {
-
     this.resetData();
   }
-
 
   protected buildQuery(): ProduitAuditingParam {
     const params: ProduitAuditingParam = {
       produitId: this.produit.id,
       fromDate: this.dateDebut()?.submitValue,
-      toDate: this.dateFin()?.submitValue
+      toDate: this.dateFin()?.submitValue,
     };
     this.produitAuditingParamService.setParameter(params);
     return params;

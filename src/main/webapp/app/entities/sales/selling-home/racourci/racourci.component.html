@@ -10,11 +10,11 @@
 <p-dialog
   [(visible)]="showShortcutsModal"
   [modal]="true"
-  [style]="{width: '800px', maxHeight: '90vh'}"
+  [style]="{ width: '800px', maxHeight: '90vh' }"
   [draggable]="false"
   [closable]="true"
-  header="🎹 Guide des Raccourcis Clavier">
-
+  header="🎹 Guide des Raccourcis Clavier"
+>
   <div class="shortcuts-help">
     <div class="shortcuts-intro">
       <p><i class="pi pi-info-circle"></i> Ces raccourcis sont optimisés pour ne pas interférer avec votre navigateur</p>
@@ -97,21 +97,12 @@
         <i class="pi pi-lightbulb"></i>
         Astuce : Appuyez sur <kbd>F1</kbd> à tout moment pour afficher cette aide
       </span>
-      <p-button
-        label="Fermer"
-        icon="pi pi-times"
-        (click)="showShortcutsModal.set(false)"
-        [outlined]="true">
-      </p-button>
+      <p-button label="Fermer" icon="pi pi-times" (click)="showShortcutsModal.set(false)" [outlined]="true"> </p-button>
     </div>
   </ng-template>
 </p-dialog>
 
 <!-- Bouton d'aide flottant -->
-<button
-  class="help-button"
-  (click)="toggleShortcutsModal()"
-  title="Raccourcis clavier (F1)"
-  type="button">
+<button class="help-button" (click)="toggleShortcutsModal()" title="Raccourcis clavier (F1)" type="button">
   <i class="pi pi-question"></i>
 </button>

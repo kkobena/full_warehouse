@@ -1,4 +1,4 @@
-<div class="container-fluid ">
+<div class="container-fluid">
   <div class="pharma-smart-content p-1">
     <!-- Modern Pharma Toolbar -->
     <div class="pharma-toolbar">
@@ -21,21 +21,19 @@
               [placeholder]="'Sélectionner un dépôt'"
               [style]="{ 'min-width': '200px' }"
               class="pharma-select-modern"
-              optionLabel="name">
+              optionLabel="name"
+            >
               <ng-template #item let-depot>
                 <div class="depot-option">
                   <div class="depot-name">{{ depot.name }}</div>
                   @if (depot.address) {
-                    <div class="depot-address"
-                         style="font-size: 0.85rem; color: #6c757d;">{{ depot.address }}
-                    </div>
+                    <div class="depot-address" style="font-size: 0.85rem; color: #6c757d">{{ depot.address }}</div>
                   }
                 </div>
               </ng-template>
             </p-select>
 
-
-          <!--  <div class="pharma-compact-search">
+            <!--  <div class="pharma-compact-search">
               <p-inputgroup>
                 <input
                   (keyup.enter)="onSearch()"
@@ -63,47 +61,33 @@
             </p-floatlabel>
 
             <p-floatlabel variant="on">
-              <p-datePicker [style]="'max-width: 130px;'"
-                            [(ngModel)]="toDate"
-                            [minDate]="fromDate"
-                            [selectOtherMonths]="true"
-                            appendTo="body"
-                            [showButtonBar]="true"
-                            dateFormat="dd/mm/yy"
-                            id="toDate"
-                            inputId="toDate"
+              <p-datePicker
+                [style]="'max-width: 130px;'"
+                [(ngModel)]="toDate"
+                [minDate]="fromDate"
+                [selectOtherMonths]="true"
+                appendTo="body"
+                [showButtonBar]="true"
+                dateFormat="dd/mm/yy"
+                id="toDate"
+                inputId="toDate"
               />
               <label for="toDate">Au</label>
             </p-floatlabel>
-
-
           </div>
         </ng-template>
 
         <ng-template #end>
-
           <div class="pharma-toolbar-actions">
-            <p-button
-              (click)="loadPage()"
-              [raised]="true"
-              icon="pi pi-search"
-              label="Rechercher"
-              severity="info"
-            />
+            <p-button (click)="loadPage()" [raised]="true" icon="pi pi-search" label="Rechercher" severity="info" />
             <p-button
               [raised]="true"
-              [routerLink]="['/depot',  'new-vente']"
+              [routerLink]="['/depot', 'new-vente']"
               icon="pi pi-shopping-cart"
               label="Nouvelle vente"
               severity="primary"
             />
-            <p-button
-              [raised]="true"
-              [routerLink]="['/depot', 'new-return']"
-              icon="pi pi-undo"
-              label="Retour dépôt"
-              severity="warn"
-            />
+            <p-button [raised]="true" [routerLink]="['/depot', 'new-return']" icon="pi pi-undo" label="Retour dépôt" severity="warn" />
           </div>
         </ng-template>
       </p-toolbar>
@@ -126,7 +110,6 @@
           dataKey="id"
           selectionMode="single"
           stripedRows="true"
-
         >
           <ng-template #header>
             <tr class="pharma-table-head">
@@ -154,7 +137,9 @@
               </td>
               <td>{{ sale.updatedAt | date: 'dd/MM/yyyy HH:mm' }}</td>
 
-              <td><span class="pharma-code">{{ sale.numberTransaction }}</span></td>
+              <td>
+                <span class="pharma-code">{{ sale.numberTransaction }}</span>
+              </td>
               <td class="text-right">{{ sale.salesLines.length | number }}</td>
               <td class="pharma-total">{{ sale.salesAmount | number }}</td>
               <td class="pharma-entity-name">{{ sale.magasin?.fullName }}</td>
@@ -182,7 +167,6 @@
                     severity="primary"
                     size="small"
                   ></p-button>
-
                 </div>
               </td>
             </tr>
@@ -210,7 +194,7 @@
                         selectionMode="single"
                       >
                         <ng-template #header>
-                          <tr class="pharma-table-head ">
+                          <tr class="pharma-table-head">
                             <th style="width: 5%">#</th>
                             <th style="width: 10%">CODE</th>
                             <th style="width: 44%">LIBELLE</th>
@@ -221,38 +205,33 @@
                           </tr>
                         </ng-template>
                         <ng-template #body let-rowIndex="rowIndex" let-saleLine>
-                          <tr [ngClass]="{
-          'pharma-row-warning': saleLine.quantitySold < saleLine.quantityRequested,
-          'pharma-row-hover': true
-        }">
-                            <td style="text-align: left"><span
-                              class="pharma-row-number"> {{ rowIndex + 1 }}</span></td>
-                            <td><span class="pharma-code">{{ saleLine.code }}</span></td>
-                            <td><span
-                              class="pharma-product-name">{{ saleLine.produitLibelle }}</span>
+                          <tr
+                            [ngClass]="{
+                              'pharma-row-warning': saleLine.quantitySold < saleLine.quantityRequested,
+                              'pharma-row-hover': true,
+                            }"
+                          >
+                            <td style="text-align: left">
+                              <span class="pharma-row-number"> {{ rowIndex + 1 }}</span>
                             </td>
-                            <td
-                              class="text-right pharma-qty-value">{{ saleLine.quantityRequested | number }}
+                            <td>
+                              <span class="pharma-code">{{ saleLine.code }}</span>
                             </td>
-                            <td
-                              class="text-right pharma-qty-value">{{ saleLine.quantitySold | number }}
+                            <td>
+                              <span class="pharma-product-name">{{ saleLine.produitLibelle }}</span>
                             </td>
-                            <td
-                              class="text-right pharma-price">{{ saleLine.regularUnitPrice | number }}
-                            </td>
-                            <td class="pharma-total px-1"
-                                style="text-align: right; font-weight: bold">{{ saleLine.salesAmount | number }}
+                            <td class="text-right pharma-qty-value">{{ saleLine.quantityRequested | number }}</td>
+                            <td class="text-right pharma-qty-value">{{ saleLine.quantitySold | number }}</td>
+                            <td class="text-right pharma-price">{{ saleLine.regularUnitPrice | number }}</td>
+                            <td class="pharma-total px-1" style="text-align: right; font-weight: bold">
+                              {{ saleLine.salesAmount | number }}
                             </td>
                           </tr>
                         </ng-template>
                       </p-table>
-
                     </div>
                   </div>
-
-
                 </div>
-
               </td>
             </tr>
           </ng-template>
@@ -264,9 +243,6 @@
       }
     </div>
   </div>
-
-
 </div>
 <jhi-confirm-dialog #confirmDialog></jhi-confirm-dialog>
 <p-menu #exportMenu [model]="exportMenuItems" [popup]="true" appendTo="body"></p-menu>
-

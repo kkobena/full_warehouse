@@ -1,12 +1,11 @@
 package com.kobe.warehouse.config;
 
 import jakarta.validation.constraints.NotNull;
-import org.springframework.boot.context.properties.ConfigurationProperties;
-import org.springframework.web.cors.CorsConfiguration;
-
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import org.springframework.boot.context.properties.ConfigurationProperties;
+import org.springframework.web.cors.CorsConfiguration;
 
 @ConfigurationProperties(prefix = "pharma-smart-log", ignoreUnknownFields = false)
 public class LogProperties {
@@ -29,7 +28,6 @@ public class LogProperties {
         return this.http;
     }
 
-
     public Mail getMail() {
         return this.mail;
     }
@@ -49,8 +47,6 @@ public class LogProperties {
     public CorsConfiguration getCors() {
         return this.cors;
     }
-
-
 
     public AuditEvents getAuditEvents() {
         return this.auditEvents;
@@ -108,7 +104,6 @@ public class LogProperties {
             }
         }
     }
-
 
     public static class Mail {
 
@@ -454,8 +449,6 @@ public class LogProperties {
         }
     }
 
-
-
     public static class Registry {
 
         private String password;
@@ -472,8 +465,6 @@ public class LogProperties {
             this.password = password;
         }
     }
-
-
 
     public static class AuditEvents {
 

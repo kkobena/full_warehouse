@@ -9,7 +9,7 @@ import {
   signal,
   viewChild,
   viewChildren,
-  WritableSignal
+  WritableSignal,
 } from '@angular/core';
 import { CustomerService } from '../../../../customer/customer.service';
 import { HttpResponse } from '@angular/common/http';
@@ -24,9 +24,7 @@ import { InputTextModule } from 'primeng/inputtext';
 import { IClientTiersPayant } from '../../../../../shared/model/client-tiers-payant.model';
 import { FormAyantDroitComponent } from '../../../../customer/form-ayant-droit/form-ayant-droit.component';
 import { SplitButtonModule } from 'primeng/splitbutton';
-import {
-  AyantDroitCustomerListComponent
-} from '../../../ayant-droit-customer-list/ayant-droit-customer-list.component';
+import { AyantDroitCustomerListComponent } from '../../../ayant-droit-customer-list/ayant-droit-customer-list.component';
 import { ConfirmPopupModule } from 'primeng/confirmpopup';
 import { CurrentSaleService } from '../../../service/current-sale.service';
 import { AssureFormStepComponent } from '../../../../customer/assure-form-step/assure-form-step.component';
@@ -58,10 +56,10 @@ import { CustomerCarnetComponent } from '../../../../customer/carnet/customer-ca
     InputGroupModule,
     InputGroupAddonModule,
     Button,
-    TooltipModule
+    TooltipModule,
   ],
   templateUrl: './assurance-data.component.html',
-  styleUrls: ['./assurance-data.component.scss']
+  styleUrls: ['./assurance-data.component.scss'],
 })
 export class AssuranceDataComponent implements OnInit, AfterViewInit {
   searchInput = viewChild<ElementRef>('searchInput');
@@ -92,36 +90,32 @@ export class AssuranceDataComponent implements OnInit, AfterViewInit {
         label: this.ayantDroit ? 'Modifier' : 'Nouveau',
         command: () => {
           this.addAyantDroit(this.ayantDroit);
-        }
+        },
       },
       {
         icon: 'pi pi-times',
         label: 'Remplacer',
         command: () => {
           this.loadAyantDoits();
-        }
-      }
+        },
+      },
     ];
-this.assureBtnActions=[
-
-  {
-    icon: 'pi pi-pencil' ,
-    label: 'Modifier' ,
-    command: () => {
-      this.editAssuredCustomer();
-    }
-  },
-  {
-    icon: 'pi pi-times',
-    label: 'Changer de client',
-    command: () => {
-      this.onChangeCustomerClick();
-    }
-  }
-
-
-
-];
+    this.assureBtnActions = [
+      {
+        icon: 'pi pi-pencil',
+        label: 'Modifier',
+        command: () => {
+          this.editAssuredCustomer();
+        },
+      },
+      {
+        icon: 'pi pi-times',
+        label: 'Changer de client',
+        command: () => {
+          this.onChangeCustomerClick();
+        },
+      },
+    ];
     const currSale = this.currentSaleService.currentSale();
     if (currSale) {
       this.selectedTiersPayants.set(currSale.tiersPayants || []);
@@ -137,7 +131,7 @@ this.assureBtnActions=[
       AssuredCustomerListComponent,
       {
         searchString: this.search,
-        headerLibelle: 'CLIENTS ASSURES'
+        headerLibelle: 'CLIENTS ASSURES',
       },
       (resp: ICustomer) => {
         if (resp) {
@@ -145,7 +139,7 @@ this.assureBtnActions=[
         }
       },
       '70%',
-      'modal-dialog-70'
+      'modal-dialog-70',
     );
   }
 
@@ -162,7 +156,7 @@ this.assureBtnActions=[
       () => this.openAssuredCustomerListTable(),
       'Changer le client',
       'Etes-vous sûr de vouloir changer le client?',
-      null
+      null,
     );
   }
 
@@ -178,7 +172,7 @@ this.assureBtnActions=[
       AddComplementaireComponent,
       {
         tiersPayantsExisting: this.selectedTiersPayants(),
-        assure: currentCustomer
+        assure: currentCustomer,
       },
       (resp: IClientTiersPayant) => {
         if (resp) {
@@ -189,7 +183,7 @@ this.assureBtnActions=[
           this.bonInputFocusOnAddTiersPayant(null);
         }
       },
-      'xl'
+      'xl',
     );
   }
 
@@ -204,7 +198,7 @@ this.assureBtnActions=[
       },
       'Supprimer tiers payant',
       'Etes-vous sûr de vouloir supprimer ce tiers payant?',
-      null
+      null,
     );
   }
 
@@ -222,14 +216,14 @@ this.assureBtnActions=[
         CustomerCarnetComponent,
         {
           entity: null,
-          title: 'FORMULAIRE D\'AJOUT DE NOUVEAU DE CLIENT',
-          categorie: 'CARNET'
+          title: "FORMULAIRE D'AJOUT DE NOUVEAU DE CLIENT",
+          categorie: 'CARNET',
         },
         (resp: ICustomer) => {
           this.setCustomer(resp, saleType);
         },
         'xl',
-        'modal-dialog-70'
+        'modal-dialog-70',
       );
     }
   }
@@ -245,7 +239,7 @@ this.assureBtnActions=[
       AyantDroitCustomerListComponent,
       {
         assure: currentCustomer,
-        header: 'LISTE DES AYANTS DROITS DU CLIENT [' + currentCustomer.fullName + ']'
+        header: 'LISTE DES AYANTS DROITS DU CLIENT [' + currentCustomer.fullName + ']',
       },
       (resp: ICustomer) => {
         if (resp) {
@@ -256,7 +250,7 @@ this.assureBtnActions=[
           }
         }
       },
-      'xl'
+      'xl',
     );
   }
 
@@ -283,10 +277,10 @@ this.assureBtnActions=[
       .queryAssuredCustomer({
         search: this.search,
         size: 2,
-        typeTiersPayant: saleType
+        typeTiersPayant: saleType,
       })
       .subscribe({
-        next: (res: HttpResponse<ICustomer[]>) => this.handleQueryResponse(res.body, saleType)
+        next: (res: HttpResponse<ICustomer[]>) => this.handleQueryResponse(res.body, saleType),
       });
   }
 
@@ -335,20 +329,20 @@ this.assureBtnActions=[
   private openAssuredCustomerForm(customer: ICustomer | null): void {
     const isEdit = !!customer;
     const saleType = this.getCurrentSaleType();
-    const header = isEdit ? 'FORMULAIRE DE MODIFICATION DE CLIENT' : 'FORMULAIRE D\'AJOUT DE NOUVEAU DE CLIENT';
+    const header = isEdit ? 'FORMULAIRE DE MODIFICATION DE CLIENT' : "FORMULAIRE D'AJOUT DE NOUVEAU DE CLIENT";
     showCommonModal(
       this.modalService,
       AssureFormStepComponent,
       {
         entity: customer,
         typeAssure: saleType,
-        header: header
+        header: header,
       },
       (resp: ICustomer) => {
         this.setCustomer(resp, saleType);
       },
       'xl',
-      'modal-dialog-80'
+      'modal-dialog-80',
     );
   }
 
@@ -359,18 +353,18 @@ this.assureBtnActions=[
       {
         entity: ayantDroit,
         assure: this.selectedCustomerService.selectedCustomerSignal(),
-        title: 'FORMULAIRE DE MODIFICATION '
+        title: 'FORMULAIRE DE MODIFICATION ',
       },
       (resp: ICustomer) => {
         if (resp) {
           this.ayantDroit = resp;
         }
       },
-      'xl'
+      'xl',
     );
   }
 
-  private setCustomer(cust: ICustomer,saleType: string): void {
+  private setCustomer(cust: ICustomer, saleType: string): void {
     if (cust) {
       this.selectedCustomerService.setCustomer(cust);
       this.setTiersPayantsForSaleType(cust, saleType);

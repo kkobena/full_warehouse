@@ -17,7 +17,7 @@ import { WarehouseCommonModule } from '../../shared/warehouse-common/warehouse-c
 @Component({
   selector: 'jhi-customer-update',
   templateUrl: './customer-update.component.html',
-  imports: [WarehouseCommonModule, FormsModule, ReactiveFormsModule]
+  imports: [WarehouseCommonModule, FormsModule, ReactiveFormsModule],
 })
 export class CustomerUpdateComponent implements OnInit, OnDestroy {
   protected customerService = inject(CustomerService);
@@ -34,15 +34,14 @@ export class CustomerUpdateComponent implements OnInit, OnDestroy {
     phone: [null, [Validators.required]],
     email: [],
     createdAt: [],
-    produits: []
+    produits: [],
   });
   private destroy$ = new Subject<void>();
 
   /** Inserted by Angular inject() migration for backwards compatibility */
   constructor(...args: unknown[]);
 
-  constructor() {
-  }
+  constructor() {}
 
   ngOnInit(): void {
     this.activatedRoute.data.pipe(takeUntil(this.destroy$)).subscribe(({ customer }) => {
@@ -54,7 +53,10 @@ export class CustomerUpdateComponent implements OnInit, OnDestroy {
 
       this.updateForm(customer);
 
-      this.produitService.query().pipe(takeUntil(this.destroy$)).subscribe((res: HttpResponse<IProduit[]>) => (this.produits = res.body || []));
+      this.produitService
+        .query()
+        .pipe(takeUntil(this.destroy$))
+        .subscribe((res: HttpResponse<IProduit[]>) => (this.produits = res.body || []));
     });
   }
 
@@ -71,7 +73,7 @@ export class CustomerUpdateComponent implements OnInit, OnDestroy {
       phone: customer.phone,
       email: customer.email,
       createdAt: customer.createdAt ? customer.createdAt.format(DATE_TIME_FORMAT) : null,
-      produits: customer.produits
+      produits: customer.produits,
     });
   }
 
@@ -107,7 +109,7 @@ export class CustomerUpdateComponent implements OnInit, OnDestroy {
   protected subscribeToSaveResponse(result: Observable<HttpResponse<ICustomer>>): void {
     result.pipe(finalize(() => (this.isSaving = false))).subscribe(
       () => this.onSaveSuccess(),
-      () => this.onSaveError()
+      () => this.onSaveError(),
     );
   }
 
@@ -128,7 +130,7 @@ export class CustomerUpdateComponent implements OnInit, OnDestroy {
       phone: this.editForm.get('phone')?.value,
       email: this.editForm.get('email')?.value,
       createdAt: this.editForm.get('createdAt')?.value ? moment(this.editForm.get('createdAt')?.value, DATE_TIME_FORMAT) : undefined,
-      produits: this.editForm.get('produits')?.value
+      produits: this.editForm.get('produits')?.value,
     };
   }
 }

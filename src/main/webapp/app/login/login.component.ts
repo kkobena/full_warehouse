@@ -26,7 +26,6 @@ import { AppSettingsDialogComponent } from '../shared/settings/app-settings-dial
     RippleModule,
     Password,
     ToggleSwitchModule,
-
   ],
   templateUrl: './login.component.html',
   styleUrls: ['./login.component.scss'],
@@ -78,7 +77,7 @@ export default class LoginComponent implements OnInit, AfterViewInit {
       size: 'lg',
       backdrop: 'static',
       centered: true,
-      windowClass: 'settings-modal'
+      windowClass: 'settings-modal',
     });
   }
 }

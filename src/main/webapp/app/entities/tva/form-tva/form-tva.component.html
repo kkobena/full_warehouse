@@ -2,9 +2,7 @@
 <div class="modal-header">
   <h4 class="modal-title">{{ header }}</h4>
 
-  <button (click)="cancel()" aria-hidden="true" class="btn-close" data-dismiss="modal"
-          type="button">&times;
-  </button>
+  <button (click)="cancel()" aria-hidden="true" class="btn-close" data-dismiss="modal" type="button">&times;</button>
 </div>
 <!-- formulaire de creation et d edition-->
 <form (ngSubmit)="save()" [formGroup]="editForm" name="editForm" novalidate role="form">
@@ -19,35 +17,31 @@
       <div class="ui-g form-group">
         <label for="field_taux">Taux tva</label>
         <div class="ui-g-12" style="margin-bottom: 10px">
-          <input #taux
-                 autocomplete="off"
-                 class="form-control"
-                 formControlName="taux"
-                 id="field_taux"
-                 name="taux"
-                 pInputText
-                 pKeyFilter="int"
-                 style="width: 100%"
-                 type="text"
+          <input
+            #taux
+            autocomplete="off"
+            class="form-control"
+            formControlName="taux"
+            id="field_taux"
+            name="taux"
+            pInputText
+            pKeyFilter="int"
+            style="width: 100%"
+            type="text"
           />
         </div>
-        @if (editForm.get('taux')!.invalid && (editForm.get('taux')!.dirty || editForm.get(
-          'taux')!.touched)) {
+        @if (editForm.get('taux')!.invalid && (editForm.get('taux')!.dirty || editForm.get('taux')!.touched)) {
           <div>
             @if (editForm.get('taux')?.errors?.required) {
-              <small class="form-text text-danger" style="color: red"> Ce champ est
-                obligatoire. </small>
+              <small class="form-text text-danger" style="color: red"> Ce champ est obligatoire. </small>
             }
-            <small [hidden]="!editForm.get('taux')?.errors?.number" class="form-text text-danger"
-                   style="color: red">
+            <small [hidden]="!editForm.get('taux')?.errors?.number" class="form-text text-danger" style="color: red">
               Ce champ doit être un nombre.
             </small>
           </div>
         }
       </div>
     </p-card>
-
-
   </div>
   <div class="modal-footer">
     <p-button
@@ -68,8 +62,5 @@
       severity="primary"
       type="submit"
     ></p-button>
-
-
   </div>
-
 </form>

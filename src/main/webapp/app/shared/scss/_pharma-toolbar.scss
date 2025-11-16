@@ -663,7 +663,7 @@ $pharma-shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
 
       // Override floatlabel min-width for 14-inch screens
       ::ng-deep p-floatlabel {
-        min-width: 150px ;
+        min-width: 150px;
         flex-shrink: 2;
       }
     }
@@ -891,14 +891,11 @@ $pharma-shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
           .p-datepicker-trigger {
             flex: 0 0 1.75rem;
             width: 1.75rem !important;
-
-
           }
         }
       }
 
       p-floatlabel {
-
       }
 
       .p-select,

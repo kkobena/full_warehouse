@@ -2,23 +2,26 @@
 
 <div class="modal-header">
   <h4 class="modal-title">AJOUT DE LA DATE DE PEREMTION SUR LE PRODUIT {{ produit?.libelle }}</h4>
-  <button (click)="cancel()" aria-label="Close" class="btn-close" type="button">
-
-  </button>
+  <button (click)="cancel()" aria-label="Close" class="btn-close" type="button"></button>
 </div>
 <form (ngSubmit)="save()" [formGroup]="editForm" name="editForm" novalidate role="form">
-
-
   <div class="modal-body">
     <p-card>
       <div class="form-row">
         <div class="form-group col">
-          <label class="form-control-label" for="datePeremption">Date de péremption<span class="red-400"
-                                                                                         style="font-weight: 900">*</span></label>
+          <label class="form-control-label" for="datePeremption"
+            >Date de péremption<span class="red-400" style="font-weight: 900">*</span></label
+          >
 
           @let datePeremption = editForm.get('datePeremption');
-          <input [minDate]="minDate" [maxDate]="maxDate" jhiDateNaiss pInputText placeholder="jj/mm/aaaa"
-                 class="form-control" formControlName="datePeremption"
+          <input
+            [minDate]="minDate"
+            [maxDate]="maxDate"
+            jhiDateNaiss
+            pInputText
+            placeholder="jj/mm/aaaa"
+            class="form-control"
+            formControlName="datePeremption"
           />
           @if (datePeremption!.invalid && (datePeremption!.dirty || datePeremption!.touched)) {
             <div>
@@ -29,14 +32,20 @@
             </div>
           }
         </div>
-
       </div>
     </p-card>
   </div>
 
   <div class="modal-footer">
-    <p-button class="mr-2" (click)="cancel()" icon="pi pi-times" label="Annuler" raised="true" severity="secondary"
-              type="button"></p-button>
+    <p-button
+      class="mr-2"
+      (click)="cancel()"
+      icon="pi pi-times"
+      label="Annuler"
+      raised="true"
+      severity="secondary"
+      type="button"
+    ></p-button>
     <p-button
       [disabled]="editForm.invalid || isSaving"
       class="mr-1"
@@ -46,6 +55,5 @@
       severity="primary"
       type="submit"
     ></p-button>
-
   </div>
 </form>

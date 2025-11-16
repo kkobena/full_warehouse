@@ -16,14 +16,7 @@ import { finalize } from 'rxjs/operators';
   selector: 'jhi-form-laboratoire',
   templateUrl: './form-laboratoire.component.html',
   styleUrls: ['../../common-modal.component.scss'],
-  imports: [
-    FormsModule,
-    ReactiveFormsModule,
-    ButtonModule,
-    InputTextModule,
-    ToastAlertComponent,
-    Card
-  ]
+  imports: [FormsModule, ReactiveFormsModule, ButtonModule, InputTextModule, ToastAlertComponent, Card],
 })
 export class FormLaboratoireComponent implements OnInit, AfterViewInit {
   header = '';
@@ -32,7 +25,7 @@ export class FormLaboratoireComponent implements OnInit, AfterViewInit {
   protected isSaving = false;
   protected editForm = this.fb.group({
     id: [],
-    libelle: [null, [Validators.required]]
+    libelle: [null, [Validators.required]],
   });
   private readonly entityService = inject(LaboratoireProduitService);
   private readonly activeModal = inject(NgbActiveModal);
@@ -55,7 +48,7 @@ export class FormLaboratoireComponent implements OnInit, AfterViewInit {
   protected updateForm(entity: ILaboratoire): void {
     this.editForm.patchValue({
       id: entity.id,
-      libelle: entity.libelle
+      libelle: entity.libelle,
     });
   }
 
@@ -74,11 +67,10 @@ export class FormLaboratoireComponent implements OnInit, AfterViewInit {
   }
 
   private subscribeToSaveResponse(result: Observable<HttpResponse<ILaboratoire>>): void {
-    result.pipe(finalize(() => this.isSaving = false)).subscribe({
-        next: (res: HttpResponse<ILaboratoire>) => this.onSaveSuccess(res.body),
-        error: (err) => this.onSaveError(err)
-      }
-    );
+    result.pipe(finalize(() => (this.isSaving = false))).subscribe({
+      next: (res: HttpResponse<ILaboratoire>) => this.onSaveSuccess(res.body),
+      error: err => this.onSaveError(err),
+    });
   }
 
   private onSaveSuccess(response: ILaboratoire | null): void {
@@ -93,7 +85,7 @@ export class FormLaboratoireComponent implements OnInit, AfterViewInit {
     return {
       ...new Laboratoire(),
       id: this.editForm.get(['id']).value,
-      libelle: this.editForm.get(['libelle']).value
+      libelle: this.editForm.get(['libelle']).value,
     };
   }
 }

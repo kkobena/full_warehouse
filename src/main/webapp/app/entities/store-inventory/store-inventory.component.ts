@@ -31,7 +31,7 @@ import { FloatLabel } from 'primeng/floatlabel';
   selector: 'jhi-store-inventory',
   templateUrl: './store-inventory.component.html',
   providers: [ConfirmationService, DialogService, MessageService],
- styleUrls: ['./store-inventory.scss'],
+  styleUrls: ['./store-inventory.scss'],
   imports: [
     WarehouseCommonModule,
     MultiSelectModule,
@@ -43,10 +43,8 @@ import { FloatLabel } from 'primeng/floatlabel';
     EnCoursComponent,
     CloturesComponent,
     Select,
-    FloatLabel
-
-
-  ]
+    FloatLabel,
+  ],
 })
 export class StoreInventoryComponent implements OnInit {
   protected storeInventories: IStoreInventory[];
@@ -66,8 +64,8 @@ export class StoreInventoryComponent implements OnInit {
   protected user?: IUser | null;
   protected active = 'CREATE';
   protected readonly menuTileAndIcon = [
-    { title: 'Inventaires en cours', icon: 'pi pi-spin pi-cog',menuId: 'CREATE' },
-    { title: 'Inventaires clôturés', icon: 'pi pi-lock',menuId: 'CLOSED' }
+    { title: 'Inventaires en cours', icon: 'pi pi-spin pi-cog', menuId: 'CREATE' },
+    { title: 'Inventaires clôturés', icon: 'pi pi-lock', menuId: 'CLOSED' },
   ];
 
   protected ref?: DynamicDialogRef;
@@ -233,9 +231,9 @@ export class StoreInventoryComponent implements OnInit {
     this.onSearch();
   }
   protected get title(): string {
-    return this.menuTileAndIcon.find(m=>m.menuId===this.active)?.title || '' ;
+    return this.menuTileAndIcon.find(m => m.menuId === this.active)?.title || '';
   }
   protected get icon(): string {
-    return this.menuTileAndIcon.find(m=>m.menuId===this.active)?.icon || '' ;
+    return this.menuTileAndIcon.find(m => m.menuId === this.active)?.icon || '';
   }
 }

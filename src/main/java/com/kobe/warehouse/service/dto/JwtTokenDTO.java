@@ -3,12 +3,7 @@ package com.kobe.warehouse.service.dto;
 /**
  * DTO for returning JWT tokens after successful authentication.
  */
-public record JwtTokenDTO(
-    String accessToken,
-    String refreshToken,
-    String tokenType,
-    long expiresIn
-) {
+public record JwtTokenDTO(String accessToken, String refreshToken, String tokenType, long expiresIn) {
     /**
      * Create JWT token response with Bearer token type.
      *

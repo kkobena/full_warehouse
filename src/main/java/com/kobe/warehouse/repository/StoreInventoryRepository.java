@@ -3,12 +3,11 @@ package com.kobe.warehouse.repository;
 import com.kobe.warehouse.domain.StoreInventory;
 import com.kobe.warehouse.service.dto.StoreInventoryExport;
 import com.kobe.warehouse.service.dto.projection.IdProjection;
+import java.time.LocalDateTime;
+import java.util.List;
 import org.springframework.data.jpa.repository.*;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
-
-import java.time.LocalDateTime;
-import java.util.List;
 
 /** Spring Data repository for the StoreInventory entity. */
 @SuppressWarnings("unused")
@@ -22,8 +21,9 @@ public interface StoreInventoryRepository extends JpaRepository<StoreInventory, 
 
     @Query("SELECT o FROM StoreInventory o WHERE o.statut <>'CLOSED' ORDER BY  o.createdAt DESC  ")
     List<StoreInventory> findActif();
-    @Query("SELECT o.id AS id FROM StoreInventory o WHERE o.statut = 'CLOSED' AND o.createdAt<=:dernierInventaire ORDER BY  o.createdAt DESC  ")
-    List<IdProjection> findByStatutEquals(@Param("dernierInventaire")LocalDateTime dernierInventaire);
 
-
+    @Query(
+        "SELECT o.id AS id FROM StoreInventory o WHERE o.statut = 'CLOSED' AND o.createdAt<=:dernierInventaire ORDER BY  o.createdAt DESC  "
+    )
+    List<IdProjection> findByStatutEquals(@Param("dernierInventaire") LocalDateTime dernierInventaire);
 }

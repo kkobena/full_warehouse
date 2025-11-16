@@ -352,7 +352,6 @@ export class HomeBaseComponent implements OnInit {
       ],
     };
     this.modePaimentChartOptions = this.getCommonPieChartOptions();
-
   }
 
   private buildTiersPayantChart(): void {

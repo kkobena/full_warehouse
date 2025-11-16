@@ -10,7 +10,7 @@ type EntityResponseType = HttpResponse<IAuthority>;
 type EntityArrayResponseType = HttpResponse<IAuthority[]>;
 
 @Injectable({
-  providedIn: 'root'
+  providedIn: 'root',
 })
 export class PrivillegeService {
   protected http = inject(HttpClient);
@@ -35,7 +35,7 @@ export class PrivillegeService {
     const options = createRequestOption(req);
     return this.http.get<IAuthority[]>(`${this.resourceAuthorityUrl}/all`, {
       params: options,
-      observe: 'response'
+      observe: 'response',
     });
   }
 

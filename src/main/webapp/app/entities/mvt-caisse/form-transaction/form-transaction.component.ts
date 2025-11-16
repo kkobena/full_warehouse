@@ -40,7 +40,7 @@ import { PaymentId } from '../../reglement/model/reglement.model';
     ToastAlertComponent,
     Card,
     InputGroup,
-    InputGroupAddon
+    InputGroupAddon,
   ],
   templateUrl: './form-transaction.component.html',
   styleUrls: ['../../common-modal.component.scss'],
@@ -57,25 +57,25 @@ export class FormTransactionComponent implements OnInit, AfterViewInit {
     TypeFinancialTransaction.SORTIE_CAISSE,
     TypeFinancialTransaction.REGLEMENT_DIFFERE,
     TypeFinancialTransaction.REGLEMENT_TIERS_PAYANT,
-    TypeFinancialTransaction.REGLMENT_FOURNISSEUR
+    TypeFinancialTransaction.REGLMENT_FOURNISSEUR,
   ];
   protected paymentModes: IPaymentMode[] = [];
   private fb = inject(FormBuilder);
   editForm = this.fb.group({
     amount: new FormControl<number | null>(null, {
       validators: [Validators.required],
-      nonNullable: true
+      nonNullable: true,
     }),
     paymentMode: new FormControl<IPaymentMode | null>(null, {
       validators: [Validators.required],
-      nonNullable: true
+      nonNullable: true,
     }),
     typeFinancialTransaction: new FormControl<TypeFinancialTransaction | null>(null, {
       validators: [Validators.required],
-      nonNullable: true
+      nonNullable: true,
     }),
     transactionDate: new FormControl<Date>(new Date()),
-    commentaire: new FormControl<string | null>(null, {})
+    commentaire: new FormControl<string | null>(null, {}),
   });
   private readonly activeModal = inject(NgbActiveModal);
   private mvtCaisseService = inject(MvtCaisseServiceService);
@@ -88,7 +88,7 @@ export class FormTransactionComponent implements OnInit, AfterViewInit {
           res.body.map((paymentMode: IPaymentMode) => {
             return {
               libelle: paymentMode.libelle,
-              code: paymentMode.code
+              code: paymentMode.code,
             };
           }) || [];
       }
@@ -106,7 +106,6 @@ export class FormTransactionComponent implements OnInit, AfterViewInit {
   }
 
   ngAfterViewInit(): void {
-
     this.editForm.get(['paymentMode']).setValue({ code: 'CASH', libelle: 'ESPECE' });
   }
 
@@ -117,14 +116,14 @@ export class FormTransactionComponent implements OnInit, AfterViewInit {
       paymentMode: this.editForm.get(['paymentMode']).value,
       typeTransaction: getTypeName(this.editForm.get(['typeFinancialTransaction']).value),
       transactionDate: this.editForm.get(['transactionDate']).value,
-      commentaire: this.editForm.get(['commentaire']).value
+      commentaire: this.editForm.get(['commentaire']).value,
     };
   }
 
   protected subscribeToSaveResponse(result: Observable<HttpResponse<PaymentId>>): void {
     result.subscribe({
       next: res => this.onSaveSuccess(res.body),
-      error: error => this.onSaveError(error)
+      error: error => this.onSaveError(error),
     });
   }
 
@@ -135,6 +134,6 @@ export class FormTransactionComponent implements OnInit, AfterViewInit {
 
   protected onSaveError(error: any): void {
     this.isSaving = false;
-this.alert().showError(this.errorService.getErrorMessage(error));
+    this.alert().showError(this.errorService.getErrorMessage(error));
   }
 }

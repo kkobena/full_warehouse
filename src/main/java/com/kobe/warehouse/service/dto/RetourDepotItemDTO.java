@@ -12,9 +12,11 @@ public class RetourDepotItemDTO {
     private String produitLibelle;
     private String produitCip;
     private Integer produitId;
+
     @NotNull
     @Min(1)
     private Integer qtyMvt;
+
     private Integer regularUnitPrice;
     private Integer initStock;
     private Integer afterStock;

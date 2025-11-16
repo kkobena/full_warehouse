@@ -1,5 +1,10 @@
 package com.kobe.warehouse.service.financiel_transaction;
 
+import static com.kobe.warehouse.service.financiel_transaction.TableauPharmacienConstants.GROUPING_DAILY;
+import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.ArgumentMatchers.*;
+import static org.mockito.Mockito.when;
+
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.json.JsonMapper;
 import com.kobe.warehouse.domain.enumeration.CategorieChiffreAffaire;
@@ -14,6 +19,10 @@ import com.kobe.warehouse.service.financiel_transaction.dto.TableauPharmacienDTO
 import com.kobe.warehouse.service.financiel_transaction.dto.TableauPharmacienWrapper;
 import com.kobe.warehouse.service.settings.AppConfigurationService;
 import com.kobe.warehouse.service.stock.CommandeDataService;
+import java.time.LocalDate;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Set;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -21,16 +30,6 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.mockito.junit.jupiter.MockitoSettings;
 import org.mockito.quality.Strictness;
-
-import java.time.LocalDate;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Set;
-
-import static com.kobe.warehouse.service.financiel_transaction.TableauPharmacienConstants.GROUPING_DAILY;
-import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.ArgumentMatchers.*;
-import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
 @MockitoSettings(strictness = Strictness.LENIENT)
@@ -108,9 +107,7 @@ class TableauPharmacienServiceRefactoredTest {
         salesData.add(sales2);
 
         String salesJson = "[]"; // Simplified
-        when(salesRepository.fetchTableauPharmacienReport(
-            any(), any(), any(), any(), anyBoolean(), anyBoolean()
-        )).thenReturn(salesJson);
+        when(salesRepository.fetchTableauPharmacienReport(any(), any(), any(), any(), anyBoolean(), anyBoolean())).thenReturn(salesJson);
         when(objectMapper.readValue(eq(salesJson), any(TypeReference.class))).thenReturn(salesData);
 
         // Mock purchases data
@@ -149,9 +146,7 @@ class TableauPharmacienServiceRefactoredTest {
         salesData.add(createSalesDTO(date1, 10000L, 5000L, 5000L));
 
         String salesJson = "[]";
-        when(salesRepository.fetchTableauPharmacienReport(
-            any(), any(), any(), any(), anyBoolean(), anyBoolean()
-        )).thenReturn(salesJson);
+        when(salesRepository.fetchTableauPharmacienReport(any(), any(), any(), any(), anyBoolean(), anyBoolean())).thenReturn(salesJson);
         when(objectMapper.readValue(eq(salesJson), any(TypeReference.class))).thenReturn(salesData);
 
         when(commandeDataService.fetchReportTableauPharmacienData(any())).thenReturn(new ArrayList<>());
@@ -171,9 +166,7 @@ class TableauPharmacienServiceRefactoredTest {
         LocalDate date1 = LocalDate.of(2025, 1, 1);
 
         // Mock only purchases data, no sales or avoirs
-        when(salesRepository.fetchTableauPharmacienReport(
-            any(), any(), any(), any(), anyBoolean(), anyBoolean()
-        )).thenReturn("[]");
+        when(salesRepository.fetchTableauPharmacienReport(any(), any(), any(), any(), anyBoolean(), anyBoolean())).thenReturn("[]");
         when(objectMapper.readValue(anyString(), any(TypeReference.class))).thenReturn(new ArrayList<>());
 
         List<AchatDTO> purchasesData = new ArrayList<>();
@@ -196,9 +189,7 @@ class TableauPharmacienServiceRefactoredTest {
         LocalDate date1 = LocalDate.of(2025, 1, 1);
 
         // Mock only avoirs data, no sales or purchases
-        when(salesRepository.fetchTableauPharmacienReport(
-            any(), any(), any(), any(), anyBoolean(), anyBoolean()
-        )).thenReturn("[]");
+        when(salesRepository.fetchTableauPharmacienReport(any(), any(), any(), any(), anyBoolean(), anyBoolean())).thenReturn("[]");
         when(objectMapper.readValue(anyString(), any(TypeReference.class))).thenReturn(new ArrayList<>());
 
         when(commandeDataService.fetchReportTableauPharmacienData(any())).thenReturn(new ArrayList<>());
@@ -219,9 +210,7 @@ class TableauPharmacienServiceRefactoredTest {
     @Test
     void testGetTableauPharmacien_emptyData() throws Exception {
         // Mock all empty data
-        when(salesRepository.fetchTableauPharmacienReport(
-            any(), any(), any(), any(), anyBoolean(), anyBoolean()
-        )).thenReturn("[]");
+        when(salesRepository.fetchTableauPharmacienReport(any(), any(), any(), any(), anyBoolean(), anyBoolean())).thenReturn("[]");
         when(objectMapper.readValue(anyString(), any(TypeReference.class))).thenReturn(new ArrayList<>());
 
         when(commandeDataService.fetchReportTableauPharmacienData(any())).thenReturn(new ArrayList<>());
@@ -239,9 +228,9 @@ class TableauPharmacienServiceRefactoredTest {
     @Test
     void testGetTableauPharmacien_errorHandling() throws Exception {
         // Mock error in fetching sales data
-        when(salesRepository.fetchTableauPharmacienReport(
-            any(), any(), any(), any(), anyBoolean(), anyBoolean()
-        )).thenThrow(new RuntimeException("Database error"));
+        when(salesRepository.fetchTableauPharmacienReport(any(), any(), any(), any(), anyBoolean(), anyBoolean())).thenThrow(
+            new RuntimeException("Database error")
+        );
 
         when(commandeDataService.fetchReportTableauPharmacienData(any())).thenReturn(new ArrayList<>());
         when(reponseRetourBonItemRepository.findByDateRange(any(), any())).thenReturn(new ArrayList<>());
@@ -258,9 +247,7 @@ class TableauPharmacienServiceRefactoredTest {
 
     @Test
     void testGetTableauPharmacien_excludeFreeUnitTrue() throws Exception {
-        when(salesRepository.fetchTableauPharmacienReport(
-            any(), any(), any(), any(), eq(true), anyBoolean()
-        )).thenReturn("[]");
+        when(salesRepository.fetchTableauPharmacienReport(any(), any(), any(), any(), eq(true), anyBoolean())).thenReturn("[]");
         when(objectMapper.readValue(anyString(), any(TypeReference.class))).thenReturn(new ArrayList<>());
 
         when(commandeDataService.fetchReportTableauPharmacienData(any())).thenReturn(new ArrayList<>());
@@ -300,8 +287,7 @@ class TableauPharmacienServiceRefactoredTest {
         return param;
     }
 
-    private TableauPharmacienDTO createSalesDTO(LocalDate date, long montantNet,
-                                                 long montantComptant, long montantCredit) {
+    private TableauPharmacienDTO createSalesDTO(LocalDate date, long montantNet, long montantComptant, long montantCredit) {
         TableauPharmacienDTO dto = new TableauPharmacienDTO();
         dto.setMvtDate(date);
         dto.setMontantNet(montantNet);

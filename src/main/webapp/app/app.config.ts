@@ -1,10 +1,4 @@
-import {
-  ApplicationConfig,
-  importProvidersFrom,
-  inject,
-  provideZoneChangeDetection,
-  provideAppInitializer
-} from '@angular/core';
+import { ApplicationConfig, importProvidersFrom, inject, provideZoneChangeDetection, provideAppInitializer } from '@angular/core';
 import { provideHttpClient, withInterceptorsFromDi } from '@angular/common/http';
 import {
   NavigationError,
@@ -14,7 +8,7 @@ import {
   TitleStrategy,
   withComponentInputBinding,
   withDebugTracing,
-  withNavigationErrorHandler
+  withNavigationErrorHandler,
 } from '@angular/router';
 import { provideServiceWorker } from '@angular/service-worker';
 import { provideNgxWebstorage, withLocalStorage, withSessionStorage } from 'ngx-webstorage';
@@ -76,12 +70,12 @@ export const appConfig: ApplicationConfig = {
       loader: provideTranslateHttpLoader({
         prefix: 'i18n/',
         // @ts-ignore
-        suffix: `.json?_=${I18N_HASH}`
+        suffix: `.json?_=${I18N_HASH}`,
       }),
       missingTranslationHandler: {
         provide: MissingTranslationHandler,
-        useClass: CustomMissingTranslationHandler
-      }
+        useClass: CustomMissingTranslationHandler,
+      },
     }),
     provideAppInitializer(translationInitializer),
 

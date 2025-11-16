@@ -9,7 +9,6 @@ import com.kobe.warehouse.domain.OrderLineId;
 import com.kobe.warehouse.domain.Produit;
 import com.kobe.warehouse.domain.Tableau;
 import com.kobe.warehouse.domain.Tva;
-
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.HashSet;

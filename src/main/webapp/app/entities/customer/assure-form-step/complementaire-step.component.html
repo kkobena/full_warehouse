@@ -12,7 +12,8 @@
           pTooltip="Ajouter un tiers payant"
           severity="info"
           size="small"
-          type="button">
+          type="button"
+        >
         </p-button>
       }
     </div>
@@ -33,7 +34,8 @@
                 pTooltip="Supprimer"
                 severity="danger"
                 size="small"
-                type="button">
+                type="button"
+              >
               </p-button>
             </div>
 
@@ -54,30 +56,21 @@
                     [suggestions]="tiersPayants"
                     formControlName="tiersPayant"
                     optionLabel="fullName"
-                    placeholder="Taper pour rechercher">
+                    placeholder="Taper pour rechercher"
+                  >
                   </p-autoComplete>
                 </div>
 
                 <!-- Numéro de sécurité -->
                 <div class="form-field">
                   <label>Numéro de sécurité <span class="required">*</span></label>
-                  <input
-                    autocomplete="off"
-                    class="w-full"
-                    formControlName="num"
-                    pInputText
-                    pKeyFilter="alphanum" />
+                  <input autocomplete="off" class="w-full" formControlName="num" pInputText pKeyFilter="alphanum" />
                 </div>
 
                 <!-- Taux -->
                 <div class="form-field">
                   <label>Taux (%) <span class="required">*</span></label>
-                  <input
-                    autocomplete="off"
-                    class="w-full"
-                    formControlName="taux"
-                    pInputText
-                    pKeyFilter="int" />
+                  <input autocomplete="off" class="w-full" formControlName="taux" pInputText pKeyFilter="int" />
                 </div>
 
                 <!-- Ordre -->
@@ -89,7 +82,8 @@
                     appendTo="body"
                     formControlName="priorite"
                     optionLabel="label"
-                    optionValue="value">
+                    optionValue="value"
+                  >
                   </p-select>
                 </div>
               </div>

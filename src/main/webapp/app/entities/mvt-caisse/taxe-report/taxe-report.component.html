@@ -1,164 +1,150 @@
-
-  <div class="pharma-smart-content p-2">
-    <!-- Modern Pharma Toolbar (Compact) -->
-    <div class="pharma-toolbar pharma-toolbar-compact">
-      <div class="pharma-toolbar-header">
-        <i class="pi pi-chart-line"></i>
-        <span class="pharma-toolbar-title">Rapport TVA</span>
-      </div>
-
-      <p-toolbar>
-        <ng-template #start>
-          <div class="pharma-toolbar-filters">
-            <p-floatlabel variant="on" >
-              <p-datePicker  [style]="{ 'max-width': '160px' }"
-                [(ngModel)]="fromDate"
-                [iconDisplay]="'input'"
-                [showButtonBar]="true"
-                dateFormat="dd/mm/yy"
-                id="dateDebut"
-                inputId="dateDebut"
-                appendTo="body"
-                selectOtherMonths="true"
-                showIcon="true"
-              />
-              <label for="dateDebut">Du</label>
-            </p-floatlabel>
-
-            <p-floatlabel variant="on" >
-              <p-datePicker  [style]="{ 'max-width': '160px' }"
-                [(ngModel)]="toDate"
-                [iconDisplay]="'input'"
-                [showButtonBar]="true"
-                dateFormat="dd/mm/yy"
-                id="dateFin"
-                inputId="dateFin"
-                appendTo="body"
-                selectOtherMonths="true"
-                showIcon="true"
-              />
-              <label for="dateFin">Au</label>
-            </p-floatlabel>
-
-            <p-select
-              [(ngModel)]="selectedVente"
-              [filter]="false"
-              [options]="types"
-
-              [showClear]="true"
-              placeholder="Type de vente"
-              appendTo="body"
-
-            />
-
-            <div class="tva-radio flex align-items-center mr-1">
-              <p-radioButton
-                (onClick)="onAffichageChange()"
-                [(ngModel)]="groupBy"
-                id="codeTva"
-                inputId="codeTva"
-                name="codeTva"
-                value="codeTva"
-              />
-              <label class="tva-radio-label mt-2 ml-1" for="codeTva">
-                <span>Période</span>
-              </label>
-            </div>
-
-            <div class="tva-radio flex align-items-center mr-1">
-              <p-radioButton
-                (onClick)="onAffichageChange()"
-                [(ngModel)]="groupBy"
-                id="daily"
-                inputId="daily"
-                name="daily"
-                value="daily"
-              />
-              <label class="tva-radio-label mt-2 ml-1" for="daily">
-                <span>Journalier</span>
-              </label>
-            </div>
-          </div>
-        </ng-template>
-
-        <ng-template #end>
-          <div class="pharma-toolbar-actions">
-            <div class="pharma-button-group">
-              <p-button
-                (click)="onSearch()"
-                [disabled]="loading"
-                [loading]="loading"
-                [raised]="true"
-                icon="pi pi-search"
-                label="Rechercher"
-                pTooltip="Rechercher"
-                severity="info"
-                tooltipPosition="top"
-              />
-
-              <p-button
-                (click)="onPrint()"
-                [loading]="loading"
-                [outlined]="true"
-                [raised]="true"
-                icon="pi pi-print"
-                label="Imprimer"
-                pTooltip="Imprimer"
-                severity="warn"
-                tooltipPosition="top"
-              />
-
-              <p-selectButton
-                [(ngModel)]="affichage"
-                [options]="typeAffichafes"
-                optionLabel="icon"
-                optionValue="value"
-              >
-                <ng-template #item let-item>
-                  <i [class]="item.icon"></i>
-                </ng-template>
-              </p-selectButton>
-            </div>
-          </div>
-        </ng-template>
-      </p-toolbar>
+<div class="pharma-smart-content p-2">
+  <!-- Modern Pharma Toolbar (Compact) -->
+  <div class="pharma-toolbar pharma-toolbar-compact">
+    <div class="pharma-toolbar-header">
+      <i class="pi pi-chart-line"></i>
+      <span class="pharma-toolbar-title">Rapport TVA</span>
     </div>
 
+    <p-toolbar>
+      <ng-template #start>
+        <div class="pharma-toolbar-filters">
+          <p-floatlabel variant="on">
+            <p-datePicker
+              [style]="{ 'max-width': '160px' }"
+              [(ngModel)]="fromDate"
+              [iconDisplay]="'input'"
+              [showButtonBar]="true"
+              dateFormat="dd/mm/yy"
+              id="dateDebut"
+              inputId="dateDebut"
+              appendTo="body"
+              selectOtherMonths="true"
+              showIcon="true"
+            />
+            <label for="dateDebut">Du</label>
+          </p-floatlabel>
 
-    <div class=" mt-3 mb-3">
-      @if (taxeReportWrapper) {
-        @if (affichage === 'table') {
-          <div class="table-responsive">
-            <table class="table table-striped table-bordered table-hover">
-              @if (groupBy === 'codeTva') {
-                <thead class="pharma-table-head">
+          <p-floatlabel variant="on">
+            <p-datePicker
+              [style]="{ 'max-width': '160px' }"
+              [(ngModel)]="toDate"
+              [iconDisplay]="'input'"
+              [showButtonBar]="true"
+              dateFormat="dd/mm/yy"
+              id="dateFin"
+              inputId="dateFin"
+              appendTo="body"
+              selectOtherMonths="true"
+              showIcon="true"
+            />
+            <label for="dateFin">Au</label>
+          </p-floatlabel>
+
+          <p-select
+            [(ngModel)]="selectedVente"
+            [filter]="false"
+            [options]="types"
+            [showClear]="true"
+            placeholder="Type de vente"
+            appendTo="body"
+          />
+
+          <div class="tva-radio flex align-items-center mr-1">
+            <p-radioButton
+              (onClick)="onAffichageChange()"
+              [(ngModel)]="groupBy"
+              id="codeTva"
+              inputId="codeTva"
+              name="codeTva"
+              value="codeTva"
+            />
+            <label class="tva-radio-label mt-2 ml-1" for="codeTva">
+              <span>Période</span>
+            </label>
+          </div>
+
+          <div class="tva-radio flex align-items-center mr-1">
+            <p-radioButton (onClick)="onAffichageChange()" [(ngModel)]="groupBy" id="daily" inputId="daily" name="daily" value="daily" />
+            <label class="tva-radio-label mt-2 ml-1" for="daily">
+              <span>Journalier</span>
+            </label>
+          </div>
+        </div>
+      </ng-template>
+
+      <ng-template #end>
+        <div class="pharma-toolbar-actions">
+          <div class="pharma-button-group">
+            <p-button
+              (click)="onSearch()"
+              [disabled]="loading"
+              [loading]="loading"
+              [raised]="true"
+              icon="pi pi-search"
+              label="Rechercher"
+              pTooltip="Rechercher"
+              severity="info"
+              tooltipPosition="top"
+            />
+
+            <p-button
+              (click)="onPrint()"
+              [loading]="loading"
+              [outlined]="true"
+              [raised]="true"
+              icon="pi pi-print"
+              label="Imprimer"
+              pTooltip="Imprimer"
+              severity="warn"
+              tooltipPosition="top"
+            />
+
+            <p-selectButton [(ngModel)]="affichage" [options]="typeAffichafes" optionLabel="icon" optionValue="value">
+              <ng-template #item let-item>
+                <i [class]="item.icon"></i>
+              </ng-template>
+            </p-selectButton>
+          </div>
+        </div>
+      </ng-template>
+    </p-toolbar>
+  </div>
+
+  <div class="mt-3 mb-3">
+    @if (taxeReportWrapper) {
+      @if (affichage === 'table') {
+        <div class="table-responsive">
+          <table class="table table-striped table-bordered table-hover">
+            @if (groupBy === 'codeTva') {
+              <thead class="pharma-table-head">
                 <tr>
                   <th>Code tva</th>
                   <th>Total HT</th>
                   <th>Total TVA</th>
                   <th>Total TTC</th>
                 </tr>
-                </thead>
-                <tbody>
-                  @for (taxe of taxeReportWrapper.taxes; track $index) {
-                    <tr>
-                      <td class="amount-td-column">{{ taxe.codeTva }}</td>
-                      <td class="amount-td-column">{{ taxe.montantHt | number }}</td>
-                      <td class="amount-td-column">{{ taxe.montantTaxe | number }}</td>
-                      <td class="amount-td-column">{{ taxe.montantTtc | number }}</td>
-                    </tr>
-                  }
-                </tbody>
-                <tfoot>
+              </thead>
+              <tbody>
+                @for (taxe of taxeReportWrapper.taxes; track $index) {
+                  <tr>
+                    <td class="amount-td-column">{{ taxe.codeTva }}</td>
+                    <td class="amount-td-column">{{ taxe.montantHt | number }}</td>
+                    <td class="amount-td-column">{{ taxe.montantTaxe | number }}</td>
+                    <td class="amount-td-column">{{ taxe.montantTtc | number }}</td>
+                  </tr>
+                }
+              </tbody>
+              <tfoot>
                 <tr>
                   <td class="tf-column">Total</td>
                   <td class="amount-column">{{ taxeReportWrapper.montantHt | number }}</td>
                   <td class="amount-column">{{ taxeReportWrapper.montantTaxe | number }}</td>
                   <td class="amount-column">{{ taxeReportWrapper.montantTtc | number }}</td>
                 </tr>
-                </tfoot>
-              } @else {
-                <thead class="pharma-table-head">
+              </tfoot>
+            } @else {
+              <thead class="pharma-table-head">
                 <tr>
                   <th>Date</th>
                   <th>Code tva</th>
@@ -166,46 +152,42 @@
                   <th>Total TVA</th>
                   <th>Total TTC</th>
                 </tr>
-                </thead>
-                <tbody>
-                  @for (taxe of taxeReportWrapper.taxes; track $index) {
-                    <tr>
-                      <td>{{ taxe.mvtDate | date: 'dd/MM/yyyy' }}</td>
-                      <td class="amount-td-column">{{ taxe.codeTva }}</td>
-                      <td class="amount-td-column">{{ taxe.montantHt | number }}</td>
-                      <td class="amount-td-column">{{ taxe.montantTaxe | number }}</td>
-                      <td class="amount-td-column">{{ taxe.montantTtc | number }}</td>
-                    </tr>
-                  }
-                </tbody>
-                <tfoot>
+              </thead>
+              <tbody>
+                @for (taxe of taxeReportWrapper.taxes; track $index) {
+                  <tr>
+                    <td>{{ taxe.mvtDate | date: 'dd/MM/yyyy' }}</td>
+                    <td class="amount-td-column">{{ taxe.codeTva }}</td>
+                    <td class="amount-td-column">{{ taxe.montantHt | number }}</td>
+                    <td class="amount-td-column">{{ taxe.montantTaxe | number }}</td>
+                    <td class="amount-td-column">{{ taxe.montantTtc | number }}</td>
+                  </tr>
+                }
+              </tbody>
+              <tfoot>
                 <tr>
                   <td class="tf-column" colspan="2">Total</td>
                   <td class="amount-column">{{ taxeReportWrapper.montantHt | number }}</td>
                   <td class="amount-column">{{ taxeReportWrapper.montantTaxe | number }}</td>
                   <td class="amount-column">{{ taxeReportWrapper.montantTtc | number }}</td>
                 </tr>
-                </tfoot>
-              }
-            </table>
-          </div>
-        } @else {
-          <div class="col-12 card flex justify-content-center">
-            <p-chart [data]="doughnutChart?.data" [options]="doughnutChart?.options" [responsive]="true"
-                     type="doughnut"></p-chart>
-          </div>
-        }
+              </tfoot>
+            }
+          </table>
+        </div>
       } @else {
-        <div class="col-12">
-          <div class="alert alert-warning">
-            <p>Aucune donnée à afficher</p>
-          </div>
+        <div class="col-12 card flex justify-content-center">
+          <p-chart [data]="doughnutChart?.data" [options]="doughnutChart?.options" [responsive]="true" type="doughnut"></p-chart>
         </div>
       }
-    </div>
+    } @else {
+      <div class="col-12">
+        <div class="alert alert-warning">
+          <p>Aucune donnée à afficher</p>
+        </div>
+      </div>
+    }
   </div>
-
-
-
+</div>
 
 <jhi-toast-alert #alert></jhi-toast-alert>

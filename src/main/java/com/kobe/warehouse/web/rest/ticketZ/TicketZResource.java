@@ -7,7 +7,6 @@ import com.kobe.warehouse.service.tiketz.service.TicketZService;
 import java.awt.print.PrinterException;
 import java.io.IOException;
 import java.time.LocalDate;
-
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -49,17 +48,14 @@ public class TicketZResource {
     }
 
     @GetMapping("/print-tauri")
-    public ResponseEntity<byte[]> getReceiptForTauri(TicketZParam param
-    ) {
-
+    public ResponseEntity<byte[]> getReceiptForTauri(TicketZParam param) {
         try {
-            byte[] escPosData = ticketZService.generateEscPosReceiptForTauri( param);
+            byte[] escPosData = ticketZService.generateEscPosReceiptForTauri(param);
             return ResponseEntity.ok()
                 .header(HttpHeaders.CONTENT_TYPE, "application/octet-stream")
                 .header(HttpHeaders.CONTENT_DISPOSITION, "inline; filename=\"receipt.bin\"")
                 .body(escPosData);
         } catch (IOException e) {
-
             return ResponseEntity.internalServerError().build();
         }
     }

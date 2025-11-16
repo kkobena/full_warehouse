@@ -8,20 +8,14 @@ import com.kobe.warehouse.domain.enumeration.SalesStatut;
 import com.kobe.warehouse.domain.enumeration.TransactionTypeAffichage;
 import com.kobe.warehouse.repository.PaymentTransactionRepository;
 import com.kobe.warehouse.repository.SalesRepository;
-import com.kobe.warehouse.service.settings.AppConfigurationService;
 import com.kobe.warehouse.service.dto.ReportPeriode;
 import com.kobe.warehouse.service.dto.enumeration.TypeVenteDTO;
 import com.kobe.warehouse.service.financiel_transaction.dto.BalanceCaisseDTO;
 import com.kobe.warehouse.service.financiel_transaction.dto.BalanceCaisseWrapper;
 import com.kobe.warehouse.service.financiel_transaction.dto.MvtParam;
 import com.kobe.warehouse.service.financiel_transaction.dto.PaymentDTO;
+import com.kobe.warehouse.service.settings.AppConfigurationService;
 import com.kobe.warehouse.service.utils.DateUtil;
-import org.apache.commons.lang3.BooleanUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.core.io.Resource;
-import org.springframework.stereotype.Service;
-
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.net.MalformedURLException;
@@ -30,6 +24,11 @@ import java.util.List;
 import java.util.Map.Entry;
 import java.util.Objects;
 import java.util.stream.Collectors;
+import org.apache.commons.lang3.BooleanUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.core.io.Resource;
+import org.springframework.stereotype.Service;
 
 @Service
 public class BalanceCaisseServiceImpl implements BalanceCaisseService {
@@ -41,9 +40,13 @@ public class BalanceCaisseServiceImpl implements BalanceCaisseService {
     private final PaymentTransactionRepository paymentTransactionRepository;
     private final AppConfigurationService appConfigurationService;
 
-
-    public BalanceCaisseServiceImpl(BalanceReportReportService balanceReportService, SalesRepository salesRepository, PaymentTransactionRepository paymentTransactionRepository, AppConfigurationService appConfigurationService, JsonMapper objectMapper) {
-
+    public BalanceCaisseServiceImpl(
+        BalanceReportReportService balanceReportService,
+        SalesRepository salesRepository,
+        PaymentTransactionRepository paymentTransactionRepository,
+        AppConfigurationService appConfigurationService,
+        JsonMapper objectMapper
+    ) {
         this.balanceReportService = balanceReportService;
         this.salesRepository = salesRepository;
         this.paymentTransactionRepository = paymentTransactionRepository;
@@ -62,10 +65,15 @@ public class BalanceCaisseServiceImpl implements BalanceCaisseService {
 
     private List<BalanceCaisseDTO> fetchBalanceCaisse(MvtParam mvtParam) {
         try {
-            String jsonResult = salesRepository.fetchSalesBalance(mvtParam.getFromDate(), mvtParam.getToDate(), mvtParam.getStatuts().stream().map(SalesStatut::name).toArray(String[]::new), mvtParam.getCategorieChiffreAffaires().stream().map(CategorieChiffreAffaire::name).toArray(String[]::new), mvtParam.isExcludeFreeUnit(), BooleanUtils.toBoolean(mvtParam.getToIgnore()));
-            return objectMapper.readValue(jsonResult, new TypeReference<>() {
-            });
-
+            String jsonResult = salesRepository.fetchSalesBalance(
+                mvtParam.getFromDate(),
+                mvtParam.getToDate(),
+                mvtParam.getStatuts().stream().map(SalesStatut::name).toArray(String[]::new),
+                mvtParam.getCategorieChiffreAffaires().stream().map(CategorieChiffreAffaire::name).toArray(String[]::new),
+                mvtParam.isExcludeFreeUnit(),
+                BooleanUtils.toBoolean(mvtParam.getToIgnore())
+            );
+            return objectMapper.readValue(jsonResult, new TypeReference<>() {});
         } catch (Exception e) {
             LOG.error(null, e);
             return List.of();
@@ -76,9 +84,7 @@ public class BalanceCaisseServiceImpl implements BalanceCaisseService {
     public BalanceCaisseWrapper getBalanceCaisse(MvtParam mvtParam) {
         mvtParam.setExcludeFreeUnit(appConfigurationService.excludeFreeUnit());
         return getBalanceCaisseNew(mvtParam);
-
     }
-
 
     private BalanceCaisseWrapper computeBalanceCaisses(List<BalanceCaisseDTO> balanceCaisseDTOS) {
         BalanceCaisseWrapper balanceCaisseWrapper = new BalanceCaisseWrapper();
@@ -157,8 +163,6 @@ public class BalanceCaisseServiceImpl implements BalanceCaisseService {
         );
     }
 
-
-
     private void computePercent(BalanceCaisseDTO balanceCaisse, BalanceCaisseWrapper balanceCaisseWrapper) {
         var pourcentage = (short) Math.round(
             ((double) balanceCaisse.getMontantNet() * 100) / Math.abs(balanceCaisseWrapper.getMontantNet())
@@ -209,9 +213,7 @@ public class BalanceCaisseServiceImpl implements BalanceCaisseService {
 
                 ModePaimentCode modePaimentCode = ModePaimentCode.fromName(p.code());
                 if (Objects.nonNull(modePaimentCode)) {
-                    mvtCaissesByModes.add(
-                        new com.kobe.warehouse.service.dto.records.Tuple(p.code(), p.libelle(), p.paidAmount())
-                    );
+                    mvtCaissesByModes.add(new com.kobe.warehouse.service.dto.records.Tuple(p.code(), p.libelle(), p.paidAmount()));
                     switch (modePaimentCode) {
                         case CASH:
                             b.setMontantCash(b.getMontantCash() + p.paidAmount());
@@ -232,7 +234,6 @@ public class BalanceCaisseServiceImpl implements BalanceCaisseService {
                 }
             }
 
-
             b.setCount(b.getCount() + e.getCount());
             b.setMontantDiscount(b.getMontantDiscount() + e.getMontantDiscount());
             b.setMontantTtc(b.getMontantTtc() + e.getMontantTtc());
@@ -244,10 +245,8 @@ public class BalanceCaisseServiceImpl implements BalanceCaisseService {
             b.setMontantHtUg(b.getMontantHtUg() + e.getMontantHtUg());
             b.setPartAssure(b.getPartAssure() + e.getPartAssure());
             b.setPartTiersPayant(b.getPartTiersPayant() + e.getPartTiersPayant());
-
         }
     }
-
 
     private void computeMvts(BalanceCaisseWrapper balanceCaisseWrapper, List<BalanceCaisseDTO> balanceCaisses) {
         balanceCaisses
@@ -286,12 +285,11 @@ public class BalanceCaisseServiceImpl implements BalanceCaisseService {
             });
     }
 
-
     @Override
     public Resource exportToPdf(MvtParam mvtParam) throws MalformedURLException {
         return this.balanceReportService.exportToPdf(
-            getBalanceCaisse(mvtParam),
-            new ReportPeriode(mvtParam.getFromDate(), mvtParam.getToDate())
-        );
+                getBalanceCaisse(mvtParam),
+                new ReportPeriode(mvtParam.getFromDate(), mvtParam.getToDate())
+            );
     }
 }

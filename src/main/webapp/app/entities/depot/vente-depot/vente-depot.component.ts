@@ -332,8 +332,6 @@ export class VenteDepotComponent implements OnInit, AfterViewInit, OnDestroy {
     this.shortcutsService.unregisterAll();
   }
 
-
-
   removeLine(salesLine: ISalesLine): void {
     this.depotFacadeService.removeItemFromSale(salesLine.saleLineId);
   }
@@ -455,12 +453,10 @@ export class VenteDepotComponent implements OnInit, AfterViewInit, OnDestroy {
       this.save();
     }
   }
-protected onSaveAction(onSave: boolean): void {
-  this.onSaveKeyDown(onSave);
-}
-  protected onBarcodeScanned(barcode: string): void {
-
+  protected onSaveAction(onSave: boolean): void {
+    this.onSaveKeyDown(onSave);
   }
+  protected onBarcodeScanned(barcode: string): void {}
 
   private handleInvalidStock(reason: string, qytMvt: number): void {
     switch (reason) {

@@ -2,9 +2,7 @@
 <div class="modal-header">
   <h4 class="modal-title">{{ header }}</h4>
 
-  <button (click)="cancel()" aria-hidden="true" class="btn-close" data-dismiss="modal"
-          type="button">&times;
-  </button>
+  <button (click)="cancel()" aria-hidden="true" class="btn-close" data-dismiss="modal" type="button">&times;</button>
 </div>
 <!-- formulaire de creation et d edition-->
 <form (ngSubmit)="save()" [formGroup]="editForm" name="editForm" novalidate role="form">
@@ -16,16 +14,21 @@
       <div class="ui-g form-group">
         <label for="code">Code tableau</label>
         <div class="ui-g-12" style="margin-bottom: 10px">
-          <input [autofocus]="true" autocomplete="off" class="form-control" formControlName="code"
-                 id="code"
-                 name="code" pInputText style="width: 100%" />
+          <input
+            [autofocus]="true"
+            autocomplete="off"
+            class="form-control"
+            formControlName="code"
+            id="code"
+            name="code"
+            pInputText
+            style="width: 100%"
+          />
         </div>
-        @if (editForm.get('code')!.invalid && (editForm.get('code')!.dirty || editForm.get(
-          'code')!.touched)) {
+        @if (editForm.get('code')!.invalid && (editForm.get('code')!.dirty || editForm.get('code')!.touched)) {
           <div>
             @if (editForm.get('code')?.errors?.required) {
-              <small class="form-text text-danger" style="color: red"> Ce champ est
-                obligatoire. </small>
+              <small class="form-text text-danger" style="color: red"> Ce champ est obligatoire. </small>
             }
           </div>
         }
@@ -44,19 +47,15 @@
             type="text"
           />
         </div>
-        @if (editForm.get('value')!.invalid && (editForm.get('value')!.dirty || editForm.get(
-          'value')!.touched)) {
+        @if (editForm.get('value')!.invalid && (editForm.get('value')!.dirty || editForm.get('value')!.touched)) {
           <div>
             @if (editForm.get('value')?.errors?.required) {
-              <small class="form-text text-danger" style="color: red"> Ce champ est
-                obligatoire. </small>
+              <small class="form-text text-danger" style="color: red"> Ce champ est obligatoire. </small>
             }
           </div>
         }
       </div>
     </p-card>
-
-
   </div>
   <div class="modal-footer">
     <p-button
@@ -77,8 +76,5 @@
       severity="primary"
       type="submit"
     ></p-button>
-
-
   </div>
-
 </form>

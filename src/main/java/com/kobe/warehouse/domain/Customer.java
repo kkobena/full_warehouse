@@ -18,34 +18,34 @@ import jakarta.persistence.Table;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
-import org.hibernate.annotations.Cache;
-import org.hibernate.annotations.CacheConcurrencyStrategy;
-
 import java.io.Serial;
 import java.io.Serializable;
 import java.time.LocalDateTime;
+import org.hibernate.annotations.Cache;
+import org.hibernate.annotations.CacheConcurrencyStrategy;
 
 /**
  * A Customer.
  */
 @Entity
-@Table(name = "customer",
+@Table(
+    name = "customer",
     indexes = {
         @Index(columnList = "first_name", name = "client_first_name_index"),
         @Index(columnList = "status", name = "client_status_index"),
-        @Index(columnList = "last_name", name = "client_last_name_index")
-
+        @Index(columnList = "last_name", name = "client_last_name_index"),
     }
 )
 @Inheritance(strategy = InheritanceType.SINGLE_TABLE)
 @Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
 public class Customer implements Serializable {
+
     @Serial
     private static final long serialVersionUID = 1L;
+
     @ManyToOne
     @JoinColumn(name = "remise_client_id", referencedColumnName = "id")
     private RemiseClient remiseClient;
-
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -65,7 +65,7 @@ public class Customer implements Serializable {
     private String phone;
 
     @Email
-    @Column(name = "email",length = 100)
+    @Column(name = "email", length = 100)
     private String email;
 
     @Column(name = "created_at", nullable = false)

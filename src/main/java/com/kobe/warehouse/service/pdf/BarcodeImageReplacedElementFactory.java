@@ -1,8 +1,6 @@
 package com.kobe.warehouse.service.pdf;
 
-
 import java.awt.*;
-
 import org.openpdf.text.Image;
 import org.openpdf.text.pdf.BarcodeEAN;
 import org.w3c.dom.Element;

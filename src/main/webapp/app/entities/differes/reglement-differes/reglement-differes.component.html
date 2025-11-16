@@ -20,7 +20,7 @@
               optionLabel="fullName"
               optionValue="id"
               size="large"
-              style="min-width: 150px;"
+              style="min-width: 150px"
             >
             </p-select>
             <label for="clientFilter">Filtrer par clients</label>
@@ -59,12 +59,8 @@
       <ng-template #end>
         <div class="pharma-toolbar-actions">
           <div class="pharma-button-group">
-            <p-button (click)="onSerch()" [loading]="loadingBtn" [raised]="true" icon="pi pi-search"
-                      label="Rechercher"
-                      severity="info" />
-            <p-button (click)="exportPdf()" [loading]="loadingPdf" [raised]="true"
-                      icon="pi pi-file-pdf" label="Imprimer"
-                      severity="warn" />
+            <p-button (click)="onSerch()" [loading]="loadingBtn" [raised]="true" icon="pi pi-search" label="Rechercher" severity="info" />
+            <p-button (click)="exportPdf()" [loading]="loadingPdf" [raised]="true" icon="pi pi-file-pdf" label="Imprimer" severity="warn" />
           </div>
         </div>
       </ng-template>
@@ -125,7 +121,6 @@
                 </p-button>
               } @else {
                 <span class="pharma-badge pharma-badge-success">Soldé</span>
-
               }
             </div>
           </td>
@@ -137,17 +132,17 @@
             <p-card>
               <table class="table table-secondary table-striped-columns table-bordered">
                 <thead>
-                <tr class="table-secondary">
-                  <th colspan="6">Règlements</th>
-                </tr>
-                <tr>
-                  <th style="width: 2%">#</th>
-                  <th>Date</th>
-                  <th>Opérateur</th>
-                  <th>Mode</th>
-                  <th>Montant attendu</th>
-                  <th>Montant payé</th>
-                </tr>
+                  <tr class="table-secondary">
+                    <th colspan="6">Règlements</th>
+                  </tr>
+                  <tr>
+                    <th style="width: 2%">#</th>
+                    <th>Date</th>
+                    <th>Opérateur</th>
+                    <th>Mode</th>
+                    <th>Montant attendu</th>
+                    <th>Montant payé</th>
+                  </tr>
                 </thead>
                 <tbody>
                   @for (differeItem of elRow.items; track differeItem.id; let rowIndex = $index) {
@@ -156,12 +151,8 @@
                       <td>{{ differeItem.mvtDate | date: 'dd/MM/yyyy HH:mm' }}</td>
                       <td>{{ differeItem.firstName + ' ' + differeItem.lastName }}</td>
                       <td>{{ differeItem.libelleMode }}</td>
-                      <td
-                        class="text-right amount-td-column">{{ differeItem.expectedAmount | number }}
-                      </td>
-                      <td
-                        class="text-right amount-td-column">{{ differeItem.paidAmount | number }}
-                      </td>
+                      <td class="text-right amount-td-column">{{ differeItem.expectedAmount | number }}</td>
+                      <td class="text-right amount-td-column">{{ differeItem.paidAmount | number }}</td>
                     </tr>
                   }
                 </tbody>
@@ -185,7 +176,3 @@
     </div>
   }
 </div>
-
-
-
-

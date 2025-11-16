@@ -64,5 +64,3 @@ export class FormatAmountDirective implements ControlValueAccessor {
     return raw.replace(/\B(?=(\d{3})+(?!\d))/g, ' ');
   }
 }
-
-

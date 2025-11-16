@@ -2,10 +2,8 @@
   <div class="pharma-smart-content p-2">
     <div class="row justify-content-center">
       <div class="col-12 col-xl-8 col-lg-10">
-
         <!-- Main Ticketing Card -->
         <div class="pharma-card-modern pharma-ticketing-card">
-
           <!-- Header -->
           <div class="pharma-card-header">
             <div class="pharma-card-icon bg-success">
@@ -31,7 +29,6 @@
           <!-- Form Body -->
           <div class="pharma-card-body pharma-ticketing-body">
             <form (ngSubmit)="save()" [formGroup]="editForm" novalidate>
-
               <!-- Table Header -->
               <div class="pharma-ticketing-header">
                 <div class="pharma-ticketing-col pharma-col-type">Type</div>
@@ -76,9 +73,7 @@
                     />
                   </div>
                   <div class="pharma-ticketing-col pharma-col-subtotal">
-                    <span class="pharma-subtotal-amount">
-                      {{ ((editForm.get('numberOf10Thousand')!.value || 0) * 10000) | number }}
-                    </span>
+                    <span class="pharma-subtotal-amount"> {{ ((editForm.get('numberOf10Thousand')!.value || 0) * 10000) | number }} </span>
                   </div>
                 </div>
 
@@ -109,9 +104,7 @@
                     />
                   </div>
                   <div class="pharma-ticketing-col pharma-col-subtotal">
-                    <span class="pharma-subtotal-amount">
-                      {{ ((editForm.get('numberOf5Thousand')!.value || 0) * 5000) | number }}
-                    </span>
+                    <span class="pharma-subtotal-amount"> {{ ((editForm.get('numberOf5Thousand')!.value || 0) * 5000) | number }} </span>
                   </div>
                 </div>
 
@@ -142,9 +135,7 @@
                     />
                   </div>
                   <div class="pharma-ticketing-col pharma-col-subtotal">
-                    <span class="pharma-subtotal-amount">
-                      {{ ((editForm.get('numberOf2Thousand')!.value || 0) * 2000) | number }}
-                    </span>
+                    <span class="pharma-subtotal-amount"> {{ ((editForm.get('numberOf2Thousand')!.value || 0) * 2000) | number }} </span>
                   </div>
                 </div>
 
@@ -175,9 +166,7 @@
                     />
                   </div>
                   <div class="pharma-ticketing-col pharma-col-subtotal">
-                    <span class="pharma-subtotal-amount">
-                      {{ ((editForm.get('numberOf1Thousand')!.value || 0) * 1000) | number }}
-                    </span>
+                    <span class="pharma-subtotal-amount"> {{ ((editForm.get('numberOf1Thousand')!.value || 0) * 1000) | number }} </span>
                   </div>
                 </div>
                 <!-- 500 FCFA -->
@@ -207,9 +196,7 @@
                     />
                   </div>
                   <div class="pharma-ticketing-col pharma-col-subtotal">
-                    <span class="pharma-subtotal-amount">
-                      {{ ((editForm.get('numberOf500Hundred')!.value || 0) * 500) | number }}
-                    </span>
+                    <span class="pharma-subtotal-amount"> {{ ((editForm.get('numberOf500Hundred')!.value || 0) * 500) | number }} </span>
                   </div>
                 </div>
                 <div class="pharma-ticketing-row pharma-other-row">
@@ -239,13 +226,10 @@
                     />
                   </div>
                   <div class="pharma-ticketing-col pharma-col-subtotal">
-                    <span class="pharma-subtotal-amount">
-                      {{ (editForm.get('otherAmount')!.value || 0) | number }}
-                    </span>
+                    <span class="pharma-subtotal-amount"> {{ (editForm.get('otherAmount')!.value || 0) | number }} </span>
                   </div>
                 </div>
               </div>
-
 
               <!-- Total Summary -->
               <div class="pharma-ticketing-total">
@@ -257,20 +241,13 @@
                   {{ totalAmount | number }} <span class="pharma-currency">FCFA</span>
                 </div>
               </div>
-
             </form>
           </div>
 
           <!-- Footer Actions -->
           <div class="pharma-card-footer">
             <div class="pharma-button-group-flex">
-              <p-button
-                (click)="previousState()"
-                icon="pi pi-arrow-left"
-                label="Retour"
-                severity="secondary"
-                [outlined]="true"
-              />
+              <p-button (click)="previousState()" icon="pi pi-arrow-left" label="Retour" severity="secondary" [outlined]="true" />
               <p-button
                 (click)="save()"
                 [disabled]="editForm.invalid || isSaving"
@@ -283,9 +260,7 @@
               />
             </div>
           </div>
-
         </div>
-
       </div>
     </div>
   </div>

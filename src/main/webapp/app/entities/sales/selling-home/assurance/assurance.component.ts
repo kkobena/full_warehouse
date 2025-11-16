@@ -24,10 +24,11 @@ import { SpinnerComponent } from '../../../../shared/spinner/spinner.component';
     ProductTableComponent,
     ModeReglementComponent,
     ConfirmDialogComponent,
-    CardModule,SpinnerComponent
+    CardModule,
+    SpinnerComponent,
   ],
   templateUrl: '../base-sale/base-sale.component.html',
-  styleUrls: ['../base-sale/base-sale.scss']
+  styleUrls: ['../base-sale/base-sale.scss'],
 })
 export class AssuranceComponent extends BaseSaleComponent {
   constructor() {

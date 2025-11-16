@@ -18,6 +18,12 @@ import com.kobe.warehouse.service.dto.projection.AchatTiersPayant;
 import com.kobe.warehouse.service.errors.GenericError;
 import com.kobe.warehouse.service.stat.CommonStatService;
 import com.kobe.warehouse.service.tiers_payant.TiersPayantAchat;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.util.List;
+import java.util.Objects;
+import java.util.Optional;
+import java.util.stream.Stream;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -26,13 +32,6 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
-import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.util.List;
-import java.util.Objects;
-import java.util.Optional;
-import java.util.stream.Stream;
 
 @Service
 @Transactional
@@ -44,19 +43,16 @@ public class TiersPayantServiceImpl implements TiersPayantService, CommonStatSer
     private final ClientTiersPayantRepository clientTiersPayantRepository;
     private final ThirdPartySaleLineRepository thirdPartySaleLineRepository;
 
-
     public TiersPayantServiceImpl(
         TiersPayantRepository tiersPayantRepository,
         StorageService storageService,
         ClientTiersPayantRepository clientTiersPayantRepository,
         ThirdPartySaleLineRepository thirdPartySaleLineRepository
-
     ) {
         this.tiersPayantRepository = tiersPayantRepository;
         this.storageService = storageService;
         this.clientTiersPayantRepository = clientTiersPayantRepository;
         this.thirdPartySaleLineRepository = thirdPartySaleLineRepository;
-
     }
 
     @Override
@@ -116,13 +112,9 @@ public class TiersPayantServiceImpl implements TiersPayantService, CommonStatSer
     @Override
     public void desable(Integer id) {
         var tp = tiersPayantRepository.getReferenceById(id);
-        tp
-            .setStatut(TiersPayantStatut.DISABLED)
-
-            .setUser(storageService.getUser());
+        tp.setStatut(TiersPayantStatut.DISABLED).setUser(storageService.getUser());
         tp.setUpdated(LocalDateTime.now());
-        tiersPayantRepository.save(tp
-        );
+        tiersPayantRepository.save(tp);
     }
 
     @Override
@@ -148,29 +140,27 @@ public class TiersPayantServiceImpl implements TiersPayantService, CommonStatSer
 
     @Override
     public Page<AchatTiersPayant> fetchAchatTiersPayant(LocalDate fromDate, LocalDate toDate, String search, Pageable pageable) {
-        return this.thirdPartySaleLineRepository.fetchAchatsTiersPayant(buildThirdPartySaleLineSpecification(fromDate, toDate, search), pageable);
+        return this.thirdPartySaleLineRepository.fetchAchatsTiersPayant(
+                buildThirdPartySaleLineSpecification(fromDate, toDate, search),
+                pageable
+            );
     }
-
 
     @Override
     public List<TiersPayantAchat> fetchAchatTiersPayant(VenteRecordParamDTO venteRecordParam) {
         return this.thirdPartySaleLineRepository.fetchAchatTiersPayant(
-            buildThirdPartySaleLineSpecification(venteRecordParam),
-            Pageable.ofSize(venteRecordParam.getLimit())
-        );
+                buildThirdPartySaleLineSpecification(venteRecordParam),
+                Pageable.ofSize(venteRecordParam.getLimit())
+            );
     }
 
     private Specification<ThirdPartySaleLine> buildThirdPartySaleLineSpecification(VenteRecordParamDTO venteRecordParam) {
         org.apache.commons.lang3.tuple.Pair<LocalDate, LocalDate> periode = buildPeriode(venteRecordParam);
         Specification<ThirdPartySaleLine> specification = this.thirdPartySaleLineRepository.canceledCriteria();
         return specification.and(buildThirdPartySaleLineSpecification(periode.getLeft(), periode.getRight(), null));
-
-
     }
 
-
     private Specification<ThirdPartySaleLine> buildThirdPartySaleLineSpecification(LocalDate fromDate, LocalDate toDate, String search) {
-
         Specification<ThirdPartySaleLine> specification = this.thirdPartySaleLineRepository.periodeCriteria(fromDate, toDate);
         specification = specification.and(this.thirdPartySaleLineRepository.saleStatutsCriteria(SalesStatut.getStatutForFacturation()));
 

@@ -30,7 +30,8 @@
               formControlName="name"
               id="field_name"
               pInputText
-              placeholder="Ex: Poste Caisse 1" />
+              placeholder="Ex: Poste Caisse 1"
+            />
             @if (editForm.get('name')?.invalid && editForm.get('name')?.touched) {
               @if (editForm.get('name')?.errors?.required) {
                 <small class="p-error" jhiTranslate="entity.validation.required">Ce champ est obligatoire</small>
@@ -51,7 +52,8 @@
               formControlName="address"
               id="field_address"
               pInputText
-              placeholder="Ex: 192.168.1.100" />
+              placeholder="Ex: 192.168.1.100"
+            />
             @if (editForm.get('address')?.invalid && editForm.get('address')?.touched) {
               @if (editForm.get('address')?.errors?.required) {
                 <small class="p-error" jhiTranslate="entity.validation.required">Ce champ est obligatoire</small>
@@ -88,10 +90,13 @@
               formControlName="posteNumber"
               id="field_posteNumber"
               pInputText
-              placeholder="Ex: P001" />
+              placeholder="Ex: P001"
+            />
             @if (editForm.get('posteNumber')?.invalid && editForm.get('posteNumber')?.touched) {
               @if (editForm.get('posteNumber')?.errors?.required) {
-                <small class="p-error" jhiTranslate="entity.validation.required">Ce champ est obligatoire lorsque l'afficheur client est activé</small>
+                <small class="p-error" jhiTranslate="entity.validation.required"
+                  >Ce champ est obligatoire lorsque l'afficheur client est activé</small
+                >
               }
               @if (editForm.get('posteNumber')?.errors?.maxlength) {
                 <small class="p-error">Le numéro ne doit pas dépasser 20 caractères</small>
@@ -102,11 +107,7 @@
           <!-- Activer l'afficheur client -->
           <div class="form-field form-field-full">
             <div class="p-field-checkbox">
-              <p-checkbox
-                formControlName="customerDisplay"
-                [binary]="true"
-                inputId="customerDisplay"
-              ></p-checkbox>
+              <p-checkbox formControlName="customerDisplay" [binary]="true" inputId="customerDisplay"></p-checkbox>
               <label for="customerDisplay" class="ml-2">Activer l'afficheur client</label>
             </div>
           </div>
@@ -125,10 +126,13 @@
               formControlName="customerDisplayPort"
               id="field_customerDisplayPort"
               pInputText
-              placeholder="Ex: COM3" />
+              placeholder="Ex: COM3"
+            />
             @if (editForm.get('customerDisplayPort')?.invalid && editForm.get('customerDisplayPort')?.touched) {
               @if (editForm.get('customerDisplayPort')?.errors?.required) {
-                <small class="p-error" jhiTranslate="entity.validation.required">Ce champ est obligatoire lorsque l'afficheur client est activé</small>
+                <small class="p-error" jhiTranslate="entity.validation.required"
+                  >Ce champ est obligatoire lorsque l'afficheur client est activé</small
+                >
               }
               @if (editForm.get('customerDisplayPort')?.errors?.maxlength) {
                 <small class="p-error">Le port ne doit pas dépasser 10 caractères</small>
@@ -141,9 +145,8 @@
   </div>
 
   <div class="form-actions-compact">
-    <p-button icon="pi pi-times" label="Annuler" severity="secondary"  type="button" (click)="cancel()"></p-button>
-    <p-button label="Enregistrer" severity="primary" type="submit"
-              [disabled]="editForm.invalid" [loading]="isSaving"></p-button>
+    <p-button icon="pi pi-times" label="Annuler" severity="secondary" type="button" (click)="cancel()"></p-button>
+    <p-button label="Enregistrer" severity="primary" type="submit" [disabled]="editForm.invalid" [loading]="isSaving"></p-button>
   </div>
 </form>
 <jhi-toast-alert #alert></jhi-toast-alert>

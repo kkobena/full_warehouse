@@ -77,6 +77,32 @@ impl Drop for BackendState {
 }
 */
 
+/// Find the bundled JRE in the resources directory
+fn find_bundled_jre(app: &AppHandle) -> Option<PathBuf> {
+    let resource_dir = app.path().resource_dir().ok()?;
+    let jre_dir = resource_dir.join("sidecar").join("jre");
+
+    if !jre_dir.exists() {
+        println!("Bundled JRE not found at: {:?}", jre_dir);
+        return None;
+    }
+
+    // Find java executable in bundled JRE
+    #[cfg(target_os = "windows")]
+    let java_exe = jre_dir.join("bin").join("java.exe");
+
+    #[cfg(not(target_os = "windows"))]
+    let java_exe = jre_dir.join("bin").join("java");
+
+    if java_exe.exists() {
+        println!("Found bundled JRE at: {:?}", java_exe);
+        Some(java_exe)
+    } else {
+        println!("Bundled JRE directory exists but java executable not found at: {:?}", java_exe);
+        None
+    }
+}
+
 /// Check if Java/JRE is installed and available
 fn check_java_version() -> Result<(), String> {
     use std::process::Command;
@@ -141,11 +167,26 @@ pub async fn start_backend(app: &AppHandle, port: u16) -> Result<u32, String> {
     let state = app.state::<BackendState>();
 
     // Update status: Checking Java
-    state.update_status("checking_java".to_string(), 10, "Checking Java version...".to_string());
+    state.update_status("checking_java".to_string(), 10, "Checking for Java...".to_string());
     let _ = app.emit("backend-status", state.get_status());
 
-    // Check Java version
-    check_java_version()?;
+    // Try to find bundled JRE first, fall back to system Java
+    let java_executable = if let Some(bundled_jre) = find_bundled_jre(app) {
+        println!("Using bundled JRE: {:?}", bundled_jre);
+        state.update_status("checking_java".to_string(), 15, "Using bundled JRE...".to_string());
+        let _ = app.emit("backend-status", state.get_status());
+        bundled_jre.to_string_lossy().to_string()
+    } else {
+        println!("Bundled JRE not found, checking for system Java...");
+        state.update_status("checking_java".to_string(), 12, "Checking system Java...".to_string());
+        let _ = app.emit("backend-status", state.get_status());
+
+        // Check if system Java is available
+        check_java_version()?;
+        "java".to_string()
+    };
+
+    println!("Using Java executable: {}", java_executable);
 
     // Update status: Finding JAR
     state.update_status("finding_jar".to_string(), 20, "Locating backend JAR file...".to_string());
@@ -160,7 +201,7 @@ pub async fn start_backend(app: &AppHandle, port: u16) -> Result<u32, String> {
     let _ = app.emit("backend-status", state.get_status());
 
     // Build Java command
-    let java_command = app.shell().command("java");
+    let java_command = app.shell().command(&java_executable);
 
     // Configure log file location
     let log_dir = if let Some(home_dir) = dirs::home_dir() {

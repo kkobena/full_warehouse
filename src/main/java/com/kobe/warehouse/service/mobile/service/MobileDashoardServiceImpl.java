@@ -7,22 +7,21 @@ import com.kobe.warehouse.service.dto.records.VenteByTypeRecord;
 import com.kobe.warehouse.service.dto.records.VenteModePaimentRecord;
 import com.kobe.warehouse.service.dto.records.VenteRecord;
 import com.kobe.warehouse.service.dto.records.VenteRecordWrapper;
-import com.kobe.warehouse.service.mobile.dto.ListItem;
 import com.kobe.warehouse.service.mobile.dto.Dashboard;
 import com.kobe.warehouse.service.mobile.dto.KeyValue;
+import com.kobe.warehouse.service.mobile.dto.ListItem;
 import com.kobe.warehouse.service.stat.AchatStatService;
 import com.kobe.warehouse.service.stat.SaleStatService;
 import com.kobe.warehouse.service.utils.NumberUtil;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
-import org.springframework.util.CollectionUtils;
-
 import java.math.BigDecimal;
 import java.math.MathContext;
 import java.math.RoundingMode;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.CollectionUtils;
 
 @Service
 @Transactional(readOnly = true)
@@ -72,10 +71,19 @@ public class MobileDashoardServiceImpl implements MobileDashoardService {
             return;
         }
         List<ListItem> modes = new ArrayList<>();
-        int total = venteModePaimentRecords.stream()
-            .map(VenteModePaimentRecord::paidAmount)
-            .reduce(0, Integer::sum);
-        venteModePaimentRecords.forEach(venteByTypeRecord -> modes.add(new ListItem(venteByTypeRecord.libelle(), NumberUtil.formatToString(venteByTypeRecord.paidAmount()), BigDecimal.valueOf(((venteByTypeRecord.paidAmount().doubleValue() * 100) / total)).round(new MathContext(2, RoundingMode.HALF_UP)).doubleValue() + "")));
+        int total = venteModePaimentRecords.stream().map(VenteModePaimentRecord::paidAmount).reduce(0, Integer::sum);
+        venteModePaimentRecords.forEach(venteByTypeRecord ->
+            modes.add(
+                new ListItem(
+                    venteByTypeRecord.libelle(),
+                    NumberUtil.formatToString(venteByTypeRecord.paidAmount()),
+                    BigDecimal.valueOf(((venteByTypeRecord.paidAmount().doubleValue() * 100) / total))
+                        .round(new MathContext(2, RoundingMode.HALF_UP))
+                        .doubleValue() +
+                    ""
+                )
+            )
+        );
         dashboard.setPaymentModes(modes);
     }
 

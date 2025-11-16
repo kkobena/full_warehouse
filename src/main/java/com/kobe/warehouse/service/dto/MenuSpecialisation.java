@@ -5,12 +5,9 @@ public interface MenuSpecialisation {
 
     Long getParent();
 
-
-
     String getLibelle();
 
     String getName();
 
     boolean isRoot();
-
 }

@@ -12,15 +12,14 @@ import com.kobe.warehouse.service.receipt.dto.HeaderFooterItem;
 import com.kobe.warehouse.service.receipt.dto.SaleReceiptItem;
 import com.kobe.warehouse.service.settings.AppConfigurationService;
 import com.kobe.warehouse.service.utils.NumberUtil;
-import org.springframework.stereotype.Service;
-import org.springframework.util.CollectionUtils;
-
 import java.awt.*;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
+import org.springframework.stereotype.Service;
+import org.springframework.util.CollectionUtils;
 
 @Service
 public abstract class AbstractSaleReceiptService extends AbstractJava2DReceiptPrinterService {
@@ -34,14 +33,12 @@ public abstract class AbstractSaleReceiptService extends AbstractJava2DReceiptPr
 
     protected abstract SaleDTO getSale();
 
-
     protected int getProductNameWidth() {
         return 22;
     }
 
     @Override
     protected abstract List<? extends SaleReceiptItem> getItems();
-
 
     protected int getAvoirCount() {
         return 0;
@@ -70,7 +67,6 @@ public abstract class AbstractSaleReceiptService extends AbstractJava2DReceiptPr
 
         return item;
     }
-
 
     /**
      * Generate ESC/POS commands for thermal POS printer
@@ -281,8 +277,6 @@ public abstract class AbstractSaleReceiptService extends AbstractJava2DReceiptPr
 
                 escPosFeedLines(out, 1);
             }
-
-
         }
 
         // Tax details (if any)
@@ -351,6 +345,4 @@ public abstract class AbstractSaleReceiptService extends AbstractJava2DReceiptPr
 
         return height;
     }
-
-
 }

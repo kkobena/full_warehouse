@@ -1,17 +1,16 @@
 package com.kobe.warehouse.service.financiel_transaction;
 
+import static org.junit.jupiter.api.Assertions.*;
+
 import com.kobe.warehouse.service.dto.projection.ReponseRetourBonItemProjection;
 import com.kobe.warehouse.service.financiel_transaction.dto.AchatDTO;
 import com.kobe.warehouse.service.financiel_transaction.dto.FournisseurAchat;
 import com.kobe.warehouse.service.financiel_transaction.dto.TableauPharmacienDTO;
 import com.kobe.warehouse.service.financiel_transaction.dto.TableauPharmacienWrapper;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
-
 import java.time.LocalDate;
 import java.util.*;
-
-import static org.junit.jupiter.api.Assertions.*;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 class TableauPharmacienAggregatorTest {
 
@@ -69,16 +68,10 @@ class TableauPharmacienAggregatorTest {
 
         assertEquals(2, result.size());
 
-        FournisseurAchat supplierA = result.stream()
-            .filter(f -> f.getId() == 1)
-            .findFirst()
-            .orElseThrow();
+        FournisseurAchat supplierA = result.stream().filter(f -> f.getId() == 1).findFirst().orElseThrow();
         assertEquals(1500L, supplierA.getAchat().getMontantNet());
 
-        FournisseurAchat supplierB = result.stream()
-            .filter(f -> f.getId() == 2)
-            .findFirst()
-            .orElseThrow();
+        FournisseurAchat supplierB = result.stream().filter(f -> f.getId() == 2).findFirst().orElseThrow();
         assertEquals(2000L, supplierB.getAchat().getMontantNet());
     }
 
@@ -95,10 +88,7 @@ class TableauPharmacienAggregatorTest {
         assertEquals(2, result.size());
 
         // Check "Others" group (-1)
-        FournisseurAchat others = result.stream()
-            .filter(f -> f.getId() == -1)
-            .findFirst()
-            .orElseThrow();
+        FournisseurAchat others = result.stream().filter(f -> f.getId() == -1).findFirst().orElseThrow();
         assertEquals(800L, others.getAchat().getMontantNet()); // 500 + 300
     }
 
@@ -147,22 +137,13 @@ class TableauPharmacienAggregatorTest {
 
         assertEquals(3, result.size());
 
-        FournisseurAchat supplierA = result.stream()
-            .filter(f -> f.getId() == 1)
-            .findFirst()
-            .orElseThrow();
+        FournisseurAchat supplierA = result.stream().filter(f -> f.getId() == 1).findFirst().orElseThrow();
         assertEquals(1500L, supplierA.getAchat().getMontantNet()); // 1000 + 500
 
-        FournisseurAchat supplierB = result.stream()
-            .filter(f -> f.getId() == 2)
-            .findFirst()
-            .orElseThrow();
+        FournisseurAchat supplierB = result.stream().filter(f -> f.getId() == 2).findFirst().orElseThrow();
         assertEquals(2000L, supplierB.getAchat().getMontantNet());
 
-        FournisseurAchat supplierC = result.stream()
-            .filter(f -> f.getId() == 3)
-            .findFirst()
-            .orElseThrow();
+        FournisseurAchat supplierC = result.stream().filter(f -> f.getId() == 3).findFirst().orElseThrow();
         assertEquals(1500L, supplierC.getAchat().getMontantNet());
     }
 
@@ -228,23 +209,14 @@ class TableauPharmacienAggregatorTest {
 
         Set<Integer> displayedGroupIds = Set.of(1, 2);
 
-        List<TableauPharmacienDTO> result = aggregator.createEntriesForAchatsOnly(
-            remainingAchats,
-            displayedGroupIds
-        );
+        List<TableauPharmacienDTO> result = aggregator.createEntriesForAchatsOnly(remainingAchats, displayedGroupIds);
 
         assertEquals(2, result.size());
 
-        TableauPharmacienDTO dto1 = result.stream()
-            .filter(d -> d.getMvtDate().equals(date1))
-            .findFirst()
-            .orElseThrow();
+        TableauPharmacienDTO dto1 = result.stream().filter(d -> d.getMvtDate().equals(date1)).findFirst().orElseThrow();
         assertEquals(1000L, dto1.getMontantBonAchat());
 
-        TableauPharmacienDTO dto2 = result.stream()
-            .filter(d -> d.getMvtDate().equals(date2))
-            .findFirst()
-            .orElseThrow();
+        TableauPharmacienDTO dto2 = result.stream().filter(d -> d.getMvtDate().equals(date2)).findFirst().orElseThrow();
         assertEquals(2000L, dto2.getMontantBonAchat());
     }
 
@@ -308,10 +280,7 @@ class TableauPharmacienAggregatorTest {
         avoirs.add(createAvoirProjection(date1, 300L)); // Same date
         avoirs.add(createAvoirProjection(date2, 1000L));
 
-        Map<LocalDate, Long> unmatchedAvoirs = aggregator.mergeSupplierReturnsIntoTableau(
-            tableauPharmaciens,
-            avoirs
-        );
+        Map<LocalDate, Long> unmatchedAvoirs = aggregator.mergeSupplierReturnsIntoTableau(tableauPharmaciens, avoirs);
 
         assertEquals(800L, dto1.getMontantAvoirFournisseur()); // 500 + 300
         assertEquals(1000L, dto2.getMontantAvoirFournisseur());
@@ -334,10 +303,7 @@ class TableauPharmacienAggregatorTest {
         avoirs.add(createAvoirProjection(date2, 1000L)); // No matching DTO
         avoirs.add(createAvoirProjection(date3, 700L)); // No matching DTO
 
-        Map<LocalDate, Long> unmatchedAvoirs = aggregator.mergeSupplierReturnsIntoTableau(
-            tableauPharmaciens,
-            avoirs
-        );
+        Map<LocalDate, Long> unmatchedAvoirs = aggregator.mergeSupplierReturnsIntoTableau(tableauPharmaciens, avoirs);
 
         assertEquals(500L, dto1.getMontantAvoirFournisseur());
         assertEquals(2, unmatchedAvoirs.size());
@@ -354,10 +320,7 @@ class TableauPharmacienAggregatorTest {
         List<ReponseRetourBonItemProjection> avoirs = new ArrayList<>();
         avoirs.add(createAvoirProjection(date1, 500L));
 
-        Map<LocalDate, Long> unmatchedAvoirs = aggregator.mergeSupplierReturnsIntoTableau(
-            tableauPharmaciens,
-            avoirs
-        );
+        Map<LocalDate, Long> unmatchedAvoirs = aggregator.mergeSupplierReturnsIntoTableau(tableauPharmaciens, avoirs);
 
         assertEquals(1, unmatchedAvoirs.size());
         assertEquals(500L, unmatchedAvoirs.get(date1));
@@ -374,10 +337,7 @@ class TableauPharmacienAggregatorTest {
 
         List<ReponseRetourBonItemProjection> avoirs = new ArrayList<>();
 
-        Map<LocalDate, Long> unmatchedAvoirs = aggregator.mergeSupplierReturnsIntoTableau(
-            tableauPharmaciens,
-            avoirs
-        );
+        Map<LocalDate, Long> unmatchedAvoirs = aggregator.mergeSupplierReturnsIntoTableau(tableauPharmaciens, avoirs);
 
         assertTrue(unmatchedAvoirs.isEmpty());
         assertEquals(0L, dto1.getMontantAvoirFournisseur());
@@ -410,16 +370,10 @@ class TableauPharmacienAggregatorTest {
 
         assertEquals(2, result.size());
 
-        TableauPharmacienDTO dto1 = result.stream()
-            .filter(d -> d.getMvtDate().equals(date1))
-            .findFirst()
-            .orElseThrow();
+        TableauPharmacienDTO dto1 = result.stream().filter(d -> d.getMvtDate().equals(date1)).findFirst().orElseThrow();
         assertEquals(500L, dto1.getMontantAvoirFournisseur());
 
-        TableauPharmacienDTO dto2 = result.stream()
-            .filter(d -> d.getMvtDate().equals(date2))
-            .findFirst()
-            .orElseThrow();
+        TableauPharmacienDTO dto2 = result.stream().filter(d -> d.getMvtDate().equals(date2)).findFirst().orElseThrow();
         assertEquals(1000L, dto2.getMontantAvoirFournisseur());
     }
 
@@ -505,8 +459,16 @@ class TableauPharmacienAggregatorTest {
         return achat;
     }
 
-    private TableauPharmacienDTO createSalesDTO(long credit, long comptant, long ht, long ttc,
-                                                 long taxe, long remise, long net, int nombreVente) {
+    private TableauPharmacienDTO createSalesDTO(
+        long credit,
+        long comptant,
+        long ht,
+        long ttc,
+        long taxe,
+        long remise,
+        long net,
+        int nombreVente
+    ) {
         TableauPharmacienDTO dto = new TableauPharmacienDTO();
         dto.setMontantCredit(credit);
         dto.setMontantComptant(comptant);

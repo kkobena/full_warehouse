@@ -8,20 +8,20 @@ import com.kobe.warehouse.service.tiketz.dto.TicketZ;
 import com.kobe.warehouse.service.tiketz.dto.TicketZData;
 import com.kobe.warehouse.service.tiketz.dto.TicketZRecap;
 import com.kobe.warehouse.service.utils.DateUtil;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.stereotype.Service;
-import org.springframework.util.CollectionUtils;
-
-import javax.print.PrintException;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
+import javax.print.PrintException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.stereotype.Service;
+import org.springframework.util.CollectionUtils;
 
 @Service
 public abstract class AbstractTicketZService extends AbstractJava2DReceiptPrinterService {
+
     private static final Logger LOG = LoggerFactory.getLogger(AbstractTicketZService.class);
     private String periode;
     private List<TicketZItem> ticketZItems;
@@ -35,12 +35,10 @@ public abstract class AbstractTicketZService extends AbstractJava2DReceiptPrinte
         return 1; // Default to 1 copy, can be overridden by subclasses if needed
     }
 
-
     @Override
     protected List<HeaderFooterItem> getHeaderItems() {
         return List.of(new HeaderFooterItem("RECAPITULATIF DE CAISSE DU " + periode, 1, null));
     }
-
 
     private List<TicketZItem> buildTicketZItems(TicketZ ticket) {
         List<TicketZItem> items = new java.util.ArrayList<>();
@@ -127,7 +125,8 @@ public abstract class AbstractTicketZService extends AbstractJava2DReceiptPrinte
             out.close();
         }
     }
-    public byte[] generateEscPosReceiptForTauri( TicketZ ticket, LocalDateTime from, LocalDateTime to) throws IOException {
+
+    public byte[] generateEscPosReceiptForTauri(TicketZ ticket, LocalDateTime from, LocalDateTime to) throws IOException {
         this.ticketZItems = buildTicketZItems(ticket);
         this.periode = "DU " + DateUtil.format(from) + " AU " + DateUtil.format(to);
         return generateEscPosReceipt(true);

@@ -15,6 +15,11 @@ import com.kobe.warehouse.web.rest.Utils;
 import com.kobe.warehouse.web.util.PaginationUtil;
 import com.kobe.warehouse.web.util.ResponseUtil;
 import jakarta.servlet.http.HttpServletRequest;
+import java.io.IOException;
+import java.time.LocalDate;
+import java.util.List;
+import java.util.Optional;
+import java.util.Set;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.core.io.Resource;
@@ -28,12 +33,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
-
-import java.io.IOException;
-import java.time.LocalDate;
-import java.util.List;
-import java.util.Optional;
-import java.util.Set;
 
 /**
  * REST controller for managing {@link Commande}.
@@ -92,26 +91,39 @@ public class CommandeDataResource {
                     .setOrderStatuts(orderStatuts)
                     .setSearchCommande(searchCommande)
                     .setSearch(search)
-                    .setOrderBy(orderBy).setOrderDate(orderDate)
+                    .setOrderBy(orderBy)
+                    .setOrderDate(orderDate)
                     .setFilterCommaneEnCours(filterCommaneEnCours)
             )
         );
     }
 
     @GetMapping("/commandes/csv/{id}/{orderDate}")
-    public ResponseEntity<Resource> getCsv(@PathVariable("id") Integer id, @PathVariable("orderDate") LocalDate orderDate, HttpServletRequest request) throws IOException {
+    public ResponseEntity<Resource> getCsv(
+        @PathVariable("id") Integer id,
+        @PathVariable("orderDate") LocalDate orderDate,
+        HttpServletRequest request
+    ) throws IOException {
         final Resource resource = commandeDataService.exportCommandeToCsv(new CommandeId(id, orderDate));
         return Utils.exportCsv(resource, request);
     }
 
     @GetMapping("/commandes/pdf/{id}/{orderDate}")
-    public ResponseEntity<Resource> getPdf(@PathVariable("id") Integer id, @PathVariable("orderDate") LocalDate orderDate, HttpServletRequest request) throws IOException {
+    public ResponseEntity<Resource> getPdf(
+        @PathVariable("id") Integer id,
+        @PathVariable("orderDate") LocalDate orderDate,
+        HttpServletRequest request
+    ) throws IOException {
         final Resource resource = commandeDataService.exportCommandeToPdf(new CommandeId(id, orderDate));
         return Utils.printPDF(resource, request);
     }
 
     @GetMapping("/commandes/pageable-order-lines/{id}/{orderDate}")
-    public ResponseEntity<List<OrderLineDTO>> getOrderLinesByCommandeId(@PathVariable("id") Integer id, @PathVariable("orderDate") LocalDate orderDate, Pageable pageable) {
+    public ResponseEntity<List<OrderLineDTO>> getOrderLinesByCommandeId(
+        @PathVariable("id") Integer id,
+        @PathVariable("orderDate") LocalDate orderDate,
+        Pageable pageable
+    ) {
         Page<OrderLineDTO> page = commandeDataService.filterCommandeLines(new CommandeId(id, orderDate), pageable);
         HttpHeaders headers = PaginationUtil.generatePaginationHttpHeaders(ServletUriComponentsBuilder.fromCurrentRequest(), page);
         return ResponseEntity.ok().headers(headers).body(page.getContent());
@@ -124,7 +136,10 @@ public class CommandeDataResource {
     }
 
     @GetMapping("/commandes/entree-stock/{id}/{orderDate}")
-    public ResponseEntity<CommandeEntryDTO> getCommandeEntreeStock(@PathVariable("id") Integer id, @PathVariable("orderDate") LocalDate orderDate) {
+    public ResponseEntity<CommandeEntryDTO> getCommandeEntreeStock(
+        @PathVariable("id") Integer id,
+        @PathVariable("orderDate") LocalDate orderDate
+    ) {
         log.debug("REST request to get Commande : {}", id);
         return ResponseUtil.wrapOrNotFound(commandeDataService.getCommandeById(new CommandeId(id, orderDate)));
     }

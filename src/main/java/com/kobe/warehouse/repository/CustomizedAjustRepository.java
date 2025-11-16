@@ -10,11 +10,11 @@ import com.kobe.warehouse.domain.FournisseurProduit_;
 import com.kobe.warehouse.domain.Produit;
 import com.kobe.warehouse.domain.Produit_;
 import com.kobe.warehouse.domain.enumeration.AjustementStatut;
-import com.kobe.warehouse.service.settings.FileResourceService;
 import com.kobe.warehouse.service.dto.AjustDTO;
 import com.kobe.warehouse.service.dto.AjustementDTO;
 import com.kobe.warehouse.service.dto.filter.AjustementFilterRecord;
 import com.kobe.warehouse.service.report.AjustementReportReportService;
+import com.kobe.warehouse.service.settings.FileResourceService;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
 import jakarta.persistence.TypedQuery;
@@ -144,12 +144,7 @@ public class CustomizedAjustRepository extends FileResourceService implements Aj
         }
         return Optional.of(
             new AjustDTO(ajust).setAjustements(
-                ajust
-                    .getAjustements()
-                    .stream()
-                    .map(AjustementDTO::new)
-                    .sorted(Comparator.comparing(AjustementDTO::getCodeCip))
-                    .toList()
+                ajust.getAjustements().stream().map(AjustementDTO::new).sorted(Comparator.comparing(AjustementDTO::getCodeCip)).toList()
             )
         );
     }

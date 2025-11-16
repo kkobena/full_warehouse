@@ -5,13 +5,15 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class SaleItemInput {
+
     //private Long produitId;
     private Long salesLineId;
     private Integer quantity;
     private BigDecimal regularUnitPrice;
-    private BigDecimal discountAmount= BigDecimal.ZERO;
+    private BigDecimal discountAmount = BigDecimal.ZERO;
     private List<TiersPayantPrixInput> prixAssurances = new ArrayList<>();
     private BigDecimal totalSalesAmount;
+
     public Long getSalesLineId() {
         return salesLineId;
     }
@@ -20,7 +22,7 @@ public class SaleItemInput {
         this.salesLineId = salesLineId;
     }
 
-/*    public Long getProduitId() {
+    /*    public Long getProduitId() {
         return produitId;
     }
 

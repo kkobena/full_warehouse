@@ -32,7 +32,7 @@ public abstract class CommandeWrapperDTO {
 
     protected CommandeWrapperDTO(Commande commande) {
         commandeId = commande.getId();
-        id =commandeId.getId();
+        id = commandeId.getId();
 
         orderReference = commande.getOrderReference();
         receiptReference = commande.getReceiptReference();

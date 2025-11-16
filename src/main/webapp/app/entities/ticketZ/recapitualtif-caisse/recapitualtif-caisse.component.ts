@@ -145,7 +145,7 @@ export class RecapitualtifCaisseComponent implements OnInit {
     const params = this.buildParams();
     if (this.tauriPrinterService.isRunningInTauri()) {
       this.printReceiptForTauri(params);
-    }else{
+    } else {
       this.recapitulatifCaisseService.print(params).subscribe({
         next: () => {
           this.spinner().hide();
@@ -153,7 +153,6 @@ export class RecapitualtifCaisseComponent implements OnInit {
         error: () => this.spinner().hide(),
       });
     }
-
   }
 
   private sentMail(): void {

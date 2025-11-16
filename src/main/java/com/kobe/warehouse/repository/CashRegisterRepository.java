@@ -7,16 +7,15 @@ import com.kobe.warehouse.domain.enumeration.CashRegisterStatut;
 import com.kobe.warehouse.service.cash_register.dto.CashRegisterTransactionSpecialisation;
 import com.kobe.warehouse.service.cash_register.dto.CashRegisterVenteSpecialisation;
 import jakarta.persistence.criteria.CriteriaBuilder.In;
+import java.time.LocalDateTime;
+import java.util.List;
+import java.util.Set;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
-
-import java.time.LocalDateTime;
-import java.util.List;
-import java.util.Set;
 
 @Repository
 public interface CashRegisterRepository extends JpaRepository<CashRegister, Integer>, JpaSpecificationExecutor<CashRegister> {
@@ -43,7 +42,7 @@ public interface CashRegisterRepository extends JpaRepository<CashRegister, Inte
 
     @Query(
         value = "SELECT SUM(p.paid_amount) as paidAmount,SUM(p.reel_amount) as reelAmount,p.payment_mode_code as paymentModeCode,md.libelle as paymentModeLibelle,p.type_transaction  AS typeTransaction FROM payment_transaction p JOIN cash_register cr on cr.id = p.cash_register_id" +
-            " JOIN payment_mode md ON p.payment_mode_code = md.code  WHERE p.dtype NOT IN(:transactionTypes) AND cr.id=:cashRegisterId AND  p.categorie_ca IN (:categorieChiffreAffaires) GROUP BY p.payment_mode_code,md.libelle,p.type_transaction",
+        " JOIN payment_mode md ON p.payment_mode_code = md.code  WHERE p.dtype NOT IN(:transactionTypes) AND cr.id=:cashRegisterId AND  p.categorie_ca IN (:categorieChiffreAffaires) GROUP BY p.payment_mode_code,md.libelle,p.type_transaction",
         nativeQuery = true
     )
     List<CashRegisterTransactionSpecialisation> findCashRegisterMvtDataById(

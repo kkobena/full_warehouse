@@ -26,7 +26,6 @@ import { Authority } from '../shared/constants/authority.constants';
     MonthlyDataComponent,
     WeeklyDataComponent,
     DailyDataComponent,
-
   ],
 })
 export default class HomeComponent implements OnInit, OnDestroy {

@@ -6,9 +6,7 @@ import org.springframework.stereotype.Service;
 @Service
 public class OrderLineIdGeneratorService extends AbstractIdGeneratorService {
 
-
     public OrderLineIdGeneratorService(EntityManager entityManager) {
-
         super(entityManager);
     }
 
@@ -16,6 +14,4 @@ public class OrderLineIdGeneratorService extends AbstractIdGeneratorService {
     public String getSequenceName() {
         return "id_order_line_seq";
     }
-
-
 }

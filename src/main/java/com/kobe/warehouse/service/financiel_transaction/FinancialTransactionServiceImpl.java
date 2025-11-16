@@ -61,6 +61,7 @@ import org.springframework.transaction.annotation.Transactional;
 @Transactional
 @Service
 public class FinancialTransactionServiceImpl implements FinancialTransactionService {
+
     private final PaymentTransactionRepository paymentTransactionRepository;
     private final UserService userService;
     private final SalesRepository salesRepository;
@@ -79,7 +80,10 @@ public class FinancialTransactionServiceImpl implements FinancialTransactionServ
         CashRegisterService cashRegisterService,
         EntityManager em,
         MvtCaisseReportReportService mvtCaisseReportService,
-        DefaultTransactionRepository defaultTransactionRepository, TransactionIdGeneratorService transactionIdGeneratorService, MouvementCaisseReceiptService mouvementCaisseReceiptService, ReferenceService referenceService
+        DefaultTransactionRepository defaultTransactionRepository,
+        TransactionIdGeneratorService transactionIdGeneratorService,
+        MouvementCaisseReceiptService mouvementCaisseReceiptService,
+        ReferenceService referenceService
     ) {
         this.paymentTransactionRepository = paymentTransactionRepository;
         this.userService = userService;
@@ -138,10 +142,10 @@ public class FinancialTransactionServiceImpl implements FinancialTransactionServ
         MvtCaisseWrapper mvtCaisseWrapper = buildMvtCaisseWrapper(transactionFilter);
         Pair pair = buildPeriode(transactionFilter);
         return this.mvtCaisseReportService.exportToPdf(
-            new ArrayList<>(mvtCaisses),
-            mvtCaisseWrapper,
-            new ReportPeriode(((LocalDateTime) pair.key()).toLocalDate(), ((LocalDateTime) pair.value()).toLocalDate())
-        );
+                new ArrayList<>(mvtCaisses),
+                mvtCaisseWrapper,
+                new ReportPeriode(((LocalDateTime) pair.key()).toLocalDate(), ((LocalDateTime) pair.value()).toLocalDate())
+            );
     }
 
     @Override
@@ -155,10 +159,16 @@ public class FinancialTransactionServiceImpl implements FinancialTransactionServ
     }
 
     private DefaultPaymentRecord buildPaymentRecord(PaymentId idReglement) {
-
         DefaultPayment paymentTransaction = defaultTransactionRepository.findById(idReglement).orElseThrow();
         AppUser user = paymentTransaction.getCashRegister().getUser();
-        return new DefaultPaymentRecord(user.getFirstName().concat(" ").concat(user.getLastName()), paymentTransaction.getCreatedAt(), paymentTransaction.getPaymentMode().getLibelle(), paymentTransaction.getPaidAmount(), paymentTransaction.getTransactionNumber(), paymentTransaction.getTypeFinancialTransaction());
+        return new DefaultPaymentRecord(
+            user.getFirstName().concat(" ").concat(user.getLastName()),
+            paymentTransaction.getCreatedAt(),
+            paymentTransaction.getPaymentMode().getLibelle(),
+            paymentTransaction.getPaidAmount(),
+            paymentTransaction.getTransactionNumber(),
+            paymentTransaction.getTypeFinancialTransaction()
+        );
     }
 
     private DefaultPayment fromDTO(FinancialTransactionDTO financialTransaction) {
@@ -284,8 +294,7 @@ public class FinancialTransactionServiceImpl implements FinancialTransactionServ
     private Specification<PaymentTransaction> buildSpecification(TransactionFilterDTO transactionFilter) {
         var from = Objects.requireNonNullElse(transactionFilter.fromDate(), LocalDate.now());
         var to = Objects.requireNonNullElse(transactionFilter.toDate(), LocalDate.now());
-        Specification<PaymentTransaction> specification =
-            paymentTransactionRepository.filterByPeriode(from, to);
+        Specification<PaymentTransaction> specification = paymentTransactionRepository.filterByPeriode(from, to);
         if (transactionFilter.userId() != null) {
             specification = specification.and(paymentTransactionRepository.filterByUserId(transactionFilter.userId()));
         }
@@ -330,12 +339,9 @@ public class FinancialTransactionServiceImpl implements FinancialTransactionServ
                     mvtCaisseDTO.setOrganisme(saleInfo.getCustomerLastName() + " " + saleInfo.getCustomerFirstName());
                 }
             }
-            case InvoicePayment -> {
-            } //TODO dans invoice
-            case DifferePayment -> {
-            } //TODO dans differe
-            case AccountTransaction -> {
-            } //TODO gestion des cautions
+            case InvoicePayment -> {} //TODO dans invoice
+            case DifferePayment -> {} //TODO dans differe
+            case AccountTransaction -> {} //TODO gestion des cautions
         }
         return mvtCaisseDTO;
     }

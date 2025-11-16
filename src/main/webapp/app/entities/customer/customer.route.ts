@@ -21,7 +21,7 @@ export const CustomerResolve = (route: ActivatedRouteSnapshot): Observable<null 
             inject(Router).navigate(['404']);
             return EMPTY;
           }
-        })
+        }),
       );
   }
   return of(new Customer());
@@ -32,42 +32,42 @@ const customerRoute: Routes = [
     loadComponent: () => import('./customer.component').then(m => m.CustomerComponent),
     data: {
       authorities: [Authority.ADMIN, Authority.CLIENT],
-      defaultSort: 'id,asc'
+      defaultSort: 'id,asc',
     },
-    canActivate: [UserRouteAccessService]
+    canActivate: [UserRouteAccessService],
   },
   {
     path: ':id/view',
     loadComponent: () => import('./customer-detail.component').then(m => m.CustomerDetailComponent),
     resolve: {
-      customer: CustomerResolve
+      customer: CustomerResolve,
     },
     data: {
-      authorities: [Authority.ADMIN, Authority.CLIENT]
+      authorities: [Authority.ADMIN, Authority.CLIENT],
     },
-    canActivate: [UserRouteAccessService]
+    canActivate: [UserRouteAccessService],
   },
   {
     path: 'new',
     loadComponent: () => import('./customer-update.component').then(m => m.CustomerUpdateComponent),
     resolve: {
-      customer: CustomerResolve
+      customer: CustomerResolve,
     },
     data: {
-      authorities: [Authority.ADMIN, Authority.CLIENT]
+      authorities: [Authority.ADMIN, Authority.CLIENT],
     },
-    canActivate: [UserRouteAccessService]
+    canActivate: [UserRouteAccessService],
   },
   {
     path: ':id/edit',
     loadComponent: () => import('./customer-update.component').then(m => m.CustomerUpdateComponent),
     resolve: {
-      customer: CustomerResolve
+      customer: CustomerResolve,
     },
     data: {
-      authorities: [Authority.ADMIN, Authority.CLIENT]
+      authorities: [Authority.ADMIN, Authority.CLIENT],
     },
-    canActivate: [UserRouteAccessService]
-  }
+    canActivate: [UserRouteAccessService],
+  },
 ];
 export default customerRoute;

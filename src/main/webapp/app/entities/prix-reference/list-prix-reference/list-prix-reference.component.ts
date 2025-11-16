@@ -13,13 +13,12 @@ import { Card } from 'primeng/card';
 import { showCommonModal } from '../../sales/selling-home/sale-helper';
 import { ConfirmationService } from 'primeng/api';
 
-
 @Component({
   selector: 'jhi-list-prix-reference',
   imports: [CommonModule, Button, Tooltip, ConfirmDialogComponent, Card],
   providers: [ConfirmationService],
   templateUrl: './list-prix-reference.component.html',
-  styleUrls: ['../../common-modal.component.scss', './list-prix-reference.component.scss']
+  styleUrls: ['../../common-modal.component.scss', './list-prix-reference.component.scss'],
 })
 export class ListPrixReferenceComponent implements OnInit {
   produit: IProduit | null = null;
@@ -63,19 +62,21 @@ export class ListPrixReferenceComponent implements OnInit {
   }
 
   protected onConfirmDelete(prixReference: PrixReference): void {
-
     this.confimDialog().onConfirm(() => this.onDelete(prixReference), 'Suppression', 'Voulez-vous vraiment supprimer cette ligne ?');
   }
 
   protected onCancel(prixReference: PrixReference): void {
     const message = prixReference.enabled ? 'Voulez-vous vraiment désactver cette ligne ?' : 'Voulez-vous vraiment activer cette ligne ?';
-    this.confimDialog().onConfirm(() => {
-      prixReference.enabled = !prixReference.enabled;
-      this.entityService.update(prixReference).subscribe(() => {
-        this.load();
-      });
-    }, 'Activation/Désactivation', message);
-
+    this.confimDialog().onConfirm(
+      () => {
+        prixReference.enabled = !prixReference.enabled;
+        this.entityService.update(prixReference).subscribe(() => {
+          this.load();
+        });
+      },
+      'Activation/Désactivation',
+      message,
+    );
   }
 
   protected onAddNew(): void {
@@ -84,8 +85,6 @@ export class ListPrixReferenceComponent implements OnInit {
 
   protected onEdit(prixReference: PrixReference): void {
     this.showModal(prixReference);
-
-
   }
 
   private showModal(entity?: PrixReference): void {
@@ -96,15 +95,16 @@ export class ListPrixReferenceComponent implements OnInit {
         isFromProduit: this.isFromProduit,
         produit: this.produit,
         tiersPayant: this.tiersPayant,
-        entity: entity ? entity : null
+        entity: entity ? entity : null,
       },
       () => {
         this.load();
       },
-      'lg', null,
+      'lg',
+      null,
       () => {
         this.load();
-      }
+      },
     );
   }
 
@@ -113,5 +113,4 @@ export class ListPrixReferenceComponent implements OnInit {
       this.load();
     });
   }
-
 }

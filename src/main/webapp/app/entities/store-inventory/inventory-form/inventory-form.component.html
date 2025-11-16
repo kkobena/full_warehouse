@@ -1,6 +1,6 @@
 <p-toast position="center"></p-toast>
 <ngx-spinner [fullScreen]="true" bdColor="rgba(0, 0, 0, 0.8)" color="#fff" size="medium" type="timer"
-><p style="color: white">Traitement en cours...</p></ngx-spinner
+  ><p style="color: white">Traitement en cours...</p></ngx-spinner
 >
 <form (ngSubmit)="save()" [formGroup]="editForm" name="editForm" novalidate role="form">
   <div [hidden]="true">
@@ -9,13 +9,7 @@
   <div>
     <div class="form-group">
       <label for="description">Description</label>
-      <input
-        class="form-control"
-        formControlName="description"
-        id="description"
-        name="description"
-        pInputText
-      />
+      <input class="form-control" formControlName="description" id="description" name="description" pInputText />
       @if (editForm.get('description')!.invalid && (editForm.get('description')!.dirty || editForm.get('description')!.touched)) {
         <div>
           @if (editForm.get('description')?.errors?.required) {
@@ -41,7 +35,9 @@
       placeholder="Séléctionner le type "
     >
     </p-select>
-    @if (editForm.get('inventoryCategory')!.invalid && (editForm.get('inventoryCategory')!.dirty || editForm.get('inventoryCategory')!.touched)) {
+    @if (
+      editForm.get('inventoryCategory')!.invalid && (editForm.get('inventoryCategory')!.dirty || editForm.get('inventoryCategory')!.touched)
+    ) {
       <div>
         @if (editForm.get('inventoryCategory')?.errors?.required) {
           <small class="form-text text-danger" style="color: red"> Ce champ est obligatoire. </small>
@@ -111,7 +107,6 @@
       severity="success"
       type="submit"
     ></p-button>
-    <p-button (click)="cancel()" [raised]="true" icon="pi pi-times" label="Annuler" severity="danger"
-              type="button"></p-button>
+    <p-button (click)="cancel()" [raised]="true" icon="pi pi-times" label="Annuler" severity="danger" type="button"></p-button>
   </div>
 </form>

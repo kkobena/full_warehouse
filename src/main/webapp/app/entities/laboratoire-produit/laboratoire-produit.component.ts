@@ -40,8 +40,8 @@ import { SpinnerComponent } from '../../shared/spinner/spinner.component';
     InputIcon,
     ConfirmDialogComponent,
     ToastAlertComponent,
-    SpinnerComponent
-  ]
+    SpinnerComponent,
+  ],
 })
 export class LaboratoireProduitComponent implements OnInit {
   protected responsedto!: IResponseDto;
@@ -52,14 +52,13 @@ export class LaboratoireProduitComponent implements OnInit {
   protected loading = false;
   private readonly confimDialog = viewChild.required<ConfirmDialogComponent>('confirmDialog');
   private readonly modalService = inject(NgbModal);
-   private readonly spinner = viewChild.required<SpinnerComponent>('spinner');
+  private readonly spinner = viewChild.required<SpinnerComponent>('spinner');
   private readonly alert = viewChild.required<ToastAlertComponent>('alert');
   private readonly errorService = inject(ErrorService);
   private readonly entityService = inject(LaboratoireProduitService);
 
   ngOnInit(): void {
     this.loadPage();
-
   }
 
   protected loadPage(page?: number, search?: string): void {
@@ -70,11 +69,11 @@ export class LaboratoireProduitComponent implements OnInit {
       .query({
         page: pageToLoad,
         size: this.itemsPerPage,
-        search: query
+        search: query,
       })
       .subscribe({
         next: (res: HttpResponse<ILaboratoire[]>) => this.onSuccess(res.body, res.headers, pageToLoad),
-        error: (err) => this.onError(err)
+        error: err => this.onError(err),
       });
   }
 
@@ -84,11 +83,11 @@ export class LaboratoireProduitComponent implements OnInit {
     this.entityService
       .query({
         page: this.page,
-        size: event.rows
+        size: event.rows,
       })
       .subscribe({
         next: (res: HttpResponse<ILaboratoire[]>) => this.onSuccess(res.body, res.headers, this.page),
-        error: (err) => this.onError(err)
+        error: err => this.onError(err),
       });
   }
 
@@ -100,15 +99,13 @@ export class LaboratoireProduitComponent implements OnInit {
         });
       },
       'Suppression',
-      'Êtes-vous sûr de vouloir supprimer ?'
+      'Êtes-vous sûr de vouloir supprimer ?',
     );
   }
-
 
   protected delete(entity: ILaboratoire): void {
     this.confirmDialog(entity.id);
   }
-
 
   protected search(event: any): void {
     this.loadPage(0, event.target.value);
@@ -123,7 +120,7 @@ export class LaboratoireProduitComponent implements OnInit {
         this.spinner().show();
         this.uploadFileResponse(this.entityService.uploadFile(result));
       },
-      'lg'
+      'lg',
     );
   }
 
@@ -133,12 +130,12 @@ export class LaboratoireProduitComponent implements OnInit {
       FormLaboratoireComponent,
       {
         laboratoire: null,
-        header: 'Ajout d\'un nouveau laboratoire'
+        header: "Ajout d'un nouveau laboratoire",
       },
       () => {
         this.loadPage(0);
       },
-      'lg'
+      'lg',
     );
   }
 
@@ -148,12 +145,12 @@ export class LaboratoireProduitComponent implements OnInit {
       FormLaboratoireComponent,
       {
         laboratoire: entity,
-        header: 'Modification de ' + entity.libelle
+        header: 'Modification de ' + entity.libelle,
       },
       () => {
         this.loadPage(0);
       },
-      'lg'
+      'lg',
     );
   }
 
@@ -169,7 +166,6 @@ export class LaboratoireProduitComponent implements OnInit {
     this.alert().showError(this.errorService.getErrorMessage(error));
   }
 
-
   private onSaveError(error: HttpErrorResponse): void {
     this.alert().showError(this.errorService.getErrorMessage(error));
   }
@@ -177,7 +173,7 @@ export class LaboratoireProduitComponent implements OnInit {
   private uploadFileResponse(result: Observable<HttpResponse<IResponseDto>>): void {
     result.pipe(finalize(() => this.spinner().hide())).subscribe({
       next: (res: HttpResponse<IResponseDto>) => this.onPocesCsvSuccess(res.body),
-      error: (err) => this.onSaveError(err)
+      error: err => this.onSaveError(err),
     });
   }
 

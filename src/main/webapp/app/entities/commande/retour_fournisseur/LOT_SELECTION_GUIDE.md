@@ -14,6 +14,7 @@ This implementation provides **two flexible workflows** for selecting lot number
 ### 🔄 Easy Mode Switching
 
 A toggle button in the header allows instant switching between modes:
+
 - **Dialog Mode**: 🪟 Shows "Mode: Dialog" with window icon
 - **Inline Mode**: 📋 Shows "Mode: Inline" with list icon
 
@@ -96,7 +97,7 @@ Open NgbModal    Show Inline Card
 const modalRef = this.modalService.open(LotSelectionDialogComponent, {
   size: 'lg',
   backdrop: 'static',
-  centered: true
+  centered: true,
 });
 
 // Pass data to modal
@@ -107,7 +108,7 @@ modalRef.componentInstance.productLabel = orderLine.produitLibelle;
 // Handle result
 modalRef.result.then(
   (selectedLots: LotSelection[]) => this.onLotsConfirmed(selectedLots),
-  () => this.onLotSelectionCancelled()
+  () => this.onLotSelectionCancelled(),
 );
 ```
 
@@ -174,6 +175,7 @@ this.showInlineLotSelection.set(true);
 ### Card Layout
 
 Each lot card shows:
+
 - 🏷️ Lot number (badge)
 - 📅 Expiry date
 - 📦 Available quantity
@@ -199,6 +201,7 @@ Each lot card shows:
 **Example**: Return 100 units of "DOLIPRANE 1000MG" from order #CMD-2024-001
 
 #### Step 1: Search & Select Order
+
 ```
 1. Search for order: "CMD-2024-001"
 2. Select from dropdown
@@ -206,6 +209,7 @@ Each lot card shows:
 ```
 
 #### Step 2: Select Product Line
+
 ```
 1. Search for product: "DOLIPRANE"
 2. Select from order lines dropdown
@@ -216,6 +220,7 @@ Each lot card shows:
 ```
 
 #### Step 3: Specify Return Details
+
 ```
 1. Enter quantity: 100
 2. Select motif: "Produit périmé"
@@ -224,6 +229,7 @@ Each lot card shows:
 #### Step 4: Lot Selection (Auto-triggered)
 
 ##### Dialog Mode:
+
 ```
 1. Modal opens automatically
 2. Shows 3 lots:
@@ -241,6 +247,7 @@ Each lot card shows:
 ```
 
 ##### Inline Mode:
+
 ```
 1. Expandable card appears below
 2. Shows grid of 3 lot cards
@@ -253,6 +260,7 @@ Each lot card shows:
 #### Step 5: Review Return Lines
 
 Table shows **2 rows** (one per lot):
+
 ```
 CIP         | Produit              | N° Lot       | Qty | Motif
 ------------|----------------------|--------------|-----|------------------
@@ -270,9 +278,9 @@ CIP         | Produit              | N° Lot       | Qty | Motif
 export interface IRetourBonItem {
   id?: number;
   // ... existing fields ...
-  lotId?: number;              // ← Added: References lot.id
-  lotNumero?: string;          // ← Added: Lot number for display
-  qtyMvt?: number;             // Quantity being returned from this lot
+  lotId?: number; // ← Added: References lot.id
+  lotNumero?: string; // ← Added: Lot number for display
+  qtyMvt?: number; // Quantity being returned from this lot
   // ...
 }
 ```
@@ -282,7 +290,7 @@ export interface IRetourBonItem {
 ```typescript
 export interface AbstractOrderItem {
   id?: number;
-  lots?: ILot[];               // ← Array of available lots
+  lots?: ILot[]; // ← Array of available lots
   quantityReceived?: number;
   // ...
 }
@@ -293,10 +301,10 @@ export interface AbstractOrderItem {
 ```typescript
 export interface ILot {
   id?: number;
-  numLot?: string;             // Lot number
-  quantity?: number;           // Available quantity
-  expiryDate?: string;         // Expiration date
-  freeQuantity?: number;       // Free/available quantity
+  numLot?: string; // Lot number
+  quantity?: number; // Available quantity
+  expiryDate?: string; // Expiration date
+  freeQuantity?: number; // Free/available quantity
   // ...
 }
 ```
@@ -309,9 +317,7 @@ Both modes use the same auto-distribution logic:
 
 ```typescript
 // Sort lots by expiry date (oldest first)
-const sortedLots = lots.sort((a, b) =>
-  new Date(a.expiryDate) - new Date(b.expiryDate)
-);
+const sortedLots = lots.sort((a, b) => new Date(a.expiryDate) - new Date(b.expiryDate));
 
 // Distribute quantity starting with oldest lot
 let remaining = requestedQuantity;
@@ -344,7 +350,7 @@ This ensures that products nearing expiry are returned first, following pharmacy
       "produitId": 789,
       "qtyMvt": 50,
       "motifRetourId": 1,
-      "lotId": 101,              // ← Lot tracking
+      "lotId": 101, // ← Lot tracking
       "lotNumero": "LOT-2024-001" // ← Lot number
     },
     {
@@ -363,6 +369,7 @@ This ensures that products nearing expiry are returned first, following pharmacy
 ### Backend Processing
 
 The backend receives separate return items per lot, allowing:
+
 - ✅ Accurate inventory tracking per lot
 - ✅ Lot-specific stock adjustments
 - ✅ Traceability for audits
@@ -384,15 +391,17 @@ protected lotSelectionMode = signal<'dialog' | 'inline'>('dialog');
 ### Customization Options
 
 #### Dialog Size
+
 ```typescript
 const modalRef = this.modalService.open(LotSelectionDialogComponent, {
-  size: 'lg',      // Options: 'sm', 'lg', 'xl'
+  size: 'lg', // Options: 'sm', 'lg', 'xl'
   backdrop: 'static',
-  centered: true
+  centered: true,
 });
 ```
 
 #### Inline Grid Layout
+
 ```scss
 // In inline-lot-selection.component.ts styles
 .lots-grid {
@@ -406,11 +415,13 @@ const modalRef = this.modalService.open(LotSelectionDialogComponent, {
 ## Responsive Design
 
 ### Dialog Mode
+
 - ✅ Mobile: Full-screen modal
 - ✅ Tablet: 750px centered modal
 - ✅ Desktop: 750px centered modal
 
 ### Inline Mode
+
 - ✅ Mobile: Single column cards
 - ✅ Tablet: 2 column grid
 - ✅ Desktop: 3+ column grid (based on screen width)
@@ -422,11 +433,13 @@ const modalRef = this.modalService.open(LotSelectionDialogComponent, {
 ### Keyboard Navigation
 
 **Dialog Mode:**
+
 - `Tab`: Navigate between inputs
 - `Enter`: Confirm selection
 - `Esc`: Cancel/close modal
 
 **Inline Mode:**
+
 - `Tab`: Navigate between controls
 - `Space`: Toggle expand/collapse
 - `Enter`: Confirm selection
@@ -444,12 +457,14 @@ const modalRef = this.modalService.open(LotSelectionDialogComponent, {
 ### When Products Have Lots
 
 ✅ **DO**:
+
 - Use lot selection for all returns
 - Track lot-specific quantities
 - Apply FEFO when possible
 - Validate total quantities
 
 ❌ **DON'T**:
+
 - Skip lot selection
 - Create returns without lot information
 - Ignore expiry dates
@@ -467,11 +482,13 @@ const modalRef = this.modalService.open(LotSelectionDialogComponent, {
 ### Issue: No lots showing in dialog/inline
 
 **Check**:
+
 1. Does `orderLine.lots` exist and have length > 0?
 2. Are lot quantities > 0?
 3. Console for any errors
 
 **Solution**:
+
 ```typescript
 // Add logging in supplier-returns.component.ts
 if (orderLine.lots && orderLine.lots.length > 0) {
@@ -482,10 +499,12 @@ if (orderLine.lots && orderLine.lots.length > 0) {
 ### Issue: Cannot confirm selection
 
 **Check**:
+
 1. Total selected quantity matches requested quantity
 2. At least one lot has quantity > 0
 
 **Validation**:
+
 ```typescript
 protected isValid(): boolean {
   const total = this.getTotalSelected();
@@ -496,10 +515,12 @@ protected isValid(): boolean {
 ### Issue: Mode toggle not working
 
 **Check**:
+
 1. Button click handler is bound correctly
 2. Signal updates properly
 
 **Debug**:
+
 ```typescript
 protected toggleLotSelectionMode(): void {
   console.log('Current mode:', this.lotSelectionMode());
@@ -531,16 +552,16 @@ protected toggleLotSelectionMode(): void {
 
 ## Summary
 
-| Feature | Dialog Mode | Inline Mode |
-|---------|-------------|-------------|
-| **UI Type** | Modal popup | Expandable card |
-| **Best For** | Quick selection | Detailed review |
-| **Screen Size** | Mobile-friendly | Desktop-optimized |
-| **Visual Feedback** | Focused | Contextual |
-| **Auto-Fill** | ✅ FEFO | ✅ FEFO |
-| **Multi-Lot** | ✅ Yes | ✅ Yes |
-| **Validation** | ✅ Real-time | ✅ Real-time |
-| **Expiry Display** | ✅ Table view | ✅ Card view |
+| Feature             | Dialog Mode     | Inline Mode       |
+| ------------------- | --------------- | ----------------- |
+| **UI Type**         | Modal popup     | Expandable card   |
+| **Best For**        | Quick selection | Detailed review   |
+| **Screen Size**     | Mobile-friendly | Desktop-optimized |
+| **Visual Feedback** | Focused         | Contextual        |
+| **Auto-Fill**       | ✅ FEFO         | ✅ FEFO           |
+| **Multi-Lot**       | ✅ Yes          | ✅ Yes            |
+| **Validation**      | ✅ Real-time    | ✅ Real-time      |
+| **Expiry Display**  | ✅ Table view   | ✅ Card view      |
 
 Both modes provide **full lot tracking functionality** with the flexibility to choose the workflow that best suits your needs.
 
@@ -549,6 +570,7 @@ Both modes provide **full lot tracking functionality** with the flexibility to c
 ## Support
 
 For questions or issues:
+
 1. Check this guide
 2. Review component code comments
 3. Test with sample data

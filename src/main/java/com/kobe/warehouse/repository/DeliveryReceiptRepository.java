@@ -25,6 +25,4 @@ public interface DeliveryReceiptRepository extends JpaRepository<Commande, Comma
         @Param("orderStatut") OrderStatut orderStatut,
         Pageable pageable
     );
-
-
 }

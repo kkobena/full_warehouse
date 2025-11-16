@@ -35,7 +35,7 @@ public class Suggestion implements Serializable {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
 
-    @Column(name = "suggession_reference",length = 20)
+    @Column(name = "suggession_reference", length = 20)
     private String suggessionReference;
 
     @NotNull

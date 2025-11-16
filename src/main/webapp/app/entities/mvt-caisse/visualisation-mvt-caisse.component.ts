@@ -57,10 +57,10 @@ import { Subject } from 'rxjs';
     Select,
     FloatLabel,
     ToastAlertComponent,
-    ConfirmDialog
+    ConfirmDialog,
   ],
   templateUrl: './visualisation-mvt-caisse.component.html',
-  styleUrls: ['./visualisation-mvt-caisse.scss']
+  styleUrls: ['./visualisation-mvt-caisse.scss'],
 })
 export class VisualisationMvtCaisseComponent implements OnInit, AfterViewInit, OnDestroy {
   protected mvtCaisses: MvtCaisse[] = [];
@@ -87,7 +87,7 @@ export class VisualisationMvtCaisseComponent implements OnInit, AfterViewInit, O
     TypeFinancialTransaction.REGLEMENT_DIFFERE,
     TypeFinancialTransaction.REGLEMENT_TIERS_PAYANT,
     TypeFinancialTransaction.CASH_SALE,
-    TypeFinancialTransaction.CREDIT_SALE
+    TypeFinancialTransaction.CREDIT_SALE,
   ];
   protected selectedTypes: TypeFinancialTransaction[] = [];
   protected paymentModes: IPaymentMode[] = [];
@@ -143,17 +143,16 @@ export class VisualisationMvtCaisseComponent implements OnInit, AfterViewInit, O
       .findAllMvts({
         page: pageToLoad,
         size: this.itemsPerPage,
-        ...this.buildParams()
+        ...this.buildParams(),
       })
       .subscribe({
         next: (res: HttpResponse<MvtCaisse[]>) => this.onSuccess(res.body, res.headers, pageToLoad),
         error: () => this.onError(),
         complete: () => {
           this.btnLoading = false;
-        }
+        },
       });
   }
-
 
   protected lazyLoading(event: TableLazyLoadEvent): void {
     if (event) {
@@ -163,11 +162,11 @@ export class VisualisationMvtCaisseComponent implements OnInit, AfterViewInit, O
         .findAllMvts({
           page: this.page,
           size: event.rows,
-          ...this.buildParams()
+          ...this.buildParams(),
         })
         .subscribe({
           next: (res: HttpResponse<MvtCaisse[]>) => this.onSuccess(res.body, res.headers, this.page),
-          error: () => this.onError()
+          error: () => this.onError(),
         });
     }
   }
@@ -191,11 +190,11 @@ export class VisualisationMvtCaisseComponent implements OnInit, AfterViewInit, O
       },
       error: () => {
         this.btnLoading = false;
-        this.alert().showError('Erreur', 'Une erreur est survenue lors de l\'exportation');
+        this.alert().showError('Erreur', "Une erreur est survenue lors de l'exportation");
       },
       complete: () => {
         this.btnLoading = false;
-      }
+      },
     });
   }
 
@@ -203,14 +202,14 @@ export class VisualisationMvtCaisseComponent implements OnInit, AfterViewInit, O
     showCommonModal(
       this.modalService,
       FormTransactionComponent,
-      { header: 'FORMULAIRE D\'AJOUT DE MOUVEMENT DE CAISSE' },
+      { header: "FORMULAIRE D'AJOUT DE MOUVEMENT DE CAISSE" },
       (paymentId: PaymentId) => {
         if (paymentId) {
           this.onPrintReceipt(paymentId);
           this.onSearch();
         }
       },
-      'lg'
+      'lg',
     );
   }
 
@@ -231,7 +230,7 @@ export class VisualisationMvtCaisseComponent implements OnInit, AfterViewInit, O
       typeFinancialTransactions: this.selectedTypes?.map(type => getTypeName(type)),
       paymentModes: this.selectedModes?.map(mode => mode.code),
       userId: this.selectedUser?.id,
-      order: this.order
+      order: this.order,
     };
   }
 
@@ -260,7 +259,7 @@ export class VisualisationMvtCaisseComponent implements OnInit, AfterViewInit, O
       toDate: this.toDate,
       selectedTypes: this.selectedTypes,
       paymentModes: this.selectedModes,
-      selectedUser: this.selectedUser
+      selectedUser: this.selectedUser,
     };
     this.mvtParamServiceService.setMvtCaisseParam(param);
   }
@@ -279,7 +278,6 @@ export class VisualisationMvtCaisseComponent implements OnInit, AfterViewInit, O
     }
   }
 
-
   private onPrintReceipt(paymentId: PaymentId): void {
     this.confirmationService.confirm({
       message: ' Voullez-vous imprimer le ticket ?',
@@ -293,7 +291,7 @@ export class VisualisationMvtCaisseComponent implements OnInit, AfterViewInit, O
         } else {
           this.mvtCaisseService.printReceipt(paymentId).pipe(takeUntil(this.destroy$)).subscribe();
         }
-      }
+      },
     });
   }
 
@@ -302,11 +300,9 @@ export class VisualisationMvtCaisseComponent implements OnInit, AfterViewInit, O
       next: async (escposData: ArrayBuffer) => {
         try {
           await this.tauriPrinterService.printEscPosFromBuffer(escposData);
-        } catch (error) {
-        }
+        } catch (error) {}
       },
-      error: () => {
-      }
+      error: () => {},
     });
   }
 }

@@ -1,14 +1,6 @@
 import { AfterViewInit, Component, computed, inject, input, OnDestroy, output, signal } from '@angular/core';
 import { Divider } from 'primeng/divider';
-import {
-  AbstractControl,
-  FormBuilder,
-  FormControl,
-  FormGroup,
-  FormsModule,
-  ReactiveFormsModule,
-  Validators
-} from '@angular/forms';
+import { AbstractControl, FormBuilder, FormControl, FormGroup, FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
 import { TranslateService } from '@ngx-translate/core';
 import { PrimeNG } from 'primeng/config';
 import { IPaymentMode } from '../../../../shared/model/payment-mode.model';
@@ -42,10 +34,10 @@ import { DatePicker } from 'primeng/datepicker';
     Select,
     InputText,
     Button,
-    DatePicker
+    DatePicker,
   ],
   templateUrl: './reglement-differe-form.component.html',
-  styleUrl: './reglement-differe-form.component.scss'
+  styleUrl: './reglement-differe-form.component.scss',
 })
 export class ReglementDiffereFormComponent implements AfterViewInit, OnDestroy {
   readonly CASH = 'CASH';
@@ -70,12 +62,12 @@ export class ReglementDiffereFormComponent implements AfterViewInit, OnDestroy {
   protected reglementForm = this.fb.group({
     amount: new FormControl<number | null>(null, {
       validators: [Validators.required, Validators.min(5), Validators.max(10000000)],
-      nonNullable: true
+      nonNullable: true,
     }),
 
     modePaimentCode: new FormControl<string | null>(null, {
       validators: [Validators.required],
-      nonNullable: true
+      nonNullable: true,
     }),
 
     paymentDate: new FormControl<Date | null>(null, {}),
@@ -83,14 +75,14 @@ export class ReglementDiffereFormComponent implements AfterViewInit, OnDestroy {
     banqueInfo: this.fb.group({
       nom: new FormControl<string | null>(null, {
         validators: [Validators.required],
-        nonNullable: true
+        nonNullable: true,
       }),
       code: new FormControl<string | null>(null, {
         validators: [Validators.required],
-        nonNullable: true
+        nonNullable: true,
       }),
-      beneficiaire: new FormControl<string | null>(null, {})
-    })
+      beneficiaire: new FormControl<string | null>(null, {}),
+    }),
   });
   private readonly modeService = inject(ModePaymentService);
   private destroy$ = new Subject<void>();
@@ -226,7 +218,7 @@ export class ReglementDiffereFormComponent implements AfterViewInit, OnDestroy {
       paymentDate: formValue.paymentDate ? moment(formValue.paymentDate).format(DATE_FORMAT) : null,
       expectedAmount: this.initTotalAmount,
       customerId: this.differe()?.customerId,
-      saleIds: this.differe()?.differeItems.map(e => e.saleId)
+      saleIds: this.differe()?.differeItems.map(e => e.saleId),
     };
   }
 }

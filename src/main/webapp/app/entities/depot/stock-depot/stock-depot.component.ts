@@ -22,15 +22,12 @@ import { Statut } from '../../../shared/model/enumerations/statut.model';
 import { ImportProduitModalComponent } from '../../produit/import-produit-modal/import-produit-modal.component';
 import { HttpHeaders, HttpResponse } from '@angular/common/http';
 import { showCommonModal } from '../../sales/selling-home/sale-helper';
-import {
-  ImportProduitReponseModalComponent
-} from '../../produit/import-produit-reponse-modal/import-produit-reponse-modal.component';
+import { ImportProduitReponseModalComponent } from '../../produit/import-produit-reponse-modal/import-produit-reponse-modal.component';
 import { combineLatest } from 'rxjs';
 import { FormsModule } from '@angular/forms';
 import { StockDepotService } from './stock-depot.service';
 import { MagasinService } from '../../magasin/magasin.service';
 import { IMagasin } from '../../../shared/model/magasin.model';
-
 
 @Component({
   selector: 'jhi-stock-depot',
@@ -49,10 +46,10 @@ import { IMagasin } from '../../../shared/model/magasin.model';
     Toolbar,
     TranslateDirective,
     FormsModule,
-    RouterLink
+    RouterLink,
   ],
   templateUrl: './stock-depot.component.html',
-  styleUrl: './stock-depot.component.scss'
+  styleUrl: './stock-depot.component.scss',
 })
 export class StockDepotComponent implements OnInit {
   protected produits!: IProduit[];
@@ -77,11 +74,9 @@ export class StockDepotComponent implements OnInit {
   private readonly stockDepotService = inject(StockDepotService);
   private readonly magasinService = inject(MagasinService);
 
-
   constructor() {
     this.criteria = new ProduitCriteria();
     this.criteria.status = Statut.ENABLE;
-
 
     this.search = '';
     this.populate();
@@ -91,7 +86,7 @@ export class StockDepotComponent implements OnInit {
     const modalRef = this.modalService.open(ImportProduitModalComponent, {
       backdrop: 'static',
       size: 'lg',
-      centered: true
+      centered: true,
     });
     modalRef.componentInstance.type = this.typeImportation;
     modalRef.closed.subscribe(reason => {
@@ -109,7 +104,6 @@ export class StockDepotComponent implements OnInit {
   populate(): void {
     this.magasinService.fetchAllDepots().subscribe((res: HttpResponse<IMagasin[]>) => {
       this.depots = res.body || [];
-
     });
   }
 
@@ -136,12 +130,11 @@ export class StockDepotComponent implements OnInit {
           deconditionne: this.criteria.deconditionne,
           deconditionnable: this.criteria.deconditionnable,
           status: statut,
-          magasinId: this.selectedDepot ? this.selectedDepot.id : undefined
-
+          magasinId: this.selectedDepot ? this.selectedDepot.id : undefined,
         })
         .subscribe({
           next: (res: HttpResponse<IProduit[]>) => this.onSuccess(res.body, res.headers, pageToLoad, !dontNavigate),
-          error: () => this.onError()
+          error: () => this.onError(),
         });
     }
   }
@@ -168,12 +161,8 @@ export class StockDepotComponent implements OnInit {
     this.loadPage(0);
   }
 
-
-
-
   private showResponse(responsedto: IResponseDto): void {
-    showCommonModal(this.modalService, ImportProduitReponseModalComponent, { responsedto }, () => {
-    }, 'lg');
+    showCommonModal(this.modalService, ImportProduitReponseModalComponent, { responsedto }, () => {}, 'lg');
   }
 
   private onError(): void {
@@ -193,9 +182,7 @@ export class StockDepotComponent implements OnInit {
       const page = params.get('page');
       const pageNumber = page !== null ? +page : 1;
 
-
       if (pageNumber !== this.page) {
-
         this.loadPage(pageNumber, true);
       }
     }).subscribe();

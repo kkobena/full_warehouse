@@ -24,12 +24,12 @@ public class RepartitionStockProduit implements Serializable {
     @ManyToOne(optional = false)
     @NotNull
     @JoinColumn(name = "stock_produit_source_id", referencedColumnName = "id")
-   private StockProduit stockProduitSource;
+    private StockProduit stockProduitSource;
 
     @ManyToOne(optional = false)
     @NotNull
     @JoinColumn(name = "stock_produit_destination_id", referencedColumnName = "id")
-   private StockProduit stockProduitDestination;
+    private StockProduit stockProduitDestination;
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

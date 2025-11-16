@@ -29,9 +29,7 @@ export interface LotSelection {
     <div class="modal-body">
       <div class="lot-selection-content">
         <div class="product-info mb-3 p-3 border rounded">
-          <div class="mb-2">
-            <strong>Produit:</strong> {{ productLabel }}
-          </div>
+          <div class="mb-2"><strong>Produit:</strong> {{ productLabel }}</div>
           <div>
             <strong>Quantité totale à retourner:</strong>
             <span class="badge bg-primary ms-2">{{ requestedQuantity | number }}</span>
@@ -81,14 +79,18 @@ export interface LotSelection {
           </ng-template>
         </p-table>
 
-        <div class="mt-3 p-3 border rounded d-flex justify-content-between align-items-center"
-             [class.border-danger]="getTotalSelected() !== requestedQuantity"
-             [class.border-success]="getTotalSelected() === requestedQuantity && getTotalSelected() > 0">
+        <div
+          class="mt-3 p-3 border rounded d-flex justify-content-between align-items-center"
+          [class.border-danger]="getTotalSelected() !== requestedQuantity"
+          [class.border-success]="getTotalSelected() === requestedQuantity && getTotalSelected() > 0"
+        >
           <div>
             <strong>Total sélectionné:</strong>
-            <span class="ms-2 fs-5"
-                  [class.text-danger]="getTotalSelected() !== requestedQuantity"
-                  [class.text-success]="getTotalSelected() === requestedQuantity && getTotalSelected() > 0">
+            <span
+              class="ms-2 fs-5"
+              [class.text-danger]="getTotalSelected() !== requestedQuantity"
+              [class.text-success]="getTotalSelected() === requestedQuantity && getTotalSelected() > 0"
+            >
               {{ getTotalSelected() | number }}
             </span>
             <span class="text-muted">/ {{ requestedQuantity }}</span>
@@ -110,45 +112,35 @@ export interface LotSelection {
     </div>
 
     <div class="modal-footer">
-      <p-button
-        label="Annuler"
-        severity="secondary"
-        [outlined]="true"
-        icon="pi pi-times"
-        (onClick)="onCancel()"
-      />
-      <p-button
-        label="Confirmer"
-        severity="primary"
-        icon="pi pi-check"
-        [disabled]="!isValid()"
-        (onClick)="onConfirm()"
-      />
+      <p-button label="Annuler" severity="secondary" [outlined]="true" icon="pi pi-times" (onClick)="onCancel()" />
+      <p-button label="Confirmer" severity="primary" icon="pi pi-check" [disabled]="!isValid()" (onClick)="onConfirm()" />
     </div>
   `,
-  styles: [`
-    .lot-selection-content {
-      padding: 0.5rem 0;
-    }
+  styles: [
+    `
+      .lot-selection-content {
+        padding: 0.5rem 0;
+      }
 
-    .dialog-footer {
-      display: flex;
-      gap: 0.5rem;
-      justify-content: flex-end;
-    }
+      .dialog-footer {
+        display: flex;
+        gap: 0.5rem;
+        justify-content: flex-end;
+      }
 
-    .product-info {
-      background-color: #f8f9fa;
-    }
+      .product-info {
+        background-color: #f8f9fa;
+      }
 
-    .badge {
-      padding: 0.35rem 0.65rem;
-      font-size: 0.875rem;
-      font-weight: 500;
-    }
-  `]
+      .badge {
+        padding: 0.35rem 0.65rem;
+        font-size: 0.875rem;
+        font-weight: 500;
+      }
+    `,
+  ],
 })
-export class LotSelectionDialogComponent implements OnInit{
+export class LotSelectionDialogComponent implements OnInit {
   private readonly activeModal = inject(NgbActiveModal);
 
   @Input() lots: ILot[] = [];
@@ -167,7 +159,7 @@ export class LotSelectionDialogComponent implements OnInit{
     const selections: LotSelection[] = this.lots.map(lot => ({
       lot,
       selectedQuantity: 0,
-      maxQuantity: lot.quantity || lot.freeQuantity || lot.quantityReceived || 0
+      maxQuantity: lot.quantity || lot.freeQuantity || lot.quantityReceived || 0,
     }));
 
     // Auto-fill from first lot if possible (FIFO approach)

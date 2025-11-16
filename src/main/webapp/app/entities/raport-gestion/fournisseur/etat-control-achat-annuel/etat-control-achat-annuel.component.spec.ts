@@ -8,7 +8,7 @@ describe('EtatControlAchatAnnuelComponent', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [EtatControlAchatAnnuelComponent]
+      imports: [EtatControlAchatAnnuelComponent],
     }).compileComponents();
 
     fixture = TestBed.createComponent(EtatControlAchatAnnuelComponent);

@@ -8,10 +8,9 @@ import com.kobe.warehouse.domain.enumeration.SalesStatut;
 import com.kobe.warehouse.repository.GroupeFournisseurRepository;
 import com.kobe.warehouse.repository.ReponseRetourBonItemRepository;
 import com.kobe.warehouse.repository.SalesRepository;
-import com.kobe.warehouse.service.dto.projection.ReponseRetourBonItemProjection;
-import com.kobe.warehouse.service.settings.AppConfigurationService;
 import com.kobe.warehouse.service.dto.GroupeFournisseurDTO;
 import com.kobe.warehouse.service.dto.ReportPeriode;
+import com.kobe.warehouse.service.dto.projection.ReponseRetourBonItemProjection;
 import com.kobe.warehouse.service.excel.ExcelExportService;
 import com.kobe.warehouse.service.excel.GenericExcelDTO;
 import com.kobe.warehouse.service.financiel_transaction.dto.AchatDTO;
@@ -20,15 +19,8 @@ import com.kobe.warehouse.service.financiel_transaction.dto.MvtParam;
 import com.kobe.warehouse.service.financiel_transaction.dto.PaymentDTO;
 import com.kobe.warehouse.service.financiel_transaction.dto.TableauPharmacienDTO;
 import com.kobe.warehouse.service.financiel_transaction.dto.TableauPharmacienWrapper;
+import com.kobe.warehouse.service.settings.AppConfigurationService;
 import com.kobe.warehouse.service.stock.CommandeDataService;
-import org.apache.commons.lang3.BooleanUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.core.io.Resource;
-import org.springframework.stereotype.Service;
-import org.springframework.util.CollectionUtils;
-
 import java.io.IOException;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
@@ -45,6 +37,13 @@ import java.util.Objects;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.stream.Collectors;
+import org.apache.commons.lang3.BooleanUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.core.io.Resource;
+import org.springframework.stereotype.Service;
+import org.springframework.util.CollectionUtils;
 
 @Service
 @Qualifier("tableauPharmacienServiceImpl")
@@ -63,13 +62,16 @@ public class TableauPharmacienServiceImpl implements TableauPharmacienService {
     private final CommandeDataService commandeDataService;
     private final ReponseRetourBonItemRepository reponseRetourBonItemRepository;
 
-
     public TableauPharmacienServiceImpl(
         GroupeFournisseurRepository groupeFournisseurRepository,
         TableauPharmacienReportReportService reportService,
-        ExcelExportService excelExportService, AppConfigurationService appConfigurationService, JsonMapper objectMapper, SalesRepository salesRepository, CommandeDataService commandeDataService, ReponseRetourBonItemRepository reponseRetourBonItemRepository
+        ExcelExportService excelExportService,
+        AppConfigurationService appConfigurationService,
+        JsonMapper objectMapper,
+        SalesRepository salesRepository,
+        CommandeDataService commandeDataService,
+        ReponseRetourBonItemRepository reponseRetourBonItemRepository
     ) {
-
         this.groupeFournisseurRepository = groupeFournisseurRepository;
         this.reportService = reportService;
         this.excelExportService = excelExportService;
@@ -93,7 +95,7 @@ public class TableauPharmacienServiceImpl implements TableauPharmacienService {
     }
 
     public Set<Integer> getGroupeFournisseurs() {
-        groupeFournisseurs.addAll(fetchGroupGrossisteToDisplay().stream().map(GroupeFournisseurDTO::getId).collect(Collectors.toSet()));//TODO a revoir
+        groupeFournisseurs.addAll(fetchGroupGrossisteToDisplay().stream().map(GroupeFournisseurDTO::getId).collect(Collectors.toSet())); //TODO a revoir
         return groupeFournisseurs;
     }
 
@@ -106,11 +108,11 @@ public class TableauPharmacienServiceImpl implements TableauPharmacienService {
     @Override
     public Resource exportToPdf(MvtParam mvtParam) throws MalformedURLException {
         return this.reportService.exportToPdf(
-            this.getTableauPharmacien(mvtParam),
-            this.fetchGroupGrossisteToDisplay(),
-            new ReportPeriode(mvtParam.getFromDate(), mvtParam.getToDate()),
-            mvtParam.getGroupeBy()
-        );
+                this.getTableauPharmacien(mvtParam),
+                this.fetchGroupGrossisteToDisplay(),
+                new ReportPeriode(mvtParam.getFromDate(), mvtParam.getToDate()),
+                mvtParam.getGroupeBy()
+            );
     }
 
     @Override
@@ -156,8 +158,7 @@ public class TableauPharmacienServiceImpl implements TableauPharmacienService {
     }
 
     private void buildAchatsFromProjection(List<AchatDTO> projections, TableauPharmacienWrapper tableauPharmacienWrapper) {
-        projections
-            .forEach(achatDTO -> updateTableauPharmacienWrapper(tableauPharmacienWrapper, achatDTO));
+        projections.forEach(achatDTO -> updateTableauPharmacienWrapper(tableauPharmacienWrapper, achatDTO));
     }
 
     private void updateTableauPharmacienWrapper(TableauPharmacienWrapper tableauPharmacienWrapper, AchatDTO achatDTO) {
@@ -172,18 +173,19 @@ public class TableauPharmacienServiceImpl implements TableauPharmacienService {
         List<TableauPharmacienDTO> projections,
         TableauPharmacienWrapper tableauPharmacienWrapper
     ) {
-        projections
-            .forEach(tableauPharmacien -> {
-                List<PaymentDTO> payments = tableauPharmacien.getPayments();
-                for (PaymentDTO paymentDTO : payments) {
-                    tableauPharmacien.setMontantReel(tableauPharmacien.getMontantReel() + paymentDTO.realAmount());
-                    tableauPharmacien.setMontantComptant(tableauPharmacien.getMontantComptant() + paymentDTO.paidAmount());
-                }
+        projections.forEach(tableauPharmacien -> {
+            List<PaymentDTO> payments = tableauPharmacien.getPayments();
+            for (PaymentDTO paymentDTO : payments) {
+                tableauPharmacien.setMontantReel(tableauPharmacien.getMontantReel() + paymentDTO.realAmount());
+                tableauPharmacien.setMontantComptant(tableauPharmacien.getMontantComptant() + paymentDTO.paidAmount());
+            }
 
-                tableauPharmacien.setMontantNet(tableauPharmacien.getMontantTtc() + tableauPharmacien.getMontantRemise() - tableauPharmacien.getMontantRemiseUg());
-                tableauPharmacien.setMontantComptant(tableauPharmacien.getMontantComptant() - tableauPharmacien.getMontantTtcUg());
-                updateTableauPharmacienWrapper(tableauPharmacienWrapper, tableauPharmacien);
-            });
+            tableauPharmacien.setMontantNet(
+                tableauPharmacien.getMontantTtc() + tableauPharmacien.getMontantRemise() - tableauPharmacien.getMontantRemiseUg()
+            );
+            tableauPharmacien.setMontantComptant(tableauPharmacien.getMontantComptant() - tableauPharmacien.getMontantTtcUg());
+            updateTableauPharmacienWrapper(tableauPharmacienWrapper, tableauPharmacien);
+        });
     }
 
     private void updateTableauPharmacienWrapper(
@@ -208,16 +210,22 @@ public class TableauPharmacienServiceImpl implements TableauPharmacienService {
         tableauPharmacienWrapper.setNumberCount(tableauPharmacienWrapper.getNumberCount() + tableauPharmacienDTO.getNombreVente());
     }
 
-    private List<TableauPharmacienDTO> addAchatsToTableauPharmacien(List<TableauPharmacienDTO> tableauPharmaciens, List<AchatDTO> achats,List<ReponseRetourBonItemProjection> avoirs) {
+    private List<TableauPharmacienDTO> addAchatsToTableauPharmacien(
+        List<TableauPharmacienDTO> tableauPharmaciens,
+        List<AchatDTO> achats,
+        List<ReponseRetourBonItemProjection> avoirs
+    ) {
         if (achats.isEmpty() && avoirs.isEmpty()) {
             return tableauPharmaciens;
         }
         achats.sort(Comparator.comparing(AchatDTO::getOrdreAffichage));
         Map<LocalDate, List<AchatDTO>> map = achats.stream().collect(Collectors.groupingBy(AchatDTO::getMvtDate));
-        Map<LocalDate, List<ReponseRetourBonItemProjection>> avoirMap = avoirs.stream().collect(Collectors.groupingBy(ReponseRetourBonItemProjection::getDateMtv));
+        Map<LocalDate, List<ReponseRetourBonItemProjection>> avoirMap = avoirs
+            .stream()
+            .collect(Collectors.groupingBy(ReponseRetourBonItemProjection::getDateMtv));
 
         if (tableauPharmaciens.isEmpty()) {
-            updateTableauPharmaciens(map, tableauPharmaciens,avoirMap);
+            updateTableauPharmaciens(map, tableauPharmaciens, avoirMap);
             return tableauPharmaciens;
         }
 
@@ -235,7 +243,7 @@ public class TableauPharmacienServiceImpl implements TableauPharmacienService {
             tableauPharmacien.setAchatFournisseurs(computeMapGroupFournisseurAchat(tableauPharmacien.getGroupAchats()));
         }
         if (!map.isEmpty()) {
-            updateTableauPharmaciens(map, tableauPharmaciens,avoirMap);
+            updateTableauPharmaciens(map, tableauPharmaciens, avoirMap);
         }
 
         return tableauPharmaciens;
@@ -299,9 +307,11 @@ public class TableauPharmacienServiceImpl implements TableauPharmacienService {
         return fournisseurAchat;
     }
 
-    private void updateTableauPharmaciens(Map<LocalDate, List<AchatDTO>> map, List<TableauPharmacienDTO> tableauPharmaciens,Map<LocalDate, List<ReponseRetourBonItemProjection>> avoirMap) {
-
-
+    private void updateTableauPharmaciens(
+        Map<LocalDate, List<AchatDTO>> map,
+        List<TableauPharmacienDTO> tableauPharmaciens,
+        Map<LocalDate, List<ReponseRetourBonItemProjection>> avoirMap
+    ) {
         map.forEach((k, v) -> {
             TableauPharmacienDTO tableauPharmacienDTO = new TableauPharmacienDTO();
             tableauPharmacienDTO.setMvtDate(k);
@@ -319,14 +329,14 @@ public class TableauPharmacienServiceImpl implements TableauPharmacienService {
     private TableauPharmacienWrapper computeData(MvtParam mvtParam) {
         TableauPharmacienWrapper tableauPharmacienWrapper = new TableauPharmacienWrapper();
         List<TableauPharmacienDTO> tableauPharmaciens = fetchSalesData(mvtParam);
-        buildTableauPharmacienFromProjection(
-            tableauPharmaciens,
-            tableauPharmacienWrapper
-        );
+        buildTableauPharmacienFromProjection(tableauPharmaciens, tableauPharmacienWrapper);
         List<AchatDTO> achats = commandeDataService.fetchReportTableauPharmacienData(mvtParam);
-        List<ReponseRetourBonItemProjection> avoirs = reponseRetourBonItemRepository.findByDateRange(mvtParam.getFromDate().atStartOfDay(), mvtParam.getToDate().atTime(LocalTime.MAX));
+        List<ReponseRetourBonItemProjection> avoirs = reponseRetourBonItemRepository.findByDateRange(
+            mvtParam.getFromDate().atStartOfDay(),
+            mvtParam.getToDate().atTime(LocalTime.MAX)
+        );
         buildAchatsFromProjection(achats, tableauPharmacienWrapper);
-        List<TableauPharmacienDTO> result = addAchatsToTableauPharmacien(tableauPharmaciens, new ArrayList<>(achats),avoirs);
+        List<TableauPharmacienDTO> result = addAchatsToTableauPharmacien(tableauPharmaciens, new ArrayList<>(achats), avoirs);
 
         tableauPharmacienWrapper.setTableauPharmaciens(result);
         computeAchats(tableauPharmacienWrapper);
@@ -381,7 +391,7 @@ public class TableauPharmacienServiceImpl implements TableauPharmacienService {
                     .floatValue()
             );
         } catch (Exception e) {
-            LOG.info( e.getLocalizedMessage());
+            LOG.info(e.getLocalizedMessage());
         }
     }
 
@@ -400,7 +410,7 @@ public class TableauPharmacienServiceImpl implements TableauPharmacienService {
                     .floatValue()
             );
         } catch (Exception e) {
-            LOG.info( e.getLocalizedMessage());
+            LOG.info(e.getLocalizedMessage());
         }
     }
 
@@ -415,7 +425,7 @@ public class TableauPharmacienServiceImpl implements TableauPharmacienService {
                     .floatValue()
             );
         } catch (Exception e) {
-            LOG.info( e.getLocalizedMessage());
+            LOG.info(e.getLocalizedMessage());
         }
     }
 
@@ -430,7 +440,7 @@ public class TableauPharmacienServiceImpl implements TableauPharmacienService {
                     .floatValue()
             );
         } catch (Exception e) {
-            LOG.info( e.getLocalizedMessage());
+            LOG.info(e.getLocalizedMessage());
         }
     }
 
@@ -447,23 +457,32 @@ public class TableauPharmacienServiceImpl implements TableauPharmacienService {
         }
     }
 
-
     private List<TableauPharmacienDTO> fetchSalesData(MvtParam mvtParam) {
-
         try {
             String jsonResult;
             if ("month".equals(mvtParam.getGroupeBy())) {
-                jsonResult = salesRepository.fetchTableauPharmacienReportMensuel(mvtParam.getFromDate(), mvtParam.getToDate(), mvtParam.getStatuts().stream().map(SalesStatut::name).toArray(String[]::new), mvtParam.getCategorieChiffreAffaires().stream().map(CategorieChiffreAffaire::name).toArray(String[]::new), mvtParam.isExcludeFreeUnit(), BooleanUtils.toBoolean(mvtParam.getToIgnore()));
+                jsonResult = salesRepository.fetchTableauPharmacienReportMensuel(
+                    mvtParam.getFromDate(),
+                    mvtParam.getToDate(),
+                    mvtParam.getStatuts().stream().map(SalesStatut::name).toArray(String[]::new),
+                    mvtParam.getCategorieChiffreAffaires().stream().map(CategorieChiffreAffaire::name).toArray(String[]::new),
+                    mvtParam.isExcludeFreeUnit(),
+                    BooleanUtils.toBoolean(mvtParam.getToIgnore())
+                );
             } else {
-                jsonResult = salesRepository.fetchTableauPharmacienReport(mvtParam.getFromDate(), mvtParam.getToDate(), mvtParam.getStatuts().stream().map(SalesStatut::name).toArray(String[]::new), mvtParam.getCategorieChiffreAffaires().stream().map(CategorieChiffreAffaire::name).toArray(String[]::new), mvtParam.isExcludeFreeUnit(), BooleanUtils.toBoolean(mvtParam.getToIgnore()));
+                jsonResult = salesRepository.fetchTableauPharmacienReport(
+                    mvtParam.getFromDate(),
+                    mvtParam.getToDate(),
+                    mvtParam.getStatuts().stream().map(SalesStatut::name).toArray(String[]::new),
+                    mvtParam.getCategorieChiffreAffaires().stream().map(CategorieChiffreAffaire::name).toArray(String[]::new),
+                    mvtParam.isExcludeFreeUnit(),
+                    BooleanUtils.toBoolean(mvtParam.getToIgnore())
+                );
             }
-            return objectMapper.readValue(jsonResult, new TypeReference<>() {
-            });
-
+            return objectMapper.readValue(jsonResult, new TypeReference<>() {});
         } catch (Exception e) {
-            LOG.info( e.getLocalizedMessage());
-            return  new ArrayList<>();
+            LOG.info(e.getLocalizedMessage());
+            return new ArrayList<>();
         }
     }
-
 }

@@ -38,7 +38,6 @@
     background: linear-gradient(to bottom, $medium-gray, $light-gray);
     padding: 1.5rem;
 
-
     .p-card {
       background-color: $white;
       border-radius: 8px;
@@ -61,7 +60,6 @@
     .p-card-body {
       padding: 1.25rem;
     }
-
 
     .sale-info-card {
       .p-card-body {
@@ -116,6 +114,5 @@
         border-color: darken($primary-color, 10%);
       }
     }
-
   }
 }

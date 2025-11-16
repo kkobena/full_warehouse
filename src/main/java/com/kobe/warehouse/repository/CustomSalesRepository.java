@@ -12,11 +12,10 @@ import com.kobe.warehouse.service.reglement.differe.dto.DiffereItem;
 import com.kobe.warehouse.service.reglement.differe.dto.DiffereSummary;
 import com.kobe.warehouse.service.reglement.differe.dto.Solde;
 import com.kobe.warehouse.service.tiketz.dto.TicketZCreditProjection;
+import java.util.List;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
-
-import java.util.List;
 
 public interface CustomSalesRepository {
     Page<DiffereItem> getDiffereItems(Specification<Sales> specification, Pageable pageable);
@@ -29,7 +28,5 @@ public interface CustomSalesRepository {
 
     List<TicketZCreditProjection> getTicketZDifferes(Specification<Sales> specification);
 
-
     List<VentePeriodeRecord> fetchVentePeriodeRecords(Specification<Sales> specification, StatGroupBy statGroupBy);
-
 }

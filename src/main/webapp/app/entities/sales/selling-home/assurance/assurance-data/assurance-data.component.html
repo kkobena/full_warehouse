@@ -1,6 +1,5 @@
 <!-- Modern Assurance Data Component -->
 <div class="assurance-data-wrapper">
-
   <!-- Search Section -->
   @if (!selectedCustomerService.selectedCustomerSignal() || !currentSaleService.currentSale()) {
     <div class="search-section">
@@ -24,7 +23,6 @@
   <!-- Customer Information Cards -->
   @if (selectedCustomerService.selectedCustomerSignal()) {
     <div class="customer-data-grid">
-
       <!-- Assuré Card -->
       <div [class]="divCustomer()">
         <div class="data-card assured-card">
@@ -34,15 +32,8 @@
               <span>Assuré</span>
             </div>
 
-            <p-splitbutton
-              [model]="assureBtnActions"
-              [text]="true"
-              icon="pi pi-user-edit"
-              label="Gérer"
-              severity="info"
-              size="small">
+            <p-splitbutton [model]="assureBtnActions" [text]="true" icon="pi pi-user-edit" label="Gérer" severity="info" size="small">
             </p-splitbutton>
-
           </div>
           <div class="card-body">
             <div class="info-row">
@@ -70,22 +61,10 @@
                 <span>Ayant droit</span>
               </div>
               @if (ayantDroit?.id === selectedCustomerService.selectedCustomerSignal().id) {
-                <p-button
-                  (click)="loadAyantDoits()"
-                  [variant]="'text'"
-                  icon="pi pi-users"
-                  label="Remplacer"
-                  size="small"
-                  class="edit-btn">
+                <p-button (click)="loadAyantDoits()" [variant]="'text'" icon="pi pi-users" label="Remplacer" size="small" class="edit-btn">
                 </p-button>
               } @else {
-                <p-splitbutton
-                  [model]="items"
-                  [text]="true"
-                  icon="pi pi-user-edit"
-                  label="Gérer"
-                  severity="info"
-                  size="small">
+                <p-splitbutton [model]="items" [text]="true" icon="pi pi-user-edit" label="Gérer" severity="info" size="small">
                 </p-splitbutton>
               }
             </div>
@@ -154,13 +133,16 @@
                       tooltipPosition="top"
                       severity="danger"
                       [text]="true"
-                      type="button">
+                      type="button"
+                    >
                     </p-button>
                   </p-inputgroup-addon>
                 }
-                @if (selectedCustomerService.selectedCustomerSignal()
-                  && selectedTiersPayants().length < selectedCustomerService.selectedCustomerSignal().tiersPayants.length
-                  && currentSaleService.typeVo() === 'ASSURANCE') {
+                @if (
+                  selectedCustomerService.selectedCustomerSignal() &&
+                  selectedTiersPayants().length < selectedCustomerService.selectedCustomerSignal().tiersPayants.length &&
+                  currentSaleService.typeVo() === 'ASSURANCE'
+                ) {
                   <p-inputgroup-addon>
                     <p-button
                       (click)="addComplementaire()"
@@ -169,7 +151,8 @@
                       tooltipPosition="top"
                       severity="success"
                       [text]="true"
-                      type="button">
+                      type="button"
+                    >
                     </p-button>
                   </p-inputgroup-addon>
                 }

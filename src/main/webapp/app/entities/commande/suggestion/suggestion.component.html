@@ -19,7 +19,6 @@
     dataKey="id"
     stripedRows="true"
     selectionMode="multiple"
-
   >
     <ng-template #header>
       <tr class="pharma-table-head">
@@ -36,11 +35,15 @@
     </ng-template>
     <ng-template let-suggestion #body>
       <tr>
-        <td><span class="pharma-badge pharma-badge-info">{{ suggestion.typeSuggession }}</span></td>
+        <td>
+          <span class="pharma-badge pharma-badge-info">{{ suggestion.typeSuggession }}</span>
+        </td>
         <td class="pharma-entity-name">{{ suggestion.fournisseurLibelle }}</td>
         <td>{{ suggestion.suggessionReference }}</td>
         <td>{{ suggestion.updatedAt | date: 'dd/MM/yyyy HH:mm:ss' }}</td>
-        <td><span class="pharma-badge pharma-badge-info">{{ suggestion.statutLibelle }}</span></td>
+        <td>
+          <span class="pharma-badge pharma-badge-info">{{ suggestion.statutLibelle }}</span>
+        </td>
         <td class="text-center">
           <p-tableCheckbox [value]="suggestion"></p-tableCheckbox>
         </td>
@@ -55,8 +58,14 @@
               [text]="true"
             >
             </p-button>
-            <p-button [rounded]="true" [text]="true" icon="pi pi-fast-forward" severity="info"
-                      type="button" pTooltip="Commander"></p-button>
+            <p-button
+              [rounded]="true"
+              [text]="true"
+              icon="pi pi-fast-forward"
+              severity="info"
+              type="button"
+              pTooltip="Commander"
+            ></p-button>
             <p-button
               (click)="sanitize(suggestion.id)"
               [rounded]="true"
@@ -65,8 +74,14 @@
               pTooltip="Supprimer les produits désactivés"
               [text]="true"
             />
-            <p-button (click)="delete(suggestion.id)" [rounded]="true" severity="danger"
-                      icon="pi pi-trash" pTooltip="Supprimer" [text]="true" />
+            <p-button
+              (click)="delete(suggestion.id)"
+              [rounded]="true"
+              severity="danger"
+              icon="pi pi-trash"
+              pTooltip="Supprimer"
+              [text]="true"
+            />
           </div>
         </td>
       </tr>
@@ -77,4 +92,4 @@
     <span>Aucune donnée trouvée</span>
   </div>
 }
-<jhi-spinner #spinner ></jhi-spinner>
+<jhi-spinner #spinner></jhi-spinner>

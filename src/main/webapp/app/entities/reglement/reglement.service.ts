@@ -3,13 +3,7 @@ import { SERVER_API_URL } from '../../app.constants';
 import { HttpClient, HttpResponse } from '@angular/common/http';
 import { Observable } from 'rxjs';
 
-import {
-  InvoicePaymentItem,
-  PaymentId,
-  Reglement,
-  ReglementParams,
-  ResponseReglement
-} from './model/reglement.model';
+import { InvoicePaymentItem, PaymentId, Reglement, ReglementParams, ResponseReglement } from './model/reglement.model';
 import { createRequestOptions } from '../../shared/util/request-util';
 
 type EntityResponseType = HttpResponse<Reglement>;
@@ -55,7 +49,7 @@ export class ReglementService {
   }
   getEscPosReceiptForTauri(paymentId: PaymentId): Observable<ArrayBuffer> {
     return this.http.get(`${this.resourceUrl}/print-tauri/${paymentId.id}/${paymentId.transactionDate}`, {
-      responseType: 'arraybuffer'
+      responseType: 'arraybuffer',
     });
   }
   delete(paymentId: PaymentId): Observable<HttpResponse<{}>> {

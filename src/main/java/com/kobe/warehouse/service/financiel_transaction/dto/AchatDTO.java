@@ -95,10 +95,18 @@ public class AchatDTO {
         return this;
     }
 
-    public AchatDTO() {
-    }
+    public AchatDTO() {}
 
-    public AchatDTO(LocalDate mvtDate, Long montantNet, Long montantTaxe, Long montantTtc, Long montantRemise, Integer groupeGrossisteId, String groupeGrossiste, Integer ordreAffichage) {
+    public AchatDTO(
+        LocalDate mvtDate,
+        Long montantNet,
+        Long montantTaxe,
+        Long montantTtc,
+        Long montantRemise,
+        Integer groupeGrossisteId,
+        String groupeGrossiste,
+        Integer ordreAffichage
+    ) {
         this.mvtDate = mvtDate;
         this.montantNet = montantNet;
         this.montantTaxe = montantTaxe;

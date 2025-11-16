@@ -14,8 +14,7 @@
           <div class="pharma-search-input">
             <p-iconfield>
               <p-inputicon class="pi pi-search" />
-              <input (keyup.enter)="search($event)" pInputText placeholder="Taper pour rechercher"
-                     type="text" />
+              <input (keyup.enter)="search($event)" pInputText placeholder="Taper pour rechercher" type="text" />
             </p-iconfield>
           </div>
         </div>
@@ -32,8 +31,14 @@
               severity="help"
               type="button"
             ></p-button>
-            <p-button (click)="addNewEntity()" icon="pi pi-check" label="Nouveau" [raised]="true"
-                      severity="success" type="button"></p-button>
+            <p-button
+              (click)="addNewEntity()"
+              icon="pi pi-check"
+              label="Nouveau"
+              [raised]="true"
+              severity="success"
+              type="button"
+            ></p-button>
           </div>
         </div>
       </ng-template>
@@ -65,7 +70,7 @@
           <th><span>Url PharmaMl</span></th>
           <th><span>Code officine PharmaMl</span></th>
           <th><span>Code Recepteur PharmaMl</span></th>
-          <th style="width:10%;"></th>
+          <th style="width: 10%"></th>
         </tr>
       </ng-template>
       <ng-template #body let-columns="columns" let-elRow>

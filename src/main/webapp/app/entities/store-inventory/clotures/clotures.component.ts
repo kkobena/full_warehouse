@@ -4,7 +4,7 @@ import {
   InventoryCategory,
   InventoryStatut,
   IStoreInventory,
-  StoreInventoryExportRecord
+  StoreInventoryExportRecord,
 } from '../../../shared/model/store-inventory.model';
 import { IUser } from '../../../core/user/user.model';
 import { ITEMS_PER_PAGE } from '../../../config/pagination.constants';

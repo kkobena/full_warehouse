@@ -23,7 +23,7 @@ import { SpinnerComponent } from '../../../shared/spinner/spinner.component';
   selector: 'jhi-clone-form',
   imports: [Card, ReactiveFormsModule, Button, ToastAlertComponent, CommonModule, Select, SpinnerComponent],
   templateUrl: './clone-form.component.html',
-  styleUrls: ['../../common-modal.component.scss']
+  styleUrls: ['../../common-modal.component.scss'],
 })
 export class CloneFormComponent implements OnInit, OnDestroy {
   rayons: IRayon[] = [];
@@ -34,11 +34,11 @@ export class CloneFormComponent implements OnInit, OnDestroy {
   protected isSaving = false;
   protected editForm = this.fb.group({
     storageId: [null, [Validators.required]],
-    magasinId: [null, [Validators.required]]
+    magasinId: [null, [Validators.required]],
   });
   private readonly activeModal = inject(NgbActiveModal);
   private readonly errorService = inject(ErrorService);
-   private readonly spinner = viewChild.required<SpinnerComponent>('spinner');
+  private readonly spinner = viewChild.required<SpinnerComponent>('spinner');
   private readonly entityService = inject(RayonService);
   private readonly magasinService = inject(MagasinService);
   private readonly storageService = inject(StorageService);
@@ -83,7 +83,7 @@ export class CloneFormComponent implements OnInit, OnDestroy {
         error: err => {
           this.isSaving = false;
           this.alert().showError(this.errorService.getErrorMessage(err));
-        }
+        },
       });
   }
 
@@ -99,7 +99,7 @@ export class CloneFormComponent implements OnInit, OnDestroy {
   private findMagsinStorage(magasinId: number): void {
     this.storageService
       .fetchStorages({
-        magasinId
+        magasinId,
       })
       .pipe(takeUntil(this.destroy$))
       .subscribe((res: HttpResponse<Storage[]>) => {

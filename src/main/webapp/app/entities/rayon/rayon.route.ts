@@ -9,9 +9,9 @@ const rayonRoute: Routes = [
     loadComponent: () => import('./rayon.component').then(m => m.RayonComponent),
     data: {
       authorities: [Authority.ADMIN, Authority.RAYON],
-      defaultSort: 'id,asc'
+      defaultSort: 'id,asc',
     },
-    canActivate: [UserRouteAccessService]
-  }
+    canActivate: [UserRouteAccessService],
+  },
 ];
 export default rayonRoute;

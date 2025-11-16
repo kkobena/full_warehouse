@@ -1,7 +1,7 @@
 import { Injectable, signal, WritableSignal } from '@angular/core';
 
 @Injectable({
-  providedIn: 'root'
+  providedIn: 'root',
 })
 export class LastCurrencyGivenService {
   lastCurrency: WritableSignal<number> = signal<number>(null);

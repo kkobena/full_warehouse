@@ -3,17 +3,16 @@ package com.kobe.warehouse.service.receipt.service;
 import com.kobe.warehouse.service.receipt.dto.HeaderFooterItem;
 import com.kobe.warehouse.service.reglement.dto.InvoicePaymentReceiptDTO;
 import com.kobe.warehouse.service.settings.AppConfigurationService;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.stereotype.Service;
-import org.springframework.util.StringUtils;
-
-import javax.print.PrintException;
 import java.awt.*;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import javax.print.PrintException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.stereotype.Service;
+import org.springframework.util.StringUtils;
 
 @Service
 public class InvoiceReceiptService extends ReglementAbstractReceiptService {
@@ -36,12 +35,10 @@ public class InvoiceReceiptService extends ReglementAbstractReceiptService {
         return headerItems;
     }
 
-
     @Override
     protected List<HeaderFooterItem> getFooterItems() {
         return List.of();
     }
-
 
     @Override
     protected byte[] generateEscPosReceipt(boolean isEdit) throws IOException {
@@ -97,7 +94,6 @@ public class InvoiceReceiptService extends ReglementAbstractReceiptService {
             out.close();
         }
     }
-
 
     public void printReceipt(String hostName, InvoicePaymentReceiptDTO invoicePaymentReceipt) {
         this.invoicePaymentReceipt = invoicePaymentReceipt;

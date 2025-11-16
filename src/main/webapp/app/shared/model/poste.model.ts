@@ -14,7 +14,7 @@ export class Poste implements IPoste {
     public posteNumber?: string,
     public address?: string,
     public customerDisplay?: boolean,
-    public customerDisplayPort?: string
+    public customerDisplayPort?: string,
   ) {
     this.customerDisplay = this.customerDisplay || false;
   }

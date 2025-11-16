@@ -13,7 +13,7 @@ export class ForceStockService {
     message: string,
     confimDialog: ConfirmDialogComponent,
     addProduitFn: (qytMvt: number) => void,
-    updateProduitQtyBoxFn: () => void
+    updateProduitQtyBoxFn: () => void,
   ): void {
     this.confirmForceStock(qytMvt, message, confimDialog, addProduitFn, updateProduitQtyBoxFn);
   }
@@ -23,7 +23,7 @@ export class ForceStockService {
     message: string,
     confimDialog: ConfirmDialogComponent,
     processQtyRequestedFn: (salesLine: ISalesLine) => void,
-    updateProduitQtyBoxFn: () => void
+    updateProduitQtyBoxFn: () => void,
   ): void {
     confimDialog.onConfirm(
       () => {
@@ -34,7 +34,7 @@ export class ForceStockService {
       null,
       () => {
         updateProduitQtyBoxFn();
-      }
+      },
     );
   }
 
@@ -43,7 +43,7 @@ export class ForceStockService {
     message: string,
     confimDialog: ConfirmDialogComponent,
     addProduitFn: (qytMvt: number) => void,
-    updateProduitQtyBoxFn: () => void
+    updateProduitQtyBoxFn: () => void,
   ): void {
     confimDialog.onConfirm(
       () => {
@@ -54,7 +54,7 @@ export class ForceStockService {
       null,
       () => {
         updateProduitQtyBoxFn();
-      }
+      },
     );
   }
 

@@ -62,7 +62,7 @@ import { PrimeNG } from 'primeng/config';
     ConfirmDialogComponent,
     RetourBonListComponent,
     DatePicker,
-    FloatLabel
+    FloatLabel,
   ],
   styleUrl: './commande.component.scss',
 })
@@ -79,25 +79,25 @@ export class CommandeComponent implements OnInit {
   protected typeSuggessions = [
     // { label: 'Tous', value: 'ALL' },
     { label: 'Auto', value: 'AUTO' },
-    { label: 'Manuelle', value: 'MANUELLE' }
+    { label: 'Manuelle', value: 'MANUELLE' },
   ];
   protected selectedStatut: RetourBonStatut | null = null;
   protected dtStart: Date | null = null;
   protected dtEnd: Date | null = null;
   protected statutOptions = [
     { label: 'En attente de réponse', value: RetourBonStatut.VALIDATED },
-    { label: 'Clôturé', value: RetourBonStatut.CLOSED }
+    { label: 'Clôturé', value: RetourBonStatut.CLOSED },
   ];
 
   protected commandes: ICommande[] = [];
   protected selectedFilter = 'REQUESTED';
   protected loading!: boolean;
   protected readonly menuTileAndIcon = [
-    { title: 'Commandes en cours', icon: 'pi pi-spin pi-spinner',menuId: 'REQUESTED' },
-     { title: 'Suggestions de commandes', icon: 'pi pi-lightbulb',menuId: 'SUGGESTIONS' },
+    { title: 'Commandes en cours', icon: 'pi pi-spin pi-spinner', menuId: 'REQUESTED' },
+    { title: 'Suggestions de commandes', icon: 'pi pi-lightbulb', menuId: 'SUGGESTIONS' },
     { title: 'Bons de livraison en cours', icon: 'pi pi-fw pi-truck', menuId: 'BONS_EN_COURS' },
-   { title: 'Liste des bons de livraison', icon: 'pi pi-fw pi-list', menuId: 'LIST_BONS' },
-   { title: 'Retours fournisseur', icon: 'pi pi-replay', menuId: 'RETOUR_FOURNISSEUR' }
+    { title: 'Liste des bons de livraison', icon: 'pi pi-fw pi-list', menuId: 'LIST_BONS' },
+    { title: 'Retours fournisseur', icon: 'pi pi-replay', menuId: 'RETOUR_FOURNISSEUR' },
   ];
 
   private readonly router = inject(Router);
@@ -120,7 +120,7 @@ export class CommandeComponent implements OnInit {
     this.fournisseurService
       .query({
         page: 0,
-        size: 999
+        size: 999,
       })
       .subscribe((res: HttpResponse<IFournisseur[]>) => {
         this.fournisseurs = res.body || [];
@@ -198,7 +198,6 @@ export class CommandeComponent implements OnInit {
     }
   }
 
-
   private openImportResponseDialogComponent(responseCommande: ICommandeResponse): void {
     this.openCommandeResponseDialog(CommandeImportResponseDialogComponent, responseCommande);
   }
@@ -207,7 +206,7 @@ export class CommandeComponent implements OnInit {
     const modalRef = this.modalService.open(component, {
       size: 'xl',
       scrollable: true,
-      backdrop: 'static'
+      backdrop: 'static',
     });
     modalRef.componentInstance.responseCommande = responseCommande;
     if (commande) {
@@ -220,37 +219,39 @@ export class CommandeComponent implements OnInit {
       this.modalService,
       ImportationNewCommandeComponent,
       {
-        header: 'IMPORTATION DE NOUVELLE COMMANDE'
+        header: 'IMPORTATION DE NOUVELLE COMMANDE',
       },
-      (reason) => {
+      reason => {
         this.active = 'REQUESTED';
         this.onSearch();
         this.openImportResponseDialogComponent(reason);
       },
-      'lg'
+      'lg',
     );
   }
 
   confirmDeleteSelectedRows(): void {
-    this.confimDialog().onConfirm(() => {
-      if (this.active === 'REQUESTED') {
-        this.commandeEnCoursComponent().removeAll();
-      } else if (this.active === 'SUGGESTIONS') {
-        this.suggestion().deleteAll();
-      }
-    }, 'Suppression', 'Êtes-vous sûr de vouloir supprimer ?');
-
+    this.confimDialog().onConfirm(
+      () => {
+        if (this.active === 'REQUESTED') {
+          this.commandeEnCoursComponent().removeAll();
+        } else if (this.active === 'SUGGESTIONS') {
+          this.suggestion().deleteAll();
+        }
+      },
+      'Suppression',
+      'Êtes-vous sûr de vouloir supprimer ?',
+    );
   }
-
 
   protected updateSelectionLength(lgth: number): void {
     this.selectionLength = lgth;
   }
 
   protected get title(): string {
-    return this.menuTileAndIcon.find(m=>m.menuId===this.active)?.title || '' ;
+    return this.menuTileAndIcon.find(m => m.menuId === this.active)?.title || '';
   }
   protected get icon(): string {
-    return this.menuTileAndIcon.find(m=>m.menuId===this.active)?.icon || '' ;
+    return this.menuTileAndIcon.find(m => m.menuId === this.active)?.icon || '';
   }
 }

@@ -9,7 +9,7 @@ import { AuthorityService } from '../service/authority.service';
 
 @Component({
   templateUrl: './authority-delete-dialog.component.html',
-  imports: [SharedModule, FormsModule]
+  imports: [SharedModule, FormsModule],
 })
 export class AuthorityDeleteDialogComponent {
   authority?: IAuthority;

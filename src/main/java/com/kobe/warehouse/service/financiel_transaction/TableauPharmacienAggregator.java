@@ -1,12 +1,12 @@
 package com.kobe.warehouse.service.financiel_transaction;
 
+import static com.kobe.warehouse.service.financiel_transaction.TableauPharmacienConstants.GROUP_OTHER_ID;
+
 import com.kobe.warehouse.service.dto.projection.ReponseRetourBonItemProjection;
 import com.kobe.warehouse.service.financiel_transaction.dto.AchatDTO;
 import com.kobe.warehouse.service.financiel_transaction.dto.FournisseurAchat;
 import com.kobe.warehouse.service.financiel_transaction.dto.TableauPharmacienDTO;
 import com.kobe.warehouse.service.financiel_transaction.dto.TableauPharmacienWrapper;
-import org.springframework.stereotype.Component;
-
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -17,8 +17,7 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
-
-import static com.kobe.warehouse.service.financiel_transaction.TableauPharmacienConstants.GROUP_OTHER_ID;
+import org.springframework.stereotype.Component;
 
 /**
  * Handles data aggregation for TableauPharmacien
@@ -40,28 +39,22 @@ public class TableauPharmacienAggregator {
             return Collections.emptyMap();
         }
 
-        return groupAchats.stream()
-            .collect(Collectors.groupingBy(
-                FournisseurAchat::getId,
-                Collectors.summingLong(f -> f.getAchat().getMontantNet())
-            ));
+        return groupAchats
+            .stream()
+            .collect(Collectors.groupingBy(FournisseurAchat::getId, Collectors.summingLong(f -> f.getAchat().getMontantNet())));
     }
 
     /**
      * Build FournisseurAchat list grouped by supplier group for a specific day
      */
-    public List<FournisseurAchat> buildFournisseurAchatsForDay(
-        List<AchatDTO> achats,
-        Set<Integer> displayedGroupIds
-    ) {
+    public List<FournisseurAchat> buildFournisseurAchatsForDay(List<AchatDTO> achats, Set<Integer> displayedGroupIds) {
         if (achats == null || achats.isEmpty()) {
             return Collections.emptyList();
         }
 
         Map<Integer, FournisseurAchat> fournisseurAchatMap = new HashMap<>();
 
-        Map<Integer, List<AchatDTO>> groupedBySupplier = achats.stream()
-            .collect(Collectors.groupingBy(AchatDTO::getGroupeGrossisteId));
+        Map<Integer, List<AchatDTO>> groupedBySupplier = achats.stream().collect(Collectors.groupingBy(AchatDTO::getGroupeGrossisteId));
 
         for (Map.Entry<Integer, List<AchatDTO>> entry : groupedBySupplier.entrySet()) {
             Integer groupId = entry.getKey();
@@ -70,9 +63,8 @@ public class TableauPharmacienAggregator {
             // Determine if this group should be displayed individually or grouped as "Others"
             Integer displayGroupId = displayedGroupIds.contains(groupId) ? groupId : GROUP_OTHER_ID;
 
-            FournisseurAchat fournisseurAchat = fournisseurAchatMap.computeIfAbsent(
-                displayGroupId,
-                k -> createNewFournisseurAchat(k, groupAchats.getFirst().getGroupeGrossiste())
+            FournisseurAchat fournisseurAchat = fournisseurAchatMap.computeIfAbsent(displayGroupId, k ->
+                createNewFournisseurAchat(k, groupAchats.getFirst().getGroupeGrossiste())
             );
 
             // Aggregate purchase amounts
@@ -86,36 +78,26 @@ public class TableauPharmacienAggregator {
     /**
      * Aggregate all FournisseurAchat across multiple days
      */
-    public List<FournisseurAchat> aggregateFournisseurAchatsAcrossDays(
-        List<TableauPharmacienDTO> tableauPharmaciens
-    ) {
+    public List<FournisseurAchat> aggregateFournisseurAchatsAcrossDays(List<TableauPharmacienDTO> tableauPharmaciens) {
         if (tableauPharmaciens == null || tableauPharmaciens.isEmpty()) {
             return Collections.emptyList();
         }
 
         Map<Integer, FournisseurAchat> aggregatedMap = new HashMap<>();
 
-        tableauPharmaciens.stream()
+        tableauPharmaciens
+            .stream()
             .flatMap(t -> t.getGroupAchats().stream())
             .forEach(fournisseurAchat -> {
                 Integer groupId = fournisseurAchat.getId();
                 FournisseurAchat existing = aggregatedMap.get(groupId);
 
                 if (existing == null) {
-                    FournisseurAchat newFournisseur = createNewFournisseurAchat(
-                        groupId,
-                        fournisseurAchat.getLibelle()
-                    );
-                    newFournisseur.setAchat(calculator.aggregateAchats(
-                        List.of(fournisseurAchat.getAchat()),
-                        newFournisseur.getAchat()
-                    ));
+                    FournisseurAchat newFournisseur = createNewFournisseurAchat(groupId, fournisseurAchat.getLibelle());
+                    newFournisseur.setAchat(calculator.aggregateAchats(List.of(fournisseurAchat.getAchat()), newFournisseur.getAchat()));
                     aggregatedMap.put(groupId, newFournisseur);
                 } else {
-                    calculator.aggregateAchats(
-                        List.of(fournisseurAchat.getAchat()),
-                        existing.getAchat()
-                    );
+                    calculator.aggregateAchats(List.of(fournisseurAchat.getAchat()), existing.getAchat());
                 }
             });
 
@@ -134,16 +116,9 @@ public class TableauPharmacienAggregator {
             List<AchatDTO> achatsForDate = achatsByDate.remove(dto.getMvtDate());
 
             if (achatsForDate != null && !achatsForDate.isEmpty()) {
-                List<FournisseurAchat> groupAchats = buildFournisseurAchatsForDay(
-                    achatsForDate,
-                    displayedGroupIds
-                );
+                List<FournisseurAchat> groupAchats = buildFournisseurAchatsForDay(achatsForDate, displayedGroupIds);
                 dto.setGroupAchats(groupAchats);
-                dto.setMontantBonAchat(
-                    achatsForDate.stream()
-                        .mapToLong(AchatDTO::getMontantNet)
-                        .sum()
-                );
+                dto.setMontantBonAchat(achatsForDate.stream().mapToLong(AchatDTO::getMontantNet).sum());
                 dto.setAchatFournisseurs(aggregateFournisseurAchatsByGroup(groupAchats));
             }
 
@@ -167,9 +142,7 @@ public class TableauPharmacienAggregator {
 
             List<FournisseurAchat> groupAchats = buildFournisseurAchatsForDay(achats, displayedGroupIds);
             dto.setGroupAchats(groupAchats);
-            dto.setMontantBonAchat(
-                achats.stream().mapToLong(AchatDTO::getMontantNet).sum()
-            );
+            dto.setMontantBonAchat(achats.stream().mapToLong(AchatDTO::getMontantNet).sum());
             dto.setAchatFournisseurs(aggregateFournisseurAchatsByGroup(groupAchats));
 
             newEntries.add(dto);
@@ -181,10 +154,7 @@ public class TableauPharmacienAggregator {
     /**
      * Aggregate wrapper totals from sales data
      */
-    public void aggregateSalesToWrapper(
-        TableauPharmacienWrapper wrapper,
-        TableauPharmacienDTO dto
-    ) {
+    public void aggregateSalesToWrapper(TableauPharmacienWrapper wrapper, TableauPharmacienDTO dto) {
         wrapper.setMontantVenteCredit(wrapper.getMontantVenteCredit() + dto.getMontantCredit());
         wrapper.setMontantVenteComptant(wrapper.getMontantVenteComptant() + dto.getMontantComptant());
         wrapper.setMontantVenteHt(wrapper.getMontantVenteHt() + dto.getMontantHt());
@@ -198,10 +168,7 @@ public class TableauPharmacienAggregator {
     /**
      * Aggregate wrapper totals from purchase data
      */
-    public void aggregatePurchasesToWrapper(
-        TableauPharmacienWrapper wrapper,
-        AchatDTO achat
-    ) {
+    public void aggregatePurchasesToWrapper(TableauPharmacienWrapper wrapper, AchatDTO achat) {
         wrapper.setMontantAchatTtc(wrapper.getMontantAchatTtc() + achat.getMontantTtc());
         wrapper.setMontantAchatRemise(wrapper.getMontantAchatRemise() + achat.getMontantRemise());
         wrapper.setMontantAchatNet(wrapper.getMontantAchatNet() + achat.getMontantNet());
@@ -222,11 +189,14 @@ public class TableauPharmacienAggregator {
         }
 
         // Group avoirs by date
-        Map<LocalDate, Long> avoirsByDate = avoirs.stream()
-            .collect(Collectors.groupingBy(
-                ReponseRetourBonItemProjection::getDateMtv,
-                Collectors.summingLong(a -> a.getValeurAchat() != null ? a.getValeurAchat() : 0L)
-            ));
+        Map<LocalDate, Long> avoirsByDate = avoirs
+            .stream()
+            .collect(
+                Collectors.groupingBy(
+                    ReponseRetourBonItemProjection::getDateMtv,
+                    Collectors.summingLong(a -> a.getValeurAchat() != null ? a.getValeurAchat() : 0L)
+                )
+            );
 
         if (tableauPharmaciens == null || tableauPharmaciens.isEmpty()) {
             // Return all avoirs as unmatched
@@ -277,9 +247,7 @@ public class TableauPharmacienAggregator {
             return 0L;
         }
 
-        return tableauPharmaciens.stream()
-            .mapToLong(TableauPharmacienDTO::getMontantAvoirFournisseur)
-            .sum();
+        return tableauPharmaciens.stream().mapToLong(TableauPharmacienDTO::getMontantAvoirFournisseur).sum();
     }
 
     private FournisseurAchat createNewFournisseurAchat(Integer groupId, String libelle) {

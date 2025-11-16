@@ -25,15 +25,7 @@ export type ExpandMode = 'single' | 'multiple';
   selector: 'jhi-commande-en-cours',
   templateUrl: './commande-en-cours.component.html',
   styleUrl: './commande-en-cours.component.scss',
-  imports: [
-    WarehouseCommonModule,
-    ButtonModule,
-    TableModule,
-    RouterModule,
-    TooltipModule,
-    ConfirmDialogComponent,
-    SpinnerComponent
-  ]
+  imports: [WarehouseCommonModule, ButtonModule, TableModule, RouterModule, TooltipModule, ConfirmDialogComponent, SpinnerComponent],
 })
 export class CommandeEnCoursComponent implements OnInit {
   readonly search = input('');
@@ -79,24 +71,27 @@ export class CommandeEnCoursComponent implements OnInit {
         search: this.search(),
         searchCommande: this.searchCommande(),
         orderStatuts: this.selectedFilters,
-        typeSuggession: this.selectedtypeSuggession !== 'ALL' ? this.selectedtypeSuggession : undefined
+        typeSuggession: this.selectedtypeSuggession !== 'ALL' ? this.selectedtypeSuggession : undefined,
       })
       .subscribe({
         next: (res: HttpResponse<ICommande[]>) => this.onSuccess(res.body, res.headers, pageToLoad),
-        error: () => this.onError()
+        error: () => this.onError(),
       });
   }
 
   deleteCommande(commandeId: CommandeId): void {
-   this.spinner().show();
-    this.commandeService.delete(commandeId).pipe(finalize(() =>this.spinner().hide())).subscribe({
-      next: () => {
-        this.loadPage();
-      },
-      error: error => {
-        this.onCommonError(error);
-      }
-    });
+    this.spinner().show();
+    this.commandeService
+      .delete(commandeId)
+      .pipe(finalize(() => this.spinner().hide()))
+      .subscribe({
+        next: () => {
+          this.loadPage();
+        },
+        error: error => {
+          this.onCommonError(error);
+        },
+      });
   }
 
   sort(): string[] {
@@ -148,40 +143,41 @@ export class CommandeEnCoursComponent implements OnInit {
     if (!isSameProvider) {
       this.openInfoDialog('Veillez sélectionner des commandes du même grossiste', 'alert alert-info');
     } else {
-     this.spinner().show();
+      this.spinner().show();
       this.commandeService.fusionner(ids).subscribe({
         next: () => {
           this.selections = [];
           this.loadPage();
-         this.spinner().hide();
+          this.spinner().hide();
         },
         error: error => {
           this.onCommonError(error);
-         this.spinner().hide();
-        }
+          this.spinner().hide();
+        },
       });
     }
   }
-
 
   onShowFileDialog(commande: ICommande): void {
     this.commandeSelected = commande;
   }
 
-
   removeAll(): void {
-    this.commandeService.deleteSelectedCommandes(this.selections.map(e => {
-      return { id: e.id!, orderDate: e.orderDate! };
-    })).subscribe(() => {
-      this.loadPage();
-      this.selections = [];
-    });
+    this.commandeService
+      .deleteSelectedCommandes(
+        this.selections.map(e => {
+          return { id: e.id!, orderDate: e.orderDate! };
+        }),
+      )
+      .subscribe(() => {
+        this.loadPage();
+        this.selections = [];
+      });
   }
 
   confirmDelete(commande: ICommande): void {
     this.confimDialog().onConfirm(() => this.deleteCommande(commande.commandeId), 'Suppression', 'Êtes-vous sûre de vouloir supprimer ?');
   }
-
 
   onSearch(): void {
     if (this.index == 0) {
@@ -200,11 +196,11 @@ export class CommandeEnCoursComponent implements OnInit {
           search: this.search(),
           searchCommande: this.searchCommande(),
           orderStatuts: this.selectedFilters,
-          typeSuggession: this.selectedtypeSuggession !== 'ALL' ? this.selectedtypeSuggession : undefined
+          typeSuggession: this.selectedtypeSuggession !== 'ALL' ? this.selectedtypeSuggession : undefined,
         })
         .subscribe({
           next: (res: HttpResponse<ICommande[]>) => this.onSuccess(res.body, res.headers, this.page),
-          error: () => this.onError()
+          error: () => this.onError(),
         });
     }
   }
@@ -228,7 +224,7 @@ export class CommandeEnCoursComponent implements OnInit {
   protected openInfoDialog(message: string, infoClass: string): void {
     const modalRef = this.modalService.open(AlertInfoComponent, {
       backdrop: 'static',
-      centered: true
+      centered: true,
     });
     modalRef.componentInstance.message = message;
     modalRef.componentInstance.infoClass = infoClass;
@@ -243,8 +239,8 @@ export class CommandeEnCoursComponent implements OnInit {
         size: this.itemsPerPage,
         search: this.search(),
         orderStatuts: this.selectedFilters,
-        typeSuggession: this.selectedtypeSuggession !== 'ALL' ? this.selectedtypeSuggession : undefined
-      }
+        typeSuggession: this.selectedtypeSuggession !== 'ALL' ? this.selectedtypeSuggession : undefined,
+      },
     });
 
     this.commandes = data || [];

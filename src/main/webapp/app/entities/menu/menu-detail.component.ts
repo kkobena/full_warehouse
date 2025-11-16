@@ -32,15 +32,14 @@ import { FormsModule } from '@angular/forms';
     InputIconModule,
     InputTextModule,
     TooltipModule,
-    FormsModule
-  ]
+    FormsModule,
+  ],
 })
 export class MenuDetailComponent implements OnInit {
-
   constructor(
     private privillegeService: PrivillegeService,
     private activatedRoute: ActivatedRoute,
-    private cdr: ChangeDetectorRef
+    private cdr: ChangeDetectorRef,
   ) {}
   entity: IAuthority | null = null;
   associes: IMenu[] = [];
@@ -54,17 +53,13 @@ export class MenuDetailComponent implements OnInit {
   get filteredOthers(): IMenu[] {
     if (!this.others) return [];
     if (!this.sourceFilter) return this.others;
-    return this.others.filter(item =>
-      item.libelle?.toLowerCase().includes(this.sourceFilter.toLowerCase())
-    );
+    return this.others.filter(item => item.libelle?.toLowerCase().includes(this.sourceFilter.toLowerCase()));
   }
 
   get filteredAssocies(): IMenu[] {
     if (!this.associes) return [];
     if (!this.targetFilter) return this.associes;
-    return this.associes.filter(item =>
-      item.libelle?.toLowerCase().includes(this.targetFilter.toLowerCase())
-    );
+    return this.associes.filter(item => item.libelle?.toLowerCase().includes(this.targetFilter.toLowerCase()));
   }
 
   ngOnInit(): void {
@@ -142,7 +137,7 @@ export class MenuDetailComponent implements OnInit {
       },
       error: () => {
         this.loadAll();
-      }
+      },
     });
   }
 }

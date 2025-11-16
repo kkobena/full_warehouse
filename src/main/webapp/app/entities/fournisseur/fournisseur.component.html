@@ -14,8 +14,7 @@
           <div class="pharma-search-input">
             <p-iconfield>
               <p-inputicon class="pi pi-search" />
-              <input (keyup.enter)="search($event)" pInputText placeholder="Taper pour rechercher"
-                     type="text" />
+              <input (keyup.enter)="search($event)" pInputText placeholder="Taper pour rechercher" type="text" />
             </p-iconfield>
           </div>
         </div>
@@ -24,19 +23,25 @@
       <ng-template #end>
         <div class="pharma-toolbar-actions">
           <div class="pharma-button-group">
-            <p-button (click)="showFileDialog()"
-                      [raised]="true"
-                      icon="pi pi-upload"
-                      label="Importer"
-                      severity="help"
-                      type="button"
+            <p-button
+              (click)="showFileDialog()"
+              [raised]="true"
+              icon="pi pi-upload"
+              label="Importer"
+              severity="help"
+              type="button"
             ></p-button>
-            <p-button (click)="addNewEntity()" [raised]="true" icon="pi pi-check" label="Nouveau"
-                      severity="success" type="button"></p-button>
+            <p-button
+              (click)="addNewEntity()"
+              [raised]="true"
+              icon="pi pi-check"
+              label="Nouveau"
+              severity="success"
+              type="button"
+            ></p-button>
           </div>
         </div>
       </ng-template>
-
     </p-toolbar>
   </div>
 
@@ -110,4 +115,4 @@
   }
 </div>
 
-<jhi-spinner #spinner ></jhi-spinner>
+<jhi-spinner #spinner></jhi-spinner>

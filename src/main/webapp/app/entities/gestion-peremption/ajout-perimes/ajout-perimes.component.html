@@ -1,66 +1,74 @@
 <div class="container-fluid mt-1">
-  <div class="pharma-smart-content p-2 ">
-  <div class="pharma-toolbar pharma-toolbar-compact">
-    <div class="pharma-toolbar-header">
-      <i class="pi pi-plus-circle"></i>
-      <span class="pharma-toolbar-title">Ajout de lots périmés</span>
+  <div class="pharma-smart-content p-2">
+    <div class="pharma-toolbar pharma-toolbar-compact">
+      <div class="pharma-toolbar-header">
+        <i class="pi pi-plus-circle"></i>
+        <span class="pharma-toolbar-title">Ajout de lots périmés</span>
+      </div>
+
+      <p-toolbar>
+        <ng-template #start>
+          <div class="pharma-toolbar-filters">
+            <div class="pharma-product-search mr-1">
+              <jhi-produit-autocomplete
+                #produitComponent
+                (selectedProduit)="onSelect($event)"
+                [(ngModel)]="produitSelected"
+                [includeDetails]="includeDetail"
+                [pageSize]="PRODUIT_COMBO_RESULT_SIZE"
+              >
+              </jhi-produit-autocomplete>
+            </div>
+            <p-floatlabel variant="on" class="mr-1">
+              <input
+                #numLot
+                (keyup.enter)="onNumLot($event)"
+                [disabled]="!produitSelected"
+                autocomplete="off"
+                id="numLot"
+                pInputText
+                pKeyFilter="alphanum"
+                type="text"
+              />
+              <label for="numLot">{{ 'warehouseApp.gestionPerimes.labels.numLot' | translate }}</label>
+            </p-floatlabel>
+            <div class="mr-1">
+              <jhi-date-picker
+                #datePeremention
+                (onSelect)="onDatePerementionChange($event)"
+                [disabled]="numLotIsEmpty"
+                [id]="'datePeremtion'"
+                [label]="'warehouseApp.gestionPerimes.labels.datePeremption'"
+              ></jhi-date-picker>
+            </div>
+            <div>
+              <jhi-quantite-produt-saisie
+                #produitQteCmpt
+                (addQuantite)="addQuantity($event)"
+                [disabledButton]="disableButton"
+                [isValid]="canAddQuantity"
+              >
+              </jhi-quantite-produt-saisie>
+            </div>
+          </div>
+        </ng-template>
+
+        <ng-template #end>
+          <div class="pharma-toolbar-actions">
+            <div class="pharma-button-group">
+              <jhi-cta
+                (click)="onClose()"
+                [disabled]="data.length == 0 || isSaving"
+                [label]="'warehouseApp.buttons.closeAction'"
+                icon="pi pi-lock"
+                severity="info"
+              ></jhi-cta>
+              <jhi-back-button></jhi-back-button>
+            </div>
+          </div>
+        </ng-template>
+      </p-toolbar>
     </div>
-
-    <p-toolbar>
-      <ng-template #start>
-        <div class="pharma-toolbar-filters">
-          <div class="pharma-product-search mr-1">
-            <jhi-produit-autocomplete #produitComponent
-                                      (selectedProduit)="onSelect($event)"
-                                      [(ngModel)]="produitSelected"
-                                      [includeDetails]="includeDetail"
-                                      [pageSize]="PRODUIT_COMBO_RESULT_SIZE">
-            </jhi-produit-autocomplete>
-          </div>
-          <p-floatlabel variant="on" class="mr-1">
-            <input
-              #numLot
-              (keyup.enter)="onNumLot($event)"
-              [disabled]="!produitSelected"
-              autocomplete="off"
-              id="numLot"
-              pInputText
-              pKeyFilter="alphanum"
-              type="text"
-            />
-            <label
-              for="numLot">{{ 'warehouseApp.gestionPerimes.labels.numLot' | translate }}</label>
-          </p-floatlabel>
-          <div class="mr-1">
-            <jhi-date-picker #datePeremention (onSelect)="onDatePerementionChange($event)"
-                             [disabled]="numLotIsEmpty"
-                             [id]="'datePeremtion'"
-                             [label]="'warehouseApp.gestionPerimes.labels.datePeremption'"></jhi-date-picker>
-          </div>
-          <div>
-            <jhi-quantite-produt-saisie #produitQteCmpt (addQuantite)="addQuantity($event)"
-                                        [disabledButton]="disableButton"
-                                        [isValid]="canAddQuantity">
-            </jhi-quantite-produt-saisie>
-          </div>
-        </div>
-      </ng-template>
-
-      <ng-template #end>
-        <div class="pharma-toolbar-actions">
-          <div class="pharma-button-group">
-            <jhi-cta (click)="onClose()" [disabled]="data.length==0 || isSaving"
-                     [label]="'warehouseApp.buttons.closeAction'"
-                     icon="pi pi-lock"
-                     severity="info"
-            ></jhi-cta>
-            <jhi-back-button></jhi-back-button>
-          </div>
-        </div>
-      </ng-template>
-    </p-toolbar>
-  </div>
-
 
     <p-table
       class="pharma-table"
@@ -68,7 +76,7 @@
       [lazy]="true"
       [loading]="loading"
       [paginator]="true"
-      [rowsPerPageOptions]="[ 10, 15, 20, 30, 50]"
+      [rowsPerPageOptions]="[10, 15, 20, 30, 50]"
       [rows]="itemsPerPage"
       [showCurrentPageReport]="false"
       [showGridlines]="true"
@@ -79,10 +87,8 @@
       <ng-template #caption>
         <p-iconfield>
           <p-inputicon class="pi pi-search" />
-          <input (input)="onSearch()" [(ngModel)]="searchTerm" pInputText
-                 placeholder="Rechercher..." type="text" />
+          <input (input)="onSearch()" [(ngModel)]="searchTerm" pInputText placeholder="Rechercher..." type="text" />
         </p-iconfield>
-
       </ng-template>
       <ng-template #header>
         <tr class="pharma-table-head">
@@ -113,19 +119,19 @@
           <td>
             {{ data.datePeremption }}
           </td>
-          <td [pEditableColumn]="data.quantity" class="amount-column text-right"
-              pEditableColumnField="quantity">
+          <td [pEditableColumn]="data.quantity" class="amount-column text-right" pEditableColumnField="quantity">
             <p-cellEditor>
               <ng-template #input>
-                <input #quantityInput
-                       (focus)="$event.target.select()"
-                       (keydown.enter)="modifyProductQuantity(data, quantityInput.value)"
-                       [(ngModel)]="data.quantity"
-                       autocomplete="off"
-                       fluid="true"
-                       pInputText
-                       required
-                       type="number"
+                <input
+                  #quantityInput
+                  (focus)="$event.target.select()"
+                  (keydown.enter)="modifyProductQuantity(data, quantityInput.value)"
+                  [(ngModel)]="data.quantity"
+                  autocomplete="off"
+                  fluid="true"
+                  pInputText
+                  required
+                  type="number"
                 />
               </ng-template>
               <ng-template #output>
@@ -134,11 +140,14 @@
             </p-cellEditor>
           </td>
 
-          <td class="text-right amount-column"><span class="pharma-price">{{ data.prixAchat | number }}</span></td>
-          <td class="text-right amount-column"><span class="pharma-price">{{ data.prixUni | number }}</span></td>
+          <td class="text-right amount-column">
+            <span class="pharma-price">{{ data.prixAchat | number }}</span>
+          </td>
+          <td class="text-right amount-column">
+            <span class="pharma-price">{{ data.prixUni | number }}</span>
+          </td>
           <td class="text-center">
-            <p-tag [severity]="getSeverity(data.peremptionStatut)"
-                   [value]="data.peremptionStatut.libelle" />
+            <p-tag [severity]="getSeverity(data.peremptionStatut)" [value]="data.peremptionStatut.libelle" />
           </td>
 
           <td class="pharma-entity-name">
@@ -150,9 +159,7 @@
           </td>
         </tr>
       </ng-template>
-
     </p-table>
-
   </div>
 </div>
 

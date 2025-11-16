@@ -17,5 +17,4 @@ public enum SalesStatut {
     public static Set<SalesStatut> getStatutForFacturation() {
         return Set.of(CLOSED, CANCELED);
     }
-
 }

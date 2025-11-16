@@ -9,13 +9,12 @@ import com.kobe.warehouse.service.StorageService;
 import com.kobe.warehouse.service.UserService;
 import com.kobe.warehouse.service.dto.MagasinDTO;
 import jakarta.transaction.Transactional;
-import org.springframework.stereotype.Service;
-import org.springframework.util.CollectionUtils;
-
 import java.util.EnumSet;
 import java.util.List;
 import java.util.Objects;
 import java.util.Set;
+import org.springframework.stereotype.Service;
+import org.springframework.util.CollectionUtils;
 
 @Service
 @Transactional
@@ -26,7 +25,12 @@ public class MagasinServiceImpl implements MagasinService {
     private final StorageService storageService;
     private final RayonService rayonService;
 
-    public MagasinServiceImpl(MagasinRepository magasinRepository, UserService userService, StorageService storageService, RayonService rayonService) {
+    public MagasinServiceImpl(
+        MagasinRepository magasinRepository,
+        UserService userService,
+        StorageService storageService,
+        RayonService rayonService
+    ) {
         this.magasinRepository = magasinRepository;
         this.userService = userService;
         this.storageService = storageService;

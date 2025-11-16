@@ -14,7 +14,6 @@ import java.util.Optional;
 import java.util.Set;
 
 public interface SalesLineService {
-
     void updateSaleLine(SaleLineDTO dto, SalesLine salesLine);
 
     SalesLine buildSaleLineFromDTO(SaleLineDTO dto);

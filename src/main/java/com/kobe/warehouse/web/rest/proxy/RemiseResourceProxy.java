@@ -1,7 +1,7 @@
 package com.kobe.warehouse.web.rest.proxy;
 
-import com.kobe.warehouse.service.dto.GrilleRemiseDTO;
 import com.kobe.warehouse.service.dto.CodeRemiseDTO;
+import com.kobe.warehouse.service.dto.GrilleRemiseDTO;
 import com.kobe.warehouse.service.dto.RemiseDTO;
 import com.kobe.warehouse.service.dto.RemiseProduitsDTO;
 import com.kobe.warehouse.service.dto.TypeRemise;

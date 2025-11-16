@@ -5,11 +5,11 @@ import java.time.LocalDate;
 import java.util.Objects;
 
 public class PaymentId implements Serializable {
+
     private Long id;
     private LocalDate transactionDate;
 
-    public PaymentId() {
-    }
+    public PaymentId() {}
 
     public PaymentId(Long id, LocalDate transactionDate) {
         this.id = id;
@@ -36,8 +36,7 @@ public class PaymentId implements Serializable {
     public boolean equals(Object o) {
         if (o == null || getClass() != o.getClass()) return false;
         PaymentId paymentId = (PaymentId) o;
-        return Objects.equals(id, paymentId.id) && Objects.equals(
-            transactionDate, paymentId.transactionDate);
+        return Objects.equals(id, paymentId.id) && Objects.equals(transactionDate, paymentId.transactionDate);
     }
 
     @Override

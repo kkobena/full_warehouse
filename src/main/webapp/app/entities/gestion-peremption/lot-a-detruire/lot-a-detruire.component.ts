@@ -59,10 +59,10 @@ import { SpinnerComponent } from '../../../shared/spinner/spinner.component';
     DatePickerComponent,
     ConfirmDialogComponent,
     ToastAlertComponent,
-    SpinnerComponent
+    SpinnerComponent,
   ],
   templateUrl: './lot-a-detruire.component.html',
-  styleUrl: './lot-a-detruire.component.scss'
+  styleUrl: './lot-a-detruire.component.scss',
 })
 export class LotADetruireComponent implements OnInit, AfterViewInit {
   protected checkbox = viewChild<TableHeaderCheckbox>('checkbox');
@@ -93,16 +93,16 @@ export class LotADetruireComponent implements OnInit, AfterViewInit {
   protected types: any[] = [
     {
       label: 'Déjà détruits',
-      value: true
+      value: true,
     },
     {
       label: 'A détruire',
-      value: false
+      value: false,
     },
     {
       label: 'Tout',
-      value: null
-    }
+      value: null,
+    },
   ];
   protected selectedType: any = null;
   private readonly productToDestroyService = inject(ProductToDestroyService);
@@ -113,7 +113,7 @@ export class LotADetruireComponent implements OnInit, AfterViewInit {
   private readonly rayonService = inject(RayonService);
   private readonly magasinSrevice = inject(MagasinService);
   private readonly storageService = inject(StorageService);
-   private readonly spinner = viewChild.required<SpinnerComponent>('spinner');
+  private readonly spinner = viewChild.required<SpinnerComponent>('spinner');
   private readonly confimDialog = viewChild.required<ConfirmDialogComponent>('confirmDialog');
   private readonly alert = viewChild.required<ToastAlertComponent>('alert');
 
@@ -133,18 +133,18 @@ export class LotADetruireComponent implements OnInit, AfterViewInit {
       {
         label: 'PDF',
         icon: 'pi pi-file-pdf',
-        command: () => this.exportPdf()
+        command: () => this.exportPdf(),
       },
       {
         label: 'Excel',
         icon: 'pi pi-file-excel',
-        command: () => this.onExport('EXCEL')
+        command: () => this.onExport('EXCEL'),
       },
       {
         label: 'Csv',
         icon: 'pi pi-file-export',
-        command: () => this.onExport('CSV')
-      }
+        command: () => this.onExport('CSV'),
+      },
     ];
     this.onSearch();
     this.getSum();
@@ -167,8 +167,7 @@ export class LotADetruireComponent implements OnInit, AfterViewInit {
       'Confirmation',
       'Êtes-vous sûr de vouloir détruire ce stock ?',
       null,
-      () => {
-      }
+      () => {},
     );
   }
 
@@ -199,11 +198,11 @@ export class LotADetruireComponent implements OnInit, AfterViewInit {
         .query({
           page: this.page,
           size: event.rows,
-          ...this.buidParams()
+          ...this.buidParams(),
         })
         .subscribe({
           next: (res: HttpResponse<ProductToDestroy[]>) => this.onSuccess(res.body, res.headers, this.page),
-          error: () => this.onError()
+          error: () => this.onError(),
         });
     }
   }
@@ -222,8 +221,7 @@ export class LotADetruireComponent implements OnInit, AfterViewInit {
       'Confirmation',
       'Voulez-vous detruire tous les stocks de ces produits ?',
       null,
-      () => {
-      }
+      () => {},
     );
   }
 
@@ -238,11 +236,11 @@ export class LotADetruireComponent implements OnInit, AfterViewInit {
     this.productToDestroyService
       .destroy({
         ids: [id],
-        all: false
+        all: false,
       })
       .subscribe({
         next: () => this.loadPage(),
-        error: () => this.onError()
+        error: () => this.onError(),
       });
   }
 
@@ -262,7 +260,7 @@ export class LotADetruireComponent implements OnInit, AfterViewInit {
       .query({
         page: 0,
         storageId: this.selectedStorage?.id,
-        size: 9999
+        size: 9999,
       })
       .subscribe((res: HttpResponse<IRayon[]>) => {
         this.rayons = res.body || [];
@@ -273,7 +271,7 @@ export class LotADetruireComponent implements OnInit, AfterViewInit {
     this.fournisseurService
       .query({
         page: 0,
-        size: 9999
+        size: 9999,
       })
       .subscribe((res: HttpResponse<IFournisseur[]>) => {
         this.fournisseurs = res.body || [];
@@ -293,7 +291,7 @@ export class LotADetruireComponent implements OnInit, AfterViewInit {
         this.spinner().hide();
         window.open(URL.createObjectURL(blod));
       },
-      error: () => this.spinner().hide()
+      error: () => this.spinner().hide(),
     });
   }
 
@@ -311,7 +309,7 @@ export class LotADetruireComponent implements OnInit, AfterViewInit {
       },
       complete: () => {
         this.spinner().hide();
-      }
+      },
     });
   }
 
@@ -319,11 +317,11 @@ export class LotADetruireComponent implements OnInit, AfterViewInit {
     this.productToDestroyService
       .destroy({
         ids: this.selectedItems?.map(item => item.id) || [],
-        all: this.checkbox()?.checked
+        all: this.checkbox()?.checked,
       })
       .subscribe({
         next: () => this.loadPage(),
-        error: () => this.onError()
+        error: () => this.onError(),
       });
   }
 
@@ -337,7 +335,7 @@ export class LotADetruireComponent implements OnInit, AfterViewInit {
       magasinId: this.selectedMagasin?.id,
       destroyed: this.selectedType?.value,
       storageId: this.selectedStorage?.id,
-      editing: false
+      editing: false,
     };
   }
 
@@ -363,11 +361,11 @@ export class LotADetruireComponent implements OnInit, AfterViewInit {
       .query({
         page: pageToLoad - 1,
         size: this.itemsPerPage,
-        ...this.buidParams()
+        ...this.buidParams(),
       })
       .subscribe({
         next: (res: HttpResponse<ProductToDestroy[]>) => this.onSuccess(res.body, res.headers, pageToLoad),
-        error: () => this.onError()
+        error: () => this.onError(),
       });
   }
 }

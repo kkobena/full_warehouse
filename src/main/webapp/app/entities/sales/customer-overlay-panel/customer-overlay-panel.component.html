@@ -1,6 +1,5 @@
 <!-- Modern Customer Overlay Panel -->
 <div class="customer-panel-wrapper">
-
   <!-- Customer Popover -->
   <p-popover #op [style]="{ width: '650px' }">
     <ng-template pTemplate="content">
@@ -10,7 +9,6 @@
 
   <!-- Customer Display Card -->
   <div class="customer-display-card">
-
     <!-- Action Button -->
     <div class="customer-action-btn">
       @if (customer) {
@@ -22,7 +20,8 @@
           severity="danger"
           size="small"
           [rounded]="true"
-          class="remove-customer-btn">
+          class="remove-customer-btn"
+        >
         </p-button>
       } @else {
         <p-button
@@ -33,7 +32,8 @@
           severity="success"
           size="small"
           [rounded]="true"
-          class="add-customer-btn">
+          class="add-customer-btn"
+        >
         </p-button>
       }
     </div>

@@ -13,7 +13,7 @@ import { InputText } from 'primeng/inputtext';
 @Component({
   selector: 'jhi-decondition',
   templateUrl: 'decondition-dialog.component.html',
-  imports: [WarehouseCommonModule, ReactiveFormsModule, FormsModule, InputText]
+  imports: [WarehouseCommonModule, ReactiveFormsModule, FormsModule, InputText],
 })
 export class DeconditionDialogComponent {
   activeModal = inject(NgbActiveModal);
@@ -23,7 +23,7 @@ export class DeconditionDialogComponent {
   protected deconditionService = inject(DeconditionService);
   private fb = inject(FormBuilder);
   editForm = this.fb.group({
-    qtyMvt: [null, [Validators.required, Validators.min(1)]]
+    qtyMvt: [null, [Validators.required, Validators.min(1)]],
   });
 
   save(): void {
@@ -45,7 +45,7 @@ export class DeconditionDialogComponent {
   protected subscribeToSaveResponse(result: Observable<HttpResponse<IDecondition>>): void {
     result.subscribe({
       next: () => this.onSaveSuccess(),
-      error: () => this.onSaveError()
+      error: () => this.onSaveError(),
     });
   }
 
@@ -62,7 +62,7 @@ export class DeconditionDialogComponent {
     return {
       ...new Decondition(),
       qtyMvt: this.editForm.get(['qtyMvt']).value,
-      produitId: this.produit.id
+      produitId: this.produit.id,
     };
   }
 }

@@ -20,13 +20,12 @@ import jakarta.persistence.criteria.CriteriaQuery;
 import jakarta.persistence.criteria.Join;
 import jakarta.persistence.criteria.Predicate;
 import jakarta.persistence.criteria.Root;
+import java.util.List;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Repository;
-
-import java.util.List;
 
 @Repository
 public class DifferePaymentDataRepositoryImpl implements DifferePaymentDataRepository {
@@ -53,8 +52,7 @@ public class DifferePaymentDataRepositoryImpl implements DifferePaymentDataRepos
                     cb.sumAsLong(root.get(DifferePayment_.paidAmount))
                 )
             )
-            .groupBy(customerJoin.get(Customer_.id), customerJoin.get(Customer_.firstName),
-                customerJoin.get(Customer_.lastName));
+            .groupBy(customerJoin.get(Customer_.id), customerJoin.get(Customer_.firstName), customerJoin.get(Customer_.lastName));
 
         Predicate predicate = specification.toPredicate(root, query, cb);
         query.where(predicate);
@@ -79,9 +77,7 @@ public class DifferePaymentDataRepositoryImpl implements DifferePaymentDataRepos
         CriteriaQuery<DifferePaymentSummary> query = cb.createQuery(DifferePaymentSummary.class);
         Root<DifferePayment> root = query.from(DifferePayment.class);
 
-        query
-            .select(cb.construct(DifferePaymentSummary.class, cb.sumAsLong(root.get(DifferePayment_.paidAmount))))
-            ;
+        query.select(cb.construct(DifferePaymentSummary.class, cb.sumAsLong(root.get(DifferePayment_.paidAmount))));
 
         Predicate predicate = specification.toPredicate(root, query, cb);
         query.where(predicate);

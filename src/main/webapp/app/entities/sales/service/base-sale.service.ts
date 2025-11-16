@@ -2,15 +2,7 @@ import { computed, effect, inject, Injectable, signal, WritableSignal } from '@a
 import { CurrentSaleService } from './current-sale.service';
 import { IPaymentMode } from '../../../shared/model/payment-mode.model';
 import { SelectModeReglementService } from './select-mode-reglement.service';
-import {
-  FinalyseSale,
-  InputToFocus,
-  ISales,
-  SaleId,
-  Sales,
-  SaveResponse,
-  StockError
-} from '../../../shared/model/sales.model';
+import { FinalyseSale, InputToFocus, ISales, SaleId, Sales, SaveResponse, StockError } from '../../../shared/model/sales.model';
 import { ISalesLine } from '../../../shared/model/sales-line.model';
 import { VoSalesService } from './vo-sales.service';
 import { ConfigurationService } from '../../../shared/configuration.service';

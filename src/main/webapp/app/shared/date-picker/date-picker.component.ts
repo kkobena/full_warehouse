@@ -17,7 +17,7 @@ import { DATE_FORMAT_ISO_DATE } from '../util/warehouse-util';
   ],
   imports: [DatePickerModule, FloatLabelModule, FormsModule, TranslatePipe],
   template: `
-    <p-floatlabel variant="on" [style]="{'min-width': '90px'}">
+    <p-floatlabel variant="on" [style]="{ 'min-width': '90px' }">
       <p-datePicker
         #datePicker
         dateFormat="dd/mm/yy"

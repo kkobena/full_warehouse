@@ -31,11 +31,10 @@ import { InputIcon } from 'primeng/inputicon';
     FormsModule,
     ConfirmDialogComponent,
     IconField,
-    InputIcon
-  ]
+    InputIcon,
+  ],
 })
 export class ModifAjustementComponent implements OnInit {
-
   protected entites?: IMotifAjustement[];
   protected totalItems = 0;
   protected itemsPerPage = ITEMS_PER_PAGE;
@@ -57,11 +56,11 @@ export class ModifAjustementComponent implements OnInit {
       .query({
         page: pageToLoad,
         size: ITEMS_PER_PAGE,
-        search: query
+        search: query,
       })
       .subscribe({
         next: (res: HttpResponse<IMotifAjustement[]>) => this.onSuccess(res.body, res.headers, pageToLoad),
-        error: () => this.onError()
+        error: () => this.onError(),
       });
   }
 
@@ -72,11 +71,11 @@ export class ModifAjustementComponent implements OnInit {
       .query({
         page: this.page,
         size: event.rows,
-        search: ''
+        search: '',
       })
       .subscribe({
         next: (res: HttpResponse<IMotifAjustement[]>) => this.onSuccess(res.body, res.headers, this.page),
-        error: () => this.onError()
+        error: () => this.onError(),
       });
   }
 
@@ -88,7 +87,7 @@ export class ModifAjustementComponent implements OnInit {
         });
       },
       'Suppression',
-      'Êtes-vous sûr de vouloir supprimer ?'
+      'Êtes-vous sûr de vouloir supprimer ?',
     );
   }
 
@@ -106,28 +105,27 @@ export class ModifAjustementComponent implements OnInit {
       FormMotifAjustementComponent,
       {
         entity: null,
-        header: 'Ajout d\'un nouveau motif d\'ajustement'
+        header: "Ajout d'un nouveau motif d'ajustement",
       },
       () => {
         this.loadPage(0);
       },
-      'lg'
+      'lg',
     );
   }
 
   protected onEdit(entity: IMotifAjustement): void {
-
     showCommonModal(
       this.modalService,
       FormMotifAjustementComponent,
       {
         entity: entity,
-        header: 'Modification de ' + entity.libelle
+        header: 'Modification de ' + entity.libelle,
       },
       () => {
         this.loadPage(0);
       },
-      'lg'
+      'lg',
     );
   }
 

@@ -9,7 +9,6 @@ import java.time.LocalDateTime;
  * Provides bidirectional mapping with support for creating new entities or updating existing ones.
  */
 public interface TiersPayantMapper {
-
     /**
      * Converts a TiersPayant entity to a TiersPayantDto.
      *

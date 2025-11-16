@@ -9,15 +9,14 @@ import com.kobe.warehouse.service.dto.UninsuredCustomerDTO;
 import com.kobe.warehouse.service.receipt.dto.CashSaleReceiptItem;
 import com.kobe.warehouse.service.receipt.dto.HeaderFooterItem;
 import com.kobe.warehouse.service.settings.AppConfigurationService;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
+import javax.print.PrintException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
-
-import javax.print.PrintException;
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
 
 @Service
 public class VenteDepotReceiptService extends AbstractSaleReceiptService {
@@ -75,10 +74,10 @@ public class VenteDepotReceiptService extends AbstractSaleReceiptService {
         List<HeaderFooterItem> headerItems = new ArrayList<>();
         MagasinDTO depot = depotExtensionSale.getMagasin();
 
-            headerItems.add(new HeaderFooterItem("DEPOT: " + depot.getName(), 1, PLAIN_FONT));
-            if (StringUtils.hasLength(depot.getPhone())) {
-                headerItems.add(new HeaderFooterItem("TEL: " + depot.getPhone(), 1, PLAIN_FONT));
-            }
+        headerItems.add(new HeaderFooterItem("DEPOT: " + depot.getName(), 1, PLAIN_FONT));
+        if (StringUtils.hasLength(depot.getPhone())) {
+            headerItems.add(new HeaderFooterItem("TEL: " + depot.getPhone(), 1, PLAIN_FONT));
+        }
 
         headerItems.addAll(getOperateurInfos());
 
@@ -93,10 +92,7 @@ public class VenteDepotReceiptService extends AbstractSaleReceiptService {
     @Override
     public List<HeaderFooterItem> getFooterItems() {
         return List.of();
-
     }
-
-
 
     public byte[] generateEscPosReceiptForTauri(DepotExtensionSaleDTO sale, boolean isEdit) throws IOException {
         this.depotExtensionSale = sale;

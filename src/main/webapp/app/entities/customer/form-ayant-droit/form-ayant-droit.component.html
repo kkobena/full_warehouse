@@ -1,11 +1,9 @@
 <div class="modal-header">
   <h4 class="modal-title">{{ title }}</h4>
-  <button (click)="cancel()" class="btn-close" data-dismiss="modal" type="button">
-  </button>
+  <button (click)="cancel()" class="btn-close" data-dismiss="modal" type="button"></button>
 </div>
 
 <form (ngSubmit)="save()" [formGroup]="editForm" name="editForm" novalidate role="form">
-
   <div class="modal-body">
     <div class="card-grid-2col">
       <!-- Section 1: Champs Obligatoires -->
@@ -29,7 +27,8 @@
               class="w-full"
               autocomplete="off"
               autofocus
-              [class.ng-invalid]="editForm.get('firstName')?.invalid && editForm.get('firstName')?.touched" />
+              [class.ng-invalid]="editForm.get('firstName')?.invalid && editForm.get('firstName')?.touched"
+            />
             @if (editForm.get('firstName')?.invalid && editForm.get('firstName')?.touched) {
               @if (editForm.get('firstName')?.errors?.required) {
                 <small class="p-error" jhiTranslate="entity.validation.required">Ce champ est obligatoire</small>
@@ -46,7 +45,8 @@
               formControlName="lastName"
               class="w-full"
               autocomplete="off"
-              [class.ng-invalid]="editForm.get('lastName')?.invalid && editForm.get('lastName')?.touched" />
+              [class.ng-invalid]="editForm.get('lastName')?.invalid && editForm.get('lastName')?.touched"
+            />
             @if (editForm.get('lastName')?.invalid && editForm.get('lastName')?.touched) {
               @if (editForm.get('lastName')?.errors?.required) {
                 <small class="p-error" jhiTranslate="entity.validation.required">Ce champ est obligatoire</small>
@@ -64,7 +64,8 @@
               formControlName="numAyantDroit"
               class="w-full"
               autocomplete="off"
-              [class.ng-invalid]="editForm.get('numAyantDroit')?.invalid && editForm.get('numAyantDroit')?.touched" />
+              [class.ng-invalid]="editForm.get('numAyantDroit')?.invalid && editForm.get('numAyantDroit')?.touched"
+            />
             @if (editForm.get('numAyantDroit')?.invalid && editForm.get('numAyantDroit')?.touched) {
               @if (editForm.get('numAyantDroit')?.errors?.required) {
                 <small class="p-error" jhiTranslate="entity.validation.required">Ce champ est obligatoire</small>
@@ -95,7 +96,8 @@
               formControlName="datNaiss"
               placeholder="jj/mm/aaaa"
               class="w-full"
-              [class.ng-invalid]="datNaiss?.invalid && datNaiss?.touched" />
+              [class.ng-invalid]="datNaiss?.invalid && datNaiss?.touched"
+            />
             @if (datNaiss?.invalid && datNaiss?.touched) {
               @let errors = datNaiss?.errors;
               @if (errors?.invalidDate || errors?.outOfRange) {
@@ -116,12 +118,7 @@
           </div>
         </div>
       </p-card>
-
-
-
-
     </div>
-
   </div>
 
   <div class="form-actions-compact">

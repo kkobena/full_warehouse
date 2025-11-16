@@ -52,11 +52,11 @@ import { finalize } from 'rxjs/operators';
     QuantiteProdutSaisieComponent,
     Textarea,
     Tooltip,
-    InlineLotSelectionComponent
+    InlineLotSelectionComponent,
   ],
   providers: [MessageService],
   templateUrl: './supplier-returns.component.html',
-  styleUrl: './supplier-returns.component.scss'
+  styleUrl: './supplier-returns.component.scss',
 })
 export class SupplierReturnsComponent implements OnInit, OnDestroy {
   private readonly retourBonService = inject(RetourBonService);
@@ -105,16 +105,11 @@ export class SupplierReturnsComponent implements OnInit, OnDestroy {
   ngOnInit(): void {
     this.loadMotifRetours();
 
-
     // Setup debounced search for order lines
-    this.searchSubscription = this.searchTrigger$
-      .pipe(debounceTime(300))
-      .subscribe(search => this.filterOrderLines(search));
+    this.searchSubscription = this.searchTrigger$.pipe(debounceTime(300)).subscribe(search => this.filterOrderLines(search));
 
     // Setup debounced search for commandes
-    this.commandeSearchSubscription = this.commandeSearchTrigger$
-      .pipe(debounceTime(300))
-      .subscribe(search => this.filterCommandes(search));
+    this.commandeSearchSubscription = this.commandeSearchTrigger$.pipe(debounceTime(300)).subscribe(search => this.filterCommandes(search));
   }
 
   ngOnDestroy(): void {
@@ -122,24 +117,20 @@ export class SupplierReturnsComponent implements OnInit, OnDestroy {
     this.commandeSearchSubscription?.unsubscribe();
   }
 
-
   protected loadMotifRetours(): void {
-    this.motifRetourProduitService
-      .query()
-      .subscribe({
-        next: (res: HttpResponse<IMotifRetourProduit[]>) => {
-          this.motifRetours.set(res.body || []);
-        },
-        error: () => {
-          this.messageService.add({
-            severity: 'error',
-            summary: 'Erreur',
-            detail: 'Erreur lors du chargement des motifs de retour'
-          });
-        }
-      });
+    this.motifRetourProduitService.query().subscribe({
+      next: (res: HttpResponse<IMotifRetourProduit[]>) => {
+        this.motifRetours.set(res.body || []);
+      },
+      error: () => {
+        this.messageService.add({
+          severity: 'error',
+          summary: 'Erreur',
+          detail: 'Erreur lors du chargement des motifs de retour',
+        });
+      },
+    });
   }
-
 
   protected searchCommandes(event: AutoCompleteCompleteEvent): void {
     this.commandeSearchTrigger$.next(event.query);
@@ -155,7 +146,7 @@ export class SupplierReturnsComponent implements OnInit, OnDestroy {
       .queryWithoutDetail({
         page: 0,
         size: 10,
-        search: search.trim()
+        search: search.trim(),
       })
       .subscribe({
         next: (res: HttpResponse<ICommande[]>) => {
@@ -165,9 +156,9 @@ export class SupplierReturnsComponent implements OnInit, OnDestroy {
           this.messageService.add({
             severity: 'error',
             summary: 'Erreur',
-            detail: 'Erreur lors de la recherche des commandes'
+            detail: 'Erreur lors de la recherche des commandes',
           });
-        }
+        },
       });
   }
 
@@ -193,9 +184,9 @@ export class SupplierReturnsComponent implements OnInit, OnDestroy {
         this.messageService.add({
           severity: 'error',
           summary: 'Erreur',
-          detail: 'Erreur lors du chargement des lignes de commande'
+          detail: 'Erreur lors du chargement des lignes de commande',
         });
-      }
+      },
     });
   }
 
@@ -206,10 +197,7 @@ export class SupplierReturnsComponent implements OnInit, OnDestroy {
   protected filterOrderLines(search: string): void {
     const searchLower = search.toLowerCase();
     const filtered = this.orderLines().filter(line => {
-      return (
-        line.produitCip?.toLowerCase().includes(searchLower) ||
-        line.produitLibelle?.toLowerCase().includes(searchLower)
-      );
+      return line.produitCip?.toLowerCase().includes(searchLower) || line.produitLibelle?.toLowerCase().includes(searchLower);
     });
     this.filteredOrderLines.set(filtered);
   }
@@ -252,7 +240,7 @@ export class SupplierReturnsComponent implements OnInit, OnDestroy {
       this.messageService.add({
         severity: 'warn',
         summary: 'Attention',
-        detail: 'Veuillez sélectionner une ligne de commande'
+        detail: 'Veuillez sélectionner une ligne de commande',
       });
       return;
     }
@@ -261,7 +249,7 @@ export class SupplierReturnsComponent implements OnInit, OnDestroy {
       this.messageService.add({
         severity: 'warn',
         summary: 'Attention',
-        detail: 'Veuillez sélectionner un motif de retour'
+        detail: 'Veuillez sélectionner un motif de retour',
       });
       return;
     }
@@ -270,7 +258,7 @@ export class SupplierReturnsComponent implements OnInit, OnDestroy {
       this.messageService.add({
         severity: 'warn',
         summary: 'Attention',
-        detail: 'La quantité doit être supérieure à 0'
+        detail: 'La quantité doit être supérieure à 0',
       });
       return;
     }
@@ -280,7 +268,7 @@ export class SupplierReturnsComponent implements OnInit, OnDestroy {
       this.messageService.add({
         severity: 'warn',
         summary: 'Attention',
-        detail: `La quantité ne peut pas dépasser ${maxQuantity}`
+        detail: `La quantité ne peut pas dépasser ${maxQuantity}`,
       });
       return;
     }
@@ -312,7 +300,7 @@ export class SupplierReturnsComponent implements OnInit, OnDestroy {
     const modalRef = this.modalService.open(LotSelectionDialogComponent, {
       size: 'lg',
       backdrop: 'static',
-      centered: true
+      centered: true,
     });
 
     modalRef.componentInstance.lots = orderLine.lots || [];
@@ -326,7 +314,7 @@ export class SupplierReturnsComponent implements OnInit, OnDestroy {
       () => {
         // Dismissed
         this.onLotSelectionCancelled();
-      }
+      },
     );
   }
 
@@ -339,13 +327,7 @@ export class SupplierReturnsComponent implements OnInit, OnDestroy {
     // Create one return item per lot
     lotSelections.forEach(selection => {
       if (selection.selectedQuantity > 0) {
-        this.createReturnItem(
-          orderLine,
-          selection.selectedQuantity,
-          motifRetourId,
-          selection.lot.id,
-          selection.lot.numLot
-        );
+        this.createReturnItem(orderLine, selection.selectedQuantity, motifRetourId, selection.lot.id, selection.lot.numLot);
       }
     });
 
@@ -356,7 +338,7 @@ export class SupplierReturnsComponent implements OnInit, OnDestroy {
     this.messageService.add({
       severity: 'success',
       summary: 'Succès',
-      detail: `${lotSelections.length} ligne(s) ajoutée(s) aux retours`
+      detail: `${lotSelections.length} ligne(s) ajoutée(s) aux retours`,
     });
 
     this.focusOrderLineInput();
@@ -374,14 +356,15 @@ export class SupplierReturnsComponent implements OnInit, OnDestroy {
     quantity: number,
     motifRetourId: number,
     lotId: number | null | undefined,
-    lotNumero: string | null | undefined
+    lotNumero: string | null | undefined,
   ): void {
     // Check if an item with the same orderLineId, lotId, and motifRetourId already exists
-    const existingItemIndex = this.retourBonItems().findIndex(item =>
-      item.orderLineId === orderLine.id &&
-      item.orderLineOrderDate === orderLine.orderDate &&
-      item.motifRetourId === motifRetourId &&
-      (item.lotId === lotId || (item.lotId == null && lotId == null))
+    const existingItemIndex = this.retourBonItems().findIndex(
+      item =>
+        item.orderLineId === orderLine.id &&
+        item.orderLineOrderDate === orderLine.orderDate &&
+        item.motifRetourId === motifRetourId &&
+        (item.lotId === lotId || (item.lotId == null && lotId == null)),
     );
 
     if (existingItemIndex !== -1) {
@@ -397,7 +380,7 @@ export class SupplierReturnsComponent implements OnInit, OnDestroy {
           this.messageService.add({
             severity: 'warn',
             summary: 'Attention',
-            detail: `La quantité totale ne peut pas dépasser ${maxQuantity}. Quantité ajustée.`
+            detail: `La quantité totale ne peut pas dépasser ${maxQuantity}. Quantité ajustée.`,
           });
           existingItem.qtyMvt = maxQuantity;
         } else {
@@ -439,7 +422,7 @@ export class SupplierReturnsComponent implements OnInit, OnDestroy {
   }
 
   protected toggleLotSelectionMode(): void {
-    this.lotSelectionMode.update(mode => mode === 'dialog' ? 'inline' : 'dialog');
+    this.lotSelectionMode.update(mode => (mode === 'dialog' ? 'inline' : 'dialog'));
   }
 
   protected removeReturnLine(index: number): void {
@@ -453,7 +436,7 @@ export class SupplierReturnsComponent implements OnInit, OnDestroy {
       this.messageService.add({
         severity: 'warn',
         summary: 'Attention',
-        detail: `La quantité de retour ne peut pas dépasser ${maxQuantity}`
+        detail: `La quantité de retour ne peut pas dépasser ${maxQuantity}`,
       });
     }
     if (item.qtyMvt && item.qtyMvt < 1) {
@@ -480,7 +463,7 @@ export class SupplierReturnsComponent implements OnInit, OnDestroy {
       this.messageService.add({
         severity: 'error',
         summary: 'Erreur',
-        detail: 'Veuillez remplir tous les champs requis (quantité et motif de retour)'
+        detail: 'Veuillez remplir tous les champs requis (quantité et motif de retour)',
       });
       return;
     }
@@ -494,27 +477,30 @@ export class SupplierReturnsComponent implements OnInit, OnDestroy {
 
     this.isSaving.set(true);
 
-    this.retourBonService.create(retourBon).pipe(finalize(() => this.isSaving.set(false))).subscribe({
-      next: () => {
-        this.messageService.add({
-          severity: 'success',
-          summary: 'Succès',
-          detail: 'Retour fournisseur créé avec succès'
-        });
-        this.reset();
-        // Navigate back to the list
-        setTimeout(() => {
-          this.navigateToList();
-        }, 1500);
-      },
-      error: () => {
-        this.messageService.add({
-          severity: 'error',
-          summary: 'Erreur',
-          detail: 'Erreur lors de la création du retour fournisseur'
-        });
-      }
-    });
+    this.retourBonService
+      .create(retourBon)
+      .pipe(finalize(() => this.isSaving.set(false)))
+      .subscribe({
+        next: () => {
+          this.messageService.add({
+            severity: 'success',
+            summary: 'Succès',
+            detail: 'Retour fournisseur créé avec succès',
+          });
+          this.reset();
+          // Navigate back to the list
+          setTimeout(() => {
+            this.navigateToList();
+          }, 1500);
+        },
+        error: () => {
+          this.messageService.add({
+            severity: 'error',
+            summary: 'Erreur',
+            detail: 'Erreur lors de la création du retour fournisseur',
+          });
+        },
+      });
   }
 
   protected navigateToList(): void {

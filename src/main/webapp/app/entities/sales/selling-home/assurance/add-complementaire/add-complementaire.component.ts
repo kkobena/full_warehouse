@@ -25,10 +25,10 @@ import { Card } from 'primeng/card';
     ButtonModule,
     DecimalPipe,
     SelectModule,
-    Card
+    Card,
   ],
   templateUrl: './add-complementaire.component.html',
-  styleUrls: ['./add-complementaire.component.scss']
+  styleUrls: ['./add-complementaire.component.scss'],
 })
 export class AddComplementaireComponent implements AfterViewInit {
   tiersPayant = viewChild.required<Select>('tiersPayant');
@@ -44,23 +44,23 @@ export class AddComplementaireComponent implements AfterViewInit {
   protected editForm = this.fb.group({
     id: new FormControl<number | null>(null, {
       validators: [Validators.required],
-      nonNullable: true
+      nonNullable: true,
     }),
     taux: new FormControl<number | null>(null, {
       validators: [Validators.required, Validators.min(5), Validators.max(100)],
-      nonNullable: true
+      nonNullable: true,
     }),
     categorie: new FormControl<number | null>(null, {
       validators: [Validators.required, Validators.min(0), Validators.max(5)],
-      nonNullable: true
+      nonNullable: true,
     }),
     tiersPayant: new FormControl<IClientTiersPayant | null>(null, {
       validators: [Validators.required],
-      nonNullable: true
+      nonNullable: true,
     }),
     numBon: new FormControl<string | null>(null),
     tiersPayantFullName: new FormControl<string | null>(null),
-    num: new FormControl<string | null>(null)
+    num: new FormControl<string | null>(null),
   });
 
   private readonly activeModal = inject(NgbActiveModal);
@@ -106,7 +106,7 @@ export class AddComplementaireComponent implements AfterViewInit {
       taux: tp.taux,
       num: tp.num,
       tiersPayantFullName: tp.tiersPayantFullName,
-      categorie: tp.categorie
+      categorie: tp.categorie,
     });
   }
 
@@ -117,7 +117,7 @@ export class AddComplementaireComponent implements AfterViewInit {
       numBon: this.editForm.get(['numBon']).value,
       categorie: this.editForm.get(['categorie']).value,
       taux: this.editForm.get(['taux']).value,
-      priorite: this.editForm.get(['categorie']).value
+      priorite: this.editForm.get(['categorie']).value,
     };
   }
 }

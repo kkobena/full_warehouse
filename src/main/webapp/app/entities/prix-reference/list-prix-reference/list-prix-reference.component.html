@@ -1,33 +1,32 @@
 <div class="modal-header">
   <h4 class="modal-title">{{ header }}</h4>
-  <button (click)="cancel()" aria-hidden="true" class="btn-close" data-dismiss="modal"
-          type="button"></button>
+  <button (click)="cancel()" aria-hidden="true" class="btn-close" data-dismiss="modal" type="button"></button>
 </div>
 <div class="modal-body">
   <p-card>
     <table class="table table-hover table-striped">
       <thead class="pharma-table-head">
-      <tr>
-        @if (isFromProduit) {
-          <th>Tiers payant</th>
-        } @else {
-          <th>Produit</th>
-          <th>Cip</th>
-        }
-        <th>Option de prix</th>
-        <th class="text-right">Prix dé référence</th>
-        <th class="text-right">Taux de remboursement</th>
-        <th class="text-right">
-          <p-button
-            (click)="onAddNew()"
-            [raised]="true"
-            icon="pi pi-plus-circle"
-            label="Nouveau"
-            severity="primary"
-            type="button"
-          ></p-button>
-        </th>
-      </tr>
+        <tr>
+          @if (isFromProduit) {
+            <th>Tiers payant</th>
+          } @else {
+            <th>Produit</th>
+            <th>Cip</th>
+          }
+          <th>Option de prix</th>
+          <th class="text-right">Prix dé référence</th>
+          <th class="text-right">Taux de remboursement</th>
+          <th class="text-right">
+            <p-button
+              (click)="onAddNew()"
+              [raised]="true"
+              icon="pi pi-plus-circle"
+              label="Nouveau"
+              severity="primary"
+              type="button"
+            ></p-button>
+          </th>
+        </tr>
       </thead>
       <tbody>
         @for (prix of prixReferences; track prix.id) {
@@ -40,7 +39,7 @@
             }
             <td>{{ prix.typeLibelle }}</td>
             <td class="amount-column">{{ prix.price | number }}</td>
-            @if (prix.type==='REFERENCE'){
+            @if (prix.type === 'REFERENCE') {
               <td></td>
             } @else {
               <td class="amount-column">{{ prix.rate }}%</td>
@@ -95,7 +94,6 @@
   </p-card>
 </div>
 <div class="modal-footer">
-  <p-button (click)="cancel()" icon="pi pi-times" label="Fermer" raised="true" severity="secondary"
-            type="button"></p-button>
+  <p-button (click)="cancel()" icon="pi pi-times" label="Fermer" raised="true" severity="secondary" type="button"></p-button>
 </div>
 <jhi-confirm-dialog #confirmDialog></jhi-confirm-dialog>

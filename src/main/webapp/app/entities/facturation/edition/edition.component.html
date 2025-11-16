@@ -154,22 +154,8 @@
 
           <!-- Action Buttons -->
           <div class="filter-actions">
-            <p-button
-              (onClick)="onSearch()"
-              [loading]="searching"
-              icon="pi pi-search"
-              label="Rechercher"
-              severity="info"
-
-            />
-            <p-button
-              (onClick)="onEdit()"
-              [loading]="editing"
-              icon="pi pi-check"
-              label="Éditer"
-              severity="primary"
-
-            />
+            <p-button (onClick)="onSearch()" [loading]="searching" icon="pi pi-search" label="Rechercher" severity="info" />
+            <p-button (onClick)="onEdit()" [loading]="editing" icon="pi pi-check" label="Éditer" severity="primary" />
           </div>
         </p-card>
       </aside>
@@ -200,9 +186,7 @@
             >
               <ng-template #caption>
                 <div class="d-flex align-items-end justify-content-end">
-                  <p-button (click)="onEdit()" [loading]="editing" [raised]="true"
-                            icon="pi pi-check"
-                            label="Editer" severity="primary" />
+                  <p-button (click)="onEdit()" [loading]="editing" [raised]="true" icon="pi pi-check" label="Editer" severity="primary" />
                 </div>
               </ng-template>
               <ng-template #header>
@@ -226,9 +210,7 @@
                   <td class="text-right amount-column">
                     {{ data.factureItemCount | number }}
                   </td>
-                  <td
-                    class="text-right amount-column pharma-total">{{ data.totalAmount | number }}
-                  </td>
+                  <td class="text-right amount-column pharma-total">{{ data.totalAmount | number }}</td>
                   @if (modeEdition && (modeEdition === 'SELECTED' || modeEdition === 'GROUP')) {
                     <td>
                       <p-tableCheckbox [value]="data" />
@@ -257,13 +239,15 @@
                 <div class="d-flex align-items-center justify-content-between">
                   <p-iconfield>
                     <p-inputicon class="pi pi-search" />
-                    <input (input)="bonDt.filterGlobal($event.target.value, 'contains')" pInputText
-                           placeholder="Rechercher..." type="text" />
+                    <input
+                      (input)="bonDt.filterGlobal($event.target.value, 'contains')"
+                      pInputText
+                      placeholder="Rechercher..."
+                      type="text"
+                    />
                   </p-iconfield>
 
-                  <p-button (click)="onEdit()" [loading]="editing" [raised]="true"
-                            icon="pi pi-check"
-                            label="Editer" severity="success" />
+                  <p-button (click)="onEdit()" [loading]="editing" [raised]="true" icon="pi pi-check" label="Editer" severity="success" />
                 </div>
               </ng-template>
               <ng-template #header>
@@ -280,9 +264,7 @@
               </ng-template>
               <ng-template #body let-dossier>
                 <tr>
-                  <td
-                    class="pharma-entity-name">{{ dossier.assuredCustomer.firstName }} {{ dossier.assuredCustomer.lastName }}
-                  </td>
+                  <td class="pharma-entity-name">{{ dossier.assuredCustomer.firstName }} {{ dossier.assuredCustomer.lastName }}</td>
                   <td>
                     {{ dossier.createdAt | date: 'dd/MM/yyyy HH:mm:ss' }}
                   </td>
@@ -292,9 +274,7 @@
                   <td class="text-right amount-column pharma-price">
                     {{ dossier.montantVente | number }}
                   </td>
-                  <td
-                    class="text-right amount-column pharma-total">{{ dossier.montantBon | number }}
-                  </td>
+                  <td class="text-right amount-column pharma-total">{{ dossier.montantBon | number }}</td>
                   <td>
                     <p-tableCheckbox [value]="dossier" />
                   </td>

@@ -10,7 +10,7 @@ type EntityResponseType = HttpResponse<IRayon>;
 type EntityArrayResponseType = HttpResponse<IRayon[]>;
 
 @Injectable({
-  providedIn: 'root'
+  providedIn: 'root',
 })
 export class RayonService {
   protected http = inject(HttpClient);

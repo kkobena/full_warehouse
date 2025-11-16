@@ -210,11 +210,11 @@ src/main/webapp/app/
 - **RDBMS**: PostgreSQL
 - **Schema**: `warehouse`
 - **Migrations**: Located in `src/main/resources/db/migration/`
-  - V1.0.1__init.sql - Initial schema
-  - V1.0.2__referentiels.sql - Reference data
-  - V1.0.3__procedures.sql - Stored procedures
-  - V1.0.4__menus.sql - Menu/navigation structure
-  - V1.0.5__id_generator.sql - ID generation functions
+  - V1.0.1\_\_init.sql - Initial schema
+  - V1.0.2\_\_referentiels.sql - Reference data
+  - V1.0.3\_\_procedures.sql - Stored procedures
+  - V1.0.4\_\_menus.sql - Menu/navigation structure
+  - V1.0.5\_\_id_generator.sql - ID generation functions
 - **Flyway**: Manages versioned migrations automatically on startup
 
 ## Key Design Patterns & Conventions
@@ -287,11 +287,11 @@ const routes: Routes = [
   {
     path: '',
     loadComponent: () => import('./entity.component').then(m => m.EntityComponent),
-    data: {authorities: [Authority.ADMIN]},
-    canActivate: [UserRouteAccessService]
-  }
+    data: { authorities: [Authority.ADMIN] },
+    canActivate: [UserRouteAccessService],
+  },
 ];
-export default routes;  // Default export for routing
+export default routes; // Default export for routing
 ```
 
 **UI Component Usage:**
@@ -345,10 +345,12 @@ export default routes;  // Default export for routing
 1. Create entity model interface in `src/main/webapp/app/shared/model/`
 2. Create standalone service in `app/entities/<entity>/<entity>.service.ts`
 3. Create standalone components:
-  - `<entity>.component.ts` (list view)
-  - `<entity>-detail.component.ts` (detail view)
-  - `<entity>-update.component.ts` (create/edit form)
-  - `<entity>-delete-dialog.component.ts` (delete confirmation)
+
+- `<entity>.component.ts` (list view)
+- `<entity>-detail.component.ts` (detail view)
+- `<entity>-update.component.ts` (create/edit form)
+- `<entity>-delete-dialog.component.ts` (delete confirmation)
+
 4. Create routes file `<entity>.route.ts` with functional resolvers (use `inject()`)
 5. Use default export for routes: `export default entityRoutes;`
 6. Import PrimeNG/ng-bootstrap components directly in component `imports` array
@@ -562,4 +564,4 @@ psql -U warehouse -d warehouse
 - not use styleClass
 - not use p-dialog
 - not use prime Dialog use ngbModal
-- not use *ngif
+- not use \*ngif

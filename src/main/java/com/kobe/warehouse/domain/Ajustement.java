@@ -47,7 +47,7 @@ public class Ajustement implements Serializable {
 
     @NotNull
     @Enumerated(EnumType.STRING)
-    @Column(name = "type_ajust", nullable = false,length = 15)
+    @Column(name = "type_ajust", nullable = false, length = 15)
     private AjustType type;
 
     @NotNull
@@ -59,7 +59,7 @@ public class Ajustement implements Serializable {
     @JsonIgnoreProperties(value = "ajustements", allowSetters = true)
     private Produit produit;
 
-    @ManyToOne(optional = false,fetch = FetchType.LAZY)
+    @ManyToOne(optional = false, fetch = FetchType.LAZY)
     @NotNull
     @JsonIgnoreProperties(value = "ajustements", allowSetters = true)
     private Ajust ajust;

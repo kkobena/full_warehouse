@@ -8,7 +8,7 @@ describe('HearlySaleProduitHistoriqueComponent', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [YearlySaleProduitHistoriqueComponent]
+      imports: [YearlySaleProduitHistoriqueComponent],
     }).compileComponents();
 
     fixture = TestBed.createComponent(YearlySaleProduitHistoriqueComponent);

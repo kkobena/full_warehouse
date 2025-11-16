@@ -26,10 +26,10 @@ describe('Authority Management Update Component', () => {
         {
           provide: ActivatedRoute,
           useValue: {
-            params: from([{}])
-          }
-        }
-      ]
+            params: from([{}]),
+          },
+        },
+      ],
     })
       .overrideTemplate(AuthorityUpdateComponent, '')
       .compileComponents();

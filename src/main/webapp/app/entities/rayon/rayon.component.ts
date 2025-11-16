@@ -52,8 +52,8 @@ import { FloatLabel } from 'primeng/floatlabel';
     Select,
     ReactiveFormsModule,
     SpinnerComponent,
-    FloatLabel
-  ]
+    FloatLabel,
+  ],
 })
 export class RayonComponent implements OnInit, OnDestroy {
   protected magasin?: IMagasin;
@@ -77,7 +77,7 @@ export class RayonComponent implements OnInit, OnDestroy {
   private readonly alert = viewChild.required<ToastAlertComponent>('alert');
   private readonly modalService = inject(NgbModal);
   private readonly errorService = inject(ErrorService);
-   private readonly spinner = viewChild.required<SpinnerComponent>('spinner');
+  private readonly spinner = viewChild.required<SpinnerComponent>('spinner');
   private readonly magasinService = inject(MagasinService);
   private readonly storageService = inject(StorageService);
   private destroy$ = new Subject<void>();
@@ -106,11 +106,11 @@ export class RayonComponent implements OnInit, OnDestroy {
         page: pageToLoad - 1,
         size: ITEMS_PER_PAGE,
         search: query,
-        storageId: this.storage?.id
+        storageId: this.storage?.id,
       })
       .subscribe({
         next: (res: HttpResponse<IRayon[]>) => this.onSuccess(res.body, res.headers, pageToLoad),
-        error: err => this.onError(err)
+        error: err => this.onError(err),
       });
   }
 
@@ -123,11 +123,11 @@ export class RayonComponent implements OnInit, OnDestroy {
           page: this.page,
           size: event.rows,
           search: '',
-          storageId: this.storage?.id
+          storageId: this.storage?.id,
         })
         .subscribe({
           next: (res: HttpResponse<IRayon[]>) => this.onSuccess(res.body, res.headers, this.page),
-          error: err => this.onError(err)
+          error: err => this.onError(err),
         });
     }
   }
@@ -137,12 +137,12 @@ export class RayonComponent implements OnInit, OnDestroy {
       this.modalService,
       CloneFormComponent,
       {
-        rayons: this.selectedEl
+        rayons: this.selectedEl,
       },
       () => {
         this.loadPage(0);
       },
-      'xl'
+      'xl',
     );
   }
 
@@ -155,7 +155,7 @@ export class RayonComponent implements OnInit, OnDestroy {
         this.spinner().show();
         this.uploadFileResponse(this.entityService.uploadRayonFile(result));
       },
-      'lg'
+      'lg',
     );
   }
 
@@ -166,12 +166,12 @@ export class RayonComponent implements OnInit, OnDestroy {
       {
         entity: null,
         magasin: this.magasin,
-        header: 'Ajouter un nouveau rayon'
+        header: 'Ajouter un nouveau rayon',
       },
       () => {
         this.loadPage(0);
       },
-      'xl'
+      'xl',
     );
   }
 
@@ -182,12 +182,12 @@ export class RayonComponent implements OnInit, OnDestroy {
       {
         entity: entity,
         magasin: this.magasin,
-        header: 'Modification de ' + entity.libelle
+        header: 'Modification de ' + entity.libelle,
       },
       () => {
         this.loadPage(0);
       },
-      'xl'
+      'xl',
     );
   }
 
@@ -209,7 +209,7 @@ export class RayonComponent implements OnInit, OnDestroy {
         });
       },
       'Suppression',
-      'Êtes-vous sûr de vouloir supprimer ?'
+      'Êtes-vous sûr de vouloir supprimer ?',
     );
   }
 
@@ -227,7 +227,7 @@ export class RayonComponent implements OnInit, OnDestroy {
   private findMagsinStorage(magasinId: number): void {
     this.storageService
       .fetchStorages({
-        magasinId
+        magasinId,
       })
       .pipe(takeUntil(this.destroy$))
       .subscribe((res: HttpResponse<Storage[]>) => {
@@ -240,7 +240,7 @@ export class RayonComponent implements OnInit, OnDestroy {
   private uploadFileResponse(result: Observable<HttpResponse<IResponseDto>>): void {
     result.pipe(finalize(() => this.spinner().hide())).subscribe({
       next: (res: HttpResponse<IResponseDto>) => this.onPocesCsvSuccess(res.body),
-      error: err => this.onSaveError(err)
+      error: err => this.onSaveError(err),
     });
   }
 

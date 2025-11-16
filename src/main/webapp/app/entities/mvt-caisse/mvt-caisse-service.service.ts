@@ -11,7 +11,7 @@ type EntityResponseType = HttpResponse<FinancialTransaction>;
 type EntityArrayResponseType = HttpResponse<FinancialTransaction[]>;
 
 @Injectable({
-  providedIn: 'root'
+  providedIn: 'root',
 })
 export class MvtCaisseServiceService {
   private readonly http = inject(HttpClient);
@@ -30,7 +30,7 @@ export class MvtCaisseServiceService {
     const options = createRequestOptions(req);
     return this.http.get<FinancialTransaction[]>(this.resourceUrl, {
       params: options,
-      observe: 'response'
+      observe: 'response',
     });
   }
 
@@ -38,7 +38,7 @@ export class MvtCaisseServiceService {
     const options = createRequestOptions(req);
     return this.http.get<MvtCaisse[]>(this.resourceUrl + '/mvt-caisses', {
       params: options,
-      observe: 'response'
+      observe: 'response',
     });
   }
 
@@ -46,7 +46,7 @@ export class MvtCaisseServiceService {
     const options = createRequestOptions(req);
     return this.http.get<MvtCaisseWrapper>(this.resourceUrl + '/mvt-caisses/sum', {
       params: options,
-      observe: 'response'
+      observe: 'response',
     });
   }
 
@@ -65,7 +65,7 @@ export class MvtCaisseServiceService {
 
   getEscPosReceiptForTauri(paymentId: PaymentId): Observable<ArrayBuffer> {
     return this.http.get(`${this.resourceUrl}/print-tauri/${paymentId.id}/${paymentId.transactionDate}`, {
-      responseType: 'arraybuffer'
+      responseType: 'arraybuffer',
     });
   }
 }

@@ -11,7 +11,6 @@ import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 import jakarta.validation.constraints.NotNull;
-
 import java.io.Serial;
 import java.io.Serializable;
 import java.time.LocalDateTime;
@@ -41,12 +40,13 @@ public class RetourDepot implements Serializable {
     private List<RetourDepotItem> retourDepotItems = new ArrayList<>();
 
     @ManyToOne
-    @JoinColumns({
-        @JoinColumn(name = "vente_depot_id", referencedColumnName = "id"),
-        @JoinColumn(name = "vente_depot_date", referencedColumnName = "sale_date")
-    })
+    @JoinColumns(
+        {
+            @JoinColumn(name = "vente_depot_id", referencedColumnName = "id"),
+            @JoinColumn(name = "vente_depot_date", referencedColumnName = "sale_date"),
+        }
+    )
     private VenteDepot venteDepot;
-
 
     @ManyToOne(optional = false)
     @NotNull
@@ -86,7 +86,6 @@ public class RetourDepot implements Serializable {
         this.user = user;
         return this;
     }
-
 
     public VenteDepot getVenteDepot() {
         return venteDepot;

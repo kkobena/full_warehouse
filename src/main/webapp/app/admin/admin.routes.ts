@@ -6,7 +6,6 @@ const routes: Routes = [
     loadChildren: () => import('./user-management/user-management.route'),
     title: 'userManagement.home.title',
   },
-
 ];
 
 export default routes;

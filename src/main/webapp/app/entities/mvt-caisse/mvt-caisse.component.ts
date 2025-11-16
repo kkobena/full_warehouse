@@ -41,7 +41,6 @@ import { RecapitualtifCaisseComponent } from '../ticketZ/recapitualtif-caisse/re
     GestionCaisseComponent,
     ActivitySummaryComponent,
     RecapitualtifCaisseComponent,
-
   ],
   templateUrl: './mvt-caisse.component.html',
   styleUrl: './mvt-caisse.component.scss',

@@ -10,7 +10,7 @@ import {
   signal,
   viewChild,
   viewChildren,
-  ViewEncapsulation
+  ViewEncapsulation,
 } from '@angular/core';
 import { WarehouseCommonModule } from '../../../shared/warehouse-common/warehouse-common.module';
 import { KeyFilterModule } from 'primeng/keyfilter';
@@ -44,12 +44,12 @@ import { Card } from 'primeng/card';
     PopoverModule,
     ToggleSwitch,
     InputGroupAddonModule,
-    InputGroupModule
+    InputGroupModule,
   ],
   templateUrl: './mode-reglement.component.html',
   styleUrls: ['./mode-reglement.scss'],
-  encapsulation: ViewEncapsulation.None
- /* styles: [
+  encapsulation: ViewEncapsulation.None,
+  /* styles: [
     `
       :host ::ng-deep .p-card .p-card-title .card-title {
         color: #ffffff;
@@ -88,9 +88,9 @@ export class ModeReglementComponent implements OnInit {
   protected readonly currentSaleService = inject(CurrentSaleService);
   readonly showModeReglementCard = computed(() => this.currentSaleService.currentSale()?.amountToBePaid > 0);
   protected readonly baseSaleService = inject(BaseSaleService);
-  protected  readonly selectModeReglementService = inject(SelectModeReglementService);
+  protected readonly selectModeReglementService = inject(SelectModeReglementService);
   readonly manageShowInfosBancaire = computed(() =>
-    this.selectModeReglementService.modeReglements()?.some(element => this.bankRelatedModes.includes(element?.code as PaymentModeCode))
+    this.selectModeReglementService.modeReglements()?.some(element => this.bankRelatedModes.includes(element?.code as PaymentModeCode)),
   );
 
   protected paymentModeToChange: IPaymentMode | null = null;
@@ -154,8 +154,8 @@ export class ModeReglementComponent implements OnInit {
     const numericAmount = this.parseAmount(inputAmount);
     this.isShowAddBtn.set(
       this.selectModeReglementService.modeReglements().length < this.baseSaleService.maxModePayementNumber() &&
-      numericAmount > 0 &&
-      numericAmount < this.currentSaleService.currentSale().amountToBePaid
+        numericAmount > 0 &&
+        numericAmount < this.currentSaleService.currentSale().amountToBePaid,
     );
   }
 
@@ -318,10 +318,9 @@ export class ModeReglementComponent implements OnInit {
       paidAmount: amount,
       netAmount: amount,
       paymentMode: mode,
-      montantVerse: inputAmount
+      montantVerse: inputAmount,
     };
   }
-
 
   private parseAmount(value: any): number {
     if (value === null || value === undefined || value === '') {

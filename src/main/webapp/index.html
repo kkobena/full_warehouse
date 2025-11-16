@@ -1,61 +1,58 @@
 <!doctype html>
 <html class="no-js" dir="ltr" lang="fr">
-<head>
-  <meta charset="utf-8" />
-  <meta content="IE=edge" http-equiv="X-UA-Compatible" />
-  <title>PharmaSmart</title>
-  <meta content="Description for warehouse" name="description" />
-  <meta content="notranslate" name="google" />
-  <meta content="width=device-width, initial-scale=1, shrink-to-fit=no" name="viewport" />
-  <meta content="#000000" name="theme-color" />
-  <base href="/" />
-  <link href="favicon.ico" rel="icon" />
-  <link href="manifest.webapp" rel="manifest" />
-  <link href="content/css/loading.css" rel="stylesheet" />
-
-</head>
-<body>
-<!--[if lt IE 9]>
-<p class="browserupgrade">
-  You are using an <strong>outdated</strong> browser. Please <a href="http://browsehappy.com/">upgrade
-  your browser</a> to improve
-  your experience.
-</p>
-<![endif]-->
-<jhi-app>
-  <div class="app-loading">
-    <div class="lds-pacman">
-      <div>
-        <div></div>
-        <div></div>
-        <div></div>
+  <head>
+    <meta charset="utf-8" />
+    <meta content="IE=edge" http-equiv="X-UA-Compatible" />
+    <title>PharmaSmart</title>
+    <meta content="Description for warehouse" name="description" />
+    <meta content="notranslate" name="google" />
+    <meta content="width=device-width, initial-scale=1, shrink-to-fit=no" name="viewport" />
+    <meta content="#000000" name="theme-color" />
+    <base href="/" />
+    <link href="favicon.ico" rel="icon" />
+    <link href="manifest.webapp" rel="manifest" />
+    <link href="content/css/loading.css" rel="stylesheet" />
+  </head>
+  <body>
+    <!--[if lt IE 9]>
+      <p class="browserupgrade">
+        You are using an <strong>outdated</strong> browser. Please <a href="http://browsehappy.com/">upgrade your browser</a> to improve
+        your experience.
+      </p>
+    <![endif]-->
+    <jhi-app>
+      <div class="app-loading">
+        <div class="lds-pacman">
+          <div>
+            <div></div>
+            <div></div>
+            <div></div>
+          </div>
+          <div>
+            <div></div>
+            <div></div>
+            <div></div>
+          </div>
+        </div>
       </div>
-      <div>
-        <div></div>
-        <div></div>
-        <div></div>
+      <div class="app-loading">
+        <div id="error" style="display: none"></div>
       </div>
-    </div>
-  </div>
-  <div class="app-loading">
-    <div id="error" style="display: none"></div>
-  </div>
-</jhi-app>
-<noscript>
-  <h1>You must enable JavaScript to view this page.</h1>
-</noscript>
-<script type="text/javascript">
+    </jhi-app>
+    <noscript>
+      <h1>You must enable JavaScript to view this page.</h1>
+    </noscript>
+    <script type="text/javascript">
+      window.onload = function () {
+        setTimeout(showError, 4000);
+      };
 
-  window.onload = function () {
-    setTimeout(showError, 4000);
-  };
-
-  function showError() {
-    const errorElm = document.getElementById('error');
-    if (errorElm?.style) {
-      errorElm.style.display = 'block';
-    }
-  }
-</script>
-</body>
+      function showError() {
+        const errorElm = document.getElementById('error');
+        if (errorElm?.style) {
+          errorElm.style.display = 'block';
+        }
+      }
+    </script>
+  </body>
 </html>

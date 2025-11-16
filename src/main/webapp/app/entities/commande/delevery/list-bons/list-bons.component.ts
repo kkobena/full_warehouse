@@ -23,7 +23,7 @@ export type ExpandMode = 'single' | 'multiple';
   selector: 'jhi-list-bons',
   templateUrl: './list-bons.component.html',
   styleUrl: './list-bons.component.scss',
-  imports: [WarehouseCommonModule, ButtonModule, RouterModule, RippleModule, TableModule, TooltipModule, SpinnerComponent]
+  imports: [WarehouseCommonModule, ButtonModule, RouterModule, RippleModule, TableModule, TooltipModule, SpinnerComponent],
 })
 export class ListBonsComponent implements OnInit {
   readonly search = input('');
@@ -71,11 +71,10 @@ export class ListBonsComponent implements OnInit {
       EtiquetteComponent,
       {
         entity: delivery,
-        header: `IMPRIMER LES ETIQUETTES DU BON DE LIVRAISON [ ${delivery.receiptReference} ] `
+        header: `IMPRIMER LES ETIQUETTES DU BON DE LIVRAISON [ ${delivery.receiptReference} ] `,
       },
-      () => {
-      },
-      'lg'
+      () => {},
+      'lg',
     );
   }
 
@@ -91,7 +90,7 @@ export class ListBonsComponent implements OnInit {
           window.open(URL.createObjectURL(blob));
         }
       },
-      error: () => this.spinner().hide()
+      error: () => this.spinner().hide(),
     });
   }
 
@@ -112,9 +111,8 @@ export class ListBonsComponent implements OnInit {
       page,
       size,
       search: this.search(),
-      statut: this.selectedFilter
+      statut: this.selectedFilter,
     };
-
 
     if (this.fournisseurId()) {
       query.fournisseurId = this.fournisseurId();
@@ -126,13 +124,9 @@ export class ListBonsComponent implements OnInit {
       query.dtEnd = DATE_FORMAT_ISO_DATE(this.dtEnd());
     }
 
-    this.entityService
-      .query(query)
-      .subscribe({
-        next: (res: HttpResponse<IDelivery[]>) => this.onSuccess(res.body, res.headers, page),
-        error: () => this.onError()
-      });
+    this.entityService.query(query).subscribe({
+      next: (res: HttpResponse<IDelivery[]>) => this.onSuccess(res.body, res.headers, page),
+      error: () => this.onError(),
+    });
   }
-
-
 }

@@ -1,11 +1,11 @@
 package com.kobe.warehouse.service.reglement.dto;
 
+import com.kobe.warehouse.domain.AppUser;
 import com.kobe.warehouse.domain.FactureTiersPayant;
 import com.kobe.warehouse.domain.GroupeTiersPayant;
 import com.kobe.warehouse.domain.InvoicePayment;
 import com.kobe.warehouse.domain.PaymentMode;
 import com.kobe.warehouse.domain.TiersPayant;
-import com.kobe.warehouse.domain.AppUser;
 import com.kobe.warehouse.service.utils.DateUtil;
 import com.kobe.warehouse.service.utils.NumberUtil;
 import java.util.ArrayList;
@@ -53,7 +53,7 @@ public class InvoicePaymentReceiptDTO {
             TiersPayant tiersPayant = factureTiersPayant.getTiersPayant();
             this.organisme = tiersPayant.getName();
         }
-this.transactionNumber= invoicePayment.getTransactionNumber();
+        this.transactionNumber = invoicePayment.getTransactionNumber();
         PaymentMode mode = invoicePayment.getPaymentMode();
         this.paymentMode = mode.getLibelle();
         this.paymentModeCode = mode.getCode();

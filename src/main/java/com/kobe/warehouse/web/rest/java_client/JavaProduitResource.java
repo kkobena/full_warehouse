@@ -6,14 +6,13 @@ import com.kobe.warehouse.service.dto.ProduitDTO;
 import com.kobe.warehouse.service.stock.ProduitService;
 import com.kobe.warehouse.service.stock.dto.ProduitSearch;
 import com.kobe.warehouse.web.rest.proxy.ProduitResourceProxy;
+import java.util.List;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
-
-import java.util.List;
 
 /**
  * REST controller for managing {@link com.kobe.warehouse.domain.Produit}.
@@ -24,7 +23,6 @@ public class JavaProduitResource extends ProduitResourceProxy {
 
     public JavaProduitResource(ProduitService produitService) {
         super(produitService);
-
     }
 
     @GetMapping("/produits/lite")
@@ -63,8 +61,6 @@ public class JavaProduitResource extends ProduitResourceProxy {
         @RequestParam(required = false, name = "magasinId") Integer magasinId,
         Pageable pageable
     ) {
-        return super.search(search, magasinId,
-            pageable
-        );
+        return super.search(search, magasinId, pageable);
     }
 }

@@ -15,18 +15,9 @@ import { InputIcon } from 'primeng/inputicon';
 
 @Component({
   selector: 'jhi-parametre',
-  imports: [
-    PanelModule,
-    CheckboxModule,
-    FormsModule,
-    InputTextModule,
-    ButtonModule,
-    Toolbar,
-    IconField,
-    InputIcon
-  ],
+  imports: [PanelModule, CheckboxModule, FormsModule, InputTextModule, ButtonModule, Toolbar, IconField, InputIcon],
   templateUrl: './parametre.component.html',
-  styleUrls: ['./parametre.component.scss']
+  styleUrls: ['./parametre.component.scss'],
 })
 export class ParametreComponent implements OnInit {
   protected apps: IConfiguration[] = [];
@@ -43,11 +34,10 @@ export class ParametreComponent implements OnInit {
     this.configurationService
       .update({
         ...app,
-        value
+        value,
       })
       .subscribe(() => this.loadAll());
   }
-
 
   protected onEdit(entity: IConfiguration): void {
     showCommonModal(
@@ -55,12 +45,12 @@ export class ParametreComponent implements OnInit {
       FormParamettreComponent,
       {
         entity: entity,
-        header: 'Modification de [ ' + entity.name + ' ]'
+        header: 'Modification de [ ' + entity.name + ' ]',
       },
       () => {
         this.loadAll();
       },
-      'lg'
+      'lg',
     );
   }
 
@@ -69,6 +59,4 @@ export class ParametreComponent implements OnInit {
       this.apps = res.body || [];
     });
   }
-
-
 }

@@ -1,5 +1,7 @@
 package com.kobe.warehouse.service.errors;
 
+import static java.util.Objects.nonNull;
+
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.env.Environment;
 import org.springframework.http.HttpHeaders;
@@ -14,8 +16,6 @@ import org.springframework.web.context.request.NativeWebRequest;
 import org.springframework.web.context.request.WebRequest;
 import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExceptionHandler;
 
-import static java.util.Objects.nonNull;
-
 /**
  * Controller advice to translate the server side exceptions to client-friendly json structures. The
  * error response follows RFC7807 - Problem Details for HTTP APIs
@@ -23,7 +23,6 @@ import static java.util.Objects.nonNull;
  */
 @ControllerAdvice
 public class ExceptionTranslator extends ResponseEntityExceptionHandler {
-
 
     private final Environment env;
 
@@ -36,7 +35,6 @@ public class ExceptionTranslator extends ResponseEntityExceptionHandler {
 
     @ExceptionHandler
     public ResponseEntity<Object> handleAnyException(Throwable ex, NativeWebRequest request) {
-
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(wrapAndCustomizeProblem(ex, request));
     }
 
@@ -57,7 +55,6 @@ public class ExceptionTranslator extends ResponseEntityExceptionHandler {
         return customizeProblem(ex);
     }
 
-
     protected Custom customizeProblem(Throwable err) {
         if (err instanceof BadRequestAlertException cust) {
             Custom pd = new Custom(HttpStatus.BAD_REQUEST.value());
@@ -77,10 +74,10 @@ public class ExceptionTranslator extends ResponseEntityExceptionHandler {
         pd.setDetail(errMsg);
         pd.setMessage(errMsg);
         return pd;
-
     }
 
     private class Custom extends ProblemDetail {
+
         private String errorKey;
         private Object payload;
         private String message;

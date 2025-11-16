@@ -3,7 +3,6 @@ package com.kobe.warehouse.service.dto;
 import com.kobe.warehouse.domain.Ajust;
 import com.kobe.warehouse.domain.AppUser;
 import com.kobe.warehouse.domain.Storage;
-
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;

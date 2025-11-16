@@ -33,8 +33,8 @@ import { Tooltip } from 'primeng/tooltip';
     SharedModule,
     ItemCountComponent,
     Toolbar,
-    Tooltip
-  ]
+    Tooltip,
+  ],
 })
 export default class UserManagementComponent implements OnInit {
   currentAccount = inject(AccountService).trackCurrentAccount();
@@ -65,7 +65,6 @@ export default class UserManagementComponent implements OnInit {
 
   search(event: Event): void {
     const query = (event.target as HTMLInputElement).value;
-
   }
 
   deleteUser(user: User): void {
@@ -85,14 +84,14 @@ export default class UserManagementComponent implements OnInit {
       .query({
         page: this.page - 1,
         size: this.itemsPerPage,
-        sort: this.sortService.buildSortParam(this.sortState(), 'id')
+        sort: this.sortService.buildSortParam(this.sortState(), 'id'),
       })
       .subscribe({
         next: (res: HttpResponse<User[]>) => {
           this.isLoading.set(false);
           this.onSuccess(res.body, res.headers);
         },
-        error: () => this.isLoading.set(false)
+        error: () => this.isLoading.set(false),
       });
   }
 
@@ -101,8 +100,8 @@ export default class UserManagementComponent implements OnInit {
       relativeTo: this.activatedRoute.parent,
       queryParams: {
         page: this.page,
-        sort: this.sortService.buildSortParam(sortState ?? this.sortState())
-      }
+        sort: this.sortService.buildSortParam(sortState ?? this.sortState()),
+      },
     });
   }
 

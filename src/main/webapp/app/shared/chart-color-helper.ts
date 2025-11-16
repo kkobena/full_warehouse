@@ -11,10 +11,10 @@ export function backgroundColor(documentStyle: CSSStyleDeclaration): string[] {
   return [
     documentStyle.getPropertyValue('--p-teal-400'),
     documentStyle.getPropertyValue('--p-orange-400'),
-   // documentStyle.getPropertyValue('--p-emerald-400'),
+    // documentStyle.getPropertyValue('--p-emerald-400'),
     documentStyle.getPropertyValue('--p-fuchsia-400'),
 
-   // documentStyle.getPropertyValue('--p-green-400'),
+    // documentStyle.getPropertyValue('--p-green-400'),
 
     documentStyle.getPropertyValue('--p-indigo-400'),
     documentStyle.getPropertyValue('--p-lime-400'),

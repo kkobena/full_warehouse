@@ -1,33 +1,49 @@
 # Tauri Backend Integration
 
-This document explains the two build options for the PharmaSmart Tauri desktop application.
+This document explains the three build options for the PharmaSmart Tauri desktop application.
 
 ## Build Options
 
-PharmaSmart supports **two build configurations**:
+PharmaSmart supports **three build configurations**:
 
 ### 1. **Standard Build** (Default)
+
 - ✅ Frontend only
 - ✅ Connects to external Spring Boot backend (must be started separately)
 - ✅ Monitors backend availability with splash screen
 - ✅ Shows waiting screen until backend is ready
-- ✅ Smaller bundle size
-- ✅ Faster build time
+- ✅ Smallest bundle size (~50MB)
+- ✅ Fastest build time
+- ⚠️ **Requires:** Backend server running separately
 - **Use case:** Development, server-based deployment, client-server architecture
 
-### 2. **Bundled Build** (Standalone)
+### 2. **Bundled Backend Build**
+
 - ✅ Frontend + Spring Boot backend bundled together
 - ✅ Automatically launches backend when app starts
 - ✅ Monitors backend health and readiness
 - ✅ Backend persists after app closes (allows multiple instances)
-- ✅ Self-contained installer (requires Java on user's machine)
-- **Use case:** Standalone desktop deployment (backend persists across app restarts)
+- ✅ Medium bundle size (~150MB)
+- ⚠️ **Requires:** Java/JRE installed on user's machine
+- **Use case:** Standalone desktop deployment where Java is pre-installed
+
+### 3. **Complete Build (Bundled JRE)** - NEW! 🎉
+
+- ✅ Frontend + Backend + JRE bundled together
+- ✅ **NO Java installation required** on target system
+- ✅ Completely standalone and portable
+- ✅ Works on any Windows machine
+- ⚠️ Largest bundle size (~200MB)
+- ⚠️ Longest build time
+- **Use case:** Maximum portability, deployment to systems without Java
+- **Documentation:** See [TAURI-BUNDLED-JRE-SETUP.md](TAURI-BUNDLED-JRE-SETUP.md)
 
 ## Architecture
 
 ### Components
 
 1. **Backend Manager** (`src-tauri/src/backend_manager.rs`)
+
    - Finds the bundled JAR file in resources directory
    - Spawns Java process directly with Spring Boot arguments
    - Configures log file location in user's home directory
@@ -37,6 +53,7 @@ PharmaSmart supports **two build configurations**:
    - Sets Spring profiles: `tauri` and `prod`
 
 2. **Main Application** (`src-tauri/src/main.rs`)
+
    - **Bundled mode**: Initializes backend state, starts backend, manages lifecycle
    - **Standard mode**: Monitors external backend health, emits health status events
    - Exposes `check_backend_health` Tauri command (both modes)
@@ -46,11 +63,13 @@ PharmaSmart supports **two build configurations**:
    - Shows error dialog if backend fails to start (bundled mode)
 
 3. **Build Script** (`scripts/prepare-sidecar.js`)
+
    - Builds Spring Boot JAR if needed
    - Copies JAR to `src-tauri/sidecar/` directory
    - Cleans up old JAR files
 
 4. **Splash Screen UI** (`src/main/webapp/app/shared/backend-splash/`)
+
    - Angular component displaying backend startup/availability progress
    - Real-time progress bar (0-100%) with status messages
    - **Bundled mode**: Shows "PharmaSmart Standalone" title, listens to `backend-status` events
@@ -60,6 +79,7 @@ PharmaSmart supports **two build configurations**:
    - Uses PrimeNG progress bar with smooth animations
 
 5. **Backend Status Service** (`src/main/webapp/app/core/tauri/backend-status.service.ts`)
+
    - Detects Tauri mode (bundled, standard, or web)
    - **Bundled mode**: Subscribes to `backend-status` events from Rust
    - **Standard mode**: Polls backend using `check_backend_health` command + listens to `backend-health-status` events
@@ -68,6 +88,7 @@ PharmaSmart supports **two build configurations**:
    - Fetches backend URL from Tauri using `get_backend_url_command`
 
 6. **App Settings Service** (`src/main/webapp/app/core/config/app-settings.service.ts`)
+
    - Manages API server URL configuration
    - **Tauri mode**: Automatically fetches backend URL from `get_backend_url_command` on startup
    - **Web mode**: Uses environment configuration
@@ -96,6 +117,7 @@ PharmaSmart supports **two build configurations**:
 **See:** [HOW-TO-CONFIGURE-BACKEND.md](HOW-TO-CONFIGURE-BACKEND.md) for step-by-step instructions with pictures.
 
 **Quick Summary:**
+
 1. Create a file named `backend-url.txt` next to `PharmaSmart.exe`
 2. Open it with Notepad
 3. Type the backend address (example: `http://192.168.1.100:8080`)
@@ -130,6 +152,7 @@ PharmaSmart.exe
 ```
 
 **Features:**
+
 - ✅ Configurable backend URL via `BACKEND_URL` environment variable
 - ✅ Falls back to `http://localhost:8080` if not set
 - ✅ Frontend automatically detects backend URL from Tauri
@@ -138,6 +161,7 @@ PharmaSmart.exe
 - ✅ Useful for client-server deployments across network
 
 **Technical Details:**
+
 - Configuration priority: 1) `backend-url.txt` file, 2) `BACKEND_URL` environment variable, 3) Default `http://localhost:8080`
 - Rust command: `get_backend_url_command()` returns configured URL
 - `AppSettingsService` automatically fetches URL from Tauri on startup
@@ -169,19 +193,20 @@ You can also read this from `package.json` config:
 
 #### 📋 Quick Summary
 
-| Item | Details |
-|------|---------|
-| **Log Location (Windows)** | `C:\Users\[You]\PharmaSmart\logs\pharmasmart.log` |
+| Item                       | Details                                              |
+| -------------------------- | ---------------------------------------------------- |
+| **Log Location (Windows)** | `C:\Users\[You]\PharmaSmart\logs\pharmasmart.log`    |
 | **Quick Access (Windows)** | Press `Win+R`, type `%USERPROFILE%\PharmaSmart\logs` |
-| **Log Rotation** | Daily + when reaching 10MB |
-| **Retention** | 7 days |
-| **Max Size** | 100MB total |
-| **Compression** | Yes (.gz for old logs) |
-| **Auto-Cleanup** | Yes (deletes logs older than 7 days) |
+| **Log Rotation**           | Daily + when reaching 10MB                           |
+| **Retention**              | 7 days                                               |
+| **Max Size**               | 100MB total                                          |
+| **Compression**            | Yes (.gz for old logs)                               |
+| **Auto-Cleanup**           | Yes (deletes logs older than 7 days)                 |
 
 **📚 See:** [LOGS-QUICK-REFERENCE.md](LOGS-QUICK-REFERENCE.md) for detailed logging guide.
 
 #### 📁 Log File Location:
+
 - **Windows**: `C:\Users\[YourUsername]\PharmaSmart\logs\pharmasmart.log`
 - **Linux**: `~/.local/share/PharmaSmart/logs/pharmasmart.log` or `~/PharmaSmart/logs/pharmasmart.log`
 - **macOS**: `~/Library/Application Support/PharmaSmart/logs/pharmasmart.log` or `~/PharmaSmart/logs/pharmasmart.log`
@@ -189,11 +214,13 @@ You can also read this from `package.json` config:
 **How to Find Logs:**
 
 **Windows:**
+
 1. Press `Windows + R`
 2. Type: `%USERPROFILE%\PharmaSmart\logs`
 3. Press Enter
 
 **Linux/macOS:**
+
 ```bash
 # Open log directory
 cd ~/PharmaSmart/logs
@@ -206,6 +233,7 @@ tail -f pharmasmart.log
 ```
 
 **Log Features:**
+
 - ✅ **Rolling files**: Logs rotate daily and when they reach 10MB
 - ✅ **Retention**: Keeps 7 days of history (older logs are automatically deleted)
 - ✅ **Size limit**: Maximum 100MB total log size
@@ -213,11 +241,13 @@ tail -f pharmasmart.log
 - ✅ **Timestamped**: Each log line includes timestamp, level, and thread info
 
 **Log Files:**
+
 - `pharmasmart.log` - Current log file
 - `pharmasmart.log.2025-01-16.0.gz` - Archived logs from previous days
 - `pharmasmart.log.2025-01-15.0.gz` - Older archived logs
 
 **Configuration:**
+
 - Configured in `src/main/resources/logback-spring.xml`
 - Uses Spring profiles: `tauri` and `prod`
 - Log level: `DEBUG` for application code, `WARN` for third-party libraries
@@ -269,6 +299,7 @@ npm run tauri:build:fast
 ```
 
 **What happens:**
+
 1. Build Angular frontend (`webapp:build:tauri`)
 2. Build Tauri desktop application
 3. Create NSIS/MSI installers in `src-tauri/target/release/bundle/`
@@ -288,6 +319,7 @@ npm run tauri:build:bundled:fast
 ```
 
 **What happens:**
+
 1. Build Angular frontend (`webapp:build:tauri`)
 2. Build Spring Boot JAR (`mvnw.cmd clean package -Pprod`)
 3. Copy JAR to `src-tauri/sidecar/`
@@ -311,17 +343,17 @@ npm run tauri:dev
 
 ## Choosing the Right Build
 
-| Feature | Standard Build | Bundled Build |
-|---------|----------------|---------------|
-| **Size** | ~10MB | ~60MB |
-| **Backend Included** | ❌ No | ✅ Yes |
-| **Requires Java** | ❌ No | ✅ Yes (JRE) |
-| **Auto-start Backend** | ❌ No | ✅ Yes |
-| **Use Case** | Client app connecting to server | Standalone desktop app |
-| **Deployment** | Requires separate backend server | Self-contained |
-| **Configuration** | `tauri.conf.json` | `tauri.bundled.conf.json` |
-| **Cargo Feature** | (none) | `bundled-backend` |
-| **Build Command** | `npm run tauri:build` | `npm run tauri:build:bundled` |
+| Feature                | Standard Build                   | Bundled Build                 |
+| ---------------------- | -------------------------------- | ----------------------------- |
+| **Size**               | ~10MB                            | ~60MB                         |
+| **Backend Included**   | ❌ No                            | ✅ Yes                        |
+| **Requires Java**      | ❌ No                            | ✅ Yes (JRE)                  |
+| **Auto-start Backend** | ❌ No                            | ✅ Yes                        |
+| **Use Case**           | Client app connecting to server  | Standalone desktop app        |
+| **Deployment**         | Requires separate backend server | Self-contained                |
+| **Configuration**      | `tauri.conf.json`                | `tauri.bundled.conf.json`     |
+| **Cargo Feature**      | (none)                           | `bundled-backend`             |
+| **Build Command**      | `npm run tauri:build`            | `npm run tauri:build:bundled` |
 
 ## How It Works
 
@@ -360,6 +392,7 @@ npm run tauri:dev
 3. **Backend persists** → Available for future app launches or other instances
 
 **Note:** The backend process is NOT automatically stopped when Tauri closes. This allows:
+
 - Multiple app instances to share the same backend
 - Faster restart times (backend already running)
 - Development workflow improvements
@@ -373,6 +406,7 @@ To manually stop the backend, see "Backend Process Not Stopping" section below.
 **Splash Screen:** "Backend not available at http://localhost:8080. Please start the backend server or configure backend URL."
 
 **Possible Causes:**
+
 - Backend server is not running
 - Backend is running on a different machine or port
 - Firewall blocking connection
@@ -394,12 +428,14 @@ To manually stop the backend, see "Backend Process Not Stopping" section below.
 #### 🔧 Advanced Solutions
 
 1. **Start the backend server** if it's supposed to be local:
+
    ```bash
    ./mvnw.cmd  # Windows
    ./mvnw      # Linux/macOS
    ```
 
 2. **Set the BACKEND_URL environment variable** to point to remote backend:
+
    ```bash
    # Windows CMD
    set BACKEND_URL=http://192.168.1.100:8080
@@ -414,9 +450,11 @@ To manually stop the backend, see "Backend Process Not Stopping" section below.
    ```
 
 3. **Verify backend is accessible** from the client machine:
+
    ```bash
    curl http://192.168.1.100:8080/management/health
    ```
+
    Or open in web browser: `http://192.168.1.100:8080/management/health`
 
 4. **Check firewall settings** on both machines
@@ -427,6 +465,7 @@ To manually stop the backend, see "Backend Process Not Stopping" section below.
 **Error Dialog:** "Failed to start backend server: Timeout waiting for backend on port 8080"
 
 **Possible Causes:**
+
 - Java Runtime not installed or not in PATH
 - Port 8080 already in use
 
@@ -435,12 +474,14 @@ To manually stop the backend, see "Backend Process Not Stopping" section below.
 Before troubleshooting, check the backend log files for detailed error messages:
 
 **Windows:**
+
 1. Press `Windows + R`
 2. Type: `%USERPROFILE%\PharmaSmart\logs`
 3. Press Enter
 4. Open `pharmasmart.log` with Notepad
 
 **What to Look For:**
+
 - `ERROR` or `WARN` messages (usually in red or yellow)
 - Port binding errors: "Address already in use"
 - Database connection errors
@@ -449,6 +490,7 @@ Before troubleshooting, check the backend log files for detailed error messages:
 - Backend takes longer than 60 seconds to start
 
 **Solutions:**
+
 1. Verify Java is installed: `java -version`
 2. Check port availability: `netstat -ano | findstr :8080`
 3. Increase timeout in `backend_manager.rs`
@@ -460,11 +502,13 @@ Before troubleshooting, check the backend log files for detailed error messages:
 The backend process continues running after closing the Tauri app. To stop it manually:
 
 **Windows (stop all Java processes):**
+
 ```bash
 taskkill /IM java.exe /F
 ```
 
 **Windows (stop specific PharmaSmart backend):**
+
 ```bash
 # Find the process
 netstat -ano | findstr :8080
@@ -473,6 +517,7 @@ taskkill /PID <PID> /F
 ```
 
 **Linux/macOS:**
+
 ```bash
 pkill -f warehouse
 ```

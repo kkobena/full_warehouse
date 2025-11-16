@@ -37,6 +37,7 @@ public class Rupture implements Serializable {
 
     @Column(name = "qty", nullable = false)
     private int qty;
+
     @Column(name = "product_still_out_of_stock", nullable = false)
     private boolean productStillOutOfStock = true;
 

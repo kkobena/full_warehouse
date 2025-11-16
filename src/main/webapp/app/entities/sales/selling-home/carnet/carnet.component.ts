@@ -25,9 +25,10 @@ import { SpinnerComponent } from '../../../../shared/spinner/spinner.component';
     ProductTableComponent,
     ModeReglementComponent,
     ConfirmDialogComponent,
-    CardModule,SpinnerComponent
+    CardModule,
+    SpinnerComponent,
   ],
-  templateUrl: '../base-sale/base-sale.component.html'
+  templateUrl: '../base-sale/base-sale.component.html',
 })
 export class CarnetComponent extends BaseSaleComponent {
   constructor() {

@@ -11,7 +11,7 @@ export interface IReponseRetourBonItem {
   produitCip?: string;
   lotNumero?: string;
   requestedQty?: number;
-   acceptedQty?: number;
+  acceptedQty?: number;
 }
 
 export class ReponseRetourBonItem implements IReponseRetourBonItem {

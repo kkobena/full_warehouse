@@ -98,7 +98,7 @@ export class CustomerService {
   uploadJsonData(file: any): Observable<HttpResponse<void>> {
     return this.http.post<void>(`${this.resourceUrl}/importjson`, file, {
       observe: 'response',
-      headers: new HttpHeaders({ timeout: `7600000` })
+      headers: new HttpHeaders({ timeout: `7600000` }),
     });
   }
 
@@ -144,7 +144,7 @@ export class CustomerService {
   protected convertDateFromClient(customer: ICustomer): ICustomer {
     const copy: ICustomer = Object.assign({}, customer, {
       createdAt: customer.createdAt && customer.createdAt.isValid() ? customer.createdAt.toJSON() : undefined,
-      updatedAt: customer.updatedAt && customer.updatedAt.isValid() ? customer.updatedAt.toJSON() : undefined
+      updatedAt: customer.updatedAt && customer.updatedAt.isValid() ? customer.updatedAt.toJSON() : undefined,
     });
     return copy;
   }

@@ -6,7 +6,7 @@ import { createRequestOptions } from '../../../shared/util/request-util';
 import { BalanceCaisseWrapper } from './balance-caisse.model';
 
 @Injectable({
-  providedIn: 'root'
+  providedIn: 'root',
 })
 export class BalanceMvtCaisseService {
   protected http = inject(HttpClient);
@@ -17,7 +17,7 @@ export class BalanceMvtCaisseService {
     const options = createRequestOptions(req);
     return this.http.get<BalanceCaisseWrapper>(this.resourceUrl, {
       params: options,
-      observe: 'response'
+      observe: 'response',
     });
   }
 

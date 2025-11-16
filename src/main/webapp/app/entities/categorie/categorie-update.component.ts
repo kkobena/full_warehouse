@@ -13,7 +13,7 @@ import { finalize } from 'rxjs/operators';
 @Component({
   selector: 'jhi-categorie-update',
   templateUrl: './categorie-update.component.html',
-  imports: [WarehouseCommonModule, FormsModule, ReactiveFormsModule]
+  imports: [WarehouseCommonModule, FormsModule, ReactiveFormsModule],
 })
 export class CategorieUpdateComponent implements OnInit {
   isSaving = false;
@@ -22,7 +22,7 @@ export class CategorieUpdateComponent implements OnInit {
   private fb = inject(UntypedFormBuilder);
   editForm = this.fb.group({
     id: [],
-    libelle: [null, [Validators.required]]
+    libelle: [null, [Validators.required]],
   });
 
   ngOnInit(): void {
@@ -34,7 +34,7 @@ export class CategorieUpdateComponent implements OnInit {
   updateForm(categorie: ICategorie): void {
     this.editForm.patchValue({
       id: categorie.id,
-      libelle: categorie.libelle
+      libelle: categorie.libelle,
     });
   }
 
@@ -55,7 +55,7 @@ export class CategorieUpdateComponent implements OnInit {
   protected subscribeToSaveResponse(result: Observable<HttpResponse<ICategorie>>): void {
     result.pipe(finalize(() => (this.isSaving = false))).subscribe({
       next: () => this.onSaveSuccess(),
-      error: () => this.onSaveError()
+      error: () => this.onSaveError(),
     });
   }
 
@@ -71,7 +71,7 @@ export class CategorieUpdateComponent implements OnInit {
     return {
       ...new Categorie(),
       id: this.editForm.get(['id']).value,
-      libelle: this.editForm.get(['libelle']).value
+      libelle: this.editForm.get(['libelle']).value,
     };
   }
 }

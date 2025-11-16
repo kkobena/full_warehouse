@@ -14,7 +14,6 @@ import com.kobe.warehouse.domain.enumeration.CategorieChiffreAffaire;
 import com.kobe.warehouse.domain.enumeration.SalesStatut;
 import com.kobe.warehouse.domain.enumeration.TypeFinancialTransaction;
 import com.kobe.warehouse.repository.CashRegisterRepository;
-import com.kobe.warehouse.service.settings.AppConfigurationService;
 import com.kobe.warehouse.service.UserService;
 import com.kobe.warehouse.service.cash_register.CashFundService;
 import com.kobe.warehouse.service.cash_register.CashRegisterService;
@@ -26,6 +25,7 @@ import com.kobe.warehouse.service.cash_register.dto.FetchCashRegisterParams;
 import com.kobe.warehouse.service.errors.CashRegisterException;
 import com.kobe.warehouse.service.errors.NonClosedCashRegisterException;
 import com.kobe.warehouse.service.financiel_transaction.dto.PaymentType;
+import com.kobe.warehouse.service.settings.AppConfigurationService;
 import com.kobe.warehouse.service.utils.DateUtil;
 import java.math.BigDecimal;
 import java.time.LocalDate;
@@ -251,8 +251,7 @@ public class CashRegisterServiceImpl implements CashRegisterService {
     @Override
     public List<CashRegisterDTO> getConnectedUserNonClosedCashRegisters() {
         Specification<CashRegister> cashRegisterSpecification =
-            this.cashRegisterRepository.specialisation(Set.of(CashRegisterStatut.OPEN, CashRegisterStatut.PENDING))
-        ;
+            this.cashRegisterRepository.specialisation(Set.of(CashRegisterStatut.OPEN, CashRegisterStatut.PENDING));
 
         cashRegisterSpecification = cashRegisterSpecification.and(
             this.cashRegisterRepository.specialisation(userService.getUser().getId())
@@ -281,8 +280,7 @@ public class CashRegisterServiceImpl implements CashRegisterService {
     @Override
     public boolean hasOpenCashRegister() {
         Specification<CashRegister> cashRegisterSpecification =
-            this.cashRegisterRepository.specialisation(Set.of(CashRegisterStatut.OPEN, CashRegisterStatut.PENDING))
-        ;
+            this.cashRegisterRepository.specialisation(Set.of(CashRegisterStatut.OPEN, CashRegisterStatut.PENDING));
 
         cashRegisterSpecification = cashRegisterSpecification.and(
             this.cashRegisterRepository.specialisation(userService.getUser().getId())
@@ -293,8 +291,7 @@ public class CashRegisterServiceImpl implements CashRegisterService {
 
     private Page<CashRegister> loadCashRegisters(FetchCashRegisterParams fetchCashRegisterParams, Pageable pageable) {
         Specification<CashRegister> cashRegisterSpecification =
-            this.cashRegisterRepository.specialisation(fetchCashRegisterParams.statuts())
-        ;
+            this.cashRegisterRepository.specialisation(fetchCashRegisterParams.statuts());
         if (Objects.nonNull(fetchCashRegisterParams.userId())) {
             cashRegisterSpecification = cashRegisterSpecification.and(
                 this.cashRegisterRepository.specialisation(fetchCashRegisterParams.userId())

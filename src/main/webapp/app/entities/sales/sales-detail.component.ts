@@ -12,7 +12,7 @@ import { Card } from 'primeng/card';
   selector: 'jhi-sales-detail',
   templateUrl: './sales-detail.component.html',
   styleUrls: ['./sales-details.component.scss', './sales-detail.component.scss'],
-  imports: [WarehouseCommonModule, RouterModule, DecimalPipe, Button, ToolbarModule, Card]
+  imports: [WarehouseCommonModule, RouterModule, DecimalPipe, Button, ToolbarModule, Card],
 })
 export class SalesDetailComponent implements OnInit {
   sales: ISales | null = null;
@@ -23,8 +23,7 @@ export class SalesDetailComponent implements OnInit {
 
   activatedRoute = inject(ActivatedRoute);
 
-  constructor() {
-  }
+  constructor() {}
 
   ngOnInit(): void {
     this.activatedRoute.data.subscribe(({ sales }) => {

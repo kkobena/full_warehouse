@@ -12,7 +12,7 @@ type EntityResponseType = HttpResponse<IFamilleProduit>;
 type EntityArrayResponseType = HttpResponse<IFamilleProduit[]>;
 
 @Injectable({
-  providedIn: 'root'
+  providedIn: 'root',
 })
 export class FamilleProduitService {
   protected http = inject(HttpClient);
@@ -35,7 +35,7 @@ export class FamilleProduitService {
     const options = createRequestOption(req);
     return this.http.get<IFamilleProduit[]>(this.resourceUrl, {
       params: options,
-      observe: 'response'
+      observe: 'response',
     });
   }
 

@@ -1,5 +1,10 @@
 package com.kobe.warehouse.repository;
 
+import static java.util.Objects.isNull;
+import static java.util.Objects.nonNull;
+import static org.springframework.util.StringUtils.hasText;
+
+import com.kobe.warehouse.domain.AppUser_;
 import com.kobe.warehouse.domain.FournisseurProduit;
 import com.kobe.warehouse.domain.FournisseurProduit_;
 import com.kobe.warehouse.domain.Fournisseur_;
@@ -10,34 +15,28 @@ import com.kobe.warehouse.domain.Produit;
 import com.kobe.warehouse.domain.Produit_;
 import com.kobe.warehouse.domain.RayonProduit;
 import com.kobe.warehouse.domain.RayonProduit_;
-import com.kobe.warehouse.domain.AppUser_;
 import com.kobe.warehouse.service.product_to_destroy.dto.ProductToDestroyFilter;
 import jakarta.persistence.criteria.Join;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.LocalTime;
+import java.util.List;
+import java.util.Optional;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 
-import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.time.LocalTime;
-import java.util.List;
-import java.util.Optional;
-
-import static java.util.Objects.isNull;
-import static java.util.Objects.nonNull;
-import static org.springframework.util.StringUtils.hasText;
-
 @Repository
 public interface ProductsToDestroyRepository
     extends
-    JpaRepository<ProductsToDestroy, Integer>,
-    JpaSpecificationExecutor<ProductsToDestroy>,
-    SpecificationBuilder,
-    ProductsToDestroyCustomRepository {
+        JpaRepository<ProductsToDestroy, Integer>,
+        JpaSpecificationExecutor<ProductsToDestroy>,
+        SpecificationBuilder,
+        ProductsToDestroyCustomRepository {
     @Query("SELECT o FROM ProductsToDestroy o WHERE o.editing  AND FUNCTION('DATE',o.created) =:toDay AND o.user.id =:userId")
-    List<ProductsToDestroy> findAllByEditingTrueAndCreatedEquals( LocalDate toDay,Integer userId);
+    List<ProductsToDestroy> findAllByEditingTrueAndCreatedEquals(LocalDate toDay, Integer userId);
 
     Optional<ProductsToDestroy> findByNumLotAndFournisseurProduitProduitId(String numLot, Integer produitId);
 

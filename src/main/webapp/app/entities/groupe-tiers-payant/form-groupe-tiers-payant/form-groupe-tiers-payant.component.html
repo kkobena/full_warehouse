@@ -1,10 +1,7 @@
 <div class="modal-header">
   <h4 class="modal-title">{{ header }}</h4>
-  <button (click)="cancel()" class="btn-close" data-dismiss="modal" type="button">
-    &times;
-  </button>
+  <button (click)="cancel()" class="btn-close" data-dismiss="modal" type="button">&times;</button>
 </div>
-
 
 <form (ngSubmit)="save()" [formGroup]="editForm" name="editForm" novalidate role="form">
   <div class="modal-body">
@@ -16,15 +13,11 @@
       <div class="form-row">
         <div class="form-group col">
           <label class="form-control-label" for="field_name">Libellé</label>
-          <input #name autocomplete="off" class="form-control" formControlName="name"
-                 id="field_name"
-                 name="name" pInputText type="text" />
-          @if (editForm.get('name')!.invalid && (editForm.get('name')!.dirty || editForm.get(
-            'name')!.touched)) {
+          <input #name autocomplete="off" class="form-control" formControlName="name" id="field_name" name="name" pInputText type="text" />
+          @if (editForm.get('name')!.invalid && (editForm.get('name')!.dirty || editForm.get('name')!.touched)) {
             <div>
               @if (editForm.get('name')?.errors?.required) {
-                <small class="form-text text-danger" jhiTranslate="entity.validation.required"> This
-                  field is required. </small>
+                <small class="form-text text-danger" jhiTranslate="entity.validation.required"> This field is required. </small>
               }
             </div>
           }
@@ -32,8 +25,7 @@
       </div>
       <div class="form-row">
         <div class="form-group col">
-          <label class="form-control-label" for="ordreTrisFacture">Ordre de tris des
-            factures</label>
+          <label class="form-control-label" for="ordreTrisFacture">Ordre de tris des factures</label>
           <p-select
             [filter]="false"
             [options]="ordreTrisFacture"
@@ -52,9 +44,7 @@
       <div class="form-row">
         <div class="form-group col">
           <label class="form-control-label" for="field_adresse">Adresse</label>
-          <input autocomplete="off" class="form-control" formControlName="adresse"
-                 id="field_adresse"
-                 name="v" pInputText type="text" />
+          <input autocomplete="off" class="form-control" formControlName="adresse" id="field_adresse" name="v" pInputText type="text" />
         </div>
       </div>
       <div class="form-row">
@@ -88,7 +78,6 @@
         </div>
       </div>
     </p-card>
-
   </div>
 
   <div class="modal-footer">
@@ -104,7 +93,6 @@
     <p-button
       [disabled]="editForm.invalid || isSaving"
       [raised]="true"
-
       icon="pi pi-check"
       label="Enregistrer"
       severity="success"

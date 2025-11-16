@@ -9,7 +9,7 @@ import { WarehouseCommonModule } from '../../shared/warehouse-common/warehouse-c
 @Component({
   templateUrl: './commande-en-cours-response-dialog.component.html',
   styleUrls: ['../common-modal.component.scss', './commande-en-cours-response-dialog.component.scss'],
-  imports: [WarehouseCommonModule]
+  imports: [WarehouseCommonModule],
 })
 export class CommandeEnCoursResponseDialogComponent implements OnInit {
   header = 'VERIFICATION COMMANDE';
@@ -27,7 +27,7 @@ export class CommandeEnCoursResponseDialogComponent implements OnInit {
       this.responseCommandeItem = this.responseCommande.items.filter(e => e.quantitePriseEnCompte > 0);
       this.responseCommandeItemNonPrisEnComte = this.responseCommande.items.filter(e => e.quantitePriseEnCompte < e.quantite);
       this.responseCommandeItemMoitieLivrer = this.responseCommande.items.filter(
-        e => e.quantitePriseEnCompte > 0 && e.quantitePriseEnCompte < e.quantite
+        e => e.quantitePriseEnCompte > 0 && e.quantitePriseEnCompte < e.quantite,
       );
     }
     this.getCardClass();

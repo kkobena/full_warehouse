@@ -19,16 +19,7 @@ import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
   selector: 'jhi-forme-produit',
   templateUrl: './forme-produit.component.html',
   styleUrl: './forme-produit.component.scss',
-  imports: [
-    ButtonModule,
-    ToolbarModule,
-    TableModule,
-    Tooltip,
-    ConfirmDialogComponent,
-    IconField,
-    InputIcon,
-    InputText
-  ]
+  imports: [ButtonModule, ToolbarModule, TableModule, Tooltip, ConfirmDialogComponent, IconField, InputIcon, InputText],
 })
 export class FormeProduitComponent implements OnInit {
   protected entites?: IFormProduit[];
@@ -56,11 +47,11 @@ export class FormeProduitComponent implements OnInit {
       .query({
         page: pageToLoad,
         size: this.itemsPerPage,
-        search: search || null
+        search: search || null,
       })
       .subscribe({
         next: (res: HttpResponse<IFormProduit[]>) => this.onSuccess(res.body, res.headers, pageToLoad),
-        error: () => this.onError()
+        error: () => this.onError(),
       });
   }
 
@@ -71,11 +62,11 @@ export class FormeProduitComponent implements OnInit {
       this.entityService
         .query({
           page: this.page,
-          size: event.rows
+          size: event.rows,
         })
         .subscribe({
           next: (res: HttpResponse<IFormProduit[]>) => this.onSuccess(res.body, res.headers, this.page),
-          error: () => this.onError()
+          error: () => this.onError(),
         });
     }
   }
@@ -88,11 +79,9 @@ export class FormeProduitComponent implements OnInit {
         });
       },
       'Suppression',
-      'Êtes-vous sûr de vouloir supprimer ?'
+      'Êtes-vous sûr de vouloir supprimer ?',
     );
-
   }
-
 
   protected addNewEntity(): void {
     showCommonModal(
@@ -100,12 +89,12 @@ export class FormeProduitComponent implements OnInit {
       FormFormeProduitComponent,
       {
         entity: null,
-        header: 'Ajout d\'une nouvelle forme de produit'
+        header: "Ajout d'une nouvelle forme de produit",
       },
       () => {
         this.loadPage(0);
       },
-      'lg'
+      'lg',
     );
   }
 
@@ -115,12 +104,12 @@ export class FormeProduitComponent implements OnInit {
       FormFormeProduitComponent,
       {
         entity: entity,
-        header: 'Modification de ' + entity.libelle
+        header: 'Modification de ' + entity.libelle,
       },
       () => {
         this.loadPage(0);
       },
-      'lg'
+      'lg',
     );
   }
 
@@ -144,6 +133,4 @@ export class FormeProduitComponent implements OnInit {
   private onError(): void {
     this.loading = false;
   }
-
-
 }

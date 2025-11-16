@@ -10,7 +10,6 @@ import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotNull;
-
 import java.io.Serial;
 import java.io.Serializable;
 import java.time.LocalDateTime;
@@ -44,6 +43,7 @@ public class ReponseRetourBonItem implements Serializable {
     @Min(0)
     @Column(name = "qty_mvt", nullable = false, length = 5)
     private Integer qtyMvt;
+
     @NotNull
     @Column(name = "prix_achat", length = 8, nullable = false)
     private Integer prixAchat;
@@ -100,6 +100,4 @@ public class ReponseRetourBonItem implements Serializable {
         this.qtyMvt = qtyMvt;
         return this;
     }
-
-
 }

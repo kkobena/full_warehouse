@@ -1,5 +1,7 @@
 package com.kobe.warehouse.service.activity_summary;
 
+import static java.util.Objects.nonNull;
+
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.json.JsonMapper;
 import com.kobe.warehouse.domain.enumeration.CategorieChiffreAffaire;
@@ -25,6 +27,11 @@ import com.kobe.warehouse.service.dto.records.ChiffreAffaireRecord;
 import com.kobe.warehouse.service.dto.records.ReglementTiersPayantResult;
 import com.kobe.warehouse.service.errors.ReportFileExportException;
 import com.kobe.warehouse.service.utils.DateUtil;
+import java.math.BigDecimal;
+import java.time.LocalDate;
+import java.util.List;
+import java.util.Objects;
+import java.util.Set;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.core.io.Resource;
@@ -35,14 +42,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
-
-import java.math.BigDecimal;
-import java.time.LocalDate;
-import java.util.List;
-import java.util.Objects;
-import java.util.Set;
-
-import static java.util.Objects.nonNull;
 
 @Service
 @Transactional(readOnly = true)
@@ -65,7 +64,8 @@ public class ActivitySummaryServiceImpl implements ActivitySummaryService {
         PaymentTransactionRepository paymentTransactionRepository,
         SalePaymentRepository paymentRepository,
         SalesRepository salesRepository,
-        ActivitySummaryReportService activitySummaryReportService, JsonMapper objectMapper
+        ActivitySummaryReportService activitySummaryReportService,
+        JsonMapper objectMapper
     ) {
         this.payantService = payantService;
         this.invoicePaymentRepository = invoicePaymentRepository;
@@ -134,14 +134,14 @@ public class ActivitySummaryServiceImpl implements ActivitySummaryService {
     public Resource printToPdf(LocalDate fromDate, LocalDate toDate, String searchAchatTp, String searchReglement)
         throws ReportFileExportException {
         return this.activitySummaryReportService.printToPdf(
-            new ActivitySummaryRecord(
-                getChiffreAffaire(fromDate, toDate),
-                fetchAchatTiersPayant(fromDate, toDate, searchAchatTp, Pageable.unpaged()).getContent(),
-                findReglementTierspayant(fromDate, toDate, searchReglement, Pageable.unpaged()).getContent(),
-                fetchAchats(fromDate, toDate, Pageable.unpaged()).getContent(),
-                " du " + DateUtil.formatFr(fromDate) + " au " + toDate
-            )
-        );
+                new ActivitySummaryRecord(
+                    getChiffreAffaire(fromDate, toDate),
+                    fetchAchatTiersPayant(fromDate, toDate, searchAchatTp, Pageable.unpaged()).getContent(),
+                    findReglementTierspayant(fromDate, toDate, searchReglement, Pageable.unpaged()).getContent(),
+                    fetchAchats(fromDate, toDate, Pageable.unpaged()).getContent(),
+                    " du " + DateUtil.formatFr(fromDate) + " au " + toDate
+                )
+            );
     }
 
     @Override
@@ -156,16 +156,20 @@ public class ActivitySummaryServiceImpl implements ActivitySummaryService {
             new PageImpl<>(reglementTiersPayantResult.content(), pageable, reglementTiersPayantResult.totalElements());
         }
         return Page.empty();
-
-
     }
 
     private ChiffreAffaire getChiffreAffaireSummary(LocalDate fromDate, LocalDate toDate) {
         try {
-            String jsonResult = this.salesRepository.getChiffreAffaire(fromDate, toDate, SalesStatut.getStatutForFacturation().stream().map(SalesStatut::name).toArray(String[]::new), Set.of(CategorieChiffreAffaire.CA).stream().map(CategorieChiffreAffaire::name).toArray(String[]::new), false, false);
-            return objectMapper.readValue(jsonResult, new TypeReference<>() {
-            });
-
+            String jsonResult =
+                this.salesRepository.getChiffreAffaire(
+                        fromDate,
+                        toDate,
+                        SalesStatut.getStatutForFacturation().stream().map(SalesStatut::name).toArray(String[]::new),
+                        Set.of(CategorieChiffreAffaire.CA).stream().map(CategorieChiffreAffaire::name).toArray(String[]::new),
+                        false,
+                        false
+                    );
+            return objectMapper.readValue(jsonResult, new TypeReference<>() {});
         } catch (Exception e) {
             LOG.info(null, e);
             return null;
@@ -176,11 +180,15 @@ public class ActivitySummaryServiceImpl implements ActivitySummaryService {
         int offset = pageable.isUnpaged() ? 0 : (int) pageable.getOffset();
         int limit = pageable.isUnpaged() ? Integer.MAX_VALUE : pageable.getPageSize();
         try {
-
-            String jsonResult = invoicePaymentRepository.findReglementTierspayant(fromDate, toDate, StringUtils.hasLength(search) ? search : null, offset, limit);
+            String jsonResult = invoicePaymentRepository.findReglementTierspayant(
+                fromDate,
+                toDate,
+                StringUtils.hasLength(search) ? search : null,
+                offset,
+                limit
+            );
             System.err.println(jsonResult);
-            return objectMapper.readValue(jsonResult, new TypeReference<>() {
-            });
+            return objectMapper.readValue(jsonResult, new TypeReference<>() {});
         } catch (Exception e) {
             LOG.info(e.getLocalizedMessage());
             return null;

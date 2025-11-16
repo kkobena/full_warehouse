@@ -24,7 +24,6 @@ export interface IMagasin {
   registreImposition?: string;
   primaryStorage?: IStorage;
   pointOfSale?: IStorage;
-
 }
 
 export class Magasin implements IMagasin {

@@ -32,7 +32,7 @@ export class MagasinService {
   }
   fetchAllDepots(req?: any): Observable<EntityArrayResponseType> {
     const options = createRequestOptions(req);
-    return this.http.get<IMagasin[]>(this.resourceUrl+'/depots', { params: options, observe: 'response' } );
+    return this.http.get<IMagasin[]>(this.resourceUrl + '/depots', { params: options, observe: 'response' });
   }
 
   delete(id: number): Observable<HttpResponse<{}>> {
@@ -43,7 +43,6 @@ export class MagasinService {
     return await firstValueFrom(this.http.get<IMagasin>(this.resourceUrl + '/current-user-magasin'));
   }
 
-
   getCurrenttUserMagasin(): Observable<EntityResponseType> {
     return this.http.get<IMagasin>(`${this.resourceUrl}/current`, { observe: 'response' });
   }
@@ -51,5 +50,4 @@ export class MagasinService {
   hasDepot(): Observable<HttpResponse<boolean>> {
     return this.http.get<boolean>(`${this.resourceUrl}/has-depot`, { observe: 'response' });
   }
-
 }

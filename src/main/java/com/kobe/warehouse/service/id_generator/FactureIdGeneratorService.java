@@ -6,9 +6,7 @@ import org.springframework.stereotype.Service;
 @Service
 public class FactureIdGeneratorService extends AbstractIdGeneratorService {
 
-
     public FactureIdGeneratorService(EntityManager entityManager) {
-
         super(entityManager);
     }
 
@@ -16,6 +14,4 @@ public class FactureIdGeneratorService extends AbstractIdGeneratorService {
     public String getSequenceName() {
         return "id_facture_seq";
     }
-
-
 }

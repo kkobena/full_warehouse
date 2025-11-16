@@ -25,12 +25,10 @@ export const apiBaseUrlInterceptor: HttpInterceptorFn = (req, next) => {
 
     // If apiServerUrl is configured (Electron/production), prepend it
     if (apiServerUrl) {
-      const absoluteUrl = url.startsWith('/')
-        ? `${apiServerUrl}${url}`
-        : `${apiServerUrl}/${url}`;
+      const absoluteUrl = url.startsWith('/') ? `${apiServerUrl}${url}` : `${apiServerUrl}/${url}`;
 
       const clonedRequest = req.clone({
-        url: absoluteUrl
+        url: absoluteUrl,
       });
 
       return next(clonedRequest);

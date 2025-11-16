@@ -3,14 +3,13 @@ package com.kobe.warehouse.service.receipt.service;
 import com.kobe.warehouse.service.receipt.dto.HeaderFooterItem;
 import com.kobe.warehouse.service.reglement.differe.dto.ReglementDiffereReceiptDTO;
 import com.kobe.warehouse.service.settings.AppConfigurationService;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.stereotype.Service;
-
-import javax.print.PrintException;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.util.List;
+import javax.print.PrintException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.stereotype.Service;
 
 @Service
 public class DiffereReceiptService extends ReglementAbstractReceiptService {
@@ -26,7 +25,7 @@ public class DiffereReceiptService extends ReglementAbstractReceiptService {
     @Override
     protected List<HeaderFooterItem> getHeaderItems() {
         return List.of();
-      /*  List<HeaderFooterItem> headerItems = new ArrayList<>();
+        /*  List<HeaderFooterItem> headerItems = new ArrayList<>();
 
         headerItems.add(new HeaderFooterItem("CLIENT: " + differeReceipt.customerfullName(), 1, PLAIN_FONT));
         headerItems.add(new HeaderFooterItem("OPERATEUR: " + differeReceipt.userfullName(), 1, PLAIN_FONT));
@@ -34,12 +33,10 @@ public class DiffereReceiptService extends ReglementAbstractReceiptService {
         return headerItems;*/
     }
 
-
     @Override
     protected List<HeaderFooterItem> getFooterItems() {
         return List.of();
     }
-
 
     @Override
     protected byte[] generateEscPosReceipt(boolean isEdit) throws IOException {
@@ -92,7 +89,6 @@ public class DiffereReceiptService extends ReglementAbstractReceiptService {
         }
     }
 
-
     public void printReceipt(String hostName, ReglementDiffereReceiptDTO reglementDiffereReceipt) {
         this.differeReceipt = reglementDiffereReceipt;
         try {
@@ -103,7 +99,7 @@ public class DiffereReceiptService extends ReglementAbstractReceiptService {
         }
     }
 
-  public   byte[] generateEscPosReceiptForTauri(ReglementDiffereReceiptDTO reglementDiffereReceipt) throws IOException {
+    public byte[] generateEscPosReceiptForTauri(ReglementDiffereReceiptDTO reglementDiffereReceipt) throws IOException {
         this.differeReceipt = reglementDiffereReceipt;
         return generateEscPosReceipt(true);
     }

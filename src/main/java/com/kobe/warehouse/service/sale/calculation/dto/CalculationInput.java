@@ -5,6 +5,7 @@ import java.math.BigDecimal;
 import java.util.List;
 
 public class CalculationInput {
+
     private List<SaleItemInput> saleItems;
     private List<TiersPayantInput> tiersPayants;
     private NatureVente natureVente;

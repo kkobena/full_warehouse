@@ -1,14 +1,14 @@
-import {Component, inject, input, output} from '@angular/core';
-import {ButtonModule} from "primeng/button";
-import {TranslateService} from "@ngx-translate/core";
-import {TooltipModule} from "primeng/tooltip";
+import { Component, inject, input, output } from '@angular/core';
+import { ButtonModule } from 'primeng/button';
+import { TranslateService } from '@ngx-translate/core';
+import { TooltipModule } from 'primeng/tooltip';
 
-export  type Severity = 'primary' | 'secondary' | 'success' | 'info' | 'warn' | 'danger' | 'help';
+export type Severity = 'primary' | 'secondary' | 'success' | 'info' | 'warn' | 'danger' | 'help';
 
 @Component({
   selector: 'jhi-cta',
   imports: [ButtonModule, TooltipModule],
-  templateUrl:'./cta.component.html',
+  templateUrl: './cta.component.html',
 })
 export class CtaComponent {
   click = output<void>();

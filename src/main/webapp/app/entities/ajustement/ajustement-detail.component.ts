@@ -12,7 +12,7 @@ import {
   APPEND_TO,
   PRODUIT_COMBO_MIN_LENGTH,
   PRODUIT_COMBO_RESULT_SIZE,
-  PRODUIT_NOT_FOUND
+  PRODUIT_NOT_FOUND,
 } from '../../shared/constants/pagination.constants';
 import { ErrorService } from '../../shared/error.service';
 import { FinalyseComponent } from './finalyse/finalyse.component';
@@ -62,8 +62,8 @@ import { showCommonModal } from '../sales/selling-home/sale-helper';
     QuantiteProdutSaisieComponent,
     TagModule,
     BackButtonComponent,
-    RemoveButtonTextComponent
-  ]
+    RemoveButtonTextComponent,
+  ],
 })
 export class AjustementDetailComponent implements OnInit, AfterViewInit {
   protected ajustement: IAjust | null = null;
@@ -89,7 +89,6 @@ export class AjustementDetailComponent implements OnInit, AfterViewInit {
   private readonly errorService = inject(ErrorService);
   private readonly ajustementService = inject(AjustementService);
   private readonly modifAjustementService = inject(ModifAjustementService);
-
 
   protected get canAddQuantity(): boolean {
     return this.motifValue && !!this.produitSelected;
@@ -123,7 +122,7 @@ export class AjustementDetailComponent implements OnInit, AfterViewInit {
       'SUPPRESSION',
       'Voullez-vous supprimer cette ligne ?',
       null,
-      () => this.focusPrdoduitBox()
+      () => this.focusPrdoduitBox(),
     );
   }
 
@@ -133,7 +132,7 @@ export class AjustementDetailComponent implements OnInit, AfterViewInit {
       'SUPPRESSION',
       'Voullez-vous supprimer toutes les lignes ?',
       null,
-      () => this.focusPrdoduitBox()
+      () => this.focusPrdoduitBox(),
     );
   }
 
@@ -165,7 +164,7 @@ export class AjustementDetailComponent implements OnInit, AfterViewInit {
       .query({
         page: 0,
         size: 9999,
-        search: query
+        search: query,
       })
       .subscribe((res: HttpResponse<IMotifAjustement[]>) => this.onMotifSuccess(res.body));
   }
@@ -174,8 +173,10 @@ export class AjustementDetailComponent implements OnInit, AfterViewInit {
     showCommonModal(
       this.modalService,
       FinalyseComponent,
-      { header: 'Finalisation de l\'ajustement', entity: this.ajustement },
-      (reason) => this.onSaveFinalyseSuccess(reason), 'lg', null
+      { header: "Finalisation de l'ajustement", entity: this.ajustement },
+      reason => this.onSaveFinalyseSuccess(reason),
+      'lg',
+      null,
     );
   }
 
@@ -207,7 +208,7 @@ export class AjustementDetailComponent implements OnInit, AfterViewInit {
   protected onFilterItems(): void {
     const query = {
       ajustementId: this.ajustement?.id,
-      search: this.search
+      search: this.search,
     };
     this.ajustementService.query(query).subscribe((res: HttpResponse<IAjustement[]>) => (this.items = res.body || []));
   }
@@ -229,14 +230,14 @@ export class AjustementDetailComponent implements OnInit, AfterViewInit {
   protected subscribeCreateNewResponse(result: Observable<HttpResponse<IAjust>>): void {
     result.subscribe({
       next: (res: HttpResponse<IAjust>) => this.onSaveSuccess(res.body),
-      error: (err: HttpErrorResponse) => this.onSaveError(err)
+      error: (err: HttpErrorResponse) => this.onSaveError(err),
     });
   }
 
   protected subscribeAddItemResponse(result: Observable<HttpResponse<{}>>): void {
     result.subscribe({
       next: () => this.onSaveSuccess(),
-      error: (err: any) => this.onSaveError(err)
+      error: (err: any) => this.onSaveError(err),
     });
   }
 
@@ -260,7 +261,6 @@ export class AjustementDetailComponent implements OnInit, AfterViewInit {
     this.focusPrdoduitBox();
   }
 
-
   private onCommonError(error: HttpErrorResponse): void {
     this.alert().showInfo(this.errorService.getErrorMessage(error));
   }
@@ -272,7 +272,7 @@ export class AjustementDetailComponent implements OnInit, AfterViewInit {
   private createAjustement(produit: IProduit, quantity: number): IAjust {
     return {
       ...new Ajust(),
-      ajustements: [this.createItem(produit, quantity)]
+      ajustements: [this.createItem(produit, quantity)],
     };
   }
 
@@ -282,7 +282,7 @@ export class AjustementDetailComponent implements OnInit, AfterViewInit {
       produitId: produit.id,
       qtyMvt: quantity,
       ajustId: this.ajustement?.id,
-      motifAjustementId: this.motifSelected?.id
+      motifAjustementId: this.motifSelected?.id,
     };
   }
 

@@ -8,14 +8,14 @@ import {
   ProductToDestroy,
   ProductToDestroyFilter,
   ProductToDestroyPayload,
-  ProductToDestroySum
+  ProductToDestroySum,
 } from './model/product-to-destroy';
 import { Keys } from '../../shared/model/keys.model';
 
 type EntityArrayResponseType = HttpResponse<ProductToDestroy[]>;
 
 @Injectable({
-  providedIn: 'root'
+  providedIn: 'root',
 })
 export class ProductToDestroyService {
   private readonly http = inject(HttpClient);
@@ -38,7 +38,7 @@ export class ProductToDestroyService {
     const options = createRequestOptions(req);
     return this.http.get<ProductToDestroySum>(this.resourceUrl + '/sum', {
       params: options,
-      observe: 'response'
+      observe: 'response',
     });
   }
 
@@ -46,7 +46,7 @@ export class ProductToDestroyService {
     const options = createRequestOptions(req);
     return this.http.get<ProductToDestroy[]>(this.resourceUrl, {
       params: options,
-      observe: 'response'
+      observe: 'response',
     });
   }
 
@@ -54,7 +54,7 @@ export class ProductToDestroyService {
     const options = createRequestOptions(req);
     return this.http.get<ProductToDestroy[]>(this.resourceUrl + '/editing', {
       params: options,
-      observe: 'response'
+      observe: 'response',
     });
   }
 
@@ -74,7 +74,7 @@ export class ProductToDestroyService {
     const options = createRequestOptions(req);
     return this.http.get(`${this.resourceUrl}/pdf`, {
       params: options,
-      responseType: 'blob'
+      responseType: 'blob',
     });
   }
 
@@ -83,7 +83,7 @@ export class ProductToDestroyService {
     return this.http.get(`${this.resourceUrl}/export/${format}`, {
       params: options,
       observe: 'response',
-      responseType: 'blob'
+      responseType: 'blob',
     });
   }
 }

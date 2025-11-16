@@ -5,7 +5,7 @@ import {
   InventoryStatut,
   IStoreInventory,
   ItemsCountRecord,
-  StoreInventoryExportRecord
+  StoreInventoryExportRecord,
 } from '../../../shared/model/store-inventory.model';
 import { IUser } from '../../../core/user/user.model';
 import { StoreInventoryService } from '../store-inventory.service';

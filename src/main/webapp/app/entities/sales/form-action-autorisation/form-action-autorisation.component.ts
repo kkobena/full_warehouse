@@ -19,7 +19,7 @@ import { Card } from 'primeng/card';
   selector: 'jhi-form-action-autorisation',
   imports: [WarehouseCommonModule, FormsModule, ReactiveFormsModule, Button, TextareaModule, PasswordModule, Card],
   templateUrl: './form-action-autorisation.component.html',
-  styleUrls: ['./form-action-autorisation.component.scss']
+  styleUrls: ['./form-action-autorisation.component.scss'],
 })
 export class FormActionAutorisationComponent {
   entity: ISales;
@@ -28,7 +28,7 @@ export class FormActionAutorisationComponent {
   protected actionAuthorityKey = viewChild.required<Password>('actionAuthorityKey');
   protected editForm = this.fb.group({
     actionAuthorityKey: ['', [Validators.required]],
-    commentaire: [null]
+    commentaire: [null],
   });
   protected isSaving = false;
   protected isValid = true;
@@ -58,14 +58,14 @@ export class FormActionAutorisationComponent {
         this.isSaving = false;
         this.activeModal.close(true);
       },
-      error: err => this.onCommonError(err)
+      error: err => this.onCommonError(err),
     });
   }
 
   openInfoDialog(message: string, infoClass: string): void {
     const modalRef = this.modalService.open(AlertInfoComponent, {
       backdrop: 'static',
-      centered: true
+      centered: true,
     });
     modalRef.componentInstance.message = message;
     modalRef.componentInstance.infoClass = infoClass;
@@ -77,7 +77,7 @@ export class FormActionAutorisationComponent {
       entityId: this.entity.id,
       privilege: this.privilege,
       actionAuthorityKey: this.editForm.get(['actionAuthorityKey']).value,
-      commentaire: this.editForm.get(['commentaire']).value
+      commentaire: this.editForm.get(['commentaire']).value,
     };
   }
 

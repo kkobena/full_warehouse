@@ -5,9 +5,8 @@ import { WarehouseCommonModule } from '../../../shared/warehouse-common/warehous
   selector: 'jhi-detail-produit-form',
   templateUrl: './detail-produit-form.component.html',
   styleUrls: ['./detail-produit-form.component.scss'],
-  imports: [WarehouseCommonModule]
+  imports: [WarehouseCommonModule],
 })
 export class DetailProduitFormComponent implements OnInit {
-  ngOnInit(): void {
-  }
+  ngOnInit(): void {}
 }

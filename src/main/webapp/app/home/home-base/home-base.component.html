@@ -104,7 +104,9 @@
       <div class="card-footer">
         <span class="footer-label">Annulations</span>
         @if (canceled?.salesAmount) {
-          <span class="badge bg-secondary-subtle text-secondary">{{ canceled?.salesAmount | number }} ({{ canceled?.saleCount | number }})</span>
+          <span class="badge bg-secondary-subtle text-secondary"
+            >{{ canceled?.salesAmount | number }} ({{ canceled?.saleCount | number }})</span
+          >
         }
       </div>
     </div>
@@ -160,10 +162,8 @@
             }
           </ul>
         } @else {
-
           <div class="d-flex justify-content-center align-items-center h-100">
-            <p-chart type="pie" [data]="modePaimentChartData" [options]="modePaimentChartOptions"
-                     height="300"></p-chart>
+            <p-chart type="pie" [data]="modePaimentChartData" [options]="modePaimentChartOptions" height="300"></p-chart>
           </div>
         }
       </div>
@@ -177,8 +177,7 @@
           <fa-icon [icon]="faChartPie" class="text-success"></fa-icon>
           Ventes par tiers-payant
         </h5>
-        <p-select (onChange)="onTopTiersPayantChange()" [(ngModel)]="TOP_MAX_TP" [options]="tops"
-                  optionLabel="label"></p-select>
+        <p-select (onChange)="onTopTiersPayantChange()" [(ngModel)]="TOP_MAX_TP" [options]="tops" optionLabel="label"></p-select>
       </div>
       <div class="card-body py-4">
         @if (!showGraphs) {
@@ -192,8 +191,7 @@
           </ul>
         } @else {
           <div class="d-flex justify-content-center align-items-center h-100">
-            <p-chart type="doughnut" [data]="tiersPayantChartData"
-                     [options]="tiersPayantChartOptions" height="300"></p-chart>
+            <p-chart type="doughnut" [data]="tiersPayantChartData" [options]="tiersPayantChartOptions" height="300"></p-chart>
           </div>
         }
       </div>
@@ -209,13 +207,11 @@
           <fa-icon [icon]="faChartArea" class="text-primary"></fa-icon>
           Meilleures ventes en quantité
         </h5>
-        <p-select (onChange)="onTopQuantityChange()" [(ngModel)]="TOP_MAX_QUANTITY"
-                  [options]="tops" optionLabel="label"></p-select>
+        <p-select (onChange)="onTopQuantityChange()" [(ngModel)]="TOP_MAX_QUANTITY" [options]="tops" optionLabel="label"></p-select>
       </div>
       <div class="card-body p-0">
         @if (!showGraphs) {
-          <p-table class="pharma-table" [scrollable]="true" [value]="rowQuantity" scrollHeight="400px"
-                   [stripedRows]="true">
+          <p-table class="pharma-table" [scrollable]="true" [value]="rowQuantity" scrollHeight="400px" [stripedRows]="true">
             <ng-template #header>
               <tr class="pharma-table-head">
                 <th>Libellé</th>
@@ -240,8 +236,7 @@
           </p-table>
         } @else {
           <div class="p-3">
-            <p-chart type="bar" [data]="quantityChartData" [options]="quantityChartOptions"
-                     height="400px"></p-chart>
+            <p-chart type="bar" [data]="quantityChartData" [options]="quantityChartOptions" height="400px"></p-chart>
           </div>
         }
       </div>
@@ -255,13 +250,11 @@
           <fa-icon [icon]="faChartBar" class="text-warning"></fa-icon>
           Meilleures ventes en valeur
         </h5>
-        <p-select (onChange)="onTopAmountChange()" [(ngModel)]="TOP_MAX_AMOUNT" [options]="tops"
-                  optionLabel="label"></p-select>
+        <p-select (onChange)="onTopAmountChange()" [(ngModel)]="TOP_MAX_AMOUNT" [options]="tops" optionLabel="label"></p-select>
       </div>
       <div class="card-body p-0">
         @if (!showGraphs) {
-          <p-table class="pharma-table" [scrollable]="true" [value]="rowAmount" scrollHeight="400px"
-                   [stripedRows]="true">
+          <p-table class="pharma-table" [scrollable]="true" [value]="rowAmount" scrollHeight="400px" [stripedRows]="true">
             <ng-template #header>
               <tr class="pharma-table-head">
                 <th>Libellé</th>
@@ -286,8 +279,7 @@
           </p-table>
         } @else {
           <div class="p-3">
-            <p-chart type="bar" [data]="amountChartData" [options]="amountChartOptions"
-                     height="400px"></p-chart>
+            <p-chart type="bar" [data]="amountChartData" [options]="amountChartOptions" height="400px"></p-chart>
           </div>
         }
       </div>
@@ -306,24 +298,23 @@
       </div>
       <div class="card-body p-0">
         @if (!showGraphs) {
-          <p-table class="pharma-table" [scrollable]="true" [value]="row20x80" scrollHeight="400px"
-                   [stripedRows]="true">
+          <p-table class="pharma-table" [scrollable]="true" [value]="row20x80" scrollHeight="400px" [stripedRows]="true">
             <ng-template #header>
               <tr class="pharma-table-head">
                 <th>Libellé</th>
                 <th>Cip</th>
                 <th class="text-end">Quantité</th>
                 <th class="text-end">%Qté</th>
-
               </tr>
             </ng-template>
             <ng-template #body let-produit>
               <tr>
                 <td>{{ produit.libelle }}</td>
-                <td><span class="pharma-code">{{ produit.codeCip }}</span>  </td>
+                <td>
+                  <span class="pharma-code">{{ produit.codeCip }}</span>
+                </td>
                 <td class="text-end">{{ produit.total | number }}</td>
                 <td class="text-end fw-bold text-info">{{ produit.pourcentage }}</td>
-
               </tr>
             </ng-template>
             <ng-template #footer>
@@ -331,14 +322,12 @@
                 <td colspan="2" class="fw-bold">Total</td>
                 <td class="text-end fw-bold">{{ totalQuantity20x80 | number }}</td>
                 <td class="text-end fw-bold">{{ totalQuantityAvg | number }}</td>
-
               </tr>
             </ng-template>
           </p-table>
         } @else {
           <div class="p-3">
-            <p-chart type="bar" [data]="twentyEightyChartData" [options]="twentyEightyChartOptions"
-                     height="400px"></p-chart>
+            <p-chart type="bar" [data]="twentyEightyChartData" [options]="twentyEightyChartOptions" height="400px"></p-chart>
           </div>
         }
       </div>
@@ -355,24 +344,23 @@
       </div>
       <div class="card-body p-0">
         @if (!showGraphs) {
-          <p-table class="pharma-table" [scrollable]="true" [value]="row20x80Montant" scrollHeight="400px"
-                   [stripedRows]="true">
+          <p-table class="pharma-table" [scrollable]="true" [value]="row20x80Montant" scrollHeight="400px" [stripedRows]="true">
             <ng-template #header>
               <tr class="pharma-table-head">
                 <th>Libellé</th>
                 <th>Cip</th>
                 <th class="text-end">Montant</th>
                 <th class="text-end">%Montant</th>
-
               </tr>
             </ng-template>
             <ng-template #body let-produit>
               <tr>
                 <td>{{ produit.libelle }}</td>
-                <td><span class="pharma-code">{{ produit.codeCip }}</span>   </td>
+                <td>
+                  <span class="pharma-code">{{ produit.codeCip }}</span>
+                </td>
                 <td class="text-end">{{ produit.total | number }}</td>
                 <td class="text-end fw-bold text-info">{{ produit.pourcentage }}</td>
-
               </tr>
             </ng-template>
             <ng-template #footer>
@@ -380,14 +368,12 @@
                 <td colspan="2" class="fw-bold">Total</td>
                 <td class="text-end fw-bold">{{ totalAmount20x80 | number }}</td>
                 <td class="text-end fw-bold">{{ totalAmountAvg | number }}</td>
-
               </tr>
             </ng-template>
           </p-table>
         } @else {
           <div class="p-3">
-            <p-chart type="bar" [data]="twentyEightyChartData" [options]="twentyEightyChartOptions"
-                     height="400px"></p-chart>
+            <p-chart type="bar" [data]="twentyEightyChartData" [options]="twentyEightyChartOptions" height="400px"></p-chart>
           </div>
         }
       </div>

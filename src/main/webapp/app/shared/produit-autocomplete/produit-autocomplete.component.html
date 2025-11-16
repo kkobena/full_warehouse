@@ -26,19 +26,13 @@
   >
     <ng-template #item let-item>
       <div [style]="{ width: '100%' }">
-        <span
-          [ngClass]="{ stockless: item.totalQuantity <= 0 }"
-          style="width: 20%; display: inline-block"
-        >
+        <span [ngClass]="{ stockless: item.totalQuantity <= 0 }" style="width: 20%; display: inline-block">
           {{ item.fournisseurProduit?.codeCip }}
         </span>
         <span [ngClass]="{ stockless: item.totalQuantity <= 0 }">
           {{ item.libelle }}
         </span>
-        <span
-          [ngClass]="{ stockless: item.totalQuantity <= 0 }"
-          class="float-right"
-        >
+        <span [ngClass]="{ stockless: item.totalQuantity <= 0 }" class="float-right">
           {{ item.regularUnitPrice | number }}
         </span>
       </div>

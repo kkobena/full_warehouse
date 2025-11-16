@@ -9,14 +9,13 @@ import com.kobe.warehouse.service.dto.FournisseurProduitDTO;
 import com.kobe.warehouse.service.errors.DefaultFournisseurException;
 import com.kobe.warehouse.service.errors.GenericError;
 import com.kobe.warehouse.service.stock.ProduitService;
+import java.util.List;
+import java.util.Optional;
 import org.apache.commons.lang3.RandomStringUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
-import java.util.List;
-import java.util.Optional;
 
 @Service
 @Transactional
@@ -154,12 +153,9 @@ public class FournisseurProduitService {
         fournisseurProduitRepository.saveAndFlush(fournisseurProduit);
     }
 
-
-
     public FournisseurProduit update(FournisseurProduit fournisseurProduit) {
         return fournisseurProduitRepository.save(fournisseurProduit);
     }
-
 
     public Optional<FournisseurProduitDTO> findOneById(Integer id) {
         return this.fournisseurProduitRepository.findById(id).map(FournisseurProduitDTO::fromEntity);
@@ -182,9 +178,9 @@ public class FournisseurProduitService {
         long constraint;
         if (org.springframework.util.StringUtils.hasLength(dto.getCodeCip()) && !dto.getCodeCip().equals(fournisseurProduit.getCodeCip())) {
             constraint = this.fournisseurProduitRepository.countFournisseurProduitByCodeCipAndFournisseurId(
-                dto.getCodeCip(),
-                dto.getFournisseurId()
-            );
+                    dto.getCodeCip(),
+                    dto.getFournisseurId()
+                );
             if (constraint > 0) {
                 throw new GenericError(
                     String.format("Ce code %s est déjà associé à un produit pour ce grossiste", dto.getCodeCip()),

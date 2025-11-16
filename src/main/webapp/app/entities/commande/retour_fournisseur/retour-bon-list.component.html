@@ -4,7 +4,6 @@
 
   <div class="card">
     <div class="card-body p-0">
-
       <div class="pharma-table">
         <p-table
           #dt
@@ -21,16 +20,13 @@
           [rowExpandMode]="rowExpandMode"
           currentPageReportTemplate="Affichage de {first} à {last} sur {totalRecords} entrées"
           [showCurrentPageReport]="true"
-
         >
           <ng-template #header>
             <tr class="pharma-table-head">
               <th style="width: 3rem"></th>
 
               <th>
-                <div class="flex align-items-center">
-                  Date
-                </div>
+                <div class="flex align-items-center">Date</div>
               </th>
               <th>Commande</th>
               <th>Fournisseur</th>
@@ -38,9 +34,7 @@
               <th class="text-center">Qté Totale</th>
               <th class="text-center">Qté Accepté</th>
               <th>
-                <div class="flex align-items-center">
-                  Statut
-                </div>
+                <div class="flex align-items-center">Statut</div>
               </th>
               <th>Commentaire</th>
               <th class="text-center">Actions</th>
@@ -79,18 +73,13 @@
                 <span class="pharma-qty-value">{{ getTotalAccepted(retourBon) | number }}</span>
               </td>
               <td>
-                <p-tag
-                  [value]="getStatusLabel(retourBon.statut!)"
-                  [severity]="getStatusSeverity(retourBon.statut!)"
-                />
+                <p-tag [value]="getStatusLabel(retourBon.statut!)" [severity]="getStatusSeverity(retourBon.statut!)" />
               </td>
               <td>
                 <small class="text-muted">{{ retourBon.commentaire }}</small>
               </td>
               <td class="text-center">
                 <div class="d-flex justify-content-center gap-1">
-
-
                   @if (retourBon.statut === RetourBonStatut.VALIDATED) {
                     <p-button
                       icon="pi pi-pencil"
@@ -105,8 +94,6 @@
                   } @else {
                     <i class="pi pi-check-circle text-success" pTooltip="Accepté" tooltipPosition="top"></i>
                   }
-
-
                 </div>
               </td>
             </tr>
@@ -136,16 +123,16 @@
                     @if (retourBon.retourBonItems && retourBon.retourBonItems.length > 0) {
                       <table class="table table-sm mb-0">
                         <thead class="pharma-table-head">
-                        <tr>
-                          <th style="width: 3rem" class="text-center">#</th>
-                          <th style="width: 100px">CIP</th>
-                          <th>Produit</th>
-                          <th style="width: 120px">Lot</th>
-                          <th class="text-center" style="width: 100px">Qté Retournée</th>
+                          <tr>
+                            <th style="width: 3rem" class="text-center">#</th>
+                            <th style="width: 100px">CIP</th>
+                            <th>Produit</th>
+                            <th style="width: 120px">Lot</th>
+                            <th class="text-center" style="width: 100px">Qté Retournée</th>
 
-                          <th class="text-center" style="width: 100px">Qté Accepté</th>
-                          <th style="width: 200px">Motif de retour</th>
-                        </tr>
+                            <th class="text-center" style="width: 100px">Qté Accepté</th>
+                            <th style="width: 200px">Motif de retour</th>
+                          </tr>
                         </thead>
                         <tbody>
                           @for (item of retourBon.retourBonItems; track item.id; let idx = $index) {
@@ -176,21 +163,21 @@
                           }
                         </tbody>
                         <tfoot class="pharma-table-footer">
-                        <tr>
-                          <td colspan="4" class="text-start">
-                            <span class="pharma-footer-label">
-                              <i class="pi pi-calculator"></i>
-                              <span>Total:</span>
-                            </span>
-                          </td>
-                          <td class="text-center">
-                            <span class="pharma-footer-total">{{ getTotalQuantity(retourBon) | number }}</span>
-                          </td>
-                          <td class="text-center">
-                            <span class="pharma-footer-total">{{ getTotalAccepted(retourBon) | number }}</span>
-                          </td>
-                          <td></td>
-                        </tr>
+                          <tr>
+                            <td colspan="4" class="text-start">
+                              <span class="pharma-footer-label">
+                                <i class="pi pi-calculator"></i>
+                                <span>Total:</span>
+                              </span>
+                            </td>
+                            <td class="text-center">
+                              <span class="pharma-footer-total">{{ getTotalQuantity(retourBon) | number }}</span>
+                            </td>
+                            <td class="text-center">
+                              <span class="pharma-footer-total">{{ getTotalAccepted(retourBon) | number }}</span>
+                            </td>
+                            <td></td>
+                          </tr>
                         </tfoot>
                       </table>
                     } @else {

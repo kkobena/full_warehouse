@@ -44,7 +44,8 @@ public class ReglementFactureModeAllService extends AbstractReglementService {
             thirdPartySaleLineRepository,
             banqueRepository,
             transactionIdGeneratorService,
-            invoicePaymentItemService,referenceService
+            invoicePaymentItemService,
+            referenceService
         );
         this.facturationRepository = facturationRepository;
     }

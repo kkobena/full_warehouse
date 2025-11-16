@@ -11,16 +11,7 @@ import { SaleToolBarService } from '../service/sale-tool-bar.service';
 
 @Component({
   selector: 'jhi-sales-home',
-  imports: [
-    WarehouseCommonModule,
-    CardModule,
-    NgbNav,
-    FormsModule,
-    RouterModule,
-    SalesComponent,
-    PresaleComponent,
-    VenteEnCoursComponent
-  ],
+  imports: [WarehouseCommonModule, CardModule, NgbNav, FormsModule, RouterModule, SalesComponent, PresaleComponent, VenteEnCoursComponent],
   templateUrl: './sales-home.component.html',
   styleUrl: './sales-home.component.scss',
 })

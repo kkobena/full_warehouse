@@ -8,7 +8,7 @@ import { FormsModule } from '@angular/forms';
 
 @Component({
   templateUrl: './categorie-delete-dialog.component.html',
-  imports: [WarehouseCommonModule, FormsModule]
+  imports: [WarehouseCommonModule, FormsModule],
 })
 export class CategorieDeleteDialogComponent {
   protected categorieService = inject(CategorieService);
@@ -19,8 +19,7 @@ export class CategorieDeleteDialogComponent {
   /** Inserted by Angular inject() migration for backwards compatibility */
   constructor(...args: unknown[]);
 
-  constructor() {
-  }
+  constructor() {}
 
   cancel(): void {
     this.activeModal.dismiss();

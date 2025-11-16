@@ -5,7 +5,6 @@ public interface CustomerDisplayService {
 
     void sendDataToAfficheurPos(String data, String position);
 
-
     void displaySalesData(String produitName, int qty, int price);
 
     void welcomeMessage();

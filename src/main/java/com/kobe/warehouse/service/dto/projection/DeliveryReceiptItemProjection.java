@@ -1,7 +1,6 @@
 package com.kobe.warehouse.service.dto.projection;
 
 import com.kobe.warehouse.domain.OrderLineId;
-
 import java.time.LocalDate;
 import java.util.List;
 
@@ -27,5 +26,4 @@ public interface DeliveryReceiptItemProjection {
     }
 
     List<LotProjection> getLots();
-
 }

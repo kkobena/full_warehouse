@@ -12,8 +12,7 @@
             <div class="pharma-search-input">
               <p-iconfield>
                 <p-inputicon class="pi pi-search" />
-                <input (keyup)="search($event)" pInputText placeholder="Rechercher par nom, adresse ou numéro"
-                       type="text" />
+                <input (keyup)="search($event)" pInputText placeholder="Rechercher par nom, adresse ou numéro" type="text" />
               </p-iconfield>
             </div>
           </div>
@@ -36,28 +35,28 @@
       </p-toolbar>
     </div>
 
-    <p-table
-      [loading]="loading"
-      [value]="filteredEntities"
-      class="pharma-table"
-      dataKey="id"
-      stripedRows="true"
-    >
+    <p-table [loading]="loading" [value]="filteredEntities" class="pharma-table" dataKey="id" stripedRows="true">
       <ng-template #header>
         <tr class="pharma-table-head">
-          <th scope="col" style="width: 20%;"><span>Nom</span></th>
-          <th scope="col" style="width: 15%;"><span>Numéro</span></th>
-          <th scope="col" style="width: 20%;"><span>Adresse IP</span></th>
-          <th scope="col" style="width: 15%;"><span>Afficheur Client</span></th>
-          <th scope="col" style="width: 15%;"><span>Port Afficheur</span></th>
-          <th scope="col" style="text-align: center;width: 10rem;">Actions</th>
+          <th scope="col" style="width: 20%"><span>Nom</span></th>
+          <th scope="col" style="width: 15%"><span>Numéro</span></th>
+          <th scope="col" style="width: 20%"><span>Adresse IP</span></th>
+          <th scope="col" style="width: 15%"><span>Afficheur Client</span></th>
+          <th scope="col" style="width: 15%"><span>Port Afficheur</span></th>
+          <th scope="col" style="text-align: center; width: 10rem">Actions</th>
         </tr>
       </ng-template>
       <ng-template #body let-elRow>
         <tr>
-          <td><span class="pharma-entity-name">{{ elRow.name }}</span></td>
-          <td><span class="pharma-code">{{ elRow.posteNumber  }}</span></td>
-          <td><span class="pharma-entity-name">{{ elRow.address }}</span></td>
+          <td>
+            <span class="pharma-entity-name">{{ elRow.name }}</span>
+          </td>
+          <td>
+            <span class="pharma-code">{{ elRow.posteNumber }}</span>
+          </td>
+          <td>
+            <span class="pharma-entity-name">{{ elRow.address }}</span>
+          </td>
           <td>
             @if (elRow.customerDisplay) {
               <p-tag severity="success" value="Activé"></p-tag>
@@ -65,20 +64,20 @@
               <p-tag severity="secondary" value="Désactivé"></p-tag>
             }
           </td>
-          <td><span class="pharma-code">{{ elRow.customerDisplayPort  }}</span></td>
+          <td>
+            <span class="pharma-code">{{ elRow.customerDisplayPort }}</span>
+          </td>
           <td style="text-align: right">
-            <p-button (click)="onEdit(elRow)" [rounded]="true" [text]="true"
-                      icon="pi pi-pencil" pTooltip="Modifier" severity="success">
+            <p-button (click)="onEdit(elRow)" [rounded]="true" [text]="true" icon="pi pi-pencil" pTooltip="Modifier" severity="success">
             </p-button>
-            <p-button (click)="delete(elRow)" [rounded]="true" [text]="true"
-                      icon="pi pi-trash" pTooltip="Supprimer" severity="danger">
+            <p-button (click)="delete(elRow)" [rounded]="true" [text]="true" icon="pi pi-trash" pTooltip="Supprimer" severity="danger">
             </p-button>
           </td>
         </tr>
       </ng-template>
       <ng-template #emptymessage>
         <tr>
-          <td [attr.colspan]="6" style="text-align: center;">Aucun poste trouvé</td>
+          <td [attr.colspan]="6" style="text-align: center">Aucun poste trouvé</td>
         </tr>
       </ng-template>
     </p-table>

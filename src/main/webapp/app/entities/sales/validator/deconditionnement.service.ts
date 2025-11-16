@@ -25,20 +25,12 @@ export class DeconditionnementService {
     item?: ISalesLine | null,
     addProduitFn?: (qytMvt: number) => void,
     processQtyRequestedFn?: (item: ISalesLine) => void,
-    updateProduitQtyBoxFn?: () => void
+    updateProduitQtyBoxFn?: () => void,
   ): void {
     this.produitService.find(produit.produitId).subscribe(res => {
       const prod = res.body;
       if (prod && prod.totalQuantity > 0) {
-        this.confirmDeconditionnement(
-          confimDialog,
-          item,
-          prod,
-          qytMvt,
-          addProduitFn,
-          processQtyRequestedFn,
-          updateProduitQtyBoxFn
-        );
+        this.confirmDeconditionnement(confimDialog, item, prod, qytMvt, addProduitFn, processQtyRequestedFn, updateProduitQtyBoxFn);
       } else {
         showCommonError(this.modalService, this.translateLabel('stockInsuffisant'));
       }
@@ -52,7 +44,7 @@ export class DeconditionnementService {
     qytMvt: number,
     addProduitFn?: (qytMvt: number) => void,
     processQtyRequestedFn?: (item: ISalesLine) => void,
-    updateProduitQtyBoxFn?: () => void
+    updateProduitQtyBoxFn?: () => void,
   ): void {
     confimDialog.onConfirm(
       () => {
@@ -73,7 +65,7 @@ export class DeconditionnementService {
               } else {
                 showCommonError(this.modalService, this.errorService.getErrorMessage(error));
               }
-            }
+            },
           });
         }
       },
@@ -82,7 +74,7 @@ export class DeconditionnementService {
       null,
       () => {
         updateProduitQtyBoxFn();
-      }
+      },
     );
   }
 
@@ -90,7 +82,7 @@ export class DeconditionnementService {
     return {
       ...new Decondition(),
       qtyMvt: qtyDeconditione,
-      produitId
+      produitId,
     };
   }
 

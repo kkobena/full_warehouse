@@ -1,10 +1,10 @@
 package com.kobe.warehouse.repository;
 
+import com.kobe.warehouse.domain.AppUser_;
 import com.kobe.warehouse.domain.CashRegister_;
 import com.kobe.warehouse.domain.PaymentMode_;
 import com.kobe.warehouse.domain.SalePayment;
 import com.kobe.warehouse.domain.SalePayment_;
-import com.kobe.warehouse.domain.AppUser_;
 import com.kobe.warehouse.service.dto.records.VenteModePaimentRecord;
 import com.kobe.warehouse.service.tiketz.dto.TicketZProjection;
 import jakarta.persistence.EntityManager;
@@ -13,11 +13,10 @@ import jakarta.persistence.criteria.CriteriaBuilder;
 import jakarta.persistence.criteria.CriteriaQuery;
 import jakarta.persistence.criteria.Predicate;
 import jakarta.persistence.criteria.Root;
+import java.util.List;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
-
-import java.util.List;
 
 @Repository
 @Transactional(readOnly = true)
@@ -76,7 +75,8 @@ public class SalePaymentCustomRepositoryImpl implements SalePaymentCustomReposit
                     cb.sum(root.get(SalePayment_.paidAmount))
                 )
             )
-            .groupBy(root.get(SalePayment_.paymentMode).get(PaymentMode_.libelle),
+            .groupBy(
+                root.get(SalePayment_.paymentMode).get(PaymentMode_.libelle),
                 root.get(SalePayment_.paymentMode).get(PaymentMode_.code)
             );
 

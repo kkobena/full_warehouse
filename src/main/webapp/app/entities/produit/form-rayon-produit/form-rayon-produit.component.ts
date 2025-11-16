@@ -5,7 +5,6 @@ import { WarehouseCommonModule } from '../../../shared/warehouse-common/warehous
   selector: 'jhi-form-rayon-produit',
   templateUrl: './form-rayon-produit.component.html',
   styleUrls: ['./form-rayon-produit.component.scss'],
-  imports: [WarehouseCommonModule]
+  imports: [WarehouseCommonModule],
 })
-export class FormRayonProduitComponent {
-}
+export class FormRayonProduitComponent {}

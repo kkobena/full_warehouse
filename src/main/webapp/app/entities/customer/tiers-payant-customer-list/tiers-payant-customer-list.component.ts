@@ -28,8 +28,8 @@ import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
     InputTextModule,
     TooltipModule,
     IconField,
-    InputIcon
-  ]
+    InputIcon,
+  ],
 })
 export class TiersPayantCustomerListComponent implements OnInit, OnDestroy {
   title: string = 'Tiers Payants Disponibles';
@@ -40,10 +40,9 @@ export class TiersPayantCustomerListComponent implements OnInit, OnDestroy {
   private destroy$ = new Subject<void>();
   private readonly activeModal = inject(NgbActiveModal);
 
-
   ngOnInit(): void {
-  //  this.assure = this.config.data.assure;
-   // this.tiersPayantsExisting = this.config.data.tiersPayants;
+    //  this.assure = this.config.data.assure;
+    // this.tiersPayantsExisting = this.config.data.tiersPayants;
     this.load();
   }
 
@@ -65,15 +64,18 @@ export class TiersPayantCustomerListComponent implements OnInit, OnDestroy {
   }
 
   load(): void {
-    this.customerService.fetchCustomersTiersPayant(this.assure.id).pipe(takeUntil(this.destroy$)).subscribe(res => {
-      if (res.body) {
-        if (this.tiersPayantsExisting && this.tiersPayantsExisting.length > 0) {
-          this.tiersPayants = res.body.filter(e => !this.tiersPayantsExisting.some(i => i.id === e.id));
-        } else {
-          this.tiersPayants = res.body;
+    this.customerService
+      .fetchCustomersTiersPayant(this.assure.id)
+      .pipe(takeUntil(this.destroy$))
+      .subscribe(res => {
+        if (res.body) {
+          if (this.tiersPayantsExisting && this.tiersPayantsExisting.length > 0) {
+            this.tiersPayants = res.body.filter(e => !this.tiersPayantsExisting.some(i => i.id === e.id));
+          } else {
+            this.tiersPayants = res.body;
+          }
         }
-      }
-    });
+      });
   }
 
   add(): void {

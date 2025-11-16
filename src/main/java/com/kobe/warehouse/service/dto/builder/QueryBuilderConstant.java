@@ -7,5 +7,4 @@ public final class QueryBuilderConstant {
     public static final String CALLEBASE = " AND s.ca='CALLEBASE' ";
     public static final String TO_IGNORE = " AND s.ca='TO_IGNORE' ";
     public static final String DIFFERE = " AND s.differe=1 ";
-
 }

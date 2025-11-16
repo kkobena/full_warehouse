@@ -4,3 +4,4 @@
 # Keep the wrapper scripts
 !pharmasmart-backend.bat
 !pharmasmart-backend.sh
+/jre/

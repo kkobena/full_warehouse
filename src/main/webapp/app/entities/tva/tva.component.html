@@ -11,15 +11,20 @@
 
         <p-toolbar>
           <ng-template #start>
-            <div class="pharma-toolbar-filters">
-            </div>
+            <div class="pharma-toolbar-filters"></div>
           </ng-template>
 
           <ng-template #end>
             <div class="pharma-toolbar-actions">
               <div class="pharma-button-group">
-                <p-button (click)="addNewEntity()" icon="pi pi-plus" label="Nouvelle Tva" [raised]="true"
-                          severity="success" type="button"></p-button>
+                <p-button
+                  (click)="addNewEntity()"
+                  icon="pi pi-plus"
+                  label="Nouvelle Tva"
+                  [raised]="true"
+                  severity="success"
+                  type="button"
+                ></p-button>
               </div>
             </div>
           </ng-template>
@@ -28,14 +33,7 @@
 
       <div class="mt-2">
         @if (tvas && tvas.length > 0) {
-          <p-table
-            [(selection)]="selectedTva"
-            [loading]="loading"
-            [value]="tvas"
-            dataKey="id"
-            selectionMode="single"
-            class="pharma-table"
-          >
+          <p-table [(selection)]="selectedTva" [loading]="loading" [value]="tvas" dataKey="id" selectionMode="single" class="pharma-table">
             <ng-template #header>
               <tr class="pharma-table-head">
                 <th scope="col"><span>Taux</span></th>
@@ -44,11 +42,19 @@
             </ng-template>
             <ng-template let-columns="columns" let-tva #body>
               <tr [pSelectableRow]="tva">
-                <td><span class="pharma-price">{{ tva.taux }}</span></td>
+                <td>
+                  <span class="pharma-price">{{ tva.taux }}</span>
+                </td>
                 <td style="text-align: center">
-                  <p-button (click)="delete(tva)" severity="danger" icon="pi pi-trash"
-                            [rounded]="true" [text]="true" pTooltip="Supprimer"
-                            type="button"></p-button>
+                  <p-button
+                    (click)="delete(tva)"
+                    severity="danger"
+                    icon="pi pi-trash"
+                    [rounded]="true"
+                    [text]="true"
+                    pTooltip="Supprimer"
+                    type="button"
+                  ></p-button>
                 </td>
               </tr>
             </ng-template>

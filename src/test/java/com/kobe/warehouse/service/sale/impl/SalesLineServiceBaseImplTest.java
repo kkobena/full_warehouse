@@ -87,8 +87,7 @@ class SalesLineServiceBaseImplTest {
         StockProduit stockProduit = createStockProduit(100, 10);
 
         when(produitRepository.getReferenceById(produitId)).thenReturn(produit);
-        when(stockProduitRepository.findOneByProduitIdAndStockageId(produitId, storageId))
-            .thenReturn(stockProduit);
+        when(stockProduitRepository.findOneByProduitIdAndStockageId(produitId, storageId)).thenReturn(stockProduit);
         when(saleLineIdGeneratorService.nextId()).thenReturn(1L);
 
         // When
@@ -128,8 +127,7 @@ class SalesLineServiceBaseImplTest {
         StockProduit stockProduit = createStockProduit(100, 10); // 10 UG available
 
         when(produitRepository.getReferenceById(produitId)).thenReturn(produit);
-        when(stockProduitRepository.findOneByProduitIdAndStockageId(produitId, storageId))
-            .thenReturn(stockProduit);
+        when(stockProduitRepository.findOneByProduitIdAndStockageId(produitId, storageId)).thenReturn(stockProduit);
         when(saleLineIdGeneratorService.nextId()).thenReturn(1L);
 
         // When
@@ -157,8 +155,7 @@ class SalesLineServiceBaseImplTest {
         StockProduit stockProduit = createStockProduit(100, 10); // 10 UG available
 
         when(produitRepository.getReferenceById(produitId)).thenReturn(produit);
-        when(stockProduitRepository.findOneByProduitIdAndStockageId(produitId, storageId))
-            .thenReturn(stockProduit);
+        when(stockProduitRepository.findOneByProduitIdAndStockageId(produitId, storageId)).thenReturn(stockProduit);
         when(saleLineIdGeneratorService.nextId()).thenReturn(1L);
 
         // When
@@ -185,8 +182,7 @@ class SalesLineServiceBaseImplTest {
         StockProduit stockProduit = createStockProduit(100, 0); // No UG
 
         when(produitRepository.getReferenceById(produitId)).thenReturn(produit);
-        when(stockProduitRepository.findOneByProduitIdAndStockageId(produitId, storageId))
-            .thenReturn(stockProduit);
+        when(stockProduitRepository.findOneByProduitIdAndStockageId(produitId, storageId)).thenReturn(stockProduit);
         when(saleLineIdGeneratorService.nextId()).thenReturn(1L);
 
         // When
@@ -215,8 +211,7 @@ class SalesLineServiceBaseImplTest {
         StockProduit stockProduit = createStockProduit(100, 0);
 
         when(produitRepository.getReferenceById(produitId)).thenReturn(produit);
-        when(stockProduitRepository.findOneByProduitIdAndStockageId(produitId, storageId))
-            .thenReturn(stockProduit);
+        when(stockProduitRepository.findOneByProduitIdAndStockageId(produitId, storageId)).thenReturn(stockProduit);
         when(saleLineIdGeneratorService.nextId()).thenReturn(1L);
 
         // When
@@ -246,8 +241,7 @@ class SalesLineServiceBaseImplTest {
         StockProduit stockProduit = createStockProduit(100, 0);
 
         when(produitRepository.getReferenceById(produitId)).thenReturn(produit);
-        when(stockProduitRepository.findOneByProduitIdAndStockageId(produitId, storageId))
-            .thenReturn(stockProduit);
+        when(stockProduitRepository.findOneByProduitIdAndStockageId(produitId, storageId)).thenReturn(stockProduit);
         when(saleLineIdGeneratorService.nextId()).thenReturn(1L);
 
         // When
@@ -274,8 +268,7 @@ class SalesLineServiceBaseImplTest {
         StockProduit stockProduit = createStockProduit(100, 5);
 
         when(produitRepository.getReferenceById(produitId)).thenReturn(produit);
-        when(stockProduitRepository.findOneByProduitIdAndStockageId(produitId, storageId))
-            .thenReturn(stockProduit);
+        when(stockProduitRepository.findOneByProduitIdAndStockageId(produitId, storageId)).thenReturn(stockProduit);
         when(saleLineIdGeneratorService.nextId()).thenReturn(1L);
 
         // When

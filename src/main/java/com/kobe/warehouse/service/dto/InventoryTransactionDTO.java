@@ -2,7 +2,6 @@ package com.kobe.warehouse.service.dto;
 
 import com.kobe.warehouse.domain.AppUser;
 import com.kobe.warehouse.domain.InventoryTransaction;
-
 import java.time.LocalDateTime;
 
 public class InventoryTransactionDTO {

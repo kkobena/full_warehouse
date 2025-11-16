@@ -1,9 +1,7 @@
 <div class="modal-header">
   <h4 class="modal-title">{{ title }}</h4>
 
-  <button (click)="cancel()" aria-hidden="true" class="btn-close" data-dismiss="modal"
-          type="button">&times;
-  </button>
+  <button (click)="cancel()" aria-hidden="true" class="btn-close" data-dismiss="modal" type="button">&times;</button>
 </div>
 <form (ngSubmit)="save()" [formGroup]="editForm" name="editForm" novalidate role="form">
   <div class="modal-body">
@@ -13,17 +11,21 @@
       <div class="ui-g form-group">
         <label for="valeur">Description</label>
         <div class="ui-g-12">
-          <input #libelle autocomplete="off" class="form-control" formControlName="valeur"
-                 id="valeur"
-                 name="valeur"
-                 pInputText type="text" />
+          <input
+            #libelle
+            autocomplete="off"
+            class="form-control"
+            formControlName="valeur"
+            id="valeur"
+            name="valeur"
+            pInputText
+            type="text"
+          />
         </div>
-        @if (editForm.get('valeur')!.invalid && (editForm.get('valeur')!.dirty || editForm.get(
-          'valeur')!.touched)) {
+        @if (editForm.get('valeur')!.invalid && (editForm.get('valeur')!.dirty || editForm.get('valeur')!.touched)) {
           @if (editForm.get('valeur')?.errors?.required) {
             <div>
-              <small class="form-text text-danger" style="color: red"> Ce champ est
-                obligatoire. </small>
+              <small class="form-text text-danger" style="color: red"> Ce champ est obligatoire. </small>
             </div>
           }
         }
@@ -44,17 +46,12 @@
             optionValue="value"
             size="large"
           >
-
           </p-select>
-
-
         </div>
-        @if (editForm.get('codeRemise')!.invalid && (editForm.get('codeRemise')!.dirty
-          || editForm.get('codeRemise')!.touched)) {
+        @if (editForm.get('codeRemise')!.invalid && (editForm.get('codeRemise')!.dirty || editForm.get('codeRemise')!.touched)) {
           <div>
             @if (editForm.get('codeRemise')?.errors?.required) {
-              <small class="form-text text-danger" style="color: red"> Ce champ est
-                obligatoire. </small>
+              <small class="form-text text-danger" style="color: red"> Ce champ est obligatoire. </small>
             }
           </div>
         }
@@ -70,9 +67,7 @@
                 <strong><b>Taux de remise pour les ventes VNO </b></strong>
               </div>
 
-              <input pInputText autocomplete="off" class="form-control"
-                     formControlName="remiseValue"
-                     name="remiseValue" type="number" />
+              <input pInputText autocomplete="off" class="form-control" formControlName="remiseValue" name="remiseValue" type="number" />
             </div>
           </div>
         </ng-container>
@@ -86,9 +81,7 @@
                 <strong><b>Taux de remise pour les ventes VO</b></strong>
               </div>
 
-              <input pInputText autocomplete="off" class="form-control"
-                     formControlName="remiseValue"
-                     name="remiseValue" type="number" />
+              <input pInputText autocomplete="off" class="form-control" formControlName="remiseValue" name="remiseValue" type="number" />
             </div>
           </div>
         </ng-container>

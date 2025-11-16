@@ -15,7 +15,7 @@ import { ToolbarModule } from 'primeng/toolbar';
 @Component({
   selector: 'jhi-produit-associes',
   templateUrl: './produit-associes.component.html',
-  imports: [WarehouseCommonModule, FormsModule, PickListModule, ToolbarModule, ButtonModule, InputTextModule, ButtonModule]
+  imports: [WarehouseCommonModule, FormsModule, PickListModule, ToolbarModule, ButtonModule, InputTextModule, ButtonModule],
 })
 export class ProduitAssociesComponent implements OnInit {
   protected produitsSource: IProduit[] = [];
@@ -44,7 +44,7 @@ export class ProduitAssociesComponent implements OnInit {
         size: 300,
         search: this.searchTarget || '',
         status: this.statut,
-        tableauId: this.tableau.id
+        tableauId: this.tableau.id,
       })
       .subscribe({ next: (res: HttpResponse<IProduit[]>) => (this.produitsTarget = res.body) });
   }
@@ -60,7 +60,7 @@ export class ProduitAssociesComponent implements OnInit {
         size: 300,
         search: this.searchSource || '',
         status: this.statut,
-        tableauNot: this.tableau.id
+        tableauNot: this.tableau.id,
       })
       .subscribe((res: HttpResponse<IProduit[]>) => (this.produitsSource = res.body));
   }

@@ -19,7 +19,7 @@ export type ExpandMode = 'single' | 'multiple';
   selector: 'jhi-bon-en-cours',
   templateUrl: './bon-en-cours.component.html',
   styleUrls: ['./bon-en-cours.component.scss'],
-  imports: [WarehouseCommonModule, ButtonModule, TableModule, RouterModule, TooltipModule, SpinnerComponent]
+  imports: [WarehouseCommonModule, ButtonModule, TableModule, RouterModule, TooltipModule, SpinnerComponent],
 })
 export class BonEnCoursComponent implements OnInit, OnDestroy {
   search = input<string>('');
@@ -33,7 +33,7 @@ export class BonEnCoursComponent implements OnInit, OnDestroy {
   protected totalItems = 0;
   protected readonly selectedFilter = 'RECEIVED';
   private readonly commandeService = inject(CommandeService);
-   private readonly spinner = viewChild.required<SpinnerComponent>('spinner');
+  private readonly spinner = viewChild.required<SpinnerComponent>('spinner');
   private readonly entityService = inject(DeliveryService);
   private destroy$ = new Subject<void>();
 
@@ -47,7 +47,6 @@ export class BonEnCoursComponent implements OnInit, OnDestroy {
   }
 
   onRowExpand(event: any): void {
-
     if (!event.data.orderLines) {
       this.commandeService.fetchOrderLinesByCommandeId(event.data.commandeId).subscribe(res => {
         event.data.orderLines = res.body;
@@ -63,11 +62,11 @@ export class BonEnCoursComponent implements OnInit, OnDestroy {
         page: pageToLoad,
         size: this.itemsPerPage,
         search: this.search(),
-        orderStatuts: [this.selectedFilter]
+        orderStatuts: [this.selectedFilter],
       })
       .subscribe({
         next: (res: HttpResponse<IDelivery[]>) => this.onSuccess(res.body, res.headers, pageToLoad),
-        error: () => this.onError()
+        error: () => this.onError(),
       });
   }
 
@@ -86,7 +85,7 @@ export class BonEnCoursComponent implements OnInit, OnDestroy {
           const blobUrl = URL.createObjectURL(blod);
           window.open(blobUrl);
         },
-        error: () => this.spinner().hide()
+        error: () => this.spinner().hide(),
       });
   }
 

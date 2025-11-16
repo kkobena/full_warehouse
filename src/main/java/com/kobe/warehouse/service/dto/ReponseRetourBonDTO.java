@@ -1,20 +1,19 @@
 package com.kobe.warehouse.service.dto;
 
 import com.kobe.warehouse.domain.ReponseRetourBon;
-
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
 public class ReponseRetourBonDTO {
+
     private Integer id;
     private LocalDateTime dateMtv;
     private UserDTO user;
     private Integer retourBonId;
     private List<ReponseRetourBonItemDTO> reponseRetourBonItems = new ArrayList<>();
 
-    public ReponseRetourBonDTO() {
-    }
+    public ReponseRetourBonDTO() {}
 
     public ReponseRetourBonDTO(ReponseRetourBon reponseRetourBon) {
         this.id = reponseRetourBon.getId();
@@ -23,10 +22,7 @@ public class ReponseRetourBonDTO {
         if (reponseRetourBon.getRetourBon() != null) {
             this.retourBonId = reponseRetourBon.getRetourBon().getId();
         }
-        this.reponseRetourBonItems = reponseRetourBon.getReponseRetourBonItems()
-            .stream()
-            .map(ReponseRetourBonItemDTO::new)
-            .toList();
+        this.reponseRetourBonItems = reponseRetourBon.getReponseRetourBonItems().stream().map(ReponseRetourBonItemDTO::new).toList();
     }
 
     public Integer getId() {

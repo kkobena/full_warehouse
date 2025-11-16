@@ -7,6 +7,6 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
 @Repository
-public interface HistoriqueInventaireRepository extends JpaRepository<HistoriqueInventaire, Long>{
+public interface HistoriqueInventaireRepository extends JpaRepository<HistoriqueInventaire, Long> {
     Page<HistoriqueInventaire> findAllByOrderByCreatedDesc(Pageable pageable);
 }

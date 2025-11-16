@@ -10,5 +10,5 @@ import org.springframework.data.jpa.domain.Specification;
 public interface FactureTiersPayantRepositoryCustom {
     Page<FactureDto> fetchInvoices(Specification<FactureTiersPayant> specification, Pageable pageable);
 
-    Page<FactureDto> fetchGroupedInvoices( Specification<FactureTiersPayant> specification, Pageable pageable);
+    Page<FactureDto> fetchGroupedInvoices(Specification<FactureTiersPayant> specification, Pageable pageable);
 }

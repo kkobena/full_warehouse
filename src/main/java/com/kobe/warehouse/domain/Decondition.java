@@ -49,17 +49,15 @@ public class Decondition implements Serializable {
     @NotNull
     private AppUser user;
 
-    @ManyToOne(optional = false,fetch = FetchType.LAZY)
+    @ManyToOne(optional = false, fetch = FetchType.LAZY)
     @NotNull
     @JsonIgnoreProperties(value = "deconditions", allowSetters = true)
     private Produit produit;
 
     @NotNull
     @Enumerated(EnumType.STRING)
-    @Column(name = "type_deconditionnement", nullable = false,length = 16)
+    @Column(name = "type_deconditionnement", nullable = false, length = 16)
     private TypeDeconditionnement typeDeconditionnement;
-
-
 
     public Integer getId() {
         return id;
@@ -125,8 +123,6 @@ public class Decondition implements Serializable {
         this.typeDeconditionnement = typeDeconditionnement;
         return this;
     }
-
-
 
     public Decondition qtyMvt(Integer qtyMvt) {
         this.qtyMvt = qtyMvt;

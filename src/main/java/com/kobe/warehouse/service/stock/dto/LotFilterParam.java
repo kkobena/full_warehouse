@@ -4,7 +4,7 @@ import java.time.LocalDate;
 
 public class LotFilterParam {
 
-    private  Integer dayCount;
+    private Integer dayCount;
     private Integer produitId;
     private String numLot;
     private String searchTerm;

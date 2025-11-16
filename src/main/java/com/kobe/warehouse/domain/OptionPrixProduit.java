@@ -14,21 +14,20 @@ import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 import jakarta.persistence.UniqueConstraint;
 import jakarta.validation.constraints.NotNull;
-import org.hibernate.annotations.Cache;
-import org.hibernate.annotations.CacheConcurrencyStrategy;
-import org.hibernate.annotations.ColumnDefault;
-
 import java.io.Serial;
 import java.io.Serializable;
 import java.time.LocalDateTime;
 import java.util.Objects;
+import org.hibernate.annotations.Cache;
+import org.hibernate.annotations.CacheConcurrencyStrategy;
+import org.hibernate.annotations.ColumnDefault;
 
 @Entity
 @Table(
     name = "produit_tiers_payant_prix",
     uniqueConstraints = {
-        @UniqueConstraint(columnNames = {"produit_id", "tiers_payant_id", "enabled"}),
-        @UniqueConstraint(columnNames = {"produit_id", "tiers_payant_id", "prix_type"}),
+        @UniqueConstraint(columnNames = { "produit_id", "tiers_payant_id", "enabled" }),
+        @UniqueConstraint(columnNames = { "produit_id", "tiers_payant_id", "prix_type" }),
     }
 )
 @Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
@@ -40,6 +39,7 @@ public class OptionPrixProduit implements Serializable {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
+
     private int price;
 
     @NotNull
@@ -52,6 +52,7 @@ public class OptionPrixProduit implements Serializable {
 
     @ColumnDefault(value = "true")
     private boolean enabled = true;
+
     @Column(name = "rate", nullable = false)
     private float rate = 1.0f;
 
@@ -169,6 +170,4 @@ public class OptionPrixProduit implements Serializable {
     public void setPrice(int valeur) {
         this.price = valeur;
     }
-
-
 }

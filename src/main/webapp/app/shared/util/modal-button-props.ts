@@ -14,7 +14,7 @@ export const acceptButtonProps = (): any => {
     outlined: true,
     size: 'small',
     id: 'accept',
-    autofocus: true
+    autofocus: true,
     /*  severity: 'success', */
   };
 };

@@ -40,11 +40,11 @@ import { InputGroupAddonModule } from 'primeng/inputgroupaddon';
     InputNumberModule,
     TagModule,
     InputGroupModule,
-    InputGroupAddonModule
+    InputGroupAddonModule,
   ],
 
   templateUrl: './ticketing-improved.html',
-  styleUrls: ['./ticketing-improved.scss']
+  styleUrls: ['./ticketing-improved.scss'],
 })
 export class TicketingComponent implements OnInit {
   readonly numberOf10ThousandInput = viewChild<InputNumber>('numberOf10Thousand');
@@ -61,10 +61,9 @@ export class TicketingComponent implements OnInit {
     numberOf2Thousand: new FormControl<number | null>(null, {}),
     numberOf1Thousand: new FormControl<number | null>(null, {}),
     numberOf500Hundred: new FormControl<number | null>(null, {}),
-    otherAmount: new FormControl<number | null>(null, {})
+    otherAmount: new FormControl<number | null>(null, {}),
   });
   protected selectedCashRegister: CashRegister | null = null;
-
 
   private readonly confimDialog = viewChild.required<ConfirmDialogComponent>('confirmDialog');
   private readonly alert = viewChild.required<ToastAlertComponent>('alert');
@@ -81,10 +80,8 @@ export class TicketingComponent implements OnInit {
     window.history.back();
   }
 
-
   showError() {
-
-    this.alert().showError('L\'opération n\'a pas abouti');
+    this.alert().showError("L'opération n'a pas abouti");
   }
 
   protected updateForm(ticketing: Ticketing): void {
@@ -95,7 +92,7 @@ export class TicketingComponent implements OnInit {
       numberOf2Thousand: ticketing.numberOf2Thousand,
       numberOf1Thousand: ticketing.numberOf1Thousand,
       numberOf500Hundred: ticketing.numberOf500Hundred,
-      otherAmount: ticketing.otherAmount
+      otherAmount: ticketing.otherAmount,
     });
   }
 
@@ -109,23 +106,29 @@ export class TicketingComponent implements OnInit {
       numberOf2Thousand: this.editForm.get(['numberOf2Thousand']).value ? this.editForm.get(['numberOf2Thousand']).value : 0,
       numberOf1Thousand: this.editForm.get(['numberOf1Thousand']).value ? this.editForm.get(['numberOf1Thousand']).value : 0,
       numberOf500Hundred: this.editForm.get(['numberOf500Hundred']).value ? this.editForm.get(['numberOf500Hundred']).value : 0,
-      otherAmount: this.editForm.get(['otherAmount']).value ? this.editForm.get(['otherAmount']).value : 0
+      otherAmount: this.editForm.get(['otherAmount']).value ? this.editForm.get(['otherAmount']).value : 0,
     };
   }
 
   protected save(): void {
-    const message = this.totalAmount === 0
-      ? 'Le montant total doit être supérieur à <b>0</b>. Etes-vous sûr de vouloir continuer ?'
-      : `le montant total est de <span class="fs-4 badge rounded-pill bg-secondary"><b> ${formatNumber(
-        this.totalAmount
-      )}  </b></span> . Etes-vous sûr de vouloir continuer ?`;
+    const message =
+      this.totalAmount === 0
+        ? 'Le montant total doit être supérieur à <b>0</b>. Etes-vous sûr de vouloir continuer ?'
+        : `le montant total est de <span class="fs-4 badge rounded-pill bg-secondary"><b> ${formatNumber(
+            this.totalAmount,
+          )}  </b></span> . Etes-vous sûr de vouloir continuer ?`;
 
     this.confirmTicketing(message);
   }
 
   private confirmTicketing(message: string): void {
-
-    this.confimDialog().onConfirm(() => this.doTicketing(), 'BILLETAGE', message, 'pi pi-exclamation-triangle', () => this.numberOf10ThousandInput().el.nativeElement.focus());
+    this.confimDialog().onConfirm(
+      () => this.doTicketing(),
+      'BILLETAGE',
+      message,
+      'pi pi-exclamation-triangle',
+      () => this.numberOf10ThousandInput().el.nativeElement.focus(),
+    );
   }
 
   private doTicketing(): void {
@@ -143,7 +146,7 @@ export class TicketingComponent implements OnInit {
       error: () => {
         this.isSaving = false;
         this.showError();
-      }
+      },
     });
   }
 

@@ -15,7 +15,6 @@ import com.kobe.warehouse.domain.StoreInventory;
 import com.kobe.warehouse.domain.StoreInventoryLine;
 import com.kobe.warehouse.domain.enumeration.MouvementProduit;
 import com.kobe.warehouse.domain.enumeration.TypeDeconditionnement;
-
 import java.time.LocalDateTime;
 
 public class InventoryTransactionBuilder {
@@ -46,7 +45,7 @@ public class InventoryTransactionBuilder {
                 .setQuantityBefor(orderLine.getInitStock())
                 .setQuantityAfter(orderLine.getFinalStock())
                 .setCostAmount(orderLine.getOrderCostAmount())
-                .setEntityId(Long.parseLong(orderLine.getId().getId()+""))
+                .setEntityId(Long.parseLong(orderLine.getId().getId() + ""))
                 .setUser(appUser)
                 .setMagasin(appUser.getMagasin())
                 .setRegularUnitPrice(orderLine.getOrderUnitPrice());
@@ -61,7 +60,7 @@ public class InventoryTransactionBuilder {
                 .setQuantityBefor(ajustement.getStockBefore())
                 .setQuantityAfter(ajustement.getStockAfter())
                 .setCostAmount(fournisseurProduit.getPrixAchat())
-                .setEntityId(Long.parseLong(ajustement.getId()+""))
+                .setEntityId(Long.parseLong(ajustement.getId() + ""))
                 .setUser(ajustement.getAjust().getUser())
                 .setMagasin(ajustement.getAjust().getUser().getMagasin())
                 .setRegularUnitPrice(fournisseurProduit.getPrixUni());
@@ -82,7 +81,7 @@ public class InventoryTransactionBuilder {
                 .setUser(decondition.getUser())
                 .setMagasin(decondition.getUser().getMagasin())
                 .setCostAmount(fournisseurProduit.getPrixAchat())
-                .setEntityId(Long.parseLong(decondition.getId()+""))
+                .setEntityId(Long.parseLong(decondition.getId() + ""))
                 .setRegularUnitPrice(fournisseurProduit.getPrixUni());
         } else if (entity instanceof ProductsToDestroy productsToDestroy) {
             FournisseurProduit fournisseurProduit = productsToDestroy.getFournisseurProduit();
@@ -95,7 +94,7 @@ public class InventoryTransactionBuilder {
                 .setQuantityBefor(productsToDestroy.getStockInitial())
                 .setQuantityAfter(productsToDestroy.getStockInitial() - productsToDestroy.getQuantity())
                 .setCostAmount(productsToDestroy.getPrixAchat())
-                .setEntityId(Long.parseLong(productsToDestroy.getId()+""))
+                .setEntityId(Long.parseLong(productsToDestroy.getId() + ""))
                 .setUser(productsToDestroy.getUser())
                 .setMagasin(productsToDestroy.getMagasin())
                 .setRegularUnitPrice(productsToDestroy.getPrixUnit());
@@ -110,7 +109,7 @@ public class InventoryTransactionBuilder {
                 .setQuantityBefor(retourBonItem.getInitStock())
                 .setQuantityAfter(retourBonItem.getAfterStock())
                 .setCostAmount(orderLine.getOrderCostAmount())
-                .setEntityId(Long.parseLong(retourBonItem.getId()+""))
+                .setEntityId(Long.parseLong(retourBonItem.getId() + ""))
                 .setUser(retourBonItem.getRetourBon().getUser())
                 .setMagasin(retourBonItem.getRetourBon().getUser().getMagasin())
                 .setRegularUnitPrice(orderLine.getOrderUnitPrice());
@@ -130,7 +129,7 @@ public class InventoryTransactionBuilder {
                 .setUser(user)
                 .setMagasin(user.getMagasin())
                 .setRegularUnitPrice(storeInventoryLine.getLastUnitPrice());
-        }else if (entity instanceof RetourDepotItem retourDepotItem) {
+        } else if (entity instanceof RetourDepotItem retourDepotItem) {
             Produit produit = retourDepotItem.getProduit();
             AppUser user = retourDepotItem.getRetourDepot().getUser();
             inventoryTransaction = new InventoryTransaction()
@@ -141,7 +140,7 @@ public class InventoryTransactionBuilder {
                 .setQuantityBefor(retourDepotItem.getOfficineInitStock())
                 .setQuantityAfter(retourDepotItem.getOfficineFinalStock())
                 .setCostAmount(retourDepotItem.getPrixAchat())
-                .setEntityId(Long.parseLong(retourDepotItem.getId()+""))
+                .setEntityId(Long.parseLong(retourDepotItem.getId() + ""))
                 .setUser(user)
                 .setMagasin(user.getMagasin())
                 .setRegularUnitPrice(retourDepotItem.getRegularUnitPrice());

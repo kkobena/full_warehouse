@@ -1,7 +1,7 @@
 package com.kobe.warehouse.service.dto;
 
-import com.kobe.warehouse.domain.StoreInventory;
 import com.kobe.warehouse.domain.AppUser;
+import com.kobe.warehouse.domain.StoreInventory;
 import com.kobe.warehouse.domain.enumeration.InventoryType;
 import java.time.LocalDateTime;
 import java.util.List;

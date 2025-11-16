@@ -8,7 +8,7 @@ describe('ReglementDifferesComponent', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [ReglementDifferesComponent]
+      imports: [ReglementDifferesComponent],
     }).compileComponents();
 
     fixture = TestBed.createComponent(ReglementDifferesComponent);

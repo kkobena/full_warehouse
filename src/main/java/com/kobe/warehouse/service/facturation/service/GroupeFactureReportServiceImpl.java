@@ -110,7 +110,7 @@ public class GroupeFactureReportServiceImpl implements GroupeFactureReportServic
             renderer.setDocumentFromString(this.getTemplateAsHtml());
             renderer.layout();
             renderer.createPDF(outputStream);
-        } catch (IOException  e) {
+        } catch (IOException e) {
             log.debug("printOneReceiptPage", e);
         }
         return filePath;

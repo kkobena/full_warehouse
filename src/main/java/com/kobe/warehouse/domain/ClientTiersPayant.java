@@ -23,7 +23,6 @@ import java.io.Serializable;
 import java.time.LocalDateTime;
 import java.util.HashSet;
 import java.util.Set;
-
 import org.hibernate.annotations.Cache;
 import org.hibernate.annotations.CacheConcurrencyStrategy;
 import org.hibernate.annotations.JdbcTypeCode;
@@ -32,11 +31,7 @@ import org.hibernate.type.SqlTypes;
 @Entity
 @Table(
     name = "client_tiers_payant",
-    indexes = {
-        @Index(columnList = "num", name = "client_num_index"),
-        @Index(columnList = "statut", name = "client_statut_index")
-
-    },
+    indexes = { @Index(columnList = "num", name = "client_num_index"), @Index(columnList = "statut", name = "client_statut_index") },
     uniqueConstraints = {
         @UniqueConstraint(columnNames = { "tiers_payant_id", "assured_customer_id" }),
         @UniqueConstraint(columnNames = { "tiers_payant_id", "num" }),
@@ -147,7 +142,7 @@ public class ClientTiersPayant implements Serializable, ConsommationService.HasC
 
     public void setUpdated(LocalDateTime updated) {
         this.updated = updated;
-       // return this;
+        // return this;
     }
 
     public @NotNull PrioriteTiersPayant getPriorite() {

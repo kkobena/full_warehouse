@@ -37,8 +37,8 @@ import { finalize } from 'rxjs/operators';
     Select,
     ToggleSwitch,
     Card,
-    ToastAlertComponent
-  ]
+    ToastAlertComponent,
+  ],
 })
 export class FormProduitFournisseurComponent implements OnInit, AfterViewInit {
   header: string = '';
@@ -55,7 +55,7 @@ export class FormProduitFournisseurComponent implements OnInit, AfterViewInit {
     prixAchat: [null, [Validators.required, Validators.min(1)]],
     codeCip: [null, [Validators.required, Validators.minLength(6), Validators.maxLength(8)]],
     fournisseurId: [null, [Validators.required]],
-    principal: [null, [Validators.required]]
+    principal: [null, [Validators.required]],
   });
   private readonly produitService = inject(ProduitService);
   private readonly errorService = inject(ErrorService);
@@ -124,7 +124,7 @@ export class FormProduitFournisseurComponent implements OnInit, AfterViewInit {
       prixAchat: produitFournisseur.prixAchat,
       codeCip: produitFournisseur.codeCip,
       fournisseurId: produitFournisseur.fournisseurId,
-      produitId: this.produit.id
+      produitId: this.produit.id,
     });
   }
 
@@ -137,7 +137,7 @@ export class FormProduitFournisseurComponent implements OnInit, AfterViewInit {
       this.fournisseurService
         .query({
           page: 0,
-          size: 9999
+          size: 9999,
         })
         .subscribe((res: HttpResponse<IFournisseur[]>) => {
           this.fournisseurs = res.body || [];
@@ -168,17 +168,15 @@ export class FormProduitFournisseurComponent implements OnInit, AfterViewInit {
   private subscribeToSaveResponse(result: Observable<HttpResponse<IFournisseurProduit>>): void {
     result.pipe(finalize(() => (this.isSaving = false))).subscribe({
       next: (res: HttpResponse<IFournisseurProduit>) => this.onSaveSuccess(res.body),
-      error: error => this.onSaveError(error)
+      error: error => this.onSaveError(error),
     });
   }
 
   private onSaveSuccess(produitFournisseur: IFournisseurProduit | null): void {
-
     this.activeModal.close(produitFournisseur);
   }
 
   private onSaveError(error: HttpErrorResponse): void {
-
     this.alert().showError(this.errorService.getErrorMessage(error));
   }
 
@@ -191,8 +189,7 @@ export class FormProduitFournisseurComponent implements OnInit, AfterViewInit {
       codeCip: this.editForm.get(['codeCip']).value,
       fournisseurId: this.editForm.get(['fournisseurId']).value,
       principal: this.editForm.get(['principal']).value,
-      produitId: this.produit.id
+      produitId: this.produit.id,
     };
   }
 }
-

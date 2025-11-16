@@ -19,7 +19,7 @@ import { Card } from 'primeng/card';
   selector: 'jhi-form-famille',
   templateUrl: './form-famille.component.html',
   styleUrls: ['../../common-modal.component.scss'],
-  imports: [CommonModule, FormsModule, ReactiveFormsModule, ButtonModule, InputTextModule, RippleModule, ToastAlertComponent, Select, Card]
+  imports: [CommonModule, FormsModule, ReactiveFormsModule, ButtonModule, InputTextModule, RippleModule, ToastAlertComponent, Select, Card],
 })
 export class FormFamilleComponent implements OnInit {
   familleProduit?: IFamilleProduit;
@@ -31,7 +31,7 @@ export class FormFamilleComponent implements OnInit {
     id: [],
     code: [null, [Validators.required]],
     libelle: [null, [Validators.required]],
-    categorieId: [null, [Validators.required]]
+    categorieId: [null, [Validators.required]],
   });
   protected categorieProduitService = inject(CategorieService);
   private readonly entityService = inject(FamilleProduitService);
@@ -50,7 +50,7 @@ export class FormFamilleComponent implements OnInit {
       id: entity.id,
       code: entity.code,
       libelle: entity.libelle,
-      categorieId: entity.categorieId
+      categorieId: entity.categorieId,
     });
   }
 
@@ -58,7 +58,7 @@ export class FormFamilleComponent implements OnInit {
     this.categorieProduitService.query({ search: '' }).subscribe({
       next: (res: HttpResponse<ICategorie[]>) => {
         this.categorieproduits = res.body;
-      }
+      },
     });
   }
 
@@ -84,7 +84,7 @@ export class FormFamilleComponent implements OnInit {
   private subscribeToSaveResponse(result: Observable<HttpResponse<IFamilleProduit>>): void {
     result.subscribe({
       next: (res: HttpResponse<IFamilleProduit>) => this.onSaveSuccess(res.body),
-      error: () => this.onSaveError()
+      error: () => this.onSaveError(),
     });
   }
 
@@ -98,7 +98,7 @@ export class FormFamilleComponent implements OnInit {
       id: this.editForm.get(['id']).value,
       code: this.editForm.get(['code']).value,
       libelle: this.editForm.get(['libelle']).value,
-      categorieId: this.editForm.get(['categorieId']).value
+      categorieId: this.editForm.get(['categorieId']).value,
     };
   }
 }

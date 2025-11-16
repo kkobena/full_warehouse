@@ -33,7 +33,7 @@ public class CashRegister implements Serializable {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
 
-    @ManyToOne(optional = false,fetch = FetchType.LAZY)
+    @ManyToOne(optional = false, fetch = FetchType.LAZY)
     @NotNull
     private AppUser user;
 
@@ -64,7 +64,7 @@ public class CashRegister implements Serializable {
 
     @NotNull
     @Enumerated(EnumType.STRING)
-    @Column(name = "statut", nullable = false,length = 10)
+    @Column(name = "statut", nullable = false, length = 10)
     private CashRegisterStatut statut;
 
     @NotNull

@@ -96,9 +96,11 @@ public class UninsuredCustomerService {
     }
 
     public Optional<UninsuredCustomer> findOne(UninsuredCustomerDTO dto) {
-        Specification<UninsuredCustomer> specification =
-            uninsuredCustomerRepository.specialisationCheckExist(dto.getFirstName(), dto.getLastName(), dto.getPhone())
-        ;
+        Specification<UninsuredCustomer> specification = uninsuredCustomerRepository.specialisationCheckExist(
+            dto.getFirstName(),
+            dto.getLastName(),
+            dto.getPhone()
+        );
         return uninsuredCustomerRepository.findOne(specification);
     }
 

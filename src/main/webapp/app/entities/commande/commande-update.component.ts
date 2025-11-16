@@ -88,7 +88,6 @@ import { handleBlobForTauri } from '../../shared/util/tauri-util';
     ConfirmDialogComponent,
     ToastAlertComponent,
     SpinnerComponent,
-
   ],
 })
 export class CommandeUpdateComponent implements OnInit, AfterViewInit {

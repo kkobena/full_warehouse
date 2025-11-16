@@ -30,8 +30,8 @@ import { Checkbox } from 'primeng/checkbox';
     DynamicDialogModule,
     ToastAlertComponent,
     Card,
-    Checkbox
-  ]
+    Checkbox,
+  ],
 })
 export class FormPosteComponent implements OnInit, AfterViewInit {
   title: string = '';
@@ -44,15 +44,10 @@ export class FormPosteComponent implements OnInit, AfterViewInit {
     posteNumber: [null, [Validators.maxLength(20)]],
     address: [
       null,
-      [
-        Validators.required,
-        Validators.pattern(
-          /^((25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.){3}(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)$/
-        )
-      ]
+      [Validators.required, Validators.pattern(/^((25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.){3}(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)$/)],
     ],
     customerDisplay: [false],
-    customerDisplayPort: [null, [Validators.maxLength(10)]]
+    customerDisplayPort: [null, [Validators.maxLength(10)]],
   });
   private readonly entityService = inject(PosteService);
   private readonly alert = viewChild.required<ToastAlertComponent>('alert');
@@ -93,14 +88,14 @@ export class FormPosteComponent implements OnInit, AfterViewInit {
       posteNumber: entity.posteNumber,
       address: entity.address,
       customerDisplay: entity.customerDisplay,
-      customerDisplayPort: entity.customerDisplayPort
+      customerDisplayPort: entity.customerDisplayPort,
     });
   }
 
   private subscribeToSaveResponse(result: Observable<HttpResponse<void>>): void {
     result.subscribe({
       next: () => this.onSaveSuccess(),
-      error: err => this.onSaveError(err)
+      error: err => this.onSaveError(err),
     });
   }
 
@@ -121,10 +116,9 @@ export class FormPosteComponent implements OnInit, AfterViewInit {
       posteNumber: this.editForm.get(['posteNumber']).value,
       address: this.editForm.get(['address']).value,
       customerDisplay: this.editForm.get(['customerDisplay']).value,
-      customerDisplayPort: this.editForm.get(['customerDisplayPort']).value
+      customerDisplayPort: this.editForm.get(['customerDisplayPort']).value,
     };
   }
-
 
   private setupConditionalValidation(): void {
     const customerDisplayControl = this.editForm.get('customerDisplay');
@@ -133,13 +127,10 @@ export class FormPosteComponent implements OnInit, AfterViewInit {
     this.updateConditionalValidators(customerDisplayControl?.value);
 
     // Subscribe to customerDisplay changes
-    customerDisplayControl?.valueChanges
-      .pipe(takeUntilDestroyed(this.destroyRef))
-      .subscribe(isEnabled => {
-        this.updateConditionalValidators(isEnabled);
-      });
+    customerDisplayControl?.valueChanges.pipe(takeUntilDestroyed(this.destroyRef)).subscribe(isEnabled => {
+      this.updateConditionalValidators(isEnabled);
+    });
   }
-
 
   private updateConditionalValidators(customerDisplayEnabled: boolean): void {
     const posteNumberControl = this.editForm.get('posteNumber');

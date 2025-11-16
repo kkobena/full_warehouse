@@ -1,7 +1,6 @@
 package com.kobe.warehouse.service.dto;
 
 import com.kobe.warehouse.domain.Menu;
-
 import java.util.HashSet;
 import java.util.Set;
 
@@ -15,11 +14,9 @@ public class MenuDTO {
     private boolean root;
     private boolean enable;
 
-
     public MenuDTO() {}
 
     public MenuDTO(Menu menu) {
-
         this.libelle = menu.getLibelle();
         this.name = menu.getName();
         this.root = menu.isRoot();
@@ -39,8 +36,6 @@ public class MenuDTO {
     public void setMenus(Set<MenuDTO> menus) {
         this.menus = menus;
     }
-
-
 
     public String getLibelle() {
         return libelle;
@@ -73,5 +68,4 @@ public class MenuDTO {
     public void setEnable(boolean enable) {
         this.enable = enable;
     }
-
 }

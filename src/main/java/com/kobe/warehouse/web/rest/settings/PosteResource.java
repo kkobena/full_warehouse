@@ -5,6 +5,7 @@ import com.kobe.warehouse.service.settings.dto.PosteRecord;
 import com.kobe.warehouse.web.util.ResponseUtil;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
+import java.util.List;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -13,9 +14,6 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
-
-import java.util.List;
-
 
 @RestController
 @RequestMapping("/api/postes")
@@ -34,10 +32,8 @@ public class PosteResource {
         return ResponseUtil.wrapOrNotFound(posteService.findFirstByAddressOrName(remoteAddr, remoteHost));
     }
 
-
     @GetMapping
-    public ResponseEntity<List<PosteRecord>> fetchAll(
-    ) {
+    public ResponseEntity<List<PosteRecord>> fetchAll() {
         return ResponseEntity.ok().body(posteService.findAll());
     }
 
@@ -49,9 +45,7 @@ public class PosteResource {
 
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> delete(@PathVariable Integer id) {
-
         posteService.delete(id);
-        return ResponseEntity.noContent()
-            .build();
+        return ResponseEntity.noContent().build();
     }
 }

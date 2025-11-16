@@ -51,7 +51,7 @@ export class PaymentService {
   protected convertDateFromClient(payment: IPayment): IPayment {
     const copy: IPayment = Object.assign({}, payment, {
       createdAt: payment.createdAt && payment.createdAt.isValid() ? payment.createdAt.toJSON() : undefined,
-      updatedAt: payment.updatedAt && payment.updatedAt.isValid() ? payment.updatedAt.toJSON() : undefined
+      updatedAt: payment.updatedAt && payment.updatedAt.isValid() ? payment.updatedAt.toJSON() : undefined,
     });
     return copy;
   }

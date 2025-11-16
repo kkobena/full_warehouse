@@ -8,7 +8,6 @@ import { UserRouteAccessService } from 'app/core/auth/user-route-access.service'
 import { Commande, ICommande } from 'app/shared/model/commande.model';
 import { CommandeService } from './commande.service';
 
-
 import SuggestionResolver from './suggestion/suggestion.resolver';
 
 export const CommandeResolve = (route: ActivatedRouteSnapshot): Observable<null | ICommande> => {
@@ -26,7 +25,7 @@ export const CommandeResolve = (route: ActivatedRouteSnapshot): Observable<null 
               inject(Router).navigate(['404']);
               return EMPTY;
             }
-          })
+          }),
         );
     }
     return inject(CommandeService)
@@ -39,7 +38,7 @@ export const CommandeResolve = (route: ActivatedRouteSnapshot): Observable<null 
             inject(Router).navigate(['404']);
             return EMPTY;
           }
-        })
+        }),
       );
   }
   return of(new Commande());
@@ -50,11 +49,11 @@ const commandeRoute: Routes = [
     path: '',
     loadComponent: () => import('./commande.component').then(m => m.CommandeComponent),
     data: {
-      authorities: [Authority.ADMIN, Authority.COMMANDE,Authority.ROLE_RESPONSABLE_COMMANDE],
+      authorities: [Authority.ADMIN, Authority.COMMANDE, Authority.ROLE_RESPONSABLE_COMMANDE],
       defaultSort: 'id,asc',
-      pageTitle: 'warehouseApp.commande.home.title'
+      pageTitle: 'warehouseApp.commande.home.title',
     },
-    canActivate: [UserRouteAccessService]
+    canActivate: [UserRouteAccessService],
   },
 
   {
@@ -66,49 +65,48 @@ const commandeRoute: Routes = [
     this.router.navigate(['./', product.id], { relativeTo: this.route });
     */
     resolve: {
-      commande: CommandeResolve
+      commande: CommandeResolve,
     },
     data: {
-      authorities: [Authority.ADMIN, Authority.COMMANDE,Authority.ROLE_RESPONSABLE_COMMANDE],
-      pageTitle: 'warehouseApp.commande.home.title'
+      authorities: [Authority.ADMIN, Authority.COMMANDE, Authority.ROLE_RESPONSABLE_COMMANDE],
+      pageTitle: 'warehouseApp.commande.home.title',
     },
-    canActivate: [UserRouteAccessService]
+    canActivate: [UserRouteAccessService],
   },
   {
     path: ':id/:orderDate/edit',
     loadComponent: () => import('./commande-update.component').then(m => m.CommandeUpdateComponent),
     resolve: {
-      commande: CommandeResolve
+      commande: CommandeResolve,
     },
     data: {
-      authorities: [Authority.ADMIN, Authority.COMMANDE,Authority.ROLE_RESPONSABLE_COMMANDE],
-      pageTitle: 'warehouseApp.commande.home.title'
+      authorities: [Authority.ADMIN, Authority.COMMANDE, Authority.ROLE_RESPONSABLE_COMMANDE],
+      pageTitle: 'warehouseApp.commande.home.title',
     },
-    canActivate: [UserRouteAccessService]
+    canActivate: [UserRouteAccessService],
   },
-
 
   {
     path: ':id/suggestion',
     loadComponent: () => import('./suggestion/edit-suggestion.component').then(m => m.EditSuggestionComponent),
     resolve: {
-      suggestion: SuggestionResolver
+      suggestion: SuggestionResolver,
     },
     data: {
-      authorities: [Authority.ADMIN, Authority.COMMANDE,Authority.ROLE_RESPONSABLE_COMMANDE],
-      pageTitle: 'warehouseApp.commande.home.title'
+      authorities: [Authority.ADMIN, Authority.COMMANDE, Authority.ROLE_RESPONSABLE_COMMANDE],
+      pageTitle: 'warehouseApp.commande.home.title',
     },
-    canActivate: [UserRouteAccessService]
+    canActivate: [UserRouteAccessService],
   },
   {
     path: 'retour-fournisseur/new',
     loadComponent: () => import('./retour_fournisseur/supplier-returns.component').then(m => m.SupplierReturnsComponent),
     data: {
-      authorities: [Authority.ADMIN, Authority.COMMANDE,Authority.ROLE_RESPONSABLE_COMMANDE],
-      pageTitle: 'Nouveau Retour Fournisseur'
+      authorities: [Authority.ADMIN, Authority.COMMANDE, Authority.ROLE_RESPONSABLE_COMMANDE],
+      pageTitle: 'Nouveau Retour Fournisseur',
     },
-    canActivate: [UserRouteAccessService]
-  }
+    canActivate: [UserRouteAccessService],
+  },
 ];
 
 export default commandeRoute;

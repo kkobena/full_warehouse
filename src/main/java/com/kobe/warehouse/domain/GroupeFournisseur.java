@@ -41,7 +41,7 @@ public class GroupeFournisseur implements Serializable {
     @Column(name = "email")
     private String email;
 
-    @Column(name = "tel",length = 15)
+    @Column(name = "tel", length = 15)
     private String tel;
 
     @NotNull

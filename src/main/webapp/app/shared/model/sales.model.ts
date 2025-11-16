@@ -56,7 +56,7 @@ export interface ISales {
   avoir?: boolean;
   saleId?: SaleId;
   remise?: IRemise;
-  magasin?:IMagasin
+  magasin?: IMagasin;
 }
 
 export class Sales implements ISales {
@@ -100,7 +100,7 @@ export class Sales implements ISales {
     public thirdPartySaleLines?: IThirdPartySaleLine[],
     public partTiersPayant?: number,
     public sansBon?: boolean,
-    public avoir?: boolean
+    public avoir?: boolean,
   ) {
     this.statut = this.statut || SalesStatut.ACTIVE;
     this.differe = this.differe || false;

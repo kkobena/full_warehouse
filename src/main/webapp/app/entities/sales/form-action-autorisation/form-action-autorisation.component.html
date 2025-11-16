@@ -1,54 +1,64 @@
 @if (entity && privilege) {
-  <form (ngSubmit)="autorize()" [formGroup]="editForm" name="editForm" novalidate role="form"
-        [attr.autocomplete]="'off'">
+  <form (ngSubmit)="autorize()" [formGroup]="editForm" name="editForm" novalidate role="form" [attr.autocomplete]="'off'">
     <div class="modal-header">
       <h4 class="modal-title">Formulaire d'autorisation</h4>
 
-      <button type="button" class="btn-close" data-dismiss="modal" aria-hidden="true"
-              (click)="cancel()">&times;
-      </button>
+      <button type="button" class="btn-close" data-dismiss="modal" aria-hidden="true" (click)="cancel()">&times;</button>
     </div>
 
     <div class="modal-body">
       <p-card>
         <div class="mb-3">
           <label for="actionAuthorityKey" class="form-label">Code/Mot de passe</label>
-          <p-password [autofocus]="true" fluid="true" id="actionAuthorityKey" #actionAuthorityKey
-                      autocomplete="off" formControlName="actionAuthorityKey"
-                      [feedback]="false" />
+          <p-password
+            [autofocus]="true"
+            fluid="true"
+            id="actionAuthorityKey"
+            #actionAuthorityKey
+            autocomplete="off"
+            formControlName="actionAuthorityKey"
+            [feedback]="false"
+          />
 
-          @if (editForm.get('actionAuthorityKey')!.invalid &&
-          (editForm.get('actionAuthorityKey')!.dirty || editForm.get(
-            'actionAuthorityKey')!.touched)) {
+          @if (
+            editForm.get('actionAuthorityKey')!.invalid &&
+            (editForm.get('actionAuthorityKey')!.dirty || editForm.get('actionAuthorityKey')!.touched)
+          ) {
             <div>
               @if (editForm.get('actionAuthorityKey')?.errors?.required) {
-                <small class="form-text text-danger" jhiTranslate="entity.validation.required">
-                  This field is required. </small>
+                <small class="form-text text-danger" jhiTranslate="entity.validation.required"> This field is required. </small>
               }
             </div>
           }
         </div>
         <div class="mb-3">
           <label for="commentaire" class="form-label">Commentaire</label>
-          <textarea pTextarea class="form-control" id="commentaire" rows="3" name="commentaire"
-                    formControlName="commentaire"></textarea>
+          <textarea pTextarea class="form-control" id="commentaire" rows="3" name="commentaire" formControlName="commentaire"></textarea>
         </div>
       </p-card>
-
-
     </div>
 
     <div class="modal-footer">
-      <p-button [raised]="true" type="button" severity="secondary" icon="pi pi-times"
-                label="Annuler"
-                data-dismiss="modal" (click)="cancel()">
+      <p-button
+        [raised]="true"
+        type="button"
+        severity="secondary"
+        icon="pi pi-times"
+        label="Annuler"
+        data-dismiss="modal"
+        (click)="cancel()"
+      >
       </p-button>
-      <p-button [raised]="true" severity="primary" icon="pi pi-check" label="Valider"
-                [disabled]="editForm.invalid || isSaving || !isValid" id="save-entity"
-                type="submit">
-
+      <p-button
+        [raised]="true"
+        severity="primary"
+        icon="pi pi-check"
+        label="Valider"
+        [disabled]="editForm.invalid || isSaving || !isValid"
+        id="save-entity"
+        type="submit"
+      >
       </p-button>
-
     </div>
   </form>
 }

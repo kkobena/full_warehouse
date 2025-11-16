@@ -1,13 +1,12 @@
 package com.kobe.warehouse.service.financiel_transaction;
 
+import static org.junit.jupiter.api.Assertions.*;
+
 import com.kobe.warehouse.service.financiel_transaction.dto.TableauPharmacienDTO;
 import com.kobe.warehouse.service.financiel_transaction.dto.TableauPharmacienWrapper;
+import java.time.LocalDate;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-
-import java.time.LocalDate;
-
-import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * Simple test to verify calculator and aggregator work correctly

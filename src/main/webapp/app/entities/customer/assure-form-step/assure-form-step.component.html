@@ -1,8 +1,6 @@
 <div class="modal-header">
   <h4 class="modal-title">{{ header }}</h4>
-  <button (click)="cancel()" class="btn-close" data-dismiss="modal" type="button">
-    &times;
-  </button>
+  <button (click)="cancel()" class="btn-close" data-dismiss="modal" type="button">&times;</button>
 </div>
 
 <div class="modal-body form-client-step" id="modal">
@@ -22,8 +20,7 @@
         </p-step-panel>
         @if (!assureFormStepService.isEdition() && typeAssure === 'ASSURANCE') {
           <p-step-panel [value]="2">
-            <ng-template let-activateCallback="activateCallback" let-prevCallback="prevCallback"
-                         #content>
+            <ng-template let-activateCallback="activateCallback" let-prevCallback="prevCallback" #content>
               <jhi-ayant-droit-step #ayantDroitStep></jhi-ayant-droit-step>
             </ng-template>
           </p-step-panel>
@@ -35,14 +32,7 @@
 
 <div class="form-actions-compact">
   @if (activeStep === 1) {
-    <p-button
-      label="Annuler"
-      icon="pi pi-times"
-      severity="secondary"
-      [text]="true"
-      type="button"
-      (click)="cancel()">
-    </p-button>
+    <p-button label="Annuler" icon="pi pi-times" severity="secondary" [text]="true" type="button" (click)="cancel()"> </p-button>
     @if (assureStepComponent()?.editForm.valid) {
       <p-button
         label="Enregistrer"
@@ -51,16 +41,11 @@
         type="button"
         [disabled]="isSaving"
         [loading]="isSaving"
-        (onClick)="save()">
+        (onClick)="save()"
+      >
       </p-button>
       @if (commonService.categorieTiersPayant() === 'ASSURANCE') {
-        <p-button
-          label="Suivant"
-          icon="pi pi-arrow-right"
-          iconPos="right"
-          severity="info"
-          type="button"
-          (onClick)="onGoAyantDroit(2)">
+        <p-button label="Suivant" icon="pi pi-arrow-right" iconPos="right" severity="info" type="button" (onClick)="onGoAyantDroit(2)">
         </p-button>
       }
     }
@@ -72,7 +57,8 @@
       severity="secondary"
       [text]="true"
       type="button"
-      (onClick)="onGoBackFromAyantDroit(1)">
+      (onClick)="onGoBackFromAyantDroit(1)"
+    >
     </p-button>
     @if (ayantDroitStepComponent()?.isValidForm()) {
       <p-button
@@ -82,7 +68,8 @@
         type="button"
         [disabled]="isSaving"
         [loading]="isSaving"
-        (onClick)="save()">
+        (onClick)="save()"
+      >
       </p-button>
     }
   }

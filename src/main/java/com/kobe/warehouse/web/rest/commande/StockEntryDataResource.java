@@ -11,6 +11,9 @@ import com.kobe.warehouse.web.util.PaginationUtil;
 import com.kobe.warehouse.web.util.ResponseUtil;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
+import java.io.IOException;
+import java.time.LocalDate;
+import java.util.List;
 import org.springframework.core.io.Resource;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -22,10 +25,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
-
-import java.io.IOException;
-import java.time.LocalDate;
-import java.util.List;
 
 @RestController
 @RequestMapping("/api")
@@ -51,7 +50,8 @@ public class StockEntryDataResource {
 
     @GetMapping("/commandes/data/entree-stock/etiquettes/{id}/{orderDate}")
     public ResponseEntity<Resource> getPdf(
-        @PathVariable Integer id, @PathVariable LocalDate orderDate,
+        @PathVariable Integer id,
+        @PathVariable LocalDate orderDate,
         @RequestParam(required = false, name = "startAt", defaultValue = "1") Integer startAt,
         HttpServletRequest request
     ) throws IOException {
@@ -60,7 +60,8 @@ public class StockEntryDataResource {
     }
 
     @GetMapping("/commandes/data/entree-stock/pdf/{id}/{orderDate}")
-    public ResponseEntity<Resource> getPdf(@PathVariable Integer id, @PathVariable LocalDate orderDate, HttpServletRequest request) throws IOException {
+    public ResponseEntity<Resource> getPdf(@PathVariable Integer id, @PathVariable LocalDate orderDate, HttpServletRequest request)
+        throws IOException {
         final Resource resource = stockEntryDataServicetryService.exportToPdf(new CommandeId(id, orderDate));
         return Utils.printPDF(resource, request);
     }
@@ -71,7 +72,11 @@ public class StockEntryDataResource {
     }
 
     @GetMapping("/commandes/data/entree-stock/filter-items/{id}/{orderDate}")
-    public ResponseEntity<List<DeliveryReceiptItemProjection>> fetchDetailBons(@PathVariable Integer id, @PathVariable LocalDate orderDate) {
-        return ResponseEntity.ok().body(stockEntryDataServicetryService.findAllByCommandeIdAndCommandeOrderDate(new CommandeId(id, orderDate)));
+    public ResponseEntity<List<DeliveryReceiptItemProjection>> fetchDetailBons(
+        @PathVariable Integer id,
+        @PathVariable LocalDate orderDate
+    ) {
+        return ResponseEntity.ok()
+            .body(stockEntryDataServicetryService.findAllByCommandeIdAndCommandeOrderDate(new CommandeId(id, orderDate)));
     }
 }

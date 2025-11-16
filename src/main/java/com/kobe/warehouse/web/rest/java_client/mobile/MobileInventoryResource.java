@@ -4,6 +4,7 @@ import com.kobe.warehouse.service.InventaireService;
 import com.kobe.warehouse.service.dto.StoreInventoryDTO;
 import com.kobe.warehouse.service.dto.StoreInventoryLineDTO;
 import com.kobe.warehouse.service.mobile.dto.RayonRecord;
+import java.util.List;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -12,11 +13,10 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import java.util.List;
-
 @RestController
 @RequestMapping("/java-client/mobile/inventories")
 public class MobileInventoryResource {
+
     private final InventaireService inventaireService;
 
     public MobileInventoryResource(InventaireService inventaireService) {
@@ -45,8 +45,10 @@ public class MobileInventoryResource {
     }
 
     @GetMapping("/rayons/{rayonId}/items/{id}")
-    public ResponseEntity<List<StoreInventoryLineDTO>> getItemsByRayonId(@PathVariable("rayonId") Long rayonId, @PathVariable("id") Long id) {
+    public ResponseEntity<List<StoreInventoryLineDTO>> getItemsByRayonId(
+        @PathVariable("rayonId") Long rayonId,
+        @PathVariable("id") Long id
+    ) {
         return ResponseEntity.ok(inventaireService.getItemsByRayonId(id, rayonId));
     }
-
 }

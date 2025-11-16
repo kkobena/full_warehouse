@@ -4,7 +4,7 @@ import {
   ITEMS_PER_PAGE,
   PRODUIT_COMBO_MIN_LENGTH,
   PRODUIT_COMBO_RESULT_SIZE,
-  PRODUIT_NOT_FOUND
+  PRODUIT_NOT_FOUND,
 } from '../../../shared/constants/pagination.constants';
 import { FloatLabel } from 'primeng/floatlabel';
 import { TranslatePipe } from '@ngx-translate/core';
@@ -56,11 +56,10 @@ import { SpinnerComponent } from '../../../shared/spinner/spinner.component';
     IconField,
     InputIcon,
     DatePickerComponent,
-    SpinnerComponent
+    SpinnerComponent,
   ],
   templateUrl: './ajout-perimes.component.html',
-  styleUrls: ['./ajout-perimes.component.scss']
-
+  styleUrls: ['./ajout-perimes.component.scss'],
 })
 export class AjoutPerimesComponent implements OnInit {
   protected readonly PRODUIT_COMBO_MIN_LENGTH = PRODUIT_COMBO_MIN_LENGTH;
@@ -125,7 +124,7 @@ export class AjoutPerimesComponent implements OnInit {
       null,
       () => {
         this.produitComponent().getFocus();
-      }
+      },
     );
   }
 
@@ -142,11 +141,11 @@ export class AjoutPerimesComponent implements OnInit {
           error: err => {
             this.spinner().hide();
             this.onError(err);
-          }
+          },
         });
       },
       'Confirmation',
-      'Êtes-vous sûr de vouloir clôtuer ? Les quantités saisies seront définitivement retirées du stock.'
+      'Êtes-vous sûr de vouloir clôtuer ? Les quantités saisies seront définitivement retirées du stock.',
     );
   }
 
@@ -174,7 +173,7 @@ export class AjoutPerimesComponent implements OnInit {
   protected addQuantity(qte: number): void {
     if (qte > 0) {
       if (this.produitSelected?.totalQuantity <= 0) {
-        this.alert().showError('Le produit n\'a plus de stock');
+        this.alert().showError("Le produit n'a plus de stock");
       } else {
         if (qte > this.produitSelected?.totalQuantity) {
           this.produitQteCmpt().focusProduitControl();
@@ -192,7 +191,7 @@ export class AjoutPerimesComponent implements OnInit {
     this.productToDestroyService
       .modifyProductQuantity({
         id: item.id,
-        ...this.buildItem(inputValue as number)
+        ...this.buildItem(inputValue as number),
       })
       .subscribe({
         next: () => {
@@ -202,7 +201,7 @@ export class AjoutPerimesComponent implements OnInit {
           this.isSaving = false;
           this.loadPage();
           this.onError(err);
-        }
+        },
       });
   }
 
@@ -223,11 +222,11 @@ export class AjoutPerimesComponent implements OnInit {
         .queryForEdit({
           page: this.page,
           size: event.rows,
-          ...this.buidParams()
+          ...this.buidParams(),
         })
         .subscribe({
           next: (res: HttpResponse<ProductToDestroy[]>) => this.onSuccess(res.body, res.headers, this.page),
-          error: () => this.onError()
+          error: () => this.onError(),
         });
     }
   }
@@ -235,7 +234,7 @@ export class AjoutPerimesComponent implements OnInit {
   private removeItem(item: ProductToDestroy): void {
     this.productToDestroyService
       .delete({
-        ids: [item.id]
+        ids: [item.id],
       })
       .subscribe({
         next: () => {
@@ -244,7 +243,7 @@ export class AjoutPerimesComponent implements OnInit {
         },
         error: err => {
           this.onError(err);
-        }
+        },
       });
   }
 
@@ -269,7 +268,7 @@ export class AjoutPerimesComponent implements OnInit {
       error: err => {
         this.isSaving = false;
         this.onError(err);
-      }
+      },
     });
   }
 
@@ -290,7 +289,7 @@ export class AjoutPerimesComponent implements OnInit {
       datePeremption: this.datePeremention().submitValue,
       quantity,
       numLot: this.numLotCmpt()?.nativeElement.value,
-      stockInitial: this.produitSelected?.totalQuantity
+      stockInitial: this.produitSelected?.totalQuantity,
     };
   }
 
@@ -305,18 +304,18 @@ export class AjoutPerimesComponent implements OnInit {
       .queryForEdit({
         page: pageToLoad - 1,
         size: this.itemsPerPage,
-        ...this.buidParams()
+        ...this.buidParams(),
       })
       .subscribe({
         next: (res: HttpResponse<ProductToDestroy[]>) => this.onSuccess(res.body, res.headers, pageToLoad),
-        error: () => this.onFetchError()
+        error: () => this.onFetchError(),
       });
   }
 
   private buidParams(): ProductToDestroyFilter {
     return {
       editing: true,
-      searchTerm: this.searchTerm
+      searchTerm: this.searchTerm,
     };
   }
 }

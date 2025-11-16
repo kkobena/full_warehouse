@@ -9,13 +9,12 @@ import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 import jakarta.persistence.UniqueConstraint;
 import jakarta.validation.constraints.NotNull;
-import org.hibernate.annotations.Cache;
-import org.hibernate.annotations.CacheConcurrencyStrategy;
-
 import java.io.Serial;
 import java.io.Serializable;
 import java.util.HashSet;
 import java.util.Set;
+import org.hibernate.annotations.Cache;
+import org.hibernate.annotations.CacheConcurrencyStrategy;
 
 /**
  * A Tva.
@@ -34,7 +33,7 @@ public class Tva implements Serializable {
 
     @NotNull
     @Column(name = "taux", nullable = false, unique = true)
-    private Integer taux ;
+    private Integer taux;
 
     public Integer getId() {
         return id;

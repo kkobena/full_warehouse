@@ -23,11 +23,11 @@ import { PopoverModule } from 'primeng/popover';
     FormsModule,
     PopoverModule,
     CustomerDataTableComponent,
-    TagModule
+    TagModule,
   ],
 
   templateUrl: './customer-overlay-panel.component.html',
-  styleUrls: ['./customer-overlay-panel.component.scss']
+  styleUrls: ['./customer-overlay-panel.component.scss'],
 })
 export class CustomerOverlayPanelComponent {
   private selectedCustomerService = inject(SelectedCustomerService);

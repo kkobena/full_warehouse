@@ -1,16 +1,15 @@
 package com.kobe.warehouse.service.financiel_transaction.dto;
 
+import static java.util.Objects.isNull;
+
 import com.kobe.warehouse.domain.enumeration.TransactionTypeAffichage;
 import com.kobe.warehouse.domain.enumeration.TypeFinancialTransaction;
 import com.kobe.warehouse.service.cash_register.dto.TypeVente;
 import com.kobe.warehouse.service.dto.enumeration.TypeVenteDTO;
-
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
-
-import static java.util.Objects.isNull;
 
 public class BalanceCaisseDTO {
 
@@ -52,8 +51,22 @@ public class BalanceCaisseDTO {
     private TransactionTypeAffichage typeVeTypeAffichage;
     private List<PaymentDTO> payments = new ArrayList<>();
 
-
-    public BalanceCaisseDTO(String typeSale, Long numberCount, Object discount, Long montantTtc, Long montantPaye, Long montantReel, Double montantHt, String modePaiement, String libelleModePaiement, Long montantAchat, Integer montantDiffere, Long amountToBeTakenIntoAccount, Long partTiersPayant, Long partAssure) {
+    public BalanceCaisseDTO(
+        String typeSale,
+        Long numberCount,
+        Object discount,
+        Long montantTtc,
+        Long montantPaye,
+        Long montantReel,
+        Double montantHt,
+        String modePaiement,
+        String libelleModePaiement,
+        Long montantAchat,
+        Integer montantDiffere,
+        Long amountToBeTakenIntoAccount,
+        Long partTiersPayant,
+        Long partAssure
+    ) {
         this.typeSale = TypeVenteDTO.valueOf(typeSale);
         this.count = numberCount;
         this.montantDiscount = getDiscountAsInteger(discount);
@@ -72,7 +85,13 @@ public class BalanceCaisseDTO {
         this.montantTaxe = this.montantTtc - this.montantHt;
     }
 
-    public BalanceCaisseDTO(Long amount, Long montantSansArrondi, String modePaiement, String libelleModePaiement, TypeFinancialTransaction typeTransaction) {
+    public BalanceCaisseDTO(
+        Long amount,
+        Long montantSansArrondi,
+        String modePaiement,
+        String libelleModePaiement,
+        TypeFinancialTransaction typeTransaction
+    ) {
         this.montantPaye = amount;
         this.modePaiement = modePaiement;
         this.montantReel = montantSansArrondi;
@@ -80,9 +99,7 @@ public class BalanceCaisseDTO {
         this.typeVeTypeAffichage = typeTransaction.getTransactionTypeAffichage();
     }
 
-    public BalanceCaisseDTO() {
-
-    }
+    public BalanceCaisseDTO() {}
 
     public Integer getMontantRemiseUg() {
         return montantRemiseUg;
@@ -295,7 +312,9 @@ public class BalanceCaisseDTO {
     }
 
     public Long getMontantNet() {
-        montantNet = Objects.requireNonNullElse(montantTtc, 0L) - (Objects.requireNonNullElse(montantDiscount, 0) - Objects.requireNonNullElse(montantRemiseUg, 0));
+        montantNet =
+            Objects.requireNonNullElse(montantTtc, 0L) -
+            (Objects.requireNonNullElse(montantDiscount, 0) - Objects.requireNonNullElse(montantRemiseUg, 0));
         return montantNet;
     }
 
@@ -394,7 +413,6 @@ public class BalanceCaisseDTO {
         montantTaxe = Objects.requireNonNullElse(montantTtc, 0L) - Objects.requireNonNullElse(montantHt, 0L);
         return montantTaxe;
     }
-
 
     public Long getPartAssure() {
         return partAssure;

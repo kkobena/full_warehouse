@@ -20,18 +20,21 @@ PharmaSmart includes a custom titlebar for the Tauri desktop application, provid
 ### Components
 
 **File: `src/main/webapp/app/shared/titlebar/titlebar.component.ts`**
+
 - Detects Tauri environment
 - Manages window state (minimized, maximized, restored)
 - Handles window control button clicks
 - Tracks current route for display
 
 **File: `src/main/webapp/app/shared/titlebar/titlebar.component.html`**
+
 - Custom titlebar layout
 - App icon, title, and current route display
 - Window control buttons (minimize, maximize, close)
 - Draggable region using `data-tauri-drag-region`
 
 **File: `src/main/webapp/app/shared/titlebar/titlebar.component.scss`**
+
 - Modern gradient design
 - Smooth hover/active transitions
 - Fixed positioning at top of window
@@ -44,16 +47,18 @@ PharmaSmart includes a custom titlebar for the Tauri desktop application, provid
 ### Tauri Configuration
 
 **Files Updated:**
+
 - `src-tauri/tauri.conf.json`
 - `src-tauri/tauri.bundled.conf.json`
 
 **Change:**
+
 ```json
 {
   "app": {
     "windows": [
       {
-        "decorations": false  // Removes default titlebar
+        "decorations": false // Removes default titlebar
       }
     ]
   }
@@ -68,10 +73,10 @@ PharmaSmart includes a custom titlebar for the Tauri desktop application, provid
 
 ```json
 {
-  "windows": ["*"],  // Apply to all windows (not just "main")
+  "windows": ["*"], // Apply to all windows (not just "main")
   "permissions": [
     "core:window:allow-create",
-    "core:webview:allow-create-webview-window",
+    "core:webview:allow-create-webview-window"
     // ... other permissions
   ]
 }
@@ -84,6 +89,7 @@ If `"windows"` is restricted to `["main"]`, the new instance button will fail si
 **File: `src/main/webapp/app/layouts/main/main.component.html`**
 
 Added titlebar at the top:
+
 ```html
 <app-titlebar></app-titlebar>
 ```
@@ -91,6 +97,7 @@ Added titlebar at the top:
 **File: `src/main/webapp/app/layouts/main/main.component.ts`**
 
 Imported and registered:
+
 ```typescript
 import { TitlebarComponent } from 'app/shared/titlebar/titlebar.component';
 
@@ -122,6 +129,7 @@ height: 32px;
 ```
 
 **Route Display:**
+
 - Shows clean, user-friendly route names (e.g., "Ventes" instead of "sales")
 - Query parameters are automatically removed (e.g., `/sales?page=0&size=10...` → "Ventes")
 - Supports French and English route mappings
@@ -129,17 +137,17 @@ height: 32px;
 
 ### Titlebar Actions
 
-| Button | Icon | Action | Description |
-|--------|------|--------|-------------|
+| Button           | Icon  | Action           | Description                      |
+| ---------------- | ----- | ---------------- | -------------------------------- |
 | **New Instance** | `[+]` | Opens new window | Creates a new independent window |
 
 ### Window Controls
 
-| Button | Symbol | Action | Hover Color |
-|--------|--------|--------|-------------|
-| **Minimize** | `—` | Minimizes window | Light white |
-| **Maximize** | `□` / `⧉` | Toggles maximize/restore | Light white |
-| **Close** | `×` | Closes application | Red (#e81123) |
+| Button       | Symbol    | Action                   | Hover Color   |
+| ------------ | --------- | ------------------------ | ------------- |
+| **Minimize** | `—`       | Minimizes window         | Light white   |
+| **Maximize** | `□` / `⧉` | Toggles maximize/restore | Light white   |
+| **Close**    | `×`       | Closes application       | Red (#e81123) |
 
 ---
 
@@ -150,6 +158,7 @@ height: 32px;
 Edit `titlebar.component.scss`:
 
 #### Option 1: macOS Style
+
 ```scss
 .titlebar {
   background: #ececec;
@@ -159,6 +168,7 @@ Edit `titlebar.component.scss`:
 ```
 
 #### Option 2: Dark Mode
+
 ```scss
 .titlebar {
   background: #1e1e1e;
@@ -168,6 +178,7 @@ Edit `titlebar.component.scss`:
 ```
 
 #### Option 3: Minimal/Flat
+
 ```scss
 .titlebar {
   background: #ffffff;
@@ -183,20 +194,22 @@ Default: `32px`
 **Update in 3 places:**
 
 1. `titlebar.component.scss`:
+
 ```scss
 .titlebar {
-  height: 40px;  // Change here
+  height: 40px; // Change here
 }
 ```
 
 2. `main.component.scss`:
+
 ```scss
 .sticky-navbar {
-  top: 40px;  // Change here
+  top: 40px; // Change here
 }
 
 .main-content {
-  padding-top: 40px;  // Change here
+  padding-top: 40px; // Change here
 }
 ```
 
@@ -216,8 +229,7 @@ Edit `titlebar.component.html`, replace the SVG:
 Edit `titlebar.component.html`, remove:
 
 ```html
-<span class="route-divider">-</span>
-<span class="current-route">{{ currentRoute }}</span>
+<span class="route-divider">-</span> <span class="current-route">{{ currentRoute }}</span>
 ```
 
 ### Add Custom Route Mappings
@@ -226,14 +238,15 @@ Edit `titlebar.component.ts`, add entries to `routeNameMap`:
 
 ```typescript
 const routeNameMap: { [key: string]: string } = {
-  'sales': 'Ventes',
-  'customers': 'Clients',
-  'my-custom-route': 'Mon Module',  // Add your route here
+  sales: 'Ventes',
+  customers: 'Clients',
+  'my-custom-route': 'Mon Module', // Add your route here
   // ...
 };
 ```
 
 **Examples:**
+
 - `'account'` → `'Compte'`
 - `'admin'` → `'Administration'`
 - `'customer-detail'` → `'Détails Client'`
@@ -243,14 +256,16 @@ const routeNameMap: { [key: string]: string } = {
 ## Browser Compatibility
 
 The custom titlebar only appears in **Tauri mode**. In web browser mode:
+
 - Titlebar is automatically hidden
 - Browser's native titlebar is used
 - No layout adjustments needed
 
 **Detection:**
+
 ```typescript
 if (typeof window !== 'undefined' && '__TAURI__' in window) {
-  this.isTauri = true;  // Show titlebar
+  this.isTauri = true; // Show titlebar
 }
 ```
 
@@ -259,6 +274,7 @@ if (typeof window !== 'undefined' && '__TAURI__' in window) {
 ## Window Control Functions
 
 ### Open New Instance
+
 ```typescript
 async openNewInstance(): Promise<void> {
   const { WebviewWindow } = await import('@tauri-apps/api/webviewWindow');
@@ -288,6 +304,7 @@ async openNewInstance(): Promise<void> {
 ```
 
 **Features:**
+
 - Each window is independent
 - All windows share the same backend connection
 - Windows can be closed individually
@@ -295,6 +312,7 @@ async openNewInstance(): Promise<void> {
 - Each window has its own navigation state
 
 ### Minimize Window
+
 ```typescript
 async minimizeWindow(): Promise<void> {
   const { getCurrentWindow } = await import('@tauri-apps/api/window');
@@ -303,6 +321,7 @@ async minimizeWindow(): Promise<void> {
 ```
 
 ### Maximize/Restore Window
+
 ```typescript
 async maximizeWindow(): Promise<void> {
   const { getCurrentWindow } = await import('@tauri-apps/api/window');
@@ -317,6 +336,7 @@ async maximizeWindow(): Promise<void> {
 ```
 
 ### Close Window
+
 ```typescript
 async closeWindow(): Promise<void> {
   const { getCurrentWindow } = await import('@tauri-apps/api/window');
@@ -337,6 +357,7 @@ The titlebar is draggable using Tauri's `data-tauri-drag-region` attribute:
 ```
 
 **Exception:** Window control buttons are NOT draggable:
+
 ```html
 <div class="titlebar-right">
   <!-- No drag attribute here -->
@@ -351,12 +372,14 @@ The titlebar is draggable using Tauri's `data-tauri-drag-region` attribute:
 ### Titlebar Not Showing
 
 **Check:**
+
 1. Running in Tauri mode? (Not web browser)
 2. `decorations: false` in `tauri.conf.json`?
 3. Component imported in `main.component.ts`?
 4. `<app-titlebar>` added to `main.component.html`?
 
 **Verify Tauri Detection:**
+
 ```typescript
 console.log('Tauri:', '__TAURI__' in window);
 ```
@@ -364,6 +387,7 @@ console.log('Tauri:', '__TAURI__' in window);
 ### Window Can't Be Moved
 
 **Check:**
+
 1. Titlebar has `data-tauri-drag-region` attribute
 2. Not dragging on window control buttons
 3. `-webkit-app-region: drag` in CSS
@@ -371,11 +395,13 @@ console.log('Tauri:', '__TAURI__' in window);
 ### Buttons Not Working
 
 **Check:**
+
 1. Click events attached correctly
 2. Tauri window APIs imported
 3. Running in Tauri mode (not web)
 
 **Debug:**
+
 ```typescript
 async minimizeWindow(): Promise<void> {
   console.log('Minimize clicked, isTauri:', this.isTauri);
@@ -388,6 +414,7 @@ async minimizeWindow(): Promise<void> {
 **Most Common Cause:** Capabilities not configured correctly
 
 **Check:**
+
 1. Open `src-tauri/capabilities/default.json`
 2. Verify `"windows": ["*"]` (not `["main"]`)
 3. Verify permissions include:
@@ -395,12 +422,14 @@ async minimizeWindow(): Promise<void> {
    - `"core:webview:allow-create-webview-window"`
 
 **Test:**
+
 ```bash
 # Restart dev mode after changing capabilities
 npm run tauri:dev
 ```
 
 **Debug in browser console:**
+
 - Click the [+] button
 - Look for "New instance created: pharmasmart-{timestamp}"
 - If you see errors, check the exact error message
@@ -408,6 +437,7 @@ npm run tauri:dev
 ### Layout Shifted/Overlapped
 
 **Check:**
+
 1. `padding-top: 32px` in `main.component.scss`
 2. `sticky-navbar` has `top: 32px`
 3. Titlebar `z-index: 9999`
@@ -423,6 +453,7 @@ npm run tauri:dev
 ```
 
 **What to test:**
+
 - [ ] Titlebar appears at top
 - [ ] App title displays correctly
 - [ ] Current route updates when navigating
@@ -449,12 +480,14 @@ Run the built executable and verify all features work.
 ## Performance
 
 **Impact:**
+
 - ✅ Minimal: ~5KB JavaScript (compressed)
 - ✅ No runtime overhead
 - ✅ Conditional rendering (Tauri only)
 - ✅ Lazy-loaded Tauri APIs
 
 **Optimization:**
+
 - Dynamic imports for Tauri APIs
 - Simple SVG icons (no image files)
 - Minimal CSS (< 200 lines)
@@ -466,6 +499,7 @@ Run the built executable and verify all features work.
 ### Keyboard Navigation
 
 Window controls support keyboard navigation:
+
 - `Tab` to focus buttons
 - `Enter` or `Space` to activate
 - `Escape` to close window (if focused on close button)
@@ -475,10 +509,7 @@ Window controls support keyboard navigation:
 Add ARIA labels for better accessibility:
 
 ```html
-<button
-  aria-label="Minimize window"
-  class="titlebar-button minimize"
-  (click)="minimizeWindow()">
+<button aria-label="Minimize window" class="titlebar-button minimize" (click)="minimizeWindow()">
   <svg>...</svg>
 </button>
 ```
@@ -556,4 +587,4 @@ src/
 
 ---
 
-*Last Updated: 2025-01-16*
+_Last Updated: 2025-01-16_

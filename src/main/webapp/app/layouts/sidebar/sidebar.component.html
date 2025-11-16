@@ -6,12 +6,7 @@
         <span class="logo-text">Pharma Smart</span>
       </a>
     }
-    <button
-      type="button"
-      class="btn btn-link toggle-btn"
-      (click)="toggleSidebar()"
-      [attr.aria-label]="'Toggle sidebar'"
-    >
+    <button type="button" class="btn btn-link toggle-btn" (click)="toggleSidebar()" [attr.aria-label]="'Toggle sidebar'">
       <fa-icon [icon]="faBars"></fa-icon>
     </button>
   </div>
@@ -74,10 +69,12 @@
 
           <!-- Menu item with children (expandable) -->
           @if (item.children && item.children.length > 0) {
-            <div class="nav-item-with-children"
-                 [class.hover-enabled]="isCollapsed()"
-                 (mouseenter)="isCollapsed() && onParentMenuHover(item.label, true)"
-                 (mouseleave)="isCollapsed() && onParentMenuHover(item.label, false)">
+            <div
+              class="nav-item-with-children"
+              [class.hover-enabled]="isCollapsed()"
+              (mouseenter)="isCollapsed() && onParentMenuHover(item.label, true)"
+              (mouseleave)="isCollapsed() && onParentMenuHover(item.label, false)"
+            >
               <a
                 class="nav-link has-children"
                 [class.collapsed-item]="isCollapsed()"
@@ -106,12 +103,7 @@
                   @for (child of item.children; track child.label) {
                     <li class="submenu-item">
                       @if (child.routerLink) {
-                        <a
-                          [routerLink]="child.routerLink"
-                          routerLinkActive="active"
-                          class="submenu-link"
-                          (click)="onSubmenuItemClick()"
-                        >
+                        <a [routerLink]="child.routerLink" routerLinkActive="active" class="submenu-link" (click)="onSubmenuItemClick()">
                           <span class="submenu-icon">
                             <fa-icon [icon]="child.faIcon"></fa-icon>
                           </span>
@@ -120,10 +112,7 @@
                       }
 
                       @if (child.click && !child.routerLink) {
-                        <a
-                          (click)="onSubmenuItemClick(child.click)"
-                          class="submenu-link clickable"
-                        >
+                        <a (click)="onSubmenuItemClick(child.click)" class="submenu-link clickable">
                           <span class="submenu-icon">
                             <fa-icon [icon]="child.faIcon"></fa-icon>
                           </span>
@@ -142,11 +131,7 @@
                   @for (child of item.children; track child.label) {
                     <li class="submenu-item">
                       @if (child.routerLink) {
-                        <a
-                          [routerLink]="child.routerLink"
-                          routerLinkActive="active"
-                          class="submenu-link"
-                        >
+                        <a [routerLink]="child.routerLink" routerLinkActive="active" class="submenu-link">
                           <span class="submenu-icon">
                             <fa-icon [icon]="child.faIcon"></fa-icon>
                           </span>
@@ -155,10 +140,7 @@
                       }
 
                       @if (child.click && !child.routerLink) {
-                        <a
-                          (click)="child.click()"
-                          class="submenu-link clickable"
-                        >
+                        <a (click)="child.click()" class="submenu-link clickable">
                           <span class="submenu-icon">
                             <fa-icon [icon]="child.faIcon"></fa-icon>
                           </span>
@@ -183,11 +165,7 @@
       @if (themes && themes.length > 1) {
         <div class="theme-selector">
           <label class="small text-muted">Thème</label>
-          <select
-            class="form-select form-select-sm"
-            [(ngModel)]="selectedTheme"
-            (change)="changeTheme(selectedTheme)"
-          >
+          <select class="form-select form-select-sm" [(ngModel)]="selectedTheme" (change)="changeTheme(selectedTheme)">
             @for (theme of themes; track theme.name) {
               <option [value]="theme.name">
                 {{ theme.name }}

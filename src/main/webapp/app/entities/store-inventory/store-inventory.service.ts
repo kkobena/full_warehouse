@@ -58,7 +58,7 @@ export class StoreInventoryService {
   protected convertDateFromClient(storeInventory: IStoreInventory): IStoreInventory {
     const copy: IStoreInventory = Object.assign({}, storeInventory, {
       createdAt: storeInventory.createdAt && storeInventory.createdAt.isValid() ? storeInventory.createdAt.toJSON() : undefined,
-      updatedAt: storeInventory.updatedAt && storeInventory.updatedAt.isValid() ? storeInventory.updatedAt.toJSON() : undefined
+      updatedAt: storeInventory.updatedAt && storeInventory.updatedAt.isValid() ? storeInventory.updatedAt.toJSON() : undefined,
     });
     return copy;
   }

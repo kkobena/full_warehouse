@@ -1,7 +1,6 @@
 package com.kobe.warehouse.service.dto;
 
 import jakarta.validation.constraints.NotNull;
-
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -14,8 +13,10 @@ public class RetourDepotDTO {
     private String userFullName;
     private Long venteDepotId;
     private String venteDepotDate;
+
     @NotNull
     private Integer depotId;
+
     private String depotName;
     private List<RetourDepotItemDTO> retourDepotItems = new ArrayList<>();
 
@@ -54,7 +55,6 @@ public class RetourDepotDTO {
         this.userFullName = userFullName;
         return this;
     }
-
 
     public Long getVenteDepotId() {
         return venteDepotId;

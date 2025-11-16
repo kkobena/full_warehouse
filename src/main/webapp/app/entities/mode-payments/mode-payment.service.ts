@@ -10,7 +10,7 @@ type EntityResponseType = HttpResponse<IPaymentMode>;
 type EntityArrayResponseType = HttpResponse<IPaymentMode[]>;
 
 @Injectable({
-  providedIn: 'root'
+  providedIn: 'root',
 })
 export class ModePaymentService {
   protected http = inject(HttpClient);
@@ -25,7 +25,7 @@ export class ModePaymentService {
     const options = createRequestOption(req);
     return this.http.get<IPaymentMode[]>(this.resourceUrl, {
       params: options,
-      observe: 'response'
+      observe: 'response',
     });
   }
 

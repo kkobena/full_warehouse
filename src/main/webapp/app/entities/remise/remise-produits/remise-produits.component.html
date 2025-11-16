@@ -10,15 +10,20 @@
 
     <p-toolbar>
       <ng-template #start>
-        <div class="pharma-toolbar-filters">
-        </div>
+        <div class="pharma-toolbar-filters"></div>
       </ng-template>
 
       <ng-template #end>
         <div class="pharma-toolbar-actions">
           <div class="pharma-button-group">
-            <p-button (click)="onOpenRemiseForm()" [raised]="true" icon="pi pi-plus" label="Nouveau"
-                      severity="success" type="button"></p-button>
+            <p-button
+              (click)="onOpenRemiseForm()"
+              [raised]="true"
+              icon="pi pi-plus"
+              label="Nouveau"
+              severity="success"
+              type="button"
+            ></p-button>
           </div>
         </div>
       </ng-template>
@@ -50,12 +55,22 @@
       </ng-template>
       <ng-template let-columns="columns" let-elRow let-rowIndex="rowIndex" #body>
         <tr [pSelectableRow]="elRow">
-          <td><span class="pharma-row-number">{{ rowIndex + 1 }}</span></td>
+          <td>
+            <span class="pharma-row-number">{{ rowIndex + 1 }}</span>
+          </td>
 
-          <td><span class="pharma-entity-name">{{ elRow.valeur }}</span></td>
-          <td class="text-right"><span class="pharma-code">{{ elRow.grilles[0]?.codeRemise?.value }}</span></td>
-          <td class="text-right"><span class="pharma-qty-value">{{ getVnoTaux(elRow) }}</span></td>
-          <td class="text-right"><span class="pharma-qty-value">{{ getVoTaux(elRow) }}</span></td>
+          <td>
+            <span class="pharma-entity-name">{{ elRow.valeur }}</span>
+          </td>
+          <td class="text-right">
+            <span class="pharma-code">{{ elRow.grilles[0]?.codeRemise?.value }}</span>
+          </td>
+          <td class="text-right">
+            <span class="pharma-qty-value">{{ getVnoTaux(elRow) }}</span>
+          </td>
+          <td class="text-right">
+            <span class="pharma-qty-value">{{ getVoTaux(elRow) }}</span>
+          </td>
           <td class="text-right">
             <p-toggleswitch (onChange)="onStatusChange(elRow)" [(ngModel)]="elRow.enable" />
           </td>
@@ -95,4 +110,3 @@
     </div>
   }
 </div>
-

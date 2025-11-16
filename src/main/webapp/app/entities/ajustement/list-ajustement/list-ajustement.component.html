@@ -30,11 +30,21 @@
             type="button"
           />
         </td>
-        <td><span class="pharma-entity-name">{{ ajust.userFullName }}</span></td>
-        <td><span class="pharma-entity-name">{{ ajust.dateMtv | date: 'dd/MM/yyyy HH:mm' }}</span></td>
-        <td class="text-right"><span class="pharma-qty-value">{{ ajust.ajustements.length }}</span></td>
-        <td><span class="pharma-entity-name">{{ ajust.commentaire }}</span></td>
-        <td><span class="pharma-entity-name">{{ ajust.storageLibelle }}</span></td>
+        <td>
+          <span class="pharma-entity-name">{{ ajust.userFullName }}</span>
+        </td>
+        <td>
+          <span class="pharma-entity-name">{{ ajust.dateMtv | date: 'dd/MM/yyyy HH:mm' }}</span>
+        </td>
+        <td class="text-right">
+          <span class="pharma-qty-value">{{ ajust.ajustements.length }}</span>
+        </td>
+        <td>
+          <span class="pharma-entity-name">{{ ajust.commentaire }}</span>
+        </td>
+        <td>
+          <span class="pharma-entity-name">{{ ajust.storageLibelle }}</span>
+        </td>
         <td class="text-right">
           <div class="btn-group">
             <p-button
@@ -61,26 +71,40 @@
             <div class="pharma-sub-table-body">
               <table class="table table-striped-columns table-bordered">
                 <thead>
-                <tr class="pharma-table-head">
-                  <th style="width: 2%">#</th>
-                  <th>Code cip</th>
-                  <th>Libellé</th>
-                  <th>Quantité ajustée</th>
-                  <th>Stock avant</th>
-                  <th>Stock final</th>
-                  <th>Motif</th>
-                </tr>
+                  <tr class="pharma-table-head">
+                    <th style="width: 2%">#</th>
+                    <th>Code cip</th>
+                    <th>Libellé</th>
+                    <th>Quantité ajustée</th>
+                    <th>Stock avant</th>
+                    <th>Stock final</th>
+                    <th>Motif</th>
+                  </tr>
                 </thead>
                 <tbody>
                   @for (ajustement of elRow.ajustements; track ajustement.id; let rowIndex = $index) {
                     <tr>
-                      <td style="text-align: left"><span class="pharma-row-number">{{ rowIndex + 1 }}</span></td>
-                      <td><span class="pharma-code">{{ ajustement.codeCip }}</span></td>
-                      <td><span class="pharma-entity-name">{{ ajustement.produitLibelle }}</span></td>
-                      <td class="text-right"><span class="pharma-qty-value">{{ ajustement.qtyMvt | number }}</span></td>
-                      <td class="text-right"><span class="pharma-qty-value">{{ ajustement.stockBefore | number }}</span></td>
-                      <td class="text-right"><span class="pharma-qty-value">{{ ajustement.stockAfter | number }}</span></td>
-                      <td><span class="pharma-entity-name">{{ ajustement.motifAjustementLibelle }}</span></td>
+                      <td style="text-align: left">
+                        <span class="pharma-row-number">{{ rowIndex + 1 }}</span>
+                      </td>
+                      <td>
+                        <span class="pharma-code">{{ ajustement.codeCip }}</span>
+                      </td>
+                      <td>
+                        <span class="pharma-entity-name">{{ ajustement.produitLibelle }}</span>
+                      </td>
+                      <td class="text-right">
+                        <span class="pharma-qty-value">{{ ajustement.qtyMvt | number }}</span>
+                      </td>
+                      <td class="text-right">
+                        <span class="pharma-qty-value">{{ ajustement.stockBefore | number }}</span>
+                      </td>
+                      <td class="text-right">
+                        <span class="pharma-qty-value">{{ ajustement.stockAfter | number }}</span>
+                      </td>
+                      <td>
+                        <span class="pharma-entity-name">{{ ajustement.motifAjustementLibelle }}</span>
+                      </td>
                     </tr>
                   }
                 </tbody>

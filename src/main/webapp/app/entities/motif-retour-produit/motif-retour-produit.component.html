@@ -10,19 +10,11 @@
         <span class="pharma-toolbar-title">Motifs de Retour Produit</span>
         <div class="pharma-toolbar-actions">
           <div class="pharma-button-group">
-            <p-button
-              (onClick)="openNew()"
-              [raised]="true"
-              icon="pi pi-plus"
-              label="Nouveau motif"
-              severity="primary">
-            </p-button>
+            <p-button (onClick)="openNew()" [raised]="true" icon="pi pi-plus" label="Nouveau motif" severity="primary"> </p-button>
           </div>
         </div>
       </div>
     </div>
-
-
 
     <!-- DATA TABLE -->
     <div class="table-section">
@@ -60,7 +52,8 @@
                   severity="info"
                   pTooltip="Modifier"
                   tooltipPosition="top"
-                  size="small">
+                  size="small"
+                >
                 </p-button>
                 <p-button
                   (onClick)="confirmDelete(motif)"
@@ -70,7 +63,8 @@
                   severity="danger"
                   pTooltip="Supprimer"
                   tooltipPosition="top"
-                  size="small">
+                  size="small"
+                >
                 </p-button>
               </div>
             </td>
@@ -83,7 +77,6 @@
               <div class="empty-state">
                 <i class="pi pi-inbox"></i>
                 <p>Aucun motif de retour trouvé</p>
-
               </div>
             </td>
           </tr>

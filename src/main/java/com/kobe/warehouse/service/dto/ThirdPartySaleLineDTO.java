@@ -7,7 +7,6 @@ import com.kobe.warehouse.domain.ThirdPartySaleLine;
 import com.kobe.warehouse.domain.TiersPayant;
 import com.kobe.warehouse.domain.enumeration.PrioriteTiersPayant;
 import com.kobe.warehouse.domain.enumeration.ThirdPartySaleStatut;
-
 import java.time.LocalDateTime;
 
 public class ThirdPartySaleLineDTO {
@@ -31,8 +30,7 @@ public class ThirdPartySaleLineDTO {
     private PrioriteTiersPayant priorite;
     private AssuranceSaleId assuranceSaleId;
 
-    public ThirdPartySaleLineDTO() {
-    }
+    public ThirdPartySaleLineDTO() {}
 
     public ThirdPartySaleLineDTO(ThirdPartySaleLine thirdPartySaleLine) {
         this.assuranceSaleId = thirdPartySaleLine.getId();

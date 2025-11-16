@@ -43,8 +43,8 @@ import { FloatLabel } from 'primeng/floatlabel';
     IconField,
     InputIcon,
     DatePickerComponent,
-    FloatLabel
-  ]
+    FloatLabel,
+  ],
 })
 export class AjustementComponent implements OnInit {
   translate = inject(TranslateService);
@@ -80,7 +80,7 @@ export class AjustementComponent implements OnInit {
       search: this.search,
       fromDate: this.fromDate,
       toDate: this.toDate,
-      userId: this.user?.id
+      userId: this.user?.id,
     });
     this.ajustementList().onSearch();
   }

@@ -21,7 +21,7 @@ export const StoreInventoryResolve = (route: ActivatedRouteSnapshot): Observable
             inject(Router).navigate(['404']);
             return EMPTY;
           }
-        })
+        }),
       );
   }
   return of(new StoreInventory());
@@ -31,42 +31,42 @@ const storeInventoryRoute: Routes = [
     path: '',
     loadComponent: () => import('./store-inventory.component').then(m => m.StoreInventoryComponent),
     data: {
-      authorities: [Authority.ADMIN, Authority.STORE_INVENTORY]
+      authorities: [Authority.ADMIN, Authority.STORE_INVENTORY],
     },
-    canActivate: [UserRouteAccessService]
+    canActivate: [UserRouteAccessService],
   },
   {
     path: ':id/view',
     loadComponent: () => import('./store-inventory-detail.component').then(m => m.StoreInventoryDetailComponent),
     resolve: {
-      storeInventory: StoreInventoryResolve
+      storeInventory: StoreInventoryResolve,
     },
     data: {
-      authorities: [Authority.ADMIN, Authority.STORE_INVENTORY]
+      authorities: [Authority.ADMIN, Authority.STORE_INVENTORY],
     },
-    canActivate: [UserRouteAccessService]
+    canActivate: [UserRouteAccessService],
   },
   {
     path: 'new',
     loadComponent: () => import('./store-inventory-update.component').then(m => m.StoreInventoryUpdateComponent),
     resolve: {
-      storeInventory: StoreInventoryResolve
+      storeInventory: StoreInventoryResolve,
     },
     data: {
-      authorities: [Authority.ADMIN, Authority.STORE_INVENTORY]
+      authorities: [Authority.ADMIN, Authority.STORE_INVENTORY],
     },
-    canActivate: [UserRouteAccessService]
+    canActivate: [UserRouteAccessService],
   },
   {
     path: ':id/edit',
     loadComponent: () => import('./store-inventory-update.component').then(m => m.StoreInventoryUpdateComponent),
     resolve: {
-      storeInventory: StoreInventoryResolve
+      storeInventory: StoreInventoryResolve,
     },
     data: {
-      authorities: [Authority.ADMIN, Authority.STORE_INVENTORY]
+      authorities: [Authority.ADMIN, Authority.STORE_INVENTORY],
     },
-    canActivate: [UserRouteAccessService]
-  }
+    canActivate: [UserRouteAccessService],
+  },
 ];
 export default storeInventoryRoute;

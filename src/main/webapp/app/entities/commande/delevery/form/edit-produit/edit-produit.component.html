@@ -1,8 +1,7 @@
 <jhi-toast-alert #alert></jhi-toast-alert>
 <div class="modal-header">
   <h5 class="modal-title">{{ header }}</h5>
-  <button (click)="cancel()" aria-label="Close" class="btn-close" type="button">
-  </button>
+  <button (click)="cancel()" aria-label="Close" class="btn-close" type="button"></button>
 </div>
 
 <form (ngSubmit)="save()" [formGroup]="editForm" name="editForm" novalidate role="form">
@@ -28,8 +27,7 @@
           @if (codeCip!.invalid && (codeCip!.dirty || codeCip!.touched)) {
             <div>
               @if (codeCip?.errors?.required) {
-                <small class="form-text text-danger" jhiTranslate="entity.validation.required"> This field is
-                  required. </small>
+                <small class="form-text text-danger" jhiTranslate="entity.validation.required"> This field is required. </small>
               }
             </div>
           }
@@ -66,8 +64,7 @@
           @if (prixAchat!.invalid && (prixAchat!.dirty || prixAchat!.touched)) {
             <div>
               @if (prixAchat?.errors?.required) {
-                <small class="form-text text-danger" jhiTranslate="entity.validation.required"> This field is
-                  required. </small>
+                <small class="form-text text-danger" jhiTranslate="entity.validation.required"> This field is required. </small>
               }
             </div>
           }
@@ -88,8 +85,7 @@
           @if (prixUni!.invalid && (prixUni!.dirty || prixUni!.touched)) {
             <div>
               @if (prixUni?.errors?.required) {
-                <small class="form-text text-danger" jhiTranslate="entity.validation.required"> This field is
-                  required. </small>
+                <small class="form-text text-danger" jhiTranslate="entity.validation.required"> This field is required. </small>
               }
             </div>
           }
@@ -149,8 +145,16 @@
   </div>
 
   <div class="modal-footer">
-    <p-button class="mr-2" (click)="cancel()" [raised]="true" class="p-mr-2" icon="pi pi-times" label="Annuler"
-              severity="secondary" type="button">
+    <p-button
+      class="mr-2"
+      (click)="cancel()"
+      [raised]="true"
+      class="p-mr-2"
+      icon="pi pi-times"
+      label="Annuler"
+      severity="secondary"
+      type="button"
+    >
     </p-button>
 
     <p-button

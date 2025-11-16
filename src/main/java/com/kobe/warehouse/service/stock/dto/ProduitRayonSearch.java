@@ -1,4 +1,3 @@
 package com.kobe.warehouse.service.stock.dto;
 
-public record ProduitRayonSearch(String code, String libelle){
-}
+public record ProduitRayonSearch(String code, String libelle) {}

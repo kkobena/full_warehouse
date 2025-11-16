@@ -49,6 +49,7 @@ public class Authority implements Serializable {
     )
     @Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
     private Set<Menu> menus = new HashSet<>();
+
     @Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
     @OneToMany(mappedBy = "authority", cascade = { CascadeType.REMOVE })
     private Set<AuthorityPrivilege> privileges = new HashSet<>();

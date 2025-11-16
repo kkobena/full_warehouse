@@ -3,7 +3,7 @@
     <a (click)="collapseNavbar()" class="navbar-brand logo" routerLink="/">
       <span class="logo-img"></span>
       <span class="navbar-title mr-2" jhiTranslate="global.title">Pharma Smart</span>
-      <span class="navbar-version ">{{ version }}</span>
+      <span class="navbar-version">{{ version }}</span>
     </a>
     <a
       (click)="toggleNavbar()"
@@ -22,10 +22,16 @@
       <ul class="navbar-nav ms-auto">
         @for (item of navItems; track item.label) {
           @if (item.children && item.children.length > 0) {
-            <li ngbDropdown class="nav-item dropdown pointer" display="dynamic" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: true }">
+            <li
+              ngbDropdown
+              class="nav-item dropdown pointer"
+              display="dynamic"
+              routerLinkActive="active"
+              [routerLinkActiveOptions]="{ exact: true }"
+            >
               <a ngbDropdownToggle class="nav-link dropdown-toggle" href="javascript:void(0);">
                 <span>
-                  @if(item.faIcon){
+                  @if (item.faIcon) {
                     <fa-icon [icon]="item.faIcon"></fa-icon>
                   }
                   <span>{{ isAccountMenu(item) && account()?.lastName ? account()!.lastName : item.label }}</span>
@@ -34,11 +40,17 @@
               <ul ngbDropdownMenu class="dropdown-menu">
                 @for (child of item.children; track child.label) {
                   <li>
-                    <a (click)="child.click ? child.click() : collapseNavbar()" class="dropdown-item" [routerLink]="child.routerLink" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: true }">
-                      @if(child.faIcon){
+                    <a
+                      (click)="child.click ? child.click() : collapseNavbar()"
+                      class="dropdown-item"
+                      [routerLink]="child.routerLink"
+                      routerLinkActive="active"
+                      [routerLinkActiveOptions]="{ exact: true }"
+                    >
+                      @if (child.faIcon) {
                         <fa-icon [icon]="child.faIcon" [fixedWidth]="true"></fa-icon>
                       }
-                      <span>{{child.label}}</span>
+                      <span>{{ child.label }}</span>
                     </a>
                   </li>
                 }
@@ -48,10 +60,10 @@
             <li class="nav-item" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: true }">
               <a class="nav-link" [routerLink]="item.routerLink" (click)="item.click ? item.click() : collapseNavbar()">
                 <span>
-                  @if(item.faIcon){
+                  @if (item.faIcon) {
                     <fa-icon [icon]="item.faIcon"></fa-icon>
                   }
-                  <span>{{item.label}}</span>
+                  <span>{{ item.label }}</span>
                 </span>
               </a>
             </li>

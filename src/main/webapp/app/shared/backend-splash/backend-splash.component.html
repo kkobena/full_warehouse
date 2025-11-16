@@ -1,0 +1,43 @@
+@if (visible) {
+  <div class="backend-splash-overlay">
+    <div class="backend-splash-container">
+      <div class="backend-splash-content">
+        <!-- Logo/Icon -->
+        <div class="backend-splash-icon">
+          <i [ngClass]="getStatusIcon()" class="fa fa-3x"></i>
+        </div>
+
+        <!-- Title -->
+        <h2 class="backend-splash-title">{{ title }}</h2>
+
+        <!-- Status Message -->
+        <p class="backend-splash-message">{{ status.message }}</p>
+
+        <!-- Progress Bar -->
+        @if (status.status !== 'error') {
+          <div class="backend-splash-progress">
+            <p-progressBar
+              [showValue]="true"
+              [value]="status.progress"
+              class="custom-progress-bar"
+            ></p-progressBar>
+          </div>
+        }
+
+        <!-- Error Details -->
+        @if (status.status === 'error') {
+          <div class="backend-splash-error">
+            <p class="text-danger">
+              <i class="fa fa-exclamation-triangle"></i>
+              Backend failed to start
+            </p>
+            <small class="text-muted">{{ status.message }}</small>
+            <button type="button" class="btn btn-outline-danger btn-sm mt-3" (click)="close()">
+              <i class="fa fa-times"></i> Close
+            </button>
+          </div>
+        }
+      </div>
+    </div>
+  </div>
+}

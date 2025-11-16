@@ -24,7 +24,10 @@
       "Bash(cargo doc:*)",
       "Bash(mvn compile:*)",
       "Bash(npm run webapp:build:*)",
-      "Bash(mvnw.cmd clean compile:*)"
+      "Bash(mvnw.cmd clean compile:*)",
+      "Bash(cargo check:*)",
+      "WebSearch",
+      "Bash(npx tsc:*)"
     ],
     "deny": [],
     "ask": []

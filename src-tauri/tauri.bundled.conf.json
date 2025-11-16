@@ -1,0 +1,65 @@
+{
+  "$schema": "https://schema.tauri.app/config/2",
+  "productName": "PharmaSmart-Standalone",
+  "version": "0.0.1",
+  "identifier": "com.kobe.warehouse.standalone",
+  "build": {
+    "beforeDevCommand": "npm run start",
+    "devUrl": "http://localhost:4200",
+    "beforeBuildCommand": "npm run webapp:build:tauri",
+    "frontendDist": "../target/classes/static"
+  },
+  "bundle": {
+    "active": true,
+    "targets": [
+      "nsis",
+      "msi"
+    ],
+    "icon": [
+      "icons/32x32.png",
+      "icons/128x128.png",
+      "icons/128x128@2x.png",
+      "icons/icon.icns",
+      "icons/icon.ico"
+    ],
+    "resources": [
+      "sidecar/pharmaSmart-*.jar"
+    ],
+    "windows": {
+      "digestAlgorithm": "sha256",
+      "wix": {
+        "language": [
+          "fr-FR"
+        ]
+      },
+      "nsis": {
+        "installerIcon": "icons/icon.ico",
+        "languages": [
+          "French"
+        ],
+        "displayLanguageSelector": true
+      }
+    }
+  },
+  "app": {
+    "windows": [
+      {
+        "label": "main",
+        "title": "PharmaSmart Standalone",
+        "width": 1280,
+        "height": 800,
+        "resizable": true,
+        "fullscreen": false,
+        "minWidth": 1024,
+        "minHeight": 768,
+        "center": true
+      }
+    ],
+    "security": {
+      "csp": "default-src 'self' tauri:; script-src 'self' 'unsafe-inline' 'unsafe-eval' tauri:; style-src 'self' 'unsafe-inline'; img-src 'self' data: https: http: tauri: asset: http://asset.localhost; font-src 'self' data:; connect-src 'self' ipc: http://ipc.localhost http://localhost:* ws://localhost:* http://172.23.162.15:* ws://172.23.162.15:* http://192.168.*:* ws://192.168.*:* http://10.*:* ws://10.*:*",
+      "capabilities": [
+        "default"
+      ]
+    }
+  }
+}

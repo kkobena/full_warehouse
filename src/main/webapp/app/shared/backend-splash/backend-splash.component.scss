@@ -1,0 +1,123 @@
+.backend-splash-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.8);
+  backdrop-filter: blur(5px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 9999;
+  animation: fadeIn 0.3s ease-in-out;
+}
+
+.backend-splash-container {
+  background: var(--surface-card);
+  border-radius: 12px;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+  padding: 3rem;
+  max-width: 500px;
+  width: 90%;
+  text-align: center;
+}
+
+.backend-splash-content {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.backend-splash-icon {
+  color: var(--primary-color);
+  animation: pulse 2s ease-in-out infinite;
+
+  .fa-spinner {
+    animation: spin 1s linear infinite;
+  }
+}
+
+.backend-splash-title {
+  color: var(--text-color);
+  margin: 0;
+  font-size: 1.75rem;
+  font-weight: 600;
+}
+
+.backend-splash-message {
+  color: var(--text-color-secondary);
+  margin: 0;
+  font-size: 1rem;
+}
+
+.backend-splash-progress {
+  margin-top: 1rem;
+
+  ::ng-deep .p-progressbar {
+    height: 1.5rem;
+    border-radius: 8px;
+    background: var(--surface-ground);
+
+    .p-progressbar-value {
+      background: linear-gradient(90deg, var(--primary-color) 0%, var(--primary-400) 100%);
+      border-radius: 8px;
+    }
+
+    .p-progressbar-label {
+      color: white;
+      font-weight: 600;
+      line-height: 1.5rem;
+    }
+  }
+}
+
+.backend-splash-error {
+  margin-top: 1rem;
+  padding: 1rem;
+  background: rgba(239, 68, 68, 0.1);
+  border-radius: 8px;
+  border: 1px solid rgba(239, 68, 68, 0.3);
+
+  p {
+    margin: 0 0 0.5rem 0;
+    font-weight: 600;
+  }
+
+  small {
+    display: block;
+    margin-bottom: 0.5rem;
+  }
+
+  button {
+    margin-top: 0.5rem;
+  }
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes pulse {
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.7;
+  }
+}
+
+@keyframes spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}

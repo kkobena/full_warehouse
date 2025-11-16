@@ -1,0 +1,6 @@
+# Ignore JAR files (they will be copied during build)
+*.jar
+
+# Keep the wrapper scripts
+!pharmasmart-backend.bat
+!pharmasmart-backend.sh

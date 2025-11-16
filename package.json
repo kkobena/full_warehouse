@@ -32,7 +32,11 @@
     "tauri:dev": "tauri dev",
     "tauri:build": "npm run webapp:build:tauri && tauri build",
     "tauri:build:debug": "npm run webapp:build:tauri && tauri build --debug",
-    "tauri:build:fast": "tauri build"
+    "tauri:build:fast": "tauri build",
+    "tauri:prepare-sidecar": "node scripts/prepare-sidecar.js",
+    "tauri:build:bundled": "npm run webapp:build:tauri && npm run tauri:prepare-sidecar && tauri build --config src-tauri/tauri.bundled.conf.json --features bundled-backend",
+    "tauri:build:bundled:debug": "npm run webapp:build:tauri && npm run tauri:prepare-sidecar && tauri build --debug --config src-tauri/tauri.bundled.conf.json --features bundled-backend",
+    "tauri:build:bundled:fast": "npm run tauri:prepare-sidecar && tauri build --config src-tauri/tauri.bundled.conf.json --features bundled-backend"
   },
   "config": {
     "backend_port": "8080",

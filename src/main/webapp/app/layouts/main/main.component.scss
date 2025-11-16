@@ -1,11 +1,18 @@
+// Account for custom titlebar in Tauri mode
+:host {
+  display: block;
+  padding-top: 0; // Will be set by titlebar component if in Tauri mode
+}
+
 .sticky-navbar {
   position: sticky;
-  top: 0;
+  top: 32px; // Account for titlebar height
   z-index: 1020; // Bootstrap's z-index for navbars
 }
 
 .main-content {
   transition: margin-left 0.3s ease;
+  padding-top: 32px; // Account for titlebar height
 
   // With sidebar: add left margin to accommodate sidebar
   &.with-sidebar {

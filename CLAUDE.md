@@ -42,6 +42,7 @@ uses a PostgreSQL database with Flyway migrations and supports desktop deploymen
 
 - **[HOW-TO-CONFIGURE-BACKEND.md](HOW-TO-CONFIGURE-BACKEND.md)** - Simple guide for configuring backend URL (non-technical users)
 - **[LOGS-QUICK-REFERENCE.md](LOGS-QUICK-REFERENCE.md)** - Quick guide to finding and reading backend logs
+- **[CUSTOM-TITLEBAR.md](CUSTOM-TITLEBAR.md)** - Custom titlebar implementation and customization guide
 - **[TAURI_BACKEND_SETUP.md](TAURI_BACKEND_SETUP.md)** - Complete Tauri backend integration guide (technical)
 
 ## Build & Development Commands
@@ -561,3 +562,4 @@ psql -U warehouse -d warehouse
 - not use styleClass
 - not use p-dialog
 - not use prime Dialog use ngbModal
+- not use *ngif

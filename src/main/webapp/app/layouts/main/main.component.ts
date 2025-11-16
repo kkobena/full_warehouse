@@ -12,17 +12,14 @@ import { ConfirmationService } from 'primeng/api';
 import { LayoutService } from '../../core/config/layout.service';
 import { Observable } from 'rxjs';
 import { BackendSplashComponent } from 'app/shared/backend-splash/backend-splash.component';
-
-
-
-
+import { TitlebarComponent } from 'app/shared/titlebar/titlebar.component';
 
 @Component({
   selector: 'jhi-main',
   templateUrl: './main.component.html',
   styleUrl: './main.component.scss',
   providers: [AppPageTitleStrategy, ConfirmationService],
-  imports: [RouterOutlet, ConfirmDialogModule, CommonModule, AsyncPipe, BackendSplashComponent],
+  imports: [RouterOutlet, ConfirmDialogModule, CommonModule, AsyncPipe, BackendSplashComponent, TitlebarComponent],
 })
 export default class MainComponent implements OnInit {
   private readonly renderer: Renderer2;

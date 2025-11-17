@@ -1,0 +1,18 @@
+# Backend URL Configuration Template
+#
+# This file is used to configure a REMOTE backend server.
+# If you're using the standalone version with bundled backend, you DON'T need this file.
+#
+# To use a remote backend:
+# 1. Rename this file from "backend-url.txt.template" to "backend-url.txt"
+# 2. Replace the URL below with your backend server address
+# 3. Save the file
+# 4. Restart PharmaSmart
+#
+# Examples:
+# http://localhost:9080
+# http://192.168.1.100:9080
+# http://server-name:9080
+#
+# Uncomment and edit the line below:
+# http://localhost:9080

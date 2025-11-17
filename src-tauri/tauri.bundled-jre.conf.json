@@ -24,7 +24,9 @@
     ],
     "resources": [
       "sidecar/pharmaSmart-*.jar",
-      "sidecar/jre/**/*"
+      "sidecar/jre/**/*",
+      "config.default.json",
+      "backend-url.txt.template"
     ],
     "windows": {
       "digestAlgorithm": "sha256",

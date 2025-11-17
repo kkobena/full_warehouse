@@ -1,20 +1,123 @@
 # How to Configure the Backend Server
 
-This guide explains how to tell PharmaSmart where to find the backend server.
+This guide explains how to configure PharmaSmart's backend server.
 
-## Do I need this?
+## Two Configuration Types
 
-**NO** if:
+### Type 1: Standalone Version (Built-in Backend)
 
-- ✅ The backend is on the same computer as the app
-- ✅ You're using the standalone version (with built-in backend)
+Use `config.json` to configure the **built-in backend** (port, logs, etc.)
 
-**YES** if:
+**When to use:** You have the standalone Tauri app with bundled backend
 
+👉 **See: [Standalone Configuration](#standalone-configuration-configjson)** below
+
+### Type 2: Remote Backend
+
+Use `backend-url.txt` to point the frontend to a **remote backend server**
+
+**When to use:**
 - ❌ The backend is on a **different computer** on your network
-- ❌ The backend uses a **different port** than 8080
+- ❌ You want to use a centralized backend
+
+👉 **See: [Remote Backend Configuration](#remote-backend-configuration-backend-urltxt)** below
 
 ---
+
+## Standalone Configuration (config.json)
+
+### What is this for?
+
+Configure the **bundled backend** in your standalone PharmaSmart installation:
+- Change the server port (default: 9080)
+- Customize log file location
+- Adjust installation paths
+- **Customize JVM memory and performance settings**
+
+### Where is the file?
+
+```
+📁 Your Installation Folder
+├── 📄 PharmaSmart.exe          ← Your app
+├── 📄 config.json              ← Backend configuration
+└── 📁 logs/                    ← Backend logs
+```
+
+The `config.json` file is **automatically created** next to `PharmaSmart.exe` on first launch.
+
+### Configuration Options
+
+Open `config.json` with Notepad to see:
+
+```json
+{
+  "server": {
+    "port": 9080
+  },
+  "logging": {
+    "directory": "./logs",
+    "file": "./logs/pharmasmart.log"
+  },
+  "installation": {
+    "directory": ""
+  },
+  "jvm": {
+    "heap_min": "512m",
+    "heap_max": "1g",
+    "metaspace_size": "128m",
+    "metaspace_max": "256m",
+    "direct_memory_size": "256m",
+    "max_gc_pause_millis": "200",
+    "additional_options": []
+  }
+}
+```
+
+#### Change the Port
+
+**Example:** Change from 9080 to 8080:
+
+1. **Right-click** `config.json` → **Open with** → **Notepad**
+2. Change `"port": 9080` to `"port": 8080`
+3. **Save** and close Notepad
+4. **Restart** PharmaSmart
+
+#### Change Log Location
+
+**Example:** Save logs to a different folder:
+
+1. Change `"directory": "./logs"` to `"directory": "C:/PharmaSmart/Logs"`
+2. Change `"file"` path accordingly
+3. Save and restart
+
+#### Customize JVM Memory Settings
+
+**Example:** Increase memory for high-volume pharmacy:
+
+1. Change `"heap_min": "512m"` to `"heap_min": "2g"`
+2. Change `"heap_max": "1g"` to `"heap_max": "2g"`
+3. Save and restart
+
+**For detailed JVM customization, see:** [CUSTOMIZE-JVM-OPTIONS.md](CUSTOMIZE-JVM-OPTIONS.md)
+
+### Testing
+
+After changing the port, test the backend:
+
+1. Start PharmaSmart
+2. Open browser and go to: `http://localhost:9080/management/health`
+   (Replace 9080 with your configured port)
+3. You should see health status information
+
+---
+
+## Remote Backend Configuration (backend-url.txt)
+
+### What is this for?
+
+Configure the frontend to connect to a **remote backend server** (on another computer or different port).
+
+**Note:** A template file `backend-url.txt.template` is included in your installation with examples and instructions.
 
 ## Simple 3-Step Setup
 
@@ -37,6 +140,12 @@ IPv4 Address. . . . . . . . : 192.168.1.50
 
 ### Step 2: Create the Config File
 
+**Option A: Use the template (Recommended)**
+1. Find `backend-url.txt.template` in your installation folder
+2. **Right-click** it → **Rename** → Remove `.template` so it's just `backend-url.txt`
+3. Proceed to Step 3
+
+**Option B: Create from scratch**
 1. **Right-click** next to `PharmaSmart.exe`
 2. Choose **New → Text Document**
 3. Name it exactly: `backend-url.txt` (delete the `.txt.txt` if Windows adds it twice)
@@ -47,7 +156,7 @@ IPv4 Address. . . . . . . . : 192.168.1.50
 2. Choose **Open with → Notepad**
 3. Type the backend address:
    ```
-   http://192.168.1.50:8080
+   http://192.168.1.50:9080
    ```
    (Replace `192.168.1.50` with your backend computer's address from Step 1)
 4. **Save** and close Notepad
@@ -62,10 +171,12 @@ Double-click `PharmaSmart.exe` - it will now connect to the backend on the other
 
 ```
 📁 Your Installation Folder
-├── 📄 PharmaSmart.exe          ← Your app
-└── 📄 backend-url.txt          ← Config file you create
-       │
-       └── Contains: http://192.168.1.50:8080
+├── 📄 PharmaSmart.exe              ← Your app
+├── 📄 backend-url.txt.template     ← Template (bundled with app)
+├── 📄 backend-url.txt              ← Rename template to this
+│      │
+│      └── Contains: http://192.168.1.50:9080
+└── 📄 config.json                  ← Bundled backend config (standalone only)
 ```
 
 ---
@@ -77,15 +188,15 @@ Double-click `PharmaSmart.exe` - it will now connect to the backend on the other
 **Edit `backend-url.txt` to contain:**
 
 ```
-http://192.168.1.100:8080
+http://192.168.1.100:9080
 ```
 
-### Example 2: Backend on different port (9090)
+### Example 2: Backend on different port (8080)
 
 **Edit `backend-url.txt` to contain:**
 
 ```
-http://localhost:9090
+http://localhost:8080
 ```
 
 ### Example 3: Backend with a computer name
@@ -93,7 +204,7 @@ http://localhost:9090
 **Edit `backend-url.txt` to contain:**
 
 ```
-http://SERVER-PC:8080
+http://SERVER-PC:9080
 ```
 
 ---
@@ -105,7 +216,7 @@ Before launching PharmaSmart, test if you can reach the backend:
 1. Open your web browser (Chrome, Firefox, etc.)
 2. Type in the address bar:
    ```
-   http://192.168.1.50:8080/management/health
+   http://192.168.1.50:9080/management/health
    ```
    (Replace with your backend address)
 3. You should see some text with "status"

@@ -23,7 +23,9 @@
       "icons/icon.ico"
     ],
     "resources": [
-      "sidecar/pharmaSmart-*.jar"
+      "sidecar/pharmaSmart-*.jar",
+      "config.default.json",
+      "backend-url.txt.template"
     ],
     "windows": {
       "digestAlgorithm": "sha256",

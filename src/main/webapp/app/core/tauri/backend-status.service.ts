@@ -1,5 +1,6 @@
 import { inject, Injectable, NgZone } from '@angular/core';
 import { BehaviorSubject, Observable } from 'rxjs';
+import { TauriPrinterService } from '../../shared/services/tauri-printer.service';
 
 export interface BackendStatus {
   status: string;
@@ -16,6 +17,7 @@ export interface BackendHealthStatus {
   providedIn: 'root',
 })
 export class BackendStatusService {
+  private readonly tauriPrinterService = inject(TauriPrinterService);
   private backendStatus$ = new BehaviorSubject<BackendStatus>({
     status: 'initializing',
     progress: 0,
@@ -37,7 +39,7 @@ export class BackendStatusService {
   private async initializeTauriListener(): Promise<void> {
     try {
       // Check if running in Tauri
-      if (typeof window !== 'undefined' && '__TAURI__' in window) {
+      if (this.tauriPrinterService.isRunningInTauri()) {
         const { invoke } = await import('@tauri-apps/api/core');
         const { listen } = await import('@tauri-apps/api/event');
 

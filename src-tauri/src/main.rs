@@ -54,7 +54,7 @@ async fn check_backend_health(backend_url: String) -> BackendHealthStatus {
 
 /// Get the backend URL from config file, environment, or use default
 fn get_backend_url() -> String {
-    // Priority 1: Config file (backend-url.txt next to executable)
+    // Priority 1: Config file (backend-url.txt next to executable) - for remote backend
     if let Ok(exe_dir) = std::env::current_exe() {
         if let Some(parent) = exe_dir.parent() {
             let config_path = parent.join("backend-url.txt");
@@ -65,18 +65,33 @@ fn get_backend_url() -> String {
                     return trimmed.to_string();
                 }
             }
+
+            // Priority 2: Check config.json for bundled backend port
+            #[cfg(feature = "bundled-backend")]
+            {
+                let json_config_path = parent.join("config.json");
+                if let Ok(config_str) = std::fs::read_to_string(&json_config_path) {
+                    if let Ok(config) = serde_json::from_str::<serde_json::Value>(&config_str) {
+                        if let Some(port) = config.get("server").and_then(|s| s.get("port")).and_then(|p| p.as_u64()) {
+                            let url = format!("http://localhost:{}", port);
+                            println!("Using backend URL from config.json: {}", url);
+                            return url;
+                        }
+                    }
+                }
+            }
         }
     }
 
-    // Priority 2: Environment variable
+    // Priority 3: Environment variable
     if let Ok(url) = std::env::var("BACKEND_URL") {
         println!("Using backend URL from environment: {}", url);
         return url;
     }
 
-    // Priority 3: Default
-    println!("Using default backend URL: http://localhost:8080");
-    "http://localhost:8080".to_string()
+    // Priority 4: Default
+    println!("Using default backend URL: http://localhost:9080");
+    "http://localhost:9080".to_string()
 }
 
 /// Tauri command to get the configured backend URL
@@ -113,7 +128,7 @@ fn stop_backend_main(app: tauri::AppHandle) -> Result<String, String> {
 
 fn main() {
     #[cfg(feature = "bundled-backend")]
-    const BACKEND_PORT: u16 = 8080;
+    const BACKEND_PORT: u16 = 9080;
 
     let mut builder = tauri::Builder::default()
         .plugin(tauri_plugin_shell::init())

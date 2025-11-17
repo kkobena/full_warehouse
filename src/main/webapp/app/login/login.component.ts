@@ -12,6 +12,7 @@ import { Password } from 'primeng/password';
 import { ToggleSwitchModule } from 'primeng/toggleswitch';
 import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { AppSettingsDialogComponent } from '../shared/settings/app-settings-dialog.component';
+import { TauriPrinterService } from '../shared/services/tauri-printer.service';
 
 @Component({
   selector: 'jhi-login',
@@ -34,6 +35,7 @@ export default class LoginComponent implements OnInit, AfterViewInit {
   username = viewChild.required<ElementRef>('username');
 
   authenticationError = signal(false);
+  isTauri = signal(false);
 
   loginForm = new FormGroup({
     username: new FormControl('', { nonNullable: true, validators: [Validators.required] }),
@@ -45,13 +47,14 @@ export default class LoginComponent implements OnInit, AfterViewInit {
   private readonly loginService = inject(LoginService);
   private readonly router = inject(Router);
   private readonly modalService = inject(NgbModal);
-
+  private readonly tauriPrinterService = inject(TauriPrinterService);
   ngOnInit(): void {
     this.accountService.identity().subscribe(() => {
       if (this.accountService.isAuthenticated()) {
         this.router.navigate(['']);
       }
     });
+    this.isTauri.set(this.tauriPrinterService.isRunningInTauri());
   }
 
   ngAfterViewInit(): void {

@@ -1,0 +1,124 @@
+{
+  "server": {
+    "port": 9080
+  },
+  "logging": {
+    "directory": "./logs",
+    "file": "./logs/pharmasmart.log"
+  },
+  "installation": {
+    "directory": ""
+  },
+  "jvm": {
+    "heap_min": "2g",
+    "heap_max": "2g",
+    "metaspace_size": "256m",
+    "metaspace_max": "384m",
+    "direct_memory_size": "384m",
+    "max_gc_pause_millis": "200",
+    "additional_options": []
+  },
+  "dev_jvm_examples": {
+    "_comment": "Below are example JVM configurations for different scenarios. Copy the one you need to the 'jvm' section above.",
+    "development": {
+      "description": "Development/Testing (2GB RAM minimum)",
+      "heap_min": "256m",
+      "heap_max": "512m",
+      "metaspace_size": "64m",
+      "metaspace_max": "128m",
+      "direct_memory_size": "128m",
+      "max_gc_pause_millis": "200",
+      "additional_options": [
+        "-XX:+PrintGCDetails"
+      ]
+    },
+    "small_desktop": {
+      "description": "Petit ordinateur de bureau  (4GB RAM)",
+      "heap_min": "512m",
+      "heap_max": "1g",
+      "metaspace_size": "128m",
+      "metaspace_max": "256m",
+      "direct_memory_size": "256m",
+      "max_gc_pause_millis": "200",
+      "additional_options": []
+    },
+    "medium_desktop": {
+      "description": "Ordinateur de bureau moyen  (8GB RAM)",
+      "heap_min": "1g",
+      "heap_max": "2g",
+      "metaspace_size": "256m",
+      "metaspace_max": "384m",
+      "direct_memory_size": "384m",
+      "max_gc_pause_millis": "200",
+      "additional_options": []
+    },
+    "high_performance": {
+      "description": "Ordinateur de bureau haute performance (16GB RAM)",
+      "heap_min": "2g",
+      "heap_max": "4g",
+      "metaspace_size": "384m",
+      "metaspace_max": "512m",
+      "direct_memory_size": "512m",
+      "max_gc_pause_millis": "150",
+      "additional_options": []
+    },
+    "ultra_low_latency": {
+      "description": "Ultra-Low Latency with ZGC (16GB+ RAM)",
+      "heap_min": "4g",
+      "heap_max": "4g",
+      "metaspace_size": "512m",
+      "metaspace_max": "768m",
+      "direct_memory_size": "1g",
+      "max_gc_pause_millis": "50",
+      "additional_options": [
+        "-XX:+UseZGC",
+        "-XX:ZAllocationSpikeTolerance=2"
+      ]
+    },
+    "small_production_server": {
+      "description": "Serveur de production de petite taille - Default (4-8GB RAM, 10-50 users)",
+      "heap_min": "2g",
+      "heap_max": "2g",
+      "metaspace_size": "256m",
+      "metaspace_max": "384m",
+      "direct_memory_size": "384m",
+      "max_gc_pause_millis": "200",
+      "additional_options": []
+    },
+    "medium_production_server": {
+      "description": "Serveur de production de taille moyenne (8-16GB RAM, 50-200 users)",
+      "heap_min": "4g",
+      "heap_max": "4g",
+      "metaspace_size": "384m",
+      "metaspace_max": "512m",
+      "direct_memory_size": "512m",
+      "max_gc_pause_millis": "150",
+      "additional_options": []
+    },
+    "large_production_server": {
+      "description": "Serveur de production de grande taille (16GB+ RAM, 200+ users)",
+      "heap_min": "8g",
+      "heap_max": "8g",
+      "metaspace_size": "512m",
+      "metaspace_max": "1g",
+      "direct_memory_size": "1g",
+      "max_gc_pause_millis": "100",
+      "additional_options": []
+    },
+    "debugging": {
+      "description": "Debugging & Troubleshooting",
+      "heap_min": "1g",
+      "heap_max": "2g",
+      "metaspace_size": "256m",
+      "metaspace_max": "384m",
+      "direct_memory_size": "384m",
+      "max_gc_pause_millis": "200",
+      "additional_options": [
+        "-XX:+PrintGCDetails",
+        "-XX:+PrintGCDateStamps",
+        "-XX:NativeMemoryTracking=summary",
+        "-verbose:gc"
+      ]
+    }
+  }
+}

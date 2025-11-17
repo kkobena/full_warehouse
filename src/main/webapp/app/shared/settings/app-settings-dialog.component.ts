@@ -159,7 +159,7 @@ export class AppSettingsDialogComponent implements OnInit {
   }
 
   resetToDefaults(): void {
-    this.apiServerUrl = 'http://localhost:8080';
+    this.apiServerUrl = 'http://localhost:9080';
     this.connectionTestResult = null;
   }
 

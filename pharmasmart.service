@@ -1,0 +1,72 @@
+# ===================================================================
+# PharmaSmart SystemD Service Configuration
+# ===================================================================
+# Installation:
+# 1. Copy this file to /etc/systemd/system/pharmasmart.service
+# 2. Update paths and user/group as needed
+# 3. sudo systemctl daemon-reload
+# 4. sudo systemctl enable pharmasmart
+# 5. sudo systemctl start pharmasmart
+# ===================================================================
+
+[Unit]
+Description=PharmaSmart Pharmacy Management System
+After=network.target postgresql.service
+Wants=postgresql.service
+
+[Service]
+Type=simple
+User=pharmasmart
+Group=pharmasmart
+
+# Working directory (adjust to your installation path)
+WorkingDirectory=/opt/pharmasmart
+
+# Java executable (adjust if needed)
+Environment="JAVA_HOME=/usr/lib/jvm/jdk-25"
+Environment="PATH=/usr/lib/jvm/jdk-25/bin:/usr/local/bin:/usr/bin:/bin"
+
+# JVM Options
+Environment="JVM_OPTS=-Xms2g -Xmx4g \
+-XX:MetaspaceSize=256m -XX:MaxMetaspaceSize=512m \
+-XX:MaxDirectMemorySize=512m \
+-XX:+UseG1GC \
+-XX:MaxGCPauseMillis=200 \
+-XX:+UseStringDeduplication \
+-XX:+UseCompressedOops \
+-Xlog:gc*:file=/var/log/pharmasmart/gc-%t.log:time,level,tags:filecount=5,filesize=10M \
+-XX:+HeapDumpOnOutOfMemoryError \
+-XX:HeapDumpPath=/var/log/pharmasmart/heapdump-%t.hprof \
+-XX:ErrorFile=/var/log/pharmasmart/hs_err_pid%p.log \
+-Dfile.encoding=UTF-8 \
+-Duser.timezone=UTC \
+-Djava.net.preferIPv4Stack=true"
+
+# Spring Boot Options
+Environment="SPRING_OPTS=--spring.profiles.active=prod,standalone --server.port=9080"
+
+# Start command
+ExecStart=/usr/bin/java ${JVM_OPTS} -jar /opt/pharmasmart/pharmaSmart.jar ${SPRING_OPTS}
+
+# Restart policy
+Restart=on-failure
+RestartSec=10
+
+# Logging
+StandardOutput=journal
+StandardError=journal
+SyslogIdentifier=pharmasmart
+
+# Security settings
+NoNewPrivileges=true
+PrivateTmp=true
+ProtectSystem=strict
+ProtectHome=true
+ReadWritePaths=/opt/pharmasmart/logs /opt/pharmasmart/reports /var/log/pharmasmart
+
+# Resource limits
+LimitNOFILE=65536
+LimitNPROC=4096
+
+[Install]
+WantedBy=multi-user.target

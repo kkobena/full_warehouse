@@ -1,6 +1,7 @@
-import { Injectable } from '@angular/core';
+import { inject, Injectable } from '@angular/core';
 import { invoke } from '@tauri-apps/api/core';
-import { Observable, from } from 'rxjs';
+import { from, Observable } from 'rxjs';
+import { TauriPrinterService } from './tauri-printer.service';
 
 /**
  * Service to manage the Spring Boot backend in Tauri standalone mode
@@ -10,11 +11,7 @@ import { Observable, from } from 'rxjs';
   providedIn: 'root',
 })
 export class BackendManagerService {
-  /**
-   * Restart the Spring Boot backend
-   * This will stop the current backend process and start a new one
-   * @returns Observable that completes when restart is successful or errors out
-   */
+  private readonly tauriPrinterService = inject(TauriPrinterService);
   restartBackend(): Observable<string> {
     return from(
       invoke<string>('restart_backend_main').catch(error => {
@@ -52,7 +49,7 @@ export class BackendManagerService {
    * @returns Promise that resolves to true if bundled backend is available
    */
   async isBundledBackendAvailable(): Promise<boolean> {
-    if (!this.isTauriEnvironment()) {
+    if (!this.tauriPrinterService.isRunningInTauri()) {
       return false;
     }
 

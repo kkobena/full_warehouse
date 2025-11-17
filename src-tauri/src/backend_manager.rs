@@ -1,10 +1,10 @@
-use std::sync::{Arc, Mutex};
-use tauri::{AppHandle, Manager, Emitter};
-use tauri_plugin_shell::ShellExt;
-use std::time::Duration;
-use std::path::PathBuf;
-use serde::Serialize;
 use crate::config::AppConfig;
+use serde::Serialize;
+use std::path::PathBuf;
+use std::sync::{Arc, Mutex};
+use std::time::Duration;
+use tauri::{AppHandle, Emitter, Manager};
+use tauri_plugin_shell::ShellExt;
 
 #[derive(Clone, Serialize)]
 pub struct BackendStatus {
@@ -99,7 +99,10 @@ fn find_bundled_jre(app: &AppHandle) -> Option<PathBuf> {
         println!("Found bundled JRE at: {:?}", java_exe);
         Some(java_exe)
     } else {
-        println!("Bundled JRE directory exists but java executable not found at: {:?}", java_exe);
+        println!(
+            "Bundled JRE directory exists but java executable not found at: {:?}",
+            java_exe
+        );
         None
     }
 }
@@ -108,10 +111,9 @@ fn find_bundled_jre(app: &AppHandle) -> Option<PathBuf> {
 fn check_java_version() -> Result<(), String> {
     use std::process::Command;
 
-    let output = Command::new("java")
-        .arg("-version")
-        .output()
-        .map_err(|_| "Java not found. Please install Java Runtime Environment (JRE).".to_string())?;
+    let output = Command::new("java").arg("-version").output().map_err(|_| {
+        "Java not found. Please install Java Runtime Environment (JRE).".to_string()
+    })?;
 
     // Java outputs version to stderr
     let version_output = String::from_utf8_lossy(&output.stderr);
@@ -158,7 +160,10 @@ fn find_jar_file(app: &AppHandle) -> Result<PathBuf, String> {
         }
     }
 
-    Err(format!("No pharmaSmart-*.jar file found in {:?}", sidecar_dir))
+    Err(format!(
+        "No pharmaSmart-*.jar file found in {:?}",
+        sidecar_dir
+    ))
 }
 
 /// Start the Spring Boot backend by launching Java directly
@@ -176,18 +181,30 @@ pub async fn start_backend(app: &AppHandle, _default_port: u16) -> Result<u32, S
     let state = app.state::<BackendState>();
 
     // Update status: Checking Java
-    state.update_status("checking_java".to_string(), 10, "Checking for Java...".to_string());
+    state.update_status(
+        "checking_java".to_string(),
+        10,
+        "Checking for Java...".to_string(),
+    );
     let _ = app.emit("backend-status", state.get_status());
 
     // Try to find bundled JRE first, fall back to system Java
     let java_executable = if let Some(bundled_jre) = find_bundled_jre(app) {
         println!("Using bundled JRE: {:?}", bundled_jre);
-        state.update_status("checking_java".to_string(), 15, "Using bundled JRE...".to_string());
+        state.update_status(
+            "checking_java".to_string(),
+            15,
+            "Using bundled JRE...".to_string(),
+        );
         let _ = app.emit("backend-status", state.get_status());
         bundled_jre.to_string_lossy().to_string()
     } else {
         println!("Bundled JRE not found, checking for system Java...");
-        state.update_status("checking_java".to_string(), 12, "Checking system Java...".to_string());
+        state.update_status(
+            "checking_java".to_string(),
+            12,
+            "Checking system Java...".to_string(),
+        );
         let _ = app.emit("backend-status", state.get_status());
 
         // Check if system Java is available
@@ -195,18 +212,23 @@ pub async fn start_backend(app: &AppHandle, _default_port: u16) -> Result<u32, S
         "java".to_string()
     };
 
-    println!("Using Java executable: {}", java_executable);
-
     // Update status: Finding JAR
-    state.update_status("finding_jar".to_string(), 20, "Locating backend JAR file...".to_string());
+    state.update_status(
+        "finding_jar".to_string(),
+        20,
+        "Locating backend JAR file...".to_string(),
+    );
     let _ = app.emit("backend-status", state.get_status());
 
     // Find the JAR file
     let jar_path = find_jar_file(app)?;
-    println!("Using JAR file: {:?}", jar_path);
 
     // Update status: Starting backend
-    state.update_status("starting".to_string(), 30, "Starting Spring Boot backend...".to_string());
+    state.update_status(
+        "starting".to_string(),
+        30,
+        "Starting Spring Boot backend...".to_string(),
+    );
     let _ = app.emit("backend-status", state.get_status());
 
     // Build Java command
@@ -218,25 +240,105 @@ pub async fn start_backend(app: &AppHandle, _default_port: u16) -> Result<u32, S
     }
 
     let log_file = config.get_log_path();
+    let log_dir = config.get_log_dir();
     println!("Backend logs will be written to: {:?}", log_file);
+    println!("JVM Configuration:");
+    println!("  - Heap: {} to {}", config.jvm.heap_min, config.jvm.heap_max);
+    println!("  - Metaspace: {} to {}", config.jvm.metaspace_size, config.jvm.metaspace_max);
+    println!("  - Direct Memory: {}", config.jvm.direct_memory_size);
+    println!("  - Max GC Pause: {}ms", config.jvm.max_gc_pause_millis);
 
-    // Spawn the Java process with Spring Boot arguments
+    // Prepare formatted JVM arguments (from config.json)
+    let gc_log_path = log_dir.join("gc.log");
+    let heap_dump_path = log_dir.join("heapdump.hprof");
+
+    let heap_min_arg = format!("-Xms{}", config.jvm.heap_min);
+    let heap_max_arg = format!("-Xmx{}", config.jvm.heap_max);
+    let metaspace_size_arg = format!("-XX:MetaspaceSize={}", config.jvm.metaspace_size);
+    let metaspace_max_arg = format!("-XX:MaxMetaspaceSize={}", config.jvm.metaspace_max);
+    let direct_memory_arg = format!("-XX:MaxDirectMemorySize={}", config.jvm.direct_memory_size);
+    let gc_pause_arg = format!("-XX:MaxGCPauseMillis={}", config.jvm.max_gc_pause_millis);
+    let gc_log_arg = format!(
+        "-Xlog:gc*:file={}:time,level,tags",
+        gc_log_path.to_str().unwrap_or("gc.log")
+    );
+    let heap_dump_arg = format!(
+        "-XX:HeapDumpPath={}",
+        heap_dump_path.to_str().unwrap_or("heapdump.hprof")
+    );
+    let server_port_arg = format!("--server.port={}", port);
+    let logging_file_arg = format!(
+        "--logging.file.name={}",
+        log_file.to_str().unwrap_or("pharmasmart.log")
+    );
+
+    // Build JVM arguments vector from config
+    let mut args: Vec<&str> = Vec::new();
+
+    // Memory Configuration (from config.json)
+    args.push(&heap_min_arg);
+    args.push(&heap_max_arg);
+    args.push(&metaspace_size_arg);
+    args.push(&metaspace_max_arg);
+    args.push(&direct_memory_arg);
+
+    // Garbage Collection - G1GC
+    args.push("-XX:+UseG1GC");
+    args.push(&gc_pause_arg);
+
+    // Performance Optimizations (always enabled)
+    args.push("-XX:+UseStringDeduplication");
+    args.push("-XX:+UseCompressedOops");
+
+    // Error Handling
+    args.push("-XX:+HeapDumpOnOutOfMemoryError");
+    args.push(&heap_dump_arg);
+    args.push(&gc_log_arg);
+
+    // System Properties (always enabled)
+    args.push("-Dfile.encoding=UTF-8");
+    args.push("-Duser.timezone=UTC");
+    args.push("-Djava.net.preferIPv4Stack=true");
+
+    // Additional user-defined JVM options from config.json
+    let additional_options: Vec<String> = config.jvm.additional_options.clone();
+    for option in &additional_options {
+        args.push(option.as_str());
+    }
+
+    if !additional_options.is_empty() {
+        println!("Additional JVM options: {:?}", additional_options);
+    }
+
+    println!("Complete JVM Options: {:?}", args);
+
+    // Add JAR and Spring Boot arguments
+    args.push("-jar");
+    args.push(jar_path.to_str().ok_or("Invalid JAR path")?);
+    args.push("--spring.profiles.active=standalone,tauri,prod");
+    args.push(&server_port_arg);
+    args.push(&logging_file_arg);
+
+    // Spawn the Java process with JVM options and Spring Boot arguments
     let (mut rx, child) = java_command
-        .args([
-            "-jar",
-            jar_path.to_str().ok_or("Invalid JAR path")?,
-            "--spring.profiles.active=standalone,tauri,prod",
-            &format!("--server.port={}", port),
-            &format!("--logging.file.name={}", log_file.to_str().unwrap_or("pharmasmart.log")),
-        ])
+        .args(args)
         .spawn()
-        .map_err(|e| format!("Failed to spawn Java process: {}. Ensure Java is installed and in PATH.", e))?;
+        .map_err(|e| {
+            format!(
+                "Failed to spawn Java process: {}. Ensure Java is installed and in PATH.",
+                e
+            )
+        })?;
 
     let pid = child.pid();
     println!("Backend process started with PID: {}", pid);
 
     // Update status: Backend launched
-    state.update_status("launched".to_string(), 40, format!("Backend process started (PID: {})...", pid));
+    state.update_status(
+        "launched".to_string(),
+        40,
+        format!("Backend process started (PID: {})...", pid),
+    );
     let _ = app.emit("backend-status", state.get_status());
 
     // Spawn a task to monitor backend output
@@ -259,7 +361,11 @@ pub async fn start_backend(app: &AppHandle, _default_port: u16) -> Result<u32, S
     });
 
     // Update status: Waiting for readiness
-    state.update_status("waiting".to_string(), 50, "Waiting for backend to be ready...".to_string());
+    state.update_status(
+        "waiting".to_string(),
+        50,
+        "Waiting for backend to be ready...".to_string(),
+    );
     let _ = app.emit("backend-status", state.get_status());
 
     // Wait for backend to be ready (check if port is listening)
@@ -273,12 +379,19 @@ pub async fn start_backend(app: &AppHandle, _default_port: u16) -> Result<u32, S
     state.update_status("ready".to_string(), 100, "Backend is ready!".to_string());
     let _ = app.emit("backend-status", state.get_status());
 
-    println!("Backend is ready and accepting connections on port {}", port);
+    println!(
+        "Backend is ready and accepting connections on port {}",
+        port
+    );
     Ok(pid)
 }
 
 /// Wait for the backend to be ready by checking if the port is listening
-async fn wait_for_backend_ready(app: &AppHandle, port: u16, timeout_secs: u64) -> Result<(), String> {
+async fn wait_for_backend_ready(
+    app: &AppHandle,
+    port: u16,
+    timeout_secs: u64,
+) -> Result<(), String> {
     let start = std::time::Instant::now();
     let timeout = Duration::from_secs(timeout_secs);
     let state = app.state::<BackendState>();
@@ -294,7 +407,7 @@ async fn wait_for_backend_ready(app: &AppHandle, port: u16, timeout_secs: u64) -
         state.update_status(
             "waiting".to_string(),
             progress.min(95),
-            format!("Checking backend health... ({}/{}s)", elapsed, timeout_secs)
+            format!("Checking backend health... ({}/{}s)", elapsed, timeout_secs),
         );
         let _ = app.emit("backend-status", state.get_status());
 
@@ -322,11 +435,7 @@ pub fn stop_backend(app: &AppHandle) -> Result<(), String> {
     if let Some(pid) = process_id {
         println!("Stopping backend process with PID: {}", pid);
 
-        state.update_status(
-            "stopping".to_string(),
-            0,
-            "Stopping backend...".to_string()
-        );
+        state.update_status("stopping".to_string(), 0, "Stopping backend...".to_string());
         let _ = app.emit("backend-status", state.get_status());
 
         // Kill the process
@@ -344,7 +453,7 @@ pub fn stop_backend(app: &AppHandle) -> Result<(), String> {
                         state.update_status(
                             "stopped".to_string(),
                             100,
-                            "Backend stopped".to_string()
+                            "Backend stopped".to_string(),
                         );
                         let _ = app.emit("backend-status", state.get_status());
                         Ok(())
@@ -365,11 +474,7 @@ pub fn stop_backend(app: &AppHandle) -> Result<(), String> {
             match kill(Pid::from_raw(pid as i32), Signal::SIGTERM) {
                 Ok(_) => {
                     println!("Backend process stopped successfully");
-                    state.update_status(
-                        "stopped".to_string(),
-                        100,
-                        "Backend stopped".to_string()
-                    );
+                    state.update_status("stopped".to_string(), 100, "Backend stopped".to_string());
                     let _ = app.emit("backend-status", state.get_status());
                     Ok(())
                 }
@@ -390,7 +495,7 @@ pub async fn restart_backend(app: AppHandle) -> Result<u32, String> {
     state.update_status(
         "restarting".to_string(),
         10,
-        "Restarting backend...".to_string()
+        "Restarting backend...".to_string(),
     );
     let _ = app.emit("backend-status", state.get_status());
 
@@ -406,11 +511,10 @@ pub async fn restart_backend(app: AppHandle) -> Result<u32, String> {
     state.update_status(
         "starting".to_string(),
         30,
-        "Starting backend...".to_string()
+        "Starting backend...".to_string(),
     );
     let _ = app.emit("backend-status", state.get_status());
 
     // Start the backend again
     start_backend(&app, state.port).await
 }
-

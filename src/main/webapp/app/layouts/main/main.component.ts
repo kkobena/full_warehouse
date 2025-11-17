@@ -1,4 +1,4 @@
-import { Component, inject, OnInit, Renderer2, RendererFactory2 } from '@angular/core';
+import { Component, HostBinding, inject, OnInit, Renderer2, RendererFactory2 } from '@angular/core';
 import { Router, RouterOutlet } from '@angular/router';
 import { LangChangeEvent, TranslateService } from '@ngx-translate/core';
 import { AsyncPipe, CommonModule } from '@angular/common';
@@ -13,6 +13,7 @@ import { LayoutService } from '../../core/config/layout.service';
 import { Observable } from 'rxjs';
 import { BackendSplashComponent } from 'app/shared/backend-splash/backend-splash.component';
 import { TitlebarComponent } from 'app/shared/titlebar/titlebar.component';
+import { TauriPrinterService } from '../../shared/services/tauri-printer.service';
 
 @Component({
   selector: 'jhi-main',
@@ -22,18 +23,17 @@ import { TitlebarComponent } from 'app/shared/titlebar/titlebar.component';
   imports: [RouterOutlet, ConfirmDialogModule, CommonModule, AsyncPipe, BackendSplashComponent, TitlebarComponent],
 })
 export default class MainComponent implements OnInit {
+  layoutMode$: Observable<string>;
+  sidebarCollapsed$: Observable<boolean>;
+  isTauriMode = false;
+  protected readonly layoutService = inject(LayoutService);
   private readonly renderer: Renderer2;
-
   private readonly router = inject(Router);
   private readonly appPageTitleStrategy = inject(AppPageTitleStrategy);
   private readonly accountService = inject(AccountService);
   private readonly translateService = inject(TranslateService);
   private readonly rootRenderer = inject(RendererFactory2);
-  protected readonly layoutService = inject(LayoutService);
-
-  layoutMode$: Observable<string>;
-  sidebarCollapsed$: Observable<boolean>;
-  isTauriMode = false;
+  private readonly tauriPrinterService = inject(TauriPrinterService);
 
   constructor() {
     this.renderer = this.rootRenderer.createRenderer(document.querySelector('html'), null);
@@ -41,7 +41,11 @@ export default class MainComponent implements OnInit {
     this.sidebarCollapsed$ = this.layoutService.sidebarCollapsed$;
 
     // Detect if running in Tauri
-    this.isTauriMode = typeof window !== 'undefined' && '__TAURI__' in window;
+    this.isTauriMode = this.tauriPrinterService.isRunningInTauri();
+  }
+
+  @HostBinding('class.tauri-mode') get isTauri(): boolean {
+    return this.isTauriMode;
   }
 
   ngOnInit(): void {

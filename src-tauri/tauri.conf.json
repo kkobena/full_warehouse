@@ -20,6 +20,10 @@
       "icons/icon.icns",
       "icons/icon.ico"
     ],
+    "resources": [
+      "config.default.json",
+      "backend-url.txt.template"
+    ],
     "windows": {
       "digestAlgorithm": "sha256",
       "wix": {

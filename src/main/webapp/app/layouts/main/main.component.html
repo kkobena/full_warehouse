@@ -21,10 +21,10 @@
 
   <!-- Main Content Area -->
   <div
-    class="main-content"
-    [class.with-sidebar]="layoutMode === 'sidebar'"
-    [class.with-navbar]="layoutMode === 'navbar'"
     [class.sidebar-collapsed]="layoutMode === 'sidebar' && (sidebarCollapsed$ | async)"
+    [class.with-navbar]="layoutMode === 'navbar'"
+    [class.with-sidebar]="layoutMode === 'sidebar'"
+    class="main-content"
   >
     <div class="container-fluid">
       <div class="card mt-2 main border border-0">
@@ -38,5 +38,7 @@
   </div>
 }
 
-<!-- Backend Splash Screen (Tauri standalone mode) -->
-<jhi-backend-splash></jhi-backend-splash>
+@if (isTauriMode) {
+  <jhi-backend-splash></jhi-backend-splash>
+}
+

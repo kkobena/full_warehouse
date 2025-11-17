@@ -3,7 +3,7 @@
   <div class="login-branding">
     <div class="branding-content">
       <div class="logo-section">
-        <img src="content/images/logo.png" alt="Pharma-Smart Logo" class="brand-logo" />
+        <img alt="Pharma-Smart Logo" class="brand-logo" src="content/images/logo.png" />
         <h1 class="brand-title">Pharma Smart</h1>
         <p class="brand-subtitle">Système de Gestion de Pharmacie</p>
       </div>
@@ -38,9 +38,13 @@
             <h2 class="form-title">Bienvenue</h2>
             <p class="form-subtitle">Connectez-vous à votre espace</p>
           </div>
-          <button type="button" class="settings-button" (click)="openSettings()" title="Configuration du serveur">
-            <i class="pi pi-cog"></i>
-          </button>
+          @if (isTauri()) {
+            <button (click)="openSettings()" class="settings-button" title="Configuration du serveur"
+                    type="button">
+              <i class="pi pi-cog"></i>
+            </button>
+          }
+
         </div>
       </div>
 
@@ -56,7 +60,7 @@
 
       <form (ngSubmit)="login()" [formGroup]="loginForm" class="login-form">
         <div class="form-field">
-          <label for="username" class="field-label">
+          <label class="field-label" for="username">
             <i class="pi pi-user"></i>
             <span jhiTranslate="global.form.username.label">Nom d'utilisateur</span>
           </label>
@@ -64,6 +68,7 @@
             #username
             [fluid]="true"
             autocomplete="username"
+            class="modern-input"
             data-cy="username"
             formControlName="username"
             id="username"
@@ -71,12 +76,11 @@
             pInputText
             placeholder="{{ 'global.form.username.placeholder' | translate }}"
             type="text"
-            class="modern-input"
           />
         </div>
 
         <div class="form-field">
-          <label for="password" class="field-label">
+          <label class="field-label" for="password">
             <i class="pi pi-lock"></i>
             <span jhiTranslate="login.form.password">Mot de passe</span>
           </label>
@@ -85,11 +89,11 @@
             [fluid]="true"
             [toggleMask]="true"
             autocomplete="current-password"
+            class="modern-password"
             data-cy="password"
             formControlName="password"
             id="password"
             placeholder="{{ 'login.form.password.placeholder' | translate }}"
-            class="modern-password"
           />
         </div>
 
@@ -101,7 +105,9 @@
           <!--  <a href="#" class="forgot-link">Mot de passe oublié ?</a>-->
         </div>
 
-        <button data-cy="submit" type="submit" class="login-button"><i class="pi pi-sign-in mr-2"></i>Se connecter</button>
+        <button class="login-button" data-cy="submit" type="submit"><i
+          class="pi pi-sign-in mr-2"></i>Se connecter
+        </button>
       </form>
 
       <div class="form-footer">

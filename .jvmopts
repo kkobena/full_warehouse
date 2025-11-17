@@ -1,0 +1,153 @@
+# ===================================================================
+# JVM Options for PharmaSmart - Java 25 + Spring Boot 4
+# ===================================================================
+# This file contains optimal JVM settings for production deployment
+# Usage: java @.jvmopts -jar pharmasmart.jar
+# ===================================================================
+
+# ===================================================================
+# MEMORY CONFIGURATION
+# ===================================================================
+# Heap Size: Set based on available RAM
+# Rule of thumb: 50-75% of available RAM for dedicated server
+# For 8GB system: 4-6GB | For 16GB system: 8-12GB
+-Xms2g
+-Xmx4g
+
+# Metaspace (for class metadata) - adjust based on number of classes
+-XX:MetaspaceSize=256m
+-XX:MaxMetaspaceSize=512m
+
+# Direct Memory (for NIO buffers) - important for database connections
+-XX:MaxDirectMemorySize=512m
+
+# ===================================================================
+# GARBAGE COLLECTION - G1GC (Default in Java 25, optimized)
+# ===================================================================
+# G1GC is excellent for applications with large heaps and low-latency requirements
+-XX:+UseG1GC
+
+# Target pause time (milliseconds) - adjust based on latency requirements
+-XX:MaxGCPauseMillis=200
+
+# GC thread configuration
+-XX:ConcGCThreads=2
+-XX:ParallelGCThreads=4
+
+# G1 Heap Region Size (auto-calculated by default, but can be tuned)
+# -XX:G1HeapRegionSize=16m
+
+# Prevent excessive full GCs
+-XX:G1ReservePercent=10
+-XX:InitiatingHeapOccupancyPercent=45
+
+# ===================================================================
+# ALTERNATIVE: ZGC (For ultra-low latency, Java 21+)
+# Uncomment these if you need sub-millisecond pause times
+# ===================================================================
+# -XX:+UseZGC
+# -XX:ZAllocationSpikeTolerance=2
+# -XX:ZCollectionInterval=5
+# -XX:ZFragmentationLimit=25
+
+# ===================================================================
+# VIRTUAL THREADS (Java 21+) - Already enabled in Spring Boot config
+# ===================================================================
+# Virtual threads are enabled via spring.threads.virtual.enabled=true
+# No JVM flags needed, but ensure platform threads are tuned
+
+# ===================================================================
+# PERFORMANCE OPTIMIZATIONS
+# ===================================================================
+# String deduplication (reduces memory for duplicate strings)
+-XX:+UseStringDeduplication
+
+# Aggressive optimizations
+-XX:+OptimizeStringConcat
+-XX:+UseCompressedOops
+-XX:+UseCompressedClassPointers
+
+# JIT Compiler optimizations
+-XX:+TieredCompilation
+-XX:TieredStopAtLevel=4
+-XX:ReservedCodeCacheSize=256m
+
+# ===================================================================
+# MONITORING & DIAGNOSTICS
+# ===================================================================
+# Enable JMX for monitoring (secure in production)
+# -Dcom.sun.management.jmxremote
+# -Dcom.sun.management.jmxremote.port=9010
+# -Dcom.sun.management.jmxremote.authenticate=true
+# -Dcom.sun.management.jmxremote.ssl=true
+
+# GC Logging (for performance analysis)
+-Xlog:gc*:file=logs/gc-%t.log:time,level,tags:filecount=5,filesize=10M
+
+# Heap dump on OutOfMemoryError
+-XX:+HeapDumpOnOutOfMemoryError
+-XX:HeapDumpPath=logs/heapdump-%t.hprof
+
+# Error file location
+-XX:ErrorFile=logs/hs_err_pid%p.log
+
+# ===================================================================
+# SECURITY
+# ===================================================================
+# Disable remote class loading
+-Djava.rmi.server.useCodebaseOnly=true
+
+# Strong random number generation
+-Djava.security.egd=file:/dev/urandom
+
+# ===================================================================
+# NETWORK OPTIMIZATION
+# ===================================================================
+# IPv4 preference (if not using IPv6)
+-Djava.net.preferIPv4Stack=true
+
+# DNS cache TTL (seconds) - balance between performance and DNS updates
+-Dsun.net.inetaddr.ttl=60
+-Dsun.net.inetaddr.negative.ttl=10
+
+# ===================================================================
+# FILE ENCODING
+# ===================================================================
+-Dfile.encoding=UTF-8
+-Dsun.jnu.encoding=UTF-8
+
+# ===================================================================
+# SPRING BOOT SPECIFIC
+# ===================================================================
+# Active profile (can be overridden by command line)
+# -Dspring.profiles.active=prod
+
+# ===================================================================
+# APPLICATION SPECIFIC
+# ===================================================================
+# Timezone (for consistent date/time handling)
+-Duser.timezone=UTC
+
+# Temp directory
+-Djava.io.tmpdir=./temp
+
+# ===================================================================
+# TROUBLESHOOTING OPTIONS (Enable when debugging issues)
+# ===================================================================
+# Uncomment these for detailed diagnostics
+
+# Verbose GC logging
+# -verbose:gc
+
+# Class loading/unloading logs
+# -verbose:class
+
+# JIT compilation logs
+# -XX:+PrintCompilation
+
+# NMT (Native Memory Tracking) - overhead ~5-10%
+# -XX:NativeMemoryTracking=summary
+# Query with: jcmd <pid> VM.native_memory summary
+
+# Flight Recorder (production profiling, low overhead)
+# -XX:StartFlightRecording=duration=60s,filename=logs/recording.jfr

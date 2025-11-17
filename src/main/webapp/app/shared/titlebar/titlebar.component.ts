@@ -14,26 +14,19 @@ export class TitlebarComponent implements OnInit {
   title = 'PharmaSmart';
   currentRoute = '';
   isMaximized = false;
-  isTauri = false;
+
   private readonly router = inject(Router);
-
   async ngOnInit(): Promise<void> {
-    // Check if running in Tauri
-    if (typeof window !== 'undefined' && '__TAURI__' in window) {
-      this.isTauri = true;
+    const { getCurrentWindow } = await import('@tauri-apps/api/window');
+    const appWindow = getCurrentWindow();
 
-      // Import Tauri APIs dynamically
-      const { getCurrentWindow } = await import('@tauri-apps/api/window');
-      const appWindow = getCurrentWindow();
+    // Check initial maximize state
+    this.isMaximized = await appWindow.isMaximized();
 
-      // Check initial maximize state
+    // Listen for resize events to update maximize state
+    await appWindow.listen('tauri://resize', async () => {
       this.isMaximized = await appWindow.isMaximized();
-
-      // Listen for resize events to update maximize state
-      await appWindow.listen('tauri://resize', async () => {
-        this.isMaximized = await appWindow.isMaximized();
-      });
-    }
+    });
 
     // Track current route for displaying in titlebar
     this.router.events.pipe(filter(event => event instanceof NavigationEnd)).subscribe((event: any) => {
@@ -42,37 +35,27 @@ export class TitlebarComponent implements OnInit {
   }
 
   async minimizeWindow(): Promise<void> {
-    if (this.isTauri) {
-      const { getCurrentWindow } = await import('@tauri-apps/api/window');
-      await getCurrentWindow().minimize();
-    }
+    const { getCurrentWindow } = await import('@tauri-apps/api/window');
+    await getCurrentWindow().minimize();
   }
 
   async maximizeWindow(): Promise<void> {
-    if (this.isTauri) {
-      const { getCurrentWindow } = await import('@tauri-apps/api/window');
-      const appWindow = getCurrentWindow();
+    const { getCurrentWindow } = await import('@tauri-apps/api/window');
+    const appWindow = getCurrentWindow();
 
-      if (this.isMaximized) {
-        await appWindow.unmaximize();
-      } else {
-        await appWindow.maximize();
-      }
+    if (this.isMaximized) {
+      await appWindow.unmaximize();
+    } else {
+      await appWindow.maximize();
     }
   }
 
   async closeWindow(): Promise<void> {
-    if (this.isTauri) {
-      const { getCurrentWindow } = await import('@tauri-apps/api/window');
-      await getCurrentWindow().close();
-    }
+    const { getCurrentWindow } = await import('@tauri-apps/api/window');
+    await getCurrentWindow().close();
   }
 
   async openNewInstance(): Promise<void> {
-    if (!this.isTauri) {
-      return;
-    }
-
     try {
       const { WebviewWindow } = await import('@tauri-apps/api/webviewWindow');
 

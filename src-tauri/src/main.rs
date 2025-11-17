@@ -91,6 +91,26 @@ fn get_backend_status(state: tauri::State<BackendState>) -> backend_manager::Bac
     state.get_status()
 }
 
+#[cfg(feature = "bundled-backend")]
+#[tauri::command]
+async fn restart_backend_main(app: tauri::AppHandle) -> Result<String, String> {
+    match backend_manager::restart_backend(app).await {
+        Ok(pid) => {
+            Ok(format!("Backend restarted successfully with PID: {}", pid))
+        }
+        Err(e) => Err(format!("Failed to restart backend: {}", e)),
+    }
+}
+
+#[cfg(feature = "bundled-backend")]
+#[tauri::command]
+fn stop_backend_main(app: tauri::AppHandle) -> Result<String, String> {
+    match backend_manager::stop_backend(&app) {
+        Ok(_) => Ok("Backend stopped successfully".to_string()),
+        Err(e) => Err(format!("Failed to stop backend: {}", e)),
+    }
+}
+
 fn main() {
     #[cfg(feature = "bundled-backend")]
     const BACKEND_PORT: u16 = 8080;
@@ -107,7 +127,11 @@ fn main() {
             check_backend_health,
             get_backend_url_command,
             #[cfg(feature = "bundled-backend")]
-            get_backend_status
+            get_backend_status,
+            #[cfg(feature = "bundled-backend")]
+            restart_backend_main,
+            #[cfg(feature = "bundled-backend")]
+            stop_backend_main
         ]);
 
     // Add backend management only when bundled-backend feature is enabled

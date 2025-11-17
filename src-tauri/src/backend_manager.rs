@@ -314,3 +314,103 @@ async fn wait_for_backend_ready(app: &AppHandle, port: u16, timeout_secs: u64) -
     }
 }
 
+/// Stop the backend process if it's running
+pub fn stop_backend(app: &AppHandle) -> Result<(), String> {
+    let state = app.state::<BackendState>();
+    let process_id = state.process_id.lock().unwrap().take();
+
+    if let Some(pid) = process_id {
+        println!("Stopping backend process with PID: {}", pid);
+
+        state.update_status(
+            "stopping".to_string(),
+            0,
+            "Stopping backend...".to_string()
+        );
+        let _ = app.emit("backend-status", state.get_status());
+
+        // Kill the process
+        #[cfg(windows)]
+        {
+            use std::process::Command;
+            let output = Command::new("taskkill")
+                .args(["/F", "/PID", &pid.to_string()])
+                .output();
+
+            match output {
+                Ok(result) => {
+                    if result.status.success() {
+                        println!("Backend process stopped successfully");
+                        state.update_status(
+                            "stopped".to_string(),
+                            100,
+                            "Backend stopped".to_string()
+                        );
+                        let _ = app.emit("backend-status", state.get_status());
+                        Ok(())
+                    } else {
+                        let error = String::from_utf8_lossy(&result.stderr);
+                        Err(format!("Failed to stop backend: {}", error))
+                    }
+                }
+                Err(e) => Err(format!("Failed to execute taskkill: {}", e)),
+            }
+        }
+
+        #[cfg(not(windows))]
+        {
+            use nix::sys::signal::{kill, Signal};
+            use nix::unistd::Pid;
+
+            match kill(Pid::from_raw(pid as i32), Signal::SIGTERM) {
+                Ok(_) => {
+                    println!("Backend process stopped successfully");
+                    state.update_status(
+                        "stopped".to_string(),
+                        100,
+                        "Backend stopped".to_string()
+                    );
+                    let _ = app.emit("backend-status", state.get_status());
+                    Ok(())
+                }
+                Err(e) => Err(format!("Failed to stop backend: {}", e)),
+            }
+        }
+    } else {
+        println!("No backend process is running");
+        Ok(())
+    }
+}
+
+/// Restart the backend process
+pub async fn restart_backend(app: AppHandle) -> Result<u32, String> {
+    println!("Restarting backend...");
+
+    let state = app.state::<BackendState>();
+    state.update_status(
+        "restarting".to_string(),
+        10,
+        "Restarting backend...".to_string()
+    );
+    let _ = app.emit("backend-status", state.get_status());
+
+    // Stop the backend if it's running
+    if let Err(e) = stop_backend(&app) {
+        eprintln!("Warning: Failed to stop backend cleanly: {}", e);
+        // Continue anyway - the new process might still start
+    }
+
+    // Wait a bit for the process to fully terminate
+    tokio::time::sleep(Duration::from_secs(2)).await;
+
+    state.update_status(
+        "starting".to_string(),
+        30,
+        "Starting backend...".to_string()
+    );
+    let _ = app.emit("backend-status", state.get_status());
+
+    // Start the backend again
+    start_backend(&app, state.port).await
+}
+

@@ -18,6 +18,28 @@
     "max_gc_pause_millis": "200",
     "additional_options": []
   },
+  "file": {
+    "report": "./reports",
+    "images": "./images",
+    "import": {
+      "json": "./json",
+      "csv": "./csv",
+      "excel": "./excel"
+    },
+    "pharmaml": "pharmaml"
+  },
+  "fne": {
+    "url": "http://54.247.95.108/ws/external/invoices/sign",
+    "api-key": "nSXimInFusKqICZaJ95QZvQT85FOZvHW",
+    "point-of-sale": ""
+  },
+  "mail": {
+    "username": "easyshopws@gmail.com",
+    "email": "badoukobena@gmail.com"
+  },
+  "port-com": {
+    "legacy-url": "http://localhost:9090/laborex"
+  },
   "dev_jvm_examples": {
     "_comment": "Below are example JVM configurations for different scenarios. Copy the one you need to the 'jvm' section above.",
     "development": {

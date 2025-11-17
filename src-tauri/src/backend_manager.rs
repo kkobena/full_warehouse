@@ -272,6 +272,27 @@ pub async fn start_backend(app: &AppHandle, _default_port: u16) -> Result<u32, S
         log_file.to_str().unwrap_or("pharmasmart.log")
     );
 
+    // Spring Boot application properties from config.json
+    // File configuration
+    let file_report_arg = format!("--file.report={}", config.file.report);
+    let file_images_arg = format!("--file.images={}", config.file.images);
+    let file_import_json_arg = format!("--file.import.json={}", config.file.import.json);
+    let file_import_csv_arg = format!("--file.import.csv={}", config.file.import.csv);
+    let file_import_excel_arg = format!("--file.import.excel={}", config.file.import.excel);
+    let file_pharmaml_arg = format!("--file.pharmaml={}", config.file.pharmaml);
+
+    // FNE configuration
+    let fne_url_arg = format!("--fne.url={}", config.fne.url);
+    let fne_api_key_arg = format!("--fne.api-key={}", config.fne.api_key);
+    let fne_point_of_sale_arg = format!("--fne.point-of-sale={}", config.fne.point_of_sale);
+
+    // Mail configuration
+    let mail_username_arg = format!("--spring.mail.username={}", config.mail.username);
+    let mail_email_arg = format!("--mail.email={}", config.mail.email);
+
+    // Port-Com configuration
+    let port_com_legacy_url_arg = format!("--port-com.legacy-url={}", config.port_com.legacy_url);
+
     // Build JVM arguments vector from config
     let mut args: Vec<&str> = Vec::new();
 
@@ -318,6 +339,27 @@ pub async fn start_backend(app: &AppHandle, _default_port: u16) -> Result<u32, S
     args.push("--spring.profiles.active=standalone,tauri,prod");
     args.push(&server_port_arg);
     args.push(&logging_file_arg);
+
+    // Application properties from config.json
+    // File paths
+    args.push(&file_report_arg);
+    args.push(&file_images_arg);
+    args.push(&file_import_json_arg);
+    args.push(&file_import_csv_arg);
+    args.push(&file_import_excel_arg);
+    args.push(&file_pharmaml_arg);
+
+    // FNE configuration
+    args.push(&fne_url_arg);
+    args.push(&fne_api_key_arg);
+    args.push(&fne_point_of_sale_arg);
+
+    // Mail configuration
+    args.push(&mail_username_arg);
+    args.push(&mail_email_arg);
+
+    // Port-Com configuration
+    args.push(&port_com_legacy_url_arg);
 
     // Spawn the Java process with JVM options and Spring Boot arguments
     let (mut rx, child) = java_command

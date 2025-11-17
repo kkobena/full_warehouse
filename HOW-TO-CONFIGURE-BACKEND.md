@@ -100,6 +100,62 @@ Open `config.json` with Notepad to see:
 
 **For detailed JVM customization, see:** [CUSTOMIZE-JVM-OPTIONS.md](CUSTOMIZE-JVM-OPTIONS.md)
 
+#### Customize Application Properties
+
+You can also customize Spring Boot application properties in `config.json`:
+
+**File Paths:**
+
+```json
+{
+  "file": {
+    "report": "./reports",
+    "images": "./images",
+    "import": {
+      "json": "./json",
+      "csv": "./csv",
+      "excel": "./excel"
+    },
+    "pharmaml": "pharmaml"
+  }
+}
+```
+
+**FNE Configuration (French pharmacy invoicing):**
+
+```json
+{
+  "fne": {
+    "url": "http://54.247.95.108/ws/external/invoices/sign",
+    "api-key": "nSXimInFusKqICZaJ95QZvQT85FOZvHW",
+    "point-of-sale": ""
+  }
+}
+```
+
+**Mail Configuration:**
+
+```json
+{
+  "mail": {
+    "username": "easyshopws@gmail.com",
+    "email": "badoukobena@gmail.com"
+  }
+}
+```
+
+**Port-Com Configuration (Legacy URL):**
+
+```json
+{
+  "port-com": {
+    "legacy-url": "http://localhost:9090/laborex"
+  }
+}
+```
+
+All these properties are passed to Spring Boot as command-line arguments and override the default values in `application.yml`.
+
 ### Testing
 
 After changing the port, test the backend:

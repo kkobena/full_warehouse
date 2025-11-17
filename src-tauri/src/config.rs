@@ -37,14 +37,118 @@ pub struct JvmConfig {
     pub additional_options: Vec<String>,
 }
 
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct FileImportConfig {
+    #[serde(default = "default_json_dir")]
+    pub json: String,
+    #[serde(default = "default_csv_dir")]
+    pub csv: String,
+    #[serde(default = "default_excel_dir")]
+    pub excel: String,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct FileConfig {
+    #[serde(default = "default_report_dir")]
+    pub report: String,
+    #[serde(default = "default_images_dir")]
+    pub images: String,
+    #[serde(default)]
+    pub import: FileImportConfig,
+    #[serde(default = "default_pharmaml")]
+    pub pharmaml: String,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct FneConfig {
+    #[serde(default = "default_fne_url")]
+    pub url: String,
+    #[serde(default = "default_fne_api_key", rename = "api-key")]
+    pub api_key: String,
+    #[serde(default = "default_fne_point_of_sale", rename = "point-of-sale")]
+    pub point_of_sale: String,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct MailConfig {
+    #[serde(default = "default_mail_username")]
+    pub username: String,
+    #[serde(default = "default_mail_email")]
+    pub email: String,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct PortComConfig {
+    #[serde(default = "default_legacy_url", rename = "legacy-url")]
+    pub legacy_url: String,
+}
+
 // Default values for JVM configuration
-fn default_heap_min() -> String { "512m".to_string() }
-fn default_heap_max() -> String { "1g".to_string() }
-fn default_metaspace_size() -> String { "128m".to_string() }
-fn default_metaspace_max() -> String { "256m".to_string() }
-fn default_direct_memory() -> String { "256m".to_string() }
-fn default_gc_pause_millis() -> String { "200".to_string() }
-fn default_additional_options() -> Vec<String> { Vec::new() }
+fn default_heap_min() -> String {
+    "512m".to_string()
+}
+fn default_heap_max() -> String {
+    "1g".to_string()
+}
+fn default_metaspace_size() -> String {
+    "128m".to_string()
+}
+fn default_metaspace_max() -> String {
+    "256m".to_string()
+}
+fn default_direct_memory() -> String {
+    "256m".to_string()
+}
+fn default_gc_pause_millis() -> String {
+    "200".to_string()
+}
+fn default_additional_options() -> Vec<String> {
+    Vec::new()
+}
+
+// Default values for File configuration
+fn default_report_dir() -> String {
+    "./reports".to_string()
+}
+fn default_images_dir() -> String {
+    "./images".to_string()
+}
+fn default_json_dir() -> String {
+    "./json".to_string()
+}
+fn default_csv_dir() -> String {
+    "./csv".to_string()
+}
+fn default_excel_dir() -> String {
+    "./excel".to_string()
+}
+fn default_pharmaml() -> String {
+    "pharmaml".to_string()
+}
+
+// Default values for FNE configuration
+fn default_fne_url() -> String {
+    "http://54.247.95.108/ws/external/invoices/sign".to_string()
+}
+fn default_fne_api_key() -> String {
+    "nSXimInFusKqICZaJ95QZvQT85FOZvHW".to_string()
+}
+fn default_fne_point_of_sale() -> String {
+    String::new()
+}
+
+// Default values for Mail configuration
+fn default_mail_username() -> String {
+    "easyshopws@gmail.com".to_string()
+}
+fn default_mail_email() -> String {
+    "badoukobena@gmail.com".to_string()
+}
+
+// Default values for Port-Com configuration
+fn default_legacy_url() -> String {
+    "http://localhost:8080/laborex".to_string()
+}
 
 impl Default for JvmConfig {
     fn default() -> Self {
@@ -60,6 +164,54 @@ impl Default for JvmConfig {
     }
 }
 
+impl Default for FileImportConfig {
+    fn default() -> Self {
+        Self {
+            json: default_json_dir(),
+            csv: default_csv_dir(),
+            excel: default_excel_dir(),
+        }
+    }
+}
+
+impl Default for FileConfig {
+    fn default() -> Self {
+        Self {
+            report: default_report_dir(),
+            images: default_images_dir(),
+            import: FileImportConfig::default(),
+            pharmaml: default_pharmaml(),
+        }
+    }
+}
+
+impl Default for FneConfig {
+    fn default() -> Self {
+        Self {
+            url: default_fne_url(),
+            api_key: default_fne_api_key(),
+            point_of_sale: default_fne_point_of_sale(),
+        }
+    }
+}
+
+impl Default for MailConfig {
+    fn default() -> Self {
+        Self {
+            username: default_mail_username(),
+            email: default_mail_email(),
+        }
+    }
+}
+
+impl Default for PortComConfig {
+    fn default() -> Self {
+        Self {
+            legacy_url: default_legacy_url(),
+        }
+    }
+}
+
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct AppConfig {
     pub server: ServerConfig,
@@ -67,6 +219,14 @@ pub struct AppConfig {
     pub installation: InstallationConfig,
     #[serde(default)]
     pub jvm: JvmConfig,
+    #[serde(default)]
+    pub file: FileConfig,
+    #[serde(default)]
+    pub fne: FneConfig,
+    #[serde(default)]
+    pub mail: MailConfig,
+    #[serde(default, rename = "port-com")]
+    pub port_com: PortComConfig,
 }
 
 impl Default for AppConfig {
@@ -98,6 +258,10 @@ impl Default for AppConfig {
                 directory: String::from(""),
             },
             jvm: JvmConfig::default(),
+            file: FileConfig::default(),
+            fne: FneConfig::default(),
+            mail: MailConfig::default(),
+            port_com: PortComConfig::default(),
         }
     }
 }
@@ -156,7 +320,10 @@ impl AppConfig {
                 let default_config_path = resource_dir.join("config.default.json");
 
                 if default_config_path.exists() {
-                    println!("Found default configuration template at: {:?}", default_config_path);
+                    println!(
+                        "Found default configuration template at: {:?}",
+                        default_config_path
+                    );
 
                     // Create config with proper paths for this installation
                     let default: AppConfig = Self::default_with_app_dir(&app_dir);
@@ -195,6 +362,10 @@ impl AppConfig {
                 directory: app_dir.to_string_lossy().to_string(),
             },
             jvm: JvmConfig::default(),
+            file: FileConfig::default(),
+            fne: FneConfig::default(),
+            mail: MailConfig::default(),
+            port_com: PortComConfig::default(),
         }
     }
 

@@ -175,9 +175,9 @@ pub async fn test_customer_display_connection(
 
 #[cfg(test)]
 mod tests {
-    use super::*;
+  use super::*;
 
-    #[test]
+  #[test]
     fn test_config_deserialization() {
         let json = r#"{
             "connectionType": "SERIAL",
@@ -205,9 +205,6 @@ mod tests {
         let data = vec![0x1B, 0x40]; // ESC @
         let result = send_to_network_display(&data, &config).await;
 
-        // Should fail if no display at this address
-        // In real environment, this would be a valid test
-        // For now, just verify the error handling works
         assert!(result.is_err() || result.is_ok());
     }
 }

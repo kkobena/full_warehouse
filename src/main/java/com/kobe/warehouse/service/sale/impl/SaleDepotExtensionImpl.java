@@ -9,7 +9,6 @@ import com.kobe.warehouse.domain.RemiseClient;
 import com.kobe.warehouse.domain.RemiseProduit;
 import com.kobe.warehouse.domain.SaleId;
 import com.kobe.warehouse.domain.SaleLineId;
-import com.kobe.warehouse.domain.Sales;
 import com.kobe.warehouse.domain.SalesLine;
 import com.kobe.warehouse.domain.Storage;
 import com.kobe.warehouse.domain.VenteDepot;
@@ -44,7 +43,6 @@ import com.kobe.warehouse.service.utils.CustomerDisplayService;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
@@ -248,28 +246,6 @@ public class SaleDepotExtensionImpl extends SaleCommonService implements SaleDep
             user,
             storageService.getDefaultConnectedUserPointOfSaleStorage().getId()
         );
-    }
-
-    private void copySale(Sales sales, Sales copy) {
-        copy.setId(null);
-        copy.setUpdatedAt(LocalDateTime.now());
-        copy.setCreatedAt(copy.getUpdatedAt());
-        copy.setEffectiveUpdateDate(copy.getUpdatedAt());
-        buildReference(copy);
-        copy.setCanceledSale(sales);
-        copy.setStatut(SalesStatut.CANCELED);
-        copy.setCostAmount(copy.getCostAmount() * (-1));
-        copy.setNetAmount(copy.getNetAmount() * (-1));
-        copy.setSalesAmount(copy.getSalesAmount() * (-1));
-        copy.setHtAmount(copy.getHtAmount() * (-1));
-        copy.setPayrollAmount(copy.getPayrollAmount() * (-1));
-        copy.setRestToPay(copy.getRestToPay() * (-1));
-        copy.setCopy(true);
-        copy.setDiscountAmount(copy.getDiscountAmount() * (-1));
-        copy.setTaxAmount(copy.getTaxAmount() * (-1));
-        copy.setUser(sales.getUser());
-        copy.setPayments(Collections.emptySet());
-        copy.setSalesLines(Collections.emptySet());
     }
 
     private void upddateAmountsOnRemovingItem(VenteDepot c, SalesLine saleLine) {

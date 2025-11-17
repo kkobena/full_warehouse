@@ -7,7 +7,6 @@ import com.kobe.warehouse.domain.ThirdPartySaleLine;
 import com.kobe.warehouse.domain.ThirdPartySales;
 import com.kobe.warehouse.domain.enumeration.NatureVente;
 import com.kobe.warehouse.service.dto.ClientTiersPayantDTO;
-import com.kobe.warehouse.service.dto.KeyValue;
 import com.kobe.warehouse.service.dto.ResponseDTO;
 import com.kobe.warehouse.service.dto.SaleLineDTO;
 import com.kobe.warehouse.service.dto.ThirdPartySaleDTO;
@@ -32,7 +31,7 @@ public interface ThirdPartySaleService {
 
     List<ThirdPartySaleLine> findAllBySaleId(SaleId saleId);
 
-    void copySale(ThirdPartySales sales, ThirdPartySales copy);
+    void copyThirdPartySales(ThirdPartySales sales, ThirdPartySales copy);
 
     void updateClientTiersPayantAccount(ThirdPartySaleLine thirdPartySaleLine);
 

@@ -159,7 +159,9 @@ public class AppConfigurationService {
     @Transactional(readOnly = true)
     @Cacheable(EntityConstant.APP_CUSTOMER_DISPLAY)
     public boolean isCustomerDisplayActif() {
-        Optional<AppConfiguration> appConfiguration = appConfigurationRepository.findById(EntityConstant.APP_CUSTOMER_DISPLAY);
-        return appConfiguration.map(configuration -> Integer.parseInt(configuration.getValue().trim()) == 0).orElse(false);
+        return appConfigurationRepository
+            .findById(EntityConstant.APP_CUSTOMER_DISPLAY)
+            .map(configuration -> Integer.parseInt(configuration.getValue().trim()) == 0)
+            .orElse(false);
     }
 }

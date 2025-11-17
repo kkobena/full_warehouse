@@ -38,7 +38,6 @@ import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicInteger;
-import java.util.stream.Collectors;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -343,9 +342,9 @@ public abstract class SalesLineServiceImpl implements SalesLineService {
         this.salesLineRepository.save(salesLine);
     }
 
-    private SalesLine cloneSalesLine(SalesLine salesLine, Sales copy, Integer storageId) {
+    private void cloneSalesLine(SalesLine salesLine, Sales copy, Integer storageId) {
         SalesLine salesLineCopy = (SalesLine) salesLine.clone();
-        salesLineCopy.setId(null);
+        salesLineCopy.setId(getNextId());
         salesLineCopy.setCreatedAt(LocalDateTime.now());
         salesLineCopy.setSales(copy);
         salesLineCopy.setUpdatedAt(salesLineCopy.getCreatedAt());
@@ -366,7 +365,7 @@ public abstract class SalesLineServiceImpl implements SalesLineService {
         salesLineRepository.save(salesLineCopy);
         salesLineRepository.save(salesLine);
         updateStock(stockProduit, salesLineCopy);
-        return salesLineCopy;
+        this.inventoryTransactionService.save(salesLineCopy);
     }
 
     private void updateStock(StockProduit stockProduit, SalesLine salesLineCopy) {
@@ -414,5 +413,10 @@ public abstract class SalesLineServiceImpl implements SalesLineService {
             .stream()
             .map(SaleLineDTO::new)
             .toList();
+    }
+
+    @Override
+    public long getNextId() {
+        return saleLineIdGeneratorService.nextId();
     }
 }

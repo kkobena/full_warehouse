@@ -5,6 +5,7 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
@@ -36,6 +37,7 @@ public class ReponseRetourBon implements Serializable {
 
     @ManyToOne(optional = false)
     @NotNull
+    @JoinColumn(name = "retour_bon_id", nullable = false, referencedColumnName = "id")
     private RetourBon retourBon;
 
     @OneToMany(mappedBy = "reponseRetourBon")

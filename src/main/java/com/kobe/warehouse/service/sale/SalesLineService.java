@@ -52,4 +52,6 @@ public interface SalesLineService {
     void processProductDiscount(SalesLine salesLine);
 
     List<SaleLineDTO> findBySalesIdAndSalesSaleDateOrderByProduitLibelle(Long salesId, LocalDate saleDate);
+
+    long getNextId();
 }

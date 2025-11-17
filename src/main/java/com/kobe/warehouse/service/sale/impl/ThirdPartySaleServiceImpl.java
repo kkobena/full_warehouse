@@ -236,7 +236,7 @@ public class ThirdPartySaleServiceImpl extends SaleCommonService implements Thir
     }
 
     @Override
-    public void copySale(ThirdPartySales sales, ThirdPartySales copy) {
+    public void copyThirdPartySales(ThirdPartySales sales, ThirdPartySales copy) {
         copy.setPartAssure(sales.getPartAssure() * (-1));
         copy.setPartTiersPayant(sales.getPartTiersPayant() * (-1));
         copy.getThirdPartySaleLines().clear();
@@ -400,9 +400,9 @@ public class ThirdPartySaleServiceImpl extends SaleCommonService implements Thir
             .findOneWithEagerSalesLines(id.getId(), id.getSaleDate())
             .ifPresent(sales -> {
                 ThirdPartySales copy = (ThirdPartySales) sales.clone();
-                setId(copy);
-                copy.setSaleDate(LocalDate.now());
                 copySale(sales, copy);
+                copy.setSaleDate(LocalDate.now());
+                copyThirdPartySales(sales, copy);
                 sales.setUpdatedAt(LocalDateTime.now());
                 sales.setEffectiveUpdateDate(sales.getUpdatedAt());
                 sales.setCanceled(true);

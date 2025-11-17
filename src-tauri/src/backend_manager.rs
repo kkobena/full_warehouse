@@ -45,39 +45,6 @@ impl BackendState {
     }
 }
 
-// Note: Backend process is NOT automatically stopped when Tauri closes
-// This allows the backend to continue running for multiple app instances or development
-// Users can manually stop the backend process if needed using Task Manager or `taskkill`
-/* Drop implementation removed to keep backend running after Tauri closes
-impl Drop for BackendState {
-    fn drop(&mut self) {
-        if let Some(pid) = *self.process_id.lock().unwrap() {
-            println!("BackendState dropping, stopping backend process (PID: {})...", pid);
-
-            #[cfg(target_os = "windows")]
-            {
-                use std::process::Command;
-                // Use taskkill to terminate the process tree
-                let _ = Command::new("taskkill")
-                    .args(["/PID", &pid.to_string(), "/T", "/F"])
-                    .output();
-            }
-
-            #[cfg(not(target_os = "windows"))]
-            {
-                use std::process::Command;
-                // Use kill command on Unix-like systems
-                let _ = Command::new("kill")
-                    .args(["-9", &pid.to_string()])
-                    .output();
-            }
-
-            println!("Backend process stopped");
-        }
-    }
-}
-*/
-
 /// Find the bundled JRE in the resources directory
 fn find_bundled_jre(app: &AppHandle) -> Option<PathBuf> {
     let resource_dir = app.path().resource_dir().ok()?;
@@ -96,7 +63,6 @@ fn find_bundled_jre(app: &AppHandle) -> Option<PathBuf> {
     let java_exe = jre_dir.join("bin").join("java");
 
     if java_exe.exists() {
-        println!("Found bundled JRE at: {:?}", java_exe);
         Some(java_exe)
     } else {
         println!(
@@ -126,8 +92,6 @@ fn check_java_version() -> Result<(), String> {
         }
     }
 
-    // If we got here, Java responded but with unexpected output
-    println!("Warning: Java found but version output unexpected. Proceeding anyway...");
     Ok(())
 }
 
@@ -172,12 +136,6 @@ pub async fn start_backend(app: &AppHandle, _default_port: u16) -> Result<u32, S
     let config = AppConfig::load(app);
     let port = config.server.port;
 
-    println!("Starting Spring Boot backend on port {}...", port);
-    println!("Configuration loaded:");
-    println!("  - Port: {}", config.server.port);
-    println!("  - Log directory: {}", config.logging.directory);
-    println!("  - Log file: {}", config.logging.file);
-
     let state = app.state::<BackendState>();
 
     // Update status: Checking Java
@@ -190,7 +148,6 @@ pub async fn start_backend(app: &AppHandle, _default_port: u16) -> Result<u32, S
 
     // Try to find bundled JRE first, fall back to system Java
     let java_executable = if let Some(bundled_jre) = find_bundled_jre(app) {
-        println!("Using bundled JRE: {:?}", bundled_jre);
         state.update_status(
             "checking_java".to_string(),
             15,
@@ -199,7 +156,6 @@ pub async fn start_backend(app: &AppHandle, _default_port: u16) -> Result<u32, S
         let _ = app.emit("backend-status", state.get_status());
         bundled_jre.to_string_lossy().to_string()
     } else {
-        println!("Bundled JRE not found, checking for system Java...");
         state.update_status(
             "checking_java".to_string(),
             12,
@@ -241,12 +197,6 @@ pub async fn start_backend(app: &AppHandle, _default_port: u16) -> Result<u32, S
 
     let log_file = config.get_log_path();
     let log_dir = config.get_log_dir();
-    println!("Backend logs will be written to: {:?}", log_file);
-    println!("JVM Configuration:");
-    println!("  - Heap: {} to {}", config.jvm.heap_min, config.jvm.heap_max);
-    println!("  - Metaspace: {} to {}", config.jvm.metaspace_size, config.jvm.metaspace_max);
-    println!("  - Direct Memory: {}", config.jvm.direct_memory_size);
-    println!("  - Max GC Pause: {}ms", config.jvm.max_gc_pause_millis);
 
     // Prepare formatted JVM arguments (from config.json)
     let gc_log_path = log_dir.join("gc.log");
@@ -291,7 +241,7 @@ pub async fn start_backend(app: &AppHandle, _default_port: u16) -> Result<u32, S
     let mail_email_arg = format!("--mail.email={}", config.mail.email);
 
     // Port-Com configuration
-    let port_com_legacy_url_arg = format!("--port-com.legacy-url={}", config.port_com.legacy_url);
+    let port_com_arg = format!("--port-com={}", config.port_com);
 
     // Build JVM arguments vector from config
     let mut args: Vec<&str> = Vec::new();
@@ -359,22 +309,17 @@ pub async fn start_backend(app: &AppHandle, _default_port: u16) -> Result<u32, S
     args.push(&mail_email_arg);
 
     // Port-Com configuration
-    args.push(&port_com_legacy_url_arg);
+    args.push(&port_com_arg);
 
     // Spawn the Java process with JVM options and Spring Boot arguments
-    let (mut rx, child) = java_command
-        .args(args)
-        .spawn()
-        .map_err(|e| {
-            format!(
-                "Failed to spawn Java process: {}. Ensure Java is installed and in PATH.",
-                e
-            )
-        })?;
+    let (mut rx, child) = java_command.args(args).spawn().map_err(|e| {
+        format!(
+            "Failed to spawn Java process: {}. Ensure Java is installed and in PATH.",
+            e
+        )
+    })?;
 
     let pid = child.pid();
-    println!("Backend process started with PID: {}", pid);
-
     // Update status: Backend launched
     state.update_status(
         "launched".to_string(),
@@ -421,10 +366,6 @@ pub async fn start_backend(app: &AppHandle, _default_port: u16) -> Result<u32, S
     state.update_status("ready".to_string(), 100, "Backend is ready!".to_string());
     let _ = app.emit("backend-status", state.get_status());
 
-    println!(
-        "Backend is ready and accepting connections on port {}",
-        port
-    );
     Ok(pid)
 }
 

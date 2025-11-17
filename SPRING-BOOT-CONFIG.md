@@ -217,49 +217,81 @@ mail:
 
 ## Port-Com Configuration
 
-Configure legacy communication URLs for external systems.
+Configure the serial port for hardware peripherals (customer displays, barcode scanners, receipt printers).
 
 ### Configuration
 
 ```json
 {
-  "port-com": {
-    "legacy-url": "http://localhost:9090/laborex"
-  }
+  "port-com": "COM2"
 }
 ```
 
 ### Spring Boot Properties
 
 ```yaml
-port-com:
-  legacy-url: http://localhost:9090/laborex
+port-com: COM2
 ```
 
-### Fields
+### Valid Values
 
-- **legacy-url**: URL for legacy system integration (e.g., external lab system)
+**Windows:**
+- `"COM1"`, `"COM2"`, `"COM3"`, etc.
+
+**Linux/macOS:**
+- `"/dev/ttyUSB0"`, `"/dev/ttyUSB1"`, etc.
+- `"/dev/ttyS0"`, `"/dev/ttyS1"`, etc.
+- `"/dev/ttyACM0"` (for USB-based serial devices)
 
 ### Use Cases
 
-**Example: Remote lab server**
+**Example: Customer display on COM3**
 
 ```json
 {
-  "port-com": {
-    "legacy-url": "http://192.168.1.100:9090/laborex"
-  }
+  "port-com": "COM3"
 }
 ```
 
-**Example: Cloud-based lab system**
+**Example: Linux USB serial device**
 
 ```json
 {
-  "port-com": {
-    "legacy-url": "https://lab-api.example.com/laborex"
-  }
+  "port-com": "/dev/ttyUSB0"
 }
+```
+
+**Example: macOS serial device**
+
+```json
+{
+  "port-com": "/dev/cu.usbserial-1420"
+}
+```
+
+### How to Find Your COM Port
+
+**Windows:**
+1. Open Device Manager (devmgmt.msc)
+2. Expand "Ports (COM & LPT)"
+3. Look for your device and note the COM port number (e.g., "USB Serial Port (COM3)")
+
+**Linux:**
+```bash
+# List all serial devices
+ls -l /dev/ttyUSB* /dev/ttyS* /dev/ttyACM*
+
+# Check which port your device is connected to
+dmesg | grep tty
+```
+
+**macOS:**
+```bash
+# List all serial devices
+ls -l /dev/cu.*
+
+# Find USB serial devices
+ls -l /dev/cu.usbserial*
 ```
 
 ## Complete Configuration Example
@@ -306,9 +338,7 @@ Here's a complete `config.json` with all sections configured:
     "username": "easyshopws@gmail.com",
     "email": "badoukobena@gmail.com"
   },
-  "port-com": {
-    "legacy-url": "http://localhost:9090/laborex"
-  }
+  "port-com": "COM2"
 }
 ```
 
@@ -342,7 +372,7 @@ args.push("--spring.mail.username=...");
 args.push("--mail.email=...");
 
 // Port-Com configuration
-args.push("--port-com.legacy-url=...");
+args.push("--port-com=COM2");
 ```
 
 ### 3. Spring Boot Launch
@@ -410,12 +440,6 @@ pub struct MailConfig {
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
-pub struct PortComConfig {
-    #[serde(rename = "legacy-url")]
-    pub legacy_url: String,
-}
-
-#[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct AppConfig {
     pub server: ServerConfig,
     pub logging: LoggingConfig,
@@ -424,8 +448,8 @@ pub struct AppConfig {
     pub file: FileConfig,
     pub fne: FneConfig,
     pub mail: MailConfig,
-    #[serde(rename = "port-com")]
-    pub port_com: PortComConfig,
+    #[serde(default = "default_port_com", rename = "port-com")]
+    pub port_com: String,
 }
 ```
 
@@ -459,9 +483,9 @@ fn default_mail_email() -> String {
     "badoukobena@gmail.com".to_string()
 }
 
-// Port-Com configuration defaults
-fn default_legacy_url() -> String {
-    "http://localhost:9090/laborex".to_string()
+// Port-Com configuration default
+fn default_port_com() -> String {
+    "COM2".to_string()
 }
 ```
 

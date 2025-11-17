@@ -77,27 +77,21 @@ pub struct MailConfig {
     pub email: String,
 }
 
-#[derive(Debug, Clone, Serialize, Deserialize)]
-pub struct PortComConfig {
-    #[serde(default = "default_legacy_url", rename = "legacy-url")]
-    pub legacy_url: String,
-}
-
 // Default values for JVM configuration
 fn default_heap_min() -> String {
-    "512m".to_string()
+    "2g".to_string()
 }
 fn default_heap_max() -> String {
-    "1g".to_string()
+    "2g".to_string()
 }
 fn default_metaspace_size() -> String {
-    "128m".to_string()
+    "256m".to_string()
 }
 fn default_metaspace_max() -> String {
-    "256m".to_string()
+    "384m".to_string()
 }
 fn default_direct_memory() -> String {
-    "256m".to_string()
+    "384m".to_string()
 }
 fn default_gc_pause_millis() -> String {
     "200".to_string()
@@ -123,7 +117,7 @@ fn default_excel_dir() -> String {
     "./excel".to_string()
 }
 fn default_pharmaml() -> String {
-    "pharmaml".to_string()
+    "./pharmaml".to_string()
 }
 
 // Default values for FNE configuration
@@ -145,9 +139,9 @@ fn default_mail_email() -> String {
     "badoukobena@gmail.com".to_string()
 }
 
-// Default values for Port-Com configuration
-fn default_legacy_url() -> String {
-    "http://localhost:8080/laborex".to_string()
+// Default value for Port-Com configuration
+fn default_port_com() -> String {
+    "".to_string()
 }
 
 impl Default for JvmConfig {
@@ -204,14 +198,6 @@ impl Default for MailConfig {
     }
 }
 
-impl Default for PortComConfig {
-    fn default() -> Self {
-        Self {
-            legacy_url: default_legacy_url(),
-        }
-    }
-}
-
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct AppConfig {
     pub server: ServerConfig,
@@ -225,8 +211,8 @@ pub struct AppConfig {
     pub fne: FneConfig,
     #[serde(default)]
     pub mail: MailConfig,
-    #[serde(default, rename = "port-com")]
-    pub port_com: PortComConfig,
+    #[serde(default = "default_port_com", rename = "port-com")]
+    pub port_com: String,
 }
 
 impl Default for AppConfig {
@@ -261,7 +247,7 @@ impl Default for AppConfig {
             file: FileConfig::default(),
             fne: FneConfig::default(),
             mail: MailConfig::default(),
-            port_com: PortComConfig::default(),
+            port_com: default_port_com(),
         }
     }
 }
@@ -301,10 +287,6 @@ impl AppConfig {
             println!("Loading configuration from: {:?}", config_path);
             if let Ok(config_str) = fs::read_to_string(&config_path) {
                 if let Ok(config) = serde_json::from_str::<AppConfig>(&config_str) {
-                    println!("Configuration loaded successfully");
-                    println!("  - Port: {}", config.server.port);
-                    println!("  - Log Directory: {}", config.logging.directory);
-                    println!("  - Log File: {}", config.logging.file);
                     return config;
                 } else {
                     eprintln!("Failed to parse config.json, using defaults");
@@ -320,19 +302,12 @@ impl AppConfig {
                 let default_config_path = resource_dir.join("config.default.json");
 
                 if default_config_path.exists() {
-                    println!(
-                        "Found default configuration template at: {:?}",
-                        default_config_path
-                    );
-
                     // Create config with proper paths for this installation
                     let default: AppConfig = Self::default_with_app_dir(&app_dir);
 
                     // Save the default config to installation directory
                     if let Ok(config_json) = serde_json::to_string_pretty(&default) {
                         if fs::write(&config_path, config_json).is_ok() {
-                            println!("Default configuration created at: {:?}", config_path);
-                            println!("You can modify this file to customize your installation.");
                             return default;
                         }
                     }
@@ -365,7 +340,7 @@ impl AppConfig {
             file: FileConfig::default(),
             fne: FneConfig::default(),
             mail: MailConfig::default(),
-            port_com: PortComConfig::default(),
+            port_com: default_port_com(),
         }
     }
 
@@ -381,7 +356,6 @@ impl AppConfig {
             fs::write(&config_path, config_json)
                 .map_err(|e| format!("Failed to write config to {:?}: {}", config_path, e))?;
 
-            println!("Configuration saved to: {:?}", config_path);
             Ok(())
         } else {
             Err("Failed to get resource directory".to_string())
@@ -403,7 +377,7 @@ impl AppConfig {
         let log_dir = self.get_log_dir();
         fs::create_dir_all(&log_dir)
             .map_err(|e| format!("Failed to create log directory {:?}: {}", log_dir, e))?;
-        println!("Log directory ensured: {:?}", log_dir);
+
         Ok(())
     }
 }

@@ -93,7 +93,7 @@ file:
     json: ./json
     csv: ./csv
     excel: ./excel
-  pharmaml: pharmaml
+  pharmaml: ./pharmaml
 fne:
   # FNE URL
   url: http://54.247.95.108/ws/external/invoices/sign

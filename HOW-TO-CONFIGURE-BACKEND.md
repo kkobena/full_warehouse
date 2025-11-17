@@ -144,15 +144,15 @@ You can also customize Spring Boot application properties in `config.json`:
 }
 ```
 
-**Port-Com Configuration (Legacy URL):**
+**Port-Com Configuration (Serial Port):**
 
 ```json
 {
-  "port-com": {
-    "legacy-url": "http://localhost:9090/laborex"
-  }
+  "port-com": "COM2"
 }
 ```
+
+This configures the serial port for hardware devices (e.g., customer displays, barcode scanners). On Windows, use values like `"COM1"`, `"COM2"`, etc. On Linux, use values like `"/dev/ttyUSB0"`.
 
 All these properties are passed to Spring Boot as command-line arguments and override the default values in `application.yml`.
 

@@ -30,6 +30,7 @@ import com.kobe.warehouse.service.utils.CustomerDisplayService;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.Collections;
 import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -384,5 +385,32 @@ public class SaleCommonService {
             return TypeVente.VenteDepot;
         }
         return null;
+    }
+
+    protected void copySale(Sales sales, Sales copy) {
+        copy.setId(getNextId());
+        copy.setUpdatedAt(LocalDateTime.now());
+        copy.setCreatedAt(copy.getUpdatedAt());
+        copy.setEffectiveUpdateDate(copy.getUpdatedAt());
+        buildReference(copy);
+        copy.setCanceledSale(sales);
+        copy.setStatut(SalesStatut.CANCELED);
+        copy.setCostAmount(copy.getCostAmount() * (-1));
+        copy.setNetAmount(copy.getNetAmount() * (-1));
+        copy.setSalesAmount(copy.getSalesAmount() * (-1));
+        copy.setHtAmount(copy.getHtAmount() * (-1));
+        copy.setPayrollAmount(copy.getPayrollAmount() * (-1));
+        copy.setRestToPay(copy.getRestToPay() * (-1));
+        copy.setCopy(true);
+        copy.setDiscountAmount(copy.getDiscountAmount() * (-1));
+        copy.setTaxAmount(copy.getTaxAmount() * (-1));
+        copy.setUser(storageService.getUser());
+
+        copy.setPayments(Collections.emptySet());
+        copy.setSalesLines(Collections.emptySet());
+    }
+
+    protected long getNextId() {
+        return idGeneratorService.nextId();
     }
 }

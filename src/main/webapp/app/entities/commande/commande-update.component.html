@@ -5,7 +5,8 @@
       <!-- HEADER TOOLBAR - Actions principales toujours visibles -->
       <div class="pharma-sales-header">
         <div class="header-left">
-          <p-button (click)="previousState()" [rounded]="true" [text]="true" class="back-button" icon="pi pi-arrow-left" pTooltip="Retour">
+          <p-button (click)="previousState()" [rounded]="true" [text]="true" class="back-button"
+                    icon="pi pi-arrow-left" pTooltip="Retour">
           </p-button>
 
           <div class="page-title">
@@ -28,7 +29,7 @@
           </p-button>
 
           <!-- Import Response Button -->
-          <!-- <p-button
+          <p-button
             (click)="fileDialog = true"
             [outlined]="true"
             class="action-btn"
@@ -37,19 +38,8 @@
             severity="info"
             size="small">
           </p-button>
--->
 
-          <!-- Cancel Button -->
-          <p-button
-            (onClick)="cancel()"
-            [outlined]="true"
-            class="cancel-btn"
-            icon="pi pi-times"
-            label="Annuler"
-            severity="secondary"
-            size="small"
-          >
-          </p-button>
+
         </div>
       </div>
 
@@ -64,18 +54,18 @@
           <!-- Fournisseur Select -->
           <div class="fournisseur-select-input">
             <p-select
-              size="large"
               #fournisseurBox
               (onChange)="onProviderSelect()"
               [(ngModel)]="selectedProvider"
               [appendTo]="'body'"
               [filter]="true"
               [options]="fournisseurs"
+              class="w-100"
+              inputId="fournisseur-select"
               optionLabel="libelle"
               optionValue="id"
               placeholder="Sélectionner un fournisseur..."
-              inputId="fournisseur-select"
-              class="w-100"
+              size="large"
             >
             </p-select>
           </div>
@@ -95,12 +85,12 @@
               [minQueryLength]="PRODUIT_COMBO_MIN_LENGTH"
               [showEmptyMessage]="true"
               [suggestions]="produits"
+              class="w-100 pharma-autocomplete"
+              inputId="product-search"
               optionLabel="libelle"
               placeholder="Rechercher un produit..."
-              inputId="product-search"
-              class="w-100 pharma-autocomplete"
             >
-              <ng-template let-item #item>
+              <ng-template #item let-item>
                 @if (item.totalQuantity > 0) {
                   <div class="d-flex justify-content-between align-items-center w-100">
                     <div class="flex-grow-1">
@@ -116,7 +106,8 @@
                       <span class="pharma-code me-2">{{ item.fournisseurProduit?.codeCip }}</span>
                       <span>{{ item.libelle }}</span>
                     </div>
-                    <span class="pharma-price stockless">{{ item.regularUnitPrice | number }} F</span>
+                    <span class="pharma-price stockless">{{ item.regularUnitPrice | number }}
+                      F</span>
                   </div>
                 }
               </ng-template>
@@ -130,10 +121,10 @@
                 #quantityBox
                 (keydown.enter)="onQuantityBoxAction($event)"
                 [(ngModel)]="quantiteSaisie"
-                pInputText
-                type="number"
-                placeholder="Quantité"
                 class="form-control"
+                pInputText
+                placeholder="Quantité"
+                type="number"
               />
               <p-inputgroup-addon>
                 <p-button
@@ -154,22 +145,22 @@
             <div class="meta-item">
               <i class="pi pi-barcode"></i>
               <span
-                >CIP: <strong>{{ produitSelected?.fournisseurProduit?.codeCip }}</strong></span
+              >CIP: <strong>{{ produitSelected?.fournisseurProduit?.codeCip }}</strong></span
               >
             </div>
 
             <div class="meta-item">
               <i class="pi pi-tag"></i>
               <span
-                >Prix: <strong>{{ produitSelected?.regularUnitPrice | number }} F</strong></span
+              >Prix: <strong>{{ produitSelected?.regularUnitPrice | number }} F</strong></span
               >
             </div>
 
             @if (produitSelected?.totalQuantity !== undefined) {
-              <div class="meta-item" [class.low-stock]="produitSelected.totalQuantity < 10">
+              <div [class.low-stock]="produitSelected.totalQuantity < 10" class="meta-item">
                 <i class="pi pi-database"></i>
                 <span
-                  >Stock: <strong>{{ produitSelected?.totalQuantity | number }}</strong></span
+                >Stock: <strong>{{ produitSelected?.totalQuantity | number }}</strong></span
                 >
               </div>
             }
@@ -181,7 +172,8 @@
       <!-- HEADER TOOLBAR - Actions principales toujours visibles -->
       <div class="pharma-sales-header">
         <div class="header-left">
-          <p-button (click)="previousState()" [rounded]="true" [text]="true" class="back-button" icon="pi pi-arrow-left" pTooltip="Retour">
+          <p-button (click)="previousState()" [rounded]="true" [text]="true" class="back-button"
+                    icon="pi pi-arrow-left" pTooltip="Retour">
           </p-button>
 
           <div class="page-title">
@@ -205,15 +197,15 @@
             </p-button>
 
             <!-- Import Response Button -->
-            <!-- <p-button
-              (click)="fileDialog = true"
-              [outlined]="true"
-              class="action-btn"
-              icon="pi pi-download"
-              label="Importer"
-              severity="info"
-              size="small">
-            </p-button>-->
+              <!-- <p-button
+                (click)="fileDialog = true"
+                [outlined]="true"
+                class="action-btn"
+                icon="pi pi-download"
+                label="Importer"
+                severity="info"
+                size="small">
+              </p-button>-->
           } @else {
             <!-- Validate Button -->
             <p-button
@@ -229,7 +221,8 @@
           }
 
           <!-- Export Splitbutton -->
-          <p-splitbutton [model]="exportbuttons" icon="pi pi-file-export" appendTo="body" label="Exporter" severity="warn" size="small">
+          <p-splitbutton [model]="exportbuttons" appendTo="body" icon="pi pi-file-export"
+                         label="Exporter" severity="warn" size="small">
           </p-splitbutton>
 
           @if (!isReceiption && selectedEl!.length > 0) {
@@ -246,17 +239,7 @@
             </p-button>
           }
 
-          <!-- Back Button -->
-          <p-button
-            (click)="previousState()"
-            [outlined]="true"
-            class="cancel-btn"
-            icon="pi pi-arrow-left"
-            label="Retour"
-            severity="secondary"
-            size="small"
-          >
-          </p-button>
+
         </div>
       </div>
 
@@ -279,15 +262,15 @@
               <div>
                 <p-floatlabel variant="on">
                   <p-select
-                    size="large"
-                    appendTo="body"
                     (onChange)="onFilterCommandeLines()"
                     [(ngModel)]="tris"
                     [fluid]="true"
                     [options]="sorts"
+                    appendTo="body"
+                    inputId="ordre"
                     optionLabel="label"
                     optionValue="code"
-                    inputId="ordre"
+                    size="large"
                   >
                   </p-select>
                   <label for="ordre">Ordre</label>
@@ -297,15 +280,15 @@
               <div>
                 <p-floatlabel variant="on">
                   <p-select
-                    size="large"
                     (onChange)="onFilterCommandeLines()"
                     [(ngModel)]="selectedFilter"
-                    [options]="filtres!"
-                    optionLabel="label"
                     [fluid]="true"
+                    [options]="filtres!"
                     appendTo="body"
-                    optionValue="value"
                     inputId="selectedFilter"
+                    optionLabel="label"
+                    optionValue="value"
+                    size="large"
                   >
                   </p-select>
                   <label for="selectedFilter">Filtrer par</label>
@@ -370,30 +353,31 @@
         </div>
       }
 
-      <div [ngClass]="isReceiption ? 'col-md-9 col-sm-12 col-lg-9 col-xl-9' : 'col-md-12 col-sm-12 col-lg-12 col-xl-12'">
+      <div
+        [ngClass]="isReceiption ? 'col-md-9 col-sm-12 col-lg-9 col-xl-9' : 'col-md-12 col-sm-12 col-lg-12 col-xl-12'">
         @if (commande) {
           <p-table
             [(selection)]="selectedEl"
             [paginator]="true"
             [rowsPerPageOptions]="[10, 20, 30, 40, 50]"
             [rows]="10"
-            [value]="orderLines"
-            dataKey="id"
-            class="pharma-table"
             [showGridlines]="true"
+            [value]="orderLines"
+            class="pharma-table"
+            dataKey="id"
           >
             <ng-template #header>
               <tr class="pharma-table-head">
                 <th style="width: 2%">#</th>
                 <th style="width: 8%">Code</th>
                 <th style="width: 20%">Description</th>
-                <th style="width: 5%" class="text-right">Stock</th>
-                <th style="width: 8%" class="text-right">P.A</th>
+                <th class="text-right" style="width: 5%">Stock</th>
+                <th class="text-right" style="width: 8%">P.A</th>
                 <th style="width: 6%">P.A Machine</th>
-                <th style="width: 8%" class="text-right">P.U</th>
-                <th style="width: 6%" class="text-right">P.U Machine</th>
-                <th style="width: 8%" class="text-right">Qté</th>
-                <th style="width: 6%" class="text-right">Qté Ug</th>
+                <th class="text-right" style="width: 8%">P.U</th>
+                <th class="text-right" style="width: 6%">P.U Machine</th>
+                <th class="text-right" style="width: 8%">Qté</th>
+                <th class="text-right" style="width: 6%">Qté Ug</th>
                 <!--   <th style="width: 5%">T.ACHAT</th>-->
                 @if (showLotColumn()) {
                   <th style="width: 7%">Lots</th>
@@ -408,7 +392,7 @@
                 }
               </tr>
             </ng-template>
-            <ng-template let-orderLine let-rowIndex="rowIndex" #body>
+            <ng-template #body let-orderLine let-rowIndex="rowIndex">
               <tr [ngClass]="orderLineTableColor(orderLine)">
                 <td>
                   <span class="pharma-row-number">{{ rowIndex + 1 }}</span>
@@ -443,15 +427,15 @@
                 </td>
                 <td style="text-align: right">{{ orderLine.initStock | number }}</td>
                 @if (!isReceiption) {
-                  <td pEditableColumn class="amount-td-column">
+                  <td class="amount-td-column" pEditableColumn>
                     <p-cellEditor>
                       <ng-template #input>
                         <input
                           (focus)="$event.target.select()"
                           (keydown.enter)="onUpdateOrderCostAmount(orderLine, $event)"
                           [value]="orderLine.orderCostAmount"
-                          pInputText
                           class="pharma-input-price"
+                          pInputText
                           required
                           type="number"
                         />
@@ -462,20 +446,22 @@
                     </p-cellEditor>
                   </td>
                 } @else {
-                  <td class="amount-td-column pharma-price">{{ orderLine.orderCostAmount | number }}</td>
+                  <td
+                    class="amount-td-column pharma-price">{{ orderLine.orderCostAmount | number }}
+                  </td>
                 }
 
                 <td style="text-align: right">{{ orderLine.costAmount | number }}</td>
                 @if (!isReceiption) {
-                  <td pEditableColumn class="amount-td-column">
+                  <td class="amount-td-column" pEditableColumn>
                     <p-cellEditor>
                       <ng-template #input>
                         <input
                           (focus)="$event.target.select()"
                           (keydown.enter)="onUpdateOrderUnitPrice(orderLine, $event)"
                           [value]="orderLine.orderUnitPrice"
-                          pInputText
                           class="pharma-input-price"
+                          pInputText
                           required
                           type="number"
                         />
@@ -486,36 +472,41 @@
                     </p-cellEditor>
                   </td>
                 } @else {
-                  <td class="amount-td-column pharma-price">{{ orderLine.orderUnitPrice | number }}</td>
+                  <td
+                    class="amount-td-column pharma-price">{{ orderLine.orderUnitPrice | number }}
+                  </td>
                 }
 
                 <td style="text-align: right">{{ orderLine.regularUnitPrice | number }}</td>
                 @if (!isReceiption) {
-                  <td pEditableColumn class="amount-td-column">
+                  <td class="amount-td-column" pEditableColumn>
                     <p-cellEditor>
                       <ng-template #input>
                         <input
                           (focus)="$event.target.select()"
                           (keydown.enter)="onUpdateQuantityRequested(orderLine, $event)"
                           [value]="orderLine.quantityRequested"
-                          pInputText
                           class="pharma-input-qty"
+                          pInputText
                           required
                           type="number"
                         />
                       </ng-template>
                       <ng-template #output>
-                        <span class="pharma-qty-value">{{ orderLine.quantityRequested | number }}</span>
+                        <span
+                          class="pharma-qty-value">{{ orderLine.quantityRequested | number }}</span>
                       </ng-template>
                     </p-cellEditor>
                   </td>
                 } @else {
                   <td class="amount-td-column">
-                    <span class="pharma-qty-value"> {{ orderLine.quantityRequested | number }}</span>
+                    <span
+                      class="pharma-qty-value"> {{ orderLine.quantityRequested | number }}</span>
                   </td>
                 }
 
-                <td [pEditableColumn]="orderLine.freeQty" pEditableColumnField="freeQty" class="amount-td-column">
+                <td [pEditableColumn]="orderLine.freeQty" class="amount-td-column"
+                    pEditableColumnField="freeQty">
                   <p-cellEditor>
                     <ng-template #input>
                       <input
@@ -547,23 +538,23 @@
                     }
                   </td>
                 }
-                <td style="text-align: right" class="d-flex justify-content-end">
+                <td class="d-flex justify-content-end" style="text-align: right">
                   <p-buttonGroup>
                     <p-button
                       (click)="editLigneInfos(orderLine)"
-                      icon="pi pi-pencil"
-                      severity="success"
                       [text]="true"
-                      tooltipPosition="left"
+                      icon="pi pi-pencil"
                       pTooltip="Modifier le produit"
+                      severity="success"
+                      tooltipPosition="left"
                     ></p-button>
                     @if (orderLine.lots.length > 0 || showLotBtn) {
                       <p-button
-                        [text]="true"
                         (click)="onAddLot(orderLine)"
-                        severity="info"
+                        [text]="true"
                         icon="pi pi-box"
                         pTooltip="Gérer le lot"
+                        severity="info"
                         tooltipPosition="left"
                       ></p-button>
                     }
@@ -571,20 +562,20 @@
                     @if (!isReceiption) {
                       <p-button
                         (click)="confirmDeleteItem(orderLine)"
-                        icon="pi pi-trash"
-                        severity="danger"
                         [text]="true"
+                        icon="pi pi-trash"
                         pTooltip="Supprimer"
+                        severity="danger"
                         tooltipPosition="left"
                       ></p-button>
                     } @else {
                       @if (orderLine.lots.length > 0 || showLotBtn) {
                         <p-button
                           (click)="confirmDeleteItem(orderLine)"
-                          icon="pi pi-trash"
-                          severity="danger"
                           [text]="true"
+                          icon="pi pi-trash"
                           pTooltip="Supprimer le lot"
+                          severity="danger"
                           tooltipPosition="left"
                         ></p-button>
                       }
@@ -601,7 +592,8 @@
             @if (orderLines.length > 0) {
               <ng-template #footer>
                 <tr class="pharma-table-footer">
-                  <td colspan="4" style="font-weight: 700"><span class="pharma-footer-label">VALEUR ACHAT/VENTE</span></td>
+                  <td colspan="4" style="font-weight: 700"><span class="pharma-footer-label">VALEUR ACHAT/VENTE</span>
+                  </td>
                   <td class="amount-column text-right red-400">
                     <span class="pharma-footer-total">{{ commande.grossAmount | number }}</span>
                   </td>

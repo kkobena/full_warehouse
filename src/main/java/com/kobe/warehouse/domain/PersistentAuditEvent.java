@@ -35,13 +35,13 @@ public class PersistentAuditEvent implements Serializable {
     private Long id;
 
     @NotNull
-    @Column(nullable = false)
+    @Column(nullable = false, columnDefinition = "TEXT")
     private String principal;
 
     @Column(name = "event_date")
     private Instant auditEventDate;
 
-    @Column(name = "event_type")
+    @Column(name = "event_type", columnDefinition = "TEXT")
     private String auditEventType;
 
     @ElementCollection

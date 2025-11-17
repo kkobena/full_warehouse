@@ -201,8 +201,6 @@ mod windows_printer {
         let width = gray_img.width() as usize;
         let height = gray_img.height() as usize;
 
-        println!("Image dimensions: {}x{}", width, height);
-
         // Build ESC/POS bitmap commands
         let mut esc_pos_data = Vec::new();
 
@@ -248,8 +246,6 @@ mod windows_printer {
         // Feed paper and cut
         esc_pos_data.extend_from_slice(&[0x1B, 0x64, 0x02]); // ESC d 2 - Feed 2 lines
         esc_pos_data.extend_from_slice(&[0x1D, 0x56, 0x41, 0x00]); // GS V A 0 - Partial cut
-
-        println!("Generated {} bytes of ESC/POS data", esc_pos_data.len());
 
         // Send to printer using Windows RAW printing
         send_raw_to_printer(&esc_pos_data, printer_name)
@@ -329,8 +325,6 @@ mod windows_printer {
         // Write PNG to temp file
         std::fs::write(&temp_file, image_bytes)
             .map_err(|e| format!("Failed to write temp file: {}", e))?;
-
-        println!("Temp file created: {:?}", temp_file);
 
         // Build PowerShell script (memory-efficient: use String::with_capacity)
         let temp_file_path = temp_file.to_str().unwrap().replace("\\", "\\\\");

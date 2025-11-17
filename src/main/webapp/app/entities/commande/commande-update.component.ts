@@ -58,6 +58,7 @@ import { SpinnerComponent } from '../../shared/spinner/spinner.component';
 import { CommandeId } from '../../shared/model/abstract-commande.model';
 import { TauriPrinterService } from '../../shared/services/tauri-printer.service';
 import { handleBlobForTauri } from '../../shared/util/tauri-util';
+import { finalize } from 'rxjs/operators';
 
 @Component({
   selector: 'jhi-commande-update',
@@ -458,10 +459,6 @@ export class CommandeUpdateComponent implements OnInit, AfterViewInit {
     );
   }
 
-  protected cancel(): void {
-    this.onImporterReponseCommande();
-  }
-
   protected onImporterReponseCommande(): void {
     showCommonModal(
       this.modalService,
@@ -682,16 +679,17 @@ export class CommandeUpdateComponent implements OnInit, AfterViewInit {
 
   private onFinalize(): void {
     this.showsPinner();
-    this.deliveryService.finalizeSaisieEntreeStock(this.commande).subscribe({
-      next: (res: HttpResponse<CommandeId>) => {
-        this.hidePinner();
-        this.confirmPrintTicket(res.body);
-      },
-      error: error => {
-        this.onCommonError(error);
-        this.hidePinner();
-      },
-    });
+    this.deliveryService
+      .finalizeSaisieEntreeStock(this.commande)
+      .pipe(finalize(() => this.hidePinner()))
+      .subscribe({
+        next: (res: HttpResponse<CommandeId>) => {
+          this.confirmPrintTicket(res.body);
+        },
+        error: error => {
+          this.onCommonError(error);
+        },
+      });
   }
 
   private changeGrossiste(): void {

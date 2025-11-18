@@ -195,7 +195,7 @@ public class PaymentTransactionCustomRepositoryImpl implements PaymentTransactio
             cb.and(
                 cb.between(root.get(PaymentTransaction_.transactionDate), mvtParam.getFromDate(), mvtParam.getToDate()),
                 root.get(PaymentTransaction_.categorieChiffreAffaire).in(mvtParam.getCategorieChiffreAffaires()),
-                root.get(PaymentTransaction_.type).notEqualTo(SalePayment.class.getName())
+                root.get(PaymentTransaction_.type).notEqualTo(SalePayment.class.getSimpleName())
             )
         );
         cq.groupBy(

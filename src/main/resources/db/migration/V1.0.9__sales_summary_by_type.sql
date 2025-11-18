@@ -16,6 +16,7 @@ with filtered_sales as (
     and imported = false
     and statut = any(p_statuts)
     and ca = any(p_cas)
+   and canceled = false
 ),
      sales_line_agg as (
        select fs.dtype,

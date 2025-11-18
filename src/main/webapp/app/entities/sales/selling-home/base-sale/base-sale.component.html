@@ -16,7 +16,7 @@
           <jhi-amount-computing #amountComputing [entryAmount]="entryAmount"></jhi-amount-computing>
         </div>
         <div class="col-12 d-flex justify-content-center">
-          <p-button class="mr-1" [raised]="true" (click)="save()" icon="pi pi-check" label="Terminer" severity="success"></p-button>
+          <p-button class="mr-1" [raised]="true" (click)="onFinalyseSale()" icon="pi pi-check" label="Terminer" severity="success"></p-button>
           <p-button
             [raised]="true"
             (click)="putCurrentSaleOnStandBy()"

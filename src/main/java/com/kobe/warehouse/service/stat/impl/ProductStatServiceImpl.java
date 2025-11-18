@@ -206,7 +206,7 @@ public class ProductStatServiceImpl implements ProductStatService {
         if (nonNull(produitRecordParam.getProduitId())) {
             specification = specification.and(this.salesLineRepository.filterByPeriode(periode.getLeft(), periode.getRight()));
         }
-        specification = specification.and(this.salesLineRepository.notImported());
+        specification = specification.and(this.salesLineRepository.notCanceled());
         specification = specification.and(this.salesLineRepository.filterByCa(EnumSet.of(produitRecordParam.getCategorieChiffreAffaire())));
 
         return specification;
@@ -227,7 +227,7 @@ public class ProductStatServiceImpl implements ProductStatService {
     private List<ProductStatParetoRecord> getTop80PercentProducts(ProduitRecordParamDTO produitRecordParam) {
         Pair<LocalDate, LocalDate> periode = this.buildPeriode(produitRecordParam);
         String caList = CategorieChiffreAffaire.CA.name();
-        String statutList = String.join(",", SalesStatut.CLOSED.name(), SalesStatut.CANCELED.name());
+        String statutList = String.join(",", SalesStatut.CLOSED.name());
         if (nonNull(produitRecordParam.getOrder()) && produitRecordParam.getOrder() == OrderBy.QUANTITY_SOLD) {
             return this.produitRepository.getTopQty80PercentProducts(periode.getLeft(), periode.getRight(), caList, statutList)
                 .stream()
@@ -301,7 +301,7 @@ public class ProductStatServiceImpl implements ProductStatService {
     }
 
     private EnumSet<SalesStatut> getSalesStatutEnum() {
-        return EnumSet.of(SalesStatut.CLOSED, SalesStatut.CANCELED);
+        return EnumSet.of(SalesStatut.CLOSED);
     }
 
     private HistoriqueVenteResult fetchHistoriqueVente(ProduitHistoriqueParam produitHistorique, Pageable pageable) {

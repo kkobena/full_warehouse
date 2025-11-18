@@ -56,7 +56,7 @@ BEGIN
 END;
 $$;
 
-alter procedure proc_close_inventory(bigint, inout integer) owner to pharma_smart;
+
 
 create function gettopqty80percentproducts(startdate date, enddate date, calist character varying, statutlist character varying)
   returns TABLE(libelle character varying, code_cip character varying, qte_totale bigint, total_global bigint, pourcentage numeric)
@@ -72,7 +72,6 @@ WITH ventes_par_produit AS (
     AND s.ca = ANY(string_to_array(caList, ','))
     AND s.statut = ANY(string_to_array(statutList, ','))
     AND s.canceled = false
-    AND s.imported = false
   GROUP BY sl.produit_id
 ),
      total_global AS (
@@ -100,7 +99,7 @@ GROUP BY p.id, p.libelle, c.qte_totale, c.total_global
 ORDER BY c.qte_totale DESC;
 $$;
 
-alter function gettopqty80percentproducts(date, date, varchar, varchar) owner to pharma_smart;
+
 
 create function gettopamount80percentproducts(startdate date, enddate date, calist character varying, statutlist character varying)
   returns TABLE(libelle character varying, code_cip character varying, total_global numeric, sales_amount numeric, pourcentage numeric)
@@ -116,7 +115,6 @@ WITH ventes_par_produit AS (
     AND s.ca = ANY(string_to_array(caList, ','))
     AND s.statut = ANY(string_to_array(statutList, ','))
     AND s.canceled = false
-    AND s.imported = false
   GROUP BY sl.produit_id
 ),
      total_global AS (
@@ -144,4 +142,4 @@ GROUP BY p.id, p.libelle, c.total_global, c.sales_amount
 ORDER BY c.sales_amount DESC;
 $$;
 
-alter function gettopamount80percentproducts(date, date, varchar, varchar) owner to pharma_smart;
+

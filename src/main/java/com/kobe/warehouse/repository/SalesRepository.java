@@ -57,12 +57,13 @@ public interface SalesRepository extends JpaSpecificationExecutor<Sales>, JpaRep
     )
     BigDecimal getDiffereSoldeByCustomerId(Integer customerId);
 
-    @Query(value = "SELECT sales_summary_json(:startDate, :endDate, :statuts,:caterorieChiffreAffaire)", nativeQuery = true)
+    @Query(value = "SELECT sales_summary_json(:startDate, :endDate, :statuts,:caterorieChiffreAffaire,:canceled)", nativeQuery = true)
     String fetchSalesSummary(
         @Param("startDate") LocalDate startDate,
         @Param("endDate") LocalDate endDate,
         @Param("statuts") String[] statuts,
-        @Param("caterorieChiffreAffaire") String[] caterorieChiffreAffaire
+        @Param("caterorieChiffreAffaire") String[] caterorieChiffreAffaire,
+        @Param("canceled") boolean canceled
     );
 
     @Query(

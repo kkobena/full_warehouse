@@ -23,6 +23,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map.Entry;
 import java.util.Objects;
+import java.util.Set;
 import java.util.stream.Collectors;
 import org.apache.commons.lang3.BooleanUtils;
 import org.slf4j.Logger;
@@ -55,6 +56,9 @@ public class BalanceCaisseServiceImpl implements BalanceCaisseService {
     }
 
     public BalanceCaisseWrapper getBalanceCaisseNew(MvtParam mvtParam) {
+        mvtParam.setStatuts(
+            Set.of( SalesStatut.CLOSED,SalesStatut.CANCELED)
+        );
         List<BalanceCaisseDTO> mvt = paymentTransactionRepository.fetchPaymentTransactionsForBalanceCaisse(mvtParam);
         BalanceCaisseWrapper balanceCaisseWrapper = computeBalanceCaisses(fetchBalanceCaisse(mvtParam));
         updateModePayment(balanceCaisseWrapper, mvt);
@@ -73,6 +77,7 @@ public class BalanceCaisseServiceImpl implements BalanceCaisseService {
                 mvtParam.isExcludeFreeUnit(),
                 BooleanUtils.toBoolean(mvtParam.getToIgnore())
             );
+
             return objectMapper.readValue(jsonResult, new TypeReference<>() {});
         } catch (Exception e) {
             LOG.error(null, e);

@@ -9,7 +9,7 @@ import {
   signal,
   viewChild,
   viewChildren,
-  WritableSignal,
+  WritableSignal
 } from '@angular/core';
 import { CustomerService } from '../../../../customer/customer.service';
 import { HttpResponse } from '@angular/common/http';
@@ -24,7 +24,9 @@ import { InputTextModule } from 'primeng/inputtext';
 import { IClientTiersPayant } from '../../../../../shared/model/client-tiers-payant.model';
 import { FormAyantDroitComponent } from '../../../../customer/form-ayant-droit/form-ayant-droit.component';
 import { SplitButtonModule } from 'primeng/splitbutton';
-import { AyantDroitCustomerListComponent } from '../../../ayant-droit-customer-list/ayant-droit-customer-list.component';
+import {
+  AyantDroitCustomerListComponent
+} from '../../../ayant-droit-customer-list/ayant-droit-customer-list.component';
 import { ConfirmPopupModule } from 'primeng/confirmpopup';
 import { CurrentSaleService } from '../../../service/current-sale.service';
 import { AssureFormStepComponent } from '../../../../customer/assure-form-step/assure-form-step.component';
@@ -56,10 +58,10 @@ import { CustomerCarnetComponent } from '../../../../customer/carnet/customer-ca
     InputGroupModule,
     InputGroupAddonModule,
     Button,
-    TooltipModule,
+    TooltipModule
   ],
   templateUrl: './assurance-data.component.html',
-  styleUrls: ['./assurance-data.component.scss'],
+  styleUrls: ['./assurance-data.component.scss']
 })
 export class AssuranceDataComponent implements OnInit, AfterViewInit {
   searchInput = viewChild<ElementRef>('searchInput');
@@ -90,15 +92,15 @@ export class AssuranceDataComponent implements OnInit, AfterViewInit {
         label: this.ayantDroit ? 'Modifier' : 'Nouveau',
         command: () => {
           this.addAyantDroit(this.ayantDroit);
-        },
+        }
       },
       {
         icon: 'pi pi-times',
         label: 'Remplacer',
         command: () => {
           this.loadAyantDoits();
-        },
-      },
+        }
+      }
     ];
     this.assureBtnActions = [
       {
@@ -106,15 +108,15 @@ export class AssuranceDataComponent implements OnInit, AfterViewInit {
         label: 'Modifier',
         command: () => {
           this.editAssuredCustomer();
-        },
+        }
       },
       {
         icon: 'pi pi-times',
         label: 'Changer de client',
         command: () => {
           this.onChangeCustomerClick();
-        },
-      },
+        }
+      }
     ];
     const currSale = this.currentSaleService.currentSale();
     if (currSale) {
@@ -131,7 +133,7 @@ export class AssuranceDataComponent implements OnInit, AfterViewInit {
       AssuredCustomerListComponent,
       {
         searchString: this.search,
-        headerLibelle: 'CLIENTS ASSURES',
+        headerLibelle: 'CLIENTS ASSURES'
       },
       (resp: ICustomer) => {
         if (resp) {
@@ -139,7 +141,7 @@ export class AssuranceDataComponent implements OnInit, AfterViewInit {
         }
       },
       '70%',
-      'modal-dialog-70',
+      'modal-dialog-70'
     );
   }
 
@@ -147,8 +149,20 @@ export class AssuranceDataComponent implements OnInit, AfterViewInit {
     this.searchInput()?.nativeElement.focus();
   }
 
+
   buildIClientTiersPayantFromInputs(): IClientTiersPayant[] {
+    const tiersPayants = this.selectedTiersPayants();
+    tiersPayants.forEach((tp, index) => {
+      // id="bon-{{ tp.id }}"
+      const inputEl = this.bonInputs().find(bonInput => bonInput.nativeElement.id === `bon-${tp.id}`);
+      if (inputEl) {
+        tp.numBon = inputEl.nativeElement.value;
+      }
+    });
+    this.selectedTiersPayants.set(tiersPayants);
     return this.selectedTiersPayants();
+
+
   }
 
   onChangeCustomerClick(): void {
@@ -156,7 +170,7 @@ export class AssuranceDataComponent implements OnInit, AfterViewInit {
       () => this.openAssuredCustomerListTable(),
       'Changer le client',
       'Etes-vous sûr de vouloir changer le client?',
-      null,
+      null
     );
   }
 
@@ -172,7 +186,7 @@ export class AssuranceDataComponent implements OnInit, AfterViewInit {
       AddComplementaireComponent,
       {
         tiersPayantsExisting: this.selectedTiersPayants(),
-        assure: currentCustomer,
+        assure: currentCustomer
       },
       (resp: IClientTiersPayant) => {
         if (resp) {
@@ -183,7 +197,7 @@ export class AssuranceDataComponent implements OnInit, AfterViewInit {
           this.bonInputFocusOnAddTiersPayant(null);
         }
       },
-      'xl',
+      'xl'
     );
   }
 
@@ -198,7 +212,7 @@ export class AssuranceDataComponent implements OnInit, AfterViewInit {
       },
       'Supprimer tiers payant',
       'Etes-vous sûr de vouloir supprimer ce tiers payant?',
-      null,
+      null
     );
   }
 
@@ -216,14 +230,14 @@ export class AssuranceDataComponent implements OnInit, AfterViewInit {
         CustomerCarnetComponent,
         {
           entity: null,
-          title: "FORMULAIRE D'AJOUT DE NOUVEAU DE CLIENT",
-          categorie: 'CARNET',
+          title: 'FORMULAIRE D\'AJOUT DE NOUVEAU DE CLIENT',
+          categorie: 'CARNET'
         },
         (resp: ICustomer) => {
           this.setCustomer(resp, saleType);
         },
         'xl',
-        'modal-dialog-70',
+        'modal-dialog-70'
       );
     }
   }
@@ -239,7 +253,7 @@ export class AssuranceDataComponent implements OnInit, AfterViewInit {
       AyantDroitCustomerListComponent,
       {
         assure: currentCustomer,
-        header: 'LISTE DES AYANTS DROITS DU CLIENT [' + currentCustomer.fullName + ']',
+        header: 'LISTE DES AYANTS DROITS DU CLIENT [' + currentCustomer.fullName + ']'
       },
       (resp: ICustomer) => {
         if (resp) {
@@ -250,7 +264,7 @@ export class AssuranceDataComponent implements OnInit, AfterViewInit {
           }
         }
       },
-      'xl',
+      'xl'
     );
   }
 
@@ -277,10 +291,10 @@ export class AssuranceDataComponent implements OnInit, AfterViewInit {
       .queryAssuredCustomer({
         search: this.search,
         size: 2,
-        typeTiersPayant: saleType,
+        typeTiersPayant: saleType
       })
       .subscribe({
-        next: (res: HttpResponse<ICustomer[]>) => this.handleQueryResponse(res.body, saleType),
+        next: (res: HttpResponse<ICustomer[]>) => this.handleQueryResponse(res.body, saleType)
       });
   }
 
@@ -329,20 +343,20 @@ export class AssuranceDataComponent implements OnInit, AfterViewInit {
   private openAssuredCustomerForm(customer: ICustomer | null): void {
     const isEdit = !!customer;
     const saleType = this.getCurrentSaleType();
-    const header = isEdit ? 'FORMULAIRE DE MODIFICATION DE CLIENT' : "FORMULAIRE D'AJOUT DE NOUVEAU DE CLIENT";
+    const header = isEdit ? 'FORMULAIRE DE MODIFICATION DE CLIENT' : 'FORMULAIRE D\'AJOUT DE NOUVEAU DE CLIENT';
     showCommonModal(
       this.modalService,
       AssureFormStepComponent,
       {
         entity: customer,
         typeAssure: saleType,
-        header: header,
+        header: header
       },
       (resp: ICustomer) => {
         this.setCustomer(resp, saleType);
       },
       'xl',
-      'modal-dialog-80',
+      'modal-dialog-80'
     );
   }
 
@@ -353,14 +367,14 @@ export class AssuranceDataComponent implements OnInit, AfterViewInit {
       {
         entity: ayantDroit,
         assure: this.selectedCustomerService.selectedCustomerSignal(),
-        title: 'FORMULAIRE DE MODIFICATION ',
+        title: 'FORMULAIRE DE MODIFICATION '
       },
       (resp: ICustomer) => {
         if (resp) {
           this.ayantDroit = resp;
         }
       },
-      'xl',
+      'xl'
     );
   }
 

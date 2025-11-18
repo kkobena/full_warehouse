@@ -2,10 +2,11 @@ create or replace function sales_summary_json(
   p_start_date date,
   p_end_date date,
   p_statuts text[],
-  p_cas text[]
+  p_cas text[],
+  p_canceled boolean
 )
   returns jsonb
-  language sql
+    language sql
 as
 $$
 with
@@ -15,7 +16,8 @@ filtered_sales as (select id, sale_date
                    where sale_date between p_start_date and p_end_date
                      and imported = false
                      and statut = any (p_statuts)
-                     and ca = any (p_cas)),
+                     and ca = any (p_cas) and canceled = p_canceled),
+
 -- Agrégats des lignes de vente
 sales_line_agg as (select sum(sl.quantity_requested * sl.cost_amount)        as cost_amount,
                           sum(sl.quantity_requested * sl.regular_unit_price) as sales_amount,

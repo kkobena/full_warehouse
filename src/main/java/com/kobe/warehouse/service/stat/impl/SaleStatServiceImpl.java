@@ -1,7 +1,5 @@
 package com.kobe.warehouse.service.stat.impl;
 
-import static java.util.Objects.nonNull;
-
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.json.JsonMapper;
 import com.kobe.warehouse.domain.SalePayment;
@@ -16,15 +14,18 @@ import com.kobe.warehouse.service.dto.records.VentePeriodeRecord;
 import com.kobe.warehouse.service.dto.records.VenteRecord;
 import com.kobe.warehouse.service.dto.records.VenteRecordWrapper;
 import com.kobe.warehouse.service.stat.SaleStatService;
-import java.time.LocalDate;
-import java.util.EnumSet;
-import java.util.List;
 import org.apache.commons.lang3.tuple.Pair;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.time.LocalDate;
+import java.util.EnumSet;
+import java.util.List;
+
+import static java.util.Objects.nonNull;
 
 @Service
 @Transactional(readOnly = true)
@@ -63,9 +64,9 @@ public class SaleStatServiceImpl implements SaleStatService {
     public List<VentePeriodeRecord> getCaGroupingByPeriode(VenteRecordParamDTO venteRecordParamDTO) {
         Pair<LocalDate, LocalDate> periode = getPeriode(venteRecordParamDTO);
         return this.salesRepository.fetchVentePeriodeRecords(
-                buildSpecification(venteRecordParamDTO, periode),
-                venteRecordParamDTO.getVenteStatGroupBy()
-            );
+            buildSpecification(venteRecordParamDTO, periode),
+            venteRecordParamDTO.getVenteStatGroupBy()
+        );
     }
 
     @Override
@@ -89,10 +90,11 @@ public class SaleStatServiceImpl implements SaleStatService {
             String jsonResult = salesRepository.fetchSalesSummary(
                 periode.getLeft(),
                 periode.getRight(),
-                new String[] { venteRecordParam.isCanceled() ? SalesStatut.CANCELED.name() : SalesStatut.CLOSED.name() },
-                new String[] { venteRecordParam.getCategorieChiffreAffaire().name() }
+                new String[]{venteRecordParam.isCanceled() ? SalesStatut.CANCELED.name() : SalesStatut.CLOSED.name()},
+                new String[]{venteRecordParam.getCategorieChiffreAffaire().name()}, venteRecordParam.isCanceled()
             );
-            return objectMapper.readValue(jsonResult, new TypeReference<>() {});
+            return objectMapper.readValue(jsonResult, new TypeReference<>() {
+            });
         } catch (Exception e) {
             LOG.error(null, e);
             return null;
@@ -104,10 +106,11 @@ public class SaleStatServiceImpl implements SaleStatService {
             String jsonResult = salesRepository.fetchSalesSummaryByTypeVente(
                 periode.getLeft(),
                 periode.getRight(),
-                new String[] { venteRecordParam.isCanceled() ? SalesStatut.CANCELED.name() : SalesStatut.CLOSED.name() },
-                new String[] { venteRecordParam.getCategorieChiffreAffaire().name() }
+                new String[]{ SalesStatut.CLOSED.name()},
+                new String[]{venteRecordParam.getCategorieChiffreAffaire().name()}
             );
-            return objectMapper.readValue(jsonResult, new TypeReference<>() {});
+            return objectMapper.readValue(jsonResult, new TypeReference<>() {
+            });
         } catch (Exception e) {
             LOG.info(e.getMessage());
             return List.of();

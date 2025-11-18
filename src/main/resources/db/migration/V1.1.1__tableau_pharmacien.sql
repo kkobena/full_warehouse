@@ -1,3 +1,4 @@
+
 create or replace function tableau_pharmacien_report(
   p_start_date date,
   p_end_date date,
@@ -96,7 +97,7 @@ with filtered_sales as (select id, sale_date
                           sum(s.discount_amount)   as total_discount_amount,
                           sum(s.part_tiers_payant) as total_part_tiers_payant,
                           sum(s.rest_to_pay)       as total_rest_to_pay,
-                          count(distinct s.id)     as distinct_sales_count
+                          count(distinct case when s.canceled = false then s.id end)     as distinct_sales_count
                    from sales s
                           join filtered_sales fs on fs.id = s.id and s.sale_date = fs.sale_date
                    group by fs.sale_date)
@@ -222,7 +223,7 @@ with filtered_sales as (select id, date_trunc('month', sale_date)::date as month
                           sum(s.discount_amount)   as total_discount_amount,
                           sum(s.part_tiers_payant) as total_part_tiers_payant,
                           sum(s.rest_to_pay)       as total_rest_to_pay,
-                          count(distinct s.id)     as distinct_sales_count
+                          count(distinct case when s.canceled = false then s.id end)     as distinct_sales_count
                    from sales s
                           join filtered_sales fs on fs.id = s.id
                    WHERE date_trunc('month', s.sale_date)::date = fs.month_date
@@ -241,8 +242,7 @@ select jsonb_agg(
            'montantAchat', coalesce(sla.cost_amount, 0),
            'montantHt', coalesce(sla.total_sales_excl_tax, 0),
            'payments', coalesce(pa.payments, '[]'::jsonb)
-         )
-         order by sa.month_date
+         ) order by sa.month_date
        )
 from sales_agg sa
        join sales_line_agg sla on sa.month_date = sla.month_date

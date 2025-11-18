@@ -27,12 +27,13 @@
       <p-toolbar>
         <ng-template #start>
           <div class="pharma-toolbar-filters">
-            <p-floatlabel class="mr-1" variant="on">
+            <p-floatlabel variant="on">
               <p-select
                 (onChange)="onTypeChange()"
                 [(ngModel)]="typeSelected"
                 [appendTo]="'body'"
                 [filter]="false"
+                [fluid]="true"
                 [options]="types"
                 id="typeFilter"
                 size="large"
@@ -41,8 +42,9 @@
               <label for="typeFilter">Filtrer par type</label>
             </p-floatlabel>
 
-            <p-floatlabel class="mr-1" variant="on">
+            <p-floatlabel variant="on">
               <p-select
+                [fluid]="true"
                 (onChange)="onTypeChange()"
                 [(ngModel)]="statutSelected"
                 [appendTo]="'body'"

@@ -5,4 +5,5 @@ public enum CategorieChiffreAffaire {
     CA_DEPOT,
     CALLEBASE,
     TO_IGNORE,
+    IMPORT,
 }

@@ -14,6 +14,7 @@ import java.net.MalformedURLException;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
+import java.util.Set;
 import java.util.stream.Collectors;
 import org.apache.commons.lang3.BooleanUtils;
 import org.slf4j.Logger;
@@ -63,6 +64,9 @@ public class TaxeServiceImpl implements TaxeService, MvtCommonService {
 
     private List<TaxeDTO> fetchTaxe(MvtParam mvtParam) {
         try {
+            mvtParam.setStatuts(
+                Set.of( SalesStatut.CLOSED,SalesStatut.CANCELED)
+            );
             String jsonResult;
             if ("daily".equals(mvtParam.getGroupeBy())) {
                 jsonResult = salesRepository.fetchSalesTvaReportJournalier(

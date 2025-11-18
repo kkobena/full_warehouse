@@ -1,4 +1,4 @@
-import { Component, inject, input, signal, viewChild } from '@angular/core';
+import { Component, inject, input, output, signal, viewChild } from '@angular/core';
 import { ModeReglementComponent } from '../../mode-reglement/mode-reglement.component';
 import { AmountComputingComponent } from '../comptant/amount-computing/amount-computing.component';
 import { SelectedCustomerService } from '../../service/selected-customer.service';
@@ -60,7 +60,6 @@ export class BaseSaleComponent {
   readonly hasAuthorityService = inject(HasAuthorityService);
   readonly canRemoveItem = signal(this.hasAuthorityService.hasAuthorities(Authority.PR_SUPPRIME_PRODUIT_VENTE));
   readonly canApplyDiscount = signal(this.hasAuthorityService.hasAuthorities(Authority.PR_AJOUTER_REMISE_VENTE));
-
   protected payments: IPayment[] = [];
   protected remise?: IRemise | null;
   protected isSaving = false;
@@ -127,6 +126,9 @@ export class BaseSaleComponent {
 
   computExtraInfo(): void {
     this.currentSaleService.currentSale().commentaire = this.modeReglementComponent().commentaire || null;
+  }
+  onFinalyseSale(): void {
+    this.onCompleteSale();
   }
 
   save(): void {

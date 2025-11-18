@@ -154,7 +154,9 @@ public interface SalesLineRepository
     default Specification<SalesLine> filterByCa(EnumSet<CategorieChiffreAffaire> categorieChiffreAffaires) {
         return (root, query, cb) -> root.get(SalesLine_.sales).get(Sales_.categorieChiffreAffaire).in(categorieChiffreAffaires);
     }
-
+    default Specification<SalesLine> notCanceled() {
+        return (root, query, cb) -> cb.isFalse(root.get(SalesLine_.sales).get(Sales_.canceled));
+    }
     default Specification<SalesLine> notImported() {
         return (root, query, cb) -> cb.isFalse(root.get(SalesLine_.sales).get(Sales_.imported));
     }

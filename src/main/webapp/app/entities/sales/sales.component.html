@@ -127,13 +127,15 @@
                   tooltipPosition="top"
                 />
               } @else {
+
                 <p-button
                   [rounded]="true"
+                  [text]="true"
                   [routerLink]="['/sales', false, 'new']"
-                  icon="pi pi-plus"
+                  icon="pi pi-cart-plus"
                   pTooltip="Nouvelle vente"
                   raised="true"
-                  severity="success"
+                  severity="primary"
                   tooltipPosition="top"
                 />
               }

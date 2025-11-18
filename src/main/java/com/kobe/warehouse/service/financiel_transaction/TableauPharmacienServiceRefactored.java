@@ -87,6 +87,9 @@ public class TableauPharmacienServiceRefactored implements TableauPharmacienServ
 
     @Override
     public TableauPharmacienWrapper getTableauPharmacien(MvtParam mvtParam) {
+        mvtParam.setStatuts(
+            Set.of( SalesStatut.CLOSED,SalesStatut.CANCELED)
+        );
         mvtParam.setExcludeFreeUnit(appConfigurationService.excludeFreeUnit());
         return computeTableauPharmacien(mvtParam);
     }
@@ -133,8 +136,6 @@ public class TableauPharmacienServiceRefactored implements TableauPharmacienServ
     private TableauPharmacienWrapper computeTableauPharmacien(MvtParam mvtParam) {
         TableauPharmacienWrapper wrapper = new TableauPharmacienWrapper();
         Set<Integer> displayedGroupIds = groupeFournisseurManager.getDisplayedGroupIds();
-        System.err.println("fetchSalesData called with mvtParam: " + mvtParam);
-        // 1. Fetch and process sales data
         List<TableauPharmacienDTO> salesData = fetchAndProcessSalesData(mvtParam, wrapper);
 
         // 2. Fetch purchases data

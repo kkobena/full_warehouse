@@ -1,8 +1,5 @@
 package com.kobe.warehouse.service.sale.impl;
 
-import static java.util.Objects.isNull;
-import static java.util.Objects.nonNull;
-
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.kobe.warehouse.Util;
@@ -74,6 +71,11 @@ import com.kobe.warehouse.service.sale.calculation.dto.TiersPayantPrixInput;
 import com.kobe.warehouse.service.sale.dto.FinalyseSaleDTO;
 import com.kobe.warehouse.service.sale.dto.UpdateSale;
 import com.kobe.warehouse.service.utils.CustomerDisplayService;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.CollectionUtils;
+import org.springframework.util.StringUtils;
+
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -87,10 +89,9 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
-import org.springframework.util.CollectionUtils;
-import org.springframework.util.StringUtils;
+
+import static java.util.Objects.isNull;
+import static java.util.Objects.nonNull;
 
 @Service
 @Transactional
@@ -165,7 +166,7 @@ public class ThirdPartySaleServiceImpl extends SaleCommonService implements Thir
     }
 
     @Override
-    @Transactional(noRollbackFor = { PlafondVenteException.class })
+    @Transactional(noRollbackFor = {PlafondVenteException.class})
     public ThirdPartySaleDTO createSale(ThirdPartySaleDTO dto) throws GenericError, NumBonAlreadyUseException, PlafondVenteException {
         SalesLine saleLine = salesLineService.createSaleLineFromDTO(
             dto.getSalesLines().getFirst(),
@@ -296,7 +297,7 @@ public class ThirdPartySaleServiceImpl extends SaleCommonService implements Thir
                 clientTiersPayantId,
                 SalesStatut.CLOSED
             ) >
-            0
+                0
         );
 
         return (
@@ -306,12 +307,12 @@ public class ThirdPartySaleServiceImpl extends SaleCommonService implements Thir
                 clientTiersPayantId,
                 SalesStatut.CLOSED
             ) >
-            0
+                0
         );
     }
 
     @Override
-    @Transactional(noRollbackFor = { PlafondVenteException.class })
+    @Transactional(noRollbackFor = {PlafondVenteException.class})
     public SaleLineDTO createOrUpdateSaleLine(SaleLineDTO dto) throws PlafondVenteException {
         Optional<SalesLine> salesLineOp = salesLineService.findBySalesIdAndProduitId(dto.getSaleCompositeId(), dto.getProduitId());
         int storageId = storageService.getDefaultConnectedUserPointOfSaleStorage().getId();
@@ -341,7 +342,7 @@ public class ThirdPartySaleServiceImpl extends SaleCommonService implements Thir
     }
 
     @Override
-    @Transactional(noRollbackFor = { PlafondVenteException.class })
+    @Transactional(noRollbackFor = {PlafondVenteException.class})
     public void deleteSaleLineById(SaleLineId id) {
         SalesLine salesLine = salesLineService.getOneById(id);
         ThirdPartySales sales = (ThirdPartySales) salesLine.getSales();
@@ -354,7 +355,7 @@ public class ThirdPartySaleServiceImpl extends SaleCommonService implements Thir
     }
 
     @Override
-    @Transactional(noRollbackFor = { PlafondVenteException.class })
+    @Transactional(noRollbackFor = {PlafondVenteException.class})
     public SaleLineDTO updateItemQuantityRequested(SaleLineDTO saleLineDTO)
         throws StockException, DeconditionnementStockOut, PlafondVenteException {
         SalesLine salesLine = salesLineService.getOneById(saleLineDTO.getSaleLineId());
@@ -376,7 +377,7 @@ public class ThirdPartySaleServiceImpl extends SaleCommonService implements Thir
     }
 
     @Override
-    @Transactional(noRollbackFor = { PlafondVenteException.class })
+    @Transactional(noRollbackFor = {PlafondVenteException.class})
     public SaleLineDTO updateItemRegularPrice(SaleLineDTO saleLineDTO) throws PlafondVenteException {
         SalesLine salesLine = salesLineService.getOneById(saleLineDTO.getSaleLineId());
         salesLineService.updateItemRegularPrice(saleLineDTO, salesLine, storageService.getDefaultConnectedUserPointOfSaleStorage().getId());
@@ -406,6 +407,7 @@ public class ThirdPartySaleServiceImpl extends SaleCommonService implements Thir
                 sales.setUpdatedAt(LocalDateTime.now());
                 sales.setEffectiveUpdateDate(sales.getUpdatedAt());
                 sales.setCanceled(true);
+                copy.setCanceled(true);
                 thirdPartySaleRepository.save(sales);
                 thirdPartySaleRepository.save(copy);
                 paymentService.findAllBySales(sales.getId()).forEach(payment -> paymentService.clonePayment(payment, copy));
@@ -424,7 +426,7 @@ public class ThirdPartySaleServiceImpl extends SaleCommonService implements Thir
     }
 
     @Override
-    @Transactional(noRollbackFor = { PlafondVenteException.class })
+    @Transactional(noRollbackFor = {PlafondVenteException.class})
     public FinalyseSaleDTO save(ThirdPartySaleDTO dto)
         throws SaleNotFoundCustomerException, ThirdPartySalesTiersPayantException, NumBonAlreadyUseException {
         ThirdPartySales p = thirdPartySaleRepository
@@ -440,17 +442,22 @@ public class ThirdPartySaleServiceImpl extends SaleCommonService implements Thir
         p.setTvaEmbeded(buildTvaData(p.getSalesLines()));
         paymentService.buildPaymentFromFromPaymentDTO(p, dto);
         List<ThirdPartySaleLine> thirdPartySaleLines = findAllBySaleId(p.getId());
-        if (thirdPartySaleLines.isEmpty() && dto.getTiersPayants().isEmpty()) {
+        if (CollectionUtils.isEmpty(thirdPartySaleLines) || CollectionUtils.isEmpty(dto.getTiersPayants())) {
             throw new ThirdPartySalesTiersPayantException();
         }
-        Map<Integer, String> numBonMap = dto
-            .getTiersPayants()
+
+        Map<Integer, List<String>> numBonMap = dto.getTiersPayants()
             .stream()
-            .collect(Collectors.toMap(ClientTiersPayantDTO::getId, ClientTiersPayantDTO::getNumBon, (_, b) -> b));
+            .collect(
+                Collectors.groupingBy(
+                    ClientTiersPayantDTO::getId,
+                    Collectors.mapping(ClientTiersPayantDTO::getNumBon, Collectors.toList())
+                )
+            );
 
         thirdPartySaleLines.forEach(thirdPartySaleLine -> {
             ClientTiersPayant clientTiersPayant = thirdPartySaleLine.getClientTiersPayant();
-            String numBon = numBonMap.get(clientTiersPayant.getId());
+            String numBon = numBonMap.get(clientTiersPayant.getId()).getFirst();
             if (numBon != null) {
                 if (checkIfNumBonIsAlReadyUse(numBon, clientTiersPayant.getId(), p.getId().getId())) {
                     throw new NumBonAlreadyUseException(numBon);
@@ -469,7 +476,7 @@ public class ThirdPartySaleServiceImpl extends SaleCommonService implements Thir
     }
 
     @Override
-    @Transactional(noRollbackFor = { PlafondVenteException.class })
+    @Transactional(noRollbackFor = {PlafondVenteException.class})
     public ResponseDTO putThirdPartySaleOnHold(ThirdPartySaleDTO dto) {
         ResponseDTO response = new ResponseDTO();
         ThirdPartySales thirdPartySales = thirdPartySaleRepository.findOneById(dto.getId());
@@ -484,12 +491,12 @@ public class ThirdPartySaleServiceImpl extends SaleCommonService implements Thir
     public void updateDate(ThirdPartySaleDTO dto) {
         ThirdPartySales sales = this.thirdPartySaleRepository.getReferenceById(dto.getSaleId());
         this.logService.create(
-                TransactionType.MODIFICATION_DATE_DE_VENTE,
-                TransactionType.MODIFICATION_DATE_DE_VENTE.getValue(),
-                sales.getId().getId().toString(),
-                sales.getUpdatedAt().toString(),
-                dto.getUpdatedAt().toString()
-            );
+            TransactionType.MODIFICATION_DATE_DE_VENTE,
+            TransactionType.MODIFICATION_DATE_DE_VENTE.getValue(),
+            sales.getId().getId().toString(),
+            sales.getUpdatedAt().toString(),
+            dto.getUpdatedAt().toString()
+        );
         sales.setCreatedAt(dto.getUpdatedAt());
         sales.setUpdatedAt(sales.getCreatedAt());
         sales
@@ -503,7 +510,7 @@ public class ThirdPartySaleServiceImpl extends SaleCommonService implements Thir
     }
 
     @Override
-    @Transactional(noRollbackFor = { PlafondVenteException.class })
+    @Transactional(noRollbackFor = {PlafondVenteException.class})
     public SaleLineDTO updateItemQuantitySold(SaleLineDTO saleLineDTO) {
         SalesLine salesLine = salesLineService.getOneById(saleLineDTO.getSaleLineId());
         salesLineService.updateItemQuantitySold(salesLine, saleLineDTO, storageService.getDefaultConnectedUserPointOfSaleStorage().getId());
@@ -525,7 +532,7 @@ public class ThirdPartySaleServiceImpl extends SaleCommonService implements Thir
     }
 
     @Override
-    @Transactional(noRollbackFor = { PlafondVenteException.class })
+    @Transactional(noRollbackFor = {PlafondVenteException.class})
     public void addThirdPartySaleLineToSales(ClientTiersPayantDTO dto, Long saleId)
         throws GenericError, NumBonAlreadyUseException, PlafondVenteException {
         ClientTiersPayant clientTiersPayant = clientTiersPayantRepository.getReferenceById(dto.getId());
@@ -548,7 +555,7 @@ public class ThirdPartySaleServiceImpl extends SaleCommonService implements Thir
     }
 
     @Override
-    @Transactional(noRollbackFor = { PlafondVenteException.class })
+    @Transactional(noRollbackFor = {PlafondVenteException.class})
     public void removeThirdPartySaleLineToSales(Integer clientTiersPayantId, SaleId saleId) throws PlafondVenteException {
         thirdPartySaleLineService
             .findFirstByClientTiersPayantIdAndSaleId(clientTiersPayantId, saleId)
@@ -584,7 +591,7 @@ public class ThirdPartySaleServiceImpl extends SaleCommonService implements Thir
     }
 
     @Override
-    @Transactional(noRollbackFor = { PlafondVenteException.class })
+    @Transactional(noRollbackFor = {PlafondVenteException.class})
     public void updateTransformedSale(ThirdPartySaleDTO dto) throws PlafondVenteException {
         ThirdPartySales thirdPartySales = findById(dto.getSaleId());
         AssuredCustomer assuredCustomer = assuredCustomerRepository.getReferenceById(dto.getCustomerId());
@@ -670,7 +677,7 @@ public class ThirdPartySaleServiceImpl extends SaleCommonService implements Thir
     }
 
     @Override
-    @Transactional(noRollbackFor = { PlafondVenteException.class })
+    @Transactional(noRollbackFor = {PlafondVenteException.class})
     public void changeCustomer(UpdateSaleInfo updateSaleInfo) throws GenericError, PlafondVenteException {
         ThirdPartySales thirdPartySales = findById(updateSaleInfo.id());
         AssuredCustomer assuredCustomer = assuredCustomerRepository.getReferenceById(updateSaleInfo.value());
@@ -703,7 +710,7 @@ public class ThirdPartySaleServiceImpl extends SaleCommonService implements Thir
     }
 
     @Override
-    @Transactional(noRollbackFor = { PlafondVenteException.class })
+    @Transactional(noRollbackFor = {PlafondVenteException.class})
     public FinalyseSaleDTO editSale(ThirdPartySaleDTO dto)
         throws PaymentAmountException, SaleNotFoundCustomerException, ThirdPartySalesTiersPayantException {
         SaleId saleId = dto.getSaleId();
@@ -791,12 +798,12 @@ public class ThirdPartySaleServiceImpl extends SaleCommonService implements Thir
         thirdPartySaleRepository.save(thirdPartySales);
         ObjectMapper objectMapper = new ObjectMapper();
         this.logService.create(
-                TransactionType.MODIFICATION_INFO_CLIENT,
-                TransactionType.MODIFICATION_INFO_CLIENT.getValue(),
-                thirdPartySales.getId().getId().toString(),
-                objectMapper.writeValueAsString(updateSale.initialValue()),
-                objectMapper.writeValueAsString(updateSale.finalValue())
-            );
+            TransactionType.MODIFICATION_INFO_CLIENT,
+            TransactionType.MODIFICATION_INFO_CLIENT.getValue(),
+            thirdPartySales.getId().getId().toString(),
+            objectMapper.writeValueAsString(updateSale.initialValue()),
+            objectMapper.writeValueAsString(updateSale.finalValue())
+        );
     }
 
     private void updateThirdPartySaleLine(
@@ -933,17 +940,17 @@ public class ThirdPartySaleServiceImpl extends SaleCommonService implements Thir
                     Objects.requireNonNullElse(input.getTotalSalesAmount(), BigDecimal.ZERO).add(si.getTotalSalesAmount())
                 );
                 this.prixRererenceService.findByProduitIdAndTiersPayantIds(produit.getId(), tiersPayantIds).forEach(prixRef ->
-                        tiersPayantInputs.forEach(cl -> {
-                            if (cl.getTiersPayantId().compareTo(prixRef.getTiersPayant().getId()) == 0) {
-                                TiersPayantPrixInput pi = new TiersPayantPrixInput();
-                                pi.setCompteTiersPayantId(cl.getClientTiersPayantId());
-                                pi.setPrice(prixRef.getPrice());
-                                pi.setRate(prixRef.getRate());
-                                pi.setOptionPrixType(prixRef.getType());
-                                si.getPrixAssurances().add(pi);
-                            }
-                        })
-                    );
+                    tiersPayantInputs.forEach(cl -> {
+                        if (cl.getTiersPayantId().compareTo(prixRef.getTiersPayant().getId()) == 0) {
+                            TiersPayantPrixInput pi = new TiersPayantPrixInput();
+                            pi.setCompteTiersPayantId(cl.getClientTiersPayantId());
+                            pi.setPrice(prixRef.getPrice());
+                            pi.setRate(prixRef.getRate());
+                            pi.setOptionPrixType(prixRef.getType());
+                            si.getPrixAssurances().add(pi);
+                        }
+                    })
+                );
                 return si;
             })
             .collect(Collectors.toList());

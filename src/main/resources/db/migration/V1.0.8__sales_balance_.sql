@@ -104,7 +104,7 @@ with filtered_sales as (
               sum(s.part_assure)           as total_part_assure,
               sum(s.part_tiers_payant)     as total_part_tiers_payant,
               sum(s.rest_to_pay)           as total_rest_to_pay,
-              count(distinct s.id)         as distinct_sales_count
+              count(distinct case when s.canceled = false then s.id end)  as distinct_sales_count
        from sales s
               join filtered_sales fs on fs.id = s.id and s.sale_date= fs.sale_date
        group by fs.dtype

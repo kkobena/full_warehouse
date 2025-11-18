@@ -29,7 +29,7 @@ import { KeyFilterModule } from 'primeng/keyfilter';
           {{ 'warehouseApp.gestionPerimes.labels.quantiteSaisie' | translate }}
         </label>
         <p-inputgroup-addon>
-          <p-button (click)="handleEnter()" icon="pi pi-plus" [disabled]="disabledButton()" severity="primary"></p-button>
+          <p-button (click)="handleEnter()" icon="pi pi-check" [disabled]="disabledButton()" severity="primary"></p-button>
         </p-inputgroup-addon>
       </p-inputgroup>
     </p-floatlabel>

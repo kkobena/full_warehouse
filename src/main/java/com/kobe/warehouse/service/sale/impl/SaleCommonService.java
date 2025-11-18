@@ -401,6 +401,8 @@ public class SaleCommonService {
         copy.setHtAmount(copy.getHtAmount() * (-1));
         copy.setPayrollAmount(copy.getPayrollAmount() * (-1));
         copy.setRestToPay(copy.getRestToPay() * (-1));
+        copy.setAmountToBePaid(copy.getAmountToBePaid() * (-1));
+        copy.setAmountToBeTakenIntoAccount(copy.getAmountToBeTakenIntoAccount() * (-1));
         copy.setCopy(true);
         copy.setDiscountAmount(copy.getDiscountAmount() * (-1));
         copy.setTaxAmount(copy.getTaxAmount() * (-1));

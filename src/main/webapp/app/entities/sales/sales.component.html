@@ -200,7 +200,9 @@
                 <span class="pharma-code">{{ sale.numberTransaction }}</span>
               </td>
               <td class="text-right">{{ sale.salesLines.length | number }}</td>
-              <td class="pharma-total">{{ sale.salesAmount | number }}</td>
+              <td [ngClass]="sale.salesAmount < 0 ? 'pharma-price-negative' : 'pharma-price'">
+                {{ sale.salesAmount | number }}
+              </td>
               <td class="pharma-entity-name">{{ sale.customer?.fullName }}</td>
               <td>{{ sale.seller?.abbrName }}</td>
               <td>{{ sale.cassier?.abbrName }}</td>

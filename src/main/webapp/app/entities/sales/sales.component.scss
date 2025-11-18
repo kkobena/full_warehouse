@@ -10,6 +10,16 @@
   }
 }
 
+// Negative price styling
+.pharma-price-negative {
+  color: #dc3545 !important;
+  font-weight: 700 !important;
+  text-align: right;
+  background-color: rgba(220, 53, 69, 0.08);
+  padding: 0.25rem 0.5rem !important;
+  border-radius: 4px;
+}
+
 // Additional compact optimizations for sales toolbar on 14-inch screens
 @media (max-width: 1450px) {
   .pharma-toolbar-compact {

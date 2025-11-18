@@ -29,7 +29,8 @@
       "WebSearch",
       "Bash(npx tsc:*)",
       "Bash(npm install:*)",
-      "Bash(chmod:*)"
+      "Bash(chmod:*)",
+      "Bash(npm run lint:fix:*)"
     ],
     "deny": [],
     "ask": []

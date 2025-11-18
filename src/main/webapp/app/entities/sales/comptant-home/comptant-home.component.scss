@@ -194,6 +194,132 @@ $border-radius-lg: $pharma-radius-lg;
 }
 
 // ============================================
+// CUSTOMER DATA SECTION
+// ============================================
+
+.customer-data-wrapper {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  width: 100%;
+  flex-shrink: 0;
+}
+
+.customer-search-display {
+  display: flex;
+  gap: 0.75rem;
+  align-items: center;
+  flex-wrap: wrap;
+}
+
+.search-section {
+  display: flex;
+  align-items: center;
+  flex: 1;
+  min-width: 300px;
+
+  .search-input-wrapper {
+    width: 100%;
+
+    .search-input {
+      font-size: 0.9rem;
+      padding: 0.625rem 2.5rem 0.625rem 2.5rem;
+      border-radius: $border-radius;
+      border: 2px solid $gray-300;
+      transition: all 0.2s ease;
+
+      &:focus {
+        border-color: $pharma-primary;
+        box-shadow: 0 0 0 3px rgba($pharma-primary, 0.1);
+      }
+
+      &::placeholder {
+        color: $gray-400;
+        font-style: italic;
+      }
+    }
+  }
+}
+
+// Compact Customer Info Display
+.customer-info-compact {
+  flex: 1 1 auto;
+  max-width: 600px;
+  min-width: 350px;
+  animation: fadeInDown 0.3s ease;
+}
+
+.customer-badge {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.5rem 0.875rem;
+  background: linear-gradient(135deg, $pharma-primary-light 0%, lighten($pharma-primary-light, 3%) 100%);
+  border: 1px solid lighten($pharma-primary, 25%);
+  border-radius: $border-radius;
+  box-shadow: $shadow-sm;
+  transition: all 0.2s ease;
+
+  &:hover {
+    box-shadow: $shadow-md;
+    border-color: $pharma-primary;
+  }
+
+  > i.pi-user {
+    color: $pharma-primary;
+    font-size: 1.125rem;
+    flex-shrink: 0;
+  }
+
+  .customer-name {
+    font-size: 0.9rem;
+    font-weight: 600;
+    color: $gray-900;
+    flex-shrink: 0;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 200px;
+  }
+
+  .customer-phone {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.375rem;
+    padding: 0.25rem 0.625rem;
+    background: $white;
+    border-radius: $border-radius-sm;
+    font-size: 0.8125rem;
+    color: $gray-700;
+    font-weight: 500;
+    border: 1px solid $gray-200;
+    flex-shrink: 0;
+
+    i {
+      color: $pharma-success;
+      font-size: 0.875rem;
+    }
+  }
+
+  ::ng-deep .p-button {
+    margin-left: auto;
+    flex-shrink: 0;
+  }
+}
+
+// Animation
+@keyframes fadeInDown {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+// ============================================
 // PRODUCT SEARCH SECTION
 // ============================================
 
@@ -410,6 +536,33 @@ $border-radius-lg: $pharma-radius-lg;
       max-width: 400px;
     }
   }
+
+  .customer-search-display {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .search-section {
+    min-width: 100%;
+  }
+
+  .customer-info-compact {
+    min-width: 100%;
+  }
+
+  .customer-badge {
+    gap: 0.5rem;
+    padding: 0.5rem 0.75rem;
+
+    .customer-name {
+      max-width: 180px;
+      font-size: 0.875rem;
+    }
+
+    .customer-phone {
+      font-size: 0.8rem;
+    }
+  }
 }
 
 @media (max-width: 768px) {
@@ -453,6 +606,50 @@ $border-radius-lg: $pharma-radius-lg;
     -webkit-overflow-scrolling: touch;
   }
 
+  .customer-data-wrapper {
+    gap: 0.5rem;
+
+    .customer-search-display {
+      flex-direction: column;
+      gap: 0.5rem;
+    }
+
+    .search-section {
+      min-width: 100%;
+
+      .search-input-wrapper {
+        .search-input {
+          font-size: 0.8125rem;
+          padding: 0.5rem 2rem 0.5rem 2rem;
+        }
+      }
+    }
+
+    .customer-info-compact {
+      min-width: 100%;
+    }
+
+    .customer-badge {
+      flex-wrap: wrap;
+      gap: 0.5rem;
+      padding: 0.5rem 0.625rem;
+
+      .customer-name {
+        max-width: 150px;
+        font-size: 0.8125rem;
+      }
+
+      .customer-phone {
+        font-size: 0.75rem;
+        padding: 0.2rem 0.5rem;
+      }
+
+      ::ng-deep .p-button {
+        margin-left: 0;
+      }
+    }
+  }
+
   .product-search-section .search-controls {
     flex-direction: column;
 
@@ -483,6 +680,7 @@ $border-radius-lg: $pharma-radius-lg;
 
 @media print {
   .pharma-sales-header,
+  .search-section,
   .product-search-section .search-section-header,
   .product-search-section .search-controls {
     display: none;
@@ -492,8 +690,14 @@ $border-radius-lg: $pharma-radius-lg;
     height: auto;
   }
 
-  .sale-content-area {
+  .sale-content-area,
+  .customer-badge {
     box-shadow: none;
-    border: none;
+    border: 1px solid $gray-300;
+    page-break-inside: avoid;
+  }
+
+  .customer-badge ::ng-deep .p-button {
+    display: none;
   }
 }

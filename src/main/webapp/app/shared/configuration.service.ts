@@ -57,26 +57,16 @@ export class ConfigurationService {
     return this.http.put(this.resourceUrl, app, { observe: 'response' });
   }
 
-  /**
-   * Check if simple sale mode is enabled
-   * @returns true if use-simple-sale parameter is set to 'true', false otherwise
-   */
-  isSimpleSaleEnabled(): boolean {
-    const param = this.getParamByKey('use-simple-sale');
-    return param?.value === 'true';
-  }
 
-  /**
-   * Get the simple sale configuration asynchronously
-   * @returns Observable of boolean indicating if simple sale mode is enabled
-   */
+
+
   getSimpleSaleConfig(): Observable<boolean> {
     return new Observable<boolean>(observer => {
       this.find('use-simple-sale').subscribe({
         next: res => {
           if (res.body) {
             this.storeParamByKey('use-simple-sale', res.body);
-            observer.next(res.body.value === 'true');
+            observer.next(Number(res.body.value) ==1);
           } else {
             observer.next(false);
           }

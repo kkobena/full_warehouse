@@ -23,8 +23,8 @@
       </p-button>
 
       <div class="page-title">
-        <h1>Vente Comptant</h1>
-        <p class="subtitle">Caisse - Paiement immédiat</p>
+        <h1>Point de Vente</h1>
+        <p class="subtitle">Gestion des ventes au comptant</p>
       </div>
 
       <!-- Vendeur Selection -->
@@ -59,15 +59,10 @@
         >
         </p-select>
       </div>
+
     </div>
 
     <div class="header-actions">
-      <!-- Customer Selection (Cash Sales Only) -->
-      @if (currentSaleService.currentSale()) {
-        <div class="header-customer-wrapper">
-          <jhi-customer-overlay-panel (onCloseEvent)="onCustomerOverlay($event)"> </jhi-customer-overlay-panel>
-        </div>
-      }
 
       <!-- Pending Sales Button -->
       <p-button
@@ -90,6 +85,58 @@
   <div class="pharma-sales-body">
     <!-- MAIN WORKSPACE (No sidebar - full width) -->
     <div class="sales-workspace full-width">
+      <!-- CUSTOMER SECTION -->
+      <div class="customer-data-wrapper">
+        <div class="customer-search-display">
+          <!-- Search Section -->
+          <div class="search-section">
+            <p-iconfield class="search-input-wrapper">
+              <p-inputicon class="pi pi-search" />
+              <input
+                #searchInput
+                (keydown.enter)="loadUninsuredCustomers()"
+                [(ngModel)]="searchCustomer"
+                autocomplete="off"
+                class="search-input"
+                pInputText
+                [fluid]="true"
+                placeholder="Rechercher un client..."
+                type="text"
+              />
+            </p-iconfield>
+          </div>
+
+          <!-- Customer Information Compact -->
+          @if (selectedCustomerService.selectedCustomerSignal()) {
+            <div class="customer-info-compact">
+              <div class="customer-badge">
+                <i class="pi pi-user"></i>
+                <span class="customer-name">
+                  {{ selectedCustomerService.selectedCustomerSignal().firstName }}
+                  {{ selectedCustomerService.selectedCustomerSignal().lastName }}
+                </span>
+                @if (selectedCustomerService.selectedCustomerSignal().phone) {
+                  <span class="customer-phone">
+                    <i class="pi pi-phone"></i>
+                    {{ selectedCustomerService.selectedCustomerSignal().phone }}
+                  </span>
+                }
+                <p-button
+                  (click)="removeCustomer()"
+                  [rounded]="true"
+                  [text]="true"
+                  icon="pi pi-times"
+                  severity="danger"
+                  size="small"
+                  pTooltip="Retirer le client"
+                >
+                </p-button>
+              </div>
+            </div>
+          }
+        </div>
+      </div>
+
       <!-- PRODUCT SEARCH SECTION -->
       <div class="product-search-section">
         <div class="search-section-header">

@@ -59,4 +59,6 @@ export class ParametreComponent implements OnInit {
       this.apps = res.body || [];
     });
   }
+
+  protected readonly Number = Number;
 }

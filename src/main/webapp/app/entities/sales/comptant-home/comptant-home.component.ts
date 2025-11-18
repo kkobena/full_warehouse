@@ -55,10 +55,14 @@ import { IMagasin } from '../../../shared/model/magasin.model';
 import { Select } from 'primeng/select';
 import { InputGroupAddonModule } from 'primeng/inputgroupaddon';
 import { DrawerModule } from 'primeng/drawer';
+import { IconField } from 'primeng/iconfield';
+import { InputIcon } from 'primeng/inputicon';
 import { ConfirmDialogComponent } from '../../../shared/dialog/confirm-dialog/confirm-dialog.component';
+import { UninsuredCustomerListComponent } from '../uninsured-customer-list/uninsured-customer-list.component';
+import { UninsuredCustomerFormComponent } from '../../customer/uninsured-customer-form/uninsured-customer-form.component';
 import { ToastAlertComponent } from '../../../shared/toast-alert/toast-alert.component';
 import { QuantiteProdutSaisieComponent } from '../../../shared/quantite-produt-saisie/quantite-produt-saisie.component';
-import { isEditMode, isVno, showCommonError, translateSalesLabel } from '../selling-home/sale-helper';
+import { isEditMode, isVno, showCommonError, showCommonModal, translateSalesLabel } from '../selling-home/sale-helper';
 import { SaleEventSignal } from '../selling-home/sale-event';
 import { handleSaleEvents } from '../selling-home/sale-event-helper';
 import { DeconditionnementService } from '../validator/deconditionnement.service';
@@ -93,6 +97,8 @@ import { PreventeModalComponent } from '../prevente-modal/prevente-modal/prevent
     ToastAlertComponent,
     QuantiteProdutSaisieComponent,
     ProduitSearchAutocompleteScannerComponent,
+    IconField,
+    InputIcon,
   ],
   templateUrl: './comptant-home.component.html',
   styleUrl: './comptant-home.component.scss',
@@ -120,13 +126,14 @@ export class ComptantHomeComponent implements OnInit, AfterViewInit, OnDestroy {
   protected isPresale = false;
   protected showStock = true;
   protected printTicket = true;
+  protected searchCustomer: string = null;
   protected readonly currentSaleService = inject(CurrentSaleService);
   protected readonly userVendeurService = inject(UserVendeurService);
   protected readonly PRODUIT_COMBO_RESULT_SIZE = PRODUIT_COMBO_RESULT_SIZE;
   private readonly userCaissierService = inject(UserCaissierService);
   private readonly hasAuthorityService = inject(HasAuthorityService);
   private readonly baseSaleService = inject(BaseSaleService);
-  private readonly selectedCustomerService = inject(SelectedCustomerService);
+   readonly selectedCustomerService = inject(SelectedCustomerService);
   private readonly lastCurrencyGivenService = inject(LastCurrencyGivenService);
   private readonly salesService = inject(SalesService);
   private readonly customerService = inject(CustomerService);
@@ -405,6 +412,42 @@ export class ComptantHomeComponent implements OnInit, AfterViewInit, OnDestroy {
 
   onCustomerOverlay(evnt: boolean): void {
     this.produitbox().getFocus();
+  }
+
+  removeCustomer(): void {
+    this.selectedCustomerService.setCustomer(null);
+    this.clearCustomerSearch();
+    this.produitbox().getFocus();
+  }
+
+  loadUninsuredCustomers(): void {
+    if (!this.searchCustomer) {
+      return;
+    }
+
+    this.customerService
+      .queryUninsuredCustomers({
+        search: this.searchCustomer,
+      })
+      .subscribe({
+        next: (res: HttpResponse<ICustomer[]>) => this.handleUninsuredCustomerQueryResponse(res.body),
+      });
+  }
+
+  openUninsuredCustomerListModal(): void {
+    showCommonModal(
+      this.modalService,
+      UninsuredCustomerListComponent,
+      {
+        header: 'CLIENTS NON ASSURES',
+      },
+      (resp: ICustomer) => {
+        if (resp) {
+          this.handleUninsuredCustomerSelection(resp);
+        }
+      },
+      '60%',
+    );
   }
 
   ngOnDestroy(): void {
@@ -707,6 +750,57 @@ export class ComptantHomeComponent implements OnInit, AfterViewInit, OnDestroy {
     this.tauriPrinterService.clearCustomerDisplay().catch(error => {
       console.error('Failed to clear customer display:', error);
     });
+  }
+
+  private handleUninsuredCustomerQueryResponse(customers: ICustomer[] | null): void {
+    if (!customers?.length) {
+      this.handleNoUninsuredCustomersFound();
+      return;
+    }
+
+    if (customers.length === 1) {
+      this.handleSingleUninsuredCustomerFound(customers[0]);
+    } else {
+      this.handleMultipleUninsuredCustomersFound();
+    }
+  }
+
+  private handleSingleUninsuredCustomerFound(customer: ICustomer): void {
+    this.handleUninsuredCustomerSelection(customer);
+    this.clearCustomerSearch();
+  }
+
+  private handleMultipleUninsuredCustomersFound(): void {
+    this.openUninsuredCustomerListModal();
+    this.clearCustomerSearch();
+  }
+
+  private handleNoUninsuredCustomersFound(): void {
+    this.addUninsuredCustomer();
+    this.clearCustomerSearch();
+  }
+
+  private handleUninsuredCustomerSelection(customer: ICustomer): void {
+    this.selectedCustomerService.setCustomer(customer);
+    this.clearCustomerSearch();
+    this.produitbox().getFocus();
+  }
+
+  private clearCustomerSearch(): void {
+    this.searchCustomer = null;
+  }
+
+  private addUninsuredCustomer(): void {
+    showCommonModal(
+      this.modalService,
+      UninsuredCustomerFormComponent,
+      { title: "FORMULAIRE D'AJOUT DE NOUVEAU DE CLIENT", entity: null },
+      (resp: ICustomer) => {
+        if (resp) {
+          this.handleUninsuredCustomerSelection(resp);
+        }
+      },
+    );
   }
 
   private registerKeyboardShortcuts(): void {

@@ -31,7 +31,7 @@
         <table class="table table-striped">
           <thead class="pharma-table-head">
             <tr>
-              <th>Nom</th>
+
               <th>description</th>
               <th>Valeur</th>
               <th></th>
@@ -40,15 +40,15 @@
           <tbody>
             @for (app of apps; track app.name) {
               <tr>
-                <td>{{ app.name }}</td>
+
                 <td>{{ app.description }}</td>
                 @if (app.valueType === 'BOOLEAN') {
                   <td>
                     @if (app.name !== 'APP_GESTION_STOCK') {
-                      @if (app.value == 0) {
-                        <p-button (click)="setActive(app, true)" label="Désactivé" raised="true" severity="danger" size="small"> </p-button>
+                      @if (Number(app.value) == 0) {
+                        <p-button (click)="setActive(app, true)" label="Activer" raised="true" severity="danger" size="small"> </p-button>
                       } @else {
-                        <p-button (click)="setActive(app, false)" label="Activé" raised="true" severity="primary" size="small"> </p-button>
+                        <p-button (click)="setActive(app, false)" label="Désactiver" raised="true" severity="primary" size="small"> </p-button>
                       }
                     }
                   </td>

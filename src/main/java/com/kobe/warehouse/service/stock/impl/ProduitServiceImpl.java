@@ -6,9 +6,7 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.json.JsonMapper;
 import com.kobe.warehouse.domain.Produit;
 import com.kobe.warehouse.domain.StockProduit;
-import com.kobe.warehouse.domain.Storage;
 import com.kobe.warehouse.repository.CustomizedProductService;
-import com.kobe.warehouse.repository.MagasinRepository;
 import com.kobe.warehouse.repository.ProduitRepository;
 import com.kobe.warehouse.repository.RayonRepository;
 import com.kobe.warehouse.service.dto.ProduitCriteria;
@@ -17,7 +15,7 @@ import com.kobe.warehouse.service.dto.builder.ProduitBuilder;
 import com.kobe.warehouse.service.settings.AppConfigurationService;
 import com.kobe.warehouse.service.stock.ProduitService;
 import com.kobe.warehouse.service.stock.dto.ProduitSearch;
-import java.time.LocalDate;
+
 import java.time.LocalDateTime;
 import java.util.Collections;
 import java.util.List;
@@ -37,7 +35,6 @@ import org.springframework.transaction.annotation.Transactional;
 public class ProduitServiceImpl implements ProduitService {
 
     private static final Logger LOG = LoggerFactory.getLogger(ProduitServiceImpl.class);
-    private final MagasinRepository magasinRepository;
     private final ProduitRepository produitRepository;
     private final CustomizedProductService customizedProductService;
     private final RayonRepository rayonRepository;
@@ -45,14 +42,13 @@ public class ProduitServiceImpl implements ProduitService {
     private final AppConfigurationService appConfigurationService;
 
     public ProduitServiceImpl(
-        MagasinRepository magasinRepository,
         ProduitRepository produitRepository,
         CustomizedProductService customizedProductService,
         RayonRepository rayonRepository,
         JsonMapper objectMapper,
         AppConfigurationService appConfigurationService
     ) {
-        this.magasinRepository = magasinRepository;
+
         this.produitRepository = produitRepository;
         this.customizedProductService = customizedProductService;
         this.rayonRepository = rayonRepository;
@@ -224,6 +220,7 @@ public class ProduitServiceImpl implements ProduitService {
         }
 
         String jsonResult = produitRepository.searchProduitsJson(search, magasinId, pageable.getPageSize());
+
         try {
             return objectMapper.readValue(jsonResult, new TypeReference<>() {});
         } catch (Exception e) {

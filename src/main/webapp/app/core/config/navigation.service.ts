@@ -37,7 +37,7 @@ import {
   faUsers,
   faWallet,
   faDesktop,
-  faSchoolCircleExclamation,
+  faSchoolCircleExclamation, faSdCard
 } from '@fortawesome/free-solid-svg-icons';
 
 export interface NavigationOptions {
@@ -210,6 +210,10 @@ export class NavigationService {
           label: 'Motif Retour Produit',
           routerLink: '/motif-retour-produit',
           faIcon: faSchoolCircleExclamation,
+        },    {
+          label: 'Modes de paiement',
+          routerLink: '/mode-payments',
+          faIcon: faSdCard,
         },
 
         {

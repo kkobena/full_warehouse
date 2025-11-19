@@ -163,3 +163,78 @@ coverage/
 /src-tauri/target/
 /src-tauri/Cargo.lock
 /script_bat/
+
+######################
+# Android
+######################
+# Built application files
+*.apk
+*.ap_
+*.aab
+
+# Files for the ART/Dalvik VM
+*.dex
+
+# Java class files
+*.class
+
+# Generated files
+sales-android/bin/
+sales-android/gen/
+sales-android/out/
+sales-android/build/
+sales-android/.gradle/
+sales-android/captures/
+sales-android/.externalNativeBuild/
+sales-android/.cxx/
+sales-android/local.properties
+
+# Gradle files
+sales-android/.gradle/
+sales-android/build/
+
+# Local configuration file (sdk path, etc)
+sales-android/local.properties
+
+# Log Files
+sales-android/*.log
+
+# Android Studio Navigation editor temp files
+sales-android/.navigation/
+
+# Android Studio captures folder
+sales-android/captures/
+
+# IntelliJ
+sales-android/*.iml
+sales-android/.idea/workspace.xml
+sales-android/.idea/tasks.xml
+sales-android/.idea/gradle.xml
+sales-android/.idea/assetWizardSettings.xml
+sales-android/.idea/dictionaries
+sales-android/.idea/libraries
+sales-android/.idea/caches
+sales-android/.idea/modules.xml
+sales-android/.idea/navEditor.xml
+
+# Keystore files
+sales-android/*.jks
+sales-android/*.keystore
+
+# External native build folder generated in Android Studio 2.2 and later
+sales-android/.externalNativeBuild
+
+# Google Services (e.g. APIs or Firebase)
+sales-android/google-services.json
+
+# Freeline
+sales-android/freeline.py
+sales-android/freeline/
+sales-android/freeline_project_description.json
+
+# fastlane
+sales-android/fastlane/report.xml
+sales-android/fastlane/Preview.html
+sales-android/fastlane/screenshots
+sales-android/fastlane/test_output
+sales-android/fastlane/readme.md

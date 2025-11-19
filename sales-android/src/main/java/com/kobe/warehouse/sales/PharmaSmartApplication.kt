@@ -11,6 +11,9 @@ class PharmaSmartApplication : Application() {
 
     override fun onCreate() {
         super.onCreate()
+
+        // Initialize ApiClient with application context
+        // This is needed for SessionManager to broadcast events
         ApiClient.init(this)
     }
 }

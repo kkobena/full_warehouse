@@ -17,7 +17,7 @@
             android:layout_width="match_parent"
             android:layout_height="?attr/actionBarSize"
             android:background="@color/primary"
-            app:title="Ventes"
+            app:title="Ventes en cours"
             app:titleTextColor="@color/white" />
 
     </com.google.android.material.appbar.AppBarLayout>
@@ -121,7 +121,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="16dp"
-                    android:text="Aucune vente"
+                    android:text="Aucune vente en cours"
                     android:textSize="18sp"
                     android:textColor="@color/text_primary"
                     android:textStyle="bold" />

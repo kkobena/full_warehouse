@@ -2,47 +2,28 @@ package com.kobe.warehouse.sales.printer
 
 import android.content.Context
 import android.util.Log
-import com.kobe.warehouse.sales.data.api.StoreApiService
+import com.kobe.warehouse.sales.data.model.PaymentMode
 import com.kobe.warehouse.sales.data.model.Sale
 import com.kobe.warehouse.sales.data.model.SaleLine
-import com.kobe.warehouse.sales.data.repository.AuthRepository
-import com.kobe.warehouse.sales.data.repository.StoreRepository
-import com.kobe.warehouse.sales.utils.ApiClient
-import com.kobe.warehouse.sales.utils.TokenManager
+import com.sunmi.peripheral.printer.InnerPrinterException
 import java.text.NumberFormat
 import java.text.SimpleDateFormat
 import java.util.Locale
 
 /**
  * Receipt printer for cash sales
- * Formats and prints thermal receipts using Sunmi printer (real or mock)
- * Automatically detects device type and uses appropriate printer service
- * Automatically loads store info and account info from cache/API
+ * Formats and prints thermal receipts using Sunmi printer
  *
  * Based on: com.kobe.warehouse.service.receipt.service.CashSaleReceiptService
  */
-class ReceiptPrinter(private val context: Context) {
+class ReceiptPrinter(context: Context) {
 
-    private val printerService = UnifiedPrinterService(context)
-    private val tokenManager = TokenManager(context)
-
-    // Lazy init repositories
-    private val storeRepository: StoreRepository by lazy {
-        val retrofit = ApiClient.create(tokenManager = tokenManager)
-        val storeApiService = retrofit.create(StoreApiService::class.java)
-        StoreRepository(storeApiService, context)
-    }
-
-    private val authRepository: AuthRepository by lazy {
-        val retrofit = ApiClient.create(tokenManager = tokenManager)
-        val authApiService = retrofit.create(com.kobe.warehouse.sales.data.api.AuthApiService::class.java)
-        AuthRepository(authApiService, tokenManager)
-    }
+    private val printerService = SunmiPrinterService(context)
     private val numberFormat = NumberFormat.getNumberInstance(Locale.FRANCE).apply {
         // Ensure space is used as grouping separator (French format)
         val symbols = (this as java.text.DecimalFormat).decimalFormatSymbols
         symbols.groupingSeparator = ' '
-        this.decimalFormatSymbols = symbols
+        (this as java.text.DecimalFormat).decimalFormatSymbols = symbols
     }
     private val dateFormat = SimpleDateFormat("dd/MM/yyyy HH:mm:ss", Locale.FRANCE)
 
@@ -68,70 +49,52 @@ class ReceiptPrinter(private val context: Context) {
 
     /**
      * Print cash sale receipt
-     * Automatically loads store info and account info from cache/API
      *
      * @param sale         the sale to print
-     * @param paperRollSize paper roll size in mm (58 or 80), defaults to user preference
+     * @param storeName    the store name (e.g., "Pharma Smart")
+     * @param storeAddress the store address
+     * @param storePhone   the store phone number
+     * @param welcomeMsg   optional welcome message
+     * @param footerNote   optional footer note (e.g., "Merci pour votre visite")
+     * @param cassierName  cashier name
+     * @param sellerName   seller name (if different from cashier)
+     * @param payments     list of payment details (payment mode, amount)
+     * @param montantVerse amount given by customer (for cash payments)
+     * @param paperRoll    paper roll size (58mm or 80mm), defaults to 58mm
      * @return true if printing succeeded, false otherwise
      */
     suspend fun printReceipt(
         sale: Sale,
-        paperRollSize: Int = tokenManager.getReceiptRollSize()
+        storeName: String,
+        storeAddress: String? = null,
+        storePhone: String? = null,
+        welcomeMsg: String? = null,
+        footerNote: String? = "Merci pour votre visite!",
+        cassierName: String,
+        sellerName: String? = null,
+        payments: List<PaymentDetail>,
+        montantVerse: Int = 0,
+        paperRoll: PaperRoll = PaperRoll.MM_58
     ): Boolean {
         return try {
-            // Determine paper roll type
-            val paperRoll = when {
-                paperRollSize >= 80 -> PaperRoll.MM_80
-                else -> PaperRoll.MM_58
-            }
-
-            // Load store info from cache/API
-            val storeResult = storeRepository.getStore()
-            val store = storeResult.getOrNull()
-
-            // Load account info from cache/API
-            val accountResult = authRepository.getAccount()
-            val account = accountResult.getOrNull()
-
-            // Get cashier name from account
-            val cassierName = account?.let {
-                "${it.firstName} ${it.lastName}".trim()
-            } ?: "Caissier"
-
-            // Store info
-            val storeName = store?.getDisplayName() ?: "Pharmacie"
-            val storeAddress = store?.getFormattedAddress()
-            val storePhone = store?.getFormattedPhone()
-            val welcomeMsg = store?.welcomeMessage
-            val footerNote = store?.note ?: "Merci pour votre visite!"
-
-            // Convert sale payments to PaymentDetail
-            val payments = sale.payments.map { payment ->
-                PaymentDetail(
-                    paymentModeLabel = payment.paymentMode?.libelle ?: "Espèces",
-                    amount = payment.paidAmount,
-                    isCash = payment.paymentMode?.isCash() ?: true
-                )
-            }
-
-            // Connect to printer (real or mock)
+            // Connect to printer
             if (!printerService.connect()) {
                 Log.e(TAG, "Failed to connect to printer")
                 return false
             }
 
-            // Check printer status (0 = ready)
+            // Check printer status
             val status = printerService.getPrinterStatus()
-            if (status != 0) {
-                Log.e(TAG, "Printer not ready, status: $status")
-                // Continue anyway for mock printer
+            if (status != SunmiPrinterService.PrinterStatus.READY) {
+                Log.e(TAG, "Printer not ready: ${status.message}")
+                return false
             }
 
             // Print receipt
             printHeader(storeName, storeAddress, storePhone, welcomeMsg, paperRoll)
-            printSaleInfo(sale, cassierName, paperRoll)
+            printSaleInfo(sale, cassierName, sellerName, paperRoll)
             printSaleLines(sale.salesLines, paperRoll)
-            printSummary(sale, payments, sale.montantVerse, paperRoll)
+            printSummary(sale, payments, montantVerse, paperRoll)
             printFooter(footerNote, System.currentTimeMillis(), paperRoll)
 
             // Feed and cut paper
@@ -140,6 +103,9 @@ class ReceiptPrinter(private val context: Context) {
 
             Log.d(TAG, "Receipt printed successfully for sale ${sale.numberTransaction}")
             true
+        } catch (e: InnerPrinterException) {
+            Log.e(TAG, "Printer error", e)
+            false
         } catch (e: Exception) {
             Log.e(TAG, "Failed to print receipt", e)
             false
@@ -155,24 +121,24 @@ class ReceiptPrinter(private val context: Context) {
         // Store name (centered, large, bold)
         printerService.printLine(
             storeName,
-            alignment = UnifiedPrinterService.ALIGN_CENTER,
-            fontSize = UnifiedPrinterService.FONT_SIZE_XLARGE,
+            alignment = SunmiPrinterService.ALIGN_CENTER,
+            fontSize = SunmiPrinterService.FONT_SIZE_XLARGE,
             isBold = true
         )
         printerService.printEmptyLine(1)
 
         // Store address and phone (centered)
         address?.let {
-            printerService.printLine(it, alignment = UnifiedPrinterService.ALIGN_CENTER)
+            printerService.printLine(it, alignment = SunmiPrinterService.ALIGN_CENTER)
         }
         phone?.let {
-            printerService.printLine("TEL: $it", alignment = UnifiedPrinterService.ALIGN_CENTER)
+            printerService.printLine("Tél: $it", alignment = SunmiPrinterService.ALIGN_CENTER)
         }
         printerService.printEmptyLine(1)
 
         // Welcome message (centered)
         welcomeMsg?.let {
-            printerService.printLine(it, alignment = UnifiedPrinterService.ALIGN_CENTER)
+            printerService.printLine(it, alignment = SunmiPrinterService.ALIGN_CENTER)
             printerService.printEmptyLine(1)
         }
 
@@ -181,31 +147,27 @@ class ReceiptPrinter(private val context: Context) {
     }
 
     /**
-     * Print sale information (transaction number, customer, cashier)
+     * Print sale information (transaction number, customer, cashier, seller)
      */
-    private fun printSaleInfo(sale: Sale, cassierName: String, paperRoll: PaperRoll) {
+    private fun printSaleInfo(sale: Sale, cassierName: String, sellerName: String?, paperRoll: PaperRoll) {
         // Transaction number
         printerService.printLine("TICKET: ${sale.numberTransaction}", isBold = false)
 
         // Cashier
         printerService.printLine("CASSIER(RE): $cassierName")
 
+        // Seller (if different from cashier)
+        sellerName?.let {
+            if (it != cassierName) {
+                printerService.printLine("VENDEUR(SE): $it")
+            }
+        }
+
         // Customer (if exists)
         sale.customer?.let { customer ->
-            val customerFullName = buildString {
-                append(customer.firstName ?: "")
-                if (!customer.lastName.isNullOrEmpty()) {
-                    append(" ")
-                    append(customer.lastName)
-                }
-            }.trim()
-
-            if (customerFullName.isNotEmpty()) {
-                printerService.printLine("CLIENT: $customerFullName")
-            }
-
+            printerService.printLine("Client: ${customer.firstName} ${customer.lastName}")
             customer.phone?.takeIf { it.isNotEmpty() }?.let { phone ->
-                printerService.printLine("TEL: $phone")
+                printerService.printLine("Tél: $phone")
             }
         }
 
@@ -229,10 +191,10 @@ class ReceiptPrinter(private val context: Context) {
             columns = listOf("QTE", "PRODUIT", "PU", "MONTANT"),
             widths = listOf(qtyWidth, productWidth, priceWidth, totalWidth),
             alignments = listOf(
-                UnifiedPrinterService.ALIGN_LEFT,
-                UnifiedPrinterService.ALIGN_LEFT,
-                UnifiedPrinterService.ALIGN_RIGHT,
-                UnifiedPrinterService.ALIGN_RIGHT
+                SunmiPrinterService.ALIGN_LEFT,
+                SunmiPrinterService.ALIGN_LEFT,
+                SunmiPrinterService.ALIGN_RIGHT,
+                SunmiPrinterService.ALIGN_RIGHT
             )
         )
         printerService.printSeparator(paperRoll.width)
@@ -240,7 +202,7 @@ class ReceiptPrinter(private val context: Context) {
         // Sale lines
         for (line in saleLines) {
             val quantity = line.quantityRequested.toString()
-            val productName = (line.produitLibelle ?: "").take(productWidth)
+            val productName = line.produitLibelle.take(productWidth)
             val unitPrice = formatAmount(line.regularUnitPrice)
             val totalPrice = formatAmount(line.salesAmount)
 
@@ -248,10 +210,10 @@ class ReceiptPrinter(private val context: Context) {
                 columns = listOf(quantity, productName, unitPrice, totalPrice),
                 widths = listOf(qtyWidth, productWidth, priceWidth, totalWidth),
                 alignments = listOf(
-                    UnifiedPrinterService.ALIGN_LEFT,
-                    UnifiedPrinterService.ALIGN_LEFT,
-                    UnifiedPrinterService.ALIGN_RIGHT,
-                    UnifiedPrinterService.ALIGN_RIGHT
+                    SunmiPrinterService.ALIGN_LEFT,
+                    SunmiPrinterService.ALIGN_LEFT,
+                    SunmiPrinterService.ALIGN_RIGHT,
+                    SunmiPrinterService.ALIGN_RIGHT
                 )
             )
         }
@@ -265,17 +227,17 @@ class ReceiptPrinter(private val context: Context) {
     private fun printSummary(sale: Sale, payments: List<PaymentDetail>, montantVerse: Int, paperRoll: PaperRoll) {
         // Total amount (TTC)
         printerService.printLabelValue(
-            label = MONTANT_TTC,
-            value = formatAmount(sale.salesAmount),
-            paperWidth = paperRoll.width
+            MONTANT_TTC,
+            formatAmount(sale.salesAmount),
+            paperRoll.width
         )
 
         // Discount (if any)
         if (sale.discountAmount > 0) {
             printerService.printLabelValue(
-                label = REMISE,
-                value = formatAmount(sale.discountAmount),
-                paperWidth = paperRoll.width
+                REMISE,
+                formatAmount(sale.discountAmount),
+                paperRoll.width
             )
         }
 
@@ -285,7 +247,7 @@ class ReceiptPrinter(private val context: Context) {
         val totalLabel = if (paperRoll == PaperRoll.MM_58) "TOTAL" else TOTAL_A_PAYER
         printerService.printLine(
             "$totalLabel: ${formatAmount(sale.netAmount)}",
-            fontSize = UnifiedPrinterService.FONT_SIZE_LARGE,
+            fontSize = SunmiPrinterService.FONT_SIZE_LARGE,
             isBold = true
         )
         printerService.printEmptyLine(1)
@@ -294,7 +256,7 @@ class ReceiptPrinter(private val context: Context) {
         if (payments.isNotEmpty()) {
             printerService.printLine(
                 REGLEMENT,
-                alignment = UnifiedPrinterService.ALIGN_CENTER,
+                alignment = SunmiPrinterService.ALIGN_CENTER,
                 isBold = true
             )
             printerService.printEmptyLine(1)
@@ -309,9 +271,9 @@ class ReceiptPrinter(private val context: Context) {
                 }
 
                 printerService.printLabelValue(
-                    label = payment.paymentModeLabel,
-                    value = amount,
-                    paperWidth = paperRoll.width
+                    payment.paymentModeLabel,
+                    amount,
+                    paperRoll.width
                 )
             }
 
@@ -319,9 +281,9 @@ class ReceiptPrinter(private val context: Context) {
             if (monnaie > 0) {
                 val changeLabel = if (paperRoll == PaperRoll.MM_58) "MONNAIE" else MONTANT_RENDU
                 printerService.printLabelValue(
-                    label = changeLabel,
-                    value = formatAmount(monnaie),
-                    paperWidth = paperRoll.width
+                    changeLabel,
+                    formatAmount(monnaie),
+                    paperRoll.width
                 )
             }
 
@@ -352,7 +314,7 @@ class ReceiptPrinter(private val context: Context) {
 
         // Thank you message (centered)
         footerNote?.let {
-            printerService.printLine(it, alignment = UnifiedPrinterService.ALIGN_CENTER)
+            printerService.printLine(it, alignment = SunmiPrinterService.ALIGN_CENTER)
         }
     }
 
@@ -370,8 +332,8 @@ class ReceiptPrinter(private val context: Context) {
      * Payment detail data class
      */
     data class PaymentDetail(
-      val paymentModeLabel: String,
-      val amount: Int,
-      val isCash: Boolean = false
+        val paymentModeLabel: String,
+        val amount: Int,
+        val isCash: Boolean = false
     )
 }

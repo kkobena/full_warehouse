@@ -64,14 +64,8 @@
             android:exported="false"
             android:label="@string/comptant_sale_title"
             android:parentActivityName=".ui.activity.SalesHomeActivity"
-            android:windowSoftInputMode="adjustResize" />
-
-        <!-- Sale Detail Activity (View Sale Details) -->
-        <activity
-            android:name=".ui.activity.SaleDetailActivity"
-            android:exported="false"
-            android:label="Détail de la vente"
-            android:parentActivityName=".ui.activity.SalesHomeActivity" />
+            android:windowSoftInputMode="adjustResize"
+            android:launchMode="singleTop" />
 
     </application>
 

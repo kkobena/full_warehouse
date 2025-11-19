@@ -5,7 +5,6 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@color/background_light"
-    android:fitsSystemWindows="true"
     tools:context=".ui.activity.ComptantSaleActivity">
 
     <com.google.android.material.appbar.AppBarLayout
@@ -34,23 +33,23 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="vertical"
-            android:padding="8dp"
+            android:padding="16dp"
             android:paddingBottom="100dp">
 
             <!-- Product Search Card -->
             <com.google.android.material.card.MaterialCardView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginBottom="8dp"
-                app:cardCornerRadius="8dp"
-                app:cardElevation="2dp"
+                android:layout_marginBottom="16dp"
+                app:cardCornerRadius="12dp"
+                app:cardElevation="4dp"
                 app:cardBackgroundColor="@color/white">
 
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:orientation="vertical"
-                    android:padding="12dp">
+                    android:padding="16dp">
 
                     <!-- Search Field -->
                     <com.google.android.material.textfield.TextInputLayout
@@ -98,16 +97,16 @@
             <com.google.android.material.card.MaterialCardView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginBottom="8dp"
-                app:cardCornerRadius="8dp"
-                app:cardElevation="2dp"
+                android:layout_marginBottom="16dp"
+                app:cardCornerRadius="12dp"
+                app:cardElevation="4dp"
                 app:cardBackgroundColor="@color/white">
 
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:orientation="vertical"
-                    android:padding="12dp">
+                    android:padding="16dp">
 
                     <!-- Cart Header -->
                     <LinearLayout
@@ -115,7 +114,7 @@
                         android:layout_height="wrap_content"
                         android:orientation="horizontal"
                         android:gravity="center_vertical"
-                        android:layout_marginBottom="8dp">
+                        android:layout_marginBottom="12dp">
 
                         <ImageView
                             android:layout_width="24dp"
@@ -130,7 +129,7 @@
                             android:layout_weight="1"
                             android:layout_marginStart="8dp"
                             android:text="Panier"
-                            android:textSize="16sp"
+                            android:textSize="18sp"
                             android:textColor="@color/text_primary"
                             android:textStyle="bold" />
 
@@ -138,10 +137,10 @@
                             android:id="@+id/tvCartItemCount"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:paddingHorizontal="10dp"
-                            android:paddingVertical="3dp"
+                            android:paddingHorizontal="12dp"
+                            android:paddingVertical="4dp"
                             android:background="@drawable/badge_background"
-                            android:textSize="12sp"
+                            android:textSize="14sp"
                             android:textColor="@color/white"
                             android:textStyle="bold"
                             tools:text="3" />
@@ -152,9 +151,9 @@
                             android:layout_height="wrap_content"
                             android:layout_marginStart="8dp"
                             android:text="Vider"
-                            android:textSize="11sp"
+                            android:textSize="12sp"
                             app:icon="@drawable/ic_delete"
-                            app:iconSize="14dp"
+                            app:iconSize="16dp"
                             app:iconTint="@color/error"
                             style="@style/Widget.Material3.Button.TextButton" />
 
@@ -165,8 +164,7 @@
                         android:id="@+id/rvCart"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:maxHeight="400dp"
-                        android:nestedScrollingEnabled="true"
+                        android:nestedScrollingEnabled="false"
                         tools:listitem="@layout/item_cart"
                         tools:itemCount="2" />
 
@@ -177,13 +175,13 @@
                         android:layout_height="wrap_content"
                         android:orientation="vertical"
                         android:gravity="center"
-                        android:padding="24dp"
+                        android:padding="32dp"
                         android:visibility="gone"
                         tools:visibility="visible">
 
                         <ImageView
-                            android:layout_width="64dp"
-                            android:layout_height="64dp"
+                            android:layout_width="80dp"
+                            android:layout_height="80dp"
                             android:src="@drawable/ic_empty_cart"
                             app:tint="@color/text_secondary"
                             android:contentDescription="Panier vide" />
@@ -191,9 +189,9 @@
                         <TextView
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:layout_marginTop="12dp"
+                            android:layout_marginTop="16dp"
                             android:text="Panier vide"
-                            android:textSize="14sp"
+                            android:textSize="16sp"
                             android:textColor="@color/text_secondary" />
 
                     </LinearLayout>
@@ -214,39 +212,7 @@
         android:orientation="vertical"
         android:background="@color/white"
         android:elevation="8dp"
-        android:paddingStart="12dp"
-        android:paddingEnd="12dp"
-        android:paddingTop="12dp"
-        android:paddingBottom="24dp">
-
-        <!-- VAT Row (visible only if > 0) -->
-        <LinearLayout
-            android:id="@+id/vatRow"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="horizontal"
-            android:gravity="center_vertical"
-            android:layout_marginBottom="8dp"
-            android:visibility="gone"
-            tools:visibility="visible">
-
-            <TextView
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:text="TVA"
-                android:textSize="14sp"
-                android:textColor="@color/text_secondary" />
-
-            <TextView
-                android:id="@+id/tvVat"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:textSize="14sp"
-                android:textColor="@color/text_secondary"
-                tools:text="2,000 FCFA" />
-
-        </LinearLayout>
+        android:padding="16dp">
 
         <!-- Total Row -->
         <LinearLayout
@@ -254,14 +220,14 @@
             android:layout_height="wrap_content"
             android:orientation="horizontal"
             android:gravity="center_vertical"
-            android:layout_marginBottom="8dp">
+            android:layout_marginBottom="12dp">
 
             <TextView
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
                 android:text="Total"
-                android:textSize="18sp"
+                android:textSize="20sp"
                 android:textColor="@color/text_primary"
                 android:textStyle="bold" />
 
@@ -269,7 +235,7 @@
                 android:id="@+id/tvTotal"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:textSize="20sp"
+                android:textSize="24sp"
                 android:textColor="@color/primary"
                 android:textStyle="bold"
                 tools:text="15,000 FCFA" />
@@ -280,13 +246,13 @@
         <com.google.android.material.button.MaterialButton
             android:id="@+id/btnCheckout"
             android:layout_width="match_parent"
-            android:layout_height="48dp"
+            android:layout_height="56dp"
             android:text="Passer au paiement"
-            android:textSize="15sp"
+            android:textSize="16sp"
             android:textAllCaps="false"
             app:icon="@drawable/ic_payment"
             app:iconGravity="textStart"
-            app:cornerRadius="8dp"
+            app:cornerRadius="12dp"
             android:backgroundTint="@color/success"
             android:textColor="@color/white" />
 

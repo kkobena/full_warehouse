@@ -190,15 +190,14 @@ Backend REST API
 ### Sales
 - `GET /api/sales/prevente` - Get ongoing sales
 - `POST /api/sales/comptant` - Create cash sale
-- `POST /api/sales/comptant/add-customer` - add customer to sale
 - `POST /api/sales/{id}/{date}/line` - Add product
 - `PUT /api/sales/{id}/{date}/line/{lineId}` - Update quantity
-- `DELETE /api/sales/delete-item/{id}/{date}` - Remove product
+- `DELETE /api/sales/{id}/{date}/line/{lineId}` - Remove product
 - `POST /api/sales/{id}/{date}/finalize` - Checkout
 - `GET /api/sales/{id}/{date}/receipt` - Get receipt data
 
 ### Products
-- `GET /api/produits?search={query}` - Search products
+- `GET /api/produits/lite?search={query}` - Search products
 - `GET /api/produits/code/{code}` - Scan barcode
 
 ### Payments

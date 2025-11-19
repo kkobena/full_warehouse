@@ -47,17 +47,6 @@ class PaymentModeAdapter(
         private val tvLibelle: TextView = itemView.findViewById(R.id.tvLibelle)
         private val tvGroup: TextView = itemView.findViewById(R.id.tvGroup)
 
-        init {
-            // Set click listener once in init block
-            cardView.setOnClickListener {
-                val position = bindingAdapterPosition
-                if (position != RecyclerView.NO_POSITION) {
-                    val paymentMode = getItem(position)
-                    onPaymentModeClick(paymentMode)
-                }
-            }
-        }
-
         fun bind(paymentMode: PaymentMode, isSelected: Boolean) {
             tvLibelle.text = paymentMode.libelle
             tvGroup.text = paymentMode.getGroupLabel()
@@ -65,8 +54,8 @@ class PaymentModeAdapter(
             // Set icon based on payment group
             val iconRes = when (paymentMode.group) {
                 "CASH" -> R.drawable.ic_money
-                "CB" -> R.drawable.ic_credit_card
-                "MOBILE" -> R.drawable.ic_phone
+                "CARD" -> R.drawable.ic_credit_card
+                "MOBILE_MONEY" -> R.drawable.ic_phone
                 else -> R.drawable.ic_payment
             }
             ivIcon.setImageResource(iconRes)
@@ -76,6 +65,8 @@ class PaymentModeAdapter(
                 if (isSelected) R.color.primary else R.color.divider
             )
             cardView.strokeWidth = if (isSelected) 4 else 1
+
+            cardView.setOnClickListener { onPaymentModeClick(paymentMode) }
         }
     }
 

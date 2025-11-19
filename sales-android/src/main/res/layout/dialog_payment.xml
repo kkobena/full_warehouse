@@ -7,308 +7,138 @@
     android:orientation="vertical"
     android:padding="24dp">
 
-    <!-- Scrollable Content -->
-    <androidx.core.widget.NestedScrollView
+    <!-- Dialog Title -->
+    <TextView
         android:layout_width="match_parent"
-        android:layout_height="0dp"
-        android:layout_weight="1"
-        android:maxHeight="500dp"
-        android:fillViewport="true">
+        android:layout_height="wrap_content"
+        android:text="Paiement"
+        android:textAppearance="@style/TextAppearance.Material3.HeadlineSmall"
+        android:textColor="@color/primary"
+        android:layout_marginBottom="8dp" />
+
+    <!-- Total Amount -->
+    <TextView
+        android:id="@+id/tvTotal"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Total: 15,000 FCFA"
+        android:textAppearance="@style/TextAppearance.Material3.TitleLarge"
+        android:textColor="@color/text_primary"
+        android:textStyle="bold"
+        android:layout_marginBottom="24dp"
+        tools:text="Total: 15,000 FCFA" />
+
+    <!-- Payment Modes Title -->
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Mode de paiement"
+        android:textAppearance="@style/TextAppearance.Material3.TitleMedium"
+        android:textColor="@color/text_primary"
+        android:layout_marginBottom="12dp" />
+
+    <!-- Payment Modes Grid -->
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/rvPaymentModes"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="16dp"
+        tools:listitem="@layout/item_payment_mode"
+        tools:itemCount="4" />
+
+    <!-- Progress Bar -->
+    <com.google.android.material.progressindicator.LinearProgressIndicator
+        android:id="@+id/progressBar"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="16dp"
+        android:visibility="gone"
+        android:indeterminate="true"
+        tools:visibility="visible" />
+
+    <!-- QR Code Card (for Mobile Money) -->
+    <com.google.android.material.card.MaterialCardView
+        android:id="@+id/qrCodeCard"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="16dp"
+        android:visibility="gone"
+        app:cardCornerRadius="12dp"
+        app:cardElevation="4dp"
+        app:cardBackgroundColor="@color/white"
+        tools:visibility="visible">
 
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:orientation="vertical">
+            android:orientation="vertical"
+            android:padding="16dp"
+            android:gravity="center">
 
-            <!-- Dialog Title -->
             <TextView
-                android:layout_width="match_parent"
+                android:id="@+id/tvQrCodeLabel"
+                android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Paiement"
-                android:textAppearance="@style/TextAppearance.Material3.HeadlineSmall"
-                android:textColor="@color/primary"
-                android:layout_marginBottom="8dp" />
-
-            <!-- VAT Amount (if > 0) -->
-            <TextView
-                android:id="@+id/tvVatAmount"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:text="TVA: 2,000 FCFA"
-                android:textAppearance="@style/TextAppearance.Material3.BodyLarge"
-                android:textColor="@color/text_secondary"
-                android:visibility="gone"
-                android:layout_marginBottom="8dp"
-                tools:visibility="visible"
-                tools:text="TVA: 2,000 FCFA" />
-
-            <!-- Total Amount -->
-            <TextView
-                android:id="@+id/tvTotal"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:text="Total: 15,000 FCFA"
-                android:textAppearance="@style/TextAppearance.Material3.TitleLarge"
-                android:textColor="@color/text_primary"
-                android:textStyle="bold"
-                android:layout_marginBottom="24dp"
-                tools:text="Total: 15,000 FCFA" />
-
-            <!-- Payment Modes Title -->
-            <TextView
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:text="Mode de paiement (max 2)"
-                android:textAppearance="@style/TextAppearance.Material3.TitleMedium"
+                android:text="Scanner pour payer"
+                android:textSize="14sp"
                 android:textColor="@color/text_primary"
                 android:layout_marginBottom="12dp" />
 
-            <!-- Selected Payment Mode 1 -->
-            <com.google.android.material.card.MaterialCardView
-                android:id="@+id/selectedMode1Card"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginBottom="8dp"
-                android:visibility="gone"
-                app:cardCornerRadius="8dp"
-                app:cardElevation="2dp"
-                app:strokeWidth="2dp"
-                app:strokeColor="@color/primary"
-                tools:visibility="visible">
-
-                <LinearLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:orientation="horizontal"
-                    android:padding="12dp"
-                    android:gravity="center_vertical">
-
-                    <TextView
-                        android:id="@+id/tvSelectedMode1"
-                        android:layout_width="0dp"
-                        android:layout_height="wrap_content"
-                        android:layout_weight="1"
-                        android:textSize="16sp"
-                        android:textColor="@color/text_primary"
-                        android:textStyle="bold"
-                        tools:text="Espèces" />
-
-                    <com.google.android.material.button.MaterialButton
-                        android:id="@+id/btnRemoveMode1"
-                        android:layout_width="32dp"
-                        android:layout_height="32dp"
-                        android:insetTop="0dp"
-                        android:insetBottom="0dp"
-                        app:icon="@drawable/ic_delete"
-                        app:iconPadding="0dp"
-                        app:iconGravity="textStart"
-                        style="@style/Widget.Material3.Button.IconButton" />
-
-                </LinearLayout>
-
-            </com.google.android.material.card.MaterialCardView>
-
-            <!-- Amount Input for Mode 1 -->
-            <com.google.android.material.textfield.TextInputLayout
-                android:id="@+id/mode1AmountLayout"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:hint="Montant mode 1"
-                android:visibility="gone"
-                style="@style/Widget.Material3.TextInputLayout.OutlinedBox"
-                app:startIconDrawable="@drawable/ic_money"
-                app:boxStrokeColor="@color/primary"
-                app:hintTextColor="@color/primary"
-                android:layout_marginBottom="12dp"
-                tools:visibility="visible">
-
-                <com.google.android.material.textfield.TextInputEditText
-                    android:id="@+id/etMode1Amount"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:inputType="number"
-                    android:maxLines="1" />
-
-            </com.google.android.material.textfield.TextInputLayout>
-
-            <!-- Selected Payment Mode 2 -->
-            <com.google.android.material.card.MaterialCardView
-                android:id="@+id/selectedMode2Card"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginBottom="8dp"
-                android:visibility="gone"
-                app:cardCornerRadius="8dp"
-                app:cardElevation="2dp"
-                app:strokeWidth="2dp"
-                app:strokeColor="@color/primary"
-                tools:visibility="visible">
-
-                <LinearLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:orientation="horizontal"
-                    android:padding="12dp"
-                    android:gravity="center_vertical">
-
-                    <TextView
-                        android:id="@+id/tvSelectedMode2"
-                        android:layout_width="0dp"
-                        android:layout_height="wrap_content"
-                        android:layout_weight="1"
-                        android:textSize="16sp"
-                        android:textColor="@color/text_primary"
-                        android:textStyle="bold"
-                        tools:text="Carte bancaire" />
-
-                    <com.google.android.material.button.MaterialButton
-                        android:id="@+id/btnRemoveMode2"
-                        android:layout_width="32dp"
-                        android:layout_height="32dp"
-                        android:insetTop="0dp"
-                        android:insetBottom="0dp"
-                        app:icon="@drawable/ic_delete"
-                        app:iconPadding="0dp"
-                        app:iconGravity="textStart"
-                        style="@style/Widget.Material3.Button.IconButton" />
-
-                </LinearLayout>
-
-            </com.google.android.material.card.MaterialCardView>
-
-            <!-- Amount Input for Mode 2 -->
-            <com.google.android.material.textfield.TextInputLayout
-                android:id="@+id/mode2AmountLayout"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:hint="Montant mode 2"
-                android:visibility="gone"
-                style="@style/Widget.Material3.TextInputLayout.OutlinedBox"
-                app:startIconDrawable="@drawable/ic_money"
-                app:boxStrokeColor="@color/primary"
-                app:hintTextColor="@color/primary"
-                android:layout_marginBottom="12dp"
-                tools:visibility="visible">
-
-                <com.google.android.material.textfield.TextInputEditText
-                    android:id="@+id/etMode2Amount"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:inputType="number"
-                    android:maxLines="1"
-                    android:enabled="false" />
-
-            </com.google.android.material.textfield.TextInputLayout>
-
-            <!-- Payment Modes Grid -->
-            <androidx.recyclerview.widget.RecyclerView
-                android:id="@+id/rvPaymentModes"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:minHeight="100dp"
-                android:nestedScrollingEnabled="false"
-                android:layout_marginBottom="16dp"
-                tools:listitem="@layout/item_payment_mode"
-                tools:itemCount="4" />
-
-            <!-- Progress Bar -->
-            <com.google.android.material.progressindicator.LinearProgressIndicator
-                android:id="@+id/progressBar"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginBottom="16dp"
-                android:visibility="gone"
-                android:indeterminate="true"
-                tools:visibility="visible" />
-
-            <!-- QR Code Card (for Mobile Money) -->
-            <com.google.android.material.card.MaterialCardView
-                android:id="@+id/qrCodeCard"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginBottom="16dp"
-                android:visibility="gone"
-                app:cardCornerRadius="12dp"
-                app:cardElevation="4dp"
-                app:cardBackgroundColor="@color/white"
-                tools:visibility="visible">
-
-                <LinearLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:orientation="vertical"
-                    android:padding="16dp"
-                    android:gravity="center">
-
-                    <TextView
-                        android:id="@+id/tvQrCodeLabel"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="Scanner pour payer"
-                        android:textSize="14sp"
-                        android:textColor="@color/text_primary"
-                        android:layout_marginBottom="12dp" />
-
-                    <ImageView
-                        android:id="@+id/ivQrCode"
-                        android:layout_width="200dp"
-                        android:layout_height="200dp"
-                        android:scaleType="fitCenter"
-                        android:contentDescription="QR Code" />
-
-                </LinearLayout>
-
-            </com.google.android.material.card.MaterialCardView>
-
-            <!-- Amount Given (for Cash only) -->
-            <com.google.android.material.textfield.TextInputLayout
-                android:id="@+id/amountInputLayout"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:hint="Montant versé"
-                android:visibility="gone"
-                style="@style/Widget.Material3.TextInputLayout.OutlinedBox"
-                app:startIconDrawable="@drawable/ic_money"
-                app:startIconTint="@color/success"
-                app:boxStrokeColor="@color/primary"
-                app:hintTextColor="@color/primary"
-                android:layout_marginBottom="8dp"
-                tools:visibility="visible">
-
-                <com.google.android.material.textfield.TextInputEditText
-                    android:id="@+id/etAmountGiven"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:inputType="number"
-                    android:maxLines="1" />
-
-            </com.google.android.material.textfield.TextInputLayout>
-
-            <!-- Change Display -->
-            <TextView
-                android:id="@+id/tvChange"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:text="Monnaie: 0 FCFA"
-                android:textSize="16sp"
-                android:textColor="@color/success"
-                android:textStyle="bold"
-                android:visibility="gone"
-                android:layout_marginBottom="16dp"
-                tools:visibility="visible"
-                tools:text="Monnaie: 5,000 FCFA" />
+            <ImageView
+                android:id="@+id/ivQrCode"
+                android:layout_width="200dp"
+                android:layout_height="200dp"
+                android:scaleType="fitCenter"
+                android:contentDescription="QR Code" />
 
         </LinearLayout>
 
-    </androidx.core.widget.NestedScrollView>
+    </com.google.android.material.card.MaterialCardView>
 
-    <!-- Action Buttons (Always visible at bottom) -->
+    <!-- Amount Given (for Cash only) -->
+    <com.google.android.material.textfield.TextInputLayout
+        android:id="@+id/amountInputLayout"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="Montant versé"
+        android:visibility="gone"
+        style="@style/Widget.Material3.TextInputLayout.OutlinedBox"
+        app:startIconDrawable="@drawable/ic_money"
+        app:startIconTint="@color/success"
+        app:boxStrokeColor="@color/primary"
+        app:hintTextColor="@color/primary"
+        android:layout_marginBottom="8dp"
+        tools:visibility="visible">
+
+        <com.google.android.material.textfield.TextInputEditText
+            android:id="@+id/etAmountGiven"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:inputType="number"
+            android:maxLines="1" />
+
+    </com.google.android.material.textfield.TextInputLayout>
+
+    <!-- Change Display -->
+    <TextView
+        android:id="@+id/tvChange"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Monnaie: 0 FCFA"
+        android:textSize="16sp"
+        android:textColor="@color/success"
+        android:textStyle="bold"
+        android:visibility="gone"
+        android:layout_marginBottom="24dp"
+        tools:visibility="visible"
+        tools:text="Monnaie: 5,000 FCFA" />
+
+    <!-- Action Buttons -->
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="horizontal"
-        android:gravity="end"
-        android:layout_marginTop="16dp">
+        android:gravity="end">
 
         <!-- Cancel Button -->
         <com.google.android.material.button.MaterialButton

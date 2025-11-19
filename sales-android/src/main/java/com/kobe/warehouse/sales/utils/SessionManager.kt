@@ -88,4 +88,17 @@ class SessionManager(private val context: Context) {
         tokenManager.clearTokens()
     }
 
+    /**
+     * Check if user is authenticated
+     */
+    fun isAuthenticated(): Boolean {
+        return tokenManager.isAuthenticated()
+    }
+
+    /**
+     * Get access token
+     */
+    fun getAccessToken(): String? {
+        return tokenManager.getAccessToken()
+    }
 }

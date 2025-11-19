@@ -66,6 +66,11 @@ const routes: Routes = [
     loadChildren: () => import('./menu/menu.route'),
   },
   {
+    path: 'mode-payments',
+    data: { pageTitle: 'Modes de paiement' },
+    loadChildren: () => import('./mode-payments/mode-payment.route'),
+  },
+  {
     path: 'motif-ajustement',
     data: { pageTitle: 'warehouseApp.motifAjustement.home.title' },
     loadChildren: () => import('./modif-ajustement/motif-ajustement.route'),

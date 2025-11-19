@@ -15,6 +15,7 @@ export interface IPaymentMode {
   styleImageClass?: string;
   styleBtnClass?: string;
   isReadonly?: boolean;
+  qrCode?: string;
 }
 
 export class PaymentMode implements IPaymentMode {
@@ -31,6 +32,7 @@ export class PaymentMode implements IPaymentMode {
     public styleImageClass?: string,
     public styleBtnClass?: string,
     public isReadonly?: boolean,
+    public qrCode?: string,
   ) {}
 }
 

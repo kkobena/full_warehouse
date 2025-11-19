@@ -1,0 +1,153 @@
+<p-toast position="center"></p-toast>
+<div class="modal-header">
+  <h4 class="modal-title">{{ title }}</h4>
+  <button (click)="cancel()" aria-hidden="true" class="btn-close" data-dismiss="modal"
+          type="button"></button>
+</div>
+
+<form (ngSubmit)="save()" [formGroup]="editForm" name="editForm" novalidate>
+  <div class="modal-body">
+    <p-card>
+      <ng-template #header>
+        <div class="section-header section-header-required">
+          <i class="pi pi-exclamation-circle"></i>
+          <span>Champs Obligatoires</span>
+        </div>
+      </ng-template>
+      <div class="form-grid-compact">
+        <div class="form-field form-field-full">
+          <label class="form-control-label" for="field_code">Code<span
+            class="required">*</span></label>
+          <input #codeField
+                 [hidden]="true"
+                 autocomplete="off"
+                 class="form-control"
+                 formControlName="code"
+                 id="field_code"
+                 maxlength="50"
+                 name="code"
+                 pInputText
+                 type="text"
+          />
+          @if (editForm.get('code')!.invalid && (editForm.get('code')!.dirty || editForm.get(
+            'code')!.touched)) {
+            <div>
+              @if (editForm.get('code')?.errors?.required) {
+                <small class="form-text text-danger">Ce champ est obligatoire.</small>
+              }
+              @if (editForm.get('code')?.errors?.maxlength) {
+                <small class="form-text text-danger">Ce champ ne peut pas dépasser 50
+                  caractères.</small>
+              }
+            </div>
+          }
+        </div>
+
+        <div class="form-field form-field-full">
+          <label class="form-control-label" for="field_libelle">Libellé<span
+            class="required">*</span></label>
+          <input
+            autocomplete="off"
+            class="form-control"
+            formControlName="libelle"
+            id="field_libelle"
+            name="libelle"
+            pInputText
+            type="text"
+          />
+          @if (editForm.get('libelle')!.invalid && (editForm.get('libelle')!.dirty || editForm.get(
+            'libelle')!.touched)) {
+            <div>
+              @if (editForm.get('libelle')?.errors?.required) {
+                <small class="form-text text-danger">Ce champ est obligatoire.</small>
+              }
+            </div>
+          }
+        </div>
+
+        <div class="form-field form-field-full">
+          <label class="form-control-label" for="field_order">Ordre<span
+            class="required">*</span></label>
+          <input
+            autocomplete="off"
+            class="form-control"
+            formControlName="order"
+            id="field_order"
+            min="0"
+            name="order"
+            pInputText
+            type="number"
+          />
+          @if (editForm.get('order')!.invalid && (editForm.get('order')!.dirty || editForm.get(
+            'order')!.touched)) {
+            <div>
+              @if (editForm.get('order')?.errors?.required) {
+                <small class="form-text text-danger">Ce champ est obligatoire.</small>
+              }
+            </div>
+          }
+        </div>
+      </div>
+    </p-card>
+
+    <p-card class="mt-2">
+      <ng-template #header>
+        <div class="section-header">
+          <i class="pi pi-info-circle"></i>
+          <span>Informations Complémentaires</span>
+        </div>
+      </ng-template>
+      <div class="form-grid-compact">
+        <div class="form-field form-field-full">
+          <label class="form-control-label" for="field_qrCode">QR Code (optionnel)</label>
+          <input
+            (change)="onQrCodeSelect($event)"
+            accept="image/*"
+            class="form-control"
+            id="field_qrCode"
+            type="file"
+          />
+          @if (qrCodePreview) {
+            <div class="mt-2">
+              <img [src]="qrCodePreview" alt="QR Code Preview" class="img-thumbnail"
+                   style="max-height: 200px" />
+              <p-button
+                (click)="onQrCodeRemove()"
+                [raised]="true"
+                class="ml-2"
+                icon="pi pi-times"
+                label="Supprimer"
+                severity="danger"
+                size="small"
+                type="button"
+              ></p-button>
+            </div>
+          }
+          <small class="form-text text-muted">Image du QR code pour les paiements mobiles (PNG, JPG,
+            max 1MB)</small>
+        </div>
+      </div>
+    </p-card>
+  </div>
+
+  <div class="form-actions-compact">
+    <p-button
+      (click)="cancel()"
+      [raised]="true"
+      class="p-mr-2"
+      icon="pi pi-times"
+      label="Annuler"
+      severity="secondary"
+      type="button"
+    ></p-button>
+    <p-button
+      [disabled]="editForm.invalid || isSaving || !isValid"
+      [raised]="true"
+      class="p-mr-2"
+      icon="pi pi-check"
+      label="Enregistrer"
+      severity="success"
+      type="submit"
+    ></p-button>
+  </div>
+</form>

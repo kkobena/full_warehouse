@@ -3,7 +3,6 @@ package com.kobe.warehouse.web.rest.stock;
 import com.kobe.warehouse.domain.enumeration.Status;
 import com.kobe.warehouse.repository.ProduitRepository;
 import com.kobe.warehouse.service.ProductActivityService;
-import com.kobe.warehouse.service.dto.DatePeremtion;
 import com.kobe.warehouse.service.dto.ProductActivityDTO;
 import com.kobe.warehouse.service.dto.ProduitCriteria;
 import com.kobe.warehouse.service.dto.ProduitDTO;
@@ -15,9 +14,6 @@ import com.kobe.warehouse.web.util.HeaderUtil;
 import com.kobe.warehouse.web.util.PaginationUtil;
 import com.kobe.warehouse.web.util.ResponseUtil;
 import jakarta.validation.Valid;
-import java.time.LocalDate;
-import java.util.List;
-import java.util.Optional;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
@@ -35,6 +31,10 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
+
+import java.time.LocalDate;
+import java.util.List;
+import java.util.Optional;
 
 /**
  * REST controller for managing {@link com.kobe.warehouse.domain.Produit}.
@@ -204,6 +204,13 @@ public class ProduitResource extends ProduitResourceProxy {
                 .setRemisable(remisable),
             pageable
         );
+    }
+
+    @GetMapping("/produits/code/{code}")
+    public ResponseEntity<List<ProduitSearch>> findByCode(@PathVariable("code") String code
+
+    ) {
+        return super.search(code, null, Pageable.ofSize(1));
     }
 
     @GetMapping("/produits/search")

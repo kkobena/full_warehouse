@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Base Theme -->
+    <style name="Base.Theme.PharmaSmart" parent="Theme.Material3.Light.NoActionBar">
+        <!-- Primary Brand Color -->
+        <item name="colorPrimary">@color/primary</item>
+        <item name="colorPrimaryVariant">@color/primary_dark</item>
+        <item name="colorOnPrimary">@color/white</item>
+
+        <!-- Secondary Brand Color -->
+        <item name="colorSecondary">@color/accent</item>
+        <item name="colorSecondaryVariant">@color/accent</item>
+        <item name="colorOnSecondary">@color/white</item>
+
+        <!-- Error Color -->
+        <item name="colorError">@color/error</item>
+        <item name="colorOnError">@color/white</item>
+
+        <!-- Background Color -->
+        <item name="android:colorBackground">@color/background_light</item>
+        <item name="colorOnBackground">@color/text_primary</item>
+
+        <!-- Surface Color -->
+        <item name="colorSurface">@color/white</item>
+        <item name="colorOnSurface">@color/text_primary</item>
+
+        <!-- Status Bar -->
+        <item name="android:statusBarColor">@color/primary</item>
+        <item name="android:windowLightStatusBar">false</item>
+
+        <!-- Navigation Bar -->
+        <item name="android:navigationBarColor">@color/white</item>
+        <item name="android:windowLightNavigationBar">true</item>
+    </style>
+
+    <!-- Main Application Theme -->
+    <style name="Theme.PharmaSmart" parent="Base.Theme.PharmaSmart" />
+
+    <!-- Splash Screen Theme -->
+    <style name="Theme.PharmaSmart.Splash" parent="Theme.SplashScreen">
+        <item name="windowSplashScreenBackground">@color/primary</item>
+        <item name="windowSplashScreenAnimatedIcon">@drawable/ic_pharma_logo</item>
+        <item name="postSplashScreenTheme">@style/Theme.PharmaSmart</item>
+    </style>
+</resources>

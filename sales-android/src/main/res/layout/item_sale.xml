@@ -1,0 +1,141 @@
+<?xml version="1.0" encoding="utf-8"?>
+<com.google.android.material.card.MaterialCardView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/saleCard"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_margin="8dp"
+    app:cardCornerRadius="12dp"
+    app:cardElevation="4dp"
+    app:cardBackgroundColor="@color/white">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:padding="16dp">
+
+        <!-- Header Row -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:gravity="center_vertical">
+
+            <!-- Transaction Number -->
+            <TextView
+                android:id="@+id/tvTransactionNumber"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:textSize="16sp"
+                android:textColor="@color/primary"
+                android:textStyle="bold"
+                tools:text="#VT20250119001" />
+
+            <!-- Nature Type Badge -->
+            <TextView
+                android:id="@+id/tvNatureType"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:paddingHorizontal="12dp"
+                android:paddingVertical="4dp"
+                android:background="@drawable/badge_background"
+                android:textSize="12sp"
+                android:textColor="@color/white"
+                android:textStyle="bold"
+                tools:text="VNO" />
+
+        </LinearLayout>
+
+        <!-- Updated Date -->
+        <TextView
+            android:id="@+id/tvUpdatedDate"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:textSize="14sp"
+            android:textColor="@color/text_secondary"
+            android:drawablePadding="4dp"
+            app:drawableStartCompat="@drawable/ic_clock"
+            app:drawableTint="@color/text_secondary"
+            tools:text="19/11/2025 10:30" />
+
+        <!-- Customer Name -->
+        <TextView
+            android:id="@+id/tvCustomerName"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="4dp"
+            android:textSize="14sp"
+            android:textColor="@color/text_primary"
+            android:drawablePadding="4dp"
+            app:drawableStartCompat="@drawable/ic_user"
+            app:drawableTint="@color/primary"
+            tools:text="Jean Dupont" />
+
+        <!-- Divider -->
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:layout_marginVertical="12dp"
+            android:background="@color/divider" />
+
+        <!-- Bottom Row (Item Count, Total, Actions) -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:gravity="center_vertical">
+
+            <!-- Item Count -->
+            <TextView
+                android:id="@+id/tvItemCount"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:textSize="14sp"
+                android:textColor="@color/text_secondary"
+                tools:text="3 article(s)" />
+
+            <!-- Total Amount -->
+            <TextView
+                android:id="@+id/tvTotalAmount"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginEnd="16dp"
+                android:textSize="18sp"
+                android:textColor="@color/primary"
+                android:textStyle="bold"
+                tools:text="25,500 FCFA" />
+
+            <!-- Action Buttons -->
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btnEdit"
+                android:layout_width="48dp"
+                android:layout_height="48dp"
+                android:layout_marginEnd="8dp"
+                android:contentDescription="Éditer"
+                app:icon="@drawable/ic_edit"
+                app:iconGravity="textStart"
+                app:iconPadding="0dp"
+                app:iconTint="@color/success"
+                style="@style/Widget.Material3.Button.IconButton" />
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btnDelete"
+                android:layout_width="48dp"
+                android:layout_height="48dp"
+                android:contentDescription="Supprimer"
+                app:icon="@drawable/ic_delete"
+                app:iconGravity="textStart"
+                app:iconPadding="0dp"
+                app:iconTint="@color/error"
+                style="@style/Widget.Material3.Button.IconButton" />
+
+        </LinearLayout>
+
+    </LinearLayout>
+
+</com.google.android.material.card.MaterialCardView>

@@ -1,0 +1,73 @@
+<div class="container">
+  <div class="justify-content-center">
+    <div class="pharma-smart-content p-2">
+      <div class="pharma-toolbar">
+        <div class="pharma-toolbar-header">
+          <span class="pharma-toolbar-title">Modes de paiement</span>
+        </div>
+
+        <p-toolbar>
+          <ng-template #start>
+            <div class="pharma-toolbar-filters">
+              <div class="pharma-search-input">
+                <p-iconfield>
+                  <p-inputicon class="pi pi-search" />
+                  <input (keyup.enter)="search($event)" pInputText
+                         placeholder="Taper pour rechercher" type="text" />
+                </p-iconfield>
+              </div>
+            </div>
+          </ng-template>
+        </p-toolbar>
+      </div>
+
+      @if (paymentModes && paymentModes?.length > 0) {
+        <p-table
+          (onLazyLoad)="lazyLoading($event)"
+          [lazy]="true"
+          [loading]="loading"
+          [paginator]="true"
+          [rows]="itemsPerPage"
+          [totalRecords]="totalItems"
+          [value]="paymentModes"
+          class="pharma-table"
+          dataKey="code"
+          selectionMode="single"
+          stripedRows="true"
+        >
+          <ng-template #header>
+            <tr class="pharma-table-head">
+              <th scope="col"><span>Libellé</span></th>
+              <th scope="col"><span>Ordre</span></th>
+              <th scope="col"><span>QR Code</span></th>
+              <th scope="col"></th>
+            </tr>
+          </ng-template>
+          <ng-template #body let-columns="columns" let-paymentMode>
+            <tr [pSelectableRow]="paymentMode">
+
+              <td>{{ paymentMode.libelle }}</td>
+              <td>{{ paymentMode.order }}</td>
+              <td class="text-center">
+                @if (paymentMode.qrCode) {
+                  <i class="pi pi-check text-success"></i>
+                } @else {
+                  <i class="pi pi-times text-danger"></i>
+                }
+              </td>
+              <td class="text-right">
+                <p-button (click)="onEdit(paymentMode)" [rounded]="true" [text]="true"
+                          icon="pi pi-pencil" pTooltip="Modifier" severity="success">
+                </p-button>
+              </td>
+            </tr>
+          </ng-template>
+        </p-table>
+      } @else {
+        <div class="alert alert-warning" id="no-result">
+          <span>Aucun mode de paiement trouvé</span>
+        </div>
+      }
+    </div>
+  </div>
+</div>

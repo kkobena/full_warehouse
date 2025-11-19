@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Primary Colors (Pharma Theme) -->
+    <color name="primary">#5B89A6</color>
+    <color name="primary_dark">#4A7189</color>
+    <color name="primary_light">#E8F4F8</color>
+
+    <!-- Accent Colors -->
+    <color name="accent">#00A86B</color>
+    <color name="accent_light">#D4EDDA</color>
+
+    <!-- Success Colors -->
+    <color name="success">#28A745</color>
+    <color name="success_light">#D4EDDA</color>
+
+    <!-- Error/Danger Colors -->
+    <color name="error">#DC3545</color>
+    <color name="error_light">#F8D7DA</color>
+
+    <!-- Info Colors -->
+    <color name="info">#17A2B8</color>
+    <color name="info_light">#D1ECF1</color>
+
+    <!-- Warning Colors -->
+    <color name="warning">#FFC107</color>
+    <color name="warning_light">#FFF3CD</color>
+
+    <!-- Gray Scale -->
+    <color name="gray_50">#F9FAFB</color>
+    <color name="gray_100">#F3F4F6</color>
+    <color name="gray_200">#E5E7EB</color>
+    <color name="gray_300">#D1D5DB</color>
+    <color name="gray_400">#9CA3AF</color>
+    <color name="gray_500">#6B7280</color>
+    <color name="gray_600">#4B5563</color>
+    <color name="gray_700">#374151</color>
+    <color name="gray_800">#1F2937</color>
+    <color name="gray_900">#111827</color>
+
+    <!-- Basic Colors -->
+    <color name="white">#FFFFFF</color>
+    <color name="black">#000000</color>
+
+    <!-- Background Colors -->
+    <color name="background_light">#F9FAFB</color>
+    <color name="background_dark">#1F2937</color>
+
+    <!-- Text Colors -->
+    <color name="text_primary">#111827</color>
+    <color name="text_secondary">#6B7280</color>
+    <color name="text_hint">#9CA3AF</color>
+
+    <!-- Divider Color -->
+    <color name="divider">#E5E7EB</color>
+</resources>

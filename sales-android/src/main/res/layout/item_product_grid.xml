@@ -1,0 +1,95 @@
+<?xml version="1.0" encoding="utf-8"?>
+<com.google.android.material.card.MaterialCardView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/productCard"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_margin="8dp"
+    app:cardCornerRadius="12dp"
+    app:cardElevation="4dp"
+    app:cardBackgroundColor="@color/white">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:padding="16dp">
+
+        <!-- Product Name -->
+        <TextView
+            android:id="@+id/tvLibelle"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:textSize="14sp"
+            android:textColor="@color/text_primary"
+            android:textStyle="bold"
+            android:maxLines="3"
+            android:ellipsize="end"
+            android:minHeight="60dp"
+            android:gravity="top"
+            tools:text="PARACETAMOL 500MG COMPRIME BOITE DE 20" />
+
+        <!-- Code -->
+        <TextView
+            android:id="@+id/tvCode"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:textSize="12sp"
+            android:textColor="@color/text_secondary"
+            android:fontFamily="monospace"
+            tools:text="CODE123456" />
+
+        <!-- Divider -->
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:layout_marginVertical="12dp"
+            android:background="@color/divider" />
+
+        <!-- Price and Stock Row -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:gravity="center">
+
+            <TextView
+                android:id="@+id/tvPrice"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textSize="18sp"
+                android:textColor="@color/primary"
+                android:textStyle="bold"
+                tools:text="2,500 FCFA" />
+
+            <TextView
+                android:id="@+id/tvStock"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="4dp"
+                android:textSize="12sp"
+                android:textStyle="bold"
+                tools:text="Stock: 45"
+                tools:textColor="@color/success" />
+
+        </LinearLayout>
+
+        <!-- Add Button -->
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btnAdd"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="12dp"
+            android:text="Ajouter"
+            android:textSize="14sp"
+            app:icon="@drawable/ic_add_to_cart"
+            app:iconGravity="textStart"
+            app:cornerRadius="8dp"
+            android:backgroundTint="@color/success"
+            android:textColor="@color/white" />
+
+    </LinearLayout>
+
+</com.google.android.material.card.MaterialCardView>

@@ -1,0 +1,17 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(gradlew.bat:*)",
+      "Bash(./gradlew tasks:*)",
+      "Bash(mkdir:*)",
+      "Bash(./gradlew assembleDebug:*)",
+      "Bash(echo:*)",
+      "Bash(java -version:*)",
+      "Bash(./gradlew:*)",
+      "Bash(where \"studio64.exe\")",
+      "Bash(where:*)"
+    ],
+    "deny": [],
+    "ask": []
+  }
+}

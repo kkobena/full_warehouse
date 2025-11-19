@@ -1,0 +1,171 @@
+<?xml version="1.0" encoding="utf-8"?>
+<com.google.android.material.card.MaterialCardView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_margin="8dp"
+    app:cardCornerRadius="8dp"
+    app:cardElevation="2dp"
+    app:cardBackgroundColor="@color/white">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:padding="12dp">
+
+        <!-- Product Info Row -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:gravity="center_vertical">
+
+            <!-- Product Details -->
+            <LinearLayout
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:orientation="vertical">
+
+                <TextView
+                    android:id="@+id/tvLibelle"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:textSize="14sp"
+                    android:textColor="@color/text_primary"
+                    android:textStyle="bold"
+                    android:maxLines="2"
+                    android:ellipsize="end"
+                    tools:text="PARACETAMOL 500MG COMPRIME" />
+
+                <TextView
+                    android:id="@+id/tvCode"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="2dp"
+                    android:textSize="11sp"
+                    android:textColor="@color/text_secondary"
+                    android:fontFamily="monospace"
+                    tools:text="CODE123456" />
+
+                <TextView
+                    android:id="@+id/tvUnitPrice"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="4dp"
+                    android:textSize="12sp"
+                    android:textColor="@color/text_secondary"
+                    tools:text="Prix unitaire: 2,500 FCFA" />
+
+            </LinearLayout>
+
+            <!-- Remove Button -->
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btnRemove"
+                android:layout_width="36dp"
+                android:layout_height="36dp"
+                android:contentDescription="Supprimer"
+                app:icon="@drawable/ic_delete"
+                app:iconGravity="textStart"
+                app:iconPadding="0dp"
+                app:iconSize="20dp"
+                app:iconTint="@color/error"
+                style="@style/Widget.Material3.Button.IconButton" />
+
+        </LinearLayout>
+
+        <!-- Stock Warning -->
+        <TextView
+            android:id="@+id/tvStockWarning"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:visibility="gone"
+            android:textSize="11sp"
+            android:textColor="@color/warning"
+            android:drawablePadding="4dp"
+            app:drawableStartCompat="@drawable/ic_warning"
+            app:drawableTint="@color/warning"
+            tools:text="Stock insuffisant (5 disponible)"
+            tools:visibility="visible" />
+
+        <!-- Divider -->
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:layout_marginVertical="12dp"
+            android:background="@color/divider" />
+
+        <!-- Quantity and Total Row -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:gravity="center_vertical">
+
+            <!-- Quantity Controls -->
+            <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:gravity="center_vertical"
+                android:background="@drawable/quantity_background">
+
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/btnDecrement"
+                    android:layout_width="36dp"
+                    android:layout_height="36dp"
+                    android:contentDescription="Diminuer"
+                    app:icon="@drawable/ic_remove"
+                    app:iconGravity="textStart"
+                    app:iconPadding="0dp"
+                    app:iconSize="20dp"
+                    app:iconTint="@color/primary"
+                    style="@style/Widget.Material3.Button.IconButton" />
+
+                <TextView
+                    android:id="@+id/tvQuantity"
+                    android:layout_width="40dp"
+                    android:layout_height="wrap_content"
+                    android:textSize="16sp"
+                    android:textColor="@color/text_primary"
+                    android:textStyle="bold"
+                    android:gravity="center"
+                    tools:text="2" />
+
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/btnIncrement"
+                    android:layout_width="36dp"
+                    android:layout_height="36dp"
+                    android:contentDescription="Augmenter"
+                    app:icon="@drawable/ic_add"
+                    app:iconGravity="textStart"
+                    app:iconPadding="0dp"
+                    app:iconSize="20dp"
+                    app:iconTint="@color/primary"
+                    style="@style/Widget.Material3.Button.IconButton" />
+
+            </LinearLayout>
+
+            <View
+                android:layout_width="0dp"
+                android:layout_height="0dp"
+                android:layout_weight="1" />
+
+            <!-- Total -->
+            <TextView
+                android:id="@+id/tvTotal"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textSize="18sp"
+                android:textColor="@color/primary"
+                android:textStyle="bold"
+                tools:text="5,000 FCFA" />
+
+        </LinearLayout>
+
+    </LinearLayout>
+
+</com.google.android.material.card.MaterialCardView>

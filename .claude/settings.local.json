@@ -30,7 +30,8 @@
       "Bash(npx tsc:*)",
       "Bash(npm install:*)",
       "Bash(chmod:*)",
-      "Bash(npm run lint:fix:*)"
+      "Bash(npm run lint:fix:*)",
+      "Bash(where gradle)"
     ],
     "deny": [],
     "ask": []

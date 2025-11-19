@@ -565,3 +565,4 @@ psql -U warehouse -d warehouse
 - not use p-dialog
 - not use prime Dialog use ngbModal
 - not use \*ngif
+- use C:\Users\k.kobena\Documents\jdk17 for sales-android

@@ -29,8 +29,8 @@ export class ModePaymentService {
     });
   }
 
-  delete(id: number): Observable<HttpResponse<{}>> {
-    return this.http.delete(`${this.resourceUrl}/${id}`, { observe: 'response' });
+  find(code: string): Observable<EntityResponseType> {
+    return this.http.get<IPaymentMode>(`${this.resourceUrl}/${code}`, { observe: 'response' });
   }
 
   uploadFile(file: any): Observable<HttpResponse<IResponseDto>> {

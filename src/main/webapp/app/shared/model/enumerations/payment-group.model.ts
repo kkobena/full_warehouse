@@ -1,12 +1,9 @@
 export const enum PaymentGroup {
-  CASH = 'Espèce',
-
-  CREDIT = 'Crédit',
-
-  MOBILE = 'Mobile',
-
-  CB = 'Carte bancaire',
-
-  CHEQUE = 'Chèque',
-  VIREMENT = 'Virement',
+  CASH = 'CASH',
+  CREDIT = 'CREDIT',
+  MOBILE = 'MOBILE',
+  CB = 'CB',
+  CHEQUE = 'CHEQUE',
+  VIREMENT = 'VIREMENT',
+  CAUTION = 'CAUTION',
 }

@@ -32,6 +32,7 @@ import com.kobe.warehouse.repository.ThirdPartySaleLineRepository;
 import com.kobe.warehouse.repository.UserRepository;
 import com.kobe.warehouse.security.SecurityUtils;
 import com.kobe.warehouse.service.ReceiptPrinterService;
+import com.kobe.warehouse.service.StorageService;
 import com.kobe.warehouse.service.dto.CashSaleDTO;
 import com.kobe.warehouse.service.dto.ClientTiersPayantDTO;
 import com.kobe.warehouse.service.dto.DepotExtensionSaleDTO;
@@ -79,24 +80,23 @@ public class SaleDataService {
     private static final String DEFAULT_HEURE_DEBUT = "00:00";
     private static final String DEFAULT_HEURE_FIN = "23:59";
     private final EntityManager em;
-    private final UserRepository userRepository;
     private final SaleInvoiceReportService saleInvoiceService;
     private final SalesLineRepository salesLineRepository;
     private final ThirdPartySaleLineRepository thirdPartySaleLineRepository;
     private final ReceiptPrinterService receiptPrinterService;
     private final SalesRepository salesRepository;
+    private final StorageService storageService;
 
     public SaleDataService(
         EntityManager em,
-        UserRepository userRepository,
         SaleInvoiceReportService saleInvoiceService,
         SalesLineRepository salesLineRepository,
         ThirdPartySaleLineRepository thirdPartySaleLineRepository,
         ReceiptPrinterService receiptPrinterService,
-        SalesRepository salesRepository
+        SalesRepository salesRepository, StorageService storageService
     ) {
         this.em = em;
-        this.userRepository = userRepository;
+
         this.saleInvoiceService = saleInvoiceService;
 
         this.salesLineRepository = salesLineRepository;
@@ -104,6 +104,7 @@ public class SaleDataService {
         this.thirdPartySaleLineRepository = thirdPartySaleLineRepository;
         this.receiptPrinterService = receiptPrinterService;
         this.salesRepository = salesRepository;
+        this.storageService = storageService;
     }
 
     public List<SaleDTO> customerPurchases(Integer customerId, LocalDate fromDate, LocalDate toDate) {
@@ -178,8 +179,7 @@ public class SaleDataService {
     }
 
     private AppUser getUser() {
-        Optional<AppUser> user = SecurityUtils.getCurrentUserLogin().flatMap(userRepository::findOneByLogin);
-        return user.orElseGet(null);
+      return   storageService.getUser();
     }
 
     public List<SaleDTO> allPrevente(String query, String type, Long userId) {

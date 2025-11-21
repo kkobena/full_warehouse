@@ -72,10 +72,7 @@ export class SalesService {
     return this.http.delete(`${this.resourceUrl}/${id.id}/${id.saleDate}`, { observe: 'response' });
   }
 
-  saveComptant(sales: ISales): Observable<HttpResponse<IResponseDto>> {
-    const copy = this.convertDateFromClient(sales);
-    return this.http.put<IResponseDto>(this.resourceUrl + '/comptant/save', copy, { observe: 'response' });
-  }
+
 
   saveCash(sales: ISales): Observable<HttpResponse<FinalyseSale>> {
     const copy = this.convertDateFromClient(sales);

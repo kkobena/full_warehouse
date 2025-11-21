@@ -15,6 +15,7 @@ public final class EntityConstant {
     public static final String APP_GESTION_STOCK = "APP_GESTION_STOCK";
     public static final String APP_MONO_STOCK = "APP_MONO_STOCK";
     public static final String APP_MODE_PAYMENTS = "APP_MODE_PAYMENTS";
+    public static final String APP_MODE_PAYMENTS_SANS_CH_VIR = "APP_MODE_PAYMENTS_SANS_CH_VIR";
     public static final long RESERVE_STORAGE = 3L;
     public static final String SANS_EMPLACEMENT_LIBELLE = "SANS EMPLACEMENT";
     public static final String POINT_DE_VENTE_CACHE = "POINT_DE_VENTE_CACHE";

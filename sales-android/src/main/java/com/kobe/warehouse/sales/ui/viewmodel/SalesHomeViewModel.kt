@@ -10,7 +10,7 @@ import kotlinx.coroutines.launch
 
 /**
  * SalesHomeViewModel
- * Manages state for ongoing sales list screen
+ * Manages state for sales list screen
  */
 class SalesHomeViewModel(
     private val salesRepository: SalesRepository
@@ -25,29 +25,27 @@ class SalesHomeViewModel(
     private val _errorMessage = MutableLiveData<String?>()
     val errorMessage: LiveData<String?> = _errorMessage
 
-    private val _deleteSuccess = MutableLiveData<Boolean>()
-    val deleteSuccess: LiveData<Boolean> = _deleteSuccess
+    private val _selectedSale = MutableLiveData<Sale?>()
+    val selectedSale: LiveData<Sale?> = _selectedSale
 
     // Filter state
     private var currentSearch: String? = null
-    private var currentType: String? = null
 
     init {
-        loadOngoingSales()
+        loadSales()
     }
 
     /**
-     * Load ongoing sales (pré-ventes)
+     * Load sales
      */
-    fun loadOngoingSales(search: String? = null, type: String? = null) {
+    fun loadSales(search: String? = null) {
         currentSearch = search
-        currentType = type
 
         viewModelScope.launch {
             _isLoading.value = true
             _errorMessage.value = null
 
-            salesRepository.getOngoingSales(search, type).fold(
+            salesRepository.getSales(search).fold(
                 onSuccess = { salesList ->
                     _sales.value = salesList
                     _isLoading.value = false
@@ -64,45 +62,14 @@ class SalesHomeViewModel(
      * Refresh sales list
      */
     fun refresh() {
-        loadOngoingSales(currentSearch, currentType)
+        loadSales(currentSearch)
     }
 
     /**
      * Search sales
      */
     fun searchSales(query: String) {
-        loadOngoingSales(query, currentType)
-    }
-
-    /**
-     * Filter sales by type
-     */
-    fun filterByType(type: String) {
-        loadOngoingSales(currentSearch, type)
-    }
-
-    /**
-     * Delete ongoing sale
-     */
-    fun deleteOngoingSale(saleId: Long) {
-        viewModelScope.launch {
-            _isLoading.value = true
-            _errorMessage.value = null
-
-            salesRepository.deleteOngoingSale(saleId).fold(
-                onSuccess = {
-                    _deleteSuccess.value = true
-                    _isLoading.value = false
-                    // Refresh list after deletion
-                    refresh()
-                },
-                onFailure = { error ->
-                    _errorMessage.value = error.message ?: "Erreur de suppression"
-                    _isLoading.value = false
-                    _deleteSuccess.value = false
-                }
-            )
-        }
+        loadSales(query)
     }
 
     /**
@@ -110,5 +77,26 @@ class SalesHomeViewModel(
      */
     fun clearError() {
         _errorMessage.value = null
+    }
+
+    /**
+     * Load sale by ID and date
+     */
+    fun loadSaleById(saleId: Long, saleDate: String) {
+        viewModelScope.launch {
+            _isLoading.value = true
+            _errorMessage.value = null
+
+            salesRepository.getSaleById(saleId, saleDate).fold(
+                onSuccess = { sale ->
+                    _selectedSale.value = sale
+                    _isLoading.value = false
+                },
+                onFailure = { error ->
+                    _errorMessage.value = error.message ?: "Erreur de chargement"
+                    _isLoading.value = false
+                }
+            )
+        }
     }
 }

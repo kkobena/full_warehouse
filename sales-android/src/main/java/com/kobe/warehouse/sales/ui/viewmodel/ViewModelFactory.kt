@@ -2,7 +2,7 @@ package com.kobe.warehouse.sales.ui.viewmodel
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
-import com.kobe.warehouse.sales.data.repository.CustomerRepository
+import com.kobe.warehouse.sales.data.repository.AuthRepository
 import com.kobe.warehouse.sales.data.repository.PaymentRepository
 import com.kobe.warehouse.sales.data.repository.ProductRepository
 import com.kobe.warehouse.sales.data.repository.SalesRepository
@@ -30,7 +30,7 @@ class ComptantSaleViewModelFactory(
     private val salesRepository: SalesRepository,
     private val productRepository: ProductRepository,
     private val paymentRepository: PaymentRepository,
-    private val customerRepository: CustomerRepository,
+    private val authRepository: AuthRepository,
     private val tokenManager: TokenManager
 ) : ViewModelProvider.Factory {
     override fun <T : ViewModel> create(modelClass: Class<T>): T {
@@ -40,7 +40,7 @@ class ComptantSaleViewModelFactory(
                 salesRepository,
                 productRepository,
                 paymentRepository,
-                customerRepository,
+                authRepository,
                 tokenManager
             ) as T
         }

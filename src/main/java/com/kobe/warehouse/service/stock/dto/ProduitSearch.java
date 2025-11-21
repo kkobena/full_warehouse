@@ -13,6 +13,7 @@ public record ProduitSearch(
     Integer parentid,
     boolean deconditionnable,
     Integer itemqty,
+    Integer vatrate,
     List<ProduitFournisseurSearch> fournisseurs,
 
     List<ProduitRayonSearch> rayons,
@@ -43,6 +44,11 @@ public record ProduitSearch(
         return itemqty;
     }
 
+    @JsonProperty("vatRate")
+    public Integer vatRate() {
+        return vatrate;
+    }
+
     @JsonProperty("codeEanLabo")
     public String codeEanLabo() {
         return codeeanlabo;
@@ -52,7 +58,7 @@ public record ProduitSearch(
     public String codeProduit() {
         var fournisseur = fournisseurProduit();
         if (fournisseur != null) {
-            return fournisseur.codeEan();
+            return fournisseur.codeCip();
         }
         return null;
     }

@@ -6,6 +6,7 @@ import androidx.security.crypto.EncryptedSharedPreferences
 import androidx.security.crypto.MasterKey
 import com.kobe.warehouse.sales.data.model.ServerConfig
 import com.kobe.warehouse.sales.data.model.auth.JwtTokenResponse
+import androidx.core.content.edit
 
 /**
  * Token Manager for secure JWT token storage
@@ -167,7 +168,7 @@ class TokenManager(context: Context) {
      * Clear all data (logout completely)
      */
     fun clearAll() {
-        sharedPreferences.edit().clear().apply()
+        sharedPreferences.edit { clear() }
     }
 
     /**
@@ -182,6 +183,7 @@ class TokenManager(context: Context) {
             putInt(KEY_RECEIPT_ROLL_SIZE, config.receiptRollSize)
             apply()
         }
+
     }
 
     /**
@@ -191,13 +193,16 @@ class TokenManager(context: Context) {
         val serverUrl = sharedPreferences.getString(KEY_SERVER_URL, null)
         val rollSize = sharedPreferences.getInt(KEY_RECEIPT_ROLL_SIZE, 58)
 
-        if (serverUrl != null) {
+        val config = if (serverUrl != null) {
             val protocol = sharedPreferences.getString(KEY_SERVER_PROTOCOL, "http") ?: "http"
             val host = sharedPreferences.getString(KEY_SERVER_HOST, "10.0.2.2") ?: "10.0.2.2"
             val port = sharedPreferences.getString(KEY_SERVER_PORT, "9080") ?: "9080"
-            return ServerConfig(serverUrl, protocol, host, port, rollSize)
+            ServerConfig(serverUrl, protocol, host, port, rollSize)
+        } else {
+            ServerConfig.default()
         }
-        return ServerConfig.default()
+
+        return config
     }
 
     /**
@@ -211,7 +216,8 @@ class TokenManager(context: Context) {
      * Get base URL for API
      */
     fun getBaseUrl(): String {
-        return getServerConfig().getBaseUrl()
+        val baseUrl = getServerConfig().getBaseUrl()
+        return baseUrl
     }
 
     /**

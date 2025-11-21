@@ -169,7 +169,7 @@ public class SaleDTO implements Serializable {
                 this.remise = new RemiseClientDTO((RemiseClient) sale.getRemise());
             }
         }
-        //  this.tickets=sale.getTickets().stream().map(TicketDTO::new).collect(Collectors.toList());
+
     }
 
     public Long getId() {
@@ -644,4 +644,29 @@ public class SaleDTO implements Serializable {
     public void setSaleId(SaleId saleId) {
         this.saleId = saleId;
     }
+
+    public static CashSaleDTO toSaleDTOConverter(CashSale cashSale) {
+            if (cashSale == null) {
+                return null;
+            }
+            CashSaleDTO dto = new CashSaleDTO();
+            dto.setId(cashSale.getId().getId());
+            dto.setSaleId(cashSale.getId());
+            dto.setDiscountAmount(cashSale.getDiscountAmount());
+            dto.setNumberTransaction(cashSale.getNumberTransaction());
+            dto.setSalesAmount(cashSale.getSalesAmount());
+            dto.setHtAmount(cashSale.getHtAmount());
+            dto.setNetAmount(cashSale.getNetAmount());
+            dto.setTaxAmount(cashSale.getTaxAmount());
+            dto.setCostAmount(cashSale.getCostAmount());
+            dto.setAmountToBePaid(cashSale.getAmountToBePaid());
+            dto.setStatut(cashSale.getStatut());
+            dto.setCreatedAt(cashSale.getCreatedAt());
+            dto.setUpdatedAt(cashSale.getUpdatedAt());
+            dto.setDiffere(cashSale.isDiffere());
+            dto.setMontantRendu(cashSale.getMonnaie());
+            dto.setRestToPay(cashSale.getRestToPay());
+            return dto;
+        }
+
 }

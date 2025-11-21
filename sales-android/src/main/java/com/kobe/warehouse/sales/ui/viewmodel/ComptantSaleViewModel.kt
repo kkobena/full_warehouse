@@ -4,13 +4,14 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.kobe.warehouse.sales.data.api.PaymentRequest
 import com.kobe.warehouse.sales.data.model.Customer
+import com.kobe.warehouse.sales.data.model.Payment
 import com.kobe.warehouse.sales.data.model.PaymentMode
 import com.kobe.warehouse.sales.data.model.Product
 import com.kobe.warehouse.sales.data.model.Sale
 import com.kobe.warehouse.sales.data.model.SaleLine
-import com.kobe.warehouse.sales.data.repository.CustomerRepository
+import com.kobe.warehouse.sales.data.model.auth.Account
+import com.kobe.warehouse.sales.data.repository.AuthRepository
 import com.kobe.warehouse.sales.data.repository.PaymentRepository
 import com.kobe.warehouse.sales.data.repository.ProductRepository
 import com.kobe.warehouse.sales.data.repository.SalesRepository
@@ -22,19 +23,27 @@ import kotlinx.coroutines.launch
  * ComptantSaleViewModel
  * Manages state for POS (Point of Sale) screen
  * Handles cart, product search, payments, and checkout with stock validation
+ *
+ * Note: Backend uses single-step finalization.
+ * Cart is managed locally and sent to backend only when finalizing.
  */
 class ComptantSaleViewModel(
     private val salesRepository: SalesRepository,
     private val productRepository: ProductRepository,
     private val paymentRepository: PaymentRepository,
-    private val customerRepository: CustomerRepository,
+    private val authRepository: AuthRepository,
     private val tokenManager: TokenManager
 ) : ViewModel() {
 
     // Stock validator instance
     private val stockValidator = SaleStockValidator()
 
-    // Current sale state
+    // Cached user account (loaded once at init)
+    private var cachedAccount: Account? = null
+    private val _currentAccount = MutableLiveData<Account?>()
+    val currentAccount: LiveData<Account?> = _currentAccount
+
+    // Current sale state (managed locally)
     private val _currentSale = MutableLiveData<Sale>()
     val currentSale: LiveData<Sale> = _currentSale
 
@@ -42,7 +51,7 @@ class ComptantSaleViewModel(
     private val _products = MutableLiveData<List<Product>>()
     val products: LiveData<List<Product>> = _products
 
-    // Payment modes
+    // Payment modes (loaded once at init)
     private val _paymentModes = MutableLiveData<List<PaymentMode>>()
     val paymentModes: LiveData<List<PaymentMode>> = _paymentModes
 
@@ -90,8 +99,29 @@ class ComptantSaleViewModel(
     init {
         // Initialize with empty sale
         _currentSale.value = Sale()
+
+        // Load static data once (cached for session)
+        loadCurrentAccount()
         loadPaymentModes()
-        loadDefaultCustomer()
+    }
+
+    /**
+     * Load current user account (cached for session)
+     * Called once at initialization
+     */
+    private fun loadCurrentAccount() {
+        viewModelScope.launch {
+            authRepository.getAccount().fold(
+                onSuccess = { account ->
+                    cachedAccount = account
+                    _currentAccount.value = account
+                },
+                onFailure = { error ->
+                    android.util.Log.e("ComptantSaleViewModel", "Failed to load account: ${error.message}")
+                    // Don't show error to user - account will be fetched again if needed
+                }
+            )
+        }
     }
 
     /**
@@ -144,7 +174,7 @@ class ComptantSaleViewModel(
 
     /**
      * Add product to cart with stock validation
-     * Follows Angular business logic from PRODUCT_ADDITION_BUSINESS_RULES.md
+     * Manages cart locally (no backend call)
      */
     fun addProductToCart(product: Product, quantity: Int = 1) {
         // Check if user has force stock authority
@@ -171,85 +201,20 @@ class ComptantSaleViewModel(
     /**
      * Add product directly to cart without validation
      * Used after user confirms force stock or other validation overrides
-     * Saves to backend immediately
+     * Updates local cart only (no backend call)
      */
     private fun addProductDirectly(product: Product, quantity: Int, forceStock: Boolean = false) {
-        viewModelScope.launch {
-            _isLoading.value = true
-            _errorMessage.value = null
+        val currentSaleValue = _currentSale.value ?: Sale()
 
-            val currentSaleValue = _currentSale.value
+        // Add product to cart (local update)
+        val updatedSale = currentSaleValue.addProduct(product, quantity)
 
-            // Create sale line
-            val saleLine = SaleLine(
-                id = product.id,
-                produitId = product.produitId,
-                code = product.code,
-                produitLibelle = product.libelle,
-                quantityRequested = quantity,
-                quantitySold = if (forceStock) quantity else minOf(quantity, product.totalQuantity),
-                regularUnitPrice = product.regularUnitPrice,
-                netUnitPrice = product.netUnitPrice,
-                salesAmount = product.regularUnitPrice * (if (forceStock) quantity else minOf(quantity, product.totalQuantity)),
-                netAmount = product.netUnitPrice * (if (forceStock) quantity else minOf(quantity, product.totalQuantity)),
-                qtyStock = product.totalQuantity,
-                forceStock = forceStock
-            )
+        // Update local state
+        _currentSale.value = updatedSale
 
-            if (currentSaleValue == null || currentSaleValue.id == 0L) {
-                // No sale exists - create new sale on backend
-                createNewSale(saleLine)
-            } else {
-                // Sale exists - add product to existing sale on backend
-                addProductToBackend(currentSaleValue, saleLine)
-            }
-
-            // Clear pending state
-            _pendingProduct.value = null
-            _validationResult.value = null
-        }
-    }
-
-    /**
-     * Create new sale on backend with first product
-     */
-    private suspend fun createNewSale(saleLine: SaleLine) {
-        val newSale = Sale(
-            customerId = _selectedCustomer.value?.id,
-            customer = _selectedCustomer.value,
-            salesLines = mutableListOf(saleLine),
-            natureVente = "VNO"
-        ).recalculateTotals()
-
-        salesRepository.createCashSale(newSale).fold(
-            onSuccess = { createdSale ->
-                _currentSale.value = createdSale
-                _isLoading.value = false
-            },
-            onFailure = { error ->
-                _errorMessage.value = error.message ?: "Erreur lors de la création de la vente"
-                _isLoading.value = false
-            }
-        )
-    }
-
-    /**
-     * Add product to existing sale on backend
-     */
-    private suspend fun addProductToBackend(currentSale: Sale, saleLine: SaleLine) {
-        val saleId = currentSale.saleId?.id ?: currentSale.id
-        val saleDate = currentSale.saleId?.saleDate ?: ""
-
-        salesRepository.addSaleLine(saleId, saleDate, saleLine).fold(
-            onSuccess = { updatedSale ->
-                _currentSale.value = updatedSale
-                _isLoading.value = false
-            },
-            onFailure = { error ->
-                _errorMessage.value = error.message ?: "Erreur lors de l'ajout du produit"
-                _isLoading.value = false
-            }
-        )
+        // Clear pending state
+        _pendingProduct.value = null
+        _validationResult.value = null
     }
 
     /**
@@ -273,34 +238,21 @@ class ComptantSaleViewModel(
 
     /**
      * Remove product from cart
-     * Syncs with backend
+     * Updates local cart only (no backend call)
      */
     fun removeProductFromCart(saleLine: SaleLine) {
         val currentSaleValue = _currentSale.value ?: return
 
-        viewModelScope.launch {
-            _isLoading.value = true
-            _errorMessage.value = null
+        // Remove product from cart (local update)
+        val updatedSale = currentSaleValue.removeProduct(saleLine)
 
-            val saleId = currentSaleValue.saleId?.id ?: currentSaleValue.id
-            val saleDate = currentSaleValue.saleId?.saleDate ?: ""
-
-            salesRepository.removeSaleLine(saleId, saleDate, saleLine.id).fold(
-                onSuccess = { updatedSale ->
-                    _currentSale.value = updatedSale
-                    _isLoading.value = false
-                },
-                onFailure = { error ->
-                    _errorMessage.value = error.message ?: "Erreur lors de la suppression du produit"
-                    _isLoading.value = false
-                }
-            )
-        }
+        // Update local state
+        _currentSale.value = updatedSale
     }
 
     /**
-     * Update product quantity in cart with validation
-     * Syncs with backend
+     * Update product quantity in cart
+     * Updates local cart only (no backend call)
      */
     fun updateProductQuantity(saleLine: SaleLine, newQuantity: Int) {
         if (newQuantity < 1) {
@@ -310,27 +262,11 @@ class ComptantSaleViewModel(
 
         val currentSaleValue = _currentSale.value ?: return
 
-        viewModelScope.launch {
-            _isLoading.value = true
-            _errorMessage.value = null
+        // Update quantity (local update)
+        val updatedSale = currentSaleValue.updateProductQuantity(saleLine, newQuantity)
 
-            val saleId = currentSaleValue.saleId?.id ?: currentSaleValue.id
-            val saleDate = currentSaleValue.saleId?.saleDate ?: ""
-
-            // Update sale line with new quantity
-            val updatedLine = saleLine.updateQuantity(newQuantity)
-
-            salesRepository.updateSaleLine(saleId, saleDate, saleLine.id, updatedLine).fold(
-                onSuccess = { updatedSale ->
-                    _currentSale.value = updatedSale
-                    _isLoading.value = false
-                },
-                onFailure = { error ->
-                    _errorMessage.value = error.message ?: "Erreur lors de la mise à jour de la quantité"
-                    _isLoading.value = false
-                }
-            )
-        }
+        // Update local state
+        _currentSale.value = updatedSale
     }
 
     /**
@@ -349,33 +285,11 @@ class ComptantSaleViewModel(
 
     /**
      * Clear cart
-     * Deletes ongoing sale from backend if it exists
+     * Clears local cart (no backend call)
      */
     fun clearCart() {
-        val currentSaleValue = _currentSale.value
-
-        // If sale exists on backend, delete it
-        if (currentSaleValue != null && currentSaleValue.id > 0) {
-            viewModelScope.launch {
-                salesRepository.deleteOngoingSale(currentSaleValue.id).fold(
-                    onSuccess = {
-                        // Sale deleted, reset local state
-                        _currentSale.value = Sale()
-                        loadDefaultCustomer()
-                    },
-                    onFailure = { error ->
-                        // Even if deletion fails, reset local state
-                        _currentSale.value = Sale()
-                        loadDefaultCustomer()
-                        _errorMessage.value = "Erreur lors de la suppression de la vente"
-                    }
-                )
-            }
-        } else {
-            // No backend sale, just reset local state
-            _currentSale.value = Sale()
-            loadDefaultCustomer()
-        }
+        _currentSale.value = Sale()
+        _selectedCustomer.value = null
     }
 
     /**
@@ -402,38 +316,18 @@ class ComptantSaleViewModel(
     }
 
     /**
-     * Load default customer (client comptant)
-     */
-    private fun loadDefaultCustomer() {
-        viewModelScope.launch {
-            customerRepository.getDefaultCustomer().fold(
-                onSuccess = { customer ->
-                    _selectedCustomer.value = customer
-                },
-                onFailure = {
-                    // Default customer not required, ignore error
-                }
-            )
-        }
-    }
-
-    /**
      * Finalize sale (checkout)
-     * Sale already exists on backend with products, just add payments and finalize
+     * Sends complete sale object with products and payments to backend in one call
+     *
+     * Note: Cart is NOT cleared automatically. The Activity should:
+     * 1. Observe saleFinalized
+     * 2. Print receipt (optional)
+     * 3. Call resetAfterSale() to clear and start new sale
      */
-    fun finalizeSale(
-        payments: List<PaymentRequest>,
-        montantVerse: Int,
-        montantRendu: Int
-    ) {
+    fun finalizeSale(payments: List<Payment>, montantVerse: Int, montantRendu: Int) {
         val currentSaleValue = _currentSale.value
         if (currentSaleValue == null || currentSaleValue.salesLines.isEmpty()) {
             _errorMessage.value = "Le panier est vide"
-            return
-        }
-
-        if (currentSaleValue.id == 0L) {
-            _errorMessage.value = "Aucune vente à finaliser"
             return
         }
 
@@ -441,22 +335,42 @@ class ComptantSaleViewModel(
             _isLoading.value = true
             _errorMessage.value = null
 
-            val saleId = currentSaleValue.saleId?.id ?: currentSaleValue.id
-            val saleDate = currentSaleValue.saleId?.saleDate ?: ""
+            // Use cached account to retrieve cassierId (optimized - no API call)
+            var cassierId = cachedAccount?.id
 
-            salesRepository.finalizeSale(
-                id = saleId,
-                date = saleDate,
+            if (cassierId == null) {
+                // Fallback: try to load account if cache failed
+                val accountResult = authRepository.getAccount()
+                cassierId = accountResult.getOrNull()?.id
+                if (cassierId == null) {
+                    _errorMessage.value = "Impossible de récupérer l'ID du caissier"
+                    _isLoading.value = false
+                    return@launch
+                }
+                // Update cache for next time
+                cachedAccount = accountResult.getOrNull()
+                _currentAccount.value = cachedAccount
+            }
+
+            // Calculate payrollAmount = salesAmount - discountAmount (for all payment modes)
+            val calculatedPayrollAmount = currentSaleValue.salesAmount - currentSaleValue.discountAmount
+
+            // Build complete sale object with all data including cassierId and payrollAmount
+            val completeSale = currentSaleValue.copy(
                 customerId = _selectedCustomer.value?.id,
-                payments = payments,
-                montantVerse = montantVerse,
-                montantRendu = montantRendu
-            ).fold(
+                customer = _selectedCustomer.value,
+                cassierId = cassierId,
+                payrollAmount = calculatedPayrollAmount,
+                payments = payments.toMutableList(),
+                montantVerse = montantVerse
+            )
+
+            // Send complete sale to backend (single call)
+            salesRepository.createCashSale(completeSale).fold(
                 onSuccess = { finalizedSale ->
                     _saleFinalized.value = finalizedSale
                     _isLoading.value = false
-                    // Clear cart after successful sale
-                    clearCart()
+                    // DON'T clear cart here - let Activity handle it after printing
                 },
                 onFailure = { error ->
                     _errorMessage.value = error.message ?: "Erreur de finalisation"
@@ -464,6 +378,16 @@ class ComptantSaleViewModel(
                 }
             )
         }
+    }
+
+    /**
+     * Reset after sale completion (after printing receipt)
+     * Clears finalized sale and cart, ready for new sale
+     */
+    fun resetAfterSale() {
+        _saleFinalized.value = null
+        _currentSale.value = Sale()
+        _selectedCustomer.value = null
     }
 
     /**
@@ -496,9 +420,9 @@ class ComptantSaleViewModel(
     }
 
     /**
-     * Clear finalized sale
+     * Get current user account (from cache)
+     * Used for retrieving cashier information for receipts
+     * Optimized: uses cached account, no API call
      */
-    fun clearFinalizedSale() {
-        _saleFinalized.value = null
-    }
+    fun getCachedAccount() = cachedAccount
 }

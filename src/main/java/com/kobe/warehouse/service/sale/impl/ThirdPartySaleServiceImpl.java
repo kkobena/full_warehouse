@@ -177,11 +177,10 @@ public class ThirdPartySaleServiceImpl extends SaleCommonService implements Thir
         computeSaleEagerAmount(thirdPartySales);
 
         applRemiseToSale(thirdPartySales);
-        thirdPartySales.setOrigineVente(OrigineVente.DIRECT);
         thirdPartySales = thirdPartySaleRepository.saveAndFlush(thirdPartySales);
         saleLine.setSales(thirdPartySales);
         salesLineService.saveSalesLine(saleLine);
-        String message = saveTiersPayantLines(dto, thirdPartySales, saleLine);
+        String message = saveTiersPayantLines(dto, thirdPartySales);
         this.displayNet(thirdPartySales.getPartAssure());
         ThirdPartySaleDTO thirdPartySaleDTO = new ThirdPartySaleDTO(thirdPartySales);
         if (StringUtils.hasLength(message)) {
@@ -190,7 +189,7 @@ public class ThirdPartySaleServiceImpl extends SaleCommonService implements Thir
         return thirdPartySaleDTO;
     }
 
-    private String saveTiersPayantLines(ThirdPartySaleDTO dto, ThirdPartySales thirdPartySales, SalesLine saleLine) {
+    private String saveTiersPayantLines(ThirdPartySaleDTO dto, ThirdPartySales thirdPartySales) {
         List<ClientTiersPayant> clientTiersPayants = getClientTiersPayants(
             dto.getTiersPayants().stream().map(ClientTiersPayantDTO::getId).collect(Collectors.toSet())
         );
@@ -201,11 +200,10 @@ public class ThirdPartySaleServiceImpl extends SaleCommonService implements Thir
                 .filter(ctpdto -> Objects.equals(ctpdto.getId(), clientTiersPayant.getId()))
                 .findFirst()
                 .orElseThrow(() -> new GenericError("Client tiers payant introuvable"));
-            if (dto.getNumBon() != null) {
-                if (checkIfNumBonIsAlReadyUse(dto.getNumBon(), clientTiersPayant.getId(), null)) {
+            if (dto.getNumBon() != null && checkIfNumBonIsAlReadyUse(dto.getNumBon(), clientTiersPayant.getId(), null)) {
                     throw new NumBonAlreadyUseException(dto.getNumBon());
                 }
-            }
+
             ThirdPartySaleLine thirdPartySaleLine = thirdPartySaleLineService.createThirdPartySaleLine(
                 dto.getNumBon(),
                 clientTiersPayant,

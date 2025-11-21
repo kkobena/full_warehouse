@@ -96,7 +96,7 @@ fun removeProductFromCart(saleLine: SaleLine) {
 }
 ```
 
-**Backend Call**: `DELETE /api/sales/{id}/{date}/lines/{lineId}`
+**Backend Call**: `DELETE /api/sales/{id}/{date}`
 
 ---
 
@@ -124,7 +124,7 @@ fun updateProductQuantity(saleLine: SaleLine, newQuantity: Int) {
 }
 ```
 
-**Backend Call**: `PUT /api/sales/{id}/{date}/lines/{lineId}`
+**Backend Call**: `PUT /api/sales/{id}/{date}`
 
 ---
 

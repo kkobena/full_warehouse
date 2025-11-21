@@ -7,7 +7,6 @@ import android.widget.Toast
 import androidx.core.widget.addTextChangedListener
 import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.LinearLayoutManager
-import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.kobe.warehouse.sales.R
 import com.kobe.warehouse.sales.data.api.SalesApiService
 import com.kobe.warehouse.sales.data.model.Sale
@@ -21,7 +20,7 @@ import com.kobe.warehouse.sales.utils.TokenManager
 
 /**
  * SalesHomeActivity
- * Displays list of ongoing sales (pré-ventes)
+ * Displays list of sales
  * Extends BaseActivity for automatic session management
  *
  * Features:
@@ -69,7 +68,7 @@ class SalesHomeActivity : BaseActivity() {
         setSupportActionBar(binding.toolbar)
         supportActionBar?.apply {
             setDisplayHomeAsUpEnabled(false)  // No back button - this is the main screen
-            title = "Ventes en cours"
+            title = "Ventes"
         }
     }
 
@@ -78,9 +77,7 @@ class SalesHomeActivity : BaseActivity() {
      */
     private fun setupRecyclerView() {
         salesAdapter = SalesAdapter(
-            onSaleClick = { sale -> openSale(sale) },
-            onEditClick = { sale -> editSale(sale) },
-            onDeleteClick = { sale -> confirmDeleteSale(sale) }
+            onSaleClick = { sale -> openSale(sale) }
         )
 
         binding.rvSales.apply {
@@ -139,51 +136,17 @@ class SalesHomeActivity : BaseActivity() {
                 viewModel.clearError()
             }
         }
-
-        // Observe delete success
-        viewModel.deleteSuccess.observe(this) { success ->
-            if (success) {
-                Toast.makeText(this, "Vente supprimée", Toast.LENGTH_SHORT).show()
-            }
-        }
     }
 
     /**
-     * Open sale for viewing/editing
+     * Open sale detail view
      */
     private fun openSale(sale: Sale) {
-        val intent = Intent(this, ComptantSaleActivity::class.java).apply {
-            putExtra("SALE_ID", sale.saleId?.id ?: sale.id)
-            putExtra("SALE_DATE", sale.saleId?.saleDate ?: "")
-            putExtra("IS_EDIT_MODE", false)
+        val intent = Intent(this, SaleDetailActivity::class.java).apply {
+            putExtra(SaleDetailActivity.EXTRA_SALE_ID, sale.saleId?.id ?: sale.id)
+            putExtra(SaleDetailActivity.EXTRA_SALE_DATE, sale.saleId?.saleDate ?: "")
         }
         startActivity(intent)
-    }
-
-    /**
-     * Edit sale
-     */
-    private fun editSale(sale: Sale) {
-        val intent = Intent(this, ComptantSaleActivity::class.java).apply {
-            putExtra("SALE_ID", sale.saleId?.id ?: sale.id)
-            putExtra("SALE_DATE", sale.saleId?.saleDate ?: "")
-            putExtra("IS_EDIT_MODE", true)
-        }
-        startActivity(intent)
-    }
-
-    /**
-     * Confirm delete sale
-     */
-    private fun confirmDeleteSale(sale: Sale) {
-        MaterialAlertDialogBuilder(this)
-            .setTitle("Supprimer la vente")
-            .setMessage("Voulez-vous vraiment supprimer cette vente ?")
-            .setPositiveButton("Supprimer") { _, _ ->
-                viewModel.deleteOngoingSale(sale.saleId?.id ?: sale.id)
-            }
-            .setNegativeButton("Annuler", null)
-            .show()
     }
 
     /**

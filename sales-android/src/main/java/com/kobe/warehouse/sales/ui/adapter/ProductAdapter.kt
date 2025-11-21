@@ -47,8 +47,8 @@ class ProductAdapter(
         private val btnAdd: View = itemView.findViewById(R.id.btnAdd)
 
         fun bind(product: Product) {
-            tvLibelle.text = product.libelle
-            tvCode.text = product.code
+            tvLibelle.text = product.libelle ?: ""
+            tvCode.text = product.code ?: ""
             tvPrice.text = product.getFormattedPrice()
 
             // Stock display with color coding

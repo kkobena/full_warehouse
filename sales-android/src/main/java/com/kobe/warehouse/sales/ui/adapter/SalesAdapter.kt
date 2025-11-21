@@ -13,12 +13,10 @@ import com.kobe.warehouse.sales.data.model.Sale
 
 /**
  * Sales Adapter
- * RecyclerView adapter for displaying ongoing sales list
+ * RecyclerView adapter for displaying sales list
  */
 class SalesAdapter(
-    private val onSaleClick: (Sale) -> Unit,
-    private val onEditClick: (Sale) -> Unit,
-    private val onDeleteClick: (Sale) -> Unit
+    private val onSaleClick: (Sale) -> Unit
 ) : ListAdapter<Sale, SalesAdapter.SaleViewHolder>(SaleDiffCallback()) {
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): SaleViewHolder {
@@ -37,24 +35,16 @@ class SalesAdapter(
         private val tvTransactionNumber: TextView = itemView.findViewById(R.id.tvTransactionNumber)
         private val tvUpdatedDate: TextView = itemView.findViewById(R.id.tvUpdatedDate)
         private val tvCustomerName: TextView = itemView.findViewById(R.id.tvCustomerName)
-        private val tvItemCount: TextView = itemView.findViewById(R.id.tvItemCount)
         private val tvTotalAmount: TextView = itemView.findViewById(R.id.tvTotalAmount)
-        private val tvNatureType: TextView = itemView.findViewById(R.id.tvNatureType)
-        private val btnEdit: View = itemView.findViewById(R.id.btnEdit)
-        private val btnDelete: View = itemView.findViewById(R.id.btnDelete)
 
         fun bind(sale: Sale) {
             tvTransactionNumber.text = sale.numberTransaction
             tvUpdatedDate.text = sale.getFormattedUpdatedDate()
             tvCustomerName.text = sale.getCustomerName()
-            tvItemCount.text = "${sale.getItemCount()} article(s)"
             tvTotalAmount.text = sale.getFormattedSalesAmount()
-            tvNatureType.text = sale.getNatureLabel()
 
-            // Click listeners
+            // Click to view sale details
             cardView.setOnClickListener { onSaleClick(sale) }
-            btnEdit.setOnClickListener { onEditClick(sale) }
-            btnDelete.setOnClickListener { onDeleteClick(sale) }
         }
     }
 

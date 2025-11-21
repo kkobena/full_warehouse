@@ -13,24 +13,10 @@ interface PaymentApiService {
     /**
      * Get all enabled payment modes
      */
-    @GET("api/payment-modes")
+    @GET("api/payment-restricts-modes")
     suspend fun getPaymentModes(): Response<List<PaymentMode>>
 
-    /**
-     * Get payment mode by code
-     */
-    @GET("api/payment-modes/{code}")
-    suspend fun getPaymentModeByCode(
-        @Path("code") code: String
-    ): Response<PaymentMode>
 
-    /**
-     * Get payment modes by group
-     */
-    @GET("api/payment-modes/group/{group}")
-    suspend fun getPaymentModesByGroup(
-        @Path("group") group: String
-    ): Response<List<PaymentMode>>
 
     /**
      * Get QR code for mobile money payment
@@ -45,7 +31,7 @@ interface PaymentApiService {
  * QR Code response
  */
 data class QrCodeResponse(
-    val code: String,
-    val qrCodeData: String, // Base64 encoded PNG image
-    val expiresAt: String? = null
+  val code: String,
+  val qrCode: String, // byte[]
+
 )

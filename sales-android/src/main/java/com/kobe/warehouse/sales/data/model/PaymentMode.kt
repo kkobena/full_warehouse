@@ -1,29 +1,29 @@
 package com.kobe.warehouse.sales.data.model
 
+import android.os.Parcel
 import android.os.Parcelable
 import com.google.gson.annotations.SerializedName
+import kotlinx.parcelize.Parceler
 import kotlinx.parcelize.Parcelize
+import kotlinx.parcelize.TypeParceler
 
 /**
  * Payment Mode model
  * Represents payment methods available in the system
  */
 @Parcelize
+@TypeParceler<ByteArray?, ByteArrayParceler>()
 data class PaymentMode(
   @SerializedName("code")
-  val code: String = "",
+  val code: String , // as unique identifier
 
   @SerializedName("libelle")
-  val libelle: String = "",
-
-  @SerializedName("order")
-  val order: Int = 0,
-
+  val libelle: String ,
   @SerializedName("group")
-  val group: String = "CASH", // CASH, CARD, MOBILE_MONEY, CHECK, CREDIT
+  val group: String? = null, // CASH, CARD, MOBILE_MONEY, CHECK, CREDIT
 
   @SerializedName("qrCode")
-  val qrCode: String? = null // Base64 encoded QR code image
+  val qrCode: ByteArray? = null // QR code image as byte array
 
 ) : Parcelable {
 
@@ -35,9 +35,7 @@ data class PaymentMode(
       "CASH" -> "Espèces"
       "CB" -> "Carte bancaire"
       "MOBILE" -> "Mobile Money"
-      "CHEQUE" -> "Chèque"
-      "CREDIT" -> "Crédit"
-      else -> group
+      else -> group ?: "Autre"
     }
   }
 
@@ -45,7 +43,33 @@ data class PaymentMode(
    * Check if payment mode has QR code
    */
   fun hasQrCode(): Boolean {
-    return !qrCode.isNullOrEmpty()
+    return qrCode != null && qrCode.isNotEmpty()
+  }
+
+  // Override equals and hashCode to handle ByteArray properly
+  override fun equals(other: Any?): Boolean {
+    if (this === other) return true
+    if (javaClass != other?.javaClass) return false
+
+    other as PaymentMode
+
+    if (code != other.code) return false
+    if (libelle != other.libelle) return false
+    if (group != other.group) return false
+    if (qrCode != null) {
+      if (other.qrCode == null) return false
+      if (!qrCode.contentEquals(other.qrCode)) return false
+    } else if (other.qrCode != null) return false
+
+    return true
+  }
+
+  override fun hashCode(): Int {
+    var result = code.hashCode()
+    result = 31 * result + libelle.hashCode()
+    result = 31 * result + (group?.hashCode() ?: 0)
+    result = 31 * result + (qrCode?.contentHashCode() ?: 0)
+    return result
   }
 
   /**
@@ -85,12 +109,25 @@ data class PaymentMode(
 }
 
 /**
- * Payment group enum
+ * Custom Parceler for ByteArray to handle Parcelable
  */
-enum class PaymentGroup {
-  CASH,
-  CARD,
-  MOBILE_MONEY,
-  CHECK,
-  CREDIT
+object ByteArrayParceler : Parceler<ByteArray?> {
+  override fun create(parcel: Parcel): ByteArray? {
+    val size = parcel.readInt()
+    if (size < 0) return null
+    val byteArray = ByteArray(size)
+    parcel.readByteArray(byteArray)
+    return byteArray
+  }
+
+  override fun ByteArray?.write(parcel: Parcel, flags: Int) {
+    if (this == null) {
+      parcel.writeInt(-1)
+    } else {
+      parcel.writeInt(size)
+      parcel.writeByteArray(this)
+    }
+  }
 }
+
+

@@ -39,8 +39,9 @@ object ApiClient {
      */
     fun create(baseUrl: String? = null, tokenManager: TokenManager): Retrofit {
         // Use base URL from: 1) parameter, 2) TokenManager config, 3) BuildConfig default
+        val tokenManagerUrl = tokenManager.getBaseUrl()
         val finalBaseUrl = baseUrl
-            ?: tokenManager.getBaseUrl().takeIf { it.isNotEmpty() }
+            ?: tokenManagerUrl.takeIf { it.isNotEmpty() }
             ?: DEFAULT_BASE_URL
 
         return Retrofit.Builder()
@@ -55,9 +56,9 @@ object ApiClient {
      */
     private fun createOkHttpClient(tokenManager: TokenManager): OkHttpClient {
         return OkHttpClient.Builder()
-            .connectTimeout(30, TimeUnit.SECONDS)
-            .readTimeout(30, TimeUnit.SECONDS)
-            .writeTimeout(30, TimeUnit.SECONDS)
+            .connectTimeout(20, TimeUnit.SECONDS)
+            .readTimeout(20, TimeUnit.SECONDS)
+            .writeTimeout(20, TimeUnit.SECONDS)
             .addInterceptor(createAuthInterceptor(tokenManager))
             .addInterceptor(createResponseInterceptor())
             .addInterceptor(createLoggingInterceptor())

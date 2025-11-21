@@ -6,11 +6,11 @@ plugins {
 }
 
 android {
-  namespace = 'com.kobe.warehouse.sales'
+  namespace = 'com.kobe.warehouse.inventory'
   compileSdk = 36
 
   defaultConfig {
-    applicationId = 'com.kobe.warehouse.sales'
+    applicationId = 'com.kobe.warehouse.inventory'
     minSdk = 30
     targetSdk = 36
     versionCode = 1
@@ -21,7 +21,7 @@ android {
     // Build config fields for API endpoints
     // Note: 10.0.2.2 is the special IP for emulator to access host machine's localhost
     // For physical devices, change to your machine's actual IP (e.g., 192.168.1.188)
-    buildConfigField "String", "BASE_URL", "\"http://10.0.2.2:9080/\""
+    buildConfigField "String", "BASE_URL", "\"http://10.0.2.2:8080/\""
     buildConfigField "String", "AUTH_ENDPOINT", "\"/api/auth/login\""
     buildConfigField "String", "ACCOUNT_ENDPOINT", "\"/api/account\""
   }
@@ -91,7 +91,7 @@ dependencies {
   // LocalBroadcastManager for session event broadcasting
   implementation 'androidx.localbroadcastmanager:localbroadcastmanager:1.1.0'
 
-  // Room Database (optional for offline caching)
+  // Room Database for offline caching
   implementation 'androidx.room:room-runtime:2.6.1'
   implementation 'androidx.room:room-ktx:2.6.1'
   kapt 'androidx.room:room-compiler:2.6.1'
@@ -99,10 +99,7 @@ dependencies {
   // Splash Screen API
   implementation 'androidx.core:core-splashscreen:1.0.1'
 
-  // Sunmi Printer Library (for thermal receipt printing)
-  implementation 'com.sunmi:printerlibrary:1.0.18'
-
-  // ZXing for QR Code generation and scanning
+  // ZXing for barcode scanning
   implementation 'com.google.zxing:core:3.5.3'
   implementation 'com.journeyapps:zxing-android-embedded:4.3.0'
 
@@ -121,6 +118,9 @@ dependencies {
 
   // Card View
   implementation 'androidx.cardview:cardview:1.0.0'
+
+  // Work Manager for background sync
+  implementation 'androidx.work:work-runtime-ktx:2.9.0'
 
   // Testing
   testImplementation 'junit:junit:4.13.2'

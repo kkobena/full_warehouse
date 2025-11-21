@@ -322,7 +322,7 @@ class SunmiPrinterService(private val context: Context) {
 
         companion object {
             fun fromCode(code: Int): PrinterStatus {
-                return values().find { it.code == code } ?: ERROR
+                return entries.find { it.code == code } ?: ERROR
             }
         }
     }

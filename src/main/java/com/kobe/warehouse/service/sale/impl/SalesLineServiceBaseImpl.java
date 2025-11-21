@@ -1,5 +1,7 @@
 package com.kobe.warehouse.service.sale.impl;
 
+import com.kobe.warehouse.domain.AppUser;
+import com.kobe.warehouse.domain.CashSale;
 import com.kobe.warehouse.domain.SalesLine;
 import com.kobe.warehouse.repository.ProduitRepository;
 import com.kobe.warehouse.repository.SalesLineRepository;
@@ -12,6 +14,9 @@ import com.kobe.warehouse.service.stock.LotService;
 import com.kobe.warehouse.service.stock.SuggestionProduitService;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.util.List;
+import java.util.Set;
 
 /**
  * Base implementation for SalesLineService.
@@ -46,5 +51,19 @@ public class SalesLineServiceBaseImpl extends SalesLineServiceImpl {
     @Override
     public SalesLine createSaleLineFromDTO(SaleLineDTO dto, Integer stockageId) {
         return super.setCommonSaleLine(dto, stockageId);
+    }
+
+    @Override
+    public void saveAllSalesLines(Set<SalesLine> salesLines, AppUser user, Integer storageId) {
+        super. save(salesLines,  user,  storageId);
+    }
+
+    @Override
+    public List<SalesLine> createSaleLinesFromDTO(CashSale cashSale, List<SaleLineDTO> saleLines, Integer stockageId) {
+        return  saleLines.stream().map(saleLineDTO -> {
+            SalesLine salesLine = super.setCommonSaleLine(saleLineDTO, stockageId);
+            salesLine.setSales(cashSale);
+            return salesLine;
+        }).toList();
     }
 }

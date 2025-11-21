@@ -39,6 +39,7 @@ import kotlinx.coroutines.withContext
  * - Quantity adjustments
  * - Checkout with payment
  * - Responsive layout (phone/tablet)
+ * - View-only mode for finalized sales
  */
 class ComptantSaleActivity : BaseActivity() {
 
@@ -46,8 +47,11 @@ class ComptantSaleActivity : BaseActivity() {
     private lateinit var viewModel: ComptantSaleViewModel
     private lateinit var productAdapter: ProductAdapter
     private lateinit var cartAdapter: CartAdapter
+    private lateinit var storeRepository: StoreRepository
 
     private var isTablet = false
+    private var isViewMode = false  // Read-only mode for finalized sales
+    private var currentStore: com.kobe.warehouse.sales.data.model.Store? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -63,6 +67,7 @@ class ComptantSaleActivity : BaseActivity() {
         setupRecyclerViews()
         setupListeners()
         observeViewModel()
+        loadStoreInfo()
 
         // Load existing sale if editing
         handleIntent()
@@ -78,18 +83,20 @@ class ComptantSaleActivity : BaseActivity() {
         val salesApiService = retrofit.create(SalesApiService::class.java)
         val productApiService = retrofit.create(ProductApiService::class.java)
         val paymentApiService = retrofit.create(PaymentApiService::class.java)
-        val customerApiService = retrofit.create(CustomerApiService::class.java)
+        val authApiService = retrofit.create(AuthApiService::class.java)
+        val storeApiService = retrofit.create(com.kobe.warehouse.sales.data.api.StoreApiService::class.java)
 
         val salesRepository = SalesRepository(salesApiService)
         val productRepository = ProductRepository(productApiService)
         val paymentRepository = PaymentRepository(paymentApiService)
-        val customerRepository = CustomerRepository(customerApiService)
+        val authRepository = AuthRepository(authApiService, tokenManager)
+        storeRepository = StoreRepository(storeApiService, this)
 
         val factory = ComptantSaleViewModelFactory(
             salesRepository,
             productRepository,
             paymentRepository,
-            customerRepository,
+            authRepository,
             tokenManager
         )
         viewModel = ViewModelProvider(this, factory)[ComptantSaleViewModel::class.java]
@@ -133,7 +140,8 @@ class ComptantSaleActivity : BaseActivity() {
         cartAdapter = CartAdapter(
             onIncrementClick = { saleLine -> viewModel.incrementQuantity(saleLine) },
             onDecrementClick = { saleLine -> viewModel.decrementQuantity(saleLine) },
-            onRemoveClick = { saleLine -> confirmRemoveProduct(saleLine) }
+            onRemoveClick = { saleLine -> confirmRemoveProduct(saleLine) },
+            onQuantityChange = { saleLine, newQuantity -> viewModel.updateProductQuantity(saleLine, newQuantity) }
         )
 
         binding.rvCart.apply {
@@ -196,18 +204,30 @@ class ComptantSaleActivity : BaseActivity() {
             val itemCount = sale.salesLines.size
             binding.tvCartItemCount.text = itemCount.toString()
 
+            // Update VAT display
+            val vatAmount = sale.getTotalTax()
+            if (vatAmount > 0) {
+                binding.vatRow.visibility = View.VISIBLE
+                binding.tvVat.text = sale.getFormattedTaxAmount()
+            } else {
+                binding.vatRow.visibility = View.GONE
+            }
+
             // Update total
             binding.tvTotal.text = sale.getFormattedSalesAmount()
 
-            // Show/hide empty cart state
+            // Show/hide empty cart state and buttons
             if (sale.salesLines.isEmpty()) {
                 binding.emptyCartState.visibility = View.VISIBLE
                 binding.rvCart.visibility = View.GONE
                 binding.btnCheckout.isEnabled = false
+                binding.btnClearCart.visibility = View.GONE
+                binding.vatRow.visibility = View.GONE
             } else {
                 binding.emptyCartState.visibility = View.GONE
                 binding.rvCart.visibility = View.VISIBLE
                 binding.btnCheckout.isEnabled = true
+                binding.btnClearCart.visibility = View.VISIBLE
             }
         }
 
@@ -233,7 +253,7 @@ class ComptantSaleActivity : BaseActivity() {
         viewModel.saleFinalized.observe(this) { finalizedSale ->
             finalizedSale?.let {
                 showSaleCompletedDialog(it.numberTransaction)
-                viewModel.clearFinalizedSale()
+                // Don't clear here - will be cleared after printing or user declines
             }
         }
 
@@ -308,15 +328,74 @@ class ComptantSaleActivity : BaseActivity() {
     }
 
     /**
-     * Handle intent extras (for editing existing sale)
+     * Load store information from backend with caching
+     */
+    private fun loadStoreInfo() {
+        CoroutineScope(Dispatchers.Main).launch {
+            storeRepository.getStore().fold(
+                onSuccess = { store ->
+                    currentStore = store
+                    android.util.Log.d("ComptantSaleActivity", "Store info loaded: ${store.getDisplayName()}")
+                },
+                onFailure = { error ->
+                    // Log error but don't block UI since store info is not critical for POS operations
+                    android.util.Log.e("ComptantSaleActivity", "Failed to load store info: ${error.message}")
+                    // App can continue without store info - will use fallback values in receipt
+                }
+            )
+        }
+    }
+
+    /**
+     * Handle intent extras (for viewing finalized sale)
      */
     private fun handleIntent() {
         val saleId = intent.getLongExtra("SALE_ID", 0)
         val saleDate = intent.getStringExtra("SALE_DATE")
-        val isEditMode = intent.getBooleanExtra("IS_EDIT_MODE", false)
+        isViewMode = intent.getBooleanExtra("IS_VIEW_MODE", false)
 
-        if (isEditMode && saleId > 0 && !saleDate.isNullOrEmpty()) {
+        if (isViewMode && saleId > 0 && !saleDate.isNullOrEmpty()) {
+            // Load sale for viewing
             viewModel.loadSale(saleId, saleDate)
+
+            // Disable all editing features
+            disableEditing()
+        }
+    }
+
+    /**
+     * Disable editing features when in view-only mode
+     */
+    private fun disableEditing() {
+        // Change toolbar title
+        supportActionBar?.title = "Détails de la vente"
+
+        // Disable product search
+        binding.etSearch.isEnabled = false
+        binding.searchInputLayout.isEnabled = false
+
+        // Hide product search results
+        binding.rvProducts.visibility = View.GONE
+
+        // Hide checkout button (sale already finalized)
+        binding.btnCheckout.visibility = View.GONE
+
+        // Hide clear cart button
+        binding.btnClearCart.visibility = View.GONE
+
+        // Recreate cart adapter in view-only mode
+        cartAdapter = CartAdapter(
+            onIncrementClick = { },  // No-op
+            onDecrementClick = { },  // No-op
+            onRemoveClick = { },     // No-op
+            onQuantityChange = { _, _ -> },  // No-op
+            isViewMode = true        // Read-only mode
+        )
+        binding.rvCart.adapter = cartAdapter
+
+        // Refresh cart display
+        viewModel.currentSale.value?.let { sale ->
+            cartAdapter.submitList(sale.salesLines)
         }
     }
 
@@ -326,7 +405,7 @@ class ComptantSaleActivity : BaseActivity() {
     private fun confirmRemoveProduct(saleLine: com.kobe.warehouse.sales.data.model.SaleLine) {
         MaterialAlertDialogBuilder(this)
             .setTitle("Retirer du panier")
-            .setMessage("Voulez-vous retirer ${saleLine.produitLibelle} du panier ?")
+            .setMessage("Voulez-vous retirer ${saleLine.produitLibelle ?: "ce produit"} du panier ?")
             .setPositiveButton("Retirer") { _, _ ->
                 viewModel.removeProductFromCart(saleLine)
             }
@@ -373,7 +452,9 @@ class ComptantSaleActivity : BaseActivity() {
                 printReceipt()
             }
             .setNegativeButton("Non") { _, _ ->
-                finish()
+                // User declined to print - reset cart and stay on screen
+                viewModel.resetAfterSale()
+                Toast.makeText(this, "Prêt pour une nouvelle vente", Toast.LENGTH_SHORT).show()
             }
             .setCancelable(false)
             .show()
@@ -386,7 +467,7 @@ class ComptantSaleActivity : BaseActivity() {
         val sale = viewModel.saleFinalized.value
         if (sale == null) {
             Toast.makeText(this, "Erreur: Vente introuvable", Toast.LENGTH_SHORT).show()
-            finish()
+            viewModel.resetAfterSale()
             return
         }
 
@@ -398,80 +479,38 @@ class ComptantSaleActivity : BaseActivity() {
             val success = withContext(Dispatchers.IO) {
                 try {
                     val receiptPrinter = ReceiptPrinter(this@ComptantSaleActivity)
-
-                    // Get store information from preferences or constants
-                    // TODO: Load from backend configuration or SharedPreferences
-                    val storeName = getString(R.string.app_name)
-                    val storeAddress = "Adresse de la pharmacie" // TODO: Load from config
-                    val storePhone = "Tél: +XXX XXX XXX" // TODO: Load from config
-                    val welcomeMsg = "Bienvenue dans notre pharmacie"
-                    val footerNote = "Merci pour votre visite!"
-
-                    // Get paper roll size from preferences (default: 58mm)
-                    val prefs = getSharedPreferences("printer_settings", MODE_PRIVATE)
-                    val paperRollSize = prefs.getString("paper_roll_size", "58") ?: "58"
-                    val paperRoll = if (paperRollSize == "80") {
-                        ReceiptPrinter.PaperRoll.MM_80
-                    } else {
-                        ReceiptPrinter.PaperRoll.MM_58
-                    }
-
-                    // Get cashier/seller info
-                    // TODO: Load from user session
-                    val cassierName = "Caissier" // TODO: Get from TokenManager or session
-                    val sellerName = null // TODO: Get from sale or session
-
-                    // Prepare payment details
-                    val payments = sale.payments.mapNotNull { payment ->
-                        payment.paymentMode?.let { mode ->
-                            ReceiptPrinter.PaymentDetail(
-                                paymentModeLabel = mode.libelle,
-                                amount = payment.paidAmount,
-                                isCash = mode.isCash()
-                            )
-                        }
-                    }
-
-                    // Get montant versé (amount given by customer for cash payments)
-                    val montantVerse = sale.payments
-                        .firstOrNull { it.paymentMode?.isCash() == true }
-                        ?.montantVerse ?: sale.montantVerse
-
-                    // Print receipt
-                    receiptPrinter.printReceipt(
-                        sale = sale,
-                        storeName = storeName,
-                        storeAddress = storeAddress,
-                        storePhone = storePhone,
-                        welcomeMsg = welcomeMsg,
-                        footerNote = footerNote,
-                        cassierName = cassierName,
-                        sellerName = sellerName,
-                        payments = payments,
-                        montantVerse = montantVerse,
-                        paperRoll = paperRoll
-                    )
+                    // Print receipt (ReceiptPrinter automatically loads store and account info)
+                    receiptPrinter.printReceipt(sale = sale)
                 } catch (e: Exception) {
                     android.util.Log.e("ComptantSaleActivity", "Failed to print receipt", e)
                     false
                 }
             }
 
-            // Show result to user
+            // Show result to user and reset cart (stay on screen)
             if (success) {
-                Toast.makeText(this@ComptantSaleActivity, "Reçu imprimé avec succès", Toast.LENGTH_SHORT).show()
+                // Reset cart after successful printing and stay on screen
+                viewModel.resetAfterSale()
+                Toast.makeText(
+                    this@ComptantSaleActivity,
+                    "Reçu imprimé avec succès. Prêt pour une nouvelle vente",
+                    Toast.LENGTH_LONG
+                ).show()
             } else {
                 MaterialAlertDialogBuilder(this@ComptantSaleActivity)
                     .setTitle("Erreur d'impression")
                     .setMessage("Impossible d'imprimer le reçu. Vérifiez que l'imprimante est connectée.")
                     .setPositiveButton("OK") { _, _ ->
-                        finish()
+                        // Reset cart even if printing failed and stay on screen
+                        viewModel.resetAfterSale()
+                        Toast.makeText(
+                            this@ComptantSaleActivity,
+                            "Prêt pour une nouvelle vente",
+                            Toast.LENGTH_SHORT
+                        ).show()
                     }
                     .show()
-                return@launch
             }
-
-            finish()
         }
     }
 }

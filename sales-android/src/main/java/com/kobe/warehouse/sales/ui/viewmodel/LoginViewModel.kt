@@ -64,7 +64,7 @@ class LoginViewModel(private val authRepository: AuthRepository) : ViewModel() {
             _authenticationError.value = false
             _errorMessage.value = null
 
-            val result = authRepository.login(username, password, rememberMe)
+            val result = authRepository.login(username.trim(), password, rememberMe)
 
             result.fold(
                 onSuccess = { account ->

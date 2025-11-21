@@ -40,46 +40,8 @@ class PaymentRepository(
         }
     }
 
-    /**
-     * Get payment mode by code
-     */
-    suspend fun getPaymentModeByCode(code: String): Result<PaymentMode> {
-        return withContext(Dispatchers.IO) {
-            try {
-                // Check cache first
-                cachedPaymentModes?.find { it.code == code }?.let {
-                    return@withContext Result.success(it)
-                }
 
-                val response = paymentApiService.getPaymentModeByCode(code)
-                if (response.isSuccessful && response.body() != null) {
-                    Result.success(response.body()!!)
-                } else {
-                    Result.failure(Exception("Payment mode not found: $code"))
-                }
-            } catch (e: Exception) {
-                Result.failure(e)
-            }
-        }
-    }
 
-    /**
-     * Get payment modes by group (CASH, CARD, MOBILE_MONEY, etc.)
-     */
-    suspend fun getPaymentModesByGroup(group: String): Result<List<PaymentMode>> {
-        return withContext(Dispatchers.IO) {
-            try {
-                val response = paymentApiService.getPaymentModesByGroup(group)
-                if (response.isSuccessful && response.body() != null) {
-                    Result.success(response.body()!!)
-                } else {
-                    Result.failure(Exception("Failed to load payment modes: ${response.message()}"))
-                }
-            } catch (e: Exception) {
-                Result.failure(e)
-            }
-        }
-    }
 
     /**
      * Get QR code for mobile money payment
@@ -89,7 +51,7 @@ class PaymentRepository(
             try {
                 val response = paymentApiService.getPaymentQrCode(code)
                 if (response.isSuccessful && response.body() != null) {
-                    Result.success(response.body()!!.qrCodeData)
+                    Result.success(response.body()!!.qrCode)
                 } else {
                     Result.failure(Exception("Failed to load QR code: ${response.message()}"))
                 }

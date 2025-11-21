@@ -170,4 +170,6 @@ public class SalesResource {
         saleService.removeRemiseFromCashSale(new SaleId(id, saleDate));
         return ResponseEntity.ok().build();
     }
+
+
 }

@@ -150,6 +150,7 @@ when (validationResult.reason) {
 ```kotlin
 // Angular: createSalesLine(produit, quantityRequested)
 data class SalesLine(
+     val id: Int? = null,
     val produitId: Long,
     val regularUnitPrice: Int,
     val saleId: Long?,
@@ -164,6 +165,7 @@ fun createSalesLine(product: Product, quantityRequested: Int): SalesLine {
     val quantitySold = min(product.totalQuantity, quantityRequested)
 
     return SalesLine(
+       id=product.id,
         produitId = product.id,
         regularUnitPrice = product.regularUnitPrice,
         saleId = currentSale?.id,

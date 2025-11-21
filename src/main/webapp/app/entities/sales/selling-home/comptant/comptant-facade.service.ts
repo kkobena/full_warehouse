@@ -68,7 +68,7 @@ export class ComptantFacadeService {
     if (putsOnStandby) {
       this.putCurrentCashSaleOnHold();
     } else {
-      console.log('saving cash sale with entry amount:', entryAmount);
+
       this.saveCashSale(entryAmount);
     }
   }

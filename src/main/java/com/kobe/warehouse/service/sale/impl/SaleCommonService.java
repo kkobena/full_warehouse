@@ -20,6 +20,7 @@ import com.kobe.warehouse.repository.UserRepository;
 import com.kobe.warehouse.service.ReferenceService;
 import com.kobe.warehouse.service.StorageService;
 import com.kobe.warehouse.service.cash_register.CashRegisterService;
+import com.kobe.warehouse.service.dto.CashSaleDTO;
 import com.kobe.warehouse.service.dto.SaleDTO;
 import com.kobe.warehouse.service.errors.PaymentAmountException;
 import com.kobe.warehouse.service.errors.SaleAlreadyCloseException;
@@ -414,5 +415,27 @@ public class SaleCommonService {
 
     protected long getNextId() {
         return idGeneratorService.nextId();
+    }
+
+    protected void finalizeSale(CashSale c, CashSaleDTO dto ) {
+
+        c.setDiffere(dto.isDiffere());
+        c.setCommentaire(dto.getCommentaire());
+
+        if (c.isDiffere() && c.getCustomer() == null) {
+            throw new SaleNotFoundCustomerException();
+        }
+        c.setPayrollAmount(dto.getPayrollAmount());
+        c.setRestToPay(dto.getRestToPay());
+        c.setUpdatedAt(LocalDateTime.now());
+        c.setMonnaie(dto.getMontantRendu());
+        c.setEffectiveUpdateDate(c.getUpdatedAt());
+        if (c.getRestToPay() == 0) {
+            c.setPaymentStatus(PaymentStatus.PAYE);
+        } else {
+            c.setPaymentStatus(PaymentStatus.IMPAYE);
+        }
+        c.setRestToPay(c.getRestToPay() < 0 ? 0 : c.getRestToPay());
+        this.buildReference(c);
     }
 }

@@ -9,4 +9,6 @@ public class CashSaleDTO extends SaleDTO {
     public CashSaleDTO(CashSale sale) {
         super(sale);
     }
+
+
 }

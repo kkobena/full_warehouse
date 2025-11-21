@@ -1,4 +1,4 @@
-import { Component, inject, OnInit } from '@angular/core';
+import { Component, inject, OnDestroy, OnInit } from '@angular/core';
 import { CommonModule, DecimalPipe } from '@angular/common';
 import {
   faChartArea,
@@ -8,10 +8,15 @@ import {
   faCommentsDollar,
   faCreditCard,
   faShippingFast,
-  faShoppingBasket,
+  faShoppingBasket
 } from '@fortawesome/free-solid-svg-icons';
 import { TableModule } from 'primeng/table';
-import { VenteByTypeRecord, VenteModePaimentRecord, VenteRecord, VenteRecordWrapper } from '../../shared/model/vente-record.model';
+import {
+  VenteByTypeRecord,
+  VenteModePaimentRecord,
+  VenteRecord,
+  VenteRecordWrapper
+} from '../../shared/model/vente-record.model';
 import { ProductStatParetoRecord, ProductStatRecord } from '../../shared/model/produit-record.model';
 import { AchatRecord } from '../../shared/model/achat-record.model';
 import { CaPeriodeFilter } from '../../shared/model/enumerations/ca-periode-filter.model';
@@ -20,16 +25,21 @@ import { DashboardService } from '../dashboard.service';
 import { ProduitStatService } from '../../entities/produit/stat/produit-stat.service';
 import { TypeCa } from '../../shared/model/enumerations/type-ca.model';
 import { OrderBy } from '../../shared/model/enumerations/type-vente.model';
-import { forkJoin } from 'rxjs';
+import { forkJoin, interval, Subject, takeUntil } from 'rxjs';
 import { FaIconComponent } from '@fortawesome/angular-fontawesome';
 import { FormsModule } from '@angular/forms';
 import { TiersPayantService } from '../../entities/tiers-payant/tierspayant.service';
 import { TiersPayantAchat } from '../../entities/tiers-payant/model/tiers-payant-achat.model';
 import { ChartModule } from 'primeng/chart';
-import { ToggleButtonModule } from 'primeng/togglebutton';
-import { backgroundColor, hoverBackgroundColor, surfaceBorder, textColor, textColorSecondary } from '../../shared/chart-color-helper';
+import { ToggleButtonChangeEvent, ToggleButtonModule } from 'primeng/togglebutton';
+import {
+  backgroundColor,
+  hoverBackgroundColor,
+  surfaceBorder,
+  textColor,
+  textColorSecondary
+} from '../../shared/chart-color-helper';
 import { ToggleStateService } from './toggle-state.service';
-import { ToggleButtonChangeEvent } from 'primeng/togglebutton';
 import { SelectModule } from 'primeng/select';
 
 interface TopSelection {
@@ -41,9 +51,9 @@ interface TopSelection {
   selector: 'jhi-home-base',
   imports: [CommonModule, FormsModule, DecimalPipe, TableModule, FaIconComponent, ChartModule, ToggleButtonModule, SelectModule],
   templateUrl: './home-base.component.html',
-  styleUrl: './home-base.component.scss',
+  styleUrl: './home-base.component.scss'
 })
-export class HomeBaseComponent implements OnInit {
+export class HomeBaseComponent implements OnInit, OnDestroy {
   protected readonly faShoppingBasket = faShoppingBasket;
   protected readonly faShippingFast = faShippingFast;
   protected readonly faCommentsDollar = faCommentsDollar;
@@ -89,7 +99,7 @@ export class HomeBaseComponent implements OnInit {
   protected modePaimentChartOptions: any;
   protected tiersPayantChartData: any;
   protected tiersPayantChartOptions: any;
-
+  private destroy$ = new Subject<void>();
   private readonly dashboardService = inject(DashboardService);
   private readonly produitStatService = inject(ProduitStatService);
   private readonly tiersPayantService = inject(TiersPayantService);
@@ -108,45 +118,55 @@ export class HomeBaseComponent implements OnInit {
   ngOnInit(): void {
     this.initializeChartStyles();
     this.loadDashboardData();
+    interval(120000)
+      .pipe(takeUntil(this.destroy$))
+      .subscribe(() => {
+        this.loadDashboardData();
+      });
+  }
+
+  ngOnDestroy(): void {
+    this.destroy$.next();
+    this.destroy$.complete();
   }
 
   protected loadDashboardData(): void {
     const sources = {
       ca: this.dashboardService.fetchCa({
         categorieChiffreAffaire: TypeCa.CA,
-        dashboardPeriode: this.dashboardPeriode,
+        dashboardPeriode: this.dashboardPeriode
       }),
       caAchat: this.dashboardService.fetchCaAchat({
-        dashboardPeriode: this.dashboardPeriode,
+        dashboardPeriode: this.dashboardPeriode
       }),
       caTypeVente: this.dashboardService.fetchCaByTypeVente({
-        dashboardPeriode: this.dashboardPeriode,
+        dashboardPeriode: this.dashboardPeriode
       }),
       byModePaiment: this.dashboardService.getCaByModePaiment({
-        dashboardPeriode: this.dashboardPeriode,
+        dashboardPeriode: this.dashboardPeriode
       }),
       produitCa: this.produitStatService.fetchPoduitCa({
         dashboardPeriode: this.dashboardPeriode,
         order: OrderBy.QUANTITY_SOLD,
-        limit: this.TOP_MAX_QUANTITY?.value,
+        limit: this.TOP_MAX_QUANTITY?.value
       }),
       produitAmount: this.produitStatService.fetchPoduitCa({
         dashboardPeriode: this.dashboardPeriode,
         order: OrderBy.AMOUNT,
-        limit: this.TOP_MAX_AMOUNT?.value,
+        limit: this.TOP_MAX_AMOUNT?.value
       }),
       twentyEighty: this.produitStatService.fetch20x80({
         dashboardPeriode: this.dashboardPeriode,
-        order: OrderBy.QUANTITY_SOLD,
+        order: OrderBy.QUANTITY_SOLD
       }),
       twentyEightyMontant: this.produitStatService.fetch20x80({
         dashboardPeriode: this.dashboardPeriode,
-        order: OrderBy.AMOUNT,
+        order: OrderBy.AMOUNT
       }),
       tiersPayantAchat: this.tiersPayantService.fetchAchatTiersPayant({
         dashboardPeriode: this.dashboardPeriode,
-        limit: this.TOP_MAX_TP?.value,
-      }),
+        limit: this.TOP_MAX_TP?.value
+      })
     };
 
     forkJoin(sources).subscribe({
@@ -162,9 +182,8 @@ export class HomeBaseComponent implements OnInit {
         this.onFetchTiersPayantSuccess(data.tiersPayantAchat.body);
         this.buildAllCharts();
       },
-      error: err => {
-        console.error('Error loading dashboard data', err);
-      },
+      error: () => {
+      }
     });
   }
 
@@ -173,7 +192,7 @@ export class HomeBaseComponent implements OnInit {
       .fetchPoduitCa({
         dashboardPeriode: this.dashboardPeriode,
         order: OrderBy.QUANTITY_SOLD,
-        limit: this.TOP_MAX_QUANTITY?.value,
+        limit: this.TOP_MAX_QUANTITY?.value
       })
       .subscribe(res => {
         this.onFetchPoduitCaSuccess(res.body);
@@ -186,21 +205,23 @@ export class HomeBaseComponent implements OnInit {
       .fetchPoduitCa({
         dashboardPeriode: this.dashboardPeriode,
         order: OrderBy.AMOUNT,
-        limit: this.TOP_MAX_AMOUNT?.value,
+        limit: this.TOP_MAX_AMOUNT?.value
       })
       .subscribe(res => {
         this.onFetchPoduitAmountSuccess(res.body);
         this.buildAmountChart();
       });
   }
+
   protected onToggleChange(evt: ToggleButtonChangeEvent): void {
     this.toggleStateService.update(evt.checked);
   }
+
   protected onTopTiersPayantChange(): void {
     this.tiersPayantService
       .fetchAchatTiersPayant({
         dashboardPeriode: this.dashboardPeriode,
-        limit: this.TOP_MAX_TP?.value,
+        limit: this.TOP_MAX_TP?.value
       })
       .subscribe(res => {
         this.onFetchTiersPayantSuccess(res.body);
@@ -241,10 +262,12 @@ export class HomeBaseComponent implements OnInit {
     this.rowAmount = productStatRecords;
     this.computeAmountTopAmount();
   }
+
   private onFetch20x80AmountSuccess(productStatRecords: ProductStatParetoRecord[] | []): void {
     this.row20x80Montant = productStatRecords;
     this.computeAmountrow20x80Amount();
   }
+
   private onFetch20x80Success(productStatRecords: ProductStatParetoRecord[] | []): void {
     this.row20x80 = productStatRecords;
     this.computeAmountrow20x80();
@@ -259,6 +282,7 @@ export class HomeBaseComponent implements OnInit {
     this.totalQuantityTopAmount = this.rowAmount.reduce((sum, p) => sum + p.quantitySold, 0);
     this.totalAmountTopAmount = this.rowAmount.reduce((sum, p) => sum + p.montantHt, 0);
   }
+
   private computeAmountrow20x80Amount(): void {
     if (this.row20x80Montant?.length) {
       this.totalAmount20x80 = this.row20x80Montant[0].totalGlobal;
@@ -296,9 +320,9 @@ export class HomeBaseComponent implements OnInit {
           type: 'bar',
           label: 'Quantité vendue',
           backgroundColor: this.documentStyle.getPropertyValue('--p-primary-200'),
-          data: this.rowQuantity.map(p => p.quantitySold),
-        },
-      ],
+          data: this.rowQuantity.map(p => p.quantitySold)
+        }
+      ]
     };
     this.quantityChartOptions = this.getCommonChartOptions();
   }
@@ -311,9 +335,9 @@ export class HomeBaseComponent implements OnInit {
           type: 'bar',
           label: 'Montant HT',
           backgroundColor: this.documentStyle.getPropertyValue('--p-blue-200'),
-          data: this.rowAmount.map(p => p.montantHt),
-        },
-      ],
+          data: this.rowAmount.map(p => p.montantHt)
+        }
+      ]
     };
     this.amountChartOptions = this.getCommonChartOptions();
   }
@@ -327,15 +351,15 @@ export class HomeBaseComponent implements OnInit {
           label: '% Montant',
           borderColor: this.documentStyle.getPropertyValue('--p-cyan-300'),
           tension: 0.4,
-          data: this.row20x80.map(p => p.pourcentage),
+          data: this.row20x80.map(p => p.pourcentage)
         },
         {
           type: 'bar',
           label: 'Montant HT',
           backgroundColor: this.documentStyle.getPropertyValue('--p-orange-300'),
-          data: this.row20x80.map(p => p.total),
-        },
-      ],
+          data: this.row20x80.map(p => p.total)
+        }
+      ]
     };
     this.twentyEightyChartOptions = this.getCommonChartOptions();
   }
@@ -347,9 +371,9 @@ export class HomeBaseComponent implements OnInit {
         {
           data: this.venteModePaiments.map(p => p.paidAmount),
           backgroundColor: backgroundColor(this.documentStyle),
-          hoverBackgroundColor: hoverBackgroundColor(this.documentStyle),
-        },
-      ],
+          hoverBackgroundColor: hoverBackgroundColor(this.documentStyle)
+        }
+      ]
     };
     this.modePaimentChartOptions = this.getCommonPieChartOptions();
   }
@@ -363,9 +387,9 @@ export class HomeBaseComponent implements OnInit {
         {
           data: this.tiersPayantAchat.map(p => p.montantTtc),
           backgroundColor: bgs.reverse(),
-          hoverBackgroundColor: hovers.reverse(),
-        },
-      ],
+          hoverBackgroundColor: hovers.reverse()
+        }
+      ]
     };
     this.tiersPayantChartOptions = this.getCommonPieChartOptions();
   }
@@ -377,28 +401,28 @@ export class HomeBaseComponent implements OnInit {
       plugins: {
         legend: {
           labels: {
-            color: this.textColor,
-          },
-        },
+            color: this.textColor
+          }
+        }
       },
       scales: {
         y: {
           ticks: {
-            color: this.textColorSecondary,
+            color: this.textColorSecondary
           },
           grid: {
-            color: this.surfaceBorder,
-          },
+            color: this.surfaceBorder
+          }
         },
         x: {
           ticks: {
-            color: this.textColorSecondary,
+            color: this.textColorSecondary
           },
           grid: {
-            color: this.surfaceBorder,
-          },
-        },
-      },
+            color: this.surfaceBorder
+          }
+        }
+      }
     };
   }
 
@@ -409,10 +433,10 @@ export class HomeBaseComponent implements OnInit {
           position: 'bottom',
           labels: {
             color: this.textColor,
-            usePointStyle: true,
-          },
-        },
-      },
+            usePointStyle: true
+          }
+        }
+      }
     };
   }
 }

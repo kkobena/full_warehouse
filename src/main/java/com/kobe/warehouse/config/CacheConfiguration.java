@@ -39,6 +39,7 @@ public class CacheConfiguration {
                 buildCache(EntityConstant.APP_GESTION_STOCK, defaultTtl, TimeUnit.HOURS, defaultMaxSize),
                 buildCache(EntityConstant.DEFAULT_MAIN_STORAGE, defaultTtl, TimeUnit.HOURS, defaultMaxSize),
                 buildCache(EntityConstant.APP_MODE_PAYMENTS, defaultTtl, TimeUnit.HOURS, defaultMaxSize),
+                buildCache(EntityConstant.APP_MODE_PAYMENTS_SANS_CH_VIR, defaultTtl, TimeUnit.HOURS, defaultMaxSize),
                 buildCache(EntityConstant.APP_NBRE_JOUR_RETENTION_COMMANDE, defaultTtl, TimeUnit.HOURS, defaultMaxSize),
                 buildCache(EntityConstant.POINT_DE_VENTE_CACHE, defaultTtl, TimeUnit.HOURS, defaultMaxSize)
             )

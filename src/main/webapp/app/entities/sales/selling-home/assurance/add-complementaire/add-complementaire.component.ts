@@ -1,37 +1,20 @@
-import {
-  AfterViewInit,
-  Component,
-  DestroyRef,
-  ElementRef,
-  inject,
-  OnInit,
-  viewChild
-} from '@angular/core';
-import {
-  ClientTiersPayant,
-  IClientTiersPayant
-} from '../../../../../shared/model/client-tiers-payant.model';
-import {ICustomer} from '../../../../../shared/model/customer.model';
-import {
-  FormBuilder,
-  FormControl,
-  FormsModule,
-  ReactiveFormsModule,
-  Validators
-} from '@angular/forms';
-import {InputMaskModule} from 'primeng/inputmask';
-import {InputTextModule} from 'primeng/inputtext';
-import {KeyFilterModule} from 'primeng/keyfilter';
-import {RadioButtonModule} from 'primeng/radiobutton';
-import {ToastModule} from 'primeng/toast';
-import {ButtonModule} from 'primeng/button';
-import {NgbActiveModal} from '@ng-bootstrap/ng-bootstrap';
-import {Select, SelectModule} from 'primeng/select';
-import {Card} from 'primeng/card';
-import {ToggleSwitch} from 'primeng/toggleswitch';
-import {CustomerService} from '../../../../customer/customer.service';
-import {takeUntilDestroyed} from '@angular/core/rxjs-interop';
-import {finalize} from 'rxjs/operators';
+import { AfterViewInit, Component, DestroyRef, ElementRef, inject, OnInit, viewChild } from '@angular/core';
+import { ClientTiersPayant, IClientTiersPayant } from '../../../../../shared/model/client-tiers-payant.model';
+import { ICustomer } from '../../../../../shared/model/customer.model';
+import { FormBuilder, FormControl, FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
+import { InputMaskModule } from 'primeng/inputmask';
+import { InputTextModule } from 'primeng/inputtext';
+import { KeyFilterModule } from 'primeng/keyfilter';
+import { RadioButtonModule } from 'primeng/radiobutton';
+import { ToastModule } from 'primeng/toast';
+import { ButtonModule } from 'primeng/button';
+import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
+import { Select, SelectModule } from 'primeng/select';
+import { Card } from 'primeng/card';
+import { ToggleSwitch } from 'primeng/toggleswitch';
+import { CustomerService } from '../../../../customer/customer.service';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { finalize } from 'rxjs/operators';
 
 @Component({
   selector: 'jhi-add-complementaire',
@@ -94,7 +77,6 @@ export class AddComplementaireComponent implements OnInit, AfterViewInit {
   private readonly destroyRef = inject(DestroyRef);
 
   ngOnInit(): void {
-    // Initialize form value changes tracking
     this.editForm.valueChanges.pipe(takeUntilDestroyed(this.destroyRef)).subscribe(() => {
       this.checkForChanges();
     });

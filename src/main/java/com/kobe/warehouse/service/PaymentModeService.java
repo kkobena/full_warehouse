@@ -74,20 +74,4 @@ public class PaymentModeService {
 
         return this.paymentModeRepository.save(paymentMode);
     }
-
-    /**
-     * Remove QR code from a payment mode.
-     *
-     * @param code the payment mode code
-     * @return the updated payment mode
-     * @throws IllegalArgumentException if the payment mode doesn't exist
-     */
-    @CacheEvict(value = {EntityConstant.APP_MODE_PAYMENTS, EntityConstant.APP_MODE_PAYMENTS_SANS_CH_VIR}, allEntries = true)
-    public PaymentMode removeQrCode(String code) {
-        PaymentMode paymentMode = this.paymentModeRepository.findById(code)
-            .orElseThrow(() -> new IllegalArgumentException("Payment mode not found with code: " + code));
-
-        paymentMode.setQrCode(null);
-        return this.paymentModeRepository.save(paymentMode);
-    }
 }

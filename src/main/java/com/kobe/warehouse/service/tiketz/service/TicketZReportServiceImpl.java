@@ -3,6 +3,7 @@ package com.kobe.warehouse.service.tiketz.service;
 import com.kobe.warehouse.config.FileStorageProperties;
 import com.kobe.warehouse.service.MailService;
 import com.kobe.warehouse.service.StorageService;
+import com.kobe.warehouse.service.UserService;
 import com.kobe.warehouse.service.dto.Pair;
 import com.kobe.warehouse.service.report.CommonReportService;
 import com.kobe.warehouse.service.report.Constant;
@@ -22,16 +23,17 @@ public class TicketZReportServiceImpl extends CommonReportService implements Tic
     private final MailService mailService;
     private final SpringTemplateEngine templateEngine;
     private final Map<String, Object> variablesMap = new HashMap<>();
-
+    private final UserService userService;
     public TicketZReportServiceImpl(
         FileStorageProperties fileStorageProperties,
         SpringTemplateEngine templateEngine,
         StorageService storageService,
-        MailService mailService
+        MailService mailService, UserService userService
     ) {
         super(fileStorageProperties, storageService);
         this.templateEngine = templateEngine;
         this.mailService = mailService;
+        this.userService = userService;
     }
 
     @Override
@@ -83,7 +85,8 @@ public class TicketZReportServiceImpl extends CommonReportService implements Tic
 
     @Override
     public void sentToEmail(TicketZ ticket, Pair periode) {
+        String sendToEmail = userService.getUser().getMagasin().getEmail();
         buildContext(ticket, periode);
-        this.mailService.sendTicketZ(this.getTemplateAsHtml());
+        this.mailService.sendTicketZ(this.getTemplateAsHtml(),sendToEmail);
     }
 }

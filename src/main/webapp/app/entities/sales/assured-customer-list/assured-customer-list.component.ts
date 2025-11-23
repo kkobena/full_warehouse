@@ -1,4 +1,4 @@
-import { Component, inject } from '@angular/core';
+import { Component, inject, OnDestroy, OnInit } from '@angular/core';
 import { ICustomer } from '../../../shared/model/customer.model';
 import { CustomerService } from '../../customer/customer.service';
 import { WarehouseCommonModule } from '../../../shared/warehouse-common/warehouse-common.module';
@@ -16,6 +16,8 @@ import { IconField } from 'primeng/iconfield';
 import { InputIcon } from 'primeng/inputicon';
 import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
 import { Card } from 'primeng/card';
+import { Subject } from 'rxjs';
+import { debounceTime, distinctUntilChanged, takeUntil } from 'rxjs/operators';
 
 @Component({
   selector: 'jhi-assured-customer-list',
@@ -34,7 +36,7 @@ import { Card } from 'primeng/card';
     Card,
   ],
 })
-export class AssuredCustomerListComponent {
+export class AssuredCustomerListComponent implements OnInit, OnDestroy {
   customers: ICustomer[] = [];
   searchString?: string | null = '';
   headerLibelle: string;
@@ -43,9 +45,42 @@ export class AssuredCustomerListComponent {
   protected ngbPaginationPage = 1;
   protected totalItems = 0;
   protected loading!: boolean;
+  protected selectedCustomer: ICustomer | null = null;
   private readonly currentSaleService = inject(CurrentSaleService);
   private readonly customerService = inject(CustomerService);
   private readonly activeModal = inject(NgbActiveModal);
+  private searchSubject$ = new Subject<string>();
+  private destroy$ = new Subject<void>();
+
+  ngOnInit(): void {
+    // Debounce search input
+    this.searchSubject$
+      .pipe(debounceTime(400), distinctUntilChanged(), takeUntil(this.destroy$))
+      .subscribe(() => {
+        this.loadPage(1);
+      });
+  }
+
+  ngOnDestroy(): void {
+    this.destroy$.next();
+    this.destroy$.complete();
+  }
+
+  protected onSearchInput(): void {
+    this.searchSubject$.next(this.searchString || '');
+  }
+
+  protected onKeydown(event: KeyboardEvent): void {
+    if (event.key === 'Escape') {
+      this.cancel();
+    } else if (event.key === 'Enter' && this.selectedCustomer) {
+      this.onSelect(this.selectedCustomer);
+    }
+  }
+
+  protected onRowSelect(customer: ICustomer): void {
+    this.selectedCustomer = customer;
+  }
 
   protected onDbleClick(customer: ICustomer): void {
     this.onSelect(customer);
@@ -59,20 +94,6 @@ export class AssuredCustomerListComponent {
     this.activeModal.dismiss();
   }
 
-  /*  addAssureCustomer(): void {
-
-     this.ref = this.dialogService.open(AssureFormStepComponent, {
-       data: { entity: null, typeAssure: this.currentSaleService.typeVo() },
-       header: 'FORMULAIRE DE CREATION DE CLIENT ',
-       width: '85%',
-       closeOnEscape: false,
-       //  modal: true,
-       //  focusOnShow: false,
-     });
-     this.ref.onClose.subscribe((customer: ICustomer) => {
-       this.ref.close(customer);
-     });
-   } */
 
   protected loadPage(page?: number): void {
     const pageToLoad: number = page || this.page || 1;

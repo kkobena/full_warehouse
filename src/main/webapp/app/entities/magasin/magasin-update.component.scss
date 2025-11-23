@@ -1,9 +1,4 @@
-/**
- * Magasin Update Component Styles
- *
- * Uses centralized form styles for consistent form design.
- * See FORMS_README.md for detailed documentation.
- */
+
 
 @import 'app/shared/scss/pharma-toolbar';
 @import 'app/shared/scss/form-styles';
@@ -79,5 +74,27 @@
         width: 100%;
       }
     }
+  }
+}
+.pharma-error-messages {
+  margin-top: 0.5rem;
+}
+
+.pharma-error-text {
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+  margin-top: 0.25rem;
+  color: #ef4444;
+  font-size: 0.8125rem;
+  font-weight: 500;
+
+  i {
+    font-size: 0.875rem;
+    flex-shrink: 0;
+  }
+
+  &:first-child {
+    margin-top: 0;
   }
 }

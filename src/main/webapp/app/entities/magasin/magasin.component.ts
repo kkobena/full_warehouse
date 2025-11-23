@@ -21,7 +21,7 @@ export class MagasinComponent implements OnInit {
   private readonly magasinService = inject(MagasinService);
 
   ngOnInit(): void {
-    this.loadAll();
+
     this.registerChangeInMagasins();
   }
 

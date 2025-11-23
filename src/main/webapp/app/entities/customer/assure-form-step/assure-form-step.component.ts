@@ -80,10 +80,14 @@ export class AssureFormStepComponent implements OnInit, OnDestroy {
   }
 
   currentCustomerState(): void {
+    const assureComponent = this.assureStepComponent();
+    if (!assureComponent) {
+      return;
+    }
     const currentAssure = this.assureFormStepService.assure();
     const ayantDroits = currentAssure ? currentAssure.ayantDroits : [];
     this.assureFormStepService.setAssure({
-      ...this.assureStepComponent().createFromForm(),
+      ...assureComponent.createFromForm(),
       ayantDroits,
     });
   }

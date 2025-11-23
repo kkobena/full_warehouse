@@ -12,6 +12,12 @@ import com.kobe.warehouse.service.AuthorityService;
 import com.kobe.warehouse.service.dto.AuthorityDTO;
 import com.kobe.warehouse.service.dto.PrivillegesDTO;
 import com.kobe.warehouse.service.dto.PrivillegesWrapperDTO;
+import org.apache.commons.lang3.Strings;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.CollectionUtils;
+import org.springframework.util.StringUtils;
+
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -21,11 +27,6 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.function.BiPredicate;
 import java.util.stream.Collectors;
-import org.apache.commons.lang3.Strings;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
-import org.springframework.util.CollectionUtils;
-import org.springframework.util.StringUtils;
 
 @Service
 @Transactional
@@ -107,11 +108,11 @@ public class AuthorityServiceImpl implements AuthorityService {
             this.authorityPrivilegeRepository.findAllAuthorityPrivilegeByAuthorityName(authority.getName());
         if (!CollectionUtils.isEmpty(authorityPrivileges)) {
             this.authorityPrivilegeRepository.deleteAll(
-                    authorityPrivileges
-                        .stream()
-                        .filter(authorityPrivilege -> !actions.contains(authorityPrivilege.getPrivilege().getName()))
-                        .collect(Collectors.toSet())
-                );
+                authorityPrivileges
+                    .stream()
+                    .filter(authorityPrivilege -> !actions.contains(authorityPrivilege.getPrivilege().getName()))
+                    .collect(Collectors.toSet())
+            );
         }
         actions.forEach(actionName -> saveActionPrivilege(actionName, authority));
     }
@@ -128,12 +129,13 @@ public class AuthorityServiceImpl implements AuthorityService {
         if (StringUtils.hasLength(search)) {
             return this.authorityRepository.findAll()
                 .stream()
+                .filter(authority -> !authority.getName().equals("ROLE_SUPER_USER"))
                 .filter(authority -> authority.getName().contains(search.toUpperCase()))
                 .map(this::buildAutorityDTO)
                 .toList();
         }
 
-        return this.authorityRepository.findAll().stream().map(this::buildAutorityDTO).toList();
+        return this.authorityRepository.findAll().stream() .filter(authority -> !authority.getName().equals("ROLE_SUPER_USER")).map(this::buildAutorityDTO).toList();
     }
 
     @Override
@@ -249,7 +251,7 @@ public class AuthorityServiceImpl implements AuthorityService {
             menu.getName(),
             menu.getLibelle(),
             menu.isRoot(),
-            parentId.intValue(),
+            parentId,
             menu.isEnable(),
             Collections.emptySet(),
             true

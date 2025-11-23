@@ -73,26 +73,10 @@ public class PaymentModeResource {
 
             PaymentMode result = this.paymentModeService.update(dto, qrCodeFile);
             return ResponseEntity.ok().body(result);
-        } catch (IllegalArgumentException e) {
-            return ResponseEntity.notFound().build();
-        } catch (IOException e) {
+        }  catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
         }
     }
 
-    /**
-     * DELETE /payment-modes/{code}/qr-code : Remove QR code from a payment mode.
-     *
-     * @param code the payment mode code
-     * @return the ResponseEntity with status 200 (OK)
-     */
-    @DeleteMapping("/payment-modes/{code}/qr-code")
-    public ResponseEntity<PaymentMode> removeQrCode(@PathVariable String code) {
-        try {
-            PaymentMode result = this.paymentModeService.removeQrCode(code);
-            return ResponseEntity.ok().body(result);
-        } catch (IllegalArgumentException e) {
-            return ResponseEntity.notFound().build();
-        }
-    }
+
 }

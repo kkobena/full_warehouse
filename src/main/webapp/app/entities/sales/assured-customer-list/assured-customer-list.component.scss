@@ -4,3 +4,100 @@
 :host {
   @include modal-theme;
 }
+
+// Enhanced row interactions
+.customer-row {
+  cursor: pointer;
+  transition: all 0.2s ease-in-out;
+
+  &:hover {
+    background-color: rgba(var(--primary-color-rgb), 0.05) !important;
+    transform: translateX(2px);
+  }
+
+  &.selected-row {
+    background-color: rgba(var(--primary-color-rgb), 0.1) !important;
+    border-left: 3px solid var(--primary-color);
+
+    td:first-child {
+      padding-left: calc(0.75rem - 3px);
+    }
+  }
+}
+
+// Tiers-payant optimized display
+.tiers-payant-container {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+
+  .tiers-payant-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0.25rem 0.5rem;
+    background-color: var(--surface-ground);
+    border-radius: 4px;
+    font-size: 0.875rem;
+
+    .tiers-payant-name {
+      flex: 1;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+      margin-right: 0.5rem;
+    }
+
+    .badge {
+      flex-shrink: 0;
+      min-width: 45px;
+      text-align: center;
+    }
+  }
+}
+
+// Empty state styling
+.empty-state {
+  padding: 2rem;
+
+  i {
+    opacity: 0.5;
+  }
+
+  h5 {
+    color: var(--text-color);
+    font-weight: 600;
+  }
+
+  p {
+    margin-bottom: 0;
+  }
+}
+
+// Search input enhancements
+::ng-deep {
+  .p-iconfield {
+    .p-inputicon {
+      &.pi-spinner {
+        color: var(--primary-color);
+      }
+    }
+  }
+}
+
+// Modal body spacing
+.modal-body {
+  padding: 1.25rem 0.5rem;
+
+  .mt-2 {
+    padding: 0.5rem 1rem;
+    background-color: var(--surface-ground);
+    border-radius: 6px;
+    border-left: 3px solid var(--primary-color);
+
+    .pi-info-circle {
+      color: var(--primary-color);
+      margin-right: 0.25rem;
+    }
+  }
+}

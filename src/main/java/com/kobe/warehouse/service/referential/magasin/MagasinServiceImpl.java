@@ -1,5 +1,6 @@
 package com.kobe.warehouse.service.referential.magasin;
 
+import com.kobe.warehouse.constant.EntityConstant;
 import com.kobe.warehouse.domain.Magasin;
 import com.kobe.warehouse.domain.Storage;
 import com.kobe.warehouse.domain.enumeration.TypeMagasin;
@@ -13,6 +14,8 @@ import java.util.EnumSet;
 import java.util.List;
 import java.util.Objects;
 import java.util.Set;
+
+import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
 
@@ -38,6 +41,7 @@ public class MagasinServiceImpl implements MagasinService {
     }
 
     @Override
+    @CacheEvict(value = {EntityConstant.USER_MAGASIN, EntityConstant.CURRENT_USER_CACHE}, allEntries = true)
     public MagasinDTO save(MagasinDTO magasinDto) {
         Magasin magasin = magasinRepository.save(toEntity(magasinDto));
         if (magasinDto.getId() != null) {
@@ -87,6 +91,7 @@ public class MagasinServiceImpl implements MagasinService {
             magasin.setId(dto.getId());
         }
         magasin.setEmail(dto.getEmail());
+        magasin.setWelcomeMessage(dto.getWelcomeMessage());
         magasin.setName(dto.getName());
         magasin.setFullName(dto.getFullName());
         magasin.setPhone(dto.getPhone());

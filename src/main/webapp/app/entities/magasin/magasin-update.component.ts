@@ -1,7 +1,7 @@
 import { Component, inject, OnInit, viewChild } from '@angular/core';
 import { HttpErrorResponse, HttpResponse } from '@angular/common/http';
 
-import { ReactiveFormsModule, UntypedFormBuilder, Validators } from '@angular/forms';
+import { FormControl, ReactiveFormsModule, UntypedFormBuilder, Validators } from '@angular/forms';
 import { ActivatedRoute, RouterModule } from '@angular/router';
 import { Observable } from 'rxjs';
 
@@ -44,6 +44,12 @@ export class MagasinUpdateComponent implements OnInit {
     note: [],
     registre: [],
     welcomeMessage: [],
+    compteContribuable: [],
+    numComptable: [],
+    registreImposition: [],
+    email: new FormControl(null, {
+      validators: [ Validators.minLength(5), Validators.maxLength(254), Validators.email],
+    }),
   });
   private readonly magasinService = inject(MagasinService);
   private readonly activatedRoute = inject(ActivatedRoute);
@@ -59,8 +65,12 @@ export class MagasinUpdateComponent implements OnInit {
   protected updateForm(magasin: IMagasin): void {
     this.editForm.patchValue({
       id: magasin.id,
+      email: magasin.email,
       name: magasin.name,
       fullName: magasin.fullName,
+      compteContribuable: magasin.compteContribuable,
+      numComptable: magasin.numComptable,
+      registreImposition: magasin.registreImposition,
       phone: magasin.phone,
       address: magasin.address,
       note: magasin.note,
@@ -104,6 +114,7 @@ export class MagasinUpdateComponent implements OnInit {
     return {
       ...new Magasin(),
       id: this.editForm.get(['id']).value,
+      email: this.editForm.get(['email']).value,
       name: this.editForm.get(['name']).value,
       fullName: this.editForm.get(['fullName']).value,
       phone: this.editForm.get(['phone']).value,
@@ -111,6 +122,9 @@ export class MagasinUpdateComponent implements OnInit {
       note: this.editForm.get(['note']).value,
       registre: this.editForm.get(['registre']).value,
       welcomeMessage: this.editForm.get(['welcomeMessage']).value,
+      compteContribuable:this.editForm.get(['compteContribuable']).value,
+      numComptable: this.editForm.get(['numComptable']).value,
+      registreImposition:this.editForm.get(['registreImposition']).value,
     };
   }
 }

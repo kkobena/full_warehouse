@@ -44,7 +44,7 @@ export class MagasinService {
   }
 
   getCurrenttUserMagasin(): Observable<EntityResponseType> {
-    return this.http.get<IMagasin>(`${this.resourceUrl}/current`, { observe: 'response' });
+    return this.http.get<IMagasin>(`${this.resourceUrl}/current-user-magasin`, { observe: 'response' });
   }
 
   hasDepot(): Observable<HttpResponse<boolean>> {

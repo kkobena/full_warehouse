@@ -29,10 +29,10 @@ import { finalize } from 'rxjs/operators';
     SelectModule,
     Card,
     ToggleSwitch,
-    FormsModule,
+    FormsModule
   ],
   templateUrl: './add-complementaire.component.html',
-  styleUrls: ['./add-complementaire.component.scss'],
+  styleUrls: ['./add-complementaire.component.scss']
 })
 export class AddComplementaireComponent implements OnInit, AfterViewInit {
   tiersPayant = viewChild.required<Select>('tiersPayant');
@@ -53,23 +53,23 @@ export class AddComplementaireComponent implements OnInit, AfterViewInit {
   protected editForm = this.fb.group({
     id: new FormControl<number | null>(null, {
       validators: [Validators.required],
-      nonNullable: true,
+      nonNullable: true
     }),
     taux: new FormControl<number | null>(null, {
       validators: [Validators.required, Validators.min(5), Validators.max(100)],
-      nonNullable: true,
+      nonNullable: true
     }),
     categorie: new FormControl<number | null>(null, {
       validators: [Validators.required, Validators.min(0), Validators.max(5)],
-      nonNullable: true,
+      nonNullable: true
     }),
     tiersPayant: new FormControl<IClientTiersPayant | null>(null, {
       validators: [Validators.required],
-      nonNullable: true,
+      nonNullable: true
     }),
     numBon: new FormControl<string | null>(null),
     tiersPayantFullName: new FormControl<string | null>(null),
-    num: new FormControl<string | null>(null),
+    num: new FormControl<string | null>(null)
   });
 
   private readonly activeModal = inject(NgbActiveModal);
@@ -113,7 +113,7 @@ export class AddComplementaireComponent implements OnInit, AfterViewInit {
       // Show priorite switch if priorite is not 0, but keep it unchecked by default
       this.showPrioriteSwitch = this.selectedTiersPayant.categorie !== 0;
       this.isPrioriteEnabled = false;
-      this.prioriteValue = 0;
+
 
       setTimeout(() => {
         this.numBon().nativeElement.focus();
@@ -123,12 +123,12 @@ export class AddComplementaireComponent implements OnInit, AfterViewInit {
       this.originalTiersPayant = null;
       this.showPrioriteSwitch = false;
       this.isPrioriteEnabled = false;
-      this.prioriteValue = 0;
     }
+    this.prioriteValue = this.selectedTiersPayant.categorie;
   }
 
   onPrioriteToggle(event: any): void {
-    this.prioriteValue = event.checked ? this.selectedTiersPayant?.categorie || 0 : 0;
+    this.prioriteValue = event.checked ? 0 : this.selectedTiersPayant?.categorie;
   }
 
   protected getTiersPayants(): IClientTiersPayant[] {
@@ -145,7 +145,7 @@ export class AddComplementaireComponent implements OnInit, AfterViewInit {
       taux: tp.taux,
       num: tp.num,
       tiersPayantFullName: tp.tiersPayantFullName,
-      categorie: tp.categorie,
+      categorie: tp.categorie
     });
   }
 
@@ -161,7 +161,7 @@ export class AddComplementaireComponent implements OnInit, AfterViewInit {
       customerId: this.assure?.id,
       tiersPayantId: this.selectedTiersPayant?.tiersPayantId,
       num: formValue.num,
-      tiersPayantFullName: formValue.tiersPayantFullName,
+      tiersPayantFullName: formValue.tiersPayantFullName
     };
   }
 
@@ -171,14 +171,13 @@ export class AddComplementaireComponent implements OnInit, AfterViewInit {
     }
 
     const currentValues = this.editForm.value;
-
-    // Check if anything other than numBon has changed
     return (
       this.originalTiersPayant.taux !== currentValues.taux ||
       this.originalTiersPayant.num !== currentValues.num ||
-      this.originalTiersPayant.priorite !== this.prioriteValue ||
+      this.originalTiersPayant.categorie != this.prioriteValue ||
       this.originalTiersPayant.categorie !== currentValues.categorie
     );
+
   }
 
   private checkForChanges(): void {
@@ -193,7 +192,7 @@ export class AddComplementaireComponent implements OnInit, AfterViewInit {
       .updateTiersPayant(clientTiersPayant)
       .pipe(
         finalize(() => (this.isSaving = false)),
-        takeUntilDestroyed(this.destroyRef),
+        takeUntilDestroyed(this.destroyRef)
       )
       .subscribe({
         next: response => {
@@ -204,7 +203,7 @@ export class AddComplementaireComponent implements OnInit, AfterViewInit {
         error: () => {
           this.isValid = false;
           this.isSaving = false;
-        },
+        }
       });
   }
 }

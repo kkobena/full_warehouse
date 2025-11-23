@@ -56,7 +56,7 @@ public class MotifAjustementRessource {
     }
 
     @DeleteMapping("/motif-ajsutements/{id}")
-    public ResponseEntity<Void> deleter(@PathVariable Integer id) {
+    public ResponseEntity<Void> delete(@PathVariable Integer id) {
         motifAjustementRepository.deleteById(id);
         return ResponseEntity.noContent()
             .headers(HeaderUtil.createEntityDeletionAlert(applicationName, true, ENTITY_NAME, id.toString()))

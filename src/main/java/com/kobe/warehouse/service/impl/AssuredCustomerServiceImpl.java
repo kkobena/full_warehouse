@@ -19,8 +19,8 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import java.util.Set;
+import java.util.stream.Collectors;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -186,8 +186,23 @@ public class AssuredCustomerServiceImpl implements AssuredCustomerService {
     @Override
     public AssuredCustomer updateTiersPayant(ClientTiersPayantDTO dto) throws GenericError {
         ClientTiersPayant clientTiersPayant = clientTiersPayantRepository.getReferenceById(dto.getId());
+
         clientTiersPayant.setTaux(dto.getTaux());
         clientTiersPayant.setNum(dto.getNum());
+        if (dto.getPriorite() != clientTiersPayant.getPriorite()) {
+            AssuredCustomer customer = clientTiersPayant.getAssuredCustomer();
+            Set<ClientTiersPayant> clientTiersPayants = customer
+                .getClientTiersPayants()
+                .stream()
+                .filter(c -> !Objects.equals(dto.getId(), c.getId()))
+                .collect(Collectors.toSet());
+            ClientTiersPayant old = clientTiersPayants.stream().filter(c -> c.getPriorite() == dto.getPriorite()).findFirst().orElse(null);
+            if (old != null) {
+                old.setPriorite(clientTiersPayant.getPriorite());
+                clientTiersPayantRepository.save(old);
+            }
+            clientTiersPayant.setPriorite(dto.getPriorite());
+        }
         return clientTiersPayantRepository.save(clientTiersPayant).getAssuredCustomer();
     }
 

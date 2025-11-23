@@ -9,56 +9,59 @@
     <p-toolbar>
       <ng-template #start>
         <div class="pharma-toolbar-filters">
-          <p-select size="large" (onChange)="onSelectedUsersChange()" [(ngModel)]="onlyVente" [options]="mvts" appendTo="body" />
+          <p-select (onChange)="onSelectedUsersChange()" [(ngModel)]="onlyVente" [options]="mvts"
+                    appendTo="body" size="large" />
 
           <p-multiSelect
             [(ngModel)]="selectedUsersId"
-            size="large"
             [options]="users"
+            appendTo="body"
             id="selectedUserId"
             inputId="selectedUserId"
             optionLabel="abbrName"
             optionValue="id"
-            appendTo="body"
+            size="large"
           />
 
           <p-floatlabel variant="on">
             <p-datePicker
-              [style]="{ 'max-width': '140px' }"
               [(ngModel)]="fromDate"
               [maxDate]="toDate"
               [selectOtherMonths]="true"
               [showButtonBar]="true"
+              [style]="{ 'max-width': '140px' }"
+              appendTo="body"
               dateFormat="dd/mm/yy"
               id="fromDate"
               inputId="fromDate"
-              appendTo="body"
             />
             <label for="fromDate">Du</label>
           </p-floatlabel>
 
           <p-floatlabel variant="on">
             <p-datePicker
-              [style]="{ 'max-width': '140px' }"
               [(ngModel)]="toDate"
               [minDate]="fromDate"
               [selectOtherMonths]="true"
               [showButtonBar]="true"
+              [style]="{ 'max-width': '140px' }"
+              appendTo="body"
               dateFormat="dd/mm/yy"
               id="toDate"
               inputId="toDate"
-              appendTo="body"
             />
             <label for="toDate">Au</label>
           </p-floatlabel>
 
-          <p-floatlabel variant="on" class="pharma-hide-mobile">
-            <p-select [(ngModel)]="fromTime" [options]="hous" id="fromHour" size="large" appendTo="body" />
+          <p-floatlabel class="pharma-hide-mobile" variant="on">
+            <p-select [(ngModel)]="fromTime" [options]="hous" appendTo="body" id="fromHour"
+                      size="large" />
             <label for="fromHour">De</label>
           </p-floatlabel>
 
-          <p-floatlabel variant="on" class="pharma-hide-mobile">
-            <p-select [(ngModel)]="toTime" [options]="hous" id="toHour" size="large" appendTo="body" />
+          <p-floatlabel class="pharma-hide-mobile" variant="on">
+            <p-select [(ngModel)]="toTime" [options]="hous" appendTo="body" id="toHour"
+                      size="large" />
             <label for="toHour">À</label>
           </p-floatlabel>
         </div>
@@ -117,7 +120,8 @@
               @for (item of summary; track item.libelle) {
                 <div class="field">
                   <label class="fw-semibold fs-4"> {{ item.libelle }}</label>
-                  <span class="badge text-bg-secondary fs-4 rounded-pill">{{ item.value | number }}</span>
+                  <span
+                    class="badge text-bg-secondary fs-4 rounded-pill">{{ item.value | number }}</span>
                 </div>
               }
             </div>
@@ -140,13 +144,15 @@
                 @for (item of recap.datas; track item.libelle) {
                   <div class="field">
                     <label> {{ item.libelle }}</label>
-                    <span class="badge text-bg-secondary fs-5 rounded-pill">{{ item.value | number }}</span>
+                    <span
+                      class="badge text-bg-secondary fs-5 rounded-pill">{{ item.value | number }}</span>
                   </div>
                 }
                 @for (item of recap.summary; track item.libelle) {
                   <div class="field">
                     <label class="fw-semibold fs-4"> {{ item.libelle }}</label>
-                    <span class="badge text-bg-secondary fs-4 rounded-pill">{{ item.value | number }}</span>
+                    <span
+                      class="badge text-bg-secondary fs-4 rounded-pill">{{ item.value | number }}</span>
                   </div>
                 }
               </div>
@@ -159,3 +165,4 @@
 </div>
 
 <jhi-spinner #spinner></jhi-spinner>
+<p-toast position="center" />

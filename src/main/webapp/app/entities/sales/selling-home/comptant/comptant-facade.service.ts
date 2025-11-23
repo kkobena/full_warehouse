@@ -1,6 +1,6 @@
-import { inject, Injectable } from '@angular/core';
+import { inject, Injectable, OnDestroy } from '@angular/core';
 import { Observable, Subject } from 'rxjs';
-import { finalize, switchMap } from 'rxjs/operators';
+import { finalize, switchMap, takeUntil } from 'rxjs/operators';
 import { HttpResponse } from '@angular/common/http';
 import { FinalyseSale, ISales, SaleId, Sales, SaveResponse } from '../../../../shared/model/sales.model';
 import { ISalesLine, SaleLineId } from '../../../../shared/model/sales-line.model';
@@ -16,7 +16,7 @@ import { TauriPrinterService } from '../../../../shared/services/tauri-printer.s
 @Injectable({
   providedIn: 'root',
 })
-export class ComptantFacadeService {
+export class ComptantFacadeService implements OnDestroy {
   private readonly salesService = inject(SalesService);
   private readonly currentSaleService = inject(CurrentSaleService);
   private readonly selectedCustomerService = inject(SelectedCustomerService);
@@ -24,6 +24,7 @@ export class ComptantFacadeService {
   private readonly userCaissierService = inject(UserCaissierService);
   private readonly userVendeurService = inject(UserVendeurService);
   private readonly tauriPrinterService = inject(TauriPrinterService);
+  private readonly destroy$ = new Subject<void>();
   private saveResponseSubject = new Subject<SaveResponse>();
   saveResponse$ = this.saveResponseSubject.asObservable();
   private finalyseSaleSubject = new Subject<FinalyseSale>();
@@ -37,6 +38,15 @@ export class ComptantFacadeService {
     putsOnStandby: boolean;
   }>();
   openUninsuredCustomer$ = this.openUninsuredCustomerSubject.asObservable();
+
+  ngOnDestroy(): void {
+    this.destroy$.next();
+    this.destroy$.complete();
+    this.saveResponseSubject.complete();
+    this.finalyseSaleSubject.complete();
+    this.spinnerService.complete();
+    this.openUninsuredCustomerSubject.complete();
+  }
 
   confirmDiffereSale(entryAmount: number): void {
     this.currentSaleService.currentSale().differe = true;
@@ -68,7 +78,6 @@ export class ComptantFacadeService {
     if (putsOnStandby) {
       this.putCurrentCashSaleOnHold();
     } else {
-
       this.saveCashSale(entryAmount);
     }
   }
@@ -77,7 +86,10 @@ export class ComptantFacadeService {
     this.spinnerService.next(true);
     this.salesService
       .createComptant(this.createSaleComptant(salesLine))
-      .pipe(finalize(() => this.spinnerService.next(false)))
+      .pipe(
+        finalize(() => this.spinnerService.next(false)),
+        takeUntil(this.destroy$),
+      )
       .subscribe({
         next: (res: HttpResponse<ISales>) => this.onSaleComptantResponseSuccess(res.body),
         error: error => this.onSaveSaveError(error, this.currentSaleService.currentSale()),
@@ -154,7 +166,10 @@ export class ComptantFacadeService {
     this.spinnerService.next(true);
     this.salesService
       .printInvoice(saleId)
-      .pipe(finalize(() => this.spinnerService.next(false)))
+      .pipe(
+        finalize(() => this.spinnerService.next(false)),
+        takeUntil(this.destroy$),
+      )
       .subscribe(blob => {
         const blobUrl = URL.createObjectURL(blob);
         window.open(blobUrl);
@@ -165,7 +180,10 @@ export class ComptantFacadeService {
     this.spinnerService.next(true);
     this.salesService
       .printReceipt(saleId)
-      .pipe(finalize(() => this.spinnerService.next(false)))
+      .pipe(
+        finalize(() => this.spinnerService.next(false)),
+        takeUntil(this.destroy$),
+      )
       .subscribe();
   }
 
@@ -173,7 +191,10 @@ export class ComptantFacadeService {
     this.spinnerService.next(true);
     this.salesService
       .getEscPosReceiptForTauri(saleId, isEdition)
-      .pipe(finalize(() => this.spinnerService.next(false)))
+      .pipe(
+        finalize(() => this.spinnerService.next(false)),
+        takeUntil(this.destroy$),
+      )
       .subscribe({
         next: async (escposData: ArrayBuffer) => {
           try {
@@ -225,7 +246,10 @@ export class ComptantFacadeService {
     this.updateSaleAmounts(currentSale, entryAmount);
     this.salesService
       .saveCash(currentSale)
-      .pipe(finalize(() => this.spinnerService.next(false)))
+      .pipe(
+        finalize(() => this.spinnerService.next(false)),
+        takeUntil(this.destroy$),
+      )
       .subscribe({
         next: (res: HttpResponse<FinalyseSale>) => this.onFinalyseSuccess(res.body),
         error: err => this.onFinalyseError(err),
@@ -235,7 +259,10 @@ export class ComptantFacadeService {
   private putCurrentCashSaleOnHold(): void {
     this.salesService
       .putCurrentCashSaleOnStandBy(this.currentSaleService.currentSale())
-      .pipe(finalize(() => this.spinnerService.next(false)))
+      .pipe(
+        finalize(() => this.spinnerService.next(false)),
+        takeUntil(this.destroy$),
+      )
       .subscribe({
         next: (res: HttpResponse<FinalyseSale>) => this.onFinalyseSuccess(res.body, true),
         error: err => this.onFinalyseError(err),
@@ -244,10 +271,15 @@ export class ComptantFacadeService {
 
   private handleSaleUpdate(observable: Observable<HttpResponse<ISales>>, payload: any = null): void {
     this.spinnerService.next(true);
-    observable.pipe(finalize(() => this.spinnerService.next(false))).subscribe({
-      next: (res: HttpResponse<ISales>) => this.onSaveSuccess(res.body),
-      error: err => this.onSaveSaveError(err, this.currentSaleService.currentSale(), payload),
-    });
+    observable
+      .pipe(
+        finalize(() => this.spinnerService.next(false)),
+        takeUntil(this.destroy$),
+      )
+      .subscribe({
+        next: (res: HttpResponse<ISales>) => this.onSaveSuccess(res.body),
+        error: err => this.onSaveSaveError(err, this.currentSaleService.currentSale(), payload),
+      });
   }
 
   private updateSaleAmounts(sale: ISales, entryAmount: number): void {

@@ -1,102 +1,145 @@
-<div class="modal-header">
-  <h4 class="modal-title">AJOUTER UN TIERS PAYANT</h4>
-  <button (click)="cancel()" class="btn-close" data-dismiss="modal" type="button">&times;</button>
+<div class="modal-header ">
+  <h4 class="modal-title fw-bold">
+    <i class="pi pi-plus-circle me-2"></i>
+    AJOUTER UN TIERS PAYANT
+  </h4>
+  <button (click)="cancel()" aria-label="Close" class="btn-close" type="button"></button>
 </div>
 
 <form (ngSubmit)="save()" [formGroup]="editForm" name="editForm" novalidate role="form">
-  <div class="modal-body">
-    <p-card>
-      <div [hidden]="true" class="form-group">
-        <input class="form-control" formControlName="id" id="id" name="id" readonly type="hidden" />
-      </div>
-      <div [hidden]="true" class="form-group">
-        <input class="form-control" formControlName="categorie" id="categorie" name="categorie" pInputText readonly type="hidden" />
-      </div>
-      <div class="mb-2 row">
-        <label class="col-sm-5 col-md-5 col-form-label form-label" for="tiersPayant">Sélectionnez un tiers payant</label>
-        <div class="col-sm-7 col-md-7">
-          <p-select
-            #tiersPayant
-            (onChange)="onSelect($event)"
-            [autofocus]="true"
-            [fluid]="true"
-            [options]="getTiersPayants()"
-            dataKey="id"
-            formControlName="tiersPayant"
-            id="tiersPayant"
-            name="tiersPayant"
-            optionLabel="tiersPayantFullName"
-            optionValue="id"
-            size="large"
-          />
-        </div>
-      </div>
-      <div class="mb-1 row">
-        <label class="col-sm-5 col-md-5 col-form-label form-label" for="numBon">Bon</label>
-        <div class="col-sm-7 col-md-7">
-          <input
-            #numBon
-            autocomplete="off"
-            class="form-control"
-            formControlName="numBon"
-            id="numBon"
-            name="numBon"
-            pInputText
-            pKeyFilter="alphanum"
-            type="text"
-          />
-        </div>
-      </div>
-      <div class="mb-1 row">
-        <label class="col-sm-5 col-md-5 col-form-label form-label" for="tiersPayantFullName">Complémentaire sélectionné</label>
-        <div class="col-sm-7 col-md-7 text-right">
-          @if (selectedTiersPayant) {
-            <p-button [badge]="selectedTiersPayant.tiersPayantFullName" badgeSeverity="secondary" variant="outlined"></p-button>
-          }
-          <input
-            [hidden]="true"
-            [readonly]="true"
-            class="form-control-plaintext"
-            formControlName="tiersPayantFullName"
-            id="tiersPayantFullName"
-            name="tiersPayantFullName"
-            type="text"
-          />
-        </div>
-      </div>
-      <div class="mb-1 row">
-        <label class="col-sm-5 col-md-5 col-form-label form-label" for="taux">Taux</label>
-        <div class="col-sm-7 col-md-7 text-right">
-          @if (selectedTiersPayant) {
-            <p-button [badge]="selectedTiersPayant.taux | number" badgeSeverity="secondary" variant="outlined"></p-button>
-          }
+  <div class="modal-body p-3">
+    <p-card class="p-2">
+      <!-- Hidden fields -->
+      <input formControlName="id" type="hidden" />
+      <input formControlName="categorie" type="hidden" />
+      <input formControlName="tiersPayantFullName" type="hidden" />
 
-          <input
-            [hidden]="true"
-            [readonly]="true"
-            class="form-control-plaintext"
-            formControlName="taux"
-            id="taux"
-            name="taux"
-            type="text"
-          />
-        </div>
+      <!-- Tiers Payant Selection -->
+      <div class="mb-2">
+        <label class="form-label fw-semibold" for="tiersPayant">
+          <i class="pi pi-building me-1"></i>
+          Tiers payant <span class="text-danger">*</span>
+        </label>
+        <p-select
+          #tiersPayant
+          (onChange)="onSelect($event)"
+          [autofocus]="true"
+          [fluid]="true"
+          [options]="getTiersPayants()"
+          dataKey="id"
+          formControlName="tiersPayant"
+          id="tiersPayant"
+          optionLabel="tiersPayantFullName"
+          optionValue="id"
+          placeholder="Choisir un tiers payant"
+        />
       </div>
-      <div class="mb-1 row">
-        <label class="col-sm-5 col-md-5 col-form-label form-label" for="num">Matricule</label>
-        <div class="col-sm-7 col-md-7 text-right">
-          @if (selectedTiersPayant) {
-            <p-button [badge]="selectedTiersPayant.num" badgeSeverity="secondary" variant="outlined"></p-button>
+
+      <!-- Numero de Bon -->
+      <div class="mb-2">
+        <label class="form-label fw-semibold" for="numBon">
+          <i class="pi pi-ticket me-1"></i>
+          Numéro de bon
+        </label>
+        <input
+          #numBon
+          autocomplete="off"
+          class="form-control"
+          formControlName="numBon"
+          id="numBon"
+          pInputText
+          pKeyFilter="alphanum"
+          placeholder="Saisir le numéro de bon"
+          type="text"
+        />
+      </div>
+
+      @if (selectedTiersPayant) {
+        <div class="border-top pt-2 mt-2">
+          <!-- Taux and Matricule in one row -->
+          <div class="row mb-2">
+            <div class="col-md-6">
+              <label class="form-label fw-semibold" for="taux">
+                <i class="pi pi-percentage me-1"></i>
+                Taux (%)
+              </label>
+              <input
+                class="form-control"
+                formControlName="taux"
+                id="taux"
+                max="100"
+                min="5"
+                pInputText
+                placeholder="Taux"
+                type="number"
+              />
+              <small class="text-muted">Initial: {{ selectedTiersPayant.taux }}%</small>
+            </div>
+            <div class="col-md-6">
+              <label class="form-label fw-semibold" for="num">
+                <i class="pi pi-id-card me-1"></i>
+                Matricule
+              </label>
+              <input
+                autocomplete="off"
+                class="form-control"
+                formControlName="num"
+                id="num"
+                pInputText
+                pKeyFilter="alphanum"
+                placeholder="Matricule"
+                type="text"
+              />
+              <small class="text-muted">Initial: {{ selectedTiersPayant.num || 'N/A' }}</small>
+            </div>
+          </div>
+
+          <!-- Priorite -->
+          @if (showPrioriteSwitch) {
+            <div class="mb-2 p-2 bg-light rounded">
+              <label class="form-label fw-semibold mb-1">
+                <i class="pi pi-star-fill me-1"></i>
+                Passer en tiers payant principal
+              </label>
+              <div class="d-flex align-items-center gap-2">
+                <p-toggleswitch
+                  (onChange)="onPrioriteToggle($event)"
+                  [(ngModel)]="isPrioriteEnabled"
+                  [disabled]="selectedTiersPayant.categorie === 0"
+                  [ngModelOptions]="{standalone: true}"
+                  inputId="prioriteSwitch"
+                />
+                <input
+                  [(ngModel)]="prioriteValue"
+                  [ngModelOptions]="{standalone: true}"
+                  id="priorite"
+                  type="hidden"
+                />
+            
+              </div>
+
+            </div>
           }
-          <input [hidden]="true" [readonly]="true" class="form-control-plaintext" formControlName="num" id="num" name="num" type="text" />
         </div>
-      </div>
+      }
     </p-card>
   </div>
 
-  <div class="modal-footer">
-    <p-button (click)="cancel()" data-dismiss="modal" icon="pi pi-times" label="Annuler" severity="secondary" type="button" />
-
-    <p-button [disabled]="editForm.invalid || isSaving || !isValid" icon="pi pi-check" label="Ajouter" severity="primary" type="submit" />
+  <div class="modal-footer bg-light p-2">
+    <p-button
+      (click)="cancel()"
+      icon="pi pi-times"
+      label="Annuler"
+      severity="secondary"
+      type="button"
+    />
+    <p-button
+      [disabled]="editForm.invalid || isSaving || !isValid"
+      [loading]="isSaving"
+      icon="pi pi-check"
+      label="Ajouter"
+      severity="primary"
+      type="submit"
+    />
   </div>
 </form>

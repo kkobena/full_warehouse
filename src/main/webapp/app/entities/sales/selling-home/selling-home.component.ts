@@ -10,7 +10,7 @@ import {
   OnInit,
   PLATFORM_ID,
   signal,
-  viewChild
+  viewChild,
 } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { ButtonModule } from 'primeng/button';
@@ -27,17 +27,11 @@ import { ITypePrescription } from '../../../shared/model/prescription-vente.mode
 import { ICustomer } from '../../../shared/model/customer.model';
 import { ProduitSearch } from '../../../shared/model/produit.model';
 import { GroupRemise, IRemise } from '../../../shared/model/remise.model';
-import {
-  FinalyseSale,
-  InputToFocus,
-  ISales,
-  SaleId,
-  SaveResponse,
-  StockError
-} from '../../../shared/model/sales.model';
+import { FinalyseSale, InputToFocus, ISales, SaleId, SaveResponse, StockError } from '../../../shared/model/sales.model';
 import { ISalesLine, SalesLine } from '../../../shared/model/sales-line.model';
 import { PRODUIT_COMBO_MIN_LENGTH, PRODUIT_COMBO_RESULT_SIZE } from '../../../shared/constants/pagination.constants';
-import { Observable } from 'rxjs';
+import { EMPTY, Observable, of } from 'rxjs';
+import { catchError, switchMap, tap } from 'rxjs/operators';
 import { SalesService } from '../sales.service';
 import { CustomerService } from '../../customer/customer.service';
 import { ProduitService } from '../../produit/produit.service';
@@ -84,16 +78,14 @@ import {
   isVo,
   SaleType,
   showCommonError,
-  translateSalesLabel
+  translateSalesLabel,
 } from './sale-helper';
 import { SaleEventSignal } from './sale-event';
 import { handleSaleEvents } from './sale-event-helper';
 import { DeconditionnementService } from '../validator/deconditionnement.service';
 import { ForceStockService } from '../validator/force-stock.service';
 import { SaleStockValidator } from '../validator/sale-stock-validator.service';
-import {
-  ProduitSearchAutocompleteScannerComponent
-} from '../../../shared/produit-search-autocomplete-scanner/produit-search-autocomplete-scanner.component';
+import { ProduitSearchAutocompleteScannerComponent } from '../../../shared/produit-search-autocomplete-scanner/produit-search-autocomplete-scanner.component';
 import { SellingHomeShortcutsService } from './racourci/selling-home-shortcuts.service';
 import { KeyboardShortcutsService } from './racourci/keyboard-shortcuts.service';
 import { TauriPrinterService } from '../../../shared/services/tauri-printer.service';
@@ -124,17 +116,16 @@ import { IClientTiersPayant } from '../../../shared/model/client-tiers-payant.mo
     ConfirmDialogComponent,
     ToastAlertComponent,
     QuantiteProdutSaisieComponent,
-    ProduitSearchAutocompleteScannerComponent
+    ProduitSearchAutocompleteScannerComponent,
   ],
   templateUrl: './selling-home.component.html',
-  styleUrl: './selling-home.component.scss'
+  styleUrl: './selling-home.component.scss',
 })
 export class SellingHomeComponent implements OnInit, AfterViewInit, OnDestroy {
   readonly minLength = PRODUIT_COMBO_MIN_LENGTH;
   readonly COMPTANT = 'COMPTANT';
   readonly CARNET = 'CARNET';
   readonly ASSURANCE = 'ASSURANCE';
-  readonly DEPOT_AGREE = 'depot-agree';
   comptantComponent = viewChild<ComptantComponent>('comptant');
   assuranceComponent = viewChild<AssuranceComponent>('assurance');
   carnetComponent = viewChild<CarnetComponent>('carnet');
@@ -144,7 +135,6 @@ export class SellingHomeComponent implements OnInit, AfterViewInit, OnDestroy {
   currentAccount = this.accountService.trackCurrentAccount();
   remiseCacheService = inject(RemiseCacheService);
   remises: GroupRemise[] = this.remiseCacheService.remises();
-  protected selectedDepot?: IMagasin | null;
   protected canFocusLastModeInput = false;
   protected isLargeScreen = true;
   protected canForceStock: boolean;
@@ -249,9 +239,12 @@ export class SellingHomeComponent implements OnInit, AfterViewInit, OnDestroy {
 
   onRemoveCustomer(): void {
     if (this.isComptant()) {
-      this.salesService.removeCustommerToCashSale(this.currentSaleService.currentSale().saleId).subscribe(() => {
-        this.currentSaleService.currentSale().customerId = null;
-      });
+      this.salesService
+        .removeCustommerToCashSale(this.currentSaleService.currentSale().saleId)
+        .pipe(takeUntilDestroyed(this.destroyRef))
+        .subscribe(() => {
+          this.currentSaleService.currentSale().customerId = null;
+        });
     }
   }
 
@@ -260,8 +253,9 @@ export class SellingHomeComponent implements OnInit, AfterViewInit, OnDestroy {
       this.salesService
         .addCustommerToCashSale({
           id: this.currentSaleService.currentSale().saleId,
-          value: this.selectedCustomerService.selectedCustomerSignal().id
+          value: this.selectedCustomerService.selectedCustomerSignal().id,
         })
+        .pipe(takeUntilDestroyed(this.destroyRef))
         .subscribe(() => {
           this.currentSaleService.currentSale().customerId = this.selectedCustomerService.selectedCustomerSignal().id;
         });
@@ -392,11 +386,10 @@ export class SellingHomeComponent implements OnInit, AfterViewInit, OnDestroy {
             }
           },
           this.translateLabel('venteSansBonHeader'),
-          this.translateLabel('venteSansBon')
+          this.translateLabel('venteSansBon'),
         );
       } else {
-        this.confimDialog().onWarn(() => {
-        }, this.translateLabel('numeroBonMaquant'), this.translateLabel('numeroBonMaquantHeader'));
+        this.confimDialog().onWarn(() => {}, this.translateLabel('numeroBonMaquant'), this.translateLabel('numeroBonMaquantHeader'));
       }
     } else {
       if (this.isAssurance()) {
@@ -437,17 +430,19 @@ export class SellingHomeComponent implements OnInit, AfterViewInit, OnDestroy {
     const curr = this.currentSaleService.currentSale();
     const cust = this.selectedCustomerService.selectedCustomerSignal();
     assignCustomerToSale(curr, cust);
-    this.voSalesService.updateTransformedSale(curr).subscribe({
-      next: () => {
-        this.currentSaleService.setVoFromCashSale(false);
-        this.voSalesService.find(curr.saleId).subscribe({
-          next: res => {
-            this.currentSaleService.setCurrentSale(res.body);
-          }
-        });
-      },
-      error: (err: any) => this.onCommonError(err)
-    });
+    this.voSalesService
+      .updateTransformedSale(curr)
+      .pipe(
+        tap(() => this.currentSaleService.setVoFromCashSale(false)),
+        switchMap(() => this.voSalesService.find(curr.saleId)),
+        tap(res => this.currentSaleService.setCurrentSale(res.body)),
+        catchError(err => {
+          this.onCommonError(err);
+          return EMPTY;
+        }),
+        takeUntilDestroyed(this.destroyRef),
+      )
+      .subscribe();
   }
 
   changeCustomer(): void {
@@ -458,18 +453,18 @@ export class SellingHomeComponent implements OnInit, AfterViewInit, OnDestroy {
     this.voSalesService
       .changeCustomer({
         id: curr.saleId,
-        value: cust.id
+        value: cust.id,
       })
-      .subscribe({
-        next: () => {
-          this.voSalesService.find(curr.saleId).subscribe({
-            next: res => {
-              this.currentSaleService.setCurrentSale(res.body);
-            }
-          });
-        },
-        error: (err: any) => this.onChangeCustomerError(err, oldCustomer)
-      });
+      .pipe(
+        switchMap(() => this.voSalesService.find(curr.saleId)),
+        tap(res => this.currentSaleService.setCurrentSale(res.body)),
+        catchError(err => {
+          this.onChangeCustomerError(err, oldCustomer);
+          return EMPTY;
+        }),
+        takeUntilDestroyed(this.destroyRef),
+      )
+      .subscribe();
   }
 
   onAddProduit(qytMvt: number): void {
@@ -488,7 +483,7 @@ export class SellingHomeComponent implements OnInit, AfterViewInit, OnDestroy {
             } else {
               this.assuranceComponent().create(
                 this.createSalesLine(this.produitSelected, qytMvt),
-                this.assuranceDataComponent().buildIClientTiersPayantFromInputs()
+                this.assuranceDataComponent().buildIClientTiersPayantFromInputs(),
               );
             }
           } else if (this.isCartnet()) {
@@ -497,7 +492,7 @@ export class SellingHomeComponent implements OnInit, AfterViewInit, OnDestroy {
             } else {
               this.carnetComponent().create(
                 this.createSalesLine(this.produitSelected, qytMvt),
-                this.assuranceDataComponent().buildIClientTiersPayantFromInputs()
+                this.assuranceDataComponent().buildIClientTiersPayantFromInputs(),
               );
             }
           }
@@ -552,8 +547,6 @@ export class SellingHomeComponent implements OnInit, AfterViewInit, OnDestroy {
     }
     this.selectModeReglementService.resetAllModeReglements();
     this.selectedCustomerService.setCustomer(null);
-
-    this.selectedDepot = null;
     this.typePrescription = this.typePrescriptionService.typePrescriptionDefault();
     this.userSeller = this.userCaissier;
     this.userVendeurService.setVendeur(this.userCaissier);
@@ -578,26 +571,29 @@ export class SellingHomeComponent implements OnInit, AfterViewInit, OnDestroy {
     this.salesService
       .transform({
         natureVente: 'ASSURANCE',
-        saleId: this.currentSaleService.currentSale().id
+        saleId: this.currentSaleService.currentSale().id,
       })
-      .subscribe({
-        next: res => {
-          this.salesService.find(res.body).subscribe({
-            next: res => {
-              this.currentSaleService.setVoFromCashSale(true);
-              if (res.body.customer) {
-                this.customerService
-                  .find(res.body.customer.id)
-                  .subscribe({ next: (resp: HttpResponse<ICustomer>) => this.selectedCustomerService.setCustomer(resp.body) });
-              }
-              this.onLoadPrevente(res.body, false);
-            }
-          });
-        },
-        error: error => {
+      .pipe(
+        switchMap(res => this.salesService.find(res.body)),
+        tap(res => this.currentSaleService.setVoFromCashSale(true)),
+        switchMap(res => {
+          if (res.body.customer) {
+            return this.customerService.find(res.body.customer.id).pipe(
+              tap((resp: HttpResponse<ICustomer>) => this.selectedCustomerService.setCustomer(resp.body)),
+              tap(() => this.onLoadPrevente(res.body, false)),
+            );
+          } else {
+            this.onLoadPrevente(res.body, false);
+            return of(null);
+          }
+        }),
+        catchError(error => {
           this.onCommonError(error);
-        }
-      });
+          return EMPTY;
+        }),
+        takeUntilDestroyed(this.destroyRef),
+      )
+      .subscribe();
   }
 
   onChangeCashSaleToCarnet(): void {
@@ -605,26 +601,29 @@ export class SellingHomeComponent implements OnInit, AfterViewInit, OnDestroy {
     this.salesService
       .transform({
         natureVente: 'CARNET',
-        saleId: this.currentSaleService.currentSale().id
+        saleId: this.currentSaleService.currentSale().id,
       })
-      .subscribe({
-        next: res => {
-          this.salesService.find(res.body).subscribe({
-            next: res => {
-              this.currentSaleService.setVoFromCashSale(true);
-              if (res.body.customer) {
-                this.customerService
-                  .find(res.body.customer.id)
-                  .subscribe({ next: (resp: HttpResponse<ICustomer>) => this.selectedCustomerService.setCustomer(resp.body) });
-              }
-              this.onLoadPrevente(res.body, false);
-            }
-          });
-        },
-        error: error => {
+      .pipe(
+        switchMap(res => this.salesService.find(res.body)),
+        tap(res => this.currentSaleService.setVoFromCashSale(true)),
+        switchMap(res => {
+          if (res.body.customer) {
+            return this.customerService.find(res.body.customer.id).pipe(
+              tap((resp: HttpResponse<ICustomer>) => this.selectedCustomerService.setCustomer(resp.body)),
+              tap(() => this.onLoadPrevente(res.body, false)),
+            );
+          } else {
+            this.onLoadPrevente(res.body, false);
+            return of(null);
+          }
+        }),
+        catchError(error => {
           this.onCommonError(error);
-        }
-      });
+          return EMPTY;
+        }),
+        takeUntilDestroyed(this.destroyRef),
+      )
+      .subscribe();
   }
 
   openPindingSide(): void {
@@ -715,7 +714,7 @@ export class SellingHomeComponent implements OnInit, AfterViewInit, OnDestroy {
         this.translateLabel('modificationTypeVente'),
         message,
         null,
-        () => evt.preventDefault()
+        () => evt.preventDefault(),
       );
     }
   }
@@ -778,7 +777,7 @@ export class SellingHomeComponent implements OnInit, AfterViewInit, OnDestroy {
           this.translateLabel('quantityGreatherMaxCanContinue'),
           this.confimDialog(),
           this.onAddProduit.bind(this),
-          this.updateProduitQtyBox.bind(this)
+          this.updateProduitQtyBox.bind(this),
         );
         break;
       case 'deconditionnement':
@@ -789,7 +788,7 @@ export class SellingHomeComponent implements OnInit, AfterViewInit, OnDestroy {
           null,
           this.onAddProduit.bind(this),
           this.processQtyRequested.bind(this),
-          this.updateProduitQtyBox.bind(this)
+          this.updateProduitQtyBox.bind(this),
         );
         break;
       case 'forceStock':
@@ -798,7 +797,7 @@ export class SellingHomeComponent implements OnInit, AfterViewInit, OnDestroy {
           this.translateLabel('quantityGreatherThanStock'),
           this.confimDialog(),
           this.onAddProduit.bind(this),
-          this.updateProduitQtyBox.bind(this)
+          this.updateProduitQtyBox.bind(this),
         );
         break;
       case 'stockInsuffisant':
@@ -839,7 +838,6 @@ export class SellingHomeComponent implements OnInit, AfterViewInit, OnDestroy {
       this.setEnAttenteAssurance();
     }
   };
-
 
   private initCustomerEffect(): void {
     if (isPlatformBrowser(this.platformId)) {
@@ -905,24 +903,33 @@ export class SellingHomeComponent implements OnInit, AfterViewInit, OnDestroy {
   }
 
   private processQtyRequestedVo(salesLine: ISalesLine): void {
-    this.voSalesService.updateItemQtyRequested(salesLine).subscribe({
-      next: () => {
-        if (this.currentSaleService.currentSale()) {
-          this.subscribeToSaveResponse(this.voSalesService.find(this.currentSaleService.currentSale().saleId));
-        }
-        this.check = true;
-      },
-      error: error => {
-        this.check = false;
-        this.onStockError(salesLine, error);
-      }
-    });
+    this.voSalesService
+      .updateItemQtyRequested(salesLine)
+      .pipe(
+        switchMap(() => {
+          if (this.currentSaleService.currentSale()) {
+            return this.voSalesService.find(this.currentSaleService.currentSale().saleId);
+          }
+          return EMPTY;
+        }),
+        tap((res: HttpResponse<ISales>) => {
+          this.onSaveSuccess(res.body);
+          this.check = true;
+        }),
+        catchError(error => {
+          this.check = false;
+          this.onStockError(salesLine, error);
+          return EMPTY;
+        }),
+        takeUntilDestroyed(this.destroyRef),
+      )
+      .subscribe();
   }
 
   private subscribeToSaveResponse(result: Observable<HttpResponse<ISales>>): void {
-    result.subscribe({
+    result.pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
       next: (res: HttpResponse<ISales>) => this.onSaveSuccess(res.body),
-      error: () => this.onSaveError()
+      error: () => this.onSaveError(),
     });
   }
 
@@ -936,18 +943,27 @@ export class SellingHomeComponent implements OnInit, AfterViewInit, OnDestroy {
   }
 
   private processQtyRequestedForVNO(salesLine: ISalesLine): void {
-    this.salesService.updateItemQtyRequested(salesLine).subscribe({
-      next: () => {
-        if (this.currentSaleService.currentSale()) {
-          this.subscribeToSaveResponse(this.salesService.find(this.currentSaleService.currentSale().saleId));
-        }
-        this.check = true;
-      },
-      error: error => {
-        this.check = false;
-        this.onStockError(salesLine, error);
-      }
-    });
+    this.salesService
+      .updateItemQtyRequested(salesLine)
+      .pipe(
+        switchMap(() => {
+          if (this.currentSaleService.currentSale()) {
+            return this.salesService.find(this.currentSaleService.currentSale().saleId);
+          }
+          return EMPTY;
+        }),
+        tap((res: HttpResponse<ISales>) => {
+          this.onSaveSuccess(res.body);
+          this.check = true;
+        }),
+        catchError(error => {
+          this.check = false;
+          this.onStockError(salesLine, error);
+          return EMPTY;
+        }),
+        takeUntilDestroyed(this.destroyRef),
+      )
+      .subscribe();
   }
 
   private onSaveError(): void {
@@ -966,7 +982,7 @@ export class SellingHomeComponent implements OnInit, AfterViewInit, OnDestroy {
             this.translateLabel('quantityGreatherThanStock'),
             this.confimDialog(),
             this.processQtyRequested.bind(this),
-            this.updateProduitQtyBox.bind(this)
+            this.updateProduitQtyBox.bind(this),
           );
         } else {
           this.openInfoDialog(this.errorService.getErrorMessage(error));
@@ -977,23 +993,26 @@ export class SellingHomeComponent implements OnInit, AfterViewInit, OnDestroy {
           }
         }
       } else if (error.error.errorKey === 'stockChInsufisant') {
-        this.produitService.find(Number(error.error.payload)).subscribe(res => {
-          const prod = res.body;
-          if (prod && prod.totalQuantity > 0) {
-            // si quantite CH
-            this.deconditionnementService.handleDeconditionnement(
-              salesLine.quantityRequested,
-              prod,
-              this.confimDialog(),
-              salesLine,
-              this.onAddProduit.bind(this),
-              this.processQtyRequested.bind(this),
-              this.updateProduitQtyBox.bind(this)
-            );
-          } else {
-            this.openInfoDialog(this.translateLabel('stockInsuffisant'));
-          }
-        });
+        this.produitService
+          .find(Number(error.error.payload))
+          .pipe(takeUntilDestroyed(this.destroyRef))
+          .subscribe(res => {
+            const prod = res.body;
+            if (prod && prod.totalQuantity > 0) {
+              // si quantite CH
+              this.deconditionnementService.handleDeconditionnement(
+                salesLine.quantityRequested,
+                prod,
+                this.confimDialog(),
+                salesLine,
+                this.onAddProduit.bind(this),
+                this.processQtyRequested.bind(this),
+                this.updateProduitQtyBox.bind(this),
+              );
+            } else {
+              this.openInfoDialog(this.translateLabel('stockInsuffisant'));
+            }
+          });
       }
     }
   }
@@ -1086,7 +1105,7 @@ export class SellingHomeComponent implements OnInit, AfterViewInit, OnDestroy {
       saleId: this.currentSaleService.currentSale()?.id,
       quantitySold: quantitySold > 0 ? quantitySold : 0,
       quantityRequested,
-      sales: this.currentSaleService.currentSale()
+      sales: this.currentSaleService.currentSale(),
     };
   }
 
@@ -1173,8 +1192,7 @@ export class SellingHomeComponent implements OnInit, AfterViewInit, OnDestroy {
 
       // Product actions
       //addProduct: () => this.onAddProduit(),
-      addProduct: () => {
-      },
+      addProduct: () => {},
       removeSelectedLine: () => {
         if (this.isComptant()) {
           //   this.comptantComponent()?.removeSelectedItem();
@@ -1262,8 +1280,7 @@ export class SellingHomeComponent implements OnInit, AfterViewInit, OnDestroy {
       },
 
       // Tauri-specific (optional, only if user has permission)
-      forceStock: this.canForceStock ? () => {
-      } : undefined
+      forceStock: this.canForceStock ? () => {} : undefined,
     });
   }
 }

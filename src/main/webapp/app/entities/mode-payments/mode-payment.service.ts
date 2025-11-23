@@ -13,12 +13,19 @@ type EntityArrayResponseType = HttpResponse<IPaymentMode[]>;
   providedIn: 'root',
 })
 export class ModePaymentService {
-  protected http = inject(HttpClient);
+  private readonly http = inject(HttpClient);
+  private readonly resourceUrl = SERVER_API_URL + 'api/payment-modes';
 
-  public resourceUrl = SERVER_API_URL + 'api/payment-modes';
+  update(paymentMode: IPaymentMode, qrCodeFile?: File | null): Observable<EntityResponseType> {
+    const formData = new FormData();
+    formData.append('libelle', paymentMode.libelle || '');
+    formData.append('order', paymentMode.order?.toString() || '0');
 
-  update(tableau: IPaymentMode): Observable<EntityResponseType> {
-    return this.http.put<IPaymentMode>(this.resourceUrl, tableau, { observe: 'response' });
+    if (qrCodeFile) {
+      formData.append('qrCodeFile', qrCodeFile);
+    }
+
+    return this.http.put<IPaymentMode>(`${this.resourceUrl}/${paymentMode.code}`, formData, { observe: 'response' });
   }
 
   query(req?: any): Observable<EntityArrayResponseType> {
@@ -31,6 +38,10 @@ export class ModePaymentService {
 
   find(code: string): Observable<EntityResponseType> {
     return this.http.get<IPaymentMode>(`${this.resourceUrl}/${code}`, { observe: 'response' });
+  }
+
+  removeQrCode(code: string): Observable<EntityResponseType> {
+    return this.http.delete<IPaymentMode>(`${this.resourceUrl}/${code}/qr-code`, { observe: 'response' });
   }
 
   uploadFile(file: any): Observable<HttpResponse<IResponseDto>> {

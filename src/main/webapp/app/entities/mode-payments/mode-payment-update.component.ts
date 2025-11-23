@@ -1,10 +1,17 @@
-import { AfterViewInit, Component, ElementRef, inject, OnDestroy, OnInit, viewChild } from '@angular/core';
+import {
+  AfterViewInit,
+  Component,
+  ElementRef,
+  inject,
+  OnDestroy,
+  OnInit,
+  viewChild
+} from '@angular/core';
 import { HttpResponse } from '@angular/common/http';
 import { FormsModule, ReactiveFormsModule, UntypedFormBuilder, Validators } from '@angular/forms';
 import { Observable, Subject } from 'rxjs';
 import { finalize, takeUntil } from 'rxjs/operators';
 import { IPaymentMode, PaymentMode } from '../../shared/model/payment-mode.model';
-import { PaymentGroup } from '../../shared/model/enumerations/payment-group.model';
 import { ModePaymentService } from './mode-payment.service';
 import { WarehouseCommonModule } from '../../shared/warehouse-common/warehouse-common.module';
 import { ButtonModule } from 'primeng/button';
@@ -21,38 +28,27 @@ import { ErrorService } from '../../shared/error.service';
   templateUrl: './mode-payment-update.component.html',
   styleUrls: ['./mode-payment-update.component.scss'],
   providers: [MessageService],
-  imports: [
-    WarehouseCommonModule,
-    FormsModule,
-    ReactiveFormsModule,
-    ToastModule,
-    ButtonModule,
-    RippleModule,
-    InputTextModule,
-    Card,
-  ],
+  imports: [WarehouseCommonModule, FormsModule, ReactiveFormsModule, ToastModule, ButtonModule, RippleModule, InputTextModule, Card],
 })
 export class ModePaymentUpdateComponent implements OnInit, AfterViewInit, OnDestroy {
   title: string | null = null;
   entity?: IPaymentMode;
-  protected isSaving = false;
-  protected isValid = true;
   qrCodeFile: File | null = null;
   qrCodePreview: string | null = null;
-
+  protected isSaving = false;
+  protected isValid = true;
   protected codeField = viewChild.required<ElementRef>('codeField');
   protected fb = inject(UntypedFormBuilder);
-  private readonly messageService = inject(MessageService);
-  private readonly errorService = inject(ErrorService);
-  private readonly modePaymentService = inject(ModePaymentService);
-  private readonly activeModal = inject(NgbActiveModal);
-  private destroy$ = new Subject<void>();
-
   protected editForm = this.fb.group({
     code: [null, [Validators.required, Validators.maxLength(50)]],
     libelle: [null, [Validators.required]],
     order: [0, [Validators.required]],
   });
+  private readonly messageService = inject(MessageService);
+  private readonly errorService = inject(ErrorService);
+  private readonly modePaymentService = inject(ModePaymentService);
+  private readonly activeModal = inject(NgbActiveModal);
+  private destroy$ = new Subject<void>();
 
   ngOnInit(): void {
     if (this.entity) {
@@ -85,13 +81,7 @@ export class ModePaymentUpdateComponent implements OnInit, AfterViewInit, OnDest
 
   save(): void {
     this.isSaving = true;
-    const paymentMode = this.createFromForm();
-    if (paymentMode.code) {
-      this.subscribeToSaveResponse(this.modePaymentService.update(paymentMode));
-    } else {
-      // Note: Create endpoint needs to be added to the backend
-      this.subscribeToSaveResponse(this.modePaymentService.update(paymentMode));
-    }
+    this.subscribeToSaveResponse(this.modePaymentService.update(this.createFromForm(), this.qrCodeFile));
   }
 
   onQrCodeSelect(event: Event): void {

@@ -9,7 +9,7 @@ This is a standalone Android module built with Kotlin that connects to the Pharm
 ## Technology Stack
 
 - **Language**: Kotlin
-- **Min SDK**: 21 (Android 5.0 Lollipop)
+- **Min SDK**: 30 
 - **Target SDK**: 34 (Android 14)
 - **Architecture**: MVVM (Model-View-ViewModel)
 - **Libraries**:

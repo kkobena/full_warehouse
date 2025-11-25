@@ -405,7 +405,7 @@
     <dependency>
       <artifactId>spring-boot-loader-tools</artifactId>
       <groupId>org.springframework.boot</groupId>
-      <version>4.0.0-RC2</version>
+      <version>4.0.0</version>
     </dependency>
     <dependency>
       <artifactId>spring-boot-starter-actuator</artifactId>
@@ -414,7 +414,7 @@
     <dependency>
       <artifactId>spring-boot-starter-aop</artifactId>
       <groupId>org.springframework.boot</groupId>
-      <version>4.0.0-M2</version>
+<version>4.0.0-M2</version>
     </dependency>
     <dependency>
       <artifactId>spring-boot-starter-data-jpa</artifactId>
@@ -445,6 +445,11 @@
       <artifactId>spring-boot-starter-thymeleaf</artifactId>
       <groupId>org.springframework.boot</groupId>
     </dependency>
+    <dependency>
+      <groupId>org.springframework.boot</groupId>
+      <artifactId>spring-boot-starter-graphql</artifactId>
+    </dependency>
+
     <!--  <dependency>
         <artifactId>spring-boot-starter-undertow</artifactId>
         <groupId>org.springframework.boot</groupId>
@@ -583,7 +588,7 @@
     <artifactId>spring-boot-starter-parent</artifactId>
     <groupId>org.springframework.boot</groupId>
     <relativePath/>
-    <version>4.0.0-RC2</version>
+    <version>4.0.0</version>
   </parent>
   <profiles>
 

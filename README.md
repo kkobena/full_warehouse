@@ -478,4 +478,9 @@ npm outdated
 
 ---
 
-For questions or issues, please contact the development team or open an issue in the repository.
+### Activation shared_preload_libraries 
+shared_preload_libraries = 'pg_cron'
+pour activer l'extension pg_cron pour les tâches planifiées sur windows
+il faut ajouter cette ligne dans le fichier postgresql.conf
+et redémarrer le service postgresql
+En amont il faut installer l'extension pgAgent 

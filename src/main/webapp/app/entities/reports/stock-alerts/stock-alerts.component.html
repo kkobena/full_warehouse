@@ -1,0 +1,168 @@
+<div class="pharma-smart-content p-2">
+  <!-- Modern Pharma Toolbar (Compact) -->
+  <div class="pharma-toolbar pharma-toolbar-compact">
+    <div class="pharma-toolbar-header">
+      <i class="pi pi-exclamation-triangle"></i>
+      <span class="pharma-toolbar-title">Alertes Stock</span>
+    </div>
+
+    <p-toolbar>
+      <ng-template #start>
+        <div class="pharma-toolbar-filters">
+          <p-multiSelect
+            [(ngModel)]="selectedAlertTypes"
+            [options]="alertTypeOptions"
+            [showClear]="true"
+            display="chip"
+            [fluid]="true"
+            appendTo="body"
+            placeholder="Filtrer par type d'alerte"
+            (onChange)="onFilterChange()"
+            optionLabel="label"
+            optionValue="value"
+          />
+        </div>
+      </ng-template>
+
+      <ng-template #end>
+        <div class="flex gap-2">
+          <p-button
+            label="Exporter PDF"
+            icon="pi pi-file-pdf"
+            severity="secondary"
+            (onClick)="exportToPdf()"
+          />
+        </div>
+      </ng-template>
+    </p-toolbar>
+  </div>
+
+  <!-- Summary Cards -->
+  <div class="grid mt-3">
+    <div class="col-12 md:col-4">
+      <p-card>
+        <ng-template #content>
+          <div class="flex justify-content-between align-items-center">
+            <div>
+              <span class="text-500 font-medium block mb-2">Ruptures de stock</span>
+              <div class="text-900 font-bold text-3xl">{{ alertCounts()[StockAlertType.RUPTURE] || 0 }}</div>
+            </div>
+            <div class="flex align-items-center justify-content-center bg-red-100 border-round" style="width:3rem;height:3rem">
+              <i class="pi pi-times-circle text-red-500 text-2xl"></i>
+            </div>
+          </div>
+        </ng-template>
+      </p-card>
+    </div>
+
+    <div class="col-12 md:col-4">
+      <p-card>
+        <ng-template #content>
+          <div class="flex justify-content-between align-items-center">
+            <div>
+              <span class="text-500 font-medium block mb-2">Stock bas</span>
+              <div class="text-900 font-bold text-3xl">{{ alertCounts()[StockAlertType.ALERTE] || 0 }}</div>
+            </div>
+            <div class="flex align-items-center justify-content-center bg-orange-100 border-round" style="width:3rem;height:3rem">
+              <i class="pi pi-exclamation-circle text-orange-500 text-2xl"></i>
+            </div>
+          </div>
+        </ng-template>
+      </p-card>
+    </div>
+
+    <div class="col-12 md:col-4">
+      <p-card>
+        <ng-template #content>
+          <div class="flex justify-content-between align-items-center">
+            <div>
+              <span class="text-500 font-medium block mb-2">Proche péremption</span>
+              <div class="text-900 font-bold text-3xl">{{ alertCounts()[StockAlertType.PEREMPTION] || 0 }}</div>
+            </div>
+            <div class="flex align-items-center justify-content-center bg-blue-100 border-round" style="width:3rem;height:3rem">
+              <i class="pi pi-clock text-blue-500 text-2xl"></i>
+            </div>
+          </div>
+        </ng-template>
+      </p-card>
+    </div>
+  </div>
+
+  <!-- Alerts Table -->
+  <div class="pharma-grid-container mt-3">
+    <p-table
+      [value]="alerts()"
+      [loading]="isLoading()"
+      responsiveLayout="scroll"
+      [rowHover]="true"
+      [scrollable]="true"
+      sortField="alertType"
+      class="pharma-table"
+      [sortOrder]="1"
+    >
+      <ng-template #header>
+        <tr class="pharma-table-head">
+          <th pSortableColumn="alertType">
+            Type
+            <p-sortIcon field="alertType" />
+          </th>
+          <th pSortableColumn="libelle">
+            Produit
+            <p-sortIcon field="libelle" />
+          </th>
+          <th>Code CIP</th>
+          <th class="text-right" pSortableColumn="stockQuantity">
+            Quantité
+            <p-sortIcon field="stockQuantity" />
+          </th>
+          <th class="text-right">Seuil Min</th>
+          <th pSortableColumn="expiryDate">
+            Date Péremption
+            <p-sortIcon field="expiryDate" />
+          </th>
+        </tr>
+      </ng-template>
+      <ng-template #body let-alert>
+        <tr>
+          <td>
+            <p-tag
+              [value]="getAlertLabel(alert.alertType)"
+              [severity]="getAlertSeverity(alert.alertType)"
+            />
+          </td>
+          <td>
+            <span class="font-semibold">{{ alert.libelle }}</span>
+          </td>
+          <td>
+            <span class="text-600">{{ alert.codeCip }}</span>
+          </td>
+          <td class="text-right">
+            <span [class.text-red-600]="(alert.stockQuantity ?? 0) === 0" [class.font-bold]="(alert.stockQuantity ?? 0) === 0">
+              {{ alert.stockQuantity || 0 }}
+            </span>
+          </td>
+          <td class="text-right text-600">
+            {{ alert.seuilMin || 0 }}
+          </td>
+          <td>
+            @if (alert.expiryDate) {
+              <span [class.text-red-600]="alert.alertType === StockAlertType.PEREMPTION">
+                {{ alert.expiryDate | date: 'dd/MM/yyyy' }}
+              </span>
+            } @else {
+              <span class="text-muted">-</span>
+            }
+          </td>
+        </tr>
+      </ng-template>
+      <ng-template #emptymessage>
+        <tr>
+          <td colspan="6" class="text-center p-4 text-500">
+            <i class="pi pi-check-circle text-4xl mb-3 block text-green-500"></i>
+            Aucune alerte stock pour le moment
+          </td>
+        </tr>
+      </ng-template>
+    </p-table>
+  </div>
+</div>

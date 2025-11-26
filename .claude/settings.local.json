@@ -31,7 +31,11 @@
       "Bash(npm install:*)",
       "Bash(chmod:*)",
       "Bash(npm run lint:fix:*)",
-      "Bash(where gradle)"
+      "Bash(where gradle)",
+      "Bash(dir:*)",
+      "Bash(nul)",
+      "Bash(findstr:*)",
+      "Bash(./mvnw.cmd:*)"
     ],
     "deny": [],
     "ask": []

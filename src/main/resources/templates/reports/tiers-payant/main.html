@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Rapport Créances Tiers-Payants</title>
+    <div th:replace="~{reports/tiers-payant/css :: css}"></div>
+  </head>
+  <body>
+    <div class="invoice">
+      <div th:replace="~{common/commonheader :: header}"></div>
+
+      <main>
+        <!-- Total Summary -->
+        <div class="total-summary">
+          <strong>Créances totales:</strong>
+          <span th:text="${#numbers.formatDecimal(totalCreances, 1, 'DEFAULT', 0, 'DEFAULT')} + ' FCFA'"></span>
+        </div>
+
+        <!-- Summary by Group Section -->
+        <div class="section-title">Résumé par Groupe Tiers-Payant</div>
+        <table class="main-table">
+          <thead>
+            <tr>
+              <th>Groupe</th>
+              <th class="text-right">Nb Factures</th>
+              <th class="text-right">Montant Total</th>
+              <th class="text-right">< 30j</th>
+              <th class="text-right">30-60j</th>
+              <th class="text-right">60-90j</th>
+              <th class="text-right">> 90j</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr th:each="item : ${summary}">
+              <td th:text="${item.groupeTiersPayantLibelle}"></td>
+              <td class="text-right" th:text="${item.nombreFactures}"></td>
+              <td class="text-right">
+                <strong th:text="${#numbers.formatDecimal(item.montantTotal, 1, 'DEFAULT', 0, 'DEFAULT')}"></strong>
+              </td>
+              <td class="text-right text-green" th:text="${#numbers.formatDecimal(item.montantMoinsDe30Jours, 1, 'DEFAULT', 0, 'DEFAULT')}"></td>
+              <td class="text-right text-orange" th:text="${#numbers.formatDecimal(item.montantEntre30Et60Jours, 1, 'DEFAULT', 0, 'DEFAULT')}"></td>
+              <td class="text-right text-red" th:text="${#numbers.formatDecimal(item.montantEntre60Et90Jours, 1, 'DEFAULT', 0, 'DEFAULT')}"></td>
+              <td class="text-right text-dark-red" th:text="${#numbers.formatDecimal(item.montantPlusDe90Jours, 1, 'DEFAULT', 0, 'DEFAULT')}"></td>
+            </tr>
+          </tbody>
+        </table>
+
+        <!-- Page Break -->
+        <div class="page-break"></div>
+
+        <!-- Invoices Detail Section -->
+        <div class="section-title">Factures Impayées</div>
+        <table class="main-table">
+          <thead>
+            <tr>
+              <th>N° Facture</th>
+              <th>Groupe</th>
+              <th>Date</th>
+              <th class="text-right">Montant</th>
+              <th class="text-right">Payé</th>
+              <th class="text-right">Reste</th>
+              <th>Ancienneté</th>
+              <th class="text-right">Jours</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr th:each="invoice : ${invoices}">
+              <td th:text="${invoice.invoiceNumber}"></td>
+              <td th:text="${invoice.groupeTiersPayantLibelle}"></td>
+              <td th:text="${invoice.invoiceDate != null ? #temporals.format(invoice.invoiceDate, 'dd/MM/yyyy') : '-'}"></td>
+              <td class="text-right" th:text="${#numbers.formatDecimal(invoice.montantTotal, 1, 'DEFAULT', 0, 'DEFAULT')}"></td>
+              <td class="text-right" th:text="${#numbers.formatDecimal(invoice.montantPaye, 1, 'DEFAULT', 0, 'DEFAULT')}"></td>
+              <td class="text-right">
+                <strong th:text="${#numbers.formatDecimal(invoice.montantRestant, 1, 'DEFAULT', 0, 'DEFAULT')}"></strong>
+              </td>
+              <td>
+                <span
+                  th:class="${'badge badge-' + (invoice.ageCategory == T(com.kobe.warehouse.service.dto.report.TiersPayantInvoiceDTO.AgeCategory).LESS_THAN_30 ? 'green' : (invoice.ageCategory == T(com.kobe.warehouse.service.dto.report.TiersPayantInvoiceDTO.AgeCategory).BETWEEN_30_60 ? 'orange' : 'red'))}"
+                  th:text="${invoice.ageCategory == T(com.kobe.warehouse.service.dto.report.TiersPayantInvoiceDTO.AgeCategory).LESS_THAN_30 ? '< 30j' : (invoice.ageCategory == T(com.kobe.warehouse.service.dto.report.TiersPayantInvoiceDTO.AgeCategory).BETWEEN_30_60 ? '30-60j' : (invoice.ageCategory == T(com.kobe.warehouse.service.dto.report.TiersPayantInvoiceDTO.AgeCategory).BETWEEN_60_90 ? '60-90j' : '> 90j'))}"
+                ></span>
+              </td>
+              <td class="text-right">
+                <span th:class="${invoice.ageInDays > 60 ? 'text-red' : ''}" th:text="${invoice.ageInDays} + ' j'"></span>
+              </td>
+            </tr>
+          </tbody>
+          <tfoot>
+            <tr>
+              <td colspan="8" class="text-right">
+                <strong>Total factures: <span th:text="${invoices.size()}"></span></strong>
+              </td>
+            </tr>
+          </tfoot>
+        </table>
+      </main>
+    </div>
+  </body>
+</html>

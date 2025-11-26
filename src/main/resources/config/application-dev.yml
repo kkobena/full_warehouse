@@ -12,6 +12,9 @@ logging:
         remote:
           rmi: OFF
 spring:
+  graphql:
+    graphiql:
+      enabled: true
   devtools:
     add-properties: true
     restart:

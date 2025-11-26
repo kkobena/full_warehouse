@@ -1,0 +1,17 @@
+// Sales Summary Component Styles
+.pharma-toolbar-filters {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  align-items: center;
+}
+
+p-card {
+  ::ng-deep .p-card-body {
+    padding: 1rem;
+  }
+
+  ::ng-deep .p-card-content {
+    padding: 0;
+  }
+}

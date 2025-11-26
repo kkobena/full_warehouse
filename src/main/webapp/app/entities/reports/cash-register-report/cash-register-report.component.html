@@ -1,0 +1,172 @@
+<div class="pharma-smart-content p-2">
+  <!-- Modern Pharma Toolbar (Compact) -->
+  <div class="pharma-toolbar pharma-toolbar-compact">
+    <div class="pharma-toolbar-header">
+      <i class="pi pi-calculator"></i>
+      <span class="pharma-toolbar-title">Rapport de Caisse</span>
+    </div>
+
+    <p-toolbar>
+      <ng-template #start>
+        <div class="pharma-toolbar-filters">
+          <p-floatlabel variant="on">
+            <p-datePicker
+              [(ngModel)]="selectedDate"
+              [style]="{ 'max-width': '180px' }"
+              [iconDisplay]="'input'"
+              [showButtonBar]="true"
+              dateFormat="dd/mm/yy"
+              id="reportDate"
+              inputId="reportDate"
+              appendTo="body"
+              showIcon="true"
+              (onSelect)="onDateChange()"
+            />
+            <label for="reportDate">Date du rapport</label>
+          </p-floatlabel>
+        </div>
+      </ng-template>
+
+      <ng-template #end>
+        <div class="flex gap-2">
+          <p-button
+            label="Exporter PDF"
+            icon="pi pi-file-pdf"
+            severity="secondary"
+            (onClick)="exportToPdf()"
+          />
+        </div>
+      </ng-template>
+    </p-toolbar>
+  </div>
+
+  <!-- Summary Cards -->
+  <div class="grid mt-3">
+    <div class="col-12 md:col-6">
+      <p-card>
+        <ng-template #content>
+          <div class="flex justify-content-between align-items-center">
+            <div>
+              <span class="text-500 font-medium block mb-2">Total Ventes</span>
+              <div class="text-900 font-bold text-3xl">{{ getTotalSales() | number: '1.0-0' }} FCFA</div>
+            </div>
+            <div class="flex align-items-center justify-content-center bg-green-100 border-round" style="width:3rem;height:3rem">
+              <i class="pi pi-shopping-cart text-green-500 text-2xl"></i>
+            </div>
+          </div>
+        </ng-template>
+      </p-card>
+    </div>
+
+    <div class="col-12 md:col-6">
+      <p-card>
+        <ng-template #content>
+          <div class="flex justify-content-between align-items-center">
+            <div>
+              <span class="text-500 font-medium block mb-2">Total Écarts</span>
+              <div class="text-900 font-bold text-3xl">{{ getTotalDiscrepancy() | number: '1.0-0' }} FCFA</div>
+            </div>
+            <div class="flex align-items-center justify-content-center bg-orange-100 border-round" style="width:3rem;height:3rem">
+              <i class="pi pi-exclamation-triangle text-orange-500 text-2xl"></i>
+            </div>
+          </div>
+        </ng-template>
+      </p-card>
+    </div>
+  </div>
+
+  <!-- Cash Register Reports Table -->
+  <div class="pharma-grid-container mt-3">
+    <p-table
+      [value]="dailyReports()"
+      [loading]="isLoading()"
+      responsiveLayout="scroll"
+      [rowHover]="true"
+      [scrollable]="true"
+      class="pharma-table"
+    >
+      <ng-template #header>
+        <tr class="pharma-table-head">
+          <th>Caisse</th>
+          <th>Utilisateur</th>
+          <th>Ouverture</th>
+          <th>Clôture</th>
+          <th class="text-right">Solde Initial</th>
+          <th class="text-right">Ventes</th>
+          <th class="text-right">Solde Attendu</th>
+          <th class="text-right">Solde Réel</th>
+          <th class="text-right">Écart</th>
+          <th>Statut</th>
+        </tr>
+      </ng-template>
+      <ng-template #body let-report>
+        <tr>
+          <td>{{ report.caisseLibelle }}</td>
+          <td>{{ report.userName }}</td>
+          <td>{{ report.openingDate | date: 'HH:mm' }}</td>
+          <td>
+            @if (report.closingDate) {
+              {{ report.closingDate | date: 'HH:mm' }}
+            } @else {
+              <span class="text-muted">En cours</span>
+            }
+          </td>
+          <td class="text-right">{{ report.openingBalance | number: '1.0-0' }}</td>
+          <td class="text-right">{{ report.totalSales | number: '1.0-0' }}</td>
+          <td class="text-right">{{ report.expectedBalance | number: '1.0-0' }}</td>
+          <td class="text-right">
+            @if (report.isClosed) {
+              {{ report.closingBalance | number: '1.0-0' }}
+            } @else {
+              <span class="text-muted">-</span>
+            }
+          </td>
+          <td class="text-right">
+            @if (report.isClosed) {
+              <span [class.text-red-500]="(report.discrepancy ?? 0) !== 0" [class.text-green-500]="(report.discrepancy ?? 0) === 0">
+                {{ report.discrepancy | number: '1.0-0' }}
+              </span>
+            } @else {
+              <span class="text-muted">-</span>
+            }
+          </td>
+          <td>
+            @if (report.isClosed) {
+              <span class="p-badge p-badge-success">Fermée</span>
+            } @else {
+              <span class="p-badge p-badge-warning">Ouverte</span>
+            }
+          </td>
+        </tr>
+        <!-- Payment breakdown subrow -->
+        @if (report.paymentModeBreakdowns && report.paymentModeBreakdowns.length > 0) {
+          <tr>
+            <td colspan="10" class="bg-gray-50 p-3">
+              <div class="grid">
+                <div class="col-12 mb-2">
+                  <strong class="text-600">Détail des modes de paiement:</strong>
+                </div>
+                @for (breakdown of report.paymentModeBreakdowns; track breakdown.modePaiement) {
+                  <div class="col-12 md:col-3">
+                    <div class="flex justify-content-between">
+                      <span class="text-600">{{ breakdown.modePaiement }}:</span>
+                      <span class="font-semibold">{{ breakdown.amount | number: '1.0-0' }} FCFA ({{ breakdown.count }})</span>
+                    </div>
+                  </div>
+                }
+              </div>
+            </td>
+          </tr>
+        }
+      </ng-template>
+      <ng-template #emptymessage>
+        <tr>
+          <td colspan="10" class="text-center p-4 text-500">
+            <i class="pi pi-inbox text-4xl mb-3 block"></i>
+            Aucun rapport de caisse pour cette date
+          </td>
+        </tr>
+      </ng-template>
+    </p-table>
+  </div>
+</div>

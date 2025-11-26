@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Rapport de Caisse</title>
+    <div th:replace="~{reports/cash-register/css :: css}"></div>
+  </head>
+  <body>
+    <div class="invoice">
+      <div th:replace="~{common/commonheader :: header}"></div>
+
+      <main>
+        <!-- Date Info -->
+        <div class="date-info">
+          <strong>Date:</strong> <span th:text="${#temporals.format(reportDate, 'dd/MM/yyyy')}"></span>
+        </div>
+
+        <!-- Summary Cards -->
+        <div class="summary-section">
+          <table class="summary-table">
+            <tbody>
+              <tr>
+                <td class="summary-item">
+                  <div class="summary-label">Total Ventes</div>
+                  <div class="summary-value" th:text="${#numbers.formatDecimal(totalSales, 1, 'DEFAULT', 0, 'DEFAULT')} + ' FCFA'"></div>
+                </td>
+                <td class="summary-item">
+                  <div class="summary-label">Total Écarts</div>
+                  <div class="summary-value" th:text="${#numbers.formatDecimal(totalDiscrepancy, 1, 'DEFAULT', 0, 'DEFAULT')} + ' FCFA'"></div>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <!-- Cash Register Reports Table -->
+        <table class="main-table">
+          <thead>
+            <tr>
+              <th>Caisse</th>
+              <th>Utilisateur</th>
+              <th>Ouverture</th>
+              <th>Clôture</th>
+              <th class="text-right">Solde Initial</th>
+              <th class="text-right">Ventes</th>
+              <th class="text-right">Solde Attendu</th>
+              <th class="text-right">Solde Réel</th>
+              <th class="text-right">Écart</th>
+            </tr>
+          </thead>
+          <tbody>
+            <th:block th:each="report : ${dailyReports}">
+              <tr>
+                <td th:text="${report.caisseLibelle}"></td>
+                <td th:text="${report.userName}"></td>
+                <td th:text="${report.openingDate != null ? #temporals.format(report.openingDate, 'HH:mm') : '-'}"></td>
+                <td th:text="${report.closingDate != null ? #temporals.format(report.closingDate, 'HH:mm') : 'En cours'}"></td>
+                <td class="text-right" th:text="${#numbers.formatDecimal(report.openingBalance, 1, 'DEFAULT', 0, 'DEFAULT')}"></td>
+                <td class="text-right" th:text="${#numbers.formatDecimal(report.totalSales, 1, 'DEFAULT', 0, 'DEFAULT')}"></td>
+                <td class="text-right" th:text="${#numbers.formatDecimal(report.expectedBalance, 1, 'DEFAULT', 0, 'DEFAULT')}"></td>
+                <td class="text-right" th:text="${report.isClosed ? #numbers.formatDecimal(report.closingBalance, 1, 'DEFAULT', 0, 'DEFAULT') : '-'}"></td>
+                <td class="text-right">
+                  <span
+                    th:if="${report.isClosed}"
+                    th:class="${report.discrepancy != 0 ? 'text-red' : 'text-green'}"
+                    th:text="${#numbers.formatDecimal(report.discrepancy, 1, 'DEFAULT', 0, 'DEFAULT')}"
+                  ></span>
+                  <span th:unless="${report.isClosed}">-</span>
+                </td>
+              </tr>
+              <!-- Payment Breakdown -->
+              <tr th:if="${report.paymentModeBreakdowns != null and !report.paymentModeBreakdowns.isEmpty()}" class="breakdown-row">
+                <td colspan="9" class="payment-breakdown">
+                  <strong>Détail des modes de paiement:</strong>
+                  <table class="breakdown-table">
+                    <tbody>
+                      <tr>
+                        <td th:each="breakdown : ${report.paymentModeBreakdowns}">
+                          <span th:text="${breakdown.modePaiement}"></span>:
+                          <strong th:text="${#numbers.formatDecimal(breakdown.amount, 1, 'DEFAULT', 0, 'DEFAULT')} + ' FCFA (' + ${breakdown.count} + ')'"></strong>
+                        </td>
+                      </tr>
+                    </tbody>
+                  </table>
+                </td>
+              </tr>
+            </th:block>
+          </tbody>
+        </table>
+      </main>
+    </div>
+  </body>
+</html>

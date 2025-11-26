@@ -1,0 +1,250 @@
+// Customer Segmentation Component Styles
+
+.pharma-smart-content {
+  padding: 1rem;
+  background-color: var(--surface-ground);
+  min-height: 100vh;
+}
+
+.pharma-toolbar {
+  margin-bottom: 1.5rem;
+
+  &.pharma-toolbar-compact {
+    .pharma-toolbar-header {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      padding: 0.75rem 1rem;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      border-radius: 8px 8px 0 0;
+      color: white;
+
+      i {
+        font-size: 1.5rem;
+      }
+
+      .pharma-toolbar-title {
+        font-size: 1.25rem;
+        font-weight: 600;
+      }
+    }
+  }
+
+  .pharma-toolbar-filters {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+  }
+}
+
+// Card enhancements
+p-card {
+  ::ng-deep {
+    .p-card {
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+      border-radius: 8px;
+      border: none;
+      transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
+
+      &:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+      }
+
+      .p-card-body {
+        padding: 1.25rem;
+      }
+
+      .p-card-content {
+        padding: 0;
+      }
+
+      .p-card-header {
+        padding: 1rem 1.25rem;
+        background-color: var(--surface-section);
+        border-bottom: 1px solid var(--surface-border);
+        border-radius: 8px 8px 0 0;
+      }
+    }
+  }
+}
+
+// Table enhancements
+p-table {
+  ::ng-deep {
+    .p-datatable {
+      .p-datatable-thead > tr > th {
+        background-color: var(--primary-color);
+        color: white;
+        font-weight: 600;
+        padding: 1rem;
+        border: none;
+
+        &:first-child {
+          border-radius: 8px 0 0 0;
+        }
+
+        &:last-child {
+          border-radius: 0 8px 0 0;
+        }
+      }
+
+      .p-datatable-tbody > tr {
+        transition: background-color 0.2s;
+
+        &:hover {
+          background-color: var(--surface-hover);
+        }
+
+        > td {
+          padding: 0.875rem 1rem;
+          border-bottom: 1px solid var(--surface-border);
+        }
+      }
+
+      .p-paginator {
+        border-top: 1px solid var(--surface-border);
+        padding: 1rem;
+        background-color: var(--surface-section);
+      }
+    }
+  }
+}
+
+// RFM Score styling
+.rfm-score {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 2rem;
+  height: 2rem;
+  border-radius: 50%;
+  font-weight: 600;
+  font-size: 0.875rem;
+  background-color: var(--surface-border);
+  color: var(--text-color);
+}
+
+// Classification badge enhancements
+.classification-badge {
+  &.champion {
+    background-color: #d4edda;
+    color: #155724;
+    border: 1px solid #c3e6cb;
+  }
+
+  &.loyal {
+    background-color: #d1ecf1;
+    color: #0c5460;
+    border: 1px solid #bee5eb;
+  }
+
+  &.big-spender {
+    background-color: #cce5ff;
+    color: #004085;
+    border: 1px solid #b8daff;
+  }
+
+  &.active {
+    background-color: #d1ecf1;
+    color: #0c5460;
+    border: 1px solid #bee5eb;
+  }
+
+  &.at-risk {
+    background-color: #fff3cd;
+    color: #856404;
+    border: 1px solid #ffeeba;
+  }
+
+  &.need-attention {
+    background-color: #fff3cd;
+    color: #856404;
+    border: 1px solid #ffeeba;
+  }
+
+  &.inactive {
+    background-color: #f8d7da;
+    color: #721c24;
+    border: 1px solid #f5c6cb;
+  }
+}
+
+// RFM Explanation section
+.rfm-explanation {
+  color: var(--text-color);
+  line-height: 1.6;
+
+  ul {
+    margin-left: 1.5rem;
+    padding-left: 0;
+
+    li {
+      margin-bottom: 0.5rem;
+
+      strong {
+        color: var(--primary-color);
+      }
+    }
+  }
+
+  p {
+    margin-bottom: 0.75rem;
+  }
+}
+
+// Highlight rows for specific segments
+tr.champion-row {
+  background-color: rgba(40, 167, 69, 0.05);
+}
+
+tr.at-risk-row {
+  background-color: rgba(255, 193, 7, 0.05);
+}
+
+tr.inactive-row {
+  background-color: rgba(220, 53, 69, 0.05);
+}
+
+// Responsive adjustments
+@media screen and (max-width: 768px) {
+  .pharma-toolbar-filters {
+    flex-direction: column;
+    width: 100%;
+
+    p-select,
+    p-button {
+      width: 100%;
+    }
+  }
+
+  .grid > .col-12 {
+    padding: 0.5rem;
+  }
+
+  .p-datatable {
+    font-size: 0.875rem;
+  }
+
+  .rfm-score {
+    width: 1.5rem;
+    height: 1.5rem;
+    font-size: 0.75rem;
+  }
+}
+
+// Print styles for PDF export
+@media print {
+  .pharma-toolbar {
+    display: none;
+  }
+
+  .rfm-explanation {
+    page-break-before: always;
+  }
+
+  p-card {
+    box-shadow: none;
+    border: 1px solid #dee2e6;
+  }
+}

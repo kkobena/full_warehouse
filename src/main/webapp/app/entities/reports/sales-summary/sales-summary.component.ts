@@ -14,6 +14,7 @@ import { WarehouseCommonModule } from '../../../shared/warehouse-common/warehous
 
 import { IDailySalesSummary } from 'app/shared/model/report/daily-sales-summary.model';
 import { SalesSummaryReportService } from '../services/sales-summary-report.service';
+import { Tag } from 'primeng/tag';
 
 @Component({
   selector: 'jhi-sales-summary',
@@ -30,7 +31,8 @@ import { SalesSummaryReportService } from '../services/sales-summary-report.serv
     ToolbarModule,
     DividerModule,
     WarehouseCommonModule,
-  ],
+    Tag
+  ]
 })
 export default class SalesSummaryComponent implements OnInit {
   summaries = signal<IDailySalesSummary[]>([]);

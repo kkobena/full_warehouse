@@ -1,0 +1,212 @@
+<div class="pharma-smart-content p-2">
+  <!-- Modern Pharma Toolbar (Compact) -->
+  <div class="pharma-toolbar pharma-toolbar-compact">
+    <div class="pharma-toolbar-header">
+      <i class="pi pi-sync"></i>
+      <span class="pharma-toolbar-title">Rotation du Stock (Analyse ABC)</span>
+    </div>
+
+    <p-toolbar>
+      <ng-template #start>
+        <div class="pharma-toolbar-filters flex gap-2">
+          <p-select
+            [(ngModel)]="selectedCategorie"
+            [options]="categorieOptions()"
+            placeholder="Catégorie"
+            optionLabel="label"
+            optionValue="value"
+            [showClear]="true"
+            [disabled]="showSlowMovingOnly()"
+            (onChange)="onFilterChange()"
+          />
+          <p-select
+            [(ngModel)]="selectedABC"
+            [options]="abcOptions"
+            placeholder="Classification ABC"
+            optionLabel="label"
+            optionValue="value"
+            [showClear]="true"
+            [disabled]="showSlowMovingOnly()"
+            (onChange)="onFilterChange()"
+          />
+          <p-button
+            [label]="showSlowMovingOnly() ? 'Tous les produits' : 'Produits à faible rotation'"
+            [icon]="showSlowMovingOnly() ? 'pi pi-list' : 'pi pi-exclamation-triangle'"
+            [severity]="showSlowMovingOnly() ? 'secondary' : 'warn'"
+            (onClick)="onSlowMovingToggle()"
+          />
+        </div>
+      </ng-template>
+
+      <ng-template #end>
+        <div class="flex gap-2">
+          <p-button
+            label="Effacer les filtres"
+            icon="pi pi-filter-slash"
+            severity="secondary"
+            (onClick)="onClearFilters()"
+          />
+          <p-button
+            label="Exporter PDF"
+            icon="pi pi-file-pdf"
+            severity="danger"
+            (onClick)="exportToPdf()"
+          />
+          <p-button
+            label="Rafraîchir"
+            icon="pi pi-refresh"
+            severity="secondary"
+            (onClick)="loadRotations()"
+          />
+        </div>
+      </ng-template>
+    </p-toolbar>
+  </div>
+
+  <!-- ABC Classification Summary Cards -->
+  <div class="grid mt-3">
+    <div class="col-12 md:col-3">
+      <p-card>
+        <ng-template #content>
+          <div class="flex justify-content-between align-items-center">
+            <div>
+              <span class="text-500 font-medium block mb-2">Catégorie A</span>
+              <div class="text-900 font-bold text-3xl">{{ abcCounts().A || 0 }}</div>
+              <span class="text-500 text-sm">Forte rotation (z ≥ 1.96)</span>
+            </div>
+            <div class="flex align-items-center justify-content-center bg-green-100 border-round" style="width:3rem;height:3rem">
+              <i class="pi pi-arrow-up text-green-500 text-2xl"></i>
+            </div>
+          </div>
+        </ng-template>
+      </p-card>
+    </div>
+
+    <div class="col-12 md:col-3">
+      <p-card>
+        <ng-template #content>
+          <div class="flex justify-content-between align-items-center">
+            <div>
+              <span class="text-500 font-medium block mb-2">Catégorie B</span>
+              <div class="text-900 font-bold text-3xl">{{ abcCounts().B || 0 }}</div>
+              <span class="text-500 text-sm">Rotation moyenne (z ≥ 1.65)</span>
+            </div>
+            <div class="flex align-items-center justify-content-center bg-blue-100 border-round" style="width:3rem;height:3rem">
+              <i class="pi pi-minus text-blue-500 text-2xl"></i>
+            </div>
+          </div>
+        </ng-template>
+      </p-card>
+    </div>
+
+    <div class="col-12 md:col-3">
+      <p-card>
+        <ng-template #content>
+          <div class="flex justify-content-between align-items-center">
+            <div>
+              <span class="text-500 font-medium block mb-2">Catégorie C</span>
+              <div class="text-900 font-bold text-3xl">{{ abcCounts().C || 0 }}</div>
+              <span class="text-500 text-sm">Faible rotation (z < 1.65)</span>
+            </div>
+            <div class="flex align-items-center justify-content-center bg-orange-100 border-round" style="width:3rem;height:3rem">
+              <i class="pi pi-arrow-down text-orange-500 text-2xl"></i>
+            </div>
+          </div>
+        </ng-template>
+      </p-card>
+    </div>
+
+    <div class="col-12 md:col-3">
+      <p-card>
+        <ng-template #content>
+          <div class="flex justify-content-between align-items-center">
+            <div>
+              <span class="text-500 font-medium block mb-2">Valeur totale du stock</span>
+              <div class="text-900 font-bold text-2xl">{{ getTotalStockValue() | number:'1.0-0' }} F</div>
+              <span class="text-500 text-sm">{{ rotations().length }} produits</span>
+            </div>
+            <div class="flex align-items-center justify-content-center bg-purple-100 border-round" style="width:3rem;height:3rem">
+              <i class="pi pi-box text-purple-500 text-2xl"></i>
+            </div>
+          </div>
+        </ng-template>
+      </p-card>
+    </div>
+  </div>
+
+  <!-- Stock Rotation Table -->
+  <div class="mt-3">
+    <p-card>
+      <ng-template #content>
+        <p-table
+          [value]="rotations()"
+          [loading]="isLoading()"
+          [paginator]="true"
+          [rows]="20"
+          [rowsPerPageOptions]="[10, 20, 50, 100]"
+          [showCurrentPageReport]="true"
+          currentPageReportTemplate="Affichage de {first} à {last} sur {totalRecords} entrées"
+          [tableStyle]="{ 'min-width': '100rem' }"
+        >
+          <ng-template #header>
+            <tr>
+              <th pSortableColumn="libelle">Produit <p-sortIcon field="libelle" /></th>
+              <th pSortableColumn="codeCip">Code CIP <p-sortIcon field="codeCip" /></th>
+              <th pSortableColumn="categorie">Catégorie <p-sortIcon field="categorie" /></th>
+              <th pSortableColumn="categorieABC">ABC <p-sortIcon field="categorieABC" /></th>
+              <th class="text-right" pSortableColumn="stockQuantity">Stock <p-sortIcon field="stockQuantity" /></th>
+              <th class="text-right" pSortableColumn="stockValue">Valeur Stock <p-sortIcon field="stockValue" /></th>
+              <th class="text-right" pSortableColumn="caLast30Days">CA 30j <p-sortIcon field="caLast30Days" /></th>
+              <th class="text-right" pSortableColumn="qtySoldLast30Days">Qté 30j <p-sortIcon field="qtySoldLast30Days" /></th>
+              <th class="text-right" pSortableColumn="caLast12Months">CA 12m <p-sortIcon field="caLast12Months" /></th>
+              <th class="text-right" pSortableColumn="qtySoldLast12Months">Qté 12m <p-sortIcon field="qtySoldLast12Months" /></th>
+              <th class="text-right" pSortableColumn="rotationRateAnnual">Taux rotation <p-sortIcon field="rotationRateAnnual" /></th>
+              <th class="text-right" pSortableColumn="avgDaysInStock">Jours en stock <p-sortIcon field="avgDaysInStock" /></th>
+            </tr>
+          </ng-template>
+          <ng-template #body let-rotation>
+            <tr>
+              <td>{{ rotation.libelle }}</td>
+              <td>{{ rotation.codeCip }}</td>
+              <td>{{ rotation.categorie }}</td>
+              <td>
+                <p-tag [severity]="getABCSeverity(rotation.categorieABC)">
+                  {{ getABCLabel(rotation.categorieABC) }}
+                </p-tag>
+              </td>
+              <td class="text-right">{{ rotation.stockQuantity || 0 }}</td>
+              <td class="text-right font-bold">{{ rotation.stockValue | number:'1.0-0' }} F</td>
+              <td class="text-right">{{ rotation.caLast30Days | number:'1.0-0' }} F</td>
+              <td class="text-right">{{ rotation.qtySoldLast30Days || 0 }}</td>
+              <td class="text-right font-bold">{{ rotation.caLast12Months | number:'1.0-0' }} F</td>
+              <td class="text-right font-bold">{{ rotation.qtySoldLast12Months || 0 }}</td>
+              <td class="text-right">
+                <p-tag [severity]="getRotationRateSeverity(rotation.rotationRateAnnual)">
+                  {{ rotation.rotationRateAnnual | number:'1.2-2' }}x/an
+                </p-tag>
+              </td>
+              <td class="text-right">
+                <span
+                  class="px-2 py-1 border-round font-semibold"
+                  [ngClass]="{
+                    'bg-green-100 text-green-700': (rotation.avgDaysInStock || 0) <= 30,
+                    'bg-blue-100 text-blue-700': (rotation.avgDaysInStock || 0) > 30 && (rotation.avgDaysInStock || 0) <= 60,
+                    'bg-orange-100 text-orange-700': (rotation.avgDaysInStock || 0) > 60 && (rotation.avgDaysInStock || 0) <= 90,
+                    'bg-red-100 text-red-700': (rotation.avgDaysInStock || 0) > 90
+                  }"
+                >
+                  {{ rotation.avgDaysInStock || 0 }} jours
+                </span>
+              </td>
+            </tr>
+          </ng-template>
+          <ng-template #emptymessage>
+            <tr>
+              <td colspan="12" class="text-center">Aucune donnée disponible</td>
+            </tr>
+          </ng-template>
+        </p-table>
+      </ng-template>
+    </p-card>
+  </div>
+</div>

@@ -49,6 +49,33 @@ const reportsRoute: Routes = [
     },
     canActivate: [UserRouteAccessService],
   },
+  {
+    path: 'stock-valuation',
+    loadComponent: () => import('./stock-valuation/stock-valuation.component'),
+    data: {
+      authorities: [Authority.ADMIN, Authority.ROLE_RESPONSABLE_COMMANDE],
+      pageTitle: 'Valorisation du Stock',
+    },
+    canActivate: [UserRouteAccessService],
+  },
+  {
+    path: 'stock-rotation',
+    loadComponent: () => import('./stock-rotation/stock-rotation.component'),
+    data: {
+      authorities: [Authority.ADMIN, Authority.ROLE_RESPONSABLE_COMMANDE],
+      pageTitle: 'Rotation du Stock',
+    },
+    canActivate: [UserRouteAccessService],
+  },
+  {
+    path: 'customer-segmentation',
+    loadComponent: () => import('./customer-segmentation/customer-segmentation.component'),
+    data: {
+      authorities: [Authority.ADMIN],
+      pageTitle: 'Segmentation Clients',
+    },
+    canActivate: [UserRouteAccessService],
+  },
 ];
 
 export default reportsRoute;

@@ -47,7 +47,12 @@ public class CacheConfiguration {
                 buildCache("stockAlerts", 30, TimeUnit.MINUTES, 50),
                 buildCache("topProducts", 30, TimeUnit.MINUTES, 100),
                 buildCache("cashRegisterReport", 15, TimeUnit.MINUTES, 50),
-                buildCache("tiersPayantCreances", 60, TimeUnit.MINUTES, 100)
+                buildCache("tiersPayantCreances", 60, TimeUnit.MINUTES, 100),
+                // Phase 2 report caches
+                buildCache("stockValuation", 60, TimeUnit.MINUTES, 100),
+                buildCache("stockValuationSummary", 60, TimeUnit.MINUTES, 10),
+                buildCache("stockRotation", 60, TimeUnit.MINUTES, 100),
+                buildCache("customerSegmentation", 120, TimeUnit.MINUTES, 200)
             )
         );
         return manager;

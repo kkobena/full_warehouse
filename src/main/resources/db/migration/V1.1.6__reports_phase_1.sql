@@ -28,7 +28,7 @@ LEFT JOIN fournisseur_produit fp ON p.fournisseur_produit_principal_id = fp.id
 LEFT JOIN stock_produit sp ON p.id = sp.produit_id
 LEFT JOIN order_line ol ON p.id = ol.produit_id
 LEFT JOIN lot l ON ol.id = l.order_line_id AND l.expiry_date < CURRENT_DATE + INTERVAL '3 months'
-WHERE p.status = 'ACTIVE'
+WHERE p.status = 'ENABLE'
   AND (
     COALESCE(SUM(sp.qty_stock + sp.qty_ug), 0) = 0
     OR COALESCE(SUM(sp.qty_stock + sp.qty_ug), 0) < p.qty_seuil_mini

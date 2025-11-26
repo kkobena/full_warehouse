@@ -1,0 +1,300 @@
+<div class="pharma-smart-content p-2">
+  <!-- Modern Pharma Toolbar (Compact) -->
+  <div class="pharma-toolbar pharma-toolbar-compact">
+    <div class="pharma-toolbar-header">
+      <i class="pi pi-users"></i>
+      <span class="pharma-toolbar-title">Segmentation Clients (Analyse RFM)</span>
+    </div>
+
+    <p-toolbar>
+      <ng-template #start>
+        <div class="pharma-toolbar-filters flex gap-2">
+          <p-select
+            [(ngModel)]="selectedClassification"
+            [options]="classificationOptions"
+            placeholder="Classification"
+            optionLabel="label"
+            optionValue="value"
+            [showClear]="true"
+            [disabled]="showChampionsOnly() || showAtRiskOnly()"
+            (onChange)="onFilterChange()"
+          />
+          <p-button
+            [label]="showChampionsOnly() ? 'Tous les clients' : 'Champions uniquement'"
+            [icon]="showChampionsOnly() ? 'pi pi-list' : 'pi pi-star'"
+            [severity]="showChampionsOnly() ? 'secondary' : 'success'"
+            (onClick)="onChampionsToggle()"
+          />
+          <p-button
+            [label]="showAtRiskOnly() ? 'Tous les clients' : 'À risque uniquement'"
+            [icon]="showAtRiskOnly() ? 'pi pi-list' : 'pi pi-exclamation-triangle'"
+            [severity]="showAtRiskOnly() ? 'secondary' : 'warn'"
+            (onClick)="onAtRiskToggle()"
+          />
+        </div>
+      </ng-template>
+
+      <ng-template #end>
+        <div class="flex gap-2">
+          <p-button
+            label="Effacer les filtres"
+            icon="pi pi-filter-slash"
+            severity="secondary"
+            (onClick)="onClearFilters()"
+          />
+          <p-button
+            label="Exporter PDF"
+            icon="pi pi-file-pdf"
+            severity="danger"
+            (onClick)="exportToPdf()"
+          />
+          <p-button
+            label="Rafraîchir"
+            icon="pi pi-refresh"
+            severity="secondary"
+            (onClick)="loadCustomers()"
+          />
+        </div>
+      </ng-template>
+    </p-toolbar>
+  </div>
+
+  <!-- Customer Classification Summary Cards -->
+  <div class="grid mt-3">
+    <div class="col-12 md:col-3">
+      <p-card>
+        <ng-template #content>
+          <div class="flex justify-content-between align-items-center">
+            <div>
+              <span class="text-500 font-medium block mb-2">Champions</span>
+              <div class="text-900 font-bold text-3xl">{{ classificationCounts().CHAMPION || 0 }}</div>
+              <span class="text-500 text-sm">Meilleurs clients</span>
+            </div>
+            <div class="flex align-items-center justify-content-center bg-green-100 border-round" style="width:3rem;height:3rem">
+              <i class="pi pi-star text-green-500 text-2xl"></i>
+            </div>
+          </div>
+        </ng-template>
+      </p-card>
+    </div>
+
+    <div class="col-12 md:col-3">
+      <p-card>
+        <ng-template #content>
+          <div class="flex justify-content-between align-items-center">
+            <div>
+              <span class="text-500 font-medium block mb-2">Fidèles & Actifs</span>
+              <div class="text-900 font-bold text-3xl">
+                {{ (classificationCounts().LOYAL || 0) + (classificationCounts().ACTIVE || 0) }}
+              </div>
+              <span class="text-500 text-sm">Clients réguliers</span>
+            </div>
+            <div class="flex align-items-center justify-content-center bg-blue-100 border-round" style="width:3rem;height:3rem">
+              <i class="pi pi-heart text-blue-500 text-2xl"></i>
+            </div>
+          </div>
+        </ng-template>
+      </p-card>
+    </div>
+
+    <div class="col-12 md:col-3">
+      <p-card>
+        <ng-template #content>
+          <div class="flex justify-content-between align-items-center">
+            <div>
+              <span class="text-500 font-medium block mb-2">À risque</span>
+              <div class="text-900 font-bold text-3xl">
+                {{ (classificationCounts().AT_RISK || 0) + (classificationCounts().NEED_ATTENTION || 0) }}
+              </div>
+              <span class="text-500 text-sm">Besoin d'attention</span>
+            </div>
+            <div class="flex align-items-center justify-content-center bg-orange-100 border-round" style="width:3rem;height:3rem">
+              <i class="pi pi-exclamation-triangle text-orange-500 text-2xl"></i>
+            </div>
+          </div>
+        </ng-template>
+      </p-card>
+    </div>
+
+    <div class="col-12 md:col-3">
+      <p-card>
+        <ng-template #content>
+          <div class="flex justify-content-between align-items-center">
+            <div>
+              <span class="text-500 font-medium block mb-2">Inactifs</span>
+              <div class="text-900 font-bold text-3xl">{{ classificationCounts().INACTIVE || 0 }}</div>
+              <span class="text-500 text-sm">Clients perdus</span>
+            </div>
+            <div class="flex align-items-center justify-content-center bg-red-100 border-round" style="width:3rem;height:3rem">
+              <i class="pi pi-times-circle text-red-500 text-2xl"></i>
+            </div>
+          </div>
+        </ng-template>
+      </p-card>
+    </div>
+  </div>
+
+  <!-- Additional Metrics -->
+  <div class="grid mt-3">
+    <div class="col-12 md:col-3">
+      <p-card>
+        <ng-template #content>
+          <div class="flex justify-content-between align-items-center">
+            <div>
+              <span class="text-500 font-medium block mb-2">Total clients</span>
+              <div class="text-900 font-bold text-2xl">{{ getTotalCustomers() }}</div>
+            </div>
+            <div class="flex align-items-center justify-content-center bg-purple-100 border-round" style="width:3rem;height:3rem">
+              <i class="pi pi-users text-purple-500 text-2xl"></i>
+            </div>
+          </div>
+        </ng-template>
+      </p-card>
+    </div>
+
+    <div class="col-12 md:col-3">
+      <p-card>
+        <ng-template #content>
+          <div class="flex justify-content-between align-items-center">
+            <div>
+              <span class="text-500 font-medium block mb-2">CA total (12 mois)</span>
+              <div class="text-900 font-bold text-2xl">{{ getTotalSpent() | number:'1.0-0' }} F</div>
+            </div>
+            <div class="flex align-items-center justify-content-center bg-indigo-100 border-round" style="width:3rem;height:3rem">
+              <i class="pi pi-dollar text-indigo-500 text-2xl"></i>
+            </div>
+          </div>
+        </ng-template>
+      </p-card>
+    </div>
+
+    <div class="col-12 md:col-3">
+      <p-card>
+        <ng-template #content>
+          <div class="flex justify-content-between align-items-center">
+            <div>
+              <span class="text-500 font-medium block mb-2">Panier moyen</span>
+              <div class="text-900 font-bold text-2xl">{{ getAverageBasket() | number:'1.0-0' }} F</div>
+            </div>
+            <div class="flex align-items-center justify-content-center bg-teal-100 border-round" style="width:3rem;height:3rem">
+              <i class="pi pi-shopping-cart text-teal-500 text-2xl"></i>
+            </div>
+          </div>
+        </ng-template>
+      </p-card>
+    </div>
+
+    <div class="col-12 md:col-3">
+      <p-card>
+        <ng-template #content>
+          <div class="flex justify-content-between align-items-center">
+            <div>
+              <span class="text-500 font-medium block mb-2">Score RFM moyen</span>
+              <div class="text-900 font-bold text-2xl">{{ getAverageRFMScore() | number:'1.1-2' }}</div>
+            </div>
+            <div class="flex align-items-center justify-content-center bg-cyan-100 border-round" style="width:3rem;height:3rem">
+              <i class="pi pi-chart-line text-cyan-500 text-2xl"></i>
+            </div>
+          </div>
+        </ng-template>
+      </p-card>
+    </div>
+  </div>
+
+  <!-- Customer Segmentation Table -->
+  <div class="mt-3">
+    <p-card>
+      <ng-template #content>
+        <p-table
+          [value]="customers()"
+          [loading]="isLoading()"
+          [paginator]="true"
+          [rows]="20"
+          [rowsPerPageOptions]="[10, 20, 50, 100]"
+          [showCurrentPageReport]="true"
+          currentPageReportTemplate="Affichage de {first} à {last} sur {totalRecords} entrées"
+          [tableStyle]="{ 'min-width': '100rem' }"
+        >
+          <ng-template #header>
+            <tr>
+              <th pSortableColumn="customerName">Client <p-sortIcon field="customerName" /></th>
+              <th pSortableColumn="phone">Téléphone <p-sortIcon field="phone" /></th>
+              <th pSortableColumn="customerClassification">Classification <p-sortIcon field="customerClassification" /></th>
+              <th pSortableColumn="lastPurchaseDate">Dernier achat <p-sortIcon field="lastPurchaseDate" /></th>
+              <th class="text-right" pSortableColumn="daysSinceLastPurchase">Jours <p-sortIcon field="daysSinceLastPurchase" /></th>
+              <th class="text-right" pSortableColumn="nbPurchasesLastYear">Achats/an <p-sortIcon field="nbPurchasesLastYear" /></th>
+              <th class="text-right" pSortableColumn="totalSpentLastYear">CA annuel <p-sortIcon field="totalSpentLastYear" /></th>
+              <th class="text-right" pSortableColumn="avgBasketValue">Panier moy. <p-sortIcon field="avgBasketValue" /></th>
+              <th class="text-center" pSortableColumn="recencyScore">R <p-sortIcon field="recencyScore" /></th>
+              <th class="text-center" pSortableColumn="frequencyScore">F <p-sortIcon field="frequencyScore" /></th>
+              <th class="text-center" pSortableColumn="monetaryScore">M <p-sortIcon field="monetaryScore" /></th>
+              <th class="text-center" pSortableColumn="rfmSegment">RFM <p-sortIcon field="rfmSegment" /></th>
+            </tr>
+          </ng-template>
+          <ng-template #body let-customer>
+            <tr>
+              <td>{{ customer.customerName }}</td>
+              <td>{{ customer.phone }}</td>
+              <td>
+                <p-tag [severity]="getClassificationSeverity(customer.customerClassification)">
+                  {{ getClassificationLabel(customer.customerClassification) }}
+                </p-tag>
+              </td>
+              <td>{{ customer.lastPurchaseDate | date:'dd/MM/yyyy' }}</td>
+              <td class="text-right">
+                <p-tag [severity]="getRecencySeverity(customer.daysSinceLastPurchase)">
+                  {{ customer.daysSinceLastPurchase || 0 }} j
+                </p-tag>
+              </td>
+              <td class="text-right">{{ customer.nbPurchasesLastYear || 0 }}</td>
+              <td class="text-right font-bold">{{ customer.totalSpentLastYear | number:'1.0-0' }} F</td>
+              <td class="text-right">{{ customer.avgBasketValue | number:'1.0-0' }} F</td>
+              <td class="text-center">
+                <span class="rfm-score">{{ customer.recencyScore || 0 }}</span>
+              </td>
+              <td class="text-center">
+                <span class="rfm-score">{{ customer.frequencyScore || 0 }}</span>
+              </td>
+              <td class="text-center">
+                <span class="rfm-score">{{ customer.monetaryScore || 0 }}</span>
+              </td>
+              <td class="text-center">
+                <p-tag [severity]="getRFMScoreSeverity(customer.rfmSegment)">
+                  {{ customer.rfmSegment || 0 }}
+                </p-tag>
+              </td>
+            </tr>
+          </ng-template>
+          <ng-template #emptymessage>
+            <tr>
+              <td colspan="12" class="text-center">Aucune donnée disponible</td>
+            </tr>
+          </ng-template>
+        </p-table>
+      </ng-template>
+    </p-card>
+  </div>
+
+  <!-- RFM Analysis Explanation -->
+  <div class="mt-3">
+    <p-card>
+      <ng-template #header>
+        <div class="flex align-items-center gap-2">
+          <i class="pi pi-info-circle"></i>
+          <span class="font-semibold">À propos de l'analyse RFM</span>
+        </div>
+      </ng-template>
+      <ng-template #content>
+        <div class="rfm-explanation">
+          <p class="mb-2"><strong>RFM (Recency, Frequency, Monetary)</strong> est une méthode d'analyse qui segmente les clients en fonction de :</p>
+          <ul>
+            <li><strong>Récence (R)</strong> : Nombre de jours depuis le dernier achat (1-5, 5 = très récent)</li>
+            <li><strong>Fréquence (F)</strong> : Nombre d'achats sur les 12 derniers mois (1-5, 5 = très fréquent)</li>
+            <li><strong>Montant (M)</strong> : Montant total dépensé sur les 12 derniers mois (1-5, 5 = très élevé)</li>
+          </ul>
+          <p class="mt-2">Le <strong>Score RFM</strong> combine ces trois dimensions pour classer les clients en segments stratégiques.</p>
+        </div>
+      </ng-template>
+    </p-card>
+  </div>
+</div>

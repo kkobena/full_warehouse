@@ -1,0 +1,256 @@
+package com.kobe.warehouse.service.report;
+
+import com.kobe.warehouse.domain.enumeration.BCGCategory;
+import com.kobe.warehouse.service.dto.report.ProductProfitabilityDTO;
+import com.kobe.warehouse.service.dto.report.ProfitabilitySummaryDTO;
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.PersistenceContext;
+import jakarta.persistence.Query;
+import java.io.ByteArrayOutputStream;
+import java.math.BigDecimal;
+import java.util.List;
+import java.util.stream.Collectors;
+import org.springframework.cache.annotation.Cacheable;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+import org.thymeleaf.context.Context;
+import org.thymeleaf.spring6.SpringTemplateEngine;
+import org.xhtmlrenderer.pdf.ITextRenderer;
+
+@Service
+@Transactional(readOnly = true)
+public class ProfitabilityReportServiceImpl implements ProfitabilityReportService {
+
+    @PersistenceContext
+    private EntityManager entityManager;
+
+    private final SpringTemplateEngine templateEngine;
+
+    public ProfitabilityReportServiceImpl(SpringTemplateEngine templateEngine) {
+        this.templateEngine = templateEngine;
+    }
+
+    @Override
+    @Cacheable(value = "profitability", key = "'all'")
+    public List<ProductProfitabilityDTO> getAllProductProfitability() {
+        String sql =
+            "SELECT " +
+            "produit_id, libelle, code_cip, categorie, nb_ventes, qte_vendue, " +
+            "ca_total, cout_achat_total, marge_brute, taux_marge_pct, " +
+            "prix_vente_moyen, prix_achat_moyen, stock_quantity, " +
+            "prix_achat_unitaire, prix_vente_unitaire, taux_rotation_annuel, bcg_category " +
+            "FROM mv_product_profitability " +
+            "ORDER BY marge_brute DESC";
+
+        Query query = entityManager.createNativeQuery(sql);
+
+        @SuppressWarnings("unchecked")
+        List<Object[]> results = query.getResultList();
+
+        return mapResultsToDTO(results);
+    }
+
+    @Override
+    @Cacheable(value = "profitability", key = "'category:' + #categorie")
+    public List<ProductProfitabilityDTO> getProductProfitabilityByCategory(String categorie) {
+        String sql =
+            "SELECT " +
+            "produit_id, libelle, code_cip, categorie, nb_ventes, qte_vendue, " +
+            "ca_total, cout_achat_total, marge_brute, taux_marge_pct, " +
+            "prix_vente_moyen, prix_achat_moyen, stock_quantity, " +
+            "prix_achat_unitaire, prix_vente_unitaire, taux_rotation_annuel, bcg_category " +
+            "FROM mv_product_profitability " +
+            "WHERE categorie = :categorie " +
+            "ORDER BY marge_brute DESC";
+
+        Query query = entityManager.createNativeQuery(sql);
+        query.setParameter("categorie", categorie);
+
+        @SuppressWarnings("unchecked")
+        List<Object[]> results = query.getResultList();
+
+        return mapResultsToDTO(results);
+    }
+
+    @Override
+    @Cacheable(value = "profitability", key = "'bcg:' + #bcgCategory")
+    public List<ProductProfitabilityDTO> getProductProfitabilityByBCGCategory(BCGCategory bcgCategory) {
+        String sql =
+            "SELECT " +
+            "produit_id, libelle, code_cip, categorie, nb_ventes, qte_vendue, " +
+            "ca_total, cout_achat_total, marge_brute, taux_marge_pct, " +
+            "prix_vente_moyen, prix_achat_moyen, stock_quantity, " +
+            "prix_achat_unitaire, prix_vente_unitaire, taux_rotation_annuel, bcg_category " +
+            "FROM mv_product_profitability " +
+            "WHERE bcg_category = :bcgCategory " +
+            "ORDER BY marge_brute DESC";
+
+        Query query = entityManager.createNativeQuery(sql);
+        query.setParameter("bcgCategory", bcgCategory.name());
+
+        @SuppressWarnings("unchecked")
+        List<Object[]> results = query.getResultList();
+
+        return mapResultsToDTO(results);
+    }
+
+    @Override
+    @Cacheable(value = "profitability", key = "'top:' + #limit")
+    public List<ProductProfitabilityDTO> getTopProfitableProducts(int limit) {
+        String sql =
+            "SELECT " +
+            "produit_id, libelle, code_cip, categorie, nb_ventes, qte_vendue, " +
+            "ca_total, cout_achat_total, marge_brute, taux_marge_pct, " +
+            "prix_vente_moyen, prix_achat_moyen, stock_quantity, " +
+            "prix_achat_unitaire, prix_vente_unitaire, taux_rotation_annuel, bcg_category " +
+            "FROM mv_product_profitability " +
+            "ORDER BY marge_brute DESC " +
+            "LIMIT :limit";
+
+        Query query = entityManager.createNativeQuery(sql);
+        query.setParameter("limit", limit);
+
+        @SuppressWarnings("unchecked")
+        List<Object[]> results = query.getResultList();
+
+        return mapResultsToDTO(results);
+    }
+
+    @Override
+    @Cacheable(value = "profitability", key = "'lowMargin'")
+    public List<ProductProfitabilityDTO> getLowMarginProducts() {
+        String sql =
+            "SELECT " +
+            "produit_id, libelle, code_cip, categorie, nb_ventes, qte_vendue, " +
+            "ca_total, cout_achat_total, marge_brute, taux_marge_pct, " +
+            "prix_vente_moyen, prix_achat_moyen, stock_quantity, " +
+            "prix_achat_unitaire, prix_vente_unitaire, taux_rotation_annuel, bcg_category " +
+            "FROM mv_product_profitability " +
+            "WHERE taux_marge_pct < 10 " +
+            "ORDER BY taux_marge_pct ASC";
+
+        Query query = entityManager.createNativeQuery(sql);
+
+        @SuppressWarnings("unchecked")
+        List<Object[]> results = query.getResultList();
+
+        return mapResultsToDTO(results);
+    }
+
+    @Override
+    public ProfitabilitySummaryDTO getProfitabilitySummary() {
+        String sql =
+            "SELECT " +
+            "total_produits, ca_total_global, cout_achat_global, marge_brute_globale, taux_marge_moyen, " +
+            "nb_stars, nb_cash_cows, nb_question_marks, nb_dogs, " +
+            "ca_stars, ca_cash_cows, ca_question_marks, ca_dogs, " +
+            "marge_stars, marge_cash_cows, marge_question_marks, marge_dogs " +
+            "FROM mv_profitability_summary";
+
+        Query query = entityManager.createNativeQuery(sql);
+
+        @SuppressWarnings("unchecked")
+        List<Object[]> results = query.getResultList();
+
+        if (results.isEmpty()) {
+            return new ProfitabilitySummaryDTO(0, 0L, 0L, 0L, BigDecimal.ZERO, 0, 0, 0, 0, 0L, 0L, 0L, 0L, 0L, 0L, 0L, 0L);
+        }
+
+        Object[] row = results.get(0);
+
+        return new ProfitabilitySummaryDTO(
+            row[0] != null ? ((Number) row[0]).intValue() : 0,
+            row[1] != null ? ((Number) row[1]).longValue() : 0L,
+            row[2] != null ? ((Number) row[2]).longValue() : 0L,
+            row[3] != null ? ((Number) row[3]).longValue() : 0L,
+            row[4] != null ? new BigDecimal(row[4].toString()) : BigDecimal.ZERO,
+            row[5] != null ? ((Number) row[5]).intValue() : 0,
+            row[6] != null ? ((Number) row[6]).intValue() : 0,
+            row[7] != null ? ((Number) row[7]).intValue() : 0,
+            row[8] != null ? ((Number) row[8]).intValue() : 0,
+            row[9] != null ? ((Number) row[9]).longValue() : 0L,
+            row[10] != null ? ((Number) row[10]).longValue() : 0L,
+            row[11] != null ? ((Number) row[11]).longValue() : 0L,
+            row[12] != null ? ((Number) row[12]).longValue() : 0L,
+            row[13] != null ? ((Number) row[13]).longValue() : 0L,
+            row[14] != null ? ((Number) row[14]).longValue() : 0L,
+            row[15] != null ? ((Number) row[15]).longValue() : 0L,
+            row[16] != null ? ((Number) row[16]).longValue() : 0L
+        );
+    }
+
+    @Override
+    public byte[] exportProfitabilityToPdf() {
+        // Get the profitability data
+        List<ProductProfitabilityDTO> products = getAllProductProfitability();
+        ProfitabilitySummaryDTO summary = getProfitabilitySummary();
+
+        // Prepare Thymeleaf context
+        Context context = new Context();
+        context.setVariable("products", products);
+        context.setVariable("summary", summary);
+        context.setVariable("reportTitle", "Rapport de Rentabilité (Analyse BCG)");
+        context.setVariable("page_count", "1/1");
+
+        // Generate HTML from template
+        String htmlContent = templateEngine.process("reports/profitability/main", context);
+
+        // Convert HTML to PDF
+        try (ByteArrayOutputStream outputStream = new ByteArrayOutputStream()) {
+            ITextRenderer renderer = new ITextRenderer();
+            renderer.setDocumentFromString(htmlContent);
+            renderer.layout();
+            renderer.createPDF(outputStream);
+            return outputStream.toByteArray();
+        } catch (Exception e) {
+            throw new RuntimeException("Error generating PDF", e);
+        }
+    }
+
+    private List<ProductProfitabilityDTO> mapResultsToDTO(List<Object[]> results) {
+        return results
+            .stream()
+            .map(row -> {
+                Integer produitId = row[0] != null ? ((Number) row[0]).intValue() : null;
+                String libelle = (String) row[1];
+                String codeCip = (String) row[2];
+                String categorie = (String) row[3];
+                Integer nbVentes = row[4] != null ? ((Number) row[4]).intValue() : 0;
+                Integer qteVendue = row[5] != null ? ((Number) row[5]).intValue() : 0;
+                Integer caTotal = row[6] != null ? ((Number) row[6]).intValue() : 0;
+                Integer coutAchatTotal = row[7] != null ? ((Number) row[7]).intValue() : 0;
+                Integer margeBrute = row[8] != null ? ((Number) row[8]).intValue() : 0;
+                BigDecimal tauxMargePct = row[9] != null ? new BigDecimal(row[9].toString()) : BigDecimal.ZERO;
+                Integer prixVenteMoyen = row[10] != null ? ((Number) row[10]).intValue() : 0;
+                Integer prixAchatMoyen = row[11] != null ? ((Number) row[11]).intValue() : 0;
+                Integer stockQuantity = row[12] != null ? ((Number) row[12]).intValue() : 0;
+                Integer prixAchatUnitaire = row[13] != null ? ((Number) row[13]).intValue() : 0;
+                Integer prixVenteUnitaire = row[14] != null ? ((Number) row[14]).intValue() : 0;
+                BigDecimal tauxRotationAnnuel = row[15] != null ? new BigDecimal(row[15].toString()) : BigDecimal.ZERO;
+                String bcgCategoryStr = (String) row[16];
+
+                BCGCategory bcgCategory = bcgCategoryStr != null ? BCGCategory.valueOf(bcgCategoryStr) : BCGCategory.UNDEFINED;
+
+                return new ProductProfitabilityDTO(
+                    produitId,
+                    libelle,
+                    codeCip,
+                    categorie,
+                    nbVentes,
+                    qteVendue,
+                    caTotal,
+                    coutAchatTotal,
+                    margeBrute,
+                    tauxMargePct,
+                    prixVenteMoyen,
+                    prixAchatMoyen,
+                    stockQuantity,
+                    prixAchatUnitaire,
+                    prixVenteUnitaire,
+                    tauxRotationAnnuel,
+                    bcgCategory
+                );
+            })
+            .toList();
+    }
+}

@@ -1,0 +1,17 @@
+:host {
+  display: block;
+}
+
+.evolution-positive {
+  color: var(--green-600);
+  font-weight: 600;
+}
+
+.evolution-negative {
+  color: var(--red-600);
+  font-weight: 600;
+}
+
+canvas {
+  max-height: 400px;
+}

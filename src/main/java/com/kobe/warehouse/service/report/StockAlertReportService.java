@@ -21,10 +21,18 @@ public interface StockAlertReportService {
     Map<StockAlertDTO.StockAlertType, Long> getStockAlertsCount();
 
     /**
-     * Export stock alerts report as PDF
+     * Export stock alerts to Excel
      *
      * @param alertTypes Optional list of alert types to filter by
-     * @return PDF bytes
+     * @return Excel file as byte array
      */
-    byte[] exportStockAlertsToPdf(List<StockAlertDTO.StockAlertType> alertTypes);
+    byte[] exportToExcel(List<StockAlertDTO.StockAlertType> alertTypes) throws Exception;
+
+    /**
+     * Export stock alerts to CSV
+     *
+     * @param alertTypes Optional list of alert types to filter by
+     * @return CSV file as byte array
+     */
+    byte[] exportToCsv(List<StockAlertDTO.StockAlertType> alertTypes) throws Exception;
 }

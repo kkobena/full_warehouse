@@ -5,6 +5,8 @@ import com.kobe.warehouse.service.dto.report.StockRotationDTO;
 import com.kobe.warehouse.service.report.StockRotationReportService;
 import java.util.List;
 import java.util.Map;
+
+import com.kobe.warehouse.service.report.pdf.StockRotationPdfReportService;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -18,9 +20,11 @@ import org.springframework.web.bind.annotation.RestController;
 public class StockRotationReportResource {
 
     private final StockRotationReportService stockRotationReportService;
+    private final StockRotationPdfReportService stockRotationPdfReportService;
 
-    public StockRotationReportResource(StockRotationReportService stockRotationReportService) {
+    public StockRotationReportResource(StockRotationReportService stockRotationReportService, StockRotationPdfReportService stockRotationPdfReportService) {
         this.stockRotationReportService = stockRotationReportService;
+        this.stockRotationPdfReportService = stockRotationPdfReportService;
     }
 
     /**
@@ -89,9 +93,8 @@ public class StockRotationReportResource {
      */
     @GetMapping(value = "/stock/rotation/export", produces = MediaType.APPLICATION_PDF_VALUE)
     public ResponseEntity<byte[]> exportStockRotationToPdf() {
-        byte[] pdf = stockRotationReportService.exportStockRotationToPdf();
         HttpHeaders headers = new HttpHeaders();
         headers.add("Content-Disposition", "attachment; filename=stock-rotation.pdf");
-        return ResponseEntity.ok().headers(headers).body(pdf);
+        return ResponseEntity.ok().headers(headers).body(stockRotationPdfReportService.export());
     }
 }

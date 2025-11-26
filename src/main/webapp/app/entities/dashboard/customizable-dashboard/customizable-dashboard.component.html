@@ -1,0 +1,181 @@
+<div class="pharma-smart-content p-2">
+  <!-- Toolbar -->
+  <div class="pharma-toolbar pharma-toolbar-compact">
+    <div class="pharma-toolbar-header">
+      <i class="pi pi-th-large"></i>
+      <span class="pharma-toolbar-title">Dashboard Personnalisable</span>
+    </div>
+
+    <p-toolbar>
+      <ng-template #start>
+        <div class="pharma-toolbar-filters flex gap-2 align-items-center">
+          @if (currentLayout(); as layout) {
+            <div class="flex align-items-center gap-2">
+              <span class="text-500">Layout actuel:</span>
+              <p-tag [value]="layout.name || 'Sans nom'" severity="info" />
+            </div>
+          }
+        </div>
+      </ng-template>
+
+      <ng-template #end>
+        <div class="pharma-toolbar-actions flex gap-2">
+          <p-button
+            [label]="isEditMode() ? 'Mode Vue' : 'Mode Édition'"
+            [icon]="isEditMode() ? 'pi pi-eye' : 'pi pi-pencil'"
+            (onClick)="toggleEditMode()"
+            size="small"
+            [severity]="isEditMode() ? 'warn' : 'secondary'" />
+
+          @if (isEditMode()) {
+            <p-button label="Ajouter Widget" icon="pi pi-plus" (onClick)="addWidget(widgetModal)" size="small" />
+          }
+
+          <p-button label="Sauvegarder" icon="pi pi-save" (onClick)="saveLayout(saveModal)" size="small" severity="success" />
+
+          <p-button label="Charger" icon="pi pi-folder-open" (onClick)="openLoadLayoutModal(loadModal)" size="small" />
+        </div>
+      </ng-template>
+    </p-toolbar>
+  </div>
+
+  <!-- Edit Mode Alert -->
+  @if (isEditMode()) {
+    <div class="mb-3">
+      <div class="p-3 border-round" style="background-color: #FFF9E6; border: 1px solid #FFE082;">
+        <div class="flex align-items-center gap-2">
+          <i class="pi pi-info-circle" style="color: #FF9800; font-size: 1.5rem;"></i>
+          <div>
+            <strong>Mode Édition activé</strong>
+            <p class="m-0 mt-1 text-sm">Vous pouvez déplacer et redimensionner les widgets. Cliquez sur "Sauvegarder" pour enregistrer vos modifications.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  }
+
+  <!-- GridStack Container -->
+  <div class="grid-stack-wrapper">
+    <div #gridContainer class="grid-stack"></div>
+  </div>
+</div>
+
+<!-- Save Layout Modal -->
+<ng-template #saveModal let-modal>
+  <div class="modal-header">
+    <h5 class="modal-title">Sauvegarder le Layout</h5>
+    <button type="button" class="btn-close" aria-label="Close" (click)="modal.dismiss()"></button>
+  </div>
+  <div class="modal-body">
+    <div class="mb-3">
+      <label for="layout-name" class="form-label">Nom du layout *</label>
+      <input type="text" class="form-control" id="layout-name" [(ngModel)]="layoutName" placeholder="Mon Dashboard" />
+    </div>
+
+    <div class="mb-3">
+      <label for="layout-description" class="form-label">Description</label>
+      <textarea
+        class="form-control"
+        id="layout-description"
+        [(ngModel)]="layoutDescription"
+        rows="3"
+        placeholder="Description du layout..."></textarea>
+    </div>
+
+    <div class="mb-3">
+      <label for="layout-scope" class="form-label">Visibilité</label>
+      <p-select
+        [(ngModel)]="layoutScope"
+        [options]="[
+          { label: 'Privé', value: 'PRIVATE' },
+          { label: 'Partagé', value: 'SHARED' },
+          { label: 'Public', value: 'PUBLIC' }
+        ]"
+        optionLabel="label"
+        optionValue="value"
+        class="w-full" />
+    </div>
+  </div>
+  <div class="modal-footer">
+    <p-button label="Annuler" icon="pi pi-times" (onClick)="modal.dismiss()" severity="secondary" />
+    <p-button label="Sauvegarder" icon="pi pi-check" (onClick)="confirmSaveLayout(modal)" [disabled]="!layoutName" />
+  </div>
+</ng-template>
+
+<!-- Load Layout Modal -->
+<ng-template #loadModal let-modal>
+  <div class="modal-header">
+    <h5 class="modal-title">Charger un Layout</h5>
+    <button type="button" class="btn-close" aria-label="Close" (click)="modal.dismiss()"></button>
+  </div>
+  <div class="modal-body">
+    @if (isLoading()) {
+      <div class="text-center p-4">
+        <i class="pi pi-spin pi-spinner" style="font-size: 2rem;"></i>
+      </div>
+    } @else if (layouts().length === 0) {
+      <div class="text-center p-4 text-muted">
+        <i class="pi pi-inbox" style="font-size: 3rem;"></i>
+        <p>Aucun layout disponible</p>
+      </div>
+    } @else {
+      <div class="d-flex flex-column gap-2">
+        @for (layout of layouts(); track layout.id) {
+          <div class="p-3 border rounded d-flex align-items-center justify-content-between">
+            <div class="flex-fill">
+              <div class="fw-semibold">{{ layout.name }}</div>
+              @if (layout.description) {
+                <div class="small text-muted mt-1">{{ layout.description }}</div>
+              }
+              <div class="d-flex gap-2 mt-2">
+                <p-tag [value]="layout.scope || 'PRIVATE'" severity="info" size="small" />
+                @if (layout.isDefault) {
+                  <p-tag value="Par défaut" severity="success" size="small" />
+                }
+              </div>
+            </div>
+            <div class="d-flex gap-2">
+              <p-button icon="pi pi-folder-open" (onClick)="loadLayout(layout, modal)" size="small" [outlined]="true" />
+              @if (layout.userId) {
+                <p-button icon="pi pi-trash" (onClick)="deleteLayout(layout.id!)" size="small" severity="danger" [outlined]="true" />
+              }
+            </div>
+          </div>
+        }
+      </div>
+    }
+  </div>
+</ng-template>
+
+<!-- Add Widget Modal -->
+<ng-template #widgetModal let-modal>
+  <div class="modal-header">
+    <h5 class="modal-title">Ajouter un Widget</h5>
+    <button type="button" class="btn-close" aria-label="Close" (click)="modal.dismiss()"></button>
+  </div>
+  <div class="modal-body">
+    <div class="mb-3">
+      <label class="form-label">Type de widget</label>
+      <div class="row">
+        @for (widget of availableWidgets; track widget.value) {
+          <div class="col-12 col-md-6 mb-2">
+            <div
+              class="p-3 border rounded cursor-pointer"
+              [class.bg-light]="selectedWidgetType === widget.value"
+              [class.border-primary]="selectedWidgetType === widget.value"
+              (click)="selectedWidgetType = widget.value">
+              <div class="d-flex align-items-center gap-2">
+                <i class="pi" [ngClass]="widget.icon" style="font-size: 1.5rem;"></i>
+                <span class="fw-medium">{{ widget.label }}</span>
+              </div>
+            </div>
+          </div>
+        }
+      </div>
+    </div>
+  </div>
+  <div class="modal-footer">
+    <p-button label="Annuler" icon="pi pi-times" (onClick)="modal.dismiss()" severity="secondary" />
+    <p-button label="Ajouter" icon="pi pi-check" (onClick)="confirmAddWidget(modal)" [disabled]="!selectedWidgetType" />
+  </div>
+</ng-template>

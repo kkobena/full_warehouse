@@ -4,6 +4,8 @@ import com.kobe.warehouse.service.dto.report.StockAlertDTO;
 import com.kobe.warehouse.service.report.StockAlertReportService;
 import java.util.List;
 import java.util.Map;
+
+import com.kobe.warehouse.service.report.pdf.StockAlertPdfReportService;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -17,9 +19,10 @@ import org.springframework.web.bind.annotation.RestController;
 public class StockAlertReportResource {
 
     private final StockAlertReportService stockAlertReportService;
-
-    public StockAlertReportResource(StockAlertReportService stockAlertReportService) {
+    private final StockAlertPdfReportService stockAlertPdfReportService;
+    public StockAlertReportResource(StockAlertReportService stockAlertReportService, StockAlertPdfReportService stockAlertPdfReportService) {
         this.stockAlertReportService = stockAlertReportService;
+        this.stockAlertPdfReportService = stockAlertPdfReportService;
     }
 
     /**
@@ -55,9 +58,53 @@ public class StockAlertReportResource {
      */
     @GetMapping(value = "/stock/alerts/export", produces = MediaType.APPLICATION_PDF_VALUE)
     public ResponseEntity<byte[]> exportStockAlertsToPdf(@RequestParam(required = false) List<StockAlertDTO.StockAlertType> types) {
-        byte[] pdf = stockAlertReportService.exportStockAlertsToPdf(types);
+
         HttpHeaders headers = new HttpHeaders();
         headers.add("Content-Disposition", "attachment; filename=stock-alerts.pdf");
-        return ResponseEntity.ok().headers(headers).body(pdf);
+        return ResponseEntity.ok().headers(headers).body(stockAlertPdfReportService.export(types));
+    }
+
+    /**
+     * GET /stock/alerts/export/excel : Export stock alerts to Excel
+     *
+     * @param types Optional list of alert types to filter by
+     * @return Excel file (.xlsx)
+     */
+    @GetMapping(value = "/stock/alerts/export/excel", produces = "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet")
+    public ResponseEntity<byte[]> exportStockAlertsToExcel(@RequestParam(required = false) List<StockAlertDTO.StockAlertType> types) {
+        try {
+            byte[] excelData = stockAlertReportService.exportToExcel(types);
+            String filename = "stock_alerts.xlsx";
+
+            return ResponseEntity
+                .ok()
+                .header("Content-Disposition", "attachment; filename=\"" + filename + "\"")
+                .contentType(MediaType.parseMediaType("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"))
+                .body(excelData);
+        } catch (Exception e) {
+            return ResponseEntity.internalServerError().build();
+        }
+    }
+
+    /**
+     * GET /stock/alerts/export/csv : Export stock alerts to CSV
+     *
+     * @param types Optional list of alert types to filter by
+     * @return CSV file
+     */
+    @GetMapping(value = "/stock/alerts/export/csv", produces = "text/csv")
+    public ResponseEntity<byte[]> exportStockAlertsToCsv(@RequestParam(required = false) List<StockAlertDTO.StockAlertType> types) {
+        try {
+            byte[] csvData = stockAlertReportService.exportToCsv(types);
+            String filename = "stock_alerts.csv";
+
+            return ResponseEntity
+                .ok()
+                .header("Content-Disposition", "attachment; filename=\"" + filename + "\"")
+                .contentType(MediaType.parseMediaType("text/csv; charset=UTF-8"))
+                .body(csvData);
+        } catch (Exception e) {
+            return ResponseEntity.internalServerError().build();
+        }
     }
 }

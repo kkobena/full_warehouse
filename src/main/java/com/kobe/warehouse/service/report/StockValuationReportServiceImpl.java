@@ -23,11 +23,6 @@ public class StockValuationReportServiceImpl implements StockValuationReportServ
     @PersistenceContext
     private EntityManager entityManager;
 
-    private final SpringTemplateEngine templateEngine;
-
-    public StockValuationReportServiceImpl(SpringTemplateEngine templateEngine) {
-        this.templateEngine = templateEngine;
-    }
 
     @Override
     @Cacheable(value = "stockValuation", key = "'all'")
@@ -118,26 +113,25 @@ public class StockValuationReportServiceImpl implements StockValuationReportServ
     }
 
     @Override
-    @Cacheable(value = "stockValuationSummary")
+    @Cacheable(value = "stockValuation", key = "'summary'")
     public StockValuationSummaryDTO getStockValuationSummary() {
         String sql =
             "SELECT " +
             "SUM(total_purchase_value) as total_purchase, " +
             "SUM(total_sales_value) as total_sales, " +
             "SUM(potential_margin) as total_margin, " +
-            "AVG(margin_percentage) as avg_margin, " +
+            "AVG(margin_percentage) as avg_margin_pct, " +
             "COUNT(*) as total_products, " +
             "SUM(stock_quantity) as total_quantity " +
             "FROM mv_stock_valuation";
 
         Query query = entityManager.createNativeQuery(sql);
-
         Object[] result = (Object[]) query.getSingleResult();
 
         Long totalPurchaseValue = result[0] != null ? ((Number) result[0]).longValue() : 0L;
         Long totalSalesValue = result[1] != null ? ((Number) result[1]).longValue() : 0L;
         Long totalPotentialMargin = result[2] != null ? ((Number) result[2]).longValue() : 0L;
-        BigDecimal averageMarginPercentage = result[3] != null ? new BigDecimal(result[3].toString()) : BigDecimal.ZERO;
+        BigDecimal avgMarginPercentage = result[3] != null ? new BigDecimal(result[3].toString()) : BigDecimal.ZERO;
         Integer totalProducts = result[4] != null ? ((Number) result[4]).intValue() : 0;
         Integer totalQuantity = result[5] != null ? ((Number) result[5]).intValue() : 0;
 
@@ -145,72 +139,45 @@ public class StockValuationReportServiceImpl implements StockValuationReportServ
             totalPurchaseValue,
             totalSalesValue,
             totalPotentialMargin,
-            averageMarginPercentage,
+            avgMarginPercentage,
             totalProducts,
             totalQuantity
         );
     }
 
-    @Override
-    public byte[] exportStockValuationToPdf() {
-        // Get the valuation data
-        List<StockValuationDTO> valuations = getAllStockValuation();
-        StockValuationSummaryDTO summary = getStockValuationSummary();
 
-        // Prepare Thymeleaf context
-        Context context = new Context();
-        context.setVariable("valuations", valuations);
-        context.setVariable("summary", summary);
-        context.setVariable("reportTitle", "Rapport de Valorisation du Stock");
-        context.setVariable("page_count", "1/1");
-
-        // Generate HTML from template
-        String htmlContent = templateEngine.process("reports/stock-valuation/main", context);
-
-        // Convert HTML to PDF
-        try (ByteArrayOutputStream outputStream = new ByteArrayOutputStream()) {
-            ITextRenderer renderer = new ITextRenderer();
-            renderer.setDocumentFromString(htmlContent);
-            renderer.layout();
-            renderer.createPDF(outputStream);
-            return outputStream.toByteArray();
-        } catch (Exception e) {
-            throw new RuntimeException("Error generating PDF", e);
-        }
-    }
 
     private List<StockValuationDTO> mapResultsToDTO(List<Object[]> results) {
-        return results
-            .stream()
-            .map(row -> {
-                Integer produitId = row[0] != null ? ((Number) row[0]).intValue() : null;
-                String libelle = (String) row[1];
-                String codeCip = (String) row[2];
-                String categorie = (String) row[3];
-                String storageLocation = (String) row[4];
-                Integer stockQuantity = row[5] != null ? ((Number) row[5]).intValue() : 0;
-                Integer purchasePrice = row[6] != null ? ((Number) row[6]).intValue() : 0;
-                Integer salesPrice = row[7] != null ? ((Number) row[7]).intValue() : 0;
-                Long totalPurchaseValue = row[8] != null ? ((Number) row[8]).longValue() : 0L;
-                Long totalSalesValue = row[9] != null ? ((Number) row[9]).longValue() : 0L;
-                Long potentialMargin = row[10] != null ? ((Number) row[10]).longValue() : 0L;
-                BigDecimal marginPercentage = row[11] != null ? new BigDecimal(row[11].toString()) : BigDecimal.ZERO;
+        return results.stream().map(this::mapRowToDTO).collect(Collectors.toList());
+    }
 
-                return new StockValuationDTO(
-                    produitId,
-                    libelle,
-                    codeCip,
-                    categorie,
-                    storageLocation,
-                    stockQuantity,
-                    purchasePrice,
-                    salesPrice,
-                    totalPurchaseValue,
-                    totalSalesValue,
-                    potentialMargin,
-                    marginPercentage
-                );
-            })
-            .collect(Collectors.toList());
+    private StockValuationDTO mapRowToDTO(Object[] row) {
+        Integer produitId = row[0] != null ? ((Number) row[0]).intValue() : null;
+        String libelle = (String) row[1];
+        String codeCip = (String) row[2];
+        String categorie = (String) row[3];
+        String storageLocation = (String) row[4];
+        Integer stockQuantity = row[5] != null ? ((Number) row[5]).intValue() : 0;
+        Integer purchasePrice = row[6] != null ? ((Number) row[6]).intValue() : 0;
+        Integer salesPrice = row[7] != null ? ((Number) row[7]).intValue() : 0;
+        Long totalPurchaseValue = row[8] != null ? ((Number) row[8]).longValue() : 0L;
+        Long totalSalesValue = row[9] != null ? ((Number) row[9]).longValue() : 0L;
+        Long potentialMargin = row[10] != null ? ((Number) row[10]).longValue() : 0L;
+        BigDecimal marginPercentage = row[11] != null ? new BigDecimal(row[11].toString()) : BigDecimal.ZERO;
+
+        return new StockValuationDTO(
+            produitId,
+            libelle,
+            codeCip,
+            categorie,
+            storageLocation,
+            stockQuantity,
+            purchasePrice,
+            salesPrice,
+            totalPurchaseValue,
+            totalSalesValue,
+            potentialMargin,
+            marginPercentage
+        );
     }
 }

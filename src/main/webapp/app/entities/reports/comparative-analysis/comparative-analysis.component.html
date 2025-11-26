@@ -1,0 +1,231 @@
+<div class="pharma-smart-content p-2">
+  <!-- Toolbar -->
+  <div class="pharma-toolbar pharma-toolbar-compact">
+    <div class="pharma-toolbar-header">
+      <i class="pi pi-chart-bar"></i>
+      <span class="pharma-toolbar-title">Tableaux Comparatifs CA</span>
+    </div>
+
+    <p-toolbar>
+      <ng-template #start>
+        <div class="pharma-toolbar-filters flex gap-2 align-items-center">
+          <p-select
+            [(ngModel)]="selectedComparisonType"
+            [options]="comparisonTypeOptions"
+            optionLabel="label"
+            optionValue="value"
+            (onChange)="onComparisonTypeChange()"
+            [style]="{ 'min-width': '180px' }"
+            placeholder="Type de comparaison" />
+
+          <p-select
+            [(ngModel)]="selectedYear"
+            [options]="yearOptions"
+            (onChange)="onYearChange()"
+            [style]="{ 'min-width': '120px' }"
+            placeholder="Année" />
+        </div>
+      </ng-template>
+
+      <ng-template #end>
+        <div class="pharma-toolbar-actions flex gap-2">
+          <p-button label="Exporter PDF" icon="pi pi-file-pdf" (onClick)="exportToPdf()" severity="danger" size="small" />
+        </div>
+      </ng-template>
+    </p-toolbar>
+  </div>
+
+  <!-- Loading spinner -->
+  @if (isLoading()) {
+    <div class="flex justify-content-center align-items-center" style="min-height: 400px;">
+      <i class="pi pi-spin pi-spinner" style="font-size: 3rem;"></i>
+    </div>
+  } @else {
+    <!-- Summary Cards -->
+    @if (summary(); as sum) {
+      <div class="grid mb-3">
+        <div class="col-12 md:col-6 lg:col-3">
+          <p-card>
+            <div class="flex flex-column gap-2">
+              <div class="flex align-items-center justify-content-between">
+                <span class="text-500 font-medium">CA Année en cours (YTD)</span>
+                <i class="pi pi-calendar text-blue-500" style="font-size: 1.5rem;"></i>
+              </div>
+              <div class="flex align-items-end gap-2">
+                <span class="text-2xl font-bold">{{ formatCurrency(sum.ytdCurrentCA) }}</span>
+                <span class="text-sm text-500">FCFA</span>
+              </div>
+              <div class="flex align-items-center gap-2">
+                <p-tag
+                  [value]="formatPercent(sum.ytdEvolutionPct) + '%'"
+                  [severity]="(sum.ytdEvolutionPct ?? 0) >= 0 ? 'success' : 'danger'"
+                  [icon]="(sum.ytdEvolutionPct ?? 0) >= 0 ? 'pi pi-arrow-up' : 'pi pi-arrow-down'" />
+                <span class="text-sm text-500">vs année précédente</span>
+              </div>
+            </div>
+          </p-card>
+        </div>
+
+        <div class="col-12 md:col-6 lg:col-3">
+          <p-card>
+            <div class="flex flex-column gap-2">
+              <div class="flex align-items-center justify-content-between">
+                <span class="text-500 font-medium">CA 12 derniers mois</span>
+                <i class="pi pi-chart-line text-green-500" style="font-size: 1.5rem;"></i>
+              </div>
+              <div class="flex align-items-end gap-2">
+                <span class="text-2xl font-bold">{{ formatCurrency(sum.last12MonthsCA) }}</span>
+                <span class="text-sm text-500">FCFA</span>
+              </div>
+              <div class="flex align-items-center gap-2">
+                <p-tag
+                  [value]="formatPercent(sum.last12MonthsEvolutionPct) + '%'"
+                  [severity]="(sum.last12MonthsEvolutionPct ?? 0) >= 0 ? 'success' : 'danger'"
+                  [icon]="(sum.last12MonthsEvolutionPct ?? 0) >= 0 ? 'pi pi-arrow-up' : 'pi pi-arrow-down'" />
+                <span class="text-sm text-500">vs 12 mois précédents</span>
+              </div>
+            </div>
+          </p-card>
+        </div>
+
+        <div class="col-12 md:col-6 lg:col-3">
+          <p-card>
+            <div class="flex flex-column gap-2">
+              <div class="flex align-items-center justify-content-between">
+                <span class="text-500 font-medium">Meilleur Mois</span>
+                <i class="pi pi-star-fill text-yellow-500" style="font-size: 1.5rem;"></i>
+              </div>
+              <div class="text-xl font-bold">{{ sum.bestMonthLabel }}</div>
+              <div class="text-sm text-500">{{ formatCurrency(sum.bestMonthCA) }} FCFA</div>
+            </div>
+          </p-card>
+        </div>
+
+        <div class="col-12 md:col-6 lg:col-3">
+          <p-card>
+            <div class="flex flex-column gap-2">
+              <div class="flex align-items-center justify-content-between">
+                <span class="text-500 font-medium">CA Moyen Mensuel</span>
+                <i class="pi pi-chart-bar text-purple-500" style="font-size: 1.5rem;"></i>
+              </div>
+              <div class="flex align-items-end gap-2">
+                <span class="text-2xl font-bold">{{ formatCurrency(sum.avgMonthlyCA) }}</span>
+                <span class="text-sm text-500">FCFA</span>
+              </div>
+              <div class="text-sm text-500">Évolution moy: {{ formatPercent(sum.avgMonthlyEvolution) }}%</div>
+            </div>
+          </p-card>
+        </div>
+      </div>
+    }
+
+    <!-- Charts -->
+    <div class="grid mb-3">
+      <div class="col-12">
+        <p-card>
+          <ng-template #header>
+            <div class="p-3 font-semibold">Évolution Comparative du CA</div>
+          </ng-template>
+          <canvas #evolutionChartCanvas height="80"></canvas>
+        </p-card>
+      </div>
+
+      <div class="col-12 md:col-6">
+        <p-card>
+          <ng-template #header>
+            <div class="p-3 font-semibold">CA par Type de Vente</div>
+          </ng-template>
+          <canvas #typeChartCanvas></canvas>
+        </p-card>
+      </div>
+
+      <!-- Comparison Table -->
+      <div class="col-12 md:col-6">
+        <p-card>
+          <ng-template #header>
+            <div class="p-3 font-semibold">Tableau Comparatif</div>
+          </ng-template>
+
+          @if (comparisons().length === 0) {
+            <div class="text-center p-4 text-500">
+              <i class="pi pi-inbox" style="font-size: 3rem;"></i>
+              <p>Aucune donnée pour cette période</p>
+            </div>
+          } @else {
+            <div class="overflow-x-auto">
+              <table class="pharma-table">
+                <thead class="pharma-table-head">
+                  <tr>
+                    <th>Période</th>
+                    <th class="text-right">CA Actuel</th>
+                    <th class="text-right">CA Précédent</th>
+                    <th class="text-right">Évolution</th>
+                  </tr>
+                </thead>
+                <tbody class="pharma-table-body">
+                  @for (comp of comparisons(); track comp.periodLabel) {
+                    <tr>
+                      <td class="font-medium">{{ comp.periodLabel }}</td>
+                      <td class="text-right">{{ formatCurrency(comp.currentCA) }}</td>
+                      <td class="text-right">{{ formatCurrency(comp.previousCA) }}</td>
+                      <td class="text-right" [ngClass]="getEvolutionClass(comp.evolutionPct)">
+                        {{ formatPercent(comp.evolutionPct) }}%
+                      </td>
+                    </tr>
+                  }
+                </tbody>
+              </table>
+            </div>
+          }
+        </p-card>
+      </div>
+    </div>
+
+    <!-- By Sales Type Table -->
+    <div class="grid">
+      <div class="col-12">
+        <p-card>
+          <ng-template #header>
+            <div class="p-3 font-semibold">Comparaison par Type de Vente</div>
+          </ng-template>
+
+          @if (byType().length === 0) {
+            <div class="text-center p-4 text-500">
+              <i class="pi pi-inbox" style="font-size: 3rem;"></i>
+              <p>Aucune donnée disponible</p>
+            </div>
+          } @else {
+            <div class="overflow-x-auto">
+              <table class="pharma-table">
+                <thead class="pharma-table-head">
+                  <tr>
+                    <th>Type de Vente</th>
+                    <th class="text-right">CA {{ selectedYear() }}</th>
+                    <th class="text-right">CA {{ selectedYear() - 1 }}</th>
+                    <th class="text-right">Évolution</th>
+                    <th class="text-right">Ventes {{ selectedYear() }}</th>
+                    <th class="text-right">Ventes {{ selectedYear() - 1 }}</th>
+                  </tr>
+                </thead>
+                <tbody class="pharma-table-body">
+                  @for (type of byType(); track type.saleType) {
+                    <tr>
+                      <td class="font-medium">{{ type.saleTypeLabel }}</td>
+                      <td class="text-right">{{ formatCurrency(type.currentYearCA) }}</td>
+                      <td class="text-right">{{ formatCurrency(type.previousYearCA) }}</td>
+                      <td class="text-right" [ngClass]="getEvolutionClass(type.evolutionPct)">
+                        {{ formatPercent(type.evolutionPct) }}%
+                      </td>
+                      <td class="text-right">{{ type.currentYearCount }}</td>
+                      <td class="text-right">{{ type.previousYearCount }}</td>
+                    </tr>
+                  }
+                </tbody>
+              </table>
+            </div>
+          }
+        </p-card>
+      </div>
+    </div>
+  }
+</div>

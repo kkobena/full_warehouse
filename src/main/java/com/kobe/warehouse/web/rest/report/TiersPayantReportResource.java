@@ -5,6 +5,8 @@ import com.kobe.warehouse.service.dto.report.TiersPayantInvoiceDTO;
 import com.kobe.warehouse.service.report.TiersPayantReportService;
 import java.time.LocalDate;
 import java.util.List;
+
+import com.kobe.warehouse.service.report.pdf.TiersPayantPdfReportService;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
@@ -19,9 +21,11 @@ import org.springframework.web.bind.annotation.RestController;
 public class TiersPayantReportResource {
 
     private final TiersPayantReportService tiersPayantReportService;
+    private final   TiersPayantPdfReportService tiersPayantPdfReportService;
 
-    public TiersPayantReportResource(TiersPayantReportService tiersPayantReportService) {
+    public TiersPayantReportResource(TiersPayantReportService tiersPayantReportService, TiersPayantPdfReportService tiersPayantPdfReportService) {
         this.tiersPayantReportService = tiersPayantReportService;
+        this.tiersPayantPdfReportService = tiersPayantPdfReportService;
     }
 
     /**
@@ -78,9 +82,8 @@ public class TiersPayantReportResource {
      */
     @GetMapping(value = "/tiers-payant/creances/export", produces = MediaType.APPLICATION_PDF_VALUE)
     public ResponseEntity<byte[]> exportCreancesToPdf() {
-        byte[] pdf = tiersPayantReportService.exportCreancesToPdf();
         HttpHeaders headers = new HttpHeaders();
         headers.add("Content-Disposition", "attachment; filename=creances-tiers-payant.pdf");
-        return ResponseEntity.ok().headers(headers).body(pdf);
+        return ResponseEntity.ok().headers(headers).body(tiersPayantPdfReportService.export());
     }
 }

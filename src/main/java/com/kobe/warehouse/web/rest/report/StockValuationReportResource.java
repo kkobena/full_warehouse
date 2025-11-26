@@ -4,6 +4,8 @@ import com.kobe.warehouse.service.dto.report.StockValuationDTO;
 import com.kobe.warehouse.service.dto.report.StockValuationSummaryDTO;
 import com.kobe.warehouse.service.report.StockValuationReportService;
 import java.util.List;
+
+import com.kobe.warehouse.service.report.pdf.StockValuationPdfReportService;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -17,9 +19,11 @@ import org.springframework.web.bind.annotation.RestController;
 public class StockValuationReportResource {
 
     private final StockValuationReportService stockValuationReportService;
+    private final StockValuationPdfReportService stockValuationPdfReportService;
 
-    public StockValuationReportResource(StockValuationReportService stockValuationReportService) {
+    public StockValuationReportResource(StockValuationReportService stockValuationReportService, StockValuationPdfReportService stockValuationPdfReportService) {
         this.stockValuationReportService = stockValuationReportService;
+        this.stockValuationPdfReportService = stockValuationPdfReportService;
     }
 
     /**
@@ -75,9 +79,8 @@ public class StockValuationReportResource {
      */
     @GetMapping(value = "/stock/valuation/export", produces = MediaType.APPLICATION_PDF_VALUE)
     public ResponseEntity<byte[]> exportStockValuationToPdf() {
-        byte[] pdf = stockValuationReportService.exportStockValuationToPdf();
         HttpHeaders headers = new HttpHeaders();
         headers.add("Content-Disposition", "attachment; filename=stock-valuation.pdf");
-        return ResponseEntity.ok().headers(headers).body(pdf);
+        return ResponseEntity.ok().headers(headers).body(stockValuationPdfReportService.export());
     }
 }

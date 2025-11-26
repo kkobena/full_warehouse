@@ -56,7 +56,7 @@ public class SalesSummaryReportServiceImpl implements SalesSummaryReportService 
 
                 return new DailySalesSummaryDTO(saleDate, typeVente, nbVentes, caTotal, caNet, panierMoyen, totalRemises);
             })
-            .collect(Collectors.toList());
+            .toList();
     }
 
     @Override
@@ -94,7 +94,7 @@ public class SalesSummaryReportServiceImpl implements SalesSummaryReportService 
 
                 return new DailySalesSummaryDTO(saleDate, typeVente, nbVentes, caTotal, caNet, panierMoyen, totalRemises);
             })
-            .collect(Collectors.toList());
+            .toList();
     }
 
     @Override
@@ -142,6 +142,6 @@ public class SalesSummaryReportServiceImpl implements SalesSummaryReportService 
 
                 return new DailySalesSummaryDTO(saleDate, typeVenteStr, nbVentes, caTotal, caNet, panierMoyen, totalRemises);
             })
-            .collect(Collectors.toList());
+            .toList();
     }
 }

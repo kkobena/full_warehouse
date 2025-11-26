@@ -581,7 +581,7 @@ public ResponseEntity<List<ProductABCClassification>> getABCAnalysis(
 **Rapports :**
 - **Comparaison CA année N vs N-1**
 - **Comparaison mois vs mois** (évolution mensuelle)
-- **Comparaison par type de vente** (VNO, VO, VE)
+- **Comparaison par type de vente** (VNO, VO)
 
 **Requête SQL optimisée :**
 ```sql
@@ -614,51 +614,6 @@ LEFT JOIN previous_year py ON cy.mois = py.mois
 ORDER BY cy.mois;
 ```
 
----
-
-#### 3.4 Rapports de Conformité
-**Priorité : P2 - Souhaitable**
-
-**Rapports réglementaires :**
-- **Ventes de stupéfiants** (traçabilité obligatoire)
-- **Ventes à prescription obligatoire**
-- **Traçabilité des lots vendus**
-- **Produits sous surveillance** (psychotropes)
-
-**Service de conformité :**
-```java
-@Service
-public class ComplianceReportService {
-
-    public List<ControlledSubstanceSaleDTO> getControlledSubstanceSales(
-        LocalDate startDate,
-        LocalDate endDate
-    ) {
-        return salesRepository.findControlledSubstanceSales(
-            startDate,
-            endDate,
-            List.of(
-                TypePrescription.STUPEFIANT,
-                TypePrescription.PSYCHOTROPE
-            )
-        );
-    }
-
-    // Export PDF avec Thymeleaf pour autorités
-    public byte[] generateComplianceReport(LocalDate startDate, LocalDate endDate) {
-        List<ControlledSubstanceSaleDTO> sales =
-            getControlledSubstanceSales(startDate, endDate);
-
-        Context context = new Context();
-        context.setVariable("sales", sales);
-        context.setVariable("startDate", startDate);
-        context.setVariable("endDate", endDate);
-
-        String html = templateEngine.process("reports/compliance-report", context);
-        return pdfService.generatePdf(html);
-    }
-}
-```
 
 ---
 
@@ -667,8 +622,7 @@ public class ComplianceReportService {
 - ✅ Dashboard rentabilité avec matrice BCG
 - ✅ Analyse ABC automatisée
 - ✅ Tableaux comparatifs année N vs N-1
-- ✅ Module de conformité réglementaire
-- ✅ Exports PDF certifiés pour autorités
+
 
 ---
 
@@ -726,67 +680,7 @@ public class ForecastingService {
 }
 ```
 
-**Option 2 : Modèle avancé (ARIMA / Prophet)**
-Intégrer Python via API REST :
-```python
-# forecast_service.py (Python Flask API)
-from flask import Flask, request, jsonify
-from prophet import Prophet
-import pandas as pd
 
-app = Flask(__name__)
-
-@app.route('/api/forecast', methods=['POST'])
-def forecast():
-    data = request.json
-
-    # Préparer les données
-    df = pd.DataFrame(data['history'])
-    df.columns = ['ds', 'y']  # Date et valeur
-
-    # Entraîner le modèle Prophet
-    model = Prophet(
-        yearly_seasonality=True,
-        weekly_seasonality=False,
-        daily_seasonality=False
-    )
-    model.fit(df)
-
-    # Prédire
-    future = model.make_future_dataframe(periods=data['months_ahead'], freq='M')
-    forecast = model.predict(future)
-
-    return jsonify({
-        'forecast': forecast[['ds', 'yhat', 'yhat_lower', 'yhat_upper']].to_dict('records')
-    })
-
-if __name__ == '__main__':
-    app.run(port=5000)
-```
-
-**Intégration Spring Boot :**
-```java
-@Service
-public class MLForecastingService {
-
-    private final RestTemplate restTemplate;
-
-    public List<SalesForecastDTO> forecastWithML(Long productId, int monthsAhead) {
-        // Récupérer l'historique
-        List<MonthlySales> history = salesRepository.getMonthlyProductSales(productId, 24);
-
-        // Appeler le service Python
-        ForecastRequest request = new ForecastRequest(history, monthsAhead);
-        ForecastResponse response = restTemplate.postForObject(
-            "http://localhost:5000/api/forecast",
-            request,
-            ForecastResponse.class
-        );
-
-        return response.getForecast();
-    }
-}
-```
 
 ---
 
@@ -886,42 +780,6 @@ export class CustomDashboardComponent implements OnInit {
 - **Impact des remises sur le CA**
 - **Ventes par prescription et tiers-payant**
 
-**Algorithme Market Basket Analysis (Apriori) :**
-```java
-@Service
-public class MarketBasketAnalysisService {
-
-    public List<ProductAssociationRule> findProductAssociations(
-        double minSupport,
-        double minConfidence
-    ) {
-        // 1. Récupérer toutes les ventes
-        List<Sales> sales = salesRepository.findAll();
-
-        // 2. Créer des transactions (panier d'achats)
-        List<Set<Long>> transactions = sales.stream()
-            .map(sale -> sale.getSalesLines().stream()
-                .map(line -> line.getProduit().getId())
-                .collect(Collectors.toSet()))
-            .collect(Collectors.toList());
-
-        // 3. Appliquer l'algorithme Apriori
-        AprioriAlgorithm apriori = new AprioriAlgorithm(minSupport, minConfidence);
-        List<AssociationRule> rules = apriori.findAssociationRules(transactions);
-
-        // 4. Convertir en DTO
-        return rules.stream()
-            .map(rule -> new ProductAssociationRule(
-                productRepository.findById(rule.getAntecedent()),
-                productRepository.findById(rule.getConsequent()),
-                rule.getSupport(),
-                rule.getConfidence(),
-                rule.getLift()
-            ))
-            .collect(Collectors.toList());
-    }
-}
-```
 
 **Utilisation :**
 - **Recommandations** : "Les clients qui achètent X achètent aussi Y"
@@ -1475,24 +1333,47 @@ class ReportServiceTest {
 ```
 
 ---
+---
 
-### 5. Monitoring
+#### 5 Rapports de Conformité
+**Priorité : P10 - pas prioritaire**
 
-#### Métriques avec Micrometer
+**Rapports réglementaires :**
+- **Ventes de stupéfiants** (traçabilité obligatoire)
+- **Ventes à prescription obligatoire**
+- **Traçabilité des lots vendus**
+- **Produits sous surveillance** (psychotropes)
+
+**Service de conformité :**
 ```java
 @Service
-public class MonitoredReportService {
+public class ComplianceReportService {
 
-    private final MeterRegistry meterRegistry;
+    public List<ControlledSubstanceSaleDTO> getControlledSubstanceSales(
+        LocalDate startDate,
+        LocalDate endDate
+    ) {
+        return salesRepository.findControlledSubstanceSales(
+            startDate,
+            endDate,
+            List.of(
+                TypePrescription.STUPEFIANT,
+                TypePrescription.PSYCHOTROPE
+            )
+        );
+    }
 
-    @Timed(value = "report.generation.time", description = "Time to generate report")
-    public ReportDTO generateReport(ReportParams params) {
-        Counter.builder("report.generation.count")
-            .tag("type", params.getType())
-            .register(meterRegistry)
-            .increment();
+    // Export PDF avec Thymeleaf pour autorités
+    public byte[] generateComplianceReport(LocalDate startDate, LocalDate endDate) {
+        List<ControlledSubstanceSaleDTO> sales =
+            getControlledSubstanceSales(startDate, endDate);
 
-        return doGenerateReport(params);
+        Context context = new Context();
+        context.setVariable("sales", sales);
+        context.setVariable("startDate", startDate);
+        context.setVariable("endDate", endDate);
+        String html = templateEngine.process("reports/compliance-report", context);
+        return pdfService.generatePdf(html);
     }
 }
 ```

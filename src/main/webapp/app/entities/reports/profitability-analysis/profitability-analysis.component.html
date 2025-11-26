@@ -1,0 +1,294 @@
+<div class="pharma-smart-content p-2">
+  <!-- Modern Pharma Toolbar (Compact) -->
+  <div class="pharma-toolbar pharma-toolbar-compact">
+    <div class="pharma-toolbar-header">
+      <i class="pi pi-chart-line"></i>
+      <span class="pharma-toolbar-title">Analyse de Rentabilité (Matrice BCG)</span>
+    </div>
+
+    <p-toolbar>
+      <ng-template #start>
+        <div class="pharma-toolbar-filters flex gap-2">
+          <p-select
+            [(ngModel)]="selectedCategorie"
+            [options]="categorieOptions()"
+            placeholder="Catégorie"
+            optionLabel="label"
+            optionValue="value"
+            [showClear]="true"
+            (onChange)="onFilterChange()"
+          />
+          <p-select
+            [(ngModel)]="selectedBCGCategory"
+            [options]="bcgCategoryOptions()"
+            placeholder="Classification BCG"
+            optionLabel="label"
+            optionValue="value"
+            [showClear]="true"
+            (onChange)="onFilterChange()"
+          />
+        </div>
+      </ng-template>
+
+      <ng-template #end>
+        <div class="flex gap-2">
+          <p-button
+            label="Marges faibles (<10%)"
+            icon="pi pi-exclamation-triangle"
+            severity="warn"
+            (onClick)="showLowMarginProducts()"
+          />
+          <p-button
+            label="Effacer les filtres"
+            icon="pi pi-filter-slash"
+            severity="secondary"
+            (onClick)="onClearFilters()"
+          />
+          <p-button
+            label="Exporter PDF"
+            icon="pi pi-file-pdf"
+            severity="danger"
+            (onClick)="exportToPdf()"
+          />
+          <p-button
+            label="Rafraîchir"
+            icon="pi pi-refresh"
+            severity="secondary"
+            (onClick)="loadProfitability()"
+          />
+        </div>
+      </ng-template>
+    </p-toolbar>
+  </div>
+
+  <!-- Summary Cards -->
+  @if (summary()) {
+    <div class="grid mt-3">
+      <div class="col-12 md:col-3">
+        <p-card>
+          <ng-template #content>
+            <div class="flex justify-content-between align-items-center">
+              <div>
+                <span class="text-500 font-medium block mb-2">CA Total</span>
+                <div class="text-900 font-bold text-2xl">{{ summary()!.caTotalGlobal | number:'1.0-0' }} F CFA</div>
+              </div>
+              <div class="flex align-items-center justify-content-center bg-blue-100 border-round" style="width:3rem;height:3rem">
+                <i class="pi pi-chart-bar text-blue-500 text-2xl"></i>
+              </div>
+            </div>
+          </ng-template>
+        </p-card>
+      </div>
+
+      <div class="col-12 md:col-3">
+        <p-card>
+          <ng-template #content>
+            <div class="flex justify-content-between align-items-center">
+              <div>
+                <span class="text-500 font-medium block mb-2">Marge Brute Globale</span>
+                <div class="text-900 font-bold text-2xl">{{ summary()!.margeBruteGlobale | number:'1.0-0' }} F CFA</div>
+              </div>
+              <div class="flex align-items-center justify-content-center bg-green-100 border-round" style="width:3rem;height:3rem">
+                <i class="pi pi-money-bill text-green-500 text-2xl"></i>
+              </div>
+            </div>
+          </ng-template>
+        </p-card>
+      </div>
+
+      <div class="col-12 md:col-3">
+        <p-card>
+          <ng-template #content>
+            <div class="flex justify-content-between align-items-center">
+              <div>
+                <span class="text-500 font-medium block mb-2">Taux de Marge Moyen</span>
+                <div class="text-900 font-bold text-2xl">{{ summary()!.tauxMargeMoyen | number:'1.2-2' }}%</div>
+              </div>
+              <div class="flex align-items-center justify-content-center bg-orange-100 border-round" style="width:3rem;height:3rem">
+                <i class="pi pi-percentage text-orange-500 text-2xl"></i>
+              </div>
+            </div>
+          </ng-template>
+        </p-card>
+      </div>
+
+      <div class="col-12 md:col-3">
+        <p-card>
+          <ng-template #content>
+            <div class="flex justify-content-between align-items-center">
+              <div>
+                <span class="text-500 font-medium block mb-2">Total Produits</span>
+                <div class="text-900 font-bold text-2xl">{{ summary()!.totalProduits | number }}</div>
+              </div>
+              <div class="flex align-items-center justify-content-center bg-purple-100 border-round" style="width:3rem;height:3rem">
+                <i class="pi pi-box text-purple-500 text-2xl"></i>
+              </div>
+            </div>
+          </ng-template>
+        </p-card>
+      </div>
+    </div>
+
+    <!-- BCG Matrix Distribution -->
+    <div class="grid mt-2">
+      <div class="col-12 md:col-3">
+        <p-card>
+          <ng-template #header>
+            <div class="px-3 pt-3">
+              <span class="text-900 font-semibold">Stars</span>
+            </div>
+          </ng-template>
+          <ng-template #content>
+            <div class="text-center">
+              <div class="text-2xl font-bold text-green-600 mb-2">{{ summary()!.nbStars }}</div>
+              <div class="text-sm text-500">Produits</div>
+              <p-divider />
+              <div class="text-lg font-semibold">{{ summary()!.caStars | number:'1.0-0' }}</div>
+              <div class="text-xs text-500">CA Total</div>
+              <div class="text-md font-semibold mt-2">{{ summary()!.margeStars | number:'1.0-0' }}</div>
+              <div class="text-xs text-500">Marge</div>
+            </div>
+          </ng-template>
+        </p-card>
+      </div>
+
+      <div class="col-12 md:col-3">
+        <p-card>
+          <ng-template #header>
+            <div class="px-3 pt-3">
+              <span class="text-900 font-semibold">Cash Cows</span>
+            </div>
+          </ng-template>
+          <ng-template #content>
+            <div class="text-center">
+              <div class="text-2xl font-bold text-blue-600 mb-2">{{ summary()!.nbCashCows }}</div>
+              <div class="text-sm text-500">Produits</div>
+              <p-divider />
+              <div class="text-lg font-semibold">{{ summary()!.caCashCows | number:'1.0-0' }}</div>
+              <div class="text-xs text-500">CA Total</div>
+              <div class="text-md font-semibold mt-2">{{ summary()!.margeCashCows | number:'1.0-0' }}</div>
+              <div class="text-xs text-500">Marge</div>
+            </div>
+          </ng-template>
+        </p-card>
+      </div>
+
+      <div class="col-12 md:col-3">
+        <p-card>
+          <ng-template #header>
+            <div class="px-3 pt-3">
+              <span class="text-900 font-semibold">Question Marks</span>
+            </div>
+          </ng-template>
+          <ng-template #content>
+            <div class="text-center">
+              <div class="text-2xl font-bold text-orange-600 mb-2">{{ summary()!.nbQuestionMarks }}</div>
+              <div class="text-sm text-500">Produits</div>
+              <p-divider />
+              <div class="text-lg font-semibold">{{ summary()!.caQuestionMarks | number:'1.0-0' }}</div>
+              <div class="text-xs text-500">CA Total</div>
+              <div class="text-md font-semibold mt-2">{{ summary()!.margeQuestionMarks | number:'1.0-0' }}</div>
+              <div class="text-xs text-500">Marge</div>
+            </div>
+          </ng-template>
+        </p-card>
+      </div>
+
+      <div class="col-12 md:col-3">
+        <p-card>
+          <ng-template #header>
+            <div class="px-3 pt-3">
+              <span class="text-900 font-semibold">Dogs</span>
+            </div>
+          </ng-template>
+          <ng-template #content>
+            <div class="text-center">
+              <div class="text-2xl font-bold text-red-600 mb-2">{{ summary()!.nbDogs }}</div>
+              <div class="text-sm text-500">Produits</div>
+              <p-divider />
+              <div class="text-lg font-semibold">{{ summary()!.caDogs | number:'1.0-0' }}</div>
+              <div class="text-xs text-500">CA Total</div>
+              <div class="text-md font-semibold mt-2">{{ summary()!.margeDogs | number:'1.0-0' }}</div>
+              <div class="text-xs text-500">Marge</div>
+            </div>
+          </ng-template>
+        </p-card>
+      </div>
+    </div>
+  }
+
+  <!-- Products Table -->
+  <div class="mt-3">
+    <p-table
+      [value]="products()"
+      [loading]="isLoading()"
+      [paginator]="true"
+      [rows]="25"
+      [rowsPerPageOptions]="[10, 25, 50, 100]"
+      [showCurrentPageReport]="true"
+      currentPageReportTemplate="Affichage de {first} à {last} sur {totalRecords} produits"
+      [globalFilterFields]="['libelle', 'codeCip', 'categorie']"
+      class="p-datatable-sm pharma-table"
+    >
+      <ng-template #caption>
+        <div class="flex align-items-center justify-content-between">
+          <h5 class="m-0">Rentabilité des Produits</h5>
+          <span class="p-input-icon-left">
+            <i class="pi pi-search"></i>
+            <input
+              pInputText
+              type="text"
+              placeholder="Rechercher..."
+              #globalFilter
+              (input)="$any($event.target).value"
+            />
+          </span>
+        </div>
+      </ng-template>
+
+      <ng-template #header>
+        <tr class="pharma-table-head">
+          <th pSortableColumn="libelle">Produit <p-sortIcon field="libelle" /></th>
+          <th pSortableColumn="codeCip">Code CIP <p-sortIcon field="codeCip" /></th>
+          <th pSortableColumn="categorie">Catégorie <p-sortIcon field="categorie" /></th>
+          <th pSortableColumn="nbVentes" class="text-right">Nb Ventes <p-sortIcon field="nbVentes" /></th>
+          <th pSortableColumn="caTotal" class="text-right">CA Total <p-sortIcon field="caTotal" /></th>
+          <th pSortableColumn="margeBrute" class="text-right">Marge Brute <p-sortIcon field="margeBrute" /></th>
+          <th pSortableColumn="tauxMargePct" class="text-right">Taux Marge % <p-sortIcon field="tauxMargePct" /></th>
+          <th pSortableColumn="tauxRotationAnnuel" class="text-right">Rotation/An <p-sortIcon field="tauxRotationAnnuel" /></th>
+          <th pSortableColumn="bcgCategory">Classification BCG <p-sortIcon field="bcgCategory" /></th>
+        </tr>
+      </ng-template>
+
+      <ng-template #body let-product>
+        <tr>
+          <td>{{ product.libelle }}</td>
+          <td>{{ product.codeCip }}</td>
+          <td>{{ product.categorie }}</td>
+          <td class="text-right">{{ product.nbVentes | number }}</td>
+          <td class="text-right">{{ product.caTotal | number:'1.0-0' }} F</td>
+          <td class="text-right">{{ product.margeBrute | number:'1.0-0' }} F</td>
+          <td class="text-right">
+            <p-chip
+              [label]="(product.tauxMargePct | number:'1.2-2') + '%'"
+              [severity]="getMarginSeverity(product.tauxMargePct)"
+            />
+          </td>
+          <td class="text-right">{{ product.tauxRotationAnnuel | number:'1.2-2' }}x</td>
+          <td>
+            <p-chip
+              [label]="getBCGCategoryLabel(product.bcgCategory)"
+              [severity]="getBCGCategorySeverity(product.bcgCategory)"
+            />
+          </td>
+        </tr>
+      </ng-template>
+
+      <ng-template #emptymessage>
+        <tr>
+          <td colspan="9" class="text-center">Aucun produit trouvé</td>
+        </tr>
+      </ng-template>
+    </p-table>
+  </div>
+</div>

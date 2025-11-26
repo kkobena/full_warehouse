@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Dashboard Chiffre d'Affaires</title>
+    <div th:replace="~{reports/dashboard-ca/css :: css}"></div>
+  </head>
+  <body>
+    <div class="invoice">
+      <div th:replace="~{common/commonheader :: header}"></div>
+
+      <main>
+        <div class="dashboard-title">
+          Dashboard Chiffre d'Affaires
+          <div style="font-size: 10px; color: #666; margin-top: 5px;">
+            Période: <span th:text="${#temporals.format(startDate, 'dd/MM/yyyy')}"></span> -
+            <span th:text="${#temporals.format(endDate, 'dd/MM/yyyy')}"></span>
+          </div>
+        </div>
+
+        <!-- KPI Cards Section -->
+        <div class="kpi-section">
+          <div class="kpi-grid">
+            <div class="kpi-row">
+              <!-- Today KPI -->
+              <div class="kpi-card">
+                <div class="kpi-label">CA Aujourd'hui</div>
+                <div class="kpi-value" th:text="${#numbers.formatInteger(summary.caToday ?: 0, 0, 'POINT')} + ' FCFA'"></div>
+                <div class="kpi-evolution">
+                  <span th:classappend="${summary.caTodayEvolutionPct >= 0 ? 'evolution-positive' : 'evolution-negative'}"
+                        th:text="${summary.caTodayEvolutionPct != null ? (#numbers.formatDecimal(summary.caTodayEvolutionPct, 0, 2) + '%') : '0%'}">
+                  </span> vs hier
+                </div>
+                <div class="kpi-details" th:text="${summary.nbTransactionsToday ?: 0} + ' transactions'"></div>
+              </div>
+
+              <!-- Week KPI -->
+              <div class="kpi-card">
+                <div class="kpi-label">CA Semaine</div>
+                <div class="kpi-value" th:text="${#numbers.formatInteger(summary.caWeek ?: 0, 0, 'POINT')} + ' FCFA'"></div>
+                <div class="kpi-evolution">
+                  <span th:classappend="${summary.caWeekEvolutionPct >= 0 ? 'evolution-positive' : 'evolution-negative'}"
+                        th:text="${summary.caWeekEvolutionPct != null ? (#numbers.formatDecimal(summary.caWeekEvolutionPct, 0, 2) + '%') : '0%'}">
+                  </span> vs semaine précédente
+                </div>
+                <div class="kpi-details" th:text="${summary.nbTransactionsWeek ?: 0} + ' transactions'"></div>
+              </div>
+
+              <!-- Month KPI -->
+              <div class="kpi-card">
+                <div class="kpi-label">CA Mois</div>
+                <div class="kpi-value" th:text="${#numbers.formatInteger(summary.caMonth ?: 0, 0, 'POINT')} + ' FCFA'"></div>
+                <div class="kpi-evolution">
+                  <span th:classappend="${summary.caMonthEvolutionPct >= 0 ? 'evolution-positive' : 'evolution-negative'}"
+                        th:text="${summary.caMonthEvolutionPct != null ? (#numbers.formatDecimal(summary.caMonthEvolutionPct, 0, 2) + '%') : '0%'}">
+                  </span> vs mois précédent
+                </div>
+                <div class="kpi-details" th:text="${summary.nbTransactionsMonth ?: 0} + ' transactions'"></div>
+              </div>
+
+              <!-- Year KPI -->
+              <div class="kpi-card">
+                <div class="kpi-label">CA Année</div>
+                <div class="kpi-value" th:text="${#numbers.formatInteger(summary.caYear ?: 0, 0, 'POINT')} + ' FCFA'"></div>
+                <div class="kpi-evolution">
+                  <span th:classappend="${summary.caYearEvolutionPct >= 0 ? 'evolution-positive' : 'evolution-negative'}"
+                        th:text="${summary.caYearEvolutionPct != null ? (#numbers.formatDecimal(summary.caYearEvolutionPct, 0, 2) + '%') : '0%'}">
+                  </span> vs année précédente
+                </div>
+                <div class="kpi-details" th:text="${summary.nbTransactionsYear ?: 0} + ' transactions'"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Payment Methods Summary -->
+        <div class="section-title">Répartition par Mode de Paiement</div>
+        <div class="summary-grid">
+          <div class="summary-row">
+            <th:block th:each="payment, iterStat : ${paymentMethods}" th:if="${iterStat.index < 3}">
+              <div class="summary-cell">
+                <div class="summary-label" th:text="${payment.paymentMethod}"></div>
+                <div class="summary-value" th:text="${#numbers.formatInteger(payment.montantTotal, 0, 'POINT')} + ' FCFA'"></div>
+                <div style="font-size: 8px; color: #888;">
+                  <span th:text="${payment.nbPayments}"></span> paiements
+                </div>
+              </div>
+            </th:block>
+          </div>
+        </div>
+
+        <!-- Product Families Summary -->
+        <div class="section-title">Top 5 Familles de Produits par CA</div>
+        <table class="main-table">
+          <thead>
+            <tr>
+              <th>Famille</th>
+              <th class="text-right">CA Total (FCFA)</th>
+              <th class="text-right">Marge Brute (FCFA)</th>
+              <th class="text-right">Taux Marge (%)</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr th:each="family, iterStat : ${productFamilies}" th:if="${iterStat.index < 5}">
+              <td th:text="${family.famille}"></td>
+              <td class="text-right" th:text="${#numbers.formatInteger(family.caTotal, 0, 'POINT')}"></td>
+              <td class="text-right" th:text="${#numbers.formatInteger(family.margeBrute, 0, 'POINT')}"></td>
+              <td class="text-right" th:text="${#numbers.formatDecimal(family.tauxMargePct, 0, 2)} + '%'"></td>
+            </tr>
+          </tbody>
+          <tfoot>
+            <tr>
+              <td>Total</td>
+              <td class="text-right" th:text="${#numbers.formatInteger(totalFamilyCA, 0, 'POINT')}"></td>
+              <td class="text-right" th:text="${#numbers.formatInteger(totalFamilyMarge, 0, 'POINT')}"></td>
+              <td class="text-right">-</td>
+            </tr>
+          </tfoot>
+        </table>
+
+        <!-- Top Products -->
+        <div class="section-title">Top 10 Produits par CA</div>
+        <table class="main-table">
+          <thead>
+            <tr>
+              <th>#</th>
+              <th>Produit</th>
+              <th>Code CIP</th>
+              <th class="text-right">Qté Vendue</th>
+              <th class="text-right">CA (FCFA)</th>
+              <th class="text-right">Prix Moyen (FCFA)</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr th:each="product, iterStat : ${topProducts}">
+              <td th:text="${iterStat.count}"></td>
+              <td th:text="${product.libelle}"></td>
+              <td th:text="${product.codeCip}"></td>
+              <td class="text-right" th:text="${#numbers.formatInteger(product.qteVendue, 0, 'POINT')}"></td>
+              <td class="text-right" th:text="${#numbers.formatInteger(product.caGenere, 0, 'POINT')}"></td>
+              <td class="text-right" th:text="${product.prixMoyen != null ? #numbers.formatDecimal(product.prixMoyen, 0, 2) : '0'}"></td>
+            </tr>
+          </tbody>
+          <tfoot>
+            <tr>
+              <td colspan="4" class="text-right">Total CA (Top 10)</td>
+              <td class="text-right" th:text="${#numbers.formatInteger(totalTopProductsCA, 0, 'POINT')}"></td>
+              <td></td>
+            </tr>
+          </tfoot>
+        </table>
+
+        <!-- Additional Metrics -->
+        <div class="section-title">Métriques Additionnelles</div>
+        <div class="summary-grid">
+          <div class="summary-row">
+            <div class="summary-cell">
+              <div class="summary-label">Panier Moyen (Mois)</div>
+              <div class="summary-value" th:text="${summary.panierMoyenMonth != null ? #numbers.formatDecimal(summary.panierMoyenMonth, 0, 2) : '0'} + ' FCFA'"></div>
+            </div>
+            <div class="summary-cell">
+              <div class="summary-label">Taux de Marge (Mois)</div>
+              <div class="summary-value" th:text="${summary.tauxMargeMonth != null ? #numbers.formatDecimal(summary.tauxMargeMonth, 0, 2) : '0'} + '%'"></div>
+            </div>
+            <div class="summary-cell">
+              <div class="summary-label">Taux de Marge (Année)</div>
+              <div class="summary-value" th:text="${summary.tauxMargeYear != null ? #numbers.formatDecimal(summary.tauxMargeYear, 0, 2) : '0'} + '%'"></div>
+            </div>
+          </div>
+        </div>
+      </main>
+    </div>
+  </body>
+</html>

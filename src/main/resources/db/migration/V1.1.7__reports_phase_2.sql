@@ -17,15 +17,15 @@ SELECT
     f.libelle as categorie,
     s.libelle as storage_location,
     COALESCE(SUM(sp.qty_stock + sp.qty_ug), 0) as stock_quantity,
-    fp.cost_amount as purchase_price,
-    fp.regular_unit_price as sales_price,
-    COALESCE(SUM(sp.qty_stock + sp.qty_ug), 0) * fp.cost_amount as total_purchase_value,
-    COALESCE(SUM(sp.qty_stock + sp.qty_ug), 0) * fp.regular_unit_price as total_sales_value,
-    (COALESCE(SUM(sp.qty_stock + sp.qty_ug), 0) * fp.regular_unit_price) -
-    (COALESCE(SUM(sp.qty_stock + sp.qty_ug), 0) * fp.cost_amount) as potential_margin,
+    fp.prix_achat as purchase_price,
+    fp.prix_uni as sales_price,
+    COALESCE(SUM(sp.qty_stock + sp.qty_ug), 0) * fp.prix_achat as total_purchase_value,
+    COALESCE(SUM(sp.qty_stock + sp.qty_ug), 0) * fp.prix_uni as total_sales_value,
+    (COALESCE(SUM(sp.qty_stock + sp.qty_ug), 0) * fp.prix_uni) -
+    (COALESCE(SUM(sp.qty_stock + sp.qty_ug), 0) * fp.prix_achat) as potential_margin,
     CASE
-        WHEN fp.regular_unit_price > 0 THEN
-            ROUND(((fp.regular_unit_price - fp.cost_amount) / fp.regular_unit_price) * 100, 2)
+        WHEN fp.prix_uni > 0 THEN
+            ROUND(((fp.prix_uni - fp.prix_achat) / fp.prix_uni) * 100, 2)
         ELSE 0
     END as margin_percentage,
     NOW() as last_updated
@@ -37,7 +37,7 @@ LEFT JOIN storage s ON sp.storage_id = s.id
 WHERE p.status = 'ENABLE'
   AND COALESCE(SUM(sp.qty_stock + sp.qty_ug), 0) > 0
 GROUP BY p.id, p.libelle, fp.code_cip, f.libelle, s.libelle,
-         fp.cost_amount, fp.regular_unit_price;
+         fp.prix_achat, fp.prix_uni;
 
 -- Create unique index for concurrent refresh
 CREATE UNIQUE INDEX IF NOT EXISTS idx_mv_stock_valuation_unique
@@ -61,21 +61,21 @@ WITH product_sales AS (
         fp.code_cip,
         f.libelle as categorie,
         COALESCE(SUM(sp.qty_stock + sp.qty_ug), 0) as stock_quantity,
-        fp.cost_amount as unit_cost,
-        COALESCE(SUM(sp.qty_stock + sp.qty_ug), 0) * fp.cost_amount as stock_value,
+        fp.prix_achat as unit_cost,
+        COALESCE(SUM(sp.qty_stock + sp.qty_ug), 0) * fp.prix_achat as stock_value,
         COALESCE(sales_30d.ca, 0) as ca_last_30_days,
         COALESCE(sales_30d.qty_sold, 0) as qty_sold_last_30_days,
         COALESCE(sales_30d.nb_sales, 0) as nb_sales_last_30_days,
         COALESCE(sales_12m.ca, 0) as ca_last_12_months,
         COALESCE(sales_12m.qty_sold, 0) as qty_sold_last_12_months,
         CASE
-            WHEN COALESCE(SUM(sp.qty_stock + sp.qty_ug), 0) * fp.cost_amount > 0 THEN
-                ROUND((COALESCE(sales_12m.ca, 0) / (COALESCE(SUM(sp.qty_stock + sp.qty_ug), 0) * fp.cost_amount)), 2)
+            WHEN COALESCE(SUM(sp.qty_stock + sp.qty_ug), 0) * fp.prix_achat > 0 THEN
+                ROUND((COALESCE(sales_12m.ca, 0) / (COALESCE(SUM(sp.qty_stock + sp.qty_ug), 0) * fp.prix_achat)), 2)
             ELSE 0
         END as rotation_rate_annual,
         CASE
-            WHEN COALESCE(sales_12m.ca, 0) > 0 AND (COALESCE(SUM(sp.qty_stock + sp.qty_ug), 0) * fp.cost_amount) > 0 THEN
-                ROUND(365 / NULLIF((COALESCE(sales_12m.ca, 0) / (COALESCE(SUM(sp.qty_stock + sp.qty_ug), 0) * fp.cost_amount)), 0), 0)
+            WHEN COALESCE(sales_12m.ca, 0) > 0 AND (COALESCE(SUM(sp.qty_stock + sp.qty_ug), 0) * fp.prix_achat) > 0 THEN
+                ROUND(365 / NULLIF((COALESCE(sales_12m.ca, 0) / (COALESCE(SUM(sp.qty_stock + sp.qty_ug), 0) * fp.prix_achat)), 0), 0)
             ELSE 999
         END as avg_days_in_stock
     FROM produit p
@@ -106,7 +106,7 @@ WITH product_sales AS (
         GROUP BY sl.produit_id
     ) sales_12m ON p.id = sales_12m.produit_id
     WHERE p.status = 'ENABLE'
-    GROUP BY p.id, p.libelle, fp.code_cip, f.libelle, fp.cost_amount,
+    GROUP BY p.id, p.libelle, fp.code_cip, f.libelle, fp.prix_achat,
              sales_30d.ca, sales_30d.qty_sold, sales_30d.nb_sales,
              sales_12m.ca, sales_12m.qty_sold
 ),

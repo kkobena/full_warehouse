@@ -153,7 +153,7 @@ export default class StockRotationComponent implements OnInit {
   getAverageRotationRate(): number {
     const rotations = this.rotations().filter(r => r.rotationRateAnnual);
     if (rotations.length === 0) return 0;
-    const sum = rotations.reduce((acc, r) => acc + (r.rotationRateAnnual?.toNumber() || 0), 0);
+    const sum = rotations.reduce((acc, r) => acc + (r.rotationRateAnnual || 0), 0);
     return sum / rotations.length;
   }
 

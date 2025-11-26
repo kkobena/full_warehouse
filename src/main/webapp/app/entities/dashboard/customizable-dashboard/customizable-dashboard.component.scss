@@ -1,0 +1,60 @@
+.grid-stack-wrapper {
+  min-height: 600px;
+  padding: 1rem;
+  background-color: #f8f9fa;
+  border-radius: 8px;
+}
+
+.grid-stack {
+  background: transparent;
+}
+
+::ng-deep .grid-stack-item-content {
+  background: white;
+  border: 1px solid #dee2e6;
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+
+::ng-deep .widget-header {
+  padding: 0.75rem 1rem;
+  border-bottom: 1px solid #dee2e6;
+  background-color: #f8f9fa;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+::ng-deep .widget-title {
+  font-weight: 600;
+  font-size: 0.9rem;
+  color: #495057;
+}
+
+::ng-deep .widget-remove-btn {
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: #6c757d;
+  padding: 0.25rem 0.5rem;
+  border-radius: 4px;
+  transition: all 0.2s;
+}
+
+::ng-deep .widget-remove-btn:hover {
+  background-color: #dc3545;
+  color: white;
+}
+
+::ng-deep .widget-body {
+  flex: 1;
+  padding: 1rem;
+  overflow: auto;
+}
+
+::ng-deep .grid-stack-item.ui-draggable-dragging .grid-stack-item-content {
+  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
+}

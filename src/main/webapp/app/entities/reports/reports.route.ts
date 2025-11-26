@@ -5,76 +5,45 @@ import { UserRouteAccessService } from 'app/core/auth/user-route-access.service'
 
 const reportsRoute: Routes = [
   {
-    path: 'stock-alerts',
-    loadComponent: () => import('./stock-alerts/stock-alerts.component'),
+    path: 'sales',
+    loadComponent: () => import('./sales-reports/sales-reports.component'),
     data: {
       authorities: [Authority.ADMIN, Authority.ROLE_RESPONSABLE_COMMANDE],
-      pageTitle: 'Alertes Stock',
+      pageTitle: 'Rapports Chiffre d\'Affaires',
     },
     canActivate: [UserRouteAccessService],
   },
   {
-    path: 'cash-register-report',
-    loadComponent: () => import('./cash-register-report/cash-register-report.component'),
+    path: 'stock',
+    loadComponent: () => import('./stock-reports/stock-reports.component'),
+    data: {
+      authorities: [Authority.ADMIN, Authority.ROLE_RESPONSABLE_COMMANDE],
+      pageTitle: 'Rapports Stock & Inventaire',
+    },
+    canActivate: [UserRouteAccessService],
+  },
+  {
+    path: 'finance',
+    loadComponent: () => import('./finance-reports/finance-reports.component'),
     data: {
       authorities: [Authority.ADMIN, Authority.ROLE_CAISSIER],
-      pageTitle: 'Rapport de Caisse',
+      pageTitle: 'Rapports Trésorerie & Finance',
     },
     canActivate: [UserRouteAccessService],
   },
   {
-    path: 'tiers-payant-creances',
-    loadComponent: () => import('./tiers-payant-creances/tiers-payant-creances.component'),
-    data: {
-      authorities: [Authority.ADMIN],
-      pageTitle: 'Créances Tiers-Payants',
-    },
-    canActivate: [UserRouteAccessService],
-  },
-  {
-    path: 'sales-summary',
-    loadComponent: () => import('./sales-summary/sales-summary.component'),
-    data: {
-      authorities: [Authority.ADMIN],
-      pageTitle: 'Synthèse des Ventes',
-    },
-    canActivate: [UserRouteAccessService],
-  },
-  {
-    path: 'top-products',
-    loadComponent: () => import('./top-products/top-products.component'),
+    path: 'partners',
+    loadComponent: () => import('./partners-reports/partners-reports.component'),
     data: {
       authorities: [Authority.ADMIN, Authority.ROLE_RESPONSABLE_COMMANDE],
-      pageTitle: 'Top Produits',
+      pageTitle: 'Rapports Clients & Fournisseurs',
     },
     canActivate: [UserRouteAccessService],
   },
   {
-    path: 'stock-valuation',
-    loadComponent: () => import('./stock-valuation/stock-valuation.component'),
-    data: {
-      authorities: [Authority.ADMIN, Authority.ROLE_RESPONSABLE_COMMANDE],
-      pageTitle: 'Valorisation du Stock',
-    },
-    canActivate: [UserRouteAccessService],
-  },
-  {
-    path: 'stock-rotation',
-    loadComponent: () => import('./stock-rotation/stock-rotation.component'),
-    data: {
-      authorities: [Authority.ADMIN, Authority.ROLE_RESPONSABLE_COMMANDE],
-      pageTitle: 'Rotation du Stock',
-    },
-    canActivate: [UserRouteAccessService],
-  },
-  {
-    path: 'customer-segmentation',
-    loadComponent: () => import('./customer-segmentation/customer-segmentation.component'),
-    data: {
-      authorities: [Authority.ADMIN],
-      pageTitle: 'Segmentation Clients',
-    },
-    canActivate: [UserRouteAccessService],
+    path: '',
+    redirectTo: 'sales',
+    pathMatch: 'full',
   },
 ];
 

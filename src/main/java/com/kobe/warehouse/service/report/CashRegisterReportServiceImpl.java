@@ -1,22 +1,10 @@
 package com.kobe.warehouse.service.report;
 
-import com.kobe.warehouse.domain.enumeration.CashRegisterStatut;
-import com.kobe.warehouse.repository.CashRegisterRepository;
-import com.kobe.warehouse.repository.SalesRepository;
 import com.kobe.warehouse.service.dto.report.CashMovementDTO;
 import com.kobe.warehouse.service.dto.report.DailyCashRegisterReportDTO;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
 import jakarta.persistence.Query;
-import java.io.ByteArrayOutputStream;
-import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.time.LocalTime;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.stream.Collectors;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -24,24 +12,25 @@ import org.thymeleaf.context.Context;
 import org.thymeleaf.spring6.SpringTemplateEngine;
 import org.xhtmlrenderer.pdf.ITextRenderer;
 
+import java.io.ByteArrayOutputStream;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.LocalTime;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.stream.Collectors;
+
 @Service
 @Transactional(readOnly = true)
 public class CashRegisterReportServiceImpl implements CashRegisterReportService {
 
+    private final SpringTemplateEngine templateEngine;
     @PersistenceContext
     private EntityManager entityManager;
 
-    private final CashRegisterRepository cashRegisterRepository;
-    private final SalesRepository salesRepository;
-    private final SpringTemplateEngine templateEngine;
-
     public CashRegisterReportServiceImpl(
-        CashRegisterRepository cashRegisterRepository,
-        SalesRepository salesRepository,
         SpringTemplateEngine templateEngine
     ) {
-        this.cashRegisterRepository = cashRegisterRepository;
-        this.salesRepository = salesRepository;
         this.templateEngine = templateEngine;
     }
 
@@ -53,23 +42,23 @@ public class CashRegisterReportServiceImpl implements CashRegisterReportService 
 
         String sql =
             "SELECT " +
-            "cr.id as cash_register_id, " +
-            "CONCAT('Caisse ', cr.id) as caisse_libelle, " +
-            "cr.begin_time as opening_date, " +
-            "cr.end_time as closing_date, " +
-            "cr.init_amount as opening_balance, " +
-            "cr.final_amount as closing_balance, " +
-            "cr.statut, " +
-            "u.first_name || ' ' || u.last_name as user_name, " +
-            "COALESCE(SUM(cri.amount), 0) as total_sales, " +
-            "COUNT(DISTINCT s.id) as number_of_transactions " +
-            "FROM cash_register cr " +
-            "INNER JOIN app_user u ON cr.user_id = u.id " +
-            "LEFT JOIN cash_register_item cri ON cr.id = cri.cash_register_id " +
-            "LEFT JOIN sales s ON DATE(s.created) = :date AND s.user_id = cr.user_id " +
-            "WHERE cr.begin_time >= :startOfDay AND cr.begin_time <= :endOfDay " +
-            "GROUP BY cr.id, cr.begin_time, cr.end_time, cr.init_amount, cr.final_amount, cr.statut, u.first_name, u.last_name " +
-            "ORDER BY cr.begin_time";
+                "cr.id as cash_register_id, " +
+                "CONCAT('Caisse ', cr.id) as caisse_libelle, " +
+                "cr.begin_time as opening_date, " +
+                "cr.end_time as closing_date, " +
+                "cr.init_amount as opening_balance, " +
+                "cr.final_amount as closing_balance, " +
+                "cr.statut, " +
+                "u.first_name || ' ' || u.last_name as user_name, " +
+                "COALESCE(SUM(cri.amount), 0) as total_sales, " +
+                "COUNT(DISTINCT s.id) as number_of_transactions " +
+                "FROM cash_register cr " +
+                "INNER JOIN app_user u ON cr.user_id = u.id " +
+                "LEFT JOIN cash_register_item cri ON cr.id = cri.cash_register_id " +
+                "LEFT JOIN sales s ON DATE(s.created) = :date AND s.user_id = cr.user_id " +
+                "WHERE cr.begin_time >= :startOfDay AND cr.begin_time <= :endOfDay " +
+                "GROUP BY cr.id, cr.begin_time, cr.end_time, cr.init_amount, cr.final_amount, cr.statut, u.first_name, u.last_name " +
+                "ORDER BY cr.begin_time";
 
         Query query = entityManager.createNativeQuery(sql);
         query.setParameter("date", date);
@@ -131,14 +120,14 @@ public class CashRegisterReportServiceImpl implements CashRegisterReportService 
     private List<DailyCashRegisterReportDTO.PaymentModeBreakdown> getPaymentModeBreakdowns(Integer cashRegisterId) {
         String sql =
             "SELECT " +
-            "pm.libelle as mode_paiement, " +
-            "SUM(cri.amount) as amount, " +
-            "COUNT(*) as count " +
-            "FROM cash_register_item cri " +
-            "INNER JOIN payment_mode pm ON cri.payment_mode_code = pm.code " +
-            "WHERE cri.cash_register_id = :cashRegisterId " +
-            "GROUP BY pm.libelle " +
-            "ORDER BY amount DESC";
+                "pm.libelle as mode_paiement, " +
+                "SUM(cri.amount) as amount, " +
+                "COUNT(*) as count " +
+                "FROM cash_register_item cri " +
+                "INNER JOIN payment_mode pm ON cri.payment_mode_code = pm.code " +
+                "WHERE cri.cash_register_id = :cashRegisterId " +
+                "GROUP BY pm.libelle " +
+                "ORDER BY amount DESC";
 
         Query query = entityManager.createNativeQuery(sql);
         query.setParameter("cashRegisterId", cashRegisterId);

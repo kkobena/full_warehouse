@@ -25,12 +25,6 @@ public class StockRotationReportServiceImpl implements StockRotationReportServic
     @PersistenceContext
     private EntityManager entityManager;
 
-    private final SpringTemplateEngine templateEngine;
-
-    public StockRotationReportServiceImpl(SpringTemplateEngine templateEngine) {
-        this.templateEngine = templateEngine;
-    }
-
     @Override
     @Cacheable(value = "stockRotation", key = "'all'")
     public List<StockRotationDTO> getAllStockRotation() {
@@ -192,35 +186,6 @@ public class StockRotationReportServiceImpl implements StockRotationReportServic
         return mapResultsToDTO(results);
     }
 
-    @Override
-    public byte[] exportStockRotationToPdf() {
-        // Get the rotation data
-        List<StockRotationDTO> rotations = getAllStockRotation();
-        Map<CategorieABC, Long> counts = getStockRotationCountByABCClassification();
-
-        // Prepare Thymeleaf context
-        Context context = new Context();
-        context.setVariable("rotations", rotations);
-        context.setVariable("countA", counts.getOrDefault(CategorieABC.A, 0L));
-        context.setVariable("countB", counts.getOrDefault(CategorieABC.B, 0L));
-        context.setVariable("countC", counts.getOrDefault(CategorieABC.C, 0L));
-        context.setVariable("reportTitle", "Rapport de Rotation du Stock (Analyse ABC)");
-        context.setVariable("page_count", "1/1");
-
-        // Generate HTML from template
-        String htmlContent = templateEngine.process("reports/stock-rotation/main", context);
-
-        // Convert HTML to PDF
-        try (ByteArrayOutputStream outputStream = new ByteArrayOutputStream()) {
-            ITextRenderer renderer = new ITextRenderer();
-            renderer.setDocumentFromString(htmlContent);
-            renderer.layout();
-            renderer.createPDF(outputStream);
-            return outputStream.toByteArray();
-        } catch (Exception e) {
-            throw new RuntimeException("Error generating PDF", e);
-        }
-    }
 
     private List<StockRotationDTO> mapResultsToDTO(List<Object[]> results) {
         return results
@@ -264,6 +229,6 @@ public class StockRotationReportServiceImpl implements StockRotationReportServic
                     categorieABC
                 );
             })
-            .collect(Collectors.toList());
+            .toList();
     }
 }

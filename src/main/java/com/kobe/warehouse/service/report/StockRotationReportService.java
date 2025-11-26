@@ -43,10 +43,5 @@ public interface StockRotationReportService {
      */
     List<StockRotationDTO> getSlowMovingProducts();
 
-    /**
-     * Export stock rotation report as PDF
-     *
-     * @return PDF bytes
-     */
-    byte[] exportStockRotationToPdf();
+
 }

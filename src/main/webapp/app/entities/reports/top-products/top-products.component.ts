@@ -11,11 +11,12 @@ import { InputNumberModule } from 'primeng/inputnumber';
 import { SelectModule } from 'primeng/select';
 import { ToolbarModule } from 'primeng/toolbar';
 import { DividerModule } from 'primeng/divider';
-import { TabViewModule } from 'primeng/tabview';
+import { NgbNavModule } from '@ng-bootstrap/ng-bootstrap';
 import { WarehouseCommonModule } from '../../../shared/warehouse-common/warehouse-common.module';
 
 import { ITopProduct } from 'app/shared/model/report/top-product.model';
 import { TopProductsReportService } from '../services/top-products-report.service';
+import { Tag } from 'primeng/tag';
 
 @Component({
   selector: 'jhi-top-products',
@@ -32,9 +33,10 @@ import { TopProductsReportService } from '../services/top-products-report.servic
     SelectModule,
     ToolbarModule,
     DividerModule,
-    TabViewModule,
+    NgbNavModule,
     WarehouseCommonModule,
-  ],
+    Tag
+  ]
 })
 export default class TopProductsComponent implements OnInit {
   topProductsByRevenue = signal<ITopProduct[]>([]);

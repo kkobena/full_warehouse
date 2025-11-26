@@ -128,7 +128,7 @@ public class TiersPayantReportServiceImpl implements TiersPayantReportService {
                     ageCat
                 );
             })
-            .collect(Collectors.toList());
+            .toList();
     }
 
     @Override
@@ -179,7 +179,7 @@ public class TiersPayantReportServiceImpl implements TiersPayantReportService {
                     montantPlusDe90Jours
                 );
             })
-            .collect(Collectors.toList());
+            .toList();
     }
 
     @Override
@@ -247,40 +247,10 @@ public class TiersPayantReportServiceImpl implements TiersPayantReportService {
                     TiersPayantInvoiceDTO.AgeCategory.LESS_THAN_30
                 );
             })
-            .collect(Collectors.toList());
+            .toList();
     }
 
-    @Override
-    public byte[] exportCreancesToPdf() {
-        // Get the summary and invoices data
-        List<TiersPayantCreancesSummaryDTO> summary = getCreancesSummary();
-        List<TiersPayantInvoiceDTO> invoices = getUnpaidInvoices(null, null);
 
-        // Calculate total
-        int totalCreances = summary.stream().mapToInt(s -> s.montantTotal() != null ? s.montantTotal() : 0).sum();
-
-        // Prepare Thymeleaf context
-        Context context = new Context();
-        context.setVariable("summary", summary);
-        context.setVariable("invoices", invoices);
-        context.setVariable("totalCreances", totalCreances);
-        context.setVariable("reportTitle", "Rapport Créances Tiers-Payants");
-        context.setVariable("page_count", "1/1");
-
-        // Generate HTML from template
-        String htmlContent = templateEngine.process("reports/tiers-payant/main", context);
-
-        // Convert HTML to PDF
-        try (ByteArrayOutputStream outputStream = new ByteArrayOutputStream()) {
-            ITextRenderer renderer = new ITextRenderer();
-            renderer.setDocumentFromString(htmlContent);
-            renderer.layout();
-            renderer.createPDF(outputStream);
-            return outputStream.toByteArray();
-        } catch (Exception e) {
-            throw new RuntimeException("Error generating PDF", e);
-        }
-    }
 
     private TiersPayantInvoiceDTO.InvoiceStatus mapInvoiceStatus(String statut) {
         if (statut == null) return TiersPayantInvoiceDTO.InvoiceStatus.UNPAID;

@@ -1,26 +1,21 @@
 package com.kobe.warehouse.service.report;
 
-import com.kobe.warehouse.repository.LotRepository;
-import com.kobe.warehouse.repository.StockProduitRepository;
 import com.kobe.warehouse.service.dto.report.StockAlertDTO;
+import com.kobe.warehouse.service.report.excel.CsvExportService;
+import com.kobe.warehouse.service.report.excel.ReportExcelExportService;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
 import jakarta.persistence.Query;
-import java.io.ByteArrayOutputStream;
-import java.math.BigInteger;
+import org.springframework.cache.annotation.Cacheable;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
 import java.sql.Date;
 import java.time.LocalDate;
-import java.util.ArrayList;
 import java.util.EnumMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
-import org.springframework.cache.annotation.Cacheable;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
-import org.thymeleaf.context.Context;
-import org.thymeleaf.spring6.SpringTemplateEngine;
-import org.xhtmlrenderer.pdf.ITextRenderer;
 
 @Service
 @Transactional(readOnly = true)
@@ -29,18 +24,12 @@ public class StockAlertReportServiceImpl implements StockAlertReportService {
     @PersistenceContext
     private EntityManager entityManager;
 
-    private final LotRepository lotRepository;
-    private final StockProduitRepository stockProduitRepository;
-    private final SpringTemplateEngine templateEngine;
+    private final ReportExcelExportService excelExportService;
+    private final CsvExportService csvExportService;
 
-    public StockAlertReportServiceImpl(
-        LotRepository lotRepository,
-        StockProduitRepository stockProduitRepository,
-        SpringTemplateEngine templateEngine
-    ) {
-        this.lotRepository = lotRepository;
-        this.stockProduitRepository = stockProduitRepository;
-        this.templateEngine = templateEngine;
+    public StockAlertReportServiceImpl(ReportExcelExportService excelExportService, CsvExportService csvExportService) {
+        this.excelExportService = excelExportService;
+        this.csvExportService = csvExportService;
     }
 
     @Override
@@ -98,7 +87,7 @@ public class StockAlertReportServiceImpl implements StockAlertReportService {
                     alertType
                 );
             })
-            .collect(Collectors.toList());
+            .toList();
     }
 
     @Override
@@ -126,7 +115,7 @@ public class StockAlertReportServiceImpl implements StockAlertReportService {
             try {
                 StockAlertDTO.StockAlertType alertType = StockAlertDTO.StockAlertType.valueOf(alertTypeStr);
                 counts.put(alertType, count);
-            } catch (IllegalArgumentException e) {
+            } catch (IllegalArgumentException _) {
                 // Ignore invalid alert types
             }
         }
@@ -135,32 +124,60 @@ public class StockAlertReportServiceImpl implements StockAlertReportService {
     }
 
     @Override
-    public byte[] exportStockAlertsToPdf(List<StockAlertDTO.StockAlertType> alertTypes) {
-        // Get the alerts data
-        List<StockAlertDTO> alerts = getStockAlerts(alertTypes);
-        Map<StockAlertDTO.StockAlertType, Long> alertCounts = getStockAlertsCount();
+    public byte[] exportToExcel(List<StockAlertDTO.StockAlertType> alertTypes) throws Exception {
+        List<StockAlertDTO> data = getStockAlerts(alertTypes);
 
-        // Prepare Thymeleaf context
-        Context context = new Context();
-        context.setVariable("alerts", alerts);
-        context.setVariable("ruptureCount", alertCounts.getOrDefault(StockAlertDTO.StockAlertType.RUPTURE, 0L));
-        context.setVariable("alerteCount", alertCounts.getOrDefault(StockAlertDTO.StockAlertType.ALERTE, 0L));
-        context.setVariable("peremptionCount", alertCounts.getOrDefault(StockAlertDTO.StockAlertType.PEREMPTION, 0L));
-        context.setVariable("reportTitle", "Rapport d'Alertes Stock");
-        context.setVariable("page_count", "1/1");
-
-        // Generate HTML from template
-        String htmlContent = templateEngine.process("reports/stock-alerts/main", context);
-
-        // Convert HTML to PDF
-        try (ByteArrayOutputStream outputStream = new ByteArrayOutputStream()) {
-            ITextRenderer renderer = new ITextRenderer();
-            renderer.setDocumentFromString(htmlContent);
-            renderer.layout();
-            renderer.createPDF(outputStream);
-            return outputStream.toByteArray();
-        } catch (Exception e) {
-            throw new RuntimeException("Error generating PDF", e);
+        String title = "Alertes Stock";
+        if (alertTypes != null && !alertTypes.isEmpty()) {
+            title += " - " + alertTypes.stream().map(Enum::name).collect(Collectors.joining(", "));
         }
+
+        String[] headers = {
+            "Code CIP",
+            "Libellé",
+            "Stock Actuel",
+            "Seuil Min",
+            "Date Péremption",
+            "Type d'Alerte"
+        };
+
+        return excelExportService.createExcelReport(title, headers, data, (row, dto) -> {
+            row.createCell(0).setCellValue(dto.codeCip() != null ? dto.codeCip() : "");
+            row.createCell(1).setCellValue(dto.libelle() != null ? dto.libelle() : "");
+            row.createCell(2).setCellValue(dto.stockQuantity() != null ? dto.stockQuantity() : 0);
+            row.createCell(3).setCellValue(dto.seuilMin() != null ? dto.seuilMin() : 0);
+            row.createCell(4).setCellValue(dto.expiryDate() != null ? dto.expiryDate().toString() : "");
+            row.createCell(5).setCellValue(dto.alertType() != null ? dto.alertType().name() : "");
+        });
+    }
+
+    @Override
+    public byte[] exportToCsv(List<StockAlertDTO.StockAlertType> alertTypes) throws Exception {
+        List<StockAlertDTO> data = getStockAlerts(alertTypes);
+
+        String title = "Alertes Stock";
+        if (alertTypes != null && !alertTypes.isEmpty()) {
+            title += " - " + alertTypes.stream().map(Enum::name).collect(Collectors.joining(", "));
+        }
+
+        String[] headers = {
+            "Code CIP",
+            "Libellé",
+            "Stock Actuel",
+            "Seuil Min",
+            "Date Péremption",
+            "Type d'Alerte"
+        };
+
+        byte[] csvData = csvExportService.createCsvReport(title, headers, data, dto -> new String[] {
+            dto.codeCip() != null ? dto.codeCip() : "",
+            dto.libelle() != null ? dto.libelle() : "",
+            String.valueOf(dto.stockQuantity() != null ? dto.stockQuantity() : 0),
+            String.valueOf(dto.seuilMin() != null ? dto.seuilMin() : 0),
+            dto.expiryDate() != null ? dto.expiryDate().toString() : "",
+            dto.alertType() != null ? dto.alertType().name() : ""
+        });
+
+        return csvExportService.addUtf8Bom(csvData);
     }
 }

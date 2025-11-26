@@ -167,6 +167,16 @@ const routes: Routes = [
     data: { pageTitle: 'Motifs rétours produits' },
     loadChildren: () => import('./motif-retour-produit/motif-retour-produit.route'),
   },
+  {
+    path: 'dashboard',
+    data: { pageTitle: 'Dashboard Personnalisable' },
+    loadChildren: () => import('./dashboard/dashboard.route'),
+  },
+  {
+    path: 'reports',
+    data: { pageTitle: 'Rapports' },
+    loadChildren: () => import('./reports/reports.route'),
+  },
 ];
 
 export default routes;

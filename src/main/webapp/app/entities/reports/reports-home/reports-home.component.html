@@ -1,0 +1,169 @@
+<div class="container-fluid">
+  <div class="row">
+    <div class="col-lg-2 col-xl-2 col-md-2 col-sm-4">
+      <!-- Modern Navigation Sidebar -->
+      <div class="pharma-nav-sidebar">
+        <div class="pharma-nav-sidebar-card">
+          <div class="pharma-nav-sidebar-header">
+            <i class="pi pi-chart-bar"></i>
+            <span>Rapports</span>
+          </div>
+
+          <div class="pharma-nav-sidebar-content">
+            <div #nav="ngbNav" [(activeId)]="active" class="nav flex-column nav-pills" ngbNav orientation="vertical">
+
+              <!-- GROUPE: CHIFFRE D'AFFAIRES -->
+              <div class="pharma-nav-group-header">
+                <i class="pi pi-money-bill"></i>
+                <span>Chiffre d'Affaires</span>
+              </div>
+
+              <ng-container ngbNavItem="sales-summary">
+                <a class="pharma-nav-vertical-link" ngbNavLink>
+                  <i class="pi pi-shopping-cart"></i>
+                  <span>Synthèse des Ventes</span>
+                  <span class="link-arrow">›</span>
+                </a>
+                <ng-template ngbNavContent>
+                  <jhi-sales-summary></jhi-sales-summary>
+                </ng-template>
+              </ng-container>
+
+              <ng-container ngbNavItem="top-products">
+                <a class="pharma-nav-vertical-link" ngbNavLink>
+                  <i class="pi pi-star-fill"></i>
+                  <span>Top Produits</span>
+                  <span class="link-arrow">›</span>
+                </a>
+                <ng-template ngbNavContent>
+                  <jhi-top-products></jhi-top-products>
+                </ng-template>
+              </ng-container>
+
+              <ng-container ngbNavItem="profitability">
+                <a class="pharma-nav-vertical-link" ngbNavLink>
+                  <i class="pi pi-chart-line"></i>
+                  <span>Analyse de Rentabilité</span>
+                  <span class="link-arrow">›</span>
+                </a>
+                <ng-template ngbNavContent>
+                  <jhi-profitability-analysis></jhi-profitability-analysis>
+                </ng-template>
+              </ng-container>
+
+              <!-- GROUPE: STOCK & INVENTAIRE -->
+              <div class="pharma-nav-group-header">
+                <i class="pi pi-box"></i>
+                <span>Stock & Inventaire</span>
+              </div>
+
+              <ng-container ngbNavItem="stock-alerts">
+                <a class="pharma-nav-vertical-link" ngbNavLink>
+                  <i class="pi pi-exclamation-triangle"></i>
+                  <span>Alertes de Stock</span>
+                  <span class="link-arrow">›</span>
+                </a>
+                <ng-template ngbNavContent>
+                  <jhi-stock-alerts></jhi-stock-alerts>
+                </ng-template>
+              </ng-container>
+
+              <ng-container ngbNavItem="stock-valuation">
+                <a class="pharma-nav-vertical-link" ngbNavLink>
+                  <i class="pi pi-dollar"></i>
+                  <span>Valorisation du Stock</span>
+                  <span class="link-arrow">›</span>
+                </a>
+                <ng-template ngbNavContent>
+                  <jhi-stock-valuation></jhi-stock-valuation>
+                </ng-template>
+              </ng-container>
+
+              <ng-container ngbNavItem="stock-rotation">
+                <a class="pharma-nav-vertical-link" ngbNavLink>
+                  <i class="pi pi-sync"></i>
+                  <span>Rotation du Stock</span>
+                  <span class="link-arrow">›</span>
+                </a>
+                <ng-template ngbNavContent>
+                  <jhi-stock-rotation></jhi-stock-rotation>
+                </ng-template>
+              </ng-container>
+
+              <ng-container ngbNavItem="abc-pareto">
+                <a class="pharma-nav-vertical-link" ngbNavLink>
+                  <i class="pi pi-sort-amount-down"></i>
+                  <span>Analyse ABC Pareto</span>
+                  <span class="link-arrow">›</span>
+                </a>
+                <ng-template ngbNavContent>
+                  <jhi-abc-pareto></jhi-abc-pareto>
+                </ng-template>
+              </ng-container>
+
+              <!-- GROUPE: TRÉSORERIE & FINANCE -->
+              <div class="pharma-nav-group-header">
+                <i class="pi pi-wallet"></i>
+                <span>Trésorerie & Finance</span>
+              </div>
+
+              <ng-container ngbNavItem="cash-register">
+                <a class="pharma-nav-vertical-link" ngbNavLink>
+                  <i class="pi pi-calculator"></i>
+                  <span>Rapport de Caisse</span>
+                  <span class="link-arrow">›</span>
+                </a>
+                <ng-template ngbNavContent>
+                  <jhi-cash-register-report></jhi-cash-register-report>
+                </ng-template>
+              </ng-container>
+
+              <ng-container ngbNavItem="tiers-payant">
+                <a class="pharma-nav-vertical-link" ngbNavLink>
+                  <i class="pi pi-building"></i>
+                  <span>Créances Tiers-Payants</span>
+                  <span class="link-arrow">›</span>
+                </a>
+                <ng-template ngbNavContent>
+                  <jhi-tiers-payant-creances></jhi-tiers-payant-creances>
+                </ng-template>
+              </ng-container>
+
+              <!-- GROUPE: CLIENTS & FOURNISSEURS -->
+              <div class="pharma-nav-group-header">
+                <i class="pi pi-users"></i>
+                <span>Clients & Fournisseurs</span>
+              </div>
+
+              <ng-container ngbNavItem="customer-segmentation">
+                <a class="pharma-nav-vertical-link" ngbNavLink>
+                  <i class="pi pi-user"></i>
+                  <span>Segmentation Clients</span>
+                  <span class="link-arrow">›</span>
+                </a>
+                <ng-template ngbNavContent>
+                  <jhi-customer-segmentation></jhi-customer-segmentation>
+                </ng-template>
+              </ng-container>
+
+              <ng-container ngbNavItem="supplier-performance">
+                <a class="pharma-nav-vertical-link" ngbNavLink>
+                  <i class="pi pi-truck"></i>
+                  <span>Performance Fournisseurs</span>
+                  <span class="link-arrow">›</span>
+                </a>
+                <ng-template ngbNavContent>
+                  <jhi-supplier-performance></jhi-supplier-performance>
+                </ng-template>
+              </ng-container>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-lg-10 col-xl-10 col-md-10 col-sm-8 pharma-smart-content">
+      <div [ngbNavOutlet]="nav"></div>
+    </div>
+  </div>
+</div>

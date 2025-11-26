@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Tableaux Comparatifs CA</title>
+    <div th:replace="~{reports/comparative/css :: css}"></div>
+  </head>
+  <body>
+    <div class="invoice">
+      <div th:replace="~{common/commonheader :: header}"></div>
+
+      <main>
+        <div class="report-title">
+          Tableaux Comparatifs - Chiffre d'Affaires
+          <div style="font-size: 10px; color: #666; margin-top: 5px;">
+            Année: <span th:text="${year}"></span> | Type: <span th:text="${comparisonType}"></span>
+          </div>
+        </div>
+
+        <!-- Summary Section -->
+        <div class="summary-section">
+          <div class="summary-grid">
+            <div class="summary-row">
+              <div class="summary-cell">
+                <div class="summary-label">CA Année en cours (YTD)</div>
+                <div class="summary-value" th:text="${#numbers.formatInteger(summary.ytdCurrentCA ?: 0, 0, 'POINT')} + ' FCFA'"></div>
+                <div class="summary-evolution">
+                  <span th:classappend="${summary.ytdEvolutionPct >= 0 ? 'evolution-positive' : 'evolution-negative'}"
+                        th:text="${summary.ytdEvolutionPct != null ? (#numbers.formatDecimal(summary.ytdEvolutionPct, 0, 2) + '%') : '0%'}">
+                  </span> vs N-1
+                </div>
+              </div>
+
+              <div class="summary-cell">
+                <div class="summary-label">CA 12 derniers mois</div>
+                <div class="summary-value" th:text="${#numbers.formatInteger(summary.last12MonthsCA ?: 0, 0, 'POINT')} + ' FCFA'"></div>
+                <div class="summary-evolution">
+                  <span th:classappend="${summary.last12MonthsEvolutionPct >= 0 ? 'evolution-positive' : 'evolution-negative'}"
+                        th:text="${summary.last12MonthsEvolutionPct != null ? (#numbers.formatDecimal(summary.last12MonthsEvolutionPct, 0, 2) + '%') : '0%'}">
+                  </span> vs période précédente
+                </div>
+              </div>
+
+              <div class="summary-cell">
+                <div class="summary-label">Meilleur mois</div>
+                <div class="summary-value" th:text="${summary.bestMonthLabel}"></div>
+                <div style="font-size: 9px; color: #666;">
+                  <span th:text="${#numbers.formatInteger(summary.bestMonthCA ?: 0, 0, 'POINT')} + ' FCFA'"></span>
+                </div>
+              </div>
+
+              <div class="summary-cell">
+                <div class="summary-label">CA Moyen Mensuel</div>
+                <div class="summary-value" th:text="${summary.avgMonthlyCA != null ? #numbers.formatDecimal(summary.avgMonthlyCA, 0, 0) : '0'} + ' FCFA'"></div>
+                <div class="summary-evolution">
+                  Évolution moy: <span th:text="${summary.avgMonthlyEvolution != null ? #numbers.formatDecimal(summary.avgMonthlyEvolution, 0, 2) : '0'}"></span>%
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Comparison Table -->
+        <div class="section-title">
+          Comparaisons <span th:text="${comparisonType == 'MONTHLY' ? 'Mensuelles' : (comparisonType == 'QUARTERLY' ? 'Trimestrielles' : 'Annuelles')}"></span>
+        </div>
+        <table class="main-table">
+          <thead>
+            <tr>
+              <th>Période</th>
+              <th class="text-right">CA Actuel (FCFA)</th>
+              <th class="text-right">CA Précédent (FCFA)</th>
+              <th class="text-right">Évolution (FCFA)</th>
+              <th class="text-right">Évolution (%)</th>
+              <th class="text-right">Transactions Actuelles</th>
+              <th class="text-right">Transactions Précédentes</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr th:each="comp : ${comparisons}">
+              <td th:text="${comp.periodLabel}"></td>
+              <td class="text-right" th:text="${#numbers.formatInteger(comp.currentCA, 0, 'POINT')}"></td>
+              <td class="text-right" th:text="${#numbers.formatInteger(comp.previousCA, 0, 'POINT')}"></td>
+              <td class="text-right"
+                  th:classappend="${comp.evolutionAmount.longValue() >= 0 ? 'evolution-positive' : 'evolution-negative'}"
+                  th:text="${comp.evolutionAmount.longValue() >= 0 ? '+' : ''} + ${#numbers.formatInteger(comp.evolutionAmount.longValue(), 0, 'POINT')}">
+              </td>
+              <td class="text-right"
+                  th:classappend="${comp.evolutionPct.doubleValue() >= 0 ? 'evolution-positive' : 'evolution-negative'}"
+                  th:text="${comp.evolutionPct.doubleValue() >= 0 ? '+' : ''} + ${#numbers.formatDecimal(comp.evolutionPct, 0, 2)} + '%'">
+              </td>
+              <td class="text-right" th:text="${comp.currentTransactions}"></td>
+              <td class="text-right" th:text="${comp.previousTransactions}"></td>
+            </tr>
+          </tbody>
+          <tfoot>
+            <tr>
+              <td>Total</td>
+              <td class="text-right" th:text="${#numbers.formatInteger(#aggregates.sum(comparisons.![currentCA]), 0, 'POINT')}"></td>
+              <td class="text-right" th:text="${#numbers.formatInteger(#aggregates.sum(comparisons.![previousCA]), 0, 'POINT')}"></td>
+              <td colspan="4"></td>
+            </tr>
+          </tfoot>
+        </table>
+
+        <!-- By Sales Type -->
+        <div class="section-title">Répartition par Type de Vente</div>
+        <table class="main-table">
+          <thead>
+            <tr>
+              <th>Type de Vente</th>
+              <th class="text-right">CA <span th:text="${year}"></span> (FCFA)</th>
+              <th class="text-right">CA <span th:text="${year - 1}"></span> (FCFA)</th>
+              <th class="text-right">Évolution (%)</th>
+              <th class="text-right">Ventes <span th:text="${year}"></span></th>
+              <th class="text-right">Ventes <span th:text="${year - 1}"></span></th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr th:each="type : ${byType}">
+              <td th:text="${type.saleTypeLabel}"></td>
+              <td class="text-right" th:text="${#numbers.formatInteger(type.currentYearCA, 0, 'POINT')}"></td>
+              <td class="text-right" th:text="${#numbers.formatInteger(type.previousYearCA, 0, 'POINT')}"></td>
+              <td class="text-right"
+                  th:classappend="${type.evolutionPct.doubleValue() >= 0 ? 'evolution-positive' : 'evolution-negative'}"
+                  th:text="${type.evolutionPct.doubleValue() >= 0 ? '+' : ''} + ${#numbers.formatDecimal(type.evolutionPct, 0, 2)} + '%'">
+              </td>
+              <td class="text-right" th:text="${type.currentYearCount}"></td>
+              <td class="text-right" th:text="${type.previousYearCount}"></td>
+            </tr>
+          </tbody>
+          <tfoot>
+            <tr>
+              <td>Total</td>
+              <td class="text-right" th:text="${#numbers.formatInteger(#aggregates.sum(byType.![currentYearCA]), 0, 'POINT')}"></td>
+              <td class="text-right" th:text="${#numbers.formatInteger(#aggregates.sum(byType.![previousYearCA]), 0, 'POINT')}"></td>
+              <td colspan="3"></td>
+            </tr>
+          </tfoot>
+        </table>
+      </main>
+    </div>
+  </body>
+</html>

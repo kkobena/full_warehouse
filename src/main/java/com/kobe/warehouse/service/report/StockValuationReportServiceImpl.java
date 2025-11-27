@@ -148,7 +148,7 @@ public class StockValuationReportServiceImpl implements StockValuationReportServ
 
 
     private List<StockValuationDTO> mapResultsToDTO(List<Object[]> results) {
-        return results.stream().map(this::mapRowToDTO).collect(Collectors.toList());
+        return results.stream().map(this::mapRowToDTO).toList();
     }
 
     private StockValuationDTO mapRowToDTO(Object[] row) {

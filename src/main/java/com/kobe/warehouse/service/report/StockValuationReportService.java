@@ -34,11 +34,4 @@ public interface StockValuationReportService {
      * @return Summary with total values and averages
      */
     StockValuationSummaryDTO getStockValuationSummary();
-
-    /**
-     * Export stock valuation report as PDF
-     *
-     * @return PDF bytes
-     */
-    byte[] exportStockValuationToPdf();
 }

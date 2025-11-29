@@ -5,6 +5,7 @@ import com.kobe.warehouse.service.report.StockAlertReportService;
 import java.util.List;
 import java.util.Map;
 
+import com.kobe.warehouse.service.report.excel.StockAlertExcelCsvReportService;
 import com.kobe.warehouse.service.report.pdf.StockAlertPdfReportService;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
@@ -20,9 +21,11 @@ public class StockAlertReportResource {
 
     private final StockAlertReportService stockAlertReportService;
     private final StockAlertPdfReportService stockAlertPdfReportService;
-    public StockAlertReportResource(StockAlertReportService stockAlertReportService, StockAlertPdfReportService stockAlertPdfReportService) {
+    private final StockAlertExcelCsvReportService stockAlertExcelCsvReportService;
+    public StockAlertReportResource(StockAlertReportService stockAlertReportService, StockAlertPdfReportService stockAlertPdfReportService, StockAlertExcelCsvReportService stockAlertExcelCsvReportService) {
         this.stockAlertReportService = stockAlertReportService;
         this.stockAlertPdfReportService = stockAlertPdfReportService;
+        this.stockAlertExcelCsvReportService = stockAlertExcelCsvReportService;
     }
 
     /**
@@ -73,7 +76,7 @@ public class StockAlertReportResource {
     @GetMapping(value = "/stock/alerts/export/excel", produces = "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet")
     public ResponseEntity<byte[]> exportStockAlertsToExcel(@RequestParam(required = false) List<StockAlertDTO.StockAlertType> types) {
         try {
-            byte[] excelData = stockAlertReportService.exportToExcel(types);
+            byte[] excelData = stockAlertExcelCsvReportService.exportToExcel(types);
             String filename = "stock_alerts.xlsx";
 
             return ResponseEntity
@@ -95,7 +98,7 @@ public class StockAlertReportResource {
     @GetMapping(value = "/stock/alerts/export/csv", produces = "text/csv")
     public ResponseEntity<byte[]> exportStockAlertsToCsv(@RequestParam(required = false) List<StockAlertDTO.StockAlertType> types) {
         try {
-            byte[] csvData = stockAlertReportService.exportToCsv(types);
+            byte[] csvData = stockAlertExcelCsvReportService.exportToCsv(types);
             String filename = "stock_alerts.csv";
 
             return ResponseEntity

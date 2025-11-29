@@ -35,26 +35,26 @@ public class ComparativeReportServiceImpl implements ComparativeReportService {
         String sql =
             "WITH current_year AS (" +
             "  SELECT " +
-            "    EXTRACT(MONTH FROM DATE(s.updated_at)) as month, " +
+            "    EXTRACT(MONTH FROM s.sale_date) as month, " +
             "    SUM(s.sales_amount - s.discount_amount) as ca, " +
             "    COUNT(DISTINCT s.id) as nb_trans " +
             "  FROM sales s " +
             "  WHERE s.statut = 'CLOSED' " +
             "    AND s.canceled = false " +
             "    AND s.ca = 'CA' " +
-            "    AND EXTRACT(YEAR FROM DATE(s.updated_at)) = :currentYear " +
+            "    AND EXTRACT(YEAR FROM s.sale_date) = :currentYear " +
             "  GROUP BY month " +
             "), " +
             "previous_year AS (" +
             "  SELECT " +
-            "    EXTRACT(MONTH FROM DATE(s.updated_at)) as month, " +
+            "    EXTRACT(MONTH FROM s.sale_date) as month, " +
             "    SUM(s.sales_amount - s.discount_amount) as ca, " +
             "    COUNT(DISTINCT s.id) as nb_trans " +
             "  FROM sales s " +
             "  WHERE s.statut = 'CLOSED' " +
             "    AND s.canceled = false " +
             "    AND s.ca = 'CA' " +
-            "    AND EXTRACT(YEAR FROM DATE(s.updated_at)) = :previousYear " +
+            "    AND EXTRACT(YEAR FROM s.sale_date) = :previousYear " +
             "  GROUP BY month " +
             ") " +
             "SELECT " +
@@ -75,7 +75,7 @@ public class ComparativeReportServiceImpl implements ComparativeReportService {
         return results
             .stream()
             .map(row -> {
-                Integer month = ((Number) row[0]).intValue();
+                int month = ((Number) row[0]).intValue();
                 Long currentCA = row[1] != null ? ((Number) row[1]).longValue() : 0L;
                 Long previousCA = row[2] != null ? ((Number) row[2]).longValue() : 0L;
                 Integer currentTrans = row[3] != null ? ((Number) row[3]).intValue() : 0;
@@ -96,7 +96,7 @@ public class ComparativeReportServiceImpl implements ComparativeReportService {
                     "MONTHLY"
                 );
             })
-            .collect(Collectors.toList());
+            .toList();
     }
 
     @Override
@@ -105,26 +105,26 @@ public class ComparativeReportServiceImpl implements ComparativeReportService {
         String sql =
             "WITH current_year AS (" +
             "  SELECT " +
-            "    EXTRACT(QUARTER FROM DATE(s.updated_at)) as quarter, " +
+            "    EXTRACT(QUARTER FROM s.sale_date) as quarter, " +
             "    SUM(s.sales_amount - s.discount_amount) as ca, " +
             "    COUNT(DISTINCT s.id) as nb_trans " +
             "  FROM sales s " +
             "  WHERE s.statut = 'CLOSED' " +
             "    AND s.canceled = false " +
             "    AND s.ca = 'CA' " +
-            "    AND EXTRACT(YEAR FROM DATE(s.updated_at)) = :currentYear " +
+            "    AND EXTRACT(YEAR FROM s.sale_date) = :currentYear " +
             "  GROUP BY quarter " +
             "), " +
             "previous_year AS (" +
             "  SELECT " +
-            "    EXTRACT(QUARTER FROM DATE(s.updated_at)) as quarter, " +
+            "    EXTRACT(QUARTER FROM s.sale_date) as quarter, " +
             "    SUM(s.sales_amount - s.discount_amount) as ca, " +
             "    COUNT(DISTINCT s.id) as nb_trans " +
             "  FROM sales s " +
             "  WHERE s.statut = 'CLOSED' " +
             "    AND s.canceled = false " +
             "    AND s.ca = 'CA' " +
-            "    AND EXTRACT(YEAR FROM DATE(s.updated_at)) = :previousYear " +
+            "    AND EXTRACT(YEAR FROM s.sale_date) = :previousYear " +
             "  GROUP BY quarter " +
             ") " +
             "SELECT " +
@@ -168,7 +168,7 @@ public class ComparativeReportServiceImpl implements ComparativeReportService {
                     "QUARTERLY"
                 );
             })
-            .collect(Collectors.toList());
+            .toList();
     }
 
     @Override
@@ -176,14 +176,14 @@ public class ComparativeReportServiceImpl implements ComparativeReportService {
     public List<ComparativeCADTO> getYearlyComparison(LocalDate startDate, LocalDate endDate) {
         String sql =
             "SELECT " +
-            "  EXTRACT(YEAR FROM DATE(s.sale_date)) as year, " +
+            "  EXTRACT(YEAR FROM s.sale_date) as year, " +
             "  SUM(s.sales_amount - s.discount_amount) as ca, " +
             "  COUNT(DISTINCT s.id) as nb_trans " +
             "FROM sales s " +
             "WHERE s.statut = 'CLOSED' " +
             "  AND s.canceled = false " +
             "  AND s.ca = 'CA' " +
-            "  AND DATE(s.sale_date) BETWEEN :startDate AND :endDate " +
+            "  AND s.sale_date BETWEEN :startDate AND :endDate " +
             "GROUP BY year " +
             "ORDER BY year";
 
@@ -239,7 +239,7 @@ public class ComparativeReportServiceImpl implements ComparativeReportService {
             "  WHERE s.statut = 'CLOSED' " +
             "    AND s.canceled = false " +
             "    AND s.ca = 'CA' " +
-            "    AND EXTRACT(YEAR FROM DATE(s.sale_date)) = :currentYear " +
+            "    AND EXTRACT(YEAR FROM s.sale_date) = :currentYear " +
             "  GROUP BY s.nature_vente " +
             "), " +
             "previous_year AS (" +
@@ -251,7 +251,7 @@ public class ComparativeReportServiceImpl implements ComparativeReportService {
             "  WHERE s.statut = 'CLOSED' " +
             "    AND s.canceled = false " +
             "    AND s.ca = 'CA' " +
-            "    AND EXTRACT(YEAR FROM DATE(s.sale_date)) = :previousYear " +
+            "    AND EXTRACT(YEAR FROM s.sale_date) = :previousYear " +
             "  GROUP BY s.nature_vente " +
             ") " +
             "SELECT " +
@@ -288,7 +288,7 @@ public class ComparativeReportServiceImpl implements ComparativeReportService {
                     previousCount
                 );
             })
-            .collect(Collectors.toList());
+            .toList();
     }
 
     @Override
@@ -362,7 +362,7 @@ public class ComparativeReportServiceImpl implements ComparativeReportService {
             "WHERE s.statut = 'CLOSED' " +
             "  AND s.canceled = false " +
             "  AND s.ca = 'CA' " +
-            "  AND DATE(s.updated_at) BETWEEN :start AND :end";
+            "  AND s.sale_date BETWEEN :start AND :end";
 
         Query query = entityManager.createNativeQuery(sql);
         query.setParameter("start", start);
@@ -383,10 +383,8 @@ public class ComparativeReportServiceImpl implements ComparativeReportService {
 
     private String getSalesTypeLabel(String type) {
         return switch (type) {
-            case "VNO" -> "Vente Normale Officine";
+            case "VNO" -> "Vente au comptant";
             case "VO" -> "Vente Ordonnance";
-            case "VA" -> "Vente Assurance";
-            case "VE" -> "Vente Entrepôt";
             default -> type;
         };
     }

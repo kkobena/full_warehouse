@@ -179,33 +179,7 @@ public class ProfitabilityReportServiceImpl implements ProfitabilityReportServic
         );
     }
 
-    @Override
-    public byte[] exportProfitabilityToPdf() {
-        // Get the profitability data
-        List<ProductProfitabilityDTO> products = getAllProductProfitability();
-        ProfitabilitySummaryDTO summary = getProfitabilitySummary();
 
-        // Prepare Thymeleaf context
-        Context context = new Context();
-        context.setVariable("products", products);
-        context.setVariable("summary", summary);
-        context.setVariable("reportTitle", "Rapport de Rentabilité (Analyse BCG)");
-        context.setVariable("page_count", "1/1");
-
-        // Generate HTML from template
-        String htmlContent = templateEngine.process("reports/profitability/main", context);
-
-        // Convert HTML to PDF
-        try (ByteArrayOutputStream outputStream = new ByteArrayOutputStream()) {
-            ITextRenderer renderer = new ITextRenderer();
-            renderer.setDocumentFromString(htmlContent);
-            renderer.layout();
-            renderer.createPDF(outputStream);
-            return outputStream.toByteArray();
-        } catch (Exception e) {
-            throw new RuntimeException("Error generating PDF", e);
-        }
-    }
 
     private List<ProductProfitabilityDTO> mapResultsToDTO(List<Object[]> results) {
         return results

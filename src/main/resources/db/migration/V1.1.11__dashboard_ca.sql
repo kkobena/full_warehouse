@@ -12,12 +12,15 @@ DROP MATERIALIZED VIEW IF EXISTS mv_dashboard_ca_product_families CASCADE;
 CREATE MATERIALIZED VIEW mv_dashboard_ca_daily AS
 WITH daily_sales AS (
     SELECT
-        DATE(s.updated_at) as sale_date,
+        s.sale_date as sale_date,
         s.id as sale_id,
-        s.avoir,
         s.sales_amount,
         s.discount_amount,
-        s.cost_amount,
+         COALESCE((
+            SELECT SUM(sl.cost_amount*sl.quantity_sold)
+            FROM sales_line sl
+            WHERE sl.sales_id = s.id
+        ), 0) as cost_amount,
         s.customer_id,
         (s.rest_to_pay + s.part_tiers_payant) as montant_restant,
         COALESCE((
@@ -26,16 +29,14 @@ WITH daily_sales AS (
             WHERE pt.sale_id = s.id
         ), 0) as montant_encaisse
     FROM sales s
-    WHERE s.statut IN ('CLOSED')
+    WHERE s.statut='CLOSED'
       AND s.canceled = false
       AND s.ca = 'CA'
 )
 SELECT
     sale_date,
     COUNT(DISTINCT sale_id) as nb_transactions,
-    COUNT(DISTINCT CASE WHEN avoir THEN sale_id END) as nb_avoirs,
     SUM(sales_amount) as ca_total,
-    SUM(CASE WHEN avoir THEN sales_amount ELSE 0 END) as ca_avoirs,
     SUM(sales_amount - discount_amount) as ca_net,
     AVG(sales_amount) as panier_moyen,
     SUM(cost_amount) as cout_total,
@@ -51,48 +52,49 @@ SELECT
 FROM daily_sales
 GROUP BY sale_date;
 
-CREATE INDEX idx_mv_dashboard_ca_daily_date ON mv_dashboard_ca_daily(sale_date DESC);
 
+CREATE UNIQUE INDEX IF NOT EXISTS idx_mv_dashboard_ca_daily_unique
+  ON mv_dashboard_ca_daily(sale_date DESC);
 -- ======================================================
 -- 2. CA by Payment Method
 -- ======================================================
 CREATE MATERIALIZED VIEW mv_dashboard_ca_payment_methods AS
 SELECT
-    DATE(pt.created_at) as payment_date,
+    pt.transaction_date as payment_date,
     pm.libelle as payment_method,
     pm.code as payment_code,
     COUNT(DISTINCT pt.id) as nb_payments,
     SUM(pt.paid_amount) as montant_total,
-    SUM(CASE WHEN s.avoir THEN pt.paid_amount ELSE 0 END) as montant_avoirs,
     AVG(pt.paid_amount) as montant_moyen
 FROM payment_transaction pt
-INNER JOIN mode_payment pm ON pt.payment_mode_id = pm.id
+INNER JOIN payment_mode pm ON pt.payment_mode_code = pm.code
 INNER JOIN sales s ON pt.sale_id = s.id
-WHERE s.statut IN ('CLOSED')
+WHERE s.statut ='CLOSED'
   AND s.canceled = false
   AND s.ca = 'CA'
-GROUP BY DATE(pt.created_at), pm.libelle, pm.code;
+GROUP BY pt.transaction_date, pm.libelle, pm.code;
 
 CREATE INDEX idx_mv_dashboard_ca_payment_date ON mv_dashboard_ca_payment_methods(payment_date DESC);
 CREATE INDEX idx_mv_dashboard_ca_payment_code ON mv_dashboard_ca_payment_methods(payment_code);
-
+CREATE UNIQUE INDEX IF NOT EXISTS idx_mv_dashboard_ca_payment_methods_unique
+  ON mv_dashboard_ca_payment_methods(payment_date, payment_code);
 -- ======================================================
 -- 3. CA by Product Family
 -- ======================================================
 CREATE MATERIALIZED VIEW mv_dashboard_ca_product_families AS
 WITH product_sales AS (
     SELECT
-        DATE(s.updated_at) as sale_date,
+        s.sale_date as sale_date,
         COALESCE(fp.libelle, 'Non classé') as famille,
         sl.quantity_sold,
         sl.sales_amount,
-        sl.cost_amount*sl.quantity_sold,
+        sl.cost_amount*sl.quantity_sold AS cost_amount,
         (sl.sales_amount - (sl.cost_amount*sl.quantity_sold)) as marge
     FROM sales s
     INNER JOIN sales_line sl ON s.id = sl.sales_id
     INNER JOIN produit p ON sl.produit_id = p.id
     LEFT JOIN famille_produit fp ON p.famille_id = fp.id
-    WHERE s.statut IN ('CLOSED')
+    WHERE s.statut ='CLOSED'
       AND s.canceled = false
       AND s.ca = 'CA'
 )
@@ -114,15 +116,12 @@ GROUP BY sale_date, famille;
 
 CREATE INDEX idx_mv_dashboard_ca_families_date ON mv_dashboard_ca_product_families(sale_date DESC);
 CREATE INDEX idx_mv_dashboard_ca_families_name ON mv_dashboard_ca_product_families(famille);
+CREATE UNIQUE INDEX IF NOT EXISTS idx_mv_dashboard_ca_families_unique
+  ON mv_dashboard_ca_product_families(sale_date, famille);
 
--- ======================================================
--- Grant permissions
--- ======================================================
-GRANT SELECT ON mv_dashboard_ca_daily TO warehouse;
-GRANT SELECT ON mv_dashboard_ca_payment_methods TO warehouse;
-GRANT SELECT ON mv_dashboard_ca_product_families TO warehouse;
 
--- ======================================================
+
+  -- ======================================================
 -- Refresh function (to be called by scheduler or manually)
 -- ======================================================
 CREATE OR REPLACE FUNCTION refresh_dashboard_ca_views()

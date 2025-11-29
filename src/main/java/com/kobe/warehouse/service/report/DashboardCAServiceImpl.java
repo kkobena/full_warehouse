@@ -6,8 +6,6 @@ import com.kobe.warehouse.service.dto.report.DashboardCASummaryDTO;
 import com.kobe.warehouse.service.dto.report.PaymentMethodCADTO;
 import com.kobe.warehouse.service.dto.report.ProductFamilyCADTO;
 import com.kobe.warehouse.service.dto.report.TopProductDTO;
-import com.kobe.warehouse.service.report.excel.CsvExportService;
-import com.kobe.warehouse.service.report.excel.ReportExcelExportService;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.Query;
 import org.springframework.cache.annotation.CacheEvict;
@@ -24,6 +22,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 /**
@@ -34,20 +33,17 @@ import java.util.stream.Collectors;
 public class DashboardCAServiceImpl implements DashboardCAService {
 
     private final EntityManager entityManager;
-    private final ReportExcelExportService excelExportService;
-    private final CsvExportService csvExportService;
 
-    public DashboardCAServiceImpl(EntityManager entityManager, ReportExcelExportService excelExportService, CsvExportService csvExportService) {
+    public DashboardCAServiceImpl(EntityManager entityManager) {
         this.entityManager = entityManager;
-        this.excelExportService = excelExportService;
-        this.csvExportService = csvExportService;
+
     }
 
     @Override
     @Cacheable(value = "dashboardCA", key = "'daily_' + #startDate + '_' + #endDate")
     public List<DailyCADTO> getDailySummary(LocalDate startDate, LocalDate endDate) {
         String sql =
-            "SELECT sale_date, nb_transactions, nb_avoirs, ca_total, ca_avoirs, ca_net, " +
+            "SELECT sale_date, nb_transactions,  ca_total,  ca_net, " +
                 "panier_moyen, cout_total, marge_brute, taux_marge_pct, nb_clients, " +
                 "montant_encaisse, montant_credit " +
                 "FROM mv_dashboard_ca_daily " +
@@ -63,19 +59,17 @@ public class DashboardCAServiceImpl implements DashboardCAService {
             .stream()
             .map(row ->
                 new DailyCADTO(
-                    ((Date) row[0]).toLocalDate(),
+                    LocalDate.parse(row[0]+""),
                     (Integer) row[1],
-                    (Integer) row[2],
+                    ((Number) row[2]).longValue(),
                     ((Number) row[3]).longValue(),
-                    ((Number) row[4]).longValue(),
+                    (BigDecimal) row[4],
                     ((Number) row[5]).longValue(),
-                    (BigDecimal) row[6],
-                    ((Number) row[7]).longValue(),
-                    ((Number) row[8]).longValue(),
-                    (BigDecimal) row[9],
-                    (Integer) row[10],
-                    ((Number) row[11]).longValue(),
-                    ((Number) row[12]).longValue()
+                    ((Number) row[6]).longValue(),
+                    (BigDecimal) row[7],
+                    (Integer) row[8],
+                    ((Number) row[9]).longValue(),
+                    ((Number) row[10]).longValue()
                 )
             )
             .toList();
@@ -283,19 +277,20 @@ public class DashboardCAServiceImpl implements DashboardCAService {
                 "INNER JOIN sales_line sl ON s.id = sl.sales_id " +
                 "INNER JOIN produit p ON sl.produit_id = p.id " +
                 "LEFT JOIN fournisseur_produit fp ON p.fournisseur_produit_principal_id = fp.id " +
-                "WHERE s.statut IN ('CLOSED') " +
+                "WHERE s.statut='CLOSED' " +
                 "AND s.canceled = false " +
                 "AND s.ca = 'CA' " +
-                "AND DATE(s.updated_at) BETWEEN :startDate AND :endDate " +
+                "AND s.sale_date BETWEEN :startDate AND :endDate " +
                 "GROUP BY p.id, p.libelle, fp.code_cip " +
-                "ORDER BY ca DESC " +
-                "LIMIT :limit";
+                "ORDER BY ca DESC ";
+
 
         Query query = entityManager.createNativeQuery(sql);
         query.setParameter("period", startDate);
         query.setParameter("startDate", startDate);
         query.setParameter("endDate", endDate);
-        query.setParameter("limit", limit != null ? limit : 10);
+        query.setMaxResults(Objects.requireNonNullElse(limit, 10));
+
 
         List<Object[]> results = query.getResultList();
         return results
@@ -368,119 +363,4 @@ public class DashboardCAServiceImpl implements DashboardCAService {
         return (dayOfYear - dayOfWeek + 10) / 7;
     }
 
-    // ========== Export Methods ==========
-
-    @Override
-    public byte[] exportDailySummaryToExcel(LocalDate startDate, LocalDate endDate) throws Exception {
-        List<DailyCADTO> data = getDailySummary(startDate, endDate);
-
-        String title = "Chiffre d'Affaires Journalier - " + startDate + " au " + endDate;
-        String[] headers = {
-            "Date",
-            "Nb Trans.",
-            "Nb Avoirs",
-            "CA Total",
-            "CA Avoirs",
-            "CA Net",
-            "Panier Moyen",
-            "Coût Total",
-            "Marge Brute",
-            "Taux Marge %",
-            "Nb Clients",
-            "Encaissé",
-            "Crédit"
-        };
-
-        return excelExportService.createExcelReport(title, headers, data, (row, dto) -> {
-            row.createCell(0).setCellValue(dto.saleDate().toString());
-            row.createCell(1).setCellValue(dto.nbTransactions());
-            row.createCell(2).setCellValue(dto.nbAvoirs());
-            row.createCell(3).setCellValue(dto.caTotal() / 100.0);
-            row.createCell(4).setCellValue(dto.caAvoirs() / 100.0);
-            row.createCell(5).setCellValue(dto.caNet() / 100.0);
-            row.createCell(6).setCellValue(dto.panierMoyen().doubleValue());
-            row.createCell(7).setCellValue(dto.coutTotal() / 100.0);
-            row.createCell(8).setCellValue(dto.margeBrute() / 100.0);
-            row.createCell(9).setCellValue(dto.tauxMargePct().doubleValue());
-            row.createCell(10).setCellValue(dto.nbClients());
-            row.createCell(11).setCellValue(dto.montantEncaisse() / 100.0);
-            row.createCell(12).setCellValue(dto.montantCredit() / 100.0);
-        });
-    }
-
-    @Override
-    public byte[] exportDailySummaryToCsv(LocalDate startDate, LocalDate endDate) throws Exception {
-        List<DailyCADTO> data = getDailySummary(startDate, endDate);
-
-        String title = "Chiffre d'Affaires Journalier - " + startDate + " au " + endDate;
-        String[] headers = {
-            "Date",
-            "Nb Transactions",
-            "Nb Avoirs",
-            "CA Total",
-            "CA Avoirs",
-            "CA Net",
-            "Panier Moyen",
-            "Coût Total",
-            "Marge Brute",
-            "Taux Marge %",
-            "Nb Clients",
-            "Encaissé",
-            "Crédit"
-        };
-
-        byte[] csvData = csvExportService.createCsvReport(title, headers, data, dto -> new String[] {
-            dto.saleDate().toString(),
-            String.valueOf(dto.nbTransactions()),
-            String.valueOf(dto.nbAvoirs()),
-            String.format("%.2f", dto.caTotal() / 100.0),
-            String.format("%.2f", dto.caAvoirs() / 100.0),
-            String.format("%.2f", dto.caNet() / 100.0),
-            String.format("%.2f", dto.panierMoyen()),
-            String.format("%.2f", dto.coutTotal() / 100.0),
-            String.format("%.2f", dto.margeBrute() / 100.0),
-            String.format("%.2f", dto.tauxMargePct()),
-            String.valueOf(dto.nbClients()),
-            String.format("%.2f", dto.montantEncaisse() / 100.0),
-            String.format("%.2f", dto.montantCredit() / 100.0)
-        });
-
-        return csvExportService.addUtf8Bom(csvData);
-    }
-
-    @Override
-    public byte[] exportTopProductsToExcel(LocalDate startDate, LocalDate endDate) throws Exception {
-        List<TopProductDTO> data = getTopProducts(startDate, endDate, 50);
-
-        String title = "Top Produits par CA - " + startDate + " au " + endDate;
-        String[] headers = { "Code CIP", "Libellé", "Nb Ventes", "Qté Vendue", "CA Généré", "Prix Moyen"};
-
-        return excelExportService.createExcelReport(title, headers, data, (row, dto) -> {
-            row.createCell(0).setCellValue(dto.codeCip() != null ? dto.codeCip() : "");
-            row.createCell(1).setCellValue(dto.libelle() != null ? dto.libelle() : "");
-            row.createCell(2).setCellValue(dto.nbVentes() != null ? dto.nbVentes() : 0);
-            row.createCell(3).setCellValue(dto.qteVendue() != null ? dto.qteVendue() : 0);
-            row.createCell(4).setCellValue(dto.caGenere() != null ? dto.caGenere() / 100.0 : 0);
-            row.createCell(5).setCellValue(dto.prixMoyen() != null ? dto.prixMoyen().doubleValue() : 0);
-        });
-    }
-
-    @Override
-    public byte[] exportTopProductsToCsv(LocalDate startDate, LocalDate endDate) throws Exception {
-        List<TopProductDTO> data = getTopProducts(startDate, endDate, 50);
-
-        String title = "Top Produits par CA - " + startDate + " au " + endDate;
-        String[] headers = { "Code CIP", "Libellé", "Nb Ventes", "Qté Vendue", "CA Généré", "Prix Moyen"};
-
-        byte[] csvData = csvExportService.createCsvReport(title, headers, data, dto -> new String[] {
-            dto.codeCip() != null ? dto.codeCip() : "",
-            dto.libelle() != null ? dto.libelle() : "",
-            String.valueOf(dto.nbVentes() != null ? dto.nbVentes() : 0),
-            String.valueOf(dto.qteVendue() != null ? dto.qteVendue() : 0),
-            String.format("%.2f", dto.caGenere() != null ? dto.caGenere() / 100.0 : 0),
-            String.format("%.2f", dto.prixMoyen() != null ? dto.prixMoyen() : BigDecimal.ZERO)
-        });
-
-        return csvExportService.addUtf8Bom(csvData);
-    }
 }

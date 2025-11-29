@@ -35,7 +35,7 @@ public class DashboardLayoutResource {
      */
     @PutMapping("/{id}")
     public ResponseEntity<DashboardLayoutDTO> updateDashboardLayout(
-        @PathVariable Long id,
+        @PathVariable Integer id,
         @Valid @RequestBody DashboardLayoutDTO dashboardLayoutDTO
     ) {
         dashboardLayoutDTO.setId(id);
@@ -57,15 +57,15 @@ public class DashboardLayoutResource {
      */
     @GetMapping("/public")
     public ResponseEntity<List<DashboardLayoutDTO>> getPublicLayouts() {
-        List<DashboardLayoutDTO> layouts = dashboardLayoutService.findAllPublic();
-        return ResponseEntity.ok(layouts);
+
+        return ResponseEntity.ok(dashboardLayoutService.findAllPublic());
     }
 
     /**
      * GET /api/dashboard-layouts/{id} : Get a specific layout
      */
     @GetMapping("/{id}")
-    public ResponseEntity<DashboardLayoutDTO> getLayout(@PathVariable Long id) {
+    public ResponseEntity<DashboardLayoutDTO> getLayout(@PathVariable Integer id) {
         return dashboardLayoutService.findOne(id).map(ResponseEntity::ok).orElse(ResponseEntity.notFound().build());
     }
 
@@ -81,25 +81,25 @@ public class DashboardLayoutResource {
      * PUT /api/dashboard-layouts/{id}/set-default : Set layout as default
      */
     @PutMapping("/{id}/set-default")
-    public ResponseEntity<DashboardLayoutDTO> setAsDefault(@PathVariable Long id) {
-        DashboardLayoutDTO result = dashboardLayoutService.setAsDefault(id);
-        return ResponseEntity.ok(result);
+    public ResponseEntity<DashboardLayoutDTO> setAsDefault(@PathVariable Integer id) {
+
+        return ResponseEntity.ok( dashboardLayoutService.setAsDefault(id));
     }
 
     /**
      * POST /api/dashboard-layouts/{id}/clone : Clone a layout
      */
     @PostMapping("/{id}/clone")
-    public ResponseEntity<DashboardLayoutDTO> cloneLayout(@PathVariable Long id, @RequestParam String newName) {
-        DashboardLayoutDTO result = dashboardLayoutService.clone(id, newName);
-        return ResponseEntity.status(HttpStatus.CREATED).body(result);
+    public ResponseEntity<DashboardLayoutDTO> cloneLayout(@PathVariable Integer id, @RequestParam String newName) {
+
+        return ResponseEntity.status(HttpStatus.CREATED).body(dashboardLayoutService.clone(id, newName));
     }
 
     /**
      * DELETE /api/dashboard-layouts/{id} : Delete a layout
      */
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> deleteLayout(@PathVariable Long id) {
+    public ResponseEntity<Void> deleteLayout(@PathVariable Integer id) {
         dashboardLayoutService.delete(id);
         return ResponseEntity.noContent().build();
     }

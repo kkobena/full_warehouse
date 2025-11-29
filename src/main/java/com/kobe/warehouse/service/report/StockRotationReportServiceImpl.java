@@ -22,8 +22,12 @@ import org.xhtmlrenderer.pdf.ITextRenderer;
 @Transactional(readOnly = true)
 public class StockRotationReportServiceImpl implements StockRotationReportService {
 
-    @PersistenceContext
-    private EntityManager entityManager;
+
+    private final EntityManager entityManager;
+
+    public StockRotationReportServiceImpl(EntityManager entityManager) {
+        this.entityManager = entityManager;
+    }
 
     @Override
     @Cacheable(value = "stockRotation", key = "'all'")

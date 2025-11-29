@@ -32,20 +32,12 @@ public class SalesForecastServiceImpl implements SalesForecastService {
         // Get historical data (last 24 months)
         Map<YearMonth, Long> historicalData = getHistoricalMonthlyCA(24);
 
-        List<SalesForecastDTO> forecasts;
-
-        switch (method.toUpperCase()) {
-            case "MOVING_AVERAGE":
-                forecasts = forecastMovingAverage(historicalData, monthsAhead);
-                break;
-            case "SEASONAL":
-                forecasts = forecastSeasonal(historicalData, monthsAhead);
-                break;
-            case "LINEAR_REGRESSION":
-            default:
-                forecasts = forecastLinearRegression(historicalData, monthsAhead);
-                break;
-        }
+        List<SalesForecastDTO> forecasts = switch (method.toUpperCase()) {
+            case "MOVING_AVERAGE" -> forecastMovingAverage(historicalData, monthsAhead);
+            case "SEASONAL" -> forecastSeasonal(historicalData, monthsAhead);
+            //  case "LINEAR_REGRESSION":
+            default -> forecastLinearRegression(historicalData, monthsAhead);
+        };
 
         return forecasts;
     }
@@ -173,14 +165,14 @@ public class SalesForecastServiceImpl implements SalesForecastService {
 
         String sql =
             "SELECT " +
-            "  DATE_TRUNC('month', DATE(s.updated_at)) as month, " +
+            "  DATE_TRUNC('month', s.sale_date) as month, " +
             "  SUM(s.sales_amount - s.discount_amount) as ca " +
             "FROM sales s " +
             "WHERE s.statut = 'CLOSED' " +
             "  AND s.canceled = false " +
             "  AND s.ca = 'CA' " +
-            "  AND DATE(s.updated_at) BETWEEN :startDate AND :endDate " +
-            "GROUP BY DATE_TRUNC('month', DATE(s.updated_at)) " +
+            "  AND s.sale_date BETWEEN :startDate AND :endDate " +
+            "GROUP BY DATE_TRUNC('month', s.sale_date) " +
             "ORDER BY month";
 
         Query query = entityManager.createNativeQuery(sql);
@@ -258,9 +250,7 @@ public class SalesForecastServiceImpl implements SalesForecastService {
         List<Long> values = new ArrayList<>(historicalData.values());
 
         int windowSize = Math.min(6, values.size()); // 6-month moving average
-        if (values.size() < windowSize) {
-            return Collections.emptyList();
-        }
+
 
         // Calculate moving average of last N months
         long sum = 0;
@@ -271,7 +261,7 @@ public class SalesForecastServiceImpl implements SalesForecastService {
 
         // Use moving average as forecast
         List<SalesForecastDTO> forecasts = new ArrayList<>();
-        YearMonth lastMonth = months.get(months.size() - 1);
+        YearMonth lastMonth = months.getLast();
 
         for (int i = 1; i <= monthsAhead; i++) {
             YearMonth forecastMonth = lastMonth.plusMonths(i);
@@ -296,9 +286,7 @@ public class SalesForecastServiceImpl implements SalesForecastService {
     private List<SalesForecastDTO> forecastSeasonal(Map<YearMonth, Long> historicalData, Integer monthsAhead) {
         // Group by month to find seasonal pattern
         Map<Integer, List<Long>> byMonth = new HashMap<>();
-        historicalData.forEach((yearMonth, ca) -> {
-            byMonth.computeIfAbsent(yearMonth.getMonthValue(), k -> new ArrayList<>()).add(ca);
-        });
+        historicalData.forEach((yearMonth, ca) -> byMonth.computeIfAbsent(yearMonth.getMonthValue(), k -> new ArrayList<>()).add(ca));
 
         // Calculate average for each month
         Map<Integer, Long> monthlyAverages = byMonth.entrySet().stream()

@@ -1,41 +1,7 @@
-// Stock Valuation Component Styles
+@import 'app/shared/scss/table-common';
+@import 'app/shared/scss/pharma-toolbar';
 
-.pharma-smart-content {
-  padding: 1rem;
-  background-color: var(--surface-ground);
-  min-height: 100vh;
-}
 
-.pharma-toolbar {
-  margin-bottom: 1.5rem;
-
-  &.pharma-toolbar-compact {
-    .pharma-toolbar-header {
-      display: flex;
-      align-items: center;
-      gap: 0.75rem;
-      padding: 0.75rem 1rem;
-      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-      border-radius: 8px 8px 0 0;
-      color: white;
-
-      i {
-        font-size: 1.5rem;
-      }
-
-      .pharma-toolbar-title {
-        font-size: 1.25rem;
-        font-weight: 600;
-      }
-    }
-  }
-
-  .pharma-toolbar-filters {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 0.5rem;
-  }
-}
 
 // Card enhancements
 p-card {

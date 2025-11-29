@@ -1,4 +1,6 @@
-// Top Products Component Styles
+@import 'app/shared/scss/table-common';
+@import 'app/shared/scss/pharma-toolbar';
+
 .pharma-toolbar-filters {
   display: flex;
   flex-wrap: wrap;

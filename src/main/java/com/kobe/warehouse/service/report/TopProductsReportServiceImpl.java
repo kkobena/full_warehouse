@@ -4,15 +4,15 @@ import com.kobe.warehouse.service.dto.report.TopProductDTO;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
 import jakarta.persistence.Query;
+import org.springframework.cache.annotation.Cacheable;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
 import java.math.BigDecimal;
 import java.sql.Timestamp;
 import java.time.LocalDate;
 import java.time.temporal.TemporalAdjusters;
 import java.util.List;
-import java.util.stream.Collectors;
-import org.springframework.cache.annotation.Cacheable;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @Transactional(readOnly = true)
@@ -29,22 +29,22 @@ public class TopProductsReportServiceImpl implements TopProductsReportService {
 
         String sql =
             "SELECT " +
-            "mois, " +
-            "produit_id, " +
-            "libelle, " +
-            "code_cip, " +
-            "nb_ventes, " +
-            "qte_vendue, " +
-            "ca_genere, " +
-            "prix_moyen " +
-            "FROM mv_monthly_top_products " +
-            "WHERE DATE_TRUNC('month', mois) = DATE_TRUNC('month', :month::date) " +
-            "ORDER BY ca_genere DESC " +
-            "LIMIT :limit";
+                "mois, " +
+                "produit_id, " +
+                "libelle, " +
+                "code_cip, " +
+                "nb_ventes, " +
+                "qte_vendue, " +
+                "ca_genere, " +
+                "prix_moyen " +
+                "FROM mv_monthly_top_products " +
+                "WHERE DATE_TRUNC('month', mois) = DATE_TRUNC('month', :month::date) " +
+                "ORDER BY ca_genere DESC ";
+
 
         Query query = entityManager.createNativeQuery(sql);
         query.setParameter("month", firstDayOfMonth);
-        query.setParameter("limit", limit);
+        query.setMaxResults(limit);
 
         @SuppressWarnings("unchecked")
         List<Object[]> results = query.getResultList();
@@ -60,22 +60,22 @@ public class TopProductsReportServiceImpl implements TopProductsReportService {
 
         String sql =
             "SELECT " +
-            "mois, " +
-            "produit_id, " +
-            "libelle, " +
-            "code_cip, " +
-            "nb_ventes, " +
-            "qte_vendue, " +
-            "ca_genere, " +
-            "prix_moyen " +
-            "FROM mv_monthly_top_products " +
-            "WHERE DATE_TRUNC('month', mois) = DATE_TRUNC('month', :month::date) " +
-            "ORDER BY qte_vendue DESC " +
-            "LIMIT :limit";
+                "mois, " +
+                "produit_id, " +
+                "libelle, " +
+                "code_cip, " +
+                "nb_ventes, " +
+                "qte_vendue, " +
+                "ca_genere, " +
+                "prix_moyen " +
+                "FROM mv_monthly_top_products " +
+                "WHERE DATE_TRUNC('month', mois) = DATE_TRUNC('month', :month::date) " +
+                "ORDER BY qte_vendue DESC ";
+
 
         Query query = entityManager.createNativeQuery(sql);
         query.setParameter("month", firstDayOfMonth);
-        query.setParameter("limit", limit);
+        query.setMaxResults(limit);
 
         @SuppressWarnings("unchecked")
         List<Object[]> results = query.getResultList();
@@ -91,17 +91,17 @@ public class TopProductsReportServiceImpl implements TopProductsReportService {
 
         String sql =
             "SELECT " +
-            "mois, " +
-            "produit_id, " +
-            "libelle, " +
-            "code_cip, " +
-            "nb_ventes, " +
-            "qte_vendue, " +
-            "ca_genere, " +
-            "prix_moyen " +
-            "FROM mv_monthly_top_products " +
-            "WHERE DATE_TRUNC('month', mois) = DATE_TRUNC('month', :month::date) " +
-            "ORDER BY ca_genere DESC";
+                "mois, " +
+                "produit_id, " +
+                "libelle, " +
+                "code_cip, " +
+                "nb_ventes, " +
+                "qte_vendue, " +
+                "ca_genere, " +
+                "prix_moyen " +
+                "FROM mv_monthly_top_products " +
+                "WHERE DATE_TRUNC('month', mois) = DATE_TRUNC('month', :month::date) " +
+                "ORDER BY ca_genere DESC";
 
         Query query = entityManager.createNativeQuery(sql);
         query.setParameter("month", firstDayOfMonth);
@@ -120,20 +120,20 @@ public class TopProductsReportServiceImpl implements TopProductsReportService {
 
         String sql =
             "SELECT " +
-            "mois, " +
-            "produit_id, " +
-            "libelle, " +
-            "code_cip, " +
-            "nb_ventes, " +
-            "qte_vendue, " +
-            "ca_genere, " +
-            "prix_moyen " +
-            "FROM mv_monthly_top_products " +
-            "WHERE produit_id = :produitId " +
-            "AND mois >= DATE_TRUNC('month', CURRENT_DATE) - INTERVAL '" +
-            months +
-            " months' " +
-            "ORDER BY mois DESC";
+                "mois, " +
+                "produit_id, " +
+                "libelle, " +
+                "code_cip, " +
+                "nb_ventes, " +
+                "qte_vendue, " +
+                "ca_genere, " +
+                "prix_moyen " +
+                "FROM mv_monthly_top_products " +
+                "WHERE produit_id = :produitId " +
+                "AND mois >= DATE_TRUNC('month', CURRENT_DATE) - INTERVAL '" +
+                months +
+                " months' " +
+                "ORDER BY mois DESC";
 
         Query query = entityManager.createNativeQuery(sql);
         query.setParameter("produitId", produitId);
@@ -159,6 +159,6 @@ public class TopProductsReportServiceImpl implements TopProductsReportService {
 
                 return new TopProductDTO(mois, produitId, libelle, codeCip, nbVentes, qteVendue, caGenere, prixMoyen);
             })
-            .collect(Collectors.toList());
+            .toList();
     }
 }

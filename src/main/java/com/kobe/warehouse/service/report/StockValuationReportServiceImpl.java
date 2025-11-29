@@ -20,8 +20,12 @@ import org.xhtmlrenderer.pdf.ITextRenderer;
 @Transactional(readOnly = true)
 public class StockValuationReportServiceImpl implements StockValuationReportService {
 
-    @PersistenceContext
-    private EntityManager entityManager;
+
+    private final EntityManager entityManager;
+
+    public StockValuationReportServiceImpl(EntityManager entityManager) {
+        this.entityManager = entityManager;
+    }
 
 
     @Override

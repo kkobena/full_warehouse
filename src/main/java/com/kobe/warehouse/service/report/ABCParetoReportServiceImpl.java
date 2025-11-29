@@ -21,10 +21,12 @@ import org.xhtmlrenderer.pdf.ITextRenderer;
 @Transactional(readOnly = true)
 public class ABCParetoReportServiceImpl  implements ABCParetoReportService {
 
-    @PersistenceContext
-    private EntityManager entityManager;
 
+    private final EntityManager entityManager;
 
+    public ABCParetoReportServiceImpl(EntityManager entityManager) {
+        this.entityManager = entityManager;
+    }
 
 
     @Override

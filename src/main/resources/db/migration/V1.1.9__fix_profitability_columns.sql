@@ -1,5 +1,5 @@
 -- =====================================================
--- Fix V1.1.8: Correct column references from stock_produit
+-- Fix V1.1.9: Correct column references from stock_produit
 -- =====================================================
 
 -- Drop the existing materialized view with incorrect column names
@@ -15,7 +15,7 @@ WITH product_margins AS (
         f.libelle as categorie,
 
         -- Quantités vendues
-        COUNT(DISTINCT sl.sale_id) as nb_ventes,
+        COUNT(DISTINCT sl.sales_id) as nb_ventes,
         SUM(sl.quantity_sold) as qte_vendue,
 
         -- Chiffre d'affaires
@@ -62,9 +62,9 @@ WITH product_margins AS (
 
     FROM produit p
     LEFT JOIN fournisseur_produit fp ON p.fournisseur_produit_principal_id = fp.id
-    LEFT JOIN famille f ON p.famille_id = f.id
+    LEFT JOIN famille_produit f ON p.famille_id = f.id
     LEFT JOIN sales_line sl ON p.id = sl.produit_id
-    LEFT JOIN sales s ON sl.sale_id = s.id
+    LEFT JOIN sales s ON sl.sales_id = s.id
     LEFT JOIN stock_produit sp ON p.id = sp.produit_id
 
     WHERE s.statut = 'CLOSED'
@@ -97,7 +97,8 @@ CREATE INDEX IF NOT EXISTS idx_mv_profitability_marge ON mv_product_profitabilit
 CREATE INDEX IF NOT EXISTS idx_mv_profitability_taux_marge ON mv_product_profitability(taux_marge_pct);
 CREATE INDEX IF NOT EXISTS idx_mv_profitability_bcg ON mv_product_profitability(bcg_category);
 CREATE INDEX IF NOT EXISTS idx_mv_profitability_categorie ON mv_product_profitability(categorie);
-
+CREATE UNIQUE INDEX IF NOT EXISTS idx_mv_product_profitability_unique
+  ON mv_product_profitability(produit_id);
 -- Recreate profitability summary view
 DROP MATERIALIZED VIEW IF EXISTS mv_profitability_summary;
 

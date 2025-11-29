@@ -20,7 +20,7 @@ public class DashboardLayout implements Serializable {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+    private Integer id;
 
     @NotNull
     @Column(name = "name", nullable = false)
@@ -35,7 +35,7 @@ public class DashboardLayout implements Serializable {
 
     @NotNull
     @Enumerated(EnumType.STRING)
-    @Column(name = "scope", nullable = false)
+    @Column(name = "scope", nullable = false, length = 10)
     private DashboardScope scope; // PRIVATE, SHARED, PUBLIC
 
     @Column(name = "is_default")
@@ -64,11 +64,11 @@ public class DashboardLayout implements Serializable {
 
     // Getters and Setters
 
-    public Long getId() {
+    public Integer getId() {
         return id;
     }
 
-    public void setId(Long id) {
+    public void setId(Integer id) {
         this.id = id;
     }
 

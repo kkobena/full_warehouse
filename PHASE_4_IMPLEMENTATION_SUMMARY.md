@@ -151,7 +151,7 @@ GET /api/market-basket/recommendations/{productId}      - Recommandations
   - `ScheduledReportResource.java` - CRUD + execute endpoint
 
 #### Migration SQL
-- `V1.1.13__scheduled_reports.sql` - Table scheduled_report
+- `V1.1.12__scheduled_reports.sql` - Table scheduled_report
 
 #### Fonctionnalités Clés
 - ✅ Planification automatique de rapports
@@ -241,7 +241,7 @@ src/main/webapp/app/
 ### SQL Migrations (1 fichier)
 ```
 src/main/resources/db/migration/
-└── V1.1.13__scheduled_reports.sql               ⭐ NEW
+└── V1.1.12__scheduled_reports.sql               ⭐ NEW
 ```
 
 ---

@@ -51,10 +51,4 @@ public interface ProfitabilityReportService {
      */
     ProfitabilitySummaryDTO getProfitabilitySummary();
 
-    /**
-     * Export profitability report as PDF
-     *
-     * @return PDF bytes
-     */
-    byte[] exportProfitabilityToPdf();
 }

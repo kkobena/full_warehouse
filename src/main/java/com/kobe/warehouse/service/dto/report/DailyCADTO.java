@@ -9,9 +9,7 @@ import java.time.LocalDate;
 public record DailyCADTO(
     LocalDate saleDate,
     Integer nbTransactions,
-    Integer nbAvoirs,
     Long caTotal,
-    Long caAvoirs,
     Long caNet,
     BigDecimal panierMoyen,
     Long coutTotal,

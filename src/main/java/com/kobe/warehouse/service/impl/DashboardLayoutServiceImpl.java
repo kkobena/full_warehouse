@@ -93,7 +93,7 @@ public class DashboardLayoutServiceImpl implements DashboardLayoutService {
 
     @Override
     @Transactional(readOnly = true)
-    public Optional<DashboardLayoutDTO> findOne(Long id) {
+    public Optional<DashboardLayoutDTO> findOne(Integer id) {
         return dashboardLayoutRepository.findById(id).map(this::toDTO);
     }
 
@@ -105,7 +105,7 @@ public class DashboardLayoutServiceImpl implements DashboardLayoutService {
     }
 
     @Override
-    public DashboardLayoutDTO setAsDefault(Long id) {
+    public DashboardLayoutDTO setAsDefault(Integer id) {
         AppUser currentUser = getCurrentUser();
 
         DashboardLayout dashboardLayout = dashboardLayoutRepository
@@ -128,7 +128,7 @@ public class DashboardLayoutServiceImpl implements DashboardLayoutService {
     }
 
     @Override
-    public void delete(Long id) {
+    public void delete(Integer id) {
         AppUser currentUser = getCurrentUser();
 
         DashboardLayout dashboardLayout = dashboardLayoutRepository
@@ -144,7 +144,7 @@ public class DashboardLayoutServiceImpl implements DashboardLayoutService {
     }
 
     @Override
-    public DashboardLayoutDTO clone(Long id, String newName) {
+    public DashboardLayoutDTO clone(Integer id, String newName) {
         AppUser currentUser = getCurrentUser();
 
         DashboardLayout original = dashboardLayoutRepository

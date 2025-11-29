@@ -8,7 +8,7 @@ import java.time.LocalDateTime;
  */
 public class DashboardLayoutDTO {
 
-    private Long id;
+    private Integer id;
     private String name;
     private String description;
     private Integer userId;
@@ -24,7 +24,7 @@ public class DashboardLayoutDTO {
     public DashboardLayoutDTO() {}
 
     public DashboardLayoutDTO(
-        Long id,
+        Integer id,
         String name,
         String description,
         Integer userId,
@@ -49,11 +49,11 @@ public class DashboardLayoutDTO {
 
     // Getters and Setters
 
-    public Long getId() {
+    public Integer getId() {
         return id;
     }
 
-    public void setId(Long id) {
+    public void setId(Integer id) {
         this.id = id;
     }
 

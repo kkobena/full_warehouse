@@ -8,7 +8,9 @@ import java.io.Serializable;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
+import java.util.HashSet;
 import java.util.Map;
+import java.util.Set;
 
 import org.hibernate.annotations.Cache;
 import org.hibernate.annotations.CacheConcurrencyStrategy;
@@ -55,9 +57,9 @@ public class ScheduledReport implements Serializable {
     @NotNull
     @Column(name = "active", nullable = false)
     private boolean active = true;
-
-    @Column(name = "email_recipients")
-    private String emailRecipients; // Comma-separated emails
+    @JdbcTypeCode(SqlTypes.JSON)
+    @Column(columnDefinition = "jsonb", name = "email_recipients", length = 200)
+    private Set<String> emailRecipients=new HashSet<>(); // Comma-separated emails
 
     @Column(name = "include_pdf", nullable = false)
     private boolean includePdf = true;
@@ -142,16 +144,13 @@ public class ScheduledReport implements Serializable {
         this.dayOfMonth = dayOfMonth;
     }
 
-
-
-    public String getEmailRecipients() {
+    public Set<String> getEmailRecipients() {
         return emailRecipients;
     }
 
-    public void setEmailRecipients(String emailRecipients) {
+    public void setEmailRecipients(Set<String> emailRecipients) {
         this.emailRecipients = emailRecipients;
     }
-
 
     public void setIncludeExcel(Boolean includeExcel) {
         this.includeExcel = includeExcel;

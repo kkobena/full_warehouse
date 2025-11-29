@@ -49,10 +49,4 @@ public interface CustomerSegmentationReportService {
      */
     CustomerSegmentationDTO getCustomerSegmentation(Integer customerId);
 
-    /**
-     * Export customer segmentation report as PDF
-     *
-     * @return PDF bytes
-     */
-    byte[] exportCustomerSegmentationToPdf();
 }

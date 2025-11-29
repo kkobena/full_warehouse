@@ -1,44 +1,28 @@
 package com.kobe.warehouse.service.report;
 
-import com.kobe.warehouse.domain.enumeration.InvoiceStatut;
-import com.kobe.warehouse.repository.FactureTiersPayantRepository;
 import com.kobe.warehouse.service.dto.report.TiersPayantCreancesSummaryDTO;
 import com.kobe.warehouse.service.dto.report.TiersPayantInvoiceDTO;
 import jakarta.persistence.EntityManager;
-import jakarta.persistence.PersistenceContext;
 import jakarta.persistence.Query;
-import java.io.ByteArrayOutputStream;
-import java.math.BigDecimal;
-import java.sql.Date;
-import java.time.LocalDate;
-import java.time.temporal.ChronoUnit;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.stream.Collectors;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.thymeleaf.context.Context;
-import org.thymeleaf.spring6.SpringTemplateEngine;
-import org.xhtmlrenderer.pdf.ITextRenderer;
+
+import java.sql.Date;
+import java.time.LocalDate;
+import java.util.List;
 
 @Service
 @Transactional(readOnly = true)
 public class TiersPayantReportServiceImpl implements TiersPayantReportService {
 
-    @PersistenceContext
-    private EntityManager entityManager;
 
-    private final FactureTiersPayantRepository factureTiersPayantRepository;
-    private final SpringTemplateEngine templateEngine;
+    private final EntityManager entityManager;
 
-    public TiersPayantReportServiceImpl(
-        FactureTiersPayantRepository factureTiersPayantRepository,
-        SpringTemplateEngine templateEngine
-    ) {
-        this.factureTiersPayantRepository = factureTiersPayantRepository;
-        this.templateEngine = templateEngine;
+    public TiersPayantReportServiceImpl(EntityManager entityManager) {
+        this.entityManager = entityManager;
     }
+
 
     @Override
     public List<TiersPayantInvoiceDTO> getUnpaidInvoices(
@@ -136,20 +120,20 @@ public class TiersPayantReportServiceImpl implements TiersPayantReportService {
     public List<TiersPayantCreancesSummaryDTO> getCreancesSummary() {
         String sql =
             "SELECT " +
-            "gtp.id, " +
-            "gtp.name as groupe_tiers_payant_libelle, " +
-            "COUNT(f.id) as nombre_factures, " +
-            "SUM(fi.montant) as montant_total, " +
-            "SUM(CASE WHEN (CURRENT_DATE - f.invoice_date) < 30 THEN fi.montant - f.montant_regle ELSE 0 END) as moins_30j, " +
-            "SUM(CASE WHEN (CURRENT_DATE - f.invoice_date) BETWEEN 30 AND 60 THEN fi.montant - f.montant_regle ELSE 0 END) as entre_30_60j, " +
-            "SUM(CASE WHEN (CURRENT_DATE - f.invoice_date) BETWEEN 60 AND 90 THEN fi.montant - f.montant_regle ELSE 0 END) as entre_60_90j, " +
-            "SUM(CASE WHEN (CURRENT_DATE - f.invoice_date) > 90 THEN fi.montant - f.montant_regle ELSE 0 END) as plus_90j " +
-            "FROM groupe_tiers_payant gtp " +
-            "INNER JOIN facture_tiers_payant f ON gtp.id = f.groupe_tiers_payant_id " +
-            "LEFT JOIN facture_item fi ON f.id = fi.facture_id AND f.invoice_date = fi.facture_invoice_date " +
-            "WHERE f.statut IN ('NOT_PAID', 'PARTIALLY_PAID') " +
-            "GROUP BY gtp.id, gtp.name " +
-            "ORDER BY montant_total DESC";
+                "gtp.id, " +
+                "gtp.name as groupe_tiers_payant_libelle, " +
+                "COUNT(f.id) as nombre_factures, " +
+                "SUM(fi.montant) as montant_total, " +
+                "SUM(CASE WHEN (CURRENT_DATE - f.invoice_date) < 30 THEN fi.montant - f.montant_regle ELSE 0 END) as moins_30j, " +
+                "SUM(CASE WHEN (CURRENT_DATE - f.invoice_date) BETWEEN 30 AND 60 THEN fi.montant - f.montant_regle ELSE 0 END) as entre_30_60j, " +
+                "SUM(CASE WHEN (CURRENT_DATE - f.invoice_date) BETWEEN 60 AND 90 THEN fi.montant - f.montant_regle ELSE 0 END) as entre_60_90j, " +
+                "SUM(CASE WHEN (CURRENT_DATE - f.invoice_date) > 90 THEN fi.montant - f.montant_regle ELSE 0 END) as plus_90j " +
+                "FROM groupe_tiers_payant gtp " +
+                "INNER JOIN facture_tiers_payant f ON gtp.id = f.groupe_tiers_payant_id " +
+                "LEFT JOIN facture_item fi ON f.id = fi.facture_id AND f.invoice_date = fi.facture_invoice_date " +
+                "WHERE f.statut IN ('NOT_PAID', 'PARTIALLY_PAID') " +
+                "GROUP BY gtp.id, gtp.name " +
+                "ORDER BY montant_total DESC";
 
         Query query = entityManager.createNativeQuery(sql);
 
@@ -251,7 +235,6 @@ public class TiersPayantReportServiceImpl implements TiersPayantReportService {
     }
 
 
-
     private TiersPayantInvoiceDTO.InvoiceStatus mapInvoiceStatus(String statut) {
         if (statut == null) return TiersPayantInvoiceDTO.InvoiceStatus.UNPAID;
         return switch (statut) {
@@ -264,9 +247,9 @@ public class TiersPayantReportServiceImpl implements TiersPayantReportService {
     private TiersPayantInvoiceDTO.AgeCategory calculateAgeCategory(Integer daysSinceInvoice) {
         if (daysSinceInvoice == null || daysSinceInvoice < 30) {
             return TiersPayantInvoiceDTO.AgeCategory.LESS_THAN_30;
-        } else if (daysSinceInvoice >= 30 && daysSinceInvoice < 60) {
+        } else if (daysSinceInvoice < 60) {
             return TiersPayantInvoiceDTO.AgeCategory.BETWEEN_30_60;
-        } else if (daysSinceInvoice >= 60 && daysSinceInvoice < 90) {
+        } else if (daysSinceInvoice < 90) {
             return TiersPayantInvoiceDTO.AgeCategory.BETWEEN_60_90;
         } else {
             return TiersPayantInvoiceDTO.AgeCategory.MORE_THAN_90;

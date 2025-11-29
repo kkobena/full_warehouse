@@ -40,7 +40,7 @@
   ```
 
 #### Database
-- **Migration:** `V1.1.12__dashboard_ca.sql`
+- **Migration:** `V1.1.11__dashboard_ca.sql`
 - **Materialized Views:**
   - `mv_dashboard_ca_daily` - Daily sales summary
   - `mv_dashboard_ca_payment_methods` - Payment method distribution
@@ -158,7 +158,7 @@
 6. `DashboardCAEvolutionDTO.java`
 7. `PaymentMethodCADTO.java`
 8. `ProductFamilyCADTO.java`
-9. `V1.1.12__dashboard_ca.sql`
+9. `V1.1.11__dashboard_ca.sql`
 10. `templates/reports/dashboard-ca/main.html`
 11. `templates/reports/dashboard-ca/css.html`
 
@@ -236,7 +236,7 @@
 
 ### Backend
 - [ ] Run `./mvnw.cmd clean compile` - Check compilation
-- [ ] Run database migration `V1.1.12__dashboard_ca.sql`
+- [ ] Run database migration `V1.1.11__dashboard_ca.sql`
 - [ ] Test all Dashboard CA endpoints
 - [ ] Test all Comparative Reports endpoints
 - [ ] Verify PDF generation (both reports)
@@ -266,7 +266,7 @@ Based on `RAPPORTS_STATUS.md`, the remaining task is:
 
 ## 🚀 Deployment Notes
 
-1. **Database Migration:** Ensure Flyway runs `V1.1.12__dashboard_ca.sql`
+1. **Database Migration:** Ensure Flyway runs `V1.1.11__dashboard_ca.sql`
 2. **Cache Configuration:** Caffeine cache "dashboardCA" and "comparativeReports" configured
 3. **PDF Fonts:** Ensure system fonts are available for PDF generation
 4. **Backend Build:** Include frontend assets with `-Pprod` profile

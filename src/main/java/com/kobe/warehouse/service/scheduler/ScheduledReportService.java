@@ -23,6 +23,7 @@ import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.time.temporal.TemporalAdjusters;
 import java.util.List;
+import java.util.Set;
 
 /**
  * Service for executing scheduled reports
@@ -139,7 +140,7 @@ public class ScheduledReportService {
         LocalDate startDate,
         LocalDate endDate
     ) throws MessagingException {
-        String[] recipients = scheduledReport.getEmailRecipients().split(",");
+        Set<String> recipients = scheduledReport.getEmailRecipients();
 
         String subject = String.format(
             "Rapport Automatique: %s (%s - %s)",

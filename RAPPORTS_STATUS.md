@@ -95,7 +95,7 @@
 
 **Migration SQL:**
 ```
-V1.1.12__dashboard_ca.sql
+V1.1.11__dashboard_ca.sql
 ```
 
 **Endpoints:**
@@ -176,7 +176,7 @@ POST /api/dashboard-ca/refresh                - Rafraîchir vues
 
 **Migration SQL:**
 ```
-V1.1.11__supplier_performance.sql
+V1.1.10__supplier_performance.sql
 ```
 
 **Endpoints:**
@@ -344,7 +344,7 @@ GET /api/sales-forecast/seasonality         - Détection saisonnalité
 - ✅ Repository: `DashboardLayoutRepository` avec queries optimisées
 - ✅ Service: `DashboardLayoutServiceImpl` (9 méthodes)
 - ✅ REST: `DashboardLayoutResource` (9 endpoints)
-- ✅ Migration: `V1.1.14__dashboard_layouts.sql`
+- ✅ Migration: `V1.1.13__dashboard_layouts.sql`
 - ✅ Enums: `DashboardScope`, `WidgetType`
 - ✅ Security: Vérification ownership pour update/delete
 - ✅ Index unique: Un seul layout par défaut par utilisateur
@@ -458,7 +458,7 @@ GET /api/market-basket/recommendations/{productId}      - Recommandations cross-
 - ✅ Repository: `ScheduledReportRepository` avec query findDueReports
 - ✅ Service: `ScheduledReportServiceImpl` avec scheduler
 - ✅ REST: `ScheduledReportResource` (CRUD + execute endpoint)
-- ✅ Migration: `V1.1.13__scheduled_reports.sql`
+- ✅ Migration: `V1.1.12__scheduled_reports.sql`
 - ✅ Enums: `ScheduledReportType`, `ScheduledReportFrequency`
 
 **Endpoints:**
@@ -582,9 +582,9 @@ Rapports
 #### Migrations Flyway
 ```
 ✅ V1.1.6__reports_phase_1.sql          - Phase 1 rapports
-✅ V1.1.11__supplier_performance.sql    - Performance fournisseurs
-✅ V1.1.12__dashboard_ca.sql            - Dashboard CA
-✅ V1.1.13__scheduled_reports.sql       - Rapports planifiés ⭐ NOUVEAU
+✅ V1.1.10__supplier_performance.sql    - Performance fournisseurs
+✅ V1.1.11__dashboard_ca.sql            - Dashboard CA
+✅ V1.1.12__scheduled_reports.sql       - Rapports planifiés ⭐ NOUVEAU
 ```
 
 ---

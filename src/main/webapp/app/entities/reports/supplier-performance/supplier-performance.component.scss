@@ -1,6 +1,2 @@
-// Supplier Performance Component Styles
-// Most styling is handled by PrimeNG utility classes
-
-.pharma-smart-content {
-  // Inherits global styles from the application
-}
+@import 'app/shared/scss/table-common';
+@import 'app/shared/scss/pharma-toolbar';

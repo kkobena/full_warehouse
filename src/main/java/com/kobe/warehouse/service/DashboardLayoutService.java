@@ -31,7 +31,7 @@ public interface DashboardLayoutService {
     /**
      * Get layout by ID
      */
-    Optional<DashboardLayoutDTO> findOne(Long id);
+    Optional<DashboardLayoutDTO> findOne(Integer id);
 
     /**
      * Get current user's default layout
@@ -41,15 +41,15 @@ public interface DashboardLayoutService {
     /**
      * Set layout as default for current user
      */
-    DashboardLayoutDTO setAsDefault(Long id);
+    DashboardLayoutDTO setAsDefault(Integer id);
 
     /**
      * Delete layout
      */
-    void delete(Long id);
+    void delete(Integer id);
 
     /**
      * Clone a layout (create a copy for current user)
      */
-    DashboardLayoutDTO clone(Long id, String newName);
+    DashboardLayoutDTO clone(Integer id, String newName);
 }

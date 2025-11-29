@@ -5,15 +5,13 @@
 --              and filter by CategorieChiffreAffaire = 'CA'
 -- ===============================================
 
--- ===============================================
--- 1. UPDATE mv_daily_sales_summary
--- ===============================================
+
 
 DROP MATERIALIZED VIEW IF EXISTS mv_daily_sales_summary CASCADE;
 
 CREATE MATERIALIZED VIEW mv_daily_sales_summary AS
 SELECT
-    DATE(s.sale_date) as sale_date,
+    s.sale_date as sale_date,
     s.dtype as type_vente,
     COUNT(*) as nb_ventes,
     SUM(s.sales_amount) as ca_total,
@@ -25,7 +23,7 @@ FROM sales s
 WHERE s.statut = 'CLOSED'
   AND s.canceled = false
   AND s.ca = 'CA'
-GROUP BY DATE(s.sale_date), s.dtype;
+GROUP BY s.sale_date, s.dtype;
 
 -- Create unique index for concurrent refresh
 CREATE UNIQUE INDEX idx_mv_daily_sales_unique
@@ -53,7 +51,7 @@ SELECT
     AVG(sl.sales_amount / NULLIF(sl.quantity_sold, 0)) as prix_moyen,
     NOW() as last_updated
 FROM sales_line sl
-INNER JOIN sales s ON sl.sale_id = s.id
+INNER JOIN sales s ON sl.sales_id = s.id
 INNER JOIN produit p ON sl.produit_id = p.id
 LEFT JOIN fournisseur_produit fp ON p.fournisseur_produit_principal_id = fp.id
 WHERE s.statut = 'CLOSED'
@@ -93,12 +91,12 @@ WITH product_sales AS (
         COALESCE(sales_12m.qty_sold, 0) as qty_sold_last_12_months,
         CASE
             WHEN COALESCE(SUM(sp.qty_stock + sp.qty_ug), 0) * fp.prix_achat > 0 THEN
-                ROUND((COALESCE(sales_12m.ca, 0) / (COALESCE(SUM(sp.qty_stock + sp.qty_ug), 0) * fp.cost_amount)), 2)
+                ROUND((COALESCE(sales_12m.ca, 0) / (COALESCE(SUM(sp.qty_stock + sp.qty_ug), 0) * fp.prix_achat)), 2)
             ELSE 0
         END as rotation_rate_annual,
         CASE
-            WHEN COALESCE(sales_12m.ca, 0) > 0 AND (COALESCE(SUM(sp.qty_stock + sp.qty_ug), 0) * fp.cost_amount) > 0 THEN
-                ROUND(365 / NULLIF((COALESCE(sales_12m.ca, 0) / (COALESCE(SUM(sp.qty_stock + sp.qty_ug), 0) * fp.cost_amount)), 0), 0)
+            WHEN COALESCE(sales_12m.ca, 0) > 0 AND (COALESCE(SUM(sp.qty_stock + sp.qty_ug), 0) * fp.prix_achat) > 0 THEN
+                ROUND(365 / NULLIF((COALESCE(sales_12m.ca, 0) / (COALESCE(SUM(sp.qty_stock + sp.qty_ug), 0) * fp.prix_achat)), 0), 0)
             ELSE 999
         END as avg_days_in_stock
     FROM produit p
@@ -112,7 +110,7 @@ WITH product_sales AS (
             SUM(sl.quantity_sold) as qty_sold,
             COUNT(DISTINCT s.id) as nb_sales
         FROM sales_line sl
-        INNER JOIN sales s ON sl.sale_id = s.id
+        INNER JOIN sales s ON sl.sales_id = s.id
         WHERE s.statut = 'CLOSED'
           AND s.canceled = false
           AND s.ca = 'CA'
@@ -125,7 +123,7 @@ WITH product_sales AS (
             SUM(sl.sales_amount) as ca,
             SUM(sl.quantity_sold) as qty_sold
         FROM sales_line sl
-        INNER JOIN sales s ON sl.sale_id = s.id
+        INNER JOIN sales s ON sl.sales_id = s.id
         WHERE s.statut = 'CLOSED'
           AND s.canceled = false
           AND s.ca = 'CA'
@@ -133,7 +131,7 @@ WITH product_sales AS (
         GROUP BY sl.produit_id
     ) sales_12m ON p.id = sales_12m.produit_id
     WHERE p.status = 'ENABLE'
-    GROUP BY p.id, p.libelle, fp.code_cip, f.libelle, fp.cost_amount,
+    GROUP BY p.id, p.libelle, fp.code_cip, f.libelle, fp.prix_achat,
              sales_30d.ca, sales_30d.qty_sold, sales_30d.nb_sales,
              sales_12m.ca, sales_12m.qty_sold
 ),
@@ -193,7 +191,7 @@ WITH customer_metrics AS (
         c.first_name || ' ' || c.last_name as customer_name,
         c.phone,
         MAX(s.sale_date) as last_purchase_date,
-        EXTRACT(DAY FROM (CURRENT_DATE - MAX(s.sale_date))) as days_since_last_purchase,
+          EXTRACT(DAY FROM AGE(CURRENT_DATE, MAX(s.sale_date))) as days_since_last_purchase,
         COUNT(DISTINCT s.id) as nb_purchases_last_year,
         SUM(s.sales_amount) as total_spent_last_year,
         AVG(s.sales_amount) as avg_basket_value
@@ -277,104 +275,6 @@ CREATE INDEX idx_mv_customer_rfm_frequency ON mv_customer_rfm(frequency_score DE
 CREATE INDEX idx_mv_customer_rfm_monetary ON mv_customer_rfm(monetary_score DESC);
 
 -- ===============================================
--- 5. UPDATE mv_product_profitability
--- ===============================================
-
-DROP MATERIALIZED VIEW IF EXISTS mv_profitability_summary CASCADE;
-DROP MATERIALIZED VIEW IF EXISTS mv_product_profitability CASCADE;
-
-CREATE MATERIALIZED VIEW mv_product_profitability AS
-WITH product_margins AS (
-    SELECT
-        p.id as produit_id,
-        p.libelle,
-        fp.code_cip,
-        f.libelle as categorie,
-
-        -- Quantités vendues
-        COUNT(DISTINCT sl.sale_id) as nb_ventes,
-        SUM(sl.quantity_sold) as qte_vendue,
-
-        -- Chiffre d'affaires
-        SUM(sl.sales_amount) as ca_total,
-
-        -- Coûts d'achat cost_amount est uni_cost
-        SUM(sl.cost_amount*sl.quantity_sold) as cout_achat_total,
-
-        -- Marges
-        SUM(sl.sales_amount - (sl.cost_amount*sl.quantity_sold)) as marge_brute,
-
-        -- Taux de marge (%)
-        CASE
-            WHEN SUM(sl.sales_amount) > 0
-            THEN ROUND((SUM(sl.sales_amount - (sl.cost_amount*sl.quantity_sold)) / SUM(sl.sales_amount)) * 100, 2)
-            ELSE 0
-        END as taux_marge_pct,
-
-        -- Prix moyens
-        CASE
-            WHEN SUM(sl.quantity_sold) > 0
-            THEN ROUND(SUM(sl.sales_amount) / SUM(sl.quantity_sold), 0)
-            ELSE 0
-        END as prix_vente_moyen,
-
-        CASE
-            WHEN SUM(sl.quantity_sold) > 0
-            THEN ROUND(SUM(sl.cost_amount*sl.quantity_sold) / SUM(sl.quantity_sold), 0)
-            ELSE 0
-        END as prix_achat_moyen,
-
-        -- Stock actuel
-        COALESCE(sp.stock_quantity, 0) as stock_quantity,
-        COALESCE(sp.cost_amount, 0) as prix_achat_unitaire,
-        COALESCE(sp.regular_unit_price, 0) as prix_vente_unitaire,
-
-        -- Taux de rotation (12 derniers mois)
-        CASE
-            WHEN COALESCE(sp.stock_quantity * sp.cost_amount, 0) > 0
-            THEN ROUND((SUM(sl.sales_amount) / (sp.stock_quantity * sp.cost_amount)) * 12, 2)
-            ELSE 0
-        END as taux_rotation_annuel
-
-    FROM produit p
-    LEFT JOIN fournisseur_produit fp ON p.fournisseur_produit_principal_id = fp.id
-    LEFT JOIN famille f ON p.famille_id = f.id
-    LEFT JOIN sales_line sl ON p.id = sl.produit_id
-    LEFT JOIN sales s ON sl.sale_id = s.id
-    LEFT JOIN stock_produit sp ON p.id = sp.produit_id
-
-    WHERE s.statut = 'CLOSED'
-      AND s.canceled = false
-      AND s.ca = 'CA'
-      AND s.sale_date >= CURRENT_DATE - INTERVAL '12 months'
-      AND p.status = 'ENABLE'
-
-    GROUP BY p.id, p.libelle, fp.code_cip, f.libelle, sp.stock_quantity, sp.cost_amount, sp.regular_unit_price
-),
-bcg_classification AS (
-    SELECT
-        *,
-        -- Classification BCG Matrix
-        CASE
-            WHEN taux_marge_pct >= 20 AND taux_rotation_annuel >= 6 THEN 'STAR'
-            WHEN taux_marge_pct >= 20 AND taux_rotation_annuel < 6 THEN 'CASH_COW'
-            WHEN taux_marge_pct < 20 AND taux_rotation_annuel >= 6 THEN 'QUESTION_MARK'
-            WHEN taux_marge_pct < 20 AND taux_rotation_annuel < 6 THEN 'DOG'
-            ELSE 'UNDEFINED'
-        END as bcg_category
-    FROM product_margins
-)
-SELECT * FROM bcg_classification
-WHERE ca_total > 0  -- Exclure les produits sans ventes
-ORDER BY marge_brute DESC;
-
--- Index pour optimiser les requêtes
-CREATE INDEX idx_mv_profitability_marge ON mv_product_profitability(marge_brute DESC);
-CREATE INDEX idx_mv_profitability_taux_marge ON mv_product_profitability(taux_marge_pct);
-CREATE INDEX idx_mv_profitability_bcg ON mv_product_profitability(bcg_category);
-CREATE INDEX idx_mv_profitability_categorie ON mv_product_profitability(categorie);
-
--- ===============================================
 -- 6. UPDATE mv_abc_pareto_analysis
 -- ===============================================
 
@@ -396,13 +296,13 @@ WITH product_sales AS (
         SUM(sl.quantity_sold) as qte_vendue,
 
         -- Nombre de ventes
-        COUNT(DISTINCT sl.sale_id) as nb_ventes
+        COUNT(DISTINCT sl.sales_id) as nb_ventes
 
     FROM produit p
     LEFT JOIN fournisseur_produit fp ON p.fournisseur_produit_principal_id = fp.id
-    LEFT JOIN famille f ON p.famille_id = f.id
+    LEFT JOIN famille_produit f ON p.famille_id = f.id
     INNER JOIN sales_line sl ON p.id = sl.produit_id
-    INNER JOIN sales s ON sl.sale_id = s.id
+    INNER JOIN sales s ON sl.sales_id = s.id
 
     WHERE s.statut = 'CLOSED'
       AND s.canceled = false
@@ -451,38 +351,6 @@ CREATE INDEX idx_mv_pareto_ca ON mv_abc_pareto_analysis(ca_total DESC);
 CREATE INDEX idx_mv_pareto_rang ON mv_abc_pareto_analysis(rang);
 CREATE INDEX idx_mv_pareto_categorie ON mv_abc_pareto_analysis(categorie);
 
--- ===============================================
--- 7. RECREATE SUMMARY VIEWS
--- ===============================================
-
--- Vue pour les métriques agrégées de rentabilité
-CREATE MATERIALIZED VIEW mv_profitability_summary AS
-SELECT
-    COUNT(*) as total_produits,
-    SUM(ca_total) as ca_total_global,
-    SUM(cout_achat_total) as cout_achat_global,
-    SUM(marge_brute) as marge_brute_globale,
-    ROUND(AVG(taux_marge_pct), 2) as taux_marge_moyen,
-
-    -- Par catégorie BCG
-    COUNT(*) FILTER (WHERE bcg_category = 'STAR') as nb_stars,
-    COUNT(*) FILTER (WHERE bcg_category = 'CASH_COW') as nb_cash_cows,
-    COUNT(*) FILTER (WHERE bcg_category = 'QUESTION_MARK') as nb_question_marks,
-    COUNT(*) FILTER (WHERE bcg_category = 'DOG') as nb_dogs,
-
-    -- CA par catégorie BCG
-    SUM(ca_total) FILTER (WHERE bcg_category = 'STAR') as ca_stars,
-    SUM(ca_total) FILTER (WHERE bcg_category = 'CASH_COW') as ca_cash_cows,
-    SUM(ca_total) FILTER (WHERE bcg_category = 'QUESTION_MARK') as ca_question_marks,
-    SUM(ca_total) FILTER (WHERE bcg_category = 'DOG') as ca_dogs,
-
-    -- Marges par catégorie BCG
-    SUM(marge_brute) FILTER (WHERE bcg_category = 'STAR') as marge_stars,
-    SUM(marge_brute) FILTER (WHERE bcg_category = 'CASH_COW') as marge_cash_cows,
-    SUM(marge_brute) FILTER (WHERE bcg_category = 'QUESTION_MARK') as marge_question_marks,
-    SUM(marge_brute) FILTER (WHERE bcg_category = 'DOG') as marge_dogs
-
-FROM mv_product_profitability;
 
 -- Vue pour les métriques agrégées de l'analyse Pareto
 CREATE MATERIALIZED VIEW mv_pareto_summary AS
@@ -515,9 +383,7 @@ REFRESH MATERIALIZED VIEW mv_daily_sales_summary;
 REFRESH MATERIALIZED VIEW mv_monthly_top_products;
 REFRESH MATERIALIZED VIEW mv_stock_rotation;
 REFRESH MATERIALIZED VIEW mv_customer_rfm;
-REFRESH MATERIALIZED VIEW mv_product_profitability;
 REFRESH MATERIALIZED VIEW mv_abc_pareto_analysis;
-REFRESH MATERIALIZED VIEW mv_profitability_summary;
 REFRESH MATERIALIZED VIEW mv_pareto_summary;
 
 -- ===============================================
@@ -538,9 +404,9 @@ BEGIN
     REFRESH MATERIALIZED VIEW CONCURRENTLY mv_customer_rfm;
 
     -- Phase 3 views
-    REFRESH MATERIALIZED VIEW CONCURRENTLY mv_product_profitability;
+
     REFRESH MATERIALIZED VIEW CONCURRENTLY mv_abc_pareto_analysis;
-    REFRESH MATERIALIZED VIEW CONCURRENTLY mv_profitability_summary;
+
     REFRESH MATERIALIZED VIEW CONCURRENTLY mv_pareto_summary;
 
     RAISE NOTICE 'All report materialized views (Phases 1, 2, 3) refreshed successfully at %', NOW();
@@ -555,5 +421,4 @@ COMMENT ON MATERIALIZED VIEW mv_daily_sales_summary IS 'Daily sales summary with
 COMMENT ON MATERIALIZED VIEW mv_monthly_top_products IS 'Monthly top products with filters: statut=CLOSED, canceled=false, ca=CA';
 COMMENT ON MATERIALIZED VIEW mv_stock_rotation IS 'Stock rotation with filters: statut=CLOSED, canceled=false, ca=CA';
 COMMENT ON MATERIALIZED VIEW mv_customer_rfm IS 'Customer RFM segmentation with filters: statut=CLOSED, canceled=false, ca=CA';
-COMMENT ON MATERIALIZED VIEW mv_product_profitability IS 'Product profitability with filters: statut=CLOSED, canceled=false, ca=CA';
 COMMENT ON MATERIALIZED VIEW mv_abc_pareto_analysis IS 'ABC Pareto analysis with filters: statut=CLOSED, canceled=false, ca=CA';

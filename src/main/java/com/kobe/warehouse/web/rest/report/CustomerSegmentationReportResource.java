@@ -4,6 +4,8 @@ import com.kobe.warehouse.service.dto.report.CustomerSegmentationDTO;
 import com.kobe.warehouse.service.report.CustomerSegmentationReportService;
 import java.util.List;
 import java.util.Map;
+
+import com.kobe.warehouse.service.report.pdf.CustomerSegmentationPdfReportService;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -18,9 +20,11 @@ import org.springframework.web.bind.annotation.RestController;
 public class CustomerSegmentationReportResource {
 
     private final CustomerSegmentationReportService customerSegmentationReportService;
+    private final CustomerSegmentationPdfReportService customerSegmentationPdfReportService;
 
-    public CustomerSegmentationReportResource(CustomerSegmentationReportService customerSegmentationReportService) {
+    public CustomerSegmentationReportResource(CustomerSegmentationReportService customerSegmentationReportService, CustomerSegmentationPdfReportService customerSegmentationPdfReportService) {
         this.customerSegmentationReportService = customerSegmentationReportService;
+        this.customerSegmentationPdfReportService = customerSegmentationPdfReportService;
     }
 
     /**
@@ -104,9 +108,9 @@ public class CustomerSegmentationReportResource {
      */
     @GetMapping(value = "/customers/segmentation/export", produces = MediaType.APPLICATION_PDF_VALUE)
     public ResponseEntity<byte[]> exportCustomerSegmentationToPdf() {
-        byte[] pdf = customerSegmentationReportService.exportCustomerSegmentationToPdf();
+
         HttpHeaders headers = new HttpHeaders();
         headers.add("Content-Disposition", "attachment; filename=customer-segmentation.pdf");
-        return ResponseEntity.ok().headers(headers).body(pdf);
+        return ResponseEntity.ok().headers(headers).body(customerSegmentationPdfReportService.export());
     }
 }

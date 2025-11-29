@@ -3,7 +3,7 @@ package com.kobe.warehouse.web.rest.report;
 import com.kobe.warehouse.service.dto.report.SupplierPerformanceDTO;
 import com.kobe.warehouse.service.dto.report.SupplierPerformanceSummaryDTO;
 import com.kobe.warehouse.service.report.SupplierPerformanceReportService;
-import java.util.List;
+import com.kobe.warehouse.service.report.pdf.SupplierPerformancePdfReportService;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -13,14 +13,18 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.util.List;
+
 @RestController
 @RequestMapping("/api")
 public class SupplierPerformanceReportResource {
 
     private final SupplierPerformanceReportService supplierPerformanceReportService;
+    private final SupplierPerformancePdfReportService supplierPerformancePdfReportService;
 
-    public SupplierPerformanceReportResource(SupplierPerformanceReportService supplierPerformanceReportService) {
+    public SupplierPerformanceReportResource(SupplierPerformanceReportService supplierPerformanceReportService, SupplierPerformancePdfReportService supplierPerformancePdfReportService) {
         this.supplierPerformanceReportService = supplierPerformanceReportService;
+        this.supplierPerformancePdfReportService = supplierPerformancePdfReportService;
     }
 
     /**
@@ -106,9 +110,8 @@ public class SupplierPerformanceReportResource {
      */
     @GetMapping(value = "/supplier-performance/export", produces = MediaType.APPLICATION_PDF_VALUE)
     public ResponseEntity<byte[]> exportSupplierPerformanceToPdf() {
-        byte[] pdf = supplierPerformanceReportService.exportSupplierPerformanceToPdf();
         HttpHeaders headers = new HttpHeaders();
         headers.add("Content-Disposition", "attachment; filename=supplier-performance.pdf");
-        return ResponseEntity.ok().headers(headers).body(pdf);
+        return ResponseEntity.ok().headers(headers).body(supplierPerformancePdfReportService.export());
     }
 }

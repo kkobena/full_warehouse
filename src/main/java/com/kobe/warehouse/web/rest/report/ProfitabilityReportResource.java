@@ -4,7 +4,7 @@ import com.kobe.warehouse.domain.enumeration.BCGCategory;
 import com.kobe.warehouse.service.dto.report.ProductProfitabilityDTO;
 import com.kobe.warehouse.service.dto.report.ProfitabilitySummaryDTO;
 import com.kobe.warehouse.service.report.ProfitabilityReportService;
-import java.util.List;
+import com.kobe.warehouse.service.report.pdf.ProfitabilityPdfReportService;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -13,14 +13,18 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.util.List;
+
 @RestController
 @RequestMapping("/api")
 public class ProfitabilityReportResource {
 
     private final ProfitabilityReportService profitabilityReportService;
+    private final ProfitabilityPdfReportService profitabilityPdfReportService;
 
-    public ProfitabilityReportResource(ProfitabilityReportService profitabilityReportService) {
+    public ProfitabilityReportResource(ProfitabilityReportService profitabilityReportService, ProfitabilityPdfReportService profitabilityPdfReportService) {
         this.profitabilityReportService = profitabilityReportService;
+        this.profitabilityPdfReportService = profitabilityPdfReportService;
     }
 
     /**
@@ -101,9 +105,9 @@ public class ProfitabilityReportResource {
      */
     @GetMapping(value = "/profitability/export", produces = MediaType.APPLICATION_PDF_VALUE)
     public ResponseEntity<byte[]> exportProfitabilityToPdf() {
-        byte[] pdf = profitabilityReportService.exportProfitabilityToPdf();
+
         HttpHeaders headers = new HttpHeaders();
         headers.add("Content-Disposition", "attachment; filename=profitability-report.pdf");
-        return ResponseEntity.ok().headers(headers).body(pdf);
+        return ResponseEntity.ok().headers(headers).body(profitabilityPdfReportService.export());
     }
 }

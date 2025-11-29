@@ -73,7 +73,6 @@ public class ComparativePdfReportService extends AbstractStatistiqueReportServic
 
         List<ComparativeByTypeDTO> byType = comparativeReportService.getComparisonBySalesType(year, year - 1);
 
-
         this.getParameters().put("summary", summary);
         this.getParameters().put("comparisons", data);
         this.getParameters().put("byType", byType);

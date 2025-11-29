@@ -5,6 +5,8 @@ import com.kobe.warehouse.service.dto.report.DailyCashRegisterReportDTO;
 import com.kobe.warehouse.service.report.CashRegisterReportService;
 import java.time.LocalDate;
 import java.util.List;
+
+import com.kobe.warehouse.service.report.pdf.CashRegisterPdfReportService;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
@@ -19,9 +21,11 @@ import org.springframework.web.bind.annotation.RestController;
 public class CashRegisterReportResource {
 
     private final CashRegisterReportService cashRegisterReportService;
+    private final CashRegisterPdfReportService cashRegisterPdfReportService;
 
-    public CashRegisterReportResource(CashRegisterReportService cashRegisterReportService) {
+    public CashRegisterReportResource(CashRegisterReportService cashRegisterReportService, CashRegisterPdfReportService cashRegisterPdfReportService) {
         this.cashRegisterReportService = cashRegisterReportService;
+        this.cashRegisterPdfReportService = cashRegisterPdfReportService;
     }
 
     /**
@@ -88,9 +92,8 @@ public class CashRegisterReportResource {
         @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate date
     ) {
         LocalDate reportDate = date != null ? date : LocalDate.now();
-        byte[] pdf = cashRegisterReportService.exportDailyReportToPdf(reportDate);
         HttpHeaders headers = new HttpHeaders();
         headers.add("Content-Disposition", "attachment; filename=cash-register-report-" + reportDate + ".pdf");
-        return ResponseEntity.ok().headers(headers).body(pdf);
+        return ResponseEntity.ok().headers(headers).body(cashRegisterPdfReportService.export(reportDate));
     }
 }

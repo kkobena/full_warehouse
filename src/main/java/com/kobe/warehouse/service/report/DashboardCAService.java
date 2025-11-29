@@ -48,23 +48,5 @@ public interface DashboardCAService {
      */
     void refreshViews();
 
-    /**
-     * Export daily CA summary to Excel
-     */
-    byte[] exportDailySummaryToExcel(LocalDate startDate, LocalDate endDate) throws Exception;
 
-    /**
-     * Export daily CA summary to CSV
-     */
-    byte[] exportDailySummaryToCsv(LocalDate startDate, LocalDate endDate) throws Exception;
-
-    /**
-     * Export top products to Excel
-     */
-    byte[] exportTopProductsToExcel(LocalDate startDate, LocalDate endDate) throws Exception;
-
-    /**
-     * Export top products to CSV
-     */
-    byte[] exportTopProductsToCsv(LocalDate startDate, LocalDate endDate) throws Exception;
 }

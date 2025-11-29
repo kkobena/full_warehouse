@@ -14,7 +14,7 @@ import org.springframework.stereotype.Repository;
  * Repository for Dashboard Layout
  */
 @Repository
-public interface DashboardLayoutRepository extends JpaRepository<DashboardLayout, Long> {
+public interface DashboardLayoutRepository extends JpaRepository<DashboardLayout, Integer> {
     /**
      * Find all layouts for a specific user (private + public)
      */

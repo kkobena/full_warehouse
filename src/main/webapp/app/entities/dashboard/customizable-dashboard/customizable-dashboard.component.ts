@@ -33,7 +33,6 @@ import { LineChartWidgetComponent } from '../widgets/line-chart-widget/line-char
 
 @Component({
   selector: 'jhi-customizable-dashboard',
-  standalone: true,
   imports: [
     CommonModule,
     FormsModule,
@@ -43,8 +42,7 @@ import { LineChartWidgetComponent } from '../widgets/line-chart-widget/line-char
     ToolbarModule,
     InputTextModule,
     Tag,
-    KpiCardWidgetComponent,
-    LineChartWidgetComponent,
+
   ],
   templateUrl: './customizable-dashboard.component.html',
   styleUrl: './customizable-dashboard.component.scss',

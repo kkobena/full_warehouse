@@ -231,7 +231,7 @@ export class NavigationService {
 
     // Rapports
     allItems.push({
-      label: this.translateLabel('rapports'),
+      label: 'Rapports & Statistiques',
       faIcon: faChartBar,
       authorities: [Authority.ADMIN, Authority.ROLE_RESPONSABLE_COMMANDE, Authority.ROLE_CAISSIER],
       children: [

@@ -24,13 +24,8 @@ public class StockAlertReportServiceImpl implements StockAlertReportService {
     @PersistenceContext
     private EntityManager entityManager;
 
-    private final ReportExcelExportService excelExportService;
-    private final CsvExportService csvExportService;
 
-    public StockAlertReportServiceImpl(ReportExcelExportService excelExportService, CsvExportService csvExportService) {
-        this.excelExportService = excelExportService;
-        this.csvExportService = csvExportService;
-    }
+
 
     @Override
     @Cacheable(value = "stockAlerts", key = "#alertTypes != null ? #alertTypes.toString() : 'all'")
@@ -123,61 +118,5 @@ public class StockAlertReportServiceImpl implements StockAlertReportService {
         return counts;
     }
 
-    @Override
-    public byte[] exportToExcel(List<StockAlertDTO.StockAlertType> alertTypes) throws Exception {
-        List<StockAlertDTO> data = getStockAlerts(alertTypes);
 
-        String title = "Alertes Stock";
-        if (alertTypes != null && !alertTypes.isEmpty()) {
-            title += " - " + alertTypes.stream().map(Enum::name).collect(Collectors.joining(", "));
-        }
-
-        String[] headers = {
-            "Code CIP",
-            "Libellé",
-            "Stock Actuel",
-            "Seuil Min",
-            "Date Péremption",
-            "Type d'Alerte"
-        };
-
-        return excelExportService.createExcelReport(title, headers, data, (row, dto) -> {
-            row.createCell(0).setCellValue(dto.codeCip() != null ? dto.codeCip() : "");
-            row.createCell(1).setCellValue(dto.libelle() != null ? dto.libelle() : "");
-            row.createCell(2).setCellValue(dto.stockQuantity() != null ? dto.stockQuantity() : 0);
-            row.createCell(3).setCellValue(dto.seuilMin() != null ? dto.seuilMin() : 0);
-            row.createCell(4).setCellValue(dto.expiryDate() != null ? dto.expiryDate().toString() : "");
-            row.createCell(5).setCellValue(dto.alertType() != null ? dto.alertType().name() : "");
-        });
-    }
-
-    @Override
-    public byte[] exportToCsv(List<StockAlertDTO.StockAlertType> alertTypes) throws Exception {
-        List<StockAlertDTO> data = getStockAlerts(alertTypes);
-
-        String title = "Alertes Stock";
-        if (alertTypes != null && !alertTypes.isEmpty()) {
-            title += " - " + alertTypes.stream().map(Enum::name).collect(Collectors.joining(", "));
-        }
-
-        String[] headers = {
-            "Code CIP",
-            "Libellé",
-            "Stock Actuel",
-            "Seuil Min",
-            "Date Péremption",
-            "Type d'Alerte"
-        };
-
-        byte[] csvData = csvExportService.createCsvReport(title, headers, data, dto -> new String[] {
-            dto.codeCip() != null ? dto.codeCip() : "",
-            dto.libelle() != null ? dto.libelle() : "",
-            String.valueOf(dto.stockQuantity() != null ? dto.stockQuantity() : 0),
-            String.valueOf(dto.seuilMin() != null ? dto.seuilMin() : 0),
-            dto.expiryDate() != null ? dto.expiryDate().toString() : "",
-            dto.alertType() != null ? dto.alertType().name() : ""
-        });
-
-        return csvExportService.addUtf8Bom(csvData);
-    }
 }

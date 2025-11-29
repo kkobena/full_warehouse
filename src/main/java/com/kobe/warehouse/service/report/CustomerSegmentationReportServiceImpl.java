@@ -3,34 +3,25 @@ package com.kobe.warehouse.service.report;
 import com.kobe.warehouse.service.dto.report.CustomerSegmentationDTO;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.NoResultException;
-import jakarta.persistence.PersistenceContext;
 import jakarta.persistence.Query;
-import java.io.ByteArrayOutputStream;
+import org.springframework.cache.annotation.Cacheable;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
 import java.math.BigDecimal;
 import java.sql.Date;
 import java.time.LocalDate;
 import java.util.EnumMap;
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
-import org.springframework.cache.annotation.Cacheable;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
-import org.thymeleaf.context.Context;
-import org.thymeleaf.spring6.SpringTemplateEngine;
-import org.xhtmlrenderer.pdf.ITextRenderer;
 
 @Service
 @Transactional(readOnly = true)
 public class CustomerSegmentationReportServiceImpl implements CustomerSegmentationReportService {
+    private final EntityManager entityManager;
 
-    @PersistenceContext
-    private EntityManager entityManager;
-
-    private final SpringTemplateEngine templateEngine;
-
-    public CustomerSegmentationReportServiceImpl(SpringTemplateEngine templateEngine) {
-        this.templateEngine = templateEngine;
+    public CustomerSegmentationReportServiceImpl(EntityManager entityManager) {
+        this.entityManager = entityManager;
     }
 
     @Override
@@ -38,21 +29,21 @@ public class CustomerSegmentationReportServiceImpl implements CustomerSegmentati
     public List<CustomerSegmentationDTO> getAllCustomerSegmentation() {
         String sql =
             "SELECT " +
-            "customer_id, " +
-            "customer_name, " +
-            "phone, " +
-            "last_purchase_date, " +
-            "days_since_last_purchase, " +
-            "nb_purchases_last_year, " +
-            "total_spent_last_year, " +
-            "avg_basket_value, " +
-            "recency_score, " +
-            "frequency_score, " +
-            "monetary_score, " +
-            "rfm_segment, " +
-            "customer_classification " +
-            "FROM mv_customer_rfm " +
-            "ORDER BY rfm_segment DESC";
+                "customer_id, " +
+                "customer_name, " +
+                "phone, " +
+                "last_purchase_date, " +
+                "days_since_last_purchase, " +
+                "nb_purchases_last_year, " +
+                "total_spent_last_year, " +
+                "avg_basket_value, " +
+                "recency_score, " +
+                "frequency_score, " +
+                "monetary_score, " +
+                "rfm_segment, " +
+                "customer_classification " +
+                "FROM mv_customer_rfm " +
+                "ORDER BY rfm_segment DESC";
 
         Query query = entityManager.createNativeQuery(sql);
 
@@ -69,22 +60,22 @@ public class CustomerSegmentationReportServiceImpl implements CustomerSegmentati
     ) {
         String sql =
             "SELECT " +
-            "customer_id, " +
-            "customer_name, " +
-            "phone, " +
-            "last_purchase_date, " +
-            "days_since_last_purchase, " +
-            "nb_purchases_last_year, " +
-            "total_spent_last_year, " +
-            "avg_basket_value, " +
-            "recency_score, " +
-            "frequency_score, " +
-            "monetary_score, " +
-            "rfm_segment, " +
-            "customer_classification " +
-            "FROM mv_customer_rfm " +
-            "WHERE customer_classification = :classification " +
-            "ORDER BY rfm_segment DESC";
+                "customer_id, " +
+                "customer_name, " +
+                "phone, " +
+                "last_purchase_date, " +
+                "days_since_last_purchase, " +
+                "nb_purchases_last_year, " +
+                "total_spent_last_year, " +
+                "avg_basket_value, " +
+                "recency_score, " +
+                "frequency_score, " +
+                "monetary_score, " +
+                "rfm_segment, " +
+                "customer_classification " +
+                "FROM mv_customer_rfm " +
+                "WHERE customer_classification = :classification " +
+                "ORDER BY rfm_segment DESC";
 
         Query query = entityManager.createNativeQuery(sql);
         query.setParameter("classification", classification.name());
@@ -106,22 +97,22 @@ public class CustomerSegmentationReportServiceImpl implements CustomerSegmentati
     public List<CustomerSegmentationDTO> getAtRiskCustomers() {
         String sql =
             "SELECT " +
-            "customer_id, " +
-            "customer_name, " +
-            "phone, " +
-            "last_purchase_date, " +
-            "days_since_last_purchase, " +
-            "nb_purchases_last_year, " +
-            "total_spent_last_year, " +
-            "avg_basket_value, " +
-            "recency_score, " +
-            "frequency_score, " +
-            "monetary_score, " +
-            "rfm_segment, " +
-            "customer_classification " +
-            "FROM mv_customer_rfm " +
-            "WHERE customer_classification IN ('AT_RISK', 'NEED_ATTENTION') " +
-            "ORDER BY total_spent_last_year DESC";
+                "customer_id, " +
+                "customer_name, " +
+                "phone, " +
+                "last_purchase_date, " +
+                "days_since_last_purchase, " +
+                "nb_purchases_last_year, " +
+                "total_spent_last_year, " +
+                "avg_basket_value, " +
+                "recency_score, " +
+                "frequency_score, " +
+                "monetary_score, " +
+                "rfm_segment, " +
+                "customer_classification " +
+                "FROM mv_customer_rfm " +
+                "WHERE customer_classification IN ('AT_RISK', 'NEED_ATTENTION') " +
+                "ORDER BY total_spent_last_year DESC";
 
         Query query = entityManager.createNativeQuery(sql);
 
@@ -133,8 +124,7 @@ public class CustomerSegmentationReportServiceImpl implements CustomerSegmentati
 
     @Override
     public Map<CustomerSegmentationDTO.CustomerClassification, Long> getCustomerCountByClassification() {
-        String countQuery =
-            "SELECT customer_classification, COUNT(*) as count " + "FROM mv_customer_rfm " + "GROUP BY customer_classification";
+        String countQuery = "SELECT customer_classification, COUNT(*) as count FROM mv_customer_rfm  GROUP BY customer_classification";
 
         Query query = entityManager.createNativeQuery(countQuery);
 
@@ -174,21 +164,21 @@ public class CustomerSegmentationReportServiceImpl implements CustomerSegmentati
     public CustomerSegmentationDTO getCustomerSegmentation(Integer customerId) {
         String sql =
             "SELECT " +
-            "customer_id, " +
-            "customer_name, " +
-            "phone, " +
-            "last_purchase_date, " +
-            "days_since_last_purchase, " +
-            "nb_purchases_last_year, " +
-            "total_spent_last_year, " +
-            "avg_basket_value, " +
-            "recency_score, " +
-            "frequency_score, " +
-            "monetary_score, " +
-            "rfm_segment, " +
-            "customer_classification " +
-            "FROM mv_customer_rfm " +
-            "WHERE customer_id = :customerId";
+                "customer_id, " +
+                "customer_name, " +
+                "phone, " +
+                "last_purchase_date, " +
+                "days_since_last_purchase, " +
+                "nb_purchases_last_year, " +
+                "total_spent_last_year, " +
+                "avg_basket_value, " +
+                "recency_score, " +
+                "frequency_score, " +
+                "monetary_score, " +
+                "rfm_segment, " +
+                "customer_classification " +
+                "FROM mv_customer_rfm " +
+                "WHERE customer_id = :customerId";
 
         Query query = entityManager.createNativeQuery(sql);
         query.setParameter("customerId", customerId);
@@ -201,60 +191,9 @@ public class CustomerSegmentationReportServiceImpl implements CustomerSegmentati
         }
     }
 
-    @Override
-    public byte[] exportCustomerSegmentationToPdf() {
-        // Get the segmentation data
-        List<CustomerSegmentationDTO> segmentations = getAllCustomerSegmentation();
-        Map<CustomerSegmentationDTO.CustomerClassification, Long> counts = getCustomerCountByClassification();
-
-        // Prepare Thymeleaf context
-        Context context = new Context();
-        context.setVariable("segmentations", segmentations);
-        context.setVariable(
-            "championCount",
-            counts.getOrDefault(CustomerSegmentationDTO.CustomerClassification.CHAMPION, 0L)
-        );
-        context.setVariable("loyalCount", counts.getOrDefault(CustomerSegmentationDTO.CustomerClassification.LOYAL, 0L));
-        context.setVariable(
-            "bigSpenderCount",
-            counts.getOrDefault(CustomerSegmentationDTO.CustomerClassification.BIG_SPENDER, 0L)
-        );
-        context.setVariable(
-            "activeCount",
-            counts.getOrDefault(CustomerSegmentationDTO.CustomerClassification.ACTIVE, 0L)
-        );
-        context.setVariable(
-            "atRiskCount",
-            counts.getOrDefault(CustomerSegmentationDTO.CustomerClassification.AT_RISK, 0L)
-        );
-        context.setVariable(
-            "needAttentionCount",
-            counts.getOrDefault(CustomerSegmentationDTO.CustomerClassification.NEED_ATTENTION, 0L)
-        );
-        context.setVariable(
-            "inactiveCount",
-            counts.getOrDefault(CustomerSegmentationDTO.CustomerClassification.INACTIVE, 0L)
-        );
-        context.setVariable("reportTitle", "Rapport de Segmentation Client (RFM)");
-        context.setVariable("page_count", "1/1");
-
-        // Generate HTML from template
-        String htmlContent = templateEngine.process("reports/customer-segmentation/main", context);
-
-        // Convert HTML to PDF
-        try (ByteArrayOutputStream outputStream = new ByteArrayOutputStream()) {
-            ITextRenderer renderer = new ITextRenderer();
-            renderer.setDocumentFromString(htmlContent);
-            renderer.layout();
-            renderer.createPDF(outputStream);
-            return outputStream.toByteArray();
-        } catch (Exception e) {
-            throw new RuntimeException("Error generating PDF", e);
-        }
-    }
 
     private List<CustomerSegmentationDTO> mapResultsToDTO(List<Object[]> results) {
-        return results.stream().map(this::mapRowToDTO).collect(Collectors.toList());
+        return results.stream().map(this::mapRowToDTO).toList();
     }
 
     private CustomerSegmentationDTO mapRowToDTO(Object[] row) {

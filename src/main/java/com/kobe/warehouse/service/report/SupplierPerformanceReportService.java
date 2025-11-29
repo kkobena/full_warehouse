@@ -2,6 +2,7 @@ package com.kobe.warehouse.service.report;
 
 import com.kobe.warehouse.service.dto.report.SupplierPerformanceDTO;
 import com.kobe.warehouse.service.dto.report.SupplierPerformanceSummaryDTO;
+
 import java.util.List;
 
 public interface SupplierPerformanceReportService {
@@ -50,10 +51,4 @@ public interface SupplierPerformanceReportService {
      */
     SupplierPerformanceSummaryDTO getSupplierPerformanceSummary();
 
-    /**
-     * Export supplier performance report as PDF
-     *
-     * @return PDF bytes
-     */
-    byte[] exportSupplierPerformanceToPdf();
 }

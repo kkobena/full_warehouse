@@ -61,7 +61,6 @@ public class TiersPayantPdfReportService extends AbstractStatistiqueReportServic
         this.getParameters().put("totalCreances", totalCreances);
         this.getParameters().put("reportTitle", "Rapport Créances Tiers-Payants");
         this.getParameters().put("page_count", "1/1");
-        this.getParameters().put("reportTitle", "Rapport d'Alertes Stock");
         super.getCommonParameters();
 
         return super.exportReportToPdf();

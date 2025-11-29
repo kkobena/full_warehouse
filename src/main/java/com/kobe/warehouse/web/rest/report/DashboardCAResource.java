@@ -5,6 +5,7 @@ import com.kobe.warehouse.service.report.DashboardCAService;
 import java.time.LocalDate;
 import java.util.List;
 
+import com.kobe.warehouse.service.report.excel.DashboardCAPExcelCsvExportService;
 import com.kobe.warehouse.service.report.pdf.DashboardCAPdfExportService;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
@@ -21,10 +22,12 @@ public class DashboardCAResource {
 
     private final DashboardCAService dashboardCAService;
     private final DashboardCAPdfExportService dashboardCAPdfExportService;
+    private final DashboardCAPExcelCsvExportService dashboardCAPExcelCsvExportService;
 
-    public DashboardCAResource(DashboardCAService dashboardCAService, DashboardCAPdfExportService dashboardCAPdfExportService) {
+    public DashboardCAResource(DashboardCAService dashboardCAService, DashboardCAPdfExportService dashboardCAPdfExportService, DashboardCAPExcelCsvExportService dashboardCAPExcelCsvExportService) {
         this.dashboardCAService = dashboardCAService;
         this.dashboardCAPdfExportService = dashboardCAPdfExportService;
+        this.dashboardCAPExcelCsvExportService = dashboardCAPExcelCsvExportService;
     }
 
     /**
@@ -151,7 +154,7 @@ public class DashboardCAResource {
         @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate endDate
     ) {
         try {
-            byte[] excelData = dashboardCAService.exportDailySummaryToExcel(startDate, endDate);
+            byte[] excelData = dashboardCAPExcelCsvExportService.exportDailySummaryToExcel(startDate, endDate);
             String filename = "dashboard_ca_" + startDate + "_" + endDate + ".xlsx";
 
             return ResponseEntity
@@ -177,7 +180,7 @@ public class DashboardCAResource {
         @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate endDate
     ) {
         try {
-            byte[] csvData = dashboardCAService.exportDailySummaryToCsv(startDate, endDate);
+            byte[] csvData = dashboardCAPExcelCsvExportService.exportDailySummaryToCsv(startDate, endDate);
             String filename = "dashboard_ca_" + startDate + "_" + endDate + ".csv";
 
             return ResponseEntity
@@ -203,7 +206,7 @@ public class DashboardCAResource {
         @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate endDate
     ) {
         try {
-            byte[] excelData = dashboardCAService.exportTopProductsToExcel(startDate, endDate);
+            byte[] excelData = dashboardCAPExcelCsvExportService.exportTopProductsToExcel(startDate, endDate);
             String filename = "top_products_" + startDate + "_" + endDate + ".xlsx";
 
             return ResponseEntity
@@ -229,7 +232,7 @@ public class DashboardCAResource {
         @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate endDate
     ) {
         try {
-            byte[] csvData = dashboardCAService.exportTopProductsToCsv(startDate, endDate);
+            byte[] csvData = dashboardCAPExcelCsvExportService.exportTopProductsToCsv(startDate, endDate);
             String filename = "top_products_" + startDate + "_" + endDate + ".csv";
 
             return ResponseEntity

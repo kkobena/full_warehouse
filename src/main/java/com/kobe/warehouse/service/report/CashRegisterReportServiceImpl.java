@@ -3,36 +3,27 @@ package com.kobe.warehouse.service.report;
 import com.kobe.warehouse.service.dto.report.CashMovementDTO;
 import com.kobe.warehouse.service.dto.report.DailyCashRegisterReportDTO;
 import jakarta.persistence.EntityManager;
-import jakarta.persistence.PersistenceContext;
 import jakarta.persistence.Query;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.thymeleaf.context.Context;
-import org.thymeleaf.spring6.SpringTemplateEngine;
-import org.xhtmlrenderer.pdf.ITextRenderer;
 
-import java.io.ByteArrayOutputStream;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Collectors;
 
 @Service
 @Transactional(readOnly = true)
 public class CashRegisterReportServiceImpl implements CashRegisterReportService {
 
-    private final SpringTemplateEngine templateEngine;
-    @PersistenceContext
-    private EntityManager entityManager;
+    private final EntityManager entityManager;
 
-    public CashRegisterReportServiceImpl(
-        SpringTemplateEngine templateEngine
-    ) {
-        this.templateEngine = templateEngine;
+    public CashRegisterReportServiceImpl(EntityManager entityManager) {
+        this.entityManager = entityManager;
     }
+
 
     @Override
     @Cacheable(value = "cashRegisterReport", key = "#date.toString()")
@@ -55,7 +46,7 @@ public class CashRegisterReportServiceImpl implements CashRegisterReportService 
                 "FROM cash_register cr " +
                 "INNER JOIN app_user u ON cr.user_id = u.id " +
                 "LEFT JOIN cash_register_item cri ON cr.id = cri.cash_register_id " +
-                "LEFT JOIN sales s ON DATE(s.created) = :date AND s.user_id = cr.user_id " +
+                "LEFT JOIN sales s ON s.sale_date = :date AND s.user_id = cr.user_id " +
                 "WHERE cr.begin_time >= :startOfDay AND cr.begin_time <= :endOfDay " +
                 "GROUP BY cr.id, cr.begin_time, cr.end_time, cr.init_amount, cr.final_amount, cr.statut, u.first_name, u.last_name " +
                 "ORDER BY cr.begin_time";
@@ -75,12 +66,12 @@ public class CashRegisterReportServiceImpl implements CashRegisterReportService 
             String caisseLibelle = (String) row[1];
             LocalDateTime openingDate = row[2] != null ? ((java.sql.Timestamp) row[2]).toLocalDateTime() : null;
             LocalDateTime closingDate = row[3] != null ? ((java.sql.Timestamp) row[3]).toLocalDateTime() : null;
-            Long openingBalance = row[4] != null ? ((Number) row[4]).longValue() : 0L;
+            long openingBalance = row[4] != null ? ((Number) row[4]).longValue() : 0L;
             Long closingBalance = row[5] != null ? ((Number) row[5]).longValue() : null;
             String statutStr = (String) row[6];
             String userName = (String) row[7];
-            Long totalSales = row[8] != null ? ((Number) row[8]).longValue() : 0L;
-            Long numberOfTransactions = row[9] != null ? ((Number) row[9]).longValue() : 0L;
+            long totalSales = row[8] != null ? ((Number) row[8]).longValue() : 0L;
+            long numberOfTransactions = row[9] != null ? ((Number) row[9]).longValue() : 0L;
 
             boolean isClosed = "CLOSED".equals(statutStr);
 
@@ -90,7 +81,7 @@ public class CashRegisterReportServiceImpl implements CashRegisterReportService 
             );
 
             // Calculate expected balance and discrepancy
-            Integer expectedBalance = openingBalance.intValue() + totalSales.intValue();
+            Integer expectedBalance = (int) openingBalance + (int) totalSales;
             Integer actualClosingBalance = closingBalance != null ? closingBalance.intValue() : 0;
             Integer discrepancy = isClosed ? (actualClosingBalance - expectedBalance) : 0;
 
@@ -101,12 +92,12 @@ public class CashRegisterReportServiceImpl implements CashRegisterReportService 
                     date,
                     openingDate,
                     closingDate,
-                    openingBalance.intValue(),
+                    (int) openingBalance,
                     actualClosingBalance,
                     expectedBalance,
                     discrepancy,
-                    totalSales.intValue(),
-                    numberOfTransactions.intValue(),
+                    (int) totalSales,
+                    (int) numberOfTransactions,
                     paymentModeBreakdowns,
                     userName,
                     isClosed
@@ -143,7 +134,7 @@ public class CashRegisterReportServiceImpl implements CashRegisterReportService 
                 Integer count = row[2] != null ? ((Number) row[2]).intValue() : 0;
                 return new DailyCashRegisterReportDTO.PaymentModeBreakdown(modePaiement, amount, count);
             })
-            .collect(Collectors.toList());
+            .toList();
     }
 
     @Override
@@ -158,14 +149,14 @@ public class CashRegisterReportServiceImpl implements CashRegisterReportService 
         sql.append("s.sales_amount as amount, ");
         sql.append("pm.libelle as payment_mode, ");
         sql.append("s.number_transaction as sale_number, ");
-        sql.append("COALESCE(c.first_name || ' ' || c.last_name, 'Client comptoir') as customer_name ");
+        sql.append("COALESCE(c.first_name || ' ' || c.last_name, 'Client comptant') as customer_name ");
         sql.append("FROM sales s ");
         sql.append("INNER JOIN app_user u ON s.user_id = u.id ");
-        sql.append("LEFT JOIN cash_register cr ON DATE(s.created) = DATE(cr.begin_time) AND s.user_id = cr.user_id ");
+        sql.append("LEFT JOIN cash_register cr ON s.sale_date = DATE(cr.begin_time) AND s.user_id = cr.user_id ");
         sql.append("LEFT JOIN payment p ON s.id = p.sales_id ");
         sql.append("LEFT JOIN payment_mode pm ON p.payment_mode_code = pm.code ");
         sql.append("LEFT JOIN customer c ON s.customer_id = c.id ");
-        sql.append("WHERE DATE(s.created) BETWEEN :startDate AND :endDate ");
+        sql.append("WHERE s.sale_date BETWEEN :startDate AND :endDate ");
         sql.append("AND s.statut = 'CLOSED' ");
 
         if (userId != null) {
@@ -218,7 +209,7 @@ public class CashRegisterReportServiceImpl implements CashRegisterReportService 
                     customerName
                 );
             })
-            .collect(Collectors.toList());
+            .toList();
     }
 
     @Override
@@ -233,42 +224,5 @@ public class CashRegisterReportServiceImpl implements CashRegisterReportService 
         }
 
         return summaries;
-    }
-
-    @Override
-    public byte[] exportDailyReportToPdf(LocalDate date) {
-        // Get the daily report data
-        List<DailyCashRegisterReportDTO> dailyReports = getDailyReport(date);
-
-        // Calculate totals
-        int totalSales = dailyReports.stream().mapToInt(r -> r.totalSales() != null ? r.totalSales() : 0).sum();
-        int totalDiscrepancy = dailyReports
-            .stream()
-            .filter(DailyCashRegisterReportDTO::isClosed)
-            .mapToInt(r -> Math.abs(r.discrepancy() != null ? r.discrepancy() : 0))
-            .sum();
-
-        // Prepare Thymeleaf context
-        Context context = new Context();
-        context.setVariable("dailyReports", dailyReports);
-        context.setVariable("reportDate", date);
-        context.setVariable("totalSales", totalSales);
-        context.setVariable("totalDiscrepancy", totalDiscrepancy);
-        context.setVariable("reportTitle", "Rapport de Caisse Quotidien");
-        context.setVariable("page_count", "1/1");
-
-        // Generate HTML from template
-        String htmlContent = templateEngine.process("reports/cash-register/main", context);
-
-        // Convert HTML to PDF
-        try (ByteArrayOutputStream outputStream = new ByteArrayOutputStream()) {
-            ITextRenderer renderer = new ITextRenderer();
-            renderer.setDocumentFromString(htmlContent);
-            renderer.layout();
-            renderer.createPDF(outputStream);
-            return outputStream.toByteArray();
-        } catch (Exception e) {
-            throw new RuntimeException("Error generating PDF", e);
-        }
     }
 }

@@ -42,7 +42,7 @@ public class MarketBasketAnalysisServiceImpl implements MarketBasketAnalysisServ
                 INNER JOIN sales_line sl ON s.id = sl.sales_id
                 WHERE s.statut = 'CLOSED'
                   AND s.canceled = false
-                  AND DATE(s.updated_at) BETWEEN :startDate AND :endDate
+                  AND s.sale_date BETWEEN :startDate AND :endDate
             ),
             product_pairs AS (
                 SELECT
@@ -89,17 +89,17 @@ public class MarketBasketAnalysisServiceImpl implements MarketBasketAnalysisServ
                 (pp.transactions_with_both::decimal / tc.total_transactions * 100) >= :minSupport
                 AND (pp.transactions_with_both::decimal / pca.transactions_with_product * 100) >= :minConfidence
             ORDER BY pp.transactions_with_both DESC, pa.libelle, pb.libelle
-            LIMIT :limit
+
             """;
 
         @SuppressWarnings("unchecked")
         List<Object[]> results = entityManager
             .createNativeQuery(sql)
+            .setMaxResults(limit)
             .setParameter("startDate", startDate)
             .setParameter("endDate", endDate)
             .setParameter("minSupport", minSupport)
             .setParameter("minConfidence", minConfidence)
-            .setParameter("limit", limit)
             .getResultList();
 
         List<ProductAssociationDTO> associations = new ArrayList<>();
@@ -135,7 +135,7 @@ public class MarketBasketAnalysisServiceImpl implements MarketBasketAnalysisServ
                 WHERE sl.produit_id = :productId
                   AND s.statut = 'CLOSED'
                   AND s.canceled = false
-                  AND DATE(s.updated_at) BETWEEN :startDate AND :endDate
+                  AND s.sale_date BETWEEN :startDate AND :endDate
             ),
             associated_products AS (
                 SELECT
@@ -155,7 +155,7 @@ public class MarketBasketAnalysisServiceImpl implements MarketBasketAnalysisServ
                 INNER JOIN sales_line sl ON s.id = sl.sales_id
                 WHERE s.statut = 'CLOSED'
                   AND s.canceled = false
-                  AND DATE(s.updated_at) BETWEEN :startDate AND :endDate
+                  AND s.sale_date BETWEEN :startDate AND :endDate
                 GROUP BY sl.produit_id
             ),
             target_count AS (
@@ -167,7 +167,7 @@ public class MarketBasketAnalysisServiceImpl implements MarketBasketAnalysisServ
                 FROM sales s
                 WHERE s.statut = 'CLOSED'
                   AND s.canceled = false
-                  AND DATE(s.updated_at) BETWEEN :startDate AND :endDate
+                  AND s.sale_date BETWEEN :startDate AND :endDate
             )
             SELECT
                 :productId,
@@ -190,16 +190,16 @@ public class MarketBasketAnalysisServiceImpl implements MarketBasketAnalysisServ
             LEFT JOIN fournisseur_produit fpt ON pt.fournisseur_produit_principal_id = fpt.id
             WHERE pt.id = :productId
             ORDER BY ap.transactions_with_both DESC
-            LIMIT :limit
+
             """;
 
         @SuppressWarnings("unchecked")
         List<Object[]> results = entityManager
             .createNativeQuery(sql)
+            .setMaxResults(limit)
             .setParameter("productId", productId)
             .setParameter("startDate", startDate)
             .setParameter("endDate", endDate)
-            .setParameter("limit", limit)
             .getResultList();
 
         List<ProductAssociationDTO> associations = new ArrayList<>();
@@ -233,7 +233,7 @@ public class MarketBasketAnalysisServiceImpl implements MarketBasketAnalysisServ
             FROM sales s
             WHERE s.statut = 'CLOSED'
               AND s.canceled = false
-              AND DATE(s.updated_at) BETWEEN :startDate AND :endDate
+              AND s.sale_date BETWEEN :startDate AND :endDate
             """;
 
         Long totalTransactions = ((Number) entityManager
@@ -251,7 +251,7 @@ public class MarketBasketAnalysisServiceImpl implements MarketBasketAnalysisServ
             INNER JOIN sales_line sl ON s.id = sl.sales_id
             WHERE s.statut = 'CLOSED'
               AND s.canceled = false
-              AND DATE(s.updated_at) BETWEEN :startDate AND :endDate
+              AND s.sale_date BETWEEN :startDate AND :endDate
             """;
 
         Long totalProducts = ((Number) entityManager
@@ -271,7 +271,7 @@ public class MarketBasketAnalysisServiceImpl implements MarketBasketAnalysisServ
                 INNER JOIN sales_line sl ON s.id = sl.sales_id
                 WHERE s.statut = 'CLOSED'
                   AND s.canceled = false
-                  AND DATE(s.updated_at) BETWEEN :startDate AND :endDate
+                  AND s.sale_date BETWEEN :startDate AND :endDate
                 GROUP BY s.id
             ) basket_sizes
             """;
@@ -314,7 +314,7 @@ public class MarketBasketAnalysisServiceImpl implements MarketBasketAnalysisServ
 
         String mostFrequentPair = topAssociations.isEmpty()
             ? "Aucune"
-            : topAssociations.get(0).productAName() + " + " + topAssociations.get(0).productBName();
+            : topAssociations.getFirst().productAName() + " + " + topAssociations.getFirst().productBName();
 
         return new MarketBasketSummaryDTO(
             totalTransactions,

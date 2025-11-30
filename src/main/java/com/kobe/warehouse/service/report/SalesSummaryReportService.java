@@ -1,5 +1,6 @@
 package com.kobe.warehouse.service.report;
 
+import com.kobe.warehouse.service.dto.enumeration.TypeVenteDTO;
 import com.kobe.warehouse.service.dto.report.DailySalesSummaryDTO;
 import java.time.LocalDate;
 import java.util.List;
@@ -33,5 +34,5 @@ public interface SalesSummaryReportService {
      * @param typeVente sale type (e.g., "VO", "VNO")
      * @return list of daily summaries for that type
      */
-    List<DailySalesSummaryDTO> getDailySalesSummaryByType(LocalDate startDate, LocalDate endDate, String typeVente);
+    List<DailySalesSummaryDTO> getDailySalesSummaryByType(LocalDate startDate, LocalDate endDate, TypeVenteDTO typeVente);
 }

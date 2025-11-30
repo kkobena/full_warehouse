@@ -1,10 +1,10 @@
 package com.kobe.warehouse.service.dto.report;
 
-import java.time.LocalDateTime;
+import java.time.LocalDate;
 
 public record CashMovementDTO(
     Long id,
-    LocalDateTime transactionDate,
+    LocalDate transactionDate,
     String cashRegisterName,
     String userName,
     String movementType,
@@ -12,4 +12,5 @@ public record CashMovementDTO(
     String paymentMode,
     String saleNumber,
     String customerName
-) {}
+) {
+}

@@ -15,7 +15,6 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
-import java.sql.Date;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -59,15 +58,15 @@ public class DashboardCAServiceImpl implements DashboardCAService {
             .stream()
             .map(row ->
                 new DailyCADTO(
-                    LocalDate.parse(row[0]+""),
-                    (Integer) row[1],
+                    LocalDate.parse(row[0].toString().substring(0, 10)),
+                    ((Number) row[1]).intValue(),
                     ((Number) row[2]).longValue(),
                     ((Number) row[3]).longValue(),
                     (BigDecimal) row[4],
                     ((Number) row[5]).longValue(),
                     ((Number) row[6]).longValue(),
                     (BigDecimal) row[7],
-                    (Integer) row[8],
+                    ((Number) row[8]).intValue(),
                     ((Number) row[9]).longValue(),
                     ((Number) row[10]).longValue()
                 )
@@ -205,7 +204,7 @@ public class DashboardCAServiceImpl implements DashboardCAService {
     public List<PaymentMethodCADTO> getPaymentMethodDistribution(LocalDate startDate, LocalDate endDate) {
         String sql =
             "SELECT payment_date, payment_method, payment_code, nb_payments, " +
-                "montant_total, montant_avoirs, montant_moyen " +
+                "montant_total,  montant_moyen " +
                 "FROM mv_dashboard_ca_payment_methods " +
                 "WHERE payment_date BETWEEN :startDate AND :endDate " +
                 "ORDER BY montant_total DESC";
@@ -219,13 +218,12 @@ public class DashboardCAServiceImpl implements DashboardCAService {
             .stream()
             .map(row ->
                 new PaymentMethodCADTO(
-                    ((Date) row[0]).toLocalDate(),
+                    LocalDate.parse(row[0].toString().substring(0, 10)),
                     (String) row[1],
                     (String) row[2],
-                    (Integer) row[3],
+                    ((Number) row[3]).intValue(),
                     ((Number) row[4]).longValue(),
-                    ((Number) row[5]).longValue(),
-                    (BigDecimal) row[6]
+                    (BigDecimal) row[5]
                 )
             )
             .toList();
@@ -250,14 +248,14 @@ public class DashboardCAServiceImpl implements DashboardCAService {
             .stream()
             .map(row ->
                 new ProductFamilyCADTO(
-                    ((Date) row[0]).toLocalDate(),
+                    LocalDate.parse(row[0].toString().substring(0, 10)),
                     (String) row[1],
-                    (Integer) row[2],
+                    ((Number) row[2]).intValue(),
                     ((Number) row[3]).longValue(),
                     ((Number) row[4]).longValue(),
                     ((Number) row[5]).longValue(),
                     (BigDecimal) row[6],
-                    (Integer) row[7]
+                    ((Number)  row[7]).intValue()
                 )
             )
             .toList();
@@ -297,7 +295,7 @@ public class DashboardCAServiceImpl implements DashboardCAService {
             .stream()
             .map(row ->
                 new TopProductDTO(
-                    ((Date) row[0]).toLocalDate(),
+                    LocalDate.parse(row[0].toString().substring(0, 10)),
                     ((Number) row[1]).intValue(),
                     (String) row[2],
                     (String) row[3],

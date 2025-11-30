@@ -1,6 +1,5 @@
 <div class="pharma-smart-content p-2">
-  <!-- Modern Pharma Toolbar (Compact) -->
-  <div class="pharma-toolbar pharma-toolbar-compact">
+  <div class="pharma-toolbar ">
     <div class="pharma-toolbar-header">
       <i class="pi pi-users"></i>
       <span class="pharma-toolbar-title">Performance des Fournisseurs</span>
@@ -8,11 +7,13 @@
 
     <p-toolbar>
       <ng-template #start>
-        <div class="pharma-toolbar-filters flex gap-2">
+        <div class="pharma-toolbar-filters">
           <p-select
             [(ngModel)]="selectedFilter"
             [options]="filterOptions"
             placeholder="Filtre"
+            appendTo="body"
+            size="large"
             optionLabel="label"
             optionValue="value"
             (onChange)="onFilterChange()"
@@ -32,7 +33,7 @@
           <p-button
             label="Exporter PDF"
             icon="pi pi-file-pdf"
-            severity="danger"
+            severity="warn"
             (onClick)="exportToPdf()"
             [loading]="isLoading()"
           />
@@ -49,8 +50,8 @@
 
   <!-- Summary Cards -->
   @if (summary()) {
-    <div class="grid mt-3">
-      <div class="col-12 md:col-4">
+    <div class="row mt-3">
+      <div class="col-12 col-md-4">
         <p-card>
           <ng-template #content>
             <div class="flex justify-content-between align-items-center">
@@ -66,7 +67,7 @@
         </p-card>
       </div>
 
-      <div class="col-12 md:col-4">
+      <div class="col-12 col-md-4">
         <p-card>
           <ng-template #content>
             <div class="flex justify-content-between align-items-center">
@@ -83,7 +84,7 @@
         </p-card>
       </div>
 
-      <div class="col-12 md:col-4">
+      <div class="col-12 col-md-4">
         <p-card>
           <ng-template #content>
             <div class="flex justify-content-between align-items-center">
@@ -100,7 +101,10 @@
         </p-card>
       </div>
 
-      <div class="col-12 md:col-4">
+
+    </div>
+    <div class="row mt-3">
+      <div class="col-12 col-md-4">
         <p-card>
           <ng-template #content>
             <div class="flex justify-content-between align-items-center">
@@ -116,7 +120,7 @@
         </p-card>
       </div>
 
-      <div class="col-12 md:col-4">
+      <div class="col-12 col-md-4">
         <p-card>
           <ng-template #content>
             <div class="flex justify-content-between align-items-center">
@@ -132,7 +136,7 @@
         </p-card>
       </div>
 
-      <div class="col-12 md:col-4">
+      <div class="col-12 col-md-4">
         <p-card>
           <ng-template #content>
             <div class="flex justify-content-between align-items-center">
@@ -160,23 +164,24 @@
           [loading]="isLoading()"
           [paginator]="true"
           [rows]="25"
+          class="pharma-table"
           [rowsPerPageOptions]="[10, 25, 50, 100]"
           [showCurrentPageReport]="true"
           currentPageReportTemplate="Affichage de {first} à {last} sur {totalRecords} fournisseurs"
           [tableStyle]="{ 'min-width': '100rem' }"
         >
           <ng-template #header>
-            <tr>
-              <th pSortableColumn="fournisseurCode">Code <p-sortIcon field="fournisseurCode" /></th>
-              <th pSortableColumn="fournisseurName">Nom Fournisseur <p-sortIcon field="fournisseurName" /></th>
+            <tr class="pharma-table-head">
+              <th>Code</th>
+              <th>Nom Fournisseur</th>
               <th>Contact</th>
-              <th class="text-right" pSortableColumn="purchaseAmountLast30Days">Achats 30j <p-sortIcon field="purchaseAmountLast30Days" /></th>
-              <th class="text-right" pSortableColumn="purchaseAmountLast12Months">Achats 12m <p-sortIcon field="purchaseAmountLast12Months" /></th>
-              <th class="text-center" pSortableColumn="nbOrdersLast30Days">Cdes 30j <p-sortIcon field="nbOrdersLast30Days" /></th>
-              <th class="text-center" pSortableColumn="nbOrdersLast12Months">Cdes 12m <p-sortIcon field="nbOrdersLast12Months" /></th>
-              <th class="text-center" pSortableColumn="avgDeliveryDays">Délai Moyen <p-sortIcon field="avgDeliveryDays" /></th>
-              <th class="text-center" pSortableColumn="conformityRatePct">Conformité <p-sortIcon field="conformityRatePct" /></th>
-              <th class="text-center" pSortableColumn="performanceScore">Score <p-sortIcon field="performanceScore" /></th>
+              <th class="text-right" >Achats 30j</th>
+              <th class="text-right" >Achats 12m</th>
+              <th class="text-center" >Cdes 30j</th>
+              <th class="text-center" >Cdes 12m</th>
+              <th class="text-center" >Délai Moyen</th>
+              <th class="text-center" >Conformité</th>
+              <th class="text-center" >Score</th>
             </tr>
           </ng-template>
 

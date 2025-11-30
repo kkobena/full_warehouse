@@ -1,5 +1,8 @@
 package com.kobe.warehouse.service.dto.report;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
+import com.kobe.warehouse.service.dto.enumeration.TypeVenteDTO;
+
 import java.math.BigDecimal;
 import java.time.LocalDate;
 
@@ -8,10 +11,16 @@ import java.time.LocalDate;
  */
 public record DailySalesSummaryDTO(
     LocalDate saleDate,
-    String typeVente,
+    String type,
     Long nbVentes,
     Integer caTotal,
     Integer caNet,
     BigDecimal panierMoyen,
     Integer totalRemises
-) {}
+) {
+    @JsonProperty("typeVente")
+    public String typeVente() {
+        return TypeVenteDTO.valueOf(type).getValue();
+
+    }
+}

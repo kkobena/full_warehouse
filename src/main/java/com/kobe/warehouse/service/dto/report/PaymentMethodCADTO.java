@@ -12,6 +12,5 @@ public record PaymentMethodCADTO(
     String paymentCode,
     Integer nbPayments,
     Long montantTotal,
-    Long montantAvoirs,
     BigDecimal montantMoyen
 ) {}

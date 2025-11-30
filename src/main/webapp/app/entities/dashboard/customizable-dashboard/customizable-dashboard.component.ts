@@ -1,4 +1,14 @@
-import { Component, OnInit, OnDestroy, ViewChild, ElementRef, signal, inject, AfterViewInit, TemplateRef } from '@angular/core';
+import {
+  AfterViewInit,
+  Component,
+  ElementRef,
+  inject,
+  OnDestroy,
+  OnInit,
+  signal,
+  TemplateRef,
+  ViewChild
+} from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { HttpResponse } from '@angular/common/http';
@@ -18,18 +28,16 @@ import { GridStack, GridStackWidget } from 'gridstack';
 // Services and Models
 import { DashboardLayoutService } from '../dashboard-layout.service';
 import {
+  DashboardScope,
   IDashboardLayout,
   IDashboardLayoutParsed,
-  ILayoutConfig,
   IGridStackItem,
-  WidgetType,
-  DashboardScope,
+  ILayoutConfig,
   IWidgetConfig,
+  WidgetType
 } from 'app/shared/model/dashboard-layout.model';
 
 // Widget Components
-import { KpiCardWidgetComponent } from '../widgets/kpi-card-widget/kpi-card-widget.component';
-import { LineChartWidgetComponent } from '../widgets/line-chart-widget/line-chart-widget.component';
 
 @Component({
   selector: 'jhi-customizable-dashboard',
@@ -41,11 +49,11 @@ import { LineChartWidgetComponent } from '../widgets/line-chart-widget/line-char
     SelectModule,
     ToolbarModule,
     InputTextModule,
-    Tag,
+    Tag
 
   ],
   templateUrl: './customizable-dashboard.component.html',
-  styleUrl: './customizable-dashboard.component.scss',
+  styleUrl: './customizable-dashboard.component.scss'
 })
 export default class CustomizableDashboardComponent implements OnInit, AfterViewInit, OnDestroy {
   private dashboardLayoutService = inject(DashboardLayoutService);
@@ -75,7 +83,7 @@ export default class CustomizableDashboardComponent implements OnInit, AfterView
     { label: 'Graphique Circulaire', value: WidgetType.PIE_CHART, icon: 'pi-chart-pie' },
     { label: 'Tableau', value: WidgetType.TABLE, icon: 'pi-table' },
     { label: 'Top Produits', value: WidgetType.TOP_PRODUCTS, icon: 'pi-star-fill' },
-    { label: 'Alertes Stock', value: WidgetType.STOCK_ALERTS, icon: 'pi-exclamation-triangle' },
+    { label: 'Alertes Stock', value: WidgetType.STOCK_ALERTS, icon: 'pi-exclamation-triangle' }
   ];
 
   selectedWidgetType: WidgetType | null = null;
@@ -103,9 +111,9 @@ export default class CustomizableDashboardComponent implements OnInit, AfterView
         column: 12,
         animate: true,
         float: false,
-        acceptWidgets: true,
+        acceptWidgets: true
       },
-      this.gridContainer.nativeElement,
+      this.gridContainer.nativeElement
     );
 
     // Load current layout into grid
@@ -131,7 +139,7 @@ export default class CustomizableDashboardComponent implements OnInit, AfterView
         w: item.w,
         h: item.h,
         id: item.id,
-        content: this.createWidgetContent(item.widget),
+        content: this.createWidgetContent(item.widget)
       };
 
       this.grid!.addWidget(widget);
@@ -181,7 +189,7 @@ export default class CustomizableDashboardComponent implements OnInit, AfterView
 
     const widgetConfig: IWidgetConfig = {
       type: this.selectedWidgetType,
-      title: this.getWidgetLabel(this.selectedWidgetType),
+      title: this.getWidgetLabel(this.selectedWidgetType)
     };
 
     const widget: GridStackWidget = {
@@ -190,7 +198,7 @@ export default class CustomizableDashboardComponent implements OnInit, AfterView
       w: 4,
       h: 3,
       id: `widget-${Date.now()}`,
-      content: this.createWidgetContent(widgetConfig),
+      content: this.createWidgetContent(widgetConfig)
     };
 
     this.grid.addWidget(widget);
@@ -226,8 +234,8 @@ export default class CustomizableDashboardComponent implements OnInit, AfterView
           id: node.id || `widget-${index}`,
           widget: {
             type: WidgetType.KPI_CARD,
-            title: 'Widget',
-          },
+            title: 'Widget'
+          }
         });
       }
     });
@@ -237,8 +245,8 @@ export default class CustomizableDashboardComponent implements OnInit, AfterView
       gridOptions: {
         column: 12,
         cellHeight: 80,
-        margin: 10,
-      },
+        margin: 10
+      }
     };
 
     const layout: IDashboardLayoutParsed = {
@@ -246,7 +254,7 @@ export default class CustomizableDashboardComponent implements OnInit, AfterView
       description: this.layoutDescription,
       scope: this.layoutScope,
       isDefault: false,
-      config,
+      config
     };
 
     const layoutToSave = this.dashboardLayoutService.stringifyLayout(layout);
@@ -260,7 +268,7 @@ export default class CustomizableDashboardComponent implements OnInit, AfterView
       },
       error: () => {
         alert('Erreur lors de la sauvegarde du layout');
-      },
+      }
     });
   }
 
@@ -274,7 +282,7 @@ export default class CustomizableDashboardComponent implements OnInit, AfterView
       error: () => {
         this.layouts.set([]);
         this.isLoading.set(false);
-      },
+      }
     });
   }
 
@@ -287,7 +295,7 @@ export default class CustomizableDashboardComponent implements OnInit, AfterView
       },
       error: () => {
         // No default layout
-      },
+      }
     });
   }
 
@@ -314,7 +322,7 @@ export default class CustomizableDashboardComponent implements OnInit, AfterView
         },
         error: () => {
           alert('Erreur lors de la suppression');
-        },
+        }
       });
     }
   }

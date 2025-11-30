@@ -33,36 +33,37 @@ interface PeriodOption {
   imports: [CommonModule, FormsModule, ButtonModule, Card, SelectModule, ToolbarModule, WarehouseCommonModule, Tag],
 })
 export default class SalesForecastComponent implements OnInit {
-  private salesForecastService = inject(SalesForecastService);
 
   @ViewChild('forecastChartCanvas') forecastChartCanvas?: ElementRef<HTMLCanvasElement>;
   @ViewChild('confidenceChartCanvas') confidenceChartCanvas?: ElementRef<HTMLCanvasElement>;
 
   // Data signals
-  summary = signal<IForecastSummary | null>(null);
-  forecasts = signal<ISalesForecast[]>([]);
-  seasonalityDetected = signal<boolean>(false);
-  isLoading = signal<boolean>(false);
+  protected summary = signal<IForecastSummary | null>(null);
+  protected forecasts = signal<ISalesForecast[]>([]);
+  protected seasonalityDetected = signal<boolean>(false);
+  protected isLoading = signal<boolean>(false);
 
   // Charts
-  private forecastChart?: Chart;
-  private confidenceChart?: Chart;
 
   // Filters
-  selectedMethod = signal<string>('LINEAR_REGRESSION');
-  selectedPeriod = signal<number>(6);
+  protected selectedMethod = signal<string>('LINEAR_REGRESSION');
+  protected selectedPeriod = signal<number>(6);
 
-  methodOptions: MethodOption[] = [
+  protected methodOptions: MethodOption[] = [
     { label: 'Régression Linéaire', value: 'LINEAR_REGRESSION' },
     { label: 'Moyenne Mobile', value: 'MOVING_AVERAGE' },
     { label: 'Saisonnier', value: 'SEASONAL' },
   ];
 
-  periodOptions: PeriodOption[] = [
+ protected periodOptions: PeriodOption[] = [
     { label: '3 mois', value: 3 },
     { label: '6 mois', value: 6 },
     { label: '12 mois', value: 12 },
   ];
+  private salesForecastService = inject(SalesForecastService);
+
+  private forecastChart?: Chart;
+  private confidenceChart?: Chart;
 
   ngOnInit(): void {
     this.loadData();
@@ -106,11 +107,11 @@ export default class SalesForecastComponent implements OnInit {
     });
   }
 
-  onMethodChange(): void {
+protected  onMethodChange(): void {
     this.loadData();
   }
 
-  onPeriodChange(): void {
+  protected onPeriodChange(): void {
     this.loadData();
   }
 
@@ -251,14 +252,14 @@ export default class SalesForecastComponent implements OnInit {
 
   // Helpers
 
-  formatCurrency(value: number): string {
+  protected formatCurrency(value: number): string {
     return new Intl.NumberFormat('fr-FR', {
       minimumFractionDigits: 0,
       maximumFractionDigits: 0,
     }).format(value);
   }
 
-  formatPercent(value: number | undefined): string {
+  protected formatPercent(value: number | undefined): string {
     if (value === undefined || value === null) return '0.00';
     return new Intl.NumberFormat('fr-FR', {
       minimumFractionDigits: 2,
@@ -266,25 +267,25 @@ export default class SalesForecastComponent implements OnInit {
     }).format(value);
   }
 
-  formatMonth(period: string): string {
+  protected formatMonth(period: string): string {
     // Convert "2024-01" to "Janvier 2024"
     const [year, month] = period.split('-');
     const date = new Date(parseInt(year), parseInt(month) - 1, 1);
     return date.toLocaleDateString('fr-FR', { month: 'long', year: 'numeric' });
   }
 
-  getMethodLabel(method: string): string {
+  protected getMethodLabel(method: string): string {
     return FORECAST_METHOD_LABELS[method as ForecastMethod] || method;
   }
 
-  getAccuracySeverity(accuracy: number | undefined): 'success' | 'warn' | 'danger' {
+  protected getAccuracySeverity(accuracy: number | undefined): 'success' | 'warn' | 'danger' {
     if (!accuracy) return 'danger';
     if (accuracy >= 80) return 'success';
     if (accuracy >= 60) return 'warn';
     return 'danger';
   }
 
-  getTotalForecastedCA(): number {
+  protected getTotalForecastedCA(): number {
     return this.forecasts().reduce((sum, f) => sum + (f.forecastedCA || 0), 0);
   }
 }

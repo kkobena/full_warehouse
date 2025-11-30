@@ -15,6 +15,8 @@ import { WarehouseCommonModule } from '../../../shared/warehouse-common/warehous
 import { IDailySalesSummary } from 'app/shared/model/report/daily-sales-summary.model';
 import { SalesSummaryReportService } from '../services/sales-summary-report.service';
 import { Tag } from 'primeng/tag';
+import { PrimeNG } from 'primeng/config';
+import { TranslateService } from '@ngx-translate/core';
 
 @Component({
   selector: 'jhi-sales-summary',
@@ -43,16 +45,19 @@ export default class SalesSummaryComponent implements OnInit {
 
   typeVenteOptions = [
     { label: 'Tous', value: null },
-    { label: 'Vente Ordinaire (VO)', value: 'VO' },
-    { label: 'Vente Non Ordinaire (VNO)', value: 'VNO' },
-    { label: 'Vente Assurée (VA)', value: 'VA' },
-    { label: 'Vente Externe (VE)', value: 'VE' },
+    { label: 'Vente ordonnancées (VO)', value: 'ThirdPartySales' },
+    { label: 'Vente au comptant (VNO)', value: 'CashSale' },
+    { label: 'Vente aux dépôts', value: 'VenteDepot' }
   ];
-
+  private readonly primeNGConfig = inject(PrimeNG);
+  private readonly translate = inject(TranslateService);
   private readonly salesSummaryService = inject(SalesSummaryReportService);
 
   ngOnInit(): void {
-    // Set default date range to current month
+    this.translate.use('fr');
+    this.translate.stream('primeng').subscribe(data => {
+      this.primeNGConfig.setTranslation(data);
+    });
     const now = new Date();
     const firstDay = new Date(now.getFullYear(), now.getMonth(), 1);
     const lastDay = new Date(now.getFullYear(), now.getMonth() + 1, 0);
@@ -117,13 +122,11 @@ export default class SalesSummaryComponent implements OnInit {
     if (!type) return 'secondary';
     switch (type) {
       case 'VO':
-        return 'success';
-      case 'VNO':
         return 'info';
-      case 'VA':
+      case 'VNO':
+        return 'success';
+      case 'VENTES_DEPOTS':
         return 'warn';
-      case 'VE':
-        return 'danger';
       default:
         return 'secondary';
     }

@@ -17,6 +17,8 @@ import { IABCPareto, IABCParetoSummary } from 'app/shared/model/report';
 import { ClassePareto } from 'app/shared/model/report/classe-pareto.enum';
 import { ABCParetoReportService } from '../services/abc-pareto-report.service';
 import { InputText } from 'primeng/inputtext';
+import { IconField } from 'primeng/iconfield';
+import { InputIcon } from 'primeng/inputicon';
 
 @Component({
   selector: 'jhi-abc-pareto',
@@ -34,7 +36,9 @@ import { InputText } from 'primeng/inputtext';
     ChipModule,
     ProgressBarModule,
     WarehouseCommonModule,
-    InputText
+    InputText,
+    IconField,
+    InputIcon
   ]
 })
 export default class ABCParetoComponent implements OnInit {

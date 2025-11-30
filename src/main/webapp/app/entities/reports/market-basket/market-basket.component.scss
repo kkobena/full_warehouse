@@ -2,7 +2,7 @@
 @import 'app/shared/scss/table-common';
 @import 'app/shared/scss/pharma-toolbar';
 
-.pharma-table {
-  width: 100%;
-  font-size: 0.9rem;
+.p-floatlabel {
+  min-width: 90px !important;
+  max-width: 160px !important;
 }

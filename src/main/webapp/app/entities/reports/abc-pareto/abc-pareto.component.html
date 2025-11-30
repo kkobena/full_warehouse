@@ -1,6 +1,5 @@
 <div class="pharma-smart-content p-2">
-  <!-- Modern Pharma Toolbar (Compact) -->
-  <div class="pharma-toolbar pharma-toolbar-compact">
+  <div class="pharma-toolbar">
     <div class="pharma-toolbar-header">
       <i class="pi pi-chart-pie"></i>
       <span class="pharma-toolbar-title">Analyse ABC Pareto (Règle 80/20)</span>
@@ -8,11 +7,13 @@
 
     <p-toolbar>
       <ng-template #start>
-        <div class="pharma-toolbar-filters flex gap-2">
+        <div class="pharma-toolbar-filters ">
           <p-select
             [(ngModel)]="selectedCategorie"
             [options]="categorieOptions()"
             placeholder="Catégorie"
+            appendTo="body"
+            size="large"
             optionLabel="label"
             optionValue="value"
             [showClear]="true"
@@ -25,6 +26,8 @@
             optionLabel="label"
             optionValue="value"
             [showClear]="true"
+            appendTo="body"
+            size="large"
             (onChange)="onFilterChange()"
           />
         </div>
@@ -38,12 +41,7 @@
             severity="info"
             (onClick)="showTopContributors()"
           />
-          <p-button
-            label="Effacer les filtres"
-            icon="pi pi-filter-slash"
-            severity="secondary"
-            (onClick)="onClearFilters()"
-          />
+
           <p-button
             label="Exporter PDF"
             icon="pi pi-file-pdf"
@@ -53,7 +51,7 @@
           <p-button
             label="Rafraîchir"
             icon="pi pi-refresh"
-            severity="secondary"
+            severity="primary"
             (onClick)="loadABCPareto()"
           />
         </div>
@@ -63,8 +61,8 @@
 
   <!-- Summary Cards -->
   @if (summary()) {
-    <div class="grid mt-3">
-      <div class="col-12 md:col-4">
+    <div class="row mt-3">
+      <div class="col-12 col-md-4">
         <p-card>
           <ng-template #header>
             <div class="px-3 pt-3">
@@ -87,7 +85,7 @@
         </p-card>
       </div>
 
-      <div class="col-12 md:col-4">
+      <div class="col-12 col-md-4">
         <p-card>
           <ng-template #header>
             <div class="px-3 pt-3">
@@ -110,7 +108,7 @@
         </p-card>
       </div>
 
-      <div class="col-12 md:col-4">
+      <div class="col-12 col-md-4">
         <p-card>
           <ng-template #header>
             <div class="px-3 pt-3">
@@ -135,20 +133,20 @@
     </div>
 
     <!-- Global Summary Card -->
-    <div class="grid mt-2">
+    <div class="row mt-2">
       <div class="col-12">
         <p-card>
           <ng-template #content>
-            <div class="grid">
-              <div class="col-12 md:col-4 text-center">
+            <div class="row">
+              <div class="col-12 col-md-4 text-center">
                 <div class="text-500 font-medium mb-2">Total Produits</div>
                 <div class="text-900 font-bold text-2xl">{{ summary()!.totalProduits | number }}</div>
               </div>
-              <div class="col-12 md:col-4 text-center">
+              <div class="col-12 col-md-4 text-center">
                 <div class="text-500 font-medium mb-2">CA Global</div>
                 <div class="text-900 font-bold text-2xl">{{ summary()!.caGlobal | number:'1.0-0' }} F CFA</div>
               </div>
-              <div class="col-12 md:col-4 text-center">
+              <div class="col-12 col-md-4 text-center">
                 <div class="text-500 font-medium mb-2">Principe de Pareto</div>
                 <div class="text-900 font-medium text-lg">~20% des produits = 80% du CA</div>
               </div>
@@ -175,8 +173,8 @@
       <ng-template #caption>
         <div class="flex align-items-center justify-content-between">
           <h5 class="m-0">Analyse ABC Pareto</h5>
-          <span class="p-input-icon-left">
-            <i class="pi pi-search"></i>
+          <p-iconfield>
+            <p-inputicon class="pi pi-search" />
             <input
               pInputText
               type="text"
@@ -184,21 +182,22 @@
               #globalFilter
               (input)="$any($event.target).value"
             />
-          </span>
+          </p-iconfield>
+
         </div>
       </ng-template>
 
       <ng-template #header>
         <tr class="pharma-table-head">
-          <th pSortableColumn="rang">Rang <p-sortIcon field="rang" /></th>
-          <th pSortableColumn="libelle">Produit <p-sortIcon field="libelle" /></th>
-          <th pSortableColumn="codeCip">Code CIP <p-sortIcon field="codeCip" /></th>
-          <th pSortableColumn="categorie">Catégorie <p-sortIcon field="categorie" /></th>
-          <th pSortableColumn="caTotal" class="text-right">CA Total <p-sortIcon field="caTotal" /></th>
-          <th pSortableColumn="contributionPct" class="text-right">Contribution % <p-sortIcon field="contributionPct" /></th>
-          <th pSortableColumn="caCumulePct" class="text-right">CA Cumulé % <p-sortIcon field="caCumulePct" /></th>
-          <th pSortableColumn="classePareto">Classe Pareto <p-sortIcon field="classePareto" /></th>
-          <th pSortableColumn="nbVentes" class="text-right">Nb Ventes <p-sortIcon field="nbVentes" /></th>
+          <th>Rang</th>
+          <th >Produit </th>
+          <th >Code CIP </th>
+          <th >Catégorie </th>
+          <th  class="text-right">CA Total </th>
+          <th class="text-right">Contribution % </th>
+          <th  class="text-right">CA Cumulé %</th>
+          <th >Classe Pareto </th>
+          <th class="text-right">Nb Ventes </th>
         </tr>
       </ng-template>
 

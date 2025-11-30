@@ -53,7 +53,7 @@ export default class SupplierPerformanceComponent implements OnInit {
     { label: 'Performance excellente (e 70)', value: 'good' },
     { label: 'Performance moyenne (50-70)', value: 'average' },
     { label: 'Performance faible (< 50)', value: 'poor' },
-    { label: 'Probl�mes de livraison', value: 'delivery-issues' },
+    { label: 'Problèmes de livraison', value: 'delivery-issues' },
   ];
 
   ngOnInit(): void {

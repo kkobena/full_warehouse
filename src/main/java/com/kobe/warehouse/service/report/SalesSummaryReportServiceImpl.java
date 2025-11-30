@@ -1,5 +1,6 @@
 package com.kobe.warehouse.service.report;
 
+import com.kobe.warehouse.service.dto.enumeration.TypeVenteDTO;
 import com.kobe.warehouse.service.dto.report.DailySalesSummaryDTO;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
@@ -46,7 +47,7 @@ public class SalesSummaryReportServiceImpl implements SalesSummaryReportService 
         return results
             .stream()
             .map(row -> {
-                LocalDate saleDate = row[0] != null ? ((Date) row[0]).toLocalDate() : null;
+                LocalDate saleDate = row[0] != null ? LocalDate.parse(row[0]+"") : null;
                 String typeVente = (String) row[1];
                 Long nbVentes = row[2] != null ? ((Number) row[2]).longValue() : 0L;
                 Integer caTotal = row[3] != null ? ((Number) row[3]).intValue() : 0;
@@ -84,7 +85,7 @@ public class SalesSummaryReportServiceImpl implements SalesSummaryReportService 
         return results
             .stream()
             .map(row -> {
-                LocalDate saleDate = row[0] != null ? ((Date) row[0]).toLocalDate() : null;
+                LocalDate saleDate = row[0] != null ? LocalDate.parse(row[0]+"") : null;
                 String typeVente = (String) row[1];
                 Long nbVentes = row[2] != null ? ((Number) row[2]).longValue() : 0L;
                 Integer caTotal = row[3] != null ? ((Number) row[3]).intValue() : 0;
@@ -105,7 +106,7 @@ public class SalesSummaryReportServiceImpl implements SalesSummaryReportService 
     public List<DailySalesSummaryDTO> getDailySalesSummaryByType(
         LocalDate startDate,
         LocalDate endDate,
-        String typeVente
+        TypeVenteDTO typeVente
     ) {
         String sql =
             "SELECT " +
@@ -124,7 +125,7 @@ public class SalesSummaryReportServiceImpl implements SalesSummaryReportService 
         Query query = entityManager.createNativeQuery(sql);
         query.setParameter("startDate", startDate);
         query.setParameter("endDate", endDate);
-        query.setParameter("typeVente", typeVente);
+        query.setParameter("typeVente", typeVente.name());
 
         @SuppressWarnings("unchecked")
         List<Object[]> results = query.getResultList();
@@ -132,7 +133,7 @@ public class SalesSummaryReportServiceImpl implements SalesSummaryReportService 
         return results
             .stream()
             .map(row -> {
-                LocalDate saleDate = row[0] != null ? ((Date) row[0]).toLocalDate() : null;
+                LocalDate saleDate = row[0] != null ?  LocalDate.parse(row[0]+"") : null;
                 String typeVenteStr = (String) row[1];
                 Long nbVentes = row[2] != null ? ((Number) row[2]).longValue() : 0L;
                 Integer caTotal = row[3] != null ? ((Number) row[3]).intValue() : 0;

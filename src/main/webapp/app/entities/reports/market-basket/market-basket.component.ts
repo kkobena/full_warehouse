@@ -15,11 +15,12 @@ import { Tag } from 'primeng/tag';
 // Services and Models
 import { MarketBasketService } from '../services/market-basket.service';
 import { IProductAssociation, IMarketBasketSummary } from 'app/shared/model/report/market-basket.model';
+import { FloatLabel } from 'primeng/floatlabel';
 
 @Component({
   selector: 'jhi-market-basket',
   standalone: true,
-  imports: [CommonModule, FormsModule, ButtonModule, CardModule, SelectModule, ToolbarModule, DatePickerModule, InputNumberModule, Tag],
+  imports: [CommonModule, FormsModule, ButtonModule, CardModule, SelectModule, ToolbarModule, DatePickerModule, InputNumberModule, Tag, FloatLabel],
   templateUrl: './market-basket.component.html',
   styleUrl: './market-basket.component.scss',
 })

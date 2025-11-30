@@ -1,6 +1,6 @@
 <div class="pharma-smart-content p-2">
   <!-- Toolbar -->
-  <div class="pharma-toolbar pharma-toolbar-compact">
+  <div class="pharma-toolbar">
     <div class="pharma-toolbar-header">
       <i class="pi pi-chart-bar"></i>
       <span class="pharma-toolbar-title">Tableaux Comparatifs CA</span>
@@ -14,6 +14,7 @@
             [options]="comparisonTypeOptions"
             optionLabel="label"
             optionValue="value"
+            appendTo="body"
             (onChange)="onComparisonTypeChange()"
             [style]="{ 'min-width': '180px' }"
             placeholder="Type de comparaison" />
@@ -21,6 +22,7 @@
           <p-select
             [(ngModel)]="selectedYear"
             [options]="yearOptions"
+            appendTo="body"
             (onChange)="onYearChange()"
             [style]="{ 'min-width': '120px' }"
             placeholder="Année" />
@@ -43,8 +45,8 @@
   } @else {
     <!-- Summary Cards -->
     @if (summary(); as sum) {
-      <div class="grid mb-3">
-        <div class="col-12 md:col-6 lg:col-3">
+      <div class="row mb-3">
+        <div class="col-12 col-md-6 col-lg-3">
           <p-card>
             <div class="flex flex-column gap-2">
               <div class="flex align-items-center justify-content-between">
@@ -66,7 +68,7 @@
           </p-card>
         </div>
 
-        <div class="col-12 md:col-6 lg:col-3">
+        <div class="col-12 col-md-6 col-lg-3">
           <p-card>
             <div class="flex flex-column gap-2">
               <div class="flex align-items-center justify-content-between">
@@ -88,7 +90,7 @@
           </p-card>
         </div>
 
-        <div class="col-12 md:col-6 lg:col-3">
+        <div class="col-12 col-md-6 col-lg-3">
           <p-card>
             <div class="flex flex-column gap-2">
               <div class="flex align-items-center justify-content-between">
@@ -101,7 +103,7 @@
           </p-card>
         </div>
 
-        <div class="col-12 md:col-6 lg:col-3">
+        <div class="col-12 col-md-6 col-lg-3">
           <p-card>
             <div class="flex flex-column gap-2">
               <div class="flex align-items-center justify-content-between">
@@ -120,17 +122,20 @@
     }
 
     <!-- Charts -->
-    <div class="grid mb-3">
-      <div class="col-12">
-        <p-card>
-          <ng-template #header>
-            <div class="p-3 font-semibold">Évolution Comparative du CA</div>
-          </ng-template>
-          <canvas #evolutionChartCanvas height="80"></canvas>
-        </p-card>
-      </div>
+    <div class="row mb-3">
+    <div class="col-12">
+      <p-card>
+        <ng-template #header>
+          <div class="p-3 font-semibold">Évolution Comparative du CA</div>
+        </ng-template>
+        <canvas #evolutionChartCanvas height="80"></canvas>
+      </p-card>
+    </div>
+  </div>
+    <div class="row mb-3">
 
-      <div class="col-12 md:col-6">
+
+      <div class="col-12 col-md-6">
         <p-card>
           <ng-template #header>
             <div class="p-3 font-semibold">CA par Type de Vente</div>
@@ -140,7 +145,7 @@
       </div>
 
       <!-- Comparison Table -->
-      <div class="col-12 md:col-6">
+      <div class="col-12 col-md-6">
         <p-card>
           <ng-template #header>
             <div class="p-3 font-semibold">Tableau Comparatif</div>
@@ -182,7 +187,7 @@
     </div>
 
     <!-- By Sales Type Table -->
-    <div class="grid">
+    <div class="row">
       <div class="col-12">
         <p-card>
           <ng-template #header>

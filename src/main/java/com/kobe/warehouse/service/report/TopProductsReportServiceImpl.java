@@ -27,23 +27,25 @@ public class TopProductsReportServiceImpl implements TopProductsReportService {
         // Ensure we're at the first day of the month
         LocalDate firstDayOfMonth = month.with(TemporalAdjusters.firstDayOfMonth());
 
-        String sql =
-            "SELECT " +
-                "mois, " +
-                "produit_id, " +
-                "libelle, " +
-                "code_cip, " +
-                "nb_ventes, " +
-                "qte_vendue, " +
-                "ca_genere, " +
-                "prix_moyen " +
-                "FROM mv_monthly_top_products " +
-                "WHERE DATE_TRUNC('month', mois) = DATE_TRUNC('month', :month::date) " +
-                "ORDER BY ca_genere DESC ";
+        String sql = """
+    SELECT
+        mois,
+        produit_id,
+        libelle,
+        code_cip,
+        nb_ventes,
+        qte_vendue,
+        ca_genere,
+        prix_moyen
+    FROM mv_monthly_top_products
+    WHERE  mois =?1
+    ORDER BY ca_genere DESC
+    """;
+
 
 
         Query query = entityManager.createNativeQuery(sql);
-        query.setParameter("month", firstDayOfMonth);
+        query.setParameter(1, firstDayOfMonth.toString());
         query.setMaxResults(limit);
 
         @SuppressWarnings("unchecked")
@@ -58,23 +60,23 @@ public class TopProductsReportServiceImpl implements TopProductsReportService {
         // Ensure we're at the first day of the month
         LocalDate firstDayOfMonth = month.with(TemporalAdjusters.firstDayOfMonth());
 
-        String sql =
-            "SELECT " +
-                "mois, " +
-                "produit_id, " +
-                "libelle, " +
-                "code_cip, " +
-                "nb_ventes, " +
-                "qte_vendue, " +
-                "ca_genere, " +
-                "prix_moyen " +
-                "FROM mv_monthly_top_products " +
-                "WHERE DATE_TRUNC('month', mois) = DATE_TRUNC('month', :month::date) " +
-                "ORDER BY qte_vendue DESC ";
 
-
+        String sql = """
+    SELECT
+        mois,
+        produit_id,
+        libelle,
+        code_cip,
+        nb_ventes,
+        qte_vendue,
+        ca_genere,
+        prix_moyen
+    FROM mv_monthly_top_products
+    WHERE  mois =?1
+    ORDER BY qte_vendue DESC
+    """;
         Query query = entityManager.createNativeQuery(sql);
-        query.setParameter("month", firstDayOfMonth);
+        query.setParameter(1, firstDayOfMonth.toString());
         query.setMaxResults(limit);
 
         @SuppressWarnings("unchecked")
@@ -100,11 +102,11 @@ public class TopProductsReportServiceImpl implements TopProductsReportService {
                 "ca_genere, " +
                 "prix_moyen " +
                 "FROM mv_monthly_top_products " +
-                "WHERE DATE_TRUNC('month', mois) = DATE_TRUNC('month', :month::date) " +
+                "WHERE  mois =?1 " +
                 "ORDER BY ca_genere DESC";
 
         Query query = entityManager.createNativeQuery(sql);
-        query.setParameter("month", firstDayOfMonth);
+        query.setParameter(1, firstDayOfMonth.toString());
 
         @SuppressWarnings("unchecked")
         List<Object[]> results = query.getResultList();
@@ -148,7 +150,7 @@ public class TopProductsReportServiceImpl implements TopProductsReportService {
         return results
             .stream()
             .map(row -> {
-                LocalDate mois = row[0] != null ? ((Timestamp) row[0]).toLocalDateTime().toLocalDate() : null;
+                LocalDate mois = row[0] != null ? LocalDate.parse(row[0]+""): null;
                 Integer produitId = row[1] != null ? ((Number) row[1]).intValue() : null;
                 String libelle = (String) row[2];
                 String codeCip = (String) row[3];

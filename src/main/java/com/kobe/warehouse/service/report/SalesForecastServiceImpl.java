@@ -32,6 +32,7 @@ public class SalesForecastServiceImpl implements SalesForecastService {
         // Get historical data (last 24 months)
         Map<YearMonth, Long> historicalData = getHistoricalMonthlyCA(24);
 
+
         List<SalesForecastDTO> forecasts = switch (method.toUpperCase()) {
             case "MOVING_AVERAGE" -> forecastMovingAverage(historicalData, monthsAhead);
             case "SEASONAL" -> forecastSeasonal(historicalData, monthsAhead);
@@ -162,18 +163,19 @@ public class SalesForecastServiceImpl implements SalesForecastService {
     private Map<YearMonth, Long> getHistoricalMonthlyCA(int monthsBack) {
         LocalDate endDate = LocalDate.now().minusMonths(1); // Last complete month
         LocalDate startDate = endDate.minusMonths(monthsBack);
+        String sql = """
 
-        String sql =
-            "SELECT " +
-            "  DATE_TRUNC('month', s.sale_date) as month, " +
-            "  SUM(s.sales_amount - s.discount_amount) as ca " +
-            "FROM sales s " +
-            "WHERE s.statut = 'CLOSED' " +
-            "  AND s.canceled = false " +
-            "  AND s.ca = 'CA' " +
-            "  AND s.sale_date BETWEEN :startDate AND :endDate " +
-            "GROUP BY DATE_TRUNC('month', s.sale_date) " +
-            "ORDER BY month";
+ SELECT
+     TO_CHAR(DATE_TRUNC('month', s.sale_date), 'YYYY-MM-DD') as month,
+      SUM(s.sales_amount - s.discount_amount) as ca
+    FROM sales s
+    WHERE s.statut = 'CLOSED'
+      AND s.canceled = false
+      AND s.ca = 'CA'
+      AND s.sale_date BETWEEN :startDate AND :endDate
+    GROUP BY TO_CHAR(DATE_TRUNC('month', s.sale_date), 'YYYY-MM-DD')
+    ORDER BY month
+""";
 
         Query query = entityManager.createNativeQuery(sql);
         query.setParameter("startDate", startDate);
@@ -184,7 +186,7 @@ public class SalesForecastServiceImpl implements SalesForecastService {
 
         Map<YearMonth, Long> data = new LinkedHashMap<>();
         for (Object[] row : results) {
-            LocalDate monthDate = ((Date) row[0]).toLocalDate();
+            LocalDate monthDate = LocalDate.parse((String) row[0]);
             Long ca = ((Number) row[1]).longValue();
             data.put(YearMonth.from(monthDate), ca);
         }

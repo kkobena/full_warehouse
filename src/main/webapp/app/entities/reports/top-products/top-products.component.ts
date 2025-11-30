@@ -1,4 +1,4 @@
-import { Component, OnInit, inject, signal } from '@angular/core';
+import { Component, inject, OnInit, signal } from '@angular/core';
 import { HttpResponse } from '@angular/common/http';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
@@ -17,6 +17,9 @@ import { WarehouseCommonModule } from '../../../shared/warehouse-common/warehous
 import { ITopProduct } from 'app/shared/model/report/top-product.model';
 import { TopProductsReportService } from '../services/top-products-report.service';
 import { Tag } from 'primeng/tag';
+import { PrimeNG } from 'primeng/config';
+import { TranslateService } from '@ngx-translate/core';
+import { DATE_FORMAT_ISO_DATE, retriveMonthLabel } from '../../../shared/util/warehouse-util';
 
 @Component({
   selector: 'jhi-top-products',
@@ -39,37 +42,41 @@ import { Tag } from 'primeng/tag';
   ]
 })
 export default class TopProductsComponent implements OnInit {
-  topProductsByRevenue = signal<ITopProduct[]>([]);
-  topProductsByQuantity = signal<ITopProduct[]>([]);
-  isLoading = signal<boolean>(false);
-  selectedMonth = signal<Date | null>(null);
-  limit = signal<number>(20);
+  protected topProductsByRevenue = signal<ITopProduct[]>([]);
+  protected topProductsByQuantity = signal<ITopProduct[]>([]);
+  protected isLoading = signal<boolean>(false);
+  protected selectedMonth = signal<Date | null>(null);
+  protected limit = signal<number>(20);
 
-  limitOptions = [
+ protected limitOptions = [
     { label: 'Top 10', value: 10 },
     { label: 'Top 20', value: 20 },
     { label: 'Top 50', value: 50 },
-    { label: 'Top 100', value: 100 },
+    { label: 'Top 100', value: 100 }
   ];
-
+  private readonly primeNGConfig = inject(PrimeNG);
+  private readonly translate = inject(TranslateService);
   private readonly topProductsService = inject(TopProductsReportService);
 
   ngOnInit(): void {
-    // Set default month to current month
+    this.translate.use('fr');
+    this.translate.stream('primeng').subscribe(data => {
+      this.primeNGConfig.setTranslation(data);
+    });
     const now = new Date();
     const firstDayOfMonth = new Date(now.getFullYear(), now.getMonth(), 1);
     this.selectedMonth.set(firstDayOfMonth);
-
     this.loadTopProducts();
   }
 
-  loadTopProducts(): void {
+  protected  loadTopProducts(): void {
     if (!this.selectedMonth()) {
       return;
     }
 
     this.isLoading.set(true);
     const monthStr = this.formatDate(this.selectedMonth()!);
+    console.log(monthStr);
     const limit = this.limit();
 
     // Load both reports in parallel
@@ -79,7 +86,7 @@ export default class TopProductsComponent implements OnInit {
       },
       error: () => {
         this.isLoading.set(false);
-      },
+      }
     });
 
     this.topProductsService.getTopProductsByQuantity(monthStr, limit).subscribe({
@@ -89,33 +96,34 @@ export default class TopProductsComponent implements OnInit {
       },
       error: () => {
         this.isLoading.set(false);
-      },
+      }
     });
   }
 
-  onFilterChange(): void {
+  protected onFilterChange(): void {
     this.loadTopProducts();
   }
 
-  getTotalRevenue(): number {
+  protected  getTotalRevenue(): number {
     return this.topProductsByRevenue().reduce((sum, product) => sum + (product.caGenere || 0), 0);
   }
 
-  getTotalQuantity(): number {
+  protected getTotalQuantity(): number {
     return this.topProductsByQuantity().reduce((sum, product) => sum + (product.qteVendue || 0), 0);
   }
 
-  getTotalSales(): number {
+  protected getTotalSales(): number {
     return this.topProductsByRevenue().reduce((sum, product) => sum + (product.nbVentes || 0), 0);
   }
 
   private formatDate(date: Date): string {
-    return date.toISOString().split('T')[0];
+    return DATE_FORMAT_ISO_DATE(date);
+
   }
 
   getMonthLabel(): string {
     if (!this.selectedMonth()) return '';
-    const month = this.selectedMonth()!;
-    return month.toLocaleDateString('fr-FR', { month: 'long', year: 'numeric' });
+    return retriveMonthLabel(this.selectedMonth());
+
   }
 }

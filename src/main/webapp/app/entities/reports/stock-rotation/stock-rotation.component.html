@@ -1,6 +1,6 @@
 <div class="pharma-smart-content p-2">
   <!-- Modern Pharma Toolbar (Compact) -->
-  <div class="pharma-toolbar pharma-toolbar-compact">
+  <div class="pharma-toolbar">
     <div class="pharma-toolbar-header">
       <i class="pi pi-sync"></i>
       <span class="pharma-toolbar-title">Rotation du Stock (Analyse ABC)</span>
@@ -15,6 +15,8 @@
             placeholder="Catégorie"
             optionLabel="label"
             optionValue="value"
+            appendTo="body"
+            size="large"
             [showClear]="true"
             [disabled]="showSlowMovingOnly()"
             (onChange)="onFilterChange()"
@@ -25,28 +27,27 @@
             placeholder="Classification ABC"
             optionLabel="label"
             optionValue="value"
+            appendTo="body"
+            size="large"
             [showClear]="true"
             [disabled]="showSlowMovingOnly()"
             (onChange)="onFilterChange()"
           />
-          <p-button
-            [label]="showSlowMovingOnly() ? 'Tous les produits' : 'Produits à faible rotation'"
-            [icon]="showSlowMovingOnly() ? 'pi pi-list' : 'pi pi-exclamation-triangle'"
-            [severity]="showSlowMovingOnly() ? 'secondary' : 'warn'"
-            (onClick)="onSlowMovingToggle()"
-          />
+
         </div>
       </ng-template>
 
       <ng-template #end>
         <div class="flex gap-2">
           <p-button
+            size="small"
             label="Effacer les filtres"
             icon="pi pi-filter-slash"
             severity="secondary"
             (onClick)="onClearFilters()"
           />
           <p-button
+            size="small"
             label="Exporter PDF"
             icon="pi pi-file-pdf"
             severity="danger"
@@ -55,7 +56,8 @@
           <p-button
             label="Rafraîchir"
             icon="pi pi-refresh"
-            severity="secondary"
+            size="small"
+            severity="primary"
             (onClick)="loadRotations()"
           />
         </div>
@@ -64,8 +66,8 @@
   </div>
 
   <!-- ABC Classification Summary Cards -->
-  <div class="grid mt-3">
-    <div class="col-12 md:col-3">
+  <div class="row mt-3">
+    <div class="col-12 col-md-3">
       <p-card>
         <ng-template #content>
           <div class="flex justify-content-between align-items-center">
@@ -82,7 +84,7 @@
       </p-card>
     </div>
 
-    <div class="col-12 md:col-3">
+    <div class="col-12 col-md-3">
       <p-card>
         <ng-template #content>
           <div class="flex justify-content-between align-items-center">
@@ -99,7 +101,7 @@
       </p-card>
     </div>
 
-    <div class="col-12 md:col-3">
+    <div class="col-12 col-md-3">
       <p-card>
         <ng-template #content>
           <div class="flex justify-content-between align-items-center">
@@ -116,7 +118,7 @@
       </p-card>
     </div>
 
-    <div class="col-12 md:col-3">
+    <div class="col-12 col-md-3">
       <p-card>
         <ng-template #content>
           <div class="flex justify-content-between align-items-center">
@@ -143,25 +145,26 @@
           [loading]="isLoading()"
           [paginator]="true"
           [rows]="20"
+          class="pharma-table"
           [rowsPerPageOptions]="[10, 20, 50, 100]"
           [showCurrentPageReport]="true"
           currentPageReportTemplate="Affichage de {first} à {last} sur {totalRecords} entrées"
           [tableStyle]="{ 'min-width': '100rem' }"
         >
           <ng-template #header>
-            <tr>
-              <th pSortableColumn="libelle">Produit <p-sortIcon field="libelle" /></th>
-              <th pSortableColumn="codeCip">Code CIP <p-sortIcon field="codeCip" /></th>
-              <th pSortableColumn="categorie">Catégorie <p-sortIcon field="categorie" /></th>
-              <th pSortableColumn="categorieABC">ABC <p-sortIcon field="categorieABC" /></th>
-              <th class="text-right" pSortableColumn="stockQuantity">Stock <p-sortIcon field="stockQuantity" /></th>
-              <th class="text-right" pSortableColumn="stockValue">Valeur Stock <p-sortIcon field="stockValue" /></th>
-              <th class="text-right" pSortableColumn="caLast30Days">CA 30j <p-sortIcon field="caLast30Days" /></th>
-              <th class="text-right" pSortableColumn="qtySoldLast30Days">Qté 30j <p-sortIcon field="qtySoldLast30Days" /></th>
-              <th class="text-right" pSortableColumn="caLast12Months">CA 12m <p-sortIcon field="caLast12Months" /></th>
-              <th class="text-right" pSortableColumn="qtySoldLast12Months">Qté 12m <p-sortIcon field="qtySoldLast12Months" /></th>
-              <th class="text-right" pSortableColumn="rotationRateAnnual">Taux rotation <p-sortIcon field="rotationRateAnnual" /></th>
-              <th class="text-right" pSortableColumn="avgDaysInStock">Jours en stock <p-sortIcon field="avgDaysInStock" /></th>
+            <tr class="pharma-table-head">
+              <th>Produit</th>
+              <th>Code CIP</th>
+              <th>Catégorie</th>
+              <th>ABC</th>
+              <th class="text-right">Stock</th>
+              <th class="text-right" >Valeur Stock </th>
+              <th class="text-right">CA 30j</th>
+              <th class="text-right" >Qté 30j </th>
+              <th class="text-right">CA 12m </th>
+              <th class="text-right">Qté 12m </th>
+              <th class="text-right">Taux rotation </th>
+              <th class="text-right">Jours en stock </th>
             </tr>
           </ng-template>
           <ng-template #body let-rotation>
@@ -174,8 +177,8 @@
                   {{ getABCLabel(rotation.categorieABC) }}
                 </p-tag>
               </td>
-              <td class="text-right">{{ rotation.stockQuantity || 0 }}</td>
-              <td class="text-right font-bold">{{ rotation.stockValue | number:'1.0-0' }} F</td>
+              <td class="text-right pharma-qty-value">{{ rotation.stockQuantity || 0 }}</td>
+              <td class="text-right font-bold pharma-price">{{ rotation.stockValue | number:'1.0-0' }} F</td>
               <td class="text-right">{{ rotation.caLast30Days | number:'1.0-0' }} F</td>
               <td class="text-right">{{ rotation.qtySoldLast30Days || 0 }}</td>
               <td class="text-right font-bold">{{ rotation.caLast12Months | number:'1.0-0' }} F</td>

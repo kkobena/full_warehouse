@@ -1,6 +1,5 @@
 <div class="pharma-smart-content p-2">
-  <!-- Modern Pharma Toolbar (Compact) -->
-  <div class="pharma-toolbar pharma-toolbar-compact">
+  <div class="pharma-toolbar">
     <div class="pharma-toolbar-header">
       <i class="pi pi-exclamation-triangle"></i>
       <span class="pharma-toolbar-title">Alertes Stock</span>
@@ -29,7 +28,7 @@
           <p-button
             label="Exporter PDF"
             icon="pi pi-file-pdf"
-            severity="secondary"
+            severity="warn"
             (onClick)="exportToPdf()"
           />
         </div>
@@ -38,8 +37,8 @@
   </div>
 
   <!-- Summary Cards -->
-  <div class="grid mt-3">
-    <div class="col-12 md:col-4">
+  <div class="row mt-3">
+    <div class="col-12 col-md-4">
       <p-card>
         <ng-template #content>
           <div class="flex justify-content-between align-items-center">
@@ -55,7 +54,7 @@
       </p-card>
     </div>
 
-    <div class="col-12 md:col-4">
+    <div class="col-12 col-md-4">
       <p-card>
         <ng-template #content>
           <div class="flex justify-content-between align-items-center">
@@ -71,7 +70,7 @@
       </p-card>
     </div>
 
-    <div class="col-12 md:col-4">
+    <div class="col-12 col-md-4">
       <p-card>
         <ng-template #content>
           <div class="flex justify-content-between align-items-center">
@@ -89,11 +88,10 @@
   </div>
 
   <!-- Alerts Table -->
-  <div class="pharma-grid-container mt-3">
+  <div class="pharma-row-container mt-3">
     <p-table
       [value]="alerts()"
       [loading]="isLoading()"
-      responsiveLayout="scroll"
       [rowHover]="true"
       [scrollable]="true"
       sortField="alertType"
@@ -102,23 +100,20 @@
     >
       <ng-template #header>
         <tr class="pharma-table-head">
-          <th pSortableColumn="alertType">
+          <th>
             Type
-            <p-sortIcon field="alertType" />
           </th>
-          <th pSortableColumn="libelle">
+          <th>
             Produit
-            <p-sortIcon field="libelle" />
           </th>
           <th>Code CIP</th>
-          <th class="text-right" pSortableColumn="stockQuantity">
+          <th class="text-right" >
             Quantité
-            <p-sortIcon field="stockQuantity" />
+
           </th>
           <th class="text-right">Seuil Min</th>
-          <th pSortableColumn="expiryDate">
+          <th >
             Date Péremption
-            <p-sortIcon field="expiryDate" />
           </th>
         </tr>
       </ng-template>
@@ -149,8 +144,6 @@
               <span [class.text-red-600]="alert.alertType === StockAlertType.PEREMPTION">
                 {{ alert.expiryDate | date: 'dd/MM/yyyy' }}
               </span>
-            } @else {
-              <span class="text-muted">-</span>
             }
           </td>
         </tr>

@@ -1,6 +1,6 @@
 <div class="pharma-smart-content p-2">
   <!-- Toolbar -->
-  <div class="pharma-toolbar pharma-toolbar-compact">
+  <div class="pharma-toolbar">
     <div class="pharma-toolbar-header">
       <i class="pi pi-chart-line"></i>
       <span class="pharma-toolbar-title">Prévisions de Ventes</span>
@@ -8,12 +8,13 @@
 
     <p-toolbar>
       <ng-template #start>
-        <div class="pharma-toolbar-filters flex gap-2 align-items-center">
+        <div class="pharma-toolbar-filters">
           <p-select
             [(ngModel)]="selectedMethod"
             [options]="methodOptions"
             optionLabel="label"
             optionValue="value"
+            appendTo="body"
             (onChange)="onMethodChange()"
             [style]="{ 'min-width': '200px' }"
             placeholder="Méthode de prévision" />
@@ -23,6 +24,7 @@
             [options]="periodOptions"
             optionLabel="label"
             optionValue="value"
+            appendTo="body"
             (onChange)="onPeriodChange()"
             [style]="{ 'min-width': '120px' }"
             placeholder="Période" />
@@ -30,7 +32,7 @@
       </ng-template>
 
       <ng-template #end>
-        <div class="pharma-toolbar-actions flex gap-2">
+        <div class="pharma-toolbar-actions">
           <p-button label="Actualiser" icon="pi pi-refresh" (onClick)="loadData()" size="small" />
         </div>
       </ng-template>
@@ -45,8 +47,8 @@
   } @else {
     <!-- Summary Cards -->
     @if (summary(); as sum) {
-      <div class="grid mb-3">
-        <div class="col-12 md:col-6 lg:col-3">
+      <div class="row mb-3">
+        <div class="col-12 col-md-6 col-lg-3">
           <p-card>
             <div class="flex flex-column gap-2">
               <div class="flex align-items-center justify-content-between">
@@ -64,7 +66,7 @@
           </p-card>
         </div>
 
-        <div class="col-12 md:col-6 lg:col-3">
+        <div class="col-12 col-md-6 col-lg-3">
           <p-card>
             <div class="flex flex-column gap-2">
               <div class="flex align-items-center justify-content-between">
@@ -82,7 +84,7 @@
           </p-card>
         </div>
 
-        <div class="col-12 md:col-6 lg:col-3">
+        <div class="col-12 col-md-6 col-lg-3">
           <p-card>
             <div class="flex flex-column gap-2">
               <div class="flex align-items-center justify-content-between">
@@ -100,7 +102,7 @@
           </p-card>
         </div>
 
-        <div class="col-12 md:col-6 lg:col-3">
+        <div class="col-12 col-md-6 col-lg-3">
           <p-card>
             <div class="flex flex-column gap-2">
               <div class="flex align-items-center justify-content-between">
@@ -121,7 +123,7 @@
 
       <!-- Seasonality Alert -->
       @if (seasonalityDetected()) {
-        <div class="grid mb-3">
+        <div class="row mb-3">
           <div class="col-12">
             <div class="p-3 border-round" style="background-color: #FFF9E6; border: 1px solid #FFE082;">
               <div class="flex align-items-center gap-2">
@@ -142,7 +144,7 @@
     }
 
     <!-- Charts -->
-    <div class="grid mb-3">
+    <div class="row mb-3">
       <div class="col-12 lg:col-6">
         <p-card>
           <ng-template #header>
@@ -163,7 +165,7 @@
     </div>
 
     <!-- Forecast Table -->
-    <div class="grid">
+    <div class="row">
       <div class="col-12">
         <p-card>
           <ng-template #header>

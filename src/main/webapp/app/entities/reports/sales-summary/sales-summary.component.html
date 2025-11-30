@@ -1,6 +1,6 @@
 <div class="pharma-smart-content p-2">
-  <!-- Modern Pharma Toolbar (Compact) -->
-  <div class="pharma-toolbar pharma-toolbar-compact">
+
+  <div class="pharma-toolbar">
     <div class="pharma-toolbar-header">
       <i class="pi pi-chart-line"></i>
       <span class="pharma-toolbar-title">Synthèse des Ventes Quotidiennes</span>
@@ -8,11 +8,12 @@
 
     <p-toolbar>
       <ng-template #start>
-        <div class="pharma-toolbar-filters flex gap-2">
+        <div class="pharma-toolbar-filters ">
           <p-datePicker
             [(ngModel)]="startDate"
             placeholder="Date début"
             dateFormat="dd/mm/yy"
+            appendTo="body"
             [showIcon]="true"
             (onSelect)="onFilterChange()"
           />
@@ -20,6 +21,7 @@
             [(ngModel)]="endDate"
             placeholder="Date fin"
             dateFormat="dd/mm/yy"
+            appendTo="body"
             [showIcon]="true"
             (onSelect)="onFilterChange()"
           />
@@ -27,9 +29,13 @@
             [(ngModel)]="selectedTypeVente"
             [options]="typeVenteOptions"
             placeholder="Type de vente"
+            appendTo="body"
+            [fluid]="true"
+            size="large"
             optionLabel="label"
             optionValue="value"
             [showClear]="true"
+            [style]="{ 'min-width': '150px' }"
             (onChange)="onFilterChange()"
           />
         </div>
@@ -49,8 +55,8 @@
   </div>
 
   <!-- Summary Cards -->
-  <div class="grid mt-3">
-    <div class="col-12 md:col-3">
+  <div class="row mt-3">
+    <div class="col-12 col-lg-3">
       <p-card>
         <ng-template #content>
           <div class="flex justify-content-between align-items-center">
@@ -66,7 +72,7 @@
       </p-card>
     </div>
 
-    <div class="col-12 md:col-3">
+    <div class="col-12 col-lg-3">
       <p-card>
         <ng-template #content>
           <div class="flex justify-content-between align-items-center">
@@ -82,7 +88,7 @@
       </p-card>
     </div>
 
-    <div class="col-12 md:col-3">
+    <div class="col-12 col-lg-3">
       <p-card>
         <ng-template #content>
           <div class="flex justify-content-between align-items-center">
@@ -98,7 +104,7 @@
       </p-card>
     </div>
 
-    <div class="col-12 md:col-3">
+    <div class="col-12 col-lg-3">
       <p-card>
         <ng-template #content>
           <div class="flex justify-content-between align-items-center">
@@ -123,6 +129,7 @@
           [value]="summaries()"
           [loading]="isLoading()"
           [paginator]="true"
+          class="pharma-table"
           [rows]="20"
           [rowsPerPageOptions]="[10, 20, 50]"
           [showCurrentPageReport]="true"
@@ -130,27 +137,27 @@
           [tableStyle]="{ 'min-width': '50rem' }"
         >
           <ng-template #header>
-            <tr>
-              <th pSortableColumn="saleDate">Date <p-sortIcon field="saleDate" /></th>
-              <th pSortableColumn="typeVente">Type de vente <p-sortIcon field="typeVente" /></th>
-              <th class="text-right" pSortableColumn="nbVentes">Nb ventes <p-sortIcon field="nbVentes" /></th>
-              <th class="text-right" pSortableColumn="caTotal">CA Total <p-sortIcon field="caTotal" /></th>
-              <th class="text-right" pSortableColumn="caNet">CA Net <p-sortIcon field="caNet" /></th>
-              <th class="text-right" pSortableColumn="totalRemises">Remises <p-sortIcon field="totalRemises" /></th>
-              <th class="text-right" pSortableColumn="panierMoyen">Panier moyen <p-sortIcon field="panierMoyen" /></th>
+            <tr class="pharma-table-head">
+              <th>Date</th>
+              <th>Type de vente</th>
+              <th class="text-right" >Nb ventes</th>
+              <th class="text-right">CA Total</th>
+              <th class="text-right">CA Net</th>
+              <th class="text-right">Remises</th>
+              <th class="text-right">Panier moyen</th>
             </tr>
           </ng-template>
           <ng-template #body let-summary>
-            <tr>
+            <tr >
               <td>{{ summary.saleDate | date:'dd/MM/yyyy' }}</td>
               <td>
                 <p-tag [severity]="getSeverityForType(summary.typeVente)">{{ summary.typeVente || 'N/A' }}</p-tag>
               </td>
-              <td class="text-right">{{ summary.nbVentes || 0 }}</td>
-              <td class="text-right">{{ summary.caTotal | number:'1.0-0' }} F CFA</td>
-              <td class="text-right">{{ summary.caNet | number:'1.0-0' }} F CFA</td>
-              <td class="text-right">{{ summary.totalRemises | number:'1.0-0' }} F CFA</td>
-              <td class="text-right">{{ summary.panierMoyen | number:'1.0-2' }} F CFA</td>
+              <td class="text-right pharma-qty-value">{{ summary.nbVentes || 0 }}</td>
+              <td class="text-right pharma-price">{{ summary.caTotal | number:'1.0-0' }} F CFA</td>
+              <td class="text-right pharma-price">{{ summary.caNet | number:'1.0-0' }} F CFA</td>
+              <td class="text-right pharma-price">{{ summary.totalRemises | number:'1.0-0' }} F CFA</td>
+              <td class="text-right pharma-price">{{ summary.panierMoyen | number:'1.0-2' }} F CFA</td>
             </tr>
           </ng-template>
           <ng-template #emptymessage>

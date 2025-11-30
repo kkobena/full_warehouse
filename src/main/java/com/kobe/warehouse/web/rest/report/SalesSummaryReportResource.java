@@ -1,5 +1,7 @@
 package com.kobe.warehouse.web.rest.report;
 
+import com.kobe.warehouse.security.AuthoritiesConstants;
+import com.kobe.warehouse.service.dto.enumeration.TypeVenteDTO;
 import com.kobe.warehouse.service.dto.report.DailySalesSummaryDTO;
 import com.kobe.warehouse.service.report.SalesSummaryReportService;
 import java.time.LocalDate;
@@ -30,7 +32,7 @@ public class SalesSummaryReportResource {
      * @return ResponseEntity with list of daily summaries
      */
     @GetMapping
-    @PreAuthorize("hasAnyAuthority('ADMIN')")
+    @PreAuthorize("hasAuthority(\"" + AuthoritiesConstants.ADMIN + "\")")
     public ResponseEntity<List<DailySalesSummaryDTO>> getDailySalesSummary(
         @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate startDate,
         @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate endDate
@@ -46,7 +48,7 @@ public class SalesSummaryReportResource {
      * @return ResponseEntity with list of summaries grouped by sale type
      */
     @GetMapping("/by-date")
-    @PreAuthorize("hasAnyAuthority('ADMIN')")
+    @PreAuthorize("hasAuthority(\"" + AuthoritiesConstants.ADMIN + "\")")
     public ResponseEntity<List<DailySalesSummaryDTO>> getDailySalesSummaryByDate(
         @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate date
     ) {
@@ -63,11 +65,11 @@ public class SalesSummaryReportResource {
      * @return ResponseEntity with list of daily summaries for that type
      */
     @GetMapping("/by-type")
-    @PreAuthorize("hasAnyAuthority('ADMIN')")
+    @PreAuthorize("hasAuthority(\"" + AuthoritiesConstants.ADMIN + "\")")
     public ResponseEntity<List<DailySalesSummaryDTO>> getDailySalesSummaryByType(
         @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate startDate,
         @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate endDate,
-        @RequestParam String typeVente
+        @RequestParam TypeVenteDTO typeVente
     ) {
         List<DailySalesSummaryDTO> result = salesSummaryReportService.getDailySalesSummaryByType(
             startDate,

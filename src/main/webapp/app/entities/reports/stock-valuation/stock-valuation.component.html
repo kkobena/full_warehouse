@@ -1,6 +1,5 @@
 <div class="pharma-smart-content p-2">
-  <!-- Modern Pharma Toolbar (Compact) -->
-  <div class="pharma-toolbar pharma-toolbar-compact">
+  <div class="pharma-toolbar">
     <div class="pharma-toolbar-header">
       <i class="pi pi-chart-bar"></i>
       <span class="pharma-toolbar-title">Valorisation du Stock</span>
@@ -8,11 +7,13 @@
 
     <p-toolbar>
       <ng-template #start>
-        <div class="pharma-toolbar-filters flex gap-2">
+        <div class="pharma-toolbar-filters ">
           <p-select
             [(ngModel)]="selectedCategorie"
             [options]="categorieOptions()"
             placeholder="Catégorie"
+            appendTo="body"
+            size="large"
             optionLabel="label"
             optionValue="value"
             [showClear]="true"
@@ -24,6 +25,8 @@
             placeholder="Emplacement"
             optionLabel="label"
             optionValue="value"
+            appendTo="body"
+            size="large"
             [showClear]="true"
             (onChange)="onFilterChange()"
           />
@@ -41,13 +44,13 @@
           <p-button
             label="Exporter PDF"
             icon="pi pi-file-pdf"
-            severity="danger"
+            severity="warn"
             (onClick)="exportToPdf()"
           />
           <p-button
             label="Rafraîchir"
             icon="pi pi-refresh"
-            severity="secondary"
+            severity="primary"
             (onClick)="loadValuations()"
           />
         </div>
@@ -57,8 +60,8 @@
 
   <!-- Summary Cards -->
   @if (summary()) {
-    <div class="grid mt-3">
-      <div class="col-12 md:col-3">
+    <div class="row mt-3">
+      <div class="col-12 col-md-3">
         <p-card>
           <ng-template #content>
             <div class="flex justify-content-between align-items-center">
@@ -74,7 +77,7 @@
         </p-card>
       </div>
 
-      <div class="col-12 md:col-3">
+      <div class="col-12 col-md-3">
         <p-card>
           <ng-template #content>
             <div class="flex justify-content-between align-items-center">
@@ -90,7 +93,7 @@
         </p-card>
       </div>
 
-      <div class="col-12 md:col-3">
+      <div class="col-12 col-md-3">
         <p-card>
           <ng-template #content>
             <div class="flex justify-content-between align-items-center">
@@ -106,7 +109,7 @@
         </p-card>
       </div>
 
-      <div class="col-12 md:col-3">
+      <div class="col-12 col-md-3">
         <p-card>
           <ng-template #content>
             <div class="flex justify-content-between align-items-center">
@@ -130,6 +133,7 @@
     <p-card>
       <ng-template #content>
         <p-table
+          class="pharma-table"
           [value]="valuations()"
           [loading]="isLoading()"
           [paginator]="true"
@@ -140,18 +144,18 @@
           [tableStyle]="{ 'min-width': '80rem' }"
         >
           <ng-template #header>
-            <tr>
-              <th pSortableColumn="libelle">Produit <p-sortIcon field="libelle" /></th>
-              <th pSortableColumn="codeCip">Code CIP <p-sortIcon field="codeCip" /></th>
-              <th pSortableColumn="categorie">Catégorie <p-sortIcon field="categorie" /></th>
-              <th pSortableColumn="storageLocation">Emplacement <p-sortIcon field="storageLocation" /></th>
-              <th class="text-right" pSortableColumn="stockQuantity">Stock <p-sortIcon field="stockQuantity" /></th>
-              <th class="text-right" pSortableColumn="purchasePrice">PA Unit. <p-sortIcon field="purchasePrice" /></th>
-              <th class="text-right" pSortableColumn="salesPrice">PV Unit. <p-sortIcon field="salesPrice" /></th>
-              <th class="text-right" pSortableColumn="totalPurchaseValue">Valeur Achat <p-sortIcon field="totalPurchaseValue" /></th>
-              <th class="text-right" pSortableColumn="totalSalesValue">Valeur Vente <p-sortIcon field="totalSalesValue" /></th>
-              <th class="text-right" pSortableColumn="potentialMargin">Marge Pot. <p-sortIcon field="potentialMargin" /></th>
-              <th class="text-right" pSortableColumn="marginPercentage">Marge % <p-sortIcon field="marginPercentage" /></th>
+            <tr class="pharma-table-head">
+              <th>Produit</th>
+              <th>Code CIP</th>
+              <th>Catégorie</th>
+              <th>Emplacement</th>
+              <th>Stock</th>
+              <th>PA Unit.</th>
+              <th>PV Unit.</th>
+              <th>Valeur Achat</th>
+              <th>Valeur Vente</th>
+              <th>Marge Pot.</th>
+              <th>Marge %</th>
             </tr>
           </ng-template>
           <ng-template #body let-valuation>
@@ -160,11 +164,11 @@
               <td>{{ valuation.codeCip }}</td>
               <td>{{ valuation.categorie }}</td>
               <td>{{ valuation.storageLocation }}</td>
-              <td class="text-right">{{ valuation.stockQuantity || 0 }}</td>
-              <td class="text-right">{{ valuation.purchasePrice | number:'1.0-0' }} F</td>
-              <td class="text-right">{{ valuation.salesPrice | number:'1.0-0' }} F</td>
-              <td class="text-right font-bold">{{ valuation.totalPurchaseValue | number:'1.0-0' }} F</td>
-              <td class="text-right font-bold">{{ valuation.totalSalesValue | number:'1.0-0' }} F</td>
+              <td class="text-right pharma-qty-value">{{ valuation.stockQuantity || 0 }}</td>
+              <td class="text-right pharma-price">{{ valuation.purchasePrice | number:'1.0-0' }} F</td>
+              <td class="text-right pharma-price">{{ valuation.salesPrice | number:'1.0-0' }} F</td>
+              <td class="text-right font-bold pharma-price">{{ valuation.totalPurchaseValue | number:'1.0-0' }} F</td>
+              <td class="text-right font-bold pharma-price">{{ valuation.totalSalesValue | number:'1.0-0' }} F</td>
               <td class="text-right font-bold text-green-600">{{ valuation.potentialMargin | number:'1.0-0' }} F</td>
               <td class="text-right">
                 <span

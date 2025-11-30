@@ -16,6 +16,8 @@ import { IProductProfitability, IProfitabilitySummary } from 'app/shared/model/r
 import { BCGCategory } from 'app/shared/model/report/bcg-category.enum';
 import { ProfitabilityReportService } from '../services/profitability-report.service';
 import { InputText } from 'primeng/inputtext';
+import { IconField } from 'primeng/iconfield';
+import { InputIcon } from 'primeng/inputicon';
 
 @Component({
   selector: 'jhi-profitability-analysis',
@@ -32,19 +34,21 @@ import { InputText } from 'primeng/inputtext';
     DividerModule,
     ChipModule,
     WarehouseCommonModule,
-    InputText
+    InputText,
+    IconField,
+    InputIcon
   ]
 })
 export default class ProfitabilityAnalysisComponent implements OnInit {
-  products = signal<IProductProfitability[]>([]);
-  summary = signal<IProfitabilitySummary | null>(null);
-  isLoading = signal<boolean>(false);
-  selectedCategorie = signal<string | null>(null);
-  selectedBCGCategory = signal<BCGCategory | null>(null);
-  showLowMarginOnly = signal<boolean>(false);
+  protected products = signal<IProductProfitability[]>([]);
+  protected summary = signal<IProfitabilitySummary | null>(null);
+  protected isLoading = signal<boolean>(false);
+  protected selectedCategorie = signal<string | null>(null);
+  protected selectedBCGCategory = signal<BCGCategory | null>(null);
+  protected  showLowMarginOnly = signal<boolean>(false);
 
-  categorieOptions = signal<Array<{ label: string; value: string }>>([]);
-  bcgCategoryOptions = signal<Array<{ label: string; value: BCGCategory }>>([
+  protected categorieOptions = signal<Array<{ label: string; value: string }>>([]);
+  protected  bcgCategoryOptions = signal<Array<{ label: string; value: BCGCategory }>>([
     { label: 'Toutes', value: '' as any },
     { label: 'Stars (Marge élevée + Rotation élevée)', value: BCGCategory.STAR },
     { label: 'Cash Cows (Marge élevée + Rotation faible)', value: BCGCategory.CASH_COW },
@@ -61,7 +65,7 @@ export default class ProfitabilityAnalysisComponent implements OnInit {
     this.loadSummary();
   }
 
-  loadProfitability(): void {
+  protected  loadProfitability(): void {
     this.isLoading.set(true);
     const categorie = this.selectedCategorie();
     const bcgCategory = this.selectedBCGCategory();
@@ -80,6 +84,7 @@ export default class ProfitabilityAnalysisComponent implements OnInit {
 
     request.subscribe({
       next: (res: HttpResponse<IProductProfitability[]>) => {
+        console.error('res.body', res.body);
         this.products.set(res.body ?? []);
         this.extractFilterOptions(res.body ?? []);
         this.isLoading.set(false);
@@ -90,7 +95,7 @@ export default class ProfitabilityAnalysisComponent implements OnInit {
     });
   }
 
-  loadSummary(): void {
+  protected loadSummary(): void {
     this.profitabilityService.getProfitabilitySummary().subscribe({
       next: (res: HttpResponse<IProfitabilitySummary>) => {
         this.summary.set(res.body ?? null);
@@ -101,25 +106,25 @@ export default class ProfitabilityAnalysisComponent implements OnInit {
     });
   }
 
-  onFilterChange(): void {
+  protected onFilterChange(): void {
     this.loadProfitability();
   }
 
-  onClearFilters(): void {
+  protected onClearFilters(): void {
     this.selectedCategorie.set(null);
     this.selectedBCGCategory.set(null);
     this.showLowMarginOnly.set(false);
     this.loadProfitability();
   }
 
-  showLowMarginProducts(): void {
+  protected  showLowMarginProducts(): void {
     this.showLowMarginOnly.set(true);
     this.selectedCategorie.set(null);
     this.selectedBCGCategory.set(null);
     this.loadProfitability();
   }
 
-  exportToPdf(): void {
+  protected exportToPdf(): void {
     this.profitabilityService.exportProfitabilityToPdf().subscribe({
       next: (res: HttpResponse<Blob>) => {
         if (res.body) {
@@ -147,7 +152,7 @@ export default class ProfitabilityAnalysisComponent implements OnInit {
     ]);
   }
 
-  getBCGCategoryLabel(bcgCategory: BCGCategory | undefined): string {
+  protected getBCGCategoryLabel(bcgCategory: BCGCategory | undefined): string {
     switch (bcgCategory) {
       case BCGCategory.STAR:
         return 'Star';
@@ -162,7 +167,7 @@ export default class ProfitabilityAnalysisComponent implements OnInit {
     }
   }
 
-  getBCGCategorySeverity(bcgCategory: BCGCategory | undefined): string {
+  protected  getBCGCategorySeverity(bcgCategory: BCGCategory | undefined): string {
     switch (bcgCategory) {
       case BCGCategory.STAR:
         return 'success';
@@ -177,7 +182,7 @@ export default class ProfitabilityAnalysisComponent implements OnInit {
     }
   }
 
-  getMarginSeverity(margin: number | undefined): string {
+  protected getMarginSeverity(margin: number | undefined): string {
     if (!margin) return 'secondary';
     if (margin >= 30) return 'success';
     if (margin >= 20) return 'info';
@@ -185,7 +190,7 @@ export default class ProfitabilityAnalysisComponent implements OnInit {
     return 'danger';
   }
 
-  calculateMarginPercentage(product: IProductProfitability): number {
+  protected calculateMarginPercentage(product: IProductProfitability): number {
     return product.tauxMargePct || 0;
   }
 }

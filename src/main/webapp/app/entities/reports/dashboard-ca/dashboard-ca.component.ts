@@ -25,6 +25,9 @@ import { ITopProduct } from 'app/shared/model/report/top-product.model';
 import { DashboardCAService } from '../services/dashboard-ca.service';
 
 import { Chart, ChartConfiguration, ChartData, registerables } from 'chart.js';
+import { FloatLabel } from 'primeng/floatlabel';
+import { PrimeNG } from 'primeng/config';
+import { TranslateService } from '@ngx-translate/core';
 Chart.register(...registerables);
 
 interface PeriodOption {
@@ -47,16 +50,18 @@ interface PeriodOption {
     WarehouseCommonModule,
     Tag,
     DatePicker,
-  ],
+    FloatLabel
+  ]
 })
 export default class DashboardCAComponent implements OnInit, OnDestroy {
-  private dashboardCAService = inject(DashboardCAService);
 
   @ViewChild('evolutionChartCanvas') evolutionChartCanvas?: ElementRef<HTMLCanvasElement>;
   @ViewChild('paymentChartCanvas') paymentChartCanvas?: ElementRef<HTMLCanvasElement>;
   @ViewChild('familyChartCanvas') familyChartCanvas?: ElementRef<HTMLCanvasElement>;
 
-  // Data signals
+  selectedPeriod = signal<string>('week');
+  startDate = signal<Date>(this.getDefaultStartDate());
+  endDate = signal<Date>(new Date());
   summary = signal<IDashboardCASummary | null>(null);
   topProducts = signal<ITopProduct[]>([]);
   paymentMethodData = signal<IPaymentMethodSummary[]>([]);
@@ -69,10 +74,10 @@ export default class DashboardCAComponent implements OnInit, OnDestroy {
   private familyChart?: Chart;
 
   // Filters
-  selectedPeriod = signal<string>('week');
-  startDate = signal<Date>(this.getDefaultStartDate());
-  endDate = signal<Date>(new Date());
+  private dashboardCAService = inject(DashboardCAService);
 
+  private readonly primeNGConfig = inject(PrimeNG);
+  private readonly translate = inject(TranslateService);
   periodOptions: PeriodOption[] = [
     { label: 'Aujourd\'hui', value: 'today' },
     { label: '7 derniers jours', value: 'week' },
@@ -82,6 +87,10 @@ export default class DashboardCAComponent implements OnInit, OnDestroy {
   ];
 
   ngOnInit(): void {
+    this.translate.use('fr');
+    this.translate.stream('primeng').subscribe(data => {
+      this.primeNGConfig.setTranslation(data);
+    });
     this.loadDashboard();
   }
 

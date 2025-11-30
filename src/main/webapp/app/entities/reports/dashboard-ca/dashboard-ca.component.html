@@ -1,6 +1,6 @@
 <div class="pharma-smart-content p-2">
   <!-- Toolbar -->
-  <div class="pharma-toolbar pharma-toolbar-compact">
+  <div class="pharma-toolbar">
     <div class="pharma-toolbar-header">
       <i class="pi pi-chart-line"></i>
       <span class="pharma-toolbar-title">Dashboard Chiffre d'Affaires</span>
@@ -8,38 +8,57 @@
 
     <p-toolbar>
       <ng-template #start>
-        <div class="pharma-toolbar-filters flex gap-2 align-items-center">
+        <div class="pharma-toolbar-filters">
           <p-select
             [(ngModel)]="selectedPeriod"
             [options]="periodOptions"
             optionLabel="label"
             optionValue="value"
+            size="large"
+            appendTo="body"
             (onChange)="onPeriodChange()"
             [style]="{ 'min-width': '200px' }"
             placeholder="Sélectionner une période" />
 
           @if (selectedPeriod() === 'custom') {
-            <p-datepicker
+            <p-floatlabel variant="on">
+            <p-datePicker
               [(ngModel)]="startDate"
               dateFormat="dd/mm/yy"
               [showIcon]="true"
-              placeholder="Date début" />
-            <p-datepicker
-              [(ngModel)]="endDate"
-              dateFormat="dd/mm/yy"
-              [showIcon]="true"
-              placeholder="Date fin" />
-            <p-button
-              label="Appliquer"
-              icon="pi pi-check"
-              (onClick)="loadDashboard()"
-              size="small" />
+              appendTo="body"
+              id="fromDate"
+              [style]="{ 'max-width': '150px' }"
+             />
+              <label for="fromDate">Date début</label>
+            </p-floatlabel>
+            <p-floatlabel variant="on">
+              <p-datePicker
+                [(ngModel)]="endDate"
+                dateFormat="dd/mm/yy"
+                [style]="{ 'max-width': '150px' }"
+                [showIcon]="true"
+                appendTo="body"
+                id="toDate"
+               />
+              <label for="toDate">Date fin</label>
+            </p-floatlabel>
+
+
           }
         </div>
       </ng-template>
 
       <ng-template #end>
         <div class="pharma-toolbar-actions flex gap-2">
+          @if (selectedPeriod() === 'custom') {
+            <p-button
+              label="Appliquer"
+              icon="pi pi-check"
+              (onClick)="loadDashboard()"
+              size="small" />
+          }
+
           <p-button
             label="Actualiser"
             icon="pi pi-refresh"
@@ -77,9 +96,9 @@
   } @else {
     <!-- KPI Cards -->
     @if (summary(); as sum) {
-      <div class="grid mb-3">
+      <div class="row mb-3">
         <!-- Today -->
-        <div class="col-12 md:col-6 lg:col-3">
+        <div class="col-12 col-md-6 col-lg-3">
           <p-card>
             <div class="flex flex-column gap-2">
               <div class="flex align-items-center justify-content-between">
@@ -105,7 +124,7 @@
         </div>
 
         <!-- Week -->
-        <div class="col-12 md:col-6 lg:col-3">
+        <div class="col-12 col-md-6 col-lg-3">
           <p-card>
             <div class="flex flex-column gap-2">
               <div class="flex align-items-center justify-content-between">
@@ -131,7 +150,7 @@
         </div>
 
         <!-- Month -->
-        <div class="col-12 md:col-6 lg:col-3">
+        <div class="col-12 col-md-6 col-lg-3">
           <p-card>
             <div class="flex flex-column gap-2">
               <div class="flex align-items-center justify-content-between">
@@ -157,7 +176,7 @@
         </div>
 
         <!-- Year -->
-        <div class="col-12 md:col-6 lg:col-3">
+        <div class="col-12 col-md-6 col-lg-3">
           <p-card>
             <div class="flex flex-column gap-2">
               <div class="flex align-items-center justify-content-between">
@@ -185,19 +204,22 @@
     }
 
     <!-- Charts Section -->
-    <div class="grid mb-3">
-      <!-- Evolution Chart -->
-      <div class="col-12">
-        <p-card>
-          <ng-template #header>
-            <div class="p-3 font-semibold">Évolution du Chiffre d'Affaires</div>
-          </ng-template>
-          <canvas #evolutionChartCanvas height="100"></canvas>
-        </p-card>
-      </div>
+    <div class="row mb-3">
+    <!-- Evolution Chart -->
+    <div class="col-12">
+      <p-card>
+        <ng-template #header>
+          <div class="p-3 font-semibold">Évolution du Chiffre d'Affaires</div>
+        </ng-template>
+        <canvas #evolutionChartCanvas height="100"></canvas>
+      </p-card>
+    </div>
+
+  </div>
+    <div class="row mb-3">
 
       <!-- Payment Methods Chart -->
-      <div class="col-12 md:col-6">
+      <div class="col-12 col-md-6">
         <p-card>
           <ng-template #header>
             <div class="p-3 font-semibold">Répartition par Mode de Paiement</div>
@@ -207,7 +229,7 @@
       </div>
 
       <!-- Product Families Chart -->
-      <div class="col-12 md:col-6">
+      <div class="col-12 col-md-6">
         <p-card>
           <ng-template #header>
             <div class="p-3 font-semibold">CA par Famille de Produits (Top 10)</div>
@@ -218,7 +240,7 @@
     </div>
 
     <!-- Top Products Table -->
-    <div class="grid">
+    <div class="row">
       <div class="col-12">
         <p-card>
           <ng-template #header>
@@ -231,7 +253,7 @@
               <p>Aucun produit trouvé pour cette période</p>
             </div>
           } @else {
-            <div class="overflow-x-auto">
+
               <table class="pharma-table">
                 <thead class="pharma-table-head">
                   <tr>
@@ -256,7 +278,7 @@
                   }
                 </tbody>
               </table>
-            </div>
+
           }
         </p-card>
       </div>

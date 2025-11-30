@@ -1,12 +1,6 @@
 @import 'app/shared/scss/table-common';
 @import 'app/shared/scss/pharma-toolbar';
 
-.pharma-toolbar-filters {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 0.5rem;
-  align-items: center;
-}
 
 p-card {
   ::ng-deep .p-card-body {
@@ -18,8 +12,3 @@ p-card {
   }
 }
 
-::ng-deep .p-tabview {
-  .p-tabview-nav {
-    margin-bottom: 1rem;
-  }
-}

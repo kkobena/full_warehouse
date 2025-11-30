@@ -21,14 +21,13 @@ import org.xhtmlrenderer.pdf.ITextRenderer;
 @Transactional(readOnly = true)
 public class ProfitabilityReportServiceImpl implements ProfitabilityReportService {
 
-    @PersistenceContext
-    private EntityManager entityManager;
 
-    private final SpringTemplateEngine templateEngine;
+    private final  EntityManager entityManager;
 
-    public ProfitabilityReportServiceImpl(SpringTemplateEngine templateEngine) {
-        this.templateEngine = templateEngine;
+    public ProfitabilityReportServiceImpl(EntityManager entityManager) {
+        this.entityManager = entityManager;
     }
+
 
     @Override
     @Cacheable(value = "profitability", key = "'all'")
@@ -104,11 +103,10 @@ public class ProfitabilityReportServiceImpl implements ProfitabilityReportServic
             "prix_vente_moyen, prix_achat_moyen, stock_quantity, " +
             "prix_achat_unitaire, prix_vente_unitaire, taux_rotation_annuel, bcg_category " +
             "FROM mv_product_profitability " +
-            "ORDER BY marge_brute DESC " +
-            "LIMIT :limit";
+            "ORDER BY marge_brute DESC " ;
 
         Query query = entityManager.createNativeQuery(sql);
-        query.setParameter("limit", limit);
+        query.setMaxResults(limit);
 
         @SuppressWarnings("unchecked")
         List<Object[]> results = query.getResultList();
@@ -127,7 +125,7 @@ public class ProfitabilityReportServiceImpl implements ProfitabilityReportServic
             "prix_achat_unitaire, prix_vente_unitaire, taux_rotation_annuel, bcg_category " +
             "FROM mv_product_profitability " +
             "WHERE taux_marge_pct < 10 " +
-            "ORDER BY taux_marge_pct ASC";
+            "ORDER BY taux_marge_pct ";
 
         Query query = entityManager.createNativeQuery(sql);
 
@@ -156,7 +154,7 @@ public class ProfitabilityReportServiceImpl implements ProfitabilityReportServic
             return new ProfitabilitySummaryDTO(0, 0L, 0L, 0L, BigDecimal.ZERO, 0, 0, 0, 0, 0L, 0L, 0L, 0L, 0L, 0L, 0L, 0L);
         }
 
-        Object[] row = results.get(0);
+        Object[] row = results.getFirst();
 
         return new ProfitabilitySummaryDTO(
             row[0] != null ? ((Number) row[0]).intValue() : 0,

@@ -64,8 +64,8 @@ public class CashRegisterReportServiceImpl implements CashRegisterReportService 
         for (Object[] row : results) {
             Integer cashRegisterId = (Integer) row[0];
             String caisseLibelle = (String) row[1];
-            LocalDateTime openingDate = row[2] != null ? ((java.sql.Timestamp) row[2]).toLocalDateTime() : null;
-            LocalDateTime closingDate = row[3] != null ? ((java.sql.Timestamp) row[3]).toLocalDateTime() : null;
+            LocalDateTime openingDate = row[2] != null ? LocalDateTime.parse(row[2]+""): null;
+            LocalDateTime closingDate = row[3] != null ?  LocalDateTime.parse(row[2]+"") : null;
             long openingBalance = row[4] != null ? ((Number) row[4]).longValue() : 0L;
             Long closingBalance = row[5] != null ? ((Number) row[5]).longValue() : null;
             String statutStr = (String) row[6];
@@ -188,7 +188,7 @@ public class CashRegisterReportServiceImpl implements CashRegisterReportService 
             .stream()
             .map(row -> {
                 Long id = row[0] != null ? ((Number) row[0]).longValue() : null;
-                LocalDateTime transactionDate = row[1] != null ? ((java.sql.Timestamp) row[1]).toLocalDateTime() : null;
+                LocalDate transactionDate = row[1] != null ? LocalDate.parse(row[1]+""): null;
                 String cashRegisterName = (String) row[2];
                 String userName = (String) row[3];
                 String movementType = (String) row[4];

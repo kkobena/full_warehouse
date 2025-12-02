@@ -1,5 +1,6 @@
 package com.kobe.warehouse.domain;
 
+import com.kobe.warehouse.domain.enumeration.CategroryInventaire;
 import com.kobe.warehouse.domain.enumeration.InventoryCategory;
 import com.kobe.warehouse.domain.enumeration.InventoryStatut;
 import com.kobe.warehouse.domain.enumeration.InventoryType;
@@ -14,6 +15,7 @@ import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 import jakarta.validation.constraints.NotNull;
+
 import java.io.Serial;
 import java.io.Serializable;
 import java.time.LocalDateTime;
@@ -73,6 +75,12 @@ public class StoreInventory implements Serializable {
     @Enumerated(EnumType.STRING)
     @Column(name = "statut", nullable = false)
     private InventoryStatut statut = InventoryStatut.CREATE;
+    @NotNull
+    @Enumerated(EnumType.STRING)
+    @Column(name = "category", nullable = false, length = 20)
+    private CategroryInventaire category = CategroryInventaire.STOCK_TOTAL;
+    @OneToMany(mappedBy = "storeInventory")
+    private List<InventoryLot> inventoryLots = new ArrayList<>();
 
     @ManyToOne
     private Storage storage;
@@ -95,6 +103,22 @@ public class StoreInventory implements Serializable {
 
     @Column(name = "gap_amount")
     private Integer gapAmount;
+
+    public CategroryInventaire getCategory() {
+        return category;
+    }
+
+    public void setCategory(CategroryInventaire category) {
+        this.category = category;
+    }
+
+    public List<InventoryLot> getInventoryLots() {
+        return inventoryLots;
+    }
+
+    public void setInventoryLots(List<InventoryLot> inventoryLots) {
+        this.inventoryLots = inventoryLots;
+    }
 
     public String getDescription() {
         return description;

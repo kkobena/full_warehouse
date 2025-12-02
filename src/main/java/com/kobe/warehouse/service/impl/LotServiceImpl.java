@@ -172,8 +172,8 @@ public class LotServiceImpl implements LotService {
     @Transactional(readOnly = true)
     public ResponseEntity<byte[]> generatePdf(LotFilterParam lotFilterParam) {
         return lotServiceReportService.generatePdf(
-            this.findLotsPerimes(lotFilterParam, Pageable.unpaged()).getContent(),
-            this.findPerimeSum(lotFilterParam),
+            findLotsPerimes(lotFilterParam, Pageable.unpaged()).getContent(),
+            findPerimeSum(lotFilterParam),
             lotFilterParam.getFromDate(),
             lotFilterParam.getToDate()
         );
@@ -243,4 +243,25 @@ public class LotServiceImpl implements LotService {
             lotPerime.setRayonName(rayon.getLibelle());
         }
     }
+
+
+    /*
+    @Transactional
+    public void pickProduct(Product product, int qtyToPick, String reference) {
+        List<Lot> lots = lotRepo.findByProductOrderByExpiryDateAsc(product);
+        int remaining = qtyToPick;
+        for (Lot lot : lots) {
+            if (remaining <= 0) break;
+            int take = Math.min(remaining, lot.getQuantity());
+            if (take <= 0) continue;
+            lot.setQuantity(lot.getQuantity() - take);
+            lotRepo.save(lot);
+            movementRepo.save(new StockMovement(product, lot, type=SALE, qty=-take, ... ));
+    remaining -= take;
+}
+        if (remaining > 0) {
+    throw new InsufficientStockException(product.getSku(), remaining);
+    }
+    }
+     */
 }

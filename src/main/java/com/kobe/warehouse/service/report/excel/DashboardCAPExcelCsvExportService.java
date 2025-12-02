@@ -7,10 +7,30 @@ import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 import java.util.List;
 
 @Service
 public class DashboardCAPExcelCsvExportService {
+    private final String[] headers = {
+        "Date",
+        "Nb Trans.",
+        "Nb Avoirs",
+        "CA Total",
+        "CA Avoirs",
+        "CA Net",
+        "Panier Moyen",
+        "Coût Total",
+        "Marge Brute",
+        "Taux Marge %",
+        "Nb Clients",
+        "Encaissé",
+        "Crédit"
+    };
+
+    private final String[] headersTop = {"Code CIP", "Libellé", "Nb Ventes", "Qté Vendue", "CA Généré", "Prix Moyen"};
+
+
     private final ReportExcelExportService excelExportService;
     private final CsvExportService csvExportService;
     private final DashboardCAService dashboardCAService;
@@ -25,22 +45,8 @@ public class DashboardCAPExcelCsvExportService {
     public byte[] exportDailySummaryToExcel(LocalDate startDate, LocalDate endDate) throws Exception {
         List<DailyCADTO> data = dashboardCAService.getDailySummary(startDate, endDate);
 
-        String title = "Chiffre d'Affaires Journalier - " + startDate + " au " + endDate;
-        String[] headers = {
-            "Date",
-            "Nb Trans.",
-            "Nb Avoirs",
-            "CA Total",
-            "CA Avoirs",
-            "CA Net",
-            "Panier Moyen",
-            "Coût Total",
-            "Marge Brute",
-            "Taux Marge %",
-            "Nb Clients",
-            "Encaissé",
-            "Crédit"
-        };
+        String title = buildReportTitle("Chiffre d'Affaires Journalier ", startDate, endDate);
+
 
         return excelExportService.createExcelReport(title, headers, data, (row, dto) -> {
             row.createCell(0).setCellValue(dto.saleDate().toString());
@@ -62,24 +68,8 @@ public class DashboardCAPExcelCsvExportService {
     public byte[] exportDailySummaryToCsv(LocalDate startDate, LocalDate endDate) throws Exception {
         List<DailyCADTO> data = dashboardCAService.getDailySummary(startDate, endDate);
 
-        String title = "Chiffre d'Affaires Journalier - " + startDate + " au " + endDate;
-        String[] headers = {
-            "Date",
-            "Nb Transactions",
-            "Nb Avoirs",
-            "CA Total",
-            "CA Avoirs",
-            "CA Net",
-            "Panier Moyen",
-            "Coût Total",
-            "Marge Brute",
-            "Taux Marge %",
-            "Nb Clients",
-            "Encaissé",
-            "Crédit"
-        };
-
-        byte[] csvData = csvExportService.createCsvReport(title, headers, data, dto -> new String[] {
+        String title = buildReportTitle("Chiffre d'Affaires Journalier ", startDate, endDate);
+        byte[] csvData = csvExportService.createCsvReport(title, headers, data, dto -> new String[]{
             dto.saleDate().toString(),
             String.valueOf(dto.nbTransactions()),
             String.format("%.2f", dto.caTotal() / 100.0),
@@ -100,10 +90,9 @@ public class DashboardCAPExcelCsvExportService {
     public byte[] exportTopProductsToExcel(LocalDate startDate, LocalDate endDate) throws Exception {
         List<TopProductDTO> data = dashboardCAService.getTopProducts(startDate, endDate, 50);
 
-        String title = "Top Produits par CA - " + startDate + " au " + endDate;
-        String[] headers = { "Code CIP", "Libellé", "Nb Ventes", "Qté Vendue", "CA Généré", "Prix Moyen"};
+        String title = buildReportTitle("Top Produits par CA ", startDate, endDate);
 
-        return excelExportService.createExcelReport(title, headers, data, (row, dto) -> {
+        return excelExportService.createExcelReport(title, headersTop, data, (row, dto) -> {
             row.createCell(0).setCellValue(dto.codeCip() != null ? dto.codeCip() : "");
             row.createCell(1).setCellValue(dto.libelle() != null ? dto.libelle() : "");
             row.createCell(2).setCellValue(dto.nbVentes() != null ? dto.nbVentes() : 0);
@@ -117,10 +106,9 @@ public class DashboardCAPExcelCsvExportService {
     public byte[] exportTopProductsToCsv(LocalDate startDate, LocalDate endDate) throws Exception {
         List<TopProductDTO> data = dashboardCAService.getTopProducts(startDate, endDate, 50);
 
-        String title = "Top Produits par CA - " + startDate + " au " + endDate;
-        String[] headers = { "Code CIP", "Libellé", "Nb Ventes", "Qté Vendue", "CA Généré", "Prix Moyen"};
+        String title = buildReportTitle("Top Produits par CA", startDate, endDate);
 
-        byte[] csvData = csvExportService.createCsvReport(title, headers, data, dto -> new String[] {
+        byte[] csvData = csvExportService.createCsvReport(title, headersTop, data, dto -> new String[]{
             dto.codeCip() != null ? dto.codeCip() : "",
             dto.libelle() != null ? dto.libelle() : "",
             String.valueOf(dto.nbVentes() != null ? dto.nbVentes() : 0),
@@ -130,5 +118,10 @@ public class DashboardCAPExcelCsvExportService {
         });
 
         return csvExportService.addUtf8Bom(csvData);
+    }
+
+    private String buildReportTitle(String title, LocalDate startDate, LocalDate endDate) {
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd-MM-yyyy");
+        return title + startDate.format(formatter) + " au " + endDate.format(formatter);
     }
 }

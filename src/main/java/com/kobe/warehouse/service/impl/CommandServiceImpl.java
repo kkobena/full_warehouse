@@ -1300,6 +1300,7 @@ public class CommandServiceImpl implements CommandService {
                 .add(
                     new Lot()
                         .setOrderLine(orderLine)
+                        .setProduit(orderLine.getFournisseurProduit().getProduit())
                         .setNumLot(lotNumber)
                         .setFreeQty(freeQuantity)
                         .setExpiryDate(expirationDate)

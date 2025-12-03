@@ -5,7 +5,6 @@ import { FormsModule } from '@angular/forms';
 
 import { TableModule } from 'primeng/table';
 import { ButtonModule } from 'primeng/button';
-import { Card } from 'primeng/card';
 import { SelectModule } from 'primeng/select';
 import { ToolbarModule } from 'primeng/toolbar';
 import { DividerModule } from 'primeng/divider';
@@ -19,6 +18,7 @@ import { ABCParetoReportService } from '../services/abc-pareto-report.service';
 import { InputText } from 'primeng/inputtext';
 import { IconField } from 'primeng/iconfield';
 import { InputIcon } from 'primeng/inputicon';
+import { formatCurrency } from 'app/shared/utils/format-utils';
 
 @Component({
   selector: 'jhi-abc-pareto',
@@ -29,7 +29,6 @@ import { InputIcon } from 'primeng/inputicon';
     FormsModule,
     TableModule,
     ButtonModule,
-    Card,
     SelectModule,
     ToolbarModule,
     DividerModule,
@@ -198,4 +197,7 @@ export default class ABCParetoComponent implements OnInit {
     if (caCumulePct <= 95) return 'info';
     return 'warn';
   }
+
+  // Format methods using shared utilities
+  formatCurrency = formatCurrency;
 }

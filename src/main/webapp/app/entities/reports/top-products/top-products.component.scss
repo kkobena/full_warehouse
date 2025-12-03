@@ -1,14 +1,4 @@
 @import 'app/shared/scss/table-common';
 @import 'app/shared/scss/pharma-toolbar';
-
-
-p-card {
-  ::ng-deep .p-card-body {
-    padding: 1rem;
-  }
-
-  ::ng-deep .p-card-content {
-    padding: 0;
-  }
-}
+@import 'app/shared/scss/dashboard-common';
 

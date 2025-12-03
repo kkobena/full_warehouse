@@ -6,7 +6,6 @@ import {
   OnDestroy,
   OnInit,
   signal,
-  TemplateRef,
   ViewChild
 } from '@angular/core';
 import { CommonModule } from '@angular/common';
@@ -37,7 +36,10 @@ import {
   WidgetType
 } from 'app/shared/model/dashboard-layout.model';
 
-// Widget Components
+// Modal Components
+import { SaveLayoutModalComponent } from './save-layout-modal.component';
+import { LoadLayoutModalComponent } from './load-layout-modal.component';
+import { AddWidgetModalComponent } from './add-widget-modal.component';
 
 @Component({
   selector: 'jhi-customizable-dashboard',
@@ -50,7 +52,6 @@ import {
     ToolbarModule,
     InputTextModule,
     Tag
-
   ],
   templateUrl: './customizable-dashboard.component.html',
   styleUrl: './customizable-dashboard.component.scss'
@@ -67,11 +68,6 @@ export default class CustomizableDashboardComponent implements OnInit, AfterView
   isLoading = signal<boolean>(false);
   isEditMode = signal<boolean>(false);
 
-  // Form values
-  layoutName = '';
-  layoutDescription = '';
-  layoutScope: DashboardScope = DashboardScope.PRIVATE;
-
   // GridStack
   private grid: GridStack | null = null;
 
@@ -85,8 +81,6 @@ export default class CustomizableDashboardComponent implements OnInit, AfterView
     { label: 'Top Produits', value: WidgetType.TOP_PRODUCTS, icon: 'pi-star-fill' },
     { label: 'Alertes Stock', value: WidgetType.STOCK_ALERTS, icon: 'pi-exclamation-triangle' }
   ];
-
-  selectedWidgetType: WidgetType | null = null;
 
   ngOnInit(): void {
     this.loadLayouts();
@@ -133,35 +127,48 @@ export default class CustomizableDashboardComponent implements OnInit, AfterView
 
     // Add widgets to grid
     config.items.forEach(item => {
-      const widget: GridStackWidget = {
-        x: item.x,
-        y: item.y,
-        w: item.w,
-        h: item.h,
-        id: item.id,
-        content: this.createWidgetContent(item.widget)
-      };
+      // Create widget element
+      const el = document.createElement('div');
+      el.className = 'grid-stack-item';
+      el.setAttribute('gs-x', item.x.toString());
+      el.setAttribute('gs-y', item.y.toString());
+      el.setAttribute('gs-w', item.w.toString());
+      el.setAttribute('gs-h', item.h.toString());
+      el.setAttribute('gs-id', item.id);
 
-      this.grid!.addWidget(widget);
+      // Create content wrapper
+      const content = document.createElement('div');
+      content.className = 'grid-stack-item-content';
+      content.innerHTML = this.createWidgetContent(item.widget);
+
+      el.appendChild(content);
+      this.grid!.addWidget(el);
     });
   }
 
   createWidgetContent(widgetConfig: IWidgetConfig): string {
-    // For now, return a simple HTML structure
-    // In production, this would be rendered using Angular components
+    // Return pure HTML without Angular components
+    const iconClass = this.getWidgetIcon(widgetConfig.type);
     return `
-      <div class="grid-stack-item-content">
-        <div class="widget-header">
-          <span class="widget-title">${widgetConfig.title}</span>
-          <button class="widget-remove-btn" onclick="removeWidget(this)">
-            <i class="pi pi-times"></i>
-          </button>
-        </div>
-        <div class="widget-body">
-          <jhi-${widgetConfig.type.toLowerCase()}-widget></jhi-${widgetConfig.type.toLowerCase()}-widget>
+      <div class="widget-header">
+        <span class="widget-title">${widgetConfig.title}</span>
+        <button class="widget-remove-btn" title="Supprimer" onclick="this.closest('.grid-stack-item').remove()">
+          <i class="pi pi-times"></i>
+        </button>
+      </div>
+      <div class="widget-body">
+        <div class="widget-placeholder">
+          <i class="pi ${iconClass}"></i>
+          <p>${widgetConfig.title}</p>
+          <small>${widgetConfig.type}</small>
         </div>
       </div>
     `;
+  }
+
+  getWidgetIcon(type: WidgetType): string {
+    const widget = this.availableWidgets.find(w => w.value === type);
+    return widget?.icon || 'pi-question-circle';
   }
 
   toggleEditMode(): void {
@@ -179,97 +186,104 @@ export default class CustomizableDashboardComponent implements OnInit, AfterView
     }
   }
 
-  addWidget(content: TemplateRef<any>): void {
-    this.selectedWidgetType = null;
-    this.modalService.open(content, { size: 'lg', centered: true });
-  }
+  addWidget(): void {
+    const modalRef = this.modalService.open(AddWidgetModalComponent, { size: 'lg', centered: true });
 
-  confirmAddWidget(modal: any): void {
-    if (!this.selectedWidgetType || !this.grid) return;
+    modalRef.result.then(
+      (widgetType: WidgetType) => {
+        if (widgetType && this.grid) {
+          const widgetConfig: IWidgetConfig = {
+            type: widgetType,
+            title: this.getWidgetLabel(widgetType)
+          };
 
-    const widgetConfig: IWidgetConfig = {
-      type: this.selectedWidgetType,
-      title: this.getWidgetLabel(this.selectedWidgetType)
-    };
+          // Create widget element
+          const el = document.createElement('div');
+          el.className = 'grid-stack-item';
+          el.setAttribute('gs-x', '0');
+          el.setAttribute('gs-y', '0');
+          el.setAttribute('gs-w', '4');
+          el.setAttribute('gs-h', '3');
+          el.setAttribute('gs-id', `widget-${Date.now()}`);
 
-    const widget: GridStackWidget = {
-      x: 0,
-      y: 0,
-      w: 4,
-      h: 3,
-      id: `widget-${Date.now()}`,
-      content: this.createWidgetContent(widgetConfig)
-    };
+          // Create content wrapper
+          const content = document.createElement('div');
+          content.className = 'grid-stack-item-content';
+          content.innerHTML = this.createWidgetContent(widgetConfig);
 
-    this.grid.addWidget(widget);
-    modal.close();
-    this.selectedWidgetType = null;
+          el.appendChild(content);
+          this.grid.addWidget(el);
+        }
+      },
+      () => {
+        // Modal dismissed
+      }
+    );
   }
 
   getWidgetLabel(type: WidgetType): string {
     return this.availableWidgets.find(w => w.value === type)?.label || type;
   }
 
-  saveLayout(content: TemplateRef<any>): void {
-    this.layoutName = '';
-    this.layoutDescription = '';
-    this.layoutScope = DashboardScope.PRIVATE;
-    this.modalService.open(content, { size: 'lg', centered: true });
-  }
+  saveLayout(): void {
+    const modalRef = this.modalService.open(SaveLayoutModalComponent, { size: 'lg', centered: true });
 
-  confirmSaveLayout(modal: any): void {
-    if (!this.grid || !this.layoutName) return;
+    modalRef.result.then(
+      (result: { name: string; description: string; scope: DashboardScope }) => {
+        if (!this.grid) return;
 
-    const items: IGridStackItem[] = [];
+        const items: IGridStackItem[] = [];
 
-    // Get all widgets from grid
-    this.grid.getGridItems().forEach((el, index) => {
-      const node = el.gridstackNode;
-      if (node) {
-        items.push({
-          x: node.x || 0,
-          y: node.y || 0,
-          w: node.w || 4,
-          h: node.h || 3,
-          id: node.id || `widget-${index}`,
-          widget: {
-            type: WidgetType.KPI_CARD,
-            title: 'Widget'
+        // Get all widgets from grid
+        this.grid.getGridItems().forEach((el, index) => {
+          const node = el.gridstackNode;
+          if (node) {
+            items.push({
+              x: node.x || 0,
+              y: node.y || 0,
+              w: node.w || 4,
+              h: node.h || 3,
+              id: node.id || `widget-${index}`,
+              widget: {
+                type: WidgetType.KPI_CARD,
+                title: 'Widget'
+              }
+            });
           }
         });
-      }
-    });
 
-    const config: ILayoutConfig = {
-      items,
-      gridOptions: {
-        column: 12,
-        cellHeight: 80,
-        margin: 10
-      }
-    };
+        const config: ILayoutConfig = {
+          items,
+          gridOptions: {
+            column: 12,
+            cellHeight: 80,
+            margin: 10
+          }
+        };
 
-    const layout: IDashboardLayoutParsed = {
-      name: this.layoutName,
-      description: this.layoutDescription,
-      scope: this.layoutScope,
-      isDefault: false,
-      config
-    };
+        const layout: IDashboardLayoutParsed = {
+          name: result.name,
+          description: result.description,
+          scope: result.scope,
+          isDefault: false,
+          config
+        };
 
-    const layoutToSave = this.dashboardLayoutService.stringifyLayout(layout);
+        const layoutToSave = this.dashboardLayoutService.stringifyLayout(layout);
 
-    this.dashboardLayoutService.create(layoutToSave).subscribe({
-      next: (res: HttpResponse<IDashboardLayout>) => {
-        modal.close();
-        this.layoutName = '';
-        this.layoutDescription = '';
-        this.loadLayouts();
+        this.dashboardLayoutService.create(layoutToSave).subscribe({
+          next: (res: HttpResponse<IDashboardLayout>) => {
+            this.loadLayouts();
+          },
+          error: () => {
+            alert('Erreur lors de la sauvegarde du layout');
+          }
+        });
       },
-      error: () => {
-        alert('Erreur lors de la sauvegarde du layout');
+      () => {
+        // Modal dismissed
       }
-    });
+    );
   }
 
   loadLayouts(): void {
@@ -299,19 +313,31 @@ export default class CustomizableDashboardComponent implements OnInit, AfterView
     });
   }
 
-  openLoadLayoutModal(content: TemplateRef<any>): void {
-    this.modalService.open(content, { size: 'lg', centered: true });
-  }
+  openLoadLayoutModal(): void {
+    const modalRef = this.modalService.open(LoadLayoutModalComponent, { size: 'lg', centered: true });
+    const componentInstance = modalRef.componentInstance as LoadLayoutModalComponent;
 
-  loadLayout(layout: IDashboardLayout, modal: any): void {
-    const parsed = this.dashboardLayoutService.parseLayout(layout);
-    this.currentLayout.set(parsed);
+    componentInstance.layouts = this.layouts;
+    componentInstance.isLoading = this.isLoading;
 
-    if (parsed.config) {
-      this.loadLayoutIntoGrid(parsed.config);
-    }
+    modalRef.result.then(
+      (result: IDashboardLayout | { action: string; id: number }) => {
+        if ('action' in result && result.action === 'delete') {
+          this.deleteLayout(result.id);
+        } else {
+          const layout = result as IDashboardLayout;
+          const parsed = this.dashboardLayoutService.parseLayout(layout);
+          this.currentLayout.set(parsed);
 
-    modal.close();
+          if (parsed.config) {
+            this.loadLayoutIntoGrid(parsed.config);
+          }
+        }
+      },
+      () => {
+        // Modal dismissed
+      }
+    );
   }
 
   deleteLayout(id: number): void {

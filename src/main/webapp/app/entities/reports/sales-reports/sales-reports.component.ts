@@ -12,7 +12,6 @@ import MarketBasketComponent from '../market-basket/market-basket.component';
 
 @Component({
   selector: 'jhi-sales-reports',
-  standalone: true,
   imports: [
     CommonModule,
     NgbNavModule,

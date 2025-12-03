@@ -5,7 +5,6 @@ import { FormsModule } from '@angular/forms';
 
 import { TableModule } from 'primeng/table';
 import { ButtonModule } from 'primeng/button';
-import { Card } from 'primeng/card';
 import { DatePicker } from 'primeng/datepicker';
 import { InputNumberModule } from 'primeng/inputnumber';
 import { SelectModule } from 'primeng/select';
@@ -30,7 +29,6 @@ import { DATE_FORMAT_ISO_DATE, retriveMonthLabel } from '../../../shared/util/wa
     FormsModule,
     TableModule,
     ButtonModule,
-    Card,
     DatePicker,
     InputNumberModule,
     SelectModule,

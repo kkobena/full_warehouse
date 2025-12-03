@@ -39,18 +39,16 @@
 
   <!-- Summary Card -->
   <div class="mt-3">
-    <p-card>
-      <ng-template #header>
-        <div class="px-4 pt-4 pb-0">
-          <div class="flex align-items-center justify-content-between">
-            <div>
-              <h5 class="m-0 text-900 font-semibold">Résumé par Groupe Tiers-Payant</h5>
-              <p class="text-600 mt-2 mb-0">Créances totales: {{ getTotalCreances() | number: '1.0-0' }} FCFA</p>
-            </div>
+    <div class="card h-100 data-card">
+      <div class="card-header">
+        <div class="d-flex align-items-center justify-content-between">
+          <div>
+            <h5 class="m-0 fw-semibold">Résumé par Groupe Tiers-Payant</h5>
+            <p class="text-muted mt-2 mb-0">Créances totales: {{ getTotalCreances() | number: '1.0-0' }} FCFA</p>
           </div>
         </div>
-      </ng-template>
-      <ng-template #content>
+      </div>
+      <div class="card-body">
         <p-table
           [value]="summary()"
           [rowHover]="true"
@@ -59,69 +57,58 @@
         >
           <ng-template #header>
             <tr class="pharma-table-head">
-              <th>
-                Groupe
-              />
-              </th>
-              <th class="text-right" >
-                Nb Factures
-               />
-              </th>
-              <th class="text-right" >
-                Montant Total
-               />
-              </th>
-              <th class="text-right">< 30j</th>
-              <th class="text-right">30-60j</th>
-              <th class="text-right">60-90j</th>
-              <th class="text-right">> 90j</th>
+              <th>Groupe</th>
+              <th class="text-end">Nb Factures</th>
+              <th class="text-end">Montant Total</th>
+              <th class="text-end">< 30j</th>
+              <th class="text-end">30-60j</th>
+              <th class="text-end">60-90j</th>
+              <th class="text-end">> 90j</th>
             </tr>
           </ng-template>
           <ng-template #body let-item>
             <tr>
               <td>
-                <span class="font-semibold text-900">{{ item.groupeTiersPayantLibelle }}</span>
+                <span class="fw-semibold">{{ item.groupeTiersPayantLibelle }}</span>
               </td>
-              <td class="text-right text-600">{{ item.nombreFactures }}</td>
-              <td class="text-right">
-                <span class="font-bold text-900">{{ item.montantTotal | number: '1.0-0' }} FCFA</span>
+              <td class="text-end text-muted">{{ item.nombreFactures }}</td>
+              <td class="text-end">
+                <span class="fw-bold">{{ item.montantTotal | number: '1.0-0' }} FCFA</span>
               </td>
-              <td class="text-right">
-                <span class="text-green-600">{{ item.montantMoinsDe30Jours | number: '1.0-0' }}</span>
+              <td class="text-end">
+                <span class="text-success">{{ item.montantMoinsDe30Jours | number: '1.0-0' }}</span>
               </td>
-              <td class="text-right">
-                <span class="text-orange-500">{{ item.montantEntre30Et60Jours | number: '1.0-0' }}</span>
+              <td class="text-end">
+                <span class="text-warning">{{ item.montantEntre30Et60Jours | number: '1.0-0' }}</span>
               </td>
-              <td class="text-right">
-                <span class="text-red-500">{{ item.montantEntre60Et90Jours | number: '1.0-0' }}</span>
+              <td class="text-end">
+                <span class="text-danger">{{ item.montantEntre60Et90Jours | number: '1.0-0' }}</span>
               </td>
-              <td class="text-right">
-                <span class="text-red-700 font-bold">{{ item.montantPlusDe90Jours | number: '1.0-0' }}</span>
+              <td class="text-end">
+                <span class="text-danger fw-bold">{{ item.montantPlusDe90Jours | number: '1.0-0' }}</span>
               </td>
             </tr>
           </ng-template>
           <ng-template #emptymessage>
             <tr>
-              <td colspan="7" class="text-center p-4 text-500">
-                <i class="pi pi-check-circle text-4xl mb-3 block text-green-500"></i>
+              <td colspan="7" class="text-center p-4 text-muted">
+                <i class="pi pi-check-circle text-4xl mb-3 d-block text-success"></i>
                 Aucune créance
               </td>
             </tr>
           </ng-template>
         </p-table>
-      </ng-template>
-    </p-card>
+      </div>
+    </div>
   </div>
 
   <!-- Invoices Detail Card -->
   <div class="mt-3">
-    <p-card>
-      <ng-template #header>
-        <div class="px-4 pt-4 pb-0">
-          <h5 class="m-0 text-900 font-semibold">Factures Impayées</h5>
-        </div>
-      </ng-template>
-      <ng-template #content>
+    <div class="card h-100 data-card">
+      <div class="card-header">
+        <h5 class="m-0 fw-semibold">Factures Impayées</h5>
+      </div>
+      <div class="card-body">
         <p-table
           [value]="invoices()"
           [loading]="isLoading()"
@@ -133,42 +120,29 @@
         >
           <ng-template #header>
             <tr class="pharma-table-head">
-              <th>
-                N° Facture />
-              </th>
-              <th>
-                Groupe
-              </th>
-              <th >
-                Date
-
-              </th>
-              <th class="text-right" >
-                Montant
-
-              </th>
-              <th class="text-right">Payé</th>
-              <th class="text-right">Reste</th>
+              <th>N° Facture</th>
+              <th>Groupe</th>
+              <th>Date</th>
+              <th class="text-end">Montant</th>
+              <th class="text-end">Payé</th>
+              <th class="text-end">Reste</th>
               <th>Ancienneté</th>
-              <th >
-                Jours
-
-              </th>
+              <th class="text-end">Jours</th>
             </tr>
           </ng-template>
           <ng-template #body let-invoice>
             <tr>
               <td>
-                <span class="font-semibold">{{ invoice.invoiceNumber }}</span>
+                <span class="fw-semibold">{{ invoice.invoiceNumber }}</span>
               </td>
               <td>
-                <span class="text-600">{{ invoice.groupeTiersPayantLibelle }}</span>
+                <span class="text-muted">{{ invoice.groupeTiersPayantLibelle }}</span>
               </td>
               <td>{{ invoice.invoiceDate | date: 'dd/MM/yyyy' }}</td>
-              <td class="text-right pharma-price">{{ invoice.montantTotal | number: '1.0-0' }} FCFA</td>
-              <td class="text-right text-600 pharma-total">{{ invoice.montantPaye | number: '1.0-0' }}</td>
-              <td class="text-right">
-                <span class="font-bold text-red-600 pharma-price">{{ invoice.montantRestant | number: '1.0-0' }} FCFA</span>
+              <td class="text-end pharma-price">{{ invoice.montantTotal | number: '1.0-0' }} FCFA</td>
+              <td class="text-end text-muted pharma-total">{{ invoice.montantPaye | number: '1.0-0' }}</td>
+              <td class="text-end">
+                <span class="fw-bold text-danger pharma-price">{{ invoice.montantRestant | number: '1.0-0' }} FCFA</span>
               </td>
               <td>
                 <p-tag
@@ -176,8 +150,8 @@
                   [severity]="getAgeCategorySeverity(invoice.ageCategory)"
                 />
               </td>
-              <td class="text-right">
-                <span [class.text-red-600]="(invoice.ageInDays ?? 0) > 60">
+              <td class="text-end">
+                <span [class.text-danger]="(invoice.ageInDays ?? 0) > 60">
                   {{ invoice.ageInDays }} j
                 </span>
               </td>
@@ -185,14 +159,14 @@
           </ng-template>
           <ng-template #emptymessage>
             <tr>
-              <td colspan="8" class="text-center p-4 text-500">
-                <i class="pi pi-check-circle text-4xl mb-3 block text-green-500"></i>
+              <td colspan="8" class="text-center p-4 text-muted">
+                <i class="pi pi-check-circle text-4xl mb-3 d-block text-success"></i>
                 Aucune facture impayée
               </td>
             </tr>
           </ng-template>
         </p-table>
-      </ng-template>
-    </p-card>
+      </div>
+    </div>
   </div>
 </div>

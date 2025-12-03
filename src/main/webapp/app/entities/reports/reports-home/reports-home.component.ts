@@ -16,7 +16,6 @@ import SupplierPerformanceComponent from '../supplier-performance/supplier-perfo
 
 @Component({
   selector: 'jhi-reports-home',
-  standalone: true,
   imports: [
     CommonModule,
     NgbNavModule,

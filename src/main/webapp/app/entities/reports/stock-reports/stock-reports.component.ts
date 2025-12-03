@@ -9,7 +9,6 @@ import ABCParetoComponent from '../abc-pareto/abc-pareto.component';
 
 @Component({
   selector: 'jhi-stock-reports',
-  standalone: true,
   imports: [CommonModule, NgbNavModule, StockAlertsComponent, StockValuationComponent, StockRotationComponent, ABCParetoComponent],
   templateUrl: './stock-reports.component.html',
   styleUrl: './stock-reports.component.scss',

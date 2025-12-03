@@ -1,0 +1,17 @@
+@import 'app/shared/scss/modal-theme';
+
+@include modal-theme;
+
+.layout-card {
+  transition: all 0.2s ease-in-out;
+  border: 1px solid var(--p-surface-border);
+
+  &:hover {
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    transform: translateY(-2px);
+  }
+
+  .card-body {
+    padding: 1rem;
+  }
+}

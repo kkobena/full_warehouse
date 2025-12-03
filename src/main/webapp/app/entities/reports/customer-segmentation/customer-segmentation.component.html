@@ -52,158 +52,172 @@
 
   <!-- Customer Classification Summary Cards -->
   <div class="row mt-3">
-    <div class="col-12 col-md-3">
-      <p-card>
-        <ng-template #content>
-          <div class="flex justify-content-between align-items-center">
-            <div>
-              <span class="text-500 font-medium block mb-2">Champions</span>
-              <div class="text-900 font-bold text-3xl">{{ classificationCounts().CHAMPION || 0 }}</div>
-              <span class="text-500 text-sm">Meilleurs clients</span>
-            </div>
-            <div class="flex align-items-center justify-content-center bg-green-100 border-round"
-                 style="width:3rem;height:3rem">
-              <i class="pi pi-star text-green-500 text-2xl"></i>
-            </div>
-          </div>
-        </ng-template>
-      </p-card>
-    </div>
-
-    <div class="col-12 col-md-3">
-      <p-card>
-        <ng-template #content>
-          <div class="flex justify-content-between align-items-center">
-            <div>
-              <span class="text-500 font-medium block mb-2">Fidèles & Actifs</span>
-              <div class="text-900 font-bold text-3xl">
-                {{ (classificationCounts().LOYAL || 0) + (classificationCounts().ACTIVE || 0) }}
+    <div class="col-12 col-md-3 mb-2">
+      <div class="card h-100 kpi-card success-accent">
+        <div class="card-body">
+          <div class="kpi-header">
+            <div class="kpi-content">
+              <p class="kpi-label">Champions</p>
+              <h4 class="kpi-value">
+                <span>{{ classificationCounts().CHAMPION || 0 }}</span>
+              </h4>
+              <div class="kpi-badges">
+                <span class="badge bg-success-subtle text-success">Meilleurs clients</span>
               </div>
-              <span class="text-500 text-sm">Clients réguliers</span>
             </div>
-            <div class="flex align-items-center justify-content-center bg-blue-100 border-round"
-                 style="width:3rem;height:3rem">
-              <i class="pi pi-heart text-blue-500 text-2xl"></i>
+            <div class="kpi-icon text-success">
+              <i class="pi pi-star"></i>
             </div>
           </div>
-        </ng-template>
-      </p-card>
+        </div>
+      </div>
     </div>
 
-    <div class="col-12 col-md-3">
-      <p-card>
-        <ng-template #content>
-          <div class="flex justify-content-between align-items-center">
-            <div>
-              <span class="text-500 font-medium block mb-2">À risque</span>
-              <div class="text-900 font-bold text-3xl">
-                {{ (classificationCounts().AT_RISK || 0) + (classificationCounts().NEED_ATTENTION || 0) }}
+    <div class="col-12 col-md-3 mb-2">
+      <div class="card h-100 kpi-card primary-accent">
+        <div class="card-body">
+          <div class="kpi-header">
+            <div class="kpi-content">
+              <p class="kpi-label">Fidèles & Actifs</p>
+              <h4 class="kpi-value">
+                <span>{{ (classificationCounts().LOYAL || 0) + (classificationCounts().ACTIVE || 0) }}</span>
+              </h4>
+              <div class="kpi-badges">
+                <span class="badge bg-primary-subtle text-primary">Clients réguliers</span>
               </div>
-              <span class="text-500 text-sm">Besoin d'attention</span>
             </div>
-            <div class="flex align-items-center justify-content-center bg-orange-100 border-round"
-                 style="width:3rem;height:3rem">
-              <i class="pi pi-exclamation-triangle text-orange-500 text-2xl"></i>
+            <div class="kpi-icon text-primary">
+              <i class="pi pi-heart"></i>
             </div>
           </div>
-        </ng-template>
-      </p-card>
+        </div>
+      </div>
     </div>
 
-    <div class="col-12 col-md-3">
-      <p-card>
-        <ng-template #content>
-          <div class="flex justify-content-between align-items-center">
-            <div>
-              <span class="text-500 font-medium block mb-2">Inactifs</span>
-              <div class="text-900 font-bold text-3xl">{{ classificationCounts().INACTIVE || 0 }}</div>
-              <span class="text-500 text-sm">Clients perdus</span>
+    <div class="col-12 col-md-3 mb-2">
+      <div class="card h-100 kpi-card warning-accent">
+        <div class="card-body">
+          <div class="kpi-header">
+            <div class="kpi-content">
+              <p class="kpi-label">À risque</p>
+              <h4 class="kpi-value">
+                <span>{{ (classificationCounts().AT_RISK || 0) + (classificationCounts().NEED_ATTENTION || 0) }}</span>
+              </h4>
+              <div class="kpi-badges">
+                <span class="badge bg-warning-subtle text-warning">Besoin d'attention</span>
+              </div>
             </div>
-            <div class="flex align-items-center justify-content-center bg-red-100 border-round"
-                 style="width:3rem;height:3rem">
-              <i class="pi pi-times-circle text-red-500 text-2xl"></i>
+            <div class="kpi-icon text-warning">
+              <i class="pi pi-exclamation-triangle"></i>
             </div>
           </div>
-        </ng-template>
-      </p-card>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-12 col-md-3 mb-2">
+      <div class="card h-100 kpi-card danger-accent">
+        <div class="card-body">
+          <div class="kpi-header">
+            <div class="kpi-content">
+              <p class="kpi-label">Inactifs</p>
+              <h4 class="kpi-value">
+                <span>{{ classificationCounts().INACTIVE || 0 }}</span>
+              </h4>
+              <div class="kpi-badges">
+                <span class="badge bg-danger-subtle text-danger">Clients perdus</span>
+              </div>
+            </div>
+            <div class="kpi-icon text-danger">
+              <i class="pi pi-times-circle"></i>
+            </div>
+          </div>
+        </div>
+      </div>
     </div>
   </div>
 
   <!-- Additional Metrics -->
-  <div class="row mt-3">
-    <div class="col-12 col-md-3">
-      <p-card>
-        <ng-template #content>
-          <div class="flex justify-content-between align-items-center">
-            <div>
-              <span class="text-500 font-medium block mb-2">Total clients</span>
-              <div class="text-900 font-bold text-2xl">{{ getTotalCustomers() }}</div>
+  <div class="row mt-2">
+    <div class="col-12 col-md-3 mb-2">
+      <div class="card h-100 kpi-card primary-accent">
+        <div class="card-body">
+          <div class="kpi-header">
+            <div class="kpi-content">
+              <p class="kpi-label">Total clients</p>
+              <h4 class="kpi-value">
+                <span>{{ getTotalCustomers() }}</span>
+              </h4>
             </div>
-            <div class="flex align-items-center justify-content-center bg-purple-100 border-round"
-                 style="width:3rem;height:3rem">
-              <i class="pi pi-users text-purple-500 text-2xl"></i>
+            <div class="kpi-icon text-primary">
+              <i class="pi pi-users"></i>
             </div>
           </div>
-        </ng-template>
-      </p-card>
+        </div>
+      </div>
     </div>
 
-    <div class="col-12 col-md-3">
-      <p-card>
-        <ng-template #content>
-          <div class="flex justify-content-between align-items-center">
-            <div>
-              <span class="text-500 font-medium block mb-2">CA total (12 mois)</span>
-              <div class="text-900 font-bold text-2xl">{{ getTotalSpent() | number:'1.0-0' }} F</div>
+    <div class="col-12 col-md-3 mb-2">
+      <div class="card h-100 kpi-card success-accent">
+        <div class="card-body">
+          <div class="kpi-header">
+            <div class="kpi-content">
+              <p class="kpi-label">CA total (12 mois)</p>
+              <h4 class="kpi-value">
+                <span>{{ getTotalSpent() | number:'1.0-0' }}</span>
+                <span class="value-suffix">FCFA</span>
+              </h4>
             </div>
-            <div class="flex align-items-center justify-content-center bg-indigo-100 border-round"
-                 style="width:3rem;height:3rem">
-              <i class="pi pi-dollar text-indigo-500 text-2xl"></i>
+            <div class="kpi-icon text-success">
+              <i class="pi pi-dollar"></i>
             </div>
           </div>
-        </ng-template>
-      </p-card>
+        </div>
+      </div>
     </div>
 
-    <div class="col-12 col-md-3">
-      <p-card>
-        <ng-template #content>
-          <div class="flex justify-content-between align-items-center">
-            <div>
-              <span class="text-500 font-medium block mb-2">Panier moyen</span>
-              <div class="text-900 font-bold text-2xl">{{ getAverageBasket() | number:'1.0-0' }} F</div>
+    <div class="col-12 col-md-3 mb-2">
+      <div class="card h-100 kpi-card warning-accent">
+        <div class="card-body">
+          <div class="kpi-header">
+            <div class="kpi-content">
+              <p class="kpi-label">Panier moyen</p>
+              <h4 class="kpi-value">
+                <span>{{ getAverageBasket() | number:'1.0-0' }}</span>
+                <span class="value-suffix">FCFA</span>
+              </h4>
             </div>
-            <div class="flex align-items-center justify-content-center bg-teal-100 border-round"
-                 style="width:3rem;height:3rem">
-              <i class="pi pi-shopping-cart text-teal-500 text-2xl"></i>
+            <div class="kpi-icon text-warning">
+              <i class="pi pi-shopping-cart"></i>
             </div>
           </div>
-        </ng-template>
-      </p-card>
+        </div>
+      </div>
     </div>
 
-    <div class="col-12 col-md-3">
-      <p-card>
-        <ng-template #content>
-          <div class="flex justify-content-between align-items-center">
-            <div>
-              <span class="text-500 font-medium block mb-2">Score RFM moyen</span>
-              <div class="text-900 font-bold text-2xl">{{ getAverageRFMScore() | number:'1.1-2' }}</div>
+    <div class="col-12 col-md-3 mb-2">
+      <div class="card h-100 kpi-card danger-accent">
+        <div class="card-body">
+          <div class="kpi-header">
+            <div class="kpi-content">
+              <p class="kpi-label">Score RFM moyen</p>
+              <h4 class="kpi-value">
+                <span>{{ getAverageRFMScore() | number:'1.1-2' }}</span>
+              </h4>
             </div>
-            <div class="flex align-items-center justify-content-center bg-cyan-100 border-round"
-                 style="width:3rem;height:3rem">
-              <i class="pi pi-chart-line text-cyan-500 text-2xl"></i>
+            <div class="kpi-icon text-danger">
+              <i class="pi pi-chart-line"></i>
             </div>
           </div>
-        </ng-template>
-      </p-card>
+        </div>
+      </div>
     </div>
   </div>
 
   <!-- Customer Segmentation Table -->
   <div class="mt-3">
-    <p-card>
-      <ng-template #content>
+    <div class="card h-100 data-card">
+      <div class="card-body">
         <p-table
           [value]="customers()"
           [loading]="isLoading()"
@@ -223,10 +237,10 @@
               </th>
               <th>Classification</th>
               <th>Dernier achat</th>
-              <th class="text-right">Jours</th>
-              <th class="text-right">Achats/an</th>
-              <th class="text-right">CA annuel</th>
-              <th class="text-right">Panier moy.</th>
+              <th class="text-end">Jours</th>
+              <th class="text-end">Achats/an</th>
+              <th class="text-end">CA annuel</th>
+              <th class="text-end">Panier moy.</th>
               <th class="text-center">R</th>
               <th class="text-center">F</th>
               <th class="text-center">M</th>
@@ -243,14 +257,14 @@
                 </p-tag>
               </td>
               <td>{{ customer.lastPurchaseDate | date:'dd/MM/yyyy' }}</td>
-              <td class="text-right">
+              <td class="text-end">
                 <p-tag [severity]="getRecencySeverity(customer.daysSinceLastPurchase)">
                   {{ customer.daysSinceLastPurchase || 0 }} j
                 </p-tag>
               </td>
-              <td class="text-right">{{ customer.nbPurchasesLastYear || 0 }}</td>
-              <td class="text-right font-bold">{{ customer.totalSpentLastYear | number:'1.0-0' }} F</td>
-              <td class="text-right">{{ customer.avgBasketValue | number:'1.0-0' }} F</td>
+              <td class="text-end">{{ customer.nbPurchasesLastYear || 0 }}</td>
+              <td class="text-end fw-bold">{{ customer.totalSpentLastYear | number:'1.0-0' }} F</td>
+              <td class="text-end">{{ customer.avgBasketValue | number:'1.0-0' }} F</td>
               <td class="text-center">
                 <span class="rfm-score">{{ customer.recencyScore || 0 }}</span>
               </td>
@@ -273,20 +287,20 @@
             </tr>
           </ng-template>
         </p-table>
-      </ng-template>
-    </p-card>
+      </div>
+    </div>
   </div>
 
   <!-- RFM Analysis Explanation -->
   <div class="mt-3">
-    <p-card>
-      <ng-template #header>
-        <div class="flex align-items-center gap-2">
+    <div class="card h-100 data-card">
+      <div class="card-header">
+        <div class="d-flex align-items-center gap-2">
           <i class="pi pi-info-circle"></i>
-          <span class="font-semibold">À propos de l'analyse RFM</span>
+          <span class="fw-semibold">À propos de l'analyse RFM</span>
         </div>
-      </ng-template>
-      <ng-template #content>
+      </div>
+      <div class="card-body">
         <div class="rfm-explanation">
           <p class="mb-2"><strong>RFM (Recency, Frequency, Monetary)</strong> est une méthode d'analyse qui segmente les
             clients en fonction de :</p>
@@ -298,7 +312,7 @@
           <p class="mt-2">Le <strong>Score RFM</strong> combine ces trois dimensions pour classer les clients en
             segments stratégiques.</p>
         </div>
-      </ng-template>
-    </p-card>
+      </div>
+    </div>
   </div>
 </div>

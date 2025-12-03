@@ -14,6 +14,7 @@ import { WarehouseCommonModule } from '../../../shared/warehouse-common/warehous
 
 import { IStockRotation, CategorieABC } from 'app/shared/model/report/stock-rotation.model';
 import { StockRotationReportService } from '../services/stock-rotation-report.service';
+import { formatCurrency } from 'app/shared/utils/format-utils';
 
 @Component({
   selector: 'jhi-stock-rotation',
@@ -24,7 +25,6 @@ import { StockRotationReportService } from '../services/stock-rotation-report.se
     FormsModule,
     TableModule,
     ButtonModule,
-    Card,
     SelectModule,
     ToolbarModule,
     DividerModule,
@@ -192,4 +192,7 @@ export default class StockRotationComponent implements OnInit {
     if (rate >= 1) return 'warn';
     return 'danger';
   }
+
+  // Format methods using shared utilities
+  formatCurrency = formatCurrency;
 }

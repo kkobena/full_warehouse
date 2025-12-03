@@ -7,7 +7,6 @@ import SupplierPerformanceComponent from '../supplier-performance/supplier-perfo
 
 @Component({
   selector: 'jhi-partners-reports',
-  standalone: true,
   imports: [CommonModule, NgbNavModule, CustomerSegmentationComponent, SupplierPerformanceComponent],
   templateUrl: './partners-reports.component.html',
   styleUrl: './partners-reports.component.scss',

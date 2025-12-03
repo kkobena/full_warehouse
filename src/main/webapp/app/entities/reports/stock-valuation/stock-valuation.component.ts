@@ -5,7 +5,6 @@ import { FormsModule } from '@angular/forms';
 
 import { TableModule } from 'primeng/table';
 import { ButtonModule } from 'primeng/button';
-import { Card } from 'primeng/card';
 import { SelectModule } from 'primeng/select';
 import { ToolbarModule } from 'primeng/toolbar';
 import { DividerModule } from 'primeng/divider';
@@ -13,6 +12,7 @@ import { WarehouseCommonModule } from '../../../shared/warehouse-common/warehous
 
 import { IStockValuation, IStockValuationSummary } from 'app/shared/model/report/stock-valuation.model';
 import { StockValuationReportService } from '../services/stock-valuation-report.service';
+import { formatCurrency, formatDecimal } from 'app/shared/utils/format-utils';
 
 @Component({
   selector: 'jhi-stock-valuation',
@@ -23,7 +23,6 @@ import { StockValuationReportService } from '../services/stock-valuation-report.
     FormsModule,
     TableModule,
     ButtonModule,
-    Card,
     SelectModule,
     ToolbarModule,
     DividerModule,
@@ -155,4 +154,8 @@ export default class StockValuationComponent implements OnInit {
     if (margin >= 10) return 'warn';
     return 'danger';
   }
+
+  // Format methods using shared utilities
+  formatCurrency = formatCurrency;
+  formatDecimal = formatDecimal;
 }

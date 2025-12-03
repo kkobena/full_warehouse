@@ -16,10 +16,10 @@ import { Tag } from 'primeng/tag';
 import { MarketBasketService } from '../services/market-basket.service';
 import { IProductAssociation, IMarketBasketSummary } from 'app/shared/model/report/market-basket.model';
 import { FloatLabel } from 'primeng/floatlabel';
+import { formatNumber, formatPercent, formatDecimal } from 'app/shared/utils/format-utils';
 
 @Component({
   selector: 'jhi-market-basket',
-  standalone: true,
   imports: [CommonModule, FormsModule, ButtonModule, CardModule, SelectModule, ToolbarModule, DatePickerModule, InputNumberModule, Tag, FloatLabel],
   templateUrl: './market-basket.component.html',
   styleUrl: './market-basket.component.scss',
@@ -83,20 +83,10 @@ export default class MarketBasketComponent implements OnInit {
     return `${year}-${month}-${day}`;
   }
 
-  formatNumber(value: number | undefined): string {
-    if (!value) return '0';
-    return new Intl.NumberFormat('fr-FR').format(value);
-  }
-
-  formatPercent(value: number | undefined): string {
-    if (!value) return '0.00';
-    return value.toFixed(2);
-  }
-
-  formatDecimal(value: number | undefined): string {
-    if (!value) return '0.00';
-    return value.toFixed(2);
-  }
+  // Format methods using shared utilities
+  formatNumber = formatNumber;
+  formatPercent = formatPercent;
+  formatDecimal = formatDecimal;
 
   getLiftSeverity(lift: number | undefined): 'success' | 'warn' | 'danger' | 'secondary' {
     if (!lift) return 'secondary';

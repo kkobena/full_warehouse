@@ -67,149 +67,179 @@
 
   <!-- ABC Classification Summary Cards -->
   <div class="row mt-3">
-    <div class="col-12 col-md-3">
-      <p-card>
-        <ng-template #content>
-          <div class="flex justify-content-between align-items-center">
-            <div>
-              <span class="text-500 font-medium block mb-2">Catégorie A</span>
-              <div class="text-900 font-bold text-3xl">{{ abcCounts().A || 0 }}</div>
-              <span class="text-500 text-sm">Forte rotation (z ≥ 1.96)</span>
+    <div class="col-12 col-md-3 mb-2">
+      <div class="card h-100 kpi-card success-accent">
+        <div class="card-body">
+          <div class="kpi-header">
+            <div class="kpi-content">
+              <p class="kpi-label">Catégorie A</p>
+              <h4 class="kpi-value">
+                <span>{{ abcCounts().A || 0 }}</span>
+              </h4>
+              <div class="kpi-badges">
+                <span class="badge bg-success-subtle text-success">Forte rotation (z ≥ 1.96)</span>
+              </div>
             </div>
-            <div class="flex align-items-center justify-content-center bg-green-100 border-round" style="width:3rem;height:3rem">
-              <i class="pi pi-arrow-up text-green-500 text-2xl"></i>
+            <div class="kpi-icon text-success">
+              <i class="pi pi-arrow-up"></i>
             </div>
           </div>
-        </ng-template>
-      </p-card>
+        </div>
+      </div>
     </div>
 
-    <div class="col-12 col-md-3">
-      <p-card>
-        <ng-template #content>
-          <div class="flex justify-content-between align-items-center">
-            <div>
-              <span class="text-500 font-medium block mb-2">Catégorie B</span>
-              <div class="text-900 font-bold text-3xl">{{ abcCounts().B || 0 }}</div>
-              <span class="text-500 text-sm">Rotation moyenne (z ≥ 1.65)</span>
+    <div class="col-12 col-md-3 mb-2">
+      <div class="card h-100 kpi-card primary-accent">
+        <div class="card-body">
+          <div class="kpi-header">
+            <div class="kpi-content">
+              <p class="kpi-label">Catégorie B</p>
+              <h4 class="kpi-value">
+                <span>{{ abcCounts().B || 0 }}</span>
+              </h4>
+              <div class="kpi-badges">
+                <span class="badge bg-primary-subtle text-primary">Rotation moyenne (z ≥ 1.65)</span>
+              </div>
             </div>
-            <div class="flex align-items-center justify-content-center bg-blue-100 border-round" style="width:3rem;height:3rem">
-              <i class="pi pi-minus text-blue-500 text-2xl"></i>
+            <div class="kpi-icon text-primary">
+              <i class="pi pi-minus"></i>
             </div>
           </div>
-        </ng-template>
-      </p-card>
+        </div>
+      </div>
     </div>
 
-    <div class="col-12 col-md-3">
-      <p-card>
-        <ng-template #content>
-          <div class="flex justify-content-between align-items-center">
-            <div>
-              <span class="text-500 font-medium block mb-2">Catégorie C</span>
-              <div class="text-900 font-bold text-3xl">{{ abcCounts().C || 0 }}</div>
-              <span class="text-500 text-sm">Faible rotation (z < 1.65)</span>
+    <div class="col-12 col-md-3 mb-2">
+      <div class="card h-100 kpi-card warning-accent">
+        <div class="card-body">
+          <div class="kpi-header">
+            <div class="kpi-content">
+              <p class="kpi-label">Catégorie C</p>
+              <h4 class="kpi-value">
+                <span>{{ abcCounts().C || 0 }}</span>
+              </h4>
+              <div class="kpi-badges">
+                <span class="badge bg-warning-subtle text-warning">Faible rotation (z < 1.65)</span>
+              </div>
             </div>
-            <div class="flex align-items-center justify-content-center bg-orange-100 border-round" style="width:3rem;height:3rem">
-              <i class="pi pi-arrow-down text-orange-500 text-2xl"></i>
+            <div class="kpi-icon text-warning">
+              <i class="pi pi-arrow-down"></i>
             </div>
           </div>
-        </ng-template>
-      </p-card>
+        </div>
+      </div>
     </div>
 
-    <div class="col-12 col-md-3">
-      <p-card>
-        <ng-template #content>
-          <div class="flex justify-content-between align-items-center">
-            <div>
-              <span class="text-500 font-medium block mb-2">Valeur totale du stock</span>
-              <div class="text-900 font-bold text-2xl">{{ getTotalStockValue() | number:'1.0-0' }} F</div>
-              <span class="text-500 text-sm">{{ rotations().length }} produits</span>
+    <div class="col-12 col-md-3 mb-2">
+      <div class="card h-100 kpi-card danger-accent">
+        <div class="card-body">
+          <div class="kpi-header">
+            <div class="kpi-content">
+              <p class="kpi-label">Valeur totale du stock</p>
+              <h4 class="kpi-value">
+                <span>{{ formatCurrency(getTotalStockValue()) }}</span>
+                <span class="value-suffix">FCFA</span>
+              </h4>
+              <div class="kpi-badges">
+                <span class="badge bg-danger-subtle text-danger">{{ rotations().length }} produits</span>
+              </div>
             </div>
-            <div class="flex align-items-center justify-content-center bg-purple-100 border-round" style="width:3rem;height:3rem">
-              <i class="pi pi-box text-purple-500 text-2xl"></i>
+            <div class="kpi-icon text-danger">
+              <i class="pi pi-box"></i>
             </div>
           </div>
-        </ng-template>
-      </p-card>
+        </div>
+      </div>
     </div>
   </div>
 
   <!-- Stock Rotation Table -->
-  <div class="mt-3">
-    <p-card>
-      <ng-template #content>
-        <p-table
-          [value]="rotations()"
-          [loading]="isLoading()"
-          [paginator]="true"
-          [rows]="20"
-          class="pharma-table"
-          [rowsPerPageOptions]="[10, 20, 50, 100]"
-          [showCurrentPageReport]="true"
-          currentPageReportTemplate="Affichage de {first} à {last} sur {totalRecords} entrées"
-          [tableStyle]="{ 'min-width': '100rem' }"
-        >
-          <ng-template #header>
-            <tr class="pharma-table-head">
-              <th>Produit</th>
-              <th>Code CIP</th>
-              <th>Catégorie</th>
-              <th>ABC</th>
-              <th class="text-right">Stock</th>
-              <th class="text-right" >Valeur Stock </th>
-              <th class="text-right">CA 30j</th>
-              <th class="text-right" >Qté 30j </th>
-              <th class="text-right">CA 12m </th>
-              <th class="text-right">Qté 12m </th>
-              <th class="text-right">Taux rotation </th>
-              <th class="text-right">Jours en stock </th>
-            </tr>
-          </ng-template>
-          <ng-template #body let-rotation>
-            <tr>
-              <td>{{ rotation.libelle }}</td>
-              <td>{{ rotation.codeCip }}</td>
-              <td>{{ rotation.categorie }}</td>
-              <td>
-                <p-tag [severity]="getABCSeverity(rotation.categorieABC)">
-                  {{ getABCLabel(rotation.categorieABC) }}
-                </p-tag>
-              </td>
-              <td class="text-right pharma-qty-value">{{ rotation.stockQuantity || 0 }}</td>
-              <td class="text-right font-bold pharma-price">{{ rotation.stockValue | number:'1.0-0' }} F</td>
-              <td class="text-right">{{ rotation.caLast30Days | number:'1.0-0' }} F</td>
-              <td class="text-right">{{ rotation.qtySoldLast30Days || 0 }}</td>
-              <td class="text-right font-bold">{{ rotation.caLast12Months | number:'1.0-0' }} F</td>
-              <td class="text-right font-bold">{{ rotation.qtySoldLast12Months || 0 }}</td>
-              <td class="text-right">
-                <p-tag [severity]="getRotationRateSeverity(rotation.rotationRateAnnual)">
-                  {{ rotation.rotationRateAnnual | number:'1.2-2' }}x/an
-                </p-tag>
-              </td>
-              <td class="text-right">
-                <span
-                  class="px-2 py-1 border-round font-semibold"
-                  [ngClass]="{
-                    'bg-green-100 text-green-700': (rotation.avgDaysInStock || 0) <= 30,
-                    'bg-blue-100 text-blue-700': (rotation.avgDaysInStock || 0) > 30 && (rotation.avgDaysInStock || 0) <= 60,
-                    'bg-orange-100 text-orange-700': (rotation.avgDaysInStock || 0) > 60 && (rotation.avgDaysInStock || 0) <= 90,
-                    'bg-red-100 text-red-700': (rotation.avgDaysInStock || 0) > 90
-                  }"
-                >
-                  {{ rotation.avgDaysInStock || 0 }} jours
-                </span>
-              </td>
-            </tr>
-          </ng-template>
-          <ng-template #emptymessage>
-            <tr>
-              <td colspan="12" class="text-center">Aucune donnée disponible</td>
-            </tr>
-          </ng-template>
-        </p-table>
-      </ng-template>
-    </p-card>
+  <div class="row mt-3">
+    <div class="col-12 mb-2">
+      <div class="card h-100 data-card">
+        <div class="card-header">
+          <h5 class="card-title">
+            <i class="pi pi-sync text-primary"></i>
+            Rotation du Stock (Analyse ABC)
+          </h5>
+        </div>
+        <div class="card-body p-0">
+          <div class="overflow-x-auto">
+            <p-table
+              [value]="rotations()"
+              [loading]="isLoading()"
+              [paginator]="true"
+              [rows]="20"
+              class="pharma-table"
+              [rowsPerPageOptions]="[10, 20, 50, 100]"
+              [showCurrentPageReport]="true"
+              currentPageReportTemplate="Affichage de {first} à {last} sur {totalRecords} entrées"
+              [tableStyle]="{ 'min-width': '100rem' }"
+            >
+              <ng-template #header>
+                <tr class="pharma-table-head">
+                  <th>Produit</th>
+                  <th>Code CIP</th>
+                  <th>Catégorie</th>
+                  <th>ABC</th>
+                  <th class="text-end">Stock</th>
+                  <th class="text-end">Valeur Stock </th>
+                  <th class="text-end">CA 30j</th>
+                  <th class="text-end">Qté 30j </th>
+                  <th class="text-end">CA 12m </th>
+                  <th class="text-end">Qté 12m </th>
+                  <th class="text-end">Taux rotation </th>
+                  <th class="text-end">Jours en stock </th>
+                </tr>
+              </ng-template>
+              <ng-template #body let-rotation>
+                <tr>
+                  <td>{{ rotation.libelle }}</td>
+                  <td>{{ rotation.codeCip }}</td>
+                  <td>{{ rotation.categorie }}</td>
+                  <td>
+                    <p-tag [severity]="getABCSeverity(rotation.categorieABC)">
+                      {{ getABCLabel(rotation.categorieABC) }}
+                    </p-tag>
+                  </td>
+                  <td class="text-end pharma-qty-value">{{ rotation.stockQuantity || 0 }}</td>
+                  <td class="text-end fw-bold pharma-price">{{ rotation.stockValue | number:'1.0-0' }} F</td>
+                  <td class="text-end">{{ rotation.caLast30Days | number:'1.0-0' }} F</td>
+                  <td class="text-end">{{ rotation.qtySoldLast30Days || 0 }}</td>
+                  <td class="text-end fw-bold">{{ rotation.caLast12Months | number:'1.0-0' }} F</td>
+                  <td class="text-end fw-bold">{{ rotation.qtySoldLast12Months || 0 }}</td>
+                  <td class="text-end">
+                    <p-tag [severity]="getRotationRateSeverity(rotation.rotationRateAnnual)">
+                      {{ rotation.rotationRateAnnual | number:'1.2-2' }}x/an
+                    </p-tag>
+                  </td>
+                  <td class="text-end">
+                    <span
+                      class="px-2 py-1 rounded fw-semibold"
+                      [ngClass]="{
+                        'bg-success-subtle text-success': (rotation.avgDaysInStock || 0) <= 30,
+                        'bg-info-subtle text-info': (rotation.avgDaysInStock || 0) > 30 && (rotation.avgDaysInStock || 0) <= 60,
+                        'bg-warning-subtle text-warning': (rotation.avgDaysInStock || 0) > 60 && (rotation.avgDaysInStock || 0) <= 90,
+                        'bg-danger-subtle text-danger': (rotation.avgDaysInStock || 0) > 90
+                      }"
+                    >
+                      {{ rotation.avgDaysInStock || 0 }} jours
+                    </span>
+                  </td>
+                </tr>
+              </ng-template>
+              <ng-template #emptymessage>
+                <tr>
+                  <td colspan="12" class="text-center p-4">
+                    <i class="pi pi-inbox text-muted" style="font-size: 3rem;"></i>
+                    <p class="mt-3 text-muted">Aucune donnée disponible</p>
+                  </td>
+                </tr>
+              </ng-template>
+            </p-table>
+          </div>
+        </div>
+      </div>
+    </div>
   </div>
 </div>

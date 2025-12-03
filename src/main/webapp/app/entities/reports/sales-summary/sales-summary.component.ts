@@ -27,7 +27,6 @@ import { TranslateService } from '@ngx-translate/core';
     FormsModule,
     TableModule,
     ButtonModule,
-    Card,
     DatePicker,
     SelectModule,
     ToolbarModule,

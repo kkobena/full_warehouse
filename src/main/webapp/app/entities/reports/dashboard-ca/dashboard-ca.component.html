@@ -96,191 +96,235 @@
   } @else {
     <!-- KPI Cards -->
     @if (summary(); as sum) {
-      <div class="row mb-3">
+      <div class="row">
         <!-- Today -->
-        <div class="col-12 col-md-6 col-lg-3">
-          <p-card>
-            <div class="flex flex-column gap-2">
-              <div class="flex align-items-center justify-content-between">
-                <span class="text-500 font-medium">CA Aujourd'hui</span>
-                <i class="pi pi-calendar text-blue-500" style="font-size: 1.5rem;"></i>
-              </div>
-              <div class="flex align-items-end gap-2">
-                <span class="text-2xl font-bold">{{ formatCurrency(sum.caToday) }}</span>
-                <span class="text-sm text-500">FCFA</span>
-              </div>
-              <div class="flex align-items-center gap-2">
-                <p-tag
-                  [value]="formatPercent(sum.caTodayEvolutionPct) + '%'"
-                  [severity]="(sum.caTodayEvolutionPct ?? 0) >= 0 ? 'success' : 'danger'"
-                  [icon]="(sum.caTodayEvolutionPct ?? 0) >= 0 ? 'pi pi-arrow-up' : 'pi pi-arrow-down'" />
-                <span class="text-sm text-500">vs hier</span>
-              </div>
-              <div class="text-sm text-500">
-                {{ sum.nbTransactionsToday }} transactions
+        <div class="col-xl-3 col-md-6 mb-2">
+          <div class="card h-100 kpi-card primary-accent">
+            <div class="card-body">
+              <div class="kpi-header">
+                <div class="kpi-content">
+                  <p class="kpi-label">CA Aujourd'hui</p>
+                  <h4 class="kpi-value">
+                    <span>{{ formatCurrency(sum.caToday) }}</span>
+                    <span class="value-suffix">FCFA</span>
+                  </h4>
+                  <div class="kpi-badges">
+                    <span
+                      [class]="'badge ' + ((sum.caTodayEvolutionPct ?? 0) >= 0 ? 'bg-success-subtle text-success' : 'bg-danger-subtle text-danger')">
+                      <i [class]="'pi ' + ((sum.caTodayEvolutionPct ?? 0) >= 0 ? 'pi-arrow-up' : 'pi-arrow-down')"></i>
+                      {{ formatPercent(sum.caTodayEvolutionPct) }}%
+                    </span>
+                    <span class="badge bg-info-subtle text-info">vs hier</span>
+                  </div>
+                </div>
+                <div class="kpi-icon text-primary">
+                  <i class="pi pi-calendar"></i>
+                </div>
               </div>
             </div>
-          </p-card>
+            <div class="card-footer">
+              <span class="footer-label">Transactions</span>
+              <span class="badge bg-primary-subtle text-primary">{{ sum.nbTransactionsToday | number }}</span>
+            </div>
+          </div>
         </div>
 
         <!-- Week -->
-        <div class="col-12 col-md-6 col-lg-3">
-          <p-card>
-            <div class="flex flex-column gap-2">
-              <div class="flex align-items-center justify-content-between">
-                <span class="text-500 font-medium">CA Semaine</span>
-                <i class="pi pi-calendar-plus text-green-500" style="font-size: 1.5rem;"></i>
-              </div>
-              <div class="flex align-items-end gap-2">
-                <span class="text-2xl font-bold">{{ formatCurrency(sum.caWeek) }}</span>
-                <span class="text-sm text-500">FCFA</span>
-              </div>
-              <div class="flex align-items-center gap-2">
-                <p-tag
-                  [value]="formatPercent(sum.caWeekEvolutionPct) + '%'"
-                  [severity]="(sum.caWeekEvolutionPct ?? 0) >= 0 ? 'success' : 'danger'"
-                  [icon]="(sum.caWeekEvolutionPct ?? 0) >= 0 ? 'pi pi-arrow-up' : 'pi pi-arrow-down'" />
-                <span class="text-sm text-500">vs semaine précédente</span>
-              </div>
-              <div class="text-sm text-500">
-                {{ sum.nbTransactionsWeek }} transactions
+        <div class="col-xl-3 col-md-6 mb-2">
+          <div class="card h-100 kpi-card success-accent">
+            <div class="card-body">
+              <div class="kpi-header">
+                <div class="kpi-content">
+                  <p class="kpi-label">CA Semaine</p>
+                  <h4 class="kpi-value">
+                    <span>{{ formatCurrency(sum.caWeek) }}</span>
+                    <span class="value-suffix">FCFA</span>
+                  </h4>
+                  <div class="kpi-badges">
+                    <span
+                      [class]="'badge ' + ((sum.caWeekEvolutionPct ?? 0) >= 0 ? 'bg-success-subtle text-success' : 'bg-danger-subtle text-danger')">
+                      <i [class]="'pi ' + ((sum.caWeekEvolutionPct ?? 0) >= 0 ? 'pi-arrow-up' : 'pi-arrow-down')"></i>
+                      {{ formatPercent(sum.caWeekEvolutionPct) }}%
+                    </span>
+                    <span class="badge bg-info-subtle text-info">vs semaine précédente</span>
+                  </div>
+                </div>
+                <div class="kpi-icon text-success">
+                  <i class="pi pi-calendar-plus"></i>
+                </div>
               </div>
             </div>
-          </p-card>
+            <div class="card-footer">
+              <span class="footer-label">Transactions</span>
+              <span class="badge bg-success-subtle text-success">{{ sum.nbTransactionsWeek | number }}</span>
+            </div>
+          </div>
         </div>
 
         <!-- Month -->
-        <div class="col-12 col-md-6 col-lg-3">
-          <p-card>
-            <div class="flex flex-column gap-2">
-              <div class="flex align-items-center justify-content-between">
-                <span class="text-500 font-medium">CA Mois</span>
-                <i class="pi pi-chart-bar text-orange-500" style="font-size: 1.5rem;"></i>
-              </div>
-              <div class="flex align-items-end gap-2">
-                <span class="text-2xl font-bold">{{ formatCurrency(sum.caMonth) }}</span>
-                <span class="text-sm text-500">FCFA</span>
-              </div>
-              <div class="flex align-items-center gap-2">
-                <p-tag
-                  [value]="formatPercent(sum.caMonthEvolutionPct) + '%'"
-                  [severity]="(sum.caMonthEvolutionPct ?? 0) >= 0 ? 'success' : 'danger'"
-                  [icon]="(sum.caMonthEvolutionPct ?? 0) >= 0 ? 'pi pi-arrow-up' : 'pi pi-arrow-down'" />
-                <span class="text-sm text-500">vs mois précédent</span>
-              </div>
-              <div class="text-sm text-500">
-                {{ sum.nbTransactionsMonth }} transactions | Panier moyen: {{ formatCurrency(sum.panierMoyenMonth) }} FCFA
+        <div class="col-xl-3 col-md-6 mb-2">
+          <div class="card h-100 kpi-card warning-accent">
+            <div class="card-body">
+              <div class="kpi-header">
+                <div class="kpi-content">
+                  <p class="kpi-label">CA Mois</p>
+                  <h4 class="kpi-value">
+                    <span>{{ formatCurrency(sum.caMonth) }}</span>
+                    <span class="value-suffix">FCFA</span>
+                  </h4>
+                  <div class="kpi-badges">
+                    <span
+                      [class]="'badge ' + ((sum.caMonthEvolutionPct ?? 0) >= 0 ? 'bg-success-subtle text-success' : 'bg-danger-subtle text-danger')">
+                      <i [class]="'pi ' + ((sum.caMonthEvolutionPct ?? 0) >= 0 ? 'pi-arrow-up' : 'pi-arrow-down')"></i>
+                      {{ formatPercent(sum.caMonthEvolutionPct) }}%
+                    </span>
+                    <span class="badge bg-info-subtle text-info">vs mois précédent</span>
+                  </div>
+                </div>
+                <div class="kpi-icon text-warning">
+                  <i class="pi pi-chart-bar"></i>
+                </div>
               </div>
             </div>
-          </p-card>
+            <div class="card-footer">
+              <span class="footer-label">Transactions | Panier moyen</span>
+              <span class="badge bg-warning-subtle text-warning">
+                {{ sum.nbTransactionsMonth | number }} | {{ formatCurrency(sum.panierMoyenMonth) }} FCFA
+              </span>
+            </div>
+          </div>
         </div>
 
         <!-- Year -->
-        <div class="col-12 col-md-6 col-lg-3">
-          <p-card>
-            <div class="flex flex-column gap-2">
-              <div class="flex align-items-center justify-content-between">
-                <span class="text-500 font-medium">CA Année</span>
-                <i class="pi pi-chart-line text-purple-500" style="font-size: 1.5rem;"></i>
-              </div>
-              <div class="flex align-items-end gap-2">
-                <span class="text-2xl font-bold">{{ formatCurrency(sum.caYear) }}</span>
-                <span class="text-sm text-500">FCFA</span>
-              </div>
-              <div class="flex align-items-center gap-2">
-                <p-tag
-                  [value]="formatPercent(sum.caYearEvolutionPct) + '%'"
-                  [severity]="(sum.caYearEvolutionPct ?? 0) >= 0 ? 'success' : 'danger'"
-                  [icon]="(sum.caYearEvolutionPct ?? 0) >= 0 ? 'pi pi-arrow-up' : 'pi pi-arrow-down'" />
-                <span class="text-sm text-500">vs année précédente</span>
-              </div>
-              <div class="text-sm text-500">
-                {{ sum.nbTransactionsYear }} transactions | Marge: {{ formatPercent(sum.tauxMargeYear) }}%
+        <div class="col-xl-3 col-md-6 mb-2">
+          <div class="card h-100 kpi-card danger-accent">
+            <div class="card-body">
+              <div class="kpi-header">
+                <div class="kpi-content">
+                  <p class="kpi-label">CA Année</p>
+                  <h4 class="kpi-value">
+                    <span>{{ formatCurrency(sum.caYear) }}</span>
+                    <span class="value-suffix">FCFA</span>
+                  </h4>
+                  <div class="kpi-badges">
+                    <span
+                      [class]="'badge ' + ((sum.caYearEvolutionPct ?? 0) >= 0 ? 'bg-success-subtle text-success' : 'bg-danger-subtle text-danger')">
+                      <i [class]="'pi ' + ((sum.caYearEvolutionPct ?? 0) >= 0 ? 'pi-arrow-up' : 'pi-arrow-down')"></i>
+                      {{ formatPercent(sum.caYearEvolutionPct) }}%
+                    </span>
+                    <span class="badge bg-info-subtle text-info">vs année précédente</span>
+                  </div>
+                </div>
+                <div class="kpi-icon text-danger">
+                  <i class="pi pi-chart-line"></i>
+                </div>
               </div>
             </div>
-          </p-card>
+            <div class="card-footer">
+              <span class="footer-label">Transactions | Marge</span>
+              <span class="badge bg-danger-subtle text-danger">
+                {{ sum.nbTransactionsYear | number }} | {{ formatPercent(sum.tauxMargeYear) }}%
+              </span>
+            </div>
+          </div>
         </div>
       </div>
     }
 
     <!-- Charts Section -->
-    <div class="row mb-3">
-    <!-- Evolution Chart -->
-    <div class="col-12">
-      <p-card>
-        <ng-template #header>
-          <div class="p-3 font-semibold">Évolution du Chiffre d'Affaires</div>
-        </ng-template>
-        <canvas #evolutionChartCanvas height="100"></canvas>
-      </p-card>
+    <div class="row">
+      <!-- Evolution Chart -->
+      <div class="col-12 mb-2">
+        <div class="card h-100 data-card">
+          <div class="card-header">
+            <h5 class="card-title">
+              <i class="pi pi-chart-line text-primary"></i>
+              Évolution du Chiffre d'Affaires
+            </h5>
+          </div>
+          <div class="card-body">
+            <canvas #evolutionChartCanvas height="100"></canvas>
+          </div>
+        </div>
+      </div>
     </div>
 
-  </div>
-    <div class="row mb-3">
-
+    <div class="row">
       <!-- Payment Methods Chart -->
-      <div class="col-12 col-md-6">
-        <p-card>
-          <ng-template #header>
-            <div class="p-3 font-semibold">Répartition par Mode de Paiement</div>
-          </ng-template>
-          <canvas #paymentChartCanvas></canvas>
-        </p-card>
+      <div class="col-xl-6 col-md-6 mb-2">
+        <div class="card h-100 data-card">
+          <div class="card-header">
+            <h5 class="card-title">
+              <i class="pi pi-credit-card text-success"></i>
+              Répartition par Mode de Paiement
+            </h5>
+          </div>
+          <div class="card-body">
+            <canvas #paymentChartCanvas></canvas>
+          </div>
+        </div>
       </div>
 
       <!-- Product Families Chart -->
-      <div class="col-12 col-md-6">
-        <p-card>
-          <ng-template #header>
-            <div class="p-3 font-semibold">CA par Famille de Produits (Top 10)</div>
-          </ng-template>
-          <canvas #familyChartCanvas></canvas>
-        </p-card>
+      <div class="col-xl-6 col-md-6 mb-2">
+        <div class="card h-100 data-card">
+          <div class="card-header">
+            <h5 class="card-title">
+              <i class="pi pi-box text-warning"></i>
+              CA par Famille de Produits (Top 10)
+            </h5>
+          </div>
+          <div class="card-body">
+            <canvas #familyChartCanvas></canvas>
+          </div>
+        </div>
       </div>
     </div>
 
     <!-- Top Products Table -->
     <div class="row">
-      <div class="col-12">
-        <p-card>
-          <ng-template #header>
-            <div class="p-3 font-semibold">Top 10 Produits</div>
-          </ng-template>
-
-          @if (topProducts().length === 0) {
-            <div class="text-center p-4 text-500">
-              <i class="pi pi-inbox" style="font-size: 3rem;"></i>
-              <p>Aucun produit trouvé pour cette période</p>
-            </div>
-          } @else {
-
+      <div class="col-12 mb-2">
+        <div class="card h-100 data-card">
+          <div class="card-header">
+            <h5 class="card-title">
+              <i class="pi pi-star-fill text-info"></i>
+              Top 10 Produits
+            </h5>
+          </div>
+          <div class="card-body p-0">
+            @if (topProducts().length === 0) {
+              <div class="text-center p-4">
+                <i class="pi pi-inbox text-muted" style="font-size: 3rem;"></i>
+                <p class="mt-3 text-muted">Aucun produit trouvé pour cette période</p>
+              </div>
+            } @else {
               <table class="pharma-table">
                 <thead class="pharma-table-head">
                   <tr>
                     <th>#</th>
                     <th>Produit</th>
                     <th>Code CIP</th>
-                    <th class="text-right">Quantité Vendue</th>
-                    <th class="text-right">CA (FCFA)</th>
-                    <th class="text-right">Prix Moyen</th>
+                    <th class="text-end">Quantité Vendue</th>
+                    <th class="text-end">CA (FCFA)</th>
+                    <th class="text-end">Prix Moyen</th>
                   </tr>
                 </thead>
                 <tbody class="pharma-table-body">
                   @for (product of topProducts(); track product.produitId; let i = $index) {
                     <tr>
                       <td>{{ i + 1 }}</td>
-                      <td class="font-medium">{{ product.libelle }}</td>
-                      <td>{{ product.codeCip }}</td>
-                      <td class="text-right">{{ formatCurrency(product.qteVendue) }}</td>
-                      <td class="text-right font-semibold">{{ formatCurrency(product.caGenere) }}</td>
-                      <td class="text-right">{{ formatCurrency(product.prixMoyen) }}</td>
+                      <td class="fw-medium">{{ product.libelle }}</td>
+                      <td><span class="pharma-code">{{ product.codeCip }}</span></td>
+                      <td class="text-end">{{ formatCurrency(product.qteVendue) }}</td>
+                      <td class="text-end fw-semibold text-primary">{{ formatCurrency(product.caGenere) }}</td>
+                      <td class="text-end">{{ formatCurrency(product.prixMoyen) }}</td>
                     </tr>
                   }
                 </tbody>
               </table>
-
-          }
-        </p-card>
+            }
+          </div>
+        </div>
       </div>
     </div>
   }

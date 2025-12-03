@@ -7,7 +7,6 @@ import TiersPayantCreancesComponent from '../tiers-payant-creances/tiers-payant-
 
 @Component({
   selector: 'jhi-finance-reports',
-  standalone: true,
   imports: [CommonModule, NgbNavModule, CashRegisterReportComponent, TiersPayantCreancesComponent],
   templateUrl: './finance-reports.component.html',
   styleUrl: './finance-reports.component.scss',

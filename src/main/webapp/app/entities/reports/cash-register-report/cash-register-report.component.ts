@@ -5,7 +5,6 @@ import { FormsModule } from '@angular/forms';
 
 import { TableModule } from 'primeng/table';
 import { ButtonModule } from 'primeng/button';
-import { Card } from 'primeng/card';
 import { DatePicker } from 'primeng/datepicker';
 import { ToolbarModule } from 'primeng/toolbar';
 import { FloatLabel } from 'primeng/floatlabel';
@@ -24,7 +23,6 @@ import { CashRegisterReportService } from '../services/cash-register-report.serv
     FormsModule,
     TableModule,
     ButtonModule,
-    Card,
     DatePicker,
     ToolbarModule,
     FloatLabel,

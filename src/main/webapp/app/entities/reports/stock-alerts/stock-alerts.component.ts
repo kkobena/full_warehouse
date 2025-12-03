@@ -5,7 +5,6 @@ import { FormsModule } from '@angular/forms';
 
 import { TableModule } from 'primeng/table';
 import { ButtonModule } from 'primeng/button';
-import { Card } from 'primeng/card';
 import { Tag } from 'primeng/tag';
 import { MultiSelectModule } from 'primeng/multiselect';
 import { ToolbarModule } from 'primeng/toolbar';
@@ -24,7 +23,6 @@ import { StockAlertReportService } from '../services/stock-alert-report.service'
     FormsModule,
     TableModule,
     ButtonModule,
-    Card,
     Tag,
     MultiSelectModule,
     ToolbarModule,

@@ -23,6 +23,7 @@ import {
 } from 'app/shared/model/report';
 import { ITopProduct } from 'app/shared/model/report/top-product.model';
 import { DashboardCAService } from '../services/dashboard-ca.service';
+import { formatCurrency, formatPercent, formatDate } from 'app/shared/utils/format-utils';
 
 import { Chart, ChartConfiguration, ChartData, registerables } from 'chart.js';
 import { FloatLabel } from 'primeng/floatlabel';
@@ -43,12 +44,10 @@ interface PeriodOption {
     CommonModule,
     FormsModule,
     ButtonModule,
-    Card,
     SelectModule,
     ToolbarModule,
     DividerModule,
     WarehouseCommonModule,
-    Tag,
     DatePicker,
     FloatLabel
   ]
@@ -417,13 +416,9 @@ export default class DashboardCAComponent implements OnInit, OnDestroy {
     }
 
     return {
-      start: this.formatDate(start),
-      end: this.formatDate(end),
+      start: formatDate(start),
+      end: formatDate(end),
     };
-  }
-
-  private formatDate(date: Date): string {
-    return date.toISOString().split('T')[0];
   }
 
   private aggregatePaymentMethodData(data: IPaymentMethodCA[]): IPaymentMethodSummary[] {
@@ -481,21 +476,9 @@ export default class DashboardCAComponent implements OnInit, OnDestroy {
     return value >= 0 ? 'evolution-positive' : 'evolution-negative';
   }
 
-  formatCurrency(value: number | undefined): string {
-    if (value === undefined || value === null) return '0';
-    return new Intl.NumberFormat('fr-FR', {
-      minimumFractionDigits: 0,
-      maximumFractionDigits: 0,
-    }).format(value);
-  }
-
-  formatPercent(value: number | undefined): string {
-    if (value === undefined || value === null) return '0';
-    return new Intl.NumberFormat('fr-FR', {
-      minimumFractionDigits: 2,
-      maximumFractionDigits: 2,
-    }).format(value);
-  }
+  // Format methods using shared utilities
+  formatCurrency = formatCurrency;
+  formatPercent = formatPercent;
 
   // Export methods
   exportDailySummaryToExcel(): void {

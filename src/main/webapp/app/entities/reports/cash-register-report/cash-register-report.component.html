@@ -1,5 +1,4 @@
 <div class="pharma-smart-content p-2">
-  <!-- Modern Pharma Toolbar (Compact) -->
   <div class="pharma-toolbar ">
     <div class="pharma-toolbar-header">
       <i class="pi pi-calculator"></i>
@@ -42,130 +41,140 @@
 
   <!-- Summary Cards -->
   <div class="row mt-3">
-    <div class="col-12 col-md-6">
-      <p-card>
-        <ng-template #content>
-          <div class="flex justify-content-between align-items-center">
-            <div>
-              <span class="text-500 font-medium block mb-2">Total Ventes</span>
-              <div class="text-900 font-bold text-3xl">{{ getTotalSales() | number: '1.0-0' }} FCFA</div>
+    <div class="col-12 col-md-6 mb-2">
+      <div class="card h-100 kpi-card success-accent">
+        <div class="card-body">
+          <div class="kpi-header">
+            <div class="kpi-content">
+              <p class="kpi-label">Total Ventes</p>
+              <h4 class="kpi-value">
+                <span>{{ getTotalSales() | number: '1.0-0' }}</span>
+                <span class="value-suffix">FCFA</span>
+              </h4>
             </div>
-            <div class="flex align-items-center justify-content-center bg-green-100 border-round" style="width:3rem;height:3rem">
-              <i class="pi pi-shopping-cart text-green-500 text-2xl"></i>
+            <div class="kpi-icon text-success">
+              <i class="pi pi-shopping-cart"></i>
             </div>
           </div>
-        </ng-template>
-      </p-card>
+        </div>
+      </div>
     </div>
 
-    <div class="col-12 col-md-6">
-      <p-card>
-        <ng-template #content>
-          <div class="flex justify-content-between align-items-center">
-            <div>
-              <span class="text-500 font-medium block mb-2">Total Écarts</span>
-              <div class="text-900 font-bold text-3xl">{{ getTotalDiscrepancy() | number: '1.0-0' }} FCFA</div>
+    <div class="col-12 col-md-6 mb-2">
+      <div class="card h-100 kpi-card warning-accent">
+        <div class="card-body">
+          <div class="kpi-header">
+            <div class="kpi-content">
+              <p class="kpi-label">Total Écarts</p>
+              <h4 class="kpi-value">
+                <span>{{ getTotalDiscrepancy() | number: '1.0-0' }}</span>
+                <span class="value-suffix">FCFA</span>
+              </h4>
             </div>
-            <div class="flex align-items-center justify-content-center bg-orange-100 border-round" style="width:3rem;height:3rem">
-              <i class="pi pi-exclamation-triangle text-orange-500 text-2xl"></i>
+            <div class="kpi-icon text-warning">
+              <i class="pi pi-exclamation-triangle"></i>
             </div>
           </div>
-        </ng-template>
-      </p-card>
+        </div>
+      </div>
     </div>
   </div>
 
   <!-- Cash Register Reports Table -->
-  <div class="pharma-row-container mt-3">
-    <p-table
-      [value]="dailyReports()"
-      [loading]="isLoading()"
-      [rowHover]="true"
-      [scrollable]="true"
-      class="pharma-table"
-    >
-      <ng-template #header>
-        <tr class="pharma-table-head">
-          <th>Caisse</th>
-          <th>Utilisateur</th>
-          <th>Ouverture</th>
-          <th>Clôture</th>
-          <th class="text-right">Solde Initial</th>
-          <th class="text-right">Ventes</th>
-          <th class="text-right">Solde Attendu</th>
-          <th class="text-right">Solde Réel</th>
-          <th class="text-right">Écart</th>
-          <th>Statut</th>
-        </tr>
-      </ng-template>
-      <ng-template #body let-report>
-        <tr>
-          <td>{{ report.caisseLibelle }}</td>
-          <td>{{ report.userName }}</td>
-          <td>{{ report.openingDate | date: 'HH:mm' }}</td>
-          <td>
-            @if (report.closingDate) {
-              {{ report.closingDate | date: 'HH:mm' }}
-            } @else {
-              <span class="text-muted">En cours</span>
-            }
-          </td>
-          <td class="text-right">{{ report.openingBalance | number: '1.0-0' }}</td>
-          <td class="text-right">{{ report.totalSales | number: '1.0-0' }}</td>
-          <td class="text-right">{{ report.expectedBalance | number: '1.0-0' }}</td>
-          <td class="text-right">
-            @if (report.isClosed) {
-              {{ report.closingBalance | number: '1.0-0' }}
-            } @else {
-              <span class="text-muted">-</span>
-            }
-          </td>
-          <td class="text-right">
-            @if (report.isClosed) {
-              <span [class.text-red-500]="(report.discrepancy ?? 0) !== 0" [class.text-green-500]="(report.discrepancy ?? 0) === 0">
-                {{ report.discrepancy | number: '1.0-0' }}
-              </span>
-            } @else {
-              <span class="text-muted">-</span>
-            }
-          </td>
-          <td>
-            @if (report.isClosed) {
-              <span class="p-badge p-badge-success">Fermée</span>
-            } @else {
-              <span class="p-badge p-badge-warning">Ouverte</span>
-            }
-          </td>
-        </tr>
-        <!-- Payment breakdown subrow -->
-        @if (report.paymentModeBreakdowns && report.paymentModeBreakdowns.length > 0) {
-          <tr>
-            <td colspan="10" class="bg-gray-50 p-3">
-              <div class="row">
-                <div class="col-12 mb-2">
-                  <strong class="text-600">Détail des modes de paiement:</strong>
-                </div>
-                @for (breakdown of report.paymentModeBreakdowns; track breakdown.modePaiement) {
-                  <div class="col-12 md:col-3">
-                    <div class="flex justify-content-between">
-                      <span class="text-600">{{ breakdown.modePaiement }}:</span>
-                      <span class="font-semibold">{{ breakdown.amount | number: '1.0-0' }} FCFA ({{ breakdown.count }})</span>
-                    </div>
-                  </div>
+  <div class="mt-3">
+    <div class="card h-100 data-card">
+      <div class="card-body">
+        <p-table
+          [value]="dailyReports()"
+          [loading]="isLoading()"
+          [rowHover]="true"
+          [scrollable]="true"
+          class="pharma-table"
+        >
+          <ng-template #header>
+            <tr class="pharma-table-head">
+              <th>Caisse</th>
+              <th>Utilisateur</th>
+              <th>Ouverture</th>
+              <th>Clôture</th>
+              <th class="text-end">Solde Initial</th>
+              <th class="text-end">Ventes</th>
+              <th class="text-end">Solde Attendu</th>
+              <th class="text-end">Solde Réel</th>
+              <th class="text-end">Écart</th>
+              <th>Statut</th>
+            </tr>
+          </ng-template>
+          <ng-template #body let-report>
+            <tr>
+              <td>{{ report.caisseLibelle }}</td>
+              <td>{{ report.userName }}</td>
+              <td>{{ report.openingDate | date: 'HH:mm' }}</td>
+              <td>
+                @if (report.closingDate) {
+                  {{ report.closingDate | date: 'HH:mm' }}
+                } @else {
+                  <span class="text-muted">En cours</span>
                 }
-              </div>
-            </td>
-          </tr>
-        }
-      </ng-template>
-      <ng-template #emptymessage>
-        <tr>
-          <td colspan="10" class="text-center p-4 text-500">
-            <i class="pi pi-inbox text-4xl mb-3 block"></i>
-            Aucun rapport de caisse pour cette date
-          </td>
-        </tr>
-      </ng-template>
-    </p-table>
+              </td>
+              <td class="text-end">{{ report.openingBalance | number: '1.0-0' }}</td>
+              <td class="text-end">{{ report.totalSales | number: '1.0-0' }}</td>
+              <td class="text-end">{{ report.expectedBalance | number: '1.0-0' }}</td>
+              <td class="text-end">
+                @if (report.isClosed) {
+                  {{ report.closingBalance | number: '1.0-0' }}
+                } @else {
+                  <span class="text-muted">-</span>
+                }
+              </td>
+              <td class="text-end">
+                @if (report.isClosed) {
+                  <span [class.text-danger]="(report.discrepancy ?? 0) !== 0" [class.text-success]="(report.discrepancy ?? 0) === 0">
+                    {{ report.discrepancy | number: '1.0-0' }}
+                  </span>
+                } @else {
+                  <span class="text-muted">-</span>
+                }
+              </td>
+              <td>
+                @if (report.isClosed) {
+                  <span class="p-badge p-badge-success">Fermée</span>
+                } @else {
+                  <span class="p-badge p-badge-warning">Ouverte</span>
+                }
+              </td>
+            </tr>
+            <!-- Payment breakdown subrow -->
+            @if (report.paymentModeBreakdowns && report.paymentModeBreakdowns.length > 0) {
+              <tr>
+                <td colspan="10" class="bg-light p-3">
+                  <div class="row">
+                    <div class="col-12 mb-2">
+                      <strong class="text-muted">Détail des modes de paiement:</strong>
+                    </div>
+                    @for (breakdown of report.paymentModeBreakdowns; track breakdown.modePaiement) {
+                      <div class="col-12 col-md-3">
+                        <div class="d-flex justify-content-between">
+                          <span class="text-muted">{{ breakdown.modePaiement }}:</span>
+                          <span class="fw-semibold">{{ breakdown.amount | number: '1.0-0' }} FCFA ({{ breakdown.count }})</span>
+                        </div>
+                      </div>
+                    }
+                  </div>
+                </td>
+              </tr>
+            }
+          </ng-template>
+          <ng-template #emptymessage>
+            <tr>
+              <td colspan="10" class="text-center p-4 text-muted">
+                <i class="pi pi-inbox text-4xl mb-3 d-block"></i>
+                Aucun rapport de caisse pour cette date
+              </td>
+            </tr>
+          </ng-template>
+        </p-table>
+      </div>
+    </div>
   </div>
 </div>

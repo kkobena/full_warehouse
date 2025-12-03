@@ -1,117 +1,194 @@
 @mixin modal-theme {
-  $primary-color: #007bff;
-  $secondary-color: #6c757d;
-  $light-gray: #f8f9fa;
-  $medium-gray: #e9ecef;
-  $dark-gray: #495057;
-  $white: #ffffff;
-  $border-color: #dee2e6;
-  $box-shadow-color: rgba(0, 0, 0, 0.1);
   $pharma-primary: #5b89a6;
   $pharma-primary-dark: #4a7189;
+  $white: #ffffff;
+  $light-bg: #f8f9fa;
+  $border-color: #dee2e6;
+
+  // Modal backdrop
+  .modal-backdrop {
+    background-color: rgba(0, 0, 0, 0.5);
+  }
+
+  // Modal content
+  .modal-content {
+    border: none;
+    border-radius: 12px;
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.15);
+    overflow: hidden;
+  }
 
   // Modal header styling
   .modal-header {
     background: linear-gradient(135deg, $pharma-primary 0%, $pharma-primary-dark 100%);
     color: white;
     border-bottom: none;
+    padding: 1.25rem 1.5rem;
+    position: relative;
 
     .modal-title {
       display: flex;
       align-items: center;
+      gap: 0.5rem;
       margin: 0;
-      font-size: 1.125rem;
+      font-size: 1.25rem;
       font-weight: 600;
+
+      i {
+        font-size: 1.25rem;
+      }
     }
 
     .btn-close {
       filter: brightness(0) invert(1);
       opacity: 0.8;
+      transition: opacity 0.2s, transform 0.2s;
 
       &:hover {
         opacity: 1;
+        transform: rotate(90deg);
+      }
+
+      &:focus {
+        box-shadow: 0 0 0 0.2rem rgba(255, 255, 255, 0.3);
       }
     }
   }
 
+  // Modal body styling
   .modal-body {
-    background: linear-gradient(to bottom, $medium-gray, $light-gray);
+    background: $white;
     padding: 1.5rem;
+    max-height: calc(100vh - 200px);
+    overflow-y: auto;
 
-    .p-card {
-      background-color: $white;
-      border-radius: 8px;
-      box-shadow: 0 2px 4px $box-shadow-color;
-      border: 1px solid $border-color;
+    // Scrollbar styling
+    &::-webkit-scrollbar {
+      width: 8px;
     }
 
-    .p-card-title {
-      font-size: 1.1rem;
-      font-weight: 600;
-      color: $primary-color;
+    &::-webkit-scrollbar-track {
+      background: $light-bg;
     }
 
-    .p-card-header {
-      padding: 0.75rem 1.25rem;
-      background-color: lighten($primary-color, 45%);
-      border-bottom: 1px solid $border-color;
-    }
+    &::-webkit-scrollbar-thumb {
+      background: #cbd5e0;
+      border-radius: 4px;
 
-    .p-card-body {
-      padding: 1.25rem;
-    }
-
-    .sale-info-card {
-      .p-card-body {
-        padding: 1rem;
-        background-color: lighten($primary-color, 50%);
-      }
-
-      .fw-bold {
-        color: $dark-gray;
-      }
-
-      span:not(.fw-semibold) {
-        color: $primary-color;
-        font-weight: 500;
+      &:hover {
+        background: #a0aec0;
       }
     }
 
+    // Form label styling
     .form-label {
       font-weight: 500;
       margin-bottom: 0.5rem;
-      color: $dark-gray;
+      color: var(--p-text-color);
+      font-size: 0.9rem;
+
+      .required {
+        color: var(--p-red-500);
+        margin-left: 0.25rem;
+      }
     }
 
-    /* .form-control {
-       &:focus {
-         border-color: $primary-color;
-         box-shadow: 0 0 0 0.2rem rgba($primary-color, 0.25);
-       }
-     }*/
+    // Form control styling
+    .form-control {
+      border: 1px solid var(--p-surface-border);
+      border-radius: var(--p-border-radius);
+      padding: 0.625rem 0.75rem;
+      transition: all 0.2s;
 
-    .form-control[readonly] {
-      background-color: $medium-gray;
-      opacity: 1;
+      &:focus {
+        border-color: $pharma-primary;
+        box-shadow: 0 0 0 0.2rem rgba($pharma-primary, 0.15);
+        outline: none;
+      }
+
+      &[readonly] {
+        background-color: $light-bg;
+        cursor: not-allowed;
+      }
+
+      &.ng-invalid.ng-touched {
+        border-color: var(--p-red-500);
+
+        &:focus {
+          box-shadow: 0 0 0 0.2rem rgba(239, 68, 68, 0.15);
+        }
+      }
+    }
+
+    textarea.form-control {
+      resize: vertical;
+      min-height: 80px;
+    }
+
+    // Error message
+    .p-error {
+      color: var(--p-red-500);
+      font-size: 0.875rem;
+      margin-top: 0.25rem;
+      display: block;
+    }
+
+    // Card styling inside modal
+    .card {
+      border: 1px solid var(--p-surface-border);
+      border-radius: var(--p-border-radius);
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+      margin-bottom: 0.5rem;
+
+      &:hover {
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+      }
     }
   }
 
   // Modal footer styling
   .modal-footer {
-    border-top: 1px solid #e5e7eb;
+    border-top: 1px solid $border-color;
     padding: 1rem 1.5rem;
     display: flex;
     justify-content: flex-end;
-    gap: 0.5rem;
-    background-color: $white;
+    align-items: center;
+    gap: 0.75rem;
+    background-color: $light-bg;
 
-    .p-button.p-button-sm {
-      background-color: $primary-color;
-      border-color: $primary-color;
+    // Ensure buttons are properly sized
+    p-button {
+      ::ng-deep .p-button {
+        min-width: 100px;
+      }
+    }
+  }
 
-      &:hover {
-        background-color: darken($primary-color, 10%);
-        border-color: darken($primary-color, 10%);
+  // Responsive adjustments
+  @media (max-width: 768px) {
+    .modal-header {
+      padding: 1rem;
+
+      .modal-title {
+        font-size: 1.1rem;
+      }
+    }
+
+    .modal-body {
+      padding: 1rem;
+    }
+
+    .modal-footer {
+      padding: 0.75rem 1rem;
+      flex-direction: column;
+      gap: 0.5rem;
+
+      p-button {
+        width: 100%;
+
+        ::ng-deep .p-button {
+          width: 100%;
+        }
       }
     }
   }

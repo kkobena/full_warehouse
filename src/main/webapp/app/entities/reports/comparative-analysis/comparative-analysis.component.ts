@@ -4,10 +4,8 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 
 import { ButtonModule } from 'primeng/button';
-import { Card } from 'primeng/card';
 import { SelectModule } from 'primeng/select';
 import { ToolbarModule } from 'primeng/toolbar';
-import { Tag } from 'primeng/tag';
 import { WarehouseCommonModule } from '../../../shared/warehouse-common/warehouse-common.module';
 
 import {
@@ -16,6 +14,7 @@ import {
   IComparativeSummary
 } from 'app/shared/model/report/comparative-report.model';
 import { ComparativeReportService } from '../services/comparative-report.service';
+import { formatCurrency } from 'app/shared/utils/format-utils';
 
 import { Chart, ChartConfiguration, ChartData, registerables } from 'chart.js';
 
@@ -30,7 +29,7 @@ interface ComparisonTypeOption {
   selector: 'jhi-comparative-analysis',
   templateUrl: './comparative-analysis.component.html',
   styleUrl: './comparative-analysis.component.scss',
-  imports: [CommonModule, FormsModule, ButtonModule, Card, SelectModule, ToolbarModule, WarehouseCommonModule, Tag]
+  imports: [CommonModule, FormsModule, ButtonModule, SelectModule, ToolbarModule, WarehouseCommonModule]
 })
 export default class ComparativeAnalysisComponent implements OnInit {
 
@@ -283,13 +282,8 @@ export default class ComparativeAnalysisComponent implements OnInit {
     return value >= 0 ? 'evolution-positive' : 'evolution-negative';
   }
 
-  protected formatCurrency(value: number | undefined): string {
-    if (value === undefined || value === null) return '0';
-    return new Intl.NumberFormat('fr-FR', {
-      minimumFractionDigits: 0,
-      maximumFractionDigits: 0
-    }).format(value);
-  }
+  // Format methods using shared utilities
+  protected formatCurrency = formatCurrency;
 
   protected formatPercent(value: number | undefined): string {
     if (value === undefined || value === null) return '0';

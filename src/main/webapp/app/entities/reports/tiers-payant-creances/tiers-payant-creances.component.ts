@@ -5,7 +5,6 @@ import { FormsModule } from '@angular/forms';
 
 import { TableModule } from 'primeng/table';
 import { ButtonModule } from 'primeng/button';
-import { Card } from 'primeng/card';
 import { Tag } from 'primeng/tag';
 import { Select } from 'primeng/select';
 import { ToolbarModule } from 'primeng/toolbar';
@@ -28,7 +27,6 @@ import { TiersPayantReportService } from '../services/tiers-payant-report.servic
     FormsModule,
     TableModule,
     ButtonModule,
-    Card,
     Tag,
     Select,
     ToolbarModule,

@@ -4,7 +4,6 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 
 import { ButtonModule } from 'primeng/button';
-import { Card } from 'primeng/card';
 import { SelectModule } from 'primeng/select';
 import { ToolbarModule } from 'primeng/toolbar';
 import { Tag } from 'primeng/tag';
@@ -12,6 +11,7 @@ import { WarehouseCommonModule } from '../../../shared/warehouse-common/warehous
 
 import { ISalesForecast, IForecastSummary, ForecastMethod, FORECAST_METHOD_LABELS } from 'app/shared/model/report/sales-forecast.model';
 import { SalesForecastService } from '../services/sales-forecast.service';
+import { formatCurrency, formatPercent, formatMonth } from 'app/shared/utils/format-utils';
 
 import { Chart, ChartConfiguration, ChartData, registerables } from 'chart.js';
 Chart.register(...registerables);
@@ -30,7 +30,7 @@ interface PeriodOption {
   selector: 'jhi-sales-forecast',
   templateUrl: './sales-forecast.component.html',
   styleUrl: './sales-forecast.component.scss',
-  imports: [CommonModule, FormsModule, ButtonModule, Card, SelectModule, ToolbarModule, WarehouseCommonModule, Tag],
+  imports: [CommonModule, FormsModule, ButtonModule, SelectModule, ToolbarModule, WarehouseCommonModule, Tag],
 })
 export default class SalesForecastComponent implements OnInit {
 
@@ -250,25 +250,14 @@ protected  onMethodChange(): void {
     this.confidenceChart = new Chart(ctx, config);
   }
 
-  // Helpers
+  // Helpers - using shared utilities
 
-  protected formatCurrency(value: number): string {
-    return new Intl.NumberFormat('fr-FR', {
-      minimumFractionDigits: 0,
-      maximumFractionDigits: 0,
-    }).format(value);
-  }
+  protected formatCurrency = formatCurrency;
+  protected formatPercent = formatPercent;
+  protected formatMonth = formatMonth;
 
-  protected formatPercent(value: number | undefined): string {
-    if (value === undefined || value === null) return '0.00';
-    return new Intl.NumberFormat('fr-FR', {
-      minimumFractionDigits: 2,
-      maximumFractionDigits: 2,
-    }).format(value);
-  }
-
-  protected formatMonth(period: string): string {
-    // Convert "2024-01" to "Janvier 2024"
+  protected formatMonthOld(period: string): string {
+    // Convert "2024-01" to "Janvier 2024" - OLD VERSION KEPT FOR REFERENCE
     const [year, month] = period.split('-');
     const date = new Date(parseInt(year), parseInt(month) - 1, 1);
     return date.toLocaleDateString('fr-FR', { month: 'long', year: 'numeric' });

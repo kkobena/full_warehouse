@@ -1,0 +1,73 @@
+<div class="modal-header">
+  <h5 class="modal-title">
+    <i class="pi pi-folder-open me-2"></i>
+    Charger un Layout
+  </h5>
+  <button type="button" class="btn-close" aria-label="Close" (click)="dismiss()"></button>
+</div>
+
+<div class="modal-body">
+  @if (isLoading()) {
+    <div class="text-center p-4">
+      <i class="pi pi-spin pi-spinner" style="font-size: 2rem;"></i>
+      <p class="text-muted mt-2">Chargement...</p>
+    </div>
+  } @else if (layouts().length === 0) {
+    <div class="text-center p-4 text-muted">
+      <i class="pi pi-inbox" style="font-size: 3rem;"></i>
+      <p class="mt-2">Aucun layout disponible</p>
+    </div>
+  } @else {
+    <div class="d-flex flex-column gap-2">
+      @for (layout of layouts(); track layout.id) {
+        <div class="card layout-card">
+          <div class="card-body">
+            <div class="d-flex align-items-center justify-content-between">
+              <div class="flex-fill">
+                <div class="fw-semibold mb-1">{{ layout.name }}</div>
+                @if (layout.description) {
+                  <div class="small text-muted mb-2">{{ layout.description }}</div>
+                }
+                <div class="d-flex gap-2">
+                  <p-tag [value]="layout.scope || 'PRIVATE'" severity="info" size="small" />
+                  @if (layout.isDefault) {
+                    <p-tag value="Par défaut" severity="success" size="small" />
+                  }
+                </div>
+              </div>
+              <div class="d-flex gap-2">
+                <p-button
+                  icon="pi pi-folder-open"
+                  (onClick)="loadLayout(layout)"
+                  size="small"
+                  [outlined]="true"
+                  pTooltip="Charger ce layout"
+                />
+                @if (layout.userId) {
+                  <p-button
+                    icon="pi pi-trash"
+                    (onClick)="deleteLayout(layout.id!)"
+                    size="small"
+                    severity="danger"
+                    [outlined]="true"
+                    pTooltip="Supprimer ce layout"
+                  />
+                }
+              </div>
+            </div>
+          </div>
+        </div>
+      }
+    </div>
+  }
+</div>
+
+<div class="modal-footer">
+  <p-button
+    label="Fermer"
+    icon="pi pi-times"
+    (onClick)="dismiss()"
+    severity="secondary"
+    [text]="true"
+  />
+</div>

@@ -1,0 +1,85 @@
+@import 'app/shared/scss/modal-theme';
+
+@include modal-theme;
+
+.widget-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 1rem;
+
+  @media (max-width: 768px) {
+    grid-template-columns: 1fr;
+  }
+}
+
+.widget-option-card {
+  position: relative;
+  padding: 1.25rem;
+  border: 2px solid var(--p-surface-border);
+  border-radius: var(--p-border-radius);
+  cursor: pointer;
+  transition: all 0.2s ease-in-out;
+  background: var(--p-surface-0);
+
+  &:hover {
+    border-color: var(--p-primary-color);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    transform: translateY(-2px);
+  }
+
+  &.selected {
+    border-color: var(--p-primary-color);
+    background: linear-gradient(135deg, rgba(91, 137, 166, 0.05), rgba(74, 113, 137, 0.05));
+    box-shadow: 0 4px 12px rgba(91, 137, 166, 0.2);
+
+    .widget-option-icon i {
+      color: var(--p-primary-color);
+    }
+
+    .widget-option-title {
+      color: var(--p-primary-color);
+      font-weight: 600;
+    }
+  }
+
+  .widget-option-icon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 3rem;
+    height: 3rem;
+    margin-bottom: 0.75rem;
+    border-radius: 50%;
+    background: var(--p-surface-100);
+
+    i {
+      font-size: 1.5rem;
+      color: var(--p-text-secondary-color);
+      transition: color 0.2s;
+    }
+  }
+
+  .widget-option-content {
+    .widget-option-title {
+      font-size: 1rem;
+      font-weight: 500;
+      margin-bottom: 0.25rem;
+      color: var(--p-text-color);
+      transition: all 0.2s;
+    }
+
+    .widget-option-description {
+      font-size: 0.875rem;
+      color: var(--p-text-secondary-color);
+      line-height: 1.4;
+    }
+  }
+
+  .widget-option-check {
+    position: absolute;
+    top: 0.5rem;
+    right: 0.5rem;
+    color: var(--p-primary-color);
+    font-size: 1.5rem;
+  }
+}

@@ -5,7 +5,6 @@ import { HttpResponse } from '@angular/common/http';
 
 import { ButtonModule } from 'primeng/button';
 import { TableModule } from 'primeng/table';
-import { Card } from 'primeng/card';
 import { SelectModule } from 'primeng/select';
 import { InputTextModule } from 'primeng/inputtext';
 import { TooltipModule } from 'primeng/tooltip';
@@ -13,6 +12,7 @@ import { ToolbarModule } from 'primeng/toolbar';
 
 import { SupplierPerformanceReportService } from '../services/supplier-performance-report.service';
 import { ISupplierPerformance, ISupplierPerformanceSummary } from 'app/shared/model/report';
+import { formatCurrency, formatNumber, formatDecimal } from 'app/shared/utils/format-utils';
 
 interface FilterOption {
   label: string;
@@ -21,13 +21,11 @@ interface FilterOption {
 
 @Component({
   selector: 'jhi-supplier-performance',
-  standalone: true,
   imports: [
     CommonModule,
     FormsModule,
     ButtonModule,
     TableModule,
-    Card,
     SelectModule,
     InputTextModule,
     TooltipModule,
@@ -185,17 +183,10 @@ export default class SupplierPerformanceComponent implements OnInit {
     return 'Faible';
   }
 
-  formatCurrency(value: number | undefined): string {
-    return value ? new Intl.NumberFormat('fr-FR', { style: 'currency', currency: 'XOF' }).format(value) : '0 FCFA';
-  }
-
-  formatNumber(value: number | undefined): string {
-    return value ? new Intl.NumberFormat('fr-FR').format(value) : '0';
-  }
-
-  formatDecimal(value: number | undefined, decimals: number = 2): string {
-    return value ? value.toFixed(decimals) : '0.00';
-  }
+  // Format methods using shared utilities
+  formatCurrency = formatCurrency;
+  formatNumber = formatNumber;
+  formatDecimal = formatDecimal;
 
   getFilteredSuppliers(): ISupplierPerformance[] {
     const search = this.searchText().toLowerCase();

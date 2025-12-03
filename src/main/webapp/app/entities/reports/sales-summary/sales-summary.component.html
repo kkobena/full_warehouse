@@ -56,117 +56,136 @@
 
   <!-- Summary Cards -->
   <div class="row mt-3">
-    <div class="col-12 col-lg-3">
-      <p-card>
-        <ng-template #content>
-          <div class="flex justify-content-between align-items-center">
-            <div>
-              <span class="text-500 font-medium block mb-2">CA Total</span>
-              <div class="text-900 font-bold text-3xl">{{ getTotalCA() | number:'1.0-0' }} F CFA</div>
+    <div class="col-xl-3 col-md-6 mb-2">
+      <div class="card h-100 kpi-card primary-accent">
+        <div class="card-body">
+          <div class="kpi-header">
+            <div class="kpi-content">
+              <p class="kpi-label">CA Total</p>
+              <h4 class="kpi-value">
+                <span>{{ getTotalCA() | number:'1.0-0' }}</span>
+                <span class="value-suffix">F CFA</span>
+              </h4>
             </div>
-            <div class="flex align-items-center justify-content-center bg-blue-100 border-round" style="width:3rem;height:3rem">
-              <i class="pi pi-dollar text-blue-500 text-2xl"></i>
+            <div class="kpi-icon text-primary">
+              <i class="pi pi-dollar"></i>
             </div>
           </div>
-        </ng-template>
-      </p-card>
+        </div>
+      </div>
     </div>
 
-    <div class="col-12 col-lg-3">
-      <p-card>
-        <ng-template #content>
-          <div class="flex justify-content-between align-items-center">
-            <div>
-              <span class="text-500 font-medium block mb-2">CA Net</span>
-              <div class="text-900 font-bold text-3xl">{{ getTotalCANet() | number:'1.0-0' }} F CFA</div>
+    <div class="col-xl-3 col-md-6 mb-2">
+      <div class="card h-100 kpi-card success-accent">
+        <div class="card-body">
+          <div class="kpi-header">
+            <div class="kpi-content">
+              <p class="kpi-label">CA Net</p>
+              <h4 class="kpi-value">
+                <span>{{ getTotalCANet() | number:'1.0-0' }}</span>
+                <span class="value-suffix">F CFA</span>
+              </h4>
             </div>
-            <div class="flex align-items-center justify-content-center bg-green-100 border-round" style="width:3rem;height:3rem">
-              <i class="pi pi-money-bill text-green-500 text-2xl"></i>
+            <div class="kpi-icon text-success">
+              <i class="pi pi-money-bill"></i>
             </div>
           </div>
-        </ng-template>
-      </p-card>
+        </div>
+      </div>
     </div>
 
-    <div class="col-12 col-lg-3">
-      <p-card>
-        <ng-template #content>
-          <div class="flex justify-content-between align-items-center">
-            <div>
-              <span class="text-500 font-medium block mb-2">Nombre de ventes</span>
-              <div class="text-900 font-bold text-3xl">{{ getTotalVentes() }}</div>
+    <div class="col-xl-3 col-md-6 mb-2">
+      <div class="card h-100 kpi-card warning-accent">
+        <div class="card-body">
+          <div class="kpi-header">
+            <div class="kpi-content">
+              <p class="kpi-label">Nombre de ventes</p>
+              <h4 class="kpi-value">
+                <span>{{ getTotalVentes() }}</span>
+              </h4>
             </div>
-            <div class="flex align-items-center justify-content-center bg-purple-100 border-round" style="width:3rem;height:3rem">
-              <i class="pi pi-shopping-cart text-purple-500 text-2xl"></i>
+            <div class="kpi-icon text-warning">
+              <i class="pi pi-shopping-cart"></i>
             </div>
           </div>
-        </ng-template>
-      </p-card>
+        </div>
+      </div>
     </div>
 
-    <div class="col-12 col-lg-3">
-      <p-card>
-        <ng-template #content>
-          <div class="flex justify-content-between align-items-center">
-            <div>
-              <span class="text-500 font-medium block mb-2">Panier moyen</span>
-              <div class="text-900 font-bold text-3xl">{{ getAveragePanier() | number:'1.0-0' }} F CFA</div>
+    <div class="col-xl-3 col-md-6 mb-2">
+      <div class="card h-100 kpi-card danger-accent">
+        <div class="card-body">
+          <div class="kpi-header">
+            <div class="kpi-content">
+              <p class="kpi-label">Panier moyen</p>
+              <h4 class="kpi-value">
+                <span>{{ getAveragePanier() | number:'1.0-0' }}</span>
+                <span class="value-suffix">F CFA</span>
+              </h4>
             </div>
-            <div class="flex align-items-center justify-content-center bg-orange-100 border-round" style="width:3rem;height:3rem">
-              <i class="pi pi-shopping-bag text-orange-500 text-2xl"></i>
+            <div class="kpi-icon text-danger">
+              <i class="pi pi-shopping-bag"></i>
             </div>
           </div>
-        </ng-template>
-      </p-card>
+        </div>
+      </div>
     </div>
   </div>
 
   <!-- Sales Table -->
-  <div class="mt-3">
-    <p-card>
-      <ng-template #content>
-        <p-table
-          [value]="summaries()"
-          [loading]="isLoading()"
-          [paginator]="true"
-          class="pharma-table"
-          [rows]="20"
-          [rowsPerPageOptions]="[10, 20, 50]"
-          [showCurrentPageReport]="true"
-          currentPageReportTemplate="Affichage de {first} à {last} sur {totalRecords} entrées"
-          [tableStyle]="{ 'min-width': '50rem' }"
-        >
-          <ng-template #header>
-            <tr class="pharma-table-head">
-              <th>Date</th>
-              <th>Type de vente</th>
-              <th class="text-right" >Nb ventes</th>
-              <th class="text-right">CA Total</th>
-              <th class="text-right">CA Net</th>
-              <th class="text-right">Remises</th>
-              <th class="text-right">Panier moyen</th>
-            </tr>
-          </ng-template>
-          <ng-template #body let-summary>
-            <tr >
-              <td>{{ summary.saleDate | date:'dd/MM/yyyy' }}</td>
-              <td>
-                <p-tag [severity]="getSeverityForType(summary.typeVente)">{{ summary.typeVente || 'N/A' }}</p-tag>
-              </td>
-              <td class="text-right pharma-qty-value">{{ summary.nbVentes || 0 }}</td>
-              <td class="text-right pharma-price">{{ summary.caTotal | number:'1.0-0' }} F CFA</td>
-              <td class="text-right pharma-price">{{ summary.caNet | number:'1.0-0' }} F CFA</td>
-              <td class="text-right pharma-price">{{ summary.totalRemises | number:'1.0-0' }} F CFA</td>
-              <td class="text-right pharma-price">{{ summary.panierMoyen | number:'1.0-2' }} F CFA</td>
-            </tr>
-          </ng-template>
-          <ng-template #emptymessage>
-            <tr>
-              <td colspan="7" class="text-center">Aucune donnée disponible</td>
-            </tr>
-          </ng-template>
-        </p-table>
-      </ng-template>
-    </p-card>
+  <div class="row mt-3">
+    <div class="col-12 mb-2">
+      <div class="card h-100 data-card">
+        <div class="card-header">
+          <h5 class="card-title">
+            <i class="pi pi-table text-primary"></i>
+            Synthèse des Ventes
+          </h5>
+        </div>
+        <div class="card-body p-0">
+          <p-table
+            [value]="summaries()"
+            [loading]="isLoading()"
+            [paginator]="true"
+            class="pharma-table"
+            [rows]="20"
+            [rowsPerPageOptions]="[10, 20, 50]"
+            [showCurrentPageReport]="true"
+            currentPageReportTemplate="Affichage de {first} à {last} sur {totalRecords} entrées"
+            [tableStyle]="{ 'min-width': '50rem' }"
+          >
+            <ng-template #header>
+              <tr class="pharma-table-head">
+                <th>Date</th>
+                <th>Type de vente</th>
+                <th class="text-end">Nb ventes</th>
+                <th class="text-end">CA Total</th>
+                <th class="text-end">CA Net</th>
+                <th class="text-end">Remises</th>
+                <th class="text-end">Panier moyen</th>
+              </tr>
+            </ng-template>
+            <ng-template #body let-summary>
+              <tr>
+                <td>{{ summary.saleDate | date:'dd/MM/yyyy' }}</td>
+                <td>
+                  <p-tag [severity]="getSeverityForType(summary.typeVente)">{{ summary.typeVente || 'N/A' }}</p-tag>
+                </td>
+                <td class="text-end pharma-qty-value">{{ summary.nbVentes || 0 }}</td>
+                <td class="text-end pharma-price">{{ summary.caTotal | number:'1.0-0' }} F CFA</td>
+                <td class="text-end pharma-price">{{ summary.caNet | number:'1.0-0' }} F CFA</td>
+                <td class="text-end pharma-price">{{ summary.totalRemises | number:'1.0-0' }} F CFA</td>
+                <td class="text-end pharma-price">{{ summary.panierMoyen | number:'1.0-2' }} F CFA</td>
+              </tr>
+            </ng-template>
+            <ng-template #emptymessage>
+              <tr>
+                <td colspan="7" class="text-center">Aucune donnée disponible</td>
+              </tr>
+            </ng-template>
+          </p-table>
+        </div>
+      </div>
+    </div>
   </div>
 </div>

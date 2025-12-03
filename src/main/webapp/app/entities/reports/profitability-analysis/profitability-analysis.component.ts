@@ -5,7 +5,6 @@ import { FormsModule } from '@angular/forms';
 
 import { TableModule } from 'primeng/table';
 import { ButtonModule } from 'primeng/button';
-import { Card } from 'primeng/card';
 import { SelectModule } from 'primeng/select';
 import { ToolbarModule } from 'primeng/toolbar';
 import { DividerModule } from 'primeng/divider';
@@ -28,7 +27,6 @@ import { InputIcon } from 'primeng/inputicon';
     FormsModule,
     TableModule,
     ButtonModule,
-    Card,
     SelectModule,
     ToolbarModule,
     DividerModule,

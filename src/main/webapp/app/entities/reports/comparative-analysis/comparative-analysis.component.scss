@@ -1,0 +1,13 @@
+@import 'app/shared/scss/table-common';
+@import 'app/shared/scss/pharma-toolbar';
+@import 'app/shared/scss/dashboard-common';
+
+.evolution-positive {
+  color: #4caf50;
+  font-weight: 600;
+}
+
+.evolution-negative {
+  color: #f44336;
+  font-weight: 600;
+}

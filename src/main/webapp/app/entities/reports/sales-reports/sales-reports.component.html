@@ -1,0 +1,100 @@
+<div class="container-fluid">
+  <div class="row">
+    <div class="col-lg-2 col-xl-2 col-md-2 col-sm-4">
+      <!-- Modern Navigation Sidebar -->
+      <div class="pharma-nav-sidebar">
+        <div class="pharma-nav-sidebar-card">
+          <div class="pharma-nav-sidebar-header">
+            <i class="pi pi-money-bill"></i>
+            <span>Chiffre d'Affaires</span>
+          </div>
+
+          <div class="pharma-nav-sidebar-content">
+            <div #nav="ngbNav" [(activeId)]="active" class="nav flex-column nav-pills" ngbNav orientation="vertical">
+              <ng-container ngbNavItem="dashboard-ca">
+                <a class="pharma-nav-vertical-link" ngbNavLink>
+                  <i class="pi pi-chart-bar"></i>
+                  <span>Dashboard CA</span>
+                  <span class="link-arrow">›</span>
+                </a>
+                <ng-template ngbNavContent>
+                  <jhi-dashboard-ca></jhi-dashboard-ca>
+                </ng-template>
+              </ng-container>
+
+              <ng-container ngbNavItem="sales-summary">
+                <a class="pharma-nav-vertical-link" ngbNavLink>
+                  <i class="pi pi-shopping-cart"></i>
+                  <span>Synthèse des Ventes</span>
+                  <span class="link-arrow">›</span>
+                </a>
+                <ng-template ngbNavContent>
+                  <jhi-sales-summary></jhi-sales-summary>
+                </ng-template>
+              </ng-container>
+
+              <ng-container ngbNavItem="top-products">
+                <a class="pharma-nav-vertical-link" ngbNavLink>
+                  <i class="pi pi-star-fill"></i>
+                  <span>Top Produits</span>
+                  <span class="link-arrow">›</span>
+                </a>
+                <ng-template ngbNavContent>
+                  <jhi-top-products></jhi-top-products>
+                </ng-template>
+              </ng-container>
+
+              <ng-container ngbNavItem="profitability">
+                <a class="pharma-nav-vertical-link" ngbNavLink>
+                  <i class="pi pi-chart-line"></i>
+                  <span>Analyse de Rentabilité</span>
+                  <span class="link-arrow">›</span>
+                </a>
+                <ng-template ngbNavContent>
+                  <jhi-profitability-analysis></jhi-profitability-analysis>
+                </ng-template>
+              </ng-container>
+
+              <ng-container ngbNavItem="comparative">
+                <a class="pharma-nav-vertical-link" ngbNavLink>
+                  <i class="pi pi-chart-bar"></i>
+                  <span>Tableaux Comparatifs</span>
+                  <span class="link-arrow">›</span>
+                </a>
+                <ng-template ngbNavContent>
+                  <jhi-comparative-analysis></jhi-comparative-analysis>
+                </ng-template>
+              </ng-container>
+
+              <ng-container ngbNavItem="sales-forecast">
+                <a class="pharma-nav-vertical-link" ngbNavLink>
+                  <i class="pi pi-chart-line"></i>
+                  <span>Prévisions de Ventes</span>
+                  <span class="link-arrow">›</span>
+                </a>
+                <ng-template ngbNavContent>
+                  <jhi-sales-forecast></jhi-sales-forecast>
+                </ng-template>
+              </ng-container>
+
+              <ng-container ngbNavItem="market-basket">
+                <a class="pharma-nav-vertical-link" ngbNavLink>
+                  <i class="pi pi-shopping-bag"></i>
+                  <span>Analyse du Panier</span>
+                  <span class="link-arrow">›</span>
+                </a>
+                <ng-template ngbNavContent>
+                  <jhi-market-basket></jhi-market-basket>
+                </ng-template>
+              </ng-container>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-lg-10 col-xl-10 col-md-10 col-sm-8 pharma-smart-content">
+      <div [ngbNavOutlet]="nav"></div>
+    </div>
+  </div>
+</div>

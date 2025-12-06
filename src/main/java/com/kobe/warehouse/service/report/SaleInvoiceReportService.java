@@ -23,7 +23,7 @@ import org.xhtmlrenderer.pdf.ITextRenderer;
 @Transactional(readOnly = true)
 public class SaleInvoiceReportService extends CommonReportService {
 
-    private final String SALE = "sale";
+    private static final String SALE = "sale";
     private final SpringTemplateEngine templateEngine;
     private final StorageService storageService;
 

@@ -1,0 +1,21 @@
+@import 'app/shared/scss/table-common';
+@import 'app/shared/scss/pharma-toolbar';
+@import 'app/shared/scss/dashboard-common';
+
+.evolution-positive {
+  color: var(--green-600);
+  font-weight: 600;
+}
+
+.evolution-negative {
+  color: var(--red-600);
+  font-weight: 600;
+}
+
+canvas {
+  max-height: 400px;
+}
+
+.p-floatlabel {
+  min-width: 90px !important;
+}

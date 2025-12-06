@@ -108,7 +108,7 @@ public class MvtParam {
 
     public MvtParam build() {
         if (Objects.isNull(typeVentes) || typeVentes.isEmpty()) {
-            typeVentes = Set.of(TypeVente.CASH_SALE, TypeVente.CREDIT_SALE, TypeVente.VENTES_DEPOT_AGREE);
+            typeVentes = Set.of(TypeVente.CASH_SALE, TypeVente.CREDIT_SALE);
         }
         if (Objects.isNull(statuts) || statuts.isEmpty()) {
             statuts = Set.of(SalesStatut.CLOSED, SalesStatut.CANCELED);

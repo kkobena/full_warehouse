@@ -50,8 +50,6 @@ export const DATE_FROM_STRING_FR = (date: string): string | null => {
   return null;
 };
 
-export const checkIfRomToBeUpdated = (deliveryItem: IDeliveryItem): boolean =>
-  deliveryItem.regularUnitPrice !== deliveryItem.orderUnitPrice || deliveryItem.orderCostAmount !== deliveryItem.costAmount;
 
 export const priceRangeValidator =
   (min: number, max: number): ValidatorFn =>
@@ -76,3 +74,9 @@ export const TYPE_AFFICHAGE = [
   { icon: 'pi pi-align-justify', value: 'table' },
   { icon: 'pi pi-chart-bar', value: 'graphe' },
 ];
+export const retriveMonthLabel = (date: Date): string | null => {
+  if (date !== null && date !== undefined) {
+    return date.toLocaleDateString('fr-FR', { month: 'long', year: 'numeric' });
+  }
+  return null;
+};

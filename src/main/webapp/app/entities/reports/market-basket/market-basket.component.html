@@ -1,0 +1,272 @@
+<div class="pharma-smart-content p-2">
+  <!-- Toolbar -->
+  <div class="pharma-toolbar ">
+    <div class="pharma-toolbar-header">
+      <i class="pi pi-shopping-bag"></i>
+      <span class="pharma-toolbar-title">Analyse du Panier (Cross-selling)</span>
+    </div>
+
+    <p-toolbar>
+      <ng-template #start>
+        <div class="pharma-toolbar-filters pt-1">
+          <p-floatlabel variant="on">
+          <p-datePicker id="fromDate" [style]="{ 'max-width': '160px' }"
+                        appendTo="body"  [(ngModel)]="startDate" dateFormat="dd/mm/yy" [showIcon]="true" />
+            <label for="fromDate">Date début</label>
+          </p-floatlabel>
+          <p-floatlabel variant="on">
+          <p-datePicker id="endDate" [style]="{ 'max-width': '160px' }" appendTo="body"  [(ngModel)]="endDate" dateFormat="dd/mm/yy"  [showIcon]="true" />
+            <label for="fromDate">Date fin</label>
+          </p-floatlabel>
+          <p-floatlabel variant="on">
+          <p-inputNumber
+            [(ngModel)]="minSupport"
+            [min]="0"
+            [max]="100"
+            [step]="0.5"
+            suffix="%"
+            id="supportmini"
+            [style]="{ 'max-width': '140px' }" />
+            <label for="supportmini">Support min</label>
+          </p-floatlabel>
+          <p-floatlabel variant="on">
+          <p-inputNumber
+            [(ngModel)]="minConfidence"
+            [min]="0"
+            [max]="100"
+            [step]="5"
+            suffix="%"
+            id="confidencemini"
+            [style]="{ 'max-width': '140px' }" />
+            <label for="confidencemini">Confiance min</label>
+          </p-floatlabel>
+          <p-floatlabel variant="on">
+          <p-inputNumber id="limit" [(ngModel)]="limit" [min]="10" [max]="200" [step]="10"  [style]="{ 'max-width': '140px' }" />
+            <label for="limit">Limite</label>
+          </p-floatlabel>
+        </div>
+      </ng-template>
+
+      <ng-template #end>
+        <div class="pharma-toolbar-actions">
+          <p-button severity="primary" label="Rechercher" icon="pi pi-search" (onClick)="onFilterChange()" />
+        </div>
+      </ng-template>
+    </p-toolbar>
+  </div>
+
+  <!-- Loading spinner -->
+  @if (isLoading()) {
+    <div class="flex justify-content-center align-items-center" style="min-height: 400px;">
+      <i class="pi pi-spin pi-spinner" style="font-size: 3rem;"></i>
+    </div>
+  } @else {
+    <!-- Summary Cards -->
+    @if (summary(); as sum) {
+      <div class="row">
+        <div class="col-xl-3 col-md-6 mb-2">
+          <div class="card h-100 kpi-card primary-accent">
+            <div class="card-body">
+              <div class="kpi-header">
+                <div class="kpi-content">
+                  <p class="kpi-label">Total Transactions</p>
+                  <h4 class="kpi-value">
+                    <span>{{ formatNumber(sum.totalTransactions) }}</span>
+                  </h4>
+                  <div class="kpi-badges">
+                    <span class="badge bg-primary-subtle text-primary">{{ formatNumber(sum.totalProducts) }} produits uniques</span>
+                  </div>
+                </div>
+                <div class="kpi-icon text-primary">
+                  <i class="pi pi-shopping-cart"></i>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="col-xl-3 col-md-6 mb-2">
+          <div class="card h-100 kpi-card success-accent">
+            <div class="card-body">
+              <div class="kpi-header">
+                <div class="kpi-content">
+                  <p class="kpi-label">Taille Moyenne Panier</p>
+                  <h4 class="kpi-value">
+                    <span>{{ formatDecimal(sum.averageBasketSize) }}</span>
+                  </h4>
+                  <div class="kpi-badges">
+                    <span class="badge bg-success-subtle text-success">Articles par transaction</span>
+                  </div>
+                </div>
+                <div class="kpi-icon text-success">
+                  <i class="pi pi-shopping-bag"></i>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="col-xl-3 col-md-6 mb-2">
+          <div class="card h-100 kpi-card warning-accent">
+            <div class="card-body">
+              <div class="kpi-header">
+                <div class="kpi-content">
+                  <p class="kpi-label">Associations Trouvées</p>
+                  <h4 class="kpi-value">
+                    <span>{{ formatNumber(sum.totalAssociations) }}</span>
+                  </h4>
+                  <div class="kpi-badges">
+                    <span class="badge bg-warning-subtle text-warning">Paires de produits</span>
+                  </div>
+                </div>
+                <div class="kpi-icon text-warning">
+                  <i class="pi pi-link"></i>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="col-xl-3 col-md-6 mb-2">
+          <div class="card h-100 kpi-card danger-accent">
+            <div class="card-body">
+              <div class="kpi-header">
+                <div class="kpi-content">
+                  <p class="kpi-label">Corrélation Max</p>
+                  <h4 class="kpi-value">
+                    <span>{{ formatDecimal(sum.maxLift) }}</span>
+                  </h4>
+                  <div class="kpi-badges">
+                    <p-tag [value]="getLiftLabel(sum.maxLift)" [severity]="getLiftSeverity(sum.maxLift)" />
+                    <span class="badge bg-danger-subtle text-danger">Lift maximum observé</span>
+                  </div>
+                </div>
+                <div class="kpi-icon text-danger">
+                  <i class="pi pi-chart-line"></i>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Most Frequent Pair Alert -->
+      @if (sum.mostFrequentPair && sum.mostFrequentPair !== 'Aucune') {
+        <div class="row mt-2">
+          <div class="col-12 mb-2">
+            <div class="card data-card" style="border-left: 4px solid #4CAF50;">
+              <div class="card-body">
+                <div class="d-flex align-items-center gap-2">
+                  <i class="pi pi-star-fill text-success" style="font-size: 1.5rem;"></i>
+                  <div>
+                    <strong class="text-success">Paire la plus fréquente !</strong>
+                    <p class="m-0 mt-1 text-sm text-muted">
+                      <strong>{{ sum.mostFrequentPair }}</strong>
+                      <br />
+                      Ces produits sont souvent achetés ensemble et constituent une excellente opportunité de cross-selling.
+                    </p>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      }
+    }
+
+    <!-- Associations Table -->
+    <div class="row">
+      <div class="col-12 mb-2">
+        <div class="card h-100 data-card">
+          <div class="card-header">
+            <h5 class="card-title">
+              <i class="pi pi-link text-primary"></i>
+              Associations de Produits
+            </h5>
+          </div>
+          <div class="card-body p-0">
+            @if (associations().length === 0) {
+              <div class="text-center p-4">
+                <i class="pi pi-inbox text-muted" style="font-size: 3rem;"></i>
+                <p class="mt-3 text-muted">Aucune association trouvée avec ces critères</p>
+                <p class="text-sm text-muted">Essayez de réduire les seuils de support et confiance</p>
+              </div>
+            } @else {
+              <div class="overflow-x-auto">
+                <table class="pharma-table">
+                  <thead class="pharma-table-head">
+                    <tr>
+                      <th>Produit A</th>
+                      <th>Produit B (acheté avec A)</th>
+                      <th class="text-center">Nb Trans. Ensemble</th>
+                      <th class="text-center">Support (%)</th>
+                      <th class="text-center">Confiance (%)</th>
+                      <th class="text-center">Lift</th>
+                      <th class="text-center">Corrélation</th>
+                    </tr>
+                  </thead>
+                  <tbody class="pharma-table-body">
+                    @for (assoc of associations(); track $index) {
+                      <tr>
+                        <td>
+                          <div class="fw-medium">{{ assoc.productAName }}</div>
+                          @if (assoc.productACodeCip) {
+                            <div class="text-sm text-muted">
+                              <span class="pharma-code">{{ assoc.productACodeCip }}</span>
+                            </div>
+                          }
+                        </td>
+                        <td>
+                          <div class="fw-medium">{{ assoc.productBName }}</div>
+                          @if (assoc.productBCodeCip) {
+                            <div class="text-sm text-muted">
+                              <span class="pharma-code">{{ assoc.productBCodeCip }}</span>
+                            </div>
+                          }
+                        </td>
+                        <td class="text-center">
+                          <span class="fw-bold">{{ formatNumber(assoc.transactionsWithBoth) }}</span>
+                        </td>
+                        <td class="text-center">
+                          <span>{{ formatPercent(assoc.support) }}%</span>
+                        </td>
+                        <td class="text-center">
+                          <p-tag [value]="formatPercent(assoc.confidence) + '%'" [severity]="getConfidenceSeverity(assoc.confidence)" />
+                        </td>
+                        <td class="text-center">
+                          <span class="fw-bold">{{ formatDecimal(assoc.lift) }}</span>
+                        </td>
+                        <td class="text-center">
+                          <p-tag [value]="getLiftLabel(assoc.lift)" [severity]="getLiftSeverity(assoc.lift)" />
+                        </td>
+                      </tr>
+                    }
+                  </tbody>
+                </table>
+              </div>
+
+              <!-- Explanation Panel -->
+              <div class="mt-3 mx-3 mb-3 p-3 rounded" style="background-color: #F5F5F5;">
+                <div class="fw-semibold mb-2">
+                  <i class="pi pi-info-circle"></i>
+                  Comprendre les métriques
+                </div>
+                <div class="row text-sm">
+                  <div class="col-12 col-md-4">
+                    <strong>Support :</strong> % de transactions contenant les deux produits
+                  </div>
+                  <div class="col-12 col-md-4">
+                    <strong>Confiance :</strong> Probabilité d'acheter B quand on achète A
+                  </div>
+                  <div class="col-12 col-md-4">
+                    <strong>Lift :</strong> Force de la corrélation (> 1 = corrélation positive)
+                  </div>
+                </div>
+              </div>
+            }
+          </div>
+        </div>
+      </div>
+    </div>
+  }
+</div>

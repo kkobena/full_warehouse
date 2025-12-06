@@ -1,0 +1,7 @@
+export enum BCGCategory {
+  STAR = 'STAR',
+  CASH_COW = 'CASH_COW',
+  QUESTION_MARK = 'QUESTION_MARK',
+  DOG = 'DOG',
+  UNDEFINED = 'UNDEFINED',
+}

@@ -12,6 +12,8 @@ import { MonthlyDataComponent } from './monthly/monthly-data/monthly-data.compon
 import { WeeklyDataComponent } from './weekly/weekly-data/weekly-data.component';
 import { DailyDataComponent } from './daily/daily-data/daily-data.component';
 import { Authority } from '../shared/constants/authority.constants';
+import CustomizableDashboardComponent
+  from '../entities/dashboard/customizable-dashboard/customizable-dashboard.component';
 
 @Component({
   selector: 'jhi-home',
@@ -26,7 +28,8 @@ import { Authority } from '../shared/constants/authority.constants';
     MonthlyDataComponent,
     WeeklyDataComponent,
     DailyDataComponent,
-  ],
+    CustomizableDashboardComponent
+  ]
 })
 export default class HomeComponent implements OnInit, OnDestroy {
   account = signal<Account | null>(null);

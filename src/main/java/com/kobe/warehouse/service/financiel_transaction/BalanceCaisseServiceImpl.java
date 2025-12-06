@@ -110,7 +110,7 @@ public class BalanceCaisseServiceImpl implements BalanceCaisseService {
                     vno.setTypeSale(TypeVenteDTO.CashSale);
                     upadateBalance(vno, typeVenteListEntry.getValue(), mvtCaissesByModes);
                     break;
-                case ThirdPartySales, VenteDepotAgree:
+                case ThirdPartySales:
                     if (vo == null) {
                         vo = new BalanceCaisseDTO();
                     }

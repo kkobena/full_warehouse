@@ -1,0 +1,13 @@
+// Profitability Analysis Component Styles
+@import 'app/shared/scss/table-common';
+@import 'app/shared/scss/pharma-toolbar';
+@import 'app/shared/scss/dashboard-common';
+
+.pharma-smart-content {
+  ::ng-deep {
+    .p-chip {
+      font-size: 0.875rem;
+      font-weight: 600;
+    }
+  }
+}

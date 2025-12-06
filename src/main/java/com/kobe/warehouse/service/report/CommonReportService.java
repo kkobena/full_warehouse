@@ -5,6 +5,9 @@ import com.kobe.warehouse.domain.Magasin;
 import com.kobe.warehouse.service.StorageService;
 import com.kobe.warehouse.service.dto.Pair;
 import com.kobe.warehouse.service.dto.ReportPeriode;
+import com.kobe.warehouse.service.dto.report.ComparativeByTypeDTO;
+import com.kobe.warehouse.service.dto.report.ComparativeCADTO;
+import com.kobe.warehouse.service.dto.report.ComparativeSummaryDTO;
 import com.kobe.warehouse.service.errors.FileStorageException;
 import com.kobe.warehouse.service.utils.DateUtil;
 import jakarta.validation.constraints.NotNull;
@@ -205,34 +208,7 @@ public abstract class CommonReportService {
             renderer.setDocumentFromString(this.getTemplateAsHtml());
             renderer.layout();
             renderer.createPDF(outputStream);
-            /*
-public Response generatePdf() {
-    ByteArrayOutputStream baos = new ByteArrayOutputStream();
-    try {
-        PdfRendererBuilder builder = new PdfRendererBuilder();
-        builder.useFastMode();
-        builder.withHtmlContent("<html><body><h1>Hello, PDF!</h1></body></html>", null);
-        builder.toStream(baos);
-        builder.run();
 
-        return Response.ok(baos.toByteArray())
-                       .header("Content-Disposition", "inline; filename=output.pdf")
-                       .build();
-    } catch (Exception e) {
-        e.printStackTrace();
-        return Response.serverError().build();
-    }
-}
- try (OutputStream os = new FileOutputStream("output.pdf")) {
-            PdfRendererBuilder builder = new PdfRendererBuilder();
-            builder.useFastMode();
-            builder.withHtmlContent("<html><body><h1>Hello, PDF!</h1></body></html>", null);
-            builder.toStream(os);
-            builder.run();
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-             */
         } catch (IOException e) {
             log.debug("printOneReceiptPage", e);
         }
@@ -294,5 +270,20 @@ public Response generatePdf() {
 
     protected String buildPeriode(@NotNull LocalDateTime from, @NotNull LocalDateTime to) {
         return DateUtil.format(from) + " au " + DateUtil.format(to);
+    }
+
+    protected byte[] exportReportToPdf() {
+        try {
+
+            try (ByteArrayOutputStream outputStream = new ByteArrayOutputStream()) {
+                ITextRenderer renderer = new ITextRenderer();
+                renderer.setDocumentFromString(this.getTemplateAsHtml());
+                renderer.layout();
+                renderer.createPDF(outputStream);
+                return outputStream.toByteArray();
+            }
+        } catch (Exception e) {
+            throw new RuntimeException("Error generating Comparative Report PDF: " + e.getMessage(), e);
+        }
     }
 }

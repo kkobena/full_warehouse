@@ -12,6 +12,9 @@ logging:
         remote:
           rmi: OFF
 spring:
+  graphql:
+    graphiql:
+      enabled: true
   devtools:
     add-properties: true
     restart:
@@ -44,7 +47,7 @@ spring:
     database-platform: org.hibernate.dialect.PostgreSQLDialect
     show-sql: true
     hibernate:
-      ddl-auto: none
+      ddl-auto: update
   threads:
     virtual:
       enabled: true

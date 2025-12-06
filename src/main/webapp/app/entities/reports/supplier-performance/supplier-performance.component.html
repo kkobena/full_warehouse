@@ -1,0 +1,297 @@
+<div class="pharma-smart-content p-2">
+  <div class="pharma-toolbar ">
+    <div class="pharma-toolbar-header">
+      <i class="pi pi-users"></i>
+      <span class="pharma-toolbar-title">Performance des Fournisseurs</span>
+    </div>
+
+    <p-toolbar>
+      <ng-template #start>
+        <div class="pharma-toolbar-filters">
+          <p-select
+            [(ngModel)]="selectedFilter"
+            [options]="filterOptions"
+            placeholder="Filtre"
+            appendTo="body"
+            size="large"
+            optionLabel="label"
+            optionValue="value"
+            (onChange)="onFilterChange()"
+          />
+          <input
+            type="text"
+            pInputText
+            [(ngModel)]="searchText"
+            placeholder="Rechercher..."
+            style="width: 250px"
+          />
+        </div>
+      </ng-template>
+
+      <ng-template #end>
+        <div class="flex gap-2">
+          <p-button
+            label="Exporter PDF"
+            icon="pi pi-file-pdf"
+            severity="warn"
+            (onClick)="exportToPdf()"
+            [loading]="isLoading()"
+          />
+          <p-button
+            label="Rafraîchir"
+            icon="pi pi-refresh"
+            severity="secondary"
+            (onClick)="loadData()"
+          />
+        </div>
+      </ng-template>
+    </p-toolbar>
+  </div>
+
+  <!-- Summary Cards -->
+  @if (summary()) {
+    <div class="row mt-3">
+      <div class="col-12 col-md-4 mb-2">
+        <div class="card h-100 kpi-card primary-accent">
+          <div class="card-body">
+            <div class="kpi-header">
+              <div class="kpi-content">
+                <p class="kpi-label">Fournisseurs Total</p>
+                <h4 class="kpi-value">
+                  <span>{{ formatNumber(summary()?.totalSuppliers) }}</span>
+                </h4>
+                <div class="kpi-badges">
+                  <span class="badge bg-primary-subtle text-primary">Actifs</span>
+                </div>
+              </div>
+              <div class="kpi-icon text-primary">
+                <i class="pi pi-users"></i>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="col-12 col-md-4 mb-2">
+        <div class="card h-100 kpi-card success-accent">
+          <div class="card-body">
+            <div class="kpi-header">
+              <div class="kpi-content">
+                <p class="kpi-label">Achats 30 Jours</p>
+                <h4 class="kpi-value">
+                  <span>{{ formatCurrency(summary()?.totalPurchaseAmountLast30Days) }}</span>
+                  <span class="value-suffix">FCFA</span>
+                </h4>
+                <div class="kpi-badges">
+                  <span class="badge bg-success-subtle text-success">{{ formatNumber(summary()?.totalOrdersLast30Days) }} commandes</span>
+                </div>
+              </div>
+              <div class="kpi-icon text-success">
+                <i class="pi pi-calendar"></i>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="col-12 col-md-4 mb-2">
+        <div class="card h-100 kpi-card warning-accent">
+          <div class="card-body">
+            <div class="kpi-header">
+              <div class="kpi-content">
+                <p class="kpi-label">Achats 12 Mois</p>
+                <h4 class="kpi-value">
+                  <span>{{ formatCurrency(summary()?.totalPurchaseAmountLast12Months) }}</span>
+                  <span class="value-suffix">FCFA</span>
+                </h4>
+                <div class="kpi-badges">
+                  <span class="badge bg-warning-subtle text-warning">{{ formatNumber(summary()?.totalOrdersLast12Months) }} commandes</span>
+                </div>
+              </div>
+              <div class="kpi-icon text-warning">
+                <i class="pi pi-chart-line"></i>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="row mt-2">
+      <div class="col-12 col-md-4 mb-2">
+        <div class="card h-100 kpi-card danger-accent">
+          <div class="card-body">
+            <div class="kpi-header">
+              <div class="kpi-content">
+                <p class="kpi-label">Délai Moyen Livraison</p>
+                <h4 class="kpi-value">
+                  <span>{{ formatDecimal(summary()?.avgDeliveryDays, 1) }}</span>
+                  <span class="value-suffix">jours</span>
+                </h4>
+                <div class="kpi-badges">
+                  <span class="badge bg-danger-subtle text-danger">Temps de livraison</span>
+                </div>
+              </div>
+              <div class="kpi-icon text-danger">
+                <i class="pi pi-truck"></i>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="col-12 col-md-4 mb-2">
+        <div class="card h-100 kpi-card primary-accent">
+          <div class="card-body">
+            <div class="kpi-header">
+              <div class="kpi-content">
+                <p class="kpi-label">Conformité Moyenne</p>
+                <h4 class="kpi-value">
+                  <span>{{ formatDecimal(summary()?.avgConformityRate, 1) }}</span>
+                  <span class="value-suffix">%</span>
+                </h4>
+                <div class="kpi-badges">
+                  <span class="badge bg-primary-subtle text-primary">Taux de qualité</span>
+                </div>
+              </div>
+              <div class="kpi-icon text-primary">
+                <i class="pi pi-check-circle"></i>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="col-12 col-md-4 mb-2">
+        <div class="card h-100 kpi-card success-accent">
+          <div class="card-body">
+            <div class="kpi-header">
+              <div class="kpi-content">
+                <p class="kpi-label">Performance Excellente</p>
+                <h4 class="kpi-value">
+                  <span>{{ formatNumber(summary()?.suppliersWithGoodPerformance) }}</span>
+                </h4>
+                <div class="kpi-badges">
+                  <span class="badge bg-success-subtle text-success">Score ≥ 70</span>
+                </div>
+              </div>
+              <div class="kpi-icon text-success">
+                <i class="pi pi-star-fill"></i>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  }
+
+  <!-- Suppliers Table -->
+  <div class="row mt-3">
+    <div class="col-12 mb-2">
+      <div class="card h-100 data-card">
+        <div class="card-header">
+          <h5 class="card-title">
+            <i class="pi pi-users text-primary"></i>
+            Performance des Fournisseurs
+          </h5>
+        </div>
+        <div class="card-body p-0">
+          <div class="overflow-x-auto">
+            <p-table
+              [value]="getFilteredSuppliers()"
+              [loading]="isLoading()"
+              [paginator]="true"
+              [rows]="25"
+              class="pharma-table"
+              [rowsPerPageOptions]="[10, 25, 50, 100]"
+              [showCurrentPageReport]="true"
+              currentPageReportTemplate="Affichage de {first} à {last} sur {totalRecords} fournisseurs"
+              [tableStyle]="{ 'min-width': '100rem' }"
+            >
+              <ng-template #header>
+                <tr class="pharma-table-head">
+                  <th>Code</th>
+                  <th>Nom Fournisseur</th>
+                  <th>Contact</th>
+                  <th class="text-end">Achats 30j</th>
+                  <th class="text-end">Achats 12m</th>
+                  <th class="text-center">Cdes 30j</th>
+                  <th class="text-center">Cdes 12m</th>
+                  <th class="text-center">Délai Moyen</th>
+                  <th class="text-center">Conformité</th>
+                  <th class="text-center">Score</th>
+                </tr>
+              </ng-template>
+
+              <ng-template #body let-supplier>
+                <tr>
+                  <td>{{ supplier.fournisseurCode }}</td>
+                  <td><strong>{{ supplier.fournisseurName }}</strong></td>
+                  <td>
+                    @if (supplier.phone) {
+                      <div><i class="pi pi-phone me-1"></i>{{ supplier.phone }}</div>
+                    }
+                    @if (supplier.mobile) {
+                      <div><i class="pi pi-mobile me-1"></i>{{ supplier.mobile }}</div>
+                    }
+                  </td>
+                  <td class="text-end">{{ formatCurrency(supplier.purchaseAmountLast30Days) }}</td>
+                  <td class="text-end fw-bold">{{ formatCurrency(supplier.purchaseAmountLast12Months) }}</td>
+                  <td class="text-center">{{ formatNumber(supplier.nbOrdersLast30Days) }}</td>
+                  <td class="text-center">{{ formatNumber(supplier.nbOrdersLast12Months) }}</td>
+                  <td class="text-center">
+                    <span
+                      class="px-2 py-1 rounded fw-semibold"
+                      [pTooltip]="'Min: ' + supplier.minDeliveryDays + 'j, Max: ' + supplier.maxDeliveryDays + 'j'"
+                      [ngClass]="{
+                        'bg-success-subtle text-success': (supplier.avgDeliveryDays || 999) <= 7,
+                        'bg-warning-subtle text-warning': (supplier.avgDeliveryDays || 999) > 7 && (supplier.avgDeliveryDays || 999) <= 14,
+                        'bg-danger-subtle text-danger': (supplier.avgDeliveryDays || 999) > 14
+                      }"
+                    >
+                      {{ formatNumber(supplier.avgDeliveryDays) }}j
+                    </span>
+                  </td>
+                  <td class="text-center">
+                    <span
+                      class="px-2 py-1 rounded fw-semibold"
+                      [ngClass]="{
+                        'bg-success-subtle text-success': (supplier.conformityRatePct || 0) >= 95,
+                        'bg-warning-subtle text-warning': (supplier.conformityRatePct || 0) >= 85 && (supplier.conformityRatePct || 0) < 95,
+                        'bg-danger-subtle text-danger': (supplier.conformityRatePct || 0) < 85
+                      }"
+                    >
+                      {{ formatDecimal(supplier.conformityRatePct, 1) }}%
+                    </span>
+                  </td>
+                  <td class="text-center">
+                    <span
+                      class="px-2 py-1 rounded fw-semibold"
+                      [pTooltip]="getPerformanceScoreLabel(supplier.performanceScore)"
+                      [ngClass]="{
+                        'bg-success-subtle text-success': (supplier.performanceScore || 0) >= 70,
+                        'bg-warning-subtle text-warning': (supplier.performanceScore || 0) >= 50 && (supplier.performanceScore || 0) < 70,
+                        'bg-danger-subtle text-danger': (supplier.performanceScore || 0) < 50
+                      }"
+                    >
+                      {{ formatDecimal(supplier.performanceScore, 1) }}
+                    </span>
+                  </td>
+                </tr>
+              </ng-template>
+
+              <ng-template #emptymessage>
+                <tr>
+                  <td colspan="10" class="text-center p-4">
+                    <i class="pi pi-inbox text-muted" style="font-size: 3rem;"></i>
+                    <p class="mt-3 text-muted">Aucun fournisseur trouvé</p>
+                  </td>
+                </tr>
+              </ng-template>
+            </p-table>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

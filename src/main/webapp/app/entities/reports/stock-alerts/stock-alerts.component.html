@@ -1,0 +1,190 @@
+<div class="pharma-smart-content p-2">
+  <div class="pharma-toolbar">
+    <div class="pharma-toolbar-header">
+      <i class="pi pi-exclamation-triangle"></i>
+      <span class="pharma-toolbar-title">Alertes Stock</span>
+    </div>
+
+    <p-toolbar>
+      <ng-template #start>
+        <div class="pharma-toolbar-filters">
+          <p-multiSelect
+            [(ngModel)]="selectedAlertTypes"
+            [options]="alertTypeOptions"
+            [showClear]="true"
+            display="chip"
+            [fluid]="true"
+            appendTo="body"
+            placeholder="Filtrer par type d'alerte"
+            (onChange)="onFilterChange()"
+            optionLabel="label"
+            optionValue="value"
+          />
+        </div>
+      </ng-template>
+
+      <ng-template #end>
+        <div class="flex gap-2">
+          <p-button
+            label="Exporter PDF"
+            icon="pi pi-file-pdf"
+            severity="warn"
+            (onClick)="exportToPdf()"
+          />
+        </div>
+      </ng-template>
+    </p-toolbar>
+  </div>
+
+  <!-- Summary Cards -->
+  <div class="row mt-3">
+    <div class="col-12 col-md-4 mb-2">
+      <div class="card h-100 kpi-card danger-accent">
+        <div class="card-body">
+          <div class="kpi-header">
+            <div class="kpi-content">
+              <p class="kpi-label">Ruptures de stock</p>
+              <h4 class="kpi-value">
+                <span>{{ alertCounts()[StockAlertType.RUPTURE] || 0 }}</span>
+              </h4>
+              <div class="kpi-badges">
+                <span class="badge bg-danger-subtle text-danger">Urgent</span>
+              </div>
+            </div>
+            <div class="kpi-icon text-danger">
+              <i class="pi pi-times-circle"></i>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-12 col-md-4 mb-2">
+      <div class="card h-100 kpi-card warning-accent">
+        <div class="card-body">
+          <div class="kpi-header">
+            <div class="kpi-content">
+              <p class="kpi-label">Stock bas</p>
+              <h4 class="kpi-value">
+                <span>{{ alertCounts()[StockAlertType.ALERTE] || 0 }}</span>
+              </h4>
+              <div class="kpi-badges">
+                <span class="badge bg-warning-subtle text-warning">Attention</span>
+              </div>
+            </div>
+            <div class="kpi-icon text-warning">
+              <i class="pi pi-exclamation-circle"></i>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-12 col-md-4 mb-2">
+      <div class="card h-100 kpi-card primary-accent">
+        <div class="card-body">
+          <div class="kpi-header">
+            <div class="kpi-content">
+              <p class="kpi-label">Proche péremption</p>
+              <h4 class="kpi-value">
+                <span>{{ alertCounts()[StockAlertType.PEREMPTION] || 0 }}</span>
+              </h4>
+              <div class="kpi-badges">
+                <span class="badge bg-primary-subtle text-primary">À surveiller</span>
+              </div>
+            </div>
+            <div class="kpi-icon text-primary">
+              <i class="pi pi-clock"></i>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Alerts Table -->
+  <div class="row mt-3">
+    <div class="col-12 mb-2">
+      <div class="card h-100 data-card">
+        <div class="card-header">
+          <h5 class="card-title">
+            <i class="pi pi-exclamation-triangle text-warning"></i>
+            Alertes Stock
+          </h5>
+        </div>
+        <div class="card-body p-0">
+          <div class="overflow-x-auto">
+            <p-table
+              [value]="alerts()"
+              [loading]="isLoading()"
+              [rowHover]="true"
+              [scrollable]="true"
+              sortField="alertType"
+              class="pharma-table"
+              [sortOrder]="1"
+            >
+              <ng-template #header>
+                <tr class="pharma-table-head">
+                  <th>
+                    Type
+                  </th>
+                  <th>
+                    Produit
+                  </th>
+                  <th>Code CIP</th>
+                  <th class="text-end">
+                    Quantité
+
+                  </th>
+                  <th class="text-end">Seuil Min</th>
+                  <th>
+                    Date Péremption
+                  </th>
+                </tr>
+              </ng-template>
+              <ng-template #body let-alert>
+                <tr>
+                  <td>
+                    <p-tag
+                      [value]="getAlertLabel(alert.alertType)"
+                      [severity]="getAlertSeverity(alert.alertType)"
+                    />
+                  </td>
+                  <td>
+                    <span class="fw-semibold">{{ alert.libelle }}</span>
+                  </td>
+                  <td>
+                    <span class="text-muted">{{ alert.codeCip }}</span>
+                  </td>
+                  <td class="text-end">
+                    <span [class.text-danger]="(alert.stockQuantity ?? 0) === 0" [class.fw-bold]="(alert.stockQuantity ?? 0) === 0">
+                      {{ alert.stockQuantity || 0 }}
+                    </span>
+                  </td>
+                  <td class="text-end text-muted">
+                    {{ alert.seuilMin || 0 }}
+                  </td>
+                  <td>
+                    @if (alert.expiryDate) {
+                      <span [class.text-danger]="alert.alertType === StockAlertType.PEREMPTION">
+                        {{ alert.expiryDate | date: 'dd/MM/yyyy' }}
+                      </span>
+                    }
+                  </td>
+                </tr>
+              </ng-template>
+              <ng-template #emptymessage>
+                <tr>
+                  <td colspan="6" class="text-center p-4">
+                    <i class="pi pi-check-circle text-success" style="font-size: 3rem;"></i>
+                    <p class="mt-3 text-muted">Aucune alerte stock pour le moment</p>
+                  </td>
+                </tr>
+              </ng-template>
+            </p-table>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

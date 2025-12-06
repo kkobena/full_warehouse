@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Rapport Alertes Stock</title>
+    <div th:replace="~{reports/stock-alerts/css :: css}"></div>
+  </head>
+  <body>
+    <div class="invoice">
+      <div th:replace="~{common/commonheader :: header}"></div>
+
+      <main>
+        <!-- Alert Counts Summary -->
+        <div class="alert-summary">
+          <table class="summary-table">
+            <tbody>
+              <tr>
+                <td class="summary-item rupture">
+                  <strong>Ruptures de stock:</strong>
+                  <span th:text="${ruptureCount}">0</span>
+                </td>
+                <td class="summary-item alerte">
+                  <strong>Stock bas:</strong>
+                  <span th:text="${alerteCount}">0</span>
+                </td>
+                <td class="summary-item peremption">
+                  <strong>Proche péremption:</strong>
+                  <span th:text="${peremptionCount}">0</span>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <!-- Alerts Table -->
+        <table class="main-table">
+          <thead>
+            <tr>
+              <th>Type</th>
+              <th>Produit</th>
+              <th>Code CIP</th>
+              <th class="text-right">Quantité</th>
+              <th class="text-right">Seuil Min</th>
+              <th>Date Péremption</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr th:each="alert : ${alerts}">
+              <td>
+                <span
+                  th:class="${'badge badge-' + alert.alertType.toString().toLowerCase()}"
+                  th:text="${alert.alertType == T(com.kobe.warehouse.service.dto.report.StockAlertDTO.StockAlertType).RUPTURE ? 'Rupture' : (alert.alertType == T(com.kobe.warehouse.service.dto.report.StockAlertDTO.StockAlertType).ALERTE ? 'Stock bas' : 'Péremption')}"
+                ></span>
+              </td>
+              <td th:text="${alert.libelle}"></td>
+              <td th:text="${alert.codeCip}"></td>
+              <td class="text-right" th:text="${alert.stockQuantity}"></td>
+              <td class="text-right" th:text="${alert.seuilMin}"></td>
+              <td th:text="${alert.expiryDate != null ? #temporals.format(alert.expiryDate, 'dd/MM/yyyy') : '-'}"></td>
+            </tr>
+          </tbody>
+          <tfoot>
+            <tr>
+              <td colspan="6" class="text-right">
+                <strong>Total alertes: <span th:text="${alerts.size()}"></span></strong>
+              </td>
+            </tr>
+          </tfoot>
+        </table>
+      </main>
+    </div>
+  </body>
+</html>

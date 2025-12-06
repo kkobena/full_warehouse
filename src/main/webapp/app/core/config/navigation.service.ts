@@ -37,7 +37,11 @@ import {
   faUsers,
   faWallet,
   faDesktop,
-  faSchoolCircleExclamation, faSdCard
+  faSchoolCircleExclamation,
+  faSdCard,
+  faChartBar,
+  faChartLine,
+  faChartPie,
 } from '@fortawesome/free-solid-svg-icons';
 
 export interface NavigationOptions {
@@ -221,6 +225,39 @@ export class NavigationService {
           routerLink: '/parametre',
           authorities: [Authority.ADMIN, 'parametre'],
           faIcon: faCog,
+        },
+      ],
+    });
+
+    // Rapports
+    allItems.push({
+      label: 'Rapports & Statistiques',
+      faIcon: faChartBar,
+      authorities: [Authority.ADMIN, Authority.ROLE_RESPONSABLE_COMMANDE, Authority.ROLE_CAISSIER],
+      children: [
+        {
+          label: 'Chiffre d\'Affaires',
+          routerLink: '/reports/sales',
+          faIcon: faMoneyBill,
+          authorities: [Authority.ADMIN, Authority.ROLE_RESPONSABLE_COMMANDE],
+        },
+        {
+          label: 'Stock & Inventaire',
+          routerLink: '/reports/stock',
+          faIcon: faBoxes,
+          authorities: [Authority.ADMIN, Authority.ROLE_RESPONSABLE_COMMANDE],
+        },
+        {
+          label: 'Trésorerie & Finance',
+          routerLink: '/reports/finance',
+          faIcon: faWallet,
+          authorities: [Authority.ADMIN, Authority.ROLE_CAISSIER],
+        },
+        {
+          label: 'Clients & Fournisseurs',
+          routerLink: '/reports/partners',
+          faIcon: faUsers,
+          authorities: [Authority.ADMIN, Authority.ROLE_RESPONSABLE_COMMANDE],
         },
       ],
     });

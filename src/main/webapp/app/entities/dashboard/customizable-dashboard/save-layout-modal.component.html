@@ -1,0 +1,63 @@
+<div class="modal-header">
+  <h5 class="modal-title">
+    <i class="pi pi-save me-2"></i>
+    Sauvegarder le Layout
+  </h5>
+  <button type="button" class="btn-close" aria-label="Close" (click)="dismiss()"></button>
+</div>
+
+<div class="modal-body">
+  <div class="form-grid-compact">
+    <div class="form-field">
+      <label for="layout-name">Nom du layout <span class="required">*</span></label>
+      <input
+        type="text"
+        class="form-control"
+        id="layout-name"
+        [(ngModel)]="layoutName"
+        placeholder="Mon Dashboard"
+        pInputText
+      />
+    </div>
+
+    <div class="form-field">
+      <label for="layout-description">Description</label>
+      <textarea
+        class="form-control"
+        id="layout-description"
+        [(ngModel)]="layoutDescription"
+        rows="3"
+        placeholder="Description du layout..."
+        pInputText
+      ></textarea>
+    </div>
+
+    <div class="form-field">
+      <label for="layout-scope">Visibilité</label>
+      <p-select
+        [(ngModel)]="layoutScope"
+        [options]="scopeOptions"
+        optionLabel="label"
+        optionValue="value"
+        [fluid]="true"
+        appendTo="body"
+      />
+    </div>
+  </div>
+</div>
+
+<div class="modal-footer">
+  <p-button
+    label="Annuler"
+    icon="pi pi-times"
+    (onClick)="dismiss()"
+    severity="secondary"
+    [text]="true"
+  />
+  <p-button
+    label="Sauvegarder"
+    icon="pi pi-check"
+    (onClick)="save()"
+    [disabled]="!layoutName"
+  />
+</div>

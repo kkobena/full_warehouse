@@ -41,7 +41,25 @@ public class CacheConfiguration {
                 buildCache(EntityConstant.APP_MODE_PAYMENTS, defaultTtl, TimeUnit.HOURS, defaultMaxSize),
                 buildCache(EntityConstant.APP_MODE_PAYMENTS_SANS_CH_VIR, defaultTtl, TimeUnit.HOURS, defaultMaxSize),
                 buildCache(EntityConstant.APP_NBRE_JOUR_RETENTION_COMMANDE, defaultTtl, TimeUnit.HOURS, defaultMaxSize),
-                buildCache(EntityConstant.POINT_DE_VENTE_CACHE, defaultTtl, TimeUnit.HOURS, defaultMaxSize)
+                buildCache(EntityConstant.POINT_DE_VENTE_CACHE, defaultTtl, TimeUnit.HOURS, defaultMaxSize),
+                // Report caches - shorter TTL for fresher data
+                buildCache("dailySalesReport", 15, TimeUnit.MINUTES, 100),
+                buildCache("dashboardCA", 15, TimeUnit.MINUTES, 100),
+                buildCache("profitability", 15, TimeUnit.MINUTES, 100),
+                buildCache("comparativeReports", 15, TimeUnit.MINUTES, 100),
+                buildCache("marketBasketCache", 15, TimeUnit.MINUTES, 100),
+                buildCache("stockAlerts", 30, TimeUnit.MINUTES, 50),
+                buildCache("topProducts", 30, TimeUnit.MINUTES, 100),
+                buildCache("abcPareto", 30, TimeUnit.MINUTES, 100),
+                buildCache("salesForecast", 30, TimeUnit.MINUTES, 100),
+                buildCache("cashRegisterReport", 15, TimeUnit.MINUTES, 50),
+                buildCache("tiersPayantCreances", 60, TimeUnit.MINUTES, 100),
+                // Phase 2 report caches
+                buildCache("stockValuation", 60, TimeUnit.MINUTES, 100),
+                buildCache("supplierPerformance", 60, TimeUnit.MINUTES, 100),
+                buildCache("stockValuationSummary", 60, TimeUnit.MINUTES, 10),
+                buildCache("stockRotation", 60, TimeUnit.MINUTES, 100),
+                buildCache("customerSegmentation", 120, TimeUnit.MINUTES, 200)
             )
         );
         return manager;

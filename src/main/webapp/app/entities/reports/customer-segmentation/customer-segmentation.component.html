@@ -1,0 +1,318 @@
+<div class="pharma-smart-content p-2">
+  <div class="pharma-toolbar">
+    <div class="pharma-toolbar-header">
+      <i class="pi pi-users"></i>
+      <span class="pharma-toolbar-title">Segmentation Clients (Analyse RFM)</span>
+    </div>
+
+    <p-toolbar>
+      <ng-template #start>
+        <div class="pharma-toolbar-filters flex gap-2">
+          <p-select
+            [(ngModel)]="selectedClassification"
+            [options]="classificationOptions"
+            placeholder="Classification"
+            optionLabel="label"
+            optionValue="value"
+            appendTo="body"
+            size="large"
+            [showClear]="true"
+            [disabled]="showChampionsOnly() || showAtRiskOnly()"
+            (onChange)="onFilterChange()"
+          />
+
+
+        </div>
+      </ng-template>
+
+      <ng-template #end>
+        <div class="flex gap-2">
+          <p-button
+            label="Effacer les filtres"
+            icon="pi pi-filter-slash"
+            severity="secondary"
+            (onClick)="onClearFilters()"
+          />
+          <p-button
+            label="Exporter PDF"
+            icon="pi pi-file-pdf"
+            severity="warn"
+            (onClick)="exportToPdf()"
+          />
+          <p-button
+            label="Rafraîchir"
+            icon="pi pi-refresh"
+            severity="primary"
+            (onClick)="loadCustomers()"
+          />
+        </div>
+      </ng-template>
+    </p-toolbar>
+  </div>
+
+  <!-- Customer Classification Summary Cards -->
+  <div class="row mt-3">
+    <div class="col-12 col-md-3 mb-2">
+      <div class="card h-100 kpi-card success-accent">
+        <div class="card-body">
+          <div class="kpi-header">
+            <div class="kpi-content">
+              <p class="kpi-label">Champions</p>
+              <h4 class="kpi-value">
+                <span>{{ classificationCounts().CHAMPION || 0 }}</span>
+              </h4>
+              <div class="kpi-badges">
+                <span class="badge bg-success-subtle text-success">Meilleurs clients</span>
+              </div>
+            </div>
+            <div class="kpi-icon text-success">
+              <i class="pi pi-star"></i>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-12 col-md-3 mb-2">
+      <div class="card h-100 kpi-card primary-accent">
+        <div class="card-body">
+          <div class="kpi-header">
+            <div class="kpi-content">
+              <p class="kpi-label">Fidèles & Actifs</p>
+              <h4 class="kpi-value">
+                <span>{{ (classificationCounts().LOYAL || 0) + (classificationCounts().ACTIVE || 0) }}</span>
+              </h4>
+              <div class="kpi-badges">
+                <span class="badge bg-primary-subtle text-primary">Clients réguliers</span>
+              </div>
+            </div>
+            <div class="kpi-icon text-primary">
+              <i class="pi pi-heart"></i>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-12 col-md-3 mb-2">
+      <div class="card h-100 kpi-card warning-accent">
+        <div class="card-body">
+          <div class="kpi-header">
+            <div class="kpi-content">
+              <p class="kpi-label">À risque</p>
+              <h4 class="kpi-value">
+                <span>{{ (classificationCounts().AT_RISK || 0) + (classificationCounts().NEED_ATTENTION || 0) }}</span>
+              </h4>
+              <div class="kpi-badges">
+                <span class="badge bg-warning-subtle text-warning">Besoin d'attention</span>
+              </div>
+            </div>
+            <div class="kpi-icon text-warning">
+              <i class="pi pi-exclamation-triangle"></i>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-12 col-md-3 mb-2">
+      <div class="card h-100 kpi-card danger-accent">
+        <div class="card-body">
+          <div class="kpi-header">
+            <div class="kpi-content">
+              <p class="kpi-label">Inactifs</p>
+              <h4 class="kpi-value">
+                <span>{{ classificationCounts().INACTIVE || 0 }}</span>
+              </h4>
+              <div class="kpi-badges">
+                <span class="badge bg-danger-subtle text-danger">Clients perdus</span>
+              </div>
+            </div>
+            <div class="kpi-icon text-danger">
+              <i class="pi pi-times-circle"></i>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Additional Metrics -->
+  <div class="row mt-2">
+    <div class="col-12 col-md-3 mb-2">
+      <div class="card h-100 kpi-card primary-accent">
+        <div class="card-body">
+          <div class="kpi-header">
+            <div class="kpi-content">
+              <p class="kpi-label">Total clients</p>
+              <h4 class="kpi-value">
+                <span>{{ getTotalCustomers() }}</span>
+              </h4>
+            </div>
+            <div class="kpi-icon text-primary">
+              <i class="pi pi-users"></i>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-12 col-md-3 mb-2">
+      <div class="card h-100 kpi-card success-accent">
+        <div class="card-body">
+          <div class="kpi-header">
+            <div class="kpi-content">
+              <p class="kpi-label">CA total (12 mois)</p>
+              <h4 class="kpi-value">
+                <span>{{ getTotalSpent() | number:'1.0-0' }}</span>
+                <span class="value-suffix">FCFA</span>
+              </h4>
+            </div>
+            <div class="kpi-icon text-success">
+              <i class="pi pi-dollar"></i>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-12 col-md-3 mb-2">
+      <div class="card h-100 kpi-card warning-accent">
+        <div class="card-body">
+          <div class="kpi-header">
+            <div class="kpi-content">
+              <p class="kpi-label">Panier moyen</p>
+              <h4 class="kpi-value">
+                <span>{{ getAverageBasket() | number:'1.0-0' }}</span>
+                <span class="value-suffix">FCFA</span>
+              </h4>
+            </div>
+            <div class="kpi-icon text-warning">
+              <i class="pi pi-shopping-cart"></i>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-12 col-md-3 mb-2">
+      <div class="card h-100 kpi-card danger-accent">
+        <div class="card-body">
+          <div class="kpi-header">
+            <div class="kpi-content">
+              <p class="kpi-label">Score RFM moyen</p>
+              <h4 class="kpi-value">
+                <span>{{ getAverageRFMScore() | number:'1.1-2' }}</span>
+              </h4>
+            </div>
+            <div class="kpi-icon text-danger">
+              <i class="pi pi-chart-line"></i>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Customer Segmentation Table -->
+  <div class="mt-3">
+    <div class="card h-100 data-card">
+      <div class="card-body">
+        <p-table
+          [value]="customers()"
+          [loading]="isLoading()"
+          [paginator]="true"
+          [rows]="20"
+          class="pharma-table"
+          [rowsPerPageOptions]="[10, 20, 50, 100]"
+          [showCurrentPageReport]="true"
+          currentPageReportTemplate="Affichage de {first} à {last} sur {totalRecords} entrées"
+          [tableStyle]="{ 'min-width': '100rem' }"
+        >
+          <ng-template #header>
+            <tr class="pharma-table-head">
+              <th>Client</th>
+              <th>Téléphone
+                <p-sortIcon field="phone" />
+              </th>
+              <th>Classification</th>
+              <th>Dernier achat</th>
+              <th class="text-end">Jours</th>
+              <th class="text-end">Achats/an</th>
+              <th class="text-end">CA annuel</th>
+              <th class="text-end">Panier moy.</th>
+              <th class="text-center">R</th>
+              <th class="text-center">F</th>
+              <th class="text-center">M</th>
+              <th class="text-center">RFM</th>
+            </tr>
+          </ng-template>
+          <ng-template #body let-customer>
+            <tr>
+              <td>{{ customer.customerName }}</td>
+              <td>{{ customer.phone }}</td>
+              <td>
+                <p-tag [severity]="getClassificationSeverity(customer.customerClassification)">
+                  {{ getClassificationLabel(customer.customerClassification) }}
+                </p-tag>
+              </td>
+              <td>{{ customer.lastPurchaseDate | date:'dd/MM/yyyy' }}</td>
+              <td class="text-end">
+                <p-tag [severity]="getRecencySeverity(customer.daysSinceLastPurchase)">
+                  {{ customer.daysSinceLastPurchase || 0 }} j
+                </p-tag>
+              </td>
+              <td class="text-end">{{ customer.nbPurchasesLastYear || 0 }}</td>
+              <td class="text-end fw-bold">{{ customer.totalSpentLastYear | number:'1.0-0' }} F</td>
+              <td class="text-end">{{ customer.avgBasketValue | number:'1.0-0' }} F</td>
+              <td class="text-center">
+                <span class="rfm-score">{{ customer.recencyScore || 0 }}</span>
+              </td>
+              <td class="text-center">
+                <span class="rfm-score">{{ customer.frequencyScore || 0 }}</span>
+              </td>
+              <td class="text-center">
+                <span class="rfm-score">{{ customer.monetaryScore || 0 }}</span>
+              </td>
+              <td class="text-center">
+                <p-tag [severity]="getRFMScoreSeverity(customer.rfmSegment)">
+                  {{ customer.rfmSegment || 0 }}
+                </p-tag>
+              </td>
+            </tr>
+          </ng-template>
+          <ng-template #emptymessage>
+            <tr>
+              <td colspan="12" class="text-center">Aucune donnée disponible</td>
+            </tr>
+          </ng-template>
+        </p-table>
+      </div>
+    </div>
+  </div>
+
+  <!-- RFM Analysis Explanation -->
+  <div class="mt-3">
+    <div class="card h-100 data-card">
+      <div class="card-header">
+        <div class="d-flex align-items-center gap-2">
+          <i class="pi pi-info-circle"></i>
+          <span class="fw-semibold">À propos de l'analyse RFM</span>
+        </div>
+      </div>
+      <div class="card-body">
+        <div class="rfm-explanation">
+          <p class="mb-2"><strong>RFM (Recency, Frequency, Monetary)</strong> est une méthode d'analyse qui segmente les
+            clients en fonction de :</p>
+          <ul>
+            <li><strong>Récence (R)</strong> : Nombre de jours depuis le dernier achat (1-5, 5 = très récent)</li>
+            <li><strong>Fréquence (F)</strong> : Nombre d'achats sur les 12 derniers mois (1-5, 5 = très fréquent)</li>
+            <li><strong>Montant (M)</strong> : Montant total dépensé sur les 12 derniers mois (1-5, 5 = très élevé)</li>
+          </ul>
+          <p class="mt-2">Le <strong>Score RFM</strong> combine ces trois dimensions pour classer les clients en
+            segments stratégiques.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

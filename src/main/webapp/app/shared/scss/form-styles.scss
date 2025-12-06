@@ -1,24 +1,4 @@
-/**
- * Centralized Form Styles
- *
- * This file contains shared styles for all forms in the application.
- * Import this file in your component SCSS to use these styles.
- *
- * Usage:
- *   @import '../../../shared/scss/form-styles';
- *
- *   :host {
- *     @include modal-theme;
- *   }
- *
- * See FORMS_README.md for detailed documentation.
- */
 
-// ============================================================================
-// Modal Structure
-// ============================================================================
-
-// Make modal body scrollable
 .modal-body {
   max-height: calc(100vh - 200px);
   overflow-y: auto;

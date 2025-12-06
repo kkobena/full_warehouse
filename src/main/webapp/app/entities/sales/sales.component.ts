@@ -99,9 +99,9 @@ export class SalesComponent implements OnInit, AfterViewInit {
   protected userControl = viewChild<Select>('userControl');
   protected actions: MenuItem[] | undefined;
   protected useSimpleSale = false;
+  private readonly primeNGConfig = inject(PrimeNG);
   private readonly translate = inject(TranslateService);
   private readonly configService = inject(ConfigurationService);
-  private readonly primeNGConfig = inject(PrimeNG);
   private readonly assuranceSalesService = inject(VoSalesService);
   private readonly salesService = inject(SalesService);
   private readonly router = inject(Router);

@@ -16,6 +16,7 @@ import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 import jakarta.persistence.UniqueConstraint;
 import jakarta.validation.constraints.NotNull;
+
 import java.io.Serial;
 import java.io.Serializable;
 import java.time.LocalDate;
@@ -25,7 +26,7 @@ import java.util.Objects;
 @Entity
 @Table(
     name = "lot",
-    uniqueConstraints = { @UniqueConstraint(columnNames = { "num_lot", "order_line_id" }) },
+    uniqueConstraints = {@UniqueConstraint(columnNames = {"num_lot", "produit_id"})},
     indexes = {
         @Index(columnList = "expiry_date", name = "lot_expiry_date_index"),
         @Index(columnList = "num_lot", name = "num_lot_index"),
@@ -46,7 +47,7 @@ public class Lot implements Serializable {
     private String numLot;
 
     @NotNull
-    @ManyToOne(optional = false, fetch = FetchType.LAZY)
+    @ManyToOne( fetch = FetchType.LAZY)
     @JoinColumns(
         {
             @JoinColumn(name = "order_line_id", referencedColumnName = "id"),
@@ -88,6 +89,9 @@ public class Lot implements Serializable {
     @Enumerated(EnumType.STRING)
     @Column(name = "statut", nullable = false, length = 15)
     private StatutLot statut;
+    @NotNull
+    @ManyToOne(optional = false, fetch = FetchType.LAZY)
+    private Produit produit;
 
     public int getFreeQty() {
         return freeQty;
@@ -213,6 +217,15 @@ public class Lot implements Serializable {
 
     public void setPrixUnit(Integer prixUnit) {
         this.prixUnit = prixUnit;
+    }
+
+    public Produit getProduit() {
+        return produit;
+    }
+
+    public Lot setProduit(Produit produit) {
+        this.produit = produit;
+        return this;
     }
 
     @Override

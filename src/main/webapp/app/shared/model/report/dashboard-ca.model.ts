@@ -1,0 +1,119 @@
+/**
+ * Daily CA Summary
+ */
+export interface IDailyCA {
+  saleDate?: string;
+  nbTransactions?: number;
+  nbAvoirs?: number;
+  caTotal?: number;
+  caAvoirs?: number;
+  caNet?: number;
+  panierMoyen?: number;
+  coutTotal?: number;
+  margeBrute?: number;
+  tauxMargePct?: number;
+  nbClients?: number;
+  montantEncaisse?: number;
+  montantCredit?: number;
+}
+
+/**
+ * Payment Method CA Distribution
+ */
+export interface IPaymentMethodCA {
+  paymentDate?: string;
+  paymentMethod?: string;
+  paymentCode?: string;
+  nbPayments?: number;
+  montantTotal?: number;
+  montantAvoirs?: number;
+  montantMoyen?: number;
+}
+
+/**
+ * Product Family CA Distribution
+ */
+export interface IProductFamilyCA {
+  saleDate?: string;
+  famille?: string;
+  quantiteVendue?: number;
+  caTotal?: number;
+  coutTotal?: number;
+  margeBrute?: number;
+  tauxMargePct?: number;
+  nbLignesVente?: number;
+}
+
+/**
+ * Dashboard CA Summary with KPIs
+ */
+export interface IDashboardCASummary {
+  // Today
+  caToday?: number;
+  caTodayPrevious?: number;
+  caTodayEvolutionPct?: number;
+
+  // Week
+  caWeek?: number;
+  caWeekPrevious?: number;
+  caWeekEvolutionPct?: number;
+
+  // Month
+  caMonth?: number;
+  caMonthPrevious?: number;
+  caMonthEvolutionPct?: number;
+
+  // Year
+  caYear?: number;
+  caYearPrevious?: number;
+  caYearEvolutionPct?: number;
+
+  // Additional metrics
+  nbTransactionsToday?: number;
+  nbTransactionsWeek?: number;
+  nbTransactionsMonth?: number;
+  nbTransactionsYear?: number;
+
+  panierMoyenToday?: number;
+  panierMoyenWeek?: number;
+  panierMoyenMonth?: number;
+  panierMoyenYear?: number;
+
+  tauxMargeToday?: number;
+  tauxMargeWeek?: number;
+  tauxMargeMonth?: number;
+  tauxMargeYear?: number;
+}
+
+/**
+ * Dashboard CA Evolution for charts
+ */
+export interface IDashboardCAEvolution {
+  labels?: string[];
+  caValues?: number[];
+  caPreviousValues?: number[];
+  transactionCounts?: number[];
+  period?: 'daily' | 'weekly' | 'monthly';
+}
+
+/**
+ * Payment Method Distribution Summary (aggregated for pie chart)
+ */
+export interface IPaymentMethodSummary {
+  paymentMethod: string;
+  paymentCode: string;
+  montantTotal: number;
+  nbPayments: number;
+  percentage: number;
+}
+
+/**
+ * Product Family Distribution Summary (aggregated for bar chart)
+ */
+export interface IProductFamilySummary {
+  famille: string;
+  caTotal: number;
+  margeBrute: number;
+  tauxMargePct: number;
+  percentage: number;
+}

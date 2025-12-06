@@ -1,0 +1,45 @@
+<div class="container-fluid">
+  <div class="row">
+    <div class="col-lg-2 col-xl-2 col-md-2 col-sm-4">
+      <!-- Modern Navigation Sidebar -->
+      <div class="pharma-nav-sidebar">
+        <div class="pharma-nav-sidebar-card">
+          <div class="pharma-nav-sidebar-header">
+            <i class="pi pi-users"></i>
+            <span>Clients & Fournisseurs</span>
+          </div>
+
+          <div class="pharma-nav-sidebar-content">
+            <div #nav="ngbNav" [(activeId)]="active" class="nav flex-column nav-pills" ngbNav orientation="vertical">
+              <ng-container ngbNavItem="customer-segmentation">
+                <a class="pharma-nav-vertical-link" ngbNavLink>
+                  <i class="pi pi-user"></i>
+                  <span>Segmentation Clients</span>
+                  <span class="link-arrow">›</span>
+                </a>
+                <ng-template ngbNavContent>
+                  <jhi-customer-segmentation></jhi-customer-segmentation>
+                </ng-template>
+              </ng-container>
+
+              <ng-container ngbNavItem="supplier-performance">
+                <a class="pharma-nav-vertical-link" ngbNavLink>
+                  <i class="pi pi-truck"></i>
+                  <span>Performance Fournisseurs</span>
+                  <span class="link-arrow">›</span>
+                </a>
+                <ng-template ngbNavContent>
+                  <jhi-supplier-performance></jhi-supplier-performance>
+                </ng-template>
+              </ng-container>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-lg-10 col-xl-10 col-md-10 col-sm-8 pharma-smart-content">
+      <div [ngbNavOutlet]="nav"></div>
+    </div>
+  </div>
+</div>
